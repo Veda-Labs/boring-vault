@@ -25,6 +25,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
     address public itbAaveLidoPositionManager = 0xC4F5Ee078a1C4DA280330546C29840d45ab32753;
     address public itbAaveLidoPositionManager2 = 0x572F323Aa330B467C356c5a30Bf9A20480F4fD52;
     address public hyperlaneDecoderAndSanitizer = 0xfC823909C7D2Cb8701FE7d6EE74508C57Df1D6dE;
+    address public termFinanceDecoderAndSanitizer = 0xF8e9517e7e98D7134E306aD3747A50AC8dC1dbc9;
 
     function setUp() external {}
 
@@ -294,6 +295,24 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             address kingKarakTeller = 0x929B44db23740E65dF3A81eA4aAB716af1b88474;
             _addTellerLeafs(leafs, kingKarakTeller, tellerAssets);
         }
+
+        // ========================== Term ==========================
+        {
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", termFinanceDecoderAndSanitizer);
+            ERC20[] memory purchaseTokens = new ERC20[](1);
+            purchaseTokens[0] = getERC20(sourceChain, "WETH");
+            address[] memory termAuctionOfferLockerAddresses = new address[](1);
+            termAuctionOfferLockerAddresses[0] = 0x8b051F8Bc836EC4B01da563dB82df9CD22CA4884;
+            address[] memory termRepoLockers = new address[](1);
+            termRepoLockers[0] = 0x330e701F0523b445958f0484E6Ea3656c55932A4;
+            address[] memory termRepoServicers = new address[](1);
+            termRepoServicers[0] = 0x4895958D1F170Db5fD71bcf3B2cE0dA40A0e38FF;
+            _addTermFinanceLockOfferLeafs(leafs, purchaseTokens, termAuctionOfferLockerAddresses, termRepoLockers);
+            _addTermFinanceUnlockOfferLeafs(leafs, termAuctionOfferLockerAddresses);
+            _addTermFinanceRevealOfferLeafs(leafs, termAuctionOfferLockerAddresses);
+            _addTermFinanceRedeemTermRepoTokensLeafs(leafs, termRepoServicers);
+        }
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== ITB Reserve ==========================
         ERC20[] memory tokensUsed = new ERC20[](3);

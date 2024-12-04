@@ -57,46 +57,40 @@ contract CreateEtherFiBTCMerkleRootScript is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "accountantAddress", accountantAddress);
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](128);
+        ManageLeaf[] memory leafs = new ManageLeaf[](64);
 
         // ========================== Symbiotic ==========================
-        address[] memory defaultCollaterals = new address[](3);
+        address[] memory defaultCollaterals = new address[](2);
         defaultCollaterals[0] = getAddress(sourceChain, "wBTCDefaultCollateral");
-        defaultCollaterals[1] = getAddress(sourceChain, "tBTCDefaultCollateral");
-        defaultCollaterals[2] = getAddress(sourceChain, "LBTCDefaultCollateral");
+        defaultCollaterals[1] = getAddress(sourceChain, "LBTCDefaultCollateral");
         _addSymbioticLeafs(leafs, defaultCollaterals);
 
         // ========================== UniswapV3 ==========================
         address[] memory token0 = new address[](3);
         token0[0] = getAddress(sourceChain, "WBTC");
         token0[1] = getAddress(sourceChain, "WBTC");
-        token0[2] = getAddress(sourceChain, "TBTC");
+        token0[2] = getAddress(sourceChain, "LBTC");
 
         address[] memory token1 = new address[](3);
-        token1[0] = getAddress(sourceChain, "TBTC");
-        token1[1] = getAddress(sourceChain, "LBTC");
-        token1[2] = getAddress(sourceChain, "LBTC");
+        token1[0] = getAddress(sourceChain, "LBTC");
+        token1[1] = getAddress(sourceChain, "cbBTC");
+        token1[2] = getAddress(sourceChain, "cbBTC");
 
         _addUniswapV3Leafs(leafs, token0, token1);
 
         // ========================== 1inch ==========================
-        address[] memory assets = new address[](5);
-        SwapKind[] memory kind = new SwapKind[](5);
+        address[] memory assets = new address[](3);
+        SwapKind[] memory kind = new SwapKind[](3);
         assets[0] = getAddress(sourceChain, "WBTC");
         kind[0] = SwapKind.BuyAndSell;
-        assets[1] = getAddress(sourceChain, "TBTC");
+        assets[1] = getAddress(sourceChain, "LBTC");
         kind[1] = SwapKind.BuyAndSell;
-        assets[2] = getAddress(sourceChain, "LBTC");
+        assets[2] = getAddress(sourceChain, "cbBTC");
         kind[2] = SwapKind.BuyAndSell;
-        assets[3] = getAddress(sourceChain, "fBTC");
-        kind[3] = SwapKind.BuyAndSell;
-        assets[4] = getAddress(sourceChain, "cbBTC");
-        kind[4] = SwapKind.BuyAndSell;
         _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
 
         // ========================== Karak ==========================
         _addKarakLeafs(leafs, getAddress(sourceChain, "vaultSupervisor"), getAddress(sourceChain, "kWBTC"));
-        _addKarakLeafs(leafs, getAddress(sourceChain, "vaultSupervisor"), getAddress(sourceChain, "kFBTC"));
         _addKarakLeafs(leafs, getAddress(sourceChain, "vaultSupervisor"), getAddress(sourceChain, "kLBTC"));
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

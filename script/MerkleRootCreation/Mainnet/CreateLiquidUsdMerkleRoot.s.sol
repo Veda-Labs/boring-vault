@@ -621,14 +621,18 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== Term ==========================
         {
-            ERC20[] memory purchaseTokens = new ERC20[](1);
+            ERC20[] memory purchaseTokens = new ERC20[](2);
             purchaseTokens[0] = getERC20(sourceChain, "USDC");
-            address[] memory termAuctionOfferLockerAddresses = new address[](1);
+            purchaseTokens[1] = getERC20(sourceChain, "USDC");
+            address[] memory termAuctionOfferLockerAddresses = new address[](2);
             termAuctionOfferLockerAddresses[0] = 0x55580a11c5C111EE2e36e24aef04443Bf130F092;
-            address[] memory termRepoLockers = new address[](1);
+            termAuctionOfferLockerAddresses[1] = 0x35ff5064C57d7E9531d9E70e36a49703aBDa3Df4;
+            address[] memory termRepoLockers = new address[](2);
             termRepoLockers[0] = 0xDFC8271C70303B0d98819267f93F86EfFe9BC3AD;
-            address[] memory termRepoServicers = new address[](1);
+            termRepoLockers[1] = 0xF8FdFAD735e9A8fD8f5e7B8e2073A25F812168A1;
+            address[] memory termRepoServicers = new address[](2);
             termRepoServicers[0] = 0x65Cc6CD9d99f497053C3978b8724B05d2aE03D17;
+            termRepoServicers[1] = 0x648C24e31b0FC9c8652d7DA7133498A48E03Bd25;
             _addTermFinanceLockOfferLeafs(leafs, purchaseTokens, termAuctionOfferLockerAddresses, termRepoLockers);
             _addTermFinanceUnlockOfferLeafs(leafs, termAuctionOfferLockerAddresses);
             _addTermFinanceRevealOfferLeafs(leafs, termAuctionOfferLockerAddresses);
