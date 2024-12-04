@@ -1286,6 +1286,7 @@ contract ChainValues {
 
         values[sonicBlaze]["WETH"] = address(1).toBytes32();
         values[sonicBlaze]["CrispyUSD"] = 0x867F14Da2EcD4B582812d76D94c4B10cB00b507C.toBytes32();
+        values[sonicBlaze]["sUSD"] = 0xd3DCe716f3eF535C5Ff8d041c1A41C3bd89b97aE.toBytes32();
         values[sonicBlaze]["ZRO"] = address(1).toBytes32();
 
         values[sonicBlaze]["balancerVault"] = address(1).toBytes32();

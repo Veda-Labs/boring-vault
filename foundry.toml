@@ -34,9 +34,11 @@ linea = "${LINEA_RPC_URL}"
 sepolia = "${SEPOLIA_RPC_URL}"
 sonicTestnet = "${SONIC_TESTNET_RPC_URL}"
 corn = "${CORN_MAIZENET_RPC_URL}"
+sonicBlaze = "${SONIC_BLAZE_RPC_URL}"
 
 [etherscan]
 corn = { key = "${CORNSCAN_KEY}", chain = 21000000, url = "https://api.routescan.io/v2/network/mainnet/evm/21000000/etherscan" }
+sonicBlaze = { key = "${SONIC_BLAZESCAN_KEY}", chain = 57054, url = "https://api.routescan.io/v2/network/testnet/evm/57054/etherscan" }
 arbitrum = { key = "${ARBISCAN_KEY}" }
 mainnet = { key = "${ETHERSCAN_KEY}" }
 polygon = { key = "${POLYGONSCAN_KEY}" }

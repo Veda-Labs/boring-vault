@@ -1,0 +1,165 @@
+{
+  "deploymentParameters": {
+    "logLevel": 4,
+    "privateKeyEnvName": "BORING_DEVELOPER",
+    "chainName": "sonicBlaze",
+    "evmVersion": "london",
+    "desiredNumberOfDeploymentTxs": 3,
+    "txBundlerAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "txBundlerAddress"
+    },
+    "setupRoles": true,
+    "setupTestUser": true,
+    "saveDeploymentDetails": true,
+    "testUserAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "dev1Address"
+    },
+    "deployerContractAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "deployerAddress"
+    },
+    "nativeWrapperAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "WETH"
+    },
+    "deploymentOwnerAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "txBundlerAddress"
+    },
+    "deploymentFileName": "addresses/SonicBlaze/StakedSonicUSD.json"
+  },
+  "rolesAuthorityConfiguration": {
+    "rolesAuthorityDeploymentName": "Staked Sonic USD Roles Authority V0.0"
+  },
+  "lensConfiguration": {
+    "lensDeploymentName": "Arctic Architecture Lens V0.0"
+  },
+  "boringVaultConfiguration": {
+    "boringVaultDeploymentName": "Staked Sonic USD Boring Vault V0.0",
+    "boringVaultName": "Staked Sonic USD",
+    "boringVaultSymbol": "stksUSD",
+    "boringVaultDecimals": 6
+  },
+  "managerConfiguration": {
+    "managerDeploymentName": "Staked Sonic USD Manager V0.0",
+    "balancerVaultAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "balancerVault"
+    }
+  },
+  "accountantConfiguration": {
+    "accountantDeploymentName": "Staked Sonic USD Accountant V0.0",
+    "accountantParameters": {
+      "kind": {
+        "variableRate": false,
+        "fixedRate": true
+      },
+      "payoutConfiguration": {
+        "payoutTo": "0x0000000000000000000000000000000000000000",
+        "optionalPaymentSplitterName": "Staked Sonic USD Payment Splitter V0.0",
+        "splits": [
+          {
+            "to": "0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b",
+            "percent": 5000
+          },
+          {
+            "to": "0xf8553c8552f906C19286F21711721E206EE4909E",
+            "percent": 5000
+          }
+        ]
+      },
+      "accountantDeploymentParameters": {
+        "allowedExchangeRateChangeLower": 9900,
+        "allowedExchangeRateChangeUpper": 10000,
+        "baseAddressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "sUSD"
+        },
+        "minimumUpateDelayInSeconds": 86400,
+        "performanceFee": 100,
+        "platformFee": 100,
+        "startingExchangeRate": 1000000
+      }
+    }
+  },
+  "tellerConfiguration": {
+    "tellerDeploymentName": "Staked Sonic USD Teller V0.0",
+    "tellerParameters": {
+      "allowPublicDeposits": true,
+      "shareLockPeriod": 60,
+      "kind": {
+        "teller": true,
+        "tellerWithRemediation": false,
+        "tellerWithCcip": false,
+        "tellerWithLayerZero": false
+      }
+    }
+  },
+  "boringQueueConfiguration": {
+    "boringQueueDeploymentName": "Staked Sonic USD Boring Queue V0.0",
+    "boringQueueSolverName": "Staked Sonic USD Boring Solver V0.0",
+    "queueParameters": {
+      "allowPublicWithdrawals": true,
+      "allowPublicSelfWithdrawals": true,
+      "kind": {
+        "boringQueue": true,
+        "boringQueueWithTracking": false
+      }
+    }
+  },
+  "droneConfiguration": {
+    "droneDeploymentBaseName": "Staked Sonic USD Drone V0.0",
+    "droneCount": 0,
+    "safeGasToForwardNative": 21000
+  },
+  "pauserConfiguration": {
+    "shouldDeploy": false,
+    "pauserDeploymentName": "Staked Sonic USD Pauser V0.0",
+    "makeGenericPauser": ["0x0000000000000000000000000000000000000000"],
+    "makeGenericUnpauser": ["0x0000000000000000000000000000000000000000"],
+    "makePauseAll": ["0x0000000000000000000000000000000000000000"],
+    "makeUnpauseAll": ["0x0000000000000000000000000000000000000000"],
+    "senderToPausable": [
+      {
+        "sender": "0x0000000000000000000000000000000000000000",
+        "pausable": "0x0000000000000000000000000000000000000000"
+      }
+    ]
+  },
+  "timelockConfiguration": {
+    "shouldDeploy": false,
+    "timelockDeploymentName": "Staked Sonic USD Timelock V0.0",
+    "timelockParameters": {
+      "minDelay": 86400,
+      "proposers": ["0x0000000000000000000000000000000000000000"],
+      "executors": ["0x0000000000000000000000000000000000000000"]
+    }
+  },
+  "accountantAssets": [],
+  "depositAssets": [
+    {
+      "addressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "sUSD"
+      },
+      "allowDeposits": true,
+      "allowWithdraws": true,
+      "sharePremium": 0
+    }
+  ],
+  "withdrawAssets": [
+    {
+      "addressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "sUSD"
+      },
+      "maxDiscount": 100,
+      "minDiscount": 0,
+      "minimumSecondsToDeadline": 3600,
+      "minimumShares": 0,
+      "secondsToMaturity": 60
+    }
+  ]
+}
