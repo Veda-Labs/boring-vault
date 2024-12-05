@@ -3,7 +3,7 @@
 # This overrides the `auto_detect_solc` value
 solc_version = '0.8.21'
 auto_detect_solc = false
-evm_version = 'cancun'
+evm_version = 'london'
 optimizer = true
 optimizer_runs = 200
 fs_permissions = [{ access = "read-write", path = "./" }]
@@ -37,13 +37,13 @@ corn = "${CORN_MAIZENET_RPC_URL}"
 
 [etherscan]
 corn = { key = "${CORNSCAN_KEY}", chain = 21000000, url = "https://api.routescan.io/v2/network/mainnet/evm/21000000/etherscan" }
-arbitrum = { key = "${ARBISCAN_KEY}" }
-mainnet = { key = "${ETHERSCAN_KEY}" }
-polygon = { key = "${POLYGONSCAN_KEY}" }
-bsc = { key = "${BSCSCAN_KEY}" }
-avalanche = { key = "${SNOWTRACE_KEY}" }
-optimism = { key = "${OPTIMISMSCAN_KEY}" }
-base = { key = "${BASESCAN_KEY}" }
+#arbitrum = { key = "${ARBISCAN_KEY}" }
+#mainnet = { key = "${ETHERSCAN_KEY}" }
+#polygon = { key = "${POLYGONSCAN_KEY}" }
+#bsc = { key = "${BSCSCAN_KEY}" }
+#avalanche = { key = "${SNOWTRACE_KEY}" }
+#optimism = { key = "${OPTIMISMSCAN_KEY}" }
+#base = { key = "${BASESCAN_KEY}" }
 
 [fmt]
 FOUNDRY_FMT_LINE_LENGTH = 120

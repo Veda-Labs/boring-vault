@@ -4,7 +4,7 @@
     "privateKeyEnvName": "BORING_DEVELOPER",
     "chainName": "corn",
     "evmVersion": "london",
-    "desiredNumberOfDeploymentTxs": 10,
+    "desiredNumberOfDeploymentTxs": 15,
     "txBundlerAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
       "name": "deployerAddress"
@@ -31,26 +31,26 @@
     "deploymentFileName": "addresses/Corn/BTCNDeployment.json"
   },
   "rolesAuthorityConfiguration": {
-    "rolesAuthorityDeploymentName": "Staked BTCN Roles Authority V0.0"
+    "rolesAuthorityDeploymentName": "Staked BTCN Roles Authority V0.2"
   },
   "lensConfiguration": {
-    "lensDeploymentName": "Arctic Architecture Lens V0.0"
+    "lensDeploymentName": "Arctic Architecture Lens V0.2"
   },
   "boringVaultConfiguration": {
-    "boringVaultDeploymentName": "Staked BTCN Boring Vault V0.0",
+    "boringVaultDeploymentName": "Staked BTCN Boring Vault V0.2",
     "boringVaultName": "Staked BTCN",
     "boringVaultSymbol": "sBTCN",
     "boringVaultDecimals": 18
   },
   "managerConfiguration": {
-    "managerDeploymentName": "Staked BTCN Manager V0.0",
+    "managerDeploymentName": "Staked BTCN Manager V0.2",
     "balancerVaultAddressOrName": {
       "address": "0x0000000000000000000000000000000000000001",
       "name": "balancerVault"
     }
   },
   "accountantConfiguration": {
-    "accountantDeploymentName": "Staked BTCN Accountant V0.0",
+    "accountantDeploymentName": "Staked BTCN Accountant V0.2",
     "accountantParameters": {
       "kind": {
         "variableRate": true,
@@ -58,7 +58,7 @@
       },
       "payoutConfiguration": {
         "payoutTo": "0x0000000000000000000000000000000000000000",
-        "optionalPaymentSplitterName": "Staked BTCN Payment Splitter V0.0",
+        "optionalPaymentSplitterName": "Staked BTCN Payment Splitter V0.2",
         "splits": [
           {
             "to": "0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b",
@@ -74,22 +74,22 @@
           "name": "WBTCN"
         },
         "minimumUpateDelayInSeconds": 21600,
-        "performanceFee": 100,
-        "platformFee": 100,
+        "performanceFee": 0,
+        "platformFee": 0,
         "startingExchangeRate": 1000000000000000000
       }
     }
   },
   "tellerConfiguration": {
-    "tellerDeploymentName": "Staked BTCN Teller V0.0",
+    "tellerDeploymentName": "Staked BTCN Teller V0.2",
     "tellerParameters": {
       "allowPublicDeposits": true,
       "shareLockPeriod": 60,
       "kind": {
-        "teller": true,
+        "teller": false,
         "tellerWithRemediation": false,
         "tellerWithCcip": false,
-        "tellerWithLayerZero": false
+        "tellerWithLayerZero": true
       },
       "ccip": {
         "routerAddressOrName": {
@@ -98,14 +98,14 @@
         },
         "ccipChains": [
           {
-            "chainSelector": 1,
             "allowMessagesFrom": true,
             "allowMessagesTo": true,
+            "chainSelector": 1,
+            "messageGasLimit": 100000,
             "targetTellerOrSelf": {
               "address": "0x0000000000000000000000000000000000000000",
               "self": true
-            },
-            "messageGasLimit": 100000
+            }
           }
         ]
       },
@@ -120,7 +120,7 @@
         },
         "lzChains": [
           {
-            "chainId": 1,
+            "chainId": 30101,
             "allowMessagesFrom": true,
             "allowMessagesTo": true,
             "targetTellerOrSelf": {
@@ -134,8 +134,8 @@
     }
   },
   "boringQueueConfiguration": {
-    "boringQueueDeploymentName": "Staked BTCN Boring Queue V0.0",
-    "boringQueueSolverName": "Staked BTCN Boring Solver V0.0",
+    "boringQueueDeploymentName": "Staked BTCN Boring Queue V0.2",
+    "boringQueueSolverName": "Staked BTCN Boring Solver V0.2",
     "queueParameters": {
       "allowPublicWithdrawals": true,
       "allowPublicSelfWithdrawals": true,
@@ -146,27 +146,27 @@
     }
   },
   "droneConfiguration": {
-    "droneDeploymentBaseName": "Staked BTCN Drone V0.0",
+    "droneDeploymentBaseName": "Staked BTCN Drone V0.2",
     "droneCount": 0,
     "safeGasToForwardNative": 21000
   },
   "pauserConfiguration": {
     "shouldDeploy": true,
-    "pauserDeploymentName": "pauser",
+    "pauserDeploymentName": "Staked BTCN Pauser V0.2",
     "makeGenericPauser": ["0x0000000000000000000000000000000000000000"],
     "makeGenericUnpauser": ["0x0000000000000000000000000000000000000000"],
     "makePauseAll": ["0x0000000000000000000000000000000000000000"],
     "makeUnpauseAll": ["0x0000000000000000000000000000000000000000"],
     "senderToPausable": [
       {
-        "sender": "0x0000000000000000000000000000000000000000",
-        "pausable": "0x0000000000000000000000000000000000000000"
+        "pausable": "0x0000000000000000000000000000000000000001",
+        "sender": "0x0000000000000000000000000000000000000002"
       }
     ]
   },
   "timelockConfiguration": {
     "shouldDeploy": false,
-    "timelockDeploymentName": "timelock",
+    "timelockDeploymentName": "Staked BTCN Timelock V0.2",
     "timelockParameters": {
       "minDelay": 86400,
       "proposers": ["0x0000000000000000000000000000000000000000"],
@@ -191,8 +191,8 @@
         "address": "0x0000000000000000000000000000000000000000",
         "name": "WBTCN"
       },
-      "maxDiscount": 100,
-      "minDiscount": 0,
+      "maxDiscount": 10,
+      "minDiscount": 1,
       "minimumSecondsToDeadline": 3600,
       "minimumShares": 0,
       "secondsToMaturity": 60

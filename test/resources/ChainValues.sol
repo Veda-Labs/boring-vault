@@ -24,6 +24,7 @@ contract ChainValues {
     string public constant holesky = "holesky";
     string public constant sepolia = "sepolia";
     string public constant sonicTestnet = "sonicTestnet";
+    string public constant sonicBlaze = "sonicBlaze";
 
     // Bridging constants.
     uint64 public constant ccipArbitrumChainSelector = 4949039107694359620;
@@ -35,6 +36,7 @@ contract ChainValues {
     uint32 public constant layerZeroLineaEndpointId = 30183;
     uint32 public constant layerZeroScrollEndpointId = 30214;
     uint32 public constant layerZeroSepoliaEndpointId = 40161;
+    uint32 public constant layerZeroSonicBlazeEndpointId = 40349;
     uint32 public constant hyperlaneMainnetEndpointId = 1;
     uint32 public constant hyperlaneEclipseEndpointId = 1408864445;
 
@@ -92,6 +94,7 @@ contract ChainValues {
         _addHoleskyValues();
         _addSepoliaValues();
         _addSonicTestnetValues();
+        _addSonicBlazeValues();
     }
 
     function _addMainnetValues() private {
@@ -1243,6 +1246,11 @@ contract ChainValues {
 
         // Tokens
         values[corn]["WBTCN"] = 0xda5dDd7270381A7C2717aD10D1c0ecB19e3CDFb2.toBytes32();
+        values[corn]["ZRO"] = address(69).toBytes32(); 
+
+        // Layer Zero 
+        values[corn]["LayerZeroEndPoint"] = 0xcb566e3B6934Fa77258d68ea18E931fa75e1aaAa.toBytes32();
+
     }
 
     function _addSepoliaValues() private {
@@ -1272,6 +1280,21 @@ contract ChainValues {
 
         values[sonicTestnet]["balancerVault"] = address(1).toBytes32();
 
-        values[sonicTestnet]["LayerZeroEndPoint"] = 0x6EDCE65403992e310A62460808c4b910D972f10f.toBytes32();
+        values[sonicTestnet]["LayerZeroEndPoint"] = 0x6C7Ab2202C98C4227C5c46f1417D81144DA716Ff.toBytes32();
+    }
+
+    function _addSonicBlazeValues() private {
+        values[sonicBlaze]["dev0Address"] = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b.toBytes32();
+        values[sonicBlaze]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
+        values[sonicBlaze]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        values[sonicBlaze]["txBundlerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+
+        values[sonicBlaze]["WETH"] = address(1).toBytes32();
+        values[sonicBlaze]["CrispyUSD"] = 0x867F14Da2EcD4B582812d76D94c4B10cB00b507C.toBytes32();
+        values[sonicBlaze]["ZRO"] = address(1).toBytes32();
+
+        values[sonicBlaze]["balancerVault"] = address(1).toBytes32();
+
+        values[sonicBlaze]["LayerZeroEndPoint"] = 0x6C7Ab2202C98C4227C5c46f1417D81144DA716Ff.toBytes32();
     }
 }
