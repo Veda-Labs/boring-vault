@@ -104,7 +104,7 @@ contract BoringDrone is ERC721Holder, ERC1155Holder {
      * @notice The real target is extracted from the call data using `extractTargetFromCalldata()`.
      * @notice The drone then forwards
      */
-    fallback() external payable onlyBoringVault {
+    fallback() external payable virtual onlyBoringVault {
         // Extract real target from end of calldata
         address target = DroneLib.extractTargetFromCalldata();
 
