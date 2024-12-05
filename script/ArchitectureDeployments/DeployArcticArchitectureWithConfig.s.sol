@@ -40,6 +40,7 @@ import {console} from "@forge-std/Test.sol";
  *  source .env && forge script script/ArchitectureDeployments/DeployArcticArchitectureWithConfig.s.sol:DeployArcticArchitectureWithConfigScript --sig "run(string)" config.json --with-gas-price 3000000000 --broadcast --slow --verify
  * @dev Optionally can change `--with-gas-price` to something more reasonable
  *  source .env && forge script script/ArchitectureDeployments/DeployArcticArchitectureWithConfig.s.sol:DeployArcticArchitectureWithConfigScript --sig "run(string)" "config.json" --with-gas-price 3000000000
+ * @dev If getting `exceeds block gas limit` error, try passing in --block-gas-limit <BLOCK_GAS_LIMIT_FOR_CHAIN>
  */
 contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
     struct AddressOrName {
@@ -88,6 +89,32 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
         bool allowDeposits;
         bool allowWithdraws;
         uint16 sharePremium;
+    }
+
+    struct TargetTellerOrSelf {
+        address address_;
+        bool self;
+    }
+
+    struct CCIPChain {
+        bool allowMessagesFrom;
+        bool allowMessagesTo;
+        uint64 chainSelector;
+        uint64 messageGasLimit;
+        TargetTellerOrSelf targetTellerOrSelf;
+    }
+
+    struct LayerZeroChain {
+        bool allowMessagesFrom;
+        bool allowMessagesTo;
+        uint32 chainId;
+        uint128 messageGasLimit;
+        TargetTellerOrSelf targetTellerOrSelf;
+    }
+
+    struct SenderToPausable {
+        address pausable;
+        address sender;
     }
 
     // Contracts to deploy
@@ -344,9 +371,9 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
         _setupAccountantAssets();
         _setupDepositAssets();
         _setupWithdrawAssets();
-        // TODO if crosschain teller is used, then add the logic to add the ccip and lz chains.
+        _setupCrossChainTeller();
+        _setupPausers();
         _finalizeSetup();
-        // TODO setup pausers
         _setupTestUser();
         _saveContractAddresses();
         _bundleTxs();
@@ -701,6 +728,58 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
         }
     }
 
+    function _setupCrossChainTeller() internal {
+        bool tellerWithCcip = vm.parseJsonBool(rawJson, ".tellerConfiguration.tellerParameters.kind.tellerWithCcip");
+        bool tellerWithLayerZero =
+            vm.parseJsonBool(rawJson, ".tellerConfiguration.tellerParameters.kind.tellerWithLayerZero");
+        if (tellerWithCcip || tellerWithLayerZero) {
+            _log("Setting up cross chain teller", 3);
+            if (tellerWithCcip) {
+                // Set CCIP chains.
+                bytes memory ccipChainsRaw =
+                    vm.parseJson(rawJson, ".tellerConfiguration.tellerParameters.ccip.ccipChains");
+                CCIPChain[] memory ccipChains = abi.decode(ccipChainsRaw, (CCIPChain[]));
+                for (uint256 i; i < ccipChains.length; ++i) {
+                    _addTx(
+                        address(teller),
+                        abi.encodeWithSelector(
+                            ChainlinkCCIPTeller.addChain.selector,
+                            ccipChains[i].chainSelector,
+                            ccipChains[i].allowMessagesFrom,
+                            ccipChains[i].allowMessagesTo,
+                            ccipChains[i].targetTellerOrSelf.self
+                                ? address(teller)
+                                : ccipChains[i].targetTellerOrSelf.address_,
+                            ccipChains[i].messageGasLimit
+                        ),
+                        uint256(0)
+                    );
+                }
+            } else if (tellerWithLayerZero) {
+                // Set LayerZero chains.
+                bytes memory lzChainsRaw =
+                    vm.parseJson(rawJson, ".tellerConfiguration.tellerParameters.layerZero.lzChains");
+                LayerZeroChain[] memory lzChains = abi.decode(lzChainsRaw, (LayerZeroChain[]));
+                for (uint256 i; i < lzChains.length; ++i) {
+                    _addTx(
+                        address(teller),
+                        abi.encodeWithSelector(
+                            LayerZeroTeller.addChain.selector,
+                            lzChains[i].chainId,
+                            lzChains[i].allowMessagesFrom,
+                            lzChains[i].allowMessagesTo,
+                            lzChains[i].targetTellerOrSelf.self
+                                ? address(teller)
+                                : lzChains[i].targetTellerOrSelf.address_,
+                            lzChains[i].messageGasLimit
+                        ),
+                        uint256(0)
+                    );
+                }
+            }
+        } // else do nothing
+    }
+
     function _deployBoringOnChainQueue() internal {
         bytes memory constructorArgs;
         bytes memory creationCode;
@@ -787,6 +866,63 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
                 );
             } else {
                 pauserExists = true;
+            }
+        }
+    }
+
+    function _setupPausers() internal {
+        bool shouldDeployPauser = vm.parseJsonBool(rawJson, ".pauserConfiguration.shouldDeploy");
+        if (shouldDeployPauser) {
+            // Read the configuration for pauser roles
+            address[] memory genericPausers =
+                vm.parseJsonAddressArray(rawJson, ".pauserConfiguration.makeGenericPauser");
+            address[] memory genericUnpausers =
+                vm.parseJsonAddressArray(rawJson, ".pauserConfiguration.makeGenericUnpauser");
+            address[] memory pauseAll = vm.parseJsonAddressArray(rawJson, ".pauserConfiguration.makePauseAll");
+            address[] memory unpauseAll = vm.parseJsonAddressArray(rawJson, ".pauserConfiguration.makeUnpauseAll");
+            bytes memory senderToPausableRaw = vm.parseJson(rawJson, ".pauserConfiguration.senderToPausable");
+            SenderToPausable[] memory senderToPausables = abi.decode(senderToPausableRaw, (SenderToPausable[]));
+
+            // Assign roles to generic pausers
+            for (uint256 i = 0; i < genericPausers.length; i++) {
+                _grantRoleIfNotGranted(GENERIC_PAUSER_ROLE, genericPausers[i]);
+            }
+
+            // Assign roles to generic unpausers
+            for (uint256 i = 0; i < genericUnpausers.length; i++) {
+                _grantRoleIfNotGranted(GENERIC_UNPAUSER_ROLE, genericUnpausers[i]);
+            }
+
+            // Assign roles to pause all
+            for (uint256 i = 0; i < pauseAll.length; i++) {
+                _grantRoleIfNotGranted(PAUSE_ALL_ROLE, pauseAll[i]);
+            }
+
+            // Assign roles to unpause all
+            for (uint256 i = 0; i < unpauseAll.length; i++) {
+                _grantRoleIfNotGranted(UNPAUSE_ALL_ROLE, unpauseAll[i]);
+            }
+
+            // Assign sender pauser roles
+            for (uint256 i = 0; i < senderToPausables.length; i++) {
+                _log(
+                    string.concat(
+                        "Pauables Sender: ",
+                        vm.toString(senderToPausables[i].sender),
+                        " to Pausable: ",
+                        vm.toString(senderToPausables[i].pausable)
+                    ),
+                    4
+                );
+                _addTx(
+                    address(pauser),
+                    abi.encodeWithSelector(
+                        Pauser.updateSenderToPausable.selector,
+                        senderToPausables[i].sender,
+                        senderToPausables[i].pausable
+                    ),
+                    0
+                );
             }
         }
     }
@@ -1303,16 +1439,19 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
             _addTx(address(queueSolver), abi.encodeWithSelector(queueSolver.transferOwnership.selector, address(0)), 0);
         }
 
-        if (pauserExists) {
-            if (pauser.authority() != rolesAuthority) {
+        bool shouldDeployPauser = vm.parseJsonBool(rawJson, ".pauserConfiguration.shouldDeploy");
+        if (shouldDeployPauser) {
+            if (pauserExists) {
+                if (pauser.authority() != rolesAuthority) {
+                    _addTx(address(pauser), abi.encodeWithSelector(pauser.setAuthority.selector, rolesAuthority), 0);
+                }
+                if (pauser.owner() != address(0)) {
+                    _addTx(address(pauser), abi.encodeWithSelector(pauser.transferOwnership.selector, address(0)), 0);
+                }
+            } else {
                 _addTx(address(pauser), abi.encodeWithSelector(pauser.setAuthority.selector, rolesAuthority), 0);
-            }
-            if (pauser.owner() != address(0)) {
                 _addTx(address(pauser), abi.encodeWithSelector(pauser.transferOwnership.selector, address(0)), 0);
             }
-        } else {
-            _addTx(address(pauser), abi.encodeWithSelector(pauser.setAuthority.selector, rolesAuthority), 0);
-            _addTx(address(pauser), abi.encodeWithSelector(pauser.transferOwnership.selector, address(0)), 0);
         }
 
         // Setup roles.
@@ -1441,7 +1580,6 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
         address txBundler = _handleAddressOrName(".deploymentParameters.txBundlerAddressOrName");
 
         // TODO maybe I could have this save the txs to a json if it fails?
-        // vm.startBroadcast();
         vm.startBroadcast(privateKey);
         for (uint256 i; i < desiredNumberOfDeploymentTxs; i++) {
             _log(string.concat("Sending bundle: ", vm.toString(i)), 4);

@@ -2,9 +2,9 @@
   "deploymentParameters": {
     "logLevel": 4,
     "privateKeyEnvName": "BORING_DEVELOPER",
-    "chainName": "sepolia",
+    "chainName": "sonicBlaze",
     "evmVersion": "london",
-    "desiredNumberOfDeploymentTxs": 20,
+    "desiredNumberOfDeploymentTxs": 3,
     "txBundlerAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
       "name": "txBundlerAddress"
@@ -28,7 +28,7 @@
       "address": "0x0000000000000000000000000000000000000000",
       "name": "txBundlerAddress"
     },
-    "deploymentFileName": "addresses/Sepolia/SonicUSD.json"
+    "deploymentFileName": "addresses/SonicBlaze/SonicUSD.json"
   },
   "rolesAuthorityConfiguration": {
     "rolesAuthorityDeploymentName": "Sonic USD Roles Authority V0.1"
@@ -106,7 +106,7 @@
         },
         "lzChains": [
           {
-            "chainId": 40349,
+            "chainId": 40161,
             "allowMessagesFrom": true,
             "allowMessagesTo": true,
             "targetTellerOrSelf": {
