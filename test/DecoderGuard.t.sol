@@ -5,7 +5,7 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {DecoderGuard} from "src/base/Gnosis/DecoderGuard.sol";
+import {DecoderGuard, IMultiSend} from "src/base/Gnosis/DecoderGuard.sol";
 import {ITransactionGuard} from "src/interfaces/ITransactionGuard.sol";
 import {
     AaveGuardDecoderAndSanitizer,
@@ -28,6 +28,7 @@ contract DecoderGuardTest is Test {
     address constant spender = address(0xBEEF);
     uint256 constant amount = 1000e6; // 1000 USDC
     address constant multiSend = 0x9641d764fc13c8B624c04430C7356C1C7C8102e2;
+    address constant multiSendAddress = 0x9641d764fc13c8B624c04430C7356C1C7C8102e2;
     address constant gnosisSafe = 0x5061F6517591804391b38937c99057014B1EDb78;
     address constant aaveV3Pool = 0x794a61358D6845594F94dc1DB02A252b5b4814aD;
 
@@ -191,6 +192,93 @@ contract DecoderGuardTest is Test {
             address(this)
         );
     }
+
+    function testRevertUnsupportedMode() public {
+        // Test direct call with unsupported operation mode (DelegateCall)
+        bytes memory callData = abi.encodeWithSelector(ERC20.approve.selector, spender, amount);
+
+        vm.expectRevert(DecoderGuard.DecoderGuard__UnsupportedMode.selector);
+        decoderGuard.checkTransaction(
+            address(usdc),
+            0,
+            callData,
+            ITransactionGuard.Operation.DelegateCall, // Using DelegateCall instead of Call
+            0,
+            0,
+            0,
+            address(0),
+            payable(address(0)),
+            "",
+            address(this)
+        );
+    }
+
+    function testRevertMalformedHeader() public {
+        // Create malformed multiSend data with incorrect selector
+        bytes memory badSelector = hex"deadbeef"; // Wrong selector
+        bytes memory malformedData = abi.encodePacked(badSelector, bytes32(uint256(0x20)), bytes32(uint256(100)));
+
+        vm.expectRevert(DecoderGuard.DecoderGuard__MalformedHeader.selector);
+        decoderGuard.checkTransaction(
+            multiSendAddress,
+            0,
+            malformedData,
+            ITransactionGuard.Operation.DelegateCall,
+            0,
+            0,
+            0,
+            address(0),
+            payable(address(0)),
+            "",
+            address(this)
+        );
+    }
+
+    function testRevertMalformedBody() public {
+        // Set operation to Delegate Call for one of the entries.
+        bytes memory malformedData =
+            hex"8d80ff0a000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000001b200794a61358d6845594f94dc1db02a252b5b4814ad00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000084617ba03700000000000000000000000082af49447d8a07e3bd95bd0d56f35241523fbab1000000000000000000000000000000000000000000000000000009184e72a0000000000000000000000000005061f6517591804391b38937c99057014b1edb78000000000000000000000000000000000000000000000000000000000000000001794a61358d6845594f94dc1db02a252b5b4814ad00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000084617ba03700000000000000000000000082af49447d8a07e3bd95bd0d56f35241523fbab1000000000000000000000000000000000000000000000000000009184e72a0000000000000000000000000005061f6517591804391b38937c99057014b1edb7800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+
+        vm.expectRevert(DecoderGuard.DecoderGuard__MalformedBody.selector);
+        decoderGuard.checkTransaction(
+            multiSendAddress,
+            0,
+            malformedData,
+            ITransactionGuard.Operation.DelegateCall,
+            0,
+            0,
+            0,
+            address(0),
+            payable(address(0)),
+            "",
+            address(this)
+        );
+    }
+
+    function testRevertMalformedBodyEmptyTransactions() public {
+        // Create multiSend data with no transactions
+        bytes memory validHeader = abi.encodePacked(
+            IMultiSend.multiSend.selector,
+            bytes32(uint256(0x20)),
+            bytes32(uint256(0)) // Length 0 for transaction data
+        );
+
+        vm.expectRevert(DecoderGuard.DecoderGuard__MalformedBody.selector);
+        decoderGuard.checkTransaction(
+            multiSendAddress,
+            0,
+            validHeader,
+            ITransactionGuard.Operation.DelegateCall,
+            0,
+            0,
+            0,
+            address(0),
+            payable(address(0)),
+            "",
+            address(this)
+        );
+    }
+
     // ========================================= HELPER FUNCTIONS =========================================
 
     function _startFork(string memory rpcKey, uint256 blockNumber) internal returns (uint256 forkId) {

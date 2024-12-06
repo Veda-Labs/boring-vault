@@ -168,6 +168,7 @@ contract DecoderGuard is BaseTransactionGuard, Auth {
 
     /**
      * @notice Unwraps the multiSend call.
+     * @dev Logic based off implementation https://github.com/gnosisguild/zodiac-modifier-roles/blob/main/packages/evm/contracts/adapters/MultiSendUnwrapper.sol
      */
     function _unwrap(uint256 value, bytes calldata data, ITransactionGuard.Operation operation)
         internal
@@ -226,7 +227,7 @@ contract DecoderGuard is BaseTransactionGuard, Auth {
             // Length      32 bytes
             // Data        Length bytes
             uint8 operation = uint8(bytes1(data[offset:]));
-            if (operation > 1) {
+            if (operation > 0) {
                 revert DecoderGuard__MalformedBody();
             }
 
