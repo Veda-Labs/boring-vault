@@ -7,7 +7,11 @@ import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {DecoderGuard} from "src/base/Gnosis/DecoderGuard.sol";
 import {ITransactionGuard} from "src/interfaces/ITransactionGuard.sol";
-import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {
+    AaveGuardDecoderAndSanitizer,
+    AaveV3DecoderAndSanitizer,
+    BaseDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/AaveGuardDecoderAndSanitizer.sol";
 
 import {Test, stdStorage, StdStorage, stdError, console, Vm} from "@forge-std/Test.sol";
 
@@ -19,18 +23,22 @@ contract DecoderGuardTest is Test {
     DecoderGuard public decoderGuard;
     address public baseDecoderAndSanitizer;
 
-    ERC20 constant usdc = ERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48); // USDC on mainnet
+    ERC20 constant usdc = ERC20(0xaf88d065e77c8cC2239327C5EDb3A432268e5831); // USDC on arbitrum
+    ERC20 constant weth = ERC20(0x82aF49447D8a07e3bd95BD0d56f35241523fBab1); // WETH on arbitrum
     address constant spender = address(0xBEEF);
     uint256 constant amount = 1000e6; // 1000 USDC
+    address constant multiSend = 0x9641d764fc13c8B624c04430C7356C1C7C8102e2;
+    address constant gnosisSafe = 0x5061F6517591804391b38937c99057014B1EDb78;
+    address constant aaveV3Pool = 0x794a61358D6845594F94dc1DB02A252b5b4814aD;
 
     function setUp() external {
         // Setup forked environment.
-        string memory rpcKey = "MAINNET_RPC_URL";
+        string memory rpcKey = "ARBITRUM_RPC_URL";
         uint256 blockNumber = 20842935;
         _startFork(rpcKey, blockNumber);
 
-        baseDecoderAndSanitizer = address(new BaseDecoderAndSanitizer(address(0)));
-        decoderGuard = new DecoderGuard(address(this), Authority(address(0)), baseDecoderAndSanitizer);
+        baseDecoderAndSanitizer = address(new AaveGuardDecoderAndSanitizer());
+        decoderGuard = new DecoderGuard(address(this), Authority(address(0)), baseDecoderAndSanitizer, multiSend);
     }
 
     function testRevertWhenDigestNotValid() public {
@@ -43,28 +51,6 @@ contract DecoderGuardTest is Test {
         decoderGuard.checkTransaction(
             address(usdc), // to
             0, // value
-            approveCalldata,
-            ITransactionGuard.Operation.Call,
-            0,
-            0,
-            0,
-            address(0),
-            payable(address(0)),
-            "",
-            address(this)
-        );
-    }
-
-    function testSkipDigestCheck() public {
-        bytes memory approveCalldata = abi.encodeWithSelector(ERC20.approve.selector, spender, amount);
-
-        // Toggle skip check
-        decoderGuard.toggleSkipDigestCheck();
-
-        // Should pass without reverting
-        decoderGuard.checkTransaction(
-            address(usdc),
-            0,
             approveCalldata,
             ITransactionGuard.Operation.Call,
             0,
@@ -163,6 +149,48 @@ contract DecoderGuardTest is Test {
         );
     }
 
+    function testMultiSend() public {
+        bytes memory data =
+            hex"8d80ff0a000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000001b200794a61358d6845594f94dc1db02a252b5b4814ad00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000084617ba03700000000000000000000000082af49447d8a07e3bd95bd0d56f35241523fbab1000000000000000000000000000000000000000000000000000009184e72a0000000000000000000000000005061f6517591804391b38937c99057014b1edb78000000000000000000000000000000000000000000000000000000000000000000794a61358d6845594f94dc1db02a252b5b4814ad00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000084617ba03700000000000000000000000082af49447d8a07e3bd95bd0d56f35241523fbab1000000000000000000000000000000000000000000000000000009184e72a0000000000000000000000000005061f6517591804391b38937c99057014b1edb7800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+
+        // Make the aave supply call a valid digest.
+        bytes memory aaveSupplyCalldata =
+            abi.encodeWithSelector(AaveV3DecoderAndSanitizer.supply.selector, address(weth), 0, gnosisSafe, 0);
+        bytes32 digest = decoderGuard.makeDigestValid(aaveV3Pool, 0, aaveSupplyCalldata);
+
+        decoderGuard.checkTransaction(
+            address(multiSend),
+            0,
+            data,
+            ITransactionGuard.Operation.DelegateCall,
+            0,
+            0,
+            0,
+            address(0),
+            payable(address(0)),
+            "",
+            address(this)
+        );
+
+        // Make the digest invalid
+        decoderGuard.makeDigestInvalid(digest);
+
+        // Should revert after invalidating the digest
+        vm.expectRevert(abi.encodeWithSelector(DecoderGuard.DecoderGuard__DigestNotValid.selector, digest));
+        decoderGuard.checkTransaction(
+            address(multiSend),
+            0,
+            data,
+            ITransactionGuard.Operation.DelegateCall,
+            0,
+            0,
+            0,
+            address(0),
+            payable(address(0)),
+            "",
+            address(this)
+        );
+    }
     // ========================================= HELPER FUNCTIONS =========================================
 
     function _startFork(string memory rpcKey, uint256 blockNumber) internal returns (uint256 forkId) {

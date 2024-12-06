@@ -27,7 +27,7 @@ interface ITransactionGuard is IERC165 {
     function checkTransaction(
         address to,
         uint256 value,
-        bytes memory data,
+        bytes calldata data,
         Operation operation,
         uint256 safeTxGas,
         uint256 baseGas,

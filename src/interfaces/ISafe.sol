@@ -64,4 +64,9 @@ interface ISafe {
      * @return Threshold number.
      */
     function getThreshold() external view returns (uint256);
+
+    /**
+     * @notice Sets the transaction guard for the Safe.
+     */
+    function setGuard(address guard) external;
 }
