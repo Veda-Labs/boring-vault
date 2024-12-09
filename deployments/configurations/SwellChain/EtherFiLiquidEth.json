@@ -1,0 +1,161 @@
+{
+  "deploymentParameters": {
+    "logLevel": 4,
+    "privateKeyEnvName": "BORING_DEVELOPER",
+    "chainName": "swell",
+    "evmVersion": "shanghai",
+    "desiredNumberOfDeploymentTxs": 3,
+    "txBundlerAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "txBundlerAddress"
+    },
+    "setupRoles": true,
+    "setupTestUser": true,
+    "saveDeploymentDetails": true,
+    "testUserAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "dev1Address"
+    },
+    "deployerContractAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "deployerAddress"
+    },
+    "nativeWrapperAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "WETH"
+    },
+    "deploymentOwnerAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "txBundlerAddress"
+    },
+    "deploymentFileName": "addresses/SwellChain/EtherFiLiquidEth.json"
+  },
+  "rolesAuthorityConfiguration": {
+    "rolesAuthorityDeploymentName": "EtherFi Liquid ETH RolesAuthority Version 0.1"
+  },
+  "lensConfiguration": {
+    "lensDeploymentName": "Arctic Architecture Lens V0.0"
+  },
+  "boringVaultConfiguration": {
+    "boringVaultDeploymentName": "EtherFi Liquid ETH V0.1",
+    "boringVaultName": "Ether.Fi Liquid ETH",
+    "boringVaultSymbol": "liquidETH",
+    "boringVaultDecimals": 18
+  },
+  "managerConfiguration": {
+    "managerDeploymentName": "EtherFi Liquid ETH Manager V0.1",
+    "balancerVaultAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "balancerVault"
+    }
+  },
+  "accountantConfiguration": {
+    "accountantDeploymentName": "EtherFi Liquid ETH Accountant With Rate Providers V0.1",
+    "accountantParameters": {
+      "kind": {
+        "variableRate": true,
+        "fixedRate": false
+      },
+      "payoutConfiguration": {
+        "payoutTo": "0x0000000000000000000000000000000000000000",
+        "optionalPaymentSplitterName": "EtherFi Liquid ETH Payment Splitter V0.1",
+        "splits": [
+          {
+            "to": "0xf8553c8552f906C19286F21711721E206EE4909E",
+            "percent": 10000
+          }
+        ]
+      },
+      "accountantDeploymentParameters": {
+        "allowedExchangeRateChangeLower": 9950,
+        "allowedExchangeRateChangeUpper": 10050,
+        "baseAddressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "WETH"
+        },
+        "minimumUpateDelayInSeconds": 21600,
+        "performanceFee": 0,
+        "platformFee": 100,
+        "startingExchangeRate": 1041716490686123255
+      }
+    }
+  },
+  "tellerConfiguration": {
+    "tellerDeploymentName": "EtherFi Liquid ETH Teller With Multi Asset Support V0.1",
+    "tellerParameters": {
+      "allowPublicDeposits": false,
+      "shareLockPeriod": 60,
+      "kind": {
+        "teller": true,
+        "tellerWithRemediation": false,
+        "tellerWithCcip": false,
+        "tellerWithLayerZero": false
+      }
+    }
+  },
+  "boringQueueConfiguration": {
+    "boringQueueDeploymentName": "EtherFi Liquid ETH Boring Queue V0.1",
+    "boringQueueSolverName": "EtherFi Liquid ETH Boring Solver V0.1",
+    "queueParameters": {
+      "allowPublicWithdrawals": false,
+      "allowPublicSelfWithdrawals": false,
+      "kind": {
+        "boringQueue": true,
+        "boringQueueWithTracking": false
+      }
+    }
+  },
+  "droneConfiguration": {
+    "droneDeploymentBaseName": "EtherFi Liquid ETH Drone V0.1",
+    "droneCount": 0,
+    "safeGasToForwardNative": 21000
+  },
+  "pauserConfiguration": {
+    "shouldDeploy": true,
+    "pauserDeploymentName": "EtherFi Liquid ETH Pauser V0.1",
+    "makeGenericPauser": ["0x0000000000000000000000000000000000000000"],
+    "makeGenericUnpauser": ["0x0000000000000000000000000000000000000000"],
+    "makePauseAll": ["0x0000000000000000000000000000000000000000"],
+    "makeUnpauseAll": ["0x0000000000000000000000000000000000000000"],
+    "senderToPausable": [
+      {
+        "sender": "0x0000000000000000000000000000000000000000",
+        "pausable": "0x0000000000000000000000000000000000000000"
+      }
+    ]
+  },
+  "timelockConfiguration": {
+    "shouldDeploy": false,
+    "timelockDeploymentName": "EtherFi Liquid ETH Timelock V0.1",
+    "timelockParameters": {
+      "minDelay": 86400,
+      "proposers": ["0x0000000000000000000000000000000000000000"],
+      "executors": ["0x0000000000000000000000000000000000000000"]
+    }
+  },
+  "accountantAssets": [],
+  "depositAssets": [
+    {
+      "addressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "WETH"
+      },
+      "allowDeposits": true,
+      "allowWithdraws": true,
+      "sharePremium": 0
+    }
+  ],
+  "withdrawAssets": [
+    {
+      "addressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "WETH"
+      },
+      "maxDiscount": 10,
+      "minDiscount": 1,
+      "minimumSecondsToDeadline": 259200,
+      "minimumShares": 0,
+      "secondsToMaturity": 172800
+    }
+  ]
+}

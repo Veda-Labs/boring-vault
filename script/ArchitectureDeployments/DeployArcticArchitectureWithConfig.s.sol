@@ -39,6 +39,8 @@ import {console} from "@forge-std/Test.sol";
 /**
  *  source .env && forge script script/ArchitectureDeployments/DeployArcticArchitectureWithConfig.s.sol:DeployArcticArchitectureWithConfigScript --sig "run(string)" config.json --with-gas-price 3000000000 --broadcast --slow --verify
  * @dev Optionally can change `--with-gas-price` to something more reasonable
+ * @dev for non etherscan explorers, pass in the verifier and verifier url:
+ *      --verifier blockscout --verifier-url https://explorer.swellnetwork.io/api/
  *  source .env && forge script script/ArchitectureDeployments/DeployArcticArchitectureWithConfig.s.sol:DeployArcticArchitectureWithConfigScript --sig "run(string)" "config.json" --with-gas-price 3000000000
  */
 contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
