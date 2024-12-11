@@ -35,15 +35,15 @@ sepolia = "${SEPOLIA_RPC_URL}"
 sonicTestnet = "${SONIC_TESTNET_RPC_URL}"
 corn = "${CORN_MAIZENET_RPC_URL}"
 
-[etherscan]
-corn = { key = "${CORNSCAN_KEY}", chain = 21000000, url = "https://api.routescan.io/v2/network/mainnet/evm/21000000/etherscan" }
-arbitrum = { key = "${ARBISCAN_KEY}" }
-mainnet = { key = "${ETHERSCAN_KEY}" }
-polygon = { key = "${POLYGONSCAN_KEY}" }
-bsc = { key = "${BSCSCAN_KEY}" }
-avalanche = { key = "${SNOWTRACE_KEY}" }
-optimism = { key = "${OPTIMISMSCAN_KEY}" }
-base = { key = "${BASESCAN_KEY}" }
+#[etherscan]
+#corn = { key = "${CORNSCAN_KEY}", chain = 21000000, url = "https://api.routescan.io/v2/network/mainnet/evm/21000000/etherscan" }
+#arbitrum = { key = "${ARBISCAN_KEY}" }
+#mainnet = { key = "${ETHERSCAN_KEY}" }
+#polygon = { key = "${POLYGONSCAN_KEY}" }
+#bsc = { key = "${BSCSCAN_KEY}" }
+#avalanche = { key = "${SNOWTRACE_KEY}" }
+#optimism = { key = "${OPTIMISMSCAN_KEY}" }
+#base = { key = "${BASESCAN_KEY}" }
 
 [fmt]
 FOUNDRY_FMT_LINE_LENGTH = 120

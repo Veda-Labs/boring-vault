@@ -34,6 +34,7 @@ contract ChainValues {
     uint32 public constant layerZeroArbitrumEndpointId = 30110;
     uint32 public constant layerZeroLineaEndpointId = 30183;
     uint32 public constant layerZeroScrollEndpointId = 30214;
+    uint32 public constant layerZeroSwellEndpointId = 30335;  
     uint32 public constant layerZeroSepoliaEndpointId = 40161;
     uint32 public constant hyperlaneMainnetEndpointId = 1;
     uint32 public constant hyperlaneEclipseEndpointId = 1408864445;
@@ -565,6 +566,10 @@ contract ChainValues {
         values[mainnet]["gauntletCbBTCcore"] = 0xF587f2e8AfF7D76618d3B6B4626621860FbD54e3.toBytes32();
         values[mainnet]["MCcbBTC"] = 0x98cF0B67Da0F16E1F8f1a1D23ad8Dc64c0c70E0b.toBytes32();
         values[mainnet]["gauntletLBTCcore"] = 0xdC94785959B73F7A168452b3654E44fEc6A750e4.toBytes32();
+        values[mainnet]["gauntletWETHPrime"] = 0x2371e134e3455e0593363cBF89d3b6cf53740618.toBytes32(); 
+        values[mainnet]["gauntletWETHCore"] = 0x4881Ef0BF6d2365D3dd6499ccd7532bcdBCE0658.toBytes32(); 
+        values[mainnet]["mevCapitalwWeth"] = 0x9a8bC3B04b7f3D87cfC09ba407dCED575f2d61D8.toBytes32(); 
+        values[mainnet]["Re7WETH"] = 0x78Fc2c2eD1A4cDb5402365934aE5648aDAd094d0.toBytes32(); 
 
         values[mainnet]["uniswapV3PositionManager"] = 0xC36442b4a4522E871399CD717aBDD847Ab11FE88.toBytes32();
 
@@ -819,7 +824,7 @@ contract ChainValues {
 
         // Layer Zero.
         values[mainnet]["LayerZeroEndPoint"] = 0x1a44076050125825900e736c501f859c50fE728c.toBytes32();
-        values[mainnet]["EtherFiOFTAdapter"] = 0xFE7fe01F8B9A76803aF3750144C2715D9bcf7D0D.toBytes32();
+        values[mainnet]["EtherFiOFTAdapter"] = 0xcd2eb13D6831d4602D80E5db9230A57596CDCA63.toBytes32();
 
         // Merkl
         values[mainnet]["merklDistributor"] = 0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae.toBytes32();
