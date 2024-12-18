@@ -45,7 +45,7 @@ bsc = { key = "${BSCSCAN_KEY}" }
 avalanche = { key = "${SNOWTRACE_KEY}" }
 optimism = { key = "${OPTIMISMSCAN_KEY}" }
 base = { key = "${BASESCAN_KEY}" }
-sonicMainnet = { key = "${SONICSCAN_KEY}", chain = 146, url = "https://api.routescan.io/v2/network/mainnet/evm/146/etherscan" }
+sonicMainnet = { key = "${SONICSCAN_KEY}", chain = 146, url = "https://api.sonicscan.org/api" }
 
 [fmt]
 FOUNDRY_FMT_LINE_LENGTH = 120
