@@ -19,6 +19,7 @@ import {OnlyHyperlaneDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/O
 import {sBTCNMaizenetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/sBTCNMaizenetDecoderAndSanitizer.sol";
 import {UniBTCDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/UniBTCDecoderAndSanitizer.sol";
 import {EdgeCapitalDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EdgeCapitalDecoderAndSanitizer.sol";
+import {EtherFiLiquidBtcDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EtherFiLiquidBtcDecoderAndSanitizer.sol"; 
 
 import {BoringDrone} from "src/base/Drones/BoringDrone.sol";
 
@@ -33,30 +34,16 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     uint256 public privateKey;
     Deployer public deployer = Deployer(deployerAddress);
 
-    //address boringVault = 0x5401b8620E5FB570064CA9114fd1e135fd77D57c;
-
-    //address eEigen = 0xE77076518A813616315EaAba6cA8e595E845EeE9;
-
-    //address boringVault = 0xf6d71c15657A7f2B9aeDf561615feF9E05fE2cb3;
-
-    //address eEigen = 0xE77076518A813616315EaAba6cA8e595E845EeE9;
-
-    //address eEigen = 0xE77076518A813616315EaAba6cA8e595E845EeE9;
-
-    //address ultraUSDBoringVault = 0xbc0f3B23930fff9f4894914bD745ABAbA9588265;
-
-    //address liquidUsd = 0x08c6F91e2B681FaF5e17227F2a44C307b3C1364C;
-
-    address boringVault = 0x5E272ca4bD94e57Ec5C51D26703621Ccac1A7089;
+    address boringVault = 0x5f46d540b6eD704C3c8789105F30E075AA900726;
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("corn");
+        vm.createSelectFork("mainnet");
     }
 
     function run() external {
-        // bytes memory creationCode;
-        // bytes memory constructorArgs;
+        bytes memory creationCode;
+        bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
         // creationCode = type(AerodromeDecoderAndSanitizer).creationCode;
@@ -101,6 +88,10 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //creationCode = type(EdgeCapitalDecoderAndSanitizer).creationCode;
         //constructorArgs = abi.encode(ultraUSDBoringVault, uniswapV3NonFungiblePositionManager);
         //deployer.deployContract("Ultra Yield Stablecoin Vault Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        creationCode = type(EtherFiLiquidBtcDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(boringVault, uniswapV3NonFungiblePositionManager);
+        deployer.deployContract("EtherFi Liquid BTC Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
