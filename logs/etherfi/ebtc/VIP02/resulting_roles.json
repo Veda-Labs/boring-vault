@@ -1,0 +1,243 @@
+{
+  "Roles": {
+    "Manager": [
+      1,
+      4
+    ],
+    "SniperMicroManager": [
+      7
+    ],
+    "AtomicQueueSolver": [
+      12
+    ],
+    "Strategist": [
+      7,
+      10
+    ],
+    "Strategist 2": [
+      7,
+      10
+    ],
+    "Admin": [
+      9,
+      15,
+      17
+    ],
+    "Sniper": [
+      7
+    ],
+    "0x7aCDF2012aAC69D70B86677FE91eb66e08961880": [
+      100
+    ],
+    "0x5401b8620E5FB570064CA9114fd1e135fd77D57c": [
+      12
+    ],
+    "Teller": [
+      2,
+      3
+    ],
+    "0xc86cc613AA22CA1d476AEBA2c3C437bAc63eBFe7": [
+      100
+    ],
+    "0x96Af5d9e4d01FB892FD2D76bfC0e3C07AEcf8b6B": [
+      100
+    ],
+    "Timelock": [
+      8
+    ],
+    "Pauser": [
+      5
+    ],
+    "EtherFi Pauser": [
+      14,
+      16
+    ],
+    "Hypernative Pauser": [
+      14,
+      16
+    ],
+    "L0Teller": [
+      2,
+      3
+    ]
+  },
+  "Role Capabilities": {
+    "1": {
+      "Vault": [
+        "manage(address,bytes,uint256)",
+        "manage(address[],bytes[],uint256[])"
+      ]
+    },
+    "2": {
+      "Vault": [
+        "enter(address,address,uint256,address,uint256)"
+      ]
+    },
+    "3": {
+      "Vault": [
+        "exit(address,address,uint256,address,uint256)"
+      ]
+    },
+    "4": {
+      "Manager": [
+        "manageVaultWithMerkleVerification(bytes32[][],address[],address[],bytes[],uint256[])"
+      ]
+    },
+    "5": {
+      "L0Teller": [
+        "pause()",
+        "unpause()"
+      ],
+      "Manager": [
+        "pause()",
+        "unpause()"
+      ],
+      "Accountant": [
+        "pause()",
+        "unpause()"
+      ],
+      "Teller": [
+        "pause()",
+        "unpause()"
+      ]
+    },
+    "7": {
+      "Manager": [
+        "manageVaultWithMerkleVerification(bytes32[][],address[],address[],bytes[],uint256[])"
+      ]
+    },
+    "8": {
+      "Vault": [
+        "setAuthority(address)",
+        "transferOwnership(address)",
+        "setBeforeTransferHook(address)"
+      ],
+      "Accountant": [
+        "resetHighwaterMark()",
+        "updatePerformanceFee(uint16)",
+        "setAuthority(address)",
+        "transferOwnership(address)",
+        "updateDelay(uint24)",
+        "updateUpper(uint16)",
+        "updateLower(uint16)",
+        "updateManagementFee(uint16)",
+        "updatePayoutAddress(address)",
+        "setRateProviderData(address,bool,address)"
+      ],
+      "Manager": [
+        "setAuthority(address)",
+        "transferOwnership(address)",
+        "setManageRoot(address,bytes32)"
+      ],
+      "Teller": [
+        "setAuthority(address)",
+        "transferOwnership(address)",
+        "updateAssetData(address,bool,bool,uint16)",
+        "setShareLockPeriod(uint64)"
+      ],
+      "L0Teller": [
+        "addChain(uint32,bool,bool,address,uint128)",
+        "allowMessagesFromChain(uint32,address)",
+        "allowMessagesToChain(uint32,address,uint128)",
+        "setChainGasLimit(uint32,uint128)",
+        "updateAssetData(address,bool,bool,uint16)",
+        "setShareLockPeriod(uint64)",
+        "setAuthority(address)",
+        "transferOwnership(address)"
+      ]
+    },
+    "9": {
+      "Accountant": [
+        "pause()",
+        "unpause()"
+      ],
+      "Manager": [
+        "pause()",
+        "unpause()"
+      ],
+      "Teller": [
+        "pause()",
+        "unpause()"
+      ],
+      "L0Teller": [
+        "removeChain(uint32)",
+        "stopMessagesFromChain(uint32)",
+        "stopMessagesToChain(uint32)",
+        "setOutboundRateLimits((uint32,uint256,uint256)[])",
+        "setInboundRateLimits((uint32,uint256,uint256)[])",
+        "pause()",
+        "unpause()"
+      ]
+    },
+    "10": {
+      "Teller": [
+        "refundDeposit(uint256,address,address,uint256,uint256,uint256,uint256)",
+        "updateAssetData(address,bool,bool,uint16)"
+      ],
+      "L0Teller": [
+        "updateAssetData(address,bool,bool,uint16)",
+        "refundDeposit(uint256,address,address,uint256,uint256,uint256,uint256)"
+      ]
+    },
+    "12": {
+      "Teller": [
+        "bulkDeposit(address,uint256,uint256,address)",
+        "bulkWithdraw(address,uint256,uint256,address)"
+      ],
+      "L0Teller": [
+        "bulkDeposit(address,uint256,uint256,address)",
+        "bulkWithdraw(address,uint256,uint256,address)"
+      ]
+    },
+    "14": {
+      "Pauser": [
+        "pauseSingle(address)",
+        "pauseMultiple(address[])"
+      ]
+    },
+    "15": {
+      "Pauser": [
+        "unpauseSingle(address)",
+        "unpauseMultiple(address[])"
+      ]
+    },
+    "16": {
+      "Pauser": [
+        "pauseAll()"
+      ]
+    },
+    "17": {
+      "Pauser": [
+        "unpauseAll()"
+      ]
+    },
+    "18": {
+      "Pauser": [
+        "senderPause()"
+      ]
+    },
+    "19": {
+      "Pauser": [
+        "senderUnpause()"
+      ]
+    },
+    "100": {
+      "Teller": [
+        "bulkDeposit(address,uint256,uint256,address)"
+      ]
+    }
+  },
+  "Public Capabilities": {
+    "Teller": [
+      "deposit(address,uint256,uint256)",
+      "depositWithPermit(address,uint256,uint256,uint256,uint8,bytes32,bytes32)"
+    ],
+    "L0Teller": [
+      "deposit(address,uint256,uint256)",
+      "depositWithPermit(address,uint256,uint256,uint256,uint8,bytes32,bytes32)",
+      "depositAndBridge(address,uint256,uint256,address,bytes,address,uint256)",
+      "depositAndBridgeWithPermit(address,uint256,uint256,uint256,uint8,bytes32,bytes32,address,bytes,address,uint256)",
+      "bridge(uint96,address,bytes,address,uint256)"
+    ]
+  }
+}
