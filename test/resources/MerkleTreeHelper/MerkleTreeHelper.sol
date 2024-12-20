@@ -2294,6 +2294,8 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
                 tokenToSpenderToApprovalInTree[token1[i]][getAddress(sourceChain, "uniV3Router")] = true;
             }
 
+            //end swap only
+
             if (!swap_only) {
                 // Approvals for position manager
                 if (
@@ -2385,7 +2387,8 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
                 leafs[leafIndex].argumentAddresses[1] = token0[i];
                 leafs[leafIndex].argumentAddresses[2] = token1[i];
             }
-
+            
+            //BEGIN SWAP ONLY LEAVES
             // Swapping to move tick in pool.
             unchecked {
                 leafIndex++;
@@ -2420,6 +2423,9 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
             leafs[leafIndex].argumentAddresses[1] = token0[i];
             leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
         }
+        
+        //END FOR LOOP
+        //END SWAP ONLY LEAVES
 
         if (!swap_only) {
             // Decrease liquidity

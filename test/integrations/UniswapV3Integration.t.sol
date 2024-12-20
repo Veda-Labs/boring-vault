@@ -113,41 +113,46 @@ contract UniswapV3IntegrationTest is Test, MerkleTreeHelper {
         deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18);
         deal(getAddress(sourceChain, "WEETH"), address(boringVault), 1_000e18);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](32);
-        address[] memory token0 = new address[](2);
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
+        address[] memory token0 = new address[](1);
         token0[0] = getAddress(sourceChain, "WETH");
-        token0[1] = getAddress(sourceChain, "RETH");
-        address[] memory token1 = new address[](2);
+        //token0[1] = getAddress(sourceChain, "RETH");
+        address[] memory token1 = new address[](1);
         token1[0] = getAddress(sourceChain, "RETH");
-        token1[1] = getAddress(sourceChain, "WEETH");
+        //token1[1] = getAddress(sourceChain, "WEETH");
         _addUniswapV3Leafs(leafs, token0, token1, false);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
-        ManageLeaf[] memory manageLeafs = new ManageLeaf[](9);
-        manageLeafs[0] = leafs[3];
-        manageLeafs[1] = leafs[7];
-        manageLeafs[2] = leafs[0];
-        manageLeafs[3] = leafs[8];
-        manageLeafs[4] = leafs[10];
-        manageLeafs[5] = leafs[11];
-        manageLeafs[6] = leafs[14];
-        manageLeafs[7] = leafs[15];
-        manageLeafs[8] = leafs[16];
+        ManageLeaf[] memory manageLeafs = new ManageLeaf[](11);
+        manageLeafs[0] = leafs[0]; //leaf index 3 == token1[1] approval? 
+        manageLeafs[1] = leafs[1];
+        manageLeafs[2] = leafs[2];
+        manageLeafs[3] = leafs[3];
+        manageLeafs[4] = leafs[4];
+        manageLeafs[5] = leafs[5];
+        manageLeafs[6] = leafs[6];
+        manageLeafs[7] = leafs[7];
+        manageLeafs[8] = leafs[8];
+        manageLeafs[9] = leafs[9];
+        manageLeafs[10] = leafs[10];
+        manageLeafs[11] = leafs[11];
         bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 
-        address[] memory targets = new address[](9);
-        targets[0] = getAddress(sourceChain, "WETH");
-        targets[1] = getAddress(sourceChain, "uniV3Router");
-        targets[2] = getAddress(sourceChain, "RETH");
-        targets[3] = getAddress(sourceChain, "WEETH");
-        targets[4] = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager");
-        targets[5] = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager");
-        targets[6] = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager");
-        targets[7] = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager");
-        targets[8] = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager");
+        address[] memory targets = new address[](11);
+        targets[0] = getAddress(sourceChain, "WETH"); //approve router
+        targets[1] = getAddress(sourceChain, "RETH"); //approve router
+        targets[0] = getAddress(sourceChain, "WETH"); //approve nfpm
+        targets[1] = getAddress(sourceChain, "RETH"); //approve nfpm
+        targets[1] = getAddress(sourceChain, "uniV3Router"); //swap 0
+        targets[1] = getAddress(sourceChain, "uniV3Router"); //swap 1
+        targets[4] = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"); //mint
+        targets[5] = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"); //increase liq
+        targets[6] = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"); //decrease liq
+        targets[7] = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"); //collect
+        targets[8] = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"); //burn
         bytes[] memory targetData = new bytes[](9);
         targetData[0] = abi.encodeWithSignature(
             "approve(address,uint256)", getAddress(sourceChain, "uniV3Router"), type(uint256).max
