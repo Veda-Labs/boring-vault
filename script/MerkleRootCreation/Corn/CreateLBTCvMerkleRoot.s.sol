@@ -10,13 +10,13 @@ import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper
 import "forge-std/Script.sol";
 
 /**
- *  source .env && forge script script/MerkleRootCreation/Corn/CreateStakedBTCNMerkleRoot.s.sol:CreateStakedBTCNMerkleRoot --rpc-url $CORN_MAIZENET_RPC_URL */
-contract CreateStakedBTCNMerkleRoot is Script, MerkleTreeHelper {
+ *  source .env && forge script script/MerkleRootCreation/Corn/CreateLBTCvMerkleRoot.s.sol:CreateLBTCvMerkleRoot --rpc-url $CORN_MAIZENET_RPC_URL */
+contract CreateLBTCvMerkleRoot is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
     
-    address boringVault = 0x5E272ca4bD94e57Ec5C51D26703621Ccac1A7089; 
-    address managerAddress = 0x5239158272D1f626aF9ef3353489D3Cb68439D66;
-    address accountantAddress = 0x9A22F5dC4Ec86184D4771E620eb75D52E7b9E043; 
+    address boringVault = 0x5401b8620E5FB570064CA9114fd1e135fd77D57c; 
+    address managerAddress = 0xcf38e37872748E3b66741A42560672A6cef75e9B;
+    address accountantAddress = 0x28634D0c5edC67CF2450E74deA49B90a4FF93dCE; 
     address rawDataDecoderAndSanitizer = 0x284b1B0Cc7C430e3F1eb11A37836fe61157c19CD; 
 
     function run() external {
@@ -32,6 +32,7 @@ contract CreateStakedBTCNMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, corn, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
+
         // ========================== Curve ==========================
         _addCurveLeafs(leafs, getAddress(sourceChain, "curve_pool_LBTC_WBTCN"), 2, getAddress(sourceChain, "curve_gauge_LBTC_WBTCN")); 
 
@@ -50,7 +51,7 @@ contract CreateStakedBTCNMerkleRoot is Script, MerkleTreeHelper {
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
-        string memory filePath = "./leafs/Corn/sBTCNStrategistLeafs.json";
+        string memory filePath = "./leafs/Corn/LBTCvStrategistLeafs.json";
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 

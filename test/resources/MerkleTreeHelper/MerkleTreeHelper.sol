@@ -1684,13 +1684,13 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
 
     // ========================================= Native =========================================
 
-    function _addNativeLeafs(ManageLeaf[] memory leafs) internal {
+    function _addNativeLeafs(ManageLeaf[] memory leafs, address wrappedToken) internal {
         // Wrapping
         unchecked {
             leafIndex++;
         }
         leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "WETH"),
+            wrappedToken,
             true,
             "deposit()",
             new address[](0),
@@ -1702,7 +1702,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
             leafIndex++;
         }
         leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "WETH"),
+            wrappedToken,
             false,
             "withdraw(uint256)",
             new address[](0),
