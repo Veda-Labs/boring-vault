@@ -568,6 +568,7 @@ contract ChainValues {
         values[mainnet]["usualBoostedUSDC"] = 0xd63070114470f685b75B74D60EEc7c1113d33a3D.toBytes32();
         values[mainnet]["gauntletUSDCcore"] = 0x8eB67A509616cd6A7c1B3c8C21D48FF57df3d458.toBytes32();
         values[mainnet]["gauntletUSDCprime"] = 0xdd0f28e19C1780eb6396170735D45153D261490d.toBytes32();
+        values[mainnet]["steakhouseUSDC"] = 0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB.toBytes32(); 
         values[mainnet]["gauntletWBTCcore"] = 0x443df5eEE3196e9b2Dd77CaBd3eA76C3dee8f9b2.toBytes32();
         values[mainnet]["Re7WBTC"] = 0xE0C98605f279e4D7946d25B75869c69802823763.toBytes32();
         values[mainnet]["MCwBTC"] = 0x1c530D6de70c05A81bF1670157b9d928e9699089.toBytes32();
@@ -682,8 +683,11 @@ contract ChainValues {
         values[mainnet]["pendle_corn_uniBTC_market_12_26_24"] = 0x40dEAE18c3CE932Fdd5Df1f44b54D8Cf3902787B.toBytes32();
         values[mainnet]["pendle_sUSDs_market_03_26_25"] = 0x21D85Ff3BEDFF031EF466C7d5295240C8AB2a2b8.toBytes32();
 
-        // Aave V3
+        // Aave V3 Core
         values[mainnet]["v3Pool"] = 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2.toBytes32();
+
+        //Aave v3 Prime
+        values[mainnet]["v3PrimePool"] = 0x4e033931ad43597d96D6bcc25c280717730B58B1.toBytes32(); 
 
         // Aave V3 Lido
         values[mainnet]["v3LidoPool"] = 0x4e033931ad43597d96D6bcc25c280717730B58B1.toBytes32();

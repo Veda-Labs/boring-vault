@@ -19,6 +19,7 @@ import {OnlyHyperlaneDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/O
 import {sBTCNMaizenetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/sBTCNMaizenetDecoderAndSanitizer.sol";
 import {UniBTCDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/UniBTCDecoderAndSanitizer.sol";
 import {EdgeCapitalDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EdgeCapitalDecoderAndSanitizer.sol";
+import {SonicMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SonicEthMainnetDecoderAndSanitizer.sol"; 
 
 import {BoringDrone} from "src/base/Drones/BoringDrone.sol";
 
@@ -51,12 +52,12 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("corn");
+        vm.createSelectFork("mainnet");
     }
 
     function run() external {
-        // bytes memory creationCode;
-        // bytes memory constructorArgs;
+         bytes memory creationCode;
+         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
         // creationCode = type(AerodromeDecoderAndSanitizer).creationCode;
@@ -101,6 +102,10 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //creationCode = type(EdgeCapitalDecoderAndSanitizer).creationCode;
         //constructorArgs = abi.encode(ultraUSDBoringVault, uniswapV3NonFungiblePositionManager);
         //deployer.deployContract("Ultra Yield Stablecoin Vault Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        creationCode = type(SonicMainnetDecoderAndSanitizer).creationCode; 
+        constructorArgs = abi.encode(boringVault, uniswapV3NonFungiblePositionManager); 
+        deployer.deployContract("Sonic ETH Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }

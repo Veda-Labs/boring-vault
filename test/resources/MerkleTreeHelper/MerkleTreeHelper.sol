@@ -2104,6 +2104,12 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
         _addAaveV3ForkLeafs("Aave V3", getAddress(sourceChain, "v3Pool"), leafs, supplyAssets, borrowAssets);
     }
 
+    function _addAaveV3PrimeLeafs(ManageLeaf[] memory leafs, ERC20[] memory supplyAssets, ERC20[] memory borrowAssets) 
+        internal 
+    {
+        _addAaveV3ForkLeafs("Aave V3 Prime", getAddress(sourceChain, "v3PrimePool"), leafs, supplyAssets, borrowAssets); 
+    }
+
     function _addAaveV3LidoLeafs(ManageLeaf[] memory leafs, ERC20[] memory supplyAssets, ERC20[] memory borrowAssets)
         internal
     {
@@ -2115,6 +2121,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
     {
         _addAaveV3ForkLeafs("SparkLend", getAddress(sourceChain, "sparkLendPool"), leafs, supplyAssets, borrowAssets);
     }
+
 
     function _addAaveV3ForkLeafs(
         string memory protocolName,
