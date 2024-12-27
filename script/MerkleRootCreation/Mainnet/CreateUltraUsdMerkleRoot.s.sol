@@ -156,6 +156,9 @@ contract CreateUltraUsdMerkleRootScript is Script, MerkleTreeHelper {
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "SUSDE")));
         _addEthenaSUSDeWithdrawLeafs(leafs);
 
+        // ========================== Curve ==========================
+        _addCurveLeafs(leafs, getAddress(sourceChain, "USD0_USD0++_CurvePool"), 2, getAddress(sourceChain, "USD0_USD0++_CurveGauge"));    
+
         // ========================== UniswapV3 ==========================
         address[] memory token0 = new address[](78);
         token0[0] = getAddress(sourceChain, "USDC");

@@ -584,7 +584,7 @@ contract ChainValues {
 
         // 1Inch
         values[mainnet]["aggregationRouterV5"] = 0x1111111254EEB25477B68fb85Ed929f73A960582.toBytes32();
-        values[mainnet]["oneInchExecutor"] = 0x5141b82f5ffda4c6fe1e372978f1c5427640a190.toBytes32();
+        values[mainnet]["oneInchExecutor"] = 0x5141B82f5fFDa4c6fE1E372978F1C5427640a190.toBytes32();
         values[mainnet]["wETHweETH5bps"] = 0x7A415B19932c0105c82FDB6b720bb01B0CC2CAe3.toBytes32();
 
         // Gearbox
