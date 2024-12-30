@@ -435,7 +435,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
             uint24 minimumSecondsToDeadline,
             uint16 minDiscount,
             uint16 maxDiscount,
-            uint96 minimumShares
+            uint96 minimumShares,
         ) = boringQueue.withdrawAssets(address(EETH));
         assertEq(allowWithdraws, true, "EETH should allow withdraws.");
         assertEq(secondsToMaturity, 1 days, "EETH should have 1 day maturity.");
@@ -446,7 +446,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
 
         // Check update withdraw asset effects.
         boringQueue.updateWithdrawAsset(address(EETH), 2 days, 3 days, 4, 50, 0.05e18);
-        (allowWithdraws, secondsToMaturity, minimumSecondsToDeadline, minDiscount, maxDiscount, minimumShares) =
+        (allowWithdraws, secondsToMaturity, minimumSecondsToDeadline, minDiscount, maxDiscount, minimumShares,) =
             boringQueue.withdrawAssets(address(EETH));
         assertEq(allowWithdraws, true, "EETH should allow withdraws.");
         assertEq(secondsToMaturity, 2 days, "EETH should have 2 day maturity.");
@@ -457,7 +457,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
 
         // Check stop withdraw in asset effects.
         boringQueue.stopWithdrawsInAsset(address(EETH));
-        (allowWithdraws,,,,,) = boringQueue.withdrawAssets(address(EETH));
+        (allowWithdraws,,,,,,) = boringQueue.withdrawAssets(address(EETH));
         assertEq(allowWithdraws, false, "EETH should not allow withdraws.");
 
         address userA = vm.addr(2);
@@ -821,6 +821,74 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
         boringSolver.boringRedeemSelfSolve(request, liquidEth_teller);
         vm.expectRevert(bytes(abi.encodeWithSelector(BoringSolver.BoringSolver___OnlySelf.selector)));
         boringSolver.boringRedeemMintSelfSolve(request, liquidEth_teller, weETHs_teller, address(WETH));
+    }
+
+    function testWithdrawCapacity() external {
+        // Initial setup
+        uint128 initialWithdrawAmount = 1e18;
+        uint128 smallerWithdrawAmount = 0.5e18;
+        uint128 remainingCapacity = 0.5e18;
+        uint128 overCapacityAmount = 2e18;
+        uint256 initialCapacity = type(uint256).max;
+        uint256 newCapacity = 1e18;
+        uint256 withdrawCapacity;
+
+        // User makes a withdraw, confirm capacity is still max
+        (, BoringOnChainQueue.OnChainWithdraw memory request) =
+            _haveUserCreateRequest(testUser, address(WETH), initialWithdrawAmount, 1, 1 days);
+        (,,,,,, withdrawCapacity) = boringQueue.withdrawAssets(address(WETH));
+        assertEq(withdrawCapacity, initialCapacity, "Capacity should be max");
+
+        // Admin sets a smaller withdraw capacity
+        boringQueue.setWithdrawCapacity(address(WETH), newCapacity);
+
+        // User tries to withdraw more than the capacity, should revert
+        vm.startPrank(testUser);
+        vm.expectRevert(
+            bytes(abi.encodeWithSelector(BoringOnChainQueue.BoringOnChainQueue__NotEnoughWithdrawCapacity.selector))
+        );
+        boringQueue.requestOnChainWithdraw(address(WETH), overCapacityAmount, 1, 1 days);
+        vm.stopPrank();
+
+        // User makes a valid withdraw request within capacity
+        (, BoringOnChainQueue.OnChainWithdraw memory request0) =
+            _haveUserCreateRequest(testUser, address(WETH), smallerWithdrawAmount, 1, 1 days);
+
+        // Check capacity was decremented
+        (,,,,,, withdrawCapacity) = boringQueue.withdrawAssets(address(WETH));
+        assertEq(withdrawCapacity, remainingCapacity, "Capacity should be decremented");
+
+        // New user makes a request for the remaining capacity
+        address newUser = vm.addr(2);
+        deal(liquidEth, newUser, remainingCapacity);
+        vm.startPrank(newUser);
+        ERC20(liquidEth).safeApprove(address(boringQueue), remainingCapacity);
+        boringQueue.requestOnChainWithdraw(address(WETH), remainingCapacity, 1, 1 days);
+        vm.stopPrank();
+
+        // First user cancels their request
+        vm.startPrank(testUser);
+        boringQueue.cancelOnChainWithdraw(request0);
+        vm.stopPrank();
+
+        // Check capacity was incremented
+        (,,,,,, withdrawCapacity) = boringQueue.withdrawAssets(address(WETH));
+        assertEq(
+            withdrawCapacity, smallerWithdrawAmount, "Capacity should be incremented by the cancelled request amount"
+        );
+
+        skip(3 days);
+
+        // Solve the last user's request
+        BoringOnChainQueue.OnChainWithdraw[] memory requests = new BoringOnChainQueue.OnChainWithdraw[](1);
+        requests[0] = request;
+        deal(address(WETH), address(this), 10e18);
+        WETH.approve(address(boringQueue), 10e18);
+        boringQueue.solveOnChainWithdraws(requests, hex"", address(this));
+
+        // Ensure capacity did not change from solving
+        (,,,,,, withdrawCapacity) = boringQueue.withdrawAssets(address(WETH));
+        assertEq(withdrawCapacity, smallerWithdrawAmount, "Capacity should not change after solving");
     }
 
     // ========================================= HELPER FUNCTIONS =========================================

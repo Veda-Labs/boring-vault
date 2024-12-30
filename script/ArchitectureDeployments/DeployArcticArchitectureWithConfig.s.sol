@@ -1159,6 +1159,9 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
                 MULTISIG_ROLE, address(queue), BoringOnChainQueue.stopWithdrawsInAsset.selector
             );
             _addRoleCapabilityIfNotPresent(
+                MULTISIG_ROLE, address(queue), BoringOnChainQueue.setWithdrawCapacity.selector
+            );
+            _addRoleCapabilityIfNotPresent(
                 STRATEGIST_MULTISIG_ROLE, address(queue), BoringOnChainQueue.stopWithdrawsInAsset.selector
             );
             _addRoleCapabilityIfNotPresent(
@@ -1169,6 +1172,9 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
             );
             _addRoleCapabilityIfNotPresent(
                 SOLVER_ORIGIN_ROLE, address(queue), BoringOnChainQueue.solveOnChainWithdraws.selector
+            );
+            _addRoleCapabilityIfNotPresent(
+                STRATEGIST_MULTISIG_ROLE, address(queue), BoringOnChainQueue.setWithdrawCapacity.selector
             );
             _addRoleCapabilityIfNotPresent(ONLY_QUEUE_ROLE, address(queueSolver), BoringSolver.boringSolve.selector);
 
@@ -1299,7 +1305,7 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
                 : ERC20(withdrawAsset.addressOrName.address_);
             // Check if the asset is already supported by the queue.
             if (queueExists) {
-                (bool allowWithdraws,,,,,) = queue.withdrawAssets(address(asset));
+                (bool allowWithdraws,,,,,,) = queue.withdrawAssets(address(asset));
                 if (allowWithdraws) continue;
             }
 

@@ -71,7 +71,8 @@ contract DeployBoringQueuesScript is Script, ContractNames, MerkleTreeHelper {
             minimumSecondsToDeadline: 3 days,
             minDiscount: 1,
             maxDiscount: 10,
-            minimumShares: 0.0001e18
+            minimumShares: 0.0001e18,
+            withdrawCapacity: 0
         });
         assetsToSetup[1] = BoringOnChainQueue.WithdrawAsset({
             allowWithdraws: true, // not used in script.
@@ -79,7 +80,8 @@ contract DeployBoringQueuesScript is Script, ContractNames, MerkleTreeHelper {
             minimumSecondsToDeadline: 3 days,
             minDiscount: 1,
             maxDiscount: 10,
-            minimumShares: 0.0001e18
+            minimumShares: 0.0001e18,
+            withdrawCapacity: 0
         });
         assetsToSetup[2] = BoringOnChainQueue.WithdrawAsset({
             allowWithdraws: true, // not used in script.
@@ -87,7 +89,8 @@ contract DeployBoringQueuesScript is Script, ContractNames, MerkleTreeHelper {
             minimumSecondsToDeadline: 3 days,
             minDiscount: 1,
             maxDiscount: 10,
-            minimumShares: 0.0001e18
+            minimumShares: 0.0001e18,
+            withdrawCapacity: 0
         });
 
         _deployContracts(

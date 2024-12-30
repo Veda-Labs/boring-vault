@@ -77,7 +77,7 @@ contract BoringOnChainQueueWithTracking is BoringOnChainQueue {
         returns (OnChainWithdraw memory oldRequest, bytes32 newRequestId)
     {
         oldRequest = getOnChainWithdraw(oldRequestId);
-        (, newRequestId) = _replaceOnChainWithdrawWithUserCheck(oldRequest, discount, secondsToDeadline);
+        (, newRequestId) = _replaceOnChainWithdraw(oldRequest, discount, secondsToDeadline);
     }
 
     //============================== VIEW FUNCTIONS ===============================
