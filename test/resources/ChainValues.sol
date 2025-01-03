@@ -877,6 +877,12 @@ contract ChainValues {
         // Hyperlane
         values[mainnet]["hyperlaneUsdcRouter"] = 0xe1De9910fe71cC216490AC7FCF019e13a34481D7.toBytes32();
         values[mainnet]["hyperlaneTestRecipient"] = 0xfb53392bf4a0590a317ca716c28c29ace7c448bc132d7f8188ca234f595aa121;
+    
+        // Royco
+        values[mainnet]["vaultMarketHub"] = 0xa97eCc6Bfda40baf2fdd096dD33e88bd8e769280.toBytes32(); 
+        values[mainnet]["recipeMarketHub"] = 0x783251f103555068c1E9D755f69458f39eD937c0.toBytes32(); 
+        values[mainnet]["supplyUSDCAaveWrappedVault"] = 0x2120ADcdCF8e0ed9D6dd3Df683F076402B79E3bd.toBytes32(); 
+
     }
 
     function _addBaseValues() private {

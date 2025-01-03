@@ -5603,6 +5603,78 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
         }
     }
 
+    // ========================================= Royco =========================================
+
+    function _addRoycoWeirollLeafs(ManageLeaf[] memory leafs, ERC20 asset) internal {
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            address(asset),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve Recipe Market Hub to spend ", asset.symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "recipeMarketHub"); 
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "recipeMarketHub"),
+            false,
+            "fillIPOffers(bytes32[],uint256[],address,address)",
+            new address[](1),
+            string.concat("Fill IP Offer using offer hash"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault"); 
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "recipeMarketHub"),
+            false,
+            "executeWithdrawalScript(address)",
+            new address[](1),
+            string.concat("Execute the weiroll withdraw script and retrieve funds from recipe market"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault"); 
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "recipeMarketHub"),
+            false,
+            "forfeit(address,bool)",
+            new address[](1),
+            string.concat("Forfeit rewards and unlock wallet early"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault"); 
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "recipeMarketHub"),
+            false,
+            "claim(address,address)",
+            new address[](2),
+            string.concat("Claim incentive rewards"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault"); 
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault"); 
+
+         
+    } 
+
     // ========================================= BoringVault Teller =========================================
 
     function _addTellerLeafs(ManageLeaf[] memory leafs, address teller, ERC20[] memory assets) internal {
