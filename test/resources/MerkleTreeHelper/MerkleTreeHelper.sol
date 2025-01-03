@@ -5603,6 +5603,125 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
         }
     }
 
+    // ========================================= Sonic Gateway =========================================
+    // To be used on ETH mainnet. 
+    function _addSonicGatewayLeafsEth(ManageLeaf[] memory leafs, ERC20[] memory assets) internal {
+        for (uint256 i = 0; i < assets.length; i++) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                address(assets[i]),
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve Sonic Gateway L1 to spend", assets[i].symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "sonicGateway");
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "sonicGateway"),
+                false,
+                "deposit(uint96,address,uint256)",
+                new address[](1),
+                string.concat("Deposit ", assets[i].symbol(), " into Sonic Gateway"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(assets[i]); 
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "sonicGateway"),
+                false,
+                "claim(uint256,address,uint256,bytes)",
+                new address[](1),
+                string.concat("Claim ", assets[i].symbol(), " from Sonic Gateway"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(assets[i]); 
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "sonicGateway"),
+                false,
+                "cancelDepositWhileDead(uint256,address,uint256,bytes)",
+                new address[](1),
+                string.concat("Cancel deposit of ", assets[i].symbol(), " from Sonic Gateway while dead"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(assets[i]); 
+        }
+    } 
+    
+    // To be used on Sonic L2. 
+    // NOTE: sonic bridge uses the mainnet token address to match with their bridged versions, so we need both. 
+    // The mainnet token address is the one sanitized and the one that needs to be passed into the bridge itself, but the sonic address will be used in the leaf to (hopefully) minimize confusion. It is also used for approvals. However, this is still confusing, so I am leaving this comment. 
+    function _addSonicGatewayLeafsSonic(ManageLeaf[] memory leafs, address[] memory assetsMainnet, address[] memory assetsSonic) internal {
+        require(assetsSonic.length == assetsMainnet.length, "Asset length mismatch"); 
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "USDC"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve Circle Token Adapter to burn USDC"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "circleTokenAdapter");
+
+        for (uint256 i = 0; i < assetsMainnet.length; i++) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                address(assetsSonic[i]),
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve Sonic Gateway L2 to spend ", string(abi.encodePacked(assetsSonic[i]))),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "sonicGateway");
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "sonicGateway"),
+                false,
+                "withdraw(uint96,address,uint256)",
+                new address[](1),
+                string.concat("Withdraw ", string(abi.encodePacked(assetsSonic[i])), " from Sonic"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(assetsMainnet[i]); 
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "sonicGateway"),
+                false,
+                "claim(uint256,address,uint256,bytes)",
+                new address[](1),
+                string.concat("Claim ", string(abi.encodePacked(assetsSonic[i])), " from Sonic Gateway"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(assetsMainnet[i]); 
+        }    
+    } 
+
     // ========================================= BoringVault Teller =========================================
 
     function _addTellerLeafs(ManageLeaf[] memory leafs, address teller, ERC20[] memory assets) internal {
