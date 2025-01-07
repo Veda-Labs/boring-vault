@@ -50,9 +50,9 @@ contract DeployDeployerScript is Script, ContractNames, MainnetAddresses {
 
         deployer = Deployer(0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d);
 
-        constructorArgs = abi.encode("Lombard Staked Bitcoin", "LBTC", 8);
+        constructorArgs = abi.encode("BTCB Token", "BTCB", 8);
         creationCode = type(MockERC20).creationCode;
-        MockERC20(deployer.deployContract("CrispyBTC V0.0", creationCode, constructorArgs, 0));
+        MockERC20(deployer.deployContract("CrispyBTC V0.1", creationCode, constructorArgs, 0));
 
         vm.stopBroadcast();
     }

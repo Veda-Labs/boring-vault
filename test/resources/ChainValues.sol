@@ -1355,6 +1355,7 @@ contract ChainValues {
 
         values[bscTestnet]["WETH"] = address(1).toBytes32();
         values[bscTestnet]["LBTC"] = 0x5335348C1B0945324bBf1B5F02Ef0CFF827B8D14.toBytes32();
+        values[bscTestnet]["BTCB"] = 0xa35dF28d6b6105574320f235fF333F4856bb460d.toBytes32();
         values[bscTestnet]["ZRO"] = address(1).toBytes32();
 
         values[bscTestnet]["balancerVault"] = address(1).toBytes32();

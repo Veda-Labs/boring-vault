@@ -19,7 +19,8 @@ import {OnlyHyperlaneDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/O
 import {sBTCNMaizenetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/sBTCNMaizenetDecoderAndSanitizer.sol";
 import {UniBTCDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/UniBTCDecoderAndSanitizer.sol";
 import {EdgeCapitalDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EdgeCapitalDecoderAndSanitizer.sol";
-
+import {AtomicQueue} from "src/atomic-queue/AtomicQueue.sol";
+import {AtomicSolverV3} from "src/atomic-queue/AtomicSolverV3.sol";
 import {BoringDrone} from "src/base/Drones/BoringDrone.sol";
 
 import "forge-std/Script.sol";
@@ -51,12 +52,12 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("corn");
+        vm.createSelectFork("bscTestnet");
     }
 
     function run() external {
-        // bytes memory creationCode;
-        // bytes memory constructorArgs;
+        bytes memory creationCode;
+        bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
         // creationCode = type(AerodromeDecoderAndSanitizer).creationCode;
@@ -101,6 +102,14 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //creationCode = type(EdgeCapitalDecoderAndSanitizer).creationCode;
         //constructorArgs = abi.encode(ultraUSDBoringVault, uniswapV3NonFungiblePositionManager);
         //deployer.deployContract("Ultra Yield Stablecoin Vault Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        creationCode = type(AtomicQueue).creationCode;
+        constructorArgs = abi.encode(dev1Address, address(0));
+        deployer.deployContract("Atomic Queue V0.0", creationCode, constructorArgs, 0);
+
+        creationCode = type(AtomicSolverV3).creationCode;
+        constructorArgs = abi.encode(dev1Address, address(0));
+        deployer.deployContract("Atomic Solver V0.0", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }

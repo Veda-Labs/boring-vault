@@ -31,26 +31,26 @@
     "deploymentFileName": "addresses/BscTestnet/LBTCvDeployment.json"
   },
   "rolesAuthorityConfiguration": {
-    "rolesAuthorityDeploymentName": "Lombard BTC RolesAuthority V0.0"
+    "rolesAuthorityDeploymentName": "Lombard BTC RolesAuthority V0.1"
   },
   "lensConfiguration": {
-    "lensDeploymentName": "Arctic Architecture Lens V0.0"
+    "lensDeploymentName": "Arctic Architecture Lens V0.1"
   },
   "boringVaultConfiguration": {
-    "boringVaultDeploymentName": "Lombard BTC V0.0",
+    "boringVaultDeploymentName": "Lombard BTC V0.1",
     "boringVaultName": "Lombard BTC Vault",
     "boringVaultSymbol": "LBTCv",
     "boringVaultDecimals": 8
   },
   "managerConfiguration": {
-    "managerDeploymentName": "Lombard BTC Manager With Merkle Verification V0.0",
+    "managerDeploymentName": "Lombard BTC Manager With Merkle Verification V0.1",
     "balancerVaultAddressOrName": {
       "address": "0x0000000000000000000000000000000000000001",
       "name": "balancerVault"
     }
   },
   "accountantConfiguration": {
-    "accountantDeploymentName": "Lombard BTC Accountant With Rate Providers V0.0",
+    "accountantDeploymentName": "Lombard BTC Accountant With Rate Providers V0.1",
     "accountantParameters": {
       "kind": {
         "variableRate": true,
@@ -58,7 +58,7 @@
       },
       "payoutConfiguration": {
         "payoutTo": "0x0000000000000000000000000000000000000000",
-        "optionalPaymentSplitterName": "Lombard BTC Payment Splitter V0.0",
+        "optionalPaymentSplitterName": "Lombard BTC Payment Splitter V0.1",
         "splits": [
           {
             "to": "0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b",
@@ -81,7 +81,7 @@
     }
   },
   "tellerConfiguration": {
-    "tellerDeploymentName": "Lombard BTC Teller With Multi Asset Support V0.0",
+    "tellerDeploymentName": "Lombard BTC Teller With Multi Asset Support V0.1",
     "tellerParameters": {
       "allowPublicDeposits": true,
       "shareLockPeriod": 0,
@@ -94,8 +94,8 @@
     }
   },
   "boringQueueConfiguration": {
-    "boringQueueDeploymentName": "Lombard BTC Boring Queue V0.0",
-    "boringQueueSolverName": "Lombard BTC Boring Solver V0.0",
+    "boringQueueDeploymentName": "Lombard BTC Boring Queue V0.1",
+    "boringQueueSolverName": "Lombard BTC Boring Solver V0.1",
     "queueParameters": {
       "allowPublicWithdrawals": true,
       "allowPublicSelfWithdrawals": true,
@@ -106,13 +106,13 @@
     }
   },
   "droneConfiguration": {
-    "droneDeploymentBaseName": "Lombard BTC Drone V0.0",
+    "droneDeploymentBaseName": "Lombard BTC Drone V0.1",
     "droneCount": 0,
     "safeGasToForwardNative": 21000
   },
   "pauserConfiguration": {
     "shouldDeploy": false,
-    "pauserDeploymentName": "Lombard BTC Pauser V0.0",
+    "pauserDeploymentName": "Lombard BTC Pauser V0.1",
     "makeGenericPauser": ["0x0000000000000000000000000000000000000000"],
     "makeGenericUnpauser": ["0x0000000000000000000000000000000000000000"],
     "makePauseAll": ["0x0000000000000000000000000000000000000000"],
@@ -126,19 +126,37 @@
   },
   "timelockConfiguration": {
     "shouldDeploy": false,
-    "timelockDeploymentName": "Lombard BTC Timelock V0.0",
+    "timelockDeploymentName": "Lombard BTC Timelock V0.1",
     "timelockParameters": {
       "minDelay": 86400,
       "proposers": ["0x0000000000000000000000000000000000000000"],
       "executors": ["0x0000000000000000000000000000000000000000"]
     }
   },
-  "accountantAssets": [],
+  "accountantAssets": [
+    {
+      "addressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "BTCB"
+      },
+      "isPeggedToBase": true,
+      "rateProvider": "0x0000000000000000000000000000000000000000"
+    }
+  ],
   "depositAssets": [
     {
       "addressOrName": {
         "address": "0x0000000000000000000000000000000000000000",
         "name": "LBTC"
+      },
+      "allowDeposits": true,
+      "allowWithdraws": true,
+      "sharePremium": 0
+    },
+    {
+      "addressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "BTCB"
       },
       "allowDeposits": true,
       "allowWithdraws": true,
@@ -150,6 +168,17 @@
       "addressOrName": {
         "address": "0x0000000000000000000000000000000000000000",
         "name": "LBTC"
+      },
+      "maxDiscount": 100,
+      "minDiscount": 0,
+      "minimumSecondsToDeadline": 3600,
+      "minimumShares": 0,
+      "secondsToMaturity": 60
+    },
+    {
+      "addressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "BTCB"
       },
       "maxDiscount": 100,
       "minDiscount": 0,
