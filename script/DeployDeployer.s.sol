@@ -10,7 +10,7 @@ import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
 
 /**
- *  source .env && forge script script/DeployDeployer.s.sol:DeployDeployerScript --broadcast --verify
+ *  forge script script/DeployDeployer.s.sol:DeployDeployerScript --broadcast --verify
  *
  * @dev Optionally can change `--with-gas-price` to something more reasonable
  */
@@ -25,7 +25,7 @@ contract DeployDeployerScript is Script, ContractNames, MainnetAddresses {
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("sonicBlaze");
+        vm.createSelectFork("bscTestnet");
     }
 
     function run() external {
@@ -50,9 +50,9 @@ contract DeployDeployerScript is Script, ContractNames, MainnetAddresses {
 
         deployer = Deployer(0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d);
 
-        constructorArgs = abi.encode("Crispy USD", "CUSD", 6);
+        constructorArgs = abi.encode("Lombard Staked Bitcoin", "LBTC", 8);
         creationCode = type(MockERC20).creationCode;
-        MockERC20(deployer.deployContract("CrispyUSD V0.0", creationCode, constructorArgs, 0));
+        MockERC20(deployer.deployContract("CrispyBTC V0.0", creationCode, constructorArgs, 0));
 
         vm.stopBroadcast();
     }

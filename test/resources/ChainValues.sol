@@ -26,6 +26,7 @@ contract ChainValues {
     string public constant sepolia = "sepolia";
     string public constant sonicTestnet = "sonicTestnet";
     string public constant sonicBlaze = "sonicBlaze";
+    string public constant bscTestnet = "bscTestnet";
 
     // Bridging constants.
     uint64 public constant ccipArbitrumChainSelector = 4949039107694359620;
@@ -97,6 +98,7 @@ contract ChainValues {
         _addHoleskyValues();
         _addSepoliaValues();
         _addSonicTestnetValues();
+        _addBscTestnetValues();
         _addSonicBlazeValues();
     }
 
@@ -1343,5 +1345,20 @@ contract ChainValues {
         values[sonicBlaze]["balancerVault"] = address(1).toBytes32();
 
         values[sonicBlaze]["LayerZeroEndPoint"] = 0x6C7Ab2202C98C4227C5c46f1417D81144DA716Ff.toBytes32();
+    }
+
+    function _addBscTestnetValues() private {
+        values[bscTestnet]["dev0Address"] = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b.toBytes32();
+        values[bscTestnet]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
+        values[bscTestnet]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        values[bscTestnet]["txBundlerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+
+        values[bscTestnet]["WETH"] = address(1).toBytes32();
+        values[bscTestnet]["LBTC"] = 0x5335348C1B0945324bBf1B5F02Ef0CFF827B8D14.toBytes32();
+        values[bscTestnet]["ZRO"] = address(1).toBytes32();
+
+        values[bscTestnet]["balancerVault"] = address(1).toBytes32();
+
+        values[bscTestnet]["LayerZeroEndPoint"] = 0x6C7Ab2202C98C4227C5c46f1417D81144DA716Ff.toBytes32();
     }
 }
