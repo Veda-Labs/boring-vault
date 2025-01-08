@@ -10,7 +10,8 @@ import {NativeWrapperDecoderAndSanitizer} from
 import {OneInchDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OneInchDecoderAndSanitizer.sol";
 import {AaveV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AaveV3DecoderAndSanitizer.sol";
 import {LidoDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LidoDecoderAndSanitizer.sol";
-import {FluidFTokenDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/FluidFTokenDecoderAndSanitizer.sol";
+import {FluidFTokenDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/FluidFTokenDecoderAndSanitizer.sol";
 
 contract SonicMainnetDecoderAndSanitizer is
     UniswapV3DecoderAndSanitizer,
@@ -21,7 +22,7 @@ contract SonicMainnetDecoderAndSanitizer is
     AaveV3DecoderAndSanitizer,
     LidoDecoderAndSanitizer,
     FluidFTokenDecoderAndSanitizer
-    {
+{
     constructor(address _boringVault, address _uniswapV3NonFungiblePositionManager)
         BaseDecoderAndSanitizer(_boringVault)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
