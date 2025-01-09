@@ -127,7 +127,7 @@ contract UniswapV3IntegrationTest is Test, MerkleTreeHelper {
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
         ManageLeaf[] memory manageLeafs = new ManageLeaf[](11);
-        manageLeafs[0] = leafs[0]; //leaf index 3 == token1[1] approval? 
+        manageLeafs[0] = leafs[0]; //leaf index 3 == token1[1] approval?
         manageLeafs[1] = leafs[1];
         manageLeafs[2] = leafs[2];
         manageLeafs[3] = leafs[3];
