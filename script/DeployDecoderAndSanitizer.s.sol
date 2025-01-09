@@ -109,7 +109,7 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
 
         creationCode = type(StakedSonicUSDDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(boringVault);
-        deployer.deployContract("Staked Sonic USD Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
+        deployer.deployContract("Staked Sonic USD Decoder And Sanitizer V0.1", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
