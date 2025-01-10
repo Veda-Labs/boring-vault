@@ -25,6 +25,7 @@ import {EtherFiLiquidBtcDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/EtherFiLiquidBtcDecoderAndSanitizer.sol";
 import {SonicMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SonicEthMainnetDecoderAndSanitizer.sol";
 import {SonicUSDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Sonic/SonicUSDDecoderAndSanitizer.sol"; 
+import {UsualBeraDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/UsualBeraDecoderAndSanitizer.sol"; 
 
 import {BoringDrone} from "src/base/Drones/BoringDrone.sol";
 
@@ -39,11 +40,11 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     uint256 public privateKey;
     Deployer public deployer = Deployer(deployerAddress);
         
-    address boringVault = 0xd3DCe716f3eF535C5Ff8d041c1A41C3bd89b97aE; 
+    address boringVault = 0x165c62448015d96c920dDA001Ae27733AF2C36c7; 
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("sonicMainnet");
+        vm.createSelectFork("mainnet");
     }
 
     function run() external {
@@ -107,9 +108,9 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //constructorArgs = abi.encode(boringVault, uniswapV3NonFungiblePositionManager);
         // deployer.deployContract("Sonic ETH Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        creationCode = type(SonicUSDDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(boringVault);
-        deployer.deployContract("Sonic USD Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
+        creationCode = type(UsualBeraDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(boringVault, uniswapV3NonFungiblePositionManager);
+        deployer.deployContract("Usual Bera Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
