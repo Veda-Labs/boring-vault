@@ -31,34 +31,34 @@
     "deploymentFileName": "addresses/SonicMainnet/WrappedStakedSonicETH.json"
   },
   "rolesAuthorityConfiguration": {
-    "rolesAuthorityDeploymentName": "Wrapped Staked Sonic ETH Roles Authority V0.0"
+    "rolesAuthorityDeploymentName": "Wrapped Staked Sonic ETH Roles Authority V0.1"
   },
   "lensConfiguration": {
-    "lensDeploymentName": "Arctic Architecture Lens V0.0"
+    "lensDeploymentName": "Arctic Architecture Lens V0.1"
   },
   "boringVaultConfiguration": {
-    "boringVaultDeploymentName": "Wrapped Staked Sonic ETH Boring Vault V0.0",
+    "boringVaultDeploymentName": "Wrapped Staked Sonic ETH Boring Vault V0.1",
     "boringVaultName": "Wrapped Staked Sonic ETH",
     "boringVaultSymbol": "wstkscETH",
     "boringVaultDecimals": 18
   },
   "managerConfiguration": {
-    "managerDeploymentName": "Wrapped Staked Sonic ETH Manager V0.0",
+    "managerDeploymentName": "Wrapped Staked Sonic ETH Manager V0.1",
     "balancerVaultAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
       "name": "balancerVault"
     }
   },
   "accountantConfiguration": {
-    "accountantDeploymentName": "Wrapped Staked Sonic ETH Accountant V0.0",
+    "accountantDeploymentName": "Wrapped Staked Sonic ETH Accountant V0.1",
     "accountantParameters": {
       "kind": {
-        "variableRate": false,
-        "fixedRate": true
+        "variableRate": true,
+        "fixedRate": false
       },
       "payoutConfiguration": {
-        "payoutTo": "0x0000000000000000000000000000000000000000",
-        "optionalPaymentSplitterName": "Wrapped Staked Sonic ETH Payment Splitter V0.0",
+        "payoutTo": "0x0000000000000000000000000000000000000001",
+        "optionalPaymentSplitterName": "Wrapped Staked Sonic ETH Payment Splitter V0.1",
         "splits": [
           {
             "to": "0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b",
@@ -78,14 +78,14 @@
           "name": "stkscETH"
         },
         "minimumUpateDelayInSeconds": 21600,
-        "performanceFee": 1000,
+        "performanceFee": 0,
         "platformFee": 0,
         "startingExchangeRate": 1000000000000000000
       }
     }
   },
   "tellerConfiguration": {
-    "tellerDeploymentName": "Wrapped Staked Sonic ETH Teller V0.0",
+    "tellerDeploymentName": "Wrapped Staked Sonic ETH Teller V0.1",
     "tellerParameters": {
       "allowPublicDeposits": true,
       "shareLockPeriod": 0,
@@ -98,8 +98,8 @@
     }
   },
   "boringQueueConfiguration": {
-    "boringQueueDeploymentName": "Wrapped Staked Sonic ETH Boring Queue V0.0",
-    "boringQueueSolverName": "Wrapped Staked Sonic ETH Boring Solver V0.0",
+    "boringQueueDeploymentName": "Wrapped Staked Sonic ETH Boring Queue V0.1",
+    "boringQueueSolverName": "Wrapped Staked Sonic ETH Boring Solver V0.1",
     "queueParameters": {
       "allowPublicWithdrawals": true,
       "allowPublicSelfWithdrawals": true,
@@ -110,13 +110,13 @@
     }
   },
   "droneConfiguration": {
-    "droneDeploymentBaseName": "Wrapped Staked Sonic ETH Drone V0.0",
+    "droneDeploymentBaseName": "Wrapped Staked Sonic ETH Drone V0.1",
     "droneCount": 0,
     "safeGasToForwardNative": 21000
   },
   "pauserConfiguration": {
     "shouldDeploy": true,
-    "pauserDeploymentName": "Wrapped Staked Sonic ETH Pauser V0.0",
+    "pauserDeploymentName": "Wrapped Staked Sonic ETH Pauser V0.1",
     "makeGenericPauser": ["0x0000000000000000000000000000000000000000"],
     "makeGenericUnpauser": ["0x0000000000000000000000000000000000000000"],
     "makePauseAll": ["0x0000000000000000000000000000000000000000"],
@@ -130,7 +130,7 @@
   },
   "timelockConfiguration": {
     "shouldDeploy": true,
-    "timelockDeploymentName": "Wrapped Staked Sonic ETH Timelock V0.0",
+    "timelockDeploymentName": "Wrapped Staked Sonic ETH Timelock V0.1",
     "timelockParameters": {
       "minDelay": 300,
       "proposers": ["0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b"],
