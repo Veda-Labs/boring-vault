@@ -9,14 +9,14 @@ import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol"; 
-import {UsualMoneyDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UsualMoneyDecoderAndSanitizer.sol";
+import {EtherFiLiquidDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EtherFiLiquidDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
-contract UsualMoneyIntegrationTest is Test, MerkleTreeHelper {
+contract sUSDsIntegration is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
     using FixedPointMathLib for uint256;
     using stdStorage for StdStorage;
@@ -47,7 +47,7 @@ contract UsualMoneyIntegrationTest is Test, MerkleTreeHelper {
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
         rawDataDecoderAndSanitizer = address(
-            new FullUsualMoneyDecoderAndSanitizer(address(boringVault))
+            new EtherFiLiquidDecoderAndSanitizer(address(boringVault), getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"))
         );
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
@@ -108,117 +108,55 @@ contract UsualMoneyIntegrationTest is Test, MerkleTreeHelper {
         rolesAuthority.setPublicCapability(address(boringVault), bytes4(0), true);
     }
 
-    function testUsualMoneyIntegration() external {
-        uint256 mintAmount = 100_000e18; 
-        //mintAmount = bound(mintAmount, 1e18, 1_000_000e18);
-        deal(getAddress(sourceChain, "USD0"), address(boringVault), mintAmount);
-        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000e8);
+    function testSUSDSIntegration() external {
+        //uint256 mintAmount = 100_000e18; 
+        deal(getAddress(sourceChain, "USDS"), address(boringVault), 1_000e18);
 
-        
-        uint256 usdcBalance = getERC20(sourceChain, "USDC").balanceOf(address(boringVault)); 
-        console.log("USDC balance", usdcBalance); 
-        assertGt(usdcBalance, 0); 
-
-        ManageLeaf[] memory leafs = new ManageLeaf[](16);
-        _addUsualMoneyLeafs(leafs);
+        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sUSDs")));
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
-        ManageLeaf[] memory manageLeafs = new ManageLeaf[](9);
+        ManageLeaf[] memory manageLeafs = new ManageLeaf[](5);
         manageLeafs[0] = leafs[0]; //approve 
-        manageLeafs[1] = leafs[1]; //approve 
-        manageLeafs[2] = leafs[2]; //approve
-        manageLeafs[3] = leafs[3]; //wrap
-        manageLeafs[4] = leafs[4]; //unlock@floor  
-        //manageLeafs[4] = leafs[5]; //unwrap -> skip 
-        manageLeafs[5] = leafs[6]; //deposit
-        manageLeafs[6] = leafs[7]; //provide 
-        manageLeafs[7] = leafs[8]; //swap 
-        manageLeafs[8] = leafs[9]; //withdraw 
+        manageLeafs[1] = leafs[1]; //deposit
+        manageLeafs[2] = leafs[2]; //withdraw
+        manageLeafs[3] = leafs[3]; //mint
+        manageLeafs[4] = leafs[4]; //redeem
 
         (bytes32[][] memory manageProofs) = _getProofsUsingTree(manageLeafs, manageTree);
 
-        address[] memory targets = new address[](9);
-        targets[0] = getAddress(sourceChain, "USD0"); //approve usd0pp 
-        targets[1] = getAddress(sourceChain, "USD0"); //approve swapper
-        targets[2] = getAddress(sourceChain, "USDC"); //approve swapper 
-        targets[3] = getAddress(sourceChain, "USD0_plus"); //wrap
-        targets[4] = getAddress(sourceChain, "USD0_plus");  //unlock@floor
-        targets[5] = getAddress(sourceChain, "usualSwapperEngine");  //depositUSDC
-        targets[6] = getAddress(sourceChain, "usualSwapperEngine");  //provideUsd0
-        targets[7] = getAddress(sourceChain, "usualSwapperEngine");  //swapUsd0
-        targets[8] = getAddress(sourceChain, "usualSwapperEngine");  //withdrawUSDC
+        address[] memory targets = new address[](5);
+        targets[0] = getAddress(sourceChain, "USDS"); //approve sUSDs
+        targets[1] = getAddress(sourceChain, "sUSDs"); //deposit
+        targets[2] = getAddress(sourceChain, "sUSDs");  //withdraw
+        targets[3] = getAddress(sourceChain, "sUSDs");  //mint
+        targets[4] = getAddress(sourceChain, "sUSDs");  //redeem
         
-        uint256[] memory orderIds = new uint256[](1);  
-        orderIds[0] = ISwapperEngine(getAddress(sourceChain, "usualSwapperEngine")).getNextOrderId(); 
-        console.log("order id", orderIds[0]); 
 
-
-        bytes[] memory targetData = new bytes[](9);
+        bytes[] memory targetData = new bytes[](5);
         targetData[0] =
-            abi.encodeWithSelector(ERC20.approve.selector, getAddress(sourceChain, "USD0_plus"), type(uint256).max);
+            abi.encodeWithSelector(ERC20.approve.selector, getAddress(sourceChain, "sUSDs"), type(uint256).max);
         targetData[1] =
-            abi.encodeWithSelector(ERC20.approve.selector, getAddress(sourceChain, "usualSwapperEngine"), type(uint256).max);
+            abi.encodeWithSignature("deposit(uint256,address)", 100e18, getAddress(sourceChain, "boringVault"));
         targetData[2] = 
-            abi.encodeWithSelector(ERC20.approve.selector, getAddress(sourceChain, "usualSwapperEngine"), type(uint256).max); 
-        targetData[3] = abi.encodeWithSignature("mint(uint256)", 100e18);
-        targetData[4] = abi.encodeWithSignature("unlockUsd0ppFloorPrice(uint256)", 10e18);
-        targetData[5] = abi.encodeWithSignature("depositUSDC(uint256)", 100_000e6);
-        targetData[6] = abi.encodeWithSignature("provideUsd0ReceiveUSDC(address,uint256,uint256[],bool)", address(boringVault), 10_000e6, orderIds, false);
-        targetData[7] = abi.encodeWithSignature("swapUsd0(address,uint256,uint256[],bool)", address(boringVault), 10_000e18, orderIds, false);
-        targetData[8] = abi.encodeWithSignature("withdrawUSDC(uint256)", orderIds[0]);
+            abi.encodeWithSignature("withdraw(uint256,address,address)", 95e18, getAddress(sourceChain, "boringVault"), getAddress(sourceChain, "boringVault"));   
+        targetData[3] = abi.encodeWithSignature("mint(uint256,address)", 1e18, getAddress(sourceChain, "boringVault"));
+        targetData[4] = abi.encodeWithSignature("redeem(uint256,address,address)", 1e18, getAddress(sourceChain, "boringVault"), getAddress(sourceChain, "boringVault"));
 
-        uint256[] memory values = new uint256[](9);
+        uint256[] memory values = new uint256[](5);
 
-        address[] memory decodersAndSanitizers = new address[](9);
+        address[] memory decodersAndSanitizers = new address[](5);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[2] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[3] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[4] = rawDataDecoderAndSanitizer;
-        decodersAndSanitizers[5] = rawDataDecoderAndSanitizer;
-        decodersAndSanitizers[6] = rawDataDecoderAndSanitizer;
-        decodersAndSanitizers[7] = rawDataDecoderAndSanitizer;
-        decodersAndSanitizers[8] = rawDataDecoderAndSanitizer;
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
-        assertGt(
-            ERC20(getAddress(sourceChain, "USD0_plus")).balanceOf(address(boringVault)),
-            0,
-            "BoringVault should have minted USD0++"
-        );
-        console.log("USD0 in: ", mintAmount);
-        console.log("USO0++ Balance: ", ERC20(getAddress(sourceChain, "USD0_plus")).balanceOf(address(boringVault)));
-
-        // After 4 years the USD0++ can be unwrapped for USD0.
-        skip(4 * 365 days);
-
-        manageLeafs = new ManageLeaf[](1);
-        manageLeafs[0] = leafs[5]; // unwrap
-
-        (manageProofs) = _getProofsUsingTree(manageLeafs, manageTree);
-
-        targets = new address[](1);
-        targets[0] = getAddress(sourceChain, "USD0_plus");
-
-        targetData = new bytes[](1);
-        targetData[0] = abi.encodeWithSignature("unwrap()");
-
-        values = new uint256[](1);
-
-        decodersAndSanitizers = new address[](1);
-        decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
-
-        manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
-        uint256 fee = 5e15; 
-        assertEq(
-            ERC20(getAddress(sourceChain, "USD0")).balanceOf(address(boringVault)),
-            mintAmount - fee,
-            "BoringVault should have unwrapped USD0++ and received principal back minus floor price unlock dif"
-        );
     }
 
     // ========================================= HELPER FUNCTIONS =========================================
@@ -229,10 +167,3 @@ contract UsualMoneyIntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullUsualMoneyDecoderAndSanitizer is UsualMoneyDecoderAndSanitizer {
-    constructor(address _boringVault) BaseDecoderAndSanitizer(_boringVault) {}
-}
-
-interface ISwapperEngine {
-    function getNextOrderId() external view returns (uint256); 
-}
