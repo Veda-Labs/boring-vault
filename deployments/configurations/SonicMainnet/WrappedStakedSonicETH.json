@@ -78,7 +78,7 @@
           "name": "stkscETH"
         },
         "minimumUpateDelayInSeconds": 21600,
-        "performanceFee": 1000,
+        "performanceFee": 0,
         "platformFee": 0,
         "startingExchangeRate": 1000000000000000000
       }
