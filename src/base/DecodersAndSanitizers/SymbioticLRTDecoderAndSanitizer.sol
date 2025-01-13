@@ -27,8 +27,7 @@ contract SymbioticLRTDecoderAndSanitizer is
     SymbioticDecoderAndSanitizer,
     UniswapV3DecoderAndSanitizer
 {
-    constructor(address _boringVault, address _uniswapV3NonfungiblePositionManager)
-        BaseDecoderAndSanitizer(_boringVault)
+    constructor(address _uniswapV3NonfungiblePositionManager)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonfungiblePositionManager)
     {}
 

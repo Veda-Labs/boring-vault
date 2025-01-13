@@ -14,7 +14,6 @@ import {PendleRouterDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/PendleRouterDecoderAndSanitizer.sol";
 import {AaveV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AaveV3DecoderAndSanitizer.sol";
 
-
 contract EtherFiLiquidBtcDecoderAndSanitizer is
     UniswapV3DecoderAndSanitizer,
     ERC4626DecoderAndSanitizer,
@@ -25,9 +24,7 @@ contract EtherFiLiquidBtcDecoderAndSanitizer is
     PendleRouterDecoderAndSanitizer,
     AaveV3DecoderAndSanitizer
 {
-
-    constructor(address _boringVault, address _uniswapV3NonFungiblePositionManager)
-        BaseDecoderAndSanitizer(_boringVault)
+    constructor(address _uniswapV3NonFungiblePositionManager)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
     {}
 

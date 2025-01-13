@@ -63,14 +63,11 @@ abstract contract CamelotDecoderAndSanitizer is BaseDecoderAndSanitizer {
         virtual
         returns (bytes memory addressesFound)
     {
-        // Sanitize raw data
-        if (camelotNonFungiblePositionManager.ownerOf(params.tokenId) != boringVault) {
-            revert CamelotDecoderAndSanitizer__BadTokenId();
-        }
+        address owner = camelotNonFungiblePositionManager.ownerOf(params.tokenId);
         // Extract addresses from camelotNonFungiblePositionManager.positions(params.tokenId).
         (, address operator, address token0, address token1,,,,,,,) =
             camelotNonFungiblePositionManager.positions(params.tokenId);
-        addressesFound = abi.encodePacked(operator, token0, token1);
+        addressesFound = abi.encodePacked(operator, token0, token1, owner);
     }
 
     function decreaseLiquidity(DecoderCustomTypes.DecreaseLiquidityParams calldata params)
@@ -82,12 +79,10 @@ abstract contract CamelotDecoderAndSanitizer is BaseDecoderAndSanitizer {
         // Sanitize raw data
         // NOTE ownerOf check is done in PositionManager contract as well, but it is added here
         // just for completeness.
-        if (camelotNonFungiblePositionManager.ownerOf(params.tokenId) != boringVault) {
-            revert CamelotDecoderAndSanitizer__BadTokenId();
-        }
+        address owner = camelotNonFungiblePositionManager.ownerOf(params.tokenId);
 
         // No addresses in data
-        return addressesFound;
+        return abi.encodePacked(owner);
     }
 
     function collect(DecoderCustomTypes.CollectParams calldata params)
@@ -96,15 +91,9 @@ abstract contract CamelotDecoderAndSanitizer is BaseDecoderAndSanitizer {
         virtual
         returns (bytes memory addressesFound)
     {
-        // Sanitize raw data
-        // NOTE ownerOf check is done in PositionManager contract as well, but it is added here
-        // just for completeness.
-        if (camelotNonFungiblePositionManager.ownerOf(params.tokenId) != boringVault) {
-            revert CamelotDecoderAndSanitizer__BadTokenId();
-        }
-
+        address owner = camelotNonFungiblePositionManager.ownerOf(params.tokenId);
         // Return addresses found
-        addressesFound = abi.encodePacked(params.recipient);
+        addressesFound = abi.encodePacked(params.recipient, owner);
     }
 
     function burn(uint256 /*tokenId*/ ) external pure virtual returns (bytes memory addressesFound) {

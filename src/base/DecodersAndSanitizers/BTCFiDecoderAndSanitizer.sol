@@ -18,8 +18,7 @@ contract BTCFiDecoderAndSanitizer is
     PumpStakingDecoderAndSanitizer,
     CornStakingDecoderAndSanitizer
 {
-    constructor(address _boringVault, address _uniswapV3NonFungiblePositionManager)
-        BaseDecoderAndSanitizer(_boringVault)
+    constructor(address _uniswapV3NonFungiblePositionManager)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
     {}
 

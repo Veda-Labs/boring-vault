@@ -48,17 +48,12 @@ abstract contract PancakeSwapV3DecoderAndSanitizer is UniswapV3DecoderAndSanitiz
     {
         // Sanitize raw data
         address owner = uniswapV3NonFungiblePositionManager.ownerOf(params.tokenId);
-        if (owner != boringVault) {
-            (,,,,,, address stakedUser,,) = pancakeSwapV3MasterChef.userPositionInfos(params.tokenId);
-            if (owner != address(pancakeSwapV3MasterChef) || stakedUser != boringVault) {
-                revert UniswapV3DecoderAndSanitizer__BadTokenId();
-            }
-        }
+        (,,,,,, address stakedUser,,) = pancakeSwapV3MasterChef.userPositionInfos(params.tokenId);
 
         // Extract addresses from uniswapV3NonFungiblePositionManager.positions(params.tokenId).
         (, address operator, address token0, address token1,,,,,,,,) =
             uniswapV3NonFungiblePositionManager.positions(params.tokenId);
-        addressesFound = abi.encodePacked(operator, token0, token1);
+        addressesFound = abi.encodePacked(operator, token0, token1, owner, stakedUser);
     }
 
     function decreaseLiquidity(DecoderCustomTypes.DecreaseLiquidityParams calldata params)
@@ -71,15 +66,9 @@ abstract contract PancakeSwapV3DecoderAndSanitizer is UniswapV3DecoderAndSanitiz
         // NOTE ownerOf check is done in PositionManager contract as well, but it is added here
         // just for completeness.
         address owner = uniswapV3NonFungiblePositionManager.ownerOf(params.tokenId);
-        if (owner != boringVault) {
-            (,,,,,, address stakedUser,,) = pancakeSwapV3MasterChef.userPositionInfos(params.tokenId);
-            if (owner != address(pancakeSwapV3MasterChef) || stakedUser != boringVault) {
-                revert UniswapV3DecoderAndSanitizer__BadTokenId();
-            }
-        }
+        (,,,,,, address stakedUser,,) = pancakeSwapV3MasterChef.userPositionInfos(params.tokenId);
 
-        // No addresses in data
-        return addressesFound;
+        return abi.encodePacked(owner, stakedUser);
     }
 
     function collect(DecoderCustomTypes.CollectParams calldata params)
@@ -92,14 +81,10 @@ abstract contract PancakeSwapV3DecoderAndSanitizer is UniswapV3DecoderAndSanitiz
         // NOTE ownerOf check is done in PositionManager contract as well, but it is added here
         // just for completeness.
         address owner = uniswapV3NonFungiblePositionManager.ownerOf(params.tokenId);
-        if (owner != boringVault) {
-            (,,,,,, address stakedUser,,) = pancakeSwapV3MasterChef.userPositionInfos(params.tokenId);
-            if (owner != address(pancakeSwapV3MasterChef) || stakedUser != boringVault) {
-                revert UniswapV3DecoderAndSanitizer__BadTokenId();
-            }
-        }
+        (,,,,,, address stakedUser,,) = pancakeSwapV3MasterChef.userPositionInfos(params.tokenId);
+
         // Return addresses found
-        addressesFound = abi.encodePacked(params.recipient);
+        addressesFound = abi.encodePacked(params.recipient, owner, stakedUser);
     }
     // TODO remove these comments?
     // In order to stake, the NFT must be transferred to the PancakeSwapV3 Masterchef contract

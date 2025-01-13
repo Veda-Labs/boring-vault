@@ -49,7 +49,7 @@ contract OFTBridgeIntegrationTest is Test, MerkleTreeHelper {
         manager =
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
-        rawDataDecoderAndSanitizer = address(new BridgingDecoderAndSanitizer(address(boringVault)));
+        rawDataDecoderAndSanitizer = address(new BridgingDecoderAndSanitizer());
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);

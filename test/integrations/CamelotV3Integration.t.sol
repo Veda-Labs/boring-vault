@@ -48,11 +48,8 @@ contract CamelotV3IntegrationTest is Test, MerkleTreeHelper {
         manager =
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
-        rawDataDecoderAndSanitizer = address(
-            new CamelotFullDecoderAndSanitizer(
-                address(boringVault), getAddress(sourceChain, "camelotNonFungiblePositionManager")
-            )
-        );
+        rawDataDecoderAndSanitizer =
+            address(new CamelotFullDecoderAndSanitizer(getAddress(sourceChain, "camelotNonFungiblePositionManager")));
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -184,7 +181,7 @@ contract CamelotV3IntegrationTest is Test, MerkleTreeHelper {
         );
         uint256 expectedTokenId = 119901;
         DecoderCustomTypes.IncreaseLiquidityParams memory increaseLiquidityParams =
-            DecoderCustomTypes.IncreaseLiquidityParams(expectedTokenId, 45e18, 45e18, 0, 0, block.timestamp);
+            DecoderCustomTypes.IncreaseLiquidityParams(119901, 45e18, 45e18, 0, 0, block.timestamp);
         targetData[5] = abi.encodeWithSignature(
             "increaseLiquidity((uint256,uint256,uint256,uint256,uint256,uint256))", increaseLiquidityParams
         );
@@ -354,7 +351,12 @@ contract CamelotV3IntegrationTest is Test, MerkleTreeHelper {
         );
 
         vm.expectRevert(
-            abi.encodeWithSelector(CamelotDecoderAndSanitizer.CamelotDecoderAndSanitizer__BadTokenId.selector)
+            abi.encodeWithSelector(
+                ManagerWithMerkleVerification.ManagerWithMerkleVerification__FailedToVerifyManageProof.selector,
+                targets[5],
+                targetData[5],
+                0
+            )
         );
         manager.manageVaultWithMerkleVerification(
             manageProofs, decodersAndSanitizers, targets, targetData, new uint256[](9)
@@ -374,7 +376,12 @@ contract CamelotV3IntegrationTest is Test, MerkleTreeHelper {
         );
 
         vm.expectRevert(
-            abi.encodeWithSelector(CamelotDecoderAndSanitizer.CamelotDecoderAndSanitizer__BadTokenId.selector)
+            abi.encodeWithSelector(
+                ManagerWithMerkleVerification.ManagerWithMerkleVerification__FailedToVerifyManageProof.selector,
+                targets[6],
+                targetData[6],
+                0
+            )
         );
         manager.manageVaultWithMerkleVerification(
             manageProofs, decodersAndSanitizers, targets, targetData, new uint256[](9)
@@ -393,7 +400,12 @@ contract CamelotV3IntegrationTest is Test, MerkleTreeHelper {
         targetData[7] = abi.encodeWithSignature("collect((uint256,address,uint128,uint128))", collectParams);
 
         vm.expectRevert(
-            abi.encodeWithSelector(CamelotDecoderAndSanitizer.CamelotDecoderAndSanitizer__BadTokenId.selector)
+            abi.encodeWithSelector(
+                ManagerWithMerkleVerification.ManagerWithMerkleVerification__FailedToVerifyManageProof.selector,
+                targets[7],
+                targetData[7],
+                0
+            )
         );
         manager.manageVaultWithMerkleVerification(
             manageProofs, decodersAndSanitizers, targets, targetData, new uint256[](9)

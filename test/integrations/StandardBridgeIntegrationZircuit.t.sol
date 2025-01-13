@@ -229,7 +229,7 @@ contract StandardBridgeIntegrationZircuitTest is Test, MerkleTreeHelper {
 
         manager = new ManagerWithMerkleVerification(address(this), address(boringVault), address(0));
 
-        rawDataDecoderAndSanitizer = address(new BridgingDecoderAndSanitizer(address(boringVault)));
+        rawDataDecoderAndSanitizer = address(new BridgingDecoderAndSanitizer());
 
         rolesAuthority = new RolesAuthority(address(this), Authority(address(0)));
         boringVault.setAuthority(rolesAuthority);

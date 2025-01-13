@@ -14,7 +14,5 @@ contract ITBPositionDecoderAndSanitizer is
     ExecutableDecoderAndSanitizer,
     WithdrawableDecoderAndSanitizer
 {
-    constructor() BaseDecoderAndSanitizer(address(0)) {}
-
-    //============================== HANDLE FUNCTION COLLISIONS ===============================
+//============================== HANDLE FUNCTION COLLISIONS ===============================
 }

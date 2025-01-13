@@ -5,7 +5,5 @@ import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecode
 import {KarakDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/KarakDecoderAndSanitizer.sol";
 
 contract OnlyKarakDecoderAndSanitizer is KarakDecoderAndSanitizer {
-    constructor(address _boringVault) BaseDecoderAndSanitizer(_boringVault) {}
-
-    //============================== HANDLE FUNCTION COLLISIONS ===============================
+//============================== HANDLE FUNCTION COLLISIONS ===============================
 }

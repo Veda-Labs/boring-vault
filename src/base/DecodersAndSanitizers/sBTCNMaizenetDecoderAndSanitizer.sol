@@ -7,22 +7,8 @@ import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols
 import {NativeWrapperDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol";
 
-
 contract sBTCNMaizenetDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
     OFTDecoderAndSanitizer,
-    CurveDecoderAndSanitizer,
-    NativeWrapperDecoderAndSanitizer
-{
-    constructor(address _boringVault) BaseDecoderAndSanitizer(_boringVault) {}
-
-    function withdraw(uint256 /*amount*/ )
-        external
-        pure
-        override(CurveDecoderAndSanitizer, NativeWrapperDecoderAndSanitizer)
-        returns (bytes memory addressesFound)
-    {
-        //Nothing to sanitize.
-        return addressesFound;
-    }
-}
+    CurveDecoderAndSanitizer
+{}

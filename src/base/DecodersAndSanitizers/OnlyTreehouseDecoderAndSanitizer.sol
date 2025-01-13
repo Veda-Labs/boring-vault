@@ -6,7 +6,5 @@ import {TreehouseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Proto
 import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
 
 contract OnlyTreehouseDecoderAndSanitizer is TreehouseDecoderAndSanitizer, CurveDecoderAndSanitizer {
-    constructor(address _boringVault) BaseDecoderAndSanitizer(_boringVault) {}
-
-    //============================== HANDLE FUNCTION COLLISIONS ===============================
+//============================== HANDLE FUNCTION COLLISIONS ===============================
 }

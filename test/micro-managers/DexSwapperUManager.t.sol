@@ -49,8 +49,7 @@ contract DexSwapperUManagerTest is Test, MainnetAddresses {
 
         manager = new ManagerWithMerkleVerification(address(this), address(boringVault), vault);
 
-        rawDataDecoderAndSanitizer =
-            address(new EtherFiLiquidDecoderAndSanitizer(address(boringVault), uniswapV3NonFungiblePositionManager));
+        rawDataDecoderAndSanitizer = address(new EtherFiLiquidDecoderAndSanitizer(uniswapV3NonFungiblePositionManager));
 
         dexSwapperUManager = new DexSwapperUManager(
             address(this), address(manager), address(boringVault), uniV3Router, vault, address(priceRouter)

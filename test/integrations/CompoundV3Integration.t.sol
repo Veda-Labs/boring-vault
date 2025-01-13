@@ -46,7 +46,7 @@ contract CompoundV3IntegrationTest is Test, MerkleTreeHelper {
         manager =
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
-        rawDataDecoderAndSanitizer = address(new EtherFiLiquidEthDecoderAndSanitizer(address(boringVault), address(0)));
+        rawDataDecoderAndSanitizer = address(new EtherFiLiquidEthDecoderAndSanitizer(address(0)));
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);

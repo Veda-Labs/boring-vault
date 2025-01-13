@@ -54,9 +54,7 @@ contract PendleLimitOrderIntegrationTest is Test, MerkleTreeHelper {
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
         rawDataDecoderAndSanitizer = address(
-            new EtherFiLiquidDecoderAndSanitizer(
-                address(boringVault), getAddress(sourceChain, "uniswapV3NonFungiblePositionManager")
-            )
+            new EtherFiLiquidDecoderAndSanitizer(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"))
         );
 
         setAddress(true, sourceChain, "boringVault", address(boringVault));

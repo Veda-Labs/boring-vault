@@ -36,8 +36,6 @@ contract PointFarmingDecoderAndSanitizer is
     SatlayerStakingDecoderAndSanitizer,
     CornStakingDecoderAndSanitizer
 {
-    constructor(address _boringVault) BaseDecoderAndSanitizer(_boringVault) {}
-
     //============================== HANDLE FUNCTION COLLISIONS ===============================
 
     function withdraw(address _token, uint256 /*_amount*/ )

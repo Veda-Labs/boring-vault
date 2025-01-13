@@ -347,7 +347,7 @@ contract StandardBridgeIntegrationBaseTest is Test, MerkleTreeHelper {
         manager =
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
-        rawDataDecoderAndSanitizer = address(new BridgingDecoderAndSanitizer(address(boringVault)));
+        rawDataDecoderAndSanitizer = address(new BridgingDecoderAndSanitizer());
 
         rolesAuthority = new RolesAuthority(address(this), Authority(address(0)));
         boringVault.setAuthority(rolesAuthority);

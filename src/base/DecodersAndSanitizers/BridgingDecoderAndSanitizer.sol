@@ -31,8 +31,6 @@ contract BridgingDecoderAndSanitizer is
     LidoStandardBridgeDecoderAndSanitizer,
     HyperlaneDecoderAndSanitizer
 {
-    constructor(address _boringVault) BaseDecoderAndSanitizer(_boringVault) {}
-
     //============================== HANDLE FUNCTION COLLISIONS ===============================
 
     function proveWithdrawalTransaction(

@@ -48,7 +48,7 @@ contract EigenRewardsIntegrationTest is Test, MerkleTreeHelper {
 
         _startFork(rpcKey, blockNumber);
 
-        rawDataDecoderAndSanitizer = address(new StakingDecoderAndSanitizer(address(boringVault)));
+        rawDataDecoderAndSanitizer = address(new StakingDecoderAndSanitizer());
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);

@@ -8,8 +8,10 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol"; 
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {UsualMoneyDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UsualMoneyDecoderAndSanitizer.sol";
+import {EtherFiLiquidUsdDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/EtherFiLiquidUsdDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
@@ -47,7 +49,7 @@ contract UsualMoneyIntegrationTest is Test, MerkleTreeHelper {
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
         rawDataDecoderAndSanitizer = address(
-            new FullUsualMoneyDecoderAndSanitizer(address(boringVault))
+            new EtherFiLiquidUsdDecoderAndSanitizer(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"))
         );
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
@@ -109,15 +111,14 @@ contract UsualMoneyIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testUsualMoneyIntegration() external {
-        uint256 mintAmount = 100_000e18; 
+        uint256 mintAmount = 100_000e18;
         //mintAmount = bound(mintAmount, 1e18, 1_000_000e18);
         deal(getAddress(sourceChain, "USD0"), address(boringVault), mintAmount);
         deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000e8);
 
-        
-        uint256 usdcBalance = getERC20(sourceChain, "USDC").balanceOf(address(boringVault)); 
-        console.log("USDC balance", usdcBalance); 
-        assertGt(usdcBalance, 0); 
+        uint256 usdcBalance = getERC20(sourceChain, "USDC").balanceOf(address(boringVault));
+        console.log("USDC balance", usdcBalance);
+        assertGt(usdcBalance, 0);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addUsualMoneyLeafs(leafs);
@@ -127,47 +128,52 @@ contract UsualMoneyIntegrationTest is Test, MerkleTreeHelper {
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
         ManageLeaf[] memory manageLeafs = new ManageLeaf[](9);
-        manageLeafs[0] = leafs[0]; //approve 
-        manageLeafs[1] = leafs[1]; //approve 
+        manageLeafs[0] = leafs[0]; //approve
+        manageLeafs[1] = leafs[1]; //approve
         manageLeafs[2] = leafs[2]; //approve
         manageLeafs[3] = leafs[3]; //wrap
-        manageLeafs[4] = leafs[4]; //unlock@floor  
-        //manageLeafs[4] = leafs[5]; //unwrap -> skip 
+        manageLeafs[4] = leafs[4]; //unlock@floor
+        //manageLeafs[4] = leafs[5]; //unwrap -> skip
         manageLeafs[5] = leafs[6]; //deposit
-        manageLeafs[6] = leafs[7]; //provide 
-        manageLeafs[7] = leafs[8]; //swap 
-        manageLeafs[8] = leafs[9]; //withdraw 
+        manageLeafs[6] = leafs[7]; //provide
+        manageLeafs[7] = leafs[8]; //swap
+        manageLeafs[8] = leafs[9]; //withdraw
 
         (bytes32[][] memory manageProofs) = _getProofsUsingTree(manageLeafs, manageTree);
 
         address[] memory targets = new address[](9);
-        targets[0] = getAddress(sourceChain, "USD0"); //approve usd0pp 
+        targets[0] = getAddress(sourceChain, "USD0"); //approve usd0pp
         targets[1] = getAddress(sourceChain, "USD0"); //approve swapper
-        targets[2] = getAddress(sourceChain, "USDC"); //approve swapper 
+        targets[2] = getAddress(sourceChain, "USDC"); //approve swapper
         targets[3] = getAddress(sourceChain, "USD0_plus"); //wrap
-        targets[4] = getAddress(sourceChain, "USD0_plus");  //unlock@floor
-        targets[5] = getAddress(sourceChain, "usualSwapperEngine");  //depositUSDC
-        targets[6] = getAddress(sourceChain, "usualSwapperEngine");  //provideUsd0
-        targets[7] = getAddress(sourceChain, "usualSwapperEngine");  //swapUsd0
-        targets[8] = getAddress(sourceChain, "usualSwapperEngine");  //withdrawUSDC
-        
-        uint256[] memory orderIds = new uint256[](1);  
-        orderIds[0] = ISwapperEngine(getAddress(sourceChain, "usualSwapperEngine")).getNextOrderId(); 
-        console.log("order id", orderIds[0]); 
+        targets[4] = getAddress(sourceChain, "USD0_plus"); //unlock@floor
+        targets[5] = getAddress(sourceChain, "usualSwapperEngine"); //depositUSDC
+        targets[6] = getAddress(sourceChain, "usualSwapperEngine"); //provideUsd0
+        targets[7] = getAddress(sourceChain, "usualSwapperEngine"); //swapUsd0
+        targets[8] = getAddress(sourceChain, "usualSwapperEngine"); //withdrawUSDC
 
+        uint256[] memory orderIds = new uint256[](1);
+        orderIds[0] = ISwapperEngine(getAddress(sourceChain, "usualSwapperEngine")).getNextOrderId();
+        console.log("order id", orderIds[0]);
 
         bytes[] memory targetData = new bytes[](9);
         targetData[0] =
             abi.encodeWithSelector(ERC20.approve.selector, getAddress(sourceChain, "USD0_plus"), type(uint256).max);
-        targetData[1] =
-            abi.encodeWithSelector(ERC20.approve.selector, getAddress(sourceChain, "usualSwapperEngine"), type(uint256).max);
-        targetData[2] = 
-            abi.encodeWithSelector(ERC20.approve.selector, getAddress(sourceChain, "usualSwapperEngine"), type(uint256).max); 
+        targetData[1] = abi.encodeWithSelector(
+            ERC20.approve.selector, getAddress(sourceChain, "usualSwapperEngine"), type(uint256).max
+        );
+        targetData[2] = abi.encodeWithSelector(
+            ERC20.approve.selector, getAddress(sourceChain, "usualSwapperEngine"), type(uint256).max
+        );
         targetData[3] = abi.encodeWithSignature("mint(uint256)", 100e18);
         targetData[4] = abi.encodeWithSignature("unlockUsd0ppFloorPrice(uint256)", 10e18);
         targetData[5] = abi.encodeWithSignature("depositUSDC(uint256)", 100_000e6);
-        targetData[6] = abi.encodeWithSignature("provideUsd0ReceiveUSDC(address,uint256,uint256[],bool)", address(boringVault), 10_000e6, orderIds, false);
-        targetData[7] = abi.encodeWithSignature("swapUsd0(address,uint256,uint256[],bool)", address(boringVault), 10_000e18, orderIds, false);
+        targetData[6] = abi.encodeWithSignature(
+            "provideUsd0ReceiveUSDC(address,uint256,uint256[],bool)", address(boringVault), 10_000e6, orderIds, false
+        );
+        targetData[7] = abi.encodeWithSignature(
+            "swapUsd0(address,uint256,uint256[],bool)", address(boringVault), 10_000e18, orderIds, false
+        );
         targetData[8] = abi.encodeWithSignature("withdrawUSDC(uint256)", orderIds[0]);
 
         uint256[] memory values = new uint256[](9);
@@ -213,7 +219,7 @@ contract UsualMoneyIntegrationTest is Test, MerkleTreeHelper {
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
-        uint256 fee = 5e15; 
+        uint256 fee = 5e15;
         assertEq(
             ERC20(getAddress(sourceChain, "USD0")).balanceOf(address(boringVault)),
             mintAmount - fee,
@@ -229,10 +235,8 @@ contract UsualMoneyIntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullUsualMoneyDecoderAndSanitizer is UsualMoneyDecoderAndSanitizer {
-    constructor(address _boringVault) BaseDecoderAndSanitizer(_boringVault) {}
-}
+contract FullUsualMoneyDecoderAndSanitizer is UsualMoneyDecoderAndSanitizer {}
 
 interface ISwapperEngine {
-    function getNextOrderId() external view returns (uint256); 
+    function getNextOrderId() external view returns (uint256);
 }

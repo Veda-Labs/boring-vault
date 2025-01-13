@@ -52,7 +52,6 @@ contract PancakeSwapV3IntegrationTest is Test, MerkleTreeHelper {
 
         rawDataDecoderAndSanitizer = address(
             new PancakeSwapV3FullDecoderAndSanitizer(
-                address(boringVault),
                 getAddress(sourceChain, "pancakeSwapV3NonFungiblePositionManager"),
                 getAddress(sourceChain, "pancakeSwapV3MasterChefV3")
             )
@@ -516,7 +515,12 @@ contract PancakeSwapV3IntegrationTest is Test, MerkleTreeHelper {
         );
 
         vm.expectRevert(
-            abi.encodeWithSelector(UniswapV3DecoderAndSanitizer.UniswapV3DecoderAndSanitizer__BadTokenId.selector)
+            abi.encodeWithSelector(
+                ManagerWithMerkleVerification.ManagerWithMerkleVerification__FailedToVerifyManageProof.selector,
+                targets[5],
+                targetData[5],
+                0
+            )
         );
         manager.manageVaultWithMerkleVerification(
             manageProofs, decodersAndSanitizers, targets, targetData, new uint256[](8)
@@ -536,7 +540,12 @@ contract PancakeSwapV3IntegrationTest is Test, MerkleTreeHelper {
         );
 
         vm.expectRevert(
-            abi.encodeWithSelector(UniswapV3DecoderAndSanitizer.UniswapV3DecoderAndSanitizer__BadTokenId.selector)
+            abi.encodeWithSelector(
+                ManagerWithMerkleVerification.ManagerWithMerkleVerification__FailedToVerifyManageProof.selector,
+                targets[6],
+                targetData[6],
+                0
+            )
         );
         manager.manageVaultWithMerkleVerification(
             manageProofs, decodersAndSanitizers, targets, targetData, new uint256[](8)
@@ -555,7 +564,12 @@ contract PancakeSwapV3IntegrationTest is Test, MerkleTreeHelper {
         targetData[7] = abi.encodeWithSignature("collect((uint256,address,uint128,uint128))", collectParams);
 
         vm.expectRevert(
-            abi.encodeWithSelector(UniswapV3DecoderAndSanitizer.UniswapV3DecoderAndSanitizer__BadTokenId.selector)
+            abi.encodeWithSelector(
+                ManagerWithMerkleVerification.ManagerWithMerkleVerification__FailedToVerifyManageProof.selector,
+                targets[7],
+                targetData[7],
+                0
+            )
         );
         manager.manageVaultWithMerkleVerification(
             manageProofs, decodersAndSanitizers, targets, targetData, new uint256[](8)

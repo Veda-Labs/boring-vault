@@ -6,12 +6,7 @@ import {PancakeSwapV3DecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/PancakeSwapV3DecoderAndSanitizer.sol";
 
 contract PancakeSwapV3FullDecoderAndSanitizer is PancakeSwapV3DecoderAndSanitizer {
-    constructor(
-        address _boringVault,
-        address _pancakeSwapV3NonFungiblePositionManager,
-        address _pancakeSwapV3MasterChef
-    )
-        BaseDecoderAndSanitizer(_boringVault)
+    constructor(address _pancakeSwapV3NonFungiblePositionManager, address _pancakeSwapV3MasterChef)
         PancakeSwapV3DecoderAndSanitizer(_pancakeSwapV3NonFungiblePositionManager, _pancakeSwapV3MasterChef)
     {}
 }

@@ -70,8 +70,7 @@ contract ManagerWithMerkleVerificationTest is Test, MerkleTreeHelper {
 
         manager = new ManagerWithMerkleVerification(address(this), address(boringVault), vault);
 
-        rawDataDecoderAndSanitizer =
-            address(new EtherFiLiquidDecoderAndSanitizer(address(boringVault), uniswapV3NonFungiblePositionManager));
+        rawDataDecoderAndSanitizer = address(new EtherFiLiquidDecoderAndSanitizer(uniswapV3NonFungiblePositionManager));
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         setAddress(false, sourceChain, "manager", address(manager));

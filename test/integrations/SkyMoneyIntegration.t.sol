@@ -8,7 +8,7 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol"; 
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {SkyMoneyDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SkyMoneyDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
@@ -46,9 +46,7 @@ contract SkyMoneyIntegrationTest is Test, MerkleTreeHelper {
         manager =
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
-        rawDataDecoderAndSanitizer = address(
-            new FullSkyMoneyDecoderAndSanitizer(address(boringVault))
-        );
+        rawDataDecoderAndSanitizer = address(new FullSkyMoneyDecoderAndSanitizer());
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -113,7 +111,6 @@ contract SkyMoneyIntegrationTest is Test, MerkleTreeHelper {
         deal(getAddress(sourceChain, "DAI"), address(boringVault), 100_000e18);
         deal(getAddress(sourceChain, "USDS"), address(boringVault), 100_000e18);
 
-
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addAllSkyMoneyLeafs(leafs);
 
@@ -126,17 +123,17 @@ contract SkyMoneyIntegrationTest is Test, MerkleTreeHelper {
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
         ManageLeaf[] memory manageLeafs = new ManageLeaf[](12);
-        manageLeafs[0] = leafs[0]; //approve 
-        manageLeafs[1] = leafs[1]; //approve 
+        manageLeafs[0] = leafs[0]; //approve
+        manageLeafs[1] = leafs[1]; //approve
         manageLeafs[2] = leafs[2]; //dai -> usds
         manageLeafs[3] = leafs[3]; //usds -> dai
-        manageLeafs[4] = leafs[4]; //approve 
-        manageLeafs[5] = leafs[5]; //approve 
+        manageLeafs[4] = leafs[4]; //approve
+        manageLeafs[5] = leafs[5]; //approve
         manageLeafs[6] = leafs[6]; //sellGem (swap USDC for USDS)
         manageLeafs[7] = leafs[7]; //buyGem (swap USDS for USDC)
-        manageLeafs[8] = leafs[8]; //approve 
-        manageLeafs[9] = leafs[9]; //approve 
-        manageLeafs[10] = leafs[10]; //sellGem (swap USDC for DAI) 
+        manageLeafs[8] = leafs[8]; //approve
+        manageLeafs[9] = leafs[9]; //approve
+        manageLeafs[10] = leafs[10]; //sellGem (swap USDC for DAI)
         manageLeafs[11] = leafs[11]; //buyGem (swap DAI for USDC)
 
         (bytes32[][] memory manageProofs) = _getProofsUsingTree(manageLeafs, manageTree);
@@ -164,18 +161,22 @@ contract SkyMoneyIntegrationTest is Test, MerkleTreeHelper {
             abi.encodeWithSignature("daiToUsds(address,uint256)", getAddress(sourceChain, "boringVault"), 100e18);
         targetData[3] =
             abi.encodeWithSignature("usdsToDai(address,uint256)", getAddress(sourceChain, "boringVault"), 100e18);
-        targetData[4] =
-            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "usdsLitePsmUsdc"), type(uint256).max);
-        targetData[5] =
-            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "usdsLitePsmUsdc"), type(uint256).max);
+        targetData[4] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "usdsLitePsmUsdc"), type(uint256).max
+        );
+        targetData[5] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "usdsLitePsmUsdc"), type(uint256).max
+        );
         targetData[6] =
             abi.encodeWithSignature("sellGem(address,uint256)", getAddress(sourceChain, "boringVault"), 100e6);
         targetData[7] =
             abi.encodeWithSignature("buyGem(address,uint256)", getAddress(sourceChain, "boringVault"), 100e6);
-        targetData[8] =
-            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "daiLitePsmUsdc"), type(uint256).max);
-        targetData[9] =
-            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "daiLitePsmUsdc"), type(uint256).max);
+        targetData[8] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "daiLitePsmUsdc"), type(uint256).max
+        );
+        targetData[9] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "daiLitePsmUsdc"), type(uint256).max
+        );
         targetData[10] =
             abi.encodeWithSignature("sellGem(address,uint256)", getAddress(sourceChain, "boringVault"), 100e6);
         targetData[11] =
@@ -185,11 +186,10 @@ contract SkyMoneyIntegrationTest is Test, MerkleTreeHelper {
 
         address[] memory decodersAndSanitizers = new address[](12);
         for (uint256 i = 0; i < decodersAndSanitizers.length; i++) {
-            decodersAndSanitizers[i] = rawDataDecoderAndSanitizer; 
+            decodersAndSanitizers[i] = rawDataDecoderAndSanitizer;
         }
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
-
     }
 
     // ========================================= HELPER FUNCTIONS =========================================
@@ -200,7 +200,4 @@ contract SkyMoneyIntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullSkyMoneyDecoderAndSanitizer is SkyMoneyDecoderAndSanitizer {
-    constructor(address _boringVault) BaseDecoderAndSanitizer(_boringVault) {}
-}
-
+contract FullSkyMoneyDecoderAndSanitizer is SkyMoneyDecoderAndSanitizer {}

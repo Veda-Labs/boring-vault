@@ -10,8 +10,9 @@ import {IComet} from "src/interfaces/IComet.sol";
 import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import "forge-std/Base.sol";
+import "forge-std/Test.sol";
 
-contract MerkleTreeHelper is CommonBase, ChainValues {
+contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     using Address for address;
 
     string public sourceChain;
@@ -1663,7 +1664,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
                 getAddress(sourceChain, "pancakeSwapV3NonFungiblePositionManager"),
                 false,
                 "increaseLiquidity((uint256,uint256,uint256,uint256,uint256,uint256))",
-                new address[](3),
+                new address[](5),
                 string.concat(
                     "Add liquidity to PancakeSwapV3 ",
                     ERC20(token0[i]).symbol(),
@@ -1676,6 +1677,9 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
             leafs[leafIndex].argumentAddresses[0] = address(0);
             leafs[leafIndex].argumentAddresses[1] = token0[i];
             leafs[leafIndex].argumentAddresses[2] = token1[i];
+            leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[4] = address(0);
+
             unchecked {
                 leafIndex++;
             }
@@ -1683,7 +1687,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
                 getAddress(sourceChain, "pancakeSwapV3MasterChefV3"),
                 false,
                 "increaseLiquidity((uint256,uint256,uint256,uint256,uint256,uint256))",
-                new address[](3),
+                new address[](5),
                 string.concat(
                     "Add liquidity to PancakeSwapV3 ",
                     ERC20(token0[i]).symbol(),
@@ -1696,6 +1700,8 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
             leafs[leafIndex].argumentAddresses[0] = address(0);
             leafs[leafIndex].argumentAddresses[1] = token0[i];
             leafs[leafIndex].argumentAddresses[2] = token1[i];
+            leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "pancakeSwapV3MasterChefV3");
+            leafs[leafIndex].argumentAddresses[4] = getAddress(sourceChain, "boringVault");
 
             // Swapping to move tick in pool.
             unchecked {
@@ -1718,6 +1724,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
             leafs[leafIndex].argumentAddresses[0] = token0[i];
             leafs[leafIndex].argumentAddresses[1] = token1[i];
             leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+
             unchecked {
                 leafIndex++;
             }
@@ -1747,10 +1754,13 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
             getAddress(sourceChain, "pancakeSwapV3NonFungiblePositionManager"),
             false,
             "decreaseLiquidity((uint256,uint128,uint256,uint256,uint256))",
-            new address[](0),
+            new address[](2),
             "Remove liquidity from PancakeSwapV3 position",
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[1] = address(0);
+
         unchecked {
             leafIndex++;
         }
@@ -1758,10 +1768,13 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
             getAddress(sourceChain, "pancakeSwapV3MasterChefV3"),
             false,
             "decreaseLiquidity((uint256,uint128,uint256,uint256,uint256))",
-            new address[](0),
+            new address[](2),
             "Remove liquidity from PancakeSwapV3 staked position",
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "pancakeSwapV3MasterChefV3");
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+
         unchecked {
             leafIndex++;
         }
@@ -1769,11 +1782,14 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
             getAddress(sourceChain, "pancakeSwapV3NonFungiblePositionManager"),
             false,
             "collect((uint256,address,uint128,uint128))",
-            new address[](1),
+            new address[](3),
             "Collect fees from PancakeSwapV3 position",
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[2] = address(0);
+
         unchecked {
             leafIndex++;
         }
@@ -1781,11 +1797,13 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
             getAddress(sourceChain, "pancakeSwapV3MasterChefV3"),
             false,
             "collect((uint256,address,uint128,uint128))",
-            new address[](1),
+            new address[](3),
             "Collect fees from PancakeSwapV3 staked position",
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "pancakeSwapV3MasterChefV3");
+        leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
 
         // burn
         unchecked {
@@ -2563,7 +2581,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
                     getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
                     false,
                     "increaseLiquidity((uint256,uint256,uint256,uint256,uint256,uint256))",
-                    new address[](3),
+                    new address[](4),
                     string.concat(
                         "Add liquidity to UniswapV3 ",
                         ERC20(token0[i]).symbol(),
@@ -2576,6 +2594,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
                 leafs[leafIndex].argumentAddresses[0] = address(0);
                 leafs[leafIndex].argumentAddresses[1] = token0[i];
                 leafs[leafIndex].argumentAddresses[2] = token1[i];
+                leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "boringVault");
             }
 
             //BEGIN SWAP ONLY LEAVES
@@ -2626,10 +2645,12 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
                 getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
                 false,
                 "decreaseLiquidity((uint256,uint128,uint256,uint256,uint256))",
-                new address[](0),
+                new address[](1),
                 "Remove liquidity from UniswapV3 position",
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
             unchecked {
                 leafIndex++;
             }
@@ -2637,11 +2658,12 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
                 getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
                 false,
                 "collect((uint256,address,uint128,uint128))",
-                new address[](1),
+                new address[](2),
                 "Collect fees from UniswapV3 position",
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
 
             // burn
             unchecked {
@@ -2774,7 +2796,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
                 getAddress(sourceChain, "camelotNonFungiblePositionManager"),
                 false,
                 "increaseLiquidity((uint256,uint256,uint256,uint256,uint256,uint256))",
-                new address[](3),
+                new address[](4),
                 string.concat(
                     "Add liquidity to CamelotV3 ",
                     ERC20(token0[i]).symbol(),
@@ -2787,6 +2809,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
             leafs[leafIndex].argumentAddresses[0] = address(0);
             leafs[leafIndex].argumentAddresses[1] = token0[i];
             leafs[leafIndex].argumentAddresses[2] = token1[i];
+            leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "boringVault");
 
             // Swapping to move tick in pool.
             unchecked {
@@ -2830,10 +2853,12 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
             getAddress(sourceChain, "camelotNonFungiblePositionManager"),
             false,
             "decreaseLiquidity((uint256,uint128,uint256,uint256,uint256))",
-            new address[](0),
+            new address[](1),
             "Remove liquidity from CamelotV3 position",
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
         unchecked {
             leafIndex++;
         }
@@ -2841,11 +2866,12 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
             getAddress(sourceChain, "camelotNonFungiblePositionManager"),
             false,
             "collect((uint256,address,uint128,uint128))",
-            new address[](1),
+            new address[](2),
             "Collect fees from CamelotV3 position",
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
 
         // burn
         unchecked {
@@ -5241,7 +5267,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
                 nonfungiblePositionManager,
                 false,
                 "increaseLiquidity((uint256,uint256,uint256,uint256,uint256,uint256))",
-                new address[](3),
+                new address[](4),
                 string.concat(
                     "Add liquidity to VelodromeV3 ",
                     ERC20(token0[i]).symbol(),
@@ -5254,6 +5280,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
             leafs[leafIndex].argumentAddresses[0] = address(0);
             leafs[leafIndex].argumentAddresses[1] = token0[i];
             leafs[leafIndex].argumentAddresses[2] = token1[i];
+            leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "boringVault");
 
             // Approve gauge to spend NFT.
             unchecked {
@@ -5278,10 +5305,12 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
             nonfungiblePositionManager,
             false,
             "decreaseLiquidity((uint256,uint128,uint256,uint256,uint256))",
-            new address[](0),
+            new address[](1),
             "Remove liquidity from VelodromeV3 position",
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
         unchecked {
             leafIndex++;
         }
@@ -5289,11 +5318,12 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
             nonfungiblePositionManager,
             false,
             "collect((uint256,address,uint128,uint128))",
-            new address[](1),
+            new address[](2),
             "Collect fees from VelodromeV3 position",
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
 
         // burn
         unchecked {

@@ -50,8 +50,7 @@ contract DexAggregatorUManagerTest is Test, MainnetAddresses {
 
         manager = new ManagerWithMerkleVerification(address(this), address(boringVault), vault);
 
-        rawDataDecoderAndSanitizer =
-            address(new EtherFiLiquidDecoderAndSanitizer(address(boringVault), uniswapV3NonFungiblePositionManager));
+        rawDataDecoderAndSanitizer = address(new EtherFiLiquidDecoderAndSanitizer(uniswapV3NonFungiblePositionManager));
 
         dexAggregatorUManager = new DexAggregatorUManager(
             address(this), address(manager), address(boringVault), aggregationRouterV5, address(priceRouter)

@@ -7,15 +7,6 @@ contract BaseDecoderAndSanitizer {
     error BaseDecoderAndSanitizer__FunctionSelectorNotSupported();
     //============================== IMMUTABLES ===============================
 
-    /**
-     * @notice The BoringVault contract address.
-     */
-    address internal immutable boringVault;
-
-    constructor(address _boringVault) {
-        boringVault = _boringVault;
-    }
-
     function approve(address spender, uint256) external pure returns (bytes memory addressesFound) {
         addressesFound = abi.encodePacked(spender);
     }

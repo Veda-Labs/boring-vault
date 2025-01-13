@@ -6,8 +6,6 @@ import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndS
 contract TermFinanceDecoderAndSanitizer is BaseDecoderAndSanitizer {
     //============================== TERM FINANCE ===============================
 
-    constructor(address _boringVault) BaseDecoderAndSanitizer(_boringVault) {}
-
     function lockOffers(DecoderCustomTypes.TermAuctionOfferSubmission[] calldata offerSubmissions)
         external
         pure

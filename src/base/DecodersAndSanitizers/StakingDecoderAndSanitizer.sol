@@ -22,8 +22,6 @@ contract StakingDecoderAndSanitizer is
     EigenLayerLSTStakingDecoderAndSanitizer,
     FraxDecoderAndSanitizer
 {
-    constructor(address _boringVault) BaseDecoderAndSanitizer(_boringVault) {}
-
     // //============================== HANDLE FUNCTION COLLISIONS ===============================
     function wrap(uint256)
         external

@@ -49,11 +49,8 @@ contract SymbioticIntegrationTest is Test, MerkleTreeHelper {
         manager =
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
-        rawDataDecoderAndSanitizer = address(
-            new SymbioticLRTDecoderAndSanitizer(
-                address(boringVault), getAddress(sourceChain, "uniswapV3NonFungiblePositionManager")
-            )
-        );
+        rawDataDecoderAndSanitizer =
+            address(new SymbioticLRTDecoderAndSanitizer(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager")));
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);

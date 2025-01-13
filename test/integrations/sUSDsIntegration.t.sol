@@ -8,7 +8,7 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol"; 
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {EtherFiLiquidDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EtherFiLiquidDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
@@ -47,7 +47,7 @@ contract sUSDsIntegration is Test, MerkleTreeHelper {
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
         rawDataDecoderAndSanitizer = address(
-            new EtherFiLiquidDecoderAndSanitizer(address(boringVault), getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"))
+            new EtherFiLiquidDecoderAndSanitizer(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"))
         );
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
@@ -109,7 +109,7 @@ contract sUSDsIntegration is Test, MerkleTreeHelper {
     }
 
     function testSUSDSIntegration() external {
-        //uint256 mintAmount = 100_000e18; 
+        //uint256 mintAmount = 100_000e18;
         deal(getAddress(sourceChain, "USDS"), address(boringVault), 1_000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
@@ -120,7 +120,7 @@ contract sUSDsIntegration is Test, MerkleTreeHelper {
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
         ManageLeaf[] memory manageLeafs = new ManageLeaf[](5);
-        manageLeafs[0] = leafs[0]; //approve 
+        manageLeafs[0] = leafs[0]; //approve
         manageLeafs[1] = leafs[1]; //deposit
         manageLeafs[2] = leafs[2]; //withdraw
         manageLeafs[3] = leafs[3]; //mint
@@ -131,20 +131,28 @@ contract sUSDsIntegration is Test, MerkleTreeHelper {
         address[] memory targets = new address[](5);
         targets[0] = getAddress(sourceChain, "USDS"); //approve sUSDs
         targets[1] = getAddress(sourceChain, "sUSDs"); //deposit
-        targets[2] = getAddress(sourceChain, "sUSDs");  //withdraw
-        targets[3] = getAddress(sourceChain, "sUSDs");  //mint
-        targets[4] = getAddress(sourceChain, "sUSDs");  //redeem
-        
+        targets[2] = getAddress(sourceChain, "sUSDs"); //withdraw
+        targets[3] = getAddress(sourceChain, "sUSDs"); //mint
+        targets[4] = getAddress(sourceChain, "sUSDs"); //redeem
 
         bytes[] memory targetData = new bytes[](5);
         targetData[0] =
             abi.encodeWithSelector(ERC20.approve.selector, getAddress(sourceChain, "sUSDs"), type(uint256).max);
         targetData[1] =
             abi.encodeWithSignature("deposit(uint256,address)", 100e18, getAddress(sourceChain, "boringVault"));
-        targetData[2] = 
-            abi.encodeWithSignature("withdraw(uint256,address,address)", 95e18, getAddress(sourceChain, "boringVault"), getAddress(sourceChain, "boringVault"));   
+        targetData[2] = abi.encodeWithSignature(
+            "withdraw(uint256,address,address)",
+            95e18,
+            getAddress(sourceChain, "boringVault"),
+            getAddress(sourceChain, "boringVault")
+        );
         targetData[3] = abi.encodeWithSignature("mint(uint256,address)", 1e18, getAddress(sourceChain, "boringVault"));
-        targetData[4] = abi.encodeWithSignature("redeem(uint256,address,address)", 1e18, getAddress(sourceChain, "boringVault"), getAddress(sourceChain, "boringVault"));
+        targetData[4] = abi.encodeWithSignature(
+            "redeem(uint256,address,address)",
+            1e18,
+            getAddress(sourceChain, "boringVault"),
+            getAddress(sourceChain, "boringVault")
+        );
 
         uint256[] memory values = new uint256[](5);
 
@@ -156,7 +164,6 @@ contract sUSDsIntegration is Test, MerkleTreeHelper {
         decodersAndSanitizers[4] = rawDataDecoderAndSanitizer;
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
-
     }
 
     // ========================================= HELPER FUNCTIONS =========================================
@@ -166,4 +173,3 @@ contract sUSDsIntegration is Test, MerkleTreeHelper {
         vm.selectFork(forkId);
     }
 }
-

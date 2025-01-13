@@ -5,8 +5,7 @@ import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecode
 import {VelodromeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/VelodromeDecoderAndSanitizer.sol";
 
 contract AerodromeDecoderAndSanitizer is VelodromeDecoderAndSanitizer {
-    constructor(address _boringVault, address _aerodromeNonFungiblePositionManager)
-        BaseDecoderAndSanitizer(_boringVault)
+    constructor(address _aerodromeNonFungiblePositionManager)
         VelodromeDecoderAndSanitizer(_aerodromeNonFungiblePositionManager)
     {}
 }

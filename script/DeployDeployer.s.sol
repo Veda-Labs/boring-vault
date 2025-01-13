@@ -30,7 +30,6 @@ contract DeployDeployerScript is Script, ContractNames {
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
         vm.createSelectFork("swell");
-
     }
 
     function run() external {

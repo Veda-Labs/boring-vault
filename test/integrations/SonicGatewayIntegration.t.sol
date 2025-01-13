@@ -8,8 +8,9 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {SonicGatewayDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SonicGatewayDecoderAndSanitizer.sol";  
-import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";  
+import {SonicGatewayDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/SonicGatewayDecoderAndSanitizer.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
@@ -46,7 +47,7 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
         manager =
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
-        rawDataDecoderAndSanitizer = address(new FullSonicGatewayDecoderAndSanitizer( address(boringVault)));
+        rawDataDecoderAndSanitizer = address(new FullSonicGatewayDecoderAndSanitizer());
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -119,7 +120,7 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
         manager =
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
-        rawDataDecoderAndSanitizer = address(new FullSonicGatewayDecoderAndSanitizer( address(boringVault)));
+        rawDataDecoderAndSanitizer = address(new FullSonicGatewayDecoderAndSanitizer());
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -178,17 +179,17 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
         // Allow the boring vault to receive ETH.
         rolesAuthority.setPublicCapability(address(boringVault), bytes4(0), true);
     }
-    
+
     //test bridge eth -> sonic
     function testSonicGatewayDeposits() external {
-        setUpMainnet(); 
+        setUpMainnet();
 
         deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000e6);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](4);
-        ERC20[] memory bridgeAssets = new ERC20[](1); 
-        bridgeAssets[0] = getERC20(sourceChain, "USDC"); 
-        _addSonicGatewayLeafsEth(leafs, bridgeAssets); 
+        ERC20[] memory bridgeAssets = new ERC20[](1);
+        bridgeAssets[0] = getERC20(sourceChain, "USDC");
+        _addSonicGatewayLeafsEth(leafs, bridgeAssets);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -203,14 +204,16 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
         address[] memory targets = new address[](2);
         targets[0] = getAddress(sourceChain, "USDC");
         targets[1] = getAddress(sourceChain, "sonicGateway");
-        
-        //uid can be any number of the depositors choosing? I believe in their SDK they might simply pick a random number, these don't appear to be incrementing with any kind of pattern afaict 
+
+        //uid can be any number of the depositors choosing? I believe in their SDK they might simply pick a random number, these don't appear to be incrementing with any kind of pattern afaict
         //the only condition is that it hasn't been used before
         bytes[] memory targetData = new bytes[](2);
-        targetData[0] =
-            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "sonicGateway"), type(uint256).max);
-        targetData[1] =
-            abi.encodeWithSignature("deposit(uint96,address,uint256)", 1234123412342314556, getAddress(sourceChain, "USDC"), 100e6);
+        targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "sonicGateway"), type(uint256).max
+        );
+        targetData[1] = abi.encodeWithSignature(
+            "deposit(uint96,address,uint256)", 1234123412342314556, getAddress(sourceChain, "USDC"), 100e6
+        );
 
         address[] memory decodersAndSanitizers = new address[](2);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
@@ -220,18 +223,18 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
     }
-    
-    //test bridge sonic l2 -> eth mainnet 
+
+    //test bridge sonic l2 -> eth mainnet
     function testSonicGatewaySonicWitdraw() external {
-        setUpSonic(); 
+        setUpSonic();
         deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000e6);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](4);
-        address[] memory mainnetAssets= new address[](1); 
-        address[] memory sonicAssets = new address[](1); 
+        address[] memory mainnetAssets = new address[](1);
+        address[] memory sonicAssets = new address[](1);
         mainnetAssets[0] = getAddress(mainnet, "USDC"); //NOTE: this needs to be mainnet USDC
-        sonicAssets[0] = getAddress(sonicMainnet, "USDC"); 
-        _addSonicGatewayLeafsSonic(leafs, mainnetAssets, sonicAssets); 
+        sonicAssets[0] = getAddress(sonicMainnet, "USDC");
+        _addSonicGatewayLeafsSonic(leafs, mainnetAssets, sonicAssets);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -248,16 +251,19 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
         targets[0] = getAddress(sourceChain, "USDC");
         targets[1] = getAddress(sourceChain, "USDC");
         targets[2] = getAddress(sourceChain, "sonicGateway");
-        
-        //uid can be any number of the depositors choosing? I believe in their SDK they might simply pick a random number, these don't appear to be incrementing with any kind of pattern afaict 
+
+        //uid can be any number of the depositors choosing? I believe in their SDK they might simply pick a random number, these don't appear to be incrementing with any kind of pattern afaict
         //the only condition is that it hasn't been used before
         bytes[] memory targetData = new bytes[](3);
-        targetData[0] =
-            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "circleTokenAdapter"), type(uint256).max);
-        targetData[1] =
-            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "sonicGateway"), type(uint256).max);
-        targetData[2] =
-            abi.encodeWithSignature("withdraw(uint96,address,uint256)", 1234123412342314556, getAddress(mainnet, "USDC"), 100e6);
+        targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "circleTokenAdapter"), type(uint256).max
+        );
+        targetData[1] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "sonicGateway"), type(uint256).max
+        );
+        targetData[2] = abi.encodeWithSignature(
+            "withdraw(uint96,address,uint256)", 1234123412342314556, getAddress(mainnet, "USDC"), 100e6
+        );
 
         address[] memory decodersAndSanitizers = new address[](3);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
@@ -270,7 +276,7 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
     }
 
     function testSonicGatewayDepositCancel() external {
-        setUpMainnet(); 
+        setUpMainnet();
 
         MockProofVerifier mockVerifier = new MockProofVerifier();
         vm.store(
@@ -278,16 +284,15 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
             bytes32(uint256(9)), // proofVerifier slot
             bytes32(uint256(uint160(address(mockVerifier))))
         );
-         bytes memory proof = "";
-        
-        uint256 depositId = 917551056842671309452305380979543736893630245704; 
+        bytes memory proof = "";
+
+        uint256 depositId = 917551056842671309452305380979543736893630245704;
         bytes32 mappingSlot = bytes32(uint256(7));
         bytes32 depositSlot = keccak256(abi.encode(depositId, mappingSlot));
         // Calculate the hash that should be stored
-        bytes32 depositHash = keccak256(abi.encode(address(boringVault), getAddress(sourceChain, "USDC"), 100e6)); 
-         // Store the hash directly in the mapping
+        bytes32 depositHash = keccak256(abi.encode(address(boringVault), getAddress(sourceChain, "USDC"), 100e6));
+        // Store the hash directly in the mapping
         vm.store(getAddress(sourceChain, "sonicGateway"), depositSlot, depositHash);
- 
 
         // Set deadState directly
         bytes32 slot = bytes32(uint256(11)); // deadState is declared after several other state variables
@@ -300,9 +305,9 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
         deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000e6);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](4);
-        ERC20[] memory bridgeAssets = new ERC20[](1); 
-        bridgeAssets[0] = getERC20(sourceChain, "USDC"); 
-        _addSonicGatewayLeafsEth(leafs, bridgeAssets); 
+        ERC20[] memory bridgeAssets = new ERC20[](1);
+        bridgeAssets[0] = getERC20(sourceChain, "USDC");
+        _addSonicGatewayLeafsEth(leafs, bridgeAssets);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -317,15 +322,21 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
         address[] memory targets = new address[](2);
         targets[0] = getAddress(sourceChain, "USDC");
         targets[1] = getAddress(sourceChain, "sonicGateway");
-        
-        //uid can be any number of the depositors choosing? I believe in their SDK they might simply pick a random number, these don't appear to be incrementing with any kind of pattern afaict 
+
+        //uid can be any number of the depositors choosing? I believe in their SDK they might simply pick a random number, these don't appear to be incrementing with any kind of pattern afaict
         //the only condition is that it hasn't been used before
         bytes[] memory targetData = new bytes[](2);
-        targetData[0] =
-            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "sonicGateway"), type(uint256).max);
-        //id needs to be L2 id, we're going from deposit to 
-        targetData[1] =
-            abi.encodeWithSignature("cancelDepositWhileDead(uint256,address,uint256,bytes)", depositId, getAddress(sourceChain, "USDC"), 100e6, proof);
+        targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "sonicGateway"), type(uint256).max
+        );
+        //id needs to be L2 id, we're going from deposit to
+        targetData[1] = abi.encodeWithSignature(
+            "cancelDepositWhileDead(uint256,address,uint256,bytes)",
+            depositId,
+            getAddress(sourceChain, "USDC"),
+            100e6,
+            proof
+        );
 
         address[] memory decodersAndSanitizers = new address[](2);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
@@ -337,7 +348,7 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
     }
 
     function testClaimSonicToEth() external {
-        setUpMainnet(); 
+        setUpMainnet();
 
         MockProofVerifier mockVerifier = new MockProofVerifier();
         vm.store(
@@ -348,9 +359,9 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
         bytes memory proof = "";
 
         ManageLeaf[] memory leafs = new ManageLeaf[](4);
-        ERC20[] memory bridgeAssets = new ERC20[](1); 
-        bridgeAssets[0] = getERC20(sourceChain, "USDC"); 
-        _addSonicGatewayLeafsEth(leafs, bridgeAssets); 
+        ERC20[] memory bridgeAssets = new ERC20[](1);
+        bridgeAssets[0] = getERC20(sourceChain, "USDC");
+        _addSonicGatewayLeafsEth(leafs, bridgeAssets);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -363,11 +374,12 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
 
         address[] memory targets = new address[](1);
         targets[0] = getAddress(sourceChain, "sonicGateway");
-        
-        uint256 depositId = 10169420;  
+
+        uint256 depositId = 10169420;
         bytes[] memory targetData = new bytes[](1);
-        targetData[0] =
-            abi.encodeWithSignature("claim(uint256,address,uint256,bytes)", depositId, getAddress(sourceChain, "USDC"), 100e6, proof);
+        targetData[0] = abi.encodeWithSignature(
+            "claim(uint256,address,uint256,bytes)", depositId, getAddress(sourceChain, "USDC"), 100e6, proof
+        );
 
         address[] memory decodersAndSanitizers = new address[](1);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
@@ -376,12 +388,12 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
-        uint256 bal = getERC20(sourceChain, "USDC").balanceOf(address(boringVault)); 
-        assertEq(bal, 100e6);  
+        uint256 bal = getERC20(sourceChain, "USDC").balanceOf(address(boringVault));
+        assertEq(bal, 100e6);
     }
 
     function testClaimETHToSonic() external {
-        setUpSonic();         
+        setUpSonic();
 
         MockProofVerifier mockVerifier = new MockProofVerifier();
         vm.store(
@@ -389,14 +401,14 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
             bytes32(uint256(3)), // proofVerifier slot
             bytes32(uint256(uint160(address(mockVerifier))))
         );
-         bytes memory proof = "";
+        bytes memory proof = "";
 
         ManageLeaf[] memory leafs = new ManageLeaf[](4);
-        address[] memory mainnetAssets= new address[](1); 
-        address[] memory sonicAssets = new address[](1); 
+        address[] memory mainnetAssets = new address[](1);
+        address[] memory sonicAssets = new address[](1);
         mainnetAssets[0] = getAddress(mainnet, "USDC"); //NOTE: this needs to be mainnet USDC
-        sonicAssets[0] = getAddress(sonicMainnet, "USDC"); 
-        _addSonicGatewayLeafsSonic(leafs, mainnetAssets, sonicAssets); 
+        sonicAssets[0] = getAddress(sonicMainnet, "USDC");
+        _addSonicGatewayLeafsSonic(leafs, mainnetAssets, sonicAssets);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -409,13 +421,14 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
 
         address[] memory targets = new address[](1);
         targets[0] = getAddress(sourceChain, "sonicGateway");
-        
-        //uid can be any number of the depositors choosing? I believe in their SDK they might simply pick a random number, these don't appear to be incrementing with any kind of pattern afaict 
+
+        //uid can be any number of the depositors choosing? I believe in their SDK they might simply pick a random number, these don't appear to be incrementing with any kind of pattern afaict
         //the only condition is that it hasn't been used before
         //NOTE: address of token here is mainnet address
         bytes[] memory targetData = new bytes[](1);
-        targetData[0] =
-            abi.encodeWithSignature("claim(uint256,address,uint256,bytes)", 1234123412342314556, getAddress(mainnet, "USDC"), 100e6, proof);
+        targetData[0] = abi.encodeWithSignature(
+            "claim(uint256,address,uint256,bytes)", 1234123412342314556, getAddress(mainnet, "USDC"), 100e6, proof
+        );
 
         address[] memory decodersAndSanitizers = new address[](1);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
@@ -423,9 +436,9 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
         uint256[] memory values = new uint256[](1);
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
-        
-        uint256 bal = getERC20(sourceChain, "USDC").balanceOf(address(boringVault)); 
-        assertEq(bal, 100e6);  
+
+        uint256 bal = getERC20(sourceChain, "USDC").balanceOf(address(boringVault));
+        assertEq(bal, 100e6);
     }
 
     // ========================================= HELPER FUNCTIONS =========================================
@@ -436,20 +449,19 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
     }
 }
 
-contract FullSonicGatewayDecoderAndSanitizer is SonicGatewayDecoderAndSanitizer {
-    constructor(address _boringVault) BaseDecoderAndSanitizer(_boringVault){}
-}
+contract FullSonicGatewayDecoderAndSanitizer is SonicGatewayDecoderAndSanitizer {}
 
 contract MockProofVerifier {
-    function verifyProof(
-        address target,
-        bytes32 slot,
-        bytes32 value,
-        bytes32 stateRoot,
-        bytes calldata proof
-    ) external pure {
+    function verifyProof(address target, bytes32 slot, bytes32 value, bytes32 stateRoot, bytes calldata proof)
+        external
+        pure
+    {
         // Always verify for testing
-        target; slot; value; stateRoot; proof; 
+        target;
+        slot;
+        value;
+        stateRoot;
+        proof;
         return;
     }
 }
