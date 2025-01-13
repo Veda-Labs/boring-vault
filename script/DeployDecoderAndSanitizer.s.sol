@@ -10,8 +10,7 @@ import {PancakeSwapV3FullDecoderAndSanitizer} from
 import {AerodromeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/AerodromeDecoderAndSanitizer.sol";
 import {EtherFiLiquidEthDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/EtherFiLiquidEthDecoderAndSanitizer.sol";
-import {OnlyKarakDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/OnlyKarakDecoderAndSanitizer.sol";
-import {Deployer} from "src/helper/Deployer.sol";
+import {OnlyKarakDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/OnlyKarakDecoderAndSanitizer.sol"; import {Deployer} from "src/helper/Deployer.sol";
 import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
 import {ContractNames} from "resources/ContractNames.sol";
 import {PointFarmingDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/PointFarmingDecoderAndSanitizer.sol";
@@ -105,14 +104,13 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //constructorArgs = abi.encode(ultraUSDBoringVault, uniswapV3NonFungiblePositionManager);
         //deployer.deployContract("Ultra Yield Stablecoin Vault Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
         
-        //creationCode = type(SonicMainnetDecoderAndSanitizer).creationCode; 
-        //constructorArgs = abi.encode(boringVault, uniswapV3NonFungiblePositionManager); 
-       // deployer.deployContract("Sonic ETH Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        creationCode = type(SonicMainnetDecoderAndSanitizer).creationCode; 
+        constructorArgs = abi.encode(boringVault, uniswapV3NonFungiblePositionManager); 
+        deployer.deployContract("Sonic ETH/USD Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-
-        creationCode = type(EtherFiLiquidBtcDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(boringVault, uniswapV3NonFungiblePositionManager);
-        deployer.deployContract("EtherFi Liquid BTC Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
+        //creationCode = type(EtherFiLiquidBtcDecoderAndSanitizer).creationCode;
+        //constructorArgs = abi.encode(boringVault, uniswapV3NonFungiblePositionManager);
+        //deployer.deployContract("EtherFi Liquid BTC Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }

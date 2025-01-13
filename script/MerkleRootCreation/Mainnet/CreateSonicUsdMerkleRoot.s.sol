@@ -17,7 +17,7 @@ contract CreateSonicUsdMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0xd3DCe716f3eF535C5Ff8d041c1A41C3bd89b97aE;
     address public managerAddress = 0x76fda7A02B616070D3eC5902Fa3C5683AC3cB8B6;
     address public accountantAddress = 0xA76E0F54918E39A63904b51F688513043242a0BE;
-    address public rawDataDecoderAndSanitizer = 0x215dAfCAD04C59a9d8F48a8Ae1ea8f5a053309FD;
+    address public rawDataDecoderAndSanitizer = ; //TODO
 
     function setUp() external {}
 
@@ -145,6 +145,11 @@ contract CreateSonicUsdMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== sUSDs  ==========================
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sUSDs")));
+
+        // ========================== Sonic Gateway ==========================
+        ERC20[] memory bridgeAssets = new ERC20[](1); 
+        bridgeAssets[0] = getERC20(sourceChain, "USDC"); 
+        _addSonicGatewayLeafsEth(leafs, bridgeAssets); 
 
         // ========================== Verify & Generate ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
