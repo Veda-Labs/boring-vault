@@ -39,7 +39,7 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     //address boringVault = 0x5f46d540b6eD704C3c8789105F30E075AA900726;
 
     
-    address boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C; 
+    address boringVault = 0xd3DCe716f3eF535C5Ff8d041c1A41C3bd89b97aE; 
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
@@ -106,7 +106,7 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         
         creationCode = type(SonicMainnetDecoderAndSanitizer).creationCode; 
         constructorArgs = abi.encode(boringVault, uniswapV3NonFungiblePositionManager); 
-        deployer.deployContract("Sonic ETH/USD Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        deployer.deployContract("Sonic USD Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         //creationCode = type(EtherFiLiquidBtcDecoderAndSanitizer).creationCode;
         //constructorArgs = abi.encode(boringVault, uniswapV3NonFungiblePositionManager);
