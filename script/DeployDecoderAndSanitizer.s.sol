@@ -23,6 +23,7 @@ import {EdgeCapitalDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Edg
 import {EtherFiLiquidBtcDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/EtherFiLiquidBtcDecoderAndSanitizer.sol";
 import {SonicMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SonicEthMainnetDecoderAndSanitizer.sol";
+import {GigaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GigaDecoderAndSanitizer.sol"; 
 
 import {BoringDrone} from "src/base/Drones/BoringDrone.sol";
 
@@ -36,10 +37,6 @@ import "forge-std/StdJson.sol";
 contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddresses {
     uint256 public privateKey;
     Deployer public deployer = Deployer(deployerAddress);
-
-    //address boringVault = 0x5f46d540b6eD704C3c8789105F30E075AA900726;
-    
-    address boringVault = 0x3bcE5CB273F0F148010BbEa2470e7b5df84C7812; 
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
@@ -103,9 +100,9 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //constructorArgs = abi.encode(ultraUSDBoringVault, uniswapV3NonFungiblePositionManager);
         //deployer.deployContract("Ultra Yield Stablecoin Vault Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
         
-        creationCode = type(SonicMainnetDecoderAndSanitizer).creationCode; 
-        constructorArgs = abi.encode(boringVault, uniswapV3NonFungiblePositionManager); 
-        deployer.deployContract("Sonic ETH Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
+        creationCode = type(GigaDecoderAndSanitizer).creationCode; 
+        constructorArgs = abi.encode(uniswapV3NonFungiblePositionManager); 
+        deployer.deployContract("Giga Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         //creationCode = type(EtherFiLiquidBtcDecoderAndSanitizer).creationCode;
         //constructorArgs = abi.encode(boringVault, uniswapV3NonFungiblePositionManager);

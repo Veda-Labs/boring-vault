@@ -25,7 +25,7 @@ contract SonicMainnetDecoderAndSanitizer is
     SonicGatewayDecoderAndSanitizer
     {
     constructor(address _uniswapV3NonFungiblePositionManager)
-        BaseDecoderAndSanitizer(_boringVault)
+        UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
     {}
 
     //============================== HANDLE FUNCTION COLLISIONS ===============================
