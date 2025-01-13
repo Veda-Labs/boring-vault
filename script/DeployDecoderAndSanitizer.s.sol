@@ -16,13 +16,14 @@ import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
 import {ContractNames} from "resources/ContractNames.sol";
 import {PointFarmingDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/PointFarmingDecoderAndSanitizer.sol";
 import {OnlyHyperlaneDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/OnlyHyperlaneDecoderAndSanitizer.sol";
-import {SwellEtherFiLiquidEthDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SwellEtherFiLiquidEthDecoderAndSanitizer.sol"; 
+import {SwellEtherFiLiquidEthDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/SwellEtherFiLiquidEthDecoderAndSanitizer.sol";
 import {sBTCNMaizenetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/sBTCNMaizenetDecoderAndSanitizer.sol";
 import {UniBTCDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/UniBTCDecoderAndSanitizer.sol";
 import {EdgeCapitalDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EdgeCapitalDecoderAndSanitizer.sol";
-import {EtherFiLiquidBtcDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EtherFiLiquidBtcDecoderAndSanitizer.sol"; 
-import {SonicMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SonicEthMainnetDecoderAndSanitizer.sol"; 
-
+import {EtherFiLiquidBtcDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/EtherFiLiquidBtcDecoderAndSanitizer.sol";
+import {SonicMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SonicEthMainnetDecoderAndSanitizer.sol";
 
 import {BoringDrone} from "src/base/Drones/BoringDrone.sol";
 
@@ -39,14 +40,13 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
 
     //address boringVault = 0x5f46d540b6eD704C3c8789105F30E075AA900726;
 
-    
-    address boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C; 
+    address boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C;
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
         vm.createSelectFork("mainnet");
     }
-    
+
     function run() external {
         bytes memory creationCode;
         bytes memory constructorArgs;
@@ -87,15 +87,14 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //version is not synced w/ current deployed version anymore
         //deployer.deployContract("Staked BTCN Decoder and Sanitizer V0.4", creationCode, constructorArgs, 0);
 
-        //creationCode = type(SwellEtherFiLiquidEthDecoderAndSanitizer).creationCode; 
-        //constructorArgs = abi.encode(boringVault); 
+        //creationCode = type(SwellEtherFiLiquidEthDecoderAndSanitizer).creationCode;
+        //constructorArgs = abi.encode(boringVault);
         //deployer.deployContract("EtherFi Liquid ETH Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
-        
+
         //creationCode = type(sBTCNMaizenetDecoderAndSanitizer).creationCode;
         //constructorArgs = abi.encode(boringVault);
         //version is synced w/ current deployed version
         //deployer.deployContract("Staked BTCN Decoder and Sanitizer V0.2", creationCode, constructorArgs, 0);
-
 
         //creationCode = type(UniBTCDecoderAndSanitizer).creationCode;
         //constructorArgs = abi.encode(boringVault, uniswapV3NonFungiblePositionManager);
@@ -104,11 +103,10 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //creationCode = type(EdgeCapitalDecoderAndSanitizer).creationCode;
         //constructorArgs = abi.encode(ultraUSDBoringVault, uniswapV3NonFungiblePositionManager);
         //deployer.deployContract("Ultra Yield Stablecoin Vault Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
-        
-        //creationCode = type(SonicMainnetDecoderAndSanitizer).creationCode; 
-        //constructorArgs = abi.encode(boringVault, uniswapV3NonFungiblePositionManager); 
-       // deployer.deployContract("Sonic ETH Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
+        //creationCode = type(SonicMainnetDecoderAndSanitizer).creationCode;
+        //constructorArgs = abi.encode(boringVault, uniswapV3NonFungiblePositionManager);
+        // deployer.deployContract("Sonic ETH Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         creationCode = type(EtherFiLiquidBtcDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(boringVault, uniswapV3NonFungiblePositionManager);

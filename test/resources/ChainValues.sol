@@ -902,8 +902,11 @@ contract ChainValues {
         values[mainnet]["usdsLitePsmUsdc"] = 0xA188EEC8F81263234dA3622A406892F3D630f98c.toBytes32();
         values[mainnet]["daiLitePsmUsdc"] = 0xf6e72Db5454dd049d0788e411b06CfAF16853042.toBytes32();
 
-        //Sonic Gateway
+        // Sonic Gateway
         values[mainnet]["sonicGateway"] = 0xa1E2481a9CD0Cb0447EeB1cbc26F1b3fff3bec20.toBytes32();
+        
+        // Tempest Finance
+        values[mainnet]["tempest_ETH_rswETH_vault"] = 0x3E9E7861D68a82783FAfbaCaB21ea8F37231c56e.toBytes32(); 
     }
 
     function _addBaseValues() private {
@@ -1246,15 +1249,21 @@ contract ChainValues {
         values[scroll]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
         values[scroll]["liquidPayoutAddress"] = 0xA9962a5BfBea6918E958DeE0647E99fD7863b95A.toBytes32();
         values[scroll]["balancerVault"] = address(1).toBytes32();
+        values[scroll]["vault"] = address(1).toBytes32();
+        
         // ERC20
         values[scroll]["DAI"] = 0xcA77eB3fEFe3725Dc33bccB54eDEFc3D9f764f97.toBytes32();
         values[scroll]["WETH"] = 0x5300000000000000000000000000000000000004.toBytes32();
         values[scroll]["WEETH"] = 0x01f0a31698C4d065659b9bdC21B3610292a1c506.toBytes32();
+        values[scroll]["WSTETH"] = 0xf610A9dfB7C89644979b4A0f27063E9e7d7Cda32.toBytes32();
 
         // Scroll Bridge.
         values[scroll]["scrollGatewayRouter"] = 0x4C0926FF5252A435FD19e10ED15e5a249Ba19d79.toBytes32(); // withdrawERC20
         values[scroll]["scrollMessenger"] = 0x781e90f1c8Fc4611c9b7497C3B47F99Ef6969CbC.toBytes32(); // sendMessage
         values[scroll]["scrollCustomERC20Gateway"] = 0xaC78dff3A87b5b534e366A93E785a0ce8fA6Cc62.toBytes32(); // sendMessage
+        
+        // Tempest 
+        values[scroll]["tempest_weETH_wstETH_vault"] = 0x965E23eA362f4B27a57645262f06f0E88b17A97C.toBytes32(); 
     }
 
     function _addFraxtalValues() private {
@@ -1387,5 +1396,6 @@ contract ChainValues {
 
         // ERC20s
         values[swell]["WEETH"] = 0xA6cB988942610f6731e664379D15fFcfBf282b44.toBytes32(); //also OFT
+
     }
 }

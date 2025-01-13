@@ -17,6 +17,8 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
     string public sourceChain;
     uint256 leafIndex = type(uint256).max;
 
+    address internal constant NATIVE_ADDRESS = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE; 
+
     mapping(address => mapping(address => mapping(address => bool))) public ownerToTokenToSpenderToApprovalInTree;
     mapping(address => mapping(address => mapping(address => bool))) public ownerToOneInchSellTokenToBuyTokenToInTree;
 
@@ -6230,6 +6232,199 @@ contract MerkleTreeHelper is CommonBase, ChainValues {
             leafs[leafIndex].argumentAddresses[0] = address(assets[i]);
             leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
         }
+    }
+    // ========================================= Tempest Finance  =========================================
+    
+    function _addTempestRebalancingLeafs(ManageLeaf[] memory leafs, address tempestVault, ERC20[] memory assets) internal {
+        for (uint256 i = 0; i < assets.length; i++) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                address(assets[i]),
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve,  to spend ", assets[i].symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = tempestVault;
+        }
+
+        //END FOR LOOP
+        
+
+        //SINGLE SIDED REBALANCING 
+        unchecked {
+            leafIndex++;
+        }
+
+        leafs[leafIndex] = ManageLeaf(
+            tempestVault,
+            false,
+            "deposit(uint256,address,bool)",
+            new address[](1),
+            string.concat("Deposit single-sided into Tempest Rebalancing Vault (no ETH)"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+
+        leafs[leafIndex] = ManageLeaf(
+            tempestVault,
+            true,
+            "deposit(uint256,address,bool)",
+            new address[](1),
+            string.concat("Deposit single-sided into Tempest Rebalancing Vault (with ETH)"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        
+        // MULTI SIDED REBALANCING
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            tempestVault,
+            false,
+            "deposits(uint256[],address,bool)",
+            new address[](1),
+            string.concat("Deposit multi-sided into Tempest Vault (no ETH)"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            tempestVault,
+            true,
+            "deposits(uint256[],address,bool)",
+            new address[](1),
+            string.concat("Deposit multi-sided into Tempest Vault (with ETH)"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            tempestVault,
+            false,
+            "withdraw(uint256,address,address,uint256,bool)",
+            new address[](2),
+            string.concat("Withdraw from Tempest Rebalancing Vault"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            tempestVault,
+            false,
+            "redeem(uint256,address,address,uint256,bool)",
+            new address[](2),
+            string.concat("Redeem shares from Tempest Rebalancing Vault"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            tempestVault,
+            false,
+            "redeemWithoutSwap(uint256,address,address,bool)",
+            new address[](2),
+            string.concat("Redeem shares without swap from Tempest Rebalancing Vault"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+    }   
+
+    function _addTempestLSTLeafs(ManageLeaf[] memory leafs, address tempestVault, ERC20[] memory assets) internal {
+        for (uint256 i = 0; i < assets.length; i++) {
+            if (address(assets[i]) != NATIVE_ADDRESS) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    address(assets[i]),
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve Tempest LST Vault to spend ", assets[i].symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = tempestVault;
+            }
+        }
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            tempestVault,
+            false,
+            "deposit(uint256,address,bytes)",
+            new address[](1),
+            string.concat("Deposit into LST Tempest Vault (no ETH)"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            tempestVault,
+            true,
+            "deposit(uint256,address,bytes)",
+            new address[](1),
+            string.concat("Deposit into LST Tempest Vault (with ETH)"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            tempestVault,
+            false,
+            "withdraw(uint256,address,address,bytes)",
+            new address[](2),
+            string.concat("Withdraw from LST Tempest Vault"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            tempestVault,
+            false,
+            "redeem(uint256,address,address,bytes)",
+            new address[](2),
+            string.concat("Redeem shares from LST Tempest Vault"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
     }
 
     // ========================================= JSON FUNCTIONS =========================================
