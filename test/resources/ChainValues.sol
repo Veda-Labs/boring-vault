@@ -569,6 +569,7 @@ contract ChainValues {
         values[mainnet]["LBTC_WBTC_945"] = 0xf6a056627a51e511ec7f48332421432ea6971fc148d8f3c451e14ea108026549;
         values[mainnet]["sUSDePT03_USDC_915"] = 0x346afa2b6d528222a2f9721ded6e7e2c40ac94877a598f5dae5013c651d2a462;
         values[mainnet]["USD0_plusPT03_USDC_915"] = 0x8411eeb07c8e32de0b3784b6b967346a45593bfd8baeb291cc209dc195c7b3ad;
+        values[mainnet]["sUSDePT_03_27_DAI_915"] = 0x5e3e6b1e01c5708055548d82d01db741e37d03b948a7ef9f3d4b962648bcbfa7; 
 
         // MetaMorpho
         values[mainnet]["usualBoostedUSDC"] = 0xd63070114470f685b75B74D60EEc7c1113d33a3D.toBytes32();
