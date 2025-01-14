@@ -68,7 +68,7 @@ contract MerkleTreeCheckerTest is Test, MerkleTreeHelper {
         ERC20[] memory feeAssets = new ERC20[](2);
         feeAssets[0] = getERC20(sourceChain, "WBTC");
         feeAssets[1] = getERC20(sourceChain, "LBTC");
-        _addLeafsForFeeClaiming(leafs, feeAssets);
+        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets);
 
         // ========================== 1inch ==========================
         address[] memory assets = new address[](10);
@@ -148,7 +148,7 @@ contract MerkleTreeCheckerTest is Test, MerkleTreeHelper {
         ERC20[] memory feeAssets = new ERC20[](2);
         feeAssets[0] = getERC20(sourceChain, "WBTC");
         feeAssets[1] = getERC20(sourceChain, "LBTC");
-        _addLeafsForFeeClaiming(leafs, feeAssets);
+        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets);
 
         // ========================== 1inch ==========================
         address[] memory assets = new address[](10);

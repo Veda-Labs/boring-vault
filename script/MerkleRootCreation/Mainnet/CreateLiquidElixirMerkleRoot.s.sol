@@ -80,7 +80,7 @@ contract CreateLiquidElixirMerkleRootScript is Script, MerkleTreeHelper {
         feeAssets[2] = getERC20(sourceChain, "USDT");
         feeAssets[3] = getERC20(sourceChain, "deUSD");
         feeAssets[4] = getERC20(sourceChain, "sdeUSD");
-        _addLeafsForFeeClaiming(leafs, feeAssets);
+        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets);
 
         // ========================== 1inch ==========================
         address[] memory assets = new address[](7);

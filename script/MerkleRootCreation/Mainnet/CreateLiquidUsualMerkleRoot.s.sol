@@ -120,7 +120,7 @@ contract CreateLiquidUsualMerkleRootScript is Script, MerkleTreeHelper {
         feeAssets[2] = getERC20(sourceChain, "USDT");
         feeAssets[3] = getERC20(sourceChain, "USD0");
         feeAssets[4] = getERC20(sourceChain, "USD0_plus");
-        _addLeafsForFeeClaiming(leafs, feeAssets);
+        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets);
 
         // ========================== Fluid fToken ==========================
         _addFluidFTokenLeafs(leafs, getAddress(sourceChain, "fUSDC"));

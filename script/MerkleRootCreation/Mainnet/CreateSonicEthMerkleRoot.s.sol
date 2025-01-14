@@ -17,7 +17,7 @@ contract CreateSonicEthMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0x3bcE5CB273F0F148010BbEa2470e7b5df84C7812;
     address public managerAddress = 0x6830046d872604E92f9F95F225fF63f2300bc1e9;
     address public accountantAddress = 0x3a592F9Ea2463379c4154d03461A73c484993668;
-    address public rawDataDecoderAndSanitizer = ;
+    address public rawDataDecoderAndSanitizer = 0xcc97e08112FdF17044B6883B58Ace7db8efc015E;
 
     function setUp() external {}
 
@@ -42,7 +42,7 @@ contract CreateSonicEthMerkleRoot is Script, MerkleTreeHelper {
         feeAssets[0] = getERC20(sourceChain, "WETH");
         feeAssets[1] = getERC20(sourceChain, "WEETH");
         feeAssets[2] = getERC20(sourceChain, "WSTETH");
-        _addLeafsForFeeClaiming(leafs, feeAssets);
+        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets);
 
         // ========================== UniswapV3 ==========================
         // WETH, WEETH, wstETH
@@ -98,9 +98,9 @@ contract CreateSonicEthMerkleRoot is Script, MerkleTreeHelper {
         _addEtherFiLeafs(leafs);
 
         // ========================== Sonic Gateway ==========================
-        ERC20[] memory bridgeAssets = new ERC20[](1); 
-        bridgeAssets[0] = getERC20(sourceChain, "WETH"); 
-        _addSonicGatewayLeafsEth(leafs, bridgeAssets);  
+        ERC20[] memory bridgeAssets = new ERC20[](1);
+        bridgeAssets[0] = getERC20(sourceChain, "WETH");
+        _addSonicGatewayLeafsEth(leafs, bridgeAssets);
 
         // ========================== Verify & Generate ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

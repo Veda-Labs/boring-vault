@@ -1,0 +1,139 @@
+{
+    "metadata": {
+        "AccountantAddress": "0x0F2ED46802Ae2091B08fAe1ee99D1b7ff4ba469f",
+        "BoringVaultAddress": "0xD374938124Aa012f21d09B6862Df14D9051547E4",
+        "DecoderAndSanitizerAddress": "0x8A6790A3665167f3bCdfB9A3EECE92F9443c106c",
+        "DigestComposition": [
+            "Bytes20(DECODER_AND_SANITIZER_ADDRESS)",
+            "Bytes20(TARGET_ADDRESS)",
+            "Bytes1(CAN_SEND_VALUE)",
+            "Bytes4(TARGET_FUNCTION_SELECTOR)",
+            "Bytes{N*20}(ADDRESS_ARGUMENT_0,...,ADDRESS_ARGUMENT_N)"
+        ],
+        "LeafCount": 6,
+        "ManageRoot": "0xd3bb885475c2dcf6335ff3a3b813824567cda7ee2c229dbe6035a5d0283a96eb",
+        "ManagerAddress": "0x1e41440d71C2eb1250809C710dF81FcBA4473e3F",
+        "TreeCapacity": 8
+    },
+    "leafs": [
+        {
+            "AddressArguments": ["0x4D85bA8c3918359c78Ed09581E5bc7578ba932ba"],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x8A6790A3665167f3bCdfB9A3EECE92F9443c106c",
+            "Description": "Approve Staked Sonic USD, to spend scUSD",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0xb2a12806365cb29cc0b0febb6aaa67a89f65267d9ecb115bc610422fe745fb1c",
+            "PackedArgumentAddresses": "0x4d85ba8c3918359c78ed09581e5bc7578ba932ba",
+            "TargetAddress": "0xd3DCe716f3eF535C5Ff8d041c1A41C3bd89b97aE"
+        },
+        {
+            "AddressArguments": [
+                "0xd3DCe716f3eF535C5Ff8d041c1A41C3bd89b97aE",
+                "0xD374938124Aa012f21d09B6862Df14D9051547E4"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x8A6790A3665167f3bCdfB9A3EECE92F9443c106c",
+            "Description": "Bulk deposit scUSD into Staked Sonic USD",
+            "FunctionSelector": "0x9d574420",
+            "FunctionSignature": "bulkDeposit(address,uint256,uint256,address)",
+            "LeafDigest": "0x0d169a564062000435c019030dc3355da7a95c534174e2d44f18d883ea65e881",
+            "PackedArgumentAddresses": "0xd3dce716f3ef535c5ff8d041c1a41c3bd89b97aed374938124aa012f21d09b6862df14d9051547e4",
+            "TargetAddress": "0x5e39021Ae7D3f6267dc7995BB5Dd15669060DAe0"
+        },
+        {
+            "AddressArguments": [
+                "0xd3DCe716f3eF535C5Ff8d041c1A41C3bd89b97aE",
+                "0xD374938124Aa012f21d09B6862Df14D9051547E4"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x8A6790A3665167f3bCdfB9A3EECE92F9443c106c",
+            "Description": "Bulk withdraw scUSD from Staked Sonic USD",
+            "FunctionSelector": "0x3e64ce99",
+            "FunctionSignature": "bulkWithdraw(address,uint256,uint256,address)",
+            "LeafDigest": "0x0c0894d552ceeeb0c987aaeaf45c6df15f4a5d1124974e717de7660fea74a0f7",
+            "PackedArgumentAddresses": "0xd3dce716f3ef535c5ff8d041c1a41c3bd89b97aed374938124aa012f21d09b6862df14d9051547e4",
+            "TargetAddress": "0x5e39021Ae7D3f6267dc7995BB5Dd15669060DAe0"
+        },
+        {
+            "AddressArguments": ["0x13cCc810DfaA6B71957F2b87060aFE17e6EB8034"],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x8A6790A3665167f3bCdfB9A3EECE92F9443c106c",
+            "Description": "Approve Accountant to spend scUSD",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0xf7602eb69138801a06caa1b512f655b90b93a8adea02dca812698542cf558e00",
+            "PackedArgumentAddresses": "0x13ccc810dfaa6b71957f2b87060afe17e6eb8034",
+            "TargetAddress": "0xd3DCe716f3eF535C5Ff8d041c1A41C3bd89b97aE"
+        },
+        {
+            "AddressArguments": ["0xd3DCe716f3eF535C5Ff8d041c1A41C3bd89b97aE"],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x8A6790A3665167f3bCdfB9A3EECE92F9443c106c",
+            "Description": "Claim fees in scUSD",
+            "FunctionSelector": "0x15a0ea6a",
+            "FunctionSignature": "claimFees(address)",
+            "LeafDigest": "0xee4a9cd2a1d7fa969ae4a33f0676571d7f0c420e4a24ebc9f0a7697f2696e084",
+            "PackedArgumentAddresses": "0xd3dce716f3ef535c5ff8d041c1a41c3bd89b97ae",
+            "TargetAddress": "0x13cCc810DfaA6B71957F2b87060aFE17e6EB8034"
+        },
+        {
+            "AddressArguments": ["0xd3DCe716f3eF535C5Ff8d041c1A41C3bd89b97aE"],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x8A6790A3665167f3bCdfB9A3EECE92F9443c106c",
+            "Description": "Claim yield in scUSD",
+            "FunctionSelector": "0x999927df",
+            "FunctionSignature": "claimYield(address)",
+            "LeafDigest": "0x3b09425a7d429cd90a40515908c2ab7da2af8e3e316c3b59ff9cf0f7c3052456",
+            "PackedArgumentAddresses": "0xd3dce716f3ef535c5ff8d041c1a41c3bd89b97ae",
+            "TargetAddress": "0x13cCc810DfaA6B71957F2b87060aFE17e6EB8034"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+            "Description": "",
+            "FunctionSelector": "0xc5d24601",
+            "FunctionSignature": "",
+            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0000000000000000000000000000000000000000"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+            "Description": "",
+            "FunctionSelector": "0xc5d24601",
+            "FunctionSignature": "",
+            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0000000000000000000000000000000000000000"
+        }
+    ],
+    "MerkleTree": {
+        "0": [
+            "0xd3bb885475c2dcf6335ff3a3b813824567cda7ee2c229dbe6035a5d0283a96eb"
+        ],
+        "1": [
+            "0x3ca6a0167c9dc438112e73a16038d5fe3cc955f882681308d885993e511ef0d8",
+            "0x641b7435d2b2a509ff6c7f47979e0233fdf3a23a57bce02ea507c8fc27dec090"
+        ],
+        "2": [
+            "0xf0f0f25142090f75c92dee911cf1ca46a8a16b8e3d2da779a0fb37de78d07d1c",
+            "0xc0ec14097ff0d56468cd33a5afc9db48c485756d121662ca7d917ab9c847f520",
+            "0x3fa31f160813ec498e56ffe9964b32ef265cd9a8a9102326691e011ce89bd27f",
+            "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba"
+        ],
+        "3": [
+            "0xb2a12806365cb29cc0b0febb6aaa67a89f65267d9ecb115bc610422fe745fb1c",
+            "0x0d169a564062000435c019030dc3355da7a95c534174e2d44f18d883ea65e881",
+            "0x0c0894d552ceeeb0c987aaeaf45c6df15f4a5d1124974e717de7660fea74a0f7",
+            "0xf7602eb69138801a06caa1b512f655b90b93a8adea02dca812698542cf558e00",
+            "0xee4a9cd2a1d7fa969ae4a33f0676571d7f0c420e4a24ebc9f0a7697f2696e084",
+            "0x3b09425a7d429cd90a40515908c2ab7da2af8e3e316c3b59ff9cf0f7c3052456",
+            "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400"
+        ]
+    }
+}

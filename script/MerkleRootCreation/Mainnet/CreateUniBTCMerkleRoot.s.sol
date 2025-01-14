@@ -45,7 +45,7 @@ contract CreateUniBTCMerkleRootScript is Script, MerkleTreeHelper {
         feeAssets[1] = getERC20(sourceChain, "uniBTC");
         feeAssets[2] = getERC20(sourceChain, "cbBTC");
         feeAssets[3] = getERC20(sourceChain, "fBTC");
-        _addLeafsForFeeClaiming(leafs, feeAssets);
+        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets);
 
         // ========================== UniswapV3 ==========================
         address[] memory token0 = new address[](6);

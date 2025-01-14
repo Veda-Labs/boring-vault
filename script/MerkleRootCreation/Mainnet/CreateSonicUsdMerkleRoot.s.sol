@@ -17,7 +17,7 @@ contract CreateSonicUsdMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0xd3DCe716f3eF535C5Ff8d041c1A41C3bd89b97aE;
     address public managerAddress = 0x76fda7A02B616070D3eC5902Fa3C5683AC3cB8B6;
     address public accountantAddress = 0xA76E0F54918E39A63904b51F688513043242a0BE;
-    address public rawDataDecoderAndSanitizer = ; //TODO
+    address public rawDataDecoderAndSanitizer = 0xfc27B1CbA6F640060cCcC5E42B7828577f175D17;
 
     function setUp() external {}
 
@@ -43,7 +43,7 @@ contract CreateSonicUsdMerkleRoot is Script, MerkleTreeHelper {
         feeAssets[1] = getERC20(sourceChain, "DAI");
         feeAssets[2] = getERC20(sourceChain, "USDT");
         feeAssets[3] = getERC20(sourceChain, "USDS");
-        _addLeafsForFeeClaiming(leafs, feeAssets);
+        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets);
 
         // ========================== UniswapV3 ==========================
         // All combinations of USDC, USDT, sDAI, DAI, sUSDs, GHO, USDs
@@ -146,7 +146,7 @@ contract CreateSonicUsdMerkleRoot is Script, MerkleTreeHelper {
         // ========================== sUSDs  ==========================
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sUSDs")));
 
-        // ========================== Sonic Gateway ==========================
+         // ========================== Sonic Gateway ==========================
         ERC20[] memory bridgeAssets = new ERC20[](1); 
         bridgeAssets[0] = getERC20(sourceChain, "USDC"); 
         _addSonicGatewayLeafsEth(leafs, bridgeAssets); 

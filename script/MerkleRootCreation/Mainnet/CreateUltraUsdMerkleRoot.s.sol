@@ -44,7 +44,7 @@ contract CreateUltraUsdMerkleRootScript is Script, MerkleTreeHelper {
         feeAssets[1] = getERC20(sourceChain, "DAI");
         feeAssets[2] = getERC20(sourceChain, "USDT");
         feeAssets[3] = getERC20(sourceChain, "USDE");
-        _addLeafsForFeeClaiming(leafs, feeAssets);
+        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets);
 
         // ========================== Aave V3 ==========================
         ERC20[] memory aaveSupplyAssets = new ERC20[](5);

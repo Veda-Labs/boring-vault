@@ -1,0 +1,133 @@
+{
+    "metadata": {
+        "AccountantAddress": "0xA76E0F54918E39A63904b51F688513043242a0BE",
+        "BoringVaultAddress": "0xd3DCe716f3eF535C5Ff8d041c1A41C3bd89b97aE",
+        "DecoderAndSanitizerAddress": "0xad67B9EdCD822FF39ad6b81860b98351F89dB40F",
+        "DigestComposition": [
+            "Bytes20(DECODER_AND_SANITIZER_ADDRESS)",
+            "Bytes20(TARGET_ADDRESS)",
+            "Bytes1(CAN_SEND_VALUE)",
+            "Bytes4(TARGET_FUNCTION_SELECTOR)",
+            "Bytes{N*20}(ADDRESS_ARGUMENT_0,...,ADDRESS_ARGUMENT_N)"
+        ],
+        "LeafCount": 4,
+        "ManageRoot": "0x4b4cb18039d88cdcd7de6dc81bf1fca1f4026d60999cb4db58665d90a330821e",
+        "ManagerAddress": "0x76fda7A02B616070D3eC5902Fa3C5683AC3cB8B6",
+        "TreeCapacity": 8
+    },
+    "leafs": [
+        {
+            "AddressArguments": ["0xe6DCD54B4CDe2e9E935C22F57EBBBaaF5cc3BC8a"],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xad67B9EdCD822FF39ad6b81860b98351F89dB40F",
+            "Description": "Approve Circle Token Adapter to burn USDC",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x5e52be3c12f0a24aa3e86eaadc0504708fd1631dad11c3699856afa9ee822dd2",
+            "PackedArgumentAddresses": "0xe6dcd54b4cde2e9e935c22f57ebbbaaf5cc3bc8a",
+            "TargetAddress": "0x29219dd400f2Bf60E5a23d13Be72B486D4038894"
+        },
+        {
+            "AddressArguments": ["0x9Ef7629F9B930168b76283AdD7120777b3c895b3"],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xad67B9EdCD822FF39ad6b81860b98351F89dB40F",
+            "Description": "Approve Sonic Gateway L2 to spend 0x29219dd400f2Bf60E5a23d13Be72B486D4038894",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x5730108ae4722a8657fd915ad6bd564611779034609c40e95073159e48ff4cfd",
+            "PackedArgumentAddresses": "0x9ef7629f9b930168b76283add7120777b3c895b3",
+            "TargetAddress": "0x29219dd400f2Bf60E5a23d13Be72B486D4038894"
+        },
+        {
+            "AddressArguments": ["0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xad67B9EdCD822FF39ad6b81860b98351F89dB40F",
+            "Description": "Withdraw 0x29219dd400f2Bf60E5a23d13Be72B486D4038894 from Sonic",
+            "FunctionSelector": "0x7542cda8",
+            "FunctionSignature": "withdraw(uint96,address,uint256)",
+            "LeafDigest": "0x546d8ed50dcbeee59b145e88654be982f149b588be88160fb9bf11b3951b7959",
+            "PackedArgumentAddresses": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+            "TargetAddress": "0x9Ef7629F9B930168b76283AdD7120777b3c895b3"
+        },
+        {
+            "AddressArguments": ["0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xad67B9EdCD822FF39ad6b81860b98351F89dB40F",
+            "Description": "Claim 0x29219dd400f2Bf60E5a23d13Be72B486D4038894 from Sonic Gateway",
+            "FunctionSelector": "0x99016142",
+            "FunctionSignature": "claim(uint256,address,uint256,bytes)",
+            "LeafDigest": "0x9d0f09cd1e46a884516ec4d7a6a7d17a4bc44d39922a8c4ce6af67b895d97c37",
+            "PackedArgumentAddresses": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+            "TargetAddress": "0x9Ef7629F9B930168b76283AdD7120777b3c895b3"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+            "Description": "",
+            "FunctionSelector": "0xc5d24601",
+            "FunctionSignature": "",
+            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0000000000000000000000000000000000000000"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+            "Description": "",
+            "FunctionSelector": "0xc5d24601",
+            "FunctionSignature": "",
+            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0000000000000000000000000000000000000000"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+            "Description": "",
+            "FunctionSelector": "0xc5d24601",
+            "FunctionSignature": "",
+            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0000000000000000000000000000000000000000"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+            "Description": "",
+            "FunctionSelector": "0xc5d24601",
+            "FunctionSignature": "",
+            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0000000000000000000000000000000000000000"
+        }
+    ],
+    "MerkleTree": {
+        "0": [
+            "0x4b4cb18039d88cdcd7de6dc81bf1fca1f4026d60999cb4db58665d90a330821e"
+        ],
+        "1": [
+            "0x0394c70101f7940d00bcef21cefc83730c89f86e8f722d55f6cb92d074b39bb7",
+            "0x849eda7a295b642e5ddaf49a30eec4470cf507efa83b4104c0752d069c7638fe"
+        ],
+        "2": [
+            "0xc45df084c15f70c6c69ce1d2c82c7a145ca2cd677fa3ed251c310d67a4e89236",
+            "0x782c768dd95dba4aba3265ec03056d0d0ba32cddf082900765a9caaf57fc1eb5",
+            "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
+            "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba"
+        ],
+        "3": [
+            "0x5e52be3c12f0a24aa3e86eaadc0504708fd1631dad11c3699856afa9ee822dd2",
+            "0x5730108ae4722a8657fd915ad6bd564611779034609c40e95073159e48ff4cfd",
+            "0x546d8ed50dcbeee59b145e88654be982f149b588be88160fb9bf11b3951b7959",
+            "0x9d0f09cd1e46a884516ec4d7a6a7d17a4bc44d39922a8c4ce6af67b895d97c37",
+            "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400"
+        ]
+    }
+}

@@ -899,8 +899,8 @@ contract ChainValues {
 
         // Sky
         values[mainnet]["daiConverter"] = 0x3225737a9Bbb6473CB4a45b7244ACa2BeFdB276A.toBytes32(); //converts dai to USDS
-        values[mainnet]["usdsLitePsmUsdc"] = 0xA188EEC8F81263234dA3622A406892F3D630f98c.toBytes32();
-        values[mainnet]["daiLitePsmUsdc"] = 0xf6e72Db5454dd049d0788e411b06CfAF16853042.toBytes32();
+        values[mainnet]["usdsLitePsmUsdc"] = 0xA188EEC8F81263234dA3622A406892F3D630f98c.toBytes32(); 
+        values[mainnet]["daiLitePsmUsdc"] = 0xf6e72Db5454dd049d0788e411b06CfAF16853042.toBytes32(); 
 
         //Sonic Gateway
         values[mainnet]["sonicGateway"] = 0xa1E2481a9CD0Cb0447EeB1cbc26F1b3fff3bec20.toBytes32();
@@ -1313,15 +1313,35 @@ contract ChainValues {
         values[sonicMainnet]["txBundlerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
 
         // ERC20
-        values[sonicMainnet]["WETH"] = 0x309C92261178fA0CF748A855e90Ae73FDb79EBc7.toBytes32();
+        values[sonicMainnet]["WETH"] = 0x50c42dEAcD8Fc9773493ED674b675bE577f2634b.toBytes32();
         values[sonicMainnet]["USDC"] = 0x29219dd400f2Bf60E5a23d13Be72B486D4038894.toBytes32();
         values[sonicMainnet]["wS"] = 0x039e2fB66102314Ce7b64Ce5Ce3E5183bc94aD38.toBytes32();
         values[sonicMainnet]["scUSD"] = 0xd3DCe716f3eF535C5Ff8d041c1A41C3bd89b97aE.toBytes32();
         values[sonicMainnet]["scETH"] = 0x3bcE5CB273F0F148010BbEa2470e7b5df84C7812.toBytes32();
+        values[sonicMainnet]["stkscUSD"] = 0x4D85bA8c3918359c78Ed09581E5bc7578ba932ba.toBytes32(); 
         values[sonicMainnet]["ZRO"] = address(1).toBytes32();
 
         values[sonicMainnet]["balancerVault"] = address(1).toBytes32();
         values[sonicMainnet]["vault"] = address(1).toBytes32();
+
+        // Beets/Balancer
+        values[sonicMainnet]["balancerVault"] = 0xBA12222222228d8Ba445958a75a0704d566BF2C8.toBytes32();
+
+        values[sonicMainnet]["scUSD_USDC_gauge"] = 0x33B29bcf17e866A35941e07CbAd54f1807B337f5.toBytes32();
+        values[sonicMainnet]["scETH_WETH_gauge"] = address(0).toBytes32();
+
+        values[sonicMainnet]["scUSD_USDC_PoolId"] = 0xcd4d2b142235d5650ffa6a38787ed0b7d7a51c0c000000000000000000000037;
+        values[sonicMainnet]["scETH_WETH_PoolId"] = 0xe54dd58a6d4e04687f2034dd4ddab49da55f8aff00000000000000000000007c;
+
+        // Tellers
+        values[sonicMainnet]["scUSDTeller"] = 0x358CFACf00d0B4634849821BB3d1965b472c776a.toBytes32();
+        values[sonicMainnet]["scETHTeller"] = 0x31A5A9F60Dc3d62fa5168352CaF0Ee05aA18f5B8.toBytes32();
+        values[sonicMainnet]["stkscUSDTeller"] = 0x5e39021Ae7D3f6267dc7995BB5Dd15669060DAe0.toBytes32(); 
+        values[sonicMainnet]["stkscETHTeller"] = 0x49AcEbF8f0f79e1Ecb0fd47D684DAdec81cc6562.toBytes32(); 
+
+        // Accountant
+        values[sonicMainnet]["stkscUSDAccountant"] = 0x13cCc810DfaA6B71957F2b87060aFE17e6EB8034.toBytes32(); 
+        values[sonicMainnet]["stkscETHAccountant"] = 0x61bE1eC20dfE0197c27B80bA0f7fcdb1a6B236E2.toBytes32(); 
 
         // Layer Zero
         values[sonicMainnet]["LayerZeroEndPoint"] = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B.toBytes32();
@@ -1329,6 +1349,7 @@ contract ChainValues {
         // Sonic Gateway
         values[sonicMainnet]["sonicGateway"] = 0x9Ef7629F9B930168b76283AdD7120777b3c895b3.toBytes32();
         values[sonicMainnet]["circleTokenAdapter"] = 0xe6DCD54B4CDe2e9E935C22F57EBBBaaF5cc3BC8a.toBytes32();
+
     }
 
     function _addSepoliaValues() private {

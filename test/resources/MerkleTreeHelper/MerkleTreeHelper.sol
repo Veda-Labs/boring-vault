@@ -3396,20 +3396,22 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         }
 
         // Approve gauge.
-        if (!ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][pool][gauge]) {
-            unchecked {
-                leafIndex++;
+        if (gauge != address(0)) {
+            if (!ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][pool][gauge]) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    pool,
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve Balancer gauge to spend ", ERC20(pool).symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = gauge;
+                ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][pool][gauge] = true;
             }
-            leafs[leafIndex] = ManageLeaf(
-                pool,
-                false,
-                "approve(address,uint256)",
-                new address[](1),
-                string.concat("Approve Balancer gauge to spend ", ERC20(pool).symbol()),
-                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-            );
-            leafs[leafIndex].argumentAddresses[0] = gauge;
-            ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][pool][gauge] = true;
         }
 
         address[] memory addressArguments = new address[](3 + tokenCount);
@@ -3456,60 +3458,62 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         }
 
         // Deposit into gauge.
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            gauge,
-            false,
-            "deposit(uint256,address)",
-            new address[](1),
-            string.concat("Deposit ", ERC20(pool).symbol(), " into Balancer gauge"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
-
-        // Withdraw from gauge.
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            gauge,
-            false,
-            "withdraw(uint256)",
-            new address[](0),
-            string.concat("Withdraw ", ERC20(pool).symbol(), " from Balancer gauge"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-
-        if (keccak256(abi.encode(sourceChain)) == keccak256(abi.encode(mainnet))) {
-            // Mint rewards.
-            unchecked {
-                leafIndex++;
-            }
-            leafs[leafIndex] = ManageLeaf(
-                getAddress(sourceChain, "minter"),
-                false,
-                "mint(address)",
-                new address[](1),
-                string.concat("Mint rewards from Balancer gauge"),
-                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-            );
-            leafs[leafIndex].argumentAddresses[0] = gauge;
-        } else {
-            // Call claim_rewards(address) on gauge.
+        if (gauge != address(0)) {
             unchecked {
                 leafIndex++;
             }
             leafs[leafIndex] = ManageLeaf(
                 gauge,
                 false,
-                "claim_rewards(address)",
+                "deposit(uint256,address)",
                 new address[](1),
-                string.concat("Claim rewards from Balancer gauge"),
+                string.concat("Deposit ", ERC20(pool).symbol(), " into Balancer gauge"),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+            // Withdraw from gauge.
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                gauge,
+                false,
+                "withdraw(uint256)",
+                new address[](0),
+                string.concat("Withdraw ", ERC20(pool).symbol(), " from Balancer gauge"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+
+            if (keccak256(abi.encode(sourceChain)) == keccak256(abi.encode(mainnet))) {
+                // Mint rewards.
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    getAddress(sourceChain, "minter"),
+                    false,
+                    "mint(address)",
+                    new address[](1),
+                    string.concat("Mint rewards from Balancer gauge"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = gauge;
+            } else {
+                // Call claim_rewards(address) on gauge.
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    gauge,
+                    false,
+                    "claim_rewards(address)",
+                    new address[](1),
+                    string.concat("Claim rewards from Balancer gauge"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+            }
         }
     }
 
@@ -4968,16 +4972,12 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         );
     }
 
-    // ========================================= Fee Claiming =========================================
+     // ========================================= Fee Claiming =========================================
 
-    function _addLeafsForFeeClaiming(ManageLeaf[] memory leafs, ERC20[] memory feeAssets) internal {
+    function _addLeafsForFeeClaiming(ManageLeaf[] memory leafs, address accountant, ERC20[] memory feeAssets) internal {
         // Approvals.
         for (uint256 i; i < feeAssets.length; ++i) {
-            if (
-                !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][address(feeAssets[i])][getAddress(
-                    sourceChain, "accountantAddress"
-                )]
-            ) {
+            if (!ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][address(feeAssets[i])][getAddress(sourceChain, "accountantAddress")]) {
                 unchecked {
                     leafIndex++;
                 }
@@ -4989,10 +4989,9 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                     string.concat("Approve Accountant to spend ", feeAssets[i].symbol()),
                     getAddress(sourceChain, "rawDataDecoderAndSanitizer")
                 );
-                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "accountantAddress");
-                ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][address(feeAssets[i])][getAddress(
-                    sourceChain, "accountantAddress"
-                )] = true;
+                leafs[leafIndex].argumentAddresses[0] = accountant; 
+                ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][address(feeAssets[i])][accountant] =
+                    true;
             }
         }
         // Claiming fees.
@@ -5001,11 +5000,24 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 leafIndex++;
             }
             leafs[leafIndex] = ManageLeaf(
-                getAddress(sourceChain, "accountantAddress"),
+                accountant,
                 false,
                 "claimFees(address)",
                 new address[](1),
                 string.concat("Claim fees in ", feeAssets[i].symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(feeAssets[i]);
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                accountant,
+                false,
+                "claimYield(address)",
+                new address[](1),
+                string.concat("Claim yield in ", feeAssets[i].symbol()),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = address(feeAssets[i]);
@@ -6176,7 +6188,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 false,
                 "approve(address,uint256)",
                 new address[](1),
-                string.concat("Approve Sonic Gateway L2 to spend ", string(abi.encodePacked(assetsSonic[i]))),
+                string.concat("Approve Sonic Gateway L2 to spend ", vm.toString(assetsSonic[i])),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
 
@@ -6190,7 +6202,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 false,
                 "withdraw(uint96,address,uint256)",
                 new address[](1),
-                string.concat("Withdraw ", string(abi.encodePacked(assetsSonic[i])), " from Sonic"),
+                string.concat("Withdraw ", vm.toString(assetsSonic[i]), " from Sonic"),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = address(assetsMainnet[i]);
@@ -6203,7 +6215,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 false,
                 "claim(uint256,address,uint256,bytes)",
                 new address[](1),
-                string.concat("Claim ", string(abi.encodePacked(assetsSonic[i])), " from Sonic Gateway"),
+                string.concat("Claim ", vm.toString(assetsSonic[i]), " from Sonic Gateway"),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = address(assetsMainnet[i]);
