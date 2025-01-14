@@ -21,9 +21,9 @@ import {sBTCNMaizenetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/s
 import {UniBTCDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/UniBTCDecoderAndSanitizer.sol";
 import {EdgeCapitalDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EdgeCapitalDecoderAndSanitizer.sol";
 import {EtherFiLiquidBtcDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/EtherFiLiquidBtcDecoderAndSanitizer.sol";
-import {SonicMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SonicEthMainnetDecoderAndSanitizer.sol";
+    "src/base/DecodersAndSanitizers/EtherFiLiquidBtcDecoderAndSanitizer.sol"; import {SonicMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SonicEthMainnetDecoderAndSanitizer.sol";
 import {GigaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GigaDecoderAndSanitizer.sol"; 
+import {GigaBNBDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GigaBNBDecoderAndSanitizer.sol"; 
 
 import {BoringDrone} from "src/base/Drones/BoringDrone.sol";
 
@@ -40,7 +40,7 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("mainnet");
+        vm.createSelectFork("bsc");
     }
 
     function run() external {
@@ -100,9 +100,11 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //constructorArgs = abi.encode(ultraUSDBoringVault, uniswapV3NonFungiblePositionManager);
         //deployer.deployContract("Ultra Yield Stablecoin Vault Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
         
-        creationCode = type(GigaDecoderAndSanitizer).creationCode; 
-        constructorArgs = abi.encode(uniswapV3NonFungiblePositionManager); 
-        deployer.deployContract("Giga Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
+        address pancakeswapNFPM = 0x46A15B0b27311cedF172AB29E4f4766fbE7F4364;         
+        address pancakeswapMasterChefV3 = 0x556B9306565093C855AEA9AE92A594704c2Cd59e;  
+        creationCode = type(GigaBNBDecoderAndSanitizer).creationCode; 
+        constructorArgs = abi.encode(pancakeswapNFPM, pancakeswapMasterChefV3); 
+        deployer.deployContract("Giga BNB Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         //creationCode = type(EtherFiLiquidBtcDecoderAndSanitizer).creationCode;
         //constructorArgs = abi.encode(boringVault, uniswapV3NonFungiblePositionManager);

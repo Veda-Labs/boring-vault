@@ -810,8 +810,7 @@ contract ChainValues {
         values[mainnet]["ccipRouter"] = 0x80226fc0Ee2b096224EeAc085Bb9a8cba1146f7D.toBytes32();
 
         // PancakeSwap V3
-        values[mainnet]["pancakeSwapV3NonFungiblePositionManager"] =
-            0x46A15B0b27311cedF172AB29E4f4766fbE7F4364.toBytes32();
+        values[mainnet]["pancakeSwapV3NonFungiblePositionManager"] = 0x46A15B0b27311cedF172AB29E4f4766fbE7F4364.toBytes32();
         values[mainnet]["pancakeSwapV3MasterChefV3"] = 0x556B9306565093C855AEA9AE92A594704c2Cd59e.toBytes32();
         values[mainnet]["pancakeSwapV3Router"] = 0x13f4EA83D0bd40E75C8222255bc855a974568Dd4.toBytes32();
         // Arbitrum Bridge
