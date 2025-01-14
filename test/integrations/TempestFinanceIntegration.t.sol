@@ -251,48 +251,134 @@ contract TempestFinance is Test, MerkleTreeHelper {
 
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
-        ManageLeaf[] memory manageLeafs = new ManageLeaf[](6);
+        ManageLeaf[] memory manageLeafs = new ManageLeaf[](3);
         manageLeafs[0] = leafs[0]; //approve
         manageLeafs[1] = leafs[1]; //approve
         manageLeafs[2] = leafs[2]; //deposit single (no eth)
-        manageLeafs[3] = leafs[6]; //withdraw
-        manageLeafs[4] = leafs[7]; //redeem
-        manageLeafs[5] = leafs[8]; //withdrawWithoutSwap
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 
-        address[] memory targets = new address[](6);
+        address[] memory targets = new address[](3);
         targets[0] = getAddress(sourceChain, "WEETH");
         targets[1] = getAddress(sourceChain, "WSTETH");
         targets[2] = getAddress(sourceChain, "tempest_weETH_wstETH_vault");
-        targets[3] = getAddress(sourceChain, "tempest_weETH_wstETH_vault");
-        targets[4] = getAddress(sourceChain, "tempest_weETH_wstETH_vault");
-        targets[5] = getAddress(sourceChain, "tempest_weETH_wstETH_vault");
 
-        bytes[] memory targetData = new bytes[](6);
+        bytes[] memory targetData = new bytes[](3);
         targetData[0] =
             abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "tempest_weETH_wstETH_vault"), type(uint256).max);
         targetData[1] =
             abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "tempest_weETH_wstETH_vault"), type(uint256).max);
         targetData[2] =
-            abi.encodeWithSignature("deposit(uint256,address,bool)", 10e18, getAddress(sourceChain, "boringVault"), true);
-        targetData[3] =
-            abi.encodeWithSignature("withdraw(uint256,address,address,uint256,bool)", 1, getAddress(sourceChain, "boringVault"), getAddress(sourceChain, "boringVault"), 0, false);  
-        targetData[4] =
-            abi.encodeWithSignature("redeem(uint256,address,address,uint256,bool)", 1e18, getAddress(sourceChain, "boringVault"), getAddress(sourceChain, "boringVault"), 0, false);  
-        targetData[5] =
-            abi.encodeWithSignature("redeemWithoutSwap(uint256,address,address,bool)", 1e18, getAddress(sourceChain, "boringVault"), getAddress(sourceChain, "boringVault"), 0, false);  
+            abi.encodeWithSignature("deposit(uint256,address,bool)", 10e18, getAddress(sourceChain, "boringVault"), false);
 
-        address[] memory decodersAndSanitizers = new address[](6);
+        address[] memory decodersAndSanitizers = new address[](3);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[2] = rawDataDecoderAndSanitizer;
-        decodersAndSanitizers[3] = rawDataDecoderAndSanitizer;
-        decodersAndSanitizers[4] = rawDataDecoderAndSanitizer;
-        decodersAndSanitizers[5] = rawDataDecoderAndSanitizer;
 
-        uint256[] memory values = new uint256[](6);
+        uint256[] memory values = new uint256[](3);
 
+        manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
+
+        //END DEPOSIT
+        //to get around JIT liquidity safety checks, we must ff a few blocks
+        skip(10); 
+
+        //arrays are same size, we can simply reassign
+        
+        manageLeafs[0] = leafs[6]; //withdraw
+        manageLeafs[1] = leafs[7]; //redeem
+        manageLeafs[2] = leafs[8]; //withdrawWithoutSwap
+
+        manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
+
+        targets[0] = getAddress(sourceChain, "tempest_weETH_wstETH_vault");
+        targets[1] = getAddress(sourceChain, "tempest_weETH_wstETH_vault");
+        targets[2] = getAddress(sourceChain, "tempest_weETH_wstETH_vault");
+
+        targetData[0] =
+            abi.encodeWithSignature("withdraw(uint256,address,address,uint256,bool)", 1e18, getAddress(sourceChain, "boringVault"), getAddress(sourceChain, "boringVault"), 10, true);  
+        targetData[1] =
+            abi.encodeWithSignature("redeem(uint256,address,address,uint256,bool)", 1e18, getAddress(sourceChain, "boringVault"), getAddress(sourceChain, "boringVault"), 0, false);  
+        targetData[2] =
+            abi.encodeWithSignature("redeemWithoutSwap(uint256,address,address,bool)", 1e18, getAddress(sourceChain, "boringVault"), getAddress(sourceChain, "boringVault"), 0, false);  
+        //d&s and values are same    
+        manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
+    }
+
+    function testTempestIntegrationRebalancingVaultMulti() external {
+        _setUpScroll(); 
+
+        deal(getAddress(sourceChain, "WEETH"), address(boringVault), 100e18);
+        deal(getAddress(sourceChain, "WSTETH"), address(boringVault), 100e18);
+
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
+        ERC20[] memory assets = new ERC20[](2); 
+        assets[0] = getERC20(sourceChain, "WEETH"); 
+        assets[1] = getERC20(sourceChain, "WSTETH"); 
+        _addTempestRebalancingLeafs(leafs, getAddress(sourceChain, "tempest_weETH_wstETH_vault"), assets);  
+
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        ManageLeaf[] memory manageLeafs = new ManageLeaf[](3);
+        manageLeafs[0] = leafs[0]; //approve
+        manageLeafs[1] = leafs[1]; //approve
+        manageLeafs[2] = leafs[4]; //deposit multi (no eth)
+
+        bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
+
+        address[] memory targets = new address[](3);
+        targets[0] = getAddress(sourceChain, "WEETH");
+        targets[1] = getAddress(sourceChain, "WSTETH");
+        targets[2] = getAddress(sourceChain, "tempest_weETH_wstETH_vault");
+
+        // can use FE to determine amounts or call calculateAmount1ForAmount0() or calculateAmount0ForAmount1() on vault contract
+        uint256[] memory amounts = new uint256[](2); 
+        amounts[0] = 10e18; 
+        amounts[1] = 2.820608e18; 
+
+        bytes[] memory targetData = new bytes[](3);
+        targetData[0] =
+            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "tempest_weETH_wstETH_vault"), type(uint256).max);
+        targetData[1] =
+            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "tempest_weETH_wstETH_vault"), type(uint256).max);
+        targetData[2] =
+            abi.encodeWithSignature("deposits(uint256[],address,bool)", amounts, getAddress(sourceChain, "boringVault"), false);
+
+        address[] memory decodersAndSanitizers = new address[](3);
+        decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[2] = rawDataDecoderAndSanitizer;
+
+        uint256[] memory values = new uint256[](3);
+
+        manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
+
+        //END DEPOSIT
+        //to get around JIT liquidity safety checks, we must ff a few blocks
+        skip(10); 
+
+        //arrays are same size, we can simply reassign
+        
+        manageLeafs[0] = leafs[6]; //withdraw
+        manageLeafs[1] = leafs[7]; //redeem
+        manageLeafs[2] = leafs[8]; //withdrawWithoutSwap
+
+        manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
+
+        targets[0] = getAddress(sourceChain, "tempest_weETH_wstETH_vault");
+        targets[1] = getAddress(sourceChain, "tempest_weETH_wstETH_vault");
+        targets[2] = getAddress(sourceChain, "tempest_weETH_wstETH_vault");
+
+        targetData[0] =
+            abi.encodeWithSignature("withdraw(uint256,address,address,uint256,bool)", 1e18, getAddress(sourceChain, "boringVault"), getAddress(sourceChain, "boringVault"), 10, true);  
+        targetData[1] =
+            abi.encodeWithSignature("redeem(uint256,address,address,uint256,bool)", 1e18, getAddress(sourceChain, "boringVault"), getAddress(sourceChain, "boringVault"), 0, false);  
+        targetData[2] =
+            abi.encodeWithSignature("redeemWithoutSwap(uint256,address,address,bool)", 1e18, getAddress(sourceChain, "boringVault"), getAddress(sourceChain, "boringVault"), 0, false);  
+        //d&s and values are same    
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
     }
 
