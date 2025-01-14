@@ -44,8 +44,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     }
 
     function run() external {
-        bytes memory creationCode;
-        bytes memory constructorArgs;
+        //bytes memory creationCode;
+        //bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
         // creationCode = type(AerodromeDecoderAndSanitizer).creationCode;
@@ -102,9 +102,11 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         
         address pancakeswapNFPM = 0x46A15B0b27311cedF172AB29E4f4766fbE7F4364;         
         address pancakeswapMasterChefV3 = 0x556B9306565093C855AEA9AE92A594704c2Cd59e;  
-        creationCode = type(GigaBNBDecoderAndSanitizer).creationCode; 
-        constructorArgs = abi.encode(pancakeswapNFPM, pancakeswapMasterChefV3); 
-        deployer.deployContract("Giga BNB Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
+        //creationCode = type(GigaBNBDecoderAndSanitizer).creationCode; 
+        //constructorArgs = abi.encode(pancakeswapNFPM, pancakeswapMasterChefV3); 
+        //deployer.deployContract("Giga BNB Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
+        
+        new GigaBNBDecoderAndSanitizer(pancakeswapNFPM, pancakeswapMasterChefV3); 
 
         //creationCode = type(EtherFiLiquidBtcDecoderAndSanitizer).creationCode;
         //constructorArgs = abi.encode(boringVault, uniswapV3NonFungiblePositionManager);
