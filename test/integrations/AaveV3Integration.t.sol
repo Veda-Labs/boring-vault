@@ -119,7 +119,116 @@ contract AaveV3IntegrationTest is Test, MerkleTreeHelper {
         // Withdraw WSTETH
         // Call setUserUseReserveAsCollateral
         // Call setUserEMode
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
+        ERC20[] memory supplyAssets = new ERC20[](1);
+        supplyAssets[0] = getERC20(sourceChain, "WSTETH");
+        ERC20[] memory borrowAssets = new ERC20[](1);
+        borrowAssets[0] = getERC20(sourceChain, "WETH");
+        _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
+
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+
+        string memory filePath = "./testTEST.json";
+        _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
+
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        ManageLeaf[] memory manageLeafs = new ManageLeaf[](9);
+        manageLeafs[0] = leafs[0];
+        manageLeafs[1] = leafs[1];
+        manageLeafs[2] = leafs[2];
+        manageLeafs[3] = leafs[4];
+        manageLeafs[4] = leafs[5];
+        manageLeafs[5] = leafs[3];
+        manageLeafs[6] = leafs[6];
+        manageLeafs[7] = leafs[7];
+        manageLeafs[8] = leafs[8];
+        bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
+
+        address[] memory targets = new address[](9);
+        targets[0] = getAddress(sourceChain, "WSTETH");
+        targets[1] = getAddress(sourceChain, "WETH");
+        targets[2] = getAddress(sourceChain, "v3Pool");
+        targets[3] = getAddress(sourceChain, "v3Pool");
+        targets[4] = getAddress(sourceChain, "v3Pool");
+        targets[5] = getAddress(sourceChain, "v3Pool");
+        targets[6] = getAddress(sourceChain, "v3Pool");
+        targets[7] = getAddress(sourceChain, "v3Pool");
+        targets[8] = getAddress(sourceChain, "v3RewardsController");
+
+        address[] memory claimAssetsData = new address[](1);
+        claimAssetsData[0] = getAddress(sourceChain, "WSTETH");
+
+        bytes[] memory targetData = new bytes[](9);
+        targetData[0] =
+            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "v3Pool"), type(uint256).max);
+        targetData[1] =
+            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "v3Pool"), type(uint256).max);
+        targetData[2] = abi.encodeWithSignature(
+            "supply(address,uint256,address,uint16)",
+            getAddress(sourceChain, "WSTETH"),
+            1_000e18,
+            address(boringVault),
+            0
+        );
+        targetData[3] = abi.encodeWithSignature(
+            "borrow(address,uint256,uint256,uint16,address)",
+            getAddress(sourceChain, "WETH"),
+            100e18,
+            2,
+            0,
+            address(boringVault)
+        );
+        targetData[4] = abi.encodeWithSignature(
+            "repay(address,uint256,uint256,address)",
+            getAddress(sourceChain, "WETH"),
+            type(uint256).max,
+            2,
+            address(boringVault)
+        );
+        targetData[5] = abi.encodeWithSignature(
+            "withdraw(address,uint256,address)", getAddress(sourceChain, "WSTETH"), 1_000e18 - 1, address(boringVault)
+        );
+        targetData[6] = abi.encodeWithSignature(
+            "setUserUseReserveAsCollateral(address,bool)", getAddress(sourceChain, "WSTETH"), true
+        );
+        targetData[7] = abi.encodeWithSignature("setUserEMode(uint8)", 0);
+        targetData[8] = abi.encodeWithSignature(
+            "claimRewards(address[],uint256,address,address)",
+            claimAssetsData,
+            0,
+            getAddress(sourceChain, "boringVault"),
+            0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0
+        );
+
+        address[] memory decodersAndSanitizers = new address[](9);
+        decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[2] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[3] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[4] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[5] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[6] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[7] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[8] = rawDataDecoderAndSanitizer;
+
+        uint256[] memory values = new uint256[](9);
+        manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
+    }
+
+    function testAaveV3IntegrationNoClaimAsset() external {
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WSTETH"), address(boringVault), 1_000e18);
+
+        // Approve WSTETH
+        // Approve WETH
+        // Supply WSTETH
+        // Borrow WETH
+        // Repay WETH
+        // Withdraw WSTETH
+        // Call setUserUseReserveAsCollateral
+        // Call setUserEMode
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
         ERC20[] memory supplyAssets = new ERC20[](1);
         supplyAssets[0] = getERC20(sourceChain, "WSTETH");
         ERC20[] memory borrowAssets = new ERC20[](1);
@@ -150,6 +259,9 @@ contract AaveV3IntegrationTest is Test, MerkleTreeHelper {
         targets[5] = getAddress(sourceChain, "v3Pool");
         targets[6] = getAddress(sourceChain, "v3Pool");
         targets[7] = getAddress(sourceChain, "v3Pool");
+
+        address[] memory claimAssetsData = new address[](1);
+        claimAssetsData[0] = getAddress(sourceChain, "WSTETH");
 
         bytes[] memory targetData = new bytes[](8);
         targetData[0] =

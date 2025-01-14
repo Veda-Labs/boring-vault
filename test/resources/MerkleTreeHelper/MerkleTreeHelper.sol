@@ -2445,6 +2445,20 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             string.concat("Set user e-mode in ", protocolName),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "v3RewardsController"),
+            false,
+            "claimRewards(address[],uint256,address,address)",
+            new address[](1),
+            string.concat("Claim rewards"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+       
     }
 
     // ========================================= Uniswap V3 =========================================
@@ -4977,7 +4991,11 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     function _addLeafsForFeeClaiming(ManageLeaf[] memory leafs, address accountant, ERC20[] memory feeAssets) internal {
         // Approvals.
         for (uint256 i; i < feeAssets.length; ++i) {
-            if (!ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][address(feeAssets[i])][getAddress(sourceChain, "accountantAddress")]) {
+            if (
+                !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][address(feeAssets[i])][getAddress(
+                    sourceChain, "accountantAddress"
+                )]
+            ) {
                 unchecked {
                     leafIndex++;
                 }

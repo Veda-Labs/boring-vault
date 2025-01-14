@@ -24,6 +24,7 @@ import {EdgeCapitalDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Edg
 import {EtherFiLiquidBtcDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/EtherFiLiquidBtcDecoderAndSanitizer.sol";
 import {SonicMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SonicEthMainnetDecoderAndSanitizer.sol";
+import {AaveV3FullDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/AaveV3FullDecoderAndSanitizer.sol"; 
 
 import {BoringDrone} from "src/base/Drones/BoringDrone.sol";
 
@@ -40,7 +41,9 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
 
     //address boringVault = 0x5f46d540b6eD704C3c8789105F30E075AA900726;
 
-    address boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C;
+
+    //address boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C;
+    address boringVault = 0x08c6F91e2B681FaF5e17227F2a44C307b3C1364C; 
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
@@ -108,9 +111,13 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //constructorArgs = abi.encode(boringVault, uniswapV3NonFungiblePositionManager);
         // deployer.deployContract("Sonic ETH Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        creationCode = type(EtherFiLiquidBtcDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(boringVault, uniswapV3NonFungiblePositionManager);
-        deployer.deployContract("EtherFi Liquid BTC Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
+        //creationCode = type(EtherFiLiquidBtcDecoderAndSanitizer).creationCode;
+        //constructorArgs = abi.encode(boringVault, uniswapV3NonFungiblePositionManager);
+        //deployer.deployContract("EtherFi Liquid BTC Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
+       
+        creationCode = type(AaveV3FullDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(boringVault);
+        deployer.deployContract("AaveV3 Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
