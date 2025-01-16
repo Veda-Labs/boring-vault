@@ -2,7 +2,7 @@
 pragma solidity 0.8.21;
 
 import {Deployer} from "src/helper/Deployer.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
+import {RolesAuthority, Authority, Auth} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {ContractNames} from "resources/ContractNames.sol";
 import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
 import {TimelockController, AccessControl} from "@openzeppelin/contracts/governance/TimelockController.sol";
@@ -10,43 +10,58 @@ import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
 
 /**
- *  source .env && forge script script/ProposeTimelockTx.s.sol:ProposeTimelockTxScript --with-gas-price 15000000000 --broadcast --etherscan-api-key $ETHERSCAN_KEY --verify
+ *  forge script script/ProposeTimelockTx.s.sol:ProposeTimelockTxScript --with-gas-price 15000000000 --broadcast --verify
  * @dev Optionally can change `--with-gas-price` to something more reasonable
  */
 contract ProposeTimelockTxScript is Script, ContractNames, MainnetAddresses {
     uint256 public privateKey;
 
-    RolesAuthority public rolesAuthority = RolesAuthority(0x6889E57BcA038C28520C0B047a75e567502ea5F6);
-    TimelockController public timelock = TimelockController(payable(0x70a64840A353c58f63333570f53dba0948bEcE3d));
-    address public multisig = 0xCEA8039076E35a825854c5C2f85659430b06ec96;
+    RolesAuthority public rolesAuthority = RolesAuthority(0xFa5b3E35F961229b25Caa108C3D42cEEb20d0122);
+    TimelockController public timelock;
+    address public multisig = 0x948dd9351D3721489Fe7A4530C55849cF0b4735D;
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("mainnet");
+        vm.createSelectFork("sonicMainnet");
     }
 
     function run() external {
         vm.startBroadcast(privateKey);
 
-        address[] memory targets = new address[](6);
+        Deployer deployer = Deployer(0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d);
+        address[] memory proposers = new address[](2);
+        proposers[0] = dev0Address;
+        proposers[1] = multisig;
+        address[] memory executors = new address[](2);
+        executors[0] = dev0Address;
+        executors[1] = multisig;
+        bytes memory constructorArgs = abi.encode(0, proposers, executors, address(0));
+        timelock = TimelockController(
+            payable(
+                deployer.deployContract(
+                    "TimelockController V0.3", type(TimelockController).creationCode, constructorArgs, 0
+                )
+            )
+        );
+
+        address[] memory targets = new address[](3);
         targets[0] = address(timelock);
         targets[1] = address(timelock);
         targets[2] = address(timelock);
-        targets[3] = address(timelock);
-        targets[4] = address(timelock);
-        targets[5] = address(timelock);
 
-        uint256[] memory values = new uint256[](6);
+        uint256[] memory values = new uint256[](3);
 
-        bytes[] memory payloads = new bytes[](6);
-        payloads[0] = abi.encodeWithSelector(AccessControl.grantRole.selector, timelock.CANCELLER_ROLE(), multisig);
-        payloads[1] = abi.encodeWithSelector(AccessControl.grantRole.selector, timelock.PROPOSER_ROLE(), multisig);
-        payloads[2] = abi.encodeWithSelector(AccessControl.revokeRole.selector, timelock.CANCELLER_ROLE(), dev0Address);
-        payloads[3] = abi.encodeWithSelector(AccessControl.revokeRole.selector, timelock.CANCELLER_ROLE(), dev1Address);
-        payloads[4] = abi.encodeWithSelector(AccessControl.revokeRole.selector, timelock.PROPOSER_ROLE(), dev0Address);
-        payloads[5] = abi.encodeWithSelector(AccessControl.revokeRole.selector, timelock.PROPOSER_ROLE(), dev1Address);
+        bytes[] memory payloads = new bytes[](3);
+        payloads[0] = abi.encodeWithSelector(AccessControl.revokeRole.selector, timelock.CANCELLER_ROLE(), dev0Address);
+        payloads[1] = abi.encodeWithSelector(AccessControl.revokeRole.selector, timelock.PROPOSER_ROLE(), dev0Address);
+        payloads[2] = abi.encodeWithSelector(AccessControl.revokeRole.selector, timelock.EXECUTOR_ROLE(), dev0Address);
+        timelock.scheduleBatch(targets, values, payloads, bytes32(0), bytes32(0), 0);
 
-        timelock.scheduleBatch(targets, values, payloads, bytes32(0), bytes32(0), 300);
+        {
+            address target = address(rolesAuthority);
+            bytes memory payload = abi.encodeWithSelector(Auth.transferOwnership.selector, multisig);
+            timelock.schedule(target, 0, payload, bytes32(0), bytes32(0), 0);
+        }
 
         vm.stopBroadcast();
     }
