@@ -29,6 +29,11 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
      * @param minDiscount The minimum discount allowed for a withdraw request.
      * @param maxDiscount The maximum discount allowed for a withdraw request.
      * @param minimumShares The minimum amount of shares that can be withdrawn.
+     * @param withdrawCapacity The maximum amount of total shares that can be withdrawn.
+     *        - Can be set to type(uint256).max to allow unlimited withdraws.
+     *        - Decremented when users make requests.
+     *        - Incremented when users cancel requests.
+     *        - Can be set by admin.
      */
     struct WithdrawAsset {
         bool allowWithdraws;
@@ -37,6 +42,7 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
         uint16 minDiscount;
         uint16 maxDiscount;
         uint96 minimumShares;
+        uint256 withdrawCapacity;
     }
 
     /**
@@ -134,6 +140,7 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
     error BoringOnChainQueue__MAXIMUM_SECONDS_TO_MATURITY();
     error BoringOnChainQueue__BadInput();
     error BoringOnChainQueue__RescueCannotTakeSharesFromActiveRequests();
+    error BoringOnChainQueue__NotEnoughWithdrawCapacity();
 
     //============================== EVENTS ===============================
 
@@ -153,25 +160,18 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
 
     event OnChainWithdrawSolved(bytes32 indexed requestId, address indexed user, uint256 timestamp);
 
-    event WithdrawAssetSetup(
-        address indexed assetOut,
-        uint24 secondsToMaturity,
-        uint24 minimumSecondsToDeadline,
-        uint16 minDiscount,
-        uint16 maxDiscount,
-        uint96 minimumShares
-    );
-
     event WithdrawAssetStopped(address indexed assetOut);
 
     event WithdrawAssetUpdated(
         address indexed assetOut,
-        uint24 minimumSecondsToDeadline,
         uint24 secondsToMaturity,
+        uint24 minimumSecondsToDeadline,
         uint16 minDiscount,
         uint16 maxDiscount,
         uint96 minimumShares
     );
+
+    event WithdrawCapacityUpdated(address indexed assetOut, uint256 withdrawCapacity);
 
     event Paused();
 
@@ -294,7 +294,8 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
             minimumSecondsToDeadline: minimumSecondsToDeadline,
             minDiscount: minDiscount,
             maxDiscount: maxDiscount,
-            minimumShares: minimumShares
+            minimumShares: minimumShares,
+            withdrawCapacity: type(uint256).max
         });
 
         emit WithdrawAssetUpdated(
@@ -310,6 +311,17 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
     function stopWithdrawsInAsset(address assetOut) external requiresAuth {
         withdrawAssets[assetOut].allowWithdraws = false;
         emit WithdrawAssetStopped(assetOut);
+    }
+
+    /**
+     * @notice Set the withdraw capacity for an asset.
+     * @dev Callable by STRATEGIST_MULTISIG_ROLE.
+     * @param assetOut The asset to set the withdraw capacity for.
+     * @param withdrawCapacity The new withdraw capacity.
+     */
+    function setWithdrawCapacity(address assetOut, uint256 withdrawCapacity) external requiresAuth {
+        withdrawAssets[assetOut].withdrawCapacity = withdrawCapacity;
+        emit WithdrawCapacityUpdated(assetOut, withdrawCapacity);
     }
 
     /**
@@ -344,6 +356,7 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
         requiresAuth
         returns (bytes32 requestId)
     {
+        _decrementWithdrawCapacity(assetOut, amountOfShares);
         WithdrawAsset memory withdrawAsset = withdrawAssets[assetOut];
 
         _beforeNewRequest(withdrawAsset, amountOfShares, discount, secondsToDeadline);
@@ -377,6 +390,7 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
         bytes32 r,
         bytes32 s
     ) external virtual requiresAuth returns (bytes32 requestId) {
+        _decrementWithdrawCapacity(assetOut, amountOfShares);
         WithdrawAsset memory withdrawAsset = withdrawAssets[assetOut];
 
         _beforeNewRequest(withdrawAsset, amountOfShares, discount, secondsToDeadline);
@@ -423,7 +437,7 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
         requiresAuth
         returns (bytes32 oldRequestId, bytes32 newRequestId)
     {
-        (oldRequestId, newRequestId) = _replaceOnChainWithdrawWithUserCheck(oldRequest, discount, secondsToDeadline);
+        (oldRequestId, newRequestId) = _replaceOnChainWithdraw(oldRequest, discount, secondsToDeadline);
     }
 
     //============================== SOLVER FUNCTIONS ===============================
@@ -554,34 +568,14 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
      */
     function _cancelOnChainWithdraw(OnChainWithdraw memory request) internal virtual returns (bytes32 requestId) {
         requestId = _dequeueOnChainWithdraw(request);
+        _incrementWithdrawCapacity(request.assetOut, request.amountOfShares);
         boringVault.safeTransfer(request.user, request.amountOfShares);
         emit OnChainWithdrawCancelled(requestId, request.user, block.timestamp);
     }
 
     /**
      * @notice Replace an on-chain withdraw.
-     * @dev Verifies that the request user is the same as the msg.sender.
-     * @param oldRequest The request to replace.
-     * @param discount The discount to apply to the new withdraw request in bps.
-     * @param secondsToDeadline The time in seconds the new withdraw request is valid for.
-     * @return oldRequestId The request Id of the old withdraw request.
-     * @return newRequestId The request Id of the new withdraw request.
-     */
-    function _replaceOnChainWithdrawWithUserCheck(
-        OnChainWithdraw memory oldRequest,
-        uint16 discount,
-        uint24 secondsToDeadline
-    )
-        internal
-        virtual
-        onlyRequestUser(oldRequest.user, msg.sender)
-        returns (bytes32 oldRequestId, bytes32 newRequestId)
-    {
-        (oldRequestId, newRequestId) = _replaceOnChainWithdraw(oldRequest, discount, secondsToDeadline);
-    }
-
-    /**
-     * @notice Replace an on-chain withdraw.
+     * @dev Does not check withdraw capacity since it is replacing an existing request.
      * @param oldRequest The request to replace.
      * @param discount The discount to apply to the new withdraw request in bps.
      * @param secondsToDeadline The time in seconds the new withdraw request is valid for.
@@ -611,6 +605,33 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
             withdrawAsset.secondsToMaturity,
             secondsToDeadline
         );
+    }
+
+    /**
+     * @notice Decrement the withdraw capacity for an asset.
+     * @param assetOut The asset to decrement the withdraw capacity for.
+     * @param amountOfShares The amount of shares to decrement the withdraw capacity for.
+     */
+    function _decrementWithdrawCapacity(address assetOut, uint256 amountOfShares) internal {
+        WithdrawAsset storage withdrawAsset = withdrawAssets[assetOut];
+        if (withdrawAsset.withdrawCapacity < type(uint256).max) {
+            if (withdrawAsset.withdrawCapacity < amountOfShares) revert BoringOnChainQueue__NotEnoughWithdrawCapacity();
+            withdrawAsset.withdrawCapacity -= amountOfShares;
+            emit WithdrawCapacityUpdated(assetOut, withdrawAsset.withdrawCapacity);
+        }
+    }
+
+    /**
+     * @notice Increment the withdraw capacity for an asset.
+     * @param assetOut The asset to increment the withdraw capacity for.
+     * @param amountOfShares The amount of shares to increment the withdraw capacity for.
+     */
+    function _incrementWithdrawCapacity(address assetOut, uint256 amountOfShares) internal {
+        WithdrawAsset storage withdrawAsset = withdrawAssets[assetOut];
+        if (withdrawAsset.withdrawCapacity < type(uint256).max) {
+            withdrawAsset.withdrawCapacity += amountOfShares;
+            emit WithdrawCapacityUpdated(assetOut, withdrawAsset.withdrawCapacity);
+        }
     }
 
     /**
