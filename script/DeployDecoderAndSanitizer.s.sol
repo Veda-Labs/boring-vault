@@ -110,15 +110,15 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //constructorArgs = abi.encode(boringVault, uniswapV3NonFungiblePositionManager);
         //deployer.deployContract("EtherFi Liquid BTC Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
         
-        //creationCode = type(LombardBtcDecoderAndSanitizer).creationCode;
-        //constructorArgs = abi.encode(uniswapV3NonFungiblePositionManager); 
-        //deployer.deployContract("Lombard BTC Decoder And Sanitizer V0.2", creationCode, constructorArgs, 0);
+        creationCode = type(LombardBtcDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(uniswapV3NonFungiblePositionManager); 
+        deployer.deployContract("Lombard BTC Decoder And Sanitizer V0.3", creationCode, constructorArgs, 0);
 
-        address pancakeswapV3nfpm = 0x46A15B0b27311cedF172AB29E4f4766fbE7F4364;
-        address pancakeswapV3chef = 0x556B9306565093C855AEA9AE92A594704c2Cd59e;
-        creationCode = type(PancakeSwapV3FullDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(pancakeswapV3nfpm, pancakeswapV3chef);
-        deployer.deployContract("PancakeSwapV3 Decoder And Sanitizer V0.1", creationCode, constructorArgs, 0);
+        //address pancakeswapV3nfpm = 0x46A15B0b27311cedF172AB29E4f4766fbE7F4364;
+        //address pancakeswapV3chef = 0x556B9306565093C855AEA9AE92A594704c2Cd59e;
+        //creationCode = type(PancakeSwapV3FullDecoderAndSanitizer).creationCode;
+        //constructorArgs = abi.encode(pancakeswapV3nfpm, pancakeswapV3chef);
+        //deployer.deployContract("PancakeSwapV3 Decoder And Sanitizer V0.1", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
