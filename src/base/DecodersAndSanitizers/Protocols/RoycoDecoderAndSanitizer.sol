@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
-
 import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 
 abstract contract RoycoWeirollDecoderAndSanitizer is BaseDecoderAndSanitizer {
@@ -40,6 +39,10 @@ abstract contract RoycoWeirollDecoderAndSanitizer is BaseDecoderAndSanitizer {
     function claim(address weirollWallet, address to) external view virtual returns (bytes memory addressesFound) {
         address owner = IWeirollWalletHelper(weirollWallet).owner();
         return abi.encodePacked(owner, to);
+    }
+    
+    function claim(address to) external pure virtual returns (bytes memory addressesFound) {
+        return abi.encodePacked(to); 
     }
 }
 
