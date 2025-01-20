@@ -2459,6 +2459,163 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
     }
+    // ========================================= Uniswap V2 =========================================
+    function _addUniswapV2Leafs(ManageLeaf[] memory leafs, address[] memory token0, address[] memory token1, bool hasEth) internal {
+        require(token0.length == token1.length, "Token arrays must be of equal length");
+
+        if (hasEth) {}
+
+        for (uint256 i; i < token0.length; i++) {
+
+            if (!ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token0[i]][getAddress(sourceChain, "uniV2Router")]) {
+                (token0[i], token1[i]) = token0[i] < token1[i] ? (token0[i], token1[i]) : (token1[i], token0[i]);
+
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    token0[i],
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve UniswapV2 Router to spend ", ERC20(token0[i]).symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "uniV2Router");
+                ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token0[i]][getAddress(sourceChain, "uniV2Router")] = true;
+            }
+
+            if (!ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token1[i]][getAddress(sourceChain, "uniV2Router")]) {
+
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    token1[i],
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve UniswapV2 Router to spend ", ERC20(token1[i]).symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "uniV2Router");
+                ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token1[i]][getAddress(sourceChain, "uniV2Router")] = true;
+            }
+            
+            address tokenPair = IUniswapV2Factory(getAddress(sourceChain, "uniV2Factory")).getPair(token0[i], token1[i]);  
+
+            if (!ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][tokenPair][getAddress(sourceChain, "uniV2Router")]) {
+
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    tokenPair,
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve UniswapV2 Router to spend ", ERC20(tokenPair).symbol(), "-" , ERC20(token0[i]).symbol(), "-", ERC20(token1[i]).symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "uniV2Router");
+                ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][tokenPair][getAddress(sourceChain, "uniV2Router")] = true;
+            }
+        }
+        
+        // TOKEN TO TOKEN SWAP FUNCTIONS
+       
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "uniV2Router"),
+            false,
+            "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)",
+            new address[](1),
+            string.concat("Swap exact tokens for tokens"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "uniV2Router"),
+            false,
+            "swapTokensForExactTokens(uint256,uint256,address[],address,uint256)",
+            new address[](1),
+            string.concat("Swap tokens for exact tokens"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+       
+        // LIQUIDITY FUNCTIONS 
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "uniV2Router"),
+            false,
+            "addLiquidity(address,address,uint256,uint256,uint256,uint256,address,uint256)",
+            new address[](3),
+            string.concat("Add liquidty on UniswapV2"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = token0[0];
+        leafs[leafIndex].argumentAddresses[1] = token1[0];  
+        leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "uniV2Router"),
+            false,
+            "removeLiquidity(address,address,uint256,uint256,uint256,address,uint256)",
+            new address[](3),
+            string.concat("Add liquidty on UniswapV2"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = token0[0];
+        leafs[leafIndex].argumentAddresses[1] = token1[0];  
+        leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+
+
+        if (hasEth) {
+
+            unchecked {
+                leafIndex++;
+            }
+
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "uniV2Router"),
+                true,
+                "swapExactETHForTokens(address,address[],address,uint256)",
+                new address[](1),
+                string.concat("Swap exact ETH for token"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault"); 
+            
+            unchecked {
+                leafIndex++;
+            }
+
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "uniV2Router"),
+                true,
+                "swapExactTokensForETH(address,address,address[],address,uint256)",
+                new address[](1),
+                string.concat("Swap exact ETH for token"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault"); 
+             
+
+
+        }
+    }
 
     // ========================================= Uniswap V3 =========================================
 
@@ -5172,7 +5329,12 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     }
 
     // ========================================= Fee Claiming =========================================
-    function _addLeafsForFeeClaiming(ManageLeaf[] memory leafs, address accountant, ERC20[] memory feeAssets, bool addYieldClaiming) internal {
+    function _addLeafsForFeeClaiming(
+        ManageLeaf[] memory leafs,
+        address accountant,
+        ERC20[] memory feeAssets,
+        bool addYieldClaiming
+    ) internal {
         // Approvals.
         for (uint256 i; i < feeAssets.length; ++i) {
             if (
@@ -5242,7 +5404,6 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = to;
-
     }
 
     // ========================================= LayerZero =========================================
@@ -7049,4 +7210,8 @@ interface VelodromV2Gauge {
 
 interface VaultSupervisor {
     function delegationSupervisor() external view returns (address);
+}
+
+interface IUniswapV2Factory {
+    function getPair(address token0, address token1) external view returns (address);
 }
