@@ -34,17 +34,18 @@ sepolia = "${SEPOLIA_RPC_URL}"
 sonicTestnet = "${SONIC_TESTNET_RPC_URL}"
 corn = "${CORN_MAIZENET_RPC_URL}"
 swell = "${SWELL_CHAIN_RPC_URL}"
+sonicMainnet = "${SONIC_MAINNET_RPC_URL}" 
 
 [etherscan]
-corn = { key = "${CORNSCAN_KEY}", chain = 21000000, url = "https://api.routescan.io/v2/network/mainnet/evm/21000000/etherscan" }
-arbitrum = { key = "${ARBISCAN_KEY}" }
-mainnet = { key = "${ETHERSCAN_KEY}" }
-polygon = { key = "${POLYGONSCAN_KEY}" }
-bsc = { key = "${BSCSCAN_KEY}" }
-avalanche = { key = "${SNOWTRACE_KEY}" }
-optimism = { key = "${OPTIMISMSCAN_KEY}" }
-base = { key = "${BASESCAN_KEY}" }
-scroll = { key = "${SCROLLSCAN_KEY}" }
+#corn = { key = "${CORNSCAN_KEY}", chain = 21000000, url = "https://api.routescan.io/v2/network/mainnet/evm/21000000/etherscan" }
+#arbitrum = { key = "${ARBISCAN_KEY}" }
+#mainnet = { key = "${ETHERSCAN_KEY}" }
+#polygon = { key = "${POLYGONSCAN_KEY}" }
+#bsc = { key = "${BSCSCAN_KEY}" }
+#avalanche = { key = "${SNOWTRACE_KEY}" }
+#optimism = { key = "${OPTIMISMSCAN_KEY}" }
+#base = { key = "${BASESCAN_KEY}" }
+#scroll = { key = "${SCROLLSCAN_KEY}" }
 sonicMainnet = { key = "${SONICSCAN_KEY}", chain = 146, url = "https://api.routescan.io/v2/network/mainnet/evm/146/etherscan" }
 
 [fmt]

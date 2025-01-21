@@ -48,7 +48,7 @@ contract CreateWrappedStakedSonicUSDMerkleRoot is Script, MerkleTreeHelper {
         _addTellerLeafs(leafs, getAddress(sourceChain, "stkscUSDTeller"), tellerAssets);
 
         // ========================== Fee Claiming ==========================
-        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "stkscUSDAccountant"), tellerAssets, false);
+        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "stkscUSDAccountant"), tellerAssets, true);
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 

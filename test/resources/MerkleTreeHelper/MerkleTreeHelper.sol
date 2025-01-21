@@ -5229,6 +5229,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     }
 
     // ========================================= Transfer =========================================
+    
     function _addTransferLeafs(ManageLeaf[] memory leafs, ERC20 token, address to) internal {
         unchecked {
             leafIndex++;
@@ -5242,6 +5243,38 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = to;
+
+    }
+
+    // ========================================= Rings Voter =========================================
+
+    function _addRingsVoterLeafs(ManageLeaf[] memory leafs, address ringsVoterContract, ERC20 underlying) internal {
+
+        unchecked {
+            leafIndex++;
+        }
+
+        leafs[leafIndex] = ManageLeaf(
+            address(underlying),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve ", vm.toString(ringsVoterContract), " to spend ", underlying.symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = ringsVoterContract;
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            ringsVoterContract,
+            false,
+            "depositBudget(uint256)",
+            new address[](0),
+            string.concat("Deposit Budget of ", underlying.symbol(), " into ", vm.toString(ringsVoterContract)),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
 
     }
 
