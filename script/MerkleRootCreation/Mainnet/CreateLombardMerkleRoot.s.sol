@@ -15,7 +15,7 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     address public boringVault = 0x5401b8620E5FB570064CA9114fd1e135fd77D57c;
-    address public rawDataDecoderAndSanitizer = 0x8566d556397133687c134b495A08F2bc0ED1DE2f;
+    address public rawDataDecoderAndSanitizer = 0x453E5dD3b6E851E7ffd3Ad9Bc2f2f88C5b1196D8;
     address public managerAddress = 0xcf38e37872748E3b66741A42560672A6cef75e9B;
     address public accountantAddress = 0x28634D0c5edC67CF2450E74deA49B90a4FF93dCE;
 
@@ -141,10 +141,10 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
             tellerAssets[1] = getERC20(sourceChain, "LBTC");
             tellerAssets[2] = getERC20(sourceChain, "cbBTC");
             address eBTCTeller = 0xe19a43B1b8af6CeE71749Af2332627338B3242D1;
-            _addTellerLeafs(leafs, eBTCTeller, tellerAssets);
+            _addTellerLeafs(leafs, eBTCTeller, tellerAssets, false);
 
             address newEBTCTeller = 0x458797A320e6313c980C2bC7D270466A6288A8bB;
-            _addTellerLeafs(leafs, newEBTCTeller, tellerAssets);
+            _addTellerLeafs(leafs, newEBTCTeller, tellerAssets, false);
         }
 
         // ========================== Pendle ==========================
