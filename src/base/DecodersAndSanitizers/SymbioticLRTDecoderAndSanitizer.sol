@@ -13,6 +13,8 @@ import {OneInchDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protoco
 import {SwellDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SwellDecoderAndSanitizer.sol";
 import {SymbioticDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SymbioticDecoderAndSanitizer.sol";
 import {UniswapV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV3DecoderAndSanitizer.sol";
+import {SymbioticVaultDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/SymbioticVaultDecoderAndSanitizer.sol";
 
 contract SymbioticLRTDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
@@ -25,7 +27,8 @@ contract SymbioticLRTDecoderAndSanitizer is
     OneInchDecoderAndSanitizer,
     SwellDecoderAndSanitizer,
     SymbioticDecoderAndSanitizer,
-    UniswapV3DecoderAndSanitizer
+    UniswapV3DecoderAndSanitizer,
+    SymbioticVaultDecoderAndSanitizer
 {
     constructor(address _uniswapV3NonfungiblePositionManager)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonfungiblePositionManager)
@@ -59,6 +62,26 @@ contract SymbioticLRTDecoderAndSanitizer is
         returns (bytes memory addressesFound)
     {
         // Nothing to sanitize or return
+        return addressesFound;
+    }
+
+    function deposit(address recipient, uint256)
+        external
+        pure
+        override(SymbioticDecoderAndSanitizer, SymbioticVaultDecoderAndSanitizer)
+        returns (bytes memory addressesFound)
+    {
+        addressesFound = abi.encodePacked(recipient);
+        return addressesFound;
+    }
+
+    function withdraw(address recipient, uint256)
+        external
+        pure
+        override(SymbioticDecoderAndSanitizer, SymbioticVaultDecoderAndSanitizer)
+        returns (bytes memory addressesFound)
+    {
+        addressesFound = abi.encodePacked(recipient);
         return addressesFound;
     }
 }

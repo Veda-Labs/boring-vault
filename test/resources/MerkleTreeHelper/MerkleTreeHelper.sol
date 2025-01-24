@@ -4965,18 +4965,21 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             );
             leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
 
-            unchecked {
-                leafIndex++;
+            // Only add rewards leaf if vaultRewards array is provided and has a valid address
+            if (vaultRewards.length > i && vaultRewards[i] != address(0)) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    vaultRewards[i],
+                    false,
+                    "claimRewards(address,address,bytes)",
+                    new address[](1),
+                    string.concat("Claim rewards from Symbiotic Vault ", vm.toString(vaults[i])),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
             }
-            leafs[leafIndex] = ManageLeaf(
-                vaultRewards[i],
-                false,
-                "claimRewards(address,address,bytes)",
-                new address[](1),
-                string.concat("Claim rewards from Symbiotic Vault ", vm.toString(vaults[i])),
-                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-            );
-            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
         }
     }
 
