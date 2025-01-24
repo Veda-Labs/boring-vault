@@ -18,7 +18,7 @@ contract CreateEtherFiBTCMerkleRootScript is Script, MerkleTreeHelper {
     address public boringVault = 0x657e8C867D8B37dCC18fA4Caead9C45EB088C642;
     address public managerAddress = 0x382d0106F308864D5462332D9D3bB54a60384B70;
     address public accountantAddress = 0x1b293DC39F94157fA0D1D36d7e0090C8B8B8c13F;
-    address public rawDataDecoderAndSanitizer = 0xee29a7EdBe61149D051E031342a530815037b31f;
+    address public rawDataDecoderAndSanitizer = 0x61776330A3055400dD1e1388f3879762BaCB8eBE;
 
     function setUp() external {}
 
@@ -94,6 +94,16 @@ contract CreateEtherFiBTCMerkleRootScript is Script, MerkleTreeHelper {
         _addKarakLeafs(leafs, getAddress(sourceChain, "vaultSupervisor"), getAddress(sourceChain, "kLBTC"));
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
+
+        // ========================== Symbiotic Vault ==========================
+        address[] memory vaults = new address[](1);
+        vaults[0] = getAddress(sourceChain, "EtherFi_LBTCSymbioticVault");
+        ERC20[] memory vault_assets = new ERC20[](1);
+        vault_assets[0] = ERC20(getAddress(sourceChain, "LBTC"));
+
+        // NOTE: No rewards for EtherFi wstETH vault for now.
+        address[] memory rewards = new address[](0);
+        _addSymbioticVaultLeafs(leafs, vaults, vault_assets, rewards);
 
         string memory filePath = "./leafs/Mainnet/EtherFiBtcStrategistLeafs.json";
 

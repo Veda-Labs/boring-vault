@@ -9,10 +9,8 @@ import {EigenLayerLSTStakingDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/EigenLayerLSTStakingDecoderAndSanitizer.sol";
 import {SymbioticDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SymbioticDecoderAndSanitizer.sol";
 import {KarakDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/KarakDecoderAndSanitizer.sol";
-import {SatlayerStakingDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/SatlayerStakingDecoderAndSanitizer.sol";
-import {CornStakingDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/CornStakingDecoderAndSanitizer.sol";
+import {SymbioticVaultDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/SymbioticVaultDecoderAndSanitizer.sol";
 
 contract EtherFiBtcDecoderAndSanitizer is
     UniswapV3DecoderAndSanitizer,
@@ -21,8 +19,7 @@ contract EtherFiBtcDecoderAndSanitizer is
     EigenLayerLSTStakingDecoderAndSanitizer,
     SymbioticDecoderAndSanitizer,
     KarakDecoderAndSanitizer,
-    SatlayerStakingDecoderAndSanitizer,
-    CornStakingDecoderAndSanitizer
+    SymbioticVaultDecoderAndSanitizer
 {
     constructor(address _uniswapV3NonFungiblePositionManager)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
@@ -31,26 +28,26 @@ contract EtherFiBtcDecoderAndSanitizer is
     //============================== HANDLE FUNCTION COLLISIONS ===============================
 
     /**
-     * @notice Symbiotic, and CornStaking both specify a `withdraw(address,uint256)`,
+     * @notice Symbiotic, and SymbioticVault both specify a `withdraw(address,uint256)`,
      *         all cases are handled the same way.
      */
     function withdraw(address recipient, uint256 /*amount*/ )
         external
         pure
-        override(SymbioticDecoderAndSanitizer, SatlayerStakingDecoderAndSanitizer)
+        override(SymbioticDecoderAndSanitizer, SymbioticVaultDecoderAndSanitizer)
         returns (bytes memory addressesFound)
     {
         addressesFound = abi.encodePacked(recipient);
     }
 
     /**
-     * @notice Symbiotic, and CornStaking both specify a `deposit(address,uint256)`,
+     * @notice Symbiotic, and SymbioticVault both specify a `deposit(address,uint256)`,
      *         all cases are handled the same way.
      */
     function deposit(address recipient, uint256 /*amount*/ )
         external
         pure
-        override(SymbioticDecoderAndSanitizer, CornStakingDecoderAndSanitizer)
+        override(SymbioticDecoderAndSanitizer, SymbioticVaultDecoderAndSanitizer)
         returns (bytes memory addressesFound)
     {
         addressesFound = abi.encodePacked(recipient);
