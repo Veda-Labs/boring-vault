@@ -26,6 +26,11 @@ abstract contract EulerEVKDecoderAndSanitizer is BaseDecoderAndSanitizer, ERC462
     function disableController(address account) external pure virtual returns (bytes memory addressesFound) {
         return abi.encodePacked(account);
     }
+    
+    //nothing to sanitize
+    function disableController() external pure virtual returns (bytes memory addressesFound) {
+        return addressesFound; 
+    }
 
     function disableCollateral(address account, address vault)
         external

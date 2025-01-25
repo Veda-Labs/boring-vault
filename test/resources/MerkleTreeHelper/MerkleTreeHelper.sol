@@ -3968,6 +3968,79 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
     }
 
+    function _addERC4626SubaccountLeafs(ManageLeaf[] memory leafs, ERC4626 vault, address subaccount) internal {
+        ERC20 asset = vault.asset();
+        // Approvals
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            address(asset),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve ", vault.symbol(), " to spend ", asset.symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = address(vault);
+        // Depositing
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            address(vault),
+            false,
+            "deposit(uint256,address)",
+            new address[](1),
+            string.concat("Deposit ", asset.symbol(), " for ", vault.symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = subaccount; 
+        // Withdrawing
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            address(vault),
+            false,
+            "withdraw(uint256,address,address)",
+            new address[](2),
+            string.concat("Withdraw ", asset.symbol(), " from ", vault.symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[1] = subaccount; 
+
+        // Minting
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            address(vault),
+            false,
+            "mint(uint256,address)",
+            new address[](1),
+            string.concat("Mint ", vault.symbol(), " using ", asset.symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = subaccount;
+
+        // Redeeming
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            address(vault),
+            false,
+            "redeem(uint256,address,address)",
+            new address[](2),
+            string.concat("Redeem ", vault.symbol(), " for ", asset.symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[1] = subaccount;
+    }
+
     // ========================================= Vault Craft =========================================
 
     function _addVaultCraftLeafs(ManageLeaf[] memory leafs, ERC4626 vault, address gauge) internal {
@@ -4973,7 +5046,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 false,
                 "claimRewards(address,address,bytes)",
                 new address[](1),
-                string.concat("Claim rewards from Symbiotic Vault ", vm.toString(vaults[i])),
+                string.concat("Claim rewards from Symbiotic Vault ", vm.toString(vaultRewards[i])),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
@@ -6165,125 +6238,165 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         }
     }
     // ========================================= Euler Finance =========================================
+    function _addEulerDepositLeafs(ManageLeaf[] memory leafs, ERC4626[] memory depositVaults, address[] memory subaccounts) internal {
 
-    function _addEulerEVKLeafs(
+        for (uint i = 0; i < subaccounts.length; i++) {
+            for (uint256 j = 0; j < depositVaults.length; j++) {
+            //approval leaf is handled by ERC4626, including for ERC20 deposit asset
+                _addERC4626SubaccountLeafs(leafs, depositVaults[j], subaccounts[i]);
+
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    getAddress(sourceChain, "ethereumVaultConnector"),
+                    false,
+                    "enableCollateral(address,address)",
+                    new address[](2),
+                    string.concat("Enable Collateral of ", ERC20(depositVaults[j].asset()).name(), " on Euler for account #", vm.toString(i), " ", vm.toString(subaccounts[i])),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = subaccounts[i];
+                leafs[leafIndex].argumentAddresses[1] = address(depositVaults[j]);
+
+                 unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    getAddress(sourceChain, "ethereumVaultConnector"),
+                    false,
+                    "disableCollateral(address,address)",
+                    new address[](2),
+                    string.concat("Disable Collateral of ", ERC20(depositVaults[j].asset()).name(), " on Euler for account #", vm.toString(i), " : ", vm.toString(subaccounts[i])),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = subaccounts[i]; 
+                leafs[leafIndex].argumentAddresses[1] = address(depositVaults[j]);
+
+                //unchecked {
+                //    leafIndex++; 
+                //}
+                //leafs[leafIndex] = ManageLeaf(
+                //    getAddress(sourceChain, "ethereumVaultConnector"),
+                //    false,
+                //    "call(address,address,uint256,bytes)",
+                //    new address[](2),
+                //    string.concat("Call EVC Target ", depositVaults[j].name(), " onBehalfOfAccount ", vm.toString(subaccounts[i])),
+                //    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                //);
+                //leafs[leafIndex].argumentAddresses[0] = address(depositVaults[j]); 
+                //leafs[leafIndex].argumentAddresses[1] = subaccounts[i]; 
+            }
+        }
+    }
+
+    function _addEulerBorrowLeafs(
         ManageLeaf[] memory leafs,
-        ERC20 borrowAsset,
-        address ethereumVaultConnector,
-        ERC4626 depositVault,
-        ERC4626 borrowVault
+        ERC4626[] memory borrowVaults,
+        address[] memory subaccounts
     ) internal {
-        //approval leaf is handled by ERC4626, including for ERC20 deposit asset
-        _addERC4626Leafs(leafs, depositVault);
-        unchecked {
-            leafIndex++;
+
+        for (uint256 i = 0; i < subaccounts.length; i++) {
+            for (uint256 j = 0; j < borrowVaults.length; j++) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    address(borrowVaults[j].asset()),
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve ", ERC20(borrowVaults[j].asset()).name(), " to be repaid."),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = address(borrowVaults[j]);
+
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    getAddress(sourceChain, "ethereumVaultConnector"),
+                    false,
+                    "enableController(address,address)",
+                    new address[](2),
+                    string.concat("Enable ", borrowVaults[j].name(), " as controller for subaccount #", vm.toString(i), " : ", vm.toString(subaccounts[i])),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = subaccounts[i]; 
+                leafs[leafIndex].argumentAddresses[1] = address(borrowVaults[j]);
+
+
+                unchecked {
+                    leafIndex++;
+                }
+
+                leafs[leafIndex] = ManageLeaf(
+                    address(borrowVaults[j]),
+                    false,
+                    "borrow(uint256,address)",
+                    new address[](1),
+                    string.concat("Borrow ", ERC20(borrowVaults[j].asset()).name(), " from Euler Vault"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = subaccounts[i]; 
+
+                unchecked {
+                    leafIndex++;
+                }
+
+                leafs[leafIndex] = ManageLeaf(
+                    address(borrowVaults[j]),
+                    false,
+                    "repay(uint256,address)",
+                    new address[](1),
+                    string.concat("Repay ", ERC20(borrowVaults[j].asset()).name(), " to Euler Vault"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = subaccounts[i]; 
+
+                unchecked {
+                    leafIndex++;
+                }
+
+                leafs[leafIndex] = ManageLeaf(
+                    address(borrowVaults[j]),
+                    false,
+                    "repayWithShares(uint256,address)",
+                    new address[](1),
+                    string.concat("Repay ", ERC20(borrowVaults[j].asset()).name(), " with shares to Euler Vault"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = subaccounts[i]; 
+
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    address(borrowVaults[j]),
+                    false,
+                    "disableController()",
+                    new address[](0),
+                    string.concat("Disable ", borrowVaults[j].name(), " as controller"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                //leafs[leafIndex].argumentAddresses[0] = subaccounts[i]; 
+                
+                //unchecked {
+                //    leafIndex++; 
+                //}
+                //leafs[leafIndex] = ManageLeaf(
+                //    getAddress(sourceChain, "ethereumVaultConnector"),
+                //    false,
+                //    "call(address,address,uint256,bytes)",
+                //    new address[](2),
+                //    string.concat("Call EVC Target ", borrowVaults[j].name(), " onBehalfOfAccount ", vm.toString(subaccounts[i])),
+                //    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                //);
+                //leafs[leafIndex].argumentAddresses[0] = address(borrowVaults[j]); 
+                //leafs[leafIndex].argumentAddresses[1] = subaccounts[i]; 
+
+            }
         }
-        leafs[leafIndex] = ManageLeaf(
-            address(borrowAsset),
-            false,
-            "approve(address,uint256)",
-            new address[](1),
-            string.concat("Approve ", borrowAsset.name(), " to be repaid."),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = address(borrowVault);
-
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            ethereumVaultConnector,
-            false,
-            "enableController(address,address)",
-            new address[](2),
-            string.concat("Enable Controller for Boring Vault"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
-        leafs[leafIndex].argumentAddresses[1] = address(borrowVault);
-
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            ethereumVaultConnector,
-            false,
-            "enableCollateral(address,address)",
-            new address[](2),
-            string.concat("Enable Collateral for Boring Vault"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
-        leafs[leafIndex].argumentAddresses[1] = address(depositVault);
-
-        unchecked {
-            leafIndex++;
-        }
-
-        leafs[leafIndex] = ManageLeaf(
-            address(borrowVault),
-            false,
-            "borrow(uint256,address)",
-            new address[](1),
-            string.concat("Borrow ", borrowAsset.name(), " from Euler Vault"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
-
-        unchecked {
-            leafIndex++;
-        }
-
-        leafs[leafIndex] = ManageLeaf(
-            address(borrowVault),
-            false,
-            "repay(uint256,address)",
-            new address[](1),
-            string.concat("Repay ", borrowAsset.name(), " to Euler Vault"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
-
-        unchecked {
-            leafIndex++;
-        }
-
-        leafs[leafIndex] = ManageLeaf(
-            address(borrowVault),
-            false,
-            "repayWithShares(uint256,address)",
-            new address[](1),
-            string.concat("Repay ", borrowAsset.name(), " with shares to Euler Vault"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
-
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            ethereumVaultConnector,
-            false,
-            "disableCollateral(address,address)",
-            new address[](2),
-            string.concat("Disable ", borrowAsset.name(), " as collateral"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
-        leafs[leafIndex].argumentAddresses[1] = address(depositVault);
-
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            ethereumVaultConnector,
-            false,
-            "disableController(address)",
-            new address[](1),
-            string.concat("Disable BoringVault as controller"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
     }
 
     // ========================================= Royco =========================================

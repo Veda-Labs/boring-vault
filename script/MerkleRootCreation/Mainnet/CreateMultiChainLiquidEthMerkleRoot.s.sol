@@ -15,7 +15,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     address public boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C;
-    address public rawDataDecoderAndSanitizer = 0x72B0dB3c5b133C6D060AB58134654287fA9f05BF;
+    address public rawDataDecoderAndSanitizer = 0xB0D19CDA2BD3035767CDb5D81cB387976De52117;
     address public managerAddress = 0x227975088C28DBBb4b421c6d96781a53578f19a8;
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
     address public pancakeSwapDataDecoderAndSanitizer = 0xfdC73Fc6B60e4959b71969165876213918A443Cd;
@@ -43,7 +43,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "accountantAddress", accountantAddress);
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](1024);
+        ManageLeaf[] memory leafs = new ManageLeaf[](2048);
 
         // ========================== Aave V3 ==========================
         ERC20[] memory supplyAssets = new ERC20[](3);
@@ -316,6 +316,18 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
                 leafs, getAddress(sourceChain, "weETH_ETHDex_wstETH"), dexType, supplyTokens, borrowTokens
             );
         }
+
+        // ========================== Euler ==========================
+        {
+            ERC4626[] memory depositVaults = new ERC4626[](1); 
+            depositVaults[0] = ERC4626(getAddress(sourceChain, "eulerPrimeWETH")); 
+            
+            address[] memory subaccounts = new address[](1); 
+            subaccounts[0] = address(boringVault); 
+
+            _addEulerDepositLeafs(leafs, depositVaults, subaccounts); 
+
+        }        
 
         // ========================== Term ==========================
         {
