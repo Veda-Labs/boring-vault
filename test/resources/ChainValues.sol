@@ -27,6 +27,7 @@ contract ChainValues {
     string public constant sepolia = "sepolia";
     string public constant sonicTestnet = "sonicTestnet";
     string public constant sonicBlaze = "sonicBlaze";
+    string public constant bartio = "bartio"; 
 
     // Bridging constants.
     uint64 public constant ccipArbitrumChainSelector = 4949039107694359620;
@@ -103,6 +104,7 @@ contract ChainValues {
         _addSepoliaValues();
         _addSonicTestnetValues();
         _addSonicBlazeValues();
+        _addBartioValues();
     }
 
     function _addMainnetValues() private {
@@ -1471,6 +1473,29 @@ contract ChainValues {
         values[sonicBlaze]["balancerVault"] = address(1).toBytes32();
 
         values[sonicBlaze]["LayerZeroEndPoint"] = 0x6C7Ab2202C98C4227C5c46f1417D81144DA716Ff.toBytes32();
+    }
+
+    function _addBartioValues() private {
+        values[bartio]["dev0Address"] = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b.toBytes32();
+        values[bartio]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
+        values[bartio]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        values[bartio]["txBundlerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+
+        values[bartio]["balancerVault"] = address(1).toBytes32();
+        values[bartio]["vault"] = address(1).toBytes32();
+
+
+        // ERC20s
+        values[bartio]["WBERA"] = 0x7507c1dc16935B82698e4C63f2746A2fCf994dF8.toBytes32(); 
+        values[bartio]["YEET"] = 0x8c245484890a61Eb2d1F81114b1a7216dCe2752b.toBytes32(); 
+
+
+        // Kodiak
+        values[bartio]["kodiakIslandRouterOld"] = 0x5E51894694297524581353bc1813073C512852bf.toBytes32(); //old 
+        values[bartio]["kodiakIslandRouterNew"] = 0x35c98A9bA533218155f9324585914e916066A153.toBytes32(); //new
+
+        values[bartio]["kodiak_island_WBERA_YEET_1%"] = 0x0001513F4a1f86da0f02e647609E9E2c630B3a14.toBytes32();
+
     }
 
     function _addSwellValues() private {

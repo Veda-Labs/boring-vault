@@ -6761,6 +6761,139 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         }
     }
 
+    // ========================================= Kodiak Finance =========================================
+    
+    function _addKodiakIslandLeafs(ManageLeaf[] memory leafs, address[] memory islands) internal {
+
+        for (uint256 i = 0; i < islands.length; i++) {
+            
+            address token0 = IKodiakIsland(islands[i]).token0(); 
+            address token1 = IKodiakIsland(islands[i]).token1(); 
+
+            if (
+                !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token0][getAddress(
+                    sourceChain, "kodiakIslandRouterNew"
+                )]
+            ) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    token0,
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve Kodiak router to spend ", ERC20(token0).symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "kodiakIslandRouterNew");
+                ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token0][getAddress(
+                    sourceChain, "kodiakIslandRouterNew"
+                )] = true;
+            }
+
+            if (
+                !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token1][getAddress(
+                    sourceChain, "kodiakIslandRouterNew"
+                )]
+            ) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    token1,
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve Kodiak router to spend ", ERC20(token1).symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "kodiakIslandRouterNew");
+                ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token1][getAddress(
+                    sourceChain, "kodiakIslandRouterNew"
+                )] = true;
+            }
+
+            if (
+                !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][islands[i]][getAddress(
+                    sourceChain, "kodiakIslandRouterNew"
+                )]
+            ) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    islands[i],
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve Kodiak router to spend ", ERC20(islands[i]).symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "kodiakIslandRouterNew");
+                ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token1][getAddress(
+                    sourceChain, "kodiakIslandRouterNew"
+                )] = true;
+            }
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "kodiakIslandRouterNew"),
+                false,
+                "addLiquidity(address,uint256,uint256,uint256,uint256,uint256,address)",
+                new address[](2),
+                string.concat("Add Liquidity in ", IKodiakIsland(islands[i]).name()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = islands[i];
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault"); 
+                
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "kodiakIslandRouterNew"),
+                true,
+                "addLiquidityNative(address,uint256,uint256,uint256,uint256,uint256,address)",
+                new address[](2),
+                string.concat("Add Liquidity Native in ", IKodiakIsland(islands[i]).name()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = islands[i];
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault"); 
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "kodiakIslandRouterNew"),
+                false,
+                "removeLiquidity(address,uint256,uint256,uint256,address)",
+                new address[](2),
+                string.concat("Remove Liquidity from ", IKodiakIsland(islands[i]).name()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = islands[i];
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault"); 
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "kodiakIslandRouterNew"),
+                false,
+                "removeLiquidityNative(address,uint256,uint256,uint256,address)",
+                new address[](2),
+                string.concat("Remove Liquidity Native from ", IKodiakIsland(islands[i]).name()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = islands[i];
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault"); 
+        }
+    }
+
     // ========================================= JSON FUNCTIONS =========================================
     // TODO this should pass in a bool or something to generate leafs indicating that we want leaf indexes printed.
     bool addLeafIndex = false;
@@ -7062,4 +7195,10 @@ interface VelodromV2Gauge {
 
 interface VaultSupervisor {
     function delegationSupervisor() external view returns (address);
+}
+
+interface IKodiakIsland {
+    function token0() external view returns (address); 
+    function token1() external view returns (address); 
+    function name() external view returns (string memory); 
 }
