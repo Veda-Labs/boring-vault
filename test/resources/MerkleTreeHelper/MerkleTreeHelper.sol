@@ -6761,6 +6761,65 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         }
     }
 
+    // ========================================= Honey =========================================
+    
+    function _addHoneyLeafs(ManageLeaf[] memory leafs) internal {
+
+        ERC20[] memory assets = new ERC20[](3); 
+        assets[0] = getERC20(sourceChain, "USDC"); 
+        assets[1] = getERC20(sourceChain, "USDT"); 
+        assets[2] = getERC20(sourceChain, "DAI"); 
+
+        for (uint256 i = 0; i < assets.length; i++) {
+
+            unchecked {
+                leafIndex++;
+            }
+
+            leafs[leafIndex] = ManageLeaf(
+                address(assets[i]),
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve Honey Factory to spend ", assets[i].symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "honeyFactory");
+
+            unchecked {
+                leafIndex++;
+            }
+
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "honeyFactory"),
+                false,
+                "mint(address,uint256,address)",
+                new address[](2),
+                string.concat("Mint Honey using ", assets[i].symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(assets[i]); 
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+
+            unchecked {
+                leafIndex++;
+            }
+
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "honeyFactory"),
+                false,
+                "redeem(address,uint256,address)",
+                new address[](2),
+                string.concat("Redeem Honey for ", assets[i].symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(assets[i]); 
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+
+        }
+
+    }
+
     // ========================================= JSON FUNCTIONS =========================================
     // TODO this should pass in a bool or something to generate leafs indicating that we want leaf indexes printed.
     bool addLeafIndex = false;
