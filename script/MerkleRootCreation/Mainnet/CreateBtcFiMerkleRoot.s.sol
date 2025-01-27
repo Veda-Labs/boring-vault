@@ -75,6 +75,7 @@ contract CreateBtcFiMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== Pendle ==========================
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_pumpBTC_market_03_26_25"), true);
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_pumpBTC_market_05_28_25"), true);
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_corn_pumpBTC_market_12_25_24"), true);
 
         // ========================== Corn ==========================

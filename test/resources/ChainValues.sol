@@ -717,6 +717,7 @@ contract ChainValues {
         values[mainnet]["pendle_eBTC_market_6_25_25"] = 0x523f9441853467477b4dDE653c554942f8E17162.toBytes32();
 
         values[mainnet]["pendle_pumpBTC_market_03_26_25"] = 0x8098B48a1c4e4080b30A43a7eBc0c87b52F17222.toBytes32();
+        values[mainnet]["pendle_pumpBTC_market_05_28_25"] = 0x2D8F5997Af9bc7AE4047287425355518EF01fcfC.toBytes32();
         values[mainnet]["pendle_corn_pumpBTC_market_12_25_24"] = 0xf8208fB52BA80075aF09840A683143C22DC5B4dd.toBytes32();
 
         values[mainnet]["pendle_uniBTC_market_03_26_25"] = 0x380C751BD0412f47Ca560B6AFeB566d88dc18630.toBytes32();
