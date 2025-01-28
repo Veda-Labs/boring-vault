@@ -4887,7 +4887,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         }
     }
 
-    function _addSymbioticVaultLeafs(ManageLeaf[] memory leafs, address[] memory vaults, ERC20[] memory assets)
+    function _addSymbioticVaultLeafs(ManageLeaf[] memory leafs, address[] memory vaults, ERC20[] memory assets, address[] memory vaultRewards)
         internal
     {
         for (uint256 i; i < assets.length; i++) {
@@ -4961,6 +4961,19 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 "claimBatch(address,uint256[])",
                 new address[](1),
                 string.concat("Claim batch withdraw from Symbiotic Vault ", vm.toString(vaults[i])),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                vaultRewards[i],
+                false,
+                "claimRewards(address,address,bytes)",
+                new address[](1),
+                string.concat("Claim rewards from Symbiotic Vault ", vm.toString(vaults[i])),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");

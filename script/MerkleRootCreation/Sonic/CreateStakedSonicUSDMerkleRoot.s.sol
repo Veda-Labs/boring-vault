@@ -18,7 +18,7 @@ contract CreateStakedSonicUSDMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0x4D85bA8c3918359c78Ed09581E5bc7578ba932ba;
     address public managerAddress = 0x5F7f5205A3E7c63c3bd287EecBe7879687D4c698;
     address public accountantAddress = 0x13cCc810DfaA6B71957F2b87060aFE17e6EB8034;
-    address public rawDataDecoderAndSanitizer = 0x8A6790A3665167f3bCdfB9A3EECE92F9443c106c;
+    address public rawDataDecoderAndSanitizer = 0x9a40361334f01F97582667aa475f7Db86D532363;
 
     function setUp() external {}
 
@@ -37,7 +37,16 @@ contract CreateStakedSonicUSDMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, sonicMainnet, "accountantAddress", accountantAddress);
         setAddress(false, sonicMainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](16);
+        ManageLeaf[] memory leafs = new ManageLeaf[](128);
+
+        // ========================== UniswapV3 ==========================
+        address[] memory token0 = new address[](1);
+        token0[0] = getAddress(sourceChain, "scUSD");
+
+        address[] memory token1 = new address[](1);
+        token1[0] = getAddress(sourceChain, "USDC");
+
+        _addUniswapV3Leafs(leafs, token0, token1, false);
 
         // ========================== Beets ==========================
         _addBalancerLeafs(
@@ -48,6 +57,12 @@ contract CreateStakedSonicUSDMerkleRoot is Script, MerkleTreeHelper {
         ERC20[] memory tellerAssets = new ERC20[](1);
         tellerAssets[0] = getERC20(sourceChain, "USDC");
         _addTellerLeafs(leafs, getAddress(sourceChain, "scUSDTeller"), tellerAssets);
+
+
+        // ========================== SiloV2 ==========================
+        _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_S_scUSD_config")); 
+        _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_S_USDC_config")); 
+
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
