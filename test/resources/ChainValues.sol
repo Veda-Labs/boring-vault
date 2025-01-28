@@ -940,6 +940,8 @@ contract ChainValues {
         values[mainnet]["evkWEETH"] = 0xe846ca062aB869b66aE8DcD811973f628BA82eAf.toBytes32();
         values[mainnet]["evkWETH"] = 0xD8b27CF359b7D15710a5BE299AF6e7Bf904984C2.toBytes32();
         values[mainnet]["evkUSDC"] = 0x797DD80692c3b2dAdabCe8e30C07fDE5307D48a9.toBytes32();
+        values[mainnet]["evkLBTC"] = 0xbC35161043EE2D74816d421EfD6a45fDa73B050A.toBytes32(); //Euler Prime
+        values[mainnet]["evkDAI"] = 0x83C266bdf990574a05EE62831a266a3891817B5B.toBytes32(); 
 
         // Royco
         values[mainnet]["vaultMarketHub"] = 0xa97eCc6Bfda40baf2fdd096dD33e88bd8e769280.toBytes32();
