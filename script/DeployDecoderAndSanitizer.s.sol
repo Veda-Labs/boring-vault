@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
+import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import {ITBPositionDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/ITB/ITBPositionDecoderAndSanitizer.sol";
 import {EtherFiLiquidUsdDecoderAndSanitizer} from
@@ -26,6 +27,7 @@ import {EtherFiLiquidBtcDecoderAndSanitizer} from
 import {SonicMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SonicEthMainnetDecoderAndSanitizer.sol";
 import {AaveV3FullDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/AaveV3FullDecoderAndSanitizer.sol"; 
 import {LombardBtcDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LombardBtcDecoderAndSanitizer.sol"; 
+import {StakedSonicUSDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/StakedSonicUSDDecoderAndSanitizer.sol"; 
 
 import {BoringDrone} from "src/base/Drones/BoringDrone.sol";
 
@@ -36,13 +38,14 @@ import "forge-std/StdJson.sol";
  * @dev Optionally can change `--with-gas-price` to something more reasonable
  */
 
-contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddresses {
+contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
     uint256 public privateKey;
     Deployer public deployer = Deployer(deployerAddress);
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("mainnet");
+        vm.createSelectFork("sonicMainnet");
+        setSourceChainName(sonicMainnet);
     }
 
     function run() external {
@@ -113,12 +116,14 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //creationCode = type(LombardBtcDecoderAndSanitizer).creationCode;
         //constructorArgs = abi.encode(uniswapV3NonFungiblePositionManager); 
         //deployer.deployContract("Lombard BTC Decoder And Sanitizer V0.2", creationCode, constructorArgs, 0);
+        
+        address univ3 = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"); 
+        if (univ3 == address(0)) revert("fail"); 
 
-        address pancakeswapV3nfpm = 0x46A15B0b27311cedF172AB29E4f4766fbE7F4364;
-        address pancakeswapV3chef = 0x556B9306565093C855AEA9AE92A594704c2Cd59e;
-        creationCode = type(PancakeSwapV3FullDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(pancakeswapV3nfpm, pancakeswapV3chef);
-        deployer.deployContract("PancakeSwapV3 Decoder And Sanitizer V0.1", creationCode, constructorArgs, 0);
+        creationCode = type(StakedSonicUSDDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(univ3); 
+        deployer.deployContract("Staked Sonic USD Decoder And Sanitizer V0.2", creationCode, constructorArgs, 0);
+
 
         vm.stopBroadcast();
     }
