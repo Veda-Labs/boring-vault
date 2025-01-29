@@ -36,6 +36,9 @@ import {MerklDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols
 import {LidoDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LidoDecoderAndSanitizer.sol";
 import {MorphoRewardsDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/MorphoRewardsDecoderAndSanitizer.sol"; 
 import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol"; 
+import {LombardBTCMinterDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/LombardBtcMinterDecoderAndSanitizer.sol";
+import {BTCNMinterDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BTCNMinterDecoderAndSanitizer.sol";
 
 contract LombardBtcDecoderAndSanitizer is
     UniswapV3DecoderAndSanitizer,
@@ -63,7 +66,9 @@ contract LombardBtcDecoderAndSanitizer is
     MerklDecoderAndSanitizer,
     LidoDecoderAndSanitizer,
     MorphoRewardsDecoderAndSanitizer,
-    TellerDecoderAndSanitizer
+    TellerDecoderAndSanitizer,
+    LombardBTCMinterDecoderAndSanitizer,
+    BTCNMinterDecoderAndSanitizer
 {
     constructor(address _uniswapV3NonFungiblePositionManager)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)

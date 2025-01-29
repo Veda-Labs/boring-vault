@@ -6343,6 +6343,170 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
     }
 
+    // ========================================= Lombard BTC  =========================================
+
+    // @notice to avoid having an extra unneeded approval leaf for base vs bnb merkle trees
+    function _addLombardBTCLeafs(ManageLeaf[] memory leafs, ERC20 BTCB_or_CBBtc, ERC20 LBTC) internal {
+        unchecked {
+            leafIndex++;
+        }
+
+        leafs[leafIndex] = ManageLeaf(
+            address(BTCB_or_CBBtc), //target
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve BTCB to be staked into LBTC"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "LBTC");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            address(LBTC), //target
+            false,
+            "mint(address,uint256)",
+            new address[](1),
+            string.concat("Mint LBTC if permissioned"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            address(LBTC), //target
+            false,
+            "mint(bytes,bytes)",
+            new address[](1),
+            string.concat("Mint LBTC"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+        //set the swap leaf based on if we are on bnc or base
+        if (getAddress("base", "cbBTC") == address(BTCB_or_CBBtc)) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                address(BTCB_or_CBBtc), //target
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve cbBTC to be swapped for LBTC"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "cbBTCPMM");
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "cbBTCPMM"), //target
+                false,
+                "swapCBBTCToLBTC(uint256)",
+                new address[](0),
+                string.concat("Swap cbBTC to LBTC"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+        } else {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                address(BTCB_or_CBBtc), //target
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve BTCB to be swapped for LBTC via swap contract"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "BTCBPMM");
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "BTCBPMM"), //target
+                false,
+                "swapBTCBToLBTC(uint256)",
+                new address[](0),
+                string.concat("Swap BTCB to LBTC"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+        }
+    }
+
+      // ============================================= BTCN Corn ==================================================
+
+    function _addBTCNLeafs(ManageLeaf[] memory leafs, ERC20 collateralToken, ERC20 BTCN, address cornSwapFacility)
+        internal
+    {
+        unchecked {
+            leafIndex++;
+        }
+
+        leafs[leafIndex] = ManageLeaf(
+            address(collateralToken), //target
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat(
+                "Approve ", collateralToken.symbol(), " to be swapped for BTCN by the Corn SwapFacility Contract"
+            ),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = cornSwapFacility;
+
+        unchecked {
+            leafIndex++;
+        }
+
+        leafs[leafIndex] = ManageLeaf(
+            address(BTCN), //target
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat(
+                "Approve BTCN to be swapped for ", collateralToken.symbol(), " by the Corn SwapFacility Contract"
+            ),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = cornSwapFacility;
+
+        unchecked {
+            leafIndex++;
+        }
+
+        leafs[leafIndex] = ManageLeaf(
+            cornSwapFacility, //target
+            false,
+            "swapExactCollateralForDebt(uint256,uint256,address,uint256)",
+            new address[](1),
+            string.concat("Swap ", collateralToken.symbol(), " for BTCN"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+
+        leafs[leafIndex] = ManageLeaf(
+            cornSwapFacility, //target
+            false,
+            "swapExactDebtForCollateral(uint256,uint256,address,uint256)",
+            new address[](1),
+            string.concat("Swap BTCN for ", collateralToken.symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+    }
+
     // ========================================= Sky Money =========================================
     function _addAllSkyMoneyLeafs(ManageLeaf[] memory leafs) internal {
         _addSkyDaiConverterLeafs(leafs);
@@ -6636,7 +6800,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
 
     // ========================================= BoringVault Teller =========================================
 
-    function _addTellerLeafs(ManageLeaf[] memory leafs, address teller, ERC20[] memory assets) internal {
+    function _addTellerLeafs(ManageLeaf[] memory leafs, address teller, ERC20[] memory assets, bool ethBase) internal {
         ERC20 boringVault = TellerWithMultiAssetSupport(teller).vault();
 
         for (uint256 i; i < assets.length; ++i) {
@@ -6696,19 +6860,21 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = address(assets[i]);
-
-            unchecked {
-                leafIndex++;
+            
+            if (ethBase) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    teller,
+                    true, //can send value
+                    "deposit(address,uint256,uint256)",
+                    new address[](1),
+                    string.concat("Deposit ETH into ", boringVault.name()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "ETH");
             }
-            leafs[leafIndex] = ManageLeaf(
-                teller,
-                true, //can send value
-                "deposit(address,uint256,uint256)",
-                new address[](1),
-                string.concat("Deposit ETH into ", boringVault.name()),
-                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-            );
-            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "ETH");
         }
     }
 

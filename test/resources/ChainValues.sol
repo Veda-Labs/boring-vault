@@ -915,6 +915,10 @@ contract ChainValues {
 
         // corn
         values[mainnet]["cornSilo"] = 0x8bc93498b861fd98277c3b51d240e7E56E48F23c.toBytes32();
+        values[mainnet]["cornSwapFacilityWBTC"] = 0xBf5eB70b93d5895C839B8BeB3C27dc36f6B56fea.toBytes32();
+        values[mainnet]["cornSwapFacilitycbBTC"] = 0x554335b8C994E47e6dbfDC08Fa8aca0510e66BA1.toBytes32();
+
+        values[mainnet]["LBTCOFTAdapter"] = 0x6bc15D7930839Ec18A57F6f7dF72aE1B439D077f.toBytes32();
 
         // Treehouse
         values[mainnet]["TreehouseRedemption"] = 0x0618DBdb3Be798346e6D9C08c3c84658f94aD09F.toBytes32();
