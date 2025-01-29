@@ -18,7 +18,8 @@ contract CreateBtcFiMerkleRootScript is Script, MerkleTreeHelper {
     address public boringVault = 0xFE0C961A49E1aEe2AE2d842fE40157365C6d978f;
     address public managerAddress = 0xaE4b4cfBB7A0B90e9455761ed6D93d6Dc1759710;
     address public accountantAddress = 0xf1ecf4802C2b5Cf9c830A4AF297842Daa6D0f986;
-    address public rawDataDecoderAndSanitizer = 0xc4149959d8eA6F118A0755029C9a71E1FcDF6477;
+    address public rawDataDecoderAndSanitizer = 0x453E5dD3b6E851E7ffd3Ad9Bc2f2f88C5b1196D8;
+    address public pumpDataDecoderAndSanitizer = 0xc4149959d8eA6F118A0755029C9a71E1FcDF6477;
 
     function setUp() external {}
 
@@ -75,9 +76,11 @@ contract CreateBtcFiMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== Pendle ==========================
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_pumpBTC_market_03_26_25"), true);
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_pumpBTC_market_05_28_25"), true);
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_corn_pumpBTC_market_12_25_24"), true);
 
         // ========================== Corn ==========================
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", pumpDataDecoderAndSanitizer);
         ERC20[] memory cornTokens = new ERC20[](4);
         cornTokens[0] = ERC20(getAddress(sourceChain, "WBTC"));
         cornTokens[1] = ERC20(getAddress(sourceChain, "pumpBTC"));
