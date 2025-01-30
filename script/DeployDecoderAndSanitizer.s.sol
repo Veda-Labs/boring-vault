@@ -26,6 +26,7 @@ import {EtherFiLiquidBtcDecoderAndSanitizer} from
 import {SonicMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SonicEthMainnetDecoderAndSanitizer.sol";
 import {AaveV3FullDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/AaveV3FullDecoderAndSanitizer.sol"; 
 import {LombardBtcDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LombardBtcDecoderAndSanitizer.sol"; 
+import {LiquidBeraEthDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidBeraEthDecoderAndSanitizer.sol"; 
 
 import {BoringDrone} from "src/base/Drones/BoringDrone.sol";
 
@@ -110,10 +111,10 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //constructorArgs = abi.encode(boringVault, uniswapV3NonFungiblePositionManager);
         //deployer.deployContract("EtherFi Liquid BTC Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
         
-        creationCode = type(EtherFiLiquidEthDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(uniswapV3NonFungiblePositionManager); 
-        deployer.deployContract("EtherFi Liquid ETH Decoder And Sanitizer V0.8", creationCode, constructorArgs, 0);
-
+        address mainnetRecipeMarketHub = 0x783251f103555068c1E9D755f69458f39eD937c0;  
+        creationCode = type(LiquidBeraEthDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(uniswapV3NonFungiblePositionManager, mainnetRecipeMarketHub); 
+        deployer.deployContract("Liquid Bera ETH Decoder And Sanitizer V0.1", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
