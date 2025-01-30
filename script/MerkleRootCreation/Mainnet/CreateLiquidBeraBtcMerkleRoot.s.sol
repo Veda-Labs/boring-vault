@@ -18,7 +18,7 @@ contract CreateLiquidBeraBtcMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0xC673ef7791724f0dcca38adB47Fbb3AEF3DB6C80;
     address public managerAddress = 0x603064caAf2e76C414C5f7b6667D118322d311E6;
     address public accountantAddress = 0xF44BD12956a0a87c2C20113DdFe1537A442526B5;
-    address public rawDataDecoderAndSanitizer = 0xB6e56b6c8f0BC8DD2B266554629100BB3BAB323D;
+    address public rawDataDecoderAndSanitizer = 0xf7301C2A56510814B88b024d7066b6B62acC704D;
 
     function setUp() external {}
 
@@ -37,7 +37,7 @@ contract CreateLiquidBeraBtcMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "accountantAddress", accountantAddress);
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](32);
+        ManageLeaf[] memory leafs = new ManageLeaf[](64);
 
         // ========================== 1inch ==========================
         address[] memory assets = new address[](4);
@@ -60,6 +60,19 @@ contract CreateLiquidBeraBtcMerkleRoot is Script, MerkleTreeHelper {
         tellerAssets[1] = getERC20(sourceChain, "LBTC");
         tellerAssets[2] = getERC20(sourceChain, "cbBTC");
         _addTellerLeafs(leafs, eBTCTellerLZ, tellerAssets);
+
+        // ========================== Royco ==========================
+        {
+
+            bytes32 wbtcMarketHash = 0xb36f14fd392b9a1d6c3fabedb9a62a63d2067ca0ebeb63bbc2c93b11cc8eb3a2; 
+            address roycoFrontEndFeeRecipientTemp = 0x303907c6991B9058AB4aBd18B9c57B611FB81103; //this is what is used when there is no fee, I think, but waiting on confirmation from royco team on if they need us to use something specific  
+            _addRoycoWeirollLeafs(leafs, getERC20(sourceChain, "WBTC"), wbtcMarketHash, roycoFrontEndFeeRecipientTemp);  
+
+
+            bytes32 lbtcMarketHash = 0xabf4b2f17bc32faf4c3295b1347f36d21ec5629128d465b5569e600bf8d46c4f; 
+            _addRoycoWeirollLeafs(leafs, getERC20(sourceChain, "LBTC"), lbtcMarketHash, roycoFrontEndFeeRecipientTemp);  
+
+        } 
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
