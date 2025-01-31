@@ -944,6 +944,41 @@ contract ChainValues {
         values[mainnet]["evkDAI"] = 0x83C266bdf990574a05EE62831a266a3891817B5B.toBytes32(); 
         values[mainnet]["evkDAIDebt"] = 0x1796526a7705cBBe76dEdd4b13959A48c674A6cD.toBytes32(); 
 
+        values[mainnet]["evkWETH"] = 0xD8b27CF359b7D15710a5BE299AF6e7Bf904984C2.toBytes32();
+        values[mainnet]["evkeWETH-2"] = 0xD8b27CF359b7D15710a5BE299AF6e7Bf904984C2.toBytes32();
+
+        values[mainnet]["evkUSDC"] = 0x797DD80692c3b2dAdabCe8e30C07fDE5307D48a9.toBytes32();
+        values[mainnet]["evkeUSDC-2"] = 0x797DD80692c3b2dAdabCe8e30C07fDE5307D48a9.toBytes32();
+
+        values[mainnet]["evkeUSDC-22"] = 0xe0a80d35bB6618CBA260120b279d357978c42BCE.toBytes32();
+        values[mainnet]["evkeUSD0-3"] = 0xdEd27A6da244a5f3Ff74525A2cfaD4ed9E5B0957.toBytes32();
+        values[mainnet]["evkeUSD0++-2"] = 0x6D671B9c618D5486814FEb777552BA723F1A235C.toBytes32();
+        values[mainnet]["evkeUSDT-2"] = 0x313603FA690301b0CaeEf8069c065862f9162162.toBytes32();
+        values[mainnet]["evkeUSDT-9"] = 0x7c280DBDEf569e96c7919251bD2B0edF0734C5A8.toBytes32();
+        values[mainnet]["evkeUSDe-6"] = 0x2daCa71Cb58285212Dc05D65Cfd4f59A82BC4cF6.toBytes32();
+        values[mainnet]["evkeDAI-4"] = 0x83C266bdf990574a05EE62831a266a3891817B5B.toBytes32();
+        values[mainnet]["evkeLBTC-2"] = 0xbC35161043EE2D74816d421EfD6a45fDa73B050A.toBytes32();
+        values[mainnet]["evkecbBTC-3"] = 0x056f3a2E41d2778D3a0c0714439c53af2987718E.toBytes32();
+        values[mainnet]["evkeWBTC-3"] = 0x998D761eC1BAdaCeb064624cc3A1d37A46C88bA4.toBytes32();
+        values[mainnet]["evkesUSDe-3"] = 0x498c014dE23f19700F51e85a384AB1B059F0672e.toBytes32();
+        values[mainnet]["evkeeBTC-3"] = 0x34716B7026D9e6247D21e37Da1f1b157b62a16e0.toBytes32();
+        values[mainnet]["evkesDAI-2"] = 0x8E4AF2F36ed6fb03E5E02Ab9f3C724B6E44C13b4.toBytes32();
+        values[mainnet]["evkePYUSD-3"] = 0x6121591077Dc6898Ffd7216eA1b56cb890b3F84d.toBytes32();
+        values[mainnet]["evkeUSR-1"] = 0x3A8992754E2EF51D8F90620d2766278af5C59b90.toBytes32();
+        values[mainnet]["evkeUSDC-17"] = 0xE0c1bdab9A7d487c4fEcd402cb9b4f8B347e73c3.toBytes32();
+        values[mainnet]["evkeUSDC-19"] = 0xcBC9B61177444A793B85442D3a953B90f6170b7D.toBytes32();
+        values[mainnet]["evkeLBTC-3"] = 0xA2038a5B7Ce1C195F0C52b77134c5369CCfe0148.toBytes32();
+        values[mainnet]["evkePT-wstUSR-27MAR2025-1"] = 0x81fa50cBe6C7Ed61961fE601B7c5AC334c2c84bB.toBytes32();
+        values[mainnet]["evkePT-LBTC-27MAR2025-1"] = 0xBc99605074737d36266f45E0d192dDe6CFDFd72a.toBytes32();
+        values[mainnet]["evkeWBTC-5"] = 0x82D2CE1f71cbe391c05E21132811e5172d51A6EE.toBytes32();
+        values[mainnet]["evkewstUSR-1"] = 0x9f12d29c7CC72bb3d237E2D042A6D890421f9899.toBytes32();
+        values[mainnet]["evkecbBTC-4"] = 0x29A9E5A004002Ff9E960bb8BB536E076F53cbDF1.toBytes32();
+        values[mainnet]["evkeeBTC-1"] = 0xC605471aE09e0b7daA9e8813707d0DDbf9429Ad2.toBytes32();
+
+
+        values[mainnet]["USR"] = 0x66a1E37c9b0eAddca17d3662D6c05F4DECf3e110.toBytes32();
+        values[mainnet]["wstUSR"] = 0x1202F5C7b4B9E47a1A484E8B270be34dbbC75055.toBytes32();
+
         // Royco
         values[mainnet]["vaultMarketHub"] = 0xa97eCc6Bfda40baf2fdd096dD33e88bd8e769280.toBytes32();
         values[mainnet]["recipeMarketHub"] = 0x783251f103555068c1E9D755f69458f39eD937c0.toBytes32();
