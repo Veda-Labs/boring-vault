@@ -1492,5 +1492,13 @@ contract ChainValues {
 
         // ERC20s
         values[swell]["WEETH"] = 0xA6cB988942610f6731e664379D15fFcfBf282b44.toBytes32(); //also OFT
+
+        // Standard Bridge
+        values[swell]["standardBridge"] = 0x4200000000000000000000000000000000000010.toBytes32();
+
+        // Euler
+        values[swell]["ethereumVaultConnector"] = 0x08739CBede6E28E387685ba20e6409bD16969Cde.toBytes32();
+        values[swell]["eulerWETH"] = 0x49C077B74292aA8F589d39034Bf9C1Ed1825a608.toBytes32();
+        values[swell]["eulerWEETH"] = 0x10D0D11A8B693F4E3e33d09BBab7D4aFc3C03ef3.toBytes32();
     }
 }

@@ -19,7 +19,7 @@ contract CreateSwellEtherFiLiquidEthMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C;
     address public managerAddress = 0xDEa7AF4a96A762c9d43A7eE02acecD20A3C6D8B6;
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
-    address public rawDataDecoderAndSanitizer = 0x5a0Bb1395661BDF781cF0Fcc2a6cc72f56Ed40a7;
+    address public rawDataDecoderAndSanitizer = 0x0C8B49b06544fA8B5c85755267498E407433edBB;
 
     function setUp() external {}
 
@@ -37,7 +37,7 @@ contract CreateSwellEtherFiLiquidEthMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, swell, "accountantAddress", accountantAddress);
         setAddress(false, swell, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](16);
+        ManageLeaf[] memory leafs = new ManageLeaf[](32);
 
         // ========================== Native Wrapping ==========================
         _addNativeLeafs(leafs);
@@ -46,6 +46,28 @@ contract CreateSwellEtherFiLiquidEthMerkleRoot is Script, MerkleTreeHelper {
         _addLayerZeroLeafs(
             leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "WEETH"), layerZeroMainnetEndpointId
         );
+
+        // ========================== Standard Bridge ==========================
+        ERC20[] memory localTokens = new ERC20[](0);
+        ERC20[] memory remoteTokens = new ERC20[](0);
+        _addStandardBridgeLeafs(
+            leafs,
+            mainnet,
+            address(0),
+            address(0),
+            getAddress(sourceChain, "standardBridge"),
+            address(0),
+            localTokens,
+            remoteTokens
+        );
+
+        // // ========================== Euler ==========================
+        ERC4626[] memory depositVaults = new ERC4626[](2); 
+        depositVaults[0] = ERC4626(getAddress(sourceChain, "eulerWETH")); 
+        depositVaults[1] = ERC4626(getAddress(sourceChain, "eulerWEETH")); 
+        address[] memory subaccounts = new address[](1); 
+        subaccounts[0] = address(boringVault);
+        _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
 
         // ========================== Verify & Generate ==========================
 

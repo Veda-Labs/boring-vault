@@ -47,6 +47,7 @@ optimism = { key = "${OPTIMISMSCAN_KEY}" }
 base = { key = "${BASESCAN_KEY}" }
 scroll = { key = "${SCROLLSCAN_KEY}" }
 sonicMainnet = { key = "${SONICSCAN_KEY}", chain = 146, url = "https://api.routescan.io/v2/network/mainnet/evm/146/etherscan" }
+swell = { key = "${SWELLSCAN_KEY}", chain = 1923, url = "https://explorer.swellnetwork.io:443/api/" }
 
 [fmt]
 FOUNDRY_FMT_LINE_LENGTH = 120
