@@ -106,13 +106,15 @@ contract CreateUltraUsdMerkleRootScript is Script, MerkleTreeHelper {
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_USD0Plus_market_03_26_2025"), true);
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_USD0Plus_market_04_23_2025"), true);
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_USD0Plus_market_06_25_2025"), true);
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_wstUSR_market_03_26_25"), true);
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_USDe_03_26_25"), true);
 
         // ========================== 1inch ==========================
         /*
          *
          */
-        address[] memory oneInchAssets = new address[](19);
-        SwapKind[] memory oneInchKind = new SwapKind[](19);
+        address[] memory oneInchAssets = new address[](20);
+        SwapKind[] memory oneInchKind = new SwapKind[](20);
         oneInchAssets[0] = getAddress(sourceChain, "USDC");
         oneInchKind[0] = SwapKind.BuyAndSell;
         oneInchAssets[1] = getAddress(sourceChain, "USDT");
@@ -151,6 +153,8 @@ contract CreateUltraUsdMerkleRootScript is Script, MerkleTreeHelper {
         oneInchKind[17] = SwapKind.Sell;
         oneInchAssets[18] = getAddress(sourceChain, "ETHFI");
         oneInchKind[18] = SwapKind.Sell;
+        oneInchAssets[19] = getAddress(sourceChain, "USR");
+        oneInchKind[19] = SwapKind.BuyAndSell;
 
         _addLeafsFor1InchGeneralSwapping(leafs, oneInchAssets, oneInchKind);
 
@@ -414,6 +418,8 @@ contract CreateUltraUsdMerkleRootScript is Script, MerkleTreeHelper {
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_USD0Plus_market_03_26_2025"), true);
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_USD0Plus_market_04_23_2025"), true);
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_USD0Plus_market_06_25_2025"), true);
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_wstUSR_market_03_26_25"), true);
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_USDe_03_26_25"), true);
 
         // ========================== 1inch ==========================
         /*
