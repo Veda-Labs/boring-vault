@@ -873,6 +873,11 @@ contract ChainValues {
         values[mainnet]["optimismPortal"] = 0xbEb5Fc579115071764c7423A4f12eDde41f106Ed.toBytes32();
         values[mainnet]["optimismResolvedDelegate"] = 0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1.toBytes32();
 
+        // Swell Standard Bridge.
+        values[mainnet]["swellStandardBridge"] = 0x7aA4960908B13D104bf056B23E2C76B43c5AACc8.toBytes32();
+        values[mainnet]["swellPortal"] = 0x758E0EE66102816F5C3Ec9ECc1188860fbb87812.toBytes32();
+        values[mainnet]["swellResolvedDelegate"] = 0xe6a99Ef12995DeFC5ff47EC0e13252f0E6903759.toBytes32();
+
         // Mantle Standard Bridge.
         values[mainnet]["mantleStandardBridge"] = 0x95fC37A27a2f68e3A647CDc081F0A89bb47c3012.toBytes32();
         values[mainnet]["mantlePortal"] = 0xc54cb22944F2bE476E02dECfCD7e3E7d3e15A8Fb.toBytes32();
@@ -1494,5 +1499,9 @@ contract ChainValues {
 
         // ERC20s
         values[swell]["WEETH"] = 0xA6cB988942610f6731e664379D15fFcfBf282b44.toBytes32(); //also OFT
+
+        // Standard Bridge
+        values[swell]["standardBridge"] = 0x4200000000000000000000000000000000000010.toBytes32();
+        values[swell]["crossDomainMessenger"] = 0x4200000000000000000000000000000000000007.toBytes32();
     }
 }

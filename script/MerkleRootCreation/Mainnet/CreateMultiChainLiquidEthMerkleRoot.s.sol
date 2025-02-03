@@ -418,6 +418,20 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
                 localTokens,
                 remoteTokens
             );
+
+            ERC20[] memory swellLocalTokens = new ERC20[](0);
+            ERC20[] memory swellRemoteTokens = new ERC20[](0);
+
+            _addStandardBridgeLeafs(
+                leafs,
+                swell,
+                getAddress(swell, "crossDomainMessenger"),
+                getAddress(sourceChain, "swellResolvedDelegate"),
+                getAddress(sourceChain, "swellStandardBridge"),
+                getAddress(sourceChain, "swellPortal"),
+                swellLocalTokens,
+                swellRemoteTokens
+            );
         }
 
         // ========================== LayerZero ==========================
