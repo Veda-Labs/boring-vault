@@ -700,6 +700,7 @@ contract ChainValues {
         values[mainnet]["pendle_weETHs_pt_08_28_24"] = 0xda6530EfaFD63A42d7b9a0a5a60A03839CDb813A.toBytes32();
         values[mainnet]["pendle_weETHs_yt_08_28_24"] = 0x28cE264D0938C1051687FEbDCeFacc2242BA9E0E.toBytes32();
         values[mainnet]["pendle_weETHs_market_12_25_24"] = 0x40789E8536C668c6A249aF61c81b9dfaC3EB8F32.toBytes32();
+        values[mainnet]["pendle_weETHs_market_6_25_25"] = 0xcbA3B226cA62e666042Cb4a1e6E4681053885F75.toBytes32();
 
         values[mainnet]["pendleUSD0PlusMarketOctober"] = 0x00b321D89A8C36B3929f20B7955080baeD706D1B.toBytes32();
         values[mainnet]["pendle_USD0Plus_market_01_29_2025"] = 0x64506968E80C9ed07bFF60C8D9d57474EFfFF2c9.toBytes32();
