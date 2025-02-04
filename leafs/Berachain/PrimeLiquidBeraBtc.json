@@ -1,0 +1,145 @@
+{
+    "metadata": {
+        "AccountantAddress": "0x4faE50B524e0D05BD73fDF28b273DB7D4A57CCe9",
+        "BoringVaultAddress": "0x46fcd35431f5B371224ACC2e2E91732867B1A77e",
+        "DecoderAndSanitizerAddress": "0x9b0FF5F9625F99Ae64CfFdc85B56e594D520ACcB",
+        "DigestComposition": [
+            "Bytes20(DECODER_AND_SANITIZER_ADDRESS)",
+            "Bytes20(TARGET_ADDRESS)",
+            "Bytes1(CAN_SEND_VALUE)",
+            "Bytes4(TARGET_FUNCTION_SELECTOR)",
+            "Bytes{N*20}(ADDRESS_ARGUMENT_0,...,ADDRESS_ARGUMENT_N)"
+        ],
+        "LeafCount": 8,
+        "ManageRoot": "0x8dbe5fc65da398e6d55be9a5c6b5e94e190050fc3e3642f8404a32a54032da9a",
+        "ManagerAddress": "0x7280E05ccF01066C715aDc936f860BD65510f816",
+        "TreeCapacity": 8
+    },
+    "leafs": [
+        {
+            "AddressArguments": ["0x657e8C867D8B37dCC18fA4Caead9C45EB088C642"],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x9b0FF5F9625F99Ae64CfFdc85B56e594D520ACcB",
+            "Description": "Approve ether.fi BTC, to spend WBTC",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0xde3bc5090e2fbcfe8614ed9be7c3245a8f34d46de99d7eea0d6eeee79d34ea29",
+            "PackedArgumentAddresses": "0x657e8c867d8b37dcc18fa4caead9c45eb088c642",
+            "TargetAddress": "0x0555E30da8f98308EdB960aa94C0Db47230d2B9c"
+        },
+        {
+            "AddressArguments": [
+                "0x0555E30da8f98308EdB960aa94C0Db47230d2B9c",
+                "0x46fcd35431f5B371224ACC2e2E91732867B1A77e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x9b0FF5F9625F99Ae64CfFdc85B56e594D520ACcB",
+            "Description": "Bulk deposit WBTC into ether.fi BTC",
+            "FunctionSelector": "0x9d574420",
+            "FunctionSignature": "bulkDeposit(address,uint256,uint256,address)",
+            "LeafDigest": "0x326a04426097cded74b1118587e8af18984bdab855e33a128620d9f153977a72",
+            "PackedArgumentAddresses": "0x0555e30da8f98308edb960aa94c0db47230d2b9c46fcd35431f5b371224acc2e2e91732867b1a77e",
+            "TargetAddress": "0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268"
+        },
+        {
+            "AddressArguments": [
+                "0x0555E30da8f98308EdB960aa94C0Db47230d2B9c",
+                "0x46fcd35431f5B371224ACC2e2E91732867B1A77e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x9b0FF5F9625F99Ae64CfFdc85B56e594D520ACcB",
+            "Description": "Bulk withdraw WBTC from ether.fi BTC",
+            "FunctionSelector": "0x3e64ce99",
+            "FunctionSignature": "bulkWithdraw(address,uint256,uint256,address)",
+            "LeafDigest": "0xe36f6c4f3805251cd89bea93ab6d8f7a69fa46a2421be2a30d8862ee6d24ebab",
+            "PackedArgumentAddresses": "0x0555e30da8f98308edb960aa94c0db47230d2b9c46fcd35431f5b371224acc2e2e91732867b1a77e",
+            "TargetAddress": "0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268"
+        },
+        {
+            "AddressArguments": ["0x0555E30da8f98308EdB960aa94C0Db47230d2B9c"],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x9b0FF5F9625F99Ae64CfFdc85B56e594D520ACcB",
+            "Description": "Deposit WBTC into ether.fi BTC",
+            "FunctionSelector": "0x0efe6a8b",
+            "FunctionSignature": "deposit(address,uint256,uint256)",
+            "LeafDigest": "0x358d733bfc66aebe86ce951657054f5b2e860fb1d9b70b952c5fe3f47649004c",
+            "PackedArgumentAddresses": "0x0555e30da8f98308edb960aa94c0db47230d2b9c",
+            "TargetAddress": "0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268"
+        },
+        {
+            "AddressArguments": ["0x657e8C867D8B37dCC18fA4Caead9C45EB088C642"],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x9b0FF5F9625F99Ae64CfFdc85B56e594D520ACcB",
+            "Description": "Approve ether.fi BTC, to spend LBTC",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0xd00e1e67c9060adf784be8c2dd7b4edcf2e306515ccfcd77b5ee188d796ce723",
+            "PackedArgumentAddresses": "0x657e8c867d8b37dcc18fa4caead9c45eb088c642",
+            "TargetAddress": "0xecAc9C5F704e954931349Da37F60E39f515c11c1"
+        },
+        {
+            "AddressArguments": [
+                "0xecAc9C5F704e954931349Da37F60E39f515c11c1",
+                "0x46fcd35431f5B371224ACC2e2E91732867B1A77e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x9b0FF5F9625F99Ae64CfFdc85B56e594D520ACcB",
+            "Description": "Bulk deposit LBTC into ether.fi BTC",
+            "FunctionSelector": "0x9d574420",
+            "FunctionSignature": "bulkDeposit(address,uint256,uint256,address)",
+            "LeafDigest": "0x6b8e5968cb49de452350fef00bc7a3cf3a822f0a08c460d43ba02e2a48127b36",
+            "PackedArgumentAddresses": "0xecac9c5f704e954931349da37f60e39f515c11c146fcd35431f5b371224acc2e2e91732867b1a77e",
+            "TargetAddress": "0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268"
+        },
+        {
+            "AddressArguments": [
+                "0xecAc9C5F704e954931349Da37F60E39f515c11c1",
+                "0x46fcd35431f5B371224ACC2e2E91732867B1A77e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x9b0FF5F9625F99Ae64CfFdc85B56e594D520ACcB",
+            "Description": "Bulk withdraw LBTC from ether.fi BTC",
+            "FunctionSelector": "0x3e64ce99",
+            "FunctionSignature": "bulkWithdraw(address,uint256,uint256,address)",
+            "LeafDigest": "0x84396fe7291f73282f5eebda2a73ba0ab1a97520c251186b80b6a9f1f7de9dc8",
+            "PackedArgumentAddresses": "0xecac9c5f704e954931349da37f60e39f515c11c146fcd35431f5b371224acc2e2e91732867b1a77e",
+            "TargetAddress": "0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268"
+        },
+        {
+            "AddressArguments": ["0xecAc9C5F704e954931349Da37F60E39f515c11c1"],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x9b0FF5F9625F99Ae64CfFdc85B56e594D520ACcB",
+            "Description": "Deposit LBTC into ether.fi BTC",
+            "FunctionSelector": "0x0efe6a8b",
+            "FunctionSignature": "deposit(address,uint256,uint256)",
+            "LeafDigest": "0x721a4bf679735748842b40f1b47eaad88c5f10a22a076d65e1b7670c359d4cec",
+            "PackedArgumentAddresses": "0xecac9c5f704e954931349da37f60e39f515c11c1",
+            "TargetAddress": "0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268"
+        }
+    ],
+    "MerkleTree": {
+        "0": [
+            "0x8dbe5fc65da398e6d55be9a5c6b5e94e190050fc3e3642f8404a32a54032da9a"
+        ],
+        "1": [
+            "0x90db4bc184cd4615c550752e75dca4b97985fae3a88a40cc070465e0a79d4cf5",
+            "0xec86c1ecd2a07d082d9d1786829f65ec997eb1fd810c134028622670c6f33e65"
+        ],
+        "2": [
+            "0xe0972e11d1eef8e2c0ea4ddc81610e224cf7422e0c51c7bc5fad02eab5ad9e30",
+            "0xd955f8f34eae5b27373007aead2296564ba62d5f5d999b223710e7eab86a8496",
+            "0x87e9ff511675b6699ae0b95cc477f99c112ab2c35e6788ec3c3ab5b534eddd85",
+            "0x8e8645e668ea1569b716a60b213749d99cd3b2ddbb4c39abc3672a610fd74959"
+        ],
+        "3": [
+            "0xde3bc5090e2fbcfe8614ed9be7c3245a8f34d46de99d7eea0d6eeee79d34ea29",
+            "0x326a04426097cded74b1118587e8af18984bdab855e33a128620d9f153977a72",
+            "0xe36f6c4f3805251cd89bea93ab6d8f7a69fa46a2421be2a30d8862ee6d24ebab",
+            "0x358d733bfc66aebe86ce951657054f5b2e860fb1d9b70b952c5fe3f47649004c",
+            "0xd00e1e67c9060adf784be8c2dd7b4edcf2e306515ccfcd77b5ee188d796ce723",
+            "0x6b8e5968cb49de452350fef00bc7a3cf3a822f0a08c460d43ba02e2a48127b36",
+            "0x84396fe7291f73282f5eebda2a73ba0ab1a97520c251186b80b6a9f1f7de9dc8",
+            "0x721a4bf679735748842b40f1b47eaad88c5f10a22a076d65e1b7670c359d4cec"
+        ]
+    }
+}

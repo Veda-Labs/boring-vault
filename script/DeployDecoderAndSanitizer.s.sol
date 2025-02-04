@@ -28,6 +28,7 @@ import {AaveV3FullDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Aave
 import {LombardBtcDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LombardBtcDecoderAndSanitizer.sol";
 import {EtherFiBtcDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EtherFiBtcDecoderAndSanitizer.sol";
 import {SymbioticLRTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SymbioticLRTDecoderAndSanitizer.sol";
+import {PrimeLiquidBeraBtcDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/PrimeLiquidBeraBtcDecoderAndSanitizer.sol"; 
 
 
 import {BoringDrone} from "src/base/Drones/BoringDrone.sol";
@@ -45,7 +46,7 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("mainnet");
+        vm.createSelectFork("berachain");
     }
 
     function run() external {
@@ -63,8 +64,7 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         // deployer.deployContract(EtherFiLiquidEthDecoderAndSanitizerName, creationCode, constructorArgs, 0);
 
         // creationCode = type(PancakeSwapV3FullDecoderAndSanitizer).creationCode;
-        // constructorArgs = abi.encode(boringVault, pancakeSwapV3NonFungiblePositionManager, pancakeSwapV3MasterChefV3);
-        // deployer.deployContract(LombardPancakeSwapDecoderAndSanitizerName, creationCode, constructorArgs, 0);
+        // constructorArgs = abi.encode(boringVault, pancakeSwapV3NonFungiblePositionManager, pancakeSwapV3MasterChefV3); // deployer.deployContract(LombardPancakeSwapDecoderAndSanitizerName, creationCode, constructorArgs, 0);
 
         // creationCode = type(ITBPositionDecoderAndSanitizer).creationCode;
         // constructorArgs = abi.encode(eEigen);
@@ -121,9 +121,9 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
        //constructorArgs = abi.encode(uniswapV3NonFungiblePositionManager);
        //deployer.deployContract("ether.fi BTC Decoder and Sanitizer V0.2", creationCode, constructorArgs, 0);
 
-        creationCode = type(SymbioticLRTDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(uniswapV3NonFungiblePositionManager);
-        deployer.deployContract("Symbiotic LRT Vault Decoder and Sanitizer V0.4", creationCode, constructorArgs, 0);
+        creationCode = type(PrimeLiquidBeraBtcDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode();
+        deployer.deployContract("Prime Liquid Bera BTC Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         // address pancakeswapV3nfpm = 0x46A15B0b27311cedF172AB29E4f4766fbE7F4364;
         // address pancakeswapV3chef = 0x556B9306565093C855AEA9AE92A594704c2Cd59e;
