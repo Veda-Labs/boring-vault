@@ -2,7 +2,7 @@
   "deploymentParameters": {
     "logLevel": 4,
     "privateKeyEnvName": "BORING_DEVELOPER",
-    "chainName": "berachain",
+    "chainName": "sonicMainnet",
     "evmVersion": "london",
     "desiredNumberOfDeploymentTxs": 5,
     "txBundlerAddressOrName": {
@@ -71,11 +71,11 @@
         "allowedExchangeRateChangeUpper": 10050,
         "baseAddressOrName": {
           "address": "0x0000000000000000000000000000000000000000",
-          "name": "WBTC"
+          "name": "LBTC"
         },
         "minimumUpateDelayInSeconds": 21600,
         "performanceFee": 0,
-        "platformFee": 200,
+        "platformFee": 0,
         "startingExchangeRate": 100000000
       }
     }
@@ -133,26 +133,8 @@
       "proposers": ["0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b"]
     }
   },
-  "accountantAssets": [
-    {
-      "addressOrName": {
-        "address": "0x0000000000000000000000000000000000000000",
-        "name": "LBTC"
-      },
-      "isPeggedToBase": true,
-      "rateProvider": "0x0000000000000000000000000000000000000000"
-    }
-  ],
+  "accountantAssets": [],
   "depositAssets": [
-    {
-      "addressOrName": {
-        "address": "0x0000000000000000000000000000000000000000",
-        "name": "WBTC"
-      },
-      "allowDeposits": true,
-      "allowWithdraws": true,
-      "sharePremium": 0
-    },
     {
       "addressOrName": {
         "address": "0x0000000000000000000000000000000000000000",

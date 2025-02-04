@@ -1396,6 +1396,7 @@ contract ChainValues {
         values[sonicMainnet]["scUSD"] = 0xd3DCe716f3eF535C5Ff8d041c1A41C3bd89b97aE.toBytes32();
         values[sonicMainnet]["scETH"] = 0x3bcE5CB273F0F148010BbEa2470e7b5df84C7812.toBytes32();
         values[sonicMainnet]["stkscUSD"] = 0x4D85bA8c3918359c78Ed09581E5bc7578ba932ba.toBytes32();
+        values[sonicMainnet]["LBTC"] = 0xecAc9C5F704e954931349Da37F60E39f515c11c1.toBytes32();
         values[sonicMainnet]["ZRO"] = address(1).toBytes32();
 
         values[sonicMainnet]["balancerVault"] = address(1).toBytes32();
