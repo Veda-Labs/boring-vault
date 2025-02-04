@@ -37,7 +37,7 @@ contract CreateSonicETHMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, sonicMainnet, "accountantAddress", accountantAddress);
         setAddress(false, sonicMainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
 
         // ========================== SonicGateway ==========================
         address[] memory mainnetAssets = new address[](1);
@@ -45,6 +45,13 @@ contract CreateSonicETHMerkleRoot is Script, MerkleTreeHelper {
         mainnetAssets[0] = getAddress(mainnet, "WETH"); //NOTE: this needs to be mainnet WETH
         sonicAssets[0] = getAddress(sonicMainnet, "WETH");
         _addSonicGatewayLeafsSonic(leafs, mainnetAssets, sonicAssets);
+
+
+        // ========================== Fee Claiming ==========================
+        ERC20[] memory feeAssets = new ERC20[](1);   
+        feeAssets[0] = getERC20(sourceChain, "WETH"); 
+        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, true); //add yield claiming
+
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 

@@ -81,7 +81,7 @@ contract BoringVaultIntegrationTest is Test, MerkleTreeHelper {
         ERC20[] memory assets = new ERC20[](2);
         assets[0] = ERC20(getAddress(sourceChain, "WETH"));
         assets[1] = ERC20(getAddress(sourceChain, "WEETH"));
-        _addTellerLeafs(leafs, address(superSymbioticTeller), assets);
+        _addTellerLeafs(leafs, address(superSymbioticTeller), assets, false);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -207,7 +207,7 @@ contract BoringVaultIntegrationTest is Test, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
         ERC20[] memory assets = new ERC20[](1);
         assets[0] = ERC20(getAddress(sourceChain, "WETH"));
-        _addTellerLeafs(leafs, address(superSymbioticTeller), assets);
+        _addTellerLeafs(leafs, address(superSymbioticTeller), assets, false);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -263,7 +263,7 @@ contract BoringVaultIntegrationTest is Test, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
         ERC20[] memory assets = new ERC20[](1);
         assets[0] = ERC20(getAddress(sourceChain, "WETH"));
-        _addTellerLeafs(leafs, address(superSymbioticTeller), assets);
+        _addTellerLeafs(leafs, address(superSymbioticTeller), assets, false);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 

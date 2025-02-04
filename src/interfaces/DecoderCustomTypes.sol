@@ -402,4 +402,48 @@ contract DecoderCustomTypes {
         /// @dev The address of the ERC20 purchase token
         address purchaseToken;
     }
+
+    // ========================================= Dolomite Finance ==================================
+
+    enum BalanceCheckFlag {
+        Both,
+        From,
+        To,
+        None
+    }
+
+    // ========================================= Silo Finance ==================================
+    /// @dev There are 2 types of accounting in the system: for non-borrowable collateral deposit called "protected" and
+    ///      for borrowable collateral deposit called "collateral". System does
+    ///      identical calculations for each type of accounting but it uses different data. To avoid code duplication
+    ///      this enum is used to decide which data should be read.
+    enum CollateralType {
+        Protected, // default
+        Collateral
+    }
+
+    enum ActionType {
+        Deposit,
+        Mint,
+        Repay,
+        RepayShares
+    }
+
+    struct Action {
+        // what do you want to do?
+        uint8 actionType;
+        // which Silo are you interacting with?
+        address silo;
+        // what asset do you want to use?
+        address asset;
+        // options specific for actions
+        bytes options;
+    }
+
+    struct AnyAction {
+        // how much assets or shares do you want to use?
+        uint256 amount;
+        // are you using Protected, Collateral
+        uint8 assetType;
+    }
 }

@@ -18,7 +18,7 @@ contract CreateSuperSymbioticLRTMerkleRootScript is Script, MerkleTreeHelper {
     address public boringVault = 0x917ceE801a67f933F2e6b33fC0cD1ED2d5909D88;
     address public managerAddress = 0xA24dD7B978Fbe36125cC4817192f7b8AA18d213c;
     address public accountantAddress = 0xbe16605B22a7faCEf247363312121670DFe5afBE;
-    address public rawDataDecoderAndSanitizer = 0x210c179758430646C83f5Da08C7b2bc73c9aAD55;
+    address public rawDataDecoderAndSanitizer = 0xcDCb893d1Bd7462a30519bD90EB865b99735E4D7;
 
     function setUp() external {}
 
@@ -244,6 +244,16 @@ contract CreateSuperSymbioticLRTMerkleRootScript is Script, MerkleTreeHelper {
         assets[12] = getAddress(sourceChain, "FRXETH");
         kind[12] = SwapKind.BuyAndSell;
         _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
+
+        // ========================== Symbiotic Vault ==========================
+        address[] memory vaults = new address[](1);
+        vaults[0] = getAddress(sourceChain, "EtherFi_wstETHSymbioticVault");
+        ERC20[] memory vault_assets = new ERC20[](1);
+        vault_assets[0] = ERC20(getAddress(sourceChain, "WSTETH"));
+
+        // NOTE: No rewards for EtherFi wstETH vault for now.
+        address[] memory rewards = new address[](0);
+        _addSymbioticVaultLeafs(leafs, vaults, vault_assets, rewards);
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 

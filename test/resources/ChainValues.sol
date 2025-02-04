@@ -29,6 +29,7 @@ contract ChainValues {
     string public constant sonicTestnet = "sonicTestnet";
     string public constant sonicBlaze = "sonicBlaze";
     string public constant berachainTestnet = "berachainTestnet";
+    string public constant bartio = "bartio"; 
 
     // Bridging constants.
     uint64 public constant ccipArbitrumChainSelector = 4949039107694359620;
@@ -107,6 +108,7 @@ contract ChainValues {
         _addSonicTestnetValues();
         _addSonicBlazeValues();
         _addBerachainTestnetValues();
+        _addBartioValues(); 
     }
 
     function _addMainnetValues() private {
@@ -139,6 +141,7 @@ contract ChainValues {
         values[mainnet]["ETH"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32();
         values[mainnet]["uniV3Router"] = 0xE592427A0AEce92De3Edee1F18E0157C05861564.toBytes32();
         values[mainnet]["uniV2Router"] = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D.toBytes32();
+        values[mainnet]["uniV2Factory"] = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f.toBytes32();
 
         // ERC20s
         values[mainnet]["USDC"] = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48.toBytes32();
@@ -825,6 +828,11 @@ contract ChainValues {
         values[mainnet]["ethfiDefaultCollateral"] = 0x21DbBA985eEA6ba7F27534a72CCB292eBA1D2c7c.toBytes32();
         values[mainnet]["LBTCDefaultCollateral"] = 0x9C0823D3A1172F9DdF672d438dec79c39a64f448.toBytes32();
 
+        values[mainnet]["wstETHSymbioticVault"] = 0xBecfad885d8A89A0d2f0E099f66297b0C296Ea21.toBytes32();
+        values[mainnet]["wstETHSymbioticVaultRewards"] = 0xe34DcEA5aB7c4f3c4AD2F5f144Fc7fc3D5b0137C.toBytes32(); 
+        values[mainnet]["EtherFi_LBTCSymbioticVault"] = 0xd4E20ECA1f996Dab35883dC0AD5E3428AF888D45.toBytes32();
+        values[mainnet]["EtherFi_wstETHSymbioticVault"] = 0x450a90fdEa8B87a6448Ca1C87c88Ff65676aC45b.toBytes32();
+
         // Karak
         values[mainnet]["vaultSupervisor"] = 0x54e44DbB92dBA848ACe27F44c0CB4268981eF1CC.toBytes32();
         values[mainnet]["delegationSupervisor"] = 0xAfa904152E04aBFf56701223118Be2832A4449E0.toBytes32();
@@ -939,8 +947,11 @@ contract ChainValues {
         // Euler
         values[mainnet]["ethereumVaultConnector"] = 0x0C9a3dd6b8F28529d72d7f9cE918D493519EE383.toBytes32();
         values[mainnet]["evkWEETH"] = 0xe846ca062aB869b66aE8DcD811973f628BA82eAf.toBytes32();
-        values[mainnet]["evkWETH"] = 0xD8b27CF359b7D15710a5BE299AF6e7Bf904984C2.toBytes32();
+        values[mainnet]["eulerPrimeWETH"] = 0xD8b27CF359b7D15710a5BE299AF6e7Bf904984C2.toBytes32();
         values[mainnet]["evkUSDC"] = 0x797DD80692c3b2dAdabCe8e30C07fDE5307D48a9.toBytes32();
+        values[mainnet]["evkLBTC"] = 0xbC35161043EE2D74816d421EfD6a45fDa73B050A.toBytes32(); //Euler Prime
+        values[mainnet]["evkDAI"] = 0x83C266bdf990574a05EE62831a266a3891817B5B.toBytes32(); 
+        values[mainnet]["evkDAIDebt"] = 0x1796526a7705cBBe76dEdd4b13959A48c674A6cD.toBytes32(); 
 
         // Royco
         values[mainnet]["vaultMarketHub"] = 0xa97eCc6Bfda40baf2fdd096dD33e88bd8e769280.toBytes32();
@@ -1184,6 +1195,11 @@ contract ChainValues {
         // Karak
         values[arbitrum]["vaultSupervisor"] = 0x399f22ae52a18382a67542b3De9BeD52b7B9A4ad.toBytes32();
         values[arbitrum]["kETHFI"] = 0xc9A908402C7f0e343691cFB8c8Fc637449333ce0.toBytes32();
+
+        // Dolomite
+        values[arbitrum]["dolomiteMargin"] = 0x6Bd780E7fDf01D77e4d475c821f1e7AE05409072.toBytes32(); 
+        values[arbitrum]["dolomiteDepositWithdrawRouter"] = 0xAdB9D68c613df4AA363B42161E1282117C7B9594.toBytes32(); 
+        values[arbitrum]["dolomiteBorrowProxy"] = 0x38E49A617305101216eC6306e3a18065D14Bf3a7.toBytes32(); //V2
     }
 
     function _addOptimismValues() private {
@@ -1393,6 +1409,7 @@ contract ChainValues {
         values[sonicMainnet]["WETH"] = 0x50c42dEAcD8Fc9773493ED674b675bE577f2634b.toBytes32();
         values[sonicMainnet]["USDC"] = 0x29219dd400f2Bf60E5a23d13Be72B486D4038894.toBytes32();
         values[sonicMainnet]["wS"] = 0x039e2fB66102314Ce7b64Ce5Ce3E5183bc94aD38.toBytes32();
+        values[sonicMainnet]["stS"] = 0xE5DA20F15420aD15DE0fa650600aFc998bbE3955.toBytes32();  
         values[sonicMainnet]["scUSD"] = 0xd3DCe716f3eF535C5Ff8d041c1A41C3bd89b97aE.toBytes32();
         values[sonicMainnet]["scETH"] = 0x3bcE5CB273F0F148010BbEa2470e7b5df84C7812.toBytes32();
         values[sonicMainnet]["stkscUSD"] = 0x4D85bA8c3918359c78Ed09581E5bc7578ba932ba.toBytes32();
@@ -1427,6 +1444,10 @@ contract ChainValues {
         // Sonic Gateway
         values[sonicMainnet]["sonicGateway"] = 0x9Ef7629F9B930168b76283AdD7120777b3c895b3.toBytes32();
         values[sonicMainnet]["circleTokenAdapter"] = 0xe6DCD54B4CDe2e9E935C22F57EBBBaaF5cc3BC8a.toBytes32();
+
+        // Silo 
+        values[sonicMainnet]["siloRouter"] = 0x22AacdEc57b13911dE9f188CF69633cC537BdB76.toBytes32(); 
+        values[sonicMainnet]["silo_stS_wS_config"] = 0x78C246f67c8A6cE03a1d894d4Cf68004Bd55Deea.toBytes32(); 
     }
 
     function _addSepoliaValues() private {
@@ -1474,6 +1495,33 @@ contract ChainValues {
         values[sonicBlaze]["balancerVault"] = address(1).toBytes32();
 
         values[sonicBlaze]["LayerZeroEndPoint"] = 0x6C7Ab2202C98C4227C5c46f1417D81144DA716Ff.toBytes32();
+    }
+
+    function _addBartioValues() private {
+        values[bartio]["dev0Address"] = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b.toBytes32();
+        values[bartio]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
+        values[bartio]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        values[bartio]["txBundlerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+
+        values[bartio]["balancerVault"] = address(1).toBytes32();
+        values[bartio]["vault"] = address(1).toBytes32();
+
+        // ERC20s
+        values[bartio]["WBERA"] = 0x7507c1dc16935B82698e4C63f2746A2fCf994dF8.toBytes32();
+        values[bartio]["YEET"] = 0x8c245484890a61Eb2d1F81114b1a7216dCe2752b.toBytes32();
+        values[bartio]["USDC"] = 0xd6D83aF58a19Cd14eF3CF6fe848C9A4d21e5727c.toBytes32(); 
+        values[bartio]["USDT"] = 0x05D0dD5135E3eF3aDE32a9eF9Cb06e8D37A6795D.toBytes32(); 
+        values[bartio]["DAI"] = 0x806Ef538b228844c73E8E692ADCFa8Eb2fCF729c.toBytes32(); 
+
+        // Kodiak
+        values[bartio]["kodiakIslandRouterOld"] = 0x5E51894694297524581353bc1813073C512852bf.toBytes32(); //old 
+        values[bartio]["kodiakIslandRouterNew"] = 0x35c98A9bA533218155f9324585914e916066A153.toBytes32(); //new
+
+        values[bartio]["kodiak_island_WBERA_YEET_1%"] = 0x0001513F4a1f86da0f02e647609E9E2c630B3a14.toBytes32();
+
+        // Honey
+        values[bartio]["honeyFactory"] = 0xAd1782b2a7020631249031618fB1Bd09CD926b31.toBytes32(); 
+
     }
 
     function _addSwellValues() private {

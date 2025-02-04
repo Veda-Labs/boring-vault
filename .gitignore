@@ -16,4 +16,6 @@ docs/
 
 *.DS_Store
 broadcast/*
-leafs/TemporaryLeafs.json
+
+testTEST.json
+TestTEST.json

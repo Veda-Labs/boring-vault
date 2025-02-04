@@ -126,7 +126,7 @@ contract BoringOnChainQueueIntegration is Test, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
         ERC20[] memory assets = new ERC20[](1);
         assets[0] = getERC20(sourceChain, "WBTC");
-        _addTellerLeafs(leafs, getAddress(sourceChain, "eBTCTeller"), assets);
+        _addTellerLeafs(leafs, getAddress(sourceChain, "eBTCTeller"), assets, false);
 
         _addWithdrawQueueLeafs(
             leafs, getAddress(sourceChain, "eBTCOnChainQueue"), getAddress(sourceChain, "eBTC"), assets
