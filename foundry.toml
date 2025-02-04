@@ -30,6 +30,7 @@ base = "${BASE_RPC_URL}"
 zircuit = "${ZIRCUIT_RPC_URL}"
 scroll = "${SCROLL_RPC_URL}"
 linea = "${LINEA_RPC_URL}"
+berachain = "${BERACHAIN_RPC_URL}"
 sepolia = "${SEPOLIA_RPC_URL}"
 sonicTestnet = "${SONIC_TESTNET_RPC_URL}"
 corn = "${CORN_MAIZENET_RPC_URL}"
@@ -48,6 +49,7 @@ optimism = { key = "${OPTIMISMSCAN_KEY}" }
 base = { key = "${BASESCAN_KEY}" }
 scroll = { key = "${SCROLLSCAN_KEY}" }
 sonicMainnet = { key = "${SONICSCAN_KEY}", chain = 146, url = "https://api.routescan.io/v2/network/mainnet/evm/146/etherscan" }
+berachain = { key = "verifyContract", chain = 80094, url = "https://api.routescan.io/v2/network/mainnet/evm/80094/etherscan" }
 
 [fmt]
 FOUNDRY_FMT_LINE_LENGTH = 120
