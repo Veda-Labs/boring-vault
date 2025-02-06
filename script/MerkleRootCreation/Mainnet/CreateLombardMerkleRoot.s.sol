@@ -146,6 +146,11 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
 
             address newEBTCTeller = 0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268;
             _addTellerLeafs(leafs, newEBTCTeller, tellerAssets, false);
+
+            ERC20[] memory sonicBTCTellerAssets = new ERC20[](2); 
+            sonicBTCTellerAssets[0] = getERC20(sourceChain, "LBTC"); 
+            sonicBTCTellerAssets[1] = getERC20(sourceChain, "eBTC"); 
+            _addTellerLeafs(leafs, getAddress(sourceChain, "sonicBTCTeller"), sonicBTCTellerAssets, false); 
         }
 
         // ========================== Pendle ==========================
