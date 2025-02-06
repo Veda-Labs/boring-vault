@@ -3,7 +3,7 @@
     "logLevel": 4,
     "privateKeyEnvName": "BORING_DEVELOPER",
     "chainName": "mainnet",
-    "evmVersion": "cancun",
+    "evmVersion": "shanghai",
     "desiredNumberOfDeploymentTxs": 5,
     "txBundlerAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
@@ -22,13 +22,13 @@
     },
     "nativeWrapperAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
-      "name": "WETH"
+      "name": "wS"
     },
     "deploymentOwnerAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
       "name": "txBundlerAddress"
     },
-    "deploymentFileName": "addresses/Mainnet/SonicBTC.json"
+    "deploymentFileName": "addresses/SonicMainnet/SonicBTC.json"
   },
   "rolesAuthorityConfiguration": {
     "rolesAuthorityDeploymentName": "Sonic BTC Roles Authority V0.1"
@@ -102,7 +102,7 @@
         },
         "lzChains": [
           {
-            "chainId": 30332,
+            "chainId": 30101,
             "allowMessagesFrom": true,
             "allowMessagesTo": true,
             "targetTellerOrSelf": {
