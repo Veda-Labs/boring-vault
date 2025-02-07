@@ -5847,7 +5847,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 false,
                 "claim(address[],address[],uint256[],bytes32[][])",
                 new address[](2),
-                string.concat("Claim merkl", tokensToClaim[i].symbol(), " rewards"),
+                string.concat("Claim merkl ", tokensToClaim[i].symbol(), " rewards"),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");

@@ -1553,6 +1553,7 @@ contract ChainValues {
 
         // ERC20s
         values[swell]["WEETH"] = 0xA6cB988942610f6731e664379D15fFcfBf282b44.toBytes32(); //also OFT
+        values[swell]["WSWELL"] = 0xda1F8EA667dc5600F5f654DF44b47F1639a83DD1.toBytes32(); 
 
         // Standard Bridge
         values[swell]["standardBridge"] = 0x4200000000000000000000000000000000000010.toBytes32();
@@ -1561,6 +1562,9 @@ contract ChainValues {
         values[swell]["ethereumVaultConnector"] = 0x08739CBede6E28E387685ba20e6409bD16969Cde.toBytes32();
         values[swell]["eulerWETH"] = 0x49C077B74292aA8F589d39034Bf9C1Ed1825a608.toBytes32();
         values[swell]["eulerWEETH"] = 0x10D0D11A8B693F4E3e33d09BBab7D4aFc3C03ef3.toBytes32();
+
+        // Merkl
+        values[swell]["merklDistributor"] = 0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae.toBytes32(); 
     }
 
     function _addBerachainTestnetValues() private {
