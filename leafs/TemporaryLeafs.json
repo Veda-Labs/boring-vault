@@ -1,46 +1,153 @@
-{ "metadata": { "metadata": 
-
-{"AccountantAddress":"0x0000000000000000000000000000000000000001","BoringVaultAddress":"0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f","DecoderAndSanitizerAddress":"0xF62849F9A0B5Bf2913b396098F7c7019b51A820a","DigestComposition":["Bytes20(DECODER_AND_SANITIZER_ADDRESS)","Bytes20(TARGET_ADDRESS)","Bytes1(CAN_SEND_VALUE)","Bytes4(TARGET_FUNCTION_SELECTOR)","Bytes{N*20}(ADDRESS_ARGUMENT_0,...,ADDRESS_ARGUMENT_N)"],"LeafCount":7,"ManageRoot":"0x859af284e31552da6cb91b9e7a9ccc300ac5cace38929eee184ff015cb2d53d0","ManagerAddress":"0x2e234DAe75C793f67A35089C9d99245E1C58470b","TreeCapacity":8}
-{"AccountantAddress":"0x0000000000000000000000000000000000000001","BoringVaultAddress":"0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f","DecoderAndSanitizerAddress":"0xF62849F9A0B5Bf2913b396098F7c7019b51A820a","DigestComposition":["Bytes20(DECODER_AND_SANITIZER_ADDRESS)","Bytes20(TARGET_ADDRESS)","Bytes1(CAN_SEND_VALUE)","Bytes4(TARGET_FUNCTION_SELECTOR)","Bytes{N*20}(ADDRESS_ARGUMENT_0,...,ADDRESS_ARGUMENT_N)"],"LeafCount":7,"ManageRoot":"0x859af284e31552da6cb91b9e7a9ccc300ac5cace38929eee184ff015cb2d53d0","ManagerAddress":"0x2e234DAe75C793f67A35089C9d99245E1C58470b","TreeCapacity":8}
-,
-,
-"leafs": [
-"leafs": [
-{"AddressArguments":["0x35c98A9bA533218155f9324585914e916066A153"],"CanSendValue":false,"DecoderAndSanitizerAddress":"0xF62849F9A0B5Bf2913b396098F7c7019b51A820a","Description":"Approve Kodiak router to spend WBERA","FunctionSelector":"0x095ea7b3","FunctionSignature":"approve(address,uint256)","LeafDigest":"0x47fb795980d807a4d1914487bb23ee05629f950ff04bf5ccb7f7ef036e7c7078","LeafIndex":0,"PackedArgumentAddresses":"0x35c98a9ba533218155f9324585914e916066a153","TargetAddress":"0x7507c1dc16935B82698e4C63f2746A2fCf994dF8"}
-{"AddressArguments":["0x35c98A9bA533218155f9324585914e916066A153"],"CanSendValue":false,"DecoderAndSanitizerAddress":"0xF62849F9A0B5Bf2913b396098F7c7019b51A820a","Description":"Approve Kodiak router to spend WBERA","FunctionSelector":"0x095ea7b3","FunctionSignature":"approve(address,uint256)","LeafDigest":"0x47fb795980d807a4d1914487bb23ee05629f950ff04bf5ccb7f7ef036e7c7078","LeafIndex":0,"PackedArgumentAddresses":"0x35c98a9ba533218155f9324585914e916066a153","TargetAddress":"0x7507c1dc16935B82698e4C63f2746A2fCf994dF8"}
-,
-,
-{"AddressArguments":["0x35c98A9bA533218155f9324585914e916066A153"],"CanSendValue":false,"DecoderAndSanitizerAddress":"0xF62849F9A0B5Bf2913b396098F7c7019b51A820a","Description":"Approve Kodiak router to spend YEET","FunctionSelector":"0x095ea7b3","FunctionSignature":"approve(address,uint256)","LeafDigest":"0x55de1e29408da9088ec85ebe0b26fd1f19b00eec52fc32be0ecf5a7db0f84e08","LeafIndex":1,"PackedArgumentAddresses":"0x35c98a9ba533218155f9324585914e916066a153","TargetAddress":"0x8c245484890a61Eb2d1F81114b1a7216dCe2752b"}
-{"AddressArguments":["0x35c98A9bA533218155f9324585914e916066A153"],"CanSendValue":false,"DecoderAndSanitizerAddress":"0xF62849F9A0B5Bf2913b396098F7c7019b51A820a","Description":"Approve Kodiak router to spend YEET","FunctionSelector":"0x095ea7b3","FunctionSignature":"approve(address,uint256)","LeafDigest":"0x55de1e29408da9088ec85ebe0b26fd1f19b00eec52fc32be0ecf5a7db0f84e08","LeafIndex":1,"PackedArgumentAddresses":"0x35c98a9ba533218155f9324585914e916066a153","TargetAddress":"0x8c245484890a61Eb2d1F81114b1a7216dCe2752b"}
-,
-,
-{"AddressArguments":["0x35c98A9bA533218155f9324585914e916066A153"],"CanSendValue":false,"DecoderAndSanitizerAddress":"0xF62849F9A0B5Bf2913b396098F7c7019b51A820a","Description":"Approve Kodiak router to spend KODI-WBERA-YEET","FunctionSelector":"0x095ea7b3","FunctionSignature":"approve(address,uint256)","LeafDigest":"0xb2ab9961c138204fff6a002c50899a433a1465479de5d2175b9a1c76571eb960","LeafIndex":2,"PackedArgumentAddresses":"0x35c98a9ba533218155f9324585914e916066a153","TargetAddress":"0x0001513F4a1f86da0f02e647609E9E2c630B3a14"}
-{"AddressArguments":["0x35c98A9bA533218155f9324585914e916066A153"],"CanSendValue":false,"DecoderAndSanitizerAddress":"0xF62849F9A0B5Bf2913b396098F7c7019b51A820a","Description":"Approve Kodiak router to spend KODI-WBERA-YEET","FunctionSelector":"0x095ea7b3","FunctionSignature":"approve(address,uint256)","LeafDigest":"0xb2ab9961c138204fff6a002c50899a433a1465479de5d2175b9a1c76571eb960","LeafIndex":2,"PackedArgumentAddresses":"0x35c98a9ba533218155f9324585914e916066a153","TargetAddress":"0x0001513F4a1f86da0f02e647609E9E2c630B3a14"}
-,
-,
-{"AddressArguments":["0x0001513F4a1f86da0f02e647609E9E2c630B3a14","0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f"],"CanSendValue":false,"DecoderAndSanitizerAddress":"0xF62849F9A0B5Bf2913b396098F7c7019b51A820a","Description":"Add Liquidity in Kodiak Island-WBERA-YEET-1%","FunctionSelector":"0x74dbc248","FunctionSignature":"addLiquidity(address,uint256,uint256,uint256,uint256,uint256,address)","LeafDigest":"0x021850887798055c92fcc3d35c4a9fb4af0c60b4eb0893e760f9f1008bf9859a","LeafIndex":3,"PackedArgumentAddresses":"0x0001513f4a1f86da0f02e647609e9e2c630b3a145615deb798bb3e4dfa0139dfa1b3d433cc23b72f","TargetAddress":"0x35c98A9bA533218155f9324585914e916066A153"}
-{"AddressArguments":["0x0001513F4a1f86da0f02e647609E9E2c630B3a14","0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f"],"CanSendValue":false,"DecoderAndSanitizerAddress":"0xF62849F9A0B5Bf2913b396098F7c7019b51A820a","Description":"Add Liquidity in Kodiak Island-WBERA-YEET-1%","FunctionSelector":"0x74dbc248","FunctionSignature":"addLiquidity(address,uint256,uint256,uint256,uint256,uint256,address)","LeafDigest":"0x021850887798055c92fcc3d35c4a9fb4af0c60b4eb0893e760f9f1008bf9859a","LeafIndex":3,"PackedArgumentAddresses":"0x0001513f4a1f86da0f02e647609e9e2c630b3a145615deb798bb3e4dfa0139dfa1b3d433cc23b72f","TargetAddress":"0x35c98A9bA533218155f9324585914e916066A153"}
-,
-,
-{"AddressArguments":["0x0001513F4a1f86da0f02e647609E9E2c630B3a14","0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f"],"CanSendValue":true,"DecoderAndSanitizerAddress":"0xF62849F9A0B5Bf2913b396098F7c7019b51A820a","Description":"Add Liquidity Native in Kodiak Island-WBERA-YEET-1%","FunctionSelector":"0x3005f571","FunctionSignature":"addLiquidityNative(address,uint256,uint256,uint256,uint256,uint256,address)","LeafDigest":"0xdb9cb798cced58ddc591eb831bafacd479408d754be2df0bdbacc942db85af24","LeafIndex":4,"PackedArgumentAddresses":"0x0001513f4a1f86da0f02e647609e9e2c630b3a145615deb798bb3e4dfa0139dfa1b3d433cc23b72f","TargetAddress":"0x35c98A9bA533218155f9324585914e916066A153"}
-,
-{"AddressArguments":["0x0001513F4a1f86da0f02e647609E9E2c630B3a14","0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f"],"CanSendValue":true,"DecoderAndSanitizerAddress":"0xF62849F9A0B5Bf2913b396098F7c7019b51A820a","Description":"Add Liquidity Native in Kodiak Island-WBERA-YEET-1%","FunctionSelector":"0x3005f571","FunctionSignature":"addLiquidityNative(address,uint256,uint256,uint256,uint256,uint256,address)","LeafDigest":"0xdb9cb798cced58ddc591eb831bafacd479408d754be2df0bdbacc942db85af24","LeafIndex":4,"PackedArgumentAddresses":"0x0001513f4a1f86da0f02e647609e9e2c630b3a145615deb798bb3e4dfa0139dfa1b3d433cc23b72f","TargetAddress":"0x35c98A9bA533218155f9324585914e916066A153"}
-,
-{"AddressArguments":["0x0001513F4a1f86da0f02e647609E9E2c630B3a14","0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f"],"CanSendValue":false,"DecoderAndSanitizerAddress":"0xF62849F9A0B5Bf2913b396098F7c7019b51A820a","Description":"Remove Liquidity from Kodiak Island-WBERA-YEET-1%","FunctionSelector":"0x59f842b2","FunctionSignature":"removeLiquidity(address,uint256,uint256,uint256,address)","LeafDigest":"0xdec4ac8c65f03701470684fc469d75db53c2c806fe4efe296faea2e20fea9341","LeafIndex":5,"PackedArgumentAddresses":"0x0001513f4a1f86da0f02e647609e9e2c630b3a145615deb798bb3e4dfa0139dfa1b3d433cc23b72f","TargetAddress":"0x35c98A9bA533218155f9324585914e916066A153"}
-,
-{"AddressArguments":["0x0001513F4a1f86da0f02e647609E9E2c630B3a14","0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f"],"CanSendValue":false,"DecoderAndSanitizerAddress":"0xF62849F9A0B5Bf2913b396098F7c7019b51A820a","Description":"Remove Liquidity from Kodiak Island-WBERA-YEET-1%","FunctionSelector":"0x59f842b2","FunctionSignature":"removeLiquidity(address,uint256,uint256,uint256,address)","LeafDigest":"0xdec4ac8c65f03701470684fc469d75db53c2c806fe4efe296faea2e20fea9341","LeafIndex":5,"PackedArgumentAddresses":"0x0001513f4a1f86da0f02e647609e9e2c630b3a145615deb798bb3e4dfa0139dfa1b3d433cc23b72f","TargetAddress":"0x35c98A9bA533218155f9324585914e916066A153"}
-,
-{"AddressArguments":["0x0001513F4a1f86da0f02e647609E9E2c630B3a14","0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f"],"CanSendValue":false,"DecoderAndSanitizerAddress":"0xF62849F9A0B5Bf2913b396098F7c7019b51A820a","Description":"Remove Liquidity Native from Kodiak Island-WBERA-YEET-1%","FunctionSelector":"0x2b772da5","FunctionSignature":"removeLiquidityNative(address,uint256,uint256,uint256,address)","LeafDigest":"0x9249835fb48d420dbc6ed4f79d0d0a7494b52c8ce604524a223ae70b746e1651","LeafIndex":6,"PackedArgumentAddresses":"0x0001513f4a1f86da0f02e647609e9e2c630b3a145615deb798bb3e4dfa0139dfa1b3d433cc23b72f","TargetAddress":"0x35c98A9bA533218155f9324585914e916066A153"}
-,
-{"AddressArguments":["0x0001513F4a1f86da0f02e647609E9E2c630B3a14","0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f"],"CanSendValue":false,"DecoderAndSanitizerAddress":"0xF62849F9A0B5Bf2913b396098F7c7019b51A820a","Description":"Remove Liquidity Native from Kodiak Island-WBERA-YEET-1%","FunctionSelector":"0x2b772da5","FunctionSignature":"removeLiquidityNative(address,uint256,uint256,uint256,address)","LeafDigest":"0x9249835fb48d420dbc6ed4f79d0d0a7494b52c8ce604524a223ae70b746e1651","LeafIndex":6,"PackedArgumentAddresses":"0x0001513f4a1f86da0f02e647609e9e2c630b3a145615deb798bb3e4dfa0139dfa1b3d433cc23b72f","TargetAddress":"0x35c98A9bA533218155f9324585914e916066A153"}
-,
-{"AddressArguments":[],"CanSendValue":false,"DecoderAndSanitizerAddress":"0x0000000000000000000000000000000000000000","Description":"","FunctionSelector":"0xc5d24601","FunctionSignature":"","LeafDigest":"0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400","LeafIndex":7,"PackedArgumentAddresses":"0x","TargetAddress":"0x0000000000000000000000000000000000000000"}
-],
-{"AddressArguments":[],"CanSendValue":false,"DecoderAndSanitizerAddress":"0x0000000000000000000000000000000000000000","Description":"","FunctionSelector":"0xc5d24601","FunctionSignature":"","LeafDigest":"0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400","LeafIndex":7,"PackedArgumentAddresses":"0x","TargetAddress":"0x0000000000000000000000000000000000000000"}
-],
-"MerkleTree": 
-{"0":["0x859af284e31552da6cb91b9e7a9ccc300ac5cace38929eee184ff015cb2d53d0"],"1":["0x94af230b005960a4c4e1c517f4068c5dae73fb52a4272978ca57d0b1510f16d2","0xe8a66007f85c47e505bedb22142f6a9daa15086166ef73494a0a94c347026068"],"2":["0x4938de37f6234bda0b840c2d759c9bc7ddd2115ee3ef23491f81d513fc183451","0xb717b465b6f1df2a0070a784d889338b79394c47e91bf031b4424b49327c93ce","0x6a19ccccf66decfbd585c182b3c94eca2a800b7adcba12a1a47960a67f3dac9f","0x46acac6eb75dee04c6d75fb42738fb3d53db1523cc603261962caf1c17e6b422"],"3":["0x47fb795980d807a4d1914487bb23ee05629f950ff04bf5ccb7f7ef036e7c7078","0x55de1e29408da9088ec85ebe0b26fd1f19b00eec52fc32be0ecf5a7db0f84e08","0xb2ab9961c138204fff6a002c50899a433a1465479de5d2175b9a1c76571eb960","0x021850887798055c92fcc3d35c4a9fb4af0c60b4eb0893e760f9f1008bf9859a","0xdb9cb798cced58ddc591eb831bafacd479408d754be2df0bdbacc942db85af24","0xdec4ac8c65f03701470684fc469d75db53c2c806fe4efe296faea2e20fea9341","0x9249835fb48d420dbc6ed4f79d0d0a7494b52c8ce604524a223ae70b746e1651","0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400"]}
-"MerkleTree": 
-}
-{"0":["0x859af284e31552da6cb91b9e7a9ccc300ac5cace38929eee184ff015cb2d53d0"],"1":["0x94af230b005960a4c4e1c517f4068c5dae73fb52a4272978ca57d0b1510f16d2","0xe8a66007f85c47e505bedb22142f6a9daa15086166ef73494a0a94c347026068"],"2":["0x4938de37f6234bda0b840c2d759c9bc7ddd2115ee3ef23491f81d513fc183451","0xb717b465b6f1df2a0070a784d889338b79394c47e91bf031b4424b49327c93ce","0x6a19ccccf66decfbd585c182b3c94eca2a800b7adcba12a1a47960a67f3dac9f","0x46acac6eb75dee04c6d75fb42738fb3d53db1523cc603261962caf1c17e6b422"],"3":["0x47fb795980d807a4d1914487bb23ee05629f950ff04bf5ccb7f7ef036e7c7078","0x55de1e29408da9088ec85ebe0b26fd1f19b00eec52fc32be0ecf5a7db0f84e08","0xb2ab9961c138204fff6a002c50899a433a1465479de5d2175b9a1c76571eb960","0x021850887798055c92fcc3d35c4a9fb4af0c60b4eb0893e760f9f1008bf9859a","0xdb9cb798cced58ddc591eb831bafacd479408d754be2df0bdbacc942db85af24","0xdec4ac8c65f03701470684fc469d75db53c2c806fe4efe296faea2e20fea9341","0x9249835fb48d420dbc6ed4f79d0d0a7494b52c8ce604524a223ae70b746e1651","0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400"]}
+{
+    "metadata": {
+        "AccountantAddress": "0x0000000000000000000000000000000000000001",
+        "BoringVaultAddress": "0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f",
+        "DecoderAndSanitizerAddress": "0xF62849F9A0B5Bf2913b396098F7c7019b51A820a",
+        "DigestComposition": [
+            "Bytes20(DECODER_AND_SANITIZER_ADDRESS)",
+            "Bytes20(TARGET_ADDRESS)",
+            "Bytes1(CAN_SEND_VALUE)",
+            "Bytes4(TARGET_FUNCTION_SELECTOR)",
+            "Bytes{N*20}(ADDRESS_ARGUMENT_0,...,ADDRESS_ARGUMENT_N)"
+        ],
+        "LeafCount": 7,
+        "ManageRoot": "0xc1f8659b5ddc3534128beceb0c698a31f79429c8bffcb4562be55cfc710a414e",
+        "ManagerAddress": "0x2e234DAe75C793f67A35089C9d99245E1C58470b",
+        "TreeCapacity": 8
+    },
+    "leafs": [
+        {
+            "AddressArguments": ["0x679a7C63FC83b6A4D9C1F931891d705483d4791F"],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xF62849F9A0B5Bf2913b396098F7c7019b51A820a",
+            "Description": "Approve Kodiak router to spend WBTC",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x9b7fbd34f00235ecb4188a38d17661c30454be694bcc67e6ee7b244e03cf058d",
+            "LeafIndex": 0,
+            "PackedArgumentAddresses": "0x679a7c63fc83b6a4d9c1f931891d705483d4791f",
+            "TargetAddress": "0x0555E30da8f98308EdB960aa94C0Db47230d2B9c"
+        },
+        {
+            "AddressArguments": ["0x679a7C63FC83b6A4D9C1F931891d705483d4791F"],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xF62849F9A0B5Bf2913b396098F7c7019b51A820a",
+            "Description": "Approve Kodiak router to spend eBTC",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x7cf7133899eb4e42c3155545bf643333b5f8c4380f1739e6e69944d98c2c4b1f",
+            "LeafIndex": 1,
+            "PackedArgumentAddresses": "0x679a7c63fc83b6a4d9c1f931891d705483d4791f",
+            "TargetAddress": "0x657e8C867D8B37dCC18fA4Caead9C45EB088C642"
+        },
+        {
+            "AddressArguments": ["0x679a7C63FC83b6A4D9C1F931891d705483d4791F"],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xF62849F9A0B5Bf2913b396098F7c7019b51A820a",
+            "Description": "Approve Kodiak router to spend KODI WBTC-eBTC",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x1583a3d5c04f7cdf371edf34f87d1ff72d07ff746931fabea4f4873bb9988f9b",
+            "LeafIndex": 2,
+            "PackedArgumentAddresses": "0x679a7c63fc83b6a4d9c1f931891d705483d4791f",
+            "TargetAddress": "0xfC4994e0A4780ba7536d7e79611468B6bde14CaE"
+        },
+        {
+            "AddressArguments": [
+                "0xfC4994e0A4780ba7536d7e79611468B6bde14CaE",
+                "0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xF62849F9A0B5Bf2913b396098F7c7019b51A820a",
+            "Description": "Add Liquidity in Kodiak Island WBTC-eBTC-0.05%",
+            "FunctionSelector": "0x74dbc248",
+            "FunctionSignature": "addLiquidity(address,uint256,uint256,uint256,uint256,uint256,address)",
+            "LeafDigest": "0x0c9767100b5518457d2e460d7a96cdcd25c1252ddc4ebe15fbb959b66396984c",
+            "LeafIndex": 3,
+            "PackedArgumentAddresses": "0xfc4994e0a4780ba7536d7e79611468b6bde14cae5615deb798bb3e4dfa0139dfa1b3d433cc23b72f",
+            "TargetAddress": "0x679a7C63FC83b6A4D9C1F931891d705483d4791F"
+        },
+        {
+            "AddressArguments": [
+                "0xfC4994e0A4780ba7536d7e79611468B6bde14CaE",
+                "0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f"
+            ],
+            "CanSendValue": true,
+            "DecoderAndSanitizerAddress": "0xF62849F9A0B5Bf2913b396098F7c7019b51A820a",
+            "Description": "Add Liquidity Native in Kodiak Island WBTC-eBTC-0.05%",
+            "FunctionSelector": "0x3005f571",
+            "FunctionSignature": "addLiquidityNative(address,uint256,uint256,uint256,uint256,uint256,address)",
+            "LeafDigest": "0xd7cede4c497cff9fe808cbaa226a45a2cccfed7fe5fae4defc37803adc2ab70f",
+            "LeafIndex": 4,
+            "PackedArgumentAddresses": "0xfc4994e0a4780ba7536d7e79611468b6bde14cae5615deb798bb3e4dfa0139dfa1b3d433cc23b72f",
+            "TargetAddress": "0x679a7C63FC83b6A4D9C1F931891d705483d4791F"
+        },
+        {
+            "AddressArguments": [
+                "0xfC4994e0A4780ba7536d7e79611468B6bde14CaE",
+                "0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xF62849F9A0B5Bf2913b396098F7c7019b51A820a",
+            "Description": "Remove Liquidity from Kodiak Island WBTC-eBTC-0.05%",
+            "FunctionSelector": "0x59f842b2",
+            "FunctionSignature": "removeLiquidity(address,uint256,uint256,uint256,address)",
+            "LeafDigest": "0x9f06341a39e23333c8c493634b4073d77b0d916640346e62be7f92dee4e362f1",
+            "LeafIndex": 5,
+            "PackedArgumentAddresses": "0xfc4994e0a4780ba7536d7e79611468b6bde14cae5615deb798bb3e4dfa0139dfa1b3d433cc23b72f",
+            "TargetAddress": "0x679a7C63FC83b6A4D9C1F931891d705483d4791F"
+        },
+        {
+            "AddressArguments": [
+                "0xfC4994e0A4780ba7536d7e79611468B6bde14CaE",
+                "0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xF62849F9A0B5Bf2913b396098F7c7019b51A820a",
+            "Description": "Remove Liquidity Native from Kodiak Island WBTC-eBTC-0.05%",
+            "FunctionSelector": "0x2b772da5",
+            "FunctionSignature": "removeLiquidityNative(address,uint256,uint256,uint256,address)",
+            "LeafDigest": "0x5aafe8c5c64ffc44cc0d288681d0dcb5999731a809cb241f8a5c16d479ef13e2",
+            "LeafIndex": 6,
+            "PackedArgumentAddresses": "0xfc4994e0a4780ba7536d7e79611468b6bde14cae5615deb798bb3e4dfa0139dfa1b3d433cc23b72f",
+            "TargetAddress": "0x679a7C63FC83b6A4D9C1F931891d705483d4791F"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+            "Description": "",
+            "FunctionSelector": "0xc5d24601",
+            "FunctionSignature": "",
+            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "LeafIndex": 7,
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0000000000000000000000000000000000000000"
+        }
+    ],
+    "MerkleTree": {
+        "0": [
+            "0xc1f8659b5ddc3534128beceb0c698a31f79429c8bffcb4562be55cfc710a414e"
+        ],
+        "1": [
+            "0xb5951910069617f73f03087ba9ddcf9bd481b1e007180f769c408053b2034a6d",
+            "0x58932aa00a180c3b3b3b1606d3fcf0ab684f7fabf418c580f5680ad8ffb93731"
+        ],
+        "2": [
+            "0xaf9b1f2ba394b2e0e8b1ec263f5439e6d82e79a8d375ff1f02b158794961fd16",
+            "0xbf326d9affd3cea775321a3a2e3c3bfff4cbdc037728134a59871c3902adc5d4",
+            "0xc03c35f0f93d5bec6122f7c461c545558021d43c77593ed37691359b3028f166",
+            "0x11975bb2361fb2971bca5c3f000a70389ef6f7eaae128312204f8193bd7e1b74"
+        ],
+        "3": [
+            "0x9b7fbd34f00235ecb4188a38d17661c30454be694bcc67e6ee7b244e03cf058d",
+            "0x7cf7133899eb4e42c3155545bf643333b5f8c4380f1739e6e69944d98c2c4b1f",
+            "0x1583a3d5c04f7cdf371edf34f87d1ff72d07ff746931fabea4f4873bb9988f9b",
+            "0x0c9767100b5518457d2e460d7a96cdcd25c1252ddc4ebe15fbb959b66396984c",
+            "0xd7cede4c497cff9fe808cbaa226a45a2cccfed7fe5fae4defc37803adc2ab70f",
+            "0x9f06341a39e23333c8c493634b4073d77b0d916640346e62be7f92dee4e362f1",
+            "0x5aafe8c5c64ffc44cc0d288681d0dcb5999731a809cb241f8a5c16d479ef13e2",
+            "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400"
+        ]
+    }
 }
