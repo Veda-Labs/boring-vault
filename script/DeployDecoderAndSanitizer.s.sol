@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
+import {ChainValues} from "test/resources/ChainValues.sol";
+import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import {ITBPositionDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/ITB/ITBPositionDecoderAndSanitizer.sol";
 import {EtherFiLiquidUsdDecoderAndSanitizer} from
@@ -28,6 +30,7 @@ import {AaveV3FullDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Aave
 import {LombardBtcDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LombardBtcDecoderAndSanitizer.sol";
 import {EtherFiBtcDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EtherFiBtcDecoderAndSanitizer.sol";
 import {SymbioticLRTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SymbioticLRTDecoderAndSanitizer.sol";
+import {BerachainDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BerachainDecoderAndSanitizer.sol"; 
 
 import {BoringDrone} from "src/base/Drones/BoringDrone.sol";
 
@@ -38,18 +41,18 @@ import "forge-std/StdJson.sol";
  * @dev Optionally can change `--with-gas-price` to something more reasonable
  */
 
-contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddresses {
+contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
     uint256 public privateKey;
     Deployer public deployer = Deployer(deployerAddress);
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("mainnet");
+        vm.createSelectFork("berachain");
+        setSourceChainName("berachain"); 
     }
 
     function run() external {
-        bytes memory creationCode;
-        bytes memory constructorArgs;
+        bytes memory creationCode; bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
         // creationCode = type(AerodromeDecoderAndSanitizer).creationCode;
@@ -116,13 +119,20 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //constructorArgs = abi.encode(uniswapV3NonFungiblePositionManager);
         //deployer.deployContract("Lombard BTC Decoder And Sanitizer V0.2", creationCode, constructorArgs, 0);
 
+       //creationCode = type(EtherFiBtcDecoderAndSanitizer).creationCode;
+       //constructorArgs = abi.encode(uniswapV3NonFungiblePositionManager);
+       //deployer.deployContract("ether.fi BTC Decoder and Sanitizer V0.2", creationCode, constructorArgs, 0);
+        
+        address kodiakNonFungiblePositionManager = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"); 
+        address dolomiteMargin = getAddress(sourceChain, "dolomiteMargin"); 
+        creationCode = type(BerachainDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(kodiakNonFungiblePositionManager, dolomiteMargin);
+        deployer.deployContract("Berachain Decoder and Sanitizer V0.2", creationCode, constructorArgs, 0);
+
         //creationCode = type(EtherFiBtcDecoderAndSanitizer).creationCode;
         //constructorArgs = abi.encode(uniswapV3NonFungiblePositionManager);
         //deployer.deployContract("ether.fi BTC Decoder and Sanitizer V0.2", creationCode, constructorArgs, 0);
 
-        creationCode = type(SymbioticLRTDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(uniswapV3NonFungiblePositionManager);
-        deployer.deployContract("Symbiotic LRT Vault Decoder and Sanitizer V0.4", creationCode, constructorArgs, 0);
 
         // address pancakeswapV3nfpm = 0x46A15B0b27311cedF172AB29E4f4766fbE7F4364;
         // address pancakeswapV3chef = 0x556B9306565093C855AEA9AE92A594704c2Cd59e;
