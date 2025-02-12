@@ -3,7 +3,7 @@
 # This overrides the `auto_detect_solc` value
 solc_version = '0.8.21'
 auto_detect_solc = false
-evm_version = 'cancun'
+evm_version = 'shanghai'
 optimizer = true
 optimizer_runs = 200
 fs_permissions = [{ access = "read-write", path = "./" }]
@@ -50,8 +50,8 @@ holesky = "${HOLESKY_RPC_URL}"
 #optimism = { key = "${OPTIMISMSCAN_KEY}" }
 #base = { key = "${BASESCAN_KEY}" }
 #scroll = { key = "${SCROLLSCAN_KEY}" }
-sonicMainnet = { key = "${SONICSCAN_KEY}", chain = 146, url = "https://api.routescan.io/v2/network/mainnet/evm/146/etherscan" }
-swell = { key = "${SWELLSCAN_KEY}", chain = 1923, url = "https://explorer.swellnetwork.io:443/api/" }
+sonicMainnet = { key = "${SONICSCAN_KEY}", chain = 146, url = "https://api.sonicscan.org/api" }
+#swell = { key = "${SWELLSCAN_KEY}", chain = 1923, url = "https://explorer.swellnetwork.io:443/api/" }
 #berachainTestnet = { key = "${BERASCAN_TESTNET_KEY}", chain = 80000, url = "https://api.routescan.io/v2/network/testnet/evm/80000/etherscan" }
 #sepolia = { key = "${ETHERSCAN_KEY}" }
 #berachain = { key = "verifyContract", chain = 80094, url = "https://api.routescan.io/v2/network/mainnet/evm/80094/etherscan" }
