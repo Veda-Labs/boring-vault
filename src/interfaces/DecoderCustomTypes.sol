@@ -446,4 +446,15 @@ contract DecoderCustomTypes {
         // are you using Protected, Collateral
         uint8 assetType;
     }
+
+    // ========================================= LBTC Bridge ==================================
+     struct DepositBridgeAction {
+        uint256 fromChain;
+        bytes32 fromContract;
+        uint256 toChain;
+        address toContract;
+        address recipient;
+        uint64 amount;
+        uint256 nonce;
+    }
 }
