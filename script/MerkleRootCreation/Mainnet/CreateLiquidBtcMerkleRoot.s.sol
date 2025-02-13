@@ -157,6 +157,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "LBTC_PT03_WBTC_915"));
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "LBTC_PT03_WBTC_86"));
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "EBTC_USDC_86"));
+        _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "EBTC_USR_86"));
 
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "WBTC_USDC_86"));
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "WBTC_USDT_86"));
@@ -167,6 +168,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "EBTC_USDC_86"));
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "wstUSR_PT03_USR_915"));
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "WBTC_USR_86"));
+        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "EBTC_USR_86"));
 
         // ========================== MorphoRewards ==========================
         _addMorphoRewardWrapperLeafs(leafs);
@@ -182,6 +184,8 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_liquidBeraBTC_04_09_25"), true);
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_eBTC_market_6_25_25"), true);
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_wstUSR_market_03_26_25"), true);
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_tETH_03_28_2025"), true);
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_beraSTONE_04_09_2025"), true);
 
         // ========================== Native Wrapping ==========================
          _addNativeLeafs(leafs, getAddress(sourceChain, "WETH"));
