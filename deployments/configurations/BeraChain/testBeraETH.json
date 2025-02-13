@@ -1,0 +1,155 @@
+{
+  "deploymentParameters": {
+    "logLevel": 4,
+    "privateKeyEnvName": "BORING_DEVELOPER",
+    "chainName": "berachain",
+    "evmVersion": "london",
+    "desiredNumberOfDeploymentTxs": 5,
+    "txBundlerAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "txBundlerAddress"
+    },
+    "setupRoles": true,
+    "setupTestUser": true,
+    "saveDeploymentDetails": true,
+    "testUserAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "dev1Address"
+    },
+    "deployerContractAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "deployerAddress"
+    },
+    "nativeWrapperAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "WBERA"
+    },
+    "deploymentOwnerAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "txBundlerAddress"
+    },
+    "deploymentFileName": "addresses/BeraChain/testBeraETH.json"
+  },
+  "rolesAuthorityConfiguration": {
+    "rolesAuthorityDeploymentName": "Test Bera ETH Roles Authority V0.0"
+  },
+  "lensConfiguration": {
+    "lensDeploymentName": "Arctic Architecture Lens V0.0"
+  },
+  "boringVaultConfiguration": {
+    "boringVaultDeploymentName": "Test Bera ETH Boring Vault V0.0",
+    "boringVaultName": "Test Bera ETH",
+    "boringVaultSymbol": "testBeraETH",
+    "boringVaultDecimals": 18
+  },
+  "managerConfiguration": {
+    "managerDeploymentName": "Test Bera ETH Manager V0.0",
+    "balancerVaultAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "balancerVault"
+    }
+  },
+  "accountantConfiguration": {
+    "accountantDeploymentName": "Test Bera ETH Accountant V0.0",
+    "accountantParameters": {
+      "kind": {
+        "variableRate": true,
+        "fixedRate": false
+      },
+      "payoutConfiguration": {
+        "payoutTo": "0xA9962a5BfBea6918E958DeE0647E99fD7863b95A",
+        "optionalPaymentSplitterName": "Test Bera ETH Payment Splitter V0.0",
+        "splits": []
+      },
+      "accountantDeploymentParameters": {
+        "allowedExchangeRateChangeLower": 9950,
+        "allowedExchangeRateChangeUpper": 10050,
+        "baseAddressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "WETH"
+        },
+        "minimumUpateDelayInSeconds": 21600,
+        "performanceFee": 0,
+        "platformFee": 0,
+        "startingExchangeRate": 1000000000000000000
+      }
+    }
+  },
+  "tellerConfiguration": {
+    "tellerDeploymentName": "Test Bera ETH Teller V0.0",
+    "tellerParameters": {
+      "allowPublicDeposits": true,
+      "shareLockPeriod": 0,
+      "kind": {
+        "teller": true,
+        "tellerWithRemediation": false,
+        "tellerWithCcip": false,
+        "tellerWithLayerZero": false
+      },
+      "layerZero": {
+        "endpointAddressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "LayerZeroEndPoint"
+        },
+        "lzTokenAddressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "ZRO"
+        },
+        "lzChains": []
+      }
+    }
+  },
+  "boringQueueConfiguration": {
+    "boringQueueDeploymentName": "Test Bera ETH Boring Queue V0.0",
+    "boringQueueSolverName": "Test Bera ETH Boring Solver V0.0",
+    "queueParameters": {
+      "allowPublicWithdrawals": true,
+      "allowPublicSelfWithdrawals": true,
+      "kind": {
+        "boringQueue": true,
+        "boringQueueWithTracking": false
+      }
+    }
+  },
+  "droneConfiguration": {
+    "droneDeploymentBaseName": "Test Bera ETH Drone V0.0",
+    "droneCount": 0,
+    "safeGasToForwardNative": 21000
+  },
+  "pauserConfiguration": {
+    "shouldDeploy": true,
+    "pauserDeploymentName": "Test Bera ETH Pauser V0.0",
+    "makeGenericPauser": ["0x0000000000000000000000000000000000000000"],
+    "makeGenericUnpauser": ["0x0000000000000000000000000000000000000000"],
+    "makePauseAll": ["0x0000000000000000000000000000000000000000"],
+    "makeUnpauseAll": ["0x0000000000000000000000000000000000000000"],
+    "senderToPausable": [
+      {
+        "sender": "0x0000000000000000000000000000000000000000",
+        "pausable": "0x0000000000000000000000000000000000000000"
+      }
+    ]
+  },
+  "timelockConfiguration": {
+    "shouldDeploy": true,
+    "timelockDeploymentName": "Test Bera ETH Timelock V0.0",
+    "timelockParameters": {
+      "executors": ["0x0000000000000000000000000000000000000000"],
+      "minDelay": 0,
+      "proposers": ["0x0000000000000000000000000000000000000000"]
+    }
+  },
+  "accountantAssets": [],
+  "depositAssets": [
+    {
+      "addressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "WETH"
+      },
+      "allowDeposits": true,
+      "allowWithdraws": true,
+      "sharePremium": 0
+    }
+  ],
+  "withdrawAssets": []
+}
