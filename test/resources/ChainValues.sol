@@ -194,6 +194,7 @@ contract ChainValues {
         values[mainnet]["TBTC"] = 0x18084fbA666a33d37592fA2633fD49a74DD93a88.toBytes32();
         values[mainnet]["INST"] = 0x6f40d4A6237C257fff2dB00FA0510DeEECd303eb.toBytes32();
         values[mainnet]["LBTC"] = 0x8236a87084f8B84306f72007F36F2618A5634494.toBytes32();
+        values[mainnet]["EBTC"] = 0x657e8C867D8B37dCC18fA4Caead9C45EB088C642.toBytes32();
         values[mainnet]["RSR"] = 0x320623b8E4fF03373931769A31Fc52A4E78B5d70.toBytes32();
         values[mainnet]["SFRXETH"] = 0xac3E018457B222d93114458476f3E3416Abbe38F.toBytes32();
         values[mainnet]["WBETH"] = 0xa2E3356610840701BDf5611a53974510Ae27E2e1.toBytes32();
@@ -916,6 +917,8 @@ contract ChainValues {
         // Layer Zero.
         values[mainnet]["LayerZeroEndPoint"] = 0x1a44076050125825900e736c501f859c50fE728c.toBytes32();
         values[mainnet]["EtherFiOFTAdapter"] = 0xcd2eb13D6831d4602D80E5db9230A57596CDCA63.toBytes32();
+        values[mainnet]["LBTCOFTAdapter"] = 0x6bc15D7930839Ec18A57F6f7dF72aE1B439D077f.toBytes32();
+        values[mainnet]["WBTCOFTAdapter"] = 0x6bc15D7930839Ec18A57F6f7dF72aE1B439D077f.toBytes32();
 
         // Merkl
         values[mainnet]["merklDistributor"] = 0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae.toBytes32();
