@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+//SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
@@ -305,7 +305,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         {
             ERC20[] memory supplyTokens = new ERC20[](2);
             supplyTokens[0] = getERC20(sourceChain, "WEETH");
-            supplyTokens[1] = getERC20(sourceChain, "WETH");
+            supplyTokens[1] = getERC20(sourceChain, "ETH");
 
             ERC20[] memory borrowTokens = new ERC20[](1);
             borrowTokens[0] = getERC20(sourceChain, "WSTETH");
@@ -313,7 +313,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             uint256 dexType = 2000;
 
             _addFluidDexLeafs(
-                leafs, getAddress(sourceChain, "weETH_ETHDex_wstETH"), dexType, supplyTokens, borrowTokens
+                leafs, getAddress(sourceChain, "weETH_ETHDex_wstETH"), dexType, supplyTokens, borrowTokens, true
             );
         }
 
@@ -331,18 +331,22 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         // ========================== Term ==========================
         {
             setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", termFinanceDecoderAndSanitizer);
-            ERC20[] memory purchaseTokens = new ERC20[](2);
+            ERC20[] memory purchaseTokens = new ERC20[](3);
             purchaseTokens[0] = getERC20(sourceChain, "WETH");
             purchaseTokens[1] = getERC20(sourceChain, "WETH");
-            address[] memory termAuctionOfferLockerAddresses = new address[](2);
+            purchaseTokens[2] = getERC20(sourceChain, "WETH");
+            address[] memory termAuctionOfferLockerAddresses = new address[](3);
             termAuctionOfferLockerAddresses[0] = 0x8b051F8Bc836EC4B01da563dB82df9CD22CA4884;
             termAuctionOfferLockerAddresses[1] = 0x8a98076a97dc3e905b6beEb47268a92658bCf9C1;
-            address[] memory termRepoLockers = new address[](2);
+            termAuctionOfferLockerAddresses[2] = 0x87b1ac843B0d41EeeE8BD29ad448F8C249E27350;
+            address[] memory termRepoLockers = new address[](3);
             termRepoLockers[0] = 0x330e701F0523b445958f0484E6Ea3656c55932A4;
             termRepoLockers[1] = 0x46044AccFa442cDd1f4958847CC05F01a59b9610;
-            address[] memory termRepoServicers = new address[](2);
+            termRepoLockers[2] = 0xe78a151b155115e829423055Cc9f7B1b4c63C2a6;
+            address[] memory termRepoServicers = new address[](3);
             termRepoServicers[0] = 0x4895958D1F170Db5fD71bcf3B2cE0dA40A0e38FF;
             termRepoServicers[1] = 0x859B4aDc287E76fe7076F6Af9bfB56e3E9253c1c;
+            termRepoServicers[2] = 0xC419779ffDc0DEf108Cc26935ec4DaAC89e7ed40;
             _addTermFinanceLockOfferLeafs(leafs, purchaseTokens, termAuctionOfferLockerAddresses, termRepoLockers);
             _addTermFinanceUnlockOfferLeafs(leafs, termAuctionOfferLockerAddresses);
             _addTermFinanceRevealOfferLeafs(leafs, termAuctionOfferLockerAddresses);

@@ -5121,39 +5121,47 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         address dex,
         uint256 dexType,
         ERC20[] memory supplyTokens,
-        ERC20[] memory borrowTokens
+        ERC20[] memory borrowTokens,
+        bool addNative
     ) internal {
         // Approvals for token
         for (uint256 i = 0; i < supplyTokens.length; i++) {
-            unchecked {
-                leafIndex++;
-            }
 
-            leafs[leafIndex] = ManageLeaf(
-                address(supplyTokens[i]),
-                false,
-                "approve(address,uint256)",
-                new address[](1),
-                string.concat("Approve Fluid Dex to spend ", supplyTokens[i].symbol()),
-                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-            );
-            leafs[leafIndex].argumentAddresses[0] = dex;
+            if (address(supplyTokens[i]) != getAddress(sourceChain, "ETH")) {
+                unchecked {
+                    leafIndex++;
+                }
+
+                leafs[leafIndex] = ManageLeaf(
+                    address(supplyTokens[i]),
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve Fluid Dex to spend ", supplyTokens[i].symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = dex;
+            }
         }
 
         for (uint256 i = 0; i < borrowTokens.length; i++) {
-            unchecked {
-                leafIndex++;
-            }
 
-            leafs[leafIndex] = ManageLeaf(
-                address(borrowTokens[i]),
-                false,
-                "approve(address,uint256)",
-                new address[](1),
-                string.concat("Approve Fluid Dex to spend ", borrowTokens[i].symbol()),
-                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-            );
-            leafs[leafIndex].argumentAddresses[0] = dex;
+            if (address(borrowTokens[i]) != getAddress(sourceChain, "ETH")) {
+
+                unchecked {
+                    leafIndex++;
+                }
+
+                leafs[leafIndex] = ManageLeaf(
+                    address(borrowTokens[i]),
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve Fluid Dex to spend ", borrowTokens[i].symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = dex;
+            }
         }
 
         //t2 and t3 leaves
@@ -5183,6 +5191,34 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+            if (addNative) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    address(dex),
+                    true,
+                    "operate(uint256,int256,int256,int256,int256,address)",
+                    new address[](1),
+                    string.concat("Operate on Fluid Dex Vault with native ETH"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    address(dex),
+                    true,
+                    "operatePerfect(uint256,int256,int256,int256,int256,address)",
+                    new address[](1),
+                    string.concat("Operate Perfect on Fluid Dex Vault with native ETH"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+            }
         }
 
         //t4 leaves
@@ -5208,10 +5244,38 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 false,
                 "operatePerfect(uint256,int256,int256,int256,int256,int256,int256,address)",
                 new address[](1),
-                string.concat("Operate on Fluid Dex Vault"),
+                string.concat("Operate Perfect on Fluid Dex Vault"),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+            if (addNative) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    address(dex),
+                    true,
+                    "operate(uint256,int256,int256,int256,int256,int256,int256,address)",
+                    new address[](1),
+                    string.concat("Operate on Fluid Dex Vault with native ETH"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    address(dex),
+                    true,
+                    "operatePerfect(uint256,int256,int256,int256,int256,int256,int256,address)",
+                    new address[](1),
+                    string.concat("Operate Perfect on Fluid Dex Vault with native ETH"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+            }
         }
     }
 

@@ -232,7 +232,7 @@ contract CreateLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             uint256 dexType = 2000;
 
             _addFluidDexLeafs(
-                leafs, getAddress(sourceChain, "weETH_ETHDex_wstETH"), dexType, supplyTokens, borrowTokens
+                leafs, getAddress(sourceChain, "weETH_ETHDex_wstETH"), dexType, supplyTokens, borrowTokens, true
             );
         }
 
