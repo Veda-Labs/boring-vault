@@ -1,0 +1,6 @@
+Script started on Thu Feb 13 17:26:36 2025
+Command: --rpc-url https://berachain-rpc.publicnode.com
+script: --rpc-url: No such file or directory
+
+Command exit status: 1
+Script done on Thu Feb 13 17:26:36 2025

@@ -1540,7 +1540,7 @@ contract ChainValues {
 
         // Kodiak
         values[bartio]["kodiakIslandRouterOld"] = 0x5E51894694297524581353bc1813073C512852bf.toBytes32(); //old
-        values[bartio]["kodiakIslandRouterNew"] = 0x35c98A9bA533218155f9324585914e916066A153.toBytes32(); //new
+        values[bartio]["kodiakIslandRouter"] = 0x35c98A9bA533218155f9324585914e916066A153.toBytes32(); //new
 
         values[bartio]["kodiak_v1_WBERA_YEET"] = 0xE5A2ab5D2fb268E5fF43A5564e44c3309609aFF9.toBytes32(); //old island
         values[bartio]["kodiak_island_WBERA_YEET_1%"] = 0x0001513F4a1f86da0f02e647609E9E2c630B3a14.toBytes32(); //new island
@@ -1601,17 +1601,54 @@ contract ChainValues {
         values[berachain]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
         values[berachain]["txBundlerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
         values[berachain]["dev0Address"] = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b.toBytes32();
-        values[berachain]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
+        values[berachain]["dev1Address"] = 0xA7894FcD4FD5E495df88afd4F251ce64cE1EF771.toBytes32();
 
         // ERC20s
         values[berachain]["WBERA"] = 0x6969696969696969696969696969696969696969.toBytes32();
         values[berachain]["WETH"] = 0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590.toBytes32();
+        values[berachain]["WEETH"] = 0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7.toBytes32();
         values[berachain]["LBTC"] = 0xecAc9C5F704e954931349Da37F60E39f515c11c1.toBytes32();
         values[berachain]["WBTC"] = 0x0555E30da8f98308EdB960aa94C0Db47230d2B9c.toBytes32();
+        values[berachain]["eBTC"] = 0x657e8C867D8B37dCC18fA4Caead9C45EB088C642.toBytes32();
         values[berachain]["rberaETH"] = 0x3B0145f3CFA64BC66F5742F512f871665309075d.toBytes32(); //LST
         values[berachain]["beraETH"] = 0x6fc6545d5cDE268D5C7f1e476D444F39c995120d.toBytes32(); //wrapped LST
+        values[berachain]["WEETH_OT"] = 0x46C7BdE4422b6798A09e76B555F2fea8D7FfADdc.toBytes32();
+        values[berachain]["WEETH_YT"] = 0x98577aC3C6b376fc9Ee56377FEcAb6D751e40610.toBytes32();
 
         values[berachain]["balancerVault"] = address(1).toBytes32();
         values[berachain]["vault"] = address(1).toBytes32();
+
+        // Kodiak
+        values[berachain]["kodiakRouter"] = 0xe301E48F77963D3F7DbD2a4796962Bd7f3867Fb4.toBytes32(); //swapRouter02, doesn't work with univ3 leaves for whatever reason
+        values[berachain]["uniV3Router"] = 0xEd158C4b336A6FCb5B193A5570e3a571f6cbe690.toBytes32(); //for compatability w/ existing univ3 functions (swapRouter01)
+        values[berachain]["kodiakNonFungiblePositionManager"] = 0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD.toBytes32();
+        values[berachain]["uniswapV3NonFungiblePositionManager"] = 0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD.toBytes32(); //for compatability w/ existing univ3 functions
+        values[berachain]["kodiakIslandRouter"] = 0x679a7C63FC83b6A4D9C1F931891d705483d4791F.toBytes32(); //for kodiak specific islands
+
+        values[berachain]["kodiak_island_EBTC_WBTC_005%"] = 0xfC4994e0A4780ba7536d7e79611468B6bde14CaE.toBytes32();
+        values[berachain]["kodiak_island_WETH_WEETH_005%"] = 0xA0cAbFc04Fc420b3d31BA431d18eB5bD33B3f334.toBytes32();
+        values[berachain]["kodiak_island_WETH_beraETH_005%"] = 0x03bCcF796cDef61064c4a2EffdD21f1AC8C29E92.toBytes32();
+        values[berachain]["kodiak_island_WEETH_WEETH_OT_005%"] = 0xAd63328f4F4b8681dB713ce2eB353596628fc3B2.toBytes32();
+        values[berachain]["kodiak_island_WBTC_EBTC_005%"] = 0xfC4994e0A4780ba7536d7e79611468B6bde14CaE.toBytes32();
+        values[berachain]["kodiak_island_EBTC_LBTC_005%"] = 0xc3E64469e1c333360Ddb6BF0eA9B0c18E69410f0.toBytes32();
+        values[berachain]["kodiak_island_EBTC_EBTC_OT_005%"] = 0x6E29Ec043103fF346450763AC364a22fc7fd4a7C.toBytes32();
+
+        // Dolomite
+        values[berachain]["dolomiteMargin"] = 0x003Ca23Fd5F0ca87D01F6eC6CD14A8AE60c2b97D.toBytes32();
+        values[berachain]["dolomiteDepositWithdrawRouter"] = 0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6.toBytes32();
+        values[berachain]["dolomiteBorrowProxy"] = 0xC06271eb97d960F4034DDF953e16271CcB2B10BD.toBytes32();
+
+        // dTokens
+        values[berachain]["dWETH"] = 0xf7b5127B510E568fdC39e6Bb54e2081BFaD489AF.toBytes32();
+        values[berachain]["dWEETH"] = 0x48282e3B990625CBDcb885E4a4D83B6e9D5C8442.toBytes32();
+        values[berachain]["dWBTC"] = 0x29cF6e8eCeFb8d3c9dd2b727C1b7d1df1a754F6f.toBytes32();
+        values[berachain]["dEBTC"] = 0x6B21026e1Fe8be7F23660B5fBFb1885dbd1147E6.toBytes32();
+
+        // Goldilocks Vaults
+        values[berachain]["goldivault_weETH"] = 0x0B8B5e0ec1dc908E0d8513cC03E91Eb479Ab6Ea9.toBytes32();
+        values[berachain]["goldivault_eBTC"] = 0x0c3F856b93d6D7B46C76296f073A1357738d238C.toBytes32();
+
+        // Tellers
+        values[berachain]["eBTCTeller"] = 0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268.toBytes32(); 
     }
 }

@@ -28,29 +28,29 @@
       "address": "0x0000000000000000000000000000000000000000",
       "name": "txBundlerAddress"
     },
-    "deploymentFileName": "addresses/BeraChain/TestBeraETH.json"
+    "deploymentFileName": "addresses/BeraChain/TestBeraBTC.json"
   },
   "rolesAuthorityConfiguration": {
-    "rolesAuthorityDeploymentName": "Test Bera ETH Roles Authority V0.2"
+    "rolesAuthorityDeploymentName": "Test Bera BTC Roles Authority V0.1"
   },
   "lensConfiguration": {
     "lensDeploymentName": "Arctic Architecture Lens V0.0"
   },
   "boringVaultConfiguration": {
-    "boringVaultDeploymentName": "Test Bera ETH Boring Vault V0.2",
-    "boringVaultName": "Test Bera ETH",
-    "boringVaultSymbol": "testBeraETH",
-    "boringVaultDecimals": 18
+    "boringVaultDeploymentName": "Test Bera BTC Boring Vault V0.1",
+    "boringVaultName": "Test Bera BTC",
+    "boringVaultSymbol": "testBeraBTC",
+    "boringVaultDecimals": 8
   },
   "managerConfiguration": {
-    "managerDeploymentName": "Test Bera ETH Manager V0.2",
+    "managerDeploymentName": "Test Bera BTC Manager V0.1",
     "balancerVaultAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
       "name": "balancerVault"
     }
   },
   "accountantConfiguration": {
-    "accountantDeploymentName": "Test Bera ETH Accountant V0.2",
+    "accountantDeploymentName": "Test Bera BTC Accountant V0.1",
     "accountantParameters": {
       "kind": {
         "variableRate": true,
@@ -58,7 +58,7 @@
       },
       "payoutConfiguration": {
         "payoutTo": "0xA9962a5BfBea6918E958DeE0647E99fD7863b95A",
-        "optionalPaymentSplitterName": "Test Bera ETH Payment Splitter V0.2",
+        "optionalPaymentSplitterName": "Test Bera BTC Payment Splitter V0.1",
         "splits": []
       },
       "accountantDeploymentParameters": {
@@ -66,17 +66,17 @@
         "allowedExchangeRateChangeUpper": 10050,
         "baseAddressOrName": {
           "address": "0x0000000000000000000000000000000000000000",
-          "name": "WETH"
+          "name": "WBTC"
         },
         "minimumUpateDelayInSeconds": 21600,
         "performanceFee": 0,
         "platformFee": 0,
-        "startingExchangeRate": 1000000000000000000
+        "startingExchangeRate": 100000000
       }
     }
   },
   "tellerConfiguration": {
-    "tellerDeploymentName": "Test Bera ETH Teller V0.2",
+    "tellerDeploymentName": "Test Bera BTC Teller V0.1",
     "tellerParameters": {
       "allowPublicDeposits": true,
       "shareLockPeriod": 0,
@@ -100,8 +100,8 @@
     }
   },
   "boringQueueConfiguration": {
-    "boringQueueDeploymentName": "Test Bera ETH Boring Queue V0.2",
-    "boringQueueSolverName": "Test Bera ETH Boring Solver V0.2",
+    "boringQueueDeploymentName": "Test Bera BTC Boring Queue V0.1",
+    "boringQueueSolverName": "Test Bera BTC Boring Solver V0.1",
     "queueParameters": {
       "allowPublicWithdrawals": true,
       "allowPublicSelfWithdrawals": true,
@@ -112,13 +112,13 @@
     }
   },
   "droneConfiguration": {
-    "droneDeploymentBaseName": "Test Bera ETH Drone V0.2",
+    "droneDeploymentBaseName": "Test Bera BTC Drone V0.1",
     "droneCount": 0,
     "safeGasToForwardNative": 21000
   },
   "pauserConfiguration": {
     "shouldDeploy": true,
-    "pauserDeploymentName": "Test Bera ETH Pauser V0.2",
+    "pauserDeploymentName": "Test Bera BTC Pauser V0.1",
     "makeGenericPauser": ["0x0000000000000000000000000000000000000000"],
     "makeGenericUnpauser": ["0x0000000000000000000000000000000000000000"],
     "makePauseAll": ["0x0000000000000000000000000000000000000000"],
@@ -132,19 +132,37 @@
   },
   "timelockConfiguration": {
     "shouldDeploy": true,
-    "timelockDeploymentName": "Test Bera ETH Timelock V0.2",
+    "timelockDeploymentName": "Test Bera BTC Timelock V0.1",
     "timelockParameters": {
-      "executors": ["0x0000000000000000000000000000000000000000"],
-      "minDelay": 0,
-      "proposers": ["0x0000000000000000000000000000000000000000"]
+      "executors": ["0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b"],
+      "minDelay": 300,
+      "proposers": ["0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b"]
     }
   },
-  "accountantAssets": [],
+  "accountantAssets": [
+    {
+      "addressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "LBTC"
+      },
+      "isPeggedToBase": true,
+      "rateProvider": "0x0000000000000000000000000000000000000000"
+    }
+  ],
   "depositAssets": [
     {
       "addressOrName": {
         "address": "0x0000000000000000000000000000000000000000",
-        "name": "WETH"
+        "name": "WBTC"
+      },
+      "allowDeposits": true,
+      "allowWithdraws": true,
+      "sharePremium": 0
+    },
+    {
+      "addressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "LBTC"
       },
       "allowDeposits": true,
       "allowWithdraws": true,

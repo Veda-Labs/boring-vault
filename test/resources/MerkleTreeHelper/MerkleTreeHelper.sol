@@ -5644,7 +5644,6 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     }
 
     // ========================================= Transfer =========================================
-    
     function _addTransferLeafs(ManageLeaf[] memory leafs, ERC20 token, address to) internal {
         unchecked {
             leafIndex++;
@@ -5673,38 +5672,6 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = spender;
-    }
-
-    // ========================================= Rings Voter =========================================
-
-    function _addRingsVoterLeafs(ManageLeaf[] memory leafs, address ringsVoterContract, ERC20 underlying) internal {
-
-        unchecked {
-            leafIndex++;
-        }
-
-        leafs[leafIndex] = ManageLeaf(
-            address(underlying),
-            false,
-            "approve(address,uint256)",
-            new address[](1),
-            string.concat("Approve ", vm.toString(ringsVoterContract), " to spend ", underlying.symbol()),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = ringsVoterContract;
-
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            ringsVoterContract,
-            false,
-            "depositBudget(uint256)",
-            new address[](0),
-            string.concat("Deposit Budget of ", underlying.symbol(), " into ", vm.toString(ringsVoterContract)),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-
     }
 
     // ========================================= LayerZero =========================================
@@ -6877,8 +6844,6 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
         leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
-
-        //TODO add merkleWithdraw leaves once testing is available
     }
 
     function _addRoyco4626VaultLeafs(ManageLeaf[] memory leafs, ERC4626 vault) internal {
@@ -7169,7 +7134,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 false,
                 "compound()",
                 new address[](0),
-                string.concat("Redeem YT in ", ERC20(depositToken).symbol(), " GoldiVault"),
+                string.concat("Compound rewards in ", ERC20(depositToken).symbol(), " GoldiVault"),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
 
@@ -7324,7 +7289,6 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
 
     // ========================================= BoringVault Teller =========================================
 
-
     function _addTellerLeafs(ManageLeaf[] memory leafs, address teller, ERC20[] memory assets, bool addNativeDeposit)
         internal
     {
@@ -7387,23 +7351,21 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = address(assets[i]);
-            
-            
-          if (addNativeDeposit) {
+        }
+
+        if (addNativeDeposit) {
             unchecked {
                 leafIndex++;
             }
-                leafs[leafIndex] = ManageLeaf(
-                    teller,
-                    true, //can send value
-                    "deposit(address,uint256,uint256)",
-                    new address[](1),
-                    string.concat("Deposit ETH into ", boringVault.name()),
-                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-                );
-                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "ETH");
-
-            }
+            leafs[leafIndex] = ManageLeaf(
+                teller,
+                true, //can send value
+                "deposit(address,uint256,uint256)",
+                new address[](1),
+                string.concat("Deposit ETH into ", boringVault.name()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "ETH");
         }
     }
 
@@ -7630,7 +7592,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
 
             if (
                 !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token0][getAddress(
-                    sourceChain, "kodiakIslandRouterNew"
+                    sourceChain, "kodiakIslandRouter"
                 )]
             ) {
                 unchecked {
@@ -7644,15 +7606,15 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                     string.concat("Approve Kodiak router to spend ", ERC20(token0).symbol()),
                     getAddress(sourceChain, "rawDataDecoderAndSanitizer")
                 );
-                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "kodiakIslandRouterNew");
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "kodiakIslandRouter");
                 ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token0][getAddress(
-                    sourceChain, "kodiakIslandRouterNew"
+                    sourceChain, "kodiakIslandRouter"
                 )] = true;
             }
 
             if (
                 !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token1][getAddress(
-                    sourceChain, "kodiakIslandRouterNew"
+                    sourceChain, "kodiakIslandRouter"
                 )]
             ) {
                 unchecked {
@@ -7666,15 +7628,15 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                     string.concat("Approve Kodiak router to spend ", ERC20(token1).symbol()),
                     getAddress(sourceChain, "rawDataDecoderAndSanitizer")
                 );
-                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "kodiakIslandRouterNew");
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "kodiakIslandRouter");
                 ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token1][getAddress(
-                    sourceChain, "kodiakIslandRouterNew"
+                    sourceChain, "kodiakIslandRouter"
                 )] = true;
             }
 
             if (
                 !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][islands[i]][getAddress(
-                    sourceChain, "kodiakIslandRouterNew"
+                    sourceChain, "kodiakIslandRouter"
                 )]
             ) {
                 unchecked {
@@ -7688,9 +7650,9 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                     string.concat("Approve Kodiak router to spend ", ERC20(islands[i]).symbol()),
                     getAddress(sourceChain, "rawDataDecoderAndSanitizer")
                 );
-                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "kodiakIslandRouterNew");
-                ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token1][getAddress(
-                    sourceChain, "kodiakIslandRouterNew"
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "kodiakIslandRouter");
+                ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][islands[i]][getAddress(
+                    sourceChain, "kodiakIslandRouter"
                 )] = true;
             }
 
@@ -7698,7 +7660,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 leafIndex++;
             }
             leafs[leafIndex] = ManageLeaf(
-                getAddress(sourceChain, "kodiakIslandRouterNew"),
+                getAddress(sourceChain, "kodiakIslandRouter"),
                 false,
                 "addLiquidity(address,uint256,uint256,uint256,uint256,uint256,address)",
                 new address[](2),
@@ -7712,7 +7674,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 leafIndex++;
             }
             leafs[leafIndex] = ManageLeaf(
-                getAddress(sourceChain, "kodiakIslandRouterNew"),
+                getAddress(sourceChain, "kodiakIslandRouter"),
                 true,
                 "addLiquidityNative(address,uint256,uint256,uint256,uint256,uint256,address)",
                 new address[](2),
@@ -7726,7 +7688,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 leafIndex++;
             }
             leafs[leafIndex] = ManageLeaf(
-                getAddress(sourceChain, "kodiakIslandRouterNew"),
+                getAddress(sourceChain, "kodiakIslandRouter"),
                 false,
                 "removeLiquidity(address,uint256,uint256,uint256,address)",
                 new address[](2),
@@ -7740,7 +7702,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 leafIndex++;
             }
             leafs[leafIndex] = ManageLeaf(
-                getAddress(sourceChain, "kodiakIslandRouterNew"),
+                getAddress(sourceChain, "kodiakIslandRouter"),
                 false,
                 "removeLiquidityNative(address,uint256,uint256,uint256,address)",
                 new address[](2),
@@ -7754,7 +7716,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
 
     // ========================================= Dolomite Finance =========================================
 
-    function _addDolomiteDepositLeafs(ManageLeaf[] memory leafs, address token) internal {
+    function _addDolomiteDepositLeafs(ManageLeaf[] memory leafs, address token, bool addNative) internal {
         uint256 marketId = IDolomiteMargin(getAddress(sourceChain, "dolomiteMargin")).getMarketIdByTokenAddress(token);
 
         unchecked {
@@ -7851,57 +7813,59 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex].argumentAddresses[0] = token;
 
         // Native ETH Functions
-        unchecked {
-            leafIndex++;
+        if (addNative) {
+            unchecked {
+                leafIndex++;
+            }
+
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "dolomiteDepositWithdrawRouter"),
+                true,
+                "depositETH(uint256)",
+                new address[](0),
+                string.concat("Deposit ETH into Dolomite ETH Market"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+
+            unchecked {
+                leafIndex++;
+            }
+
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "dolomiteDepositWithdrawRouter"),
+                true,
+                "depositETHIntoDefaultAccount()",
+                new address[](0),
+                string.concat("Deposit ETH into Dolomite ETH Market in default account"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+
+            unchecked {
+                leafIndex++;
+            }
+
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "dolomiteDepositWithdrawRouter"),
+                false,
+                "withdrawETH(uint256,uint256,uint8)",
+                new address[](0),
+                string.concat("Withdraw ETH from Dolomite ETH Market"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+
+            unchecked {
+                leafIndex++;
+            }
+
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "dolomiteDepositWithdrawRouter"),
+                false,
+                "withdrawETHFromDefaultAccount(uint256,uint8)",
+                new address[](0),
+                string.concat("Withdraw ETH from Dolomite ETH Market default account"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
         }
-
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "dolomiteDepositWithdrawRouter"),
-            true,
-            "depositETH(uint256)",
-            new address[](0),
-            string.concat("Deposit ETH into Dolomite ETH Market"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-
-        unchecked {
-            leafIndex++;
-        }
-
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "dolomiteDepositWithdrawRouter"),
-            true,
-            "depositETHIntoDefaultAccount()",
-            new address[](0),
-            string.concat("Deposit ETH into Dolomite ETH Market in default account"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-
-        unchecked {
-            leafIndex++;
-        }
-
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "dolomiteDepositWithdrawRouter"),
-            false,
-            "withdrawETH(uint256,uint256,uint8)",
-            new address[](0),
-            string.concat("Withdraw ETH from Dolomite ETH Market"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-
-        unchecked {
-            leafIndex++;
-        }
-
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "dolomiteDepositWithdrawRouter"),
-            false,
-            "withdrawETHFromDefaultAccount(uint256,uint8)",
-            new address[](0),
-            string.concat("Withdraw ETH from Dolomite ETH Market default account"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
 
         // Par Scaled Functions
 
@@ -7915,7 +7879,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             "depositPar(uint256,uint256,uint256)",
             new address[](1),
             string.concat(
-                "Deposit Par scaled",
+                "Deposit Par scaled ",
                 ERC20(token).symbol(),
                 " into Dolomite DepositWithdraw Router Market ID: ",
                 vm.toString(marketId)
@@ -7934,7 +7898,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             "depositParIntoDefaultAccount(uint256,uint256)",
             new address[](1),
             string.concat(
-                "Deposit Par scaled",
+                "Deposit Par scaled ",
                 ERC20(token).symbol(),
                 " into Dolomite DepositWithdraw Router Market ID: ",
                 vm.toString(marketId),
@@ -7954,7 +7918,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             "withdrawPar(uint256,uint256,uint256,uint8)",
             new address[](1),
             string.concat(
-                "Withdraw Par scaled",
+                "Withdraw Par scaled ",
                 ERC20(token).symbol(),
                 " from Dolomite DepositWithdraw Router Market ID: ",
                 vm.toString(marketId)
