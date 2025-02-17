@@ -8404,9 +8404,9 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     ) internal {
         address asset = ERC4626(swToken).asset(); 
         
-        //handles approve for swToken
         _addERC4626Leafs(leafs, ERC4626(swToken));  
-        //_addCurveLeafs(leafs,  
+        _addCurveLeafs(leafs, spectraPool, 2, address(0)); 
+        _addLeafsForCurveSwapping(leafs, spectraPool); 
 
         unchecked {
             leafIndex++;
@@ -8414,9 +8414,22 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex] = ManageLeaf(
             asset,
             false,
-            "approve(address,uint256)",
+            "wrap(uint256,address)",
             new address[](1),
-            string.concat("Approve "),
+            string.concat("Wrap ", ERC20(asset).symbol(), " in ", ERC4626(swToken).name()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = spectraPool; 
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            asset,
+            false,
+            "wrap(uint256,address)",
+            new address[](1),
+            string.concat("Wrap ", ERC20(asset).symbol(), " in ", ERC4626(swToken).name()),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = spectraPool; 
