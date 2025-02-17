@@ -1,0 +1,247 @@
+{
+    "metadata": {
+        "AccountantAddress": "0xC1a2C650D2DcC8EAb3D8942477De71be52318Acb",
+        "BoringVaultAddress": "0xBb30e76d9Bb2CC9631F7fC5Eb8e87B5Aff32bFbd",
+        "DecoderAndSanitizerAddress": "0x0b731aFee9946869e870969a7600DD9b871ED9AB",
+        "DigestComposition": [
+            "Bytes20(DECODER_AND_SANITIZER_ADDRESS)",
+            "Bytes20(TARGET_ADDRESS)",
+            "Bytes1(CAN_SEND_VALUE)",
+            "Bytes4(TARGET_FUNCTION_SELECTOR)",
+            "Bytes{N*20}(ADDRESS_ARGUMENT_0,...,ADDRESS_ARGUMENT_N)"
+        ],
+        "LeafCount": 12,
+        "ManageRoot": "0xc5e95c2991b4d16a464e0526c5b25c0eec04444a5fd124c1b6a195b49c431a42",
+        "ManagerAddress": "0x5dA93667DCc58b71726aFC595f116A6F166F9aeD",
+        "TreeCapacity": 16
+    },
+    "leafs": [
+        {
+            "AddressArguments": ["0x630e12D53D4E041b8C5451aD035Ea841E08391d7"],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0b731aFee9946869e870969a7600DD9b871ED9AB",
+            "Description": "Approve LayerZero to spend LBTC",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x9b891c6516b9c7ca477a3134123f9f5f101d19394c4a0619d0774269e63977d2",
+            "PackedArgumentAddresses": "0x630e12d53d4e041b8c5451ad035ea841e08391d7",
+            "TargetAddress": "0xecAc9C5F704e954931349Da37F60E39f515c11c1"
+        },
+        {
+            "AddressArguments": [
+                "0x0000000000000000000000000000000000007595",
+                "0xBb30e76d9Bb2CC9631F7fC5Eb8e87B5Aff32bFbd",
+                "0xBb30e76d9Bb2CC9631F7fC5Eb8e87B5Aff32bFbd"
+            ],
+            "CanSendValue": true,
+            "DecoderAndSanitizerAddress": "0x0b731aFee9946869e870969a7600DD9b871ED9AB",
+            "Description": "Bridge LBTC to LayerZero endpoint: 30101",
+            "FunctionSelector": "0xc7c7f5b3",
+            "FunctionSignature": "send((uint32,bytes32,uint256,uint256,bytes,bytes,bytes),(uint256,uint256),address)",
+            "LeafDigest": "0xdd011da63130c21a9ef027b72bf0f63c94632d2db9bc5f0cf142955d2d31d36c",
+            "PackedArgumentAddresses": "0x0000000000000000000000000000000000007595bb30e76d9bb2cc9631f7fc5eb8e87b5aff32bfbdbb30e76d9bb2cc9631f7fc5eb8e87b5aff32bfbd",
+            "TargetAddress": "0x630e12D53D4E041b8C5451aD035Ea841E08391d7"
+        },
+        {
+            "AddressArguments": [
+                "0x0000000000000000000000000000000000007595",
+                "0xBb30e76d9Bb2CC9631F7fC5Eb8e87B5Aff32bFbd",
+                "0xBb30e76d9Bb2CC9631F7fC5Eb8e87B5Aff32bFbd"
+            ],
+            "CanSendValue": true,
+            "DecoderAndSanitizerAddress": "0x0b731aFee9946869e870969a7600DD9b871ED9AB",
+            "Description": "Bridge WBTC to LayerZero endpoint: 30101",
+            "FunctionSelector": "0xc7c7f5b3",
+            "FunctionSignature": "send((uint32,bytes32,uint256,uint256,bytes,bytes,bytes),(uint256,uint256),address)",
+            "LeafDigest": "0x95b1cc2a89e8c6ef1fbe58665fac3e825c2916718c3e701f1236f558a25646b3",
+            "PackedArgumentAddresses": "0x0000000000000000000000000000000000007595bb30e76d9bb2cc9631f7fc5eb8e87b5aff32bfbdbb30e76d9bb2cc9631f7fc5eb8e87b5aff32bfbd",
+            "TargetAddress": "0x0555E30da8f98308EdB960aa94C0Db47230d2B9c"
+        },
+        {
+            "AddressArguments": ["0xC1a2C650D2DcC8EAb3D8942477De71be52318Acb"],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0b731aFee9946869e870969a7600DD9b871ED9AB",
+            "Description": "Approve Accountant to spend LBTC",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0xc2f79379be0e6a5e3241a9a78d0c6eda7eb8e639ed5223a8c7bd1e5335b8d40e",
+            "PackedArgumentAddresses": "0xc1a2c650d2dcc8eab3d8942477de71be52318acb",
+            "TargetAddress": "0xecAc9C5F704e954931349Da37F60E39f515c11c1"
+        },
+        {
+            "AddressArguments": ["0xC1a2C650D2DcC8EAb3D8942477De71be52318Acb"],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0b731aFee9946869e870969a7600DD9b871ED9AB",
+            "Description": "Approve Accountant to spend WBTC",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x241774e32f9d067010366e290ad48a3d75f7dd4f15690603d8f861bb5877ea6c",
+            "PackedArgumentAddresses": "0xc1a2c650d2dcc8eab3d8942477de71be52318acb",
+            "TargetAddress": "0x0555E30da8f98308EdB960aa94C0Db47230d2B9c"
+        },
+        {
+            "AddressArguments": ["0xC1a2C650D2DcC8EAb3D8942477De71be52318Acb"],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0b731aFee9946869e870969a7600DD9b871ED9AB",
+            "Description": "Approve Accountant to spend eBTC",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0xe976212c61d3e1610e507ab8268c8d2910877f6235a8f8c70249d5949f61564c",
+            "PackedArgumentAddresses": "0xc1a2c650d2dcc8eab3d8942477de71be52318acb",
+            "TargetAddress": "0x657e8C867D8B37dCC18fA4Caead9C45EB088C642"
+        },
+        {
+            "AddressArguments": ["0xecAc9C5F704e954931349Da37F60E39f515c11c1"],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0b731aFee9946869e870969a7600DD9b871ED9AB",
+            "Description": "Claim fees in LBTC",
+            "FunctionSelector": "0x15a0ea6a",
+            "FunctionSignature": "claimFees(address)",
+            "LeafDigest": "0x803dd0aa347339d42462dd60f4aeecbb2e185225e8354b59a4ec3dcb7c1744d3",
+            "PackedArgumentAddresses": "0xecac9c5f704e954931349da37f60e39f515c11c1",
+            "TargetAddress": "0xC1a2C650D2DcC8EAb3D8942477De71be52318Acb"
+        },
+        {
+            "AddressArguments": ["0xecAc9C5F704e954931349Da37F60E39f515c11c1"],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0b731aFee9946869e870969a7600DD9b871ED9AB",
+            "Description": "Claim yield in LBTC",
+            "FunctionSelector": "0x999927df",
+            "FunctionSignature": "claimYield(address)",
+            "LeafDigest": "0x566837b32b4b7ebcf0e98064cd1f43ddb0c22d466bd881c4f12096013f951736",
+            "PackedArgumentAddresses": "0xecac9c5f704e954931349da37f60e39f515c11c1",
+            "TargetAddress": "0xC1a2C650D2DcC8EAb3D8942477De71be52318Acb"
+        },
+        {
+            "AddressArguments": ["0x0555E30da8f98308EdB960aa94C0Db47230d2B9c"],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0b731aFee9946869e870969a7600DD9b871ED9AB",
+            "Description": "Claim fees in WBTC",
+            "FunctionSelector": "0x15a0ea6a",
+            "FunctionSignature": "claimFees(address)",
+            "LeafDigest": "0xe7f9776df333fd8fb2f6542b0a3bc8c0b0ae3290faa9db40b9b4838fd1908921",
+            "PackedArgumentAddresses": "0x0555e30da8f98308edb960aa94c0db47230d2b9c",
+            "TargetAddress": "0xC1a2C650D2DcC8EAb3D8942477De71be52318Acb"
+        },
+        {
+            "AddressArguments": ["0x0555E30da8f98308EdB960aa94C0Db47230d2B9c"],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0b731aFee9946869e870969a7600DD9b871ED9AB",
+            "Description": "Claim yield in WBTC",
+            "FunctionSelector": "0x999927df",
+            "FunctionSignature": "claimYield(address)",
+            "LeafDigest": "0x59d32538db9fa0e957692a8e3948f1186d0c90417b727da8123f85cf7c50d619",
+            "PackedArgumentAddresses": "0x0555e30da8f98308edb960aa94c0db47230d2b9c",
+            "TargetAddress": "0xC1a2C650D2DcC8EAb3D8942477De71be52318Acb"
+        },
+        {
+            "AddressArguments": ["0x657e8C867D8B37dCC18fA4Caead9C45EB088C642"],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0b731aFee9946869e870969a7600DD9b871ED9AB",
+            "Description": "Claim fees in eBTC",
+            "FunctionSelector": "0x15a0ea6a",
+            "FunctionSignature": "claimFees(address)",
+            "LeafDigest": "0xfa3f0498fde37cfe0a4d72d2952b369420ad30d959a174364f7613cf1e95be8f",
+            "PackedArgumentAddresses": "0x657e8c867d8b37dcc18fa4caead9c45eb088c642",
+            "TargetAddress": "0xC1a2C650D2DcC8EAb3D8942477De71be52318Acb"
+        },
+        {
+            "AddressArguments": ["0x657e8C867D8B37dCC18fA4Caead9C45EB088C642"],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0b731aFee9946869e870969a7600DD9b871ED9AB",
+            "Description": "Claim yield in eBTC",
+            "FunctionSelector": "0x999927df",
+            "FunctionSignature": "claimYield(address)",
+            "LeafDigest": "0xf0d6b85d4fb28987d8df2c9bf207ba365a02d14ab65a1e6109321f07fd85e325",
+            "PackedArgumentAddresses": "0x657e8c867d8b37dcc18fa4caead9c45eb088c642",
+            "TargetAddress": "0xC1a2C650D2DcC8EAb3D8942477De71be52318Acb"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+            "Description": "",
+            "FunctionSelector": "0xc5d24601",
+            "FunctionSignature": "",
+            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0000000000000000000000000000000000000000"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+            "Description": "",
+            "FunctionSelector": "0xc5d24601",
+            "FunctionSignature": "",
+            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0000000000000000000000000000000000000000"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+            "Description": "",
+            "FunctionSelector": "0xc5d24601",
+            "FunctionSignature": "",
+            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0000000000000000000000000000000000000000"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+            "Description": "",
+            "FunctionSelector": "0xc5d24601",
+            "FunctionSignature": "",
+            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0000000000000000000000000000000000000000"
+        }
+    ],
+    "MerkleTree": {
+        "0": [
+            "0xc5e95c2991b4d16a464e0526c5b25c0eec04444a5fd124c1b6a195b49c431a42"
+        ],
+        "1": [
+            "0x743f3444a15c13f66d391f06836fe03fd93b1671c06bde6fa232dab72ef03c87",
+            "0xd17827ced9bf5eb007b2cd5c4e5c398b1bdb924dccc1b8cb1d6ec09d555889ee"
+        ],
+        "2": [
+            "0x5a0c93999e3c780970d5c3d05d99b102e30b701b37aaea9f76b8ffcc9515a4b8",
+            "0x4020354b2a248f6fccaebe0eef415e7980e0ac202849e93ef434174abbe501d5",
+            "0x5b22fe960de51782d240c520b6660113b35b8788d641067b17ed848e78a816e7",
+            "0x849eda7a295b642e5ddaf49a30eec4470cf507efa83b4104c0752d069c7638fe"
+        ],
+        "3": [
+            "0x8d4eda969a94e2f69cc8988cfec8b0b6a5f0960012b3be24b478280926b94de8",
+            "0x97cf832ddf2f46b2bb5752e006758dc98bdc074a80bcc0f17e675d403d6c33ca",
+            "0x47338fba7b770065ecfdbe3ef3e0ee31158764f0f688e8dbacd41697e3c021b2",
+            "0x788b91529d24f053bc0f432a9e0d4c0a6c68150693cc95b8acb269fc6de78959",
+            "0x924e4b9a2501e5e68329b490ef7a9df50a2b9d97725d2759659eba4b9eaa05c1",
+            "0xf8bfd60960bb62222121aba9ed4a36a2e888d29f3b71e3a730d7b4c8aa90aa5f",
+            "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
+            "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba"
+        ],
+        "4": [
+            "0x9b891c6516b9c7ca477a3134123f9f5f101d19394c4a0619d0774269e63977d2",
+            "0xdd011da63130c21a9ef027b72bf0f63c94632d2db9bc5f0cf142955d2d31d36c",
+            "0x95b1cc2a89e8c6ef1fbe58665fac3e825c2916718c3e701f1236f558a25646b3",
+            "0xc2f79379be0e6a5e3241a9a78d0c6eda7eb8e639ed5223a8c7bd1e5335b8d40e",
+            "0x241774e32f9d067010366e290ad48a3d75f7dd4f15690603d8f861bb5877ea6c",
+            "0xe976212c61d3e1610e507ab8268c8d2910877f6235a8f8c70249d5949f61564c",
+            "0x803dd0aa347339d42462dd60f4aeecbb2e185225e8354b59a4ec3dcb7c1744d3",
+            "0x566837b32b4b7ebcf0e98064cd1f43ddb0c22d466bd881c4f12096013f951736",
+            "0xe7f9776df333fd8fb2f6542b0a3bc8c0b0ae3290faa9db40b9b4838fd1908921",
+            "0x59d32538db9fa0e957692a8e3948f1186d0c90417b727da8123f85cf7c50d619",
+            "0xfa3f0498fde37cfe0a4d72d2952b369420ad30d959a174364f7613cf1e95be8f",
+            "0xf0d6b85d4fb28987d8df2c9bf207ba365a02d14ab65a1e6109321f07fd85e325",
+            "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400"
+        ]
+    }
+}
