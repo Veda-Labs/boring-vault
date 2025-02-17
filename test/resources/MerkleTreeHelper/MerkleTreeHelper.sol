@@ -8393,6 +8393,36 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         }
     }
 
+    // ========================================= Spectra Finance =========================================
+   
+    function _addSpectraLeafs(
+        ManageLeaf[] memory leafs, 
+        address spectraPool, 
+        address PT, 
+        address YT, 
+        address swToken
+    ) internal {
+        address asset = ERC4626(swToken).asset(); 
+        
+        //handles approve for swToken
+        _addERC4626Leafs(leafs, ERC4626(swToken));  
+        //_addCurveLeafs(leafs,  
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            asset,
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve "),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = spectraPool; 
+
+    }
+
     // ========================================= JSON FUNCTIONS =========================================
     // TODO this should pass in a bool or something to generate leafs indicating that we want leaf indexes printed.
     bool addLeafIndex = false;
