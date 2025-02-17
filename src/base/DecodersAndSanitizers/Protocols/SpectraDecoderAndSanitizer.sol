@@ -6,6 +6,7 @@ import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protoco
 import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
 
 
+/// @dev some Spectra contracts implement some of the ERC4626 standard, some revert on calling. Ex. A contract might implement `deposit()` and `withdraw()`, but not `mint()` or `redeem()`. `wrap()` and `unwrap()` should therefore be used most of the time. 
 abstract contract SpectraDecoderAndSanitizer is 
     BaseDecoderAndSanitizer, 
     ERC4626DecoderAndSanitizer, 

@@ -227,6 +227,7 @@ contract ChainValues {
         values[mainnet]["beraSTONE"] = 0x97Ad75064b20fb2B2447feD4fa953bF7F007a706.toBytes32(); 
         values[mainnet]["solvBTC"] = 0x7A56E1C57C7475CCf742a1832B028F0456652F97.toBytes32(); 
         values[mainnet]["solvBTC.BBN"] = 0xd9D920AA40f578ab794426F5C90F6C731D159DEf.toBytes32(); 
+        values[mainnet]["stkGHO"] = 0x1a88Df1cFe15Af22B3c4c783D4e6F7F9e0C1885d.toBytes32(); 
 
 
         // Rate providers
@@ -1002,7 +1003,19 @@ contract ChainValues {
         values[mainnet]["newMorpho"] = 0x58D97B57BB95320F9a05dC918Aef65434969c2B2.toBytes32();
 
         // Spectra
-        values[mainnet]["ysUSDC"] = 0xF7DE3c70F2db39a188A81052d2f3C8e3e217822a.toBytes32(); //SuperUSDC
+        values[mainnet]["ysUSDC"] = 0xF7DE3c70F2db39a188A81052d2f3C8e3e217822a.toBytes32(); //SuperUSDC Vault
+        values[mainnet]["ysUSDC_PT"] = 0x3b9739eE0c3b5bD7b392a801DEaC1dc68cfB0C48.toBytes32(); 
+        values[mainnet]["ysUSDC_YT"] = 0x9b9968Ba66B06c4340e60cB4dEa237CC6e3E5999.toBytes32(); 
+        values[mainnet]["ysUSDC_Pool"] = 0xd7e163a91D11cfa2B4059f1626cCd6e33b143cbc.toBytes32(); 
+        values[mainnet]["sRLP_Pool"] = 0x75c91a79Faf0fe64AcCdBd51e3fA6321d8952D84.toBytes32(); 
+        values[mainnet]["sRLP_PT"] = 0x1F7Aa7104db822987E1F44A66dF709A8C4Fb301a.toBytes32(); 
+        values[mainnet]["sRLP_YT"] = 0xC07cF8e6D7F6F47E196D36a4c18287E86f76b046.toBytes32(); 
+        values[mainnet]["sRLP"] = 0x4eaFef6149C5B0c3E42fF444F79675B3E3125cb7.toBytes32(); 
+        values[mainnet]["spectra_stkGHO_Pool"] = 0x9429E06FFD09Cf97007791B8bF3845171f1425E8.toBytes32(); 
+        values[mainnet]["spectra_stkGHO_PT"] = 0x0F7454c4537AFe1243df65842C7919b5d6d6198C.toBytes32(); 
+        values[mainnet]["spectra_stkGHO_YT"] = 0xdfB8D94C25C8Cfc4df171077fAd479AdAaef51c9.toBytes32(); 
+        values[mainnet]["spectra_stkGHO"] = 0xa94ec39c91DF334DCAb55aDaA8EdD9C1dAF67cA7.toBytes32(); 
+
     }
 
     function _addBaseValues() private {
