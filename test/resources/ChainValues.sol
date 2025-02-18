@@ -801,6 +801,7 @@ contract ChainValues {
         values[mainnet]["eigenStrategy"] = 0xaCB55C530Acdb2849e6d4f36992Cd8c9D50ED8F7.toBytes32();
         values[mainnet]["eEigenOperator"] = 0xDcAE4FAf7C7d0f4A78abe147244c6e9d60cFD202.toBytes32();
         values[mainnet]["eigenRewards"] = 0x7750d328b314EfFa365A0402CcfD489B80B0adda.toBytes32();
+        values[mainnet]["ethfiStrategy"] = 0x7079A4277eAF578cbe9682ac7BC3EfFF8635ebBf.toBytes32();
 
         // Swell
         values[mainnet]["swellSimpleStaking"] = 0x38D43a6Cb8DA0E855A42fB6b0733A0498531d774.toBytes32();
@@ -851,6 +852,8 @@ contract ChainValues {
         values[mainnet]["wstETHSymbioticVaultRewards"] = 0xe34DcEA5aB7c4f3c4AD2F5f144Fc7fc3D5b0137C.toBytes32();
         values[mainnet]["EtherFi_LBTCSymbioticVault"] = 0xd4E20ECA1f996Dab35883dC0AD5E3428AF888D45.toBytes32();
         values[mainnet]["EtherFi_wstETHSymbioticVault"] = 0x450a90fdEa8B87a6448Ca1C87c88Ff65676aC45b.toBytes32();
+
+        values[mainnet]["EtherFi_ETHFISymbioticVault"] = 0x2Bcfa0283C92b7845ECE12cEaDc521414BeF1067.toBytes32(); 
 
         // Karak
         values[mainnet]["vaultSupervisor"] = 0x54e44DbB92dBA848ACe27F44c0CB4268981eF1CC.toBytes32();
