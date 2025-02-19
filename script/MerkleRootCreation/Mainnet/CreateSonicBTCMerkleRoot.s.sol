@@ -17,7 +17,7 @@ contract CreateSonicBTCMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0xBb30e76d9Bb2CC9631F7fC5Eb8e87B5Aff32bFbd;
     address public managerAddress = 0x5dA93667DCc58b71726aFC595f116A6F166F9aeD; 
     address public accountantAddress = 0xC1a2C650D2DcC8EAb3D8942477De71be52318Acb;
-    address public rawDataDecoderAndSanitizer = 0x89f98A16905786400a7a360F1b9efFE00A677779;
+    address public rawDataDecoderAndSanitizer = 0xA0ecF0FcEA6F8b063a7d81291F7aC5359efa095b;
 
     function setUp() external {}
 
@@ -81,6 +81,15 @@ contract CreateSonicBTCMerkleRoot is Script, MerkleTreeHelper {
         _addLayerZeroLeafs(
             leafs, getERC20(sourceChain, "WBTC"), getAddress(sourceChain, "WBTCOFTAdapter"), layerZeroSonicMainnetEndpointId
         );
+
+        // ========================== Tellers ==========================
+        {
+            ERC20[] memory eBTCTellerAssets = new ERC20[](3);
+            eBTCTellerAssets[0] = getERC20(sourceChain, "WBTC");
+            eBTCTellerAssets[1] = getERC20(sourceChain, "LBTC");
+            eBTCTellerAssets[2] = getERC20(sourceChain, "cbBTC");
+            _addTellerLeafs(leafs, getAddress(sourceChain, "eBTCTeller"), eBTCTellerAssets, false);
+        }
 
         // ========================== Verify & Generate ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
