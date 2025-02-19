@@ -125,10 +125,10 @@ contract SpectraIntegrationTest is Test, MerkleTreeHelper {
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
         ManageLeaf[] memory manageLeafs = new ManageLeaf[](4);
-        manageLeafs[0] = leafs[0]; //approve GHO
-        manageLeafs[1] = leafs[12]; //approve stkGHO
-        manageLeafs[2] = leafs[15]; //wrap
-        manageLeafs[3] = leafs[16]; //unwrap
+        manageLeafs[0] = leafs[0]; //approve GHO (for wrapping)
+        manageLeafs[1] = leafs[1]; //approve stkGHO (on PT)
+        manageLeafs[2] = leafs[6]; //wrap
+        manageLeafs[3] = leafs[7]; //unwrap
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 
@@ -186,7 +186,7 @@ contract SpectraIntegrationTest is Test, MerkleTreeHelper {
         // withdraw(), mint(), and redeem() are not implemented in this Spectra contract
         ManageLeaf[] memory manageLeafs = new ManageLeaf[](2);
         manageLeafs[0] = leafs[0]; //approve GHO
-        manageLeafs[1] = leafs[1]; //deposit
+        manageLeafs[1] = leafs[8]; //deposit
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 
@@ -234,13 +234,13 @@ contract SpectraIntegrationTest is Test, MerkleTreeHelper {
         
         // withdraw(), mint(), and redeem() are not implemented in this Spectra contract
         ManageLeaf[] memory manageLeafs = new ManageLeaf[](7);
-        manageLeafs[0] = leafs[14]; //approve swGHO
-        manageLeafs[1] = leafs[17]; //depositIBT
-        manageLeafs[2] = leafs[19]; //redeemForIBT
-        manageLeafs[3] = leafs[21]; //withdrawIBT
-        manageLeafs[4] = leafs[23]; //updateYield
-        manageLeafs[5] = leafs[24]; //claimYield
-        manageLeafs[6] = leafs[25]; //burn (YT)
+        manageLeafs[0] = leafs[3]; //approve PT to spend swIBT
+        manageLeafs[1] = leafs[9]; //depositIBT
+        manageLeafs[2] = leafs[11]; //redeemForIBT
+        manageLeafs[3] = leafs[13]; //withdrawIBT
+        manageLeafs[4] = leafs[15]; //updateYield
+        manageLeafs[5] = leafs[16]; //claimYield
+        manageLeafs[6] = leafs[17]; //burn (YT)
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 
@@ -286,7 +286,7 @@ contract SpectraIntegrationTest is Test, MerkleTreeHelper {
         
     }
     
-    //decodng the FE, we can see that when doing FixRate(), we are essentally just buying PTs from the curve pool
+    //decoding the FE, we can see that when doing FixRate(), we are essentally just buying PTs from the curve pool
     function testFixRate() external {
         deal(getAddress(sourceChain, "GHO"), address(boringVault), 100_000e18);
         deal(getAddress(sourceChain, "stkGHO"), address(boringVault), 100_000e18);
@@ -308,36 +308,118 @@ contract SpectraIntegrationTest is Test, MerkleTreeHelper {
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
         
         // withdraw(), mint(), and redeem() are not implemented in this Spectra contract
-        ManageLeaf[] memory manageLeafs = new ManageLeaf[](3);
-        manageLeafs[0] = leafs[14]; //approve swGHO
-        manageLeafs[1] = leafs[17]; //depositIBT
-        manageLeafs[2] = leafs[11]; //exchange() (sell swGHO for stkGHO_PT)
+        ManageLeaf[] memory manageLeafs = new ManageLeaf[](4);
+        manageLeafs[0] = leafs[1]; //approve swGHO
+        manageLeafs[1] = leafs[6]; //wrap
+        manageLeafs[2] = leafs[4]; //approve swToken swap in Curve Pool
+        manageLeafs[3] = leafs[18]; //exchange() (sell swGHO for stkGHO_PT, fixing the rate)
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 
-        address[] memory targets = new address[](3);
-        targets[0] = getAddress(sourceChain, "spectra_stkGHO"); //swToken approves PT
-        targets[1] = getAddress(sourceChain, "spectra_stkGHO_PT"); //depositIBT
-        targets[2] = getAddress(sourceChain, "spectra_stkGHO_Pool"); //exchange
+        address[] memory targets = new address[](4);
+        targets[0] = getAddress(sourceChain, "stkGHO"); //approve swGHO to spend our stkGHO to wrap it
+        targets[1] = getAddress(sourceChain, "spectra_stkGHO"); //wrap
+        targets[2] = getAddress(sourceChain, "spectra_stkGHO"); //approve curve pool
+        targets[3] = getAddress(sourceChain, "spectra_stkGHO_Pool"); //exchange in curve pool swToken -> PT
 
-        bytes[] memory targetData = new bytes[](3);
+        bytes[] memory targetData = new bytes[](4);
         targetData[0] = abi.encodeWithSignature(
-            "approve(address,uint256)", getAddress(sourceChain, "spectra_stkGHO_PT"), type(uint256).max
+            "approve(address,uint256)", getAddress(sourceChain, "spectra_stkGHO"), type(uint256).max
         );
-        targetData[1] =
-            abi.encodeWithSignature("depositIBT(uint256,address)", 100e18, getAddress(sourceChain, "boringVault"));
-        targetData[2] =
-            abi.encodeWithSignature("exchange(int128,int128,uint256,uint256)", int128(0), int128(1), 50e18, 0);
+        targetData[1] = 
+            abi.encodeWithSignature( "wrap(uint256,address)", 1e8, address(boringVault));  
+        targetData[2] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "spectra_stkGHO_Pool"), type(uint256).max
+        );
+        targetData[3] =
+            abi.encodeWithSignature("exchange(uint256,uint256,uint256,uint256)", 0, 1, 50e18, 0);
 
 
-        address[] memory decodersAndSanitizers = new address[](3);
+        address[] memory decodersAndSanitizers = new address[](4);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[2] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[3] = rawDataDecoderAndSanitizer;
 
-        uint256[] memory values = new uint256[](3);
+        uint256[] memory values = new uint256[](4);
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
+        
+        uint256 ptBalance = getERC20(sourceChain, "spectra_stkGHO_PT").balanceOf(address(boringVault)); 
+        console.log("PT BALANCE AFTER SWAP: ", ptBalance); 
+        assertGt(ptBalance, 0); 
+
+    }
+
+    function testAddLiquidity() external {
+        deal(getAddress(sourceChain, "GHO"), address(boringVault), 100_000e18);
+        deal(getAddress(sourceChain, "stkGHO"), address(boringVault), 100_000e18);
+        deal(getAddress(sourceChain, "spectra_stkGHO"), address(boringVault), 1000e18);
+        deal(getAddress(sourceChain, "spectra_stkGHO_PT"), address(boringVault), 1000e18);
+
+        ManageLeaf[] memory leafs = new ManageLeaf[](32);
+        _addSpectraLeafs(
+            leafs, 
+            getAddress(sourceChain, "spectra_stkGHO_Pool"),
+            getAddress(sourceChain, "spectra_stkGHO_PT"),
+            getAddress(sourceChain, "spectra_stkGHO_YT"),
+            getAddress(sourceChain, "spectra_stkGHO") //swToken
+        );
+
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+
+        _generateTestLeafs(leafs, manageTree); 
+
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+        
+        // withdraw(), mint(), and redeem() are not implemented in this Spectra contract
+        ManageLeaf[] memory manageLeafs = new ManageLeaf[](4);
+        manageLeafs[0] = leafs[4]; //approve swGHO in curve pool
+        manageLeafs[1] = leafs[5]; //approve swGHO_PT in curve pool
+        manageLeafs[2] = leafs[19]; //add_liquidity
+        manageLeafs[3] = leafs[20]; //remove_liqudity
+
+        bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
+
+        address[] memory targets = new address[](4);
+        targets[0] = getAddress(sourceChain, "spectra_stkGHO"); //swToken approves PT
+        targets[1] = getAddress(sourceChain, "spectra_stkGHO_PT"); //depositIBT
+        targets[2] = getAddress(sourceChain, "spectra_stkGHO_Pool"); //add_liquidity
+        targets[3] = getAddress(sourceChain, "spectra_stkGHO_Pool"); //remove_liquidity
+
+        bytes[] memory targetData = new bytes[](4);
+        targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "spectra_stkGHO_Pool"), type(uint256).max
+        );
+        targetData[1] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "spectra_stkGHO_Pool"), type(uint256).max
+        );
+
+        uint256[2] memory amounts; //fixed array size
+        amounts[0] = 1e18;
+        amounts[1] = 1e18;
+        targetData[2] = abi.encodeWithSignature("add_liquidity(uint256[2],uint256)", amounts, 0);
+        
+        amounts[0] = 0; 
+        amounts[1] = 0; 
+        targetData[3] =
+            abi.encodeWithSignature("remove_liquidity(uint256,uint256[2])", 1e18, amounts);
+
+
+        address[] memory decodersAndSanitizers = new address[](4);
+        decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[2] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[3] = rawDataDecoderAndSanitizer;
+
+        uint256[] memory values = new uint256[](4);
+
+        manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
+        
+        //check that we have some remaining balance of lp tokens
+        uint256 lpBalance = ERC20(0xa62cA1514944cC858a52E672DF52FDE0fda44A20).balanceOf(address(boringVault)); 
+        console.log("LP BALANCE AFTER ADD AND REMOVE: ", lpBalance); 
+        assertGt(lpBalance, 0); 
 
     }
 

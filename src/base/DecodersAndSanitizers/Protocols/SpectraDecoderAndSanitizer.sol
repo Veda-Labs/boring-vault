@@ -7,18 +7,11 @@ import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols
 
 
 /// @dev some Spectra contracts implement some of the ERC4626 standard, some revert on calling. Ex. A contract might implement `deposit()` and `withdraw()`, but not `mint()` or `redeem()`. `wrap()` and `unwrap()` should therefore be used most of the time. 
-abstract contract SpectraDecoderAndSanitizer is 
-    BaseDecoderAndSanitizer, 
-    ERC4626DecoderAndSanitizer, 
-    CurveDecoderAndSanitizer 
-{
-    //Spectra pools are Curve Pools with 2 coins, sw-ERC4626, and PT
-    //functions for interacting with it are already in the Curve Decoder
-    //add_liquidity, remove_liquidity
+abstract contract SpectraDecoderAndSanitizer is BaseDecoderAndSanitizer {
 
     //============================== Principal Token ===============================
     
-    function deposit(uint256, address receiver) external pure override (ERC4626DecoderAndSanitizer, CurveDecoderAndSanitizer) returns (bytes memory addressesFound) {
+    function deposit(uint256 /*amount*/, address receiver) external pure virtual returns (bytes memory addressesFound) {
         addressesFound = abi.encodePacked(receiver); 
     }
     
@@ -92,4 +85,18 @@ abstract contract SpectraDecoderAndSanitizer is
     function unwrap(uint256, /*vaultShares*/ address receiver, address owner) external pure returns (bytes memory addressesFound) {
         addressesFound = abi.encodePacked(receiver, owner); 
     }
+
+    //============================== Pool Functions ===============================
+    
+    function exchange(uint256 /*i*/, uint256 /*j*/, uint256 /*dx*/, uint256 /*dy*/) external pure returns (bytes memory addressesFound) {
+        return addressesFound; 
+    } 
+
+    function add_liquidity(uint256[2] memory /*amounts*/, uint256 /*minOut*/) external pure returns (bytes memory addressesFound) {
+        return addressesFound; 
+    }
+
+    function remove_liquidity(uint256 /*lpAmount*/, uint256[2] memory /*minAmountsOut*/) external pure returns (bytes memory addressesFound) {
+        return addressesFound; 
+    } 
 }
