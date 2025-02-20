@@ -1464,6 +1464,9 @@ contract ChainValues {
 
         values[sonicMainnet]["scUSD_USDC_PoolId"] = 0xcd4d2b142235d5650ffa6a38787ed0b7d7a51c0c000000000000000000000037;
         values[sonicMainnet]["scETH_WETH_PoolId"] = 0xe54dd58a6d4e04687f2034dd4ddab49da55f8aff00000000000000000000007c;
+        values[sonicMainnet]["USDC_stS_PoolId"] =  0x713fb5036dc70012588d77a5b066f1dd05c712d7000200000000000000000041;
+        values[sonicMainnet]["USDC_wS_PoolId"] =  0xfc127dfc32b7739a7cfff7ed19e4c4ab3221953a0002000000000000000000a4;
+        values[sonicMainnet]["stS_BEETS_PoolId"] =  0x10ac2f9dae6539e77e372adb14b1bf8fbd16b3e8000200000000000000000005;
 
         // Tellers
         values[sonicMainnet]["scUSDTeller"] = 0x358CFACf00d0B4634849821BB3d1965b472c776a.toBytes32();
@@ -1484,7 +1487,6 @@ contract ChainValues {
         values[sonicMainnet]["sonicGateway"] = 0x9Ef7629F9B930168b76283AdD7120777b3c895b3.toBytes32();
         values[sonicMainnet]["circleTokenAdapter"] = 0xe6DCD54B4CDe2e9E935C22F57EBBBaaF5cc3BC8a.toBytes32();
 
-
         //Rings
         values[sonicMainnet]["scUSDVoter"] = 0xF365C45B6913BE7Ab74C970D9227B9D0dfF44aFb.toBytes32(); 
         values[sonicMainnet]["scETHVoter"] = 0x9842be0f52569155fA58fff36E772bC79D92706e.toBytes32(); 
@@ -1492,6 +1494,20 @@ contract ChainValues {
         // Silo
         values[sonicMainnet]["siloRouter"] = 0x22AacdEc57b13911dE9f188CF69633cC537BdB76.toBytes32();
         values[sonicMainnet]["silo_stS_wS_config"] = 0x78C246f67c8A6cE03a1d894d4Cf68004Bd55Deea.toBytes32();
+        values[sonicMainnet]["silo_wS_USDC_id8_config"] = 0x4915F6d3C9a7B20CedFc5d3854f2802f30311d13.toBytes32();
+        values[sonicMainnet]["silo_wS_USDC_id20_config"] = 0x062A36Bbe0306c2Fd7aecdf25843291fBAB96AD2.toBytes32();
+        values[sonicMainnet]["silo_USDC_wstkscUSD_id23_config"] = 0xbC24c0F594ECA381956895957c771437D61400D3.toBytes32();
+
+         // Curve
+        values[sonicMainnet]["curve_USDC_scUSD_pool"] = 0x2Fd7CCDa50ED88fe17E15f3d5D8d51da4CCB43F3.toBytes32();
+        values[sonicMainnet]["curve_USDC_scUSD_gauge"] = 0x12F89168C995e54Ec2ce9ee461D663a6dC72793A.toBytes32();
+
+         // Euler
+        values[sonicMainnet]["ethereumVaultConnector"] = 0x4860C903f6Ad709c3eDA46D3D502943f184D4315.toBytes32();
+        values[sonicMainnet]["euler_scETH_MEV"] = 0x0806af1762Bdd85B167825ab1a64E31CF9497038.toBytes32();
+        values[sonicMainnet]["euler_WETH_MEV"] = 0xa5cd24d9792F4F131f5976Af935A505D19c8Db2b.toBytes32();
+        values[sonicMainnet]["euler_scUSD_MEV"] = 0xB38D431e932fEa77d1dF0AE0dFE4400c97e597B8.toBytes32();
+        values[sonicMainnet]["euler_USDC_MEV"] = 0x196F3C7443E940911EE2Bb88e019Fd71400349D9.toBytes32();
 
     }
 

@@ -31,6 +31,7 @@ import {LombardBtcDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Lomb
 import {EtherFiBtcDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EtherFiBtcDecoderAndSanitizer.sol";
 import {SymbioticLRTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SymbioticLRTDecoderAndSanitizer.sol";
 import {eBTCBerachainDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/eBTCBerachainDecoderAndSanitizer.sol"; 
+import {StakedSonicDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/StakedSonicDecoderAndSanitizer.sol";
 
 import {BoringDrone} from "src/base/Drones/BoringDrone.sol";
 
@@ -47,7 +48,7 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("mainnet");
+        vm.createSelectFork("sonicMainnet");
     }
 
     function run() external {
@@ -55,9 +56,10 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(SonicMainnetDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(uniswapV3NonFungiblePositionManager);
-        deployer.deployContract("Sonic BTC Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        address sonicUniV3 = 0x743E03cceB4af2efA3CC76838f6E8B50B63F184c;
+        creationCode = type(StakedSonicDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(sonicUniV3);
+        deployer.deployContract("Staked Sonic Decoder And Sanitizer V0.1", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }

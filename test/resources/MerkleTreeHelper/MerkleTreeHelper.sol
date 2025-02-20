@@ -3900,6 +3900,75 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         }
     }
 
+    function _addBalancerSwapLeafs(ManageLeaf[] memory leafs, bytes32 poolId) internal {
+        BalancerVault bv = BalancerVault(getAddress(sourceChain, "balancerVault"));
+
+        (ERC20[] memory tokens,,) = bv.getPoolTokens(poolId);
+        address pool = _getPoolAddressFromPoolId(poolId);
+        uint256 tokenCount;
+        require(tokens.length <= 2, "Swaps for token pools above 2 are not supported"); 
+        for (uint256 i; i < tokens.length; i++) {
+            if (
+                address(tokens[i]) != pool
+                    && !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][address(tokens[i])][getAddress(
+                        sourceChain, "balancerVault"
+                    )]
+            ) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    address(tokens[i]),
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve Balancer Vault to spend ", tokens[i].symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "balancerVault");
+                ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][address(tokens[i])][getAddress(
+                    sourceChain, "balancerVault"
+                )] = true;
+            }
+            tokenCount++;
+        }
+
+        unchecked {
+            leafIndex++; 
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "balancerVault"),
+            false,
+            "swap((bytes32,uint8,address,address,uint256,bytes),(address,bool,address,bool),uint256,uint256)",
+            new address[](5),
+            string.concat("Swap ", tokens[0].symbol(), " for ", tokens[1].symbol(), " using Balancer"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = pool; 
+        leafs[leafIndex].argumentAddresses[1] = address(tokens[0]); 
+        leafs[leafIndex].argumentAddresses[2] = address(tokens[1]);
+        leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "boringVault");  
+        leafs[leafIndex].argumentAddresses[4] = getAddress(sourceChain, "boringVault"); 
+
+        unchecked {
+            leafIndex++; 
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "balancerVault"),
+            false,
+            "swap((bytes32,uint8,address,address,uint256,bytes),(address,bool,address,bool),uint256,uint256)",
+            new address[](5),
+            string.concat("Swap ", tokens[1].symbol(), " for ", tokens[0].symbol(), " using Balancer"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = pool; 
+        leafs[leafIndex].argumentAddresses[1] = address(tokens[1]);
+        leafs[leafIndex].argumentAddresses[2] = address(tokens[0]);
+        leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "boringVault");  
+        leafs[leafIndex].argumentAddresses[4] = getAddress(sourceChain, "boringVault"); 
+
+    }
+
     // ========================================= Aura =========================================
 
     function _addAuraLeafs(ManageLeaf[] memory leafs, address auraDeposit) internal {

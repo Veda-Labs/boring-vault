@@ -18,7 +18,7 @@ contract CreateStakedSonicUSDMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0x4D85bA8c3918359c78Ed09581E5bc7578ba932ba;
     address public managerAddress = 0x5F7f5205A3E7c63c3bd287EecBe7879687D4c698;
     address public accountantAddress = 0x13cCc810DfaA6B71957F2b87060aFE17e6EB8034;
-    address public rawDataDecoderAndSanitizer = 0x8A6790A3665167f3bCdfB9A3EECE92F9443c106c;
+    address public rawDataDecoderAndSanitizer = 0xf1BeC14BB66F5349Fe42C14fEb66BA1fa53F869b;
 
     function setUp() external {}
 
@@ -37,17 +37,48 @@ contract CreateStakedSonicUSDMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, sonicMainnet, "accountantAddress", accountantAddress);
         setAddress(false, sonicMainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](16);
+        ManageLeaf[] memory leafs = new ManageLeaf[](256);
 
         // ========================== Beets ==========================
         _addBalancerLeafs(
             leafs, getBytes32(sourceChain, "scUSD_USDC_PoolId"), getAddress(sourceChain, "scUSD_USDC_gauge")
         );
+        _addBalancerSwapLeafs(leafs, getBytes32(sourceChain, "USDC_stS_PoolId")); //USDC, stS 
+        _addBalancerSwapLeafs(leafs, getBytes32(sourceChain, "USDC_wS_PoolId")); //USDC, wS
+        _addBalancerSwapLeafs(leafs, getBytes32(sourceChain, "stS_BEETS_PoolId")); //stS, BEETS (swap BEETS for stS, then USDC, swap function leaves only support 2 token pools atm)
+
 
         // ========================== Teller ==========================
         ERC20[] memory tellerAssets = new ERC20[](1);
         tellerAssets[0] = getERC20(sourceChain, "USDC");
         _addTellerLeafs(leafs, getAddress(sourceChain, "scUSDTeller"), tellerAssets, false);
+
+         // ========================== Silo ==========================
+
+        _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_wS_USDC_id8_config"));
+        _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_wS_USDC_id20_config"));
+        _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_USDC_wstkscUSD_id23_config"));
+
+        // ========================== Curve =========================
+
+        _addCurveLeafs(leafs, getAddress(sourceChain, "curve_USDC_scUSD_pool"), 2, getAddress(sourceChain, "curve_USDC_scUSD_gauge"));
+        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "curve_USDC_scUSD_pool"));
+
+        // ========================== Euler =========================
+
+        ERC4626[] memory depositVaults = new ERC4626[](2);
+        depositVaults[0] = ERC4626(getAddress(sourceChain, "euler_scUSD_MEV"));
+        depositVaults[1] = ERC4626(getAddress(sourceChain, "euler_USDC_MEV"));
+
+        address[] memory subaccounts = new address[](1);
+        subaccounts[0] = address(boringVault);
+
+        _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
+
+        // ========================== Native =========================
+        _addNativeLeafs(leafs, getAddress(sourceChain, "wS"));  
+
+        // ========================== Verify =========================
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
