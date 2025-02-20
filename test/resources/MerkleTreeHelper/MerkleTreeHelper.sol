@@ -6959,6 +6959,212 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
     }
 
+       // ========================================= Resolv =========================================
+    function _addAllResolvLeafs(ManageLeaf[] memory leafs) internal {
+        _addResolvUsrExternalRequestsManagerLeafs(leafs);
+        _addResolvStUSRLeafs(leafs);
+        _addResolvWstUSRLeafs(leafs);
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "wstUSR"))); 
+    }
+
+    function _addResolvUsrExternalRequestsManagerLeafs(ManageLeaf[] memory leafs) internal {
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "USDC"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve USDC to be spent by USR External Requests Manager"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "UsrExternalRequestsManager");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "USDT"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve USDT to be spent by USR External Requests Manager"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "UsrExternalRequestsManager");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "USR"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve USR to be spent by USR External Requests Manager"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "UsrExternalRequestsManager");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "UsrExternalRequestsManager"),
+            false,
+            "requestMint(address,uint256,uint256)",
+            new address[](1),
+            string.concat("Convert USDC to USR"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "USDC");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "UsrExternalRequestsManager"),
+            false,
+            "requestBurn(uint256,address,uint256)",
+            new address[](1),
+            string.concat("Convert USR to USDC"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "USDC");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "UsrExternalRequestsManager"),
+            false,
+            "requestMint(address,uint256,uint256)",
+            new address[](1),
+            string.concat("Convert USDT to USR"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "USDT");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "UsrExternalRequestsManager"),
+            false,
+            "requestBurn(uint256,address,uint256)",
+            new address[](1),
+            string.concat("Convert USR to USDT"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "USDT");
+
+    }
+
+    function _addResolvStUSRLeafs(ManageLeaf[] memory leafs) internal {
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "USR"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve USR to be converted to stUSR"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "stUSR");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "stUSR"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve stUSR to be converted to USR"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "stUSR");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "stUSR"),
+            false,
+            "deposit(uint256)",
+            new address[](0),
+            string.concat("Convert USR to stUSR"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "stUSR"),
+            false,
+            "withdraw(uint256)",
+            new address[](0),
+            string.concat("Convert stUSR to USR"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+    }
+
+    function _addResolvWstUSRLeafs(ManageLeaf[] memory leafs) internal {
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "stUSR"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve stUSR to be converted to wstUSR"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "wstUSR");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "wstUSR"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve wstUSR to be converted to stUSR"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "wstUSR");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "wstUSR"),
+            false,
+            "wrap(uint256)",
+            new address[](0),
+            string.concat("Convert stUSR to wstUSR"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "wstUSR"),
+            false,
+            "unwrap(uint256)",
+            new address[](0),
+            string.concat("Convert wstUSR to stUSR"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+    }
+
     // ========================================= Sky Money =========================================
     function _addAllSkyMoneyLeafs(ManageLeaf[] memory leafs) internal {
         _addSkyDaiConverterLeafs(leafs);
