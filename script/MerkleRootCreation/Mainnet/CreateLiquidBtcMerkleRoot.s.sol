@@ -18,7 +18,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0x5f46d540b6eD704C3c8789105F30E075AA900726;
     address public managerAddress = 0xaFa8c08bedB2eC1bbEb64A7fFa44c604e7cca68d;
     address public accountantAddress = 0xEa23aC6D7D11f6b181d6B98174D334478ADAe6b0;
-    address public rawDataDecoderAndSanitizer = 0x453E5dD3b6E851E7ffd3Ad9Bc2f2f88C5b1196D8;
+    address public rawDataDecoderAndSanitizer = 0xbB8D86916004cA6332E7a43Bc84f1bfF43A9Da07;
 
     function setUp() external {}
 
@@ -40,7 +40,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](1024);
 
         // ========================== UniswapV3 ==========================
-        address[] memory token0 = new address[](15);
+        address[] memory token0 = new address[](16);
         token0[0] = getAddress(sourceChain, "WBTC");
         token0[1] = getAddress(sourceChain, "WBTC");
         token0[2] = getAddress(sourceChain, "LBTC");
@@ -62,7 +62,9 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
 
         token0[14] = getAddress(sourceChain, "WBTC");
 
-        address[] memory token1 = new address[](15);
+        token0[15] = getAddress(sourceChain, "WETH");
+
+        address[] memory token1 = new address[](16);
         token1[0] = getAddress(sourceChain, "LBTC");
         token1[1] = getAddress(sourceChain, "cbBTC");
         token1[2] = getAddress(sourceChain, "cbBTC");
@@ -83,6 +85,8 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         token1[13] = getAddress(sourceChain, "USDT");
 
         token1[14] = getAddress(sourceChain, "eBTC");
+
+        token1[15] = getAddress(sourceChain, "beraSTONE");
 
         _addUniswapV3Leafs(leafs, token0, token1, false);
 
@@ -158,6 +162,8 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "LBTC_PT03_WBTC_86"));
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "EBTC_USDC_86"));
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "EBTC_USR_86"));
+        _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "Corn_eBTC_PT03_2025_WETH_915"));
+        _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "WBTC_USR_86"));
 
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "WBTC_USDC_86"));
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "WBTC_USDT_86"));
@@ -169,6 +175,8 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "wstUSR_PT03_USR_915"));
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "WBTC_USR_86"));
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "EBTC_USR_86"));
+        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "Corn_eBTC_PT03_2025_WETH_915"));
+        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "WBTC_USR_86"));
 
         // ========================== MorphoRewards ==========================
         _addMorphoRewardWrapperLeafs(leafs);
@@ -206,6 +214,9 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
             liquidBeraBTCTellerAssets[3] = getERC20(sourceChain, "eBTC");
             _addTellerLeafs(leafs, getAddress(sourceChain, "liquidBeraBTCTeller"), liquidBeraBTCTellerAssets, false);
         }
+
+        // ========================== Resolv ==========================
+        _addAllResolvLeafs(leafs);  
 
         // ========================== Verify ==========================
         
