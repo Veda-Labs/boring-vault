@@ -28,6 +28,8 @@ import {KarakDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols
 import {UsualMoneyDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UsualMoneyDecoderAndSanitizer.sol";
 import {MorphoRewardsDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/MorphoRewardsDecoderAndSanitizer.sol";
 import {TermFinanceDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TermFinanceDecoderAndSanitizer.sol";
+import {SpectraDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SpectraDecoderAndSanitizer.sol"; 
+import {ResolvDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ResolvDecoderAndSanitizer.sol"; 
 
 contract EtherFiLiquidUsdDecoderAndSanitizer is
     UniswapV3DecoderAndSanitizer,
@@ -51,7 +53,9 @@ contract EtherFiLiquidUsdDecoderAndSanitizer is
     KarakDecoderAndSanitizer,
     UsualMoneyDecoderAndSanitizer,
     MorphoRewardsDecoderAndSanitizer,
-    TermFinanceDecoderAndSanitizer
+    TermFinanceDecoderAndSanitizer,
+    SpectraDecoderAndSanitizer,
+    ResolvDecoderAndSanitizer
 {
     constructor(address _uniswapV3NonFungiblePositionManager)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
@@ -59,16 +63,29 @@ contract EtherFiLiquidUsdDecoderAndSanitizer is
 
     //============================== HANDLE FUNCTION COLLISIONS ===============================
     /**
-     * @notice BalancerV2, ERC4626, and Curve all specify a `deposit(uint256,address)`,
+     * @notice BalancerV2, ERC4626, Spectra, and Curve all specify a `deposit(uint256,address)`,
      *         all cases are handled the same way.
      */
     function deposit(uint256, address receiver)
         external
         pure
-        override(BalancerV2DecoderAndSanitizer, ERC4626DecoderAndSanitizer, CurveDecoderAndSanitizer)
+        override(BalancerV2DecoderAndSanitizer, ERC4626DecoderAndSanitizer, CurveDecoderAndSanitizer, SpectraDecoderAndSanitizer)
         returns (bytes memory addressesFound)
     {
         addressesFound = abi.encodePacked(receiver);
+    }
+
+    /**
+     * @notice Gearbox, Resolv both specify a `deposit(uint256)`,
+     *         all cases are handled the same way.
+     */
+    function deposit(uint256 /*amount*/)
+        external
+        pure
+        override(GearboxDecoderAndSanitizer, ResolvDecoderAndSanitizer)
+        returns (bytes memory addressesFound)
+    {
+        return addressesFound;
     }
 
     /**
@@ -95,7 +112,8 @@ contract EtherFiLiquidUsdDecoderAndSanitizer is
             BalancerV2DecoderAndSanitizer,
             CurveDecoderAndSanitizer,
             NativeWrapperDecoderAndSanitizer,
-            GearboxDecoderAndSanitizer
+            GearboxDecoderAndSanitizer,
+            ResolvDecoderAndSanitizer
         )
         returns (bytes memory addressesFound)
     {
@@ -123,7 +141,7 @@ contract EtherFiLiquidUsdDecoderAndSanitizer is
     function wrap(uint256)
         external
         pure
-        override(EtherFiDecoderAndSanitizer, LidoDecoderAndSanitizer)
+        override(EtherFiDecoderAndSanitizer, LidoDecoderAndSanitizer, ResolvDecoderAndSanitizer)
         returns (bytes memory addressesFound)
     {
         // Nothing to sanitize or return
@@ -137,10 +155,25 @@ contract EtherFiLiquidUsdDecoderAndSanitizer is
     function unwrap(uint256)
         external
         pure
-        override(EtherFiDecoderAndSanitizer, LidoDecoderAndSanitizer)
+        override(EtherFiDecoderAndSanitizer, LidoDecoderAndSanitizer, ResolvDecoderAndSanitizer)
         returns (bytes memory addressesFound)
     {
         // Nothing to sanitize or return
         return addressesFound;
     }
+
+    /**
+     * @notice Spectra, and UniswapV3 all specify a `burn(uint256)`,
+     *         all cases are handled the same way.
+     */
+    function burn(uint256)
+        external
+        pure
+        override(SpectraDecoderAndSanitizer, UniswapV3DecoderAndSanitizer)
+        returns (bytes memory addressesFound)
+    {
+        // Nothing to sanitize or return
+        return addressesFound;
+    }
+
 }
