@@ -7,12 +7,36 @@ import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols
 
 
 /// @dev some Spectra contracts implement some of the ERC4626 standard, some revert on calling. Ex. A contract might implement `deposit()` and `withdraw()`, but not `mint()` or `redeem()`. `wrap()` and `unwrap()` should therefore be used most of the time. 
-abstract contract SpectraDecoderAndSanitizer is BaseDecoderAndSanitizer {
+abstract contract SpectraDecoderAndSanitizer is BaseDecoderAndSanitizer, ERC4626DecoderAndSanitizer {
 
     //============================== Principal Token ===============================
     
-    function deposit(uint256 /*amount*/, address receiver) external pure virtual returns (bytes memory addressesFound) {
-        addressesFound = abi.encodePacked(receiver); 
+    //slippage protected functions
+    function deposit(
+        uint256 /*assets*/,
+        address ptReceiver,
+        address ytReceiver,
+        uint256 /*minShares*/
+    ) external pure returns (bytes memory addressesFound) {
+        addressesFound = abi.encodePacked(ptReceiver, ytReceiver); 
+    }
+
+    function redeem(
+        uint256 /*shares*/,
+        address receiver,
+        address owner,
+        uint256 /*minAssets*/
+    ) external pure return (bytes memory addressesFound) {
+        addressesFound = abi.encodePacked(receiver, owner); 
+    }
+
+    function withdraw(
+        uint256 /*assets*/,
+        address receiver,
+        address owner,
+        uint256 /*maxShares*/
+    ) external pure returns (bytes memory addressesFound) {
+        addressesFound = abi.encodePacked(receiver, owner); 
     }
     
     function depositIBT(uint256 /*ibts*/, address receiver) external pure returns (bytes memory addressesFound) {
