@@ -46,12 +46,11 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("swell");
-
+        vm.createSelectFork("sonicMainnet");
     }
 
     function run() external {
-        bytes memory creationCode;
+        // bytes memory creationCode;
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
@@ -90,9 +89,9 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //version is not synced w/ current deployed version anymore
         //deployer.deployContract("Staked BTCN Decoder and Sanitizer V0.4", creationCode, constructorArgs, 0);
 
-        creationCode = type(SwellEtherFiLiquidEthDecoderAndSanitizer).creationCode;
-        constructorArgs = hex"";
-        deployer.deployContract("EtherFi Liquid ETH Decoder and Sanitizer V0.3", creationCode, constructorArgs, 0);
+        // creationCode = type(SwellEtherFiLiquidEthDecoderAndSanitizer).creationCode;
+        // constructorArgs = hex"";
+        // deployer.deployContract("EtherFi Liquid ETH Decoder and Sanitizer V0.3", creationCode, constructorArgs, 0);
 
         //creationCode = type(sBTCNMaizenetDecoderAndSanitizer).creationCode;
         //constructorArgs = abi.encode(boringVault);
@@ -116,10 +115,10 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //deployer.deployContract("EtherFi Liquid BTC Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
         
 
-        address mainnetRecipeMarketHub = 0x783251f103555068c1E9D755f69458f39eD937c0;  
-        creationCode = type(LiquidBeraEthDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(uniswapV3NonFungiblePositionManager, mainnetRecipeMarketHub); 
-        deployer.deployContract("Liquid Bera ETH Decoder And Sanitizer V0.1", creationCode, constructorArgs, 0);
+        // address mainnetRecipeMarketHub = 0x783251f103555068c1E9D755f69458f39eD937c0;  
+        // creationCode = type(LiquidBeraEthDecoderAndSanitizer).creationCode;
+        // constructorArgs = abi.encode(uniswapV3NonFungiblePositionManager, mainnetRecipeMarketHub); 
+        // deployer.deployContract("Liquid Bera ETH Decoder And Sanitizer V0.1", creationCode, constructorArgs, 0);
 
         // creationCode = type(EtherFiLiquidEthDecoderAndSanitizer).creationCode;
         // constructorArgs = abi.encode(uniswapV3NonFungiblePositionManager); 
@@ -144,9 +143,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         // deployer.deployContract("PancakeSwapV3 Decoder And Sanitizer V0.1", creationCode, constructorArgs, 0);
 
         //creationCode = type(EtherFiLiquidEthDecoderAndSanitizer).creationCode;
-        //constructorArgs = abi.encode(uniswapV3NonFungiblePositionManager);
+        // constructorArgs = abi.encode(uniswapV3NonFungiblePositionManager);
         //deployer.deployContract("EtherFi Liquid ETH Decoder And Sanitizer V0.8", creationCode, constructorArgs, 0);
-
 
         vm.stopBroadcast();
     }
