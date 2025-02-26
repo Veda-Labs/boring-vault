@@ -1,242 +1,215 @@
 {
   "Roles": {
-    "Manager": [1, 4],
-    "SniperMicroManager": [7],
-    "AtomicQueueSolver": [12],
-    "Strategist": [7, 10],
-    "Strategist 2": [7, 10],
-    "Admin": [9, 15, 17],
-    "Sniper": [7],
-    "0x7aCDF2012aAC69D70B86677FE91eb66e08961880": [100],
-    "0x5401b8620E5FB570064CA9114fd1e135fd77D57c": [12],
-    "CurrentTeller": [2, 3],
-    "0xc86cc613AA22CA1d476AEBA2c3C437bAc63eBFe7": [100],
-    "0x96Af5d9e4d01FB892FD2D76bfC0e3C07AEcf8b6B": [100],
-    "Timelock": [8],
-    "Pauser": [5],
-    "EtherFi Pauser": [14, 16, 20],
-    "Hypernative Pauser": [14, 16, 20],
-    "Teller": [2, 3],
-    "BoringQueue": [32],
-    "FastBoringQueue": [32],
-    "BoringQueueSolver": [12, 31],
-    "FastBoringQueueSolver": [12, 31],
-    "Dev": [33],
-    "BoringQueueSolverEOA": [33]
+      "Manager": [1, 4],
+      "AtomicQueueSolver": [12],
+      "Strategist": [7, 10],
+      "Strategist 2": [7, 10],
+      "Admin": [5, 9, 15, 17],
+      "0x5401b8620E5FB570064CA9114fd1e135fd77D57c": [12],
+      "Timelock": [8, 9],
+      "Pauser": [5],
+      "EtherFi Pauser": [14, 16, 20],
+      "Hypernative Pauser": [14, 16, 20],
+      "Teller": [2, 3],
+      "BoringQueue": [32],
+      "FastBoringQueue": [32],
+      "BoringQueueSolver": [12, 31],
+      "FastBoringQueueSolver": [12, 31],
+      "Dev": [33],
+      "BoringQueueSolverEOA": [33],
+      "0xC673ef7791724f0dcca38adB47Fbb3AEF3DB6C80": [12],
+      "0x5f46d540b6eD704C3c8789105F30E075AA900726": [12]
   },
   "Role Capabilities": {
-    "1": {
-      "Vault": [
-        "manage(address,bytes,uint256)",
-        "manage(address[],bytes[],uint256[])"
-      ]
-    },
-    "2": { "Vault": ["enter(address,address,uint256,address,uint256)"] },
-    "3": { "Vault": ["exit(address,address,uint256,address,uint256)"] },
-    "4": {
-      "Manager": [
-        "manageVaultWithMerkleVerification(bytes32[][],address[],address[],bytes[],uint256[])"
-      ]
-    },
-    "5": {
-      "Manager": ["pause()", "unpause()"],
-      "Accountant": ["pause()", "unpause()"],
-      "CurrentTeller": ["pause()", "unpause()"],
-      "Teller": ["pause()", "unpause()"],
-      "BoringQueue": ["pause()", "unpause()"],
-      "FastBoringQueue": ["pause()", "unpause()"]
-    },
-    "7": {
-      "Manager": [
-        "manageVaultWithMerkleVerification(bytes32[][],address[],address[],bytes[],uint256[])"
-      ]
-    },
-    "8": {
-      "Vault": [
-        "setAuthority(address)",
-        "transferOwnership(address)",
-        "setBeforeTransferHook(address)"
-      ],
-      "Accountant": [
-        "resetHighwaterMark()",
-        "updatePerformanceFee(uint16)",
-        "setAuthority(address)",
-        "transferOwnership(address)",
-        "updateDelay(uint24)",
-        "updateUpper(uint16)",
-        "updateLower(uint16)",
-        "updateManagementFee(uint16)",
-        "updatePayoutAddress(address)",
-        "setRateProviderData(address,bool,address)"
-      ],
-      "Manager": [
-        "setAuthority(address)",
-        "transferOwnership(address)",
-        "setManageRoot(address,bytes32)"
-      ],
-      "CurrentTeller": [
-        "setAuthority(address)",
-        "transferOwnership(address)",
-        "updateAssetData(address,bool,bool,uint16)",
-        "setShareLockPeriod(uint64)"
-      ],
-      "Teller": [
-        "addChain(uint32,bool,bool,address,uint128)",
-        "allowMessagesFromChain(uint32,address)",
-        "allowMessagesToChain(uint32,address,uint128)",
-        "setChainGasLimit(uint32,uint128)",
-        "updateAssetData(address,bool,bool,uint16)",
-        "setShareLockPeriod(uint64)",
-        "setAuthority(address)",
-        "transferOwnership(address)"
-      ],
-      "BoringQueue": [
-        "rescueTokens(address,uint256,address,(uint96,address,address,uint128,uint128,uint40,uint24,uint24)[])",
-        "setAuthority(address)",
-        "transferOwnership(address)"
-      ],
-      "BoringQueueSolver": [
-        "setAuthority(address)",
-        "transferOwnership(address)"
-      ],
-      "FastBoringQueue": [
-        "rescueTokens(address,uint256,address,(uint96,address,address,uint128,uint128,uint40,uint24,uint24)[])",
-        "setAuthority(address)",
-        "transferOwnership(address)"
-      ],
-      "FastBoringQueueSolver": [
-        "setAuthority(address)",
-        "transferOwnership(address)"
-      ]
-    },
-    "9": {
-      "Accountant": ["pause()", "unpause()"],
-      "Manager": ["pause()", "unpause()"],
-      "CurrentTeller": ["pause()", "unpause()"],
-      "Teller": [
-        "removeChain(uint32)",
-        "stopMessagesFromChain(uint32)",
-        "stopMessagesToChain(uint32)",
-        "setOutboundRateLimits((uint32,uint256,uint256)[])",
-        "setInboundRateLimits((uint32,uint256,uint256)[])",
-        "pause()",
-        "unpause()"
-      ],
-      "BoringQueue": [
-        "updateWithdrawAsset(address,uint24,uint24,uint16,uint16,uint96)",
-        "stopWithdrawsInAsset(address)",
-        "pause()",
-        "unpause()"
-      ],
-      "FastBoringQueue": [
-        "updateWithdrawAsset(address,uint24,uint24,uint16,uint16,uint96)",
-        "stopWithdrawsInAsset(address)",
-        "pause()",
-        "unpause()"
-      ]
-    },
-    "10": {
-      "CurrentTeller": [
-        "refundDeposit(uint256,address,address,uint256,uint256,uint256,uint256)",
-        "updateAssetData(address,bool,bool,uint16)"
-      ],
-      "Teller": [
-        "updateAssetData(address,bool,bool,uint16)",
-        "refundDeposit(uint256,address,address,uint256,uint256,uint256,uint256)"
-      ],
-      "BoringQueue": [
-        "stopWithdrawsInAsset(address)",
-        "cancelUserWithdraws((uint96,address,address,uint128,uint128,uint40,uint24,uint24)[])"
-      ],
-      "FastBoringQueue": [
-        "stopWithdrawsInAsset(address)",
-        "cancelUserWithdraws((uint96,address,address,uint128,uint128,uint40,uint24,uint24)[])"
-      ]
-    },
-    "12": {
-      "CurrentTeller": [
-        "bulkDeposit(address,uint256,uint256,address)",
-        "bulkWithdraw(address,uint256,uint256,address)"
-      ],
-      "Teller": [
-        "bulkDeposit(address,uint256,uint256,address)",
-        "bulkWithdraw(address,uint256,uint256,address)"
-      ]
-    },
-    "14": { "Pauser": ["pauseSingle(address)", "pauseMultiple(address[])"] },
-    "15": {
-      "Pauser": ["unpauseSingle(address)", "unpauseMultiple(address[])"]
-    },
-    "16": { "Pauser": ["pauseAll()"] },
-    "17": { "Pauser": ["unpauseAll()"] },
-    "18": { "Pauser": ["senderPause()"] },
-    "19": { "Pauser": ["senderUnpause()"] },
-    "20": { "Teller": ["0xd555f368"] },
-    "31": {
-      "BoringQueue": [
-        "solveOnChainWithdraws((uint96,address,address,uint128,uint128,uint40,uint24,uint24)[],bytes,address)"
-      ],
-      "FastBoringQueue": [
-        "solveOnChainWithdraws((uint96,address,address,uint128,uint128,uint40,uint24,uint24)[],bytes,address)"
-      ]
-    },
-    "32": {
-      "BoringQueueSolver": [
-        "boringSolve(address,address,address,uint256,uint256,bytes)"
-      ],
-      "FastBoringQueueSolver": [
-        "boringSolve(address,address,address,uint256,uint256,bytes)"
-      ]
-    },
-    "33": {
-      "BoringQueue": [
-        "solveOnChainWithdraws((uint96,address,address,uint128,uint128,uint40,uint24,uint24)[],bytes,address)"
-      ],
-      "BoringQueueSolver": [
-        "boringRedeemSolve((uint96,address,address,uint128,uint128,uint40,uint24,uint24)[],address,bool)",
-        "boringRedeemMintSolve((uint96,address,address,uint128,uint128,uint40,uint24,uint24)[],address,address,address,bool)"
-      ],
-      "FastBoringQueue": [
-        "solveOnChainWithdraws((uint96,address,address,uint128,uint128,uint40,uint24,uint24)[],bytes,address)"
-      ],
-      "FastBoringQueueSolver": [
-        "boringRedeemSolve((uint96,address,address,uint128,uint128,uint40,uint24,uint24)[],address,bool)",
-        "boringRedeemMintSolve((uint96,address,address,uint128,uint128,uint40,uint24,uint24)[],address,address,address,bool)"
-      ]
-    },
-    "100": { "CurrentTeller": ["bulkDeposit(address,uint256,uint256,address)"] }
+      "1": {
+          "Vault": [
+              "manage(address,bytes,uint256)",
+              "manage(address[],bytes[],uint256[])"
+          ]
+      },
+      "2": {"Vault": ["enter(address,address,uint256,address,uint256)"]},
+      "3": {"Vault": ["exit(address,address,uint256,address,uint256)"]},
+      "4": {
+          "Manager": [
+              "manageVaultWithMerkleVerification(bytes32[][],address[],address[],bytes[],uint256[])"
+          ]
+      },
+      "5": {
+          "Manager": ["pause()", "unpause()"],
+          "Accountant": ["pause()", "unpause()"],
+          "Teller": ["pause()", "unpause()"],
+          "BoringQueue": ["pause()", "unpause()"],
+          "FastBoringQueue": ["pause()", "unpause()"]
+      },
+      "7": {
+          "Manager": [
+              "manageVaultWithMerkleVerification(bytes32[][],address[],address[],bytes[],uint256[])"
+          ]
+      },
+      "8": {
+          "Vault": [
+              "setAuthority(address)",
+              "transferOwnership(address)",
+              "setBeforeTransferHook(address)"
+          ],
+          "Accountant": [
+              "resetHighwaterMark()",
+              "updatePerformanceFee(uint16)",
+              "setAuthority(address)",
+              "transferOwnership(address)",
+              "updateDelay(uint24)",
+              "updateUpper(uint16)",
+              "updateLower(uint16)",
+              "updateManagementFee(uint16)",
+              "updatePayoutAddress(address)",
+              "setRateProviderData(address,bool,address)"
+          ],
+          "Manager": [
+              "setAuthority(address)",
+              "transferOwnership(address)",
+              "setManageRoot(address,bytes32)"
+          ],
+          "Teller": [
+              "addChain(uint32,bool,bool,address,uint128)",
+              "allowMessagesFromChain(uint32,address)",
+              "allowMessagesToChain(uint32,address,uint128)",
+              "setChainGasLimit(uint32,uint128)",
+              "updateAssetData(address,bool,bool,uint16)",
+              "setShareLockPeriod(uint64)",
+              "setAuthority(address)",
+              "transferOwnership(address)",
+              "setDelegate(address)"
+          ],
+          "BoringQueue": [
+              "rescueTokens(address,uint256,address,(uint96,address,address,uint128,uint128,uint40,uint24,uint24)[])",
+              "setAuthority(address)",
+              "transferOwnership(address)"
+          ],
+          "BoringQueueSolver": [
+              "setAuthority(address)",
+              "transferOwnership(address)"
+          ],
+          "FastBoringQueue": [
+              "rescueTokens(address,uint256,address,(uint96,address,address,uint128,uint128,uint40,uint24,uint24)[])",
+              "setAuthority(address)",
+              "transferOwnership(address)"
+          ],
+          "FastBoringQueueSolver": [
+              "setAuthority(address)",
+              "transferOwnership(address)"
+          ]
+      },
+      "9": {
+          "Accountant": ["pause()", "unpause()"],
+          "Manager": ["pause()", "unpause()"],
+          "Teller": [
+              "removeChain(uint32)",
+              "stopMessagesFromChain(uint32)",
+              "stopMessagesToChain(uint32)",
+              "setOutboundRateLimits((uint32,uint256,uint256)[])",
+              "setInboundRateLimits((uint32,uint256,uint256)[])",
+              "pause()",
+              "unpause()"
+          ],
+          "BoringQueue": [
+              "updateWithdrawAsset(address,uint24,uint24,uint16,uint16,uint96)",
+              "stopWithdrawsInAsset(address)",
+              "pause()",
+              "unpause()"
+          ],
+          "FastBoringQueue": [
+              "updateWithdrawAsset(address,uint24,uint24,uint16,uint16,uint96)",
+              "stopWithdrawsInAsset(address)",
+              "pause()",
+              "unpause()"
+          ]
+      },
+      "10": {
+          "Teller": [
+              "updateAssetData(address,bool,bool,uint16)",
+              "refundDeposit(uint256,address,address,uint256,uint256,uint256,uint256)"
+          ],
+          "BoringQueue": [
+              "stopWithdrawsInAsset(address)",
+              "cancelUserWithdraws((uint96,address,address,uint128,uint128,uint40,uint24,uint24)[])"
+          ],
+          "FastBoringQueue": [
+              "stopWithdrawsInAsset(address)",
+              "cancelUserWithdraws((uint96,address,address,uint128,uint128,uint40,uint24,uint24)[])"
+          ]
+      },
+      "12": {
+          "Teller": [
+              "bulkDeposit(address,uint256,uint256,address)",
+              "bulkWithdraw(address,uint256,uint256,address)"
+          ]
+      },
+      "14": {"Pauser": ["pauseSingle(address)", "pauseMultiple(address[])"]},
+      "15": {"Pauser": ["unpauseSingle(address)", "unpauseMultiple(address[])"]},
+      "16": {"Pauser": ["pauseAll()"]},
+      "17": {"Pauser": ["unpauseAll()"]},
+      "18": {"Pauser": ["senderPause()"]},
+      "19": {"Pauser": ["senderUnpause()"]},
+      "20": {
+          "Teller": [
+              "stopMessagesFromChain(uint32)",
+              "stopMessagesToChain(uint32)"
+          ]
+      },
+      "31": {
+          "BoringQueue": [
+              "solveOnChainWithdraws((uint96,address,address,uint128,uint128,uint40,uint24,uint24)[],bytes,address)"
+          ],
+          "FastBoringQueue": [
+              "solveOnChainWithdraws((uint96,address,address,uint128,uint128,uint40,uint24,uint24)[],bytes,address)"
+          ]
+      },
+      "32": {
+          "BoringQueueSolver": [
+              "boringSolve(address,address,address,uint256,uint256,bytes)"
+          ],
+          "FastBoringQueueSolver": [
+              "boringSolve(address,address,address,uint256,uint256,bytes)"
+          ]
+      },
+      "33": {
+          "BoringQueue": [
+              "solveOnChainWithdraws((uint96,address,address,uint128,uint128,uint40,uint24,uint24)[],bytes,address)"
+          ],
+          "BoringQueueSolver": ["5ff8a71f", "bc9961f7"],
+          "FastBoringQueue": [
+              "solveOnChainWithdraws((uint96,address,address,uint128,uint128,uint40,uint24,uint24)[],bytes,address)"
+          ],
+          "FastBoringQueueSolver": ["5ff8a71f", "bc9961f7"]
+      }
   },
   "Public Capabilities": {
-    "CurrentTeller": [
-      "deposit(address,uint256,uint256)",
-      "depositWithPermit(address,uint256,uint256,uint256,uint8,bytes32,bytes32)"
-    ],
-    "Teller": [
-      "deposit(address,uint256,uint256)",
-      "depositWithPermit(address,uint256,uint256,uint256,uint8,bytes32,bytes32)",
-      "depositAndBridge(address,uint256,uint256,address,bytes,address,uint256)",
-      "depositAndBridgeWithPermit(address,uint256,uint256,uint256,uint8,bytes32,bytes32,address,bytes,address,uint256)",
-      "bridge(uint96,address,bytes,address,uint256)"
-    ],
-    "BoringQueue": [
-      "requestOnChainWithdraw(address,uint128,uint16,uint24)",
-      "requestOnChainWithdrawWithPermit(address,uint128,uint16,uint24,uint256,uint8,bytes32,bytes32)",
-      "cancelOnChainWithdraw((uint96,address,address,uint128,uint128,uint40,uint24,uint24))",
-      "replaceOnChainWithdraw((uint96,address,address,uint128,uint128,uint40,uint24,uint24),uint16,uint24)"
-    ],
-    "BoringQueueSolver": [
-      "boringRedeemSelfSolve((uint96,address,address,uint128,uint128,uint40,uint24,uint24),address)",
-      "boringRedeemMintSelfSolve((uint96,address,address,uint128,uint128,uint40,uint24,uint24),address,address,address)"
-    ],
-    "FastBoringQueue": [
-      "requestOnChainWithdraw(address,uint128,uint16,uint24)",
-      "requestOnChainWithdrawWithPermit(address,uint128,uint16,uint24,uint256,uint8,bytes32,bytes32)",
-      "cancelOnChainWithdraw((uint96,address,address,uint128,uint128,uint40,uint24,uint24))",
-      "replaceOnChainWithdraw((uint96,address,address,uint128,uint128,uint40,uint24,uint24),uint16,uint24)"
-    ],
-    "FastBoringQueueSolver": [
-      "boringRedeemSelfSolve((uint96,address,address,uint128,uint128,uint40,uint24,uint24),address)",
-      "boringRedeemMintSelfSolve((uint96,address,address,uint128,uint128,uint40,uint24,uint24),address,address,address)"
-    ]
+      "Teller": [
+          "deposit(address,uint256,uint256)",
+          "depositWithPermit(address,uint256,uint256,uint256,uint8,bytes32,bytes32)",
+          "depositAndBridge(address,uint256,uint256,address,bytes,address,uint256)",
+          "depositAndBridgeWithPermit(address,uint256,uint256,uint256,uint8,bytes32,bytes32,address,bytes,address,uint256)",
+          "bridge(uint96,address,bytes,address,uint256)"
+      ],
+      "BoringQueue": [
+          "requestOnChainWithdraw(address,uint128,uint16,uint24)",
+          "requestOnChainWithdrawWithPermit(address,uint128,uint16,uint24,uint256,uint8,bytes32,bytes32)",
+          "cancelOnChainWithdraw((uint96,address,address,uint128,uint128,uint40,uint24,uint24))",
+          "replaceOnChainWithdraw((uint96,address,address,uint128,uint128,uint40,uint24,uint24),uint16,uint24)"
+      ],
+      "BoringQueueSolver": [
+          "boringRedeemSelfSolve((uint96,address,address,uint128,uint128,uint40,uint24,uint24),address)",
+          "boringRedeemMintSelfSolve((uint96,address,address,uint128,uint128,uint40,uint24,uint24),address,address,address)"
+      ],
+      "FastBoringQueue": [
+          "requestOnChainWithdraw(address,uint128,uint16,uint24)",
+          "requestOnChainWithdrawWithPermit(address,uint128,uint16,uint24,uint256,uint8,bytes32,bytes32)",
+          "cancelOnChainWithdraw((uint96,address,address,uint128,uint128,uint40,uint24,uint24))",
+          "replaceOnChainWithdraw((uint96,address,address,uint128,uint128,uint40,uint24,uint24),uint16,uint24)"
+      ],
+      "FastBoringQueueSolver": [
+          "boringRedeemSelfSolve((uint96,address,address,uint128,uint128,uint40,uint24,uint24),address)",
+          "boringRedeemMintSelfSolve((uint96,address,address,uint128,uint128,uint40,uint24,uint24),address,address,address)"
+      ]
   }
 }
