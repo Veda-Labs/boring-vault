@@ -15,7 +15,8 @@ contract CreateMultiChainTestMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     address public boringVault = 0xaA6D4Fb1FF961f8E52334f433974d40484e8be8F;
-    address public rawDataDecoderAndSanitizer = 0x749E7D288071Bda6BC41C731ca360934F9513B66;
+    address public rawDataDecoderAndSanitizer = 0xD03d4De8E8b47550fCF93898c7524E9e9A8aEc2D;
+    address public OdosDecoderAndSanitizerV2 = 0x2F1d20557c299Bb75401DFFB31a590d072459143;
     address public managerAddress = 0x744d1f71a6d064204b4c59Cf2BDCF9De9C6c3430;
     address public accountantAddress = 0x99c836937305693A5518819ED457B0d3dfE99785;
 
@@ -89,16 +90,21 @@ contract CreateMultiChainTestMerkleRootScript is Script, MerkleTreeHelper {
         _addLeafsFor1InchUniswapV3Swapping(leafs, getAddress(sourceChain, "wstETH_wETH_01"));
         _addLeafsFor1InchUniswapV3Swapping(leafs, getAddress(sourceChain, "wETH_weETH_05"));
 
-        // ========================== Euler ==========================
-        {
-            ERC4626[] memory depositVaults = new ERC4626[](1); 
-            depositVaults[0] = ERC4626(getAddress(sourceChain, "eulerPrimeWETH")); 
-            
-            address[] memory subaccounts = new address[](1); 
-            subaccounts[0] = address(boringVault); 
+        // ========================== lvlUSD ==========================
+        _addLevelLeafs(leafs);
 
-            _addEulerDepositLeafs(leafs, depositVaults, subaccounts); 
-        }
+        // ========================== Odos ==========================
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", OdosDecoderAndSanitizerV2);
+
+        address[] memory tokens = new address[](5);
+        tokens[0] = getAddress(sourceChain, "USDC");
+        tokens[1] = getAddress(sourceChain, "USDE");
+        tokens[2] = getAddress(sourceChain, "DAI");
+        tokens[3] = getAddress(sourceChain, "sDAI");
+        tokens[4] = getAddress(sourceChain, "lvlUSD");
+        _addOdosSwapLeafs(leafs, tokens);
+
+        _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
         string memory filePath = "./leafs/Mainnet/MultiChainTestMerkleRoot.json";
 
