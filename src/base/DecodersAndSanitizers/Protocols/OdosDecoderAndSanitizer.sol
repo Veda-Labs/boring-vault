@@ -20,7 +20,7 @@ abstract contract OdosDecoderAndSanitizer is BaseDecoderAndSanitizer {
         uint32 /*referralCode*/
     ) external pure virtual returns (bytes memory addressesFound) {
         
-        addressesFound = abi.encodePacked(tokenInfo.inputToken, tokenInfo.inputReceiver, tokenInfo.outputToken, tokenInfo.outputReceiver, executor); 
+        addressesFound = abi.encodePacked(tokenInfo.inputToken, tokenInfo.outputToken, tokenInfo.outputReceiver, executor); 
 
     }
 
@@ -150,7 +150,7 @@ abstract contract OdosDecoderAndSanitizer is BaseDecoderAndSanitizer {
             executor = odosRouter.addressList(executorLookup.tokenIndex);
         }
 
-        addressesFound = abi.encodePacked(tokenInfo.inputToken, tokenInfo.inputReceiver, tokenInfo.outputToken, tokenInfo.outputReceiver, executor); 
+        addressesFound = abi.encodePacked(tokenInfo.inputToken, tokenInfo.outputToken, tokenInfo.outputReceiver, executor); 
     }
 } 
 
