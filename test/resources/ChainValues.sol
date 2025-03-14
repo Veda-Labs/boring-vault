@@ -245,7 +245,8 @@ contract ChainValues {
         values[mainnet]["FXUSD"] = 0x085780639CC2cACd35E474e71f4d000e2405d8f6.toBytes32(); 
         values[mainnet]["FXN"] = 0x365AccFCa291e7D3914637ABf1F7635dB165Bb09.toBytes32(); 
         values[mainnet]["RLUSD"] = 0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD.toBytes32(); 
-
+        values[mainnet]["syrupUSDC"] = 0x80ac24aA929eaF5013f6436cdA2a7ba190f5Cc0b.toBytes32();
+        values[mainnet]["syrupUSDT"] = 0x356B8d89c1e1239Cbbb9dE4815c39A1474d5BA7D.toBytes32();
 
         // Rate providers
         values[mainnet]["WEETH_RATE_PROVIDER"] = 0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee.toBytes32();
@@ -1015,7 +1016,9 @@ contract ChainValues {
         values[mainnet]["scrollCustomERC20Gateway"] = 0x67260A8B73C5B77B55c1805218A42A7A6F98F515.toBytes32(); // sendMessage
 
         // Syrup
-        values[mainnet]["syrupRouter"] = 0x134cCaaA4F1e4552eC8aEcb9E4A2360dDcF8df76.toBytes32();
+        values[mainnet]["syrupRouter"] = 0x134cCaaA4F1e4552eC8aEcb9E4A2360dDcF8df76.toBytes32(); // keep nomenclature for compatibility
+        values[mainnet]["syrupRouterUSDC"] = 0x134cCaaA4F1e4552eC8aEcb9E4A2360dDcF8df76.toBytes32();
+        values[mainnet]["syrupRouterUSDT"] = 0xF007476Bb27430795138C511F18F821e8D1e5Ee2.toBytes32();
 
         // Satlayer
         values[mainnet]["satlayerPool"] = 0x42a856dbEBB97AbC1269EAB32f3bb40C15102819.toBytes32();

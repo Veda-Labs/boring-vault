@@ -7673,6 +7673,144 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
     }
 
+    // ========================================= Syrup =========================================
+    function _addAllSyrupLeafs(ManageLeaf[] memory leafs) internal {
+        _addSyrupRouterLeafs(leafs);
+        _addSyrupPoolLeafs(leafs);
+    }
+
+    function _addSyrupRouterLeafs(ManageLeaf[] memory leafs) internal {
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "USDC"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve USDC to be spent by USDC syrupRouter"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "syrupRouterUSDC");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "USDT"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve USDT to be spent by USDT syrupRouter"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "syrupRouterUSDT");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "syrupRouterUSDC"),
+            false,
+            "deposit(uint256,bytes32)",
+            new address[](0),
+            string.concat("Deposit USDC to syrupUSDC"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "syrupRouterUSDT"),
+            false,
+            "deposit(uint256,bytes32)",
+            new address[](0),
+            string.concat("Deposit USDT to syrupUSDT"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+    }
+
+    function _addSyrupPoolLeafs(ManageLeaf[] memory leafs) internal {
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "syrupUSDC"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve syrupUSDC to be redeemed for USDC"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "syrupUSDC");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "syrupUSDT"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve syrupUSDT to be redeemed for USDT"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "syrupUSDT");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "syrupUSDC"),
+            false,
+            "requestRedeem(uint256,address)",
+            new address[](1),
+            string.concat("Request redeem syrupUSDC for USDC"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "syrupUSDT"),
+            false,
+            "requestRedeem(uint256,address)",
+            new address[](1),
+            string.concat("Request redeem syrupUSDT for USDT"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "syrupUSDC"),
+            false,
+            "removeShares(uint256,address)",
+            new address[](1),
+            string.concat("Cancel syrupUSDC for USDC redemption request"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "syrupUSDT"),
+            false,
+            "removeShares(uint256,address)",
+            new address[](1),
+            string.concat("Cancel syrupUSDC for USDC redemption request"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+    }
+
     // ========================================= Golilocks =========================================
     function _addGoldiVaultLeafs(ManageLeaf[] memory leafs, address[] memory vaults) internal {
         for (uint256 i = 0; i < vaults.length; i++) {
