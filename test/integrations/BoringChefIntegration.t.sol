@@ -112,7 +112,7 @@ contract BoringChefIntegrationTest is Test, MerkleTreeHelper {
         rolesAuthority.setPublicCapability(address(boringVault), bytes4(0), true);
     }
 
-    function testBoringChefIntegration() external {
+    function testBoringChefClaimingIntegration() external {
         //deal(getAddress(sourceChain, "USDC"), address(boringVault), 100_000e6);
 
         // Set up mock test scenario
@@ -169,6 +169,71 @@ contract BoringChefIntegrationTest is Test, MerkleTreeHelper {
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
     }
 
+    function testBoringChefDistributeRewardsIntegration() external {
+        deal(getAddress(sourceChain, "BEETS"), address(boringVault), 1e8);
+        deal(getAddress(sourceChain, "wS"), address(boringVault), 100_000e18);
+
+        ManageLeaf[] memory leafs = new ManageLeaf[](4);
+
+        address[] memory rewardTokens = new address[](2);
+        rewardTokens[0] = getAddress(sourceChain, "BEETS");
+        rewardTokens[1] = getAddress(sourceChain, "wS");
+
+        uint256[] memory rewardAmounts = new uint256[](2);
+        rewardAmounts[0] = 1e8;
+        rewardAmounts[1] = 100_000e18;
+
+        // address[] memory rewardTokens0 = new address[](1);
+        // rewardTokens0[0] = getAddress(sourceChain, "BEETS");
+        // address[] memory rewardTokens1 = new address[](1);
+        // rewardTokens1[0] = getAddress(sourceChain, "wS");
+
+        _addBoringChefApproveRewardsLeafs(leafs, mockBoringChef, rewardTokens);
+        _addBoringChefDistributeRewardsLeaf(leafs, mockBoringChef, rewardTokens);
+        // _addBoringChefDistributeRewardsLeafs(leafs, boringVault, rewardTokens0);
+        // _addBoringChefDistributeRewardsLeafs(leafs, boringVault, rewardTokens1);
+
+
+        //string memory filePath = "./TestTEST.json";
+
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+
+        //_generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
+
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        ManageLeaf[] memory manageLeafs = new ManageLeaf[](3);
+        manageLeafs[0] = leafs[0]; //approve Beets
+        manageLeafs[1] = leafs[1]; //approve wS
+        manageLeafs[2] = leafs[2]; //distribute Beets and wS
+
+
+        (bytes32[][] memory manageProofs) = _getProofsUsingTree(manageLeafs, manageTree);
+
+        address[] memory targets = new address[](3);
+        targets[0] = getAddress(sourceChain, "BEETS"); //First reward token
+        targets[1] = getAddress(sourceChain, "wS"); //Second reward token
+        targets[2] = mockBoringChef; //BoringVault inheriting from BoringChef
+
+        bytes[] memory targetData = new bytes[](3);
+        targetData[0] =
+            abi.encodeWithSignature("approve(address,uint256)", mockBoringChef, type(uint256).max);
+        targetData[1] =
+            abi.encodeWithSignature("approve(address,uint256)", mockBoringChef, type(uint256).max); // TODO test with real user
+        targetData[2] =
+            abi.encodeWithSignature("distributeRewards(address[],uint256[],uint48[],uint48[])", 
+                rewardTokens, rewardAmounts, new uint48[](2), new uint48[](2));
+
+        uint256[] memory values = new uint256[](3);
+
+        address[] memory decodersAndSanitizers = new address[](3);
+        for (uint256 i = 0; i < decodersAndSanitizers.length; i++) {
+            decodersAndSanitizers[i] = rawDataDecoderAndSanitizer;
+        }
+
+        manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
+    }
+
     // ========================================= HELPER FUNCTIONS =========================================
 
     function _startFork(string memory rpcKey, uint256 blockNumber) internal returns (uint256 forkId) {
@@ -182,8 +247,10 @@ contract FullBoringChefDecoderAndSanitizer is BoringChefDecoderAndSanitizer {
 
 // Temporary Mock Contract for test until real BoringChef is deployed
 contract MockBoringChef {
+    using SafeTransferLib for ERC20;
     address beets = 0x2D0E0814E62D80056181F5cd932274405966e4f0;
     address wS = 0x039e2fB66102314Ce7b64Ce5Ce3E5183bc94aD38;
+    address mockSafe = address(1);
 
     mapping (uint256 => DecoderCustomTypes.Reward) public rewards;
 
@@ -200,5 +267,10 @@ contract MockBoringChef {
     function claimRewardsOnBehalfOfUser(uint256[] calldata /*rewardIds*/, address user) external {
         ERC20(beets).transfer(user, 2e7);
         ERC20(wS).transfer(user, 20_000e18);
+    }
+
+    function distributeRewards(address[] calldata tokens, uint256[] calldata amounts, uint48[] calldata startEpochs, uint48[] calldata endEpochs) external {
+        ERC20(beets).safeTransferFrom(msg.sender, mockSafe, amounts[0]);
+        ERC20(wS).safeTransferFrom(msg.sender, mockSafe, amounts[1]);
     }
 }

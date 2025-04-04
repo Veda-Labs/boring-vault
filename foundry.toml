@@ -52,7 +52,7 @@ mainnet = { key = "${ETHERSCAN_KEY}" }
 #optimism = { key = "${OPTIMISMSCAN_KEY}" }
 #base = { key = "${BASESCAN_KEY}" }
 #scroll = { key = "${SCROLLSCAN_KEY}" }
-sonicMainnet = { key = "${SONICSCAN_KEY}", chain = 146, url = "https://api.sonicscan.org/api" }
+#sonicMainnet = { key = "${SONICSCAN_KEY}", chain = 146, url = "https://api.sonicscan.org/api" }
 #swell = { key = "${SWELLSCAN_KEY}", chain = 1923, url = "https://explorer.swellnetwork.io:443/api/" }
 #berachainTestnet = { key = "${BERASCAN_TESTNET_KEY}", chain = 80000, url = "https://api.routescan.io/v2/network/testnet/evm/80000/etherscan" }
 #sepolia = { key = "${ETHERSCAN_KEY}" }

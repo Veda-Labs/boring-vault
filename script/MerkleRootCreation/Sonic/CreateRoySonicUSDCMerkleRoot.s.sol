@@ -17,7 +17,7 @@ contract CreateRoySonicUSDCMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0x45088fb2FfEBFDcf4dFf7b7201bfA4Cd2077c30E;
     address public managerAddress = 0x0413986C24A254191c2D3fA8F0661789DE9B073B;
     address public accountantAddress = 0x8301294E84cA5a2644E7F3CD47A86369F1b0416e;
-    address public rawDataDecoderAndSanitizer = 0x0E599AE5c99f00567FCA64eEE5d18eeBe23a67BF;
+    address public rawDataDecoderAndSanitizer = 0xe4B958cc989EB9Bb47179D406279767b675e33FC;
 
     function setUp() external {}
 
@@ -68,6 +68,39 @@ contract CreateRoySonicUSDCMerkleRoot is Script, MerkleTreeHelper {
         
         _addRoycoWeirollLeafs(leafs, getERC20(sonicMainnet, "USDC"), marketHash0, frontendFeeRecipient);
         _addRoycoWeirollLeafs(leafs, getERC20(sonicMainnet, "USDC"), marketHash1, frontendFeeRecipient);
+
+        // ========================== BoringChef ==========================
+        address[] memory allRewardsTokens = new address[](2);
+        allRewardsTokens[0] = 0x5e75334F4270FfE07a80b28FC831BfAb2d83706e; //RP Points Wrapper Token
+        allRewardsTokens[1] = 0xD152f4C29fB0db011c8a5503Aee3Ce60C44F8985; //SJP Points Wrapper Token
+
+        address[] memory rewardsTokensCombo0 = new address[](1);
+        rewardsTokensCombo0[0] = 0x5e75334F4270FfE07a80b28FC831BfAb2d83706e; //RP Points Wrapper Token
+
+        address[] memory rewardsTokensCombo1 = new address[](1);
+        rewardsTokensCombo1[0] = 0xD152f4C29fB0db011c8a5503Aee3Ce60C44F8985; //SJP Points Wrapper Token
+
+        _addBoringChefApproveRewardsLeafs(
+            leafs,
+            boringVault,
+            allRewardsTokens
+        );
+
+        _addBoringChefDistributeRewardsLeaf(
+            leafs,
+            boringVault,
+            allRewardsTokens
+        );
+        _addBoringChefDistributeRewardsLeaf(
+            leafs,
+            boringVault,
+            rewardsTokensCombo0
+        );
+        _addBoringChefDistributeRewardsLeaf(
+            leafs,
+            boringVault,
+            rewardsTokensCombo1
+        );
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

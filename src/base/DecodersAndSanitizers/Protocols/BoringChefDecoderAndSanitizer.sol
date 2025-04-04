@@ -19,4 +19,15 @@ abstract contract BoringChefDecoderAndSanitizer is BaseDecoderAndSanitizer {
     {
         addressesFound = abi.encodePacked(user);
     }
+
+    function distributeRewards(
+        address[] calldata tokens,
+        uint256[] calldata /*amounts*/,
+        uint48[] calldata /*startEpochs*/,
+        uint48[] calldata /*endEpochs*/
+    ) external view virtual returns (bytes memory addressesFound) {
+        for (uint256 i = 0; i < tokens.length; i++) {
+            addressesFound = abi.encodePacked(addressesFound, tokens[i]);
+        }
+    }
 }

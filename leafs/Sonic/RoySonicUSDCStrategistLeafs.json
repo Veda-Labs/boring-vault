@@ -2,7 +2,7 @@
     "metadata": {
         "AccountantAddress": "0x8301294E84cA5a2644E7F3CD47A86369F1b0416e",
         "BoringVaultAddress": "0x45088fb2FfEBFDcf4dFf7b7201bfA4Cd2077c30E",
-        "DecoderAndSanitizerAddress": "0x0E599AE5c99f00567FCA64eEE5d18eeBe23a67BF",
+        "DecoderAndSanitizerAddress": "0xe4B958cc989EB9Bb47179D406279767b675e33FC",
         "DigestComposition": [
             "Bytes20(DECODER_AND_SANITIZER_ADDRESS)",
             "Bytes20(TARGET_ADDRESS)",
@@ -10,8 +10,8 @@
             "Bytes4(TARGET_FUNCTION_SELECTOR)",
             "Bytes{N*20}(ADDRESS_ARGUMENT_0,...,ADDRESS_ARGUMENT_N)"
         ],
-        "LeafCount": 20,
-        "ManageRoot": "0xcc44d3e3679403a036e467407c6e72949911becb55755b3a224c5d1e748d1f01",
+        "LeafCount": 25,
+        "ManageRoot": "0x94d6b9f6019dcd50a9d514737f2963f2d4359387bf6ac8a239d20dd3bc6a85d1",
         "ManagerAddress": "0x0413986C24A254191c2D3fA8F0661789DE9B073B",
         "TreeCapacity": 32
     },
@@ -21,11 +21,11 @@
                 "0x8301294E84cA5a2644E7F3CD47A86369F1b0416e"
             ],
             "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0E599AE5c99f00567FCA64eEE5d18eeBe23a67BF",
+            "DecoderAndSanitizerAddress": "0xe4B958cc989EB9Bb47179D406279767b675e33FC",
             "Description": "Approve Accountant to spend USDC.e",
             "FunctionSelector": "0x095ea7b3",
             "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0x4979e0a70a895c256bce1b52c3de4ec5941c971416a3a8e93b6fdc91ebf67725",
+            "LeafDigest": "0xbff12de53c76688b8a8c63a5cfe9e95f2e314560b1bf464f340597d88d6e13b9",
             "PackedArgumentAddresses": "0x8301294e84ca5a2644e7f3cd47a86369f1b0416e",
             "TargetAddress": "0x29219dd400f2Bf60E5a23d13Be72B486D4038894"
         },
@@ -34,11 +34,11 @@
                 "0x29219dd400f2Bf60E5a23d13Be72B486D4038894"
             ],
             "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0E599AE5c99f00567FCA64eEE5d18eeBe23a67BF",
+            "DecoderAndSanitizerAddress": "0xe4B958cc989EB9Bb47179D406279767b675e33FC",
             "Description": "Claim fees in USDC.e",
             "FunctionSelector": "0x15a0ea6a",
             "FunctionSignature": "claimFees(address)",
-            "LeafDigest": "0x43186470f0c7167dacd6f862129b416648985c1f6364b622ef50d42a1d0b087a",
+            "LeafDigest": "0x3942fd594531d1a64a2dc78dbc9640996cc76614cb657b3638a39c9b012f85a3",
             "PackedArgumentAddresses": "0x29219dd400f2bf60e5a23d13be72b486d4038894",
             "TargetAddress": "0x8301294E84cA5a2644E7F3CD47A86369F1b0416e"
         },
@@ -47,11 +47,11 @@
                 "0x29219dd400f2Bf60E5a23d13Be72B486D4038894"
             ],
             "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0E599AE5c99f00567FCA64eEE5d18eeBe23a67BF",
+            "DecoderAndSanitizerAddress": "0xe4B958cc989EB9Bb47179D406279767b675e33FC",
             "Description": "Claim yield in USDC.e",
             "FunctionSelector": "0x999927df",
             "FunctionSignature": "claimYield(address)",
-            "LeafDigest": "0x271bbb9612df6ed2ea5aede01d3e86be611716075768466a7a79a68cccdc5f83",
+            "LeafDigest": "0xe80e730b75fe1429cbcf8bba25a1b31cc1b21732212f9874a16c2f2bb8415524",
             "PackedArgumentAddresses": "0x29219dd400f2bf60e5a23d13be72b486d4038894",
             "TargetAddress": "0x8301294E84cA5a2644E7F3CD47A86369F1b0416e"
         },
@@ -60,11 +60,11 @@
                 "0xaC041Df48dF9791B0654f1Dbbf2CC8450C5f2e9D"
             ],
             "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0E599AE5c99f00567FCA64eEE5d18eeBe23a67BF",
+            "DecoderAndSanitizerAddress": "0xe4B958cc989EB9Bb47179D406279767b675e33FC",
             "Description": "Approve Odos Router V2 to spend USDC.e",
             "FunctionSelector": "0x095ea7b3",
             "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0xdc909f478167a8be76eb57b21420e71c68683cc1c5490dee6b3f43a5bedd716a",
+            "LeafDigest": "0xd9e0b11b6bd961c80c221174ce5302e5f65e571288a72eaa38ad9a2a33d9335b",
             "PackedArgumentAddresses": "0xac041df48df9791b0654f1dbbf2cc8450c5f2e9d",
             "TargetAddress": "0x29219dd400f2Bf60E5a23d13Be72B486D4038894"
         },
@@ -73,11 +73,11 @@
                 "0xFcc593aD3705EBcd72eC961c63eb484BE795BDbD"
             ],
             "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0E599AE5c99f00567FCA64eEE5d18eeBe23a67BF",
+            "DecoderAndSanitizerAddress": "0xe4B958cc989EB9Bb47179D406279767b675e33FC",
             "Description": "Approve RecipeMarketHub to spend USDC.e (spent when offer is filled)",
             "FunctionSelector": "0x095ea7b3",
             "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0x9bca757c25987f6601981e3e0205d900c19f75b6e9c51390737243c439a74f8a",
+            "LeafDigest": "0x35df1f3048cff729c4c3acc1a0c823b1a7ee292dab54dbadcfab830339262452",
             "PackedArgumentAddresses": "0xfcc593ad3705ebcd72ec961c63eb484be795bdbd",
             "TargetAddress": "0x29219dd400f2Bf60E5a23d13Be72B486D4038894"
         },
@@ -89,11 +89,11 @@
                 "0x5e75334F4270FfE07a80b28FC831BfAb2d83706e"
             ],
             "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0E599AE5c99f00567FCA64eEE5d18eeBe23a67BF",
+            "DecoderAndSanitizerAddress": "0xe4B958cc989EB9Bb47179D406279767b675e33FC",
             "Description": "Create AP Offer for Recipe Market",
             "FunctionSelector": "0x45ccb466",
             "FunctionSignature": "createAPOffer(bytes32,address,uint256,uint256,address[],uint256[])",
-            "LeafDigest": "0x7c34c29d13daa9100eccff8e026b65896717ba2672135c7d3d80291bbf5d2e16",
+            "LeafDigest": "0x6204eef928222964fae6830d86eee27345cabc9589057b0966dced704e067686",
             "PackedArgumentAddresses": "0x7d1f2a66eabf9142dd30d1355efcbfd400000000cfbefd2872d24ca9855641434816a5250000000000000000000000000000000000000000000000005e75334f4270ffe07a80b28fc831bfab2d83706e",
             "TargetAddress": "0xFcc593aD3705EBcd72eC961c63eb484BE795BDbD"
         },
@@ -106,11 +106,11 @@
                 "0x5e75334F4270FfE07a80b28FC831BfAb2d83706e"
             ],
             "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0E599AE5c99f00567FCA64eEE5d18eeBe23a67BF",
+            "DecoderAndSanitizerAddress": "0xe4B958cc989EB9Bb47179D406279767b675e33FC",
             "Description": "Cancel AP Offer for Recipe Market",
             "FunctionSelector": "0x2e0a1122",
             "FunctionSignature": "cancelAPOffer((uint256,bytes32,address,address,uint256,uint256,address[],uint256[]))",
-            "LeafDigest": "0xc87e1ddfdd18f88839d4056a8518c662802b6d2bb5cf81f044cc1f31f903b2b9",
+            "LeafDigest": "0x02fe2fab1a027be3b842c9555b49c98c84e2d29fcb51c3840a5d53d83fe763df",
             "PackedArgumentAddresses": "0x7d1f2a66eabf9142dd30d1355efcbfd400000000cfbefd2872d24ca9855641434816a5250000000045088fb2ffebfdcf4dff7b7201bfa4cd2077c30e00000000000000000000000000000000000000005e75334f4270ffe07a80b28fc831bfab2d83706e",
             "TargetAddress": "0xFcc593aD3705EBcd72eC961c63eb484BE795BDbD"
         },
@@ -119,11 +119,11 @@
                 "0xFcc593aD3705EBcd72eC961c63eb484BE795BDbD"
             ],
             "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0E599AE5c99f00567FCA64eEE5d18eeBe23a67BF",
+            "DecoderAndSanitizerAddress": "0xe4B958cc989EB9Bb47179D406279767b675e33FC",
             "Description": "Approve RecipeMarketHub to spend USDC.e (spent when offer is filled)",
             "FunctionSelector": "0x095ea7b3",
             "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0x9bca757c25987f6601981e3e0205d900c19f75b6e9c51390737243c439a74f8a",
+            "LeafDigest": "0x35df1f3048cff729c4c3acc1a0c823b1a7ee292dab54dbadcfab830339262452",
             "PackedArgumentAddresses": "0xfcc593ad3705ebcd72ec961c63eb484be795bdbd",
             "TargetAddress": "0x29219dd400f2Bf60E5a23d13Be72B486D4038894"
         },
@@ -135,11 +135,11 @@
                 "0xD152f4C29fB0db011c8a5503Aee3Ce60C44F8985"
             ],
             "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0E599AE5c99f00567FCA64eEE5d18eeBe23a67BF",
+            "DecoderAndSanitizerAddress": "0xe4B958cc989EB9Bb47179D406279767b675e33FC",
             "Description": "Create AP Offer for Recipe Market",
             "FunctionSelector": "0x45ccb466",
             "FunctionSignature": "createAPOffer(bytes32,address,uint256,uint256,address[],uint256[])",
-            "LeafDigest": "0x827c6e92f0e9df624a268b912c9124c8f136924301a850fd3e4e78c4dd1bca12",
+            "LeafDigest": "0xee067389bee34def9f855ef026a4b01b91cc9682b301e3971279c179956998bd",
             "PackedArgumentAddresses": "0x4db7f85fc602e994e4043b98abecfeda000000008acab06bcc186ab266a07a508c8fc92f000000000000000000000000000000000000000000000000d152f4c29fb0db011c8a5503aee3ce60c44f8985",
             "TargetAddress": "0xFcc593aD3705EBcd72eC961c63eb484BE795BDbD"
         },
@@ -152,11 +152,11 @@
                 "0xD152f4C29fB0db011c8a5503Aee3Ce60C44F8985"
             ],
             "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0E599AE5c99f00567FCA64eEE5d18eeBe23a67BF",
+            "DecoderAndSanitizerAddress": "0xe4B958cc989EB9Bb47179D406279767b675e33FC",
             "Description": "Cancel AP Offer for Recipe Market",
             "FunctionSelector": "0x2e0a1122",
             "FunctionSignature": "cancelAPOffer((uint256,bytes32,address,address,uint256,uint256,address[],uint256[]))",
-            "LeafDigest": "0xb5f735e3f3567a43bd90d64155b33baf0fd37a4423ac86c43d6f0fe004066149",
+            "LeafDigest": "0xf80e63f3e76d42c92ca02338fbfb512ef10436a2b4010cdabaf51394c0c10783",
             "PackedArgumentAddresses": "0x4db7f85fc602e994e4043b98abecfeda000000008acab06bcc186ab266a07a508c8fc92f0000000045088fb2ffebfdcf4dff7b7201bfa4cd2077c30e0000000000000000000000000000000000000000d152f4c29fb0db011c8a5503aee3ce60c44f8985",
             "TargetAddress": "0xFcc593aD3705EBcd72eC961c63eb484BE795BDbD"
         },
@@ -165,11 +165,11 @@
                 "0xFcc593aD3705EBcd72eC961c63eb484BE795BDbD"
             ],
             "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0E599AE5c99f00567FCA64eEE5d18eeBe23a67BF",
+            "DecoderAndSanitizerAddress": "0xe4B958cc989EB9Bb47179D406279767b675e33FC",
             "Description": "Approve Recipe Market Hub to spend USDC.e",
             "FunctionSelector": "0x095ea7b3",
             "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0x9bca757c25987f6601981e3e0205d900c19f75b6e9c51390737243c439a74f8a",
+            "LeafDigest": "0x35df1f3048cff729c4c3acc1a0c823b1a7ee292dab54dbadcfab830339262452",
             "PackedArgumentAddresses": "0xfcc593ad3705ebcd72ec961c63eb484be795bdbd",
             "TargetAddress": "0x29219dd400f2Bf60E5a23d13Be72B486D4038894"
         },
@@ -181,11 +181,11 @@
                 "0x169C8c63aaC6433be8fdFE4AA116286329226E0a"
             ],
             "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0E599AE5c99f00567FCA64eEE5d18eeBe23a67BF",
+            "DecoderAndSanitizerAddress": "0xe4B958cc989EB9Bb47179D406279767b675e33FC",
             "Description": "Fill IP Offer using market hash",
             "FunctionSelector": "0x0600fc6f",
             "FunctionSignature": "fillIPOffers(bytes32[],uint256[],address,address)",
-            "LeafDigest": "0xdf4966b19f675662be1d312f91e2ea7aa6ab2a31328ea4576ac3c0b3836d507c",
+            "LeafDigest": "0xc7bc37f0f6e71e10705841628eec318972580d5ce827a5c9244c80198ef99393",
             "PackedArgumentAddresses": "0x7d1f2a66eabf9142dd30d1355efcbfd400000000cfbefd2872d24ca9855641434816a525000000000000000000000000000000000000000000000000169c8c63aac6433be8fdfe4aa116286329226e0a",
             "TargetAddress": "0xFcc593aD3705EBcd72eC961c63eb484BE795BDbD"
         },
@@ -194,11 +194,11 @@
                 "0x45088fb2FfEBFDcf4dFf7b7201bfA4Cd2077c30E"
             ],
             "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0E599AE5c99f00567FCA64eEE5d18eeBe23a67BF",
+            "DecoderAndSanitizerAddress": "0xe4B958cc989EB9Bb47179D406279767b675e33FC",
             "Description": "Execute the weiroll withdraw script and retrieve funds from recipe market",
             "FunctionSelector": "0x69029181",
             "FunctionSignature": "executeWithdrawalScript(address)",
-            "LeafDigest": "0xd69d40d45714bebbf79b22327b3a00320ea1508836b485595856866d9497bddf",
+            "LeafDigest": "0x2c994eae4e09692f3328166236b8f4951680087a2781d347c5a8e4e3da546e1f",
             "PackedArgumentAddresses": "0x45088fb2ffebfdcf4dff7b7201bfa4cd2077c30e",
             "TargetAddress": "0xFcc593aD3705EBcd72eC961c63eb484BE795BDbD"
         },
@@ -207,11 +207,11 @@
                 "0x45088fb2FfEBFDcf4dFf7b7201bfA4Cd2077c30E"
             ],
             "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0E599AE5c99f00567FCA64eEE5d18eeBe23a67BF",
+            "DecoderAndSanitizerAddress": "0xe4B958cc989EB9Bb47179D406279767b675e33FC",
             "Description": "Forfeit rewards and unlock wallet early",
             "FunctionSelector": "0x28b0c235",
             "FunctionSignature": "forfeit(address,bool)",
-            "LeafDigest": "0x61a2350fcb60c688efe6314a21f27386bb601699fe9ff533daff90ea5d9751b0",
+            "LeafDigest": "0x1e3549707ef573807850c19754a7e62306ed37d469a3bd0b28d5d0b7b9a8b5db",
             "PackedArgumentAddresses": "0x45088fb2ffebfdcf4dff7b7201bfa4cd2077c30e",
             "TargetAddress": "0xFcc593aD3705EBcd72eC961c63eb484BE795BDbD"
         },
@@ -221,11 +221,11 @@
                 "0x45088fb2FfEBFDcf4dFf7b7201bfA4Cd2077c30E"
             ],
             "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0E599AE5c99f00567FCA64eEE5d18eeBe23a67BF",
+            "DecoderAndSanitizerAddress": "0xe4B958cc989EB9Bb47179D406279767b675e33FC",
             "Description": "Claim incentive rewards",
             "FunctionSelector": "0x21c0b342",
             "FunctionSignature": "claim(address,address)",
-            "LeafDigest": "0xf7ff84e7e50181f3d11958a0fd7e3b1f40041f1151fa463c819a92fa4ae23c2a",
+            "LeafDigest": "0x5bdf481b9bdb79b15fdc0c6f98df99cab5450e619b1877edc38e5c2d6d729532",
             "PackedArgumentAddresses": "0x45088fb2ffebfdcf4dff7b7201bfa4cd2077c30e45088fb2ffebfdcf4dff7b7201bfa4cd2077c30e",
             "TargetAddress": "0xFcc593aD3705EBcd72eC961c63eb484BE795BDbD"
         },
@@ -234,11 +234,11 @@
                 "0xFcc593aD3705EBcd72eC961c63eb484BE795BDbD"
             ],
             "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0E599AE5c99f00567FCA64eEE5d18eeBe23a67BF",
+            "DecoderAndSanitizerAddress": "0xe4B958cc989EB9Bb47179D406279767b675e33FC",
             "Description": "Approve Recipe Market Hub to spend USDC.e",
             "FunctionSelector": "0x095ea7b3",
             "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0x9bca757c25987f6601981e3e0205d900c19f75b6e9c51390737243c439a74f8a",
+            "LeafDigest": "0x35df1f3048cff729c4c3acc1a0c823b1a7ee292dab54dbadcfab830339262452",
             "PackedArgumentAddresses": "0xfcc593ad3705ebcd72ec961c63eb484be795bdbd",
             "TargetAddress": "0x29219dd400f2Bf60E5a23d13Be72B486D4038894"
         },
@@ -250,11 +250,11 @@
                 "0x169C8c63aaC6433be8fdFE4AA116286329226E0a"
             ],
             "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0E599AE5c99f00567FCA64eEE5d18eeBe23a67BF",
+            "DecoderAndSanitizerAddress": "0xe4B958cc989EB9Bb47179D406279767b675e33FC",
             "Description": "Fill IP Offer using market hash",
             "FunctionSelector": "0x0600fc6f",
             "FunctionSignature": "fillIPOffers(bytes32[],uint256[],address,address)",
-            "LeafDigest": "0x27b102a2d29856e086e693ca695582befb92c897d0fe71bda09cd7bb0e9ddf9e",
+            "LeafDigest": "0x1c9823265150e0c381390bb4a74094896b430724abec497b37eb9b00e6c01c24",
             "PackedArgumentAddresses": "0x4db7f85fc602e994e4043b98abecfeda000000008acab06bcc186ab266a07a508c8fc92f000000000000000000000000000000000000000000000000169c8c63aac6433be8fdfe4aa116286329226e0a",
             "TargetAddress": "0xFcc593aD3705EBcd72eC961c63eb484BE795BDbD"
         },
@@ -263,11 +263,11 @@
                 "0x45088fb2FfEBFDcf4dFf7b7201bfA4Cd2077c30E"
             ],
             "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0E599AE5c99f00567FCA64eEE5d18eeBe23a67BF",
+            "DecoderAndSanitizerAddress": "0xe4B958cc989EB9Bb47179D406279767b675e33FC",
             "Description": "Execute the weiroll withdraw script and retrieve funds from recipe market",
             "FunctionSelector": "0x69029181",
             "FunctionSignature": "executeWithdrawalScript(address)",
-            "LeafDigest": "0xd69d40d45714bebbf79b22327b3a00320ea1508836b485595856866d9497bddf",
+            "LeafDigest": "0x2c994eae4e09692f3328166236b8f4951680087a2781d347c5a8e4e3da546e1f",
             "PackedArgumentAddresses": "0x45088fb2ffebfdcf4dff7b7201bfa4cd2077c30e",
             "TargetAddress": "0xFcc593aD3705EBcd72eC961c63eb484BE795BDbD"
         },
@@ -276,11 +276,11 @@
                 "0x45088fb2FfEBFDcf4dFf7b7201bfA4Cd2077c30E"
             ],
             "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0E599AE5c99f00567FCA64eEE5d18eeBe23a67BF",
+            "DecoderAndSanitizerAddress": "0xe4B958cc989EB9Bb47179D406279767b675e33FC",
             "Description": "Forfeit rewards and unlock wallet early",
             "FunctionSelector": "0x28b0c235",
             "FunctionSignature": "forfeit(address,bool)",
-            "LeafDigest": "0x61a2350fcb60c688efe6314a21f27386bb601699fe9ff533daff90ea5d9751b0",
+            "LeafDigest": "0x1e3549707ef573807850c19754a7e62306ed37d469a3bd0b28d5d0b7b9a8b5db",
             "PackedArgumentAddresses": "0x45088fb2ffebfdcf4dff7b7201bfa4cd2077c30e",
             "TargetAddress": "0xFcc593aD3705EBcd72eC961c63eb484BE795BDbD"
         },
@@ -290,68 +290,79 @@
                 "0x45088fb2FfEBFDcf4dFf7b7201bfA4Cd2077c30E"
             ],
             "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0E599AE5c99f00567FCA64eEE5d18eeBe23a67BF",
+            "DecoderAndSanitizerAddress": "0xe4B958cc989EB9Bb47179D406279767b675e33FC",
             "Description": "Claim incentive rewards",
             "FunctionSelector": "0x21c0b342",
             "FunctionSignature": "claim(address,address)",
-            "LeafDigest": "0xf7ff84e7e50181f3d11958a0fd7e3b1f40041f1151fa463c819a92fa4ae23c2a",
+            "LeafDigest": "0x5bdf481b9bdb79b15fdc0c6f98df99cab5450e619b1877edc38e5c2d6d729532",
             "PackedArgumentAddresses": "0x45088fb2ffebfdcf4dff7b7201bfa4cd2077c30e45088fb2ffebfdcf4dff7b7201bfa4cd2077c30e",
             "TargetAddress": "0xFcc593aD3705EBcd72eC961c63eb484BE795BDbD"
         },
         {
-            "AddressArguments": [],
+            "AddressArguments": [
+                "0x45088fb2FfEBFDcf4dFf7b7201bfA4Cd2077c30E"
+            ],
             "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-            "Description": "",
-            "FunctionSelector": "0xc5d24601",
-            "FunctionSignature": "",
-            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x0000000000000000000000000000000000000000"
+            "DecoderAndSanitizerAddress": "0xe4B958cc989EB9Bb47179D406279767b675e33FC",
+            "Description": "Approve BoringChef to spend RP rewards owned by itself",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0xc578c6e92d70f3a5f3171a9b059e460b498fa4ba5b70cd48c9d9ac7ee9ae2100",
+            "PackedArgumentAddresses": "0x45088fb2ffebfdcf4dff7b7201bfa4cd2077c30e",
+            "TargetAddress": "0x5e75334F4270FfE07a80b28FC831BfAb2d83706e"
         },
         {
-            "AddressArguments": [],
+            "AddressArguments": [
+                "0x45088fb2FfEBFDcf4dFf7b7201bfA4Cd2077c30E"
+            ],
             "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-            "Description": "",
-            "FunctionSelector": "0xc5d24601",
-            "FunctionSignature": "",
-            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x0000000000000000000000000000000000000000"
+            "DecoderAndSanitizerAddress": "0xe4B958cc989EB9Bb47179D406279767b675e33FC",
+            "Description": "Approve BoringChef to spend SJP rewards owned by itself",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x858e4c184fec4691453c1505e0e0252f980fdd9d857f8fb0567301a1b22396a7",
+            "PackedArgumentAddresses": "0x45088fb2ffebfdcf4dff7b7201bfa4cd2077c30e",
+            "TargetAddress": "0xD152f4C29fB0db011c8a5503Aee3Ce60C44F8985"
         },
         {
-            "AddressArguments": [],
+            "AddressArguments": [
+                "0x5e75334F4270FfE07a80b28FC831BfAb2d83706e",
+                "0xD152f4C29fB0db011c8a5503Aee3Ce60C44F8985"
+            ],
             "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-            "Description": "",
-            "FunctionSelector": "0xc5d24601",
-            "FunctionSignature": "",
-            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x0000000000000000000000000000000000000000"
+            "DecoderAndSanitizerAddress": "0xe4B958cc989EB9Bb47179D406279767b675e33FC",
+            "Description": "Distribute rewards from BoringChef",
+            "FunctionSelector": "0x54ee9b52",
+            "FunctionSignature": "distributeRewards(address[],uint256[],uint48[],uint48[])",
+            "LeafDigest": "0x4e232262cfd2ff53258cce8492205bdd59605d7a725bd858a29e895aa5aa0b01",
+            "PackedArgumentAddresses": "0x5e75334f4270ffe07a80b28fc831bfab2d83706ed152f4c29fb0db011c8a5503aee3ce60c44f8985",
+            "TargetAddress": "0x45088fb2FfEBFDcf4dFf7b7201bfA4Cd2077c30E"
         },
         {
-            "AddressArguments": [],
+            "AddressArguments": [
+                "0x5e75334F4270FfE07a80b28FC831BfAb2d83706e"
+            ],
             "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-            "Description": "",
-            "FunctionSelector": "0xc5d24601",
-            "FunctionSignature": "",
-            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x0000000000000000000000000000000000000000"
+            "DecoderAndSanitizerAddress": "0xe4B958cc989EB9Bb47179D406279767b675e33FC",
+            "Description": "Distribute rewards from BoringChef",
+            "FunctionSelector": "0x54ee9b52",
+            "FunctionSignature": "distributeRewards(address[],uint256[],uint48[],uint48[])",
+            "LeafDigest": "0x9762b5bc1bc554b634e088c0ea385120135c1da0c8ef5c25c075cd58944533b8",
+            "PackedArgumentAddresses": "0x5e75334f4270ffe07a80b28fc831bfab2d83706e",
+            "TargetAddress": "0x45088fb2FfEBFDcf4dFf7b7201bfA4Cd2077c30E"
         },
         {
-            "AddressArguments": [],
+            "AddressArguments": [
+                "0xD152f4C29fB0db011c8a5503Aee3Ce60C44F8985"
+            ],
             "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-            "Description": "",
-            "FunctionSelector": "0xc5d24601",
-            "FunctionSignature": "",
-            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x0000000000000000000000000000000000000000"
+            "DecoderAndSanitizerAddress": "0xe4B958cc989EB9Bb47179D406279767b675e33FC",
+            "Description": "Distribute rewards from BoringChef",
+            "FunctionSelector": "0x54ee9b52",
+            "FunctionSignature": "distributeRewards(address[],uint256[],uint48[],uint48[])",
+            "LeafDigest": "0xebea7c502e6d8efea9ef8bbe597569eb7bab4d782729c080dfefd0ae5a5621af",
+            "PackedArgumentAddresses": "0xd152f4c29fb0db011c8a5503aee3ce60c44f8985",
+            "TargetAddress": "0x45088fb2FfEBFDcf4dFf7b7201bfA4Cd2077c30E"
         },
         {
             "AddressArguments": [],
@@ -433,72 +444,72 @@
     ],
     "MerkleTree": {
         "0": [
-            "0xcc44d3e3679403a036e467407c6e72949911becb55755b3a224c5d1e748d1f01"
+            "0x94d6b9f6019dcd50a9d514737f2963f2d4359387bf6ac8a239d20dd3bc6a85d1"
         ],
         "1": [
-            "0x2133c032556db61a04f4793bce939df31d3b2a05850619e6300cc2a3efb980cd",
-            "0xacfdfe955c336becf23b4f231997cefef5984873d246f32a340253887d20a60d"
+            "0xd262d8322d596c96ad1edadfa5a59e5d08fc250df98721e9d4644c03a906d22d",
+            "0x0daae030b341b20713b04e7aeea86576e321d4ea4835be8081575b806e26abd2"
         ],
         "2": [
-            "0xdd55d6931947d2c42816d54158dfc458bd95251c5a5a7103dc55e87dc97266bb",
-            "0x9087952faa123554da488654e95359916f7d620faec872ee6bfd244e4eddc8ed",
-            "0x087af37b14882c9e66455c9f550df33e655c768d652e56edae7f1141e4c496c1",
-            "0x41fbd3a0cfdfcee05cf3eb16d95ed1c81f50c3c6268bb806b406ec06ee93e704"
+            "0x0b5588d9a01f05228695eb33a340f07fec6883c6fecf05dcd5bc408eec5898b7",
+            "0xbe76011444aa0f525a45bcba8b94c24d9abe3573df1c42f98da8c2bd74e015aa",
+            "0xd1249a82341826ef9d2e21bd17b018b4dd72024cdddcaf2fd7e1de089cf52e88",
+            "0xf7cdfb06dff8bff9525a2ab7fd0f39c52477aee066862803120a0bd67dbef549"
         ],
         "3": [
-            "0x9ff3e6f712971a586d87ea8ea1899078a3ca86c533087113e02afa86be4f994a",
-            "0xf37c8f13c18ff804574575e772888baaf7bbe589c3234108d5347dbd940d892a",
-            "0x44720544db728173e893c8d72fad6118d671eeacd68e6eb1ad40e3d762d9bd92",
-            "0xf0f1e6ef25cdbf7716ec1465298a4c588ce97af489bfac96eb374083afb91596",
-            "0x20ba3b46eacbef363b0c3ceca8728f84a8ca2d84bef4d4241844af2207720488",
-            "0x849eda7a295b642e5ddaf49a30eec4470cf507efa83b4104c0752d069c7638fe",
-            "0x849eda7a295b642e5ddaf49a30eec4470cf507efa83b4104c0752d069c7638fe",
+            "0x2a957ea8ffa0922a059c451300fb821550a9c8b50b70c9d549f8e5361e8c9e0c",
+            "0x57fabdf3a93722200021eb765e1d7937d963bd84bc20c2ba0616fb7dc3df9e9c",
+            "0x244598a0f1f03aa4ad6cddb9b06b5d42dacbab763c5770ded4e01e4107f88aac",
+            "0x1ebe81cbff1928777e7be437b3b5b4ea596caab4f8cc2d68d9357f0ee629d20f",
+            "0x370177050000a5a5772301a986236d61d00be23ecac7f3ae871ceeb9534710e4",
+            "0x28a44fda9a99a9944bee58452e064afabfef489ca55dec5778dea2c091661b76",
+            "0xf1ce49404339b77dfb24f640a57f6d8489f66d63a31b0196049c90ddff9f21b7",
             "0x849eda7a295b642e5ddaf49a30eec4470cf507efa83b4104c0752d069c7638fe"
         ],
         "4": [
-            "0x1ebe403b34ccd44825ef52193e7dd43dc93af23ee8c94add4151efcd31fb9f0d",
-            "0xf3751334fa9a903a62b57739b17091f6a84d5c3829cee71a0c427cb6c663844d",
-            "0x6499f907959fc1974ea0d80210cb4f1053b82e635a4a6816d1aee5427e19568c",
-            "0x05ec92b72bb8d4a5aa96b8b3db344338b13be3880e60b43c1e19573d30369cf4",
-            "0x1e5126c0a8fe6c13222e0f7f5e19e027b20a20c5c91d59635af2841f91aa51c0",
-            "0x1ca21dd3d666682807cbbfd115c9b22030b59889c509543a89b6f1fac7425cb2",
-            "0xb4c0a9e0e4793c0d0abf3aeca3ece133720873073473d3735879489ba0bb870e",
-            "0x507a4ae9628e8cf17ff58b6f709f1bf3b2e0c51f7c2af3bdb81cbbf2f767e213",
-            "0x84d25a0a0595adb190a24730e6d786f43065faa396b9ff4eeb2d1d92a255fae6",
-            "0x7d32d5cca48f13db35f8faef05df697d2eed00f116f4ba0b39503005e4fc1d98",
-            "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
-            "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
-            "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
+            "0x13ad71f640f64079522256347223c99ccf51fcb85dbde8a6025f03a5318c4642",
+            "0xd19ed7c9cba979d89cda35bb3ceb1ca8c7f92dd539ed1b66d9cb072d1fa20959",
+            "0x901fcdf152b0ba840d90a6c77136d77af06b81f1b2f1b235bdcc9841aa7585a8",
+            "0xb1ddc72393d7db28823a9ec8858b44fa4da3f1ebb342fb9d30ba800d9d58b26f",
+            "0xbb522d65713c6ce3267ef27d8c93ff084070bc755c06bfeb6d319504e491a04b",
+            "0x86ee0ffdfff4a22c11dce59e893422bb98c2b0e27f34de51e2ce4abb4dcac239",
+            "0x231f9fb52409fa1675e362ad64e86867e797b1c8f7c2a9e33f93e3858d4d34b1",
+            "0x1ea1fb268cd1546a6910cb041eb0426759f7ebd29ba023c978151de63ace680c",
+            "0x2389eb3cb900dfd711ad8eef5588cf2ae4041133d206c953fa24bdda2b3f7212",
+            "0xc78631fdb2df5b0dc28edb8d84ab4ab75afdc07ed234f64a3f52200c19d3b192",
+            "0x36e16d0aad771ac7b42ad48f4f9b4cacb28ed1483c715fe8824a5dfc8d3aea98",
+            "0xd534207ab35c1d9b906625b9298e61ea1a02b09e95dfdcab9d83801f8d56fe6f",
+            "0xbc74a0ad2b9a9f5a2359952f2ceac05ca8a3cc20289e59553cf3e0fac4aebc63",
             "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
             "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
             "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba"
         ],
         "5": [
-            "0x4979e0a70a895c256bce1b52c3de4ec5941c971416a3a8e93b6fdc91ebf67725",
-            "0x43186470f0c7167dacd6f862129b416648985c1f6364b622ef50d42a1d0b087a",
-            "0x271bbb9612df6ed2ea5aede01d3e86be611716075768466a7a79a68cccdc5f83",
-            "0xdc909f478167a8be76eb57b21420e71c68683cc1c5490dee6b3f43a5bedd716a",
-            "0x9bca757c25987f6601981e3e0205d900c19f75b6e9c51390737243c439a74f8a",
-            "0x7c34c29d13daa9100eccff8e026b65896717ba2672135c7d3d80291bbf5d2e16",
-            "0xc87e1ddfdd18f88839d4056a8518c662802b6d2bb5cf81f044cc1f31f903b2b9",
-            "0x9bca757c25987f6601981e3e0205d900c19f75b6e9c51390737243c439a74f8a",
-            "0x827c6e92f0e9df624a268b912c9124c8f136924301a850fd3e4e78c4dd1bca12",
-            "0xb5f735e3f3567a43bd90d64155b33baf0fd37a4423ac86c43d6f0fe004066149",
-            "0x9bca757c25987f6601981e3e0205d900c19f75b6e9c51390737243c439a74f8a",
-            "0xdf4966b19f675662be1d312f91e2ea7aa6ab2a31328ea4576ac3c0b3836d507c",
-            "0xd69d40d45714bebbf79b22327b3a00320ea1508836b485595856866d9497bddf",
-            "0x61a2350fcb60c688efe6314a21f27386bb601699fe9ff533daff90ea5d9751b0",
-            "0xf7ff84e7e50181f3d11958a0fd7e3b1f40041f1151fa463c819a92fa4ae23c2a",
-            "0x9bca757c25987f6601981e3e0205d900c19f75b6e9c51390737243c439a74f8a",
-            "0x27b102a2d29856e086e693ca695582befb92c897d0fe71bda09cd7bb0e9ddf9e",
-            "0xd69d40d45714bebbf79b22327b3a00320ea1508836b485595856866d9497bddf",
-            "0x61a2350fcb60c688efe6314a21f27386bb601699fe9ff533daff90ea5d9751b0",
-            "0xf7ff84e7e50181f3d11958a0fd7e3b1f40041f1151fa463c819a92fa4ae23c2a",
-            "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "0xbff12de53c76688b8a8c63a5cfe9e95f2e314560b1bf464f340597d88d6e13b9",
+            "0x3942fd594531d1a64a2dc78dbc9640996cc76614cb657b3638a39c9b012f85a3",
+            "0xe80e730b75fe1429cbcf8bba25a1b31cc1b21732212f9874a16c2f2bb8415524",
+            "0xd9e0b11b6bd961c80c221174ce5302e5f65e571288a72eaa38ad9a2a33d9335b",
+            "0x35df1f3048cff729c4c3acc1a0c823b1a7ee292dab54dbadcfab830339262452",
+            "0x6204eef928222964fae6830d86eee27345cabc9589057b0966dced704e067686",
+            "0x02fe2fab1a027be3b842c9555b49c98c84e2d29fcb51c3840a5d53d83fe763df",
+            "0x35df1f3048cff729c4c3acc1a0c823b1a7ee292dab54dbadcfab830339262452",
+            "0xee067389bee34def9f855ef026a4b01b91cc9682b301e3971279c179956998bd",
+            "0xf80e63f3e76d42c92ca02338fbfb512ef10436a2b4010cdabaf51394c0c10783",
+            "0x35df1f3048cff729c4c3acc1a0c823b1a7ee292dab54dbadcfab830339262452",
+            "0xc7bc37f0f6e71e10705841628eec318972580d5ce827a5c9244c80198ef99393",
+            "0x2c994eae4e09692f3328166236b8f4951680087a2781d347c5a8e4e3da546e1f",
+            "0x1e3549707ef573807850c19754a7e62306ed37d469a3bd0b28d5d0b7b9a8b5db",
+            "0x5bdf481b9bdb79b15fdc0c6f98df99cab5450e619b1877edc38e5c2d6d729532",
+            "0x35df1f3048cff729c4c3acc1a0c823b1a7ee292dab54dbadcfab830339262452",
+            "0x1c9823265150e0c381390bb4a74094896b430724abec497b37eb9b00e6c01c24",
+            "0x2c994eae4e09692f3328166236b8f4951680087a2781d347c5a8e4e3da546e1f",
+            "0x1e3549707ef573807850c19754a7e62306ed37d469a3bd0b28d5d0b7b9a8b5db",
+            "0x5bdf481b9bdb79b15fdc0c6f98df99cab5450e619b1877edc38e5c2d6d729532",
+            "0xc578c6e92d70f3a5f3171a9b059e460b498fa4ba5b70cd48c9d9ac7ee9ae2100",
+            "0x858e4c184fec4691453c1505e0e0252f980fdd9d857f8fb0567301a1b22396a7",
+            "0x4e232262cfd2ff53258cce8492205bdd59605d7a725bd858a29e895aa5aa0b01",
+            "0x9762b5bc1bc554b634e088c0ea385120135c1da0c8ef5c25c075cd58944533b8",
+            "0xebea7c502e6d8efea9ef8bbe597569eb7bab4d782729c080dfefd0ae5a5621af",
             "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
             "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
             "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",

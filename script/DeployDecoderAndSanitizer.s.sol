@@ -83,20 +83,17 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //deployer.deployContract("EtherFi Liquid ETH Decoder And Sanitizer V0.9", creationCode, constructorArgs, 0);
 
 
-<<<<<<< HEAD
         //address sonicUniV3 = 0x743E03cceB4af2efA3CC76838f6E8B50B63F184c; 
         //creationCode = type(SonicLBTCvSonicDecoderAndSanitizer).creationCode;
         //constructorArgs = abi.encode();
         //deployer.deployContract("Sonic LBTCv Decoder And Sanitizer V0.3", creationCode, constructorArgs, 0);
-=======
         //creationCode = type(LombardBtcDecoderAndSanitizer).creationCode;
         //constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
         //deployer.deployContract("Liquid BTC Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        creationCode = type(SonicMainnetDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(uniswapV3NonFungiblePositionManager);
-        deployer.deployContract("Sonic BTC Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
->>>>>>> main
+        // creationCode = type(SonicMainnetDecoderAndSanitizer).creationCode;
+        // constructorArgs = abi.encode(uniswapV3NonFungiblePositionManager);
+        // deployer.deployContract("Sonic BTC Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
         
         //creationCode = type(LBTCvBNBDecoderAndSanitizer).creationCode;
         //constructorArgs = abi.encode(getAddress(sourceChain, "pancakeSwapV3NonFungiblePositionManager"), getAddress(sourceChain, "pancakeSwapV3MasterChefV3"), getAddress(sourceChain, "odosRouterV2"));
@@ -106,13 +103,21 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         // constructorArgs = abi.encode();
         // bobDeployer.deployContract("Hybrid BTC Decoder And Sanitizer V0.2", creationCode, constructorArgs, 0);
         
-        // creationCode = type(RoyUSDCMainnetDecoderAndSanitizer).creationCode;
+        creationCode = type(RoyUSDCMainnetDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "odosRouterV2"));
+        deployer.deployContract("Royco USDC Decoder And Sanitizer V0.2", creationCode, constructorArgs, 0);
+
+        // creationCode = type(RoyUSDCSonicDecoderAndSanitizer).creationCode;
         // constructorArgs = abi.encode(getAddress(sourceChain, "odosRouterV2"));
-        // deployer.deployContract("Royco USDC Mainnet Decoder And Sanitizer V0.1", creationCode, constructorArgs, 0);
+        // deployer.deployContract("Royco USDC Sonic Decoder And Sanitizer V0.2", creationCode, constructorArgs, 0);
+
+        // creationCode = type(RoySonicUSDCDecoderAndSanitizer).creationCode;
+        // constructorArgs = abi.encode(getAddress(sourceChain, "recipeMarketHub"), getAddress(sourceChain, "odosRouterV2"));
+        // deployer.deployContract("Royco Sonic USDC Decoder And Sanitizer V0.2", creationCode, constructorArgs, 0);
         
-        creationCode = type(SonicEthMainnetDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2"));
-        deployer.deployContract("Sonic Mainnet Decoder And Sanitizer V0.4", creationCode, constructorArgs, 0);
+        // creationCode = type(SonicEthMainnetDecoderAndSanitizer).creationCode;
+        // constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2"));
+        // deployer.deployContract("Sonic Mainnet Decoder And Sanitizer V0.4", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }

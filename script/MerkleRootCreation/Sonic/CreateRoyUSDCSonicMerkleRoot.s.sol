@@ -17,7 +17,7 @@ contract CreateRoyUSDCSonicMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0x74D1fAfa4e0163b2f1035F1b052137F3f9baD5cC;
     address public managerAddress = 0xD4F870516a3B67b64238Bb803392Cd1A52D54Fb2;
     address public accountantAddress = 0x80f0B206B7E5dAa1b1ba4ea1478A33241ee6baC9;
-    address public rawDataDecoderAndSanitizer = 0x93a42958F931E09A03023E384b6e7927dBF93EC0;
+    address public rawDataDecoderAndSanitizer = 0x9Ab7Fce3C2B0B409DC79706367659C1bd512F44d;
 
     function setUp() external {}
 
@@ -66,7 +66,7 @@ contract CreateRoyUSDCSonicMerkleRoot is Script, MerkleTreeHelper {
         ERC20[] memory tellerTokens = new ERC20[](1);
         tellerTokens[0] = getERC20(sourceChain, "USDC");
 
-        _addTellerLeafs(leafs, getAddress(sourceChain, "roysonicUSDCTeller"), tellerTokens, false);
+        _addTellerLeafs(leafs, getAddress(sourceChain, "roysonicUSDCTeller"), tellerTokens, false, true);
         _addWithdrawQueueLeafs(
             leafs, getAddress(sourceChain, "roysonicUSDCQueue"), getAddress(sourceChain, "roysonicUSDC"), tellerTokens
         );
