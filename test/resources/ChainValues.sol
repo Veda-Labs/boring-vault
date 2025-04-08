@@ -137,6 +137,7 @@ contract ChainValues {
         values[mainnet]["eBTCVault"] = 0x657e8C867D8B37dCC18fA4Caead9C45EB088C642.toBytes32();
         values[mainnet]["eBTCDelayedWithdraw"] = 0x75E3f26Ceff44258CE8cB451D7d2cC8966Ef3554.toBytes32();
         values[mainnet]["eBTCOnChainQueue"] = 0x74EC75fb641ec17B04007733d9efBE2D1dA5CA2C.toBytes32();
+        values[mainnet]["eBTCOnChainQueueFast"] = 0x686696A3e59eE16e8A8533d84B62cfA504827135.toBytes32();
         values[mainnet]["eBTCTeller"] = 0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268.toBytes32();
 
         // Tellers
@@ -1283,7 +1284,8 @@ contract ChainValues {
         values[mainnet]["derive_LBTC_basis_token"] = 0xdFd366D941A51e1f53Fbddb19FB4eE3af17FF991.toBytes32(); 
         values[mainnet]["derive_LBTC_basis_withdraw"] = 0x954bE1803546150bfd887c9ff70fd221F2F505d3.toBytes32();
         values[mainnet]["derive_LBTC_basis_withdraw_connector"] = 0x5E72430EC945CCc183c34e2860FFC2b5bac712c2.toBytes32();
-        //values[mainnet][""] = .toBytes32(); 
+        values[mainnet]["derive_controller"] = 0x52CB41109b637F03B81b3FD6Dce4E3948b2F0923.toBytes32(); 
+        values[mainnet]["derive_LBTC_connectorPlugOnDeriveChain"] = 0x2E1245D57a304C7314687E529D610071628117f3.toBytes32(); 
         //values[mainnet]["derive_boringTestVault_wallet"] = .toBytes32(); 
     }
 

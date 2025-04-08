@@ -9392,19 +9392,21 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             leafs[leafIndex].argumentAddresses[0] = address(boringVault);
 
             // BulkDeposit asset.
-            unchecked {
-                leafIndex++;
+            if (addBulkWithdraw) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    teller,
+                    false,
+                    "bulkDeposit(address,uint256,uint256,address)",
+                    new address[](2),
+                    string.concat("Bulk deposit ", assets[i].symbol(), " into ", boringVault.name()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = address(assets[i]);
+                leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
             }
-            leafs[leafIndex] = ManageLeaf(
-                teller,
-                false,
-                "bulkDeposit(address,uint256,uint256,address)",
-                new address[](2),
-                string.concat("Bulk deposit ", assets[i].symbol(), " into ", boringVault.name()),
-                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-            );
-            leafs[leafIndex].argumentAddresses[0] = address(assets[i]);
-            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
 
             if (addBulkWithdraw) {
                 // BulkWithdraw asset.
@@ -9591,7 +9593,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 false,
                 "approve(address,uint256)",
                 new address[](1),
-                string.concat("Approve BoringOnChainQueue to spend ", assets[i].symbol()),
+                string.concat("Approve BoringOnChainQueue to spend ", ERC20(boringVault).symbol()),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = withdrawQueue;

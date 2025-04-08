@@ -15,7 +15,7 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     address public boringVault = 0x5401b8620E5FB570064CA9114fd1e135fd77D57c;
-    address public rawDataDecoderAndSanitizer = 0x6EF6328d610F96174960cdd96E0C6556E6Ac2795;
+    address public rawDataDecoderAndSanitizer = 0x89236361206c830Db63752DE04Df5e98a5FeceFA;
     address public managerAddress = 0xcf38e37872748E3b66741A42560672A6cef75e9B;
     address public accountantAddress = 0x28634D0c5edC67CF2450E74deA49B90a4FF93dCE;
 
@@ -62,19 +62,21 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
         _addGearboxLeafs(leafs, ERC4626(getAddress(sourceChain, "dWBTCV3")), getAddress(sourceChain, "sdWBTCV3"));
 
         // ========================== UniswapV3 ==========================
-        address[] memory token0 = new address[](5);
+        address[] memory token0 = new address[](6);
         token0[0] = getAddress(sourceChain, "WBTC");
         token0[1] = getAddress(sourceChain, "WBTC");
         token0[2] = getAddress(sourceChain, "WBTC");
         token0[3] = getAddress(sourceChain, "WBTC");
         token0[4] = getAddress(sourceChain, "eBTC");
+        token0[5] = getAddress(sourceChain, "cbBTC");
 
-        address[] memory token1 = new address[](5);
+        address[] memory token1 = new address[](6);
         token1[0] = getAddress(sourceChain, "LBTC");
         token1[1] = getAddress(sourceChain, "cbBTC");
         token1[2] = getAddress(sourceChain, "eBTC");
         token1[3] = getAddress(sourceChain, "LBTC");
         token1[4] = getAddress(sourceChain, "LBTC");
+        token1[5] = getAddress(sourceChain, "LBTC");
 
         _addUniswapV3Leafs(leafs, token0, token1, false);
 
@@ -151,10 +153,11 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
             tellerAssets[2] = getERC20(sourceChain, "cbBTC");
              address eBTCTeller = 0x458797A320e6313c980C2bC7D270466A6288A8bB;
             _addTellerLeafs(leafs, eBTCTeller, tellerAssets, false, true);
+            _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "eBTCOnChainQueueFast"), getAddress(sourceChain, "EBTC"), tellerAssets);  
 
             address newEBTCTeller = 0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268;
             _addTellerLeafs(leafs, newEBTCTeller, tellerAssets, false, true);
-
+            _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "eBTCOnChainQueueFast"), getAddress(sourceChain, "EBTC"), tellerAssets);  
         }
 
         {
@@ -232,6 +235,19 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
         ); 
 
         }
+
+        // ========================== Derive ==========================
+        // LBTC basis vault 
+        _addDeriveVaultLeafs(
+            leafs, 
+            getAddress(sourceChain, "derive_LBTC_basis_deposit"), //depositVault
+            getAddress(sourceChain, "derive_LBTC_basis_deposit_connector"), //depositConnector
+            getAddress(sourceChain, "derive_LBTC_basis_withdraw"), //withdrawVault
+            getAddress(sourceChain, "derive_LBTC_basis_withdraw_connector"), //withdrawConnector
+            getAddress(sourceChain, "derive_LBTC_connectorPlugOnDeriveChain"), //connectorPlugOnDeriveChain  //NOTE: this is stored in mainnet values to reduce errors
+            getAddress(sourceChain, "derive_controller"), //controller on ETH mainnet 
+            getAddress(sourceChain, "boringVault") //bv address on derive
+        ); 
 
         // ========================== PancakeSwapV3 ==========================
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", pancakeSwapDataDecoderAndSanitizer);
