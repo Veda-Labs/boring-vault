@@ -193,7 +193,7 @@ contract BoringSolver is IBoringSolver, Auth, Multicall {
         } // else nothing to do, we have exact change.
 
         // Approve Boring Queue to spend the required assets.
-        asset.approve(address(queue), requiredAssets);
+        asset.safeApprove(address(queue), requiredAssets);
     }
 
     /**
@@ -269,6 +269,6 @@ contract BoringSolver is IBoringSolver, Auth, Multicall {
         }
 
         // Approve Boring Queue to spend the required assets.
-        ERC20(toBoringVault).approve(address(queue), requiredShares);
+        ERC20(toBoringVault).safeApprove(address(queue), requiredShares);
     }
 }
