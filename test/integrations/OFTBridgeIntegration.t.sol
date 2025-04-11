@@ -40,7 +40,7 @@ contract OFTBridgeIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName(mainnet);
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 22046375;
+        uint256 blockNumber = 22238413;
 
         _startFork(rpcKey, blockNumber);
 
@@ -113,7 +113,7 @@ contract OFTBridgeIntegrationTest is Test, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](2);
         _addLayerZeroLeafs(
-            leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "EtherFiOFTAdapter"), layerZeroBaseEndpointId
+            leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "EtherFiOFTAdapter"), layerZeroBaseEndpointId, bytes32(uint256(uint160(address(boringVault))))
         );
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
@@ -168,7 +168,7 @@ contract OFTBridgeIntegrationTest is Test, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](2);
         _addLayerZeroLeafs(
-            leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "EtherFiOFTAdapter"), layerZeroBaseEndpointId
+            leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "EtherFiOFTAdapter"), layerZeroBaseEndpointId, bytes32(uint256(uint160(address(boringVault))))
         );
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
@@ -241,6 +241,64 @@ contract OFTBridgeIntegrationTest is Test, MerkleTreeHelper {
             fee,
             boringVault
         );
+
+        manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
+    }
+
+    function testBridgingToMove() external {
+        deal(getAddress(sourceChain, "WEETH"), address(boringVault), 101e18);
+        deal(getAddress(sourceChain, "boringVault"), 101e18);
+
+        // This is a random placeholder address on movement, replace with real desired address
+        bytes32 moveAddress = 0x0e3ff4b536786141b08d0fbbc1ccfde4513931ee997711f3e00df822c2f017e5;
+
+        ManageLeaf[] memory leafs = new ManageLeaf[](2);
+        _addLayerZeroLeafs(
+            leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "weETHOFTAdapterMovement"), layerZeroMovementEndpointId, moveAddress
+        );
+
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        ManageLeaf[] memory manageLeafs = new ManageLeaf[](2);
+        manageLeafs[0] = leafs[0];
+        manageLeafs[1] = leafs[1];
+
+        bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
+
+        address[] memory targets = new address[](2);
+        targets[0] = getAddress(sourceChain, "WEETH");
+        targets[1] = getAddress(sourceChain, "weETHOFTAdapterMovement");
+
+        bytes[] memory targetData = new bytes[](2);
+        targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "weETHOFTAdapterMovement"), type(uint256).max
+        );
+        DecoderCustomTypes.SendParam memory param;
+        param.dstEid = layerZeroMovementEndpointId;
+        param.to = moveAddress; //placeholder movement address
+        param.amountLD = 100e18;
+        param.minAmountLD = 99e18;
+        param.extraOptions = hex"0003";
+        param.composeMsg = hex"";
+        param.oftCmd = hex"";
+
+        DecoderCustomTypes.MessagingFee memory fee;
+        fee.nativeFee = 0.0006e18;
+        fee.lzTokenFee = 0;
+
+        targetData[1] = abi.encodeWithSignature(
+            "send((uint32,bytes32,uint256,uint256,bytes,bytes,bytes),(uint256,uint256),address)",
+            param,
+            fee,
+            boringVault
+        );
+        uint256[] memory values = new uint256[](2);
+        values[1] = fee.nativeFee;
+        address[] memory decodersAndSanitizers = new address[](2);
+        decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
     }
