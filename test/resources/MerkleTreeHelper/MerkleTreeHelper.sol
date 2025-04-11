@@ -9474,6 +9474,131 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         }
     }
 
+    // ========================================= CrossChain Teller =========================================
+    
+    function _addCrossChainTellerLeafs(ManageLeaf[] memory leafs, address teller, address[] memory depositAssets, address[] memory feeAssets) internal {
+
+        address boringVault = ITeller(teller).vault(); 
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            boringVault,
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve CrossChain Teller to spend ", ERC20(boringVault).symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = teller; 
+
+        for (uint i = 0; i < feeAssets.length; i++) {
+
+            if (feeAssets[i] != getAddress(sourceChain, "ETH")) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    feeAssets[i],
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve CrossChain Teller to spend ", ERC20(feeAssets[i]).symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = teller; 
+            }
+        }
+
+        for (uint256 i = 0; i < depositAssets.length; i++) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                depositAssets[i],
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve CrossChain Teller to spend ", ERC20(depositAssets[i]).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = boringVault; 
+        }
+
+        for (uint256 i = 0; i < depositAssets.length; i++) {
+            for (uint256 j = 0; j < feeAssets.length; j++) {
+                
+                if (feeAssets[j] == getAddress(sourceChain, "ETH")) {
+                    unchecked {
+                        leafIndex++;
+                    }
+                    leafs[leafIndex] = ManageLeaf(
+                        teller,
+                        true,
+                        "depositAndBridge(address,uint256,uint256,address,bytes,address,uint256)",
+                        new address[](3),
+                        string.concat("Deposit and bridge ", ERC20(depositAssets[i]).symbol(), " with ETH as fee"),
+                        getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                    );
+                    leafs[leafIndex].argumentAddresses[0] = depositAssets[i]; 
+                    leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault"); 
+                    leafs[leafIndex].argumentAddresses[2] = feeAssets[j]; 
+                } else {
+
+                    unchecked {
+                        leafIndex++;
+                    }
+                    leafs[leafIndex] = ManageLeaf(
+                        teller,
+                        false,
+                        "depositAndBridge(address,uint256,uint256,address,bytes,address,uint256)",
+                        new address[](3),
+                        string.concat("Deposit and bridge ", ERC20(depositAssets[i]).symbol(), " with ", ERC20(feeAssets[j]).symbol(), " as fee"),
+                        getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                    );
+                    leafs[leafIndex].argumentAddresses[0] = depositAssets[i]; 
+                    leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault"); 
+                    leafs[leafIndex].argumentAddresses[2] = feeAssets[j]; 
+                }
+            }
+        }
+
+        for (uint256 i = 0; i < feeAssets.length; i++) {
+
+            if (feeAssets[i] == getAddress(sourceChain, "ETH")) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    teller,
+                    true,
+                    "bridge(uint96,address,bytes,address,uint256)",
+                    new address[](2),
+                    string.concat("Bridge ", ERC20(ITeller(teller).vault()).symbol(), " with ETH as fee"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault"); 
+                leafs[leafIndex].argumentAddresses[1] = feeAssets[i]; 
+            } else {
+
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    teller,
+                    false,
+                    "bridge(uint96,address,bytes,address,uint256)",
+                    new address[](2),
+                    string.concat("Bridge ", ERC20(ITeller(teller).vault()).symbol(), " with ", ERC20(feeAssets[i]).symbol(), " as fee"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault"); 
+                leafs[leafIndex].argumentAddresses[1] = feeAssets[i]; 
+            }
+        }
+    }
+
     // ========================================= beraETH =========================================
     function _addBeraETHLeafs(ManageLeaf[] memory leafs) internal {
         unchecked {
@@ -12139,4 +12264,8 @@ interface IBGTRewardVault {
 
 interface IDeriveVault {
     function token() external view returns (address); 
+}
+
+interface ITeller {
+    function vault() external view returns (address); 
 }
