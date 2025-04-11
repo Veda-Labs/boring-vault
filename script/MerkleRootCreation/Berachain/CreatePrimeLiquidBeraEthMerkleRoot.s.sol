@@ -18,7 +18,7 @@ contract CreatePrimeLiquidBeraEthMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0xB83742330443f7413DBD2aBdfc046dB0474a944e; 
     address public managerAddress = 0x58d32BCfa335B1EE9E25A291408409ceA890Be6b; 
     address public accountantAddress = 0x0B24A469d7c155a588C8a4ee24020F9f27090B0d;
-    address public rawDataDecoderAndSanitizer = 0x0745e969e15C12D1430247a636AC6e7ae7896A4f;
+    address public rawDataDecoderAndSanitizer = 0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150;
 
     function setUp() external {}
 
@@ -90,6 +90,25 @@ contract CreatePrimeLiquidBeraEthMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Etherfi ==========================
         _addWeETHLeafs(leafs, getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"));  
+
+        // ========================== Ooga Booga ==========================
+        address[] memory assets = new address[](5); 
+        SwapKind[] memory kind = new SwapKind[](5); 
+        assets[0] = getAddress(sourceChain, "iBGT"); 
+        kind[0] = SwapKind.Sell; 
+        assets[1] = getAddress(sourceChain, "WETH"); 
+        kind[1] = SwapKind.BuyAndSell; 
+        assets[2] = getAddress(sourceChain, "WEETH"); 
+        kind[2] = SwapKind.BuyAndSell; 
+        assets[3] = getAddress(sourceChain, "beraETH"); 
+        kind[3] = SwapKind.BuyAndSell; 
+        assets[4] = getAddress(sourceChain, "BGT"); //just in case
+        kind[4] = SwapKind.Sell; 
+        
+        _addOogaBoogaSwapLeafs(leafs, assets, kind); 
+
+        // ========================== Infrared ==========================
+        _addInfraredVaultLeafs(leafs, getAddress(sourceChain, "infrared_vault_weth_weeth")); 
 
         // ========================== Verify ==========================
         
