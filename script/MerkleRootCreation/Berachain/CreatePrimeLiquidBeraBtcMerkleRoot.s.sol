@@ -18,7 +18,7 @@ contract CreatePrimeLiquidBeraBtcMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0x46fcd35431f5B371224ACC2e2E91732867B1A77e; 
     address public managerAddress = 0x7280E05ccF01066C715aDc936f860BD65510f816;
     address public accountantAddress = 0x4faE50B524e0D05BD73fDF28b273DB7D4A57CCe9;
-    address public rawDataDecoderAndSanitizer = 0xeE7391E66246Bb05cb8a7D672a6e7A5613B1Ea92;
+    address public rawDataDecoderAndSanitizer = 0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150;
 
     function setUp() external {}
 
@@ -44,7 +44,7 @@ contract CreatePrimeLiquidBeraBtcMerkleRoot is Script, MerkleTreeHelper {
         ERC20[] memory tellerAssets = new ERC20[](2); 
         tellerAssets[0] = getERC20(sourceChain, "WBTC"); 
         tellerAssets[1] = getERC20(sourceChain, "LBTC"); 
-        _addTellerLeafs(leafs, getAddress(sourceChain, "eBTCTeller"), tellerAssets, false);    
+        _addTellerLeafs(leafs, getAddress(sourceChain, "eBTCTeller"), tellerAssets, false, true); //no native deposit, yes bulkwithdraw/deposit
 
 
         // ========================== Kodiak Swaps ==========================
@@ -65,7 +65,8 @@ contract CreatePrimeLiquidBeraBtcMerkleRoot is Script, MerkleTreeHelper {
         islands[0] = getAddress(sourceChain, "kodiak_island_WBTC_EBTC_005%"); 
         islands[1] = getAddress(sourceChain, "kodiak_island_EBTC_LBTC_005%"); 
         islands[2] = getAddress(sourceChain, "kodiak_island_EBTC_EBTC_OT_005%"); 
-
+        
+        _addKodiakIslandLeafs(leafs, islands, false); //don't include native leaves
 
         // ========================== Dolomite Supply ==========================
 
@@ -84,6 +85,25 @@ contract CreatePrimeLiquidBeraBtcMerkleRoot is Script, MerkleTreeHelper {
         vaults[0] = getAddress(sourceChain, "goldivault_eBTC"); 
 
         _addGoldiVaultLeafs(leafs, vaults); 
+
+        // ========================== Ooga Booga ==========================
+        address[] memory assets = new address[](5);
+        SwapKind[] memory kind = new SwapKind[](5);
+        assets[0] = getAddress(sourceChain, "iBGT");
+        kind[0] = SwapKind.Sell;
+        assets[1] = getAddress(sourceChain, "WBTC");
+        kind[1] = SwapKind.BuyAndSell;
+        assets[2] = getAddress(sourceChain, "EBTC");
+        kind[2] = SwapKind.BuyAndSell;
+        assets[3] = getAddress(sourceChain, "LBTC");
+        kind[3] = SwapKind.BuyAndSell;
+        assets[4] = getAddress(sourceChain, "BGT"); //just in case
+        kind[4] = SwapKind.Sell;
+
+        _addOogaBoogaSwapLeafs(leafs, assets, kind);
+
+        // ========================== Infrared ==========================
+        _addInfraredVaultLeafs(leafs, getAddress(sourceChain, "infrared_vault_wbtc_ebtc"));
         
 
         // ========================== Verify ==========================
