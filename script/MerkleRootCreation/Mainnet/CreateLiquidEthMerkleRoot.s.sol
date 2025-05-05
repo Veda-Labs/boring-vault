@@ -86,6 +86,7 @@ contract CreateLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== Gearbox ==========================
         _addGearboxLeafs(leafs, ERC4626(getAddress(sourceChain, "dWETHV3")), getAddress(sourceChain, "sdWETHV3"));
+        _addGearboxLeafs(leafs, ERC4626(getAddress(sourceChain, "dWSTETHV3")), getAddress(sourceChain, "sdWSTETHV3"));
 
         // ========================== MorphoBlue ==========================
         /**
