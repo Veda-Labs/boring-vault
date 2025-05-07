@@ -678,6 +678,11 @@ contract ChainValues {
         values[mainnet]["DAI_USDC_100"] = 0x5777d92f208679DB4b9778590Fa3CAB3aC9e2168.toBytes32();
         values[mainnet]["uniswapV3NonFungiblePositionManager"] = 0xC36442b4a4522E871399CD717aBDD847Ab11FE88.toBytes32();
 
+        // Uniswap V4
+        values[mainnet]["uniV4PoolManager"] = 0xbD216513d74C8cf14cf4747E6AaA6420FF64ee9e.toBytes32();
+        values[mainnet]["uniV4PositionManager"] = 0x000000000004444c5dc75cB358380D2e3dE08A90.toBytes32();
+        values[mainnet]["uniV4UniversalRouter"] = 0x66a9893cC07D91D95644AEDD05D03f95e1dBA8Af.toBytes32();
+
         // Redstone
         values[mainnet]["swEthAdapter"] = 0x68ba9602B2AeE30847412109D2eE89063bf08Ec2.toBytes32();
         values[mainnet]["swEthDataFeedId"] = 0x5357455448000000000000000000000000000000000000000000000000000000;
@@ -1045,6 +1050,9 @@ contract ChainValues {
         values[mainnet]["LBTC_cbBTCDex_WBTC"] = 0x96B2A29823d475468eE6f15e07878adf79E8199b.toBytes32();
         values[mainnet]["wBTC_cbBTCDex_wBTC_cbBTC"] = 0xDCe03288F9A109150f314ED0Ca9b59a690300d9d.toBytes32();
         values[mainnet]["sUSDe_DEX-USDC-USDT"] = 0xe210d8ded13Abe836a10E8Aa956dd424658d0034.toBytes32(); //T3
+        values[mainnet]["wstETH_ETH"] = 0x82B27fA821419F5689381b565a8B0786aA2548De.toBytes32(); //T1
+        values[mainnet]["DEX-wstETH-ETH_DEX-wstETH-ETH"] = 0x528CF7DBBff878e02e48E83De5097F8071af768D.toBytes32(); //T4
+
 
         // Symbiotic
         values[mainnet]["wstETHDefaultCollateral"] = 0xC329400492c6ff2438472D4651Ad17389fCb843a.toBytes32();
@@ -1319,7 +1327,7 @@ contract ChainValues {
 
         // Odos
         values[mainnet]["odosRouterV2"] = 0xCf5540fFFCdC3d510B18bFcA6d2b9987b0772559.toBytes32();
-        values[mainnet]["odosExecutor"] = 0xd768d1Fe6Ef1449A54F9409400fe9d0E4954ea3F.toBytes32();
+        values[mainnet]["odosExecutor"] = 0x76edF8C155A1e0D9B2aD11B04d9671CBC25fEE99.toBytes32();
 
         // Level
         values[mainnet]["levelMinter"] = 0x8E7046e27D14d09bdacDE9260ff7c8c2be68a41f.toBytes32();
