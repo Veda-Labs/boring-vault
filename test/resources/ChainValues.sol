@@ -33,6 +33,7 @@ contract ChainValues {
     string public constant sonicBlaze = "sonicBlaze";
     string public constant berachainTestnet = "berachainTestnet";
     string public constant bartio = "bartio";
+    string public constant tacTestnet = "tacTestnet";
 
     // Bridging constants.
     uint64 public constant ccipArbitrumChainSelector = 4949039107694359620;
@@ -118,6 +119,7 @@ contract ChainValues {
         _addSonicBlazeValues();
         _addBerachainTestnetValues();
         _addBartioValues();
+        _addTACTestnetValues();
     }
 
     function _addMainnetValues() private {
@@ -2370,5 +2372,25 @@ contract ChainValues {
 
         // LayerZero
         values[unichain]["LayerZeroEndPoint"] = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B.toBytes32();
+    }
+
+    function _addTACTestnetValues() private {
+        values[tacTestnet]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        values[tacTestnet]["txBundlerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        values[tacTestnet]["dev0Address"] = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b.toBytes32();
+        values[tacTestnet]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
+
+        values[tacTestnet]["dev4Address"] = 0xD3d742a82524b6de30E54315E471264dc4CF2BcC.toBytes32();
+
+        // ERC20s
+        values[tacTestnet]["WTAC"] = 0x07840B012d84095397Fd251Ea619cee6F866bC39.toBytes32();
+        values[tacTestnet]["USDT"] = 0x7336A5a3251b9259DDf8B9D02a96dA0153e0799d.toBytes32(); // hopefully this is a good one to test with
+        values[tacTestnet]["ZRO"] = address(1).toBytes32();
+
+        // LayerZero
+        values[tacTestnet]["LayerZeroEndPoint"] = address(1).toBytes32();
+
+        // Balancer
+        values[tacTestnet]["balancerVault"] = address(1).toBytes32();
     }
 }
