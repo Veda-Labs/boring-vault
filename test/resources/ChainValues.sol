@@ -33,7 +33,7 @@ contract ChainValues {
     string public constant sonicBlaze = "sonicBlaze";
     string public constant berachainTestnet = "berachainTestnet";
     string public constant bartio = "bartio";
-
+    string public constant hyperEVM = "hyperEVM";
     // Bridging constants.
     uint64 public constant ccipArbitrumChainSelector = 4949039107694359620;
     uint64 public constant ccipMainnetChainSelector = 5009297550715157269;
@@ -55,6 +55,7 @@ contract ChainValues {
     uint32 public constant layerZeroMovementEndpointId = 30325;
     uint32 public constant hyperlaneMainnetEndpointId = 1;
     uint32 public constant hyperlaneEclipseEndpointId = 1408864445;
+    uint32 public constant HyperEVMEndpointId = 30367;
 
     error ChainValues__ZeroAddress(string chainName, string valueName);
     error ChainValues__ZeroBytes32(string chainName, string valueName);
@@ -111,6 +112,7 @@ contract ChainValues {
         _addBobValues();
         _addDeriveValues();
         _addUnichainValues();
+        _addHyperEVMValues();
         // Add testnet values
         _addHoleskyValues();
         _addSepoliaValues();
@@ -2370,5 +2372,11 @@ contract ChainValues {
 
         // LayerZero
         values[unichain]["LayerZeroEndPoint"] = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B.toBytes32();
+    }
+
+    function _addHyperEVMValues() internal {
+        values[hyperEVM]["dev0Address"] = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b.toBytes32();
+        values[hyperEVM]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
+        values[hyperEVM]["LayerZeroEndPoint"] = 0x3A73033C0b1407574C76BdBAc67f126f6b4a9AA9.toBytes32();
     }
 }
