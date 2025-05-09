@@ -27,6 +27,7 @@ contract ChainValues {
     string public constant bob = "bob";
     string public constant derive = "derive";
     string public constant unichain = "unichain";
+    string public constant plumeMainnet = "plumeMainnet";
     string public constant holesky = "holesky";
     string public constant sepolia = "sepolia";
     string public constant sonicTestnet = "sonicTestnet";
@@ -2370,5 +2371,34 @@ contract ChainValues {
 
         // LayerZero
         values[unichain]["LayerZeroEndPoint"] = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B.toBytes32();
+    }
+
+    function _addPlumeMainnetValues() public {
+        values[plumeMainnet]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        values[plumeMainnet]["dev0Address"] = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b.toBytes32();
+        values[plumeMainnet]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
+        values[plumeMainnet]["txBundlerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        
+        // ERC20
+        values[plumeMainnet]["ZRO"] = address(1).toBytes32();
+        values[plumeMainnet]["wPLUME"] = 0xEa237441c92CAe6FC17Caaf9a7acB3f953be4bd1.toBytes32();
+        values[plumeMainnet]["USDC"] = 0x78adD880A697070c1e765Ac44D65323a0DcCE913.toBytes32();
+        
+        // LayerZero
+        values[plumeMainnet]["LayerZeroEndPoint"] = 0xC1b15d3B262bEeC0e3565C11C9e0F6134BdaCB36.toBytes32();
+
+        // Balancer
+        values[plumeMainnet]["balancerVault"] = address(1).toBytes32();
+        values[plumeMainnet]["vault"] = address(1).toBytes32();
+
+        // Nest/Nucleus
+        values[plumeMainnet]["nALPHA"] = 0x593cCcA4c4bf58b7526a4C164cEEf4003C6388db.toBytes32();
+        values[plumeMainnet]["op-nRWA"] = 0xaB306aFBF157534CdEa99Bf197F473362468692E.toBytes32();
+        values[plumeMainnet]["op-nRWATeller"] = 0x5592E17946f15205454E9C07eD4a86ecfb749678.toBytes32();
+
+        // Royco
+        values[plumeMainnet]["recipeMarketHub"] = 0x027ef18525876138bEc202aA4411538CE4B2f4ca.toBytes32();
+        values[plumeMainnet]["vaultMarketHub"] = 0x520bd73D143a1A9395728aA34B81695fF7e2D6Aa.toBytes32();
+        values[plumeMainnet]["weirollWalletHelper"] = 0x07899ac8BE7462151d6515FCd4773DD9267c9911.toBytes32();
     }
 }
