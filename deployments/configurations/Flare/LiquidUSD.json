@@ -1,0 +1,169 @@
+{
+    "deploymentParameters": {
+      "logLevel": 4,
+      "privateKeyEnvName": "BORING_DEVELOPER",
+      "chainName": "flare",
+      "evmVersion": "london",
+      "desiredNumberOfDeploymentTxs": 100,
+      "txBundlerAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "txBundlerAddress"
+      },
+      "setupRoles": true,
+      "setupTestUser": true,
+      "saveDeploymentDetails": true,
+      "testUserAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "dev1Address"
+      },
+      "deployerContractAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "deployerAddress"
+      },
+      "nativeWrapperAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "WFLR"
+      },
+      "deploymentOwnerAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "txBundlerAddress"
+      },
+      "deploymentFileName": "addresses/Flare/LiquidUSD.json"
+    },
+    "rolesAuthorityConfiguration": {
+      "rolesAuthorityDeploymentName": "EtherFi Liquid USD RolesAuthority Version 0.0"
+    },
+    "lensConfiguration": {
+      "lensDeploymentName": "Arctic Architecture Lens V0.0"
+    },
+    "boringVaultConfiguration": {
+      "boringVaultDeploymentName": "EtherFi Liquid USD V0.0",
+      "boringVaultName": "Ether.Fi Liquid USD",
+      "boringVaultSymbol": "liquidUSD",
+      "boringVaultDecimals": 6
+    },
+    "managerConfiguration": {
+      "managerDeploymentName": "EtherFi Liquid USD Manager With Merkle Verification V0.0",
+      "balancerVaultAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "balancerVault"
+      }
+    },
+    "accountantConfiguration": {
+      "accountantDeploymentName": "EtherFi Liquid USD Accountant With Rate Providers V0.0",
+      "accountantParameters": {
+        "kind": {
+          "variableRate": true,
+          "fixedRate": false
+        },
+        "payoutConfiguration": {
+          "payoutTo": "0x0000000000000000000000000000000000000001",
+          "optionalPaymentSplitterName": "EtherFi Liquid USD Payment Splitter V0.0",
+          "splits": []
+        },
+        "accountantDeploymentParameters": {
+          "allowedExchangeRateChangeLower": 9950,
+          "allowedExchangeRateChangeUpper": 10050,
+          "baseAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "USDC"
+          },
+          "minimumUpateDelayInSeconds": 21600,
+          "performanceFee": 0,
+          "platformFee": 0,
+          "startingExchangeRate": 1092713
+        }
+      }
+    },
+    "tellerConfiguration": {
+      "tellerDeploymentName": "Liquid USD LayerZero Teller V0.2",
+      "tellerParameters": {
+        "allowPublicDeposits": true,
+        "shareLockPeriod": 86400,
+        "kind": {
+          "teller": false,
+          "tellerWithRemediation": false,
+          "tellerWithCcip": false,
+          "tellerWithLayerZero": false,
+          "tellerWithLayerZeroRateLimiting": true
+        },
+        "layerZero": {
+          "endpointAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "LayerZeroEndPoint"
+          },
+          "lzTokenAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "ZRO"
+          },
+          "lzChains": []
+        }
+      }
+    },
+    "boringQueueConfiguration": {
+      "boringQueueDeploymentName": "EtherFi Liquid USD Boring Queue V0.0",
+      "boringQueueSolverName": "EtherFi Liquid USD Boring Solver V0.0",
+      "queueParameters": {
+        "allowPublicWithdrawals": true,
+        "allowPublicSelfWithdrawals": true,
+        "kind": {
+          "boringQueue": true,
+          "boringQueueWithTracking": false
+        }
+      }
+    },
+    "droneConfiguration": {
+      "droneDeploymentBaseName": "liquidUSD Boring Drone 0",
+      "droneCount": 1,
+      "safeGasToForwardNative": 21000
+    },
+    "pauserConfiguration": {
+      "shouldDeploy": true,
+      "pauserDeploymentName": "EtherFi Liquid USD Pauser V0.0",
+      "makeGenericPauser": ["0x0000000000000000000000000000000000000000"],
+      "makeGenericUnpauser": ["0x0000000000000000000000000000000000000000"],
+      "makePauseAll": ["0x0000000000000000000000000000000000000000"],
+      "makeUnpauseAll": ["0x0000000000000000000000000000000000000000"],
+      "senderToPausable": [
+        {
+          "sender": "0x0000000000000000000000000000000000000000",
+          "pausable": "0x0000000000000000000000000000000000000000"
+        }
+      ]
+    },
+    "timelockConfiguration": {
+      "shouldDeploy": true,
+      "timelockDeploymentName": "EtherFi Liquid USD Timelock V0.0",
+      "timelockParameters": {
+        "executors": ["0xf8553c8552f906C19286F21711721E206EE4909E"],
+        "minDelay": 0,
+        "proposers": ["0xf8553c8552f906C19286F21711721E206EE4909E"]
+      }
+    },
+    "accountantAssets": [],
+    "depositAssets": [
+      {
+        "addressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "USDC"
+        },
+        "allowDeposits": true,
+        "allowWithdraws": true,
+        "sharePremium": 0
+      }
+    ],
+    "withdrawAssets": [
+      {
+        "addressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "USDC"
+        },
+        "maxDiscount": 10,
+        "minDiscount": 1,
+        "minimumSecondsToDeadline": 259200,
+        "minimumShares": 0,
+        "secondsToMaturity": 172800
+      }
+    ]
+  }
+  
