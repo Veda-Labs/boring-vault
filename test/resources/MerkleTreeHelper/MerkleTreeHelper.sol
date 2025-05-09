@@ -2052,7 +2052,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             true,
             "deposit()",
             new address[](0),
-            "Wrap ETH for wETH",
+            string.concat("Wrap Native to ", ERC20(wrappedToken).symbol()),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
 
@@ -2064,7 +2064,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             false,
             "withdraw(uint256)",
             new address[](0),
-            "Unwrap wETH for ETH",
+            string.concat("Unwrap ", ERC20(wrappedToken).symbol(), " to Native"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
     }
