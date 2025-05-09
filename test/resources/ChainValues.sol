@@ -2275,6 +2275,19 @@ contract ChainValues {
         values[berachain]["bWETH"] = 0x6Ddbc255bFfD2D394F3b31c543283c01D69D4Ba2.toBytes32();
         values[berachain]["WETHDenManager"] = 0xD80AB5da2507008c8ede90648407BE098F1F1521.toBytes32();
 
+        values[berachain]["bbWBTC"] = 0xAA2cBDe9f11f09ee9774D6d6C98dbB4792d9549a.toBytes32();
+        values[berachain]["bbLBTC"] = 0x458CbA0D42896659fbb69872212Ec7Aa01b8DBEf.toBytes32();
+        values[berachain]["bbeBTC"] = 0xA7dFa250Ea71ee410C3deEAF1599Cc864B958b0D.toBytes32();
+        values[berachain]["bbeBTC-WBTC"] = 0x23D7DdCE723531bE8F2D26d2539d672Bd30f4CE1.toBytes32();
+
+        values[berachain]["WBTCDenManager"] = 0x053EEbc21D5129CDB1abf7EAf09D59b19e75B8ce.toBytes32();
+        values[berachain]["LBTCDenManager"] = 0x2d430a7c2Af78682A78F65580f42B32d47A14030.toBytes32();
+        values[berachain]["eBTCDenManager"] = 0xA1C9fbDF853617Fa27E2c39EE830703A3Fa9D2A3.toBytes32();
+        values[berachain]["eBTC-WBTCDenManager"] = 0xF9dB1b321CF012f9a1189Fdf5b9aE97864a96c8C.toBytes32();
+
+        values[berachain]["sNECT"] = 0x597877Ccf65be938BD214C4c46907669e3E62128.toBytes32();
+        values[berachain]["vaultedsNECT"] = 0x1d22592F66Fc92e0a64eE9300eAeca548cd466c5.toBytes32();
+
         // Honey
         values[berachain]["honeyFactory"] = 0xA4aFef880F5cE1f63c9fb48F661E27F8B4216401.toBytes32();
 
