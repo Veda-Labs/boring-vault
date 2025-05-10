@@ -56,9 +56,9 @@ mainnet = { key = "${ETHERSCAN_KEY}" }
 #swell = { key = "${SWELLSCAN_KEY}", chain = 1923, url = "https://explorer.swellnetwork.io:443/api/" }
 #berachainTestnet = { key = "${BERASCAN_TESTNET_KEY}", chain = 80000, url = "https://api.routescan.io/v2/network/testnet/evm/80000/etherscan" }
 #sepolia = { key = "${ETHERSCAN_KEY}" }
-berachain = { key = "${BERASCAN_KEY}", chain = 80094, url = "https://api.berascan.com/api" }
+#berachain = { key = "${BERASCAN_KEY}", chain = 80094, url = "https://api.berascan.com/api" }
 #bob = { key = "${BOBSCAN_KEY}", chain = 60808, url = "https://explorer.gobob.xyz/api?"}
-#unichain = { key = "${UNISCAN_KEY}", chain = 130, url = "https://api.uniscan.xyz/api" }
+unichain = { key = "${UNISCAN_KEY}", chain = 130, url = "https://api.uniscan.xyz/api" }
 
 [fmt]
 FOUNDRY_FMT_LINE_LENGTH = 120
