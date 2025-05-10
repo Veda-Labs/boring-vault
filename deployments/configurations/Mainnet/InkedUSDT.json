@@ -1,0 +1,178 @@
+{
+  "deploymentParameters": {
+    "logLevel": 4,
+    "privateKeyEnvName": "BORING_DEVELOPER",
+    "chainName": "mainnet",
+    "evmVersion": "cancun",
+    "desiredNumberOfDeploymentTxs": 2,
+    "txBundlerAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "txBundlerAddress"
+    },
+    "setupRoles": true,
+    "setupTestUser": true,
+    "saveDeploymentDetails": true,
+    "testUserAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "dev4Address"
+    },
+    "deployerContractAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "deployerAddress"
+    },
+    "nativeWrapperAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "WETH"
+    },
+    "deploymentOwnerAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "txBundlerAddress"
+    },
+    "deploymentFileName": "addresses/Mainnet/InkedUSDT.json"
+  },
+  "rolesAuthorityConfiguration": {
+    "rolesAuthorityDeploymentName": "InkedUSDT Roles Authority V0.2"
+  },
+  "lensConfiguration": {
+    "lensDeploymentName": "Arctic Architecture Lens V0.2"
+  },
+  "boringVaultConfiguration": {
+    "boringVaultDeploymentName": "InkedUSDT Boring Vault V0.2",
+    "boringVaultName": "Ink USDT Veda Vault",
+    "boringVaultSymbol": "inkedUSDT",
+    "boringVaultDecimals": 6
+  },
+  "managerConfiguration": {
+    "managerDeploymentName": "InkedUSDT Manager V0.2",
+    "balancerVaultAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "balancerVault"
+    }
+  },
+  "accountantConfiguration": {
+    "accountantDeploymentName": "InkedUSDT Accountant V0.2",
+    "accountantParameters": {
+      "kind": {
+        "variableRate": true,
+        "fixedRate": false
+      },
+      "payoutConfiguration": {
+        "payoutTo": "0x0000000000000000000000000000000000000000",
+        "optionalPaymentSplitterName": "InkedUSDT Payment Splitter V0.2",
+        "splits": []
+      },
+      "accountantDeploymentParameters": {
+        "allowedExchangeRateChangeLower": 9900,
+        "allowedExchangeRateChangeUpper": 10100,
+        "baseAddressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "USDT"
+        },
+        "minimumUpateDelayInSeconds": 21600,
+        "performanceFee": 1000,
+        "platformFee": 0,
+        "startingExchangeRate": 1000000
+      }
+    }
+  },
+  "tellerConfiguration": {
+    "tellerDeploymentName": "InkedUSDT Teller V0.2",
+    "tellerParameters": {
+      "allowPublicDeposits": true,
+      "shareLockPeriod": 0,
+      "kind": {
+        "teller": false,
+        "tellerWithRemediation": false,
+        "tellerWithCcip": false,
+        "tellerWithLayerZero": true,
+        "tellerWithLayerZeroRateLimiting": false
+      },
+      "layerZero": {
+        "endpointAddressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "LayerZeroEndPoint"
+        },
+        "lzTokenAddressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "ZRO"
+        },
+        "lzChains": []
+      }
+    }
+  },
+  "boringQueueConfiguration": {
+    "boringQueueDeploymentName": "InkedUSDT Boring Queue V0.2",
+    "boringQueueSolverName": "InkedUSDT Boring Solver V0.2",
+    "queueParameters": {
+      "allowPublicWithdrawals": true,
+      "allowPublicSelfWithdrawals": true,
+      "kind": {
+        "boringQueue": true,
+        "boringQueueWithTracking": false
+      }
+    }
+  },
+  "droneConfiguration": {
+    "droneDeploymentBaseName": "InkedUSDT Drone V0.2",
+    "droneCount": 0,
+    "safeGasToForwardNative": 21000
+  },
+  "pauserConfiguration": {
+    "shouldDeploy": true,
+    "pauserDeploymentName": "InkedUSDT Pauser V0.2",
+    "makeGenericPauser": [
+      "0x0000000000000000000000000000000000000000"
+    ],
+    "makeGenericUnpauser": [
+      "0x0000000000000000000000000000000000000000"
+    ],
+    "makePauseAll": [
+      "0x0000000000000000000000000000000000000000"
+    ],
+    "makeUnpauseAll": [
+      "0x0000000000000000000000000000000000000000"
+    ],
+    "senderToPausable": [
+      {
+        "sender": "0x0000000000000000000000000000000000000000",
+        "pausable": "0x0000000000000000000000000000000000000000"
+      }
+    ]
+  },
+  "timelockConfiguration": {
+    "shouldDeploy": true,
+    "timelockDeploymentName": "InkedUSDT Timelock V0.2",
+    "timelockParameters": {
+      "minDelay": 0,
+      "proposers": [
+        "0xD3d742a82524b6de30E54315E471264dc4CF2BcC"
+      ],
+      "executors": [
+        "0xD3d742a82524b6de30E54315E471264dc4CF2BcC"
+      ]
+    }
+  },
+  "accountantAssets": [],
+  "depositAssets": [
+    {
+      "addressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "USDT"
+      },
+      "allowDeposits": true,
+      "allowWithdraws": true,
+      "sharePremium": 0
+    }
+  ],
+  "withdrawAssets": [
+    {
+      "addressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+        "name": "USDT"
+      },
+      "allowDeposits": true,
+      "allowWithdraws": true,
+      "sharePremium": 0
+    }
+  ]
+}

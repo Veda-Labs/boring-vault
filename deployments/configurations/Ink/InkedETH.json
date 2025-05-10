@@ -1,0 +1,198 @@
+{
+  "deploymentParameters": {
+    "logLevel": 4,
+    "privateKeyEnvName": "BORING_DEVELOPER",
+    "chainName": "ink",
+    "evmVersion": "cancun",
+    "desiredNumberOfDeploymentTxs": 20,
+    "txBundlerAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "txBundlerAddress"
+    },
+    "setupRoles": true,
+    "setupTestUser": true,
+    "saveDeploymentDetails": true,
+    "testUserAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "dev4Address"
+    },
+    "deployerContractAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "deployerAddress"
+    },
+    "nativeWrapperAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "WETH"
+    },
+    "deploymentOwnerAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "txBundlerAddress"
+    },
+    "deploymentFileName": "addresses/Ink/InkedETH.json"
+  },
+  "rolesAuthorityConfiguration": {
+    "rolesAuthorityDeploymentName": "InkedETH Roles Authority V0.0"
+  },
+  "lensConfiguration": {
+    "lensDeploymentName": "Arctic Architecture Lens V0.0"
+  },
+  "boringVaultConfiguration": {
+    "boringVaultDeploymentName": "InkedETH Boring Vault V0.0",
+    "boringVaultName": "Ink ETH Veda Vault",
+    "boringVaultSymbol": "inkedETH",
+    "boringVaultDecimals": 18
+  },
+  "managerConfiguration": {
+    "managerDeploymentName": "InkedETH Manager V0.0",
+    "balancerVaultAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "balancerVault"
+    }
+  },
+  "accountantConfiguration": {
+    "accountantDeploymentName": "InkedETH Accountant V0.0",
+    "accountantParameters": {
+      "kind": {
+        "variableRate": true,
+        "fixedRate": false
+      },
+      "payoutConfiguration": {
+        "payoutTo": "0x0000000000000000000000000000000000000000",
+        "optionalPaymentSplitterName": "InkedETH Payment Splitter V0.0",
+        "splits": []
+      },
+      "accountantDeploymentParameters": {
+        "allowedExchangeRateChangeLower": 9900,
+        "allowedExchangeRateChangeUpper": 10100,
+        "baseAddressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "WETH"
+        },
+        "minimumUpateDelayInSeconds": 21600,
+        "performanceFee": 1000,
+        "platformFee": 0,
+        "startingExchangeRate": 1000000000000000000
+      }
+    }
+  },
+  "tellerConfiguration": {
+    "tellerDeploymentName": "InkedETH Teller V0.0",
+    "tellerParameters": {
+      "allowPublicDeposits": true,
+      "shareLockPeriod": 0,
+      "kind": {
+        "teller": false,
+        "tellerWithRemediation": false,
+        "tellerWithCcip": false,
+        "tellerWithLayerZero": true,
+        "tellerWithLayerZeroRateLimiting": false
+      },
+      "layerZero": {
+        "endpointAddressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "LayerZeroEndPoint"
+        },
+        "lzTokenAddressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "ZRO"
+        },
+        "lzChains": []
+      }
+    }
+  },
+  "boringQueueConfiguration": {
+    "boringQueueDeploymentName": "InkedETH Boring Queue V0.0",
+    "boringQueueSolverName": "InkedETH Boring Solver V0.0",
+    "queueParameters": {
+      "allowPublicWithdrawals": true,
+      "allowPublicSelfWithdrawals": true,
+      "kind": {
+        "boringQueue": true,
+        "boringQueueWithTracking": false
+      }
+    }
+  },
+  "droneConfiguration": {
+    "droneDeploymentBaseName": "InkedETH Drone V0.0",
+    "droneCount": 0,
+    "safeGasToForwardNative": 21000
+  },
+  "pauserConfiguration": {
+    "shouldDeploy": true,
+    "pauserDeploymentName": "InkedETH Pauser V0.0",
+    "makeGenericPauser": [
+      "0x0000000000000000000000000000000000000000"
+    ],
+    "makeGenericUnpauser": [
+      "0x0000000000000000000000000000000000000000"
+    ],
+    "makePauseAll": [
+      "0x0000000000000000000000000000000000000000"
+    ],
+    "makeUnpauseAll": [
+      "0x0000000000000000000000000000000000000000"
+    ],
+    "senderToPausable": [
+      {
+        "sender": "0x0000000000000000000000000000000000000000",
+        "pausable": "0x0000000000000000000000000000000000000000"
+      }
+    ]
+  },
+  "timelockConfiguration": {
+    "shouldDeploy": true,
+    "timelockDeploymentName": "InkedETH Timelock V0.0",
+    "timelockParameters": {
+      "minDelay": 0,
+      "proposers": [
+        "0xD3d742a82524b6de30E54315E471264dc4CF2BcC"
+      ],
+      "executors": [
+        "0xD3d742a82524b6de30E54315E471264dc4CF2BcC"
+      ]
+    }
+  },
+  "accountantAssets": [
+    {
+      "addressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "ETH"
+      },
+      "isPeggedToBase": true,
+      "rateProvider": "0x0000000000000000000000000000000000000000"
+    }
+  ],
+  "depositAssets": [
+    {
+      "addressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "ETH"
+      },
+      "allowDeposits": true,
+      "allowWithdraws": true,
+      "sharePremium": 0
+    },
+    {
+      "addressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "WETH"
+      },
+      "allowDeposits": true,
+      "allowWithdraws": true,
+      "sharePremium": 0
+    }
+  ],
+  "withdrawAssets": [
+    {
+      "addressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "WETH"
+      },
+      "maxDiscount": 10,
+      "minDiscount": 1,
+      "minimumSecondsToDeadline": 259200,
+      "minimumShares": 0,
+      "secondsToMaturity": 172800
+    }
+  ]
+}

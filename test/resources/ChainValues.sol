@@ -27,6 +27,7 @@ contract ChainValues {
     string public constant bob = "bob";
     string public constant derive = "derive";
     string public constant unichain = "unichain";
+    string public constant ink = "ink";
     string public constant holesky = "holesky";
     string public constant sepolia = "sepolia";
     string public constant sonicTestnet = "sonicTestnet";
@@ -53,6 +54,7 @@ contract ChainValues {
     uint32 public constant layerZeroSepoliaEndpointId = 40161;
     uint32 public constant layerZeroSonicBlazeEndpointId = 40349;
     uint32 public constant layerZeroMovementEndpointId = 30325;
+    uint32 public constant layerZeroInkEndpointId = 30339;
     uint32 public constant hyperlaneMainnetEndpointId = 1;
     uint32 public constant hyperlaneEclipseEndpointId = 1408864445;
 
@@ -111,6 +113,7 @@ contract ChainValues {
         _addBobValues();
         _addDeriveValues();
         _addUnichainValues();
+        _addInkValues();
         // Add testnet values
         _addHoleskyValues();
         _addSepoliaValues();
@@ -295,7 +298,8 @@ contract ChainValues {
         values[mainnet]["sUSDC"] = 0xBc65ad17c5C0a2A4D159fa5a503f4992c7B545FE.toBytes32(); 
         values[mainnet]["frxUSD"] = 0xCAcd6fd266aF91b8AeD52aCCc382b4e165586E29.toBytes32(); 
         values[mainnet]["sfrxUSD"] = 0xcf62F905562626CfcDD2261162a51fd02Fc9c5b6.toBytes32(); 
-        values[mainnet]["SYRUP"] = 0x643C4E15d7d62Ad0aBeC4a9BD4b001aA3Ef52d66.toBytes32(); 
+        values[mainnet]["SYRUP"] = 0x643C4E15d7d62Ad0aBeC4a9BD4b001aA3Ef52d66.toBytes32();
+        values[mainnet]["KBTC"] = 0x73E0C0d45E048D25Fc26Fa3159b0aA04BfA4Db98.toBytes32();
 
         // Rate providers
         values[mainnet]["WEETH_RATE_PROVIDER"] = 0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee.toBytes32();
@@ -2373,5 +2377,29 @@ contract ChainValues {
 
         // LayerZero
         values[unichain]["LayerZeroEndPoint"] = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B.toBytes32();
+    }
+
+    function _addInkValues() private {
+        values[ink]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        values[ink]["txBundlerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        values[ink]["dev0Address"] = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b.toBytes32();
+        values[ink]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
+        values[ink]["dev3Address"] = 0xBBc5569B0b32403037F37255f4ff50B8Bb825b2A.toBytes32();
+        values[ink]["dev4Address"] = 0xD3d742a82524b6de30E54315E471264dc4CF2BcC.toBytes32();
+
+        // ERC20s
+        values[ink]["ETH"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32();
+        values[ink]["WETH"] = 0x4200000000000000000000000000000000000006.toBytes32();
+        values[ink]["USDT"] = 0x0200C29006150606B650577BBE7B6248F58470c1.toBytes32(); // USDT0
+        values[ink]["USDC"] = 0xF1815bd50389c46847f0Bda824eC8da914045D14.toBytes32(); // Stargate USDC.e
+        values[ink]["KBTC"] = 0x73E0C0d45E048D25Fc26Fa3159b0aA04BfA4Db98.toBytes32(); // Kraken Wrapped BTC
+    
+        // LayerZero
+        values[ink]["LayerZeroEndPoint"] = 0xca29f3A6f966Cb2fc0dE625F8f325c0C46dbE958.toBytes32();
+        values[ink]["ZRO"] = address(1).toBytes32();
+
+        // Balancer
+        values[ink]["balancerVault"] = address(1).toBytes32();
+        values[ink]["vault"] = address(1).toBytes32();
     }
 }
