@@ -273,14 +273,15 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
             eBTCTellerAssets2[2] = getAddress(sourceChain, "cbBTC");
             address[] memory feeAssets = new address[](1);
             feeAssets[0] = getAddress(sourceChain, "ETH"); 
-            _addCrossChainTellerLeafs(leafs, getAddress(sourceChain, "eBTCTeller"), eBTCTellerAssets2, feeAssets);
-
+            _addCrossChainTellerLeafs(leafs, getAddress(sourceChain, "eBTCTeller"), eBTCTellerAssets2, feeAssets, abi.encode(layerZeroBerachainEndpointId));
+        
+            address newLiquidBeraBTCTeller = 0xe238e253b67f42ee3aF194BaF7Aba5E2eaddA1B8;  
             ERC20[] memory liquidBeraBTCTellerAssets = new ERC20[](4);
             liquidBeraBTCTellerAssets[0] = getERC20(sourceChain, "WBTC");
             liquidBeraBTCTellerAssets[1] = getERC20(sourceChain, "LBTC");
             liquidBeraBTCTellerAssets[2] = getERC20(sourceChain, "cbBTC");
             liquidBeraBTCTellerAssets[3] = getERC20(sourceChain, "eBTC");
-            _addTellerLeafs(leafs, getAddress(sourceChain, "liquidBeraBTCTeller"), liquidBeraBTCTellerAssets, false, true);
+            _addTellerLeafs(leafs, newLiquidBeraBTCTeller, liquidBeraBTCTellerAssets, false, true);
 
             ERC20[] memory tacBTCAssets = new ERC20[](1);
             tacBTCAssets[0] = getERC20(sourceChain, "cbBTC");
