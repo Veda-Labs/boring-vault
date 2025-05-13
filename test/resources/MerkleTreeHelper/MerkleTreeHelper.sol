@@ -12484,6 +12484,82 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault"); 
     }
 
+    function _addUltraYieldLeafs(ManageLeaf[] memory leafs, address vault) internal {
+        _addERC4626Leafs(leafs, ERC4626(vault));
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            vault,
+            false,
+            "deposit(uint256)",
+            new address[](0),
+            string.concat("Deposit to UltraYield Vault ", ERC20(vault).symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            vault,
+            false,
+            "withdraw(uint256)",
+            new address[](0),
+            string.concat("Withdraw from UltraYield Vault ", ERC20(vault).symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            vault,
+            false,
+            "mint(uint256)",
+            new address[](0),
+            string.concat("Redeem from UltraYield Vault ", ERC20(vault).symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            vault,
+            false,
+            "redeem(uint256)",
+            new address[](0),
+            string.concat("Redeem from UltraYield Vault ", ERC20(vault).symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            vault,
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve UltraYield Vault ", ERC20(vault).symbol(), " to spend", ERC20(vault).symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = vault;
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            vault,
+            false,
+            "requestRedeem(uint256)",
+            new address[](0),
+            string.concat("Request redeem from UltraYield Vault ", ERC20(vault).symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+    }
+
     // ========================================= JSON FUNCTIONS =========================================
     // TODO this should pass in a bool or something to generate leafs indicating that we want leaf indexes printed.
     bool addLeafIndex = false;

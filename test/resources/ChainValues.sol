@@ -2037,6 +2037,9 @@ contract ChainValues {
         values[sepolia]["USDC"] = 0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590.toBytes32();
         values[sepolia]["ZRO"] = address(1).toBytes32();
         values[sepolia]["CrispyCoin"] = 0x0c959E3AA0A74E972d1A8F759c198e660CcCebcB.toBytes32();
+        values[sepolia]["WETH9"] = 0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14.toBytes32();
+
+        values[sepolia]["UltraYieldWETH"] = 0x22C24D6C6CF64B799ce936f86aBfA8984F3F804d.toBytes32();
 
         values[sepolia]["balancerVault"] = address(1).toBytes32();
 
