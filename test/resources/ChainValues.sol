@@ -2431,12 +2431,17 @@ contract ChainValues {
     }
 
     function _addTACSPBValues() private {
-        values[tacSPB]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
-        values[tacSPB]["txBundlerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        values[tacSPB]["deployerAddress"] = 0xa350559EdBFAC4d3Ea05A2A0a42c32243216b804.toBytes32();
+        values[tacSPB]["txBundlerAddress"] = 0xa350559EdBFAC4d3Ea05A2A0a42c32243216b804.toBytes32();
         values[tacSPB]["dev0Address"] = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b.toBytes32();
         values[tacSPB]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
 
         values[tacSPB]["dev4Address"] = 0xD3d742a82524b6de30E54315E471264dc4CF2BcC.toBytes32();
+        values[tacSPB]["dev5Address"] = 0x1cdF47387358A1733968df92f7cC14546D9E1047.toBytes32();
+
+        //ERC20s
+        values[tacSPB]["TON"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32(); // NATIVE
+        values[tacSPB]["WTAC"] = address(2).toBytes32();
 
         // LayerZero
         values[tacSPB]["LayerZeroEndPoint"] = address(1).toBytes32();

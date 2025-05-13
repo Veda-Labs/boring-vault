@@ -1,0 +1,170 @@
+{
+    "deploymentParameters": {
+      "logLevel": 4,
+      "privateKeyEnvName": "BORING_DEVELOPER",
+      "chainName": "tacSPB",
+      "evmVersion": "cancun",
+      "desiredNumberOfDeploymentTxs": 15,
+      "txBundlerAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "txBundlerAddress"
+      },
+      "setupRoles": true,
+      "setupTestUser": true,
+      "saveDeploymentDetails": true,
+      "testUserAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "dev5Address"
+      },
+      "deployerContractAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "deployerAddress"
+      },
+      "nativeWrapperAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "WTAC"
+      },
+      "deploymentOwnerAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "txBundlerAddress"
+      },
+      "deploymentFileName": "addresses/TACSPB/TurtleTacTON.json"
+    },
+    "rolesAuthorityConfiguration": {
+      "rolesAuthorityDeploymentName": "Turtle TAC TON Roles Authority V8.1"
+    },
+    "lensConfiguration": {
+      "lensDeploymentName": "Arctic Architecture Lens V8.1"
+    },
+    "boringVaultConfiguration": {
+      "boringVaultDeploymentName": "Turtle TAC TON Boring Vault V8.1",
+      "boringVaultName": "Turtle TAC TON Vault",
+      "boringVaultSymbol": "tacTON",
+      "boringVaultDecimals": 18
+    },
+    "managerConfiguration": {
+      "managerDeploymentName": "Turtle TAC TON Manager V8.1",
+      "balancerVaultAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "balancerVault"
+      }
+    },
+    "accountantConfiguration": {
+      "accountantDeploymentName": "Turtle TAC TON Accountant V8.1",
+      "accountantParameters": {
+        "kind": {
+          "variableRate": false,
+          "fixedRate": true
+        },
+        "payoutConfiguration": {
+          "payoutTo": "0x0000000000000000000000000000000000000000",
+          "optionalPaymentSplitterName": "Turtle TAC TON Payment Splitter V8.1",
+          "splits": []
+        },
+        "accountantDeploymentParameters": {
+          "allowedExchangeRateChangeLower": 9900,
+          "allowedExchangeRateChangeUpper": 10100,
+          "baseAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "TAC"
+          },
+          "minimumUpateDelayInSeconds": 21600,
+          "performanceFee": 1000,
+          "platformFee": 0,
+          "startingExchangeRate": 1000000
+        }
+      }
+    },
+    "tellerConfiguration": {
+      "tellerDeploymentName": "Turtle TAC TON Teller V8.1",
+      "tellerParameters": {
+        "allowPublicDeposits": true,
+        "shareLockPeriod": 0,
+        "kind": {
+          "teller": true,
+          "tellerWithRemediation": false,
+          "tellerWithCcip": false,
+          "tellerWithLayerZero": false,
+          "tellerWithLayerZeroRateLimiting": false
+        },
+        "layerZero": {
+          "endpointAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "LayerZeroEndPoint"
+          },
+          "lzTokenAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "ZRO"
+          },
+          "lzChains": []
+        }
+      }
+    },
+    "boringQueueConfiguration": {
+      "boringQueueDeploymentName": "Turtle TAC TON Boring Queue V8.1",
+      "boringQueueSolverName": "Turtle TAC TON Boring Solver V8.1",
+      "queueParameters": {
+        "allowPublicWithdrawals": true,
+        "allowPublicSelfWithdrawals": true,
+        "kind": {
+          "boringQueue": true,
+          "boringQueueWithTracking": false
+        }
+      }
+    },
+    "droneConfiguration": {
+      "droneDeploymentBaseName": "Turtle TAC TON Drone V8.1",
+      "droneCount": 0,
+      "safeGasToForwardNative": 21000
+    },
+    "pauserConfiguration": {
+      "shouldDeploy": true,
+      "pauserDeploymentName": "Turtle TAC TON Pauser V8.1",
+      "makeGenericPauser": [
+        "0x0000000000000000000000000000000000000000"
+      ],
+      "makeGenericUnpauser": [
+        "0x0000000000000000000000000000000000000000"
+      ],
+      "makePauseAll": [
+        "0x0000000000000000000000000000000000000000"
+      ],
+      "makeUnpauseAll": [
+        "0x0000000000000000000000000000000000000000"
+      ],
+      "senderToPausable": [
+        {
+          "sender": "0x0000000000000000000000000000000000000000",
+          "pausable": "0x0000000000000000000000000000000000000000"
+        }
+      ]
+    },
+    "timelockConfiguration": {
+      "shouldDeploy": true,
+      "timelockDeploymentName": "Turtle TAC TON Timelock V8.1",
+      "timelockParameters": {
+        "minDelay": 300,
+        "proposers": [
+          "0x0000000000000000000000000000000000000000"
+        ],
+        "executors": [
+          "0x0000000000000000000000000000000000000000"
+        ]
+      }
+    },
+    "accountantAssets": [],
+    "depositAssets": [
+      {
+        "addressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "TON"
+        },
+        "allowDeposits": true,
+        "allowWithdraws": true,
+        "sharePremium": 0
+      }
+    ],
+    "withdrawAssets": [
+    ]
+  }
+  
