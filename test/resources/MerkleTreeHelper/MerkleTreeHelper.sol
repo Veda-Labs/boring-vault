@@ -12484,6 +12484,71 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault"); 
     }
 
+    // ========================================= StakeStone =========================================
+
+    function _addStoneLeafs(ManageLeaf[] memory leafs) internal {
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "stoneVault"),
+            true,
+            "deposit()",
+            new address[](0),
+            string.concat("Deposit Native ETH to STONE"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "stoneVault"),
+            false,
+            "instantWithdraw(uint256,uint256)",
+            new address[](0),
+            string.concat("Instant withdraw Native ETH from STONE"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "STONE"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve StoneVault to spend STONE for requestWithdraw"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "stoneVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "stoneVault"),
+            false,
+            "requestWithdraw(uint256)",
+            new address[](0),
+            string.concat("Request Withdraw Native ETH from STONE"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "stoneVault"),
+            false,
+            "cancelWithdraw(uint256)",
+            new address[](0),
+            string.concat("Cancel ETH withdraw request from STONE"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+    }
+
     // ========================================= JSON FUNCTIONS =========================================
     // TODO this should pass in a bool or something to generate leafs indicating that we want leaf indexes printed.
     bool addLeafIndex = false;

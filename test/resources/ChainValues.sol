@@ -1358,6 +1358,9 @@ contract ChainValues {
 
         // King
         values[mainnet]["kingMerkleDistributor"] = 0x6Db24Ee656843E3fE03eb8762a54D86186bA6B64.toBytes32();
+
+        // STONE
+        values[mainnet]["stoneVault"] = 0xA62F9C5af106FeEE069F38dE51098D9d81B90572.toBytes32();
     }
 
     function _addBaseValues() private {
