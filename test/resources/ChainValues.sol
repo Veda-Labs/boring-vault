@@ -28,15 +28,16 @@ contract ChainValues {
     string public constant derive = "derive";
     string public constant unichain = "unichain";
     string public constant ink = "ink";
+    string public constant flare = "flare";
+    string public constant hyperEVM = "hyperEVM";
     string public constant holesky = "holesky";
     string public constant sepolia = "sepolia";
     string public constant sonicTestnet = "sonicTestnet";
     string public constant sonicBlaze = "sonicBlaze";
     string public constant berachainTestnet = "berachainTestnet";
     string public constant bartio = "bartio";
-    string public constant hyperEVM = "hyperEVM";
     string public constant tacTestnet = "tacTestnet";
-    string public constant flare = "flare";
+    string public constant tacSPB = "tacSPB"; 
 
 
     // Bridging constants.
@@ -59,9 +60,9 @@ contract ChainValues {
     uint32 public constant layerZeroSonicBlazeEndpointId = 40349;
     uint32 public constant layerZeroMovementEndpointId = 30325;
     uint32 public constant layerZeroInkEndpointId = 30339;
+    uint32 public constant layerZeroHyperEVMEndpointId = 30367;
     uint32 public constant hyperlaneMainnetEndpointId = 1;
     uint32 public constant hyperlaneEclipseEndpointId = 1408864445;
-    uint32 public constant HyperEVMEndpointId = 30367;
 
     error ChainValues__ZeroAddress(string chainName, string valueName);
     error ChainValues__ZeroBytes32(string chainName, string valueName);
@@ -129,6 +130,7 @@ contract ChainValues {
         _addBerachainTestnetValues();
         _addBartioValues();
         _addTACTestnetValues();
+        _addTACSPBValues();
     }
 
     function _addMainnetValues() private {
@@ -2426,6 +2428,21 @@ contract ChainValues {
 
         // Balancer
         values[tacTestnet]["balancerVault"] = address(1).toBytes32();
+    }
+
+    function _addTACSPBValues() private {
+        values[tacSPB]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        values[tacSPB]["txBundlerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        values[tacSPB]["dev0Address"] = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b.toBytes32();
+        values[tacSPB]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
+
+        values[tacSPB]["dev4Address"] = 0xD3d742a82524b6de30E54315E471264dc4CF2BcC.toBytes32();
+
+        // LayerZero
+        values[tacSPB]["LayerZeroEndPoint"] = address(1).toBytes32();
+
+        // Balancer
+        values[tacSPB]["balancerVault"] = address(1).toBytes32();
     }
 
     function _addFlareValues() private {

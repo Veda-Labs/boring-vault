@@ -29,6 +29,7 @@ contract DeployDeployerScript is Script, ContractNames, Test {
     address public dev1Address = 0xf8553c8552f906C19286F21711721E206EE4909E;
     address public dev2Address = 0xBBc5569B0b32403037F37255f4ff50B8Bb825b2A;
     address public dev3Address = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b;
+    address public dev4Address = 0x1cdF47387358A1733968df92f7cC14546D9E1047;
 
     uint8 public DEPLOYER_ROLE = 1;
 
@@ -38,7 +39,7 @@ contract DeployDeployerScript is Script, ContractNames, Test {
         //vm.createSelectFork("mainnet");
         
         privateKey = vm.envUint("DEPLOYER_KEY");
-        vm.createSelectFork("bob");
+        vm.createSelectFork("tacSPB");
     }
 
     function run() external {
@@ -69,6 +70,7 @@ contract DeployDeployerScript is Script, ContractNames, Test {
         rolesAuthority.setUserRole(dev1Address, DEPLOYER_ROLE, true);
         rolesAuthority.setUserRole(dev2Address, DEPLOYER_ROLE, true);
         rolesAuthority.setUserRole(dev3Address, DEPLOYER_ROLE, true);
+        rolesAuthority.setUserRole(dev4Address, DEPLOYER_ROLE, true);
         rolesAuthority.setUserRole(address(deployer), DEPLOYER_ROLE, true);
 
 
