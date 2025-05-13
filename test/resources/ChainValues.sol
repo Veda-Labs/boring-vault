@@ -2408,12 +2408,18 @@ contract ChainValues {
         values[flare]["USDC"] = 0xFbDa5F676cB37624f28265A144A48B0d6e87d3b6.toBytes32(); // USDC.e Stargate
         values[flare]["ZRO"] = address(1).toBytes32(); // USDC0
 
+        // UniswapV3/SparkDex
+        values[flare]["uniswapV3NonFungiblePositionManager"] = 0xEE5FF5Bc5F852764b5584d92A4d592A53DC527da.toBytes32();
+        values[flare]["uniV3Router"] = 0x8a1E35F5c98C4E85B36B7B253222eE17773b2781.toBytes32();
+
         // Balancer
         values[flare]["balancerVault"] = address(1).toBytes32();
         values[flare]["vault"] = address(1).toBytes32();
 
         // LayerZero
         values[flare]["LayerZeroEndPoint"] = 0x1a44076050125825900e736c501f859c50fE728c.toBytes32();
+        values[flare]["USDT0_OFT"] = 0x567287d2A9829215a37e3B88843d32f9221E7588.toBytes32();
+        values[flare]["USDC_OFT_stargate"] = 0x77C71633C34C3784ede189d74223122422492a0f.toBytes32(); 
 
     }
 
