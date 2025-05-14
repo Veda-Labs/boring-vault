@@ -11,15 +11,13 @@
             "Bytes{N*20}(ADDRESS_ARGUMENT_0,...,ADDRESS_ARGUMENT_N)"
         ],
         "LeafCount": 42,
-        "ManageRoot": "0x1fff8158302e424857162adcf4999954039fdfc583a3a8266cfede2e0598adb1",
+        "ManageRoot": "0x3c1e7efa722e5f39661f3887970eb6de46ac1e74a320b520fcc9ab602cf92257",
         "ManagerAddress": "0x62b283d4FeFB2a120e1120dba9f83bE6CA41bCD7",
         "TreeCapacity": 64
     },
     "leafs": [
         {
-            "AddressArguments": [
-                "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
-            ],
+            "AddressArguments": ["0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x934aF04aBF72B9dB1D5425F0d8bDbf6670E7d2C1",
             "Description": "Approve Ooga Booga Router to spend iBGT",
@@ -34,15 +32,15 @@
                 "0xac03CABA51e17c86c921E1f6CBFBdC91F8BB2E6b",
                 "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
                 "0x83599937c2C9bEA0E0E8ac096c6f32e86486b410",
-                "0x0e29aD2925079f313817D09Fcadbdf3A91125654"
+                "0x415744995e9D35A00189C216c37546E9139F5C2c"
             ],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x934aF04aBF72B9dB1D5425F0d8bDbf6670E7d2C1",
             "Description": "Swap iBGT for WETH",
             "FunctionSelector": "0xd46cadbc",
             "FunctionSignature": "swap((address,uint256,address,uint256,uint256,address),bytes,address,uint32)",
-            "LeafDigest": "0xadc9832c1d02abafdf6569580f48e3f6c2203eee995e9eb06f772284b2eb6431",
-            "PackedArgumentAddresses": "0xac03caba51e17c86c921e1f6cbfbdc91f8bb2e6b2f6f07cdcf3588944bf4c42ac74ff24bf56e759083599937c2c9bea0e0e8ac096c6f32e86486b4100e29ad2925079f313817d09fcadbdf3a91125654",
+            "LeafDigest": "0xc37078cb01be23c198fbd8c7f0dd2339c07fd2327ccf9970a6a635cf20a66938",
+            "PackedArgumentAddresses": "0xac03caba51e17c86c921e1f6cbfbdc91f8bb2e6b2f6f07cdcf3588944bf4c42ac74ff24bf56e759083599937c2c9bea0e0e8ac096c6f32e86486b410415744995e9d35a00189c216c37546e9139f5c2c",
             "TargetAddress": "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
         },
         {
@@ -50,21 +48,19 @@
                 "0xac03CABA51e17c86c921E1f6CBFBdC91F8BB2E6b",
                 "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
                 "0x83599937c2C9bEA0E0E8ac096c6f32e86486b410",
-                "0x0e29aD2925079f313817D09Fcadbdf3A91125654"
+                "0x415744995e9D35A00189C216c37546E9139F5C2c"
             ],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x934aF04aBF72B9dB1D5425F0d8bDbf6670E7d2C1",
             "Description": "Swap iBGT for weETH",
             "FunctionSelector": "0xd46cadbc",
             "FunctionSignature": "swap((address,uint256,address,uint256,uint256,address),bytes,address,uint32)",
-            "LeafDigest": "0xbe9054cc06e2aa8fe1b74eaee7f86713362bebddfd067b61a7651cfc0e25c5e1",
-            "PackedArgumentAddresses": "0xac03caba51e17c86c921e1f6cbfbdc91f8bb2e6b7dcc39b4d1c53cb31e1abc0e358b43987fef80f783599937c2c9bea0e0e8ac096c6f32e86486b4100e29ad2925079f313817d09fcadbdf3a91125654",
+            "LeafDigest": "0x16e2fbf441f0741e4b5d5d325f3568b724b0204fb85b6aed2485baad323bb477",
+            "PackedArgumentAddresses": "0xac03caba51e17c86c921e1f6cbfbdc91f8bb2e6b7dcc39b4d1c53cb31e1abc0e358b43987fef80f783599937c2c9bea0e0e8ac096c6f32e86486b410415744995e9d35a00189c216c37546e9139f5c2c",
             "TargetAddress": "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
         },
         {
-            "AddressArguments": [
-                "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
-            ],
+            "AddressArguments": ["0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x934aF04aBF72B9dB1D5425F0d8bDbf6670E7d2C1",
             "Description": "Approve Ooga Booga Router to spend WETH",
@@ -79,15 +75,15 @@
                 "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
                 "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
                 "0x83599937c2C9bEA0E0E8ac096c6f32e86486b410",
-                "0x0e29aD2925079f313817D09Fcadbdf3A91125654"
+                "0x415744995e9D35A00189C216c37546E9139F5C2c"
             ],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x934aF04aBF72B9dB1D5425F0d8bDbf6670E7d2C1",
             "Description": "Swap WETH for weETH",
             "FunctionSelector": "0xd46cadbc",
             "FunctionSignature": "swap((address,uint256,address,uint256,uint256,address),bytes,address,uint32)",
-            "LeafDigest": "0xcd31f61c0c7496c36f1e148f1839a9b149d95978e2e8b47b490ec012fd06f806",
-            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e75907dcc39b4d1c53cb31e1abc0e358b43987fef80f783599937c2c9bea0e0e8ac096c6f32e86486b4100e29ad2925079f313817d09fcadbdf3a91125654",
+            "LeafDigest": "0xaf3bdac4aa74a71abb2a5365eeab5622d0f8ae1826f3f1703cac0085e51b3e8e",
+            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e75907dcc39b4d1c53cb31e1abc0e358b43987fef80f783599937c2c9bea0e0e8ac096c6f32e86486b410415744995e9d35a00189c216c37546e9139f5c2c",
             "TargetAddress": "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
         },
         {
@@ -95,15 +91,15 @@
                 "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
                 "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
                 "0x83599937c2C9bEA0E0E8ac096c6f32e86486b410",
-                "0x0e29aD2925079f313817D09Fcadbdf3A91125654"
+                "0x415744995e9D35A00189C216c37546E9139F5C2c"
             ],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x934aF04aBF72B9dB1D5425F0d8bDbf6670E7d2C1",
             "Description": "Swap weETH for WETH",
             "FunctionSelector": "0xd46cadbc",
             "FunctionSignature": "swap((address,uint256,address,uint256,uint256,address),bytes,address,uint32)",
-            "LeafDigest": "0x431c515c5af0280760ac430374cf244a7e81871565b3c469896bd8a59434bc9a",
-            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f72f6f07cdcf3588944bf4c42ac74ff24bf56e759083599937c2c9bea0e0e8ac096c6f32e86486b4100e29ad2925079f313817d09fcadbdf3a91125654",
+            "LeafDigest": "0xf12934efcde5e0b5f5ef181626f2c3cdb77149cf051416b78826d3eedf2f0e81",
+            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f72f6f07cdcf3588944bf4c42ac74ff24bf56e759083599937c2c9bea0e0e8ac096c6f32e86486b410415744995e9d35a00189c216c37546e9139f5c2c",
             "TargetAddress": "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
         },
         {
@@ -111,21 +107,19 @@
                 "0x656b95E550C07a9ffe548bd4085c72418Ceb1dba",
                 "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
                 "0x83599937c2C9bEA0E0E8ac096c6f32e86486b410",
-                "0x0e29aD2925079f313817D09Fcadbdf3A91125654"
+                "0x415744995e9D35A00189C216c37546E9139F5C2c"
             ],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x934aF04aBF72B9dB1D5425F0d8bDbf6670E7d2C1",
             "Description": "Swap BGT for WETH",
             "FunctionSelector": "0xd46cadbc",
             "FunctionSignature": "swap((address,uint256,address,uint256,uint256,address),bytes,address,uint32)",
-            "LeafDigest": "0x3c625924b1c191bd30139d01a27540df932726b5dd72efbb56bc95b381a92b8e",
-            "PackedArgumentAddresses": "0x656b95e550c07a9ffe548bd4085c72418ceb1dba2f6f07cdcf3588944bf4c42ac74ff24bf56e759083599937c2c9bea0e0e8ac096c6f32e86486b4100e29ad2925079f313817d09fcadbdf3a91125654",
+            "LeafDigest": "0xfffb3ebfee17dbca0ab73c454f0b077a823981c509330fc5fd65d867c8f87ebd",
+            "PackedArgumentAddresses": "0x656b95e550c07a9ffe548bd4085c72418ceb1dba2f6f07cdcf3588944bf4c42ac74ff24bf56e759083599937c2c9bea0e0e8ac096c6f32e86486b410415744995e9d35a00189c216c37546e9139f5c2c",
             "TargetAddress": "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
         },
         {
-            "AddressArguments": [
-                "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
-            ],
+            "AddressArguments": ["0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x934aF04aBF72B9dB1D5425F0d8bDbf6670E7d2C1",
             "Description": "Approve Ooga Booga Router to spend weETH",
@@ -140,21 +134,19 @@
                 "0x656b95E550C07a9ffe548bd4085c72418Ceb1dba",
                 "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
                 "0x83599937c2C9bEA0E0E8ac096c6f32e86486b410",
-                "0x0e29aD2925079f313817D09Fcadbdf3A91125654"
+                "0x415744995e9D35A00189C216c37546E9139F5C2c"
             ],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x934aF04aBF72B9dB1D5425F0d8bDbf6670E7d2C1",
             "Description": "Swap BGT for weETH",
             "FunctionSelector": "0xd46cadbc",
             "FunctionSignature": "swap((address,uint256,address,uint256,uint256,address),bytes,address,uint32)",
-            "LeafDigest": "0xa2c8f782ed4a73e92b85968f9791b6a56ffc44b27498c4fc64c5e2b2d8c73b2e",
-            "PackedArgumentAddresses": "0x656b95e550c07a9ffe548bd4085c72418ceb1dba7dcc39b4d1c53cb31e1abc0e358b43987fef80f783599937c2c9bea0e0e8ac096c6f32e86486b4100e29ad2925079f313817d09fcadbdf3a91125654",
+            "LeafDigest": "0x58c5b9ded53336bd83dca33a9c68be6f8117852555338fb4e1a2ae29a59ab759",
+            "PackedArgumentAddresses": "0x656b95e550c07a9ffe548bd4085c72418ceb1dba7dcc39b4d1c53cb31e1abc0e358b43987fef80f783599937c2c9bea0e0e8ac096c6f32e86486b410415744995e9d35a00189c216c37546e9139f5c2c",
             "TargetAddress": "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
         },
         {
-            "AddressArguments": [
-                "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
-            ],
+            "AddressArguments": ["0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x934aF04aBF72B9dB1D5425F0d8bDbf6670E7d2C1",
             "Description": "Approve Ooga Booga Router to spend BGT",
@@ -165,9 +157,7 @@
             "TargetAddress": "0x656b95E550C07a9ffe548bd4085c72418Ceb1dba"
         },
         {
-            "AddressArguments": [
-                "0x45f1A95A4D3f3836523F5c83673c797f4d4d263B"
-            ],
+            "AddressArguments": ["0x45f1A95A4D3f3836523F5c83673c797f4d4d263B"],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x934aF04aBF72B9dB1D5425F0d8bDbf6670E7d2C1",
             "Description": "Approve LayerZero to spend WETH",
@@ -210,9 +200,7 @@
             "TargetAddress": "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
         },
         {
-            "AddressArguments": [
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
-            ],
+            "AddressArguments": ["0xB83742330443f7413DBD2aBdfc046dB0474a944e"],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x934aF04aBF72B9dB1D5425F0d8bDbf6670E7d2C1",
             "Description": "Approve Prime Ether.Fi Liquid Bera ETH, to spend WETH",
@@ -251,9 +239,7 @@
             "TargetAddress": "0xB745B293468df7B06330472fBCee5412FF44750B"
         },
         {
-            "AddressArguments": [
-                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
-            ],
+            "AddressArguments": ["0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x934aF04aBF72B9dB1D5425F0d8bDbf6670E7d2C1",
             "Description": "Deposit WETH into Prime Ether.Fi Liquid Bera ETH",
@@ -264,9 +250,7 @@
             "TargetAddress": "0xB745B293468df7B06330472fBCee5412FF44750B"
         },
         {
-            "AddressArguments": [
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
-            ],
+            "AddressArguments": ["0xB83742330443f7413DBD2aBdfc046dB0474a944e"],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x934aF04aBF72B9dB1D5425F0d8bDbf6670E7d2C1",
             "Description": "Approve Prime Ether.Fi Liquid Bera ETH, to spend weETH",
@@ -305,9 +289,7 @@
             "TargetAddress": "0xB745B293468df7B06330472fBCee5412FF44750B"
         },
         {
-            "AddressArguments": [
-                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
-            ],
+            "AddressArguments": ["0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x934aF04aBF72B9dB1D5425F0d8bDbf6670E7d2C1",
             "Description": "Deposit weETH into Prime Ether.Fi Liquid Bera ETH",
@@ -318,9 +300,7 @@
             "TargetAddress": "0xB745B293468df7B06330472fBCee5412FF44750B"
         },
         {
-            "AddressArguments": [
-                "0xD9905ea24E55c1cE053F2DBe0fFA019dCbc1349d"
-            ],
+            "AddressArguments": ["0xD9905ea24E55c1cE053F2DBe0fFA019dCbc1349d"],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x934aF04aBF72B9dB1D5425F0d8bDbf6670E7d2C1",
             "Description": "Withdraw Weiroll deposit from 0xD9905ea24E55c1cE053F2DBe0fFA019dCbc1349d",
@@ -331,9 +311,7 @@
             "TargetAddress": "0xEC1F64Cd852c65A22bCaA778b2ed76Bc5502645C"
         },
         {
-            "AddressArguments": [
-                "0x09dAdd9DC48660c4db718B2200f2710877e613A5"
-            ],
+            "AddressArguments": ["0x09dAdd9DC48660c4db718B2200f2710877e613A5"],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x934aF04aBF72B9dB1D5425F0d8bDbf6670E7d2C1",
             "Description": "Withdraw Weiroll deposit from 0x09dAdd9DC48660c4db718B2200f2710877e613A5",
@@ -344,9 +322,7 @@
             "TargetAddress": "0xEC1F64Cd852c65A22bCaA778b2ed76Bc5502645C"
         },
         {
-            "AddressArguments": [
-                "0xC6f02dea1fF6349B14027C17522D8986974Cd2a0"
-            ],
+            "AddressArguments": ["0xC6f02dea1fF6349B14027C17522D8986974Cd2a0"],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x934aF04aBF72B9dB1D5425F0d8bDbf6670E7d2C1",
             "Description": "Withdraw Weiroll deposit from 0xC6f02dea1fF6349B14027C17522D8986974Cd2a0",
@@ -357,9 +333,7 @@
             "TargetAddress": "0xEC1F64Cd852c65A22bCaA778b2ed76Bc5502645C"
         },
         {
-            "AddressArguments": [
-                "0xc9d8Bc7428059219f3D19Da7F17ad468254D4D7e"
-            ],
+            "AddressArguments": ["0xc9d8Bc7428059219f3D19Da7F17ad468254D4D7e"],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x934aF04aBF72B9dB1D5425F0d8bDbf6670E7d2C1",
             "Description": "Approve Infrared Vault to spend primeLiquidBeraETH",
@@ -392,9 +366,7 @@
             "TargetAddress": "0xc9d8Bc7428059219f3D19Da7F17ad468254D4D7e"
         },
         {
-            "AddressArguments": [
-                "0x83599937c2C9bEA0E0E8ac096c6f32e86486b410"
-            ],
+            "AddressArguments": ["0x83599937c2C9bEA0E0E8ac096c6f32e86486b410"],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x934aF04aBF72B9dB1D5425F0d8bDbf6670E7d2C1",
             "Description": "Get Reward for user from primeLiquidBeraETH Infrared Vault",
@@ -427,9 +399,7 @@
             "TargetAddress": "0xc9d8Bc7428059219f3D19Da7F17ad468254D4D7e"
         },
         {
-            "AddressArguments": [
-                "0x75F3Be06b02E235f6d0E7EF2D462b29739168301"
-            ],
+            "AddressArguments": ["0x75F3Be06b02E235f6d0E7EF2D462b29739168301"],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x934aF04aBF72B9dB1D5425F0d8bDbf6670E7d2C1",
             "Description": "Approve Infrared Vault to spend iBGT",
@@ -462,9 +432,7 @@
             "TargetAddress": "0x75F3Be06b02E235f6d0E7EF2D462b29739168301"
         },
         {
-            "AddressArguments": [
-                "0x83599937c2C9bEA0E0E8ac096c6f32e86486b410"
-            ],
+            "AddressArguments": ["0x83599937c2C9bEA0E0E8ac096c6f32e86486b410"],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x934aF04aBF72B9dB1D5425F0d8bDbf6670E7d2C1",
             "Description": "Get Reward for user from iBGT Infrared Vault",
@@ -497,9 +465,7 @@
             "TargetAddress": "0x75F3Be06b02E235f6d0E7EF2D462b29739168301"
         },
         {
-            "AddressArguments": [
-                "0x04B8136820598A4e50bEe21b8b6a23fE25Df9Bd8"
-            ],
+            "AddressArguments": ["0x04B8136820598A4e50bEe21b8b6a23fE25Df9Bd8"],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x934aF04aBF72B9dB1D5425F0d8bDbf6670E7d2C1",
             "Description": "Approve Accountant to spend WETH",
@@ -510,9 +476,7 @@
             "TargetAddress": "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
         },
         {
-            "AddressArguments": [
-                "0x04B8136820598A4e50bEe21b8b6a23fE25Df9Bd8"
-            ],
+            "AddressArguments": ["0x04B8136820598A4e50bEe21b8b6a23fE25Df9Bd8"],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x934aF04aBF72B9dB1D5425F0d8bDbf6670E7d2C1",
             "Description": "Approve Accountant to spend weETH",
@@ -523,9 +487,7 @@
             "TargetAddress": "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
         },
         {
-            "AddressArguments": [
-                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
-            ],
+            "AddressArguments": ["0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x934aF04aBF72B9dB1D5425F0d8bDbf6670E7d2C1",
             "Description": "Claim fees in WETH",
@@ -536,9 +498,7 @@
             "TargetAddress": "0x04B8136820598A4e50bEe21b8b6a23fE25Df9Bd8"
         },
         {
-            "AddressArguments": [
-                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
-            ],
+            "AddressArguments": ["0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x934aF04aBF72B9dB1D5425F0d8bDbf6670E7d2C1",
             "Description": "Claim yield in WETH",
@@ -549,9 +509,7 @@
             "TargetAddress": "0x04B8136820598A4e50bEe21b8b6a23fE25Df9Bd8"
         },
         {
-            "AddressArguments": [
-                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
-            ],
+            "AddressArguments": ["0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x934aF04aBF72B9dB1D5425F0d8bDbf6670E7d2C1",
             "Description": "Claim fees in weETH",
@@ -562,9 +520,7 @@
             "TargetAddress": "0x04B8136820598A4e50bEe21b8b6a23fE25Df9Bd8"
         },
         {
-            "AddressArguments": [
-                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
-            ],
+            "AddressArguments": ["0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x934aF04aBF72B9dB1D5425F0d8bDbf6670E7d2C1",
             "Description": "Claim yield in weETH",
@@ -819,21 +775,21 @@
     ],
     "MerkleTree": {
         "0": [
-            "0x1fff8158302e424857162adcf4999954039fdfc583a3a8266cfede2e0598adb1"
+            "0x3c1e7efa722e5f39661f3887970eb6de46ac1e74a320b520fcc9ab602cf92257"
         ],
         "1": [
-            "0x258bd63cf0f9b3f269547a3f94abca0d996e6175cc24733a1a2f7808de14b97c",
+            "0x53baa1d89828db98506a787705b06c54c0f8c588189a579301ab2188246910f8",
             "0x198da4c1721512573dbd5c34313aa4851a26769f96b3d84a15b2c76532cfd2a9"
         ],
         "2": [
-            "0xd42875f5ec2b7644aa6a53c8955b6fed3aaf17dd9218967c588440c7c1f739c5",
+            "0x23c0a923bf77bd608d3a163c925e105cc39693cc66607c9bcd43e321f145aea1",
             "0xa7e2a3f2ec8de9be68d9d0593fd59e04b90591439845b8aedd22532866ff4de6",
             "0xf4e7082dda325b70bf66d791e94fdb0897de529375ff58189be5b6e434f7e2d7",
             "0xc8e2d8c65f68c2edf703a349b0189c66520f43472e76097f69a501107adf656c"
         ],
         "3": [
-            "0x8bf481cb390490c487b1f2120a89d7ea50e112f7f15a6e09e1acb58f5476c3e3",
-            "0x353d429b939ecc5e97cb4d61c07f6e0ae60133e09c89a72905f5a12dcde67f53",
+            "0xea290cea46b09c6b8744a92591809067f17674f9013e8bfb28ce011ba44dc31b",
+            "0xfbdf1c6041a0d6e9a01ea54587eefca9a4676cc9c4e06dce250ee3287953feae",
             "0xccd211cff5113abc5a89b19a7ace84586fefd10a3593f8b3bc895234142c5154",
             "0x6a4932d28c63115b055f43fb5698ed77c5060a175bd3d9528154e3b25a024e47",
             "0x2177d38e0f719916d4f72db9ddbad5396b6d7dcf59a1b29c99d1e8273248f943",
@@ -842,9 +798,9 @@
             "0x41fbd3a0cfdfcee05cf3eb16d95ed1c81f50c3c6268bb806b406ec06ee93e704"
         ],
         "4": [
-            "0xe3d1e612c62036b2b00cbd550c5cb66ef11d21a97238017da2b81206a6816cc1",
-            "0x3e0e1ba895ff3e64056e15a59b38541d2c4162b7d9585f403a681335d208cd2a",
-            "0x5338a5581bfbcf4ab98c360c2b3cc77453ff5027c3ae14e92cc57881cc4a32b8",
+            "0xa26e99cef34e62271beb4c3851f1837a522b00c4b26580a0eb83ca1752b9876a",
+            "0x5536bd2fea0c29bded5424eded779c83cc8ac80fe7d5d5ebd98e6e154f80efdf",
+            "0xdf3e9ab48a53489b7c848769a80e42675bdb429235588c880a75496e8f96a861",
             "0x2db908b9012765c6252fa2c28279002bffdd16b2ea7dfb97eb77a3ad867e8f59",
             "0x8248fc72afee5f72aaad83b482f5080d62b3cd91e425b833b1835a38fa2d0b66",
             "0xe2d34c6921cda32265261427e1cbd62ff9ca4d064b81bce7d0ed3d8fd2b74413",
@@ -860,11 +816,11 @@
             "0x849eda7a295b642e5ddaf49a30eec4470cf507efa83b4104c0752d069c7638fe"
         ],
         "5": [
-            "0x19be9d3014b18f36593a264d6c35ae2c1c8b9037195167d10877d25c957928fa",
-            "0xb92b5f7f31bc4e12c6b00ca105b44d7cfe2f6fe254eacc5a26b554a13da466d1",
-            "0x1884602775304cf64c40dfa15f6c0c1e31f97c642533c21c2e79d16fab4c33f1",
-            "0x23fc41eaa983aabc2d8eaf8537a0c623393e36978eb2ef6050331ab551fc2354",
-            "0x21b0b1f437ffd72af991f74bcef57fdbd0feb90b1552d164ba96826b5f0d4c83",
+            "0xe45b19996dfcee7dc267017bf0cbe38f80282abcfbc96b0db0b29dcc2d013618",
+            "0xf2447d43d107d71bf6050f0345a3772a1ff903580f91ea6f857dd285585f371b",
+            "0xed23f1c8fd29d853ec46299f9f2571ac10b6cb2cc7a8652ad6757262b1ae542f",
+            "0xf70f38eaf8e5f05eba456ec56602023d64e5ced61b9111aa848848c81ddd7fde",
+            "0xb41a700359ef2dece3331dfa38c382843abf2fe13b20325e8aa0cb424a2b644e",
             "0x2c6c2590813cbca54099c22f13ebb77342bcba0b21ceda5d757b8e8064d85484",
             "0x39f36ebb8581001d96a667dfceff977b5929702ba4b3852486534e68c9cf7058",
             "0x2494f71db3779dfc8676dd63085deb839d4f76f34589d676fa7b545ed3787edb",
@@ -895,14 +851,14 @@
         ],
         "6": [
             "0xca7318cf9d634536541e39fae7f7de138336b6e389a2325317a709d88d6f63fc",
-            "0xadc9832c1d02abafdf6569580f48e3f6c2203eee995e9eb06f772284b2eb6431",
-            "0xbe9054cc06e2aa8fe1b74eaee7f86713362bebddfd067b61a7651cfc0e25c5e1",
+            "0xc37078cb01be23c198fbd8c7f0dd2339c07fd2327ccf9970a6a635cf20a66938",
+            "0x16e2fbf441f0741e4b5d5d325f3568b724b0204fb85b6aed2485baad323bb477",
             "0x85d0cf2b0c1586369eebf3693fd5689d7a44b6d0a88dcf6d1db2986bfb488e6f",
-            "0xcd31f61c0c7496c36f1e148f1839a9b149d95978e2e8b47b490ec012fd06f806",
-            "0x431c515c5af0280760ac430374cf244a7e81871565b3c469896bd8a59434bc9a",
-            "0x3c625924b1c191bd30139d01a27540df932726b5dd72efbb56bc95b381a92b8e",
+            "0xaf3bdac4aa74a71abb2a5365eeab5622d0f8ae1826f3f1703cac0085e51b3e8e",
+            "0xf12934efcde5e0b5f5ef181626f2c3cdb77149cf051416b78826d3eedf2f0e81",
+            "0xfffb3ebfee17dbca0ab73c454f0b077a823981c509330fc5fd65d867c8f87ebd",
             "0x9bdd8446256b7bd345752c5ed40da4fc70a9d52ea3f76044a38a6065a697b4bb",
-            "0xa2c8f782ed4a73e92b85968f9791b6a56ffc44b27498c4fc64c5e2b2d8c73b2e",
+            "0x58c5b9ded53336bd83dca33a9c68be6f8117852555338fb4e1a2ae29a59ab759",
             "0xc5e8dbc19e3774f0d23ac1b58e8ec99dfd71eae093e5cd18a0a08693b0d25944",
             "0x7808a353beedcfff4d71df6b76ec2ad7138052411701b7f92f8ef8a36fdc45e9",
             "0xf90bd330b1c7ab19b611f51f489455d173a52aed3afddf8c0dca0431fd7f17c5",
