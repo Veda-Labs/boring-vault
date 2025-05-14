@@ -2440,8 +2440,9 @@ contract ChainValues {
         values[tacSPB]["dev5Address"] = 0x1cdF47387358A1733968df92f7cC14546D9E1047.toBytes32();
 
         //ERC20s
-        values[tacSPB]["TON"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32(); // NATIVE
-        values[tacSPB]["WTAC"] = address(2).toBytes32();
+        values[tacSPB]["TAC"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32(); // NATIVE
+        values[tacSPB]["WTAC"] = 0xCf61405b7525F09f4E7501fc831fE7cbCc823d4c.toBytes32();
+        values[tacSPB]["WTON"] = 0xe3a2296bE422768a630eb35014978A808D106899.toBytes32();
 
         // LayerZero
         values[tacSPB]["LayerZeroEndPoint"] = address(1).toBytes32();

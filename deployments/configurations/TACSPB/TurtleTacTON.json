@@ -53,8 +53,8 @@
       "accountantDeploymentName": "Turtle TAC TON Accountant V8.1",
       "accountantParameters": {
         "kind": {
-          "variableRate": false,
-          "fixedRate": true
+          "variableRate": true,
+          "fixedRate": false
         },
         "payoutConfiguration": {
           "payoutTo": "0x0000000000000000000000000000000000000000",
@@ -66,7 +66,7 @@
           "allowedExchangeRateChangeUpper": 10100,
           "baseAddressOrName": {
             "address": "0x0000000000000000000000000000000000000000",
-            "name": "TAC"
+            "name": "WTON"
           },
           "minimumUpateDelayInSeconds": 21600,
           "performanceFee": 1000,
@@ -157,7 +157,7 @@
       {
         "addressOrName": {
           "address": "0x0000000000000000000000000000000000000000",
-          "name": "TON"
+          "name": "WTON"
         },
         "allowDeposits": true,
         "allowWithdraws": true,
@@ -165,6 +165,18 @@
       }
     ],
     "withdrawAssets": [
+      {
+        "addressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "WTON"
+        },
+        "maxDiscount": 10,
+        "minDiscount": 1,
+        "minimumSecondsToDeadline": 259200,
+        "minimumShares": 0,
+        "secondsToMaturity": 172800
+      }
+
     ]
   }
   

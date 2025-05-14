@@ -1,7 +1,7 @@
 {
   "Drones": "",
   "contractAddresses": {
-    "AccountantWithFixedRate": "0xF04Cd3836DA4852f2429c7ED724D2785BBc8B4D0",
+    "AccountantWithRateProviders": "0xF04Cd3836DA4852f2429c7ED724D2785BBc8B4D0",
     "BoringOnChainQueue": "0x652f03B86055ec6be49c359086cce957f9167238",
     "BoringVault": "0x617783F76B2c4B94DC6eE7AaF62A80586941f726",
     "Lens": "0xc1F54DFFCCBf70f8fc608D5679693787EA0Cd12f",
