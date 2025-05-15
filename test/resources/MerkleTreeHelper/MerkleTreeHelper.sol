@@ -7282,6 +7282,155 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex].argumentAddresses[2] = address(bytes20(bytes16(to << 128)));
         leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "boringVault");
     }
+    
+    // ========================================= Compound V2 =========================================
+    // NOTE: other forks may have different reward claiming functions
+    function _addCompoundV2Leafs(ManageLeaf[] memory leafs, ERC20[] memory collateralAssets, address[] memory cTokens, address unitroller) internal {
+        require(collateralAssets.length == cTokens.length, "Arrays must be of equal length");
+
+        for(uint256 i; i < collateralAssets.length; ++i) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                unitroller,
+                false,
+                "enterMarkets(address[])",
+                new address[](1),
+                string.concat("Enter Compound V2 market ", ERC20(cTokens[i]).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = cTokens[i];
+
+            if(address(collateralAssets[i]) != 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    address(collateralAssets[i]),
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve Compound to spend ", collateralAssets[i].symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = cTokens[i];
+
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    cTokens[i],
+                    false,
+                    "mint(uint256)",
+                    new address[](0),
+                    string.concat("Mint ", ERC20(cTokens[i]).symbol(), " on Compound"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    cTokens[i],
+                    false,
+                    "repayBorrow(uint256)",
+                    new address[](0),
+                    string.concat("Repay ", collateralAssets[i].symbol(), " on Compound"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+            } else {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    cTokens[i],
+                    true,
+                    "mint()",
+                    new address[](0),
+                    string.concat("Mint ", ERC20(cTokens[i]).symbol(), " using Native Asset on Compound"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    cTokens[i],
+                    true,
+                    "repayBorrow()",
+                    new address[](0),
+                    string.concat("Repay Native Asset on Compound"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+            }
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                cTokens[i],
+                false,
+                "borrow(uint256)",
+                new address[](0),
+                string.concat("Borrow from Compound, ", ERC20(cTokens[i]).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                cTokens[i],
+                false,
+                "redeem(uint256)",
+                new address[](0),
+                string.concat("Redeem ", ERC20(cTokens[i]).symbol(), " on Compound"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                cTokens[i],
+                false,
+                "redeemUnderlying(uint256)",
+                new address[](0),
+                string.concat("Redeem underlying from Compound ", ERC20(cTokens[i]).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                unitroller,
+                false,
+                "claimReward(uint8,address)",
+                new address[](1),
+                string.concat("Claim rewards from Compound fork"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                unitroller,
+                false,
+                "exitMarket(address)",
+                new address[](1),
+                string.concat("Exit Market", ERC20(cTokens[i]).symbol(), " on Compound"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = cTokens[i];
+
+        }
+
+    }
 
     // ========================================= Compound V3 =========================================
 
