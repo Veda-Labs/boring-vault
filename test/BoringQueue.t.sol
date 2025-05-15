@@ -66,7 +66,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
         boringQueue = new BoringOnChainQueue(
             address(this), address(liquidEth_roles_authority), payable(liquidEth), address(liquidEth_accountant)
         );
-        boringSolver = new BoringSolver(address(this), address(liquidEth_roles_authority), address(boringQueue));
+        boringSolver = new BoringSolver(address(this), address(liquidEth_roles_authority), address(boringQueue), true);
 
         // Grant BoringSolver SOLVER_ROLES for on both vaults.
         vm.startPrank(weETHs_roles_authority.owner());
@@ -271,6 +271,62 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
         assertEq(wETHDeficit, expectedDeficit, "Bad Deficit.");
     }
 
+    function testRedeemSolveExcessToSolver() external {
+        uint128 amountOfShares = 1_000e18;
+        uint16 sharePriceBpsIncrease = 2;
+        uint16 discount = 1;
+        uint24 secondsToDeadline = 1 days;
+        BoringOnChainQueue.OnChainWithdraw[] memory requests = new BoringOnChainQueue.OnChainWithdraw[](1);
+        (, requests[0]) = _haveUserCreateRequest(testUser, address(WETH), amountOfShares, discount, secondsToDeadline);
+
+        // Update liquidEth share price.
+        vm.startPrank(liquidEth_accountant.owner());
+        uint256 newRate = liquidEth_accountant.getRate();
+        newRate = newRate * (1e4 + sharePriceBpsIncrease) / 1e4;
+        liquidEth_accountant.updateExchangeRate(uint96(newRate));
+        vm.stopPrank();
+
+        skip(3 days);
+        uint256 solverBalanceBefore = WETH.balanceOf(address(this));
+        boringSolver.boringRedeemSolve(requests, liquidEth_teller, false);
+        uint256 solverDelta = WETH.balanceOf(address(this)) - solverBalanceBefore;
+        assertGt(solverDelta, 0, "Solver should have received some wETH.");
+    }
+
+    function testRedeemSolveExcessToVault() external {
+        _deployExcessToVaultSolver();
+        uint128 amountOfShares = 1_000e18;
+        uint16 sharePriceBpsIncrease = 2;
+        uint16 discount = 1;
+        uint24 secondsToDeadline = 1 days;
+        BoringOnChainQueue.OnChainWithdraw[] memory requests = new BoringOnChainQueue.OnChainWithdraw[](1);
+        (, requests[0]) = _haveUserCreateRequest(testUser, address(WETH), amountOfShares, discount, secondsToDeadline);
+
+        // Update liquidEth share price.
+        vm.startPrank(liquidEth_accountant.owner());
+        uint256 newRate = liquidEth_accountant.getRate();
+        newRate = newRate * (1e4 + sharePriceBpsIncrease) / 1e4;
+        liquidEth_accountant.updateExchangeRate(uint96(newRate));
+        vm.stopPrank();
+
+        skip(3 days);
+        uint256 vaultBalanceBefore = WETH.balanceOf(address(liquidEth));
+        uint256 userBalanceBefore = WETH.balanceOf(testUser);
+        boringSolver.boringRedeemSolve(requests, liquidEth_teller, false);
+        uint256 userBalanceAfter = WETH.balanceOf(testUser);
+        uint256 vaultBalanceAfter = WETH.balanceOf(address(liquidEth));
+        uint256 vaultDelta = vaultBalanceBefore - vaultBalanceAfter;
+        uint256 userDelta = userBalanceAfter - userBalanceBefore;
+        console.log("Vault delta: ", vaultDelta);
+        console.log("User delta: ", userDelta);
+        uint256 amountBulkWithdrawn = 1035460132107172293000; // from test trace
+        console.log("Amount bulk withdrawn: ", amountBulkWithdrawn);
+        uint256 vaultExcess = amountBulkWithdrawn - userDelta;
+        console.log("Vault excess: ", vaultExcess);
+        assertGt(vaultExcess, 0, "Vault should have received excess wETH back from the bulkWithdraw");
+    }
+    
+
     function testRedeemMintSolve(uint128 amountOfShares, uint16 discount) external {
         amountOfShares = uint128(bound(amountOfShares, 0.01e18, 1_000e18));
         discount = uint16(bound(discount, 1, 100));
@@ -327,6 +383,65 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
             ERC20(weETHs).balanceOf(testUser), requests[0].amountOfAssets, "User should have received their weETHs."
         );
         assertEq(wETHDeficit, expectedDeficit, "Bad Deficit.");
+    }
+
+    function testRedeemMintSolveExcessToSolver() external {
+        uint128 amountOfShares = 1_000e18;
+        uint16 sharePriceBpsIncrease = 2;
+        uint16 discount = 1;
+        uint24 secondsToDeadline = 1 days;
+        BoringOnChainQueue.OnChainWithdraw[] memory requests = new BoringOnChainQueue.OnChainWithdraw[](1);
+        (, requests[0]) = _haveUserCreateRequest(testUser, weETHs, amountOfShares, discount, secondsToDeadline);
+
+        // Update liquidEth share price.
+        vm.startPrank(liquidEth_accountant.owner());
+        uint256 newRate = liquidEth_accountant.getRate();
+        newRate = newRate * (1e4 + sharePriceBpsIncrease) / 1e4;
+        liquidEth_accountant.updateExchangeRate(uint96(newRate));
+        vm.stopPrank();
+
+        // No need to skip since maturity is 0.
+        uint256 solverBalanceBefore = WETH.balanceOf(address(this));
+        // Solve users request using p2p solve.
+        boringSolver.boringRedeemMintSolve(requests, liquidEth_teller, weETHs_teller, address(WETH), false);
+        uint256 solverDelta = WETH.balanceOf(address(this)) - solverBalanceBefore;
+        assertGt(solverDelta, 0, "Solver should have received some wETH.");
+        assertEq(
+            ERC20(weETHs).balanceOf(testUser), requests[0].amountOfAssets, "User should have received their weETHs."
+        );
+    }
+
+    function testRedeemMintSolveExcessToVault() external {
+        _deployExcessToVaultSolver();
+        uint128 amountOfShares = 1_000e18;
+        uint16 sharePriceBpsIncrease = 2;
+        uint16 discount = 1;
+        uint24 secondsToDeadline = 1 days;
+        BoringOnChainQueue.OnChainWithdraw[] memory requests = new BoringOnChainQueue.OnChainWithdraw[](1);
+        (, requests[0]) = _haveUserCreateRequest(testUser, weETHs, amountOfShares, discount, secondsToDeadline);
+
+        // Update liquidEth share price.
+        vm.startPrank(liquidEth_accountant.owner());
+        uint256 newRate = liquidEth_accountant.getRate();
+        newRate = newRate * (1e4 + sharePriceBpsIncrease) / 1e4;
+        liquidEth_accountant.updateExchangeRate(uint96(newRate));
+        vm.stopPrank();
+
+        // No need to skip since maturity is 0.
+        uint256 vaultBalanceBefore = WETH.balanceOf(address(liquidEth));
+        // Solve users request using p2p solve.
+        boringSolver.boringRedeemMintSolve(requests, liquidEth_teller, weETHs_teller, address(WETH), false);
+        uint256 vaultDelta = WETH.balanceOf(address(this)) - vaultBalanceBefore;
+        console.log("Vault delta: ", vaultDelta);
+        uint256 amountBulkWithdrawn = 1035460132107172293000; // from test trace
+        uint256 amountBulkDeposited = 1035149556182725029736; // from test trace
+        uint256 vaultExcess = amountBulkWithdrawn - amountBulkDeposited;
+        console.log("Vault excess: ", vaultExcess);
+        
+        assertGt(vaultExcess, 0, "Vault should have received some assets back at the end of the solve");
+        assertEq(
+            ERC20(weETHs).balanceOf(testUser), requests[0].amountOfAssets, "User should have received their weETHs."
+        );
     }
 
     function testUserRequestsThenCancels(uint128 amountOfShares, uint16 discount) external {
@@ -934,5 +1049,21 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
                 ) = abi.decode(entries[i].data, (uint96, uint128, uint128, uint40, uint24, uint24));
             }
         }
+    }
+
+    function _deployExcessToVaultSolver() internal {
+        boringSolver = new BoringSolver(address(this), address(liquidEth_roles_authority), address(boringQueue), false);
+
+        // Grant BoringSolver SOLVER_ROLES for on both vaults.
+        vm.startPrank(weETHs_roles_authority.owner());
+        weETHs_roles_authority.setUserRole(address(boringSolver), 12, true);
+        vm.stopPrank();
+        vm.startPrank(liquidEth_roles_authority.owner());
+        liquidEth_roles_authority.setUserRole(address(boringSolver), 12, true);
+        liquidEth_roles_authority.setPublicCapability(
+            address(boringSolver), BoringSolver.boringRedeemSelfSolve.selector, true
+        );
+        liquidEth_roles_authority.setRoleCapability(222, address(boringSolver), BoringSolver.boringSolve.selector, true);
+        vm.stopPrank();
     }
 }

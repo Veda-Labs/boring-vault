@@ -12,7 +12,7 @@ contract BoringSolver is IBoringSolver, Auth, Multicall {
     using SafeTransferLib for ERC20;
     using FixedPointMathLib for uint256;
 
-    // ========================================= ENUMS =========================================
+    //========================================= ENUMS =========================================
     enum SolveType {
         BORING_REDEEM, // Fill multiple user requests with a single transaction.
         BORING_REDEEM_MINT // Fill multiple user requests to redeem shares and mint new shares.
@@ -29,9 +29,16 @@ contract BoringSolver is IBoringSolver, Auth, Multicall {
     //============================== IMMUTABLES ===============================
 
     BoringOnChainQueue internal immutable queue;
+    /**
+     * @notice Whether to send excess assets to the solver or the Boring Vault on non-self solves.
+     */
+    bool public immutable excessToSolverNonSelfSolve;
 
-    constructor(address _owner, address _auth, address _queue) Auth(_owner, Authority(_auth)) {
+    constructor(address _owner, address _auth, address _queue, bool _excessToSolverNonSelfSolve)
+        Auth(_owner, Authority(_auth))
+    {
         queue = BoringOnChainQueue(_queue);
+        excessToSolverNonSelfSolve = _excessToSolverNonSelfSolve;
     }
 
     //============================== ADMIN FUNCTIONS ===============================
@@ -58,7 +65,8 @@ contract BoringSolver is IBoringSolver, Auth, Multicall {
         address teller,
         bool coverDeficit
     ) external requiresAuth {
-        bytes memory solveData = abi.encode(SolveType.BORING_REDEEM, msg.sender, teller, true, coverDeficit);
+        bytes memory solveData =
+            abi.encode(SolveType.BORING_REDEEM, msg.sender, teller, excessToSolverNonSelfSolve, coverDeficit);
 
         queue.solveOnChainWithdraws(requests, solveData, address(this));
     }
@@ -75,7 +83,13 @@ contract BoringSolver is IBoringSolver, Auth, Multicall {
         bool coverDeficit
     ) external requiresAuth {
         bytes memory solveData = abi.encode(
-            SolveType.BORING_REDEEM_MINT, msg.sender, fromTeller, toTeller, intermediateAsset, true, coverDeficit
+            SolveType.BORING_REDEEM_MINT,
+            msg.sender,
+            fromTeller,
+            toTeller,
+            intermediateAsset,
+            excessToSolverNonSelfSolve,
+            coverDeficit
         );
 
         queue.solveOnChainWithdraws(requests, solveData, address(this));
