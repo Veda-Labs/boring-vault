@@ -6,6 +6,7 @@ import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import {SonicVaultDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SonicVaultDecoderAndSanitizer.sol";
 import "forge-std/Script.sol";
 
 /**
@@ -18,8 +19,12 @@ contract CreateSonicUSDMerkleRoot is Script, MerkleTreeHelper {
     address public managerAddress = 0x76fda7A02B616070D3eC5902Fa3C5683AC3cB8B6;
     address public accountantAddress = 0xA76E0F54918E39A63904b51F688513043242a0BE;
     address public rawDataDecoderAndSanitizer = 0xf99Ee09014D2f1B5FEFC3874a186fc9C5aB180c1; 
+    address public siloDecoderAndSanitizer;
 
-    function setUp() external {}
+    function setUp() external {
+        // Déployer ou définir l'adresse du décodeur Silo
+        siloDecoderAndSanitizer = address(new SonicVaultDecoderAndSanitizer(getAddress(sonicMainnet, "odosRouterV2")));
+    }
 
     /**
      * @notice Uncomment which script you want to run.
@@ -34,6 +39,7 @@ contract CreateSonicUSDMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, sonicMainnet, "managerAddress", managerAddress);
         setAddress(false, sonicMainnet, "accountantAddress", accountantAddress);
         setAddress(false, sonicMainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        setAddress(false, sonicMainnet, "siloDecoderAndSanitizer", siloDecoderAndSanitizer);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](256);
 
@@ -76,6 +82,14 @@ contract CreateSonicUSDMerkleRoot is Script, MerkleTreeHelper {
         _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_USDC_wstkscUSD_id23_config"), incentivesControllers);
 
         }
+
+        // ========================== Silo Vault ==========================
+        // Utilisation temporaire du décoder spécifique pour Silo
+        address originalDecoder = getAddress(sourceChain, "rawDataDecoderAndSanitizer");
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", getAddress(sourceChain, "siloDecoderAndSanitizer"));
+        _addSiloVaultLeafs(leafs, getAddress(sourceChain, "silo_USDC_vault"));
+        // Restauration du décoder original
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", originalDecoder);
 
          // ========================== Odos ==========================
          address[] memory tokens = new address[](5);
