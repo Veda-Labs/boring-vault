@@ -12484,6 +12484,46 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault"); 
     }
 
+    function _addrFLRLeafs(ManageLeaf[] memory leafs, address rFLR) internal {
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            rFLR,
+            false,
+            "claimRewards(uint256[],uint256)",
+            new address[](0),
+            string.concat("Claim rewards from rFLR"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            rFLR,
+            false,
+            "withdraw(uint128,bool)",
+            new address[](0),
+            string.concat("Withdraw FLR/WFLR from rFLR"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            rFLR,
+            false,
+            "withdrawAll(bool)",
+            new address[](0),
+            string.concat("Claim All FLR/WFLR from rFLR"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+
+    }
+
     // ========================================= JSON FUNCTIONS =========================================
     // TODO this should pass in a bool or something to generate leafs indicating that we want leaf indexes printed.
     bool addLeafIndex = false;
