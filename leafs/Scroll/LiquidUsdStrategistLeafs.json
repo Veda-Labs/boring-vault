@@ -1,0 +1,147 @@
+{
+    "metadata": {
+        "AccountantAddress": "0xc315D6e14DDCDC7407784e2Caf815d131Bc1D3E7",
+        "BoringVaultAddress": "0x08c6F91e2B681FaF5e17227F2a44C307b3C1364C",
+        "DecoderAndSanitizerAddress": "0xf6cF44791ee924597f8D1EFf98562435aFae29B8",
+        "DigestComposition": [
+            "Bytes20(DECODER_AND_SANITIZER_ADDRESS)",
+            "Bytes20(TARGET_ADDRESS)",
+            "Bytes1(CAN_SEND_VALUE)",
+            "Bytes4(TARGET_FUNCTION_SELECTOR)",
+            "Bytes{N*20}(ADDRESS_ARGUMENT_0,...,ADDRESS_ARGUMENT_N)"
+        ],
+        "LeafCount": 6,
+        "ManageRoot": "0x88f5423980b93747461d6a7d66f7a26d3e1dcb425adc9a2134cf3a12063f6da1",
+        "ManagerAddress": "0xcFF411d5C54FE0583A984beE1eF43a4776854B9A",
+        "TreeCapacity": 8
+    },
+    "leafs": [
+        {
+            "AddressArguments": ["0x3Fc69CC4A842838bCDC9499178740226062b14E4"],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xf6cF44791ee924597f8D1EFf98562435aFae29B8",
+            "Description": "Approve LayerZero to spend USDC",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x8c8c145010792c8857a27f688f33223adfd69654d632a0501df2e090bf74c855",
+            "PackedArgumentAddresses": "0x3fc69cc4a842838bcdc9499178740226062b14e4",
+            "TargetAddress": "0x06eFdBFf2a14a7c8E15944D1F4A48F9F95F663A4"
+        },
+        {
+            "AddressArguments": [
+                "0x0000000000000000000000000000000000007595",
+                "0x00000000000000000000000008c6F91E00000000",
+                "0x2B681FAf5e17227f2a44C307b3C1364c00000000",
+                "0x08c6F91e2B681FaF5e17227F2a44C307b3C1364C"
+            ],
+            "CanSendValue": true,
+            "DecoderAndSanitizerAddress": "0xf6cF44791ee924597f8D1EFf98562435aFae29B8",
+            "Description": "Bridge USDC to LayerZero endpoint: 30101",
+            "FunctionSelector": "0xc7c7f5b3",
+            "FunctionSignature": "send((uint32,bytes32,uint256,uint256,bytes,bytes,bytes),(uint256,uint256),address)",
+            "LeafDigest": "0x10770dd9f5637c0eed883689e8efd7428a8572c07a8eedb5e26ef6ffdf32736a",
+            "PackedArgumentAddresses": "0x000000000000000000000000000000000000759500000000000000000000000008c6f91e000000002b681faf5e17227f2a44c307b3c1364c0000000008c6f91e2b681faf5e17227f2a44c307b3c1364c",
+            "TargetAddress": "0x3Fc69CC4A842838bCDC9499178740226062b14E4"
+        },
+        {
+            "AddressArguments": ["0x08c6F91e2B681FaF5e17227F2a44C307b3C1364C"],
+            "CanSendValue": true,
+            "DecoderAndSanitizerAddress": "0xf6cF44791ee924597f8D1EFf98562435aFae29B8",
+            "Description": "Bridge ETH from scroll to mainnet",
+            "FunctionSelector": "0xb2267a7b",
+            "FunctionSignature": "sendMessage(address,uint256,bytes,uint256)",
+            "LeafDigest": "0x1b6ff02d90b80cd88bbd9b3e0666e212c7c293c1aadf46e0da9ff82f007e3804",
+            "PackedArgumentAddresses": "0x08c6f91e2b681faf5e17227f2a44c307b3c1364c",
+            "TargetAddress": "0x781e90f1c8Fc4611c9b7497C3B47F99Ef6969CbC"
+        },
+        {
+            "AddressArguments": [
+                "0x06eFdBFf2a14a7c8E15944D1F4A48F9F95F663A4",
+                "0x08c6F91e2B681FaF5e17227F2a44C307b3C1364C"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xf6cF44791ee924597f8D1EFf98562435aFae29B8",
+            "Description": "Withdraw USDC from scroll to mainnet",
+            "FunctionSelector": "0xa93a4af9",
+            "FunctionSignature": "withdrawERC20(address,address,uint256,uint256)",
+            "LeafDigest": "0xbefd32d4b114241275d8f3a08ec6fe8e5299b11c4f65a88e7356cbf15877c198",
+            "PackedArgumentAddresses": "0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a408c6f91e2b681faf5e17227f2a44c307b3c1364c",
+            "TargetAddress": "0x4C0926FF5252A435FD19e10ED15e5a249Ba19d79"
+        },
+        {
+            "AddressArguments": [
+                "0xf55BEC9cafDbE8730f096Aa55dad6D22d44099Df",
+                "0x08c6F91e2B681FaF5e17227F2a44C307b3C1364C"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xf6cF44791ee924597f8D1EFf98562435aFae29B8",
+            "Description": "Withdraw USDT from scroll to mainnet",
+            "FunctionSelector": "0xa93a4af9",
+            "FunctionSignature": "withdrawERC20(address,address,uint256,uint256)",
+            "LeafDigest": "0x76254b3b22f0cd6a282b7bbc9cfee97675c1c297044901e16831fe61702bf985",
+            "PackedArgumentAddresses": "0xf55bec9cafdbe8730f096aa55dad6d22d44099df08c6f91e2b681faf5e17227f2a44c307b3c1364c",
+            "TargetAddress": "0x4C0926FF5252A435FD19e10ED15e5a249Ba19d79"
+        },
+        {
+            "AddressArguments": [
+                "0xcA77eB3fEFe3725Dc33bccB54eDEFc3D9f764f97",
+                "0x08c6F91e2B681FaF5e17227F2a44C307b3C1364C"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xf6cF44791ee924597f8D1EFf98562435aFae29B8",
+            "Description": "Withdraw DAI from scroll to mainnet",
+            "FunctionSelector": "0xa93a4af9",
+            "FunctionSignature": "withdrawERC20(address,address,uint256,uint256)",
+            "LeafDigest": "0x4c92f64ed43160aef936b562945e213489b22276d20b205a60745598ed634747",
+            "PackedArgumentAddresses": "0xca77eb3fefe3725dc33bccb54edefc3d9f764f9708c6f91e2b681faf5e17227f2a44c307b3c1364c",
+            "TargetAddress": "0x4C0926FF5252A435FD19e10ED15e5a249Ba19d79"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+            "Description": "",
+            "FunctionSelector": "0xc5d24601",
+            "FunctionSignature": "",
+            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0000000000000000000000000000000000000000"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+            "Description": "",
+            "FunctionSelector": "0xc5d24601",
+            "FunctionSignature": "",
+            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0000000000000000000000000000000000000000"
+        }
+    ],
+    "MerkleTree": {
+        "0": [
+            "0x88f5423980b93747461d6a7d66f7a26d3e1dcb425adc9a2134cf3a12063f6da1"
+        ],
+        "1": [
+            "0x241c1e355ef82f599b6a4ce9e4cb523fc6ce3d59fcf8cf2f5800ccf2576c4370",
+            "0x4eb2ffb67973146c63575fb9a1590782d7894fc7b56bf3a8ed8955f424421b97"
+        ],
+        "2": [
+            "0x82d6e496a4ed9ad6fae67b833b69f04ca2299213814aafc374a3ff9028acd736",
+            "0x4e3375a2962a8c989dc3271f5c5241e2ed77ce0f4178b78e7ff10191163625e7",
+            "0xcac53354691b92dba13b186bb1f5552513e42ea4c516b6daa6ab73221d55d7de",
+            "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba"
+        ],
+        "3": [
+            "0x8c8c145010792c8857a27f688f33223adfd69654d632a0501df2e090bf74c855",
+            "0x10770dd9f5637c0eed883689e8efd7428a8572c07a8eedb5e26ef6ffdf32736a",
+            "0x1b6ff02d90b80cd88bbd9b3e0666e212c7c293c1aadf46e0da9ff82f007e3804",
+            "0xbefd32d4b114241275d8f3a08ec6fe8e5299b11c4f65a88e7356cbf15877c198",
+            "0x76254b3b22f0cd6a282b7bbc9cfee97675c1c297044901e16831fe61702bf985",
+            "0x4c92f64ed43160aef936b562945e213489b22276d20b205a60745598ed634747",
+            "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400"
+        ]
+    }
+}

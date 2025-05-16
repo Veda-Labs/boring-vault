@@ -19,6 +19,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
     address public managerAddress = 0xaFa8c08bedB2eC1bbEb64A7fFa44c604e7cca68d;
     address public accountantAddress = 0xEa23aC6D7D11f6b181d6B98174D334478ADAe6b0;
     address public rawDataDecoderAndSanitizer = 0xC0D08701123Dc96962F3CF76891686071958bFaf;
+    address public scrollBridgeDecoderAndSanitizer = 0xA66a6B289FB5559b7e4ebf598B8e0A97C776c200; 
 
     function setUp() external {}
 
@@ -273,7 +274,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
             eBTCTellerAssets2[2] = getAddress(sourceChain, "cbBTC");
             address[] memory feeAssets = new address[](1);
             feeAssets[0] = getAddress(sourceChain, "ETH"); 
-            _addCrossChainTellerLeafs(leafs, getAddress(sourceChain, "eBTCTeller"), eBTCTellerAssets2, feeAssets);
+            _addCrossChainTellerLeafs(leafs, getAddress(sourceChain, "eBTCTeller"), eBTCTellerAssets2, feeAssets, abi.encode(layerZeroBerachainEndpointId));
 
             ERC20[] memory liquidBeraBTCTellerAssets = new ERC20[](4);
             liquidBeraBTCTellerAssets[0] = getERC20(sourceChain, "WBTC");
@@ -411,15 +412,26 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "SUSDS")));
 
         // ========================== LayerZero/Stargate ==========================
+        // Berachain
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WBTC"), getAddress(sourceChain, "WBTCOFTAdapter"), layerZeroBerachainEndpointId, bytes32(uint256(uint160(address(boringVault)))));   
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "solvBTC"), getAddress(sourceChain, "stargateSolvBTC"), layerZeroBerachainEndpointId, bytes32(uint256(uint160(address(boringVault)))));   
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "srUSD"), getAddress(sourceChain, "stargatesrUSD"), layerZeroBerachainEndpointId, bytes32(uint256(uint160(address(boringVault)))));   
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDC"), getAddress(sourceChain, "stargateUSDC"), layerZeroBerachainEndpointId, bytes32(uint256(uint160(address(boringVault)))));   
 
+        //Scroll
+        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WBTC"), getAddress(sourceChain, "WBTCOFTAdapter"), layerZeroScrollEndpointId, bytes32(uint256(uint160(address(boringVault)))));   
+
+        // ========================== Scroll Native Bridge==========================
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", scrollBridgeDecoderAndSanitizer);
+        ERC20[] memory tokens = new ERC20[](1); 
+        tokens[0] = getERC20(sourceChain, "WBTC"); 
+        _addScrollNativeBridgeLeafs(leafs, "scroll", tokens);  
+
         // ========================== Elixir ==========================
         /**
          * deposit, withdraw
          */
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sdeUSD")));
 
         // ========================== Verify ==========================

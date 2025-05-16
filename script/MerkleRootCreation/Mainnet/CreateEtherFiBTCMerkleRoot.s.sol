@@ -18,7 +18,7 @@ contract CreateEtherFiBTCMerkleRootScript is Script, MerkleTreeHelper {
     address public boringVault = 0x657e8C867D8B37dCC18fA4Caead9C45EB088C642;
     address public managerAddress = 0x382d0106F308864D5462332D9D3bB54a60384B70;
     address public accountantAddress = 0x1b293DC39F94157fA0D1D36d7e0090C8B8B8c13F;
-    address public rawDataDecoderAndSanitizer = 0x61776330A3055400dD1e1388f3879762BaCB8eBE;
+    address public rawDataDecoderAndSanitizer = 0x7712588Aa2a904111A81885B4dCCf895A1DEb700;
 
     function setUp() external {}
 
@@ -93,7 +93,6 @@ contract CreateEtherFiBTCMerkleRootScript is Script, MerkleTreeHelper {
         _addKarakLeafs(leafs, getAddress(sourceChain, "vaultSupervisor"), getAddress(sourceChain, "kWBTC"));
         _addKarakLeafs(leafs, getAddress(sourceChain, "vaultSupervisor"), getAddress(sourceChain, "kLBTC"));
 
-        _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
         // ========================== Symbiotic Vault ==========================
         address[] memory vaults = new address[](1);
@@ -104,6 +103,19 @@ contract CreateEtherFiBTCMerkleRootScript is Script, MerkleTreeHelper {
         // NOTE: No rewards for EtherFi wstETH vault for now.
         address[] memory rewards = new address[](0);
         _addSymbioticVaultLeafs(leafs, vaults, vault_assets, rewards);
+
+        // ========================== LayerZero ==========================
+        //_addLayerZeroLeafs(
+        //    leafs,
+        //    getERC20(sourceChain, "WBTC"),
+        //    getAddress(sourceChain, "WBTCOFTAdapter"),
+        //    layerZeroScrollEndpointId,
+        //    getBytes32(sourceChain, "boringVault")
+        //);
+
+
+        // ========================== Verify ==========================
+        _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
         string memory filePath = "./leafs/Mainnet/EtherFiBtcStrategistLeafs.json";
 

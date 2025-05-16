@@ -15,7 +15,7 @@ contract CreateEtherFiUsdMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     address public boringVault = 0x939778D83b46B456224A33Fb59630B11DEC56663;
-    address public rawDataDecoderAndSanitizer = 0xA26fefB4a509D6345e279499ED9bcd4ce3e7fFc2;
+    address public rawDataDecoderAndSanitizer = 0xc6288B06365019dF18B2076Bf9B5e191826fB57F;
     address public managerAddress = 0xDFC5b0d2eC65864Dc773F681E3D52c765dc083ac;
     address public accountantAddress = 0xEB440B36f61Bf62E0C54C622944545f159C3B790;
 
@@ -128,6 +128,16 @@ contract CreateEtherFiUsdMerkleRootScript is Script, MerkleTreeHelper {
         //     getAddress(sourceChain, "testOperator")
         // );
 
+        // ========================== LayerZero ==========================
+        //_addLayerZeroLeafs(
+        //    leafs,
+        //    getERC20(sourceChain, "USDE"),
+        //    getAddress(sourceChain, "stargateUSDe"),
+        //    layerZeroScrollEndpointId,
+        //    getBytes32(sourceChain, "boringVault")
+        //);   
+
+        // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);

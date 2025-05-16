@@ -25,6 +25,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
     address public symbioticDecoderAndSanitizer = 0xdaEfE2146908BAd73A1C45f75eB2B8E46935c781;
     address public pancakeSwapDataDecoderAndSanitizer = 0xfdC73Fc6B60e4959b71969165876213918A443Cd;
     address public aaveV3DecoderAndSanitizer = 0x159Af850c18a83B67aeEB9597409f6C4Aa07ACb3;
+    address public scrollBridgeDecoderAndSanitizer = 0xA66a6B289FB5559b7e4ebf598B8e0A97C776c200; 
 
     //itb
     address public itbAaveV3Usdc = 0xa6c9A887F5Ae28A70E457178AABDd153859B572b;
@@ -786,6 +787,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== Layer Zero Bridging ==========================
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        // Flare
         _addLayerZeroLeafs(
             leafs,
             getERC20(sourceChain, "USDC"),
@@ -800,7 +802,25 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
             layerZeroFlareEndpointId,
             getBytes32(sourceChain, "boringVault")
         );
+        
+       // Scroll 
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "USDC"),
+            getAddress(sourceChain, "stargateUSDC"),
+            layerZeroScrollEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
 
+        // ========================== Scroll Bridge ==========================
+        {
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", scrollBridgeDecoderAndSanitizer);
+        ERC20[] memory tokens = new ERC20[](3);   
+        tokens[0] = getERC20(sourceChain, "USDC");  
+        tokens[1] = getERC20(sourceChain, "USDT");  
+        tokens[2] = getERC20(sourceChain, "DAI");  
+        _addScrollNativeBridgeLeafs(leafs, "scroll", tokens); 
+        }
         
         // ========================== Drone Transfers ==========================
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
