@@ -13,7 +13,7 @@ import "forge-std/Script.sol";
  */
 contract CreateRoyUSDCMainnetMerkleRoot is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
-    // TODO: CHECK the addresses
+
     address public boringVault = 0x74D1fAfa4e0163b2f1035F1b052137F3f9baD5cC;
     address public managerAddress = 0xD4F870516a3B67b64238Bb803392Cd1A52D54Fb2;
     address public accountantAddress = 0x80f0B206B7E5dAa1b1ba4ea1478A33241ee6baC9;
@@ -47,6 +47,7 @@ contract CreateRoyUSDCMainnetMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== LayerZero ========================== // Using stargate pool as OFT
         _addLayerZeroLeafs(leafs, getERC20(mainnet, "USDC"), getAddress(mainnet, "stargateUSDC"), layerZeroSonicMainnetEndpointId);
+        _addLayerZeroLeafs(leafs, getERC20(mainnet, "USDC"), getAddress(mainnet, "stargateUSDC"), layerZeroPlumeEndpointId);
 
         // ========================== Fee Claiming ==========================
         ERC20[] memory feeAssets = new ERC20[](1);

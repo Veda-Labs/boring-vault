@@ -28,6 +28,8 @@ contract ChainValues {
     string public constant derive = "derive";
     string public constant unichain = "unichain";
     string public constant ink = "ink";
+    string public constant flare = "flare";
+    string public constant plume = "plume"; 
     string public constant holesky = "holesky";
     string public constant sepolia = "sepolia";
     string public constant sonicTestnet = "sonicTestnet";
@@ -36,7 +38,6 @@ contract ChainValues {
     string public constant bartio = "bartio";
     string public constant hyperEVM = "hyperEVM";
     string public constant tacTestnet = "tacTestnet";
-    string public constant flare = "flare";
 
 
     // Bridging constants.
@@ -60,6 +61,7 @@ contract ChainValues {
     uint32 public constant layerZeroMovementEndpointId = 30325;
     uint32 public constant layerZeroFlareEndpointId = 30295;
     uint32 public constant layerZeroInkEndpointId = 30339;
+    uint32 public constant layerZeroPlumeEndpointId = 30370;
     uint32 public constant hyperlaneMainnetEndpointId = 1;
     uint32 public constant hyperlaneEclipseEndpointId = 1408864445;
     uint32 public constant HyperEVMEndpointId = 30367;
@@ -122,6 +124,7 @@ contract ChainValues {
         _addHyperEVMValues();
         _addFlareValues();
         _addInkValues();
+        _addPlumeValues(); 
         // Add testnet values
         _addHoleskyValues();
         _addSepoliaValues();
@@ -2461,7 +2464,6 @@ contract ChainValues {
 
     }
 
-
     function _addInkValues() private {
         values[ink]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
         values[ink]["txBundlerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
@@ -2485,4 +2487,32 @@ contract ChainValues {
         values[ink]["balancerVault"] = address(1).toBytes32();
         values[ink]["vault"] = address(1).toBytes32();
     }
+
+    function _addPlumeValues() public {
+        values[plume]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        values[plume]["dev0Address"] = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b.toBytes32();
+        values[plume]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
+        values[plume]["txBundlerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        
+        // ERC20
+        values[plume]["ZRO"] = address(1).toBytes32();
+        values[plume]["wPLUME"] = 0xEa237441c92CAe6FC17Caaf9a7acB3f953be4bd1.toBytes32();
+        values[plume]["USDC"] = 0x78adD880A697070c1e765Ac44D65323a0DcCE913.toBytes32();
+        values[plume]["pUSD"] = 0xdddD73F5Df1F0DC31373357beAC77545dC5A6f3F.toBytes32();
+ 
+        // LayerZero
+        values[plume]["LayerZeroEndPoint"] = 0xC1b15d3B262bEeC0e3565C11C9e0F6134BdaCB36.toBytes32();
+        values[plume]["stargateUSDC"] = 0x9909fa99b7F7ee7F1c0CBf133f411D43083631E6.toBytes32();
+
+        // BoringVaults
+        values[plume]["royplumeUSDC"] = 0x83A6F6034ee44De6648B1885e24D837D8D98698f.toBytes32();
+
+        // Tellers
+        values[plume]["royplumeUSDCTeller"] = .toBytes32(); 
+        values[plume]["royplumeUSDCQueue"] = .toBytes32(); 
+
+        values[plume]["balancerVault"] = address(1).toBytes32();
+        values[plume]["vault"] = address(1).toBytes32();
+    }
+
 }
