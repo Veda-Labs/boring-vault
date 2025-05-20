@@ -62,6 +62,7 @@ contract CreateSonicLBTCvMerkleRootScript is Script, MerkleTreeHelper {
             eBTCTellerAssets[0] = getERC20(sourceChain, "LBTC");
             address eBTCTeller = 0x458797A320e6313c980C2bC7D270466A6288A8bB;
             _addTellerLeafs(leafs, eBTCTeller, eBTCTellerAssets, false, false);
+            _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "eBTCOnChainQueue"), getAddress(sourceChain, "eBTC"), eBTCTellerAssets);
 
             ERC20[] memory sonicBTCTellerAssets = new ERC20[](3); 
             sonicBTCTellerAssets[0] = getERC20(sourceChain, "LBTC"); 
