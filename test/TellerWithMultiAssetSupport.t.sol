@@ -832,6 +832,29 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         teller.setPermissionedTransfers(false);
         vm.prank(user);
         boringVault.transfer(address(this), 1); // now succeeds again
+
+        
+        teller.setDepositCap(100e18); 
+        wETH_amount = 101e18; 
+        vm.expectRevert(
+            abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__DepositExceedsCap.selector) 
+        );
+        teller.deposit(WETH, wETH_amount, 0);
+
+        //now succeeds
+        teller.setDepositCap(1000e18); 
+
+        deal(address(WETH), user, 1000e18); 
+        wETH_amount = 998e18; 
+        vm.startPrank(user); 
+        WETH.approve(address(boringVault), type(uint256).max); 
+        teller.deposit(WETH, wETH_amount, 0);
+        
+        //now we add more than deposit cap
+        vm.expectRevert(
+            abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__DepositExceedsCap.selector) 
+        );
+        teller.deposit(WETH, 2e18, 0);
     }
 
     // ========================================= HELPER FUNCTIONS =========================================
