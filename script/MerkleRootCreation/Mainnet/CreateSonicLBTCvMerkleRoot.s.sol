@@ -9,7 +9,7 @@ import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper
 import "forge-std/Script.sol";
 
 /**
- *  source .env && forge script script/MerkleRootCreation/Mainnet/CreateLombardMerkleRoot.s.sol --rpc-url $MAINNET_RPC_URL
+ *  source .env && forge script script/MerkleRootCreation/Mainnet/CreateSonicLBTCvMerkleRoot.s.sol --rpc-url $MAINNET_RPC_URL
  */
 contract CreateSonicLBTCvMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
@@ -37,7 +37,7 @@ contract CreateSonicLBTCvMerkleRootScript is Script, MerkleTreeHelper {
 
         leafIndex = type(uint256).max;
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](32);
+        ManageLeaf[] memory leafs = new ManageLeaf[](132);
 
         // ========================== Fee Claiming ==========================
         ERC20[] memory feeAssets = new ERC20[](2);
@@ -57,33 +57,13 @@ contract CreateSonicLBTCvMerkleRootScript is Script, MerkleTreeHelper {
         _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
 
         // ========================== BoringVaults ==========================
-        {
-            ERC20[] memory eBTCTellerAssets = new ERC20[](1);
-            eBTCTellerAssets[0] = getERC20(sourceChain, "LBTC");
-            address eBTCTeller = 0x458797A320e6313c980C2bC7D270466A6288A8bB;
-            _addTellerLeafs(leafs, eBTCTeller, eBTCTellerAssets, false, false);
-            _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "eBTCOnChainQueue"), getAddress(sourceChain, "eBTC"), eBTCTellerAssets);
-
-            ERC20[] memory sonicBTCTellerAssets = new ERC20[](3); 
-            sonicBTCTellerAssets[0] = getERC20(sourceChain, "LBTC"); 
-            sonicBTCTellerAssets[1] = getERC20(sourceChain, "eBTC");
-            address sonicBTCTeller = 0xAce7DEFe3b94554f0704d8d00F69F273A0cFf079;
-            _addTellerLeafs(leafs, sonicBTCTeller, sonicBTCTellerAssets, false, false);
-
-            ERC20[] memory scBTCWithdrawQueueAssets = new ERC20[](1); 
-            scBTCWithdrawQueueAssets[0] = getERC20(sourceChain, "scBTC");
-            address scBTCWithdrawQueue = 0xAea73B51380Fa5C0f76F0611c4346af4090ED2D7; 
-            _addWithdrawQueueLeafs(leafs, scBTCWithdrawQueue, getAddress(sourceChain, "scBTC"), scBTCWithdrawQueueAssets); 
-
-        }
+        _addBoringVaultLeafs(leafs);
+        
 
         // ========================== LayerZero ==========================
         address LBTCSonicOFTAdapter = 0xcFEAc622BC6464acC759ACd9741a6D78F8b0d3Cd;
         _addLayerZeroLeafs(
             leafs, getERC20(sourceChain, "LBTC"), LBTCSonicOFTAdapter, layerZeroSonicMainnetEndpointId, getBytes32(sourceChain, "boringVault")
-        );
-        _addLayerZeroLeafs(
-            leafs, getERC20(sourceChain, "scBTC"), LBTCSonicOFTAdapter, layerZeroSonicMainnetEndpointId, getBytes32(sourceChain, "boringVault")
         );
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
@@ -93,5 +73,33 @@ contract CreateSonicLBTCvMerkleRootScript is Script, MerkleTreeHelper {
         string memory filePath = "./leafs/Mainnet/SonicLBTCvStrategistLeafs.json";
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
+    }
+
+    function _addBoringVaultLeafs(ManageLeaf[] memory leafs) internal {
+         ERC20[] memory eBTCTellerAssets = new ERC20[](1);
+            eBTCTellerAssets[0] = getERC20(sourceChain, "LBTC");
+            address eBTCTeller = 0x458797A320e6313c980C2bC7D270466A6288A8bB;
+            _addTellerLeafs(leafs, eBTCTeller, eBTCTellerAssets, false, true);
+            _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "eBTCOnChainQueue"), getAddress(sourceChain, "eBTC"), eBTCTellerAssets);
+
+            ERC20[] memory sonicBTCTellerAssets = new ERC20[](2); 
+            sonicBTCTellerAssets[0] = getERC20(sourceChain, "LBTC"); 
+            sonicBTCTellerAssets[1] = getERC20(sourceChain, "eBTC");
+            address sonicBTCTeller = 0xAce7DEFe3b94554f0704d8d00F69F273A0cFf079;
+            _addTellerLeafs(leafs, sonicBTCTeller, sonicBTCTellerAssets, false, true);
+
+            ERC20[] memory scBTCWithdrawQueueAssets = new ERC20[](1); 
+            scBTCWithdrawQueueAssets[0] = getERC20(sourceChain, "scBTC");
+            address eBTCOnChainQueueFast = 0x686696A3e59eE16e8A8533d84B62cfA504827135; 
+            _addWithdrawQueueLeafs(leafs, eBTCOnChainQueueFast, getAddress(sourceChain, "scBTC"), sonicBTCTellerAssets);
+
+            address[] memory _feeAssets = new address[](1); 
+            _feeAssets[0] = getAddress(sourceChain, "ETH"); //pay bridge fee in ETH
+            address teller = 0x258f532CB41393c505554228e66eaf580B0171b2;
+
+            address[] memory _depositAssets = new address[](2);
+            _depositAssets[0] = getAddress(sourceChain, "LBTC");
+            _depositAssets[1] = getAddress(sourceChain, "eBTC");
+            _addCrossChainTellerLeafs(leafs, teller, _depositAssets, _feeAssets, abi.encode(layerZeroSonicMainnetEndpointId)); 
     }
 }
