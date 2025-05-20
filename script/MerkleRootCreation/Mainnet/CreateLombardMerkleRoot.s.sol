@@ -182,7 +182,7 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
             tacLBTCvTellerAssets[0] = getERC20(sourceChain, "LBTC");
             tacLBTCvTellerAssets[1] = getERC20(sourceChain, "cbBTC");
             _addTellerLeafs(leafs, getAddress(sourceChain, "tacLBTCvTeller"), tacLBTCvTellerAssets, false, true); //no native leaves, yes bulk actions
-            _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "tacLBTCvWithdrawQueue"), getAddress(sourceChain, "tacLBTCv"), tacLBTCvTellerAssets);  
+            _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "tacLBTCvWithdrawQueue"), getAddress(sourceChain, "TACLBTCv"), tacLBTCvTellerAssets);  
         }
 
         // ========================== Pendle ==========================
