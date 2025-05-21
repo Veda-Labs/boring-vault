@@ -79,8 +79,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("unichain");
-        setSourceChainName("unichain"); 
+        vm.createSelectFork("mainnet");
+        setSourceChainName("mainnet"); 
 
     }
 
@@ -108,9 +108,9 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         // constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2"));
         // deployer.deployContract("Staked BTCN Decoder And Sanitizer V0.3", creationCode, constructorArgs, 0);
 
-        creationCode = type(LiquidUSDFlareDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
-        deployer.deployContract("Liquid USD Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // creationCode = type(LiquidUSDFlareDecoderAndSanitizer).creationCode;
+        // constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
+        // deployer.deployContract("Liquid USD Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
         
         //creationCode = type(CamelotFullDecoderAndSanitizer).creationCode;
         //constructorArgs = abi.encode(getAddress(sourceChain, "camelotNonFungiblePositionManager"));
@@ -120,9 +120,12 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "dolomiteMargin"));
         //deployer.deployContract("PrimeLiquidBeraBTC Berachain Decoder And Sanitizer V0.2", creationCode, constructorArgs, 0);
 
-        creationCode = type(AlphaSTETHDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(address(0), getAddress(sourceChain, "uniV4PositionManager"), address(0), address(0));
-        deployer.deployContract("Alpha STETH Decoder And Sanitizer V0.1", creationCode, constructorArgs, 0);
+        // creationCode = type(AlphaSTETHDecoderAndSanitizer).creationCode;
+        // constructorArgs = abi.encode(address(0), getAddress(sourceChain, "uniV4PositionManager"), address(0), address(0));
+        // deployer.deployContract("Alpha STETH Decoder And Sanitizer V0.1", creationCode, constructorArgs, 0);
+        creationCode = type(SonicBTCDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
+        deployer.deployContract("Sonic BTC Decoder And Sanitizer V0.3", creationCode, constructorArgs, 0);
         
         vm.stopBroadcast();
     }
