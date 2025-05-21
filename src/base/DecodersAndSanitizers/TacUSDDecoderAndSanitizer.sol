@@ -9,6 +9,7 @@ import {OneInchDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protoco
 import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol"; 
 import {SkyMoneyDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SkyMoneyDecoderAndSanitizer.sol"; 
 import {NativeWrapperDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol"; 
+import {AaveV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AaveV3DecoderAndSanitizer.sol";
 
 contract TacUSDDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
@@ -18,7 +19,8 @@ contract TacUSDDecoderAndSanitizer is
     NativeWrapperDecoderAndSanitizer,
     OneInchDecoderAndSanitizer,
     OdosDecoderAndSanitizer,
-    SkyMoneyDecoderAndSanitizer 
+    SkyMoneyDecoderAndSanitizer,
+    AaveV3DecoderAndSanitizer
 {
     constructor(address _uniswapV3NonFungiblePositionManager, address _odosRouter)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)

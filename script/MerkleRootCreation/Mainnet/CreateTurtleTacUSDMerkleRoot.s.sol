@@ -16,7 +16,7 @@ contract CreateTurtleTacUSDMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x699e04F98dE2Fc395a7dcBf36B48EC837A976490;
-    address public rawDataDecoderAndSanitizer = 0x548993448a7Ff3aF7b5628b187032B332270d925;
+    address public rawDataDecoderAndSanitizer = 0xa4C4381711732a148E90e92b0780bA71f84a20fb;
     address public managerAddress = 0x2FA91E4eb6Ace724EfFbDD61bBC1B55EF8bD7aAc; 
     address public accountantAddress = 0x58cD5e97ffaeA62986C86ac44bB8EF7092c7ff5B;
     
@@ -65,8 +65,18 @@ contract CreateTurtleTacUSDMerkleRoot is Script, MerkleTreeHelper {
         // ========================== sUSDs ==========================
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sUSDs")));
 
+        // ========================== Aave ==========================
+        ERC20[] memory supplyAssets = new ERC20[](1);
+        supplyAssets[0] = getERC20(sourceChain, "USDT");
+
+        ERC20[] memory borrowAssets = new ERC20[](1);
+        borrowAssets[0] = getERC20(sourceChain, "USDC");
+
+        _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
+
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
+        console.log("leafs length: %s", leafs.length);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
