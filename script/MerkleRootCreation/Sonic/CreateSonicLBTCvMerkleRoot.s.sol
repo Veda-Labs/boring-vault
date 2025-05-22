@@ -43,6 +43,7 @@ contract CreateSonicLBTCvMerkleRootScript is Script, MerkleTreeHelper {
         feeAssets[1] = getERC20(sourceChain, "EBTC");
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, true);
 
+
         // ========================== BoringVaults ==========================
         {
             ERC20[] memory eBTCTellerAssets = new ERC20[](2);
@@ -55,21 +56,32 @@ contract CreateSonicLBTCvMerkleRootScript is Script, MerkleTreeHelper {
             sonicBTCTellerAssets[0] = getERC20(sourceChain, "LBTC"); 
             sonicBTCTellerAssets[1] = getERC20(sourceChain, "EBTC");
             sonicBTCTellerAssets[2] = getERC20(sourceChain, "WBTC");
+
+            address[] memory sonicBTCTellerAssetsAddresses = new address[](3);
+            sonicBTCTellerAssetsAddresses[0] = getAddress(sourceChain, "LBTC");
+            sonicBTCTellerAssetsAddresses[1] = getAddress(sourceChain, "EBTC");
+            sonicBTCTellerAssetsAddresses[2] = getAddress(sourceChain, "WBTC");
+
+            address[] memory _feeAssets = new address[](1); 
+            _feeAssets[0] = getAddress(sourceChain, "ETH");
+
             address sonicBTCTeller = 0xAce7DEFe3b94554f0704d8d00F69F273A0cFf079;
             address scBTC = 0xBb30e76d9Bb2CC9631F7fC5Eb8e87B5Aff32bFbd; 
             address scBTCWithdrawQueue = 0x488000E6a0CfC32DCB3f37115e759aF50F55b48B; 
             _addTellerLeafs(leafs, sonicBTCTeller, sonicBTCTellerAssets, false, false);
             _addWithdrawQueueLeafs(leafs, scBTCWithdrawQueue, scBTC, sonicBTCTellerAssets); 
+            _addCrossChainTellerLeafs(leafs, sonicBTCTeller, sonicBTCTellerAssetsAddresses, _feeAssets, abi.encode(layerZeroMainnetEndpointId));
+
 
             ERC20[] memory stkscBTCTellerAssets = new ERC20[](1); 
-            stkscBTCTellerAssets[0] = ERC20(scBTC); 
+            stkscBTCTellerAssets[0] = getERC20(sourceChain, "scBTC"); 
             address stkscBTCTeller = 0x825254012306bB410b550631895fe58DdCE1f4a9;
             address stkscBTC = 0xD0851030C94433C261B405fEcbf1DEC5E15948d0; 
             address stkscBTCWithdrawQueue = 0x6dF97Ed8B28d9528cd34335c0a151F10E48b6eF3; 
             _addTellerLeafs(leafs, stkscBTCTeller, stkscBTCTellerAssets, false, false);
             _addWithdrawQueueLeafs(leafs, stkscBTCWithdrawQueue, stkscBTC, stkscBTCTellerAssets); 
-                  
         }
+
 
         // ========================== LayerZero ==========================
         address LBTCOFTAdapter = 0x630e12D53D4E041b8C5451aD035Ea841E08391d7;
