@@ -859,7 +859,9 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
         queueSolver = BoringSolver(deployedAddress);
         if (!isDeployed) {
             creationCode = type(BoringSolver).creationCode;
-            constructorArgs = abi.encode(deploymentOwner, address(0), address(queue));
+            // Read config to determine excessToSolverNonSelfSolve constructor argument.
+            bool excessToSolverNonSelfSolve = vm.parseJsonBool(rawJson, ".boringQueueConfiguration.excessToSolverNonSelfSolve");
+            constructorArgs = abi.encode(deploymentOwner, address(0), address(queue), excessToSolverNonSelfSolve);
             _log("Boring solver deployment TX added", 3);
             _log(string.concat("Boring queue address: ", vm.toString(address(queue))), 4);
             _addTx(

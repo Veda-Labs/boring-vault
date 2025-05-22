@@ -1,0 +1,211 @@
+{
+    "deploymentParameters": {
+      "logLevel": 4,
+      "privateKeyEnvName": "BORING_DEVELOPER",
+      "chainName": "unichain",
+      "evmVersion": "cancun",
+      "desiredNumberOfDeploymentTxs": 16,
+      "txBundlerAddressOrName": {
+        "address": "0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d",
+        "name": "txBundlerAddress"
+      },
+      "setupRoles": true,
+      "setupTestUser": true,
+      "saveDeploymentDetails": true,
+      "testUserAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "dev1Address"
+      },
+      "deployerContractAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "deployerAddress"
+      },
+      "nativeWrapperAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "WETH"
+      },
+      "deploymentOwnerAddressOrName": {
+        "address": "0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d",
+        "name": "txBundlerAddress"
+      },
+      "deploymentFileName": "addresses/UniChain/GoldenGoose.json"
+    },
+    "rolesAuthorityConfiguration": {
+      "rolesAuthorityDeploymentName": "Golden Goose Roles Authority V0.3"
+    },
+    "lensConfiguration": {
+      "lensDeploymentName": "Arctic Architecture Lens V0.0"
+    },
+    "boringVaultConfiguration": {
+      "boringVaultDeploymentName": "Golden Goose Boring Vault V0.3",
+      "boringVaultName": "Golden Goose Vault",
+      "boringVaultSymbol": "GG",
+      "boringVaultDecimals": 18
+    },
+    "managerConfiguration": {
+      "managerDeploymentName": "Golden Goose Manager V0.3",
+      "balancerVaultAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "balancerVault"
+      }
+    },
+    "accountantConfiguration": {
+      "accountantDeploymentName": "Golden Goose Accountant V0.3",
+      "accountantParameters": {
+        "kind": {
+          "variableRate": true,
+          "fixedRate": false
+        },
+        "payoutConfiguration": {
+          "payoutTo": "0x0000000000000000000000000000000000000000",
+          "optionalPaymentSplitterName": "Golden Goose Payment Splitter V0.3",
+          "splits": []
+        },
+        "accountantDeploymentParameters": {
+          "allowedExchangeRateChangeLower": 9900,
+          "allowedExchangeRateChangeUpper": 10100,
+          "baseAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "WETH"
+          },
+          "minimumUpateDelayInSeconds": 21600,
+          "performanceFee": 1000,
+          "platformFee": 0,
+          "startingExchangeRate": 1000000000000000000
+        }
+      }
+    },
+    "tellerConfiguration": {
+      "tellerDeploymentName": "Golden Goose Teller V0.3",
+      "tellerParameters": {
+        "allowPublicDeposits": false,
+        "shareLockPeriod": 0,
+        "kind": {
+          "teller": false,
+          "tellerWithRemediation": false,
+          "tellerWithCcip": false,
+          "tellerWithLayerZero": true,
+          "tellerWithLayerZeroRateLimiting": false
+        },
+        "layerZero": {
+          "endpointAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "LayerZeroEndPoint"
+          },
+          "lzChains": [
+            {
+                "allowMessagesFrom": true,
+                "allowMessagesTo": true,
+                "chainId": 30101,
+                "messageGasLimit": 100000,
+                "targetTellerOrSelf": {
+                    "address": "0x0000000000000000000000000000000000000000",
+                    "self": true
+                }
+            }
+          ],
+          "lzTokenAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "ZRO"
+          }
+        }
+      }
+    },
+    "boringQueueConfiguration": {
+      "boringQueueDeploymentName": "Golden Goose Boring Queue V0.3",
+      "boringQueueSolverName": "Golden Goose Boring Solver V0.3",
+      "excessToSolverNonSelfSolve": true,
+      "queueParameters": {
+        "allowPublicWithdrawals": false,
+        "allowPublicSelfWithdrawals": false,
+        "kind": {
+          "boringQueue": true,
+          "boringQueueWithTracking": false
+        }
+      }
+    },
+    "droneConfiguration": {
+      "droneDeploymentBaseName": "Golden Goose Drone V0.3",
+      "droneCount": 0,
+      "safeGasToForwardNative": 21000
+    },
+    "pauserConfiguration": {
+      "shouldDeploy": true,
+      "pauserDeploymentName": "Golden Goose Pauser V0.3",
+      "makeGenericPauser": [
+        "0x0000000000000000000000000000000000000000"
+      ],
+      "makeGenericUnpauser": [
+        "0x0000000000000000000000000000000000000000"
+      ],
+      "makePauseAll": [
+        "0x0000000000000000000000000000000000000000"
+      ],
+      "makeUnpauseAll": [
+        "0x0000000000000000000000000000000000000000"
+      ],
+      "senderToPausable": [
+        {
+          "sender": "0x0000000000000000000000000000000000000000",
+          "pausable": "0x0000000000000000000000000000000000000000"
+        }
+      ]
+    },
+    "timelockConfiguration": {
+      "shouldDeploy": false,
+      "timelockDeploymentName": "Golden Goose Timelock V0.3",
+      "timelockParameters": {
+        "executors": [
+            "0xf8553c8552f906C19286F21711721E206EE4909E"
+        ],
+        "minDelay": 0,
+        "proposers": [
+          "0xf8553c8552f906C19286F21711721E206EE4909E"
+        ]
+      }
+    },
+    "accountantAssets": [
+      {
+        "addressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "ETH"
+        },
+        "isPeggedToBase": true,
+        "rateProvider": "0x0000000000000000000000000000000000000000"
+      }
+    ],
+    "depositAssets": [
+      {
+        "addressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "ETH"
+        },
+        "allowDeposits": true,
+        "allowWithdraws": true,
+        "sharePremium": 0
+      },
+      {
+        "addressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "WETH"
+        },
+        "allowDeposits": true,
+        "allowWithdraws": true,
+        "sharePremium": 0
+      }
+    ],
+    "withdrawAssets": [
+      {
+        "addressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "WETH"
+        },
+        "maxDiscount": 10,
+        "minDiscount": 1,
+        "minimumSecondsToDeadline": 259200,
+        "minimumShares": 0,
+        "secondsToMaturity": 172800
+      }
+    ]
+  }
+  
