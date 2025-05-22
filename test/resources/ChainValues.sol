@@ -37,7 +37,7 @@ contract ChainValues {
     string public constant hyperEVM = "hyperEVM";
     string public constant tacTestnet = "tacTestnet";
     string public constant flare = "flare";
-
+    string public constant plume = "plume";
 
     // Bridging constants.
     uint64 public constant ccipArbitrumChainSelector = 4949039107694359620;
@@ -63,7 +63,7 @@ contract ChainValues {
     uint32 public constant hyperlaneMainnetEndpointId = 1;
     uint32 public constant hyperlaneEclipseEndpointId = 1408864445;
     uint32 public constant HyperEVMEndpointId = 30367;
-
+    uint32 public constant layerZeroPlumeEndpointId = 30340;
     error ChainValues__ZeroAddress(string chainName, string valueName);
     error ChainValues__ZeroBytes32(string chainName, string valueName);
     error ChainValues__ValueAlreadySet(string chainName, string valueName);
@@ -130,6 +130,7 @@ contract ChainValues {
         _addBerachainTestnetValues();
         _addBartioValues();
         _addTACTestnetValues();
+        _addPlumeValues();
     }
 
     function _addMainnetValues() private {
@@ -2521,5 +2522,11 @@ contract ChainValues {
         // Balancer
         values[ink]["balancerVault"] = address(1).toBytes32();
         values[ink]["vault"] = address(1).toBytes32();
+    }
+
+    function _addPlumeValues() private {
+        values[plume]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        values[plume]["txBundlerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        values[plume]["USDC"] = 0x78adD880A697070c1e765Ac44D65323a0DcCE913.toBytes32();
     }
 }

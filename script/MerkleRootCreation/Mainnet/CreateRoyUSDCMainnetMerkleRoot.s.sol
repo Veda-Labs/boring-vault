@@ -46,7 +46,8 @@ contract CreateRoyUSDCMainnetMerkleRoot is Script, MerkleTreeHelper {
         _addSonicGatewayLeafsEth(leafs, mainnetAssets);
 
         // ========================== LayerZero ========================== // Using stargate pool as OFT
-        _addLayerZeroLeafs(leafs, getERC20(mainnet, "USDC"), getAddress(mainnet, "stargateUSDC"), layerZeroSonicMainnetEndpointId);
+        _addLayerZeroLeafs(leafs, getERC20(mainnet, "USDC"), getAddress(mainnet, "stargateUSDC"), layerZeroSonicMainnetEndpointId, getBytes32(mainnet, "boringVault"));
+        _addLayerZeroLeafs(leafs, getERC20(mainnet, "USDC"), getAddress(mainnet, "stargateUSDC"), layerZeroPlumeEndpointId, getBytes32(mainnet, "boringVault"));
 
         // ========================== Fee Claiming ==========================
         ERC20[] memory feeAssets = new ERC20[](1);
