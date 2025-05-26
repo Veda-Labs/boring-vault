@@ -44,6 +44,7 @@ hyperEvm = "${HYPER_EVM_RPC_URL}"
 tacTestnet = "${TAC_TESTNET_RPC_URL}"
 flare = "${FLARE_RPC_URL}"
 ink = "${INK_RPC_URL}"
+plume = "${PLUME_RPC_URL}"
 
 [etherscan]
 #bob = { key = "${BOBSCAN_KEY}", chain = 60808, url = "https://explorer.gobob.xyz/api?"}
@@ -65,8 +66,9 @@ scroll = { key = "${SCROLLSCAN_KEY}", chain = 534352, url = "https://api.ethersc
 berachain = { key = "${BERASCAN_KEY}", chain = 80094, url = "https://api.berascan.com/api" }
 #bob = { key = "${BOBSCAN_KEY}", chain = 60808, url = "https://explorer.gobob.xyz/api?"}
 #unichain = { key = "${UNISCAN_KEY}", chain = 130, url = "https://api.uniscan.xyz/api" }
-#flare = {key = "${FLARESCAN_KEY}", chain = 14, url = "https://api.routescan.io/v2/network/mainnet/evm/14/etherscan" }
-#hyperEVM = { key = "${HYPER_EVM_KEY}", chain = 999, url = "https://hyperscan.gas.zip/" }
+flare = {key = "${FLARESCAN_KEY}", chain = 14, url = "https://api.routescan.io/v2/network/mainnet/evm/14/etherscan" }
+#hyperEVM = { key = "${HYPER_EVM_KEY}, chain = 999, url = "https://hyperscan.gas.zip/" }
+plume = { key = "${PLUMESCAN_KEY}", chain = 98866, url = ""}
 
 
 [fmt]
