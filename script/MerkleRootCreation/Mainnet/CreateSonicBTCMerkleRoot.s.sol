@@ -18,6 +18,7 @@ contract CreateSonicBTCMerkleRoot is Script, MerkleTreeHelper {
     address public managerAddress = 0x5dA93667DCc58b71726aFC595f116A6F166F9aeD;
     address public accountantAddress = 0xC1a2C650D2DcC8EAb3D8942477De71be52318Acb;
     address public rawDataDecoderAndSanitizer = 0xf7d5D3ba755583C8b174ADE63E8687471Ad8b20a;
+    address public lbtcBridgeDecoder = 0xE9527EA95a383993b41EA7D3b0E50DDA7B13dE94; 
 
     function setUp() external {}
 
@@ -77,20 +78,19 @@ contract CreateSonicBTCMerkleRoot is Script, MerkleTreeHelper {
         // ========================== LayerZero ==========================
         _addLayerZeroLeafs(
             leafs,
-            getERC20(sourceChain, "LBTC"),
-            getAddress(sourceChain, "LBTCOFTAdapter"),
-            layerZeroSonicMainnetEndpointId,
-            getBytes32(sourceChain, "boringVault")
-        );
-        _addLayerZeroLeafs(
-            leafs,
             getERC20(sourceChain, "WBTC"),
             getAddress(sourceChain, "WBTCOFTAdapter"),
             layerZeroSonicMainnetEndpointId,
             getBytes32(sourceChain, "boringVault")
         );
 
+        // ========================== CCIP ==========================
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", lbtcBridgeDecoder);
+        bytes32 toChain = 0x0000000000000000000000000000000000000000000000000000000000000092; //sonic
+        _addLBTCBridgeLeafs(leafs, toChain);
+
         // ========================== Tellers ==========================
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         {
             ERC20[] memory eBTCTellerAssets = new ERC20[](3);
             eBTCTellerAssets[0] = getERC20(sourceChain, "WBTC");

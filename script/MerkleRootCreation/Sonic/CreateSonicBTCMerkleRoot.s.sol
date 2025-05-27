@@ -18,7 +18,7 @@ contract CreateSonicBTCMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0xBb30e76d9Bb2CC9631F7fC5Eb8e87B5Aff32bFbd;
     address public managerAddress = 0x5dA93667DCc58b71726aFC595f116A6F166F9aeD; 
     address public accountantAddress = 0xC1a2C650D2DcC8EAb3D8942477De71be52318Acb;
-    address public rawDataDecoderAndSanitizer = 0x0b731aFee9946869e870969a7600DD9b871ED9AB; 
+    address public rawDataDecoderAndSanitizer = 0xE9527EA95a383993b41EA7D3b0E50DDA7B13dE94; 
 
     function setUp() external {}
 
@@ -41,11 +41,12 @@ contract CreateSonicBTCMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== LayerZero ==========================
         _addLayerZeroLeafs(
-            leafs, getERC20(sourceChain, "LBTC"), getAddress(sourceChain, "LBTC_OFT"), layerZeroMainnetEndpointId
+            leafs, getERC20(sourceChain, "WBTC"), getAddress(sourceChain, "WBTC"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault")
         ); 
-        _addLayerZeroLeafs(
-            leafs, getERC20(sourceChain, "WBTC"), getAddress(sourceChain, "WBTC"), layerZeroMainnetEndpointId
-        ); 
+        
+        // ========================== CCIP ==========================
+        bytes32 toChain = 0x0000000000000000000000000000000000000000000000000000000000000001; //mainnet
+        _addLBTCBridgeLeafs(leafs, toChain);
 
         // ========================== Fee Claiming ==========================
         ERC20[] memory feeAssets = new ERC20[](3);

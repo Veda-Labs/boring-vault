@@ -15,7 +15,7 @@ contract CreateSonicLBTCvMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     address public boringVault = 0x309f25d839A2fe225E80210e110C99150Db98AAF;
-    address public rawDataDecoderAndSanitizer = 0x3D1b0dF501Ca22A09304c8195bEf9ad266Ad2485;
+    address public rawDataDecoderAndSanitizer = 0xE9527EA95a383993b41EA7D3b0E50DDA7B13dE94;
     address public managerAddress = 0x9D828035dd3C95452D4124870C110E7866ea6bb7;
     address public accountantAddress = 0x0639e239E417Ab9D1f0f926Fd738a012153930A7;
 
@@ -84,14 +84,14 @@ contract CreateSonicLBTCvMerkleRootScript is Script, MerkleTreeHelper {
 
 
         // ========================== LayerZero ==========================
-        address LBTCOFTAdapter = 0x630e12D53D4E041b8C5451aD035Ea841E08391d7;
-        _addLayerZeroLeafs(
-            leafs, getERC20(sourceChain, "LBTC"), LBTCOFTAdapter, layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault")
-        );
         _addLayerZeroLeafs(
             leafs, getERC20(sourceChain, "WBTC"), getAddress(sourceChain, "WBTC"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault")
         );
 
+        // ========================== CCIP ==========================
+        bytes32 toChain = 0x0000000000000000000000000000000000000000000000000000000000000001; //mainnet
+        _addLBTCBridgeLeafs(leafs, toChain);
+        
         // ========================== Balancer/Beets ==========================
         _addBalancerLeafs(leafs, getBytes32(sourceChain, "scBTC_LBTC_PoolId"), getAddress(sourceChain, "scBTC_LBTC_gauge"));
 

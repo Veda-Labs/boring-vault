@@ -8,6 +8,7 @@ import {BalancerV2DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Prot
 import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
 import {SiloDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SiloDecoderAndSanitizer.sol"; 
 import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol"; 
+import {LBTCBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LBTCBridgeDecoderAndSanitizer.sol"; 
 
 contract SonicLBTCvSonicDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
@@ -15,7 +16,8 @@ contract SonicLBTCvSonicDecoderAndSanitizer is
     OFTDecoderAndSanitizer,
     BalancerV2DecoderAndSanitizer,
     CurveDecoderAndSanitizer,
-    SiloDecoderAndSanitizer
+    SiloDecoderAndSanitizer,
+    LBTCBridgeDecoderAndSanitizer
 {
  /**
      * @notice BalancerV2 and Curve all specify a `deposit(uint256,address)`,

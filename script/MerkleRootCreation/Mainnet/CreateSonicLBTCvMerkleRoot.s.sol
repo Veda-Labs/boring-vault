@@ -15,7 +15,7 @@ contract CreateSonicLBTCvMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     address public boringVault = 0x309f25d839A2fe225E80210e110C99150Db98AAF;
-    address public rawDataDecoderAndSanitizer = 0x1f637f48F23E4D5748ee40C6FAF7d49afE63757e;
+    address public rawDataDecoderAndSanitizer = 0xE9527EA95a383993b41EA7D3b0E50DDA7B13dE94;
     address public managerAddress = 0x9D828035dd3C95452D4124870C110E7866ea6bb7;
     address public accountantAddress = 0x0639e239E417Ab9D1f0f926Fd738a012153930A7;
 
@@ -79,11 +79,10 @@ contract CreateSonicLBTCvMerkleRootScript is Script, MerkleTreeHelper {
             _addWithdrawQueueLeafs(leafs, eBTCOnChainQueueFast, getAddress(sourceChain, "scBTC"), _scBTCWithdrawQueueAssets);
         }
 
-        // ========================== LayerZero ==========================
-        address LBTCSonicOFTAdapter = 0xcFEAc622BC6464acC759ACd9741a6D78F8b0d3Cd;
-        _addLayerZeroLeafs(
-            leafs, getERC20(sourceChain, "LBTC"), LBTCSonicOFTAdapter, layerZeroSonicMainnetEndpointId, getBytes32(sourceChain, "boringVault")
-        );
+        // ========================== CCIP ==========================
+        bytes32 toChain = 0x0000000000000000000000000000000000000000000000000000000000000092; //sonic
+        _addLBTCBridgeLeafs(leafs, toChain);
+
         console.log("Pre - Verify");
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
         console.log("Post - Verify");

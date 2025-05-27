@@ -2050,8 +2050,8 @@ contract ChainValues {
         values[sonicMainnet]["balancerV3VaultExplorer"] = 0x6F6CD1a69A19d45df0C300A57829b21713637300.toBytes32();
 
         values[sonicMainnet]["balancerV3_USDC_scUSD_boosted"] = 0x43026d483f42fB35efe03c20B251142D022783f2.toBytes32();
-        values[sonicMainnet]["balancerV3_USDC_scUSD_boosted_gauge"] =
-            0x5D9e8B588F1D9e28ea1963681180d8b5938D26BA.toBytes32();
+        values[sonicMainnet]["balancerV3_USDC_scUSD_boosted_gauge"] = 0x5D9e8B588F1D9e28ea1963681180d8b5938D26BA.toBytes32();
+        values[sonicMainnet]["lbtcBridge"] = 0xA869817b48b25EeE986bdF4bE04062e6fd2C418B.toBytes32();
     }
 
     function _addSepoliaValues() private {
