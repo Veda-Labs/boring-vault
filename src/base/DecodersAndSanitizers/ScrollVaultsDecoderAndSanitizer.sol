@@ -5,13 +5,15 @@ import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecode
 import {OFTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OFTDecoderAndSanitizer.sol"; 
 import {NativeWrapperDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol"; 
 import {ScrollBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ScrollBridgeDecoderAndSanitizer.sol";
+import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
 
 
 contract ScrollVaultsDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
     OFTDecoderAndSanitizer,
     ScrollBridgeDecoderAndSanitizer,
-    NativeWrapperDecoderAndSanitizer
+    NativeWrapperDecoderAndSanitizer,
+    TellerDecoderAndSanitizer
 {}
 
 

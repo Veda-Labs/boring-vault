@@ -2,7 +2,7 @@
     "metadata": {
         "AccountantAddress": "0xEa23aC6D7D11f6b181d6B98174D334478ADAe6b0",
         "BoringVaultAddress": "0x5f46d540b6eD704C3c8789105F30E075AA900726",
-        "DecoderAndSanitizerAddress": "0xf6cF44791ee924597f8D1EFf98562435aFae29B8",
+        "DecoderAndSanitizerAddress": "0xFDE49d6B3ae04acd8D89FD6f50B970DeB2B943D9",
         "DigestComposition": [
             "Bytes20(DECODER_AND_SANITIZER_ADDRESS)",
             "Bytes20(TARGET_ADDRESS)",
@@ -10,20 +10,20 @@
             "Bytes4(TARGET_FUNCTION_SELECTOR)",
             "Bytes{N*20}(ADDRESS_ARGUMENT_0,...,ADDRESS_ARGUMENT_N)"
         ],
-        "LeafCount": 2,
-        "ManageRoot": "0x1222fbb251fdb412039dbd2d171a9a063ccd31e89bd3875fd37bc520ea867a12",
+        "LeafCount": 10,
+        "ManageRoot": "0xd09f6b6ba4e7227305f83197495e2acfaea539d933bd1350e257a0f2e32ef62a",
         "ManagerAddress": "0xaFa8c08bedB2eC1bbEb64A7fFa44c604e7cca68d",
-        "TreeCapacity": 8
+        "TreeCapacity": 16
     },
     "leafs": [
         {
             "AddressArguments": ["0x5f46d540b6eD704C3c8789105F30E075AA900726"],
             "CanSendValue": true,
-            "DecoderAndSanitizerAddress": "0xf6cF44791ee924597f8D1EFf98562435aFae29B8",
+            "DecoderAndSanitizerAddress": "0xFDE49d6B3ae04acd8D89FD6f50B970DeB2B943D9",
             "Description": "Bridge ETH from scroll to mainnet",
             "FunctionSelector": "0xb2267a7b",
             "FunctionSignature": "sendMessage(address,uint256,bytes,uint256)",
-            "LeafDigest": "0x3ff82bd96140c9f4926cf8380d9ca30681bb1b938466fe73c320b398f874093b",
+            "LeafDigest": "0xee2defb3925189aa5e08d8c7e48a9dc844c5648c240b0785ce653c771b48354e",
             "PackedArgumentAddresses": "0x5f46d540b6ed704c3c8789105f30e075aa900726",
             "TargetAddress": "0x781e90f1c8Fc4611c9b7497C3B47F99Ef6969CbC"
         },
@@ -33,13 +33,113 @@
                 "0x5f46d540b6eD704C3c8789105F30E075AA900726"
             ],
             "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xf6cF44791ee924597f8D1EFf98562435aFae29B8",
+            "DecoderAndSanitizerAddress": "0xFDE49d6B3ae04acd8D89FD6f50B970DeB2B943D9",
             "Description": "Withdraw WBTC from scroll to mainnet",
             "FunctionSelector": "0xa93a4af9",
             "FunctionSignature": "withdrawERC20(address,address,uint256,uint256)",
-            "LeafDigest": "0x4e65f67717f1dd785207ad763585632c2df9c1ffaa6cbe24be5bcad673f0d590",
+            "LeafDigest": "0x8cf2faaae038cf84be201e5ae9573b53c06413a4be1dd1911926ff951545bdc6",
             "PackedArgumentAddresses": "0x3c1bca5a656e69edcd0d4e36bebb3fcdaca60cf15f46d540b6ed704c3c8789105f30e075aa900726",
             "TargetAddress": "0x4C0926FF5252A435FD19e10ED15e5a249Ba19d79"
+        },
+        {
+            "AddressArguments": ["0x657e8C867D8B37dCC18fA4Caead9C45EB088C642"],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xFDE49d6B3ae04acd8D89FD6f50B970DeB2B943D9",
+            "Description": "Approve ether.fi BTC, to spend WBTC",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x77d29e9a8f7b3020ecb0f499c9c81c9e04f9f091a38fd2134a5be95b479c73e4",
+            "PackedArgumentAddresses": "0x657e8c867d8b37dcc18fa4caead9c45eb088c642",
+            "TargetAddress": "0x3C1BCa5a656e69edCD0D4E36BEbb3FcDAcA60Cf1"
+        },
+        {
+            "AddressArguments": [
+                "0x3C1BCa5a656e69edCD0D4E36BEbb3FcDAcA60Cf1",
+                "0x5f46d540b6eD704C3c8789105F30E075AA900726"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xFDE49d6B3ae04acd8D89FD6f50B970DeB2B943D9",
+            "Description": "Bulk deposit WBTC into ether.fi BTC",
+            "FunctionSelector": "0x9d574420",
+            "FunctionSignature": "bulkDeposit(address,uint256,uint256,address)",
+            "LeafDigest": "0x7f24db8f25d1081fda77bf7c645bb56df7c1b16c4a11d4570382f1aa1f9248a3",
+            "PackedArgumentAddresses": "0x3c1bca5a656e69edcd0d4e36bebb3fcdaca60cf15f46d540b6ed704c3c8789105f30e075aa900726",
+            "TargetAddress": "0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268"
+        },
+        {
+            "AddressArguments": [
+                "0x3C1BCa5a656e69edCD0D4E36BEbb3FcDAcA60Cf1",
+                "0x5f46d540b6eD704C3c8789105F30E075AA900726"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xFDE49d6B3ae04acd8D89FD6f50B970DeB2B943D9",
+            "Description": "Bulk withdraw WBTC from ether.fi BTC",
+            "FunctionSelector": "0x3e64ce99",
+            "FunctionSignature": "bulkWithdraw(address,uint256,uint256,address)",
+            "LeafDigest": "0x116e7df1f4b4a8761bbea10841fcbbb3a0d4276ca8b00926d27f9e2c1541ed4f",
+            "PackedArgumentAddresses": "0x3c1bca5a656e69edcd0d4e36bebb3fcdaca60cf15f46d540b6ed704c3c8789105f30e075aa900726",
+            "TargetAddress": "0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268"
+        },
+        {
+            "AddressArguments": ["0x3C1BCa5a656e69edCD0D4E36BEbb3FcDAcA60Cf1"],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xFDE49d6B3ae04acd8D89FD6f50B970DeB2B943D9",
+            "Description": "Deposit WBTC into ether.fi BTC",
+            "FunctionSelector": "0x0efe6a8b",
+            "FunctionSignature": "deposit(address,uint256,uint256)",
+            "LeafDigest": "0xc97e93a690b12d86f115b94e5bc3d78f3825d0077e7b824d56e219580c5a4d32",
+            "PackedArgumentAddresses": "0x3c1bca5a656e69edcd0d4e36bebb3fcdaca60cf1",
+            "TargetAddress": "0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268"
+        },
+        {
+            "AddressArguments": ["0x686696A3e59eE16e8A8533d84B62cfA504827135"],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xFDE49d6B3ae04acd8D89FD6f50B970DeB2B943D9",
+            "Description": "Approve BoringOnChainQueue to spend eBTC",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x389dfe6fb2a48c5187e5e964fc34c09846ee739b54e74b0a23e8f931a40f632d",
+            "PackedArgumentAddresses": "0x686696a3e59ee16e8a8533d84b62cfa504827135",
+            "TargetAddress": "0x657e8C867D8B37dCC18fA4Caead9C45EB088C642"
+        },
+        {
+            "AddressArguments": ["0x3C1BCa5a656e69edCD0D4E36BEbb3FcDAcA60Cf1"],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xFDE49d6B3ae04acd8D89FD6f50B970DeB2B943D9",
+            "Description": "Request Withdraw of WBTC, from queue",
+            "FunctionSelector": "0x6bb3b476",
+            "FunctionSignature": "requestOnChainWithdraw(address,uint128,uint16,uint24)",
+            "LeafDigest": "0x895bfc8655f78da6df2969bd2a6b05b227eac30dba1d6fa047d87906748c3925",
+            "PackedArgumentAddresses": "0x3c1bca5a656e69edcd0d4e36bebb3fcdaca60cf1",
+            "TargetAddress": "0x686696A3e59eE16e8A8533d84B62cfA504827135"
+        },
+        {
+            "AddressArguments": [
+                "0x5f46d540b6eD704C3c8789105F30E075AA900726",
+                "0x3C1BCa5a656e69edCD0D4E36BEbb3FcDAcA60Cf1"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xFDE49d6B3ae04acd8D89FD6f50B970DeB2B943D9",
+            "Description": "Cancel Withdraw of WBTC, from queue",
+            "FunctionSelector": "0x4a2dc5e4",
+            "FunctionSignature": "cancelOnChainWithdraw((uint96,address,address,uint128,uint128,uint40,uint24,uint24))",
+            "LeafDigest": "0x4a873c4c9594c04a62e816bb5a68107c002c14eb4d478ba8c58e9d64fee75d44",
+            "PackedArgumentAddresses": "0x5f46d540b6ed704c3c8789105f30e075aa9007263c1bca5a656e69edcd0d4e36bebb3fcdaca60cf1",
+            "TargetAddress": "0x686696A3e59eE16e8A8533d84B62cfA504827135"
+        },
+        {
+            "AddressArguments": [
+                "0x5f46d540b6eD704C3c8789105F30E075AA900726",
+                "0x3C1BCa5a656e69edCD0D4E36BEbb3FcDAcA60Cf1"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xFDE49d6B3ae04acd8D89FD6f50B970DeB2B943D9",
+            "Description": "Replace Withdraw of WBTC, from queue",
+            "FunctionSelector": "0xa5672fd7",
+            "FunctionSignature": "replaceOnChainWithdraw((uint96,address,address,uint128,uint128,uint40,uint24,uint24),uint16,uint24)",
+            "LeafDigest": "0xc55df94865aa1a9dc120ce405db7ff82f0c8dd6b6becc51b581474226542ccfd",
+            "PackedArgumentAddresses": "0x5f46d540b6ed704c3c8789105f30e075aa9007263c1bca5a656e69edcd0d4e36bebb3fcdaca60cf1",
+            "TargetAddress": "0x686696A3e59eE16e8A8533d84B62cfA504827135"
         },
         {
             "AddressArguments": [],
@@ -110,21 +210,39 @@
     ],
     "MerkleTree": {
         "0": [
-            "0x1222fbb251fdb412039dbd2d171a9a063ccd31e89bd3875fd37bc520ea867a12"
+            "0xd09f6b6ba4e7227305f83197495e2acfaea539d933bd1350e257a0f2e32ef62a"
         ],
         "1": [
-            "0x9bbb90b8f07acd05960276b0991c93f5210c21f46d8c37a3dc53ea76d594b271",
-            "0x849eda7a295b642e5ddaf49a30eec4470cf507efa83b4104c0752d069c7638fe"
+            "0xc3de845c139b8f3d373de849e51bf640d2b3d01e54fe7152fab8cdbf6d445558",
+            "0xb0c5d96ef7a1bcb9099aeb43f872e7c9c7a1f0127155542c10760d0cae583c2e"
         ],
         "2": [
-            "0xc2c0a1befa1ae06fbf13c2212e98e6268dfe00255188103273d93889e5ebd08a",
+            "0xdd59b6f2e1133b3d3f7283a64c998722411f2edb398e4c86cac14e6b3317b38a",
+            "0x8ed5399c633b7decaeecc5002cc632b099b444afc4799caf81747ae598b6475c",
+            "0x86ef61de00d4b4a2abd163944fa5ab3c5be9d86fdfe62e10f05f10d3266c5cde",
+            "0x849eda7a295b642e5ddaf49a30eec4470cf507efa83b4104c0752d069c7638fe"
+        ],
+        "3": [
+            "0xc5a85d00c48f698807e994a2c7be76732ecb6970d2abbd1366a7e3e4d3a239c7",
+            "0x3af71b494918e9d2dcba5769f1305cd167ddbc57b88c04293b7e3efd5990456d",
+            "0x5f2e2135f79d8694605d27c21e8ba91f98907de6953b3009170274a4c70839ce",
+            "0xd8eddd1066eaa273768383ad6a4db4171ba08fb98e281fe2ecaadb0a3be478fa",
+            "0x275adabaf86a88e1bb61cf2dfb91e79c94627c490593fed04ad96c95cfa20b18",
             "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
             "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
             "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba"
         ],
-        "3": [
-            "0x3ff82bd96140c9f4926cf8380d9ca30681bb1b938466fe73c320b398f874093b",
-            "0x4e65f67717f1dd785207ad763585632c2df9c1ffaa6cbe24be5bcad673f0d590",
+        "4": [
+            "0xee2defb3925189aa5e08d8c7e48a9dc844c5648c240b0785ce653c771b48354e",
+            "0x8cf2faaae038cf84be201e5ae9573b53c06413a4be1dd1911926ff951545bdc6",
+            "0x77d29e9a8f7b3020ecb0f499c9c81c9e04f9f091a38fd2134a5be95b479c73e4",
+            "0x7f24db8f25d1081fda77bf7c645bb56df7c1b16c4a11d4570382f1aa1f9248a3",
+            "0x116e7df1f4b4a8761bbea10841fcbbb3a0d4276ca8b00926d27f9e2c1541ed4f",
+            "0xc97e93a690b12d86f115b94e5bc3d78f3825d0077e7b824d56e219580c5a4d32",
+            "0x389dfe6fb2a48c5187e5e964fc34c09846ee739b54e74b0a23e8f931a40f632d",
+            "0x895bfc8655f78da6df2969bd2a6b05b227eac30dba1d6fa047d87906748c3925",
+            "0x4a873c4c9594c04a62e816bb5a68107c002c14eb4d478ba8c58e9d64fee75d44",
+            "0xc55df94865aa1a9dc120ce405db7ff82f0c8dd6b6becc51b581474226542ccfd",
             "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
             "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
             "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
