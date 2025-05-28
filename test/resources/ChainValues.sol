@@ -1830,6 +1830,7 @@ contract ChainValues {
         values[corn]["LBTC"] = 0xecAc9C5F704e954931349Da37F60E39f515c11c1.toBytes32();
         values[corn]["EBTC"] = 0x657e8C867D8B37dCC18fA4Caead9C45EB088C642.toBytes32();
         values[corn]["USDT0"] = 0x657e8C867D8B37dCC18fA4Caead9C45EB088C642.toBytes32();
+        values[corn]["SBTCN"] = 0x5E272ca4bD94e57Ec5C51D26703621Ccac1A7089.toBytes32();
 
         values[corn]["balancerVault"] = address(1).toBytes32();
 
