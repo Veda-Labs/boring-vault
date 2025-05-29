@@ -10,7 +10,7 @@ import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper
 import "forge-std/Script.sol";
 
 /**
- *  source .env && forge script script/MerkleRootCreation/plume/CreateRoycoUSDPlumeMerkleRoot.s.sol:CreateRoycoUSDPlumeMerkleRoot
+ *  source .env && forge script script/MerkleRootCreation/plume/CreateRoycoUSDPlumeMerkleRoot.s.sol:CreateRoycoUSDPlumeMerkleRoot --rpc-url $PLUME_RPC_URL
  */
 contract CreateRoycoUSDPlumeMerkleRoot is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
@@ -19,10 +19,8 @@ contract CreateRoycoUSDPlumeMerkleRoot is Script, MerkleTreeHelper {
     address public managerAddress = 0xe942A366Ccb629939921b35e1382D2c9634146cE;
     address public accountantAddress = 0xfFfBF5B884AdF7297B94e62535D1b031387041Bd;
     address public tellerAddress = 0x4Fc294112fD0b7226ecA095FEE9909E30882Cb11; 
-    address public rawDataDecoderAndSanitizer = 0x5720BBa8058619600273389FA70C32d5d5CFA830; // Update with actual address
+    address public rawDataDecoderAndSanitizer = 0x716050EDC96fBB8b61d27dd830Ea9055558F7e44; // Update with actual address //TODO deploy new decoder + verify
     
-    
-
     function setUp() external {
         vm.createSelectFork("plume");
     }
@@ -46,68 +44,56 @@ contract CreateRoycoUSDPlumeMerkleRoot is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](256);
 
         // ========================== Fee Claiming ==========================
-        ERC20[] memory feeAssets = new ERC20[](4);
-        feeAssets[0] = getERC20(sourceChain, "pUSD");
-        feeAssets[1] = getERC20(sourceChain, "nINSTO");
-        feeAssets[2] = getERC20(sourceChain, "nCREDIT");
-        feeAssets[3] = getERC20(sourceChain, "opNALPHA");
+        ERC20[] memory feeAssets = new ERC20[](1);
+        feeAssets[0] = getERC20(sourceChain, "USDC");
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, true);
 
-        // ========================== Teller Deposits/Withdrawals ==========================
-        // Add Teller deposits and withdrawals for all supported tokens
-        ERC20[] memory tellerAssets = new ERC20[](5);
-        tellerAssets[0] = getERC20(sourceChain, "USDC");
-        tellerAssets[1] = getERC20(sourceChain, "pUSD");
-        tellerAssets[2] = getERC20(sourceChain, "nINSTO");
-        tellerAssets[3] = getERC20(sourceChain, "nCREDIT");
-        tellerAssets[4] = getERC20(sourceChain, "opNALPHA");
-
-        
-        _addTellerLeafs(leafs, tellerAddress, tellerAssets, false, true);
-
-         // ========================== Deposits into Other Vault Tellers ==========================
+        // ========================== Deposits into Other Vault Tellers ==========================
         // pUSD Vault Teller
         ERC20[] memory pUSDTellerAssets = new ERC20[](1);
-        pUSDTellerAssets[0] = getERC20(sourceChain, "pUSD");
+        pUSDTellerAssets[0] = getERC20(sourceChain, "USDC");
         _addTellerLeafs(leafs, getAddress(sourceChain, "pUSDTeller"), pUSDTellerAssets, false, true);
 
+        ERC20[] memory nucleusTellerAssets = new ERC20[](6); 
+        nucleusTellerAssets[0] = getERC20(sourceChain, "pUSD");
+        nucleusTellerAssets[1] = getERC20(sourceChain, "USDC");
+        nucleusTellerAssets[2] = getERC20(sourceChain, "nCREDIT");
+        nucleusTellerAssets[3] = getERC20(sourceChain, "nBASIS");
+        nucleusTellerAssets[4] = getERC20(sourceChain, "nALPHA");
+        nucleusTellerAssets[5] = getERC20(sourceChain, "nINSTO");
+
         // nINSTO Vault Teller  
-        ERC20[] memory nINSTOTellerAssets = new ERC20[](1);
-        nINSTOTellerAssets[0] = getERC20(sourceChain, "nINSTO");
-        _addTellerLeafs(leafs, getAddress(sourceChain, "nINSTOTeller"), nINSTOTellerAssets, false, true);
+        _addTellerLeafs(leafs, getAddress(sourceChain, "nINSTOTeller"), nucleusTellerAssets, false, true);
 
         // nCREDIT Vault Teller
-        ERC20[] memory nCREDITTellerAssets = new ERC20[](1);
-        nCREDITTellerAssets[0] = getERC20(sourceChain, "nCREDIT");
-        _addTellerLeafs(leafs, getAddress(sourceChain, "nCREDITTeller"), nCREDITTellerAssets, false, true);
+        _addTellerLeafs(leafs, getAddress(sourceChain, "nCREDITTeller"), nucleusTellerAssets, false, true);
 
-        // opNALPHA Vault Teller
-        ERC20[] memory opNALPHATellerAssets = new ERC20[](1);
-        opNALPHATellerAssets[0] = getERC20(sourceChain, "opNALPHA");
-        _addTellerLeafs(leafs, getAddress(sourceChain, "opNALPHATeller"), opNALPHATellerAssets, false, true);
+        // nBASIS Vault Teller
+        _addTellerLeafs(leafs, getAddress(sourceChain, "nBASISTeller"), nucleusTellerAssets, false, true);
         
+        // nAlpha Vault Teller
+        _addTellerLeafs(leafs, getAddress(sourceChain, "nALPHATeller"), nucleusTellerAssets, false, true);
 
         // ========================== Royco Markets ==========================
         // Based on Royco Requirements spreadsheet - all markets use $PLUME as incentive token
         // Market hashes extracted from Royco URLs (example: market ID 98866 -> hash 0x85c3ab928fdf01f9f53d4a776a9cdd9ab34d6e48a4ac2a111471f4425d5ce04c)
         bytes32[] memory marketHashes = new bytes32[](5);
-        marketHashes[0] = 0x85c3ab928fdf01f9f53d4a776a9cdd9ab34d6e48a4ac2a111471f4425d5ce04c; // Nest nINSTO market (20% allocation, 11% APY)
-        marketHashes[1] = 0xd7b4af5225fb14fc0f0f7e068faaa03c3d1530f695b60187f74ed7a0e259fa10; // Nest nCREDIT market (20% allocation, 14% APY)  
-        marketHashes[2] = 0xf89bda68469012ebe5eecbdb60f3b0be88348cb4aa275af40c22f62c1326a773; // Nucleus nALPHA market (25% allocation, 32% APY)
-        marketHashes[3] = 0x65734bff78f3adcf98f5dddfe4eb8d86782a4434f3e675131b3c7af0a918bfa4; // Mystic lending market (25% allocation, 15% APY)
+        marketHashes[0] = 0x85c3ab928fdf01f9f53d4a776a9cdd9ab34d6e48a4ac2a111471f4425d5ce04c; // Nest nINSTO market
+        marketHashes[1] = 0xd7b4af5225fb14fc0f0f7e068faaa03c3d1530f695b60187f74ed7a0e259fa10; // nCredit  
+        marketHashes[2] = 0x4d2ae1e85a4f4c2314e23833445c0a4cb6c434a1aa382bf5939fb18140bcb709; // nBasis  
+        marketHashes[3] = 0xc41a78d629855b99788af7449020a88eec807be5f26ab050908dd7e633735897; // nAlpha 
         marketHashes[4] = 0x579faf40ca0f509b535552cf032c6b24030fa2c4b3e69f269f6c9520a7fffb1b; // Solera lending market (10% allocation, 8% APY)
 
         ERC20[] memory marketAsset = new ERC20[](5);
         marketAsset[0] = getERC20(sourceChain, "nINSTO");
         marketAsset[1] = getERC20(sourceChain, "nCREDIT");
-        marketAsset[2] = getERC20(sourceChain, "opNALPHA");
-        marketAsset[3] = getERC20(sourceChain, "pUSD");
+        marketAsset[2] = getERC20(sourceChain, "nBASIS");
+        marketAsset[3] = getERC20(sourceChain, "nALPHA");
         marketAsset[4] = getERC20(sourceChain, "pUSD");
      
 
         address[] memory incentivesRequested = new address[](1);
         incentivesRequested[0] = getAddress(sourceChain, "plumeToken");
-
 
         address frontendFeeRecipient = 0x169C8c63aaC6433be8fdFE4AA116286329226E0a;
 

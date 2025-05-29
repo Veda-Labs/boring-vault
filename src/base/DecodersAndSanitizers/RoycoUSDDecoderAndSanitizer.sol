@@ -27,11 +27,6 @@ contract RoycoUSDDecoderAndSanitizer is
     TellerDecoderAndSanitizer,
     OFTDecoderAndSanitizer
 {
-    constructor(address _recipeMarketHub)
-        BaseDecoderAndSanitizer()
-        RoycoWeirollDecoderAndSanitizer(_recipeMarketHub)
-        BoringChefDecoderAndSanitizer()
-        TellerDecoderAndSanitizer()
-        OFTDecoderAndSanitizer()
-    {}
+    constructor(address _recipeMarketHub) RoycoWeirollDecoderAndSanitizer(_recipeMarketHub) {}
+
 }
