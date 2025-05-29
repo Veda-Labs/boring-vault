@@ -112,4 +112,11 @@ abstract contract SiloDecoderAndSanitizer is BaseDecoderAndSanitizer, ERC4626Dec
     function claimRewards(address _to, string[] memory /*programNames*/) external pure virtual returns (bytes memory addressesFound) {
         addressesFound = abi.encodePacked(_to); 
     }
+
+
+    // Silo Vault
+    function claimRewards() external pure virtual returns (bytes memory addressesFound) {
+        //nothing to sanitize
+        return addressesFound; 
+    }
 }

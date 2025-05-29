@@ -10,7 +10,7 @@ import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protoco
 contract FullBeraborrowDecoderAndSanitizer is BeraborrowDecoderAndSanitizer {}
         
 
-contract BeraborrowIntegrationTes is BaseTestIntegration {
+contract BeraborrowIntegrationTest is BaseTestIntegration {
 
     function _setUpBerachain() internal {
         super.setUp(); 

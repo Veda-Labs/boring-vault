@@ -9,12 +9,15 @@ import {DolomiteDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protoc
 import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
 import {GoldiVaultDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/GoldiVaultDecoderAndSanitizer.sol";
 import {BeraETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BeraETHDecoderAndSanitizer.sol";
-import {InfraredDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/InfraredDecoderAndSanitizer.sol"; 
-import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol"; 
-import {WeETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/WeEthDecoderAndSanitizer.sol"; 
-import {OogaBoogaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OogaBoogaDecoderAndSanitizer.sol"; 
-import {OFTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OFTDecoderAndSanitizer.sol"; 
+import {InfraredDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/InfraredDecoderAndSanitizer.sol";
+import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
+import {WeETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/WeEthDecoderAndSanitizer.sol";
+import {OogaBoogaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OogaBoogaDecoderAndSanitizer.sol";
+import {OFTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OFTDecoderAndSanitizer.sol";
 import {HoneyDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/HoneyDecoderAndSanitizer.sol";
+import {NativeWrapperDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol";
+import {BeraborrowDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BeraborrowDecoderAndSanitizer.sol";
 
 
 contract BerachainDecoderAndSanitizer is
@@ -23,6 +26,7 @@ contract BerachainDecoderAndSanitizer is
     KodiakIslandDecoderAndSanitizer,
     DolomiteDecoderAndSanitizer,
     ERC4626DecoderAndSanitizer,
+    NativeWrapperDecoderAndSanitizer,
     GoldiVaultDecoderAndSanitizer,
     BeraETHDecoderAndSanitizer,
     InfraredDecoderAndSanitizer,
@@ -30,10 +34,21 @@ contract BerachainDecoderAndSanitizer is
     WeETHDecoderAndSanitizer,
     OogaBoogaDecoderAndSanitizer,
     OFTDecoderAndSanitizer,
-    HoneyDecoderAndSanitizer
+    HoneyDecoderAndSanitizer,
+    BeraborrowDecoderAndSanitizer
 {
     constructor(address _nonFungiblePositionManager, address _dolomiteMargin)
         UniswapV3DecoderAndSanitizer(_nonFungiblePositionManager)
         DolomiteDecoderAndSanitizer(_dolomiteMargin)
     {}
+
+    function withdraw(uint256)
+        external
+        pure
+        override(NativeWrapperDecoderAndSanitizer, InfraredDecoderAndSanitizer)
+        returns (bytes memory addressesFound)
+    {
+        // Nothing to sanitizer or return
+        return addressesFound;
+    }
 }

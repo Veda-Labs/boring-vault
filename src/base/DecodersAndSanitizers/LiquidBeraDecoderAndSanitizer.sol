@@ -7,14 +7,20 @@ import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocol
 import {RoycoWeirollDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/RoycoDecoderAndSanitizer.sol";
 import {OogaBoogaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OogaBoogaDecoderAndSanitizer.sol";
 import {InfraredDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/InfraredDecoderAndSanitizer.sol";
+import {BeraborrowDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BeraborrowDecoderAndSanitizer.sol";
+import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
+import {KodiakIslandDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/KodiakIslandDecoderAndSanitizer.sol";
 
 contract LiquidBeraDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
+    ERC4626DecoderAndSanitizer,
     OFTDecoderAndSanitizer,
     TellerDecoderAndSanitizer,
     RoycoWeirollDecoderAndSanitizer,
     OogaBoogaDecoderAndSanitizer,
-    InfraredDecoderAndSanitizer
+    InfraredDecoderAndSanitizer,
+    BeraborrowDecoderAndSanitizer,
+    KodiakIslandDecoderAndSanitizer
 {
     constructor(address _recipeMarketHub) 
         RoycoWeirollDecoderAndSanitizer(_recipeMarketHub)

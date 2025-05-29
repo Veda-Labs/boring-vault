@@ -37,7 +37,7 @@ contract CreateLiquidBeraEthMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, berachain, "accountantAddress", accountantAddress);
         setAddress(false, berachain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](32);
+        ManageLeaf[] memory leafs = new ManageLeaf[](64);
 
         // ========================== Ooga Booga ==========================
         address[] memory assets = new address[](4); 
@@ -71,7 +71,21 @@ contract CreateLiquidBeraEthMerkleRoot is Script, MerkleTreeHelper {
         _addRoycoWithdrawMerkleDepositLeafs(leafs, weirollWallets);
 
         // ========================== Infrared ==========================
-        // To be added after correct vaults are listed
+        _addInfraredVaultLeafs(leafs, getAddress(sourceChain, "infrared_vault_primeLiquidBeraETH"));
+        _addInfraredVaultLeafs(leafs, getAddress(sourceChain, "infrared_vault_iBGT"));
+
+        //============================ BeraBorrow ==========================
+        // TODO
+        // {
+        //     address[] memory collateralAssets = new address[](2);
+
+        //     address[] memory borrowAssets = new address[](2);
+
+        //     address[] memory denManagers = new address[](2);
+
+
+        //     _addBeraborrowLeafs(leafs, collateralAssets, borrowAssets, denManagers, false);
+        // }
 
         // ========================== Fee Claiming ==========================
         ERC20[] memory feeAssets = new ERC20[](2);

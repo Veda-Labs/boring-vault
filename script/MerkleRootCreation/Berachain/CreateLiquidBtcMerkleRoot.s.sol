@@ -18,7 +18,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0x5f46d540b6eD704C3c8789105F30E075AA900726; 
     address public managerAddress = 0xaFa8c08bedB2eC1bbEb64A7fFa44c604e7cca68d;
     address public accountantAddress = 0xEa23aC6D7D11f6b181d6B98174D334478ADAe6b0;
-    address public rawDataDecoderAndSanitizer = 0x2326D4df2eFFC4D2aEC48826f5B242F7c8e13fA3;
+    address public rawDataDecoderAndSanitizer = 0x4Ab8cCC0412497D27fD1A982DECb76B9963f448C;
 
     function setUp() external {}
 
@@ -65,6 +65,8 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "eBTC"), false); 
         _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "HONEY"), false);
         _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "rUSD"), false);
+        _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "solvBTC"), false);
+        _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "WBTC"), false);
 
         // ========================== Dolomite Borrow ==========================
         
@@ -73,10 +75,12 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         _addDolomiteBorrowLeafs(leafs, getAddress(sourceChain, "HONEY"));
         _addDolomiteBorrowLeafs(leafs, getAddress(sourceChain, "rUSD"));
         _addDolomiteBorrowLeafs(leafs, getAddress(sourceChain, "eBTC"));
+        _addDolomiteBorrowLeafs(leafs, getAddress(sourceChain, "solvBTC"));
+        _addDolomiteBorrowLeafs(leafs, getAddress(sourceChain, "WBTC"));
 
         // ========================== Ooga Booga ==========================
-        address[] memory assets = new address[](10);
-        SwapKind[] memory kind = new SwapKind[](10);
+        address[] memory assets = new address[](11);
+        SwapKind[] memory kind = new SwapKind[](11);
         assets[0] = getAddress(sourceChain, "iBGT");
         kind[0] = SwapKind.Sell;
         assets[1] = getAddress(sourceChain, "WBTC");
@@ -97,6 +101,8 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         kind[8] = SwapKind.BuyAndSell;
         assets[9] = getAddress(sourceChain, "HONEY");
         kind[9] = SwapKind.BuyAndSell;
+        assets[10] = getAddress(sourceChain, "WBERA");
+        kind[10] = SwapKind.Sell;
 
         _addOogaBoogaSwapLeafs(leafs, assets, kind);
 
@@ -127,7 +133,10 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
 
         _addTellerLeafs(leafs, getAddress(sourceChain, "eBTCTeller"), eBTCAssets, false, true);
         _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "eBTCQueue"), getAddress(sourceChain, "eBTC"), eBTCAssets);
-        _addCrossChainTellerLeafs(leafs, getAddress(sourceChain, "eBTCTeller"), eBTCAssetsAddresses, feeAssets);
+        _addCrossChainTellerLeafs(leafs, getAddress(sourceChain, "eBTCTeller"), eBTCAssetsAddresses, feeAssets, abi.encode(layerZeroMainnetEndpointId));
+
+        // =============================== Native Wrapper ==========================
+        _addNativeLeafs(leafs, getAddress(sourceChain, "WBERA"));
 
         // ========================== Verify ==========================
         

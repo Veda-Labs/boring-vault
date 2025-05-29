@@ -18,7 +18,7 @@ contract CreatePrimeLiquidBeraBtcMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0x46fcd35431f5B371224ACC2e2E91732867B1A77e; 
     address public managerAddress = 0x7280E05ccF01066C715aDc936f860BD65510f816;
     address public accountantAddress = 0x88ea516DCb9f79CAFA9D0d19909A4dbd7B6890c8;
-    address public rawDataDecoderAndSanitizer = 0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150;
+    address public rawDataDecoderAndSanitizer = 0xB5D5c20FebFcA336c1C1c1ef90e572ebef8c0971;
 
     function setUp() external {}
 
@@ -37,7 +37,7 @@ contract CreatePrimeLiquidBeraBtcMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, berachain, "accountantAddress", accountantAddress);
         setAddress(false, berachain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](128);
+        ManageLeaf[] memory leafs = new ManageLeaf[](256);
         
 
         // ========================== Teller ==========================
@@ -87,8 +87,8 @@ contract CreatePrimeLiquidBeraBtcMerkleRoot is Script, MerkleTreeHelper {
         _addGoldiVaultLeafs(leafs, vaults); 
 
         // ========================== Ooga Booga ==========================
-        address[] memory assets = new address[](5);
-        SwapKind[] memory kind = new SwapKind[](5);
+        address[] memory assets = new address[](9);
+        SwapKind[] memory kind = new SwapKind[](9);
         assets[0] = getAddress(sourceChain, "iBGT");
         kind[0] = SwapKind.Sell;
         assets[1] = getAddress(sourceChain, "WBTC");
@@ -99,11 +99,42 @@ contract CreatePrimeLiquidBeraBtcMerkleRoot is Script, MerkleTreeHelper {
         kind[3] = SwapKind.BuyAndSell;
         assets[4] = getAddress(sourceChain, "BGT"); //just in case
         kind[4] = SwapKind.Sell;
+        assets[5] = getAddress(sourceChain, "NECT");
+        kind[5] = SwapKind.BuyAndSell;
+        assets[6] = getAddress(sourceChain, "USDC"); // in case we want to borrow elsewhere and swap to NECT
+        kind[6] = SwapKind.BuyAndSell;
+        assets[7] = getAddress(sourceChain, "WBERA");
+        kind[7] = SwapKind.Sell;
+        assets[8] = getAddress(sourceChain, "HONEY");
+        kind[8] = SwapKind.Sell;
 
         _addOogaBoogaSwapLeafs(leafs, assets, kind);
 
         // ========================== Infrared ==========================
         _addInfraredVaultLeafs(leafs, getAddress(sourceChain, "infrared_vault_wbtc_ebtc"));
+
+        // ========================== BeraBorrow ==========================
+
+        {
+            address[] memory collateralAssets = new address[](4);
+            collateralAssets[0] = getAddress(sourceChain, "bbWBTC");
+            collateralAssets[1] = getAddress(sourceChain, "bbLBTC");
+            collateralAssets[2] = getAddress(sourceChain, "bbeBTC");
+            collateralAssets[3] = getAddress(sourceChain, "bbeBTC-WBTC");
+
+
+            address[] memory denManagers = new address[](4);
+            denManagers[0] = getAddress(sourceChain, "WBTCDenManager");
+            denManagers[1] = getAddress(sourceChain, "LBTCDenManager");
+            denManagers[2] = getAddress(sourceChain, "eBTCDenManager");
+            denManagers[3] = getAddress(sourceChain, "eBTC-WBTCDenManager");
+
+
+            _addBeraborrowLeafs(leafs, collateralAssets, denManagers, false);
+
+            _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sNECT")));
+            _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "vaultedsNECT")));
+        }
 
         // ========================== Fee Claiming ==========================
         ERC20[] memory feeAssets = new ERC20[](2);
