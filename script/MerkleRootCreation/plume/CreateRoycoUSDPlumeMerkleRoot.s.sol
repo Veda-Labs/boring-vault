@@ -46,11 +46,12 @@ contract CreateRoycoUSDPlumeMerkleRoot is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](256);
 
         // ========================== Fee Claiming ==========================
-        ERC20[] memory feeAssets = new ERC20[](4);
+        ERC20[] memory feeAssets = new ERC20[](5);
         feeAssets[0] = getERC20(sourceChain, "pUSD");
         feeAssets[1] = getERC20(sourceChain, "nINSTO");
         feeAssets[2] = getERC20(sourceChain, "nCREDIT");
         feeAssets[3] = getERC20(sourceChain, "opNALPHA");
+        feeAssets[4] = getERC20(sourceChain, "USDC");
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, true);
 
         // ========================== Teller Deposits/Withdrawals ==========================
@@ -61,29 +62,28 @@ contract CreateRoycoUSDPlumeMerkleRoot is Script, MerkleTreeHelper {
         tellerAssets[2] = getERC20(sourceChain, "nINSTO");
         tellerAssets[3] = getERC20(sourceChain, "nCREDIT");
         tellerAssets[4] = getERC20(sourceChain, "opNALPHA");
-
         
         _addTellerLeafs(leafs, tellerAddress, tellerAssets, false, true);
 
          // ========================== Deposits into Other Vault Tellers ==========================
         // pUSD Vault Teller
         ERC20[] memory pUSDTellerAssets = new ERC20[](1);
-        pUSDTellerAssets[0] = getERC20(sourceChain, "pUSD");
+        pUSDTellerAssets[0] = getERC20(sourceChain, "USDC");
         _addTellerLeafs(leafs, getAddress(sourceChain, "pUSDTeller"), pUSDTellerAssets, false, true);
 
         // nINSTO Vault Teller  
         ERC20[] memory nINSTOTellerAssets = new ERC20[](1);
-        nINSTOTellerAssets[0] = getERC20(sourceChain, "nINSTO");
+        nINSTOTellerAssets[0] = getERC20(sourceChain, "pUSD");
         _addTellerLeafs(leafs, getAddress(sourceChain, "nINSTOTeller"), nINSTOTellerAssets, false, true);
 
         // nCREDIT Vault Teller
         ERC20[] memory nCREDITTellerAssets = new ERC20[](1);
-        nCREDITTellerAssets[0] = getERC20(sourceChain, "nCREDIT");
+        nCREDITTellerAssets[0] = getERC20(sourceChain, "pUSD");
         _addTellerLeafs(leafs, getAddress(sourceChain, "nCREDITTeller"), nCREDITTellerAssets, false, true);
 
         // opNALPHA Vault Teller
         ERC20[] memory opNALPHATellerAssets = new ERC20[](1);
-        opNALPHATellerAssets[0] = getERC20(sourceChain, "opNALPHA");
+        opNALPHATellerAssets[0] = getERC20(sourceChain, "pUSD");
         _addTellerLeafs(leafs, getAddress(sourceChain, "opNALPHATeller"), opNALPHATellerAssets, false, true);
         
 
