@@ -18,7 +18,7 @@ contract CreateLBTCvMerkleRootScript is Script, MerkleTreeHelper {
     address public boringVault = 0x5401b8620E5FB570064CA9114fd1e135fd77D57c;
     address public managerAddress = 0xcf38e37872748E3b66741A42560672A6cef75e9B;
     address public accountantAddress = 0x28634D0c5edC67CF2450E74deA49B90a4FF93dCE;
-    address public rawDataDecoderAndSanitizer = 0xfce53A80116c4621801070202040766767659697;
+    address public rawDataDecoderAndSanitizer = 0x967678F9E5E5a439ee4938738a6aa7b0c873CCeb;
     address public aerodromeDecoderAndSanitizer = 0xD657c2A871C467871b59d5992CD3bAb1634dd457;
 
     function setUp() external {}
@@ -40,6 +40,13 @@ contract CreateLBTCvMerkleRootScript is Script, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](256);
 
+        // ========================== Fee Claiming ==========================
+        ERC20[] memory feeAssets = new ERC20[](3);
+        feeAssets[0] = getERC20(sourceChain, "WBTC");
+        feeAssets[1] = getERC20(sourceChain, "LBTC");
+        feeAssets[2] = getERC20(sourceChain, "cbBTC");
+        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
+
         // ========================== UniswapV3 ==========================
         address[] memory token0 = new address[](3);
         token0[0] = getAddress(sourceChain, "cbBTC");
@@ -54,8 +61,8 @@ contract CreateLBTCvMerkleRootScript is Script, MerkleTreeHelper {
         _addUniswapV3Leafs(leafs, token0, token1, false, true);
 
         // ========================== 1inch ==========================
-        address[] memory assets = new address[](7);
-        SwapKind[] memory kind = new SwapKind[](7);
+        address[] memory assets = new address[](7); 
+        SwapKind[] memory kind = new SwapKind[](7); 
         assets[0] = getAddress(sourceChain, "cbBTC");
         kind[0] = SwapKind.BuyAndSell;
         assets[1] = getAddress(sourceChain, "LBTC");
@@ -80,6 +87,7 @@ contract CreateLBTCvMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== Pendle ==========================
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_LBTC_05_28_25"), true);
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_LBTC_09_24_25"), true);
 
         // ========================== Morpho ==========================
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletCbBTCcore")));
@@ -101,15 +109,15 @@ contract CreateLBTCvMerkleRootScript is Script, MerkleTreeHelper {
         _token1[0] = getAddress(sourceChain, "cbBTC");
 
         address[] memory gauges = new address[](1);
-        gauges[0] = address(0);
+        gauges[0] = getAddress(sourceChain, "aerodrome_LBTC_cbBTC_gauge"); 
 
         _addVelodromeV3Leafs(
             leafs, _token0, _token1, getAddress(sourceChain, "aerodromeNonFungiblePositionManager"), gauges
         );
+        
+        // ========================== Verify & Generate ==========================
 
-        // ========================== Lombard ========================
-        // setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
-        // _addLombardBTCLeafs(leafs, getERC20(sourceChain, "cbBTC"), getERC20(sourceChain, "LBTC"));
+        _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
         string memory filePath = "./leafs/Base/LBTCvStrategistLeafs.json";
 

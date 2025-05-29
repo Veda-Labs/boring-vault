@@ -1441,6 +1441,8 @@ contract ChainValues {
         values[base]["aerodrome_Weth_Weeth_v2_30_gauge"] = 0xf8d47b641eD9DF1c924C0F7A6deEEA2803b9CfeF.toBytes32();
         values[base]["aerodrome_Weth_Reth_v2_05_gauge"] = 0xAa3D51d36BfE7C5C63299AF71bc19988BdBa0A06.toBytes32();
         values[base]["aerodrome_Sfrxeth_Wsteth_v2_30_gauge"] = 0xCe7Cb6260fCBf17485cd2439B89FdDf8B0Eb39cC.toBytes32();
+        values[base]["aerodrome_LBTC_cbBTC_gauge"] = 0xc3f97660D0b47F0E05C3c513f73eeff7c1bd6c7a.toBytes32();
+
 
         // MorphoBlue
         values[base]["morphoBlue"] = 0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb.toBytes32();
@@ -1458,7 +1460,7 @@ contract ChainValues {
         values[base]["uniV3Router"] = 0x2626664c2603336E57B271c5C0b26F421741e481.toBytes32();
 
         values[base]["aggregationRouterV5"] = 0x1111111254EEB25477B68fb85Ed929f73A960582.toBytes32();
-        values[base]["oneInchExecutor"] = 0xE37e799D5077682FA0a244D46E5649F71457BD09.toBytes32();
+        values[base]["oneInchExecutor"] = 0x6Ea77f83eC8693666866ecE250411C974aB962a8.toBytes32();
 
         // Compound V3
         values[base]["cWETHV3"] = 0x46e6b214b524310239732D51387075E0e70970bf.toBytes32();
@@ -1475,10 +1477,11 @@ contract ChainValues {
         values[base]["pendleLimitOrderRouter"] = 0x000000000000c9B3E2C3Ec88B1B4c0cD853f4321.toBytes32();
 
         values[base]["pendle_LBTC_05_28_25"] = 0x727cEbAcfb10fFd353Fc221D06A862B437eC1735.toBytes32();
+        values[base]["pendle_LBTC_09_24_25"] = 0x4EaE2e40C6612005214ea919cc7653dA853Ed409.toBytes32();
 
         // Odos
         values[base]["odosRouterV2"] = 0x19cEeAd7105607Cd444F5ad10dd51356436095a1.toBytes32();
-        values[base]["odosExecutor"] = 0x52bB904473E0aDC699c7B103962D35a0F53D9E1e.toBytes32();
+        values[base]["odosExecutor"] = 0x2a8466a3135d1E4D51B2eBe07bfb9D1f6797795b.toBytes32();
 
         // LBTC Bridge
         values[base]["lbtcBridge"] = 0xA869817b48b25EeE986bdF4bE04062e6fd2C418B.toBytes32();  

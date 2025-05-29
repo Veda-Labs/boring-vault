@@ -19,10 +19,16 @@ import {LBTCBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Prot
 contract LBTCvBaseDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
     UniswapV3SwapRouter02DecoderAndSanitizer,
+    NativeWrapperDecoderAndSanitizer,
+    OneInchDecoderAndSanitizer,
+    PendleRouterDecoderAndSanitizer,
+    AaveV3DecoderAndSanitizer,
+    CCIPDecoderAndSanitizer,
+    OFTDecoderAndSanitizer,
+    MerklDecoderAndSanitizer,
     ERC4626DecoderAndSanitizer,
     OdosDecoderAndSanitizer,
-    LBTCBridgeDecoderAndSanitizer,
-    PendleRouterDecoderAndSanitizer
+    LBTCBridgeDecoderAndSanitizer
 {
     constructor(address _uniswapV3NonFungiblePositionManager, address _odosRouter)
         UniswapV3SwapRouter02DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)

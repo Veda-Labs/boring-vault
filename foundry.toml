@@ -54,7 +54,7 @@ mainnet = { key = "${ETHERSCAN_KEY}", chain = 1, url = "https://api.etherscan.io
 #bsc = { key = "${BSCSCAN_KEY}" }
 #avalanche = { key = "${SNOWTRACE_KEY}" }
 #optimism = { key = "${OPTIMISMSCAN_KEY}" }
-#base = { key = "${BASESCAN_KEY}" }
+base = { key = "${BASESCAN_KEY}" }
 scroll = { key = "${SCROLLSCAN_KEY}", chain = 534352, url = "https://api.etherscan.io/v2/api?chainid=534352"  }
 #sonicMainnet = { key = "${SONICSCAN_KEY}", chain = 146, url = "https://api.sonicscan.org/api" }
 #swell = { key = "${SWELLSCAN_KEY}", chain = 1923, url = "https://explorer.swellnetwork.io:443/api/" }
