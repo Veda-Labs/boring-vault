@@ -21,13 +21,13 @@ contract DeploySolver is Script, ContractNames, Test {
     Deployer deployer = Deployer(0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d);
 
     address owner = 0x1cdF47387358A1733968df92f7cC14546D9E1047;
-    address auth = 0x9778D78495cBbfce0B1F6194526a8c3D4b9C3AAF;
-    address queue = 0xE32cEB767d187F1d3c81949657CABc50c655f40A;
+    address auth =  0xFa5b3E35F961229b25Caa108C3D42cEEb20d0122;
+    address queue = 0x7C0eC8751f6Fa02e1a28B53Cc9dA1277829923fB;
     bool excessToSolverNonSelfSolve = false;
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("unichain");
+        vm.createSelectFork("sonicMainnet");
     }
 
 
@@ -39,6 +39,6 @@ contract DeploySolver is Script, ContractNames, Test {
         creationCode = type(BoringSolver).creationCode;
 
         constructorArgs = abi.encode(owner, auth, queue, excessToSolverNonSelfSolve);
-        deployer.deployContract("Golden Goose Boring Solver 1.1", creationCode, constructorArgs, 0);
+        deployer.deployContract("Staked Sonic USD Boring Solver V1.0", creationCode, constructorArgs, 0);
     }
 }

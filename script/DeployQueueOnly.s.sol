@@ -21,13 +21,13 @@ contract DeployQueueOnly is Script, ContractNames, Test {
     Deployer deployer = Deployer(0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d);
 
     address owner = 0x1cdF47387358A1733968df92f7cC14546D9E1047;
-    address auth = 0x9778D78495cBbfce0B1F6194526a8c3D4b9C3AAF;
-    address payable boringVault = payable(0xef417FCE1883c6653E7dC6AF7c6F85CCDE84Aa09);
-    address accountant = 0xc873F2b7b3BA0a7faA2B56e210E3B965f2b618f5;
+    address auth = 0xFa5b3E35F961229b25Caa108C3D42cEEb20d0122;
+    address payable boringVault = payable(0x4D85bA8c3918359c78Ed09581E5bc7578ba932ba);
+    address accountant = 0x13cCc810DfaA6B71957F2b87060aFE17e6EB8034;
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("unichain");
+        vm.createSelectFork("sonicMainnet");
     }
 
 
@@ -39,6 +39,6 @@ contract DeployQueueOnly is Script, ContractNames, Test {
         creationCode = type(BoringOnChainQueue).creationCode;
 
         constructorArgs = abi.encode(owner, auth, boringVault, accountant);
-        deployer.deployContract("Golden Goose Boring Queue 1.1", creationCode, constructorArgs, 0);
+        deployer.deployContract("Staked Sonic USD Boring Queue V1.0", creationCode, constructorArgs, 0);
     }
 }
