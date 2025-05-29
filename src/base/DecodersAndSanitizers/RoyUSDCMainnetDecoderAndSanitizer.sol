@@ -15,10 +15,5 @@ contract RoyUSDCMainnetDecoderAndSanitizer is
     OdosDecoderAndSanitizer,
     BoringChefDecoderAndSanitizer
 {
-    constructor(address _odosRouter)
-        BaseDecoderAndSanitizer()
-        SonicGatewayDecoderAndSanitizer()
-        OFTDecoderAndSanitizer()
-        OdosDecoderAndSanitizer(_odosRouter)
-    {}
+    constructor(address _odosRouter) OdosDecoderAndSanitizer(_odosRouter){}
 }

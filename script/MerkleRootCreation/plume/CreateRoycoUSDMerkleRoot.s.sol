@@ -20,7 +20,7 @@ contract CreateRoycoUSDMerkleRoot is Script, MerkleTreeHelper {
     address public managerAddress = 0xD4F870516a3B67b64238Bb803392Cd1A52D54Fb2;
     address public accountantAddress = 0x80f0B206B7E5dAa1b1ba4ea1478A33241ee6baC9;
     address public tellerAddress = 0x60EBb5d1454Bb99aa35F63F609E79179b342B0b8;
-    address public rawDataDecoderAndSanitizer = 0x388A598321536e55a0414D5013dB232743dfDbA6; 
+    address public rawDataDecoderAndSanitizer = 0x716050EDC96fBB8b61d27dd830Ea9055558F7e44; 
 
     // RoycoPlumeUSDC vault for depositing
     address public roycoPlumeUSDCVault = 0x83A6F6034ee44De6648B1885e24D837D8D98698f;
