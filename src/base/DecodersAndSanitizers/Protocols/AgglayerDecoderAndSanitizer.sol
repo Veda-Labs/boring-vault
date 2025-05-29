@@ -58,7 +58,7 @@ abstract contract AgglayerDecoderAndSanitizer is BaseDecoderAndSanitizer {
         bytes calldata metadata
     ) external pure virtual returns (bytes memory addressesFound) {
         (address token, /*uint256 amount*/) = abi.decode(metadata, (address, uint256)); 
-        addressesFound = abi.encodePacked(address(uint160(destinationNetwork)), destinationAddress);
+        addressesFound = abi.encodePacked(address(uint160(destinationNetwork)), destinationAddress, token);
     }
     
     function claimMessage(
@@ -75,6 +75,6 @@ abstract contract AgglayerDecoderAndSanitizer is BaseDecoderAndSanitizer {
         bytes calldata metadata
     ) external pure virtual returns (bytes memory addressesFound) {
         (address token, /*uint256 amount*/) = abi.decode(metadata, (address, uint256)); 
-        addressesFound = abi.encodePacked(address(uint160(originNetwork)), originAddress, address(uint160(destinationNetwork)), destinationAddress); 
+        addressesFound = abi.encodePacked(address(uint160(originNetwork)), originAddress, address(uint160(destinationNetwork)), destinationAddress, token); 
     }
 }
