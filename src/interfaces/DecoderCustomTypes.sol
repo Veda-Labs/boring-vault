@@ -653,5 +653,11 @@ contract DecoderCustomTypes {
         uint256 minSharesOut;
         uint256 minCollVaultShares;
     }
+
+    struct ExternalRebalanceParams {
+        address swapper;
+        bytes payload;
+        uint256 minRebalanceOut;
+    }
 }
 

@@ -10493,6 +10493,20 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                managedVaults[i],
+                false,
+                "withdrawFromEpoch(uint256,address,(address,bytes,uint256))",
+                new address[](2),
+                string.concat("Withdraw From Epoch ", ERC20(managedVaults[i]).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "collVaultUnwrapper");
         }
     }
 

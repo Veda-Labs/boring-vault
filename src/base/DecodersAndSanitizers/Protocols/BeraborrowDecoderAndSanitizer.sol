@@ -8,6 +8,7 @@ abstract contract BeraborrowDecoderAndSanitizer is BaseDecoderAndSanitizer {
 
     // ========================================= ERRORS ==================================
     error BeraborrowDecoderAndSanitizer__PredepositLengthGtZero(); 
+    error BeraborrowDecoderAndSanitizer__PayloadLengthGtZero(); 
 
     /// @dev we intentionally do not sanitize the hints here
     function openDenVault(DecoderCustomTypes.OpenDenVaultParams memory params) external pure virtual returns (bytes memory addressesFound) {
@@ -42,6 +43,15 @@ abstract contract BeraborrowDecoderAndSanitizer is BaseDecoderAndSanitizer {
 
     function cancelWithdrawalIntent(uint256 /*epoch*/, uint256 /*sharesToCancel*/, address receiver) external pure virtual returns (bytes memory addressesFound) {
         addressesFound = abi.encodePacked(receiver);
+    }
+
+    function withdrawFromEpoch(
+        uint256 /*epoch*/,
+        address receiver,
+        DecoderCustomTypes.ExternalRebalanceParams calldata unwrapParams
+    ) external pure virtual returns (bytes memory addressesFound) {
+        if (unwrapParams.payload.length > 0) revert BeraborrowDecoderAndSanitizer__PayloadLengthGtZero(); 
+        addressesFound = abi.encodePacked(receiver, unwrapParams.swapper);  
     }
 
 }

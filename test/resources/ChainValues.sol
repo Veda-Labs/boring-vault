@@ -2315,6 +2315,7 @@ contract ChainValues {
         values[berachain]["roycoDepositExecutor"] = 0xEC1F64Cd852c65A22bCaA778b2ed76Bc5502645C.toBytes32();
 
         // Beraborrow
+        values[berachain]["collVaultUnwrapper"] = 0xcE46cefd82eb0e9572E4618dD1E6E6233b1F6Cb6.toBytes32(); 
         values[berachain]["collVaultRouter"] = 0x5f1619FfAEfdE17F7e54f850fe90AD5EE44dbf47.toBytes32();
         values[berachain]["bWETH"] = 0x6Ddbc255bFfD2D394F3b31c543283c01D69D4Ba2.toBytes32();
         values[berachain]["WETHDenManager"] = 0xD80AB5da2507008c8ede90648407BE098F1F1521.toBytes32();
