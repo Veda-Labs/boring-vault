@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
-import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
-
-abstract contract AaveV3DecoderAndSanitizer is BaseDecoderAndSanitizer {
+contract AaveV3DecoderAndSanitizer {
     //============================== AAVEV3 ===============================
 
     function supply(address asset, uint256, address onBehalfOf, uint16)

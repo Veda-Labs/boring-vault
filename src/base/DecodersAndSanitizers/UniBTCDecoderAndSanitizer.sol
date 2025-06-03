@@ -11,6 +11,7 @@ import {NativeWrapperDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol";
 
 contract UniBTCDecoderAndSanitizer is
+    BaseDecoderAndSanitizer,
     UniswapV3DecoderAndSanitizer,
     OneInchDecoderAndSanitizer,
     PendleRouterDecoderAndSanitizer,

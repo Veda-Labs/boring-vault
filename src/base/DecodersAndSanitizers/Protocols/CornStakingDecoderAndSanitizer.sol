@@ -3,7 +3,7 @@ pragma solidity 0.8.21;
 
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 
-abstract contract CornStakingDecoderAndSanitizer is BaseDecoderAndSanitizer {
+contract CornStakingDecoderAndSanitizer {
     //============================== CORN STAKING ===============================
 
     // For staking general ERC20s

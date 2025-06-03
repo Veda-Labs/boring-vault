@@ -6,7 +6,7 @@ import {
     DecoderCustomTypes
 } from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
 
-abstract contract FraxDecoderAndSanitizer is ERC4626DecoderAndSanitizer {
+contract FraxDecoderAndSanitizer is ERC4626DecoderAndSanitizer {
     //============================== FRAX ===============================
 
     // Call submit() on 0xbAFA44EFE7901E04E39Dad13167D089C559c1138

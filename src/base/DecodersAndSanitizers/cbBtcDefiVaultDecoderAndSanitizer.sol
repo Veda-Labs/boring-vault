@@ -27,6 +27,7 @@ import {SymbioticDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Proto
 
 contract cbBtcDefiVaultDecoderAndSanitizer is
     UniswapV3DecoderAndSanitizer,
+    BaseDecoderAndSanitizer,
     BalancerV2DecoderAndSanitizer,
     MorphoBlueDecoderAndSanitizer,
     ERC4626DecoderAndSanitizer,

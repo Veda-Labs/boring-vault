@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
-import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 
-abstract contract CCIPDecoderAndSanitizer is BaseDecoderAndSanitizer {
+contract CCIPDecoderAndSanitizer {
     bytes4 internal constant EVM_EXTRA_ARGS_V1_TAG = 0x97a657c9;
 
     error CCIPDecoderAndSanitizer__NonZeroDataLength();

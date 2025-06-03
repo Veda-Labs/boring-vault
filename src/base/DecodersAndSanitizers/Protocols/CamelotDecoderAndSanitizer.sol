@@ -2,9 +2,9 @@
 pragma solidity 0.8.21;
 
 import {CamelotNonFungiblePositionManager} from "src/interfaces/RawDataDecoderAndSanitizerInterfaces.sol";
-import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 
-abstract contract CamelotDecoderAndSanitizer is BaseDecoderAndSanitizer {
+contract CamelotDecoderAndSanitizer {
     //============================== ERRORS ===============================
 
     error CamelotDecoderAndSanitizer__BadTokenId();

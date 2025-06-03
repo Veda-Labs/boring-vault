@@ -3,7 +3,7 @@ pragma solidity 0.8.21;
 
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 
-abstract contract SwellSimpleStakingDecoderAndSanitizer is BaseDecoderAndSanitizer {
+contract SwellSimpleStakingDecoderAndSanitizer {
     //============================== SWELL SIMPLE STAKING ===============================
 
     function deposit(address _token, uint256, /*_amount*/ address _receiver)

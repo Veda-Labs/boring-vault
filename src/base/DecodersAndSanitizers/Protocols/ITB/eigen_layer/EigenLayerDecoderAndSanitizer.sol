@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "../common/ITBContractDecoderAndSanitizer.sol";
 
-abstract contract EigenLayerDecoderAndSanitizer is ITBContractDecoderAndSanitizer {
+contract EigenLayerDecoderAndSanitizer is ITBContractDecoderAndSanitizer {
     function updateStrategyManager(address _strategy_manager) external pure returns (bytes memory addressesFound) {
         addressesFound = abi.encodePacked(_strategy_manager);
     }

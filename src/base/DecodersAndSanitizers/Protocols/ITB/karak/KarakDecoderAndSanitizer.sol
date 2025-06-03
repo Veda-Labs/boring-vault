@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "../common/ITBContractDecoderAndSanitizer.sol";
 
-abstract contract KarakDecoderAndSanitizer is ITBContractDecoderAndSanitizer {
+contract KarakDecoderAndSanitizer is ITBContractDecoderAndSanitizer {
     function updatePositionConfig(address _underlying, address _vault)
         external
         pure

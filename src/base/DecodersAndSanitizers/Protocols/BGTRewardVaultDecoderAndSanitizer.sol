@@ -2,36 +2,49 @@
 pragma solidity 0.8.21;
 
 import {INonFungiblePositionManager} from "src/interfaces/RawDataDecoderAndSanitizerInterfaces.sol";
-import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 
-
-abstract contract BGTRewardVaultDecoderAndSanitizer is BaseDecoderAndSanitizer {
-    
-    function stake(uint256 /*amount*/) external pure virtual returns (bytes memory addressesFound) {
-        return addressesFound; 
+contract BGTRewardVaultDecoderAndSanitizer {
+    function stake(uint256 /*amount*/ ) external pure virtual returns (bytes memory addressesFound) {
+        return addressesFound;
     }
 
-    function delegateStake(address account, uint256 /*amount*/) external pure virtual returns (bytes memory addressesFound) {
-        addressesFound = abi.encodePacked(account); 
+    function delegateStake(address account, uint256 /*amount*/ )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
+        addressesFound = abi.encodePacked(account);
     }
 
-    function withdraw(uint256 /*amount*/) external pure virtual returns (bytes memory addressesFound) {
-        return addressesFound; 
-    }
-    
-    function delegateWithdraw(address account, uint256 /*amount*/) external pure virtual returns (bytes memory addressesFound) {
-        addressesFound = abi.encodePacked(account); 
+    function withdraw(uint256 /*amount*/ ) external pure virtual returns (bytes memory addressesFound) {
+        return addressesFound;
     }
 
-    function getReward(address account, address recipient) external pure virtual returns (bytes memory addressesFound) {
-        addressesFound = abi.encodePacked(account, recipient); 
+    function delegateWithdraw(address account, uint256 /*amount*/ )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
+        addressesFound = abi.encodePacked(account);
+    }
+
+    function getReward(address account, address recipient)
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
+        addressesFound = abi.encodePacked(account, recipient);
     }
 
     function exit(address recipient) external pure virtual returns (bytes memory addressesFound) {
-        addressesFound = abi.encodePacked(recipient); 
+        addressesFound = abi.encodePacked(recipient);
     }
-    
+
     function setOperator(address _operator) external pure virtual returns (bytes memory addressesFound) {
-        addressesFound = abi.encodePacked(_operator); 
+        addressesFound = abi.encodePacked(_operator);
     }
 }

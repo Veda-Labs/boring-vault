@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "../common/ITBContractDecoderAndSanitizer.sol";
 
-abstract contract GearboxDecoderAndSanitizer is ITBContractDecoderAndSanitizer {
+contract GearboxDecoderAndSanitizer is ITBContractDecoderAndSanitizer {
     function deposit(uint256, uint256) external pure returns (bytes memory addressesFound) {
         // Nothing to sanitize or return
         return addressesFound;

@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: UNLICENSED */
 pragma solidity ^0.8.0;
 
-abstract contract CurveNoConfigDecoderAndSanitizer {
+contract CurveNoConfigDecoderAndSanitizer {
     function addLiquidityAllCoinsAndStake(address _pool, uint256[] memory, address _gauge, uint256)
         external
         pure

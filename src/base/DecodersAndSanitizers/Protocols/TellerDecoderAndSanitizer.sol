@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
-import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
-abstract contract TellerDecoderAndSanitizer is BaseDecoderAndSanitizer {
+contract TellerDecoderAndSanitizer {
     //============================== ERRORS ===============================
-    error TellerDecoderAndSanitizer__BridgeWildCardLengthMustBe32Bytes();  
-    
+    error TellerDecoderAndSanitizer__BridgeWildCardLengthMustBe32Bytes();
+
     //============================== Teller ===============================
 
     function bulkDeposit(address depositAsset, uint256, /*depositAmount*/ uint256, /*minimumMint*/ address to)
@@ -64,34 +64,15 @@ abstract contract TellerDecoderAndSanitizer is BaseDecoderAndSanitizer {
         addressesFound = abi.encodePacked(oldRequest.user, oldRequest.assetOut);
     }
 
-
     // CrossChainTellerWithGenericBridge.sol
-    function bridge(uint96 /*shareAmount*/, address to, bytes calldata bridgeWildCard, address feeToken, uint256 /*maxFee*/) external pure virtual returns (bytes memory addressesFound) {
-        if (bridgeWildCard.length != 32) revert TellerDecoderAndSanitizer__BridgeWildCardLengthMustBe32Bytes();         
-
-        address bridgeWildCard0;
-        assembly {
-            // Allocate memory
-            let memPtr := mload(0x40)
-            calldatacopy(memPtr, bridgeWildCard.offset, 32)
-            bridgeWildCard0 := mload(memPtr)
-        }
-
-        bridgeWildCard0 = address(uint160(bridgeWildCard0)); 
-
-        addressesFound = abi.encodePacked(to, bridgeWildCard0, feeToken); 
-    } 
-
-    function depositAndBridge(
-        address depositAsset,
-        uint256 /*depositAmount*/,
-        uint256 /*minimumMint*/,
+    function bridge(
+        uint96, /*shareAmount*/
         address to,
         bytes calldata bridgeWildCard,
         address feeToken,
         uint256 /*maxFee*/
     ) external pure virtual returns (bytes memory addressesFound) {
-        if (bridgeWildCard.length != 32) revert TellerDecoderAndSanitizer__BridgeWildCardLengthMustBe32Bytes();         
+        if (bridgeWildCard.length != 32) revert TellerDecoderAndSanitizer__BridgeWildCardLengthMustBe32Bytes();
 
         address bridgeWildCard0;
         assembly {
@@ -100,8 +81,32 @@ abstract contract TellerDecoderAndSanitizer is BaseDecoderAndSanitizer {
             calldatacopy(memPtr, bridgeWildCard.offset, 32)
             bridgeWildCard0 := mload(memPtr)
         }
-        bridgeWildCard0 = address(uint160(bridgeWildCard0)); 
-    
-        addressesFound = abi.encodePacked(depositAsset, to, bridgeWildCard0, feeToken); 
+
+        bridgeWildCard0 = address(uint160(bridgeWildCard0));
+
+        addressesFound = abi.encodePacked(to, bridgeWildCard0, feeToken);
+    }
+
+    function depositAndBridge(
+        address depositAsset,
+        uint256, /*depositAmount*/
+        uint256, /*minimumMint*/
+        address to,
+        bytes calldata bridgeWildCard,
+        address feeToken,
+        uint256 /*maxFee*/
+    ) external pure virtual returns (bytes memory addressesFound) {
+        if (bridgeWildCard.length != 32) revert TellerDecoderAndSanitizer__BridgeWildCardLengthMustBe32Bytes();
+
+        address bridgeWildCard0;
+        assembly {
+            // Allocate memory
+            let memPtr := mload(0x40)
+            calldatacopy(memPtr, bridgeWildCard.offset, 32)
+            bridgeWildCard0 := mload(memPtr)
+        }
+        bridgeWildCard0 = address(uint160(bridgeWildCard0));
+
+        addressesFound = abi.encodePacked(depositAsset, to, bridgeWildCard0, feeToken);
     }
 }

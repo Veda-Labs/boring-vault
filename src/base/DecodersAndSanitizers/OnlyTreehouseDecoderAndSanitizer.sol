@@ -5,6 +5,10 @@ import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecode
 import {TreehouseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TreehouseDecoderAndSanitizer.sol";
 import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
 
-contract OnlyTreehouseDecoderAndSanitizer is TreehouseDecoderAndSanitizer, CurveDecoderAndSanitizer {
+contract OnlyTreehouseDecoderAndSanitizer is
+    TreehouseDecoderAndSanitizer,
+    CurveDecoderAndSanitizer,
+    BaseDecoderAndSanitizer
+{
 //============================== HANDLE FUNCTION COLLISIONS ===============================
 }

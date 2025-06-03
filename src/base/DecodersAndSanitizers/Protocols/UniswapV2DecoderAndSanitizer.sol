@@ -3,7 +3,7 @@ pragma solidity 0.8.21;
 
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 
-abstract contract UniswapV2DecoderAndSanitizer is BaseDecoderAndSanitizer {
+contract UniswapV2DecoderAndSanitizer {
     //============================== ERRORS ===============================
     error UniswapV2DecoderAndSanitizer__PathTooLong();
 

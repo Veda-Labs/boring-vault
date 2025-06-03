@@ -17,7 +17,8 @@ contract EtherFiUsdDecoderAndSanitizer is
     OneInchDecoderAndSanitizer,
     EthenaWithdrawDecoderAndSanitizer,
     MerklDecoderAndSanitizer,
-    EigenLayerLSTStakingDecoderAndSanitizer
+    EigenLayerLSTStakingDecoderAndSanitizer,
+    BaseDecoderAndSanitizer
 {
     constructor(address _uniswapV3NonFungiblePositionManager)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)

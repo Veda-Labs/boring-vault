@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
-import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 
-abstract contract OFTDecoderAndSanitizer is BaseDecoderAndSanitizer {
+contract OFTDecoderAndSanitizer {
     error OFTDecoderAndSanitizer__NonZeroMessage();
     error OFTDecoderAndSanitizer__NonZeroOFTCommand();
 
@@ -22,7 +22,11 @@ abstract contract OFTDecoderAndSanitizer is BaseDecoderAndSanitizer {
             revert OFTDecoderAndSanitizer__NonZeroOFTCommand();
         }
 
-        sensitiveArguments =
-            abi.encodePacked(address(uint160(_sendParam.dstEid)), address(bytes20(bytes16(_sendParam.to))), address(bytes20(bytes16(_sendParam.to << 128))), _refundAddress);
+        sensitiveArguments = abi.encodePacked(
+            address(uint160(_sendParam.dstEid)),
+            address(bytes20(bytes16(_sendParam.to))),
+            address(bytes20(bytes16(_sendParam.to << 128))),
+            _refundAddress
+        );
     }
 }

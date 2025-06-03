@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
-import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 
-abstract contract MantleDecoderAndSanitizer is BaseDecoderAndSanitizer {
+contract MantleDecoderAndSanitizer {
     //============================== MANTLE ===============================
 
     // Call stake here 0xe3cBd06D7dadB3F4e6557bAb7EdD924CD1489E8f called mantleLspStaking in MainnetAddresses

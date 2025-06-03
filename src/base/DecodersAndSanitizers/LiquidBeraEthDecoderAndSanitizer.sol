@@ -39,8 +39,7 @@ import {KarakDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols
 import {TreehouseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TreehouseDecoderAndSanitizer.sol";
 import {FraxDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/FraxDecoderAndSanitizer.sol";
 import {RoycoWeirollDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/RoycoDecoderAndSanitizer.sol";
-import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol"; 
-
+import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol";
 
 contract LiquidBeraEthDecoderAndSanitizer is
     UniswapV3DecoderAndSanitizer,
@@ -72,7 +71,8 @@ contract LiquidBeraEthDecoderAndSanitizer is
     TreehouseDecoderAndSanitizer,
     FraxDecoderAndSanitizer,
     RoycoWeirollDecoderAndSanitizer,
-    OdosDecoderAndSanitizer
+    OdosDecoderAndSanitizer,
+    BaseDecoderAndSanitizer
 {
     constructor(address _uniswapV3NonFungiblePositionManager, address _recipeMarketHub, address _odosRouter)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)

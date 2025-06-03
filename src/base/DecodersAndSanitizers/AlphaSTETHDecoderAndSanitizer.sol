@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
-import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {LidoDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LidoDecoderAndSanitizer.sol";
 import {UniswapV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV3DecoderAndSanitizer.sol";
 import {UniswapV4DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV4DecoderAndSanitizer.sol";
@@ -23,6 +23,7 @@ import {StandardBridgeDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/StandardBridgeDecoderAndSanitizer.sol";
 import {LidoStandardBridgeDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/LidoStandardBridgeDecoderAndSanitizer.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 
 contract AlphaSTETHDecoderAndSanitizer is
     ERC4626DecoderAndSanitizer,
@@ -40,7 +41,8 @@ contract AlphaSTETHDecoderAndSanitizer is
     DvStETHDecoderAndSanitizer,
     StandardBridgeDecoderAndSanitizer,
     OFTDecoderAndSanitizer,
-    LidoStandardBridgeDecoderAndSanitizer
+    LidoStandardBridgeDecoderAndSanitizer,
+    BaseDecoderAndSanitizer
 {
     constructor(
         address _uniswapV3NonFungiblePositionManager,

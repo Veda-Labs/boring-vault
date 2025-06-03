@@ -3,7 +3,7 @@ pragma solidity 0.8.21;
 
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 
-abstract contract SkyMoneyDecoderAndSanitizer is BaseDecoderAndSanitizer {
+contract SkyMoneyDecoderAndSanitizer {
     //Dai Converter
     function daiToUsds(address recipient, uint256 /*amount/*/ )
         external

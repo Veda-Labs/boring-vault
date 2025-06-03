@@ -3,7 +3,7 @@ pragma solidity 0.8.21;
 
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 
-abstract contract SatlayerStakingDecoderAndSanitizer is BaseDecoderAndSanitizer {
+contract SatlayerStakingDecoderAndSanitizer {
     //============================== Satlayer STAKING ===============================
 
     function depositFor(address _token, address _for, uint256 /*_amount*/ )

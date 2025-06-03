@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
-import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 
-abstract contract BeraETHDecoderAndSanitizer is BaseDecoderAndSanitizer {
+contract BeraETHDecoderAndSanitizer {
     //============================== rberaETH ===============================
 
     function depositAndWrap(address WETH, uint256, /*amount*/ uint256 /*minAmountOut*/ )

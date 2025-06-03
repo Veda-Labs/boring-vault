@@ -2,9 +2,9 @@
 pragma solidity 0.8.21;
 
 import {INonFungiblePositionManager} from "src/interfaces/RawDataDecoderAndSanitizerInterfaces.sol";
-import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 
-abstract contract VelodromeDecoderAndSanitizer is BaseDecoderAndSanitizer {
+contract VelodromeDecoderAndSanitizer {
     //============================== ERRORS ===============================
 
     error VelodromeDecoderAndSanitizer__BadTokenId();

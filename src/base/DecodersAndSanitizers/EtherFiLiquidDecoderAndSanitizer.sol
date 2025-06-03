@@ -32,7 +32,8 @@ contract EtherFiLiquidDecoderAndSanitizer is
     OneInchDecoderAndSanitizer,
     GearboxDecoderAndSanitizer,
     PendleRouterDecoderAndSanitizer,
-    AaveV3DecoderAndSanitizer
+    AaveV3DecoderAndSanitizer,
+    BaseDecoderAndSanitizer
 {
     constructor(address _uniswapV3NonFungiblePositionManager)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)

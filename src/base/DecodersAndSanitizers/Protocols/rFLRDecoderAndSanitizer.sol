@@ -3,7 +3,7 @@ pragma solidity 0.8.21;
 
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 
-abstract contract rFLRDecoderAndSanitizer is BaseDecoderAndSanitizer {
+contract rFLRDecoderAndSanitizer {
     //============================== rFLR ===============================
     function claimRewards(uint256[] calldata, /*_projectIds*/ uint256 /*_month*/ )
         external

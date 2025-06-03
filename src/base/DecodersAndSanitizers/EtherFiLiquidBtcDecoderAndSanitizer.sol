@@ -42,7 +42,8 @@ contract EtherFiLiquidBtcDecoderAndSanitizer is
     EigenLayerLSTStakingDecoderAndSanitizer,
     SwellSimpleStakingDecoderAndSanitizer,
     ZircuitSimpleStakingDecoderAndSanitizer,
-    TellerDecoderAndSanitizer
+    TellerDecoderAndSanitizer,
+    BaseDecoderAndSanitizer
 {
     constructor(address _uniswapV3NonFungiblePositionManager)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)

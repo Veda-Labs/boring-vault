@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
-import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 
-abstract contract CompoundV3DecoderAndSanitizer is BaseDecoderAndSanitizer {
+contract CompoundV3DecoderAndSanitizer {
     //============================== CompoundV3 ===============================
 
     function supply(address asset, uint256 /*amount*/ )

@@ -1,17 +1,22 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
-import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {IBoringChef} from "src/interfaces/RawDataDecoderAndSanitizerInterfaces.sol";
 
-abstract contract BoringChefDecoderAndSanitizer is BaseDecoderAndSanitizer {
+contract BoringChefDecoderAndSanitizer {
     //============================== BoringChef ===============================
 
-    function claimRewards(uint256[] calldata /*rewardIds*/) external view virtual returns (bytes memory addressesFound) {
+    function claimRewards(uint256[] calldata /*rewardIds*/ )
+        external
+        view
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 
-    function claimRewardsOnBehalfOfUser(uint256[] calldata /*rewardIds*/, address user)
+    function claimRewardsOnBehalfOfUser(uint256[] calldata, /*rewardIds*/ address user)
         external
         view
         virtual
@@ -22,8 +27,8 @@ abstract contract BoringChefDecoderAndSanitizer is BaseDecoderAndSanitizer {
 
     function distributeRewards(
         address[] calldata tokens,
-        uint256[] calldata /*amounts*/,
-        uint48[] calldata /*startEpochs*/,
+        uint256[] calldata, /*amounts*/
+        uint48[] calldata, /*startEpochs*/
         uint48[] calldata /*endEpochs*/
     ) external view virtual returns (bytes memory addressesFound) {
         for (uint256 i = 0; i < tokens.length; i++) {

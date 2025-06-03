@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
-import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 
-abstract contract ScrollBridgeDecoderAndSanitizer is BaseDecoderAndSanitizer {
+contract ScrollBridgeDecoderAndSanitizer {
     //============================== Scroll Native Bridge ===============================
 
     /// @notice Example deposit TX https://etherscan.io/tx/0xadf2121b495a0f6222219095dd3e116cd7b550c1a1a98ec1a561c9bff323eef9

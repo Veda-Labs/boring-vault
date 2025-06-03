@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
-import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 
-abstract contract EthenaWithdrawDecoderAndSanitizer is BaseDecoderAndSanitizer {
+contract EthenaWithdrawDecoderAndSanitizer {
     //============================== Ethena Withdraw ===============================
 
     function cooldownAssets(uint256 /*assets*/ ) external pure virtual returns (bytes memory addressesFound) {

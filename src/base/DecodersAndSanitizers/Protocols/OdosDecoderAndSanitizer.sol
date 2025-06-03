@@ -1,27 +1,24 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
-import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 
-
-abstract contract OdosDecoderAndSanitizer is BaseDecoderAndSanitizer {
-
+contract OdosDecoderAndSanitizer {
     // Reference to the OdosRouterV2 contract
     IOdosRouterV2 internal immutable odosRouter; //temp
 
     constructor(address _odosRouter) {
-        odosRouter = IOdosRouterV2(_odosRouter); 
+        odosRouter = IOdosRouterV2(_odosRouter);
     }
 
     function swap(
         DecoderCustomTypes.swapTokenInfo memory tokenInfo,
-        bytes calldata /*pathDefinition*/,
+        bytes calldata, /*pathDefinition*/
         address executor,
         uint32 /*referralCode*/
     ) external pure virtual returns (bytes memory addressesFound) {
-        
-        addressesFound = abi.encodePacked(tokenInfo.inputToken, tokenInfo.outputToken, tokenInfo.outputReceiver, executor); 
-
+        addressesFound =
+            abi.encodePacked(tokenInfo.inputToken, tokenInfo.outputToken, tokenInfo.outputReceiver, executor);
     }
 
     function swapCompact() external view virtual returns (bytes memory addressesFound) {
@@ -31,9 +28,9 @@ abstract contract OdosDecoderAndSanitizer is BaseDecoderAndSanitizer {
         bytes calldata pathDefinition;
 
         // Variables to store indices for addresses that need lookup
-        Address memory inputTokenLookup;  
-        Address memory outputTokenLookup; 
-        Address memory executorLookup; 
+        Address memory inputTokenLookup;
+        Address memory outputTokenLookup;
+        Address memory executorLookup;
 
         {
             address msgSender = msg.sender;
@@ -41,7 +38,7 @@ abstract contract OdosDecoderAndSanitizer is BaseDecoderAndSanitizer {
                 // Assembly function to get address from calldata
                 function getAddress(currPos) -> result, newPos {
                     let inputPos := shr(240, calldataload(currPos))
-                    
+
                     switch inputPos
                     // Reserve the null address as a special case that can be specified with 2 null bytes
                     case 0x0000 {
@@ -60,7 +57,7 @@ abstract contract OdosDecoderAndSanitizer is BaseDecoderAndSanitizer {
                         newPos := add(currPos, 2)
                     }
                 }
-                
+
                 let result := 0
                 let pos := 4
                 let fromList := 0
@@ -70,7 +67,7 @@ abstract contract OdosDecoderAndSanitizer is BaseDecoderAndSanitizer {
                 if eq(result, 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE) {
                     let inputPos := shr(240, calldataload(sub(pos, 2))) //sub 2 because we added 2 in `getAddress`, shr 240 bits to get index
                     mstore(add(inputTokenLookup, 0x00), sub(inputPos, 2)) // Store index
-                    mstore(add(inputTokenLookup, 0x20), 1)                // Set needsLookup to true
+                    mstore(add(inputTokenLookup, 0x20), 1) // Set needsLookup to true
                 }
                 mstore(tokenInfo, result)
 
@@ -87,8 +84,8 @@ abstract contract OdosDecoderAndSanitizer is BaseDecoderAndSanitizer {
                 pos := add(pos, 1)
 
                 if inputAmountLength {
-                  mstore(add(tokenInfo, 0x20), shr(mul(sub(32, inputAmountLength), 8), calldataload(pos)))
-                  pos := add(pos, inputAmountLength)
+                    mstore(add(tokenInfo, 0x20), shr(mul(sub(32, inputAmountLength), 8), calldataload(pos)))
+                    pos := add(pos, inputAmountLength)
                 }
 
                 // Load in the quoted output amount
@@ -101,8 +98,8 @@ abstract contract OdosDecoderAndSanitizer is BaseDecoderAndSanitizer {
 
                 // Load the slippage tolerance and use to get the minimum output amount
                 {
-                  let slippageTolerance := shr(232, calldataload(pos))
-                  mstore(add(tokenInfo, 0xA0), div(mul(outputQuote, sub(0xFFFFFF, slippageTolerance)), 0xFFFFFF))
+                    let slippageTolerance := shr(232, calldataload(pos))
+                    mstore(add(tokenInfo, 0xA0), div(mul(outputQuote, sub(0xFFFFFF, slippageTolerance)), 0xFFFFFF))
                 }
                 pos := add(pos, 3)
 
@@ -139,27 +136,27 @@ abstract contract OdosDecoderAndSanitizer is BaseDecoderAndSanitizer {
         if (inputTokenLookup.needsLookup) {
             tokenInfo.inputToken = odosRouter.addressList(inputTokenLookup.tokenIndex);
         }
-        
+
         // For outputToken
         if (outputTokenLookup.needsLookup) {
             tokenInfo.outputToken = odosRouter.addressList(outputTokenLookup.tokenIndex);
         }
-        
+
         // For executor
         if (executorLookup.needsLookup) {
             executor = odosRouter.addressList(executorLookup.tokenIndex);
         }
 
-        addressesFound = abi.encodePacked(tokenInfo.inputToken, tokenInfo.outputToken, tokenInfo.outputReceiver, executor); 
+        addressesFound =
+            abi.encodePacked(tokenInfo.inputToken, tokenInfo.outputToken, tokenInfo.outputReceiver, executor);
     }
-} 
-
-
-interface IOdosRouterV2 {
-    function addressList(uint256 index) external view returns (address); 
 }
 
-struct Address {    
-    uint256 tokenIndex; 
-    bool needsLookup; 
+interface IOdosRouterV2 {
+    function addressList(uint256 index) external view returns (address);
+}
+
+struct Address {
+    uint256 tokenIndex;
+    bool needsLookup;
 }

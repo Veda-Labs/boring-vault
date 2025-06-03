@@ -29,7 +29,8 @@ contract BridgingDecoderAndSanitizer is
     LineaBridgeDecoderAndSanitizer,
     ScrollBridgeDecoderAndSanitizer,
     LidoStandardBridgeDecoderAndSanitizer,
-    HyperlaneDecoderAndSanitizer
+    HyperlaneDecoderAndSanitizer,
+    BaseDecoderAndSanitizer
 {
     //============================== HANDLE FUNCTION COLLISIONS ===============================
 

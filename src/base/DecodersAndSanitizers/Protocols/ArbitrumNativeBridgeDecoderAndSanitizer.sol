@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
-import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 
-abstract contract ArbitrumNativeBridgeDecoderAndSanitizer is BaseDecoderAndSanitizer {
+contract ArbitrumNativeBridgeDecoderAndSanitizer {
     error ArbitrumNativeBridgeDecoderAndSanitizer__ExtraDataNotSupported();
     error ArbitrumNativeBridgeDecoderAndSanitizer__GasLimitTooSmall();
     error ArbitrumNativeBridgeDecoderAndSanitizer__NoCallDataForRetryables();

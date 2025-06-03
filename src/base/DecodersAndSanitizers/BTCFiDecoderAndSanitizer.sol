@@ -16,7 +16,8 @@ contract BTCFiDecoderAndSanitizer is
     OneInchDecoderAndSanitizer,
     PendleRouterDecoderAndSanitizer,
     PumpStakingDecoderAndSanitizer,
-    CornStakingDecoderAndSanitizer
+    CornStakingDecoderAndSanitizer,
+    BaseDecoderAndSanitizer
 {
     constructor(address _uniswapV3NonFungiblePositionManager)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)

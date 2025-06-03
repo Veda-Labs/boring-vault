@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
-import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 
-abstract contract MorphoRewardsMerkleClaimerDecoderAndSanitizer is BaseDecoderAndSanitizer {
+contract MorphoRewardsMerkleClaimerDecoderAndSanitizer {
     //============================== MORPHO MERKLE CLAIMER ===============================
 
     // We do't really need to sanitize the account since the rewards always go to the account that earned them,

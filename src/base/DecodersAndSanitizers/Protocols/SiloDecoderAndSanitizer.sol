@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
-import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
 
-abstract contract SiloDecoderAndSanitizer is BaseDecoderAndSanitizer, ERC4626DecoderAndSanitizer {
+contract SiloDecoderAndSanitizer is ERC4626DecoderAndSanitizer {
     //in addition to ERC4626 functions for depositing, these functions can be used
     function deposit(uint256, /*_assets*/ address _receiver, DecoderCustomTypes.CollateralType /*_collateralType*/ )
         external
@@ -102,21 +102,25 @@ abstract contract SiloDecoderAndSanitizer is BaseDecoderAndSanitizer, ERC4626Dec
     function accrueInterest() external pure virtual returns (bytes memory addressesFound) {
         return addressesFound;
     }
-    
+
     // Silo Incentives
-    
+
     function claimRewards(address _to) external pure virtual returns (bytes memory addressesFound) {
-        addressesFound = abi.encodePacked(_to); 
+        addressesFound = abi.encodePacked(_to);
     }
 
-    function claimRewards(address _to, string[] memory /*programNames*/) external pure virtual returns (bytes memory addressesFound) {
-        addressesFound = abi.encodePacked(_to); 
+    function claimRewards(address _to, string[] memory /*programNames*/ )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
+        addressesFound = abi.encodePacked(_to);
     }
-
 
     // Silo Vault
     function claimRewards() external pure virtual returns (bytes memory addressesFound) {
         //nothing to sanitize
-        return addressesFound; 
+        return addressesFound;
     }
 }

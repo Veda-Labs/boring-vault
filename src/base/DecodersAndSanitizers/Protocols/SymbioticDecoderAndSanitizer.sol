@@ -3,7 +3,7 @@ pragma solidity 0.8.21;
 
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 
-abstract contract SymbioticDecoderAndSanitizer is BaseDecoderAndSanitizer {
+contract SymbioticDecoderAndSanitizer {
     //============================== SYMBIOTIC ===============================
 
     function deposit(address recipient, uint256 /*amount*/ )

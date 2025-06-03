@@ -22,7 +22,8 @@ contract EtherFiLiquidBtcDecoderAndSanitizer is
     NativeWrapperDecoderAndSanitizer,
     OneInchDecoderAndSanitizer,
     PendleRouterDecoderAndSanitizer,
-    AaveV3DecoderAndSanitizer
+    AaveV3DecoderAndSanitizer,
+    BaseDecoderAndSanitizer
 {
     constructor(address _uniswapV3NonFungiblePositionManager)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)

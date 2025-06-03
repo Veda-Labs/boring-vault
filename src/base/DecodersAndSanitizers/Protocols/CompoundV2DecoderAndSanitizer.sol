@@ -3,7 +3,7 @@ pragma solidity 0.8.21;
 
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 
-abstract contract CompoundV2DecoderAndSanitizer is BaseDecoderAndSanitizer {
+contract CompoundV2DecoderAndSanitizer {
     // ============================== Ctoken ===============================
     function mint(uint256 /*mintAmount*/ ) external pure virtual returns (bytes memory addressesFound) {
         return addressesFound;

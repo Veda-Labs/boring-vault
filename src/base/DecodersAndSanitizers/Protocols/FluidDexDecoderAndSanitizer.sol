@@ -3,7 +3,7 @@ pragma solidity 0.8.21;
 
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 
-abstract contract FluidDexDecoderAndSanitizer is BaseDecoderAndSanitizer {
+contract FluidDexDecoderAndSanitizer {
     /// @notice T2 and T3
 
     /*  

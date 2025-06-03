@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
-import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 
-abstract contract KodiakIslandDecoderAndSanitizer is BaseDecoderAndSanitizer {
+contract KodiakIslandDecoderAndSanitizer {
     function addLiquidity(
         address island, // Address of the Kodiak Island
         uint256, /*amount0Max*/ // Maximum amount of token0 willing to deposit

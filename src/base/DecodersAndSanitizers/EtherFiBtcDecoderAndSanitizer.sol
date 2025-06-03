@@ -21,7 +21,8 @@ contract EtherFiBtcDecoderAndSanitizer is
     SymbioticDecoderAndSanitizer,
     KarakDecoderAndSanitizer,
     SymbioticVaultDecoderAndSanitizer,
-    OFTDecoderAndSanitizer
+    OFTDecoderAndSanitizer,
+    BaseDecoderAndSanitizer
 {
     constructor(address _uniswapV3NonFungiblePositionManager)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)

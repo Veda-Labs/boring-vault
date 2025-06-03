@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "../common/ITBContractDecoderAndSanitizer.sol";
 
-abstract contract ReserveDecoderAndSanitizer is ITBContractDecoderAndSanitizer {
+contract ReserveDecoderAndSanitizer is ITBContractDecoderAndSanitizer {
     function updatePositionConfig(address _main) external pure returns (bytes memory addressesFound) {
         addressesFound = abi.encodePacked(_main);
     }

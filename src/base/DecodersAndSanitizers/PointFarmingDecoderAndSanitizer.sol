@@ -34,7 +34,8 @@ contract PointFarmingDecoderAndSanitizer is
     ScrollBridgeDecoderAndSanitizer,
     OFTDecoderAndSanitizer,
     SatlayerStakingDecoderAndSanitizer,
-    CornStakingDecoderAndSanitizer
+    CornStakingDecoderAndSanitizer,
+    BaseDecoderAndSanitizer
 {
     //============================== HANDLE FUNCTION COLLISIONS ===============================
 

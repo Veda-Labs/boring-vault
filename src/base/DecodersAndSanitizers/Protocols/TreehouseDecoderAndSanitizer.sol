@@ -3,7 +3,7 @@ pragma solidity 0.8.21;
 
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 
-abstract contract TreehouseDecoderAndSanitizer is BaseDecoderAndSanitizer {
+contract TreehouseDecoderAndSanitizer {
     //============================== Treehouse ===============================
 
     // Example TX: https://etherscan.io/tx/0x1e1f604ae5b9e634213b5bcf952257a5db9e370005b82986e6c6c5449f142a30

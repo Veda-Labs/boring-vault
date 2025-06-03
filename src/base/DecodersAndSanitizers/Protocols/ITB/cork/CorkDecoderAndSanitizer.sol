@@ -1,12 +1,12 @@
 /* SPDX-License-Identifier: UNLICENSED */
 pragma solidity ^0.8.0;
 
-import '../common/ITBContractDecoderAndSanitizer.sol';
+import "../common/ITBContractDecoderAndSanitizer.sol";
 
-abstract contract CorkDecoderAndSanitizer is ITBContractDecoderAndSanitizer {
+contract CorkDecoderAndSanitizer is ITBContractDecoderAndSanitizer {
     type Id is bytes32;
 
-    function updatePositionConfig(address _vault, Id, uint) external pure returns (bytes memory addressesFound) {
+    function updatePositionConfig(address _vault, Id, uint256) external pure returns (bytes memory addressesFound) {
         addressesFound = abi.encodePacked(_vault);
     }
 
@@ -18,31 +18,31 @@ abstract contract CorkDecoderAndSanitizer is ITBContractDecoderAndSanitizer {
         addressesFound = abi.encodePacked(_router);
     }
 
-    function depositLv(uint, uint) external pure returns (bytes memory addressesFound) {
+    function depositLv(uint256, uint256) external pure returns (bytes memory addressesFound) {
         // Nothing to sanitize or return
         return addressesFound;
     }
 
-    function swapPaToRa(bytes memory, uint) external pure returns (bytes memory addressesFound) {
+    function swapPaToRa(bytes memory, uint256) external pure returns (bytes memory addressesFound) {
         // Nothing to sanitize or return
         return addressesFound;
     }
 
-    function swapCtDsToRa(uint, uint) external pure returns (bytes memory addressesFound) {
+    function swapCtDsToRa(uint256, uint256) external pure returns (bytes memory addressesFound) {
         // Nothing to sanitize or return
         return addressesFound;
     }
 
-    function swapDsPaToRa(uint, uint) external pure returns (bytes memory addressesFound) {
+    function swapDsPaToRa(uint256, uint256) external pure returns (bytes memory addressesFound) {
         // Nothing to sanitize or return
         return addressesFound;
     }
 
-    function redeemExpiredCt(address _ct, uint, uint) external pure returns (bytes memory addressesFound) {
+    function redeemExpiredCt(address _ct, uint256, uint256) external pure returns (bytes memory addressesFound) {
         addressesFound = abi.encodePacked(_ct);
     }
 
-    function startWithdrawal(uint, uint) external pure returns (bytes memory addressesFound) {
+    function startWithdrawal(uint256, uint256) external pure returns (bytes memory addressesFound) {
         // Nothing to sanitize or return
         return addressesFound;
     }
@@ -52,42 +52,42 @@ abstract contract CorkDecoderAndSanitizer is ITBContractDecoderAndSanitizer {
         return addressesFound;
     }
 
-    function completeWithdrawal(uint, uint) external pure returns (bytes memory addressesFound) {
+    function completeWithdrawal(uint256, uint256) external pure returns (bytes memory addressesFound) {
         // Nothing to sanitize or return
         return addressesFound;
     }
 
-    function completeNextWithdrawal(uint) external pure returns (bytes memory addressesFound) {
+    function completeNextWithdrawal(uint256) external pure returns (bytes memory addressesFound) {
         // Nothing to sanitize or return
         return addressesFound;
     }
 
-    function completeNextWithdrawals(uint) external pure returns (bytes memory addressesFound) {
+    function completeNextWithdrawals(uint256) external pure returns (bytes memory addressesFound) {
         // Nothing to sanitize or return
         return addressesFound;
     }
 
-    function overrideWithdrawalIndexes(uint, uint) external pure returns (bytes memory addressesFound) {
+    function overrideWithdrawalIndexes(uint256, uint256) external pure returns (bytes memory addressesFound) {
         // Nothing to sanitize or return
         return addressesFound;
     }
 
-    function assemble(uint) external pure returns (bytes memory addressesFound) {
+    function assemble(uint256) external pure returns (bytes memory addressesFound) {
         // Nothing to sanitize or return
         return addressesFound;
     }
 
-    function disassemble(uint, uint) external pure returns (bytes memory addressesFound) {
+    function disassemble(uint256, uint256) external pure returns (bytes memory addressesFound) {
         // Nothing to sanitize or return
         return addressesFound;
     }
 
-    function fullDisassemble(uint) external pure returns (bytes memory addressesFound) {
+    function fullDisassemble(uint256) external pure returns (bytes memory addressesFound) {
         // Nothing to sanitize or return
         return addressesFound;
     }
 
-    function redeemExpiredCtByConfig(uint, uint) external pure returns (bytes memory addressesFound) {
+    function redeemExpiredCtByConfig(uint256, uint256) external pure returns (bytes memory addressesFound) {
         // Nothing to sanitize or return
         return addressesFound;
     }

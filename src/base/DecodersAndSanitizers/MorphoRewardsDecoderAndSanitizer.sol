@@ -9,7 +9,8 @@ import {MorphoRewardsMerkleClaimerDecoderAndSanitizer} from
 
 contract MorphoRewardsDecoderAndSanitizer is
     MorphoRewardsWrapperDecoderAndSanitizer,
-    MorphoRewardsMerkleClaimerDecoderAndSanitizer
+    MorphoRewardsMerkleClaimerDecoderAndSanitizer,
+    BaseDecoderAndSanitizer
 {
     constructor() MorphoRewardsWrapperDecoderAndSanitizer() {}
 }

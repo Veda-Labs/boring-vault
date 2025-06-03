@@ -4,7 +4,7 @@ pragma solidity 0.8.21;
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
 
-abstract contract ResolvDecoderAndSanitizer is BaseDecoderAndSanitizer, ERC4626DecoderAndSanitizer {
+contract ResolvDecoderAndSanitizer is ERC4626DecoderAndSanitizer {
     //============================== UsrExternalRequestManager ===============================
 
     function requestMint(address _depositTokenAddress, uint256, /*_amount*/ uint256 /*_minMintAmount*/ )

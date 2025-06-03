@@ -3,7 +3,7 @@ pragma solidity 0.8.21;
 
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 
-abstract contract UsualMoneyDecoderAndSanitizer is BaseDecoderAndSanitizer {
+contract UsualMoneyDecoderAndSanitizer {
     //============================== Usual Money ===============================
 
     //USD0 and USD0++ Functions

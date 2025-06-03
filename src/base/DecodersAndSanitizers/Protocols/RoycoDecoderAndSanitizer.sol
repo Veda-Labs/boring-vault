@@ -5,7 +5,7 @@ import {DecoderCustomTypes} from "src/base/DecodersAndSanitizers/BaseDecoderAndS
 import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
 import {IRecipeMarketHub} from "src/interfaces/RawDataDecoderAndSanitizerInterfaces.sol";
 
-abstract contract RoycoWeirollDecoderAndSanitizer is ERC4626DecoderAndSanitizer {
+contract RoycoWeirollDecoderAndSanitizer is ERC4626DecoderAndSanitizer {
     //============================== ERRORS ===============================
 
     error RoycoWeirollDecoderAndSanitizer__TooManyOfferHashes();
@@ -49,9 +49,12 @@ abstract contract RoycoWeirollDecoderAndSanitizer is ERC4626DecoderAndSanitizer 
         }
     }
 
-    function cancelAPOffer(
-        DecoderCustomTypes.APOffer calldata offer
-    ) external pure virtual returns (bytes memory addressesFound) {
+    function cancelAPOffer(DecoderCustomTypes.APOffer calldata offer)
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         address marketHash0 = address(bytes20(bytes16(offer.targetMarketHash)));
         address marketHash1 = address(bytes20(bytes16(offer.targetMarketHash << 128)));
         addressesFound = abi.encodePacked(marketHash0, marketHash1, offer.ap, offer.fundingVault);
@@ -75,19 +78,24 @@ abstract contract RoycoWeirollDecoderAndSanitizer is ERC4626DecoderAndSanitizer 
         return abi.encodePacked(marketHash0, marketHash1, fundingVault, frontendFeeRecipient);
     }
 
-    function executeWithdrawalScript(
-        address weirollWallet
-    ) external view virtual returns (bytes memory addressesFound) {
+    function executeWithdrawalScript(address weirollWallet)
+        external
+        view
+        virtual
+        returns (bytes memory addressesFound)
+    {
         //WeirollWallet will check that the caller is owner (boring vault)
         //but we check here before delegating for safety.
         address owner = IWeirollWalletHelper(weirollWallet).owner();
         return abi.encodePacked(owner);
     }
 
-    function forfeit(
-        address weirollWallet,
-        bool /*executeWithdraw*/
-    ) external view virtual returns (bytes memory addressesFound) {
+    function forfeit(address weirollWallet, bool /*executeWithdraw*/ )
+        external
+        view
+        virtual
+        returns (bytes memory addressesFound)
+    {
         //WeirollWallet will check that the caller is owner (boring vault)
         //but we check here before delegating for safety.
         address owner = IWeirollWalletHelper(weirollWallet).owner();
@@ -114,7 +122,12 @@ abstract contract RoycoWeirollDecoderAndSanitizer is ERC4626DecoderAndSanitizer 
         addressesFound = abi.encodePacked(targetVault, fundingVault, addressesFound);
     }
 
-    function cancelOffer(DecoderCustomTypes.APOfferVault calldata offer) external pure virtual returns (bytes memory addressesFound) {
+    function cancelOffer(DecoderCustomTypes.APOfferVault calldata offer)
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         for (uint256 i = 0; i < offer.incentivesRequested.length; i++) {
             addressesFound = abi.encodePacked(addressesFound, offer.incentivesRequested[i]);
         }
@@ -122,17 +135,16 @@ abstract contract RoycoWeirollDecoderAndSanitizer is ERC4626DecoderAndSanitizer 
     }
 
     // WrappedVault (other functions handled by ERC4626 decoder)
-    function safeDeposit(
-        uint256, /*assets*/
-        address receiver,
-        uint256 /*minShares*/
-    ) external pure virtual returns (bytes memory addressesFound) {
+    function safeDeposit(uint256, /*assets*/ address receiver, uint256 /*minShares*/ )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(receiver);
     }
 
-    function claim(
-        address to
-    ) external pure virtual returns (bytes memory addressesFound) {
+    function claim(address to) external pure virtual returns (bytes memory addressesFound) {
         addressesFound = abi.encodePacked(to);
     }
 }

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
-import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 
-abstract contract EigenLayerLSTStakingDecoderAndSanitizer is BaseDecoderAndSanitizer {
+contract EigenLayerLSTStakingDecoderAndSanitizer {
     //============================== ERRORS ===============================
 
     error EigenLayerLSTStakingDecoderAndSanitizer__CanOnlyReceiveAsTokens();
@@ -53,7 +53,7 @@ abstract contract EigenLayerLSTStakingDecoderAndSanitizer is BaseDecoderAndSanit
             }
         }
     }
-    
+
     /// @notice support the new ELIP version
     function completeQueuedWithdrawals(
         DecoderCustomTypes.Withdrawal[] calldata withdrawals,

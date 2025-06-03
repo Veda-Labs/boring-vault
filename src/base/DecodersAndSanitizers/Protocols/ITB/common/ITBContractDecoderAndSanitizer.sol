@@ -6,7 +6,7 @@ import "./Ownable2StepDecoderAndSanitizer.sol";
 
 /// @title Decoder and sanitizer for ITBContract
 /// @author IntoTheBlock Corp
-abstract contract ITBContractDecoderAndSanitizer is WithdrawableDecoderAndSanitizer, Ownable2StepDecoderAndSanitizer {
+contract ITBContractDecoderAndSanitizer is WithdrawableDecoderAndSanitizer, Ownable2StepDecoderAndSanitizer {
     function approveToken(address _token, address _guy, uint256) external pure returns (bytes memory addressesFound) {
         addressesFound = abi.encodePacked(_token, _guy);
     }
