@@ -68,7 +68,7 @@ plume = "${PLUME_RPC_URL}"
 #unichain = { key = "${UNISCAN_KEY}", chain = 130, url = "https://api.uniscan.xyz/api" }
 #flare = {key = "${FLARESCAN_KEY}", chain = 14, url = "https://api.routescan.io/v2/network/mainnet/evm/14/etherscan" }
 #hyperEVM = { key = "${HYPER_EVM_KEY}, chain = 999, url = "https://hyperscan.gas.zip/" }
-plume = { key = "${PLUMESCAN_KEY}", chain = 98866, url = "https://explorer-plume-mainnet-1.t.conduit.xyz/api/"}
+#plume = { key = "${PLUMESCAN_KEY}", chain = 98866, url = "https://explorer-plume-mainnet-1.t.conduit.xyz/api/"}
 
 
 
