@@ -1,8 +1,7 @@
 pragma solidity 0.8.21;
 
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
+import {ERC20} from "@solmate/tokens/ERC20.sol"; import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
@@ -13,11 +12,11 @@ import "forge-std/Script.sol";
  */
 contract CreateRoyUSDCMainnetMerkleRoot is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
-    // TODO: CHECK the addresses
+
     address public boringVault = 0x74D1fAfa4e0163b2f1035F1b052137F3f9baD5cC;
     address public managerAddress = 0xD4F870516a3B67b64238Bb803392Cd1A52D54Fb2;
     address public accountantAddress = 0x80f0B206B7E5dAa1b1ba4ea1478A33241ee6baC9;
-    address public rawDataDecoderAndSanitizer = 0x1a72667f90c33a2112C323f7a3484Efc1aE7e198;
+    address public rawDataDecoderAndSanitizer = 0x6346A0741CA3EF892f84E81Ba73C065976393A20;
 
     function setUp() external {}
 
