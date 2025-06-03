@@ -19,7 +19,7 @@ contract CreateRoycoUSDPlumeMerkleRoot is Script, MerkleTreeHelper {
     address public managerAddress = 0xe942A366Ccb629939921b35e1382D2c9634146cE;
     address public accountantAddress = 0xfFfBF5B884AdF7297B94e62535D1b031387041Bd;
     address public tellerAddress = 0x4Fc294112fD0b7226ecA095FEE9909E30882Cb11; 
-    address public rawDataDecoderAndSanitizer = 0x5720BBa8058619600273389FA70C32d5d5CFA830; // Update with actual address
+    address public rawDataDecoderAndSanitizer = 0x3820D474cc9b1Aed0A0D78C86b644c5C709E98Ce;
     
     
 
@@ -116,16 +116,7 @@ contract CreateRoycoUSDPlumeMerkleRoot is Script, MerkleTreeHelper {
             _addRoycoRecipeAPOfferLeafs(leafs, address(marketAsset[i]), marketHashes[i], address(0), incentivesRequested);
             _addRoycoWeirollLeafs(leafs, marketAsset[i], marketHashes[i], frontendFeeRecipient);
         }
-    
 
-        // ========================== Royco Vault Markets (if any) ==========================
-        // If any of these tokens have vault markets, add support here
-        // Example:
-        // address pUSDVault = address(0); // Update with actual vault address
-        // if (pUSDVault != address(0)) {
-        //     _addRoycoVaultMarketLeafs(leafs, pUSD, pUSDVault, address(0), incentivesRequested[0]);
-        //     _addRoyco4626VaultLeafs(leafs, ERC4626(pUSDVault));
-        // }
 
         // ========================== BoringChef Rewards Distribution ==========================
         // Add support for distributeRewards functionality
@@ -148,6 +139,42 @@ contract CreateRoycoUSDPlumeMerkleRoot is Script, MerkleTreeHelper {
 
             _addBoringChefClaimLeaf(leafs, boringVault);
         }
+
+
+        // nAlpha Offer
+        _addAtomicQueueLeafs(leafs, 0x228C44Bb4885C6633F4b6C83f14622f37D5112E5, getERC20(sourceChain, "nALPHA"), getERC20(sourceChain, "nCREDIT"));
+        _addAtomicQueueLeafs(leafs, 0x228C44Bb4885C6633F4b6C83f14622f37D5112E5, getERC20(sourceChain, "nALPHA"), getERC20(sourceChain, "nBASIS"));
+        _addAtomicQueueLeafs(leafs, 0x228C44Bb4885C6633F4b6C83f14622f37D5112E5, getERC20(sourceChain, "nALPHA"), getERC20(sourceChain, "pUSD"));
+        _addAtomicQueueLeafs(leafs, 0x228C44Bb4885C6633F4b6C83f14622f37D5112E5, getERC20(sourceChain, "nALPHA"), getERC20(sourceChain, "opNALPHA"));
+        _addAtomicQueueLeafs(leafs, 0x228C44Bb4885C6633F4b6C83f14622f37D5112E5, getERC20(sourceChain, "nALPHA"), getERC20(sourceChain, "USDC"));
+
+        // nCredit Offer
+        _addAtomicQueueLeafs(leafs, 0x228C44Bb4885C6633F4b6C83f14622f37D5112E5, getERC20(sourceChain, "nCREDIT"), getERC20(sourceChain, "nALPHA"));
+        _addAtomicQueueLeafs(leafs, 0x228C44Bb4885C6633F4b6C83f14622f37D5112E5, getERC20(sourceChain, "nCREDIT"), getERC20(sourceChain, "nBASIS"));
+        _addAtomicQueueLeafs(leafs, 0x228C44Bb4885C6633F4b6C83f14622f37D5112E5, getERC20(sourceChain, "nCREDIT"), getERC20(sourceChain, "pUSD"));
+        _addAtomicQueueLeafs(leafs, 0x228C44Bb4885C6633F4b6C83f14622f37D5112E5, getERC20(sourceChain, "nCREDIT"), getERC20(sourceChain, "opNALPHA"));
+        _addAtomicQueueLeafs(leafs, 0x228C44Bb4885C6633F4b6C83f14622f37D5112E5, getERC20(sourceChain, "nCREDIT"), getERC20(sourceChain, "USDC"));
+
+        // nBasis Offer
+        _addAtomicQueueLeafs(leafs, 0x228C44Bb4885C6633F4b6C83f14622f37D5112E5, getERC20(sourceChain, "nBASIS"), getERC20(sourceChain, "nALPHA"));
+        _addAtomicQueueLeafs(leafs, 0x228C44Bb4885C6633F4b6C83f14622f37D5112E5, getERC20(sourceChain, "nBASIS"), getERC20(sourceChain, "nCREDIT"));
+        _addAtomicQueueLeafs(leafs, 0x228C44Bb4885C6633F4b6C83f14622f37D5112E5, getERC20(sourceChain, "nBASIS"), getERC20(sourceChain, "pUSD"));
+        _addAtomicQueueLeafs(leafs, 0x228C44Bb4885C6633F4b6C83f14622f37D5112E5, getERC20(sourceChain, "nBASIS"), getERC20(sourceChain, "opNALPHA"));
+        _addAtomicQueueLeafs(leafs, 0x228C44Bb4885C6633F4b6C83f14622f37D5112E5, getERC20(sourceChain, "nBASIS"), getERC20(sourceChain, "USDC"));
+
+        // pUSD Offer
+        _addAtomicQueueLeafs(leafs, 0x228C44Bb4885C6633F4b6C83f14622f37D5112E5, getERC20(sourceChain, "pUSD"), getERC20(sourceChain, "nALPHA"));
+        _addAtomicQueueLeafs(leafs, 0x228C44Bb4885C6633F4b6C83f14622f37D5112E5, getERC20(sourceChain, "pUSD"), getERC20(sourceChain, "nCREDIT"));
+        _addAtomicQueueLeafs(leafs, 0x228C44Bb4885C6633F4b6C83f14622f37D5112E5, getERC20(sourceChain, "pUSD"), getERC20(sourceChain, "nBASIS"));
+        _addAtomicQueueLeafs(leafs, 0x228C44Bb4885C6633F4b6C83f14622f37D5112E5, getERC20(sourceChain, "pUSD"), getERC20(sourceChain, "opNALPHA"));
+        _addAtomicQueueLeafs(leafs, 0x228C44Bb4885C6633F4b6C83f14622f37D5112E5, getERC20(sourceChain, "pUSD"), getERC20(sourceChain, "USDC"));
+
+        // opNAlpha Offer
+        _addAtomicQueueLeafs(leafs, 0x228C44Bb4885C6633F4b6C83f14622f37D5112E5, getERC20(sourceChain, "opNALPHA"), getERC20(sourceChain, "nALPHA"));
+        _addAtomicQueueLeafs(leafs, 0x228C44Bb4885C6633F4b6C83f14622f37D5112E5, getERC20(sourceChain, "opNALPHA"), getERC20(sourceChain, "nCREDIT"));
+        _addAtomicQueueLeafs(leafs, 0x228C44Bb4885C6633F4b6C83f14622f37D5112E5, getERC20(sourceChain, "opNALPHA"), getERC20(sourceChain, "nBASIS"));
+        _addAtomicQueueLeafs(leafs, 0x228C44Bb4885C6633F4b6C83f14622f37D5112E5, getERC20(sourceChain, "opNALPHA"), getERC20(sourceChain, "pUSD"));
+        _addAtomicQueueLeafs(leafs, 0x228C44Bb4885C6633F4b6C83f14622f37D5112E5, getERC20(sourceChain, "opNALPHA"), getERC20(sourceChain, "USDC"));
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

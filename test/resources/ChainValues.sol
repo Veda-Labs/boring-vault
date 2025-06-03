@@ -2530,7 +2530,9 @@ contract ChainValues {
         values[plume]["recipeMarketHub"] = 0x027ef18525876138bEc202aA4411538CE4B2f4ca.toBytes32();
         values[plume]["vaultMarketHub"] = 0xf72388EF0018953C664DA3f37e6f98BF43c96db2.toBytes32();
         values[plume]["USDC"] = 0x78adD880A697070c1e765Ac44D65323a0DcCE913.toBytes32();
-        values[plume]["pUSD"] = 0x1E0E030AbCb4f07de629DCCEa458a271e0E82624.toBytes32();
+        values[plume]["pUSD"] = 0xdddD73F5Df1F0DC31373357beAC77545dC5A6f3F.toBytes32();
+        values[plume]["nBASIS"] = 0x11113Ff3a60C2450F4b22515cB760417259eE94B.toBytes32();
+        values[plume]["nALPHA"] = 0x593cCcA4c4bf58b7526a4C164cEEf4003C6388db.toBytes32();
         values[plume]["nINSTO"] = 0xbfC5770631641719cd1Cf809D8325B146aED19De.toBytes32();
         values[plume]["nCREDIT"] = 0xA5f78B2A0Ab85429d2DfbF8B60abc70F4CeC066c.toBytes32(); 
         values[plume]["opNALPHA"] = 0xe3BEFC4eAA73803774F4d878417fa5e09193a75A.toBytes32();

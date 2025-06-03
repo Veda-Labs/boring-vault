@@ -5,6 +5,7 @@ import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecode
 import {RoycoWeirollDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/RoycoDecoderAndSanitizer.sol";
 import {BoringChefDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BoringChefDecoderAndSanitizer.sol";
 import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
+import {AtomicQueueDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AtomicQueueDecoderAndSanitizer.sol";
 
 /**
  * @title RoycoUSDPlumeDecoderAndSanitizer
@@ -18,12 +19,14 @@ contract RoycoUSDPlumeDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
     RoycoWeirollDecoderAndSanitizer,
     BoringChefDecoderAndSanitizer,
-    TellerDecoderAndSanitizer
+    TellerDecoderAndSanitizer,
+    AtomicQueueDecoderAndSanitizer
 {
     constructor(address _recipeMarketHub)
         BaseDecoderAndSanitizer()
         RoycoWeirollDecoderAndSanitizer(_recipeMarketHub)
         BoringChefDecoderAndSanitizer()
         TellerDecoderAndSanitizer()
+        AtomicQueueDecoderAndSanitizer(0.9e4, 1.1e4)
     {}
 }
