@@ -108,8 +108,8 @@
     "boringQueueDeploymentName": "Ultra Yield Stablecoin Vault Boring Queue V0.0",
     "boringQueueSolverName": "Ultra Yield Stablecoin Vault Boring Solver V0.0",
     "queueParameters": {
-      "allowPublicWithdrawals": true,
-      "allowPublicSelfWithdrawals": true,
+      "allowPublicWithdrawals": false,
+      "allowPublicSelfWithdrawals": false,
       "kind": {
         "boringQueue": true,
         "boringQueueWithTracking": false
