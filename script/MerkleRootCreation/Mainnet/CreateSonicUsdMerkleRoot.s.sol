@@ -17,7 +17,7 @@ contract CreateSonicUsdMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0xd3DCe716f3eF535C5Ff8d041c1A41C3bd89b97aE;
     address public managerAddress = 0x76fda7A02B616070D3eC5902Fa3C5683AC3cB8B6;
     address public accountantAddress = 0xA76E0F54918E39A63904b51F688513043242a0BE;
-    address public rawDataDecoderAndSanitizer = 0x236e17d6396C3f03e7cCEEd266B05F0939B86189;
+    address public rawDataDecoderAndSanitizer = 0xAaCB4FD65b043dd731FAa2c08D793CD2E6C235a1;
 
     function setUp() external {}
 
@@ -253,7 +253,10 @@ contract CreateSonicUsdMerkleRoot is Script, MerkleTreeHelper {
         // ========================== LayerZero ==========================
         //USDC, frxUSD  
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDC"), getAddress(sourceChain, "stargateUSDC"), layerZeroSonicMainnetEndpointId, getBytes32(sourceChain, "boringVault"));  
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "frxUSD"), getAddress(sourceChain, "frxUSDOFTAdapter"), layerZeroSonicMainnetEndpointId, getBytes32(sourceChain, "boringVault"));  
+        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "frxUSD"), getAddress(sourceChain, "frxUSDOFTAdapter"), layerZeroSonicMainnetEndpointId, getBytes32(sourceChain, "boringVault")); 
+        
+        
+        _addCCTPBridgeLeafs(leafs, uint32(13));
 
         // ========================== Verify & Generate ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

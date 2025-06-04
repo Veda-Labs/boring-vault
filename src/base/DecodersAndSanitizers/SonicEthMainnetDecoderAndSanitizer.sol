@@ -24,6 +24,7 @@ import {GearboxDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protoco
 import {MerklDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MerklDecoderAndSanitizer.sol"; 
 import {FluidRewardsClaimingDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/FluidRewardsClaimingDecoderAndSanitizer.sol";
+import {CCTPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCTPDecoderAndSanitizer.sol";
 
 
 contract SonicEthMainnetDecoderAndSanitizer is
@@ -44,7 +45,8 @@ contract SonicEthMainnetDecoderAndSanitizer is
     EulerEVKDecoderAndSanitizer,
     GearboxDecoderAndSanitizer,
     MerklDecoderAndSanitizer,
-    FluidRewardsClaimingDecoderAndSanitizer
+    FluidRewardsClaimingDecoderAndSanitizer,
+    CCTPDecoderAndSanitizer
 {
     constructor(address _uniswapV3NonFungiblePositionManager, address _odosRouter)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
