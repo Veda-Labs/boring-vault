@@ -19,7 +19,8 @@ contract CreateUnichainEtherFiLiquidEthMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C;
     address public managerAddress = 0xDEa7AF4a96A762c9d43A7eE02acecD20A3C6D8B6;
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
-    address public rawDataDecoderAndSanitizer = 0x94108Db361BD42C8461015b2749a27011D6940BA; 
+    address public rawDataDecoderAndSanitizer = 0x3B552951238bCf38097c66b10fF02203162E35C4; 
+    bytes32 public morphoMarketId = 0xdacbdd711936b4f4bd789f0f7111e36e925d730ebd41178e36e705efd78a4aa1;
 
     function setUp() external {}
 
@@ -44,7 +45,7 @@ contract CreateUnichainEtherFiLiquidEthMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== LayerZero ==========================
         _addLayerZeroLeafs(
-            leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "WEETH"), layerZeroMainnetEndpointId
+            leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "WEETH"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault")
         );
 
         // ========================== Standard Bridge ==========================
@@ -88,6 +89,14 @@ contract CreateUnichainEtherFiLiquidEthMerkleRoot is Script, MerkleTreeHelper {
             token1,
             hooks
         );
+
+        //TODO: Need to finish deployment, then run merkle script. Then push the PR and create the txn, post in Admin channel
+
+        _addMorphoBlueSupplyLeafs(leafs, morphoMarketId);
+
+        _addMorphoBlueCollateralLeafs(leafs, morphoMarketId);
+
+        _addERC4626Leafs(leafs, ERC4626(0x830898200F0E8Be8Dc1C9A836f4AB29ECEdf76eb));
 
         // ========================== Verify & Generate ==========================
 

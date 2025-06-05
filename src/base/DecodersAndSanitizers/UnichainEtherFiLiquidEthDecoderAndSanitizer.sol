@@ -9,6 +9,8 @@ import {StandardBridgeDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/StandardBridgeDecoderAndSanitizer.sol";
 import {UniswapV4DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV4DecoderAndSanitizer.sol";
 import {MerklDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MerklDecoderAndSanitizer.sol";
+import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
+import {MorphoBlueDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MorphoBlueDecoderAndSanitizer.sol";
 
 contract UnichainEtherFiLiquidEthDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
@@ -16,7 +18,9 @@ contract UnichainEtherFiLiquidEthDecoderAndSanitizer is
     OFTDecoderAndSanitizer,
     StandardBridgeDecoderAndSanitizer,
     UniswapV4DecoderAndSanitizer,
-    MerklDecoderAndSanitizer
+    MerklDecoderAndSanitizer,
+    ERC4626DecoderAndSanitizer,
+    MorphoBlueDecoderAndSanitizer
 {
 
     constructor(address _positionManager) UniswapV4DecoderAndSanitizer(_positionManager) {}

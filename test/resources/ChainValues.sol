@@ -2462,6 +2462,9 @@ contract ChainValues {
 
         // LayerZero
         values[unichain]["LayerZeroEndPoint"] = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B.toBytes32();
+
+        // Morpho
+        values[unichain]["morphoBlue"] = 0x8f5ae9CddB9f68de460C77730b018Ae7E04a140A.toBytes32();
     }
 
     function _addHyperEVMValues() internal {
