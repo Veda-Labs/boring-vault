@@ -19,7 +19,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0xef417FCE1883c6653E7dC6AF7c6F85CCDE84Aa09;
     address public managerAddress = 0x5F341B1cf8C5949d6bE144A725c22383a5D3880B;
     address public accountantAddress = 0xc873F2b7b3BA0a7faA2B56e210E3B965f2b618f5;
-    address public rawDataDecoderAndSanitizer = 0x93DC12E1BCF087CcD35daCF22Fe7cf1Cd2e7EdEA; 
+    address public rawDataDecoderAndSanitizer = 0x597A6471A3f6d279DE56D618E378DAde55383608; 
 
     function setUp() external {}
 
@@ -82,6 +82,15 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             token1,
             hooks
         );
+
+        // Euler wstETH market integration
+        // _addEulerLeafs(leafs, wstETHMarketAddress); HOLDING FOR NOW
+
+        // Morpho wstETH market integration
+        _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "morphowstETHmarket"));
+        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "morphowstETHmarket"));
+
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "morphoSmokehouseWSTETH")));
 
         // ========================== Verify & Generate ==========================
 
