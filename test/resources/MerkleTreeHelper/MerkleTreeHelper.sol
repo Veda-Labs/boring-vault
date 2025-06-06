@@ -5968,6 +5968,24 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex].argumentAddresses[3] = strategy;
         leafs[leafIndex].argumentAddresses[4] = lst;
 
+        //new leaf version
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            _delegationManager,
+            false,
+            "completeQueuedWithdrawals((address,address,address,uint256,uint32,address[],uint256[])[],address[][],bool[])",
+            new address[](5),
+            string.concat("Complete withdraw of ", ERC20(lst).symbol(), " from Eigen Layer Delegation Manager from ", vm.toString(operator)),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[1] = operator;
+        leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[3] = strategy;
+        leafs[leafIndex].argumentAddresses[4] = lst;
+
         // Delegation.
         unchecked {
             leafIndex++;
