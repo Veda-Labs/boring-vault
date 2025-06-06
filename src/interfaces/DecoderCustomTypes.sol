@@ -545,6 +545,13 @@ contract DecoderCustomTypes {
         uint256 lvlusd_amount;
     }    
 
+    struct LevelOrderV2 {
+        address beneficiary;
+        address collateral_asset;
+        uint256 collateral_amount;
+        uint256 min_lvlusd_amount;
+    }
+
     struct Route {
         address[] addresses;
         uint256[] ratios;
