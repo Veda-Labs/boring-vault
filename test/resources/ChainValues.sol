@@ -173,7 +173,7 @@ contract ChainValues {
         // TAC BoringVaults
         values[mainnet]["TurtleTACUSD"] = 0x699e04F98dE2Fc395a7dcBf36B48EC837A976490.toBytes32();
         values[mainnet]["TACTeller"] = 0xBbf9E8718D83CF67b568bfFd9d3034BfF02A0103.toBytes32();
-        values[mainnet]["TACOnChainQueue"] = 0x699e04F98dE2Fc395a7dcBf36B48EC837A976490.toBytes32();
+        values[mainnet]["TACOnChainQueue"] = 0x850EeD781C538849E8cc86a1a080327ECBeBff9c.toBytes32();
 
         values[mainnet]["TurtleTACBTCTeller"] = 0x7C75cbb851D321B2Ec8034D58A9B5075e991E584.toBytes32();
         values[mainnet]["TurtleTACBTC"] = 0x6Bf340dB729d82af1F6443A0Ea0d79647b1c3DDf.toBytes32();
