@@ -37,7 +37,7 @@ contract CreateUltraUsdMerkleRootScript is Script, MerkleTreeHelper {
 
     LocalVars public vars = LocalVars({
         boringVault: 0xbc0f3B23930fff9f4894914bD745ABAbA9588265,
-        rawDataDecoderAndSanitizer: 0x8e02114E4D3B788577Cc25229BfC380cac479f26,
+        rawDataDecoderAndSanitizer: 0x2835CCb51434A2F623d5e479229d302220630Ea2,
         managerAddress: 0x4f81c27e750A453d6206C2d10548d6566F60886C,
         accountantAddress: 0x95fE19b324bE69250138FE8EE50356e9f6d17Cfe,
         drone: 0x20A0d13C4643AB962C6804BC6ba6Eea0505F11De,
@@ -78,6 +78,9 @@ contract CreateUltraUsdMerkleRootScript is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", vars.rawDataDecoderAndSanitizer);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](8192);
+        
+        // LayerZero endpoint IDs
+        uint32 layerZeroFlareEndpointId = 30112; // Flare mainnet endpoint ID
 
         // ========================== Fee Claiming ==========================
         //ERC20[] memory feeAssets = new ERC20[](4);
@@ -363,6 +366,25 @@ contract CreateUltraUsdMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== King ==========================
         _addKingRewardsClaimingLeafs(leafs, new address[](0), vars.boringVault);
+
+        // ========================== LayerZero Bridging to Flare ==========================
+        // Bridge USDC to Flare
+        _addLayerZeroLeafs(
+            leafs, 
+            getERC20(sourceChain, "USDC"), 
+            getAddress(sourceChain, "stargateUSDC"), 
+            layerZeroFlareEndpointId, 
+            getBytes32(sourceChain, "boringVault")
+        );
+        
+        // Bridge USDT to Flare  
+        _addLayerZeroLeafs(
+            leafs, 
+            getERC20(sourceChain, "USDT"), 
+            getAddress(sourceChain, "usdt0OFTAdapter"), 
+            layerZeroFlareEndpointId, 
+            getBytes32(sourceChain, "boringVault")
+        );
 
         // ========================== Drone Transfers ==========================
         //ERC20[] memory localTokens = new ERC20[](42);
