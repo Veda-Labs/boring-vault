@@ -128,6 +128,25 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             leafs, collateralAssets, getAddress(sourceChain, "cWETHV3"), getAddress(sourceChain, "cometRewards")
         );
 
+        // ========================== Fluid Dex ==========================
+        {
+            uint256 dexType = 1000; 
+            ERC20[] memory supplyTokens = new ERC20[](2);    
+            supplyTokens[0] = getERC20(sourceChain, "WEETH"); 
+            supplyTokens[1] = getERC20(sourceChain, "WETH"); 
+
+            ERC20[] memory borrowTokens = new ERC20[](1);    
+            borrowTokens[0] = getERC20(sourceChain, "WSTETH"); 
+            _addFluidDexLeafs(
+                leafs,
+                getAddress(sourceChain, "fWETH_fWSTETH_DEX"),
+                dexType,
+                supplyTokens,
+                borrowTokens,
+                false
+            ); 
+        }
+
         // ========================== Fluid fToken ==========================
         _addFluidFTokenLeafs(leafs, getAddress(sourceChain, "fWETH"));
         _addFluidFTokenLeafs(leafs, getAddress(sourceChain, "fWSTETH"));
@@ -163,10 +182,10 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== LayerZero ==========================
         _addLayerZeroLeafs(
-            leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "WEETH"), layerZeroMainnetEndpointId
+            leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "WEETH"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault")
         );
         _addLayerZeroLeafs(
-            leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "WEETH"), layerZeroOptimismEndpointId
+            leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "WEETH"), layerZeroOptimismEndpointId, getBytes32(sourceChain, "boringVault")
         );
 
         // ========================== Aerodrome ==========================
