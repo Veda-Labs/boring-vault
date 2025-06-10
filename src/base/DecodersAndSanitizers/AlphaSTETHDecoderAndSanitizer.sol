@@ -23,10 +23,13 @@ import {StandardBridgeDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/StandardBridgeDecoderAndSanitizer.sol";
 import {LidoStandardBridgeDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/LidoStandardBridgeDecoderAndSanitizer.sol";
+import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {BalancerV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BalancerV3DecoderAndSanitizer.sol";
+import {Permit2DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/Permit2DecoderAndSanitizer.sol";
 
 contract AlphaSTETHDecoderAndSanitizer is
-    ERC4626DecoderAndSanitizer,
+    BaseDecoderAndSanitizer,
     LidoDecoderAndSanitizer,
     UniswapV3DecoderAndSanitizer,
     UniswapV4DecoderAndSanitizer,
@@ -42,7 +45,7 @@ contract AlphaSTETHDecoderAndSanitizer is
     StandardBridgeDecoderAndSanitizer,
     OFTDecoderAndSanitizer,
     LidoStandardBridgeDecoderAndSanitizer,
-    BaseDecoderAndSanitizer
+    BalancerV3DecoderAndSanitizer
 {
     constructor(
         address _uniswapV3NonFungiblePositionManager,
@@ -58,6 +61,19 @@ contract AlphaSTETHDecoderAndSanitizer is
 
     //============================== HANDLE FUNCTION COLLISIONS ===============================
 
+    function approve(address token, address spender, uint160, /*amount*/ uint48 /*expiraton*/ )
+        external
+        pure
+        override(UniswapV4DecoderAndSanitizer, Permit2DecoderAndSanitizer)
+        returns (bytes memory addressesFound)
+    {
+        addressesFound = abi.encodePacked(token, spender);
+    }
+    function withdraw(uint256) external pure override(NativeWrapperDecoderAndSanitizer, CurveDecoderAndSanitizer) returns (bytes memory addressesFound) {
+        // Nothing to sanitize or return
+        return addressesFound;
+    }
+    
     function proveWithdrawalTransaction(
         DecoderCustomTypes.WithdrawalTransaction calldata _tx,
         uint256, /*_l2OutputIndex*/

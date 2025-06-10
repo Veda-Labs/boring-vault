@@ -11,6 +11,7 @@ contract Permit2DecoderAndSanitizer {
     function approve(address token, address spender, uint160, /*amount*/ uint48 /*expiraton*/ )
         external
         pure
+        virtual
         returns (bytes memory addressesFound)
     {
         addressesFound = abi.encodePacked(token, spender);

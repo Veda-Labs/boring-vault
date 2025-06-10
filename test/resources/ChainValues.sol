@@ -442,6 +442,8 @@ contract ChainValues {
         values[mainnet]["aura_USDC_GHO_USDT_gauge"] = 0x8e89d41c563e6C3d9901ad75B75e2d8e140DEF04.toBytes32();
         values[mainnet]["balancerV3_WETH_WSTETH_boosted"] = 0xc4Ce391d82D164c166dF9c8336DDF84206b2F812.toBytes32();
         values[mainnet]["balancerV3_WSTETH_TETH_stablesurge"] = 0x9ED5175aeCB6653C1BDaa19793c16fd74fBeEB37.toBytes32();
+        values[mainnet]["balancerV3_WETH_WSTETH_boosted_gauge"] = 0x4B891340b51889f438a03DC0e8aAAFB0Bc89e7A6.toBytes32();
+      
 
         // Aura
         values[mainnet]["auraBooster"] = 0xA57b8d98dAE62B26Ec3bcC4a365338157060B234.toBytes32();
