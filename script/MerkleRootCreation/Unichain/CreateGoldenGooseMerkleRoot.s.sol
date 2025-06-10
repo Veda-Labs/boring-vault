@@ -81,22 +81,14 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             token0,
             token1,
             hooks
-        );
-
-         // ========================== Euler ==========================
-        ERC4626[] memory depositVaults = new ERC4626[](1);
-        depositVaults[0] = ERC4626(getAddress(sourceChain, "eulerwstETHmarket"));
-
-        address[] memory subaccounts = new address[](1);
-        subaccounts[0] = getAddress(sourceChain, "boringVault");
-
-        _addEulerDepositLeafs(leafs, depositVaults, subaccounts);        
+        );       
 
         // ========================== Morpho ==========================
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "morphowstETHmarket"));
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "morphowstETHmarket"));
 
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "morphoSmokehouseWSTETH")));
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "morphoSteakhouseETH")));
 
         // ========================== Verify & Generate ==========================
 

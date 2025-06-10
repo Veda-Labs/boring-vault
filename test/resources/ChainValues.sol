@@ -2480,6 +2480,7 @@ contract ChainValues {
         values[unichain]["morphoBlue"] = 0x8f5ae9CddB9f68de460C77730b018Ae7E04a140A.toBytes32();
         values[unichain]["morphowstETHmarket"] = 0x665c97ec413f4371e1c30c71153757e9b9144dfbe4284a3e910f85dedba6527d;
         values[unichain]["morphoSmokehouseWSTETH"] = 0x9E111aCef0CF3bd8C38715B88e78BE31C1109F8a.toBytes32();
+        values[unichain]["morphoSteakhouseETH"] = 0x0993Ae24a988c6925d80aD61344a76B81aA0D34c.toBytes32();
     }
 
     function _addHyperEVMValues() internal {
