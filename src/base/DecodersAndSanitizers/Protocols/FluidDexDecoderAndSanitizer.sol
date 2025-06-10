@@ -11,7 +11,8 @@ abstract contract FluidDexDecoderAndSanitizer is BaseDecoderAndSanitizer {
      *  @notice T2 params on LHS, T3 on RHS -> T2ParamName/T3ParamName
      *  @dev   These use the same function sig, so I'm just grouping them together
      *  @param nftId The ID of the NFT representing the vault position, use 0 for a new position
-     *  @param newColToken0/newCol The change in collateral amount (positive for deposit, negative for withdrawal) *  @param newColtoken1/newDebtToken0 The change in debt amount for token0 (positive for borrowing, negative for repayment)
+     *  @param newColToken0/newCol The change in collateral amount (positive for deposit, negative for withdrawal) 
+     *  @param newColtoken1/newDebtToken0 The change in debt amount for token0 (positive for borrowing, negative for repayment)
      *  @param colSharesMinMax/newDebtToken1 The change in debt amount for token1 (positive for borrowing, negative for repayment)
      *  @param newDebt/debtSharesMinMax Min or max debt shares to mint or burn (positive for borrowing, negative for repayment)
      *  @param to The address to receive withdrawn collateral or borrowed tokens (if address(0), defaults to msg.sender)
