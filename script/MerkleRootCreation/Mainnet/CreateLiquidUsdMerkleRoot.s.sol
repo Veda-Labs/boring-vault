@@ -87,7 +87,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== Aave V3 ==========================
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", aaveV3DecoderAndSanitizer);
-        ERC20[] memory supplyAssets = new ERC20[](13);
+        ERC20[] memory supplyAssets = new ERC20[](14);
         supplyAssets[0] = getERC20(sourceChain, "USDC");
         supplyAssets[1] = getERC20(sourceChain, "USDT");
         supplyAssets[2] = getERC20(sourceChain, "DAI");
@@ -101,6 +101,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         supplyAssets[10] = getERC20(sourceChain, "pendle_sUSDe_07_30_25_pt");
         supplyAssets[11] = getERC20(sourceChain, "pendle_eUSDe_08_14_25_pt");
         supplyAssets[12] = getERC20(sourceChain, "pendle_USDe_07_31_25_pt");
+        supplyAssets[13] = getERC20(sourceChain, "RLUSD");
         ERC20[] memory borrowAssets = new ERC20[](6);
         borrowAssets[0] = getERC20(sourceChain, "USDC");
         borrowAssets[1] = getERC20(sourceChain, "USDT");
