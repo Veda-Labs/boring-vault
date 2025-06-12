@@ -1572,6 +1572,22 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
 
             // Add leafs for withdrawing ERC20s.
             for (uint256 i; i < localTokens.length; ++i) {
+                address gateway = IScrollGateway(getAddress(sourceChain, "scrollGatewayRouter")).getERC20Gateway(address(localTokens[i])); 
+
+                //most tokens won't need an approval, but some do (USDC, WETH)
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    address(localTokens[i]),
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve ERC20 Gateway to spend ", localTokens[i].symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = gateway;  
+                
                 unchecked {
                     leafIndex++;
                 }
@@ -13534,4 +13550,8 @@ interface IDeriveVault {
 
 interface ITeller {
     function vault() external view returns (address);
+}
+
+interface IScrollGateway {
+    function getERC20Gateway(address token) external view returns (address); 
 }
