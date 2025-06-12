@@ -3,8 +3,7 @@ pragma solidity 0.8.21;
 
 import {ChainValues} from "test/resources/ChainValues.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
-import {ITBPositionDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/ITB/ITBPositionDecoderAndSanitizer.sol";
+
 import {EtherFiLiquidUsdDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/EtherFiLiquidUsdDecoderAndSanitizer.sol";
 import {PancakeSwapV3FullDecoderAndSanitizer} from
@@ -59,8 +58,8 @@ import {EtherFiEigenDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Et
 import {UnichainEtherFiLiquidEthDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/UnichainEtherFiLiquidEthDecoderAndSanitizer.sol";
 import {LiquidBeraDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidBeraDecoderAndSanitizer.sol";
 import {LiquidBeraEthBerachainDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidBeraEthBerachainDecoderAndSanitizer.sol";
-import {FullCorkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/cork/FullCorkDecoderAndSanitizer.sol";
 import {LiquidUSDFlareDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidUSDFlareDecoderAndSanitizer.sol"; 
+import {UltraUSDFlareDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/UltraUSDFlareDecoderAndSanitizer.sol"; 
 import {AlphaSTETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/AlphaSTETHDecoderAndSanitizer.sol";
 import {RoycoUSDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/RoycoUSDDecoderAndSanitizer.sol";
 import {RoycoUSDPlumeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/RoycoUSDPlumeDecoderAndSanitizer.sol";
@@ -79,7 +78,7 @@ import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
 
 /**
- *  source .env && forge script script/DeployDecoderAndSanitizer.s.sol:DeployDecoderAndSanitizerScript --broadcast --etherscan-api-key $ETHERSCAN_KEY --verify --with-gas-price 30000000000
+ *  source .env && forge script script/DeployDecoderAndSanitizer.s.sol:DeployDecoderAndSanitizerScript --broadcast --etherscan-api-key $FLARESCAN_KEY --verify --with-gas-price 30000000000
  * @dev Optionally can change `--with-gas-price` to something more reasonable
  */
 
@@ -91,8 +90,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
         
-        vm.createSelectFork("sonicMainnet");
-        setSourceChainName("sonicMainnet"); 
+        vm.createSelectFork("flare");
+        setSourceChainName("flare"); 
 
     }
 
@@ -100,9 +99,9 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory creationCode; bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
         
-        creationCode = type(GoldenGooseUnichainDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(getAddress(sourceChain, "uniV4PositionManager"));
-        deployer.deployContract("Golden Goose Unichain Decoder And Sanitizer V0.1", creationCode, constructorArgs, 0);
+        creationCode = type(UltraUSDFlareDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
+        deployer.deployContract("Ultra USD Flare Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
