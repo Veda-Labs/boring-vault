@@ -11,6 +11,7 @@ import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSu
 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
+// Run this command forge test -vv --match-path test/MizuMigration.t.sol --skip script
 contract MizuMigrationTest is Test {
     using SafeTransferLib for ERC20;
     using FixedPointMathLib for uint256;
