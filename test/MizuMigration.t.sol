@@ -71,7 +71,7 @@ contract MizuMigrationTest is Test {
     function setUp() external {
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 22697720;
+        uint256 blockNumber = 22698535;
         _startFork(rpcKey, blockNumber);
 
         assetsBTC.push(ERC20(0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599));
@@ -108,6 +108,32 @@ contract MizuMigrationTest is Test {
         (target, data) = createTx2();
         vm.prank(from);
         Safe(multisig).execTransactionFromModule(target, 0, data, Safe.Operation.DelegateCall);
+
+        userWithdrawFlow(userHyperBTC, tellerHyperBTC, hyperBTC, ERC20(midasShareBTC));
+        userWithdrawFlow(userHyperETH, tellerHyperETH, hyperETH, ERC20(midasShareETH));
+        userWithdrawFlow(userHyperUSD, tellerHyperUSD, hyperUSD, ERC20(midasShareUSD));
+    }
+
+    function testPrintTxs() public {
+        address target;
+        bytes memory data;
+        (target, data) = createTx0();
+        console.log("TX0: ");
+        console.log("target: ", target);
+        console.log("data: ");
+        console.logBytes(data);
+
+        (target, data) = createTx1();
+        console.log("TX1: ");
+        console.log("target: ", target);
+        console.log("data: ");
+        console.logBytes(data);
+
+        (target, data) = createTx2();
+        console.log("TX2: ");
+        console.log("target: ", target);
+        console.log("data: ");
+        console.logBytes(data);
     }
     // ========================================= HELPER FUNCTIONS =========================================
 
@@ -284,17 +310,20 @@ contract MizuMigrationTest is Test {
         newHyperBTCExchangeRate = (10 ** accountantHyperBTC.decimals()).mulDivDown(
             ERC20(midasShareBTC).balanceOf(address(hyperBTC)), hyperBTC.totalSupply()
         );
+        newHyperBTCExchangeRate = _changeDecimals(newHyperBTCExchangeRate, 18, 8);
         if (newHyperBTCExchangeRate > type(uint96).max) revert("BTC bad exchange rate");
         console.log("New Exchange Rate BTC: ", newHyperBTCExchangeRate);
         newHyperETHExchangeRate = (10 ** accountantHyperETH.decimals()).mulDivDown(
             ERC20(midasShareETH).balanceOf(address(hyperETH)), hyperETH.totalSupply()
         );
+        newHyperETHExchangeRate = _changeDecimals(newHyperETHExchangeRate, 18, 18);
         if (newHyperETHExchangeRate > type(uint96).max) revert("ETH bad exchange rate");
         console.log("New Exchange Rate ETH: ", newHyperETHExchangeRate);
 
         newHyperUSDExchangeRate = (10 ** accountantHyperUSD.decimals()).mulDivDown(
             ERC20(midasShareUSD).balanceOf(address(hyperUSD)), hyperUSD.totalSupply()
         );
+        newHyperUSDExchangeRate = _changeDecimals(newHyperUSDExchangeRate, 18, 6);
         if (newHyperUSDExchangeRate > type(uint96).max) revert("USD bad exchange rate");
         console.log("New Exchange Rate USD: ", newHyperUSDExchangeRate);
 
@@ -352,7 +381,13 @@ contract MizuMigrationTest is Test {
         (target, data) = createMultiSendTx(targets, datas);
     }
 
-    function userWithdrawFlow(address user, TellerWithMultiAssetSupport teller, BoringVault share) internal {}
+    function userWithdrawFlow(address user, TellerWithMultiAssetSupport teller, BoringVault share, ERC20 midasShare)
+        internal
+    {
+        vm.startPrank(user);
+        teller.bulkWithdraw(midasShare, share.balanceOf(user), 0, user);
+        vm.stopPrank();
+    }
 
     function createMultiSendTx(address[] memory targets, bytes[] memory data)
         internal
