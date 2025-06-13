@@ -17,19 +17,18 @@ import "forge-std/Test.sol";
  */
 contract DeploySolver is Script, ContractNames, Test {
     uint256 public privateKey;
-    
-    Deployer deployer = Deployer(0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d);
 
-    address owner = 0x1cdF47387358A1733968df92f7cC14546D9E1047;
-    address auth = 0x9778D78495cBbfce0B1F6194526a8c3D4b9C3AAF;
-    address queue = 0xE32cEB767d187F1d3c81949657CABc50c655f40A;
-    bool excessToSolverNonSelfSolve = false;
+    Deployer deployer = Deployer(0x00bF0B30655a43Af93c1b371Be021Bd4567c51d5);
+
+    address owner = 0x0000000000000000000000000000000000000000;
+    address auth = 0x2B9A752B7407D37A16A089c2A28d39d08EdB108D;
+    address queue = 0x6F226E8a684e8d8b70C938BE2aB3087fFeAFd8EA;
+    bool excessToSolverNonSelfSolve = true;
 
     function setUp() external {
-        privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("unichain");
+        privateKey = vm.envUint("PLASMA_DEPLOYER_KEY");
+        vm.createSelectFork("mainnet");
     }
-
 
     function run() external {
         bytes memory constructorArgs;
@@ -39,6 +38,6 @@ contract DeploySolver is Script, ContractNames, Test {
         creationCode = type(BoringSolver).creationCode;
 
         constructorArgs = abi.encode(owner, auth, queue, excessToSolverNonSelfSolve);
-        deployer.deployContract("Golden Goose Boring Solver 1.1", creationCode, constructorArgs, 0);
+        deployer.deployContract("Plasma USD Vault Boring Solver V0.2", creationCode, constructorArgs, 0);
     }
 }

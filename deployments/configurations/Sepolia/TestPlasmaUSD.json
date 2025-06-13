@@ -1,0 +1,179 @@
+{
+  "deploymentParameters": {
+    "logLevel": 4,
+    "privateKeyEnvName": "DEPLOYER_KEY",
+    "chainName": "sepolia",
+    "evmVersion": "cancun",
+    "desiredNumberOfDeploymentTxs": 5,
+    "txBundlerAddressOrName": {
+      "address": "0x00bF0B30655a43Af93c1b371Be021Bd4567c51d5",
+      "name": "txBundlerAddress"
+    },
+    "setupRoles": true,
+    "setupTestUser": true,
+    "saveDeploymentDetails": true,
+    "testUserAddressOrName": {
+      "address": "0x9DBEab770dA635f828AB42433195DC73D57Fd20F",
+      "name": "dev1Address"
+    },
+    "deployerContractAddressOrName": {
+      "address": "0x00bF0B30655a43Af93c1b371Be021Bd4567c51d5",
+      "name": "deployerAddress"
+    },
+    "nativeWrapperAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "WETH"
+    },
+    "deploymentOwnerAddressOrName": {
+      "address": "0x00bF0B30655a43Af93c1b371Be021Bd4567c51d5",
+      "name": "txBundlerAddress"
+    },
+    "deploymentFileName": "addresses/Sepolia/TestPlasmaUSD.json"
+  },
+  "rolesAuthorityConfiguration": {
+    "rolesAuthorityDeploymentName": "Plasma USD Vault Roles Authority V0.1"
+  },
+  "lensConfiguration": {
+    "lensDeploymentName": "Plasma USD Vault Lens V0.1"
+  },
+  "boringVaultConfiguration": {
+    "boringVaultDeploymentName": "Plasma USD Vault V0.1",
+    "boringVaultName": "Plasma USD Vault",
+    "boringVaultSymbol": "PlasmaUSD",
+    "boringVaultDecimals": 6
+  },
+  "managerConfiguration": {
+    "managerDeploymentName": "Plasma USD Vault Manager V0.1",
+    "balancerVaultAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "balancerVault"
+    }
+  },
+  "accountantConfiguration": {
+    "accountantDeploymentName": "Plasma USD Vault Accountant V0.1",
+    "accountantParameters": {
+      "kind": {
+        "variableRate": true,
+        "fixedRate": false
+      },
+      "payoutConfiguration": {
+        "payoutTo": "0x0000000000000000000000000000000000000001",
+        "optionalPaymentSplitterName": "Plasma USD Vault Payment Splitter V0.1",
+        "splits": []
+      },
+      "accountantDeploymentParameters": {
+        "allowedExchangeRateChangeLower": 9950,
+        "allowedExchangeRateChangeUpper": 10050,
+        "baseAddressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "USDC"
+        },
+        "minimumUpateDelayInSeconds": 21600,
+        "performanceFee": 0,
+        "platformFee": 0,
+        "startingExchangeRate": 1000000
+      }
+    }
+  },
+  "tellerConfiguration": {
+    "tellerDeploymentName": "Plasma USD Vault Teller V0.1",
+    "tellerParameters": {
+      "allowPublicDeposits": true,
+      "shareLockPeriod": 0,
+      "kind": {
+        "teller": false,
+        "tellerWithRemediation": false,
+        "tellerWithCcip": false,
+        "tellerWithLayerZero": true
+      },
+      "layerZero": {
+        "endpointAddressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "LayerZeroEndPoint"
+        },
+        "lzTokenAddressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "ZRO"
+        },
+        "lzChains": []
+      }
+    }
+  },
+  "boringQueueConfiguration": {
+    "boringQueueDeploymentName": "Plasma USD Vault Boring Queue V0.1",
+    "boringQueueSolverName": "Plasma USD Vault Boring Solver V0.1",
+    "queueParameters": {
+      "allowPublicWithdrawals": true,
+      "allowPublicSelfWithdrawals": true,
+      "kind": {
+        "boringQueue": true,
+        "boringQueueWithTracking": false
+      }
+    }
+  },
+  "droneConfiguration": {
+    "droneDeploymentBaseName": "Plasma USD Vault Drone V0.1",
+    "droneCount": 0,
+    "safeGasToForwardNative": 21000
+  },
+  "pauserConfiguration": {
+    "shouldDeploy": true,
+    "pauserDeploymentName": "Plasma USD Vault Pauser V0.1",
+    "makeGenericPauser": [
+      "0x0000000000000000000000000000000000000000"
+    ],
+    "makeGenericUnpauser": [
+      "0x0000000000000000000000000000000000000000"
+    ],
+    "makePauseAll": [
+      "0x0000000000000000000000000000000000000000"
+    ],
+    "makeUnpauseAll": [
+      "0x0000000000000000000000000000000000000000"
+    ],
+    "senderToPausable": [
+      {
+        "sender": "0x0000000000000000000000000000000000000000",
+        "pausable": "0x0000000000000000000000000000000000000000"
+      }
+    ]
+  },
+  "timelockConfiguration": {
+    "shouldDeploy": false,
+    "timelockDeploymentName": "Plasma USD Vault Timelock V0.1",
+    "timelockParameters": {
+      "minDelay": 300,
+      "proposers": [
+        "0xCEA8039076E35a825854c5C2f85659430b06ec96"
+      ],
+      "executors": [
+        "0xCEA8039076E35a825854c5C2f85659430b06ec96"
+      ]
+    }
+  },
+  "accountantAssets": [],
+  "depositAssets": [
+    {
+      "addressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "USDC"
+      },
+      "allowDeposits": true,
+      "allowWithdraws": true,
+      "sharePremium": 0
+    }
+  ],
+  "withdrawAssets": [
+    {
+      "addressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "USDC"
+      },
+      "maxDiscount": 10,
+      "minDiscount": 1,
+      "minimumSecondsToDeadline": 172800,
+      "minimumShares": 0,
+      "secondsToMaturity": 259200
+    }
+  ]
+}
