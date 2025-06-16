@@ -364,6 +364,11 @@ contract CreateUltraUsdMerkleRootScript is Script, MerkleTreeHelper {
         // ========================== King ==========================
         _addKingRewardsClaimingLeafs(leafs, new address[](0), vars.boringVault);
 
+        // ========================== LayerZero ==========================
+        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDC"), getAddress(sourceChain, "stargateUSDC"), layerZeroFlareEndpointId, getBytes32(sourceChain, "boringVault")); 
+        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDT"), getAddress(sourceChain, "usdt0OFTAdapter"), layerZeroFlareEndpointId, getBytes32(sourceChain, "boringVault")); //both can be received on FLR
+        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDT"), getAddress(sourceChain, "stargateUSDT"), layerZeroFlareEndpointId, getBytes32(sourceChain, "boringVault")); 
+
         // ========================== Drone Transfers ==========================
         //ERC20[] memory localTokens = new ERC20[](42);
         vars.localTokens[0] = getERC20("mainnet", "USDC");
