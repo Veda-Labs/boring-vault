@@ -113,29 +113,33 @@ contract MizuMigrationTest is Test {
         userWithdrawFlow(userHyperBTC, tellerHyperBTC, hyperBTC, ERC20(midasShareBTC));
         userWithdrawFlow(userHyperETH, tellerHyperETH, hyperETH, ERC20(midasShareETH));
         userWithdrawFlow(userHyperUSD, tellerHyperUSD, hyperUSD, ERC20(midasShareUSD));
+
+        maxWithdrawFlow(userHyperBTC, tellerHyperBTC, hyperBTC, ERC20(midasShareBTC));
+        maxWithdrawFlow(userHyperETH, tellerHyperETH, hyperETH, ERC20(midasShareETH));
+        maxWithdrawFlow(userHyperUSD, tellerHyperUSD, hyperUSD, ERC20(midasShareUSD));
     }
 
-    function testPrintTxs() public {
-        address target;
-        bytes memory data;
-        (target, data) = createTx0();
-        console.log("TX0: ");
-        console.log("target: ", target);
-        console.log("data: ");
-        console.logBytes(data);
+    // function testPrintTxs() public {
+    //     address target;
+    //     bytes memory data;
+    //     (target, data) = createTx0();
+    //     console.log("TX0: ");
+    //     console.log("target: ", target);
+    //     console.log("data: ");
+    //     console.logBytes(data);
 
-        (target, data) = createTx1();
-        console.log("TX1: ");
-        console.log("target: ", target);
-        console.log("data: ");
-        console.logBytes(data);
+    //     (target, data) = createTx1();
+    //     console.log("TX1: ");
+    //     console.log("target: ", target);
+    //     console.log("data: ");
+    //     console.logBytes(data);
 
-        (target, data) = createTx2();
-        console.log("TX2: ");
-        console.log("target: ", target);
-        console.log("data: ");
-        console.logBytes(data);
-    }
+    //     (target, data) = createTx2();
+    //     console.log("TX2: ");
+    //     console.log("target: ", target);
+    //     console.log("data: ");
+    //     console.logBytes(data);
+    // }
     // ========================================= HELPER FUNCTIONS =========================================
 
     // Goal stop all deposits
@@ -388,6 +392,27 @@ contract MizuMigrationTest is Test {
         vm.startPrank(user);
         teller.bulkWithdraw(midasShare, share.balanceOf(user), 0, user);
         vm.stopPrank();
+    }
+
+    function maxWithdrawFlow(address user, TellerWithMultiAssetSupport teller, BoringVault share, ERC20 midasShare)
+        internal
+    {
+        uint256 totalSupply = share.totalSupply();
+        uint256 totalMidasShares = midasShare.balanceOf(address(share));
+        uint256 userMidasSharesBefore = midasShare.balanceOf(user);
+        deal(address(share), user, totalSupply);
+        vm.startPrank(user);
+        teller.bulkWithdraw(midasShare, totalSupply, 0, user);
+        vm.stopPrank();
+
+        uint256 userMidasSharesAfter = midasShare.balanceOf(user);
+
+        assertApproxEqRel(
+            userMidasSharesAfter - userMidasSharesBefore,
+            totalMidasShares,
+            0.00001e18,
+            "User should have received all midas shares in boring vault"
+        );
     }
 
     function createMultiSendTx(address[] memory targets, bytes[] memory data)
