@@ -171,6 +171,9 @@ contract CreateSonicUsdMerkleRoot is Script, MerkleTreeHelper {
         // ========================== sfrxUSD ==========================
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sfrxUSD")));
 
+        // ========================== scrvUSD ==========================
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "scrvUSD")));
+
         // ========================== Sonic Gateway ==========================
         {
         ERC20[] memory bridgeAssets = new ERC20[](2);
@@ -221,11 +224,12 @@ contract CreateSonicUsdMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Euler ==========================
         {
-        ERC4626[] memory depositVaults = new ERC4626[](4);      
+        ERC4626[] memory depositVaults = new ERC4626[](5);      
         depositVaults[0] = ERC4626(getAddress(sourceChain, "evkeUSDC-2")); //Prime
         depositVaults[1] = ERC4626(getAddress(sourceChain, "evkeUSDT-2")); //Prime
         depositVaults[2] = ERC4626(getAddress(sourceChain, "evkeUSDC-22")); //Yield 
         depositVaults[3] = ERC4626(getAddress(sourceChain, "evkeUSDT-9")); //Yield
+        depositVaults[4] = ERC4626(getAddress(sourceChain, "evkesUSDS-4")); //Yield
         
         address[] memory subaccounts = new address[](1); 
         subaccounts[0] = getAddress(sourceChain, "boringVault"); 
