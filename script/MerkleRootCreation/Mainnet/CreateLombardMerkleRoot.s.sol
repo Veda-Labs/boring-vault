@@ -207,6 +207,7 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_LBTC_market_06_25_25"), true); 
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_LBTC_market_06_25_25"), true); 
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_eBTC_market_06_25_25"), true); 
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_LBTC_market_12_17_25"), true); 
 
         // ========================== MorphoBlue ==========================
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "LBTC_WBTC_945"));
