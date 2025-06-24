@@ -23,25 +23,25 @@ contract OracleRateProvider is IRateProvider {
 
     //============================== IMMUTABLES ===============================
     AggregatorV3Interface public immutable oracle; // Chainlink PriceAggregatorV3 oracle
-    uint256 public immutable priceBoundLower;
-    uint256 public immutable priceBoundUpper;
-    uint32 public immutable timeout;
+    uint256 public immutable exchangeRateLowerBound;
+    uint256 public immutable exchangeRateUpperBound;
+    uint32 public immutable heartbeat;
     uint8 public immutable outputDecimals;
     // Maximum deviation allowed between two consecutive Chainlink oracle prices in BPS.
     uint32 public immutable maxDeviationFromPreviousRound;
 
     constructor(
         address _oracle,
-        uint256 _priceBoundLower,
-        uint256 _priceBoundUpper,
-        uint32 _timeout,
+        uint256 _exchangeRateLowerBound,
+        uint256 _exchangeRateUpperBound,
+        uint32 _heartbeat,
         uint8 _outputDecimals,
         uint32 _maxDeviation
     ) {
         oracle = AggregatorV3Interface(_oracle);
-        priceBoundLower = _priceBoundLower;
-        priceBoundUpper = _priceBoundUpper;
-        timeout = _timeout;
+        exchangeRateLowerBound = _exchangeRateLowerBound;
+        exchangeRateUpperBound = _exchangeRateUpperBound;
+        heartbeat = _heartbeat;
         outputDecimals = _outputDecimals;
         maxDeviationFromPreviousRound = _maxDeviation;
     }
@@ -57,14 +57,14 @@ contract OracleRateProvider is IRateProvider {
 
         if (_chainlinkIsBroken(currentResponse, prevResponse)) revert OracleRateProvider__BadChainlinkResponse();
         // previous line ensures `currentResponse.answer` is positive
-        uint256 price = uint256(currentResponse.answer);
-        price = _scaleChainlinkPriceByDecimals(price, currentResponse.decimals);
+        uint256 rate = uint256(currentResponse.answer);
+        rate = _scaleChainlinkPriceByDecimals(rate, currentResponse.decimals);
 
-        if (price < priceBoundLower || price > priceBoundUpper) revert OracleRateProvider__PriceOutOfBounds();
+        if (rate < exchangeRateLowerBound || rate > exchangeRateUpperBound) revert OracleRateProvider__PriceOutOfBounds();
         if (_chainlinkIsFrozen(currentResponse)) revert OracleRateProvider__PriceIsStale();
         if (_chainlinkPriceChangeAboveMax(currentResponse, prevResponse)) revert OracleRateProvider__PriceChangeOutOfBounds();
 
-        return price;
+        return rate;
     }
 
     // --- Helper functions ---
@@ -101,10 +101,10 @@ contract OracleRateProvider is IRateProvider {
     }
 
     /**
-      @notice Returns true if response is older than `timeout`
+      @notice Returns true if response is older than `heartbeat`
       */
     function _chainlinkIsFrozen(ChainlinkResponse memory _response) internal view returns (bool) {
-        return (block.timestamp - _response.timestamp) > timeout;
+        return (block.timestamp - _response.timestamp) > heartbeat;
     }
 
     /**
