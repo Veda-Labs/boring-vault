@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
+import {GenericRateProviderWithDecimalScaling} from "./GenericRateProviderWithDecimalScaling.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
 import {AggregatorV3Interface} from "lib/ccip/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
@@ -23,6 +24,7 @@ contract OracleRateProvider is IRateProvider {
 
     //============================== IMMUTABLES ===============================
     AggregatorV3Interface public immutable oracle; // Chainlink PriceAggregatorV3 oracle
+    GenericRateProviderWithDecimalScaling rateProvider; // We use this type to include outputDecimals function
     uint256 public immutable exchangeRateLowerBound;
     uint256 public immutable exchangeRateUpperBound;
     uint32 public immutable heartbeat;
@@ -32,6 +34,7 @@ contract OracleRateProvider is IRateProvider {
 
     constructor(
         address _oracle,
+        address _rateProvider,
         uint256 _exchangeRateLowerBound,
         uint256 _exchangeRateUpperBound,
         uint32 _heartbeat,
@@ -39,6 +42,7 @@ contract OracleRateProvider is IRateProvider {
         uint32 _maxDeviation
     ) {
         oracle = AggregatorV3Interface(_oracle);
+        rateProvider = GenericRateProviderWithDecimalScaling(_rateProvider);
         exchangeRateLowerBound = _exchangeRateLowerBound;
         exchangeRateUpperBound = _exchangeRateUpperBound;
         heartbeat = _heartbeat;
@@ -56,13 +60,16 @@ contract OracleRateProvider is IRateProvider {
         ChainlinkResponse memory prevResponse = _getPrevChainlinkResponse(currentResponse.roundId, currentResponse.decimals);
 
         if (_chainlinkIsBroken(currentResponse, prevResponse)) revert OracleRateProvider__BadChainlinkResponse();
-        // previous line ensures `currentResponse.answer` is positive
-        uint256 rate = uint256(currentResponse.answer);
-        rate = _scaleChainlinkPriceByDecimals(rate, currentResponse.decimals);
-
-        if (rate < exchangeRateLowerBound || rate > exchangeRateUpperBound) revert OracleRateProvider__PriceOutOfBounds();
         if (_chainlinkIsFrozen(currentResponse)) revert OracleRateProvider__PriceIsStale();
         if (_chainlinkPriceChangeAboveMax(currentResponse, prevResponse)) revert OracleRateProvider__PriceChangeOutOfBounds();
+
+        // _chainlinkIsBroken check ensures `currentResponse.answer` is positive
+        uint256 rate = uint256(currentResponse.answer);
+        rate = _scaleChainlinkPriceByDecimals(rate, currentResponse.decimals);
+        if (address(rateProvider) != address(0)) {
+            rate = rate * rateProvider.getRate() / 10 ** rateProvider.outputDecimals();
+        }
+        if (rate < exchangeRateLowerBound || rate > exchangeRateUpperBound) revert OracleRateProvider__PriceOutOfBounds();
 
         return rate;
     }
