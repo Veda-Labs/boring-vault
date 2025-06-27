@@ -72,7 +72,7 @@ contract MizuMigrationTest is Test {
     function setUp() external {
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 22797108;
+        uint256 blockNumber = 22797889;
         _startFork(rpcKey, blockNumber);
 
         assetsBTC.push(ERC20(0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599)); // wBTC
@@ -119,9 +119,9 @@ contract MizuMigrationTest is Test {
         // vm.prank(from);
         // Safe(multisig).execTransactionFromModule(target, 0, data, Safe.Operation.DelegateCall);
 
-        (target, data) = createTx1();
-        vm.prank(from);
-        Safe(multisig).execTransactionFromModule(target, 0, data, Safe.Operation.DelegateCall);
+        // (target, data) = createTx1();
+        // vm.prank(from);
+        // Safe(multisig).execTransactionFromModule(target, 0, data, Safe.Operation.DelegateCall);
 
         (target, data) = createTx2();
         vm.prank(from);
@@ -145,17 +145,17 @@ contract MizuMigrationTest is Test {
         // console.log("data: ");
         // console.logBytes(data);
 
-        (target, data) = createTx1();
-        console.log("TX1: ");
-        console.log("target: ", target);
-        console.log("data: ");
-        console.logBytes(data);
-
-        // (target, data) = createTx2();
-        // console.log("TX2: ");
+        // (target, data) = createTx1();
+        // console.log("TX1: ");
         // console.log("target: ", target);
         // console.log("data: ");
         // console.logBytes(data);
+
+        (target, data) = createTx2();
+        console.log("TX2: ");
+        console.log("target: ", target);
+        console.log("data: ");
+        console.logBytes(data);
     }
     // ========================================= HELPER FUNCTIONS =========================================
 
