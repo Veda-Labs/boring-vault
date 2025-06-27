@@ -3304,6 +3304,131 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         }
     }
 
+    // ========================================= SHADOW EXCHANGE =========================================
+
+    function _addShadowLeafs(
+        ManageLeaf[] memory leafs,
+        address[] memory token0,
+        address[] memory token1
+    ) internal {
+        require(token0.length == token1.length, "Token arrays must be of equal length");
+        
+        // Adding liquidity operations - specific to each token pair (inside loop)
+        for (uint256 i; i < token0.length; ++i) {
+            (token0[i], token1[i]) = token0[i] < token1[i] ? (token0[i], token1[i]) : (token1[i], token0[i]);
+            _updateAddressToBytes32(token0[i]);
+            _updateAddressToBytes32(token1[i]);
+            
+            // Approvals for position manager
+            if (
+                !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token0[i]][getAddress(
+                    sourceChain, "shadowNonFungiblePositionManager"
+                )]
+            ) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    token0[i],
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat(
+                        "Approve Shadow NonFungible Position Manager to spend ", ERC20(token0[i]).symbol()
+                    ),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "shadowNonFungiblePositionManager");
+                ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token0[i]][getAddress(
+                    sourceChain, "shadowNonFungiblePositionManager"
+                )] = true;
+            }
+            if (
+                !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token1[i]][getAddress(
+                    sourceChain, "shadowNonFungiblePositionManager"
+                )]
+            ) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    token1[i],
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat(
+                        "Approve Shadow NonFungible Position Manager to spend ", ERC20(token1[i]).symbol()
+                    ),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "shadowNonFungiblePositionManager");
+                ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token1[i]][getAddress(
+                    sourceChain, "shadowNonFungiblePositionManager"
+                )] = true;
+            }
+            
+            // Mint position (Adding liquidity)
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "shadowNonFungiblePositionManager"),
+                false,
+                "mint((address,address,int24,int24,int24,uint256,uint256,uint256,uint256,address,uint256))",
+                new address[](3),
+                string.concat(
+                    "Mint Shadow ", 
+                    ERC20(token0[i]).symbol(), 
+                    " ", 
+                    ERC20(token1[i]).symbol(), 
+                    " position"
+                ),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = token0[i];
+            leafs[leafIndex].argumentAddresses[1] = token1[i];
+            leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+
+            // Increase liquidity (Adding more liquidity)
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "shadowNonFungiblePositionManager"),
+                false,
+                "increaseLiquidity((uint256,uint256,uint256,uint256,uint256,uint256))",
+                new address[](3),
+                string.concat(
+                    "Increase liquidity for Shadow ", 
+                    ERC20(token0[i]).symbol(), 
+                    " ", 
+                    ERC20(token1[i]).symbol(), 
+                    " position"
+                ),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            //@dev Unlike UniV3, Shadow doesn't need to pass in operator.
+            leafs[leafIndex].argumentAddresses[0] = token0[i];
+            leafs[leafIndex].argumentAddresses[1] = token1[i];
+            leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+        }
+
+        // Removing liquidity operations - generic for any position (outside loop)
+        // Decrease liquidity (Removing liquidity)
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "shadowNonFungiblePositionManager"),
+            false,
+            "decreaseLiquidity((uint256,uint128,uint256,uint256,uint256))",
+            new address[](1),
+            "Remove liquidity from Shadow position",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+    }
+
     // ========================================= Uniswap V4 =========================================
 
     /// @dev NOTE that for decreasing and burning positions, the decoder has the option to include a SWEEP, but isn't needed for regular functionality and thus
@@ -12708,6 +12833,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             }
         }
     }
+
 }
 
 interface IMB {

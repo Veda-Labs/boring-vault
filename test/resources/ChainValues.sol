@@ -1885,6 +1885,9 @@ contract ChainValues {
             0x743E03cceB4af2efA3CC76838f6E8B50B63F184c.toBytes32();
         values[sonicMainnet]["uniV3Router"] = 0xaa52bB8110fE38D0d2d2AF0B85C3A3eE622CA455.toBytes32();
 
+        // Shadow Exchange
+        values[sonicMainnet]["shadowNonFungiblePositionManager"] = 0xA57FA38b3fd45922394e9E1077748A2383F1542E.toBytes32();
+
         // Beets/Balancer
         values[sonicMainnet]["balancerVault"] = 0xBA12222222228d8Ba445958a75a0704d566BF2C8.toBytes32();
 

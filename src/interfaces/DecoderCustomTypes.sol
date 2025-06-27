@@ -54,6 +54,22 @@ contract DecoderCustomTypes {
         uint256 deadline;
     }
 
+    // ========================================= SHADOW EXCHANGE =========================================
+    //@notice Shadow Exchange can use the same structs as UniswapV3, for adding and removing liquidity.
+    struct MintParamsShadow {
+        address token0;
+        address token1;
+        int24 tickSpacing;
+        int24 tickLower;
+        int24 tickUpper;
+        uint256 amount0Desired;
+        uint256 amount1Desired;
+        uint256 amount0Min;
+        uint256 amount1Min;
+        address recipient;
+        uint256 deadline;
+    }
+
     struct IncreaseLiquidityParams {
         uint256 tokenId;
         uint256 amount0Desired;
