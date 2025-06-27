@@ -3316,8 +3316,6 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         // Adding liquidity operations - specific to each token pair (inside loop)
         for (uint256 i; i < token0.length; ++i) {
             (token0[i], token1[i]) = token0[i] < token1[i] ? (token0[i], token1[i]) : (token1[i], token0[i]);
-            _updateAddressToBytes32(token0[i]);
-            _updateAddressToBytes32(token1[i]);
             
             // Approvals for position manager
             if (

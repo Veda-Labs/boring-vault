@@ -43,7 +43,7 @@ abstract contract ShadowDecoderAndSanitizer is BaseDecoderAndSanitizer {
         address owner = shadowNonFungiblePositionManager.ownerOf(params.tokenId);
         // Extract addresses from shadowNonFungiblePositionManager.positions(params.tokenId).
         // Note: Shadow positions function returns different parameters than Uniswap V3
-        (address token0, address token1,,,,,,,) =
+        (address token0, address token1,,,,,,,,) =
             shadowNonFungiblePositionManager.positions(params.tokenId);
         addressesFound = abi.encodePacked(token0, token1, owner);
     }
