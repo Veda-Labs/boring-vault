@@ -224,11 +224,11 @@ contract ShadowIntegrationTest is Test, MerkleTreeHelper {
 
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
-                 ManageLeaf[] memory manageLeafs = new ManageLeaf[](4);
-         manageLeafs[0] = leafs[0]; // approve USDC
-         manageLeafs[1] = leafs[1]; // approve WETH
-         manageLeafs[2] = leafs[2]; // mint
-         manageLeafs[3] = leafs[3]; // increase liquidity
+        ManageLeaf[] memory manageLeafs = new ManageLeaf[](4);
+        manageLeafs[0] = leafs[0]; // approve USDC
+        manageLeafs[1] = leafs[1]; // approve WETH
+        manageLeafs[2] = leafs[2]; // mint
+        manageLeafs[3] = leafs[3]; // increase liquidity
         bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 
         address[] memory targets = new address[](4);
@@ -267,7 +267,7 @@ contract ShadowIntegrationTest is Test, MerkleTreeHelper {
             mintParams
         );
 
-                 uint256 expectedTokenId = 643;
+        uint256 expectedTokenId = 643;
         
         // Try increasing liquidity to a token not owned by the boring vault.
         // Use a smaller offset to reference an existing tokenId that belongs to someone else
