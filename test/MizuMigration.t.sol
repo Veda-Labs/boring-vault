@@ -294,11 +294,11 @@ contract MizuMigrationTest is Test {
         }
 
         targets[length - 3] = address(hyperBTC);
-        datas[length - 3] = abi.encodeWithSelector(Auth.transferOwnership.selector, multisig);
+        datas[length - 3] = abi.encodeWithSelector(Auth.transferOwnership.selector, address(0));
         targets[length - 2] = address(hyperETH);
-        datas[length - 2] = abi.encodeWithSelector(Auth.transferOwnership.selector, multisig);
+        datas[length - 2] = abi.encodeWithSelector(Auth.transferOwnership.selector, address(0));
         targets[length - 1] = address(hyperUSD);
-        datas[length - 1] = abi.encodeWithSelector(Auth.transferOwnership.selector, multisig);
+        datas[length - 1] = abi.encodeWithSelector(Auth.transferOwnership.selector, address(0));
 
         (target, data) = createMultiSendTx(targets, datas);
     }
