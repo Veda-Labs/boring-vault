@@ -72,18 +72,35 @@ contract MizuMigrationTest is Test {
     function setUp() external {
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 22698535;
+        uint256 blockNumber = 22797108;
         _startFork(rpcKey, blockNumber);
 
-        assetsBTC.push(ERC20(0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599));
+        assetsBTC.push(ERC20(0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599)); // wBTC
+        assetsBTC.push(ERC20(0x8236a87084f8B84306f72007F36F2618A5634494)); // LBTC
+        assetsBTC.push(ERC20(0x657e8C867D8B37dCC18fA4Caead9C45EB088C642)); // eBTC
+        assetsBTC.push(ERC20(0xF469fBD2abcd6B9de8E169d128226C0Fc90a012e)); // pumpBTC
+        assetsBTC.push(ERC20(0x7A56E1C57C7475CCf742a1832B028F0456652F97)); // solvBTC
+        assetsBTC.push(ERC20(0x8DB2350D78aBc13f5673A411D4700BCF87864dDE)); // swBTC
+        assetsBTC.push(ERC20(0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf)); // cbBTC
+        assetsBTC.push(ERC20(0x6A9A65B84843F5fD4aC9a0471C4fc11AFfFBce4a)); // ezBTC
+        assetsBTC.push(ERC20(0x094c0e36210634c3CfA25DC11B96b562E0b07624)); // SBTC
 
-        assetsETH.push(ERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2));
-        // assetsETH.push(ERC20(0x7122985656e38BDC0302Db86685bb972b145bD3C)); // Stone
-        // assetsETH.push(ERC20(0xE6829d9a7eE3040e1276Fa75293Bde931859e8fA)); // cmETH
-        // assetsETH.push(ERC20(0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee));
+        assetsETH.push(ERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2)); // wETH
+        assetsETH.push(ERC20(0x7122985656e38BDC0302Db86685bb972b145bD3C)); // Stone
+        assetsETH.push(ERC20(0xf951E335afb289353dc249e82926178EaC7DEd78)); // swETH
+        assetsETH.push(ERC20(0xFAe103DC9cf190eD75350761e95403b7b8aFa6c0)); // rswETH
 
-        assetsUSD.push(ERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48));
-        assetsUSD.push(ERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7));
+        // TODO Exceed Limit Error
+        assetsETH.push(ERC20(0xA1290d69c65A6Fe4DF752f95823fae25cB99e5A7)); // rsETH
+        assetsETH.push(ERC20(0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee)); // weETH
+        assetsETH.push(ERC20(0xE6829d9a7eE3040e1276Fa75293Bde931859e8fA)); // cmETH
+        assetsETH.push(ERC20(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0)); // wstETH
+
+        assetsUSD.push(ERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48)); // USDC
+        assetsUSD.push(ERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7)); // USDT
+
+        // TODO Exceed Allowance Error
+        assetsUSD.push(ERC20(0x66a1E37c9b0eAddca17d3662D6c05F4DECf3e110)); // USR
     }
 
     function testMigration() public {
@@ -97,10 +114,10 @@ contract MizuMigrationTest is Test {
 
         address target;
         bytes memory data;
-        (target, data) = createTx0();
 
-        vm.prank(from);
-        Safe(multisig).execTransactionFromModule(target, 0, data, Safe.Operation.DelegateCall);
+        // (target, data) = createTx0();
+        // vm.prank(from);
+        // Safe(multisig).execTransactionFromModule(target, 0, data, Safe.Operation.DelegateCall);
 
         (target, data) = createTx1();
         vm.prank(from);
@@ -119,27 +136,27 @@ contract MizuMigrationTest is Test {
         maxWithdrawFlow(userHyperUSD, tellerHyperUSD, hyperUSD, ERC20(midasShareUSD));
     }
 
-    // function testPrintTxs() public {
-    //     address target;
-    //     bytes memory data;
-    //     (target, data) = createTx0();
-    //     console.log("TX0: ");
-    //     console.log("target: ", target);
-    //     console.log("data: ");
-    //     console.logBytes(data);
+    function testPrintTxs() public {
+        address target;
+        bytes memory data;
+        // (target, data) = createTx0();
+        // console.log("TX0: ");
+        // console.log("target: ", target);
+        // console.log("data: ");
+        // console.logBytes(data);
 
-    //     (target, data) = createTx1();
-    //     console.log("TX1: ");
-    //     console.log("target: ", target);
-    //     console.log("data: ");
-    //     console.logBytes(data);
+        (target, data) = createTx1();
+        console.log("TX1: ");
+        console.log("target: ", target);
+        console.log("data: ");
+        console.logBytes(data);
 
-    //     (target, data) = createTx2();
-    //     console.log("TX2: ");
-    //     console.log("target: ", target);
-    //     console.log("data: ");
-    //     console.logBytes(data);
-    // }
+        // (target, data) = createTx2();
+        // console.log("TX2: ");
+        // console.log("target: ", target);
+        // console.log("data: ");
+        // console.logBytes(data);
+    }
     // ========================================= HELPER FUNCTIONS =========================================
 
     // Goal stop all deposits
