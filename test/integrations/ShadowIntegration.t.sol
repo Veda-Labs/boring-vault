@@ -32,7 +32,7 @@ contract ShadowIntegrationTest is Test, MerkleTreeHelper {
 
     uint8 public constant MANAGER_ROLE = 1;
     uint8 public constant STRATEGIST_ROLE = 2;
-    uint8 public constant MANGER_INTERNAL_ROLE = 3;
+    uint8 public constant MANAGER_INTERNAL_ROLE = 3;
     uint8 public constant ADMIN_ROLE = 4;
     uint8 public constant BORING_VAULT_ROLE = 5;
     uint8 public constant BALANCER_VAULT_ROLE = 6;
@@ -84,7 +84,7 @@ contract ShadowIntegrationTest is Test, MerkleTreeHelper {
             true
         );
         rolesAuthority.setRoleCapability(
-            MANGER_INTERNAL_ROLE,
+            MANAGER_INTERNAL_ROLE,
             address(manager),
             ManagerWithMerkleVerification.manageVaultWithMerkleVerification.selector,
             true
@@ -95,7 +95,7 @@ contract ShadowIntegrationTest is Test, MerkleTreeHelper {
 
         // Grant roles
         rolesAuthority.setUserRole(address(this), STRATEGIST_ROLE, true);
-        rolesAuthority.setUserRole(address(manager), MANGER_INTERNAL_ROLE, true);
+        rolesAuthority.setUserRole(address(manager), MANAGER_INTERNAL_ROLE, true);
         rolesAuthority.setUserRole(address(this), ADMIN_ROLE, true);
         rolesAuthority.setUserRole(address(manager), MANAGER_ROLE, true);
         rolesAuthority.setUserRole(address(boringVault), BORING_VAULT_ROLE, true);
