@@ -145,8 +145,8 @@ contract ShadowIntegrationTest is Test, MerkleTreeHelper {
             getAddress(sourceChain, "USDC"),
             getAddress(sourceChain, "WETH"),
             int24(100), // tickSpacing instead of fee
-            int24(-100), // lower tick
-            int24(100), // upper tick
+            int24(77000), // lower tick
+            int24(79000), // upper tick
             1000e6, // amount0Desired
             1e18, // amount1Desired
             0, // amount0Min
@@ -191,7 +191,7 @@ contract ShadowIntegrationTest is Test, MerkleTreeHelper {
             increaseLiquidityParams
         );
 
-        uint128 expectedLiquidity = 6894419503503303421; // Actual liquidity from increaseLiquidity operation
+        uint128 expectedLiquidity = 202384381230030102; // Actual liquidity from increaseLiquidity operation
         DecoderCustomTypes.DecreaseLiquidityParams memory decreaseLiquidityParams =
             DecoderCustomTypes.DecreaseLiquidityParams(newTokenId, expectedLiquidity / 2, 0, 0, block.timestamp);
         liquidityTargetData[1] = abi.encodeWithSignature(
@@ -253,8 +253,8 @@ contract ShadowIntegrationTest is Test, MerkleTreeHelper {
             getAddress(sourceChain, "USDC"),
             getAddress(sourceChain, "WETH"),
             int24(100),
-            int24(-100),
-            int24(100),
+            int24(77000), // lower tick 
+            int24(79000), // upper tick 
             1000e6,
             1e18,
             0,
