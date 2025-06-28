@@ -153,3 +153,20 @@ Comprehensive test suite includes:
 - Invalid parameter handling
 - Merkle proof verification
 - Integration with Sonic mainnet forked environment
+
+### Testing Logs
+```
+MacBook-Pro-2:boring-vault-take-home-assignment-sean xiangyuxu329$ forge test --mc ShadowIntegrationTest --skip "script/**/*" -vv
+[⠊] Compiling...
+[⠒] Compiling 1 files with Solc 0.8.21
+[⠑] Solc 0.8.21 finished in 10.97s
+Compiler run successful!
+
+Ran 2 tests for test/integrations/ShadowIntegration.t.sol:ShadowIntegrationTest
+[PASS] testShadowIntegration() (gas: 3180600)
+[PASS] testShadowIntegrationReverts() (gas: 2228038)
+Suite result: ok. 2 passed; 0 failed; 0 skipped; finished in 295.78ms (22.05ms CPU time)
+
+Ran 1 test suite in 297.04ms (295.78ms CPU time): 2 tests passed, 0 failed, 0 skipped (2 total tests)
+
+```
