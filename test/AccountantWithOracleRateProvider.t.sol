@@ -402,19 +402,9 @@ contract AccountantWithOracleRateProviderTest is Test, MerkleTreeHelper {
         // Initialize oracle
         _initOracle(usdtOracle);
         
-        // Set current price much higher than previous (more than 50% deviation)
-        // but still within the bounds (0.95-1.05)
-        // Previous price: 1e8 (1.0 USD), new price: 1.8e8 (1.8 USD) 
-        // This is 80% increase, above 50% max, but 1.8 is above upper bound of 1.05
-        // Let's use 1.04 and 0.65 to trigger price change bounds
-        usdtOracle.setPrice(1.04e8); // 1.04 USD (within bounds)
-        usdtOracle.setPrevPrice(0.65e8); // 0.65 USD (below bounds but that's OK for prev)
-        
-        // This should trigger PriceChangeOutOfBounds because (1.04-0.65)/1.04 * 10000 = 3750 < 5000
-        // Actually let's try the reverse: 1.04 -> 0.65 is 37.5% decrease
-        // Let's use values that will trigger > 50% change
+        // Let's use values that will trigger > 100% change
         usdtOracle.setPrice(1.02e8); // 1.02 USD (within bounds)
-        usdtOracle.setPrevPrice(0.49e8); // 0.49 USD - this creates > 50% change
+        usdtOracle.setPrevPrice(0.49e8); // 0.49 USD - this creates > 100% change
         
         vm.expectRevert(OracleRateProvider.OracleRateProvider__PriceChangeOutOfBounds.selector);
         usdtOracleRateProvider.getRate();
@@ -425,7 +415,7 @@ contract AccountantWithOracleRateProviderTest is Test, MerkleTreeHelper {
         _initOracle(usdtOracle);
         
         // Set current price much lower than previous (more than 50% deviation)
-        // Previous price: 2e8, new price: 1e8 (50% decrease, exactly at limit)
+        // Previous price: 2e8, new price: 0.8e8 (50% decrease, exactly at limit)
         // Let's make it 60% decrease to trigger the revert
         usdtOracle.setPrice(8e7); // 0.8 * 1e8
         usdtOracle.setPrevPrice(2e8); // 2 * 1e8
@@ -502,13 +492,18 @@ contract AccountantWithOracleRateProviderTest is Test, MerkleTreeHelper {
         // Initialize oracle with valid data
         _initOracle(usdtOracle);
         
-        // Set price with deviation just under 50% and within bounds
-        // From 1e8 to 1.04e8 = 4% increase (well within 50% limit and 1.04 < 1.05 upper bound)
-        usdtOracle.setPrice(1.04e8);
-        usdtOracle.setPrevPrice(1e8);
+        // Price is allowed to double
+        usdtOracle.setPrice(1e8);
+        usdtOracle.setPrevPrice(5e7);
         
         uint256 rate = usdtOracleRateProvider.getRate();
-        assertEq(rate, 1.04e6, "Rate should be 1.04e6 for 1.04 USD with 6 decimals");
+        assertEq(rate, 1e6, "Rate should be 1e6 for 1 USD with 6 decimals after price increase");
+
+        // Price is allowed to half
+        usdtOracle.setPrice(1e8);
+        usdtOracle.setPrevPrice(2e8);
+        rate = usdtOracleRateProvider.getRate();
+        assertEq(rate, 1e6, "Rate should be 1e6 for 1 USD with 6 decimals after price decrease");
     }
 
     function testSDaiOracleRateProvider() external {
