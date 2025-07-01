@@ -24,7 +24,7 @@ contract OracleRateProvider is IRateProvider {
 
     //============================== IMMUTABLES ===============================
     AggregatorV3Interface public immutable oracle; // Chainlink PriceAggregatorV3 oracle
-    GenericRateProviderWithDecimalScaling rateProvider; // We use this type to include outputDecimals function
+    GenericRateProviderWithDecimalScaling public immutable rateProvider; // We use this type to include outputDecimals function
     uint256 public immutable exchangeRateLowerBound;
     uint256 public immutable exchangeRateUpperBound;
     uint32 public immutable heartbeat;
