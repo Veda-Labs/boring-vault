@@ -72,7 +72,7 @@ contract AccountantWithOracleRateProviderTest is Test, MerkleTreeHelper {
             address(0), // No additional rate provider
             0.95e6, // Lower bound: 0.95 USD
             1.05e6, // Upper bound: 1.05 USD
-            2 days, // 24 hour heartbeat
+            2 days, // 48 hour heartbeat
             6, // 6 decimals output
             5000 // 50% max deviation
         );
@@ -83,7 +83,7 @@ contract AccountantWithOracleRateProviderTest is Test, MerkleTreeHelper {
             address(0), // No additional rate provider
             0.95e18, // Lower bound: 0.95 USD
             1.05e18, // Upper bound: 1.05 USD
-            2 days, // 24 hour heartbeat
+            2 days, // 48 hour heartbeat
             18, // 18 decimals output
             5000 // 50% max deviation
         );
@@ -94,7 +94,7 @@ contract AccountantWithOracleRateProviderTest is Test, MerkleTreeHelper {
             address(daiOracleRateProvider), // Uses DAI rate provider
             0.95e18, // Lower bound: 0.95 USD (same as DAI)
             1.20e18, // Upper bound: 1.20 USD (higher than DAI due to savings rate)
-            2 days, // 24 hour heartbeat
+            2 days, // 48 hour heartbeat
             18, // 18 decimals output
             5000 // 50% max deviation
         );
