@@ -104,17 +104,15 @@ abstract contract ShareMover is Pausable {
      * @param to The destination address on the target chain (32-byte format).
      * @param bridgeWildCard Bridge-specific data for configuring the cross-chain message.
      * @param feeToken The ERC20 token used to pay the bridge fee. Use NATIVE for native token.
-     * @param maxFee The maximum fee to pay for the bridge operation.
      */
     function bridge(
         uint96 shareAmount,
         uint32 chainId,
         bytes32 to,
         bytes calldata bridgeWildCard,
-        ERC20 feeToken,
-        uint256 maxFee
+        ERC20 feeToken
     ) external payable whenNotPaused {
-        _bridge(shareAmount, chainId, to, bridgeWildCard, msg.sender, feeToken, maxFee);
+        _bridge(shareAmount, chainId, to, bridgeWildCard, msg.sender, feeToken);
     }
 
     /**
@@ -131,7 +129,6 @@ abstract contract ShareMover is Pausable {
      * @param r The R component of the signature.
      * @param s The S component of the signature.
      * @param feeToken The ERC20 token used to pay the bridge fee. Use NATIVE for native token.
-     * @param maxFee The maximum fee to pay for the bridge operation.
      */
     function bridgeWithPermit(
         uint96 shareAmount,
@@ -142,8 +139,7 @@ abstract contract ShareMover is Pausable {
         uint8 v,
         bytes32 r,
         bytes32 s,
-        ERC20 feeToken,
-        uint256 maxFee
+        ERC20 feeToken
     ) external payable whenNotPaused {
         // Attempt to apply the permit signature for the shares.
         try vault.permit(msg.sender, address(this), shareAmount, deadline, v, r, s) {
@@ -152,7 +148,7 @@ abstract contract ShareMover is Pausable {
             revert ShareMover__InvalidPermit();
         }
 
-        _bridge(shareAmount, chainId, to, bridgeWildCard, msg.sender, feeToken, maxFee);
+        _bridge(shareAmount, chainId, to, bridgeWildCard, msg.sender, feeToken);
     }
 
     /**
@@ -195,7 +191,6 @@ abstract contract ShareMover is Pausable {
      * @param bridgeWildCard Bridge-specific data.
      * @param user The address of the user initiating the bridge.
      * @param feeToken The ERC20 token used to pay the bridge fee. Use NATIVE for native token.
-     * @param maxFee The maximum fee to pay for the bridge operation.
      */
     function _bridge(
         uint96 shareAmount,
@@ -203,8 +198,7 @@ abstract contract ShareMover is Pausable {
         bytes32 to,
         bytes calldata bridgeWildCard,
         address user,
-        ERC20 feeToken,
-        uint256 maxFee
+        ERC20 feeToken
     ) internal {
         if (shareAmount == 0) revert ShareMover__ZeroShares();
         if (to == bytes32(0)) revert ShareMover__InvalidRecipient();
@@ -226,7 +220,7 @@ abstract contract ShareMover is Pausable {
         });
 
         // Call the abstract `_sendMessage` function, which will be implemented by concrete bridge contracts.
-        bytes32 messageId = _sendMessage(message, chainId, bridgeWildCard, feeToken, maxFee);
+        bytes32 messageId = _sendMessage(message, chainId, bridgeWildCard, feeToken);
 
         emit MessageSent(messageId, chainId, to, uint128(shareAmount), user);
     }
@@ -274,15 +268,13 @@ abstract contract ShareMover is Pausable {
      * @param chainId The destination chain identifier
      * @param bridgeWildCard Bridge-specific data for configuring the cross-chain message
      * @param feeToken The ERC20 token used to pay the bridge fee. Use NATIVE for native token
-     * @param maxFee The maximum fee to pay for the bridge operation
      * @return messageId The unique identifier of the sent cross-chain message
      */
     function _sendMessage(
         MessageLib.Message memory message,
         uint32 chainId,
         bytes calldata bridgeWildCard,
-        ERC20 feeToken,
-        uint256 maxFee
+        ERC20 feeToken
     ) internal virtual returns (bytes32 messageId);
 
     /**
