@@ -141,7 +141,7 @@ contract OracleRateProvider is IRateProvider {
       @param _answerDecimals ChainlinkResponse.decimals
       */
     function _scaleChainlinkPriceByDecimals(uint _price, uint _answerDecimals) internal view returns (uint) {
-        uint price;
+        uint price = _price;
         if (_answerDecimals >= outputDecimals) {
             price = _price / (10 ** (_answerDecimals - outputDecimals));
         }
