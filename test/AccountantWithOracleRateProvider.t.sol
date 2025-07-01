@@ -22,6 +22,7 @@ contract AccountantWithOracleRateProviderTest is Test, MerkleTreeHelper {
     AccountantWithRateProviders public accountant;
     OracleRateProvider public usdtOracleRateProvider;
     OracleRateProvider public daiOracleRateProvider;
+    OracleRateProvider public sDaiOracleRateProvider;
     address public payoutAddress = vm.addr(7777777);
     RolesAuthority public rolesAuthority;
 
@@ -35,10 +36,12 @@ contract AccountantWithOracleRateProviderTest is Test, MerkleTreeHelper {
     ERC20 internal USDC;
     ERC20 internal USDT;
     ERC20 internal DAI;
+    ERC20 internal SDAI;
     
     // Chainlink oracle addresses for Ethereum mainnet
     MockAggregator internal usdtOracle;
     MockAggregator internal daiOracle;
+    MockAggregator internal sDaiOracle;
 
     function setUp() external {
         setSourceChainName("mainnet");
@@ -50,6 +53,7 @@ contract AccountantWithOracleRateProviderTest is Test, MerkleTreeHelper {
         USDC = getERC20(sourceChain, "USDC");
         USDT = getERC20(sourceChain, "USDT");
         DAI = getERC20(sourceChain, "DAI");
+        SDAI = getERC20(sourceChain, "SDAI");
 
         boringVault = new BoringVault(address(this), "Boring Vault", "BV", 6);
 
@@ -59,6 +63,7 @@ contract AccountantWithOracleRateProviderTest is Test, MerkleTreeHelper {
 
         usdtOracle = new MockAggregator();
         daiOracle = new MockAggregator();
+        sDaiOracle = new MockAggregator();
 
         // Create Oracle Rate Providers for USDT and DAI
         // USDT Oracle Rate Provider (6 decimals output)
@@ -83,6 +88,17 @@ contract AccountantWithOracleRateProviderTest is Test, MerkleTreeHelper {
             5000 // 50% max deviation
         );
 
+        // sDai Oracle Rate Provider (18 decimals output, uses DAI rate provider)
+        sDaiOracleRateProvider = new OracleRateProvider(
+            address(sDaiOracle),
+            address(daiOracleRateProvider), // Uses DAI rate provider
+            0.95e18, // Lower bound: 0.95 USD (same as DAI)
+            1.20e18, // Upper bound: 1.20 USD (higher than DAI due to savings rate)
+            2 days, // 24 hour heartbeat
+            18, // 18 decimals output
+            5000 // 50% max deviation
+        );
+
         vm.startPrank(usdcWhale);
         USDC.safeTransfer(address(this), 1_000_000e6);
         vm.stopPrank();
@@ -92,6 +108,7 @@ contract AccountantWithOracleRateProviderTest is Test, MerkleTreeHelper {
         // Set rate provider data
         accountant.setRateProviderData(USDT, false, address(usdtOracleRateProvider));
         accountant.setRateProviderData(DAI, false, address(daiOracleRateProvider));
+        accountant.setRateProviderData(SDAI, false, address(sDaiOracleRateProvider));
 
         // Start accounting so we can claim fees during a test.
         accountant.updatePlatformFee(0.01e4);
@@ -112,6 +129,7 @@ contract AccountantWithOracleRateProviderTest is Test, MerkleTreeHelper {
 
         _initOracle(usdtOracle);
         _initOracle(daiOracle);
+        _initOracle(sDaiOracle);
     }
 
     function testClaimFeesUsingBase() external {
@@ -173,6 +191,28 @@ contract AccountantWithOracleRateProviderTest is Test, MerkleTreeHelper {
         assertApproxEqRel(actualDaiFees, expectedFeesOwed, 0.01e18, "Should have claimed fees in DAI using oracle rate");
     }
 
+    function testClaimFeesUsingSDaiWithOracle() external {
+        // Set exchangeRate back to 1e6.
+        uint96 newExchangeRate = uint96(1e6);
+        accountant.updateExchangeRate(newExchangeRate);
+
+        (,, uint128 feesOwed,,,,,,,,,) = accountant.accountantState();
+
+        deal(address(SDAI), address(boringVault), 1_000_000e18);
+        vm.startPrank(address(boringVault));
+        SDAI.safeApprove(address(accountant), type(uint256).max);
+        // Claim fees.
+        accountant.claimFees(SDAI);
+        vm.stopPrank();
+
+        uint256 sDaiRate = sDaiOracleRateProvider.getRate();
+        uint256 expectedFeesOwed = uint256(feesOwed).mulDivDown(1e18, 1e6); // Convert to 18 decimals
+        expectedFeesOwed = expectedFeesOwed.mulDivDown(1e18, sDaiRate); // Apply sDai rate
+        uint256 actualSDaiFees = SDAI.balanceOf(payoutAddress);
+        
+        assertApproxEqRel(actualSDaiFees, expectedFeesOwed, 0.01e18, "Should have claimed fees in sDai using composite oracle rate");
+    }
+
     function testRatesWithOracle() external {
         // Set exchangeRate back to 1e6.
         uint96 newExchangeRate = uint96(1e6);
@@ -200,6 +240,12 @@ contract AccountantWithOracleRateProviderTest is Test, MerkleTreeHelper {
         uint256 daiOracleRate = daiOracleRateProvider.getRate();
         expected_rate = uint256(1e18).mulDivDown(daiOracleRate, 1e18);
         assertApproxEqRel(rateInQuote, expected_rate, 0.001e18 /* 0.1% */, "Rate should be expected rate for DAI with oracle");
+
+        // For sDai with composite oracle (sDai oracle + DAI rate provider)
+        rateInQuote = accountant.getRateInQuote(SDAI);
+        uint256 sDaiOracleRate = sDaiOracleRateProvider.getRate();
+        expected_rate = uint256(1e18).mulDivDown(sDaiOracleRate, 1e18);
+        assertApproxEqRel(rateInQuote, expected_rate, 0.001e18 /* 0.1% */, "Rate should be expected rate for sDai with composite oracle");
     }
 
     function testOracleRateProviderDirectly() external view {
@@ -463,6 +509,59 @@ contract AccountantWithOracleRateProviderTest is Test, MerkleTreeHelper {
         
         uint256 rate = usdtOracleRateProvider.getRate();
         assertEq(rate, 1.04e6, "Rate should be 1.04e6 for 1.04 USD with 6 decimals");
+    }
+
+    function testSDaiOracleRateProvider() external {
+        // Initialize all oracles
+        _initOracle(usdtOracle);
+        _initOracle(daiOracle);
+        _initOracle(sDaiOracle);
+        
+        // Set DAI oracle to 1.0 USD
+        daiOracle.setPrice(1e8);
+        daiOracle.setPrevPrice(1e8);
+        
+        // Set sDai oracle to 1.05 (representing the savings rate multiplier)
+        sDaiOracle.setPrice(1.05e8);
+        sDaiOracle.setPrevPrice(1.05e8);
+        
+        // Get rates
+        uint256 daiRate = daiOracleRateProvider.getRate();
+        uint256 sDaiRate = sDaiOracleRateProvider.getRate();
+        
+        // DAI should be 1e18 (1.0 USD with 18 decimals)
+        assertEq(daiRate, 1e18, "DAI rate should be 1e18");
+        
+        // sDai rate should be sDai oracle rate * DAI rate provider rate
+        // 1.05e18 * 1e18 / 1e18 = 1.05e18
+        assertEq(sDaiRate, 1.05e18, "sDai rate should be 1.05e18 (1.05 USD with 18 decimals)");
+    }
+
+    function testSDaiOracleRateProvider_WithDifferentDaiRate() external {
+        // Initialize all oracles
+        _initOracle(usdtOracle);
+        _initOracle(daiOracle);
+        _initOracle(sDaiOracle);
+        
+        // Set DAI oracle to 1.01 USD (slightly above peg)
+        daiOracle.setPrice(1.01e8);
+        daiOracle.setPrevPrice(1.01e8);
+        
+        // Set sDai oracle to 1.05 (representing the savings rate multiplier)
+        sDaiOracle.setPrice(1.05e8);
+        sDaiOracle.setPrevPrice(1.05e8);
+        
+        // Get rates
+        uint256 daiRate = daiOracleRateProvider.getRate();
+        uint256 sDaiRate = sDaiOracleRateProvider.getRate();
+        
+        // DAI should be 1.01e18 (1.01 USD with 18 decimals)
+        assertEq(daiRate, 1.01e18, "DAI rate should be 1.01e18");
+        
+        // sDai rate should be sDai oracle rate * DAI rate provider rate
+        // 1.05e18 * 1.01e18 / 1e18 = 1.0605e18
+        uint256 expectedSDaiRate = 1.05e18 * 1.01e18 / 1e18;
+        assertEq(sDaiRate, expectedSDaiRate, "sDai rate should be 1.0605e18 (1.0605 USD with 18 decimals)");
     }
 
     // ========================================= HELPER FUNCTIONS =========================================
