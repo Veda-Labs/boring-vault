@@ -14,7 +14,7 @@
     "saveDeploymentDetails": true,
     "testUserAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
-      "name": "dev5Address"
+      "name": "dev1Address"
     },
     "deployerContractAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
