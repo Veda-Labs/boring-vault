@@ -9,16 +9,16 @@ import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper
 import "forge-std/Script.sol";
 
 /**
- *  source .env && forge script script/MerkleRootCreation/Katana/CreateLiquidKatanaETHMerkleRoot.s.sol --rpc-url $KATANA_RPC_URL --gas-limit 1000000000000000000
+ *  source .env && forge script script/MerkleRootCreation/Katana/CreateTestKatanaMerkleRoot.s.sol --rpc-url $KATANA_RPC_URL --gas-limit 1000000000000000000
  */
-contract CreateLiquidKatanaETHMerkleRoot is Script, MerkleTreeHelper {
+contract CreateTestKatanaMerkleRoot is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     //standard
-    address public boringVault = 0x69d210d3b60E939BFA6E87cCcC4fAb7e8F44C16B;
+    address public boringVault = 0x00007EDa736C6CdF973BDefF2191bbCfE6175db7;
     address public rawDataDecoderAndSanitizer = 0x770B3AAA48096b3fB36876b8dD55789372775bf0;
-    address public managerAddress = 0x51CdEcC111c21BED72Ab99f415Bab6d35984BfEB;
-    address public accountantAddress = 0xFCb9a6bF02C43f9E38Bb102fd960Cc1e738e787d;
+    address public managerAddress = 0x999999e868Fb298c6EDbf0060f7cE077f01ad782;
+    address public accountantAddress = 0x5555559e499d2107aBb035a5feA1235b7f942E6D;
 
     function setUp() external {}
 
