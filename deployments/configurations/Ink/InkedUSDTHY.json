@@ -103,6 +103,7 @@
   "boringQueueConfiguration": {
     "boringQueueDeploymentName": "InkedUSDTHY Boring Queue V0.0",
     "boringQueueSolverName": "InkedUSDTHY Boring Solver V0.0",
+    "excessToSolverNonSelfSolve": true,
     "queueParameters": {
       "allowPublicWithdrawals": true,
       "allowPublicSelfWithdrawals": true,
