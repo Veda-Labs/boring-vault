@@ -303,12 +303,6 @@ contract LayerZeroShareMover is ShareMover, OAppAuth, PairwiseRateLimiter, Auth 
         // Check rate limits using the original amount (before decimal conversion)
         _checkAndUpdateInboundRateLimit(_origin.srcEid, message.amount);
         
-        // Convert amount from source chain decimals to local decimals
-        uint8 sourceDecimals = sourceChain.targetDecimals; // Their local decimals = our target decimals
-        if (sourceDecimals != localDecimals) {
-            message.amount = MessageLib.convertAmountDecimals(message.amount, sourceDecimals, localDecimals);
-        }
-        
         // Complete the message receive
         _completeMessageReceive(_guid, _origin.srcEid, message);
     }
