@@ -729,22 +729,20 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
                 itbPositionManager,
                 false,
                 "withdraw(address,uint256)",
-                new address[](1),
+                new address[](0),
                 string.concat("Withdraw ", tokensUsed[i].symbol(), " from the ", itbContractName, " contract"),
                 itbDecoderAndSanitizer
             );
-            leafs[leafIndex].argumentAddresses[0] = address(tokensUsed[i]);
             // WithdrawAll
             leafIndex++;
             leafs[leafIndex] = ManageLeaf(
                 itbPositionManager,
                 false,
                 "withdrawAll(address)",
-                new address[](1),
+                new address[](0),
                 string.concat("Withdraw all ", tokensUsed[i].symbol(), " from the ", itbContractName, " contract"),
                 itbDecoderAndSanitizer
             );
-            leafs[leafIndex].argumentAddresses[0] = address(tokensUsed[i]);
         }
     }
 

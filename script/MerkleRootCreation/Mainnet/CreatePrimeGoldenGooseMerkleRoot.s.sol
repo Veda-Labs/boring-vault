@@ -19,7 +19,7 @@ contract CreatePrimeGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0xEc0569121753e50979d3C6Aa093bb881e8E752C5;
     address public managerAddress = 0xDa61124f29fb788718eC868f5f0005c78904a41D;
     address public accountantAddress = 0xC2693B160d164f17f4D67Af811eEC28aBE01598a;
-    address public rawDataDecoderAndSanitizer = 0x8EA825e335D1a296432D8D2f13594630139CA1B4;
+    address public rawDataDecoderAndSanitizer = 0x1E139A5B693bD97A489a0a492A85887499123868;
 
     function setUp() external {
         // Ensure we're forking mainnet properly
@@ -38,7 +38,7 @@ contract CreatePrimeGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
     function generateMerkleRoot() public {
         // Force mainnet fork
         vm.createSelectFork(vm.envString("MAINNET_RPC_URL"));
-        
+
         setSourceChainName(mainnet);
         setAddress(false, mainnet, "boringVault", boringVault);
         setAddress(false, mainnet, "managerAddress", managerAddress);
@@ -48,9 +48,12 @@ contract CreatePrimeGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](256);
 
         // ========================== Rewards ==========================
-        ERC20[] memory tokensToClaim = new ERC20[](1);
+        ERC20[] memory tokensToClaim = new ERC20[](2);
         tokensToClaim[0] = getERC20(sourceChain, "rEUL");
-        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"), tokensToClaim);
+        tokensToClaim[1] = getERC20(sourceChain, "UNI");
+        _addMerklLeafs(
+            leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"), tokensToClaim
+        );
         _addrEULWrappingLeafs(leafs);
 
         // ========================== Native Wrapping ==========================
@@ -85,7 +88,12 @@ contract CreatePrimeGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         );
 
         // ========================== Layer Zero ==========================
-        _addLayerZeroLeafNative(leafs, getAddress(sourceChain, "stargateNative"), layerZeroUnichainEndpointId, getBytes32(sourceChain, "boringVault"));
+        _addLayerZeroLeafNative(
+            leafs,
+            getAddress(sourceChain, "stargateNative"),
+            layerZeroUnichainEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
 
         // ========================== Morpho ==========================
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "WSTETH_WETH_945"));
@@ -111,11 +119,20 @@ contract CreatePrimeGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Balancer ==========================
         _addBalancerV3Leafs(
-            leafs, getAddress(sourceChain, "balancerV3_Surge_Fluid_wstETH-wETH_boosted"), true, getAddress(sourceChain, "balancerV3_Surge_Fluid_wstETH-wETH_boosted_gauge")
+            leafs,
+            getAddress(sourceChain, "balancerV3_Surge_Fluid_wstETH-wETH_boosted"),
+            true,
+            getAddress(sourceChain, "balancerV3_Surge_Fluid_wstETH-wETH_boosted_gauge")
+        );
+        _addBalancerV3Leafs(
+            leafs,
+            getAddress(sourceChain, "balancerV3_WETH_WSTETH_boosted"),
+            true,
+            getAddress(sourceChain, "balancerV3_WETH_WSTETH_boosted_gauge")
         );
 
-        _addFluidFTokenLeafs(leafs, getAddress(sourceChain, "fwstETH"));
         _addFluidFTokenLeafs(leafs, getAddress(sourceChain, "fWETH"));
+        _addFluidFTokenLeafs(leafs, getAddress(sourceChain, "fWSTETH"));
 
         // ========================== Balancer Flash Loans ==========================
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "WETH"));
@@ -124,26 +141,76 @@ contract CreatePrimeGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         // =========================== Lido ==========================
         _addLidoLeafs(leafs);
 
-        // Allow for swapping for fwstETH and fWETH
-        // ========================== Odos ==========================
+        // =========================== Odos ==========================
         {
-            address[] memory assets = new address[](4);
-            SwapKind[] memory kind = new SwapKind[](4);
+            address[] memory assets = new address[](5);
+            SwapKind[] memory kind = new SwapKind[](5);
             assets[0] = getAddress(sourceChain, "WETH");
             kind[0] = SwapKind.BuyAndSell;
             assets[1] = getAddress(sourceChain, "WSTETH");
             kind[1] = SwapKind.BuyAndSell;
-            assets[2] = getAddress(sourceChain, "rEUL");
+            assets[2] = getAddress(sourceChain, "UNI");
             kind[2] = SwapKind.Sell;
-            assets[3] = getAddress(sourceChain, "EUL");
+            assets[3] = getAddress(sourceChain, "rEUL");
             kind[3] = SwapKind.Sell;
+            assets[4] = getAddress(sourceChain, "EUL");
+            kind[4] = SwapKind.Sell;
 
             _addOdosSwapLeafs(leafs, assets, kind);
 
-        // =========================== 1Inch ==========================
+            // =========================== 1Inch ==========================
             _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
         }
 
+        // =========================== Fluid Dex ==========================
+        {
+            ERC20[] memory supplyAssets = new ERC20[](2);
+            supplyAssets[0] = getERC20(sourceChain, "WETH");
+            supplyAssets[1] = getERC20(sourceChain, "WSTETH");
+            ERC20[] memory borrowAssets = new ERC20[](2);
+            borrowAssets[0] = getERC20(sourceChain, "WETH");
+            borrowAssets[1] = getERC20(sourceChain, "WSTETH");
+
+            _addFluidDexLeafs(
+                leafs, getAddress(sourceChain, "DEX-wstETH-ETH_DEX-wstETH-ETH"), 4000, supplyAssets, borrowAssets, true
+            );
+        }
+
+        // ========================== Uniswap V4 ==========================
+        {
+            address[] memory hooks = new address[](1);
+            address[] memory token0 = new address[](1);
+            address[] memory token1 = new address[](1);
+
+            hooks[0] = address(0);
+            token0[0] = address(0);
+            token1[0] = getAddress(sourceChain, "WSTETH");
+
+            _addUniswapV4Leafs(leafs, token0, token1, hooks);
+        }
+
+        // ========================== Uniswap V3 ==========================
+        {
+            // WETH, wstETH
+            address[] memory token0 = new address[](1);
+            token0[0] = getAddress(sourceChain, "WSTETH");
+
+            address[] memory token1 = new address[](1);
+            token1[0] = getAddress(sourceChain, "WETH");
+
+            _addUniswapV3Leafs(leafs, token0, token1, false);
+        }
+        // ========================== Aave V3 ==========================
+        {
+            // Core
+            ERC20[] memory supplyAssets = new ERC20[](2);
+            supplyAssets[0] = getERC20(sourceChain, "WETH");
+            supplyAssets[1] = getERC20(sourceChain, "WSTETH");
+            _addAaveV3Leafs(leafs, supplyAssets, supplyAssets);
+
+            // Prime
+            _addAaveV3PrimeLeafs(leafs, supplyAssets, supplyAssets);
+        }
 
         // ========================== Verify & Generate ==========================
 

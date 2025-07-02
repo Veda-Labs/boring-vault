@@ -42,6 +42,7 @@ contract ChainValues {
     // Bridging constants.
     uint64 public constant ccipArbitrumChainSelector = 4949039107694359620;
     uint64 public constant ccipMainnetChainSelector = 5009297550715157269;
+    uint64 public constant ccipBobChainSelector = 3849287863852499584;
     uint64 public constant ccipBaseChainSelector = 15971525489660198786;
     uint64 public constant ccipBscChainSelector = 11344663589394136015;
     uint64 public constant ccipKatanaChainSelector = 2459028469735686113;
@@ -124,6 +125,8 @@ contract ChainValues {
         _addHyperEVMValues();
         _addFlareValues();
         _addInkValues();
+        _addAvalancheValues(); 
+        _addPlumeValues();
         _addKatanaValues();
         // Add testnet values
         _addHoleskyValues();
@@ -133,7 +136,6 @@ contract ChainValues {
         _addBerachainTestnetValues();
         _addBartioValues();
         _addTACTestnetValues();
-        _addPlumeValues();
     }
 
     function _addMainnetValues() private {
@@ -293,7 +295,8 @@ contract ChainValues {
         values[mainnet]["scBTC"] = 0xBb30e76d9Bb2CC9631F7fC5Eb8e87B5Aff32bFbd.toBytes32();
         values[mainnet]["beraSTONE"] = 0x97Ad75064b20fb2B2447feD4fa953bF7F007a706.toBytes32(); 
         values[mainnet]["solvBTC"] = 0x7A56E1C57C7475CCf742a1832B028F0456652F97.toBytes32(); 
-        values[mainnet]["solvBTC.BBN"] = 0xd9D920AA40f578ab794426F5C90F6C731D159DEf.toBytes32(); 
+        values[mainnet]["solvBTC.BBN"] = 0xd9D920AA40f578ab794426F5C90F6C731D159DEf.toBytes32();
+        values[mainnet]["xsolvBTC"] = 0xd9D920AA40f578ab794426F5C90F6C731D159DEf.toBytes32(); 
         values[mainnet]["STONE"] = 0x7122985656e38BDC0302Db86685bb972b145bD3C.toBytes32(); 
         values[mainnet]["SWBTC"] = 0x8DB2350D78aBc13f5673A411D4700BCF87864dDE.toBytes32(); 
         values[mainnet]["enzoBTC"] = 0x6A9A65B84843F5fD4aC9a0471C4fc11AFfFBce4a.toBytes32(); 
@@ -717,8 +720,6 @@ contract ChainValues {
         values[mainnet]["uniswapV3NonFungiblePositionManager"] = 0xC36442b4a4522E871399CD717aBDD847Ab11FE88.toBytes32();
 
         // Uniswap V4
-        values[mainnet]["uniV4PoolManager"] = 0xbD216513d74C8cf14cf4747E6AaA6420FF64ee9e.toBytes32();
-        values[mainnet]["uniV4PositionManager"] = 0x000000000004444c5dc75cB358380D2e3dE08A90.toBytes32();
         values[mainnet]["uniV4UniversalRouter"] = 0x66a9893cC07D91D95644AEDD05D03f95e1dBA8Af.toBytes32();
 
         // Redstone
@@ -1425,6 +1426,10 @@ contract ChainValues {
 
         // Yearn
         values[mainnet]["yKatanaPredepositWETH"] = 0xcc6a16Be713f6a714f68b0E1f4914fD3db15fBeF.toBytes32();
+        
+        // Avalanche Bridge
+        values[mainnet]["usdcTokenRouter"] = 0xD835dbD135AD8a27214ecdEE79E7a41337865648.toBytes32();
+        values[mainnet]["avalancheBridge"] = 0x8EB8a3b98659Cce290402893d0123abb75E3ab28.toBytes32();
 
         // Agglayer Katana
         values[mainnet]["agglayerBridgeKatana"] = 0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe.toBytes32();
@@ -1657,6 +1662,11 @@ contract ChainValues {
         values[arbitrum]["camelotRouterV3"] = 0x1F721E2E82F6676FCE4eA07A5958cF098D339e18.toBytes32();
         values[arbitrum]["camelotNonFungiblePositionManager"] = 0x00c7f3082833e796A5b3e4Bd59f6642FF44DCD15.toBytes32();
 
+
+        // AlgebraV4 / CamelotV4
+        values[arbitrum]["algebraV4Router"] = 0xa555826C9a26E13238F657dB06E0A02431839Ef5.toBytes32();
+        values[arbitrum]["algebraNonFungiblePositionManager"] = 0x368435A76B1a855D054D3CDf4c20f5E0B2bABBC8.toBytes32();
+
         // Compound V3
         values[arbitrum]["cWETHV3"] = 0x6f7D514bbD4aFf3BcD1140B7344b32f063dEe486.toBytes32();
         values[arbitrum]["cometRewards"] = 0x88730d254A2f7e6AC8388c3198aFd694bA9f7fae.toBytes32();
@@ -1834,7 +1844,12 @@ contract ChainValues {
         values[scroll]["scrollGatewayRouter"] = 0x4C0926FF5252A435FD19e10ED15e5a249Ba19d79.toBytes32(); // withdrawERC20
         values[scroll]["scrollMessenger"] = 0x781e90f1c8Fc4611c9b7497C3B47F99Ef6969CbC.toBytes32(); // sendMessage
         values[scroll]["scrollCustomERC20Gateway"] = 0xaC78dff3A87b5b534e366A93E785a0ce8fA6Cc62.toBytes32(); // sendMessage
-
+        values[scroll]["scrollUSDCGateway"] =  0x33B60d5Dd260d453cAC3782b0bDC01ce84672142.toBytes32();
+        values[scroll]["scrollUSDTGateway"] =  0xE2b4795039517653c5Ae8C2A9BFdd783b48f447A.toBytes32();
+        values[scroll]["scrollDAIGateway"] = 0xaC78dff3A87b5b534e366A93E785a0ce8fA6Cc62.toBytes32();
+        values[scroll]["scrollWBTCGateway"] = 0xE2b4795039517653c5Ae8C2A9BFdd783b48f447A.toBytes32();
+        values[scroll]["scrollWETHGateway"] = 0x7003E7B7186f0E6601203b99F7B8DECBfA391cf9.toBytes32();
+        
         // Tellers
         values[scroll]["EBTCTeller"] = 0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268.toBytes32(); 
     }
@@ -2440,6 +2455,9 @@ contract ChainValues {
         // Euler
         values[bob]["ethereumVaultConnector"] = 0x59f0FeEc4fA474Ad4ffC357cC8d8595B68abE47d.toBytes32();
         values[bob]["eulerWBTC"] = 0x11DA346d3Fdb62641BDbfebfd54b81CAA871aEf6.toBytes32();
+
+        // Uniswap V3
+        values[bob]["uniswapV3NonFungiblePositionManager"] = 0x743E03cceB4af2efA3CC76838f6E8B50B63F184c.toBytes32();
     }
 
     function _addDeriveValues() private {
@@ -2649,6 +2667,20 @@ contract ChainValues {
 
         //OFTs
         values[plume]["stargateUSDC"] = 0x9909fa99b7F7ee7F1c0CBf133f411D43083631E6.toBytes32();
+    }
+
+    function _addAvalancheValues() private {
+        values[avalanche]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        values[avalanche]["txBundlerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        values[avalanche]["vault"] = address(1).toBytes32();
+
+        // ERC20s
+        values[avalanche]["USDC"] = 0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E.toBytes32();
+        values[avalanche]["USDC.e"] = 0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664.toBytes32(); 
+        values[avalanche]["WETH"] = 0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB.toBytes32();
+
+        // Avalanche Bridge
+        values[avalanche]["usdcTokenRouter"] = 0xD835dbD135AD8a27214ecdEE79E7a41337865648.toBytes32();
     }
 
     function _addKatanaValues() private {

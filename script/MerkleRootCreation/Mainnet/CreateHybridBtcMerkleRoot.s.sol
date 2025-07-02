@@ -17,7 +17,7 @@ contract CreateHybridBtcMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0x9998e05030Aee3Af9AD3df35A34F5C51e1628779; 
     address public managerAddress = 0x2A1512a030D6eb71A5864968d795e1b6D382735D;
     address public accountantAddress = 0x22b025037ff1F6206F41b7b28968726bDBB5E7D5;
-    address public rawDataDecoderAndSanitizer = 0xf29ACD9F89a5D6158aD975F99255B25C092B4191;
+    address public rawDataDecoderAndSanitizer = 0x7E200C8DE24b439Fab2B5ae295bF7eB86078c66b;
 
     function setUp() external {}
 
@@ -86,6 +86,15 @@ contract CreateHybridBtcMerkleRoot is Script, MerkleTreeHelper {
             localTokens,
             remoteTokens 
         );  //?
+
+        // ========================== CCIP ==========================
+        // bridge xsolvBTC to BOB
+        ERC20[] memory ccipBridgeAssets = new ERC20[](1);
+        ccipBridgeAssets[0] = getERC20(sourceChain, "xsolvBTC");
+        ERC20[] memory ccipBridgeFeeAssets = new ERC20[](2);
+        ccipBridgeFeeAssets[0] = getERC20(sourceChain, "WETH");
+        ccipBridgeFeeAssets[1] = getERC20(sourceChain, "LINK");
+        _addCcipBridgeLeafs(leafs, ccipBobChainSelector, ccipBridgeAssets, ccipBridgeFeeAssets);
 
         // ========================== Pendle ==========================
         // ebtc

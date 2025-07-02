@@ -7,13 +7,15 @@ import {PendleRouterDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/PendleRouterDecoderAndSanitizer.sol";
 import {OneInchDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OneInchDecoderAndSanitizer.sol";
 import {StandardBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/StandardBridgeDecoderAndSanitizer.sol";
+import {CCIPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCIPDecoderAndSanitizer.sol";
 
 contract HybridBtcDecoderAndSanitizer is 
     BaseDecoderAndSanitizer,
     UniswapV3DecoderAndSanitizer,
     PendleRouterDecoderAndSanitizer,
     OneInchDecoderAndSanitizer,
-    StandardBridgeDecoderAndSanitizer
+    StandardBridgeDecoderAndSanitizer,
+    CCIPDecoderAndSanitizer
 {
 
 

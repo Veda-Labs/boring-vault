@@ -15,7 +15,6 @@ import "forge-std/Script.sol";
  */
 contract CreatePrimeGoldenGooseUnichainMerkleRoot is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
-   
 
     address public boringVault = 0xEc0569121753e50979d3C6Aa093bb881e8E752C5;
     address public managerAddress = 0xDa61124f29fb788718eC868f5f0005c78904a41D;
@@ -36,7 +35,7 @@ contract CreatePrimeGoldenGooseUnichainMerkleRoot is Script, MerkleTreeHelper {
     function generateMerkleRoot() public {
         // Force Unichain fork
         vm.createSelectFork(vm.envString("UNICHAIN_RPC_URL"));
-        
+
         setSourceChainName(unichain);
         setAddress(false, unichain, "boringVault", boringVault);
         setAddress(false, unichain, "managerAddress", managerAddress);
@@ -45,7 +44,10 @@ contract CreatePrimeGoldenGooseUnichainMerkleRoot is Script, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](256);
 
-         // ========================== Standard Bridge ==========================
+        // ========================== Native Wrapping ==========================
+        _addNativeLeafs(leafs);
+
+        // ========================== Standard Bridge ==========================
         ERC20[] memory localTokens = new ERC20[](2);
         ERC20[] memory remoteTokens = new ERC20[](2);
         localTokens[0] = getERC20(sourceChain, "WETH");
@@ -64,24 +66,49 @@ contract CreatePrimeGoldenGooseUnichainMerkleRoot is Script, MerkleTreeHelper {
         );
 
         _addLidoStandardBridgeLeafs(
-            leafs,
-            mainnet,
-            address(0),
-            address(0),
-            getAddress(sourceChain, "standardBridge"),
-            address(0)
+            leafs, mainnet, address(0), address(0), getAddress(sourceChain, "standardBridge"), address(0)
         );
 
-        // ========================== Native Wrapping ==========================
-        _addNativeLeafs(leafs);
-
         // ========================== Layer Zero ==========================
-        _addLayerZeroLeafNative(leafs, getAddress(sourceChain, "stargateNative"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
+        _addLayerZeroLeafNative(
+            leafs,
+            getAddress(sourceChain, "stargateNative"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+
+        // ========================== Uniswap V4 ==========================
+        address[] memory hooks = new address[](1);
+        address[] memory token0 = new address[](1);
+        address[] memory token1 = new address[](1);
+
+        hooks[0] = address(0);
+        token0[0] = address(0);
+        token1[0] = getAddress(sourceChain, "WSTETH");
+
+        _addUniswapV4Leafs(leafs, token0, token1, hooks);
+
+        // =========================== Odos ==========================
+        {
+            address[] memory assets = new address[](2);
+            SwapKind[] memory kind = new SwapKind[](2);
+            assets[0] = getAddress(sourceChain, "WETH");
+            kind[0] = SwapKind.BuyAndSell;
+            assets[1] = getAddress(sourceChain, "WSTETH");
+            kind[1] = SwapKind.BuyAndSell;
+
+            _addOdosSwapLeafs(leafs, assets, kind);
+
+            // =========================== 1Inch ==========================
+            _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
+        }
 
         // ========================== Morpho ==========================
-        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "morphowstETHmarket"));
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "morphowstETHmarket"));
+        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "morphowstETHmarket"));
 
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "morphoSmokehouseWSTETH")));
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "morphoSteakhouseETH")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "morphoK3CapitalETHMaxi")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "morphoGauntletWETH")));
 
@@ -91,29 +118,12 @@ contract CreatePrimeGoldenGooseUnichainMerkleRoot is Script, MerkleTreeHelper {
             depositVaults[0] = ERC4626(getAddress(sourceChain, "eulerWETH"));
             depositVaults[1] = ERC4626(getAddress(sourceChain, "eulerwstETHmarket"));
 
-            address[] memory subaccounts = new address[](1);
+            address[] memory subaccounts = new address[](2);
             subaccounts[0] = address(boringVault);
+            subaccounts[1] = address(boringVault);
 
             _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
         }
-
-        // ========================== Odos ==========================
-        {
-            address[] memory assets = new address[](2);
-            SwapKind[] memory kind = new SwapKind[](2);
-            assets[0] = getAddress(sourceChain, "WETH");
-            kind[0] = SwapKind.BuyAndSell;
-            assets[1] = getAddress(sourceChain, "WSTETH");
-            kind[1] = SwapKind.BuyAndSell;
-           
-        
-
-            _addOdosSwapLeafs(leafs, assets, kind);
-
-        // =========================== 1Inch ==========================
-            _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
-        }
-
 
         // ========================== Verify & Generate ==========================
 
