@@ -1,0 +1,176 @@
+{
+    "deploymentParameters": {
+      "logLevel": 4,
+      "privateKeyEnvName": "BORING_DEVELOPER",
+      "chainName": "katana",
+      "evmVersion": "shanghai",
+      "desiredNumberOfDeploymentTxs": 12,
+      "txBundlerAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "txBundlerAddress"
+      },
+      "setupRoles": true,
+      "setupTestUser": true,
+      "saveDeploymentDetails": true,
+      "testUserAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "dev5Address"
+      },
+      "deployerContractAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "deployerAddress"
+      },
+      "nativeWrapperAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "WETH"
+      },
+      "deploymentOwnerAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "txBundlerAddress"
+      },
+      "deploymentFileName": "addresses/Katana/LBTCvKatanaDeployment.json"
+    },
+    "rolesAuthorityConfiguration": {
+      "rolesAuthorityDeploymentName": "katanaLBTCv Vault RolesAuthority Version 0.0"
+    },
+    "lensConfiguration": {
+      "lensDeploymentName": "Arctic Architecture Lens V0.0"
+    },
+    "boringVaultConfiguration": {
+      "boringVaultDeploymentName": "Bitcoin Katana Vault V0.0",
+      "boringVaultName": "Bitcoin Katana Vault",
+      "boringVaultSymbol": "katanaLBTCv",
+      "boringVaultDecimals": 8
+    },
+    "managerConfiguration": {
+      "managerDeploymentName": "Bitcoin Katana Vault Manager With Merkle Verification V0.0",
+      "balancerVaultAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "balancerVault"
+      }
+    },
+    "accountantConfiguration": {
+      "accountantDeploymentName": "Bitcoin Katana Vault Accountant With Rate Providers V0.0",
+      "accountantParameters": {
+        "kind": {
+          "variableRate": true,
+          "fixedRate": false
+        },
+        "payoutConfiguration": {
+          "payoutTo": "0x0000000000000000000000000000000000000000",
+          "optionalPaymentSplitterName": "Bitcoin Katana Vault Payment Splitter V0.0",
+          "splits": [
+            {
+              "to": "0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b",
+              "percent": 10000
+            }
+          ]
+        },
+        "accountantDeploymentParameters": {
+          "allowedExchangeRateChangeLower": 9950,
+          "allowedExchangeRateChangeUpper": 10050,
+          "baseAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "LBTC"
+          },
+          "minimumUpateDelayInSeconds": 21600,
+          "performanceFee": 0,
+          "platformFee": 0,
+          "startingExchangeRate": 100000000
+        }
+      }
+    },
+    "tellerConfiguration": {
+      "tellerDeploymentName": "Bitcoin Katana Vault Teller With Multi Asset Support V0.0",
+      "tellerParameters": {
+        "allowPublicDeposits": false,
+        "shareLockPeriod": 86400,
+        "kind": {
+          "teller": false,
+          "tellerWithCcip": false,
+          "tellerWithLayerZero": true,
+          "tellerWithRemediation": false,
+          "tellerWithLayerZeroRateLimiting": false
+        },
+        "layerZero": {
+          "endpointAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "LayerZeroEndPoint"
+          },
+          "lzTokenAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "ZRO"
+          },
+          "lzChains": []
+        }
+      }
+    },
+    "boringQueueConfiguration": {
+      "boringQueueDeploymentName": "Bitcoin Katana Vault Boring Queue V0.0",
+      "boringQueueSolverName": "Bitcoin Katana Vault Boring Solver V0.0",
+      "excessToSolverNonSelfSolve": true,
+      "queueParameters": {
+        "allowPublicWithdrawals": false,
+        "allowPublicSelfWithdrawals": false,
+        "kind": {
+          "boringQueue": true,
+          "boringQueueWithTracking": false
+        }
+      }
+    },
+    "droneConfiguration": {
+      "droneDeploymentBaseName": "Bitcoin Katana Vault Drone V0.0",
+      "droneCount": 0,
+      "safeGasToForwardNative": 21000
+    },
+    "pauserConfiguration": {
+      "shouldDeploy": true,
+      "pauserDeploymentName": "Bitcoin Katana Vault Pauser V0.0",
+      "makeGenericPauser": ["0x0000000000000000000000000000000000000000"],
+      "makeGenericUnpauser": ["0x0000000000000000000000000000000000000000"],
+      "makePauseAll": ["0x0000000000000000000000000000000000000000"],
+      "makeUnpauseAll": ["0x0000000000000000000000000000000000000000"],
+      "senderToPausable": [
+        {
+          "sender": "0x0000000000000000000000000000000000000000",
+          "pausable": "0x0000000000000000000000000000000000000000"
+        }
+      ]
+    },
+    "timelockConfiguration": {
+      "shouldDeploy": false,
+      "timelockDeploymentName": "Bitcoin Katana Vault Timelock V0.0",
+      "timelockParameters": {
+        "minDelay": 86400,
+        "proposers": ["0x0000000000000000000000000000000000000000"],
+        "executors": ["0x0000000000000000000000000000000000000000"]
+      }
+    },
+    "accountantAssets": [
+    ],
+    "depositAssets": [
+      {
+        "addressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "LBTC"
+        },
+        "allowDeposits": true,
+        "allowWithdraws": true,
+        "sharePremium": 0
+      }
+    ],
+    "withdrawAssets": [
+      {
+        "addressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "LBTC"
+        },
+        "maxDiscount": 10,
+        "minDiscount": 1,
+        "minimumSecondsToDeadline": 864000,
+        "minimumShares": 0,
+        "secondsToMaturity": 86400
+      }
+    ]
+  }
+  

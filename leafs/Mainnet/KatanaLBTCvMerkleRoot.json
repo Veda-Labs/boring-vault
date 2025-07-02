@@ -1,0 +1,141 @@
+{
+  "metadata": {
+    "AccountantAddress": "0x90e864A256E58DBCe034D9C43C3d8F18A00f55B6",
+    "BoringVaultAddress": "0x75231079973C23e9eB6180fa3D2fc21334565aB5",
+    "DecoderAndSanitizerAddress": "0x770B3AAA48096b3fB36876b8dD55789372775bf0",
+    "DigestComposition": [
+      "Bytes20(DECODER_AND_SANITIZER_ADDRESS)",
+      "Bytes20(TARGET_ADDRESS)",
+      "Bytes1(CAN_SEND_VALUE)",
+      "Bytes4(TARGET_FUNCTION_SELECTOR)",
+      "Bytes{N*20}(ADDRESS_ARGUMENT_0,...,ADDRESS_ARGUMENT_N)"
+    ],
+    "LeafCount": 7,
+    "ManageRoot": "0x1a06a2525f814f4d14fa218c66d111ae020c180153b20b4281f022f6835072f5",
+    "ManagerAddress": "0x9aC5AEf62eCe812FEfb77a0d1771c9A5ce3D04E4",
+    "TreeCapacity": 8
+  },
+  "leafs": [
+    {
+      "AddressArguments": ["0x80226fc0Ee2b096224EeAc085Bb9a8cba1146f7D"],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x770B3AAA48096b3fB36876b8dD55789372775bf0",
+      "Description": "Approve mainnet CCIP Router to spend WETH",
+      "FunctionSelector": "0x095ea7b3",
+      "FunctionSignature": "approve(address,uint256)",
+      "LeafDigest": "0x28fb7568f12f0dfb76f8f3cfb7aa8fcfb4b45ad7774865611c07d1d6022f5098",
+      "PackedArgumentAddresses": "0x80226fc0ee2b096224eeac085bb9a8cba1146f7d",
+      "TargetAddress": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+    },
+    {
+      "AddressArguments": ["0x80226fc0Ee2b096224EeAc085Bb9a8cba1146f7D"],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x770B3AAA48096b3fB36876b8dD55789372775bf0",
+      "Description": "Approve mainnet CCIP Router to spend LBTC",
+      "FunctionSelector": "0x095ea7b3",
+      "FunctionSignature": "approve(address,uint256)",
+      "LeafDigest": "0xbaad37f1a1121fe665c55e9ef8732d86922cc2cb089d0277d022a8fa566edf48",
+      "PackedArgumentAddresses": "0x80226fc0ee2b096224eeac085bb9a8cba1146f7d",
+      "TargetAddress": "0x8236a87084f8B84306f72007F36F2618A5634494"
+    },
+    {
+      "AddressArguments": [
+        "0x0000000000000000000000002220395D5F2affE1",
+        "0x75231079973C23e9eB6180fa3D2fc21334565aB5",
+        "0x8236a87084f8B84306f72007F36F2618A5634494",
+        "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+      ],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x770B3AAA48096b3fB36876b8dD55789372775bf0",
+      "Description": "Bridge LBTC to chain 2459028469735686113 using CCIP",
+      "FunctionSelector": "0x96f4e9f9",
+      "FunctionSignature": "ccipSend(uint64,(bytes,bytes,(address,uint256)[],address,bytes))",
+      "LeafDigest": "0x8e9fa0434764a3f1698b56c66f7498aa4d05f046b2453bb5ba01e70295a9b00b",
+      "PackedArgumentAddresses": "0x0000000000000000000000002220395d5f2affe175231079973c23e9eb6180fa3d2fc21334565ab58236a87084f8b84306f72007f36f2618a5634494c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      "TargetAddress": "0x80226fc0Ee2b096224EeAc085Bb9a8cba1146f7D"
+    },
+    {
+      "AddressArguments": ["0x80226fc0Ee2b096224EeAc085Bb9a8cba1146f7D"],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x770B3AAA48096b3fB36876b8dD55789372775bf0",
+      "Description": "Approve mainnet CCIP Router to spend LINK",
+      "FunctionSelector": "0x095ea7b3",
+      "FunctionSignature": "approve(address,uint256)",
+      "LeafDigest": "0xca1b36bf38de0881b220a0a3af647745a5027c7ca481e66869cca2d8bce333b2",
+      "PackedArgumentAddresses": "0x80226fc0ee2b096224eeac085bb9a8cba1146f7d",
+      "TargetAddress": "0x514910771AF9Ca656af840dff83E8264EcF986CA"
+    },
+    {
+      "AddressArguments": [
+        "0x0000000000000000000000002220395D5F2affE1",
+        "0x75231079973C23e9eB6180fa3D2fc21334565aB5",
+        "0x8236a87084f8B84306f72007F36F2618A5634494",
+        "0x514910771AF9Ca656af840dff83E8264EcF986CA"
+      ],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x770B3AAA48096b3fB36876b8dD55789372775bf0",
+      "Description": "Bridge LBTC to chain 2459028469735686113 using CCIP",
+      "FunctionSelector": "0x96f4e9f9",
+      "FunctionSignature": "ccipSend(uint64,(bytes,bytes,(address,uint256)[],address,bytes))",
+      "LeafDigest": "0x0a4af698b23fee45da8a79fa597f129aa59a8ebf7cc727baa14c542337966039",
+      "PackedArgumentAddresses": "0x0000000000000000000000002220395d5f2affe175231079973c23e9eb6180fa3d2fc21334565ab58236a87084f8b84306f72007f36f2618a5634494514910771af9ca656af840dff83e8264ecf986ca",
+      "TargetAddress": "0x80226fc0Ee2b096224EeAc085Bb9a8cba1146f7D"
+    },
+    {
+      "AddressArguments": ["0x90e864A256E58DBCe034D9C43C3d8F18A00f55B6"],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x770B3AAA48096b3fB36876b8dD55789372775bf0",
+      "Description": "Approve Accountant to spend LBTC",
+      "FunctionSelector": "0x095ea7b3",
+      "FunctionSignature": "approve(address,uint256)",
+      "LeafDigest": "0x1aef14a1eac0912e74bc75f64acc1237be7204a7663d6890103efb869879f529",
+      "PackedArgumentAddresses": "0x90e864a256e58dbce034d9c43c3d8f18a00f55b6",
+      "TargetAddress": "0x8236a87084f8B84306f72007F36F2618A5634494"
+    },
+    {
+      "AddressArguments": ["0x8236a87084f8B84306f72007F36F2618A5634494"],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x770B3AAA48096b3fB36876b8dD55789372775bf0",
+      "Description": "Claim fees in LBTC",
+      "FunctionSelector": "0x15a0ea6a",
+      "FunctionSignature": "claimFees(address)",
+      "LeafDigest": "0xfc043bf2841ea83e14a2ed3c65bbdecfa7dd45f879b382d255b910716acc6a25",
+      "PackedArgumentAddresses": "0x8236a87084f8b84306f72007f36f2618a5634494",
+      "TargetAddress": "0x90e864A256E58DBCe034D9C43C3d8F18A00f55B6"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    }
+  ],
+  "MerkleTree": {
+    "0": ["0x1a06a2525f814f4d14fa218c66d111ae020c180153b20b4281f022f6835072f5"],
+    "1": [
+      "0x458610b07775acc62aee0f92f27d63928df1cd60fffee430850a46af6113b723",
+      "0x45cbfeb084b4f096f363b1bde379683eb37d8b4485a93e64a62a23e6b9d4851b"
+    ],
+    "2": [
+      "0x0791768f736257956ea428dde75e13e3d0e27ef15f79e4eb457e51cb141233f6",
+      "0xd3eb39c23ae023667c37534a6b13f8c97c9ac996a8d44440b039090398d33d5d",
+      "0x38a1f8ee953677ab021cb702692dec1f2d06c967acfe2488ea1cbf83fa3aadcc",
+      "0x06da28168b42a105b886ab0ad832c3b07398f4c8b18ada7b5c2c7108952330de"
+    ],
+    "3": [
+      "0x28fb7568f12f0dfb76f8f3cfb7aa8fcfb4b45ad7774865611c07d1d6022f5098",
+      "0xbaad37f1a1121fe665c55e9ef8732d86922cc2cb089d0277d022a8fa566edf48",
+      "0x8e9fa0434764a3f1698b56c66f7498aa4d05f046b2453bb5ba01e70295a9b00b",
+      "0xca1b36bf38de0881b220a0a3af647745a5027c7ca481e66869cca2d8bce333b2",
+      "0x0a4af698b23fee45da8a79fa597f129aa59a8ebf7cc727baa14c542337966039",
+      "0x1aef14a1eac0912e74bc75f64acc1237be7204a7663d6890103efb869879f529",
+      "0xfc043bf2841ea83e14a2ed3c65bbdecfa7dd45f879b382d255b910716acc6a25",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400"
+    ]
+  }
+}

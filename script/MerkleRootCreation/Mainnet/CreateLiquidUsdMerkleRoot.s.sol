@@ -829,7 +829,11 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         tokens[0] = getERC20(sourceChain, "USDC");  
         tokens[1] = getERC20(sourceChain, "USDT");  
         tokens[2] = getERC20(sourceChain, "DAI");  
-        _addScrollNativeBridgeLeafs(leafs, "scroll", tokens); 
+        address[] memory scrollGateways = new address[](3);
+        scrollGateways[0] = getAddress(scroll, "scrollUSDCGateway");
+        scrollGateways[1] = getAddress(scroll, "scrollUSDTGateway");
+        scrollGateways[2] = getAddress(scroll, "scrollDAIGateway");
+        _addScrollNativeBridgeLeafs(leafs, "scroll", tokens, scrollGateways); 
         }
 
         // ========================== Euler ==========================

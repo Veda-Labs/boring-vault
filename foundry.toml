@@ -3,7 +3,7 @@
 # This overrides the `auto_detect_solc` value
 solc_version = '0.8.21'
 auto_detect_solc = false 
-evm_version = 'shanghai'
+evm_version = 'cancun'
 optimizer = true
 optimizer_runs = 200 
 fs_permissions = [{ access = "read-write", path = "./" }]
@@ -45,6 +45,7 @@ tacTestnet = "${TAC_TESTNET_RPC_URL}"
 flare = "${FLARE_RPC_URL}"
 ink = "${INK_RPC_URL}"
 plume = "${PLUME_RPC_URL}"
+katana = "${KATANA_RPC_URL}"
 
 [etherscan]
 #bob = { key = "${BOBSCAN_KEY}", chain = 60808, url = "https://explorer.gobob.xyz/api?"}
@@ -69,7 +70,7 @@ mainnet = { key = "${ETHERSCAN_KEY}" }
 #flare = {key = "${FLARESCAN_KEY}", chain = 14, url = "https://api.routescan.io/v2/network/mainnet/evm/14/etherscan" }
 #hyperEVM = { key = "${HYPER_EVM_KEY}, chain = 999, url = "https://hyperscan.gas.zip/" }
 #plume = { key = "${PLUMESCAN_KEY}", chain = 98866, url = "https://explorer-plume-mainnet-1.t.conduit.xyz/api/"}
-
+katana = { key = "${KATANASCAN_KEY}", chain = 747474, url = "https://explorer.katanarpc.com/api" }
 
 [fmt]
 FOUNDRY_FMT_LINE_LENGTH = 120
