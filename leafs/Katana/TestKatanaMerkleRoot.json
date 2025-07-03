@@ -1,0 +1,255 @@
+{
+  "metadata": {
+    "AccountantAddress": "0x5555559e499d2107aBb035a5feA1235b7f942E6D",
+    "BoringVaultAddress": "0x00007EDa736C6CdF973BDefF2191bbCfE6175db7",
+    "DecoderAndSanitizerAddress": "0x770B3AAA48096b3fB36876b8dD55789372775bf0",
+    "DigestComposition": [
+      "Bytes20(DECODER_AND_SANITIZER_ADDRESS)",
+      "Bytes20(TARGET_ADDRESS)",
+      "Bytes1(CAN_SEND_VALUE)",
+      "Bytes4(TARGET_FUNCTION_SELECTOR)",
+      "Bytes{N*20}(ADDRESS_ARGUMENT_0,...,ADDRESS_ARGUMENT_N)"
+    ],
+    "LeafCount": 12,
+    "ManageRoot": "0xe0a37590175ee06d1afd35a014723672aaee3e1db8c452614f1b138f59b18694",
+    "ManagerAddress": "0x999999e868Fb298c6EDbf0060f7cE077f01ad782",
+    "TreeCapacity": 16
+  },
+  "leafs": [
+    {
+      "AddressArguments": [],
+      "CanSendValue": true,
+      "DecoderAndSanitizerAddress": "0x770B3AAA48096b3fB36876b8dD55789372775bf0",
+      "Description": "Wrap Native to vbETH",
+      "FunctionSelector": "0xd0e30db0",
+      "FunctionSignature": "deposit()",
+      "LeafDigest": "0xddf3d0293e509076ceeeba3acf1618b31f38d31abcdd04729ba4e469213b69ab",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0xEE7D8BCFb72bC1880D0Cf19822eB0A2e6577aB62"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x770B3AAA48096b3fB36876b8dD55789372775bf0",
+      "Description": "Unwrap vbETH to Native",
+      "FunctionSelector": "0x2e1a7d4d",
+      "FunctionSignature": "withdraw(uint256)",
+      "LeafDigest": "0xee7d99d2e9fd00d3f47cbd759c0708dc56c3ec26d2c5972dfd42b00ffe70feba",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0xEE7D8BCFb72bC1880D0Cf19822eB0A2e6577aB62"
+    },
+    {
+      "AddressArguments": ["0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe"],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x770B3AAA48096b3fB36876b8dD55789372775bf0",
+      "Description": "Approve zkEVM Compatible Bridge to spendvbETH",
+      "FunctionSelector": "0x095ea7b3",
+      "FunctionSignature": "approve(address,uint256)",
+      "LeafDigest": "0x6eddaa181f7383888dfe9ec5044f7fc61bf0dccf767a2991ab30d5e6c1edef90",
+      "PackedArgumentAddresses": "0x2a3dd3eb832af982ec71669e178424b10dca2ede",
+      "TargetAddress": "0xEE7D8BCFb72bC1880D0Cf19822eB0A2e6577aB62"
+    },
+    {
+      "AddressArguments": [
+        "0x0000000000000000000000000000000000000000",
+        "0x00007EDa736C6CdF973BDefF2191bbCfE6175db7",
+        "0xEE7D8BCFb72bC1880D0Cf19822eB0A2e6577aB62"
+      ],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x770B3AAA48096b3fB36876b8dD55789372775bf0",
+      "Description": "Bridge vbETH using zkEVM Compatible Bridge",
+      "FunctionSelector": "0xcd586579",
+      "FunctionSignature": "bridgeAsset(uint32,address,uint256,address,bool,bytes)",
+      "LeafDigest": "0xecfcd87a19fd2b10152a5ebe620a7b982e1e288ca6d8300c4d3aa92006705306",
+      "PackedArgumentAddresses": "0x000000000000000000000000000000000000000000007eda736c6cdf973bdeff2191bbcfe6175db7ee7d8bcfb72bc1880d0cf19822eb0a2e6577ab62",
+      "TargetAddress": "0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe"
+    },
+    {
+      "AddressArguments": [
+        "0x0000000000000000000000000000000000000014",
+        "0xEE7D8BCFb72bC1880D0Cf19822eB0A2e6577aB62",
+        "0x0000000000000000000000000000000000000014",
+        "0x00007EDa736C6CdF973BDefF2191bbCfE6175db7"
+      ],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x770B3AAA48096b3fB36876b8dD55789372775bf0",
+      "Description": "Claim  vbETH from zkEVM Compatible Bridge",
+      "FunctionSelector": "0xccaa2d11",
+      "FunctionSignature": "claimAsset(bytes32[32],bytes32[32],uint256,bytes32,bytes32,uint32,address,uint32,address,uint256,bytes)",
+      "LeafDigest": "0x050fc7de0bbf90c8a85ba76f62dddfd584fd03343b5ff7ea8ad290e76ad4e959",
+      "PackedArgumentAddresses": "0x0000000000000000000000000000000000000014ee7d8bcfb72bc1880d0cf19822eb0a2e6577ab62000000000000000000000000000000000000001400007eda736c6cdf973bdeff2191bbcfe6175db7",
+      "TargetAddress": "0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe"
+    },
+    {
+      "AddressArguments": ["0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe"],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x770B3AAA48096b3fB36876b8dD55789372775bf0",
+      "Description": "Approve zkEVM Compatible Bridge to spendweETH",
+      "FunctionSelector": "0x095ea7b3",
+      "FunctionSignature": "approve(address,uint256)",
+      "LeafDigest": "0xf6f5266f332b5cb3d7e0c4c44b497f19865e3db478846c4718f42e8a1c486b7d",
+      "PackedArgumentAddresses": "0x2a3dd3eb832af982ec71669e178424b10dca2ede",
+      "TargetAddress": "0x9893989433e7a383Cb313953e4c2365107dc19a7"
+    },
+    {
+      "AddressArguments": [
+        "0x0000000000000000000000000000000000000000",
+        "0x00007EDa736C6CdF973BDefF2191bbCfE6175db7",
+        "0x9893989433e7a383Cb313953e4c2365107dc19a7"
+      ],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x770B3AAA48096b3fB36876b8dD55789372775bf0",
+      "Description": "Bridge weETH using zkEVM Compatible Bridge",
+      "FunctionSelector": "0xcd586579",
+      "FunctionSignature": "bridgeAsset(uint32,address,uint256,address,bool,bytes)",
+      "LeafDigest": "0x862eb9e795c10fff258dd906b5159f992a9ebcfc1ad5ffca7fa8760ce36b4f3b",
+      "PackedArgumentAddresses": "0x000000000000000000000000000000000000000000007eda736c6cdf973bdeff2191bbcfe6175db79893989433e7a383cb313953e4c2365107dc19a7",
+      "TargetAddress": "0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe"
+    },
+    {
+      "AddressArguments": [
+        "0x0000000000000000000000000000000000000014",
+        "0x9893989433e7a383Cb313953e4c2365107dc19a7",
+        "0x0000000000000000000000000000000000000014",
+        "0x00007EDa736C6CdF973BDefF2191bbCfE6175db7"
+      ],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x770B3AAA48096b3fB36876b8dD55789372775bf0",
+      "Description": "Claim  weETH from zkEVM Compatible Bridge",
+      "FunctionSelector": "0xccaa2d11",
+      "FunctionSignature": "claimAsset(bytes32[32],bytes32[32],uint256,bytes32,bytes32,uint32,address,uint32,address,uint256,bytes)",
+      "LeafDigest": "0x76a2229364384a9333c4a22e42f4b15e681095b5bb909a21a27e5401526b2b19",
+      "PackedArgumentAddresses": "0x00000000000000000000000000000000000000149893989433e7a383cb313953e4c2365107dc19a7000000000000000000000000000000000000001400007eda736c6cdf973bdeff2191bbcfe6175db7",
+      "TargetAddress": "0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe"
+    },
+    {
+      "AddressArguments": ["0x5555559e499d2107aBb035a5feA1235b7f942E6D"],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x770B3AAA48096b3fB36876b8dD55789372775bf0",
+      "Description": "Approve Accountant to spend vbETH",
+      "FunctionSelector": "0x095ea7b3",
+      "FunctionSignature": "approve(address,uint256)",
+      "LeafDigest": "0x1e5a6102366f997c03711514453b2dc74201f236009c55dff2af29191363abb2",
+      "PackedArgumentAddresses": "0x5555559e499d2107abb035a5fea1235b7f942e6d",
+      "TargetAddress": "0xEE7D8BCFb72bC1880D0Cf19822eB0A2e6577aB62"
+    },
+    {
+      "AddressArguments": ["0x5555559e499d2107aBb035a5feA1235b7f942E6D"],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x770B3AAA48096b3fB36876b8dD55789372775bf0",
+      "Description": "Approve Accountant to spend weETH",
+      "FunctionSelector": "0x095ea7b3",
+      "FunctionSignature": "approve(address,uint256)",
+      "LeafDigest": "0x4b19c3facf5934c5877eb0242f99dbcf767616c5c92fc216ec6cdfe694ea56cc",
+      "PackedArgumentAddresses": "0x5555559e499d2107abb035a5fea1235b7f942e6d",
+      "TargetAddress": "0x9893989433e7a383Cb313953e4c2365107dc19a7"
+    },
+    {
+      "AddressArguments": ["0xEE7D8BCFb72bC1880D0Cf19822eB0A2e6577aB62"],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x770B3AAA48096b3fB36876b8dD55789372775bf0",
+      "Description": "Claim fees in vbETH",
+      "FunctionSelector": "0x15a0ea6a",
+      "FunctionSignature": "claimFees(address)",
+      "LeafDigest": "0x001e3b0b5037e5fdb78306cc6f2442df0f42a229c48f092009d017155d281ea7",
+      "PackedArgumentAddresses": "0xee7d8bcfb72bc1880d0cf19822eb0a2e6577ab62",
+      "TargetAddress": "0x5555559e499d2107aBb035a5feA1235b7f942E6D"
+    },
+    {
+      "AddressArguments": ["0x9893989433e7a383Cb313953e4c2365107dc19a7"],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x770B3AAA48096b3fB36876b8dD55789372775bf0",
+      "Description": "Claim fees in weETH",
+      "FunctionSelector": "0x15a0ea6a",
+      "FunctionSignature": "claimFees(address)",
+      "LeafDigest": "0xd179dc79330d9b43585bef18e086c9e68b8b274fc7256132faed1e6a7b2a9811",
+      "PackedArgumentAddresses": "0x9893989433e7a383cb313953e4c2365107dc19a7",
+      "TargetAddress": "0x5555559e499d2107aBb035a5feA1235b7f942E6D"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    }
+  ],
+  "MerkleTree": {
+    "0": ["0xe0a37590175ee06d1afd35a014723672aaee3e1db8c452614f1b138f59b18694"],
+    "1": [
+      "0x30f9583c966f09733c1465acbd64b49e53963c5bfa5c77a310584fc946318db6",
+      "0x08d8ecec6c697169f9a72630476dc06f70b5f67c504641bfa7c0f8c593c21f27"
+    ],
+    "2": [
+      "0x7168174a2b1435724572f1f638b03dc3b145e8f64a4d106548d964b86ec7c588",
+      "0x7267b077e6bd921b50f05200c5f3556877e43d6d48ebc301f8b213d5b99a8fe0",
+      "0x7ae77ab6eb5c6c30ddb9ef6bde774dd18df909b8d63568e772cacb8c8d6c9c73",
+      "0x849eda7a295b642e5ddaf49a30eec4470cf507efa83b4104c0752d069c7638fe"
+    ],
+    "3": [
+      "0x5bef8731637776fc928c75279a2120f46a51fd2ffc7abb6e368d356592bc218b",
+      "0xa1faef048d1ee6e94c778d19568a9c7fde247bec853395a39a8e70e6c3185034",
+      "0x557fecf5ed6d642ec619937caeba901aaae073a6cf16b2bb1f4053057fa70a48",
+      "0x6b64d68ae3ebe346fedd7653f901a9b5f85b9b00e4938ce0f7931f6bc9248a01",
+      "0x7930f806d3dc28c206a967e0a61010eeb467f03cee3dd91636a251e1bf815cab",
+      "0x91243e955f90a9873bc96d40bc8930f30c301bb811ef6fb79cfec05b0fb86111",
+      "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
+      "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba"
+    ],
+    "4": [
+      "0xddf3d0293e509076ceeeba3acf1618b31f38d31abcdd04729ba4e469213b69ab",
+      "0xee7d99d2e9fd00d3f47cbd759c0708dc56c3ec26d2c5972dfd42b00ffe70feba",
+      "0x6eddaa181f7383888dfe9ec5044f7fc61bf0dccf767a2991ab30d5e6c1edef90",
+      "0xecfcd87a19fd2b10152a5ebe620a7b982e1e288ca6d8300c4d3aa92006705306",
+      "0x050fc7de0bbf90c8a85ba76f62dddfd584fd03343b5ff7ea8ad290e76ad4e959",
+      "0xf6f5266f332b5cb3d7e0c4c44b497f19865e3db478846c4718f42e8a1c486b7d",
+      "0x862eb9e795c10fff258dd906b5159f992a9ebcfc1ad5ffca7fa8760ce36b4f3b",
+      "0x76a2229364384a9333c4a22e42f4b15e681095b5bb909a21a27e5401526b2b19",
+      "0x1e5a6102366f997c03711514453b2dc74201f236009c55dff2af29191363abb2",
+      "0x4b19c3facf5934c5877eb0242f99dbcf767616c5c92fc216ec6cdfe694ea56cc",
+      "0x001e3b0b5037e5fdb78306cc6f2442df0f42a229c48f092009d017155d281ea7",
+      "0xd179dc79330d9b43585bef18e086c9e68b8b274fc7256132faed1e6a7b2a9811",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400"
+    ]
+  }
+}
