@@ -31,26 +31,26 @@
       "deploymentFileName": "addresses/TAC/TacTON.json"
     },
     "rolesAuthorityConfiguration": {
-      "rolesAuthorityDeploymentName": "tacTON Roles Authority V0.0"
+      "rolesAuthorityDeploymentName": "tacTON Roles Authority V0.1"
     },
     "lensConfiguration": {
-      "lensDeploymentName": "Arctic Architecture Lens V0.0"
+      "lensDeploymentName": "Arctic Architecture Lens V0.1"
     },
     "boringVaultConfiguration": {
-      "boringVaultDeploymentName": "tacTON Boring Vault V0.0",
+      "boringVaultDeploymentName": "tacTON Boring Vault V0.1",
       "boringVaultName": "tacTON",
       "boringVaultSymbol": "tacTON",
       "boringVaultDecimals": 9
     },
     "managerConfiguration": {
-      "managerDeploymentName": "tacTON Manager V0.0",
+      "managerDeploymentName": "tacTON Manager V0.1",
       "balancerVaultAddressOrName": {
         "address": "0x0000000000000000000000000000000000000000",
         "name": "balancerVault"
       }
     },
     "accountantConfiguration": {
-      "accountantDeploymentName": "tacTON Accountant V0.0",
+      "accountantDeploymentName": "tacTON Accountant V0.1",
       "accountantParameters": {
         "kind": {
           "variableRate": true,
@@ -58,7 +58,7 @@
         },
         "payoutConfiguration": {
           "payoutTo": "0x0000000000000000000000000000000000000000",
-          "optionalPaymentSplitterName": "tacTON Payment Splitter V0.0",
+          "optionalPaymentSplitterName": "tacTON Payment Splitter V0.1",
           "splits": []
         },
         "accountantDeploymentParameters": {
@@ -76,7 +76,7 @@
       }
     },
     "tellerConfiguration": {
-      "tellerDeploymentName": "tacTON Teller V0.0",
+      "tellerDeploymentName": "tacTON Teller V0.1",
       "tellerParameters": {
         "allowPublicDeposits": false,
         "shareLockPeriod": 86400,
@@ -101,8 +101,8 @@
       }
     },
     "boringQueueConfiguration": {
-      "boringQueueDeploymentName": "tacTON Boring Queue V0.0",
-      "boringQueueSolverName": "tacTON Boring Solver V0.0",
+      "boringQueueDeploymentName": "tacTON Boring Queue V0.1",
+      "boringQueueSolverName": "tacTON Boring Solver V0.1",
       "excessToSolverNonSelfSolve": true,
       "queueParameters": {
         "allowPublicWithdrawals": true,
@@ -114,13 +114,13 @@
       }
     },
     "droneConfiguration": {
-      "droneDeploymentBaseName": "tacTON Drone V0.0",
+      "droneDeploymentBaseName": "tacTON Drone V0.1",
       "droneCount": 0,
       "safeGasToForwardNative": 21000
     },
     "pauserConfiguration": {
       "shouldDeploy": true,
-      "pauserDeploymentName": "tacTONPauser V0.0",
+      "pauserDeploymentName": "tacTONPauser V0.1",
       "makeGenericPauser": [
         "0x0000000000000000000000000000000000000000"
       ],
@@ -142,7 +142,7 @@
     },
     "timelockConfiguration": {
       "shouldDeploy": true,
-      "timelockDeploymentName": "tacTON Timelock V0.0",
+      "timelockDeploymentName": "tacTON Timelock V0.1",
       "timelockParameters": {
         "executors": [
             "0xf8553c8552f906C19286F21711721E206EE4909E"
