@@ -3,20 +3,20 @@ pragma solidity 0.8.21;
 
 import {ShareMover} from "./ShareMover.sol";
 import {MessageLib} from "./MessageLib.sol";
-import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {OAppAuth, Origin, MessagingFee, MessagingReceipt} from "@oapp-auth/OAppAuth.sol";
 import {OptionsBuilder} from "@oapp-auth/OptionsBuilder.sol";
 import {PairwiseRateLimiter} from "../PairwiseRateLimiter.sol";
-import {Auth} from "@solmate/auth/Auth.sol";
+import {IPausable} from "src/interfaces/IPausable.sol";
+import {Auth, Authority} from "@solmate/auth/Auth.sol";
 
 /**
  * @title LayerZeroShareMover
  * @notice Concrete implementation of ShareMover using LayerZero for cross-chain bridging.
- * @dev Inherits from ShareMover, OAppAuth for LayerZero integration, PairwiseRateLimiter for rate limiting,
- * and Auth for access control.
+ * @dev Inherits from ShareMover, OAppAuth for LayerZero integration, PairwiseRateLimiter for rate limiting.
  */
-contract LayerZeroShareMover is ShareMover, OAppAuth, PairwiseRateLimiter, Auth {
+contract LayerZeroShareMover is Auth, ShareMover, OAppAuth, PairwiseRateLimiter, IPausable {
     using SafeTransferLib for ERC20;
     using OptionsBuilder for bytes;
     using MessageLib for MessageLib.Message;
@@ -73,6 +73,20 @@ contract LayerZeroShareMover is ShareMover, OAppAuth, PairwiseRateLimiter, Auth 
      */
     address public immutable lzToken;
 
+    // ========================================= PAUSING =========================================
+
+    bool public isPaused;
+
+    error EnforcedPause();
+
+    function _pause() internal {
+        isPaused = true;
+    }
+
+    function _unpause() internal {
+        isPaused = false;
+    }
+
     // ========================================= ERRORS =========================================
 
     error LayerZeroShareMover__MessagesNotAllowedFrom(uint32 chainId);
@@ -99,8 +113,8 @@ contract LayerZeroShareMover is ShareMover, OAppAuth, PairwiseRateLimiter, Auth 
 
     /**
      * @notice Constructor for LayerZeroShareMover.
-     * @param _owner The owner of this contract (for Auth).
-     * @param _authority The authority contract (for Auth).
+     * @param _owner The owner address for Auth.
+     * @param _authority The authority address for Auth.
      * @param _vault The address of the Boring Vault.
      * @param _lzEndpoint The LayerZero endpoint address.
      * @param _delegate The delegate address for OApp.
@@ -113,10 +127,10 @@ contract LayerZeroShareMover is ShareMover, OAppAuth, PairwiseRateLimiter, Auth 
         address _lzEndpoint,
         address _delegate,
         address _lzToken
-    ) 
+    )
+        Auth(_owner, Authority(_authority))
         ShareMover(_vault)
         OAppAuth(_lzEndpoint, _delegate)
-        Auth(_owner, Authority(_authority))
     {
         localDecimals = vault.decimals();
         lzToken = _lzToken;
@@ -291,7 +305,7 @@ contract LayerZeroShareMover is ShareMover, OAppAuth, PairwiseRateLimiter, Auth 
         bytes calldata /*_extraData*/
     ) internal override {
         // Check if paused
-        if (paused()) revert EnforcedPause();
+        if (isPaused) revert EnforcedPause();
         
         // Check if messages are allowed from this chain
         Chain memory sourceChain = chains[_origin.srcEid];
@@ -344,17 +358,24 @@ contract LayerZeroShareMover is ShareMover, OAppAuth, PairwiseRateLimiter, Auth 
     /**
      * @notice Internal function to send a cross-chain message using LayerZero.
      * @param message The Message to send.
+     * @param chainId The destination chain ID.
      * @param bridgeWildCard Bridge-specific data containing chainId and feeToken.
-     * @param maxFee The maximum fee to pay for the bridge operation.
+     * @param feeToken The token address to pay fees in (use NATIVE for native token).
      * @return messageId The unique identifier of the sent message.
      */
     function _sendMessage(
         MessageLib.Message memory message,
-        bytes calldata bridgeWildCard
-    ) internal override returns (bytes32 messageId) {
+        uint32 chainId,
+        bytes calldata bridgeWildCard,
+        ERC20 feeToken
+    ) internal override virtual returns (bytes32 messageId) {
         // Decode bridge parameters from bridgeWildCard (including maxFee)
         BridgeParams memory params = _decodeBridgeParams(bridgeWildCard);
         
+        // Sanity check: ensure the supplied chainId and feeToken match the data encoded inside bridgeWildCard
+        if (chainId != 0 && chainId != params.chainId) revert LayerZeroShareMover__InvalidChainId();
+        if (address(feeToken) != address(0) && address(feeToken) != params.feeToken) revert LayerZeroShareMover__BadFeeToken();
+
         // Validate destination chain
         Chain memory destChain = chains[params.chainId];
         if (!destChain.allowMessagesTo) revert LayerZeroShareMover__MessagesNotAllowedTo(params.chainId);
@@ -406,7 +427,7 @@ contract LayerZeroShareMover is ShareMover, OAppAuth, PairwiseRateLimiter, Auth 
         
         // Collect fee if using ERC20 token
         if (params.feeToken != NATIVE) {
-            ERC20(params.feeToken).safeTransferFrom(msg.sender, address(this), requiredFee);
+            SafeTransferLib.safeTransferFrom(ERC20(params.feeToken), msg.sender, address(this), requiredFee);
         }
         
         // Send the message
@@ -418,21 +439,25 @@ contract LayerZeroShareMover is ShareMover, OAppAuth, PairwiseRateLimiter, Auth 
     /**
      * @notice Internal function to preview the fee required to bridge shares.
      * @param message The Message to send.
+     * @param chainId The destination chain ID.
      * @param bridgeWildCard Bridge-specific data containing chainId and feeToken.
+     * @param feeToken The token address to pay fees in (use NATIVE for native token).
      * @return fee The estimated fee required.
      */
     function _previewFee(
         MessageLib.Message memory message,
-        bytes calldata bridgeWildCard
-    ) internal view override returns (uint256 fee) {
+        uint32 chainId,
+        bytes calldata bridgeWildCard,
+        ERC20 feeToken
+    ) internal view override virtual returns (uint256 fee) {
         // Decode bridge parameters from bridgeWildCard
         BridgeParams memory params = _decodeBridgeParams(bridgeWildCard);
         
-        // Validate fee token
-        if (params.feeToken != NATIVE && params.feeToken != lzToken) {
-            revert LayerZeroShareMover__BadFeeToken();
-        }
-        
+        // Validate consistency with supplied args & fee token correctness
+        if (chainId != 0 && chainId != params.chainId) revert LayerZeroShareMover__InvalidChainId();
+        if (address(feeToken) != address(0) && address(feeToken) != params.feeToken) revert LayerZeroShareMover__BadFeeToken();
+        if (params.feeToken != NATIVE && params.feeToken != lzToken) revert LayerZeroShareMover__BadFeeToken();
+
         // Validate destination chain
         Chain memory destChain = chains[params.chainId];
         if (!destChain.allowMessagesTo) revert LayerZeroShareMover__MessagesNotAllowedTo(params.chainId);
@@ -482,5 +507,47 @@ contract LayerZeroShareMover is ShareMover, OAppAuth, PairwiseRateLimiter, Auth 
         );
         
         if (params.chainId == 0) revert LayerZeroShareMover__InvalidChainId();
+    }
+
+    // ========================================= USER-FACING OVERRIDES WITH PAUSE GUARD =========================================
+
+    /// @notice See {ShareMover-bridge}
+    function bridge(
+        uint96 shareAmount,
+        uint32 chainId,
+        bytes32 to,
+        bytes calldata bridgeWildCard,
+        ERC20 feeToken
+    ) public payable override nonReentrant {
+        if (isPaused) revert EnforcedPause();
+        super.bridge(shareAmount, chainId, to, bridgeWildCard, feeToken);
+    }
+
+    /// @notice See {ShareMover-bridgeWithPermit}
+    function bridgeWithPermit(
+        uint96 shareAmount,
+        uint32 chainId,
+        bytes32 to,
+        bytes calldata bridgeWildCard,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s,
+        ERC20 feeToken
+    ) public payable override nonReentrant {
+        if (isPaused) revert EnforcedPause();
+        super.bridgeWithPermit(shareAmount, chainId, to, bridgeWildCard, deadline, v, r, s, feeToken);
+    }
+
+    /// @notice See {ShareMover-previewFee}
+    function previewFee(
+        uint96 shareAmount,
+        uint32 chainId,
+        bytes32 to,
+        bytes calldata bridgeWildCard,
+        ERC20 feeToken
+    ) public view override returns (uint256 fee) {
+        if (isPaused) revert EnforcedPause();
+        return super.previewFee(shareAmount, chainId, to, bridgeWildCard, feeToken);
     }
 }

@@ -52,17 +52,18 @@ library MessageLib {
      */
     function encodeMessage(Message memory message) internal pure returns (bytes memory data) {
         data = new bytes(MESSAGE_SIZE);
-        
-        // Recipient (32 bytes) at offset 0
+
         assembly {
-            mstore(add(data, 0x20), mload(add(message, 0x00)))
-        }
-        
-        // Amount (16 bytes, big endian) at offset 32
-        // Convert u128 to big-endian bytes16 by shifting left
-        bytes16 amountBytes = bytes16(message.amount << 128);
-        assembly {
-            mstore(add(data, 0x40), amountBytes)
+            // -------------------------------- recipient --------------------------------
+            // The first 32 bytes store the recipient unmodified.
+            mstore(add(data, 0x20), mload(message))
+
+            // -------------------------------- amount ----------------------------------
+            // Shift the 128-bit amount 128 bits to the left so that it occupies the
+            // high-order 16 bytes of the 32-byte slot – this is the expected big-endian
+            // representation.
+            let shiftedAmount := shl(128, mload(add(message, 0x20)))
+            mstore(add(data, 0x40), shiftedAmount)
         }
     }
 
@@ -73,22 +74,19 @@ library MessageLib {
      * @return message The decoded MessageLib
      */
     function decodeMessage(bytes memory data) internal pure returns (Message memory message) {
-        if (data.length != MESSAGE_SIZE) {
-            revert MessageLib__InvalidLength();
-        }
+        if (data.length != MESSAGE_SIZE) revert MessageLib__InvalidLength();
 
-        // Decode recipient (32 bytes) from offset 0
         assembly {
-            mstore(add(message, 0x00), mload(add(data, 0x20)))
-        }
+            // -------------------------------- recipient --------------------------------
+            mstore(message, mload(add(data, 0x20)))
 
-        // Decode amount (16 bytes, big endian) from offset 32
-        bytes16 amountBytes;
-        assembly {
-            amountBytes := mload(add(data, 0x40))
+            // -------------------------------- amount ----------------------------------
+            // Read the 32-byte word starting at offset 32, then shift right 128 bits so
+            // that the high-order 16 bytes (big-endian) become the least-significant 16
+            // bytes of the word, giving the original uint128 value.
+            let word := mload(add(data, 0x40))
+            mstore(add(message, 0x20), shr(128, word))
         }
-        // Convert bytes16 to uint128 directly
-        message.amount = uint128(bytes16(amountBytes));
     }
 
     // ========================================= DECIMAL CONVERSION =========================================

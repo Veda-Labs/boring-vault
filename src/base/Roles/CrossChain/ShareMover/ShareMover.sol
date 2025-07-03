@@ -2,8 +2,8 @@
 pragma solidity 0.8.21;
 
 // Core dependencies for contract functionality
-import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol"; // For pausing/unpausing operations
-import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol"; // Standard ERC20 interface
+import {ReentrancyGuard} from "@solmate/utils/ReentrancyGuard.sol"; // Reentrancy protection
+import {ERC20} from "@solmate/tokens/ERC20.sol"; // Standard ERC20 interface
 
 // Custom libraries/interfaces specific to Boring Vault ecosystem
 import {MessageLib} from "./MessageLib.sol"; // Message encoding/decoding
@@ -28,7 +28,7 @@ interface IVault {
  * Specific bridge implementations (e.g., LayerZero) will inherit from this contract.
  * @dev Inherits Pausable for emergency stop functionality.
  */
-abstract contract ShareMover is Pausable {
+abstract contract ShareMover is ReentrancyGuard {
     using MessageLib for MessageLib.Message;
 
     // ========================================= CONSTANTS =========================================
@@ -53,6 +53,8 @@ abstract contract ShareMover is Pausable {
     error ShareMover__InvalidRecipient();
     /// @dev Thrown when message encoding/decoding fails.
     error ShareMover__InvalidMessage();
+    /// @dev Thrown when vault.transferFrom returns false.
+    error ShareMover__TransferFailed();
 
     // ========================================= EVENTS =========================================
 
@@ -88,7 +90,7 @@ abstract contract ShareMover is Pausable {
      * @notice Constructor for the ShareMover contract.
      * @param _vault The address of the Boring Vault contract.
      */
-    constructor(address _vault) Pausable() {
+    constructor(address _vault) {
         if (_vault == address(0)) revert ShareMover__InvalidRecipient();
         vault = IVault(_vault);
     }
@@ -111,7 +113,7 @@ abstract contract ShareMover is Pausable {
         bytes32 to,
         bytes calldata bridgeWildCard,
         ERC20 feeToken
-    ) external payable whenNotPaused {
+    ) public payable virtual nonReentrant {
         _bridge(shareAmount, chainId, to, bridgeWildCard, msg.sender, feeToken);
     }
 
@@ -140,7 +142,7 @@ abstract contract ShareMover is Pausable {
         bytes32 r,
         bytes32 s,
         ERC20 feeToken
-    ) external payable whenNotPaused {
+    ) public payable virtual nonReentrant {
         // Attempt to apply the permit signature for the shares.
         try vault.permit(msg.sender, address(this), shareAmount, deadline, v, r, s) {
             // Permit successful, proceed with bridge
@@ -166,7 +168,7 @@ abstract contract ShareMover is Pausable {
         bytes32 to,
         bytes calldata bridgeWildCard,
         ERC20 feeToken
-    ) external view returns (uint256 fee) {
+    ) public view virtual returns (uint256 fee) {
         if (shareAmount == 0) revert ShareMover__ZeroShares();
         if (to == bytes32(0)) revert ShareMover__InvalidRecipient();
 
@@ -207,7 +209,9 @@ abstract contract ShareMover is Pausable {
         if (vault.balanceOf(user) < shareAmount) revert ShareMover__InsufficientBalance();
 
         // Transfer shares from user to this contract (triggers beforeTransfer hook via vault)
-        vault.transferFrom(user, address(this), shareAmount);
+        if (!vault.transferFrom(user, address(this), shareAmount)) {
+            revert ShareMover__TransferFailed();
+        }
 
         // Burn shares from this contract via vault.exit
         // Note: BoringVault.exit burns shares from the 'from' address (4th parameter)
@@ -292,6 +296,4 @@ abstract contract ShareMover is Pausable {
         bytes calldata bridgeWildCard,
         ERC20 feeToken
     ) internal view virtual returns (uint256 fee);
-
-    // Admin functions (pause, unpause, paused) are inherited from Pausable.
 }
