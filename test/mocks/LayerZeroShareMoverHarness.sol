@@ -11,12 +11,12 @@ import {Authority} from "@solmate/auth/Auth.sol";
  * @notice Exposes internal helpers of LayerZeroShareMover for unit testing without touching LayerZero endpoint.
  */
 contract LayerZeroShareMoverHarness is LayerZeroShareMover {
-    constructor(address _vault, address _lzToken)
+    constructor(address _vault, address _lzToken, address _endpoint)
         LayerZeroShareMover(
             msg.sender,     // owner
             address(0),     // authority
             _vault,
-            address(1),     // dummy endpoint
+            _endpoint,
             address(this),  // delegate
             _lzToken
         )

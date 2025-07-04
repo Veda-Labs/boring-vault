@@ -5,6 +5,7 @@ import {Test} from "@forge-std/Test.sol";
 import {LayerZeroShareMoverHarness} from "test/mocks/LayerZeroShareMoverHarness.sol";
 import {MockVault} from "test/mocks/MockVault.sol";
 import {LayerZeroShareMover} from "src/base/Roles/CrossChain/ShareMover/LayerZeroShareMover.sol";
+import {MockEndpoint} from "test/mocks/MockEndpoint.sol";
 
 contract LayerZeroShareMoverHelperTest is Test {
     LayerZeroShareMoverHarness harness;
@@ -12,7 +13,8 @@ contract LayerZeroShareMoverHelperTest is Test {
 
     function setUp() external {
         vault = new MockVault(18);
-        harness = new LayerZeroShareMoverHarness(address(vault), address(0x1234));
+        MockEndpoint endpoint = new MockEndpoint();
+        harness = new LayerZeroShareMoverHarness(address(vault), address(0x1234), address(endpoint));
 
         // Add EVM and SOLANA chains via owner (address(this)) since harness owner is itself
         uint32 eidEvm = 101;
