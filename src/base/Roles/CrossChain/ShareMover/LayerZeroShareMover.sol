@@ -518,7 +518,7 @@ contract LayerZeroShareMover is Auth, ShareMover, OAppAuth, PairwiseRateLimiter,
         bytes32 to,
         bytes calldata bridgeWildCard,
         ERC20 feeToken
-    ) public payable override nonReentrant {
+    ) public payable override {
         if (isPaused) revert EnforcedPause();
         super.bridge(shareAmount, chainId, to, bridgeWildCard, feeToken);
     }
@@ -534,7 +534,7 @@ contract LayerZeroShareMover is Auth, ShareMover, OAppAuth, PairwiseRateLimiter,
         bytes32 r,
         bytes32 s,
         ERC20 feeToken
-    ) public payable override nonReentrant {
+    ) public payable override {
         if (isPaused) revert EnforcedPause();
         super.bridgeWithPermit(shareAmount, chainId, to, bridgeWildCard, deadline, v, r, s, feeToken);
     }

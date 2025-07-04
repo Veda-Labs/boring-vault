@@ -16,6 +16,9 @@ contract MockVault {
     mapping(address => uint256) internal _balances;
     uint8 internal immutable _decimals;
 
+    bool public shouldRevertPermit;
+    bool public permitCalled;
+
     // ------------------------------------------------------------------------------------------
     // Constructor
     // ------------------------------------------------------------------------------------------
@@ -64,16 +67,22 @@ contract MockVault {
         return true;
     }
 
-    // Dummy permit – always succeeds
+    function setPermitBehavior(bool _revert) external {
+        shouldRevertPermit = _revert;
+    }
+
     function permit(
-        address /*owner*/, 
-        address /*spender*/, 
-        uint256 /*value*/, 
-        uint256 /*deadline*/, 
-        uint8 /*v*/, 
-        bytes32 /*r*/, 
+        address, /*owner*/
+        address, /*spender*/
+        uint256, /*value*/
+        uint256, /*deadline*/
+        uint8, /*v*/
+        bytes32, /*r*/
         bytes32 /*s*/
-    ) external {}
+    ) external {
+        if (shouldRevertPermit) revert("permit revert");
+        permitCalled = true;
+    }
 
     // ------------------------------------------------------------------------------------------
     // Test utilities

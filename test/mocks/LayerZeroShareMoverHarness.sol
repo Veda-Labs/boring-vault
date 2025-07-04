@@ -39,6 +39,19 @@ contract LayerZeroShareMoverHarness is LayerZeroShareMover {
         return (p.chainId, p.feeToken, p.maxFee);
     }
 
+    function exposeSetOutboundLimits(RateLimitConfig[] calldata cfg) external {
+        _setOutboundRateLimits(cfg);
+    }
+    function exposeSetInboundLimits(RateLimitConfig[] calldata cfg) external {
+        _setInboundRateLimits(cfg);
+    }
+    function exposeOutboundCheck(uint32 eid, uint256 amt) external {
+        _checkAndUpdateOutboundRateLimit(eid, amt);
+    }
+    function exposeInboundCheck(uint32 eid, uint256 amt) external {
+        _checkAndUpdateInboundRateLimit(eid, amt);
+    }
+
     // ------------------------------------------------------------------------------------------
     // Stub ShareMover abstract functions (not used in these unit tests)
     // ------------------------------------------------------------------------------------------

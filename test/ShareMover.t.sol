@@ -62,4 +62,32 @@ contract ShareMoverTest is Test {
         vm.expectRevert(ShareMover.ShareMover__InsufficientBalance.selector);
         mover.bridge(INITIAL_SHARES + 1, 1, recipient, "", ERC20(address(0)));
     }
+}
+
+// ============================ PERMIT FLOW TESTS ============================
+
+contract ShareMoverPermitTest is Test {
+    MockVault vault;
+    DummyShareMover mover;
+    address user = address(0xBEEF);
+
+    function setUp() external {
+        vault = new MockVault(6);
+        mover = new DummyShareMover(address(vault));
+        vault.mint(user, 1e12);
+    }
+
+    function testBridgeWithPermitSuccess() external {
+        vault.setPermitBehavior(false); // permit will succeed
+        vm.prank(user);
+        mover.bridgeWithPermit(1e6, 1, bytes32(uint256(uint160(user))), "", 0, 0, 0, 0, ERC20(address(0)));
+        assertTrue(vault.permitCalled(), "permit not called");
+    }
+
+    function testBridgeWithPermitReverts() external {
+        vault.setPermitBehavior(true); // force permit fail
+        vm.prank(user);
+        vm.expectRevert(ShareMover.ShareMover__InvalidPermit.selector);
+        mover.bridgeWithPermit(1e6, 1, bytes32(uint256(uint160(user))), "", 0, 0, 0, 0, ERC20(address(0)));
+    }
 } 
