@@ -24,7 +24,11 @@ contract MockEndpoint {
         fee = MessagingFee(nativeQuote, lzTokenQuote);
     }
 
-    function send(MessagingParams calldata, address) external payable returns (MessagingReceipt memory r) {
+    function send(MessagingParams calldata params, address) external payable returns (MessagingReceipt memory r) {
+        // Ensure callers pay the quoted native fee when not paying in LZ token to avoid silent false-positives in tests.
+        if (!params.payInLzToken) {
+            require(msg.value >= nativeQuote, "MockEndpoint: fee not covered");
+        }
         r = MessagingReceipt({guid: bytes32("mock"), nonce: 1, fee: MessagingFee(nativeQuote, lzTokenQuote)});
     }
 

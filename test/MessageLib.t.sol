@@ -106,7 +106,11 @@ contract MessageLibFuzzTest is Test {
         vm.assume(toDecimals <= 27);
 
         uint256 mul = 10 ** uint256(delta);
-        vm.assume(uint256(amount) * mul <= type(uint128).max);
+        uint256 prod;
+        unchecked {
+            prod = uint256(amount) * mul;
+        }
+        vm.assume(prod <= type(uint128).max);
 
         uint128 scaledUp = harness.convert(amount, fromDecimals, toDecimals);
         uint128 roundTripped = harness.convert(scaledUp, toDecimals, fromDecimals);
@@ -125,7 +129,9 @@ contract MessageLibFuzzTest is Test {
         uint8 toDecimals = fromDecimals - delta;
         uint256 divisor = 10 ** uint256(delta);
 
-        uint128 expected = uint128(amount / divisor);
+        uint256 scaled = amount / divisor;
+        vm.assume(scaled <= type(uint128).max);
+        uint128 expected = uint128(scaled);
 
         if (expected == 0) {
             vm.expectRevert();

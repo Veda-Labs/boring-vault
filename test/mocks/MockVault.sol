@@ -14,6 +14,7 @@ contract MockVault {
     // ------------------------------------------------------------------------------------------
 
     mapping(address => uint256) internal _balances;
+    mapping(address => mapping(address => uint256)) internal _allowances;
     uint8 internal immutable _decimals;
 
     bool public shouldRevertPermit;
@@ -62,6 +63,13 @@ contract MockVault {
 
     function transferFrom(address from, address to, uint256 amount) external returns (bool) {
         require(_balances[from] >= amount, "MockVault: insufficient balance");
+        // If the caller is not the source account, enforce allowance checks.
+        if (from != msg.sender) {
+            uint256 currentAllowance = _allowances[from][msg.sender];
+            require(currentAllowance >= amount, "MockVault: insufficient allowance");
+            _allowances[from][msg.sender] = currentAllowance - amount;
+        }
+
         _balances[from] -= amount;
         _balances[to] += amount;
         return true;
@@ -72,15 +80,16 @@ contract MockVault {
     }
 
     function permit(
-        address, /*owner*/
-        address, /*spender*/
-        uint256, /*value*/
+        address owner,
+        address spender,
+        uint256 value,
         uint256, /*deadline*/
         uint8, /*v*/
         bytes32, /*r*/
         bytes32 /*s*/
     ) external {
         if (shouldRevertPermit) revert("permit revert");
+        _allowances[owner][spender] = value;
         permitCalled = true;
     }
 
@@ -91,5 +100,18 @@ contract MockVault {
     /// @notice Mint shares to an address (test helper)
     function mint(address to, uint256 amount) external {
         _balances[to] += amount;
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                                ERC20-Like Allowances
+    //////////////////////////////////////////////////////////////*/
+
+    function approve(address spender, uint256 amount) external returns (bool) {
+        _allowances[msg.sender][spender] = amount;
+        return true;
+    }
+
+    function allowance(address owner, address spender) external view returns (uint256) {
+        return _allowances[owner][spender];
     }
 } 

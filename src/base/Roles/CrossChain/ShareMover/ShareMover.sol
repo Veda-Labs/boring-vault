@@ -26,7 +26,7 @@ interface IVault {
  * @notice An abstract contract providing a standardized interface for bridging Boring Vault Shares cross-chain.
  * It defines the core logic for burning shares on the source chain and minting on the destination.
  * Specific bridge implementations (e.g., LayerZero) will inherit from this contract.
- * @dev Inherits Pausable for emergency stop functionality.
+ * @dev Emergency pause functionality is implemented in concrete ShareMover implementations (e.g., LayerZeroShareMover).
  */
 abstract contract ShareMover is ReentrancyGuard {
     using MessageLib for MessageLib.Message;

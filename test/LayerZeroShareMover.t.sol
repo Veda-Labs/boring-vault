@@ -35,7 +35,14 @@ contract LayerZeroShareMoverHelperTest is Test {
     function testSanitizeRecipientEvmInvalidReverts() external {
         // first byte non-zero
         bytes32 bad = bytes32(uint256(uint160(address(0xBEEF))) + (1 << 248));
-        vm.expectRevert();
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                LayerZeroShareMover.LayerZeroShareMover__InvalidRecipientAddressFormat.selector,
+                101,
+                20,
+                32
+            )
+        );
         harness.exposedSanitize(bad, 101);
     }
 
@@ -59,7 +66,7 @@ contract LayerZeroShareMoverHelperTest is Test {
 
     function testDecodeBridgeParamsInvalidReverts() external {
         bytes memory bad = hex"deadbeef"; // too short
-        vm.expectRevert();
+        vm.expectRevert(LayerZeroShareMover.LayerZeroShareMover__InvalidBridgeParams.selector);
         harness.exposedDecode(bad);
     }
 
@@ -154,13 +161,58 @@ contract LayerZeroShareMoverFeeTest is Test {
     function testSendMessageRevertsMaxFeeTooLow() external {
         endpoint.setQuote(1 ether, 0);
         vault.mint(address(this), 1e6);
-        vm.expectRevert();
+        vault.approve(address(mover), 1e6);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                LayerZeroShareMover.LayerZeroShareMover__FeeExceedsMax.selector,
+                dstEid,
+                1 ether,
+                0.5 ether
+            )
+        );
         mover.bridge{value: 1 ether}(1e6, dstEid, TO, _wildcard(0.5 ether), ERC20(NATIVE));
     }
 
     function testSendMessageSucceedsWhenMaxFeeOk() external {
         endpoint.setQuote(1 ether, 0);
         vault.mint(address(this), 1e6);
+        vault.approve(address(mover), 1e6);
         mover.bridge{value: 1 ether}(1e6, dstEid, TO, _wildcard(2 ether), ERC20(NATIVE));
+    }
+}
+
+// ============================  EXTENDED RATE-LIMIT WINDOW TEST  ============================
+
+contract LayerZeroShareMoverRateLimitWindowTest is Test {
+    LayerZeroShareMoverHarness harness;
+    MockVault vault;
+
+    function setUp() external {
+        vault = new MockVault(18);
+        MockEndpoint ep = new MockEndpoint();
+        harness = new LayerZeroShareMoverHarness(address(vault), address(0x1234), address(ep));
+
+        // Configure a long rate-limit window
+        uint32 eid = 777;
+        PairwiseRateLimiter.RateLimitConfig[] memory cfg = new PairwiseRateLimiter.RateLimitConfig[](1);
+        cfg[0] = PairwiseRateLimiter.RateLimitConfig({peerEid: eid, limit: 10, window: 3600});
+        harness.exposeSetOutboundLimits(cfg);
+    }
+
+    function testRateLimitResetsAcrossWindows() external {
+        uint32 eid = 777;
+
+        // consume full limit in current window
+        harness.exposeOutboundCheck(eid, 10);
+
+        // further send should revert
+        vm.expectRevert(PairwiseRateLimiter.OutboundRateLimitExceeded.selector);
+        harness.exposeOutboundCheck(eid, 1);
+
+        // move into next window
+        vm.warp(block.timestamp + 3601);
+
+        // limit should reset
+        harness.exposeOutboundCheck(eid, 10);
     }
 } 

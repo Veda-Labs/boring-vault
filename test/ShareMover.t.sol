@@ -17,10 +17,14 @@ contract ShareMoverTest is Test {
 
     function setUp() external {
         vault = new MockVault(6);
-        mover = new DummyShareMover(address(vault));
+        mover = new DummyShareMover(address(vault), 1 ether);
 
         // Mint shares to user for testing
         vault.mint(user, INITIAL_SHARES);
+
+        // Approve mover to transfer all shares on behalf of user
+        vm.prank(user);
+        vault.approve(address(mover), type(uint256).max);
     }
 
     function testBridgeSuccessful() external {
@@ -73,7 +77,7 @@ contract ShareMoverPermitTest is Test {
 
     function setUp() external {
         vault = new MockVault(6);
-        mover = new DummyShareMover(address(vault));
+        mover = new DummyShareMover(address(vault), 1 ether);
         vault.mint(user, 1e12);
     }
 
@@ -82,6 +86,10 @@ contract ShareMoverPermitTest is Test {
         vm.prank(user);
         mover.bridgeWithPermit(1e6, 1, bytes32(uint256(uint160(user))), "", 0, 0, 0, 0, ERC20(address(0)));
         assertTrue(vault.permitCalled(), "permit not called");
+
+        // Verify balances updated correctly
+        assertEq(vault.balanceOf(user), 1e12 - 1e6, "User balance not reduced");
+        assertEq(vault.balanceOf(address(mover)), 0, "Mover should burn its shares");
     }
 
     function testBridgeWithPermitReverts() external {

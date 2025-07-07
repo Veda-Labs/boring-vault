@@ -16,7 +16,11 @@ contract DummyShareMover is ShareMover {
     bytes public lastWildCard;
     address public lastFeeToken;
 
-    constructor(address _vault) ShareMover(_vault) {}
+    uint256 public immutable feeQuote;
+
+    constructor(address _vault, uint256 _fee) ShareMover(_vault) {
+        feeQuote = _fee;
+    }
 
     // ------------------------------------------------------------------------------------------
     // ShareMover overrides
@@ -42,7 +46,7 @@ contract DummyShareMover is ShareMover {
         uint32, /*chainId*/
         bytes calldata, /*bridgeWildCard*/
         ERC20 /*feeToken*/
-    ) internal pure override returns (uint256 fee) {
-        return 1 ether; // constant for easy assertions
+    ) internal view override returns (uint256 fee) {
+        return feeQuote;
     }
 } 
