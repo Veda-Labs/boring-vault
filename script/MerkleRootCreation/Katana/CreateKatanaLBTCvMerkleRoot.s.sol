@@ -16,7 +16,7 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x75231079973C23e9eB6180fa3D2fc21334565aB5;
-    address public rawDataDecoderAndSanitizer = 0x770B3AAA48096b3fB36876b8dD55789372775bf0;
+    address public rawDataDecoderAndSanitizer = 0xd1DEA7D962401ccBfb76DC907a06dc61269eDEA1;
     address public managerAddress = 0x9aC5AEf62eCe812FEfb77a0d1771c9A5ce3D04E4;
     address public accountantAddress = 0x90e864A256E58DBCe034D9C43C3d8F18A00f55B6;
 
@@ -39,12 +39,9 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
 
 
-        // ========================== CCIP ==========================
-        ERC20[] memory ccipBridgeAssets = new ERC20[](1);
-        ccipBridgeAssets[0] = getERC20(sourceChain, "LBTC");
-        ERC20[] memory ccipBridgeFeeAssets = new ERC20[](1);
-        ccipBridgeFeeAssets[0] = getERC20(sourceChain, "WETH");
-        _addCcipBridgeLeafs(leafs, ccipMainnetChainSelector, ccipBridgeAssets, ccipBridgeFeeAssets);
+        // ========================== LBTC Bridge Wrapper ==========================
+        // To Mainnet
+        _addLBTCBridgeLeafs(leafs, 0x0000000000000000000000000000000000000000000000000000000000000001);  
 
         // ========================== Fee Claiming ==========================
         ERC20[] memory feeAssets = new ERC20[](1);

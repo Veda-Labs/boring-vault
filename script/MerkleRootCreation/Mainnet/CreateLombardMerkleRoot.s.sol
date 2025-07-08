@@ -230,9 +230,11 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== LBTC CCIP Wrapper ==========================
         // To BnB
-        _addLBTCBridgeLeafs(leafs, 0x0000000000000000000000000000000000000000000000000000000000000038); 
+        _addLBTCBridgeLeafs(leafs, 0x0000000000000000000000000000000000000000000000000000000000000038); //56
         // To Base
-        _addLBTCBridgeLeafs(leafs, 0x0000000000000000000000000000000000000000000000000000000000002105); 
+        _addLBTCBridgeLeafs(leafs, 0x0000000000000000000000000000000000000000000000000000000000002105); //8453
+        // To Katana
+        _addLBTCBridgeLeafs(leafs, 0x00000000000000000000000000000000000000000000000000000000000b67d2); //747474
 
         // ========================== Fluid Dex ==========================
         { 

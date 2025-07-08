@@ -12,24 +12,22 @@ import {NativeWrapperDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/P
 import {LidoDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LidoDecoderAndSanitizer.sol";
 import {AtomicQueueDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AtomicQueueDecoderAndSanitizer.sol";
 import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
+import {LBTCBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LBTCBridgeDecoderAndSanitizer.sol";
 
 contract KatanaDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
     ERC4626DecoderAndSanitizer,
     AgglayerDecoderAndSanitizer,
     CCIPDecoderAndSanitizer,
-    OdosDecoderAndSanitizer,
     OneInchDecoderAndSanitizer,
     EtherFiDecoderAndSanitizer,
     NativeWrapperDecoderAndSanitizer,
     LidoDecoderAndSanitizer,
     AtomicQueueDecoderAndSanitizer,
-    TellerDecoderAndSanitizer
+    TellerDecoderAndSanitizer,
+    LBTCBridgeDecoderAndSanitizer
 {
-    constructor(address _odosRouter) 
-        OdosDecoderAndSanitizer(_odosRouter)
-        AtomicQueueDecoderAndSanitizer(0.9e4, 1.1e4)
-    {}
+    constructor() AtomicQueueDecoderAndSanitizer(0.9e4, 1.1e4){}
 
     /**
      * @notice EtherFi, NativeWrapper all specify a `deposit()`,

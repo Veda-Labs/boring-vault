@@ -117,22 +117,21 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
 
         address odosRouter = address(1);
         creationCode = type(KatanaDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(odosRouter);
+        constructorArgs = abi.encode();
+        deployer.deployContract("Katana Decoder And Sanitizer v0.5", creationCode, constructorArgs, 0);
 
-        deployer.deployContract("Katana Decoder And Sanitizer v0.0", creationCode, constructorArgs, 0);
+        //creationCode = type(HybridBtcDecoderAndSanitizer).creationCode;
+        //constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
+        //deployer.deployContract("Hybrid BTC Decoder And Sanitizer V0.1", creationCode, constructorArgs, 0);
 
-        creationCode = type(HybridBtcDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
-        deployer.deployContract("Hybrid BTC Decoder And Sanitizer V0.1", creationCode, constructorArgs, 0);
-
-        address uniswapV4PositionManager = getAddress(sourceChain, "uniV4PositionManager");
-        address uniswapV3NonFungiblePositionManager = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager");
-        address odosRouterV2 = getAddress(sourceChain, "odosRouterV2");
-        address dvStETHVault = getAddress(sourceChain, "dvStETHVault");
-        creationCode = type(GoldenGooseDecoderAndSanitizer).creationCode;
-        constructorArgs =
-            abi.encode(uniswapV4PositionManager, uniswapV3NonFungiblePositionManager, odosRouterV2, dvStETHVault);
-        deployer.deployContract("Golden Goose Decoder And Sanitizer v0.4", creationCode, constructorArgs, 0);
+        //address uniswapV4PositionManager = getAddress(sourceChain, "uniV4PositionManager");
+        //address uniswapV3NonFungiblePositionManager = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager");
+        //address odosRouterV2 = getAddress(sourceChain, "odosRouterV2");
+        //address dvStETHVault = getAddress(sourceChain, "dvStETHVault");
+        //creationCode = type(GoldenGooseDecoderAndSanitizer).creationCode;
+        //constructorArgs =
+        //    abi.encode(uniswapV4PositionManager, uniswapV3NonFungiblePositionManager, odosRouterV2, dvStETHVault);
+        //deployer.deployContract("Golden Goose Decoder And Sanitizer v0.4", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
