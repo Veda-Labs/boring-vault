@@ -117,8 +117,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
 
         address odosRouter = address(1);
         creationCode = type(KatanaDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode();
-        deployer.deployContract("Katana Decoder And Sanitizer v0.5", creationCode, constructorArgs, 0);
+        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
+        deployer.deployContract("Katana Decoder And Sanitizer v0.3", creationCode, constructorArgs, 0);
 
         //creationCode = type(HybridBtcDecoderAndSanitizer).creationCode;
         //constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));

@@ -16,13 +16,11 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x75231079973C23e9eB6180fa3D2fc21334565aB5;
-    address public rawDataDecoderAndSanitizer = 0xd1DEA7D962401ccBfb76DC907a06dc61269eDEA1;
+    address public rawDataDecoderAndSanitizer = 0x3A70bDe90936625208483DDBf88f6E536A1aa4aC;
     address public managerAddress = 0x9aC5AEf62eCe812FEfb77a0d1771c9A5ce3D04E4;
     address public accountantAddress = 0x90e864A256E58DBCe034D9C43C3d8F18A00f55B6;
 
-    function setUp() external {}
-
-    /**
+    function setUp() external {} /**
      * @notice Uncomment which script you want to run.
      */
     function run() external {
@@ -36,7 +34,7 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, katana, "accountantAddress", accountantAddress);
         setAddress(false, katana, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](32);
 
 
         // ========================== LBTC Bridge Wrapper ==========================
@@ -48,6 +46,20 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
         feeAssets[0] = getERC20(sourceChain, "LBTC");
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
+        // ========================== Morpho Blue ==========================
+        _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "LBTC_vbWBTC_915")); 
+
+        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "LBTC_vbWBTC_915")); 
+
+        // ========================== Sushi ==========================
+        address[] memory token0 = new address[](1);
+        token0[0] = getAddress(sourceChain, "LBTC");
+
+        address[] memory token1 = new address[](1);
+        token1[0] = getAddress(sourceChain, "BTCK");
+
+        _addUniswapV3Leafs(leafs, token0, token1, false);
+            
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
