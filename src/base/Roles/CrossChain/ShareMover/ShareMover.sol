@@ -184,15 +184,30 @@ abstract contract ShareMover is ReentrancyGuard {
     // ========================================= INTERNAL FUNCTIONS =========================================
 
     /**
-     * @notice Internal helper function to execute the core bridging logic.
-     * Handles burning shares and sending the cross-chain message.
-     * @dev This function is called by both `bridge` and `bridgeWithPermit`.
-     * @param shareAmount The amount of shares to bridge (in uint96).
-     * @param chainId The destination chain identifier.
-     * @param to The destination address on the target chain (32-byte format).
-     * @param bridgeWildCard Bridge-specific data.
-     * @param user The address of the user initiating the bridge.
-     * @param feeToken The ERC20 token used to pay the bridge fee. Use NATIVE for native token.
+     * @notice Core internal routine executed by both {bridge} and {bridgeWithPermit}.
+     * @dev Steps:
+     *  1. Validate inputs (non-zero amount & recipient).
+     *  2. Ensure `user` has enough shares in {vault}.
+     *  3. Pull shares from `user` via `transferFrom` – *may* trigger before-transfer hooks.
+     *  4. Burn those shares by calling `vault.exit` with `from = address(this)`.
+     *  5. Assemble a {MessageLib.Message} (shares still in source-chain decimals).
+     *  6. Delegate cross-chain logistics to the bridge-specific `_sendMessage`.
+     *
+     *  The function is `nonReentrant` thanks to the public wrappers, so a malicious
+     *  vault hook cannot recursively call back into any ShareMover entrypoint.
+     *
+     *  Reverts:
+     *  - ShareMover__ZeroShares        If `shareAmount == 0`.
+     *  - ShareMover__InvalidRecipient  If `to == bytes32(0)`.
+     *  - ShareMover__InsufficientBalance If `vault.balanceOf(user) < shareAmount`.
+     *  - ShareMover__TransferFailed    If `vault.transferFrom` returns false.
+     *
+     * @param shareAmount   Amount of shares to bridge on the source chain (uint96 to save gas).
+     * @param chainId       Destination chain identifier understood by the concrete mover.
+     * @param to            32-byte recipient address on the destination chain.
+     * @param bridgeWildCard Opaque bytes forwarded to the concrete mover for fee / gas / etc.
+     * @param user          Account that provided the shares (msg.sender in public wrappers).
+     * @param feeToken      ERC20 token used for fee payment; `NATIVE` sentinel for native coin.
      */
     function _bridge(
         uint96 shareAmount,
@@ -260,19 +275,19 @@ abstract contract ShareMover is ReentrancyGuard {
     // ========================================= ABSTRACT FUNCTIONS =========================================
 
     /**
-     * @notice Abstract function to send a cross-chain message using the specific bridge implementation.
-     * This function must be implemented by concrete ShareMover contracts (e.g., LayerZeroShareMover).
-     * @dev This function should handle:
-     *      - Decimal conversion between chains (if needed)
-     *      - Rate limiting (if applicable to the bridge)
-     *      - Fee collection and validation
-     *      - Chain-specific validations
-     *      - Reverting if maxFee exceeds the required fee
-     * @param message The Message to send
-     * @param chainId The destination chain identifier
-     * @param bridgeWildCard Bridge-specific data for configuring the cross-chain message
-     * @param feeToken The ERC20 token used to pay the bridge fee. Use NATIVE for native token
-     * @return messageId The unique identifier of the sent cross-chain message
+     * @notice Bridge-specific dispatch hook implemented by concrete movers.
+     * @dev Implementations **MUST**:
+     *  - Convert `message.amount` to destination-decimals before encoding.
+     *  - Enforce per-peer rate limits.
+     *  - Quote fees and compare against `maxFee` from `bridgeWildCard`.
+     *  - Collect the fee (msg.value or ERC20 transfer) *before* calling the transport.
+     *  - Revert with a descriptive custom error when any check fails.
+     *
+     * @param message        Prepared Message struct (amount still in source decimals).
+     * @param chainId        Destination chain id.
+     * @param bridgeWildCard Opaque, bridge-specific configuration blob.
+     * @param feeToken       Token used to pay the bridge fee.
+     * @return messageId     Unique identifier (GUID, hash, etc.) assigned by the bridge.
      */
     function _sendMessage(
         MessageLib.Message memory message,
@@ -282,13 +297,10 @@ abstract contract ShareMover is ReentrancyGuard {
     ) internal virtual returns (bytes32 messageId);
 
     /**
-     * @notice Abstract function to preview the fee required to bridge shares in a given token.
-     * This function must be implemented by concrete ShareMover contracts.
-     * @param message The Message to send
-     * @param chainId The destination chain identifier
-     * @param bridgeWildCard Bridge-specific data for configuring the cross-chain message
-     * @param feeToken The ERC20 token to pay the bridge fee in. Use NATIVE for native token
-     * @return fee The estimated fee required for the bridge operation
+     * @notice Lightweight version of {_sendMessage} used for front-end fee estimation.
+     * @dev Must apply the **exact** same decimal conversion and options encoding that
+     *      `_sendMessage` would use so the quote is accurate.  MUST revert on the same
+     *      error conditions except those related to msg.value / approvals.
      */
     function _previewFee(
         MessageLib.Message memory message,

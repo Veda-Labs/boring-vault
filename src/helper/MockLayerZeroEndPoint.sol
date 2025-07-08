@@ -59,9 +59,9 @@ contract MockLayerZeroEndPoint {
         returns (MessagingReceipt memory receipt)
     {
         uint256 suppliedNative = msg.value;
-        uint256 suppliedLzToken = lzToken.balanceOf(address(this));
+        uint256 suppliedLzToken = fees[lzToken] == 0 ? 0 : lzToken.balanceOf(address(this));
 
-        if (suppliedNative < fees[NATIVE] || suppliedLzToken < fees[lzToken]) {
+        if (suppliedNative < fees[NATIVE] || (fees[lzToken] != 0 && suppliedLzToken < fees[lzToken])) {
             revert("Insufficient funds");
         }
 

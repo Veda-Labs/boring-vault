@@ -324,11 +324,16 @@ contract LayerZeroShareMover is Auth, ShareMover, OAppAuth, PairwiseRateLimiter,
     // ========================================= INTERNAL FUNCTIONS =========================================
 
     /**
-    * @notice Sanitize and validate the recipient address based on destination chain type
-    * @param recipient The recipient address as bytes32
-    * @param chainId The destination chain ID
-    * @return sanitizedRecipient The validated recipient address
-    */
+     * @notice Validates and converts the recipient address for the target chain.
+     * @dev
+     *  EVM chains expect a 20-byte address left-padded to 32 bytes.
+     *  Solana chains expect the full 32-byte value to be forwarded untouched.
+     *  Reverts with LayerZeroShareMover__InvalidRecipientAddressFormat when the supplied
+     *  address does not meet the target chain's format requirements.
+     * @param recipient The raw 32-byte recipient value supplied by the caller.
+     * @param chainId   The LayerZero endpoint id of the destination chain.
+     * @return sanitizedRecipient A properly formatted 32-byte recipient ready for encoding in the cross-chain message.
+     */
     function _sanitizeRecipient(bytes32 recipient, uint32 chainId) internal view returns (bytes32 sanitizedRecipient) {
         Chain memory destChain = chains[chainId];
         
@@ -490,9 +495,12 @@ contract LayerZeroShareMover is Auth, ShareMover, OAppAuth, PairwiseRateLimiter,
     }
 
     /**
-     * @notice Decode bridge parameters from bridgeWildCard.
-     * @param bridgeWildCard The encoded bridge parameters.
-     * @return params The decoded BridgeParams struct.
+     * @notice Decodes the wildcard bytes passed to {bridge} / {previewFee} into strongly-typed parameters.
+     * @dev Expected encoding is `abi.encode(uint32 chainId, address feeToken, uint256 maxFee)`.
+     *      Reverts with LayerZeroShareMover__InvalidBridgeParams if the byte array is shorter than 68 bytes.
+     *      Reverts with LayerZeroShareMover__InvalidChainId if the decoded chainId == 0.
+     * @param bridgeWildCard The opaque bytes blob supplied by the caller.
+     * @return params The decoded {BridgeParams} struct.
      */
     function _decodeBridgeParams(bytes calldata bridgeWildCard) internal pure returns (BridgeParams memory params) {
         // Expecting: 4 bytes (uint32) + 32 bytes (address) + 32 bytes (uint256) = 68 bytes

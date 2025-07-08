@@ -11,6 +11,9 @@ import {Authority} from "@solmate/auth/Auth.sol";
  * @notice Exposes internal helpers of LayerZeroShareMover for unit testing without touching LayerZero endpoint.
  */
 contract LayerZeroShareMoverHarness is LayerZeroShareMover {
+    // Storage helper to expose the last message that was "sent" in tests
+    MessageLib.Message public lastMessage;
+
     constructor(address _vault, address _lzToken, address _endpoint)
         LayerZeroShareMover(
             msg.sender,     // owner
@@ -57,11 +60,25 @@ contract LayerZeroShareMoverHarness is LayerZeroShareMover {
     // ------------------------------------------------------------------------------------------
 
     function _sendMessage(
-        MessageLib.Message memory,
-        uint32,
-        bytes calldata,
-        ERC20
+        MessageLib.Message memory message,
+        uint32 chainId,
+        bytes calldata /*bridgeWildCard*/,
+        ERC20 /*feeToken*/
     ) internal override returns (bytes32) {
+        // Perform decimal conversion like the real implementation
+        uint8 dstDecimals = chains[chainId].targetDecimals;
+        if (dstDecimals != 0 && localDecimals != dstDecimals) {
+            message.amount = MessageLib.convertAmountDecimals(
+                message.amount,
+                localDecimals,
+                dstDecimals
+            );
+        }
+
+        // Record the processed message for test verification
+        lastMessage = message;
+
+        // Return a dummy message id
         return bytes32("msgid");
     }
 
