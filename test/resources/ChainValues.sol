@@ -38,6 +38,7 @@ contract ChainValues {
     string public constant flare = "flare";
     string public constant plume = "plume";
     string public constant katana = "katana";
+    string public constant tac = "tac";
 
     // Bridging constants.
     uint64 public constant ccipArbitrumChainSelector = 4949039107694359620;
@@ -67,6 +68,7 @@ contract ChainValues {
     uint32 public constant HyperEVMEndpointId = 30367;
     uint32 public constant layerZeroPlumeEndpointId = 30370;
     uint32 public constant layerZeroKatanaEndpointId = 30375;
+    uint32 public constant layerZeroTACEndpointId = 30377;
     error ChainValues__ZeroAddress(string chainName, string valueName);
     error ChainValues__ZeroBytes32(string chainName, string valueName);
     error ChainValues__ValueAlreadySet(string chainName, string valueName);
@@ -128,6 +130,7 @@ contract ChainValues {
         _addAvalancheValues(); 
         _addPlumeValues();
         _addKatanaValues();
+        _addTACValues();
         // Add testnet values
         _addHoleskyValues();
         _addSepoliaValues();
@@ -2710,6 +2713,26 @@ contract ChainValues {
 
         // LayerZero
         values[katana]["LayerZeroEndPoint"] = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B.toBytes32();
+
+    }
+
+    function _addTACValues() private {
+        values[tac]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        values[tac]["txBundlerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        values[tac]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
+        values[tac]["dev5Address"] = 0x1cdF47387358A1733968df92f7cC14546D9E1047.toBytes32();
+
+        // ERC20s
+        values[tac]["TON"] = 0xb76d91340F5CE3577f0a056D29f6e3Eb4E88B140.toBytes32();
+        values[tac]["wTAC"] = 0xB63B9f0eb4A6E6f191529D71d4D88cc8900Df2C9.toBytes32();
+        values[tac]["tsTON"] = 0xD44F691aeD69fe43180B95b6F82f89c18Fb93094.toBytes32();
+        values[tac]["ZRO"] = address(1).toBytes32();
+
+        // LayerZero
+        values[tac]["LayerZeroEndPoint"] = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B.toBytes32();
+
+        // Balancer
+        values[tac]["balancerVault"] = address(1).toBytes32();
 
     }
 }
