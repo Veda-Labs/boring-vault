@@ -73,6 +73,7 @@ mainnet = { key = "${ETHERSCAN_KEY}" }
 #plume = { key = "${PLUMESCAN_KEY}", chain = 98866, url = "https://explorer-plume-mainnet-1.t.conduit.xyz/api/"}
 katana = { key = "${KATANASCAN_KEY}", chain = 747474, url = "https://explorer.katanarpc.com/api" }
 tac = { key = "${TACSCAN_KEY}", chain = 239, url = "https://explorer.tac.build/api" }
+ink = { key = "${INKSCAN_KEY}", chain = 57073, url = "https://explorer.inkonchain.com/api" }
 
 [fmt]
 FOUNDRY_FMT_LINE_LENGTH = 120
