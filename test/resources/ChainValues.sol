@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
 import {ERC20} from "@solmate/tokens/ERC20.sol";
@@ -335,6 +336,7 @@ contract ChainValues {
         values[mainnet]["BTCN"] = 0x386E7A3a0c0919c9d53c3b04FF67E73Ff9e45Fb6.toBytes32();
         values[mainnet]["scrvUSD"] = 0x0655977FEb2f289A4aB78af67BAB0d17aAb84367.toBytes32();
         values[mainnet]["vbETH"] = 0x2DC70fb75b88d2eB4715bc06E1595E6D97c34DFF.toBytes32();
+        values[mainnet]["vbWBTC"] = 0x2C24B57e2CCd1f273045Af6A5f632504C432374F.toBytes32();
 
 
         // Rate providers
@@ -1391,7 +1393,7 @@ contract ChainValues {
 
         // Odos
         values[mainnet]["odosRouterV2"] = 0xCf5540fFFCdC3d510B18bFcA6d2b9987b0772559.toBytes32();
-        values[mainnet]["odosExecutor"] = 0x76edF8C155A1e0D9B2aD11B04d9671CBC25fEE99.toBytes32();
+        values[mainnet]["odosExecutor"] = 0x7882570840A97A490a37bd8Db9e1aE39165bfBd6.toBytes32();
 
         // Level
         values[mainnet]["levelMinter"] = 0x9136aB0294986267b71BeED86A75eeb3336d09E1.toBytes32();
@@ -2695,6 +2697,8 @@ contract ChainValues {
         values[katana]["ZRO"] = address(1).toBytes32(); // no ZRO on Katana
         values[katana]["LBTC"] = 0xecAc9C5F704e954931349Da37F60E39f515c11c1.toBytes32();
         values[katana]["BTCK"] = 0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072.toBytes32();
+        values[katana]["WBTC"] = 0x0913DA6Da4b42f538B445599b46Bb4622342Cf52.toBytes32(); //WBTC == vbWBTC 
+        values[katana]["vbWBTC"] = 0x0913DA6Da4b42f538B445599b46Bb4622342Cf52.toBytes32();
 
         // Balancer
         values[katana]["balancerVault"] = address(1).toBytes32();
@@ -2716,9 +2720,12 @@ contract ChainValues {
         values[katana]["morphoBlue"] = 0xD50F2DffFd62f94Ee4AEd9ca05C61d0753268aBc.toBytes32(); 
         values[katana]["LBTC_vbWBTC_915"] = 0x60b54e17d55b765955a20908ed5143192a48df7fd3833f7f7fe86504bf6c4c1a; 
 
+        // MetaMorpho
+        values[katana]["gauntletWBTC"] = 0xf243523996ADbb273F0B237B53f30017C4364bBC.toBytes32(); 
+
         // Sushi 
         values[katana]["uniswapV3NonFungiblePositionManager"] = 0x2659C6085D26144117D904C46B48B6d180393d27.toBytes32(); 
-        values[katana]["uniV3Router"] = 0x2659C6085D26144117D904C46B48B6d180393d27.toBytes32(); 
+        values[katana]["uniV3Router"] = 0x4e1d81A3E627b9294532e990109e4c21d217376C.toBytes32(); 
     }
 
     function _addTACValues() private {

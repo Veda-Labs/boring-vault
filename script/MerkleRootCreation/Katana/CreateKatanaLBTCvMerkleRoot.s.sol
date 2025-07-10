@@ -34,7 +34,7 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, katana, "accountantAddress", accountantAddress);
         setAddress(false, katana, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](32);
+        ManageLeaf[] memory leafs = new ManageLeaf[](128);
 
 
         // ========================== LBTC Bridge Wrapper ==========================
@@ -51,12 +51,28 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
 
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "LBTC_vbWBTC_915")); 
 
-        // ========================== Sushi ==========================
-        address[] memory token0 = new address[](1);
-        token0[0] = getAddress(sourceChain, "LBTC");
+        // ========================== MetaMorhpo ==========================
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletWBTC")));  
 
-        address[] memory token1 = new address[](1);
+        // ========================== Agglayer ==========================
+        _addAgglayerTokenLeafs(
+            leafs,
+            getAddress(sourceChain, "agglayerBridgeKatana"), //bridge
+            getAddress(sourceChain, "vbWBTC"), //bridge token
+            20, //from chain
+            0 //to chain
+        );
+
+        // ========================== Sushi ==========================
+        address[] memory token0 = new address[](3);
+        token0[0] = getAddress(sourceChain, "LBTC");
+        token0[1] = getAddress(sourceChain, "WBTC");
+        token0[2] = getAddress(sourceChain, "LBTC");
+
+        address[] memory token1 = new address[](3);
         token1[0] = getAddress(sourceChain, "BTCK");
+        token1[1] = getAddress(sourceChain, "BTCK");
+        token1[2] = getAddress(sourceChain, "WBTC");
 
         _addUniswapV3Leafs(leafs, token0, token1, false);
             

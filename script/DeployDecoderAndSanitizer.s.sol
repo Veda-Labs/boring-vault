@@ -104,10 +104,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        // Use the RPC URL directly instead of alias
-        vm.createSelectFork(vm.envString("KATANA_RPC_URL"));
-        setSourceChainName("katana"); 
-
+        vm.createSelectFork("mainnet");
+        setSourceChainName("mainnet"); 
     }
 
     function run() external {
@@ -115,10 +113,15 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        address odosRouter = address(1);
-        creationCode = type(KatanaDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
-        deployer.deployContract("Katana Decoder And Sanitizer v0.3", creationCode, constructorArgs, 0);
+    //constructor(address _uniswapV3NonFungiblePositionManager, address _poolRegistry, address _odosRouter)
+    //    UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
+    //    ConvexFXDecoderAndSanitizer(_poolRegistry)
+    //    OdosDecoderAndSanitizer(_odosRouter)
+    //{}
+
+        creationCode = type(LombardBtcDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "convexFXPoolRegistry"), getAddress(sourceChain, "odosRouterV2"));
+        deployer.deployContract("Lombard BTC Decoder And Sanitizer v0.5", creationCode, constructorArgs, 0);
 
         //creationCode = type(HybridBtcDecoderAndSanitizer).creationCode;
         //constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));

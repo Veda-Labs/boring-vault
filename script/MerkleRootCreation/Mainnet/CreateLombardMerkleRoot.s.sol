@@ -15,7 +15,7 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     address public boringVault = 0x5401b8620E5FB570064CA9114fd1e135fd77D57c;
-    address public rawDataDecoderAndSanitizer = 0x89236361206c830Db63752DE04Df5e98a5FeceFA;
+    address public rawDataDecoderAndSanitizer = 0x17D3652758C839baD55cC8775a3FdA03b151C7FC;
     address public managerAddress = 0xcf38e37872748E3b66741A42560672A6cef75e9B;
     address public accountantAddress = 0x28634D0c5edC67CF2450E74deA49B90a4FF93dCE;
 
@@ -301,6 +301,18 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
         );
         _addLayerZeroLeafsOldDecoder(
             leafs, getERC20(sourceChain, "LBTC"), getAddress(sourceChain, "LBTCOFTAdapter"), layerZeroCornEndpointId
+        );
+
+        // ========================== vbVault ==========================
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "vbWBTC")));
+
+        // ========================== Agglayer ==========================
+        _addAgglayerTokenLeafs(
+            leafs,
+            getAddress(sourceChain, "agglayerBridgeKatana"),
+            getAddress(sourceChain, "vbWBTC"),
+            0,
+            20
         );
 
         // ========================== Verify ==========================
