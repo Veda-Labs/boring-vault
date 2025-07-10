@@ -22583,6 +22583,92 @@ contract LidoDecoderAndSanitizer {
     }
 }
 
+// src/base/DecodersAndSanitizers/Protocols/MorphoBlueDecoderAndSanitizer.sol
+
+contract MorphoBlueDecoderAndSanitizer {
+    //============================== ERRORS ===============================
+
+    error MorphoBlueDecoderAndSanitizer__CallbackNotSupported();
+
+    //============================== MORPHO BLUE ===============================
+
+    function supply(
+        DecoderCustomTypes.MarketParams calldata params,
+        uint256,
+        uint256,
+        address onBehalf,
+        bytes calldata data
+    ) external pure returns (bytes memory addressesFound) {
+        // Sanitize raw data
+        if (data.length > 0) revert MorphoBlueDecoderAndSanitizer__CallbackNotSupported();
+        // Return addresses found
+        addressesFound = abi.encodePacked(params.loanToken, params.collateralToken, params.oracle, params.irm, onBehalf);
+    }
+
+    function withdraw(
+        DecoderCustomTypes.MarketParams calldata params,
+        uint256,
+        uint256,
+        address onBehalf,
+        address receiver
+    ) external pure returns (bytes memory addressesFound) {
+        // Nothing to sanitize
+        // Return addresses found
+        addressesFound =
+            abi.encodePacked(params.loanToken, params.collateralToken, params.oracle, params.irm, onBehalf, receiver);
+    }
+
+    function borrow(
+        DecoderCustomTypes.MarketParams calldata params,
+        uint256,
+        uint256,
+        address onBehalf,
+        address receiver
+    ) external pure returns (bytes memory addressesFound) {
+        addressesFound =
+            abi.encodePacked(params.loanToken, params.collateralToken, params.oracle, params.irm, onBehalf, receiver);
+    }
+
+    function repay(
+        DecoderCustomTypes.MarketParams calldata params,
+        uint256,
+        uint256,
+        address onBehalf,
+        bytes calldata data
+    ) external pure returns (bytes memory addressesFound) {
+        // Sanitize raw data
+        if (data.length > 0) revert MorphoBlueDecoderAndSanitizer__CallbackNotSupported();
+
+        // Return addresses found
+        addressesFound = abi.encodePacked(params.loanToken, params.collateralToken, params.oracle, params.irm, onBehalf);
+    }
+
+    function supplyCollateral(
+        DecoderCustomTypes.MarketParams calldata params,
+        uint256,
+        address onBehalf,
+        bytes calldata data
+    ) external pure returns (bytes memory addressesFound) {
+        // Sanitize raw data
+        if (data.length > 0) revert MorphoBlueDecoderAndSanitizer__CallbackNotSupported();
+
+        // Return addresses found
+        addressesFound = abi.encodePacked(params.loanToken, params.collateralToken, params.oracle, params.irm, onBehalf);
+    }
+
+    function withdrawCollateral(
+        DecoderCustomTypes.MarketParams calldata params,
+        uint256,
+        address onBehalf,
+        address receiver
+    ) external pure returns (bytes memory addressesFound) {
+        // Nothing to sanitize
+        // Return addresses found
+        addressesFound =
+            abi.encodePacked(params.loanToken, params.collateralToken, params.oracle, params.irm, onBehalf, receiver);
+    }
+}
+
 // src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol
 
 contract NativeWrapperDecoderAndSanitizer {
@@ -22787,6 +22873,148 @@ contract OneInchDecoderAndSanitizer {
             addressesFound = abi.encodePacked(addressesFound, uint160(pools[i]));
         }
     }
+}
+
+// src/interfaces/RawDataDecoderAndSanitizerInterfaces.sol
+
+  
+
+// Swell
+interface INonFungiblePositionManager {
+    struct Position {
+        // the nonce for permits
+        uint96 nonce;
+        // the address that is approved for spending this token
+        address operator;
+        // the ID of the pool with which this token is connected
+        uint80 poolId;
+        // the tick range of the position
+        int24 tickLower;
+        int24 tickUpper;
+        // the liquidity of the position
+        uint128 liquidity;
+        // the fee growth of the aggregate position as of the last action on the individual position
+        uint256 feeGrowthInside0LastX128;
+        uint256 feeGrowthInside1LastX128;
+        // how many uncollected tokens are owed to the position, as of the last computation
+        uint128 tokensOwed0;
+        uint128 tokensOwed1;
+    }
+
+    function ownerOf(uint256 tokenId) external view returns (address);
+    function positions(uint256 tokenId)
+        external
+        view
+        returns (
+            uint96 nonce,
+            address operator,
+            address token0,
+            address token1,
+            uint24 fee,
+            int24 tickLower,
+            int24 tickUpper,
+            uint128 liquidity,
+            uint256 feeGrowthInside0LastX128,
+            uint256 feeGrowthInside1LastX128,
+            uint128 tokensOwed0,
+            uint128 tokensOwed1
+        );
+}
+
+interface PancakeSwapV3MasterChef {
+    function userPositionInfos(uint256 id)
+        external
+        view
+        returns (
+            uint128 liquidity,
+            uint128 boostLiquidity,
+            int24 tickLower,
+            int24 tickUpper,
+            uint256 rewardsGrowthInside,
+            uint256 reward,
+            address user,
+            uint256 pid,
+            uint256 boostMultiplier
+        );
+}
+
+interface CamelotNonFungiblePositionManager {
+    function ownerOf(uint256 tokenId) external view returns (address);
+    function positions(uint256 tokenId)
+        external
+        view
+        returns (
+            uint96 nonce,
+            address operator,
+            address token0,
+            address token1,
+            int24 tickLower,
+            int24 tickUpper,
+            uint128 liquidity,
+            uint256 feeGrowthInside0LastX128,
+            uint256 feeGrowthInside1LastX128,
+            uint128 tokensOwed0,
+            uint128 tokensOwed1
+        );
+}
+
+interface AlgebraNonFungiblePositionManager {
+    function ownerOf(uint256 tokenId) external view returns (address);
+    function positions(uint256 tokenId)
+        external
+        view
+        returns (
+            uint96 nonce,
+            address operator,
+            address token0,
+            address token1,
+            address deployer,
+            int24 tickLower,
+            int24 tickUpper,
+            uint128 liquidity,
+            uint256 feeGrowthInside0LastX128,
+            uint256 feeGrowthInside1LastX128,
+            uint128 tokensOwed0,
+            uint128 tokensOwed1
+        );
+}
+
+interface IRecipeMarketHub {
+    enum RewardStyle {
+        Upfront,
+        Arrear,
+        Forfeitable
+    }
+    /// @custom:field weirollCommands The weiroll script that will be executed on an AP's weiroll wallet after receiving the inputToken
+    /// @custom:field weirollState State of the weiroll VM, necessary for executing the weiroll script
+    struct Recipe {
+        bytes32[] weirollCommands;
+        bytes[] weirollState;
+    }
+    function offerHashToIPOffer(bytes32 offer)
+        external
+        view
+        returns (uint256, bytes32, address, uint256, uint256, uint256);
+    function marketHashToWeirollMarket(bytes32 marketHash)
+        external
+        view
+        returns (uint256, address, uint256, uint256, Recipe memory, Recipe memory, RewardStyle);
+}
+
+interface IUniswapV4PositionManager {
+    function getPoolAndPositionInfo(uint256 tokenId) external view returns (DecoderCustomTypes.PoolKey memory, uint256); 
+}
+
+interface IPoolRegistry {
+    function poolInfo(uint256 _pid) external view returns (address, address, address, address, uint8); 
+}
+
+interface IBoringChef {
+    function rewards(uint256 rewardId) external view returns (DecoderCustomTypes.Reward memory);
+}
+
+interface IDvStETHVault {
+    function underlyingTokens() external view returns (address[] memory); 
 }
 
 // lib/forge-std/src/Base.sol
@@ -23047,6 +23275,110 @@ contract MockERC721 is IERC721Metadata {
         }
 
         return codeLength > 0;
+    }
+}
+
+// src/base/DecodersAndSanitizers/Protocols/UniswapV3DecoderAndSanitizer.sol
+
+contract UniswapV3DecoderAndSanitizer {
+    //============================== ERRORS ===============================
+
+    error UniswapV3DecoderAndSanitizer__BadPathFormat();
+    error UniswapV3DecoderAndSanitizer__BadTokenId();
+
+    //============================== IMMUTABLES ===============================
+
+    /**
+     * @notice The networks uniswapV3 nonfungible position manager.
+     */
+    INonFungiblePositionManager internal immutable uniswapV3NonFungiblePositionManager;
+
+    constructor(address _uniswapV3NonFungiblePositionManager) {
+        uniswapV3NonFungiblePositionManager = INonFungiblePositionManager(_uniswapV3NonFungiblePositionManager);
+    }
+
+    //============================== UNISWAP V3 ===============================
+
+    function exactInput(DecoderCustomTypes.ExactInputParams calldata params)
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
+        // Nothing to sanitize
+        // Return addresses found
+        // Determine how many addresses are in params.path.
+        uint256 chunkSize = 23; // 3 bytes for uint24 fee, and 20 bytes for address token
+        uint256 pathLength = params.path.length;
+        if (pathLength % chunkSize != 20) revert UniswapV3DecoderAndSanitizer__BadPathFormat();
+        uint256 pathAddressLength = 1 + (pathLength / chunkSize);
+        uint256 pathIndex;
+        for (uint256 i; i < pathAddressLength; ++i) {
+            addressesFound = abi.encodePacked(addressesFound, params.path[pathIndex:pathIndex + 20]);
+            pathIndex += chunkSize;
+        }
+        addressesFound = abi.encodePacked(addressesFound, params.recipient);
+    }
+
+    function mint(DecoderCustomTypes.MintParams calldata params)
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
+        // Nothing to sanitize
+        // Return addresses found
+        addressesFound = abi.encodePacked(params.token0, params.token1, params.recipient);
+    }
+
+    function increaseLiquidity(DecoderCustomTypes.IncreaseLiquidityParams calldata params)
+        external
+        view
+        virtual
+        returns (bytes memory addressesFound)
+    {
+        // Sanitize raw data
+        address owner = uniswapV3NonFungiblePositionManager.ownerOf(params.tokenId);
+        // Extract addresses from uniswapV3NonFungiblePositionManager.positions(params.tokenId).
+        (, address operator, address token0, address token1,,,,,,,,) =
+            uniswapV3NonFungiblePositionManager.positions(params.tokenId);
+        addressesFound = abi.encodePacked(operator, token0, token1, owner);
+    }
+
+    function decreaseLiquidity(DecoderCustomTypes.DecreaseLiquidityParams calldata params)
+        external
+        view
+        virtual
+        returns (bytes memory addressesFound)
+    {
+        // Sanitize raw data
+        // NOTE ownerOf check is done in PositionManager contract as well, but it is added here
+        // just for completeness.
+        address owner = uniswapV3NonFungiblePositionManager.ownerOf(params.tokenId);
+
+        // No addresses in data
+        return abi.encodePacked(owner);
+    }
+
+    function collect(DecoderCustomTypes.CollectParams calldata params)
+        external
+        view
+        virtual
+        returns (bytes memory addressesFound)
+    {
+        // Sanitize raw data
+        // NOTE ownerOf check is done in PositionManager contract as well, but it is added here
+        // just for completeness.
+        address owner = uniswapV3NonFungiblePositionManager.ownerOf(params.tokenId);
+
+        // Return addresses found
+        addressesFound = abi.encodePacked(params.recipient, owner);
+    }
+
+    function burn(uint256 /*tokenId*/ ) external pure virtual returns (bytes memory addressesFound) {
+        // positionManager.burn(tokenId) will verify that the tokenId has no liquidity, and no tokens owed.
+        // Nothing to sanitize or return
+        return addressesFound;
     }
 }
 
@@ -25477,9 +25809,14 @@ contract KatanaDecoderAndSanitizer is
     LidoDecoderAndSanitizer,
     AtomicQueueDecoderAndSanitizer,
     TellerDecoderAndSanitizer,
-    LBTCBridgeDecoderAndSanitizer
+    LBTCBridgeDecoderAndSanitizer,
+    MorphoBlueDecoderAndSanitizer,
+    UniswapV3DecoderAndSanitizer
 {
-    constructor() AtomicQueueDecoderAndSanitizer(0.9e4, 1.1e4){}
+    constructor(address _nonFungiblePositionManager)
+        UniswapV3DecoderAndSanitizer(_nonFungiblePositionManager)
+        AtomicQueueDecoderAndSanitizer(0.9e4, 1.1e4)
+    {}
 
     /**
      * @notice EtherFi, NativeWrapper all specify a `deposit()`,
@@ -25494,7 +25831,7 @@ contract KatanaDecoderAndSanitizer is
         return addressesFound;
     }
 
-        function wrap(uint256)
+    function wrap(uint256)
         external
         pure
         override(EtherFiDecoderAndSanitizer, LidoDecoderAndSanitizer)
@@ -25513,6 +25850,4 @@ contract KatanaDecoderAndSanitizer is
         // Nothing to sanitize or return
         return addressesFound;
     }
-    
-
 }

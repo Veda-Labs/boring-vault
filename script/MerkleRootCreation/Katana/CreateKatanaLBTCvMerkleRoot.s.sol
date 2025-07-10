@@ -16,7 +16,7 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x75231079973C23e9eB6180fa3D2fc21334565aB5;
-    address public rawDataDecoderAndSanitizer = 0x3A70bDe90936625208483DDBf88f6E536A1aa4aC;
+    address public rawDataDecoderAndSanitizer = 0x635a196D276Ed85eaA9A878D508D497bc740865E;
     address public managerAddress = 0x9aC5AEf62eCe812FEfb77a0d1771c9A5ce3D04E4;
     address public accountantAddress = 0x90e864A256E58DBCe034D9C43C3d8F18A00f55B6;
 
@@ -34,8 +34,7 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, katana, "accountantAddress", accountantAddress);
         setAddress(false, katana, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](128);
-
+        ManageLeaf[] memory leafs = new ManageLeaf[](64);
 
         // ========================== LBTC Bridge Wrapper ==========================
         // To Mainnet

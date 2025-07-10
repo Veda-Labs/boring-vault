@@ -303,17 +303,6 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
             leafs, getERC20(sourceChain, "LBTC"), getAddress(sourceChain, "LBTCOFTAdapter"), layerZeroCornEndpointId
         );
 
-        // ========================== vbVault ==========================
-        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "vbWBTC")));
-
-        // ========================== Agglayer ==========================
-        _addAgglayerTokenLeafs(
-            leafs,
-            getAddress(sourceChain, "agglayerBridgeKatana"),
-            getAddress(sourceChain, "vbWBTC"),
-            0,
-            20
-        );
 
         // ========================== Verify ==========================
 

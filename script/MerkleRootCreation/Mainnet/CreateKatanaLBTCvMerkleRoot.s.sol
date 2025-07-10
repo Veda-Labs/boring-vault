@@ -16,7 +16,7 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x75231079973C23e9eB6180fa3D2fc21334565aB5;
-    address public rawDataDecoderAndSanitizer = 0x770B3AAA48096b3fB36876b8dD55789372775bf0;
+    address public rawDataDecoderAndSanitizer = 0x17D3652758C839baD55cC8775a3FdA03b151C7FC;
     address public managerAddress = 0x9aC5AEf62eCe812FEfb77a0d1771c9A5ce3D04E4;
     address public accountantAddress = 0x90e864A256E58DBCe034D9C43C3d8F18A00f55B6;
 
@@ -36,7 +36,7 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "accountantAddress", accountantAddress);
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](32);
 
 
         // ========================== CCIP ==========================
@@ -51,6 +51,30 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
         ERC20[] memory feeAssets = new ERC20[](1);
         feeAssets[0] = getERC20(sourceChain, "LBTC");
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
+
+        // ========================== 1inch  ==========================
+        address[] memory assets = new address[](2);
+        SwapKind[] memory kind = new SwapKind[](2);
+        assets[0] = getAddress(sourceChain, "WBTC");
+        kind[0] = SwapKind.BuyAndSell;
+        assets[1] = getAddress(sourceChain, "LBTC");
+        kind[1] = SwapKind.BuyAndSell;
+        _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
+        
+        // ========================== Odos ==========================
+        _addOdosSwapLeafs(leafs, assets, kind);  
+
+        // ========================== vbVault ==========================
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "vbWBTC")));
+
+        // ========================== Agglayer ==========================
+        _addAgglayerTokenLeafs(
+            leafs,
+            getAddress(sourceChain, "agglayerBridgeKatana"),
+            getAddress(sourceChain, "vbWBTC"),
+            0,
+            20
+        );
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

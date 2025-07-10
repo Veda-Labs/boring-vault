@@ -104,8 +104,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("mainnet");
-        setSourceChainName("mainnet"); 
+        vm.createSelectFork("katana");
+        setSourceChainName("katana"); 
     }
 
     function run() external {
@@ -119,13 +119,13 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     //    OdosDecoderAndSanitizer(_odosRouter)
     //{}
 
-        creationCode = type(LombardBtcDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "convexFXPoolRegistry"), getAddress(sourceChain, "odosRouterV2"));
-        deployer.deployContract("Lombard BTC Decoder And Sanitizer v0.5", creationCode, constructorArgs, 0);
+        //creationCode = type(LombardBtcDecoderAndSanitizer).creationCode;
+        //constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "convexFXPoolRegistry"), getAddress(sourceChain, "odosRouterV2"));
+        //deployer.deployContract("Lombard BTC Decoder And Sanitizer v0.5", creationCode, constructorArgs, 0);
 
-        //creationCode = type(HybridBtcDecoderAndSanitizer).creationCode;
-        //constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
-        //deployer.deployContract("Hybrid BTC Decoder And Sanitizer V0.1", creationCode, constructorArgs, 0);
+        creationCode = type(KatanaDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
+        deployer.deployContract("Katana Decoder And Sanitizer V0.6", creationCode, constructorArgs, 0);
 
         //address uniswapV4PositionManager = getAddress(sourceChain, "uniV4PositionManager");
         //address uniswapV3NonFungiblePositionManager = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager");
