@@ -47,6 +47,10 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
         ccipBridgeFeeAssets[1] = getERC20(sourceChain, "LINK");
         _addCcipBridgeLeafs(leafs, ccipKatanaChainSelector, ccipBridgeAssets, ccipBridgeFeeAssets);
 
+        // ========================== LBTC Bridge ==========================
+        // To Katana
+        _addLBTCBridgeLeafs(leafs, 0x00000000000000000000000000000000000000000000000000000000000b67d2); //747474
+
         // ========================== Fee Claiming ==========================
         ERC20[] memory feeAssets = new ERC20[](1);
         feeAssets[0] = getERC20(sourceChain, "LBTC");
