@@ -2724,7 +2724,7 @@ contract ChainValues {
 
         // Sushi
         values[katana]["uniswapV3NonFungiblePositionManager"] = 0x2659C6085D26144117D904C46B48B6d180393d27.toBytes32();
-        values[katana]["uniV3Router"] = 0x2659C6085D26144117D904C46B48B6d180393d27.toBytes32();
+        values[katana]["uniV3Router"] = 0x4e1d81A3E627b9294532e990109e4c21d217376C.toBytes32();
 
     }
 
