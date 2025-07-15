@@ -2747,5 +2747,16 @@ contract ChainValues {
         // Balancer
         values[tac]["balancerVault"] = address(1).toBytes32();
 
+        // Curve
+        values[tac]["ton_tsTON_Curve_Pool"]  = 0x51d701D23E1e6a58202694352E486b3614b75946.toBytes32();
+        values[tac]["ton_tsTON_Curve_Gauge"] = 0x4CaE16a407a5BAFBdF1d1e19d02159B10De6fE7B.toBytes32();
+
+        // Euler
+        values[tac]["ethereumVaultConnector"]   = 0x01F594c66A5561b90Bc782dD0297f294cD668b64.toBytes32(); 
+        values[tac]["evkeTON-1"]                = 0x27324c0d445f94550b53936dBAB7fD168634f192.toBytes32(); 
+        values[tac]["evketsTON-1"]              = 0xc7F25f1c8FDB86DE3d14152034de4EB8B71eEC78.toBytes32(); 
+        
+        // Morpho
+        values[tac]["re7TON"] = 0x84BBc0be5a6f831a4E2C28a2F3b892C70AcAa5b3.toBytes32(); 
     }
 }
