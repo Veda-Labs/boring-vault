@@ -1227,14 +1227,16 @@ contract ChainValues {
         values[mainnet]["WBTCOFTAdapter"] = 0x0555E30da8f98308EdB960aa94C0Db47230d2B9c.toBytes32();
         values[mainnet]["frxUSDOFTAdapter"] = 0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0.toBytes32();
         values[mainnet]["usdt0OFTAdapter"] = 0x6C96dE32CEa08842dcc4058c14d3aaAD7Fa41dee.toBytes32();
+        values[mainnet]["LBTCOFTAdapterTAC"] = 0xA7c4d94F98b6e94C139c4645e4E9a94CD7C0Abf7.toBytes32();
+        values[mainnet]["WSTETHOFTAdapterTAC"] = 0x6ceA302B297bB8C49E56d04cC080480822795848.toBytes32();
+        values[mainnet]["WETHOFTAdapterTAC"] = 0xf211D3B40A74632162F45F4d42A461b663694a9D.toBytes32();
+        values[mainnet]["CBBTCOFTAdapterTAC"] = 0x59Ea2825d8Ad7D60cC6Aa77FFbDD0E89c0fBF539.toBytes32();
 
         // Stargate OFTs
         values[mainnet]["stargateUSDC"] = 0xc026395860Db2d07ee33e05fE50ed7bD583189C7.toBytes32();
         values[mainnet]["stargateSolvBTC"] = 0xB12979Ff302Ac903849948037A51792cF7186E8e.toBytes32(); 
         values[mainnet]["stargatesrUSD"] = 0x316cd39632Cac4F4CdfC21757c4500FE12f64514.toBytes32();
         values[mainnet]["stargateUSDe"] = 0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34.toBytes32(); 
-        values[mainnet]["stargatecbBTC"] = 0x59Ea2825d8Ad7D60cC6Aa77FFbDD0E89c0fBF539.toBytes32(); 
-        values[mainnet]["stargateWETH"] = 0xf211D3B40A74632162F45F4d42A461b663694a9D.toBytes32(); 
         values[mainnet]["stargateNative"] = 0x77b2043768d28E9C9aB44E1aBfC95944bcE57931.toBytes32();
 
         // Merkl

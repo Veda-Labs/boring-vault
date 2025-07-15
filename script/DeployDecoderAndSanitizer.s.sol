@@ -89,6 +89,7 @@ import {PrimeGoldenGooseDecoderAndSanitizer} from
 import {GoldenGooseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseDecoderAndSanitizer.sol";
 import {KatanaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/KatanaDecoderAndSanitizer.sol";
 import {TacTONDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacTONDecoderAndSanitizer.sol";
+import {EthMainnetTacDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EthMainnetTacDecoderAndSanitizer.sol";
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
 
@@ -105,8 +106,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("tac");
-        setSourceChainName("tac"); 
+        vm.createSelectFork("mainnet");
+        setSourceChainName("mainnet"); 
 
     }
 
@@ -115,9 +116,9 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(TacTONDecoderAndSanitizer).creationCode;
+        creationCode = type(EthMainnetTacDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode();
-        deployer.deployContract("TacTON Decoder And Sanitizer v0.0", creationCode, constructorArgs, 0);
+        deployer.deployContract("EthMainnetTac Decoder And Sanitizer v0.1", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
