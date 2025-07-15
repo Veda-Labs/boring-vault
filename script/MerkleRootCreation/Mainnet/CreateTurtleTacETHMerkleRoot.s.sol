@@ -61,6 +61,10 @@ contract CreateTurtleTacETHMerkleRoot is Script, MerkleTreeHelper {
         // ========================== Lido ==========================
         _addLidoLeafs(leafs);  
 
+        // ========================== LayerZero ==========================
+        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WSTETH"), getAddress(sourceChain, "stargateWSTETH"), layerZeroTACEndpointId, getBytes32(sourceChain, "boringVault")); 
+        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WETH"), getAddress(sourceChain, "stargateWETH"), layerZeroTACEndpointId, getBytes32(sourceChain, "boringVault")); 
+
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
