@@ -6,6 +6,7 @@ import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 contract TacCrossChainLayerDecoderAndSanitizer {
 
     error TacCrossChainLayerDecoderAndSanitizer__InvalidLength(); 
+    error TacCrossChainLayerDecoderAndSanitizer__TvmBytesLengthTooShort(); 
    
     function sendMessage(
         uint256 /*messageVersion*/,
@@ -18,7 +19,7 @@ contract TacCrossChainLayerDecoderAndSanitizer {
         bytes memory tvmBytes = bytes(messageV1.tvmTarget);
         
         //sanity check
-        require(tvmBytes.length >= 20, "tvmTarget too short");
+        if (tvmBytes.length < 20) revert TacCrossChainLayerDecoderAndSanitizer__TvmBytesLengthTooShort(); 
 
         address tvmTarget0;
         assembly {
@@ -34,15 +35,5 @@ contract TacCrossChainLayerDecoderAndSanitizer {
         }
 
         addressesFound = abi.encodePacked(tvmTarget0, tvmTarget1, messageV1.toBridge[0].evmAddress); 
-    }
-
-    function receiveMessage(
-        uint256 /*messageVersion*/,
-        bytes calldata /*encodedMessage*/,
-        bytes32[] calldata /*merkleProof*/,
-        address feeReceiver,
-        bytes calldata /*extraData*/
-    ) external pure virtual returns (bytes memory addressesFound) {
-        addressesFound = abi.encodePacked(feeReceiver);  
     }
 }

@@ -707,5 +707,6 @@ contract DecoderCustomTypes {
         TokenAmount[] toBridge;
         NFTAmount[] toBridgeNFT;
     }
+
 }
 
