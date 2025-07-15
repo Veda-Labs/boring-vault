@@ -37,7 +37,7 @@ contract CreateTacTestMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "accountantAddress", accountantAddress);
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
 
 
         // ========================== 1inch ==========================
@@ -84,7 +84,8 @@ contract CreateTacTestMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== LayerZero ==========================
         // tacUSD test
-        //_addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDT"), getAddress(sourceChain, ""), layerZeroTONEndpointId, getBytes32(sourceChain, "boringVault"));
+        bytes32 moveAddressInBytes = 0x6651bd707e7ba53a829cda46acaccddf32531807567fd32613cbfb92237cc56b; // same as EQBmUb1wfnulOoKc2kasrM3fMlMYB1Z_0yYTy_uSI3zFa3Td
+        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDT"), getAddress(sourceChain, "USDTOFTAdapter2"), layerZeroTONEndpointId, moveAddressInBytes);
         // tacETH test
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WSTETH"), getAddress(sourceChain, "WSTETHOFTAdapterTAC"), layerZeroTACEndpointId, getBytes32(sourceChain, "boringVault")); 
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WETH"), getAddress(sourceChain, "WETHOFTAdapterTAC"), layerZeroTACEndpointId, getBytes32(sourceChain, "boringVault")); 
