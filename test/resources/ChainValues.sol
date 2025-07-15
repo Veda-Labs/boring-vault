@@ -2739,6 +2739,7 @@ contract ChainValues {
         values[tac]["wTAC"] = 0xB63B9f0eb4A6E6f191529D71d4D88cc8900Df2C9.toBytes32();
         values[tac]["tsTON"] = 0xD44F691aeD69fe43180B95b6F82f89c18Fb93094.toBytes32();
         values[tac]["USDT0"] = 0xAF988C3f7CB2AceAbB15f96b19388a259b6C438f.toBytes32();
+        values[tac]["USDT"] = 0xAF988C3f7CB2AceAbB15f96b19388a259b6C438f.toBytes32();
         values[tac]["ZRO"] = address(1).toBytes32();
 
         // LayerZero
@@ -2746,6 +2747,7 @@ contract ChainValues {
 
         // Balancer
         values[tac]["balancerVault"] = address(1).toBytes32();
+        values[tac]["vault"] = address(1).toBytes32();
 
         // Curve
         values[tac]["ton_tsTON_Curve_Pool"]  = 0x51d701D23E1e6a58202694352E486b3614b75946.toBytes32();
@@ -2758,5 +2760,10 @@ contract ChainValues {
         
         // Morpho
         values[tac]["re7TON"] = 0x84BBc0be5a6f831a4E2C28a2F3b892C70AcAa5b3.toBytes32(); 
+
+        // CrossChain Layer
+        values[tac]["crossChainLayer"] = 0x9fee01e948353E0897968A3ea955815aaA49f58d.toBytes32(); 
+        
+        
     }
 }
