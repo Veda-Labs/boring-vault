@@ -1233,6 +1233,7 @@ contract ChainValues {
         values[mainnet]["stargateSolvBTC"] = 0xB12979Ff302Ac903849948037A51792cF7186E8e.toBytes32(); 
         values[mainnet]["stargatesrUSD"] = 0x316cd39632Cac4F4CdfC21757c4500FE12f64514.toBytes32();
         values[mainnet]["stargateUSDe"] = 0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34.toBytes32(); 
+        values[mainnet]["stargatecbBTC"] = 0x59Ea2825d8Ad7D60cC6Aa77FFbDD0E89c0fBF539.toBytes32(); 
         values[mainnet]["stargateNative"] = 0x77b2043768d28E9C9aB44E1aBfC95944bcE57931.toBytes32();
 
         // Merkl
@@ -2739,10 +2740,13 @@ contract ChainValues {
         values[tac]["wTAC"] = 0xB63B9f0eb4A6E6f191529D71d4D88cc8900Df2C9.toBytes32();
         values[tac]["tsTON"] = 0xD44F691aeD69fe43180B95b6F82f89c18Fb93094.toBytes32();
         values[tac]["USDT0"] = 0xAF988C3f7CB2AceAbB15f96b19388a259b6C438f.toBytes32();
+        values[tac]["cbBTC"] = 0x7048c9e4aBD0cf0219E95a17A8C6908dfC4f0Ee4.toBytes32(); //also OFT
+        values[tac]["LBTC"] = 0xecAc9C5F704e954931349Da37F60E39f515c11c1.toBytes32(); 
         values[tac]["ZRO"] = address(1).toBytes32();
 
         // LayerZero
         values[tac]["LayerZeroEndPoint"] = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B.toBytes32();
+        values[tac]["LBTCOFTAdapter"] = 0x1298131cDa718bBcA7ACB1f2411e71c05E16f269.toBytes32(); 
 
         // Balancer
         values[tac]["balancerVault"] = address(1).toBytes32();
@@ -2750,6 +2754,8 @@ contract ChainValues {
         // Curve
         values[tac]["ton_tsTON_Curve_Pool"]  = 0x51d701D23E1e6a58202694352E486b3614b75946.toBytes32();
         values[tac]["ton_tsTON_Curve_Gauge"] = 0x4CaE16a407a5BAFBdF1d1e19d02159B10De6fE7B.toBytes32();
+        values[tac]["cbBTC_LBTC_Curve_Pool"]  = 0x9c15DC1c8991E852CEaf623b30162A98A1c83f3D.toBytes32();
+        values[tac]["cbBTC_LBTC_Curve_Gauge"]  = 0x9735071D0C1FB3c59440349b20241c78aA57E3F1.toBytes32();
 
         // Euler
         values[tac]["ethereumVaultConnector"]   = 0x01F594c66A5561b90Bc782dD0297f294cD668b64.toBytes32(); 
