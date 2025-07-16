@@ -134,13 +134,7 @@ abstract contract ShareMover is ReentrancyGuard {
         if (shareAmount == 0) revert ShareMover__ZeroShares();
         if (to == bytes32(0)) revert ShareMover__InvalidRecipient();
 
-        // Create the message struct
-        MessageLib.Message memory message = MessageLib.Message({
-            recipient: to,
-            amount: uint128(shareAmount) // Bridge implementations will handle decimal conversion
-        });
-
-        return _previewFee(message, bridgeWildCard);
+        return _previewFee(shareAmount, to, bridgeWildCard);
     }
 
     // ========================================= INTERNAL FUNCTIONS =========================================
@@ -173,14 +167,8 @@ abstract contract ShareMover is ReentrancyGuard {
         // Note: BoringVault.exit burns shares from the 'from' address (4th parameter)
         vault.exit(address(0), ERC20(address(0)), 0, address(this), shareAmount);
 
-        // Create the message struct - bridge implementations will handle decimal conversion
-        MessageLib.Message memory message = MessageLib.Message({
-            recipient: to,
-            amount: uint128(shareAmount)
-        });
-
         // Call the abstract `_sendMessage` function, which will be implemented by concrete bridge contracts.
-        (bytes32 messageId, uint32 chainId) = _sendMessage(message, bridgeWildCard);
+        (bytes32 messageId, uint32 chainId) = _sendMessage(shareAmount, to, bridgeWildCard);
 
         emit MessageSent(messageId, chainId, to, uint128(shareAmount), user);
     }
@@ -223,13 +211,15 @@ abstract contract ShareMover is ReentrancyGuard {
      *  - Collect the fee (msg.value or ERC20 transfer) *before* calling the transport.
      *  - Revert with a descriptive custom error when any check fails.
      *
-     * @param message        Prepared Message struct (amount still in source decimals).
+     * @param shareAmount    Amount of shares to bridge on the source chain (uint96).
+     * @param to             32-byte recipient address on the destination chain.
      * @param bridgeWildCard Opaque, bridge-specific configuration blob.
      * @return messageId     Unique identifier (GUID, hash, etc.) assigned by the bridge.
      * @return chainId       Destination chain identifier parsed from bridgeWildCard.
      */
     function _sendMessage(
-        MessageLib.Message memory message,
+        uint96 shareAmount,
+        bytes32 to,
         bytes calldata bridgeWildCard
     ) internal virtual returns (bytes32 messageId, uint32 chainId);
 
@@ -237,7 +227,8 @@ abstract contract ShareMover is ReentrancyGuard {
      * @notice Preview fee required to bridge shares using the data encoded in bridgeWildCard.
      */
     function _previewFee(
-        MessageLib.Message memory message,
+        uint96 shareAmount,
+        bytes32 to,
         bytes calldata bridgeWildCard
     ) internal view virtual returns (uint256 fee);
 }
