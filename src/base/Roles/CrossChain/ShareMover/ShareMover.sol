@@ -1,25 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
-// Core dependencies for contract functionality
-import {ReentrancyGuard} from "@solmate/utils/ReentrancyGuard.sol"; // Reentrancy protection
-import {ERC20} from "@solmate/tokens/ERC20.sol"; // Standard ERC20 interface
-
-// Custom libraries/interfaces specific to Boring Vault ecosystem
-import {MessageLib} from "./MessageLib.sol"; // Message encoding/decoding
-
-/**
- * @notice Interface for the Boring Vault contract.
- * @dev This interface defines the expected functions for interacting with Boring Vault shares.
- */
-interface IVault {
-    function enter(address from, ERC20 asset, uint256 assetAmount, address to, uint256 shareAmount) external;
-    function exit(address to, ERC20 asset, uint256 assetAmount, address from, uint256 shareAmount) external;
-    function decimals() external view returns (uint8);
-    function balanceOf(address account) external view returns (uint256);
-    function transferFrom(address from, address to, uint256 amount) external returns (bool);
-    function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external;
-}
+import {ReentrancyGuard} from "@solmate/utils/ReentrancyGuard.sol";
+import {ERC20} from "@solmate/tokens/ERC20.sol";
+import {BoringVault} from "src/base/BoringVault.sol";
+import {MessageLib} from "./MessageLib.sol";
 
 /**
  * @title ShareMover
@@ -36,24 +21,18 @@ abstract contract ShareMover is ReentrancyGuard {
     /// @notice Native token identifier for fee payments
     address public constant NATIVE = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
 
-    // ========================================= STATE =========================================
+    // ========================================= IMMUTABLES =========================================
 
     /// @notice The address of the Boring Vault contract this ShareMover interacts with.
-    IVault public immutable vault;
+    BoringVault public immutable vault;
 
     // ========================================= ERRORS =========================================
 
-    /// @dev Thrown when an attempt is made to bridge zero shares.
     error ShareMover__ZeroShares();
-    /// @dev Thrown when an ERC20 permit signature is invalid.
     error ShareMover__InvalidPermit();
-    /// @dev Thrown when insufficient balance for bridge operation.
     error ShareMover__InsufficientBalance();
-    /// @dev Thrown when recipient address is invalid (e.g., zero address).
     error ShareMover__InvalidRecipient();
-    /// @dev Thrown when message encoding/decoding fails.
     error ShareMover__InvalidMessage();
-    /// @dev Thrown when vault.transferFrom returns false.
     error ShareMover__TransferFailed();
 
     // ========================================= EVENTS =========================================
@@ -91,8 +70,7 @@ abstract contract ShareMover is ReentrancyGuard {
      * @param _vault The address of the Boring Vault contract.
      */
     constructor(address _vault) {
-        if (_vault == address(0)) revert ShareMover__InvalidRecipient();
-        vault = IVault(_vault);
+        vault = BoringVault(_vault);
     }
 
     // ========================================= PUBLIC FUNCTIONS =========================================
@@ -143,10 +121,8 @@ abstract contract ShareMover is ReentrancyGuard {
         bytes32 s,
         ERC20 feeToken
     ) public payable virtual nonReentrant {
-        // Attempt to apply the permit signature for the shares.
-        try vault.permit(msg.sender, address(this), shareAmount, deadline, v, r, s) {
-            // Permit successful, proceed with bridge
-        } catch {
+        try vault.permit(msg.sender, address(this), shareAmount, deadline, v, r, s) {}
+        catch {
             revert ShareMover__InvalidPermit();
         }
 
@@ -185,23 +161,6 @@ abstract contract ShareMover is ReentrancyGuard {
 
     /**
      * @notice Core internal routine executed by both {bridge} and {bridgeWithPermit}.
-     * @dev Steps:
-     *  1. Validate inputs (non-zero amount & recipient).
-     *  2. Ensure `user` has enough shares in {vault}.
-     *  3. Pull shares from `user` via `transferFrom` – *may* trigger before-transfer hooks.
-     *  4. Burn those shares by calling `vault.exit` with `from = address(this)`.
-     *  5. Assemble a {MessageLib.Message} (shares still in source-chain decimals).
-     *  6. Delegate cross-chain logistics to the bridge-specific `_sendMessage`.
-     *
-     *  The function is `nonReentrant` thanks to the public wrappers, so a malicious
-     *  vault hook cannot recursively call back into any ShareMover entrypoint.
-     *
-     *  Reverts:
-     *  - ShareMover__ZeroShares        If `shareAmount == 0`.
-     *  - ShareMover__InvalidRecipient  If `to == bytes32(0)`.
-     *  - ShareMover__InsufficientBalance If `vault.balanceOf(user) < shareAmount`.
-     *  - ShareMover__TransferFailed    If `vault.transferFrom` returns false.
-     *
      * @param shareAmount   Amount of shares to bridge on the source chain (uint96 to save gas).
      * @param chainId       Destination chain identifier understood by the concrete mover.
      * @param to            32-byte recipient address on the destination chain.
@@ -297,10 +256,7 @@ abstract contract ShareMover is ReentrancyGuard {
     ) internal virtual returns (bytes32 messageId);
 
     /**
-     * @notice Lightweight version of {_sendMessage} used for front-end fee estimation.
-     * @dev Must apply the **exact** same decimal conversion and options encoding that
-     *      `_sendMessage` would use so the quote is accurate.  MUST revert on the same
-     *      error conditions except those related to msg.value / approvals.
+     * @notice Preview fee required to bridge shares in a given feeToken.
      */
     function _previewFee(
         MessageLib.Message memory message,
