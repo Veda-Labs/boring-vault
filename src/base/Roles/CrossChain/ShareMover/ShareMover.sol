@@ -53,12 +53,10 @@ abstract contract ShareMover is ReentrancyGuard {
 
     /// @notice Emitted when shares are successfully received from another chain and minted.
     /// @param messageId The unique identifier of the cross-chain message.
-    /// @param chainId The source chain identifier.
     /// @param recipient The destination address (32-byte format).
     /// @param amount The amount of shares received and minted.
     event MessageReceived(
         bytes32 indexed messageId,
-        uint32 indexed chainId,
         bytes32 indexed recipient,
         uint128 amount
     );
@@ -70,7 +68,7 @@ abstract contract ShareMover is ReentrancyGuard {
      * @param _vault The address of the Boring Vault contract.
      */
     constructor(address _vault) {
-        vault = BoringVault(_vault);
+        vault = BoringVault(payable(_vault));
     }
 
     // ========================================= PUBLIC FUNCTIONS =========================================
@@ -80,19 +78,15 @@ abstract contract ShareMover is ReentrancyGuard {
      * Requires prior approval of shares to this contract if the vault's share token is standard ERC20.
      * @dev This function includes the `whenNotPaused` modifier, reverting if the contract is paused.
      * @param shareAmount The amount of shares to bridge (in uint96).
-     * @param chainId The destination chain identifier.
      * @param to The destination address on the target chain (32-byte format).
-     * @param bridgeWildCard Bridge-specific data for configuring the cross-chain message.
-     * @param feeToken The ERC20 token used to pay the bridge fee. Use NATIVE for native token.
+     * @param bridgeWildCard Bridge-specific data for configuring the cross-chain message (includes destination chainId & fee info).
      */
     function bridge(
         uint96 shareAmount,
-        uint32 chainId,
         bytes32 to,
-        bytes calldata bridgeWildCard,
-        ERC20 feeToken
+        bytes calldata bridgeWildCard
     ) public payable virtual nonReentrant {
-        _bridge(shareAmount, chainId, to, bridgeWildCard, msg.sender, feeToken);
+        _bridge(shareAmount, to, bridgeWildCard, msg.sender);
     }
 
     /**
@@ -101,49 +95,41 @@ abstract contract ShareMover is ReentrancyGuard {
      * @dev This function assumes the vault's share token supports the ERC20Permit standard.
      * Includes the `whenNotPaused` modifier, reverting if the contract is paused.
      * @param shareAmount The amount of shares to bridge (in uint96).
-     * @param chainId The destination chain identifier.
      * @param to The destination address on the target chain (32-byte format).
-     * @param bridgeWildCard Bridge-specific data.
+     * @param bridgeWildCard Bridge-specific data (includes destination chainId & fee info).
      * @param deadline The time after which the permit is no longer valid.
      * @param v The recovery byte of the signature.
      * @param r The R component of the signature.
      * @param s The S component of the signature.
-     * @param feeToken The ERC20 token used to pay the bridge fee. Use NATIVE for native token.
      */
     function bridgeWithPermit(
         uint96 shareAmount,
-        uint32 chainId,
         bytes32 to,
         bytes calldata bridgeWildCard,
         uint256 deadline,
         uint8 v,
         bytes32 r,
-        bytes32 s,
-        ERC20 feeToken
+        bytes32 s
     ) public payable virtual nonReentrant {
         try vault.permit(msg.sender, address(this), shareAmount, deadline, v, r, s) {}
         catch {
             revert ShareMover__InvalidPermit();
         }
 
-        _bridge(shareAmount, chainId, to, bridgeWildCard, msg.sender, feeToken);
+        _bridge(shareAmount, to, bridgeWildCard, msg.sender);
     }
 
     /**
      * @notice Previews the fee required to bridge shares to a given destination chain.
      * @param shareAmount The amount of shares to bridge.
-     * @param chainId The destination chain identifier.
      * @param to The destination address on the target chain (32-byte format).
      * @param bridgeWildCard Bridge-specific data for configuring the cross-chain message.
-     * @param feeToken The ERC20 token to pay the bridge fee in. Use NATIVE for native token.
      * @return fee The estimated fee required for the bridge operation.
      */
     function previewFee(
         uint96 shareAmount,
-        uint32 chainId,
         bytes32 to,
-        bytes calldata bridgeWildCard,
-        ERC20 feeToken
+        bytes calldata bridgeWildCard
     ) public view virtual returns (uint256 fee) {
         if (shareAmount == 0) revert ShareMover__ZeroShares();
         if (to == bytes32(0)) revert ShareMover__InvalidRecipient();
@@ -154,7 +140,7 @@ abstract contract ShareMover is ReentrancyGuard {
             amount: uint128(shareAmount) // Bridge implementations will handle decimal conversion
         });
 
-        return _previewFee(message, chainId, bridgeWildCard, feeToken);
+        return _previewFee(message, bridgeWildCard);
     }
 
     // ========================================= INTERNAL FUNCTIONS =========================================
@@ -162,19 +148,15 @@ abstract contract ShareMover is ReentrancyGuard {
     /**
      * @notice Core internal routine executed by both {bridge} and {bridgeWithPermit}.
      * @param shareAmount   Amount of shares to bridge on the source chain (uint96 to save gas).
-     * @param chainId       Destination chain identifier understood by the concrete mover.
      * @param to            32-byte recipient address on the destination chain.
-     * @param bridgeWildCard Opaque bytes forwarded to the concrete mover for fee / gas / etc.
+     * @param bridgeWildCard Opaque bytes forwarded to the concrete mover for fee / gas / etc. (includes chainId & fee info).
      * @param user          Account that provided the shares (msg.sender in public wrappers).
-     * @param feeToken      ERC20 token used for fee payment; `NATIVE` sentinel for native coin.
      */
     function _bridge(
         uint96 shareAmount,
-        uint32 chainId,
         bytes32 to,
         bytes calldata bridgeWildCard,
-        address user,
-        ERC20 feeToken
+        address user
     ) internal {
         if (shareAmount == 0) revert ShareMover__ZeroShares();
         if (to == bytes32(0)) revert ShareMover__InvalidRecipient();
@@ -198,7 +180,7 @@ abstract contract ShareMover is ReentrancyGuard {
         });
 
         // Call the abstract `_sendMessage` function, which will be implemented by concrete bridge contracts.
-        bytes32 messageId = _sendMessage(message, chainId, bridgeWildCard, feeToken);
+        (bytes32 messageId, uint32 chainId) = _sendMessage(message, bridgeWildCard);
 
         emit MessageSent(messageId, chainId, to, uint128(shareAmount), user);
     }
@@ -209,26 +191,25 @@ abstract contract ShareMover is ReentrancyGuard {
      * once a cross-chain message has been confirmed as legitimate.
      * It mints shares to the recipient address on the current chain.
      * @param messageId The unique identifier of the cross-chain message.
-     * @param sourceChainId The chain ID where the message originated.
-     * @param message The decoded Message.
+     * @param shareAmount The amount of shares to mint on the destination chain.
+     * @param to The recipient address on the destination chain (bytes32 format).
      */
     function _completeMessageReceive(
         bytes32 messageId,
-        uint32 sourceChainId,
-        MessageLib.Message memory message
+        uint96 shareAmount,
+        bytes32 to
     ) internal {
         if (messageId == bytes32(0)) revert ShareMover__InvalidMessage();
-        if (message.recipient == bytes32(0)) revert ShareMover__InvalidRecipient();
+        if (to == bytes32(0)) revert ShareMover__InvalidRecipient();
 
         // Convert recipient from bytes32 to address for vault operations
-        address recipient = MessageLib.extractEvmAddress(message.recipient);
+        address recipient = MessageLib.extractEvmAddress(to);
         if (recipient == address(0)) revert ShareMover__InvalidRecipient();
 
         // Mint shares to the recipient address via vault.enter
-        // Note: BoringVault.enter mints shares to the 'to' address (4th parameter)
-        vault.enter(address(0), ERC20(address(0)), 0, recipient, message.amount);
+        vault.enter(address(0), ERC20(address(0)), 0, recipient, shareAmount);
 
-        emit MessageReceived(messageId, sourceChainId, message.recipient, message.amount);
+        emit MessageReceived(messageId, to, uint128(shareAmount));
     }
 
     // ========================================= ABSTRACT FUNCTIONS =========================================
@@ -243,25 +224,20 @@ abstract contract ShareMover is ReentrancyGuard {
      *  - Revert with a descriptive custom error when any check fails.
      *
      * @param message        Prepared Message struct (amount still in source decimals).
-     * @param chainId        Destination chain id.
      * @param bridgeWildCard Opaque, bridge-specific configuration blob.
-     * @param feeToken       Token used to pay the bridge fee.
      * @return messageId     Unique identifier (GUID, hash, etc.) assigned by the bridge.
+     * @return chainId       Destination chain identifier parsed from bridgeWildCard.
      */
     function _sendMessage(
         MessageLib.Message memory message,
-        uint32 chainId,
-        bytes calldata bridgeWildCard,
-        ERC20 feeToken
-    ) internal virtual returns (bytes32 messageId);
+        bytes calldata bridgeWildCard
+    ) internal virtual returns (bytes32 messageId, uint32 chainId);
 
     /**
-     * @notice Preview fee required to bridge shares in a given feeToken.
+     * @notice Preview fee required to bridge shares using the data encoded in bridgeWildCard.
      */
     function _previewFee(
         MessageLib.Message memory message,
-        uint32 chainId,
-        bytes calldata bridgeWildCard,
-        ERC20 feeToken
+        bytes calldata bridgeWildCard
     ) internal view virtual returns (uint256 fee);
 }
