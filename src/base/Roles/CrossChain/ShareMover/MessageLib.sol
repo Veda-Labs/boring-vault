@@ -94,7 +94,7 @@ library MessageLib {
     /**
      * @notice Helper to convert amount between different decimal representations
      * @dev Reverts if arithmetic overflow would occur or result would be zero (dust protection)
-     * @param amount The amount to convert
+     * @param amount The amount to convert (uint128 chosen so that scaling up by up to 1e9—18→27 decimals—never overflows)
      * @param fromDecimals The source decimal places
      * @param toDecimals The target decimal places
      * @return convertedAmount The amount after decimal conversion
