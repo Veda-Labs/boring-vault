@@ -156,7 +156,7 @@ contract LayerZeroShareMoverIntegrationTest is Test {
 
         // user initiates bridge on source chain
         vm.prank(user);
-        sourceMover.bridge{value: QUOTED_FEE}(shareAmount, DST_EID, recip, wildcard, NATIVE);
+        sourceMover.bridge{value: QUOTED_FEE}(shareAmount, recip, wildcard);
 
         // fetch packet from endpoint and deliver to destination mover
         MockLayerZeroEndPoint.Packet memory pkt = endpoint.getLastMessage();
@@ -175,7 +175,7 @@ contract LayerZeroShareMoverIntegrationTest is Test {
         bytes32 recip = user.toBytes32();
 
         vm.prank(user);
-        sourceMover.bridge{value: QUOTED_FEE}(shareAmount, DST_EID, recip, wildcard, NATIVE);
+        sourceMover.bridge{value: QUOTED_FEE}(shareAmount, recip, wildcard);
 
         return endpoint.getLastMessage();
     }
@@ -207,7 +207,7 @@ contract LayerZeroShareMoverIntegrationTest is Test {
                 lowMaxFee
             )
         );
-        sourceMover.bridge{value: QUOTED_FEE}(SHARES, DST_EID, recip, wildcard, NATIVE);
+        sourceMover.bridge{value: QUOTED_FEE}(SHARES, recip, wildcard);
     }
 
     function testOutboundRateLimit() external {
@@ -224,7 +224,7 @@ contract LayerZeroShareMoverIntegrationTest is Test {
         bytes32 recip = user.toBytes32();
         vm.prank(user);
         vm.expectRevert(PairwiseRateLimiter.OutboundRateLimitExceeded.selector);
-        sourceMover.bridge{value: QUOTED_FEE}(1e18, DST_EID, recip, wildcard, NATIVE);
+        sourceMover.bridge{value: QUOTED_FEE}(1e18, recip, wildcard);
 
         // Advance time past window & succeed
         vm.warp(block.timestamp + 3601);
@@ -235,8 +235,8 @@ contract LayerZeroShareMoverIntegrationTest is Test {
         sourceMover.pause();
         bytes memory wildcard = _wildcard(1 ether);
         vm.prank(user);
-        vm.expectRevert(LayerZeroShareMover.EnforcedPause.selector);
-        sourceMover.bridge{value: QUOTED_FEE}(SHARES, DST_EID, user.toBytes32(), wildcard, NATIVE);
+        vm.expectRevert(LayerZeroShareMover.LayerZeroShareMover_IsPaused.selector);
+        sourceMover.bridge{value: QUOTED_FEE}(SHARES, user.toBytes32(), wildcard);
     }
 
     function testInvalidRecipientFormatReverts() external {
@@ -252,7 +252,7 @@ contract LayerZeroShareMoverIntegrationTest is Test {
                 32
             )
         );
-        sourceMover.bridge{value: QUOTED_FEE}(SHARES, DST_EID, badRecip, wildcard, NATIVE);
+        sourceMover.bridge{value: QUOTED_FEE}(SHARES, badRecip, wildcard);
     }
 
     // ----------------------  NEW TESTS  ----------------------
@@ -294,7 +294,7 @@ contract LayerZeroShareMoverIntegrationTest is Test {
 
         vm.prank(user);
         // Should succeed without reverting and without native ETH value
-        sourceMover.bridge(10e18, DST_EID, recip, wildcard, ERC20(lzTokenAddr));
+        sourceMover.bridge(10e18, recip, wildcard);
     }
 
     function testEventEmission() external {
@@ -302,8 +302,8 @@ contract LayerZeroShareMoverIntegrationTest is Test {
         _bridgeAndDeliver(25e18, 1 ether);
 
         Vm.Log[] memory entries = vm.getRecordedLogs();
-        bytes32 sentSig = keccak256("MessageSent(bytes32,uint32,bytes32,uint128,address)");
-        bytes32 recvSig = keccak256("MessageReceived(bytes32,uint32,bytes32,uint128)");
+        bytes32 sentSig = keccak256("MessageSent(bytes32,uint32,bytes32,uint96,address)");
+        bytes32 recvSig = keccak256("MessageReceived(bytes32,uint32,bytes32,uint96)");
 
         bool sentFound;
         bool recvFound;

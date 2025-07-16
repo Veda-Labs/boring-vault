@@ -5,7 +5,6 @@ import {Test} from "@forge-std/Test.sol";
 import {MockVault} from "test/mocks/MockVault.sol";
 import {DummyShareMover} from "test/mocks/DummyShareMover.sol";
 import {MessageLib} from "src/base/Roles/CrossChain/ShareMover/MessageLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {ShareMover} from "src/base/Roles/CrossChain/ShareMover/ShareMover.sol";
 
 contract ShareMoverTest is Test {
@@ -35,7 +34,7 @@ contract ShareMoverTest is Test {
         // Instead of expectEmit with unknown messageId, we can just rely on successful execution.
 
         vm.prank(user);
-        mover.bridge(amount, 1, recipient, wildcard, ERC20(address(0))); // using native fee token (address(0))
+        mover.bridge(amount, recipient, wildcard);
 
         // Verify balances
         assertEq(vault.balanceOf(user), INITIAL_SHARES - amount, "User balance not reduced");
@@ -51,20 +50,20 @@ contract ShareMoverTest is Test {
         bytes32 recipient = bytes32(uint256(uint160(address(1))));
         vm.prank(user);
         vm.expectRevert(ShareMover.ShareMover__ZeroShares.selector);
-        mover.bridge(0, 1, recipient, "", ERC20(address(0)));
+        mover.bridge(0, recipient, "");
     }
 
     function testBridgeInvalidRecipientReverts() external {
         vm.prank(user);
         vm.expectRevert(ShareMover.ShareMover__InvalidRecipient.selector);
-        mover.bridge(100, 1, bytes32(0), "", ERC20(address(0)));
+        mover.bridge(100, bytes32(0), "");
     }
 
     function testBridgeInsufficientBalanceReverts() external {
         bytes32 recipient = bytes32(uint256(uint160(address(2))));
         vm.prank(user);
         vm.expectRevert(ShareMover.ShareMover__InsufficientBalance.selector);
-        mover.bridge(INITIAL_SHARES + 1, 1, recipient, "", ERC20(address(0)));
+        mover.bridge(INITIAL_SHARES + 1, recipient, "");
     }
 }
 
@@ -84,7 +83,7 @@ contract ShareMoverPermitTest is Test {
     function testBridgeWithPermitSuccess() external {
         vault.setPermitBehavior(false); // permit will succeed
         vm.prank(user);
-        mover.bridgeWithPermit(1e6, 1, bytes32(uint256(uint160(user))), "", 0, 0, 0, 0, ERC20(address(0)));
+        mover.bridgeWithPermit(1e6, bytes32(uint256(uint160(user))), "", 0, 0, 0, 0);
         assertTrue(vault.permitCalled(), "permit not called");
 
         // Verify balances updated correctly
@@ -96,6 +95,6 @@ contract ShareMoverPermitTest is Test {
         vault.setPermitBehavior(true); // force permit fail
         vm.prank(user);
         vm.expectRevert(ShareMover.ShareMover__InvalidPermit.selector);
-        mover.bridgeWithPermit(1e6, 1, bytes32(uint256(uint160(user))), "", 0, 0, 0, 0, ERC20(address(0)));
+        mover.bridgeWithPermit(1e6, bytes32(uint256(uint160(user))), "", 0, 0, 0, 0);
     }
 } 

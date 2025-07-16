@@ -3,7 +3,6 @@ pragma solidity 0.8.21;
 
 import {ShareMover} from "src/base/Roles/CrossChain/ShareMover/ShareMover.sol";
 import {MessageLib} from "src/base/Roles/CrossChain/ShareMover/MessageLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
 
 /**
  * @title DummyShareMover
@@ -12,9 +11,7 @@ import {ERC20} from "@solmate/tokens/ERC20.sol";
 contract DummyShareMover is ShareMover {
     // Storage helpers for test introspection
     MessageLib.Message public lastMessage;
-    uint32 public lastChainId;
     bytes public lastWildCard;
-    address public lastFeeToken;
 
     uint256 public immutable feeQuote;
 
@@ -27,25 +24,23 @@ contract DummyShareMover is ShareMover {
     // ------------------------------------------------------------------------------------------
 
     function _sendMessage(
-        MessageLib.Message memory message,
-        uint32 chainId,
-        bytes calldata bridgeWildCard,
-        ERC20 feeToken
-    ) internal override returns (bytes32 messageId) {
-        lastMessage = message;
-        lastChainId = chainId;
+        uint96 shareAmount,
+        bytes32 to,
+        bytes calldata bridgeWildCard
+    ) internal override returns (bytes32 messageId, uint32) {
+        // Record message for introspection
+        lastMessage = MessageLib.Message({recipient: to, amount: uint128(shareAmount)});
         lastWildCard = bridgeWildCard;
-        lastFeeToken = address(feeToken);
 
-        // Derive a pseudo-random message id for testing purposes
-        messageId = keccak256(abi.encode(message.recipient, message.amount, chainId, bridgeWildCard, feeToken));
+        // Return dummy id & chainId=0 (these aren’t used in unit tests)
+        messageId = keccak256(abi.encodePacked(to, shareAmount, bridgeWildCard));
+        return (messageId, 0);
     }
 
     function _previewFee(
-        MessageLib.Message memory, /*message*/
-        uint32, /*chainId*/
-        bytes calldata, /*bridgeWildCard*/
-        ERC20 /*feeToken*/
+        uint96, /*shareAmount*/
+        bytes32, /*to*/
+        bytes calldata /*bridgeWildCard*/
     ) internal view override returns (uint256 fee) {
         return feeQuote;
     }

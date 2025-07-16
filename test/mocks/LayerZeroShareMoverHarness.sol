@@ -3,7 +3,6 @@ pragma solidity 0.8.21;
 
 import {LayerZeroShareMover} from "src/base/Roles/CrossChain/ShareMover/LayerZeroShareMover.sol";
 import {MessageLib} from "src/base/Roles/CrossChain/ShareMover/MessageLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {Authority} from "@solmate/auth/Auth.sol";
 
 /**
@@ -60,33 +59,29 @@ contract LayerZeroShareMoverHarness is LayerZeroShareMover {
     // ------------------------------------------------------------------------------------------
 
     function _sendMessage(
-        MessageLib.Message memory message,
-        uint32 chainId,
-        bytes calldata /*bridgeWildCard*/,
-        ERC20 /*feeToken*/
-    ) internal override returns (bytes32) {
-        // Perform decimal conversion like the real implementation
+        uint96 shareAmount,
+        bytes32 to,
+        bytes calldata bridgeWildCard
+    ) internal override returns (bytes32 msgId, uint32 chainId) {
+        // Decode chainId from wildcard to mirror real implementation
+        BridgeParams memory params = _decodeBridgeParams(bridgeWildCard);
+        chainId = params.chainId;
+
+        uint128 amt = uint128(shareAmount);
         uint8 dstDecimals = chains[chainId].targetDecimals;
-        if (dstDecimals != 0 && localDecimals != dstDecimals) {
-            message.amount = MessageLib.convertAmountDecimals(
-                message.amount,
-                localDecimals,
-                dstDecimals
-            );
+        if (dstDecimals != 0 && dstDecimals != localDecimals) {
+            amt = MessageLib.convertAmountDecimals(amt, localDecimals, dstDecimals);
         }
 
-        // Record the processed message for test verification
-        lastMessage = message;
+        lastMessage = MessageLib.Message({recipient: to, amount: amt});
 
-        // Return a dummy message id
-        return bytes32("msgid");
+        msgId = bytes32("msgid");
     }
 
     function _previewFee(
-        MessageLib.Message memory,
-        uint32,
-        bytes calldata,
-        ERC20
+        uint96,
+        bytes32,
+        bytes calldata
     ) internal view override returns (uint256) {
         return 42;
     }

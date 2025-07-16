@@ -6,7 +6,6 @@ import {LayerZeroShareMoverHarness} from "test/mocks/LayerZeroShareMoverHarness.
 import {MockVault} from "test/mocks/MockVault.sol";
 import {LayerZeroShareMover} from "src/base/Roles/CrossChain/ShareMover/LayerZeroShareMover.sol";
 import {MockEndpoint} from "test/mocks/MockEndpoint.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {PairwiseRateLimiter} from "src/base/Roles/CrossChain/PairwiseRateLimiter.sol";
 import {MessageLib} from "src/base/Roles/CrossChain/MessageLib.sol";
 import {MessageLibHarness} from "test/mocks/MessageLibHarness.sol";
@@ -75,8 +74,8 @@ contract LayerZeroShareMoverHelperTest is Test {
 
     function testPause() external {
         harness.pause();
-        vm.expectRevert(LayerZeroShareMover.EnforcedPause.selector);
-        harness.bridge(1e6, 101, bytes32(uint256(uint160(address(0x1)))), "", ERC20(address(0)));
+        vm.expectRevert(LayerZeroShareMover.LayerZeroShareMover_IsPaused.selector);
+        harness.bridge(1e6, bytes32(uint256(uint160(address(0x1)))), "");
     }
 }
 
@@ -159,7 +158,7 @@ contract LayerZeroShareMoverFeeTest is Test {
 
     function testPreviewFeeMatchesEndpoint() external {
         endpoint.setQuote(1 ether, 0);
-        uint256 fee = mover.previewFee(1e6, dstEid, TO, _wildcard(2 ether), ERC20(NATIVE));
+        uint256 fee = mover.previewFee(1e6, TO, _wildcard(2 ether));
         assertEq(fee, 1 ether);
     }
 
@@ -175,14 +174,14 @@ contract LayerZeroShareMoverFeeTest is Test {
                 0.5 ether
             )
         );
-        mover.bridge{value: 1 ether}(1e6, dstEid, TO, _wildcard(0.5 ether), ERC20(NATIVE));
+        mover.bridge{value: 1 ether}(1e6, TO, _wildcard(0.5 ether));
     }
 
     function testSendMessageSucceedsWhenMaxFeeOk() external {
         endpoint.setQuote(1 ether, 0);
         vault.mint(address(this), 1e6);
         vault.approve(address(mover), 1e6);
-        mover.bridge{value: 1 ether}(1e6, dstEid, TO, _wildcard(2 ether), ERC20(NATIVE));
+        mover.bridge{value: 1 ether}(1e6, TO, _wildcard(2 ether));
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -195,7 +194,7 @@ contract LayerZeroShareMoverFeeTest is Test {
 
     function testPreviewFeeMatchesEndpoint_LzToken() external {
         endpoint.setQuote(0, 2 ether);
-        uint256 fee = mover.previewFee(1e6, dstEid, TO, _wildcardLz(10 ether), ERC20(address(lzToken)));
+        uint256 fee = mover.previewFee(1e6, TO, _wildcardLz(10 ether));
         assertEq(fee, 2 ether);
     }
 
@@ -218,7 +217,7 @@ contract LayerZeroShareMoverFeeTest is Test {
                 0.5 ether
             )
         );
-        mover.bridge(1e6, dstEid, TO, _wildcardLz(0.5 ether), ERC20(address(lzToken)));
+        mover.bridge(1e6, TO, _wildcardLz(0.5 ether));
     }
 
     function testSendMessageSucceedsWhenMaxFeeOk_LzToken() external {
@@ -230,7 +229,7 @@ contract LayerZeroShareMoverFeeTest is Test {
         vault.mint(address(this), 1e6);
         vault.approve(address(mover), 1e6);
 
-        mover.bridge(1e6, dstEid, TO, _wildcardLz(2 ether), ERC20(address(lzToken)));
+        mover.bridge(1e6, TO, _wildcardLz(2 ether));
     }
 }
 
@@ -320,7 +319,7 @@ contract LayerZeroShareMoverDecimalFuzz is Test {
         // Perform bridge using dummy wildcard (chain id inside wildcard must match "eid")
         bytes memory wc = abi.encode(eid, address(0), 0);
         vm.prank(user);
-        harness.bridge(amt96, eid, bytes32(uint256(uint160(user))), wc, ERC20(address(0)));
+        harness.bridge(amt96, bytes32(uint256(uint160(user))), wc);
 
         ( , uint128 gotAmount) = harness.lastMessage();
         assertEq(gotAmount, expected, "decimal conversion mismatch");
@@ -375,7 +374,7 @@ contract LayerZeroShareMoverPermitRealTest is Test {
         vault.setPermitBehavior(false); // permit succeeds
 
         vm.prank(USER);
-        mover.bridgeWithPermit(1e6, DST_EID, TO, _wildcard(), 0, 0, 0, 0, ERC20(address(0)));
+        mover.bridgeWithPermit(1e6, TO, _wildcard(), 0, 0, 0, 0);
 
         assertTrue(vault.permitCalled(), "permit not called on vault");
         assertEq(vault.balanceOf(USER), 1e9 - 1e6, "User balance not reduced");
@@ -386,64 +385,6 @@ contract LayerZeroShareMoverPermitRealTest is Test {
 
         vm.prank(USER);
         vm.expectRevert(ShareMover.ShareMover__InvalidPermit.selector);
-        mover.bridgeWithPermit(1e6, DST_EID, TO, _wildcard(), 0, 0, 0, 0, ERC20(address(0)));
-    }
-}
-
-// ============================  DUST & OVERFLOW REVERT TESTS  ============================
-
-contract LayerZeroShareMoverDustOverflowTest is Test {
-    LayerZeroShareMoverHarness internal harness;
-    MockVault internal vault18; // 18 decimals
-    MockVault internal vault6;  // 6 decimals
-    MockEndpoint internal endpoint;
-
-    address constant NATIVE = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
-
-    function setUp() external {
-        endpoint = new MockEndpoint();
-
-        // vault with 18 decimals for dust test
-        vault18 = new MockVault(18);
-        // Separate harness for dust using 18-dec vault
-        harness = new LayerZeroShareMoverHarness(address(vault18), address(0xdead), address(endpoint));
-
-        // Add chain with target 6 decimals (scale down)
-        harness.addChain(111, true, true, bytes32(uint256(uint160(address(0x1)))), 500000, 6, LayerZeroShareMover.ChainType.EVM);
-
-        // vault with 6 decimals for overflow test (new harness)
-        vault6 = new MockVault(6);
-    }
-
-    function testDustAmountReverts() external {
-        // Mint minimal shares to user and approve
-        address user = address(0xD00D);
-        vault18.mint(user, 1);
-        vm.prank(user);
-        vault18.approve(address(harness), 1);
-
-        bytes memory wc = abi.encode(111, NATIVE, 0);
-
-        vm.prank(user);
-        vm.expectRevert();
-        harness.bridge(1, 111, bytes32(uint256(uint160(user))), wc, ERC20(address(0)));
-    }
-
-    function testOverflowAmountReverts() external {
-        // Create second harness with 6-dec vault for overflow scenario
-        LayerZeroShareMoverHarness overHarness = new LayerZeroShareMoverHarness(address(vault6), address(0xdead), address(endpoint));
-        overHarness.addChain(222, true, true, bytes32(uint256(uint160(address(0x2)))), 500000, 27, LayerZeroShareMover.ChainType.EVM);
-
-        // Choose amount large enough to overflow after scaling 6→27 (×1e21)
-        uint96 amount = 4e17; // 4 * 10^17 > 3.4e17 threshold → overflow
-        address user = address(0x0BEEF);
-        vault6.mint(user, amount);
-        vm.prank(user);
-        vault6.approve(address(overHarness), amount);
-        bytes memory wc = abi.encode(222, NATIVE, 0);
-
-        vm.prank(user);
-        vm.expectRevert();
-        overHarness.bridge(amount, 222, bytes32(uint256(uint160(user))), wc, ERC20(address(0)));
+        mover.bridgeWithPermit(1e6, TO, _wildcard(), 0, 0, 0, 0);
     }
 }

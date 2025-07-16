@@ -47,18 +47,20 @@ abstract contract ShareMover is ReentrancyGuard {
         bytes32 indexed messageId,
         uint32 indexed chainId,
         bytes32 indexed recipient,
-        uint128 amount,
+        uint96 amount,
         address user
     );
 
     /// @notice Emitted when shares are successfully received from another chain and minted.
     /// @param messageId The unique identifier of the cross-chain message.
+    /// @param chainId The chain id the message originated from.
     /// @param recipient The destination address (32-byte format).
     /// @param amount The amount of shares received and minted.
     event MessageReceived(
         bytes32 indexed messageId,
+        uint32 indexed chainId,
         bytes32 indexed recipient,
-        uint128 amount
+        uint96 amount
     );
 
     // ========================================= CONSTRUCTOR =========================================
@@ -170,7 +172,7 @@ abstract contract ShareMover is ReentrancyGuard {
         // Call the abstract `_sendMessage` function, which will be implemented by concrete bridge contracts.
         (bytes32 messageId, uint32 chainId) = _sendMessage(shareAmount, to, bridgeWildCard);
 
-        emit MessageSent(messageId, chainId, to, uint128(shareAmount), user);
+        emit MessageSent(messageId, chainId, to, shareAmount, user);
     }
 
     /**
@@ -184,6 +186,7 @@ abstract contract ShareMover is ReentrancyGuard {
      */
     function _completeMessageReceive(
         bytes32 messageId,
+        uint32 chainId,
         uint96 shareAmount,
         bytes32 to
     ) internal {
@@ -197,7 +200,7 @@ abstract contract ShareMover is ReentrancyGuard {
         // Mint shares to the recipient address via vault.enter
         vault.enter(address(0), ERC20(address(0)), 0, recipient, shareAmount);
 
-        emit MessageReceived(messageId, to, uint128(shareAmount));
+        emit MessageReceived(messageId, chainId, to, shareAmount);
     }
 
     // ========================================= ABSTRACT FUNCTIONS =========================================
