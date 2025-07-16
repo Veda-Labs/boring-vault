@@ -139,15 +139,9 @@ library MessageLib {
      * @param addr The address to validate
      * @return valid True if the address is a valid padded EVM address
      */
-    function isValidPaddedEvmAddress(bytes32 addr) internal pure returns (bool valid) {
-        if (addr == bytes32(0)) return false;
-        
-        // Check that the first 12 bytes are all zeros (correct padding)
-        for (uint256 i = 0; i < 12; i++) {
-            if (addr[i] != 0) return false;
-        }
-        
-        return true;
+    function isValidPaddedEvmAddress(bytes32 addr) internal pure returns (bool) {
+        // high == 0  &&  low != 0
+        return bytes12(addr) == bytes12(0) && uint160(uint256(addr)) != 0;
     }
 
     /**

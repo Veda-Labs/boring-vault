@@ -30,7 +30,6 @@ abstract contract ShareMover is ReentrancyGuard {
 
     error ShareMover__ZeroShares();
     error ShareMover__InvalidPermit();
-    error ShareMover__InsufficientBalance();
     error ShareMover__InvalidRecipient();
     error ShareMover__InvalidMessage();
     error ShareMover__TransferFailed();
@@ -156,9 +155,6 @@ abstract contract ShareMover is ReentrancyGuard {
     ) internal {
         if (shareAmount == 0) revert ShareMover__ZeroShares();
         if (to == bytes32(0)) revert ShareMover__InvalidRecipient();
-
-        // Check user has sufficient balance
-        if (vault.balanceOf(user) < shareAmount) revert ShareMover__InsufficientBalance();
 
         // Transfer shares from user to this contract (triggers beforeTransfer hook via vault)
         if (!vault.transferFrom(user, address(this), shareAmount)) {
