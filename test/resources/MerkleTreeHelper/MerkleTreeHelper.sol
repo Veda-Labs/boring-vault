@@ -13143,18 +13143,29 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "crossChainLayer"); 
 
         bytes memory tvmBytes = bytes(tvmAddress);
+        console.log("TVM BYTES LENGTH: ", tvmBytes.length);  
 
         require(tvmBytes.length >= 20, "tvmTarget too short");
 
+       // Extract first address (bytes 0-19)
         address tvmTarget0;
         assembly {
-            tvmTarget0 := mload(add(tvmBytes, 32)) 
+            tvmTarget0 := mload(add(tvmBytes, 20)) // Read 32 bytes, take rightmost 20 (bytes 0-19)
         }
-        
+    
+        // Extract second address (bytes 20-39) if available
         address tvmTarget1;
-        if (tvmBytes.length >= 40) {
+        if (tvmBytes.length > 20) {
             assembly {
-                tvmTarget1 := mload(add(tvmBytes, 52))
+                tvmTarget1 := mload(add(tvmBytes, 40)) // Read 32 bytes, take rightmost 20 (bytes 20-39)
+            }
+        }
+    
+        // Extract third address (bytes 40+) if available
+        address tvmTarget2;
+        if (tvmBytes.length > 40) {
+            assembly {
+                tvmTarget2 := mload(add(tvmBytes, 60)) // Read 32 bytes, take rightmost 20 (bytes 40-59)
             }
         }
 
@@ -13165,13 +13176,14 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             getAddress(sourceChain, "crossChainLayer"),
             true,
             "sendMessage(uint256,bytes)",
-            new address[](3),
+            new address[](4),
             string.concat("Send message via CrossChainLayer"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = tvmTarget0; 
         leafs[leafIndex].argumentAddresses[1] = tvmTarget1; 
-        leafs[leafIndex].argumentAddresses[2] = address(tokenToBridge);  
+        leafs[leafIndex].argumentAddresses[2] = tvmTarget2; 
+        leafs[leafIndex].argumentAddresses[3] = address(tokenToBridge);  
         
         unchecked {
             leafIndex++;

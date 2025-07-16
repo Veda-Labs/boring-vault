@@ -30,7 +30,7 @@ contract TacCrossChainIntegration is BaseTestIntegration {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](128);
         
-        string memory tvmTarget = "UQBFjWr8mLJNCaAJOixANCuorS0C-z2oyyKpmvtOjYl56Pyp"; 
+        string memory tvmTarget = "EQAfvsbMnBsK_ItgK4uVkxYzxqsREx9uVW5BU3VNv0tjynYe"; 
         _addTacCrossChainLeafs(leafs, getERC20(sourceChain, "USDT"), tvmTarget); 
         
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
@@ -64,7 +64,7 @@ contract TacCrossChainIntegration is BaseTestIntegration {
     
         DecoderCustomTypes.OutMessageV1 memory message = DecoderCustomTypes.OutMessageV1(
             350781532111736576,
-            "UQBFjWr8mLJNCaAJOixANCuorS0C-z2oyyKpmvtOjYl56Pyp",
+            "EQAfvsbMnBsK_ItgK4uVkxYzxqsREx9uVW5BU3VNv0tjynYe",
             "",
             2000000000000000000,
             40382947566000000000, 
