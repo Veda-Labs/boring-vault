@@ -7,13 +7,17 @@ contract TacCrossChainLayerDecoderAndSanitizer {
 
     error TacCrossChainLayerDecoderAndSanitizer__InvalidLength(); 
     error TacCrossChainLayerDecoderAndSanitizer__TvmBytesLengthTooShort(); 
+    error TacCrossChainLayerDecoderAndSanitizer__MessageGtOne(); 
+    error TacCrossChainLayerDecoderAndSanitizer__NFTLengthNonZero(); 
    
     function sendMessage(
-        uint256 /*messageVersion*/,
+        uint256 messageVersion,
         bytes calldata encodedMessage
     ) external pure virtual returns (bytes memory addressesFound) {
+        if (messageVersion > 1) revert TacCrossChainLayerDecoderAndSanitizer__MessageGtOne(); 
         DecoderCustomTypes.OutMessageV1 memory messageV1 = abi.decode(encodedMessage, (DecoderCustomTypes.OutMessageV1));
         if (messageV1.toBridge.length > 1) revert TacCrossChainLayerDecoderAndSanitizer__InvalidLength(); 
+        if (messageV1.toBridgeNFT.length > 0) revert TacCrossChainLayerDecoderAndSanitizer__NFTLengthNonZero(); 
         
         //convert ton address to bytes 
         bytes memory tvmBytes = bytes(messageV1.tvmTarget);
