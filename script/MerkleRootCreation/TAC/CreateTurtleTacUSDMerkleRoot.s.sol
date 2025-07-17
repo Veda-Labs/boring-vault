@@ -15,10 +15,10 @@ contract CreateTurtleTacUSDMerkleRoot is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     //standard
-    address public boringVault = ;
-    address public rawDataDecoderAndSanitizer = ;
-    address public managerAddress = ; 
-    address public accountantAddress = ;
+    address public boringVault = 0x699e04F98dE2Fc395a7dcBf36B48EC837A976490;
+    address public rawDataDecoderAndSanitizer = 0x9Bc20d0F13E68FAD5f4eE5Dda58c391b342e65a5; 
+    address public managerAddress = 0x2FA91E4eb6Ace724EfFbDD61bBC1B55EF8bD7aAc; 
+    address public accountantAddress = 0x58cD5e97ffaeA62986C86ac44bB8EF7092c7ff5B;
     
 
     function setUp() external {}
@@ -40,7 +40,7 @@ contract CreateTurtleTacUSDMerkleRoot is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
 
         // ========================== Cross Chain Layer ==========================
-        string memory tvmTarget = "UQBFjWr8mLJNCaAJOixANCuorS0C-z2oyyKpmvtOjYl56Pyp";
+        string memory tvmTarget = "EQCj-sWCD3CQkYh-pWSn2ZpamhuRrSYxl7SAV4BStSM59B9E"; 
         _addTacCrossChainLeafs(leafs, getERC20(sourceChain, "USDT"), tvmTarget);
 
         // ========================== Verify ==========================
@@ -48,7 +48,7 @@ contract CreateTurtleTacUSDMerkleRoot is Script, MerkleTreeHelper {
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
-        string memory filePath = "./leafs/TAC/tacTONStrategistLeafs.json";
+        string memory filePath = "./leafs/TAC/TurtleTacUSDStrategistLeafs.json";
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
 
