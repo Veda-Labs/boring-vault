@@ -9,16 +9,16 @@ import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper
 import "forge-std/Script.sol";
 
 /**
- *  source .env && forge script script/MerkleRootCreation/TAC/CreateTurtleTacETHMerkleRoot.s.sol --rpc-url $TAC_RPC_URL --gas-limit 1000000000000000000
+ *  source .env && forge script script/MerkleRootCreation/TAC/CreateTacLBTCvMerkleRoot.s.sol --rpc-url $TAC_RPC_URL --gas-limit 1000000000000000000
  */
-contract CreateTurtleTacETHMerkleRoot is Script, MerkleTreeHelper {
+contract CreateTacLBTCvMerkleRoot is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     //standard
-    address public boringVault = 0x294eecec65A0142e84AEdfD8eB2FBEA8c9a9fbad; 
-    address public rawDataDecoderAndSanitizer = 0x17421C8397f9E4D1F7C428F09fF780ba66500Ac5;
-    address public managerAddress = 0x401C29bafA0A205a0dAb316Dc6136A18023eF08A; 
-    address public accountantAddress = 0x1683870f3347F2837865C5D161079Dc3fDbf1087;
+    address public boringVault = 0xD86fC1CaA0a5B82cC16B16B70DFC59F6f034C348;
+    address public rawDataDecoderAndSanitizer =  0x17421C8397f9E4D1F7C428F09fF780ba66500Ac5; 
+    address public managerAddress = 0x1F95Ae26c62D24c3a5E118922Fe2ddc3B433331D; 
+    address public accountantAddress = 0xB4703f17e3212E9959cC560e0592837292b14ECE; 
     
 
     function setUp() external {}
@@ -40,18 +40,15 @@ contract CreateTurtleTacETHMerkleRoot is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
 
         // ========================== LayerZero ==========================
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WETH"), getAddress(sourceChain, "WETH"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WSTETH"), getAddress(sourceChain, "WSTETH"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
+        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "LBTC"), getAddress(sourceChain, "LBTCOFTAdapter"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
-        string memory filePath = "./leafs/TAC/TurtleTacETHStrategistLeafs.json";
+        string memory filePath = "./leafs/TAC/TacLBTCvStrategistLeafs.json";
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
-
     }
-
 }

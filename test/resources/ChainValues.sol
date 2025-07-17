@@ -1397,7 +1397,7 @@ contract ChainValues {
 
         // Odos
         values[mainnet]["odosRouterV2"] = 0xCf5540fFFCdC3d510B18bFcA6d2b9987b0772559.toBytes32();
-        values[mainnet]["odosExecutor"] = 0x76edF8C155A1e0D9B2aD11B04d9671CBC25fEE99.toBytes32();
+        values[mainnet]["odosExecutor"] = 0x7882570840A97A490a37bd8Db9e1aE39165bfBd6.toBytes32();
 
         // Level
         values[mainnet]["levelMinter"] = 0x9136aB0294986267b71BeED86A75eeb3336d09E1.toBytes32();
@@ -2748,6 +2748,8 @@ contract ChainValues {
         values[tac]["cbBTC"] = 0x7048c9e4aBD0cf0219E95a17A8C6908dfC4f0Ee4.toBytes32(); //also OFT
         values[tac]["LBTC"] = 0xecAc9C5F704e954931349Da37F60E39f515c11c1.toBytes32(); 
         values[tac]["ZRO"] = address(1).toBytes32();
+        values[tac]["WETH"] = 0x61D66bC21fED820938021B06e9b2291f3FB91945.toBytes32();
+        values[tac]["WSTETH"] = 0xAf368c91793CB22739386DFCbBb2F1A9e4bCBeBf.toBytes32();
 
         // LayerZero
         values[tac]["LayerZeroEndPoint"] = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B.toBytes32();

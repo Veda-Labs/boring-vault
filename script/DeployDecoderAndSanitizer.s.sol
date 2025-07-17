@@ -116,9 +116,9 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(EthMainnetTacDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode();
-        deployer.deployContract("EthMainnetTac Decoder And Sanitizer v0.1", creationCode, constructorArgs, 0);
+        creationCode = type(TacETHDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2"));
+        deployer.deployContract("TacETH Decoder And Sanitizer v0.2", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }

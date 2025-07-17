@@ -75,7 +75,7 @@ contract CreateTurtleTacUSDMerkleRoot is Script, MerkleTreeHelper {
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== LayerZero ==========================
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDT"), getAddress(sourceChain, "usdt0OFTAdapter" ), layerZeroTACEndpointId, getBytes32(sourceChain, "boringVault")); 
+        //_addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDT"), getAddress(sourceChain, "usdt0OFTAdapter" ), layerZeroTACEndpointId, getBytes32(sourceChain, "boringVault")); 
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
