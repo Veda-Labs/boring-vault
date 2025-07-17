@@ -16,7 +16,7 @@ contract CreateTurtleTacETHMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x294eecec65A0142e84AEdfD8eB2FBEA8c9a9fbad; 
-    address public rawDataDecoderAndSanitizer = 0x17421C8397f9E4D1F7C428F09fF780ba66500Ac5;
+    address public rawDataDecoderAndSanitizer = 0x9Bc20d0F13E68FAD5f4eE5Dda58c391b342e65a5;
     address public managerAddress = 0x401C29bafA0A205a0dAb316Dc6136A18023eF08A; 
     address public accountantAddress = 0x1683870f3347F2837865C5D161079Dc3fDbf1087;
     

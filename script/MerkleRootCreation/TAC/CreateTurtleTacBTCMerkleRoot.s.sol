@@ -16,7 +16,7 @@ contract CreateTurtleTacBTCMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x6Bf340dB729d82af1F6443A0Ea0d79647b1c3DDf;
-    address public rawDataDecoderAndSanitizer = 0x17421C8397f9E4D1F7C428F09fF780ba66500Ac5; 
+    address public rawDataDecoderAndSanitizer = 0x9Bc20d0F13E68FAD5f4eE5Dda58c391b342e65a5; 
     address public managerAddress = 0x85A8821a579736e7E5e98296D34C50B77122BB5e; 
     address public accountantAddress = 0xe4858a89d5602Ad30de2018C408d33d101F53d53; 
     
