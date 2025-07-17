@@ -13191,12 +13191,13 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             getAddress(sourceChain, "crossChainLayer"),
             false,
             "sendMessage(uint256,bytes)",
-            new address[](3),
+            new address[](4),
             string.concat("Send message via CrossChainLayer"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = tvmTarget0; 
         leafs[leafIndex].argumentAddresses[1] = tvmTarget1; 
+        leafs[leafIndex].argumentAddresses[2] = tvmTarget2; 
         leafs[leafIndex].argumentAddresses[2] = address(tokenToBridge);  
     } 
 
