@@ -2277,6 +2277,22 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         );
     }
 
+    // ========================================= Kinetiq KHYPE =========================================
+    _addKHypeLeafs(ManageLeaf[] memory leafs) internal {
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "kHypeStakingManager"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve kHype to be spent by kHype Staking Manager",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "frxETHRedemptionTicket");
+    }
+
     // ========================================= Frax =========================================
 
     function _addFraxLeafs(ManageLeaf[] memory leafs) internal {
