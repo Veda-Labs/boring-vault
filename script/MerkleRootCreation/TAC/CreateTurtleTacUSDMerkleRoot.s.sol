@@ -9,16 +9,16 @@ import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper
 import "forge-std/Script.sol";
 
 /**
- *  source .env && forge script script/MerkleRootCreation/TAC/CreateTacTONMerkleRoot.s.sol --rpc-url $TAC_RPC_URL --gas-limit 1000000000000000000
+ *  source .env && forge script script/MerkleRootCreation/TAC/CreateTurtleTacUSDMerkleRoot.s.sol --rpc-url $TAC_RPC_URL --gas-limit 1000000000000000000
  */
-contract CreateTacTONMerkleRoot is Script, MerkleTreeHelper {
+contract CreateTurtleTacUSDMerkleRoot is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     //standard
-    address public boringVault = 0x450C6BAA2c0Bc5328a461771bC32E01bA41F31ae;
-    address public rawDataDecoderAndSanitizer = 0x0cfa172253047FBF561F0E408e315aE60ad8b833;
-    address public managerAddress = 0x983700470cd9a7b6159F156FC9358F1c135C13e9; 
-    address public accountantAddress = 0xcb484088a820B8366854e4B5e60E575642e1BEd9;
+    address public boringVault = ;
+    address public rawDataDecoderAndSanitizer = ;
+    address public managerAddress = ; 
+    address public accountantAddress = ;
     
 
     function setUp() external {}
@@ -37,25 +37,11 @@ contract CreateTacTONMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, tac, "accountantAddress", accountantAddress);
         setAddress(false, tac, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](64);
+        ManageLeaf[] memory leafs = new ManageLeaf[](8);
 
-
-        // ========================== Curve ==========================
-        _addCurveLeafs(leafs, getAddress(sourceChain, "ton_tsTON_Curve_Pool"), 2, getAddress(sourceChain, "ton_tsTON_Curve_Gauge")); 
-        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "ton_tsTON_Curve_Pool")); 
-
-        // ========================== Euler ==========================
-        ERC4626[] memory depositVaults = new ERC4626[](2);
-        depositVaults[0] = ERC4626(getAddress(sourceChain, "evkeTON-1"));
-        depositVaults[1] = ERC4626(getAddress(sourceChain, "evketsTON-1"));
-
-        address[] memory subaccounts = new address[](1);
-        subaccounts[0] = address(boringVault);
-
-        _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
-
-        // ========================== Morpho ==========================
-        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "re7TON")));
+        // ========================== Cross Chain Layer ==========================
+        string memory tvmTarget = "UQBFjWr8mLJNCaAJOixANCuorS0C-z2oyyKpmvtOjYl56Pyp";
+        _addTacCrossChainLeafs(leafs, getERC20(sourceChain, "USDT"), tvmTarget);
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
