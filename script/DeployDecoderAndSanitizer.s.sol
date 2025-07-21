@@ -88,6 +88,7 @@ import {PrimeGoldenGooseDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/PrimeGoldenGooseDecoderAndSanitizer.sol";
 import {GoldenGooseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseDecoderAndSanitizer.sol";
 import {KatanaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/KatanaDecoderAndSanitizer.sol";
+import {TacTONDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacTONDecoderAndSanitizer.sol";
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
 
@@ -104,20 +105,14 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("katana");
-        setSourceChainName("katana"); 
+        vm.createSelectFork("tac");
+        setSourceChainName("tac"); 
     }
 
     function run() external {
         bytes memory creationCode;
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
-
-    //constructor(address _uniswapV3NonFungiblePositionManager, address _poolRegistry, address _odosRouter)
-    //    UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
-    //    ConvexFXDecoderAndSanitizer(_poolRegistry)
-    //    OdosDecoderAndSanitizer(_odosRouter)
-    //{}
 
         //creationCode = type(LombardBtcDecoderAndSanitizer).creationCode;
         //constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "convexFXPoolRegistry"), getAddress(sourceChain, "odosRouterV2"));
@@ -135,6 +130,11 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //constructorArgs =
         //    abi.encode(uniswapV4PositionManager, uniswapV3NonFungiblePositionManager, odosRouterV2, dvStETHVault);
         //deployer.deployContract("Golden Goose Decoder And Sanitizer v0.4", creationCode, constructorArgs, 0);
+
+        creationCode = type(TacTONDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode();
+        deployer.deployContract("TacTON Decoder And Sanitizer v0.0", creationCode, constructorArgs, 0);
+
 
         vm.stopBroadcast();
     }
