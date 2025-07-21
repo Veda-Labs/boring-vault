@@ -70,6 +70,7 @@ contract ChainValues {
     uint32 public constant layerZeroPlumeEndpointId = 30370;
     uint32 public constant layerZeroKatanaEndpointId = 30375;
     uint32 public constant layerZeroTACEndpointId = 30377;
+    uint32 public constant layerZeroTONEndpointId = 30343;
     error ChainValues__ZeroAddress(string chainName, string valueName);
     error ChainValues__ZeroBytes32(string chainName, string valueName);
     error ChainValues__ValueAlreadySet(string chainName, string valueName);
@@ -1230,6 +1231,11 @@ contract ChainValues {
         values[mainnet]["WBTCOFTAdapter"] = 0x0555E30da8f98308EdB960aa94C0Db47230d2B9c.toBytes32();
         values[mainnet]["frxUSDOFTAdapter"] = 0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0.toBytes32();
         values[mainnet]["usdt0OFTAdapter"] = 0x6C96dE32CEa08842dcc4058c14d3aaAD7Fa41dee.toBytes32();
+        values[mainnet]["LBTCOFTAdapterTAC"] = 0xA7c4d94F98b6e94C139c4645e4E9a94CD7C0Abf7.toBytes32();
+        values[mainnet]["WSTETHOFTAdapterTAC"] = 0x6ceA302B297bB8C49E56d04cC080480822795848.toBytes32();
+        values[mainnet]["WETHOFTAdapterTAC"] = 0xf211D3B40A74632162F45F4d42A461b663694a9D.toBytes32();
+        values[mainnet]["CBBTCOFTAdapterTAC"] = 0x59Ea2825d8Ad7D60cC6Aa77FFbDD0E89c0fBF539.toBytes32();
+        values[mainnet]["USDTOFTAdapter2"] = 0x811ed79dB9D34E83BDB73DF6c3e07961Cfb0D5c0.toBytes32();
 
         // Stargate OFTs
         values[mainnet]["stargateUSDC"] = 0xc026395860Db2d07ee33e05fE50ed7bD583189C7.toBytes32();
@@ -2752,18 +2758,21 @@ contract ChainValues {
         values[tac]["dev5Address"] = 0x1cdF47387358A1733968df92f7cC14546D9E1047.toBytes32();
 
         // ERC20s
-        values[tac]["TON"]     = 0xb76d91340F5CE3577f0a056D29f6e3Eb4E88B140.toBytes32();
-        values[tac]["wTAC"]    = 0xB63B9f0eb4A6E6f191529D71d4D88cc8900Df2C9.toBytes32();
-        values[tac]["tsTON"]   = 0xD44F691aeD69fe43180B95b6F82f89c18Fb93094.toBytes32();
-        values[tac]["USDT0"]   = 0xAF988C3f7CB2AceAbB15f96b19388a259b6C438f.toBytes32();
-        values[tac]["WETH"]    = 0x61D66bC21fED820938021B06e9b2291f3FB91945.toBytes32();  
-        values[tac]["cbBTC"]   = 0x7048c9e4aBD0cf0219E95a17A8C6908dfC4f0Ee4.toBytes32();  
-        values[tac]["LBTC"]    = 0xecAc9C5F704e954931349Da37F60E39f515c11c1.toBytes32();  
-        values[tac]["ZRO"]     = address(1).toBytes32();    
+        values[tac]["TON"] = 0xb76d91340F5CE3577f0a056D29f6e3Eb4E88B140.toBytes32();
+        values[tac]["wTAC"] = 0xB63B9f0eb4A6E6f191529D71d4D88cc8900Df2C9.toBytes32();
+        values[tac]["tsTON"] = 0xD44F691aeD69fe43180B95b6F82f89c18Fb93094.toBytes32();
+        values[tac]["USDT0"] = 0xAF988C3f7CB2AceAbB15f96b19388a259b6C438f.toBytes32();
+        values[tac]["cbBTC"] = 0x7048c9e4aBD0cf0219E95a17A8C6908dfC4f0Ee4.toBytes32(); //also OFT
+        values[tac]["LBTC"] = 0xecAc9C5F704e954931349Da37F60E39f515c11c1.toBytes32(); 
         values[tac]["USDT"] = 0xAF988C3f7CB2AceAbB15f96b19388a259b6C438f.toBytes32();
+        values[tac]["ZRO"] = address(1).toBytes32();
+        values[tac]["WETH"] = 0x61D66bC21fED820938021B06e9b2291f3FB91945.toBytes32();
+        values[tac]["WSTETH"] = 0xAf368c91793CB22739386DFCbBb2F1A9e4bCBeBf.toBytes32();
+
 
         // LayerZero
         values[tac]["LayerZeroEndPoint"] = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B.toBytes32();
+        values[tac]["LBTCOFTAdapter"] = 0x1298131cDa718bBcA7ACB1f2411e71c05E16f269.toBytes32(); 
 
         // Balancer
         values[tac]["balancerVault"] = address(1).toBytes32();
@@ -2772,6 +2781,8 @@ contract ChainValues {
         // Curve
         values[tac]["ton_tsTON_Curve_Pool"]  = 0x51d701D23E1e6a58202694352E486b3614b75946.toBytes32();
         values[tac]["ton_tsTON_Curve_Gauge"] = 0x4CaE16a407a5BAFBdF1d1e19d02159B10De6fE7B.toBytes32();
+        values[tac]["cbBTC_LBTC_Curve_Pool"]  = 0x9c15DC1c8991E852CEaf623b30162A98A1c83f3D.toBytes32();
+        values[tac]["cbBTC_LBTC_Curve_Gauge"]  = 0x9735071D0C1FB3c59440349b20241c78aA57E3F1.toBytes32();
 
         // Euler
         values[tac]["ethereumVaultConnector"]   = 0x01F594c66A5561b90Bc782dD0297f294cD668b64.toBytes32(); 
@@ -2782,8 +2793,7 @@ contract ChainValues {
         values[tac]["re7TON"] = 0x84BBc0be5a6f831a4E2C28a2F3b892C70AcAa5b3.toBytes32(); 
 
         // CrossChain Layer
-        values[tac]["crossChainLayer"] = 0x9fee01e948353E0897968A3ea955815aaA49f58d.toBytes32(); 
-        
+        values[tac]["crossChainLayer"] = 0x9fee01e948353E0897968A3ea955815aaA49f58d.toBytes32();        
         
     }
 }

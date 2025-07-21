@@ -8,6 +8,7 @@ import {OneInchDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protoco
 import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol"; 
 import {NativeWrapperDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol"; 
 import {LidoDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LidoDecoderAndSanitizer.sol"; 
+import {OFTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OFTDecoderAndSanitizer.sol"; 
 
 contract TacETHDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
@@ -16,7 +17,8 @@ contract TacETHDecoderAndSanitizer is
     NativeWrapperDecoderAndSanitizer,
     OneInchDecoderAndSanitizer,
     OdosDecoderAndSanitizer,
-    LidoDecoderAndSanitizer
+    LidoDecoderAndSanitizer,
+    OFTDecoderAndSanitizer
 {
     constructor(address _uniswapV3NonFungiblePositionManager, address _odosRouter)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
