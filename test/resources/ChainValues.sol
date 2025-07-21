@@ -2752,12 +2752,15 @@ contract ChainValues {
         values[tac]["dev5Address"] = 0x1cdF47387358A1733968df92f7cC14546D9E1047.toBytes32();
 
         // ERC20s
-        values[tac]["TON"] = 0xb76d91340F5CE3577f0a056D29f6e3Eb4E88B140.toBytes32();
-        values[tac]["wTAC"] = 0xB63B9f0eb4A6E6f191529D71d4D88cc8900Df2C9.toBytes32();
-        values[tac]["tsTON"] = 0xD44F691aeD69fe43180B95b6F82f89c18Fb93094.toBytes32();
-        values[tac]["USDT0"] = 0xAF988C3f7CB2AceAbB15f96b19388a259b6C438f.toBytes32();
+        values[tac]["TON"]     = 0xb76d91340F5CE3577f0a056D29f6e3Eb4E88B140.toBytes32();
+        values[tac]["wTAC"]    = 0xB63B9f0eb4A6E6f191529D71d4D88cc8900Df2C9.toBytes32();
+        values[tac]["tsTON"]   = 0xD44F691aeD69fe43180B95b6F82f89c18Fb93094.toBytes32();
+        values[tac]["USDT0"]   = 0xAF988C3f7CB2AceAbB15f96b19388a259b6C438f.toBytes32();
+        values[tac]["WETH"]    = 0x61D66bC21fED820938021B06e9b2291f3FB91945.toBytes32();  
+        values[tac]["cbBTC"]   = 0x7048c9e4aBD0cf0219E95a17A8C6908dfC4f0Ee4.toBytes32();  
+        values[tac]["LBTC"]    = 0xecAc9C5F704e954931349Da37F60E39f515c11c1.toBytes32();  
+        values[tac]["ZRO"]     = address(1).toBytes32();    
         values[tac]["USDT"] = 0xAF988C3f7CB2AceAbB15f96b19388a259b6C438f.toBytes32();
-        values[tac]["ZRO"] = address(1).toBytes32();
 
         // LayerZero
         values[tac]["LayerZeroEndPoint"] = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B.toBytes32();
