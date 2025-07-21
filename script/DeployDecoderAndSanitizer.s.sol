@@ -88,6 +88,7 @@ import {PrimeGoldenGooseDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/PrimeGoldenGooseDecoderAndSanitizer.sol";
 import {GoldenGooseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseDecoderAndSanitizer.sol";
 import {KatanaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/KatanaDecoderAndSanitizer.sol";
+import {TacTONDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacTONDecoderAndSanitizer.sol";
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
 
@@ -104,10 +105,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        // Use the RPC URL directly instead of alias
-        vm.createSelectFork(vm.envString("KATANA_RPC_URL"));
-        setSourceChainName("katana"); 
-
+        vm.createSelectFork("tac");
+        setSourceChainName("tac"); 
     }
 
     function run() external {
@@ -115,24 +114,27 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        address odosRouter = address(1);
+        //creationCode = type(LombardBtcDecoderAndSanitizer).creationCode;
+        //constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "convexFXPoolRegistry"), getAddress(sourceChain, "odosRouterV2"));
+        //deployer.deployContract("Lombard BTC Decoder And Sanitizer v0.5", creationCode, constructorArgs, 0);
+
         creationCode = type(KatanaDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(odosRouter);
-
-        deployer.deployContract("Katana Decoder And Sanitizer v0.0", creationCode, constructorArgs, 0);
-
-        creationCode = type(HybridBtcDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
-        deployer.deployContract("Hybrid BTC Decoder And Sanitizer V0.1", creationCode, constructorArgs, 0);
+        deployer.deployContract("Katana Decoder And Sanitizer V0.6", creationCode, constructorArgs, 0);
 
-        address uniswapV4PositionManager = getAddress(sourceChain, "uniV4PositionManager");
-        address uniswapV3NonFungiblePositionManager = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager");
-        address odosRouterV2 = getAddress(sourceChain, "odosRouterV2");
-        address dvStETHVault = getAddress(sourceChain, "dvStETHVault");
-        creationCode = type(GoldenGooseDecoderAndSanitizer).creationCode;
-        constructorArgs =
-            abi.encode(uniswapV4PositionManager, uniswapV3NonFungiblePositionManager, odosRouterV2, dvStETHVault);
-        deployer.deployContract("Golden Goose Decoder And Sanitizer v0.4", creationCode, constructorArgs, 0);
+        //address uniswapV4PositionManager = getAddress(sourceChain, "uniV4PositionManager");
+        //address uniswapV3NonFungiblePositionManager = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager");
+        //address odosRouterV2 = getAddress(sourceChain, "odosRouterV2");
+        //address dvStETHVault = getAddress(sourceChain, "dvStETHVault");
+        //creationCode = type(GoldenGooseDecoderAndSanitizer).creationCode;
+        //constructorArgs =
+        //    abi.encode(uniswapV4PositionManager, uniswapV3NonFungiblePositionManager, odosRouterV2, dvStETHVault);
+        //deployer.deployContract("Golden Goose Decoder And Sanitizer v0.4", creationCode, constructorArgs, 0);
+
+        creationCode = type(TacTONDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode();
+        deployer.deployContract("TacTON Decoder And Sanitizer v0.0", creationCode, constructorArgs, 0);
+
 
         vm.stopBroadcast();
     }

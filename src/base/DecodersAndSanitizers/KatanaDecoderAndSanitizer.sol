@@ -8,26 +8,33 @@ import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/
 import {OneInchDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OneInchDecoderAndSanitizer.sol";
 import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
 import {EtherFiDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/EtherFiDecoderAndSanitizer.sol";
-import {NativeWrapperDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol";
+import {NativeWrapperDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol";
 import {LidoDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LidoDecoderAndSanitizer.sol";
-import {AtomicQueueDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AtomicQueueDecoderAndSanitizer.sol";
+import {AtomicQueueDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/AtomicQueueDecoderAndSanitizer.sol";
 import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
+import {LBTCBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LBTCBridgeDecoderAndSanitizer.sol";
+import {MorphoBlueDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MorphoBlueDecoderAndSanitizer.sol";
+import {UniswapV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV3DecoderAndSanitizer.sol";
 
 contract KatanaDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
     ERC4626DecoderAndSanitizer,
     AgglayerDecoderAndSanitizer,
     CCIPDecoderAndSanitizer,
-    OdosDecoderAndSanitizer,
     OneInchDecoderAndSanitizer,
     EtherFiDecoderAndSanitizer,
     NativeWrapperDecoderAndSanitizer,
     LidoDecoderAndSanitizer,
     AtomicQueueDecoderAndSanitizer,
-    TellerDecoderAndSanitizer
+    TellerDecoderAndSanitizer,
+    LBTCBridgeDecoderAndSanitizer,
+    MorphoBlueDecoderAndSanitizer,
+    UniswapV3DecoderAndSanitizer
 {
-    constructor(address _odosRouter) 
-        OdosDecoderAndSanitizer(_odosRouter)
+    constructor(address _nonFungiblePositionManager)
+        UniswapV3DecoderAndSanitizer(_nonFungiblePositionManager)
         AtomicQueueDecoderAndSanitizer(0.9e4, 1.1e4)
     {}
 
@@ -44,7 +51,7 @@ contract KatanaDecoderAndSanitizer is
         return addressesFound;
     }
 
-        function wrap(uint256)
+    function wrap(uint256)
         external
         pure
         override(EtherFiDecoderAndSanitizer, LidoDecoderAndSanitizer)
@@ -63,6 +70,4 @@ contract KatanaDecoderAndSanitizer is
         // Nothing to sanitize or return
         return addressesFound;
     }
-    
-
 }
