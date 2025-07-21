@@ -9,16 +9,16 @@ import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper
 import "forge-std/Script.sol";
 
 /**
- *  source .env && forge script script/MerkleRootCreation/Mainnet/CreateTurtleTacETHMerkleRoot.s.sol --rpc-url $MAINNET_RPC_URL --gas-limit 1000000000000000000
+ *  source .env && forge script script/MerkleRootCreation/Mainnet/CreateTurtleTacBTCMerkleRoot.s.sol --rpc-url $MAINNET_RPC_URL --gas-limit 1000000000000000000
  */
-contract CreateTurtleTacETHMerkleRoot is Script, MerkleTreeHelper {
+contract CreateTurtleTacBTCMerkleRoot is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     //standard
-    address public boringVault = 0x294eecec65A0142e84AEdfD8eB2FBEA8c9a9fbad; 
+    address public boringVault = 0x6Bf340dB729d82af1F6443A0Ea0d79647b1c3DDf; 
     address public rawDataDecoderAndSanitizer = 0x678Ff354a12a6fC0b9D357647879F32df45f5177;
-    address public managerAddress = 0x401C29bafA0A205a0dAb316Dc6136A18023eF08A; 
-    address public accountantAddress = 0x1683870f3347F2837865C5D161079Dc3fDbf1087;
+    address public managerAddress = 0x85A8821a579736e7E5e98296D34C50B77122BB5e; 
+    address public accountantAddress = 0xe4858a89d5602Ad30de2018C408d33d101F53d53;
     
 
     function setUp() external {}
@@ -40,14 +40,12 @@ contract CreateTurtleTacETHMerkleRoot is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](64);
 
         // ========================== 1inch ==========================
-        address[] memory assets = new address[](3);
-        SwapKind[] memory kind = new SwapKind[](3);
-        assets[0] = getAddress(sourceChain, "WETH");
+        address[] memory assets = new address[](2);
+        SwapKind[] memory kind = new SwapKind[](2);
+        assets[0] = getAddress(sourceChain, "fBTC");
         kind[0] = SwapKind.BuyAndSell;
-        assets[1] = getAddress(sourceChain, "STETH");
+        assets[1] = getAddress(sourceChain, "cbBTC");
         kind[1] = SwapKind.BuyAndSell;
-        assets[2] = getAddress(sourceChain, "WSTETH");
-        kind[2] = SwapKind.BuyAndSell;
 
         _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
 
@@ -57,19 +55,15 @@ contract CreateTurtleTacETHMerkleRoot is Script, MerkleTreeHelper {
         // ========================== Native Leafs ==========================
         _addNativeLeafs(leafs); 
 
-        // ========================== Lido ==========================
-        _addLidoLeafs(leafs);  
-
         // ========================== LayerZero ==========================
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WSTETH"), getAddress(sourceChain, "WSTETHOFTAdapterTAC"), layerZeroTACEndpointId, getBytes32(sourceChain, "boringVault"));
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WETH"), getAddress(sourceChain, "WETHOFTAdapterTAC"), layerZeroTACEndpointId, getBytes32(sourceChain, "boringVault"));
+        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "cbBTC"), getAddress(sourceChain, "CBBTCOFTAdapterTAC"), layerZeroTACEndpointId, getBytes32(sourceChain, "boringVault")); 
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
-        string memory filePath = "./leafs/Mainnet/TurtleTacETHStrategistLeafs.json";
+        string memory filePath = "./leafs/Mainnet/TurtleTacBTCStrategistLeafs.json";
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
 

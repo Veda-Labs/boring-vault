@@ -13178,6 +13178,81 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         );
     }
 
+    // ========================================= Tac CrossChainLayer =========================================
+    function _addTacCrossChainLeafs(ManageLeaf[] memory leafs, ERC20 tokenToBridge, string memory tvmAddress) internal {
+        //approve CCL
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            address(tokenToBridge),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve USDT to be spent by CrossChainLayer"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "crossChainLayer"); 
+
+        bytes memory tvmBytes = bytes(tvmAddress);
+
+        require(tvmBytes.length >= 20, "tvmTarget too short");
+
+       // Extract first address (bytes 0-19)
+        address tvmTarget0;
+        assembly {
+            tvmTarget0 := mload(add(tvmBytes, 20)) // Read 32 bytes, take rightmost 20 (bytes 0-19)
+        }
+    
+        // Extract second address (bytes 20-39) if available
+        address tvmTarget1;
+        if (tvmBytes.length > 20) {
+            assembly {
+                tvmTarget1 := mload(add(tvmBytes, 40)) // Read 32 bytes, take rightmost 20 (bytes 20-39)
+            }
+        }
+    
+        // Extract third address (bytes 40+) if available
+        address tvmTarget2;
+        if (tvmBytes.length > 40) {
+            assembly {
+                tvmTarget2 := mload(add(tvmBytes, 60)) // Read 32 bytes, take rightmost 20 (bytes 40-59)
+            }
+        }
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "crossChainLayer"),
+            true,
+            "sendMessage(uint256,bytes)",
+            new address[](4),
+            string.concat("Send message via CrossChainLayer"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = tvmTarget0; 
+        leafs[leafIndex].argumentAddresses[1] = tvmTarget1; 
+        leafs[leafIndex].argumentAddresses[2] = tvmTarget2; 
+        leafs[leafIndex].argumentAddresses[3] = address(tokenToBridge);  
+        
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "crossChainLayer"),
+            false,
+            "sendMessage(uint256,bytes)",
+            new address[](4),
+            string.concat("Send message via CrossChainLayer"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = tvmTarget0; 
+        leafs[leafIndex].argumentAddresses[1] = tvmTarget1; 
+        leafs[leafIndex].argumentAddresses[2] = tvmTarget2; 
+        leafs[leafIndex].argumentAddresses[2] = address(tokenToBridge);  
+    } 
+
     // ========================================= BoringChef =========================================
     function _addBoringChefClaimLeaf(ManageLeaf[] memory leafs, address boringChef) internal {
         unchecked {
