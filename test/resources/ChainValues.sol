@@ -1355,9 +1355,12 @@ contract ChainValues {
         values[mainnet]["spectra_wstUSR_YT"] = 0x4aA2D6c3d8c0FD28C968057DBc109ddf00a0b281.toBytes32();
         values[mainnet]["spectra_wstUSR_IBT"] = 0x1202F5C7b4B9E47a1A484E8B270be34dbbC75055.toBytes32();
 
+        // SiloV2
+        values[mainnet]["silo_rlp_usdc_config"] = 0x10930071079d2cfff317ABa9d2dd997309Dd9985.toBytes32();
+
         // Odos
         values[mainnet]["odosRouterV2"] = 0xCf5540fFFCdC3d510B18bFcA6d2b9987b0772559.toBytes32();
-        values[mainnet]["odosExecutor"] = 0xd768d1Fe6Ef1449A54F9409400fe9d0E4954ea3F.toBytes32();
+        values[mainnet]["odosExecutor"] = 0x7882570840A97A490a37bd8Db9e1aE39165bfBd6.toBytes32();
 
         // Kyberswap
         values[mainnet]["kyberswapMetaAggregationRouterV2"] = 0x6131B5fae19EA4f9D964eAc0408E4408b66337b5.toBytes32();
@@ -1492,7 +1495,8 @@ contract ChainValues {
 
         // Odos
         values[base]["odosRouterV2"] = 0x19cEeAd7105607Cd444F5ad10dd51356436095a1.toBytes32();
-        values[base]["odosExecutor"] = 0x52bB904473E0aDC699c7B103962D35a0F53D9E1e.toBytes32();
+        // values[base]["odosExecutor"] = 0x52bB904473E0aDC699c7B103962D35a0F53D9E1e.toBytes32();
+        values[base]["odosExecutor"] = 0x6877B1b0c6267E0AD9aa4C0df18A547AA2f6B08d.toBytes32();
 
         // LBTC Bridge
         values[base]["lbtcBridge"] = 0xA869817b48b25EeE986bdF4bE04062e6fd2C418B.toBytes32();

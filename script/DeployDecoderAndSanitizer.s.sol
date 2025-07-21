@@ -91,8 +91,10 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         setSourceChainName("mainnet");
         vm.startBroadcast(privateKey);
         creationCode = type(SyUsdDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
-        deployer.deployContract("SyUsd Ethereum DecodersAndSanitizers Batch 1", creationCode, constructorArgs, 0);
+        constructorArgs = abi.encode(
+            getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2")
+        );
+        deployer.deployContract("SyUsd Ethereum DecodersAndSanitizers Batch 2", creationCode, constructorArgs, 0);
         vm.stopBroadcast();
 
         // vm.createSelectFork("base");

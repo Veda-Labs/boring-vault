@@ -176,7 +176,9 @@ contract AccountantWithRateProviders is Auth, IRateProvider, IPausable {
      * @dev Callable by OWNER_ROLE.
      */
     function updateDelay(uint24 minimumUpdateDelayInSeconds) external requiresAuth {
-        if (minimumUpdateDelayInSeconds > 14 days) revert AccountantWithRateProviders__UpdateDelayTooLarge();
+        if (minimumUpdateDelayInSeconds > 14 days) {
+            revert AccountantWithRateProviders__UpdateDelayTooLarge();
+        }
         uint24 oldDelay = accountantState.minimumUpdateDelayInSeconds;
         accountantState.minimumUpdateDelayInSeconds = minimumUpdateDelayInSeconds;
         emit DelayInSecondsUpdated(oldDelay, minimumUpdateDelayInSeconds);
@@ -187,7 +189,9 @@ contract AccountantWithRateProviders is Auth, IRateProvider, IPausable {
      * @dev Callable by OWNER_ROLE.
      */
     function updateUpper(uint16 allowedExchangeRateChangeUpper) external requiresAuth {
-        if (allowedExchangeRateChangeUpper < 1e4) revert AccountantWithRateProviders__UpperBoundTooSmall();
+        if (allowedExchangeRateChangeUpper < 1e4) {
+            revert AccountantWithRateProviders__UpperBoundTooSmall();
+        }
         uint16 oldBound = accountantState.allowedExchangeRateChangeUpper;
         accountantState.allowedExchangeRateChangeUpper = allowedExchangeRateChangeUpper;
         emit UpperBoundUpdated(oldBound, allowedExchangeRateChangeUpper);
@@ -198,7 +202,9 @@ contract AccountantWithRateProviders is Auth, IRateProvider, IPausable {
      * @dev Callable by OWNER_ROLE.
      */
     function updateLower(uint16 allowedExchangeRateChangeLower) external requiresAuth {
-        if (allowedExchangeRateChangeLower > 1e4) revert AccountantWithRateProviders__LowerBoundTooLarge();
+        if (allowedExchangeRateChangeLower > 1e4) {
+            revert AccountantWithRateProviders__LowerBoundTooLarge();
+        }
         uint16 oldBound = accountantState.allowedExchangeRateChangeLower;
         accountantState.allowedExchangeRateChangeLower = allowedExchangeRateChangeLower;
         emit LowerBoundUpdated(oldBound, allowedExchangeRateChangeLower);
@@ -209,7 +215,9 @@ contract AccountantWithRateProviders is Auth, IRateProvider, IPausable {
      * @dev Callable by OWNER_ROLE.
      */
     function updatePlatformFee(uint16 platformFee) external requiresAuth {
-        if (platformFee > 0.2e4) revert AccountantWithRateProviders__PlatformFeeTooLarge();
+        if (platformFee > 0.2e4) {
+            revert AccountantWithRateProviders__PlatformFeeTooLarge();
+        }
         uint16 oldFee = accountantState.platformFee;
         accountantState.platformFee = platformFee;
         emit PlatformFeeUpdated(oldFee, platformFee);
@@ -220,7 +228,9 @@ contract AccountantWithRateProviders is Auth, IRateProvider, IPausable {
      * @dev Callable by OWNER_ROLE.
      */
     function updatePerformanceFee(uint16 performanceFee) external requiresAuth {
-        if (performanceFee > 0.5e4) revert AccountantWithRateProviders__PerformanceFeeTooLarge();
+        if (performanceFee > 0.5e4) {
+            revert AccountantWithRateProviders__PerformanceFeeTooLarge();
+        }
         uint16 oldFee = accountantState.performanceFee;
         accountantState.performanceFee = performanceFee;
         emit PerformanceFeeUpdated(oldFee, performanceFee);
@@ -308,11 +318,15 @@ contract AccountantWithRateProviders is Auth, IRateProvider, IPausable {
      *      decimals is greater than the feeAsset's decimals.
      */
     function claimFees(ERC20 feeAsset) external {
-        if (msg.sender != address(vault)) revert AccountantWithRateProviders__OnlyCallableByBoringVault();
+        if (msg.sender != address(vault)) {
+            revert AccountantWithRateProviders__OnlyCallableByBoringVault();
+        }
 
         AccountantState storage state = accountantState;
         if (state.isPaused) revert AccountantWithRateProviders__Paused();
-        if (state.feesOwedInBase == 0) revert AccountantWithRateProviders__ZeroFeesOwed();
+        if (state.feesOwedInBase == 0) {
+            revert AccountantWithRateProviders__ZeroFeesOwed();
+        }
 
         // Determine amount of fees owed in feeAsset.
         uint256 feesOwedInFeeAsset;
@@ -352,7 +366,9 @@ contract AccountantWithRateProviders is Auth, IRateProvider, IPausable {
      * @dev Revert if paused.
      */
     function getRateSafe() external view returns (uint256 rate) {
-        if (accountantState.isPaused) revert AccountantWithRateProviders__Paused();
+        if (accountantState.isPaused) {
+            revert AccountantWithRateProviders__Paused();
+        }
         rate = getRate();
     }
 
@@ -385,7 +401,9 @@ contract AccountantWithRateProviders is Auth, IRateProvider, IPausable {
      * @dev Revert if paused.
      */
     function getRateInQuoteSafe(ERC20 quote) external view returns (uint256 rateInQuote) {
-        if (accountantState.isPaused) revert AccountantWithRateProviders__Paused();
+        if (accountantState.isPaused) {
+            revert AccountantWithRateProviders__Paused();
+        }
         rateInQuote = getRateInQuote(quote);
     }
 

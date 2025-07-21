@@ -11,6 +11,7 @@ import {CurveDecoderAndSanitizer} from "./Protocols/CurveDecoderAndSanitizer.sol
 import {NativeWrapperDecoderAndSanitizer} from "./Protocols/NativeWrapperDecoderAndSanitizer.sol";
 import {PendleRouterDecoderAndSanitizer} from "./Protocols/PendleRouterDecoderAndSanitizer.sol";
 import {CCIPDecoderAndSanitizer} from "./Protocols/CCIPDecoderAndSanitizer.sol";
+import {OdosDecoderAndSanitizer} from "./Protocols/OdosDecoderAndSanitizer.sol";
 
 contract SyUsdBaseDecoderAndSanitizer is
     UniswapV3DecoderAndSanitizer,
@@ -21,10 +22,12 @@ contract SyUsdBaseDecoderAndSanitizer is
     CurveDecoderAndSanitizer,
     NativeWrapperDecoderAndSanitizer,
     PendleRouterDecoderAndSanitizer,
-    CCIPDecoderAndSanitizer
+    CCIPDecoderAndSanitizer,
+    OdosDecoderAndSanitizer
 {
-    constructor(address _uniswapV3NonFungiblePositionManager)
+    constructor(address _uniswapV3NonFungiblePositionManager, address _odosRouter)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
+        OdosDecoderAndSanitizer(_odosRouter)
     {}
 
     //============================== HANDLE FUNCTION COLLISIONS ===============================

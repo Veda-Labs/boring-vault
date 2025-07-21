@@ -13,6 +13,7 @@ import {PendleRouterDecoderAndSanitizer} from "./Protocols/PendleRouterDecoderAn
 import {CCIPDecoderAndSanitizer} from "./Protocols/CCIPDecoderAndSanitizer.sol";
 import {InfiniDecoderAndSanitizer} from "./Protocols/InfiniDecoderAndSanitizer.sol";
 import {SiloDecoderAndSanitizer} from "./Protocols/SiloDecoderAndSanitizer.sol";
+import {OdosDecoderAndSanitizer} from "./Protocols/OdosDecoderAndSanitizer.sol";
 
 contract SyUsdDecoderAndSanitizer is
     UniswapV3DecoderAndSanitizer,
@@ -25,10 +26,12 @@ contract SyUsdDecoderAndSanitizer is
     PendleRouterDecoderAndSanitizer,
     CCIPDecoderAndSanitizer,
     InfiniDecoderAndSanitizer,
-    SiloDecoderAndSanitizer
+    SiloDecoderAndSanitizer,
+    OdosDecoderAndSanitizer
 {
-    constructor(address _uniswapV3NonFungiblePositionManager)
+    constructor(address _uniswapV3NonFungiblePositionManager, address _odosRouter)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
+        OdosDecoderAndSanitizer(_odosRouter)
     {}
 
     //============================== HANDLE FUNCTION COLLISIONS ===============================

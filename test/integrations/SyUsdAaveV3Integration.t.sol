@@ -63,8 +63,11 @@ contract ForkAaveBorrowPositionIntegration is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         vm.createSelectFork(sourceChain);
 
-        rawDataDecoderAndSanitizer =
-            address(new SyUsdDecoderAndSanitizer(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager")));
+        rawDataDecoderAndSanitizer = address(
+            new SyUsdDecoderAndSanitizer(
+                getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2")
+            )
+        );
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
