@@ -3,7 +3,7 @@
 **Version 1.0 | May 2025**  
 **Copyright © 2025 Veda Tech Labs**
 
-This Software Evaluation License allows free, internal, non-commercial evaluation of the applicable software. Any other use of the software requires a separate license. If you do not agree to these terms and conditions, you may not use the software. To inquire about a separate license, contact: legal@vedatechlabs.com.
+This Software Evaluation License allows free, internal, non-commercial evaluation of the applicable software. Any other use of the software requires a separate license. If you do not agree to these terms and conditions, you may not use the software. To inquire about a separate license, contact: legal@veda.tech
 
 ## 1. Definitions
 
