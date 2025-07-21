@@ -55,6 +55,7 @@ contract BaseTestIntegration is Test, MerkleTreeHelper {
         nameToRPC["swell"] = "SWELL_CHAIN_RPC_URL"; 
         nameToRPC["derive"] = "DERIVE_RPC_URL"; 
         nameToRPC["avalanche"] = "AVALANCHE_RPC_URL"; 
+        nameToRPC["hyperEVM"] = "HYPER_EVM_RPC_URL"; 
         nameToRPC["tac"] = "TAC_RPC_URL"; 
     }
     

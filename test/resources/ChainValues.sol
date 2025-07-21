@@ -2568,10 +2568,15 @@ contract ChainValues {
 
         // Balanacer
         values[hyperEVM]["balancerVault"] = address(1).toBytes32();
+        values[hyperEVM]["vault"] = address(1).toBytes32();
+
+        // LayerZero
         values[hyperEVM]["LayerZeroEndPoint"] = 0x3A73033C0b1407574C76BdBAc67f126f6b4a9AA9.toBytes32();
 
-    }
+        // kHYPE
+        values[hyperEVM]["kHypeStakingManager"] = 0x393D0B87Ed38fc779FD9611144aE649BA6082109.toBytes32();
 
+    }
 
     function _addTACTestnetValues() private {
         values[tacTestnet]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
