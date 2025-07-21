@@ -683,5 +683,30 @@ contract DecoderCustomTypes {
         bytes payload;
         uint256 minRebalanceOut;
     }
+
+    // ========================================= Tac Crosschain Layer ==================================
+    
+    struct TokenAmount {
+        address evmAddress;
+        uint256 amount;
+    }
+
+    struct NFTAmount {
+        address evmAddress;
+        uint256 tokenId;
+        uint256 amount;
+    }
+
+    struct OutMessageV1 {
+        uint64 shardsKey;
+        string tvmTarget;
+        string tvmPayload;
+        uint256 tvmProtocolFee;
+        uint256 tvmExecutorFee;
+        string[] tvmValidExecutors;
+        TokenAmount[] toBridge;
+        NFTAmount[] toBridgeNFT;
+    }
+
 }
 
