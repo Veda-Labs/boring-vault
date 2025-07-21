@@ -2277,6 +2277,58 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         );
     }
 
+    // ========================================= Kinetiq KHYPE =========================================
+    function _addKHypeLeafs(ManageLeaf[] memory leafs) internal {
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "KHYPE"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve kHype to be spent by kHype Staking Manager",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "kHypeStakingManager");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "kHypeStakingManager"),
+            true,
+            "stake()",
+            new address[](0),
+            "Stake HYPE for KHYPE",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "kHypeStakingManager"),
+            false,
+            "queueWithdrawal(uint256)",
+            new address[](0),
+            "Queue Withdraw on KHYPE",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "kHypeStakingManager"),
+            false,
+            "confirmWithdrawal(uint256)",
+            new address[](0),
+            "Confirm Withdraw on KHYPE and receive HYPE",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+    }
+
     // ========================================= Frax =========================================
 
     function _addFraxLeafs(ManageLeaf[] memory leafs) internal {
@@ -13137,13 +13189,12 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             false,
             "approve(address,uint256)",
             new address[](1),
-            string.concat("Approve USDC to be spent by CrossChainLayer"),
+            string.concat("Approve USDT to be spent by CrossChainLayer"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "crossChainLayer"); 
 
         bytes memory tvmBytes = bytes(tvmAddress);
-        console.log("TVM BYTES LENGTH: ", tvmBytes.length);  
 
         require(tvmBytes.length >= 20, "tvmTarget too short");
 
@@ -13192,12 +13243,13 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             getAddress(sourceChain, "crossChainLayer"),
             false,
             "sendMessage(uint256,bytes)",
-            new address[](3),
+            new address[](4),
             string.concat("Send message via CrossChainLayer"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = tvmTarget0; 
         leafs[leafIndex].argumentAddresses[1] = tvmTarget1; 
+        leafs[leafIndex].argumentAddresses[2] = tvmTarget2; 
         leafs[leafIndex].argumentAddresses[2] = address(tokenToBridge);  
     } 
 
