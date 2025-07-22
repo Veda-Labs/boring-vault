@@ -15,7 +15,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     address public boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C;
-    address public rawDataDecoderAndSanitizer = 0x95C7D09e431D37B90ACEE59340a8aD2b7542b3F1;
+    address public rawDataDecoderAndSanitizer = 0xfB5f154dcD47CC6d746D72bbcf121C1475fe26f0;
     address public managerAddress = 0x227975088C28DBBb4b421c6d96781a53578f19a8;
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
     address public pancakeSwapDataDecoderAndSanitizer = 0xfdC73Fc6B60e4959b71969165876213918A443Cd;
@@ -28,6 +28,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
     address public hyperlaneDecoderAndSanitizer = 0xfC823909C7D2Cb8701FE7d6EE74508C57Df1D6dE;
     address public termFinanceDecoderAndSanitizer = 0xF8e9517e7e98D7134E306aD3747A50AC8dC1dbc9;
     address public kingClaimingDecoderAndSanitizer = 0xd4067b594C6D48990BE42a559C8CfDddad4e8D6F; 
+    address public atomicQueueDecoderAndSanitizer = 0x770B3AAA48096b3fB36876b8dD55789372775bf0; 
 
     address public itbCorkDecoderAndSanitizer = 0x457Cce6Ec3fEb282952a7e50a1Bc727Ca235Eb0a;
 
@@ -396,11 +397,13 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         }
 
         // ========================== AtomicQueue ==========================
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", atomicQueueDecoderAndSanitizer);
         _addAtomicQueueLeafs(leafs, 0xD45884B592E316eB816199615A95C182F75dea07, getERC20(sourceChain, "liquidMove"), getERC20(sourceChain, "WETH"));
         _addAtomicQueueLeafs(leafs, 0xD45884B592E316eB816199615A95C182F75dea07, getERC20(sourceChain, "liquidMove"), getERC20(sourceChain, "WEETH"));
         _addAtomicQueueLeafs(leafs, 0xD45884B592E316eB816199615A95C182F75dea07, getERC20(sourceChain, "liquidMove"), getERC20(sourceChain, "EETH"));
         
         // ========================== Teller ==========================
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         ERC20[] memory liquidMoveAssets = new ERC20[](3);
         liquidMoveAssets[0] = getERC20(sourceChain, "WETH");
         liquidMoveAssets[1] = getERC20(sourceChain, "WEETH");
