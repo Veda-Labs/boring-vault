@@ -160,8 +160,8 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
             // ========================== 1inch ==========================
-            address[] memory assets = new address[](24);
-            SwapKind[] memory kind = new SwapKind[](24);
+            address[] memory assets = new address[](25);
+            SwapKind[] memory kind = new SwapKind[](25);
             assets[0] = getAddress(sourceChain, "WETH");
             kind[0] = SwapKind.BuyAndSell;
             assets[1] = getAddress(sourceChain, "WEETH");
@@ -210,6 +210,8 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             kind[22] = SwapKind.Sell;
             assets[23] = getAddress(sourceChain, "KING");
             kind[23] = SwapKind.Sell;
+            assets[24] = getAddress(sourceChain, "EETH");
+            kind[24] = SwapKind.BuyAndSell;
             _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
 
             _addLeafsFor1InchUniswapV3Swapping(leafs, getAddress(sourceChain, "wstETH_wETH_01"));
@@ -392,6 +394,37 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
 
             _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
         }
+
+        // ========================== AtomicQueue ==========================
+        _addAtomicQueueLeafs(leafs, 0xD45884B592E316eB816199615A95C182F75dea07, getERC20(sourceChain, "liquidMove"), getERC20(sourceChain, "WETH"));
+        _addAtomicQueueLeafs(leafs, 0xD45884B592E316eB816199615A95C182F75dea07, getERC20(sourceChain, "liquidMove"), getERC20(sourceChain, "WEETH"));
+        _addAtomicQueueLeafs(leafs, 0xD45884B592E316eB816199615A95C182F75dea07, getERC20(sourceChain, "liquidMove"), getERC20(sourceChain, "EETH"));
+        
+        // ========================== Teller ==========================
+        ERC20[] memory liquidMoveAssets = new ERC20[](3);
+        liquidMoveAssets[0] = getERC20(sourceChain, "WETH");
+        liquidMoveAssets[1] = getERC20(sourceChain, "WEETH");
+        liquidMoveAssets[2] = getERC20(sourceChain, "EETH");
+        _addTellerLeafs(leafs, 0x63ede83cbB1c8D90bA52E9497e6C1226a673e884, liquidMoveAssets, false, true);
+
+        // ========================== vbVault ==========================
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "vbETH")));
+
+        // ========================== Agglayer ==========================
+        _addAgglayerTokenLeafs(
+            leafs,
+            getAddress(sourceChain, "agglayerBridgeKatana"),
+            getAddress(sourceChain, "vbETH"),
+            0,
+            20
+        );
+        _addAgglayerTokenLeafs(
+            leafs,
+            getAddress(sourceChain, "agglayerBridgeKatana"),
+            getAddress(sourceChain, "WEETH"),
+            0,
+            20
+        );
 
         // ========================== Term ==========================
         {
