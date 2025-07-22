@@ -396,20 +396,6 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
         }
 
-        // ========================== AtomicQueue ==========================
-        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", atomicQueueDecoderAndSanitizer);
-        _addAtomicQueueLeafs(leafs, 0xD45884B592E316eB816199615A95C182F75dea07, getERC20(sourceChain, "liquidMove"), getERC20(sourceChain, "WETH"));
-        _addAtomicQueueLeafs(leafs, 0xD45884B592E316eB816199615A95C182F75dea07, getERC20(sourceChain, "liquidMove"), getERC20(sourceChain, "WEETH"));
-        _addAtomicQueueLeafs(leafs, 0xD45884B592E316eB816199615A95C182F75dea07, getERC20(sourceChain, "liquidMove"), getERC20(sourceChain, "EETH"));
-        
-        // ========================== Teller ==========================
-        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
-        ERC20[] memory liquidMoveAssets = new ERC20[](3);
-        liquidMoveAssets[0] = getERC20(sourceChain, "WETH");
-        liquidMoveAssets[1] = getERC20(sourceChain, "WEETH");
-        liquidMoveAssets[2] = getERC20(sourceChain, "EETH");
-        _addTellerLeafs(leafs, 0x63ede83cbB1c8D90bA52E9497e6C1226a673e884, liquidMoveAssets, false, true);
-
         // ========================== vbVault ==========================
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "vbETH")));
 
