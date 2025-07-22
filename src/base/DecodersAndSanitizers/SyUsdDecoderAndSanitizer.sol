@@ -14,6 +14,7 @@ import {CCIPDecoderAndSanitizer} from "./Protocols/CCIPDecoderAndSanitizer.sol";
 import {InfiniDecoderAndSanitizer} from "./Protocols/InfiniDecoderAndSanitizer.sol";
 import {SiloDecoderAndSanitizer} from "./Protocols/SiloDecoderAndSanitizer.sol";
 import {OdosDecoderAndSanitizer} from "./Protocols/OdosDecoderAndSanitizer.sol";
+import {OneInchDecoderAndSanitizer} from "./Protocols/OneInchDecoderAndSanitizer.sol";
 
 contract SyUsdDecoderAndSanitizer is
     UniswapV3DecoderAndSanitizer,
@@ -27,7 +28,8 @@ contract SyUsdDecoderAndSanitizer is
     CCIPDecoderAndSanitizer,
     InfiniDecoderAndSanitizer,
     SiloDecoderAndSanitizer,
-    OdosDecoderAndSanitizer
+    OdosDecoderAndSanitizer,
+    OneInchDecoderAndSanitizer
 {
     constructor(address _uniswapV3NonFungiblePositionManager, address _odosRouter)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)

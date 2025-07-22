@@ -31,7 +31,9 @@ import "forge-std/StdJson.sol";
 contract DepositInMetaMorpho is Script, MerkleTreeHelper {
     uint256 public privateKey;
 
-    address public rawDataDecoderAndSanitizerEthereum = 0x2942Ca9E3676cd2CfAEfB113A0Aa67FEd49198f5;
+    // address public rawDataDecoderAndSanitizerEthereum = 0x2942Ca9E3676cd2CfAEfB113A0Aa67FEd49198f5;
+    // address public rawDataDecoderAndSanitizerEthereum = 0x90992585BeF22047669fD3d166a78d992e4079cB;
+    address public rawDataDecoderAndSanitizerEthereum = 0x6b74d490B60d6994E4d4C6D174Ef39690294922e;
     address public rawDataDecoderAndSanitizerBase01 = 0x53F0b212d28320DD0aB504AbD6871941EFf5AD45;
     address public rawDataDecoderAndSanitizerArbitrum01 = 0x53F0b212d28320DD0aB504AbD6871941EFf5AD45;
     RolesAuthority internal rolesAuthority = RolesAuthority(0xf7F3ace7f6cA2Cb1E7ccbE3Bf2Da13D001D36fdF);
@@ -70,6 +72,7 @@ contract DepositInMetaMorpho is Script, MerkleTreeHelper {
         privateKey = vm.envUint("BORING_DEVELOPER");
         vm.createSelectFork("mainnet");
         setSourceChainName("mainnet");
+
         setAddress(true, mainnet, "boringVault", address(boringVault));
         setAddress(true, mainnet, "managerAddress", address(manager));
         setAddress(true, mainnet, "manager", address(manager));
@@ -180,6 +183,7 @@ contract DepositInMetaMorpho is Script, MerkleTreeHelper {
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "syrupUSDC_USDC_915"));
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "PT-syrupUSDC-28AUG2025_USDC_915"));
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "PT-iUSD-4SEP2025_USDC_915"));
+        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "RLP_USDC_86"));
 
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_iUSD_09_04_2025"), false);
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_syrupUSDC_08_28_2025"), false);

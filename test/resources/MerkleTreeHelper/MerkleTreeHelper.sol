@@ -136,6 +136,106 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         }
     }
 
+    function _addLeafsFor1InchV6GeneralSwapping(
+        ManageLeaf[] memory leafs,
+        address[] memory assets,
+        SwapKind[] memory kind
+    ) internal {
+        require(assets.length == kind.length, "Arrays must be of equal length");
+        for (uint256 i; i < assets.length; ++i) {
+            // Add approval leaf if not already added
+            if (
+                !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][assets[i]][getAddress(
+                    sourceChain, "aggregationRouterV6"
+                )]
+            ) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    assets[i],
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve 1InchV6 router to spend ", ERC20(assets[i]).symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "aggregationRouterV6");
+                ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][assets[i]][getAddress(
+                    sourceChain, "aggregationRouterV6"
+                )] = true;
+            }
+            // Iterate through the list again.
+            for (uint256 j; j < assets.length; ++j) {
+                // Skip if we are on the same index
+                if (i == j) {
+                    continue;
+                }
+                if (
+                    !ownerToOneInchSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][assets[i]][assets[j]]
+                        && kind[j] != SwapKind.Sell
+                ) {
+                    // Add sell swap.
+                    unchecked {
+                        leafIndex++;
+                    }
+                    leafs[leafIndex] = ManageLeaf(
+                        getAddress(sourceChain, "aggregationRouterV6"),
+                        false,
+                        "swap(address,(address,address,address,address,uint256,uint256,uint256),bytes)",
+                        new address[](5),
+                        string.concat(
+                            "Swap ",
+                            ERC20(assets[i]).symbol(),
+                            " for ",
+                            ERC20(assets[j]).symbol(),
+                            " using 1inchV6 router"
+                        ),
+                        getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                    );
+                    leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "oneInchExecutor");
+                    leafs[leafIndex].argumentAddresses[1] = assets[i];
+                    leafs[leafIndex].argumentAddresses[2] = assets[j];
+                    leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "oneInchExecutor");
+                    leafs[leafIndex].argumentAddresses[4] = getAddress(sourceChain, "boringVault");
+                    ownerToOneInchSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][assets[i]][assets[j]]
+                    = true;
+                }
+
+                if (
+                    kind[i] == SwapKind.BuyAndSell
+                        && !ownerToOneInchSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][assets[j]][assets[i]]
+                ) {
+                    // Add buy swap.
+                    unchecked {
+                        leafIndex++;
+                    }
+                    leafs[leafIndex] = ManageLeaf(
+                        getAddress(sourceChain, "aggregationRouterV5"),
+                        false,
+                        "swap(address,(address,address,address,address,uint256,uint256,uint256),bytes)",
+                        new address[](5),
+                        string.concat(
+                            "Swap ",
+                            ERC20(assets[j]).symbol(),
+                            " for ",
+                            ERC20(assets[i]).symbol(),
+                            " using 1inch router"
+                        ),
+                        getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                    );
+                    leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "oneInchExecutor");
+                    leafs[leafIndex].argumentAddresses[1] = assets[j];
+                    leafs[leafIndex].argumentAddresses[2] = assets[i];
+                    leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "oneInchExecutor");
+                    leafs[leafIndex].argumentAddresses[4] = getAddress(sourceChain, "boringVault");
+                    ownerToOneInchSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][assets[j]][assets[i]]
+                    = true;
+                }
+            }
+        }
+    }
+
     function _addLeafsFor1InchUniswapV3Swapping(ManageLeaf[] memory leafs, address pool) internal {
         UniswapV3Pool uniswapV3Pool = UniswapV3Pool(pool);
         address token0 = uniswapV3Pool.token0();

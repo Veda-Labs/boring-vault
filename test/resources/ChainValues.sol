@@ -802,6 +802,7 @@ contract ChainValues {
         values[mainnet]["sUSDePT_07_30_25_DAI_915"] = 0xb81eaed0df42ff6646c8daf4fe38afab93b13b6a89c9750d08e705223a45e2ef;
         values[mainnet]["sUSDePT_07_30_25_USDC_915"] =
             0xbc552f0b14dd6f8e60b760a534ac1d8613d3539153b4d9675d697e048f2edc7e;
+        values[mainnet]["RLP_USDC_86"] = 0xe1b65304edd8ceaea9b629df4c3c926a37d1216e27900505c04f14b2ed279f33;
 
         // MetaMorpho
         values[mainnet]["usualBoostedUSDC"] = 0xd63070114470f685b75B74D60EEc7c1113d33a3D.toBytes32();
@@ -835,6 +836,7 @@ contract ChainValues {
 
         // 1Inch
         values[mainnet]["aggregationRouterV5"] = 0x1111111254EEB25477B68fb85Ed929f73A960582.toBytes32();
+        values[mainnet]["aggregationRouterV6"] = 0x111111125421cA6dc452d289314280a0f8842A65.toBytes32();
         values[mainnet]["oneInchExecutor"] = 0x5141B82f5fFDa4c6fE1E372978F1C5427640a190.toBytes32();
         values[mainnet]["wETHweETH5bps"] = 0x7A415B19932c0105c82FDB6b720bb01B0CC2CAe3.toBytes32();
 
