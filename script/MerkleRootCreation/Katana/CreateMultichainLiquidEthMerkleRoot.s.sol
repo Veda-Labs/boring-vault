@@ -16,7 +16,7 @@ contract CreateMultichainLiquidEthMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C;
-    address public rawDataDecoderAndSanitizer = 0x3A70bDe90936625208483DDBf88f6E536A1aa4aC;
+    address public rawDataDecoderAndSanitizer = 0x59c3E2f1A2fE08F0ec496F20597a87DD7f1606d9;
     address public managerAddress =  0x227975088C28DBBb4b421c6d96781a53578f19a8;
     address public accountantAddress =  0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
 
@@ -79,6 +79,10 @@ contract CreateMultichainLiquidEthMerkleRoot is Script, MerkleTreeHelper {
         
         // ========================== MetaMorhpo ==========================
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletWETH"))); 
+
+        // ========================== ERC4626 ==========================
+        _addYearnLeafs(leafs, ERC4626(getAddress(sourceChain, "yvbWETH"))); 
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "yvbWETH"))); 
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
