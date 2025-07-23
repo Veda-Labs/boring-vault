@@ -339,6 +339,7 @@ contract ChainValues {
         values[mainnet]["vbETH"] = 0x2DC70fb75b88d2eB4715bc06E1595E6D97c34DFF.toBytes32();
         values[mainnet]["SWELL"] = 0x0a6E7Ba5042B38349e437ec6Db6214AEC7B35676.toBytes32();
         values[mainnet]["vbWBTC"] = 0x2C24B57e2CCd1f273045Af6A5f632504C432374F.toBytes32();
+        values[mainnet]["MF-ONE"] = 0x238a700eD6165261Cf8b2e544ba797BC11e466Ba.toBytes32();
 
 
         // Rate providers
