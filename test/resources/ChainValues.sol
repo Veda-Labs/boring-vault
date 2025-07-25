@@ -2794,12 +2794,18 @@ contract ChainValues {
         values[tac]["ethereumVaultConnector"]   = 0x01F594c66A5561b90Bc782dD0297f294cD668b64.toBytes32(); 
         values[tac]["evkeTON-1"]                = 0x27324c0d445f94550b53936dBAB7fD168634f192.toBytes32(); 
         values[tac]["evketsTON-1"]              = 0xc7F25f1c8FDB86DE3d14152034de4EB8B71eEC78.toBytes32(); 
+        values[tac]["evkeLBTC-1"]               = 0x522e6437B80B11C10AaFDB321c3610B85127E4CD.toBytes32(); 
+
         
         // Morpho
         values[tac]["re7TON"] = 0x84BBc0be5a6f831a4E2C28a2F3b892C70AcAa5b3.toBytes32(); 
+        values[tac]["re7LBTC"] = 0xe9BD3590A68939344953b4f912d83b7c8C2A1f77.toBytes32(); 
 
         // CrossChain Layer
         values[tac]["crossChainLayer"] = 0x9fee01e948353E0897968A3ea955815aaA49f58d.toBytes32();        
-        
+
+        // ZeroLend
+        values[tac]["zeroLendPool"] = 0x93A40401EB535f786C2Ae44858e1c847d0B56fc7.toBytes32();
+        values[tac]["v3RewardsController"] = 0xFCC281D05cfc46953F518F2f32AaCd7b6805Efa4.toBytes32();
     }
 }
