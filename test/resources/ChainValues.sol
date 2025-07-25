@@ -2805,8 +2805,8 @@ contract ChainValues {
         values[tac]["crossChainLayer"] = 0x9fee01e948353E0897968A3ea955815aaA49f58d.toBytes32();        
 
         // ZeroLend
-        values[tac]["zeroLendPool"] = address(69).toBytes32(); //
-        values[tac]["v3RewardsController"] = address(69).toBytes32();        
+        values[tac]["zeroLendPool"] = 0x93A40401EB535f786C2Ae44858e1c847d0B56fc7.toBytes32();
+        values[tac]["v3RewardsController"] = 0xFCC281D05cfc46953F518F2f32AaCd7b6805Efa4.toBytes32();        
          
     }
 }
