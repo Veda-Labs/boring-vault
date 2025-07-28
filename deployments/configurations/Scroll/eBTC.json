@@ -93,6 +93,35 @@
       }
     }
   },
+  "shareMoverConfiguration": {
+    "shareMoverDeploymentName": "shareMover",
+    "kind": { "layerZero": true },
+    "lzEndpointAddressOrName": {
+      "address": "0x1a44076050125825900e736c501f859c50fE728c",
+      "name": "LayerZeroEndpoint"
+    },
+    "lzTokenAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "ZRO"
+    },
+    "ownerAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000001",
+      "name": "governance"
+    },
+    "chains": [
+      {
+        "eid": 30168,
+        "peer": "0x6a73ae86bdde87bcaaf9ee3da151a20cc6e5c7dc6684c7b10c50e0258d471e43",
+        "allowMessagesFrom": true,
+        "allowMessagesTo": true,
+        "executor": "0x581b26F362AD383f7B51eF8A165Efa13DDe398a4",
+        "dvn0": "0x446755349101cB20c582C224462c3912d3584dCE",
+        "gasLimit": 350000,
+        "decimals": 9,
+        "type": "SOLANA"
+      }
+    ]
+  },
   "boringQueueConfiguration": {
     "boringQueueDeploymentName": "ether.fi BTC Boring Queue V0.0",
     "boringQueueSolverName": "ether.fi BTC Boring Solver V0.0",
