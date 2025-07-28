@@ -74,7 +74,6 @@ import {SonicEthMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers
 import {GoldenGooseUnichainDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/GoldenGooseUnichainDecoderAndSanitizer.sol";
 import {LevelDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LevelDecoderAndSanitizer.sol";
-
 import {RoycoUSDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/RoycoUSDDecoderAndSanitizer.sol";
 import {RoycoUSDPlumeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/RoycoUSDPlumeDecoderAndSanitizer.sol";
 import {BoringDrone} from "src/base/Drones/BoringDrone.sol";
@@ -87,6 +86,8 @@ import {KatanaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/KatanaDe
 import {TacTONDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacTONDecoderAndSanitizer.sol";
 import {EthMainnetTacDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EthMainnetTacDecoderAndSanitizer.sol";
 import {TacDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacUSDTacDecoderAndSanitizer.sol";
+import {KHypeHyperEVMDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/KHypeHyperEVMDecoderAndSanitizer.sol";
+
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -117,9 +118,14 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "convexFXPoolRegistry"), getAddress(sourceChain, "odosRouterV2"));
         //deployer.deployContract("Lombard BTC Decoder And Sanitizer v0.5", creationCode, constructorArgs, 0);
 
+
         creationCode = type(EtherFiLiquidEthDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2"));
         deployer.deployContract("EtherFi Liquid ETH Decoder And Sanitizer V0.5", creationCode, constructorArgs, 0);
+        
+        creationCode = type(KHypeHyperEVMDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode();
+        deployer.deployContract("KHype Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         //address uniswapV4PositionManager = getAddress(sourceChain, "uniV4PositionManager");
         //address uniswapV3NonFungiblePositionManager = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager");
@@ -129,7 +135,6 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //constructorArgs =
         //    abi.encode(uniswapV4PositionManager, uniswapV3NonFungiblePositionManager, odosRouterV2, dvStETHVault);
         //deployer.deployContract("Golden Goose Decoder And Sanitizer v0.4", creationCode, constructorArgs, 0);
-
         //creationCode = type(TacTONDecoderAndSanitizer).creationCode;
         //constructorArgs = abi.encode();
         //deployer.deployContract("TAC Decoder And Sanitizer v0.0", creationCode, constructorArgs, 0);

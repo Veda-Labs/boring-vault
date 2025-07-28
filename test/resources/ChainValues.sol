@@ -339,6 +339,7 @@ contract ChainValues {
         values[mainnet]["vbETH"] = 0x2DC70fb75b88d2eB4715bc06E1595E6D97c34DFF.toBytes32();
         values[mainnet]["SWELL"] = 0x0a6E7Ba5042B38349e437ec6Db6214AEC7B35676.toBytes32();
         values[mainnet]["vbWBTC"] = 0x2C24B57e2CCd1f273045Af6A5f632504C432374F.toBytes32();
+        values[mainnet]["MF-ONE"] = 0x238a700eD6165261Cf8b2e544ba797BC11e466Ba.toBytes32();
 
 
         // Rate providers
@@ -403,6 +404,7 @@ contract ChainValues {
         values[mainnet]["aV3CrvUsd"] = 0xb82fa9f31612989525992FCfBB09AB22Eff5c85A.toBytes32();
         values[mainnet]["dV3CrvUsd"] = 0x028f7886F3e937f8479efaD64f31B3fE1119857a.toBytes32();
         values[mainnet]["aV3WeETH"] = 0xBdfa7b7893081B35Fb54027489e2Bc7A38275129.toBytes32();
+        values[mainnet]["aRLUSD"] = 0xFa82580c16A31D0c1bC632A36F82e83EfEF3Eec0.toBytes32();
 
         // Balancer V2 Addresses
         values[mainnet]["BB_A_USD"] = 0xfeBb0bbf162E64fb9D0dfe186E517d84C395f016.toBytes32();
@@ -2576,6 +2578,20 @@ contract ChainValues {
         // kHYPE
         values[hyperEVM]["kHypeStakingManager"] = 0x393D0B87Ed38fc779FD9611144aE649BA6082109.toBytes32();
 
+        // HyperLend
+        values[hyperEVM]["hyperLendPool"] = 0x00A89d7a5A02160f20150EbEA7a2b5E4879A1A8b.toBytes32();
+        values[hyperEVM]["v3RewardsController"] = 0x2aF0d6754A58723c50b5e73E45D964bFDD99fE2F.toBytes32();
+
+        // MorphoBlue
+        values[hyperEVM]["morphoBlue"] = 0x68e37dE8d93d3496ae143F2E900490f6280C57cD.toBytes32();  
+        values[hyperEVM]["KHYPE_WHYPE_915"] = 0x64e7db7f042812d4335947a7cdf6af1093d29478aff5f1ccd93cc67f8aadfddc; 
+
+        // MetaMorpho
+        values[hyperEVM]["feHYPE"] = 0x2900ABd73631b2f60747e687095537B673c06A76.toBytes32(); 
+
+        // Curve Pool
+        values[hyperEVM]["KHYPE_WHYPE_Curve_Pool"] = 0x98F903B279DfF5a4f05c08C22c1D34afE8514dA0.toBytes32(); 
+        values[hyperEVM]["KHYPE_WHYPE_Curve_Gauge"] = 0x98F903B279DfF5a4f05c08C22c1D34afE8514dA0.toBytes32(); 
     }
 
     function _addTACTestnetValues() private {
