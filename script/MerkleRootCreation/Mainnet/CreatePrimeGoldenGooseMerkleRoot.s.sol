@@ -134,6 +134,9 @@ contract CreatePrimeGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         _addFluidFTokenLeafs(leafs, getAddress(sourceChain, "fWETH"));
         _addFluidFTokenLeafs(leafs, getAddress(sourceChain, "fWSTETH"));
 
+        _addFluidFTokenLeafs(leafs, getAddress(sourceChain, "fwstETH"));
+        _addFluidFTokenLeafs(leafs, getAddress(sourceChain, "fWETH"));
+
         // ========================== Balancer Flash Loans ==========================
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "WETH"));
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "WSTETH"));
@@ -149,12 +152,19 @@ contract CreatePrimeGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             kind[0] = SwapKind.BuyAndSell;
             assets[1] = getAddress(sourceChain, "WSTETH");
             kind[1] = SwapKind.BuyAndSell;
+<<<<<<< Updated upstream
             assets[2] = getAddress(sourceChain, "UNI");
             kind[2] = SwapKind.Sell;
             assets[3] = getAddress(sourceChain, "rEUL");
             kind[3] = SwapKind.Sell;
             assets[4] = getAddress(sourceChain, "EUL");
             kind[4] = SwapKind.Sell;
+=======
+            assets[2] = getAddress(sourceChain, "rEUL");
+            kind[2] = SwapKind.Sell;
+            assets[3] = getAddress(sourceChain, "EUL");
+            kind[3] = SwapKind.BuyAndSell;
+>>>>>>> Stashed changes
 
             _addOdosSwapLeafs(leafs, assets, kind);
 
