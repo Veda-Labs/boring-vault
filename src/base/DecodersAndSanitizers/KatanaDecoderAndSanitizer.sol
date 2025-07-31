@@ -17,6 +17,7 @@ import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocol
 import {LBTCBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LBTCBridgeDecoderAndSanitizer.sol";
 import {MorphoBlueDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MorphoBlueDecoderAndSanitizer.sol";
 import {UniswapV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV3DecoderAndSanitizer.sol";
+import {SpectraDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SpectraDecoderAndSanitizer.sol"; 
 
 contract KatanaDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
@@ -31,7 +32,8 @@ contract KatanaDecoderAndSanitizer is
     TellerDecoderAndSanitizer,
     LBTCBridgeDecoderAndSanitizer,
     MorphoBlueDecoderAndSanitizer,
-    UniswapV3DecoderAndSanitizer
+    UniswapV3DecoderAndSanitizer,
+    SpectraDecoderAndSanitizer
 {
     constructor(address _nonFungiblePositionManager)
         UniswapV3DecoderAndSanitizer(_nonFungiblePositionManager)
@@ -70,4 +72,10 @@ contract KatanaDecoderAndSanitizer is
         // Nothing to sanitize or return
         return addressesFound;
     }
+
+    function burn(uint256 /*amount*/ ) external pure virtual override (UniswapV3DecoderAndSanitizer, SpectraDecoderAndSanitizer) returns (bytes memory addressesFound) {
+        // Nothing to sanitize or return
+        return addressesFound;
+    }
+
 }
