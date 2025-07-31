@@ -8,13 +8,10 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {OAppAuth, Origin, MessagingFee, MessagingReceipt} from "@oapp-auth/OAppAuth.sol";
 import {OptionsBuilder} from "@oapp-auth/OptionsBuilder.sol";
 import {PairwiseRateLimiter} from "../PairwiseRateLimiter.sol";
-import {IPausable} from "src/interfaces/IPausable.sol";
-import {Auth, Authority} from "@solmate/auth/Auth.sol";
 
-contract LayerZeroShareMover is Auth, ShareMover, OAppAuth, PairwiseRateLimiter, IPausable {
+contract LayerZeroShareMover is ShareMover, OAppAuth, PairwiseRateLimiter {
     using SafeTransferLib for ERC20;
     using OptionsBuilder for bytes;
-    using MessageLib for MessageLib.Message;
 
     // ========================================= STRUCTS =========================================
 
@@ -61,11 +58,6 @@ contract LayerZeroShareMover is Auth, ShareMover, OAppAuth, PairwiseRateLimiter,
      */
     mapping(uint32 => Chain) public chains;
 
-    /**
-     * @notice Whether the contract is paused.
-     */
-    bool public isPaused;
-
     // ========================================= IMMUTABLES =========================================
 
     /**
@@ -84,7 +76,6 @@ contract LayerZeroShareMover is Auth, ShareMover, OAppAuth, PairwiseRateLimiter,
     error LayerZeroShareMover__MessagesNotAllowedTo(uint32 chainId);
     error LayerZeroShareMover__FeeExceedsMax(uint32 chainId, uint256 fee, uint256 maxFee);
     error LayerZeroShareMover__BadFeeToken();
-    error LayerZeroShareMover_IsPaused();
     error LayerZeroShareMover__ZeroMessageGasLimit();
     error LayerZeroShareMover__InvalidChainId();
     error LayerZeroShareMover__InvalidTargetDecimals();
@@ -101,10 +92,6 @@ contract LayerZeroShareMover is Auth, ShareMover, OAppAuth, PairwiseRateLimiter,
     event ChainStopMessagesFrom(uint32 indexed chainId);
     event ChainStopMessagesTo(uint32 indexed chainId);
     event ChainSetGasLimit(uint32 indexed chainId, uint128 messageGasLimit);
-
-    // Simple pause/unpause events (local to this contract)
-    event Paused();
-    event Unpaused();
 
     // ========================================= CONSTRUCTOR =========================================
 
@@ -125,8 +112,7 @@ contract LayerZeroShareMover is Auth, ShareMover, OAppAuth, PairwiseRateLimiter,
         address _delegate,
         address _lzToken
     )
-        Auth(_owner, Authority(_authority))
-        ShareMover(_vault)
+        ShareMover(_owner, _authority, _vault)
         OAppAuth(_lzEndpoint, _delegate)
     {
         localDecimals = vault.decimals();
@@ -134,24 +120,6 @@ contract LayerZeroShareMover is Auth, ShareMover, OAppAuth, PairwiseRateLimiter,
     }
 
     // ========================================= ADMIN FUNCTIONS =========================================
-
-    /**
-     * @notice Pause the contract.
-     * @dev Callable by authorized roles.
-     */
-    function pause() external requiresAuth {
-        isPaused = true;
-        emit Paused();
-    }
-
-    /**
-     * @notice Unpause the contract.
-     * @dev Callable by authorized roles.
-     */
-    function unpause() external requiresAuth {
-        isPaused = false;
-        emit Unpaused();
-    }
 
     /**
      * @notice Add a chain to the ShareMover.
@@ -303,7 +271,7 @@ contract LayerZeroShareMover is Auth, ShareMover, OAppAuth, PairwiseRateLimiter,
         address, /*_executor*/
         bytes calldata /*_extraData*/
     ) internal override {
-        if (isPaused) revert LayerZeroShareMover_IsPaused();
+        if (isPaused) revert ShareMover__IsPaused();
         
         Chain memory sourceChain = chains[_origin.srcEid];
         if (!sourceChain.allowMessagesFrom) revert LayerZeroShareMover__MessagesNotAllowedFrom(_origin.srcEid);
@@ -467,41 +435,5 @@ contract LayerZeroShareMover is Auth, ShareMover, OAppAuth, PairwiseRateLimiter,
         );
         
         if (params.chainId == 0) revert LayerZeroShareMover__InvalidChainId();
-    }
-
-    // ========================================= USER-FACING OVERRIDES WITH PAUSE GUARD =========================================
-
-    /// @notice See {ShareMover-bridge}
-    function bridge(
-        uint96 shareAmount,
-        bytes32 to,
-        bytes calldata bridgeWildCard
-    ) public payable override {
-        if (isPaused) revert LayerZeroShareMover_IsPaused();
-        super.bridge(shareAmount, to, bridgeWildCard);
-    }
-
-    /// @notice See {ShareMover-bridgeWithPermit}
-    function bridgeWithPermit(
-        uint96 shareAmount,
-        bytes32 to,
-        bytes calldata bridgeWildCard,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) public payable override {
-        if (isPaused) revert LayerZeroShareMover_IsPaused();
-        super.bridgeWithPermit(shareAmount, to, bridgeWildCard, deadline, v, r, s);
-    }
-
-    /// @notice See {ShareMover-previewFee}
-    function previewFee(
-        uint96 shareAmount,
-        bytes32 to,
-        bytes calldata bridgeWildCard
-    ) public view override returns (uint256 fee) {
-        if (isPaused) revert LayerZeroShareMover_IsPaused();
-        return super.previewFee(shareAmount, to, bridgeWildCard);
     }
 }

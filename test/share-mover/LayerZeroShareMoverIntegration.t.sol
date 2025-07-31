@@ -4,6 +4,7 @@ pragma solidity 0.8.21;
 import {Test} from "@forge-std/Test.sol";
 import {MockLayerZeroEndPoint} from "src/helper/MockLayerZeroEndPoint.sol";
 import {MockVault} from "test/mocks/MockVault.sol";
+import {ShareMover} from "src/base/Roles/CrossChain/ShareMover/ShareMover.sol";
 import {LayerZeroShareMover} from "src/base/Roles/CrossChain/ShareMover/LayerZeroShareMover.sol";
 import {PairwiseRateLimiter} from "src/base/Roles/CrossChain/PairwiseRateLimiter.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
@@ -235,7 +236,7 @@ contract LayerZeroShareMoverIntegrationTest is Test {
         sourceMover.pause();
         bytes memory wildcard = _wildcard(1 ether);
         vm.prank(user);
-        vm.expectRevert(LayerZeroShareMover.LayerZeroShareMover_IsPaused.selector);
+        vm.expectRevert(ShareMover.ShareMover__IsPaused.selector);
         sourceMover.bridge{value: QUOTED_FEE}(SHARES, user.toBytes32(), wildcard);
     }
 

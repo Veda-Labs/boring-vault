@@ -12,7 +12,7 @@ contract MessageLibTest is Test {
         harness = new MessageLibHarness();
     }
 
-    function testEncodeDecodeRoundTrip() external {
+    function testEncodeDecodeRoundTrip() pure external {
         MessageLib.Message memory message = MessageLib.Message({
             recipient: bytes32(uint256(uint160(address(0xBEEF)))),
             amount: 12345
@@ -32,13 +32,13 @@ contract MessageLibTest is Test {
         harness.decode(bad);
     }
 
-    function testConvertAmountDecimalsScaleUp() external {
+    function testConvertAmountDecimalsScaleUp() pure external {
         uint128 amount = 1e18; // 1 with 18 decimals
         uint128 converted = MessageLib.convertAmountDecimals(amount, 18, 20);
         assertEq(converted, amount * 100, "scaled up incorrectly");
     }
 
-    function testConvertAmountDecimalsScaleDown() external {
+    function testConvertAmountDecimalsScaleDown() pure external {
         uint128 amount = 1234500; // 1.2345 with 6 decimals
         uint128 converted = MessageLib.convertAmountDecimals(amount, 6, 4);
         assertEq(converted, 12345, "scaled down incorrectly");
@@ -56,7 +56,7 @@ contract MessageLibTest is Test {
         harness.convert(amount, 18, 27);
     }
 
-    function testAddressHelpers() external {
+    function testAddressHelpers() pure external {
         address user = address(0x123456);
         bytes32 padded = MessageLib.padEvmAddress(user);
         assertTrue(MessageLib.isValidPaddedEvmAddress(padded), "padded address marked invalid");
@@ -77,7 +77,7 @@ contract MessageLibFuzzTest is Test {
                              ENCODE / DECODE
     //////////////////////////////////////////////////////////////*/
 
-    function testFuzz_encodeDecode(bytes32 recipient, uint128 amount) external {
+    function testFuzz_encodeDecode(bytes32 recipient, uint128 amount) pure external {
         vm.assume(recipient != bytes32(0));
         vm.assume(amount > 0);
 
@@ -97,7 +97,7 @@ contract MessageLibFuzzTest is Test {
         uint128 amount,
         uint8 fromDecimals,
         uint8 delta
-    ) external {
+    ) view external {
         vm.assume(amount > 0);
         vm.assume(fromDecimals <= 27);
         vm.assume(delta <= 9);
@@ -146,7 +146,7 @@ contract MessageLibFuzzTest is Test {
                               ADDRESS HELPERS
     //////////////////////////////////////////////////////////////*/
 
-    function testFuzz_addressHelpers(address user) external {
+    function testFuzz_addressHelpers(address user) pure external {
         vm.assume(user != address(0));
         bytes32 padded = MessageLib.padEvmAddress(user);
 

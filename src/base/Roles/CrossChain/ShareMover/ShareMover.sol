@@ -5,6 +5,8 @@ import {ReentrancyGuard} from "@solmate/utils/ReentrancyGuard.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {BoringVault} from "src/base/BoringVault.sol";
 import {MessageLib} from "./MessageLib.sol";
+import {IPausable} from "src/interfaces/IPausable.sol";
+import {Auth, Authority} from "@solmate/auth/Auth.sol";
 
 /**
  * @title ShareMover
@@ -13,9 +15,7 @@ import {MessageLib} from "./MessageLib.sol";
  * Specific bridge implementations (e.g., LayerZero) will inherit from this contract.
  * @dev Emergency pause functionality is implemented in concrete ShareMover implementations (e.g., LayerZeroShareMover).
  */
-abstract contract ShareMover is ReentrancyGuard {
-    using MessageLib for MessageLib.Message;
-
+abstract contract ShareMover is Auth, ReentrancyGuard, IPausable {
     // ========================================= CONSTANTS =========================================
 
     /// @notice Native token identifier for fee payments
@@ -26,13 +26,27 @@ abstract contract ShareMover is ReentrancyGuard {
     /// @notice The address of the Boring Vault contract this ShareMover interacts with.
     BoringVault public immutable vault;
 
-    // ========================================= ERRORS =========================================
+    // ========================================= PAUSABLE STATE =========================================
+
+    /// @notice Whether the ShareMover is paused.
+    bool public isPaused;
+
+    // ========================================= PAUSABLE MODIFIER & INTERNAL FUNCTIONS =========================================
+
+    /// @dev Throws if the contract is paused.
+    modifier whenNotPaused() {
+        if (isPaused) revert ShareMover__IsPaused();
+        _;
+    }
+
+    // ==============================   PAUSABLE ERRORS   =========================================
 
     error ShareMover__ZeroShares();
     error ShareMover__InvalidPermit();
     error ShareMover__InvalidRecipient();
     error ShareMover__InvalidMessage();
     error ShareMover__TransferFailed();
+    error ShareMover__IsPaused();
 
     // ========================================= EVENTS =========================================
 
@@ -62,13 +76,21 @@ abstract contract ShareMover is ReentrancyGuard {
         uint96 amount
     );
 
+    /// @notice Emitted when the contract is paused.
+    event Paused();
+
+    /// @notice Emitted when the contract is unpaused.
+    event Unpaused();
+
     // ========================================= CONSTRUCTOR =========================================
 
     /**
      * @notice Constructor for the ShareMover contract.
+     * @param _owner The owner address for Auth.
+     * @param _authority The authority address for Auth.
      * @param _vault The address of the Boring Vault contract.
      */
-    constructor(address _vault) {
+    constructor(address _owner, address _authority, address _vault) Auth(_owner, Authority(_authority)) {
         vault = BoringVault(payable(_vault));
     }
 
@@ -86,7 +108,7 @@ abstract contract ShareMover is ReentrancyGuard {
         uint96 shareAmount,
         bytes32 to,
         bytes calldata bridgeWildCard
-    ) public payable virtual nonReentrant {
+    ) external payable virtual nonReentrant whenNotPaused {
         _bridge(shareAmount, to, bridgeWildCard, msg.sender);
     }
 
@@ -111,7 +133,7 @@ abstract contract ShareMover is ReentrancyGuard {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public payable virtual nonReentrant {
+    ) external payable virtual nonReentrant whenNotPaused {
         try vault.permit(msg.sender, address(this), shareAmount, deadline, v, r, s) {}
         catch {
             revert ShareMover__InvalidPermit();
@@ -131,7 +153,7 @@ abstract contract ShareMover is ReentrancyGuard {
         uint96 shareAmount,
         bytes32 to,
         bytes calldata bridgeWildCard
-    ) public view virtual returns (uint256 fee) {
+    ) external view virtual whenNotPaused returns (uint256 fee) {
         if (shareAmount == 0) revert ShareMover__ZeroShares();
         if (to == bytes32(0)) revert ShareMover__InvalidRecipient();
 
@@ -230,4 +252,24 @@ abstract contract ShareMover is ReentrancyGuard {
         bytes32 to,
         bytes calldata bridgeWildCard
     ) internal view virtual returns (uint256 fee);
+
+    // ========================================= PAUSE FUNCTIONS =========================================
+
+    /**
+    * @notice Pause the contract, preventing all bridging operations.
+    * @dev Callable by authorized roles only.
+    */
+    function pause() external requiresAuth {
+        isPaused = true;
+        emit Paused();
+    }
+
+    /**
+    * @notice Unpause the contract, resuming all bridging operations.
+    * @dev Callable by authorized roles only.
+    */
+    function unpause() external requiresAuth {
+        isPaused = false;
+        emit Unpaused();
+    }
 }

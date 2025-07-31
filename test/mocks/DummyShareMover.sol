@@ -15,7 +15,7 @@ contract DummyShareMover is ShareMover {
 
     uint256 public immutable feeQuote;
 
-    constructor(address _vault, uint256 _fee) ShareMover(_vault) {
+    constructor(address _owner, address _authority, address _vault, uint256 _fee) ShareMover(_owner, _authority, _vault) {
         feeQuote = _fee;
     }
 

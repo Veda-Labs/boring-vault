@@ -16,7 +16,7 @@ contract ShareMoverTest is Test {
 
     function setUp() external {
         vault = new MockVault(6);
-        mover = new DummyShareMover(address(vault), 1 ether);
+        mover = new DummyShareMover(user, user, address(vault), 1 ether);
 
         // Mint shares to user for testing
         vault.mint(user, INITIAL_SHARES);
@@ -76,7 +76,7 @@ contract ShareMoverPermitTest is Test {
 
     function setUp() external {
         vault = new MockVault(6);
-        mover = new DummyShareMover(address(vault), 1 ether);
+        mover = new DummyShareMover(user, user, address(vault), 1 ether);
         vault.mint(user, 1e12);
     }
 

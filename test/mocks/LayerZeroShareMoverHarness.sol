@@ -82,7 +82,7 @@ contract LayerZeroShareMoverHarness is LayerZeroShareMover {
         uint96,
         bytes32,
         bytes calldata
-    ) internal view override returns (uint256) {
+    ) internal pure override returns (uint256) {
         return 42;
     }
 } 

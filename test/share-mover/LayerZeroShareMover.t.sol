@@ -74,7 +74,7 @@ contract LayerZeroShareMoverHelperTest is Test {
 
     function testPause() external {
         harness.pause();
-        vm.expectRevert(LayerZeroShareMover.LayerZeroShareMover_IsPaused.selector);
+        vm.expectRevert(ShareMover.ShareMover__IsPaused.selector);
         harness.bridge(1e6, bytes32(uint256(uint160(address(0x1)))), "");
     }
 }

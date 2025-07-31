@@ -159,6 +159,7 @@ library MessageLib {
      * @return addr The extracted EVM address
      */
     function extractEvmAddress(bytes32 paddedAddr) internal pure returns (address addr) {
+        if (!isValidPaddedEvmAddress(paddedAddr)) revert MessageLib__InvalidAddress();
         return address(uint160(uint256(paddedAddr)));
     }
 }
