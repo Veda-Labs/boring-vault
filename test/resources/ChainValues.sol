@@ -2825,12 +2825,16 @@ contract ChainValues {
         values[tac]["ethereumVaultConnector"]   = 0x01F594c66A5561b90Bc782dD0297f294cD668b64.toBytes32(); 
         values[tac]["evkeTON-1"]                = 0x27324c0d445f94550b53936dBAB7fD168634f192.toBytes32(); 
         values[tac]["evketsTON-1"]              = 0xc7F25f1c8FDB86DE3d14152034de4EB8B71eEC78.toBytes32(); 
+        values[tac]["evkeUSDT-2"]               = 0xdD6EaEf38F94d4724124cEc14c819818714537Ff.toBytes32(); 
         values[tac]["evkecbBTC-3"]              = 0x2eF66758705426e7BF598669AEf23eE9b9CC3088.toBytes32(); 
         values[tac]["evkecbBTC-2"]              = 0x994a7766a0e658098cA01A1ADf114abD29e5629e.toBytes32(); 
         
         // Morpho
         values[tac]["re7TON"] = 0x84BBc0be5a6f831a4E2C28a2F3b892C70AcAa5b3.toBytes32(); 
+        values[tac]["re7USDT"] = 0x4183Bd253Dc1918A04Bd8a8dD546BaAD58898109.toBytes32(); 
+        values[tac]["edgeUSDT"] = 0x9A057627f023f5C37Ebc6E7959720848968d7a43.toBytes32(); 
         values[tac]["re7cbBTC"] = 0xf49f14Cff1bA2eE7E23222A76e0C2b3D0BDE06dC.toBytes32(); 
+
 
         // CrossChain Layer
         values[tac]["crossChainLayer"] = 0x9fee01e948353E0897968A3ea955815aaA49f58d.toBytes32();        
