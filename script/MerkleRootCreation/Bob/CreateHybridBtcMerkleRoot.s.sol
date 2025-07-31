@@ -17,7 +17,7 @@ contract CreateHybridBtcMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0x9998e05030Aee3Af9AD3df35A34F5C51e1628779; 
     address public managerAddress = 0x2A1512a030D6eb71A5864968d795e1b6D382735D;
     address public accountantAddress = 0x22b025037ff1F6206F41b7b28968726bDBB5E7D5;
-    address public rawDataDecoderAndSanitizer = 0x782fEe69B109419B9548BB5798CB4c1a2A43D00E; 
+    address public rawDataDecoderAndSanitizer = 0x10d40063a629650ad842542F32104ebFAe44dBd1; 
 
     function setUp() external {}
 
@@ -35,7 +35,7 @@ contract CreateHybridBtcMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, bob, "accountantAddress", accountantAddress);
         setAddress(false, bob, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](32);
 
 
         // ========================== Standard Bridge ==========================
@@ -58,6 +58,23 @@ contract CreateHybridBtcMerkleRoot is Script, MerkleTreeHelper {
             localTokens,
             remoteTokens
         );
+
+        // ========================== Uniswap V3 ==========================
+        // swap LBTC, WBTC, solvBTC, xsolvBTC SWAP ONLY, SWAPROUTER02
+        address[] memory token0 = new address[](4);
+        token0[0] = getAddress(sourceChain, "WBTC");
+        token0[1] = getAddress(sourceChain, "solvBTC");
+        token0[2] = getAddress(sourceChain, "WBTC");
+        token0[3] = getAddress(sourceChain, "WBTC");
+
+        address[] memory token1 = new address[](4);
+        token1[0] = getAddress(sourceChain, "xsolvBTC");
+        token1[1] = getAddress(sourceChain, "xsolvBTC");
+        token1[2] = getAddress(sourceChain, "LBTC");
+        token1[3] = getAddress(sourceChain, "solvBTC");
+
+        _addUniswapV3Leafs(leafs, token0, token1, true, true);
+
 
         // ========================== Verify & Generate ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

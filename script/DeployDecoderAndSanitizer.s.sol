@@ -99,13 +99,13 @@ import "forge-std/StdJson.sol";
 contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
     uint256 public privateKey;
     Deployer public deployer = Deployer(deployerAddress);
-    //Deployer public bobDeployer = Deployer(0xF3d0672a91Fd56C9ef04C79ec67d60c34c6148a0);
+    Deployer public bobDeployer = Deployer(0xF3d0672a91Fd56C9ef04C79ec67d60c34c6148a0);
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("tac");
-        setSourceChainName("tac"); 
+        vm.createSelectFork("bob");
+        setSourceChainName("bob"); 
     }
 
     function run() external {
@@ -113,27 +113,9 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        //creationCode = type(TacDecoderAndSanitizer).creationCode;
-        //creationCode = type(LombardBtcDecoderAndSanitizer).creationCode;
-        //constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "convexFXPoolRegistry"), getAddress(sourceChain, "odosRouterV2"));
-        //deployer.deployContract("Lombard BTC Decoder And Sanitizer v0.5", creationCode, constructorArgs, 0);
-
-        creationCode = type(KatanaDecoderAndSanitizer).creationCode;
+        creationCode = type(HybridBtcBobDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
-        deployer.deployContract("Katana Decoder And Sanitizer V0.6", creationCode, constructorArgs, 0);
-
-        //address uniswapV4PositionManager = getAddress(sourceChain, "uniV4PositionManager");
-        //address uniswapV3NonFungiblePositionManager = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager");
-        //address odosRouterV2 = getAddress(sourceChain, "odosRouterV2");
-        //address dvStETHVault = getAddress(sourceChain, "dvStETHVault");
-        //creationCode = type(GoldenGooseDecoderAndSanitizer).creationCode;
-        //constructorArgs =
-        //    abi.encode(uniswapV4PositionManager, uniswapV3NonFungiblePositionManager, odosRouterV2, dvStETHVault);
-        //deployer.deployContract("Golden Goose Decoder And Sanitizer v0.4", creationCode, constructorArgs, 0);
-
-        creationCode = type(TacTONDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode();
-        deployer.deployContract("TAC Decoder And Sanitizer v0.0", creationCode, constructorArgs, 0);
+        bobDeployer.deployContract("Hybrid BTC BOB Decoder And Sanitizer v0.2", creationCode, constructorArgs, 0);
 
 
         vm.stopBroadcast();
