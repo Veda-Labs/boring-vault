@@ -545,7 +545,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         address from,
         address to,
         Asset memory asset
-    ) internal returns (uint256 shares) {
+    ) internal virtual returns (uint256 shares) {
         uint112 cap = depositCap;
         if (depositAmount == 0) revert TellerWithMultiAssetSupport__ZeroAssets();
         shares = depositAmount.mulDivDown(ONE_SHARE, accountant.getRateInQuoteSafe(depositAsset));
