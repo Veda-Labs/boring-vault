@@ -2836,7 +2836,6 @@ contract ChainValues {
         values[tac]["edgeUSDT"] = 0x9A057627f023f5C37Ebc6E7959720848968d7a43.toBytes32(); 
         values[tac]["re7cbBTC"] = 0xf49f14Cff1bA2eE7E23222A76e0C2b3D0BDE06dC.toBytes32(); 
 
-
         // CrossChain Layer
         values[tac]["crossChainLayer"] = 0x9fee01e948353E0897968A3ea955815aaA49f58d.toBytes32();        
 
