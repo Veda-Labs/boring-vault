@@ -117,7 +117,7 @@ import "forge-std/StdJson.sol";
 contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
     uint256 public privateKey;
     Deployer public deployer = Deployer(deployerAddress);
-    //Deployer public bobDeployer = Deployer(0xF3d0672a91Fd56C9ef04C79ec67d60c34c6148a0);
+    Deployer public bobDeployer = Deployer(0xF3d0672a91Fd56C9ef04C79ec67d60c34c6148a0);
 
     string[] addressKeys;
 
