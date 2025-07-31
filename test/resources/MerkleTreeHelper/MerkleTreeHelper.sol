@@ -13667,6 +13667,63 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
     }
 
+    // ========================================= Valantis =========================================
+
+    function _addValantisLSTLeafs(ManageLeaf[] memory leafs, address pool, bool isUniversalPool) internal {
+        address[] memory poolTokens = ISovereignPool(pool).getTokens(); 
+
+        //approve STEXAMM (tokenIn, tokenOut) 
+        for (uint256 i = 0; i < poolTokens.length; i++) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                poolTokens[i],
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve STEXAMM to spend ", ERC20(poolTokens[i]).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = pool; 
+        }
+        
+        require(poolTokens.length == 2, "pool tokens length > 2, leaves need fixing");  
+    
+        if (!isUniversalPool) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                pool,
+                false,
+                "swap((bool,bool,uint256,uint256,uint256,address,address,(bytes,bytes,bytes,bytes)))",
+                new address[](2),
+                string.concat("Swap ", ERC20(poolTokens[0]).symbol(), " for ", ERC20(poolTokens[1]).symbol(), "using Valantis Pool"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault"); 
+            leafs[leafIndex].argumentAddresses[1] = poolTokens[1]; 
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                pool,
+                false,
+                "swap((bool,bool,uint256,uint256,uint256,address,address,(bytes,bytes,bytes,bytes)))",
+                new address[](2),
+                string.concat("Swap ", ERC20(poolTokens[1]).symbol(), " for ", ERC20(poolTokens[0]).symbol(), "using Valantis Pool"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault"); 
+            leafs[leafIndex].argumentAddresses[1] = poolTokens[0]; 
+
+        } else {
+            revert("universal pools not supported"); 
+        }
+    }
+
     // ========================================= JSON FUNCTIONS =========================================
     // TODO this should pass in a bool or something to generate leafs indicating that we want leaf indexes printed.
     bool addLeafIndex = false;
@@ -14034,4 +14091,8 @@ interface ITeller {
 
 interface IScrollGateway {
     function getERC20Gateway(address token) external view returns (address); 
+}
+
+interface ISovereignPool {
+    function getTokens() external view returns (address[] memory); 
 }
