@@ -66,6 +66,29 @@ contract CreateTacLBTCvMerkleRoot is Script, MerkleTreeHelper {
         //borrowAssets[0] = getAddress(sourceChain, "LBTC");
         //_addZerolendLeafs(leafs, supplyAssets, borrowAssets);
 
+        // ========================== Curve ==========================
+        _addCurveLeafs(leafs, getAddress(sourceChain, "cbBTC_LBTC_Curve_Pool"), 2, getAddress(sourceChain, "cbBTC_LBTC_Curve_Gauge")); 
+        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "cbBTC_LBTC_Curve_Pool")); 
+
+        // ========================== MetaMorpho ==========================
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "re7LBTC")));
+
+        // ========================== Euler ==========================
+        ERC4626[] memory depositVaults = new ERC4626[](1);
+        depositVaults[0] = ERC4626(getAddress(sourceChain, "evkeLBTC-1"));
+
+        address[] memory subaccounts = new address[](1);
+        subaccounts[0] = address(boringVault);
+
+        _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
+
+        // ========================== ZeroLend ==========================
+        //ERC20[] memory supplyAssets = new ERC20[](1);  //Pending Zerolend 
+        //supplyAssets[0] = getAddress(sourceChain, "LBTC"); 
+        //ERC20[] memory borrowAssets = new ERC20[](1); 
+        //borrowAssets[0] = getAddress(sourceChain, "LBTC"); 
+        //_addZerolendLeafs(leafs, supplyAssets, borrowAssets);  
+
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
