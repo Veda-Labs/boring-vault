@@ -1,4 +1,7 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: SEL-1.0
+// Copyright © 2025 Veda Tech Labs
+// Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
+// Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
@@ -20,6 +23,8 @@ contract CreateTurtleTacBTCMerkleRoot is Script, MerkleTreeHelper {
     address public managerAddress = 0x85A8821a579736e7E5e98296D34C50B77122BB5e; 
     address public accountantAddress = 0xe4858a89d5602Ad30de2018C408d33d101F53d53;
     
+    //one offs
+    address public tellerDecoder = 0xc52220989809D748a958798ca8FEf7CaF88022b4; 
 
     function setUp() external {}
 
@@ -37,7 +42,7 @@ contract CreateTurtleTacBTCMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "accountantAddress", accountantAddress);
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](64);
+        ManageLeaf[] memory leafs = new ManageLeaf[](32);
 
         // ========================== 1inch ==========================
         address[] memory assets = new address[](2);
@@ -57,6 +62,15 @@ contract CreateTurtleTacBTCMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== LayerZero ==========================
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "cbBTC"), getAddress(sourceChain, "CBBTCOFTAdapterTAC"), layerZeroTACEndpointId, getBytes32(sourceChain, "boringVault")); 
+        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "LBTC"), getAddress(sourceChain, "LBTCOFTAdapterTAC"), layerZeroTACEndpointId, getBytes32(sourceChain, "boringVault"));
+
+        // ========================== Teller ==========================
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", tellerDecoder);
+        ERC20[] memory tellerAssets = new ERC20[](2);
+        tellerAssets[0] = getERC20(sourceChain, "LBTC");
+        tellerAssets[1] = getERC20(sourceChain, "cbBTC");
+        address tacLBTCvTeller = 0xAe499dAa7350b78746681931c47394eB7cC4Cf7F;
+        _addTellerLeafs(leafs, tacLBTCvTeller, tellerAssets, false, true);
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

@@ -1,4 +1,7 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: SEL-1.0
+// Copyright © 2025 Veda Tech Labs
+// Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
+// Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
@@ -17,6 +20,7 @@ import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocol
 import {LBTCBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LBTCBridgeDecoderAndSanitizer.sol";
 import {MorphoBlueDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MorphoBlueDecoderAndSanitizer.sol";
 import {UniswapV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV3DecoderAndSanitizer.sol";
+import {SpectraDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SpectraDecoderAndSanitizer.sol"; 
 
 contract KatanaDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
@@ -31,7 +35,8 @@ contract KatanaDecoderAndSanitizer is
     TellerDecoderAndSanitizer,
     LBTCBridgeDecoderAndSanitizer,
     MorphoBlueDecoderAndSanitizer,
-    UniswapV3DecoderAndSanitizer
+    UniswapV3DecoderAndSanitizer,
+    SpectraDecoderAndSanitizer
 {
     constructor(address _nonFungiblePositionManager)
         UniswapV3DecoderAndSanitizer(_nonFungiblePositionManager)
@@ -70,4 +75,10 @@ contract KatanaDecoderAndSanitizer is
         // Nothing to sanitize or return
         return addressesFound;
     }
+
+    function burn(uint256 /*amount*/ ) external pure virtual override (UniswapV3DecoderAndSanitizer, SpectraDecoderAndSanitizer) returns (bytes memory addressesFound) {
+        // Nothing to sanitize or return
+        return addressesFound;
+    }
+
 }

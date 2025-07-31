@@ -1,4 +1,7 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: SEL-1.0
+// Copyright © 2025 Veda Tech Labs
+// Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
+// Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
 import {Deployer} from "src/helper/Deployer.sol";
@@ -18,13 +21,13 @@ import "forge-std/Test.sol";
 contract DeployGenericRateProviderWithDecimalScaling is Script, ContractNames, Test {
     uint256 public privateKey;
     
-    address target = 0xb9D0073aCb296719C26a8BF156e4b599174fe1d5; 
-    bytes4 selector = 0x50d25bcd; 
+    address target = 0x8D51DBC85cEef637c97D02bdaAbb5E274850e68C; 
+    bytes4 selector = 0xbb23ae25; 
     Deployer deployer = Deployer(0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d); 
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("tac");
+        vm.createSelectFork("mainnet");
     }
 
     function run() external {
@@ -42,9 +45,9 @@ contract DeployGenericRateProviderWithDecimalScaling is Script, ContractNames, T
             0, 0,
             true,
             8,
-            18
+            6
         ));
-        address createdAddress = deployer.deployContract("tsTON Rate Provider V0.0", creationCode, constructorArgs, 0); 
+        address createdAddress = deployer.deployContract("mFONE Rate Provider V0.0", creationCode, constructorArgs, 0); 
         console.log("DEPLOYED ADDRESS: ", createdAddress); 
     }
 }
