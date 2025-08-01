@@ -152,7 +152,6 @@ contract CreatePrimeGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             kind[0] = SwapKind.BuyAndSell;
             assets[1] = getAddress(sourceChain, "WSTETH");
             kind[1] = SwapKind.BuyAndSell;
-
             assets[2] = getAddress(sourceChain, "UNI");
             kind[2] = SwapKind.Sell;
             assets[3] = getAddress(sourceChain, "rEUL");
