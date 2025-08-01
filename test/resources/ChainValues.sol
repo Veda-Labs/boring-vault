@@ -2836,6 +2836,7 @@ contract ChainValues {
         values[tac]["evkecbBTC-3"]              = 0x2eF66758705426e7BF598669AEf23eE9b9CC3088.toBytes32(); 
         values[tac]["evkecbBTC-2"]              = 0x994a7766a0e658098cA01A1ADf114abD29e5629e.toBytes32(); 
         values[tac]["evkeWETH-1"]               = 0x4ac2478eb1DDf574b0ffF297a25BB496af1fA207.toBytes32(); 
+        values[tac]["evkewstETH-2"] = 0xE2E106a9Ec7bc7F5dcDf5a20Ea007b833cCf4f1f.toBytes32();
         
         // Morpho
         values[tac]["re7TON"] = 0x84BBc0be5a6f831a4E2C28a2F3b892C70AcAa5b3.toBytes32(); 

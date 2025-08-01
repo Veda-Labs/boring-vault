@@ -40,7 +40,7 @@ contract CreateTurtleTacETHMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, tac, "accountantAddress", accountantAddress);
         setAddress(false, tac, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](16);
+        ManageLeaf[] memory leafs = new ManageLeaf[](32);
 
         // ========================== LayerZero ==========================
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WETH"), getAddress(sourceChain, "WETH"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
@@ -50,9 +50,9 @@ contract CreateTurtleTacETHMerkleRoot is Script, MerkleTreeHelper {
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "re7WETH")));
 
         // ========================== Euler ==========================
-        ERC4626[] memory depositVaults = new ERC4626[](1);
+        ERC4626[] memory depositVaults = new ERC4626[](2);
         depositVaults[0] = ERC4626(getAddress(sourceChain, "evkeWETH-1"));
-
+        depositVaults[1] = ERC4626(getAddress(sourceChain, "evkewstETH-2"));
         address[] memory subaccounts = new address[](1);
         subaccounts[0] = address(boringVault);
 
