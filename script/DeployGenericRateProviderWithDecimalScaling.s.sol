@@ -15,16 +15,16 @@ import "forge-std/Test.sol";
  *
  * @dev Optionally can change `--with-gas-price` to something more reasonable
  */
-contract DeployGenericRateProviderWithDecimalScaling is Script, ContractNames, Test {
+contract DeployGenericRateProviderWithDecimalScaling is Script, ContractNames, MainnetAddresses, Test {
     uint256 public privateKey;
     
-    address target = 0x8D51DBC85cEef637c97D02bdaAbb5E274850e68C; 
-    bytes4 selector = 0xbb23ae25; 
-    Deployer deployer = Deployer(0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d); 
+    address target = 0x1De9fcfeDF3E51266c188ee422fbA1c7860DA0eF; 
+    bytes4 selector = 0x679aefce; 
+    Deployer public deployer = Deployer(0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d); 
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("mainnet");
+        vm.createSelectFork("berachain");
     }
 
     function run() external {
@@ -40,11 +40,13 @@ contract DeployGenericRateProviderWithDecimalScaling is Script, ContractNames, T
             0, 0,
             0, 0,
             0, 0,
-            true,
-            8,
-            6
+            false,
+            18,
+            8
         ));
-        address createdAddress = deployer.deployContract("mFONE Rate Provider V0.0", creationCode, constructorArgs, 0); 
+        console.log("Constructor Args: ");
+        console.logBytes(constructorArgs);
+        address createdAddress = deployer.deployContract("LBTC Rate Provider V0.0", creationCode, constructorArgs, 0); 
         console.log("DEPLOYED ADDRESS: ", createdAddress); 
     }
 }
