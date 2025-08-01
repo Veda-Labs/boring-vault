@@ -1,4 +1,7 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: SEL-1.0
+// Copyright © 2025 Veda Tech Labs
+// Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
+// Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
@@ -16,7 +19,7 @@ contract CreateTurtleTacBTCMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x6Bf340dB729d82af1F6443A0Ea0d79647b1c3DDf;
-    address public rawDataDecoderAndSanitizer = 0x9Bc20d0F13E68FAD5f4eE5Dda58c391b342e65a5; 
+    address public rawDataDecoderAndSanitizer = 0x5ebE12dE67970a6d3DD70d23f90EbBA4dD38726A; 
     address public managerAddress = 0x85A8821a579736e7E5e98296D34C50B77122BB5e; 
     address public accountantAddress = 0xe4858a89d5602Ad30de2018C408d33d101F53d53; 
     
@@ -37,10 +40,36 @@ contract CreateTurtleTacBTCMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, tac, "accountantAddress", accountantAddress);
         setAddress(false, tac, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](64);
+
 
         // ========================== LayerZero ==========================
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "cbBTC"), getAddress(sourceChain, "cbBTC"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
+        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "LBTC"), getAddress(sourceChain, "LBTCOFTAdapter"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
+
+        // ========================== Curve ==========================
+        _addCurveLeafs(leafs, getAddress(sourceChain, "cbBTC_LBTC_Curve_Pool"), 2, getAddress(sourceChain, "cbBTC_LBTC_Curve_Gauge")); 
+        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "cbBTC_LBTC_Curve_Pool")); 
+         
+        // ========================== MetaMorpho ==========================
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "re7cbBTC")));
+        
+        // ========================== Euler ==========================
+        ERC4626[] memory depositVaults = new ERC4626[](2);
+        depositVaults[0] = ERC4626(getAddress(sourceChain, "evkecbBTC-3"));
+        depositVaults[1] = ERC4626(getAddress(sourceChain, "evkecbBTC-2"));
+
+        address[] memory subaccounts = new address[](1);
+        subaccounts[0] = address(boringVault);
+
+        _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
+        
+        // ========================== ZeroLend ==========================
+        //ERC20[] memory supplyAssets = new ERC20[](1);  //Pending Zerolend 
+        //supplyAssets[0] = getAddress(sourceChain, "cbBTC"); 
+        //ERC20[] memory borrowAssets = new ERC20[](1); 
+        //borrowAssets[0] = getAddress(sourceChain, "cbBTC"); 
+        //_addZeroLendLeafs(leafs, supplyAssets, borrowAssets);  
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
