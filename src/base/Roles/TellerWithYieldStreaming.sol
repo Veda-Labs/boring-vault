@@ -2,8 +2,7 @@
 // Copyright © 2025 Veda Tech Labs
 // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
 // Licensed under Software Evaluation License, Version 1.0
-pragma solidity 0.8.21;
-import {TellerWithMultiAssetSupport, ERC20} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+pragma solidity 0.8.21; import {TellerWithMultiAssetSupport, ERC20} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {AccountantWithYieldStreaming} from "src/base/Roles/AccountantWithYieldStreaming.sol";
@@ -20,6 +19,32 @@ contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
             _accountant,
             _weth
         ) {}
+
+
+    /**
+     * @notice Allows off ramp role to withdraw from this contract.
+     * @dev Callable by SOLVER_ROLE.
+     */
+    function bulkWithdraw(ERC20 withdrawAsset, uint256 shareAmount, uint256 minimumAssets, address to)
+        external
+        override
+        requiresAuth
+        returns (uint256 assetsOut)
+    {
+        //TODO we need to get the order of operations correct here, something is off
+        if (isPaused) revert TellerWithMultiAssetSupport__Paused();
+        Asset memory asset = assetData[withdrawAsset];
+        if (!asset.allowWithdraws) revert TellerWithMultiAssetSupport__AssetNotSupported();
+
+        if (shareAmount == 0) revert TellerWithMultiAssetSupport__ZeroShares();
+        assetsOut = shareAmount.mulDivDown(_getAccountant().getRateInQuoteForWithdraw(withdrawAsset, shareAmount), ONE_SHARE);
+        if (assetsOut < minimumAssets) revert TellerWithMultiAssetSupport__MinimumAssetsNotMet();
+
+        _getAccountant().recordWithdraw(withdrawAsset, assetsOut); //convert back to base for accounting
+
+        vault.exit(to, withdrawAsset, assetsOut, msg.sender, shareAmount);
+        emit BulkWithdraw(address(withdrawAsset), shareAmount);
+    }
 
     function _erc20Deposit(
         ERC20 depositAsset,
@@ -46,8 +71,4 @@ contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
     function _getAccountant() internal returns (AccountantWithYieldStreaming) {
         return AccountantWithYieldStreaming(address(accountant)); 
     }
-
 }
-
-
-
