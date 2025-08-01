@@ -100,6 +100,8 @@ import {UniswapV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Proto
 import {UniswapV4DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV4DecoderAndSanitizer.sol";
 import {VelodromeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/VelodromeDecoderAndSanitizer.sol";
 import {AlgebraV4DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AlgebraV4DecoderAndSanitizer.sol";
+import {KHypeHyperEVMDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/KHypeHyperEVMDecoderAndSanitizer.sol";
+import {TacETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacETHDecoderAndSanitizer.sol";
 
 
 import "forge-std/Script.sol";
@@ -135,6 +137,10 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         creationCode = type(LombardBtcDecoderAndSanitizer).creationCode;
         addressKeys = ["uniswapV3NonFungiblePositionManager", "convexFXPoolRegistry", "odosRouterV2"];
         deployContract("Lombard BTC Decoder And Sanitizer v0.5", creationCode, 0);
+
+        creationCode = type(TacETHDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouter"));
+        deployer.deployContract("TAC ETH Decoder And Sanitizer v0.0", creationCode, constructorArgs, 0);
 
 
         creationCode = type(KHypeHyperEVMDecoderAndSanitizer).creationCode;
