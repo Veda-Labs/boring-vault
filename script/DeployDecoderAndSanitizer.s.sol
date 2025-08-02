@@ -127,7 +127,7 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
 
         creationCode = type(KHypeHyperEVMDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode();
-        deployer.deployContract("KHype HyperEVM Decoder And Sanitizer V0.2", creationCode, constructorArgs, 0);
+        deployer.deployContract("KHype HyperEVM Decoder And Sanitizer V0.3", creationCode, constructorArgs, 0);
 
         //address uniswapV4PositionManager = getAddress(sourceChain, "uniV4PositionManager");
         //address uniswapV3NonFungiblePositionManager = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager");
