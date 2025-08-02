@@ -301,6 +301,10 @@ contract ChainValues {
         values[mainnet]["USR"] = 0x66a1E37c9b0eAddca17d3662D6c05F4DECf3e110.toBytes32();
         values[mainnet]["wstUSR"] = 0x1202F5C7b4B9E47a1A484E8B270be34dbbC75055.toBytes32();
         values[mainnet]["cUSDO"] = 0xaD55aebc9b8c03FC43cd9f62260391c13c23e7c0.toBytes32();
+        values[mainnet]["RLP"] = 0x4956b52aE2fF65D74CA2d61207523288e4528f96.toBytes32();
+
+        // Magpie Router v3
+        values[mainnet]["magpieRouterV3"] = 0xA6E941eaB67569ca4522f70d343714fF51d571c4.toBytes32();
 
         // Rate providers
         values[mainnet]["WEETH_RATE_PROVIDER"] = 0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee.toBytes32();

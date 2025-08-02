@@ -53,7 +53,7 @@ abstract contract EigenLayerLSTStakingDecoderAndSanitizer is BaseDecoderAndSanit
             }
         }
     }
-    
+
     /// @notice support the new ELIP version
     function completeQueuedWithdrawals(
         DecoderCustomTypes.Withdrawal[] calldata withdrawals,

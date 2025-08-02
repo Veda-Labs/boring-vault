@@ -22,7 +22,11 @@ abstract contract OFTDecoderAndSanitizer is BaseDecoderAndSanitizer {
             revert OFTDecoderAndSanitizer__NonZeroOFTCommand();
         }
 
-        sensitiveArguments =
-            abi.encodePacked(address(uint160(_sendParam.dstEid)), address(bytes20(bytes16(_sendParam.to))), address(bytes20(bytes16(_sendParam.to << 128))), _refundAddress);
+        sensitiveArguments = abi.encodePacked(
+            address(uint160(_sendParam.dstEid)),
+            address(bytes20(bytes16(_sendParam.to))),
+            address(bytes20(bytes16(_sendParam.to << 128))),
+            _refundAddress
+        );
     }
 }

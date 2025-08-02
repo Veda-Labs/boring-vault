@@ -17,10 +17,10 @@ import "forge-std/Test.sol";
  */
 contract DeployManagerWithMerkleVerification is Script, ContractNames, Test {
     uint256 public privateKey;
-    
+
     //liquidUSD
-    address boringVault = 0x08c6F91e2B681FaF5e17227F2a44C307b3C1364C; 
-    Deployer deployer = Deployer(0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d); 
+    address boringVault = 0x08c6F91e2B681FaF5e17227F2a44C307b3C1364C;
+    Deployer deployer = Deployer(0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d);
 
     address dev1Address = 0xf8553c8552f906C19286F21711721E206EE4909E;
     address balancerVaultAddress = 0xBA12222222228d8Ba445958a75a0704d566BF2C8;
@@ -30,7 +30,6 @@ contract DeployManagerWithMerkleVerification is Script, ContractNames, Test {
         vm.createSelectFork("mainnet");
     }
 
-
     function run() external {
         bytes memory constructorArgs;
         bytes memory creationCode;
@@ -38,7 +37,6 @@ contract DeployManagerWithMerkleVerification is Script, ContractNames, Test {
 
         creationCode = type(ManagerWithMerkleVerification).creationCode;
         constructorArgs = abi.encode(dev1Address, boringVault, balancerVaultAddress);
-        deployer.deployContract("liquidUSD ManagerWithMerkleVerification V0.1", creationCode, constructorArgs, 0); 
+        deployer.deployContract("liquidUSD ManagerWithMerkleVerification V0.1", creationCode, constructorArgs, 0);
     }
-
 }

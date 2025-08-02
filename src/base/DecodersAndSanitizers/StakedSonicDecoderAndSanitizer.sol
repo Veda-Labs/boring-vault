@@ -4,21 +4,22 @@ pragma solidity 0.8.21;
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {BalancerV2DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BalancerV2DecoderAndSanitizer.sol";
 import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
-import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol"; 
-import {SiloDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SiloDecoderAndSanitizer.sol"; 
-import {UniswapV3SwapRouter02DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV3SwapRouter02DecoderAndSanitizer.sol"; 
-import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol"; 
-import {EulerEVKDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/EulerEVKDecoderAndSanitizer.sol"; 
-import {NativeWrapperDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol"; 
-import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol"; 
-import {MerklDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MerklDecoderAndSanitizer.sol"; 
-import {BalancerV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BalancerV3DecoderAndSanitizer.sol"; 
-
+import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
+import {SiloDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SiloDecoderAndSanitizer.sol";
+import {UniswapV3SwapRouter02DecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/UniswapV3SwapRouter02DecoderAndSanitizer.sol";
+import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
+import {EulerEVKDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/EulerEVKDecoderAndSanitizer.sol";
+import {NativeWrapperDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol";
+import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol";
+import {MerklDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MerklDecoderAndSanitizer.sol";
+import {BalancerV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BalancerV3DecoderAndSanitizer.sol";
 
 contract StakedSonicDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
     BalancerV2DecoderAndSanitizer,
-    TellerDecoderAndSanitizer, 
+    TellerDecoderAndSanitizer,
     CurveDecoderAndSanitizer,
     SiloDecoderAndSanitizer,
     UniswapV3SwapRouter02DecoderAndSanitizer,
@@ -28,8 +29,8 @@ contract StakedSonicDecoderAndSanitizer is
     MerklDecoderAndSanitizer,
     BalancerV3DecoderAndSanitizer
 {
-    constructor(address _nonFungiblePositionManager, address _odosRouter) 
-        UniswapV3SwapRouter02DecoderAndSanitizer(_nonFungiblePositionManager) 
+    constructor(address _nonFungiblePositionManager, address _odosRouter)
+        UniswapV3SwapRouter02DecoderAndSanitizer(_nonFungiblePositionManager)
         OdosDecoderAndSanitizer(_odosRouter)
     {}
 
@@ -40,7 +41,12 @@ contract StakedSonicDecoderAndSanitizer is
     function deposit(uint256, address receiver)
         external
         pure
-        override(BalancerV2DecoderAndSanitizer, CurveDecoderAndSanitizer, ERC4626DecoderAndSanitizer, BalancerV3DecoderAndSanitizer)
+        override(
+            BalancerV2DecoderAndSanitizer,
+            CurveDecoderAndSanitizer,
+            ERC4626DecoderAndSanitizer,
+            BalancerV3DecoderAndSanitizer
+        )
         returns (bytes memory addressesFound)
     {
         addressesFound = abi.encodePacked(receiver);
@@ -66,12 +72,7 @@ contract StakedSonicDecoderAndSanitizer is
     function withdraw(uint256)
         external
         pure
-        override(
-            BalancerV2DecoderAndSanitizer,
-            CurveDecoderAndSanitizer,
-            NativeWrapperDecoderAndSanitizer
-        )
-
+        override(BalancerV2DecoderAndSanitizer, CurveDecoderAndSanitizer, NativeWrapperDecoderAndSanitizer)
         returns (bytes memory addressesFound)
     {
         // Nothing to sanitize or return

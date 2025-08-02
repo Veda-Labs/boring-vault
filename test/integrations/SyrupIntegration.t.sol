@@ -161,30 +161,26 @@ contract SyrupIntegrationTest is Test, MerkleTreeHelper {
         targets[9] = getAddress(sourceChain, "syrupUSDT"); //cancel redeem syrupUSDT
 
         bytes[] memory targetData = new bytes[](10);
-        targetData[0] =
-            abi.encodeWithSelector(ERC20.approve.selector, getAddress(sourceChain, "syrupRouterUSDC"), type(uint256).max);
-        targetData[1] =
-            abi.encodeWithSelector(ERC20.approve.selector, getAddress(sourceChain, "syrupRouterUSDT"), type(uint256).max);
-        targetData[2] =
-            abi.encodeWithSignature("deposit(uint256,bytes32)", 100e6, bytes32("0:vtl"));
-        targetData[3] =
-            abi.encodeWithSignature("deposit(uint256,bytes32)", 100e6, bytes32("0:vtl"));
-        targetData[4] = abi.encodeWithSignature(
-            "approve(address,uint256)", getAddress(sourceChain, "syrupUSDC"), type(uint256).max
+        targetData[0] = abi.encodeWithSelector(
+            ERC20.approve.selector, getAddress(sourceChain, "syrupRouterUSDC"), type(uint256).max
         );
-        targetData[5] = abi.encodeWithSignature(
-            "approve(address,uint256)", getAddress(sourceChain, "syrupUSDT"), type(uint256).max
+        targetData[1] = abi.encodeWithSelector(
+            ERC20.approve.selector, getAddress(sourceChain, "syrupRouterUSDT"), type(uint256).max
         );
+        targetData[2] = abi.encodeWithSignature("deposit(uint256,bytes32)", 100e6, bytes32("0:vtl"));
+        targetData[3] = abi.encodeWithSignature("deposit(uint256,bytes32)", 100e6, bytes32("0:vtl"));
+        targetData[4] =
+            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "syrupUSDC"), type(uint256).max);
+        targetData[5] =
+            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "syrupUSDT"), type(uint256).max);
         targetData[6] =
             abi.encodeWithSignature("requestRedeem(uint256,address)", 90e6, getAddress(sourceChain, "boringVault"));
         targetData[7] =
             abi.encodeWithSignature("requestRedeem(uint256,address)", 90e6, getAddress(sourceChain, "boringVault"));
-        targetData[8] = abi.encodeWithSignature(
-            "removeShares(uint256,address)", 50e6, getAddress(sourceChain, "boringVault")
-        );
-        targetData[9] = abi.encodeWithSignature(
-            "removeShares(uint256,address)", 50e6, getAddress(sourceChain, "boringVault")
-        );
+        targetData[8] =
+            abi.encodeWithSignature("removeShares(uint256,address)", 50e6, getAddress(sourceChain, "boringVault"));
+        targetData[9] =
+            abi.encodeWithSignature("removeShares(uint256,address)", 50e6, getAddress(sourceChain, "boringVault"));
 
         uint256[] memory values = new uint256[](10);
 
@@ -205,7 +201,8 @@ contract SyrupIntegrationTest is Test, MerkleTreeHelper {
 }
 
 interface IPoolPermissionManager {
-    function setLenderAllowlist(address poolManager_, address[] calldata lenders_, bool[] calldata booleans_) external;
+    function setLenderAllowlist(address poolManager_, address[] calldata lenders_, bool[] calldata booleans_)
+        external;
 }
 
 contract FullSyrupDecoderAndSanitizer is SyrupDecoderAndSanitizer {}

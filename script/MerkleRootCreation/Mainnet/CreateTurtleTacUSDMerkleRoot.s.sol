@@ -17,9 +17,8 @@ contract CreateTurtleTacUSDMerkleRoot is Script, MerkleTreeHelper {
     //standard
     address public boringVault = 0x699e04F98dE2Fc395a7dcBf36B48EC837A976490;
     address public rawDataDecoderAndSanitizer = 0x548993448a7Ff3aF7b5628b187032B332270d925;
-    address public managerAddress = 0x2FA91E4eb6Ace724EfFbDD61bBC1B55EF8bD7aAc; 
+    address public managerAddress = 0x2FA91E4eb6Ace724EfFbDD61bBC1B55EF8bD7aAc;
     address public accountantAddress = 0x58cD5e97ffaeA62986C86ac44bB8EF7092c7ff5B;
-    
 
     function setUp() external {}
 
@@ -39,7 +38,6 @@ contract CreateTurtleTacUSDMerkleRoot is Script, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](128);
 
-
         // ========================== 1inch ==========================
         address[] memory assets = new address[](5);
         SwapKind[] memory kind = new SwapKind[](5);
@@ -57,10 +55,10 @@ contract CreateTurtleTacUSDMerkleRoot is Script, MerkleTreeHelper {
         _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
 
         // ========================== Odos ==========================
-        _addOdosSwapLeafs(leafs, assets, kind);  
+        _addOdosSwapLeafs(leafs, assets, kind);
 
         // ========================== Sky Money ==========================
-        _addAllSkyMoneyLeafs(leafs);  
+        _addAllSkyMoneyLeafs(leafs);
 
         // ========================== sUSDs ==========================
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sUSDs")));
@@ -73,7 +71,5 @@ contract CreateTurtleTacUSDMerkleRoot is Script, MerkleTreeHelper {
         string memory filePath = "./leafs/Mainnet/TurtleTacUSDStrategistLeafs.json";
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
-
     }
-
 }

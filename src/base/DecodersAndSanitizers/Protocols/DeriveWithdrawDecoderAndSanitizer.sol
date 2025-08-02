@@ -6,42 +6,42 @@ import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndS
 /// @notice provides a full flow for borings vaults to use and claim rewards from Derive (Basis) Vaults
 abstract contract DeriveDecoderAndSanitizer is BaseDecoderAndSanitizer {
     //============================== ERRORS ===============================
-    
-    error DeriveDecoderAndSanitizer__OptionsLengthNonZero();  
-    error DeriveDecoderAndSanitizer__ExtraDataLengthNonZero();  
-    
+
+    error DeriveDecoderAndSanitizer__OptionsLengthNonZero();
+    error DeriveDecoderAndSanitizer__ExtraDataLengthNonZero();
+
     //============================== Deposits/Withdraws ===============================
-    
+
     function bridge(
         address receiver_,
-        uint256 /*amount_*/,
-        uint256 /*msgGasLimit_*/,
+        uint256, /*amount_*/
+        uint256, /*msgGasLimit_*/
         address connector_,
         bytes calldata extraData_,
         bytes calldata options_
     ) external pure virtual returns (bytes memory addressesFound) {
-        if (options_.length > 0) revert DeriveDecoderAndSanitizer__OptionsLengthNonZero(); 
-        if (extraData_.length > 0) revert DeriveDecoderAndSanitizer__ExtraDataLengthNonZero(); 
-        addressesFound = abi.encodePacked(receiver_, connector_);  
+        if (options_.length > 0) revert DeriveDecoderAndSanitizer__OptionsLengthNonZero();
+        if (extraData_.length > 0) revert DeriveDecoderAndSanitizer__ExtraDataLengthNonZero();
+        addressesFound = abi.encodePacked(receiver_, connector_);
     }
 
     function withdrawToChain(
         address token,
-        uint256 /*amount*/,
+        uint256, /*amount*/
         address recipient,
         address socketController,
         address connector,
         uint256 /*gasLimit*/
     ) external pure virtual returns (bytes memory addressesFound) {
-        addressesFound = abi.encodePacked(token, recipient, socketController, connector); 
+        addressesFound = abi.encodePacked(token, recipient, socketController, connector);
     }
 
-     function withdrawFromAppChain(
-         address receiver_,
-         uint256 /*burnAmount_*/, 
-         uint256 /*msgGasLimit_*/, 
-         address connector_
-     ) external pure virtual returns (bytes memory addressesFound) {
-        addressesFound = abi.encodePacked(receiver_, connector_); 
-     }
+    function withdrawFromAppChain(
+        address receiver_,
+        uint256, /*burnAmount_*/
+        uint256, /*msgGasLimit_*/
+        address connector_
+    ) external pure virtual returns (bytes memory addressesFound) {
+        addressesFound = abi.encodePacked(receiver_, connector_);
+    }
 }

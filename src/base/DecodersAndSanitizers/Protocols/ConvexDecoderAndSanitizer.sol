@@ -4,7 +4,6 @@ pragma solidity 0.8.21;
 import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 
 abstract contract ConvexDecoderAndSanitizer is BaseDecoderAndSanitizer {
-
     //============================== CONVEX ===============================
 
     function deposit(uint256, uint256, bool) external view virtual returns (bytes memory addressesFound) {

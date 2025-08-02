@@ -15,11 +15,10 @@ contract CreateTurtleTacETHMerkleRoot is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     //standard
-    address public boringVault = 0x294eecec65A0142e84AEdfD8eB2FBEA8c9a9fbad; 
+    address public boringVault = 0x294eecec65A0142e84AEdfD8eB2FBEA8c9a9fbad;
     address public rawDataDecoderAndSanitizer = 0xDCB249984e5972eBBe6f0e1B30987017f31A10fb;
-    address public managerAddress = 0x401C29bafA0A205a0dAb316Dc6136A18023eF08A; 
+    address public managerAddress = 0x401C29bafA0A205a0dAb316Dc6136A18023eF08A;
     address public accountantAddress = 0x1683870f3347F2837865C5D161079Dc3fDbf1087;
-    
 
     function setUp() external {}
 
@@ -39,7 +38,6 @@ contract CreateTurtleTacETHMerkleRoot is Script, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](64);
 
-
         // ========================== 1inch ==========================
         address[] memory assets = new address[](3);
         SwapKind[] memory kind = new SwapKind[](3);
@@ -53,13 +51,13 @@ contract CreateTurtleTacETHMerkleRoot is Script, MerkleTreeHelper {
         _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
 
         // ========================== Odos ==========================
-        _addOdosSwapLeafs(leafs, assets, kind);  
+        _addOdosSwapLeafs(leafs, assets, kind);
 
         // ========================== Native Leafs ==========================
-        _addNativeLeafs(leafs); 
+        _addNativeLeafs(leafs);
 
         // ========================== Lido ==========================
-        _addLidoLeafs(leafs);  
+        _addLidoLeafs(leafs);
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
@@ -69,7 +67,5 @@ contract CreateTurtleTacETHMerkleRoot is Script, MerkleTreeHelper {
         string memory filePath = "./leafs/Mainnet/TurtleTacETHStrategistLeafs.json";
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
-
     }
-
 }

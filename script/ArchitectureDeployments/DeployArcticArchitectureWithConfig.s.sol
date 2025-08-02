@@ -17,7 +17,8 @@ import {
     CrossChainTellerWithGenericBridge
 } from "src/base/Roles/CrossChain/Bridges/CCIP/ChainlinkCCIPTeller.sol";
 import {LayerZeroTeller} from "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTeller.sol";
-import {LayerZeroTellerWithRateLimiting} from "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTellerWithRateLimiting.sol";
+import {LayerZeroTellerWithRateLimiting} from
+    "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTellerWithRateLimiting.sol";
 import {AccountantWithRateProviders, IRateProvider} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {AccountantWithFixedRate} from "src/base/Roles/AccountantWithFixedRate.sol";
 import {Deployer} from "src/helper/Deployer.sol";
@@ -766,7 +767,7 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
         bool tellerWithCcip = vm.parseJsonBool(rawJson, ".tellerConfiguration.tellerParameters.kind.tellerWithCcip");
         bool tellerWithLayerZero =
             vm.parseJsonBool(rawJson, ".tellerConfiguration.tellerParameters.kind.tellerWithLayerZero");
-        bool tellerWithLayerZeroRateLimiting = 
+        bool tellerWithLayerZeroRateLimiting =
             vm.parseJsonBool(rawJson, ".tellerConfiguration.tellerParameters.kind.tellerWithLayerZeroRateLimiting");
         if (tellerWithCcip || tellerWithLayerZero || tellerWithLayerZeroRateLimiting) {
             _log("Setting up cross chain teller", 3);
@@ -1151,7 +1152,9 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
                     OWNER_ROLE, address(teller), ChainlinkCCIPTeller.setChainGasLimit.selector
                 );
             }
-            if (tellerKind == TellerKind.TellerWithLayerZero || tellerKind == TellerKind.TellerWithLayerZeroRateLimiting) {
+            if (
+                tellerKind == TellerKind.TellerWithLayerZero || tellerKind == TellerKind.TellerWithLayerZeroRateLimiting
+            ) {
                 _addRoleCapabilityIfNotPresent(OWNER_ROLE, address(teller), LayerZeroTeller.addChain.selector);
                 _addRoleCapabilityIfNotPresent(MULTISIG_ROLE, address(teller), LayerZeroTeller.removeChain.selector);
                 _addRoleCapabilityIfNotPresent(
@@ -1173,7 +1176,10 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
                 _setPublicCapabilityIfNotPresent(
                     address(teller), TellerWithMultiAssetSupport.depositWithPermit.selector
                 );
-                if (tellerKind == TellerKind.TellerWithCcip || tellerKind == TellerKind.TellerWithLayerZero || tellerKind == TellerKind.TellerWithLayerZeroRateLimiting) {
+                if (
+                    tellerKind == TellerKind.TellerWithCcip || tellerKind == TellerKind.TellerWithLayerZero
+                        || tellerKind == TellerKind.TellerWithLayerZeroRateLimiting
+                ) {
                     _setPublicCapabilityIfNotPresent(
                         address(teller), CrossChainTellerWithGenericBridge.depositAndBridge.selector
                     );

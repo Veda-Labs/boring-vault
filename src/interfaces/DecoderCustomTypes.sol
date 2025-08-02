@@ -101,7 +101,7 @@ contract DecoderCustomTypes {
     }
 
     // ========================================= UNISWAP V4 =========================================
-    
+
     struct SwapParams {
         /// Whether to swap token0 for token1 or vice versa
         bool zeroForOne;
@@ -133,7 +133,7 @@ contract DecoderCustomTypes {
         bytes hookData;
     }
 
-     /// @notice Parameters for a single-hop exact-output swap
+    /// @notice Parameters for a single-hop exact-output swap
     struct ExactOutputSingleParams {
         PoolKey poolKey;
         bool zeroForOne;
@@ -141,7 +141,6 @@ contract DecoderCustomTypes {
         uint128 amountInMaximum;
         bytes hookData;
     }
-
 
     // ========================================= MORPHO BLUE =========================================
 
@@ -509,7 +508,7 @@ contract DecoderCustomTypes {
     }
 
     // ========================================= Odos ==================================
-    
+
     struct swapTokenInfo {
         address inputToken;
         uint256 inputAmount;
@@ -529,13 +528,13 @@ contract DecoderCustomTypes {
         address outputReceiver;
     }
     // ========================================= Level ==================================
-    
-    /// @dev for reference 
+
+    /// @dev for reference
     //enum OrderType {
     //    MINT,
     //    REDEEM
     //}
-    
+
     struct LevelOrder {
         uint8 order_type;
         address benefactor;
@@ -543,16 +542,16 @@ contract DecoderCustomTypes {
         address collateral_asset;
         uint256 collateral_amount;
         uint256 lvlusd_amount;
-    }    
+    }
 
     struct Route {
         address[] addresses;
         uint256[] ratios;
     }
 
-
     // ========================================= Royco ==================================
-    struct APOffer { // RecipeMarketHub
+    struct APOffer {
+        // RecipeMarketHub
         uint256 offerID;
         bytes32 targetMarketHash;
         address ap;
@@ -562,7 +561,9 @@ contract DecoderCustomTypes {
         address[] incentivesRequested;
         uint256[] incentiveAmountsRequested;
     }
-    struct APOfferVault { // VaultMarketHub (renamed to avoid collision)
+
+    struct APOfferVault {
+        // VaultMarketHub (renamed to avoid collision)
         uint256 offerID;
         address targetVault;
         address ap;
@@ -580,14 +581,14 @@ contract DecoderCustomTypes {
     }
 
     // ========================================= Permit2 ==================================
-    
+
     struct TokenSpenderPair {
-        address token; 
+        address token;
         address spender;
     }
 
     // ========================================= OnChainQueue ==================================
-    
+
     struct OnChainWithdraw {
         uint96 nonce; // read from state, used to make it impossible for request Ids to be repeated.
         address user; // msg.sender
@@ -600,7 +601,7 @@ contract DecoderCustomTypes {
     }
 
     // ========================================= Beraborrow ==================================
-    
+
     struct OpenDenVaultParams {
         address denManager;
         address collVault;
@@ -631,7 +632,7 @@ contract DecoderCustomTypes {
         bytes _preDeposit;
     }
 
-     struct RedeemCollateralVaultParams {
+    struct RedeemCollateralVaultParams {
         address denManager;
         address collVault;
         uint256 _debtAmount;
@@ -647,4 +648,3 @@ contract DecoderCustomTypes {
         bool unwrap;
     }
 }
-
