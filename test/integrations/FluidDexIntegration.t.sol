@@ -179,7 +179,7 @@ contract FluidDexIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testFluidDexIntegration() public {
-        _setUpOldBlock(); 
+        _setUpOldBlock();
 
         deal(getAddress(sourceChain, "WBTC"), address(boringVault), 100e18);
         deal(getAddress(sourceChain, "cbBTC"), address(boringVault), 100e18);
@@ -195,7 +195,9 @@ contract FluidDexIntegrationTest is Test, MerkleTreeHelper {
 
         //3 approvals, 1 leaf for `operate()`, 1 leaf for `operatePerfect()`
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
-        _addFluidDexLeafs(leafs, getAddress(sourceChain, "wBTC-cbBTCDex-USDT"), dexType, supplyTokens, borrowTokens, false); 
+        _addFluidDexLeafs(
+            leafs, getAddress(sourceChain, "wBTC-cbBTCDex-USDT"), dexType, supplyTokens, borrowTokens, false
+        );
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
@@ -344,9 +346,8 @@ contract FluidDexIntegrationTest is Test, MerkleTreeHelper {
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
     }
 
-
     function testFluidDexIntegrationNative() public {
-        _setUpNewBlock(); 
+        _setUpNewBlock();
 
         deal(getAddress(sourceChain, "WEETH"), address(boringVault), 100e18);
         deal(address(boringVault), 100e18);
@@ -362,12 +363,13 @@ contract FluidDexIntegrationTest is Test, MerkleTreeHelper {
 
         //3 approvals, 1 leaf for `operate()`, 1 leaf for `operatePerfect()`
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
-        _addFluidDexLeafs(leafs, getAddress(sourceChain, "weETH_ETHDex_wstETH"), dexType, supplyTokens, borrowTokens, true);
-
+        _addFluidDexLeafs(
+            leafs, getAddress(sourceChain, "weETH_ETHDex_wstETH"), dexType, supplyTokens, borrowTokens, true
+        );
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
-        _generateTestLeafs(leafs, manageTree);   
+        _generateTestLeafs(leafs, manageTree);
 
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
@@ -423,10 +425,10 @@ contract FluidDexIntegrationTest is Test, MerkleTreeHelper {
         );
 
         uint256[] memory values = new uint256[](4);
-        values[0] = 0; 
-        values[1] = 0; 
-        values[2] = 0; 
-        values[3] = 0.01e18; 
+        values[0] = 0;
+        values[1] = 0;
+        values[2] = 0;
+        values[3] = 0.01e18;
 
         address[] memory decodersAndSanitizers = new address[](4);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;

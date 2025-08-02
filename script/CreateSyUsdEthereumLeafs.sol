@@ -28,7 +28,7 @@ import "forge-std/StdJson.sol";
  *  source .env && forge script script/DeployDecoderAndSanitizer.s.sol:DeployDecoderAndSanitizerScript --broadcast --etherscan-api-key $ETHERSCAN_KEY --verify --with-gas-price 30000000000
  * @dev Optionally can change `--with-gas-price` to something more reasonable
  */
-contract DepositInMetaMorpho is Script, MerkleTreeHelper {
+contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
     uint256 public privateKey;
 
     // address public rawDataDecoderAndSanitizerEthereum = 0x2942Ca9E3676cd2CfAEfB113A0Aa67FEd49198f5;
