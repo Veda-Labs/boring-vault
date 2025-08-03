@@ -140,6 +140,14 @@ contract MagpieIntegTest is Test, MerkleTreeHelper {
 
         deal(getAddress(sourceChain, "USDC"), address(boringVault), 1 * 1e18);
 
+        console.log("BoringVault USDC balance: %s", USDC.balanceOf(address(boringVault)));
+        console.log("BoringVault RLP balance: %s", RLP.balanceOf(address(boringVault)));
+        console.log("Address of boringVault: %s", address(boringVault));
+
+        uint256 cachedRLPBalance = RLP.balanceOf(address(boringVault));
+        uint256 cachedUSDCBalance = USDC.balanceOf(address(boringVault));
+        console.log("Cached RLP balance: %s", cachedRLPBalance);
+        console.log("Cached USDC balance: %s", cachedUSDCBalance);
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
         // _addOdosSwapLeafs(leafs, tokens, kind);
 
@@ -157,10 +165,13 @@ contract MagpieIntegTest is Test, MerkleTreeHelper {
             getAddress(sourceChain, "magpieRouterV3"),
             false,
             "swapWithMagpieSignature(bytes)",
-            new address[](0),
+            new address[](3),
             string.concat("Swap Compact ", USDC.symbol(), " for ", RLP.symbol()),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
+        leafs[1].argumentAddresses[0] = getAddress(sourceChain, "USDC");
+        leafs[1].argumentAddresses[1] = getAddress(sourceChain, "RLP");
+        leafs[1].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -169,10 +180,6 @@ contract MagpieIntegTest is Test, MerkleTreeHelper {
         vm.prank(manager.owner());
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
-        console.log("BoringVault USDC balance: %s", USDC.balanceOf(address(boringVault)));
-        console.log("BoringVault RLP balance: %s", RLP.balanceOf(address(boringVault)));
-        console.log("Address of boringVault: %s", address(boringVault));
-
         ManageLeaf[] memory manageLeafs = new ManageLeaf[](2);
         manageLeafs[0] = leafs[0]; //approve RLP to Magpie Router V3
         manageLeafs[1] = leafs[1]; //swapWithMagpieSignature() USDC <-> RLP
@@ -180,7 +187,7 @@ contract MagpieIntegTest is Test, MerkleTreeHelper {
         bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 
         address[] memory targets = new address[](2);
-        targets[0] = getAddress(sourceChain, "RLP"); //approve
+        targets[0] = getAddress(sourceChain, "USDC"); //approve
         targets[1] = getAddress(sourceChain, "magpieRouterV3"); //approve
 
         bytes[] memory targetData = new bytes[](2);
@@ -191,7 +198,7 @@ contract MagpieIntegTest is Test, MerkleTreeHelper {
         // // @dev NOTE: this is swapWithMagpieSignature ABI-encoded. This tx data was retrieved directly from the MagpieV3 API. After assembling the tx, the output from the /assemble endpoint will return the following data in the data field. This includes everything needed for swapping. Submit the entire tx data as the targetData. Note that is already includes the function signature, etc.
 
         targetData[1] =
-            hex"73fc44570000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000034802ad0120279cad277447965af3d24a78197aad1b02a2c589a0b86991c6218b36c1d19d4a2e9eb0ce3606eb484956b52ae2ff65d74ca2d61207523288e4528f96e000d4b800d9f800e3e000e5b5065a3d8233ce0e40854596503f3cf5a31a6cad69e0669e605787b38cd927582a9fff872a04efe956a8d3ab3569db697867f669082ab0e72c9dcf46c7dbe6af1c0000e0688dc307b82a1af6bb1291a796e0f800e03b9aca00060300e49995855c00494d039ab6792f18e368e530dff93102005c0200ed0300e4f196187f40d16fc0246ad3160ccc09b8d0d3a2cd28ae6c2fa8068db8bac710cb000000c8f801a0ffff9a5889f795069a41a8a2f0048600800000000000000000000000000000000000000000000000000000000000000001010a02010e02005c03012203012e0300e403013003013d0301400600060a00000000000000000000000000000000000000000000000000000000000003017d0500004628f13651ead6793f8d838b34b8f8522fb0cc5202010e0201a40500403df021240101c103008a03012e05004003008a66a1e37c9b0eaddca17d3662d6c05f4decf3e1100201d41202f5c7b4b9e47a1a484e8b270be34dbbc750550201d40201eb0500606e553f650102080500600642cf3b7e98a1bbc51ed6e5c09f5a93743e6008890201eb0202130500800101c103008a03012e05008003008a020070000206070706000000000000000000000000000000000000000000000000000000b82c524715c2b4449ed10302420500a003026300020a0b00000000000000000000000000000000000000000000000000000000000302760500c0030263eda49bce2f38d284f839be1f4f2e23e6c7cc7dbd0200700202a00500e00005060708070000000000000000000000000000000000000000000000000000000302bd0500c00302630500a002007002004805010002000000e900ed00000100000101010a00000000400161017d00ed070020019e01a4000001000001b801c1000000000001c501d401a406002001e801eb000001000001ff02080000000020020c021301eb0100000227023000000000000230023f0213060020023f02420000080020026d02760000070020029702a0000003000002b402bd000008002002de02ea000003000002ea02f30000000000000000000000000000000000000000000000000000";
+            hex"73fc445700000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000305027c0140279cad277447965af3d24a78197aad1b02a2c589a0b86991c6218b36c1d19d4a2e9eb0ce3606eb484956b52ae2ff65d74ca2d61207523288e4528f96e000d4b800d9f800e3e000e506f6a1db9710dfd361799fa6e3c3dc87c0dc978e38b688ed4b47c025463b5fcf36865da559789cd11cad30fdb157d6719d204822a892f863d6826951b8cffb5e1b0000e0688f14f5b82a262c0bfec7221ad8f800e03b9aca00060300e490455bd11ce8a67c57d467e634dc142b8e4105aa02005c0200ed0300e43df02124f80101010a03010e03008a0300e403008aad55aebc9b8c03fc43cd9f62260391c13c23e7c002011f000000000022d473030f116ddee9f6b43ac78ba302011f02013605000087517c45136f1efcc3f8f88516b9e94110d56fdbfb1778d1e0688f14f601015302011f02015705000003016b286f580df880f001c0f820ed487afc303358d528fe76781ebd03a7470a97121202f5c7b4b9e47a1a484e8b270be34dbbc7505501017f03018303016b03008a03018503010e03018802011f03018305000003008a03010e02018a02019e03008a03008a42cf3b7e98a1bbc51ed6e5c09f5a93743e60088902019e0201e20500a001010a03008a03010e0500a003008a020070000206070706000000000000000000000000000000000000000000000000000000b82c5e136af13d6744ad0302110500c003023200020a0b00000000000000000000000000000000000000000000000000000000000302450500e0030232eda49bce2f38d284f839be1f4f2e23e6c7cc7dbd02007002026f05010000050607080700000000000000000000000000000000000000000000000000000003028c0500e00302320500c002007002004805012002000000e900ed00000100000101010a00000000000110011f00ed060020013301360000010000014a015300000000000170017f01360000a001b201e2015701000001f601ff000000000001ff020e01e2060020020e02110000080020023c024500000700200266026f00000300000283028c000008002002ad02b9000003000002b902c20000000000000000000000000000000000000000000000000000000000";
 
         address[] memory decodersAndSanitizers = new address[](2);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
@@ -200,6 +207,17 @@ contract MagpieIntegTest is Test, MerkleTreeHelper {
         uint256[] memory values = new uint256[](2);
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
+
+        uint256 newRLPBalance = RLP.balanceOf(address(boringVault));
+        uint256 newUSDCBalance = USDC.balanceOf(address(boringVault));
+        console.log("New RLP balance: %s", newRLPBalance);
+        console.log("New USDC balance: %s", newUSDCBalance);
+
+        console.log("RLP balance change: %s", newRLPBalance - cachedRLPBalance);
+        // console.log(
+        //     "USDC balance change: %s",
+        //     newUSDCBalance - cachedUSDCBalance
+        // );
     }
 }
 
