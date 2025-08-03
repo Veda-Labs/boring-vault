@@ -1,4 +1,7 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: SEL-1.0
+// Copyright © 2025 Veda Tech Labs
+// Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
+// Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
@@ -8,6 +11,7 @@ import {MorphoBlueDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Prot
 import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol"; 
 import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol"; 
 import {KinetiqDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/KinetiqDecoderAndSanitizer.sol"; 
+import {PendleRouterDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/PendleRouterDecoderAndSanitizer.sol";
 
 
 contract KHypeHyperEVMDecoderAndSanitizer is
@@ -17,7 +21,8 @@ contract KHypeHyperEVMDecoderAndSanitizer is
     MorphoBlueDecoderAndSanitizer,
     ERC4626DecoderAndSanitizer,
     CurveDecoderAndSanitizer,
-    KinetiqDecoderAndSanitizer
+    KinetiqDecoderAndSanitizer,
+    PendleRouterDecoderAndSanitizer
 {
 
     function deposit(uint256, address receiver) external pure virtual override(ERC4626DecoderAndSanitizer, CurveDecoderAndSanitizer) returns (bytes memory addressesFound) {

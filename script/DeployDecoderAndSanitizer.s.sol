@@ -1,4 +1,7 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: SEL-1.0
+// Copyright © 2025 Veda Tech Labs
+// Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
+// Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
 import {ChainValues} from "test/resources/ChainValues.sol";
@@ -103,7 +106,10 @@ import {AlgebraV4DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Proto
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
 
-/** *  source .env && forge script script/DeployDecoderAndSanitizer.s.sol:DeployDecoderAndSanitizerScript --broadcast --etherscan-api-key $ETHERSCAN_API_KEY --verify --verifier-url 'https://api.routescan.io/v2/network/mainnet/evm/21000000/etherscan'
+/**
+ *  source .env && forge script script/DeployDecoderAndSanitizer.s.sol:DeployDecoderAndSanitizerScript --broadcast --etherscan-api-key $ETHERSCAN_API_KEY
+ */
+/** *   --verify --verifier-url 'https://api.routescan.io/v2/network/mainnet/evm/21000000/etherscan'
  * @dev Optionally can change `--with-gas-price` to something more reasonable
  * @dev For Unichain verification, use appropriate block explorer when available
  */
@@ -119,7 +125,6 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
 
         vm.createSelectFork("hyperEVM");
         setSourceChainName("hyperEVM"); 
-
     }
 
     function run() external {
@@ -173,6 +178,10 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         creationCode = type(UniswapV3DecoderAndSanitizer).creationCode;
         addressKeys = ["uniswapV3NonFungiblePositionManager"];
         deployContract("Uniswap V3 Decoder and Sanitizer V0.0", creationCode, 0);
+
+        creationCode = type(KHypeHyperEVMDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode();
+        deployer.deployContract("KHype HyperEVM Decoder And Sanitizer V0.2", creationCode, constructorArgs, 0);
 
         // Deploy UniswapV3SwapRouter02DecoderAndSanitizer
         creationCode = type(UniswapV3SwapRouter02DecoderAndSanitizer).creationCode;
