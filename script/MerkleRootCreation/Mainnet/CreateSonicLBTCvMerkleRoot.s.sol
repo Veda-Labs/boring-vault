@@ -73,6 +73,12 @@ contract CreateSonicLBTCvMerkleRootScript is Script, MerkleTreeHelper {
             _feeAssets[0] = getAddress(sourceChain, "ETH"); //pay bridge fee in ETH\
             _addCrossChainTellerLeafs(leafs, sonicBTCTeller, sonicBTCTellerAssets, _feeAssets, abi.encode(layerZeroSonicMainnetEndpointId));
 
+            // Add scBTC  teller to enable bulkWithdraw for LBTC
+            ERC20[] memory scBTCTellerAssets = new ERC20[](1);
+            scBTCTellerAssets[0] = getERC20(sourceChain, "LBTC");
+            address scBTCTeller = 0xAce7DEFe3b94554f0704d8d00F69F273A0cFf079;
+            _addTellerLeafs(leafs, scBTCTeller, scBTCTellerAssets, false, true);
+
             ERC20[] memory scBTCWithdrawQueueAssets = new ERC20[](1); 
             scBTCWithdrawQueueAssets[0] = getERC20(sourceChain, "scBTC");
             address eBTCOnChainQueueFast = 0x488000E6a0CfC32DCB3f37115e759aF50F55b48B;
