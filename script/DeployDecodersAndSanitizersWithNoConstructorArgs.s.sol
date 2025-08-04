@@ -151,6 +151,7 @@ import {ReserveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protoco
 import {ReserveERC20WrappedDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/reserve/ReserveERC20WrappedDecoderAndSanitizer.sol";
 import {EigenLayerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/eigen_layer/EigenLayerDecoderAndSanitizer.sol";
 import {KinetiqDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/KinetiqDecoderAndSanitizer.sol";
+import {KHypeHyperEVMDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/KHypeHyperEVMDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -624,6 +625,10 @@ contract DeployDecodersAndSanitizersWithNoConstructorArgsScript is
         creationCode = type(KinetiqDecoderAndSanitizer).creationCode;
         constructorArgs = hex"";
         deployContract("Kinetiq Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        creationCode = type(KHypeHyperEVMDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode();
+        deployContract("KHype HyperEVM Decoder And Sanitizer V0.2", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
