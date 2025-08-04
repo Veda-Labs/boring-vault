@@ -110,81 +110,9 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
         }
     }
 
-    /**
-     * @notice Calculate rate for withdrawals using quadratic formula
-     * @dev Matches the deposit formula structure for consistency
-     *
-     * From the system:
-     * rate = totalAssets / shares
-     * totalAssets = currentTotalAssets + vestingGains - withdrawnAssets
-     * shares = currentShares - withdrawnShares
-     * withdrawnAssets = withdrawnShares * rate
-     *
-     * This gives us: r² * withdrawnShares - r * (A + V) + (A + V) * withdrawnShares / S = 0
-     * Rearranging: r² - r * (A + V) / withdrawnShares + (A + V) / S = 0
-     */
-    //function getRateInQuoteForWithdraw(ERC20 quote, uint256 withdrawnShares) public view returns (uint256 rateInQuote) {
-    //    uint256 currentShares = vault.totalSupply();
-    //
-    //    // Handle edge cases
-    //    if (currentShares == 0 || withdrawnShares == 0) {
-    //        return 10 ** decimals;
-    //    }
-    //
-    //    // Get current values
-    //    uint256 currentTotalAssets = totalAssetsInBase;
-    //    uint256 totalVestingGains = _getPendingVestingGains();
-    //
-    //    // For the quadratic: ar² + br + c = 0
-    //    // Where: r² * W - r * (A + V) + (A + V) * W / S = 0
-    //    // Multiply through by S: r² * W * S - r * (A + V) * S + (A + V) * W = 0
-    //
-    //    uint256 W = withdrawnShares;
-    //    uint256 S = currentShares;
-    //    uint256 AV = currentTotalAssets + totalVestingGains;
-    //
-    //    // Quadratic coefficients
-    //    // a = W * S
-    //    // b = -(A + V) * S
-    //    // c = (A + V) * W
-    //
-    //    uint256 a = W * S;
-    //    uint256 b = AV * S;  // Note: we'll handle the negative in the formula
-    //    uint256 c = AV * W;
-    //
-    //    // Quadratic formula: r = [-b ± sqrt(b² - 4ac)] / 2a
-    //    // Since b is negative in our equation: r = [b ± sqrt(b² - 4ac)] / 2a
-    //    // We want the positive root
-    //
-    //    uint256 discriminant = b * b - 4 * a * c;
-    //
-    //    // For withdrawals, if discriminant is 0 or negative, use simple rate
-    //    if (discriminant == 0) {
-    //        // This happens when withdrawing all shares
-    //        return AV.mulDivDown(10 ** decimals, S);
-    //    }
-    //
-    //    uint256 sqrtDiscriminant = FixedPointMathLib.sqrt(discriminant);
-    //
-    //    // We want the smaller positive root for withdrawals
-    //    uint256 rateInBase = (b - sqrtDiscriminant) * 10 ** decimals / (2 * a);
-    //
-    //    // Convert to quote if needed
-    //    if (address(quote) == address(base)) {
-    //        return rateInBase;
-    //    } else {
-    //        return convertToQuote(rateInBase, quote);
-    //    }
-    //}
-
-
     function getRateInQuoteForWithdraw(ERC20 quote, uint256 withdrawnShares) public view returns (uint256 rateInQuote) {
         uint256 currentShares = vault.totalSupply();
-    
-        if (currentShares == 0 || withdrawnShares == 0) {
-            return 10 ** decimals;
-        }
-    
+        withdrawnShares; //not needed, cancels out anyways  
         // Total value including vested gains
         uint256 totalValue = totalAssetsInBase + _getPendingVestingGains();
     
