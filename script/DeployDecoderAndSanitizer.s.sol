@@ -88,7 +88,6 @@ import {GoldenGooseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Gol
 import {KatanaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/KatanaDecoderAndSanitizer.sol";
 import {EthMainnetTacDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EthMainnetTacDecoderAndSanitizer.sol";
 import {TacDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacUSDTacDecoderAndSanitizer.sol";
-import {KHypeHyperEVMDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/KHypeHyperEVMDecoderAndSanitizer.sol";
 import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol";
 import {UniswapV3SwapRouter02DecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/UniswapV3SwapRouter02DecoderAndSanitizer.sol";
@@ -178,10 +177,6 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         creationCode = type(UniswapV3DecoderAndSanitizer).creationCode;
         addressKeys = ["uniswapV3NonFungiblePositionManager"];
         deployContract("Uniswap V3 Decoder and Sanitizer V0.0", creationCode, 0);
-
-        creationCode = type(KHypeHyperEVMDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode();
-        deployer.deployContract("KHype HyperEVM Decoder And Sanitizer V0.2", creationCode, constructorArgs, 0);
 
         // Deploy UniswapV3SwapRouter02DecoderAndSanitizer
         creationCode = type(UniswapV3SwapRouter02DecoderAndSanitizer).creationCode;
