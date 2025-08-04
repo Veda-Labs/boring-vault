@@ -9,6 +9,7 @@ import {BoringOnChainQueue} from "src/base/Roles/BoringQueue/BoringOnChainQueue.
 import {BoringSolver} from "src/base/Roles/BoringQueue/BoringSolver.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
+import {BoringVault} from "src/base/BoringVault.sol";
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
 import "forge-std/Test.sol";
@@ -70,10 +71,6 @@ contract DeployLBTCReplacementContracts is Script, Test {
 
     // Network configuration
     uint256 public networkId;
-    uint256 public nonce = 6; // REPLACE
-
-    // JSON output
-    string outputJson;
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
@@ -82,44 +79,49 @@ contract DeployLBTCReplacementContracts is Script, Test {
             networkId = 1; // Mainnet
         } else if (block.chainid == 42161) {
             networkId = 42161; // Arbitrum
+        } else if (block.chainid == 31337) {
+            networkId = 31337; // Local Anvil/Hardhat
+        } else if (block.chainid == 1147) {
+            networkId = 1147; // TAC (if this is the correct chain ID)
+        } else if (block.chainid == 11147) {
+            networkId = 11147; // TAC Testnet (if applicable)
         } else {
-            revert("Unsupported network");
+            // For development: Allow any network and use its chain ID
+            networkId = block.chainid;
+            console.log("Warning: Running on unsupported network with chain ID:", block.chainid);
         }
     }
 
     function run() external {
-        // Initialize JSON structure
-        outputJson = "root";
-        outputJson.serialize("network_id", networkId);
-        outputJson.serialize("nonce", nonce);
-
+        uint256 nonce = 6; // Set nonce for governance proposals
+        
         // Array to store all actions
         string memory actionsArray = "";
 
-        // Example configuration - you'll need to fill this with actual values
+        // Configuration for Sonic BTC vault on mainnet
         VaultConfig[] memory vaults = new VaultConfig[](1);
         
-        // Example: TAC LBTC Vault configuration
+        // Sonic BTC Vault configuration (replacing LBTC with WBTC as base)
         vaults[0] = VaultConfig({
-            productName: "tac_lbtc",
-            boringVault: address(0), // Fill with actual address
-            existingAccountant: address(0), // Fill with actual address
-            existingTeller: address(0), // Fill with actual address
-            existingQueue: address(0), // Fill with actual address
-            existingQueueSolver: address(0), // Fill with actual address
-            rolesAuthority: address(0), // Fill with actual address
-            payoutAddress: address(0), // Fill with actual address
-            newBaseAsset: address(0), // Fill with actual WBTC address
-            lbtcAddress: address(0), // Fill with actual LBTC address
-            lbtcRateProvider: address(0), // Fill with rate provider for yield-bearing LBTC
-            startingExchangeRate: 100000000, // Example for BTC-based vault
-            allowedExchangeRateChangeUpper: 10100,
-            allowedExchangeRateChangeLower: 9900,
-            minimumUpdateDelayInSeconds: 21600,
-            platformFee: 150,
+            productName: "sonic_btc_lbtc_replacement",
+            boringVault: 0xBb30e76d9Bb2CC9631F7fC5Eb8e87B5Aff32bFbd, // SonicBTC Vault
+            existingAccountant: 0xC1a2C650D2DcC8EAb3D8942477De71be52318Acb, // SonicBTC AccountantWithFixedRate
+            existingTeller: 0xAce7DEFe3b94554f0704d8d00F69F273A0cFf079, // SonicBTC TellerWithLayerZero
+            existingQueue: 0x488000E6a0CfC32DCB3f37115e759aF50F55b48B, // SonicBTC BoringOnChainQueue
+            existingQueueSolver: 0x921bBB663A0164c9867e494B8E0331B84213a984, // SonicBTC QueueSolver
+            rolesAuthority: 0xe2C7E397b35fF40962eBc205217B6795520Fb264, // SonicBTC RolesAuthority
+            payoutAddress: 0xA9962a5BfBea6918E958DeE0647E99fD7863b95A, // Liquid payout address
+            newBaseAsset: 0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599, // WBTC address
+            lbtcAddress: 0x8236a87084f8B84306f72007F36F2618A5634494, // LBTC address
+            lbtcRateProvider: 0x94916a66fC119a0AC7d612927F0D909cAc15314C, // LBTC Rate Provider V0.0
+            startingExchangeRate: 100000000, // 1e8 for BTC-based vault
+            allowedExchangeRateChangeUpper: 10100, // 1.01% upper bound
+            allowedExchangeRateChangeLower: 9900, // 1% lower bound
+            minimumUpdateDelayInSeconds: 21600, // 6 hours
+            platformFee: 150, // 1.5%
             performanceFee: 0,
             allowPublicDeposits: true,
-            shareLockPeriod: 86400,
+            shareLockPeriod: 86400, // 24 hours
             allowPublicWithdrawals: true,
             excessToSolverNonSelfSolve: false
         });
@@ -133,12 +135,16 @@ contract DeployLBTCReplacementContracts is Script, Test {
 
         vm.stopBroadcast();
 
-        // Finalize JSON output
-        outputJson = outputJson.serialize("actions", actionsArray);
+        // Build the final JSON manually to ensure proper array formatting
+        string memory finalJson = string.concat(
+            '{"network_id":', vm.toString(networkId), ',',
+            '"nonce":', vm.toString(nonce), ',',
+            '"actions":[', actionsArray, ']}'
+        );
         
         // Write to file
         string memory filename = string.concat("deployments/role_updates/lbtc_replacement_", vm.toString(block.timestamp), ".json");
-        vm.writeJson(outputJson, filename);
+        vm.writeFile(filename, finalJson);
         
         console.log("Deployment complete. JSON output written to:", filename);
     }
@@ -150,9 +156,12 @@ contract DeployLBTCReplacementContracts is Script, Test {
     ) internal returns (string memory) {
         console.log("Deploying contracts for:", config.productName);
 
+        // Get the actual deployer address
+        address deployerAddress = vm.addr(privateKey);
+        
         // Deploy new Accountant with WBTC as base asset
         AccountantWithRateProviders newAccountant = new AccountantWithRateProviders(
-            address(0), // Owner will be set to address(0) after configuration
+            deployerAddress, // Deploy with actual deployer address
             config.boringVault,
             config.payoutAddress,
             config.startingExchangeRate,
@@ -166,7 +175,7 @@ contract DeployLBTCReplacementContracts is Script, Test {
 
         // Deploy new Teller
         TellerWithMultiAssetSupport newTeller = new TellerWithMultiAssetSupport(
-            address(0), // Owner will be set to address(0) after configuration
+            deployerAddress, // Deploy with actual deployer address
             config.boringVault,
             address(newAccountant),
             config.newBaseAsset // Native wrapper (WBTC for BTC vaults)
@@ -174,7 +183,7 @@ contract DeployLBTCReplacementContracts is Script, Test {
 
         // Deploy new BoringOnChainQueue
         BoringOnChainQueue newQueue = new BoringOnChainQueue(
-            address(0), // Owner will be set to address(0) after configuration
+            deployerAddress, // Deploy with actual deployer address
             config.rolesAuthority,
             payable(config.boringVault),
             address(newAccountant)
@@ -182,7 +191,7 @@ contract DeployLBTCReplacementContracts is Script, Test {
 
         // Deploy new BoringSolver
         BoringSolver newSolver = new BoringSolver(
-            address(0), // Owner will be set to address(0) after configuration
+            deployerAddress, // Deploy with actual deployer address
             config.rolesAuthority,
             address(newQueue),
             config.excessToSolverNonSelfSolve
@@ -201,7 +210,7 @@ contract DeployLBTCReplacementContracts is Script, Test {
         newQueue.setAuthority(RolesAuthority(config.rolesAuthority));
         newSolver.setAuthority(RolesAuthority(config.rolesAuthority));
 
-        // Transfer ownership to address(0)
+        // Transfer ownership to address(0) after all configuration is complete
         newAccountant.transferOwnership(address(0));
         newTeller.transferOwnership(address(0));
         newQueue.transferOwnership(address(0));
@@ -211,7 +220,8 @@ contract DeployLBTCReplacementContracts is Script, Test {
         string memory actionObj = "";
         actionObj = actionObj.serialize("product", config.productName);
         
-        string memory rolesArray = "";
+        // Initialize roles array
+        string memory rolesArray = "[";
         uint256 roleIndex = 0;
 
         // Disable roles on old contracts
@@ -257,13 +267,20 @@ contract DeployLBTCReplacementContracts is Script, Test {
             rolesArray = addRoleAction(rolesArray, roleIndex++, "setPublicCapability", address(newSolver), 0, true, "boringRedeemMintSelfSolve((uint96,address,address,uint128,uint128,uint40,uint24,uint24),address,address,address)");
         }
 
-        actionObj = actionObj.serialize("new_roles", rolesArray);
+        // Close the roles array
+        rolesArray = string.concat(rolesArray, "]");
+        
+        // Build the complete action object as a JSON string
+        string memory completeAction = string.concat(
+            '{"product":"', config.productName, '",',
+            '"new_roles":', rolesArray, '}'
+        );
         
         // Add to actions array
         if (index == 0) {
-            actionsArray = actionObj;
+            actionsArray = completeAction;
         } else {
-            actionsArray = string.concat(actionsArray, ",", actionObj);
+            actionsArray = string.concat(actionsArray, ",", completeAction);
         }
 
         // Log deployed addresses
@@ -283,27 +300,38 @@ contract DeployLBTCReplacementContracts is Script, Test {
         uint8 roleId,
         bool enabled,
         string memory functionSignature
-    ) internal returns (string memory) {
-        string memory roleObj = "";
-        roleObj = roleObj.serialize("action_type", actionType);
+    ) internal view returns (string memory) {
+        string memory roleObj = "{";
         
         if (keccak256(bytes(actionType)) == keccak256(bytes("setRoleCapability"))) {
-            roleObj = roleObj.serialize("role_id", roleId);
-            roleObj = roleObj.serialize("target_contract", targetContract);
-            roleObj = roleObj.serialize("function_signature", functionSignature);
-            roleObj = roleObj.serialize("enabled", enabled);
+            roleObj = string.concat(roleObj, 
+                '"action_type":"', actionType, '",',
+                '"role_id":', vm.toString(roleId), ',',
+                '"target_contract":"', vm.toString(targetContract), '",',
+                '"function_signature":"', functionSignature, '",',
+                '"enabled":', enabled ? 'true' : 'false'
+            );
         } else if (keccak256(bytes(actionType)) == keccak256(bytes("setUserRole"))) {
-            roleObj = roleObj.serialize("user", targetContract);
-            roleObj = roleObj.serialize("role_id", roleId);
-            roleObj = roleObj.serialize("enabled", enabled);
+            roleObj = string.concat(roleObj,
+                '"action_type":"', actionType, '",',
+                '"user":"', vm.toString(targetContract), '",',
+                '"role_id":', vm.toString(roleId), ',',
+                '"enabled":', enabled ? 'true' : 'false'
+            );
         } else if (keccak256(bytes(actionType)) == keccak256(bytes("setPublicCapability"))) {
-            roleObj = roleObj.serialize("target_contract", targetContract);
-            roleObj = roleObj.serialize("function_signature", functionSignature);
-            roleObj = roleObj.serialize("enabled", enabled);
+            roleObj = string.concat(roleObj,
+                '"action_type":"', actionType, '",',
+                '"target_contract":"', vm.toString(targetContract), '",',
+                '"function_signature":"', functionSignature, '",',
+                '"enabled":', enabled ? 'true' : 'false'
+            );
         }
         
+        roleObj = string.concat(roleObj, "}");
+        
+        // If it's the first role, just add it, otherwise prepend a comma
         if (index == 0) {
-            return roleObj;
+            return string.concat(rolesArray, roleObj);
         }
         return string.concat(rolesArray, ",", roleObj);
     }

@@ -1,0 +1,182 @@
+{
+    "network_id": 1,
+    "nonce": 6,
+    "actions": [
+        {
+            "product": "sonic_btc_lbtc_replacement",
+            "new_roles": [
+                {
+                    "action_type": "setUserRole",
+                    "user": "0xAce7DEFe3b94554f0704d8d00F69F273A0cFf079",
+                    "role_id": 2,
+                    "enabled": false
+                },
+                {
+                    "action_type": "setUserRole",
+                    "user": "0xAce7DEFe3b94554f0704d8d00F69F273A0cFf079",
+                    "role_id": 3,
+                    "enabled": false
+                },
+                {
+                    "action_type": "setRoleCapability",
+                    "role_id": 32,
+                    "target_contract": "0x921bBB663A0164c9867e494B8E0331B84213a984",
+                    "function_signature": "boringSolve(address,address,address,uint256,uint256,bytes)",
+                    "enabled": false
+                },
+                {
+                    "action_type": "setUserRole",
+                    "user": "0x921bBB663A0164c9867e494B8E0331B84213a984",
+                    "role_id": 31,
+                    "enabled": false
+                },
+                {
+                    "action_type": "setUserRole",
+                    "user": "0x921bBB663A0164c9867e494B8E0331B84213a984",
+                    "role_id": 12,
+                    "enabled": false
+                },
+                {
+                    "action_type": "setPublicCapability",
+                    "target_contract": "0x488000E6a0CfC32DCB3f37115e759aF50F55b48B",
+                    "function_signature": "requestOnChainWithdraw(address,uint96,uint16,bool)",
+                    "enabled": false
+                },
+                {
+                    "action_type": "setPublicCapability",
+                    "target_contract": "0x488000E6a0CfC32DCB3f37115e759aF50F55b48B",
+                    "function_signature": "requestOnChainWithdrawWithPermit(address,uint96,uint16,bool,uint256,uint8,bytes32,bytes32)",
+                    "enabled": false
+                },
+                {
+                    "action_type": "setPublicCapability",
+                    "target_contract": "0x488000E6a0CfC32DCB3f37115e759aF50F55b48B",
+                    "function_signature": "cancelOnChainWithdraw(address,address)",
+                    "enabled": false
+                },
+                {
+                    "action_type": "setPublicCapability",
+                    "target_contract": "0x488000E6a0CfC32DCB3f37115e759aF50F55b48B",
+                    "function_signature": "replaceOnChainWithdraw(address,address,uint96,uint16,bool)",
+                    "enabled": false
+                },
+                {
+                    "action_type": "setUserRole",
+                    "user": "0x33644C0298382Ce3556713a5d387281529cA60D1",
+                    "role_id": 2,
+                    "enabled": true
+                },
+                {
+                    "action_type": "setUserRole",
+                    "user": "0x33644C0298382Ce3556713a5d387281529cA60D1",
+                    "role_id": 3,
+                    "enabled": true
+                },
+                {
+                    "action_type": "setRoleCapability",
+                    "role_id": 32,
+                    "target_contract": "0xF794f104aD14Bab4227176D9F1b533A76BF53Da3",
+                    "function_signature": "boringSolve(address,address,address,uint256,uint256,bytes)",
+                    "enabled": true
+                },
+                {
+                    "action_type": "setUserRole",
+                    "user": "0xF794f104aD14Bab4227176D9F1b533A76BF53Da3",
+                    "role_id": 31,
+                    "enabled": true
+                },
+                {
+                    "action_type": "setUserRole",
+                    "user": "0xF794f104aD14Bab4227176D9F1b533A76BF53Da3",
+                    "role_id": 12,
+                    "enabled": true
+                },
+                {
+                    "action_type": "setPublicCapability",
+                    "target_contract": "0x090D3cF9Bd5D63a83aa1900406bE36C6DaE96844",
+                    "function_signature": "requestOnChainWithdraw(address,uint96,uint16,bool)",
+                    "enabled": true
+                },
+                {
+                    "action_type": "setPublicCapability",
+                    "target_contract": "0x090D3cF9Bd5D63a83aa1900406bE36C6DaE96844",
+                    "function_signature": "requestOnChainWithdrawWithPermit(address,uint96,uint16,bool,uint256,uint8,bytes32,bytes32)",
+                    "enabled": true
+                },
+                {
+                    "action_type": "setPublicCapability",
+                    "target_contract": "0x090D3cF9Bd5D63a83aa1900406bE36C6DaE96844",
+                    "function_signature": "cancelOnChainWithdraw(address,address)",
+                    "enabled": true
+                },
+                {
+                    "action_type": "setPublicCapability",
+                    "target_contract": "0x090D3cF9Bd5D63a83aa1900406bE36C6DaE96844",
+                    "function_signature": "replaceOnChainWithdraw(address,address,uint96,uint16,bool)",
+                    "enabled": true
+                },
+                {
+                    "action_type": "setRoleCapability",
+                    "role_id": 5,
+                    "target_contract": "0x1c8893FC8d7C688461B39d4834A60Cca5FF75d1E",
+                    "function_signature": "pause()",
+                    "enabled": true
+                },
+                {
+                    "action_type": "setRoleCapability",
+                    "role_id": 5,
+                    "target_contract": "0x1c8893FC8d7C688461B39d4834A60Cca5FF75d1E",
+                    "function_signature": "unpause()",
+                    "enabled": true
+                },
+                {
+                    "action_type": "setRoleCapability",
+                    "role_id": 5,
+                    "target_contract": "0x33644C0298382Ce3556713a5d387281529cA60D1",
+                    "function_signature": "pause()",
+                    "enabled": true
+                },
+                {
+                    "action_type": "setRoleCapability",
+                    "role_id": 5,
+                    "target_contract": "0x33644C0298382Ce3556713a5d387281529cA60D1",
+                    "function_signature": "unpause()",
+                    "enabled": true
+                },
+                {
+                    "action_type": "setRoleCapability",
+                    "role_id": 5,
+                    "target_contract": "0x090D3cF9Bd5D63a83aa1900406bE36C6DaE96844",
+                    "function_signature": "pause()",
+                    "enabled": true
+                },
+                {
+                    "action_type": "setRoleCapability",
+                    "role_id": 5,
+                    "target_contract": "0x090D3cF9Bd5D63a83aa1900406bE36C6DaE96844",
+                    "function_signature": "unpause()",
+                    "enabled": true
+                },
+                {
+                    "action_type": "setRoleCapability",
+                    "role_id": 11,
+                    "target_contract": "0x1c8893FC8d7C688461B39d4834A60Cca5FF75d1E",
+                    "function_signature": "updateExchangeRate(uint96)",
+                    "enabled": true
+                },
+                {
+                    "action_type": "setPublicCapability",
+                    "target_contract": "0xF794f104aD14Bab4227176D9F1b533A76BF53Da3",
+                    "function_signature": "boringRedeemSelfSolve((uint96,address,address,uint128,uint128,uint40,uint24,uint24),address)",
+                    "enabled": true
+                },
+                {
+                    "action_type": "setPublicCapability",
+                    "target_contract": "0xF794f104aD14Bab4227176D9F1b533A76BF53Da3",
+                    "function_signature": "boringRedeemMintSelfSolve((uint96,address,address,uint128,uint128,uint40,uint24,uint24),address,address,address)",
+                    "enabled": true
+                }
+            ]
+        }
+    ]
+}
