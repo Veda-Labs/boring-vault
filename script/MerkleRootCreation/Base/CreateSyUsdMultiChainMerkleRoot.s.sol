@@ -50,7 +50,6 @@ contract CreateSyUsdMultiChainMerkleRootScript is Script, MerkleTreeHelper {
         _addCcipBridgeLeafs(leafs, ccipMainnetChainSelector, bridgeAssets, feeTokens);
         _addCcipBridgeLeafs(leafs, ccipArbitrumChainSelector, bridgeAssets, feeTokens);
         _addCcipBridgeLeafs(leafs, ccipBscChainSelector, bridgeAssets, feeTokens);
-
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDC"));
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "WETH"));
 
@@ -64,10 +63,11 @@ contract CreateSyUsdMultiChainMerkleRootScript is Script, MerkleTreeHelper {
 
         _addLeafsFor1InchGeneralSwapping(leafs, oneInchAssets, kind);
         _addOdosSwapLeafs(leafs, oneInchAssets, kind);
-
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "YearnOgUsdc")));
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+        string memory filePath = "./leafs/Base/SyUsdBaseStrategyLeafs.json";
+        _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
 
         ManagerWithMerkleVerification manager = ManagerWithMerkleVerification(managerAddress);
         vm.startBroadcast(vm.envUint("BORING_OWNER"));
