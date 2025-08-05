@@ -42,8 +42,8 @@ contract BTCKIntegration is BaseTestIntegration {
         
         Tx memory tx_ = _getTxArrays(2); 
 
-        tx_.manageLeafs[0] = leafs[1]; //redeem LBTC
-        tx_.manageLeafs[1] = leafs[2]; //mintV1
+        tx_.manageLeafs[0] = leafs[2]; //redeem LBTC
+        tx_.manageLeafs[1] = leafs[3]; //mintV1
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
         
@@ -87,7 +87,7 @@ contract BTCKIntegration is BaseTestIntegration {
         
         Tx memory tx_ = _getTxArrays(1); 
 
-        tx_.manageLeafs[0] = leafs[0]; //mint LBTC
+        tx_.manageLeafs[0] = leafs[0]; //depoist BTCK
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
         
@@ -99,9 +99,8 @@ contract BTCKIntegration is BaseTestIntegration {
 
         _submitManagerCall(manageProofs, tx_); 
 
-        //address receiver = 0x698fEBAaa34CE7F61858B03f0668fC461D7cc673; 
-        //uint256 btckBalance = getERC20(sourceChain, "BTCK").balanceOf(receiver); 
-        //assertGt(btckBalance, 0); 
+        uint256 btckBalance = getERC20(sourceChain, "BTCK").balanceOf(address(boringVault)); 
+        assertLt(btckBalance, 100e8); 
     }
 
 }

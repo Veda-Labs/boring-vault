@@ -12,6 +12,10 @@ contract BTCKDecoderAndSanitizer {
     function deposit(uint256 /*amount*/) external pure virtual returns (bytes memory addressesFound) {
         return addressesFound; 
     }
+
+    function mint(bytes calldata /*payload*/, bytes calldata /*proof*/) external pure virtual returns (bytes memory addressesFound) {
+        return addressesFound; 
+    }
     
     //on LBTC
     function redeem(uint256 /*amount*/) external pure virtual returns (bytes memory addressesFound) {

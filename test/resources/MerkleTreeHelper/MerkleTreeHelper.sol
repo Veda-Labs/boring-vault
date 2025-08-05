@@ -9583,6 +9583,17 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         unchecked {
             leafIndex++;
         }
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "LBTC"), //target
+            false,
+            "mint(bytes,bytes)",
+            new address[](0),
+            string.concat("Mint LBTC with payload"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
         leafs[leafIndex] = ManageLeaf(
             getAddress(sourceChain, "LBTC"), //target
             false,
