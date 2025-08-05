@@ -44,9 +44,7 @@ contract RingsVoterIntegration is Test, MerkleTreeHelper {
         manager =
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
-        rawDataDecoderAndSanitizer = address(
-            new FullRingsDecoderAndSanitizer()
-        );
+        rawDataDecoderAndSanitizer = address(new FullRingsDecoderAndSanitizer());
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -110,7 +108,7 @@ contract RingsVoterIntegration is Test, MerkleTreeHelper {
         deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000e6);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
-        _addBalancerSwapLeafs(leafs, 0x713fb5036dc70012588d77a5b066f1dd05c712d7000200000000000000000041); 
+        _addBalancerSwapLeafs(leafs, 0x713fb5036dc70012588d77a5b066f1dd05c712d7000200000000000000000041);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -127,8 +125,9 @@ contract RingsVoterIntegration is Test, MerkleTreeHelper {
         targets[1] = getAddress(sourceChain, "balancerVault");
 
         bytes[] memory targetData = new bytes[](2);
-        targetData[0] =
-            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "balancerVault"), type(uint256).max);
+        targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "balancerVault"), type(uint256).max
+        );
 
         DecoderCustomTypes.SingleSwap memory singleSwap = DecoderCustomTypes.SingleSwap({
             poolId: 0x713fb5036dc70012588d77a5b066f1dd05c712d7000200000000000000000041,
@@ -147,7 +146,6 @@ contract RingsVoterIntegration is Test, MerkleTreeHelper {
         });
         targetData[1] = abi.encodeWithSelector(BalancerV2DecoderAndSanitizer.swap.selector, singleSwap, funds, 0);
 
-
         address[] memory decodersAndSanitizers = new address[](2);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
@@ -160,7 +158,7 @@ contract RingsVoterIntegration is Test, MerkleTreeHelper {
         deal(getAddress(sourceChain, "stS"), address(boringVault), 1_000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
-        _addBalancerSwapLeafs(leafs, 0x713fb5036dc70012588d77a5b066f1dd05c712d7000200000000000000000041); 
+        _addBalancerSwapLeafs(leafs, 0x713fb5036dc70012588d77a5b066f1dd05c712d7000200000000000000000041);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -177,8 +175,9 @@ contract RingsVoterIntegration is Test, MerkleTreeHelper {
         targets[1] = getAddress(sourceChain, "balancerVault");
 
         bytes[] memory targetData = new bytes[](2);
-        targetData[0] =
-            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "balancerVault"), type(uint256).max);
+        targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "balancerVault"), type(uint256).max
+        );
 
         DecoderCustomTypes.SingleSwap memory singleSwap = DecoderCustomTypes.SingleSwap({
             poolId: 0x713fb5036dc70012588d77a5b066f1dd05c712d7000200000000000000000041,
@@ -197,7 +196,6 @@ contract RingsVoterIntegration is Test, MerkleTreeHelper {
         });
         targetData[1] = abi.encodeWithSelector(BalancerV2DecoderAndSanitizer.swap.selector, singleSwap, funds, 0);
 
-
         address[] memory decodersAndSanitizers = new address[](2);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
@@ -213,6 +211,5 @@ contract RingsVoterIntegration is Test, MerkleTreeHelper {
         vm.selectFork(forkId);
     }
 }
-
 
 contract FullRingsDecoderAndSanitizer is BalancerV2DecoderAndSanitizer {}

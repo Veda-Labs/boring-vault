@@ -111,7 +111,7 @@ contract LevelIntegrationTest is Test, MerkleTreeHelper {
         deal(getAddress(sourceChain, "USDT"), address(boringVault), 100_000e6);
 
         address contractAddress = getAddress(sourceChain, "levelMinter");
-        
+
         // contract has no funds to actually redeem on this block
         deal(getAddress(sourceChain, "USDC"), getAddress(sourceChain, "levelMinter"), 100_000e6);
         deal(getAddress(sourceChain, "USDT"), getAddress(sourceChain, "levelMinter"), 100_000e6);
@@ -143,7 +143,6 @@ contract LevelIntegrationTest is Test, MerkleTreeHelper {
                 console.log("Value after change: 0x%x", uint256(verifyValue));
             }
         }
-
 
         ManageLeaf[] memory leafs = new ManageLeaf[](32);
         _addLevelLeafs(leafs);
@@ -189,10 +188,9 @@ contract LevelIntegrationTest is Test, MerkleTreeHelper {
             getAddress(sourceChain, "USDC"),
             24972322, //gotten from on-chain
             24964320271916900000 //gotten from on-chain
-        ); 
+        );
 
-        targetData[3] =
-            abi.encodeWithSignature("mintDefault((uint8,address,address,address,uint256,uint256))", order);
+        targetData[3] = abi.encodeWithSignature("mintDefault((uint8,address,address,address,uint256,uint256))", order);
 
         DecoderCustomTypes.LevelOrder memory order1 = DecoderCustomTypes.LevelOrder(
             0, //MINT
@@ -201,10 +199,9 @@ contract LevelIntegrationTest is Test, MerkleTreeHelper {
             getAddress(sourceChain, "USDT"),
             199120000, //gotten from on-chain
             198859213133360020000 //gotten from on-chain
-        ); 
+        );
 
-        targetData[4] =
-            abi.encodeWithSignature("mintDefault((uint8,address,address,address,uint256,uint256))", order1);
+        targetData[4] = abi.encodeWithSignature("mintDefault((uint8,address,address,address,uint256,uint256))", order1);
 
         order = DecoderCustomTypes.LevelOrder(
             1, //REDEEM
@@ -213,8 +210,7 @@ contract LevelIntegrationTest is Test, MerkleTreeHelper {
             getAddress(sourceChain, "USDC"),
             24000022, //gotten from on-chain
             24964320271916900000 //gotten from on-chain
-        ); 
-
+        );
 
         targetData[5] =
             abi.encodeWithSignature("initiateRedeem((uint8,address,address,address,uint256,uint256))", order);
@@ -226,7 +222,7 @@ contract LevelIntegrationTest is Test, MerkleTreeHelper {
             getAddress(sourceChain, "USDT"),
             198000000, //gotten from on-chain
             198859213133360020000 //gotten from on-chain
-        ); 
+        );
 
         targetData[6] =
             abi.encodeWithSignature("initiateRedeem((uint8,address,address,address,uint256,uint256))", order1);
@@ -240,9 +236,8 @@ contract LevelIntegrationTest is Test, MerkleTreeHelper {
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
-
-        //skip time until we can complete the redeem 
-        skip(12 hours); 
+        //skip time until we can complete the redeem
+        skip(12 hours);
 
         manageLeafs = new ManageLeaf[](2);
         manageLeafs[0] = leafs[7]; //completeRedeem usdc
@@ -256,10 +251,8 @@ contract LevelIntegrationTest is Test, MerkleTreeHelper {
 
         targetData = new bytes[](2);
 
-        targetData[0] =
-            abi.encodeWithSignature("completeRedeem(address)", getAddress(sourceChain, "USDC"));
-        targetData[1] =
-            abi.encodeWithSignature("completeRedeem(address)", getAddress(sourceChain, "USDT"));
+        targetData[0] = abi.encodeWithSignature("completeRedeem(address)", getAddress(sourceChain, "USDC"));
+        targetData[1] = abi.encodeWithSignature("completeRedeem(address)", getAddress(sourceChain, "USDT"));
 
         values = new uint256[](2);
 
@@ -270,10 +263,9 @@ contract LevelIntegrationTest is Test, MerkleTreeHelper {
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
-        uint256 expectedlvlUSDBalance = 67167210184620000; //dust 
-        uint256 lvlUSDBalance = getERC20(sourceChain, "lvlUSD").balanceOf(address(boringVault)); 
-        assertEq(expectedlvlUSDBalance, lvlUSDBalance); 
-
+        uint256 expectedlvlUSDBalance = 67167210184620000; //dust
+        uint256 lvlUSDBalance = getERC20(sourceChain, "lvlUSD").balanceOf(address(boringVault));
+        assertEq(expectedlvlUSDBalance, lvlUSDBalance);
     }
 
     function testStakedLvlUSDFunctions() external {
@@ -348,12 +340,12 @@ contract LevelIntegrationTest is Test, MerkleTreeHelper {
         deal(getAddress(sourceChain, "lvlUSD"), address(boringVault), 1_000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](32);
-        _addLevelLeafs(leafs); 
+        _addLevelLeafs(leafs);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
-        
+
         //we cannot withdraw/redeem while cooldown active
         ManageLeaf[] memory manageLeafs = new ManageLeaf[](3);
         manageLeafs[0] = leafs[11]; //approve
@@ -368,9 +360,8 @@ contract LevelIntegrationTest is Test, MerkleTreeHelper {
         targets[2] = getAddress(sourceChain, "slvlUSD");
 
         bytes[] memory targetData = new bytes[](3);
-        targetData[0] = abi.encodeWithSignature(
-            "approve(address,uint256)", getAddress(sourceChain, "slvlUSD"), type(uint256).max
-        );
+        targetData[0] =
+            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "slvlUSD"), type(uint256).max);
         targetData[1] =
             abi.encodeWithSignature("deposit(uint256,address)", 100e18, getAddress(sourceChain, "boringVault"));
         targetData[2] = //mint 10 shares
@@ -385,7 +376,6 @@ contract LevelIntegrationTest is Test, MerkleTreeHelper {
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
     }
-    
 
     // ========================================= HELPER FUNCTIONS =========================================
 

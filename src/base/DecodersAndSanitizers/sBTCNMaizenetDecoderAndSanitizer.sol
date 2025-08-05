@@ -6,7 +6,8 @@ import {OFTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/O
 import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
 import {NativeWrapperDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol";
-import {UniswapV3SwapRouter02DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV3SwapRouter02DecoderAndSanitizer.sol";
+import {UniswapV3SwapRouter02DecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/UniswapV3SwapRouter02DecoderAndSanitizer.sol";
 import {CamelotDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CamelotDecoderAndSanitizer.sol";
 import {AaveV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AaveV3DecoderAndSanitizer.sol";
 import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
@@ -24,17 +25,18 @@ contract sBTCNMaizenetDecoderAndSanitizer is
     MorphoBlueDecoderAndSanitizer,
     ERC4626DecoderAndSanitizer
 {
-    
-    constructor(address _nonfungiblePositionManager) UniswapV3SwapRouter02DecoderAndSanitizer(_nonfungiblePositionManager) {}
+    constructor(address _nonfungiblePositionManager)
+        UniswapV3SwapRouter02DecoderAndSanitizer(_nonfungiblePositionManager)
+    {}
 
-    function deposit(uint256 /*amount*/, address receiver)
+    function deposit(uint256, /*amount*/ address receiver)
         external
         pure
         virtual
         override(ERC4626DecoderAndSanitizer, CurveDecoderAndSanitizer)
         returns (bytes memory addressesFound)
     {
-        addressesFound = abi.encodePacked(receiver); 
+        addressesFound = abi.encodePacked(receiver);
     }
 
     function withdraw(uint256 /*amount*/ )

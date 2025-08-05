@@ -6,21 +6,17 @@ import {UniswapV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Proto
 import {PendleRouterDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/PendleRouterDecoderAndSanitizer.sol";
 import {OneInchDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OneInchDecoderAndSanitizer.sol";
-import {StandardBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/StandardBridgeDecoderAndSanitizer.sol";
+import {StandardBridgeDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/StandardBridgeDecoderAndSanitizer.sol";
 
-contract HybridBtcDecoderAndSanitizer is 
+contract HybridBtcDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
     UniswapV3DecoderAndSanitizer,
     PendleRouterDecoderAndSanitizer,
     OneInchDecoderAndSanitizer,
     StandardBridgeDecoderAndSanitizer
 {
-
-
     constructor(address _uniswapV3NonFungiblePositionManager)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
     {}
-
 }
-
-

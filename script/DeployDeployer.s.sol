@@ -33,10 +33,9 @@ contract DeployDeployerScript is Script, ContractNames, Test {
     uint8 public DEPLOYER_ROLE = 1;
 
     function setUp() external {
-
         //privateKey = vm.envUint("BORING_DEVELOPER");
         //vm.createSelectFork("mainnet");
-        
+
         privateKey = vm.envUint("DEPLOYER_KEY");
         vm.createSelectFork("bob");
     }
@@ -70,7 +69,6 @@ contract DeployDeployerScript is Script, ContractNames, Test {
         rolesAuthority.setUserRole(dev2Address, DEPLOYER_ROLE, true);
         rolesAuthority.setUserRole(dev3Address, DEPLOYER_ROLE, true);
         rolesAuthority.setUserRole(address(deployer), DEPLOYER_ROLE, true);
-
 
         // deployer = Deployer(deployerAddress);
 

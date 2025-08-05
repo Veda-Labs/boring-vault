@@ -47,7 +47,9 @@ contract VaultCraftIntegrationTest is Test, MerkleTreeHelper {
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
         rawDataDecoderAndSanitizer = address(
-            new EtherFiLiquidEthDecoderAndSanitizer(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), address(0))
+            new EtherFiLiquidEthDecoderAndSanitizer(
+                getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), address(0)
+            )
         );
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));

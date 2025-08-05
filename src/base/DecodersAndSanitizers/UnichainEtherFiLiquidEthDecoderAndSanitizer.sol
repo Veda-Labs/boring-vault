@@ -18,7 +18,5 @@ contract UnichainEtherFiLiquidEthDecoderAndSanitizer is
     UniswapV4DecoderAndSanitizer,
     MerklDecoderAndSanitizer
 {
-
     constructor(address _positionManager) UniswapV4DecoderAndSanitizer(_positionManager) {}
-
 }

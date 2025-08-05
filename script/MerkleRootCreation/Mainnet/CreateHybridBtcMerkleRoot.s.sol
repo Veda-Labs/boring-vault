@@ -14,7 +14,7 @@ import "forge-std/Script.sol";
 contract CreateHybridBtcMerkleRoot is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
-    address public boringVault = 0x9998e05030Aee3Af9AD3df35A34F5C51e1628779; 
+    address public boringVault = 0x9998e05030Aee3Af9AD3df35A34F5C51e1628779;
     address public managerAddress = 0x2A1512a030D6eb71A5864968d795e1b6D382735D;
     address public accountantAddress = 0x22b025037ff1F6206F41b7b28968726bDBB5E7D5;
     address public rawDataDecoderAndSanitizer = 0xf29ACD9F89a5D6158aD975F99255B25C092B4191;
@@ -38,7 +38,7 @@ contract CreateHybridBtcMerkleRoot is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](256);
 
         // ========================== UniswapV3 ==========================
-        // WBTC, LBTC, EBTC, solvBTC (no solvbtc.bbn pairs) 
+        // WBTC, LBTC, EBTC, solvBTC (no solvbtc.bbn pairs)
         address[] memory token0 = new address[](3);
         token0[0] = getAddress(sourceChain, "WBTC");
         token0[1] = getAddress(sourceChain, "WBTC");
@@ -67,35 +67,35 @@ contract CreateHybridBtcMerkleRoot is Script, MerkleTreeHelper {
         _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
 
         // ========================== Standard Bridge ==========================
-        
-        ERC20[] memory localTokens = new ERC20[](2);  
-        localTokens[0] = getERC20(sourceChain, "WBTC"); 
-        localTokens[1] = getERC20(sourceChain, "LBTC"); 
 
-        ERC20[] memory remoteTokens = new ERC20[](2);  
-        remoteTokens[0] = getERC20(bob, "WBTC"); 
-        remoteTokens[1] = getERC20(bob, "LBTC"); 
+        ERC20[] memory localTokens = new ERC20[](2);
+        localTokens[0] = getERC20(sourceChain, "WBTC");
+        localTokens[1] = getERC20(sourceChain, "LBTC");
+
+        ERC20[] memory remoteTokens = new ERC20[](2);
+        remoteTokens[0] = getERC20(bob, "WBTC");
+        remoteTokens[1] = getERC20(bob, "LBTC");
 
         _addStandardBridgeLeafs(
             leafs,
             bob,
-            getAddress(bob, "crossDomainMessenger"),   
+            getAddress(bob, "crossDomainMessenger"),
             getAddress(sourceChain, "bobResolvedDelegate"),
             getAddress(sourceChain, "bobStandardBridge"),
             getAddress(sourceChain, "bobPortal"),
             localTokens,
-            remoteTokens 
-        );  //?
+            remoteTokens
+        ); //?
 
         // ========================== Pendle ==========================
         // ebtc
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_eBTC_corn_market_3_26_25"), true);
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_zeBTC_market_03_26_25"), true); //zerolend ebtc
-        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_eBTC_market_06_25_25"), true); 
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_eBTC_market_06_25_25"), true);
 
         //lbtc
-        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_LBTC_market_03_26_25"), true); 
-        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_LBTC_market_06_25_25"), true); 
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_LBTC_market_03_26_25"), true);
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_LBTC_market_06_25_25"), true);
 
         // ========================== Verify & Generate ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

@@ -22,20 +22,20 @@ contract SwellEtherFiLiquidEthDecoderAndSanitizer is
     AmbientDecoderAndSanitizer,
     VelodromeDecoderAndSanitizer
 {
-
-    constructor(address _velodromeNonFungiblePositionManager) VelodromeDecoderAndSanitizer(_velodromeNonFungiblePositionManager){}
+    constructor(address _velodromeNonFungiblePositionManager)
+        VelodromeDecoderAndSanitizer(_velodromeNonFungiblePositionManager)
+    {}
 
     /**
      * @notice Velodrome, NativeWrapper both specify a `withdraw(uint256)`,
      *         all cases are handled the same way.
      */
-    function withdraw(uint256 /*amount*/)
+    function withdraw(uint256 /*amount*/ )
         external
         pure
         override(VelodromeDecoderAndSanitizer, NativeWrapperDecoderAndSanitizer)
         returns (bytes memory addressesFound)
     {
-        return addressesFound; 
+        return addressesFound;
     }
-
 }

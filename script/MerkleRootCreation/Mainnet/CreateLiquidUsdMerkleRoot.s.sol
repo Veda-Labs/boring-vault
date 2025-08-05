@@ -846,7 +846,6 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         // ========================== Odos ==========================
         _addOdosSwapLeafs(leafs, droneAssets, droneKind);
 
-
         _createDroneLeafs(leafs, drone, droneStartIndex, leafIndex + 1);
         setAddress(true, mainnet, "boringVault", boringVault);
     }

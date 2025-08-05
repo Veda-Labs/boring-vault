@@ -17,7 +17,7 @@ import "forge-std/Test.sol";
  */
 contract DeploySolver is Script, ContractNames, Test {
     uint256 public privateKey;
-    
+
     Deployer deployer = Deployer(0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d);
 
     address owner = 0xf8553c8552f906C19286F21711721E206EE4909E;
@@ -28,7 +28,6 @@ contract DeploySolver is Script, ContractNames, Test {
         privateKey = vm.envUint("BORING_DEVELOPER");
         vm.createSelectFork("mainnet");
     }
-
 
     function run() external {
         bytes memory constructorArgs;

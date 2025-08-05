@@ -9,7 +9,8 @@ import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVer
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import "forge-std/Script.sol";
 
-/** //TODO
+/**
+ * //TODO
  *  source .env && forge script script/MerkleRootCreation/{chain}/.s.sol:{contractName} --rpc-url ${chain_rpc}
  */
 contract CreateMerkleRootScript is Script, MerkleTreeHelper {
@@ -31,7 +32,6 @@ contract CreateMerkleRootScript is Script, MerkleTreeHelper {
     }
 
     function generateAdminStrategistMerkleRoot() public {
-
         // ========================== Setup ==========================
         setSourceChainName(mainnet);
         setAddress(false, mainnet, "boringVault", boringVault);
@@ -42,9 +42,9 @@ contract CreateMerkleRootScript is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
 
         // ======================== Verification & File Generation =======================
-        
+
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
-        
+
         //TODO
         string memory filePath = "./leafs/Mainnet/.json";
 

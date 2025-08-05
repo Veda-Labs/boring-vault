@@ -16,8 +16,5 @@ contract LiquidBeraEthBerachainDecoderAndSanitizer is
     OogaBoogaDecoderAndSanitizer,
     InfraredDecoderAndSanitizer
 {
-    constructor(address _recipeMarketHub) 
-        RoycoWeirollDecoderAndSanitizer(_recipeMarketHub)
-    {}
-
+    constructor(address _recipeMarketHub) RoycoWeirollDecoderAndSanitizer(_recipeMarketHub) {}
 }

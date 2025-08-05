@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";  
+import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 
 // Swell
 interface INonFungiblePositionManager {
@@ -90,10 +90,12 @@ interface IRecipeMarketHub {
     }
     /// @custom:field weirollCommands The weiroll script that will be executed on an AP's weiroll wallet after receiving the inputToken
     /// @custom:field weirollState State of the weiroll VM, necessary for executing the weiroll script
+
     struct Recipe {
         bytes32[] weirollCommands;
         bytes[] weirollState;
     }
+
     function offerHashToIPOffer(bytes32 offer)
         external
         view
@@ -104,13 +106,15 @@ interface IRecipeMarketHub {
         returns (uint256, address, uint256, uint256, Recipe memory, Recipe memory, RewardStyle);
 }
 
-
 interface IUniswapV4PositionManager {
-    function getPoolAndPositionInfo(uint256 tokenId) external view returns (DecoderCustomTypes.PoolKey memory, uint256); 
+    function getPoolAndPositionInfo(uint256 tokenId)
+        external
+        view
+        returns (DecoderCustomTypes.PoolKey memory, uint256);
 }
 
 interface IPoolRegistry {
-    function poolInfo(uint256 _pid) external view returns (address, address, address, address, uint8); 
+    function poolInfo(uint256 _pid) external view returns (address, address, address, address, uint8);
 }
 
 interface IBoringChef {
@@ -118,5 +122,5 @@ interface IBoringChef {
 }
 
 interface IDvStETHVault {
-    function underlyingTokens() external view returns (address[] memory); 
+    function underlyingTokens() external view returns (address[] memory);
 }

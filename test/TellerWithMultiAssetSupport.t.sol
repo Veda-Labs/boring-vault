@@ -814,7 +814,12 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
         vm.prank(user);
         vm.expectRevert(
-            abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector, user, address(this), user)
+            abi.encodeWithSelector(
+                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector,
+                user,
+                address(this),
+                user
+            )
         );
         boringVault.transfer(address(this), 1);
 
@@ -825,7 +830,12 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         teller.denyPermissionedOperator(user);
         vm.prank(user);
         vm.expectRevert(
-            abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector, user, address(this), user)
+            abi.encodeWithSelector(
+                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector,
+                user,
+                address(this),
+                user
+            )
         );
         boringVault.transfer(address(this), 1); // now fails
 

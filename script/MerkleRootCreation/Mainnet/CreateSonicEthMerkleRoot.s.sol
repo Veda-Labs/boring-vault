@@ -72,8 +72,8 @@ contract CreateSonicEthMerkleRoot is Script, MerkleTreeHelper {
         _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
 
         // ========================== Odos ==========================
-        _addOdosSwapLeafs(leafs, assets, kind); 
-            
+        _addOdosSwapLeafs(leafs, assets, kind);
+
         // ========================== Aave V3 ==========================
         // Core
         ERC20[] memory supplyAssets = new ERC20[](3);
@@ -98,7 +98,7 @@ contract CreateSonicEthMerkleRoot is Script, MerkleTreeHelper {
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "steakhouseETH")));
 
         // ========================== Morpho Rewards ==========================
-        _addMorphoRewardMerkleClaimerLeafs(leafs, getAddress(sourceChain, "universalRewardsDistributor")); 
+        _addMorphoRewardMerkleClaimerLeafs(leafs, getAddress(sourceChain, "universalRewardsDistributor"));
 
         // ========================== Lido (stETH, wstETH) ==========================
         _addLidoLeafs(leafs);
@@ -115,7 +115,7 @@ contract CreateSonicEthMerkleRoot is Script, MerkleTreeHelper {
         _addSonicGatewayLeafsEth(leafs, bridgeAssets);
 
         // ========================== Gearbox ==========================
-        _addGearboxLeafs(leafs, ERC4626(getAddress(sourceChain, "dWETHV3")), getAddress(sourceChain, "sdWETHV3")); 
+        _addGearboxLeafs(leafs, ERC4626(getAddress(sourceChain, "dWETHV3")), getAddress(sourceChain, "sdWETHV3"));
 
         // ========================== Verify & Generate ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

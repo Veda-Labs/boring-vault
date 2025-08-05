@@ -17,9 +17,8 @@ contract CreateTacLBTCvMerkleRoot is Script, MerkleTreeHelper {
     //standard
     address public boringVault = 0xD86fC1CaA0a5B82cC16B16B70DFC59F6f034C348;
     address public rawDataDecoderAndSanitizer = 0xc52220989809D748a958798ca8FEf7CaF88022b4;
-    address public managerAddress = 0x1F95Ae26c62D24c3a5E118922Fe2ddc3B433331D; 
+    address public managerAddress = 0x1F95Ae26c62D24c3a5E118922Fe2ddc3B433331D;
     address public accountantAddress = 0xB4703f17e3212E9959cC560e0592837292b14ECE;
-    
 
     function setUp() external {}
 
@@ -77,7 +76,5 @@ contract CreateTacLBTCvMerkleRoot is Script, MerkleTreeHelper {
         string memory filePath = "./leafs/Mainnet/TacLBTCvStrategistLeafs.json";
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
-
     }
-
 }

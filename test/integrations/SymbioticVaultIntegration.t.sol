@@ -249,10 +249,10 @@ contract SymbioticVaultIntegrationTest is Test, MerkleTreeHelper {
 
         decodersAndSanitizers = new address[](1);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
-       
-        vm.expectRevert();  //testnet
+
+        vm.expectRevert(); //testnet
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
-        
+
         //assertEq(
         //    getERC20(sourceChain, "WSTETH").balanceOf(address(boringVault)),
         //    100e18,
@@ -279,7 +279,7 @@ contract SymbioticVaultIntegrationTest is Test, MerkleTreeHelper {
 
         decodersAndSanitizers = new address[](1);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
-        
+
         vm.expectRevert(); //testnet
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
