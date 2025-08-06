@@ -18,18 +18,18 @@ contract TellerWithBuffer is TellerWithMultiAssetSupport {
         withdrawBufferHelper = IBufferHelper(_withdrawBufferHelper);
     }
 
-    function _postDepositHook(ERC20 depositAsset, uint256 depositAmount) internal override {
+    function _afterDeposit(ERC20 depositAsset, uint256 assetAmount) internal override {
         if (address(depositBufferHelper) != address(0)) {
             (address[] memory targets, bytes[] memory data, uint256[] memory values) =
-                depositBufferHelper.getDepositManageCall(address(depositAsset), depositAmount);
+                depositBufferHelper.getDepositManageCall(address(depositAsset), assetAmount);
             vault.manage(targets, data, values);
         }
     }
 
-    function _preWithdrawHook(ERC20 withdrawAsset, uint256 shareAmount) internal override {
+    function _beforeWithdraw(ERC20 withdrawAsset, uint256 assetAmount) internal override {
         if (address(withdrawBufferHelper) != address(0)) {
             (address[] memory targets, bytes[] memory data, uint256[] memory values) =
-                withdrawBufferHelper.getWithdrawManageCall(address(withdrawAsset), shareAmount);
+                withdrawBufferHelper.getWithdrawManageCall(address(withdrawAsset), assetAmount);
             vault.manage(targets, data, values);
         }
     }
