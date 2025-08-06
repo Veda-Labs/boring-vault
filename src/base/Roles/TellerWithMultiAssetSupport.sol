@@ -540,7 +540,9 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         if (shareAmount == 0) revert TellerWithMultiAssetSupport__ZeroShares();
         assetsOut = shareAmount.mulDivDown(accountant.getRateInQuoteSafe(withdrawAsset), ONE_SHARE);
         if (assetsOut < minimumAssets) revert TellerWithMultiAssetSupport__MinimumAssetsNotMet();
+        _beforeWithdraw(withdrawAsset, assetsOut);
         vault.exit(to, withdrawAsset, assetsOut, msg.sender, shareAmount);
+        _afterWithdraw(withdrawAsset, assetsOut);
         emit BulkWithdraw(address(withdrawAsset), shareAmount);
     }
 
@@ -566,7 +568,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
             if (shares + vault.totalSupply() > cap) revert TellerWithMultiAssetSupport__DepositExceedsCap();
         }
         vault.enter(from, depositAsset, depositAmount, to, shares);
-        _postDepositHook(depositAsset, depositAmount);
+        _afterDeposit(depositAsset, depositAmount);
     }
 
     /**
@@ -614,7 +616,11 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         }
     }
 
-    function _postDepositHook(ERC20 depositAsset, uint256 depositAmount) internal virtual {}
+    function _afterDeposit(ERC20 depositAsset, uint256 assetAmount) internal virtual {}
 
-    function _preWithdrawHook(ERC20 withdrawAsset, uint256 shareAmount) internal virtual {}
+    function _beforeWithdraw(ERC20 withdrawAsset, uint256 assetAmount) internal virtual {}
+
+    function _afterWithdraw(ERC20 withdrawAsset, uint256 assetAmount) internal virtual {}
+
+    // TODO: settle beforeDeposit
 }

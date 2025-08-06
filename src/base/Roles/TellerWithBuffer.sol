@@ -8,31 +8,37 @@ import {TellerWithMultiAssetSupport, ERC20} from "./TellerWithMultiAssetSupport.
 import {IBufferHelper} from "src/interfaces/IBufferHelper.sol";
 
 contract TellerWithBuffer is TellerWithMultiAssetSupport {
-    IBufferHelper public bufferHelper;
+    IBufferHelper public depositBufferHelper;
+    IBufferHelper public withdrawBufferHelper;
 
-    constructor(address _owner, address _vault, address _accountant, address _weth, address _bufferHelper)
+    constructor(address _owner, address _vault, address _accountant, address _weth, address _depositBufferHelper, address _withdrawBufferHelper)
         TellerWithMultiAssetSupport(_owner, _vault, _accountant, _weth)
     {
-        bufferHelper = IBufferHelper(_bufferHelper);
+        depositBufferHelper = IBufferHelper(_depositBufferHelper);
+        withdrawBufferHelper = IBufferHelper(_withdrawBufferHelper);
     }
 
     function _postDepositHook(ERC20 depositAsset, uint256 depositAmount) internal override {
-        if (address(bufferHelper) != address(0)) {
+        if (address(depositBufferHelper) != address(0)) {
             (address[] memory targets, bytes[] memory data, uint256[] memory values) =
-                bufferHelper.getDepositManageCall(address(depositAsset), depositAmount);
+                depositBufferHelper.getDepositManageCall(address(depositAsset), depositAmount);
             vault.manage(targets, data, values);
         }
     }
 
     function _preWithdrawHook(ERC20 withdrawAsset, uint256 shareAmount) internal override {
-        if (address(bufferHelper) != address(0)) {
+        if (address(withdrawBufferHelper) != address(0)) {
             (address[] memory targets, bytes[] memory data, uint256[] memory values) =
-                bufferHelper.getWithdrawManageCall(address(withdrawAsset), shareAmount);
+                withdrawBufferHelper.getWithdrawManageCall(address(withdrawAsset), shareAmount);
             vault.manage(targets, data, values);
         }
     }
 
-    function setBufferHelper(address _bufferHelper) external requiresAuth {
-        bufferHelper = IBufferHelper(_bufferHelper);
+    function setDepositBufferHelper(address _depositBufferHelper) external requiresAuth {
+        depositBufferHelper = IBufferHelper(_depositBufferHelper);
+    }
+
+    function setWithdrawBufferHelper(address _withdrawBufferHelper) external requiresAuth {
+        withdrawBufferHelper = IBufferHelper(_withdrawBufferHelper);
     }
 }
