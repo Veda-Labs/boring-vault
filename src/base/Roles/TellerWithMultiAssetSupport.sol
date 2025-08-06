@@ -542,7 +542,6 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         if (assetsOut < minimumAssets) revert TellerWithMultiAssetSupport__MinimumAssetsNotMet();
         _beforeWithdraw(withdrawAsset, assetsOut);
         vault.exit(to, withdrawAsset, assetsOut, msg.sender, shareAmount);
-        _afterWithdraw(withdrawAsset, assetsOut);
         emit BulkWithdraw(address(withdrawAsset), shareAmount);
     }
 
@@ -619,8 +618,4 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     function _afterDeposit(ERC20 depositAsset, uint256 assetAmount) internal virtual {}
 
     function _beforeWithdraw(ERC20 withdrawAsset, uint256 assetAmount) internal virtual {}
-
-    function _afterWithdraw(ERC20 withdrawAsset, uint256 assetAmount) internal virtual {}
-
-    // TODO: settle beforeDeposit
 }
