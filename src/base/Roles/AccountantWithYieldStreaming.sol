@@ -64,9 +64,8 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
             return rate = lastSharePrice; //staringExchangeRate
         }
 
-        uint256 totalAssets = ((lastSharePrice * currentShares) / 1e18) + getPendingVestingGains(); //use muldiv //TODO swap out 1e18 for 10 ** decimals after bug fixing
+        uint256 totalAssets = lastSharePrice.mulDivDown(currentShares, 1e18) + getPendingVestingGains();
         
-        //rate = totalAssets / currentShares; 
         rate = totalAssets.mulDivDown(10 ** decimals, currentShares);
     }
     
@@ -102,9 +101,11 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
      * @dev `yieldAmount` should be denominated in the BASE ASSET
      */
     function vestYield(uint256 yieldAmount, uint256 duration) external {
+        base.transferFrom(msg.sender, address(vault), yieldAmount); 
+
         //require(duration > 0, "Duration must be positive"); //maybe remove this check, we might want to have the ability to post instant yield
         // first, update any previously vested gains
-        updateVestedYield();
+        updateExchangeRate();
         
         //removed -- strategists should now account for unvested yield if they want, gives more flexibility in posting pnl updates 
         vestingGains = yieldAmount;
@@ -113,20 +114,45 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
         emit YieldRecorded(yieldAmount, endVestingTime);
     }
 
-    function updateVestedYield() public {
+    /**
+     * @notice callable by the Teller
+     * //TODO add auth
+     */
+    function vestLoss(uint256 lossAmount, uint256 duration) external {
+        updateExchangeRate(); //vested gains are moved to totalAssets, only unvested remains in `vestingGains` 
+
+        if (vestingGains >= lossAmount) {
+            //remaining unvested gains absorb the loss
+            vestingGains -= lossAmount;
+        } else {
+            uint256 principalLoss = lossAmount - vestingGains;
+
+            //wipe out remaining vesting
+            vestingGains = 0;
+
+            // Reduce share price to reflect principal loss
+            uint256 currentShares = vault.totalSupply();
+            if (currentShares > 0) {
+                uint256 totalAssets = lastSharePrice.mulDivDown(currentShares, 1e18);
+                lastSharePrice = (totalAssets - principalLoss).mulDivDown(1e18, currentShares);
+            }
+        }
+
+        emit LossRecorded(lossAmount);
+    }
+
+    
+    //TODO auth
+    function updateExchangeRate() public {
         // Calculate how much has vested since lastVestingUpdate
         uint256 newlyVested = getPendingVestingGains(); 
 
-        console.log("amount should be added totalAssets: ", newlyVested); 
-        
         if (newlyVested > 0) {
             // update the share price
             uint256 currentShares = vault.totalSupply();
-            uint256 totalAssets = lastSharePrice * currentShares / 1e18; //use a muldiv here maybe (cleaner) //TODO
-            lastSharePrice = (totalAssets + newlyVested) * 1e18 / currentShares;
+            uint256 totalAssets = lastSharePrice.mulDivDown(currentShares, 1e18); 
+            lastSharePrice = (totalAssets + newlyVested).mulDivDown(1e18, currentShares);
 
-            uint256 timeRemaining = endVestingTime - block.timestamp; 
-           
             // Move vested amount from pending to realized
             vestingGains -= newlyVested;        // remove from pending
             lastVestingUpdate = block.timestamp;  // update timestamp 
@@ -137,12 +163,4 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
             }
         }
     }
-
-    /**
-     * @notice callable by the Teller
-     */
-    function vestLoss(uint256 lossAmount) external requiresAuth {
-        emit LossRecorded(lossAmount);
-    }
-
 }

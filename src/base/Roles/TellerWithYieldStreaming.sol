@@ -54,7 +54,7 @@ contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
     ) internal override returns (uint256 shares) {
 
          // Update vested yield before deposit
-        _getAccountant().updateVestedYield();
+        _getAccountant().updateExchangeRate();
 
         uint112 cap = depositCap;
         if (depositAmount == 0) revert TellerWithMultiAssetSupport__ZeroAssets();
