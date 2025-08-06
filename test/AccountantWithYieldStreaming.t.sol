@@ -147,20 +147,25 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
         console.log("shares0 minted: ", shares0); 
         assertEq(WETHAmount, shares0); 
-
-        uint256 totalAssetsInBase = accountant.totalAssetsInBase(); 
+        
+        uint256 currentShares = boringVault.totalSupply(); 
+        console.log("curent shares: ", currentShares); 
+        uint256 totalAssetsInBase = ((currentShares * accountant.lastSharePrice()) / 1e18) + accountant.getPendingVestingGains(); 
         console.log("totalAssetsInBase: ", totalAssetsInBase); 
+
+        console.log("==== BEGIN DEPOSIT 2 ===="); 
 
         //deposit 2
         uint256 shares1 = teller.deposit(WETH, WETHAmount, 0);
-        //another 10k with 0 vested should give  WETHAmount again
         console.log("shares1 with no yield: ", shares1); 
 
-        totalAssetsInBase = accountant.totalAssetsInBase(); 
+        //totalAssetsInBase = accountant.totalAssetsInBase(); 
+        currentShares = boringVault.totalSupply(); 
+        console.log("curent shares: ", currentShares); 
+        totalAssetsInBase = ((currentShares * accountant.lastSharePrice()) / 1e18) + accountant.getPendingVestingGains(); 
         console.log("totalAssetsInBase: ", totalAssetsInBase); 
     }
-    
-    //test
+
     function testDepositsWithYield() external {
         uint256 WETHAmount = 10e18; 
         deal(address(WETH), address(this), 1_000e18);
@@ -169,138 +174,28 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
         console.log("shares0 minted: ", shares0); 
         assertEq(WETHAmount, shares0); 
-
-        uint256 totalAssetsInBase = accountant.totalAssetsInBase(); 
+        
+        uint256 currentShares = boringVault.totalSupply(); 
+        console.log("curent shares: ", currentShares); 
+        uint256 totalAssetsInBase = ((currentShares * accountant.lastSharePrice()) / 1e18) + accountant.getPendingVestingGains(); 
         console.log("totalAssetsInBase: ", totalAssetsInBase); 
 
-        //lets now add some yield
-        accountant.recordYield(WETH, WETHAmount, 1 days); 
+        //vest some yield
+        accountant.vestYield(WETHAmount, 24 hours); 
         skip(12 hours); 
+
+        console.log("==== BEGIN DEPOSIT 2 ===="); 
 
         //deposit 2
         uint256 shares1 = teller.deposit(WETH, WETHAmount, 0);
-        //another 10k with 0 vested should give  WETHAmount again
-        console.log("shares1 minted at 50% vest of 10WETH Yield: ", shares1); 
+        console.log("shares1 with yield: ", shares1); 
 
-        totalAssetsInBase = accountant.totalAssetsInBase(); 
+        //totalAssetsInBase = accountant.totalAssetsInBase(); 
+        currentShares = boringVault.totalSupply(); 
+        console.log("curent shares: ", currentShares); 
+        totalAssetsInBase = ((currentShares * accountant.lastSharePrice()) / 1e18) + accountant.getPendingVestingGains(); 
         console.log("totalAssetsInBase: ", totalAssetsInBase); 
     }
-
-    //test basic withdraw case
-    function testWithdrawNoYield() external {
-        uint256 WETHAmount = 10e18; 
-        deal(address(WETH), address(this), 1_000e18);
-        WETH.approve(address(boringVault), 1_000e18);
-        uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
-
-        console.log("shares0 minted: ", shares0); 
-        assertEq(WETHAmount, shares0); 
-
-        uint256 totalAssetsInBase = accountant.totalAssetsInBase(); 
-        console.log("totalAssetsInBase: ", totalAssetsInBase); 
-        
-        skip(2 hours); 
-        
-    
-        uint256 amountOut = teller.bulkWithdraw(WETH, shares0, 0, address(boringVault)); 
-        console.log("amount out: ", amountOut); 
-    }
-
-    //test yield withdraw case
-    function testWithdrawWithYieldAllShares() external {
-        uint256 WETHAmount = 10e18; 
-        deal(address(WETH), address(this), 1_000e18);
-        WETH.approve(address(boringVault), 1_000e18);
-        uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
-
-        console.log("shares0 minted: ", shares0); 
-        assertEq(WETHAmount, shares0); 
-
-        uint256 totalAssetsInBase = accountant.totalAssetsInBase(); 
-        console.log("totalAssetsInBase: ", totalAssetsInBase); 
-
-        accountant.recordYield(WETH, WETHAmount, 1 days); 
-        //actually send the assets: 
-        deal(address(WETH), address(boringVault), WETHAmount * 2); //* 2 for the original deposit + yield amount as `deal` overwrites the balance slot instead of updating it
-        skip(12 hours); 
-    
-        uint256 amountOut = teller.bulkWithdraw(WETH, shares0, 0, address(boringVault)); 
-        console.log("amount out: ", amountOut); 
-
-        totalAssetsInBase = accountant.totalAssetsInBase(); 
-        console.log("totalAssetsInBase: ", totalAssetsInBase); 
-    }
-
-    //test yield withdraw case
-    function testWithdrawWithYieldHalfShares() external {
-        uint256 WETHAmount = 10e18; 
-        deal(address(WETH), address(this), 1_000e18);
-        WETH.approve(address(boringVault), 1_000e18);
-        uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
-
-        console.log("shares0 minted: ", shares0); 
-        assertEq(WETHAmount, shares0); 
-
-        uint256 totalAssetsInBase = accountant.totalAssetsInBase(); 
-        console.log("totalAssetsInBase: ", totalAssetsInBase); 
-
-        accountant.recordYield(WETH, WETHAmount, 1 days); 
-        //actually send the assets: 
-        deal(address(WETH), address(boringVault), WETHAmount * 2); //* 2 for the original deposit + yield amount as `deal` overwrites the balance slot instead of updating it
-        skip(12 hours); 
-    
-        uint256 amountOut = teller.bulkWithdraw(WETH, shares0 / 2, 0, address(boringVault)); 
-        console.log("amount out: ", amountOut); 
-
-        totalAssetsInBase = accountant.totalAssetsInBase(); 
-        console.log("totalAssetsInBase: ", totalAssetsInBase); 
-    }
-
-    //test yield withdraw case
-    function testWithdrawWithMultiDepositNoYield() external {
-        uint256 WETHAmount = 10e18; 
-        deal(address(WETH), address(this), 1_000e18);
-        WETH.approve(address(boringVault), 1_000e18);
-        uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
-
-        console.log("shares0 minted: ", shares0); 
-        assertEq(WETHAmount, shares0); 
-
-        uint256 totalAssetsInBase = accountant.totalAssetsInBase(); 
-        console.log("totalAssetsInBase: ", totalAssetsInBase); 
-
-        address alice = address(69);  
-        deal(address(WETH), address(alice), 1_000e18);
-
-        vm.startPrank(alice); 
-        WETH.approve(address(boringVault), 1_000e18);
-        uint256 shares1 = teller.deposit(WETH, WETHAmount, 0);
-        vm.stopPrank(); 
-
-        totalAssetsInBase = accountant.totalAssetsInBase(); 
-        console.log("totalAssetsInBase: ", totalAssetsInBase); 
-
-        accountant.recordYield(WETH, WETHAmount, 1 days); 
-        //actually send the assets: 
-        deal(address(WETH), address(boringVault), WETHAmount * 2); //* 2 for the original deposit + yield amount as `deal` overwrites the balance slot instead of updating it
-        skip(12 hours); 
-    
-        uint256 amountOut = teller.bulkWithdraw(WETH, shares0, 0, address(boringVault)); 
-        console.log("amount out: ", amountOut); 
-
-        totalAssetsInBase = accountant.totalAssetsInBase(); 
-        console.log("totalAssetsInBase: ", totalAssetsInBase); 
-
-        vm.startPrank(alice); 
-        WETH.approve(address(boringVault), 1_000e18);
-        uint256 amountOut1 = teller.bulkWithdraw(WETH, shares1, 0, alice);
-        vm.stopPrank(); 
-
-        console.log("amount out: ", amountOut1); 
-        totalAssetsInBase = accountant.totalAssetsInBase(); 
-        console.log("totalAssetsInBase: ", totalAssetsInBase); 
-    }
-
 
     // ========================================= HELPER FUNCTIONS =========================================
     

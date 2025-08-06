@@ -37,10 +37,8 @@ contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
         if (!asset.allowWithdraws) revert TellerWithMultiAssetSupport__AssetNotSupported();
 
         if (shareAmount == 0) revert TellerWithMultiAssetSupport__ZeroShares();
-        assetsOut = shareAmount.mulDivDown(_getAccountant().getRateInQuoteForWithdraw(withdrawAsset, shareAmount), ONE_SHARE);
+        assetsOut = shareAmount.mulDivDown(_getAccountant().getRateInBase(), ONE_SHARE);
         if (assetsOut < minimumAssets) revert TellerWithMultiAssetSupport__MinimumAssetsNotMet();
-
-        _getAccountant().recordWithdraw(withdrawAsset, assetsOut); //convert back to base for accounting
 
         vault.exit(to, withdrawAsset, assetsOut, msg.sender, shareAmount);
         emit BulkWithdraw(address(withdrawAsset), shareAmount);
@@ -54,16 +52,18 @@ contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
         address to,
         Asset memory asset
     ) internal override returns (uint256 shares) {
+
+         // Update vested yield before deposit
+        _getAccountant().updateVestedYield();
+
         uint112 cap = depositCap;
         if (depositAmount == 0) revert TellerWithMultiAssetSupport__ZeroAssets();
-        shares = depositAmount.mulDivDown(ONE_SHARE, _getAccountant().getRateInQuoteForDeposit(depositAsset, depositAmount));
+        shares = depositAmount.mulDivDown(ONE_SHARE, _getAccountant().getRateInBase());
         shares = asset.sharePremium > 0 ? shares.mulDivDown(1e4 - asset.sharePremium, 1e4) : shares;
         if (shares < minimumMint) revert TellerWithMultiAssetSupport__MinimumMintNotMet();
         if (cap != type(uint112).max) {
             if (shares + vault.totalSupply() > cap) revert TellerWithMultiAssetSupport__DepositExceedsCap(); 
         }
-        
-        _getAccountant().recordDeposit(depositAsset, depositAmount); 
 
         vault.enter(from, depositAsset, depositAmount, to, shares);
     }
