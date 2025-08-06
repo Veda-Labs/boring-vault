@@ -9,7 +9,7 @@ abstract contract CoreWriterDecoderAndSanitizer is BaseDecoderAndSanitizer {
     error CoreWriterDecoderAndSanitizer__InvalidEncodingVersion();
     error CoreWriterDecoderAndSanitizer__InvalidActionID();
 
-    function SendRawAction(bytes calldata data) external view virtual returns (bytes memory addressesFound) {
+    function sendRawAction(bytes calldata data) external view virtual returns (bytes memory addressesFound) {
         if (data[0] != 0x01) {
             revert CoreWriterDecoderAndSanitizer__InvalidEncodingVersion();
         }

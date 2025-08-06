@@ -112,6 +112,7 @@ contract ChainValues {
         _addBobValues();
         _addDeriveValues();
         _addUnichainValues();
+        _addKatanaValues();
         // Add testnet values
         _addHoleskyValues();
         _addSepoliaValues();
@@ -1560,6 +1561,7 @@ contract ChainValues {
         values[arbitrum]["RSETH"] = 0x4186BFC76E2E237523CBC30FD220FE055156b41F.toBytes32();
         values[arbitrum]["GRAIL"] = 0x3d9907F9a368ad0a51Be60f7Da3b97cf940982D8.toBytes32();
         values[arbitrum]["cbBTC"] = 0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf.toBytes32();
+        values[arbitrum]["HLP0"] = 0x3D75F2BB8aBcDBd1e27443cB5CBCE8A668046C81.toBytes32();
 
         // Aave V3
         values[arbitrum]["v3Pool"] = 0x794a61358D6845594F94dc1DB02A252b5b4814aD.toBytes32();
@@ -2420,5 +2422,33 @@ contract ChainValues {
 
         // LayerZero
         values[unichain]["LayerZeroEndPoint"] = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B.toBytes32();
+    }
+
+    function _addKatanaValues() private {
+        values[katana]["deployerAddress"] = 0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC.toBytes32();
+        values[katana]["deployerAddress1"] = 0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC.toBytes32();
+        values[katana]["dev0Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
+        values[katana]["dev1Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
+        values[katana]["dev2Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
+        values[katana]["liquidPayoutAddress"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
+        values[katana]["uniswapV3PositionManager"] = address(1).toBytes32();
+        values[katana]["uniswapV3NonFungiblePositionManager"] = address(1).toBytes32();
+
+        // tokens
+        values[katana]["ZRO"] = address(1).toBytes32();
+        values[katana]["balancerVaultV2"] = address(1).toBytes32();
+        values[katana]["balancerVault"] = address(1).toBytes32();
+        values[katana]["vault"] = 0xBA12222222228d8Ba445958a75a0704d566BF2C8.toBytes32();
+        values[katana]["vbWETH"] = 0xEE7D8BCFb72bC1880D0Cf19822eB0A2e6577aB62.toBytes32();
+        values[katana]["vbUSDC"] = 0x203A662b0BD271A6ed5a60EdFbd04bFce608FD36.toBytes32();
+        values[katana]["vbUSDT"] = 0x2DCa96907fde857dd3D816880A0df407eeB2D2F2.toBytes32();
+        values[katana]["vbWBTC"] = 0x0913DA6Da4b42f538B445599b46Bb4622342Cf52.toBytes32();
+        values[katana]["vbUSDS"] = 0x62D6A123E8D19d06d68cf0d2294F9A3A0362c6b3.toBytes32();
+
+        // layerzero
+        values[katana]["LayerZeroEndPoint"] = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B.toBytes32();
+
+        //chainlink
+        values[katana]["ccipRouter"] = 0x7c19b79D2a054114Ab36ad758A36e92376e267DA.toBytes32();
     }
 }

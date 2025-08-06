@@ -41,22 +41,6 @@ abstract contract MagpieDecoderAndSanitizer is BaseDecoderAndSanitizer {
             toAddress := shr(96, calldataload(72)) // toAddress
             fromAssetAddress := shr(96, calldataload(92)) // fromAssetAddress
             toAssetAddress := shr(96, calldataload(112)) // toAssetAddress
-
-            // let hasPermit := gt(shr(248, calldataload(209)), 0)
-
-            // switch hasPermit
-            // case 1 {
-            //     hasAffiliate := shr(248, calldataload(277))
-            //     if eq(hasAffiliate, 1) {
-            //         affiliateAddress := shr(96, calldataload(278))
-            //     }
-            // }
-            // default {
-            //     hasAffiliate := shr(248, calldataload(210))
-            //     if eq(hasAffiliate, 1) {
-            //         affiliateAddress := shr(96, calldataload(211))
-            //     }
-            // }
         }
 
         addressesFound = abi.encodePacked(fromAssetAddress, toAssetAddress, toAddress);

@@ -12721,6 +12721,23 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         );
     }
 
+    // ========================================= HLP0 =========================================
+    function _addHlp0Leafs(ManageLeaf[] memory leafs, ERC4626 vault) internal {
+        _addERC4626Leafs(leafs, vault);
+
+        unchecked {
+            leafIndex++;
+        }
+        leaf[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "HLP0"),
+            false,
+            "requestRedeem(uint256)",
+            new address[](0),
+            string.concat("Request redeem HLP0 for USDC"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+    }
+
     // ========================================= JSON FUNCTIONS =========================================
     // TODO this should pass in a bool or something to generate leafs indicating that we want leaf indexes printed.
     bool addLeafIndex = false;

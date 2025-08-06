@@ -11,6 +11,7 @@ import {PancakeSwapV3FullDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/PancakeSwapV3FullDecoderAndSanitizer.sol";
 import {AerodromeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/AerodromeDecoderAndSanitizer.sol";
 import {SyUsdDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyUsdDecoderAndSanitizer.sol";
+import {SyHlpDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyHlpArbitrumDecoderAndSanitizer.sol";
 import {SyUsdBaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyUsdBaseDecoderAndSanitizer01.sol";
 import {OnlyKarakDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/OnlyKarakDecoderAndSanitizer.sol";
 import {Deployer} from "src/helper/Deployer.sol";
@@ -112,5 +113,27 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         // constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
         // deployer.deployContract("SyUsd Base DecodersAndSanitizers Batch 1", creationCode, constructorArgs, 0);
         // vm.stopBroadcast();
+    }
+}
+
+contract DeploySyHlpDecoderAndSanitizer is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
+    uint256 public privateKey;
+    Deployer public deployer = Deployer(0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC);
+
+    function setUp() external {
+        privateKey = vm.envUint("BORING_DEVELOPER");
+    }
+
+    function run() external {
+        bytes memory creationCode;
+        bytes memory constructorArgs;
+
+        vm.createSelectFork("arbitrum");
+        setSourceChainName("arbitrum");
+        vm.startBroadcast(privateKey);
+        creationCode = type(SyHlpArbitrumDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
+        deployer.deployContract("SyUsd Base DecodersAndSanitizers Batch 1", creationCode, constructorArgs, 0);
+        vm.stopBroadcast();
     }
 }
