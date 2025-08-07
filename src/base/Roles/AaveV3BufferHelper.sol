@@ -25,7 +25,7 @@ contract AaveV3BufferHelper is IBufferHelper {
         returns (address[] memory targets, bytes[] memory data, uint256[] memory values)
     {
         uint256 currentAllowance = ERC20(asset).allowance(vault, aaveV3Pool);
-        if (currentAllowance > amount) {
+        if (currentAllowance >= amount) {
             targets = new address[](1);
             targets[0] = aaveV3Pool;
             data = new bytes[](1);

@@ -57,7 +57,8 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
         USDT = getERC20(sourceChain, "USDT");
         USDC = getERC20(sourceChain, "USDC");
 
-        boringVault = new BoringVault(address(this), "Boring Vault", "BV", 6);
+        bytes32 salt = keccak256("boring-vault-salt");
+        boringVault = new BoringVault{salt: salt}(address(this), "Boring Vault", "BV", 6);
 
         accountant = new AccountantWithRateProviders(
             address(this), address(boringVault), payout_address, 1e6, address(USDT), 1.001e4, 0.999e4, 1, 0, 0
@@ -123,20 +124,104 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
         rolesAuthority.setUserRole(address(teller), TELLER_MANAGER_ROLE, true);
 
         teller.updateAssetData(USDT, true, true, 0);
+        teller.updateAssetData(USDC, true, true, 0);
+        accountant.setRateProviderData(USDC, true, address(0));
     }
 
-    function testUserDepositPeggedAsset(uint256 amount) external {
+    function testUserDepositPeggedAssets(uint256 amount) external {
         amount = bound(amount, 0.0001e6, 10_000e6);
 
         deal(address(USDT), address(this), amount);
+        deal(address(USDC), address(this), amount);
 
         USDT.safeApprove(address(boringVault), amount);
+        USDC.safeApprove(address(boringVault), amount);
         uint96 currentNonce = teller.depositNonce();
 
         teller.deposit(USDT, amount, 0);
         assertEq(teller.depositNonce(), currentNonce + 1, "Deposit nonce should have increased by 1");
 
-        uint256 expected_shares = amount;
+        teller.deposit(USDC, amount, 0);
+        assertEq(teller.depositNonce(), currentNonce + 2, "Deposit nonce should have increased by 2");
+        assertEq(teller.depositNonce(), 2, "Deposit nonce should be 2");
+
+        uint256 expected_shares = 2 * amount;
+
+        assertEq(boringVault.balanceOf(address(this)), expected_shares, "Should have received expected shares");
+
+        assertApproxEqAbs(getERC20(sourceChain, "aV3USDT").balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
+    }
+
+    function testUserDepositWithSufficientOpenApproval(uint256 amount) external {
+        amount = bound(amount, 0.0001e6, 10_000e6);
+        deal(address(USDT), address(this), amount);
+        deal(address(USDC), address(this), amount);
+
+        // approve >= the amount that will be deposited
+        bytes[] memory data = new bytes[](2);
+        data[0] = abi.encodeWithSelector(USDT.approve.selector, getAddress(sourceChain, "v3Pool"), amount);
+        data[1] = abi.encodeWithSelector(USDC.approve.selector, getAddress(sourceChain, "v3Pool"), amount);
+
+        address[] memory targets = new address[](2);
+        targets[0] = address(USDT);
+        targets[1] = address(USDC);
+
+        uint256[] memory values = new uint256[](2);
+
+        rolesAuthority.setUserRole(address(this), TELLER_MANAGER_ROLE, true);
+
+        boringVault.manage(targets, data, values);
+
+        USDT.safeApprove(address(boringVault), amount);
+        USDC.safeApprove(address(boringVault), amount);
+        uint96 currentNonce = teller.depositNonce();
+
+        teller.deposit(USDT, amount, 0);
+        assertEq(teller.depositNonce(), currentNonce + 1, "Deposit nonce should have increased by 1");
+
+        teller.deposit(USDC, amount, 0);
+        assertEq(teller.depositNonce(), currentNonce + 2, "Deposit nonce should have increased by 2");
+        assertEq(teller.depositNonce(), 2, "Deposit nonce should be 2");
+
+        uint256 expected_shares = 2 * amount;
+
+        assertEq(boringVault.balanceOf(address(this)), expected_shares, "Should have received expected shares");
+
+        assertApproxEqAbs(getERC20(sourceChain, "aV3USDT").balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
+    }
+
+    function testUserDepositWithInsufficientOpenApproval(uint256 amount) external {
+        amount = bound(amount, 0.0001e6, 10_000e6);
+        deal(address(USDT), address(this), amount);
+        deal(address(USDC), address(this), amount);
+
+        // approve less than the amount that will be deposited
+        bytes[] memory data = new bytes[](2);
+        data[0] = abi.encodeWithSelector(USDT.approve.selector, getAddress(sourceChain, "v3Pool"), amount - 1);
+        data[1] = abi.encodeWithSelector(USDC.approve.selector, getAddress(sourceChain, "v3Pool"), amount - 1);
+
+        address[] memory targets = new address[](2);
+        targets[0] = address(USDT);
+        targets[1] = address(USDC);
+
+        uint256[] memory values = new uint256[](2);
+        
+        rolesAuthority.setUserRole(address(this), TELLER_MANAGER_ROLE, true);
+
+        boringVault.manage(targets, data, values);
+
+        USDT.safeApprove(address(boringVault), amount);
+        USDC.safeApprove(address(boringVault), amount);
+        uint96 currentNonce = teller.depositNonce();
+
+        teller.deposit(USDT, amount, 0);
+        assertEq(teller.depositNonce(), currentNonce + 1, "Deposit nonce should have increased by 1");
+
+        teller.deposit(USDC, amount, 0);
+        assertEq(teller.depositNonce(), currentNonce + 2, "Deposit nonce should have increased by 2");
+        assertEq(teller.depositNonce(), 2, "Deposit nonce should be 2");
+
+        uint256 expected_shares = 2 * amount;
 
         assertEq(boringVault.balanceOf(address(this)), expected_shares, "Should have received expected shares");
 
