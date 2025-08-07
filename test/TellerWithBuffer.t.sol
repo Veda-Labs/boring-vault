@@ -152,6 +152,8 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
         uint256 expected_shares = amount;
 
         assertEq(boringVault.balanceOf(address(this)), expected_shares, "Should have received expected shares");
+
+        assertApproxEqAbs(getERC20(sourceChain, "aV3WETH").balanceOf(address(boringVault)), amount, 1, "Should have put entire deposit into aave");
     }
 
 }
