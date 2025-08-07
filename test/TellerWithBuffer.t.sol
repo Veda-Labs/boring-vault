@@ -44,35 +44,29 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
     AtomicQueue public atomicQueue;
     AtomicSolverV3 public atomicSolverV3;
 
-    ERC20 internal WETH;
-    ERC20 internal EETH;
-    ERC20 internal WEETH;
-    address internal EETH_LIQUIDITY_POOL;
-    address internal WEETH_RATE_PROVIDER;
+    ERC20 internal USDT;
+    ERC20 internal USDC;
 
     function setUp() public {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 19363419;
+        uint256 blockNumber = 23091932;
         vm.createSelectFork(vm.envString(rpcKey), blockNumber);
 
-        WETH = getERC20(sourceChain, "WETH");
-        EETH = getERC20(sourceChain, "EETH");
-        WEETH = getERC20(sourceChain, "WEETH");
-        EETH_LIQUIDITY_POOL = getAddress(sourceChain, "EETH_LIQUIDITY_POOL");
-        WEETH_RATE_PROVIDER = getAddress(sourceChain, "WEETH_RATE_PROVIDER");
+        USDT = getERC20(sourceChain, "USDT");
+        USDC = getERC20(sourceChain, "USDC");
 
-        boringVault = new BoringVault(address(this), "Boring Vault", "BV", 18);
+        boringVault = new BoringVault(address(this), "Boring Vault", "BV", 6);
 
         accountant = new AccountantWithRateProviders(
-            address(this), address(boringVault), payout_address, 1e18, address(WETH), 1.001e4, 0.999e4, 1, 0, 0
+            address(this), address(boringVault), payout_address, 1e6, address(USDT), 1.001e4, 0.999e4, 1, 0, 0
         );
 
         address bufferHelper = address(new AaveV3BufferHelper(getAddress(sourceChain, "v3Pool"), address(boringVault)));
 
         teller =
-            new TellerWithBuffer(address(this), address(boringVault), address(accountant), address(WETH), bufferHelper, bufferHelper);
+            new TellerWithBuffer(address(this), address(boringVault), address(accountant), address(USDT), bufferHelper, bufferHelper);
 
         rolesAuthority = new RolesAuthority(address(this), Authority(address(0)));
 
@@ -128,32 +122,33 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
         rolesAuthority.setUserRole(address(teller), BURNER_ROLE, true);
         rolesAuthority.setUserRole(address(teller), TELLER_MANAGER_ROLE, true);
 
-        teller.updateAssetData(WETH, true, true, 0);
-        teller.updateAssetData(ERC20(NATIVE), true, true, 0);
-        teller.updateAssetData(EETH, true, true, 0);
-        teller.updateAssetData(WEETH, true, true, 0);
-
-        accountant.setRateProviderData(EETH, true, address(0));
-        accountant.setRateProviderData(WEETH, false, address(WEETH_RATE_PROVIDER));
+        teller.updateAssetData(USDT, true, true, 0);
     }
 
     function testUserDepositPeggedAsset(uint256 amount) external {
-        amount = bound(amount, 0.0001e18, 10_000e18);
+        amount = bound(amount, 0.0001e6, 10_000e6);
 
-        uint256 wETH_amount = amount;
-        deal(address(WETH), address(this), wETH_amount);
+        deal(address(USDT), address(this), amount);
 
-        WETH.safeApprove(address(boringVault), wETH_amount);
+        USDT.safeApprove(address(boringVault), amount);
         uint96 currentNonce = teller.depositNonce();
 
-        teller.deposit(WETH, wETH_amount, 0);
+        teller.deposit(USDT, amount, 0);
         assertEq(teller.depositNonce(), currentNonce + 1, "Deposit nonce should have increased by 1");
 
         uint256 expected_shares = amount;
 
         assertEq(boringVault.balanceOf(address(this)), expected_shares, "Should have received expected shares");
 
-        assertApproxEqAbs(getERC20(sourceChain, "aV3WETH").balanceOf(address(boringVault)), amount, 1, "Should have put entire deposit into aave");
+        assertApproxEqAbs(getERC20(sourceChain, "aV3USDT").balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
     }
+
+    // TODO NEXT:
+    // - Add a test for USDT deposit
+    // - add a test for deposits with open approvals > amount
+    // - add a test for deposits with open approvals < amount
+    // - test bulkWithdraw
+    // - test bulkDeposit
+    // - test depositWithPermit
 
 }
