@@ -150,6 +150,7 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
         assertEq(boringVault.balanceOf(address(this)), expected_shares, "Should have received expected shares");
 
         assertApproxEqAbs(getERC20(sourceChain, "aV3USDT").balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
+        assertApproxEqAbs(getERC20(sourceChain, "aV3USDC").balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
     }
 
     function testUserDepositWithSufficientOpenApproval(uint256 amount) external {
@@ -188,6 +189,7 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
         assertEq(boringVault.balanceOf(address(this)), expected_shares, "Should have received expected shares");
 
         assertApproxEqAbs(getERC20(sourceChain, "aV3USDT").balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
+        assertApproxEqAbs(getERC20(sourceChain, "aV3USDC").balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
     }
 
     function testUserDepositWithInsufficientOpenApproval(uint256 amount) external {
@@ -226,6 +228,26 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
         assertEq(boringVault.balanceOf(address(this)), expected_shares, "Should have received expected shares");
 
         assertApproxEqAbs(getERC20(sourceChain, "aV3USDT").balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
+        assertApproxEqAbs(getERC20(sourceChain, "aV3USDC").balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
+    }
+
+    function testBulkDeposit(uint256 amount) external {
+        amount = bound(amount, 0.0001e6, 10_000e6);
+        deal(address(USDT), address(this), amount);
+        deal(address(USDC), address(this), amount);
+
+        USDT.safeApprove(address(boringVault), amount);
+        USDC.safeApprove(address(boringVault), amount);
+
+        teller.bulkDeposit(USDT, amount, 0, address(this));
+        teller.bulkDeposit(USDC, amount, 0, address(this));
+
+        uint256 expected_shares = 2 * amount;
+
+        assertEq(boringVault.balanceOf(address(this)), expected_shares, "Should have received expected shares");
+
+        assertApproxEqAbs(getERC20(sourceChain, "aV3USDT").balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
+        assertApproxEqAbs(getERC20(sourceChain, "aV3USDC").balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
     }
 
     // TODO NEXT:
