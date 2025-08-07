@@ -250,12 +250,38 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
         assertApproxEqAbs(getERC20(sourceChain, "aV3USDC").balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
     }
 
+    function testBulkWithdraw(uint256 amount) external {
+        // first do deposits
+        amount = bound(amount, 0.0001e6, 10_000e6);
+        deal(address(USDT), address(this), amount);
+        deal(address(USDC), address(this), amount);
+
+        USDT.safeApprove(address(boringVault), amount);
+        USDC.safeApprove(address(boringVault), amount);
+
+        teller.bulkDeposit(USDT, amount, 0, address(this));
+        teller.bulkDeposit(USDC, amount, 0, address(this));
+
+        uint256 expected_shares = 2 * amount;
+
+        assertEq(boringVault.balanceOf(address(this)), expected_shares, "Should have received expected shares");
+
+        assertApproxEqAbs(getERC20(sourceChain, "aV3USDT").balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
+        assertApproxEqAbs(getERC20(sourceChain, "aV3USDC").balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
+        
+        // then do withdraws
+        teller.bulkWithdraw(USDT, amount - 2, 0, address(this));
+        teller.bulkWithdraw(USDC, amount - 2, 0, address(this));
+
+        assertApproxEqAbs(boringVault.balanceOf(address(this)), 0, 4, "Should have eliminated expected shares");
+
+        assertApproxEqAbs(getERC20(sourceChain, "aV3USDT").balanceOf(address(boringVault)), 0, 2, "Should have removed entire deposit from aave");
+        assertApproxEqAbs(getERC20(sourceChain, "aV3USDC").balanceOf(address(boringVault)), 0, 2, "Should have removed entire deposit from aave");
+    }
+
     // TODO NEXT:
-    // - Add a test for USDT deposit
-    // - add a test for deposits with open approvals > amount
-    // - add a test for deposits with open approvals < amount
-    // - test bulkWithdraw
-    // - test bulkDeposit
     // - test depositWithPermit
+    // - test different amounts with changed share price
+    // - test a nonpegged asset
 
 }
