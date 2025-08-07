@@ -5,31 +5,17 @@
 pragma solidity 0.8.21;
 
 import {IBufferHelper} from "src/interfaces/IBufferHelper.sol";
+import {ERC20} from "@solmate/tokens/ERC20.sol";
 
 contract AaveV3BufferHelper is IBufferHelper {
-    address[] public depositTargets;
-    uint256[] public depositValues;
-    address[] public withdrawTargets;
-    uint256[] public withdrawValues;
-
+    address public immutable aaveV3Pool;
     address public immutable vault;
 
     constructor(
-        address[] memory _depositTargets,
-        uint256[] memory _depositValues,
-        address[] memory _withdrawTargets,
-        uint256[] memory _withdrawValues,
+        address _aaveV3Pool,
         address _vault
     ) {
-        require(
-            _depositTargets.length == 2 && _depositValues.length == 2 && _withdrawTargets.length == 1
-                && _withdrawValues.length == 1,
-            "Invalid lengths"
-        );
-        depositTargets = _depositTargets;
-        depositValues = _depositValues;
-        withdrawTargets = _withdrawTargets;
-        withdrawValues = _withdrawValues;
+        aaveV3Pool = _aaveV3Pool;
         vault = _vault;
     }
 
@@ -38,10 +24,33 @@ contract AaveV3BufferHelper is IBufferHelper {
         view
         returns (address[] memory targets, bytes[] memory data, uint256[] memory values)
     {
-        data = new bytes[](2);
-        data[0] = abi.encodeWithSignature("approve(address,uint256)", depositTargets[1], amount);
-        data[1] = abi.encodeWithSignature("supply(address,uint256,address,uint16)", asset, amount, vault, 0);
-        return (depositTargets, data, depositValues);
+        uint256 currentAllowance = ERC20(asset).allowance(vault, aaveV3Pool);
+        if (currentAllowance > amount) {
+            targets = new address[](1);
+            targets[0] = aaveV3Pool;
+            data = new bytes[](1);
+            data[0] = abi.encodeWithSignature("supply(address,uint256,address,uint16)", asset, amount, vault, 0);
+            values = new uint256[](1);
+            values[0] = 0;
+        } else if (currentAllowance == 0) {
+            targets = new address[](2);
+            targets[0] = asset;
+            targets[1] = aaveV3Pool;
+            data = new bytes[](2);
+            data[0] = abi.encodeWithSignature("approve(address,uint256)", aaveV3Pool, amount);
+            data[1] = abi.encodeWithSignature("supply(address,uint256,address,uint16)", asset, amount, vault, 0);
+            values = new uint256[](2);
+        } else {
+            targets = new address[](3);
+            targets[0] = asset;
+            targets[1] = asset;
+            targets[2] = aaveV3Pool;
+            data = new bytes[](3);
+            data[0] = abi.encodeWithSignature("approve(address,uint256)", aaveV3Pool, 0);
+            data[1] = abi.encodeWithSignature("approve(address,uint256)", aaveV3Pool, amount);
+            data[2] = abi.encodeWithSignature("supply(address,uint256,address,uint16)", asset, amount, vault, 0);
+            values = new uint256[](3);
+        }
     }
 
     function getWithdrawManageCall(address asset, uint256 amount)
@@ -49,8 +58,11 @@ contract AaveV3BufferHelper is IBufferHelper {
         view
         returns (address[] memory targets, bytes[] memory data, uint256[] memory values)
     {
+        targets = new address[](1);
+        targets[0] = aaveV3Pool;
         data = new bytes[](1);
         data[0] = abi.encodeWithSignature("withdraw(address,uint256,address)", asset, amount, vault);
-        return (withdrawTargets, data, withdrawValues);
+        values = new uint256[](1);
+        return (targets, data, values);
     }
 }
