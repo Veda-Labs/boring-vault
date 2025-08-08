@@ -4,15 +4,15 @@ pragma solidity 0.8.21;
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 
 /**
- * @title MorphoBlueDecoderAndSanitizer
+ * @title FelixDecoderAndSanitizer
  * @notice Decoder and sanitizer for Morpho Blue operations
  * @dev Used by Felix (Morpho Blue fork) for wstHYPE/wHYPE lending markets
  */
-contract MorphoBlueDecoderAndSanitizer {
+contract FelixDecoderAndSanitizer {
     //============================== ERRORS ===============================
 
-    error MorphoBlueDecoderAndSanitizer__CallbackNotSupported();
-    error MorphoBlueDecoderAndSanitizer__InvalidAddress();
+    error FelixDecoderAndSanitizer__CallbackNotSupported();
+    error FelixDecoderAndSanitizer__InvalidAddress();
 
     //============================== MORPHO BLUE ===============================
 
@@ -24,10 +24,10 @@ contract MorphoBlueDecoderAndSanitizer {
         bytes calldata data
     ) external pure returns (bytes memory addressesFound) {
         // Sanitize raw data - reject callbacks
-        if (data.length > 0) revert MorphoBlueDecoderAndSanitizer__CallbackNotSupported();
+        if (data.length > 0) revert FelixDecoderAndSanitizer__CallbackNotSupported();
         
         // Validate onBehalf address
-        if (onBehalf == address(0)) revert MorphoBlueDecoderAndSanitizer__InvalidAddress();
+        if (onBehalf == address(0)) revert FelixDecoderAndSanitizer__InvalidAddress();
         
         // Return addresses found
         addressesFound = abi.encodePacked(
@@ -48,7 +48,7 @@ contract MorphoBlueDecoderAndSanitizer {
     ) external pure returns (bytes memory addressesFound) {
         // Validate addresses
         if (onBehalf == address(0) || receiver == address(0)) 
-            revert MorphoBlueDecoderAndSanitizer__InvalidAddress();
+            revert FelixDecoderAndSanitizer__InvalidAddress();
         
         // Return addresses found
         addressesFound = abi.encodePacked(
@@ -70,7 +70,7 @@ contract MorphoBlueDecoderAndSanitizer {
     ) external pure returns (bytes memory addressesFound) {
         // Validate addresses
         if (onBehalf == address(0) || receiver == address(0)) 
-            revert MorphoBlueDecoderAndSanitizer__InvalidAddress();
+            revert FelixDecoderAndSanitizer__InvalidAddress();
         
         addressesFound = abi.encodePacked(
             params.loanToken, 
@@ -90,10 +90,10 @@ contract MorphoBlueDecoderAndSanitizer {
         bytes calldata data
     ) external pure returns (bytes memory addressesFound) {
         // Sanitize raw data - reject callbacks
-        if (data.length > 0) revert MorphoBlueDecoderAndSanitizer__CallbackNotSupported();
+        if (data.length > 0) revert FelixDecoderAndSanitizer__CallbackNotSupported();
         
         // Validate onBehalf address
-        if (onBehalf == address(0)) revert MorphoBlueDecoderAndSanitizer__InvalidAddress();
+        if (onBehalf == address(0)) revert FelixDecoderAndSanitizer__InvalidAddress();
         
         addressesFound = abi.encodePacked(
             params.loanToken, 
@@ -111,10 +111,10 @@ contract MorphoBlueDecoderAndSanitizer {
         bytes calldata data
     ) external pure returns (bytes memory addressesFound) {
         // Sanitize raw data - reject callbacks
-        if (data.length > 0) revert MorphoBlueDecoderAndSanitizer__CallbackNotSupported();
+        if (data.length > 0) revert FelixDecoderAndSanitizer__CallbackNotSupported();
         
         // Validate onBehalf address
-        if (onBehalf == address(0)) revert MorphoBlueDecoderAndSanitizer__InvalidAddress();
+        if (onBehalf == address(0)) revert FelixDecoderAndSanitizer__InvalidAddress();
         
         addressesFound = abi.encodePacked(
             params.loanToken, 
@@ -133,7 +133,7 @@ contract MorphoBlueDecoderAndSanitizer {
     ) external pure returns (bytes memory addressesFound) {
         // Validate addresses
         if (onBehalf == address(0) || receiver == address(0)) 
-            revert MorphoBlueDecoderAndSanitizer__InvalidAddress();
+            revert FelixDecoderAndSanitizer__InvalidAddress();
         
         addressesFound = abi.encodePacked(
             params.loanToken, 

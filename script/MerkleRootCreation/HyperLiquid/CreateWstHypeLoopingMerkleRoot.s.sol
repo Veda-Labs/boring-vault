@@ -30,8 +30,6 @@ contract CreateWstHypeLoopingMerkleRootScript is Script, MerkleTreeHelper {
 
     uint256 internal leafIndex = 0;
 
-    bytes32 public felixMarketId = bytes32(0xe9a9bb9ed3cc53f4ee9da4eea0370c2c566873d5de807e16559a99907c9ae227);
-
     function run() external {
         generateWstHypeLoopingStrategistMerkleRoot();
     }
@@ -52,9 +50,15 @@ contract CreateWstHypeLoopingMerkleRootScript is Script, MerkleTreeHelper {
         setAddress(false, "hyperliquid", "wstHYPE", wstHYPE);
         setAddress(false, "hyperliquid", "HYPE", HYPE);
         
-        setAddress(false, "hyperliquid", "rawDataDecoderAndSanitizer", address(new ERC20DecoderAndSanitizer()));
-        setAddress(false, "hyperliquid", "overseerDecoderAndSanitizer", address(new OverseerDecoderAndSanitizer()));
-        setAddress(false, "hyperliquid", "wHypeDecoderAndSanitizer", address(new WHypeDecoderAndSanitizer()));
+         // Deploy only 2 decoders
+        address hyperliquidDecoder = address(new HyperliquidDecoderAndSanitizer());
+        address felixDecoder = address(new FelixDecoderAndSanitizer());
+        
+        // Assign decoders
+        setAddress(false, "hyperliquid", "rawDataDecoderAndSanitizer", hyperliquidDecoder);
+        setAddress(false, "hyperliquid", "overseerDecoderAndSanitizer", hyperliquidDecoder);
+        setAddress(false, "hyperliquid", "wHypeDecoderAndSanitizer", hyperliquidDecoder);
+        setAddress(false, "hyperliquid", "felixDecoderAndSanitizer", felixDecoder);
 
         // Calculate total leafs needed
         uint256 totalLeafs = 20; // Increased to accommodate all operations
@@ -71,8 +75,8 @@ contract CreateWstHypeLoopingMerkleRootScript is Script, MerkleTreeHelper {
         // Add ERC20 operations (approvals for stHYPE, wstHYPE, wHYPE)
         _addERC20Leafs(leafs);
         
-        // Add Felix/Morpho operations using the existing helper
-        _addMorphoBlueCollateralLeafs(leafs, felixMarketId);
+        // Add Felix operations 
+       _addFelixLeafs(leafs, felixDecoder);
 
         // Trim unused leaves
         ManageLeaf[] memory finalLeafs = new ManageLeaf[](leafIndex);
@@ -190,6 +194,98 @@ contract CreateWstHypeLoopingMerkleRootScript is Script, MerkleTreeHelper {
             getAddress("hyperliquid", "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress("hyperliquid", "Felix_Vanilla");
+        leafIndex++;
+    }
+    
+    function _addFelixLeafs(ManageLeaf[] memory leafs, address decoder) internal view {
+        // 1. Approve wstHYPE for Felix
+        leafs[leafIndex] = ManageLeaf(
+            wstHYPE,
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve wstHYPE for Felix",
+            hyperliquidDecoder  // Use ERC20 decoder for approvals
+        );
+        leafs[leafIndex].argumentAddresses[0] = Felix_Vanilla;
+        leafIndex++;
+        
+        // 2. Approve wHYPE for Felix
+        leafs[leafIndex] = ManageLeaf(
+            wHYPE,
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve wHYPE for Felix",
+            hyperliquidDecoder  // Use ERC20 decoder for approvals
+        );
+        leafs[leafIndex].argumentAddresses[0] = Felix_Vanilla;
+        leafIndex++;
+
+        // 3. Supply collateral (wstHYPE)
+        leafs[leafIndex] = ManageLeaf(
+            Felix_Vanilla,
+            false,
+            "supplyCollateral((address,address,address,address,uint256),uint256,address,bytes)",
+            new address[](5),
+            "Supply wstHYPE collateral to Felix",
+            decoder  // Use Felix decoder
+        );
+        leafs[leafIndex].argumentAddresses[0] = wHYPE;
+        leafs[leafIndex].argumentAddresses[1] = wstHYPE;
+        leafs[leafIndex].argumentAddresses[2] = felixOracle;
+        leafs[leafIndex].argumentAddresses[3] = felixIrm;
+        leafs[leafIndex].argumentAddresses[4] = address(boringVault);
+        leafIndex++;
+
+        // 4. Borrow wHYPE
+        leafs[leafIndex] = ManageLeaf(
+            Felix_Vanilla,
+            false,
+            "borrow((address,address,address,address,uint256),uint256,uint256,address,address)",
+            new address[](6),
+            "Borrow wHYPE from Felix",
+            decoder  // Use Felix decoder
+        );
+        leafs[leafIndex].argumentAddresses[0] = wHYPE;
+        leafs[leafIndex].argumentAddresses[1] = wstHYPE;
+        leafs[leafIndex].argumentAddresses[2] = felixOracle;
+        leafs[leafIndex].argumentAddresses[3] = felixIrm;
+        leafs[leafIndex].argumentAddresses[4] = address(boringVault);
+        leafs[leafIndex].argumentAddresses[5] = address(boringVault);
+        leafIndex++;
+
+        // 5. Repay loan
+        leafs[leafIndex] = ManageLeaf(
+            Felix_Vanilla,
+            false,
+            "repay((address,address,address,address,uint256),uint256,uint256,address,bytes)",
+            new address[](5),
+            "Repay wHYPE loan to Felix",
+            decoder  // Use Felix decoder
+        );
+        leafs[leafIndex].argumentAddresses[0] = wHYPE;
+        leafs[leafIndex].argumentAddresses[1] = wstHYPE;
+        leafs[leafIndex].argumentAddresses[2] = felixOracle;
+        leafs[leafIndex].argumentAddresses[3] = felixIrm;
+        leafs[leafIndex].argumentAddresses[4] = address(boringVault);
+        leafIndex++;
+
+        // 6. Withdraw collateral
+        leafs[leafIndex] = ManageLeaf(
+            Felix_Vanilla,
+            false,
+            "withdrawCollateral((address,address,address,address,uint256),uint256,address,address)",
+            new address[](6),
+            "Withdraw wstHYPE from Felix",
+            decoder  // Use Felix decoder
+        );
+        leafs[leafIndex].argumentAddresses[0] = wHYPE;
+        leafs[leafIndex].argumentAddresses[1] = wstHYPE;
+        leafs[leafIndex].argumentAddresses[2] = felixOracle;
+        leafs[leafIndex].argumentAddresses[3] = felixIrm;
+        leafs[leafIndex].argumentAddresses[4] = address(boringVault);
+        leafs[leafIndex].argumentAddresses[5] = address(boringVault);
         leafIndex++;
     }
 }

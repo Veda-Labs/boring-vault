@@ -4,6 +4,8 @@ pragma solidity 0.8.21;
 import {BoringVault} from "src/base/BoringVault.sol";
 import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
+
 
 /**
  * @title WstHypeLoopingUManager
@@ -55,16 +57,6 @@ contract WstHypeLoopingUManager {
     // State tracking for burn operations
     mapping(uint256 => uint256) public burnIdToAmount;
     uint256[] public pendingBurnIds;
-
-    modifier onlyStrategist() {
-    if (msg.sender != strategist) revert WstHypeLoopingUManager__Unauthorized();
-    _;
-    }
-
-    modifier onlyOwner() {
-        if (msg.sender != owner) revert WstHypeLoopingUManager__Unauthorized();
-        _;
-    }
     
     // =============================== CONSTRUCTOR ===============================
     
@@ -72,6 +64,7 @@ contract WstHypeLoopingUManager {
         address _vault,
         address _manager,
         address _wHYPE,
+        address _strategist, 
         address _stHYPE,
         address _wstHYPE,
         address _overseer,
@@ -85,26 +78,35 @@ contract WstHypeLoopingUManager {
         wHYPE = _wHYPE;
         stHYPE = _stHYPE;
         wstHYPE = _wstHYPE;
+        owner = msg.sender;
+        strategist = _strategist;
         overseer = _overseer;
         felixMarkets = _felixMarkets;
         felixOracle = _felixOracle;
         felixIrm = _felixIrm;
         felixLltv = _felixLltv;
     }
+
+    modifier onlyStrategist() {
+    if (msg.sender != strategist) revert WstHypeLoopingUManager__Unauthorized();
+    _;
+    }
+
+    modifier onlyOwner() {
+        if (msg.sender != owner) revert WstHypeLoopingUManager__Unauthorized();
+        _;
+    }
     
     // =============================== DECODER SETTERS ===============================
     
     function setDecoders(
-        address _overseerDecoderAndSanitizer,
-        address _felixDecoderAndSanitizer,
-        address _wHypeDecoderAndSanitizer,
-        address _erc20DecoderAndSanitizer
-    ) external onlyOwner{
-        // Add access control as needed
-        overseerDecoderAndSanitizer = _overseerDecoderAndSanitizer;
-        felixDecoderAndSanitizer = _felixDecoderAndSanitizer;
-        wHypeDecoderAndSanitizer = _wHypeDecoderAndSanitizer;
-        erc20DecoderAndSanitizer = _erc20DecoderAndSanitizer;
+        address _hyperliquidDecoder,  // For wHYPE/Overseer/ERC20
+        address _felixDecoder        // For Felix operations
+    ) external onlyOwner {
+        overseerDecoderAndSanitizer = _hyperliquidDecoder;
+        wHypeDecoderAndSanitizer = _hyperliquidDecoder;
+        erc20DecoderAndSanitizer = _hyperliquidDecoder;
+        felixDecoderAndSanitizer = _felixDecoder;
     }
     
     // =============================== STRATEGY EXECUTION (DEPOSIT/LOOP) ===============================
@@ -369,7 +371,7 @@ contract WstHypeLoopingUManager {
     function completeBurnRedemptions(
         uint256[] calldata burnIds,
         bytes32[][] calldata allProofs
-    ) external {
+    ) external onlyStrategist{
         require(burnIds.length == allProofs.length, "Mismatched arrays");
         
         bytes32[][] memory proofs = new bytes32[][](burnIds.length);
@@ -403,7 +405,7 @@ contract WstHypeLoopingUManager {
         }
     }
     
-    // =============================== VIEW FUNCTIONS ===============================
+    // =============================== HELPER FUNCTIONS ===============================
     
     /**
      * @notice Check maximum instantly redeemable amount from overseer
@@ -433,15 +435,25 @@ contract WstHypeLoopingUManager {
         maxRedeemableFromOverseer = IOverseer(overseer).maxRedeemable();
     }
 
-    function _getMarketParams() private view returns (MarketParams memory) {
-    return MarketParams({
-        loanToken: wHYPE,
-        collateralToken: wstHYPE,
-        oracle: felixOracle,
-        irm: felixIrm,
-        lltv: felixLltv
-    });
-}
+
+    function _getMarketParams() private view returns (DecoderCustomTypes.MarketParams memory) {
+        return DecoderCustomTypes.MarketParams({
+            loanToken: wHYPE,
+            collateralToken: wstHYPE,
+            oracle: felixOracle,
+            irm: felixIrm,
+            lltv: felixLltv
+        });
+    }
+    function transferOwnership(address newOwner) external onlyOwner {
+        require(newOwner != address(0), "Invalid owner");
+        owner = newOwner;
+    }
+
+    function setStrategist(address newStrategist) external onlyOwner {
+        require(newStrategist != address(0), "Invalid strategist");
+        strategist = newStrategist;
+    }
 
 }
 
@@ -464,10 +476,35 @@ interface IOverseer {
 }
 
 interface IFelix {
-    function supplyCollateral(MarketParams calldata marketParams, uint256 assets, address onBehalf, bytes calldata data) external;
-    function borrow(MarketParams calldata marketParams, uint256 assets, uint256 shares, address onBehalf, address receiver) external;
-    function repay(MarketParams calldata marketParams, uint256 assets, uint256 shares, address onBehalf, bytes calldata data) external;
-    function withdrawCollateral(MarketParams calldata marketParams, uint256 assets, address onBehalf, address receiver) external;
+    function supplyCollateral(
+        DecoderCustomTypes.MarketParams calldata marketParams,
+        uint256 assets,
+        address onBehalf,
+        bytes calldata data
+    ) external;
+    
+    function borrow(
+        DecoderCustomTypes.MarketParams calldata marketParams,
+        uint256 assets,
+        uint256 shares,
+        address onBehalf,
+        address receiver
+    ) external;
+    
+    function repay(
+        DecoderCustomTypes.MarketParams calldata marketParams,
+        uint256 assets,
+        uint256 shares,
+        address onBehalf,
+        bytes calldata data
+    ) external;
+    
+    function withdrawCollateral(
+        DecoderCustomTypes.MarketParams calldata marketParams,
+        uint256 assets,
+        address onBehalf,
+        address receiver
+    ) external;
 }
 
 interface IWHype {

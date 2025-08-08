@@ -155,14 +155,13 @@ contract ChainValues {
         // Hyperliquid Protocol Contracts
         values[hyperliquid]["overseer"] = 0xB96f07367e69e86d6e9C3F29215885104813eeAE.toBytes32(); // REPLACE
         values[hyperliquid]["felixMarkets"] = 0x68e37dE8d93d3496ae143F2E900490f6280C57cD.toBytes32(); // Felix Markets
-        values[hyperliquid]["morphoBlue"] = 0x68e37dE8d93d3496ae143F2E900490f6280C57cD.toBytes32(); // Felix uses Morpho
         
         // Felix Market Parameters
         values[hyperliquid]["felixOracle"] = 0xD767818Ef397e597810cF2Af6b440B1b66f0efD3.toBytes32();
         values[hyperliquid]["felixIrm"] = 0xD4a426F010986dCad727e8dd6eed44cA4A9b7483.toBytes32();
         
         // Decoders and Sanitizers (to be deployed)
-        values[hyperliquid]["rawDataDecoderAndSanitizer"] = 0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.toBytes32(); // REPLACE
+        values[hyperliquid]["rawDataDecoderAndSanitizer"] = 0x777777777777777777777777777777777777777.toBytes32(); // REPLACE
         values[hyperliquid]["overseerDecoderAndSanitizer"] = 0x7777777777777777777777777777777777777777.toBytes32(); // REPLACE
         values[hyperliquid]["wHypeDecoderAndSanitizer"] = 0x8888888888888888888888888888888888888888.toBytes32(); // REPLACE
         values[hyperliquid]["felixDecoderAndSanitizer"] = 0x9999999999999999999999999999999999999999.toBytes32(); // REPLACE
