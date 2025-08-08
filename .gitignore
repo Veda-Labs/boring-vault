@@ -19,5 +19,6 @@ broadcast/*
 #leafs/TemporaryLeafs.json
 
 CLAUDE.md
+lib/
 
 
