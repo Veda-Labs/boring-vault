@@ -1,4 +1,7 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: SEL-1.0
+// Copyright © 2025 Veda Tech Labs
+// Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
+// Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
@@ -15,6 +18,10 @@ import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.s
 contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
+
+    // ========================================= STRUCTS =========================================
+    
+    // ========================================= STATE =========================================
     
     // New state variables TEMPORARY -> to be replaced with packed struct or somethin better
     uint256 public lastSharePrice; //the last share price (can maybe extend from previous accountant)
@@ -22,6 +29,12 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
     uint256 public lastVestingUpdate; //the last time the vesting gains were updated
     uint256 public endVestingTime; //the ending time for the gains to vest over
 
+    //============================== ERRORS ===============================
+    
+    error AccountantWithYieldStreaming__UpdateExchangeRateNotSupported(); 
+
+    //============================== EVENTS ===============================
+    
     event YieldRecorded(uint256 amountAdded, uint256 newtotalAssetsInBase); 
     event LossRecorded(uint256 lossAmount); 
 
@@ -55,44 +68,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
         endVestingTime = block.timestamp;  
     }
 
-    // the rate for 1 share (used for deposits, withdraws, and current rate)
-    // TODO unsure if we want to override `getRate()` here this function, so giving it a different name for now
-    function getRateInBase() public view returns (uint256 rate) {
-        uint256 currentShares = vault.totalSupply();
-        
-        if (currentShares == 0) {
-            return rate = lastSharePrice; //staringExchangeRate
-        }
-
-        uint256 totalAssets = lastSharePrice.mulDivDown(currentShares, 1e18) + getPendingVestingGains();
-        
-        rate = totalAssets.mulDivDown(10 ** decimals, currentShares);
-    }
-    
-    function getPendingVestingGains() public view returns (uint256) {
-        uint256 currentTime = block.timestamp;
-        
-        // If we're past the end of vesting, all remaining gains have vested
-        if (currentTime >= endVestingTime) {
-            return vestingGains; // Return ALL remaining unvested gains
-        }
-        
-        // If we haven't updated yet or no gains to vest
-        if (lastVestingUpdate >= endVestingTime || vestingGains == 0) {
-            return 0;
-        }
-        
-        // Calculate time that has passed since last update
-        uint256 timeSinceLastUpdate = currentTime - lastVestingUpdate;
-        
-        // Calculate total remaining vesting period when we last updated
-        uint256 totalRemainingTime = endVestingTime - lastVestingUpdate;
-        
-        // Calculate proportion of remaining gains that have vested
-        // vestingGains = total unvested amount as of lastVestingUpdate
-        // We vest it linearly over the remaining time
-        return (vestingGains * timeSinceLastUpdate) / totalRemainingTime;
-    }
+    // ========================================= UPDATE EXCHANGE RATE/FEES FUNCTIONS =========================================
 
     /**
      * @notice Record new yield to be vested over a duration
@@ -141,9 +117,10 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
         emit LossRecorded(lossAmount);
     }
 
-    
     //TODO auth
     function updateExchangeRate() public {
+        _collectFeesBeforeUpdate();
+
         // Calculate how much has vested since lastVestingUpdate
         uint256 newlyVested = getPendingVestingGains(); 
 
@@ -163,4 +140,83 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
             }
         }
     }
+
+    /**
+     * @notice Override updateExchangeRate to revert if called accidentally
+     */
+    function updateExchangeRate(uint96 newExchangeRate) external override requiresAuth {
+        newExchangeRate; //shh 
+        revert AccountantWithYieldStreaming__UpdateExchangeRateNotSupported(); 
+    }
+
+    // ========================================= VIEW FUNCTIONS =========================================
+    
+    // the rate for 1 share (used for deposits, withdraws, and current rate)
+    // TODO unsure if we want to override `getRate()` here this function, so giving it a different name for now
+    function getRateInBase() public view returns (uint256 rate) {
+        uint256 currentShares = vault.totalSupply();
+        
+        if (currentShares == 0) {
+            return rate = lastSharePrice; //staringExchangeRate
+        }
+
+        uint256 totalAssets = lastSharePrice.mulDivDown(currentShares, 1e18) + getPendingVestingGains();
+        
+        rate = totalAssets.mulDivDown(10 ** decimals, currentShares);
+    }
+    
+    function getPendingVestingGains() public view returns (uint256) {
+        uint256 currentTime = block.timestamp;
+        
+        // If we're past the end of vesting, all remaining gains have vested
+        if (currentTime >= endVestingTime) {
+            return vestingGains; // Return ALL remaining unvested gains
+        }
+        
+        // If we haven't updated yet or no gains to vest
+        if (lastVestingUpdate >= endVestingTime || vestingGains == 0) {
+            return 0;
+        }
+        
+        // Calculate time that has passed since last update
+        uint256 timeSinceLastUpdate = currentTime - lastVestingUpdate;
+        
+        // Calculate total remaining vesting period when we last updated
+        uint256 totalRemainingTime = endVestingTime - lastVestingUpdate;
+        
+        // Calculate proportion of remaining gains that have vested
+        // vestingGains = total unvested amount as of lastVestingUpdate
+        // We vest it linearly over the remaining time
+        return (vestingGains * timeSinceLastUpdate) / totalRemainingTime;
+    }
+    
+    function totalAssets() public view returns (uint256) {
+        uint256 currentShares = vault.totalSupply();
+        return lastSharePrice.mulDivDown(currentShares, 1e18) + getPendingVestingGains();
+    }
+
+    // ========================================= INTERNAL HELPER FUNCTIONS =========================================
+    
+    /**
+     * @notice Call this before share price increases to collect fees
+     */
+    function _collectFeesBeforeUpdate() internal {
+        AccountantState storage state = accountantState;
+        uint256 currentTotalShares = vault.totalSupply();
+        uint64 currentTime = uint64(block.timestamp);
+        
+        // Calculate fees using `AccountantWithRateProviders`
+        _calculateFeesOwed(
+            state,
+            uint96(lastSharePrice),
+            state.exchangeRate,
+            currentTotalShares,
+            currentTime
+        );
+        
+        state.exchangeRate = uint96(lastSharePrice);
+        state.totalSharesLastUpdate = uint128(currentTotalShares);
+        state.lastUpdateTimestamp = currentTime;
+    }
+
 }

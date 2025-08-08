@@ -30,7 +30,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     TellerWithYieldStreaming public teller;
     RolesAuthority public rolesAuthority;
 
-    address public payout_address = vm.addr(7777777);
+    address public payoutAddress = vm.addr(7777777);
     ERC20 internal WETH;
     ERC20 internal EETH;
     ERC20 internal WEETH;
@@ -66,7 +66,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
         boringVault = new BoringVault(address(this), "Boring Vault", "BV", 18);
         accountant = new AccountantWithYieldStreaming(
-            address(this), address(boringVault), payout_address, 1e18, address(WETH), 1.001e4, 0.999e4, 1, 0, 0
+            address(this), address(boringVault), payoutAddress, 1e18, address(WETH), 1.001e4, 0.999e4, 1, 0.1e4, 0.1e4
         );
         teller =
             new TellerWithYieldStreaming(address(this), address(boringVault), address(accountant), address(WETH));
@@ -305,7 +305,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         vm.assertApproxEqAbs(assetsOut, 15e18, 2); 
     }
 
-    function testVestLoss() external {
+    function testVestLossAbsorbBuffer() external {
         console.log("==== Test Vesting a Loss (fully absorbed by buffer) ==="); 
         uint256 WETHAmount = 10e18; 
         deal(address(WETH), address(this), 1_000e18);
@@ -316,26 +316,25 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         WETH.approve(address(accountant), type(uint256).max);
         accountant.vestYield(WETHAmount, 24 hours); 
         skip(12 hours); 
+        console.log("==== End Vesting Yield Stream ===="); 
 
         uint256 currentShares = boringVault.totalSupply(); 
         console.log("curent shares before loss: ", currentShares); 
-        uint256 totalAssetsInBaseBefore = currentShares.mulDivDown(accountant.lastSharePrice(), 1e18); 
+        uint256 totalAssetsInBaseBefore = accountant.totalAssets();  
         console.log("totalAssetsInBase before loss: ", totalAssetsInBaseBefore); 
 
         console.log("==== Vault Posts A Loss ===="); 
-        //a loss here, calculated by the strategist off chain, requires them to update the yield. If they wanted to keep the remaining stream, with just the loss
-        //they would simply update the stream to whatever the remaining time is, and then update the remaining amount streamed
-        accountant.vestLoss(2.5e18, 0); 
+        accountant.vestLoss(2.5e18, 0); //smaller loss than buffer (5 weth at this point)
 
         currentShares = boringVault.totalSupply(); 
         console.log("curent shares: ", currentShares); 
-        uint256 totalAssetsInBaseAfter = currentShares.mulDivDown(accountant.lastSharePrice(), 1e18); 
+        uint256 totalAssetsInBaseAfter = accountant.totalAssets();  
         console.log("totalAssetsInBase after loss: ", totalAssetsInBaseAfter); 
 
         console.log("vesting gains should decrease by 2.5e18: ", accountant.vestingGains()); 
 
-        //total assets should go up as we move vested gains -> totalAssets
-        assertLt(totalAssetsInBaseBefore, totalAssetsInBaseAfter); 
+        //total assets should remain the same as the buffer absorbed the entire loss
+        assertEq(totalAssetsInBaseBefore, totalAssetsInBaseAfter); 
 
 
         skip(12 hours); 
@@ -344,6 +343,176 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         //assertEq(should be 15 total instead of 20); 
     }
 
+
+    function testVestLossAffectsSharePrice() external {
+        console.log("==== Test Vesting a Loss (affects share price) ==="); 
+        uint256 WETHAmount = 10e18; 
+        deal(address(WETH), address(this), 1_000e18);
+        WETH.approve(address(boringVault), 1_000e18);
+        uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
+
+        //vault total = 10
+
+        console.log("==== Add Vesting Yield Stream ===="); 
+        WETH.approve(address(accountant), type(uint256).max);
+        accountant.vestYield(WETHAmount, 24 hours); 
+        skip(12 hours); 
+        console.log("==== End Vesting Yield Stream ===="); 
+
+        //total assets = 15
+
+        uint256 currentShares = boringVault.totalSupply(); 
+        uint256 totalAssetsInBaseBefore = accountant.totalAssets();  
+        assertEq(totalAssetsInBaseBefore, 15e18); 
+
+        uint256 sharePriceInitial = accountant.lastSharePrice(); 
+
+        //15 total assets as this point
+        
+        console.log("==== Vault Posts A Loss ===="); 
+        accountant.vestLoss(15e18, 0); //this moves vested yield -> share price (to protect share price)
+        //note: the buffer absorbs the loss, so we're left with 5 remaining (the vested yield)
+        
+        //15 - 15 with (5 unvested remaining) = 5 left
+
+        currentShares = boringVault.totalSupply(); 
+        uint256 totalAssetsInBaseAfter = accountant.totalAssets();  
+        console.log("totalAssetsInBase after loss: ", totalAssetsInBaseAfter); 
+        
+        //vesting gains should be 0
+        assertEq(0, accountant.vestingGains()); 
+
+        //total assets should be 5e18 -> 10 initial, 5 yield, 5 unvested -> 15 weth loss (5 from buffer) -> 15 - 10 = 5 totalAssets remaining
+        assertEq(totalAssetsInBaseAfter, 5e18); 
+
+        skip(12 hours); 
+        
+        //TA should be same as remaining yield has been wiped
+        uint256 totalAssetsInBaseAfterVest = accountant.totalAssets();  
+        assertEq(totalAssetsInBaseAfter, totalAssetsInBaseAfterVest); //should be the same, as the remaining yield was wiped
+
+        //check that the share price was affected
+        uint256 sharePriceAfter = accountant.lastSharePrice(); 
+        assertLt(sharePriceAfter, sharePriceInitial, "share price should be less after loss exceeds buffer"); 
+
+        console.log("share price before loss: ", sharePriceInitial); 
+        console.log("share price after loss: ", sharePriceAfter); 
+        console.log("difference: ", sharePriceInitial - sharePriceAfter); //diff = 50% 
+    }
+
+    function testGetPendingVestingGains() external {
+        console.log("==== Test Vesting Yield returns the Vested Yield only as a part of total assets ==="); 
+        uint256 WETHAmount = 10e18; 
+        deal(address(WETH), address(this), 1_000e18);
+        WETH.approve(address(boringVault), 1_000e18);
+        uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
+
+        //vault total = 10
+
+        WETH.approve(address(accountant), type(uint256).max);
+        accountant.vestYield(WETHAmount, 24 hours); 
+        skip(6 hours); 
+       
+        //total should be 10 + (10 / 4) = 2.5
+
+        uint256 currentShares = boringVault.totalSupply(); 
+        uint256 totalAssets = accountant.totalAssets();  
+        console.log("total assets: ", totalAssets); 
+        assertEq(totalAssets, 12.5e18); 
+    }
+
+    function testPlatformFees() external {
+        console.log("==== Test Platform Fees still work as expected ==="); 
+        uint256 platformFeeRate = 0.1e4; // 10%
+
+        uint256 WETHAmount = 10e18; 
+        deal(address(WETH), address(this), 1_000e18);
+        WETH.approve(address(boringVault), 1_000e18);
+        uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
+
+        WETH.approve(address(accountant), type(uint256).max);
+        accountant.vestYield(WETHAmount, 24 hours); 
+
+        // Skip 1 year
+        skip(365 days);
+        
+        //update the rate
+        accountant.updateExchangeRate();  
+        
+        //check the fees owned 
+        (,, uint128 feesOwedInBase,,,,,,,,,) = accountant.accountantState();
+        uint256 expectedFees = WETHAmount * platformFeeRate / 1e4; // 10 WETH
+        assertEq(feesOwedInBase, expectedFees);
+
+        //claim fees
+        vm.startPrank(address(boringVault));
+        WETH.approve(address(accountant), feesOwedInBase);
+        accountant.claimFees(WETH);
+        vm.stopPrank();
+        
+        //verify we got paid
+        uint256 fees = WETH.balanceOf(payoutAddress); 
+        console.log("Fees earned: ", fees); 
+        assertEq(WETH.balanceOf(payoutAddress), expectedFees);
+    }
+    
+    function testPerformanceFeesAfterYield() external {
+        console.log("==== Test Performance Fees After Yield ====");
+    
+        uint256 performanceFeeRate = 0.1e4; // 10%
+    
+        uint256 WETHAmount = 10e18;
+        deal(address(WETH), address(this), 1_000e18);
+        WETH.approve(address(boringVault), 1_000e18);
+        teller.deposit(WETH, WETHAmount, 0);
+    
+        // Record initial state
+        (, uint96 initialHighwaterMark, ,,,,,,,,,) = accountant.accountantState();
+        uint256 initialSharePrice = accountant.lastSharePrice();
+        uint256 totalShares = boringVault.totalSupply();
+    
+        console.log("Initial high water mark:", initialHighwaterMark);
+        console.log("Initial share price:", initialSharePrice);
+        console.log("Total shares:", totalShares);
+    
+        WETH.approve(address(accountant), type(uint256).max);
+        accountant.vestYield(WETHAmount, 24 hours);
+    
+        // Let it fully vest
+        skip(1 days);
+    
+        // Update exchange rate to trigger fee calculation
+        accountant.updateExchangeRate();
+    
+        (, uint96 nextHighwaterMark, uint128 feesOwedInBase,,,,,,,,,) = accountant.accountantState();
+        uint256 finalSharePrice = accountant.lastSharePrice();
+    
+        console.log("Share price after yield:", finalSharePrice);
+        console.log("New high water mark:", nextHighwaterMark);
+    
+        // Calculate expected performance fees based on SHARE PRICE APPRECIATION
+        uint256 sharePriceIncrease = finalSharePrice - initialSharePrice;
+        console.log("Share price increase:", sharePriceIncrease);
+    
+        // The appreciation in value = price increase * total shares / 10^18
+        uint256 valueAppreciation = (sharePriceIncrease * totalShares) / 1e18;
+        console.log("Value appreciation:", valueAppreciation);
+    
+        // Expected fees = 10% of appreciation
+        uint256 expectedPerformanceFees = (valueAppreciation * performanceFeeRate) / 1e4;
+        uint256 actualFees = feesOwedInBase;
+    
+        console.log("Expected performance fees (10% of appreciation):", expectedPerformanceFees);
+        console.log("Actual fees owed:", actualFees);
+    
+        // Allow for small rounding difference
+        assertApproxEqAbs(actualFees, expectedPerformanceFees, 1e15, "Performance fees should match share price appreciation");
+    
+        // Verify high water mark updated
+        assertGt(nextHighwaterMark, initialHighwaterMark, "HWM should increase");
+        assertEq(uint256(nextHighwaterMark), finalSharePrice, "HWM should equal new share price");
+    }
+    
     // ========================================= HELPER FUNCTIONS =========================================
     
     function _startFork(string memory rpcKey, uint256 blockNumber) internal returns (uint256 forkId) {
