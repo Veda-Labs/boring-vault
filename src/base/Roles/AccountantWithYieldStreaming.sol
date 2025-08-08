@@ -15,7 +15,7 @@ import {IPausable} from "src/interfaces/IPausable.sol";
 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
-contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
+contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
 
@@ -83,7 +83,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
         // first, update any previously vested gains
         updateExchangeRate();
         
-        //removed -- strategists should now account for unvested yield if they want, gives more flexibility in posting pnl updates 
+        //strategists should account for any unvested yield they want, gives more flexibility in posting pnl updates 
         vestingGains = yieldAmount;
         
         endVestingTime = block.timestamp + duration;
@@ -119,16 +119,17 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
 
     //TODO auth
     function updateExchangeRate() public {
-        _collectFeesBeforeUpdate();
 
         // Calculate how much has vested since lastVestingUpdate
         uint256 newlyVested = getPendingVestingGains(); 
 
+        uint256 currentShares = vault.totalSupply();
         if (newlyVested > 0) {
             // update the share price
-            uint256 currentShares = vault.totalSupply();
             uint256 totalAssets = lastSharePrice.mulDivDown(currentShares, 1e18); 
             lastSharePrice = (totalAssets + newlyVested).mulDivDown(1e18, currentShares);
+
+            _collectFeesBeforeUpdate();
 
             // Move vested amount from pending to realized
             vestingGains -= newlyVested;        // remove from pending
@@ -139,6 +140,9 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
                 endVestingTime = block.timestamp + timeRemaining;
             }
         }
+        
+        AccountantState storage state = accountantState;
+        state.totalSharesLastUpdate = uint128(currentShares); 
     }
 
     /**
@@ -206,6 +210,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
         uint64 currentTime = uint64(block.timestamp);
         
         // Calculate fees using `AccountantWithRateProviders`
+        // this should update the highwater mark, but isnt...
         _calculateFeesOwed(
             state,
             uint96(lastSharePrice),

@@ -12,7 +12,7 @@ import {IPausable} from "src/interfaces/IPausable.sol";
 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
-contract AccountantWithQuadraticYieldStreaming is AccountantWithRateProviders, Test {
+contract AccountantWithQuadraticYieldStreaming is AccountantWithRateProviders {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
     

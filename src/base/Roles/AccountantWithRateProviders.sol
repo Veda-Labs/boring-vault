@@ -12,7 +12,9 @@ import {BoringVault} from "src/base/BoringVault.sol";
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {IPausable} from "src/interfaces/IPausable.sol";
 
-contract AccountantWithRateProviders is Auth, IRateProvider, IPausable {
+import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+
+contract AccountantWithRateProviders is Auth, IRateProvider, IPausable, Test {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
 
@@ -553,10 +555,14 @@ contract AccountantWithRateProviders is Auth, IRateProvider, IPausable {
             currentTime
         );
 
+        console.log("share supply to use: ", shareSupplyToUse); 
+
         // Account for performance fees.
         if (newExchangeRate > state.highwaterMark) {
+            console.log("new rate > hwm"); 
             (uint256 performanceFeesOwedInBase,) =
                 _calculatePerformanceFee(newExchangeRate, shareSupplyToUse, state.highwaterMark, state.performanceFee);
+            console.log("performance fees", performanceFeesOwedInBase); 
 
             // Add performance fees to fees owed.
             newFeesOwedInBase += performanceFeesOwedInBase;

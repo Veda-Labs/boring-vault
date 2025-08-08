@@ -503,16 +503,56 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 actualFees = feesOwedInBase;
     
         console.log("Expected performance fees (10% of appreciation):", expectedPerformanceFees);
-        console.log("Actual fees owed:", actualFees);
+        console.log("Actual fees owed (platform + performance):", actualFees);
+
+        uint128 platformFee = 2739726027397260; 
     
         // Allow for small rounding difference
-        assertApproxEqAbs(actualFees, expectedPerformanceFees, 1e15, "Performance fees should match share price appreciation");
+        assertApproxEqAbs(actualFees - platformFee, expectedPerformanceFees, 1e15, "Performance fees should match share price appreciation");
     
         // Verify high water mark updated
         assertGt(nextHighwaterMark, initialHighwaterMark, "HWM should increase");
         assertEq(uint256(nextHighwaterMark), finalSharePrice, "HWM should equal new share price");
     }
+
+    function testPerformanceFeesDebugDetailed() external {
+        console.log("==== Debug Fee Calculation Step by Step ====");
     
+        // Setup
+        deal(address(WETH), address(this), 1_000e18);
+        WETH.approve(address(boringVault), 1_000e18);
+        teller.deposit(WETH, 10e18, 0);
+
+        // Update
+        accountant.updateExchangeRate();
+    
+        // Add yield
+        WETH.approve(address(accountant), type(uint256).max);
+        accountant.vestYield(10e18, 24 hours);
+        skip(1 days);
+    
+        // Get state before update
+        (, uint96 hwmBefore, uint128 feesBefore, , uint96 exchangeRate,,,,,,,) = accountant.accountantState();
+        console.log("HWM before:", hwmBefore);
+        console.log("Fees before:", feesBefore);
+        console.log("Exchange rate before:", exchangeRate);
+        console.log("lastSharePrice before update:", accountant.lastSharePrice());
+    
+        // Update
+        accountant.updateExchangeRate();
+    
+        // Get state after
+        (, uint96 hwmAfter, uint128 feesAfter, , uint96 exchangeRateAfter,,,,,,,uint16 performanceFee) = accountant.accountantState();
+        console.log("HWM before:", hwmBefore);
+        console.log("\nHWM after:", hwmAfter);
+        console.log("Fees after:", feesAfter);
+        console.log("Exchange rate after:", exchangeRateAfter);
+        console.log("lastSharePrice after:", accountant.lastSharePrice());
+    
+        // Check if performance fee is 0
+        console.log("\nPerformance fee rate:", performanceFee);
+    }
+
     // ========================================= HELPER FUNCTIONS =========================================
     
     function _startFork(string memory rpcKey, uint256 blockNumber) internal returns (uint256 forkId) {
