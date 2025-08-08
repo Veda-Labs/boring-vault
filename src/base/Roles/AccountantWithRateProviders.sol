@@ -12,9 +12,7 @@ import {BoringVault} from "src/base/BoringVault.sol";
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {IPausable} from "src/interfaces/IPausable.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
-
-contract AccountantWithRateProviders is Auth, IRateProvider, IPausable, Test {
+contract AccountantWithRateProviders is Auth, IRateProvider, IPausable {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
 
@@ -348,7 +346,7 @@ contract AccountantWithRateProviders is Auth, IRateProvider, IPausable, Test {
     /**
      * @notice Get this BoringVault's current rate in the base.
      */
-    function getRate() public view returns (uint256 rate) {
+    function getRate() public virtual view returns (uint256 rate) {
         rate = accountantState.exchangeRate;
     }
 
@@ -356,7 +354,7 @@ contract AccountantWithRateProviders is Auth, IRateProvider, IPausable, Test {
      * @notice Get this BoringVault's current rate in the base.
      * @dev Revert if paused.
      */
-    function getRateSafe() external view returns (uint256 rate) {
+    function getRateSafe() external virtual view returns (uint256 rate) {
         if (accountantState.isPaused) revert AccountantWithRateProviders__Paused();
         rate = getRate();
     }
@@ -555,14 +553,10 @@ contract AccountantWithRateProviders is Auth, IRateProvider, IPausable, Test {
             currentTime
         );
 
-        console.log("share supply to use: ", shareSupplyToUse); 
-
         // Account for performance fees.
         if (newExchangeRate > state.highwaterMark) {
-            console.log("new rate > hwm"); 
             (uint256 performanceFeesOwedInBase,) =
                 _calculatePerformanceFee(newExchangeRate, shareSupplyToUse, state.highwaterMark, state.performanceFee);
-            console.log("performance fees", performanceFeesOwedInBase); 
 
             // Add performance fees to fees owed.
             newFeesOwedInBase += performanceFeesOwedInBase;

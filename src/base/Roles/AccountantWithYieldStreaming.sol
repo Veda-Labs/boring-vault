@@ -15,7 +15,7 @@ import {IPausable} from "src/interfaces/IPausable.sol";
 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
-contract AccountantWithYieldStreaming is AccountantWithRateProviders {
+contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
 
@@ -74,12 +74,10 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
      * @notice Record new yield to be vested over a duration
      * @param yieldAmount The amount of yield earned
      * @param duration The period over which to vest this yield
+     * @notice callable by the STRATEGIST role
      * @dev `yieldAmount` should be denominated in the BASE ASSET
      */
     function vestYield(uint256 yieldAmount, uint256 duration) external {
-        base.transferFrom(msg.sender, address(vault), yieldAmount); 
-
-        //require(duration > 0, "Duration must be positive"); //maybe remove this check, we might want to have the ability to post instant yield
         // first, update any previously vested gains
         updateExchangeRate();
         
@@ -91,7 +89,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     }
 
     /**
-     * @notice callable by the Teller
+     * @notice callable by the STRATEGIST role
      * //TODO add auth
      */
     function vestLoss(uint256 lossAmount, uint256 duration) external {
@@ -125,11 +123,12 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
 
         uint256 currentShares = vault.totalSupply();
         if (newlyVested > 0) {
+
             // update the share price
             uint256 totalAssets = lastSharePrice.mulDivDown(currentShares, 1e18); 
             lastSharePrice = (totalAssets + newlyVested).mulDivDown(1e18, currentShares);
 
-            _collectFeesBeforeUpdate();
+            _collectFees();
 
             // Move vested amount from pending to realized
             vestingGains -= newlyVested;        // remove from pending
@@ -148,25 +147,28 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     /**
      * @notice Override updateExchangeRate to revert if called accidentally
      */
-    function updateExchangeRate(uint96 newExchangeRate) external override requiresAuth {
-        newExchangeRate; //shh 
+    function updateExchangeRate(uint96 /*newExchangeRate*/) external override requiresAuth {
         revert AccountantWithYieldStreaming__UpdateExchangeRateNotSupported(); 
     }
 
     // ========================================= VIEW FUNCTIONS =========================================
     
     // the rate for 1 share (used for deposits, withdraws, and current rate)
-    // TODO unsure if we want to override `getRate()` here this function, so giving it a different name for now
-    function getRateInBase() public view returns (uint256 rate) {
+    function getRate() public override view returns (uint256 rate) {
         uint256 currentShares = vault.totalSupply();
-        
         if (currentShares == 0) {
             return rate = lastSharePrice; //staringExchangeRate
         }
+        rate = totalAssets().mulDivDown(10 ** decimals, currentShares);
+    }
 
-        uint256 totalAssets = lastSharePrice.mulDivDown(currentShares, 1e18) + getPendingVestingGains();
-        
-        rate = totalAssets.mulDivDown(10 ** decimals, currentShares);
+    function getRateSafe() external override view returns (uint256 rate) {
+        if (accountantState.isPaused) revert AccountantWithRateProviders__Paused();
+        uint256 currentShares = vault.totalSupply();
+        if (currentShares == 0) {
+            return rate = lastSharePrice; //staringExchangeRate
+        }
+        rate = totalAssets().mulDivDown(10 ** decimals, currentShares);
     }
     
     function getPendingVestingGains() public view returns (uint256) {
@@ -199,12 +201,16 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         return lastSharePrice.mulDivDown(currentShares, 1e18) + getPendingVestingGains();
     }
 
+    function version() external view returns (string memory) {
+        return "V0.1";
+    }
+
     // ========================================= INTERNAL HELPER FUNCTIONS =========================================
     
     /**
      * @notice Call this before share price increases to collect fees
      */
-    function _collectFeesBeforeUpdate() internal {
+    function _collectFees() internal {
         AccountantState storage state = accountantState;
         uint256 currentTotalShares = vault.totalSupply();
         uint64 currentTime = uint64(block.timestamp);

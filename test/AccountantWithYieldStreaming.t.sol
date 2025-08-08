@@ -185,7 +185,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         console.log("totalAssetsInBase: ", totalAssetsInBase); 
 
         //vest some yield
-        WETH.approve(address(accountant), type(uint256).max);
+        deal(address(WETH), address(boringVault), WETHAmount);
         accountant.vestYield(WETHAmount, 24 hours); 
         skip(12 hours); 
 
@@ -233,7 +233,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
 
         console.log("==== Add Vesting Yield Stream ===="); 
-        WETH.approve(address(accountant), type(uint256).max);
+        deal(address(WETH), address(boringVault), WETHAmount);
         accountant.vestYield(WETHAmount, 24 hours); 
         skip(12 hours); 
         
@@ -272,7 +272,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
 
         console.log("==== Add Vesting Yield Stream ===="); 
-        WETH.approve(address(accountant), type(uint256).max);
+        deal(address(WETH), address(boringVault), WETHAmount);
         accountant.vestYield(WETHAmount, 24 hours); 
         skip(12 hours); 
         
@@ -313,7 +313,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
 
         console.log("==== Add Vesting Yield Stream ===="); 
-        WETH.approve(address(accountant), type(uint256).max);
+        deal(address(WETH), address(boringVault), WETHAmount * 2);
         accountant.vestYield(WETHAmount, 24 hours); 
         skip(12 hours); 
         console.log("==== End Vesting Yield Stream ===="); 
@@ -338,9 +338,10 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
 
         skip(12 hours); 
-
+        
+        console.log("the vault actually has ", WETH.balanceOf(address(boringVault))); 
         uint256 assetsOut = teller.bulkWithdraw(WETH, shares0, 0, address(boringVault)); 
-        //assertEq(should be 15 total instead of 20); 
+        assertEq(assetsOut, 17.5e18); //10 WETH deposit -> 5 weth is vested -> 2.5 loss -> remaining 2.5 vests over the next 12 hours = total of 17.5 earned
     }
 
 
@@ -354,7 +355,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         //vault total = 10
 
         console.log("==== Add Vesting Yield Stream ===="); 
-        WETH.approve(address(accountant), type(uint256).max);
+        deal(address(WETH), address(boringVault), WETHAmount);
         accountant.vestYield(WETHAmount, 24 hours); 
         skip(12 hours); 
         console.log("==== End Vesting Yield Stream ===="); 
@@ -409,7 +410,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
         //vault total = 10
 
-        WETH.approve(address(accountant), type(uint256).max);
+        deal(address(WETH), address(boringVault), WETHAmount);
         accountant.vestYield(WETHAmount, 24 hours); 
         skip(6 hours); 
        
@@ -430,7 +431,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
 
-        WETH.approve(address(accountant), type(uint256).max);
+        deal(address(WETH), address(boringVault), WETHAmount);
         accountant.vestYield(WETHAmount, 24 hours); 
 
         // Skip 1 year
@@ -441,7 +442,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         
         //check the fees owned 
         (,, uint128 feesOwedInBase,,,,,,,,,) = accountant.accountantState();
-        uint256 expectedFees = WETHAmount * platformFeeRate / 1e4; // 10 WETH
+        uint256 expectedFees = (WETHAmount * 2) * platformFeeRate / 1e4; // 20 WETH (10 over day 1, 20 over 364 days for total of 2)
         assertEq(feesOwedInBase, expectedFees);
 
         //claim fees
@@ -475,7 +476,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         console.log("Initial share price:", initialSharePrice);
         console.log("Total shares:", totalShares);
     
-        WETH.approve(address(accountant), type(uint256).max);
+        deal(address(WETH), address(boringVault), WETHAmount);
         accountant.vestYield(WETHAmount, 24 hours);
     
         // Let it fully vest
@@ -517,6 +518,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
     function testPerformanceFeesDebugDetailed() external {
         console.log("==== Debug Fee Calculation Step by Step ====");
+
+        uint256 WETHAmount = 10e18; 
     
         // Setup
         deal(address(WETH), address(this), 1_000e18);
@@ -527,7 +530,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         accountant.updateExchangeRate();
     
         // Add yield
-        WETH.approve(address(accountant), type(uint256).max);
+        deal(address(WETH), address(boringVault), WETHAmount);
         accountant.vestYield(10e18, 24 hours);
         skip(1 days);
     

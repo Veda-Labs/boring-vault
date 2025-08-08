@@ -37,7 +37,7 @@ contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
         if (!asset.allowWithdraws) revert TellerWithMultiAssetSupport__AssetNotSupported();
 
         if (shareAmount == 0) revert TellerWithMultiAssetSupport__ZeroShares();
-        assetsOut = shareAmount.mulDivDown(_getAccountant().getRateInBase(), ONE_SHARE);
+        assetsOut = shareAmount.mulDivDown(_getAccountant().getRate(), ONE_SHARE);
         if (assetsOut < minimumAssets) revert TellerWithMultiAssetSupport__MinimumAssetsNotMet();
 
         vault.exit(to, withdrawAsset, assetsOut, msg.sender, shareAmount);
@@ -58,7 +58,7 @@ contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
 
         uint112 cap = depositCap;
         if (depositAmount == 0) revert TellerWithMultiAssetSupport__ZeroAssets();
-        shares = depositAmount.mulDivDown(ONE_SHARE, _getAccountant().getRateInBase());
+        shares = depositAmount.mulDivDown(ONE_SHARE, _getAccountant().getRate());
         shares = asset.sharePremium > 0 ? shares.mulDivDown(1e4 - asset.sharePremium, 1e4) : shares;
         if (shares < minimumMint) revert TellerWithMultiAssetSupport__MinimumMintNotMet();
         if (cap != type(uint112).max) {
