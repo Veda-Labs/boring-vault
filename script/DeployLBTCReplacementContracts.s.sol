@@ -21,6 +21,9 @@ import "forge-std/Test.sol";
  * 
  * Usage:
  * source .env && forge script script/DeployLBTCReplacementContracts.s.sol:DeployLBTCReplacementContracts --broadcast --verify
+ * 
+ * For Corn network:
+ * source .env && forge script script/DeployLBTCReplacementContracts.s.sol:DeployLBTCReplacementContracts --broadcast --verify --rpc-url $CORN_MAIZENET_RPC_URL --verifier-url 'https://api.routescan.io/v2/network/mainnet/evm/21000000/etherscan'
  */
 contract DeployLBTCReplacementContracts is Script, Test {
     using stdJson for string;
@@ -85,6 +88,8 @@ contract DeployLBTCReplacementContracts is Script, Test {
             networkId = 1147; // TAC (if this is the correct chain ID)
         } else if (block.chainid == 11147) {
             networkId = 11147; // TAC Testnet (if applicable)
+        } else if (block.chainid == 21000000) {
+            networkId = 21000000; // Corn
         } else {
             // For development: Allow any network and use its chain ID
             networkId = block.chainid;
@@ -98,30 +103,30 @@ contract DeployLBTCReplacementContracts is Script, Test {
         // Array to store all actions
         string memory actionsArray = "";
 
-        // Configuration for Sonic BTC vault on mainnet
+        // Configuration for eBTC vault on Corn network
         VaultConfig[] memory vaults = new VaultConfig[](1);
         
-        // Sonic BTC Vault configuration (replacing LBTC with WBTC as base)
+        // eBTC Vault configuration on Corn (replacing LBTC with WBTCN as base)
         vaults[0] = VaultConfig({
-            productName: "sonic_btc_lbtc_replacement",
-            boringVault: 0xBb30e76d9Bb2CC9631F7fC5Eb8e87B5Aff32bFbd, // SonicBTC Vault
-            existingAccountant: 0xC1a2C650D2DcC8EAb3D8942477De71be52318Acb, // SonicBTC AccountantWithFixedRate
-            existingTeller: 0xAce7DEFe3b94554f0704d8d00F69F273A0cFf079, // SonicBTC TellerWithLayerZero
-            existingQueue: 0x488000E6a0CfC32DCB3f37115e759aF50F55b48B, // SonicBTC BoringOnChainQueue
-            existingQueueSolver: 0x921bBB663A0164c9867e494B8E0331B84213a984, // SonicBTC QueueSolver
-            rolesAuthority: 0xe2C7E397b35fF40962eBc205217B6795520Fb264, // SonicBTC RolesAuthority
-            payoutAddress: 0xA9962a5BfBea6918E958DeE0647E99fD7863b95A, // Liquid payout address
-            newBaseAsset: 0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599, // WBTC address
-            lbtcAddress: 0x8236a87084f8B84306f72007F36F2618A5634494, // LBTC address
-            lbtcRateProvider: 0x94916a66fC119a0AC7d612927F0D909cAc15314C, // LBTC Rate Provider V0.0
+            productName: "ebtc",
+            boringVault: 0x657e8C867D8B37dCC18fA4Caead9C45EB088C642, // eBTC Vault on Corn
+            existingAccountant: 0x1b293DC39F94157fA0D1D36d7e0090C8B8B8c13F, // eBTC AccountantWithRateProviders
+            existingTeller: 0xe19a43B1b8af6CeE71749Af2332627338B3242D1, // eBTC TellerWithMultiAssetSupport
+            existingQueue: 0x686696A3e59eE16e8A8533d84B62cfA504827135, // eBTC BoringOnChainQueue
+            existingQueueSolver: 0x7aa7CB90eF6677B4389B0eB707c4c7208897Bee8, // eBTC QueueSolver
+            rolesAuthority: 0x6889E57BcA038C28520C0B047a75e567502ea5F6, // eBTC RolesAuthority
+            payoutAddress: 0xf8553c8552f906C19286F21711721E206EE4909E, // eBTC payout address
+            newBaseAsset: 0xda5dDd7270381A7C2717aD10D1c0ecB19e3CDFb2, // WBTCN address on Corn
+            lbtcAddress: 0xecAc9C5F704e954931349Da37F60E39f515c11c1, // LBTC address on Corn
+            lbtcRateProvider: address(0), // TODO: Need to verify LBTC Rate Provider on Corn
             startingExchangeRate: 100000000, // 1e8 for BTC-based vault
-            allowedExchangeRateChangeUpper: 10100, // 1.01% upper bound
-            allowedExchangeRateChangeLower: 9900, // 1% lower bound
+            allowedExchangeRateChangeUpper: 10000, // 0% upper bound (from config)
+            allowedExchangeRateChangeLower: 9900, // 1% lower bound (from config)
             minimumUpdateDelayInSeconds: 21600, // 6 hours
-            platformFee: 150, // 1.5%
+            platformFee: 200, // 2% (from config)
             performanceFee: 0,
             allowPublicDeposits: true,
-            shareLockPeriod: 86400, // 24 hours
+            shareLockPeriod: 60, // 60 seconds (from config)
             allowPublicWithdrawals: true,
             excessToSolverNonSelfSolve: false
         });
@@ -198,11 +203,23 @@ contract DeployLBTCReplacementContracts is Script, Test {
         );
 
         // Configure LBTC as yield-bearing asset in accountant
-        newAccountant.setRateProviderData(
-            ERC20(config.lbtcAddress),
-            false, // Not pegged to base
-            config.lbtcRateProvider
-        );
+        // Note: If LBTC rate provider is not deployed on this network, 
+        // LBTC can be configured as pegged to base (1:1 with WBTCN)
+        if (config.lbtcRateProvider != address(0)) {
+            newAccountant.setRateProviderData(
+                ERC20(config.lbtcAddress),
+                false, // Not pegged to base
+                config.lbtcRateProvider
+            );
+        } else {
+            // Configure LBTC as pegged to base if no rate provider
+            console.log("WARNING: No LBTC rate provider configured. Setting LBTC as pegged to base.");
+            newAccountant.setRateProviderData(
+                ERC20(config.lbtcAddress),
+                true, // Pegged to base
+                address(0)
+            );
+        }
 
         // Set authorities
         newAccountant.setAuthority(RolesAuthority(config.rolesAuthority));
