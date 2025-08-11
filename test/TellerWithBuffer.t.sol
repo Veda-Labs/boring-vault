@@ -46,6 +46,10 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
 
     ERC20 internal USDT;
     ERC20 internal USDC;
+    ERC20 internal aUSDT;
+    ERC20 internal aUSDC;
+
+    address internal v3Pool;
 
     function setUp() public {
         setSourceChainName("mainnet");
@@ -56,15 +60,17 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
 
         USDT = getERC20(sourceChain, "USDT");
         USDC = getERC20(sourceChain, "USDC");
-
+        aUSDT = getERC20(sourceChain, "aV3USDT");
+        aUSDC = getERC20(sourceChain, "aV3USDC");
+        v3Pool = getAddress(sourceChain, "v3Pool");
         bytes32 salt = keccak256("boring-vault-salt");
         boringVault = new BoringVault{salt: salt}(address(this), "Boring Vault", "BV", 6);
 
         accountant = new AccountantWithRateProviders(
-            address(this), address(boringVault), payout_address, 1e6, address(USDT), 1.001e4, 0.999e4, 1, 0, 0
+            address(this), address(boringVault), payout_address, 1e6, address(USDT), 1.1e4, 0.9e4, 1, 0, 0
         );
 
-        address bufferHelper = address(new AaveV3BufferHelper(getAddress(sourceChain, "v3Pool"), address(boringVault)));
+        address bufferHelper = address(new AaveV3BufferHelper(v3Pool, address(boringVault)));
 
         teller =
             new TellerWithBuffer(address(this), address(boringVault), address(accountant), address(USDT), bufferHelper, bufferHelper);
@@ -149,8 +155,8 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
 
         assertEq(boringVault.balanceOf(address(this)), expected_shares, "Should have received expected shares");
 
-        assertApproxEqAbs(getERC20(sourceChain, "aV3USDT").balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
-        assertApproxEqAbs(getERC20(sourceChain, "aV3USDC").balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
+        assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
+        assertApproxEqAbs(aUSDC.balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
     }
 
     function testUserDepositWithSufficientOpenApproval(uint256 amount) external {
@@ -160,8 +166,8 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
 
         // approve >= the amount that will be deposited
         bytes[] memory data = new bytes[](2);
-        data[0] = abi.encodeWithSelector(USDT.approve.selector, getAddress(sourceChain, "v3Pool"), amount);
-        data[1] = abi.encodeWithSelector(USDC.approve.selector, getAddress(sourceChain, "v3Pool"), amount);
+        data[0] = abi.encodeWithSelector(USDT.approve.selector, v3Pool, amount);
+        data[1] = abi.encodeWithSelector(USDC.approve.selector, v3Pool, amount);
 
         address[] memory targets = new address[](2);
         targets[0] = address(USDT);
@@ -188,8 +194,8 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
 
         assertEq(boringVault.balanceOf(address(this)), expected_shares, "Should have received expected shares");
 
-        assertApproxEqAbs(getERC20(sourceChain, "aV3USDT").balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
-        assertApproxEqAbs(getERC20(sourceChain, "aV3USDC").balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
+        assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
+        assertApproxEqAbs(aUSDC.balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
     }
 
     function testUserDepositWithInsufficientOpenApproval(uint256 amount) external {
@@ -199,8 +205,8 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
 
         // approve less than the amount that will be deposited
         bytes[] memory data = new bytes[](2);
-        data[0] = abi.encodeWithSelector(USDT.approve.selector, getAddress(sourceChain, "v3Pool"), amount - 1);
-        data[1] = abi.encodeWithSelector(USDC.approve.selector, getAddress(sourceChain, "v3Pool"), amount - 1);
+        data[0] = abi.encodeWithSelector(USDT.approve.selector, v3Pool, amount - 1);
+        data[1] = abi.encodeWithSelector(USDC.approve.selector, v3Pool, amount - 1);
 
         address[] memory targets = new address[](2);
         targets[0] = address(USDT);
@@ -227,8 +233,8 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
 
         assertEq(boringVault.balanceOf(address(this)), expected_shares, "Should have received expected shares");
 
-        assertApproxEqAbs(getERC20(sourceChain, "aV3USDT").balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
-        assertApproxEqAbs(getERC20(sourceChain, "aV3USDC").balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
+        assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
+        assertApproxEqAbs(aUSDC.balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
     }
 
     function testBulkDeposit(uint256 amount) external {
@@ -246,8 +252,8 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
 
         assertEq(boringVault.balanceOf(address(this)), expected_shares, "Should have received expected shares");
 
-        assertApproxEqAbs(getERC20(sourceChain, "aV3USDT").balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
-        assertApproxEqAbs(getERC20(sourceChain, "aV3USDC").balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
+        assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
+        assertApproxEqAbs(aUSDC.balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
     }
 
     function testBulkWithdraw(uint256 amount) external {
@@ -266,8 +272,8 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
 
         assertEq(boringVault.balanceOf(address(this)), expected_shares, "Should have received expected shares");
 
-        assertApproxEqAbs(getERC20(sourceChain, "aV3USDT").balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
-        assertApproxEqAbs(getERC20(sourceChain, "aV3USDC").balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
+        assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
+        assertApproxEqAbs(aUSDC.balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
         
         // then do withdraws
         teller.bulkWithdraw(USDT, amount - 2, 0, address(this));
@@ -275,8 +281,57 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
 
         assertApproxEqAbs(boringVault.balanceOf(address(this)), 0, 4, "Should have eliminated expected shares");
 
-        assertApproxEqAbs(getERC20(sourceChain, "aV3USDT").balanceOf(address(boringVault)), 0, 2, "Should have removed entire deposit from aave");
-        assertApproxEqAbs(getERC20(sourceChain, "aV3USDC").balanceOf(address(boringVault)), 0, 2, "Should have removed entire deposit from aave");
+        assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), 0, 2, "Should have removed entire deposit from aave");
+        assertApproxEqAbs(aUSDC.balanceOf(address(boringVault)), 0, 2, "Should have removed entire deposit from aave");
+
+        // check withdrawn balances
+        assertApproxEqAbs(USDT.balanceOf(address(this)), amount - 2, 2, "Should have received expected USDT");
+        assertApproxEqAbs(USDC.balanceOf(address(this)), amount - 2, 2, "Should have received expected USDC");
+    }
+
+    function testMultipleDepositWithdraws(uint256 amount) external {
+        amount = bound(amount, 0.0001e6, 10_000e6);
+        deal(address(USDT), address(this), amount);
+        deal(address(USDC), address(this), amount);
+
+        USDT.safeApprove(address(boringVault), amount);
+        USDC.safeApprove(address(boringVault), amount);
+
+        teller.bulkDeposit(USDT, amount / 10, 0, address(this));
+        teller.deposit(USDC, amount / 10, 0);
+        assertApproxEqAbs(boringVault.balanceOf(address(this)), amount / 5, 4, "Should have received expected shares");
+        uint256 onePercentYield = amount / 5 / 100 + 100; // add 100 to avoid rounding errors
+        deal(address(USDC), address(boringVault), onePercentYield); // 1% of the current total assets
+        deal(address(USDT), address(boringVault), onePercentYield); // 1% of the current total assets
+
+        // manage vault to deposit the dealt assets into aave (2% yield, 1% each asset)
+        bytes[] memory data = new bytes[](4);
+        data[0] = abi.encodeWithSelector(USDC.approve.selector, v3Pool, onePercentYield);
+        data[1] = abi.encodeWithSignature("supply(address,uint256,address,uint16)", address(USDC), onePercentYield, address(boringVault), 0);
+        data[2] = abi.encodeWithSelector(USDT.approve.selector, v3Pool, onePercentYield);
+        data[3] = abi.encodeWithSignature("supply(address,uint256,address,uint16)", address(USDT), onePercentYield, address(boringVault), 0);
+
+        address[] memory targets = new address[](4);
+        targets[0] = address(USDC);
+        targets[1] = v3Pool;
+        targets[2] = address(USDT);
+        targets[3] = v3Pool;
+
+        uint256[] memory values = new uint256[](4);
+        boringVault.manage(targets, data, values);
+
+        vm.warp(block.timestamp + 10);
+
+        accountant.updateExchangeRate(1.02e6);
+
+        teller.bulkWithdraw(USDC, amount / 10, 0, address(this));
+
+        assertApproxEqAbs(boringVault.balanceOf(address(this)), amount / 10, 200, "Should have eliminated expected shares");
+
+        assertApproxEqAbs(aUSDC.balanceOf(address(boringVault)), 0, 200, "Should have removed entire deposit from aave");
+
+        // check that we got back the amount we deposited plus the yield
+        assertApproxEqAbs(USDC.balanceOf(address(this)), amount + onePercentYield, 200, "Should have received expected USDT");
     }
 
     // TODO NEXT:
