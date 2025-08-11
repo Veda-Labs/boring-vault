@@ -615,7 +615,19 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         }
     }
 
+    /**
+     * @notice Hook that is called after a deposit operation.
+     * @dev Can be overridden by child contracts to implement custom post-deposit logic.
+     * @param depositAsset The ERC20 token that was deposited.
+     * @param assetAmount The amount of the asset that was deposited.
+     */
     function _afterDeposit(ERC20 depositAsset, uint256 assetAmount) internal virtual {}
 
+    /**
+     * @notice Hook that is called before a withdrawal operation.
+     * @dev Can be overridden by child contracts to implement custom pre-withdrawal logic.
+     * @param withdrawAsset The ERC20 token that will be withdrawn.
+     * @param assetAmount The amount of the asset that will be withdrawn.
+     */
     function _beforeWithdraw(ERC20 withdrawAsset, uint256 assetAmount) internal virtual {}
 }
