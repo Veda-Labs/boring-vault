@@ -92,7 +92,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
      * @notice callable by the STRATEGIST role
      * //TODO add auth
      */
-    function vestLoss(uint256 lossAmount, uint256 duration) external {
+    function vestLoss(uint256 lossAmount) external {
         updateExchangeRate(); //vested gains are moved to totalAssets, only unvested remains in `vestingGains` 
 
         if (vestingGains >= lossAmount) {
@@ -107,8 +107,8 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
             // Reduce share price to reflect principal loss
             uint256 currentShares = vault.totalSupply();
             if (currentShares > 0) {
-                uint256 totalAssets = lastSharePrice.mulDivDown(currentShares, 1e18);
-                lastSharePrice = (totalAssets - principalLoss).mulDivDown(1e18, currentShares);
+                //uint256 totalAssets = lastSharePrice.mulDivDown(currentShares, 1e18);
+                lastSharePrice = (totalAssets() - principalLoss).mulDivDown(1e18, currentShares);
             }
         }
 
@@ -124,9 +124,9 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
         uint256 currentShares = vault.totalSupply();
         if (newlyVested > 0) {
 
-            // update the share price
-            uint256 totalAssets = lastSharePrice.mulDivDown(currentShares, 1e18); 
-            lastSharePrice = (totalAssets + newlyVested).mulDivDown(1e18, currentShares);
+            // update the share price w/o reincluding the pending gains (done in `newlyVested`)
+            uint256 _totalAssets = lastSharePrice.mulDivDown(currentShares, 1e18); 
+            lastSharePrice = (_totalAssets + newlyVested).mulDivDown(1e18, currentShares);
 
             _collectFees();
 
@@ -147,7 +147,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
     /**
      * @notice Override updateExchangeRate to revert if called accidentally
      */
-    function updateExchangeRate(uint96 /*newExchangeRate*/) external override requiresAuth {
+    function updateExchangeRate(uint96 /*newExchangeRate*/) external view override requiresAuth {
         revert AccountantWithYieldStreaming__UpdateExchangeRateNotSupported(); 
     }
 
@@ -201,7 +201,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
         return lastSharePrice.mulDivDown(currentShares, 1e18) + getPendingVestingGains();
     }
 
-    function version() external view returns (string memory) {
+    function version() external pure returns (string memory) {
         return "V0.1";
     }
 
@@ -229,5 +229,4 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
         state.totalSharesLastUpdate = uint128(currentTotalShares);
         state.lastUpdateTimestamp = currentTime;
     }
-
 }

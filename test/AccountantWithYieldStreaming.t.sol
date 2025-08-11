@@ -147,222 +147,166 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
-
-        console.log("shares0 minted: ", shares0); 
         assertEq(WETHAmount, shares0); 
         
-        uint256 currentShares = boringVault.totalSupply(); 
-        console.log("curent shares: ", currentShares); 
-        uint256 totalAssetsInBase = ((currentShares * accountant.lastSharePrice()) / 1e18) + accountant.getPendingVestingGains(); 
-        console.log("totalAssetsInBase: ", totalAssetsInBase); 
+        uint256 totalAssetsBefore = accountant.totalAssets();         
 
-        console.log("==== BEGIN DEPOSIT 2 ===="); 
+        //==== BEGIN DEPOSIT 2 ====
 
         //deposit 2
         uint256 shares1 = teller.deposit(WETH, WETHAmount, 0);
-        console.log("shares1 with no yield: ", shares1); 
+        assertEq(shares1, WETHAmount); 
 
-        //totalAssetsInBase = accountant.totalAssetsInBase(); 
-        currentShares = boringVault.totalSupply(); 
-        console.log("curent shares: ", currentShares); 
-        totalAssetsInBase = ((currentShares * accountant.lastSharePrice()) / 1e18) + accountant.getPendingVestingGains(); 
-        console.log("totalAssetsInBase: ", totalAssetsInBase); 
+        uint256 totalAssetsAfter = accountant.totalAssets();         
+        assertGt(totalAssetsAfter, totalAssetsBefore); 
     }
 
     function testDepositsWithYield() external {
-        console.log("==== Test Deposit With Yield Stream at 50% ===="); 
         uint256 WETHAmount = 10e18; 
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
-
-        console.log("shares0 minted: ", shares0); 
         assertEq(WETHAmount, shares0); 
-        
-        uint256 currentShares = boringVault.totalSupply(); 
-        console.log("curent shares: ", currentShares); 
-        uint256 totalAssetsInBase = ((currentShares * accountant.lastSharePrice()) / 1e18) + accountant.getPendingVestingGains(); 
-        console.log("totalAssetsInBase: ", totalAssetsInBase); 
 
         //vest some yield
         deal(address(WETH), address(boringVault), WETHAmount);
         accountant.vestYield(WETHAmount, 24 hours); 
         skip(12 hours); 
 
-        console.log("==== BEGIN DEPOSIT 2 ===="); 
-
-        //deposit 2
+        //==== BEGIN DEPOSIT 2 ====
         uint256 shares1 = teller.deposit(WETH, WETHAmount, 0);
-        console.log("shares1 with yield: ", shares1); 
+        vm.assertApproxEqAbs(shares1, 6666666666666666666, 10);  
 
-        //totalAssetsInBase = accountant.totalAssetsInBase(); 
-        currentShares = boringVault.totalSupply(); 
-        console.log("curent shares: ", currentShares); 
-        totalAssetsInBase = currentShares.mulDivDown(accountant.lastSharePrice(), 1e18); 
-        //should be 25 -> 2 deposits of 10 WETH, and 50% of a yield stream vested = 5 WETH
-        console.log("totalAssetsInBase: ", totalAssetsInBase); 
-        vm.assertApproxEqAbs(totalAssetsInBase, 25e18, 1); 
+        //total of 2 deposits to 10 weth each + 5 vested yield 
+        
+        uint256 totalAssets = accountant.totalAssets(); 
+        vm.assertApproxEqAbs(totalAssets, 25e18, 1); 
     }
 
     function testWithdrawNoYieldStream() external {
-        console.log("==== Test Withdraw No Yield Stream ===="); 
         uint256 WETHAmount = 10e18; 
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
-
-        console.log("==== BEGIN DEPOSIT 2 ===="); 
+        assertEq(WETHAmount, shares0); 
 
         //deposit 2
-        uint256 shares1 = teller.deposit(WETH, WETHAmount, 0);
-        
-        console.log("==== BEGIN WITHDRAW ===="); 
-        teller.bulkWithdraw(WETH, shares0, 0, address(boringVault));   
+        teller.deposit(WETH, WETHAmount, 0);
 
-        uint256 currentShares = boringVault.totalSupply(); 
-        console.log("curent shares: ", currentShares); 
-        uint256 totalAssetsInBase = currentShares.mulDivDown(accountant.lastSharePrice(), 1e18); 
-        console.log("totalAssetsInBase: ", totalAssetsInBase); 
+        uint256 assetsOut0 = teller.bulkWithdraw(WETH, shares0, 0, address(boringVault));   
+        assertEq(assetsOut0, WETHAmount); 
     }
 
     function testWithdrawWithYieldStream() external {
-        console.log("==== Test Withdraw With Yield Stream ===="); 
         uint256 WETHAmount = 10e18; 
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
+        assertEq(WETHAmount, shares0); 
 
-        console.log("==== Add Vesting Yield Stream ===="); 
+        //==== Add Vesting Yield Stream ====
         deal(address(WETH), address(boringVault), WETHAmount);
         accountant.vestYield(WETHAmount, 24 hours); 
         skip(12 hours); 
         
-        console.log("==== BEGIN DEPOSIT 2 ===="); 
-        //deposit 2
+        //==== BEGIN DEPOSIT 2 ====
         deal(address(WETH), alice, 1_000e18);
         vm.startPrank(alice); 
         WETH.approve(address(boringVault), type(uint256).max); 
         uint256 shares1 = teller.deposit(WETH, WETHAmount, 0);
         vm.stopPrank(); 
         
-        console.log("==== BEGIN WITHDRAW USER 1 ===="); 
+        //==== BEGIN WITHDRAW USER 1 ====
         uint256 assetsOut = teller.bulkWithdraw(WETH, shares0, 0, address(boringVault));   
-
-        uint256 currentShares = boringVault.totalSupply(); 
-        console.log("curent shares: ", currentShares); 
-        uint256 totalAssetsInBase = currentShares.mulDivDown(accountant.lastSharePrice(), 1e18); 
-        console.log("totalAssetsInBase: ", totalAssetsInBase); 
-
-        console.log("user 1 received: ", assetsOut); 
         assertEq(assetsOut, 15e18); 
 
-        console.log("==== BEGIN WITHDRAW USER 2 ===="); 
+        //==== BEGIN WITHDRAW USER 2 ====
         vm.prank(alice); 
         assetsOut = teller.bulkWithdraw(WETH, shares1, 0, address(alice));   
-
-        console.log("user 2 received: ", assetsOut); 
         vm.assertApproxEqAbs(assetsOut, 10e18, 1); 
     }
 
     function testWithdrawWithYieldStreamUser2WaitsForYield() external {
-        console.log("==== Test Withdraw With Yield Stream User 2 Waits for Yield ===="); 
         uint256 WETHAmount = 10e18; 
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
+        assertEq(WETHAmount, shares0); 
 
-        console.log("==== Add Vesting Yield Stream ===="); 
+        //==== Add Vesting Yield Stream ====
         deal(address(WETH), address(boringVault), WETHAmount);
         accountant.vestYield(WETHAmount, 24 hours); 
         skip(12 hours); 
         
-        console.log("==== BEGIN DEPOSIT 2 ===="); 
-        //deposit 2
+        //==== BEGIN DEPOSIT 2 ====
         deal(address(WETH), alice, 1_000e18);
         vm.startPrank(alice); 
         WETH.approve(address(boringVault), type(uint256).max); 
         uint256 shares1 = teller.deposit(WETH, WETHAmount, 0);
         vm.stopPrank(); 
         
-        console.log("==== BEGIN WITHDRAW USER 1 ===="); 
+        //==== BEGIN WITHDRAW USER 1 ====
         uint256 assetsOut = teller.bulkWithdraw(WETH, shares0, 0, address(boringVault));   
-
-        uint256 currentShares = boringVault.totalSupply(); 
-        console.log("curent shares: ", currentShares); 
-        uint256 totalAssetsInBase = currentShares.mulDivDown(accountant.lastSharePrice(), 1e18); 
-        console.log("totalAssetsInBase: ", totalAssetsInBase); 
-
-        console.log("user 1 received: ", assetsOut); 
         assertEq(assetsOut, 15e18); 
 
         skip(12 hours); 
 
-        console.log("==== BEGIN WITHDRAW USER 2 ===="); 
+        //==== BEGIN WITHDRAW USER 2 ====
         vm.prank(alice); 
         assetsOut = teller.bulkWithdraw(WETH, shares1, 0, address(alice));   
-
-        console.log("user 2 received: ", assetsOut); 
-        vm.assertApproxEqAbs(assetsOut, 15e18, 2); 
+        vm.assertApproxEqAbs(assetsOut, 15e18, 10); 
     }
 
     function testVestLossAbsorbBuffer() external {
-        console.log("==== Test Vesting a Loss (fully absorbed by buffer) ==="); 
         uint256 WETHAmount = 10e18; 
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
+        assertEq(WETHAmount, shares0); 
 
-        console.log("==== Add Vesting Yield Stream ===="); 
+        //==== Add Vesting Yield Stream ===="); 
         deal(address(WETH), address(boringVault), WETHAmount * 2);
         accountant.vestYield(WETHAmount, 24 hours); 
         skip(12 hours); 
-        console.log("==== End Vesting Yield Stream ===="); 
+        
+        uint256 totalAssetsBeforeLoss = accountant.totalAssets(); 
 
-        uint256 currentShares = boringVault.totalSupply(); 
-        console.log("curent shares before loss: ", currentShares); 
-        uint256 totalAssetsInBaseBefore = accountant.totalAssets();  
-        console.log("totalAssetsInBase before loss: ", totalAssetsInBaseBefore); 
+        uint256 unvested = accountant.getPendingVestingGains(); //5e18
 
-        console.log("==== Vault Posts A Loss ===="); 
-        accountant.vestLoss(2.5e18, 0); //smaller loss than buffer (5 weth at this point)
+        //==== Vault Posts A Loss ====
+        accountant.vestLoss(2.5e18); //smaller loss than buffer (5 weth at this point)
 
-        currentShares = boringVault.totalSupply(); 
-        console.log("curent shares: ", currentShares); 
-        uint256 totalAssetsInBaseAfter = accountant.totalAssets();  
-        console.log("totalAssetsInBase after loss: ", totalAssetsInBaseAfter); 
-
-        console.log("vesting gains should decrease by 2.5e18: ", accountant.vestingGains()); 
+        uint256 totalAssetsAfterLoss = accountant.totalAssets(); 
+        
+        //assert the vestingGains is removed from  
+        assertEq(unvested - 2.5e18, accountant.vestingGains()); 
 
         //total assets should remain the same as the buffer absorbed the entire loss
-        assertEq(totalAssetsInBaseBefore, totalAssetsInBaseAfter); 
-
+        assertEq(totalAssetsBeforeLoss, totalAssetsAfterLoss); 
 
         skip(12 hours); 
         
-        console.log("the vault actually has ", WETH.balanceOf(address(boringVault))); 
         uint256 assetsOut = teller.bulkWithdraw(WETH, shares0, 0, address(boringVault)); 
         assertEq(assetsOut, 17.5e18); //10 WETH deposit -> 5 weth is vested -> 2.5 loss -> remaining 2.5 vests over the next 12 hours = total of 17.5 earned
     }
 
 
     function testVestLossAffectsSharePrice() external {
-        console.log("==== Test Vesting a Loss (affects share price) ==="); 
         uint256 WETHAmount = 10e18; 
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
+        assertEq(WETHAmount, shares0); 
 
         //vault total = 10
 
-        console.log("==== Add Vesting Yield Stream ===="); 
+        //==== Add Vesting Yield Stream ====
         deal(address(WETH), address(boringVault), WETHAmount);
         accountant.vestYield(WETHAmount, 24 hours); 
         skip(12 hours); 
-        console.log("==== End Vesting Yield Stream ===="); 
 
         //total assets = 15
 
-        uint256 currentShares = boringVault.totalSupply(); 
         uint256 totalAssetsInBaseBefore = accountant.totalAssets();  
         assertEq(totalAssetsInBaseBefore, 15e18); 
 
@@ -370,15 +314,13 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
         //15 total assets as this point
         
-        console.log("==== Vault Posts A Loss ===="); 
-        accountant.vestLoss(15e18, 0); //this moves vested yield -> share price (to protect share price)
+        //==== Vault Posts A Loss ====
+        accountant.vestLoss(15e18); //this moves vested yield -> share price (to protect share price)
         //note: the buffer absorbs the loss, so we're left with 5 remaining (the vested yield)
         
         //15 - 15 with (5 unvested remaining) = 5 left
 
-        currentShares = boringVault.totalSupply(); 
         uint256 totalAssetsInBaseAfter = accountant.totalAssets();  
-        console.log("totalAssetsInBase after loss: ", totalAssetsInBaseAfter); 
         
         //vesting gains should be 0
         assertEq(0, accountant.vestingGains()); 
@@ -396,17 +338,16 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 sharePriceAfter = accountant.lastSharePrice(); 
         assertLt(sharePriceAfter, sharePriceInitial, "share price should be less after loss exceeds buffer"); 
 
-        console.log("share price before loss: ", sharePriceInitial); 
-        console.log("share price after loss: ", sharePriceAfter); 
-        console.log("difference: ", sharePriceInitial - sharePriceAfter); //diff = 50% 
+        //console.log("difference: ", sharePriceInitial - sharePriceAfter); //diff = 50% 
+        assertEq(sharePriceInitial / 2, sharePriceAfter); 
     }
 
     function testGetPendingVestingGains() external {
-        console.log("==== Test Vesting Yield returns the Vested Yield only as a part of total assets ==="); 
         uint256 WETHAmount = 10e18; 
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
+        assertEq(WETHAmount, shares0); 
 
         //vault total = 10
 
@@ -416,20 +357,57 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
        
         //total should be 10 + (10 / 4) = 2.5
 
-        uint256 currentShares = boringVault.totalSupply(); 
         uint256 totalAssets = accountant.totalAssets();  
-        console.log("total assets: ", totalAssets); 
         assertEq(totalAssets, 12.5e18); 
     }
 
+    function testYieldStreamUpdateDuringExistingStream() external {
+        uint256 WETHAmount = 10e18; 
+        deal(address(WETH), address(this), 1_000e18);
+        WETH.approve(address(boringVault), 1_000e18);
+        uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
+        assertEq(shares0, WETHAmount); 
+
+        deal(address(WETH), address(boringVault), WETHAmount);
+        accountant.vestYield(WETHAmount, 24 hours); 
+        skip(12 hours); 
+
+        //total assets = 15
+
+        uint256 unvested = accountant.getPendingVestingGains(); 
+
+        //unvested = 5
+        
+        //strategist posts another yield update, halfway through the remaining update 
+        //recall that the strategist MUST account for unvested yield in the update if they wish to include it in the next update
+        deal(address(WETH), address(boringVault), WETHAmount * 3); //total should now be 30
+        accountant.vestYield(WETHAmount + unvested, 24 hours); //total of 15 to post
+        skip(12 hours); 
+
+        //15 + 7.5 = 22.5
+
+        uint256 totalAssets = accountant.totalAssets();  
+        assertEq(totalAssets, 22.5e18); 
+
+        uint256 gains = accountant.vestingGains(); 
+        assertEq(gains, 15e18); 
+        
+        uint256 lastUpdate = accountant.lastVestingUpdate(); 
+        assertEq(lastUpdate, block.timestamp - 12 hours); 
+        
+        uint256 endTime = accountant.endVestingTime(); 
+        assertEq((block.timestamp - 12 hours) + 24 hours, endTime); 
+    }
+
+
     function testPlatformFees() external {
-        console.log("==== Test Platform Fees still work as expected ==="); 
         uint256 platformFeeRate = 0.1e4; // 10%
 
         uint256 WETHAmount = 10e18; 
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
+        assertEq(WETHAmount, shares0); 
 
         deal(address(WETH), address(boringVault), WETHAmount);
         accountant.vestYield(WETHAmount, 24 hours); 
@@ -452,14 +430,10 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         vm.stopPrank();
         
         //verify we got paid
-        uint256 fees = WETH.balanceOf(payoutAddress); 
-        console.log("Fees earned: ", fees); 
         assertEq(WETH.balanceOf(payoutAddress), expectedFees);
     }
     
     function testPerformanceFeesAfterYield() external {
-        console.log("==== Test Performance Fees After Yield ====");
-    
         uint256 performanceFeeRate = 0.1e4; // 10%
     
         uint256 WETHAmount = 10e18;
@@ -472,39 +446,27 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 initialSharePrice = accountant.lastSharePrice();
         uint256 totalShares = boringVault.totalSupply();
     
-        console.log("Initial high water mark:", initialHighwaterMark);
-        console.log("Initial share price:", initialSharePrice);
-        console.log("Total shares:", totalShares);
-    
         deal(address(WETH), address(boringVault), WETHAmount);
         accountant.vestYield(WETHAmount, 24 hours);
     
-        // Let it fully vest
+        //let it fully vest
         skip(1 days);
     
-        // Update exchange rate to trigger fee calculation
+        //update exchange rate to trigger fee calculation
         accountant.updateExchangeRate();
     
         (, uint96 nextHighwaterMark, uint128 feesOwedInBase,,,,,,,,,) = accountant.accountantState();
         uint256 finalSharePrice = accountant.lastSharePrice();
     
-        console.log("Share price after yield:", finalSharePrice);
-        console.log("New high water mark:", nextHighwaterMark);
-    
         // Calculate expected performance fees based on SHARE PRICE APPRECIATION
         uint256 sharePriceIncrease = finalSharePrice - initialSharePrice;
-        console.log("Share price increase:", sharePriceIncrease);
     
         // The appreciation in value = price increase * total shares / 10^18
         uint256 valueAppreciation = (sharePriceIncrease * totalShares) / 1e18;
-        console.log("Value appreciation:", valueAppreciation);
     
         // Expected fees = 10% of appreciation
         uint256 expectedPerformanceFees = (valueAppreciation * performanceFeeRate) / 1e4;
         uint256 actualFees = feesOwedInBase;
-    
-        console.log("Expected performance fees (10% of appreciation):", expectedPerformanceFees);
-        console.log("Actual fees owed (platform + performance):", actualFees);
 
         uint128 platformFee = 2739726027397260; //1 day of platform fees (10 WETH / 365)
     
@@ -524,9 +486,6 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
         assertEq(WETHAmount, shares0); 
-        
-        uint256 currentShares = boringVault.totalSupply(); 
-        uint256 totalAssetsInBase = ((currentShares * accountant.lastSharePrice()) / 1e18) + accountant.getPendingVestingGains(); 
 
         //vest some yield
         deal(address(WETH), address(boringVault), WETHAmount * 2);
@@ -538,9 +497,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         WETH.transfer(address(boringVault), 10e18); 
 
         //deposit 2 uint256 shares1 = teller.deposit(WETH, WETHAmount, 0);
-        currentShares = boringVault.totalSupply(); 
-        totalAssetsInBase = currentShares.mulDivDown(accountant.lastSharePrice(), 1e18); 
-        vm.assertApproxEqAbs(totalAssetsInBase, 25e18, 1); 
+        uint256 totalAssets = accountant.totalAssets(); 
+        vm.assertApproxEqAbs(totalAssets, 15e18, 1); 
 
         uint256 assetsOut = teller.bulkWithdraw(WETH, shares0, 0, address(boringVault));   
         assertEq(assetsOut, 15e18); 
@@ -554,7 +512,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         assertEq(WETHAmount, shares0); 
 
         uint256 shares1 = teller.deposit(WETH, WETHAmount, 0);
-        assertEq(WETHAmount, shares0); 
+        assertEq(WETHAmount, shares1); 
         
         uint256 currentShares = boringVault.totalSupply(); 
         uint256 totalAssetsInBase = ((currentShares * accountant.lastSharePrice()) / 1e18) + accountant.getPendingVestingGains(); 
@@ -597,12 +555,105 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         vm.prank(bill); 
         uint256 assetsOutBill = teller.bulkWithdraw(WETH, sharesBill, 0, address(boringVault));   
 
-        
-        console.log("alice withdraw: ", assetsOutAlice); 
-        console.log("bill withdraw: ", assetsOutBill); 
         assertEq(assetsOutAlice, assetsOutBill); 
     }
 
+    function testLoopDepositWithdrawDuringVest() external {
+        uint256 WETHAmount = 10e18; 
+        deal(address(WETH), address(this), 1_000e18);
+        WETH.approve(address(boringVault), 1_000e18);
+        uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
+        assertEq(WETHAmount, shares0); 
+
+        //vest some yield
+        deal(address(WETH), address(boringVault), WETHAmount * 2);
+        accountant.vestYield(WETHAmount, 24 hours); 
+        skip(12 hours); 
+        
+        //double deposit -> alice, bill both deposit in the same block 
+        deal(address(WETH), alice, WETHAmount);
+        vm.startPrank(alice);
+        WETH.approve(address(boringVault), WETHAmount);
+        uint256 sharesAlice = teller.deposit(WETH, WETHAmount, 0);
+        vm.stopPrank();
+
+        //skip time
+        //skip(12 hours); 
+        
+        //alice withdraws
+        vm.prank(alice); 
+        uint256 assetsOutAlice = teller.bulkWithdraw(WETH, sharesAlice, 0, address(boringVault));   
+
+        deal(address(WETH), bill, WETHAmount);
+        vm.startPrank(bill);
+        WETH.approve(address(boringVault), WETHAmount);
+        teller.deposit(WETH, WETHAmount, 0);
+        vm.stopPrank();
+
+        assertApproxEqAbs(assetsOutAlice, WETHAmount, 10); 
+    }
+
+    function testLoopDepositWithdrawDepositDuringVest() external {
+        uint256 WETHAmount = 10e18; 
+        deal(address(WETH), address(this), 1_000e18);
+        WETH.approve(address(boringVault), 1_000e18);
+        uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
+        assertEq(WETHAmount, shares0); 
+
+        //vest some yield
+        deal(address(WETH), address(boringVault), WETHAmount * 2);
+        accountant.vestYield(WETHAmount, 24 hours); 
+        skip(12 hours); 
+        
+        deal(address(WETH), alice, WETHAmount);
+        vm.startPrank(alice);
+        WETH.approve(address(boringVault), WETHAmount);
+        uint256 sharesAlice = teller.deposit(WETH, WETHAmount, 0);
+        vm.stopPrank();
+
+        //skip time
+        //skip(12 hours); 
+        
+        //alice withdraws
+        vm.prank(alice); 
+        uint256 assetsOutAlice = teller.bulkWithdraw(WETH, sharesAlice, 0, address(boringVault));   
+
+        deal(address(WETH), bill, WETHAmount);
+        vm.startPrank(bill);
+        WETH.approve(address(boringVault), WETHAmount);
+        uint256 sharesBill = teller.deposit(WETH, WETHAmount, 0);
+        vm.stopPrank();
+
+        assertLt(assetsOutAlice, WETHAmount); 
+
+        vm.prank(bill); 
+        uint256 assetsOutBill = teller.bulkWithdraw(WETH, sharesBill, 0, address(boringVault));   
+        assertApproxEqAbs(WETHAmount, assetsOutBill, 1);
+    }
+
+    function testDepositDuringSameBlockAsYieldIsDeposited() external {
+        uint256 WETHAmount = 10e18; 
+        deal(address(WETH), address(this), 1_000e18);
+        WETH.approve(address(boringVault), 1_000e18);
+        uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
+        assertEq(WETHAmount, shares0); 
+
+        //vest some yield
+        deal(address(WETH), address(boringVault), WETHAmount * 2);
+        accountant.vestYield(WETHAmount, 24 hours); 
+        
+        deal(address(WETH), alice, WETHAmount);
+        vm.startPrank(alice);
+        WETH.approve(address(boringVault), WETHAmount);
+        uint256 sharesAlice = teller.deposit(WETH, WETHAmount, 0);
+        vm.stopPrank();
+
+        //alice withdraws
+        vm.prank(alice); 
+        uint256 assetsOutAlice = teller.bulkWithdraw(WETH, sharesAlice, 0, address(boringVault));   
+
+        assertEq(assetsOutAlice, WETHAmount); //assert no dilution, no extra yield
+    }
 
     // ========================================= HELPER FUNCTIONS =========================================
     

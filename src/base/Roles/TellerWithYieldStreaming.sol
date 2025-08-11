@@ -72,7 +72,7 @@ contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
         vault.enter(from, depositAsset, depositAmount, to, shares);
     }
 
-    function _getAccountant() internal returns (AccountantWithYieldStreaming) {
+    function _getAccountant() internal view returns (AccountantWithYieldStreaming) {
         return AccountantWithYieldStreaming(address(accountant)); 
     }
 }
