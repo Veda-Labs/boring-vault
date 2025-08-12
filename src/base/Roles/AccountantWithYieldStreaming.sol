@@ -21,13 +21,16 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
 
     // ========================================= STRUCTS =========================================
     
+    struct VestingState {
+        uint128 lastSharePrice; 
+        uint128 vestingGains;      
+        uint128 lastVestingUpdate;
+        uint128 endVestingTime;   
+    }
+    
     // ========================================= STATE =========================================
     
-    // New state variables TEMPORARY -> to be replaced with packed struct or somethin better
-    uint256 public lastSharePrice; //the last share price (can maybe extend from previous accountant)
-    uint256 public vestingGains; //the amount to vest over the period
-    uint256 public lastVestingUpdate; //the last time the vesting gains were updated
-    uint256 public endVestingTime; //the ending time for the gains to vest over
+    VestingState public vestingState; 
 
     //============================== ERRORS ===============================
     
@@ -37,6 +40,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
     
     event YieldRecorded(uint256 amountAdded, uint256 newtotalAssetsInBase); 
     event LossRecorded(uint256 lossAmount); 
+    event ExchangeRateUpdated(uint256 newExchangeRate); 
 
     constructor(
         address _owner,
@@ -62,10 +66,10 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
         performanceFee
     ) {
         
-        lastSharePrice = startingExchangeRate;  
-        vestingGains = 0;  
-        lastVestingUpdate = block.timestamp;  
-        endVestingTime = block.timestamp;  
+        vestingState.lastSharePrice = startingExchangeRate;  
+        vestingState.vestingGains = 0;  
+        vestingState.lastVestingUpdate = uint128(block.timestamp); 
+        vestingState.endVestingTime = uint128(block.timestamp); 
     }
 
     // ========================================= UPDATE EXCHANGE RATE/FEES FUNCTIONS =========================================
@@ -77,71 +81,76 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
      * @notice callable by the STRATEGIST role
      * @dev `yieldAmount` should be denominated in the BASE ASSET
      */
-    function vestYield(uint256 yieldAmount, uint256 duration) external {
+    function vestYield(uint256 yieldAmount, uint256 duration) external requiresAuth {
         // first, update any previously vested gains
         updateExchangeRate();
         
         //strategists should account for any unvested yield they want, gives more flexibility in posting pnl updates 
-        vestingGains = yieldAmount;
+        vestingState.vestingGains = uint128(yieldAmount); 
         
-        endVestingTime = block.timestamp + duration;
-        emit YieldRecorded(yieldAmount, endVestingTime);
+        vestingState.endVestingTime = uint128(block.timestamp + duration); 
+        emit YieldRecorded(yieldAmount, vestingState.endVestingTime);
     }
 
     /**
+     * @param lossAmount The amount lost by the vault during n period 
      * @notice callable by the STRATEGIST role
-     * //TODO add auth
+     * @dev `lossAmount` should be denominated in the BASE ASSET 
      */
-    function vestLoss(uint256 lossAmount) external {
-        updateExchangeRate(); //vested gains are moved to totalAssets, only unvested remains in `vestingGains` 
+    function vestLoss(uint256 lossAmount) external requiresAuth {
+        updateExchangeRate(); //vested gains are moved to totalAssets, only unvested remains in `vestingState.vestingGains` 
 
-        if (vestingGains >= lossAmount) {
+        if (vestingState.vestingGains >= lossAmount) {
             //remaining unvested gains absorb the loss
-            vestingGains -= lossAmount;
+            vestingState.vestingGains -= uint128(lossAmount); 
         } else {
-            uint256 principalLoss = lossAmount - vestingGains;
+            uint256 principalLoss = lossAmount - vestingState.vestingGains;
 
             //wipe out remaining vesting
-            vestingGains = 0;
+            vestingState.vestingGains = 0;
 
-            // Reduce share price to reflect principal loss
+            //reduce share price to reflect principal loss
             uint256 currentShares = vault.totalSupply();
             if (currentShares > 0) {
-                //uint256 totalAssets = lastSharePrice.mulDivDown(currentShares, 1e18);
-                lastSharePrice = (totalAssets() - principalLoss).mulDivDown(1e18, currentShares);
+                vestingState.lastSharePrice = uint128((totalAssets() - principalLoss).mulDivDown(1e18, currentShares)); 
             }
         }
 
         emit LossRecorded(lossAmount);
     }
 
-    //TODO auth
-    function updateExchangeRate() public {
+    /**
+     * @dev calling this moves any vested gains to be calculated into the current share price
+     */
+    function updateExchangeRate() public requiresAuth {
 
-        // Calculate how much has vested since lastVestingUpdate
+        // Calculate how much has vested since vestingState.lastVestingUpdate
         uint256 newlyVested = getPendingVestingGains(); 
 
         uint256 currentShares = vault.totalSupply();
         if (newlyVested > 0) {
 
             // update the share price w/o reincluding the pending gains (done in `newlyVested`)
-            uint256 _totalAssets = lastSharePrice.mulDivDown(currentShares, 1e18); 
-            lastSharePrice = (_totalAssets + newlyVested).mulDivDown(1e18, currentShares);
+            //uint256 lastSharePrice = 
+            uint256 _totalAssets = uint256(vestingState.lastSharePrice).mulDivDown(currentShares, 1e18); 
+            vestingState.lastSharePrice = uint128((_totalAssets + newlyVested).mulDivDown(1e18, currentShares)); 
 
             _collectFees();
 
             // Move vested amount from pending to realized
-            vestingGains -= newlyVested;        // remove from pending
-            lastVestingUpdate = block.timestamp;  // update timestamp 
+            vestingState.vestingGains -= uint128(newlyVested);        // remove from pending
+            vestingState.lastVestingUpdate = uint128(block.timestamp);  // update timestamp 
 
-            if (block.timestamp < endVestingTime) {
-                uint256 timeRemaining = endVestingTime - block.timestamp;
-                endVestingTime = block.timestamp + timeRemaining;
+            if (block.timestamp < vestingState.endVestingTime) {
+                uint256 timeRemaining = vestingState.endVestingTime - block.timestamp;
+                vestingState.endVestingTime = uint128(block.timestamp + timeRemaining); 
             }
         }
         
         AccountantState storage state = accountantState;
         state.totalSharesLastUpdate = uint128(currentShares); 
+
+        emit ExchangeRateUpdated(vestingState.lastSharePrice); 
     }
 
     /**
@@ -157,48 +166,42 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
     function getRate() public override view returns (uint256 rate) {
         uint256 currentShares = vault.totalSupply();
         if (currentShares == 0) {
-            return rate = lastSharePrice; //staringExchangeRate
+            return rate = vestingState.lastSharePrice; //staringExchangeRate
         }
         rate = totalAssets().mulDivDown(10 ** decimals, currentShares);
     }
 
     function getRateSafe() external override view returns (uint256 rate) {
         if (accountantState.isPaused) revert AccountantWithRateProviders__Paused();
-        uint256 currentShares = vault.totalSupply();
-        if (currentShares == 0) {
-            return rate = lastSharePrice; //staringExchangeRate
-        }
-        rate = totalAssets().mulDivDown(10 ** decimals, currentShares);
+        return rate = getRate(); 
     }
     
     function getPendingVestingGains() public view returns (uint256) {
         uint256 currentTime = block.timestamp;
         
-        // If we're past the end of vesting, all remaining gains have vested
-        if (currentTime >= endVestingTime) {
-            return vestingGains; // Return ALL remaining unvested gains
+        //if we're past the end of vesting, all remaining gains have vested
+        if (currentTime >= vestingState.endVestingTime) {
+            return vestingState.vestingGains; // Return ALL remaining unvested gains
         }
         
-        // If we haven't updated yet or no gains to vest
-        if (lastVestingUpdate >= endVestingTime || vestingGains == 0) {
+        //if we haven't updated yet or no gains to vest
+        if (vestingState.lastVestingUpdate >= vestingState.endVestingTime || vestingState.vestingGains == 0) {
             return 0;
         }
         
-        // Calculate time that has passed since last update
-        uint256 timeSinceLastUpdate = currentTime - lastVestingUpdate;
+        //time that has passed since last update
+        uint256 timeSinceLastUpdate = currentTime - vestingState.lastVestingUpdate;
         
-        // Calculate total remaining vesting period when we last updated
-        uint256 totalRemainingTime = endVestingTime - lastVestingUpdate;
+        //total remaining vesting period when we last updated
+        uint256 totalRemainingTime = vestingState.endVestingTime - vestingState.lastVestingUpdate;
         
-        // Calculate proportion of remaining gains that have vested
-        // vestingGains = total unvested amount as of lastVestingUpdate
-        // We vest it linearly over the remaining time
-        return (vestingGains * timeSinceLastUpdate) / totalRemainingTime;
+        //vest it linearly over the remaining time
+        return (vestingState.vestingGains * timeSinceLastUpdate) / totalRemainingTime;
     }
     
     function totalAssets() public view returns (uint256) {
         uint256 currentShares = vault.totalSupply();
-        return lastSharePrice.mulDivDown(currentShares, 1e18) + getPendingVestingGains();
+        return uint256(vestingState.lastSharePrice).mulDivDown(currentShares, 1e18) + getPendingVestingGains();
     }
 
     function version() external pure returns (string memory) {
@@ -219,13 +222,13 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
         // this should update the highwater mark, but isnt...
         _calculateFeesOwed(
             state,
-            uint96(lastSharePrice),
+            uint96(vestingState.lastSharePrice),
             state.exchangeRate,
             currentTotalShares,
             currentTime
         );
         
-        state.exchangeRate = uint96(lastSharePrice);
+        state.exchangeRate = uint96(vestingState.lastSharePrice);
         state.totalSharesLastUpdate = uint128(currentTotalShares);
         state.lastUpdateTimestamp = currentTime;
     }

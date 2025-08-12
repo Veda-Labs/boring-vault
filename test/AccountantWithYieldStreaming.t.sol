@@ -43,7 +43,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     uint8 public constant ADMIN_ROLE = 1;
     uint8 public constant BORING_VAULT_ROLE = 4;
     uint8 public constant UPDATE_EXCHANGE_RATE_ROLE = 3;
-    //uint8 public constant MINTER_ROLE = 7;
+    uint8 public constant STRATEGIST_ROLE = 7;
     uint8 public constant BURNER_ROLE = 8;
     uint8 public constant SOLVER_ROLE = 9;
     uint8 public constant QUEUE_ROLE = 10;
@@ -112,6 +112,15 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         rolesAuthority.setRoleCapability(
             BORING_VAULT_ROLE, address(accountant), AccountantWithRateProviders.claimFees.selector, true
         );
+        rolesAuthority.setRoleCapability(
+            STRATEGIST_ROLE, address(accountant), AccountantWithYieldStreaming.vestYield.selector, true
+        );
+        rolesAuthority.setRoleCapability(
+            STRATEGIST_ROLE, address(accountant), AccountantWithYieldStreaming.vestLoss.selector, true
+        );
+        rolesAuthority.setRoleCapability(
+            STRATEGIST_ROLE, address(accountant), bytes4(keccak256("updateExchangeRate()")), true
+        );
         rolesAuthority.setPublicCapability(address(teller), TellerWithMultiAssetSupport.deposit.selector, true);
         rolesAuthority.setPublicCapability(
             address(teller), TellerWithMultiAssetSupport.depositWithPermit.selector, true
@@ -128,6 +137,9 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         rolesAuthority.setUserRole(address(this), ADMIN_ROLE, true);
         rolesAuthority.setUserRole(address(teller), MINTER_ROLE, true);
         rolesAuthority.setUserRole(address(teller), BURNER_ROLE, true);
+        rolesAuthority.setUserRole(address(this), STRATEGIST_ROLE, true);
+        rolesAuthority.setUserRole(address(this), STRATEGIST_ROLE, true);
+        rolesAuthority.setUserRole(address(teller), STRATEGIST_ROLE, true);
         //deal(address(WETH), address(this), 1_000e18);
         //WETH.safeApprove(address(boringVault), 1_000e18);
         //boringVault.enter(address(this), WETH, 1_000e18, address(address(this)), 1_000e18);
@@ -279,7 +291,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 totalAssetsAfterLoss = accountant.totalAssets(); 
         
         //assert the vestingGains is removed from  
-        assertEq(unvested - 2.5e18, accountant.vestingGains()); 
+        (, uint128 vestingGains, , ) = accountant.vestingState(); 
+        assertEq(unvested - 2.5e18, vestingGains); 
 
         //total assets should remain the same as the buffer absorbed the entire loss
         assertEq(totalAssetsBeforeLoss, totalAssetsAfterLoss); 
@@ -309,8 +322,9 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
         uint256 totalAssetsInBaseBefore = accountant.totalAssets();  
         assertEq(totalAssetsInBaseBefore, 15e18); 
-
-        uint256 sharePriceInitial = accountant.lastSharePrice(); 
+        
+        (uint128 lastSharePrice, , , ) = accountant.vestingState(); 
+        uint256 sharePriceInitial = lastSharePrice; 
 
         //15 total assets as this point
         
@@ -323,7 +337,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 totalAssetsInBaseAfter = accountant.totalAssets();  
         
         //vesting gains should be 0
-        assertEq(0, accountant.vestingGains()); 
+        (, uint128 vestingGains, , ) = accountant.vestingState(); 
+        assertEq(0, vestingGains); 
 
         //total assets should be 5e18 -> 10 initial, 5 yield, 5 unvested -> 15 weth loss (5 from buffer) -> 15 - 10 = 5 totalAssets remaining
         assertEq(totalAssetsInBaseAfter, 5e18); 
@@ -335,7 +350,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         assertEq(totalAssetsInBaseAfter, totalAssetsInBaseAfterVest); //should be the same, as the remaining yield was wiped
 
         //check that the share price was affected
-        uint256 sharePriceAfter = accountant.lastSharePrice(); 
+        
+        (uint128 sharePriceAfter, , , ) = accountant.vestingState(); 
         assertLt(sharePriceAfter, sharePriceInitial, "share price should be less after loss exceeds buffer"); 
 
         //console.log("difference: ", sharePriceInitial - sharePriceAfter); //diff = 50% 
@@ -388,14 +404,14 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
         uint256 totalAssets = accountant.totalAssets();  
         assertEq(totalAssets, 22.5e18); 
-
-        uint256 gains = accountant.vestingGains(); 
+        
+        (, uint128 gains, uint128 lastVestingUpdate, uint128 endVestingTime) = accountant.vestingState(); 
         assertEq(gains, 15e18); 
         
-        uint256 lastUpdate = accountant.lastVestingUpdate(); 
+        uint256 lastUpdate = lastVestingUpdate; 
         assertEq(lastUpdate, block.timestamp - 12 hours); 
         
-        uint256 endTime = accountant.endVestingTime(); 
+        uint256 endTime = endVestingTime; 
         assertEq((block.timestamp - 12 hours) + 24 hours, endTime); 
     }
 
@@ -443,7 +459,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     
         // Record initial state
         (, uint96 initialHighwaterMark, ,,,,,,,,,) = accountant.accountantState();
-        uint256 initialSharePrice = accountant.lastSharePrice();
+        (uint128 initialSharePrice,,,) = accountant.vestingState(); 
+        //uint256 initialSharePrice = uint256(lastSharePrice); 
         uint256 totalShares = boringVault.totalSupply();
     
         deal(address(WETH), address(boringVault), WETHAmount);
@@ -456,10 +473,11 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         accountant.updateExchangeRate();
     
         (, uint96 nextHighwaterMark, uint128 feesOwedInBase,,,,,,,,,) = accountant.accountantState();
-        uint256 finalSharePrice = accountant.lastSharePrice();
+        (uint128 finalSharePrice,,,) = accountant.vestingState(); 
+        //uint256 finalSharePrice = accountant.lastSharePrice();
     
         // Calculate expected performance fees based on SHARE PRICE APPRECIATION
-        uint256 sharePriceIncrease = finalSharePrice - initialSharePrice;
+        uint256 sharePriceIncrease = uint256(finalSharePrice - initialSharePrice); 
     
         // The appreciation in value = price increase * total shares / 10^18
         uint256 valueAppreciation = (sharePriceIncrease * totalShares) / 1e18;
@@ -515,7 +533,9 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         assertEq(WETHAmount, shares1); 
         
         uint256 currentShares = boringVault.totalSupply(); 
-        uint256 totalAssetsInBase = ((currentShares * accountant.lastSharePrice()) / 1e18) + accountant.getPendingVestingGains(); 
+        (uint128 lsp, , , ) = accountant.vestingState(); 
+        uint256 lastSharePrice = uint256(lsp); 
+        uint256 totalAssetsInBase = ((currentShares * lastSharePrice) / 1e18) + accountant.getPendingVestingGains(); 
         assertEq(totalAssetsInBase, 20e18); 
     }
 
@@ -726,6 +746,57 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 totalAssetsAfter = accountant.totalAssets();         
         uint256 expectedTotal = uint256(WETHAmount) + uint256(WETHAmount2) + actualVestedAmount;
         assertApproxEqAbs(totalAssetsAfter, expectedTotal, 1e6);  
+    }
+
+    function testFuzzWithdrawWithYield(uint96 WETHAmount, uint96 WETHAmount2, uint96 yieldVestAmount) external {
+        vm.assume(WETHAmount >= 1e18 && WETHAmount <= 1_000_000e18);
+        vm.assume(WETHAmount2 >= 1e18 && WETHAmount2 <= 1_000_000e18);
+        // Yield should be reasonable relative to deposits - max 100x the first deposit
+        vm.assume(yieldVestAmount >= 1e16 && yieldVestAmount <= uint256(WETHAmount) * 100);
+        deal(address(WETH), address(this), WETHAmount);
+        WETH.approve(address(boringVault), type(uint256).max);
+        uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
+        assertEq(shares0, WETHAmount);
+       
+         
+        uint256 totalAssetsBefore = accountant.totalAssets();
+        assertEq(totalAssetsBefore, WETHAmount); 
+        
+        deal(address(WETH), address(boringVault), WETHAmount);
+        accountant.vestYield(yieldVestAmount, 24 hours); 
+        skip(12 hours); 
+
+        //==== BEGIN DEPOSIT 2 ====
+        
+        // New share price = totalAssets / totalShares
+        // Expected shares = depositAmount * totalShares / totalAssets
+
+        uint256 actualVestedAmount = accountant.getPendingVestingGains();
+        //console.log("actualVestedAmount", actualVestedAmount);
+        
+
+        deal(address(WETH), address(this), WETHAmount2);
+        uint256 shares1 = teller.deposit(WETH, WETHAmount2, 0);
+
+        // Calculate shares: amount / rate
+        // Since rate is scaled by 1e18, we need to adjust:
+        uint256 currentRate = accountant.getRate();
+        uint256 expectedShares1 = uint256(WETHAmount2).mulDivDown(1e18, currentRate);
+
+        assertEq(shares1, expectedShares1); 
+
+        //uint256 currentShares = boringVault.totalSupply(); 
+        uint256 totalAssetsAfter = accountant.totalAssets();         
+        uint256 expectedTotal = uint256(WETHAmount) + uint256(WETHAmount2) + actualVestedAmount;
+        assertApproxEqAbs(totalAssetsAfter, expectedTotal, 1e6);  
+        
+        deal(address(WETH), address(boringVault), type(uint256).max); 
+        //withdraw 
+        currentRate = accountant.getRate();
+        uint256 assetsOut = teller.bulkWithdraw(WETH, shares0, 0, address(boringVault));   
+
+        uint256 expectedAssetsOut = uint256(shares0).mulDivDown(currentRate, 1e18);
+        assertApproxEqAbs(assetsOut, expectedAssetsOut, 1e5); 
     }
 
     // ========================================= HELPER FUNCTIONS =========================================
