@@ -20,7 +20,13 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
     using SafeTransferLib for ERC20;
 
     // ========================================= STRUCTS =========================================
-    
+    /**
+     * @notice Stores the state variables related to yield vesting and share price tracking
+     * @dev lastSharePrice The most recent share price 
+     * @dev vestingGainst The total amount of yield being streamed for this period
+     * @dev lastVestingUpdate The last time a yield update was posted
+     * @dev endVestingTime The end time for the yield streaming period
+     */
     struct VestingState {
         uint128 lastSharePrice; 
         uint128 vestingGains;      
@@ -30,6 +36,9 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
     
     // ========================================= STATE =========================================
     
+    /**
+     * @notice Store the vesting state in 2 packed slots.
+     */
     VestingState public vestingState; 
 
     //============================== ERRORS ===============================
@@ -108,8 +117,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
 
             //wipe out remaining vesting
             vestingState.vestingGains = 0;
-
-            //reduce share price to reflect principal loss
+//reduce share price to reflect principal loss
             uint256 currentShares = vault.totalSupply();
             if (currentShares > 0) {
                 vestingState.lastSharePrice = uint128((totalAssets() - principalLoss).mulDivDown(1e18, currentShares)); 
@@ -162,7 +170,10 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
 
     // ========================================= VIEW FUNCTIONS =========================================
     
-    // the rate for 1 share (used for deposits, withdraws, and current rate)
+    /**
+     * @notice Returns the rate for one share at current block based on amount of gains that are vested and have vested
+     * @dev linear interpolation between current timestamp and `endVestingTime` 
+     */
     function getRate() public override view returns (uint256 rate) {
         uint256 currentShares = vault.totalSupply();
         if (currentShares == 0) {
@@ -171,12 +182,19 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
         rate = totalAssets().mulDivDown(10 ** decimals, currentShares);
     }
 
+    /**
+     * @notice Returns the safe rate for one share 
+     * @dev Rerverts if the the accountant is paused
+     */
     function getRateSafe() external override view returns (uint256 rate) {
         if (accountantState.isPaused) revert AccountantWithRateProviders__Paused();
         return rate = getRate(); 
     }
-    
-    function getPendingVestingGains() public view returns (uint256) {
+
+    /**
+     * @notice Returns the amount of yield that has already vested based on the current block and `vestingGains`
+     */
+    function getPendingVestingGains() public view returns (uint256 amountVested) {
         uint256 currentTime = block.timestamp;
         
         //if we're past the end of vesting, all remaining gains have vested
@@ -196,14 +214,21 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
         uint256 totalRemainingTime = vestingState.endVestingTime - vestingState.lastVestingUpdate;
         
         //vest it linearly over the remaining time
-        return (vestingState.vestingGains * timeSinceLastUpdate) / totalRemainingTime;
+        return amountVested = (vestingState.vestingGains * timeSinceLastUpdate) / totalRemainingTime;
     }
     
+    /**
+     * @notice Returns the total assets in the vault at current timestamp
+     * @dev Includes any gains that have already vested for this period
+     */
     function totalAssets() public view returns (uint256) {
         uint256 currentShares = vault.totalSupply();
         return uint256(vestingState.lastSharePrice).mulDivDown(currentShares, 1e18) + getPendingVestingGains();
     }
 
+    /**
+     * @notice Returns the total assets in the vault at current timestamp
+     */
     function version() external pure returns (string memory) {
         return "V0.1";
     }
@@ -218,8 +243,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
         uint256 currentTotalShares = vault.totalSupply();
         uint64 currentTime = uint64(block.timestamp);
         
-        // Calculate fees using `AccountantWithRateProviders`
-        // this should update the highwater mark, but isnt...
+        //calculate fees using function inherited from `AccountantWithRateProviders`
         _calculateFeesOwed(
             state,
             uint96(vestingState.lastSharePrice),
