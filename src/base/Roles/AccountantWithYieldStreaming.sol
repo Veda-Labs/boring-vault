@@ -13,9 +13,7 @@ import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol"; 
 import {IPausable} from "src/interfaces/IPausable.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
-
-contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
+contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
 
@@ -25,13 +23,15 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
      * @dev lastSharePrice The most recent share price 
      * @dev vestingGainst The total amount of yield being streamed for this period
      * @dev lastVestingUpdate The last time a yield update was posted
+     * @dev startVestingTime The start time for the yield streaming period
      * @dev endVestingTime The end time for the yield streaming period
      */
     struct VestingState {
         uint128 lastSharePrice; 
         uint128 vestingGains;      
         uint128 lastVestingUpdate;
-        uint128 endVestingTime;   
+        uint64 startVestingTime;   
+        uint64 endVestingTime;   
     }
     
     // ========================================= STATE =========================================
@@ -59,6 +59,8 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
     error AccountantWithYieldStreaming__UpdateExchangeRateNotSupported(); 
     error AccountantWithYieldStreaming__DurationExceedsMaximum(); 
     error AccountantWithYieldStreaming__DurationUnderMinimum(); 
+    error AccountantWithYieldStreaming__NotEnoughTimePassed(); 
+    error AccountantWithYieldStreaming__ZeroYieldUpdate(); 
 
     //============================== EVENTS ===============================
     
@@ -91,11 +93,11 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
         platformFee,
         performanceFee
     ) {
-        
         vestingState.lastSharePrice = startingExchangeRate;  
         vestingState.vestingGains = 0;  
         vestingState.lastVestingUpdate = uint128(block.timestamp); 
-        vestingState.endVestingTime = uint128(block.timestamp); 
+        vestingState.startVestingTime = uint64(block.timestamp); 
+        vestingState.endVestingTime = uint64(block.timestamp); 
     }
 
     // ========================================= UPDATE EXCHANGE RATE/FEES FUNCTIONS =========================================
@@ -109,14 +111,21 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
      */
     function vestYield(uint256 yieldAmount, uint256 duration) external requiresAuth {
         if (duration > maximumVestingTime) revert AccountantWithYieldStreaming__DurationExceedsMaximum(); 
-        if (duration < minimumVestingTime) revert  AccountantWithYieldStreaming__DurationUnderMinimum(); 
+        if (duration < minimumVestingTime) revert AccountantWithYieldStreaming__DurationUnderMinimum(); 
+        if (yieldAmount == 0) revert AccountantWithYieldStreaming__ZeroYieldUpdate(); 
+        //only check if there's an active vest
+        if (vestingState.vestingGains > 0) {
+            if (block.timestamp < vestingState.startVestingTime + minimumVestingTime) revert AccountantWithYieldStreaming__NotEnoughTimePassed(); 
+        }
         // first, update any previously vested gains
         updateExchangeRate();
         
         //strategists should account for any unvested yield they want, gives more flexibility in posting pnl updates 
         vestingState.vestingGains = uint128(yieldAmount); 
         
-        vestingState.endVestingTime = uint128(block.timestamp + duration); 
+        vestingState.startVestingTime = uint64(block.timestamp); 
+        vestingState.endVestingTime = uint64(block.timestamp + duration); 
+
         emit YieldRecorded(yieldAmount, vestingState.endVestingTime);
     }
 
@@ -151,26 +160,27 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
      */
     function updateExchangeRate() public requiresAuth {
 
-        // Calculate how much has vested since vestingState.lastVestingUpdate
+        //calculate how much has vested since `lastVestingUpdate`
         uint256 newlyVested = getPendingVestingGains(); 
 
         uint256 currentShares = vault.totalSupply();
         if (newlyVested > 0) {
 
             // update the share price w/o reincluding the pending gains (done in `newlyVested`)
-            //uint256 lastSharePrice = 
             uint256 _totalAssets = uint256(vestingState.lastSharePrice).mulDivDown(currentShares, 1e18); 
             vestingState.lastSharePrice = uint128((_totalAssets + newlyVested).mulDivDown(1e18, currentShares)); 
 
             _collectFees();
 
-            // Move vested amount from pending to realized
+            //move vested amount from pending to realized
             vestingState.vestingGains -= uint128(newlyVested);        // remove from pending
             vestingState.lastVestingUpdate = uint128(block.timestamp);  // update timestamp 
 
             if (block.timestamp < vestingState.endVestingTime) {
+                //end vesting time is adjusted to keep the same streaming rate
+                //note that start time is not affected here
                 uint256 timeRemaining = vestingState.endVestingTime - block.timestamp;
-                vestingState.endVestingTime = uint128(block.timestamp + timeRemaining); 
+                vestingState.endVestingTime = uint64(block.timestamp + timeRemaining); 
             }
         }
         

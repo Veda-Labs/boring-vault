@@ -291,7 +291,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 totalAssetsAfterLoss = accountant.totalAssets(); 
         
         //assert the vestingGains is removed from  
-        (, uint128 vestingGains, , ) = accountant.vestingState(); 
+        (, uint128 vestingGains, , , ) = accountant.vestingState(); 
         assertEq(unvested - 2.5e18, vestingGains); 
 
         //total assets should remain the same as the buffer absorbed the entire loss
@@ -323,7 +323,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 totalAssetsInBaseBefore = accountant.totalAssets();  
         assertEq(totalAssetsInBaseBefore, 15e18); 
         
-        (uint128 lastSharePrice, , , ) = accountant.vestingState(); 
+        (uint128 lastSharePrice, , , , ) = accountant.vestingState(); 
         uint256 sharePriceInitial = lastSharePrice; 
 
         //15 total assets as this point
@@ -337,7 +337,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 totalAssetsInBaseAfter = accountant.totalAssets();  
         
         //vesting gains should be 0
-        (, uint128 vestingGains, , ) = accountant.vestingState(); 
+        (, uint128 vestingGains, , , ) = accountant.vestingState(); 
         assertEq(0, vestingGains); 
 
         //total assets should be 5e18 -> 10 initial, 5 yield, 5 unvested -> 15 weth loss (5 from buffer) -> 15 - 10 = 5 totalAssets remaining
@@ -351,7 +351,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
         //check that the share price was affected
         
-        (uint128 sharePriceAfter, , , ) = accountant.vestingState(); 
+        (uint128 sharePriceAfter, , , , ) = accountant.vestingState(); 
         assertLt(sharePriceAfter, sharePriceInitial, "share price should be less after loss exceeds buffer"); 
 
         //console.log("difference: ", sharePriceInitial - sharePriceAfter); //diff = 50% 
@@ -388,6 +388,9 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         accountant.vestYield(WETHAmount, 24 hours); 
         skip(12 hours); 
 
+
+        accountant.updateMinimumVestDuration(6 hours); 
+
         //total assets = 15
 
         uint256 unvested = accountant.getPendingVestingGains(); 
@@ -405,12 +408,15 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 totalAssets = accountant.totalAssets();  
         assertEq(totalAssets, 22.5e18); 
         
-        (, uint128 gains, uint128 lastVestingUpdate, uint128 endVestingTime) = accountant.vestingState(); 
+        (, uint128 gains, uint128 lastVestingUpdate, uint64 startVestingTime, uint64 endVestingTime) = accountant.vestingState(); 
         assertEq(gains, 15e18); 
         
         uint256 lastUpdate = lastVestingUpdate; 
         assertEq(lastUpdate, block.timestamp - 12 hours); 
         
+        uint256 startTime = startVestingTime; 
+        assertEq(startTime, block.timestamp - 12 hours); 
+
         uint256 endTime = endVestingTime; 
         assertEq((block.timestamp - 12 hours) + 24 hours, endTime); 
     }
@@ -459,7 +465,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     
         // Record initial state
         (, uint96 initialHighwaterMark, ,,,,,,,,,) = accountant.accountantState();
-        (uint128 initialSharePrice,,,) = accountant.vestingState(); 
+        (uint128 initialSharePrice,,,,) = accountant.vestingState(); 
         //uint256 initialSharePrice = uint256(lastSharePrice); 
         uint256 totalShares = boringVault.totalSupply();
     
@@ -473,7 +479,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         accountant.updateExchangeRate();
     
         (, uint96 nextHighwaterMark, uint128 feesOwedInBase,,,,,,,,,) = accountant.accountantState();
-        (uint128 finalSharePrice,,,) = accountant.vestingState(); 
+        (uint128 finalSharePrice,,,,) = accountant.vestingState(); 
         //uint256 finalSharePrice = accountant.lastSharePrice();
     
         // Calculate expected performance fees based on SHARE PRICE APPRECIATION
@@ -533,7 +539,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         assertEq(WETHAmount, shares1); 
         
         uint256 currentShares = boringVault.totalSupply(); 
-        (uint128 lsp, , , ) = accountant.vestingState(); 
+        (uint128 lsp, , , ,) = accountant.vestingState(); 
         uint256 lastSharePrice = uint256(lsp); 
         uint256 totalAssetsInBase = ((currentShares * lastSharePrice) / 1e18) + accountant.getPendingVestingGains(); 
         assertEq(totalAssetsInBase, 20e18); 
