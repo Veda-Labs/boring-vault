@@ -41,15 +41,32 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
      */
     VestingState public vestingState; 
 
+    /**
+     * @notice The minimum amount of time a yield update is required to vest to be posted to the vault  
+     * @dev set to sane default but configurable by ADMIN_ROLE
+     */
+    uint256 public minimumVestingTime = 1 days; 
+
+    /**
+     * @notice The maximum amount of time a yield update can vest to be posted to the vault  
+     * @dev set to sane default but configurable by ADMIN_ROLE
+     */
+    uint256 public maximumVestingTime = 7 days; 
+
+
     //============================== ERRORS ===============================
     
     error AccountantWithYieldStreaming__UpdateExchangeRateNotSupported(); 
+    error AccountantWithYieldStreaming__DurationExceedsMaximum(); 
+    error AccountantWithYieldStreaming__DurationUnderMinimum(); 
 
     //============================== EVENTS ===============================
     
     event YieldRecorded(uint256 amountAdded, uint256 newtotalAssetsInBase); 
     event LossRecorded(uint256 lossAmount); 
     event ExchangeRateUpdated(uint256 newExchangeRate); 
+    event MaximumVestDurationUpdated(uint256 newMaxium); 
+    event MinimumVestDurationUpdated(uint256 newMinimum); 
 
     constructor(
         address _owner,
@@ -91,6 +108,8 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
      * @dev `yieldAmount` should be denominated in the BASE ASSET
      */
     function vestYield(uint256 yieldAmount, uint256 duration) external requiresAuth {
+        if (duration > maximumVestingTime) revert AccountantWithYieldStreaming__DurationExceedsMaximum(); 
+        if (duration < minimumVestingTime) revert  AccountantWithYieldStreaming__DurationUnderMinimum(); 
         // first, update any previously vested gains
         updateExchangeRate();
         
@@ -168,6 +187,26 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
         revert AccountantWithYieldStreaming__UpdateExchangeRateNotSupported(); 
     }
 
+    // ========================================= ADMIN FUNCTIONS =========================================
+    
+    /**
+     * @notice Update the maximum vesting time to a new value.
+     * @dev Callable by OWNER_ROLE.
+     */
+    function updateMaximumVestDuration(uint256 newMaximum) external requiresAuth {
+        maximumVestingTime = newMaximum;  
+        emit MaximumVestDurationUpdated(newMaximum);  
+    } 
+
+    /**
+     * @notice Update the minimum vesting time to a new value.
+     * @dev Callable by OWNER_ROLE.
+     */
+    function updateMinimumVestDuration(uint256 newMinimum) external requiresAuth {
+        minimumVestingTime = newMinimum;  
+        emit MinimumVestDurationUpdated(newMinimum);  
+    } 
+
     // ========================================= VIEW FUNCTIONS =========================================
     
     /**
@@ -214,7 +253,18 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
         uint256 totalRemainingTime = vestingState.endVestingTime - vestingState.lastVestingUpdate;
         
         //vest it linearly over the remaining time
-        return amountVested = (vestingState.vestingGains * timeSinceLastUpdate) / totalRemainingTime;
+        //return amountVested = (vestingState.vestingGains * timeSinceLastUpdate) / totalRemainingTime;
+        return amountVested = uint256(vestingState.vestingGains).mulDivDown(
+            timeSinceLastUpdate,
+            totalRemainingTime
+        );
+    }
+
+    /**
+     * @notice Returns the amount of yield that has yet to vest based on the current block and `vestingGains`
+     */
+    function getPendingUnvestedGains() external view returns (uint256) {
+        return vestingState.vestingGains - getPendingVestingGains();
     }
     
     /**
