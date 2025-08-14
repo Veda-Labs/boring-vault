@@ -334,9 +334,24 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
         assertApproxEqAbs(USDC.balanceOf(address(this)), amount + onePercentYield, 200, "Should have received expected USDT");
     }
 
-    // TODO NEXT:
-    // - test depositWithPermit
-    // - test different amounts with changed share price
-    // - test a nonpegged asset
+    function testWithdrawFailureWhenBufferIsTooSmall(uint256 amount) external {
+        amount = bound(amount, 0.01e6, 100_000e6);
+        deal(address(USDT), address(this), amount);
 
+        USDT.safeApprove(address(boringVault), amount);
+
+        teller.deposit(USDT, amount, 0);
+
+        // give the vault an additional 1% yield
+        // not in the buffer though
+        vm.warp(block.timestamp + 10);
+        deal(address(USDT), address(boringVault), amount / 100);
+        accountant.updateExchangeRate(1.01e6);
+
+        vm.expectRevert(0x47bc4b2c); // aave withdrawal failure error
+        teller.bulkWithdraw(USDT, amount, 0, address(this));
+    }
+    
+    // TODO NEXT:
+    // - test a nonpegged asset
 }
