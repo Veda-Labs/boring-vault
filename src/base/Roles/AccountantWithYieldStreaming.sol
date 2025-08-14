@@ -148,7 +148,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
 //reduce share price to reflect principal loss
             uint256 currentShares = vault.totalSupply();
             if (currentShares > 0) {
-                vestingState.lastSharePrice = uint128((totalAssets() - principalLoss).mulDivDown(1e18, currentShares)); 
+                vestingState.lastSharePrice = uint128((totalAssets() - principalLoss).mulDivDown(10 ** decimals, currentShares)); 
             }
         }
 
@@ -167,21 +167,14 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         if (newlyVested > 0) {
 
             // update the share price w/o reincluding the pending gains (done in `newlyVested`)
-            uint256 _totalAssets = uint256(vestingState.lastSharePrice).mulDivDown(currentShares, 1e18); 
-            vestingState.lastSharePrice = uint128((_totalAssets + newlyVested).mulDivDown(1e18, currentShares)); 
+            uint256 _totalAssets = uint256(vestingState.lastSharePrice).mulDivDown(currentShares, 10 ** decimals); 
+            vestingState.lastSharePrice = uint128((_totalAssets + newlyVested).mulDivDown(10 ** decimals, currentShares)); 
 
             _collectFees();
 
             //move vested amount from pending to realized
             vestingState.vestingGains -= uint128(newlyVested);        // remove from pending
             vestingState.lastVestingUpdate = uint128(block.timestamp);  // update timestamp 
-
-            if (block.timestamp < vestingState.endVestingTime) {
-                //end vesting time is adjusted to keep the same streaming rate
-                //note that start time is not affected here
-                uint256 timeRemaining = vestingState.endVestingTime - block.timestamp;
-                vestingState.endVestingTime = uint64(block.timestamp + timeRemaining); 
-            }
         }
         
         AccountantState storage state = accountantState;
@@ -283,7 +276,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
      */
     function totalAssets() public view returns (uint256) {
         uint256 currentShares = vault.totalSupply();
-        return uint256(vestingState.lastSharePrice).mulDivDown(currentShares, 1e18) + getPendingVestingGains();
+        return uint256(vestingState.lastSharePrice).mulDivDown(currentShares, 10 ** decimals) + getPendingVestingGains();
     }
 
     /**

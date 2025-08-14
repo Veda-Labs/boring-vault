@@ -32,7 +32,7 @@ contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
         returns (uint256 assetsOut)
     {
 
-         // Update vested yield before deposit
+         // Update vested yield before withdraw
         _getAccountant().updateExchangeRate();
 
         //TODO we need to get the order of operations correct here, something is off
