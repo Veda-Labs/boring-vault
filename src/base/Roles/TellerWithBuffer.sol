@@ -21,6 +21,10 @@ contract TellerWithBuffer is TellerWithMultiAssetSupport {
     /// @notice Buffer helper contract for managing withdrawals
     IBufferHelper public withdrawBufferHelper;
 
+    //============================== EVENTS ===============================
+    event DepositBufferHelperSet(address indexed newDepositBufferHelper);
+    event WithdrawBufferHelperSet(address indexed newWithdrawBufferHelper);
+
     /**
      * @notice Initializes the TellerWithBuffer contract
      * @param _owner The address that will have owner privileges
@@ -82,6 +86,7 @@ contract TellerWithBuffer is TellerWithMultiAssetSupport {
      */
     function setDepositBufferHelper(address _depositBufferHelper) external requiresAuth {
         depositBufferHelper = IBufferHelper(_depositBufferHelper);
+        emit DepositBufferHelperSet(_depositBufferHelper);
     }
 
     /**
@@ -92,5 +97,6 @@ contract TellerWithBuffer is TellerWithMultiAssetSupport {
      */
     function setWithdrawBufferHelper(address _withdrawBufferHelper) external requiresAuth {
         withdrawBufferHelper = IBufferHelper(_withdrawBufferHelper);
+        emit WithdrawBufferHelperSet(_withdrawBufferHelper);
     }
 }
