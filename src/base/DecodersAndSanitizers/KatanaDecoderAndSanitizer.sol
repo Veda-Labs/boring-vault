@@ -20,7 +20,8 @@ import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocol
 import {LBTCBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LBTCBridgeDecoderAndSanitizer.sol";
 import {MorphoBlueDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MorphoBlueDecoderAndSanitizer.sol";
 import {UniswapV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV3DecoderAndSanitizer.sol";
-import {SpectraDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SpectraDecoderAndSanitizer.sol"; 
+import {SpectraDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SpectraDecoderAndSanitizer.sol";
+import {BTCKDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BTCKDecoderAndSanitizer.sol"; 
 
 contract KatanaDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
@@ -36,7 +37,8 @@ contract KatanaDecoderAndSanitizer is
     LBTCBridgeDecoderAndSanitizer,
     MorphoBlueDecoderAndSanitizer,
     UniswapV3DecoderAndSanitizer,
-    SpectraDecoderAndSanitizer
+    SpectraDecoderAndSanitizer,
+    BTCKDecoderAndSanitizer
 {
     constructor(address _nonFungiblePositionManager)
         UniswapV3DecoderAndSanitizer(_nonFungiblePositionManager)
