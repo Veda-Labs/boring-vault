@@ -11,7 +11,7 @@ import {PancakeSwapV3FullDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/PancakeSwapV3FullDecoderAndSanitizer.sol";
 import {AerodromeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/AerodromeDecoderAndSanitizer.sol";
 import {SyUsdDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyUsdDecoderAndSanitizer.sol";
-import {SyHlpDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyHlpArbitrumDecoderAndSanitizer.sol";
+import {SyHlpBaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyHlpArbitrumDecoderAndSanitizer.sol";
 import {SyUsdBaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyUsdBaseDecoderAndSanitizer01.sol";
 import {OnlyKarakDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/OnlyKarakDecoderAndSanitizer.sol";
 import {Deployer} from "src/helper/Deployer.sol";
@@ -131,7 +131,7 @@ contract DeploySyHlpDecoderAndSanitizer is Script, ContractNames, MainnetAddress
         vm.createSelectFork("arbitrum");
         setSourceChainName("arbitrum");
         vm.startBroadcast(privateKey);
-        creationCode = type(SyHlpArbitrumDecoderAndSanitizer).creationCode;
+        creationCode = type(SyHlpBaseDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
         deployer.deployContract("SyUsd Base DecodersAndSanitizers Batch 1", creationCode, constructorArgs, 0);
         vm.stopBroadcast();

@@ -12728,7 +12728,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         unchecked {
             leafIndex++;
         }
-        leaf[leafIndex] = ManageLeaf(
+        leafs[leafIndex] = ManageLeaf(
             getAddress(sourceChain, "HLP0"),
             false,
             "requestRedeem(uint256)",

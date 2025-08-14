@@ -167,7 +167,7 @@ contract BridgeFundsToEthereum is Script, MerkleTreeHelper {
         message.data = "";
         message.tokenAmounts = new DecoderCustomTypes.EVMTokenAmount[](1);
         message.tokenAmounts[0].token = getAddress(sourceChain, "USDC");
-        message.tokenAmounts[0].amount = 26000e6;
+        message.tokenAmounts[0].amount = 40000e6;
         message.feeToken = getAddress(sourceChain, "WETH");
         message.extraArgs = abi.encode(bytes4(0x97a657c9), 0); // (bytes4(keccak256("CCIP EVMExtraArgsV1")))
         targetData[2] = abi.encodeWithSignature(
