@@ -14,9 +14,7 @@ import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol"; 
 import {IPausable} from "src/interfaces/IPausable.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
-
-contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
+contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
 
@@ -66,7 +64,6 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
      * @dev set to sane default but configurable by ADMIN_ROLE
      */
     uint256 public maximumVestingTime = 7 days; 
-
 
     /**
      * @notice The maximum amount a yield vest can be > old supply 
@@ -142,7 +139,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
         if (yieldAmount == 0) revert AccountantWithYieldStreaming__ZeroYieldUpdate(); 
         //only check if there's an active vest
         if (vestingState.vestingGains > 0) {
-            if (block.timestamp < vestingState.startVestingTime + minimumVestingTime) revert AccountantWithYieldStreaming__NotEnoughTimePassed(); 
+            if (block.timestamp < vestingState.startVestingTime + accountantState.minimumUpdateDelayInSeconds) revert AccountantWithYieldStreaming__NotEnoughTimePassed(); 
         }
 
         // first, update cumulative supply
@@ -154,9 +151,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
         //use TWAS to validate the yield amount:
         uint256 averageSupply = _getTWAS();
         uint256 _totalAssets = averageSupply.mulDivDown(vestingState.lastSharePrice, 10 ** decimals);
-        console.log("total assets using average supply: ", _totalAssets); 
         uint256 yieldBps = yieldAmount.mulDivDown(10_000, _totalAssets); 
-        console.log("yield in bps: ", yieldBps); 
         
         if (yieldBps > maxDeviationYield) { // maxDeviationYield is in bps
             accountantState.isPaused = true;
@@ -385,8 +380,6 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
             //add (current supply * time elapsed) to accumulator
             supplyObservation.cumulativeSupply += vault.totalSupply() * timeElapsed;
             supplyObservation.lastUpdateTimestamp = currentTime;
-
-            console.log("cumulative: ", supplyObservation.cumulativeSupply); 
         }
     }
 
