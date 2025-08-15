@@ -14,9 +14,9 @@ import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
 import {ILiquidityPool} from "src/interfaces/IStaking.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {AtomicSolverV3, AtomicQueue} from "src/atomic-queue/AtomicSolverV3.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import {AaveV3BufferHelper} from "src/base/Roles/AaveV3BufferHelper.sol";
+import {GenericRateProviderWithDecimalScaling} from "src/helper/GenericRateProviderWithDecimalScaling.sol";
 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
@@ -41,13 +41,15 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
     address internal constant NATIVE = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     ERC20 internal constant NATIVE_ERC20 = ERC20(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE);
     RolesAuthority public rolesAuthority;
-    AtomicQueue public atomicQueue;
-    AtomicSolverV3 public atomicSolverV3;
 
     ERC20 internal USDT;
     ERC20 internal USDC;
+    ERC20 internal sUSDe;
     ERC20 internal aUSDT;
     ERC20 internal aUSDC;
+    ERC20 internal asUSDe;
+
+    GenericRateProviderWithDecimalScaling internal sUSDeRateProvider;
 
     address internal v3Pool;
 
@@ -62,6 +64,8 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
         USDC = getERC20(sourceChain, "USDC");
         aUSDT = getERC20(sourceChain, "aV3USDT");
         aUSDC = getERC20(sourceChain, "aV3USDC");
+        sUSDe = getERC20(sourceChain, "SUSDE");
+        asUSDe = ERC20(0x4579a27aF00A62C0EB156349f31B345c08386419); // aV3sUSDe
         v3Pool = getAddress(sourceChain, "v3Pool");
         bytes32 salt = keccak256("boring-vault-salt");
         boringVault = new BoringVault{salt: salt}(address(this), "Boring Vault", "BV", 6);
@@ -77,13 +81,27 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
 
         rolesAuthority = new RolesAuthority(address(this), Authority(address(0)));
 
-        atomicQueue = new AtomicQueue(address(this), Authority(address(0)));
-        atomicSolverV3 = new AtomicSolverV3(address(this), rolesAuthority);
+        sUSDeRateProvider = new GenericRateProviderWithDecimalScaling(
+            GenericRateProviderWithDecimalScaling.ConstructorArgs({
+                target: 0xFF3BC18cCBd5999CE63E788A1c250a88626aD099, // sUSDe chainlink
+                selector: bytes4(0x50d25bcd), // latestAnswer()
+                staticArgument0: bytes32(0),
+                staticArgument1: bytes32(0),
+                staticArgument2: bytes32(0),
+                staticArgument3: bytes32(0),
+                staticArgument4: bytes32(0),
+                staticArgument5: bytes32(0),
+                staticArgument6: bytes32(0),
+                staticArgument7: bytes32(0),
+                signed: true,
+                inputDecimals: 8,
+                outputDecimals: 18
+            })
+        );
 
         boringVault.setAuthority(rolesAuthority);
         accountant.setAuthority(rolesAuthority);
         teller.setAuthority(rolesAuthority);
-        atomicQueue.setAuthority(rolesAuthority);
 
         rolesAuthority.setRoleCapability(MINTER_ROLE, address(boringVault), BoringVault.enter.selector, true);
         rolesAuthority.setRoleCapability(BURNER_ROLE, address(boringVault), BoringVault.exit.selector, true);
@@ -101,10 +119,6 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
         );
         rolesAuthority.setRoleCapability(
             SOLVER_ROLE, address(teller), TellerWithMultiAssetSupport.bulkWithdraw.selector, true
-        );
-        rolesAuthority.setRoleCapability(QUEUE_ROLE, address(atomicSolverV3), AtomicSolverV3.finishSolve.selector, true);
-        rolesAuthority.setRoleCapability(
-            CAN_SOLVE_ROLE, address(atomicSolverV3), AtomicSolverV3.redeemSolve.selector, true
         );
         rolesAuthority.setRoleCapability(
             TELLER_MANAGER_ROLE,
@@ -131,7 +145,9 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
 
         teller.updateAssetData(USDT, true, true, 0);
         teller.updateAssetData(USDC, true, true, 0);
+        teller.updateAssetData(sUSDe, true, true, 0);
         accountant.setRateProviderData(USDC, true, address(0));
+        accountant.setRateProviderData(sUSDe, false, address(sUSDeRateProvider));
     }
 
     function testUserDepositPeggedAssets(uint256 amount) external {
@@ -332,6 +348,21 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
 
         // check that we got back the amount we deposited plus the yield
         assertApproxEqAbs(USDC.balanceOf(address(this)), amount + onePercentYield, 200, "Should have received expected USDT");
+    }
+
+    function testNonPeggedAsset(uint256 amount) external {
+        amount = bound(amount, 0.0001e18, 10_000e18);
+        deal(address(sUSDe), address(this), amount);
+
+        sUSDe.safeApprove(address(boringVault), amount);
+
+        teller.deposit(sUSDe, amount / 2, 0);
+        teller.bulkDeposit(sUSDe, amount / 2, 0, address(this));
+
+        // 1e6 /1e18 adjusts token decimals, getRate / 1e18 adjusts for rate scaling
+        assertApproxEqAbs(boringVault.balanceOf(address(this)), amount * 1e6 * sUSDeRateProvider.getRate() / 1e18 / 1e18, 2, "Should have received expected shares");
+
+        assertApproxEqAbs(asUSDe.balanceOf(address(boringVault)), amount, 4, "Should have put entire deposit into aave");
     }
 
     function testWithdrawFailureWhenBufferIsTooSmall(uint256 amount) external {
