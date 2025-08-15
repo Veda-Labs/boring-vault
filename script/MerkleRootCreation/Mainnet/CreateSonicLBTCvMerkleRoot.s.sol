@@ -59,6 +59,7 @@ contract CreateSonicLBTCvMerkleRootScript is Script, MerkleTreeHelper {
         kind[2] = SwapKind.BuyAndSell;
         _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
         // ========================== BoringVaults ==========================
+        // Adding leaf to support bulk withdraw of EBTC for scBTC
         {
             ERC20[] memory eBTCTellerAssets = new ERC20[](1);
             eBTCTellerAssets[0] = getERC20(sourceChain, "LBTC");
@@ -74,10 +75,11 @@ contract CreateSonicLBTCvMerkleRootScript is Script, MerkleTreeHelper {
             _addCrossChainTellerLeafs(leafs, sonicBTCTeller, sonicBTCTellerAssets, _feeAssets, abi.encode(layerZeroSonicMainnetEndpointId));
 
             // Add scBTC  teller to enable bulkWithdraw for LBTC
-            ERC20[] memory scBTCTellerAssets = new ERC20[](1);
+            ERC20[] memory scBTCTellerAssets = new ERC20[](2);
             scBTCTellerAssets[0] = getERC20(sourceChain, "LBTC");
+            scBTCTellerAssets[1] = getERC20(sourceChain, "EBTC");
             address scBTCTeller = 0xAce7DEFe3b94554f0704d8d00F69F273A0cFf079;
-            _addTellerLeafs(leafs, scBTCTeller, scBTCTellerAssets, false, true);
+            _addTellerLeafs(leafs, scBTCTeller, scBTCTellerAssets, true, true);
 
             ERC20[] memory scBTCWithdrawQueueAssets = new ERC20[](1); 
             scBTCWithdrawQueueAssets[0] = getERC20(sourceChain, "scBTC");
