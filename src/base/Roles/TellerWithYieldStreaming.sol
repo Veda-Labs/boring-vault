@@ -45,6 +45,8 @@ contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
         if (assetsOut < minimumAssets) revert TellerWithMultiAssetSupport__MinimumAssetsNotMet();
 
         vault.exit(to, withdrawAsset, assetsOut, msg.sender, shareAmount);
+
+        _getAccountant().updateCumulative(); 
         emit BulkWithdraw(address(withdrawAsset), shareAmount);
     }
 
@@ -68,8 +70,10 @@ contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
         if (cap != type(uint112).max) {
             if (shares + vault.totalSupply() > cap) revert TellerWithMultiAssetSupport__DepositExceedsCap(); 
         }
-
+         
         vault.enter(from, depositAsset, depositAmount, to, shares);
+
+        _getAccountant().updateCumulative(); 
     }
 
     function _getAccountant() internal view returns (AccountantWithYieldStreaming) {

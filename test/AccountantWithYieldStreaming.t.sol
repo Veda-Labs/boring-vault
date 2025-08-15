@@ -120,6 +120,9 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         rolesAuthority.setRoleCapability(
             STRATEGIST_ROLE, address(accountant), bytes4(keccak256("updateExchangeRate()")), true
         );
+        rolesAuthority.setRoleCapability(
+            MINTER_ROLE, address(accountant), bytes4(keccak256("updateCumulative()")), true
+        );
         rolesAuthority.setPublicCapability(address(teller), TellerWithMultiAssetSupport.deposit.selector, true);
         rolesAuthority.setPublicCapability(
             address(teller), TellerWithMultiAssetSupport.depositWithPermit.selector, true
@@ -149,7 +152,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         teller.updateAssetData(WETH, true, true, 0);
         teller.updateAssetData(EETH, true, true, 0);
         teller.updateAssetData(WEETH, true, true, 0);
-        
+
+        accountant.updateMaximumDeviationYield(50000); //500% allowable (for testing)
     }
 
     //test
@@ -389,6 +393,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
 
         accountant.updateMinimumVestDuration(6 hours); 
+        accountant.updateMaximumDeviationYield(50000); //500% allowable
 
         //total assets = 15
 
@@ -500,6 +505,35 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         assertGt(nextHighwaterMark, initialHighwaterMark, "HWM should increase");
         assertEq(uint256(nextHighwaterMark), finalSharePrice, "HWM should equal new share price");
     }
+
+    function testTWASWorksAsExpectedWhenUpdatingYield() external {
+        accountant.updateMaximumDeviationYield(500); //5%
+
+        uint256 WETHAmount = 100e18; 
+        deal(address(WETH), address(this), 1_000e18);
+        WETH.approve(address(boringVault), 1_000e18);
+        uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
+        assertEq(WETHAmount, shares0); 
+
+        accountant.vestYield(1e18, 1 days); // 1 WETH yield over 1 day //1% of vault 
+
+        // T=12 hours: Deposit more to change supply
+        skip(12 hours); 
+        teller.deposit(WETH, 100e18, 0);
+
+        skip(12 hours); 
+        accountant.vestYield(2e18, 1 days); //another 1%, should pass //should be ~150ETH as totalAssets
+
+        skip(24 hours); //total should now be ~152ETH
+        accountant.vestYield(10e18, 1 days); //almost 5%, should pass //should be ~152ETH as totalAssets
+
+        teller.deposit(WETH, 100e18, 0);
+
+        skip(24 hours); //total should now be ~200ETH
+        vm.expectRevert(AccountantWithYieldStreaming.AccountantWithYieldStreaming__MaxDeviationYieldExceeded.selector); 
+        accountant.vestYield(100e18, 1 days); //should fail 
+    }
+    
         
     // ========================= EDGE CASES ===============================
     
@@ -727,6 +761,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     // ========================= FUZZ TESTS ===============================
     
     function testFuzzDepositsWithNoYield(uint96 WETHAmount, uint96 WETHAmount2) external {
+        accountant.updateMaximumDeviationYield(5000000); 
         vm.assume(uint256(WETHAmount) + uint256(WETHAmount2) < type(uint128).max); 
         vm.assume(WETHAmount > 0); 
         vm.assume(WETHAmount2 > 0); 
@@ -747,6 +782,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     }
 
     function testFuzzDepositsWithYield(uint96 WETHAmount, uint96 WETHAmount2, uint96 yieldVestAmount) external {
+    accountant.updateMaximumDeviationYield(5000000); 
     //function testFuzzDepositsWithYield() external {
         //vm.assume(WETHAmount > 1 && WETHAmount <= 1_000_000e18); 
         //vm.assume(WETHAmount2 > 1 && WETHAmount2 <= 1_000_000e18); 
@@ -795,6 +831,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     }
 
     function testFuzzWithdrawWithYield(uint96 WETHAmount, uint96 WETHAmount2, uint96 yieldVestAmount) external {
+        accountant.updateMaximumDeviationYield(5000000); 
         vm.assume(WETHAmount >= 1e18 && WETHAmount <= 1_000_000e18);
         vm.assume(WETHAmount2 >= 1e18 && WETHAmount2 <= 1_000_000e18);
         // Yield should be reasonable relative to deposits - max 100x the first deposit

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: SEL-1.0
+//
 // Copyright © 2025 Veda Tech Labs
 // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
 // Licensed under Software Evaluation License, Version 1.0
@@ -13,7 +14,9 @@ import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol"; 
 import {IPausable} from "src/interfaces/IPausable.sol";
 
-contract AccountantWithYieldStreaming is AccountantWithRateProviders {
+import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+
+contract AccountantWithYieldStreaming is AccountantWithRateProviders, Test {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
 
@@ -33,6 +36,12 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         uint64 startVestingTime;   
         uint64 endVestingTime;   
     }
+
+    struct SupplyObservation {
+        uint256 cumulativeSupply; 
+        uint256 cumulativeSupplyLast; 
+        uint256 lastUpdateTimestamp; 
+    } 
     
     // ========================================= STATE =========================================
     
@@ -40,6 +49,11 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
      * @notice Store the vesting state in 2 packed slots.
      */
     VestingState public vestingState; 
+
+    /**
+     * @notice Store the supply observation state in 3 slots.
+     */
+    SupplyObservation public supplyObservation; 
 
     /**
      * @notice The minimum amount of time a yield update is required to vest to be posted to the vault  
@@ -54,6 +68,12 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     uint256 public maximumVestingTime = 7 days; 
 
 
+    /**
+     * @notice The maximum amount a yield vest can be > old supply 
+     * @dev recorded in bps (maxDeviationYield / 10_000)
+     */
+    uint256 public maxDeviationYield = 500; 
+
     //============================== ERRORS ===============================
     
     error AccountantWithYieldStreaming__UpdateExchangeRateNotSupported(); 
@@ -61,6 +81,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     error AccountantWithYieldStreaming__DurationUnderMinimum(); 
     error AccountantWithYieldStreaming__NotEnoughTimePassed(); 
     error AccountantWithYieldStreaming__ZeroYieldUpdate(); 
+    error AccountantWithYieldStreaming__MaxDeviationYieldExceeded(); 
 
     //============================== EVENTS ===============================
     
@@ -98,6 +119,12 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         vestingState.lastVestingUpdate = uint128(block.timestamp); 
         vestingState.startVestingTime = uint64(block.timestamp); 
         vestingState.endVestingTime = uint64(block.timestamp); 
+
+        supplyObservation = SupplyObservation({
+            cumulativeSupply: 0,
+            cumulativeSupplyLast: 0,
+            lastUpdateTimestamp: uint128(block.timestamp)
+        });
     }
 
     // ========================================= UPDATE EXCHANGE RATE/FEES FUNCTIONS =========================================
@@ -117,12 +144,32 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         if (vestingState.vestingGains > 0) {
             if (block.timestamp < vestingState.startVestingTime + minimumVestingTime) revert AccountantWithYieldStreaming__NotEnoughTimePassed(); 
         }
-        // first, update any previously vested gains
+
+        // first, update cumulative supply
+        _updateCumulative();
+
+        //update the exchange rate, then validate if everything checks out
         updateExchangeRate();
+
+        //use TWAS to validate the yield amount:
+        uint256 averageSupply = _getTWAS();
+        uint256 _totalAssets = averageSupply.mulDivDown(vestingState.lastSharePrice, 10 ** decimals);
+        console.log("total assets using average supply: ", _totalAssets); 
+        uint256 yieldBps = yieldAmount.mulDivDown(10_000, _totalAssets); 
+        console.log("yield in bps: ", yieldBps); 
+        
+        if (yieldBps > maxDeviationYield) { // maxDeviationYield is in bps
+            accountantState.isPaused = true;
+            emit Paused();
+
+            revert AccountantWithYieldStreaming__MaxDeviationYieldExceeded();
+        }
+
+        supplyObservation.cumulativeSupplyLast = supplyObservation.cumulativeSupply;
         
         //strategists should account for any unvested yield they want, gives more flexibility in posting pnl updates 
         vestingState.vestingGains = uint128(yieldAmount); 
-        
+
         vestingState.startVestingTime = uint64(block.timestamp); 
         vestingState.endVestingTime = uint64(block.timestamp + duration); 
 
@@ -159,6 +206,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
      * @dev calling this moves any vested gains to be calculated into the current share price
      */
     function updateExchangeRate() public requiresAuth {
+        _updateCumulative();
 
         //calculate how much has vested since `lastVestingUpdate`
         uint256 newlyVested = getPendingVestingGains(); 
@@ -190,6 +238,14 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         revert AccountantWithYieldStreaming__UpdateExchangeRateNotSupported(); 
     }
 
+    /**
+     * @notice Updates vault supply 
+     * @dev Callable by TELLER
+     */
+    function updateCumulative() external requiresAuth {
+        _updateCumulative(); 
+    }
+
     // ========================================= ADMIN FUNCTIONS =========================================
     
     /**
@@ -208,6 +264,15 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     function updateMinimumVestDuration(uint256 newMinimum) external requiresAuth {
         minimumVestingTime = newMinimum;  
         emit MinimumVestDurationUpdated(newMinimum);  
+    } 
+
+    /**
+     * @notice Update the maximum deviation yield 
+     * @dev Callable by OWNER_ROLE.
+     */
+    function updateMaximumDeviationYield(uint256 newMaximum) external requiresAuth {
+        maxDeviationYield = newMaximum;  
+        //emit MinimumVestDurationUpdated(newMinimum);  
     } 
 
     // ========================================= VIEW FUNCTIONS =========================================
@@ -269,6 +334,26 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     function getPendingUnvestedGains() external view returns (uint256) {
         return vestingState.vestingGains - getPendingVestingGains();
     }
+
+   /**
+     * @notice Calculate TWAS since last vest
+     */
+    function _getTWAS() internal view returns (uint256) {
+        //handle first yield event
+        if (supplyObservation.cumulativeSupply == 0) {
+            return vault.totalSupply();
+        }
+
+        uint64 timeSinceLastVest = uint64(block.timestamp) - vestingState.startVestingTime;
+        
+        if (timeSinceLastVest == 0) {
+            return vault.totalSupply(); // If no time passed, return current supply
+        }
+        
+        // TWAS = (current cumulative - last vest cumulative) / time elapsed
+        uint256 cumulativeDelta = supplyObservation.cumulativeSupply - supplyObservation.cumulativeSupplyLast;
+        return cumulativeDelta / timeSinceLastVest;
+    }
     
     /**
      * @notice Returns the total assets in the vault at current timestamp
@@ -288,6 +373,23 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
 
     // ========================================= INTERNAL HELPER FUNCTIONS =========================================
     
+    /** 
+     * @notice Updates the cumulative supply tracking
+     * @dev Called before any supply changes and before TWAS calculations
+    */
+    function _updateCumulative() internal {
+        uint256 currentTime = block.timestamp; 
+        uint256 timeElapsed = currentTime - supplyObservation.lastUpdateTimestamp;
+    
+        if (timeElapsed > 0) {
+            //add (current supply * time elapsed) to accumulator
+            supplyObservation.cumulativeSupply += vault.totalSupply() * timeElapsed;
+            supplyObservation.lastUpdateTimestamp = currentTime;
+
+            console.log("cumulative: ", supplyObservation.cumulativeSupply); 
+        }
+    }
+
     /**
      * @notice Call this before share price increases to collect fees
      */
