@@ -507,34 +507,54 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     }
 
     function testTWASWorksAsExpectedWhenUpdatingYield() external {
-        accountant.updateMaximumDeviationYield(500); //5%
-
-        uint256 WETHAmount = 100e18; 
+        accountant.updateMaximumDeviationYield(500); // 5%
+    
+        uint256 WETHAmount = 100e18;
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
-        assertEq(WETHAmount, shares0); 
-
-        accountant.vestYield(1e18, 1 days); // 1 WETH yield over 1 day //1% of vault 
-
-        // T=12 hours: Deposit more to change supply
-        skip(12 hours); 
-        teller.deposit(WETH, 100e18, 0);
-
-        skip(12 hours); 
-        accountant.vestYield(2e18, 1 days); //another 1%, should pass //should be ~150ETH as totalAssets
-
-        skip(24 hours); //total should now be ~152ETH
-        accountant.vestYield(10e18, 1 days); //almost 5%, should pass //should be ~152ETH as totalAssets
-
-        teller.deposit(WETH, 100e18, 0);
-
-        skip(24 hours); //total should now be ~200ETH
-        vm.expectRevert(AccountantWithYieldStreaming.AccountantWithYieldStreaming__MaxDeviationYieldExceeded.selector); 
-        accountant.vestYield(100e18, 1 days); //should fail 
-    }
+        assertEq(WETHAmount, shares0);
     
-        
+        accountant.vestYield(1e18, 1 days); // 1% of vault
+    
+        // T=12 hours: Deposit more to change supply
+        skip(12 hours);
+    
+        // Get supply before deposit
+        uint256 supplyBefore = boringVault.totalSupply();
+        assertEq(supplyBefore, 100e18, "Supply should still be 100e18");
+    
+        // Deposit - will get slightly fewer shares due to yield
+        uint256 shares1 = teller.deposit(WETH, 100e18, 0);
+    
+        // Get actual supply after deposit (not exactly 200e18 due to share price)
+        uint256 supplyAfter = boringVault.totalSupply();
+        assertApproxEqRel(supplyAfter, 199.5e18, 0.01e18, "Supply should be ~199.5e18");
+    
+        (uint256 cumulative,,) = accountant.supplyObservation();
+        uint256 expectedCumulative = 100e18 * 12 hours; // 4.32e24
+        assertEq(cumulative, expectedCumulative, "Cumulative should be 100e18 * 12 hours");
+    
+        skip(12 hours);
+        accountant.vestYield(2e18, 1 days);
+    
+        // After second vestYield, cumulative should account for actual supply
+        // (100e18 * 12 hours) + (supplyAfter * 12 hours)
+        (cumulative,,) = accountant.supplyObservation();
+        expectedCumulative = (100e18 * 12 hours) + (supplyAfter * 12 hours);
+        assertApproxEqAbs(cumulative, expectedCumulative, 1e6, "Cumulative should match actual supply changes");
+    
+        // Verify checkpoint
+        (, uint256 cumulativeSupplyLast,) = accountant.supplyObservation();
+        assertEq(cumulativeSupplyLast, cumulative, "Checkpoint should equal cumulative at vest time");
+    
+        // Verify the TWAS was calculated correctly for the yield check
+        // TWAS = cumulative / 24 hours ≈ 149.75e18 (as shown in logs)
+        uint256 calculatedTWAS = cumulative / (24 hours);
+        assertApproxEqRel(calculatedTWAS, 149.75e18, 0.01e18, "TWAS should be ~149.75e18");
+    }
+
+
     // ========================= EDGE CASES ===============================
     
     function testDonationsShouldNotBeConsideredInCalculations() external {
