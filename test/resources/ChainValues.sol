@@ -34,6 +34,7 @@ contract ChainValues {
     string public constant berachainTestnet = "berachainTestnet";
     string public constant bartio = "bartio";
     string public constant katana = "katana";
+    string public constant hyperevm = "hyperevm";
 
     // Bridging constants.
     uint64 public constant ccipArbitrumChainSelector = 4949039107694359620;
@@ -120,6 +121,12 @@ contract ChainValues {
         _addSonicBlazeValues();
         _addBerachainTestnetValues();
         _addBartioValues();
+        _addHyperEvmValues();
+    }
+
+    function _addHyperEvmValues() private {
+        values[hyperevm]["CoreWriter"] = 0x3333333333333333333333333333333333333333.toBytes32();
+        values[hyperevm]["USDT0"] = 0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb.toBytes32();
     }
 
     function _addMainnetValues() private {
@@ -1658,6 +1665,9 @@ contract ChainValues {
         values[arbitrum]["dolomiteMargin"] = 0x6Bd780E7fDf01D77e4d475c821f1e7AE05409072.toBytes32();
         values[arbitrum]["dolomiteDepositWithdrawRouter"] = 0xAdB9D68c613df4AA363B42161E1282117C7B9594.toBytes32();
         values[arbitrum]["dolomiteBorrowProxy"] = 0x38E49A617305101216eC6306e3a18065D14Bf3a7.toBytes32(); //V2
+
+        // Hyperliquid Bridge
+        values[arbitrum]["Bridge2"] = 0x2Df1c51E09aECF9cacB7bc98cB1742757f163dF7.toBytes32();
     }
 
     function _addOptimismValues() private {

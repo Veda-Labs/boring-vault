@@ -12738,6 +12738,30 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         );
     }
 
+    // ========================================= CoreWriter =========================================
+    // function _addHyperliquidCoreWriteLeafs(ManageLeafs[] memory leafs) internal {
+    //     unchecked {
+    //         leafIndex++;
+    //     }
+    // }
+
+    // ========================================= Arbitrum Hyperliquid Bridge 2 =========================================
+    function _addArbitrumHyperliquidBridge2Leafs(ManageLeafs[] memory leafs) internal {
+        unchecked {
+            leafIndex++;
+        }
+
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "USDC"),
+            false,
+            "transfer(address,uint256)",
+            new address[](0),
+            string.concat("Transfer USDC to Hyperliquid Bridge2"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "Bridge2");
+    }
+
     // ========================================= JSON FUNCTIONS =========================================
     // TODO this should pass in a bool or something to generate leafs indicating that we want leaf indexes printed.
     bool addLeafIndex = false;
