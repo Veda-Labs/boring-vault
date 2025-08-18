@@ -2462,6 +2462,7 @@ contract ChainValues {
         values[bob]["WBTC"] = 0x03C7054BCB39f7b2e5B2c7AcB37583e32D70Cfa3.toBytes32();
         values[bob]["solvBTC"] = 0x541FD749419CA806a8bc7da8ac23D346f2dF8B77.toBytes32();
         values[bob]["solvBTC.BBN"] = 0xCC0966D8418d412c599A6421b760a847eB169A8c.toBytes32();
+        values[bob]["xsolvBTC"] = 0xCC0966D8418d412c599A6421b760a847eB169A8c.toBytes32();
         values[bob]["LBTC"] = 0xA45d4121b3D47719FF57a947A9d961539Ba33204.toBytes32();
 
         values[bob]["balancerVault"] = address(1).toBytes32();
@@ -2482,6 +2483,7 @@ contract ChainValues {
 
         // Uniswap V3
         values[bob]["uniswapV3NonFungiblePositionManager"] = 0x743E03cceB4af2efA3CC76838f6E8B50B63F184c.toBytes32();
+        values[bob]["uniV3Router"] = 0x807F4E281B7A3B324825C64ca53c69F0b418dE40.toBytes32();
     }
 
     function _addDeriveValues() private {
@@ -2609,6 +2611,12 @@ contract ChainValues {
         values[hyperEVM]["KHYPE_WHYPE_Curve_Pool"] = 0x98F903B279DfF5a4f05c08C22c1D34afE8514dA0.toBytes32(); 
         values[hyperEVM]["KHYPE_WHYPE_Curve_Gauge"] = 0x98F903B279DfF5a4f05c08C22c1D34afE8514dA0.toBytes32(); 
 
+        // Pendle
+        values[hyperEVM]["pendleRouter"] = 0x888888888889758F76e7103c6CbF23ABbF58F946.toBytes32();
+        values[hyperEVM]["pendleLimitOrderRouter"] = 0x000000000000c9B3E2C3Ec88B1B4c0cD853f4321.toBytes32();
+        values[hyperEVM]["kHypePendle"] = 0x8867d2b7aDb8609c51810237EcC9A25A2F601B97.toBytes32();
+        values[hyperEVM]["pendle_kHYPE_pt_11_13_25"] = 0x311dB0FDe558689550c68355783c95eFDfe25329.toBytes32();
+        
         // Valantis
         values[hyperEVM]["KHYPE_WHYPE_sovereign_pool"] = 0x88B214eC94276B825E641820D5C97a9042F9Dd60.toBytes32(); 
     }

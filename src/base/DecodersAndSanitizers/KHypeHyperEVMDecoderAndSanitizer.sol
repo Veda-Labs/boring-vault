@@ -11,7 +11,8 @@ import {MorphoBlueDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Prot
 import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol"; 
 import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol"; 
 import {KinetiqDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/KinetiqDecoderAndSanitizer.sol"; 
-
+import {PendleRouterDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/PendleRouterDecoderAndSanitizer.sol";
+import {ValantisDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ValantisDecoderAndSanitizer.sol";
 
 contract KHypeHyperEVMDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
@@ -20,7 +21,9 @@ contract KHypeHyperEVMDecoderAndSanitizer is
     MorphoBlueDecoderAndSanitizer,
     ERC4626DecoderAndSanitizer,
     CurveDecoderAndSanitizer,
-    KinetiqDecoderAndSanitizer
+    KinetiqDecoderAndSanitizer,
+    PendleRouterDecoderAndSanitizer,
+    ValantisDecoderAndSanitizer
 {
 
     function deposit(uint256, address receiver) external pure virtual override(ERC4626DecoderAndSanitizer, CurveDecoderAndSanitizer) returns (bytes memory addressesFound) {
