@@ -109,7 +109,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
             STRATEGIST_ROLE, address(accountant), AccountantWithYieldStreaming.vestYield.selector, true
         );
         rolesAuthority.setRoleCapability(
-            STRATEGIST_ROLE, address(accountant), AccountantWithYieldStreaming.vestLoss.selector, true
+            STRATEGIST_ROLE, address(accountant), AccountantWithYieldStreaming.postLoss.selector, true
         );
         rolesAuthority.setRoleCapability(
             STRATEGIST_ROLE, address(accountant), bytes4(keccak256("updateExchangeRate()")), true
@@ -276,7 +276,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 unvested = accountant.getPendingVestingGains(); //5e6
 
         //==== Vault Posts A Loss ====
-        accountant.vestLoss(2.5e6); //smaller loss than buffer (5 weth at this point)
+        accountant.postLoss(2.5e6); //smaller loss than buffer (5 weth at this point)
 
         uint256 totalAssetsAfterLoss = accountant.totalAssets(); 
         
@@ -319,7 +319,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         //15 total assets as this point
         
         //==== Vault Posts A Loss ====
-        accountant.vestLoss(15e6); //this moves vested yield -> share price (to protect share price)
+        accountant.postLoss(15e6); //this moves vested yield -> share price (to protect share price)
         //note: the buffer absorbs the loss, so we're left with 5 remaining (the vested yield)
         
         //15 - 15 with (5 unvested remaining) = 5 left

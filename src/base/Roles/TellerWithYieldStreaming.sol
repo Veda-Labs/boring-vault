@@ -64,7 +64,7 @@ contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
 
         uint112 cap = depositCap;
         if (depositAmount == 0) revert TellerWithMultiAssetSupport__ZeroAssets();
-        shares = depositAmount.mulDivDown(ONE_SHARE, _getAccountant().getRate());
+        shares = depositAmount.mulDivDown(ONE_SHARE, _getAccountant().getRateInQuoteSafe(depositAsset));
         shares = asset.sharePremium > 0 ? shares.mulDivDown(1e4 - asset.sharePremium, 1e4) : shares;
         if (shares < minimumMint) revert TellerWithMultiAssetSupport__MinimumMintNotMet();
         if (cap != type(uint112).max) {

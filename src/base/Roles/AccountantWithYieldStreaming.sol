@@ -71,6 +71,12 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
      */
     uint256 public maxDeviationYield = 500; 
 
+    /**
+     * @notice The maximum amount a loss can be before the contract is paused
+     * @dev recorded in bps (maxDeviationLoss / 10_000)
+     */
+    uint256 public maxDeviationLoss = 100; 
+
     //============================== ERRORS ===============================
     
     error AccountantWithYieldStreaming__UpdateExchangeRateNotSupported(); 
@@ -79,14 +85,17 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     error AccountantWithYieldStreaming__NotEnoughTimePassed(); 
     error AccountantWithYieldStreaming__ZeroYieldUpdate(); 
     error AccountantWithYieldStreaming__MaxDeviationYieldExceeded(); 
+    error AccountantWithYieldStreaming__MaxDeviationLossExceeded(); 
 
     //============================== EVENTS ===============================
     
     event YieldRecorded(uint256 amountAdded, uint256 newtotalAssetsInBase); 
     event LossRecorded(uint256 lossAmount); 
     event ExchangeRateUpdated(uint256 newExchangeRate); 
-    event MaximumVestDurationUpdated(uint256 newMaxium); 
+    event MaximumVestDurationUpdated(uint256 newMaximum); 
     event MinimumVestDurationUpdated(uint256 newMinimum); 
+    event MaximumDeviationYieldUpdated(uint256 newMaximum); 
+    event MaximumDeviationLossUpdated(uint256 newMaximum); 
 
     constructor(
         address _owner,
@@ -139,14 +148,15 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         if (yieldAmount == 0) revert AccountantWithYieldStreaming__ZeroYieldUpdate(); 
         //only check if there's an active vest
         if (vestingState.vestingGains > 0) {
-            if (block.timestamp < vestingState.startVestingTime + accountantState.minimumUpdateDelayInSeconds) revert AccountantWithYieldStreaming__NotEnoughTimePassed(); 
+            if (block.timestamp < vestingState.startVestingTime + accountantState.minimumUpdateDelayInSeconds) 
+                revert AccountantWithYieldStreaming__NotEnoughTimePassed(); 
         }
 
         // first, update cumulative supply
-        _updateCumulative();
+        //_updateCumulative();
 
         //update the exchange rate, then validate if everything checks out
-        updateExchangeRate();
+        _updateExchangeRate();
 
         //use TWAS to validate the yield amount:
         uint256 averageSupply = _getTWAS();
@@ -159,7 +169,8 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
 
             revert AccountantWithYieldStreaming__MaxDeviationYieldExceeded();
         }
-
+        
+        //update the cumulative supply checkpoint
         supplyObservation.cumulativeSupplyLast = supplyObservation.cumulativeSupply;
         
         //strategists should account for any unvested yield they want, gives more flexibility in posting pnl updates 
@@ -176,8 +187,12 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
      * @notice callable by the STRATEGIST role
      * @dev `lossAmount` should be denominated in the BASE ASSET 
      */
-    function vestLoss(uint256 lossAmount) external requiresAuth {
-        updateExchangeRate(); //vested gains are moved to totalAssets, only unvested remains in `vestingState.vestingGains` 
+    function postLoss(uint256 lossAmount) external requiresAuth {
+        if (block.timestamp < vestingState.startVestingTime + accountantState.minimumUpdateDelayInSeconds) 
+            revert AccountantWithYieldStreaming__NotEnoughTimePassed(); 
+        
+        //ensure most up to date data
+        _updateExchangeRate(); //vested gains are moved to totalAssets, only unvested remains in `vestingState.vestingGains` 
 
         if (vestingState.vestingGains >= lossAmount) {
             //remaining unvested gains absorb the loss
@@ -187,10 +202,21 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
 
             //wipe out remaining vesting
             vestingState.vestingGains = 0;
-//reduce share price to reflect principal loss
+
+            //reduce share price to reflect principal loss
             uint256 currentShares = vault.totalSupply();
             if (currentShares > 0) {
+                uint128 cachedSharePrice = vestingState.lastSharePrice; 
                 vestingState.lastSharePrice = uint128((totalAssets() - principalLoss).mulDivDown(10 ** decimals, currentShares)); 
+                
+                uint256 lossBps = uint256(cachedSharePrice - vestingState.lastSharePrice).mulDivDown(10_000, cachedSharePrice);
+
+                //verify the loss isn't grotesque and digusting 
+                if (lossBps > maxDeviationLoss) { 
+                    accountantState.isPaused = true;
+                    emit Paused();
+                    revert AccountantWithYieldStreaming__MaxDeviationLossExceeded();
+                }
             }
         }
 
@@ -200,30 +226,8 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     /**
      * @dev calling this moves any vested gains to be calculated into the current share price
      */
-    function updateExchangeRate() public requiresAuth {
-        _updateCumulative();
-
-        //calculate how much has vested since `lastVestingUpdate`
-        uint256 newlyVested = getPendingVestingGains(); 
-
-        uint256 currentShares = vault.totalSupply();
-        if (newlyVested > 0) {
-
-            // update the share price w/o reincluding the pending gains (done in `newlyVested`)
-            uint256 _totalAssets = uint256(vestingState.lastSharePrice).mulDivDown(currentShares, 10 ** decimals); 
-            vestingState.lastSharePrice = uint128((_totalAssets + newlyVested).mulDivDown(10 ** decimals, currentShares)); 
-
-            _collectFees();
-
-            //move vested amount from pending to realized
-            vestingState.vestingGains -= uint128(newlyVested);        // remove from pending
-            vestingState.lastVestingUpdate = uint128(block.timestamp);  // update timestamp 
-        }
-        
-        AccountantState storage state = accountantState;
-        state.totalSharesLastUpdate = uint128(currentShares); 
-
-        emit ExchangeRateUpdated(vestingState.lastSharePrice); 
+    function updateExchangeRate() external requiresAuth {
+        _updateExchangeRate();
     }
 
     /**
@@ -267,10 +271,46 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
      */
     function updateMaximumDeviationYield(uint256 newMaximum) external requiresAuth {
         maxDeviationYield = newMaximum;  
-        //emit MinimumVestDurationUpdated(newMinimum);  
+        emit MaximumDeviationYieldUpdated(newMaximum); 
+    } 
+
+    /**
+     * @notice Update the maximum deviation loss
+     * @dev Callable by OWNER_ROLE.
+     */
+    function updateMaximumDeviationLoss(uint256 newMaximum) external requiresAuth {
+        maxDeviationLoss = newMaximum;  
+        emit MaximumDeviationLossUpdated(newMaximum); 
     } 
 
     // ========================================= VIEW FUNCTIONS =========================================
+   
+    function getRateInQuote(ERC20 quote) public override view returns (uint256 rateInQuote) {
+        if (address(quote) == address(base)) {
+            rateInQuote = getRate();  
+        } else {
+            RateProviderData memory data = rateProviderData[quote];
+            uint8 quoteDecimals = ERC20(quote).decimals();
+            uint256 exchangeRateInQuoteDecimals = _changeDecimals(getRate(), decimals, quoteDecimals);
+            if (data.isPeggedToBase) {
+                rateInQuote = exchangeRateInQuoteDecimals;
+            } else {
+                uint256 quoteRate = data.rateProvider.getRate();
+                uint256 oneQuote = 10 ** quoteDecimals;
+                rateInQuote = oneQuote.mulDivDown(exchangeRateInQuoteDecimals, quoteRate);
+            }
+        }
+    }
+
+    /**
+     * @notice Get this BoringVault's current rate in the provided quote.
+     * @dev `quote` must have its RateProviderData set, else this will revert.
+     * @dev Revert if paused.
+     */
+    function getRateInQuoteSafe(ERC20 quote) external override view returns (uint256 rateInQuote) {
+        if (accountantState.isPaused) revert AccountantWithRateProviders__Paused();
+        rateInQuote = getRateInQuote(quote);
+    }
     
     /**
      * @notice Returns the rate for one share at current block based on amount of gains that are vested and have vested
@@ -279,7 +319,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     function getRate() public override view returns (uint256 rate) {
         uint256 currentShares = vault.totalSupply();
         if (currentShares == 0) {
-            return rate = vestingState.lastSharePrice; //staringExchangeRate
+            return rate = vestingState.lastSharePrice; //startingExchangeRate
         }
         rate = totalAssets().mulDivDown(10 ** decimals, currentShares);
     }
@@ -367,6 +407,36 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     }
 
     // ========================================= INTERNAL HELPER FUNCTIONS =========================================
+    
+    /**
+     * @dev calling this moves any vested gains to be calculated into the current share price
+     */
+    function _updateExchangeRate() internal requiresAuth {
+        _updateCumulative();
+
+        //calculate how much has vested since `lastVestingUpdate`
+        uint256 newlyVested = getPendingVestingGains(); 
+
+        uint256 currentShares = vault.totalSupply();
+        if (newlyVested > 0) {
+
+            // update the share price w/o reincluding the pending gains (done in `newlyVested`)
+            uint256 _totalAssets = uint256(vestingState.lastSharePrice).mulDivDown(currentShares, 10 ** decimals); 
+            vestingState.lastSharePrice = uint128((_totalAssets + newlyVested).mulDivDown(10 ** decimals, currentShares)); 
+
+            _collectFees();
+
+            //move vested amount from pending to realized
+            vestingState.vestingGains -= uint128(newlyVested);        // remove from pending
+            vestingState.lastVestingUpdate = uint128(block.timestamp);  // update timestamp 
+        }
+        
+        AccountantState storage state = accountantState;
+        state.totalSharesLastUpdate = uint128(currentShares); 
+
+        emit ExchangeRateUpdated(vestingState.lastSharePrice); 
+    }
+    
     
     /** 
      * @notice Updates the cumulative supply tracking
