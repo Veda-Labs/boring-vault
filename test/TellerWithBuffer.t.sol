@@ -360,9 +360,18 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
         teller.bulkDeposit(sUSDe, amount / 2, 0, address(this));
 
         // 1e6 /1e18 adjusts token decimals, getRate / 1e18 adjusts for rate scaling
-        assertApproxEqAbs(boringVault.balanceOf(address(this)), amount * 1e6 * sUSDeRateProvider.getRate() / 1e18 / 1e18, 2, "Should have received expected shares");
+        uint256 expectedShares = amount * 1e6 * sUSDeRateProvider.getRate() / 1e18 / 1e18;
+        assertApproxEqAbs(boringVault.balanceOf(address(this)), expectedShares, 2, "Should have received expected shares");
 
         assertApproxEqAbs(asUSDe.balanceOf(address(boringVault)), amount, 4, "Should have put entire deposit into aave");
+    
+        teller.bulkWithdraw(sUSDe, expectedShares / 2, 0, address(this));
+
+        assertApproxEqAbs(boringVault.balanceOf(address(this)), expectedShares / 2, 2, "Should have eliminated expected shares");
+
+        assertApproxEqAbs(asUSDe.balanceOf(address(boringVault)),  amount / 2, 1e12, "Should have removed half of the deposit from aave");
+
+        assertApproxEqAbs(sUSDe.balanceOf(address(this)), amount / 2, 1e12, "Should have received expected sUSDe");
     }
 
     function testWithdrawFailureWhenBufferIsTooSmall(uint256 amount) external {
