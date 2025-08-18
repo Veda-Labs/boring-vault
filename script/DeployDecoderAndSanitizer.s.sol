@@ -90,6 +90,7 @@ import {TacTONDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacTONDe
 import {EthMainnetTacDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EthMainnetTacDecoderAndSanitizer.sol";
 import {TacDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacUSDTacDecoderAndSanitizer.sol";
 import {KHypeHyperEVMDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/KHypeHyperEVMDecoderAndSanitizer.sol";
+import {TacETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacETHDecoderAndSanitizer.sol";
 
 
 import "forge-std/Script.sol";
@@ -110,8 +111,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("hyperEVM");
-        setSourceChainName("hyperEVM");
+        vm.createSelectFork("tac");
+        setSourceChainName("tac"); 
 
     }
 
@@ -125,6 +126,14 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "convexFXPoolRegistry"), getAddress(sourceChain, "odosRouterV2"));
         //deployer.deployContract("Lombard BTC Decoder And Sanitizer v0.5", creationCode, constructorArgs, 0);
 
+        //creationCode = type().creationCode;
+        //constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
+        //deployer.deployContract("Katana Decoder And Sanitizer V0.6", creationCode, constructorArgs, 0);
+
+        creationCode = type(TacETHDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouter"));
+        deployer.deployContract("TAC ETH Decoder And Sanitizer v0.0", creationCode, constructorArgs, 0);
+
         creationCode = type(KHypeHyperEVMDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode();
         deployer.deployContract("KHype HyperEVM Decoder And Sanitizer V0.3", creationCode, constructorArgs, 0);
@@ -137,8 +146,6 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //constructorArgs =
         //    abi.encode(uniswapV4PositionManager, uniswapV3NonFungiblePositionManager, odosRouterV2, dvStETHVault);
         //deployer.deployContract("Golden Goose Decoder And Sanitizer v0.4", creationCode, constructorArgs, 0);
-
-
 
         //creationCode = type(TacTONDecoderAndSanitizer).creationCode;
         //constructorArgs = abi.encode();
