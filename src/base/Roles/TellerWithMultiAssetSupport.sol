@@ -147,6 +147,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     );
     event BulkDeposit(address indexed asset, uint256 depositAmount);
     event BulkWithdraw(address indexed asset, uint256 shareAmount);
+    event Withdraw(address indexed asset, uint256 shareAmount);
     event DepositRefunded(uint256 indexed nonce, bytes32 depositHash, address indexed user);
     event DenyFrom(address indexed user);
     event DenyTo(address indexed user);
@@ -533,16 +534,24 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         nonReentrant
         returns (uint256 assetsOut)
     {
-        if (isPaused) revert TellerWithMultiAssetSupport__Paused();
-        Asset memory asset = assetData[withdrawAsset];
-        if (!asset.allowWithdraws) revert TellerWithMultiAssetSupport__AssetNotSupported();
-
-        if (shareAmount == 0) revert TellerWithMultiAssetSupport__ZeroShares();
-        assetsOut = shareAmount.mulDivDown(accountant.getRateInQuoteSafe(withdrawAsset), ONE_SHARE);
-        if (assetsOut < minimumAssets) revert TellerWithMultiAssetSupport__MinimumAssetsNotMet();
-        _beforeWithdraw(withdrawAsset, assetsOut);
-        vault.exit(to, withdrawAsset, assetsOut, msg.sender, shareAmount);
+        assetsOut = _withdraw(withdrawAsset, shareAmount, minimumAssets, to);
         emit BulkWithdraw(address(withdrawAsset), shareAmount);
+    }
+
+    /**
+     * @notice Allows withdrawals from this contract.
+     * @dev Either public or disabled depending on configuration.
+     */
+    function withdraw(ERC20 withdrawAsset, uint256 shareAmount, uint256 minimumAssets, address to)
+        external
+        virtual
+        requiresAuth
+        nonReentrant
+        returns (uint256 assetsOut)
+    {
+        beforeTransfer(msg.sender, to, msg.sender);
+        assetsOut = _withdraw(withdrawAsset, shareAmount, minimumAssets, to);
+        emit Withdraw(address(withdrawAsset), shareAmount);
     }
 
     // ========================================= INTERNAL HELPER FUNCTIONS =========================================
@@ -568,6 +577,21 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         }
         vault.enter(from, depositAsset, depositAmount, to, shares);
         _afterDeposit(depositAsset, depositAmount);
+    }
+
+    /**
+     * @notice Implements a common ERC20 withdraw from BoringVault.
+     */
+    function _withdraw(ERC20 withdrawAsset, uint256 shareAmount, uint256 minimumAssets, address to) internal virtual returns (uint256 assetsOut) {
+        if (isPaused) revert TellerWithMultiAssetSupport__Paused();
+        Asset memory asset = assetData[withdrawAsset];
+        if (!asset.allowWithdraws) revert TellerWithMultiAssetSupport__AssetNotSupported();
+
+        if (shareAmount == 0) revert TellerWithMultiAssetSupport__ZeroShares();
+        assetsOut = shareAmount.mulDivDown(accountant.getRateInQuoteSafe(withdrawAsset), ONE_SHARE);
+        if (assetsOut < minimumAssets) revert TellerWithMultiAssetSupport__MinimumAssetsNotMet();
+        _beforeWithdraw(withdrawAsset, assetsOut);
+        vault.exit(to, withdrawAsset, assetsOut, msg.sender, shareAmount);
     }
 
     /**
@@ -630,4 +654,13 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @param assetAmount The amount of the asset that will be withdrawn.
      */
     function _beforeWithdraw(ERC20 withdrawAsset, uint256 assetAmount) internal virtual {}
+
+    // ========================================= VIEW FUNCTIONS =========================================
+
+    /**
+     * @notice Returns the version of the contract.
+     */
+    function version() external pure returns (string memory) {
+        return "V0.1";
+    }
 }
