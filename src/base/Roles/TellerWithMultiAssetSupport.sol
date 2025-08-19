@@ -549,7 +549,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         nonReentrant
         returns (uint256 assetsOut)
     {
-        beforeTransfer(msg.sender, to, msg.sender);
+        beforeTransfer(msg.sender, address(0), msg.sender);
         assetsOut = _withdraw(withdrawAsset, shareAmount, minimumAssets, to);
         emit Withdraw(address(withdrawAsset), shareAmount);
     }
