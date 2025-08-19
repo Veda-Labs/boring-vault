@@ -120,17 +120,17 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         platformFee,
         performanceFee
     ) {
+        //initialize vesting state
         vestingState.lastSharePrice = startingExchangeRate;  
         vestingState.vestingGains = 0;  
         vestingState.lastVestingUpdate = uint128(block.timestamp); 
         vestingState.startVestingTime = uint64(block.timestamp); 
         vestingState.endVestingTime = uint64(block.timestamp); 
-
-        supplyObservation = SupplyObservation({
-            cumulativeSupply: 0,
-            cumulativeSupplyLast: 0,
-            lastUpdateTimestamp: uint128(block.timestamp)
-        });
+    
+        //initialize supply observations
+        supplyObservation.cumulativeSupply = 0; 
+        supplyObservation.cumulativeSupplyLast = 0; 
+        supplyObservation.lastUpdateTimestamp = uint128(block.timestamp); 
     }
 
     // ========================================= UPDATE EXCHANGE RATE/FEES FUNCTIONS =========================================
@@ -151,9 +151,6 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
             if (block.timestamp < vestingState.startVestingTime + accountantState.minimumUpdateDelayInSeconds) 
                 revert AccountantWithYieldStreaming__NotEnoughTimePassed(); 
         }
-
-        // first, update cumulative supply
-        //_updateCumulative();
 
         //update the exchange rate, then validate if everything checks out
         _updateExchangeRate();

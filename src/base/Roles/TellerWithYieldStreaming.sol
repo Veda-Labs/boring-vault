@@ -35,7 +35,6 @@ contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
          // Update vested yield before withdraw
         _getAccountant().updateExchangeRate();
 
-        //TODO we need to get the order of operations correct here, something is off
         if (isPaused) revert TellerWithMultiAssetSupport__Paused();
         Asset memory asset = assetData[withdrawAsset];
         if (!asset.allowWithdraws) revert TellerWithMultiAssetSupport__AssetNotSupported();
