@@ -97,10 +97,10 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     bool public permissionedTransfers;
 
     /**
-     * @notice The global deposit cap of the vault. 
-     * @dev If the cap is reached, no new deposits are accepted. No partial fills. 
+     * @notice The global deposit cap of the vault.
+     * @dev If the cap is reached, no new deposits are accepted. No partial fills.
      */
-    uint112 public depositCap = type(uint112).max; 
+    uint112 public depositCap = type(uint112).max;
 
     /**
      * @dev Maps deposit nonce to keccak256(address receiver, address depositAsset, uint256 depositAmount, uint256 shareAmount, uint256 timestamp, uint256 shareLockPeriod).
@@ -129,7 +129,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     error TellerWithMultiAssetSupport__TransferDenied(address from, address to, address operator);
     error TellerWithMultiAssetSupport__SharePremiumTooLarge();
     error TellerWithMultiAssetSupport__CannotDepositNative();
-    error TellerWithMultiAssetSupport__DepositExceedsCap(); 
+    error TellerWithMultiAssetSupport__DepositExceedsCap();
 
     //============================== EVENTS ===============================
 
@@ -157,7 +157,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     event PermissionedTransfersSet(bool permissionedTransfers);
     event AllowPermissionedOperator(address indexed operator);
     event DenyPermissionedOperator(address indexed operator);
-    event DepositCapSet(uint112 cap); 
+    event DepositCapSet(uint112 cap);
 
     // =============================== MODIFIERS ===============================
 
@@ -357,12 +357,12 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     }
 
     /**
-     * @notice Set the deposit cap of the vault. 
+     * @notice Set the deposit cap of the vault.
      * @dev Callable by OWNER_ROLE
      */
     function setDepositCap(uint112 cap) external requiresAuth {
-        depositCap = cap; 
-        emit DepositCapSet(cap); 
+        depositCap = cap;
+        emit DepositCapSet(cap);
     }
 
     // ========================================= BeforeTransferHook FUNCTIONS =========================================
@@ -449,6 +449,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     function deposit(ERC20 depositAsset, uint256 depositAmount, uint256 minimumMint)
         external
         payable
+        virtual
         requiresAuth
         nonReentrant
         returns (uint256 shares)
@@ -487,7 +488,14 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) external requiresAuth nonReentrant revertOnNativeDeposit(address(depositAsset)) returns (uint256 shares) {
+    )
+        external
+        virtual
+        requiresAuth
+        nonReentrant
+        revertOnNativeDeposit(address(depositAsset))
+        returns (uint256 shares)
+    {
         Asset memory asset = _beforeDeposit(depositAsset);
 
         _handlePermit(depositAsset, depositAmount, deadline, v, r, s);
@@ -503,6 +511,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      */
     function bulkDeposit(ERC20 depositAsset, uint256 depositAmount, uint256 minimumMint, address to)
         external
+        virtual
         requiresAuth
         nonReentrant
         returns (uint256 shares)
@@ -521,6 +530,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         external
         virtual
         requiresAuth
+        nonReentrant
         returns (uint256 assetsOut)
     {
         if (isPaused) revert TellerWithMultiAssetSupport__Paused();
@@ -530,6 +540,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         if (shareAmount == 0) revert TellerWithMultiAssetSupport__ZeroShares();
         assetsOut = shareAmount.mulDivDown(accountant.getRateInQuoteSafe(withdrawAsset), ONE_SHARE);
         if (assetsOut < minimumAssets) revert TellerWithMultiAssetSupport__MinimumAssetsNotMet();
+        _beforeWithdraw(withdrawAsset, assetsOut);
         vault.exit(to, withdrawAsset, assetsOut, msg.sender, shareAmount);
         emit BulkWithdraw(address(withdrawAsset), shareAmount);
     }
@@ -553,9 +564,10 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         shares = asset.sharePremium > 0 ? shares.mulDivDown(1e4 - asset.sharePremium, 1e4) : shares;
         if (shares < minimumMint) revert TellerWithMultiAssetSupport__MinimumMintNotMet();
         if (cap != type(uint112).max) {
-            if (shares + vault.totalSupply() > cap) revert TellerWithMultiAssetSupport__DepositExceedsCap(); 
+            if (shares + vault.totalSupply() > cap) revert TellerWithMultiAssetSupport__DepositExceedsCap();
         }
         vault.enter(from, depositAsset, depositAmount, to, shares);
+        _afterDeposit(depositAsset, depositAmount);
     }
 
     /**
@@ -602,4 +614,20 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
             }
         }
     }
+
+    /**
+     * @notice Hook that is called after a deposit operation.
+     * @dev Can be overridden by child contracts to implement custom post-deposit logic.
+     * @param depositAsset The ERC20 token that was deposited.
+     * @param assetAmount The amount of the asset that was deposited.
+     */
+    function _afterDeposit(ERC20 depositAsset, uint256 assetAmount) internal virtual {}
+
+    /**
+     * @notice Hook that is called before a withdrawal operation.
+     * @dev Can be overridden by child contracts to implement custom pre-withdrawal logic.
+     * @param withdrawAsset The ERC20 token that will be withdrawn.
+     * @param assetAmount The amount of the asset that will be withdrawn.
+     */
+    function _beforeWithdraw(ERC20 withdrawAsset, uint256 assetAmount) internal virtual {}
 }
