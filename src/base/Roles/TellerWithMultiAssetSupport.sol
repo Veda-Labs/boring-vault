@@ -660,7 +660,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     /**
      * @notice Returns the version of the contract.
      */
-    function version() external pure returns (string memory) {
+    function version() external pure virtual returns (string memory) {
         return "V0.1";
     }
 }
