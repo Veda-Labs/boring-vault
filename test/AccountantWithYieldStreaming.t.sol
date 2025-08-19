@@ -71,7 +71,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
             address(this), address(boringVault), payoutAddress, 1e18, address(WETH), 1.001e4, 0.999e4, 1, 0.1e4, 0.1e4
         );
         teller =
-            new TellerWithYieldStreaming(address(this), address(boringVault), address(accountant), address(WETH));
+            new TellerWithYieldStreaming(address(this), address(boringVault), address(accountant), address(WETH), address(0), address(0));
 
         rolesAuthority = new RolesAuthority(address(this), Authority(address(0)));
         accountant.setAuthority(rolesAuthority);
@@ -160,7 +160,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     }
 
     //test
-    function testDepositsWithNoYield() external {
+    function testDepositsWithNoYield_() external {
         uint256 WETHAmount = 10e18; 
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);

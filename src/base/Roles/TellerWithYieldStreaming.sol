@@ -2,28 +2,29 @@
 // Copyright © 2025 Veda Tech Labs
 // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
 // Licensed under Software Evaluation License, Version 1.0
-pragma solidity 0.8.21; import {TellerWithMultiAssetSupport, ERC20} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+pragma solidity 0.8.21;
+
+import {TellerWithBuffer, ERC20} from "src/base/Roles/TellerWithBuffer.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {AccountantWithYieldStreaming} from "src/base/Roles/AccountantWithYieldStreaming.sol";
 
-//NOTE: TEST CONTRACT -- NOT FINAL
-contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
+contract TellerWithYieldStreaming is TellerWithBuffer {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
 
-    constructor(address _owner, address _vault, address _accountant, address _weth) 
-        TellerWithMultiAssetSupport(
-            _owner,
-            _vault,
-            _accountant,
-            _weth
-        ) {}
-
+    constructor(
+        address _owner,
+        address _vault,
+        address _accountant,
+        address _weth,
+        address _depositBufferHelper,
+        address _withdrawBufferHelper
+    ) TellerWithBuffer(_owner, _vault, _accountant, _weth, _depositBufferHelper, _withdrawBufferHelper) {}
 
     /**
      * @notice Allows off ramp role to withdraw from this contract.
-     * @dev Callable by SOLVER_ROLE.
+     * @dev Publicly callable.
      */
     function bulkWithdraw(ERC20 withdrawAsset, uint256 shareAmount, uint256 minimumAssets, address to)
         external
@@ -31,8 +32,7 @@ contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
         requiresAuth
         returns (uint256 assetsOut)
     {
-
-         // Update vested yield before withdraw
+        //update vested yield before withdraw
         _getAccountant().updateExchangeRate();
 
         if (isPaused) revert TellerWithMultiAssetSupport__Paused();
@@ -40,12 +40,11 @@ contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
         if (!asset.allowWithdraws) revert TellerWithMultiAssetSupport__AssetNotSupported();
 
         if (shareAmount == 0) revert TellerWithMultiAssetSupport__ZeroShares();
-        assetsOut = shareAmount.mulDivDown(_getAccountant().getRate(), ONE_SHARE);
+        assetsOut = shareAmount.mulDivDown(accountant.getRateInQuoteSafe(withdrawAsset), ONE_SHARE);
         if (assetsOut < minimumAssets) revert TellerWithMultiAssetSupport__MinimumAssetsNotMet();
-
+        _beforeWithdraw(withdrawAsset, assetsOut);
         vault.exit(to, withdrawAsset, assetsOut, msg.sender, shareAmount);
-
-        _getAccountant().updateCumulative(); 
+        _getAccountant().updateCumulative();
         emit BulkWithdraw(address(withdrawAsset), shareAmount);
     }
 
@@ -57,25 +56,16 @@ contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
         address to,
         Asset memory asset
     ) internal override returns (uint256 shares) {
-
-         // Update vested yield before deposit
+        //update vested yield before deposit
         _getAccountant().updateExchangeRate();
-
-        uint112 cap = depositCap;
-        if (depositAmount == 0) revert TellerWithMultiAssetSupport__ZeroAssets();
-        shares = depositAmount.mulDivDown(ONE_SHARE, _getAccountant().getRateInQuoteSafe(depositAsset));
-        shares = asset.sharePremium > 0 ? shares.mulDivDown(1e4 - asset.sharePremium, 1e4) : shares;
-        if (shares < minimumMint) revert TellerWithMultiAssetSupport__MinimumMintNotMet();
-        if (cap != type(uint112).max) {
-            if (shares + vault.totalSupply() > cap) revert TellerWithMultiAssetSupport__DepositExceedsCap(); 
-        }
-         
-        vault.enter(from, depositAsset, depositAmount, to, shares);
-
-        _getAccountant().updateCumulative(); 
+        shares = super._erc20Deposit(depositAsset, depositAmount, minimumMint, from, to, asset);
+        _getAccountant().updateCumulative();
     }
 
+    /**
+     * @notice Helper function to cast from base accountant type to yield streaming accountant
+     */
     function _getAccountant() internal view returns (AccountantWithYieldStreaming) {
-        return AccountantWithYieldStreaming(address(accountant)); 
+        return AccountantWithYieldStreaming(address(accountant));
     }
 }
