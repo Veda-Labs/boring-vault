@@ -390,7 +390,7 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
 
         assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), 0, 200, "Should have removed entire deposit from aave");
 
-        assertApproxEqAbs(USDT.balanceOf(address(this)), amount + onePercentYield, 200, "Should have received expected USDC");
+        assertApproxEqAbs(USDT.balanceOf(address(this)), amount + onePercentYield, 200, "Should have received expected USDT");
     }
 
     function testNonPeggedAsset(uint256 amount) external {
