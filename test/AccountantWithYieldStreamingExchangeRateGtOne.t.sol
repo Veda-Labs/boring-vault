@@ -127,7 +127,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         rolesAuthority.setPublicCapability(
             address(teller), TellerWithMultiAssetSupport.depositWithPermit.selector, true
         );
-        rolesAuthority.setPublicCapability(address(teller), TellerWithYieldStreaming.bulkWithdraw.selector, true);
+        rolesAuthority.setPublicCapability(address(teller), TellerWithYieldStreaming.withdraw.selector, true);
 
         // Allow the boring vault to receive ETH.
         rolesAuthority.setPublicCapability(address(boringVault), bytes4(0), true);

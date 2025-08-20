@@ -26,7 +26,7 @@ contract TellerWithYieldStreaming is TellerWithBuffer {
      * @notice Allows off ramp role to withdraw from this contract.
      * @dev Publicly callable.
      */
-    function bulkWithdraw(ERC20 withdrawAsset, uint256 shareAmount, uint256 minimumAssets, address to)
+    function withdraw(ERC20 withdrawAsset, uint256 shareAmount, uint256 minimumAssets, address to)
         external
         override
         requiresAuth
@@ -34,18 +34,12 @@ contract TellerWithYieldStreaming is TellerWithBuffer {
     {
         //update vested yield before withdraw
         _getAccountant().updateExchangeRate();
+        beforeTransfer(msg.sender, address(0), msg.sender);
+        assetsOut = _withdraw(withdrawAsset, shareAmount, minimumAssets, to);
 
-        if (isPaused) revert TellerWithMultiAssetSupport__Paused();
-        Asset memory asset = assetData[withdrawAsset];
-        if (!asset.allowWithdraws) revert TellerWithMultiAssetSupport__AssetNotSupported();
-
-        if (shareAmount == 0) revert TellerWithMultiAssetSupport__ZeroShares();
-        assetsOut = shareAmount.mulDivDown(accountant.getRateInQuoteSafe(withdrawAsset), ONE_SHARE);
-        if (assetsOut < minimumAssets) revert TellerWithMultiAssetSupport__MinimumAssetsNotMet();
-        _beforeWithdraw(withdrawAsset, assetsOut);
-        vault.exit(to, withdrawAsset, assetsOut, msg.sender, shareAmount);
         _getAccountant().updateCumulative();
-        emit BulkWithdraw(address(withdrawAsset), shareAmount);
+
+        emit Withdraw(address(withdrawAsset), shareAmount);
     }
 
     function _erc20Deposit(
