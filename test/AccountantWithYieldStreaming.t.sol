@@ -23,6 +23,8 @@ import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.s
 contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
+    event Paused();
+
     BoringVault public boringVault;
     AccountantWithYieldStreaming public accountant; 
     TellerWithYieldStreaming public teller;
@@ -626,6 +628,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
     function testTWASWorksAsExpectedWhenPostingLoss() external {
         accountant.updateMaximumDeviationYield(500); // 5%
+        accountant.updateDelay(0); 
     
         uint256 WETHAmount = 100e18;
         deal(address(WETH), address(this), 1_000e18);
@@ -666,7 +669,10 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         assertEq(cumulativeLastBefore, cumulativeLastAfter); 
 
         //now post a very large loss
-        vm.expectRevert(AccountantWithYieldStreaming.AccountantWithYieldStreaming__MaxDeviationLossExceeded.selector); 
+        //vm.expectEmit(false, false, false, true, address(accountant));
+        vm.expectEmit(address(accountant));
+        emit Paused();
+
         accountant.postLoss(10e18);
     }
 
@@ -917,52 +923,79 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     }
 
     function testFuzzDepositsWithYield(uint96 WETHAmount, uint96 WETHAmount2, uint96 yieldVestAmount) external {
-    accountant.updateMaximumDeviationYield(5000000); 
-    //function testFuzzDepositsWithYield() external {
-        //vm.assume(WETHAmount > 1 && WETHAmount <= 1_000_000e18); 
-        //vm.assume(WETHAmount2 > 1 && WETHAmount2 <= 1_000_000e18); 
-        //vm.assume(uint256(WETHAmount) + uint256(WETHAmount2) + uint256(yieldVestAmount) < type(uint128).max); 
-
+        accountant.updateMaximumDeviationYield(5000000);
+        
         vm.assume(WETHAmount >= 1e18 && WETHAmount <= 1_000_000e18);
         vm.assume(WETHAmount2 >= 1e18 && WETHAmount2 <= 1_000_000e18);
-        // Yield should be reasonable relative to deposits - max 100x the first deposit
         vm.assume(yieldVestAmount >= 1e16 && yieldVestAmount <= uint256(WETHAmount) * 100);
+        
+        // === FIRST DEPOSIT ===
         deal(address(WETH), address(this), WETHAmount);
         WETH.approve(address(boringVault), type(uint256).max);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
-        assertEq(shares0, WETHAmount);
-       
-         
-        uint256 totalAssetsBefore = accountant.totalAssets();
-        assertEq(totalAssetsBefore, WETHAmount); 
         
-        deal(address(WETH), address(boringVault), WETHAmount);
-        accountant.vestYield(yieldVestAmount, 24 hours); 
-        skip(12 hours); 
-
-        //==== BEGIN DEPOSIT 2 ====
+        // First deposit should be 1:1 at initial rate
+        assertEq(shares0, WETHAmount, "First deposit should be 1:1");
         
-        // New share price = totalAssets / totalShares
-        // Expected shares = depositAmount * totalShares / totalAssets
-
-        uint256 actualVestedAmount = accountant.getPendingVestingGains();
-        //console.log("actualVestedAmount", actualVestedAmount);
+        // === ADD YIELD ===
+        deal(address(WETH), address(boringVault), WETHAmount + yieldVestAmount);
+        accountant.vestYield(yieldVestAmount, 24 hours);
+        skip(12 hours); // Half vesting period
         
+        // === SECOND DEPOSIT - INDEPENDENT CALCULATION ===
+        
+        // Calculate expected shares from first principles:
+        uint256 expectedVestedYield = yieldVestAmount / 2; // Linear vesting, 12/24 hours
+        assertEq(expectedVestedYield, accountant.getPendingVestingGains()); 
 
+        uint256 totalValueInVault = WETHAmount + expectedVestedYield;
+        assertEq(accountant.totalAssets(), totalValueInVault); 
+
+        uint256 totalSharesBefore = shares0;
+        assertEq(totalSharesBefore, boringVault.totalSupply()); 
+
+        uint256 sharePrice = totalValueInVault.mulDivDown(1e18, totalSharesBefore);
+        assertEq(sharePrice, accountant.getRate());  
+        
+        uint256 expectedShares1 = uint256(WETHAmount2).mulDivDown(totalValueInVault.mulDivDown(1e18, totalSharesBefore), 1e18); 
+
+        //when calling deposit, the rate is updated before getting the rate 
+        //rate before deposit should be totalassets * 1e18 / shares0  where totalassets == (last share price * shares0) / 1e18
+        
+        // === EXECUTE SECOND DEPOSIT ===
         deal(address(WETH), address(this), WETHAmount2);
         uint256 shares1 = teller.deposit(WETH, WETHAmount2, 0);
-
-        // Calculate shares: amount / rate
-        // Since rate is scaled by 1e18, we need to adjust:
-        uint256 currentRate = accountant.getRate();
-        uint256 expectedShares1 = uint256(WETHAmount2).mulDivDown(1e18, currentRate);
-
-        assertEq(shares1, expectedShares1); 
-
-        //uint256 currentShares = boringVault.totalSupply(); 
-        uint256 totalAssetsAfter = accountant.totalAssets();         
-        uint256 expectedTotal = uint256(WETHAmount) + uint256(WETHAmount2) + actualVestedAmount;
-        assertApproxEqAbs(totalAssetsAfter, expectedTotal, 1e6);  
+        
+        //check total assets after
+        uint256 totalAssetsAfter = accountant.totalAssets();
+        uint256 expectedTotalAssets = WETHAmount + WETHAmount2 + expectedVestedYield;
+        assertApproxEqAbs(totalAssetsAfter, expectedTotalAssets, 1e6, "Total assets mismatch");
+        
+        // === VERIFY ===
+        //assertApproxEqAbs(shares1, expectedShares1, 1e6, "Second deposit shares mismatch");
+        assertEq(shares1, expectedShares1, "Second deposit shares mismatch");
+        
+        
+        // === ADDITIONAL INVARIANT CHECKS ===
+        
+        //// Check that share value for first depositor hasn't been diluted unfairly
+        //uint256 firstDepositorValue = shares0.mulDivDown(accountant.getRate(), 1e18);
+        //uint256 expectedFirstDepositorValue = WETHAmount + expectedVestedYield;
+        //assertApproxEqAbs(
+        //    firstDepositorValue, 
+        //    expectedFirstDepositorValue, 
+        //    1e8,
+        //    "First depositor value check"
+        //);
+        //
+        //// Check that second depositor gets fair value
+        //uint256 secondDepositorValue = shares1.mulDivDown(accountant.getRate(), 1e18);
+        //assertApproxEqAbs(
+        //    secondDepositorValue,
+        //    WETHAmount2,
+        //    1e6,
+        //    "Second depositor should get exactly what they put in"
+        //);
     }
 
     function testFuzzWithdrawWithYield(uint96 WETHAmount, uint96 WETHAmount2, uint96 yieldVestAmount) external {

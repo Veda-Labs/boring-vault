@@ -120,6 +120,9 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         rolesAuthority.setRoleCapability(
             STRATEGIST_ROLE, address(accountant), bytes4(keccak256("updateExchangeRate()")), true
         );
+        rolesAuthority.setRoleCapability(
+            MINTER_ROLE, address(accountant), bytes4(keccak256("updateCumulative()")), true
+        );
         rolesAuthority.setPublicCapability(address(teller), TellerWithMultiAssetSupport.deposit.selector, true);
         rolesAuthority.setPublicCapability(
             address(teller), TellerWithMultiAssetSupport.depositWithPermit.selector, true
@@ -152,10 +155,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         
     }
 
-
     //test basics
     function testDepositsWithNoYield() external {
-
 
         uint256 WETHAmount = 10e18; 
         deal(address(WETH), address(this), 1_000e18);
