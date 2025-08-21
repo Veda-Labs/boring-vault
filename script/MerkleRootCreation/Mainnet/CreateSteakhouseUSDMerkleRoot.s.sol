@@ -69,11 +69,15 @@ contract CreateSteakhouseUSDMerkleRoot is Script, MerkleTreeHelper {
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "sUSDe_USDC_915")); 
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "sUSDe_USDT_915")); 
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "MF-ONE_USDC_915")); 
+        _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "USDe_PT09_25_25_USDtb_915")); 
+        _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "sUSDe_PT09_25_25_USDtb_915")); 
     
 
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "sUSDe_USDC_915")); 
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "sUSDe_USDT_915")); 
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "MF-ONE_USDC_915")); 
+        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "USDe_PT09_25_25_USDtb_915")); 
+        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "sUSDe_PT09_25_25_USDtb_915")); 
 
         // ========================== MetaMorpho ==========================
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "smokehouseUSDC"))); 
@@ -86,6 +90,9 @@ contract CreateSteakhouseUSDMerkleRoot is Script, MerkleTreeHelper {
         //sUSDe
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_sUSDe_market_07_31_25"), true); 
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_sUSDe_market_09_25_25"), true); 
+
+        // ========================== Ethena Withdraws ==========================
+        _addEthenaSUSDeWithdrawLeafs(leafs);
 
         // ========================== Ethena ==========================
         /**
