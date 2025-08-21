@@ -45,6 +45,18 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](4096);
 
+        // ========================== Fee Claiming ==========================
+        ERC20[] memory feeAssets = new ERC20[](3);
+        feeAssets[0] = getERC20(sourceChain, "WBTC");
+        feeAssets[1] = getERC20(sourceChain, "LBTC");
+        feeAssets[2] = getERC20(sourceChain, "cbBTC");
+        _addLeafsForFeeClaiming(
+            leafs,
+            getAddress(sourceChain, "accountantAddress"),
+            feeAssets,
+            false
+        );
+
         // ========================== UniswapV3 ==========================
         address[] memory token0 = new address[](22);
         token0[0] = getAddress(sourceChain, "WBTC");
