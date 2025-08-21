@@ -22,7 +22,9 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
     address public managerAddress = 0xaFa8c08bedB2eC1bbEb64A7fFa44c604e7cca68d;
     address public accountantAddress = 0xEa23aC6D7D11f6b181d6B98174D334478ADAe6b0;
     address public rawDataDecoderAndSanitizer = 0x74522D571f80FF8024b176d710cD963002aC4278;
-    address public scrollBridgeDecoderAndSanitizer = 0xA66a6B289FB5559b7e4ebf598B8e0A97C776c200; 
+    address public scrollBridgeDecoderAndSanitizer = 0xA66a6B289FB5559b7e4ebf598B8e0A97C776c200;
+    address public itbPositionManager = 0x7AAf9539B7359470Def1920ca41b5AAA05C13726;
+    address public itbDecoderAndSanitizer = 0xCe39e869C2010A3C049E1cA11F7dfB70ae2ddBF5; 
 
     function setUp() external {}
 
@@ -456,7 +458,9 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", scrollBridgeDecoderAndSanitizer);
         ERC20[] memory tokens = new ERC20[](1); 
         tokens[0] = getERC20(sourceChain, "WBTC"); 
-        _addScrollNativeBridgeLeafs(leafs, "scroll", tokens);  
+        address[] memory scrollGateways = new address[](1);
+        scrollGateways[0] = getAddress(scroll, "scrollWBTCGateway");
+        _addScrollNativeBridgeLeafs(leafs, "scroll", tokens, scrollGateways);  
 
         // ========================== Elixir ==========================
         /**
@@ -464,6 +468,20 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
          */
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sdeUSD")));
+
+        // ========================== ITB Position Manager ==========================
+        /**
+         * acceptOwnership() of ITB position manager
+         * transfer BTC tokens to ITB position manager
+         * withdraw BTC tokens from ITB position manager
+         * withdrawAll BTC tokens from ITB position manager
+         */
+        ERC20[] memory itbTokensUsed = new ERC20[](4);
+        itbTokensUsed[0] = getERC20(sourceChain, "WBTC");
+        itbTokensUsed[1] = getERC20(sourceChain, "LBTC");
+        itbTokensUsed[2] = getERC20(sourceChain, "cbBTC");
+        itbTokensUsed[3] = getERC20(sourceChain, "eBTC");
+        _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "ITB Position Manager");
 
         // ========================== Verify ==========================
 
@@ -474,5 +492,58 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
+    }
+
+    function _addLeafsForITBPositionManager(
+        ManageLeaf[] memory leafs,
+        address positionManager,
+        ERC20[] memory tokensUsed,
+        string memory itbContractName
+    ) internal {
+        // acceptOwnership
+        leafIndex++;
+        leafs[leafIndex] = ManageLeaf(
+            positionManager,
+            false,
+            "acceptOwnership()",
+            new address[](0),
+            string.concat("Accept ownership of the ", itbContractName, " contract"),
+            itbDecoderAndSanitizer
+        );
+        for (uint256 i; i < tokensUsed.length; ++i) {
+            // Transfer
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                address(tokensUsed[i]),
+                false,
+                "transfer(address,uint256)",
+                new address[](1),
+                string.concat("Transfer ", tokensUsed[i].symbol(), " to the ", itbContractName, " contract"),
+                itbDecoderAndSanitizer
+            );
+            leafs[leafIndex].argumentAddresses[0] = positionManager;
+            // Withdraw
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                positionManager,
+                false,
+                "withdraw(address,uint256)",
+                new address[](1),
+                string.concat("Withdraw ", tokensUsed[i].symbol(), " from the ", itbContractName, " contract"),
+                itbDecoderAndSanitizer
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(tokensUsed[i]);
+            // WithdrawAll
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                positionManager,
+                false,
+                "withdrawAll(address)",
+                new address[](1),
+                string.concat("Withdraw all ", tokensUsed[i].symbol(), " from the ", itbContractName, " contract"),
+                itbDecoderAndSanitizer
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(tokensUsed[i]);
+        }
     }
 }
