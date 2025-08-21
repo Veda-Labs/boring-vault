@@ -225,6 +225,8 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_sUSDe_market_07_30_25"), true);
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_eUSDe_market_08_14_25"), true);
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_USDe_market_07_31_25"), true);
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_USDe_market_09_25_25"), true);
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_USDe_market_11_26_25"), true);
 
         // ========================== Ethena ==========================
         /**
