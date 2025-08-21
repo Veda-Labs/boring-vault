@@ -931,6 +931,20 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             string.concat("Full disassemble ", itbContractName),
             itbDecoderAndSanitizer
         );
+
+        for (uint256 i; i < tokensUsed.length; ++i) {
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                address(tokensUsed[i]),
+                false,
+                "approveToken(address,address,uint256)",
+                new address[](2),
+                string.concat(itbContractName, ": Approve ", tokensUsed[i].symbol(), " to be spend by ITB Reserve"),
+                itbDecoderAndSanitizer
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(tokensUsed[i]);
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "ETHPlus");
+        }
     }
 
     function _addLeafsForItbCork(
