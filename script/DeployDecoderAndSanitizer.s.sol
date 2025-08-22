@@ -201,16 +201,6 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         addressKeys = ["algebraNonFungiblePositionManager"];
         deployContract("Algebra V4 Decoder and Sanitizer V0.0", creationCode, 0);
 
-        vm.stopBroadcast();
-    }
-
-    function deployContract(string memory name, bytes memory creationCode, uint256 value) internal {
-        address _contract = deployer.getAddress(name);
-        if (_contract.code.length > 0) {
-            console.log(name, "already deployed at", _contract);
-            return;
-        }
-
         //creationCode = type(TacDecoderAndSanitizer).creationCode;
         //creationCode = type(LombardBtcDecoderAndSanitizer).creationCode;
         //constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "convexFXPoolRegistry"), getAddress(sourceChain, "odosRouterV2"));
@@ -220,13 +210,13 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
         //deployer.deployContract("Katana Decoder And Sanitizer V0.6", creationCode, constructorArgs, 0);
 
-        creationCode = type(TacETHDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouter"));
-        deployer.deployContract("TAC ETH Decoder And Sanitizer v0.0", creationCode, constructorArgs, 0);
+        //creationCode = type(TacETHDecoderAndSanitizer).creationCode;
+        //constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouter"));
+        //deployer.deployContract("TAC ETH Decoder And Sanitizer v0.0", creationCode, constructorArgs, 0);
 
-        creationCode = type(KHypeHyperEVMDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode();
-        deployer.deployContract("KHype HyperEVM Decoder And Sanitizer V0.3", creationCode, constructorArgs, 0);
+        //creationCode = type(KHypeHyperEVMDecoderAndSanitizer).creationCode;
+        //constructorArgs = abi.encode();
+        //deployer.deployContract("KHype HyperEVM Decoder And Sanitizer V0.3", creationCode, constructorArgs, 0);
 
         //address uniswapV4PositionManager = getAddress(sourceChain, "uniV4PositionManager");
         //address uniswapV3NonFungiblePositionManager = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager");
@@ -240,6 +230,16 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //creationCode = type(TacTONDecoderAndSanitizer).creationCode;
         //constructorArgs = abi.encode();
         //deployer.deployContract("TAC Decoder And Sanitizer v0.0", creationCode, constructorArgs, 0);
+
+        vm.stopBroadcast();
+    }
+
+    function deployContract(string memory name, bytes memory creationCode, uint256 value) internal {
+        address _contract = deployer.getAddress(name);
+        if (_contract.code.length > 0) {
+            console.log(name, "already deployed at", _contract);
+            return;
+        }
 
         bytes memory constructorArgs;
         for (uint256 i = 0; i < addressKeys.length; i++) {
