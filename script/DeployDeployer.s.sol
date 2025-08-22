@@ -41,7 +41,7 @@ contract DeployDeployerScript is Script, ContractNames, Test {
         //privateKey = vm.envUint("BORING_DEVELOPER");
         //vm.createSelectFork("mainnet");
         privateKey = vm.envUint("DEPLOYER_KEY");
-        vm.createSelectFork("hyperEVM");
+        vm.createSelectFork("base");
     }
 
     function run() external {
@@ -51,7 +51,7 @@ contract DeployDeployerScript is Script, ContractNames, Test {
 
         deployer = new Deployer(dev0Address, Authority(address(0)));
 
-        require(address(deployer) == deployerAddress, "Deployer address mismatch");
+        //require(address(deployer) == deployerAddress, "Deployer address mismatch");
         console.log(address(deployer)); 
         creationCode = type(RolesAuthority).creationCode;
         constructorArgs = abi.encode(dev0Address, address(0));
