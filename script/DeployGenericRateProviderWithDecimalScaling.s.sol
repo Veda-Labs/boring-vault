@@ -21,13 +21,13 @@ import "forge-std/Test.sol";
 contract DeployGenericRateProviderWithDecimalScaling is Script, ContractNames, Test {
     uint256 public privateKey;
     
-    address target = 0x8D51DBC85cEef637c97D02bdaAbb5E274850e68C; 
-    bytes4 selector = 0xbb23ae25; 
+    address target = 0xCB568C33EA2B0B81852655d722E3a52d9D44e7De; 
+    bytes4 selector = 0x50d25bcd; 
     Deployer deployer = Deployer(0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d); 
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("mainnet");
+        vm.createSelectFork("katana");
     }
 
     function run() external {
@@ -45,9 +45,9 @@ contract DeployGenericRateProviderWithDecimalScaling is Script, ContractNames, T
             0, 0,
             true,
             8,
-            6
+            18
         ));
-        address createdAddress = deployer.deployContract("mFONE Rate Provider V0.0", creationCode, constructorArgs, 0); 
+        address createdAddress = deployer.deployContract("wstETH Rate Provider V0.1", creationCode, constructorArgs, 0); 
         console.log("DEPLOYED ADDRESS: ", createdAddress); 
     }
 }

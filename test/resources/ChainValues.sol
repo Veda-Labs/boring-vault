@@ -1590,6 +1590,7 @@ contract ChainValues {
         values[arbitrum]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
         values[arbitrum]["dev0Address"] = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b.toBytes32();
         values[arbitrum]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
+        values[arbitrum]["dev5Address"] = 0x1cdF47387358A1733968df92f7cC14546D9E1047.toBytes32();
         values[arbitrum]["liquidPayoutAddress"] = 0xA9962a5BfBea6918E958DeE0647E99fD7863b95A.toBytes32();
         values[arbitrum]["txBundlerAddress"] = 0x87D51666Da1b56332b216D456D1C2ba3Aed6089c.toBytes32();
 
@@ -1631,6 +1632,7 @@ contract ChainValues {
         values[arbitrum]["RSETH"] = 0x4186BFC76E2E237523CBC30FD220FE055156b41F.toBytes32();
         values[arbitrum]["GRAIL"] = 0x3d9907F9a368ad0a51Be60f7Da3b97cf940982D8.toBytes32();
         values[arbitrum]["cbBTC"] = 0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf.toBytes32();
+        values[arbitrum]["ZRO"] = address(1).toBytes32();
 
         // Aave V3
         values[arbitrum]["v3Pool"] = 0x794a61358D6845594F94dc1DB02A252b5b4814aD.toBytes32();
@@ -2763,6 +2765,7 @@ contract ChainValues {
         values[katana]["WETH"] = 0xEE7D8BCFb72bC1880D0Cf19822eB0A2e6577aB62.toBytes32(); // WETH == vbETH
         values[katana]["vbETH"] = 0xEE7D8BCFb72bC1880D0Cf19822eB0A2e6577aB62.toBytes32();
         values[katana]["WEETH"] = 0x9893989433e7a383Cb313953e4c2365107dc19a7.toBytes32();
+        values[katana]["WSTETH"] = 0x7Fb4D0f51544F24F385a421Db6e7D4fC71Ad8e5C.toBytes32();
         values[katana]["ZRO"] = address(1).toBytes32(); // no ZRO on Katana
         values[katana]["LBTC"] = 0xecAc9C5F704e954931349Da37F60E39f515c11c1.toBytes32();
         values[katana]["BTCK"] = 0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072.toBytes32();
