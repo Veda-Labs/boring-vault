@@ -99,7 +99,7 @@ import {RoycoWeirollDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Pr
 import {UniswapV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV3DecoderAndSanitizer.sol";
 import {UniswapV4DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV4DecoderAndSanitizer.sol";
 import {VelodromeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/VelodromeDecoderAndSanitizer.sol";
-import {AlgebraV4DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AlgebraV4DecoderAndSanitizer.sol";
+import {AtomicQueueDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AtomicQueueDecoderAndSanitizer.sol";
 import {KHypeHyperEVMDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/KHypeHyperEVMDecoderAndSanitizer.sol";
 import {TacETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacETHDecoderAndSanitizer.sol";
 
@@ -124,8 +124,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("hyperEVM");
-        setSourceChainName("hyperEVM"); 
+        vm.createSelectFork("mainnet");
+        setSourceChainName("mainnet"); 
 
     }
 
@@ -196,10 +196,10 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         addressKeys = ["velodromeNonFungiblePositionManager"];
         deployContract("Velodrome Decoder and Sanitizer V0.0", creationCode, 0);
 
-        // Deploy AlgebraV4DecoderAndSanitizer
-        creationCode = type(AlgebraV4DecoderAndSanitizer).creationCode;
-        addressKeys = ["algebraNonFungiblePositionManager"];
-        deployContract("Algebra V4 Decoder and Sanitizer V0.0", creationCode, 0);
+        // Deploy AtomicQueueDecoderAndSanitizer
+        creationCode = type(AtomicQueueDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(0.9e4, 1.1e4);
+        deployer.deployContract("Atomic Queue Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         //creationCode = type(TacDecoderAndSanitizer).creationCode;
         //creationCode = type(LombardBtcDecoderAndSanitizer).creationCode;
