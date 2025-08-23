@@ -932,10 +932,11 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             itbDecoderAndSanitizer
         );
 
+        // approveToken
         for (uint256 i; i < tokensUsed.length; ++i) {
             leafIndex++;
             leafs[leafIndex] = ManageLeaf(
-                address(tokensUsed[i]),
+                itbPositionManager,
                 false,
                 "approveToken(address,address,uint256)",
                 new address[](2),
