@@ -127,6 +127,8 @@ contract ChainValues {
     function _addHyperEvmValues() private {
         values[hyperevm]["CoreWriter"] = 0x3333333333333333333333333333333333333333.toBytes32();
         values[hyperevm]["USDT0"] = 0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb.toBytes32();
+
+        values[hyperevm]["USDT0CoreSystemAddress"] = 0x200000000000000000000000000000000000010C.toBytes32();
     }
 
     function _addMainnetValues() private {
@@ -1374,7 +1376,7 @@ contract ChainValues {
 
         // Odos
         values[mainnet]["odosRouterV2"] = 0xCf5540fFFCdC3d510B18bFcA6d2b9987b0772559.toBytes32();
-        values[mainnet]["odosExecutor"] = 0x7882570840A97A490a37bd8Db9e1aE39165bfBd6.toBytes32();
+        values[mainnet]["odosExecutor"] = 0x365084B05Fa7d5028346bD21D842eD0601bAB5b8.toBytes32();
 
         // Kyberswap
         values[mainnet]["kyberswapMetaAggregationRouterV2"] = 0x6131B5fae19EA4f9D964eAc0408E4408b66337b5.toBytes32();
@@ -1509,7 +1511,6 @@ contract ChainValues {
 
         // Odos
         values[base]["odosRouterV2"] = 0x19cEeAd7105607Cd444F5ad10dd51356436095a1.toBytes32();
-        // values[base]["odosExecutor"] = 0x52bB904473E0aDC699c7B103962D35a0F53D9E1e.toBytes32();
         values[base]["odosExecutor"] = 0x6877B1b0c6267E0AD9aa4C0df18A547AA2f6B08d.toBytes32();
 
         // LBTC Bridge
@@ -1539,6 +1540,7 @@ contract ChainValues {
         values[arbitrum]["vault"] = 0xBA12222222228d8Ba445958a75a0704d566BF2C8.toBytes32();
 
         values[arbitrum]["USDC"] = 0xaf88d065e77c8cC2239327C5EDb3A432268e5831.toBytes32();
+        values[arbitrum]["USDS"] = 0x6491c05A82219b8D1479057361ff1654749b876b.toBytes32();
         values[arbitrum]["USDCe"] = 0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8.toBytes32();
         values[arbitrum]["WETH"] = 0x82aF49447D8a07e3bd95BD0d56f35241523fBab1.toBytes32();
         values[arbitrum]["WBTC"] = 0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f.toBytes32();
@@ -1668,6 +1670,10 @@ contract ChainValues {
 
         // Hyperliquid Bridge
         values[arbitrum]["Bridge2"] = 0x2Df1c51E09aECF9cacB7bc98cB1742757f163dF7.toBytes32();
+
+        // Odosv2
+        values[arbitrum]["odosRouterV2"] = 0x89b8AA89FDd0507a99d334CBe3C808fAFC7d850E.toBytes32();
+        values[arbitrum]["odosExecutor"] = 0x3f1aBA670a0234109be0222a805F3207117c2531.toBytes32();
     }
 
     function _addOptimismValues() private {

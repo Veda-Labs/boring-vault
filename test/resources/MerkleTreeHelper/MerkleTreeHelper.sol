@@ -12738,15 +12738,8 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         );
     }
 
-    // ========================================= CoreWriter =========================================
-    // function _addHyperliquidCoreWriteLeafs(ManageLeafs[] memory leafs) internal {
-    //     unchecked {
-    //         leafIndex++;
-    //     }
-    // }
-
-    // ========================================= Arbitrum Hyperliquid Bridge 2 =========================================
-    function _addArbitrumHyperliquidBridge2Leafs(ManageLeafs[] memory leafs) internal {
+    // ========================================= USDT0 HyperCore<>HyperEVM =========================================
+    function _addUsdt0HlInteractionLeaves(ManageLeaf[] memory leafs) internal {
         unchecked {
             leafIndex++;
         }
@@ -12760,6 +12753,39 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "Bridge2");
+    }
+
+    // ========================================= Arbitrum Hyperliquid Bridge 2 =========================================
+    function _addArbitrumHyperliquidBridge2Leafs(ManageLeaf[] memory leafs) internal {
+        unchecked {
+            leafIndex++;
+        }
+
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "USDC"),
+            false,
+            "transfer(address,uint256)",
+            new address[](1),
+            string.concat("Transfer USDC to Hyperliquid Bridge2"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "Bridge2");
+    }
+
+    // ========================================= HyperEvm CoreWriter =========================================
+    function _addCoreWriterLeaves(ManageLeaf[] memory leafs) internal {
+        unchecked {
+            leafIndex++;
+        }
+
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "CoreWriter"),
+            false,
+            "sendRawAction(bytes)",
+            new address[](0),
+            string.concat("Call CoreWriter"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
     }
 
     // ========================================= JSON FUNCTIONS =========================================
