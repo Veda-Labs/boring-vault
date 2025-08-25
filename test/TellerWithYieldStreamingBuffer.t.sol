@@ -18,6 +18,7 @@ import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthorit
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import {AaveV3BufferHelper} from "src/base/Roles/AaveV3BufferHelper.sol";
 import {GenericRateProviderWithDecimalScaling} from "src/helper/GenericRateProviderWithDecimalScaling.sol";
+import {IBufferHelper} from "src/interfaces/IBufferHelper.sol";
 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
@@ -168,6 +169,18 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         teller.updateAssetData(sUSDe, true, true, 0);
         accountant.setRateProviderData(USDC, true, address(0));
         accountant.setRateProviderData(sUSDe, false, address(sUSDeRateProvider));
+
+        teller.allowBufferHelper(USDT, IBufferHelper(bufferHelper));
+        teller.allowBufferHelper(USDC, IBufferHelper(bufferHelper));
+        teller.allowBufferHelper(sUSDe, IBufferHelper(bufferHelper));
+
+        teller.setWithdrawBufferHelper(USDT, IBufferHelper(bufferHelper));
+        teller.setWithdrawBufferHelper(USDC, IBufferHelper(bufferHelper));
+        teller.setWithdrawBufferHelper(sUSDe, IBufferHelper(bufferHelper));
+
+        teller.setDepositBufferHelper(USDT, IBufferHelper(bufferHelper));
+        teller.setDepositBufferHelper(USDC, IBufferHelper(bufferHelper));
+        teller.setDepositBufferHelper(sUSDe, IBufferHelper(bufferHelper));
     }
 
     function testUserDepositPeggedAssets(uint256 amount) external {
@@ -461,8 +474,9 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         vm.warp(block.timestamp + 10);
         deal(address(USDT), address(boringVault), amount / 100);
         accountant.updateMinimumVestDuration(1);
-        accountant.vestYield(amount / 100, 1);
-        vm.warp(block.timestamp + 2);
+        accountant.updateMaximumDeviationYield(9999);
+        accountant.vestYield(amount / 100, 1000);
+        vm.warp(block.timestamp + 1001);
 
         vm.expectRevert(0x47bc4b2c); // aave withdrawal failure error
         teller.bulkWithdraw(USDT, amount, 0, address(this));
