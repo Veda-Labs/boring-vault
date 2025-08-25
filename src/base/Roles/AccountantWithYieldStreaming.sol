@@ -68,13 +68,19 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
      * @notice The maximum amount a yield vest can be > old supply
      * @dev recorded in bps (maxDeviationYield / 10_000)
      */
-    uint64 public maxDeviationYield = 500;
+    uint32 public maxDeviationYield = 500;
 
     /**
      * @notice The maximum amount a loss can be before the contract is paused
      * @dev recorded in bps (maxDeviationLoss / 10_000)
      */
-    uint64 public maxDeviationLoss = 100;
+    uint32 public maxDeviationLoss = 100;
+
+    /**
+     * @notice The last time any vesting function was called
+     * @dev applies to vestYield and postLoss
+     */
+    uint64 public lastStrategistUpdateTimestamp;
 
     //============================== ERRORS ===============================
 
@@ -132,6 +138,9 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         supplyObservation.cumulativeSupply = 0;
         supplyObservation.cumulativeSupplyLast = 0;
         supplyObservation.lastUpdateTimestamp = uint128(block.timestamp);
+
+        //initialize strategist update time to 0 so first posts are valid
+        lastStrategistUpdateTimestamp = uint64(block.timestamp);
     }
 
     // ========================================= UPDATE EXCHANGE RATE/FEES FUNCTIONS =========================================
@@ -144,12 +153,14 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
      * @dev `yieldAmount` should be denominated in the BASE ASSET
      */
     function vestYield(uint256 yieldAmount, uint256 duration) external requiresAuth {
+        if (accountantState.isPaused) revert AccountantWithRateProviders__Paused();
+
         if (duration > uint256(maximumVestingTime)) revert AccountantWithYieldStreaming__DurationExceedsMaximum();
         if (duration < uint256(minimumVestingTime)) revert AccountantWithYieldStreaming__DurationUnderMinimum();
         if (yieldAmount == 0) revert AccountantWithYieldStreaming__ZeroYieldUpdate();
         //only check if there's an active vest
         if (vestingState.vestingGains > 0) {
-            if (block.timestamp < accountantState.lastUpdateTimestamp + accountantState.minimumUpdateDelayInSeconds) {
+            if (block.timestamp < lastStrategistUpdateTimestamp + accountantState.minimumUpdateDelayInSeconds) {
                 revert AccountantWithYieldStreaming__NotEnoughTimePassed();
             }
         }
@@ -160,9 +171,10 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         //use TWAS to validate the yield amount:
         uint256 averageSupply = _getTWAS();
         uint256 _totalAssets = averageSupply.mulDivDown(vestingState.lastSharePrice, ONE_SHARE);
-        uint256 yieldBps = yieldAmount.mulDivDown(10_000, _totalAssets);
+        uint256 dailyYieldAmount = yieldAmount.mulDivDown(1 days, duration);
+        uint256 dailyYieldBps = dailyYieldAmount.mulDivDown(10_000, _totalAssets);
 
-        if (yieldBps > maxDeviationYield) {
+        if (dailyYieldBps > maxDeviationYield) {
             // maxDeviationYield is in bps
             revert AccountantWithYieldStreaming__MaxDeviationYieldExceeded();
         }
@@ -178,7 +190,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         vestingState.endVestingTime = uint64(block.timestamp + duration);
 
         //update state timestamp
-        accountantState.lastUpdateTimestamp = uint64(block.timestamp);
+        lastStrategistUpdateTimestamp = uint64(block.timestamp);
 
         emit YieldRecorded(yieldAmount, vestingState.endVestingTime);
     }
@@ -189,7 +201,9 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
      * @dev `lossAmount` should be denominated in the BASE ASSET
      */
     function postLoss(uint256 lossAmount) external requiresAuth {
-        if (block.timestamp < accountantState.lastUpdateTimestamp + accountantState.minimumUpdateDelayInSeconds) {
+        if (accountantState.isPaused) revert AccountantWithRateProviders__Paused();
+
+        if (block.timestamp < lastStrategistUpdateTimestamp + accountantState.minimumUpdateDelayInSeconds) {
             revert AccountantWithYieldStreaming__NotEnoughTimePassed();
         }
 
@@ -224,7 +238,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         }
 
         //update state timestamp
-        accountantState.lastUpdateTimestamp = uint64(block.timestamp);
+        lastStrategistUpdateTimestamp = uint64(block.timestamp);
 
         emit LossRecorded(lossAmount);
     }
@@ -275,7 +289,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
      * @notice Update the maximum deviation yield
      * @dev Callable by OWNER_ROLE.
      */
-    function updateMaximumDeviationYield(uint64 newMaximum) external requiresAuth {
+    function updateMaximumDeviationYield(uint32 newMaximum) external requiresAuth {
         maxDeviationYield = newMaximum;
         emit MaximumDeviationYieldUpdated(newMaximum);
     }
@@ -284,7 +298,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
      * @notice Update the maximum deviation loss
      * @dev Callable by OWNER_ROLE.
      */
-    function updateMaximumDeviationLoss(uint64 newMaximum) external requiresAuth {
+    function updateMaximumDeviationLoss(uint32 newMaximum) external requiresAuth {
         maxDeviationLoss = newMaximum;
         emit MaximumDeviationLossUpdated(newMaximum);
     }
@@ -409,12 +423,25 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         return "V0.1";
     }
 
+    /**
+     * @notice Override previewUpdateExchangeRate to revert if called accidentally
+     */
+    function previewUpdateExchangeRate(uint96 /*newExchangeRate*/ )
+        external
+        view
+        override
+        requiresAuth
+        returns (bool, /*updateWillPause*/ uint256, /*newFeesOwedInBase*/ uint256 /*totalFeesOwedInBase*/ )
+    {
+        revert AccountantWithYieldStreaming__UpdateExchangeRateNotSupported();
+    }
+
     // ========================================= INTERNAL HELPER FUNCTIONS =========================================
 
     /**
      * @dev calling this moves any vested gains to be calculated into the current share price
      */
-    function _updateExchangeRate() internal requiresAuth {
+    function _updateExchangeRate() internal {
         _updateCumulative();
 
         //calculate how much has vested since `lastVestingUpdate`
