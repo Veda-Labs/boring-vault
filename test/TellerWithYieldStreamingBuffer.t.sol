@@ -78,7 +78,7 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         address bufferHelper = address(new AaveV3BufferHelper(v3Pool, address(boringVault)));
 
         teller =
-            new TellerWithYieldStreaming(address(this), address(boringVault), address(accountant), address(USDT), bufferHelper, bufferHelper);
+            new TellerWithYieldStreaming(address(this), address(boringVault), address(accountant), getAddress(sourceChain, "WETH"));
 
         rolesAuthority = new RolesAuthority(address(this), Authority(address(0)));
 
