@@ -9,7 +9,7 @@ import {AtomicQueue} from "src/atomic-queue/AtomicQueue.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 
-abstract contract AtomicQueueDecoderAndSanitizer is BaseDecoderAndSanitizer {
+contract AtomicQueueDecoderAndSanitizer is BaseDecoderAndSanitizer {
     using FixedPointMathLib for uint256;
 
     error AtomicQueueDecoderAndSanitizer__BadAtomicPrice(uint256 min, uint256 max, uint256 actual);
