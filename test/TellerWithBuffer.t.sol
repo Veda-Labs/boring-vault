@@ -483,9 +483,6 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
         assertApproxEqAbs(USDT.balanceOf(address(this)), amount / 5 + amount / 10, 4, "Should have received expected USDT");
     }
 
-    // TODO:
-    // test setting current buffer helper to address(0) deposit/withdraw
-
     function testBufferHelperZeroAddress(uint256 amount) external {
         amount = bound(amount, 0.0001e6, 10_000e6);
         deal(address(USDT), address(this), amount);
@@ -502,10 +499,9 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
         teller.withdraw(USDT, amount / 2, 0, address(this));
         assertApproxEqAbs(USDT.balanceOf(address(this)), amount / 2, 4, "Should have received expected USDT");
         assertApproxEqAbs(USDT.balanceOf(address(boringVault)), amount / 2, 4, "half USDT should be in vault");
+        assertEq(aUSDT.balanceOf(address(boringVault)), 0, "0 USDT should be in aave");
         assertApproxEqAbs(boringVault.balanceOf(address(this)), amount / 2, 4, "Remaining shares should be half of deposit amount");
     }
-
-    // test setting current buffer helper to a different buffer helper deposit/withdraw
 
     function testBufferHelperChange(uint256 amount) external {
         amount = bound(amount, 0.0001e6, 10_000e6);
