@@ -481,9 +481,87 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
         vm.warp(block.timestamp + 10);
         teller.withdraw(USDT, amount / 5, 0, address(this));
         assertApproxEqAbs(USDT.balanceOf(address(this)), amount / 5 + amount / 10, 4, "Should have received expected USDT");
-
-
-
-
     }
+
+    // TODO:
+    // test setting current buffer helper to address(0) deposit/withdraw
+
+    function testBufferHelperZeroAddress(uint256 amount) external {
+        amount = bound(amount, 0.0001e6, 10_000e6);
+        deal(address(USDT), address(this), amount);
+        USDT.safeApprove(address(boringVault), amount);
+
+        teller.setWithdrawBufferHelper(USDT, IBufferHelper(address(0)));
+        teller.setDepositBufferHelper(USDT, IBufferHelper(address(0)));
+        
+        teller.deposit(USDT, amount, 0);
+
+        assertEq(boringVault.balanceOf(address(this)), amount, "Shares should be same as deposit amount");
+        assertEq(USDT.balanceOf(address(boringVault)), amount, "USDT should all be in vault");
+
+        teller.withdraw(USDT, amount / 2, 0, address(this));
+        assertApproxEqAbs(USDT.balanceOf(address(this)), amount / 2, 4, "Should have received expected USDT");
+        assertApproxEqAbs(USDT.balanceOf(address(boringVault)), amount / 2, 4, "half USDT should be in vault");
+        assertApproxEqAbs(boringVault.balanceOf(address(this)), amount / 2, 4, "Remaining shares should be half of deposit amount");
+    }
+
+    // test setting current buffer helper to a different buffer helper deposit/withdraw
+
+    function testBufferHelperChange(uint256 amount) external {
+        amount = bound(amount, 0.0001e6, 10_000e6);
+        deal(address(USDT), address(this), amount);
+        deal(address(USDC), address(this), amount);
+        USDT.safeApprove(address(boringVault), amount);
+        USDC.safeApprove(address(boringVault), amount);
+
+        address newBufferHelper = address(new AaveV3BufferHelper(v3Pool, address(boringVault)));
+
+        teller.allowBufferHelper(USDT, IBufferHelper(newBufferHelper));
+
+        teller.setWithdrawBufferHelper(USDT, IBufferHelper(newBufferHelper));
+        teller.setDepositBufferHelper(USDT, IBufferHelper(newBufferHelper));
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TellerWithBuffer.TellerWithBuffer__BufferHelperNotAllowed.selector,
+                USDC,
+                IBufferHelper(newBufferHelper)
+            )
+        );
+        teller.setWithdrawBufferHelper(USDC, IBufferHelper(newBufferHelper));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TellerWithBuffer.TellerWithBuffer__BufferHelperNotAllowed.selector,
+                USDC,
+                IBufferHelper(newBufferHelper)
+            )
+        );
+        teller.setDepositBufferHelper(USDC, IBufferHelper(newBufferHelper));
+
+        teller.allowBufferHelper(USDC, IBufferHelper(newBufferHelper));
+        teller.setWithdrawBufferHelper(USDC, IBufferHelper(newBufferHelper));
+        teller.setDepositBufferHelper(USDC, IBufferHelper(newBufferHelper));
+
+        teller.deposit(USDT, amount, 0);
+
+        assertEq(boringVault.balanceOf(address(this)), amount, "Shares should be same as deposit amount");
+        assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), amount, 4, "USDT should all be in aave");
+
+        teller.withdraw(USDT, amount / 2, 0, address(this));
+        assertApproxEqAbs(USDT.balanceOf(address(this)), amount / 2, 4, "Should have received expected USDT");
+        assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), amount / 2, 4, "half USDT should be in aave");
+        assertApproxEqAbs(boringVault.balanceOf(address(this)), amount / 2, 4, "Remaining shares should be half of deposit amount");
+    
+        uint256 currentShares = boringVault.balanceOf(address(this));
+        teller.deposit(USDC, amount, 0);
+        assertEq(boringVault.balanceOf(address(this)) - currentShares, amount, "Change in shares should be same as deposit amount");
+        assertApproxEqAbs(aUSDC.balanceOf(address(boringVault)), amount, 4, "USDC should all be in aave");
+
+        currentShares = boringVault.balanceOf(address(this));
+        teller.withdraw(USDC, amount / 2, 0, address(this));
+        assertApproxEqAbs(USDC.balanceOf(address(this)), amount / 2, 4, "Should have received expected USDC");
+        assertApproxEqAbs(aUSDC.balanceOf(address(boringVault)), amount / 2, 4, "half USDC should be in aave");
+        assertApproxEqAbs(currentShares - boringVault.balanceOf(address(this)), amount / 2, 4, "Remaining shares should be half of deposit amount");
+    }
+    // we will need to remove current buffers when they are disallowed, disallowing will not remove ones set in current mapping
 }

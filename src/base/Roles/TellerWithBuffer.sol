@@ -92,11 +92,12 @@ contract TellerWithBuffer is TellerWithMultiAssetSupport {
      * to the deposit management strategy without requiring contract redeployment.
      */
     function setDepositBufferHelper(ERC20 _asset, IBufferHelper _depositBufferHelper) external requiresAuth {
-        if (!allowedBufferHelpers[_asset][_depositBufferHelper]) {
+        if (allowedBufferHelpers[_asset][_depositBufferHelper] || _depositBufferHelper == IBufferHelper(address(0))) {
+            currentBufferHelpers[_asset].depositBufferHelper = _depositBufferHelper;
+            emit DepositBufferHelperSet(_asset, _depositBufferHelper);
+        } else {
             revert TellerWithBuffer__BufferHelperNotAllowed(_asset, _depositBufferHelper);
         }
-        currentBufferHelpers[_asset].depositBufferHelper = _depositBufferHelper;
-        emit DepositBufferHelperSet(_asset, _depositBufferHelper);
     }
 
     /**
@@ -107,11 +108,12 @@ contract TellerWithBuffer is TellerWithMultiAssetSupport {
      * to the withdrawal management strategy without requiring contract redeployment.
      */
     function setWithdrawBufferHelper(ERC20 _asset, IBufferHelper _withdrawBufferHelper) external requiresAuth {
-        if (!allowedBufferHelpers[_asset][_withdrawBufferHelper]) {
+        if (allowedBufferHelpers[_asset][_withdrawBufferHelper] || _withdrawBufferHelper == IBufferHelper(address(0))) {
+            currentBufferHelpers[_asset].withdrawBufferHelper = _withdrawBufferHelper;
+            emit WithdrawBufferHelperSet(_asset, _withdrawBufferHelper);
+        } else {
             revert TellerWithBuffer__BufferHelperNotAllowed(_asset, _withdrawBufferHelper);
         }
-        currentBufferHelpers[_asset].withdrawBufferHelper = _withdrawBufferHelper;
-        emit WithdrawBufferHelperSet(_asset, _withdrawBufferHelper);
     }
 
     /**
