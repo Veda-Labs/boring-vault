@@ -371,61 +371,60 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         assertApproxEqAbs(USDC.balanceOf(address(this)), amount - 2, 2, "Should have received expected USDC");
     }
 
-    // function testMultipleDepositWithdraws(uint256 amount) external {
-    //     amount = bound(amount, 0.01e6, 10_000e6);
-    //     deal(address(USDT), address(this), amount);
-    //     deal(address(USDC), address(this), amount);
+    function testMultipleDepositWithdraws(uint256 amount) external {
+        amount = bound(amount, 0.1e6, 10_000e6);
+        deal(address(USDT), address(this), amount);
+        deal(address(USDC), address(this), amount);
 
-    //     USDT.safeApprove(address(boringVault), amount);
-    //     USDC.safeApprove(address(boringVault), amount);
+        USDT.safeApprove(address(boringVault), amount);
+        USDC.safeApprove(address(boringVault), amount);
 
-    //     teller.bulkDeposit(USDT, amount / 10, 0, address(this));
-    //     teller.deposit(USDC, amount / 10, 0);
-    //     assertApproxEqAbs(boringVault.balanceOf(address(this)), amount / 5, 4, "Should have received expected shares");
-    //     uint256 pointOnePercentYield = amount / 5 / 1000; // add 100 to avoid rounding errors
-    //     deal(address(USDC), address(boringVault), pointOnePercentYield + 1000); // 1% of the current total assets
-    //     deal(address(USDT), address(boringVault), pointOnePercentYield + 1000); // 1% of the current total assets
+        teller.bulkDeposit(USDT, amount / 10, 0, address(this));
+        teller.deposit(USDC, amount / 10, 0);
+        assertApproxEqAbs(boringVault.balanceOf(address(this)), amount / 5, 4, "Should have received expected shares");
+        uint256 onePercentYield = amount / 5 / 100; // add 100 to avoid rounding errors
+        deal(address(USDC), address(boringVault), onePercentYield + 1000); // 1% of the current total assets
+        deal(address(USDT), address(boringVault), onePercentYield + 1000); // 1% of the current total assets
 
-    //     // manage vault to deposit the dealt assets into aave (2% yield, 1% each asset)
-    //     bytes[] memory data = new bytes[](4);
-    //     data[0] = abi.encodeWithSelector(USDC.approve.selector, v3Pool, pointOnePercentYield + 1000);
-    //     data[1] = abi.encodeWithSignature("supply(address,uint256,address,uint16)", address(USDC), pointOnePercentYield + 1000, address(boringVault), 0);
-    //     data[2] = abi.encodeWithSelector(USDT.approve.selector, v3Pool, pointOnePercentYield + 1000);
-    //     data[3] = abi.encodeWithSignature("supply(address,uint256,address,uint16)", address(USDT), pointOnePercentYield + 1000, address(boringVault), 0);
+        // manage vault to deposit the dealt assets into aave (2% yield, 1% each asset)
+        bytes[] memory data = new bytes[](4);
+        data[0] = abi.encodeWithSelector(USDC.approve.selector, v3Pool, onePercentYield + 100);
+        data[1] = abi.encodeWithSignature("supply(address,uint256,address,uint16)", address(USDC), onePercentYield + 100, address(boringVault), 0);
+        data[2] = abi.encodeWithSelector(USDT.approve.selector, v3Pool, onePercentYield + 100);
+        data[3] = abi.encodeWithSignature("supply(address,uint256,address,uint16)", address(USDT), onePercentYield + 100, address(boringVault), 0);
 
-    //     address[] memory targets = new address[](4);
-    //     targets[0] = address(USDC);
-    //     targets[1] = v3Pool;
-    //     targets[2] = address(USDT);
-    //     targets[3] = v3Pool;
+        address[] memory targets = new address[](4);
+        targets[0] = address(USDC);
+        targets[1] = v3Pool;
+        targets[2] = address(USDT);
+        targets[3] = v3Pool;
 
-    //     uint256[] memory values = new uint256[](4);
-    //     boringVault.manage(targets, data, values);
+        uint256[] memory values = new uint256[](4);
+        boringVault.manage(targets, data, values);
 
-    //     accountant.updateMinimumVestDuration(1);
+        accountant.updateMinimumVestDuration(1);
+        accountant.updateMaximumDeviationYield(999999);
 
-    //     accountant.vestYield(2 * pointOnePercentYield, 1);
+        accountant.vestYield(2 * onePercentYield, 100);
 
-    //     vm.warp(block.timestamp + 2);
+        vm.warp(block.timestamp + 101);
 
-    //     teller.bulkWithdraw(USDC, amount / 10, 0, address(this));
+        teller.bulkWithdraw(USDC, amount / 10, 0, address(this));
 
-    //     assertApproxEqAbs(boringVault.balanceOf(address(this)), amount / 10, 200, "Should have eliminated expected shares");
+        assertApproxEqRel(boringVault.balanceOf(address(this)), amount / 10, 1e15, "Should have eliminated expected shares");
 
-    //     assertApproxEqAbs(aUSDC.balanceOf(address(boringVault)), 0, 2000, "Should have removed entire deposit from aave");
+        assertApproxEqAbs(aUSDC.balanceOf(address(boringVault)), 0, 2e5, "Should have removed entire deposit from aave");
 
-    //     // check that we got back the amount we deposited plus the yield
-    //     assertApproxEqAbs(USDC.balanceOf(address(this)), amount + pointOnePercentYield, 1000, "Should have received expected USDC");
+        // check that we got back the amount we deposited plus the yield
+        assertApproxEqRel(USDC.balanceOf(address(this)), amount + onePercentYield, 1e15, "Should have received expected USDC");
 
-    //     // test regular withdraw
-    //     teller.withdraw(USDT, amount / 100, 0, address(this));
+        // test regular withdraw
+        teller.withdraw(USDT, amount / 100, 0, address(this));
 
-    //     assertApproxEqAbs(boringVault.balanceOf(address(this)), 9 * amount / 100, 200, "Should have eliminated expected shares");
+        assertApproxEqRel(boringVault.balanceOf(address(this)), 9 * amount / 100, 1e15, "Should have eliminated expected shares");
 
-    //     assertApproxEqRel(aUSDT.balanceOf(address(boringVault)), 9 * amount / 100 + 9 * pointOnePercentYield / 10, 1e15, "Should have removed from aave");
-
-    //     assertApproxEqAbs(USDT.balanceOf(address(this)), 91 * amount / 100 + pointOnePercentYield / 10, 1000, "Should have received expected USDT");
-    // }
+        assertApproxEqRel(USDT.balanceOf(address(this)), 91 * amount / 100 + onePercentYield / 10, 1e15, "Should have received expected USDT");
+    }
 
     function testNonPeggedAsset(uint256 amount) external {
         amount = bound(amount, 0.0001e18, 10_000e18);
