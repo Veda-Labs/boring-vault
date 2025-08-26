@@ -15,19 +15,21 @@ import "forge-std/Test.sol";
 
 /**
  *  forge script script/DeployGenericRateProvider.s.sol:DeployGenericRateProvider --broadcast --verify
- *
+ *  forge script script/DeployGenericRateProvider.s.sol:DeployGenericRateProvider --broadcast --verify --fork-url https://arbitrum.gateway.tenderly.co/7mchvW1CEXBoWfGVWn13j1
  * @dev Optionally can change `--with-gas-price` to something more reasonable
  */
 contract DeployGenericRateProvider is Script, ContractNames, Test {
     uint256 public privateKey;
     
-    address target = 0x43a5C292A453A3bF3606fa856197f09D7B74251a; 
+    //address target = 0x43a5C292A453A3bF3606fa856197f09D7B74251a; 
+    //address target = 0xb523AE262D20A936BC152e6023996e46FDC2A95D; // Arbitrum
+    address target = 0x524299Ab0987a7c4B3c8022a35669DdcdC715a10; // OP
     bytes4 selector = 0x50d25bcd; 
     Deployer deployer = Deployer(0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d); 
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("base");
+        vm.createSelectFork("optimism");
     }
 
     function run() external {

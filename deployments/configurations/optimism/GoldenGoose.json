@@ -2,7 +2,7 @@
     "deploymentParameters": {
       "logLevel": 4,
       "privateKeyEnvName": "BORING_DEVELOPER",
-      "chainName": "arbitrum",
+      "chainName": "optimism",
       "evmVersion": "cancun",
       "desiredNumberOfDeploymentTxs": 12,
       "txBundlerAddressOrName": {
@@ -28,7 +28,7 @@
         "address": "0x0000000000000000000000000000000000000000",
         "name": "txBundlerAddress"
       },
-      "deploymentFileName": "addresses/Arbitrum/GoldenGoose.json"
+      "deploymentFileName": "addresses/Optimism/GoldenGoose.json"
     },
     "rolesAuthorityConfiguration": {
       "rolesAuthorityDeploymentName": "Golden Goose Roles Authority V0.3"
@@ -214,3 +214,4 @@
       }
     ]
   }
+  

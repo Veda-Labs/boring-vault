@@ -1601,6 +1601,7 @@ contract ChainValues {
         values[arbitrum]["uniswapV3NonFungiblePositionManager"] = 0xC36442b4a4522E871399CD717aBDD847Ab11FE88.toBytes32();
         values[arbitrum]["ccipRouter"] = 0x141fa059441E0ca23ce184B6A78bafD2A517DdE8.toBytes32();
         values[arbitrum]["vault"] = 0xBA12222222228d8Ba445958a75a0704d566BF2C8.toBytes32();
+        values[arbitrum]["LayerZeroEndPoint"] = 0x1a44076050125825900e736c501f859c50fE728c.toBytes32();
 
         values[arbitrum]["USDC"] = 0xaf88d065e77c8cC2239327C5EDb3A432268e5831.toBytes32();
         values[arbitrum]["USDCe"] = 0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8.toBytes32();
