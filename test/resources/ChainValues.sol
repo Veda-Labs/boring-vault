@@ -1741,10 +1741,13 @@ contract ChainValues {
         values[optimism]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
         values[optimism]["dev0Address"] = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b.toBytes32();
         values[optimism]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
+        values[optimism]["dev5Address"] = 0x1cdF47387358A1733968df92f7cC14546D9E1047.toBytes32();
         values[optimism]["liquidPayoutAddress"] = 0xA9962a5BfBea6918E958DeE0647E99fD7863b95A.toBytes32();
         values[optimism]["uniV3Router"] = 0xE592427A0AEce92De3Edee1F18E0157C05861564.toBytes32();
         values[optimism]["aggregationRouterV5"] = 0x1111111254EEB25477B68fb85Ed929f73A960582.toBytes32();
         values[optimism]["oneInchExecutor"] = 0xE37e799D5077682FA0a244D46E5649F71457BD09.toBytes32();
+        values[optimism]["txBundlerAddress"] = 0xd249755C0E79dF8F3A05C2398A73333eFDb6EB59.toBytes32();
+        values[optimism]["LayerZeroEndPoint"] = 0x1a44076050125825900e736c501f859c50fE728c.toBytes32();
 
         values[optimism]["WETH"] = 0x4200000000000000000000000000000000000006.toBytes32();
         values[optimism]["WEETH"] = 0x346e03F8Cce9fE01dCB3d0Da3e9D00dC2c0E08f0.toBytes32();
@@ -1757,6 +1760,8 @@ contract ChainValues {
         values[optimism]["BAL"] = 0xFE8B128bA8C78aabC59d4c64cEE7fF28e9379921.toBytes32();
         values[optimism]["UNI"] = 0x6fd9d7AD17242c41f7131d257212c54A0e816691.toBytes32();
         values[optimism]["CBETH"] = 0xadDb6A0412DE1BA0F936DCaeb8Aaa24578dcF3B2.toBytes32();
+        values[optimism]["ZRO"] = 0x6985884C4392D348587B19cb9eAAf157F13271cd.toBytes32();
+        values[optimism]["ETH"] = 0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000.toBytes32();
 
         values[optimism]["vault"] = 0xBA12222222228d8Ba445958a75a0704d566BF2C8.toBytes32();
         values[optimism]["balancerVault"] = 0xBA12222222228d8Ba445958a75a0704d566BF2C8.toBytes32();
