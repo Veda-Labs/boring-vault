@@ -6,7 +6,12 @@ on:
 env:
   FOUNDRY_PROFILE: ci
   CONFIGS: |
+    certora/confs/setup/sanity_AccountantWithRateProviders.conf
+    certora/confs/setup/sanity_AccountantWithYieldStreaming.conf
     certora/confs/setup/sanity_BoringVault.conf
+    certora/confs/setup/sanity_GenericRateProvider.conf
+    certora/confs/setup/sanity_GenericRateProviderWithDecimalScaling.conf
+    certora/confs/setup/sanity_LayerZeroTeller.conf
     certora/confs/setup/sanity_TellerWithMultiAssetSupport.conf
 
 jobs:
