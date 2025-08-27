@@ -1,0 +1,40 @@
+name: test
+
+on:
+  - pull_request
+
+env:
+  FOUNDRY_PROFILE: ci
+  CONFIGS: |
+    certora/confs/setup/sanity_BoringVault.conf
+    certora/confs/setup/sanity_TellerWithMultiAssetSupport.conf
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      statuses: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: yarn install
+        run: |
+          corepack enable
+          yarn install
+
+      - name: run configs
+        uses: Certora/certora-run-action@v2
+        with:
+          configurations: ${{ env.CONFIGS }}
+          solc-versions: 0.8.21
+          solc-remove-version-prefix: "0."
+          job-name: "Verified Rules"
+          certora-key: ${{ secrets.CERTORAKEY }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
