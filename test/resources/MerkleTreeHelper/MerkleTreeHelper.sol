@@ -2280,6 +2280,103 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         );
     }
 
+    // ========================================= MFOne =========================================
+    function _addMfOneLeafs(ManageLeaf[] memory leafs) internal {
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "USDC"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve USDC to be spent by MF-ONE Deposit Vault",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "mfOneDepositVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "MF-ONE"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve MF-ONE to be spent by MF-ONE Redemption Vault",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "mfOneRedemptionVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "mfOneDepositVault"),
+            false,
+            "depositInstant(address,uint256,uint256,bytes32)",
+            new address[](3),
+            "Deposit Instant USDC for MFONE",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "USDC");
+        leafs[leafIndex].argumentAddresses[1] = address(0);  
+        leafs[leafIndex].argumentAddresses[2] = address(0);  
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "mfOneDepositVault"),
+            false,
+            "depositRequest(address,uint256,bytes32)",
+            new address[](3),
+            "Deposit Request USDC for MFONE",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "USDC");
+        leafs[leafIndex].argumentAddresses[1] = address(0);  
+        leafs[leafIndex].argumentAddresses[2] = address(0);  
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "mfOneRedemptionVault"),
+            false,
+            "redeemInstant(address,uint256,uint256)",
+            new address[](1),
+            "Redeem Instant MFONE for USDC",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "USDC");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "mfOneRedemptionVault"),
+            false,
+            "redeemRequest(address,uint256)",
+            new address[](1),
+            "Redeem Request MFONE for USDC",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "USDC");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "mfOneRedemptionVault"),
+            false,
+            "redeemFiatRequest(uint256)",
+            new address[](0),
+            "Redeem Fiat Request MFONE",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+    } 
+
     // ========================================= Kinetiq KHYPE =========================================
     function _addKHypeLeafs(ManageLeaf[] memory leafs) internal {
         unchecked {
