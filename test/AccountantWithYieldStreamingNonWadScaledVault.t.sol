@@ -63,7 +63,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
             address(this), address(boringVault), payoutAddress, 1e6, address(USDC), 1.001e4, 0.999e4, 1, 0.1e4, 0.1e4
         );
         teller =
-            new TellerWithYieldStreaming(address(this), address(boringVault), address(accountant), address(USDC), address(0), address(0));
+            new TellerWithYieldStreaming(address(this), address(boringVault), address(accountant), getAddress(sourceChain, "WETH"));
 
         rolesAuthority = new RolesAuthority(address(this), Authority(address(0)));
         accountant.setAuthority(rolesAuthority);
