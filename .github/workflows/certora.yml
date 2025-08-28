@@ -6,6 +6,10 @@ on:
 env:
   FOUNDRY_PROFILE: ci
   CONFIGS: |
+    certora/confs/setup/autoCVL_AccountantWithRateProviders.conf
+    certora/confs/setup/autoCVL_AccountantWithYieldStreaming.conf
+    certora/confs/setup/autoCVL_BoringVault.conf
+    certora/confs/setup/autoCVL_TellerWithMultiAssetSupport.conf
     certora/confs/setup/sanity_AccountantWithRateProviders.conf
     certora/confs/setup/sanity_AccountantWithYieldStreaming.conf
     certora/confs/setup/sanity_BoringVault.conf
