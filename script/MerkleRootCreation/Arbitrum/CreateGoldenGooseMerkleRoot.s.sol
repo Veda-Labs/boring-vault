@@ -21,9 +21,12 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
     address public boringVault = 0xef417FCE1883c6653E7dC6AF7c6F85CCDE84Aa09;
     address public managerAddress = 0x5F341B1cf8C5949d6bE144A725c22383a5D3880B;
-    address public accountantAddress = 0xc873F2b7b3BA0a7faA2B56e210E3B965f2b618f5;
-    address public rawDataDecoderAndSanitizer = 0x6Df45c7e49B19915BAe5FAc80de3BCe46C9cfb83;
-    address public primeGoldenGooseTeller = 0xE89fAaf3968ACa5dCB054D4a9287E54aa84F67e9;
+    address public accountantAddress =
+        0xc873F2b7b3BA0a7faA2B56e210E3B965f2b618f5;
+    address public rawDataDecoderAndSanitizer =
+        0x6Df45c7e49B19915BAe5FAc80de3BCe46C9cfb83;
+    address public goldenGooseTeller =
+        0xE89fAaf3968ACa5dCB054D4a9287E54aa84F67e9;
 
     function setUp() external {}
 
@@ -42,8 +45,13 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, arbitrum, "boringVault", boringVault);
         setAddress(false, arbitrum, "managerAddress", managerAddress);
         setAddress(false, arbitrum, "accountantAddress", accountantAddress);
-        setAddress(false, arbitrum, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
-        setAddress(false, arbitrum, "primeGoldenGooseTeller", primeGoldenGooseTeller);
+        setAddress(
+            false,
+            arbitrum,
+            "rawDataDecoderAndSanitizer",
+            rawDataDecoderAndSanitizer
+        );
+        setAddress(false, arbitrum, "goldenGooseTeller", goldenGooseTeller);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](256);
 
@@ -52,7 +60,13 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         ERC20[] memory tellerAssets = new ERC20[](2);
         tellerAssets[0] = getERC20(sourceChain, "WETH");
         tellerAssets[1] = getERC20(sourceChain, "WSTETH");
-        _addTellerLeafs(leafs, getAddress(sourceChain, "primeGoldenGooseTeller"), tellerAssets, false, true);
+        _addTellerLeafs(
+            leafs,
+            getAddress(sourceChain, "goldenGooseTeller"),
+            tellerAssets,
+            false,
+            true
+        );
 
         // ========================== Native Wrapping ==========================
         _addNativeLeafs(leafs);
@@ -97,40 +111,46 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Odos ==========================
         {
-            address[] memory assets = new address[](2);
-            SwapKind[] memory kind = new SwapKind[](2);
+            address[] memory assets = new address[](3);
+            SwapKind[] memory kind = new SwapKind[](3);
             assets[0] = getAddress(sourceChain, "WETH");
             kind[0] = SwapKind.BuyAndSell;
             assets[1] = getAddress(sourceChain, "WSTETH");
             kind[1] = SwapKind.BuyAndSell;
+            assets[2] = getAddress(sourceChain, "weETH");
+            kind[2] = SwapKind.BuyAndSell;
 
             _addOdosSwapLeafs(leafs, assets, kind);
         }
 
         // ========================== 1Inch ==========================
         {
-            address[] memory assets = new address[](2);
-            SwapKind[] memory kind = new SwapKind[](2);
+            address[] memory assets = new address[](3);
+            SwapKind[] memory kind = new SwapKind[](3);
             assets[0] = getAddress(sourceChain, "WETH");
             kind[0] = SwapKind.BuyAndSell;
             assets[1] = getAddress(sourceChain, "WSTETH");
             kind[1] = SwapKind.BuyAndSell;
+            assets[2] = getAddress(sourceChain, "weETH");
+            kind[2] = SwapKind.BuyAndSell;
 
             _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
         }
-
-        // ========================== Curve ==========================
-        // Add Curve support for wstETH/WETH swaps if there are Curve pools on Arbitrum
-        // Note: Check if there are relevant Curve pools on Arbitrum for wstETH/WETH
 
         // ========================== Verify & Generate ==========================
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
-        string memory filePath = "./leafs/Arbitrum/GoldenGooseStrategistLeafs.json";
+        string
+            memory filePath = "./leafs/Arbitrum/GoldenGooseStrategistLeafs.json";
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
-        _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
+        _generateLeafs(
+            filePath,
+            leafs,
+            manageTree[manageTree.length - 1][0],
+            manageTree
+        );
     }
 }
