@@ -69,11 +69,7 @@ mainnet = { key = "${ETHERSCAN_KEY}" }
 bob = { key = "${BOBSCAN_KEY}", chain = 60808, url = "https://explorer.gobob.xyz/api?"}
 #unichain = { key = "${UNISCAN_KEY}", chain = 130, url = "https://api.uniscan.xyz/api" }
 #flare = {key = "${FLARESCAN_KEY}", chain = 14, url = "https://api.routescan.io/v2/network/mainnet/evm/14/etherscan" }
-<<<<<<< HEAD
-#hyperEVM = { key = "${HYPER_EVM_KEY}", chain = 999, url = "https://www.hyperscan.com/api/" }
-=======
 hyperEVM = { key = "${HYPER_EVM_KEY}", chain = 999, url = "https://api.etherscan.io/v2/api?chainid=999" }
->>>>>>> a9d3c411 (update khype merkle root for hyperlend PT and valantis)
 #plume = { key = "${PLUMESCAN_KEY}", chain = 98866, url = "https://explorer-plume-mainnet-1.t.conduit.xyz/api/"}
 katana = { key = "${KATANASCAN_KEY}" }
 #tac = { key = "${TACSCAN_KEY}", chain = 239, url = "https://explorer.tac.build/api" }
