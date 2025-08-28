@@ -1591,6 +1591,7 @@ contract ChainValues {
 
         // DeFi Ecosystem
         values[arbitrum]["ETH"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32();
+        values[arbitrum]["permit2"] = 0x000000000022D473030F116dDEE9F6B43aC78BA3.toBytes32();
         values[arbitrum]["uniV3Router"] = 0xE592427A0AEce92De3Edee1F18E0157C05861564.toBytes32();
         values[arbitrum]["uniV2Router"] = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D.toBytes32();
         values[arbitrum]["uniswapV3NonFungiblePositionManager"] = 0xC36442b4a4522E871399CD717aBDD847Ab11FE88.toBytes32();
@@ -1618,6 +1619,7 @@ contract ChainValues {
         values[arbitrum]["SFRXETH"] = 0x95aB45875cFFdba1E5f451B950bC2E42c0053f39.toBytes32();
         values[arbitrum]["ARB"] = 0x912CE59144191C1204E64559FE8253a0e49E6548.toBytes32();
         values[arbitrum]["WEETH"] = 0x35751007a407ca6FEFfE80b3cB397736D2cf4dbe.toBytes32();
+        values[arbitrum]["weETH"] = 0x35751007a407ca6FEFfE80b3cB397736D2cf4dbe.toBytes32();
         values[arbitrum]["USDE"] = 0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34.toBytes32();
         values[arbitrum]["AURA"] = 0x1509706a6c66CA549ff0cB464de88231DDBe213B.toBytes32();
         values[arbitrum]["PENDLE"] = 0x0c880f6761F1af8d9Aa9C466984b80DAb9a8c9e8.toBytes32();
@@ -1630,12 +1632,19 @@ contract ChainValues {
 
         // Aave V3
         values[arbitrum]["v3Pool"] = 0x794a61358D6845594F94dc1DB02A252b5b4814aD.toBytes32();
+        values[arbitrum]["v3RewardsController"] = 0x929EC64c34a17401F460460D4B9390518E5B473e.toBytes32();
 
         // 1Inch
         values[arbitrum]["aggregationRouterV5"] = 0x1111111254EEB25477B68fb85Ed929f73A960582.toBytes32();
         values[arbitrum]["oneInchExecutor"] = 0xE37e799D5077682FA0a244D46E5649F71457BD09.toBytes32();
 
+        // Odos
+        values[arbitrum]["odosRouterV2"] = 0xa669e7A0d4b3e4Fa48af2dE86BD4CD7126Be4e13.toBytes32();
+        values[arbitrum]["odosExecutor"] = 0x03222a2b261a12091bBE271e763A7E26b64E25e2.toBytes32();
+
         values[arbitrum]["balancerVault"] = 0xBA12222222228d8Ba445958a75a0704d566BF2C8.toBytes32();
+        values[arbitrum]["balancerV3VaultExplorer"] = 0x22625eEDd92c81a219A83e1dc48f88d54786B017.toBytes32();
+        values[arbitrum]["balancerV3Router"] = 0xEAedc32a51c510d35ebC11088fD5fF2b47aACF2E.toBytes32();
         // TODO This Balancer on L2s use a different minting logic so minter is not used
         // but the merkle tree should be refactored for L2s
         values[arbitrum]["minter"] = address(1).toBytes32();
