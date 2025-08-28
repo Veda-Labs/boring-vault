@@ -55,19 +55,6 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](256);
 
-        // ========================== Teller ==========================
-        // Enable bulkDeposit and bulkWithdraw on Prime Golden Goose vault
-        ERC20[] memory tellerAssets = new ERC20[](2);
-        tellerAssets[0] = getERC20(sourceChain, "WETH");
-        tellerAssets[1] = getERC20(sourceChain, "WSTETH");
-        _addTellerLeafs(
-            leafs,
-            getAddress(sourceChain, "goldenGooseTeller"),
-            tellerAssets,
-            false,
-            true
-        );
-
         // ========================== Native Wrapping ==========================
         _addNativeLeafs(leafs);
 
