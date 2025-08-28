@@ -14,8 +14,7 @@ import "forge-std/Script.sol";
  *  source .env && forge script script/MerkleRootCreation/Arbitrum/CreateMultiChainLiquidEthMerkleRoot.s.sol:CreateMultiChainLiquidEthMerkleRootScript --rpc-url $ARBITRUM_RPC_URL
  */
 contract ArbitrumMerkleRootScript is Script, MerkleTreeHelper {
-        uint256 public privateKey;
-
+    uint256 public privateKey;
 
     //standard
     address public boringVault = 0x7135CA5F74BC85a65EA1705C9461fF1A24e7F1b9;
@@ -89,4 +88,3 @@ contract ArbitrumMerkleRootScript is Script, MerkleTreeHelper {
         _addUniswapV3Leafs(leafs, token0, token1, false, false);
     }
 }
-
