@@ -2555,6 +2555,8 @@ contract ChainValues {
         values[unichain]["uniV4PositionManager"] = 0x4529A01c7A0410167c5740C487A8DE60232617bf.toBytes32();
         values[unichain]["uniV4UniversalRouter"] = 0xEf740bf23aCaE26f6492B10de645D6B98dC8Eaf3.toBytes32();
         values[unichain]["permit2"] = 0x000000000022D473030F116dDEE9F6B43aC78BA3.toBytes32();
+        values[unichain]["uniV2Router"] = 0x284F11109359a7e1306C3e447ef14D38400063FF.toBytes32();
+        values[unichain]["uniV2Factory"] = 0x1F98400000000000000000000000000000000002.toBytes32();
 
         // LayerZero
         values[unichain]["LayerZeroEndPoint"] = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B.toBytes32();

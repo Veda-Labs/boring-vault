@@ -103,7 +103,7 @@ import {VelodromeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Proto
 import {AtomicQueueDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AtomicQueueDecoderAndSanitizer.sol";
 import {KHypeHyperEVMDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/KHypeHyperEVMDecoderAndSanitizer.sol";
 import {TacETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacETHDecoderAndSanitizer.sol";
-
+import {GoldenGooseUnichainDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseUnichainDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -125,8 +125,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("mainnet");
-        setSourceChainName("mainnet"); 
+        vm.createSelectFork("unichain");
+        setSourceChainName("unichain"); 
 
     }
 
@@ -139,18 +139,18 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         // addressKeys = ["uniswapV3NonFungiblePositionManager", "convexFXPoolRegistry", "odosRouterV2"];
         // deployContract("Lombard BTC Decoder And Sanitizer v0.5", creationCode, 0);
 
-        creationCode = type(KatanaDecoderAndSanitizer).creationCode;
-        addressKeys = ["uniswapV3NonFungiblePositionManager"];
-        deployContract("Katana Decoder And Sanitizer V0.8", creationCode, 0);
+        // creationCode = type(KatanaDecoderAndSanitizer).creationCode;
+        // addressKeys = ["uniswapV3NonFungiblePositionManager"];
+        // deployContract("Katana Decoder And Sanitizer V0.8", creationCode, 0);
 
-        creationCode = type(GoldenGooseDecoderAndSanitizer).creationCode;
-        addressKeys = ["uniV4PositionManager", "uniswapV3NonFungiblePositionManager", "odosRouterV2", "dvStETHVault"];
-        deployContract("Golden Goose Decoder And Sanitizer v0.4", creationCode, 0);
+        // creationCode = type(GoldenGooseDecoderAndSanitizer).creationCode;
+        // addressKeys = ["uniV4PositionManager", "uniswapV3NonFungiblePositionManager", "odosRouterV2", "dvStETHVault"];
+        // deployContract("Golden Goose Decoder And Sanitizer v0.4", creationCode, 0);
 
-        // Deploy ConvexFXDecoderAndSanitizer
-        creationCode = type(ConvexFXDecoderAndSanitizer).creationCode;
-        addressKeys = ["convexFXPoolRegistry"];
-        deployContract("Convex FX Decoder and Sanitizer V0.0", creationCode, 0);
+        // // Deploy ConvexFXDecoderAndSanitizer
+        // creationCode = type(ConvexFXDecoderAndSanitizer).creationCode;
+        // addressKeys = ["convexFXPoolRegistry"];
+        // deployContract("Convex FX Decoder and Sanitizer V0.0", creationCode, 0);
 
         // // Deploy DolomiteDecoderAndSanitizer
         // creationCode = type(DolomiteDecoderAndSanitizer).creationCode;
@@ -202,14 +202,14 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         // constructorArgs = abi.encode(0.9e4, 1.1e4);
         // deployer.deployContract("Atomic Queue Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // Deploy GoldenGooseArbitrumDecoderAndSanitizer
-        creationCode = type(GoldenGooseArbitrumDecoderAndSanitizer).creationCode;
+        // Deploy GoldenGooseDecoderAndSanitizer
+        creationCode = type(GoldenGooseUnichainDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(
-            getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
+            getAddress(sourceChain, "uniV2Router"),
             getAddress(sourceChain, "odosRouterV2")
         );
         console.logBytes(constructorArgs);
-        deployer.deployContract("Golden Goose Arbitrum Decoder And Sanitizer v0.0", creationCode, constructorArgs, 0);
+        deployer.deployContract("Golden Goose Unichain Decoder And Sanitizer v0.2", creationCode, constructorArgs, 0);
 
         //creationCode = type(TacDecoderAndSanitizer).creationCode;
         //creationCode = type(LombardBtcDecoderAndSanitizer).creationCode;
