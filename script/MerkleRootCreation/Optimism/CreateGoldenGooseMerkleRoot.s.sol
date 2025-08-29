@@ -22,7 +22,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0xef417FCE1883c6653E7dC6AF7c6F85CCDE84Aa09;
     address public managerAddress = 0x5F341B1cf8C5949d6bE144A725c22383a5D3880B;
     address public accountantAddress = 0xc873F2b7b3BA0a7faA2B56e210E3B965f2b618f5;
-    address public rawDataDecoderAndSanitizer = 0x6631b3ae15Dc2b2A5a76456Fd1eb772fF1b8346D;
+    address public rawDataDecoderAndSanitizer = 0xCa82ADD835880df591913c42EE946E2c214d23c5;
     address public goldenGooseTeller = 0xE89fAaf3968ACa5dCB054D4a9287E54aa84F67e9;
 
     function setUp() external {}
@@ -47,10 +47,44 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](256);
 
-        
-
         // ========================== Native Wrapping ==========================
         _addNativeLeafs(leafs);
+        
+        // ========================== Standard Bridge ==========================
+        // Bridge WETH and wstETH between Mainnet and Optimism
+        {
+            ERC20[] memory localTokens = new ERC20[](2);
+            ERC20[] memory remoteTokens = new ERC20[](2);
+            
+            // WETH bridging
+            localTokens[0] = getERC20(sourceChain, "WETH");
+            remoteTokens[0] = getERC20(mainnet, "WETH");
+            
+            // wstETH bridging
+            localTokens[1] = getERC20(sourceChain, "WSTETH");
+            remoteTokens[1] = getERC20(mainnet, "WSTETH");
+            
+            _addStandardBridgeLeafs(
+                leafs,
+                mainnet,
+                address(0),
+                address(0),
+                getAddress(sourceChain, "standardBridge"),
+                address(0),
+                localTokens,
+                remoteTokens
+            );
+            
+            // Add Lido-specific standard bridge support for wstETH
+            _addLidoStandardBridgeLeafs(
+                leafs,
+                mainnet,
+                address(0),
+                address(0),
+                getAddress(sourceChain, "standardBridge"),
+                address(0)
+            );
+        }
 
         // ========================== Aave V3 ==========================
         {

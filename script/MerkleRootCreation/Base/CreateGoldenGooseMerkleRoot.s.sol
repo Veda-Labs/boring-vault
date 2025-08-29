@@ -148,7 +148,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             assets[1] = getAddress(sourceChain, "WSTETH");
             kind[1] = SwapKind.BuyAndSell;
             assets[2] = getAddress(sourceChain, "AERO");
-            kind[2] = SwapKind.BuyAndSell;
+            kind[2] = SwapKind.Sell;
 
             _addOdosSwapLeafs(leafs, assets, kind);
         }
@@ -162,7 +162,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             assets[1] = getAddress(sourceChain, "WSTETH");
             kind[1] = SwapKind.BuyAndSell;
             assets[2] = getAddress(sourceChain, "AERO");
-            kind[2] = SwapKind.BuyAndSell;
+            kind[2] = SwapKind.Sell;
 
             _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
         }
