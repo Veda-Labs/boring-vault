@@ -127,8 +127,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("base");
-        setSourceChainName("base"); 
+        vm.createSelectFork("mainnet");
+        setSourceChainName("mainnet"); 
 
     }
 
@@ -205,13 +205,13 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         // deployer.deployContract("Atomic Queue Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         // Deploy GoldenGooseDecoderAndSanitizer
-        creationCode = type(GoldenGooseBaseDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(
-            getAddress(sourceChain, "aerodromeNonFungiblePositionManager"),
-            getAddress(sourceChain, "odosRouterV2")
-        );
-        console.logBytes(constructorArgs);
-        deployer.deployContract("Golden Goose Decoder And Sanitizer v0.0", creationCode, constructorArgs, 0);
+        // creationCode = type(GoldenGooseDecoderAndSanitizer).creationCode;
+        // constructorArgs = abi.encode(
+        //     getAddress(sourceChain, "aerodromeNonFungiblePositionManager"),
+        //     getAddress(sourceChain, "odosRouterV2")
+        // );
+        // console.logBytes(constructorArgs);
+        // deployer.deployContract("Golden Goose Decoder And Sanitizer v0.0", creationCode, constructorArgs, 0);
 
         //creationCode = type(TacDecoderAndSanitizer).creationCode;
         //creationCode = type(LombardBtcDecoderAndSanitizer).creationCode;
@@ -230,14 +230,15 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //constructorArgs = abi.encode();
         //deployer.deployContract("KHype HyperEVM Decoder And Sanitizer V0.3", creationCode, constructorArgs, 0);
 
-        //address uniswapV4PositionManager = getAddress(sourceChain, "uniV4PositionManager");
-        //address uniswapV3NonFungiblePositionManager = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager");
-        //address odosRouterV2 = getAddress(sourceChain, "odosRouterV2");
-        //address dvStETHVault = getAddress(sourceChain, "dvStETHVault");
-        //creationCode = type(GoldenGooseDecoderAndSanitizer).creationCode;
-        //constructorArgs =
-        //    abi.encode(uniswapV4PositionManager, uniswapV3NonFungiblePositionManager, odosRouterV2, dvStETHVault);
-        //deployer.deployContract("Golden Goose Decoder And Sanitizer v0.4", creationCode, constructorArgs, 0);
+        address uniswapV4PositionManager = getAddress(sourceChain, "uniV4PositionManager");
+        address uniswapV3NonFungiblePositionManager = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager");
+        address odosRouterV2 = getAddress(sourceChain, "odosRouterV2");
+        address dvStETHVault = getAddress(sourceChain, "dvStETHVault");
+        creationCode = type(GoldenGooseDecoderAndSanitizer).creationCode;
+        constructorArgs =
+           abi.encode(uniswapV4PositionManager, uniswapV3NonFungiblePositionManager, odosRouterV2, dvStETHVault);
+        console.logBytes(constructorArgs);
+        deployer.deployContract("Golden Goose Decoder And Sanitizer v0.5", creationCode, constructorArgs, 0);
 
         //creationCode = type(TacTONDecoderAndSanitizer).creationCode;
         //constructorArgs = abi.encode();

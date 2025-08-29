@@ -22,7 +22,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0xef417FCE1883c6653E7dC6AF7c6F85CCDE84Aa09;
     address public managerAddress = 0x5F341B1cf8C5949d6bE144A725c22383a5D3880B;
     address public accountantAddress = 0xc873F2b7b3BA0a7faA2B56e210E3B965f2b618f5;
-    address public rawDataDecoderAndSanitizer = 0x1E139A5B693bD97A489a0a492A85887499123868;
+    address public rawDataDecoderAndSanitizer = 0x1F1eeeDcf9091Cd17d2F9f44A0AedC47B18a0b68;
     address public primeGoldenGooseTeller = 0x4ecC202775678F7bCfF8350894e2F2E3167Cc3Df;
 
     function setUp() external {}
@@ -45,7 +45,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         setAddress(false, mainnet, "primeGoldenGooseTeller", primeGoldenGooseTeller);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](256);
+        ManageLeaf[] memory leafs = new ManageLeaf[](512);
 
         // ========================== Teller ==========================
         // Enable bulkDeposit and bulkWithdraw on Prime Golden Goose vault
@@ -108,6 +108,10 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "WSTETH_WETH_945"));
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "WSTETH_WETH_965"));
+        
+        // Additional Morpho Blue market: 0xc54d7acf14de29e0e5527cabd7a576506870346a78a11a6762e2cca66322ec41
+        _addMorphoBlueCollateralLeafs(leafs, 0xc54d7acf14de29e0e5527cabd7a576506870346a78a11a6762e2cca66322ec41);
+        _addMorphoBlueSupplyLeafs(leafs, 0xc54d7acf14de29e0e5527cabd7a576506870346a78a11a6762e2cca66322ec41);
 
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "steakhouseETH")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletWETHPrime")));
@@ -209,21 +213,64 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         }
         // ========================== Aave V3 ==========================
         {
-            // Core
-            ERC20[] memory supplyAssets = new ERC20[](2);
-            supplyAssets[0] = getERC20(sourceChain, "WETH");
-            supplyAssets[1] = getERC20(sourceChain, "WSTETH");
-            _addAaveV3Leafs(leafs, supplyAssets, supplyAssets);
+            // Core - including weETH supply
+            ERC20[] memory coreSupplyAssets = new ERC20[](3);
+            coreSupplyAssets[0] = getERC20(sourceChain, "WETH");
+            coreSupplyAssets[1] = getERC20(sourceChain, "WSTETH");
+            coreSupplyAssets[2] = getERC20(sourceChain, "weETH");
+            
+            ERC20[] memory coreBorrowAssets = new ERC20[](2);
+            coreBorrowAssets[0] = getERC20(sourceChain, "WETH");
+            coreBorrowAssets[1] = getERC20(sourceChain, "WSTETH");
+            
+            _addAaveV3Leafs(leafs, coreSupplyAssets, coreBorrowAssets);
 
             // Prime
-            _addAaveV3PrimeLeafs(leafs, supplyAssets, supplyAssets);
+            ERC20[] memory primeAssets = new ERC20[](2);
+            primeAssets[0] = getERC20(sourceChain, "WETH");
+            primeAssets[1] = getERC20(sourceChain, "WSTETH");
+            _addAaveV3PrimeLeafs(leafs, primeAssets, primeAssets);
         }
 
         // =========================== Mellow ==========================
+        // dvstETH operations (handles Mellow vault deposits/withdrawals)
         address[] memory mellowTokens = new address[](2);
         mellowTokens[0] = getAddress(sourceChain, "WETH");
         mellowTokens[1] = getAddress(sourceChain, "WSTETH");
         _addDvStETHLeafs(leafs, mellowTokens);
+        
+        // rstETH restaking via Symbiotic Vault
+        address[] memory symbioticVaults = new address[](1);
+        symbioticVaults[0] = getAddress(sourceChain, "rstETHRestakingVault");
+        ERC20[] memory symbioticAssets = new ERC20[](1);
+        symbioticAssets[0] = getERC20(sourceChain, "WSTETH");
+        address[] memory symbioticRewards = new address[](0); // No rewards configured
+        _addSymbioticVaultLeafs(leafs, symbioticVaults, symbioticAssets, symbioticRewards);
+        
+        // =========================== EtherFi ==========================
+        // weETH operations
+        _addEtherFiLeafs(leafs);
+        
+        // =========================== Treehouse ==========================
+        // tETH vault deposits
+        {
+            ERC20[] memory routerTokensIn = new ERC20[](1);
+            routerTokensIn[0] = getERC20(sourceChain, "WSTETH");
+            _addTreehouseLeafs(
+                leafs,
+                routerTokensIn,
+                getAddress(sourceChain, "TreehouseRouter"),
+                getAddress(sourceChain, "TreehouseRedemption"),
+                getERC20(sourceChain, "tETH"),
+                getAddress(sourceChain, "tETH_wstETH_curve_pool"),
+                2,
+                address(0) // No gauge
+            );
+        }
+        
+        // =========================== Turtle Club ==========================
+        // Katana Pre-deposit vault for WETH
+        // _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "katanaVault"))); // TODO: Add Katana vault address
 
         // ========================== Verify & Generate ==========================
 

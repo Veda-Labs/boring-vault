@@ -205,6 +205,7 @@ contract ChainValues {
         values[mainnet]["TurtleTACBTC"] = 0x6Bf340dB729d82af1F6443A0Ea0d79647b1c3DDf.toBytes32();
         values[mainnet]["sonicLBTC"] = 0x309f25d839A2fe225E80210e110C99150Db98AAF.toBytes32();
         values[mainnet]["katanaLBTC"] = 0x75231079973C23e9eB6180fa3D2fc21334565aB5.toBytes32();
+        values[mainnet]["turtleKatanaETH"] = 0x69d210d3b60E939BFA6E87cCcC4fAb7e8F44C16B.toBytes32();
 
 
         // Decoders
@@ -888,6 +889,8 @@ contract ChainValues {
         values[mainnet]["sdGHOV3"] = 0xE2037090f896A858E3168B978668F22026AC52e7.toBytes32();
         values[mainnet]["dWSTETHV3"] = 0xFF94993fA7EA27Efc943645F95Adb36C1b81244b.toBytes32();
         values[mainnet]["sdWSTETHV3"] = 0x8C719A40c705B988c50e76a3cBB18551ab8296CC.toBytes32();
+        values[mainnet]["rstEthwstETH"] = 0x7a4EffD87C2f3C55CA251080b1343b605f327E3a.toBytes32();
+        values[mainnet]["dvstETH"] = 0x5E362eb2c0706Bd1d134689eC75176018385430B.toBytes32();
 
         // Pendle
         values[mainnet]["pendleMarketFactory"] = 0x1A6fCc85557BC4fB7B534ed835a03EF056552D52.toBytes32();
@@ -1444,6 +1447,7 @@ contract ChainValues {
 
         // Mellow
         values[mainnet]["dvStETHVault"] = 0x5E362eb2c0706Bd1d134689eC75176018385430B.toBytes32();
+        values[mainnet]["rstETHRestakingVault"] = 0x7b276aAD6D2ebfD7e270C5a2697ac79182D9550E.toBytes32();
 
         // King
         values[mainnet]["kingMerkleDistributor"] = 0x6Db24Ee656843E3fE03eb8762a54D86186bA6B64.toBytes32();
