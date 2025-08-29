@@ -128,7 +128,7 @@ rule unpause_3f4ba83a_unauthorized_reverts(env e) {
 
     // assign all the 'before' variables
     address currentContract_owner_before = currentContract.owner;
-    bool currentContract_authority_canCall_e__e_msg_sender__currentContract__to_bytes4_0x3f4ba83a___before = currentContract.authority.canCall(e, e.msg.sender, currentContract, to_bytes4(0x3f4ba83a));
+    bool currentContract_authority_canCall_e__e_msg_sender__currentContract__to_bytes4_0x3f4ba83a___before = currentContract.isAuthorized(e, e.msg.sender, to_bytes4(0x3f4ba83a));
 
     // call function under test
     unpause@withrevert(e);
@@ -153,7 +153,7 @@ rule unpause_3f4ba83a_unpauses_when_authorized(env e) {
 
     // assign all the 'before' variables
     address currentContract_owner_before = currentContract.owner;
-    bool currentContract_authority_canCall_e__e_msg_sender__currentContract__to_bytes4_0x3f4ba83a___before = currentContract.authority.canCall(e, e.msg.sender, currentContract, to_bytes4(0x3f4ba83a));
+    bool currentContract_authority_canCall_e__e_msg_sender__currentContract__to_bytes4_0x3f4ba83a___before = currentContract.isAuthorized(e, e.msg.sender, to_bytes4(0x3f4ba83a));
 
     // call function under test
     unpause(e);
