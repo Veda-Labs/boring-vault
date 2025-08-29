@@ -24,7 +24,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
     address public accountantAddress =
         0xc873F2b7b3BA0a7faA2B56e210E3B965f2b618f5;
     address public rawDataDecoderAndSanitizer =
-        0x6Df45c7e49B19915BAe5FAc80de3BCe46C9cfb83;
+        0xCa82ADD835880df591913c42EE946E2c214d23c5;
     address public goldenGooseTeller =
         0xE89fAaf3968ACa5dCB054D4a9287E54aa84F67e9;
 
@@ -57,6 +57,33 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Native Wrapping ==========================
         _addNativeLeafs(leafs);
+
+        // ========================== Arbitrum Bridge ==========================
+        // Bridge ETH and wstETH between Mainnet and Arbitrum
+        {
+            ERC20[] memory bridgeAssets = new ERC20[](2);
+            
+            // ETH bridging (using WETH)
+            bridgeAssets[0] = getERC20(sourceChain, "WETH");
+            
+            // wstETH bridging
+            bridgeAssets[1] = getERC20(sourceChain, "WSTETH");
+            
+            _addArbitrumNativeBridgeLeafs(leafs, bridgeAssets);
+        }
+
+        // ========================== Layer Zero / Stargate ==========================
+        // Bridge weETH between Arbitrum and Mainnet
+        {
+            // weETH bridging via LayerZero
+            _addLayerZeroLeafs(
+                leafs,
+                getERC20(sourceChain, "weETH"),
+                getAddress(sourceChain, "weETH"), // weETH acts as its own OFT
+                layerZeroMainnetEndpointId,
+                getBytes32(sourceChain, "boringVault")
+            );
+        }
 
         // ========================== Balancer V3 ==========================
         // WETH/wstETH boosted (Aave/Fluid) pool

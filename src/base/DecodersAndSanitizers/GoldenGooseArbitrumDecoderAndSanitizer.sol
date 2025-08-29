@@ -14,6 +14,8 @@ import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/
 import {OneInchDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OneInchDecoderAndSanitizer.sol";
 import {BalancerV2DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BalancerV2DecoderAndSanitizer.sol";
 import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
+import {ArbitrumNativeBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ArbitrumNativeBridgeDecoderAndSanitizer.sol";
+import {OFTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OFTDecoderAndSanitizer.sol";
 
 contract GoldenGooseArbitrumDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
@@ -24,7 +26,9 @@ contract GoldenGooseArbitrumDecoderAndSanitizer is
     UniswapV3DecoderAndSanitizer,
     OdosDecoderAndSanitizer,
     OneInchDecoderAndSanitizer,
-    BalancerV2DecoderAndSanitizer
+    BalancerV2DecoderAndSanitizer,
+    ArbitrumNativeBridgeDecoderAndSanitizer,
+    OFTDecoderAndSanitizer
 {
     constructor(
         address _uniswapV3NonFungiblePositionManager,
