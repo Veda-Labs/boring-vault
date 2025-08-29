@@ -105,6 +105,7 @@ import {KHypeHyperEVMDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/K
 import {TacETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacETHDecoderAndSanitizer.sol";
 import {GoldenGooseUnichainDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseUnichainDecoderAndSanitizer.sol";
 import {OptimismGoldenGooseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/OptimismGoldenGooseDecoderAndSanitizer.sol";
+import {GoldenGooseBaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseBaseDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -126,8 +127,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("optimism");
-        setSourceChainName("optimism"); 
+        vm.createSelectFork("base");
+        setSourceChainName("base"); 
 
     }
 
@@ -204,9 +205,9 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         // deployer.deployContract("Atomic Queue Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         // Deploy GoldenGooseDecoderAndSanitizer
-        creationCode = type(OptimismGoldenGooseDecoderAndSanitizer).creationCode;
+        creationCode = type(GoldenGooseBaseDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(
-            getAddress(sourceChain, "velodromeNonFungiblePositionManager"),
+            getAddress(sourceChain, "aerodromeNonFungiblePositionManager"),
             getAddress(sourceChain, "odosRouterV2")
         );
         console.logBytes(constructorArgs);
