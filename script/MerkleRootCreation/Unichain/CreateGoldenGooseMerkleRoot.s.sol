@@ -183,17 +183,6 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             _addEulerBorrowLeafs(leafs, borrowVaults, subaccounts);
         }
 
-        // ========================== EulerSwap (UniswapV2) ==========================
-        {
-            // Add EulerSwap support for wstETH/wETH LP
-            address[] memory token0 = new address[](1);
-            address[] memory token1 = new address[](1);
-            token0[0] = getAddress(sourceChain, "WSTETH");
-            token1[0] = getAddress(sourceChain, "WETH");
-
-            _addUniswapV2Leafs(leafs, token0, token1, false); // false = don't include native ETH leaves
-        }
-
         // ========================== Verify & Generate ==========================
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
