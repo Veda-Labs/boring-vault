@@ -104,6 +104,7 @@ import {AtomicQueueDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Pro
 import {KHypeHyperEVMDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/KHypeHyperEVMDecoderAndSanitizer.sol";
 import {TacETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacETHDecoderAndSanitizer.sol";
 import {GoldenGooseUnichainDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseUnichainDecoderAndSanitizer.sol";
+import {OptimismGoldenGooseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/OptimismGoldenGooseDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -125,8 +126,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("unichain");
-        setSourceChainName("unichain"); 
+        vm.createSelectFork("optimism");
+        setSourceChainName("optimism"); 
 
     }
 
@@ -203,13 +204,13 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         // deployer.deployContract("Atomic Queue Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         // Deploy GoldenGooseDecoderAndSanitizer
-        creationCode = type(GoldenGooseUnichainDecoderAndSanitizer).creationCode;
+        creationCode = type(OptimismGoldenGooseDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(
-            getAddress(sourceChain, "uniV2Router"),
+            getAddress(sourceChain, "velodromeNonFungiblePositionManager"),
             getAddress(sourceChain, "odosRouterV2")
         );
         console.logBytes(constructorArgs);
-        deployer.deployContract("Golden Goose Unichain Decoder And Sanitizer v0.2", creationCode, constructorArgs, 0);
+        deployer.deployContract("Golden Goose Decoder And Sanitizer v0.0", creationCode, constructorArgs, 0);
 
         //creationCode = type(TacDecoderAndSanitizer).creationCode;
         //creationCode = type(LombardBtcDecoderAndSanitizer).creationCode;
