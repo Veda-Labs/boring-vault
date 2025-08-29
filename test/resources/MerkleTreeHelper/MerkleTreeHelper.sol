@@ -2177,6 +2177,34 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             "Unwrap weETH",
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
+
+        //deposit ERC20s
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "STETH"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve EtherFi Vampire Pool to spend STETH",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "etherFiVampirePool");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "etherFiVampirePool"),
+            false,
+            "depositWithERC20(address,uint256,address)",
+            new address[](2),
+            "Deposit ERC20 for eETH",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "STETH");
+        leafs[leafIndex].argumentAddresses[1] = address(0); 
     }
 
     // ========================================= LIDO =========================================
