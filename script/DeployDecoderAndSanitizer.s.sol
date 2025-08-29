@@ -123,9 +123,13 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
+        
+        vm.createSelectFork("katana");
+        setSourceChainName("katana");
 
         vm.createSelectFork("mainnet");
         setSourceChainName("mainnet"); 
+
 
     }
 
@@ -133,6 +137,7 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory creationCode;
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
+
 
         creationCode = type(LombardBtcDecoderAndSanitizer).creationCode;
         addressKeys = ["uniswapV3NonFungiblePositionManager", "convexFXPoolRegistry", "odosRouterV2"];
@@ -214,9 +219,6 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouter"));
         //deployer.deployContract("TAC ETH Decoder And Sanitizer v0.0", creationCode, constructorArgs, 0);
 
-        //creationCode = type(KHypeHyperEVMDecoderAndSanitizer).creationCode;
-        //constructorArgs = abi.encode();
-        //deployer.deployContract("KHype HyperEVM Decoder And Sanitizer V0.3", creationCode, constructorArgs, 0);
 
         //address uniswapV4PositionManager = getAddress(sourceChain, "uniV4PositionManager");
         //address uniswapV3NonFungiblePositionManager = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager");
@@ -232,27 +234,5 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //deployer.deployContract("TAC Decoder And Sanitizer v0.0", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
-    }
-
-    function deployContract(string memory name, bytes memory creationCode, uint256 value) internal {
-        address _contract = deployer.getAddress(name);
-        if (_contract.code.length > 0) {
-            console.log(name, "already deployed at", _contract);
-            return;
-        }
-
-        bytes memory constructorArgs;
-        for (uint256 i = 0; i < addressKeys.length; i++) {
-            if (values[sourceChain][addressKeys[i]] != bytes32(0)) {
-                constructorArgs = abi.encodePacked(constructorArgs, abi.encode(getAddress(sourceChain, addressKeys[i])));
-            } else {
-                console.log(string.concat("Skipping ", name, " because ", addressKeys[i], " is not set"));
-                return;
-            }
-        }
-
-        address deployed = deployer.deployContract(name, creationCode, constructorArgs, value);
-        console.log(unicode"✅", name, "deployed to", deployed);
-        console.logBytes(constructorArgs);
     }
 }

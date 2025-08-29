@@ -2788,10 +2788,13 @@ contract ChainValues {
         values[katana]["morphoBlue"] = 0xD50F2DffFd62f94Ee4AEd9ca05C61d0753268aBc.toBytes32(); 
         values[katana]["LBTC_vbWBTC_915"] = 0x60b54e17d55b765955a20908ed5143192a48df7fd3833f7f7fe86504bf6c4c1a; 
         values[katana]["WEETH_vbETH_915"] = 0x1e74d36ffbda65b8a45d72754b349cdd5ce807c5fa814f91ba8e3cd27881c34b;
+        // TODO: Add correct Morpho BTCK market ID (32 bytes)
+        // values[katana]["BTCK_morpho_market"] = 0x...;
 
         // MetaMorpho
         values[katana]["gauntletWBTC"] = 0xf243523996ADbb273F0B237B53f30017C4364bBC.toBytes32(); 
         values[katana]["gauntletWETH"] = 0xC5e7AB07030305fc925175b25B93b285d40dCdFf.toBytes32();
+        values[katana]["gauntletBTCK"] = 0x5BD1D75d45EdB622d0ea50946F2f741CE8dC5b75.toBytes32();
         
 
         // Sushi 
