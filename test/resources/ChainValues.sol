@@ -126,9 +126,13 @@ contract ChainValues {
 
     function _addHyperEvmValues() private {
         values[hyperevm]["CoreWriter"] = 0x3333333333333333333333333333333333333333.toBytes32();
-        values[hyperevm]["USDT0"] = 0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb.toBytes32();
 
+        // tokens
+        values[hyperevm]["USDT0"] = 0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb.toBytes32();
         values[hyperevm]["USDT0CoreSystemAddress"] = 0x200000000000000000000000000000000000010C.toBytes32();
+
+        // Bunjee
+        values[hyperevm]["BunjeeInbox"] = 0x7ad979C6b0C9924F79ea571280071595ba13D002.toBytes32();
     }
 
     function _addMainnetValues() private {
@@ -2464,7 +2468,12 @@ contract ChainValues {
         // layerzero
         values[katana]["LayerZeroEndPoint"] = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B.toBytes32();
 
-        //chainlink
+        // chainlink
         values[katana]["ccipRouter"] = 0x7c19b79D2a054114Ab36ad758A36e92376e267DA.toBytes32();
+
+        // bunjee
+        values[katana]["BunjeeInbox"] = 0x7ad979C6b0C9924F79ea571280071595ba13D002.toBytes32();
+        values[katana]["BunjeeGatway"] = 0x8f503B6d9fFdae8d375d1E226b71B4B3144D3849.toBytes32();
+        values[katana]["BunjeeDelegate"] = 0x86C950FE91D96Fa113A96eE23EDc7C517b94BFDC.toBytes32();
     }
 }
