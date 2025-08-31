@@ -58,6 +58,9 @@ contract ChainValues {
     uint32 public constant hyperlaneMainnetEndpointId = 1;
     uint32 public constant hyperlaneEclipseEndpointId = 1408864445;
 
+    uint32 public constant katanaChainId = 747474;
+    uint32 public constant hyperevmChainId = 999;
+
     error ChainValues__ZeroAddress(string chainName, string valueName);
     error ChainValues__ZeroBytes32(string chainName, string valueName);
     error ChainValues__ValueAlreadySet(string chainName, string valueName);
@@ -2453,6 +2456,7 @@ contract ChainValues {
         values[katana]["liquidPayoutAddress"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
         values[katana]["uniswapV3PositionManager"] = address(1).toBytes32();
         values[katana]["uniswapV3NonFungiblePositionManager"] = address(1).toBytes32();
+        values[katana]["vault"] = address(1).toBytes32();
 
         // tokens
         values[katana]["ZRO"] = address(1).toBytes32();
@@ -2472,8 +2476,8 @@ contract ChainValues {
         values[katana]["ccipRouter"] = 0x7c19b79D2a054114Ab36ad758A36e92376e267DA.toBytes32();
 
         // bunjee
-        values[katana]["BunjeeInbox"] = 0x7ad979C6b0C9924F79ea571280071595ba13D002.toBytes32();
-        values[katana]["BunjeeGatway"] = 0x8f503B6d9fFdae8d375d1E226b71B4B3144D3849.toBytes32();
-        values[katana]["BunjeeDelegate"] = 0x86C950FE91D96Fa113A96eE23EDc7C517b94BFDC.toBytes32();
+        values[katana]["BungeeInbox"] = 0x7ad979C6b0C9924F79ea571280071595ba13D002.toBytes32();
+        values[katana]["BungeeGateway"] = 0x8f503B6d9fFdae8d375d1E226b71B4B3144D3849.toBytes32();
+        values[katana]["BungeeDelegate"] = 0x86C950FE91D96Fa113A96eE23EDc7C517b94BFDC.toBytes32();
     }
 }

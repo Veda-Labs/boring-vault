@@ -23,7 +23,6 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     mapping(address => mapping(address => mapping(address => bool))) public ownerToTokenToSpenderToApprovalInTree;
     mapping(address => mapping(address => mapping(address => bool))) public ownerToOneInchSellTokenToBuyTokenToInTree;
     mapping(address => mapping(address => mapping(address => bool))) public ownerToOdosSellTokenToBuyTokenToInTree;
-    mapping(address => mapping(address => mapping(address => bool))) public ownerToBunjeeSellTokenToBuyTokenToInTree;
     mapping(address => mapping(address => mapping(address => bool))) public ownerToOogaBoogaSellTokenToBuyTokenToInTree;
 
     function setSourceChainName(string memory _chain) internal {
@@ -11664,50 +11663,48 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         }
     }
 
-    // ======================================== Bunjee ========================================
+    // ======================================== Bungee ========================================
 
-    function _addBunjeeLeafs(
-        ManageLeaf[] memory leafs,
-        address[] memory inputTokens,
-        address[] memory outputTokens,
-        uint256 destinationChainId
-    ) internal {
-        require(inputTokens.length == outputTokens);
+    function _addBungeeLeafs(ManageLeaf[] memory leafs, address[] memory inputTokens, address[] memory outputTokens)
+        internal
+    {
+        require(inputTokens.length == outputTokens.length);
         for (uint256 i = 0; i < inputTokens.length; i++) {
             if (
-                !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][tokens[i]][getAddress(
-                    sourceChain, "BunjeeInbox"
+                !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][inputTokens[i]][getAddress(
+                    sourceChain, "BungeeInbox"
                 )]
             ) {
                 unchecked {
                     leafIndex++;
                 }
                 leafs[leafIndex] = ManageLeaf(
-                    tokens[i],
+                    inputTokens[i],
                     false,
                     "approve(address,uint256)",
                     new address[](1),
-                    string.concat("Approve BunjeeInbox to spend ", ERC20(tokens[i]).symbol()),
+                    string.concat("Approve BungeeInbox to spend ", ERC20(inputTokens[i]).symbol()),
                     getAddress(sourceChain, "rawDataDecoderAndSanitizer")
                 );
-                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "BunjeeInbox");
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "BungeeInbox");
             }
 
             unchecked {
                 leafIndex++;
             }
+
             leafs[leafIndex] = ManageLeaf(
-                getAddress(sourceChain, "BunjeeInbox"),
+                getAddress(sourceChain, "BungeeInbox"),
                 false,
                 "createRequest(((uint256,uint256,uint256,uint256,address,address,address,address,uint32,address,uint256,address,uint256,uint256),address,uint256,bytes32,bytes,uint256,bytes,address))",
-                new address[](7),
-                string.concat("Swap  "),
+                new address[](8),
+                string.concat("Swap ", vm.toString(inputTokens[i]), "to", vm.toString(outputTokens[i]), "using Bungee"),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
-            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "BunjeeInbox");
-            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
-            leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "BunjeeDelegate"); // delegate
-            leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "BunjeeGateway");
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "BungeeInbox");
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault"); // receiver
+            leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "BungeeDelegate"); // delegate
+            leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "BungeeGateway");
             leafs[leafIndex].argumentAddresses[4] = inputTokens[i];
             leafs[leafIndex].argumentAddresses[5] = outputTokens[i];
             leafs[leafIndex].argumentAddresses[6] = 0x0000000000000000000000000000000000000000;
