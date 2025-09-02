@@ -247,8 +247,6 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         // weETH operations
         _addEtherFiLeafs(leafs);
         
-        // TODO: EtherFi stETH to eETH restaking needs to be added when decoder is ready
-        
         // =========================== Treehouse ==========================
         // tETH vault deposits
         {
@@ -326,9 +324,9 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             );
         }
         
-        // vbETH 4626 vault for Agglayer bridging to Katana
-        // Note: vbETH vault address needs to be added to MainnetAddresses.sol
-        // _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "vbETH")));
+        // ========================== vbVault ==========================
+        
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "vbETH")));
         
         // Agglayer bridging to Katana
         // Note: Agglayer bridge addresses need to be added to MainnetAddresses.sol
