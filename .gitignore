@@ -22,6 +22,6 @@ CLAUDE.md
 
 # certora
 .certora_internal/
-.properties/
+.properties-*/
 emv-*-certora-*/
 
