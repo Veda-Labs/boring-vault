@@ -196,19 +196,19 @@ rule vestYield_ec0f6e8e_preserves_last_share_price(env e) {
  *
  * Possible consequences: Gas waste, misleading events, state inconsistency where zero losses are recorded as valid operations
  */
-rule vestLoss_57545af7_zero_loss_reverts(env e) {
+rule postLoss_57545af7_zero_loss_reverts(env e) {
     uint256 lossAmount;
 
     // assign all the 'before' variables
 
     // call function under test
-    vestLoss@withrevert(e, lossAmount);
-    bool vestLoss_reverted = lastReverted;
+    postLoss@withrevert(e, lossAmount);
+    bool postLoss_reverted = lastReverted;
 
     // assign all the 'after' variables
 
     // verify integrity
-    assert ((lossAmount == 0) => vestLoss_reverted), "lossAmount == 0 => revert";
+    assert ((lossAmount == 0) => postLoss_reverted), "lossAmount == 0 => revert";
 }
 
 /*
@@ -220,20 +220,20 @@ rule vestLoss_57545af7_zero_loss_reverts(env e) {
  *
  * Possible consequences: Arithmetic underflow, negative share prices, vault insolvency, complete breakdown of the accounting system
  */
-rule vestLoss_57545af7_loss_exceeds_assets_reverts(env e) {
+rule postLoss_57545af7_loss_exceeds_assets_reverts(env e) {
     uint256 lossAmount;
 
     // assign all the 'before' variables
     uint256 totalAssets_e__before = totalAssets(e);
 
     // call function under test
-    vestLoss@withrevert(e, lossAmount);
-    bool vestLoss_reverted = lastReverted;
+    postLoss@withrevert(e, lossAmount);
+    bool postLoss_reverted = lastReverted;
 
     // assign all the 'after' variables
 
     // verify integrity
-    assert ((lossAmount > totalAssets_e__before) => vestLoss_reverted), "lossAmount > totalAssets()@before => revert";
+    assert ((lossAmount > totalAssets_e__before) => postLoss_reverted), "lossAmount > totalAssets()@before => revert";
 }
 
 /*
@@ -245,7 +245,7 @@ rule vestLoss_57545af7_loss_exceeds_assets_reverts(env e) {
  *
  * Possible consequences: Incorrect share valuations, users not bearing their fair share of losses, arbitrage opportunities
  */
-rule vestLoss_57545af7_updates_exchange_rate(env e) {
+rule postLoss_57545af7_updates_exchange_rate(env e) {
     uint256 lossAmount;
 
     // assign all the 'before' variables
@@ -253,7 +253,7 @@ rule vestLoss_57545af7_updates_exchange_rate(env e) {
     uint128 currentContract_vestingState_lastSharePrice_before = currentContract.vestingState.lastSharePrice;
 
     // call function under test
-    vestLoss(e, lossAmount);
+    postLoss(e, lossAmount);
 
     // assign all the 'after' variables
     uint128 currentContract_vestingState_lastSharePrice_after = currentContract.vestingState.lastSharePrice;
@@ -271,7 +271,7 @@ rule vestLoss_57545af7_updates_exchange_rate(env e) {
  *
  * Possible consequences: Incorrect share pricing, value extraction, unfair distribution of losses among shareholders
  */
-rule vestLoss_57545af7_decreases_share_price(env e) {
+rule postLoss_57545af7_decreases_share_price(env e) {
     uint256 lossAmount;
 
     // assign all the 'before' variables
@@ -279,7 +279,7 @@ rule vestLoss_57545af7_decreases_share_price(env e) {
     uint256 currentContract_vault_totalSupply_e__before = currentContract.vault.totalSupply(e);
 
     // call function under test
-    vestLoss(e, lossAmount);
+    postLoss(e, lossAmount);
 
     // assign all the 'after' variables
     uint128 currentContract_vestingState_lastSharePrice_after = currentContract.vestingState.lastSharePrice;
@@ -297,13 +297,13 @@ rule vestLoss_57545af7_decreases_share_price(env e) {
  *
  * Possible consequences: Double counting of gains, inflated share prices, users receiving yield that doesn't exist
  */
-rule vestLoss_57545af7_clears_vesting_gains(env e) {
+rule postLoss_57545af7_clears_vesting_gains(env e) {
     uint256 lossAmount;
 
     // assign all the 'before' variables
 
     // call function under test
-    vestLoss(e, lossAmount);
+    postLoss(e, lossAmount);
 
     // assign all the 'after' variables
     uint128 currentContract_vestingState_vestingGains_after = currentContract.vestingState.vestingGains;
@@ -321,14 +321,14 @@ rule vestLoss_57545af7_clears_vesting_gains(env e) {
  *
  * Possible consequences: Incorrect yield vesting calculations, temporal arbitrage opportunities, accounting inconsistencies
  */
-rule vestLoss_57545af7_updates_vesting_timestamp(env e) {
+rule postLoss_57545af7_updates_vesting_timestamp(env e) {
     uint256 lossAmount;
 
     // assign all the 'before' variables
     uint256 totalAssets_e__before = totalAssets(e);
 
     // call function under test
-    vestLoss(e, lossAmount);
+    postLoss(e, lossAmount);
 
     // assign all the 'after' variables
     uint128 currentContract_vestingState_lastVestingUpdate_after = currentContract.vestingState.lastVestingUpdate;
@@ -346,20 +346,20 @@ rule vestLoss_57545af7_updates_vesting_timestamp(env e) {
  *
  * Possible consequences: Unauthorized state changes during emergency situations, bypassing of security controls
  */
-rule vestLoss_57545af7_paused_reverts(env e) {
+rule postLoss_57545af7_paused_reverts(env e) {
     uint256 lossAmount;
 
     // assign all the 'before' variables
     bool currentContract_accountantState_isPaused_before = currentContract.accountantState.isPaused;
 
     // call function under test
-    vestLoss@withrevert(e, lossAmount);
-    bool vestLoss_reverted = lastReverted;
+    postLoss@withrevert(e, lossAmount);
+    bool postLoss_reverted = lastReverted;
 
     // assign all the 'after' variables
 
     // verify integrity
-    assert (currentContract_accountantState_isPaused_before => vestLoss_reverted), "accountantState.isPaused@before => revert";
+    assert (currentContract_accountantState_isPaused_before => postLoss_reverted), "accountantState.isPaused@before => revert";
 }
 
 /*
@@ -371,20 +371,20 @@ rule vestLoss_57545af7_paused_reverts(env e) {
  *
  * Possible consequences: Division by zero errors, contract failure, undefined behavior in share price calculations
  */
-rule vestLoss_57545af7_zero_supply_reverts(env e) {
+rule postLoss_57545af7_zero_supply_reverts(env e) {
     uint256 lossAmount;
 
     // assign all the 'before' variables
     uint256 currentContract_vault_totalSupply_e__before = currentContract.vault.totalSupply(e);
 
     // call function under test
-    vestLoss@withrevert(e, lossAmount);
-    bool vestLoss_reverted = lastReverted;
+    postLoss@withrevert(e, lossAmount);
+    bool postLoss_reverted = lastReverted;
 
     // assign all the 'after' variables
 
     // verify integrity
-    assert ((currentContract_vault_totalSupply_e__before == 0) => vestLoss_reverted), "vault.totalSupply()@before == 0 => revert";
+    assert ((currentContract_vault_totalSupply_e__before == 0) => postLoss_reverted), "vault.totalSupply()@before == 0 => revert";
 }
 
 /*
@@ -396,7 +396,7 @@ rule vestLoss_57545af7_zero_supply_reverts(env e) {
  *
  * Possible consequences: Disruption of vesting schedules, incorrect yield distribution timing, temporal manipulation of rewards
  */
-rule vestLoss_57545af7_preserves_vesting_times(env e) {
+rule postLoss_57545af7_preserves_vesting_times(env e) {
     uint256 lossAmount;
 
     // assign all the 'before' variables
@@ -405,7 +405,7 @@ rule vestLoss_57545af7_preserves_vesting_times(env e) {
     uint64 currentContract_vestingState_endVestingTime_before = currentContract.vestingState.endVestingTime;
 
     // call function under test
-    vestLoss(e, lossAmount);
+    postLoss(e, lossAmount);
 
     // assign all the 'after' variables
     uint64 currentContract_vestingState_startVestingTime_after = currentContract.vestingState.startVestingTime;
@@ -669,7 +669,7 @@ rule updateExchangeRate_02ce728f_fees_increase_on_price_rise(env e) {
  * Possible consequences: If this property is violated, the function becomes a no-op that doesn't actually update the maximum vesting time, breaking the admin's ability to configure vesting parameters and potentially leaving the system with inappropriate time limits
  */
 rule updateMaximumVestDuration_eee00042_updates_maximum_vesting_time(env e) {
-    uint256 newMaximum;
+    uint64 newMaximum;
 
     // assign all the 'before' variables
 
@@ -677,7 +677,7 @@ rule updateMaximumVestDuration_eee00042_updates_maximum_vesting_time(env e) {
     updateMaximumVestDuration(e, newMaximum);
 
     // assign all the 'after' variables
-    uint256 currentContract_maximumVestingTime_after = currentContract.maximumVestingTime;
+    uint64 currentContract_maximumVestingTime_after = currentContract.maximumVestingTime;
 
     // verify integrity
     assert (currentContract_maximumVestingTime_after == newMaximum), "maximumVestingTime@after == newMaximum";
@@ -693,7 +693,7 @@ rule updateMaximumVestDuration_eee00042_updates_maximum_vesting_time(env e) {
  * Possible consequences: Setting maximumVestingTime to zero would permanently break the vestYield function, causing DoS of the core yield streaming functionality and preventing any future yield from being vested
  */
 rule updateMaximumVestDuration_eee00042_zero_maximum_reverts(env e) {
-    uint256 newMaximum;
+    uint64 newMaximum;
 
     // assign all the 'before' variables
 
@@ -717,10 +717,10 @@ rule updateMaximumVestDuration_eee00042_zero_maximum_reverts(env e) {
  * Possible consequences: Violating this invariant would create an impossible state where no duration could satisfy both the minimum and maximum constraints, causing permanent DoS of the vestYield function
  */
 rule updateMaximumVestDuration_eee00042_below_minimum_reverts(env e) {
-    uint256 newMaximum;
+    uint64 newMaximum;
 
     // assign all the 'before' variables
-    uint256 currentContract_minimumVestingTime_before = currentContract.minimumVestingTime;
+    uint64 currentContract_minimumVestingTime_before = currentContract.minimumVestingTime;
 
     // call function under test
     updateMaximumVestDuration@withrevert(e, newMaximum);
@@ -742,10 +742,10 @@ rule updateMaximumVestDuration_eee00042_below_minimum_reverts(env e) {
  * Possible consequences: Allowing no-op updates wastes gas and can mask bugs where the caller thinks they're changing a value but aren't. It also violates the principle that successful transactions should have meaningful effects
  */
 rule updateMaximumVestDuration_eee00042_same_value_reverts(env e) {
-    uint256 newMaximum;
+    uint64 newMaximum;
 
     // assign all the 'before' variables
-    uint256 currentContract_maximumVestingTime_before = currentContract.maximumVestingTime;
+    uint64 currentContract_maximumVestingTime_before = currentContract.maximumVestingTime;
 
     // call function under test
     updateMaximumVestDuration@withrevert(e, newMaximum);
@@ -767,7 +767,7 @@ rule updateMaximumVestDuration_eee00042_same_value_reverts(env e) {
  * Possible consequences: Configuration drift where the intended minimum vesting time is not applied, leading to inconsistent yield vesting behavior and potential bypass of time-based security controls
  */
 rule updateMinimumVestDuration_96297efc_updates_minimum_vesting_time(env e) {
-    uint256 newMinimum;
+    uint64 newMinimum;
 
     // assign all the 'before' variables
 
@@ -775,7 +775,7 @@ rule updateMinimumVestDuration_96297efc_updates_minimum_vesting_time(env e) {
     updateMinimumVestDuration(e, newMinimum);
 
     // assign all the 'after' variables
-    uint256 currentContract_minimumVestingTime_after = currentContract.minimumVestingTime;
+    uint64 currentContract_minimumVestingTime_after = currentContract.minimumVestingTime;
 
     // verify integrity
     assert ((newMinimum >= 0) => (currentContract_minimumVestingTime_after == newMinimum)), "newMinimum >= 0 => minimumVestingTime@after == newMinimum";
@@ -791,10 +791,10 @@ rule updateMinimumVestDuration_96297efc_updates_minimum_vesting_time(env e) {
  * Possible consequences: Gas waste from successful but meaningless transactions, potential confusion in monitoring systems that expect state changes, and masking of logic errors in calling code
  */
 rule updateMinimumVestDuration_96297efc_no_op_reverts(env e) {
-    uint256 newMinimum;
+    uint64 newMinimum;
 
     // assign all the 'before' variables
-    uint256 currentContract_minimumVestingTime_before = currentContract.minimumVestingTime;
+    uint64 currentContract_minimumVestingTime_before = currentContract.minimumVestingTime;
 
     // call function under test
     updateMinimumVestDuration@withrevert(e, newMinimum);
@@ -816,17 +816,17 @@ rule updateMinimumVestDuration_96297efc_no_op_reverts(env e) {
  * Possible consequences: Corruption of vesting configuration where maximum vesting time is accidentally modified, potentially allowing excessively long or short vesting periods that break the economic model
  */
 rule updateMinimumVestDuration_96297efc_preserves_maximum_vesting(env e) {
-    uint256 newMinimum;
+    uint64 newMinimum;
 
     // assign all the 'before' variables
-    uint256 currentContract_minimumVestingTime_before = currentContract.minimumVestingTime;
-    uint256 currentContract_maximumVestingTime_before = currentContract.maximumVestingTime;
+    uint64 currentContract_minimumVestingTime_before = currentContract.minimumVestingTime;
+    uint64 currentContract_maximumVestingTime_before = currentContract.maximumVestingTime;
 
     // call function under test
     updateMinimumVestDuration(e, newMinimum);
 
     // assign all the 'after' variables
-    uint256 currentContract_maximumVestingTime_after = currentContract.maximumVestingTime;
+    uint64 currentContract_maximumVestingTime_after = currentContract.maximumVestingTime;
 
     // verify integrity
     assert ((newMinimum != currentContract_minimumVestingTime_before) => (currentContract_maximumVestingTime_after == currentContract_maximumVestingTime_before)), "newMinimum != minimumVestingTime@before => maximumVestingTime@after == maximumVestingTime@before";
@@ -842,10 +842,10 @@ rule updateMinimumVestDuration_96297efc_preserves_maximum_vesting(env e) {
  * Possible consequences: Loss or corruption of user funds that are currently vesting, leading to incorrect share prices and potential fund loss for vault participants
  */
 rule updateMinimumVestDuration_96297efc_preserves_vesting_gains(env e) {
-    uint256 newMinimum;
+    uint64 newMinimum;
 
     // assign all the 'before' variables
-    uint256 currentContract_minimumVestingTime_before = currentContract.minimumVestingTime;
+    uint64 currentContract_minimumVestingTime_before = currentContract.minimumVestingTime;
     uint128 currentContract_vestingState_vestingGains_before = currentContract.vestingState.vestingGains;
 
     // call function under test
@@ -868,10 +868,10 @@ rule updateMinimumVestDuration_96297efc_preserves_vesting_gains(env e) {
  * Possible consequences: Share price manipulation or corruption leading to incorrect vault valuations, unfair minting/burning of shares, and potential arbitrage opportunities
  */
 rule updateMinimumVestDuration_96297efc_preserves_last_share_price(env e) {
-    uint256 newMinimum;
+    uint64 newMinimum;
 
     // assign all the 'before' variables
-    uint256 currentContract_minimumVestingTime_before = currentContract.minimumVestingTime;
+    uint64 currentContract_minimumVestingTime_before = currentContract.minimumVestingTime;
     uint128 currentContract_vestingState_lastSharePrice_before = currentContract.vestingState.lastSharePrice;
 
     // call function under test
@@ -894,10 +894,10 @@ rule updateMinimumVestDuration_96297efc_preserves_last_share_price(env e) {
  * Possible consequences: Disruption of active yield vesting schedules, potentially accelerating or delaying yield distribution in ways that break the economic model and user expectations
  */
 rule updateMinimumVestDuration_96297efc_preserves_vesting_times(env e) {
-    uint256 newMinimum;
+    uint64 newMinimum;
 
     // assign all the 'before' variables
-    uint256 currentContract_minimumVestingTime_before = currentContract.minimumVestingTime;
+    uint64 currentContract_minimumVestingTime_before = currentContract.minimumVestingTime;
     uint64 currentContract_vestingState_startVestingTime_before = currentContract.vestingState.startVestingTime;
     uint64 currentContract_vestingState_endVestingTime_before = currentContract.vestingState.endVestingTime;
 
