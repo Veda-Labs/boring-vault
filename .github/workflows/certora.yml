@@ -18,6 +18,7 @@ env:
     certora/confs/setup/sanity_LayerZeroTeller.conf
     certora/confs/setup/sanity_TellerWithMultiAssetSupport.conf
     certora/confs/setup/scenarioA.conf
+    certora/confs/setup/scenarioB.conf
     certora/confs/setup/scenarioC.conf
     certora/confs/setup/scenarioD.conf
     certora/confs/setup/scenarioE.conf
