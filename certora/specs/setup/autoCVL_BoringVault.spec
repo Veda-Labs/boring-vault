@@ -1071,7 +1071,8 @@ rule setBeforeTransferHook_8929565f_non_zero_address_allowed(env e) {
  *
  * Possible consequences: Gas griefing attacks, unnecessary hook executions, event spam, and potential DoS through repeated meaningless transactions
  */
-rule transfer_a9059cbb_zero_amount_reverts(env e) {
+// gereon: not sure, doesn't seem too bad
+rule __transfer_a9059cbb_zero_amount_reverts(env e) {
     address to;
     uint256 amount;
     bool result;
@@ -1097,7 +1098,8 @@ rule transfer_a9059cbb_zero_amount_reverts(env e) {
  *
  * Possible consequences: Gas griefing, unnecessary hook executions, and potential manipulation of systems that track transfer activity
  */
-rule transfer_a9059cbb_self_transfer_reverts(env e) {
+// gereon: is that so?
+rule __transfer_a9059cbb_self_transfer_reverts(env e) {
     address to;
     uint256 amount;
     bool result;
@@ -1123,7 +1125,8 @@ rule transfer_a9059cbb_self_transfer_reverts(env e) {
  *
  * Possible consequences: Permanent token loss, total supply accounting errors, and potential breaking of vault economics
  */
-rule transfer_a9059cbb_zero_address_reverts(env e) {
+// gereon: not that bad, I guess?
+rule __transfer_a9059cbb_zero_address_reverts(env e) {
     address to;
     uint256 amount;
     bool result;
@@ -1208,6 +1211,8 @@ rule transfer_a9059cbb_recipient_balance_increases(env e) {
     uint256 amount;
     bool result;
 
+    requireInvariant(totalSupplyHolds());
+
     // assign all the 'before' variables
     uint256 currentContract_balanceOf_e_msg_sender__before = currentContract.balanceOf[e.msg.sender];
     uint256 currentContract_balanceOf_to__before = currentContract.balanceOf[to];
@@ -1287,7 +1292,8 @@ rule transfer_a9059cbb_other_balances_unchanged(env e) {
  *
  * Possible consequences: DoS attacks through gas waste, unnecessary event emissions, and potential hook exploitation
  */
-rule transferFrom_23b872dd_zero_amount_reverts(env e) {
+// gereon: not sure, doesn't seem too bad
+rule __transferFrom_23b872dd_zero_amount_reverts(env e) {
     address from;
     address to;
     uint256 amount;
@@ -1314,7 +1320,8 @@ rule transferFrom_23b872dd_zero_amount_reverts(env e) {
  *
  * Possible consequences: Accidental token burns, state corruption, and loss of funds
  */
-rule transferFrom_23b872dd_invalid_addresses_revert(env e) {
+// gereon: not sure, might make sense
+rule __transferFrom_23b872dd_invalid_addresses_revert(env e) {
     address from;
     address to;
     uint256 amount;
@@ -1341,7 +1348,8 @@ rule transferFrom_23b872dd_invalid_addresses_revert(env e) {
  *
  * Possible consequences: Gas waste, unnecessary hook executions, and potential exploitation of hook logic
  */
-rule transferFrom_23b872dd_self_transfer_reverts(env e) {
+// gereon: is that so?
+rule __transferFrom_23b872dd_self_transfer_reverts(env e) {
     address from;
     address to;
     uint256 amount;
