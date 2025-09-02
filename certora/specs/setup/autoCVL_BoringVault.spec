@@ -487,12 +487,15 @@ rule enter_39d6ba32_valid_mint_increases_balance(env e) {
  *
  * Possible consequences: Unbacked shares could be minted without receiving corresponding assets, leading to insolvency
  */
+// gereon: from should not be currentContract
 rule enter_39d6ba32_asset_transfer_when_nonzero(env e) {
     address from;
     address asset;
     uint256 assetAmount;
     address to;
     uint256 shareAmount;
+
+    require(from != currentContract);
 
     // assign all the 'before' variables
     uint256 asset_balanceOf_e__currentContract__before = asset.balanceOf(e, currentContract);
