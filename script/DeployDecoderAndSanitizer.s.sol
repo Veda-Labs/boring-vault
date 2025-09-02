@@ -1,4 +1,7 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: SEL-1.0
+// Copyright © 2025 Veda Tech Labs
+// Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
+// Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
 import {ChainValues} from "test/resources/ChainValues.sol";
@@ -31,8 +34,7 @@ import {LombardBtcDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Lomb
 import {StakedSonicUSDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/StakedSonicUSDDecoderAndSanitizer.sol";
 import {TestVaultDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TestVaultDecoderAndSanitizer.sol";
 import {LiquidBeraEthDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidBeraEthDecoderAndSanitizer.sol";
-import {SonicIncentivesHandlerDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/SonicIncentivesHandlerDecoderAndSanitizer.sol";
+import {SonicIncentivesHandlerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SonicIncentivesHandlerDecoderAndSanitizer.sol";
 import {AaveV3FullDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/AaveV3FullDecoderAndSanitizer.sol";
 import {EtherFiBtcDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EtherFiBtcDecoderAndSanitizer.sol";
 import {SymbioticLRTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SymbioticLRTDecoderAndSanitizer.sol";
@@ -40,8 +42,7 @@ import {SonicLBTCvSonicDecoderAndSanitizer} from "src/base/DecodersAndSanitizers
 import {eBTCBerachainDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/eBTCBerachainDecoderAndSanitizer.sol";
 import {SonicBTCDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SonicBTCDecoderAndSanitizer.sol";
 import {BerachainDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BerachainDecoderAndSanitizer.sol";
-import {PrimeLiquidBeraBtcDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/PrimeLiquidBeraBtcDecoderAndSanitizer.sol";
+import {PrimeLiquidBeraBtcDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/PrimeLiquidBeraBtcDecoderAndSanitizer.sol";
 import {StakedSonicDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/StakedSonicDecoderAndSanitizer.sol";
 import {HybridBtcBobDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/HybridBtcBobDecoderAndSanitizer.sol";
 import {HybridBtcDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/HybridBtcDecoderAndSanitizer.sol";
@@ -59,11 +60,9 @@ import {TacLBTCvDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacLBT
 import {sBTCNDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/sBTCNDecoderAndSanitizer.sol";
 import {CamelotFullDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/CamelotFullDecoderAndSanitizer.sol";
 import {EtherFiEigenDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EtherFiEigenDecoderAndSanitizer.sol";
-import {UnichainEtherFiLiquidEthDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/UnichainEtherFiLiquidEthDecoderAndSanitizer.sol";
+import {UnichainEtherFiLiquidEthDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/UnichainEtherFiLiquidEthDecoderAndSanitizer.sol";
 import {LiquidBeraDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidBeraDecoderAndSanitizer.sol";
-import {LiquidBeraEthBerachainDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/LiquidBeraEthBerachainDecoderAndSanitizer.sol";
+import {LiquidBeraEthBerachainDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidBeraEthBerachainDecoderAndSanitizer.sol";
 import {LiquidUSDFlareDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidUSDFlareDecoderAndSanitizer.sol";
 import {AlphaSTETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/AlphaSTETHDecoderAndSanitizer.sol";
 import {RoycoUSDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/RoycoUSDDecoderAndSanitizer.sol";
@@ -78,7 +77,6 @@ import {SonicEthMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers
 import {GoldenGooseUnichainDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/GoldenGooseUnichainDecoderAndSanitizer.sol";
 import {LevelDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LevelDecoderAndSanitizer.sol";
-
 import {RoycoUSDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/RoycoUSDDecoderAndSanitizer.sol";
 import {RoycoUSDPlumeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/RoycoUSDPlumeDecoderAndSanitizer.sol";
 import {BoringDrone} from "src/base/Drones/BoringDrone.sol";
@@ -88,25 +86,46 @@ import {PrimeGoldenGooseDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/PrimeGoldenGooseDecoderAndSanitizer.sol";
 import {GoldenGooseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseDecoderAndSanitizer.sol";
 import {KatanaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/KatanaDecoderAndSanitizer.sol";
+import {EthMainnetTacDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EthMainnetTacDecoderAndSanitizer.sol";
+import {TacDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacUSDTacDecoderAndSanitizer.sol";
+import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol";
+import {UniswapV3SwapRouter02DecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/UniswapV3SwapRouter02DecoderAndSanitizer.sol";
+import {ConvexFXDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ConvexFXDecoderAndSanitizer.sol";
+import {DolomiteDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/DolomiteDecoderAndSanitizer.sol";
+import {DvStETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/DvStETHDecoderAndSanitizer.sol";
+import {PancakeSwapV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/PancakeSwapV3DecoderAndSanitizer.sol";
+import {RoycoWeirollDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/RoycoDecoderAndSanitizer.sol";
+import {UniswapV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV3DecoderAndSanitizer.sol";
+import {UniswapV4DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV4DecoderAndSanitizer.sol";
+import {VelodromeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/VelodromeDecoderAndSanitizer.sol";
+import {AtomicQueueDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AtomicQueueDecoderAndSanitizer.sol";
+import {KHypeHyperEVMDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/KHypeHyperEVMDecoderAndSanitizer.sol";
+import {TacETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacETHDecoderAndSanitizer.sol";
+
+
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
 
 /**
- *  source .env && forge script script/DeployDecoderAndSanitizer.s.sol:DeployDecoderAndSanitizerScript --broadcast --etherscan-api-key $ETHERSCAN_API_KEY --verify --verifier-url 'https://api.routescan.io/v2/network/mainnet/evm/21000000/etherscan'
+ *  source .env && forge script script/DeployDecoderAndSanitizer.s.sol:DeployDecoderAndSanitizerScript --broadcast --etherscan-api-key $ETHERSCAN_API_KEY
+ */
+/** *   --verify --verifier-url 'https://api.routescan.io/v2/network/mainnet/evm/21000000/etherscan'
  * @dev Optionally can change `--with-gas-price` to something more reasonable
  * @dev For Unichain verification, use appropriate block explorer when available
  */
 contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
     uint256 public privateKey;
     Deployer public deployer = Deployer(deployerAddress);
-    //Deployer public bobDeployer = Deployer(0xF3d0672a91Fd56C9ef04C79ec67d60c34c6148a0);
+    Deployer public bobDeployer = Deployer(0xF3d0672a91Fd56C9ef04C79ec67d60c34c6148a0);
+
+    string[] addressKeys;
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        // Use the RPC URL directly instead of alias
-        vm.createSelectFork(vm.envString("KATANA_RPC_URL"));
-        setSourceChainName("katana"); 
+        vm.createSelectFork("mainnet");
+        setSourceChainName("mainnet"); 
 
     }
 
@@ -115,25 +134,125 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        address odosRouter = address(1);
+        creationCode = type(LombardBtcDecoderAndSanitizer).creationCode;
+        addressKeys = ["uniswapV3NonFungiblePositionManager", "convexFXPoolRegistry", "odosRouterV2"];
+        deployContract("Lombard BTC Decoder And Sanitizer v0.5", creationCode, 0);
+
         creationCode = type(KatanaDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(odosRouter);
+        addressKeys = ["uniswapV3NonFungiblePositionManager"];
+        deployContract("Katana Decoder And Sanitizer V0.8", creationCode, 0);
 
-        deployer.deployContract("Katana Decoder And Sanitizer v0.0", creationCode, constructorArgs, 0);
-
-        creationCode = type(HybridBtcDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
-        deployer.deployContract("Hybrid BTC Decoder And Sanitizer V0.1", creationCode, constructorArgs, 0);
-
-        address uniswapV4PositionManager = getAddress(sourceChain, "uniV4PositionManager");
-        address uniswapV3NonFungiblePositionManager = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager");
-        address odosRouterV2 = getAddress(sourceChain, "odosRouterV2");
-        address dvStETHVault = getAddress(sourceChain, "dvStETHVault");
         creationCode = type(GoldenGooseDecoderAndSanitizer).creationCode;
-        constructorArgs =
-            abi.encode(uniswapV4PositionManager, uniswapV3NonFungiblePositionManager, odosRouterV2, dvStETHVault);
-        deployer.deployContract("Golden Goose Decoder And Sanitizer v0.4", creationCode, constructorArgs, 0);
+        addressKeys = ["uniV4PositionManager", "uniswapV3NonFungiblePositionManager", "odosRouterV2", "dvStETHVault"];
+        deployContract("Golden Goose Decoder And Sanitizer v0.4", creationCode, 0);
+
+        // Deploy ConvexFXDecoderAndSanitizer
+        creationCode = type(ConvexFXDecoderAndSanitizer).creationCode;
+        addressKeys = ["convexFXPoolRegistry"];
+        deployContract("Convex FX Decoder and Sanitizer V0.0", creationCode, 0);
+
+        // Deploy DolomiteDecoderAndSanitizer
+        creationCode = type(DolomiteDecoderAndSanitizer).creationCode;
+        addressKeys = ["dolomiteMargin"];
+        deployContract("Dolomite Decoder and Sanitizer V0.0", creationCode, 0);
+
+        // Deploy DvStETHDecoderAndSanitizer
+        creationCode = type(DvStETHDecoderAndSanitizer).creationCode;
+        addressKeys = ["dvStETHVault"];
+        deployContract("Dv St ETH Decoder and Sanitizer V0.1", creationCode, 0);
+
+        // Deploy OdosDecoderAndSanitizer
+        creationCode = type(OdosDecoderAndSanitizer).creationCode;
+        addressKeys = ["odosRouterV2"];
+        deployContract("Odos Decoder and Sanitizer V0.0", creationCode, 0);
+
+        // Deploy PancakeSwapV3DecoderAndSanitizer
+        creationCode = type(PancakeSwapV3DecoderAndSanitizer).creationCode;
+        addressKeys = ["pancakeSwapV3NonFungiblePositionManager", "pancakeSwapV3MasterChefV3"];
+        deployContract("Pancake Swap V3 Decoder and Sanitizer V0.0", creationCode, 0);
+
+        // Deploy RoycoWeirollDecoderAndSanitizer
+        creationCode = type(RoycoWeirollDecoderAndSanitizer).creationCode;
+        addressKeys = ["recipeMarketHub"];
+        deployContract("Royco Decoder and Sanitizer V0.1", creationCode, 0);
+
+        // Deploy UniswapV3DecoderAndSanitizer
+        creationCode = type(UniswapV3DecoderAndSanitizer).creationCode;
+        addressKeys = ["uniswapV3NonFungiblePositionManager"];
+        deployContract("Uniswap V3 Decoder and Sanitizer V0.0", creationCode, 0);
+
+        // Deploy UniswapV3SwapRouter02DecoderAndSanitizer
+        creationCode = type(UniswapV3SwapRouter02DecoderAndSanitizer).creationCode;
+        addressKeys = ["uniswapV3NonFungiblePositionManager"];
+        deployContract("Uniswap V3 Swap Router02 Decoder and Sanitizer V0.1", creationCode, 0);
+
+        // Deploy UniswapV4DecoderAndSanitizer
+        creationCode = type(UniswapV4DecoderAndSanitizer).creationCode;
+        addressKeys = ["uniV4PositionManager"];
+        deployContract("Uniswap V4 Decoder and Sanitizer V0.1", creationCode, 0);
+
+        // Deploy VelodromeDecoderAndSanitizer
+        creationCode = type(VelodromeDecoderAndSanitizer).creationCode;
+        addressKeys = ["velodromeNonFungiblePositionManager"];
+        deployContract("Velodrome Decoder and Sanitizer V0.0", creationCode, 0);
+
+        // Deploy AtomicQueueDecoderAndSanitizer
+        creationCode = type(AtomicQueueDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(0.9e4, 1.1e4);
+        deployer.deployContract("Atomic Queue Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        //creationCode = type(TacDecoderAndSanitizer).creationCode;
+        //creationCode = type(LombardBtcDecoderAndSanitizer).creationCode;
+        //constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "convexFXPoolRegistry"), getAddress(sourceChain, "odosRouterV2"));
+        //deployer.deployContract("Lombard BTC Decoder And Sanitizer v0.5", creationCode, constructorArgs, 0);
+
+        //creationCode = type().creationCode;
+        //constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
+        //deployer.deployContract("Katana Decoder And Sanitizer V0.6", creationCode, constructorArgs, 0);
+
+        //creationCode = type(TacETHDecoderAndSanitizer).creationCode;
+        //constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouter"));
+        //deployer.deployContract("TAC ETH Decoder And Sanitizer v0.0", creationCode, constructorArgs, 0);
+
+        //creationCode = type(KHypeHyperEVMDecoderAndSanitizer).creationCode;
+        //constructorArgs = abi.encode();
+        //deployer.deployContract("KHype HyperEVM Decoder And Sanitizer V0.3", creationCode, constructorArgs, 0);
+
+        //address uniswapV4PositionManager = getAddress(sourceChain, "uniV4PositionManager");
+        //address uniswapV3NonFungiblePositionManager = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager");
+        //address odosRouterV2 = getAddress(sourceChain, "odosRouterV2");
+        //address dvStETHVault = getAddress(sourceChain, "dvStETHVault");
+        //creationCode = type(GoldenGooseDecoderAndSanitizer).creationCode;
+        //constructorArgs =
+        //    abi.encode(uniswapV4PositionManager, uniswapV3NonFungiblePositionManager, odosRouterV2, dvStETHVault);
+        //deployer.deployContract("Golden Goose Decoder And Sanitizer v0.4", creationCode, constructorArgs, 0);
+
+        //creationCode = type(TacTONDecoderAndSanitizer).creationCode;
+        //constructorArgs = abi.encode();
+        //deployer.deployContract("TAC Decoder And Sanitizer v0.0", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
+    }
+
+    function deployContract(string memory name, bytes memory creationCode, uint256 value) internal {
+        address _contract = deployer.getAddress(name);
+        if (_contract.code.length > 0) {
+            console.log(name, "already deployed at", _contract);
+            return;
+        }
+
+        bytes memory constructorArgs;
+        for (uint256 i = 0; i < addressKeys.length; i++) {
+            if (values[sourceChain][addressKeys[i]] != bytes32(0)) {
+                constructorArgs = abi.encodePacked(constructorArgs, abi.encode(getAddress(sourceChain, addressKeys[i])));
+            } else {
+                console.log(string.concat("Skipping ", name, " because ", addressKeys[i], " is not set"));
+                return;
+            }
+        }
+
+        address deployed = deployer.deployContract(name, creationCode, constructorArgs, value);
+        console.log(unicode"✅", name, "deployed to", deployed);
+        console.logBytes(constructorArgs);
     }
 }

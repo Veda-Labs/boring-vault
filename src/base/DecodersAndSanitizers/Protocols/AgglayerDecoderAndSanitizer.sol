@@ -1,4 +1,7 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: SEL-1.0
+// Copyright © 2025 Veda Tech Labs
+// Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
+// Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
@@ -47,10 +50,9 @@ contract AgglayerDecoderAndSanitizer {
         uint32 destinationNetwork,
         address destinationAddress,
         bool, /*forceUpdateGlobalExitRoot*/
-        bytes calldata metadata
+        bytes calldata /*metadata*/
     ) external pure virtual returns (bytes memory addressesFound) {
-        (address token, /*uint256 amount*/ ) = abi.decode(metadata, (address, uint256));
-        addressesFound = abi.encodePacked(address(uint160(destinationNetwork)), destinationAddress, token);
+        addressesFound = abi.encodePacked(address(uint160(destinationNetwork)), destinationAddress);
     }
 
     function bridgeMessageWETH(
@@ -58,10 +60,9 @@ contract AgglayerDecoderAndSanitizer {
         address destinationAddress,
         uint256, /*amountWETH*/
         bool, /*forceUpdateGlobalExitRoot*/
-        bytes calldata metadata
+        bytes calldata /*metadata*/
     ) external pure virtual returns (bytes memory addressesFound) {
-        (address token, /*uint256 amount*/ ) = abi.decode(metadata, (address, uint256));
-        addressesFound = abi.encodePacked(address(uint160(destinationNetwork)), destinationAddress, token);
+        addressesFound = abi.encodePacked(address(uint160(destinationNetwork)), destinationAddress);
     }
 
     function claimMessage(
@@ -75,15 +76,13 @@ contract AgglayerDecoderAndSanitizer {
         uint32 destinationNetwork,
         address destinationAddress,
         uint256, /*amount*/
-        bytes calldata metadata
+        bytes calldata /*metadata*/
     ) external pure virtual returns (bytes memory addressesFound) {
-        (address token, /*uint256 amount*/ ) = abi.decode(metadata, (address, uint256));
         addressesFound = abi.encodePacked(
             address(uint160(originNetwork)),
             originAddress,
             address(uint160(destinationNetwork)),
-            destinationAddress,
-            token
+            destinationAddress
         );
     }
 }

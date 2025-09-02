@@ -1,4 +1,7 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: SEL-1.0
+// Copyright © 2025 Veda Tech Labs
+// Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
+// Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
@@ -15,7 +18,7 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     address public boringVault = 0x5401b8620E5FB570064CA9114fd1e135fd77D57c;
-    address public rawDataDecoderAndSanitizer = 0x89236361206c830Db63752DE04Df5e98a5FeceFA;
+    address public rawDataDecoderAndSanitizer = 0x17D3652758C839baD55cC8775a3FdA03b151C7FC;
     address public managerAddress = 0xcf38e37872748E3b66741A42560672A6cef75e9B;
     address public accountantAddress = 0x28634D0c5edC67CF2450E74deA49B90a4FF93dCE;
 
@@ -230,9 +233,9 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== LBTC CCIP Wrapper ==========================
         // To BnB
-        _addLBTCBridgeLeafs(leafs, 0x0000000000000000000000000000000000000000000000000000000000000038); 
+        _addLBTCBridgeLeafs(leafs, 0x0000000000000000000000000000000000000000000000000000000000000038); //56
         // To Base
-        _addLBTCBridgeLeafs(leafs, 0x0000000000000000000000000000000000000000000000000000000000002105); 
+        _addLBTCBridgeLeafs(leafs, 0x0000000000000000000000000000000000000000000000000000000000002105); //8453
 
         // ========================== Fluid Dex ==========================
         { 
@@ -300,6 +303,7 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
         _addLayerZeroLeafsOldDecoder(
             leafs, getERC20(sourceChain, "LBTC"), getAddress(sourceChain, "LBTCOFTAdapter"), layerZeroCornEndpointId
         );
+
 
         // ========================== Verify ==========================
 

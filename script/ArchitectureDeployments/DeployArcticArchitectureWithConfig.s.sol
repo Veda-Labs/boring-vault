@@ -1,4 +1,7 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: SEL-1.0
+// Copyright © 2025 Veda Tech Labs
+// Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
+// Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
 import {BoringVault, Auth} from "src/base/BoringVault.sol";
@@ -13,8 +16,7 @@ import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthorit
 import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {TellerWithRemediation} from "src/base/Roles/TellerWithRemediation.sol";
 import {
-    ChainlinkCCIPTeller,
-    CrossChainTellerWithGenericBridge
+    ChainlinkCCIPTeller, CrossChainTellerWithGenericBridge
 } from "src/base/Roles/CrossChain/Bridges/CCIP/ChainlinkCCIPTeller.sol";
 import {LayerZeroTeller} from "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTeller.sol";
 import {LayerZeroTellerWithRateLimiting} from "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTellerWithRateLimiting.sol";

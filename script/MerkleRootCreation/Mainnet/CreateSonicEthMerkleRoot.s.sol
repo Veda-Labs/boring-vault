@@ -1,4 +1,7 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: SEL-1.0
+// Copyright © 2025 Veda Tech Labs
+// Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
+// Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
@@ -117,6 +120,18 @@ contract CreateSonicEthMerkleRoot is Script, MerkleTreeHelper {
         // ========================== Gearbox ==========================
         _addGearboxLeafs(leafs, ERC4626(getAddress(sourceChain, "dWETHV3")), getAddress(sourceChain, "sdWETHV3")); 
         _addGearboxLeafs(leafs, ERC4626(getAddress(sourceChain, "dWSTETHV3")), address(0)); //no staking address for wstETH
+
+        // ========================== Euler ==========================
+        {
+        ERC4626[] memory depositVaults = new ERC4626[](1);      
+        depositVaults[0] = ERC4626(getAddress(sourceChain, "evkeWETH-2")); //Prime
+        
+        address[] memory subaccounts = new address[](1); 
+        subaccounts[0] = getAddress(sourceChain, "boringVault"); 
+
+        _addEulerDepositLeafs(leafs,  depositVaults, subaccounts); 
+
+        }
         
         // ========================== Verify & Generate ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

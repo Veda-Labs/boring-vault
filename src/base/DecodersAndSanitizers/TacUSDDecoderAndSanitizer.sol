@@ -1,4 +1,7 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: SEL-1.0
+// Copyright © 2025 Veda Tech Labs
+// Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
+// Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
@@ -10,6 +13,7 @@ import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/
 import {SkyMoneyDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SkyMoneyDecoderAndSanitizer.sol"; 
 import {NativeWrapperDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol"; 
 import {AaveV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AaveV3DecoderAndSanitizer.sol";
+import {OFTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OFTDecoderAndSanitizer.sol"; 
 
 contract TacUSDDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
@@ -20,7 +24,8 @@ contract TacUSDDecoderAndSanitizer is
     OneInchDecoderAndSanitizer,
     OdosDecoderAndSanitizer,
     SkyMoneyDecoderAndSanitizer,
-    AaveV3DecoderAndSanitizer
+    AaveV3DecoderAndSanitizer,
+    OFTDecoderAndSanitizer
 {
     constructor(address _uniswapV3NonFungiblePositionManager, address _odosRouter)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)

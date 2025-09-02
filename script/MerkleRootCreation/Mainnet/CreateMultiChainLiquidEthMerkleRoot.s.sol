@@ -1,4 +1,7 @@
-//SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: SEL-1.0
+// Copyright © 2025 Veda Tech Labs
+// Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
+// Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
@@ -15,11 +18,11 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     address public boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C;
-    address public rawDataDecoderAndSanitizer = 0x95C7D09e431D37B90ACEE59340a8aD2b7542b3F1;
+    address public rawDataDecoderAndSanitizer = 0xfB5f154dcD47CC6d746D72bbcf121C1475fe26f0;
     address public managerAddress = 0x227975088C28DBBb4b421c6d96781a53578f19a8;
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
     address public pancakeSwapDataDecoderAndSanitizer = 0xfdC73Fc6B60e4959b71969165876213918A443Cd;
-    address public scrollBridgeDecoderAndSanitizer = 0xA66a6B289FB5559b7e4ebf598B8e0A97C776c200; 
+    address public scrollBridgeDecoderAndSanitizer = 0xA66a6B289FB5559b7e4ebf598B8e0A97C776c200;
     address public itbDecoderAndSanitizer = 0xEEb53299Cb894968109dfa420D69f0C97c835211;
     address public itbAaveDecoderAndSanitizer = 0x7fA5dbDB1A76d2990Ea0f3c74e520E3fcE94748B;
     address public itbReserveProtocolPositionManager = 0x778aC5d0EE062502fADaa2d300a51dE0869f7995;
@@ -27,6 +30,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
     address public itbAaveLidoPositionManager2 = 0x572F323Aa330B467C356c5a30Bf9A20480F4fD52;
     address public hyperlaneDecoderAndSanitizer = 0xfC823909C7D2Cb8701FE7d6EE74508C57Df1D6dE;
     address public termFinanceDecoderAndSanitizer = 0xF8e9517e7e98D7134E306aD3747A50AC8dC1dbc9;
+    address public kingClaimingDecoderAndSanitizer = 0xd4067b594C6D48990BE42a559C8CfDddad4e8D6F;
 
     address public itbCorkDecoderAndSanitizer = 0x457Cce6Ec3fEb282952a7e50a1Bc727Ca235Eb0a;
 
@@ -159,8 +163,8 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
             // ========================== 1inch ==========================
-            address[] memory assets = new address[](20);
-            SwapKind[] memory kind = new SwapKind[](20);
+            address[] memory assets = new address[](27);
+            SwapKind[] memory kind = new SwapKind[](27);
             assets[0] = getAddress(sourceChain, "WETH");
             kind[0] = SwapKind.BuyAndSell;
             assets[1] = getAddress(sourceChain, "WEETH");
@@ -201,6 +205,20 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             kind[18] = SwapKind.Sell;
             assets[19] = getAddress(sourceChain, "USDT");
             kind[19] = SwapKind.Sell;
+            assets[20] = getAddress(sourceChain, "EIGEN");
+            kind[20] = SwapKind.Sell;
+            assets[21] = getAddress(sourceChain, "ETHFI");
+            kind[21] = SwapKind.Sell;
+            assets[22] = getAddress(sourceChain, "SWELL");
+            kind[22] = SwapKind.Sell;
+            assets[23] = getAddress(sourceChain, "KING");
+            kind[23] = SwapKind.Sell;
+            assets[24] = getAddress(sourceChain, "EETH");
+            kind[24] = SwapKind.BuyAndSell;
+            assets[25] = getAddress(sourceChain, "EUL");
+            kind[25] = SwapKind.Sell;
+            assets[26] = getAddress(sourceChain, "rEUL");
+            kind[26] = SwapKind.Sell;
             _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
 
             _addLeafsFor1InchUniswapV3Swapping(leafs, getAddress(sourceChain, "wstETH_wETH_01"));
@@ -338,9 +356,9 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             address liquidKatanaETHTeller = 0x739A1efFaDDB0b07ef1284598819232df4FD8d16;
             _addTellerLeafs(leafs, liquidKatanaETHTeller, tellerAssets, true, true);
 
-            address liquidKatanaWithdrawQueue = 0x52E523B849c584F86bF460A3cF2962b118Ce2506; 
-            address liquidKatana = 0x69d210d3b60E939BFA6E87cCcC4fAb7e8F44C16B; 
-            _addWithdrawQueueLeafs(leafs, liquidKatanaWithdrawQueue, liquidKatana, tellerAssets);    
+            address liquidKatanaWithdrawQueue = 0x52E523B849c584F86bF460A3cF2962b118Ce2506;
+            address liquidKatana = 0x69d210d3b60E939BFA6E87cCcC4fAb7e8F44C16B;
+            _addWithdrawQueueLeafs(leafs, liquidKatanaWithdrawQueue, liquidKatana, tellerAssets);
         }
 
         {
@@ -355,7 +373,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         }
 
         // ========================== Yearn ==========================
-        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "yKatanaPredepositWETH")));  
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "yKatanaPredepositWETH")));
 
         // ========================== Fluid Dex ==========================
         {
@@ -383,6 +401,17 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
 
             _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
         }
+
+        // ========================== vbVault ==========================
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "vbETH")));
+
+        // ========================== Agglayer ==========================
+        _addAgglayerTokenLeafs(
+            leafs, getAddress(sourceChain, "agglayerBridgeKatana"), getAddress(sourceChain, "vbETH"), 0, 20
+        );
+        _addAgglayerTokenLeafs(
+            leafs, getAddress(sourceChain, "agglayerBridgeKatana"), getAddress(sourceChain, "WEETH"), 0, 20
+        );
 
         // ========================== Term ==========================
         {
@@ -591,15 +620,18 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         }
         // ========================== Scroll Bridge ==========================
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", scrollBridgeDecoderAndSanitizer);
-        ERC20[] memory tokens = new ERC20[](1); 
-        tokens[0] = getERC20(sourceChain, "WETH"); 
-        _addScrollNativeBridgeLeafs(leafs, "scroll", tokens);  
+        ERC20[] memory tokens = new ERC20[](1);
+        tokens[0] = getERC20(sourceChain, "WETH");
+        address[] memory scrollGateways = new address[](1);
+        scrollGateways[0] = getAddress(scroll, "scrollWETHGateway");
+        _addScrollNativeBridgeLeafs(leafs, "scroll", tokens, scrollGateways);
 
         // ========================== Merkl ==========================
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         {
-            ERC20[] memory tokensToClaim = new ERC20[](1);
+            ERC20[] memory tokensToClaim = new ERC20[](2);
             tokensToClaim[0] = getERC20(sourceChain, "UNI");
+            tokensToClaim[1] = getERC20(sourceChain, "rEUL");
             _addMerklLeafs(
                 leafs,
                 getAddress(sourceChain, "merklDistributor"),
@@ -626,6 +658,14 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
                 address(0)
             );
         }
+
+        // ========================== KING Claiming ==========================
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", kingClaimingDecoderAndSanitizer);
+        _addKingRewardsClaimingLeafs(leafs, new address[](0), getAddress(sourceChain, "boringVault"));
+
+        // ========================== Reward Token Unwrapping ==========================
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", getAddress(sourceChain, "rewardTokenUnwrappingDecoder"));
+        _addrEULWrappingLeafs(leafs); //unwrap rEUL for EUL
 
         // ========================== PancakeSwapV3 ==========================
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", pancakeSwapDataDecoderAndSanitizer);
@@ -674,6 +714,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             _addLeafsForHyperlane(leafs, destinationDomain, recipient, asset, hyperlaneWeETHsRouter);
         }
 
+        // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
