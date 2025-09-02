@@ -9,7 +9,8 @@ import "dispatching_BoringVault.spec";
  *
  * Possible consequences: Complete contract takeover, unauthorized fund transfers, malicious contract interactions, privilege escalation
  */
-rule manage_f6e715d0_requires_auth(env e) {
+// gereon: auth is more complicated than AI thinks, and we don't support msg.sig
+rule __manage_f6e715d0_requires_auth(env e) {
     address target;
     bytes data;
     uint256 value;
@@ -37,7 +38,8 @@ rule manage_f6e715d0_requires_auth(env e) {
  *
  * Possible consequences: Gas waste, potential state inconsistencies, unclear contract behavior
  */
-rule manage_f6e715d0_empty_data_reverts(env e) {
+// gereon: I think this is wrong: why is it necessarily a no-op?
+rule __manage_f6e715d0_empty_data_reverts(env e) {
     address target;
     bytes data;
     uint256 value;
@@ -64,6 +66,7 @@ rule manage_f6e715d0_empty_data_reverts(env e) {
  *
  * Possible consequences: Gas waste, failed transactions, potential state corruption
  */
+// gereon: could make sense?
 rule manage_f6e715d0_zero_address_target_reverts(env e) {
     address target;
     bytes data;
@@ -147,7 +150,8 @@ rule manage_f6e715d0_successful_call_returns_data(env e) {
  *
  * Possible consequences: Out-of-bounds array access leading to undefined behavior, incorrect function calls with wrong parameters, or partial execution of intended operations
  */
-rule manage_224d8703_array_length_mismatch(env e) {
+// gereon: this should better hold
+rule __manage_224d8703_array_length_mismatch(env e) {
     address[] targets;
     bytes[] data;
     uint256[] values;
@@ -174,7 +178,8 @@ rule manage_224d8703_array_length_mismatch(env e) {
  *
  * Possible consequences: Wasted gas costs, misleading success status for operations that accomplish nothing, potential confusion in automated systems expecting actual work to be performed
  */
-rule manage_224d8703_empty_arrays(env e) {
+// gereon: not sure, not really necessary
+rule __manage_224d8703_empty_arrays(env e) {
     address[] targets;
     bytes[] data;
     uint256[] values;
@@ -373,7 +378,8 @@ rule manage_224d8703_unauthorized_caller(env e) {
  *
  * Possible consequences: Gas waste, potential for griefing attacks through repeated meaningless calls, and masking of logic errors in calling contracts
  */
-rule enter_39d6ba32_zero_shares_must_revert(env e) {
+// gereon: maybe?
+rule __enter_39d6ba32_zero_shares_must_revert(env e) {
     address from;
     address asset;
     uint256 assetAmount;
@@ -760,7 +766,8 @@ rule exit_18457e61_zero_shares_reverts(env e) {
  *
  * Possible consequences: Permanent loss of assets if transferred to zero address, impossible share burning operations, and potential contract state corruption
  */
-rule exit_18457e61_invalid_addresses_revert(env e) {
+// gereon: no such check, but might be useful
+rule __exit_18457e61_invalid_addresses_revert(env e) {
     address to;
     address asset;
     uint256 assetAmount;
@@ -817,7 +824,8 @@ rule exit_18457e61_insufficient_balance_reverts(env e) {
  *
  * Possible consequences: Unauthorized draining of vault assets, unauthorized share burning, complete loss of access control leading to vault compromise
  */
-rule exit_18457e61_requires_auth(env e) {
+// gereon: auth is more complicated than AI thinks, and we don't support msg.sig
+rule __exit_18457e61_requires_auth(env e) {
     address to;
     address asset;
     uint256 assetAmount;
@@ -882,6 +890,8 @@ rule exit_18457e61_reduces_total_supply(env e) {
     address from;
     uint256 shareAmount;
 
+    requireInvariant(totalSupplyHolds());
+
     // assign all the 'before' variables
     uint256 currentContract_balanceOf_from__before = currentContract.balanceOf[from];
     uint256 currentContract_totalSupply_before = currentContract.totalSupply;
@@ -936,7 +946,8 @@ rule exit_18457e61_other_balances_unchanged(env e) {
  *
  * Possible consequences: Unauthorized hook modification leading to complete bypass of transfer restrictions, potential fund theft, or malicious hook installation
  */
-rule setBeforeTransferHook_8929565f_only_owner_can_call(env e) {
+// gereon: auth is more complicated than AI thinks, and we don't support msg.sig
+rule __setBeforeTransferHook_8929565f_only_owner_can_call(env e) {
     address _hook;
 
     // assign all the 'before' variables
@@ -986,7 +997,8 @@ rule setBeforeTransferHook_8929565f_hook_address_changes(env e) {
  *
  * Possible consequences: Wasted gas on meaningless transactions, potential confusion about whether hook was actually updated, masking of implementation bugs
  */
-rule setBeforeTransferHook_8929565f_same_hook_reverts(env e) {
+// gereon: seems not necessary
+rule __setBeforeTransferHook_8929565f_same_hook_reverts(env e) {
     address _hook;
 
     // assign all the 'before' variables
@@ -1447,6 +1459,8 @@ rule transferFrom_23b872dd_balance_increases_correctly(env e) {
     uint256 amount;
     bool result;
 
+    requireInvariant(totalSupplyHolds());
+
     // assign all the 'before' variables
     uint256 currentContract_balanceOf_from__before = currentContract.balanceOf[from];
     uint256 currentContract_allowance_from__e_msg_sender__before = currentContract.allowance[from][e.msg.sender];
@@ -1471,6 +1485,7 @@ rule transferFrom_23b872dd_balance_increases_correctly(env e) {
  *
  * Possible consequences: Unlimited spending beyond approved amounts and theft of funds
  */
+// gereon: missed allowance == maxuint case
 rule transferFrom_23b872dd_allowance_decreases_correctly(env e) {
     address from;
     address to;
@@ -1478,16 +1493,16 @@ rule transferFrom_23b872dd_allowance_decreases_correctly(env e) {
     bool result;
 
     // assign all the 'before' variables
-    uint256 currentContract_allowance_from__e_msg_sender__before = currentContract.allowance[from][e.msg.sender];
+    uint256 allowance_before = currentContract.allowance[from][e.msg.sender];
 
     // call function under test
     result = transferFrom(e, from, to, amount);
 
     // assign all the 'after' variables
-    uint256 currentContract_allowance_from__e_msg_sender__after = currentContract.allowance[from][e.msg.sender];
+    uint256 allowance_after = currentContract.allowance[from][e.msg.sender];
 
     // verify integrity
-    assert ((((amount > 0) && (e.msg.sender != from)) && (amount <= currentContract_allowance_from__e_msg_sender__before)) => (currentContract_allowance_from__e_msg_sender__after == currentContract_allowance_from__e_msg_sender__before - amount)), "amount > 0 && msg.sender != from && amount <= allowance[from][msg.sender]@before => allowance[from][msg.sender]@after == allowance[from][msg.sender]@before - amount";
+    assert ((((amount > 0) && (e.msg.sender != from)) && (amount <= allowance_before)) => ((allowance_before == max_uint256 && allowance_after == max_uint256) || allowance_after == allowance_before - amount)), "amount > 0 && msg.sender != from && amount <= allowance[from][msg.sender]@before => allowance[from][msg.sender]@after == allowance[from][msg.sender]@before - amount";
 }
 
 /*
@@ -1499,7 +1514,8 @@ rule transferFrom_23b872dd_allowance_decreases_correctly(env e) {
  *
  * Possible consequences: Incorrect allowance accounting and potential blocking of legitimate self-transfers
  */
-rule transferFrom_23b872dd_allowance_unchanged_when_sender_is_from(env e) {
+// gereon: is that so?
+rule __transferFrom_23b872dd_allowance_unchanged_when_sender_is_from(env e) {
     address from;
     address to;
     uint256 amount;
