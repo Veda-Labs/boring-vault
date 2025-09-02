@@ -40,7 +40,7 @@ contract DeployTellerWithYieldStreamingScript is Script, ContractNames, MainnetA
         constructorArgs = abi.encode(msg.sender, boringVault, accountant, WETH);
         TellerWithYieldStreaming teller = TellerWithYieldStreaming(
             deployer.deployContract(
-                "Kraken Test Teller With Yield Streaming 0.0", creationCode, constructorArgs, 0
+                "InkedUSDT Teller With Yield Streaming V0.0", creationCode, constructorArgs, 0
             )
         );
         teller.updateAssetData(USDT, true, true, 0);

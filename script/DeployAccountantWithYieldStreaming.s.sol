@@ -23,6 +23,7 @@ contract DeployAccountantWithYieldStreamingScript is Script, ContractNames, Main
     address public boringVault = 0xA802bccD14F7e78e48FfE0C9cF9AD0273C77D4b0;
     address public payoutAddress = 0x1cdF47387358A1733968df92f7cC14546D9E1047;
     address public USDTsepolia = 0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0;
+    address public tempOwner = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b;
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
@@ -35,10 +36,10 @@ contract DeployAccountantWithYieldStreamingScript is Script, ContractNames, Main
         vm.startBroadcast(privateKey);
 
         creationCode = type(AccountantWithYieldStreaming).creationCode;
-        constructorArgs = abi.encode(msg.sender, boringVault, payoutAddress, 1e6, USDTsepolia, 1.001e4, 0.999e4, 1, 0.1e4, 0.1e4);
+        constructorArgs = abi.encode(tempOwner, boringVault, payoutAddress, 1e6, USDTsepolia, 1.001e4, 0.999e4, 1, 0.1e4, 0.1e4);
         AccountantWithYieldStreaming accountant = AccountantWithYieldStreaming(
             deployer.deployContract(
-                "Kraken Test Accountant With Yield Streaming 0.0", creationCode, constructorArgs, 0
+                "InkedUSDT Accountant With Yield Streaming V0.0", creationCode, constructorArgs, 0
             )
         );
 
