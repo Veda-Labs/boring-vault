@@ -67,7 +67,7 @@ rule __manage_f6e715d0_empty_data_reverts(env e) {
  * Possible consequences: Gas waste, failed transactions, potential state corruption
  */
 // gereon: could make sense?
-rule manage_f6e715d0_zero_address_target_reverts(env e) {
+rule __manage_f6e715d0_zero_address_target_reverts(env e) {
     address target;
     bytes data;
     uint256 value;
@@ -738,7 +738,8 @@ rule enter_39d6ba32_authority_unchanged(env e) {
  *
  * Possible consequences: Gas waste, event spam, potential confusion in off-chain systems tracking vault operations, and violation of the principle that operations should either succeed meaningfully or fail
  */
-rule exit_18457e61_zero_shares_reverts(env e) {
+// gereo: not sure. should it?
+rule __exit_18457e61_zero_shares_reverts(env e) {
     address to;
     address asset;
     uint256 assetAmount;
