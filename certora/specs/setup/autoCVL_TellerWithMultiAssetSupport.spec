@@ -389,7 +389,7 @@ rule updateAssetData_8dfd8ba1_zero_address_allowed(env e) {
     updateAssetData(e, asset, allowDeposits, allowWithdraws, sharePremium);
 
     // assign all the 'after' variables
-    bool currentContract_assetData_0__allowDeposits_after = currentContract.assetData[0].allowDeposits;
+    bool currentContract_assetData_0__allowDeposits_after = currentContract.getAssetData(e, 0).allowDeposits;
 
     // verify integrity
     assert (((sharePremium <= 1000) && (asset == 0)) => (currentContract_assetData_0__allowDeposits_after == allowDeposits)), "sharePremium <= 1000 && asset == address(0) => assetData[address(0)].allowDeposits@after == allowDeposits";
@@ -1948,7 +1948,7 @@ rule allowOperator_1ba9a458_unauthorized_reverts(env e) {
     // assign all the 'before' variables
     address currentContract_owner_before = currentContract.owner;
     address currentContract_authority_before = currentContract.authority;
-    bool currentContract_authority_canCall_e__e_msg_sender__currentContract__to_bytes4_0x1ba9a458___before = currentContract.authority.canCall(e, e.msg.sender, currentContract, to_bytes4(0x1ba9a458));
+    bool currentContract_authority_canCall_e__e_msg_sender__currentContract__to_bytes4_0x1ba9a458___before = currentContract.isAuthorized(e, e.msg.sender, to_bytes4(0x1ba9a458));
 
     // call function under test
     allowOperator@withrevert(e, user);
@@ -1999,7 +1999,7 @@ rule allowOperator_1ba9a458_sets_denyOperator_false(env e) {
     // assign all the 'before' variables
     address currentContract_owner_before = currentContract.owner;
     address currentContract_authority_before = currentContract.authority;
-    bool currentContract_authority_canCall_e__e_msg_sender__currentContract__to_bytes4_0x1ba9a458___before = currentContract.authority.canCall(e, e.msg.sender, currentContract, to_bytes4(0x1ba9a458));
+    bool currentContract_authority_canCall_e__e_msg_sender__currentContract__to_bytes4_0x1ba9a458___before = currentContract.isAuthorized(e, e.msg.sender, to_bytes4(0x1ba9a458));
 
     // call function under test
     allowOperator(e, user);
@@ -2026,7 +2026,7 @@ rule allowOperator_1ba9a458_preserves_other_fields(env e) {
     // assign all the 'before' variables
     address currentContract_owner_before = currentContract.owner;
     address currentContract_authority_before = currentContract.authority;
-    bool currentContract_authority_canCall_e__e_msg_sender__currentContract__to_bytes4_0x1ba9a458___before = currentContract.authority.canCall(e, e.msg.sender, currentContract, to_bytes4(0x1ba9a458));
+    bool currentContract_authority_canCall_e__e_msg_sender__currentContract__to_bytes4_0x1ba9a458___before = currentContract.isAuthorized(e, e.msg.sender, to_bytes4(0x1ba9a458));
     bool currentContract_beforeTransferData_user__denyFrom_before = currentContract.beforeTransferData[user].denyFrom;
     bool currentContract_beforeTransferData_user__denyTo_before = currentContract.beforeTransferData[user].denyTo;
     bool currentContract_beforeTransferData_user__permissionedOperator_before = currentContract.beforeTransferData[user].permissionedOperator;
@@ -2060,7 +2060,7 @@ rule allowOperator_1ba9a458_no_op_reverts(env e) {
     // assign all the 'before' variables
     address currentContract_owner_before = currentContract.owner;
     address currentContract_authority_before = currentContract.authority;
-    bool currentContract_authority_canCall_e__e_msg_sender__currentContract__to_bytes4_0x1ba9a458___before = currentContract.authority.canCall(e, e.msg.sender, currentContract, to_bytes4(0x1ba9a458));
+    bool currentContract_authority_canCall_e__e_msg_sender__currentContract__to_bytes4_0x1ba9a458___before = currentContract.isAuthorized(e, e.msg.sender, to_bytes4(0x1ba9a458));
     bool currentContract_beforeTransferData_user__denyOperator_before = currentContract.beforeTransferData[user].denyOperator;
 
     // call function under test
@@ -3256,6 +3256,7 @@ rule deposit_0efe6a8b_deposit_history_saved(env e) {
  *
  * Possible consequences: Unnecessary gas costs and state bloat from storing unused deposit history
  */
+// gereon: used nonce_after before the call...
 rule deposit_0efe6a8b_no_history_zero_lock(env e) {
     address depositAsset;
     uint256 depositAmount;
@@ -3268,7 +3269,8 @@ rule deposit_0efe6a8b_no_history_zero_lock(env e) {
     bool currentContract_assetData_depositAsset__allowDeposits_before = currentContract.assetData[depositAsset].allowDeposits;
     uint112 currentContract_depositCap_before = currentContract.depositCap;
     uint256 currentContract_vault_totalSupply_e__before = currentContract.vault.totalSupply(e);
-    bytes32 currentContract_publicDepositHistory_assert_uint256_currentContract_depositNonce_after____0____currentContract_depositNonce_after___2___256____2___256______currentContract_depositNonce_after____2___256____before = currentContract.publicDepositHistory[assert_uint256(currentContract_depositNonce_after >= 0 ? (currentContract_depositNonce_after % 2 ^ 256) : 2 ^ 256 - (-(currentContract_depositNonce_after) % 2 ^ 256))];
+    uint64 currentContract_depositNonce_before = currentContract.depositNonce;
+    bytes32 currentContract_publicDepositHistory_assert_uint256_currentContract_depositNonce_after____0____currentContract_depositNonce_after___2___256____2___256______currentContract_depositNonce_after____2___256____before = currentContract.publicDepositHistory[assert_uint256(currentContract_depositNonce_before >= 0 ? (currentContract_depositNonce_before % 2 ^ 256) : 2 ^ 256 - (-(currentContract_depositNonce_before) % 2 ^ 256))];
 
     // call function under test
     shares = deposit(e, depositAsset, depositAmount, minimumMint);
@@ -3892,7 +3894,7 @@ rule depositWithPermit_3d935d9e_share_premium_reduces(env e) {
     bool currentContract_isPaused_before = currentContract.isPaused;
     uint112 currentContract_depositCap_before = currentContract.depositCap;
     uint256 currentContract_vault_totalSupply_e__before = currentContract.vault.totalSupply(e);
-    uint256 currentContract_accountant_getRateInQuoteSafe_e__depositAsset__before = currentContract.accountant.getRateInQuoteSafe(e, depositAsset);
+    uint256 currentContract_accountant_getRateInQuoteSafe_e__depositAsset__before = currentContract.getRateInQuoteSafe(e, depositAsset);
 
     // call function under test
     shares = depositWithPermit(e, depositAsset, depositAmount, minimumMint, deadline, v, r, s);
@@ -3928,7 +3930,7 @@ rule depositWithPermit_3d935d9e_no_premium_exact_shares(env e) {
     bool currentContract_isPaused_before = currentContract.isPaused;
     uint112 currentContract_depositCap_before = currentContract.depositCap;
     uint256 currentContract_vault_totalSupply_e__before = currentContract.vault.totalSupply(e);
-    uint256 currentContract_accountant_getRateInQuoteSafe_e__depositAsset__before = currentContract.accountant.getRateInQuoteSafe(e, depositAsset);
+    uint256 currentContract_accountant_getRateInQuoteSafe_e__depositAsset__before = currentContract.getRateInQuoteSafe(e, depositAsset);
 
     // call function under test
     shares = depositWithPermit(e, depositAsset, depositAmount, minimumMint, deadline, v, r, s);
@@ -4668,7 +4670,7 @@ rule bulkWithdraw_3e64ce99_valid_withdrawal_returns(env e) {
 
     // assign all the 'before' variables
     bool currentContract_assetData_withdrawAsset__allowWithdraws_before = currentContract.assetData[withdrawAsset].allowWithdraws;
-    uint256 currentContract_accountant_getRateInQuoteSafe_e__withdrawAsset__before = currentContract.accountant.getRateInQuoteSafe(e, withdrawAsset);
+    uint256 currentContract_accountant_getRateInQuoteSafe_e__withdrawAsset__before = currentContract.getRateInQuoteSafe(e, withdrawAsset);
 
     // call function under test
     assetsOut = bulkWithdraw(e, withdrawAsset, shareAmount, minimumAssets, to);
