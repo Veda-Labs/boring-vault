@@ -301,6 +301,16 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
                 baseLocalTokens,
                 baseRemoteTokens
             );
+
+            _addLidoStandardBridgeLeafs(
+                leafs,
+                unichain,
+                getAddress(unichain, "crossDomainMessenger"),
+                getAddress(sourceChain, "baseResolvedDelegate"),
+                getAddress(sourceChain, "baseStandardBridge"),
+                getAddress(sourceChain, "basePortal")
+            );
+
         }
         
         // Optimism Bridge addition
@@ -321,6 +331,15 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
                 getAddress(sourceChain, "optimismPortal"),
                 opLocalTokens,
                 opRemoteTokens
+            );
+
+            _addLidoStandardBridgeLeafs(
+                leafs,
+                unichain,
+                getAddress(unichain, "crossDomainMessenger"),
+                getAddress(sourceChain, "optimismResolvedDelegate"),
+                getAddress(sourceChain, "optimismStandardBridge"),
+                getAddress(sourceChain, "optimismPortal")
             );
         }
         
