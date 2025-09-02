@@ -357,6 +357,16 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             20  // Katana chain ID in Agglayer
         );
 
+        // ========================== Layer Zero ==========================
+        // to Base
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "WEETH"),
+            getAddress(sourceChain, "WEETH"),
+            layerZeroBaseEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+
         // ========================== Verify & Generate ==========================
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

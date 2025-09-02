@@ -127,8 +127,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("mainnet");
-        setSourceChainName("mainnet"); 
+        vm.createSelectFork("base");
+        setSourceChainName("base"); 
 
     }
 
@@ -137,12 +137,10 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(GoldenGooseDecoderAndSanitizer).creationCode;
+        creationCode = type(GoldenGooseBaseDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(
-            getAddress(sourceChain, "uniV4PositionManager"), 
-            getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), 
-            getAddress(sourceChain, "odosRouterV2"), 
-            getAddress(sourceChain, "dvStETHVault")
+            getAddress(sourceChain, "aerodromeNonFungiblePositionManager"),
+            getAddress(sourceChain, "odosRouterV2") 
         ); 
         deployer.deployContract("Golden Goose Decoder And Sanitizer V0.6", creationCode, constructorArgs, 0);
 

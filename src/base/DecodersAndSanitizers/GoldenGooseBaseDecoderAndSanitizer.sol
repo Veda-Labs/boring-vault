@@ -15,6 +15,7 @@ import {OneInchDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protoco
 import {StandardBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/StandardBridgeDecoderAndSanitizer.sol";
 import {OFTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OFTDecoderAndSanitizer.sol";
 import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
+import {LidoStandardBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LidoStandardBridgeDecoderAndSanitizer.sol";
 
 contract GoldenGooseBaseDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
@@ -26,7 +27,8 @@ contract GoldenGooseBaseDecoderAndSanitizer is
     OdosDecoderAndSanitizer,
     OneInchDecoderAndSanitizer,
     StandardBridgeDecoderAndSanitizer,
-    OFTDecoderAndSanitizer
+    OFTDecoderAndSanitizer,
+    LidoStandardBridgeDecoderAndSanitizer
 {
     constructor(
         address _aerodromeNonFungiblePositionManager,
@@ -89,7 +91,31 @@ contract GoldenGooseBaseDecoderAndSanitizer is
     }
 
     /**
-     * @notice StandardBridgeDecoderAndSanitizer specifies various bridge functions
-     * that need to be exposed for Base chain bridging
+     * @notice StandardBridge and LidoStandardBridge both specify finalizeWithdrawalTransaction
      */
+    function finalizeWithdrawalTransaction(DecoderCustomTypes.WithdrawalTransaction calldata _tx)
+        external
+        pure
+        override(StandardBridgeDecoderAndSanitizer, LidoStandardBridgeDecoderAndSanitizer)
+        returns (bytes memory sensitiveArguments)
+    {
+        sensitiveArguments = abi.encodePacked(_tx.sender, _tx.target);
+    }
+
+    /**
+     * @notice StandardBridge and LidoStandardBridge both specify proveWithdrawalTransaction
+     */
+    function proveWithdrawalTransaction(
+        DecoderCustomTypes.WithdrawalTransaction calldata _tx,
+        uint256, /*_l2OutputIndex*/
+        DecoderCustomTypes.OutputRootProof calldata, /*_outputRootProof*/
+        bytes[] calldata /*_withdrawalProof*/
+    )
+        external
+        pure
+        override(StandardBridgeDecoderAndSanitizer, LidoStandardBridgeDecoderAndSanitizer)
+        returns (bytes memory sensitiveArguments)
+    {
+        sensitiveArguments = abi.encodePacked(_tx.sender, _tx.target);
+    }
 }

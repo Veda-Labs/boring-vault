@@ -23,7 +23,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0xef417FCE1883c6653E7dC6AF7c6F85CCDE84Aa09;
     address public managerAddress = 0x5F341B1cf8C5949d6bE144A725c22383a5D3880B;
     address public accountantAddress = 0xc873F2b7b3BA0a7faA2B56e210E3B965f2b618f5;
-    address public rawDataDecoderAndSanitizer = 0x6631b3ae15Dc2b2A5a76456Fd1eb772fF1b8346D;
+    address public rawDataDecoderAndSanitizer = 0xE2Fc8A38FA3B9a57E538fBed7101D0E059F82D7B;
     address public goldenGooseTeller = 0xE89fAaf3968ACa5dCB054D4a9287E54aa84F67e9;
 
     function setUp() external {}
@@ -75,6 +75,16 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
                 localTokens,
                 remoteTokens
             );
+
+            _addLidoStandardBridgeLeafs(
+                leafs,
+                mainnet,
+                address(0),
+                address(0),
+                getAddress(sourceChain, "standardBridge"),
+                address(0)
+            );
+
         }
 
         // ========================== Layer Zero / Stargate ==========================
