@@ -137,118 +137,14 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        // creationCode = type(LombardBtcDecoderAndSanitizer).creationCode;
-        // addressKeys = ["uniswapV3NonFungiblePositionManager", "convexFXPoolRegistry", "odosRouterV2"];
-        // deployContract("Lombard BTC Decoder And Sanitizer v0.5", creationCode, 0);
-
-        // creationCode = type(KatanaDecoderAndSanitizer).creationCode;
-        // addressKeys = ["uniswapV3NonFungiblePositionManager"];
-        // deployContract("Katana Decoder And Sanitizer V0.8", creationCode, 0);
-
-        // Deploy GoldenGooseDecoderAndSanitizer with Arbitrum bridge support
         creationCode = type(GoldenGooseDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(
-            getAddress(sourceChain, "uniV4PositionManager"),
-            getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
-            getAddress(sourceChain, "odosRouterV2"),
+            getAddress(sourceChain, "uniV4PositionManager"), 
+            getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), 
+            getAddress(sourceChain, "odosRouterV2"), 
             getAddress(sourceChain, "dvStETHVault")
-        );
-        deployer.deployContract("Golden Goose Decoder And Sanitizer v0.7", creationCode, constructorArgs, 0);
-
-        // // Deploy ConvexFXDecoderAndSanitizer
-        // creationCode = type(ConvexFXDecoderAndSanitizer).creationCode;
-        // addressKeys = ["convexFXPoolRegistry"];
-        // deployContract("Convex FX Decoder and Sanitizer V0.0", creationCode, 0);
-
-        // // Deploy DolomiteDecoderAndSanitizer
-        // creationCode = type(DolomiteDecoderAndSanitizer).creationCode;
-        // addressKeys = ["dolomiteMargin"];
-        // deployContract("Dolomite Decoder and Sanitizer V0.0", creationCode, 0);
-
-        // // Deploy DvStETHDecoderAndSanitizer
-        // creationCode = type(DvStETHDecoderAndSanitizer).creationCode;
-        // addressKeys = ["dvStETHVault"];
-        // deployContract("Dv St ETH Decoder and Sanitizer V0.1", creationCode, 0);
-
-        // // Deploy OdosDecoderAndSanitizer
-        // creationCode = type(OdosDecoderAndSanitizer).creationCode;
-        // addressKeys = ["odosRouterV2"];
-        // deployContract("Odos Decoder and Sanitizer V0.0", creationCode, 0);
-
-        // // Deploy PancakeSwapV3DecoderAndSanitizer
-        // creationCode = type(PancakeSwapV3DecoderAndSanitizer).creationCode;
-        // addressKeys = ["pancakeSwapV3NonFungiblePositionManager", "pancakeSwapV3MasterChefV3"];
-        // deployContract("Pancake Swap V3 Decoder and Sanitizer V0.0", creationCode, 0);
-
-        // // Deploy RoycoWeirollDecoderAndSanitizer
-        // creationCode = type(RoycoWeirollDecoderAndSanitizer).creationCode;
-        // addressKeys = ["recipeMarketHub"];
-        // deployContract("Royco Decoder and Sanitizer V0.1", creationCode, 0);
-
-        // // Deploy UniswapV3DecoderAndSanitizer
-        // creationCode = type(UniswapV3DecoderAndSanitizer).creationCode;
-        // addressKeys = ["uniswapV3NonFungiblePositionManager"];
-        // deployContract("Uniswap V3 Decoder and Sanitizer V0.0", creationCode, 0);
-
-        // // Deploy UniswapV3SwapRouter02DecoderAndSanitizer
-        // creationCode = type(UniswapV3SwapRouter02DecoderAndSanitizer).creationCode;
-        // addressKeys = ["uniswapV3NonFungiblePositionManager"];
-        // deployContract("Uniswap V3 Swap Router02 Decoder and Sanitizer V0.1", creationCode, 0);
-
-        // // Deploy UniswapV4DecoderAndSanitizer
-        // creationCode = type(UniswapV4DecoderAndSanitizer).creationCode;
-        // addressKeys = ["uniV4PositionManager"];
-        // deployContract("Uniswap V4 Decoder and Sanitizer V0.1", creationCode, 0);
-
-        // // Deploy VelodromeDecoderAndSanitizer
-        // creationCode = type(VelodromeDecoderAndSanitizer).creationCode;
-        // addressKeys = ["velodromeNonFungiblePositionManager"];
-        // deployContract("Velodrome Decoder and Sanitizer V0.0", creationCode, 0);
-
-        // // Deploy AtomicQueueDecoderAndSanitizer
-        // creationCode = type(AtomicQueueDecoderAndSanitizer).creationCode;
-        // constructorArgs = abi.encode(0.9e4, 1.1e4);
-        // deployer.deployContract("Atomic Queue Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        // // Deploy OptimismGoldenGooseDecoderAndSanitizer
-        // creationCode = type(OptimismGoldenGooseDecoderAndSanitizer).creationCode;
-        // constructorArgs = abi.encode(
-        //     getAddress(sourceChain, "velodromeNonFungiblePositionManager"),
-        //     getAddress(sourceChain, "odosRouterV2")
-        // );
-        // console.logBytes(constructorArgs);
-        // deployer.deployContract("Golden Goose Decoder And Sanitizer v0.1", creationCode, constructorArgs, 0);
-
-        //creationCode = type(TacDecoderAndSanitizer).creationCode;
-        //creationCode = type(LombardBtcDecoderAndSanitizer).creationCode;
-        //constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "convexFXPoolRegistry"), getAddress(sourceChain, "odosRouterV2"));
-        //deployer.deployContract("Lombard BTC Decoder And Sanitizer v0.5", creationCode, constructorArgs, 0);
-
-        //creationCode = type().creationCode;
-        //constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
-        //deployer.deployContract("Katana Decoder And Sanitizer V0.6", creationCode, constructorArgs, 0);
-
-        //creationCode = type(TacETHDecoderAndSanitizer).creationCode;
-        //constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouter"));
-        //deployer.deployContract("TAC ETH Decoder And Sanitizer v0.0", creationCode, constructorArgs, 0);
-
-        //creationCode = type(KHypeHyperEVMDecoderAndSanitizer).creationCode;
-        //constructorArgs = abi.encode();
-        //deployer.deployContract("KHype HyperEVM Decoder And Sanitizer V0.3", creationCode, constructorArgs, 0);
-
-        // address uniswapV4PositionManager = getAddress(sourceChain, "uniV4PositionManager");
-        // address uniswapV3NonFungiblePositionManager = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager");
-        // address odosRouterV2 = getAddress(sourceChain, "odosRouterV2");
-        // address dvStETHVault = getAddress(sourceChain, "dvStETHVault");
-        // creationCode = type(GoldenGooseDecoderAndSanitizer).creationCode;
-        // constructorArgs =
-        //    abi.encode(uniswapV4PositionManager, uniswapV3NonFungiblePositionManager, odosRouterV2, dvStETHVault);
-        // console.logBytes(constructorArgs);
-        // deployer.deployContract("Golden Goose Decoder And Sanitizer v0.5", creationCode, constructorArgs, 0);
-
-        //creationCode = type(TacTONDecoderAndSanitizer).creationCode;
-        //constructorArgs = abi.encode();
-        //deployer.deployContract("TAC Decoder And Sanitizer v0.0", creationCode, constructorArgs, 0);
+        ); 
+        deployer.deployContract("Golden Goose Decoder And Sanitizer V0.6", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
