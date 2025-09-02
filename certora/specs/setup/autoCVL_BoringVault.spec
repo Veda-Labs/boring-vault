@@ -1,4 +1,4 @@
-
+import "dispatching_BoringVault.spec";
 
 /*
  * msg.sender != owner@before => revert
