@@ -401,7 +401,8 @@ rule enter_39d6ba32_zero_shares_must_revert(env e) {
  *
  * Possible consequences: Tokens could be permanently lost if minted to zero address, or accounting errors if attempting to transfer from zero address
  */
-rule enter_39d6ba32_invalid_addresses_revert(env e) {
+// gereon: no such check, but might be useful
+rule __enter_39d6ba32_invalid_addresses_revert(env e) {
     address from;
     address asset;
     uint256 assetAmount;
@@ -465,6 +466,8 @@ rule enter_39d6ba32_valid_mint_increases_balance(env e) {
     address to;
     uint256 shareAmount;
 
+    requireInvariant(totalSupplyHolds());
+
     // assign all the 'before' variables
     uint256 balanceOf_e__to__before = balanceOf(e, to);
 
@@ -519,12 +522,15 @@ rule enter_39d6ba32_asset_transfer_when_nonzero(env e) {
  *
  * Possible consequences: Unexpected asset transfers could occur even when assetAmount is zero, breaking the documented behavior
  */
+// gereon: missing requirement on to
 rule enter_39d6ba32_no_asset_transfer_when_zero(env e) {
     address from;
     address asset;
     uint256 assetAmount;
     address to;
     uint256 shareAmount;
+
+    require(to != currentContract);
 
     // assign all the 'before' variables
     uint256 asset_balanceOf_e__currentContract__before = asset.balanceOf(e, currentContract);
