@@ -365,7 +365,7 @@ contract AccountantWithRateProviders is Auth, IRateProvider, IPausable {
      * @dev This function will lose precision if the exchange rate
      *      decimals is greater than the quote's decimals.
      */
-    function getRateInQuote(ERC20 quote) public view returns (uint256 rateInQuote) {
+    function getRateInQuote(ERC20 quote) public virtual view returns (uint256 rateInQuote) {
         if (address(quote) == address(base)) {
             rateInQuote = accountantState.exchangeRate;
         } else {
@@ -387,7 +387,7 @@ contract AccountantWithRateProviders is Auth, IRateProvider, IPausable {
      * @dev `quote` must have its RateProviderData set, else this will revert.
      * @dev Revert if paused.
      */
-    function getRateInQuoteSafe(ERC20 quote) external view returns (uint256 rateInQuote) {
+    function getRateInQuoteSafe(ERC20 quote) external virtual view returns (uint256 rateInQuote) {
         if (accountantState.isPaused) revert AccountantWithRateProviders__Paused();
         rateInQuote = getRateInQuote(quote);
     }

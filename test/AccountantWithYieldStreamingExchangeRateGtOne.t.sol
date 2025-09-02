@@ -115,16 +115,19 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
             STRATEGIST_ROLE, address(accountant), AccountantWithYieldStreaming.vestYield.selector, true
         );
         rolesAuthority.setRoleCapability(
-            STRATEGIST_ROLE, address(accountant), AccountantWithYieldStreaming.vestLoss.selector, true
+            STRATEGIST_ROLE, address(accountant), AccountantWithYieldStreaming.postLoss.selector, true
         );
         rolesAuthority.setRoleCapability(
             STRATEGIST_ROLE, address(accountant), bytes4(keccak256("updateExchangeRate()")), true
+        );
+        rolesAuthority.setRoleCapability(
+            MINTER_ROLE, address(accountant), bytes4(keccak256("updateCumulative()")), true
         );
         rolesAuthority.setPublicCapability(address(teller), TellerWithMultiAssetSupport.deposit.selector, true);
         rolesAuthority.setPublicCapability(
             address(teller), TellerWithMultiAssetSupport.depositWithPermit.selector, true
         );
-        rolesAuthority.setPublicCapability(address(teller), TellerWithYieldStreaming.bulkWithdraw.selector, true);
+        rolesAuthority.setPublicCapability(address(teller), TellerWithYieldStreaming.withdraw.selector, true);
 
         // Allow the boring vault to receive ETH.
         rolesAuthority.setPublicCapability(address(boringVault), bytes4(0), true);
@@ -152,10 +155,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         
     }
 
-
     //test basics
     function testDepositsWithNoYield() external {
-
 
         uint256 WETHAmount = 10e18; 
         deal(address(WETH), address(this), 1_000e18);
