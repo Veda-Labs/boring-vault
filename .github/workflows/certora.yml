@@ -16,6 +16,7 @@ env:
     certora/confs/setup/sanity_GenericRateProvider.conf
     certora/confs/setup/sanity_GenericRateProviderWithDecimalScaling.conf
     certora/confs/setup/sanity_LayerZeroTeller.conf
+    certora/confs/setup/sanity_TellerWithBuffer.conf
     certora/confs/setup/sanity_TellerWithMultiAssetSupport.conf
     certora/confs/setup/scenarioA.conf
     certora/confs/setup/scenarioB.conf
