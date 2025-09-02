@@ -127,8 +127,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("optimism");
-        setSourceChainName("optimism"); 
+        vm.createSelectFork("mainnet");
+        setSourceChainName("mainnet"); 
 
     }
 
@@ -145,9 +145,15 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         // addressKeys = ["uniswapV3NonFungiblePositionManager"];
         // deployContract("Katana Decoder And Sanitizer V0.8", creationCode, 0);
 
-        // creationCode = type(GoldenGooseDecoderAndSanitizer).creationCode;
-        // addressKeys = ["uniV4PositionManager", "uniswapV3NonFungiblePositionManager", "odosRouterV2", "dvStETHVault"];
-        // deployContract("Golden Goose Decoder And Sanitizer v0.4", creationCode, 0);
+        // Deploy GoldenGooseDecoderAndSanitizer with Arbitrum bridge support
+        creationCode = type(GoldenGooseDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(
+            getAddress(sourceChain, "uniV4PositionManager"),
+            getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
+            getAddress(sourceChain, "odosRouterV2"),
+            getAddress(sourceChain, "dvStETHVault")
+        );
+        deployer.deployContract("Golden Goose Decoder And Sanitizer v0.7", creationCode, constructorArgs, 0);
 
         // // Deploy ConvexFXDecoderAndSanitizer
         // creationCode = type(ConvexFXDecoderAndSanitizer).creationCode;
@@ -204,14 +210,14 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         // constructorArgs = abi.encode(0.9e4, 1.1e4);
         // deployer.deployContract("Atomic Queue Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // Deploy GoldenGooseDecoderAndSanitizer
-        creationCode = type(OptimismGoldenGooseDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(
-            getAddress(sourceChain, "velodromeNonFungiblePositionManager"),
-            getAddress(sourceChain, "odosRouterV2")
-        );
-        console.logBytes(constructorArgs);
-        deployer.deployContract("Golden Goose Decoder And Sanitizer v0.1", creationCode, constructorArgs, 0);
+        // // Deploy OptimismGoldenGooseDecoderAndSanitizer
+        // creationCode = type(OptimismGoldenGooseDecoderAndSanitizer).creationCode;
+        // constructorArgs = abi.encode(
+        //     getAddress(sourceChain, "velodromeNonFungiblePositionManager"),
+        //     getAddress(sourceChain, "odosRouterV2")
+        // );
+        // console.logBytes(constructorArgs);
+        // deployer.deployContract("Golden Goose Decoder And Sanitizer v0.1", creationCode, constructorArgs, 0);
 
         //creationCode = type(TacDecoderAndSanitizer).creationCode;
         //creationCode = type(LombardBtcDecoderAndSanitizer).creationCode;

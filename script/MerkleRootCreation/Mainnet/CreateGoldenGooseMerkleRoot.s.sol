@@ -22,7 +22,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0xef417FCE1883c6653E7dC6AF7c6F85CCDE84Aa09;
     address public managerAddress = 0x5F341B1cf8C5949d6bE144A725c22383a5D3880B;
     address public accountantAddress = 0xc873F2b7b3BA0a7faA2B56e210E3B965f2b618f5;
-    address public rawDataDecoderAndSanitizer = 0x1F1eeeDcf9091Cd17d2F9f44A0AedC47B18a0b68;
+    address public rawDataDecoderAndSanitizer = 0xb38CD8aBb9EEF4Ab3b247B8dF01BEB4f5df72DD3;
     address public primeGoldenGooseTeller = 0x4ecC202775678F7bCfF8350894e2F2E3167Cc3Df;
 
     function setUp() external {}
@@ -239,17 +239,15 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         mellowTokens[1] = getAddress(sourceChain, "WSTETH");
         _addDvStETHLeafs(leafs, mellowTokens);
         
-        // rstETH restaking via Symbiotic Vault
-        address[] memory symbioticVaults = new address[](1);
-        symbioticVaults[0] = getAddress(sourceChain, "rstETHRestakingVault");
-        ERC20[] memory symbioticAssets = new ERC20[](1);
-        symbioticAssets[0] = getERC20(sourceChain, "WSTETH");
-        address[] memory symbioticRewards = new address[](0); // No rewards configured
-        _addSymbioticVaultLeafs(leafs, symbioticVaults, symbioticAssets, symbioticRewards);
+        // rstETH restaking via Mellow (Lido restaked ETH)
+        // TODO: Add Mellow rstETH restaking implementation once decoder supports it
+        // This is different from dvstETH and requires specific rstETH handling
         
         // =========================== EtherFi ==========================
         // weETH operations
         _addEtherFiLeafs(leafs);
+        
+        // TODO: EtherFi stETH to eETH restaking needs to be added when decoder is ready
         
         // =========================== Treehouse ==========================
         // tETH vault deposits
@@ -268,9 +266,79 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             );
         }
         
+        // =========================== Gearbox ==========================
+        // TODO: Add Gearbox rstETH/wstETH loop strategy when decoder supports it
+        
         // =========================== Turtle Club ==========================
-        // Katana Pre-deposit vault for WETH
-        // _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "katanaVault"))); // TODO: Add Katana vault address
+        // Katana Pre-deposit vault for WETH - commented out until vault address is available
+        // Note: Turtle Club Katana vault is intentionally commented out pending final address confirmation
+        // _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "katanaVault")));
+
+        // =========================== Additional Bridging ==========================
+        // Arbitrum Bridge
+        {
+            ERC20[] memory arbBridgeAssets = new ERC20[](2);
+            arbBridgeAssets[0] = getERC20(sourceChain, "WETH");
+            arbBridgeAssets[1] = getERC20(sourceChain, "WSTETH");
+            _addArbitrumNativeBridgeLeafs(leafs, arbBridgeAssets);
+        }
+        
+        // Optimism Bridge (using standard bridge which is already configured above)
+        // Base Bridge (using standard bridge pattern)
+        {
+            ERC20[] memory baseLocalTokens = new ERC20[](2);
+            ERC20[] memory baseRemoteTokens = new ERC20[](2);
+            baseLocalTokens[0] = getERC20(sourceChain, "WETH");
+            baseRemoteTokens[0] = getERC20(base, "WETH");
+            baseLocalTokens[1] = getERC20(sourceChain, "WSTETH");
+            baseRemoteTokens[1] = getERC20(base, "WSTETH");
+            
+            _addStandardBridgeLeafs(
+                leafs,
+                base,
+                getAddress(base, "crossDomainMessenger"),
+                getAddress(sourceChain, "baseResolvedDelegate"),
+                getAddress(sourceChain, "baseStandardBridge"),
+                getAddress(sourceChain, "basePortal"),
+                baseLocalTokens,
+                baseRemoteTokens
+            );
+        }
+        
+        // Optimism Bridge addition
+        {
+            ERC20[] memory opLocalTokens = new ERC20[](2);
+            ERC20[] memory opRemoteTokens = new ERC20[](2);
+            opLocalTokens[0] = getERC20(sourceChain, "WETH");
+            opRemoteTokens[0] = getERC20(optimism, "WETH");
+            opLocalTokens[1] = getERC20(sourceChain, "WSTETH");
+            opRemoteTokens[1] = getERC20(optimism, "WSTETH");
+            
+            _addStandardBridgeLeafs(
+                leafs,
+                optimism,
+                getAddress(optimism, "crossDomainMessenger"),
+                getAddress(sourceChain, "optimismResolvedDelegate"),
+                getAddress(sourceChain, "optimismStandardBridge"),
+                getAddress(sourceChain, "optimismPortal"),
+                opLocalTokens,
+                opRemoteTokens
+            );
+        }
+        
+        // vbETH 4626 vault for Agglayer bridging to Katana
+        // Note: vbETH vault address needs to be added to MainnetAddresses.sol
+        // _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "vbETH")));
+        
+        // Agglayer bridging to Katana
+        // Note: Agglayer bridge addresses need to be added to MainnetAddresses.sol
+        _addAgglayerTokenLeafs(
+            leafs,
+            getAddress(sourceChain, "agglayerBridgeKatana"),
+            getAddress(sourceChain, "vbETH"),
+            0,  // Mainnet chain ID in Agglayer
+            20  // Katana chain ID in Agglayer
+        );
 
         // ========================== Verify & Generate ==========================
 
