@@ -47,13 +47,6 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](512);
 
-        // ========================== Teller ==========================
-        // Enable bulkDeposit and bulkWithdraw on Prime Golden Goose vault
-        ERC20[] memory tellerAssets = new ERC20[](2);
-        tellerAssets[0] = getERC20(sourceChain, "WETH");
-        tellerAssets[1] = getERC20(sourceChain, "WSTETH");
-        _addTellerLeafs(leafs, getAddress(sourceChain, "primeGoldenGooseTeller"), tellerAssets, false, true);
-
         // ========================== Rewards ==========================
         ERC20[] memory tokensToClaim = new ERC20[](2);
         tokensToClaim[0] = getERC20(sourceChain, "rEUL");
@@ -274,74 +267,74 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         // =========================== Additional Bridging ==========================
         // Arbitrum Bridge
-        {
-            ERC20[] memory arbBridgeAssets = new ERC20[](2);
-            arbBridgeAssets[0] = getERC20(sourceChain, "WETH");
-            arbBridgeAssets[1] = getERC20(sourceChain, "WSTETH");
-            _addArbitrumNativeBridgeLeafs(leafs, arbBridgeAssets);
-        }
+        // {
+        //     ERC20[] memory arbBridgeAssets = new ERC20[](2);
+        //     arbBridgeAssets[0] = getERC20(sourceChain, "WETH");
+        //     arbBridgeAssets[1] = getERC20(sourceChain, "WSTETH");
+        //     _addArbitrumNativeBridgeLeafs(leafs, arbBridgeAssets);
+        // }
         
         // Optimism Bridge (using standard bridge which is already configured above)
         // Base Bridge (using standard bridge pattern)
-        {
-            ERC20[] memory baseLocalTokens = new ERC20[](2);
-            ERC20[] memory baseRemoteTokens = new ERC20[](2);
-            baseLocalTokens[0] = getERC20(sourceChain, "WETH");
-            baseRemoteTokens[0] = getERC20(base, "WETH");
-            baseLocalTokens[1] = getERC20(sourceChain, "WSTETH");
-            baseRemoteTokens[1] = getERC20(base, "WSTETH");
+        // {
+        //     ERC20[] memory baseLocalTokens = new ERC20[](2);
+        //     ERC20[] memory baseRemoteTokens = new ERC20[](2);
+        //     baseLocalTokens[0] = getERC20(sourceChain, "WETH");
+        //     baseRemoteTokens[0] = getERC20(base, "WETH");
+        //     baseLocalTokens[1] = getERC20(sourceChain, "WSTETH");
+        //     baseRemoteTokens[1] = getERC20(base, "WSTETH");
             
-            _addStandardBridgeLeafs(
-                leafs,
-                base,
-                getAddress(base, "crossDomainMessenger"),
-                getAddress(sourceChain, "baseResolvedDelegate"),
-                getAddress(sourceChain, "baseStandardBridge"),
-                getAddress(sourceChain, "basePortal"),
-                baseLocalTokens,
-                baseRemoteTokens
-            );
+        //     _addStandardBridgeLeafs(
+        //         leafs,
+        //         base,
+        //         getAddress(base, "crossDomainMessenger"),
+        //         getAddress(sourceChain, "baseResolvedDelegate"),
+        //         getAddress(sourceChain, "baseStandardBridge"),
+        //         getAddress(sourceChain, "basePortal"),
+        //         baseLocalTokens,
+        //         baseRemoteTokens
+        //     );
 
-            _addLidoStandardBridgeLeafs(
-                leafs,
-                unichain,
-                getAddress(unichain, "crossDomainMessenger"),
-                getAddress(sourceChain, "baseResolvedDelegate"),
-                getAddress(sourceChain, "baseStandardBridge"),
-                getAddress(sourceChain, "basePortal")
-            );
+        //     _addLidoStandardBridgeLeafs(
+        //         leafs,
+        //         unichain,
+        //         getAddress(unichain, "crossDomainMessenger"),
+        //         getAddress(sourceChain, "baseResolvedDelegate"),
+        //         getAddress(sourceChain, "baseStandardBridge"),
+        //         getAddress(sourceChain, "basePortal")
+        //     );
 
-        }
+        // }
         
         // Optimism Bridge addition
-        {
-            ERC20[] memory opLocalTokens = new ERC20[](2);
-            ERC20[] memory opRemoteTokens = new ERC20[](2);
-            opLocalTokens[0] = getERC20(sourceChain, "WETH");
-            opRemoteTokens[0] = getERC20(optimism, "WETH");
-            opLocalTokens[1] = getERC20(sourceChain, "WSTETH");
-            opRemoteTokens[1] = getERC20(optimism, "WSTETH");
+        // {
+        //     ERC20[] memory opLocalTokens = new ERC20[](2);
+        //     ERC20[] memory opRemoteTokens = new ERC20[](2);
+        //     opLocalTokens[0] = getERC20(sourceChain, "WETH");
+        //     opRemoteTokens[0] = getERC20(optimism, "WETH");
+        //     opLocalTokens[1] = getERC20(sourceChain, "WSTETH");
+        //     opRemoteTokens[1] = getERC20(optimism, "WSTETH");
             
-            _addStandardBridgeLeafs(
-                leafs,
-                optimism,
-                getAddress(optimism, "crossDomainMessenger"),
-                getAddress(sourceChain, "optimismResolvedDelegate"),
-                getAddress(sourceChain, "optimismStandardBridge"),
-                getAddress(sourceChain, "optimismPortal"),
-                opLocalTokens,
-                opRemoteTokens
-            );
+        //     _addStandardBridgeLeafs(
+        //         leafs,
+        //         optimism,
+        //         getAddress(optimism, "crossDomainMessenger"),
+        //         getAddress(sourceChain, "optimismResolvedDelegate"),
+        //         getAddress(sourceChain, "optimismStandardBridge"),
+        //         getAddress(sourceChain, "optimismPortal"),
+        //         opLocalTokens,
+        //         opRemoteTokens
+        //     );
 
-            _addLidoStandardBridgeLeafs(
-                leafs,
-                unichain,
-                getAddress(unichain, "crossDomainMessenger"),
-                getAddress(sourceChain, "optimismResolvedDelegate"),
-                getAddress(sourceChain, "optimismStandardBridge"),
-                getAddress(sourceChain, "optimismPortal")
-            );
-        }
+        //     _addLidoStandardBridgeLeafs(
+        //         leafs,
+        //         unichain,
+        //         getAddress(unichain, "crossDomainMessenger"),
+        //         getAddress(sourceChain, "optimismResolvedDelegate"),
+        //         getAddress(sourceChain, "optimismStandardBridge"),
+        //         getAddress(sourceChain, "optimismPortal")
+        //     );
+        // }
         
         // ========================== vbVault ==========================
         
@@ -349,23 +342,23 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         
         // Agglayer bridging to Katana
         // Note: Agglayer bridge addresses need to be added to MainnetAddresses.sol
-        _addAgglayerTokenLeafs(
-            leafs,
-            getAddress(sourceChain, "agglayerBridgeKatana"),
-            getAddress(sourceChain, "vbETH"),
-            0,  // Mainnet chain ID in Agglayer
-            20  // Katana chain ID in Agglayer
-        );
+        // _addAgglayerTokenLeafs(
+        //     leafs,
+        //     getAddress(sourceChain, "agglayerBridgeKatana"),
+        //     getAddress(sourceChain, "vbETH"),
+        //     0,  // Mainnet chain ID in Agglayer
+        //     20  // Katana chain ID in Agglayer
+        // );
 
         // ========================== Layer Zero ==========================
         // to Base
-        _addLayerZeroLeafs(
-            leafs,
-            getERC20(sourceChain, "WEETH"),
-            getAddress(sourceChain, "WEETH"),
-            layerZeroBaseEndpointId,
-            getBytes32(sourceChain, "boringVault")
-        );
+        // _addLayerZeroLeafs(
+        //     leafs,
+        //     getERC20(sourceChain, "WEETH"),
+        //     getAddress(sourceChain, "WEETH"),
+        //     layerZeroBaseEndpointId,
+        //     getBytes32(sourceChain, "boringVault")
+        // );
 
         // ========================== Verify & Generate ==========================
 
