@@ -147,18 +147,20 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         // =========================== Odos ==========================
         {
-            address[] memory assets = new address[](5);
-            SwapKind[] memory kind = new SwapKind[](5);
+            address[] memory assets = new address[](6);
+            SwapKind[] memory kind = new SwapKind[](6);
             assets[0] = getAddress(sourceChain, "WETH");
             kind[0] = SwapKind.BuyAndSell;
             assets[1] = getAddress(sourceChain, "WSTETH");
             kind[1] = SwapKind.BuyAndSell;
-            assets[2] = getAddress(sourceChain, "UNI");
-            kind[2] = SwapKind.Sell;
-            assets[3] = getAddress(sourceChain, "rEUL");
+            assets[2] = getAddress(sourceChain, "WEETH");
+            kind[2] = SwapKind.BuyAndSell;
+            assets[3] = getAddress(sourceChain, "UNI");
             kind[3] = SwapKind.Sell;
-            assets[4] = getAddress(sourceChain, "EUL");
+            assets[4] = getAddress(sourceChain, "rEUL");
             kind[4] = SwapKind.Sell;
+            assets[5] = getAddress(sourceChain, "EUL");
+            kind[5] = SwapKind.Sell;
 
             _addOdosSwapLeafs(leafs, assets, kind);
 
