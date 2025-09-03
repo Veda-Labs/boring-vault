@@ -329,8 +329,8 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
             _addLidoStandardBridgeLeafs(
                 leafs,
-                base,
-                getAddress(base, "crossDomainMessenger"),
+                optimism,
+                getAddress(optimism, "crossDomainMessenger"),
                 getAddress(sourceChain, "optimismResolvedDelegate"),
                 getAddress(sourceChain, "optimismStandardBridge"),
                 getAddress(sourceChain, "optimismPortal")
