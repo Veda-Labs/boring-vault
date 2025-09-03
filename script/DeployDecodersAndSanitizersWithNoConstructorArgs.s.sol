@@ -180,12 +180,12 @@ contract DeployDecodersAndSanitizersWithNoConstructorArgsScript is
         // Deploy AuraDecoderAndSanitizer
         creationCode = type(AuraDecoderAndSanitizer).creationCode;
         constructorArgs = hex"";
-        deployContract("Aura Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        deployContract("Aura Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
 
         // Deploy BalancerV2DecoderAndSanitizer
         creationCode = type(BalancerV2DecoderAndSanitizer).creationCode;
         constructorArgs = hex"";
-        deployContract("Balancer V2 Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        deployContract("Balancer V2 Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
 
         // Deploy ERC4626DecoderAndSanitizer
         creationCode = type(ERC4626DecoderAndSanitizer).creationCode;
