@@ -85,6 +85,10 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             0x1C81E457d435788C70B7BB71e1eE149f3C6710D3
         );
 
+        // ========================== Balancer Flash Loans ==========================
+        _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "WETH"));
+        _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "WSTETH"));
+
         // ========================== Uniswap V3 ==========================
         // wstETH/WETH pair
         // Pool address: 0x35218a1cbaC5Bbc3E57fd9Bd38219D37571b3537
