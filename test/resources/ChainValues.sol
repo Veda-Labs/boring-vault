@@ -1237,6 +1237,16 @@ contract ChainValues {
         values[mainnet]["lidoBasePortal"] = 0x49048044D57e1C92A77f79988d21Fa8fAF74E97e.toBytes32();
         values[mainnet]["lidoBaseResolvedDelegate"] = 0x866E82a600A1414e583f7F13623F1aC5d58b0Afa.toBytes32();
 
+        // Lido Unichain Standard Bridge.
+        values[mainnet]["lidoUnichainStandardBridge"] = 0x755610f5Be536Ad7afBAa7c10F3E938Ea3aa1877.toBytes32();
+        values[mainnet]["lidoUnichainPortal"] = 0x0bd48f6B86a26D3a217d0Fa6FfE2B491B956A7a2.toBytes32();
+        values[mainnet]["lidoUnichainResolvedDelegate"] = 0x9A3D64E386C18Cb1d6d5179a9596A4B5736e98A6.toBytes32();
+
+        // Lido Optimism Standard Bridge.
+        values[mainnet]["lidoOptimismStandardBridge"] = 0x76943C0D61395d8F2edF9060e1533529cAe05dE6.toBytes32();
+        values[mainnet]["lidoOptismPortal"] = 0xbEb5Fc579115071764c7423A4f12eDde41f106Ed.toBytes32();
+        values[mainnet]["lidoOptimismResolvedDelegate"] = 0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1.toBytes32();
+
         // Bob Standard Bridge
         values[mainnet]["bobStandardBridge"] = 0x3F6cE1b36e5120BBc59D0cFe8A5aC8b6464ac1f7.toBytes32();
         values[mainnet]["bobPortal"] = 0x8AdeE124447435fE03e3CD24dF3f4cAE32E65a3E.toBytes32();
@@ -1787,6 +1797,9 @@ contract ChainValues {
         // Standard Bridge
         values[optimism]["standardBridge"] = 0x4200000000000000000000000000000000000010.toBytes32();
         values[optimism]["crossDomainMessenger"] = 0x4200000000000000000000000000000000000007.toBytes32();
+
+        // Lido Standard Bridge
+        values[optimism]["l2ERC20TokenBridge"] = 0x8E01013243a96601a86eb3153F0d9Fa4fbFb6957.toBytes32();
 
         // Aave V3
         values[optimism]["v3Pool"] = 0x794a61358D6845594F94dc1DB02A252b5b4814aD.toBytes32();
@@ -2568,6 +2581,10 @@ contract ChainValues {
         // Standard Bridge
         values[unichain]["standardBridge"] = 0x4200000000000000000000000000000000000010.toBytes32();
         values[unichain]["crossDomainMessenger"] = 0x4200000000000000000000000000000000000007.toBytes32();
+
+        // Lido Standard Bridge
+        values[unichain]["l2ERC20TokenBridge"] = 0x1A513e9B6434a12C7bB5B9AF3B21963308DEE372.toBytes32();
+
 
         // Uniswap V4
         values[unichain]["uniV4PoolManager"] = 0x1F98400000000000000000000000000000000004.toBytes32();

@@ -60,12 +60,8 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         _addNativeLeafs(leafs);
 
         // ========================== Standard Bridge ==========================
-        ERC20[] memory localTokens = new ERC20[](2);
-        ERC20[] memory remoteTokens = new ERC20[](2);
-        localTokens[0] = getERC20(sourceChain, "WETH");
-        remoteTokens[0] = getERC20(unichain, "WETH");
-        localTokens[1] = getERC20(sourceChain, "WSTETH");
-        remoteTokens[1] = getERC20(unichain, "WSTETH");
+        ERC20[] memory localTokens = new ERC20[](0);
+        ERC20[] memory remoteTokens = new ERC20[](0);
 
         _addStandardBridgeLeafs(
             leafs,
@@ -82,9 +78,9 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             leafs,
             unichain,
             getAddress(unichain, "crossDomainMessenger"),
-            getAddress(sourceChain, "unichainResolvedDelegate"),
-            getAddress(sourceChain, "unichainStandardBridge"),
-            getAddress(sourceChain, "unichainPortal")
+            getAddress(sourceChain, "lidoUnichainResolvedDelegate"),
+            getAddress(sourceChain, "lidoUnichainStandardBridge"),
+            getAddress(sourceChain, "lidoUnichainPortal")
         );
 
         // ========================== Layer Zero ==========================
@@ -279,12 +275,8 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         // Optimism Bridge (using standard bridge which is already configured above)
         // Base Bridge (using standard bridge pattern)
         {
-            ERC20[] memory baseLocalTokens = new ERC20[](2);
-            ERC20[] memory baseRemoteTokens = new ERC20[](2);
-            baseLocalTokens[0] = getERC20(sourceChain, "WETH");
-            baseRemoteTokens[0] = getERC20(base, "WETH");
-            baseLocalTokens[1] = getERC20(sourceChain, "WSTETH");
-            baseRemoteTokens[1] = getERC20(base, "WSTETH");
+            ERC20[] memory baseLocalTokens = new ERC20[](0);
+            ERC20[] memory baseRemoteTokens = new ERC20[](0);
 
             _addStandardBridgeLeafs(
                 leafs,
@@ -301,20 +293,16 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
                 leafs,
                 base,
                 getAddress(base, "crossDomainMessenger"),
-                getAddress(sourceChain, "baseResolvedDelegate"),
-                getAddress(sourceChain, "baseStandardBridge"),
-                getAddress(sourceChain, "basePortal")
+                getAddress(sourceChain, "lidoBaseResolvedDelegate"),
+                getAddress(sourceChain, "lidoBaseStandardBridge"),
+                getAddress(sourceChain, "lidoBasePortal")
             );
         }
 
         // Optimism Bridge addition
         {
-            ERC20[] memory opLocalTokens = new ERC20[](2);
-            ERC20[] memory opRemoteTokens = new ERC20[](2);
-            opLocalTokens[0] = getERC20(sourceChain, "WETH");
-            opRemoteTokens[0] = getERC20(optimism, "WETH");
-            opLocalTokens[1] = getERC20(sourceChain, "WSTETH");
-            opRemoteTokens[1] = getERC20(optimism, "WSTETH");
+            ERC20[] memory opLocalTokens = new ERC20[](0);
+            ERC20[] memory opRemoteTokens = new ERC20[](0);
 
             _addStandardBridgeLeafs(
                 leafs,
@@ -331,9 +319,9 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
                 leafs,
                 optimism,
                 getAddress(optimism, "crossDomainMessenger"),
-                getAddress(sourceChain, "optimismResolvedDelegate"),
-                getAddress(sourceChain, "optimismStandardBridge"),
-                getAddress(sourceChain, "optimismPortal")
+                getAddress(sourceChain, "lidoOptimismResolvedDelegate"),
+                getAddress(sourceChain, "lidoOptimismStandardBridge"),
+                getAddress(sourceChain, "lidoOptimismPortal")
             );
         }
 
