@@ -1244,7 +1244,7 @@ contract ChainValues {
 
         // Lido Optimism Standard Bridge.
         values[mainnet]["lidoOptimismStandardBridge"] = 0x76943C0D61395d8F2edF9060e1533529cAe05dE6.toBytes32();
-        values[mainnet]["lidoOptismPortal"] = 0xbEb5Fc579115071764c7423A4f12eDde41f106Ed.toBytes32();
+        values[mainnet]["lidoOptimismPortal"] = 0xbEb5Fc579115071764c7423A4f12eDde41f106Ed.toBytes32();
         values[mainnet]["lidoOptimismResolvedDelegate"] = 0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1.toBytes32();
 
         // Bob Standard Bridge
