@@ -31,7 +31,8 @@ import {ConvexDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocol
 import {CornStakingDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/CornStakingDecoderAndSanitizer.sol";
 import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
-import {DeriveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/DeriveWithdrawDecoderAndSanitizer.sol";
+import {DeriveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/DeriveDecoderAndSanitizer.sol";
+import {DeriveWithdrawDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/DeriveWithdrawDecoderAndSanitizer.sol";
 import {EigenLayerLSTStakingDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/EigenLayerLSTStakingDecoderAndSanitizer.sol";
 import {ElixirClaimingDecoderAndSanitizer} from
@@ -137,7 +138,6 @@ import {CCTPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/
 import {CompoundV2DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CompoundV2DecoderAndSanitizer.sol";
 import {AvalancheBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AvalancheBridgeDecoderAndSanitizer.sol";
 import {rFLRDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/rFLRDecoderAndSanitizer.sol";
-import {DeriveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/DeriveWithdrawDecoderAndSanitizer.sol";
 import {AgglayerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AgglayerDecoderAndSanitizer.sol";
 import {wSwellUnwrappingDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/wSwellUnwrappingDecoderAndSanitizer.sol";
 import {StakeStoneDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/StakeStoneDecoderAndSanitizer.sol";
@@ -569,7 +569,11 @@ contract DeployDecodersAndSanitizersWithNoConstructorArgsScript is
 
         creationCode = type(DeriveDecoderAndSanitizer).creationCode;
         constructorArgs = hex"";
-        deployContract("Derive Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        deployContract("Derive Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
+
+        creationCode = type(DeriveWithdrawDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Derive Withdraw Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         creationCode = type(AgglayerDecoderAndSanitizer).creationCode;
         constructorArgs = hex"";
