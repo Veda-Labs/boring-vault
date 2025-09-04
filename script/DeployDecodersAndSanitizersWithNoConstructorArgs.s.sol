@@ -146,6 +146,7 @@ import {KinetiqDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protoco
 import {KHypeHyperEVMDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/KHypeHyperEVMDecoderAndSanitizer.sol";
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {SiloVaultDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SiloVaultDecoderAndSanitizer.sol";
+import {MorphoRewardsDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MorphoRewardsDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -402,6 +403,11 @@ contract DeployDecodersAndSanitizersWithNoConstructorArgsScript is
         creationCode = type(MorphoRewardsWrapperDecoderAndSanitizer).creationCode;
         constructorArgs = hex"";
         deployContract("Morpho Rewards Wrapper Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        // Deploy MorphoRewardsDecoderAndSanitizer
+        creationCode = type(MorphoRewardsDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Morpho Rewards Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         // Deploy NativeWrapperDecoderAndSanitizer
         creationCode = type(NativeWrapperDecoderAndSanitizer).creationCode;
