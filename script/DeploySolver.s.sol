@@ -21,16 +21,16 @@ import "forge-std/Test.sol";
 contract DeploySolver is Script, ContractNames, Test {
     uint256 public privateKey;
 
-    Deployer deployer = Deployer(0x00bF0B30655a43Af93c1b371Be021Bd4567c51d5);
+    Deployer deployer = Deployer(0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d);
 
-    address owner = 0x0000000000000000000000000000000000000000;
-    address auth = 0x2B9A752B7407D37A16A089c2A28d39d08EdB108D;
-    address queue = 0x6F226E8a684e8d8b70C938BE2aB3087fFeAFd8EA;
+    address owner = 0x1cdF47387358A1733968df92f7cC14546D9E1047;
+    address auth = 0xecE2222D3ac4b21316b6E5F4208A452BB96A8Cb4;
+    address queue = 0xC07A42fF77694e6530091175643aABDC923FA29b;
     bool excessToSolverNonSelfSolve = true;
 
     function setUp() external {
-        privateKey = vm.envUint("PLASMA_DEPLOYER_KEY");
-        vm.createSelectFork("mainnet");
+        privateKey = vm.envUint("BORING_DEVELOPER");
+        vm.createSelectFork("sepolia");
     }
 
     function run() external {
@@ -41,6 +41,6 @@ contract DeploySolver is Script, ContractNames, Test {
         creationCode = type(BoringSolver).creationCode;
 
         constructorArgs = abi.encode(owner, auth, queue, excessToSolverNonSelfSolve);
-        deployer.deployContract("Plasma USD Vault Boring Solver V0.2", creationCode, constructorArgs, 0);
+        deployer.deployContract("Ink Sepolia Boring Solver 0.1", creationCode, constructorArgs, 0);
     }
 }
