@@ -58,7 +58,7 @@ import {TacETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacETHDe
 import {TacUSDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacUSDDecoderAndSanitizer.sol";
 import {TacLBTCvDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacLBTCvDecoderAndSanitizer.sol";
 import {sBTCNDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/sBTCNDecoderAndSanitizer.sol";
-import {CamelotFullDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/CamelotFullDecoderAndSanitizer.sol";
+import {CamelotDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CamelotDecoderAndSanitizer.sol";
 import {EtherFiEigenDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EtherFiEigenDecoderAndSanitizer.sol";
 import {UnichainEtherFiLiquidEthDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/UnichainEtherFiLiquidEthDecoderAndSanitizer.sol";
 import {LiquidBeraDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidBeraDecoderAndSanitizer.sol";
@@ -123,14 +123,9 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        
-        vm.createSelectFork("katana");
-        setSourceChainName("katana");
 
-        vm.createSelectFork("mainnet");
-        setSourceChainName("mainnet"); 
-
-
+        vm.createSelectFork("arbitrum");
+        setSourceChainName("arbitrum"); 
     }
 
     function run() external {
@@ -201,10 +196,15 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         addressKeys = ["velodromeNonFungiblePositionManager"];
         deployContract("Velodrome Decoder and Sanitizer V0.0", creationCode, 0);
 
-        // Deploy AtomicQueueDecoderAndSanitizer
-        creationCode = type(AtomicQueueDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(0.9e4, 1.1e4);
-        deployer.deployContract("Atomic Queue Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // // Deploy AtomicQueueDecoderAndSanitizer
+        // creationCode = type(AtomicQueueDecoderAndSanitizer).creationCode;
+        // constructorArgs = abi.encode(0.9e4, 1.1e4);
+        // deployer.deployContract("Atomic Queue Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        // Deploy CamelotDecoderAndSanitizer
+        creationCode = type(CamelotDecoderAndSanitizer).creationCode;
+        addressKeys = ["camelotNonFungiblePositionManager"];
+        deployContract("Camelot Decoder and Sanitizer V0.0", creationCode, 0);
 
         //creationCode = type(TacDecoderAndSanitizer).creationCode;
         //creationCode = type(LombardBtcDecoderAndSanitizer).creationCode;
@@ -234,5 +234,27 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //deployer.deployContract("TAC Decoder And Sanitizer v0.0", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
+    }
+
+    function deployContract(string memory name, bytes memory creationCode, uint256 value) internal {
+        address _contract = deployer.getAddress(name);
+        if (_contract.code.length > 0) {
+            console.log(name, "already deployed at", _contract);
+            return;
+        }
+
+        bytes memory constructorArgs;
+        for (uint256 i = 0; i < addressKeys.length; i++) {
+            if (values[sourceChain][addressKeys[i]] != bytes32(0)) {
+                constructorArgs = abi.encodePacked(constructorArgs, abi.encode(getAddress(sourceChain, addressKeys[i])));
+            } else {
+                console.log(string.concat("Skipping ", name, " because ", addressKeys[i], " is not set"));
+                return;
+            }
+        }
+
+        address deployed = deployer.deployContract(name, creationCode, constructorArgs, value);
+        console.log(unicode"✅", name, "deployed to", deployed);
+        console.logBytes(constructorArgs);
     }
 }
