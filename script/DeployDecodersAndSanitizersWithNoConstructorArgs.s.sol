@@ -647,9 +647,9 @@ contract DeployDecodersAndSanitizersWithNoConstructorArgsScript is
         constructorArgs = hex"";
         deployContract("Kinetiq Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        creationCode = type(KHypeHyperEVMDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode();
-        deployContract("KHype HyperEVM Decoder And Sanitizer V0.2", creationCode, constructorArgs, 0);
+        // creationCode = type(KHypeHyperEVMDecoderAndSanitizer).creationCode;
+        // constructorArgs = hex"";
+        // deployContract("KHype HyperEVM Decoder And Sanitizer V0.3", creationCode, constructorArgs, 0);
 
         creationCode = type(BaseDecoderAndSanitizer).creationCode;
         constructorArgs = hex"";
