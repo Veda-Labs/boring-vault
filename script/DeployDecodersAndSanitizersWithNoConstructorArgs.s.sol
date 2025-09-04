@@ -145,6 +145,7 @@ import {TacCrossChainLayerDecoderAndSanitizer} from "src/base/DecodersAndSanitiz
 import {KinetiqDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/KinetiqDecoderAndSanitizer.sol";
 import {KHypeHyperEVMDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/KHypeHyperEVMDecoderAndSanitizer.sol";
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {SiloVaultDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SiloVaultDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -456,6 +457,11 @@ contract DeployDecodersAndSanitizersWithNoConstructorArgsScript is
         creationCode = type(SiloDecoderAndSanitizer).creationCode;
         constructorArgs = hex"";
         deployContract("Silo Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        // Deploy SiloVaultDecoderAndSanitizer
+        creationCode = type(SiloVaultDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Silo Vault Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         // Deploy SkyMoneyDecoderAndSanitizer
         creationCode = type(SkyMoneyDecoderAndSanitizer).creationCode;
