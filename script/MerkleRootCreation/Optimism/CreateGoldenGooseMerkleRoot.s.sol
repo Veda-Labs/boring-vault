@@ -51,18 +51,10 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         _addNativeLeafs(leafs);
         
         // ========================== Standard Bridge ==========================
-        // Bridge WETH and wstETH between Mainnet and Optimism
+        // Bridge ETH and wstETH between Mainnet and Optimism
         {
-            ERC20[] memory localTokens = new ERC20[](2);
-            ERC20[] memory remoteTokens = new ERC20[](2);
-            
-            // WETH bridging
-            localTokens[0] = getERC20(sourceChain, "WETH");
-            remoteTokens[0] = getERC20(mainnet, "WETH");
-            
-            // wstETH bridging
-            localTokens[1] = getERC20(sourceChain, "WSTETH");
-            remoteTokens[1] = getERC20(mainnet, "WSTETH");
+            ERC20[] memory localTokens = new ERC20[](0);
+            ERC20[] memory remoteTokens = new ERC20[](0);
             
             _addStandardBridgeLeafs(
                 leafs,
@@ -81,7 +73,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
                 mainnet,
                 address(0),
                 address(0),
-                getAddress(sourceChain, "standardBridge"),
+                getAddress(sourceChain, "l2ERC20TokenBridge"),
                 address(0)
             );
         }

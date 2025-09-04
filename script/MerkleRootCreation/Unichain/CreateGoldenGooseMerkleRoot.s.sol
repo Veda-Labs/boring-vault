@@ -60,10 +60,9 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         _addNativeLeafs(leafs);
 
         // ========================== Standard Bridge ==========================
-        ERC20[] memory localTokens = new ERC20[](1);
-        ERC20[] memory remoteTokens = new ERC20[](1);
-        localTokens[0] = getERC20(sourceChain, "WETH");
-        remoteTokens[0] = getERC20(mainnet, "WETH");
+        ERC20[] memory localTokens = new ERC20[](0);
+        ERC20[] memory remoteTokens = new ERC20[](0);
+
         _addStandardBridgeLeafs(
             leafs,
             mainnet,
@@ -80,7 +79,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             mainnet,
             address(0),
             address(0),
-            getAddress(sourceChain, "standardBridge"),
+            getAddress(sourceChain, "l2ERC20TokenBridge"),
             address(0)
         );
 
