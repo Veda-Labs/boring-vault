@@ -19,6 +19,8 @@ methods {
     unresolved external in LayerZeroTeller.setDelegate(address)
         => DISPATCH [] default NONDET;
 
+    function _.addExecutorLzReceiveOption(bytes memory, uint128, uint128) internal
+        => CVL_nondetbytes() expect (bytes memory);
 }
 
 function CVL_quote() returns LayerZeroTeller.MessagingFee {
@@ -28,5 +30,10 @@ function CVL_quote() returns LayerZeroTeller.MessagingFee {
 
 function CVL_lzSend() returns LayerZeroTeller.MessagingReceipt {
     LayerZeroTeller.MessagingReceipt res;
+    return res;
+}
+
+function CVL_nondetbytes() returns bytes {
+    bytes res;
     return res;
 }
