@@ -16,7 +16,8 @@ methods {
     ) internal returns (LayerZeroTeller.MessagingReceipt memory)
         => CVL_lzSend();
 
-    function LayerZeroTeller.setDelegate(address) external => NONDET;
+    unresolved external in LayerZeroTeller.setDelegate(address)
+        => DISPATCH [] default NONDET;
 
 }
 
