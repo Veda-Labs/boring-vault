@@ -9,7 +9,6 @@ import {TellerWithBuffer} from "src/base/Roles/TellerWithBuffer.sol";
 import {AaveV3BufferHelper, IBufferHelper} from "src/base/Roles/AaveV3BufferHelper.sol";
 import {IPool} from "src/interfaces/IPool.sol";
 
-
 contract AaveV3BufferLens {
     function getInstantlyWithdrawableAmount(TellerWithBuffer teller, ERC20 asset) public view returns (uint256 withdrawableAmount) {
         (, IBufferHelper withdrawBufferHelper) = teller.currentBufferHelpers(asset);
