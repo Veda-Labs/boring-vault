@@ -898,7 +898,8 @@ rule allowAll_c29d2f10_no_change_to_others(env e) {
  *
  * Possible consequences: Gas griefing attacks where attackers repeatedly call denyFrom on already-denied users to waste gas and clog the network. Also allows for misleading transaction logs that suggest state changes when none occurred
  */
-rule denyFrom_2c524c42_no_op_reverts(env e) {
+// gereon: not sure if this simple function warrants a no-op check
+rule __denyFrom_2c524c42_no_op_reverts(env e) {
     address user;
 
     // assign all the 'before' variables
@@ -1054,7 +1055,8 @@ rule allowFrom_a924bf61_unauthorized_reverts(env e) {
  *
  * Possible consequences: State corruption and wasted gas on meaningless operations that could mask real bugs or create unexpected behavior
  */
-rule allowFrom_a924bf61_zero_address_reverts(env e) {
+// gereon: might be useful, but probably not worth it
+rule __allowFrom_a924bf61_zero_address_reverts(env e) {
     address user;
 
     // assign all the 'before' variables
@@ -1212,7 +1214,8 @@ rule allowFrom_a924bf61_preserves_shareUnlockTime(env e) {
  *
  * Possible consequences: Wasted gas costs and potential masking of logic errors where the caller thinks they're changing state but aren't
  */
-rule allowFrom_a924bf61_no_op_reverts(env e) {
+// gereon: not sure if this simple function warrants a no-op check
+rule __allowFrom_a924bf61_no_op_reverts(env e) {
     address user;
 
     // assign all the 'before' variables
@@ -1456,7 +1459,8 @@ rule denyTo_3b575407_preserves_share_unlock_time(env e) {
  *
  * Possible consequences: Wasted gas costs and potential confusion about whether the operation succeeded in changing state
  */
-rule denyTo_3b575407_no_op_reverts(env e) {
+// gereon: not sure if this simple function warrants a no-op check
+rule __denyTo_3b575407_no_op_reverts(env e) {
     address user;
 
     // assign all the 'before' variables
@@ -1942,6 +1946,7 @@ rule denyOperator_1b62636c_share_unlock_unchanged(env e) {
  *
  * Possible consequences: Unauthorized access control manipulation - attackers could allow themselves or others to bypass operator restrictions, potentially enabling unauthorized transfers of locked shares
  */
+// gereon: the auth mechanism is more complex than the AI thinks
 rule allowOperator_1ba9a458_unauthorized_reverts(env e) {
     address user;
 
@@ -1957,7 +1962,7 @@ rule allowOperator_1ba9a458_unauthorized_reverts(env e) {
     // assign all the 'after' variables
 
     // verify integrity
-    assert (((e.msg.sender != currentContract_owner_before) && ((currentContract_authority_before == 0) || !(currentContract_authority_canCall_e__e_msg_sender__currentContract__to_bytes4_0x1ba9a458___before))) => allowOperator_reverted), "msg.sender != owner@before && (authority@before == address(0) || !authority@before.canCall(msg.sender, address(this), msg.sig)) => revert";
+    assert (((e.msg.sender != currentContract_owner_before) && (!currentContract_authority_canCall_e__e_msg_sender__currentContract__to_bytes4_0x1ba9a458___before)) => allowOperator_reverted), "msg.sender != owner@before && (authority@before == address(0) || !authority@before.canCall(msg.sender, address(this), msg.sig)) => revert";
 }
 
 /*
@@ -2054,7 +2059,8 @@ rule allowOperator_1ba9a458_preserves_other_fields(env e) {
  *
  * Possible consequences: Gas waste and unclear system state - allowing no-op operations makes it harder to detect bugs and wastes gas on meaningless transactions
  */
-rule allowOperator_1ba9a458_no_op_reverts(env e) {
+// gereon: not sure if this simple function warrants a no-op check
+rule __allowOperator_1ba9a458_no_op_reverts(env e) {
     address user;
 
     // assign all the 'before' variables
@@ -2394,7 +2400,8 @@ rule denyPermissionedOperator_bf671384_sets_permissioned_false(env e) {
  *
  * Possible consequences: If this property is violated, the function could succeed when it should fail, leading to confusion about the actual state and potentially masking bugs in calling code
  */
-rule denyPermissionedOperator_bf671384_no_op_reverts(env e) {
+// gereon: not sure if this simple function warrants a no-op check
+rule __denyPermissionedOperator_bf671384_no_op_reverts(env e) {
     address operator;
 
     // assign all the 'before' variables

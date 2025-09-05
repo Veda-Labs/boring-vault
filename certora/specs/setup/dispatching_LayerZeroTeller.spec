@@ -15,6 +15,8 @@ methods {
     ) internal returns (LayerZeroTeller.MessagingReceipt memory)
         => CVL_lzSend();
 
+    function LayerZeroTeller.setDelegate(address) external => NONDET;
+
 }
 
 function CVL_quote() returns LayerZeroTeller.MessagingFee {
