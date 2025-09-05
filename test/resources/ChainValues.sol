@@ -344,6 +344,7 @@ contract ChainValues {
         values[mainnet]["vbWBTC"] = 0x2C24B57e2CCd1f273045Af6A5f632504C432374F.toBytes32();
         values[mainnet]["MF-ONE"] = 0x238a700eD6165261Cf8b2e544ba797BC11e466Ba.toBytes32();
         values[mainnet]["USDtb"] = 0xC139190F447e929f090Edeb554D95AbB8b18aC1C.toBytes32();
+        values[mainnet]["ETHPlus"] = 0xE72B141DF173b999AE7c1aDcbF60Cc9833Ce56a8.toBytes32();
 
 
         // Rate providers
@@ -781,6 +782,7 @@ contract ChainValues {
         // Etherfi
         values[mainnet]["EETH_LIQUIDITY_POOL"] = 0x308861A430be4cce5502d0A12724771Fc6DaF216.toBytes32();
         values[mainnet]["withdrawalRequestNft"] = 0x7d5706f6ef3F89B3951E23e557CDFBC3239D4E2c.toBytes32();
+        values[mainnet]["etherFiVampirePool"] = 0x9FFDF407cDe9a93c47611799DA23924Af3EF764F.toBytes32();
 
         // Renzo
         values[mainnet]["restakeManager"] = 0x74a09653A083691711cF8215a6ab074BB4e99ef5.toBytes32();
@@ -1043,7 +1045,21 @@ contract ChainValues {
 
 
         values[mainnet]["pendle_USDe_market_09_25_25"] = 0x6d98a2b6CDbF44939362a3E99793339Ba2016aF4.toBytes32();
+        values[mainnet]["pendle_USDe_09_25_25_pt"] = 0xBC6736d346a5eBC0dEbc997397912CD9b8FAe10a.toBytes32();
+        values[mainnet]["pendle_USDe_09_25_25_sy"] = 0xf3DbdE762E5B67FaD09d88da3dfD38A83f753FFe.toBytes32();
+
         values[mainnet]["pendle_USDe_market_11_26_25"] = 0x4eaA571EaFCD96f51728756BD7F396459BB9B869.toBytes32();
+        values[mainnet]["pendle_USDe_11_26_25_pt"] = 0x62C6E813b9589C3631Ba0Cdb013acdB8544038B7.toBytes32();
+        values[mainnet]["pendle_USDe_11_26_25_sy"] = 0x925a15bD6A1582fa7c0EbbFc3Dbd29c34f58340e.toBytes32();
+
+        values[mainnet]["pendle_sUSDe_market_09_25_25"] = 0xA36b60A14A1A5247912584768C6e53E1a269a9F7.toBytes32();
+        values[mainnet]["pendle_sUSDe_09_25_25_pt"] = 0x9F56094C450763769BA0EA9Fe2876070c0fD5F77.toBytes32();
+        values[mainnet]["pendle_sUSDe_09_25_25_sy"] = 0xC01cde799245a25e6EabC550b36A47F6F83cc0f1.toBytes32();
+
+
+        values[mainnet]["pendle_sUSDe_market_11_26_25"] = 0xb6aC3d5da138918aC4E84441e924a20daA60dBdd.toBytes32();
+        values[mainnet]["pendle_sUSDe_11_26_25_pt"] = 0xe6A934089BBEe34F832060CE98848359883749B3.toBytes32();
+        values[mainnet]["pendle_sUSDe_11_26_25_sy"] = 0xAbf8165dD7a90ab75878161db15Bf85F6F781d9b.toBytes32();
 
         // Aave V3 Core
         values[mainnet]["v3Pool"] = 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2.toBytes32();
@@ -2792,10 +2808,13 @@ contract ChainValues {
         values[katana]["morphoBlue"] = 0xD50F2DffFd62f94Ee4AEd9ca05C61d0753268aBc.toBytes32(); 
         values[katana]["LBTC_vbWBTC_915"] = 0x60b54e17d55b765955a20908ed5143192a48df7fd3833f7f7fe86504bf6c4c1a; 
         values[katana]["WEETH_vbETH_915"] = 0x1e74d36ffbda65b8a45d72754b349cdd5ce807c5fa814f91ba8e3cd27881c34b;
+        // TODO: Add correct Morpho BTCK market ID (32 bytes)
+        // values[katana]["BTCK_morpho_market"] = 0x...;
 
         // MetaMorpho
         values[katana]["gauntletWBTC"] = 0xf243523996ADbb273F0B237B53f30017C4364bBC.toBytes32(); 
         values[katana]["gauntletWETH"] = 0xC5e7AB07030305fc925175b25B93b285d40dCdFf.toBytes32();
+        values[katana]["gauntletBTCK"] = 0x5BD1D75d45EdB622d0ea50946F2f741CE8dC5b75.toBytes32();
         
 
         // Sushi 

@@ -19,7 +19,7 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x75231079973C23e9eB6180fa3D2fc21334565aB5;
-    address public rawDataDecoderAndSanitizer = 0x635a196D276Ed85eaA9A878D508D497bc740865E;
+    address public rawDataDecoderAndSanitizer = 0x3222c878bFDC72573a39dF711DE2bd530eB45054;
     address public managerAddress = 0x9aC5AEf62eCe812FEfb77a0d1771c9A5ce3D04E4;
     address public accountantAddress = 0x90e864A256E58DBCe034D9C43C3d8F18A00f55B6;
 
@@ -43,6 +43,9 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
         // To Mainnet
         _addLBTCBridgeLeafs(leafs, 0x0000000000000000000000000000000000000000000000000000000000000001);  
 
+        // ========================== BTCk Minter ==========================
+        _addBTCKLeafs(leafs);
+
         // ========================== Fee Claiming ==========================
         ERC20[] memory feeAssets = new ERC20[](1);
         feeAssets[0] = getERC20(sourceChain, "LBTC");
@@ -54,7 +57,10 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "LBTC_vbWBTC_915")); 
 
         // ========================== MetaMorhpo ==========================
-        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletWBTC")));  
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletWBTC")));
+        
+        // BTCK MetaMorpho vault (one-sided lending)
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletBTCK")));  
 
         // ========================== Agglayer ==========================
         _addAgglayerTokenLeafs(
