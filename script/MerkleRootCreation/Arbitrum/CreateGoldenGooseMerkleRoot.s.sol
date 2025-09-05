@@ -21,12 +21,9 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
     address public boringVault = 0xef417FCE1883c6653E7dC6AF7c6F85CCDE84Aa09;
     address public managerAddress = 0x5F341B1cf8C5949d6bE144A725c22383a5D3880B;
-    address public accountantAddress =
-        0xc873F2b7b3BA0a7faA2B56e210E3B965f2b618f5;
-    address public rawDataDecoderAndSanitizer =
-        0xCa82ADD835880df591913c42EE946E2c214d23c5;
-    address public goldenGooseTeller =
-        0xE89fAaf3968ACa5dCB054D4a9287E54aa84F67e9;
+    address public accountantAddress = 0xc873F2b7b3BA0a7faA2B56e210E3B965f2b618f5;
+    address public rawDataDecoderAndSanitizer = 0xCa82ADD835880df591913c42EE946E2c214d23c5;
+    address public goldenGooseTeller = 0xE89fAaf3968ACa5dCB054D4a9287E54aa84F67e9;
 
     function setUp() external {}
 
@@ -45,12 +42,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, arbitrum, "boringVault", boringVault);
         setAddress(false, arbitrum, "managerAddress", managerAddress);
         setAddress(false, arbitrum, "accountantAddress", accountantAddress);
-        setAddress(
-            false,
-            arbitrum,
-            "rawDataDecoderAndSanitizer",
-            rawDataDecoderAndSanitizer
-        );
+        setAddress(false, arbitrum, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         setAddress(false, arbitrum, "goldenGooseTeller", goldenGooseTeller);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](256);
@@ -62,16 +54,16 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         // Bridge WETH, wstETH, and weETH between Mainnet and Arbitrum
         {
             ERC20[] memory bridgeAssets = new ERC20[](3);
-            
+
             // ETH bridging (using WETH)
-            bridgeAssets[0] = getERC20(sourceChain, "WETH");
-            
+            bridgeAssets[0] = getERC20(mainnet, "WETH");
+
             // wstETH bridging
-            bridgeAssets[1] = getERC20(sourceChain, "WSTETH");
-            
+            bridgeAssets[1] = getERC20(mainnet, "WSTETH");
+
             // weETH bridging via native bridge
-            bridgeAssets[2] = getERC20(sourceChain, "weETH");
-            
+            bridgeAssets[2] = getERC20(mainnet, "weETH");
+
             _addArbitrumNativeBridgeLeafs(leafs, bridgeAssets);
         }
 
@@ -149,16 +141,10 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
-        string
-            memory filePath = "./leafs/Arbitrum/GoldenGooseStrategistLeafs.json";
+        string memory filePath = "./leafs/Arbitrum/GoldenGooseStrategistLeafs.json";
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
-        _generateLeafs(
-            filePath,
-            leafs,
-            manageTree[manageTree.length - 1][0],
-            manageTree
-        );
+        _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
     }
 }
