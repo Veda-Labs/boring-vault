@@ -11,9 +11,9 @@ import {IPool} from "src/interfaces/IPool.sol";
 
 
 contract AaveV3BufferLens {
-    function getInstantlyWithdrawableAmount(address teller, ERC20 asset) public view returns (uint256 withdrawableAmount) {
-        (, IBufferHelper withdrawBufferHelper) = TellerWithBuffer(teller).currentBufferHelpers(asset);
-        address vault = address(TellerWithBuffer(teller).vault());
+    function getInstantlyWithdrawableAmount(TellerWithBuffer teller, ERC20 asset) public view returns (uint256 withdrawableAmount) {
+        (, IBufferHelper withdrawBufferHelper) = teller.currentBufferHelpers(asset);
+        address vault = address(teller.vault());
         if (address(withdrawBufferHelper) == address(0)) {
             // If buffer helper is address(0), withdraw buffer is idle ERC20 in the vault
             withdrawableAmount = asset.balanceOf(vault);
