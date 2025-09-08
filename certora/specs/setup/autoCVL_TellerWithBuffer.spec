@@ -1,4 +1,4 @@
-
+import "snippet_Authority.spec";
 
 /*
  * !allowedBufferHelpers[_asset][_depositBufferHelper]@before && _depositBufferHelper != address(0) => revert
