@@ -1,4 +1,4 @@
-
+import "dispatching_TellerWithMultiAssetSupport.spec";
 
 /*
  * isPaused@after == true
