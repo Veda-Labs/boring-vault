@@ -167,7 +167,8 @@ rule setDepositBufferHelper_b4bf379c_other_asset_allowances_unchanged(env e) {
  *
  * Possible consequences: Unauthorized access control bypass, allowing attackers to set malicious buffer helpers that could drain funds or manipulate vault operations
  */
-rule setWithdrawBufferHelper_9428fcd4_unauthorized_reverts(env e) {
+// gereon: once again the auth mechanism is more complex and requires msg.sig
+rule __setWithdrawBufferHelper_9428fcd4_unauthorized_reverts(env e) {
     address _asset;
     address _withdrawBufferHelper;
 
@@ -272,7 +273,8 @@ rule setWithdrawBufferHelper_9428fcd4_preserves_deposit_helper(env e) {
  *
  * Possible consequences: Gas waste, unclear transaction outcomes, potential for griefing attacks through repeated no-op calls
  */
-rule setWithdrawBufferHelper_9428fcd4_no_change_reverts(env e) {
+// gereon: the usual no-op rever check, not sure
+rule __setWithdrawBufferHelper_9428fcd4_no_change_reverts(env e) {
     address _asset;
     address _withdrawBufferHelper;
 
@@ -509,7 +511,8 @@ rule allowBufferHelper_0d1598dd_preserves_current_withdraw_helper(env e) {
  *
  * Possible consequences: Unauthorized access control manipulation, allowing attackers to disable legitimate buffer helpers or enable malicious ones
  */
-rule disallowBufferHelper_b032299c_unauthorized_reverts(env e) {
+// gereon: once again the auth mechanism is more complex and requires msg.sig
+rule __disallowBufferHelper_b032299c_unauthorized_reverts(env e) {
     address _asset;
     address _bufferHelper;
 
@@ -563,7 +566,8 @@ rule disallowBufferHelper_b032299c_disallow_sets_false(env e) {
  *
  * Possible consequences: Gas waste and unclear contract state, making it difficult to determine if operations were successful
  */
-rule disallowBufferHelper_b032299c_already_false_no_op(env e) {
+// gereon: the usual no-op should revert thing
+rule __disallowBufferHelper_b032299c_already_false_no_op(env e) {
     address _asset;
     address _bufferHelper;
 
@@ -589,7 +593,8 @@ rule disallowBufferHelper_b032299c_already_false_no_op(env e) {
  *
  * Possible consequences: Invalid state entries and potential issues with buffer helper logic that expects valid asset addresses
  */
-rule disallowBufferHelper_b032299c_zero_asset_reverts(env e) {
+// gereon: not sure if its worth checking
+rule __disallowBufferHelper_b032299c_zero_asset_reverts(env e) {
     address _asset;
     address _bufferHelper;
 
@@ -614,7 +619,8 @@ rule disallowBufferHelper_b032299c_zero_asset_reverts(env e) {
  *
  * Possible consequences: Meaningless operations and potential confusion about buffer helper states
  */
-rule disallowBufferHelper_b032299c_zero_helper_reverts(env e) {
+// gereon: not sure if its worth checking
+rule __disallowBufferHelper_b032299c_zero_helper_reverts(env e) {
     address _asset;
     address _bufferHelper;
 
