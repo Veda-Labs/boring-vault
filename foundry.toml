@@ -47,6 +47,7 @@ ink = "${INK_RPC_URL}"
 plume = "${PLUME_RPC_URL}"
 katana = "${KATANA_RPC_URL}"
 tac = "${TAC_RPC_URL}"
+plasma = "${PLASMA_RPC_URL}
 
 [etherscan]
 #bob = { key = "${BOBSCAN_KEY}", chain = 60808, url = "https://explorer.gobob.xyz/api?"}

@@ -43,6 +43,7 @@ contract ChainValues {
     string public constant plume = "plume";
     string public constant katana = "katana";
     string public constant tac = "tac";
+    string public constant plasma = "plasma";
 
     // Bridging constants.
     uint64 public constant ccipArbitrumChainSelector = 4949039107694359620;
@@ -74,6 +75,7 @@ contract ChainValues {
     uint32 public constant layerZeroKatanaEndpointId = 30375;
     uint32 public constant layerZeroTACEndpointId = 30377;
     uint32 public constant layerZeroTONEndpointId = 30343;
+    uint32 public constant layerZeroPlasmaEndpointId = 30383;
     error ChainValues__ZeroAddress(string chainName, string valueName);
     error ChainValues__ZeroBytes32(string chainName, string valueName);
     error ChainValues__ValueAlreadySet(string chainName, string valueName);
@@ -136,6 +138,7 @@ contract ChainValues {
         _addPlumeValues();
         _addKatanaValues();
         _addTACValues();
+        _addPlasmaValues();
         // Add testnet values
         _addHoleskyValues();
         _addSepoliaValues();
@@ -2885,4 +2888,59 @@ contract ChainValues {
         values[tac]["zeroLendPool"] = 0x93A40401EB535f786C2Ae44858e1c847d0B56fc7.toBytes32();
         values[tac]["v3RewardsController"] = 0xFCC281D05cfc46953F518F2f32AaCd7b6805Efa4.toBytes32();
     }
+
+    function _addPlasmaValues() private {
+        values[plasma]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        
+        // Factory Contracts
+        values[plasma]["create2Factory"] = 0x4e59b44847b379578588920cA78FbF26c0B4956C.toBytes32();
+        values[plasma]["erc1820Registry"] = 0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24.toBytes32();
+        values[plasma]["eip2470SingletonFactory"] = 0xce0042B868300000d44A59004Da54A005ffdcf9f.toBytes32();
+        values[plasma]["keylessCreate2Factory"] = 0x0000000000FFe8B47B3e2130213B802212439497.toBytes32();
+        
+        // Multicall Contracts
+        values[plasma]["multicall"] = 0xeefBa1e63905eF1D7ACbA5a8513c70307C1cE441.toBytes32();
+        values[plasma]["multicall2"] = 0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696.toBytes32();
+        values[plasma]["multicall3"] = 0xcA11bde05977b3631167028862bE2a173976CA11.toBytes32();
+        
+        // Safe (Gnosis) Contracts
+        values[plasma]["safeSingletonFactory"] = 0x914d7Fec6aaC8cd542e72Bca78B30650d45643d7.toBytes32();
+        values[plasma]["safeL1"] = 0x41675C099F32341bf84BFc5382aF534df5C7461a.toBytes32();
+        values[plasma]["safeL2"] = 0x29fcB43b46531BcA003ddC8FCB67FFE91900C762.toBytes32();
+        values[plasma]["safeProxyFactory"] = 0x4e1DCf7AD4e460CfD30791CCC4F9c8a4f820ec67.toBytes32();
+        values[plasma]["compatibilityFallbackHandler"] = 0xfd0732Dc9E303f09fCEf3a7388Ad10A83459Ec99.toBytes32();
+        values[plasma]["createCall"] = 0x9b35Af71d77eaf8d7e40252370304687390A1A52.toBytes32();
+        values[plasma]["multiSend"] = 0x38869bf66a61cF6bDB996A6aE40D5853Fd43B526.toBytes32();
+        values[plasma]["multiSendCallOnly"] = 0x9641d764fc13c8B624c04430C7356C1C7C8102e2.toBytes32();
+        values[plasma]["signMessageLib"] = 0xd53cd0aB83D845Ac265BE939c57F53AD838012c9.toBytes32();
+        values[plasma]["simulateTxAccessor"] = 0x3d4BA2E0884aa488718476ca2FB8Efc291A46199.toBytes32();
+        values[plasma]["tokenCallbackHandler"] = 0xeDCF620325E82e3B9836eaaeFdc4283E99Dd7562.toBytes32();
+        
+        // Permit2
+        values[plasma]["permit2"] = 0x000000000022D473030F116dDEE9F6B43aC78BA3.toBytes32();
+        
+        // Token
+        values[plasma]["WXPL"] = 0x6100E367285b01F48D07953803A2d8dCA5D19873.toBytes32();
+        
+        // Uniswap V3
+        values[plasma]["uniswapV3NonFungiblePositionManager"] = 0x743E03cceB4af2efA3CC76838f6E8B50B63F184c.toBytes32();
+        values[plasma]["uniV3Router"] = 0x807F4E281B7A3B324825C64ca53c69F0b418dE40.toBytes32();
+        values[plasma]["universalRouter"] = 0x1b35fbA9357fD9bda7ed0429C8BbAbe1e8CC88fc.toBytes32();
+        
+        // Hyperlane (keeping only essential contracts based on mainnet pattern)
+        values[plasma]["hyperlaneMailbox"] = 0x3a464f746D23Ab22155710f44dB16dcA53e0775E.toBytes32();
+        values[plasma]["hyperlaneInterchainGasPaymaster"] = 0x1A41a365A693b6A7aED1a46316097d290f569F22.toBytes32();
+        values[plasma]["hyperlaneInterchainAccountRouter"] = 0x9fE454AA2B01fc7A2a777AE561bc58Ce560CD5a9.toBytes32();
+        
+        // LI.FI
+        values[plasma]["lifi"] = 0x026F252016A7C47CDEf1F05a3Fc9E20C92a49C37.toBytes32();
+        
+        // Glacis
+        values[plasma]["glacisAirlift"] = 0x290D54179960984599F16F77DCDA81320301b158.toBytes32();
+        
+        // LayerZero
+        values[plasma]["layerZeroEndpointV2"] = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B.toBytes32();
+    }
+
+    
 }
