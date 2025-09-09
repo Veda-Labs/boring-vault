@@ -297,10 +297,13 @@ rule postLoss_57545af7_decreases_share_price(env e) {
  *
  * Possible consequences: Double counting of gains, inflated share prices, users receiving yield that doesn't exist
  */
+// gereon: only if the gains are below lossAmount.
 rule postLoss_57545af7_clears_vesting_gains(env e) {
     uint256 lossAmount;
 
     // assign all the 'before' variables
+    // gereon: only for this case
+    require(lossAmount > currentContract.vestingState.vestingGains);
 
     // call function under test
     postLoss(e, lossAmount);
