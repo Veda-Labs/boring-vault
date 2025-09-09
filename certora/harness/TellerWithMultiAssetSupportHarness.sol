@@ -16,4 +16,7 @@ contract TellerWithMultiAssetSupportHarness is TellerWithMultiAssetSupport {
         return assetData[ERC20(asset)];
     }
 
+    function isAuthorizedHarness(address user, bytes4 functionSig) public view returns (bool) {
+        return isAuthorized(user, functionSig);
+    }
 }

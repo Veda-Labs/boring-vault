@@ -1953,7 +1953,7 @@ rule allowOperator_1ba9a458_unauthorized_reverts(env e) {
     // assign all the 'before' variables
     address currentContract_owner_before = currentContract.owner;
     address currentContract_authority_before = currentContract.authority;
-    bool currentContract_authority_canCall_e__e_msg_sender__currentContract__to_bytes4_0x1ba9a458___before = currentContract.isAuthorized(e, e.msg.sender, to_bytes4(0x1ba9a458));
+    bool currentContract_authority_canCall_e__e_msg_sender__currentContract__to_bytes4_0x1ba9a458___before = currentContract.isAuthorizedHarness(e, e.msg.sender, to_bytes4(0x1ba9a458));
 
     // call function under test
     allowOperator@withrevert(e, user);
@@ -2004,7 +2004,7 @@ rule allowOperator_1ba9a458_sets_denyOperator_false(env e) {
     // assign all the 'before' variables
     address currentContract_owner_before = currentContract.owner;
     address currentContract_authority_before = currentContract.authority;
-    bool currentContract_authority_canCall_e__e_msg_sender__currentContract__to_bytes4_0x1ba9a458___before = currentContract.isAuthorized(e, e.msg.sender, to_bytes4(0x1ba9a458));
+    bool currentContract_authority_canCall_e__e_msg_sender__currentContract__to_bytes4_0x1ba9a458___before = currentContract.isAuthorizedHarness(e, e.msg.sender, to_bytes4(0x1ba9a458));
 
     // call function under test
     allowOperator(e, user);
@@ -2031,7 +2031,7 @@ rule allowOperator_1ba9a458_preserves_other_fields(env e) {
     // assign all the 'before' variables
     address currentContract_owner_before = currentContract.owner;
     address currentContract_authority_before = currentContract.authority;
-    bool currentContract_authority_canCall_e__e_msg_sender__currentContract__to_bytes4_0x1ba9a458___before = currentContract.isAuthorized(e, e.msg.sender, to_bytes4(0x1ba9a458));
+    bool currentContract_authority_canCall_e__e_msg_sender__currentContract__to_bytes4_0x1ba9a458___before = currentContract.isAuthorizedHarness(e, e.msg.sender, to_bytes4(0x1ba9a458));
     bool currentContract_beforeTransferData_user__denyFrom_before = currentContract.beforeTransferData[user].denyFrom;
     bool currentContract_beforeTransferData_user__denyTo_before = currentContract.beforeTransferData[user].denyTo;
     bool currentContract_beforeTransferData_user__permissionedOperator_before = currentContract.beforeTransferData[user].permissionedOperator;
@@ -2066,7 +2066,7 @@ rule __allowOperator_1ba9a458_no_op_reverts(env e) {
     // assign all the 'before' variables
     address currentContract_owner_before = currentContract.owner;
     address currentContract_authority_before = currentContract.authority;
-    bool currentContract_authority_canCall_e__e_msg_sender__currentContract__to_bytes4_0x1ba9a458___before = currentContract.isAuthorized(e, e.msg.sender, to_bytes4(0x1ba9a458));
+    bool currentContract_authority_canCall_e__e_msg_sender__currentContract__to_bytes4_0x1ba9a458___before = currentContract.isAuthorizedHarness(e, e.msg.sender, to_bytes4(0x1ba9a458));
     bool currentContract_beforeTransferData_user__denyOperator_before = currentContract.beforeTransferData[user].denyOperator;
 
     // call function under test
