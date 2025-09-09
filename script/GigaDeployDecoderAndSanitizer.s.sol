@@ -1,4 +1,7 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: SEL-1.0
+// Copyright © 2025 Veda Tech Labs
+// Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
+// Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
 import {ChainValues} from "test/resources/ChainValues.sol";
@@ -64,8 +67,8 @@ import {LidoStandardBridgeDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/LidoStandardBridgeDecoderAndSanitizer.sol";
 import {LineaBridgeDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/LineaBridgeDecoderAndSanitizer.sol";
-import {LombardBTCMinterDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/LombardBTCMinterDecoderAndSanitizer.sol";
+// import {LombardBTCMinterDecoderAndSanitizer} from
+//     "src/base/DecodersAndSanitizers/Protocols/LombardBTCMinterDecoderAndSanitizer.sol";
 import {MantleDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MantleDecoderAndSanitizer.sol";
 import {MantleStandardBridgeDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/MantleStandardBridgeDecoderAndSanitizer.sol";
@@ -391,9 +394,9 @@ contract GigaDeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAd
         deployer.deployContract("Linea Bridge Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         // Deploy LombardBTCMinterDecoderAndSanitizer
-        creationCode = type(LombardBTCMinterDecoderAndSanitizer).creationCode;
-        constructorArgs = hex"";
-        deployer.deployContract("Lombard Btc Minter Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // creationCode = type(LombardBTCMinterDecoderAndSanitizer).creationCode;
+        // constructorArgs = hex"";
+        // deployer.deployContract("Lombard Btc Minter Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         // Deploy MantleDecoderAndSanitizer
         creationCode = type(MantleDecoderAndSanitizer).creationCode;

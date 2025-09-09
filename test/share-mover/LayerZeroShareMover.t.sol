@@ -60,10 +60,26 @@ contract LayerZeroShareMoverHelperTest is Test {
         uint256 maxFee = 123 ether;
         bytes memory data = abi.encode(chainId, feeToken, maxFee);
 
-        (uint32 eid, address token, uint256 fee) = harness.exposedDecode(data);
+        (uint32 eid, address token, uint256 fee, uint128 execVal) = harness.exposedDecodeFull(data);
         assertEq(eid, chainId);
         assertEq(token, feeToken);
         assertEq(fee, maxFee);
+        assertEq(execVal, 0);
+    }
+
+    function testDecodeBridgeParamsWithExecutor() external view {
+        uint32 chainId = 555;
+        address feeToken = address(0xBEEF);
+        uint256 maxFee = 42 ether;
+        uint128 execVal = 0.5 ether;
+
+        bytes memory data = abi.encode(chainId, feeToken, maxFee, execVal);
+
+        (uint32 eid, address token, uint256 fee, uint128 ev) = harness.exposedDecodeFull(data);
+        assertEq(eid, chainId);
+        assertEq(token, feeToken);
+        assertEq(fee, maxFee);
+        assertEq(ev, execVal);
     }
 
     function testDecodeBridgeParamsInvalidReverts() external {

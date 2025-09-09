@@ -1,4 +1,7 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: SEL-1.0
+// Copyright © 2025 Veda Tech Labs
+// Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
+// Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
 import {Deployer} from "src/helper/Deployer.sol";
@@ -18,8 +21,8 @@ import "forge-std/Test.sol";
 contract DeployDrone is Script, ContractNames, Test {
     uint256 public privateKey;
     
-    //liquidUSD
-    address boringVault = 0x08c6F91e2B681FaF5e17227F2a44C307b3C1364C; 
+    //liquidETH
+    address boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C; 
     Deployer deployer = Deployer(0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d); 
 
     function setUp() external {
@@ -35,7 +38,7 @@ contract DeployDrone is Script, ContractNames, Test {
 
         creationCode = type(BoringDrone).creationCode;
         constructorArgs = abi.encode(boringVault, 0);
-        deployer.deployContract("liquidUSD Boring Drone 1", creationCode, constructorArgs, 0);
+        deployer.deployContract("liquidETH Boring Drone 1", creationCode, constructorArgs, 0);
     }
 
 }

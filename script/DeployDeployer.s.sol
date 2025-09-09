@@ -1,4 +1,7 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: SEL-1.0
+// Copyright © 2025 Veda Tech Labs
+// Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
+// Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
 import {Deployer} from "src/helper/Deployer.sol";
@@ -22,13 +25,14 @@ contract DeployDeployerScript is Script, ContractNames, Test {
     RolesAuthority public rolesAuthority;
     Deployer public deployer;
 
-    //address public deployerAddress = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d;
-    address public deployerAddress = 0xF3d0672a91Fd56C9ef04C79ec67d60c34c6148a0;
-    //address public dev0Address = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b;
-    address public dev0Address = 0x4AB9A68D93271EFF863fFc3F5091d6F050f48eDA;
+    address public deployerAddress = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d;
+    //address public deployerAddress = 0xF3d0672a91Fd56C9ef04C79ec67d60c34c6148a0;
+    //address public dev0Address = 0x4AB9A68D93271EFF863fFc3F5091d6F050f48eDA; //bob deployer account (dead)
+    address public dev0Address = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b;
     address public dev1Address = 0xf8553c8552f906C19286F21711721E206EE4909E;
     address public dev2Address = 0xBBc5569B0b32403037F37255f4ff50B8Bb825b2A;
-    address public dev3Address = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b;
+    address public dev3Address = 0x7E97CaFdd8772706dbC3c83d36322f7BfC0f63C7; 
+    address public dev4Address = 0x1cdF47387358A1733968df92f7cC14546D9E1047;
 
     uint8 public DEPLOYER_ROLE = 1;
 
@@ -36,9 +40,8 @@ contract DeployDeployerScript is Script, ContractNames, Test {
 
         //privateKey = vm.envUint("BORING_DEVELOPER");
         //vm.createSelectFork("mainnet");
-        
         privateKey = vm.envUint("DEPLOYER_KEY");
-        vm.createSelectFork("bob");
+        vm.createSelectFork("hyperEVM");
     }
 
     function run() external {
@@ -49,6 +52,7 @@ contract DeployDeployerScript is Script, ContractNames, Test {
         deployer = new Deployer(dev0Address, Authority(address(0)));
 
         require(address(deployer) == deployerAddress, "Deployer address mismatch");
+        console.log(address(deployer)); 
         creationCode = type(RolesAuthority).creationCode;
         constructorArgs = abi.encode(dev0Address, address(0));
         rolesAuthority = RolesAuthority(
@@ -69,6 +73,7 @@ contract DeployDeployerScript is Script, ContractNames, Test {
         rolesAuthority.setUserRole(dev1Address, DEPLOYER_ROLE, true);
         rolesAuthority.setUserRole(dev2Address, DEPLOYER_ROLE, true);
         rolesAuthority.setUserRole(dev3Address, DEPLOYER_ROLE, true);
+        rolesAuthority.setUserRole(dev4Address, DEPLOYER_ROLE, true);
         rolesAuthority.setUserRole(address(deployer), DEPLOYER_ROLE, true);
 
 

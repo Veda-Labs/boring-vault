@@ -1,4 +1,7 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: SEL-1.0
+// Copyright © 2025 Veda Tech Labs
+// Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
+// Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
@@ -19,7 +22,8 @@ contract CreateTacLBTCvMerkleRoot is Script, MerkleTreeHelper {
     address public rawDataDecoderAndSanitizer = 0xc52220989809D748a958798ca8FEf7CaF88022b4;
     address public managerAddress = 0x1F95Ae26c62D24c3a5E118922Fe2ddc3B433331D; 
     address public accountantAddress = 0xB4703f17e3212E9959cC560e0592837292b14ECE;
-    
+
+    address public oftDecoderAndSanitizer = 0x678Ff354a12a6fC0b9D357647879F32df45f5177;     
 
     function setUp() external {}
 
@@ -37,7 +41,7 @@ contract CreateTacLBTCvMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "accountantAddress", accountantAddress);
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](32);
+        ManageLeaf[] memory leafs = new ManageLeaf[](64);
 
         // ========================== UniswapV3 ==========================
         // LBTC, cbBTC
@@ -62,12 +66,18 @@ contract CreateTacLBTCvMerkleRoot is Script, MerkleTreeHelper {
         // ========================== Odos ==========================
         _addOdosSwapLeafs(leafs, assets, kind);
 
+        // ========================== LayerZero ==========================
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oftDecoderAndSanitizer);
+        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "LBTC"), getAddress(sourceChain, "LBTCOFTAdapterTAC"), layerZeroTACEndpointId, getBytes32(sourceChain, "boringVault"));
+        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "cbBTC"), getAddress(sourceChain, "CBBTCOFTAdapterTAC"), layerZeroTACEndpointId, getBytes32(sourceChain, "boringVault")); 
+
         // ========================== BoringVaults ==========================
+        //setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         //ERC20[] memory tellerAssets = new ERC20[](2);
         //tellerAssets[0] = getERC20(sourceChain, "LBTC");
         //tellerAssets[1] = getERC20(sourceChain, "cbBTC");
-        //address LBTCvTeller = 0x4E8f5128F473C6948127f9Cbca474a6700F99bab;
-        //_addTellerLeafs(leafs, LBTCvTeller, tellerAssets, false, true);
+        //address tacBTCTeller = 0x7C75cbb851D321B2Ec8034D58A9B5075e991E584;
+        //_addTellerLeafs(leafs, tacBTCTeller, tellerAssets, false, true);
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

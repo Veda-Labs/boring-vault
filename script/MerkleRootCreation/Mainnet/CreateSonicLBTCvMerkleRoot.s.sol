@@ -1,4 +1,7 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: SEL-1.0
+// Copyright © 2025 Veda Tech Labs
+// Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
+// Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
@@ -56,6 +59,7 @@ contract CreateSonicLBTCvMerkleRootScript is Script, MerkleTreeHelper {
         kind[2] = SwapKind.BuyAndSell;
         _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
         // ========================== BoringVaults ==========================
+        // Adding leaf to support bulk withdraw of EBTC for scBTC
         {
             ERC20[] memory eBTCTellerAssets = new ERC20[](1);
             eBTCTellerAssets[0] = getERC20(sourceChain, "LBTC");
@@ -69,6 +73,13 @@ contract CreateSonicLBTCvMerkleRootScript is Script, MerkleTreeHelper {
             address[] memory _feeAssets = new address[](1); 
             _feeAssets[0] = getAddress(sourceChain, "ETH"); //pay bridge fee in ETH\
             _addCrossChainTellerLeafs(leafs, sonicBTCTeller, sonicBTCTellerAssets, _feeAssets, abi.encode(layerZeroSonicMainnetEndpointId));
+
+            // Add scBTC  teller to enable bulkWithdraw for LBTC
+            ERC20[] memory scBTCTellerAssets = new ERC20[](2);
+            scBTCTellerAssets[0] = getERC20(sourceChain, "LBTC");
+            scBTCTellerAssets[1] = getERC20(sourceChain, "EBTC");
+            address scBTCTeller = 0xAce7DEFe3b94554f0704d8d00F69F273A0cFf079;
+            _addTellerLeafs(leafs, scBTCTeller, scBTCTellerAssets, true, true);
 
             ERC20[] memory scBTCWithdrawQueueAssets = new ERC20[](1); 
             scBTCWithdrawQueueAssets[0] = getERC20(sourceChain, "scBTC");

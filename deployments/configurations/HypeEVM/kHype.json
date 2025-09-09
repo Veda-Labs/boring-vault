@@ -1,0 +1,199 @@
+{
+    "deploymentParameters": {
+      "logLevel": 4,
+      "privateKeyEnvName": "BORING_DEVELOPER",
+      "chainName": "hyperEVM",
+      "evmVersion": "shanghai",
+      "desiredNumberOfDeploymentTxs": 5,
+      "txBundlerAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "txBundlerAddress"
+      },
+      "setupRoles": true,
+      "setupTestUser": true,
+      "saveDeploymentDetails": true,
+      "testUserAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "dev5Address"
+      },
+      "deployerContractAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "deployerAddress"
+      },
+      "nativeWrapperAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "WHYPE"
+      },
+      "deploymentOwnerAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "txBundlerAddress"
+      },
+      "deploymentFileName": "addresses/HypeEVM/kHYPE.json"
+    },
+    "rolesAuthorityConfiguration": {
+      "rolesAuthorityDeploymentName": "kHype Roles Authority V0.0"
+    },
+    "lensConfiguration": {
+      "lensDeploymentName": "Arctic Architecture Lens V0.0"
+    },
+    "boringVaultConfiguration": {
+      "boringVaultDeploymentName": "kHype Boring Vault V0.0",
+      "boringVaultName": "Kinetiq Earn Vault",
+      "boringVaultSymbol": "vkHYPE",
+      "boringVaultDecimals": 18
+    },
+    "managerConfiguration": {
+      "managerDeploymentName": "kHype Manager V0.0",
+      "balancerVaultAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "balancerVault"
+      }
+    },
+    "accountantConfiguration": {
+      "accountantDeploymentName": "kHype Accountant V0.0",
+      "accountantParameters": {
+        "kind": {
+          "variableRate": true,
+          "fixedRate": false
+        },
+        "payoutConfiguration": {
+          "payoutTo": "0x0000000000000000000000000000000000000000",
+          "optionalPaymentSplitterName": "kHype Payment Splitter V0.0",
+          "splits": []
+        },
+        "accountantDeploymentParameters": {
+          "allowedExchangeRateChangeLower": 9900,
+          "allowedExchangeRateChangeUpper": 10100,
+          "baseAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "WHYPE"
+          },
+          "minimumUpateDelayInSeconds": 21600,
+          "performanceFee": 0,
+          "platformFee": 0,
+          "startingExchangeRate": 1000000000000000000 
+        }
+      }
+    },
+    "tellerConfiguration": {
+      "tellerDeploymentName": "kHype Teller V0.0",
+      "tellerParameters": {
+        "allowPublicDeposits": false,
+        "shareLockPeriod": 86400,
+        "kind": {
+          "teller": true,
+          "tellerWithRemediation": false,
+          "tellerWithCcip": false,
+          "tellerWithLayerZero": false,
+          "tellerWithLayerZeroRateLimiting": false
+        },
+        "layerZero": {
+          "endpointAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "LayerZeroEndPoint"
+          },
+          "lzChains": [],
+          "lzTokenAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "ZRO"
+          }
+        }
+      }
+    },
+    "boringQueueConfiguration": {
+      "boringQueueDeploymentName": "kHype Boring Queue V0.0",
+      "boringQueueSolverName": "kHype Boring Solver V0.0",
+      "excessToSolverNonSelfSolve": true,
+      "queueParameters": {
+        "allowPublicWithdrawals": true,
+        "allowPublicSelfWithdrawals": true,
+        "kind": {
+          "boringQueue": true,
+          "boringQueueWithTracking": false
+        }
+      }
+    },
+    "droneConfiguration": {
+      "droneDeploymentBaseName": "kHype Drone V0.0",
+      "droneCount": 0,
+      "safeGasToForwardNative": 21000
+    },
+    "pauserConfiguration": {
+      "shouldDeploy": true,
+      "pauserDeploymentName": "kHypePauser V0.0",
+      "makeGenericPauser": [
+        "0x0000000000000000000000000000000000000000"
+      ],
+      "makeGenericUnpauser": [
+        "0x0000000000000000000000000000000000000000"
+      ],
+      "makePauseAll": [
+        "0x0000000000000000000000000000000000000000"
+      ],
+      "makeUnpauseAll": [
+        "0x0000000000000000000000000000000000000000"
+      ],
+      "senderToPausable": [
+        {
+          "sender": "0x0000000000000000000000000000000000000000",
+          "pausable": "0x0000000000000000000000000000000000000000"
+        }
+      ]
+    },
+    "timelockConfiguration": {
+      "shouldDeploy": true,
+      "timelockDeploymentName": "kHype Timelock V0.0",
+      "timelockParameters": {
+        "executors": [
+            "0xf8553c8552f906C19286F21711721E206EE4909E"
+        ],
+        "minDelay": 0,
+        "proposers": [
+          "0xf8553c8552f906C19286F21711721E206EE4909E"
+        ]
+      }
+    },
+    "accountantAssets": [
+      {
+        "addressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "KHYPE"
+        },
+        "isPeggedToBase": true,
+        "rateProvider": "0x0000000000000000000000000000000000000000"
+      }
+    ],
+    "depositAssets": [
+      {
+        "addressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "WHYPE"
+        },
+        "allowDeposits": true,
+        "allowWithdraws": true,
+        "sharePremium": 0
+      },
+      {
+        "addressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "KHYPE"
+        },
+        "allowDeposits": true,
+        "allowWithdraws": true,
+        "sharePremium": 0
+      }
+    ],
+    "withdrawAssets": [
+      {
+        "addressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "KHYPE"
+        },
+        "maxDiscount": 10,
+        "minDiscount": 1,
+        "minimumSecondsToDeadline": 604800,
+        "minimumShares": 0,
+        "secondsToMaturity": 3600
+      }
+    ]
+  }

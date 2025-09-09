@@ -1,4 +1,7 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: SEL-1.0
+// Copyright © 2025 Veda Tech Labs
+// Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
+// Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
 import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
@@ -6,7 +9,7 @@ import {AtomicQueue} from "src/atomic-queue/AtomicQueue.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 
-abstract contract AtomicQueueDecoderAndSanitizer is BaseDecoderAndSanitizer {
+contract AtomicQueueDecoderAndSanitizer is BaseDecoderAndSanitizer {
     using FixedPointMathLib for uint256;
 
     error AtomicQueueDecoderAndSanitizer__BadAtomicPrice(uint256 min, uint256 max, uint256 actual);

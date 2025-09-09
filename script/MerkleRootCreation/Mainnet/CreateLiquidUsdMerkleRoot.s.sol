@@ -1,4 +1,7 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: SEL-1.0
+// Copyright © 2025 Veda Tech Labs
+// Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
+// Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
@@ -17,7 +20,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
     //standard
     address public boringVault = 0x08c6F91e2B681FaF5e17227F2a44C307b3C1364C;
     address public rawDataDecoderAndSanitizer = 0xc6288B06365019dF18B2076Bf9B5e191826fB57F;
-    address public managerAddress = 0xcFF411d5C54FE0583A984beE1eF43a4776854B9A;
+    address public managerAddress = 0x7b57Ad1A0AA89583130aCfAD024241170D24C13C;
     address public accountantAddress = 0xc315D6e14DDCDC7407784e2Caf815d131Bc1D3E7;
     address public drone = 0x3683fc2792F676BBAbc1B5555dE0DfAFee546e9a;
     address public drone1 = 0x08777996b26bD82aD038Bca80De5B8dEA742370f; 
@@ -87,7 +90,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== Aave V3 ==========================
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", aaveV3DecoderAndSanitizer);
-        ERC20[] memory supplyAssets = new ERC20[](14);
+        ERC20[] memory supplyAssets = new ERC20[](18);
         supplyAssets[0] = getERC20(sourceChain, "USDC");
         supplyAssets[1] = getERC20(sourceChain, "USDT");
         supplyAssets[2] = getERC20(sourceChain, "DAI");
@@ -102,13 +105,19 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         supplyAssets[11] = getERC20(sourceChain, "pendle_eUSDe_08_14_25_pt");
         supplyAssets[12] = getERC20(sourceChain, "pendle_USDe_07_31_25_pt");
         supplyAssets[13] = getERC20(sourceChain, "RLUSD");
-        ERC20[] memory borrowAssets = new ERC20[](6);
+        supplyAssets[14] = getERC20(sourceChain, "pendle_USDe_09_25_25_pt");
+        supplyAssets[15] = getERC20(sourceChain, "pendle_USDe_11_26_25_pt");
+        supplyAssets[16] = getERC20(sourceChain, "pendle_sUSDe_09_25_25_pt");
+        supplyAssets[17] = getERC20(sourceChain, "pendle_sUSDe_11_26_25_pt");
+        ERC20[] memory borrowAssets = new ERC20[](8);
         borrowAssets[0] = getERC20(sourceChain, "USDC");
         borrowAssets[1] = getERC20(sourceChain, "USDT");
         borrowAssets[2] = getERC20(sourceChain, "DAI");
         borrowAssets[3] = getERC20(sourceChain, "USDE");
         borrowAssets[4] = getERC20(sourceChain, "GHO");
         borrowAssets[5] = getERC20(sourceChain, "USDS");
+        borrowAssets[6] = getERC20(sourceChain, "EUSDE");
+        borrowAssets[7] = getERC20(sourceChain, "SUSDE");
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== SparkLend ==========================
@@ -222,6 +231,10 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_sUSDe_market_07_30_25"), true);
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_eUSDe_market_08_14_25"), true);
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_USDe_market_07_31_25"), true);
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_USDe_market_09_25_25"), true);
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_USDe_market_11_26_25"), true);
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_sUSDe_market_09_25_25"), true);
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_sUSDe_market_11_26_25"), true);
 
         // ========================== Ethena ==========================
         /**
@@ -857,9 +870,10 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== Merkl ==========================
         {
-        ERC20[] memory tokensToClaim = new ERC20[](2); 
+        ERC20[] memory tokensToClaim = new ERC20[](3); 
         tokensToClaim[0] = getERC20(sourceChain, "RLUSD"); 
         tokensToClaim[1] = getERC20(sourceChain, "rEUL"); 
+        tokensToClaim[2] = getERC20(sourceChain, "aRLUSD"); 
         _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"), tokensToClaim); 
         }
 
@@ -870,7 +884,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         // ========================== Drone Transfers ==========================
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         {
-        ERC20[] memory localTokens = new ERC20[](20);
+        ERC20[] memory localTokens = new ERC20[](28);
         localTokens[0] = getERC20("mainnet", "USDT");
         localTokens[1] = getERC20("mainnet", "USDC");
         localTokens[2] = getERC20("mainnet", "USDE");
@@ -891,6 +905,14 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         localTokens[17] = getERC20("mainnet", "pendle_USDe_07_31_25_yt"); 
         localTokens[18] = getERC20("mainnet", "rEUL"); 
         localTokens[19] = getERC20("mainnet", "EUL"); 
+        localTokens[20] = getERC20("mainnet", "pendle_USDe_09_25_25_pt"); 
+        localTokens[21] = getERC20("mainnet", "pendle_USDe_09_25_25_sy"); 
+        localTokens[22] = getERC20("mainnet", "pendle_USDe_11_26_25_pt"); 
+        localTokens[23] = getERC20("mainnet", "pendle_USDe_11_26_25_sy"); 
+        localTokens[24] = getERC20("mainnet", "pendle_sUSDe_09_25_25_pt"); 
+        localTokens[25] = getERC20("mainnet", "pendle_sUSDe_09_25_25_sy"); 
+        localTokens[26] = getERC20("mainnet", "pendle_sUSDe_11_26_25_pt"); 
+        localTokens[27] = getERC20("mainnet", "pendle_sUSDe_11_26_25_sy"); 
 
         _addLeafsForDroneTransfers(leafs, drone, localTokens);
         _addLeafsForDroneTransfers(leafs, drone1, localTokens);
@@ -912,25 +934,45 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
     function _addLeafsForDrone(ManageLeaf[] memory leafs) internal {
         setAddress(true, mainnet, "boringVault", drone);
         uint256 droneStartIndex = leafIndex + 1;
+
+        // ========================== Pendle ==========================
+
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_eUSDe_market_05_28_25"), true);
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_sUSDe_05_28_25"), true);
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_sUSDe_market_07_30_25"), true);
-        ERC20[] memory supplyAssetsDrone = new ERC20[](4);
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_USDe_market_09_25_25"), true);
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_USDe_market_11_26_25"), true);
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_sUSDe_market_09_25_25"), true);
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_sUSDe_market_11_26_25"), true);
+
+        // ========================== Aave ==========================
+        
+        ERC20[] memory supplyAssetsDrone = new ERC20[](9);
         supplyAssetsDrone[0] = getERC20(sourceChain, "pendle_sUSDe_05_28_25_pt");
         supplyAssetsDrone[1] = getERC20(sourceChain, "pendle_sUSDe_07_30_25_pt");
         supplyAssetsDrone[2] = getERC20(sourceChain, "pendle_sUSDe_07_30_25_sy");
         supplyAssetsDrone[3] = getERC20(sourceChain, "pendle_sUSDe_07_30_25_yt");
-        ERC20[] memory borrowAssetsDrone = new ERC20[](6);
+        supplyAssetsDrone[4] = getERC20(sourceChain, "RLUSD");
+        supplyAssetsDrone[5] = getERC20(sourceChain, "pendle_USDe_09_25_25_pt");
+        supplyAssetsDrone[6] = getERC20(sourceChain, "pendle_USDe_11_26_25_pt");
+        supplyAssetsDrone[7] = getERC20(sourceChain, "pendle_sUSDe_09_25_25_pt");
+        supplyAssetsDrone[8] = getERC20(sourceChain, "pendle_sUSDe_11_26_25_pt");
+        ERC20[] memory borrowAssetsDrone = new ERC20[](9);
         borrowAssetsDrone[0] = getERC20(sourceChain, "USDC");
         borrowAssetsDrone[1] = getERC20(sourceChain, "USDT");
         borrowAssetsDrone[2] = getERC20(sourceChain, "DAI");
         borrowAssetsDrone[3] = getERC20(sourceChain, "USDE");
         borrowAssetsDrone[4] = getERC20(sourceChain, "GHO");
         borrowAssetsDrone[5] = getERC20(sourceChain, "USDS");
+        borrowAssetsDrone[6] = getERC20(sourceChain, "RLUSD");
+        borrowAssetsDrone[7] = getERC20(sourceChain, "EUSDE");
+        borrowAssetsDrone[8] = getERC20(sourceChain, "SUSDE");
         _addAaveV3Leafs(leafs, supplyAssetsDrone, borrowAssetsDrone);
 
-        address[] memory droneAssets = new address[](6);
-        SwapKind[] memory droneKind = new SwapKind[](6);
+        // ========================== One Inch ==========================
+        
+        address[] memory droneAssets = new address[](7);
+        SwapKind[] memory droneKind = new SwapKind[](7);
         droneAssets[0] = getAddress(sourceChain, "USDC");
         droneKind[0] = SwapKind.BuyAndSell;
         droneAssets[1] = getAddress(sourceChain, "USDT");
@@ -943,6 +985,8 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         droneKind[4] = SwapKind.BuyAndSell;
         droneAssets[5] = getAddress(sourceChain, "EUSDE");
         droneKind[5] = SwapKind.Sell;
+        droneAssets[6] = getAddress(sourceChain, "RLUSD");
+        droneKind[6] = SwapKind.BuyAndSell;
         _addLeafsFor1InchGeneralSwapping(leafs, droneAssets, droneKind);
 
         // ========================== Odos ==========================
@@ -975,6 +1019,10 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "SUSDE")));
 
 
+        // ========================== eUSDe Deposits/Withdraws ==========================
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "EUSDE")));
+
+
         _createDroneLeafs(leafs, drone, droneStartIndex, leafIndex + 1);
         setAddress(true, mainnet, "boringVault", boringVault);
     }
@@ -1001,22 +1049,33 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         // ========================== Pendle ==========================
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_eUSDe_market_08_14_25"), true);
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_USDe_market_07_31_25"), true);
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_USDe_market_09_25_25"), true);
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_USDe_market_11_26_25"), true);
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_sUSDe_market_09_25_25"), true);
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_sUSDe_market_11_26_25"), true);
         
         
         // ========================== AaveV3 ==========================
-        ERC20[] memory supplyAssetsDrone = new ERC20[](5);
+        ERC20[] memory supplyAssetsDrone = new ERC20[](9);
         supplyAssetsDrone[0] = getERC20(sourceChain, "pendle_eUSDe_08_14_25_pt");
         supplyAssetsDrone[1] = getERC20(sourceChain, "pendle_USDe_07_31_25_pt");
         supplyAssetsDrone[2] = getERC20(sourceChain, "USDC");
         supplyAssetsDrone[3] = getERC20(sourceChain, "USDT");
         supplyAssetsDrone[4] = getERC20(sourceChain, "DAI");
-        ERC20[] memory borrowAssetsDrone = new ERC20[](6);
+        supplyAssetsDrone[5] = getERC20(sourceChain, "pendle_USDe_09_25_25_pt");
+        supplyAssetsDrone[6] = getERC20(sourceChain, "pendle_USDe_11_26_25_pt");
+        supplyAssetsDrone[7] = getERC20(sourceChain, "pendle_sUSDe_09_25_25_pt");
+        supplyAssetsDrone[8] = getERC20(sourceChain, "pendle_sUSDe_11_26_25_pt");
+        ERC20[] memory borrowAssetsDrone = new ERC20[](9);
         borrowAssetsDrone[0] = getERC20(sourceChain, "USDC");
         borrowAssetsDrone[1] = getERC20(sourceChain, "USDT");
         borrowAssetsDrone[2] = getERC20(sourceChain, "DAI");
         borrowAssetsDrone[3] = getERC20(sourceChain, "USDE");
         borrowAssetsDrone[4] = getERC20(sourceChain, "GHO");
         borrowAssetsDrone[5] = getERC20(sourceChain, "USDS");
+        borrowAssetsDrone[6] = getERC20(sourceChain, "RLUSD");
+        borrowAssetsDrone[7] = getERC20(sourceChain, "EUSDE");
+        borrowAssetsDrone[8] = getERC20(sourceChain, "SUSDE");
         _addAaveV3Leafs(leafs, supplyAssetsDrone, borrowAssetsDrone);
 
         // ========================== 1Inch ==========================
@@ -1045,9 +1104,10 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== Merkl ==========================
         {
-        ERC20[] memory tokensToClaim = new ERC20[](2); 
+        ERC20[] memory tokensToClaim = new ERC20[](3); 
         tokensToClaim[0] = getERC20(sourceChain, "RLUSD"); 
         tokensToClaim[1] = getERC20(sourceChain, "rEUL"); 
+        tokensToClaim[2] = getERC20(sourceChain, "aRLUSD"); 
         _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"), tokensToClaim); 
         }
 
@@ -1059,6 +1119,9 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
          * deposit, withdraw
          */
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "SUSDE")));
+
+        // ========================== eUSDe Deposits/Withdraws ==========================
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "EUSDE")));
 
         //NOTE: ensure this is drone1 address
         _createDroneLeafs(leafs, drone1, drone1StartIndex, leafIndex + 1);

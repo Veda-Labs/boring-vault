@@ -1,4 +1,7 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: SEL-1.0
+// Copyright © 2025 Veda Tech Labs
+// Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
+// Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
@@ -16,13 +19,11 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x75231079973C23e9eB6180fa3D2fc21334565aB5;
-    address public rawDataDecoderAndSanitizer = 0x770B3AAA48096b3fB36876b8dD55789372775bf0;
+    address public rawDataDecoderAndSanitizer = 0x3222c878bFDC72573a39dF711DE2bd530eB45054;
     address public managerAddress = 0x9aC5AEf62eCe812FEfb77a0d1771c9A5ce3D04E4;
     address public accountantAddress = 0x90e864A256E58DBCe034D9C43C3d8F18A00f55B6;
 
-    function setUp() external {}
-
-    /**
+    function setUp() external {} /**
      * @notice Uncomment which script you want to run.
      */
     function run() external {
@@ -36,21 +37,53 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, katana, "accountantAddress", accountantAddress);
         setAddress(false, katana, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](64);
 
+        // ========================== LBTC Bridge Wrapper ==========================
+        // To Mainnet
+        _addLBTCBridgeLeafs(leafs, 0x0000000000000000000000000000000000000000000000000000000000000001);  
 
-        // ========================== CCIP ==========================
-        ERC20[] memory ccipBridgeAssets = new ERC20[](1);
-        ccipBridgeAssets[0] = getERC20(sourceChain, "LBTC");
-        ERC20[] memory ccipBridgeFeeAssets = new ERC20[](1);
-        ccipBridgeFeeAssets[0] = getERC20(sourceChain, "WETH");
-        _addCcipBridgeLeafs(leafs, ccipMainnetChainSelector, ccipBridgeAssets, ccipBridgeFeeAssets);
+        // ========================== BTCk Minter ==========================
+        _addBTCKLeafs(leafs);
 
         // ========================== Fee Claiming ==========================
         ERC20[] memory feeAssets = new ERC20[](1);
         feeAssets[0] = getERC20(sourceChain, "LBTC");
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
+        // ========================== Morpho Blue ==========================
+        _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "LBTC_vbWBTC_915")); 
+
+        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "LBTC_vbWBTC_915")); 
+
+        // ========================== MetaMorhpo ==========================
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletWBTC")));
+        
+        // BTCK MetaMorpho vault (one-sided lending)
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletBTCK")));  
+
+        // ========================== Agglayer ==========================
+        _addAgglayerTokenLeafs(
+            leafs,
+            getAddress(sourceChain, "agglayerBridgeKatana"), //bridge
+            getAddress(sourceChain, "vbWBTC"), //bridge token
+            20, //from chain
+            0 //to chain
+        );
+
+        // ========================== Sushi ==========================
+        address[] memory token0 = new address[](3);
+        token0[0] = getAddress(sourceChain, "LBTC");
+        token0[1] = getAddress(sourceChain, "WBTC");
+        token0[2] = getAddress(sourceChain, "LBTC");
+
+        address[] memory token1 = new address[](3);
+        token1[0] = getAddress(sourceChain, "BTCK");
+        token1[1] = getAddress(sourceChain, "BTCK");
+        token1[2] = getAddress(sourceChain, "WBTC");
+
+        _addUniswapV3Leafs(leafs, token0, token1, false);
+            
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 

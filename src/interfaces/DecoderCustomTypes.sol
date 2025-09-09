@@ -1,6 +1,8 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: SEL-1.0
+// Copyright © 2025 Veda Tech Labs
+// Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
+// Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
-
 contract DecoderCustomTypes {
     // ========================================= BALANCER =========================================
     struct JoinPoolRequest {
@@ -682,6 +684,101 @@ contract DecoderCustomTypes {
         address swapper;
         bytes payload;
         uint256 minRebalanceOut;
+    }
+
+    // ========================================= Tac Crosschain Layer ==================================
+    
+    struct TokenAmount {
+        address evmAddress;
+        uint256 amount;
+    }
+
+    struct NFTAmount {
+        address evmAddress;
+        uint256 tokenId;
+        uint256 amount;
+    }
+
+    struct OutMessageV1 {
+        uint64 shardsKey;
+        string tvmTarget;
+        string tvmPayload;
+        uint256 tvmProtocolFee;
+        uint256 tvmExecutorFee;
+        string[] tvmValidExecutors;
+        TokenAmount[] toBridge;
+        NFTAmount[] toBridgeNFT;
+    }
+
+    // ========================================= Valantis ==================================
+    
+    struct DirectSwapParams {
+        bool[] isUniversalPool;
+        address[] pools;
+        uint256[] amountInSpecified;
+        bytes[] payloads;
+        bool isTokenOutEth;
+        address tokenIn;
+        address tokenOut;
+        address recipient;
+        uint256 amountOutMin;
+        uint256 deadline;
+        bytes32 code;
+    }    
+
+    struct UniversalPoolSwapPayload {
+        bool isZeroToOne;
+        address recipient;
+        int24 limitPriceTick;
+        uint256 amountOutMin;
+        uint8[] almOrdering;
+        bytes[] externalContext;
+        bytes swapFeeModuleContext;
+    }
+
+  /**
+   * @notice Internal struct used for single swap payloads in Sovereign pools.
+   */
+  struct SovereignPoolSwapPayload {
+      bool isZeroToOne;
+      address recipient;
+      address swapTokenOut;
+      uint256 amountOutMin;
+      bytes externalContext;
+      bytes verificationContext;
+      bytes swapFeeModuleContext;
+  }
+
+    struct SovereignPoolSwapContextData {
+        bytes externalContext;
+        bytes verifierContext;
+        bytes swapCallbackContext;
+        bytes swapFeeModuleContext;
+    }
+
+    struct SovereignPoolSwapParams {
+        bool isSwapCallback;
+        bool isZeroToOne;
+        uint256 amountIn;
+        uint256 amountOutMin;
+        uint256 deadline;
+        address recipient;
+        address swapTokenOut;
+        SovereignPoolSwapContextData swapContext;
+    }
+
+    struct UniversalSwapParams {
+        bool isZeroToOne;
+        bool isSwapCallback;
+        int24 limitPriceTick;
+        address recipient;
+        uint256 amountIn;
+        uint256 amountOutMin;
+        uint256 deadline;
+        bytes swapCallbackContext;
+        bytes swapFeeModuleContext;
+        uint8[] almOrdering;
+        bytes[] externalContext;
     }
 }
 

@@ -49,6 +49,7 @@ contract LayerZeroShareMover is ShareMover, OAppAuth, PairwiseRateLimiter {
         uint32 chainId;
         address feeToken;
         uint256 maxFee;
+        uint128 executorMsgValue; // additional msg.value to forward to lzReceive executor
     }
 
     // ========================================= STATE =========================================
@@ -365,7 +366,7 @@ contract LayerZeroShareMover is ShareMover, OAppAuth, PairwiseRateLimiter {
 
         bytes memory encodedMessage = MessageLib.encodeMessage(msgStruct);
 
-        bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(destChain.messageGasLimit, 0);
+        bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(destChain.messageGasLimit, params.executorMsgValue);
 
         MessagingFee memory fee = _quote(chainId, encodedMessage, options, params.feeToken != NATIVE);
 
@@ -408,7 +409,7 @@ contract LayerZeroShareMover is ShareMover, OAppAuth, PairwiseRateLimiter {
         MessageLib.Message memory msgStruct = MessageLib.Message({recipient: sanitizedRecipient, amount: amountOut});
 
         bytes memory encodedMessage = MessageLib.encodeMessage(msgStruct);
-        bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(destChain.messageGasLimit, 0);
+        bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(destChain.messageGasLimit, params.executorMsgValue);
 
         MessagingFee memory quote = _quote(params.chainId, encodedMessage, options, params.feeToken != NATIVE);
         fee = params.feeToken == NATIVE ? quote.nativeFee : quote.lzTokenFee;
@@ -423,16 +424,29 @@ contract LayerZeroShareMover is ShareMover, OAppAuth, PairwiseRateLimiter {
      * @return params The decoded {BridgeParams} struct.
      */
     function _decodeBridgeParams(bytes calldata bridgeWildCard) internal pure returns (BridgeParams memory params) {
-        // Expecting: 4 bytes (uint32) + 32 bytes (address) + 32 bytes (uint256) = 68 bytes
-        if (bridgeWildCard.length < 68) {
+        // Minimum encoding: 4 bytes (uint32) + 32 (address) + 32 (uint256) = 96 bytes.
+        // Optional 4th slot (uint128) => executorMsgValue (another 32-byte slot) totals 128 bytes.
+        if (bridgeWildCard.length < 96) {
             revert LayerZeroShareMover__InvalidBridgeParams();
         }
-        
-        // Decode: abi.encode(uint32 chainId, address feeToken, uint256 maxFee)
-        (params.chainId, params.feeToken, params.maxFee) = abi.decode(
-            bridgeWildCard, 
-            (uint32, address, uint256)
-        );
+
+        if (bridgeWildCard.length == 96) {
+            // Legacy format: chainId, feeToken, maxFee
+            (params.chainId, params.feeToken, params.maxFee) = abi.decode(
+                bridgeWildCard,
+                (uint32, address, uint256)
+            );
+            params.executorMsgValue = 0;
+        } else if (bridgeWildCard.length == 128) {
+            // Extended format with executorMsgValue
+            (params.chainId, params.feeToken, params.maxFee, params.executorMsgValue) = abi.decode(
+                bridgeWildCard,
+                (uint32, address, uint256, uint128)
+            );
+        } else {
+            // Unsupported length -> revert
+            revert LayerZeroShareMover__InvalidBridgeParams();
+        }
         
         if (params.chainId == 0) revert LayerZeroShareMover__InvalidChainId();
     }

@@ -26,6 +26,8 @@ library MessageLib {
     error MessageLib__ArithmeticOverflow();
     /// @dev Thrown when amount would become zero after decimal conversion (dust protection)
     error MessageLib__DustAmount();
+    /// @dev Thrown when address is invalid
+    error MessageLib__InvalidAddress();
 
     // ========================================= STRUCTS =========================================
 

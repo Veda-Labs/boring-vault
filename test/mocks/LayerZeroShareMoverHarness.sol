@@ -41,6 +41,15 @@ contract LayerZeroShareMoverHarness is LayerZeroShareMover {
         return (p.chainId, p.feeToken, p.maxFee);
     }
 
+    function exposedDecodeFull(bytes calldata data)
+        external
+        pure
+        returns (uint32 eid, address feeToken, uint256 maxFee, uint128 execVal)
+    {
+        BridgeParams memory p = _decodeBridgeParams(data);
+        return (p.chainId, p.feeToken, p.maxFee, p.executorMsgValue);
+    }
+
     function exposeSetOutboundLimits(RateLimitConfig[] calldata cfg) external {
         _setOutboundRateLimits(cfg);
     }

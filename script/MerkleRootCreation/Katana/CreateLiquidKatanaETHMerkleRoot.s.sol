@@ -1,4 +1,7 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: SEL-1.0
+// Copyright © 2025 Veda Tech Labs
+// Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
+// Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
@@ -16,7 +19,7 @@ contract CreateLiquidKatanaETHMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x69d210d3b60E939BFA6E87cCcC4fAb7e8F44C16B;
-    address public rawDataDecoderAndSanitizer = 0x770B3AAA48096b3fB36876b8dD55789372775bf0;
+    address public rawDataDecoderAndSanitizer = 0x3A70bDe90936625208483DDBf88f6E536A1aa4aC;
     address public managerAddress = 0x51CdEcC111c21BED72Ab99f415Bab6d35984BfEB;
     address public accountantAddress = 0xFCb9a6bF02C43f9E38Bb102fd960Cc1e738e787d;
 
@@ -36,8 +39,7 @@ contract CreateLiquidKatanaETHMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, katana, "accountantAddress", accountantAddress);
         setAddress(false, katana, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](16);
-
+        ManageLeaf[] memory leafs = new ManageLeaf[](64);
 
         // ========================== NativeWrapper ==========================
         _addNativeLeafs(leafs);
@@ -64,6 +66,22 @@ contract CreateLiquidKatanaETHMerkleRoot is Script, MerkleTreeHelper {
         feeAssets[1] = getERC20(sourceChain, "WEETH");
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
+        // ========================== Sushi ==========================
+        address[] memory token0 = new address[](1);
+        token0[0] = getAddress(sourceChain, "vbETH"); 
+
+        address[] memory token1 = new address[](1);
+        token1[0] = getAddress(sourceChain, "WEETH");
+
+        _addUniswapV3Leafs(leafs, token0, token1, false); 
+
+        // ========================== Morpho Blue ==========================
+        _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "WEETH_vbETH_915"));
+
+        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "WEETH_vbETH_915"));
+        
+        // ========================== MetaMorhpo ==========================
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletWETH"))); 
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
