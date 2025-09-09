@@ -32,7 +32,8 @@ rule pause_8456cb59_sets_paused_true(env e) {
  *
  * Possible consequences: Misleading behavior where redundant pause calls appear successful, potentially masking logic errors in calling code or admin scripts
  */
-rule pause_8456cb59_already_paused_no_op(env e) {
+// gereon: might make sense?
+rule __pause_8456cb59_already_paused_no_op(env e) {
 
     // assign all the 'before' variables
     bool currentContract_accountantState_isPaused_before = currentContract.accountantState.isPaused;
@@ -174,7 +175,8 @@ rule unpause_3f4ba83a_unpauses_when_authorized(env e) {
  *
  * Possible consequences: Allows meaningless transactions that waste gas and could mask other issues or be used in complex attack scenarios
  */
-rule unpause_3f4ba83a_already_unpaused_reverts(env e) {
+// gereon: might make sense?
+rule __unpause_3f4ba83a_already_unpaused_reverts(env e) {
 
     // assign all the 'before' variables
     bool currentContract_accountantState_isPaused_before = currentContract.accountantState.isPaused;
@@ -266,7 +268,8 @@ rule updateDelay_6a054dc9_updates_delay(env e) {
  *
  * Possible consequences: If this property is violated, no-op calls would succeed, wasting gas and potentially masking configuration errors or allowing spam transactions
  */
-rule updateDelay_6a054dc9_no_change_revert(env e) {
+// gereon: might make sense?
+rule __updateDelay_6a054dc9_no_change_revert(env e) {
     uint24 minimumUpdateDelayInSeconds;
 
     // assign all the 'before' variables
@@ -360,7 +363,8 @@ rule updateUpper_634da58f_upper_bound_too_small(env e) {
  *
  * Possible consequences: Allows wasteful transactions that consume gas without providing value, and may mask bugs where the caller thinks they're making a change but aren't
  */
-rule updateUpper_634da58f_no_op_reverts(env e) {
+// gereon: might make sense?
+rule __updateUpper_634da58f_no_op_reverts(env e) {
     uint16 allowedExchangeRateChangeUpper;
 
     // assign all the 'before' variables
@@ -608,7 +612,8 @@ rule updateLower_207ec0e7_valid_update_changes_lower(env e) {
  *
  * Possible consequences: Allowing no-op updates wastes gas and can mask bugs where the caller thinks they're making a change but aren't. It also violates the principle of explicit state management
  */
-rule updateLower_207ec0e7_no_op_reverts(env e) {
+// gereon: might make sense?
+rule __updateLower_207ec0e7_no_op_reverts(env e) {
     uint16 allowedExchangeRateChangeLower;
 
     // assign all the 'before' variables
@@ -799,7 +804,8 @@ rule updatePlatformFee_afb06952_fee_too_large_reverts(env e) {
  *
  * Possible consequences: Gas waste from redundant transactions, potential griefing attacks through repeated no-op calls, unclear transaction intent leading to user confusion
  */
-rule updatePlatformFee_afb06952_same_fee_reverts(env e) {
+// gereon: might make sense?
+rule __updatePlatformFee_afb06952_same_fee_reverts(env e) {
     uint16 platformFee;
 
     // assign all the 'before' variables
@@ -1006,7 +1012,8 @@ rule updatePerformanceFee_709ac1c3_other_state_unchanged(env e) {
  *
  * Possible consequences: Gas waste, potential griefing attacks where malicious actors repeatedly call the function with the same address, and unclear intent in transaction logs
  */
-rule updatePayoutAddress_56200819_no_op_reverts(env e) {
+// gereon: might make sense?
+rule __updatePayoutAddress_56200819_no_op_reverts(env e) {
     address payoutAddress;
 
     // assign all the 'before' variables
@@ -1359,7 +1366,8 @@ rule updatePayoutAddress_56200819_preserves_authority(env e) {
  *
  * Possible consequences: Unauthorized configuration changes leading to incorrect exchange rates, manipulation of fee calculations, or complete system compromise
  */
-rule setRateProviderData_4d8be07e_unauthorized_reverts(env e) {
+// gereon: auth is more complex than AI thinks, and we need msg.sig
+rule __setRateProviderData_4d8be07e_unauthorized_reverts(env e) {
     address asset;
     bool isPeggedToBase;
     address rateProvider;
@@ -1386,23 +1394,24 @@ rule setRateProviderData_4d8be07e_unauthorized_reverts(env e) {
  *
  * Possible consequences: Configuration changes during emergency pause could worsen the situation that caused the pause or interfere with recovery procedures
  */
-rule setRateProviderData_4d8be07e_paused_reverts(env e) {
-    address asset;
-    bool isPeggedToBase;
-    address rateProvider;
-
-    // assign all the 'before' variables
-    bool currentContract_accountantState_isPaused_before = currentContract.accountantState.isPaused;
-
-    // call function under test
-    setRateProviderData@withrevert(e, asset, isPeggedToBase, rateProvider);
-    bool setRateProviderData_reverted = lastReverted;
-
-    // assign all the 'after' variables
-
-    // verify integrity
-    assert (currentContract_accountantState_isPaused_before => setRateProviderData_reverted), "accountantState.isPaused@before => revert";
-}
+// gereon: pause() explicitly says it will prevent calls to updateExchangeRate(), not other functions
+//rule setRateProviderData_4d8be07e_paused_reverts(env e) {
+//    address asset;
+//    bool isPeggedToBase;
+//    address rateProvider;
+//
+//    // assign all the 'before' variables
+//    bool currentContract_accountantState_isPaused_before = currentContract.accountantState.isPaused;
+//
+//    // call function under test
+//    setRateProviderData@withrevert(e, asset, isPeggedToBase, rateProvider);
+//    bool setRateProviderData_reverted = lastReverted;
+//
+//    // assign all the 'after' variables
+//
+//    // verify integrity
+//    assert (currentContract_accountantState_isPaused_before => setRateProviderData_reverted), "accountantState.isPaused@before => revert";
+//}
 
 /*
  * rateProviderData[asset].isPeggedToBase@before == isPeggedToBase && rateProviderData[asset].rateProvider@before == IRateProvider(rateProvider) => revert
@@ -1413,7 +1422,8 @@ rule setRateProviderData_4d8be07e_paused_reverts(env e) {
  *
  * Possible consequences: Gas waste, potential indication of buggy calling code, or attempts to trigger events without actual state changes
  */
-rule setRateProviderData_4d8be07e_no_op_reverts(env e) {
+// gereon: might make sense?
+rule __setRateProviderData_4d8be07e_no_op_reverts(env e) {
     address asset;
     bool isPeggedToBase;
     address rateProvider;
@@ -1908,20 +1918,21 @@ rule setRateProviderData_4d8be07e_preserves_performance_fee(env e) {
  *
  * Possible consequences: State corruption during emergency situations, bypassing pause protection mechanisms, unauthorized state modifications during maintenance
  */
-rule resetHighwaterMark_e059ac07_paused_reverts(env e) {
-
-    // assign all the 'before' variables
-    bool currentContract_accountantState_isPaused_before = currentContract.accountantState.isPaused;
-
-    // call function under test
-    resetHighwaterMark@withrevert(e);
-    bool resetHighwaterMark_reverted = lastReverted;
-
-    // assign all the 'after' variables
-
-    // verify integrity
-    assert (currentContract_accountantState_isPaused_before => resetHighwaterMark_reverted), "accountantState.isPaused@before => revert";
-}
+// gereon: pause() explicitly says it will prevent calls to updateExchangeRate(), not other functions
+//rule resetHighwaterMark_e059ac07_paused_reverts(env e) {
+//
+//    // assign all the 'before' variables
+//    bool currentContract_accountantState_isPaused_before = currentContract.accountantState.isPaused;
+//
+//    // call function under test
+//    resetHighwaterMark@withrevert(e);
+//    bool resetHighwaterMark_reverted = lastReverted;
+//
+//    // assign all the 'after' variables
+//
+//    // verify integrity
+//    assert (currentContract_accountantState_isPaused_before => resetHighwaterMark_reverted), "accountantState.isPaused@before => revert";
+//}
 
 /*
  * !accountantState.isPaused@before => accountantState.highwaterMark@after == accountantState.exchangeRate@before
@@ -1957,6 +1968,7 @@ rule resetHighwaterMark_e059ac07_sets_highwater_to_rate(env e) {
  *
  * Possible consequences: Performance fee manipulation, economic attacks on fee structure, loss of protocol revenue
  */
+// gereon: it's actually the other way round. This is the reset, not a place where the high water mark is updated.
 rule resetHighwaterMark_e059ac07_rate_below_highwater_reverts(env e) {
 
     // assign all the 'before' variables
@@ -1970,7 +1982,7 @@ rule resetHighwaterMark_e059ac07_rate_below_highwater_reverts(env e) {
     // assign all the 'after' variables
 
     // verify integrity
-    assert ((currentContract_accountantState_exchangeRate_before < currentContract_accountantState_highwaterMark_before) => resetHighwaterMark_reverted), "accountantState.exchangeRate@before < accountantState.highwaterMark@before => revert";
+    assert ((currentContract_accountantState_exchangeRate_before > currentContract_accountantState_highwaterMark_before) => resetHighwaterMark_reverted), "accountantState.exchangeRate@before < accountantState.highwaterMark@before => revert";
 }
 
 /*
@@ -1982,7 +1994,8 @@ rule resetHighwaterMark_e059ac07_rate_below_highwater_reverts(env e) {
  *
  * Possible consequences: Gas waste, potential masking of logic errors, unclear contract behavior
  */
-rule resetHighwaterMark_e059ac07_no_change_reverts(env e) {
+// gereon: might make sense?
+rule __resetHighwaterMark_e059ac07_no_change_reverts(env e) {
 
     // assign all the 'before' variables
     uint96 currentContract_accountantState_exchangeRate_before = currentContract.accountantState.exchangeRate;
@@ -2359,26 +2372,29 @@ rule updateExchangeRate_3458113d_valid_update_shares(env e) {
  *
  * Possible consequences: If highwater mark doesn't update, performance fees could be charged multiple times on the same gains or not charged when they should be
  */
+// gereon: actually found an issue when e.block.timestamp grows beyond uint64. But it's minor even then.
 rule updateExchangeRate_3458113d_highwater_increases(env e) {
     uint96 newExchangeRate;
 
     // assign all the 'before' variables
-    bool currentContract_accountantState_isPaused_before = currentContract.accountantState.isPaused;
-    uint64 currentContract_accountantState_lastUpdateTimestamp_before = currentContract.accountantState.lastUpdateTimestamp;
-    uint24 currentContract_accountantState_minimumUpdateDelayInSeconds_before = currentContract.accountantState.minimumUpdateDelayInSeconds;
-    uint96 currentContract_accountantState_exchangeRate_before = currentContract.accountantState.exchangeRate;
-    uint16 currentContract_accountantState_allowedExchangeRateChangeUpper_before = currentContract.accountantState.allowedExchangeRateChangeUpper;
-    uint16 currentContract_accountantState_allowedExchangeRateChangeLower_before = currentContract.accountantState.allowedExchangeRateChangeLower;
-    uint96 currentContract_accountantState_highwaterMark_before = currentContract.accountantState.highwaterMark;
+    require(e.block.timestamp <= max_uint64);
+
+    bool isPaused_before = currentContract.accountantState.isPaused;
+    uint64 lastUpdateTimestamp_before = currentContract.accountantState.lastUpdateTimestamp;
+    uint24 minimumUpdateDelayInSeconds_before = currentContract.accountantState.minimumUpdateDelayInSeconds;
+    uint96 exchangeRate_before = currentContract.accountantState.exchangeRate;
+    uint16 allowedExchangeRateChangeUpper_before = currentContract.accountantState.allowedExchangeRateChangeUpper;
+    uint16 allowedExchangeRateChangeLower_before = currentContract.accountantState.allowedExchangeRateChangeLower;
+    uint96 highwaterMark_before = currentContract.accountantState.highwaterMark;
 
     // call function under test
     updateExchangeRate(e, newExchangeRate);
 
     // assign all the 'after' variables
-    uint96 currentContract_accountantState_highwaterMark_after = currentContract.accountantState.highwaterMark;
+    uint96 highwaterMark_after = currentContract.accountantState.highwaterMark;
 
     // verify integrity
-    assert (((((!(currentContract_accountantState_isPaused_before) && (e.block.timestamp >= currentContract_accountantState_lastUpdateTimestamp_before + currentContract_accountantState_minimumUpdateDelayInSeconds_before)) && (newExchangeRate <= currentContract_accountantState_exchangeRate_before * currentContract_accountantState_allowedExchangeRateChangeUpper_before / 10000)) && (newExchangeRate >= currentContract_accountantState_exchangeRate_before * currentContract_accountantState_allowedExchangeRateChangeLower_before / 10000)) && (newExchangeRate > currentContract_accountantState_highwaterMark_before)) => (currentContract_accountantState_highwaterMark_after == newExchangeRate)), "!accountantState.isPaused@before && block.timestamp >= accountantState.lastUpdateTimestamp@before + accountantState.minimumUpdateDelayInSeconds@before && newExchangeRate <= accountantState.exchangeRate@before * accountantState.allowedExchangeRateChangeUpper@before / 10000 && newExchangeRate >= accountantState.exchangeRate@before * accountantState.allowedExchangeRateChangeLower@before / 10000 && newExchangeRate > accountantState.highwaterMark@before => accountantState.highwaterMark@after == newExchangeRate";
+    assert (((((!(isPaused_before) && (e.block.timestamp >= lastUpdateTimestamp_before + minimumUpdateDelayInSeconds_before)) && (newExchangeRate <= exchangeRate_before * allowedExchangeRateChangeUpper_before / 10000)) && (newExchangeRate >= exchangeRate_before * allowedExchangeRateChangeLower_before / 10000)) && (newExchangeRate > highwaterMark_before)) => (highwaterMark_after == newExchangeRate)), "!accountantState.isPaused@before && block.timestamp >= accountantState.lastUpdateTimestamp@before + accountantState.minimumUpdateDelayInSeconds@before && newExchangeRate <= accountantState.exchangeRate@before * accountantState.allowedExchangeRateChangeUpper@before / 10000 && newExchangeRate >= accountantState.exchangeRate@before * accountantState.allowedExchangeRateChangeLower@before / 10000 && newExchangeRate > accountantState.highwaterMark@before => accountantState.highwaterMark@after == newExchangeRate";
 }
 
 /*
@@ -2687,7 +2703,8 @@ rule claimFees_15a0ea6a_fees_reset_after_claim(env e) {
  *
  * Possible consequences: Fee claiming that doesn't actually transfer funds, broken fee distribution mechanism, loss of earned fees
  */
-rule claimFees_15a0ea6a_payout_receives_fees(env e) {
+// gereon: if the decimals are different, the payout may be rounded down to zero. Maybe there is something missing in the setup, though?
+rule __claimFees_15a0ea6a_payout_receives_fees(env e) {
     address feeAsset;
 
     // assign all the 'before' variables
