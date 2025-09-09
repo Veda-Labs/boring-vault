@@ -16,8 +16,7 @@ methods {
     ) internal returns (LayerZeroTellerWithRateLimiting.MessagingReceipt memory)
         => CVL_lzSend();
 
-    unresolved external in LayerZeroTellerWithRateLimiting.setDelegate(address)
-        => DISPATCH [] default NONDET;
+    function _.setDelegate(address) external => NONDET;
 
     function _.addExecutorLzReceiveOption(bytes memory, uint128, uint128) internal
         => CVL_nondetbytes() expect (bytes memory);
