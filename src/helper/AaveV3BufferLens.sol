@@ -10,7 +10,7 @@ import {AaveV3BufferHelper, IBufferHelper} from "src/base/Roles/AaveV3BufferHelp
 import {IPool} from "src/interfaces/IPool.sol";
 
 contract AaveV3BufferLens {
-    function getInstantlyWithdrawableAmount(TellerWithBuffer teller, ERC20 asset) public view returns (uint256 withdrawableAmount) {
+    function getInstantlyWithdrawableAmount(TellerWithBuffer teller, ERC20 asset) external view returns (uint256 withdrawableAmount) {
         (, IBufferHelper withdrawBufferHelper) = teller.currentBufferHelpers(asset);
         address vault = address(teller.vault());
         if (address(withdrawBufferHelper) == address(0)) {
