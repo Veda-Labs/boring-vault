@@ -933,7 +933,8 @@ rule updatePerformanceFee_709ac1c3_zero_fee_allowed(env e) {
  *
  * Possible consequences: Gas waste from meaningless transactions, potential for spam transactions, unclear intent when no actual change occurs
  */
-rule updatePerformanceFee_709ac1c3_fee_unchanged_reverts(env e) {
+// gereon: might make sense?
+rule __updatePerformanceFee_709ac1c3_fee_unchanged_reverts(env e) {
     uint16 performanceFee;
 
     // assign all the 'before' variables
@@ -1038,7 +1039,8 @@ rule __updatePayoutAddress_56200819_no_op_reverts(env e) {
  *
  * Possible consequences: Complete loss of fee collection functionality, permanent locking of accumulated fees in the contract, and inability to recover platform/performance fees
  */
-rule updatePayoutAddress_56200819_zero_address_reverts(env e) {
+// gereon: might be checked. otoh maybe this might be used to disallow payouts temporarily?
+rule __updatePayoutAddress_56200819_zero_address_reverts(env e) {
     address payoutAddress;
 
     // assign all the 'before' variables
@@ -1366,8 +1368,8 @@ rule updatePayoutAddress_56200819_preserves_authority(env e) {
  *
  * Possible consequences: Unauthorized configuration changes leading to incorrect exchange rates, manipulation of fee calculations, or complete system compromise
  */
-// gereon: auth is more complex than AI thinks, and we need msg.sig
-rule __setRateProviderData_4d8be07e_unauthorized_reverts(env e) {
+// gereon: auth is more complex than AI thinks
+rule setRateProviderData_4d8be07e_unauthorized_reverts(env e) {
     address asset;
     bool isPeggedToBase;
     address rateProvider;
@@ -1382,7 +1384,7 @@ rule __setRateProviderData_4d8be07e_unauthorized_reverts(env e) {
     // assign all the 'after' variables
 
     // verify integrity
-    assert ((e.msg.sender != currentContract_owner_before) => setRateProviderData_reverted), "msg.sender != owner@before => revert";
+    assert ((!currentContract.isAuthorizedHarness(e, e.msg.sender, to_bytes4(sig:setRateProviderData(address,bool,address).selector))) => setRateProviderData_reverted), "msg.sender != owner@before => revert";
 }
 
 /*
@@ -2178,6 +2180,7 @@ rule updateExchangeRate_3458113d_paused_reverts(env e) {
  *
  * Possible consequences: Unauthorized users could manipulate exchange rates to steal funds, avoid fees, or cause incorrect vault valuations
  */
+// gereon: use proper auth mechanism from the harness
 rule updateExchangeRate_3458113d_no_auth_reverts(env e) {
     uint96 newExchangeRate;
 
@@ -2191,7 +2194,8 @@ rule updateExchangeRate_3458113d_no_auth_reverts(env e) {
     // assign all the 'after' variables
 
     // verify integrity
-    assert ((e.msg.sender != currentContract_owner_before) => updateExchangeRate_reverted), "msg.sender != owner@before => revert";
+    bytes4 funsig = to_bytes4(sig:updateExchangeRate(uint96).selector);
+    assert (!currentContract.isAuthorizedHarness(e, e.msg.sender, funsig) => updateExchangeRate_reverted), "msg.sender != owner@before => revert";
 }
 
 /*
@@ -2311,8 +2315,12 @@ rule updateExchangeRate_3458113d_valid_update_sets_rate(env e) {
  *
  * Possible consequences: Incorrect timestamps could break fee calculations, allow bypassing of update delays, or cause timing-based vulnerabilities
  */
+// gereon: unchecked downcast of timestamp breaks this.
 rule updateExchangeRate_3458113d_valid_update_timestamp(env e) {
     uint96 newExchangeRate;
+
+    // gereon: missing require, it's sensible to assume
+    require(e.block.timestamp <= max_uint64, "require that block is before the year 2554 :-)");
 
     // assign all the 'before' variables
     bool currentContract_accountantState_isPaused_before = currentContract.accountantState.isPaused;
@@ -2341,26 +2349,29 @@ rule updateExchangeRate_3458113d_valid_update_timestamp(env e) {
  *
  * Possible consequences: Stale share counts lead to incorrect fee calculations, potentially allowing fee avoidance or causing excessive fee charges
  */
-rule updateExchangeRate_3458113d_valid_update_shares(env e) {
+// gereon: this should be fixed. The value from the unchecked downcast in updateExchangeRate() is used for fee calculations. Fix the code or use the require below.
+rule __updateExchangeRate_3458113d_valid_update_shares(env e) {
     uint96 newExchangeRate;
 
     // assign all the 'before' variables
-    bool currentContract_accountantState_isPaused_before = currentContract.accountantState.isPaused;
-    uint64 currentContract_accountantState_lastUpdateTimestamp_before = currentContract.accountantState.lastUpdateTimestamp;
-    uint24 currentContract_accountantState_minimumUpdateDelayInSeconds_before = currentContract.accountantState.minimumUpdateDelayInSeconds;
-    uint96 currentContract_accountantState_exchangeRate_before = currentContract.accountantState.exchangeRate;
-    uint16 currentContract_accountantState_allowedExchangeRateChangeUpper_before = currentContract.accountantState.allowedExchangeRateChangeUpper;
-    uint16 currentContract_accountantState_allowedExchangeRateChangeLower_before = currentContract.accountantState.allowedExchangeRateChangeLower;
+    // gereon: fix using require(currentContract.vault.totalSupply(e) <= max_uint128);
+
+    bool isPaused = currentContract.accountantState.isPaused;
+    uint64 lastUpdateTimestamp = currentContract.accountantState.lastUpdateTimestamp;
+    uint24 minimumUpdateDelayInSeconds = currentContract.accountantState.minimumUpdateDelayInSeconds;
+    uint96 exchangeRate_before = currentContract.accountantState.exchangeRate;
+    uint16 allowedExchangeRateChangeUpper = currentContract.accountantState.allowedExchangeRateChangeUpper;
+    uint16 allowedExchangeRateChangeLower = currentContract.accountantState.allowedExchangeRateChangeLower;
 
     // call function under test
     updateExchangeRate(e, newExchangeRate);
 
     // assign all the 'after' variables
-    uint128 currentContract_accountantState_totalSharesLastUpdate_after = currentContract.accountantState.totalSharesLastUpdate;
-    uint256 currentContract_vault_totalSupply_e__after = currentContract.vault.totalSupply(e);
+    uint128 totalSharesLastUpdate_after = currentContract.accountantState.totalSharesLastUpdate;
+    uint256 totalSupply_after = currentContract.vault.totalSupply(e);
 
     // verify integrity
-    assert ((((!(currentContract_accountantState_isPaused_before) && (e.block.timestamp >= currentContract_accountantState_lastUpdateTimestamp_before + currentContract_accountantState_minimumUpdateDelayInSeconds_before)) && (newExchangeRate <= currentContract_accountantState_exchangeRate_before * currentContract_accountantState_allowedExchangeRateChangeUpper_before / 10000)) && (newExchangeRate >= currentContract_accountantState_exchangeRate_before * currentContract_accountantState_allowedExchangeRateChangeLower_before / 10000)) => (currentContract_accountantState_totalSharesLastUpdate_after == currentContract_vault_totalSupply_e__after)), "!accountantState.isPaused@before && block.timestamp >= accountantState.lastUpdateTimestamp@before + accountantState.minimumUpdateDelayInSeconds@before && newExchangeRate <= accountantState.exchangeRate@before * accountantState.allowedExchangeRateChangeUpper@before / 10000 && newExchangeRate >= accountantState.exchangeRate@before * accountantState.allowedExchangeRateChangeLower@before / 10000 => accountantState.totalSharesLastUpdate@after == vault.totalSupply()@after";
+    assert ((((!(isPaused) && (e.block.timestamp >= lastUpdateTimestamp + minimumUpdateDelayInSeconds)) && (newExchangeRate <= exchangeRate_before * allowedExchangeRateChangeUpper / 10000)) && (newExchangeRate >= exchangeRate_before * allowedExchangeRateChangeLower / 10000)) => (totalSharesLastUpdate_after == totalSupply_after)), "!accountantState.isPaused@before && block.timestamp >= accountantState.lastUpdateTimestamp@before + accountantState.minimumUpdateDelayInSeconds@before && newExchangeRate <= accountantState.exchangeRate@before * accountantState.allowedExchangeRateChangeUpper@before / 10000 && newExchangeRate >= accountantState.exchangeRate@before * accountantState.allowedExchangeRateChangeLower@before / 10000 => accountantState.totalSharesLastUpdate@after == vault.totalSupply()@after";
 }
 
 /*
@@ -2377,7 +2388,8 @@ rule updateExchangeRate_3458113d_highwater_increases(env e) {
     uint96 newExchangeRate;
 
     // assign all the 'before' variables
-    require(e.block.timestamp <= max_uint64);
+    // gereon: missing require, it's sensible to assume
+    require(e.block.timestamp <= max_uint64, "require that block is before the year 2554 :-)");
 
     bool isPaused_before = currentContract.accountantState.isPaused;
     uint64 lastUpdateTimestamp_before = currentContract.accountantState.lastUpdateTimestamp;
@@ -2468,7 +2480,8 @@ rule updateExchangeRate_3458113d_fees_increase_or_same(env e) {
  *
  * Possible consequences: If rate changes during pause, it could worsen the situation that caused the pause or create additional manipulation opportunities
  */
-rule updateExchangeRate_3458113d_pause_preserves_rate(env e) {
+// gereon: the comment for updateExchangeRate() mentions that fees will not be calculated, but does not say that nothing is updated. One might however expect that nothing is touched...
+rule __updateExchangeRate_3458113d_pause_preserves_rate(env e) {
     uint96 newExchangeRate;
 
     // assign all the 'before' variables
@@ -2549,7 +2562,8 @@ rule updateExchangeRate_3458113d_pause_preserves_highwater(env e) {
  *
  * Possible consequences: If timestamp changes during pause, it could affect delay calculations and fee computations when the contract resumes
  */
-rule updateExchangeRate_3458113d_pause_preserves_timestamp(env e) {
+// gereon: the comment for updateExchangeRate() mentions that fees will not be calculated, but does not say that nothing is updated. One might however expect that nothing is touched...
+rule __updateExchangeRate_3458113d_pause_preserves_timestamp(env e) {
     uint96 newExchangeRate;
 
     // assign all the 'before' variables
@@ -2576,7 +2590,8 @@ rule updateExchangeRate_3458113d_pause_preserves_timestamp(env e) {
  *
  * Possible consequences: If share count changes during pause, fee calculations could be incorrect when the contract resumes operation
  */
-rule updateExchangeRate_3458113d_pause_preserves_shares(env e) {
+// gereon: the comment for updateExchangeRate() mentions that fees will not be calculated, but does not say that nothing is updated. One might however expect that nothing is touched...
+rule __updateExchangeRate_3458113d_pause_preserves_shares(env e) {
     uint96 newExchangeRate;
 
     // assign all the 'before' variables
