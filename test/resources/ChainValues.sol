@@ -74,6 +74,7 @@ contract ChainValues {
     uint32 public constant layerZeroKatanaEndpointId = 30375;
     uint32 public constant layerZeroTACEndpointId = 30377;
     uint32 public constant layerZeroTONEndpointId = 30343;
+    uint32 public constant layerZeroPlasmaEndpointId = 30383;
     error ChainValues__ZeroAddress(string chainName, string valueName);
     error ChainValues__ZeroBytes32(string chainName, string valueName);
     error ChainValues__ValueAlreadySet(string chainName, string valueName);
