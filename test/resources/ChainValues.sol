@@ -2891,6 +2891,10 @@ contract ChainValues {
 
     function _addPlasmaValues() private {
         values[plasma]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        values[plasma]["txBundlerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        values[plasma]["dev5Address"] = 0x1cdF47387358A1733968df92f7cC14546D9E1047.toBytes32();
+
+         values[plasma]["balancerVault"] = address(1).toBytes32();
         
         // Factory Contracts
         values[plasma]["create2Factory"] = 0x4e59b44847b379578588920cA78FbF26c0B4956C.toBytes32();
@@ -2920,7 +2924,9 @@ contract ChainValues {
         values[plasma]["permit2"] = 0x000000000022D473030F116dDEE9F6B43aC78BA3.toBytes32();
         
         // Token
-        values[plasma]["WXPL"] = 0x6100E367285b01F48D07953803A2d8dCA5D19873.toBytes32();
+        values[plasma]["wXPL"] = 0x6100E367285b01F48D07953803A2d8dCA5D19873.toBytes32();
+        values[plasma]["USDT0"] = 0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb.toBytes32();
+        values[plasma]["ZRO"] = address(1).toBytes32();
         
         // Uniswap V3
         values[plasma]["uniswapV3NonFungiblePositionManager"] = 0x743E03cceB4af2efA3CC76838f6E8B50B63F184c.toBytes32();
@@ -2939,7 +2945,7 @@ contract ChainValues {
         values[plasma]["glacisAirlift"] = 0x290D54179960984599F16F77DCDA81320301b158.toBytes32();
         
         // LayerZero
-        values[plasma]["layerZeroEndpointV2"] = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B.toBytes32();
+        values[plasma]["LayerZeroEndPoint"] = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B.toBytes32();
     }
 
     

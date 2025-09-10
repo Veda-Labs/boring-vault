@@ -4,20 +4,20 @@
     "privateKeyEnvName": "BORING_DEVELOPER",
     "chainName": "plasma",
     "evmVersion": "cancun",
-    "desiredNumberOfDeploymentTxs": 2,
+    "desiredNumberOfDeploymentTxs": 5,
     "txBundlerAddressOrName": {
-      "address": "0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d",
+      "address": "0x0000000000000000000000000000000000000000",
       "name": "txBundlerAddress"
-    },
-    "setupRoles": true,
+    }, 
+    "setupRoles": true, 
     "setupTestUser": true,
     "saveDeploymentDetails": true,
     "testUserAddressOrName": {
-      "address": "0x1a0ADd6EC90fc571272D341439246036901B4E41",
-      "name": "dev1Address"
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "dev5Address"
     },
     "deployerContractAddressOrName": {
-      "address": "0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d",
+      "address": "0x0000000000000000000000000000000000000000",
       "name": "deployerAddress"
     },
     "nativeWrapperAddressOrName": {
@@ -25,58 +25,58 @@
       "name": "wXPL"
     },
     "deploymentOwnerAddressOrName": {
-      "address": "0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d",
+      "address": "0x0000000000000000000000000000000000000000",
       "name": "txBundlerAddress"
     },
-    "deploymentFileName": "addresses/plasma/PlasmaUSD.json"
+    "deploymentFileName": "addresses/plasma/LiquidETH.json"
   },
   "rolesAuthorityConfiguration": {
-    "rolesAuthorityDeploymentName": "Plasma USD Vault Roles Authority V0.0"
+    "rolesAuthorityDeploymentName": "EtherFi Liquid ETH RolesAuthority Version 0.0"
   },
   "lensConfiguration": {
-    "lensDeploymentName": "Plasma USD Vault Lens V0.0"
+    "lensDeploymentName": "Arctic Architecture Lens V0.0"
   },
   "boringVaultConfiguration": {
-    "boringVaultDeploymentName": "Plasma USD Vault V0.0",
-    "boringVaultName": "Plasma USD Vault",
-    "boringVaultSymbol": "PlasmaUSD",
-    "boringVaultDecimals": 6
+    "boringVaultDeploymentName": "EtherFi Liquid ETH V0.1",
+    "boringVaultName": "Ether.Fi Liquid ETH",
+    "boringVaultSymbol": "liquidETH",
+    "boringVaultDecimals": 18
   },
   "managerConfiguration": {
-    "managerDeploymentName": "Plasma USD Vault Manager V0.0",
+    "managerDeploymentName": "EtherFi Liquid ETH Manager With Merkle Verification V0.1",
     "balancerVaultAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
       "name": "balancerVault"
     }
   },
   "accountantConfiguration": {
-    "accountantDeploymentName": "Plasma USD Vault Accountant V0.0",
+    "accountantDeploymentName": "EtherFi Liquid ETH Accountant With Rate Providers V0.1",
     "accountantParameters": {
       "kind": {
         "variableRate": true,
         "fixedRate": false
       },
       "payoutConfiguration": {
-        "payoutTo": "0x0000000000000000000000000000000000000001",
-        "optionalPaymentSplitterName": "Plasma USD Vault Payment Splitter V0.0",
+        "payoutTo": "0xA9962a5BfBea6918E958DeE0647E99fD7863b95A",
+        "optionalPaymentSplitterName": "EtherFi Liquid ETH Payment Splitter V0.0",
         "splits": []
       },
       "accountantDeploymentParameters": {
-        "allowedExchangeRateChangeLower": 9950,
-        "allowedExchangeRateChangeUpper": 10050,
+        "allowedExchangeRateChangeLower": 9900,
+        "allowedExchangeRateChangeUpper": 10100,
         "baseAddressOrName": {
           "address": "0x0000000000000000000000000000000000000000",
-          "name": "USDT0"
+          "name": "WETH"
         },
         "minimumUpateDelayInSeconds": 21600,
         "performanceFee": 0,
         "platformFee": 0,
-        "startingExchangeRate": 1000000
+        "startingExchangeRate": 1000000000000000000
       }
     }
   },
   "tellerConfiguration": {
-    "tellerDeploymentName": "Plasma USD Vault Teller V0.0",
+    "tellerDeploymentName": "LiquidETH LayerZero Teller V0.0",
     "tellerParameters": {
       "allowPublicDeposits": true,
       "shareLockPeriod": 86400,
@@ -101,8 +101,8 @@
     }
   },
   "boringQueueConfiguration": {
-    "boringQueueDeploymentName": "Plasma USD Vault Boring Queue V0.0",
-    "boringQueueSolverName": "Plasma USD Vault Boring Solver V0.0",
+    "boringQueueDeploymentName": "EtherFi Liquid ETH Boring Queue V0.0",
+    "boringQueueSolverName": "EtherFi Liquid ETH Boring Solver V0.0",
     "excessToSolverNonSelfSolve": true,
     "queueParameters": {
       "allowPublicWithdrawals": true,
@@ -114,25 +114,17 @@
     }
   },
   "droneConfiguration": {
-    "droneDeploymentBaseName": "Plasma USD Vault Drone V0.0",
+    "droneDeploymentBaseName": "EtherFi Liquid ETH Drone V0.0",
     "droneCount": 0,
     "safeGasToForwardNative": 21000
   },
   "pauserConfiguration": {
     "shouldDeploy": true,
-    "pauserDeploymentName": "Plasma USD Vault Pauser V0.0",
-    "makeGenericPauser": [
-      "0x0000000000000000000000000000000000000000"
-    ],
-    "makeGenericUnpauser": [
-      "0x0000000000000000000000000000000000000000"
-    ],
-    "makePauseAll": [
-      "0x0000000000000000000000000000000000000000"
-    ],
-    "makeUnpauseAll": [
-      "0x0000000000000000000000000000000000000000"
-    ],
+    "pauserDeploymentName": "EtherFi Liquid ETH Pauser V0.0",
+    "makeGenericPauser": ["0x0000000000000000000000000000000000000000"],
+    "makeGenericUnpauser": ["0x0000000000000000000000000000000000000000"],
+    "makePauseAll": ["0x0000000000000000000000000000000000000000"],
+    "makeUnpauseAll": ["0x0000000000000000000000000000000000000000"],
     "senderToPausable": [
       {
         "sender": "0x0000000000000000000000000000000000000000",
@@ -142,32 +134,20 @@
   },
   "timelockConfiguration": {
     "shouldDeploy": true,
-    "timelockDeploymentName": "Plasma USD Vault Timelock V0.0",
+    "timelockDeploymentName": "EtherFi Liquid ETH Timelock V0.0",
     "timelockParameters": {
+      "executors": ["0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b"],
       "minDelay": 0,
-      "proposers": [
-        "0x1a0ADd6EC90fc571272D341439246036901B4E41"
-      ],
-      "executors": [
-        "0x1a0ADd6EC90fc571272D341439246036901B4E41"
-      ]
+      "proposers": ["0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b"]
     }
   },
   "accountantAssets": [
-    {
-      "addressOrName": {
-        "address": "0x0000000000000000000000000000000000000000",
-        "name": "USDT0"
-      },
-      "isPeggedToBase": true,
-      "rateProvider": "0x0000000000000000000000000000000000000000"
-    }
   ],
   "depositAssets": [
     {
       "addressOrName": {
         "address": "0x0000000000000000000000000000000000000000",
-        "name": "USDT0"
+        "name": "WETH"
       },
       "allowDeposits": true,
       "allowWithdraws": true,
@@ -178,13 +158,13 @@
     {
       "addressOrName": {
         "address": "0x0000000000000000000000000000000000000000",
-        "name": "USDT0"
+        "name": "WETH"
       },
-      "maxDiscount": 9,
+      "maxDiscount": 10,
       "minDiscount": 1,
       "minimumSecondsToDeadline": 259200,
       "minimumShares": 0,
-      "secondsToMaturity": 3600
+      "secondsToMaturity": 172800
     }
   ]
 }
