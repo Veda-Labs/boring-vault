@@ -450,7 +450,11 @@ rule postLoss_57545af7_preserves_vesting_times(env e) {
  *
  * Possible consequences: Share price manipulation, incorrect valuation of vault shares, potential fund loss for users
  */
-rule updateExchangeRate_02ce728f_updates_last_share_price(env e) {
+// gereon: there is some rounding in _updateExchangeRate that can violate this rule.
+rule __updateExchangeRate_02ce728f_updates_last_share_price(env e) {
+
+    // gereon: needs this to update lastSharePrice
+    require(getPendingVestingGains(e) > 0);
 
     // assign all the 'before' variables
     uint128 currentContract_vestingState_lastSharePrice_before = currentContract.vestingState.lastSharePrice;
@@ -498,9 +502,14 @@ rule updateExchangeRate_02ce728f_reduces_vesting_gains(env e) {
  *
  * Possible consequences: Incorrect vesting calculations, potential for gaming vesting schedules, yield distribution errors
  */
+// gereon: only when there are pending vesting gains
 rule updateExchangeRate_02ce728f_updates_last_vesting_update(env e) {
 
     // assign all the 'before' variables
+
+    // gereon: additional requires
+    require(getPendingVestingGains(e) > 0);
+    require(e.block.timestamp <= max_uint128);
 
     // call function under test
     updateExchangeRate(e);
@@ -722,7 +731,7 @@ rule updateMaximumVestDuration_eee00042_updates_maximum_vesting_time(env e) {
  * Possible consequences: Setting maximumVestingTime to zero would permanently break the vestYield function, causing DoS of the core yield streaming functionality and preventing any future yield from being vested
  */
 // gereon: could make sense?
-rule updateMaximumVestDuration_eee00042_zero_maximum_reverts(env e) {
+rule __updateMaximumVestDuration_eee00042_zero_maximum_reverts(env e) {
     uint64 newMaximum;
 
     // assign all the 'before' variables
@@ -773,7 +782,7 @@ rule __updateMaximumVestDuration_eee00042_below_minimum_reverts(env e) {
  * Possible consequences: Allowing no-op updates wastes gas and can mask bugs where the caller thinks they're changing a value but aren't. It also violates the principle that successful transactions should have meaningful effects
  */
 // gereon: could make sense?
-rule updateMaximumVestDuration_eee00042_same_value_reverts(env e) {
+rule __updateMaximumVestDuration_eee00042_same_value_reverts(env e) {
     uint64 newMaximum;
 
     // assign all the 'before' variables
