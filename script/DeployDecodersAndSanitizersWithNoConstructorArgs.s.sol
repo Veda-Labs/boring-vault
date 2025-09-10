@@ -633,7 +633,7 @@ contract DeployDecodersAndSanitizersWithNoConstructorArgsScript is
 
         creationCode = type(VaultCraftDecoderAndSanitizer).creationCode;
         constructorArgs = hex"";
-        deployContract("Vault Craft Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
+        deployContract("Vault Craft Decoder and Sanitizer V0.2", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }

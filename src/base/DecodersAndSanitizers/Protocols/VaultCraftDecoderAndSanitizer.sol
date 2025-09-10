@@ -9,7 +9,7 @@ import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protoco
 
 contract VaultCraftDecoderAndSanitizer is ERC4626DecoderAndSanitizer {
     //============================== VAULTCRAFT ===============================
-    function claim_rewards(address recipient) external returns (bytes memory addressesFound) {
+    function claim_rewards(address recipient) external pure virtual returns (bytes memory addressesFound) {
         addressesFound = abi.encodePacked(recipient);
     }
 }
