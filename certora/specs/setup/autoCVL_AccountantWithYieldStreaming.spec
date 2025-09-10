@@ -223,6 +223,9 @@ rule postLoss_57545af7_zero_loss_reverts(env e) {
 rule postLoss_57545af7_loss_exceeds_assets_reverts(env e) {
     uint256 lossAmount;
 
+    require(lossAmount > currentContract.vestingState.vestingGains);
+    require(currentContract.vault.totalSupply(e) > 0);
+
     // assign all the 'before' variables
     uint256 totalAssets_e__before = totalAssets(e);
 
@@ -271,21 +274,28 @@ rule postLoss_57545af7_updates_exchange_rate(env e) {
  *
  * Possible consequences: Incorrect share pricing, value extraction, unfair distribution of losses among shareholders
  */
-rule postLoss_57545af7_decreases_share_price(env e) {
+// gereon: some issues fixed, but still _updateExchangeRate() changes totalAssets()
+rule __postLoss_57545af7_decreases_share_price(env e) {
     uint256 lossAmount;
 
     // assign all the 'before' variables
-    uint256 totalAssets_e__before = totalAssets(e);
-    uint256 currentContract_vault_totalSupply_e__before = currentContract.vault.totalSupply(e);
+    uint256 totalAssets_before = totalAssets(e);
+    uint256 totalSupply_before = currentContract.vault.totalSupply(e);
+
+    require(totalSupply_before > 0);
+    require(lossAmount > currentContract.vestingState.vestingGains);
+    require(currentContract.vault.decimals(e) < 10);
 
     // call function under test
     postLoss(e, lossAmount);
 
     // assign all the 'after' variables
-    uint128 currentContract_vestingState_lastSharePrice_after = currentContract.vestingState.lastSharePrice;
+    uint128 lastSharePrice_after = currentContract.vestingState.lastSharePrice;
 
     // verify integrity
-    assert (((lossAmount > 0) && (lossAmount <= totalAssets_e__before)) => (currentContract_vestingState_lastSharePrice_after == totalAssets_e__before - lossAmount * 10 ^ currentContract.decimals / currentContract_vault_totalSupply_e__before)), "lossAmount > 0 && lossAmount <= totalAssets()@before => vestingState.lastSharePrice@after == ((totalAssets()@before - lossAmount) * (10^decimals)) / vault.totalSupply()@before";
+    require(lossAmount > 0);
+    require(lossAmount <= totalAssets_before);
+    assert(lastSharePrice_after == (totalAssets_before - lossAmount) * currentContract.ONE_SHARE / totalSupply_before, "lossAmount > 0 && lossAmount <= totalAssets()@before => vestingState.lastSharePrice@after == ((totalAssets()@before - lossAmount) * (10^decimals)) / vault.totalSupply()@before");
 }
 
 /*
@@ -298,7 +308,7 @@ rule postLoss_57545af7_decreases_share_price(env e) {
  * Possible consequences: Double counting of gains, inflated share prices, users receiving yield that doesn't exist
  */
 // gereon: only if the gains are below lossAmount.
-rule postLoss_57545af7_clears_vesting_gains(env e) {
+rule __postLoss_57545af7_clears_vesting_gains(env e) {
     uint256 lossAmount;
 
     // assign all the 'before' variables
@@ -549,20 +559,21 @@ rule updateExchangeRate_02ce728f_preserves_vesting_times(env e) {
  *
  * Possible consequences: Desynchronization between pricing systems, incorrect fee calculations, arbitrage opportunities
  */
-rule updateExchangeRate_02ce728f_updates_exchange_rate(env e) {
-
-    // assign all the 'before' variables
-
-    // call function under test
-    updateExchangeRate(e);
-
-    // assign all the 'after' variables
-    uint96 currentContract_accountantState_exchangeRate_after = currentContract.accountantState.exchangeRate;
-    uint128 currentContract_vestingState_lastSharePrice_after = currentContract.vestingState.lastSharePrice;
-
-    // verify integrity
-    assert (currentContract_accountantState_exchangeRate_after == currentContract_vestingState_lastSharePrice_after), "accountantState.exchangeRate@after == vestingState.lastSharePrice@after";
-}
+// gereon: what? I don't think so
+//rule updateExchangeRate_02ce728f_updates_exchange_rate(env e) {
+//
+//    // assign all the 'before' variables
+//
+//    // call function under test
+//    updateExchangeRate(e);
+//
+//    // assign all the 'after' variables
+//    uint96 currentContract_accountantState_exchangeRate_after = currentContract.accountantState.exchangeRate;
+//    uint128 currentContract_vestingState_lastSharePrice_after = currentContract.vestingState.lastSharePrice;
+//
+//    // verify integrity
+//    assert (currentContract_accountantState_exchangeRate_after == currentContract_vestingState_lastSharePrice_after), "accountantState.exchangeRate@after == vestingState.lastSharePrice@after";
+//}
 
 /*
  * accountantState.lastUpdateTimestamp@after == block.timestamp
@@ -573,7 +584,8 @@ rule updateExchangeRate_02ce728f_updates_exchange_rate(env e) {
  *
  * Possible consequences: Fee calculation errors, bypass of rate limiting mechanisms, temporal manipulation attacks
  */
-rule updateExchangeRate_02ce728f_updates_accountant_timestamp(env e) {
+// gereon: This timestamp is not updated anywhere in this function. Maybe this should be vestingState.lastVestingUpdate?
+rule __updateExchangeRate_02ce728f_updates_accountant_timestamp(env e) {
 
     // assign all the 'before' variables
 
@@ -620,20 +632,21 @@ rule updateExchangeRate_02ce728f_zero_gains_after_vesting_end(env e) {
  *
  * Possible consequences: Premature yield distribution, incorrect vesting schedules, unfair advantage to early callers
  */
-rule updateExchangeRate_02ce728f_partial_vesting_before_end(env e) {
+// gereon: the code explicitly has a case where vestingGains does not increase
+rule __updateExchangeRate_02ce728f_partial_vesting_before_end(env e) {
 
     // assign all the 'before' variables
-    uint64 currentContract_vestingState_endVestingTime_before = currentContract.vestingState.endVestingTime;
-    uint128 currentContract_vestingState_vestingGains_before = currentContract.vestingState.vestingGains;
+    uint64 endVestingTime = currentContract.vestingState.endVestingTime;
+    uint128 vestingGains_before = currentContract.vestingState.vestingGains;
 
     // call function under test
     updateExchangeRate(e);
 
     // assign all the 'after' variables
-    uint128 currentContract_vestingState_vestingGains_after = currentContract.vestingState.vestingGains;
+    uint128 vestingGains_after = currentContract.vestingState.vestingGains;
 
     // verify integrity
-    assert (((e.block.timestamp < currentContract_vestingState_endVestingTime_before) && (currentContract_vestingState_vestingGains_before > 0)) => (currentContract_vestingState_vestingGains_after < currentContract_vestingState_vestingGains_before)), "block.timestamp < vestingState.endVestingTime@before && vestingState.vestingGains@before > 0 => vestingState.vestingGains@after < vestingState.vestingGains@before";
+    assert (((e.block.timestamp < endVestingTime) && (vestingGains_before > 0)) => (vestingGains_after < vestingGains_before)), "block.timestamp < vestingState.endVestingTime@before && vestingState.vestingGains@before > 0 => vestingState.vestingGains@after < vestingState.vestingGains@before";
 }
 
 /*
