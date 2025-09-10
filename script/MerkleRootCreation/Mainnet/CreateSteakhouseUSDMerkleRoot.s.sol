@@ -65,6 +65,15 @@ contract CreateSteakhouseUSDMerkleRoot is Script, MerkleTreeHelper {
         // ========================== Odos ==========================
          _addOdosSwapLeafs(leafs, assets, kind);
 
+
+        // ========================== Balancer ==========================
+
+        _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDC"));
+        _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDT"));
+        _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "DAI"));
+        _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDS"));
+        
+
         // ========================== Morpho Blue ==========================
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "sUSDe_USDC_915")); 
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "sUSDe_USDT_915")); 
