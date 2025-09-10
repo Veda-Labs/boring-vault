@@ -152,6 +152,7 @@ import {ReserveERC20WrappedDecoderAndSanitizer} from "src/base/DecodersAndSaniti
 import {EigenLayerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/eigen_layer/EigenLayerDecoderAndSanitizer.sol";
 import {KinetiqDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/KinetiqDecoderAndSanitizer.sol";
 import {KHypeHyperEVMDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/KHypeHyperEVMDecoderAndSanitizer.sol";
+import {VaultCraftDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/VaultCraftDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -171,8 +172,8 @@ contract DeployDecodersAndSanitizersWithNoConstructorArgsScript is
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("hyperEVM");
-        setSourceChainName("hyperEVM");
+        vm.createSelectFork("arbitrum");
+        setSourceChainName("arbitrum");
     }
 
     function run() external {
@@ -629,6 +630,10 @@ contract DeployDecodersAndSanitizersWithNoConstructorArgsScript is
         creationCode = type(KHypeHyperEVMDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode();
         deployContract("KHype HyperEVM Decoder And Sanitizer V0.2", creationCode, constructorArgs, 0);
+
+        creationCode = type(VaultCraftDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Vault Craft Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
