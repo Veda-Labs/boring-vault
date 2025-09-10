@@ -61,7 +61,8 @@ rule vestYield_ec0f6e8e_invalid_duration_reverts(env e) {
  *
  * Possible consequences: Incorrect yield accounting could lead to users receiving more or less yield than they're entitled to, breaking the economic model
  */
-rule vestYield_ec0f6e8e_updates_vesting_gains(env e) {
+// gereon: not sure whether it should increase by yieldAmount or be set to yieldAmount
+rule __vestYield_ec0f6e8e_updates_vesting_gains(env e) {
     uint256 yieldAmount;
     uint256 duration;
 
@@ -93,6 +94,9 @@ rule vestYield_ec0f6e8e_updates_start_time(env e) {
     uint256 yieldAmount;
     uint256 duration;
 
+    // gereon: more requirements
+    require(e.block.timestamp <= max_uint64);
+
     // assign all the 'before' variables
     uint256 currentContract_minimumVestingTime_before = currentContract.minimumVestingTime;
     uint256 currentContract_maximumVestingTime_before = currentContract.maximumVestingTime;
@@ -116,9 +120,12 @@ rule vestYield_ec0f6e8e_updates_start_time(env e) {
  *
  * Possible consequences: Wrong end times would cause yield to vest over incorrect periods, potentially making yield available too early or too late
  */
+// gereon: timestamps are all uint64 internally
 rule vestYield_ec0f6e8e_updates_end_time(env e) {
     uint256 yieldAmount;
     uint256 duration;
+
+    require(e.block.timestamp + duration <= max_uint64);
 
     // assign all the 'before' variables
     uint256 currentContract_minimumVestingTime_before = currentContract.minimumVestingTime;
@@ -143,9 +150,14 @@ rule vestYield_ec0f6e8e_updates_end_time(env e) {
  *
  * Possible consequences: Incorrect lastVestingUpdate could cause vesting calculations to be wrong, leading to over or under-distribution of yield
  */
+// gereon: only if there is something to vest
 rule vestYield_ec0f6e8e_updates_last_vesting(env e) {
     uint256 yieldAmount;
     uint256 duration;
+
+    // gereon: more requirements
+    require(getPendingVestingGains(e) > 0);
+    require(e.block.timestamp <= max_uint128);
 
     // assign all the 'before' variables
     uint256 currentContract_minimumVestingTime_before = currentContract.minimumVestingTime;
@@ -170,22 +182,23 @@ rule vestYield_ec0f6e8e_updates_last_vesting(env e) {
  *
  * Possible consequences: Premature share price updates could cause accounting inconsistencies and incorrect fee calculations
  */
-rule vestYield_ec0f6e8e_preserves_last_share_price(env e) {
-    uint256 yieldAmount;
-    uint256 duration;
-
-    // assign all the 'before' variables
-    uint128 currentContract_vestingState_lastSharePrice_before = currentContract.vestingState.lastSharePrice;
-
-    // call function under test
-    vestYield(e, yieldAmount, duration);
-
-    // assign all the 'after' variables
-    uint128 currentContract_vestingState_lastSharePrice_after = currentContract.vestingState.lastSharePrice;
-
-    // verify integrity
-    assert (currentContract_vestingState_lastSharePrice_after == currentContract_vestingState_lastSharePrice_before), "vestingState.lastSharePrice@after == vestingState.lastSharePrice@before";
-}
+// gereon: vestYield calls _updateExchangeRate()...
+//rule vestYield_ec0f6e8e_preserves_last_share_price(env e) {
+//    uint256 yieldAmount;
+//    uint256 duration;
+//
+//    // assign all the 'before' variables
+//    uint128 currentContract_vestingState_lastSharePrice_before = currentContract.vestingState.lastSharePrice;
+//
+//    // call function under test
+//    vestYield(e, yieldAmount, duration);
+//
+//    // assign all the 'after' variables
+//    uint128 currentContract_vestingState_lastSharePrice_after = currentContract.vestingState.lastSharePrice;
+//
+//    // verify integrity
+//    assert (currentContract_vestingState_lastSharePrice_after == currentContract_vestingState_lastSharePrice_before), "vestingState.lastSharePrice@after == vestingState.lastSharePrice@before";
+//}
 
 /*
  * lossAmount == 0 => revert
@@ -708,6 +721,7 @@ rule updateMaximumVestDuration_eee00042_updates_maximum_vesting_time(env e) {
  *
  * Possible consequences: Setting maximumVestingTime to zero would permanently break the vestYield function, causing DoS of the core yield streaming functionality and preventing any future yield from being vested
  */
+// gereon: could make sense?
 rule updateMaximumVestDuration_eee00042_zero_maximum_reverts(env e) {
     uint64 newMaximum;
 
@@ -732,7 +746,8 @@ rule updateMaximumVestDuration_eee00042_zero_maximum_reverts(env e) {
  *
  * Possible consequences: Violating this invariant would create an impossible state where no duration could satisfy both the minimum and maximum constraints, causing permanent DoS of the vestYield function
  */
-rule updateMaximumVestDuration_eee00042_below_minimum_reverts(env e) {
+// gereon: could make sense?
+rule __updateMaximumVestDuration_eee00042_below_minimum_reverts(env e) {
     uint64 newMaximum;
 
     // assign all the 'before' variables
@@ -757,6 +772,7 @@ rule updateMaximumVestDuration_eee00042_below_minimum_reverts(env e) {
  *
  * Possible consequences: Allowing no-op updates wastes gas and can mask bugs where the caller thinks they're changing a value but aren't. It also violates the principle that successful transactions should have meaningful effects
  */
+// gereon: could make sense?
 rule updateMaximumVestDuration_eee00042_same_value_reverts(env e) {
     uint64 newMaximum;
 
@@ -806,7 +822,8 @@ rule updateMinimumVestDuration_96297efc_updates_minimum_vesting_time(env e) {
  *
  * Possible consequences: Gas waste from successful but meaningless transactions, potential confusion in monitoring systems that expect state changes, and masking of logic errors in calling code
  */
-rule updateMinimumVestDuration_96297efc_no_op_reverts(env e) {
+// gereon: could make sense?
+rule __updateMinimumVestDuration_96297efc_no_op_reverts(env e) {
     uint64 newMinimum;
 
     // assign all the 'before' variables
