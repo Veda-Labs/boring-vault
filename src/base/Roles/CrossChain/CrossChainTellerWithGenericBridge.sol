@@ -43,7 +43,8 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
         address to,
         bytes calldata bridgeWildCard,
         ERC20 feeToken,
-        uint256 maxFee
+        uint256 maxFee,
+        address referralAddress
     )
         external
         payable
@@ -55,7 +56,7 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
         // Deposit
         Asset memory asset = _beforeDeposit(depositAsset);
         sharesBridged = _erc20Deposit(depositAsset, depositAmount, minimumMint, msg.sender, msg.sender, asset);
-        _afterPublicDeposit(msg.sender, depositAsset, depositAmount, sharesBridged, shareLockPeriod);
+        _afterPublicDeposit(msg.sender, depositAsset, depositAmount, sharesBridged, shareLockPeriod, referralAddress);
 
         // Bridge shares
         if (sharesBridged > type(uint96).max) revert CrossChainTellerWithGenericBridge__UnsafeCastToUint96();
@@ -81,7 +82,8 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
         address to,
         bytes calldata bridgeWildCard,
         ERC20 feeToken,
-        uint256 maxFee
+        uint256 maxFee,
+        address referralAddress
     )
         external
         payable
@@ -96,7 +98,7 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
             _handlePermit(depositAsset, depositAmount, deadline, v, r, s);
             sharesBridged = _erc20Deposit(depositAsset, depositAmount, minimumMint, msg.sender, msg.sender, asset);
         }
-        _afterPublicDeposit(msg.sender, depositAsset, depositAmount, sharesBridged, shareLockPeriod);
+        _afterPublicDeposit(msg.sender, depositAsset, depositAmount, sharesBridged, shareLockPeriod, referralAddress);
 
         // Bridge shares
         if (sharesBridged > type(uint96).max) revert CrossChainTellerWithGenericBridge__UnsafeCastToUint96();
