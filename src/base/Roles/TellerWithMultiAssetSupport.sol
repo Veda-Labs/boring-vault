@@ -622,7 +622,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         if (currentShareLockPeriod > 0) {
             beforeTransferData[user].shareUnlockTime = block.timestamp + currentShareLockPeriod;
             publicDepositHistory[nonce] = keccak256(
-                abi.encode(user, depositAsset, depositAmount, shares, block.timestamp, currentShareLockPeriod)
+                abi.encode(user, depositAsset, depositAmount, shares, block.timestamp, currentShareLockPeriod, referralAddress)
             );
         }
         emit Deposit(nonce, user, address(depositAsset), depositAmount, shares, block.timestamp, currentShareLockPeriod, referralAddress);
