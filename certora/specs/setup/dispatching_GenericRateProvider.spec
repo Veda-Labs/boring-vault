@@ -1,3 +1,3 @@
-import "snippet_GenericRateProvider.spec";
+import "snippet_RateProvider.spec";
 
 methods {}
