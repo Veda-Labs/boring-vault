@@ -1677,6 +1677,7 @@ rule denyTo_3b575407_preserves_share_premium(env e) {
  *
  * Possible consequences: Gas waste, unclear contract state, potential for griefing attacks where users repeatedly call functions that do nothing, and violation of the principle that no-op operations should fail
  */
+// gereon: might be useful, but probably not worth it
 rule allowTo_5f45bac8_no_op_reverts(env e) {
     address user;
 
@@ -1974,7 +1975,8 @@ rule allowOperator_1ba9a458_unauthorized_reverts(env e) {
  *
  * Possible consequences: State corruption and potential DoS - allowing zero address operations could lead to unexpected behavior in transfer logic and waste gas on meaningless state changes
  */
-rule allowOperator_1ba9a458_zero_address_reverts(env e) {
+// gereon: might be useful, but probably not worth it
+rule __allowOperator_1ba9a458_zero_address_reverts(env e) {
     address user;
 
     // assign all the 'before' variables
@@ -2202,6 +2204,7 @@ rule setPermissionedTransfers_8a6733f9_other_state_unchanged(env e) {
  *
  * Possible consequences: State corruption where zero address gains operator privileges, potential bypass of access controls, and logical inconsistencies in permission checks
  */
+// gereon: might be useful, but probably not worth it
 rule allowPermissionedOperator_9ac4f42d_zero_address_reverts(env e) {
     address operator;
 
@@ -4107,7 +4110,8 @@ rule bulkDeposit_9d574420_asset_not_allowed_reverts(env e) {
  *
  * Possible consequences: Native ETH handling requires special logic for wrapping/unwrapping. Accepting native deposits without proper handling could lock ETH permanently
  */
-rule bulkDeposit_9d574420_native_deposit_reverts(env e) {
+// gereon: not sure about the details here. Other parts of the code explicitly check for the NATIVE address, though
+rule __bulkDeposit_9d574420_native_deposit_reverts(env e) {
     address depositAsset;
     uint256 depositAmount;
     uint256 minimumMint;
@@ -4135,6 +4139,7 @@ rule bulkDeposit_9d574420_native_deposit_reverts(env e) {
  *
  * Possible consequences: Bypassing deposit caps could lead to excessive vault growth beyond risk tolerance, potential liquidity issues, or regulatory compliance violations
  */
+// gereon: AI forgot to store the result in shares variable
 rule bulkDeposit_9d574420_exceeds_cap_reverts(env e) {
     address depositAsset;
     uint256 depositAmount;
@@ -4147,7 +4152,7 @@ rule bulkDeposit_9d574420_exceeds_cap_reverts(env e) {
     uint256 currentContract_vault_totalSupply_e__before = currentContract.vault.totalSupply(e);
 
     // call function under test
-    bulkDeposit@withrevert(e, depositAsset, depositAmount, minimumMint, to);
+    shares = bulkDeposit@withrevert(e, depositAsset, depositAmount, minimumMint, to);
     bool bulkDeposit_reverted = lastReverted;
 
     // assign all the 'after' variables
@@ -4165,6 +4170,7 @@ rule bulkDeposit_9d574420_exceeds_cap_reverts(env e) {
  *
  * Possible consequences: Users could receive fewer shares than expected due to price movements or calculation errors, leading to financial losses
  */
+// gereon: AI forgot to store the result in shares variable
 rule bulkDeposit_9d574420_below_minimum_reverts(env e) {
     address depositAsset;
     uint256 depositAmount;
@@ -4175,7 +4181,7 @@ rule bulkDeposit_9d574420_below_minimum_reverts(env e) {
     // assign all the 'before' variables
 
     // call function under test
-    bulkDeposit@withrevert(e, depositAsset, depositAmount, minimumMint, to);
+    shares = bulkDeposit@withrevert(e, depositAsset, depositAmount, minimumMint, to);
     bool bulkDeposit_reverted = lastReverted;
 
     // assign all the 'after' variables
@@ -4612,6 +4618,7 @@ rule bulkWithdraw_3e64ce99_shares_exceed_balance_revert(env e) {
  *
  * Possible consequences: Users receiving insufficient assets due to unfavorable price movements or calculation errors, leading to financial losses
  */
+// gereon: AI forgot to store the result in assetsOut variable
 rule bulkWithdraw_3e64ce99_below_minimum_assets_revert(env e) {
     address withdrawAsset;
     uint256 shareAmount;
@@ -4622,7 +4629,7 @@ rule bulkWithdraw_3e64ce99_below_minimum_assets_revert(env e) {
     // assign all the 'before' variables
 
     // call function under test
-    bulkWithdraw@withrevert(e, withdrawAsset, shareAmount, minimumAssets, to);
+    assetsOut = bulkWithdraw@withrevert(e, withdrawAsset, shareAmount, minimumAssets, to);
     bool bulkWithdraw_reverted = lastReverted;
 
     // assign all the 'after' variables
@@ -4640,7 +4647,8 @@ rule bulkWithdraw_3e64ce99_below_minimum_assets_revert(env e) {
  *
  * Possible consequences: Permanent loss of withdrawn assets, as they would be sent to an unrecoverable address
  */
-rule bulkWithdraw_3e64ce99_to_zero_address_revert(env e) {
+// gereon: maybe this should indeed be checked.
+rule __bulkWithdraw_3e64ce99_to_zero_address_revert(env e) {
     address withdrawAsset;
     uint256 shareAmount;
     uint256 minimumAssets;
@@ -4697,7 +4705,8 @@ rule bulkWithdraw_3e64ce99_valid_withdrawal_returns(env e) {
  *
  * Possible consequences: Bypassing of compliance restrictions, allowing blocked users to move funds when they shouldn't be able to
  */
-rule bulkWithdraw_3e64ce99_denied_from_revert(env e) {
+// gereon: bulkWithdraw does not use beforeTransfer for checking the allow and deny lists, but instead seems to rely on the requiresAuth modifier. I'm not sure yet how this auth works, in particular as the authority is initialized with zero in the constructor...
+rule __bulkWithdraw_3e64ce99_denied_from_revert(env e) {
     address withdrawAsset;
     uint256 shareAmount;
     uint256 minimumAssets;
@@ -4726,7 +4735,8 @@ rule bulkWithdraw_3e64ce99_denied_from_revert(env e) {
  *
  * Possible consequences: Bypassing of the share lock mechanism, allowing premature withdrawals and potentially interfering with the deposit refund system
  */
-rule bulkWithdraw_3e64ce99_shares_locked_revert(env e) {
+// gereon: bulkWithdraw does not use beforeTransfer for checking the shareUnlockTime, but instead seems to solely rely on the requiresAuth modifier. See also bulkWithdraw_3e64ce99_denied_from_revert
+rule __bulkWithdraw_3e64ce99_shares_locked_revert(env e) {
     address withdrawAsset;
     uint256 shareAmount;
     uint256 minimumAssets;
