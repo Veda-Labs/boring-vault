@@ -2676,6 +2676,8 @@ contract ChainValues {
         values[flare]["ZRO"] = address(1).toBytes32(); // USDC0
         values[flare]["rFLR"] = 0x26d460c3Cf931Fb2014FA436a49e3Af08619810e.toBytes32();
         values[flare]["RFLR"] = 0x26d460c3Cf931Fb2014FA436a49e3Af08619810e.toBytes32();
+        // values[flare]["WBTC"] = .toBytes32();
+        // values[flare]["LBTC"] = .toBytes32();
 
         // UniswapV3/SparkDex
         values[flare]["uniswapV3NonFungiblePositionManager"] = 0xEE5FF5Bc5F852764b5584d92A4d592A53DC527da.toBytes32();

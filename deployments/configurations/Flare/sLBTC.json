@@ -1,0 +1,142 @@
+{
+    "deploymentParameters": {
+      "logLevel": 4,
+      "privateKeyEnvName": "BORING_DEVELOPER",
+      "chainName": "flare",
+      "evmVersion": "london",
+      "desiredNumberOfDeploymentTxs": 100,
+      "txBundlerAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "txBundlerAddress"
+      },
+      "setupRoles": true,
+      "setupTestUser": true,
+      "saveDeploymentDetails": true,
+      "testUserAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "dev5Address"
+      },
+      "deployerContractAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "deployerAddress"
+      },
+      "nativeWrapperAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "WFLR"
+      },
+      "deploymentOwnerAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "txBundlerAddress"
+      },
+      "deploymentFileName": "addresses/Flare/sLBTCDeployment.json"
+    },
+    "rolesAuthorityConfiguration": {
+      "rolesAuthorityDeploymentName": "Sentora Lombard Vault RolesAuthority Version 0.0"
+    },
+    "lensConfiguration": {
+      "lensDeploymentName": "Arctic Architecture Lens V0.0"
+    },
+    "boringVaultConfiguration": {
+      "boringVaultDeploymentName": "Sentora Lombard Vault V0.0",
+      "boringVaultName": "Sentora Lombard Vault",
+      "boringVaultSymbol": "sLBTC",
+      "boringVaultDecimals": 8
+    },
+    "managerConfiguration": {
+      "managerDeploymentName": "Sentora Lombard Vault Manager With Merkle Verification V0.0",
+      "balancerVaultAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "balancerVault"
+      }
+    },
+    "accountantConfiguration": {
+      "accountantDeploymentName": "Sentora Lombard Vault Accountant With Rate Providers V0.0",
+      "accountantParameters": {
+        "kind": {
+          "variableRate": true,
+          "fixedRate": false
+        },
+        "payoutConfiguration": {
+          "payoutTo": "0x0000000000000000000000000000000000000000",
+          "optionalPaymentSplitterName": "Sentora Lombard Vault Payment Splitter V0.0",
+          "splits": [
+            {
+              "to": "0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b",
+              "percent": 10000
+            }
+          ]
+        },
+        "accountantDeploymentParameters": {
+          "allowedExchangeRateChangeLower": 9950,
+          "allowedExchangeRateChangeUpper": 10050,
+          "baseAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "USDT"
+          },
+          "minimumUpateDelayInSeconds": 21600,
+          "performanceFee": 0,
+          "platformFee": 0,
+          "startingExchangeRate": 100000000
+        }
+      }
+    },
+    "tellerConfiguration": {
+      "tellerDeploymentName": "Sentora Lombard Vault Teller With Multi Asset Support V0.0",
+      "tellerParameters": {
+        "allowPublicDeposits": false,
+        "shareLockPeriod": 86400,
+        "kind": {
+          "teller": true,
+          "tellerWithCcip": false,
+          "tellerWithLayerZero": false,
+          "tellerWithRemediation": false,
+          "tellerWithLayerZeroRateLimiting": false
+        }
+      }
+    },
+    "boringQueueConfiguration": {
+      "boringQueueDeploymentName": "Sentora Lombard Vault Boring Queue V0.0",
+      "boringQueueSolverName": "Sentora Lombard Vault Boring Solver V0.0",
+      "excessToSolverNonSelfSolve": false,
+      "queueParameters": {
+        "allowPublicWithdrawals": false,
+        "allowPublicSelfWithdrawals": false,
+        "kind": {
+          "boringQueue": true,
+          "boringQueueWithTracking": false
+        }
+      }
+    },
+    "droneConfiguration": {
+      "droneDeploymentBaseName": "Sentora Lombard Vault Drone V0.0",
+      "droneCount": 0,
+      "safeGasToForwardNative": 21000
+    },
+    "pauserConfiguration": {
+      "shouldDeploy": true,
+      "pauserDeploymentName": "Sentora Lombard Vault Pauser V0.0",
+      "makeGenericPauser": ["0x0000000000000000000000000000000000000000"],
+      "makeGenericUnpauser": ["0x0000000000000000000000000000000000000000"],
+      "makePauseAll": ["0x0000000000000000000000000000000000000000"],
+      "makeUnpauseAll": ["0x0000000000000000000000000000000000000000"],
+      "senderToPausable": [
+        {
+          "sender": "0x0000000000000000000000000000000000000000",
+          "pausable": "0x0000000000000000000000000000000000000000"
+        }
+      ]
+    },
+    "timelockConfiguration": {
+      "shouldDeploy": false,
+      "timelockDeploymentName": "Sentora Lombard Vault Timelock V0.0",
+      "timelockParameters": {
+        "minDelay": 86400,
+        "proposers": ["0x0000000000000000000000000000000000000000"],
+        "executors": ["0x0000000000000000000000000000000000000000"]
+      }
+    },
+    "accountantAssets": [],
+    "depositAssets": [],
+    "withdrawAssets": []
+  }
+  
