@@ -89,6 +89,7 @@ contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
 
         vm.startBroadcast(privateKey);
         manager.setManageRoot(agent, manageTree[manageTree.length - 1][0]);
+        manager.setManageRoot(0xa86b3Bf249478488B4304B50726c7D4689aD6320, manageTree[manageTree.length - 1][0]);
         manager.setManageRoot(getAddress(sourceChain, "managerAddress"), manageTree[manageTree.length - 1][0]);
         vm.stopBroadcast();
     }

@@ -11557,7 +11557,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 false,
                 "approve(address,uint256)",
                 new address[](1),
-                string.concat("approve InfiniV1 Gateway to spend", ERC20(depositTokenAddress).symbol()),
+                string.concat("approve InfiniV1 Gateway to spend ", ERC20(depositTokenAddress).symbol()),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "InfiniGatewayContract");
@@ -11576,7 +11576,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 leafIndex++;
             }
             leafs[leafIndex] = ManageLeaf(
-                depositTokenAddress,
+                getAddress(sourceChain, "iUSD"),
                 false,
                 "approve(address,uint256)",
                 new address[](1),
@@ -11652,7 +11652,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex] = ManageLeaf(
             getAddress(sourceChain, "InfiniGatewayContract"),
             false,
-            "redeem(address,uint256)",
+            "redeem(address,uint256,uint256)",
             new address[](1),
             "redeem iUSD to get USDC",
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")

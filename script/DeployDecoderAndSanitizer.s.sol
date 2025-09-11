@@ -11,6 +11,8 @@ import {PancakeSwapV3FullDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/PancakeSwapV3FullDecoderAndSanitizer.sol";
 import {AerodromeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/AerodromeDecoderAndSanitizer.sol";
 import {SyUsdDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyUsdDecoderAndSanitizer.sol";
+import {SyEthArbitrumDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyEthArbitrumDecoderAndSanitizer.sol";
+import {SyBtcArbitrumDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyBtcArbitrumDecoderAndSanitizer.sol";
 import {SyHlpBaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyHlpArbitrumDecoderAndSanitizer.sol";
 import {TestVaultArbitrumDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/TestVaultArbitrumDecoderAndSanitizer.sol";
@@ -160,6 +162,54 @@ contract DeployTestVaultArbitrumDecoderAndSanitizer is Script, ContractNames, Ma
             getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2")
         );
         deployer.deployContract("Test Vault Arbitrum DecodersAndSanitizers Batch 1", creationCode, constructorArgs, 0);
+        vm.stopBroadcast();
+    }
+}
+
+contract DeploySyEthArbitrumDecoderAndSanitizer is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
+    uint256 public privateKey;
+    Deployer public deployer = Deployer(0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC);
+
+    function setUp() external {
+        privateKey = vm.envUint("BORING_DEVELOPER");
+    }
+
+    function run() external {
+        bytes memory creationCode;
+        bytes memory constructorArgs;
+
+        vm.createSelectFork("arbitrum");
+        setSourceChainName("arbitrum");
+        vm.startBroadcast(privateKey);
+        creationCode = type(SyEthArbitrumDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(
+            getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2")
+        );
+        deployer.deployContract("SyEth Arbitrum DecodersAndSanitizers Batch 1", creationCode, constructorArgs, 0);
+        vm.stopBroadcast();
+    }
+}
+
+contract DeploySyBtcArbitrumDecoderAndSanitizer is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
+    uint256 public privateKey;
+    Deployer public deployer = Deployer(0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC);
+
+    function setUp() external {
+        privateKey = vm.envUint("BORING_DEVELOPER");
+    }
+
+    function run() external {
+        bytes memory creationCode;
+        bytes memory constructorArgs;
+
+        vm.createSelectFork("arbitrum");
+        setSourceChainName("arbitrum");
+        vm.startBroadcast(privateKey);
+        creationCode = type(SyBtcArbitrumDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(
+            getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2")
+        );
+        deployer.deployContract("SyBtc Arbitrum DecodersAndSanitizers Batch 1", creationCode, constructorArgs, 0);
         vm.stopBroadcast();
     }
 }
