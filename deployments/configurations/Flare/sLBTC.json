@@ -71,7 +71,7 @@
           "allowedExchangeRateChangeUpper": 10050,
           "baseAddressOrName": {
             "address": "0x0000000000000000000000000000000000000000",
-            "name": "USDT"
+            "name": "USDC"
           },
           "minimumUpateDelayInSeconds": 21600,
           "performanceFee": 0,
