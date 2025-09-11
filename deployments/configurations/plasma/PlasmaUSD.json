@@ -6,26 +6,26 @@
     "evmVersion": "cancun",
     "desiredNumberOfDeploymentTxs": 2,
     "txBundlerAddressOrName": {
-      "address": "0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d",
+      "address": "0xbc90dbeB9e76Ff5577Bc502EBDebd0F6616ec434",
       "name": "txBundlerAddress"
     },
     "setupRoles": true,
     "setupTestUser": true,
     "saveDeploymentDetails": true,
     "testUserAddressOrName": {
-      "address": "0x1a0ADd6EC90fc571272D341439246036901B4E41",
+      "address": "0x1cdF47387358A1733968df92f7cC14546D9E1047",
       "name": "dev1Address"
     },
     "deployerContractAddressOrName": {
-      "address": "0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d",
-      "name": "deployerAddress"
+      "address": "0xbc90dbeB9e76Ff5577Bc502EBDebd0F6616ec434",
+      "name": "deployer2Address"
     },
     "nativeWrapperAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
       "name": "wXPL"
     },
     "deploymentOwnerAddressOrName": {
-      "address": "0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d",
+      "address": "0xbc90dbeB9e76Ff5577Bc502EBDebd0F6616ec434",
       "name": "txBundlerAddress"
     },
     "deploymentFileName": "addresses/plasma/PlasmaUSD.json"

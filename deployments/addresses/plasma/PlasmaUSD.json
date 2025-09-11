@@ -1,15 +1,15 @@
 {
   "Drones": "",
   "contractAddresses": {
-    "AccountantWithRateProviders": "0xD2F81E7833deE1B9D4c0fa18c7C04421b7b77580",
-    "BoringOnChainQueue": "0x2FE7f8cE009533bF4d86272A998E5a0822Efc6bD",
-    "BoringVault": "0x4cA9E36507d09A29dE3486215391Eb8e23d81548",
-    "Lens": "0x8359541d9A8adaF36B24003b744223C026b70181",
-    "ManagerWithMerkleVerification": "0xF8b0cF027ceC34B5Dfbf79274c766c71A826E737",
-    "Pauser": "0xc83b0C342FDD0DBBD414632B0f3c2cdfA15b6D2D",
-    "QueueSolver": "0x8c40284ab433a88bf2e819cEE78e36CCd8027e95",
-    "RolesAuthority": "0x67F465865712F14E7c54E0c4FEe972330D0Adb34",
-    "TellerWithLayerZero": "0x51A9cb0C926819936f9581D1De6b41B64dc5F52F",
-    "Timelock": "0x0F7ABC982992204E3cdD4e92848dA5dEC53Ade57"
+    "AccountantWithRateProviders": "0x737f2522d09E58a3Ea9dcCFDB127dD0dF5eB3F18",
+    "BoringOnChainQueue": "0xfFdCC73Ac9f8F46a8FCB0B648Afdf1CB03345e50",
+    "BoringVault": "0xd1074E0AE85610dDBA0147e29eBe0D8E5873a000",
+    "Lens": "0xC67Af7c42b64c2Bb5BdF20716cCFa995a07F6903",
+    "ManagerWithMerkleVerification": "0xbFD60C2D4C1eee3307a2317529183e8045d0D7F3",
+    "Pauser": "0x2594Bbc0BFCDa294165E555415653C6C9B08eD64",
+    "QueueSolver": "0x111c973C84b6f400A8B6b74675079A9ddA41F5dc",
+    "RolesAuthority": "0xb381DE863dadFEA44738E7179f0d1Fc73b59e278",
+    "TellerWithLayerZero": "0x4E7d2186eB8B75fBDcA867761636637E05BaeF1E",
+    "Timelock": "0xE4438652F747439bF1496C4f9dBeC430B2A691Dd"
   }
 }
