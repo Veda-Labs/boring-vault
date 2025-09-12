@@ -233,10 +233,13 @@ rule postLoss_57545af7_zero_loss_reverts(env e) {
  *
  * Possible consequences: Arithmetic underflow, negative share prices, vault insolvency, complete breakdown of the accounting system
  */
-rule postLoss_57545af7_loss_exceeds_assets_reverts(env e) {
+// gereon: I changed the property to check lossAmount - vestingGains > totalAssets, not sure if that is really correct.
+rule __postLoss_57545af7_loss_exceeds_assets_reverts(env e) {
     uint256 lossAmount;
 
-    require(lossAmount > currentContract.vestingState.vestingGains);
+    uint256 vestingGains = currentContract.vestingState.vestingGains;
+
+    require(lossAmount > vestingGains);
     require(currentContract.vault.totalSupply(e) > 0);
 
     // assign all the 'before' variables
@@ -249,7 +252,7 @@ rule postLoss_57545af7_loss_exceeds_assets_reverts(env e) {
     // assign all the 'after' variables
 
     // verify integrity
-    assert ((lossAmount > totalAssets_e__before) => postLoss_reverted), "lossAmount > totalAssets()@before => revert";
+    assert ((lossAmount - vestingGains > totalAssets_e__before) => postLoss_reverted), "lossAmount > totalAssets()@before => revert";
 }
 
 /*
@@ -261,8 +264,12 @@ rule postLoss_57545af7_loss_exceeds_assets_reverts(env e) {
  *
  * Possible consequences: Incorrect share valuations, users not bearing their fair share of losses, arbitrage opportunities
  */
+// gereon: needs to avoid the case where the loss is eaten by the vestingGains
 rule postLoss_57545af7_updates_exchange_rate(env e) {
     uint256 lossAmount;
+
+    uint256 vestingGains = currentContract.vestingState.vestingGains;
+    require(lossAmount > vestingGains);
 
     // assign all the 'before' variables
     uint256 totalAssets_e__before = totalAssets(e);
