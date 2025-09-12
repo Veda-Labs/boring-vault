@@ -43,7 +43,7 @@ contract CreateTurtleTacUSDMerkleRoot is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](32);
 
         // ========================== Cross Chain Layer ==========================
-        string memory tvmTarget = "EQCj-sWCD3CQkYh-pWSn2ZpamhuRrSYxl7SAV4BStSM59B9E"; 
+        string memory tvmTarget = "EQBc4bruxc39m7qOItgoOU634GGFs-W8KT0cKQce591I-HFe"; 
         _addTacCrossChainLeafs(leafs, getERC20(sourceChain, "USDT"), tvmTarget);
 
         // ========================== Morpho ==========================
