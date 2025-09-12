@@ -1,10 +1,10 @@
 {
   "deploymentParameters": {
     "logLevel": 4,
-    "privateKeyEnvName": "BORING_DEVELOPER",
-    "chainName": "plasma",
+    "privateKeyEnvName": "PRIVATE_KEY",
+    "chainName": "mainnet",
     "evmVersion": "cancun",
-    "desiredNumberOfDeploymentTxs": 2,
+    "desiredNumberOfDeploymentTxs": 10,
     "txBundlerAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
       "name": "txBundlerAddress"
@@ -22,13 +22,13 @@
     },
     "nativeWrapperAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
-      "name": "wXPL"
+      "name": "WETH"
     },
     "deploymentOwnerAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
       "name": "txBundlerAddress"
     },
-    "deploymentFileName": "addresses/plasma/EthenaPlasma.json"
+    "deploymentFileName": "addresses/Mainnet/EthenaPlasma.json"
   },
   "rolesAuthorityConfiguration": {
     "rolesAuthorityDeploymentName": "Plasma USD+ Vault Roles Authority V0.0"
@@ -66,7 +66,7 @@
         "allowedExchangeRateChangeUpper": 10050,
         "baseAddressOrName": {
           "address": "0x0000000000000000000000000000000000000000",
-          "name": "USDT0"
+          "name": "USDT"
         },
         "minimumUpateDelayInSeconds": 21600,
         "performanceFee": 0,
@@ -157,7 +157,7 @@
     {
       "addressOrName": {
         "address": "0x0000000000000000000000000000000000000000",
-        "name": "USDT0"
+        "name": "USDT"
       },
       "isPeggedToBase": true,
       "rateProvider": "0x0000000000000000000000000000000000000000"
@@ -167,7 +167,7 @@
     {
       "addressOrName": {
         "address": "0x0000000000000000000000000000000000000000",
-        "name": "USDT0"
+        "name": "USDT"
       },
       "allowDeposits": true,
       "allowWithdraws": true,
@@ -178,7 +178,7 @@
     {
       "addressOrName": {
         "address": "0x0000000000000000000000000000000000000000",
-        "name": "USDT0"
+        "name": "USDT"
       },
       "maxDiscount": 9,
       "minDiscount": 1,
