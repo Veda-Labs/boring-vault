@@ -1270,7 +1270,7 @@ contract ChainValues {
         values[mainnet]["WSTETHOFTAdapterTAC"] = 0x6ceA302B297bB8C49E56d04cC080480822795848.toBytes32();
         values[mainnet]["WETHOFTAdapterTAC"] = 0xf211D3B40A74632162F45F4d42A461b663694a9D.toBytes32();
         values[mainnet]["CBBTCOFTAdapterTAC"] = 0x59Ea2825d8Ad7D60cC6Aa77FFbDD0E89c0fBF539.toBytes32();
-        values[mainnet]["USDTOFTAdapter2"] = 0x811ed79dB9D34E83BDB73DF6c3e07961Cfb0D5c0.toBytes32();
+        values[mainnet]["USDTOFTAdapter2"] = 0x1F748c76dE468e9D11bd340fA9D5CBADf315dFB0.toBytes32();
 
         // Stargate OFTs
         values[mainnet]["stargateUSDC"] = 0xc026395860Db2d07ee33e05fE50ed7bD583189C7.toBytes32();
