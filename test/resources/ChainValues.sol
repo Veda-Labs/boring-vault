@@ -1045,7 +1045,21 @@ contract ChainValues {
 
 
         values[mainnet]["pendle_USDe_market_09_25_25"] = 0x6d98a2b6CDbF44939362a3E99793339Ba2016aF4.toBytes32();
+        values[mainnet]["pendle_USDe_09_25_25_pt"] = 0xBC6736d346a5eBC0dEbc997397912CD9b8FAe10a.toBytes32();
+        values[mainnet]["pendle_USDe_09_25_25_sy"] = 0xf3DbdE762E5B67FaD09d88da3dfD38A83f753FFe.toBytes32();
+
         values[mainnet]["pendle_USDe_market_11_26_25"] = 0x4eaA571EaFCD96f51728756BD7F396459BB9B869.toBytes32();
+        values[mainnet]["pendle_USDe_11_26_25_pt"] = 0x62C6E813b9589C3631Ba0Cdb013acdB8544038B7.toBytes32();
+        values[mainnet]["pendle_USDe_11_26_25_sy"] = 0x925a15bD6A1582fa7c0EbbFc3Dbd29c34f58340e.toBytes32();
+
+        values[mainnet]["pendle_sUSDe_market_09_25_25"] = 0xA36b60A14A1A5247912584768C6e53E1a269a9F7.toBytes32();
+        values[mainnet]["pendle_sUSDe_09_25_25_pt"] = 0x9F56094C450763769BA0EA9Fe2876070c0fD5F77.toBytes32();
+        values[mainnet]["pendle_sUSDe_09_25_25_sy"] = 0xC01cde799245a25e6EabC550b36A47F6F83cc0f1.toBytes32();
+
+
+        values[mainnet]["pendle_sUSDe_market_11_26_25"] = 0xb6aC3d5da138918aC4E84441e924a20daA60dBdd.toBytes32();
+        values[mainnet]["pendle_sUSDe_11_26_25_pt"] = 0xe6A934089BBEe34F832060CE98848359883749B3.toBytes32();
+        values[mainnet]["pendle_sUSDe_11_26_25_sy"] = 0xAbf8165dD7a90ab75878161db15Bf85F6F781d9b.toBytes32();
 
         // Aave V3 Core
         values[mainnet]["v3Pool"] = 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2.toBytes32();
@@ -1466,6 +1480,10 @@ contract ChainValues {
 
         // Agglayer Katana
         values[mainnet]["agglayerBridgeKatana"] = 0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe.toBytes32();
+
+        // MF-ONE 
+        values[mainnet]["mfOneDepositVault"] = 0x41438435c20B1C2f1fcA702d387889F346A0C3DE.toBytes32();
+        values[mainnet]["mfOneRedemptionVault"] = 0x44b0440e35c596e858cEA433D0d82F5a985fD19C.toBytes32();
 
     }
 
@@ -2622,6 +2640,10 @@ contract ChainValues {
         
         // Valantis
         values[hyperEVM]["KHYPE_WHYPE_sovereign_pool"] = 0x88B214eC94276B825E641820D5C97a9042F9Dd60.toBytes32(); 
+
+        // Project X
+        values[hyperEVM]["uniswapV3NonFungiblePositionManager"] = 0xeaD19AE861c29bBb2101E834922B2FEee69B9091.toBytes32(); 
+        values[hyperEVM]["uniV3Router"] = 0x1EbDFC75FfE3ba3de61E7138a3E8706aC841Af9B.toBytes32();
     }
 
     function _addTACTestnetValues() private {
