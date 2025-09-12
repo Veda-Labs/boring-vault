@@ -75,6 +75,7 @@ hyperEVM = { key = "${HYPER_EVM_KEY}", chain = 999, url = "https://api.etherscan
 #katana = { key = "${KATANASCAN_KEY}", chain = 747474, url = "https://explorer.katanarpc.com/api" }
 #tac = { key = "${TACSCAN_KEY}", chain = 239, url = "https://explorer.tac.build/api" }
 #ink = { key = "${INKSCAN_KEY}", chain = 57073, url = "https://explorer.inkonchain.com/api" }
+plasma = { key = "${PLASMASCAN_KEY}", chain = 9745, url = "https://api.routescan.io/v2/network/mainnet/evm/9745/etherscan" }
 
 [fmt]
 FOUNDRY_FMT_LINE_LENGTH = 120
