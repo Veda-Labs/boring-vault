@@ -209,7 +209,8 @@ rule vestYield_ec0f6e8e_updates_last_vesting(env e) {
  *
  * Possible consequences: Gas waste, misleading events, state inconsistency where zero losses are recorded as valid operations
  */
-rule postLoss_57545af7_zero_loss_reverts(env e) {
+// gereon: might make sense. The call would still update the exchange rate...
+rule __postLoss_57545af7_zero_loss_reverts(env e) {
     uint256 lossAmount;
 
     // assign all the 'before' variables
@@ -354,11 +355,14 @@ rule __postLoss_57545af7_clears_vesting_gains(env e) {
  *
  * Possible consequences: Incorrect yield vesting calculations, temporal arbitrage opportunities, accounting inconsistencies
  */
+// gereon: entirely different precondition, there must be pending vesting gains
 rule postLoss_57545af7_updates_vesting_timestamp(env e) {
     uint256 lossAmount;
 
+    require(getPendingVestingGains(e) > 0);
+    require(e.block.timestamp <= max_uint128);
+
     // assign all the 'before' variables
-    uint256 totalAssets_e__before = totalAssets(e);
 
     // call function under test
     postLoss(e, lossAmount);
@@ -367,7 +371,7 @@ rule postLoss_57545af7_updates_vesting_timestamp(env e) {
     uint128 currentContract_vestingState_lastVestingUpdate_after = currentContract.vestingState.lastVestingUpdate;
 
     // verify integrity
-    assert (((lossAmount > 0) && (lossAmount <= totalAssets_e__before)) => (currentContract_vestingState_lastVestingUpdate_after == e.block.timestamp)), "lossAmount > 0 && lossAmount <= totalAssets()@before => vestingState.lastVestingUpdate@after == block.timestamp";
+    assert (currentContract_vestingState_lastVestingUpdate_after == e.block.timestamp), "lossAmount > 0 && lossAmount <= totalAssets()@before => vestingState.lastVestingUpdate@after == block.timestamp";
 }
 
 /*
@@ -404,8 +408,11 @@ rule postLoss_57545af7_paused_reverts(env e) {
  *
  * Possible consequences: Division by zero errors, contract failure, undefined behavior in share price calculations
  */
-rule postLoss_57545af7_zero_supply_reverts(env e) {
+// gereon: not exactly sure what it supposed to happen when the total supply is zero
+rule __postLoss_57545af7_zero_supply_reverts(env e) {
     uint256 lossAmount;
+
+    require(lossAmount > 0);
 
     // assign all the 'before' variables
     uint256 currentContract_vault_totalSupply_e__before = currentContract.vault.totalSupply(e);
