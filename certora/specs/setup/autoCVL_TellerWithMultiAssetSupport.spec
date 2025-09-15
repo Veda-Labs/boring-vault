@@ -32,7 +32,8 @@ rule pause_8456cb59_sets_paused_true(env e) {
  *
  * Possible consequences: If pause() allows redundant calls, it wastes gas and creates unclear contract behavior. Admins might think they're taking emergency action when they're actually doing nothing, leading to confusion during critical situations.
  */
-rule pause_8456cb59_already_paused_reverts(env e) {
+// gereon: might be useful, but probably not worth it
+rule __pause_8456cb59_already_paused_reverts(env e) {
 
     // assign all the 'before' variables
     bool currentContract_isPaused_before = currentContract.isPaused;
@@ -80,7 +81,8 @@ rule pause_8456cb59_unpaused_to_paused(env e) {
  *
  * Possible consequences: Gas waste, unclear contract state, potential for griefing attacks where users repeatedly call unpause when already unpaused, and violation of expected contract behavior patterns
  */
-rule unpause_3f4ba83a_already_unpaused_reverts(env e) {
+// gereon: might be useful, but probably not worth it
+rule __unpause_3f4ba83a_already_unpaused_reverts(env e) {
 
     // assign all the 'before' variables
     bool currentContract_isPaused_before = currentContract.isPaused;
