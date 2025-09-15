@@ -19,4 +19,9 @@ contract TellerWithMultiAssetSupportHarness is TellerWithMultiAssetSupport {
     function isAuthorizedHarness(address user, bytes4 functionSig) public view returns (bool) {
         return isAuthorized(user, functionSig);
     }
+
+    function callPermit(ERC20 depositAsset, uint256 depositAmount, uint256 deadline, uint8 v, bytes32 r, bytes32 s) public
+    {
+        depositAsset.permit(msg.sender, address(vault), depositAmount, deadline, v, r, s);
+    }
 }

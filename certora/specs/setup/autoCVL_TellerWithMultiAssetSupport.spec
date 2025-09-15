@@ -3097,7 +3097,7 @@ rule deposit_0efe6a8b_minimum_mint_not_met(env e) {
     // assign all the 'before' variables
 
     // call function under test
-    deposit@withrevert(e, depositAsset, depositAmount, minimumMint);
+    shares = deposit@withrevert(e, depositAsset, depositAmount, minimumMint);
     bool deposit_reverted = lastReverted;
 
     // assign all the 'after' variables
@@ -3126,7 +3126,7 @@ rule deposit_0efe6a8b_deposit_exceeds_cap(env e) {
     uint256 currentContract_vault_totalSupply_e__before = currentContract.vault.totalSupply(e);
 
     // call function under test
-    deposit@withrevert(e, depositAsset, depositAmount, minimumMint);
+    shares = deposit@withrevert(e, depositAsset, depositAmount, minimumMint);
     bool deposit_reverted = lastReverted;
 
     // assign all the 'after' variables
@@ -3962,6 +3962,7 @@ rule depositWithPermit_3d935d9e_no_premium_exact_shares(env e) {
  *
  * Possible consequences: Reentrancy attacks allowing manipulation of contract state during execution, potentially leading to fund theft or double-spending
  */
+// gereon: AI screwed up the semantics of the locked flag
 rule depositWithPermit_3d935d9e_reentrancy_protected(env e) {
     address depositAsset;
     uint256 depositAmount;
@@ -3970,19 +3971,18 @@ rule depositWithPermit_3d935d9e_reentrancy_protected(env e) {
     uint8 v;
     bytes32 r;
     bytes32 s;
-    uint256 shares;
 
     // assign all the 'before' variables
     uint256 currentContract_locked_before = currentContract.locked;
 
     // call function under test
-    shares = depositWithPermit@withrevert(e, depositAsset, depositAmount, minimumMint, deadline, v, r, s);
+    depositWithPermit@withrevert(e, depositAsset, depositAmount, minimumMint, deadline, v, r, s);
     bool depositWithPermit_reverted = lastReverted;
 
     // assign all the 'after' variables
 
     // verify integrity
-    assert ((currentContract_locked_before == 1) => depositWithPermit_reverted), "locked@before == 1 => revert";
+    assert ((currentContract_locked_before == 2) => depositWithPermit_reverted), "locked@before == 1 => revert";
 }
 
 /*
@@ -3994,6 +3994,7 @@ rule depositWithPermit_3d935d9e_reentrancy_protected(env e) {
  *
  * Possible consequences: Deposits proceeding without proper token approval, leading to failed transfers and inconsistent state
  */
+// gereon: the AI failed to check whether permit failed
 rule depositWithPermit_3d935d9e_permit_failure_low_allowance(env e) {
     address depositAsset;
     uint256 depositAmount;
@@ -4008,6 +4009,8 @@ rule depositWithPermit_3d935d9e_permit_failure_low_allowance(env e) {
     uint256 depositAsset_allowance_e__e_msg_sender__currentContract_vault__before = depositAsset.allowance(e, e.msg.sender, currentContract.vault);
 
     // call function under test
+    callPermit@withrevert(e, depositAsset, depositAmount, deadline, v, r, s);
+    require(lastReverted);
     shares = depositWithPermit@withrevert(e, depositAsset, depositAmount, minimumMint, deadline, v, r, s);
     bool depositWithPermit_reverted = lastReverted;
 
