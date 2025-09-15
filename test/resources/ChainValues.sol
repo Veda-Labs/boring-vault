@@ -1551,7 +1551,7 @@ contract ChainValues {
         values[arbitrum]["USDCe"] = 0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8.toBytes32();
         values[arbitrum]["WETH"] = 0x82aF49447D8a07e3bd95BD0d56f35241523fBab1.toBytes32();
         values[arbitrum]["WBTC"] = 0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f.toBytes32();
-        values[arbitrum]["USDT"] = 0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9.toBytes32();
+        values[arbitrum]["USDT0"] = 0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9.toBytes32();
         values[arbitrum]["DAI"] = 0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1.toBytes32();
         values[arbitrum]["WSTETH"] = 0x5979D7b546E38E414F7E9822514be443A4800529.toBytes32();
         values[arbitrum]["FRAX"] = 0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F.toBytes32();
@@ -1577,6 +1577,9 @@ contract ChainValues {
         values[arbitrum]["RSETH"] = 0x4186BFC76E2E237523CBC30FD220FE055156b41F.toBytes32();
         values[arbitrum]["GRAIL"] = 0x3d9907F9a368ad0a51Be60f7Da3b97cf940982D8.toBytes32();
         values[arbitrum]["cbBTC"] = 0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf.toBytes32();
+        values[arbitrum]["GYD"] = 0xCA5d8F8a8d49439357d3CF46Ca2e720702F132b8.toBytes32();
+        values[arbitrum]["syrupUSDC"] = 0x41CA7586cC1311807B4605fBB748a3B8862b42b5.toBytes32();
+        values[arbitrum]["GHO"] = 0x7dfF72693f6A4149b17e7C6314655f6A9F7c8B33.toBytes32();
         values[arbitrum]["HLP0"] = 0x3D75F2BB8aBcDBd1e27443cB5CBCE8A668046C81.toBytes32();
 
         // Aave V3
@@ -1681,6 +1684,9 @@ contract ChainValues {
         // Odosv2
         values[arbitrum]["odosRouterV2"] = 0x89b8AA89FDd0507a99d334CBe3C808fAFC7d850E.toBytes32();
         values[arbitrum]["odosExecutor"] = 0x03222a2b261a12091bBE271e763A7E26b64E25e2.toBytes32();
+
+        // Morpho Blue
+        values[arbitrum]["syrupUSDC_USDC_915"] = 0xf86f3edd6f16cd8211f4d206866dc4ecd41be6211063ac11f8508e1b7112ef40;
     }
 
     function _addOptimismValues() private {

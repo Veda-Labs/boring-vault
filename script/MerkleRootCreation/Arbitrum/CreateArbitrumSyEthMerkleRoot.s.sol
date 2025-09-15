@@ -29,7 +29,6 @@ contract ArbitrumMerkleRootScript is Script, MerkleTreeHelper {
     //itb
     address public itbDecoderAndSanitizer = 0xEEb53299Cb894968109dfa420D69f0C97c835211;
     address public itbGearboxProtocolPositionManager = 0xad5dB17b44506785931dbc49c8857482c3b4F622;
-    address agent = 0x0307AD25281C99F22A8F3Af9e272fE3968810239;
     address agent1 = 0xa86b3Bf249478488B4304B50726c7D4689aD6320;
 
     function setUp() external {
@@ -53,7 +52,6 @@ contract ArbitrumMerkleRootScript is Script, MerkleTreeHelper {
 
         vm.startBroadcast(privateKey);
         manager.setManageRoot(agent1, manageTree[manageTree.length - 1][0]);
-        manager.setManageRoot(agent, manageTree[manageTree.length - 1][0]);
         manager.setManageRoot(getAddress(sourceChain, "managerAddress"), manageTree[manageTree.length - 1][0]);
         vm.stopBroadcast();
     }
@@ -66,19 +64,21 @@ contract ArbitrumMerkleRootScript is Script, MerkleTreeHelper {
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "WETH"));
 
         // 1inch assets;
-        address[] memory oneInchAssets = new address[](5);
+        address[] memory oneInchAssets = new address[](6);
         oneInchAssets[0] = getAddress(sourceChain, "USDC");
         oneInchAssets[1] = getAddress(sourceChain, "USDS");
         oneInchAssets[2] = getAddress(sourceChain, "USDT");
         oneInchAssets[3] = getAddress(sourceChain, "USDE");
         oneInchAssets[4] = getAddress(sourceChain, "WETH");
+        oneInchAssets[5] = getAddress(sourceChain, "WBTC");
 
-        SwapKind[] memory kind = new SwapKind[](5);
+        SwapKind[] memory kind = new SwapKind[](6);
         kind[0] = SwapKind.BuyAndSell;
         kind[1] = SwapKind.BuyAndSell;
         kind[2] = SwapKind.BuyAndSell;
         kind[3] = SwapKind.BuyAndSell;
         kind[4] = SwapKind.BuyAndSell;
+        kind[5] = SwapKind.BuyAndSell;
         _addOdosSwapLeafs(leafs, oneInchAssets, kind);
 
         address[] memory token0 = new address[](1);
