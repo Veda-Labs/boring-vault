@@ -3285,23 +3285,20 @@ rule deposit_0efe6a8b_no_history_zero_lock(env e) {
     uint256 shares;
 
     // assign all the 'before' variables
-    uint64 currentContract_shareLockPeriod_before = currentContract.shareLockPeriod;
-    bool currentContract_isPaused_before = currentContract.isPaused;
-    bool currentContract_assetData_depositAsset__allowDeposits_before = currentContract.assetData[depositAsset].allowDeposits;
-    uint112 currentContract_depositCap_before = currentContract.depositCap;
-    uint256 currentContract_vault_totalSupply_e__before = currentContract.vault.totalSupply(e);
-    uint64 currentContract_depositNonce_before = currentContract.depositNonce;
-    bytes32 currentContract_publicDepositHistory_assert_uint256_currentContract_depositNonce_after____0____currentContract_depositNonce_after___2___256____2___256______currentContract_depositNonce_after____2___256____before = currentContract.publicDepositHistory[assert_uint256(currentContract_depositNonce_before >= 0 ? (currentContract_depositNonce_before % 2 ^ 256) : 2 ^ 256 - (-(currentContract_depositNonce_before) % 2 ^ 256))];
+    uint64 shareLockPeriod_before = currentContract.shareLockPeriod;
+    uint64 depositNonce_before = currentContract.depositNonce;
+    bytes32 publicDepositHistory_before = currentContract.publicDepositHistory[require_uint256(depositNonce_before + 1)];
 
     // call function under test
     shares = deposit(e, depositAsset, depositAmount, minimumMint);
 
     // assign all the 'after' variables
-    uint64 currentContract_depositNonce_after = currentContract.depositNonce;
-    bytes32 currentContract_publicDepositHistory_assert_uint256_currentContract_depositNonce_after____0____currentContract_depositNonce_after___2___256____2___256______currentContract_depositNonce_after____2___256____after = currentContract.publicDepositHistory[assert_uint256(currentContract_depositNonce_after >= 0 ? (currentContract_depositNonce_after % 2 ^ 256) : 2 ^ 256 - (-(currentContract_depositNonce_after) % 2 ^ 256))];
+    uint64 depositNonce_after = currentContract.depositNonce;
+    assert(depositNonce_after == depositNonce_before + 1);
+    bytes32 publicDepositHistory_after = currentContract.publicDepositHistory[depositNonce_after];
 
     // verify integrity
-    assert (((((((currentContract_shareLockPeriod_before == 0) && !(currentContract_isPaused_before)) && currentContract_assetData_depositAsset__allowDeposits_before) && (depositAmount > 0)) && (shares >= minimumMint)) && ((currentContract_depositCap_before == ((2 ^ 112 - 1))) || (shares + currentContract_vault_totalSupply_e__before <= currentContract_depositCap_before))) => (currentContract_publicDepositHistory_assert_uint256_currentContract_depositNonce_after____0____currentContract_depositNonce_after___2___256____2___256______currentContract_depositNonce_after____2___256____after == currentContract_publicDepositHistory_assert_uint256_currentContract_depositNonce_after____0____currentContract_depositNonce_after___2___256____2___256______currentContract_depositNonce_after____2___256____before)), "shareLockPeriod@before == 0 && !isPaused@before && assetData[depositAsset].allowDeposits@before && depositAmount > 0 && shares >= minimumMint && (depositCap@before == type(uint112).max || shares + vault.totalSupply()@before <= depositCap@before) => publicDepositHistory@after[uint256(depositNonce@after)] == publicDepositHistory@before[uint256(depositNonce@after)]";
+    assert ((shareLockPeriod_before == 0) => (publicDepositHistory_before == publicDepositHistory_after)), "shareLockPeriod@before == 0 && !isPaused@before && assetData[depositAsset].allowDeposits@before && depositAmount > 0 && shares >= minimumMint && (depositCap@before == type(uint112).max || shares + vault.totalSupply()@before <= depositCap@before) => publicDepositHistory@after[uint256(depositNonce@after)] == publicDepositHistory@before[uint256(depositNonce@after)]";
 }
 
 /*
@@ -3532,7 +3529,8 @@ rule deposit_0efe6a8b_other_users_unchanged(env e) {
  *
  * Possible consequences: Duplicate hashes could cause refund confusion or allow unauthorized refunds
  */
-rule deposit_0efe6a8b_history_uniqueness(env e) {
+// gereon: this is not how one would check such a property. Also, while it might be a bit strange, why shouldn't I be able to do two identical deposits?
+rule __deposit_0efe6a8b_history_uniqueness(env e) {
     address depositAsset;
     uint256 depositAmount;
     uint256 minimumMint;
