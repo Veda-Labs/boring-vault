@@ -262,7 +262,8 @@ rule updateAssetData_8dfd8ba1_updates_share_premium(env e) {
  *
  * Possible consequences: Gas waste and potential masking of integration bugs where callers think they're making changes but aren't
  */
-rule updateAssetData_8dfd8ba1_no_change_reverts(env e) {
+// gereon: might be useful, but probably not worth it
+rule __updateAssetData_8dfd8ba1_no_change_reverts(env e) {
     address asset;
     bool allowDeposits;
     bool allowWithdraws;
@@ -454,7 +455,8 @@ rule setShareLockPeriod_12056e2d_valid_period_updates_storage(env e) {
  *
  * Possible consequences: Wasted gas costs for users and potential confusion about whether the operation succeeded or had any effect on the contract state.
  */
-rule setShareLockPeriod_12056e2d_no_change_reverts(env e) {
+// gereon: might be useful, but probably not worth it
+rule __setShareLockPeriod_12056e2d_no_change_reverts(env e) {
     uint64 _shareLockPeriod;
 
     // assign all the 'before' variables
@@ -2146,7 +2148,8 @@ rule setPermissionedTransfers_8a6733f9_sets_permissioned_transfers(env e) {
  *
  * Possible consequences: Gas waste through meaningless transactions, potential griefing attacks where attackers spam no-op calls, and unclear system state where successful transactions don't indicate actual changes
  */
-rule setPermissionedTransfers_8a6733f9_no_op_reverts(env e) {
+// gereon: might be useful, but probably not worth it
+rule __setPermissionedTransfers_8a6733f9_no_op_reverts(env e) {
     bool _permissionedTransfers;
 
     // assign all the 'before' variables
@@ -2568,7 +2571,8 @@ rule setDepositCap_7bd876b6_max_cap_allowed(env e) {
  *
  * Possible consequences: Wasted gas on meaningless transactions and potential confusion about whether the operation succeeded or had any effect
  */
-rule setDepositCap_7bd876b6_no_op_reverts(env e) {
+// gereon: might be useful, but probably not worth it
+rule __setDepositCap_7bd876b6_no_op_reverts(env e) {
     uint112 cap;
 
     // assign all the 'before' variables
@@ -2692,7 +2696,8 @@ rule refundDeposit_46b563f4_zero_share_lock(env e) {
  *
  * Possible consequences: Wasted gas, potential state corruption, and bypassing of other validation checks through meaningless operations
  */
-rule refundDeposit_46b563f4_no_shares_to_refund(env e) {
+// gereon: indeed this function does quite a lot and doesn't check this. maybe it should
+rule __refundDeposit_46b563f4_no_shares_to_refund(env e) {
     uint256 nonce;
     address receiver;
     address depositAsset;
@@ -2722,6 +2727,7 @@ rule refundDeposit_46b563f4_no_shares_to_refund(env e) {
  *
  * Possible consequences: Double-spending attacks where users can both transfer their shares and get refunds, leading to fund loss and accounting errors
  */
+// gereon: as far as I understand, the lockup period is indirectly checked via the depositHash. Hence, the check happens solely on the function arguments.
 rule refundDeposit_46b563f4_receiver_shares_unlocked(env e) {
     uint256 nonce;
     address receiver;
@@ -2732,7 +2738,7 @@ rule refundDeposit_46b563f4_receiver_shares_unlocked(env e) {
     uint256 shareLockUpPeriodAtTimeOfDeposit;
 
     // assign all the 'before' variables
-    uint256 currentContract_beforeTransferData_receiver__shareUnlockTime_before = currentContract.beforeTransferData[receiver].shareUnlockTime;
+    require(e.block.timestamp >= depositTimestamp);
 
     // call function under test
     refundDeposit@withrevert(e, nonce, receiver, depositAsset, depositAmount, shareAmount, depositTimestamp, shareLockUpPeriodAtTimeOfDeposit);
@@ -2741,7 +2747,7 @@ rule refundDeposit_46b563f4_receiver_shares_unlocked(env e) {
     // assign all the 'after' variables
 
     // verify integrity
-    assert ((currentContract_beforeTransferData_receiver__shareUnlockTime_before <= e.block.timestamp) => refundDeposit_reverted), "beforeTransferData[receiver].shareUnlockTime@before <= block.timestamp => revert";
+    assert ((e.block.timestamp - depositTimestamp >= shareLockUpPeriodAtTimeOfDeposit) => refundDeposit_reverted), "beforeTransferData[receiver].shareUnlockTime@before <= block.timestamp => revert";
 }
 
 /*
@@ -2784,7 +2790,8 @@ rule refundDeposit_46b563f4_invalid_nonce(env e) {
  *
  * Possible consequences: Wasted gas, potential bypass of validation logic, and state corruption through meaningless operations
  */
-rule refundDeposit_46b563f4_zero_deposit_amount(env e) {
+// gereon: might make sense, given the function does quite a bit of stuff
+rule __refundDeposit_46b563f4_zero_deposit_amount(env e) {
     uint256 nonce;
     address receiver;
     address depositAsset;
