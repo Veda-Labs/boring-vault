@@ -4,7 +4,7 @@
     "privateKeyEnvName": "BORING_DEVELOPER",
     "chainName": "plasma",
     "evmVersion": "cancun",
-    "desiredNumberOfDeploymentTxs": 5,
+    "desiredNumberOfDeploymentTxs": 2,
     "txBundlerAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
       "name": "txBundlerAddress"
@@ -43,7 +43,7 @@
     "boringVaultDecimals": 18
   },
   "managerConfiguration": {
-    "managerDeploymentName": "EtherFi Liquid ETH Manager With Merkle Verification V0.1",
+    "managerDeploymentName": "EtherFi Liquid ETH Manager With Merkle Verification V0.2",
     "balancerVaultAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
       "name": "balancerVault"
@@ -71,21 +71,21 @@
         "minimumUpateDelayInSeconds": 21600,
         "performanceFee": 0,
         "platformFee": 0,
-        "startingExchangeRate": 1000000000000000000
+        "startingExchangeRate": 1063486264537015685
       }
     }
   },
   "tellerConfiguration": {
     "tellerDeploymentName": "LiquidETH LayerZero Teller V0.0",
     "tellerParameters": {
-      "allowPublicDeposits": true,
-      "shareLockPeriod": 86400,
+      "allowPublicDeposits": false,
+      "shareLockPeriod": 0,
       "kind": {
         "teller": false,
         "tellerWithRemediation": false,
         "tellerWithCcip": false,
-        "tellerWithLayerZero": true,
-        "tellerWithLayerZeroRateLimiting": false
+        "tellerWithLayerZero": false,
+        "tellerWithLayerZeroRateLimiting": true
       },
       "layerZero": {
         "endpointAddressOrName": {
@@ -105,8 +105,8 @@
     "boringQueueSolverName": "EtherFi Liquid ETH Boring Solver V0.0",
     "excessToSolverNonSelfSolve": true,
     "queueParameters": {
-      "allowPublicWithdrawals": true,
-      "allowPublicSelfWithdrawals": true,
+      "allowPublicWithdrawals": false,
+      "allowPublicSelfWithdrawals": false,
       "kind": {
         "boringQueue": true,
         "boringQueueWithTracking": false
@@ -133,7 +133,7 @@
     ]
   },
   "timelockConfiguration": {
-    "shouldDeploy": true,
+    "shouldDeploy": false,
     "timelockDeploymentName": "EtherFi Liquid ETH Timelock V0.0",
     "timelockParameters": {
       "executors": ["0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b"],
