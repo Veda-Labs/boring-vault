@@ -560,7 +560,8 @@ rule setShareLockPeriod_12056e2d_reentrancy_guard_unchanged(env e) {
  *
  * Possible consequences: State corruption where the zero address gets deny flags set, potentially breaking internal logic that relies on zero address having default/clean state
  */
-rule denyAll_18aed921_zero_address_reverts(env e) {
+// gereon: might be useful, but probably not worth it
+rule __denyAll_18aed921_zero_address_reverts(env e) {
     address user;
 
     // assign all the 'before' variables
@@ -784,7 +785,8 @@ rule denyAll_18aed921_other_users_deny_operator_unchanged(env e) {
  *
  * Possible consequences: Gas waste and potential logic errors where callers assume state changes occurred when none actually happened
  */
-rule denyAll_18aed921_already_denied_no_op(env e) {
+// gereon: might be useful, but probably not worth it
+rule __denyAll_18aed921_already_denied_no_op(env e) {
     address user;
 
     // assign all the 'before' variables
@@ -1678,7 +1680,7 @@ rule denyTo_3b575407_preserves_share_premium(env e) {
  * Possible consequences: Gas waste, unclear contract state, potential for griefing attacks where users repeatedly call functions that do nothing, and violation of the principle that no-op operations should fail
  */
 // gereon: might be useful, but probably not worth it
-rule allowTo_5f45bac8_no_op_reverts(env e) {
+rule __allowTo_5f45bac8_no_op_reverts(env e) {
     address user;
 
     // assign all the 'before' variables
@@ -2205,7 +2207,7 @@ rule setPermissionedTransfers_8a6733f9_other_state_unchanged(env e) {
  * Possible consequences: State corruption where zero address gains operator privileges, potential bypass of access controls, and logical inconsistencies in permission checks
  */
 // gereon: might be useful, but probably not worth it
-rule allowPermissionedOperator_9ac4f42d_zero_address_reverts(env e) {
+rule __allowPermissionedOperator_9ac4f42d_zero_address_reverts(env e) {
     address operator;
 
     // assign all the 'before' variables
