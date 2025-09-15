@@ -457,8 +457,10 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
 
             //move vested amount from pending to realized
             vestingState.vestingGains -= uint128(newlyVested); // remove from pending
-            vestingState.lastVestingUpdate = uint128(block.timestamp); // update timestamp
         }
+        
+        //update timestamp always
+        vestingState.lastVestingUpdate = uint128(block.timestamp); // update timestamp
 
         AccountantState storage state = accountantState;
         state.totalSharesLastUpdate = uint128(currentShares);
