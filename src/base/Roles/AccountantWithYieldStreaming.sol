@@ -236,6 +236,10 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
                 }
             }
         }
+        
+
+        AccountantState storage state = accountantState;
+        state.exchangeRate = uint96(vestingState.lastSharePrice);
 
         //update state timestamp
         lastStrategistUpdateTimestamp = uint64(block.timestamp);
