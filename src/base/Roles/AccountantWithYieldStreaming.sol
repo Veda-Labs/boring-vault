@@ -457,12 +457,14 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
             uint256 _totalAssets = uint256(vestingState.lastSharePrice).mulDivDown(currentShares, ONE_SHARE);
             vestingState.lastSharePrice = uint128((_totalAssets + newlyVested).mulDivDown(ONE_SHARE, currentShares));
 
-            _collectFees();
 
             //move vested amount from pending to realized
             vestingState.vestingGains -= uint128(newlyVested); // remove from pending
         }
         
+        //sync fee variables 
+        _collectFees();
+
         //update timestamp always
         vestingState.lastVestingUpdate = uint128(block.timestamp); // update timestamp
 
