@@ -3694,7 +3694,7 @@ rule depositWithPermit_3d935d9e_below_minimum_reverts(env e) {
     bool currentContract_isPaused_before = currentContract.isPaused;
 
     // call function under test
-    depositWithPermit@withrevert(e, depositAsset, depositAmount, minimumMint, deadline, v, r, s);
+    shares = depositWithPermit@withrevert(e, depositAsset, depositAmount, minimumMint, deadline, v, r, s);
     bool depositWithPermit_reverted = lastReverted;
 
     // assign all the 'after' variables
@@ -3727,7 +3727,7 @@ rule depositWithPermit_3d935d9e_exceeds_cap_reverts(env e) {
     uint256 currentContract_vault_totalSupply_e__before = currentContract.vault.totalSupply(e);
 
     // call function under test
-    depositWithPermit@withrevert(e, depositAsset, depositAmount, minimumMint, deadline, v, r, s);
+    shares = depositWithPermit@withrevert(e, depositAsset, depositAmount, minimumMint, deadline, v, r, s);
     bool depositWithPermit_reverted = lastReverted;
 
     // assign all the 'after' variables
@@ -3976,7 +3976,7 @@ rule depositWithPermit_3d935d9e_reentrancy_protected(env e) {
     uint256 currentContract_locked_before = currentContract.locked;
 
     // call function under test
-    depositWithPermit@withrevert(e, depositAsset, depositAmount, minimumMint, deadline, v, r, s);
+    shares = depositWithPermit@withrevert(e, depositAsset, depositAmount, minimumMint, deadline, v, r, s);
     bool depositWithPermit_reverted = lastReverted;
 
     // assign all the 'after' variables
@@ -4008,7 +4008,7 @@ rule depositWithPermit_3d935d9e_permit_failure_low_allowance(env e) {
     uint256 depositAsset_allowance_e__e_msg_sender__currentContract_vault__before = depositAsset.allowance(e, e.msg.sender, currentContract.vault);
 
     // call function under test
-    depositWithPermit@withrevert(e, depositAsset, depositAmount, minimumMint, deadline, v, r, s);
+    shares = depositWithPermit@withrevert(e, depositAsset, depositAmount, minimumMint, deadline, v, r, s);
     bool depositWithPermit_reverted = lastReverted;
 
     // assign all the 'after' variables
