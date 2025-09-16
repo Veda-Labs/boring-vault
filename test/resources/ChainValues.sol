@@ -1492,6 +1492,8 @@ contract ChainValues {
         values[base]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
         values[base]["dev0Address"] = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b.toBytes32();
         values[base]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
+        values[base]["dev5Address"] = 0x1cdF47387358A1733968df92f7cC14546D9E1047.toBytes32();
+        values[base]["txBundlerAddress"] = 0x633ccAFEF3F42F87a457c44ffF826a5b6fc99706.toBytes32();
         values[base]["liquidPayoutAddress"] = 0xA9962a5BfBea6918E958DeE0647E99fD7863b95A.toBytes32();
 
         // DeFi Ecosystem
@@ -1520,6 +1522,9 @@ contract ChainValues {
         values[base]["MORPHO"] = 0xBAa5CC21fd487B8Fcc2F632f3F4E8D37262a0842.toBytes32();
         values[base]["LBTC"] = 0xecAc9C5F704e954931349Da37F60E39f515c11c1.toBytes32();
         values[base]["WBTC"] = 0x0555E30da8f98308EdB960aa94C0Db47230d2B9c.toBytes32();
+        values[base]["ZRO"] = 0x6985884C4392D348587B19cb9eAAf157F13271cd.toBytes32();
+
+        values[base]["LayerZeroEndPoint"] = 0x1a44076050125825900e736c501f859c50fE728c.toBytes32();
 
         // Balancer vault
         values[base]["vault"] = 0xBA12222222228d8Ba445958a75a0704d566BF2C8.toBytes32();
@@ -1606,6 +1611,7 @@ contract ChainValues {
         values[arbitrum]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
         values[arbitrum]["dev0Address"] = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b.toBytes32();
         values[arbitrum]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
+        values[arbitrum]["dev5Address"] = 0x1cdF47387358A1733968df92f7cC14546D9E1047.toBytes32();
         values[arbitrum]["liquidPayoutAddress"] = 0xA9962a5BfBea6918E958DeE0647E99fD7863b95A.toBytes32();
         values[arbitrum]["txBundlerAddress"] = 0x87D51666Da1b56332b216D456D1C2ba3Aed6089c.toBytes32();
 
@@ -1616,6 +1622,7 @@ contract ChainValues {
         values[arbitrum]["uniswapV3NonFungiblePositionManager"] = 0xC36442b4a4522E871399CD717aBDD847Ab11FE88.toBytes32();
         values[arbitrum]["ccipRouter"] = 0x141fa059441E0ca23ce184B6A78bafD2A517DdE8.toBytes32();
         values[arbitrum]["vault"] = 0xBA12222222228d8Ba445958a75a0704d566BF2C8.toBytes32();
+        values[arbitrum]["LayerZeroEndPoint"] = 0x1a44076050125825900e736c501f859c50fE728c.toBytes32();
 
         values[arbitrum]["USDC"] = 0xaf88d065e77c8cC2239327C5EDb3A432268e5831.toBytes32();
         values[arbitrum]["USDCe"] = 0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8.toBytes32();
@@ -1647,6 +1654,7 @@ contract ChainValues {
         values[arbitrum]["RSETH"] = 0x4186BFC76E2E237523CBC30FD220FE055156b41F.toBytes32();
         values[arbitrum]["GRAIL"] = 0x3d9907F9a368ad0a51Be60f7Da3b97cf940982D8.toBytes32();
         values[arbitrum]["cbBTC"] = 0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf.toBytes32();
+        values[arbitrum]["ZRO"] = address(1).toBytes32();
 
         // Aave V3
         values[arbitrum]["v3Pool"] = 0x794a61358D6845594F94dc1DB02A252b5b4814aD.toBytes32();
@@ -1754,10 +1762,13 @@ contract ChainValues {
         values[optimism]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
         values[optimism]["dev0Address"] = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b.toBytes32();
         values[optimism]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
+        values[optimism]["dev5Address"] = 0x1cdF47387358A1733968df92f7cC14546D9E1047.toBytes32();
         values[optimism]["liquidPayoutAddress"] = 0xA9962a5BfBea6918E958DeE0647E99fD7863b95A.toBytes32();
         values[optimism]["uniV3Router"] = 0xE592427A0AEce92De3Edee1F18E0157C05861564.toBytes32();
         values[optimism]["aggregationRouterV5"] = 0x1111111254EEB25477B68fb85Ed929f73A960582.toBytes32();
         values[optimism]["oneInchExecutor"] = 0xE37e799D5077682FA0a244D46E5649F71457BD09.toBytes32();
+        values[optimism]["txBundlerAddress"] = 0xd249755C0E79dF8F3A05C2398A73333eFDb6EB59.toBytes32();
+        values[optimism]["LayerZeroEndPoint"] = 0x1a44076050125825900e736c501f859c50fE728c.toBytes32();
 
         values[optimism]["WETH"] = 0x4200000000000000000000000000000000000006.toBytes32();
         values[optimism]["WEETH"] = 0x346e03F8Cce9fE01dCB3d0Da3e9D00dC2c0E08f0.toBytes32();
@@ -1770,6 +1781,8 @@ contract ChainValues {
         values[optimism]["BAL"] = 0xFE8B128bA8C78aabC59d4c64cEE7fF28e9379921.toBytes32();
         values[optimism]["UNI"] = 0x6fd9d7AD17242c41f7131d257212c54A0e816691.toBytes32();
         values[optimism]["CBETH"] = 0xadDb6A0412DE1BA0F936DCaeb8Aaa24578dcF3B2.toBytes32();
+        values[optimism]["ZRO"] = 0x6985884C4392D348587B19cb9eAAf157F13271cd.toBytes32();
+        values[optimism]["ETH"] = 0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000.toBytes32();
 
         values[optimism]["vault"] = 0xBA12222222228d8Ba445958a75a0704d566BF2C8.toBytes32();
         values[optimism]["balancerVault"] = 0xBA12222222228d8Ba445958a75a0704d566BF2C8.toBytes32();
@@ -2786,6 +2799,7 @@ contract ChainValues {
         values[katana]["WETH"] = 0xEE7D8BCFb72bC1880D0Cf19822eB0A2e6577aB62.toBytes32(); // WETH == vbETH
         values[katana]["vbETH"] = 0xEE7D8BCFb72bC1880D0Cf19822eB0A2e6577aB62.toBytes32();
         values[katana]["WEETH"] = 0x9893989433e7a383Cb313953e4c2365107dc19a7.toBytes32();
+        values[katana]["WSTETH"] = 0x7Fb4D0f51544F24F385a421Db6e7D4fC71Ad8e5C.toBytes32();
         values[katana]["ZRO"] = address(1).toBytes32(); // no ZRO on Katana
         values[katana]["LBTC"] = 0xecAc9C5F704e954931349Da37F60E39f515c11c1.toBytes32();
         values[katana]["BTCK"] = 0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072.toBytes32();
