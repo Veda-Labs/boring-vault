@@ -1581,6 +1581,7 @@ contract ChainValues {
         values[arbitrum]["syrupUSDC"] = 0x41CA7586cC1311807B4605fBB748a3B8862b42b5.toBytes32();
         values[arbitrum]["GHO"] = 0x7dfF72693f6A4149b17e7C6314655f6A9F7c8B33.toBytes32();
         values[arbitrum]["HLP0"] = 0x3D75F2BB8aBcDBd1e27443cB5CBCE8A668046C81.toBytes32();
+        values[arbitrum]["GYD"] = 0xCA5d8F8a8d49439357d3CF46Ca2e720702F132b8.toBytes32();
 
         // Aave V3
         values[arbitrum]["v3Pool"] = 0x794a61358D6845594F94dc1DB02A252b5b4814aD.toBytes32();

@@ -193,10 +193,10 @@ contract Univ3IntegTest is Test, MerkleTreeHelper {
             getAddress(sourceChain, "WETH"),
             getAddress(sourceChain, "USDC"),
             uint24(500),
-            int24(600), // lower tick
-            int24(700), // upper tick
-            100e18,
-            100e18,
+            int24(-193010), // lower tick
+            int24(-191660), // upper tick
+            1e18,
+            1000e6,
             0,
             0,
             address(boringVault),
