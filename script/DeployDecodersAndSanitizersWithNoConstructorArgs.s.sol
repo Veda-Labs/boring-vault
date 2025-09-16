@@ -147,6 +147,7 @@ import {KHypeHyperEVMDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/K
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {SiloVaultDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SiloVaultDecoderAndSanitizer.sol";
 import {MorphoRewardsDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MorphoRewardsDecoderAndSanitizer.sol";
+import {VaultCraftDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/VaultCraftDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -654,6 +655,10 @@ contract DeployDecodersAndSanitizersWithNoConstructorArgsScript is
         creationCode = type(BaseDecoderAndSanitizer).creationCode;
         constructorArgs = hex"";
         deployContract("Base Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        creationCode = type(VaultCraftDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Vault Craft Decoder and Sanitizer V0.2", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }

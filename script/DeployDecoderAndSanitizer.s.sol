@@ -85,6 +85,7 @@ import {PrimeGoldenGooseUnichainDecoderAndSanitizer} from
 import {PrimeGoldenGooseDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/PrimeGoldenGooseDecoderAndSanitizer.sol";
 import {GoldenGooseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseDecoderAndSanitizer.sol";
+import {GoldenGooseArbitrumDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseArbitrumDecoderAndSanitizer.sol";
 import {KatanaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/KatanaDecoderAndSanitizer.sol";
 import {EthMainnetTacDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EthMainnetTacDecoderAndSanitizer.sol";
 import {TacDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacUSDTacDecoderAndSanitizer.sol";
@@ -102,7 +103,9 @@ import {VelodromeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Proto
 import {AtomicQueueDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AtomicQueueDecoderAndSanitizer.sol";
 import {KHypeHyperEVMDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/KHypeHyperEVMDecoderAndSanitizer.sol";
 import {TacETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacETHDecoderAndSanitizer.sol";
-
+import {GoldenGooseUnichainDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseUnichainDecoderAndSanitizer.sol";
+import {OptimismGoldenGooseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/OptimismGoldenGooseDecoderAndSanitizer.sol";
+import {GoldenGooseBaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseBaseDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -132,7 +135,6 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory creationCode;
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
-
 
         creationCode = type(LombardBtcDecoderAndSanitizer).creationCode;
         addressKeys = ["uniswapV3NonFungiblePositionManager", "convexFXPoolRegistry", "odosRouterV2"];
@@ -232,6 +234,13 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //creationCode = type(TacTONDecoderAndSanitizer).creationCode;
         //constructorArgs = abi.encode();
         //deployer.deployContract("TAC Decoder And Sanitizer v0.0", creationCode, constructorArgs, 0);
+
+        // creationCode = type(GoldenGooseBaseDecoderAndSanitizer).creationCode;
+        // constructorArgs = abi.encode(
+        //     getAddress(sourceChain, "aerodromeNonFungiblePositionManager"),
+        //     getAddress(sourceChain, "odosRouterV2") 
+        // ); 
+        // deployer.deployContract("Golden Goose Decoder And Sanitizer V0.6", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
