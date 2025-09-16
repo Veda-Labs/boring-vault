@@ -158,7 +158,7 @@ contract Univ3IntegTest is Test, MerkleTreeHelper {
         vm.prank(manager.owner());
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
-        for(uint256 i=0;i<32;i++){
+        for (uint256 i = 0; i < 32; i++) {
             console.log(leafs[i].description);
         }
 
@@ -194,10 +194,10 @@ contract Univ3IntegTest is Test, MerkleTreeHelper {
             getAddress(sourceChain, "WETH"),
             getAddress(sourceChain, "USDC"),
             uint24(500),
-            int24(600), // lower tick
-            int24(700), // upper tick
-            100e18,
-            100e18,
+            int24(-193010), // lower tick
+            int24(-191660), // upper tick
+            1e18,
+            1000e6,
             0,
             0,
             address(boringVault),

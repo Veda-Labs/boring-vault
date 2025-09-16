@@ -1571,9 +1571,11 @@ contract ChainValues {
         values[arbitrum]["GRAIL"] = 0x3d9907F9a368ad0a51Be60f7Da3b97cf940982D8.toBytes32();
         values[arbitrum]["cbBTC"] = 0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf.toBytes32();
         values[arbitrum]["HLP0"] = 0x3D75F2BB8aBcDBd1e27443cB5CBCE8A668046C81.toBytes32();
+        values[arbitrum]["GYD"] = 0xCA5d8F8a8d49439357d3CF46Ca2e720702F132b8.toBytes32();
 
         // Aave V3
         values[arbitrum]["v3Pool"] = 0x794a61358D6845594F94dc1DB02A252b5b4814aD.toBytes32();
+        values[arbitrum]["v3RewardsController"] = 0x929EC64c34a17401F460460D4B9390518E5B473e.toBytes32();
 
         // 1Inch
         values[arbitrum]["aggregationRouterV5"] = 0x1111111254EEB25477B68fb85Ed929f73A960582.toBytes32();
@@ -1672,8 +1674,8 @@ contract ChainValues {
         values[arbitrum]["Bridge2"] = 0x2Df1c51E09aECF9cacB7bc98cB1742757f163dF7.toBytes32();
 
         // Odosv2
-        values[arbitrum]["odosRouterV2"] = 0x89b8AA89FDd0507a99d334CBe3C808fAFC7d850E.toBytes32();
-        values[arbitrum]["odosExecutor"] = 0x3f1aBA670a0234109be0222a805F3207117c2531.toBytes32();
+        values[arbitrum]["odosRouterV2"] = 0xa669e7A0d4b3e4Fa48af2dE86BD4CD7126Be4e13.toBytes32();
+        values[arbitrum]["odosExecutor"] = 0x03222a2b261a12091bBE271e763A7E26b64E25e2.toBytes32();
     }
 
     function _addOptimismValues() private {

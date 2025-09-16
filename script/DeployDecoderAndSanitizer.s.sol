@@ -155,11 +155,9 @@ contract DeployTestVaultArbitrumDecoderAndSanitizer is Script, ContractNames, Ma
         vm.createSelectFork("arbitrum");
         setSourceChainName("arbitrum");
         vm.startBroadcast(privateKey);
-        creationCode = type(TestVaultArbitrumDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(
+        new TestVaultArbitrumDecoderAndSanitizer(
             getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2")
         );
-        deployer.deployContract("Test Vault Arbitrum DecodersAndSanitizers Batch 1", creationCode, constructorArgs, 0);
         vm.stopBroadcast();
     }
 }
