@@ -2927,6 +2927,7 @@ contract ChainValues {
         // Token
         values[plasma]["wXPL"] = 0x6100E367285b01F48D07953803A2d8dCA5D19873.toBytes32();
         values[plasma]["USDT0"] = 0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb.toBytes32();
+        values[plasma]["USDT0_OFT"] = 0x02ca37966753bDdDf11216B73B16C1dE756A7CF9.toBytes32();
         values[plasma]["ZRO"] = address(1).toBytes32();
         values[plasma]["WETH"] = 0x9895D81bB462A195b4922ED7De0e3ACD007c32CB.toBytes32();
         
@@ -2948,6 +2949,10 @@ contract ChainValues {
         
         // LayerZero
         values[plasma]["LayerZeroEndPoint"] = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B.toBytes32();
+
+        // Aave V3
+        values[plasma]["v3Pool"] = 0x925a2A7214Ed92428B5b1B090F80b25700095e12.toBytes32();
+        values[plasma]["v3RewardsController"] = 0x3A57eAa3Ca3794D66977326af7991eB3F6dD5a5A.toBytes32();
     }
 
     
