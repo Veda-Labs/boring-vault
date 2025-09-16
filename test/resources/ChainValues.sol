@@ -1584,6 +1584,7 @@ contract ChainValues {
 
         // Aave V3
         values[arbitrum]["v3Pool"] = 0x794a61358D6845594F94dc1DB02A252b5b4814aD.toBytes32();
+        values[arbitrum]["v3RewardsController"] = 0x929EC64c34a17401F460460D4B9390518E5B473e.toBytes32();
 
         // 1Inch
         values[arbitrum]["aggregationRouterV5"] = 0x1111111254EEB25477B68fb85Ed929f73A960582.toBytes32();
@@ -1686,6 +1687,7 @@ contract ChainValues {
         values[arbitrum]["odosExecutor"] = 0x03222a2b261a12091bBE271e763A7E26b64E25e2.toBytes32();
 
         // Morpho Blue
+        values[arbitrum]["morphoBlue"] = 0x6c247b1F6182318877311737BaC0844bAa518F5e.toBytes32();
         values[arbitrum]["syrupUSDC_USDC_915"] = 0xf86f3edd6f16cd8211f4d206866dc4ecd41be6211063ac11f8508e1b7112ef40;
     }
 
