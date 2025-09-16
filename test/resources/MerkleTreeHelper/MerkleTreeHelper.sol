@@ -6951,6 +6951,91 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
     }
 
+    // ========================================= Ethena Minting =========================================
+    function _addEthenaMintingLeafs(ManageLeaf[] memory leafs, address signer) internal {
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "USDE"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve Ethena Minter V2 to spend ", getERC20(sourceChain, "USDE").symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "ethenaMinterV2");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "USDT"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve Ethena Minter V2 to spend ", getERC20(sourceChain, "USDT").symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "ethenaMinterV2");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "ethenaMinterV2"),
+            false,
+            "setDelegatedSigner(address)",
+            new address[](1),
+            string.concat("Set ", vm.toString(signer), " as delegated EthenaMinter Signer"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = signer;  
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "ethenaMinterV2"),
+            false,
+            "removeDelegatedSigner(address)",
+            new address[](1),
+            string.concat("Remove ", vm.toString(signer), " as delegated EthenaMinter Signer"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = signer;  
+        
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "ethenaMinterV2"),
+            false,
+            "mint((string,uint8,uint120,uint128,address,address,address,uint128,uint128),(address[],uint128[]),(uint8,bytes))",
+            new address[](3),
+            string.concat("Approve Ethena Minter V2 to spend ", getERC20(sourceChain, "USDT").symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "USDT");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "ethenaMinterV2"),
+            false,
+            "redeem((string,uint8,uint120,uint128,address,address,address,uint128,uint128),(uint8,bytes))",
+            new address[](3),
+            string.concat("Approve Ethena Minter V2 to spend ", getERC20(sourceChain, "USDT").symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "USDT");
+    }
+
     // ========================================= Level Withdraws =========================================
 
     function _addSLvlUSDWithdrawLeafs(ManageLeaf[] memory leafs) internal {

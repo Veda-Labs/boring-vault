@@ -70,8 +70,6 @@ contract BaseTestIntegration is Test, MerkleTreeHelper {
         string memory rpcKey = nameToRPC[chain]; 
         _startFork(rpcKey, blockNumber);
 
-        console.log(chain); 
-
         boringVault = new BoringVault(address(this), "Boring Vault", "BV", 18);
 
         manager =

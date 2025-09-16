@@ -1485,6 +1485,8 @@ contract ChainValues {
         values[mainnet]["mfOneDepositVault"] = 0x41438435c20B1C2f1fcA702d387889F346A0C3DE.toBytes32();
         values[mainnet]["mfOneRedemptionVault"] = 0x44b0440e35c596e858cEA433D0d82F5a985fD19C.toBytes32();
 
+        // Ethena
+        values[mainnet]["ethenaMinterV2"] = 0xe3490297a08d6fC8Da46Edb7B6142E4F461b62D3.toBytes32();
     }
 
     function _addBaseValues() private {
