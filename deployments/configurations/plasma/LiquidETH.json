@@ -57,7 +57,7 @@
         "fixedRate": false
       },
       "payoutConfiguration": {
-        "payoutTo": "0xA9962a5BfBea6918E958DeE0647E99fD7863b95A",
+        "payoutTo": "0x0000000000000000000000000000000000000001",
         "optionalPaymentSplitterName": "EtherFi Liquid ETH Payment Splitter V0.0",
         "splits": []
       },
@@ -71,7 +71,7 @@
         "minimumUpateDelayInSeconds": 21600,
         "performanceFee": 0,
         "platformFee": 0,
-        "startingExchangeRate": 1063486264537015685
+        "startingExchangeRate": 1063615052014209657
       }
     }
   },
@@ -115,7 +115,7 @@
   },
   "droneConfiguration": {
     "droneDeploymentBaseName": "EtherFi Liquid ETH Drone V0.0",
-    "droneCount": 0,
+    "droneCount": 1,
     "safeGasToForwardNative": 21000
   },
   "pauserConfiguration": {
@@ -141,30 +141,7 @@
       "proposers": ["0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b"]
     }
   },
-  "accountantAssets": [
-  ],
-  "depositAssets": [
-    {
-      "addressOrName": {
-        "address": "0x0000000000000000000000000000000000000000",
-        "name": "WETH"
-      },
-      "allowDeposits": true,
-      "allowWithdraws": true,
-      "sharePremium": 0
-    }
-  ],
-  "withdrawAssets": [
-    {
-      "addressOrName": {
-        "address": "0x0000000000000000000000000000000000000000",
-        "name": "WETH"
-      },
-      "maxDiscount": 10,
-      "minDiscount": 1,
-      "minimumSecondsToDeadline": 259200,
-      "minimumShares": 0,
-      "secondsToMaturity": 172800
-    }
-  ]
+  "accountantAssets": [],
+  "depositAssets": [],
+  "withdrawAssets": []
 }
