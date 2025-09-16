@@ -21,8 +21,3 @@ broadcast/*
 CLAUDE.md
 .serena
 flatten.sol
-
-# Serena MCP server
-.serena/
-
-
