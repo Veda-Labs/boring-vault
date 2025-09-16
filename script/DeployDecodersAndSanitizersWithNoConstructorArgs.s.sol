@@ -25,14 +25,14 @@ import {BGTRewardVaultDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/BGTRewardVaultDecoderAndSanitizer.sol";
 import {BoringChefDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BoringChefDecoderAndSanitizer.sol";
 import {BTCNMinterDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BTCNMinterDecoderAndSanitizer.sol";
-import {CamelotDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CamelotDecoderAndSanitizer.sol";
 import {CCIPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCIPDecoderAndSanitizer.sol";
 import {CompoundV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CompoundV3DecoderAndSanitizer.sol";
 import {ConvexDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ConvexDecoderAndSanitizer.sol";
 import {CornStakingDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/CornStakingDecoderAndSanitizer.sol";
 import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
-import {DeriveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/DeriveWithdrawDecoderAndSanitizer.sol";
+import {DeriveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/DeriveDecoderAndSanitizer.sol";
+import {DeriveWithdrawDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/DeriveWithdrawDecoderAndSanitizer.sol";
 import {EigenLayerLSTStakingDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/EigenLayerLSTStakingDecoderAndSanitizer.sol";
 import {ElixirClaimingDecoderAndSanitizer} from
@@ -117,41 +117,37 @@ import {ZircuitSimpleStakingDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/ZircuitSimpleStakingDecoderAndSanitizer.sol";
 import {TermFinanceDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/TermFinanceDecoderAndSanitizer.sol";
-// import {ITBBasePositionDecoderAndSanitizer} from
-//     "src/base/DecodersAndSanitizers/Protocols/ITB/ITBBasePositionDecoderAndSanitizer.sol";
-// import {ITBAaveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/ITBAaveDecoderAndSanitizer.sol";
-// import {ITBCorkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/ITBCorkDecoderAndSanitizer.sol";
-// import {ITBCurveAndConvexDecoderAndSanitizer} from
-//     "src/base/DecodersAndSanitizers/Protocols/ITB/ITBCurveAndConvexDecoderAndSanitizer.sol";
-// import {ITBEigenLayerDecoderAndSanitizer} from
-//     "src/base/DecodersAndSanitizers/Protocols/ITB/ITBEigenLayerDecoderAndSanitizer.sol";
-// import {ITBGearboxDecoderAndSanitizer} from
-//     "src/base/DecodersAndSanitizers/Protocols/ITB/ITBGearboxDecoderAndSanitizer.sol";
-// import {ITBKarakDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/ITBKarakDecoderAndSanitizer.sol";
-// import {ITBReserveDecoderAndSanitizer} from
-//     "src/base/DecodersAndSanitizers/Protocols/ITB/ITBReserveDecoderAndSanitizer.sol";
-// import {ITBReserveWrapperDecoderAndSanitizer} from
-//     "src/base/DecodersAndSanitizers/Protocols/ITB/ITBReserveWrapperDecoderAndSanitizer.sol";
-// import {ITBSyrupDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/ITBSyrupDecoderAndSanitizer.sol";
+import {ITBBasePositionDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/ITB/ITBBasePositionDecoderAndSanitizer.sol";
+import {ITBAaveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/aave/AaveDecoderAndSanitizer.sol";
+import {ITBCorkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/cork/CorkDecoderAndSanitizer.sol";
+import {ITBCurveAndConvexNoConfigDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/ITB/curve_and_convex/CurveAndConvexNoConfigDecoderAndSanitizer.sol";
+import {ITBEigenLayerDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/ITB/eigen_layer/EigenLayerDecoderAndSanitizer.sol";
+import {ITBGearboxDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/ITB/gearbox/GearboxDecoderAndSanitizer.sol";
+import {ITBKarakDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/karak/KarakDecoderAndSanitizer.sol";
+import {ITBReserveDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/ITB/reserve/ReserveDecoderAndSanitizer.sol";
+import {ITBReserveERC20WrappedDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/ITB/reserve/ReserveERC20WrappedDecoderAndSanitizer.sol";
+import {ITBSyrupDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/syrup/SyrupDecoderAndSanitizer.sol";
 import {UltraYieldDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UltraYieldDecoderAndSanitizer.sol";
 import {CCTPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCTPDecoderAndSanitizer.sol";
 import {CompoundV2DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CompoundV2DecoderAndSanitizer.sol";
 import {AvalancheBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AvalancheBridgeDecoderAndSanitizer.sol";
 import {rFLRDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/rFLRDecoderAndSanitizer.sol";
-import {DeriveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/DeriveWithdrawDecoderAndSanitizer.sol";
 import {AgglayerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AgglayerDecoderAndSanitizer.sol";
 import {wSwellUnwrappingDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/wSwellUnwrappingDecoderAndSanitizer.sol";
 import {StakeStoneDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/StakeStoneDecoderAndSanitizer.sol";
 import {TacCrossChainLayerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TacCrossChainLayerDecoderAndSanitizer.sol";
-import {AaveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/aave/AaveDecoderAndSanitizer.sol";
-import {CorkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/cork/CorkDecoderAndSanitizer.sol";
-import {ITBBasePositionDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/ITBBasePositionDecoderAndSanitizer.sol";
-import {CurveAndConvexNoConfigDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/curve_and_convex/CurveAndConvexNoConfigDecoderAndSanitizer.sol";
-import {ReserveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/reserve/ReserveDecoderAndSanitizer.sol";
-import {ReserveERC20WrappedDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/reserve/ReserveERC20WrappedDecoderAndSanitizer.sol";
-import {EigenLayerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/eigen_layer/EigenLayerDecoderAndSanitizer.sol";
 import {KinetiqDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/KinetiqDecoderAndSanitizer.sol";
 import {KHypeHyperEVMDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/KHypeHyperEVMDecoderAndSanitizer.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {SiloVaultDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SiloVaultDecoderAndSanitizer.sol";
+import {MorphoRewardsDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MorphoRewardsDecoderAndSanitizer.sol";
+import {VaultCraftDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/VaultCraftDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -171,8 +167,8 @@ contract DeployDecodersAndSanitizersWithNoConstructorArgsScript is
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("hyperEVM");
-        setSourceChainName("hyperEVM");
+        vm.createSelectFork("mainnet");
+        setSourceChainName("mainnet");
     }
 
     function run() external {
@@ -187,12 +183,12 @@ contract DeployDecodersAndSanitizersWithNoConstructorArgsScript is
         // Deploy AuraDecoderAndSanitizer
         creationCode = type(AuraDecoderAndSanitizer).creationCode;
         constructorArgs = hex"";
-        deployContract("Aura Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        deployContract("Aura Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
 
         // Deploy BalancerV2DecoderAndSanitizer
         creationCode = type(BalancerV2DecoderAndSanitizer).creationCode;
         constructorArgs = hex"";
-        deployContract("Balancer V2 Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        deployContract("Balancer V2 Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
 
         // Deploy ERC4626DecoderAndSanitizer
         creationCode = type(ERC4626DecoderAndSanitizer).creationCode;
@@ -409,6 +405,11 @@ contract DeployDecodersAndSanitizersWithNoConstructorArgsScript is
         constructorArgs = hex"";
         deployContract("Morpho Rewards Wrapper Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
+        // Deploy MorphoRewardsDecoderAndSanitizer
+        creationCode = type(MorphoRewardsDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Morpho Rewards Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
         // Deploy NativeWrapperDecoderAndSanitizer
         creationCode = type(NativeWrapperDecoderAndSanitizer).creationCode;
         constructorArgs = hex"";
@@ -463,6 +464,11 @@ contract DeployDecodersAndSanitizersWithNoConstructorArgsScript is
         creationCode = type(SiloDecoderAndSanitizer).creationCode;
         constructorArgs = hex"";
         deployContract("Silo Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        // Deploy SiloVaultDecoderAndSanitizer
+        creationCode = type(SiloVaultDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Silo Vault Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         // Deploy SkyMoneyDecoderAndSanitizer
         creationCode = type(SkyMoneyDecoderAndSanitizer).creationCode;
@@ -576,7 +582,11 @@ contract DeployDecodersAndSanitizersWithNoConstructorArgsScript is
 
         creationCode = type(DeriveDecoderAndSanitizer).creationCode;
         constructorArgs = hex"";
-        deployContract("Derive Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        deployContract("Derive Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
+
+        creationCode = type(DeriveWithdrawDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Derive Withdraw Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         creationCode = type(AgglayerDecoderAndSanitizer).creationCode;
         constructorArgs = hex"";
@@ -594,41 +604,61 @@ contract DeployDecodersAndSanitizersWithNoConstructorArgsScript is
         constructorArgs = hex"";
         deployContract("Tac Cross Chain Layer Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        creationCode = type(AaveDecoderAndSanitizer).creationCode;
-        constructorArgs = hex"";
-        deployContract("Aave Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        creationCode = type(CorkDecoderAndSanitizer).creationCode;
-        constructorArgs = hex"";
-        deployContract("Cork Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
         creationCode = type(ITBBasePositionDecoderAndSanitizer).creationCode;
         constructorArgs = hex"";
         deployContract("ITB Base Position Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        creationCode = type(CurveAndConvexNoConfigDecoderAndSanitizer).creationCode;
+        creationCode = type(ITBAaveDecoderAndSanitizer).creationCode;
         constructorArgs = hex"";
-        deployContract("Curve and Convex No Config Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        deployContract("ITB Aave Decoder and Sanitizer V0.0", creationCode,constructorArgs, 0);
 
-        creationCode = type(ReserveDecoderAndSanitizer).creationCode;
+        creationCode = type(ITBCorkDecoderAndSanitizer).creationCode;
         constructorArgs = hex"";
-        deployContract("Reserve Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        deployContract("ITB Cork Decoder and Sanitizer V0.0", creationCode,constructorArgs, 0);
 
-        creationCode = type(ReserveERC20WrappedDecoderAndSanitizer).creationCode;
+        creationCode = type(ITBCurveAndConvexNoConfigDecoderAndSanitizer).creationCode;
         constructorArgs = hex"";
-        deployContract("Reserve ERC20 Wrapped Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        deployContract("ITB Curve and Convex Decoder and Sanitizer V0.0", creationCode,constructorArgs, 0);
 
-        creationCode = type(EigenLayerDecoderAndSanitizer).creationCode;
+        creationCode = type(ITBEigenLayerDecoderAndSanitizer).creationCode;
         constructorArgs = hex"";
-        deployContract("Eigen Layer Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        deployContract("ITB Eigen Layer Decoder and Sanitizer V0.0", creationCode,constructorArgs, 0);
+
+        creationCode = type(ITBGearboxDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("ITB Gearbox Decoder and Sanitizer V0.0", creationCode,constructorArgs, 0);
+
+        creationCode = type(ITBKarakDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("ITB Karak Decoder and Sanitizer V0.0", creationCode,constructorArgs, 0);
+
+        creationCode = type(ITBReserveDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("ITB Reserve Decoder and Sanitizer V0.0", creationCode,constructorArgs, 0);
+
+        creationCode = type(ITBReserveERC20WrappedDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("ITB Reserve Wrapper Decoder and Sanitizer V0.0", creationCode,constructorArgs, 0);
+
+        creationCode = type(ITBSyrupDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("ITB Syrup Decoder and Sanitizer V0.0", creationCode,constructorArgs, 0);
 
         creationCode = type(KinetiqDecoderAndSanitizer).creationCode;
         constructorArgs = hex"";
         deployContract("Kinetiq Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        creationCode = type(KHypeHyperEVMDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode();
-        deployContract("KHype HyperEVM Decoder And Sanitizer V0.2", creationCode, constructorArgs, 0);
+        // creationCode = type(KHypeHyperEVMDecoderAndSanitizer).creationCode;
+        // constructorArgs = hex"";
+        // deployContract("KHype HyperEVM Decoder And Sanitizer V0.3", creationCode, constructorArgs, 0);
+
+        creationCode = type(BaseDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Base Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        creationCode = type(VaultCraftDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Vault Craft Decoder and Sanitizer V0.2", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }

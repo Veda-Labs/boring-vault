@@ -4,7 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity ^0.8.0;
 
-contract CorkDecoderAndSanitizer {
+contract ITBCorkDecoderAndSanitizer {
     type Id is bytes32;
 
     function updatePositionConfig(address _vault, Id, uint256) external pure returns (bytes memory addressesFound) {
