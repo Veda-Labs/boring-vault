@@ -40,7 +40,7 @@ contract EthenaMintingIntegrationTest is BaseTestIntegration {
 
         deal(getAddress(sourceChain, "USDT"), address(boringVault), 100_000_000e6);  
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addEthenaMintingLeafs(leafs, signer); 
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
@@ -51,8 +51,8 @@ contract EthenaMintingIntegrationTest is BaseTestIntegration {
         
         Tx memory tx_ = _getTxArrays(2); 
 
-        tx_.manageLeafs[0] = leafs[1]; //approve USDT
-        tx_.manageLeafs[1] = leafs[2]; //setDelegatedSigner 
+        tx_.manageLeafs[0] = leafs[3]; //approve USDT
+        tx_.manageLeafs[1] = leafs[1]; //setDelegatedSigner 
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
         
@@ -147,7 +147,7 @@ contract EthenaMintingIntegrationTest is BaseTestIntegration {
 
         deal(getAddress(sourceChain, "USDE"), address(boringVault), 9909000000000000000000); 
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addEthenaMintingLeafs(leafs, signer); 
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
@@ -159,7 +159,7 @@ contract EthenaMintingIntegrationTest is BaseTestIntegration {
         Tx memory tx_ = _getTxArrays(2); 
 
         tx_.manageLeafs[0] = leafs[0]; //approve USDE
-        tx_.manageLeafs[1] = leafs[2]; //setDelegatedSigner 
+        tx_.manageLeafs[1] = leafs[1]; //setDelegatedSigner 
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
         
@@ -243,7 +243,7 @@ contract EthenaMintingIntegrationTest is BaseTestIntegration {
 
         deal(getAddress(sourceChain, "USDT"), address(boringVault), 100_000_000e6);  
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addEthenaMintingLeafs(leafs, signer); 
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
@@ -254,8 +254,8 @@ contract EthenaMintingIntegrationTest is BaseTestIntegration {
         
         Tx memory tx_ = _getTxArrays(2); 
 
-        tx_.manageLeafs[0] = leafs[1]; //approve USDT
-        tx_.manageLeafs[1] = leafs[2]; //setDelegatedSigner 
+        tx_.manageLeafs[0] = leafs[3]; //approve USDT
+        tx_.manageLeafs[1] = leafs[1]; //setDelegatedSigner 
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
         
@@ -283,7 +283,7 @@ contract EthenaMintingIntegrationTest is BaseTestIntegration {
 
         tx_ = _getTxArrays(1); 
 
-        tx_.manageLeafs[0] = leafs[3]; //remove delegated signer
+        tx_.manageLeafs[0] = leafs[2]; //remove delegated signer
 
         manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
         

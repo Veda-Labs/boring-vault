@@ -6970,19 +6970,6 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             leafIndex++;
         }
         leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "USDT"),
-            false,
-            "approve(address,uint256)",
-            new address[](1),
-            string.concat("Approve Ethena Minter V2 to spend ", getERC20(sourceChain, "USDT").symbol()),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "ethenaMinterV2");
-
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
             getAddress(sourceChain, "ethenaMinterV2"),
             false,
             "setDelegatedSigner(address)",
@@ -7004,36 +6991,57 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = signer;  
-        
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "ethenaMinterV2"),
-            false,
-            "mint((string,uint8,uint120,uint128,address,address,address,uint128,uint128),(address[],uint128[]),(uint8,bytes))",
-            new address[](3),
-            string.concat("Approve Ethena Minter V2 to spend ", getERC20(sourceChain, "USDT").symbol()),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
-        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
-        leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "USDT");
 
-        unchecked {
-            leafIndex++;
+
+        address[] memory stables = new address[](2); 
+        stables[0] = getAddress(sourceChain, "USDT"); 
+        stables[1] = getAddress(sourceChain, "USDC"); 
+        
+        for (uint256 i = 0; i < stables.length; i++) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                stables[i],
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve Ethena Minter V2 to spend ", ERC20(stables[i]).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "ethenaMinterV2");
+
+            
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "ethenaMinterV2"),
+                false,
+                "mint((string,uint8,uint120,uint128,address,address,address,uint128,uint128),(address[],uint128[]),(uint8,bytes))",
+                new address[](3),
+                string.concat("Mint USDE with ", ERC20(stables[i]).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[2] = stables[i];
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "ethenaMinterV2"),
+                false,
+                "redeem((string,uint8,uint120,uint128,address,address,address,uint128,uint128),(uint8,bytes))",
+                new address[](3),
+                string.concat("Redeem USDE for ", ERC20(stables[i]).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[2] = stables[i];
         }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "ethenaMinterV2"),
-            false,
-            "redeem((string,uint8,uint120,uint128,address,address,address,uint128,uint128),(uint8,bytes))",
-            new address[](3),
-            string.concat("Approve Ethena Minter V2 to spend ", getERC20(sourceChain, "USDT").symbol()),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
-        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
-        leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "USDT");
     }
 
     // ========================================= Level Withdraws =========================================
