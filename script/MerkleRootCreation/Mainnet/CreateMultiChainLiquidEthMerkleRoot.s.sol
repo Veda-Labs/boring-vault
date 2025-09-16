@@ -18,7 +18,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     address public boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C;
-    address public rawDataDecoderAndSanitizer = 0xfB5f154dcD47CC6d746D72bbcf121C1475fe26f0;
+    address public rawDataDecoderAndSanitizer = 0xE6EA1b3A24682AB03d2d1C0F3f4659544024aa8F;
     address public managerAddress = 0xf9f7969C357ce6dfd7973098Ea0D57173592bCCa;
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
     address public pancakeSwapDataDecoderAndSanitizer = 0xfdC73Fc6B60e4959b71969165876213918A443Cd;
@@ -722,7 +722,19 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         }
 
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
-
+// ========================== ITB Position Manager ==========================
+        /**
+         * acceptOwnership() of ITB position manager
+         * transfer ETH tokens to ITB position manager
+         * withdraw ETH tokens from ITB position manager
+         * withdrawAll ETH tokens from ITB position manager
+         */
+        address itbPositionManager = 0x7F37350F463525c2670b10234FB014BC406F851c;
+        ERC20[] memory itbTokensUsed = new ERC20[](3);
+        itbTokensUsed[0] = getERC20(sourceChain, "WETH");
+        itbTokensUsed[1] = getERC20(sourceChain, "WEETH");
+        itbTokensUsed[2] = getERC20(sourceChain, "EETH");
+        _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "ITB Position Manager");
         // ========================== Drone Setup ===============================
         {
             ERC20[] memory localTokens = new ERC20[](3);   
