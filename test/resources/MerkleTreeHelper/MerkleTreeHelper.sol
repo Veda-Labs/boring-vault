@@ -2177,6 +2177,34 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             "Unwrap weETH",
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
+
+        //deposit ERC20s
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "STETH"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve EtherFi Vampire Pool to spend STETH",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "etherFiVampirePool");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "etherFiVampirePool"),
+            false,
+            "depositWithERC20(address,uint256,address)",
+            new address[](2),
+            "Deposit ERC20 for eETH",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "STETH");
+        leafs[leafIndex].argumentAddresses[1] = address(0); 
     }
 
     // ========================================= LIDO =========================================
@@ -2279,6 +2307,103 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
     }
+
+    // ========================================= MFOne =========================================
+    function _addMfOneLeafs(ManageLeaf[] memory leafs) internal {
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "USDC"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve USDC to be spent by MF-ONE Deposit Vault",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "mfOneDepositVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "MF-ONE"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve MF-ONE to be spent by MF-ONE Redemption Vault",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "mfOneRedemptionVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "mfOneDepositVault"),
+            false,
+            "depositInstant(address,uint256,uint256,bytes32)",
+            new address[](3),
+            "Deposit Instant USDC for MFONE",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "USDC");
+        leafs[leafIndex].argumentAddresses[1] = address(0);  
+        leafs[leafIndex].argumentAddresses[2] = address(0);  
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "mfOneDepositVault"),
+            false,
+            "depositRequest(address,uint256,bytes32)",
+            new address[](3),
+            "Deposit Request USDC for MFONE",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "USDC");
+        leafs[leafIndex].argumentAddresses[1] = address(0);  
+        leafs[leafIndex].argumentAddresses[2] = address(0);  
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "mfOneRedemptionVault"),
+            false,
+            "redeemInstant(address,uint256,uint256)",
+            new address[](1),
+            "Redeem Instant MFONE for USDC",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "USDC");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "mfOneRedemptionVault"),
+            false,
+            "redeemRequest(address,uint256)",
+            new address[](1),
+            "Redeem Request MFONE for USDC",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "USDC");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "mfOneRedemptionVault"),
+            false,
+            "redeemFiatRequest(uint256)",
+            new address[](0),
+            "Redeem Fiat Request MFONE",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+    } 
 
     // ========================================= Kinetiq KHYPE =========================================
     function _addKHypeLeafs(ManageLeaf[] memory leafs) internal {
@@ -7991,8 +8116,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     function _addMerklLeafs(
         ManageLeaf[] memory leafs,
         address merklDistributor,
-        address operator,
-        ERC20[] memory tokensToClaim
+        address operator
     ) internal {
         unchecked {
             leafIndex++;
@@ -8007,21 +8131,19 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
         leafs[leafIndex].argumentAddresses[1] = operator;
-        for (uint256 i; i < tokensToClaim.length; ++i) {
-            unchecked {
-                leafIndex++;
-            }
-            leafs[leafIndex] = ManageLeaf(
-                merklDistributor,
-                false,
-                "claim(address[],address[],uint256[],bytes32[][])",
-                new address[](2),
-                string.concat("Claim merkl ", tokensToClaim[i].symbol(), " rewards"),
-                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-            );
-            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
-            leafs[leafIndex].argumentAddresses[1] = address(tokensToClaim[i]);
+
+        unchecked {
+            leafIndex++;
         }
+        leafs[leafIndex] = ManageLeaf(
+            merklDistributor,
+            false,
+            "claim(address[],address[],uint256[],bytes32[][])",
+            new address[](1),
+            string.concat("Claim merkl rewards"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
     }
 
     // ========================================= VELODROME =========================================
@@ -9583,9 +9705,6 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         unchecked {
             leafIndex++;
         }
-        unchecked {
-            leafIndex++;
-        }
         leafs[leafIndex] = ManageLeaf(
             getAddress(sourceChain, "LBTC"), //target
             false,
@@ -9594,6 +9713,9 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             string.concat("Mint LBTC with payload"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
+        unchecked {
+            leafIndex++;
+        }
         leafs[leafIndex] = ManageLeaf(
             getAddress(sourceChain, "LBTC"), //target
             false,

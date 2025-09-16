@@ -4,6 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
+import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {Deployer} from "src/helper/Deployer.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {ContractNames} from "resources/ContractNames.sol";
@@ -17,6 +18,7 @@ import "forge-std/Test.sol";
  *  source .env && forge script script/DeployGenericRateProviderWithDecimalScaling.s.sol:DeployGenericRateProviderWithDecimalScaling --broadcast --verify
  *
  * @dev Optionally can change `--with-gas-price` to something more reasonable
+ * @dev IMPORTANT: OUTPUT DECIMALS must be in QUOTE asset NOT the vault deicmals. Ie if the token we are pricing is in 18 decimals (mfONE) output must be 18 
  */
 contract DeployGenericRateProviderWithDecimalScaling is Script, ContractNames, Test {
     uint256 public privateKey;
@@ -47,7 +49,8 @@ contract DeployGenericRateProviderWithDecimalScaling is Script, ContractNames, T
             8,
             18
         ));
-        address createdAddress = deployer.deployContract("wstETH Rate Provider V0.1", creationCode, constructorArgs, 0); 
+        address createdAddress = deployer.deployContract("mFONE Rate Provider V0.0", creationCode, constructorArgs, 0); 
+        require (GenericRateProvider(createdAddress).outputDecimals() == ERC20(targetToken).decimals()); 
         console.log("DEPLOYED ADDRESS: ", createdAddress); 
     }
 }

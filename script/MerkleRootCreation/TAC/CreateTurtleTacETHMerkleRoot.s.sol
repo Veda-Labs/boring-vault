@@ -19,7 +19,7 @@ contract CreateTurtleTacETHMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x294eecec65A0142e84AEdfD8eB2FBEA8c9a9fbad; 
-    address public rawDataDecoderAndSanitizer = 0x9Bc20d0F13E68FAD5f4eE5Dda58c391b342e65a5;
+    address public rawDataDecoderAndSanitizer = 0x5ebE12dE67970a6d3DD70d23f90EbBA4dD38726A;
     address public managerAddress = 0x401C29bafA0A205a0dAb316Dc6136A18023eF08A; 
     address public accountantAddress = 0x1683870f3347F2837865C5D161079Dc3fDbf1087;
     
@@ -40,11 +40,23 @@ contract CreateTurtleTacETHMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, tac, "accountantAddress", accountantAddress);
         setAddress(false, tac, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](32);
 
         // ========================== LayerZero ==========================
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WETH"), getAddress(sourceChain, "WETH"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WSTETH"), getAddress(sourceChain, "WSTETH"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
+
+        // ========================== MetaMorpho ==========================
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "re7WETH")));
+
+        // ========================== Euler ==========================
+        ERC4626[] memory depositVaults = new ERC4626[](2);
+        depositVaults[0] = ERC4626(getAddress(sourceChain, "evkeWETH-1"));
+        depositVaults[1] = ERC4626(getAddress(sourceChain, "evkewstETH-2"));
+        address[] memory subaccounts = new address[](1);
+        subaccounts[0] = address(boringVault);
+
+        _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
