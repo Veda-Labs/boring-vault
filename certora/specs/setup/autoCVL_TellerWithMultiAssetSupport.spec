@@ -3752,7 +3752,6 @@ rule depositWithPermit_3d935d9e_exceeds_cap_reverts(env e) {
  *
  * Possible consequences: Incorrect share minting leading to user fund loss or system accounting errors
  */
-// gereon: this rule manages to trigger various overflow issues in our CVL summaries of ERC20.
 rule depositWithPermit_3d935d9e_valid_deposit_mints_shares(env e) {
     address depositAsset;
     uint256 depositAmount;
@@ -3770,11 +3769,11 @@ rule depositWithPermit_3d935d9e_valid_deposit_mints_shares(env e) {
     uint256 totalSupply = currentContract.vault.totalSupply(e);
     uint256 balanceOf_before = currentContract.vault.balanceOf(e, e.msg.sender);
 
+    requireInvariant(totalSupplyHolds_BoringVault());
+    requireInvariant(totalSupplyHolds_ERC20Mock());
+
     // call function under test
     shares = depositWithPermit(e, depositAsset, depositAmount, minimumMint, deadline, v, r, s);
-
-    // gereon: side-step overflow issues
-    require(balanceOf_before + shares <= max_uint256);
 
     // assign all the 'after' variables
     uint256 balanceOf_after = currentContract.vault.balanceOf(e, e.msg.sender);

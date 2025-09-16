@@ -472,7 +472,7 @@ rule enter_39d6ba32_valid_mint_increases_balance(env e) {
     address to;
     uint256 shareAmount;
 
-    requireInvariant(totalSupplyHolds());
+    requireInvariant(totalSupplyHolds_BoringVault());
 
     // assign all the 'before' variables
     uint256 balanceOf_e__to__before = balanceOf(e, to);
@@ -891,7 +891,7 @@ rule exit_18457e61_reduces_total_supply(env e) {
     address from;
     uint256 shareAmount;
 
-    requireInvariant(totalSupplyHolds());
+    requireInvariant(totalSupplyHolds_BoringVault());
 
     // assign all the 'before' variables
     uint256 currentContract_balanceOf_from__before = currentContract.balanceOf[from];
@@ -1212,7 +1212,7 @@ rule transfer_a9059cbb_recipient_balance_increases(env e) {
     uint256 amount;
     bool result;
 
-    requireInvariant(totalSupplyHolds());
+    requireInvariant(totalSupplyHolds_BoringVault());
 
     // assign all the 'before' variables
     uint256 currentContract_balanceOf_e_msg_sender__before = currentContract.balanceOf[e.msg.sender];
@@ -1468,7 +1468,7 @@ rule transferFrom_23b872dd_balance_increases_correctly(env e) {
     uint256 amount;
     bool result;
 
-    requireInvariant(totalSupplyHolds());
+    requireInvariant(totalSupplyHolds_BoringVault());
 
     // assign all the 'before' variables
     uint256 currentContract_balanceOf_from__before = currentContract.balanceOf[from];
