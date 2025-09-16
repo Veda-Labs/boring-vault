@@ -11,13 +11,11 @@ import {CurveDecoderAndSanitizer} from "./Protocols/CurveDecoderAndSanitizer.sol
 import {NativeWrapperDecoderAndSanitizer} from "./Protocols/NativeWrapperDecoderAndSanitizer.sol";
 import {PendleRouterDecoderAndSanitizer} from "./Protocols/PendleRouterDecoderAndSanitizer.sol";
 import {CCIPDecoderAndSanitizer} from "./Protocols/CCIPDecoderAndSanitizer.sol";
-import {InfiniDecoderAndSanitizer} from "./Protocols/InfiniDecoderAndSanitizer.sol";
 import {SiloDecoderAndSanitizer} from "./Protocols/SiloDecoderAndSanitizer.sol";
 import {OdosDecoderAndSanitizer} from "./Protocols/OdosDecoderAndSanitizer.sol";
 import {OneInchDecoderAndSanitizer} from "./Protocols/OneInchDecoderAndSanitizer.sol";
-import {BungeeDecoderAndSanitizer} from "./Protocols/BungeeDecoderAndSanitizer.sol";
 
-contract TestVaultDecoderAndSanitizer is
+contract SyUsdArbitrumDecoderAndSanitizer is
     UniswapV3DecoderAndSanitizer,
     AaveV3DecoderAndSanitizer,
     BalancerV2DecoderAndSanitizer,
@@ -27,11 +25,9 @@ contract TestVaultDecoderAndSanitizer is
     NativeWrapperDecoderAndSanitizer,
     PendleRouterDecoderAndSanitizer,
     CCIPDecoderAndSanitizer,
-    InfiniDecoderAndSanitizer,
     SiloDecoderAndSanitizer,
     OdosDecoderAndSanitizer,
-    OneInchDecoderAndSanitizer,
-    BungeeDecoderAndSanitizer
+    OneInchDecoderAndSanitizer
 {
     constructor(address _uniswapV3NonFungiblePositionManager, address _odosRouter)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)

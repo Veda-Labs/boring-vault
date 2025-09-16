@@ -647,4 +647,63 @@ contract DecoderCustomTypes {
         uint256 collIndex;
         bool unwrap;
     }
+
+    // ========================================= Bunjee ==================================
+
+    // The Request which user signs
+    struct Request {
+        // basic details in the request.
+        BasicRequest basicReq;
+        // swap output token that the user is permitting to swap input token to.
+        address swapOutputToken;
+        // minimum swap output the user is okay with swapping the input token to.
+        // Transmitter can choose or not choose to swap tokens.
+        uint256 minSwapOutput;
+        // any sort of metadata to be passed with the request
+        bytes32 metadata;
+        // fees of the affiliate if any
+        bytes affiliateFees;
+        // calldata execution parameter. Only to be used when execution is required on destination.
+        // minimum dest gas limit to execute calldata on destination
+        uint256 minDestGas;
+        // calldata to be executed on the destination
+        // calldata can only be executed on the receiver in the request.
+        bytes destinationPayload;
+        /// @dev address of the only transmitter that is permitted to execute the request.
+        /// If the transmitter is not set, anyone can execute the request.
+        /// This validation would be done off-chain by the auction house.
+        address exclusiveTransmitter;
+    }
+
+    // Basic details in the request
+    struct BasicRequest {
+        // src chain id
+        uint256 originChainId;
+        // dest chain id
+        uint256 destinationChainId;
+        // deadline of the request
+        uint256 deadline;
+        // nonce used for uniqueness in signature
+        uint256 nonce;
+        // address of the user placing the request.
+        address sender;
+        // address of the receiver on destination chain
+        address receiver;
+        // delegate address that has some rights over the request signed eg. cancellation
+        address delegate;
+        // address of bungee gateway, this address will have access to pull funds from the sender.
+        address bungeeGateway;
+        // id of the switchboard for settlement
+        uint32 switchboardId;
+        // address of the input token
+        address inputToken;
+        // amount of the input token
+        uint256 inputAmount;
+        // output token to be received on the destination.
+        address outputToken;
+        // minimum amount of output token to be received on the destination
+        uint256 minOutputAmount;
+        // native token refuel amount on the destination chain
+        uint256 refuelAmount;
+    }
 }

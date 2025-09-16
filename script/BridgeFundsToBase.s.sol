@@ -16,9 +16,7 @@ import {BoringSolver} from "src/base/Roles/BoringQueue/BoringSolver.sol";
 import {SyUsdDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyUsdDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {
-    MerkleTreeHelper, IMB, PendleMarket, PendleSy, ISilo
-} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import {BalancerVault} from "src/interfaces/BalancerVault.sol";
 
 import "forge-std/Script.sol";
@@ -28,11 +26,10 @@ import "forge-std/StdJson.sol";
  *  source .env && forge script script/DeployDecoderAndSanitizer.s.sol:DeployDecoderAndSanitizerScript --broadcast --etherscan-api-key $ETHERSCAN_KEY --verify --with-gas-price 30000000000
  * @dev Optionally can change `--with-gas-price` to something more reasonable
  */
-contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
-    uint256 public privateKey;
+contract BridgeFundsToBase is Script, MerkleTreeHelper {
+    uint256 private privateKey;
+    uint256 private privateKey1;
 
-    // address public rawDataDecoderAndSanitizerEthereum = 0x2942Ca9E3676cd2CfAEfB113A0Aa67FEd49198f5;
-    // address public rawDataDecoderAndSanitizerEthereum = 0x90992585BeF22047669fD3d166a78d992e4079cB;
     address public rawDataDecoderAndSanitizerEthereum = 0x6b74d490B60d6994E4d4C6D174Ef39690294922e;
     address public rawDataDecoderAndSanitizerBase01 = 0x53F0b212d28320DD0aB504AbD6871941EFf5AD45;
     address public rawDataDecoderAndSanitizerArbitrum01 = 0x53F0b212d28320DD0aB504AbD6871941EFf5AD45;
@@ -46,6 +43,7 @@ contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
     BoringOnChainQueue internal queue = BoringOnChainQueue(0xF632c10b19f2a0451cD4A653fC9ca0c15eA1040b);
     BoringSolver internal solver = BoringSolver(0x1d82e9bCc8F325caBBca6E6A3B287fE586536805);
     address agent = 0xF171cAf19B2a55B015a68D80C337a16216775509;
+    address agent1 = 0xa86b3Bf249478488B4304B50726c7D4689aD6320;
 
     uint8 public constant MANAGER_ROLE = 1;
     uint8 public constant MINTER_ROLE = 2;
@@ -69,28 +67,104 @@ contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
     uint8 public constant SOLVER_ORIGIN_ROLE = 33;
 
     function setUp() external {
-        privateKey = vm.envUint("BORING_DEVELOPER");
+        privateKey = vm.envUint("BORING_MORPHO_AGENT");
+        privateKey1 = vm.envUint("BORING_DEVELOPER");
         vm.createSelectFork("mainnet");
         setSourceChainName("mainnet");
-
-        setAddress(true, mainnet, "boringVault", address(boringVault));
-        setAddress(true, mainnet, "managerAddress", address(manager));
-        setAddress(true, mainnet, "manager", address(manager));
-        setAddress(true, mainnet, "accountantAddress", address(accountant));
-        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizerEthereum);
     }
 
-    function run() public {
+    function run() external {
+        setAddress(true, mainnet, "boringVault", address(boringVault));
+        setAddress(true, mainnet, "managerAddress", address(manager));
+        setAddress(true, mainnet, "accountantAddress", address(accountant));
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizerEthereum);
+
         ManageLeaf[] memory leafs = new ManageLeaf[](1024);
         _addLeafs(leafs);
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
         string memory filePath = "./leafs/Mainnet/SyUsdMainnetStrategistLeafs.json";
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
 
-        vm.startBroadcast(privateKey);
-        manager.setManageRoot(agent, manageTree[manageTree.length - 1][0]);
-        manager.setManageRoot(0xa86b3Bf249478488B4304B50726c7D4689aD6320, manageTree[manageTree.length - 1][0]);
-        manager.setManageRoot(getAddress(sourceChain, "managerAddress"), manageTree[manageTree.length - 1][0]);
+        // vm.startBroadcast(privateKey1);
+        // manager.setManageRoot(agent1, manageTree[manageTree.length - 1][0]);
+        // manager.setManageRoot(agent, manageTree[manageTree.length - 1][0]);
+        // manager.setManageRoot(getAddress(sourceChain, "managerAddress"), manageTree[manageTree.length - 1][0]);
+        // vm.stopBroadcast();
+
+        vm.startBroadcast(vm.envUint("BORING_MORPHO_AGENT"));
+        address strategist = vm.addr(vm.envUint("BORING_MORPHO_AGENT"));
+        uint256 vaultUsdcBalance = getERC20(sourceChain, "USDC").balanceOf(getAddress(sourceChain, "boringVault"));
+
+        // create leafs
+        ManageLeaf[] memory manageLeafs = new ManageLeaf[](3);
+        manageLeafs[0] = ManageLeaf(
+            getAddress(sourceChain, "WETH"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        manageLeafs[0].argumentAddresses[0] = getAddress(sourceChain, "ccipRouter");
+
+        manageLeafs[1] = ManageLeaf(
+            getAddress(sourceChain, "USDC"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        manageLeafs[1].argumentAddresses[0] = getAddress(sourceChain, "ccipRouter");
+
+        manageLeafs[2] = ManageLeaf(
+            getAddress(sourceChain, "ccipRouter"),
+            false,
+            "ccipSend(uint64,(bytes,bytes,(address,uint256)[],address,bytes))",
+            new address[](4),
+            "",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        manageLeafs[2].argumentAddresses[0] = address(uint160(ccipBaseChainSelector));
+        manageLeafs[2].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+        manageLeafs[2].argumentAddresses[2] = getAddress(sourceChain, "USDC");
+        manageLeafs[2].argumentAddresses[3] = getAddress(sourceChain, "WETH");
+
+        bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
+
+        address[] memory targets = new address[](3);
+        targets[0] = getAddress(sourceChain, "WETH");
+        targets[1] = getAddress(sourceChain, "USDC");
+        targets[2] = getAddress(sourceChain, "ccipRouter");
+
+        bytes[] memory targetData = new bytes[](3);
+        targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "ccipRouter"), type(uint256).max
+        );
+        targetData[1] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "ccipRouter"), type(uint256).max
+        );
+
+        DecoderCustomTypes.EVM2AnyMessage memory message;
+        message.receiver = abi.encode(getAddress(sourceChain, "boringVault"));
+        message.data = "";
+        message.tokenAmounts = new DecoderCustomTypes.EVMTokenAmount[](1);
+        message.tokenAmounts[0].token = getAddress(sourceChain, "USDC");
+        message.tokenAmounts[0].amount = 2036601757;
+        message.feeToken = getAddress(sourceChain, "WETH");
+        message.extraArgs = abi.encode(bytes4(0x97a657c9), 0); // (bytes4(keccak256("CCIP EVMExtraArgsV1")))
+        targetData[2] = abi.encodeWithSignature(
+            "ccipSend(uint64,(bytes,bytes,(address,uint256)[],address,bytes))", ccipBaseChainSelector, message
+        );
+
+        uint256[] memory values = new uint256[](3);
+        address[] memory decodersAndSanitizers = new address[](3);
+        decodersAndSanitizers[0] = rawDataDecoderAndSanitizerEthereum;
+        decodersAndSanitizers[1] = rawDataDecoderAndSanitizerEthereum;
+        decodersAndSanitizers[2] = rawDataDecoderAndSanitizerEthereum;
+
+        manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
+
         vm.stopBroadcast();
     }
 
@@ -116,19 +190,6 @@ contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
         _addCurveLeafs(
             leafs, getAddress(sourceChain, "USDC_USDf_Curve_Pool"), 2, getAddress(sourceChain, "USDC_USDf_Curve_Gauge")
         );
-
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "WETH"),
-            false,
-            "approve(address,uint256)",
-            new address[](1),
-            "",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "ccipRouter");
 
         unchecked {
             leafIndex++;
@@ -196,10 +257,13 @@ contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
 
         ERC20[] memory supplyAssets = new ERC20[](1);
         supplyAssets[0] = getERC20(sourceChain, "SUSDE");
-        ERC20[] memory borrowAssets = new ERC20[](2);
+        ERC20[] memory borrowAssets = new ERC20[](3);
         borrowAssets[0] = getERC20(sourceChain, "USDC");
         borrowAssets[1] = getERC20(sourceChain, "USDT");
+        borrowAssets[2] = getERC20(sourceChain, "USDE");
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
+
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "SUSDE")));
 
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "SUSDE")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sUSDf")));

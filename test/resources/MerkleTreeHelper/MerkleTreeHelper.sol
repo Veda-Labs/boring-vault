@@ -11557,7 +11557,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 false,
                 "approve(address,uint256)",
                 new address[](1),
-                string.concat("approve InfiniV1 Gateway to spend", ERC20(depositTokenAddress).symbol()),
+                string.concat("approve InfiniV1 Gateway to spend ", ERC20(depositTokenAddress).symbol()),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "InfiniGatewayContract");
@@ -11576,7 +11576,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 leafIndex++;
             }
             leafs[leafIndex] = ManageLeaf(
-                depositTokenAddress,
+                getAddress(sourceChain, "iUSD"),
                 false,
                 "approve(address,uint256)",
                 new address[](1),
@@ -11652,7 +11652,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex] = ManageLeaf(
             getAddress(sourceChain, "InfiniGatewayContract"),
             false,
-            "redeem(address,uint256)",
+            "redeem(address,uint256,uint256)",
             new address[](1),
             "redeem iUSD to get USDC",
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
@@ -11660,6 +11660,55 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
         unchecked {
             leafIndex++;
+        }
+    }
+
+    // ======================================== Bungee ========================================
+
+    function _addBungeeLeafs(ManageLeaf[] memory leafs, address[] memory inputTokens, address[] memory outputTokens)
+        internal
+    {
+        require(inputTokens.length == outputTokens.length);
+        for (uint256 i = 0; i < inputTokens.length; i++) {
+            if (
+                !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][inputTokens[i]][getAddress(
+                    sourceChain, "BungeeInbox"
+                )]
+            ) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    inputTokens[i],
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve BungeeInbox to spend ", ERC20(inputTokens[i]).symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "BungeeInbox");
+            }
+
+            unchecked {
+                leafIndex++;
+            }
+
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "BungeeInbox"),
+                false,
+                "createRequest(((uint256,uint256,uint256,uint256,address,address,address,address,uint32,address,uint256,address,uint256,uint256),address,uint256,bytes32,bytes,uint256,bytes,address))",
+                new address[](8),
+                string.concat("Swap ", vm.toString(inputTokens[i]), "to", vm.toString(outputTokens[i]), "using Bungee"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "BungeeInbox");
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault"); // receiver
+            leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "BungeeDelegate"); // delegate
+            leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "BungeeGateway");
+            leafs[leafIndex].argumentAddresses[4] = inputTokens[i];
+            leafs[leafIndex].argumentAddresses[5] = outputTokens[i];
+            leafs[leafIndex].argumentAddresses[6] = 0x0000000000000000000000000000000000000000;
+            leafs[leafIndex].argumentAddresses[7] = 0x0000000000000000000000000000000000000000;
         }
     }
 

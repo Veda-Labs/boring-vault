@@ -28,11 +28,9 @@ import "forge-std/StdJson.sol";
  *  source .env && forge script script/DeployDecoderAndSanitizer.s.sol:DeployDecoderAndSanitizerScript --broadcast --etherscan-api-key $ETHERSCAN_KEY --verify --with-gas-price 30000000000
  * @dev Optionally can change `--with-gas-price` to something more reasonable
  */
-contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
+contract CreateSyUsdArbitrumLeafs is Script, MerkleTreeHelper {
     uint256 public privateKey;
 
-    // address public rawDataDecoderAndSanitizerEthereum = 0x2942Ca9E3676cd2CfAEfB113A0Aa67FEd49198f5;
-    // address public rawDataDecoderAndSanitizerEthereum = 0x90992585BeF22047669fD3d166a78d992e4079cB;
     address public rawDataDecoderAndSanitizerEthereum = 0x6b74d490B60d6994E4d4C6D174Ef39690294922e;
     address public rawDataDecoderAndSanitizerBase01 = 0x53F0b212d28320DD0aB504AbD6871941EFf5AD45;
     address public rawDataDecoderAndSanitizerArbitrum01 = 0x53F0b212d28320DD0aB504AbD6871941EFf5AD45;
@@ -95,10 +93,8 @@ contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
     }
 
     function _addLeafs(ManageLeaf[] memory leafs) internal {
-        ERC20[] memory feeAssets = new ERC20[](3);
+        ERC20[] memory feeAssets = new ERC20[](1);
         feeAssets[0] = getERC20(sourceChain, "USDC");
-        feeAssets[1] = getERC20(sourceChain, "USDT");
-        feeAssets[2] = getERC20(sourceChain, "USDS");
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
         ERC20[] memory bridgeAssets = new ERC20[](2);
@@ -109,100 +105,37 @@ contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
         feeTokens[1] = getERC20(sourceChain, "GHO");
 
         _addCcipBridgeLeafs(leafs, ccipBaseChainSelector, bridgeAssets, feeTokens);
-        _addCcipBridgeLeafs(leafs, ccipArbitrumChainSelector, bridgeAssets, feeTokens);
+        _addCcipBridgeLeafs(leafs, ccipMainnetChainSelector, bridgeAssets, feeTokens);
         _addCcipBridgeLeafs(leafs, ccipBscChainSelector, bridgeAssets, feeTokens);
 
-        _addInfiniV1Leafs(leafs, getAddress(sourceChain, "USDC"));
-        _addCurveLeafs(
-            leafs, getAddress(sourceChain, "USDC_USDf_Curve_Pool"), 2, getAddress(sourceChain, "USDC_USDf_Curve_Gauge")
-        );
-
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "WETH"),
-            false,
-            "approve(address,uint256)",
-            new address[](1),
-            "",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "ccipRouter");
-
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "sUSDf"),
-            false,
-            "approve(address,uint256)",
-            new address[](1),
-            "",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "pendleRouter");
-
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDC"));
-        _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDT"));
-        _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "DAI"));
+        _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDT0"));
+        _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "GYD"));
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDS"));
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "WETH"));
 
-        _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "syrupUSDC_USDC_915"));
-        _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "PT-syrupUSDC-28AUG2025_USDC_915"));
-        _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "PT-iUSD-4SEP2025_USDC_915"));
-        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "syrupUSDC_USDC_915"));
-        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "PT-syrupUSDC-28AUG2025_USDC_915"));
-        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "PT-iUSD-4SEP2025_USDC_915"));
-        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "RLP_USDC_86"));
-
-        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_iUSD_09_04_2025"), false);
-        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_syrupUSDC_08_28_2025"), false);
-        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "LP_sUSDf_9_25_2025"), false);
-
-        // 1inch assets;
-        address[] memory oneInchAssets = new address[](11);
+        // Odos assets
+        address[] memory oneInchAssets = new address[](4);
         oneInchAssets[0] = getAddress(sourceChain, "USDC");
-        oneInchAssets[1] = getAddress(sourceChain, "SUSDE");
+        oneInchAssets[1] = getAddress(sourceChain, "syrupUSDC");
         oneInchAssets[2] = getAddress(sourceChain, "USDS");
-        oneInchAssets[3] = getAddress(sourceChain, "USDT");
-        oneInchAssets[4] = getAddress(sourceChain, "USDE");
-        oneInchAssets[5] = getAddress(sourceChain, "lvlUSD");
-        oneInchAssets[6] = getAddress(sourceChain, "RLP");
-        oneInchAssets[7] = getAddress(sourceChain, "USR");
-        oneInchAssets[8] = getAddress(sourceChain, "wstUSR");
-        oneInchAssets[9] = getAddress(sourceChain, "cUSDO");
-        oneInchAssets[10] = getAddress(sourceChain, "USDf");
+        oneInchAssets[3] = getAddress(sourceChain, "USDT0");
         SwapKind[] memory kind = new SwapKind[](11);
         kind[0] = SwapKind.BuyAndSell;
         kind[1] = SwapKind.BuyAndSell;
         kind[2] = SwapKind.BuyAndSell;
         kind[3] = SwapKind.BuyAndSell;
-        kind[4] = SwapKind.BuyAndSell;
-        kind[5] = SwapKind.BuyAndSell;
-        kind[6] = SwapKind.BuyAndSell;
-        kind[7] = SwapKind.BuyAndSell;
-        kind[8] = SwapKind.BuyAndSell;
-        kind[9] = SwapKind.BuyAndSell;
-        kind[10] = SwapKind.BuyAndSell;
-        _addLeafsFor1InchGeneralSwapping(leafs, oneInchAssets, kind);
         _addOdosSwapLeafs(leafs, oneInchAssets, kind);
 
-        address[] memory incentivesControllers = new address[](2);
-        incentivesControllers[0] = address(0);
-        incentivesControllers[1] = address(0);
-        _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_PT-sUSDf_25Sep_USDC_config"), incentivesControllers);
-
         ERC20[] memory supplyAssets = new ERC20[](1);
-        supplyAssets[0] = getERC20(sourceChain, "SUSDE");
+        supplyAssets[0] = getERC20(sourceChain, "USDC");
+        supplyAssets[0] = getERC20(sourceChain, "USDT0");
         ERC20[] memory borrowAssets = new ERC20[](2);
         borrowAssets[0] = getERC20(sourceChain, "USDC");
-        borrowAssets[1] = getERC20(sourceChain, "USDT");
+        borrowAssets[1] = getERC20(sourceChain, "USDT0");
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
 
-        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "SUSDE")));
-        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sUSDf")));
-        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletUSDCfrontier")));
+        // Morpho Blue
+        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "syrupUSDC_USDC_915"));
     }
 }
