@@ -17,11 +17,11 @@ contract ArbitrumMerkleRootScript is Script, MerkleTreeHelper {
     uint256 public privateKey;
 
     //standard
-    address public boringVault = 0xEa96252EaBE2F2A0EA20ff42779CD985Ba596657;
+    address public boringVault = 0xC0D48269f8d6E427B0637F5e0695De11C8E75F6c;
     address public rawDataDecoderAndSanitizer = 0xF267699929FBe258A3aEdC76c5402f860a629496;
     ManagerWithMerkleVerification internal manager =
-        ManagerWithMerkleVerification(0x699b31C615AEF5b7E35E3d2A05E5911f6c51C9cd);
-    address public accountant = 0x63c9934E832823Be6A2b7e140877777C75eD3A99;
+        ManagerWithMerkleVerification(0x0dE47e4c2A0de8833e7bC8285eecb17c296fBB8A);
+    address public accountant = 0xDda6274D69F464172CC7F52194d16FF27ec0D5A6;
 
     //one offs
     address public camelotFullDecoderAndSanitizer = 0xe315ADA67dB9Fd97523620194ccdd727102830c7;
@@ -48,7 +48,7 @@ contract ArbitrumMerkleRootScript is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](1024);
         _addLeafs(leafs);
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
-        string memory filePath = "./leafs/Arbitrum/SYEthArbitrumStrategyLeafs.json";
+        string memory filePath = "./leafs/Arbitrum/SyBtcArbitrumStrategyLeafs.json";
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
 
         vm.startBroadcast(privateKey);
