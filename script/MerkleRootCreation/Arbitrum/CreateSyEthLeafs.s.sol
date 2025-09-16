@@ -11,7 +11,7 @@ import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVer
 import "forge-std/Script.sol";
 
 /**
- *  source .env && forge script script/MerkleRootCreation/Arbitrum/CreateMultiChainLiquidEthMerkleRoot.s.sol:CreateMultiChainLiquidEthMerkleRootScript --rpc-url $ARBITRUM_RPC_URL
+ *  source .env && forge script script/MerkleRootCreation/Arbitrum/CreateSyEthLeafs.s.sol --rpc-url $ARBITRUM_RPC_URL
  */
 contract ArbitrumMerkleRootScript is Script, MerkleTreeHelper {
     uint256 public privateKey;
