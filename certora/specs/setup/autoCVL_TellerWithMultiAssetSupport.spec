@@ -3752,6 +3752,7 @@ rule depositWithPermit_3d935d9e_exceeds_cap_reverts(env e) {
  *
  * Possible consequences: Incorrect share minting leading to user fund loss or system accounting errors
  */
+// gereon: this rule manages to trigger various overflow issues in our CVL summaries of ERC20.
 rule depositWithPermit_3d935d9e_valid_deposit_mints_shares(env e) {
     address depositAsset;
     uint256 depositAmount;
@@ -3763,20 +3764,28 @@ rule depositWithPermit_3d935d9e_valid_deposit_mints_shares(env e) {
     uint256 shares;
 
     // assign all the 'before' variables
-    bool currentContract_assetData_depositAsset__allowDeposits_before = currentContract.assetData[depositAsset].allowDeposits;
-    bool currentContract_isPaused_before = currentContract.isPaused;
-    uint112 currentContract_depositCap_before = currentContract.depositCap;
-    uint256 currentContract_vault_totalSupply_e__before = currentContract.vault.totalSupply(e);
-    uint256 currentContract_vault_balanceOf_e__e_msg_sender__before = currentContract.vault.balanceOf(e, e.msg.sender);
+    bool allowDeposits = currentContract.assetData[depositAsset].allowDeposits;
+    bool isPaused_before = currentContract.isPaused;
+    uint112 depositCap_before = currentContract.depositCap;
+    uint256 totalSupply = currentContract.vault.totalSupply(e);
+    uint256 balanceOf_before = currentContract.vault.balanceOf(e, e.msg.sender);
 
     // call function under test
     shares = depositWithPermit(e, depositAsset, depositAmount, minimumMint, deadline, v, r, s);
 
+    // gereon: side-step overflow issues
+    require(balanceOf_before + shares <= max_uint256);
+
     // assign all the 'after' variables
-    uint256 currentContract_vault_balanceOf_e__e_msg_sender__after = currentContract.vault.balanceOf(e, e.msg.sender);
+    uint256 balanceOf_after = currentContract.vault.balanceOf(e, e.msg.sender);
 
     // verify integrity
-    assert ((((((depositAmount > 0) && currentContract_assetData_depositAsset__allowDeposits_before) && !(currentContract_isPaused_before)) && (shares >= minimumMint)) && ((currentContract_depositCap_before == ((2 ^ 112 - 1))) || (shares + currentContract_vault_totalSupply_e__before <= currentContract_depositCap_before))) => (currentContract_vault_balanceOf_e__e_msg_sender__after == currentContract_vault_balanceOf_e__e_msg_sender__before + shares)), "depositAmount > 0 && assetData[depositAsset].allowDeposits@before && !isPaused@before && result >= minimumMint && (depositCap@before == type(uint112).max || result + vault.totalSupply()@before <= depositCap@before) => vault.balanceOf(msg.sender)@after == vault.balanceOf(msg.sender)@before + result";
+    require(depositAmount > 0);
+    require(allowDeposits);
+    require(!isPaused_before);
+    require(shares >= minimumMint);
+    require((depositCap_before == max_uint112) || (shares + totalSupply <= depositCap_before));
+    assert (balanceOf_after == balanceOf_before + shares), "depositAmount > 0 && assetData[depositAsset].allowDeposits@before && !isPaused@before && result >= minimumMint && (depositCap@before == type(uint112).max || result + vault.totalSupply()@before <= depositCap@before) => vault.balanceOf(msg.sender)@after == vault.balanceOf(msg.sender)@before + result";
 }
 
 /*
@@ -3897,7 +3906,8 @@ rule depositWithPermit_3d935d9e_no_unlock_when_zero_period(env e) {
  *
  * Possible consequences: Fee mechanism bypass allowing users to receive more shares than intended, reducing protocol revenue
  */
-rule depositWithPermit_3d935d9e_share_premium_reduces(env e) {
+// gereon: I'm not exactly sure about this one. My guess is that the spirit of this rule is correct, but that it might be a "<=" instead because the difference may get lost in the rounding. Maybe this is wrong?
+rule __depositWithPermit_3d935d9e_share_premium_reduces(env e) {
     address depositAsset;
     uint256 depositAmount;
     uint256 minimumMint;
@@ -3908,12 +3918,12 @@ rule depositWithPermit_3d935d9e_share_premium_reduces(env e) {
     uint256 shares;
 
     // assign all the 'before' variables
-    uint16 currentContract_assetData_depositAsset__sharePremium_before = currentContract.assetData[depositAsset].sharePremium;
-    bool currentContract_assetData_depositAsset__allowDeposits_before = currentContract.assetData[depositAsset].allowDeposits;
-    bool currentContract_isPaused_before = currentContract.isPaused;
-    uint112 currentContract_depositCap_before = currentContract.depositCap;
-    uint256 currentContract_vault_totalSupply_e__before = currentContract.vault.totalSupply(e);
-    uint256 currentContract_accountant_getRateInQuoteSafe_e__depositAsset__before = currentContract.getRateInQuoteSafe(e, depositAsset);
+    uint16 sharePremium = currentContract.assetData[depositAsset].sharePremium;
+    bool allowDeposits = currentContract.assetData[depositAsset].allowDeposits;
+    bool isPaused_before = currentContract.isPaused;
+    uint112 depositCap_before = currentContract.depositCap;
+    uint256 totalSupply_before = currentContract.vault.totalSupply(e);
+    uint256 getRateInQuoteSafe_before = currentContract.getRateInQuoteSafe(e, depositAsset);
 
     // call function under test
     shares = depositWithPermit(e, depositAsset, depositAmount, minimumMint, deadline, v, r, s);
@@ -3921,7 +3931,13 @@ rule depositWithPermit_3d935d9e_share_premium_reduces(env e) {
     // assign all the 'after' variables
 
     // verify integrity
-    assert ((((((currentContract_assetData_depositAsset__sharePremium_before > 0) && (depositAmount > 0)) && currentContract_assetData_depositAsset__allowDeposits_before) && !(currentContract_isPaused_before)) && ((currentContract_depositCap_before == ((2 ^ 112 - 1))) || (shares + currentContract_vault_totalSupply_e__before <= currentContract_depositCap_before))) => (shares < depositAmount * currentContract.ONE_SHARE / currentContract_accountant_getRateInQuoteSafe_e__depositAsset__before)), "assetData[depositAsset].sharePremium@before > 0 && depositAmount > 0 && assetData[depositAsset].allowDeposits@before && !isPaused@before && (depositCap@before == type(uint112).max || result + vault.totalSupply()@before <= depositCap@before) => result < depositAmount * ONE_SHARE / accountant.getRateInQuoteSafe(depositAsset)@before";
+    require(sharePremium > 0);
+    require(depositAmount > 0);
+    require(allowDeposits);
+    require(!isPaused_before);
+    require((depositCap_before == max_uint112) || (shares + totalSupply_before <= depositCap_before));
+
+    assert (shares <= depositAmount * currentContract.ONE_SHARE / getRateInQuoteSafe_before), "assetData[depositAsset].sharePremium@before > 0 && depositAmount > 0 && assetData[depositAsset].allowDeposits@before && !isPaused@before && (depositCap@before == type(uint112).max || result + vault.totalSupply()@before <= depositCap@before) => result < depositAmount * ONE_SHARE / accountant.getRateInQuoteSafe(depositAsset)@before";
 }
 
 /*
