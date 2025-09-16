@@ -41,7 +41,7 @@ contract DeployDeployerScript is Script, ContractNames, Test {
         //privateKey = vm.envUint("BORING_DEVELOPER");
         //vm.createSelectFork("mainnet");
         privateKey = vm.envUint("DEPLOYER_KEY");
-        vm.createSelectFork("hyperEVM");
+        vm.createSelectFork("optimism");
     }
 
     function run() external {
@@ -49,12 +49,12 @@ contract DeployDeployerScript is Script, ContractNames, Test {
         bytes memory creationCode;
         vm.startBroadcast(privateKey);
 
-        deployer = new Deployer(dev0Address, Authority(address(0)));
+        deployer = new Deployer(dev4Address, Authority(address(0)));
 
-        require(address(deployer) == deployerAddress, "Deployer address mismatch");
+        //require(address(deployer) == deployerAddress, "Deployer address mismatch");
         console.log(address(deployer)); 
         creationCode = type(RolesAuthority).creationCode;
-        constructorArgs = abi.encode(dev0Address, address(0));
+        constructorArgs = abi.encode(dev4Address, address(0));
         rolesAuthority = RolesAuthority(
             deployer.deployContract("Seven Seas RolesAuthority Version 0.1", creationCode, constructorArgs, 0)
         );

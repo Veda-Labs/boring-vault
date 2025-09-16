@@ -126,10 +126,9 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-
-        vm.createSelectFork("base");
-        setSourceChainName("base"); 
-
+        
+        vm.createSelectFork("hyperEVM");
+        setSourceChainName("hyperEVM"); 
     }
 
     function run() external {
