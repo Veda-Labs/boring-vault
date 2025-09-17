@@ -141,64 +141,17 @@
             "proposers": ["0xf8553c8552f906C19286F21711721E206EE4909E"]
         }
     },
-    "accountantAssets": [
-        {
-            "addressOrName": {
-                "address": "0x0000000000000000000000000000000000000000",
-                "name": "WSTETH"
-            },
-            "isPeggedToBase": false,
-            "rateProvider": "0xb1FC4F38bfEC626ef826fc58f056Bfb8C190F5c8"
-        },
-        {
-            "addressOrName": {
-                "address": "0x0000000000000000000000000000000000000000",
-                "name": "ETH"
-            },
-            "isPeggedToBase": true,
-            "rateProvider": "0x0000000000000000000000000000000000000000"
-        }
-    ],
+    "accountantAssets": [],
     "depositAssets": [
-        {
-            "addressOrName": {
-                "address": "0x0000000000000000000000000000000000000000",
-                "name": "WSTETH"
-            },
-            "allowDeposits": true,
-            "allowWithdraws": true,
-            "sharePremium": 0
-        },
-        {
-            "addressOrName": {
-                "address": "0x0000000000000000000000000000000000000000",
-                "name": "ETH"
-            },
-            "allowDeposits": true,
-            "allowWithdraws": true,
-            "sharePremium": 0
-        },
         {
             "addressOrName": {
                 "address": "0x0000000000000000000000000000000000000000",
                 "name": "WETH"
             },
-            "allowDeposits": true,
-            "allowWithdraws": true,
+            "allowDeposits": false,
+            "allowWithdraws": false,
             "sharePremium": 0
         }
     ],
-    "withdrawAssets": [
-        {
-            "addressOrName": {
-                "address": "0x0000000000000000000000000000000000000000",
-                "name": "WSTETH"
-            },
-            "maxDiscount": 9,
-            "minDiscount": 1,
-            "minimumSecondsToDeadline": 604800,
-            "minimumShares": 0,
-            "secondsToMaturity": 3600
-        }
-    ]
+    "withdrawAssets": []
 }

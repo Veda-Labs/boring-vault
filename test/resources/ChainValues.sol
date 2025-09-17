@@ -1904,6 +1904,7 @@ contract ChainValues {
 
     function _addLineaValues() private {
         values[linea]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        values[linea]["txBundlerAddress"] = 0x04fc9C685961934f552b5e01F15CBBa66B61D92c.toBytes32(); 
         values[linea]["dev0Address"] = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b.toBytes32();
         values[linea]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
         values[linea]["dev5Address"] = 0x1cdF47387358A1733968df92f7cC14546D9E1047.toBytes32();
@@ -1915,10 +1916,30 @@ contract ChainValues {
         values[linea]["WEETH"] = 0x1Bf74C010E6320bab11e2e5A532b5AC15e0b8aA6.toBytes32();
         //values[linea]["STETH"] = .toBytes32();
         values[linea]["WSTETH"] = 0xB5beDd42000b71FddE22D3eE8a79Bd49A568fC8F.toBytes32();
+        values[linea]["REX"] = 0xEfD81eeC32B9A8222D1842ec3d99c7532C31e348.toBytes32();
+        values[linea]["ZRO"] = address(1).toBytes32();
 
         // Linea Bridge.
         values[linea]["tokenBridge"] = 0x353012dc4a9A6cF55c941bADC267f82004A8ceB9.toBytes32(); //approve, also bridge token
         values[linea]["lineaMessageService"] = 0x508Ca82Df566dCD1B0DE8296e70a96332cD644ec.toBytes32(); // claim message, sendMessage
+
+        values[linea]["LayerZeroEndPoint"] = 0x1a44076050125825900e736c501f859c50fE728c.toBytes32();
+
+        // Euler
+        values[linea]["ethereumVaultConnector"] = 0xd8CeCEe9A04eA3d941a959F68fb4486f23271d09.toBytes32();
+        values[linea]["evkewstETH-1"] = 0x359e363c11fC619BE76EEC8BaAa01e61D521aA18.toBytes32();
+        values[linea]["evkewETH-1"] = 0xa8A02E6a894a490D04B6cd480857A19477854968.toBytes32();
+        values[linea]["evkewstETH-3"] =  0xB770dc4be757Ad72BCb7b8FF4958FB5c6Ee5Aa49.toBytes32();
+        values[linea]["evkewETH-7"] = 0xb135dcF653DAFB5ddAa93F926D7000Aa3222EFEE.toBytes32();
+
+        // Odos
+        values[linea]["odosRouterV2"] = 0x2d8879046f1559E53eb052E949e9544bCB72f414.toBytes32();
+        values[linea]["odosExecutor"] = 0xFB66e944021bf915cFb4dAC2b20653930Bf7d35A.toBytes32();
+
+        // Aave
+        values[linea]["v3Pool"] = 0xc47b8C00b0f69a36fa203Ffeac0334874574a8Ac.toBytes32();
+        values[linea]["v3RewardsController"] = 0xc67bb8F2314fA0df50cBa314c6509A7bdAD500C0.toBytes32();
+
     }
 
     function _addScrollValues() private {

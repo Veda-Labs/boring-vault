@@ -3,7 +3,7 @@
 # This overrides the `auto_detect_solc` value
 solc_version = '0.8.21'
 auto_detect_solc = false 
-evm_version = 'cancun'
+evm_version = 'london'
 optimizer = true
 optimizer_runs = 200 
 fs_permissions = [{ access = "read-write", path = "./" }]
@@ -74,6 +74,7 @@ base = { key = "${BASESCAN_KEY}", chain = 8453, url = " https://api.etherscan.io
 katana = { key = "${KATANASCAN_KEY}", chain = 747474, url = "https://api.etherscan.io/v2/api?chainid=747474" }
 #tac = { key = "${TACSCAN_KEY}", chain = 239, url = "https://explorer.tac.build/api" }
 #ink = { key = "${INKSCAN_KEY}", chain = 57073, url = "https://explorer.inkonchain.com/api" }
+linea = { key = "${LINEASCAN_KEY}", chain = 59144, url = "https://api.etherscan.io/v2/api?chainid=59144" }
 
 [fmt]
 FOUNDRY_FMT_LINE_LENGTH = 120
