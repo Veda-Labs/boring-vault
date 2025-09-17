@@ -232,7 +232,7 @@ contract DeploySyUsdArbitrumDecoderAndSanitizer is Script, ContractNames, Mainne
         constructorArgs = abi.encode(
             getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2")
         );
-        deployer.deployContract("SyUsd Arbitrum DecodersAndSanitizers Batch 1", creationCode, constructorArgs, 0);
+        deployer.deployContract("SyUsd Arbitrum DecodersAndSanitizers Batch 2", creationCode, constructorArgs, 0);
         vm.stopBroadcast();
     }
 }

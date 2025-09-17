@@ -31,7 +31,7 @@ import "forge-std/StdJson.sol";
 contract CreateSyUsdArbitrumLeafs is Script, MerkleTreeHelper {
     uint256 public privateKey;
 
-    address public rawDataDecoderAndSanitizerArbitrum01 = 0xc1647BfAdF5896505b2bddEB334e6E5Ce58d53EC;
+    address public rawDataDecoderAndSanitizerArbitrum01 = 0x8c6CDC6BB109386855D73308094A52ddD1f14eB7;
     RolesAuthority internal rolesAuthority = RolesAuthority(0xf7F3ace7f6cA2Cb1E7ccbE3Bf2Da13D001D36fdF);
     BoringVault internal boringVault = BoringVault(payable(0x279CAD277447965AF3d24a78197aad1B02a2c589));
     LayerZeroTeller internal teller = LayerZeroTeller(0xaefc11908fF97c335D16bdf9F2Bf720817423825);
@@ -80,7 +80,7 @@ contract CreateSyUsdArbitrumLeafs is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](1024);
         _addLeafs(leafs);
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
-        string memory filePath = "./leafs/Mainnet/SyUsdArbitrumStrategistLeafs.json";
+        string memory filePath = "./leafs/Arbitrum/SyUsdArbitrumStrategistLeafs.json";
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
 
         vm.startBroadcast(privateKey);

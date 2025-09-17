@@ -1684,7 +1684,7 @@ contract ChainValues {
         values[arbitrum]["Bridge2"] = 0x2Df1c51E09aECF9cacB7bc98cB1742757f163dF7.toBytes32();
 
         // Odosv2
-        values[arbitrum]["odosRouterV2"] = 0x89b8AA89FDd0507a99d334CBe3C808fAFC7d850E.toBytes32();
+        values[arbitrum]["odosRouterV2"] = 0xa669e7A0d4b3e4Fa48af2dE86BD4CD7126Be4e13.toBytes32();
         values[arbitrum]["odosExecutor"] = 0x03222a2b261a12091bBE271e763A7E26b64E25e2.toBytes32();
 
         // Morpho Blue
