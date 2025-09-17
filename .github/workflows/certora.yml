@@ -20,6 +20,7 @@ env:
     certora/confs/setup/sanity_LayerZeroTellerWithRateLimiting.conf
     certora/confs/setup/sanity_TellerWithBuffer.conf
     certora/confs/setup/sanity_TellerWithMultiAssetSupport.conf
+    certora/confs/setup/sanity_TellerWithYieldStreaming.conf
     certora/confs/setup/scenarioA.conf
     certora/confs/setup/scenarioB.conf
     certora/confs/setup/scenarioC.conf
