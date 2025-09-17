@@ -206,7 +206,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             assets[18] = getAddress(sourceChain, "UNI");
             kind[18] = SwapKind.Sell;
             assets[19] = getAddress(sourceChain, "USDT");
-            kind[19] = SwapKind.Sell;
+            kind[19] = SwapKind.BuyAndSell;
             assets[20] = getAddress(sourceChain, "EIGEN");
             kind[20] = SwapKind.Sell;
             assets[21] = getAddress(sourceChain, "ETHFI");
@@ -225,6 +225,8 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             kind[27] = SwapKind.BuyAndSell;
             assets[28] = getAddress(sourceChain, "USDE");
             kind[28] = SwapKind.BuyAndSell;
+            assets[29] = getAddress(sourceChain, "SUSDE");
+            kind[29] = SwapKind.BuyAndSell;
             _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
 
             _addLeafsFor1InchUniswapV3Swapping(leafs, getAddress(sourceChain, "wstETH_wETH_01"));
@@ -698,6 +700,58 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         token1[7] = getAddress(sourceChain, "CBETH");
 
         _addPancakeSwapV3Leafs(leafs, token0, token1);
+
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+
+        // ========================== sUSDe ==========================
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "SUSDE")));
+
+        // ========================== RWA Vault ==========================
+        // Needs info
+
+        // ========================== Plasma Bridging ==========================
+        // Needs info
+        // USDT0
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "USDT0"),
+            getAddress(sourceChain, "usdt0OFTAdapter"),
+            layerZeroPlasmaEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+        // WETH
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "WETH"),
+            getAddress(sourceChain, "???????????????"),
+            layerZeroPlasmaEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+        // SUSDE
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "SUSDE"),
+            getAddress(sourceChain, "SUSDEOFTAdapter"),
+            layerZeroPlasmaEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+        // USDE
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "USDE"),
+            getAddress(sourceChain, "USDEOFTAdapter"),
+            layerZeroPlasmaEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+        // WEETH
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "WEETH"),
+            getAddress(sourceChain, "???????????????"),
+            layerZeroPlasmaEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+
 
         // ========================== Reclamation ==========================
         {

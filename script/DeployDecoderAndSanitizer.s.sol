@@ -103,6 +103,7 @@ import {AtomicQueueDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Pro
 import {KHypeHyperEVMDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/KHypeHyperEVMDecoderAndSanitizer.sol";
 import {TacETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacETHDecoderAndSanitizer.sol";
 import {PlasmaUSDPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/PlasmaUSDPlasmaDecoderAndSanitizer.sol";
+import {LiquidETHPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidETHPlasmaDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -134,9 +135,9 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         vm.startBroadcast(privateKey);
 
         // Deploy AtomicQueueDecoderAndSanitizer
-        creationCode = type(PlasmaUSDPlasmaDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode();
-        deployer.deployContract("PlasmaUSD Plasma Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
+        creationCode = type(LiquidETHPlasmaDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
+        deployer.deployContract("LiquidETH Plasma Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
