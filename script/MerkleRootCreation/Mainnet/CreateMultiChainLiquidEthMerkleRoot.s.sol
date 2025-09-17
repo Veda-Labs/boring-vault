@@ -702,16 +702,23 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         _addPancakeSwapV3Leafs(leafs, token0, token1);
 
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
-
+        {
         // ========================== sUSDe ==========================
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "SUSDE")));
 
         // ========================== RWA Vault ==========================
-        // Needs info
+        ERC20[] memory rwaVaultAssets = new ERC20[](2);
+        rwaVaultAssets[0] = getERC20(sourceChain, "USDT");
+        rwaVaultAssets[1] = getERC20(sourceChain, "USDE");
+
+        address ethenaRWATeller = 0xDEa662f24389eB7CaFA9b3B10021884FCe7314f0;
+        _addTellerLeafs(leafs, ethenaRWATeller, rwaVaultAssets, true, true);
+        }
 
         // ========================== Plasma Bridging ==========================
         // Needs info
         // USDT0
+        {
         _addLayerZeroLeafs(
             leafs,
             getERC20(sourceChain, "USDT0"),
@@ -751,7 +758,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             layerZeroPlasmaEndpointId,
             getBytes32(sourceChain, "boringVault")
         );
-
+        }
 
         // ========================== Reclamation ==========================
         {
