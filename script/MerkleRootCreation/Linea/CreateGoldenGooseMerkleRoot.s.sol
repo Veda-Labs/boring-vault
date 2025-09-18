@@ -77,21 +77,18 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         // =========================== Odos ==========================
         {
-            address[] memory assets = new address[](3);
-            SwapKind[] memory kind = new SwapKind[](3);
+            address[] memory assets = new address[](2);
+            SwapKind[] memory kind = new SwapKind[](2);
             assets[0] = getAddress(sourceChain, "WETH");
             kind[0] = SwapKind.BuyAndSell;
             assets[1] = getAddress(sourceChain, "WSTETH");
             kind[1] = SwapKind.BuyAndSell;
-            assets[2] = getAddress(sourceChain, "REX");
-            kind[2] = SwapKind.Sell;
 
             _addOdosSwapLeafs(leafs, assets, kind);
         }
 
         // ========================== Aave V3 ==========================
         {
-            // Core - including weETH supply
             ERC20[] memory coreSupplyAssets = new ERC20[](2);
             coreSupplyAssets[0] = getERC20(sourceChain, "WETH");
             coreSupplyAssets[1] = getERC20(sourceChain, "WSTETH");
