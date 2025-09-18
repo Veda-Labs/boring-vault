@@ -103,7 +103,7 @@ contract CreateStakedSonicETHMerkleRoot is Script, MerkleTreeHelper {
         // ========================== Silo ==========================
         address[] memory incentivesControllers = new address[](2); 
         incentivesControllers[0] = address(0);  
-        incentivesControllers[0] = address(0);   
+        incentivesControllers[1] = address(0);   
         _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_S_ETH_config"), incentivesControllers);
         _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_ETH_wstkscETH_id26_config"), incentivesControllers);
         
