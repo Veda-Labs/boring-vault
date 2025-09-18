@@ -2181,6 +2181,7 @@ contract ChainValues {
         values[sonicMainnet]["silo_USDC_vault"] = 0xF6F87073cF8929C206A77b0694619DC776F89885.toBytes32();
         values[sonicMainnet]["silo_Mithras_vault"] = 0x391b3F70E254d582588B27e97E48D1CFcdf0BE7e.toBytes32();
         values[sonicMainnet]["silo_RE7_vault"] = 0x592D1e187729C76EfacC6dfFB9355bd7BF47B2a7.toBytes32();
+        values[sonicMainnet]["silo_xETH_scETH_market"] = 0x61F76AF4c747561981aa1E29C031015C90d267Ec.toBytes32();
 
         // Curve
         values[sonicMainnet]["curve_CRV_claiming"] = 0xf3A431008396df8A8b2DF492C913706BDB0874ef.toBytes32();

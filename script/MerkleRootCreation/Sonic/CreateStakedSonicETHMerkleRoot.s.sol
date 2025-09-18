@@ -106,6 +106,9 @@ contract CreateStakedSonicETHMerkleRoot is Script, MerkleTreeHelper {
         incentivesControllers[0] = address(0);   
         _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_S_ETH_config"), incentivesControllers);
         _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_ETH_wstkscETH_id26_config"), incentivesControllers);
+        
+        // ========================== Silo ERC4626 Market =========================
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "silo_xETH_scETH_market")));
 
         // ========================== Curve =========================
 
@@ -136,7 +139,7 @@ contract CreateStakedSonicETHMerkleRoot is Script, MerkleTreeHelper {
         tokensToClaim[0] = getERC20(sourceChain, "rEUL"); 
         tokensToClaim[1] = getERC20(sourceChain, "wS"); 
         tokensToClaim[2] = getERC20(sourceChain, "BEETSFRAGMENTSS1"); 
-        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"), tokensToClaim); 
+        // _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"), tokensToClaim); 
 
         // ========================== Verify =========================
 
