@@ -9,7 +9,8 @@ import "dispatching_LayerZeroTellerWithRateLimiting.spec";
  *
  * Possible consequences: State corruption, message routing failures, potential conflicts with uninitialized chain mappings
  */
-rule addChain_34dafd6b_zero_chain_id_reverts(env e) {
+// gereon: is it true, that zero is usually invalid?
+rule __addChain_34dafd6b_zero_chain_id_reverts(env e) {
     uint32 chainId;
     bool allowMessagesFrom;
     bool allowMessagesTo;
@@ -37,6 +38,7 @@ rule addChain_34dafd6b_zero_chain_id_reverts(env e) {
  *
  * Possible consequences: DoS of cross-chain functionality, stuck messages, user funds locked in failed bridge transactions
  */
+// only when allowMessagesTo is true
 rule addChain_34dafd6b_zero_gas_limit_reverts(env e) {
     uint32 chainId;
     bool allowMessagesFrom;
@@ -53,7 +55,7 @@ rule addChain_34dafd6b_zero_gas_limit_reverts(env e) {
     // assign all the 'after' variables
 
     // verify integrity
-    assert ((messageGasLimit == 0) => addChain_reverted), "messageGasLimit == 0 => revert";
+    assert ((allowMessagesTo && messageGasLimit == 0) => addChain_reverted), "messageGasLimit == 0 => revert";
 }
 
 /*
@@ -65,7 +67,8 @@ rule addChain_34dafd6b_zero_gas_limit_reverts(env e) {
  *
  * Possible consequences: DoS of cross-chain bridging, messages sent to invalid addresses, potential fund loss
  */
-rule addChain_34dafd6b_zero_target_teller_reverts(env e) {
+// gereon: probably true
+rule __addChain_34dafd6b_zero_target_teller_reverts(env e) {
     uint32 chainId;
     bool allowMessagesFrom;
     bool allowMessagesTo;
@@ -452,7 +455,8 @@ rule removeChain_55a2d64d_clears_outbound_rate_limit(env e) {
  *
  * Possible consequences: Residual rate limit state could cause issues with chain re-addition or system maintenance
  */
-rule removeChain_55a2d64d_clears_inbound_rate_limit(env e) {
+// gereon: this sounds reasonable. Otherwise a newly added chain might start with non-default values.
+rule __removeChain_55a2d64d_clears_inbound_rate_limit(env e) {
     uint32 chainId;
 
     // assign all the 'before' variables
@@ -479,7 +483,8 @@ rule removeChain_55a2d64d_clears_inbound_rate_limit(env e) {
  *
  * Possible consequences: Stale timestamps could cause incorrect rate limit calculations if the chain is re-added
  */
-rule removeChain_55a2d64d_resets_rate_limit_timestamps(env e) {
+// gereon: this sounds reasonable. Otherwise a newly added chain might start with non-default values.
+rule __removeChain_55a2d64d_resets_rate_limit_timestamps(env e) {
     uint32 chainId;
 
     // assign all the 'before' variables
@@ -504,7 +509,8 @@ rule removeChain_55a2d64d_resets_rate_limit_timestamps(env e) {
  *
  * Possible consequences: Stale amount tracking could cause incorrect rate limit enforcement if the chain is re-added
  */
-rule removeChain_55a2d64d_resets_amount_in_flight(env e) {
+// gereon: this sounds reasonable. Otherwise a newly added chain might start with non-default values.
+rule __removeChain_55a2d64d_resets_amount_in_flight(env e) {
     uint32 chainId;
 
     // assign all the 'before' variables
@@ -913,7 +919,8 @@ rule allowMessagesFromChain_202eac57_no_permissioned_transfer_change(env e) {
  *
  * Possible consequences: Allows no-op calls that waste gas and don't provide meaningful configuration changes
  */
-rule allowMessagesFromChain_202eac57_already_allowed_no_op(env e) {
+// gereon: not sure if it's worth the effort/gas
+rule __allowMessagesFromChain_202eac57_already_allowed_no_op(env e) {
     uint32 chainId;
     address targetTeller;
 
@@ -1228,7 +1235,8 @@ rule stopMessagesFromChain_d555f368_preserves_gas_limit(env e) {
  *
  * Possible consequences: Silent success on meaningless operations can mask configuration errors and make system state unclear
  */
-rule stopMessagesFromChain_d555f368_no_effect_if_disabled(env e) {
+// gereon: not sure if it's worth the effort/gas
+rule __stopMessagesFromChain_d555f368_no_effect_if_disabled(env e) {
     uint32 chainId;
 
     // assign all the 'before' variables
@@ -1430,7 +1438,8 @@ rule stopMessagesToChain_45ad6063_preserves_gas_limit(env e) {
  *
  * Possible consequences: Confusion about system state and wasted gas on meaningless operations
  */
-rule stopMessagesToChain_45ad6063_no_op_reverts(env e) {
+// gereon: not sure if it's worth the effort/gas
+rule __stopMessagesToChain_45ad6063_no_op_reverts(env e) {
     uint32 chainId;
 
     // assign all the 'before' variables
@@ -1583,7 +1592,8 @@ rule stopMessagesToChain_45ad6063_inbound_limits_unchanged(env e) {
  *
  * Possible consequences: Gas waste, misleading function behavior, potential for users to think they've configured rate limits when they haven't
  */
-rule setOutboundRateLimits_e96e38e2_empty_configs_revert(env e) {
+// gereon: not sure if it's worth the effort
+rule __setOutboundRateLimits_e96e38e2_empty_configs_revert(env e) {
     PairwiseRateLimiter.RateLimitConfig[] _rateLimitConfigs;
 
     // assign all the 'before' variables
@@ -1851,10 +1861,12 @@ rule setInboundRateLimits_f51b1aca_empty_config_no_op(env e) {
  *
  * Possible consequences: Rate limiting would not work correctly, potentially allowing unlimited inbound message flow which could overwhelm the system or bypass intended security controls
  */
+// gereon: need to exclude overwriting...
 rule setInboundRateLimits_f51b1aca_updates_inbound_limits(env e) {
     PairwiseRateLimiter.RateLimitConfig[] _rateLimitConfigs;
 
     // assign all the 'before' variables
+    require(forall uint256 i. (0 < i && i < _rateLimitConfigs.length) => (_rateLimitConfigs[0].peerEid != _rateLimitConfigs[i].peerEid));
 
     // call function under test
     setInboundRateLimits(e, _rateLimitConfigs);
@@ -1875,10 +1887,12 @@ rule setInboundRateLimits_f51b1aca_updates_inbound_limits(env e) {
  *
  * Possible consequences: Incorrect rate limiting behavior where limits are applied over wrong time periods, potentially making rate limiting too restrictive or too permissive
  */
+// gereon: need to exclude overwriting...
 rule setInboundRateLimits_f51b1aca_updates_inbound_windows(env e) {
     PairwiseRateLimiter.RateLimitConfig[] _rateLimitConfigs;
 
     // assign all the 'before' variables
+    require(forall uint256 i. (0 < i && i < _rateLimitConfigs.length) => (_rateLimitConfigs[0].peerEid != _rateLimitConfigs[i].peerEid));
 
     // call function under test
     setInboundRateLimits(e, _rateLimitConfigs);
@@ -1974,10 +1988,12 @@ rule setInboundRateLimits_f51b1aca_multiple_configs_all_update(env e) {
  *
  * Possible consequences: If zero limits are not properly handled, it could prevent emergency shutdowns of problematic chains or cause unexpected behavior
  */
+// gereon: need to exclude overwriting...
 rule setInboundRateLimits_f51b1aca_zero_limit_allowed(env e) {
     PairwiseRateLimiter.RateLimitConfig[] _rateLimitConfigs;
 
     // assign all the 'before' variables
+    require(forall uint256 i. (0 < i && i < _rateLimitConfigs.length) => (_rateLimitConfigs[0].peerEid != _rateLimitConfigs[i].peerEid));
 
     // call function under test
     setInboundRateLimits(e, _rateLimitConfigs);
@@ -1998,10 +2014,12 @@ rule setInboundRateLimits_f51b1aca_zero_limit_allowed(env e) {
  *
  * Possible consequences: Incorrect handling of zero windows could cause division by zero errors or unexpected rate limiting behavior
  */
+// gereon: need to exclude overwriting...
 rule setInboundRateLimits_f51b1aca_zero_window_allowed(env e) {
     PairwiseRateLimiter.RateLimitConfig[] _rateLimitConfigs;
 
     // assign all the 'before' variables
+    require(forall uint256 i. (0 < i && i < _rateLimitConfigs.length) => (_rateLimitConfigs[0].peerEid != _rateLimitConfigs[i].peerEid));
 
     // call function under test
     setInboundRateLimits(e, _rateLimitConfigs);
@@ -2022,20 +2040,25 @@ rule setInboundRateLimits_f51b1aca_zero_window_allowed(env e) {
  *
  * Possible consequences: Cross-contamination of rate limit settings could affect unrelated chains, potentially blocking legitimate traffic or allowing excessive traffic
  */
+// gereon: AI has no idea how to do these kinds of rules
 rule setInboundRateLimits_f51b1aca_different_peers_independent(env e) {
     PairwiseRateLimiter.RateLimitConfig[] _rateLimitConfigs;
 
+    uint32 eid;
+
+    require(forall uint256 i. (i < _rateLimitConfigs.length => _rateLimitConfigs[i].peerEid != eid));
+
     // assign all the 'before' variables
-    uint256 currentContract_inboundRateLimits_1__limit_before = currentContract.inboundRateLimits[1].limit;
+    uint256 currentContract_inboundRateLimits_1__limit_before = currentContract.inboundRateLimits[eid].limit;
 
     // call function under test
     setInboundRateLimits(e, _rateLimitConfigs);
 
     // assign all the 'after' variables
-    uint256 currentContract_inboundRateLimits_1__limit_after = currentContract.inboundRateLimits[1].limit;
+    uint256 currentContract_inboundRateLimits_1__limit_after = currentContract.inboundRateLimits[eid].limit;
 
     // verify integrity
-    assert (((_rateLimitConfigs.length > 0) && (_rateLimitConfigs[0].peerEid != 1)) => (currentContract_inboundRateLimits_1__limit_after == currentContract_inboundRateLimits_1__limit_before)), "_rateLimitConfigs.length > 0 && _rateLimitConfigs[0].peerEid != 1 => inboundRateLimits[1].limit@after == inboundRateLimits[1].limit@before";
+    assert (currentContract_inboundRateLimits_1__limit_after == currentContract_inboundRateLimits_1__limit_before), "_rateLimitConfigs.length > 0 && _rateLimitConfigs[0].peerEid != 1 => inboundRateLimits[1].limit@after == inboundRateLimits[1].limit@before";
 }
 
 /*
@@ -2201,7 +2224,8 @@ rule setChainGasLimit_1568fc58_no_change_other_chains(env e) {
  *
  * Possible consequences: Could create phantom chain configurations that appear valid but are not fully functional, leading to user confusion and potential failed transactions
  */
-rule setChainGasLimit_1568fc58_uninitialized_chain_reverts(env e) {
+// gereon: not sure if it's worth the effort/gas
+rule __setChainGasLimit_1568fc58_uninitialized_chain_reverts(env e) {
     uint32 chainId;
     uint128 messageGasLimit;
 
