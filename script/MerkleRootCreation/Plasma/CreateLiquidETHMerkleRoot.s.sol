@@ -14,7 +14,7 @@ import "forge-std/Script.sol";
 /**
  *  source .env && forge script script/MerkleRootCreation/Plasma/CreateLiquidETHMerkleRoot.s.sol --rpc-url $PLASMA_RPC_URL --gas-limit 1000000000000000000
  */
-contract CreatePlasmaUSDMerkleRoot is Script, MerkleTreeHelper {
+contract CreateLiquidETHMerkleRoot is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     //standard
