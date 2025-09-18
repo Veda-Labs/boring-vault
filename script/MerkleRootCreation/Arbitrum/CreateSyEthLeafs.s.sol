@@ -60,7 +60,7 @@ contract ArbitrumMerkleRootScript is Script, MerkleTreeHelper {
 
     function _addLeafs(ManageLeaf[] memory leafs) internal {
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDC"));
-        _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDT"));
+        _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDT0"));
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "DAI"));
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDS"));
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "WETH"));
@@ -71,7 +71,7 @@ contract ArbitrumMerkleRootScript is Script, MerkleTreeHelper {
         address[] memory oneInchAssets = new address[](7);
         oneInchAssets[0] = getAddress(sourceChain, "USDC");
         oneInchAssets[1] = getAddress(sourceChain, "USDS");
-        oneInchAssets[2] = getAddress(sourceChain, "USDT");
+        oneInchAssets[2] = getAddress(sourceChain, "USDT0");
         oneInchAssets[3] = getAddress(sourceChain, "USDE");
         oneInchAssets[4] = getAddress(sourceChain, "WETH");
         oneInchAssets[5] = getAddress(sourceChain, "WBTC");
@@ -104,7 +104,7 @@ contract ArbitrumMerkleRootScript is Script, MerkleTreeHelper {
         borrowAssets[0] = getERC20(sourceChain, "WBTC");
         borrowAssets[1] = getERC20(sourceChain, "WETH");
         borrowAssets[2] = getERC20(sourceChain, "USDC");
-        borrowAssets[3] = getERC20(sourceChain, "USDT");
+        borrowAssets[3] = getERC20(sourceChain, "USDT0");
 
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
     }
