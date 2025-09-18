@@ -707,12 +707,12 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "SUSDE")));
 
         // ========================== RWA Vault ==========================
-        ERC20[] memory rwaVaultAssets = new ERC20[](2);
-        rwaVaultAssets[0] = getERC20(sourceChain, "USDT");
-        rwaVaultAssets[1] = getERC20(sourceChain, "USDE");
+        // ERC20[] memory rwaVaultAssets = new ERC20[](2);
+        // rwaVaultAssets[0] = getERC20(sourceChain, "USDT");
+        // rwaVaultAssets[1] = getERC20(sourceChain, "USDE");
 
-        address ethenaRWATeller = 0xDEa662f24389eB7CaFA9b3B10021884FCe7314f0;
-        _addTellerLeafs(leafs, ethenaRWATeller, rwaVaultAssets, true, true);
+        // address ethenaRWATeller = 0xDEa662f24389eB7CaFA9b3B10021884FCe7314f0;
+        // _addTellerLeafs(leafs, ethenaRWATeller, rwaVaultAssets, true, true);
         }
 
         // ========================== Plasma Bridging ==========================
