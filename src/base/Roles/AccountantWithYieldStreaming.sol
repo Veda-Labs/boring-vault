@@ -376,8 +376,8 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
             return vestingState.vestingGains; // Return ALL remaining unvested gains
         }
 
-        //if we haven't updated yet or no gains to vest
-        if (vestingState.lastVestingUpdate >= vestingState.endVestingTime || vestingState.vestingGains == 0) {
+        //if no gains to vest
+        if (vestingState.vestingGains == 0) {
             return 0;
         }
 
