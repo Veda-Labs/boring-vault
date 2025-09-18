@@ -9,6 +9,7 @@ import "dispatching_LayerZeroTeller.spec";
  *
  * Possible consequences: Chain configuration with zero gas limit would break cross-chain messaging functionality, causing all bridge operations to that chain to fail silently or with unclear errors
  */
+// gereon: only if allowMessagesTo is true
 rule addChain_34dafd6b_zero_gas_limit_reverts(env e) {
     uint32 chainId;
     bool allowMessagesFrom;
@@ -25,7 +26,7 @@ rule addChain_34dafd6b_zero_gas_limit_reverts(env e) {
     // assign all the 'after' variables
 
     // verify integrity
-    assert ((messageGasLimit == 0) => addChain_reverted), "messageGasLimit == 0 => revert";
+    assert ((allowMessagesTo && messageGasLimit == 0) => addChain_reverted), "messageGasLimit == 0 => revert";
 }
 
 /*
@@ -298,7 +299,8 @@ rule addChain_34dafd6b_to_flag_preserved(env e) {
  *
  * Possible consequences: Silent failures where admins think they've removed a chain but nothing actually happened, leading to confusion about system state
  */
-rule removeChain_55a2d64d_chain_exists_required(env e) {
+// gereon: maybe?
+rule __removeChain_55a2d64d_chain_exists_required(env e) {
     uint32 chainId;
 
     // assign all the 'before' variables
@@ -555,7 +557,8 @@ rule removeChain_55a2d64d_no_effect_on_transfers(env e) {
  *
  * Possible consequences: State corruption where non-existent chains appear to be configured, leading to failed message routing and potential DoS
  */
-rule allowMessagesFromChain_202eac57_chain_must_exist(env e) {
+// gereon: there is no such check, but maybe we should add it
+rule __allowMessagesFromChain_202eac57_chain_must_exist(env e) {
     uint32 chainId;
     address targetTeller;
 
@@ -660,7 +663,8 @@ rule allowMessagesFromChain_202eac57_preserves_gas_limit(env e) {
  *
  * Possible consequences: Messages would be routed to an invalid address, causing permanent message loss
  */
-rule allowMessagesFromChain_202eac57_zero_address_rejected(env e) {
+// gereon: could make sense, but I think messages would revert if the teller is zero.
+rule __allowMessagesFromChain_202eac57_zero_address_rejected(env e) {
     uint32 chainId;
     address targetTeller;
 
@@ -685,6 +689,7 @@ rule allowMessagesFromChain_202eac57_zero_address_rejected(env e) {
  *
  * Possible consequences: Failed message routing if peer mapping is not properly established
  */
+// gereon: it should be identical to targetTeller
 rule allowMessagesFromChain_202eac57_updates_peer_state(env e) {
     uint32 chainId;
     address targetTeller;
@@ -698,7 +703,7 @@ rule allowMessagesFromChain_202eac57_updates_peer_state(env e) {
     bytes32 peers_e__chainId__after = peers(e, chainId);
 
     // verify integrity
-    assert (peers_e__chainId__after != to_bytes32(0x0)), "peers(chainId)@after != 0x0";
+    assert (peers_e__chainId__after == to_bytes32(targetTeller)), "peers(chainId)@after != 0x0";
 }
 
 /*
@@ -1244,7 +1249,8 @@ rule allowMessagesToChain_b5ba6182_deposit_cap_unchanged(env e) {
  *
  * Possible consequences: State corruption where the function appears to succeed but doesn't actually change anything meaningful, leading to confusion about chain status
  */
-rule stopMessagesFromChain_d555f368_chain_must_exist(env e) {
+// gereon: there is no such check, but maybe we should add it
+rule __stopMessagesFromChain_d555f368_chain_must_exist(env e) {
     uint32 chainId;
 
     // assign all the 'before' variables
@@ -1346,7 +1352,8 @@ rule stopMessagesFromChain_d555f368_preserves_gas_limit(env e) {
  *
  * Possible consequences: Gas waste and potential confusion about the actual state of the system
  */
-rule stopMessagesFromChain_d555f368_no_change_if_already_disabled(env e) {
+// gereon: probably not worth it, given it's a simple setter
+rule __stopMessagesFromChain_d555f368_no_change_if_already_disabled(env e) {
     uint32 chainId;
 
     // assign all the 'before' variables
@@ -1651,7 +1658,8 @@ rule stopMessagesToChain_45ad6063_messages_from_unchanged(env e) {
  *
  * Possible consequences: Wasted gas costs, unclear system state, potential for scripting errors in admin operations
  */
-rule stopMessagesToChain_45ad6063_already_disabled_no_op(env e) {
+// gereon: probably not worth it, given it's a simple setter
+rule __stopMessagesToChain_45ad6063_already_disabled_no_op(env e) {
     uint32 chainId;
 
     // assign all the 'before' variables
@@ -1851,7 +1859,8 @@ rule setChainGasLimit_1568fc58_zero_gas_limit_reverts(env e) {
  *
  * Possible consequences: Allows configuration of meaningless state that could confuse operators and waste gas, potentially masking real configuration errors
  */
-rule setChainGasLimit_1568fc58_chain_not_configured_reverts(env e) {
+// gereon: could make sense.
+rule __setChainGasLimit_1568fc58_chain_not_configured_reverts(env e) {
     uint32 chainId;
     uint128 messageGasLimit;
 
@@ -1957,7 +1966,8 @@ rule setChainGasLimit_1568fc58_preserves_allow_to(env e) {
  *
  * Possible consequences: Allows wasteful transactions and could mask bugs in calling code that repeatedly sets the same value
  */
-rule setChainGasLimit_1568fc58_no_change_reverts(env e) {
+// gereon: probably not worth the effort
+rule __setChainGasLimit_1568fc58_no_change_reverts(env e) {
     uint32 chainId;
     uint128 messageGasLimit;
 
