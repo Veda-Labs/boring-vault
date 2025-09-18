@@ -57,9 +57,11 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Euler ==========================
         {
-            ERC4626[] memory depositVaults = new ERC4626[](2);
+            ERC4626[] memory depositVaults = new ERC4626[](4);
             depositVaults[0] = ERC4626(getAddress(sourceChain, "evkewstETH-1"));
             depositVaults[1] = ERC4626(getAddress(sourceChain, "evkewstETH-3"));
+            depositVaults[2] = ERC4626(getAddress(sourceChain, "evkeUSDC-1"));
+            depositVaults[3] = ERC4626(getAddress(sourceChain, "evkeUSDT-1"));
 
             address[] memory subaccounts = new address[](1);
             subaccounts[0] = address(boringVault);
@@ -94,9 +96,11 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             coreSupplyAssets[0] = getERC20(sourceChain, "WETH");
             coreSupplyAssets[1] = getERC20(sourceChain, "WSTETH");
 
-            ERC20[] memory coreBorrowAssets = new ERC20[](2);
+            ERC20[] memory coreBorrowAssets = new ERC20[](4);
             coreBorrowAssets[0] = getERC20(sourceChain, "WETH");
             coreBorrowAssets[1] = getERC20(sourceChain, "WSTETH");
+            coreBorrowAssets[2] = getERC20(sourceChain, "USDC");
+            coreBorrowAssets[3] = getERC20(sourceChain, "USDT");
 
             _addAaveV3Leafs(leafs, coreSupplyAssets, coreBorrowAssets);
         }

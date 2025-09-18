@@ -1918,6 +1918,8 @@ contract ChainValues {
         values[linea]["WSTETH"] = 0xB5beDd42000b71FddE22D3eE8a79Bd49A568fC8F.toBytes32();
         values[linea]["REX"] = 0xEfD81eeC32B9A8222D1842ec3d99c7532C31e348.toBytes32();
         values[linea]["ZRO"] = address(1).toBytes32();
+        values[linea]["USDC"] = 0x176211869cA2b568f2A7D4EE941E073a821EE1ff.toBytes32();
+        values[linea]["USDT"] = 0xA219439258ca9da29E9Cc4cE5596924745e12B93.toBytes32();
 
         // Linea Bridge.
         values[linea]["tokenBridge"] = 0x353012dc4a9A6cF55c941bADC267f82004A8ceB9.toBytes32(); //approve, also bridge token
@@ -1931,6 +1933,8 @@ contract ChainValues {
         values[linea]["evkewETH-1"] = 0xa8A02E6a894a490D04B6cd480857A19477854968.toBytes32();
         values[linea]["evkewstETH-3"] =  0xB770dc4be757Ad72BCb7b8FF4958FB5c6Ee5Aa49.toBytes32();
         values[linea]["evkewETH-7"] = 0xb135dcF653DAFB5ddAa93F926D7000Aa3222EFEE.toBytes32();
+        values[linea]["evkeUSDC-1"] = 0xfB6448B96637d90FcF2E4Ad2c622A487d0496e6f.toBytes32();
+        values[linea]["evkeUSDT-1"] = 0xCBeF9be95738290188B25ca9A6Dd2bEc417a578c.toBytes32();
 
         // Odos
         values[linea]["odosRouterV2"] = 0x2d8879046f1559E53eb052E949e9544bCB72f414.toBytes32();
