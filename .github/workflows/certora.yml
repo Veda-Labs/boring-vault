@@ -10,6 +10,7 @@ env:
     certora/confs/setup/autoCVL_AccountantWithYieldStreaming.conf
     certora/confs/setup/autoCVL_BoringVault.conf
     certora/confs/setup/autoCVL_LayerZeroTeller.conf
+    certora/confs/setup/autoCVL_LayerZeroTellerWithRateLimiting.conf
     certora/confs/setup/autoCVL_TellerWithBuffer.conf
     certora/confs/setup/autoCVL_TellerWithMultiAssetSupport.conf
     certora/confs/setup/sanity_AccountantWithRateProviders.conf
