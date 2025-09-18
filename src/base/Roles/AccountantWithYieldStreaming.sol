@@ -262,14 +262,6 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     }
 
     /**
-     * @notice Updates vault supply
-     * @dev Callable by TELLER
-     */
-    function updateCumulative() external requiresAuth {
-        _updateCumulative();
-    }
-
-    /**
      * @notice Updates startVestingTime timestamp
      * @dev Callable by TELLER
      */
@@ -473,7 +465,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         //sync fee variables 
         _collectFees();
 
-        //update timestamp always
+        //always update timestamp 
         vestingState.lastVestingUpdate = uint128(block.timestamp); // update timestamp
 
         AccountantState storage state = accountantState;
