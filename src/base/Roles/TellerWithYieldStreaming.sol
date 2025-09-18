@@ -47,6 +47,9 @@ contract TellerWithYieldStreaming is TellerWithBuffer {
     ) internal override returns (uint256 shares) {
         //update vested yield before deposit
         _getAccountant().updateExchangeRate();
+        if (vault.totalSupply() == 0) {
+            _getAccountant().setFirstDepositTimestamp(); 
+        }
         shares = super._erc20Deposit(depositAsset, depositAmount, minimumMint, from, to, asset);
     }
 

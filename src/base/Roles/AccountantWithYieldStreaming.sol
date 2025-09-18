@@ -269,6 +269,14 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         _updateCumulative();
     }
 
+    /**
+     * @notice Updates startVestingTime timestamp
+     * @dev Callable by TELLER
+     */
+    function setFirstDepositTimestamp() external requiresAuth {
+        vestingState.startVestingTime = uint64(block.timestamp);
+    }
+
     // ========================================= ADMIN FUNCTIONS =========================================
 
     /**
