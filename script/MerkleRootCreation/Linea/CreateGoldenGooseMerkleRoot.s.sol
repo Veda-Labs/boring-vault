@@ -40,7 +40,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, linea, "accountantAddress", accountantAddress);
         setAddress(false, linea, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](64);
+        ManageLeaf[] memory leafs = new ManageLeaf[](128);
 
         // ========================== Native Wrapping ==========================
         _addNativeLeafs(leafs);
@@ -68,7 +68,9 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
             ERC4626[] memory borrowVaults = new ERC4626[](2);  
             borrowVaults[0] = ERC4626(getAddress(sourceChain, "evkewETH-1"));
-            borrowVaults[0] = ERC4626(getAddress(sourceChain, "evkewETH-7"));
+            borrowVaults[1] = ERC4626(getAddress(sourceChain, "evkewETH-7"));
+
+            _addEulerBorrowLeafs(leafs, borrowVaults, subaccounts);
         }
 
         // =========================== Odos ==========================
