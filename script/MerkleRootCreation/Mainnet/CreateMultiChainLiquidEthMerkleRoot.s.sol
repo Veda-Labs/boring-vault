@@ -18,7 +18,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     address public boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C;
-    address public rawDataDecoderAndSanitizer = 0xfB5f154dcD47CC6d746D72bbcf121C1475fe26f0;
+    address public rawDataDecoderAndSanitizer = 0xd49BD853B993DC864890d8cBb4e8f1849480C9BF;
     address public managerAddress = 0xf9f7969C357ce6dfd7973098Ea0D57173592bCCa;
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
     address public pancakeSwapDataDecoderAndSanitizer = 0xfdC73Fc6B60e4959b71969165876213918A443Cd;
@@ -165,8 +165,8 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
             // ========================== 1inch ==========================
-            address[] memory assets = new address[](29);
-            SwapKind[] memory kind = new SwapKind[](29);
+            address[] memory assets = new address[](30);
+            SwapKind[] memory kind = new SwapKind[](30);
             assets[0] = getAddress(sourceChain, "WETH");
             kind[0] = SwapKind.BuyAndSell;
             assets[1] = getAddress(sourceChain, "WEETH");
@@ -717,23 +717,24 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== Plasma Bridging ==========================
         // Needs info
-        // USDT0
+        // USDT
         {
         _addLayerZeroLeafs(
             leafs,
-            getERC20(sourceChain, "USDT0"),
+            getERC20(sourceChain, "USDT"),
             getAddress(sourceChain, "usdt0OFTAdapter"),
             layerZeroPlasmaEndpointId,
             getBytes32(sourceChain, "boringVault")
         );
-        // WETH
-        _addLayerZeroLeafs(
+
+        // ETH
+        _addLayerZeroLeafNative(
             leafs,
-            getERC20(sourceChain, "WETH"),
-            getAddress(sourceChain, "???????????????"),
+            getAddress(sourceChain, "stargateNative"),
             layerZeroPlasmaEndpointId,
             getBytes32(sourceChain, "boringVault")
         );
+
         // SUSDE
         _addLayerZeroLeafs(
             leafs,
@@ -742,6 +743,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             layerZeroPlasmaEndpointId,
             getBytes32(sourceChain, "boringVault")
         );
+
         // USDE
         _addLayerZeroLeafs(
             leafs,
@@ -750,11 +752,12 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             layerZeroPlasmaEndpointId,
             getBytes32(sourceChain, "boringVault")
         );
+        
         // WEETH
         _addLayerZeroLeafs(
             leafs,
             getERC20(sourceChain, "WEETH"),
-            getAddress(sourceChain, "???????????????"),
+            getAddress(sourceChain, "EtherFiOFTAdapter"),
             layerZeroPlasmaEndpointId,
             getBytes32(sourceChain, "boringVault")
         );
