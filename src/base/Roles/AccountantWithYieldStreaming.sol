@@ -446,6 +446,8 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
      * @dev calling this moves any vested gains to be calculated into the current share price
      */
     function _updateExchangeRate() internal {
+        AccountantState storage state = accountantState;
+        if (state.isPaused) revert AccountantWithRateProviders__Paused();
         _updateCumulative();
 
         //calculate how much has vested since `lastVestingUpdate`
@@ -468,7 +470,6 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         //always update timestamp 
         vestingState.lastVestingUpdate = uint128(block.timestamp); // update timestamp
 
-        AccountantState storage state = accountantState;
         state.totalSharesLastUpdate = uint128(currentShares);
 
         emit ExchangeRateUpdated(vestingState.lastSharePrice);
