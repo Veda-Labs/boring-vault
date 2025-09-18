@@ -12,14 +12,14 @@ import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper
 import "forge-std/Script.sol";
 
 /**
- *  source .env && forge script script/MerkleRootCreation/Plasma/CreatePlasmaUSDMerkleRoot.s.sol --rpc-url $PLASMA_RPC_URL --gas-limit 1000000000000000000
+ *  source .env && forge script script/MerkleRootCreation/Plasma/CreateLiquidETHMerkleRoot.s.sol --rpc-url $PLASMA_RPC_URL --gas-limit 1000000000000000000
  */
 contract CreatePlasmaUSDMerkleRoot is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     //standard
     address public boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C;
-    address public rawDataDecoderAndSanitizer = 0xfe47B4A709Ca3a91C3B8B97c058A6d07Cd84417F;
+    address public rawDataDecoderAndSanitizer = 0xbaB06906321D30509088E92840B0dF30E9b0a148;
     address public managerAddress = 0xf9f7969C357ce6dfd7973098Ea0D57173592bCCa;
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
     address public drone = 0x7c391d7856fcbC4Fd3a3C3CD8787c7eBF85934aF;
@@ -40,7 +40,7 @@ contract CreatePlasmaUSDMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, plasma, "accountantAddress", accountantAddress);
         setAddress(false, plasma, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](64);
+        ManageLeaf[] memory leafs = new ManageLeaf[](128);
 
         // ========================== Aave V3 ==========================
         ERC20[] memory supplyAssets = new ERC20[](3);
@@ -52,7 +52,7 @@ contract CreatePlasmaUSDMerkleRoot is Script, MerkleTreeHelper {
         borrowAssets[1] = getERC20(sourceChain, "WETH");
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
 
-        // ========================== LayerZero ========================== VERIFY OFTS!!!
+        // ========================== LayerZero ==========================
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDT0"), getAddress(sourceChain, "USDT0_OFT"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "SUSDE"), getAddress(sourceChain, "SUSDE"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "WEETH"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
@@ -70,14 +70,14 @@ contract CreatePlasmaUSDMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Fluid ==========================
         // NEED INFO
-        ERC20[] memory supplyTokens = new ERC20[](2);
-        supplyTokens[0] = getERC20(sourceChain, "WEETH");
-        supplyTokens[1] = getERC20(sourceChain, "WETH");
+        // ERC20[] memory supplyTokens = new ERC20[](2);
+        // supplyTokens[0] = getERC20(sourceChain, "WEETH");
+        // supplyTokens[1] = getERC20(sourceChain, "WETH");
 
-        ERC20[] memory borrowTokens = new ERC20[](2);
-        borrowTokens[0] = getERC20(sourceChain, "WEETH");
-        borrowTokens[1] = getERC20(sourceChain, "WETH");
-        _addFluidDexLeafs(leafs, dex, dexType, supplyTokens, borrowTokens, false);
+        // ERC20[] memory borrowTokens = new ERC20[](2);
+        // borrowTokens[0] = getERC20(sourceChain, "WEETH");
+        // borrowTokens[1] = getERC20(sourceChain, "WETH");
+        // _addFluidDexLeafs(leafs, dex, dexType, supplyTokens, borrowTokens, false);
 
         // ========================== Native ==========================
         _addNativeLeafs(leafs, getAddress(sourceChain, "wXPL"));
@@ -101,7 +101,7 @@ contract CreatePlasmaUSDMerkleRoot is Script, MerkleTreeHelper {
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
-        string memory filePath = "./leafs/Plasma/PlasmaUSDMerkleRoot.json";
+        string memory filePath = "./leafs/Plasma/LiquidETHMerkleRoot.json";
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
     }
@@ -131,14 +131,14 @@ contract CreatePlasmaUSDMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Fluid ==========================
         // NEED INFO
-        ERC20[] memory supplyTokens = new ERC20[](2);
-        supplyTokens[0] = getERC20(sourceChain, "WEETH");
-        supplyTokens[1] = getERC20(sourceChain, "WETH");
+        // ERC20[] memory supplyTokens = new ERC20[](2);
+        // supplyTokens[0] = getERC20(sourceChain, "WEETH");
+        // supplyTokens[1] = getERC20(sourceChain, "WETH");
 
-        ERC20[] memory borrowTokens = new ERC20[](2);
-        borrowTokens[0] = getERC20(sourceChain, "WEETH");
-        borrowTokens[1] = getERC20(sourceChain, "WETH");
-        _addFluidDexLeafs(leafs, dex, dexType, supplyTokens, borrowTokens, false);
+        // ERC20[] memory borrowTokens = new ERC20[](2);
+        // borrowTokens[0] = getERC20(sourceChain, "WEETH");
+        // borrowTokens[1] = getERC20(sourceChain, "WETH");
+        // _addFluidDexLeafs(leafs, dex, dexType, supplyTokens, borrowTokens, false);
 
         _createDroneLeafs(leafs, drone, droneStartIndex, leafIndex + 1);
         setAddress(true, mainnet, "boringVault", boringVault);
