@@ -139,7 +139,7 @@ contract CreateStakedSonicETHMerkleRoot is Script, MerkleTreeHelper {
         tokensToClaim[0] = getERC20(sourceChain, "rEUL"); 
         tokensToClaim[1] = getERC20(sourceChain, "wS"); 
         tokensToClaim[2] = getERC20(sourceChain, "BEETSFRAGMENTSS1"); 
-        // _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"), tokensToClaim); 
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"), tokensToClaim); 
 
         // ========================== Verify =========================
 
