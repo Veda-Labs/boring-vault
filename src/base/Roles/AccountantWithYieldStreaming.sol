@@ -139,7 +139,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         supplyObservation.cumulativeSupplyLast = 0;
         supplyObservation.lastUpdateTimestamp = uint128(block.timestamp);
 
-        //initialize strategist update time to 0 so first posts are valid
+        //initialize strategist update time to deploy time so first posts are valid
         lastStrategistUpdateTimestamp = uint64(block.timestamp);
     }
 
