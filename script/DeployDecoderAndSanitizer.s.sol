@@ -107,6 +107,7 @@ import {PlasmaUSDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Plasm
 import {GoldenGooseUnichainDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseUnichainDecoderAndSanitizer.sol";
 import {OptimismGoldenGooseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/OptimismGoldenGooseDecoderAndSanitizer.sol";
 import {GoldenGooseBaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseBaseDecoderAndSanitizer.sol";
+import {SentoraDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentoraDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -144,6 +145,10 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //     getAddress(sourceChain, "odosRouterV2") 
         // ); 
         // deployer.deployContract("Golden Goose Decoder And Sanitizer V0.6", creationCode, constructorArgs, 0);
+
+        creationCode = type(SentoraDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "odosRouterV2"));
+        deployer.deployContract("Sentora Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
