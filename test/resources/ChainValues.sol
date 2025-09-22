@@ -2727,6 +2727,7 @@ contract ChainValues {
         values[flare]["txBundlerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
         values[flare]["dev0Address"] = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b.toBytes32();
         values[flare]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
+        values[flare]["dev5Address"] = 0x1cdF47387358A1733968df92f7cC14546D9E1047.toBytes32();
 
         // ERC20s
         values[flare]["FLR"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32(); // NATIVE
@@ -2736,6 +2737,8 @@ contract ChainValues {
         values[flare]["ZRO"] = address(1).toBytes32(); // USDC0
         values[flare]["rFLR"] = 0x26d460c3Cf931Fb2014FA436a49e3Af08619810e.toBytes32();
         values[flare]["RFLR"] = 0x26d460c3Cf931Fb2014FA436a49e3Af08619810e.toBytes32();
+        // values[flare]["WBTC"] = .toBytes32();
+        // values[flare]["LBTC"] = .toBytes32();
 
         // UniswapV3/SparkDex
         values[flare]["uniswapV3NonFungiblePositionManager"] = 0xEE5FF5Bc5F852764b5584d92A4d592A53DC527da.toBytes32();
