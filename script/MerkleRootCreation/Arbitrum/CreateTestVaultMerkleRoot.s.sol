@@ -19,7 +19,7 @@ contract CreateTestVaultMerkleRoot is Script, MerkleTreeHelper {
     address public accountantAddress = 0xd0E254df4387B9aD31a59eFBBf66db9f809BD91E;
     address public boringVault = 0x7135CA5F74BC85a65EA1705C9461fF1A24e7F1b9;
     address public managerAddress = 0x940fA048ee64e5845e8c2F320146A926AA0a8F43;
-    address public rawDataDecoderAndSanitizer01 = 0x79A5a9788E643d48F680Ac1838E4ADED83AFa7a4;
+    address public rawDataDecoderAndSanitizer01 = 0x5dBBa7fB977F02356D8088a7e199ce249AcBA78F;
 
     function setUp() external {
         setSourceChainName(arbitrum);
@@ -52,15 +52,20 @@ contract CreateTestVaultMerkleRoot is Script, MerkleTreeHelper {
         _addArbitrumHyperliquidBridge2Leafs(leafs);
 
         // 1inch assets;
-        address[] memory oneInchAssets = new address[](2);
+        address[] memory oneInchAssets = new address[](4);
         oneInchAssets[0] = getAddress(sourceChain, "USDC");
         oneInchAssets[1] = getAddress(sourceChain, "USDS");
-        SwapKind[] memory kind = new SwapKind[](2);
+        oneInchAssets[2] = getAddress(sourceChain, "USDT0");
+        oneInchAssets[3] = getAddress(sourceChain, "WETH");
+        SwapKind[] memory kind = new SwapKind[](4);
         kind[0] = SwapKind.BuyAndSell;
         kind[1] = SwapKind.BuyAndSell;
+        kind[2] = SwapKind.BuyAndSell;
+        kind[3] = SwapKind.BuyAndSell;
 
         _addLeafsFor1InchGeneralSwapping(leafs, oneInchAssets, kind);
         _addOdosSwapLeafs(leafs, oneInchAssets, kind);
+        _addMagpieSwapLeafs(leafs, oneInchAssets, kind);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
         string memory filePath = "./leafs/Arbitrum/TestVaultArbitrumStrategyLeafs.json";

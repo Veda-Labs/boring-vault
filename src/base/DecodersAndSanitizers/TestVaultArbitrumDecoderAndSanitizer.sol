@@ -12,6 +12,7 @@ import {NativeWrapperDecoderAndSanitizer} from "./Protocols/NativeWrapperDecoder
 import {PendleRouterDecoderAndSanitizer} from "./Protocols/PendleRouterDecoderAndSanitizer.sol";
 import {CCIPDecoderAndSanitizer} from "./Protocols/CCIPDecoderAndSanitizer.sol";
 import {OdosDecoderAndSanitizer} from "./Protocols/OdosDecoderAndSanitizer.sol";
+import {MagpieDecoderAndSanitizer} from "./MagpieDecoderAndSanitizer.sol";
 
 contract TestVaultArbitrumDecoderAndSanitizer is
     UniswapV3DecoderAndSanitizer,
@@ -23,11 +24,13 @@ contract TestVaultArbitrumDecoderAndSanitizer is
     NativeWrapperDecoderAndSanitizer,
     PendleRouterDecoderAndSanitizer,
     CCIPDecoderAndSanitizer,
-    OdosDecoderAndSanitizer
+    OdosDecoderAndSanitizer,
+    MagpieDecoderAndSanitizer
 {
-    constructor(address _uniswapV3NonFungiblePositionManager, address _odosRouter)
+    constructor(address _uniswapV3NonFungiblePositionManager, address _odosRouter, address _magpieRouter)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
         OdosDecoderAndSanitizer(_odosRouter)
+        MagpieDecoderAndSanitizer(_magpieRouter)
     {}
 
     //============================== HANDLE FUNCTION COLLISIONS ===============================

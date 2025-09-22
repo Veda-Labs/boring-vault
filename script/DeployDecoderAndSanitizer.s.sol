@@ -159,7 +159,9 @@ contract DeployTestVaultArbitrumDecoderAndSanitizer is Script, ContractNames, Ma
         setSourceChainName("arbitrum");
         vm.startBroadcast(privateKey);
         new TestVaultArbitrumDecoderAndSanitizer(
-            getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2")
+            getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
+            getAddress(sourceChain, "odosRouterV2"),
+            getAddress(sourceChain, "MagpieRouterV3")
         );
         vm.stopBroadcast();
     }

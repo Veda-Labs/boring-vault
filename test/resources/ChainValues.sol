@@ -1687,6 +1687,9 @@ contract ChainValues {
         values[arbitrum]["odosRouterV2"] = 0xa669e7A0d4b3e4Fa48af2dE86BD4CD7126Be4e13.toBytes32();
         values[arbitrum]["odosExecutor"] = 0x03222a2b261a12091bBE271e763A7E26b64E25e2.toBytes32();
 
+        // MagpieV3
+        values[arbitrum]["MagpieRouterV3"] = 0xfB1B08BA6BA284934D817Ea3C9D18f592cc59a50.toBytes32();
+
         // Morpho Blue
         values[arbitrum]["morphoBlue"] = 0x6c247b1F6182318877311737BaC0844bAa518F5e.toBytes32();
         values[arbitrum]["syrupUSDC_USDC_915"] = 0xf86f3edd6f16cd8211f4d206866dc4ecd41be6211063ac11f8508e1b7112ef40;
