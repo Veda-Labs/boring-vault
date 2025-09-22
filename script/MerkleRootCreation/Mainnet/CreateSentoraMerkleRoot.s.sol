@@ -64,6 +64,8 @@ contract CreateSentoraMerkleRootScript is Script, MerkleTreeHelper {
         itbTokensUsed[1] = getERC20(sourceChain, "WBTC");
         address itbPositionManager = 0x701D7Fc25577602dc77280108a8cef0B72b8F8A7;
         _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "Supervised Loan");
+
+        itbTokensUsed = new ERC20[](0);
         itbPositionManager = 0xcA1fB3fECFbA0CB89c95C298f5329b793B4d8fa3;
         _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "Loan Manager");
         itbPositionManager = 0x97c1deFaC7c1e5Ce0FBE34C684Ac09EA640d4A7a;
