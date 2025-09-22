@@ -137,13 +137,14 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     event Unpaused();
     event AssetDataUpdated(address indexed asset, bool allowDeposits, bool allowWithdraws, uint16 sharePremium);
     event Deposit(
-        uint256 indexed nonce,
+        uint256 nonce,
         address indexed receiver,
         address indexed depositAsset,
         uint256 depositAmount,
         uint256 shareAmount,
         uint256 depositTimestamp,
-        uint256 shareLockPeriodAtTimeOfDeposit
+        uint256 shareLockPeriodAtTimeOfDeposit,
+        address indexed referralAddress
     );
     event BulkDeposit(address indexed asset, uint256 depositAmount);
     event BulkWithdraw(address indexed asset, uint256 shareAmount);
@@ -417,7 +418,8 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         uint256 depositAmount,
         uint256 shareAmount,
         uint256 depositTimestamp,
-        uint256 shareLockUpPeriodAtTimeOfDeposit
+        uint256 shareLockUpPeriodAtTimeOfDeposit,
+        address referralAddress
     ) external requiresAuth {
         if ((block.timestamp - depositTimestamp) >= shareLockUpPeriodAtTimeOfDeposit) {
             // Shares are already unlocked, so we can not revert deposit.
@@ -425,7 +427,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         }
         bytes32 depositHash = keccak256(
             abi.encode(
-                receiver, depositAsset, depositAmount, shareAmount, depositTimestamp, shareLockUpPeriodAtTimeOfDeposit
+                receiver, depositAsset, depositAmount, shareAmount, depositTimestamp, shareLockUpPeriodAtTimeOfDeposit, referralAddress
             )
         );
         if (publicDepositHistory[nonce] != depositHash) revert TellerWithMultiAssetSupport__BadDepositHash();
@@ -447,7 +449,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @notice Allows users to deposit into the BoringVault, if this contract is not paused.
      * @dev Publicly callable.
      */
-    function deposit(ERC20 depositAsset, uint256 depositAmount, uint256 minimumMint)
+    function deposit(ERC20 depositAsset, uint256 depositAmount, uint256 minimumMint, address referralAddress)
         external
         payable
         virtual
@@ -474,7 +476,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         }
 
         shares = _erc20Deposit(depositAsset, depositAmount, minimumMint, from, msg.sender, asset);
-        _afterPublicDeposit(msg.sender, depositAsset, depositAmount, shares, shareLockPeriod);
+        _afterPublicDeposit(msg.sender, depositAsset, depositAmount, shares, shareLockPeriod, referralAddress);
     }
 
     /**
@@ -488,7 +490,8 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         uint256 deadline,
         uint8 v,
         bytes32 r,
-        bytes32 s
+        bytes32 s,
+        address referralAddress
     )
         external
         virtual
@@ -502,7 +505,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         _handlePermit(depositAsset, depositAmount, deadline, v, r, s);
 
         shares = _erc20Deposit(depositAsset, depositAmount, minimumMint, msg.sender, msg.sender, asset);
-        _afterPublicDeposit(msg.sender, depositAsset, depositAmount, shares, shareLockPeriod);
+        _afterPublicDeposit(msg.sender, depositAsset, depositAmount, shares, shareLockPeriod, referralAddress);
     }
 
     /**
@@ -611,7 +614,8 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         ERC20 depositAsset,
         uint256 depositAmount,
         uint256 shares,
-        uint256 currentShareLockPeriod
+        uint256 currentShareLockPeriod,
+        address referralAddress
     ) internal {
         // Increment then assign as its slightly more gas efficient.
         uint256 nonce = ++depositNonce;
@@ -619,10 +623,10 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         if (currentShareLockPeriod > 0) {
             beforeTransferData[user].shareUnlockTime = block.timestamp + currentShareLockPeriod;
             publicDepositHistory[nonce] = keccak256(
-                abi.encode(user, depositAsset, depositAmount, shares, block.timestamp, currentShareLockPeriod)
+                abi.encode(user, depositAsset, depositAmount, shares, block.timestamp, currentShareLockPeriod, referralAddress)
             );
         }
-        emit Deposit(nonce, user, address(depositAsset), depositAmount, shares, block.timestamp, currentShareLockPeriod);
+        emit Deposit(nonce, user, address(depositAsset), depositAmount, shares, block.timestamp, currentShareLockPeriod, referralAddress);
     }
 
     /**
