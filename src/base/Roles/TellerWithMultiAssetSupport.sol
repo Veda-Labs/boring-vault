@@ -418,7 +418,8 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         uint256 depositAmount,
         uint256 shareAmount,
         uint256 depositTimestamp,
-        uint256 shareLockUpPeriodAtTimeOfDeposit
+        uint256 shareLockUpPeriodAtTimeOfDeposit,
+        address referralAddress
     ) external requiresAuth {
         if ((block.timestamp - depositTimestamp) >= shareLockUpPeriodAtTimeOfDeposit) {
             // Shares are already unlocked, so we can not revert deposit.
@@ -426,7 +427,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         }
         bytes32 depositHash = keccak256(
             abi.encode(
-                receiver, depositAsset, depositAmount, shareAmount, depositTimestamp, shareLockUpPeriodAtTimeOfDeposit
+                receiver, depositAsset, depositAmount, shareAmount, depositTimestamp, shareLockUpPeriodAtTimeOfDeposit, referralAddress
             )
         );
         if (publicDepositHistory[nonce] != depositHash) revert TellerWithMultiAssetSupport__BadDepositHash();

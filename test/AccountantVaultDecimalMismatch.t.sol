@@ -24,6 +24,7 @@ contract AccountantVaultDecimalsMismatchTest is Test, MerkleTreeHelper {
     ERC20 LBTC = ERC20(0xecAc9C5F704e954931349Da37F60E39f515c11c1);
     address user = vm.addr(0xBEEF);
     address auth;
+    address public refferer = vm.addr(1337);
 
     function setUp() external {
         // Setup forked environment.
@@ -55,7 +56,7 @@ contract AccountantVaultDecimalsMismatchTest is Test, MerkleTreeHelper {
         WBTCN.approve(address(bv), 1e18);
 
         vm.prank(user);
-        teller.deposit(WBTCN, 1e18, 0);
+        teller.deposit(WBTCN, 1e18, 0, refferer);
 
         assertEq(bv.balanceOf(user), 1e8, "User should have received one share.");
 
@@ -72,7 +73,7 @@ contract AccountantVaultDecimalsMismatchTest is Test, MerkleTreeHelper {
         LBTC.approve(address(bv), 1e8);
 
         vm.prank(user);
-        teller.deposit(LBTC, 1e8, 0);
+        teller.deposit(LBTC, 1e8, 0, refferer);
 
         assertEq(bv.balanceOf(user), 1e8, "User should have received one share.");
 
@@ -89,7 +90,7 @@ contract AccountantVaultDecimalsMismatchTest is Test, MerkleTreeHelper {
         WBTCN.approve(address(bv), 1e18);
 
         vm.prank(user);
-        teller.deposit(WBTCN, 1e18, 0);
+        teller.deposit(WBTCN, 1e18, 0, refferer);
 
         assertEq(bv.balanceOf(user), 1e8, "User should have received one share.");
 
@@ -106,7 +107,7 @@ contract AccountantVaultDecimalsMismatchTest is Test, MerkleTreeHelper {
         LBTC.approve(address(bv), 1e8);
 
         vm.prank(user);
-        teller.deposit(LBTC, 1e8, 0);
+        teller.deposit(LBTC, 1e8, 0, refferer);
 
         assertEq(bv.balanceOf(user), 1e8, "User should have received one share.");
 

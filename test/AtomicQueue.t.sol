@@ -105,14 +105,14 @@ contract AtomicQueueTest is Test, MerkleTreeHelper {
         // User buys some BoringVault shares.
         deal(address(WETH), address(user), 1_000e18);
         deal(address(WEETH), address(user), 1_001e18);
-
+        address refferer = vm.addr(1377);
         vm.startPrank(user);
         WETH.approve(address(boringVault), type(uint256).max);
         WEETH.approve(address(boringVault), type(uint256).max);
         WEETH.approve(address(atomicQueue), type(uint256).max);
         boringVault.approve(address(atomicQueue), type(uint256).max);
-        teller.deposit(WETH, 1_000e18, 0);
-        teller.deposit(WEETH, 1_000e18, 0);
+        teller.deposit(WETH, 1_000e18, 0, refferer);
+        teller.deposit(WEETH, 1_000e18, 0, refferer);
         vm.stopPrank();
     }
 

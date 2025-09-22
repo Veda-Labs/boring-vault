@@ -46,7 +46,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     uint8 public constant CAN_SOLVE_ROLE = 11;
     
     address public alice = address(69); 
-    address public bill = address(6969); 
+    address public bill = address(6969);
+    address public refferer = vm.addr(1337);
 
     function setUp() external {
         setSourceChainName("mainnet");
@@ -154,7 +155,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 USDCAmount = 10e6; 
         deal(address(USDC), address(this), 1_000e6);
         USDC.approve(address(boringVault), 1_000e6);
-        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0);
+        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0, refferer);
         assertEq(USDCAmount, shares0); 
         
         uint256 totalAssetsBefore = accountant.totalAssets();         
@@ -162,7 +163,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         //==== BEGIN DEPOSIT 2 ====
 
         //deposit 2
-        uint256 shares1 = teller.deposit(USDC, USDCAmount, 0);
+        uint256 shares1 = teller.deposit(USDC, USDCAmount, 0, refferer);
         assertEq(shares1, USDCAmount); 
 
         uint256 totalAssetsAfter = accountant.totalAssets();         
@@ -173,7 +174,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 USDCAmount = 10e6; 
         deal(address(USDC), address(this), 1_000e6);
         USDC.approve(address(boringVault), 1_000e6);
-        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0);
+        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0, refferer);
         assertEq(USDCAmount, shares0); 
 
         //vest some yield
@@ -182,7 +183,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         skip(12 hours); 
 
         //==== BEGIN DEPOSIT 2 ====
-        uint256 shares1 = teller.deposit(USDC, USDCAmount, 0);
+        uint256 shares1 = teller.deposit(USDC, USDCAmount, 0, refferer);
         vm.assertApproxEqAbs(shares1, 6666666, 10); //
 
         //total of 2 deposits to 10 weth each + 5 vested yield 
@@ -195,11 +196,11 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 USDCAmount = 10e6; 
         deal(address(USDC), address(this), 1_000e6);
         USDC.approve(address(boringVault), 1_000e6);
-        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0);
+        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0, refferer);
         assertEq(USDCAmount, shares0); 
 
         //deposit 2
-        teller.deposit(USDC, USDCAmount, 0);
+        teller.deposit(USDC, USDCAmount, 0, refferer);
 
         uint256 assetsOut0 = teller.withdraw(USDC, shares0, 0, address(boringVault));   
         assertEq(assetsOut0, USDCAmount); 
@@ -209,7 +210,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 USDCAmount = 10e6; 
         deal(address(USDC), address(this), 1_000e6);
         USDC.approve(address(boringVault), 1_000e6);
-        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0);
+        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0, refferer);
         assertEq(USDCAmount, shares0); 
 
         //==== Add Vesting Yield Stream ====
@@ -221,7 +222,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(USDC), alice, 1_000e6);
         vm.startPrank(alice); 
         USDC.approve(address(boringVault), type(uint256).max); 
-        uint256 shares1 = teller.deposit(USDC, USDCAmount, 0);
+        uint256 shares1 = teller.deposit(USDC, USDCAmount, 0, refferer);
         vm.stopPrank(); 
         
         //==== BEGIN WITHDRAW USER 1 ====
@@ -238,7 +239,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 USDCAmount = 10e6; 
         deal(address(USDC), address(this), 1_000e6);
         USDC.approve(address(boringVault), 1_000e6);
-        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0);
+        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0, refferer);
         assertEq(USDCAmount, shares0); 
 
         //==== Add Vesting Yield Stream ====
@@ -250,7 +251,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(USDC), alice, 1_000e6);
         vm.startPrank(alice); 
         USDC.approve(address(boringVault), type(uint256).max); 
-        uint256 shares1 = teller.deposit(USDC, USDCAmount, 0);
+        uint256 shares1 = teller.deposit(USDC, USDCAmount, 0, refferer);
         vm.stopPrank(); 
         
         //==== BEGIN WITHDRAW USER 1 ====
@@ -270,7 +271,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 USDCAmount = 10e6; 
         deal(address(USDC), address(this), 1_000e6);
         USDC.approve(address(boringVault), 1_000e6);
-        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0);
+        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0, refferer);
         assertEq(USDCAmount, shares0); 
 
         //==== Add Vesting Yield Stream ===="); 
@@ -306,7 +307,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 USDCAmount = 10e6; 
         deal(address(USDC), address(this), 1_000e6);
         USDC.approve(address(boringVault), 1_000e6);
-        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0);
+        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0, refferer);
         assertEq(USDCAmount, shares0); 
 
         //vault total = 10
@@ -360,7 +361,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 USDCAmount = 10e6; 
         deal(address(USDC), address(this), 1_000e6);
         USDC.approve(address(boringVault), 1_000e6);
-        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0);
+        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0, refferer);
         assertEq(USDCAmount, shares0); 
 
         //vault total = 10
@@ -379,7 +380,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 USDCAmount = 10e6; 
         deal(address(USDC), address(this), 1_000e6);
         USDC.approve(address(boringVault), 1_000e6);
-        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0);
+        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0, refferer);
         assertEq(shares0, USDCAmount); 
 
         deal(address(USDC), address(boringVault), USDCAmount);
@@ -426,7 +427,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 USDCAmount = 10e6; 
         deal(address(USDC), address(this), 1_000e6);
         USDC.approve(address(boringVault), 1_000e6);
-        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0);
+        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0, refferer);
         assertEq(USDCAmount, shares0); 
 
         deal(address(USDC), address(boringVault), USDCAmount);
@@ -459,7 +460,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 USDCAmount = 10e6;
         deal(address(USDC), address(this), 1_000e6);
         USDC.approve(address(boringVault), 1_000e6);
-        teller.deposit(USDC, USDCAmount, 0);
+        teller.deposit(USDC, USDCAmount, 0, refferer);
     
         // Record initial state
         (, uint96 initialHighwaterMark, ,,,,,,,,,) = accountant.accountantState();
@@ -506,7 +507,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 USDCAmount = 10e6; 
         deal(address(USDC), address(this), 1_000e6);
         USDC.approve(address(boringVault), 1_000e6);
-        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0);
+        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0, refferer);
         assertEq(USDCAmount, shares0); 
 
         //vest some yield
@@ -530,10 +531,10 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 USDCAmount = 10e6; 
         deal(address(USDC), address(this), 1_000e6);
         USDC.approve(address(boringVault), 1_000e6);
-        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0);
+        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0, refferer);
         assertEq(USDCAmount, shares0); 
 
-        uint256 shares1 = teller.deposit(USDC, USDCAmount, 0);
+        uint256 shares1 = teller.deposit(USDC, USDCAmount, 0, refferer);
         assertEq(USDCAmount, shares1); 
         
         uint256 currentShares = boringVault.totalSupply(); 
@@ -547,7 +548,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 USDCAmount = 10e6; 
         deal(address(USDC), address(this), 1_000e6);
         USDC.approve(address(boringVault), 1_000e6);
-        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0);
+        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0, refferer);
         assertEq(USDCAmount, shares0); 
 
         //vest some yield
@@ -559,13 +560,13 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(USDC), alice, USDCAmount);
         vm.startPrank(alice);
         USDC.approve(address(boringVault), USDCAmount);
-        uint256 sharesAlice = teller.deposit(USDC, USDCAmount, 0);
+        uint256 sharesAlice = teller.deposit(USDC, USDCAmount, 0, refferer);
         vm.stopPrank();
 
         deal(address(USDC), bill, USDCAmount);
         vm.startPrank(bill);
         USDC.approve(address(boringVault), USDCAmount);
-        uint256 sharesBill = teller.deposit(USDC, USDCAmount, 0);
+        uint256 sharesBill = teller.deposit(USDC, USDCAmount, 0, refferer);
         vm.stopPrank();
 
         //skip time
@@ -586,7 +587,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 USDCAmount = 10e6; 
         deal(address(USDC), address(this), 1_000e6);
         USDC.approve(address(boringVault), 1_000e6);
-        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0);
+        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0, refferer);
         assertEq(USDCAmount, shares0); 
 
         //vest some yield
@@ -598,7 +599,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(USDC), alice, USDCAmount);
         vm.startPrank(alice);
         USDC.approve(address(boringVault), USDCAmount);
-        uint256 sharesAlice = teller.deposit(USDC, USDCAmount, 0);
+        uint256 sharesAlice = teller.deposit(USDC, USDCAmount, 0, refferer);
         vm.stopPrank();
 
         //skip time
@@ -611,7 +612,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(USDC), bill, USDCAmount);
         vm.startPrank(bill);
         USDC.approve(address(boringVault), USDCAmount);
-        teller.deposit(USDC, USDCAmount, 0);
+        teller.deposit(USDC, USDCAmount, 0, refferer);
         vm.stopPrank();
 
         assertApproxEqAbs(assetsOutAlice, USDCAmount, 10); 
@@ -621,7 +622,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 USDCAmount = 10e6; 
         deal(address(USDC), address(this), 1_000e6);
         USDC.approve(address(boringVault), 1_000e6);
-        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0);
+        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0, refferer);
         assertEq(USDCAmount, shares0); 
 
         //vest some yield
@@ -632,7 +633,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(USDC), alice, USDCAmount);
         vm.startPrank(alice);
         USDC.approve(address(boringVault), USDCAmount);
-        uint256 sharesAlice = teller.deposit(USDC, USDCAmount, 0);
+        uint256 sharesAlice = teller.deposit(USDC, USDCAmount, 0, refferer);
         vm.stopPrank();
 
         //skip time
@@ -645,7 +646,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(USDC), bill, USDCAmount);
         vm.startPrank(bill);
         USDC.approve(address(boringVault), USDCAmount);
-        uint256 sharesBill = teller.deposit(USDC, USDCAmount, 0);
+        uint256 sharesBill = teller.deposit(USDC, USDCAmount, 0, refferer);
         vm.stopPrank();
 
         assertLt(assetsOutAlice, USDCAmount); 
@@ -659,7 +660,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 USDCAmount = 10e6; 
         deal(address(USDC), address(this), 1_000e6);
         USDC.approve(address(boringVault), 1_000e6);
-        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0);
+        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0, refferer);
         assertEq(USDCAmount, shares0); 
 
         //vest some yield
@@ -669,7 +670,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(USDC), alice, USDCAmount);
         vm.startPrank(alice);
         USDC.approve(address(boringVault), USDCAmount);
-        uint256 sharesAlice = teller.deposit(USDC, USDCAmount, 0);
+        uint256 sharesAlice = teller.deposit(USDC, USDCAmount, 0, refferer);
         vm.stopPrank();
 
         //alice withdraws
@@ -686,7 +687,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 USDCAmount = 10e6; 
         deal(address(USDC), address(this), 1_000e6);
         USDC.approve(address(boringVault), 1_000e6);
-        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0);
+        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0, refferer);
         assertEq(USDCAmount, shares0); 
 
         //vest some yield
@@ -700,7 +701,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 USDCAmount = 10e6; 
         deal(address(USDC), address(this), 1_000e6);
         USDC.approve(address(boringVault), 1_000e6);
-        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0);
+        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0, refferer);
         assertEq(USDCAmount, shares0); 
 
         //vest some yield
@@ -714,7 +715,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 USDCAmount = 10e6; 
         deal(address(USDC), address(this), 1_000e6);
         USDC.approve(address(boringVault), 1_000e6);
-        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0);
+        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0, refferer);
         assertEq(USDCAmount, shares0); 
 
         //vest some yield
@@ -732,13 +733,13 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
         deal(address(USDC), address(this), USDCAmount);
         USDC.approve(address(boringVault), type(uint256).max);
-        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0);
+        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0, refferer);
         assertEq(shares0, USDCAmount); 
 
         //==== BEGIN DEPOSIT 2 ====
 
         deal(address(USDC), address(this), USDCAmount2);
-        uint256 shares1 = teller.deposit(USDC, USDCAmount2, 0);
+        uint256 shares1 = teller.deposit(USDC, USDCAmount2, 0, refferer);
         assertEq(shares1, USDCAmount2); 
 
         uint256 totalAssetsAfter = accountant.totalAssets();         
@@ -755,7 +756,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         // === FIRST DEPOSIT ===
         deal(address(WETH), address(this), WETHAmount);
         WETH.approve(address(boringVault), type(uint256).max);
-        uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
+        uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, refferer);
         
         // First deposit should be 1:1 at initial rate
         assertEq(shares0, WETHAmount, "First deposit should be 1:1");
@@ -787,7 +788,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         
         // === EXECUTE SECOND DEPOSIT ===
         deal(address(WETH), address(this), WETHAmount2);
-        uint256 shares1 = teller.deposit(WETH, WETHAmount2, 0);
+        uint256 shares1 = teller.deposit(WETH, WETHAmount2, 0, refferer);
         
         //check total assets after
         uint256 totalAssetsAfter = accountant.totalAssets();
@@ -808,7 +809,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         // === FIRST DEPOSIT ===
         deal(address(WETH), address(this), WETHAmount);
         WETH.approve(address(boringVault), type(uint256).max);
-        uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
+        uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, refferer);
         assertEq(shares0, WETHAmount, "First deposit should be 1:1");
         
         // === ADD YIELD ===
@@ -819,7 +820,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         // === SECOND DEPOSIT ===
         uint256 expectedVestedYield = yieldVestAmount / 2;
         deal(address(WETH), address(this), WETHAmount2);
-        uint256 shares1 = teller.deposit(WETH, WETHAmount2, 0);
+        uint256 shares1 = teller.deposit(WETH, WETHAmount2, 0, refferer);
         
         // === CHECK WITHDRAW AMOUNTS ===
         
