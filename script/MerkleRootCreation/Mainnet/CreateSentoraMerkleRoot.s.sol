@@ -20,8 +20,7 @@ contract CreateSentoraMerkleRootScript is Script, MerkleTreeHelper {
     address public boringVault = 0x13Cc1b39cb259BA10cd174EAe42012e698ed7c51;
     address public managerAddress = 0xdd5C7C5206558e4eA66a58592fEaE13424ED6F07;
     address public accountantAddress = 0x42135D908efa4E6aFd7E9B73D5A1bA55955F93fA;
-    address public rawDataDecoderAndSanitizer = 0x9461E6801672089cb4220F27bE46B15BF6a47Dfb;
-    address public itbDecoderAndSanitizer = 0xEEb53299Cb894968109dfa420D69f0C97c835211;
+    address public rawDataDecoderAndSanitizer = 0xBf6199F596D7296875Faa175Ed02Dc3940C1682E;
 
     function setUp() external {}
 
@@ -94,7 +93,7 @@ contract CreateSentoraMerkleRootScript is Script, MerkleTreeHelper {
              "acceptOwnership()",
              new address[](0),
              string.concat("Accept ownership of the ", itbContractName, " contract"),
-             itbDecoderAndSanitizer
+             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
          );
  
          // removeExecutor
@@ -105,7 +104,7 @@ contract CreateSentoraMerkleRootScript is Script, MerkleTreeHelper {
              "removeExecutor(address)",
              new address[](0),
              string.concat("Remove executor from the ", itbContractName, " contract"),
-             itbDecoderAndSanitizer
+             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
          );
  
          for (uint256 i; i < tokensUsed.length; ++i) {
@@ -117,7 +116,7 @@ contract CreateSentoraMerkleRootScript is Script, MerkleTreeHelper {
                  "transfer(address,uint256)",
                  new address[](1),
                  string.concat("Transfer ", tokensUsed[i].symbol(), " to the ", itbContractName, " contract"),
-                 itbDecoderAndSanitizer
+                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
              );
              leafs[leafIndex].argumentAddresses[0] = itbPositionManager;
              // Withdraw
@@ -128,7 +127,7 @@ contract CreateSentoraMerkleRootScript is Script, MerkleTreeHelper {
                  "withdraw(address,uint256)",
                  new address[](0),
                  string.concat("Withdraw ", tokensUsed[i].symbol(), " from the ", itbContractName, " contract"),
-                 itbDecoderAndSanitizer
+                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
              );
              // WithdrawAll
              leafIndex++;
@@ -138,7 +137,7 @@ contract CreateSentoraMerkleRootScript is Script, MerkleTreeHelper {
                  "withdrawAll(address)",
                  new address[](0),
                  string.concat("Withdraw all ", tokensUsed[i].symbol(), " from the ", itbContractName, " contract"),
-                 itbDecoderAndSanitizer
+                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
              );
          }
      }
