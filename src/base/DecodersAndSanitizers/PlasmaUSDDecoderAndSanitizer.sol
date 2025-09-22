@@ -11,11 +11,13 @@ import {SkyMoneyDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protoc
 import {NativeWrapperDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol";
 import {AaveV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AaveV3DecoderAndSanitizer.sol";
+import {OFTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OFTDecoderAndSanitizer.sol";
 
 contract PlasmaUSDDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
     ERC4626DecoderAndSanitizer,
     NativeWrapperDecoderAndSanitizer,
     SkyMoneyDecoderAndSanitizer,
-    AaveV3DecoderAndSanitizer
+    AaveV3DecoderAndSanitizer,
+    OFTDecoderAndSanitizer
 {}
