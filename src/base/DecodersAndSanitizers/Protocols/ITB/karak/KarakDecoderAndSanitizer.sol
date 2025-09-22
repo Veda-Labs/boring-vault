@@ -4,7 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity ^0.8.0;
 
-contract KarakDecoderAndSanitizer {
+contract ITBKarakDecoderAndSanitizer {
     function updatePositionConfig(address _underlying, address _vault)
         external
         pure

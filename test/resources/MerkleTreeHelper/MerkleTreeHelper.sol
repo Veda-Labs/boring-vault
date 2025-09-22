@@ -8116,8 +8116,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     function _addMerklLeafs(
         ManageLeaf[] memory leafs,
         address merklDistributor,
-        address operator,
-        ERC20[] memory tokensToClaim
+        address operator
     ) internal {
         unchecked {
             leafIndex++;
@@ -8132,21 +8131,19 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
         leafs[leafIndex].argumentAddresses[1] = operator;
-        for (uint256 i; i < tokensToClaim.length; ++i) {
-            unchecked {
-                leafIndex++;
-            }
-            leafs[leafIndex] = ManageLeaf(
-                merklDistributor,
-                false,
-                "claim(address[],address[],uint256[],bytes32[][])",
-                new address[](2),
-                string.concat("Claim merkl ", tokensToClaim[i].symbol(), " rewards"),
-                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-            );
-            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
-            leafs[leafIndex].argumentAddresses[1] = address(tokensToClaim[i]);
+
+        unchecked {
+            leafIndex++;
         }
+        leafs[leafIndex] = ManageLeaf(
+            merklDistributor,
+            false,
+            "claim(address[],address[],uint256[],bytes32[][])",
+            new address[](1),
+            string.concat("Claim merkl rewards"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
     }
 
     // ========================================= VELODROME =========================================

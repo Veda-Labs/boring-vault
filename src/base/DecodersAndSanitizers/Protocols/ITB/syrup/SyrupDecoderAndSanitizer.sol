@@ -4,7 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity ^0.8.0;
 
-contract SyrupDecoderAndSanitizer {
+contract ITBSyrupDecoderAndSanitizer {
     function updatePositionConfig(address _syrup_router, bytes32) external pure returns (bytes memory addressesFound) {
         addressesFound = abi.encodePacked(_syrup_router);
     }
