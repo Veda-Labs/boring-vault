@@ -2963,7 +2963,7 @@ contract ChainValues {
 
 
         // Fluid Dex
-        values[plasma]["weETH_ETHDex_wETH"] = 0xb4a15526d427f4d20b0dAdaF3baB4177C85A699A.toBytes32();
+        values[plasma]["weETH_ETHDex_wETH"] = 0x0C8C77B7FF4c2aF7F6CEBbe67350A490E3DD6cB3.toBytes32();
     }
 
     
