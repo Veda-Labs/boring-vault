@@ -83,6 +83,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         // Setup roles authority.
         rolesAuthority.setRoleCapability(MINTER_ROLE, address(boringVault), BoringVault.enter.selector, true);
         rolesAuthority.setRoleCapability(BURNER_ROLE, address(boringVault), BoringVault.exit.selector, true);
+        rolesAuthority.setRoleCapability(MINTER_ROLE, address(accountant), AccountantWithYieldStreaming.setFirstDepositTimestamp.selector, true);
         rolesAuthority.setRoleCapability(
             ADMIN_ROLE, address(accountant), AccountantWithRateProviders.pause.selector, true
         );
@@ -267,6 +268,26 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 totalAssetsInBase = accountant.totalAssets();
         assertApproxEqAbs(totalAssetsInBase, totalAssetsInBaseMid + shares1.mulDivDown(lastSharePrice, 1e18), 1e6); 
     }
+
+    function testDepositsUpdateFirstDepositTimestamp() external {
+        uint256 WEETHAmount = 10e18;
+        deal(address(WEETH), address(this), 1_000e18);
+        WEETH.approve(address(boringVault), 1_000e18);
+
+        //before deposit, last share price is updated
+        (, , , uint64 startVestingTimeLast, ) = accountant.vestingState(); 
+        assertEq(startVestingTimeLast, block.timestamp);  
+            
+        skip(1 days); 
+
+        deal(address(WEETH), address(this), 1_000e18);
+        WEETH.approve(address(boringVault), 1_000e18);
+        teller.deposit(WEETH, WEETHAmount, 0);
+       
+        (, , , uint64 startVestingTimeNow, ) = accountant.vestingState(); 
+        assertEq(startVestingTimeLast + 1 days, startVestingTimeNow);  
+    }
+
 
     function testWithdrawNoYieldStream() external {
         uint256 WETHAmount = 10e18; 
