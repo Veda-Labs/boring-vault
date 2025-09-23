@@ -54,7 +54,7 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
     GenericRateProviderWithDecimalScaling internal sUSDeRateProvider;
 
     address internal v3Pool;
-    address public refferer = vm.addr(1377);
+    address public referrer = vm.addr(1377);
 
     function setUp() public {
         setSourceChainName("mainnet");
@@ -195,10 +195,10 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         USDC.safeApprove(address(boringVault), amount);
         uint96 currentNonce = teller.depositNonce();
 
-        teller.deposit(USDT, amount, 0, refferer);
+        teller.deposit(USDT, amount, 0, referrer);
         assertEq(teller.depositNonce(), currentNonce + 1, "Deposit nonce should have increased by 1");
 
-        teller.deposit(USDC, amount, 0, refferer);
+        teller.deposit(USDC, amount, 0, referrer);
         assertEq(teller.depositNonce(), currentNonce + 2, "Deposit nonce should have increased by 2");
         assertEq(teller.depositNonce(), 2, "Deposit nonce should be 2");
 
@@ -234,10 +234,10 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         USDC.safeApprove(address(boringVault), amount);
         uint96 currentNonce = teller.depositNonce();
 
-        teller.deposit(USDT, amount, 0, refferer);
+        teller.deposit(USDT, amount, 0, referrer);
         assertEq(teller.depositNonce(), currentNonce + 1, "Deposit nonce should have increased by 1");
 
-        teller.deposit(USDC, amount, 0, refferer);
+        teller.deposit(USDC, amount, 0, referrer);
         assertEq(teller.depositNonce(), currentNonce + 2, "Deposit nonce should have increased by 2");
         assertEq(teller.depositNonce(), 2, "Deposit nonce should be 2");
 
@@ -273,10 +273,10 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         USDC.safeApprove(address(boringVault), amount);
         uint96 currentNonce = teller.depositNonce();
 
-        teller.deposit(USDT, amount, 0, refferer);
+        teller.deposit(USDT, amount, 0, referrer);
         assertEq(teller.depositNonce(), currentNonce + 1, "Deposit nonce should have increased by 1");
 
-        teller.deposit(USDC, amount, 0, refferer);
+        teller.deposit(USDC, amount, 0, referrer);
         assertEq(teller.depositNonce(), currentNonce + 2, "Deposit nonce should have increased by 2");
         assertEq(teller.depositNonce(), 2, "Deposit nonce should be 2");
 
@@ -382,7 +382,7 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         USDC.safeApprove(address(boringVault), amount);
 
         teller.bulkDeposit(USDT, amount / 10, 0, address(this));
-        teller.deposit(USDC, amount / 10, 0, refferer);
+        teller.deposit(USDC, amount / 10, 0, referrer);
         assertApproxEqAbs(boringVault.balanceOf(address(this)), amount / 5, 4, "Should have received expected shares");
         uint256 onePercentYield = amount / 5 / 100; // add 100 to avoid rounding errors
         deal(address(USDC), address(boringVault), onePercentYield + 1000); // 1% of the current total assets
@@ -434,7 +434,7 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
 
         sUSDe.safeApprove(address(boringVault), amount);
 
-        teller.deposit(sUSDe, amount / 2, 0, refferer);
+        teller.deposit(sUSDe, amount / 2, 0, referrer);
         teller.bulkDeposit(sUSDe, amount / 2, 0, address(this));
 
         // 1e6 /1e18 adjusts token decimals, getRate / 1e18 adjusts for rate scaling
@@ -468,7 +468,7 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
 
         USDT.safeApprove(address(boringVault), amount);
 
-        teller.deposit(USDT, amount, 0, refferer);
+        teller.deposit(USDT, amount, 0, referrer);
 
         // give the vault an additional 1% yield
         // not in the buffer though
@@ -492,7 +492,7 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
 
         teller.setShareLockPeriod(10);
         USDT.safeApprove(address(boringVault), amount);
-        teller.deposit(USDT, amount, 0, refferer);
+        teller.deposit(USDT, amount, 0, referrer);
 
         // should revert because shares are locked
         vm.expectRevert(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__SharesAreLocked.selector);
@@ -516,7 +516,7 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         teller.setWithdrawBufferHelper(USDT, IBufferHelper(address(0)));
         teller.setDepositBufferHelper(USDT, IBufferHelper(address(0)));
         
-        teller.deposit(USDT, amount, 0, refferer);
+        teller.deposit(USDT, amount, 0, referrer);
 
         assertEq(boringVault.balanceOf(address(this)), amount, "Shares should be same as deposit amount");
         assertEq(USDT.balanceOf(address(boringVault)), amount, "USDT should all be in vault");
@@ -563,7 +563,7 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         teller.setWithdrawBufferHelper(USDC, IBufferHelper(newBufferHelper));
         teller.setDepositBufferHelper(USDC, IBufferHelper(newBufferHelper));
 
-        teller.deposit(USDT, amount, 0, refferer);
+        teller.deposit(USDT, amount, 0, referrer);
 
         assertEq(boringVault.balanceOf(address(this)), amount, "Shares should be same as deposit amount");
         assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), amount, 4, "USDT should all be in aave");
@@ -574,7 +574,7 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         assertApproxEqAbs(boringVault.balanceOf(address(this)), amount / 2, 4, "Remaining shares should be half of deposit amount");
     
         uint256 currentShares = boringVault.balanceOf(address(this));
-        teller.deposit(USDC, amount, 0, refferer);
+        teller.deposit(USDC, amount, 0, referrer);
         assertEq(boringVault.balanceOf(address(this)) - currentShares, amount, "Change in shares should be same as deposit amount");
         assertApproxEqAbs(aUSDC.balanceOf(address(boringVault)), amount, 4, "USDC should all be in aave");
 

@@ -54,7 +54,7 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
     uint32 public constant DESTINATION_ID = 2;
 
     address public solver = vm.addr(54);
-    address public refferer = vm.addr(1337);
+    address public referrer = vm.addr(1337);
 
     function setUp() external {
         setSourceChainName("mainnet");
@@ -147,7 +147,7 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
         vm.startPrank(user);
         WETH.approve(address(boringVault), depositAmount);
         sourceTeller.depositAndBridge{value: fee}(
-            WETH, depositAmount, 0, user, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20, fee, refferer
+            WETH, depositAmount, 0, user, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20, fee, referrer
         );
         vm.stopPrank();
     }
@@ -205,7 +205,7 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
             bridgeWildCard: abi.encode(layerZeroArbitrumEndpointId),
             feeToken: NATIVE_ERC20,
             maxFee: fee,
-            referralAddress: refferer
+            referralAddress: referrer
         });
         sourceTeller.depositAndBridgeWithPermit{value: fee}(params);   
         vm.stopPrank();
@@ -228,7 +228,7 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
             )
         );
         sourceTeller.depositAndBridge(
-            WETH, depositAmount, 0, user, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20, 0, refferer
+            WETH, depositAmount, 0, user, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20, 0, referrer
         );
         vm.stopPrank();
 
@@ -242,7 +242,7 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
             )
         );
         sourceTeller.depositAndBridge(
-            NATIVE_ERC20, depositAmount, 0, user, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20, 0, refferer
+            NATIVE_ERC20, depositAmount, 0, user, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20, 0, referrer
         );
         vm.stopPrank();
     }
