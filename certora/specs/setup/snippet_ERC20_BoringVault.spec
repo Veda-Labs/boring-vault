@@ -2,6 +2,7 @@ using BoringVault as BoringVault;
 
 methods {
     function BoringVault.totalSupply() external returns uint256 envfree;
+    function BoringVault.balanceOf(address) external returns uint256 envfree;
 }
 
 ghost mapping(address => uint256) ERC20_balance_BoringVault;
