@@ -48,10 +48,10 @@ contract TellerVersionsTest is Test, MerkleTreeHelper {
     }
 
     function testTellerVersions() view public {
-        assertEq(tellerWithBuffer.version(), "Buffer V0.1 Base V0.1");
-        assertEq(tellerWithRemediation.version(), "Remediation V0.1 Base V0.1");
-        assertEq(tellerWithYieldStreaming.version(), "Yield Streaming V0.1 Buffer V0.1 Base V0.1");
-        assertEq(layerZeroTeller.version(), "LayerZero V0.1 Cross Chain V0.1 Base V0.1");
-        assertEq(layerZeroTellerWithRateLimiting.version(), "LayerZero Rate Limiting V0.1 Cross Chain V0.1 Base V0.1");
+        assertEq(tellerWithBuffer.version(), "Buffer V0.1, Base V0.1");
+        assertEq(tellerWithRemediation.version(), "Remediation V0.1, Base V0.1");
+        assertEq(tellerWithYieldStreaming.version(), "Yield Streaming V0.1, Buffer V0.1, Base V0.1");
+        assertEq(layerZeroTeller.version(), "LayerZero V0.1, Cross Chain V0.1, Base V0.1");
+        assertEq(layerZeroTellerWithRateLimiting.version(), "LayerZero Rate Limiting V0.1, Cross Chain V0.1, Base V0.1");
     }
 }

@@ -142,6 +142,6 @@ contract TellerWithBuffer is TellerWithMultiAssetSupport {
      * @notice Returns the version of the contract.
      */
     function version() public pure virtual override returns (string memory) {
-        return string(abi.encodePacked("Buffer V0.1 ", super.version()));
+        return string(abi.encodePacked("Buffer V0.1, ", super.version()));
     }
 }
