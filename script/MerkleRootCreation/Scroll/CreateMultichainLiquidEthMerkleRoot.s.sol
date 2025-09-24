@@ -52,7 +52,14 @@ contract CreateLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         // ========================== Scroll Native Bridge ==========================
         ERC20[] memory tokens = new ERC20[](1); 
         tokens[0] = getERC20(sourceChain, "WETH"); 
-        _addScrollNativeBridgeLeafs(leafs, "mainnet", tokens);  
+        address[] memory scrollGateways = new address[](0); // no gateways needed from Scroll
+        _addScrollNativeBridgeLeafs(leafs, "mainnet", tokens, scrollGateways);  
+
+        // ========================== Fee Claiming ==========================
+        ERC20[] memory feeAssets = new ERC20[](2);
+        feeAssets[0] = getERC20(sourceChain, "WETH");
+        feeAssets[1] = getERC20(sourceChain, "WEETH");
+        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
         // ========================== Verify ==========================
 
