@@ -270,4 +270,11 @@ contract LayerZeroTeller is CrossChainTellerWithGenericBridge, OAppAuth {
 
         fee = address(feeToken) == NATIVE ? messageFee.nativeFee : messageFee.lzTokenFee;
     }
+
+    /**
+     * @notice Returns the version of the contract.
+     */
+    function version() public pure virtual override returns (string memory) {
+        return string(abi.encodePacked("LayerZero V0.1 ", super.version()));
+    }
 }
