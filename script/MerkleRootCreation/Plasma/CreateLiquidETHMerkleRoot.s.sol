@@ -69,15 +69,14 @@ contract CreateLiquidETHMerkleRoot is Script, MerkleTreeHelper {
         _addUniswapV3Leafs(leafs, token0, token1, true, true);
 
         // ========================== Fluid ==========================
-        // NEED INFO
-        // ERC20[] memory supplyTokens = new ERC20[](2);
-        // supplyTokens[0] = getERC20(sourceChain, "WEETH");
-        // supplyTokens[1] = getERC20(sourceChain, "WETH");
+        ERC20[] memory supplyTokens = new ERC20[](2);
+        supplyTokens[0] = getERC20(sourceChain, "WEETH");
+        supplyTokens[1] = getERC20(sourceChain, "WETH");
 
-        // ERC20[] memory borrowTokens = new ERC20[](2);
-        // borrowTokens[0] = getERC20(sourceChain, "WEETH");
-        // borrowTokens[1] = getERC20(sourceChain, "WETH");
-        // _addFluidDexLeafs(leafs, dex, dexType, supplyTokens, borrowTokens, false);
+        ERC20[] memory borrowTokens = new ERC20[](2);
+        borrowTokens[0] = getERC20(sourceChain, "WEETH");
+        borrowTokens[1] = getERC20(sourceChain, "WETH");
+        _addFluidDexLeafs(leafs, getAddress(sourceChain, "weETH_ETHDex_wETH"), 2000, supplyTokens, borrowTokens, false);
 
         // ========================== Native ==========================
         _addNativeLeafs(leafs, getAddress(sourceChain, "wXPL"));
@@ -107,7 +106,7 @@ contract CreateLiquidETHMerkleRoot is Script, MerkleTreeHelper {
     }
 
     function _addLeafsForDrone(ManageLeaf[] memory leafs) internal {
-        setAddress(true, mainnet, "boringVault", drone);
+        setAddress(true, plasma, "boringVault", drone);
         uint256 droneStartIndex = leafIndex + 1;
 
         // ========================== Aave V3 ==========================
@@ -130,17 +129,16 @@ contract CreateLiquidETHMerkleRoot is Script, MerkleTreeHelper {
         _addUniswapV3Leafs(leafs, token0, token1, true, true);
 
         // ========================== Fluid ==========================
-        // NEED INFO
-        // ERC20[] memory supplyTokens = new ERC20[](2);
-        // supplyTokens[0] = getERC20(sourceChain, "WEETH");
-        // supplyTokens[1] = getERC20(sourceChain, "WETH");
+        ERC20[] memory supplyTokens = new ERC20[](2);
+        supplyTokens[0] = getERC20(sourceChain, "WEETH");
+        supplyTokens[1] = getERC20(sourceChain, "WETH");
 
-        // ERC20[] memory borrowTokens = new ERC20[](2);
-        // borrowTokens[0] = getERC20(sourceChain, "WEETH");
-        // borrowTokens[1] = getERC20(sourceChain, "WETH");
-        // _addFluidDexLeafs(leafs, dex, dexType, supplyTokens, borrowTokens, false);
+        ERC20[] memory borrowTokens = new ERC20[](2);
+        borrowTokens[0] = getERC20(sourceChain, "WEETH");
+        borrowTokens[1] = getERC20(sourceChain, "WETH");
+        _addFluidDexLeafs(leafs, getAddress(sourceChain, "weETH_ETHDex_wETH"), 2000, supplyTokens, borrowTokens, false);
 
         _createDroneLeafs(leafs, drone, droneStartIndex, leafIndex + 1);
-        setAddress(true, mainnet, "boringVault", boringVault);
+        setAddress(true, plasma, "boringVault", boringVault);
     }
 }
