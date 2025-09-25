@@ -692,6 +692,48 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         depositAndTransfer(WETH, 1e18, user, true);
     }
 
+    function testMultipleDepositsWithShareLockPeriod() external {
+        teller.setShareLockPeriod(10000);
+        // can deposit multiple times in a row without share lock blocking
+        deal(address(WETH), address(this), 1e18);
+        WETH.safeApprove(address(boringVault), 1e18);
+        teller.deposit(WETH, 0.1e18, 0, referrer);
+        skip(100);
+        teller.deposit(WETH, 0.1e18, 0, referrer);
+    }
+
+    function testDepositRevertsWhenDenyFrom() external {
+        teller.denyFrom(address(this));
+        vm.expectRevert(
+            abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector, address(this), address(this), address(this))
+        );
+        teller.deposit(WETH, 1e18, 0, referrer);
+    }
+
+    function testDepositRevertsWhenDenyTo() external {
+        teller.denyTo(address(this));
+        vm.expectRevert(
+            abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector, address(this), address(this), address(this))
+        );
+        teller.deposit(WETH, 1e18, 0, referrer);
+    }
+
+    function testDepositRevertsWhenDenyOperator() external {
+        teller.denyOperator(address(this));
+        vm.expectRevert(
+            abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector, address(this), address(this), address(this))
+        );
+        teller.deposit(WETH, 1e18, 0, referrer);
+    }
+
+    function testDepositRevertsWhenDenyAll() external {
+        teller.denyAll(address(this));
+        vm.expectRevert(
+            abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector, address(this), address(this), address(this))
+        );
+        teller.deposit(WETH, 1e18, 0, referrer);
+    }
+
     function testReverts() external {
         // Test pause logic
         teller.pause();

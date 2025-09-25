@@ -376,13 +376,12 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      *         if this behavior is not desired then a share lock period of >=1 should be used.
      */
     function beforeTransfer(address from, address to, address operator) public view virtual {
-        if (
-            beforeTransferData[from].denyFrom || beforeTransferData[to].denyTo
-                || beforeTransferData[operator].denyOperator
-                || (permissionedTransfers && !beforeTransferData[operator].permissionedOperator)
-        ) {
+        _handleDenyList(from, to, operator);
+
+        if (permissionedTransfers && !beforeTransferData[operator].permissionedOperator) {
             revert TellerWithMultiAssetSupport__TransferDenied(from, to, operator);
         }
+
         if (beforeTransferData[from].shareUnlockTime > block.timestamp) {
             revert TellerWithMultiAssetSupport__SharesAreLocked();
         }
@@ -397,6 +396,15 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         }
         if (beforeTransferData[from].shareUnlockTime > block.timestamp) {
             revert TellerWithMultiAssetSupport__SharesAreLocked();
+        }
+    }
+
+    function _handleDenyList(address from, address to, address operator) internal view {
+        if (
+            beforeTransferData[from].denyFrom || beforeTransferData[to].denyTo
+                || beforeTransferData[operator].denyOperator
+        ) {
+            revert TellerWithMultiAssetSupport__TransferDenied(from, to, operator);
         }
     }
 
@@ -570,6 +578,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         address to,
         Asset memory asset
     ) internal virtual returns (uint256 shares) {
+        _handleDenyList(from, to, msg.sender);
         uint112 cap = depositCap;
         if (depositAmount == 0) revert TellerWithMultiAssetSupport__ZeroAssets();
         shares = depositAmount.mulDivDown(ONE_SHARE, accountant.getRateInQuoteSafe(depositAsset));
