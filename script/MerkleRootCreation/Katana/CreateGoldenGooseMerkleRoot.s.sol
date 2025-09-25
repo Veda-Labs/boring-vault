@@ -64,7 +64,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
           
         // ========================== Yearn ==========================
         _addYearnLeafs(leafs, ERC4626(getAddress(sourceChain, "yvbWETH")));
-        _addYearnLeafs(leafs, ERC4626(getAddress(sourceChain, "yvbWSTETH")));
+        _addYearnLeafs(leafs, ERC4626(getAddress(sourceChain, "yvWSTETH")));
 
         // ========================== Verify & Generate ==========================
 
