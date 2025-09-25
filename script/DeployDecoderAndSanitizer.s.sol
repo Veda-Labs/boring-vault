@@ -107,6 +107,7 @@ import {PlasmaUSDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Plasm
 import {GoldenGooseUnichainDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseUnichainDecoderAndSanitizer.sol";
 import {OptimismGoldenGooseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/OptimismGoldenGooseDecoderAndSanitizer.sol";
 import {GoldenGooseBaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseBaseDecoderAndSanitizer.sol";
+import {GoldenGooseLineaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseLineaDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -128,8 +129,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("mainnet");
-        setSourceChainName("mainnet"); 
+        vm.createSelectFork("linea");
+        setSourceChainName("linea"); 
 
     }
 
@@ -138,12 +139,20 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
    
-        // creationCode = type(GoldenGooseBaseDecoderAndSanitizer).creationCode;
-        // constructorArgs = abi.encode(
-        //     getAddress(sourceChain, "aerodromeNonFungiblePositionManager"),
-        //     getAddress(sourceChain, "odosRouterV2") 
-        // ); 
-        // deployer.deployContract("Golden Goose Decoder And Sanitizer V0.6", creationCode, constructorArgs, 0);
+        //creationCode = type(GoldenGooseDecoderAndSanitizer).creationCode;
+        //constructorArgs = abi.encode(
+        //    getAddress(sourceChain, "uniV4PositionManager"),
+        //    getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
+        //    getAddress(sourceChain, "odosRouterV2"),
+        //    getAddress(sourceChain, "dvStETHVault") 
+        //); 
+        //deployer.deployContract("Golden Goose Decoder And Sanitizer V0.7", creationCode, constructorArgs, 0);
+
+        creationCode = type(GoldenGooseLineaDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(
+            getAddress(sourceChain, "odosRouterV2")
+        ); 
+        deployer.deployContract("Golden Goose Decoder And Sanitizer V0.1", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }

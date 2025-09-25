@@ -43,6 +43,7 @@ import {ArbitrumNativeBridgeDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/ArbitrumNativeBridgeDecoderAndSanitizer.sol";
 import {AgglayerDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/AgglayerDecoderAndSanitizer.sol";
+import {LineaBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LineaBridgeDecoderAndSanitizer.sol";
 
 contract GoldenGooseDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
@@ -71,7 +72,8 @@ contract GoldenGooseDecoderAndSanitizer is
     EtherFiDecoderAndSanitizer,
     TreehouseDecoderAndSanitizer,
     ArbitrumNativeBridgeDecoderAndSanitizer,
-    AgglayerDecoderAndSanitizer
+    AgglayerDecoderAndSanitizer,
+    LineaBridgeDecoderAndSanitizer
 {
     constructor(
         address _uniswapV4PositionManager,
