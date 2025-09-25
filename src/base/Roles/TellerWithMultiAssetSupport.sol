@@ -402,9 +402,9 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     /**
      * @notice Internal function to check deny lists for transfers.
      * @dev Reverts if `from` is denied, `to` is denied, or `operator` is denied.
-     * @param from The address sending the shares.
-     * @param to The address receiving the shares.
-     * @param operator The address performing the transfer.
+     * @param from The sender address.
+     * @param to The receiver address.
+     * @param operator The address performing the operation.
      */
     function _handleDenyList(address from, address to, address operator) internal view {
         if (
