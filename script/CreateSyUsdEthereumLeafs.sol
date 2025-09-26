@@ -33,7 +33,7 @@ contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
 
     // address public rawDataDecoderAndSanitizerEthereum = 0x2942Ca9E3676cd2CfAEfB113A0Aa67FEd49198f5;
     // address public rawDataDecoderAndSanitizerEthereum = 0x90992585BeF22047669fD3d166a78d992e4079cB;
-    address public rawDataDecoderAndSanitizerEthereum = 0x6b74d490B60d6994E4d4C6D174Ef39690294922e;
+    address public rawDataDecoderAndSanitizerEthereum = 0x16E9929986A16Db5d7D8CC058C17C62EB9b91431;
     address public rawDataDecoderAndSanitizerBase01 = 0x53F0b212d28320DD0aB504AbD6871941EFf5AD45;
     address public rawDataDecoderAndSanitizerArbitrum01 = 0x53F0b212d28320DD0aB504AbD6871941EFf5AD45;
     RolesAuthority internal rolesAuthority = RolesAuthority(0xf7F3ace7f6cA2Cb1E7ccbE3Bf2Da13D001D36fdF);
