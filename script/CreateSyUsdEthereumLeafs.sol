@@ -203,6 +203,14 @@ contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
         borrowAssets[1] = getERC20(sourceChain, "USDT");
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
 
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "USDT"),
+            getAddress(sourceChain, "USDTOFTAdapter"),
+            layerZeroPlasmaEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "SUSDE")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sUSDf")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletUSDCfrontier")));

@@ -54,6 +54,7 @@ contract ChainValues {
     uint32 public constant layerZeroBerachainEndpointId = 30362;
     uint32 public constant layerZeroSepoliaEndpointId = 40161;
     uint32 public constant layerZeroSonicBlazeEndpointId = 40349;
+    uint32 public constant layerZeroPlasmaEndpointId = 30383;
     uint32 public constant layerZeroMovementEndpointId = 30325;
     uint32 public constant hyperlaneMainnetEndpointId = 1;
     uint32 public constant hyperlaneEclipseEndpointId = 1408864445;
@@ -1216,6 +1217,7 @@ contract ChainValues {
         values[mainnet]["LBTCOFTAdapter"] = 0x6bc15D7930839Ec18A57F6f7dF72aE1B439D077f.toBytes32();
         values[mainnet]["WBTCOFTAdapter"] = 0x0555E30da8f98308EdB960aa94C0Db47230d2B9c.toBytes32();
         values[mainnet]["frxUSDOFTAdapter"] = 0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0.toBytes32();
+        values[mainnet]["USDTOFTAdapter"] = 0x6C96dE32CEa08842dcc4058c14d3aaAD7Fa41dee.toBytes32();
 
         // Stargate OFTs
         values[mainnet]["stargateUSDC"] = 0xc026395860Db2d07ee33e05fE50ed7bD583189C7.toBytes32();
