@@ -8,11 +8,8 @@ import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
-import {IPausable} from "src/interfaces/IPausable.sol";
-
 contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
@@ -90,7 +87,6 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     error AccountantWithYieldStreaming__NotEnoughTimePassed();
     error AccountantWithYieldStreaming__ZeroYieldUpdate();
     error AccountantWithYieldStreaming__MaxDeviationYieldExceeded();
-    error AccountantWithYieldStreaming__MaxDeviationLossExceeded();
 
     //============================== EVENTS ===============================
 
