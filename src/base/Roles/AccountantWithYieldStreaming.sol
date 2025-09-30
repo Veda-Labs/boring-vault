@@ -504,7 +504,6 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         );
 
         state.exchangeRate = uint96(vestingState.lastSharePrice);
-        state.totalSharesLastUpdate = uint128(currentTotalShares);
         state.lastUpdateTimestamp = currentTime;
     }
 }
