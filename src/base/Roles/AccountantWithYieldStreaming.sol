@@ -90,7 +90,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
 
     //============================== EVENTS ===============================
 
-    event YieldRecorded(uint256 amountAdded, uint256 newtotalAssetsInBase);
+    event YieldRecorded(uint256 amountAdded, uint64 endVestingTime);
     event LossRecorded(uint256 lossAmount);
     event ExchangeRateUpdated(uint256 newExchangeRate);
     event MaximumVestDurationUpdated(uint64 newMaximum);
