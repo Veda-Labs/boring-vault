@@ -780,5 +780,37 @@ contract DecoderCustomTypes {
         uint8[] almOrdering;
         bytes[] externalContext;
     }
-}
 
+    // ========================================= Ethena Minting ==================================
+    enum EthenaOrderType {
+        MINT,
+        REDEEM
+    }
+    
+    struct EthenaOrder {
+        string order_id;
+        EthenaOrderType order_type;
+        uint120 expiry;
+        uint128 nonce;
+        address benefactor;
+        address beneficiary;
+        address collateral_asset;
+        uint128 collateral_amount;
+        uint128 usde_amount;
+    }
+
+    struct EthenaRoute {
+        address[] addresses;
+        uint128[] ratios;
+    }
+    
+    enum SignatureType {
+        EIP712,
+        EIP1271
+    }
+
+    struct EthenaSignature {
+        SignatureType signature_type;
+        bytes signature_bytes;
+    }
+}

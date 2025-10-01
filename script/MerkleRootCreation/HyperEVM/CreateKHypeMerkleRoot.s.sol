@@ -19,7 +19,7 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x9BA2EDc44E0A4632EB4723E81d4142353e1bB160;
-    address public rawDataDecoderAndSanitizer = 0x62389729eAf94c87Ec1644D16C2F7de41f9ce176;
+    address public rawDataDecoderAndSanitizer = 0x0Ac1819A5EA6cAf05306b8955bC1a1680fA7B63A;
     address public managerAddress = 0x7f8CcAA760E0F621c7245d47DC46d40A400d3639;
     address public accountantAddress = 0x74392Fa56405081d5C7D93882856c245387Cece2;
 
@@ -46,12 +46,14 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
         // ========================== AaveV3 ==========================
-        ERC20[] memory supplyAssets = new ERC20[](2);
+        ERC20[] memory supplyAssets = new ERC20[](3);
         supplyAssets[0] = getERC20(sourceChain, "KHYPE");
         supplyAssets[1] = getERC20(sourceChain, "WHYPE");
-        ERC20[] memory borrowAssets = new ERC20[](2);
+        supplyAssets[2] = getERC20(sourceChain, "pendle_kHYPE_pt_11_13_25");
+        ERC20[] memory borrowAssets = new ERC20[](3);
         borrowAssets[0] = getERC20(sourceChain, "KHYPE");
         borrowAssets[1] = getERC20(sourceChain, "WHYPE");
+        borrowAssets[2] = getERC20(sourceChain, "pendle_kHYPE_pt_11_13_25");
         _addHyperLendLeafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== Morpho Blue ==========================
@@ -78,6 +80,18 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Native Wrapping ==========================
         _addNativeLeafs(leafs, getAddress(sourceChain, "WHYPE"));
+
+        // ========================== Valantis ==========================
+        _addValantisLSTLeafs(leafs, getAddress(sourceChain, "KHYPE_WHYPE_sovereign_pool"), false); 
+
+        // ========================== UniswapV3/Project X ==========================
+        address[] memory token0 = new address[](1);
+        token0[0] = getAddress(sourceChain, "KHYPE");
+
+        address[] memory token1 = new address[](1);
+        token1[0] = getAddress(sourceChain, "WHYPE");
+
+        _addUniswapV3Leafs(leafs, token0, token1, false);
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

@@ -21,7 +21,7 @@ contract CreateSteakhouseUSDMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0xd54F9ECdF8dF3035ADE1e3EbcDcEa0AB13591cCF;
     address public managerAddress = 0x4749914237b24717Bff1cBFa2Bf9d39D9BD8096b;
     address public accountantAddress = 0xF7b299aDD6A8E54b184d09A2807B4348b6be7079;
-    address public rawDataDecoderAndSanitizer =  0xc6288B06365019dF18B2076Bf9B5e191826fB57F;
+    address public rawDataDecoderAndSanitizer =  0xeFB48737A2E851F78C42901673d2614B8932670B;
 
     function setUp() external {}
 
@@ -69,11 +69,15 @@ contract CreateSteakhouseUSDMerkleRoot is Script, MerkleTreeHelper {
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "sUSDe_USDC_915")); 
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "sUSDe_USDT_915")); 
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "MF-ONE_USDC_915")); 
+        _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "USDe_PT09_25_25_USDtb_915")); 
+        _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "sUSDe_PT09_25_25_USDtb_915")); 
     
 
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "sUSDe_USDC_915")); 
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "sUSDe_USDT_915")); 
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "MF-ONE_USDC_915")); 
+        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "USDe_PT09_25_25_USDtb_915")); 
+        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "sUSDe_PT09_25_25_USDtb_915")); 
 
         // ========================== MetaMorpho ==========================
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "smokehouseUSDC"))); 
@@ -87,11 +91,20 @@ contract CreateSteakhouseUSDMerkleRoot is Script, MerkleTreeHelper {
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_sUSDe_market_07_31_25"), true); 
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_sUSDe_market_09_25_25"), true); 
 
+        // ========================== Ethena Withdraws ==========================
+        _addEthenaSUSDeWithdrawLeafs(leafs);
+
         // ========================== Ethena ==========================
         /**
          * deposit, withdraw
          */
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "SUSDE")));
+
+        // ========================== MF-One ==========================
+        /**
+         * depositInstant, depositRequest, redeemInstant, redeemRequest, redeemFiatRequest
+         */
+        _addMfOneLeafs(leafs);
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

@@ -25,17 +25,14 @@ import {BGTRewardVaultDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/BGTRewardVaultDecoderAndSanitizer.sol";
 import {BoringChefDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BoringChefDecoderAndSanitizer.sol";
 import {BTCNMinterDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BTCNMinterDecoderAndSanitizer.sol";
-import {CamelotDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CamelotDecoderAndSanitizer.sol";
 import {CCIPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCIPDecoderAndSanitizer.sol";
 import {CompoundV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CompoundV3DecoderAndSanitizer.sol";
 import {ConvexDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ConvexDecoderAndSanitizer.sol";
-import {ConvexFXDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ConvexFXDecoderAndSanitizer.sol";
 import {CornStakingDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/CornStakingDecoderAndSanitizer.sol";
 import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
-import {DeriveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/DeriveWithdrawDecoderAndSanitizer.sol";
-import {DolomiteDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/DolomiteDecoderAndSanitizer.sol";
-import {DvStETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/DvStETHDecoderAndSanitizer.sol";
+import {DeriveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/DeriveDecoderAndSanitizer.sol";
+import {DeriveWithdrawDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/DeriveWithdrawDecoderAndSanitizer.sol";
 import {EigenLayerLSTStakingDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/EigenLayerLSTStakingDecoderAndSanitizer.sol";
 import {ElixirClaimingDecoderAndSanitizer} from
@@ -68,7 +65,7 @@ import {LidoStandardBridgeDecoderAndSanitizer} from
 import {LineaBridgeDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/LineaBridgeDecoderAndSanitizer.sol";
 import {LombardBTCMinterDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/LombardBTCMinterDecoderAndSanitizer.sol";
+    "src/base/DecodersAndSanitizers/Protocols/LombardBtcMinterDecoderAndSanitizer.sol";
 import {MantleDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MantleDecoderAndSanitizer.sol";
 import {MantleStandardBridgeDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/MantleStandardBridgeDecoderAndSanitizer.sol";
@@ -80,19 +77,15 @@ import {MorphoRewardsWrapperDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/MorphoRewardsWrapperDecoderAndSanitizer.sol";
 import {NativeWrapperDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol";
-import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol";
 import {OFTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OFTDecoderAndSanitizer.sol";
 import {OneInchDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OneInchDecoderAndSanitizer.sol";
 import {OogaBoogaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OogaBoogaDecoderAndSanitizer.sol";
-import {PancakeSwapV3DecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/PancakeSwapV3DecoderAndSanitizer.sol";
 import {PendleRouterDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/PendleRouterDecoderAndSanitizer.sol";
 import {Permit2DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/Permit2DecoderAndSanitizer.sol";
 import {PumpStakingDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/PumpStakingDecoderAndSanitizer.sol";
 import {ResolvDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ResolvDecoderAndSanitizer.sol";
-import {RoycoWeirollDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/RoycoDecoderAndSanitizer.sol";
 import {SatlayerStakingDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/SatlayerStakingDecoderAndSanitizer.sol";
 import {ScrollBridgeDecoderAndSanitizer} from
@@ -116,12 +109,7 @@ import {SyrupDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols
 import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
 import {TreehouseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TreehouseDecoderAndSanitizer.sol";
 import {UniswapV2DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV2DecoderAndSanitizer.sol";
-import {UniswapV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV3DecoderAndSanitizer.sol";
-import {UniswapV3SwapRouter02DecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/UniswapV3SwapRouter02DecoderAndSanitizer.sol";
-import {UniswapV4DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV4DecoderAndSanitizer.sol";
 import {UsualMoneyDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UsualMoneyDecoderAndSanitizer.sol";
-import {VelodromeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/VelodromeDecoderAndSanitizer.sol";
 import {WeETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/WeEthDecoderAndSanitizer.sol";
 import {WithdrawQueueDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/WithdrawQueueDecoderAndSanitizer.sol";
@@ -129,22 +117,37 @@ import {ZircuitSimpleStakingDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/ZircuitSimpleStakingDecoderAndSanitizer.sol";
 import {TermFinanceDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/TermFinanceDecoderAndSanitizer.sol";
-// import {ITBBasePositionDecoderAndSanitizer} from
-//     "src/base/DecodersAndSanitizers/Protocols/ITB/ITBBasePositionDecoderAndSanitizer.sol";
-// import {ITBAaveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/ITBAaveDecoderAndSanitizer.sol";
-// import {ITBCorkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/ITBCorkDecoderAndSanitizer.sol";
-// import {ITBCurveAndConvexDecoderAndSanitizer} from
-//     "src/base/DecodersAndSanitizers/Protocols/ITB/ITBCurveAndConvexDecoderAndSanitizer.sol";
-// import {ITBEigenLayerDecoderAndSanitizer} from
-//     "src/base/DecodersAndSanitizers/Protocols/ITB/ITBEigenLayerDecoderAndSanitizer.sol";
-// import {ITBGearboxDecoderAndSanitizer} from
-//     "src/base/DecodersAndSanitizers/Protocols/ITB/ITBGearboxDecoderAndSanitizer.sol";
-// import {ITBKarakDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/ITBKarakDecoderAndSanitizer.sol";
-// import {ITBReserveDecoderAndSanitizer} from
-//     "src/base/DecodersAndSanitizers/Protocols/ITB/ITBReserveDecoderAndSanitizer.sol";
-// import {ITBReserveWrapperDecoderAndSanitizer} from
-//     "src/base/DecodersAndSanitizers/Protocols/ITB/ITBReserveWrapperDecoderAndSanitizer.sol";
-// import {ITBSyrupDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/ITBSyrupDecoderAndSanitizer.sol";
+import {ITBBasePositionDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/ITB/ITBBasePositionDecoderAndSanitizer.sol";
+import {ITBAaveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/aave/AaveDecoderAndSanitizer.sol";
+import {ITBCorkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/cork/CorkDecoderAndSanitizer.sol";
+import {ITBCurveAndConvexNoConfigDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/ITB/curve_and_convex/CurveAndConvexNoConfigDecoderAndSanitizer.sol";
+import {ITBEigenLayerDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/ITB/eigen_layer/EigenLayerDecoderAndSanitizer.sol";
+import {ITBGearboxDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/ITB/gearbox/GearboxDecoderAndSanitizer.sol";
+import {ITBKarakDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/karak/KarakDecoderAndSanitizer.sol";
+import {ITBReserveDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/ITB/reserve/ReserveDecoderAndSanitizer.sol";
+import {ITBReserveERC20WrappedDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/ITB/reserve/ReserveERC20WrappedDecoderAndSanitizer.sol";
+import {ITBSyrupDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/syrup/SyrupDecoderAndSanitizer.sol";
+import {UltraYieldDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UltraYieldDecoderAndSanitizer.sol";
+import {CCTPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCTPDecoderAndSanitizer.sol";
+import {CompoundV2DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CompoundV2DecoderAndSanitizer.sol";
+import {AvalancheBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AvalancheBridgeDecoderAndSanitizer.sol";
+import {rFLRDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/rFLRDecoderAndSanitizer.sol";
+import {AgglayerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AgglayerDecoderAndSanitizer.sol";
+import {wSwellUnwrappingDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/wSwellUnwrappingDecoderAndSanitizer.sol";
+import {StakeStoneDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/StakeStoneDecoderAndSanitizer.sol";
+import {TacCrossChainLayerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TacCrossChainLayerDecoderAndSanitizer.sol";
+import {KinetiqDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/KinetiqDecoderAndSanitizer.sol";
+import {KHypeHyperEVMDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/KHypeHyperEVMDecoderAndSanitizer.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {SiloVaultDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SiloVaultDecoderAndSanitizer.sol";
+import {MorphoRewardsDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MorphoRewardsDecoderAndSanitizer.sol";
+import {VaultCraftDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/VaultCraftDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -173,445 +176,505 @@ contract DeployDecodersAndSanitizersWithNoConstructorArgsScript is
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        // creationCode = type(AaveV3DecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Aave V3 Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        creationCode = type(AaveV3DecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Aave V3 Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy AuraDecoderAndSanitizer
-        // creationCode = type(AuraDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Aura Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy AuraDecoderAndSanitizer
+        creationCode = type(AuraDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Aura Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
 
-        // // Deploy BalancerV2DecoderAndSanitizer
-        // creationCode = type(BalancerV2DecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Balancer V2 Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy BalancerV2DecoderAndSanitizer
+        creationCode = type(BalancerV2DecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Balancer V2 Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
 
-        // // Deploy ERC4626DecoderAndSanitizer
-        // creationCode = type(ERC4626DecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("ERC4626 Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy ERC4626DecoderAndSanitizer
+        creationCode = type(ERC4626DecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("ERC4626 Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy AmbientDecoderAndSanitizer
-        // creationCode = type(AmbientDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Ambient Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy AmbientDecoderAndSanitizer
+        creationCode = type(AmbientDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Ambient Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy ArbitrumNativeBridgeDecoderAndSanitizer
-        // creationCode = type(ArbitrumNativeBridgeDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Arbitrum Native Bridge Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy ArbitrumNativeBridgeDecoderAndSanitizer
+        creationCode = type(ArbitrumNativeBridgeDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Arbitrum Native Bridge Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy BalancerV3DecoderAndSanitizer
-        // creationCode = type(BalancerV3DecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Balancer V3 Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy BalancerV3DecoderAndSanitizer
+        creationCode = type(BalancerV3DecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Balancer V3 Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy BeraETHDecoderAndSanitizer
-        // creationCode = type(BeraETHDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Bera ETH Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy BeraETHDecoderAndSanitizer
+        creationCode = type(BeraETHDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Bera ETH Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy BeraborrowDecoderAndSanitizer
-        // creationCode = type(BeraborrowDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Beraborrow Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy BeraborrowDecoderAndSanitizer
+        creationCode = type(BeraborrowDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Beraborrow Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy BGTRewardVaultDecoderAndSanitizer
-        // creationCode = type(BGTRewardVaultDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("BGT Reward Vault Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy BGTRewardVaultDecoderAndSanitizer
+        creationCode = type(BGTRewardVaultDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("BGT Reward Vault Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy BoringChefDecoderAndSanitizer
-        // creationCode = type(BoringChefDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Boring Chef Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy BoringChefDecoderAndSanitizer
+        creationCode = type(BoringChefDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Boring Chef Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy BTCNMinterDecoderAndSanitizer
-        // creationCode = type(BTCNMinterDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("BTCN Minter Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy BTCNMinterDecoderAndSanitizer
+        creationCode = type(BTCNMinterDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("BTCN Minter Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy CCIPDecoderAndSanitizer
-        // creationCode = type(CCIPDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("CCIP Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy CCIPDecoderAndSanitizer
+        creationCode = type(CCIPDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("CCIP Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy CompoundV3DecoderAndSanitizer
-        // creationCode = type(CompoundV3DecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Compound V3 Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy CompoundV3DecoderAndSanitizer
+        creationCode = type(CompoundV3DecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Compound V3 Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy ConvexDecoderAndSanitizer
-        // creationCode = type(ConvexDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Convex Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy ConvexDecoderAndSanitizer
+        creationCode = type(ConvexDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Convex Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy ConvexFXDecoderAndSanitizer
-        // // TODO contstructor args
-        // // creationCode = type(ConvexFXDecoderAndSanitizer).creationCode;
-        // // constructorArgs = hex"";
-        // // deployer.deployContract("Convex FX Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy CornStakingDecoderAndSanitizer
+        creationCode = type(CornStakingDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Corn Staking Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy CornStakingDecoderAndSanitizer
-        // creationCode = type(CornStakingDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Corn Staking Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy CurveDecoderAndSanitizer
+        creationCode = type(CurveDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Curve Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy CurveDecoderAndSanitizer
-        // creationCode = type(CurveDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Curve Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy EigenLayerLSTStakingDecoderAndSanitizer
+        creationCode = type(EigenLayerLSTStakingDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Eigen Layer LST Staking Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy DeriveDecoderAndSanitizer
-        // // TODO constructor args
-        // // creationCode = type(DeriveDecoderAndSanitizer).creationCode;
-        // // constructorArgs = hex"";
-        // // deployer.deployContract("Derive Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy ElixirClaimingDecoderAndSanitizer
+        creationCode = type(ElixirClaimingDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Elixir Claiming Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy DolomiteDecoderAndSanitizer
-        // // TODO constructor args
-        // // creationCode = type(DolomiteDecoderAndSanitizer).creationCode;
-        // // constructorArgs = hex"";
-        // // deployer.deployContract("Dolomite Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy EthenaWithdrawDecoderAndSanitizer
+        creationCode = type(EthenaWithdrawDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Ethena Withdraw Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy DvStETHDecoderAndSanitizer
-        // // TODO constructor args
-        // // creationCode = type(DvStETHDecoderAndSanitizer).creationCode;
-        // // constructorArgs = hex"";
-        // // deployer.deployContract("Dv St ETH Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy EtherFiDecoderAndSanitizer
+        creationCode = type(EtherFiDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Ether Fi Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy EigenLayerLSTStakingDecoderAndSanitizer
-        // creationCode = type(EigenLayerLSTStakingDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Eigen Layer LST Staking Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy EulerEVKDecoderAndSanitizer
+        creationCode = type(EulerEVKDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Euler EVK Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy ElixirClaimingDecoderAndSanitizer
-        // creationCode = type(ElixirClaimingDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Elixir Claiming Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy FluidDexDecoderAndSanitizer
+        creationCode = type(FluidDexDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Fluid Dex Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy EthenaWithdrawDecoderAndSanitizer
-        // creationCode = type(EthenaWithdrawDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Ethena Withdraw Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy FluidFTokenDecoderAndSanitizer
+        creationCode = type(FluidFTokenDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Fluid F Token Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy EtherFiDecoderAndSanitizer
-        // creationCode = type(EtherFiDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Ether Fi Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy FluidRewardsClaimingDecoderAndSanitizer
+        creationCode = type(FluidRewardsClaimingDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Fluid Rewards Claiming Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy EulerEVKDecoderAndSanitizer
-        // creationCode = type(EulerEVKDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Euler EVK Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy FraxDecoderAndSanitizer
+        creationCode = type(FraxDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Frax Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy FluidDexDecoderAndSanitizer
-        // creationCode = type(FluidDexDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Fluid Dex Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy GearboxDecoderAndSanitizer
+        creationCode = type(GearboxDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Gearbox Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy FluidFTokenDecoderAndSanitizer
-        // creationCode = type(FluidFTokenDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Fluid F Token Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy GoldiVaultDecoderAndSanitizer
+        creationCode = type(GoldiVaultDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Goldi Vault Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy FluidRewardsClaimingDecoderAndSanitizer
-        // creationCode = type(FluidRewardsClaimingDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Fluid Rewards Claiming Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy HoneyDecoderAndSanitizer
+        creationCode = type(HoneyDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Honey Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy FraxDecoderAndSanitizer
-        // creationCode = type(FraxDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Frax Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy HyperlaneDecoderAndSanitizer
+        creationCode = type(HyperlaneDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Hyperlane Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
 
-        // // Deploy GearboxDecoderAndSanitizer
-        // creationCode = type(GearboxDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Gearbox Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy InfraredDecoderAndSanitizer
+        creationCode = type(InfraredDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Infrared Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy GoldiVaultDecoderAndSanitizer
-        // creationCode = type(GoldiVaultDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Goldi Vault Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy KarakDecoderAndSanitizer
+        creationCode = type(KarakDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Karak Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy HoneyDecoderAndSanitizer
-        // creationCode = type(HoneyDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Honey Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy KingClaimingDecoderAndSanitizer
+        creationCode = type(KingClaimingDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("King Claiming Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy HyperlaneDecoderAndSanitizer
-        // creationCode = type(HyperlaneDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Hyperlane Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
+        // Deploy KodiakIslandDecoderAndSanitizer
+        creationCode = type(KodiakIslandDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Kodiak Island Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy InfraredDecoderAndSanitizer
-        // creationCode = type(InfraredDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Infrared Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy LBTCBridgeDecoderAndSanitizer
+        creationCode = type(LBTCBridgeDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("LBTC Bridge Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy KarakDecoderAndSanitizer
-        // creationCode = type(KarakDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Karak Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy LevelDecoderAndSanitizer
+        creationCode = type(LevelDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Level Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy KingClaimingDecoderAndSanitizer
-        // creationCode = type(KingClaimingDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("King Claiming Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy LidoDecoderAndSanitizer
+        creationCode = type(LidoDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Lido Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy KodiakIslandDecoderAndSanitizer
-        // creationCode = type(KodiakIslandDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Kodiak Island Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy LidoStandardBridgeDecoderAndSanitizer
+        creationCode = type(LidoStandardBridgeDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Lido Standard Bridge Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy LBTCBridgeDecoderAndSanitizer
-        // creationCode = type(LBTCBridgeDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("LBTC Bridge Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy LineaBridgeDecoderAndSanitizer
+        creationCode = type(LineaBridgeDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Linea Bridge Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy LevelDecoderAndSanitizer
-        // creationCode = type(LevelDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Level Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy LombardBTCMinterDecoderAndSanitizer
+        creationCode = type(LombardBTCMinterDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Lombard Btc Minter Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy LidoDecoderAndSanitizer
-        // creationCode = type(LidoDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Lido Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy MantleDecoderAndSanitizer
+        creationCode = type(MantleDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Mantle Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy LidoStandardBridgeDecoderAndSanitizer
-        // creationCode = type(LidoStandardBridgeDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Lido Standard Bridge Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy MantleStandardBridgeDecoderAndSanitizer
+        creationCode = type(MantleStandardBridgeDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Mantle Standard Bridge Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy LineaBridgeDecoderAndSanitizer
-        // creationCode = type(LineaBridgeDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Linea Bridge Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy MerklDecoderAndSanitizer
+        creationCode = type(MerklDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Merkl Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy LombardBTCMinterDecoderAndSanitizer
-        // creationCode = type(LombardBTCMinterDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Lombard Btc Minter Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy MorphoBlueDecoderAndSanitizer
+        creationCode = type(MorphoBlueDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Morpho Blue Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy MantleDecoderAndSanitizer
-        // creationCode = type(MantleDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Mantle Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy MorphoRewardsMerkleClaimerDecoderAndSanitizer
+        creationCode = type(MorphoRewardsMerkleClaimerDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Morpho Rewards Merkle Claimer Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy MantleStandardBridgeDecoderAndSanitizer
-        // creationCode = type(MantleStandardBridgeDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Mantle Standard Bridge Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy MorphoRewardsWrapperDecoderAndSanitizer
+        creationCode = type(MorphoRewardsWrapperDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Morpho Rewards Wrapper Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy MerklDecoderAndSanitizer
-        // creationCode = type(MerklDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Merkl Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy MorphoRewardsDecoderAndSanitizer
+        creationCode = type(MorphoRewardsDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Morpho Rewards Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy MorphoBlueDecoderAndSanitizer
-        // creationCode = type(MorphoBlueDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Morpho Blue Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy NativeWrapperDecoderAndSanitizer
+        creationCode = type(NativeWrapperDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Native Wrapper Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy MorphoRewardsMerkleClaimerDecoderAndSanitizer
-        // creationCode = type(MorphoRewardsMerkleClaimerDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract(
-        //     "Morpho Rewards Merkle Claimer Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0
-        // );
+        // Deploy OFTDecoderAndSanitizer
+        creationCode = type(OFTDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("OFT Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy MorphoRewardsWrapperDecoderAndSanitizer
-        // creationCode = type(MorphoRewardsWrapperDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Morpho Rewards Wrapper Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        // // Deploy NativeWrapperDecoderAndSanitizer
-        // creationCode = type(NativeWrapperDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Native Wrapper Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        // // Deploy OdosDecoderAndSanitizer
-        // // creationCode = type(OdosDecoderAndSanitizer).creationCode;
-        // // constructorArgs = abi.encode(0xaC041Df48dF9791B0654f1Dbbf2CC8450C5f2e9D);
-        // // deployer.deployContract("Odos Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        // // Deploy OFTDecoderAndSanitizer
-        // creationCode = type(OFTDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("OFT Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        // // Deploy OneInchDecoderAndSanitizer
-        // creationCode = type(OneInchDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("One Inch Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy OneInchDecoderAndSanitizer
+        creationCode = type(OneInchDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("One Inch Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         // Deploy OogaBoogaDecoderAndSanitizer
-        // creationCode = type(OogaBoogaDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Ooga Booga Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        // Deploy PancakeSwapV3DecoderAndSanitizer
-        // TODO constructor args
-        // creationCode = type(PancakeSwapV3DecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Pancake Swap V3 Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        creationCode = type(OogaBoogaDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Ooga Booga Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         // Deploy PendleRouterDecoderAndSanitizer
-        // creationCode = type(PendleRouterDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Pendle Router Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        creationCode = type(PendleRouterDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Pendle Router Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy Permit2DecoderAndSanitizer
-        // creationCode = type(Permit2DecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Permit2 Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy Permit2DecoderAndSanitizer
+        creationCode = type(Permit2DecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Permit2 Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy PumpStakingDecoderAndSanitizer
-        // creationCode = type(PumpStakingDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Pump Staking Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy PumpStakingDecoderAndSanitizer
+        creationCode = type(PumpStakingDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Pump Staking Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy ResolvDecoderAndSanitizer
-        // creationCode = type(ResolvDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Resolv Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        // Deploy RoycoWeirollDecoderAndSanitizer
-        // TODO constructor args
-        // creationCode = type(RoycoWeirollDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Royco Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // Deploy ResolvDecoderAndSanitizer
+        creationCode = type(ResolvDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Resolv Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         // Deploy SatlayerStakingDecoderAndSanitizer
-        // creationCode = type(SatlayerStakingDecoderAndSanitizer).creationCode;
+        creationCode = type(SatlayerStakingDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Satlayer Staking Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        // Deploy ScrollBridgeDecoderAndSanitizer
+        creationCode = type(ScrollBridgeDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Scroll Bridge Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        // Deploy SiloDecoderAndSanitizer
+        creationCode = type(SiloDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Silo Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        // Deploy SiloVaultDecoderAndSanitizer
+        creationCode = type(SiloVaultDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Silo Vault Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        // Deploy SkyMoneyDecoderAndSanitizer
+        creationCode = type(SkyMoneyDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Sky Money Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        // Deploy SonicDepositDecoderAndSanitizer
+        creationCode = type(SonicDepositDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Sonic Deposit Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        // Deploy SonicGatewayDecoderAndSanitizer
+        creationCode = type(SonicGatewayDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Sonic Gateway Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        // Deploy SpectraDecoderAndSanitizer
+        creationCode = type(SpectraDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Spectra Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        // Deploy StandardBridgeDecoderAndSanitizer
+        creationCode = type(StandardBridgeDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Standard Bridge Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        // Deploy SwellDecoderAndSanitizer
+        creationCode = type(SwellDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Swell Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        // Deploy SwellSimpleStakingDecoderAndSanitizer
+        creationCode = type(SwellSimpleStakingDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Swell Simple Staking Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        // Deploy SymbioticDecoderAndSanitizer
+        creationCode = type(SymbioticDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Symbiotic Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        // Deploy SymbioticVaultDecoderAndSanitizer
+        creationCode = type(SymbioticVaultDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Symbiotic Vault Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        // Deploy SyrupDecoderAndSanitizer
+        creationCode = type(SyrupDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Syrup Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        // Deploy TellerDecoderAndSanitizer
+        creationCode = type(TellerDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Teller Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        // Deploy TreehouseDecoderAndSanitizer
+        creationCode = type(TreehouseDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Treehouse Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        // Deploy UniswapV2DecoderAndSanitizer
+        creationCode = type(UniswapV2DecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Uniswap V2 Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        // Deploy UsualMoneyDecoderAndSanitizer
+        creationCode = type(UsualMoneyDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Usual Money Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        // Deploy WithdrawQueueDecoderAndSanitizer
+        creationCode = type(WithdrawQueueDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Withdraw Queue Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        // Deploy ZircuitSimpleStakingDecoderAndSanitizer
+        creationCode = type(ZircuitSimpleStakingDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Zircuit Simple Staking Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        // Deploy WeETHDecoderAndSanitizer
+        creationCode = type(WeETHDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("We Eth Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        // Deploy TermFinanceDecoderAndSanitizer
+        creationCode = type(TermFinanceDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Term Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        creationCode = type(UltraYieldDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Ultra Yield Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        creationCode = type(CCTPDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("CCTP Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        creationCode = type(CompoundV2DecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Compound V2 Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        creationCode = type(AvalancheBridgeDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Avalanche Bridge Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        creationCode = type(rFLRDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("rFLR Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        creationCode = type(DeriveDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Derive Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
+
+        creationCode = type(DeriveWithdrawDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Derive Withdraw Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        creationCode = type(AgglayerDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Agglayer Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        creationCode = type(wSwellUnwrappingDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("wSwell Unwrapping Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        creationCode = type(StakeStoneDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Stake Stone Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        creationCode = type(TacCrossChainLayerDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Tac Cross Chain Layer Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        creationCode = type(ITBBasePositionDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("ITB Base Position Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        creationCode = type(ITBAaveDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("ITB Aave Decoder and Sanitizer V0.0", creationCode,constructorArgs, 0);
+
+        creationCode = type(ITBCorkDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("ITB Cork Decoder and Sanitizer V0.0", creationCode,constructorArgs, 0);
+
+        creationCode = type(ITBCurveAndConvexNoConfigDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("ITB Curve and Convex Decoder and Sanitizer V0.0", creationCode,constructorArgs, 0);
+
+        creationCode = type(ITBEigenLayerDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("ITB Eigen Layer Decoder and Sanitizer V0.0", creationCode,constructorArgs, 0);
+
+        creationCode = type(ITBGearboxDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("ITB Gearbox Decoder and Sanitizer V0.0", creationCode,constructorArgs, 0);
+
+        creationCode = type(ITBKarakDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("ITB Karak Decoder and Sanitizer V0.0", creationCode,constructorArgs, 0);
+
+        creationCode = type(ITBReserveDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("ITB Reserve Decoder and Sanitizer V0.0", creationCode,constructorArgs, 0);
+
+        creationCode = type(ITBReserveERC20WrappedDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("ITB Reserve Wrapper Decoder and Sanitizer V0.0", creationCode,constructorArgs, 0);
+
+        creationCode = type(ITBSyrupDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("ITB Syrup Decoder and Sanitizer V0.0", creationCode,constructorArgs, 0);
+
+        creationCode = type(KinetiqDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Kinetiq Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        // creationCode = type(KHypeHyperEVMDecoderAndSanitizer).creationCode;
         // constructorArgs = hex"";
-        // deployer.deployContract("Satlayer Staking Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // deployContract("KHype HyperEVM Decoder And Sanitizer V0.3", creationCode, constructorArgs, 0);
 
-        // // Deploy ScrollBridgeDecoderAndSanitizer
-        // creationCode = type(ScrollBridgeDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Scroll Bridge Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        creationCode = type(BaseDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Base Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy SiloDecoderAndSanitizer
-        // creationCode = type(SiloDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Silo Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        // // Deploy SkyMoneyDecoderAndSanitizer
-        // creationCode = type(SkyMoneyDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Sky Money Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        // // Deploy SonicDepositDecoderAndSanitizer
-        // creationCode = type(SonicDepositDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Sonic Deposit Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        // // Deploy SonicGatewayDecoderAndSanitizer
-        // creationCode = type(SonicGatewayDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Sonic Gateway Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        // // Deploy SpectraDecoderAndSanitizer
-        // creationCode = type(SpectraDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Spectra Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        // // Deploy StandardBridgeDecoderAndSanitizer
-        // creationCode = type(StandardBridgeDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Standard Bridge Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        // // Deploy SwellDecoderAndSanitizer
-        // creationCode = type(SwellDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Swell Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        // // Deploy SwellSimpleStakingDecoderAndSanitizer
-        // creationCode = type(SwellSimpleStakingDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Swell Simple Staking Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        // // Deploy SymbioticDecoderAndSanitizer
-        // creationCode = type(SymbioticDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Symbiotic Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        // // Deploy SymbioticVaultDecoderAndSanitizer
-        // creationCode = type(SymbioticVaultDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Symbiotic Vault Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        // // Deploy SyrupDecoderAndSanitizer
-        // creationCode = type(SyrupDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Syrup Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        // // Deploy TellerDecoderAndSanitizer
-        // creationCode = type(TellerDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Teller Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        // // Deploy TreehouseDecoderAndSanitizer
-        // creationCode = type(TreehouseDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Treehouse Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        // // Deploy UniswapV2DecoderAndSanitizer
-        // creationCode = type(UniswapV2DecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Uniswap V2 Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        // Deploy UniswapV3DecoderAndSanitizer
-        creationCode = type(UniswapV3DecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(0xC36442b4a4522E871399CD717aBDD847Ab11FE88);
-        deployer.deployContract("Uniswap V3 Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        // // Deploy UniswapV3SwapRouter02DecoderAndSanitizer
-        // creationCode = type(UniswapV3SwapRouter02DecoderAndSanitizer).creationCode;
-        // constructorArgs = abi.encode(0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD);
-        // deployer.deployContract("Uniswap V3 Swap Router02 Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        // // Deploy UniswapV4DecoderAndSanitizer
-        // // TODO constructor args
-        // // creationCode = type(UniswapV4DecoderAndSanitizer).creationCode;
-        // // constructorArgs = hex"";
-        // // deployer.deployContract("Uniswap V4 Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        // // Deploy UsualMoneyDecoderAndSanitizer
-        // creationCode = type(UsualMoneyDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Usual Money Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        // // Deploy VelodromeDecoderAndSanitizer
-        // // TODO constructor args
-        // // creationCode = type(VelodromeDecoderAndSanitizer).creationCode;
-        // // constructorArgs = hex"";
-        // // deployer.deployContract("Velodrome Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        // // Deploy WithdrawQueueDecoderAndSanitizer
-        // creationCode = type(WithdrawQueueDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Withdraw Queue Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        // // Deploy ZircuitSimpleStakingDecoderAndSanitizer
-        // creationCode = type(ZircuitSimpleStakingDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Zircuit Simple Staking Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        // // Deploy WeETHDecoderAndSanitizer
-        // creationCode = type(WeETHDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("We Eth Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        // // Deploy TermFinanceDecoderAndSanitizer
-        // creationCode = type(TermFinanceDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployer.deployContract("Term Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        creationCode = type(VaultCraftDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        deployContract("Vault Craft Decoder and Sanitizer V0.2", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
+    }
+
+    function deployContract(string memory name, bytes memory creationCode, bytes memory constructorArgs, uint256 value) internal {
+        if (constructorArgs.length > 0) {
+            revert("pls use the other script for constructor args");
+        }
+
+        address _contract = deployer.getAddress(name);
+        if (_contract.code.length > 0) {
+            console.log(name, "already deployed at", _contract);
+            return;
+        }
+
+        address deployed = deployer.deployContract(name, creationCode, constructorArgs, value);
+        console.log(unicode"✅", name, "deployed to", deployed);
     }
 }

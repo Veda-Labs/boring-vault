@@ -56,6 +56,8 @@ contract MerklIntegrationTest is Test, MerkleTreeHelper {
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         setAddress(false, sourceChain, "manager", address(manager));
+        setAddress(false, sourceChain, "managerAddress", address(manager));
+        setAddress(false, sourceChain, "accountantAddress", address(manager));
 
         rolesAuthority = new RolesAuthority(address(this), Authority(address(0)));
         boringVault.setAuthority(rolesAuthority);
@@ -113,17 +115,19 @@ contract MerklIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testToggleOperatorClaiming() external {
-        ManageLeaf[] memory leafs = new ManageLeaf[](2);
         address operator = address(4444);
-        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), operator, new ERC20[](0));
+
+        ManageLeaf[] memory leafs = new ManageLeaf[](4);
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), operator);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+
+        _generateTestLeafs(leafs, manageTree);
 
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
         ManageLeaf[] memory manageLeafs = new ManageLeaf[](1);
-        manageLeafs[0] = leafs[1];
-
+        manageLeafs[0] = leafs[1]; //tokens are sorted, so this is actually leaf 1, token1 becomes token0 during sort
         bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 
         address[] memory targets = new address[](1);
@@ -150,11 +154,9 @@ contract MerklIntegrationTest is Test, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](4);
         {
             address operator = address(4444);
-            ERC20[] memory tokensToClaim = new ERC20[](1);
-            tokensToClaim[0] = getERC20(sourceChain, "UNI");
             // We set the boring vault address to be the user so the proper leaf is created.
             setAddress(true, sourceChain, "boringVault", user);
-            _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), operator, tokensToClaim);
+            _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), operator);
         }
 
         MerklDistributor distributor = MerklDistributor(getAddress(sourceChain, "merklDistributor"));
@@ -218,10 +220,8 @@ contract MerklIntegrationTest is Test, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](4);
         {
             address operator = address(4444);
-            ERC20[] memory tokensToClaim = new ERC20[](1);
-            tokensToClaim[0] = getERC20(sourceChain, "UNI");
             // We set the boring vault address to be the user so the proper leaf is created.
-            _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), operator, tokensToClaim);
+            _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), operator);
         }
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);

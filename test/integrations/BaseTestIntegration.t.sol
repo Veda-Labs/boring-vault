@@ -60,6 +60,7 @@ contract BaseTestIntegration is Test, MerkleTreeHelper {
         nameToRPC["avalanche"] = "AVALANCHE_RPC_URL"; 
         nameToRPC["hyperEVM"] = "HYPER_EVM_RPC_URL"; 
         nameToRPC["tac"] = "TAC_RPC_URL"; 
+        nameToRPC["katana"] = "KATANA_RPC_URL"; 
     }
     
     function _setupChain(string memory chain, uint256 blockNumber) internal {
@@ -68,8 +69,6 @@ contract BaseTestIntegration is Test, MerkleTreeHelper {
         // Setup forked environment.
         string memory rpcKey = nameToRPC[chain]; 
         _startFork(rpcKey, blockNumber);
-
-        console.log(chain); 
 
         boringVault = new BoringVault(address(this), "Boring Vault", "BV", 18);
 
