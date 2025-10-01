@@ -19,7 +19,7 @@ contract CreateEthenaRWAMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x6fDcB0654B4814c2eC1E7e9dbC4cEBf1a2038a84;
-    address public rawDataDecoderAndSanitizer = address(0);
+    address public rawDataDecoderAndSanitizer = 0xc2fEe7F0dBDF0F1f2eAcBC2d393e12FBf268B070;
     address public managerAddress = 0x7fDB2E3a51E5379D80137EDE02066cB3a3362961;
     address public accountantAddress = 0x98d37cFCC869F8aB6111Acd23B1d78F6DD62A915;
 
@@ -39,7 +39,7 @@ contract CreateEthenaRWAMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "accountantAddress", accountantAddress);
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
 
         _addEthenaMintingLeafs(leafs, 0x9BE81248787c5284D1180Cd84B5ad2473d7d92D8);
         // ========================== Verify ==========================
