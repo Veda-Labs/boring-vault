@@ -129,8 +129,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("linea");
-        setSourceChainName("linea"); 
+        vm.createSelectFork("sonicMainnet");
+        setSourceChainName("sonicMainnet"); 
 
     }
 
@@ -148,11 +148,12 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //); 
         //deployer.deployContract("Golden Goose Decoder And Sanitizer V0.7", creationCode, constructorArgs, 0);
 
-        creationCode = type(GoldenGooseLineaDecoderAndSanitizer).creationCode;
+        creationCode = type(StakedSonicDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(
+            getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
             getAddress(sourceChain, "odosRouterV2")
         ); 
-        deployer.deployContract("Golden Goose Decoder And Sanitizer V0.1", creationCode, constructorArgs, 0);
+        deployer.deployContract("Staked Sonic Decoder And Sanitizer V0.6", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }

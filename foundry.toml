@@ -3,7 +3,7 @@
 # This overrides the `auto_detect_solc` value
 solc_version = '0.8.21'
 auto_detect_solc = false 
-evm_version = 'london'
+evm_version = 'cancun'
 optimizer = true
 optimizer_runs = 200 
 fs_permissions = [{ access = "read-write", path = "./" }]
@@ -58,7 +58,7 @@ mainnet = { key = "${ETHERSCAN_KEY}", chain = 1, url = "https://api.etherscan.io
 #bsc = { key = "${BSCSCAN_KEY}" }
 #avalanche = { key = "${SNOWTRACE_KEY}" }
 #optimism = { key = "${OPTIMISMSCAN_KEY}" }
-base = { key = "${BASESCAN_KEY}", chain = 8453, url = " https://api.etherscan.io/v2/api?chainid=8453" }
+#base = { key = "${BASESCAN_KEY}", chain = 8453, url = " https://api.etherscan.io/v2/api?chainid=8453" }
 #scroll = { key = "${SCROLLSCAN_KEY}", chain = 534352, url = "https://api.etherscan.io/v2/api?chainid=534352"  }
 #sonicMainnet = { key = "${SONICSCAN_KEY}", chain = 146, url = "https://api.sonicscan.org/api" }
 #swell = { key = "${SWELLSCAN_KEY}", chain = 1923, url = "https://explorer.swellnetwork.io:443/api/" }
@@ -72,11 +72,11 @@ base = { key = "${BASESCAN_KEY}", chain = 8453, url = " https://api.etherscan.io
 #flare = {key = "${FLARESCAN_KEY}", chain = 14, url = "https://api.routescan.io/v2/network/mainnet/evm/14/etherscan" }
 #hyperEVM = { key = "${HYPER_EVM_KEY}", chain = 999, url = "https://api.etherscan.io/v2/api?chainid=999" }
 #plume = { key = "${PLUMESCAN_KEY}", chain = 98866, url = "https://explorer-plume-mainnet-1.t.conduit.xyz/api/"}
-katana = { key = "${KATANASCAN_KEY}", chain = 747474, url = "https://api.etherscan.io/v2/api?chainid=747474" }
+#katana = { key = "${KATANASCAN_KEY}", chain = 747474, url = "https://api.etherscan.io/v2/api?chainid=747474" }
 #tac = { key = "${TACSCAN_KEY}", chain = 239, url = "https://explorer.tac.build/api" }
 #ink = { key = "${INKSCAN_KEY}", chain = 57073, url = "https://explorer.inkonchain.com/api" }
-linea = { key = "${LINEASCAN_KEY}", chain = 59144, url = "https://api.etherscan.io/v2/api?chainid=59144" }
-plasma = { key = "${PLASMASCAN_KEY}", chain = 9745, url = "https://api.routescan.io/v2/network/mainnet/evm/9745/etherscan" }
+#linea = { key = "${LINEASCAN_KEY}", chain = 59144, url = "https://api.etherscan.io/v2/api?chainid=59144" }
+#plasma = { key = "${PLASMASCAN_KEY}", chain = 9745, url = "https://api.routescan.io/v2/network/mainnet/evm/9745/etherscan" }
 
 [fmt]
 FOUNDRY_FMT_LINE_LENGTH = 120
