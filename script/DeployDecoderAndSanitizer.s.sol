@@ -108,6 +108,7 @@ import {GoldenGooseUnichainDecoderAndSanitizer} from "src/base/DecodersAndSaniti
 import {OptimismGoldenGooseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/OptimismGoldenGooseDecoderAndSanitizer.sol";
 import {GoldenGooseBaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseBaseDecoderAndSanitizer.sol";
 import {GoldenGooseLineaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseLineaDecoderAndSanitizer.sol";
+import {EthenaRWADecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EthenaRWADecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -129,8 +130,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("linea");
-        setSourceChainName("linea"); 
+        vm.createSelectFork("mainnet");
+        setSourceChainName("mainnet"); 
 
     }
 
@@ -146,13 +147,11 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //    getAddress(sourceChain, "odosRouterV2"),
         //    getAddress(sourceChain, "dvStETHVault") 
         //); 
-        //deployer.deployContract("Golden Goose Decoder And Sanitizer V0.7", creationCode, constructorArgs, 0);
+        //deployer.deployContract("Ethena RWA Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        creationCode = type(GoldenGooseLineaDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(
-            getAddress(sourceChain, "odosRouterV2")
-        ); 
-        deployer.deployContract("Golden Goose Decoder And Sanitizer V0.1", creationCode, constructorArgs, 0);
+        creationCode = type(EthenaRWADecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(); 
+        deployer.deployContract("Ethena RWA Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
