@@ -43,15 +43,11 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
         address[] memory assets = new address[](2);
         SwapKind[] memory kind = new SwapKind[](2);
         assets[0] = getAddress(sourceChain, "KHYPE");
-        console.log("KHYPE address:", assets[0]);
         kind[0] = SwapKind.Sell;
         assets[1] = getAddress(sourceChain, "WHYPE");
-        console.log("WHYPE address:", assets[1]);
         kind[1] = SwapKind.BuyAndSell;
 
-        console.log("About to call _addOogaBoogaSwapLeafs");
         _addOogaBoogaSwapLeafs(leafs, assets, kind);
-        console.log("Successfully added Ooga Booga leafs");
 
         // ========================== Fee Claiming ==========================
         ERC20[] memory feeAssets = new ERC20[](2);

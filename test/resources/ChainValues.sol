@@ -2735,6 +2735,8 @@ contract ChainValues {
 
         // Ooga Booga
         values[hyperEVM]["OBRouter"] = 0x5fbD1B5AA82d09359C05428647871fe9aDd3F411.toBytes32();
+        values[hyperEVM]["OBExecutor"] = 0x65d1eA56196B9451AE11813E44AC5b2367f93eaD.toBytes32();
+
     }
 
     function _addTACTestnetValues() private {
