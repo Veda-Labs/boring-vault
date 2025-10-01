@@ -8,6 +8,8 @@ import {TellerWithBuffer, ERC20} from "src/base/Roles/TellerWithBuffer.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {AccountantWithYieldStreaming} from "src/base/Roles/AccountantWithYieldStreaming.sol";
+import {ReentrancyGuard} from "@solmate/utils/ReentrancyGuard.sol";
+
 contract TellerWithYieldStreaming is TellerWithBuffer {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
@@ -27,6 +29,7 @@ contract TellerWithYieldStreaming is TellerWithBuffer {
         external
         override
         requiresAuth
+        nonReentrant
         returns (uint256 assetsOut)
     {
         //update vested yield before withdraw
@@ -47,6 +50,9 @@ contract TellerWithYieldStreaming is TellerWithBuffer {
     ) internal override returns (uint256 shares) {
         //update vested yield before deposit
         _getAccountant().updateExchangeRate();
+        if (vault.totalSupply() == 0) {
+            _getAccountant().setFirstDepositTimestamp(); 
+        }
         shares = super._erc20Deposit(depositAsset, depositAmount, minimumMint, from, to, asset);
     }
 
@@ -70,5 +76,12 @@ contract TellerWithYieldStreaming is TellerWithBuffer {
      */
     function _getAccountant() internal view returns (AccountantWithYieldStreaming) {
         return AccountantWithYieldStreaming(address(accountant));
+    }
+
+    /**
+     * @notice Returns the version of the contract.
+     */
+    function version() public pure virtual override returns (string memory) {
+        return string(abi.encodePacked("Yield Streaming V0.1, ", super.version()));
     }
 }

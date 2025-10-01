@@ -8,11 +8,8 @@ import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
-import {IPausable} from "src/interfaces/IPausable.sol";
-
 contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
@@ -90,11 +87,10 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     error AccountantWithYieldStreaming__NotEnoughTimePassed();
     error AccountantWithYieldStreaming__ZeroYieldUpdate();
     error AccountantWithYieldStreaming__MaxDeviationYieldExceeded();
-    error AccountantWithYieldStreaming__MaxDeviationLossExceeded();
 
     //============================== EVENTS ===============================
 
-    event YieldRecorded(uint256 amountAdded, uint256 newtotalAssetsInBase);
+    event YieldRecorded(uint256 amountAdded, uint64 endVestingTime);
     event LossRecorded(uint256 lossAmount);
     event ExchangeRateUpdated(uint256 newExchangeRate);
     event MaximumVestDurationUpdated(uint64 newMaximum);
@@ -139,7 +135,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         supplyObservation.cumulativeSupplyLast = 0;
         supplyObservation.lastUpdateTimestamp = uint128(block.timestamp);
 
-        //initialize strategist update time to 0 so first posts are valid
+        //initialize strategist update time to deploy time so first posts are valid
         lastStrategistUpdateTimestamp = uint64(block.timestamp);
     }
 
@@ -236,6 +232,10 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
                 }
             }
         }
+        
+
+        AccountantState storage state = accountantState;
+        state.exchangeRate = uint96(vestingState.lastSharePrice);
 
         //update state timestamp
         lastStrategistUpdateTimestamp = uint64(block.timestamp);
@@ -258,11 +258,11 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     }
 
     /**
-     * @notice Updates vault supply
+     * @notice Updates startVestingTime timestamp
      * @dev Callable by TELLER
      */
-    function updateCumulative() external requiresAuth {
-        _updateCumulative();
+    function setFirstDepositTimestamp() external requiresAuth {
+        vestingState.startVestingTime = uint64(block.timestamp);
     }
 
     // ========================================= ADMIN FUNCTIONS =========================================
@@ -364,8 +364,8 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
             return vestingState.vestingGains; // Return ALL remaining unvested gains
         }
 
-        //if we haven't updated yet or no gains to vest
-        if (vestingState.lastVestingUpdate >= vestingState.endVestingTime || vestingState.vestingGains == 0) {
+        //if no gains to vest
+        if (vestingState.vestingGains == 0) {
             return 0;
         }
 
@@ -442,6 +442,8 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
      * @dev calling this moves any vested gains to be calculated into the current share price
      */
     function _updateExchangeRate() internal {
+        AccountantState storage state = accountantState;
+        if (state.isPaused) revert AccountantWithRateProviders__Paused();
         _updateCumulative();
 
         //calculate how much has vested since `lastVestingUpdate`
@@ -453,14 +455,17 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
             uint256 _totalAssets = uint256(vestingState.lastSharePrice).mulDivDown(currentShares, ONE_SHARE);
             vestingState.lastSharePrice = uint128((_totalAssets + newlyVested).mulDivDown(ONE_SHARE, currentShares));
 
-            _collectFees();
 
             //move vested amount from pending to realized
             vestingState.vestingGains -= uint128(newlyVested); // remove from pending
-            vestingState.lastVestingUpdate = uint128(block.timestamp); // update timestamp
         }
+        
+        //sync fee variables 
+        _collectFees();
 
-        AccountantState storage state = accountantState;
+        //always update timestamp 
+        vestingState.lastVestingUpdate = uint128(block.timestamp); // update timestamp
+
         state.totalSharesLastUpdate = uint128(currentShares);
 
         emit ExchangeRateUpdated(vestingState.lastSharePrice);
@@ -495,7 +500,6 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         );
 
         state.exchangeRate = uint96(vestingState.lastSharePrice);
-        state.totalSharesLastUpdate = uint128(currentTotalShares);
         state.lastUpdateTimestamp = currentTime;
     }
 }
