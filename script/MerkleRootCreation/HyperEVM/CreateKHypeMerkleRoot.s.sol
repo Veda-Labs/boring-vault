@@ -19,7 +19,7 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x9BA2EDc44E0A4632EB4723E81d4142353e1bB160;
-    address public rawDataDecoderAndSanitizer = 0x0Ac1819A5EA6cAf05306b8955bC1a1680fA7B63A;
+    address public rawDataDecoderAndSanitizer = 0xCB7ABCE463b91C72233483ec366a943F537b0B0d;
     address public managerAddress = 0x7f8CcAA760E0F621c7245d47DC46d40A400d3639;
     address public accountantAddress = 0x74392Fa56405081d5C7D93882856c245387Cece2;
 
@@ -38,6 +38,20 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, hyperEVM, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](128);
+
+        // ========================== Ooga Booga ==========================
+        address[] memory assets = new address[](2);
+        SwapKind[] memory kind = new SwapKind[](2);
+        assets[0] = getAddress(sourceChain, "KHYPE");
+        console.log("KHYPE address:", assets[0]);
+        kind[0] = SwapKind.Sell;
+        assets[1] = getAddress(sourceChain, "WHYPE");
+        console.log("WHYPE address:", assets[1]);
+        kind[1] = SwapKind.BuyAndSell;
+
+        console.log("About to call _addOogaBoogaSwapLeafs");
+        _addOogaBoogaSwapLeafs(leafs, assets, kind);
+        console.log("Successfully added Ooga Booga leafs");
 
         // ========================== Fee Claiming ==========================
         ERC20[] memory feeAssets = new ERC20[](2);

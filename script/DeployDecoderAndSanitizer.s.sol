@@ -129,8 +129,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("linea");
-        setSourceChainName("linea"); 
+        vm.createSelectFork("hyperEVM");
+        setSourceChainName("hyperEVM"); 
 
     }
 
@@ -148,11 +148,12 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //); 
         //deployer.deployContract("Golden Goose Decoder And Sanitizer V0.7", creationCode, constructorArgs, 0);
 
-        creationCode = type(GoldenGooseLineaDecoderAndSanitizer).creationCode;
+        creationCode = type(KHypeHyperEVMDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(
-            getAddress(sourceChain, "odosRouterV2")
+            getAddress(sourceChain, "uniswapV3NonFungiblePositionManager")
         ); 
-        deployer.deployContract("Golden Goose Decoder And Sanitizer V0.1", creationCode, constructorArgs, 0);
+        console.logBytes(constructorArgs);
+        deployer.deployContract("KHype HyperEVM Decoder And Sanitizer V0.3", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
