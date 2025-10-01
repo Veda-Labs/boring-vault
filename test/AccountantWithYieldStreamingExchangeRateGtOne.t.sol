@@ -78,6 +78,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         // Setup roles authority.
         rolesAuthority.setRoleCapability(MINTER_ROLE, address(boringVault), BoringVault.enter.selector, true);
         rolesAuthority.setRoleCapability(BURNER_ROLE, address(boringVault), BoringVault.exit.selector, true);
+        rolesAuthority.setRoleCapability(MINTER_ROLE, address(accountant), AccountantWithYieldStreaming.setFirstDepositTimestamp.selector, true);
         rolesAuthority.setRoleCapability(
             ADMIN_ROLE, address(accountant), AccountantWithRateProviders.pause.selector, true
         );
@@ -161,7 +162,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 WETHAmount = 10e18; 
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
-        uint256 shares0 = teller.deposit(WETH, WETHAmount, 0);
+        address referrer = vm.addr(1337);
+        uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
 
         uint256 currentRate = accountant.getRate();
         uint256 expectedShares = uint256(WETHAmount).mulDivDown(1e18, currentRate);
@@ -173,7 +175,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         //==== BEGIN DEPOSIT 2 ====
 
         //deposit 2
-        uint256 shares1 = teller.deposit(WETH, WETHAmount, 0);
+        uint256 shares1 = teller.deposit(WETH, WETHAmount, 0, referrer);
 
         currentRate = accountant.getRate();
         expectedShares = uint256(WETHAmount).mulDivDown(1e18, currentRate);

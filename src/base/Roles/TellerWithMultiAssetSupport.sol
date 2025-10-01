@@ -137,13 +137,14 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     event Unpaused();
     event AssetDataUpdated(address indexed asset, bool allowDeposits, bool allowWithdraws, uint16 sharePremium);
     event Deposit(
-        uint256 indexed nonce,
+        uint256 nonce,
         address indexed receiver,
         address indexed depositAsset,
         uint256 depositAmount,
         uint256 shareAmount,
         uint256 depositTimestamp,
-        uint256 shareLockPeriodAtTimeOfDeposit
+        uint256 shareLockPeriodAtTimeOfDeposit,
+        address indexed referralAddress
     );
     event BulkDeposit(address indexed asset, uint256 depositAmount);
     event BulkWithdraw(address indexed asset, uint256 shareAmount);
@@ -375,13 +376,12 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      *         if this behavior is not desired then a share lock period of >=1 should be used.
      */
     function beforeTransfer(address from, address to, address operator) public view virtual {
-        if (
-            beforeTransferData[from].denyFrom || beforeTransferData[to].denyTo
-                || beforeTransferData[operator].denyOperator
-                || (permissionedTransfers && !beforeTransferData[operator].permissionedOperator)
-        ) {
+        _handleDenyList(from, to, operator);
+
+        if (permissionedTransfers && !beforeTransferData[operator].permissionedOperator) {
             revert TellerWithMultiAssetSupport__TransferDenied(from, to, operator);
         }
+
         if (beforeTransferData[from].shareUnlockTime > block.timestamp) {
             revert TellerWithMultiAssetSupport__SharesAreLocked();
         }
@@ -396,6 +396,22 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         }
         if (beforeTransferData[from].shareUnlockTime > block.timestamp) {
             revert TellerWithMultiAssetSupport__SharesAreLocked();
+        }
+    }
+
+    /**
+     * @notice Internal function to check deny lists for transfers.
+     * @dev Reverts if `from` is denied, `to` is denied, or `operator` is denied.
+     * @param from The sender address.
+     * @param to The receiver address.
+     * @param operator The address performing the operation.
+     */
+    function _handleDenyList(address from, address to, address operator) internal view {
+        if (
+            beforeTransferData[from].denyFrom || beforeTransferData[to].denyTo
+                || beforeTransferData[operator].denyOperator
+        ) {
+            revert TellerWithMultiAssetSupport__TransferDenied(from, to, operator);
         }
     }
 
@@ -417,7 +433,8 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         uint256 depositAmount,
         uint256 shareAmount,
         uint256 depositTimestamp,
-        uint256 shareLockUpPeriodAtTimeOfDeposit
+        uint256 shareLockUpPeriodAtTimeOfDeposit,
+        address referralAddress
     ) external requiresAuth {
         if ((block.timestamp - depositTimestamp) >= shareLockUpPeriodAtTimeOfDeposit) {
             // Shares are already unlocked, so we can not revert deposit.
@@ -425,7 +442,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         }
         bytes32 depositHash = keccak256(
             abi.encode(
-                receiver, depositAsset, depositAmount, shareAmount, depositTimestamp, shareLockUpPeriodAtTimeOfDeposit
+                receiver, depositAsset, depositAmount, shareAmount, depositTimestamp, shareLockUpPeriodAtTimeOfDeposit, referralAddress
             )
         );
         if (publicDepositHistory[nonce] != depositHash) revert TellerWithMultiAssetSupport__BadDepositHash();
@@ -447,7 +464,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @notice Allows users to deposit into the BoringVault, if this contract is not paused.
      * @dev Publicly callable.
      */
-    function deposit(ERC20 depositAsset, uint256 depositAmount, uint256 minimumMint)
+    function deposit(ERC20 depositAsset, uint256 depositAmount, uint256 minimumMint, address referralAddress)
         external
         payable
         virtual
@@ -474,7 +491,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         }
 
         shares = _erc20Deposit(depositAsset, depositAmount, minimumMint, from, msg.sender, asset);
-        _afterPublicDeposit(msg.sender, depositAsset, depositAmount, shares, shareLockPeriod);
+        _afterPublicDeposit(msg.sender, depositAsset, depositAmount, shares, shareLockPeriod, referralAddress);
     }
 
     /**
@@ -488,7 +505,8 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         uint256 deadline,
         uint8 v,
         bytes32 r,
-        bytes32 s
+        bytes32 s,
+        address referralAddress
     )
         external
         virtual
@@ -502,7 +520,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         _handlePermit(depositAsset, depositAmount, deadline, v, r, s);
 
         shares = _erc20Deposit(depositAsset, depositAmount, minimumMint, msg.sender, msg.sender, asset);
-        _afterPublicDeposit(msg.sender, depositAsset, depositAmount, shares, shareLockPeriod);
+        _afterPublicDeposit(msg.sender, depositAsset, depositAmount, shares, shareLockPeriod, referralAddress);
     }
 
     /**
@@ -567,6 +585,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         address to,
         Asset memory asset
     ) internal virtual returns (uint256 shares) {
+        _handleDenyList(from, to, msg.sender);
         uint112 cap = depositCap;
         if (depositAmount == 0) revert TellerWithMultiAssetSupport__ZeroAssets();
         shares = depositAmount.mulDivDown(ONE_SHARE, accountant.getRateInQuoteSafe(depositAsset));
@@ -611,7 +630,8 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         ERC20 depositAsset,
         uint256 depositAmount,
         uint256 shares,
-        uint256 currentShareLockPeriod
+        uint256 currentShareLockPeriod,
+        address referralAddress
     ) internal {
         // Increment then assign as its slightly more gas efficient.
         uint256 nonce = ++depositNonce;
@@ -619,10 +639,10 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         if (currentShareLockPeriod > 0) {
             beforeTransferData[user].shareUnlockTime = block.timestamp + currentShareLockPeriod;
             publicDepositHistory[nonce] = keccak256(
-                abi.encode(user, depositAsset, depositAmount, shares, block.timestamp, currentShareLockPeriod)
+                abi.encode(user, depositAsset, depositAmount, shares, block.timestamp, currentShareLockPeriod, referralAddress)
             );
         }
-        emit Deposit(nonce, user, address(depositAsset), depositAmount, shares, block.timestamp, currentShareLockPeriod);
+        emit Deposit(nonce, user, address(depositAsset), depositAmount, shares, block.timestamp, currentShareLockPeriod, referralAddress);
     }
 
     /**
@@ -660,7 +680,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     /**
      * @notice Returns the version of the contract.
      */
-    function version() external pure virtual returns (string memory) {
-        return "V0.1";
+    function version() public pure virtual returns (string memory) {
+        return "Base V0.1";
     }
 }

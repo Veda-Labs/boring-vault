@@ -77,4 +77,11 @@ contract TellerWithYieldStreaming is TellerWithBuffer {
     function _getAccountant() internal view returns (AccountantWithYieldStreaming) {
         return AccountantWithYieldStreaming(address(accountant));
     }
+
+    /**
+     * @notice Returns the version of the contract.
+     */
+    function version() public pure virtual override returns (string memory) {
+        return string(abi.encodePacked("Yield Streaming V0.1, ", super.version()));
+    }
 }
