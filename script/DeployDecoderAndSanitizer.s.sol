@@ -126,8 +126,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("plasma");
-        setSourceChainName("plasma"); 
+        vm.createSelectFork("mainnet");
+        setSourceChainName("mainnet"); 
     }
 
     function run() external {
@@ -135,13 +135,14 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(LiquidETHPlasmaDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
-        deployer.deployContract("LiquidETH Plasma Decoder and Sanitizer V0.2", creationCode, constructorArgs, 0);
+        creationCode = type(EtherFiLiquidEthDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2"));
+        deployer.deployContract("EtherFi Liquid ETH Decoder and Sanitizer V0.12", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
 
+    // do not use, this is really intended for doing a giga deploy on a new chain
     function deployContract(string memory name, bytes memory creationCode, uint256 value) internal {
         address _contract = deployer.getAddress(name);
         if (_contract.code.length > 0) {
