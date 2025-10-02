@@ -2981,6 +2981,7 @@ contract ChainValues {
         values[plasma]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
         values[plasma]["deployer2Address"] = 0xbc90dbeB9e76Ff5577Bc502EBDebd0F6616ec434.toBytes32();
         values[plasma]["txBundlerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        values[plasma]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
         values[plasma]["dev5Address"] = 0x1cdF47387358A1733968df92f7cC14546D9E1047.toBytes32();
 
          values[plasma]["balancerVault"] = address(1).toBytes32();
@@ -3053,6 +3054,9 @@ contract ChainValues {
 
         // Fluid Dex
         values[plasma]["weETH_ETHDex_wETH"] = 0x0C8C77B7FF4c2aF7F6CEBbe67350A490E3DD6cB3.toBytes32();
+
+        // Merkl
+        values[plasma]["merklDistributor"] = 0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae.toBytes32();
     }
 
     

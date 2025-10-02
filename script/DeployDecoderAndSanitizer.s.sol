@@ -126,8 +126,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("mainnet");
-        setSourceChainName("mainnet"); 
+        vm.createSelectFork("plasma");
+        setSourceChainName("plasma"); 
     }
 
     function run() external {
@@ -135,9 +135,9 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(EtherFiLiquidEthDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2"));
-        deployer.deployContract("EtherFi Liquid ETH Decoder and Sanitizer V0.12", creationCode, constructorArgs, 0);
+        creationCode = type(LiquidETHPlasmaDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
+        deployer.deployContract("LiquidETH Plasma Decoder and Sanitizer V0.4", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }

@@ -19,7 +19,7 @@ contract CreateLiquidETHMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C;
-    address public rawDataDecoderAndSanitizer = 0xbaB06906321D30509088E92840B0dF30E9b0a148;
+    address public rawDataDecoderAndSanitizer = 0x6727a35867EDCdDE01B92F5104D09D4561A4C2D9;
     address public managerAddress = 0xf9f7969C357ce6dfd7973098Ea0D57173592bCCa;
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
     address public drone = 0x7c391d7856fcbC4Fd3a3C3CD8787c7eBF85934aF;
@@ -65,12 +65,16 @@ contract CreateLiquidETHMerkleRoot is Script, MerkleTreeHelper {
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WETH"), getAddress(sourceChain, "WETH_OFT_STARGATE"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
 
         // ========================== UniswapV3 ==========================
-        address[] memory token0 = new address[](2);
+        address[] memory token0 = new address[](4);
         token0[0] = getAddress(sourceChain, "USDE");
         token0[1] = getAddress(sourceChain, "SUSDE");
-        address[] memory token1 = new address[](2);
+        token0[2] = getAddress(sourceChain, "wXPL");
+        token0[3] = getAddress(sourceChain, "WETH");
+        address[] memory token1 = new address[](4);
         token1[0] = getAddress(sourceChain, "USDT0");
         token1[1] = getAddress(sourceChain, "USDT0");
+        token1[2] = getAddress(sourceChain, "USDT0");
+        token1[3] = getAddress(sourceChain, "USDT0");
         _addUniswapV3Leafs(leafs, token0, token1, true, true);
 
         // ========================== Fluid ==========================
@@ -85,6 +89,13 @@ contract CreateLiquidETHMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Native ==========================
         _addNativeLeafs(leafs, getAddress(sourceChain, "wXPL"));
+
+        // ========================== Merkl ==========================
+        _addMerklLeafs(
+            leafs,
+            getAddress(sourceChain, "merklDistributor"),
+            getAddress(sourceChain, "dev1Address")
+        );
 
         // DRONE LEAFS
         // ========================== Drone Setup ===============================

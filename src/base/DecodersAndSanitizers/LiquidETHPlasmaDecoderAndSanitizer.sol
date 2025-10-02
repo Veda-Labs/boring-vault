@@ -15,6 +15,7 @@ import {FluidDexDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protoc
 import {FluidRewardsClaimingDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/FluidRewardsClaimingDecoderAndSanitizer.sol";
 import {UniswapV3SwapRouter02DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV3SwapRouter02DecoderAndSanitizer.sol";
+import {MerklDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MerklDecoderAndSanitizer.sol";
 
 contract LiquidETHPlasmaDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
@@ -24,7 +25,8 @@ contract LiquidETHPlasmaDecoderAndSanitizer is
     UniswapV3SwapRouter02DecoderAndSanitizer,
     FluidFTokenDecoderAndSanitizer,
     FluidDexDecoderAndSanitizer,
-    FluidRewardsClaimingDecoderAndSanitizer
+    FluidRewardsClaimingDecoderAndSanitizer,
+    MerklDecoderAndSanitizer
 {
     constructor(address _uniswapV3NonFungiblePositionManager)
         UniswapV3SwapRouter02DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
