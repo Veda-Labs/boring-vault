@@ -72,9 +72,9 @@ contract CreateLiquidMoveEthMerkleRootScript is Script, MerkleTreeHelper {
         _addNativeLeafs(leafs);
 
         // ========================== Fee Claiming ==========================
-        // ERC20[] memory feeAssets = new ERC20[](1);
-        // feeAssets[0] = getERC20(sourceChain, "WETH");
-        // _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
+        ERC20[] memory feeAssets = new ERC20[](1);
+        feeAssets[0] = getERC20(sourceChain, "WETH");
+        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
         //Verify
 
