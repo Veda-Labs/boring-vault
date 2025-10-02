@@ -21,7 +21,7 @@ contract CreateSteakhouseUSDMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0xd54F9ECdF8dF3035ADE1e3EbcDcEa0AB13591cCF;
     address public managerAddress = 0x4749914237b24717Bff1cBFa2Bf9d39D9BD8096b;
     address public accountantAddress = 0xF7b299aDD6A8E54b184d09A2807B4348b6be7079;
-    address public rawDataDecoderAndSanitizer =  0xc6288B06365019dF18B2076Bf9B5e191826fB57F;
+    address public rawDataDecoderAndSanitizer =  0xeFB48737A2E851F78C42901673d2614B8932670B;
 
     function setUp() external {}
 
@@ -99,6 +99,12 @@ contract CreateSteakhouseUSDMerkleRoot is Script, MerkleTreeHelper {
          * deposit, withdraw
          */
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "SUSDE")));
+
+        // ========================== MF-One ==========================
+        /**
+         * depositInstant, depositRequest, redeemInstant, redeemRequest, redeemFiatRequest
+         */
+        _addMfOneLeafs(leafs);
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

@@ -6951,6 +6951,99 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
     }
 
+    // ========================================= Ethena Minting =========================================
+    function _addEthenaMintingLeafs(ManageLeaf[] memory leafs, address signer) internal {
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "USDE"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve Ethena Minter V2 to spend ", getERC20(sourceChain, "USDE").symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "ethenaMinterV2");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "ethenaMinterV2"),
+            false,
+            "setDelegatedSigner(address)",
+            new address[](1),
+            string.concat("Set ", vm.toString(signer), " as delegated EthenaMinter Signer"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = signer;  
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "ethenaMinterV2"),
+            false,
+            "removeDelegatedSigner(address)",
+            new address[](1),
+            string.concat("Remove ", vm.toString(signer), " as delegated EthenaMinter Signer"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = signer;  
+
+
+        address[] memory stables = new address[](2); 
+        stables[0] = getAddress(sourceChain, "USDT"); 
+        stables[1] = getAddress(sourceChain, "USDC"); 
+        
+        for (uint256 i = 0; i < stables.length; i++) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                stables[i],
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve Ethena Minter V2 to spend ", ERC20(stables[i]).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "ethenaMinterV2");
+
+            
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "ethenaMinterV2"),
+                false,
+                "mint((string,uint8,uint120,uint128,address,address,address,uint128,uint128),(address[],uint128[]),(uint8,bytes))",
+                new address[](3),
+                string.concat("Mint USDE with ", ERC20(stables[i]).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[2] = stables[i];
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "ethenaMinterV2"),
+                false,
+                "redeem((string,uint8,uint120,uint128,address,address,address,uint128,uint128),(uint8,bytes))",
+                new address[](3),
+                string.concat("Redeem USDE for ", ERC20(stables[i]).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[2] = stables[i];
+        }
+    }
+
     // ========================================= Level Withdraws =========================================
 
     function _addSLvlUSDWithdrawLeafs(ManageLeaf[] memory leafs) internal {
@@ -8116,8 +8209,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     function _addMerklLeafs(
         ManageLeaf[] memory leafs,
         address merklDistributor,
-        address operator,
-        ERC20[] memory tokensToClaim
+        address operator
     ) internal {
         unchecked {
             leafIndex++;
@@ -8132,21 +8224,19 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
         leafs[leafIndex].argumentAddresses[1] = operator;
-        for (uint256 i; i < tokensToClaim.length; ++i) {
-            unchecked {
-                leafIndex++;
-            }
-            leafs[leafIndex] = ManageLeaf(
-                merklDistributor,
-                false,
-                "claim(address[],address[],uint256[],bytes32[][])",
-                new address[](2),
-                string.concat("Claim merkl ", tokensToClaim[i].symbol(), " rewards"),
-                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-            );
-            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
-            leafs[leafIndex].argumentAddresses[1] = address(tokensToClaim[i]);
+
+        unchecked {
+            leafIndex++;
         }
+        leafs[leafIndex] = ManageLeaf(
+            merklDistributor,
+            false,
+            "claim(address[],address[],uint256[],bytes32[][])",
+            new address[](1),
+            string.concat("Claim merkl rewards"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
     }
 
     // ========================================= VELODROME =========================================

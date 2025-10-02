@@ -638,14 +638,10 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         // ========================== Merkl ==========================
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         {
-            ERC20[] memory tokensToClaim = new ERC20[](2);
-            tokensToClaim[0] = getERC20(sourceChain, "UNI");
-            tokensToClaim[1] = getERC20(sourceChain, "rEUL");
             _addMerklLeafs(
                 leafs,
                 getAddress(sourceChain, "merklDistributor"),
-                getAddress(sourceChain, "dev1Address"),
-                tokensToClaim
+                getAddress(sourceChain, "dev1Address")
             );
         }
 
