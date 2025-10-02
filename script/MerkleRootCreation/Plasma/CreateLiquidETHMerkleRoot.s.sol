@@ -43,13 +43,18 @@ contract CreateLiquidETHMerkleRoot is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](128);
 
         // ========================== Aave V3 ==========================
-        ERC20[] memory supplyAssets = new ERC20[](3);
+        ERC20[] memory supplyAssets = new ERC20[](5);
         supplyAssets[0] = getERC20(sourceChain, "USDE");
         supplyAssets[1] = getERC20(sourceChain, "SUSDE");
         supplyAssets[2] = getERC20(sourceChain, "WEETH");
-        ERC20[] memory borrowAssets = new ERC20[](2);
-        borrowAssets[0] = getERC20(sourceChain, "USDT0");
-        borrowAssets[1] = getERC20(sourceChain, "WETH");
+        supplyAssets[3] = getERC20(sourceChain, "WETH");
+        supplyAssets[4] = getERC20(sourceChain, "USDT0");
+        ERC20[] memory borrowAssets = new ERC20[](5);
+        borrowAssets[0] = getERC20(sourceChain, "USDE");
+        borrowAssets[1] = getERC20(sourceChain, "SUSDE");
+        borrowAssets[2] = getERC20(sourceChain, "WEETH");
+        borrowAssets[3] = getERC20(sourceChain, "WETH");
+        borrowAssets[4] = getERC20(sourceChain, "USDT0");
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== LayerZero ==========================
@@ -81,7 +86,7 @@ contract CreateLiquidETHMerkleRoot is Script, MerkleTreeHelper {
         // ========================== Native ==========================
         _addNativeLeafs(leafs, getAddress(sourceChain, "wXPL"));
 
-        // DRONE LEAFSSS
+        // DRONE LEAFS
         // ========================== Drone Setup ===============================
         {
             ERC20[] memory localTokens = new ERC20[](5);   
@@ -110,13 +115,18 @@ contract CreateLiquidETHMerkleRoot is Script, MerkleTreeHelper {
         uint256 droneStartIndex = leafIndex + 1;
 
         // ========================== Aave V3 ==========================
-        ERC20[] memory supplyAssets = new ERC20[](3);
+        ERC20[] memory supplyAssets = new ERC20[](5);
         supplyAssets[0] = getERC20(sourceChain, "USDE");
         supplyAssets[1] = getERC20(sourceChain, "SUSDE");
         supplyAssets[2] = getERC20(sourceChain, "WEETH");
-        ERC20[] memory borrowAssets = new ERC20[](2);
-        borrowAssets[0] = getERC20(sourceChain, "USDT0");
-        borrowAssets[1] = getERC20(sourceChain, "WETH");
+        supplyAssets[3] = getERC20(sourceChain, "WETH");
+        supplyAssets[4] = getERC20(sourceChain, "USDT0");
+        ERC20[] memory borrowAssets = new ERC20[](5);
+        borrowAssets[0] = getERC20(sourceChain, "USDE");
+        borrowAssets[1] = getERC20(sourceChain, "SUSDE");
+        borrowAssets[2] = getERC20(sourceChain, "WEETH");
+        borrowAssets[3] = getERC20(sourceChain, "WETH");
+        borrowAssets[4] = getERC20(sourceChain, "USDT0");
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== UniswapV3 ==========================
