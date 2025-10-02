@@ -1,0 +1,18 @@
+muldiv: restricted input range, 
+
+cap - uint112 not 256?, maxUint112
+
+setCap: lower cap even if there's supply
+
+requiresAuth: where do they set the access?
+
+correct links: Vault <-> Teller?
+
+solvency
+
+--------------------------------------
+2. 10. 
+
+exchangeRateLEhighwaterMark > paused
+
+claimFees(ERC20 feeAsset) > if (msg.sender != address(vault)) vs. requiresAuth

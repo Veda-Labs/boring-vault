@@ -13,4 +13,6 @@ methods {
         => DISPATCH(optimistic=true) [ ERC20Mock.transferFrom(address,address,uint256) ];
     function _.permit(address,address,uint256,uint256,uint8,bytes32,bytes32) external
         => DISPATCH(optimistic=true) [ ERC20Mock.permit(address,address,uint256,uint256,uint8,bytes32,bytes32) ];
+    function _.totalSupply() external
+        => DISPATCH(optimistic=true) [ ERC20Mock.totalSupply() ];
 }
