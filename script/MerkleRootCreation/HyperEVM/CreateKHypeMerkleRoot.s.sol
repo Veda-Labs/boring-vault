@@ -43,7 +43,7 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
         address[] memory assets = new address[](2);
         SwapKind[] memory kind = new SwapKind[](2);
         assets[0] = getAddress(sourceChain, "KHYPE");
-        kind[0] = SwapKind.Sell;
+        kind[0] = SwapKind.BuyAndSell;
         assets[1] = getAddress(sourceChain, "WHYPE");
         kind[1] = SwapKind.BuyAndSell;
 
