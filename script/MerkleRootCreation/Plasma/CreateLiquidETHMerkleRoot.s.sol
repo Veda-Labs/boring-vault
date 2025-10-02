@@ -100,12 +100,13 @@ contract CreateLiquidETHMerkleRoot is Script, MerkleTreeHelper {
         // DRONE LEAFS
         // ========================== Drone Setup ===============================
         {
-            ERC20[] memory localTokens = new ERC20[](5);   
+            ERC20[] memory localTokens = new ERC20[](6);   
             localTokens[0] = getERC20(sourceChain, "USDE"); 
             localTokens[1] = getERC20(sourceChain, "WEETH");
             localTokens[2] = getERC20(sourceChain, "SUSDE");
             localTokens[3] = getERC20(sourceChain, "USDT0");
             localTokens[4] = getERC20(sourceChain, "WETH");
+            localTokens[5] = getERC20(sourceChain, "wXPL");
 
             _addLeafsForDroneTransfers(leafs, drone, localTokens);
             _addLeafsForDrone(leafs);
@@ -141,12 +142,16 @@ contract CreateLiquidETHMerkleRoot is Script, MerkleTreeHelper {
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== UniswapV3 ==========================
-        address[] memory token0 = new address[](2);
+        address[] memory token0 = new address[](4);
         token0[0] = getAddress(sourceChain, "USDE");
         token0[1] = getAddress(sourceChain, "SUSDE");
-        address[] memory token1 = new address[](2);
+        token0[2] = getAddress(sourceChain, "wXPL");
+        token0[3] = getAddress(sourceChain, "WETH");
+        address[] memory token1 = new address[](4);
         token1[0] = getAddress(sourceChain, "USDT0");
         token1[1] = getAddress(sourceChain, "USDT0");
+        token1[2] = getAddress(sourceChain, "USDT0");
+        token1[3] = getAddress(sourceChain, "USDT0");
         _addUniswapV3Leafs(leafs, token0, token1, true, true);
 
         // ========================== Fluid ==========================
@@ -158,6 +163,13 @@ contract CreateLiquidETHMerkleRoot is Script, MerkleTreeHelper {
         borrowTokens[0] = getERC20(sourceChain, "WEETH");
         borrowTokens[1] = getERC20(sourceChain, "WETH");
         _addFluidDexLeafs(leafs, getAddress(sourceChain, "weETH_ETHDex_wETH"), 2000, supplyTokens, borrowTokens, false);
+
+        // ========================== Merkl ==========================
+        _addMerklLeafs(
+            leafs,
+            getAddress(sourceChain, "merklDistributor"),
+            getAddress(sourceChain, "dev1Address")
+        );
 
         _createDroneLeafs(leafs, drone, droneStartIndex, leafIndex + 1);
         setAddress(true, plasma, "boringVault", boringVault);
