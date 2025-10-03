@@ -31,9 +31,7 @@ import "forge-std/StdJson.sol";
 contract CreateSyUsdArbitrumLeafs is Script, MerkleTreeHelper {
     uint256 public privateKey;
 
-    address public rawDataDecoderAndSanitizerEthereum = 0x6b74d490B60d6994E4d4C6D174Ef39690294922e;
-    address public rawDataDecoderAndSanitizerBase01 = 0x53F0b212d28320DD0aB504AbD6871941EFf5AD45;
-    address public rawDataDecoderAndSanitizerArbitrum01 = 0x53F0b212d28320DD0aB504AbD6871941EFf5AD45;
+    address public rawDataDecoderAndSanitizerArbitrum01 = 0x8c6CDC6BB109386855D73308094A52ddD1f14eB7;
     RolesAuthority internal rolesAuthority = RolesAuthority(0xf7F3ace7f6cA2Cb1E7ccbE3Bf2Da13D001D36fdF);
     BoringVault internal boringVault = BoringVault(payable(0x279CAD277447965AF3d24a78197aad1B02a2c589));
     LayerZeroTeller internal teller = LayerZeroTeller(0xaefc11908fF97c335D16bdf9F2Bf720817423825);
@@ -68,21 +66,21 @@ contract CreateSyUsdArbitrumLeafs is Script, MerkleTreeHelper {
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("mainnet");
-        setSourceChainName("mainnet");
+        vm.createSelectFork("arbitrum");
+        setSourceChainName("arbitrum");
 
-        setAddress(true, mainnet, "boringVault", address(boringVault));
-        setAddress(true, mainnet, "managerAddress", address(manager));
-        setAddress(true, mainnet, "manager", address(manager));
-        setAddress(true, mainnet, "accountantAddress", address(accountant));
-        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizerEthereum);
+        setAddress(true, arbitrum, "boringVault", address(boringVault));
+        setAddress(true, arbitrum, "managerAddress", address(manager));
+        setAddress(true, arbitrum, "manager", address(manager));
+        setAddress(true, arbitrum, "accountantAddress", address(accountant));
+        setAddress(true, arbitrum, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizerArbitrum01);
     }
 
     function run() public {
         ManageLeaf[] memory leafs = new ManageLeaf[](1024);
         _addLeafs(leafs);
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
-        string memory filePath = "./leafs/Mainnet/SyUsdMainnetStrategistLeafs.json";
+        string memory filePath = "./leafs/Arbitrum/SyUsdArbitrumStrategistLeafs.json";
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
 
         vm.startBroadcast(privateKey);
@@ -99,7 +97,7 @@ contract CreateSyUsdArbitrumLeafs is Script, MerkleTreeHelper {
 
         ERC20[] memory bridgeAssets = new ERC20[](2);
         bridgeAssets[0] = getERC20(sourceChain, "USDC");
-        bridgeAssets[1] = getERC20(sourceChain, "USDT");
+        bridgeAssets[1] = getERC20(sourceChain, "USDT0");
         ERC20[] memory feeTokens = new ERC20[](2);
         feeTokens[0] = getERC20(sourceChain, "WETH");
         feeTokens[1] = getERC20(sourceChain, "GHO");

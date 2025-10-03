@@ -11,10 +11,13 @@ import {CurveDecoderAndSanitizer} from "./Protocols/CurveDecoderAndSanitizer.sol
 import {NativeWrapperDecoderAndSanitizer} from "./Protocols/NativeWrapperDecoderAndSanitizer.sol";
 import {PendleRouterDecoderAndSanitizer} from "./Protocols/PendleRouterDecoderAndSanitizer.sol";
 import {CCIPDecoderAndSanitizer} from "./Protocols/CCIPDecoderAndSanitizer.sol";
-import {OdosDecoderAndSanitizer} from "./Protocols/OdosDecoderAndSanitizer.sol";
-import {MagpieDecoderAndSanitizer} from "./MagpieDecoderAndSanitizer.sol";
+import {InfiniDecoderAndSanitizer} from "./Protocols/InfiniDecoderAndSanitizer.sol";
+import {SiloDecoderAndSanitizer} from "./Protocols/SiloDecoderAndSanitizer.sol";
+import {OneInchDecoderAndSanitizer} from "./Protocols/OneInchDecoderAndSanitizer.sol";
+import {OFTDecoderAndSanitizer} from "./Protocols/OFTDecoderAndSanitizer.sol";
+import {FluidFTokenDecoderAndSanitizer} from "./Protocols/FluidFTokenDecoderAndSanitizer.sol";
 
-contract TestVaultArbitrumDecoderAndSanitizer is
+contract SyUsdPlasmaDecoderAndSanitizer is
     UniswapV3DecoderAndSanitizer,
     AaveV3DecoderAndSanitizer,
     BalancerV2DecoderAndSanitizer,
@@ -24,13 +27,14 @@ contract TestVaultArbitrumDecoderAndSanitizer is
     NativeWrapperDecoderAndSanitizer,
     PendleRouterDecoderAndSanitizer,
     CCIPDecoderAndSanitizer,
-    OdosDecoderAndSanitizer,
-    MagpieDecoderAndSanitizer
+    InfiniDecoderAndSanitizer,
+    SiloDecoderAndSanitizer,
+    OneInchDecoderAndSanitizer,
+    OFTDecoderAndSanitizer,
+    FluidFTokenDecoderAndSanitizer
 {
-    constructor(address _uniswapV3NonFungiblePositionManager, address _odosRouter, address _magpieRouter)
+    constructor(address _uniswapV3NonFungiblePositionManager)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
-        OdosDecoderAndSanitizer(_odosRouter)
-        MagpieDecoderAndSanitizer(_magpieRouter)
     {}
 
     //============================== HANDLE FUNCTION COLLISIONS ===============================

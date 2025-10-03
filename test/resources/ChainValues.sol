@@ -35,6 +35,7 @@ contract ChainValues {
     string public constant bartio = "bartio";
     string public constant katana = "katana";
     string public constant hyperevm = "hyperevm";
+    string public constant plasma = "plasma";
 
     // Bridging constants.
     uint64 public constant ccipArbitrumChainSelector = 4949039107694359620;
@@ -54,6 +55,7 @@ contract ChainValues {
     uint32 public constant layerZeroBerachainEndpointId = 30362;
     uint32 public constant layerZeroSepoliaEndpointId = 40161;
     uint32 public constant layerZeroSonicBlazeEndpointId = 40349;
+    uint32 public constant layerZeroPlasmaEndpointId = 30383;
     uint32 public constant layerZeroMovementEndpointId = 30325;
     uint32 public constant hyperlaneMainnetEndpointId = 1;
     uint32 public constant hyperlaneEclipseEndpointId = 1408864445;
@@ -117,6 +119,7 @@ contract ChainValues {
         _addDeriveValues();
         _addUnichainValues();
         _addKatanaValues();
+        _addPlasmaValues(); // Plasma
         // Add testnet values
         _addHoleskyValues();
         _addSepoliaValues();
@@ -125,6 +128,40 @@ contract ChainValues {
         _addBerachainTestnetValues();
         _addBartioValues();
         _addHyperEvmValues();
+    }
+
+    function _addPlasmaValues() private {
+        values[plasma]["deployerAddress"] = 0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC.toBytes32();
+        values[plasma]["txBundlerAddress"] = 0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC.toBytes32();
+        values[plasma]["dev0Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
+        values[plasma]["dev1Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
+
+        values[plasma]["USDT0"] = 0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb.toBytes32();
+        values[plasma]["USDT0_OFT_Adapter"] = 0x02ca37966753bDdDf11216B73B16C1dE756A7CF9.toBytes32();
+        values[plasma]["USDe"] = 0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34.toBytes32();
+        values[plasma]["sUSDe"] = 0x211Cc4DD073734dA055fbF44a2b4667d5E5fE5d2.toBytes32();
+        values[plasma]["WETH"] = 0x9895D81bB462A195b4922ED7De0e3ACD007c32CB.toBytes32();
+        values[plasma]["WEETH"] = 0xA3D68b74bF0528fdD07263c60d6488749044914b.toBytes32();
+        values[plasma]["WETH_OFT"] = 0x0cEb237E109eE22374a567c6b09F373C73FA4cBb.toBytes32();
+        values[plasma]["ZRO"] = address(1).toBytes32();
+        values[plasma]["WXPL"] = 0x6100E367285b01F48D07953803A2d8dCA5D19873.toBytes32();
+        values[plasma]["balancerVault"] = 0xbA1333333333a1BA1108E8412f11850A5C319bA9.toBytes32();
+        values[plasma]["fUSDT0"] = 0x1DD4b13fcAE900C60a350589BE8052959D2Ed27B.toBytes32();
+
+        // Permit2
+        values[plasma]["permit2"] = 0x000000000022D473030F116dDEE9F6B43aC78BA3.toBytes32();
+
+        // LayerZero
+        values[plasma]["LayerZeroEndPoint"] = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B.toBytes32();
+
+        // UniswapV3
+        values[plasma]["uniswapV3NonFungiblePositionManager"] = 0x743E03cceB4af2efA3CC76838f6E8B50B63F184c.toBytes32();
+        values[plasma]["uniV3Router"] = 0x807F4E281B7A3B324825C64ca53c69F0b418dE40.toBytes32();
+        values[plasma]["universalRouter"] = 0x1b35fbA9357fD9bda7ed0429C8BbAbe1e8CC88fc.toBytes32();
+
+        // Aave V3
+        values[plasma]["v3Pool"] = 0x925a2A7214Ed92428B5b1B090F80b25700095e12.toBytes32();
+        values[plasma]["v3RewardsController"] = 0x3A57eAa3Ca3794D66977326af7991eB3F6dD5a5A.toBytes32();
     }
 
     function _addHyperEvmValues() private {
@@ -1216,6 +1253,7 @@ contract ChainValues {
         values[mainnet]["LBTCOFTAdapter"] = 0x6bc15D7930839Ec18A57F6f7dF72aE1B439D077f.toBytes32();
         values[mainnet]["WBTCOFTAdapter"] = 0x0555E30da8f98308EdB960aa94C0Db47230d2B9c.toBytes32();
         values[mainnet]["frxUSDOFTAdapter"] = 0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0.toBytes32();
+        values[mainnet]["USDTOFTAdapter"] = 0x6C96dE32CEa08842dcc4058c14d3aaAD7Fa41dee.toBytes32();
 
         // Stargate OFTs
         values[mainnet]["stargateUSDC"] = 0xc026395860Db2d07ee33e05fE50ed7bD583189C7.toBytes32();
@@ -1684,10 +1722,14 @@ contract ChainValues {
         values[arbitrum]["Bridge2"] = 0x2Df1c51E09aECF9cacB7bc98cB1742757f163dF7.toBytes32();
 
         // Odosv2
-        values[arbitrum]["odosRouterV2"] = 0x89b8AA89FDd0507a99d334CBe3C808fAFC7d850E.toBytes32();
+        values[arbitrum]["odosRouterV2"] = 0xa669e7A0d4b3e4Fa48af2dE86BD4CD7126Be4e13.toBytes32();
         values[arbitrum]["odosExecutor"] = 0x03222a2b261a12091bBE271e763A7E26b64E25e2.toBytes32();
 
+        // MagpieV3
+        values[arbitrum]["MagpieRouterV3"] = 0xfB1B08BA6BA284934D817Ea3C9D18f592cc59a50.toBytes32();
+
         // Morpho Blue
+        values[arbitrum]["morphoBlue"] = 0x6c247b1F6182318877311737BaC0844bAa518F5e.toBytes32();
         values[arbitrum]["syrupUSDC_USDC_915"] = 0xf86f3edd6f16cd8211f4d206866dc4ecd41be6211063ac11f8508e1b7112ef40;
     }
 
