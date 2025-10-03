@@ -2949,6 +2949,8 @@ contract ChainValues {
         values[tac]["ton_tsTON_Curve_Gauge"] = 0x4CaE16a407a5BAFBdF1d1e19d02159B10De6fE7B.toBytes32();
         values[tac]["cbBTC_LBTC_Curve_Pool"] = 0x9c15DC1c8991E852CEaf623b30162A98A1c83f3D.toBytes32();
         values[tac]["cbBTC_LBTC_Curve_Gauge"] = 0x9735071D0C1FB3c59440349b20241c78aA57E3F1.toBytes32();
+        values[tac]["USDT_wTAC_Curve_Pool"] = 0xAaD47973427b39bE737C1154F50DD6595083FA88.toBytes32();
+        values[tac]["USDT_cbBTC_Curve_Pool"] = 0xE5948A817d7A061a0eF40128E91379046Da1009e.toBytes32();
 
         // Euler
         values[tac]["ethereumVaultConnector"] = 0x01F594c66A5561b90Bc782dD0297f294cD668b64.toBytes32();
@@ -2974,6 +2976,9 @@ contract ChainValues {
         // ZeroLend
         values[tac]["zeroLendPool"] = 0x93A40401EB535f786C2Ae44858e1c847d0B56fc7.toBytes32();
         values[tac]["v3RewardsController"] = 0xFCC281D05cfc46953F518F2f32AaCd7b6805Efa4.toBytes32();
+
+        // Merkl
+        values[tac]["merklDistributor"] = 0x918261fa5Dd9C3b1358cA911792E9bDF3c5CCa35.toBytes32();
     }
 
     function _addPlasmaValues() private {
