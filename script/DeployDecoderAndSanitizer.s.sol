@@ -105,7 +105,7 @@ import {KHypeHyperEVMDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/K
 import {TacETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacETHDecoderAndSanitizer.sol";
 import {PlasmaUSDPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/PlasmaUSDPlasmaDecoderAndSanitizer.sol";
 import {LiquidETHPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidETHPlasmaDecoderAndSanitizer.sol";
-import {PlasmaUSDPlusDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/PlasmaUSDPlusDecoderAndSanitizer.sol";
+import {PlasmaUSDPlusPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/PlasmaUSDPlusPlasmaDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -127,8 +127,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("mainnet");
-        setSourceChainName("mainnet"); 
+        vm.createSelectFork("plasma");
+        setSourceChainName("plasma"); 
     }
 
     function run() external {
@@ -136,9 +136,9 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(PlasmaUSDPlusDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(getAddress(sourceChain, "odosRouterV2"));
-        deployer.deployContract("Plasma USD Plus Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        creationCode = type(PlasmaUSDPlusPlasmaDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
+        deployer.deployContract("Plasma USD Plus Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }

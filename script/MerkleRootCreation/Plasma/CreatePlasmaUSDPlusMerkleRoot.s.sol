@@ -19,10 +19,12 @@ contract CreatePlasmaUSDPlusMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x9e424A3F0C92289251B1F42c4F55d0E8FeE16d6E;
-    address public rawDataDecoderAndSanitizer = ;
+    address public rawDataDecoderAndSanitizer = 0x11522aF688B9eCFb2057c16b38cAFa4394B739A9;
     address public managerAddress = 0x1587D3B0C8Eb509977fAF0439474c58a0E557A65;
     address public accountantAddress = 0xca9c2ae69E6cd74368916ca995f01c3703b25A9E;
-    address public drone = ;
+    address public drone0 = 0x0093f1EAe1195aa33fF0dD4895578Ff4f43F0a8b;
+    address public drone1 = 0x1dF38Fe018c358c15895ED0dc18AB788990D7Ba5;
+    address public drone2 = 0x05564EB7239c17BF8d3cAEd4886F14F209f393aD;
 
     function setUp() external {}
 
@@ -40,7 +42,7 @@ contract CreatePlasmaUSDPlusMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, plasma, "accountantAddress", accountantAddress);
         setAddress(false, plasma, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](256);
+        ManageLeaf[] memory leafs = new ManageLeaf[](512);
 
         // ========================== LayerZero to Mainnet ==========================
         _addLayerZeroLeafs(
@@ -125,8 +127,12 @@ contract CreatePlasmaUSDPlusMerkleRoot is Script, MerkleTreeHelper {
             localTokens[2] = getERC20(sourceChain, "USDT0");
             localTokens[3] = getERC20(sourceChain, "wXPL");
 
-            _addLeafsForDroneTransfers(leafs, drone, localTokens);
-            _addLeafsForDrone(leafs);
+            _addLeafsForDroneTransfers(leafs, drone0, localTokens);
+            _addLeafsForDroneTransfers(leafs, drone1, localTokens);
+            _addLeafsForDroneTransfers(leafs, drone2, localTokens);
+            _addLeafsForDrone(leafs, drone0);
+            _addLeafsForDrone(leafs, drone1);
+            _addLeafsForDrone(leafs, drone2);
         }
 
         // ========================== Verify ==========================
@@ -139,7 +145,7 @@ contract CreatePlasmaUSDPlusMerkleRoot is Script, MerkleTreeHelper {
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
     }
 
-    function _addLeafsForDrone(ManageLeaf[] memory leafs) internal {
+    function _addLeafsForDrone(ManageLeaf[] memory leafs, address drone) internal {
         setAddress(true, plasma, "boringVault", drone);
         uint256 droneStartIndex = leafIndex + 1;
 
