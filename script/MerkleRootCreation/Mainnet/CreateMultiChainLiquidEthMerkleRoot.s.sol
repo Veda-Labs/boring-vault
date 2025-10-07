@@ -228,11 +228,11 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             assets[29] = getAddress(sourceChain, "SUSDE");
             kind[29] = SwapKind.BuyAndSell;
             assets[30] = getAddress(sourceChain, "eEigen"); // Address in ChainValues ++ checked
-            kind[30] = SwapKind.BuyAndSell;
+            kind[30] = SwapKind.Sell;
             assets[31] = getAddress(sourceChain, "ETHFI"); // Address in ChainValues ++ checked
-            kind[31] = SwapKind.BuyAndSell;
+            kind[31] = SwapKind.Sell;
             assets[32] = getAddress(sourceChain, "SWELL"); // Address in ChainValues ++ checked
-            kind[32] = SwapKind.BuyAndSell;
+            kind[32] = SwapKind.Sell;
             _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
 
             _addLeafsFor1InchUniswapV3Swapping(leafs, getAddress(sourceChain, "wstETH_wETH_01"));
