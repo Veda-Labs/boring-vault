@@ -37,21 +37,21 @@ contract DeployTimelockScript is Script, ContractNames, MainnetAddresses {
 
         deployer = Deployer(deployerAddress);
         creationCode = type(TimelockController).creationCode;
+
         uint256 minDelay = 0;
         address[] memory proposers = new address[](1);
         proposers[0] = proposer;
         address[] memory executors = new address[](1);
         executors[0] = executor;
+    
         address tempAdmin = 0xBBc5569B0b32403037F37255f4ff50B8Bb825b2A;
+    
         constructorArgs = abi.encode(minDelay, proposers, executors, tempAdmin);
         timelock =
-            TimelockController(payable(deployer.deployContract("Plasma USD+ Timelock V0.0", creationCode, constructorArgs, 0)));
+            TimelockController(payable(deployer.deployContract("Plasma USD+ Timelock V0.1", creationCode, constructorArgs, 0)));
 
 
         timelock.grantRole(timelock.CANCELLER_ROLE(), canceller);
-        for (uint256 i = 0; i < proposers.length; i++) {
-            timelock.revokeRole(timelock.CANCELLER_ROLE(), proposers[i]);
-        }
         timelock.renounceRole(timelock.DEFAULT_ADMIN_ROLE(), tempAdmin);
 
         vm.stopBroadcast();
