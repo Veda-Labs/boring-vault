@@ -165,8 +165,8 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
             // ========================== 1inch ==========================
-            address[] memory assets = new address[](30);
-            SwapKind[] memory kind = new SwapKind[](30);
+            address[] memory assets = new address[](33);
+            SwapKind[] memory kind = new SwapKind[](33);
             assets[0] = getAddress(sourceChain, "WETH");
             kind[0] = SwapKind.BuyAndSell;
             assets[1] = getAddress(sourceChain, "WEETH");
@@ -227,6 +227,12 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             kind[28] = SwapKind.BuyAndSell;
             assets[29] = getAddress(sourceChain, "SUSDE");
             kind[29] = SwapKind.BuyAndSell;
+            assets[30] = getAddress(sourceChain, "eEigen"); // Address in ChainValues ++ checked
+            kind[30] = SwapKind.BuyAndSell;
+            assets[31] = getAddress(sourceChain, "ETHFI"); // Address in ChainValues ++ checked
+            kind[31] = SwapKind.BuyAndSell;
+            assets[32] = getAddress(sourceChain, "SWELL"); // Address in ChainValues ++ checked
+            kind[32] = SwapKind.BuyAndSell;
             _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
 
             _addLeafsFor1InchUniswapV3Swapping(leafs, getAddress(sourceChain, "wstETH_wETH_01"));
@@ -795,6 +801,11 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         itbTokensUsed[1] = getERC20(sourceChain, "WEETH");
         itbTokensUsed[2] = getERC20(sourceChain, "EETH");
         _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "ITB Position Manager");
+
+        address itbPositionManager2 = 0xA40aFb15275A94F64aF37C0cEaAaA45Cb568A361;
+        ERC20[] memory itbTokensUsed2 = new ERC20[](1);
+        itbTokensUsed2[0] = getERC20(sourceChain, "WEETH");
+        _addLeafsForITBPositionManager(leafs, itbPositionManager2, itbTokensUsed2, "ITB Position Manager 2");
 
         // ========================== Drone Setup ===============================
         {
