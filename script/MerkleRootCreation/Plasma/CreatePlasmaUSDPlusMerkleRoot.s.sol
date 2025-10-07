@@ -76,7 +76,7 @@ contract CreatePlasmaUSDPlusMerkleRoot is Script, MerkleTreeHelper {
         supplyAssets[4] = getERC20(sourceChain, "pendle_pt_sUSDe_01_15_26");
         ERC20[] memory borrowAssets = new ERC20[](2);
         borrowAssets[0] = getERC20(sourceChain, "USDT0");
-        borrowAssets[1] = getERC20(sourceChain, "SUSDE");
+        borrowAssets[1] = getERC20(sourceChain, "USDe");
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== Pendle ==========================
@@ -121,11 +121,13 @@ contract CreatePlasmaUSDPlusMerkleRoot is Script, MerkleTreeHelper {
         // DRONE LEAFS
         // ========================== Drone Setup ===============================
         {
-            ERC20[] memory localTokens = new ERC20[](4);   
+            ERC20[] memory localTokens = new ERC20[](6);   
             localTokens[0] = getERC20(sourceChain, "USDe"); 
             localTokens[1] = getERC20(sourceChain, "SUSDE");
             localTokens[2] = getERC20(sourceChain, "USDT0");
             localTokens[3] = getERC20(sourceChain, "wXPL");
+            localTokens[4] = getERC20(sourceChain, "pendle_pt_USDe_01_15_26");
+            localTokens[5] = getERC20(sourceChain, "pendle_pt_sUSDe_01_15_26");
 
             _addLeafsForDroneTransfers(leafs, drone0, localTokens);
             _addLeafsForDroneTransfers(leafs, drone1, localTokens);
@@ -158,8 +160,17 @@ contract CreatePlasmaUSDPlusMerkleRoot is Script, MerkleTreeHelper {
         supplyAssets[4] = getERC20(sourceChain, "pendle_pt_sUSDe_01_15_26");
         ERC20[] memory borrowAssets = new ERC20[](2);
         borrowAssets[0] = getERC20(sourceChain, "USDT0");
-        borrowAssets[1] = getERC20(sourceChain, "SUSDE");
+        borrowAssets[1] = getERC20(sourceChain, "USDe");
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
+
+        // ========================== Balancer V3 ==========================
+        _addBalancerV3SwapLeafs(leafs, getAddress(sourceChain, "balancerV3waPlaUSDe-waPlaUSDT0"), false);
+        _addBalancerV3SwapLeafs(leafs, getAddress(sourceChain, "balancerV3sUSDe-waPlaUSDT0"), false);
+        _addBalancerV3SwapLeafs(leafs, getAddress(sourceChain, "balancerV3WXPL-USDT0"), true);
+
+        // ========================== Curve swapping ==========================
+        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "USDe_USDT0_Curve_Pool"));
+        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "sUSDe_USDT0_Curve_Pool"));
 
         // ========================== Uniswap V3 ==========================
         address[] memory token0 = new address[](1);
