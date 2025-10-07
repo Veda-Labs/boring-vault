@@ -49,7 +49,7 @@ contract CreatePlasmaUSDPlusMerkleRoot is Script, MerkleTreeHelper {
         ERC20[] memory tellerAssets = new ERC20[](2);
         tellerAssets[0] = getERC20(sourceChain, "USDE");
         tellerAssets[1] = getERC20(sourceChain, "USDT");
-        _addTellerLeafs(leafs, getAddress(sourceChain, "ethenaRWATeller"), assets, false, true);
+        _addTellerLeafs(leafs, getAddress(sourceChain, "ethenaRWATeller"), tellerAssets, false, true);
 
         // ========================== LayerZero to Plasma ==========================
         _addLayerZeroLeafs(
