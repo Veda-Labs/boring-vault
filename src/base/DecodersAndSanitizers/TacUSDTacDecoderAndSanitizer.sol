@@ -10,6 +10,7 @@ import {TacCrossChainLayerDecoderAndSanitizer} from "src/base/DecodersAndSanitiz
 import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
 import {EulerEVKDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/EulerEVKDecoderAndSanitizer.sol";
 import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
+import {MerklDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MerklDecoderAndSanitizer.sol";
 
 contract TacDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
@@ -17,7 +18,8 @@ contract TacDecoderAndSanitizer is
     TacCrossChainLayerDecoderAndSanitizer,
     ERC4626DecoderAndSanitizer,
     EulerEVKDecoderAndSanitizer,
-    CurveDecoderAndSanitizer
+    CurveDecoderAndSanitizer,
+    MerklDecoderAndSanitizer
 {
 
     function deposit(uint256, address receiver) external pure virtual override(CurveDecoderAndSanitizer, ERC4626DecoderAndSanitizer) returns (bytes memory addressesFound) {
