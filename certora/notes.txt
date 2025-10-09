@@ -1,3 +1,6 @@
+--------------------------------------
+25. 9. 
+
 muldiv: restricted input range, 
 
 cap - uint112 not 256?, maxUint112
@@ -16,3 +19,49 @@ solvency
 exchangeRateLEhighwaterMark > paused
 
 claimFees(ERC20 feeAsset) > if (msg.sender != address(vault)) vs. requiresAuth
+
+no check on zero mint, i.e. deposit(amount = x, minShares = 0) -> loses x, gains nothing
+    also for withdraw, e.g. withdrawingProducesAssets
+
+--------------------------------------
+9. 10. 
+
+beforeTrasnfer - legacy doesnt check deniedTo
+
+withdrawing asset that's not liquid enough?
+
+ONE_SHARE defined twice.. even though there is a reference 
+
+bulkDeposit: comments say it doesnt support native deposits. Where is this enforced?
+There's no revertOnNativeDeposit modifier added
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-----
+general complaints
+
+when i forgot a semicolon in conf (e.g. adding another conf item after the last one)
+read_from_conf_file: certora/confs/scenarioA.conf: Failed
+<string>:55 Unexpected """ at column 5
+can we make the error msg more user friendly? E.g. "semicolon is missing on line X in file Y.conf"
+
+invariants vs. parametric rules
+
+braces around the body: no yes
+filtered section:   after before
+semicolon after the body: sometimes yes
+
+

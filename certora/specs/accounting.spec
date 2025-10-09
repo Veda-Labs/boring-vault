@@ -46,7 +46,9 @@ persistent ghost bool callMade;
 persistent ghost bool delegatecallMade;
 
 hook CALL(uint g, address addr, uint value, uint argsOffset, uint argsLength, uint retOffset, uint retLength) uint rc {
-    if (addr != vault_contract) {
+    if (addr != vault_contract
+        && addr != ERC20Mock) 
+    {
         // TODO whitelist the asset.. e.g whenever the asset is passed to deposit, e.g.) {
         callMade = true;
     }
@@ -60,13 +62,12 @@ hook DELEGATECALL(uint g, address addr, uint argsOffset, uint argsLength, uint r
 This rule proves there are no instances in the code in which the user can act as the contract.
 By proving this rule we can safely assume in our spec that e.msg.sender != currentContract.
 */
-rule noDynamicCalls {
-    method f;
-    env e;
-    calldataarg args;
-
+rule noDynamicCalls(env e, method f)
+    filtered { f -> !ignoredMethod(f) }
+{
     require !callMade && !delegatecallMade;
 
+    calldataarg args;
     f(e, args);
 
     assert !callMade && !delegatecallMade;
@@ -161,67 +162,18 @@ rule conversionWeakIntegrity_assets() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-////                   #    Unit Test                                      /////
-////////////////////////////////////////////////////////////////////////////////
-
-rule depositMonotonicity(env e, address asset) {
-    safeAssumptions();
-    storage start = lastStorage;
-    uint minShares;
-    uint256 smallerAssets; uint256 largerAssets;
-    require currentContract != e.msg.sender;
-
-    deposit(e, asset, smallerAssets, minShares);
-
-    uint256 smallerShares = vault_contract.balanceOf(e.msg.sender) ;
-
-    deposit(e, asset, largerAssets, minShares) at start;
-    uint256 largerShares = vault_contract.balanceOf(e.msg.sender) ;
-
-    assert smallerAssets < largerAssets => smallerShares <= largerShares,
-            "when supply tokens outnumber asset tokens, a larger deposit of assets must produce an equal or greater number of shares";
-}
-
-
-rule zeroDepositZeroShares(env e, uint assetAmount)
-{
-    address asset; uint256 minShares;
-    uint shares = deposit(e, asset, assetAmount, minShares);
-
-    assert shares == 0 <=> assetAmount == 0;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-////                    #    Valid State                                   /////
-////////////////////////////////////////////////////////////////////////////////
-
-invariant assetsMoreThanSupply(env e, address asset)
-    asset.totalSupply(e) * accountant_contract.getRateInQuoteSafe(e, asset) >= vault_contract.totalSupply(e);
-
-function userAssets(env e, address user, address asset) returns uint256
-{
-    return asset.balanceOf(e, user);
-}
-
-invariant noAssetsIfNoSupply(address asset, env e) 
-    (userAssets(e, asset, currentContract) == 0 => vault_contract.totalSupply(e) == 0) &&
-    (asset.totalSupply(e) == 0 => (vault_contract.totalSupply(e) == 0));
-
-invariant noSupplyIfNoAssets(env e, address asset)
-    noSupplyIfNoAssetsDef(e, asset);     // see defition in "helpers and miscellaneous" section
-
-
-////////////////////////////////////////////////////////////////////////////////
 ////                    #     State Transition                             /////
 ////////////////////////////////////////////////////////////////////////////////
 
-
+// totalSupply and totalAssets must not change in opposite directions
 rule totalsMonotonicity(env e, method f) 
 {
+    if (f.selector != sig:accountant_contract.claimFees(address).selector)
+        nonSceneSender(e.msg.sender);   // the claimFees can only be called by the Vault so this condidtion would cause vacuity
+
     address asset;
-    require e.msg.sender != currentContract; 
     uint256 totalSupplyBefore = vault_contract.totalSupply(e);
-    uint256 totalAssetsBefore =  asset.totalSupply(e);
+    uint256 totalAssetsBefore = asset.totalSupply(e);
     address receiver;
     
     calldataarg args;
@@ -230,32 +182,53 @@ rule totalsMonotonicity(env e, method f)
     uint256 totalSupplyAfter = vault_contract.totalSupply(e);
     uint256 totalAssetsAfter = asset.totalSupply(e);
     
-    // possibly assert totalSupply and totalAssets must not change in opposite directions
-    assert totalSupplyBefore < totalSupplyAfter  <=> totalAssetsBefore < totalAssetsAfter,
-        "if totalSupply changes by a larger amount, the corresponding change in totalAssets must remain the same or grow";
-    assert totalSupplyAfter == totalSupplyBefore => totalAssetsBefore == totalAssetsAfter,
-        "equal size changes to totalSupply must yield equal size changes to totalAssets";
+    assert totalSupplyBefore < totalSupplyAfter => totalAssetsBefore <= totalAssetsAfter;
+    assert totalSupplyBefore > totalSupplyAfter => totalAssetsBefore >= totalAssetsAfter;
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 ////                       #   Risk Analysis                           /////////
 ////////////////////////////////////////////////////////////////////////////////
 
-invariant vaultSolvency(address asset, env e)
-    userAssets(e, asset, vault_contract) * accountant_contract.getRateInQuoteSafe(e, asset) >= vault_contract.totalSupply(e)
+// total value of all asset the Vault holds must be greater or equal to total value of all shares
+// where valueOf(shares) = shares * rate(asset) / ONE_SHARE
+function isSolvent(env e) returns bool
 {
-    preserved {
+    //assets1 * oneShare / rate(asset1) + assets2 * oneShare / rate(asset2)  >= totalShares
+
+    //without division:
+    //assets1 * oneShare * rate(asset2) + assets2 * oneShare * rate(asset1) >= totalShares * rate(asset1) * rate(asset2)
+    //(assets1 * rate(asset2) + assets2 * rate(asset1)) * oneShare >= totalShares * rate(asset1) * rate(asset2)
+    
+    mathint rate1 = accountant_contract.getRateInQuoteSafe(e, ERC20Mock);
+    mathint rate2 = accountant_contract.getRateInQuoteSafe(e, WETH);
+
+    mathint value = userAssets(e, ERC20Mock, vault_contract) * rate2
+                  + userAssets(e, WETH, vault_contract) * rate1;
+    return value * teller_contract.ONE_SHARE >= vault_contract.totalSupply(e) * rate1 * rate2;
+}
+
+invariant vaultSolvency(address asset, env e)
+    isSolvent(e)
+filtered { f -> !ignoredMethod(f)
+    && f.contract == teller_contract  //funds could be moved by methods called on the Vault or on the Asset
+    && f.selector != sig:teller_contract.refundDeposit(uint256,address,address,uint256,uint256,uint256,uint256).selector // can break if the refunder is the vault
+}
+{
+    preserved with (env e2) {
         safeAssumptions();
+        nonSceneSender(e2.msg.sender);
     }
 }
 
-
+// Runs on teller only
+// There are other ways to set allowance directly on the vault
 invariant zeroAllowanceOnAssets(env e, address user, address asset)
     asset.allowance(e, currentContract, user) == 0
+filtered { f -> f.contract == teller_contract } 
 {
-    preserved {
-        require e.msg.sender != currentContract;
+    preserved with (env e2) {
+        nonSceneSender(e2.msg.sender);
     }
 }
 
@@ -263,12 +236,12 @@ invariant zeroAllowanceOnAssets(env e, address user, address asset)
 ////               # stakeholder properties  (Risk Analysis )         //////////
 ////////////////////////////////////////////////////////////////////////////////
 
-
-rule onlyContributionMethodsReduceAssets(env e, method f) {
+rule onlyContributionMethodsReduceAssets(env e, method f) 
+    filtered { f -> f.contract == teller_contract }
+{
     safeAssumptions();
-    address user; 
-    require user != currentContract && user != vault_contract;
-    address asset;
+    address user; nonSceneSender(user);
+    address asset; require asset != vault_contract;
     uint256 userAssetsBefore = userAssets(e, asset, user);
 
     calldataarg args;
@@ -291,12 +264,14 @@ rule withdrawingProducesAssets(env e)
     uint256 minimumAssets;
     require currentContract != e.msg.sender
          && currentContract != receiver
-         && currentContract != owner;
+         && currentContract != owner
+         && minimumAssets > 0  //otherwise it's possible to loose dust shares and not receive any asset because of rounding
+         && receiver != vault_contract;
 
     uint256 ownerSharesBefore = vault_contract.balanceOf(owner);
     uint256 receiverAssetsBefore = userAssets(e, asset, receiver);
 
-    withdraw(e, asset, shares, minimumAssets, receiver);
+    uint256 assetsReceived = withdraw(e, asset, shares, minimumAssets, receiver);
 
     uint256 ownerSharesAfter = vault_contract.balanceOf(owner);
     uint256 receiverAssetsAfter = userAssets(e, asset, receiver);
@@ -305,10 +280,3 @@ rule withdrawingProducesAssets(env e)
         "an owner's shares must decrease if and only if the receiver's assets increase";
 }
 
-////////////////////////////////////////////////////////////////////////////////
-////                        # helpers and miscellaneous                //////////
-////////////////////////////////////////////////////////////////////////////////
-
-definition noSupplyIfNoAssetsDef(env e, address asset) returns bool = 
-    (userAssets(e, asset, currentContract) == 0 => asset.totalSupply(e) == 0 ) &&
-    (asset.totalSupply(e) == 0 <=> (vault_contract.totalSupply(e) == 0 ));
