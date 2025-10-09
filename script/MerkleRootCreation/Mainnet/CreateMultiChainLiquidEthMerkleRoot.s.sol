@@ -129,7 +129,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_liquid_bera_eth_04_09_25"), true);
 
         // ========================== UniswapV3 ==========================
-        address[] memory token0 = new address[](9);
+        address[] memory token0 = new address[](11);
         token0[0] = getAddress(sourceChain, "WETH");
         token0[1] = getAddress(sourceChain, "WETH");
         token0[2] = getAddress(sourceChain, "WETH");
@@ -139,8 +139,10 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         token0[6] = getAddress(sourceChain, "WETH");
         token0[7] = getAddress(sourceChain, "WETH");
         token0[8] = getAddress(sourceChain, "WETH");
+        token0[9] = getAddress(sourceChain, "EIGEN");
+        token0[10] = getAddress(sourceChain, "ETHFI");
 
-        address[] memory token1 = new address[](9);
+        address[] memory token1 = new address[](11);
         token1[0] = getAddress(sourceChain, "WEETH");
         token1[1] = getAddress(sourceChain, "WSTETH");
         token1[2] = getAddress(sourceChain, "RETH");
@@ -150,6 +152,8 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         token1[6] = getAddress(sourceChain, "SFRXETH");
         token1[7] = getAddress(sourceChain, "CBETH");
         token1[8] = getAddress(sourceChain, "RSETH");
+        token1[9] = getAddress(sourceChain, "WETH");
+        token1[10] = getAddress(sourceChain, "WETH");
 
         _addUniswapV3Leafs(leafs, token0, token1, false);
 
