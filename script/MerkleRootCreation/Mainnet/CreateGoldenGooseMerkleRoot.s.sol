@@ -335,6 +335,13 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             0, // Mainnet chain ID in Agglayer
             20 // Katana chain ID in Agglayer
         );
+        _addAgglayerTokenLeafs(
+            leafs,
+            getAddress(sourceChain, "agglayerBridgeKatana"),
+            getAddress(sourceChain, "WSTETH"),
+            0, // Mainnet chain ID in Agglayer
+            20 // Katana chain ID in Agglayer
+        );
 
         // ========================== Layer Zero ==========================
         // to Base

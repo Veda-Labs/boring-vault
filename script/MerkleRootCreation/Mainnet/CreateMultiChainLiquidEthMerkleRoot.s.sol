@@ -18,7 +18,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     address public boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C;
-    address public rawDataDecoderAndSanitizer = 0xE6EA1b3A24682AB03d2d1C0F3f4659544024aa8F;
+    address public rawDataDecoderAndSanitizer = 0x8fB043d30BAf4Eba2C8f7158aCBc07ec9A53Fe85;
     address public managerAddress = 0xf9f7969C357ce6dfd7973098Ea0D57173592bCCa;
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
     address public pancakeSwapDataDecoderAndSanitizer = 0xfdC73Fc6B60e4959b71969165876213918A443Cd;
@@ -165,8 +165,8 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
             // ========================== 1inch ==========================
-            address[] memory assets = new address[](29);
-            SwapKind[] memory kind = new SwapKind[](29);
+            address[] memory assets = new address[](33);
+            SwapKind[] memory kind = new SwapKind[](33);
             assets[0] = getAddress(sourceChain, "WETH");
             kind[0] = SwapKind.BuyAndSell;
             assets[1] = getAddress(sourceChain, "WEETH");
@@ -206,7 +206,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             assets[18] = getAddress(sourceChain, "UNI");
             kind[18] = SwapKind.Sell;
             assets[19] = getAddress(sourceChain, "USDT");
-            kind[19] = SwapKind.Sell;
+            kind[19] = SwapKind.BuyAndSell;
             assets[20] = getAddress(sourceChain, "EIGEN");
             kind[20] = SwapKind.Sell;
             assets[21] = getAddress(sourceChain, "ETHFI");
@@ -225,6 +225,14 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             kind[27] = SwapKind.BuyAndSell;
             assets[28] = getAddress(sourceChain, "USDE");
             kind[28] = SwapKind.BuyAndSell;
+            assets[29] = getAddress(sourceChain, "SUSDE");
+            kind[29] = SwapKind.BuyAndSell;
+            assets[30] = getAddress(sourceChain, "EIGEN"); // Address in ChainValues ++ checked
+            kind[30] = SwapKind.Sell;
+            assets[31] = getAddress(sourceChain, "ETHFI"); // Address in ChainValues ++ checked
+            kind[31] = SwapKind.Sell;
+            assets[32] = getAddress(sourceChain, "SWELL"); // Address in ChainValues ++ checked
+            kind[32] = SwapKind.Sell;
             _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
 
             _addLeafsFor1InchUniswapV3Swapping(leafs, getAddress(sourceChain, "wstETH_wETH_01"));
@@ -636,14 +644,10 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         // ========================== Merkl ==========================
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         {
-            ERC20[] memory tokensToClaim = new ERC20[](2);
-            tokensToClaim[0] = getERC20(sourceChain, "UNI");
-            tokensToClaim[1] = getERC20(sourceChain, "rEUL");
             _addMerklLeafs(
                 leafs,
                 getAddress(sourceChain, "merklDistributor"),
-                getAddress(sourceChain, "dev1Address"),
-                tokensToClaim
+                getAddress(sourceChain, "dev1Address")
             );
         }
 
@@ -699,6 +703,68 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
 
         _addPancakeSwapV3Leafs(leafs, token0, token1);
 
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        {
+        // ========================== sUSDe ==========================
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "SUSDE")));
+
+        // ========================== RWA Vault ==========================
+        // ERC20[] memory rwaVaultAssets = new ERC20[](2);
+        // rwaVaultAssets[0] = getERC20(sourceChain, "USDT");
+        // rwaVaultAssets[1] = getERC20(sourceChain, "USDE");
+
+        // address ethenaRWATeller = 0xDEa662f24389eB7CaFA9b3B10021884FCe7314f0;
+        // _addTellerLeafs(leafs, ethenaRWATeller, rwaVaultAssets, true, true);
+        }
+
+        // ========================== Plasma Bridging ==========================
+        // Needs info
+        // USDT
+        {
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "USDT"),
+            getAddress(sourceChain, "usdt0OFTAdapter"),
+            layerZeroPlasmaEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+
+        // ETH
+        _addLayerZeroLeafNative(
+            leafs,
+            getAddress(sourceChain, "stargateNative"),
+            layerZeroPlasmaEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+
+        // SUSDE
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "SUSDE"),
+            getAddress(sourceChain, "SUSDEOFTAdapter"),
+            layerZeroPlasmaEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+
+        // USDE
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "USDE"),
+            getAddress(sourceChain, "USDEOFTAdapter"),
+            layerZeroPlasmaEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+        
+        // WEETH
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "WEETH"),
+            getAddress(sourceChain, "EtherFiOFTAdapter"),
+            layerZeroPlasmaEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+        }
+
         // ========================== Reclamation ==========================
         {
             address reclamationDecoder = 0xd7335170816912F9D06e23d23479589ed63b3c33;
@@ -722,7 +788,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         }
 
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
-// ========================== ITB Position Manager ==========================
+        // ========================== ITB Position Manager ==========================
         /**
          * acceptOwnership() of ITB position manager
          * transfer ETH tokens to ITB position manager
@@ -735,6 +801,12 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         itbTokensUsed[1] = getERC20(sourceChain, "WEETH");
         itbTokensUsed[2] = getERC20(sourceChain, "EETH");
         _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "ITB Position Manager");
+
+        address itbPositionManager2 = 0xA40aFb15275A94F64aF37C0cEaAaA45Cb568A361;
+        ERC20[] memory itbTokensUsed2 = new ERC20[](1);
+        itbTokensUsed2[0] = getERC20(sourceChain, "WEETH");
+        _addLeafsForITBPositionManager(leafs, itbPositionManager2, itbTokensUsed2, "ITB Position Manager 2");
+
         // ========================== Drone Setup ===============================
         {
             ERC20[] memory localTokens = new ERC20[](3);   

@@ -41,7 +41,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, katana, "accountantAddress", accountantAddress);
         setAddress(false, katana, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](16);
+        ManageLeaf[] memory leafs = new ManageLeaf[](32);
 
         // ========================== Native Wrapping ==========================
         _addNativeLeafs(leafs);
@@ -54,9 +54,17 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             20,
             0
         );
+        _addAgglayerTokenLeafs(
+            leafs,
+            getAddress(sourceChain, "agglayerBridgeKatana"),
+            getAddress(sourceChain, "WSTETH"),
+            20,
+            0
+        );
           
         // ========================== Yearn ==========================
         _addYearnLeafs(leafs, ERC4626(getAddress(sourceChain, "yvbWETH")));
+        _addYearnLeafs(leafs, ERC4626(getAddress(sourceChain, "yvWSTETH")));
 
         // ========================== Verify & Generate ==========================
 
