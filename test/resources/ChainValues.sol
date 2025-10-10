@@ -2980,7 +2980,7 @@ contract ChainValues {
         values[tac]["v3RewardsController"] = 0xFCC281D05cfc46953F518F2f32AaCd7b6805Efa4.toBytes32();
 
         // Merkl
-        values[tac]["merklDistributor"] = 0x918261fa5Dd9C3b1358cA911792E9bDF3c5CCa35.toBytes32();
+        values[tac]["merklDistributor"] = 0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae.toBytes32();
     }
 
     function _addPlasmaValues() private {
