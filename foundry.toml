@@ -3,7 +3,7 @@
 # This overrides the `auto_detect_solc` value
 solc_version = '0.8.21'
 auto_detect_solc = false
-evm_version = 'cancun'
+evm_version = 'london'
 optimizer = true
 optimizer_runs = 200
 fs_permissions = [{ access = "read-write", path = "./" }]
@@ -55,7 +55,7 @@ plasma = "${PLASMA_RPC_URL}"
 #arbitrum = { key = "${ARBISCAN_KEY}" }
 mainnet = { key = "${ETHERSCAN_KEY}", chain = 1, url = "https://api.etherscan.io/v2/api?chainid=1" }
 #polygon = { key = "${POLYGONSCAN_KEY}" }
-#bsc = { key = "${BSCSCAN_KEY}" }
+bsc = { key = "${ETHERSCAN_KEY}" }
 #avalanche = { key = "${SNOWTRACE_KEY}" }
 #optimism = { key = "${OPTIMISMSCAN_KEY}" }
 #base = { key = "${BASESCAN_KEY}", chain = 8453, url = " https://api.etherscan.io/v2/api?chainid=8453" }
