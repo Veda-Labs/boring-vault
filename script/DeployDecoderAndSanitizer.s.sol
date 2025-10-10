@@ -108,6 +108,9 @@ import {GoldenGooseUnichainDecoderAndSanitizer} from "src/base/DecodersAndSaniti
 import {OptimismGoldenGooseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/OptimismGoldenGooseDecoderAndSanitizer.sol";
 import {GoldenGooseBaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseBaseDecoderAndSanitizer.sol";
 import {GoldenGooseLineaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseLineaDecoderAndSanitizer.sol";
+import {LiquidMoveEthDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidMoveEthDecoderAndSanitizer.sol";
+import {PlasmaUSDPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/PlasmaUSDPlasmaDecoderAndSanitizer.sol";
+import {LiquidETHPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidETHPlasmaDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -129,34 +132,23 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("linea");
-        setSourceChainName("linea"); 
-
+        vm.createSelectFork("mainnet");
+        setSourceChainName("mainnet");
     }
 
     function run() external {
         bytes memory creationCode;
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
-   
-        //creationCode = type(GoldenGooseDecoderAndSanitizer).creationCode;
-        //constructorArgs = abi.encode(
-        //    getAddress(sourceChain, "uniV4PositionManager"),
-        //    getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
-        //    getAddress(sourceChain, "odosRouterV2"),
-        //    getAddress(sourceChain, "dvStETHVault") 
-        //); 
-        //deployer.deployContract("Golden Goose Decoder And Sanitizer V0.7", creationCode, constructorArgs, 0);
 
-        creationCode = type(GoldenGooseLineaDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(
-            getAddress(sourceChain, "odosRouterV2")
-        ); 
-        deployer.deployContract("Golden Goose Decoder And Sanitizer V0.1", creationCode, constructorArgs, 0);
+        creationCode = type(LiquidETHPlasmaDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
+        deployer.deployContract("LiquidETH Plasma Decoder and Sanitizer V0.4", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
 
+    // do not use, this is really intended for doing a giga deploy on a new chain
     function deployContract(string memory name, bytes memory creationCode, uint256 value) internal {
         address _contract = deployer.getAddress(name);
         if (_contract.code.length > 0) {
