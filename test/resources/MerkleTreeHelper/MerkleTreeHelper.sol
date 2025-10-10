@@ -5582,7 +5582,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             }
             leafs[leafIndex] = ManageLeaf(
                 getAddress(sourceChain, "balancerV3Router"),
-                false,
+                true,
                 "swapSingleTokenExactOut(address,address,address,uint256,uint256,uint256,bool,bytes)",
                 new address[](1),
                 string.concat("Swap tokens using ", ERC20(_pool).name()),

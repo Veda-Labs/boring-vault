@@ -188,6 +188,7 @@ contract ChainValues {
         values[mainnet]["TACLBTCvTeller"] = 0xAe499dAa7350b78746681931c47394eB7cC4Cf7F.toBytes32();
         values[mainnet]["TurtleTACBTCTeller"] = 0x7C75cbb851D321B2Ec8034D58A9B5075e991E584.toBytes32();
         values[mainnet]["katanaLBTCTeller"] = 0x38d4066cC4B42E2B6615aE15cAa6e347114779E2.toBytes32();
+        values[mainnet]["ethenaRWATeller"] = 0xDEa662f24389eB7CaFA9b3B10021884FCe7314f0.toBytes32();
 
         // Withdraw Queues
         values[mainnet]["sBTCNWithdrawQueue"] = 0xB316940529B85234ec7C4F48CD8Bef8d1BAe5F7f.toBytes32();
@@ -210,6 +211,7 @@ contract ChainValues {
         values[mainnet]["sonicLBTC"] = 0x309f25d839A2fe225E80210e110C99150Db98AAF.toBytes32();
         values[mainnet]["katanaLBTC"] = 0x75231079973C23e9eB6180fa3D2fc21334565aB5.toBytes32();
         values[mainnet]["turtleKatanaETH"] = 0x69d210d3b60E939BFA6E87cCcC4fAb7e8F44C16B.toBytes32();
+        values[mainnet]["ethenaRWA"] = 0x6fDcB0654B4814c2eC1E7e9dbC4cEBf1a2038a84.toBytes32();
 
         // Decoders
         values[mainnet]["rewardTokenUnwrappingDecoder"] = 0x3fF425c112d4363a7e21934a5D1EE09b1D2F8c91.toBytes32();
@@ -1458,7 +1460,7 @@ contract ChainValues {
 
         // Odos
         values[mainnet]["odosRouterV2"] = 0xCf5540fFFCdC3d510B18bFcA6d2b9987b0772559.toBytes32();
-        values[mainnet]["odosExecutor"] = 0x7882570840A97A490a37bd8Db9e1aE39165bfBd6.toBytes32();
+        values[mainnet]["odosExecutor"] = 0x365084B05Fa7d5028346bD21D842eD0601bAB5b8.toBytes32();
 
         // Level
         values[mainnet]["levelMinter"] = 0x9136aB0294986267b71BeED86A75eeb3336d09E1.toBytes32();
@@ -2995,8 +2997,6 @@ contract ChainValues {
         values[plasma]["txBundlerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
         values[plasma]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
         values[plasma]["dev5Address"] = 0x1cdF47387358A1733968df92f7cC14546D9E1047.toBytes32();
-
-         values[plasma]["balancerVault"] = address(1).toBytes32();
         
         // Factory Contracts
         values[plasma]["create2Factory"] = 0x4e59b44847b379578588920cA78FbF26c0B4956C.toBytes32();
@@ -3069,6 +3069,29 @@ contract ChainValues {
 
         // Merkl
         values[plasma]["merklDistributor"] = 0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae.toBytes32();
+        
+        // Curve
+        values[plasma]["USDe_USDT0_Curve_Pool"] = 0x2D84D79C852f6842AbE0304b70bBaA1506AdD457.toBytes32();
+        values[plasma]["sUSDe_USDT0_Curve_Pool"] = 0x1E8D78e9b3f0152D54d32904B7933f1cFE439Df1.toBytes32();
+
+        // Balancer V3
+        values[plasma]["balancerV3Router"] = 0x9dA18982a33FD0c7051B19F0d7C76F2d5E7e017c.toBytes32();
+        values[plasma]["balancerV3Vault"] = 0xbA1333333333a1BA1108E8412f11850A5C319bA9.toBytes32();
+        values[plasma]["balancerV3VaultExplorer"] = 0x043A2daD730d585C44FB79D2614F295D2d625412.toBytes32();
+
+        // Balancer V3 Pools & Gauges
+        values[plasma]["balancerV3waPlaUSDe-waPlaUSDT0"] = 0x6a74BE33B5393D8A3EbA4D69B78f9D9da947C48c.toBytes32();
+        values[plasma]["balancerV3sUSDe-waPlaUSDT0"] = 0xd9c4e277c93374a9f8C877a9D06707a88092E8F0.toBytes32();
+        values[plasma]["balancerV3WXPL-USDT0"] = 0xe14Ba497A7C51f34896D327ec075F3F18210a270.toBytes32();
+
+        // Pendle
+        values[plasma]["pendleMarketFactory"] = 0x28dE02Ac3c3F5ef427e55c321F73fDc7F192e8E4.toBytes32();
+        values[plasma]["pendleRouter"] = 0x888888888889758F76e7103c6CbF23ABbF58F946.toBytes32();
+        values[plasma]["pendleLimitOrderRouter"] = 0x000000000000c9B3E2C3Ec88B1B4c0cD853f4321.toBytes32();
+        values[plasma]["pendle_market_USDe_01_15_26"] = 0xFD3eB62302fa3cBc3c7e59e887b92dBBc814285D.toBytes32();
+        values[plasma]["pendle_pt_USDe_01_15_26"] = 0x93B544c330F60A2aa05ceD87aEEffB8D38FD8c9a.toBytes32();
+        values[plasma]["pendle_market_sUSDe_01_15_26"] = 0xe06C3B972BA630cCF3392cEcdbe070690b4e6b55.toBytes32();
+        values[plasma]["pendle_pt_sUSDe_01_15_26"] = 0x02FCC4989B4C9D435b7ceD3fE1Ba4CF77BBb5Dd8.toBytes32();
     }
 
     
