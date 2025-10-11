@@ -113,6 +113,7 @@ import {LiquidMoveEthDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/L
 import {PlasmaUSDPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/PlasmaUSDPlasmaDecoderAndSanitizer.sol";
 import {LiquidETHPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidETHPlasmaDecoderAndSanitizer.sol";
 import {PlasmaUSDPlusPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/PlasmaUSDPlusPlasmaDecoderAndSanitizer.sol";
+import {TurtleMUSDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TurtleMUSDDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -134,8 +135,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("mainnet");
-        setSourceChainName("mainnet");
+        vm.createSelectFork("bsc");
+        setSourceChainName("bsc");
     }
 
     function run() external {
@@ -143,9 +144,9 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(PlasmaUSDPlusPlasmaDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
-        deployer.deployContract("Plasma USD Plus Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
+        creationCode = type(TurtleMUSDDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "odosRouterV2"), getAddress(sourceChain, "pancakeSwapV3NonFungiblePositionManager"), getAddress(sourceChain, "pancakeSwapV3MasterChefV3"));
+        deployer.deployContract("turtlemUSD Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
