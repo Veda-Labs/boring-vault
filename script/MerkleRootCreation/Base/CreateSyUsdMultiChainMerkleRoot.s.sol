@@ -19,7 +19,7 @@ contract CreateSyUsdMultiChainMerkleRootScript is Script, MerkleTreeHelper {
     address public accountantAddress = 0x03D9a9cE13D16C7cFCE564f41bd7E85E5cde8Da6;
     address public boringVault = 0x279CAD277447965AF3d24a78197aad1B02a2c589;
     address public managerAddress = 0x9B3e565ffC70c4b72516BC2dbec4b3c790940CE8;
-    address public rawDataDecoderAndSanitizer01 = 0x53F0b212d28320DD0aB504AbD6871941EFf5AD45;
+    address public rawDataDecoderAndSanitizer01 = 0x0053fd970D9a18eD1C52E0ddB2F0a88CE197c611;
 
     function setUp() external {
         setSourceChainName(base);
@@ -54,16 +54,20 @@ contract CreateSyUsdMultiChainMerkleRootScript is Script, MerkleTreeHelper {
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "WETH"));
 
         // 1inch assets;
-        address[] memory oneInchAssets = new address[](2);
+        address[] memory oneInchAssets = new address[](3);
         oneInchAssets[0] = getAddress(sourceChain, "USDC");
         oneInchAssets[1] = getAddress(sourceChain, "USDS");
-        SwapKind[] memory kind = new SwapKind[](2);
+        oneInchAssets[2] = getAddress(sourceChain, "sUSDS");
+        SwapKind[] memory kind = new SwapKind[](3);
         kind[0] = SwapKind.BuyAndSell;
         kind[1] = SwapKind.BuyAndSell;
+        kind[2] = SwapKind.BuyAndSell;
 
         _addLeafsFor1InchGeneralSwapping(leafs, oneInchAssets, kind);
         _addOdosSwapLeafs(leafs, oneInchAssets, kind);
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "YearnOgUsdc")));
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "SENIOR TRANCHE Tranche USD Coin")));
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "JUNIOR TRANCHE Tranche USD Coin")));
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
         string memory filePath = "./leafs/Base/SyUsdBaseStrategyLeafs.json";
@@ -72,6 +76,7 @@ contract CreateSyUsdMultiChainMerkleRootScript is Script, MerkleTreeHelper {
         ManagerWithMerkleVerification manager = ManagerWithMerkleVerification(managerAddress);
         vm.startBroadcast(vm.envUint("BORING_OWNER"));
         manager.setManageRoot(managerAddress, manageTree[manageTree.length - 1][0]);
+        manager.setManageRoot(0xa86b3Bf249478488B4304B50726c7D4689aD6320, manageTree[manageTree.length - 1][0]);
         manager.setManageRoot(vm.addr(vm.envUint("BORING_MORPHO_AGENT")), manageTree[manageTree.length - 1][0]);
         vm.stopBroadcast();
     }

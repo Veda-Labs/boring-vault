@@ -94,23 +94,25 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory creationCode;
         bytes memory constructorArgs;
 
-        vm.createSelectFork("mainnet");
-        setSourceChainName("mainnet");
+        // vm.createSelectFork("mainnet");
+        // setSourceChainName("mainnet");
+        // vm.startBroadcast(privateKey);
+        // creationCode = type(SyUsdDecoderAndSanitizer).creationCode;
+        // constructorArgs = abi.encode(
+        //     getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2")
+        // );
+        // deployer.deployContract("SyUsd Ethereum DecodersAndSanitizers Batch 5", creationCode, constructorArgs, 0);
+        // vm.stopBroadcast();
+
+        vm.createSelectFork("base");
+        setSourceChainName("base");
         vm.startBroadcast(privateKey);
-        creationCode = type(SyUsdDecoderAndSanitizer).creationCode;
+        creationCode = type(SyUsdBaseDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(
             getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2")
         );
-        deployer.deployContract("SyUsd Ethereum DecodersAndSanitizers Batch 5", creationCode, constructorArgs, 0);
+        deployer.deployContract("SyUsd Base DecodersAndSanitizers Batch 2", creationCode, constructorArgs, 0);
         vm.stopBroadcast();
-
-        // vm.createSelectFork("base");
-        // setSourceChainName("base");
-        // vm.startBroadcast(privateKey);
-        // creationCode = type(SyUsdBaseDecoderAndSanitizer).creationCode;
-        // constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
-        // deployer.deployContract("SyUsd Base DecodersAndSanitizers Batch 1", creationCode, constructorArgs, 0);
-        // vm.stopBroadcast();
 
         // vm.createSelectFork("arbitrum");
         // setSourceChainName("arbitrum");

@@ -63,6 +63,19 @@ contract CreateSyUsdMultiChainMerkleRootScript is Script, MerkleTreeHelper {
             getBytes32(sourceChain, "boringVault")
         );
 
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "WXPL"),
+            false,
+            "transfer(address,uint256)",
+            new address[](1),
+            "",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5;
+
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
         string memory filePath = "./leafs/Plasma/SyUsdPlasmaStrategyLeafs.json";
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
