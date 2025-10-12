@@ -59,32 +59,57 @@ contract ArbitrumMerkleRootScript is Script, MerkleTreeHelper {
     }
 
     function _addLeafs(ManageLeaf[] memory leafs) internal {
+        // native leafs
+        _addNativeLeafs(leafs);
+        
+        // Balancer flashloan leafs
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDC"));
-        _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDT"));
+        _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDT0"));
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "DAI"));
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDS"));
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "WETH"));
+        _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "WBTC"));
+        _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "GYD"));
 
         // 1inch assets;
-        address[] memory oneInchAssets = new address[](5);
+        address[] memory oneInchAssets = new address[](7);
         oneInchAssets[0] = getAddress(sourceChain, "USDC");
         oneInchAssets[1] = getAddress(sourceChain, "USDS");
-        oneInchAssets[2] = getAddress(sourceChain, "USDT");
+        oneInchAssets[2] = getAddress(sourceChain, "USDT0");
         oneInchAssets[3] = getAddress(sourceChain, "USDE");
         oneInchAssets[4] = getAddress(sourceChain, "WETH");
+        oneInchAssets[5] = getAddress(sourceChain, "WBTC");
+        oneInchAssets[6] = getAddress(sourceChain, "GYD");
 
-        SwapKind[] memory kind = new SwapKind[](5);
+        SwapKind[] memory kind = new SwapKind[](7);
         kind[0] = SwapKind.BuyAndSell;
         kind[1] = SwapKind.BuyAndSell;
         kind[2] = SwapKind.BuyAndSell;
         kind[3] = SwapKind.BuyAndSell;
         kind[4] = SwapKind.BuyAndSell;
+        kind[5] = SwapKind.BuyAndSell;
+        kind[6] = SwapKind.BuyAndSell;
         _addOdosSwapLeafs(leafs, oneInchAssets, kind);
 
-        address[] memory token0 = new address[](1);
+        address[] memory token0 = new address[](3);
         token0[0] = getAddress(sourceChain, "WETH");
-        address[] memory token1 = new address[](1);
+        token0[1] = getAddress(sourceChain, "WETH");
+        token0[2] = getAddress(sourceChain, "WBTC");
+        address[] memory token1 = new address[](3);
         token1[0] = getAddress(sourceChain, "USDC");
+        token1[1] = getAddress(sourceChain, "WBTC");
+        token1[2] = getAddress(sourceChain, "USDC");
         _addUniswapV3Leafs(leafs, token0, token1, false, false);
+
+        ERC20[] memory supplyAssets = new ERC20[](2);
+        supplyAssets[0] = getERC20(sourceChain, "WBTC");
+        supplyAssets[1] = getERC20(sourceChain, "WETH");
+        ERC20[] memory borrowAssets = new ERC20[](4);
+        borrowAssets[0] = getERC20(sourceChain, "WBTC");
+        borrowAssets[1] = getERC20(sourceChain, "WETH");
+        borrowAssets[2] = getERC20(sourceChain, "USDC");
+        borrowAssets[3] = getERC20(sourceChain, "USDT0");
+
+        _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
     }
 }
