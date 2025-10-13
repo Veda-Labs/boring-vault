@@ -2012,6 +2012,7 @@ contract ChainValues {
 
     function _addBscValues() private {
         values[bsc]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        values[bsc]["txBundlerAddress"] = 0x633ccAFEF3F42F87a457c44ffF826a5b6fc99706.toBytes32();
         values[bsc]["dev0Address"] = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b.toBytes32();
         values[bsc]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
 
@@ -2019,6 +2020,10 @@ contract ChainValues {
         values[bsc]["WBTC"] = 0x0555E30da8f98308EdB960aa94C0Db47230d2B9c.toBytes32();
         values[bsc]["WBNB"] = 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c.toBytes32();
         values[bsc]["BTCB"] = 0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c.toBytes32();
+        values[bsc]["USDT"] = 0x55d398326f99059fF775485246999027B3197955.toBytes32(); // 18 decimals weird one
+        values[bsc]["mUSD"] = 0xacA92E438df0B2401fF60dA7E4337B687a2435DA.toBytes32();
+        values[bsc]["EUL"] = 0x2117E8b79e8E176A670c9fCf945d4348556bfFad.toBytes32();
+        values[bsc]["rEUL"] = 0x5e13d41913aDF18bb2acAe34228E8D21f3c2f2Eb.toBytes32();
 
         // 1Inch
         values[bsc]["aggregationRouterV5"] = 0x1111111254EEB25477B68fb85Ed929f73A960582.toBytes32();
@@ -2031,10 +2036,25 @@ contract ChainValues {
 
         // Odos
         values[bsc]["odosRouterV2"] = 0x89b8AA89FDd0507a99d334CBe3C808fAFC7d850E.toBytes32();
-        values[bsc]["odosExecutor"] = 0x3f1aBA670a0234109be0222a805F3207117c2531.toBytes32();
+        values[bsc]["odosExecutor"] = 0xda4F2e8041aa91A93B1D46Cf224Bbd4e9134a9EC.toBytes32();
+
+        // Balancer Vault
+        values[bsc]["balancerVault"] = address(1).toBytes32();
+
+        // Euler
+        values[bsc]["ethereumVaultConnector"] = 0xb2E5a73CeE08593d1a076a2AE7A6e02925a640ea.toBytes32();
+        values[bsc]["euler-emUSD-1"] = 0x4602269A321650aBb5fB3bCD311b4478469263C6.toBytes32();
+        values[bsc]["euler-eUSDT-3"] = 0x5fd02479F938929F6b9fE1b7Af6430cfD4afa6Aa.toBytes32();
+
+        // Merkl
+        values[bsc]["merklDistributor"] = 0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae.toBytes32();
 
         // LBTC Bridge
         values[bsc]["lbtcBridge"] = 0xA869817b48b25EeE986bdF4bE04062e6fd2C418B.toBytes32();
+
+        // Layer Zero
+        values[bsc]["LayerZeroEndPoint"] = 0x1a44076050125825900e736c501f859c50fE728c.toBytes32();
+        values[bsc]["ZRO"] = address(1).toBytes32();
     }
 
     function _addCornValues() private {
