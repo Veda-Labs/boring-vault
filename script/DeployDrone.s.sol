@@ -21,13 +21,13 @@ import "forge-std/Test.sol";
 contract DeployDrone is Script, ContractNames, Test {
     uint256 public privateKey;
     
-    //liquidUSD
-    address boringVault = 0x08c6F91e2B681FaF5e17227F2a44C307b3C1364C; 
+    //liquidETH
+    address boringVault = 0x6fDcB0654B4814c2eC1E7e9dbC4cEBf1a2038a84; 
     Deployer deployer = Deployer(0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d); 
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("mainnet");
+        vm.createSelectFork("plasma");
     }
 
 
@@ -38,7 +38,9 @@ contract DeployDrone is Script, ContractNames, Test {
 
         creationCode = type(BoringDrone).creationCode;
         constructorArgs = abi.encode(boringVault, 0);
-        deployer.deployContract("liquidUSD Boring Drone 1", creationCode, constructorArgs, 0);
+        deployer.deployContract("Plasma USD+ Boring Drone 0", creationCode, constructorArgs, 0);
+        deployer.deployContract("Plasma USD+ Boring Drone 1", creationCode, constructorArgs, 0);
+        deployer.deployContract("Plasma USD+ Boring Drone 2", creationCode, constructorArgs, 0);
     }
 
 }

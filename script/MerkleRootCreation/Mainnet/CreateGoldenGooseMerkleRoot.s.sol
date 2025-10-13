@@ -22,7 +22,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0xef417FCE1883c6653E7dC6AF7c6F85CCDE84Aa09;
     address public managerAddress = 0x5F341B1cf8C5949d6bE144A725c22383a5D3880B;
     address public accountantAddress = 0xc873F2b7b3BA0a7faA2B56e210E3B965f2b618f5;
-    address public rawDataDecoderAndSanitizer = 0x1E139A5B693bD97A489a0a492A85887499123868;
+    address public rawDataDecoderAndSanitizer = 0xFdd941183bc1Bb63F614e235b11B285a1A016c0A;
     address public primeGoldenGooseTeller = 0x4ecC202775678F7bCfF8350894e2F2E3167Cc3Df;
 
     function setUp() external {}
@@ -45,21 +45,11 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         setAddress(false, mainnet, "primeGoldenGooseTeller", primeGoldenGooseTeller);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](256);
-
-        // ========================== Teller ==========================
-        // Enable bulkDeposit and bulkWithdraw on Prime Golden Goose vault
-        ERC20[] memory tellerAssets = new ERC20[](2);
-        tellerAssets[0] = getERC20(sourceChain, "WETH");
-        tellerAssets[1] = getERC20(sourceChain, "WSTETH");
-        _addTellerLeafs(leafs, getAddress(sourceChain, "primeGoldenGooseTeller"), tellerAssets, false, true);
+        ManageLeaf[] memory leafs = new ManageLeaf[](512);
 
         // ========================== Rewards ==========================
-        ERC20[] memory tokensToClaim = new ERC20[](2);
-        tokensToClaim[0] = getERC20(sourceChain, "rEUL");
-        tokensToClaim[1] = getERC20(sourceChain, "UNI");
         _addMerklLeafs(
-            leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"), tokensToClaim
+            leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address")
         );
         _addrEULWrappingLeafs(leafs);
 
@@ -67,12 +57,8 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         _addNativeLeafs(leafs);
 
         // ========================== Standard Bridge ==========================
-        ERC20[] memory localTokens = new ERC20[](2);
-        ERC20[] memory remoteTokens = new ERC20[](2);
-        localTokens[0] = getERC20(sourceChain, "WETH");
-        remoteTokens[0] = getERC20(unichain, "WETH");
-        localTokens[1] = getERC20(sourceChain, "WSTETH");
-        remoteTokens[1] = getERC20(unichain, "WSTETH");
+        ERC20[] memory localTokens = new ERC20[](0);
+        ERC20[] memory remoteTokens = new ERC20[](0);
 
         _addStandardBridgeLeafs(
             leafs,
@@ -89,9 +75,9 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             leafs,
             unichain,
             getAddress(unichain, "crossDomainMessenger"),
-            getAddress(sourceChain, "unichainResolvedDelegate"),
-            getAddress(sourceChain, "unichainStandardBridge"),
-            getAddress(sourceChain, "unichainPortal")
+            getAddress(sourceChain, "lidoUnichainResolvedDelegate"),
+            getAddress(sourceChain, "lidoUnichainStandardBridge"),
+            getAddress(sourceChain, "lidoUnichainPortal")
         );
 
         // ========================== Layer Zero ==========================
@@ -108,6 +94,10 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "WSTETH_WETH_945"));
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "WSTETH_WETH_965"));
+
+        // Additional Morpho Blue market: 0xc54d7acf14de29e0e5527cabd7a576506870346a78a11a6762e2cca66322ec41
+        _addMorphoBlueCollateralLeafs(leafs, 0xc54d7acf14de29e0e5527cabd7a576506870346a78a11a6762e2cca66322ec41);
+        _addMorphoBlueSupplyLeafs(leafs, 0xc54d7acf14de29e0e5527cabd7a576506870346a78a11a6762e2cca66322ec41);
 
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "steakhouseETH")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletWETHPrime")));
@@ -150,18 +140,20 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         // =========================== Odos ==========================
         {
-            address[] memory assets = new address[](5);
-            SwapKind[] memory kind = new SwapKind[](5);
+            address[] memory assets = new address[](6);
+            SwapKind[] memory kind = new SwapKind[](6);
             assets[0] = getAddress(sourceChain, "WETH");
             kind[0] = SwapKind.BuyAndSell;
             assets[1] = getAddress(sourceChain, "WSTETH");
             kind[1] = SwapKind.BuyAndSell;
-            assets[2] = getAddress(sourceChain, "UNI");
-            kind[2] = SwapKind.Sell;
-            assets[3] = getAddress(sourceChain, "rEUL");
+            assets[2] = getAddress(sourceChain, "WEETH");
+            kind[2] = SwapKind.BuyAndSell;
+            assets[3] = getAddress(sourceChain, "UNI");
             kind[3] = SwapKind.Sell;
-            assets[4] = getAddress(sourceChain, "EUL");
+            assets[4] = getAddress(sourceChain, "rEUL");
             kind[4] = SwapKind.Sell;
+            assets[5] = getAddress(sourceChain, "EUL");
+            kind[5] = SwapKind.Sell;
 
             _addOdosSwapLeafs(leafs, assets, kind);
 
@@ -209,22 +201,165 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         }
         // ========================== Aave V3 ==========================
         {
-            // Core
-            ERC20[] memory supplyAssets = new ERC20[](2);
-            supplyAssets[0] = getERC20(sourceChain, "WETH");
-            supplyAssets[1] = getERC20(sourceChain, "WSTETH");
-            _addAaveV3Leafs(leafs, supplyAssets, supplyAssets);
+            // Core - including weETH supply
+            ERC20[] memory coreSupplyAssets = new ERC20[](3);
+            coreSupplyAssets[0] = getERC20(sourceChain, "WETH");
+            coreSupplyAssets[1] = getERC20(sourceChain, "WSTETH");
+            coreSupplyAssets[2] = getERC20(sourceChain, "weETH");
+
+            ERC20[] memory coreBorrowAssets = new ERC20[](2);
+            coreBorrowAssets[0] = getERC20(sourceChain, "WETH");
+            coreBorrowAssets[1] = getERC20(sourceChain, "WSTETH");
+
+            _addAaveV3Leafs(leafs, coreSupplyAssets, coreBorrowAssets);
 
             // Prime
-            _addAaveV3PrimeLeafs(leafs, supplyAssets, supplyAssets);
+            ERC20[] memory primeAssets = new ERC20[](2);
+            primeAssets[0] = getERC20(sourceChain, "WETH");
+            primeAssets[1] = getERC20(sourceChain, "WSTETH");
+            _addAaveV3PrimeLeafs(leafs, primeAssets, primeAssets);
         }
 
         // =========================== Mellow ==========================
+        // dvstETH operations (handles Mellow vault deposits/withdrawals)
         address[] memory mellowTokens = new address[](2);
         mellowTokens[0] = getAddress(sourceChain, "WETH");
         mellowTokens[1] = getAddress(sourceChain, "WSTETH");
         _addDvStETHLeafs(leafs, mellowTokens);
 
+        // rstETH restaking via Mellow (Lido restaked ETH)
+        // TODO: Add Mellow rstETH restaking implementation once decoder supports it
+        // This is different from dvstETH and requires specific rstETH handling
+
+        // =========================== EtherFi ==========================
+        // weETH operations
+        _addEtherFiLeafs(leafs);
+
+        // =========================== Treehouse ==========================
+        // tETH vault deposits
+        {
+            ERC20[] memory routerTokensIn = new ERC20[](1);
+            routerTokensIn[0] = getERC20(sourceChain, "WSTETH");
+            _addTreehouseLeafs(
+                leafs,
+                routerTokensIn,
+                getAddress(sourceChain, "TreehouseRouter"),
+                getAddress(sourceChain, "TreehouseRedemption"),
+                getERC20(sourceChain, "tETH"),
+                getAddress(sourceChain, "tETH_wstETH_curve_pool"),
+                2,
+                address(0) // No gauge
+            );
+        }
+
+        // =========================== Gearbox ==========================
+        // TODO: Add Gearbox rstETH/wstETH loop strategy when decoder supports it
+
+        // =========================== Turtle Club ==========================
+        // Katana Pre-deposit vault for WETH - commented out until vault address is available
+        // Note: Turtle Club Katana vault is intentionally commented out pending final address confirmation
+        // _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "katanaVault")));
+
+        // =========================== Additional Bridging ==========================
+        // Arbitrum Bridge
+        {
+            ERC20[] memory arbBridgeAssets = new ERC20[](2);
+            arbBridgeAssets[0] = getERC20(sourceChain, "WETH");
+            arbBridgeAssets[1] = getERC20(sourceChain, "WSTETH");
+            _addArbitrumNativeBridgeLeafs(leafs, arbBridgeAssets);
+        }
+
+        // Optimism Bridge (using standard bridge which is already configured above)
+        // Base Bridge (using standard bridge pattern)
+        {
+            ERC20[] memory baseLocalTokens = new ERC20[](0);
+            ERC20[] memory baseRemoteTokens = new ERC20[](0);
+
+            _addStandardBridgeLeafs(
+                leafs,
+                base,
+                getAddress(base, "crossDomainMessenger"),
+                getAddress(sourceChain, "baseResolvedDelegate"),
+                getAddress(sourceChain, "baseStandardBridge"),
+                getAddress(sourceChain, "basePortal"),
+                baseLocalTokens,
+                baseRemoteTokens
+            );
+
+            _addLidoStandardBridgeLeafs(
+                leafs,
+                base,
+                getAddress(base, "crossDomainMessenger"),
+                getAddress(sourceChain, "lidoBaseResolvedDelegate"),
+                getAddress(sourceChain, "lidoBaseStandardBridge"),
+                getAddress(sourceChain, "lidoBasePortal")
+            );
+        }
+
+        // Optimism Bridge addition
+        {
+            ERC20[] memory opLocalTokens = new ERC20[](0);
+            ERC20[] memory opRemoteTokens = new ERC20[](0);
+
+            _addStandardBridgeLeafs(
+                leafs,
+                optimism,
+                getAddress(optimism, "crossDomainMessenger"),
+                getAddress(sourceChain, "optimismResolvedDelegate"),
+                getAddress(sourceChain, "optimismStandardBridge"),
+                getAddress(sourceChain, "optimismPortal"),
+                opLocalTokens,
+                opRemoteTokens
+            );
+
+            _addLidoStandardBridgeLeafs(
+                leafs,
+                optimism,
+                getAddress(optimism, "crossDomainMessenger"),
+                getAddress(sourceChain, "lidoOptimismResolvedDelegate"),
+                getAddress(sourceChain, "lidoOptimismStandardBridge"),
+                getAddress(sourceChain, "lidoOptimismPortal")
+            );
+        }
+
+        // ========================== vbVault ==========================
+
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "vbETH")));
+
+        // Agglayer bridging to Katana
+        // Note: Agglayer bridge addresses need to be added to MainnetAddresses.sol
+        _addAgglayerTokenLeafs(
+            leafs,
+            getAddress(sourceChain, "agglayerBridgeKatana"),
+            getAddress(sourceChain, "vbETH"),
+            0, // Mainnet chain ID in Agglayer
+            20 // Katana chain ID in Agglayer
+        );
+        _addAgglayerTokenLeafs(
+            leafs,
+            getAddress(sourceChain, "agglayerBridgeKatana"),
+            getAddress(sourceChain, "WSTETH"),
+            0, // Mainnet chain ID in Agglayer
+            20 // Katana chain ID in Agglayer
+        );
+
+        // ========================== Layer Zero ==========================
+        // to Base
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "WEETH"),
+            getAddress(sourceChain, "WEETH"),
+            layerZeroBaseEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+
+        // ========================== Linea Bridge ==========================
+        {
+            ERC20[] memory lineaTokens = new ERC20[](1); 
+            lineaTokens[0] = getERC20(sourceChain, "WSTETH"); 
+
+            _addLineaNativeBridgeLeafs(leafs, "linea", lineaTokens); 
+        }
         // ========================== Verify & Generate ==========================
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
