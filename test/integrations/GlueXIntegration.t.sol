@@ -51,7 +51,7 @@ contract GlueXIntegration is BaseTestIntegration {
         Tx memory tx_ = _getTxArrays(2); 
 
         tx_.manageLeafs[0] = leafs[0]; //approve token0
-        tx_.manageLeafs[1] = leafs[1]; //swap USDT for hwHLP
+        tx_.manageLeafs[1] = leafs[3]; //swap USDT for hwHLP
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
     

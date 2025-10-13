@@ -12509,6 +12509,33 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                     getAddress(sourceChain, "rawDataDecoderAndSanitizer")
                 );
                 leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "glueXRouter");
+
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    tokens[i],
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve Permit2 to spend ", ERC20(tokens[i]).symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "permit2");
+
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    getAddress(sourceChain, "permit2"),
+                    false,
+                    "approve(address,address,uint160,uint48)",
+                    new address[](2),
+                    string.concat("Use Permit2 to approve GlueX Router to spend ", ERC20(tokens[i]).symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = tokens[i];
+                leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "glueXRouter");
             }
 
             for (uint256 j = 0; j < tokens.length; j++) {
