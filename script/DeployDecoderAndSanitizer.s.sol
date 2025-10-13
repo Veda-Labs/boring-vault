@@ -107,6 +107,7 @@ import {PlasmaUSDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Plasm
 import {GoldenGooseUnichainDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseUnichainDecoderAndSanitizer.sol";
 import {OptimismGoldenGooseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/OptimismGoldenGooseDecoderAndSanitizer.sol";
 import {GoldenGooseBaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseBaseDecoderAndSanitizer.sol";
+import {SentoraDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentoraDecoderAndSanitizer.sol";
 import {GoldenGooseLineaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseLineaDecoderAndSanitizer.sol";
 import {EthenaRWADecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EthenaRWADecoderAndSanitizer.sol";
 import {LiquidMoveEthDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidMoveEthDecoderAndSanitizer.sol";
@@ -146,6 +147,10 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         creationCode = type(PlasmaUSDPlusPlasmaDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
         deployer.deployContract("Plasma USD Plus Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
+
+        creationCode = type(SentoraDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "odosRouterV2"));
+        deployer.deployContract("Sentora Decoder and Sanitizer V0.2", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
