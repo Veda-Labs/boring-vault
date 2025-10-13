@@ -3,7 +3,7 @@ import "scenarioA.spec";
 rule integrityOfDeposit(env e)
 {
     safeAssumptions();
-    nonSceneSender(e.msg.sender);
+    nonSceneAddress(e.msg.sender);
     address asset; uint256 depositAmount; uint256 minimumMint;
     mathint assetsBefore = userAssets(e, asset, e.msg.sender);
     mathint sharesBefore = userAssets(e, vault_contract, e.msg.sender);
@@ -21,7 +21,7 @@ rule integrityOfDeposit(env e)
 rule integrityOfDepositWithPermit(env e)
 {
     safeAssumptions();
-    nonSceneSender(e.msg.sender);
+    nonSceneAddress(e.msg.sender);
     address asset; uint256 depositAmount; uint256 minimumMint;
     uint256 deadline; uint8 v; bytes32 r; bytes32 s;
 
@@ -42,7 +42,7 @@ rule integrityOfDepositWithPermit(env e)
 rule integrityOfBulkDeposit(env e)
 {
     safeAssumptions();
-    nonSceneSender(e.msg.sender);
+    nonSceneAddress(e.msg.sender);
     address asset; uint256 depositAmount; uint256 minimumMint; address receiver;
     mathint assetsBefore = userAssets(e, asset, e.msg.sender);
     mathint sharesBefore = userAssets(e, vault_contract, receiver);
@@ -60,7 +60,7 @@ rule integrityOfBulkDeposit(env e)
 rule integrityOfWithdraw(env e)
 {
     safeAssumptions();
-    nonSceneSender(e.msg.sender);
+    nonSceneAddress(e.msg.sender);
     address asset; uint256 sharesAmount; uint256 minimumAssets; address receiver;
     require asset != vault_contract && receiver != vault_contract;
     mathint sharesBefore = userAssets(e, vault_contract, e.msg.sender);
@@ -79,7 +79,7 @@ rule integrityOfWithdraw(env e)
 rule integrityOfBulkWithdraw(env e)
 {
     safeAssumptions();
-    nonSceneSender(e.msg.sender);
+    nonSceneAddress(e.msg.sender);
     address asset; uint256 sharesAmount; uint256 minimumAssets; address receiver;
     require asset != vault_contract && receiver != vault_contract;
     mathint sharesBefore = userAssets(e, vault_contract, e.msg.sender);

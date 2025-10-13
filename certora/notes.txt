@@ -35,6 +35,11 @@ ONE_SHARE defined twice.. even though there is a reference
 bulkDeposit: comments say it doesnt support native deposits. Where is this enforced?
 There's no revertOnNativeDeposit modifier
 
+------------------------------------
+16. 10.
+
+ExchangeRateChangeLower, ExchangeRateChangeUpper: not checked in the constructor
+
 
 
 

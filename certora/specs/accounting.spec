@@ -38,10 +38,6 @@ function convertToAssets(storage init, uint256 shares, address asset_contract) r
     
 // }
 
-////////////////////////////////////////////////////////////////////////////////
-////           Dynamic Calls                                               /////
-////////////////////////////////////////////////////////////////////////////////
-
 persistent ghost bool callMade;
 persistent ghost bool delegatecallMade;
 
@@ -74,7 +70,7 @@ rule noDynamicCalls(env e, method f)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-////           #  asset To shares mathematical properties                  /////
+////           #  asset-to-shares mathematical properties                  /////
 ////////////////////////////////////////////////////////////////////////////////
 
 rule conversionOfZero {
@@ -161,15 +157,11 @@ rule conversionWeakIntegrity_assets() {
         "converting assets to shares then back to assets must return assets less than or equal to the original amount";
 }
 
-////////////////////////////////////////////////////////////////////////////////
-////                    #     State Transition                             /////
-////////////////////////////////////////////////////////////////////////////////
-
 // totalSupply and totalAssets must not change in opposite directions
 rule totalsMonotonicity(env e, method f) 
 {
     if (f.selector != sig:accountant_contract.claimFees(address).selector)
-        nonSceneSender(e.msg.sender);   // the claimFees can only be called by the Vault so this condidtion would cause vacuity
+        nonSceneAddress(e.msg.sender);   // the claimFees can only be called by the Vault so this condidtion would cause vacuity
 
     address asset;
     uint256 totalSupplyBefore = vault_contract.totalSupply(e);
@@ -217,7 +209,7 @@ filtered { f -> !ignoredMethod(f)
 {
     preserved with (env e2) {
         safeAssumptions();
-        nonSceneSender(e2.msg.sender);
+        nonSceneAddress(e2.msg.sender);
     }
 }
 
@@ -228,19 +220,15 @@ invariant zeroAllowanceOnAssets(env e, address user, address asset)
 filtered { f -> f.contract == teller_contract } 
 {
     preserved with (env e2) {
-        nonSceneSender(e2.msg.sender);
+        nonSceneAddress(e2.msg.sender);
     }
 }
-
-////////////////////////////////////////////////////////////////////////////////
-////               # stakeholder properties  (Risk Analysis )         //////////
-////////////////////////////////////////////////////////////////////////////////
 
 rule onlyContributionMethodsReduceAssets(env e, method f) 
     filtered { f -> f.contract == teller_contract }
 {
     safeAssumptions();
-    address user; nonSceneSender(user);
+    address user; nonSceneAddress(user);
     address asset; require asset != vault_contract;
     uint256 userAssetsBefore = userAssets(e, asset, user);
 

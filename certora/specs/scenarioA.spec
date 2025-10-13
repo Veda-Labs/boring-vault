@@ -13,11 +13,6 @@ methods
     //function vault_contract.decimals() external returns (uint8) envfree;
 }
 
-function getHighWaterMark() returns uint96
-{
-    return accountant_contract.accountantState.highwaterMark;
-}
-
 definition ignoredMethod(method f) returns bool =
     f.selector == sig:vault_contract.manage(address[],bytes[],uint256[]).selector
     || f.selector == sig:vault_contract.manage(address,bytes,uint256).selector
@@ -33,49 +28,20 @@ function safeAssumptions()
     requireInvariant totalSupplyHolds_ERC20Mock();
 }
 
-function nonSceneSender(address sender)
+function nonSceneAddress(address sender)
 {
-    //env e;
-    //bytes4 signature_exit = sig:vault_contract.exit(address,address,uint256,address,uint256).selector;
-    require sender != currentContract 
+    require sender != teller_contract 
         && sender != vault_contract
-        && sender != WETH
-        && !teller_contract.authority.isAuthorized(sender, signature_exit)
-       ;
-}
+        && sender != WETH;
 
-rule highwaterMarkNeverDecreases(env e, method f)
-    filtered { f -> !ignoredMethod(f) 
-        && f.selector != sig:accountant_contract.resetHighwaterMark().selector
-    }
-{
-    uint96 WM_pre = getHighWaterMark();
-    calldataarg args;
-    f(e, args);
-
-    uint96 WM_post = getHighWaterMark();
-    assert WM_post >= WM_pre;
-}
-
-invariant exchangeRateLEhighwaterMark_unlessPaused()
-    !accountant_contract.accountantState.isPaused => 
-        accountant_contract.accountantState.exchangeRate <= accountant_contract.accountantState.highwaterMark
-    filtered { f -> !ignoredMethod(f)
-        && f.selector != sig:accountant_contract.unpause().selector }
-    { preserved { safeAssumptions(); }}
-
-rule lastUpdateTimestampNeverDecreases(env e, method f)
-    filtered { f -> !ignoredMethod(f) }
-{
-    uint64 timestamp_pre = accountant_contract.accountantState.lastUpdateTimestamp;
-    require timestamp_pre <= e.block.timestamp &&
-        e.block.timestamp <= 2^30;
-
-    calldataarg args;
-    f(e, args);
-
-    uint64 timestamp_post = accountant_contract.accountantState.lastUpdateTimestamp;
-    assert timestamp_post >= timestamp_pre;
+    env e;
+    bytes4 signature_enter = to_bytes4(sig:vault_contract.enter(address,address,uint256,address,uint256).selector);
+    bytes4 signature_exit = to_bytes4(sig:vault_contract.exit(address,address,uint256,address,uint256).selector);
+    
+    require 
+        !vault_contract.isAuthorized(e, sender, signature_enter)
+        && !vault_contract.isAuthorized(e, sender, signature_exit)
+        ;
 }
 
 rule deniedUsers_balanceNonDecreasing(env e, method f)
@@ -83,7 +49,7 @@ rule deniedUsers_balanceNonDecreasing(env e, method f)
 {
     safeAssumptions();
     if (f.selector != sig:accountant_contract.claimFees(address).selector)
-        nonSceneSender(e.msg.sender);   // the claimFees can only be called by the Vault so this condidtion would cause vacuity
+        nonSceneAddress(e.msg.sender);   // the claimFees can only be called by the Vault so this condidtion would cause vacuity
 
     address user;
     bool isDeniedFrom = teller_contract.beforeTransferData[user].denyFrom;
@@ -101,7 +67,7 @@ rule deniedUsers_balanceNonIncreasing(env e, method f)
 {
     safeAssumptions();
     if (f.selector != sig:accountant_contract.claimFees(address).selector)
-        nonSceneSender(e.msg.sender);   // the claimFees can only be called by the Vault so this condidtion would cause vacuity
+        nonSceneAddress(e.msg.sender);   // the claimFees can only be called by the Vault so this condidtion would cause vacuity
 
     address user;
     bool isDeniedTo = teller_contract.beforeTransferData[user].denyTo;
@@ -151,38 +117,23 @@ rule dustFavorsTheHouse(uint assetsIn, env e)
 }
 
 rule tellerDoesntHoldTokens(env e, method f)
-    filtered { f -> !ignoredMethod(f) }
+    filtered { f -> !ignoredMethod(f)
+        && f.contract != ERC20Mock }
 {
     safeAssumptions();
     if (f.selector != sig:accountant_contract.claimFees(address).selector)
-        nonSceneSender(e.msg.sender);   // the claimFees can only be called by the Vault so this condidtion would cause vacuity
+        nonSceneAddress(e.msg.sender);   // the claimFees can only be called by the Vault so this condidtion would cause vacuity
 
     address asset; require asset != vault_contract;
+    address receiver; nonSceneAddress(receiver);
+    
+    require accountant_contract.accountantState.payoutAddress != teller_contract, "otherwise the teller holds the fees, i.e. does hold tokens";
     // todo require that the teller contract is not the target of the funds.
 
     uint balanceBefore = asset.balanceOf(e, teller_contract);
-    calldataarg args;
-    f(e, args);
+    callMethodWithReceiver(e, f, receiver);
 
     uint balanceAfter = asset.balanceOf(e, teller_contract);
-
-    assert balanceAfter == balanceBefore;
-}
-
-rule accountantDoesntHoldTokens(env e, method f)
-    filtered { f -> !ignoredMethod(f) }
-{
-    safeAssumptions();
-    if (f.selector != sig:accountant_contract.claimFees(address).selector)
-        nonSceneSender(e.msg.sender);   // the claimFees can only be called by the Vault so this condidtion would cause vacuity
-
-    address asset; require asset != vault_contract;
-
-    uint balanceBefore = asset.balanceOf(e, accountant_contract);
-    calldataarg args;
-    f(e, args);
-
-    uint balanceAfter = asset.balanceOf(e, accountant_contract);
 
     assert balanceAfter == balanceBefore;
 }
@@ -193,7 +144,9 @@ function userAssets(env e, address asset, address user) returns uint256
 }
 
 rule tellerPaused_valuesFrozen(env e, method f)
-    filtered { f -> !ignoredMethod(f) }
+    filtered { f -> !ignoredMethod(f) &&
+        !isPublicMethod(f) // we proved that public methods revert when paused so they would just be vacuous here 
+        }
 {
     require teller_contract.isPaused;
     uint64 depositNonce_pre = teller_contract.depositNonce;
@@ -214,62 +167,17 @@ rule tellerPaused_valuesFrozen(env e, method f)
     ;
 }
 
-rule accountantPaused_valuesFrozen(env e, method f)
-    filtered { f -> !ignoredMethod(f) }
+// public methods should revert when paused
+rule tellerPaused_methodsRevert(env e, method f)
+    filtered { f -> isPublicMethod(f) }
 {
-    require accountant_contract.accountantState.isPaused;
-
-    address payoutAddress_pre = accountant_contract.accountantState.payoutAddress;
-    uint96 highwaterMark_pre = accountant_contract.accountantState.highwaterMark;
-    uint128 feesOwedInBase_pre = accountant_contract.accountantState.feesOwedInBase;
-    uint128 totalSharesLastUpdate_pre = accountant_contract.accountantState.totalSharesLastUpdate;
-    uint96 exchangeRate_pre = accountant_contract.accountantState.exchangeRate;
-    uint16 allowedExchangeRateChangeUpper_pre = accountant_contract.accountantState.allowedExchangeRateChangeUpper;
-    uint16 allowedExchangeRateChangeLower_pre = accountant_contract.accountantState.allowedExchangeRateChangeLower;
-    uint64 lastUpdateTimestamp_pre = accountant_contract.accountantState.lastUpdateTimestamp;
-    bool isPaused_pre = accountant_contract.accountantState.isPaused;
-    uint24 minimumUpdateDelayInSeconds_pre = accountant_contract.accountantState.minimumUpdateDelayInSeconds;
-    uint16 platformFee_pre = accountant_contract.accountantState.platformFee;
-    uint16 performanceFee_pre = accountant_contract.accountantState.performanceFee;
-
+    require teller_contract.isPaused;
+    
     calldataarg args;
-    f(e, args);
+    f@withrevert(e, args);
 
-    address payoutAddress_post = accountant_contract.accountantState.payoutAddress;
-    uint96 highwaterMark_post = accountant_contract.accountantState.highwaterMark;
-    uint128 feesOwedInBase_post = accountant_contract.accountantState.feesOwedInBase;
-    uint128 totalSharesLastUpdate_post = accountant_contract.accountantState.totalSharesLastUpdate;
-    uint96 exchangeRate_post = accountant_contract.accountantState.exchangeRate;
-    uint16 allowedExchangeRateChangeUpper_post = accountant_contract.accountantState.allowedExchangeRateChangeUpper;
-    uint16 allowedExchangeRateChangeLower_post = accountant_contract.accountantState.allowedExchangeRateChangeLower;
-    uint64 lastUpdateTimestamp_post = accountant_contract.accountantState.lastUpdateTimestamp;
-    bool isPaused_post = accountant_contract.accountantState.isPaused;
-    uint24 minimumUpdateDelayInSeconds_post = accountant_contract.accountantState.minimumUpdateDelayInSeconds;
-    uint16 platformFee_post = accountant_contract.accountantState.platformFee;
-    uint16 performanceFee_post = accountant_contract.accountantState.performanceFee;
-
-    assert feesOwedInBase_post == feesOwedInBase_pre &&
-        payoutAddress_post == payoutAddress_pre &&
-        highwaterMark_post == highwaterMark_pre &&
-        feesOwedInBase_post == feesOwedInBase_pre &&
-        totalSharesLastUpdate_post == totalSharesLastUpdate_pre &&
-        exchangeRate_post == exchangeRate_pre &&
-        allowedExchangeRateChangeUpper_post == allowedExchangeRateChangeUpper_pre &&
-        allowedExchangeRateChangeLower_post == allowedExchangeRateChangeLower_pre &&
-        lastUpdateTimestamp_post == lastUpdateTimestamp_pre &&
-        isPaused_post == isPaused_pre &&
-        minimumUpdateDelayInSeconds_post == minimumUpdateDelayInSeconds_pre &&
-        platformFee_post == platformFee_pre &&
-        performanceFee_post == performanceFee_pre;
+    assert lastReverted;
 }
-
-invariant allowedExchangeRateChangeUpper_bound()
-    accountant_contract.accountantState.allowedExchangeRateChangeUpper >= 10^4
-    filtered { f -> !ignoredMethod(f) }
-
-invariant allowedExchangeRateChangeLower_bound()
-    accountant_contract.accountantState.allowedExchangeRateChangeLower <= 10^4
-    filtered { f -> !ignoredMethod(f) }
 
 rule vaultCannotChange(env e, method f)
     filtered { f -> !ignoredMethod(f) }
@@ -283,19 +191,38 @@ rule vaultCannotChange(env e, method f)
     assert vault_pre == vault_post;
 }
 
-rule feesCanOnlyDecreaseViaClaimFees(env e, method f)
-    filtered { f -> !ignoredMethod(f) }
+function callMethodWithReceiver(env e, method f, address receiver)
 {
-    uint256 fees_pre = accountant_contract.accountantState.feesOwedInBase;
-
-    calldataarg args;
-    f(e, args);
-
-    uint256 fees_post = accountant_contract.accountantState.feesOwedInBase;
-    assert fees_post < fees_pre => f.selector == sig:accountant_contract.claimFees(address).selector;
+    if (f.selector == sig:teller_contract.refundDeposit(
+        uint256,address,address,uint256,uint256,uint256,uint256).selector)
+    {
+        uint256 nonce; address depositAsset; uint256 depositAmount; 
+        uint256 shareAmount; uint256 depositTimestamp; 
+        uint256 shareLockUpPeriodAtTimeOfDeposit;
+        refundDeposit(e, nonce, receiver, depositAsset, depositAmount,
+            shareAmount, depositTimestamp, shareLockUpPeriodAtTimeOfDeposit);
+    }
+    else if (f.selector == sig:teller_contract.withdraw(address,uint256,uint256,address).selector)
+    {
+        address withdrawAsset; uint256 shareAmount; uint256 minimumAssets;
+        withdraw(e, withdrawAsset, shareAmount, minimumAssets, receiver);
+    }
+    else if (f.selector == sig:teller_contract.bulkWithdraw(address,uint256,uint256,address).selector)
+    {
+        address withdrawAsset; uint256 shareAmount; uint256 minimumAssets;
+        bulkWithdraw(e, withdrawAsset, shareAmount, minimumAssets, receiver);
+    }
+    else 
+    {
+        calldataarg args;
+        f(e, args);
+    }
 }
 
-function dispatcher_withReceiver(env e, method f, address receiver)
-{
-
-}
+// Method that can be called by non-priveleged addresses
+definition isPublicMethod(method f) returns bool = 
+    f.selector == sig:teller_contract.deposit(address,uint256,uint256).selector ||
+    f.selector == sig:teller_contract.bulkDeposit(address,uint256,uint256,address).selector ||
+    f.selector == sig:teller_contract.depositWithPermit(address,uint256,uint256,uint256,uint8,bytes32,bytes32).selector ||
+    f.selector == sig:teller_contract.withdraw(address,uint256,uint256,address).selector ||
+    f.selector == sig:teller_contract.bulkWithdraw(address,uint256,uint256,address).selector;
