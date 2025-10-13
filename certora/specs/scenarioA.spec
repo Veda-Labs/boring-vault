@@ -40,7 +40,7 @@ function nonSceneSender(address sender)
     require sender != currentContract 
         && sender != vault_contract
         && sender != WETH
-       // && !teller_contract.authority.isAuthorized(sender, signature_exit)
+        && !teller_contract.authority.isAuthorized(sender, signature_exit)
        ;
 }
 
@@ -78,7 +78,7 @@ rule lastUpdateTimestampNeverDecreases(env e, method f)
     assert timestamp_post >= timestamp_pre;
 }
 
-rule deniedUsers_balanceNondecreasing(env e, method f)
+rule deniedUsers_balanceNonDecreasing(env e, method f)
     filtered { f -> !ignoredMethod(f) }
 {
     safeAssumptions();
@@ -96,7 +96,7 @@ rule deniedUsers_balanceNondecreasing(env e, method f)
     assert isDeniedFrom => balance_post >= balance_pre;
 }
 
-rule deniedUsers_balanceIncreasing(env e, method f)
+rule deniedUsers_balanceNonIncreasing(env e, method f)
     filtered { f -> !ignoredMethod(f) }
 {
     safeAssumptions();
@@ -157,8 +157,8 @@ rule tellerDoesntHoldTokens(env e, method f)
     if (f.selector != sig:accountant_contract.claimFees(address).selector)
         nonSceneSender(e.msg.sender);   // the claimFees can only be called by the Vault so this condidtion would cause vacuity
 
-    address asset;
-    // todo require that the teler contract is not the target of the funds.
+    address asset; require asset != vault_contract;
+    // todo require that the teller contract is not the target of the funds.
 
     uint balanceBefore = asset.balanceOf(e, teller_contract);
     calldataarg args;
@@ -176,7 +176,7 @@ rule accountantDoesntHoldTokens(env e, method f)
     if (f.selector != sig:accountant_contract.claimFees(address).selector)
         nonSceneSender(e.msg.sender);   // the claimFees can only be called by the Vault so this condidtion would cause vacuity
 
-    address asset;
+    address asset; require asset != vault_contract;
 
     uint balanceBefore = asset.balanceOf(e, accountant_contract);
     calldataarg args;

@@ -33,7 +33,7 @@ withdrawing asset that's not liquid enough?
 ONE_SHARE defined twice.. even though there is a reference 
 
 bulkDeposit: comments say it doesnt support native deposits. Where is this enforced?
-There's no revertOnNativeDeposit modifier added
+There's no revertOnNativeDeposit modifier
 
 
 
