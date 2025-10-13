@@ -1,0 +1,117 @@
+{
+  "deploymentParameters": {
+    "logLevel": 4,
+    "privateKeyEnvName": "BORING_DEVELOPER",
+    "chainName": "mainnet",
+    "evmVersion": "shanghai",
+    "deployerContractAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "deployerAddress"
+    },
+    "nativeWrapperAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "WETH"
+    },
+    "deploymentOwnerAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "txBundlerAddress"
+    },
+    "deploymentFileName": "skeletons/addresses/Mainnet/GoldenGoose.json"
+  },
+  "rolesAuthorityConfiguration": {
+    "rolesAuthorityDeploymentName": "Golden Goose Roles Authority V0.3"
+  },
+  "lensConfiguration": {
+    "lensDeploymentName": "Arctic Architecture Lens V0.0"
+  },
+  "boringVaultConfiguration": {
+    "boringVaultDeploymentName": "Golden Goose Boring Vault V0.3",
+    "boringVaultName": "Golden Goose Vault",
+    "boringVaultSymbol": "GG",
+    "boringVaultDecimals": 18
+  },
+  "managerConfiguration": {
+    "managerDeploymentName": "Golden Goose Manager V0.3",
+    "balancerVaultAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "balancerVault"
+    }
+  },
+  "accountantConfiguration": {
+    "accountantDeploymentName": "Golden Goose Accountant V0.3",
+    "accountantParameters": {
+      "kind": {
+        "variableRate": true,
+        "fixedRate": false
+      },
+      "payoutConfiguration": {
+        "payoutTo": "0x0000000000000000000000000000000000000001",
+        "optionalPaymentSplitterName": "Golden Goose Payment Splitter V0.3",
+        "splits": []
+      },
+      "accountantDeploymentParameters": {
+        "allowedExchangeRateChangeLower": 9950,
+        "allowedExchangeRateChangeUpper": 10050,
+        "base": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "USDT"
+        },
+        "minimumUpateDelayInSeconds": 21600,
+        "performanceFee": 1000,
+        "platformFee": 0,
+        "startingExchangeRate": 1000000
+      }
+    }
+  },
+  "tellerConfiguration": {
+    "tellerDeploymentName": "Golden Goose Teller V0.3",
+    "tellerParameters": {
+      "kind": {
+        "teller": false,
+        "tellerWithRemediation": false,
+        "tellerWithCcip": false,
+        "tellerWithLayerZero": true,
+        "tellerWithLayerZeroRateLimiting": false
+      },
+      "layerZero": {
+        "endpointAddressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "LayerZeroEndPoint"
+        },
+        "lzTokenAddressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "ZRO"
+        }
+      }
+    }
+  },
+  "boringQueueConfiguration": {
+    "boringQueueDeploymentName": "Golden Goose Boring Queue V0.3",
+    "boringQueueSolverName": "Golden Goose Boring Solver V0.3",
+    "excessToSolverNonSelfSolve": false,
+    "queueParameters": {
+      "kind": {
+        "boringQueue": true,
+        "boringQueueWithTracking": false
+      }
+    }
+  },
+  "droneConfiguration": {
+    "droneDeploymentBaseName": "Golden Goose Drone V0.3",
+    "droneCount": 0,
+    "safeGasToForwardNative": 21000
+  },
+  "pauserConfiguration": {
+    "shouldDeploy": false,
+    "pauserDeploymentName": "Golden Goose Pauser V0.3"
+  },
+  "timelockConfiguration": {
+    "shouldDeploy": false,
+    "timelockDeploymentName": "Golden Goose Timelock V0.3",
+    "timelockParameters": {
+      "executors": ["0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b"],
+      "minDelay": 300,
+      "proposers": ["0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b"]
+    }
+  }
+}

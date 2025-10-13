@@ -108,6 +108,12 @@ import {GoldenGooseUnichainDecoderAndSanitizer} from "src/base/DecodersAndSaniti
 import {OptimismGoldenGooseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/OptimismGoldenGooseDecoderAndSanitizer.sol";
 import {GoldenGooseBaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseBaseDecoderAndSanitizer.sol";
 import {SentoraDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentoraDecoderAndSanitizer.sol";
+import {GoldenGooseLineaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseLineaDecoderAndSanitizer.sol";
+import {EthenaRWADecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EthenaRWADecoderAndSanitizer.sol";
+import {LiquidMoveEthDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidMoveEthDecoderAndSanitizer.sol";
+import {PlasmaUSDPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/PlasmaUSDPlasmaDecoderAndSanitizer.sol";
+import {LiquidETHPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidETHPlasmaDecoderAndSanitizer.sol";
+import {PlasmaUSDPlusPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/PlasmaUSDPlusPlasmaDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -130,21 +136,17 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         privateKey = vm.envUint("BORING_DEVELOPER");
 
         vm.createSelectFork("mainnet");
-        setSourceChainName("mainnet"); 
-
+        setSourceChainName("mainnet");
     }
 
     function run() external {
         bytes memory creationCode;
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
-   
-        // creationCode = type(GoldenGooseBaseDecoderAndSanitizer).creationCode;
-        // constructorArgs = abi.encode(
-        //     getAddress(sourceChain, "aerodromeNonFungiblePositionManager"),
-        //     getAddress(sourceChain, "odosRouterV2") 
-        // ); 
-        // deployer.deployContract("Golden Goose Decoder And Sanitizer V0.6", creationCode, constructorArgs, 0);
+
+        creationCode = type(PlasmaUSDPlusPlasmaDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
+        deployer.deployContract("Plasma USD Plus Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
 
         creationCode = type(SentoraDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(getAddress(sourceChain, "odosRouterV2"));
@@ -153,6 +155,7 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         vm.stopBroadcast();
     }
 
+    // do not use, this is really intended for doing a giga deploy on a new chain
     function deployContract(string memory name, bytes memory creationCode, uint256 value) internal {
         address _contract = deployer.getAddress(name);
         if (_contract.code.length > 0) {

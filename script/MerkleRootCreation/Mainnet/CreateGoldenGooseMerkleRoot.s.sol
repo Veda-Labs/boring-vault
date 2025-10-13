@@ -22,7 +22,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0xef417FCE1883c6653E7dC6AF7c6F85CCDE84Aa09;
     address public managerAddress = 0x5F341B1cf8C5949d6bE144A725c22383a5D3880B;
     address public accountantAddress = 0xc873F2b7b3BA0a7faA2B56e210E3B965f2b618f5;
-    address public rawDataDecoderAndSanitizer = 0xE2Fc8A38FA3B9a57E538fBed7101D0E059F82D7B;
+    address public rawDataDecoderAndSanitizer = 0xFdd941183bc1Bb63F614e235b11B285a1A016c0A;
     address public primeGoldenGooseTeller = 0x4ecC202775678F7bCfF8350894e2F2E3167Cc3Df;
 
     function setUp() external {}
@@ -48,11 +48,8 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](512);
 
         // ========================== Rewards ==========================
-        ERC20[] memory tokensToClaim = new ERC20[](2);
-        tokensToClaim[0] = getERC20(sourceChain, "rEUL");
-        tokensToClaim[1] = getERC20(sourceChain, "UNI");
         _addMerklLeafs(
-            leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"), tokensToClaim
+            leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address")
         );
         _addrEULWrappingLeafs(leafs);
 
@@ -338,6 +335,13 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             0, // Mainnet chain ID in Agglayer
             20 // Katana chain ID in Agglayer
         );
+        _addAgglayerTokenLeafs(
+            leafs,
+            getAddress(sourceChain, "agglayerBridgeKatana"),
+            getAddress(sourceChain, "WSTETH"),
+            0, // Mainnet chain ID in Agglayer
+            20 // Katana chain ID in Agglayer
+        );
 
         // ========================== Layer Zero ==========================
         // to Base
@@ -349,6 +353,13 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             getBytes32(sourceChain, "boringVault")
         );
 
+        // ========================== Linea Bridge ==========================
+        {
+            ERC20[] memory lineaTokens = new ERC20[](1); 
+            lineaTokens[0] = getERC20(sourceChain, "WSTETH"); 
+
+            _addLineaNativeBridgeLeafs(leafs, "linea", lineaTokens); 
+        }
         // ========================== Verify & Generate ==========================
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
