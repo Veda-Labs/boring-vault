@@ -40,7 +40,7 @@ contract CreateTurtleMUSDMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, bsc, "accountantAddress", accountantAddress);
         setAddress(false, bsc, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](64);
+        ManageLeaf[] memory leafs = new ManageLeaf[](128);
 
         // ========================== PancakeSwapV3 ==========================
         address[] memory token0 = new address[](1);
@@ -82,6 +82,12 @@ contract CreateTurtleMUSDMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Native Leafs ==========================
         _addNativeLeafs(leafs, getAddress(sourceChain, "WBNB"));
+
+        // ========================== Fee Claiming ==========================
+        ERC20[] memory feeAssets = new ERC20[](2);
+        feeAssets[0] = getERC20(sourceChain, "USDT");
+        feeAssets[1] = getERC20(sourceChain, "mUSD");
+        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
