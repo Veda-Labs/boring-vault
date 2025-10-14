@@ -12542,7 +12542,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 if (i == j) continue;
 
                 if (
-                    !ownerToOdosSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokens[i]][tokens[j]]
+                    !ownerToGlueXSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokens[i]][tokens[j]]
                         && kind[j] != SwapKind.Sell
                 ) {
                     unchecked {
@@ -12561,13 +12561,13 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                     leafs[leafIndex].argumentAddresses[2] = tokens[j];
                     leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "boringVault");
 
-                    ownerToOdosSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokens[j]][tokens[i]]
+                    ownerToGlueXSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokens[j]][tokens[i]]
                     = true;
                 }
 
                 if (
                     kind[i] == SwapKind.BuyAndSell
-                        && !ownerToOdosSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokens[j]][tokens[i]]
+                        && !ownerToGlueXSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokens[j]][tokens[i]]
                 ) {
                     unchecked {
                         leafIndex++;
@@ -12577,7 +12577,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                         false,
                         "swap(address,(address,address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,bool,bytes32),(address,uint256,bytes)[])",
                         new address[](4),
-                        string.concat("Swap ", ERC20(tokens[j]).symbol(), " for ", ERC20(tokens[i]).symbol()),
+                        string.concat("Swap ", ERC20(tokens[i]).symbol(), " for ", ERC20(tokens[j]).symbol()),
                         getAddress(sourceChain, "rawDataDecoderAndSanitizer")
                     );
                     leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "glueXExecutor");
@@ -12585,7 +12585,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                     leafs[leafIndex].argumentAddresses[2] = tokens[j];
                     leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "boringVault");
 
-                    ownerToOdosSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokens[j]][tokens[i]]
+                    ownerToGlueXSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokens[j]][tokens[i]]
                     = true;
                 }
             }
