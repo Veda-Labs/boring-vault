@@ -188,6 +188,7 @@ contract ChainValues {
         values[mainnet]["TACLBTCvTeller"] = 0xAe499dAa7350b78746681931c47394eB7cC4Cf7F.toBytes32();
         values[mainnet]["TurtleTACBTCTeller"] = 0x7C75cbb851D321B2Ec8034D58A9B5075e991E584.toBytes32();
         values[mainnet]["katanaLBTCTeller"] = 0x38d4066cC4B42E2B6615aE15cAa6e347114779E2.toBytes32();
+        values[mainnet]["sLBTCTeller"] = 0x97Deb8Fb02A2553976DCD3d25FaA1501Eef4585b.toBytes32();
         values[mainnet]["ethenaRWATeller"] = 0xDEa662f24389eB7CaFA9b3B10021884FCe7314f0.toBytes32();
 
         // Withdraw Queues
@@ -199,6 +200,7 @@ contract ChainValues {
         values[mainnet]["TACLBTCvQueue"] = 0xa6F5Aa413DdF0Ca1c57102Dbe0Badb2233798007.toBytes32();
         values[mainnet]["sonicLBTCWithdrawQueue"] = 0xAea73B51380Fa5C0f76F0611c4346af4090ED2D7.toBytes32();
         values[mainnet]["katanaLBTCWithdrawQueue"] = 0xa0fE75799583F4591552cd26c605e0FD3a763682.toBytes32();
+        values[mainnet]["sLBTCWithdrawQueue"] = 0x7db0E2540F58743c5A97f11964aED611BdcAE10F.toBytes32();
 
         // Boring Vaults
         values[mainnet]["liquidMove"] = 0xca8711dAF13D852ED2121E4bE3894Dae366039E4.toBytes32();
@@ -211,6 +213,7 @@ contract ChainValues {
         values[mainnet]["sonicLBTC"] = 0x309f25d839A2fe225E80210e110C99150Db98AAF.toBytes32();
         values[mainnet]["katanaLBTC"] = 0x75231079973C23e9eB6180fa3D2fc21334565aB5.toBytes32();
         values[mainnet]["turtleKatanaETH"] = 0x69d210d3b60E939BFA6E87cCcC4fAb7e8F44C16B.toBytes32();
+        values[mainnet]["sLBTC"] = 0x13Cc1b39cb259BA10cd174EAe42012e698ed7c51.toBytes32();
         values[mainnet]["ethenaRWA"] = 0x6fDcB0654B4814c2eC1E7e9dbC4cEBf1a2038a84.toBytes32();
 
         // Decoders
@@ -2009,6 +2012,7 @@ contract ChainValues {
 
     function _addBscValues() private {
         values[bsc]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        values[bsc]["txBundlerAddress"] = 0x633ccAFEF3F42F87a457c44ffF826a5b6fc99706.toBytes32();
         values[bsc]["dev0Address"] = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b.toBytes32();
         values[bsc]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
 
@@ -2016,6 +2020,10 @@ contract ChainValues {
         values[bsc]["WBTC"] = 0x0555E30da8f98308EdB960aa94C0Db47230d2B9c.toBytes32();
         values[bsc]["WBNB"] = 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c.toBytes32();
         values[bsc]["BTCB"] = 0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c.toBytes32();
+        values[bsc]["USDT"] = 0x55d398326f99059fF775485246999027B3197955.toBytes32(); // 18 decimals weird one
+        values[bsc]["mUSD"] = 0xacA92E438df0B2401fF60dA7E4337B687a2435DA.toBytes32();
+        values[bsc]["EUL"] = 0x2117E8b79e8E176A670c9fCf945d4348556bfFad.toBytes32();
+        values[bsc]["rEUL"] = 0x5e13d41913aDF18bb2acAe34228E8D21f3c2f2Eb.toBytes32();
 
         // 1Inch
         values[bsc]["aggregationRouterV5"] = 0x1111111254EEB25477B68fb85Ed929f73A960582.toBytes32();
@@ -2028,10 +2036,25 @@ contract ChainValues {
 
         // Odos
         values[bsc]["odosRouterV2"] = 0x89b8AA89FDd0507a99d334CBe3C808fAFC7d850E.toBytes32();
-        values[bsc]["odosExecutor"] = 0x3f1aBA670a0234109be0222a805F3207117c2531.toBytes32();
+        values[bsc]["odosExecutor"] = 0xda4F2e8041aa91A93B1D46Cf224Bbd4e9134a9EC.toBytes32();
+
+        // Balancer Vault
+        values[bsc]["balancerVault"] = address(1).toBytes32();
+
+        // Euler
+        values[bsc]["ethereumVaultConnector"] = 0xb2E5a73CeE08593d1a076a2AE7A6e02925a640ea.toBytes32();
+        values[bsc]["euler-emUSD-1"] = 0x4602269A321650aBb5fB3bCD311b4478469263C6.toBytes32();
+        values[bsc]["euler-eUSDT-3"] = 0x5fd02479F938929F6b9fE1b7Af6430cfD4afa6Aa.toBytes32();
+
+        // Merkl
+        values[bsc]["merklDistributor"] = 0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae.toBytes32();
 
         // LBTC Bridge
         values[bsc]["lbtcBridge"] = 0xA869817b48b25EeE986bdF4bE04062e6fd2C418B.toBytes32();
+
+        // Layer Zero
+        values[bsc]["LayerZeroEndPoint"] = 0x1a44076050125825900e736c501f859c50fE728c.toBytes32();
+        values[bsc]["ZRO"] = address(1).toBytes32();
     }
 
     function _addCornValues() private {
@@ -2988,7 +3011,7 @@ contract ChainValues {
         values[tac]["v3RewardsController"] = 0xFCC281D05cfc46953F518F2f32AaCd7b6805Efa4.toBytes32();
 
         // Merkl
-        values[tac]["merklDistributor"] = 0x918261fa5Dd9C3b1358cA911792E9bDF3c5CCa35.toBytes32();
+        values[tac]["merklDistributor"] = 0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae.toBytes32();
     }
 
     function _addPlasmaValues() private {

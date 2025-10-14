@@ -1,0 +1,117 @@
+{
+  "deploymentParameters": {
+    "logLevel": 4,
+    "privateKeyEnvName": "BORING_DEVELOPER",
+    "chainName": "bsc",
+    "evmVersion": "london",
+    "deployerContractAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "deployerAddress"
+    },
+    "nativeWrapperAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "WBNB"
+    },
+    "deploymentOwnerAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "txBundlerAddress"
+    },
+    "deploymentFileName": "skeletons/addresses/BNB/turtlemUSD.json"
+  },
+  "rolesAuthorityConfiguration": {
+    "rolesAuthorityDeploymentName": "turtlemUSD Roles Authority V0.0"
+  },
+  "lensConfiguration": {
+    "lensDeploymentName": "Arctic Architecture Lens V0.0"
+  },
+  "boringVaultConfiguration": {
+    "boringVaultDeploymentName": "turtlemUSD Boring Vault V0.0",
+    "boringVaultName": "mUSD Turtle Vault",
+    "boringVaultSymbol": "turtlemUSD",
+    "boringVaultDecimals": 18
+  },
+  "managerConfiguration": {
+    "managerDeploymentName": "turtlemUSD Manager V0.0",
+    "balancerVaultAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "balancerVault"
+    }
+  },
+  "accountantConfiguration": {
+    "accountantDeploymentName": "turtlemUSD Accountant V0.0",
+    "accountantParameters": {
+      "kind": {
+        "variableRate": true,
+        "fixedRate": false
+      },
+      "payoutConfiguration": {
+        "payoutTo": "0x0000000000000000000000000000000000000001",
+        "optionalPaymentSplitterName": "turtlemUSD Payment Splitter V0.0",
+        "splits": []
+      },
+      "accountantDeploymentParameters": {
+        "allowedExchangeRateChangeLower": 9950,
+        "allowedExchangeRateChangeUpper": 10050,
+        "base": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "USDT"
+        },
+        "minimumUpateDelayInSeconds": 21600,
+        "performanceFee": 0,
+        "platformFee": 0,
+        "startingExchangeRate": 1000000000000000000
+      }
+    }
+  },
+  "tellerConfiguration": {
+    "tellerDeploymentName": "turtlemUSD Teller V0.0",
+    "tellerParameters": {
+      "kind": {
+        "teller": false,
+        "tellerWithRemediation": false,
+        "tellerWithCcip": false,
+        "tellerWithLayerZero": true,
+        "tellerWithLayerZeroRateLimiting": false
+      },
+      "layerZero": {
+        "endpointAddressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "LayerZeroEndPoint"
+        },
+        "lzTokenAddressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "ZRO"
+        }
+      }
+    }
+  },
+  "boringQueueConfiguration": {
+    "boringQueueDeploymentName": "turtlemUSD Boring Queue V0.0",
+    "boringQueueSolverName": "turtlemUSD Boring Solver V0.0",
+    "excessToSolverNonSelfSolve": true,
+    "queueParameters": {
+      "kind": {
+        "boringQueue": true,
+        "boringQueueWithTracking": false
+      }
+    }
+  },
+  "droneConfiguration": {
+    "droneDeploymentBaseName": "turtlemUSD Drone V0.0",
+    "droneCount": 0,
+    "safeGasToForwardNative": 21000
+  },
+  "pauserConfiguration": {
+    "shouldDeploy": true,
+    "pauserDeploymentName": "turtlemUSD Pauser V0.0"
+  },
+  "timelockConfiguration": {
+    "shouldDeploy": false,
+    "timelockDeploymentName": "turtlemUSD Timelock V0.0",
+    "timelockParameters": {
+      "executors": ["0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b"],
+      "minDelay": 0,
+      "proposers": ["0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b"]
+    }
+  }
+}
