@@ -26,6 +26,15 @@ contract GlueXIntegration is BaseTestIntegration {
         _overrideDecoder(glueXDecoder); 
     }
 
+    function _setUpPlasma() internal {
+        super.setUp(); 
+        _setupChain("plasma", 3506874); 
+            
+        address glueXDecoder = address(new FullGlueXDecoderAndSanitizer()); 
+
+        _overrideDecoder(glueXDecoder); 
+    }
+
     function testSwapMainnet() external {
         _setUpMainnet(); 
         
@@ -111,4 +120,91 @@ contract GlueXIntegration is BaseTestIntegration {
         uint256 vaultBalance = ERC20(hwHLP).balanceOf(address(boringVault)); 
         assertEq(vaultBalance, 562120106); 
     }
+
+    function testSwapPlasma() external {
+        _setUpPlasma(); 
+        
+        //starting with just the base assets 
+        deal(getAddress(sourceChain, "WXPL"), address(boringVault), 1_000e18); 
+
+        address[] memory tokens = new address[](2);   
+        SwapKind[] memory kind = new SwapKind[](2); 
+        tokens[0] = getAddress(sourceChain, "WXPL"); 
+        kind[0] = SwapKind.BuyAndSell; 
+        tokens[1] = 0x92A01Ab7317Ac318b39b00EB6704ba56F0245D7a; 
+        kind[1] = SwapKind.BuyAndSell; 
+        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+
+        _addGlueXLeafs(leafs, tokens, kind);
+
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+
+        _generateTestLeafs(leafs, manageTree);
+
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        Tx memory tx_ = _getTxArrays(2); 
+
+        tx_.manageLeafs[0] = leafs[0]; //approve token0
+        tx_.manageLeafs[1] = leafs[3]; //swap WXPL for trillions
+
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+    
+        //targets
+        tx_.targets[0] = getAddress(sourceChain, "WXPL"); //approve
+        tx_.targets[1] = getAddress(sourceChain, "glueXRouter"); //swap
+
+        DecoderCustomTypes.RouteDescription memory route = DecoderCustomTypes.RouteDescription({
+            inputToken: 0x6100E367285b01F48D07953803A2d8dCA5D19873,
+            outputToken: 0x92A01Ab7317Ac318b39b00EB6704ba56F0245D7a,
+            inputReceiver: payable(0x2102Ab11A3c74B1D543891020969dc3D46C132AB),
+            outputReceiver: payable(address(boringVault)),
+            partnerAddress: payable(address(0)),
+            inputAmount: 1943727989510338943,
+            outputAmount: 135401478313139290112,
+            partnerFee: 0,
+            routingFee: 0,
+            partnerSurplusShare: 0,
+            protocolSurplusShare: 10000,
+            partnerSlippageShare: 0, 
+            protocolSlippageShare: 6600,
+            effectiveOutputAmount: 135333777573982720464,
+            minOutputAmount: 132356434467355099136, 
+            isPermit2: false,
+            uniquePID: 0x866a61811189692e8eccae5d2759724a812fa6f8703ebffe90c29dc1f886bbc1
+        }); 
+
+        DecoderCustomTypes.Interaction[] memory interactions = new DecoderCustomTypes.Interaction[](2); 
+        interactions[0] = DecoderCustomTypes.Interaction({
+            target: 0x6100E367285b01F48D07953803A2d8dCA5D19873,
+            value: 0,
+            callData: hex"a9059cbb00000000000000000000000005f10be187252b2858b9592714376787ce01bb760000000000000000000000000000000000000000000000001af9824ee2bf797f"
+        });
+        interactions[1] = DecoderCustomTypes.Interaction({
+            target: 0xc4dC928BED00a8aee692F786CF5625aF2Dcd947E,
+            value: 0,
+            callData: hex"5a91c34c00000000000000000000000005f10be187252b2858b9592714376787ce01bb760000000000000000000000000000000000000000000000001af9824ee2bf797f0000000000000000000000000000000000000000000000072dbbbebdb13dc0000000000000000000000000002102ab11a3c74b1d543891020969dc3d46c132ab0000000000000000000000000000000000000000000000000000000026f74e21"
+        }); 
+
+        tx_.targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "glueXRouter"), type(uint256).max
+        );
+        
+        tx_.targetData[1] = abi.encodeWithSignature(
+            "swap(address,(address,address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,bool,bytes32),(address,uint256,bytes)[])",
+            0x2102Ab11A3c74B1D543891020969dc3D46C132AB,
+            route,
+            interactions
+        );
+
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer; 
+        tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer; 
+        
+        _submitManagerCall(manageProofs, tx_); 
+            
+        address trillions = 0x92A01Ab7317Ac318b39b00EB6704ba56F0245D7a;  
+        uint256 vaultBalance = ERC20(trillions).balanceOf(address(boringVault)); 
+        assertGt(vaultBalance, 0); 
+    }
+
 }
