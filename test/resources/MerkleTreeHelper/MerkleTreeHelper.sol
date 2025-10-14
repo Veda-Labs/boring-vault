@@ -27,6 +27,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     mapping(address => mapping(address => mapping(address => bool))) public ownerToOdosSellTokenToBuyTokenToInTree;
     mapping(address => mapping(address => mapping(address => bool))) public ownerToOogaBoogaSellTokenToBuyTokenToInTree;
     mapping(address => mapping(address => mapping(address => bool))) public ownerToGlueXSellTokenToBuyTokenToInTree;
+    mapping(address => mapping(address => mapping(address => bool))) public ownerToSushiSellTokenToBuyTokenToInTree;
 
     function setSourceChainName(string memory _chain) internal {
         sourceChain = _chain;
@@ -12665,6 +12666,85 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                     leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "OBExecutor");
 
                     ownerToOogaBoogaSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokens[j]][tokens[i]]
+                    = true;
+                }
+            }
+        }
+    }
+
+    // ========================================= Sushi Snwapper =========================================
+
+    function _addSnwapLeafs(ManageLeaf[] memory leafs, address[] memory tokens, SwapKind[] memory kind)
+        internal
+    {
+        for (uint256 i = 0; i < tokens.length; i++) {
+            if (
+                !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][tokens[i]][getAddress(
+                    sourceChain, "redSnwapperRouter"
+                )]
+            ) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    tokens[i],
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve Red Snwapper Router to spend ", ERC20(tokens[i]).symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "redSnwapperRouter");
+            }
+
+            for (uint256 j = 0; j < tokens.length; j++) {
+                if (i == j) continue;
+
+                if (
+                    !ownerToSushiSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokens[i]][tokens[j]]
+                        && kind[j] != SwapKind.Sell
+                ) {
+                    unchecked {
+                        leafIndex++;
+                    }
+                    leafs[leafIndex] = ManageLeaf(
+                        getAddress(sourceChain, "redSnwapperRouter"),
+                        false,
+                        "snwap(address,uint256,address,address,uint256,address,bytes)",
+                        new address[](4),
+                        string.concat("Swap ", ERC20(tokens[i]).symbol(), " for ", ERC20(tokens[j]).symbol()),
+                        getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                    );
+                    leafs[leafIndex].argumentAddresses[0] = tokens[i];
+                    leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+                    leafs[leafIndex].argumentAddresses[2] = tokens[j];
+                    leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "redSnwapperExecutor");
+
+                    ownerToSushiSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokens[i]][tokens[j]]
+                    = true;
+                }
+
+                if (
+                    kind[i] == SwapKind.BuyAndSell
+                        && !ownerToSushiSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokens[j]][tokens[i]]
+                ) {
+                    unchecked {
+                        leafIndex++;
+                    }
+                    leafs[leafIndex] = ManageLeaf(
+                        getAddress(sourceChain, "redSnwapperRouter"),
+                        false,
+                        "snwap(address,uint256,address,address,uint256,address,bytes)",
+                        new address[](4),
+                        string.concat("Swap ", ERC20(tokens[j]).symbol(), " for ", ERC20(tokens[i]).symbol()),
+                        getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                    );
+                    leafs[leafIndex].argumentAddresses[0] = tokens[j];
+                    leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+                    leafs[leafIndex].argumentAddresses[2] = tokens[i];
+                    leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "redSnwapperExecutor");
+
+                    ownerToSushiSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokens[j]][tokens[i]]
                     = true;
                 }
             }
