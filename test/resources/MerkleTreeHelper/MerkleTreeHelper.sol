@@ -7364,6 +7364,73 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         }
     }
 
+    function _addFluidDexSwapLeafs(
+        ManageLeaf[] memory leafs,
+        address dex,
+        ERC20 token0,
+        ERC20 token1
+    ) internal {
+        // Approve token0 for the dex
+        if (address(token0) != getAddress(sourceChain, "ETH")) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                address(token0),
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve Fluid Dex to spend ", token0.symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = dex;
+        }
+
+        // Approve token1 for the dex
+        if (address(token1) != getAddress(sourceChain, "ETH")) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                address(token1),
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve Fluid Dex to spend ", token1.symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = dex;
+        }
+
+        // Add swapIn leaf (token0 -> token1 and token1 -> token0)
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            dex,
+            false,
+            "swapIn(bool,uint256,uint256,address)",
+            new address[](1),
+            string.concat("Swap on Fluid Dex using swapIn"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+        // Add swapOut leaf
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            dex,
+            false,
+            "swapOut(bool,uint256,uint256,address)",
+            new address[](1),
+            string.concat("Swap on Fluid Dex using swapOut"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+    }
+    
     // ========================================= Symbiotic =========================================
 
     function _addSymbioticApproveAndDepositLeaf(ManageLeaf[] memory leafs, address defaultCollateral) internal {

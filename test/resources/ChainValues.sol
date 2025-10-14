@@ -1166,6 +1166,12 @@ contract ChainValues {
         values[mainnet]["wstETH_ETH"] = 0x82B27fA821419F5689381b565a8B0786aA2548De.toBytes32(); //T1
         values[mainnet]["DEX-wstETH-ETH_DEX-wstETH-ETH"] = 0x528CF7DBBff878e02e48E83De5097F8071af768D.toBytes32(); //T4
 
+        // Fluid Dex (Dexs)
+        values[mainnet]["DEX_USDC_ETH"] = 0x836951EB21F3Df98273517B7249dCEFF270d34bf.toBytes32(); // T1: USDC-ETH
+        values[mainnet]["DEX_USDC_USDT"] = 0x667701e51B4D1Ca244F17C78F7aB8744B4C99F9B.toBytes32(); // T1: USDC-USDT
+        values[mainnet]["DEX_wstETH_ETH"] = 0x0B1a513ee24972DAEf112bC777a5610d4325C9e7.toBytes32(); // T1: wstETH-ETH
+
+
         // Symbiotic
         values[mainnet]["wstETHDefaultCollateral"] = 0xC329400492c6ff2438472D4651Ad17389fCb843a.toBytes32();
         values[mainnet]["cbETHDefaultCollateral"] = 0xB26ff591F44b04E78de18f43B46f8b70C6676984.toBytes32();
