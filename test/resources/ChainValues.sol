@@ -352,6 +352,7 @@ contract ChainValues {
         values[mainnet]["USDtb"] = 0xC139190F447e929f090Edeb554D95AbB8b18aC1C.toBytes32();
         values[mainnet]["ETHPlus"] = 0xE72B141DF173b999AE7c1aDcbF60Cc9833Ce56a8.toBytes32();
         values[mainnet]["eEigen"] = 0xE77076518A813616315EaAba6cA8e595E845EeE9.toBytes32();
+        values[mainnet]["USCC"] = 0x14d60E7FDC0D71d8611742720E4C50E7a974020c.toBytes32();
 
         // Rate providers
         values[mainnet]["WEETH_RATE_PROVIDER"] = 0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee.toBytes32();
@@ -636,6 +637,7 @@ contract ChainValues {
         values[mainnet]["weETH_wETH_NG_Convex_Reward"] = 0x5411CC583f0b51104fA523eEF9FC77A29DF80F58.toBytes32();
 
         values[mainnet]["pyUsd_Usdc_Curve_Pool"] = 0x383E6b4437b59fff47B619CBA855CA29342A8559.toBytes32();
+        values[mainnet]["pyUsd_Usdc_Curve_Gauge"] = 0x9da75997624C697444958aDeD6790bfCa96Af19A.toBytes32();
         values[mainnet]["pyUsd_Usdc_Convex_Id"] = address(270).toBytes32();
         values[mainnet]["frax_Usdc_Curve_Pool"] = 0xDcEF968d416a41Cdac0ED8702fAC8128A64241A2.toBytes32();
         values[mainnet]["frax_Usdc_Convex_Id"] = address(100).toBytes32();
@@ -1084,6 +1086,9 @@ contract ChainValues {
 
         // Aave V3 Lido
         values[mainnet]["v3LidoPool"] = 0x4e033931ad43597d96D6bcc25c280717730B58B1.toBytes32();
+
+        // Aave V3 Horizon
+        values[mainnet]["v3HorizonPool"] = 0xAe05Cd22df81871bc7cC2a04BeCfb516bFe332C8.toBytes32();
 
         // SparkLend
         values[mainnet]["sparkLendPool"] = 0xC13e21B648A5Ee794902342038FF3aDAB66BE987.toBytes32();
