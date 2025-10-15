@@ -2304,14 +2304,16 @@ contract ChainValues {
 
         values[sepolia]["WETH"] = 0xb16F35c0Ae2912430DAc15764477E179D9B9EbEa.toBytes32();
         values[sepolia]["CrispyUSD"] = 0x867F14Da2EcD4B582812d76D94c4B10cB00b507C.toBytes32();
-        values[sepolia]["USDC"] = 0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590.toBytes32();
+        values[sepolia]["USDC"] = 0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8.toBytes32(); //AAVEv3 USDC
         values[sepolia]["ZRO"] = address(1).toBytes32();
         values[sepolia]["CrispyCoin"] = 0x0c959E3AA0A74E972d1A8F759c198e660CcCebcB.toBytes32();
         values[sepolia]["WETH9"] = 0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14.toBytes32();
+        values[sepolia]["USDT"] = 0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0.toBytes32(); //AAVEv3 USDT
+        values[sepolia]["v3Pool"] = 0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951.toBytes32(); //AAVEv3 Pool
 
         values[sepolia]["UltraYieldWETH"] = 0x22C24D6C6CF64B799ce936f86aBfA8984F3F804d.toBytes32();
 
-        values[sepolia]["balancerVault"] = address(1).toBytes32();
+        values[sepolia]["balancerVault"] = 0xbA1333333333a1BA1108E8412f11850A5C319bA9.toBytes32();
 
         values[sepolia]["LayerZeroEndPoint"] = 0x6EDCE65403992e310A62460808c4b910D972f10f.toBytes32();
     }

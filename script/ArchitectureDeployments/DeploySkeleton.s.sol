@@ -920,7 +920,10 @@ contract DeploySkeletonScript is Script, ChainValues {
                     vm.serializeAddress(coreContracts, "AccountantWithRateProviders", address(accountant));
                 } else if (accountantKind == AccountantKind.FixedRate) {
                     vm.serializeAddress(coreContracts, "AccountantWithFixedRate", address(accountant));
+                } else if (accountantKind == AccountantKind.YieldStreaming) {
+                    vm.serializeAddress(coreContracts, "AccountantWithYieldStreaming", address(accountant));
                 }
+
                 if (tellerKind == TellerKind.Teller) {
                     vm.serializeAddress(coreContracts, "TellerWithMultiAssetSupport", address(teller));
                 } else if (tellerKind == TellerKind.TellerWithRemediation) {
@@ -931,6 +934,15 @@ contract DeploySkeletonScript is Script, ChainValues {
                     vm.serializeAddress(coreContracts, "TellerWithLayerZero", address(teller));
                 } else if (tellerKind == TellerKind.TellerWithLayerZeroRateLimiting) {
                     vm.serializeAddress(coreContracts, "TellerWithLayerZeroRateLimiting", address(teller));
+                }
+                else if (tellerKind == TellerKind.TellerWithYieldStreaming) {
+                    vm.serializeAddress(coreContracts, "TellerWithYieldStreaming", address(teller));
+                }
+                if(address(aaveV3BufferHelper)!=address(0)) {
+                    vm.serializeAddress(coreContracts, "AaveV3BufferHelper", address(aaveV3BufferHelper));
+                }
+                if(address(aaveV3BufferLens)!=address(0)) {
+                    vm.serializeAddress(coreContracts, "AaveV3BufferLens", address(aaveV3BufferLens));
                 }
                 vm.serializeAddress(coreContracts, "BoringOnChainQueue", address(queue));
                 coreOutput = vm.serializeAddress(coreContracts, "QueueSolver", address(queueSolver));
