@@ -889,6 +889,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         tokensToClaim[1] = getERC20(sourceChain, "rEUL"); 
         tokensToClaim[2] = getERC20(sourceChain, "aRLUSD"); 
         _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"));
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "etherfiRewardClaimer"));
         }
 
         // ========================== Reward Token Unwrapping ==========================

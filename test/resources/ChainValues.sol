@@ -176,6 +176,7 @@ contract ChainValues {
         values[mainnet]["eBTCOnChainQueue"] = 0x74EC75fb641ec17B04007733d9efBE2D1dA5CA2C.toBytes32();
         values[mainnet]["eBTCOnChainQueueFast"] = 0x686696A3e59eE16e8A8533d84B62cfA504827135.toBytes32();
         values[mainnet]["eBTCTeller"] = 0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268.toBytes32();
+        values[mainnet]["etherfiRewardClaimer"] = 0xBdA9e965CdA04eD5Bfc841E54573Dc083447E15a.toBytes32();
 
         // Tellers
         values[mainnet]["eBTCTeller"] = 0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268.toBytes32();
@@ -3002,6 +3003,7 @@ contract ChainValues {
         values[plasma]["txBundlerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
         values[plasma]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
         values[plasma]["dev5Address"] = 0x1cdF47387358A1733968df92f7cC14546D9E1047.toBytes32();
+        values[plasma]["etherfiRewardClaimer"] = 0xBdA9e965CdA04eD5Bfc841E54573Dc083447E15a.toBytes32();
         
         // Factory Contracts
         values[plasma]["create2Factory"] = 0x4e59b44847b379578588920cA78FbF26c0B4956C.toBytes32();
