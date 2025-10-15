@@ -22,18 +22,18 @@
       "rolesAuthorityDeploymentName": "Test Vault 0 Roles Authority V0.0"
     },
     "lensConfiguration": {
-      "lensDeploymentName": "Arctic Architecture Lens V0.0"
+      "lensDeploymentName": "Arctic Architecture Lens V0.3"
     },
     "boringVaultConfiguration": {
       "boringVaultDeploymentName": "Test Vault 0 Boring Vault V0.0",
       "boringVaultName": "Test Vault 0",
       "boringVaultSymbol": "TV0",
-      "boringVaultDecimals": 18
+      "boringVaultDecimals": 6
     },
     "managerConfiguration": {
       "managerDeploymentName": "Test Vault 0 Manager V0.0",
       "balancerVaultAddressOrName": {
-        "address": "0x0000000000000000000000000000000000000000",
+        "address": "0x0000000000000000000000000000000000000001",
         "name": "balancerVault"
       }
     },
@@ -60,7 +60,7 @@
           "minimumUpateDelayInSeconds": 21600,
           "performanceFee": 0,
           "platformFee": 0,
-          "startingExchangeRate": 1000000000000000000
+          "startingExchangeRate": 1000000
         }
       }
     },
@@ -74,16 +74,6 @@
           "tellerWithLayerZero": false,
           "tellerWithYieldStreaming": true,
           "tellerWithLayerZeroRateLimiting": false
-        },
-        "layerZero": {
-          "endpointAddressOrName": {
-            "address": "0x0000000000000000000000000000000000000000",
-            "name": "LayerZeroEndPoint"
-          },
-          "lzTokenAddressOrName": {
-            "address": "0x0000000000000000000000000000000000000000",
-            "name": "ZRO"
-          }
         }
       }
     },
@@ -126,6 +116,6 @@
     },
     "aaveV3BufferLensConfiguration": {
       "shouldDeploy": true,
-      "aaveV3BufferLensDeploymentName": "Test Vault 0 AaveV3 Buffer Lens V0.0"
+      "aaveV3BufferLensDeploymentName": "AaveV3 Buffer Lens V0.0"
     }
   }

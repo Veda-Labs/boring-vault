@@ -2310,12 +2310,15 @@ contract ChainValues {
         values[sepolia]["WETH9"] = 0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14.toBytes32();
         values[sepolia]["USDT"] = 0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0.toBytes32(); //AAVEv3 USDT
         values[sepolia]["v3Pool"] = 0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951.toBytes32(); //AAVEv3 Pool
+        values[sepolia]["v3RewardsController"] = 0x4DA5c4da71C5a167171cC839487536d86e083483.toBytes32(); //AAVEv3 Rewards Controller
 
         values[sepolia]["UltraYieldWETH"] = 0x22C24D6C6CF64B799ce936f86aBfA8984F3F804d.toBytes32();
 
-        values[sepolia]["balancerVault"] = 0xbA1333333333a1BA1108E8412f11850A5C319bA9.toBytes32();
+        values[sepolia]["balancerVault"] = address(1).toBytes32();
 
         values[sepolia]["LayerZeroEndPoint"] = 0x6EDCE65403992e310A62460808c4b910D972f10f.toBytes32();
+        values[sepolia]["uniswapV3NonFungiblePositionManager"] = 0x1238536071E1c677A632429e3655c799b22cDA52.toBytes32();
+        values[sepolia]["uniV3Router"] = 0x3bFA4769FB09eefC5a80d6E87c3B9C650f7Ae48E.toBytes32();
     }
 
     function _addSonicTestnetValues() private {
