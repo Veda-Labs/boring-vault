@@ -44,6 +44,7 @@ contract ChainValues {
     string public constant katana = "katana";
     string public constant tac = "tac";
     string public constant plasma = "plasma";
+    string public constant inkSepolia = "inkSepolia";
 
     // Bridging constants.
     uint64 public constant ccipArbitrumChainSelector = 4949039107694359620;
@@ -148,6 +149,7 @@ contract ChainValues {
         _addBerachainTestnetValues();
         _addBartioValues();
         _addTACTestnetValues();
+        _addInkSepoliaValues();
     }
 
     function _addMainnetValues() private {
@@ -2852,6 +2854,18 @@ contract ChainValues {
         // Balancer
         values[ink]["balancerVault"] = address(1).toBytes32();
         values[ink]["vault"] = address(1).toBytes32();
+    }
+
+    function _addInkSepoliaValues() private {
+        values[inkSepolia]["dev0Address"] = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b.toBytes32();
+        values[inkSepolia]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
+        values[inkSepolia]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        values[inkSepolia]["txBundlerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+
+        values[inkSepolia]["USDC"] = 0xFabab97dCE620294D2B0b0e46C68964e326300Ac.toBytes32(); //Sepolia USDC
+        values[inkSepolia]["WETH"] = 0x4200000000000000000000000000000000000006.toBytes32(); //Sepolia WETH
+
+        values[inkSepolia]["balancerVault"] = address(1).toBytes32();
     }
 
     function _addPlumeValues() private {

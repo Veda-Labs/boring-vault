@@ -419,9 +419,10 @@ contract DeploySkeletonScript is Script, ChainValues {
     function _deployAaveV3BufferHelper() internal {
         bytes memory constructorArgs;
         bytes memory creationCode;
-        (address deployedAddress, bool isDeployed) = _getAddressAndIfDeployed(aaveV3BufferHelperDeploymentName);
+        (address deployedAddress) = _getAddressIfDeployed(aaveV3BufferHelperDeploymentName);
         aaveV3BufferHelper = AaveV3BufferHelper(deployedAddress);
-        if (!isDeployed) {
+        bool shouldDeploy = vm.parseJsonBool(rawJson, ".aaveV3BufferHelperConfiguration.shouldDeploy");
+        if (deployedAddress == address(0) && shouldDeploy) {
             // Get aaveV3Pool from configuration file.
             address aaveV3Pool = _handleAddressOrName(".aaveV3BufferHelperConfiguration.aaveV3PoolAddressOrName");
             creationCode = type(AaveV3BufferHelper).creationCode;
@@ -433,9 +434,10 @@ contract DeploySkeletonScript is Script, ChainValues {
     function _deployAaveV3BufferLens() internal {
         bytes memory constructorArgs;
         bytes memory creationCode;
-        (address deployedAddress, bool isDeployed) = _getAddressAndIfDeployed(aaveV3BufferLensDeploymentName);
+        (address deployedAddress) = _getAddressIfDeployed(aaveV3BufferLensDeploymentName);
         aaveV3BufferLens = AaveV3BufferLens(deployedAddress);
-        if (!isDeployed) {
+        bool shouldDeploy = vm.parseJsonBool(rawJson, ".aaveV3BufferLensConfiguration.shouldDeploy");
+        if (deployedAddress == address(0) && shouldDeploy) {
             creationCode = type(AaveV3BufferLens).creationCode;
             constructorArgs = hex"";
             deployer.deployContract(aaveV3BufferLensDeploymentName, creationCode, constructorArgs, 0);
