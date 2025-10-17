@@ -18,7 +18,8 @@ contract GlueXDecoderAndSanitizer is Permit2DecoderAndSanitizer {
             executor, 
             desc.inputToken, 
             desc.outputToken, 
-            desc.outputReceiver
+            desc.outputReceiver,
+            desc.partnerAddress
         ); 
     }
 }

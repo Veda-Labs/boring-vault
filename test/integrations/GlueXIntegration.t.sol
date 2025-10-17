@@ -73,7 +73,7 @@ contract GlueXIntegration is BaseTestIntegration {
             outputToken: 0x9FD7466f987Fd4C45a5BBDe22ED8aba5BC8D72d1,
             inputReceiver: payable(0x2102Ab11A3c74B1D543891020969dc3D46C132AB),
             outputReceiver: payable(address(boringVault)),
-            partnerAddress: payable(0xcf5c61e09de5A5Bb21f8329dadac63754b52cF43),
+            partnerAddress: payable(address(0)),
             inputAmount: 640629735,
             outputAmount: 562120106,
             partnerFee: 0,

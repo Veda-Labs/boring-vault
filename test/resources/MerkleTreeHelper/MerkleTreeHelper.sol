@@ -12553,7 +12553,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                         getAddress(sourceChain, "glueXRouter"),
                         false,
                         "swap(address,(address,address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,bool,bytes32),(address,uint256,bytes)[])",
-                        new address[](4),
+                        new address[](5),
                         string.concat("Swap ", ERC20(tokens[i]).symbol(), " for ", ERC20(tokens[j]).symbol()),
                         getAddress(sourceChain, "rawDataDecoderAndSanitizer")
                     );
@@ -12561,6 +12561,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                     leafs[leafIndex].argumentAddresses[1] = tokens[i];
                     leafs[leafIndex].argumentAddresses[2] = tokens[j];
                     leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "boringVault");
+                    leafs[leafIndex].argumentAddresses[4] = address(0); 
 
                     ownerToGlueXSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokens[j]][tokens[i]]
                     = true;
@@ -12577,7 +12578,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                         getAddress(sourceChain, "glueXRouter"),
                         false,
                         "swap(address,(address,address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,bool,bytes32),(address,uint256,bytes)[])",
-                        new address[](4),
+                        new address[](5),
                         string.concat("Swap ", ERC20(tokens[i]).symbol(), " for ", ERC20(tokens[j]).symbol()),
                         getAddress(sourceChain, "rawDataDecoderAndSanitizer")
                     );
@@ -12585,6 +12586,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                     leafs[leafIndex].argumentAddresses[1] = tokens[i];
                     leafs[leafIndex].argumentAddresses[2] = tokens[j];
                     leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "boringVault");
+                    leafs[leafIndex].argumentAddresses[4] = address(0); 
 
                     ownerToGlueXSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokens[j]][tokens[i]]
                     = true;
