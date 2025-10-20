@@ -813,4 +813,33 @@ contract DecoderCustomTypes {
         SignatureType signature_type;
         bytes signature_bytes;
     }
+
+    // ========================================= GlueX ==================================
+
+    struct Interaction {
+        address target;
+        uint256 value;
+        bytes callData;
+    }
+    
+    struct RouteDescription {
+        address inputToken; // Token used as input for the route
+        address outputToken; // Token received as output from the route
+        address payable inputReceiver; // Address to receive the input token
+        address payable outputReceiver; // Address to receive the output token
+        address payable partnerAddress; // Address of the partner receiving surplus share
+        uint256 inputAmount; // Amount of input token
+        uint256 outputAmount; // Optimizer output amount
+        uint256 partnerFee; // Fee charged by the partner
+        uint256 routingFee; // Fee charged for routing operation
+        uint256 partnerSurplusShare; // Percentage (in bps) of surplus shared with the partner
+        uint256 protocolSurplusShare; // Percentage (in bps) of surplus shared with GlueX
+        uint256 partnerSlippageShare; // Percentage (in bps) of slippage shared with the partner
+        uint256 protocolSlippageShare; // Percentage (in bps) of slippage shared with GlueX
+        uint256 effectiveOutputAmount; // Effective output amount for the user
+        uint256 minOutputAmount; // Minimum acceptable output amount
+        bool isPermit2; // Whether to use Permit2 for token transfers
+        bytes32 uniquePID; // Unique identifier for the partner
+    }
+
 }
