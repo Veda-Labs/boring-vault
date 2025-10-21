@@ -4,8 +4,8 @@ import "scenarioA.spec";
 function convertToShares(storage init, uint256 assets, address asset_contract) returns uint256
 {
     env e;
-    uint256 minimumMint;
-    uint256 shares = deposit(e, asset_contract, assets, minimumMint) at init;
+    uint256 minimumMint; address referral;
+    uint256 shares = deposit(e, asset_contract, assets, minimumMint, referral) at init;
     return shares;
 }
 
@@ -204,7 +204,27 @@ invariant vaultSolvency(address asset, env e)
     isSolvent(e)
 filtered { f -> !ignoredMethod(f)
     && f.contract == teller_contract  //funds could be moved by methods called on the Vault or on the Asset
-    && f.selector != sig:teller_contract.refundDeposit(uint256,address,address,uint256,uint256,uint256,uint256).selector // can break if the refunder is the vault
+    && f.selector != sig:teller_contract.refundDeposit(uint256,address,address,uint256,uint256,uint256,uint256,address).selector // can break if the refunder is the vault
+}
+{
+    preserved with (env e2) {
+        safeAssumptions();
+        nonSceneAddress(e2.msg.sender);
+    }
+}
+
+invariant vaultSolvency_1Asset(address asset, env e)
+    userAssets(e, ERC20Mock, vault_contract) * teller_contract.ONE_SHARE 
+        >= vault_contract.totalSupply(e) * accountant_contract.getRateInQuoteSafe(e, ERC20Mock)
+filtered { f -> !ignoredMethod(f)
+    && f.contract == teller_contract  //funds could be moved by methods called on the Vault or on the Asset
+    && f.selector != sig:teller_contract.refundDeposit(uint256,address,address,uint256,uint256,uint256,uint256,address).selector // can break if the sharesAmount is too low. This can happen since we don't really track the sum of deposits and their shares in publicDepositHistory
+    && f.selector == sig:teller_contract.deposit(address, uint256, uint256,address).selector 
+    //&& f.selector == sig:teller_contract.depositWithPermit(address,uint256,uint256,uint256,uint8,bytes32,bytes32,address).selector
+    //&& f.selector == sig:teller_contract.bulkDeposit(address,uint256,uint256,address).selector
+    //&& f.selector == sig:teller_contract.withdraw(address,uint256,uint256,address).selector
+    //&& f.selector == sig:teller_contract.bulkWithdraw(address,uint256,uint256,address).selector
+    //&& !isPublicMethod(f)
 }
 {
     preserved with (env e2) {
@@ -238,8 +258,8 @@ rule onlyContributionMethodsReduceAssets(env e, method f)
     uint256 userAssetsAfter = userAssets(e, asset, user);
 
     assert userAssetsBefore > userAssetsAfter =>
-        (f.selector == sig:deposit(address, uint256, uint256).selector 
-        || f.selector == sig:depositWithPermit(address,uint256,uint256,uint256,uint8,bytes32,bytes32).selector
+        (f.selector == sig:deposit(address, uint256, uint256,address).selector 
+        || f.selector == sig:depositWithPermit(address,uint256,uint256,uint256,uint8,bytes32,bytes32,address).selector
         || f.selector == sig:bulkDeposit(address,uint256,uint256,address).selector
         ),
         "a user's assets must not go down except on calls to contribution methods or calls directly to the asset.";

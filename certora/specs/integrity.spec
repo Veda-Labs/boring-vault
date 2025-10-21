@@ -4,11 +4,11 @@ rule integrityOfDeposit(env e)
 {
     safeAssumptions();
     nonSceneAddress(e.msg.sender);
-    address asset; uint256 depositAmount; uint256 minimumMint;
+    address asset; uint256 depositAmount; uint256 minimumMint; address referral;
     mathint assetsBefore = userAssets(e, asset, e.msg.sender);
     mathint sharesBefore = userAssets(e, vault_contract, e.msg.sender);
 
-    mathint shares = deposit(e, asset, depositAmount, minimumMint);
+    mathint shares = deposit(e, asset, depositAmount, minimumMint, referral);
     
     mathint assetsAfter = userAssets(e, asset, e.msg.sender);
     mathint sharesAfter = userAssets(e, vault_contract, e.msg.sender);
@@ -23,13 +23,13 @@ rule integrityOfDepositWithPermit(env e)
     safeAssumptions();
     nonSceneAddress(e.msg.sender);
     address asset; uint256 depositAmount; uint256 minimumMint;
-    uint256 deadline; uint8 v; bytes32 r; bytes32 s;
+    uint256 deadline; uint8 v; bytes32 r; bytes32 s; address referral;
 
     mathint assetsBefore = userAssets(e, asset, e.msg.sender);
     mathint sharesBefore = userAssets(e, vault_contract, e.msg.sender);
 
     mathint shares = depositWithPermit(e, asset, depositAmount, minimumMint,
-        deadline, v, r, s);
+        deadline, v, r, s, referral);
     
     mathint assetsAfter = userAssets(e, asset, e.msg.sender);
     mathint sharesAfter = userAssets(e, vault_contract, e.msg.sender);

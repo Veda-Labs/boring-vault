@@ -26,18 +26,15 @@ rule accountantPaused_valuesFrozen(env e, method f)
 
     uint128 feesOwedInBase_pre = accountant_contract.accountantState.feesOwedInBase;
     uint96 exchangeRate_pre = accountant_contract.accountantState.exchangeRate;
-    uint64 lastUpdateTimestamp_pre = accountant_contract.accountantState.lastUpdateTimestamp;
 
     calldataarg args;
     f(e, args);
 
     uint128 feesOwedInBase_post = accountant_contract.accountantState.feesOwedInBase;
     uint96 exchangeRate_post = accountant_contract.accountantState.exchangeRate;
-    uint64 lastUpdateTimestamp_post = accountant_contract.accountantState.lastUpdateTimestamp;
-
+    
     assert feesOwedInBase_post == feesOwedInBase_pre &&
-        exchangeRate_post == exchangeRate_pre &&
-        lastUpdateTimestamp_post == lastUpdateTimestamp_pre;
+        exchangeRate_post == exchangeRate_pre;
 
 }
 

@@ -1,12 +1,26 @@
-import "setup/dispatching_AccountantWithRateProviders.spec";
 import "setup/dispatching_BoringVault.spec";
-import "setup/dispatching_TellerWithMultiAssetSupport.spec";
+import "setup/snippet_ERC20_Mock.spec"; // B
 import "MathSummaries.spec";
 
-using AccountantWithRateProviders as accountant_contract;
+
+import "setup/dispatching_AccountantWithRateProviders.spec";      // A, B, D
+//import "setup/dispatching_AccountantWithYieldStreaming.spec";     // C
+import "setup/dispatching_TellerWithMultiAssetSupport.spec";      // A
+//import "setup/dispatching_TellerWithBuffer.spec";                 // B
+//import "setup/dispatching_TellerWithYieldStreaming.spec";         // C
+//import "setup/dispatching_LayerZeroTeller.spec";                  // D
+
+using AccountantWithRateProviders as accountant_contract;       // A, B, D
+//using AccountantWithYieldStreaming as accountant_contract;      // C
+using TellerWithMultiAssetSupport as teller_contract;           // A
+//using TellerWithBuffer as teller_contract;                      // B
+//using TellerWithYieldStreaming as teller_contract;              // C
+//using LayerZeroTeller as teller_contract;                       // D
+
 using BoringVault as vault_contract;
-using TellerWithMultiAssetSupport as teller_contract;
 using WETH as WETH;
+
+
 
 methods
 {
@@ -104,11 +118,11 @@ rule dustFavorsTheHouse(uint assetsIn, env e)
 {
     //require e.msg.sender != currentContract;
     //uint256 totalSupplyBefore = totalSupply();
-    address asset; uint minimumShares; uint minimumAssets;
+    address asset; uint minimumShares; uint minimumAssets; address referral;
 
     uint balanceBefore = asset.balanceOf(e, vault_contract);
 
-    uint shares = deposit(e, asset, assetsIn, minimumShares);
+    uint shares = deposit(e, asset, assetsIn, minimumShares, referral);
     uint assetsOut = withdraw(e, asset, shares, minimumAssets, e.msg.sender);
 
     uint balanceAfter = asset.balanceOf(e, vault_contract);
@@ -163,7 +177,7 @@ rule tellerPaused_valuesFrozen(env e, method f)
 
     assert depositNonce_post == depositNonce_pre
         && (historyItem_post == historyItem_pre 
-            || f.selector == sig:teller_contract.refundDeposit(uint256,address,address,uint256,uint256,uint256,uint256).selector) //refunds are allowed during pause
+            || f.selector == sig:teller_contract.refundDeposit(uint256,address,address,uint256,uint256,uint256,uint256,address).selector) //refunds are allowed during pause
     ;
 }
 
@@ -191,26 +205,27 @@ rule vaultCannotChange(env e, method f)
     assert vault_pre == vault_post;
 }
 
+
 function callMethodWithReceiver(env e, method f, address receiver)
 {
     if (f.selector == sig:teller_contract.refundDeposit(
-        uint256,address,address,uint256,uint256,uint256,uint256).selector)
+        uint256,address,address,uint256,uint256,uint256,uint256,address).selector)
     {
         uint256 nonce; address depositAsset; uint256 depositAmount; 
         uint256 shareAmount; uint256 depositTimestamp; 
-        uint256 shareLockUpPeriodAtTimeOfDeposit;
-        refundDeposit(e, nonce, receiver, depositAsset, depositAmount,
-            shareAmount, depositTimestamp, shareLockUpPeriodAtTimeOfDeposit);
+        uint256 shareLockUpPeriodAtTimeOfDeposit; address referral;
+        teller_contract.refundDeposit(e, nonce, receiver, depositAsset, depositAmount,
+            shareAmount, depositTimestamp, shareLockUpPeriodAtTimeOfDeposit, referral);
     }
     else if (f.selector == sig:teller_contract.withdraw(address,uint256,uint256,address).selector)
     {
         address withdrawAsset; uint256 shareAmount; uint256 minimumAssets;
-        withdraw(e, withdrawAsset, shareAmount, minimumAssets, receiver);
+        teller_contract.withdraw(e, withdrawAsset, shareAmount, minimumAssets, receiver);
     }
     else if (f.selector == sig:teller_contract.bulkWithdraw(address,uint256,uint256,address).selector)
     {
         address withdrawAsset; uint256 shareAmount; uint256 minimumAssets;
-        bulkWithdraw(e, withdrawAsset, shareAmount, minimumAssets, receiver);
+        teller_contract.bulkWithdraw(e, withdrawAsset, shareAmount, minimumAssets, receiver);
     }
     else 
     {
@@ -221,8 +236,8 @@ function callMethodWithReceiver(env e, method f, address receiver)
 
 // Method that can be called by non-priveleged addresses
 definition isPublicMethod(method f) returns bool = 
-    f.selector == sig:teller_contract.deposit(address,uint256,uint256).selector ||
+    f.selector == sig:teller_contract.deposit(address,uint256,uint256,address).selector ||
     f.selector == sig:teller_contract.bulkDeposit(address,uint256,uint256,address).selector ||
-    f.selector == sig:teller_contract.depositWithPermit(address,uint256,uint256,uint256,uint8,bytes32,bytes32).selector ||
+    f.selector == sig:teller_contract.depositWithPermit(address,uint256,uint256,uint256,uint8,bytes32,bytes32,address).selector ||
     f.selector == sig:teller_contract.withdraw(address,uint256,uint256,address).selector ||
     f.selector == sig:teller_contract.bulkWithdraw(address,uint256,uint256,address).selector;
