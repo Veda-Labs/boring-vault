@@ -1,11 +1,11 @@
 
-# Usage: ./setup.sh <letter>
+# Usage: ./setup.sh <letter A|B|C|D|E>
 
-input_file="../specs/teller_basic.spec"
+input_file="certora/specs/teller_basic.spec"
 num_lines=9
 
 letter="$1"
-replacement_file="header${letter}.spec"
+replacement_file="certora/scripts/header${letter}.spec"
 output_file=$input_file
 
 tail_lines=$(tail -n +$((num_lines + 1)) "$input_file" 2>/dev/null || echo "")

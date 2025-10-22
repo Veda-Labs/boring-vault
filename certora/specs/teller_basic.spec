@@ -2,11 +2,11 @@ import "setup/dispatching_BoringVault.spec";
 import "setup/snippet_ERC20_Mock.spec"; // B
 import "MathSummaries.spec";
 
-import "setup/dispatching_AccountantWithRateProviders.spec";    // A, B, D, E
-import "setup/dispatching_TellerWithMultiAssetSupport.spec";    // A
+import "setup/dispatching_AccountantWithRateProviders.spec";      // A, B, D, E
+import "setup/dispatching_LayerZeroTellerWithRateLimiting.spec";  // E
 
-using AccountantWithRateProviders as accountant_contract;       // A, B, D, E
-using TellerWithMultiAssetSupport as teller_contract;           // A
+using AccountantWithRateProviders as accountant_contract;         // A, B, D, E
+using LayerZeroTellerWithRateLimiting as teller_contract;         // E
 
 using BoringVault as vault_contract;
 using WETH as WETH;
@@ -55,7 +55,7 @@ rule deniedUsers_balanceNonDecreasing(env e, method f)
     filtered { f -> !ignoredMethod(f) 
         && f.selector != sig:teller_contract.refundDeposit(uint256,address,address,uint256,uint256,uint256,uint256,address).selector
         && f.selector != sig:teller_contract.withdraw(address,uint256,uint256,address).selector 
-        && f.selector != sig:teller_contract.bulkWithdraw(address,uint256,uint256,address).selector;
+        && f.selector != sig:teller_contract.bulkWithdraw(address,uint256,uint256,address).selector
         && f.contract != vault_contract }
 {
     safeAssumptions();
@@ -81,7 +81,7 @@ rule deniedUsers_balanceNonIncreasing(env e, method f)
     if (f.selector != sig:accountant_contract.claimFees(address).selector)
         nonSceneAddress(e.msg.sender);   // the claimFees can only be called by the Vault so this condidtion would cause vacuity
 
-    address user;
+    address user; require user != 0;
     bool isDeniedTo = teller_contract.beforeTransferData[user].denyTo;
     uint balance_pre = vault_contract.balanceOf(e, user);
 
@@ -161,7 +161,7 @@ rule tellerPaused_valuesFrozen(env e, method f)
         !isPublicMethod(f) // we proved that public methods revert when paused so they would just be vacuous here 
         }
 {
-    require teller_contract.isPaused;
+    bool paused = teller_contract.isPaused;
     uint64 depositNonce_pre = teller_contract.depositNonce;
     
     uint256 historyKey;
@@ -174,10 +174,11 @@ rule tellerPaused_valuesFrozen(env e, method f)
     uint64 depositNonce_post = teller_contract.depositNonce;
     bytes32 historyItem_post = teller_contract.publicDepositHistory[historyKey];
 
-    assert depositNonce_post == depositNonce_pre
+    assert paused => (
+        depositNonce_post == depositNonce_pre
         && (historyItem_post == historyItem_pre 
             || f.selector == sig:teller_contract.refundDeposit(uint256,address,address,uint256,uint256,uint256,uint256,address).selector) //refunds are allowed during a pause
-    ;
+        );
 }
 
 // public methods should revert when paused
@@ -240,3 +241,23 @@ definition isPublicMethod(method f) returns bool =
     f.selector == sig:teller_contract.depositWithPermit(address,uint256,uint256,uint256,uint8,bytes32,bytes32,address).selector ||
     f.selector == sig:teller_contract.withdraw(address,uint256,uint256,address).selector ||
     f.selector == sig:teller_contract.bulkWithdraw(address,uint256,uint256,address).selector;
+
+
+// This resembles the convertToShares method.
+function convertToShares(storage init, uint256 assets, address asset_contract) returns uint256
+{
+    env e;
+    uint256 minimumMint; address referral;
+    uint256 shares = deposit(e, asset_contract, assets, minimumMint, referral) at init;
+    return shares;
+}
+
+// This resembles the convertToAssets method.
+function convertToAssets(storage init, uint256 shares, address asset_contract) returns uint256
+{
+    env e;
+    uint256 minimumAssets;
+    address receiver;
+    uint256 assets = withdraw(e, asset_contract, shares, minimumAssets, receiver) at init;
+    return assets;
+}

@@ -1,4 +1,4 @@
-import "scenarioA.spec";
+import "teller_basic.spec";
 
 rule integrityOfDeposit(env e)
 {

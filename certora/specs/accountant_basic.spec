@@ -1,4 +1,4 @@
-import "scenarioA.spec";
+import "teller_basic.spec";
 
 rule accountantDoesntHoldTokens(env e, method f)
     filtered { f -> !ignoredMethod(f) }

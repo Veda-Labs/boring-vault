@@ -1,4 +1,4 @@
-import "scenarioA.spec";
+import "teller_basic.spec";
 
 invariant exchangeRateGTzero()
     accountant_contract.accountantState.exchangeRate > 0 
