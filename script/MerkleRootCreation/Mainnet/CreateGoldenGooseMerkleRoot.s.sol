@@ -24,6 +24,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
     address public accountantAddress = 0xc873F2b7b3BA0a7faA2B56e210E3B965f2b618f5;
     address public rawDataDecoderAndSanitizer = 0xFdd941183bc1Bb63F614e235b11B285a1A016c0A;
     address public primeGoldenGooseTeller = 0x4ecC202775678F7bCfF8350894e2F2E3167Cc3Df;
+    address public kingClaimingDecoderAndSanitizer = 0xd4067b594C6D48990BE42a559C8CfDddad4e8D6F;
 
     function setUp() external {}
 
@@ -140,8 +141,8 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         // =========================== Odos ==========================
         {
-            address[] memory assets = new address[](6);
-            SwapKind[] memory kind = new SwapKind[](6);
+            address[] memory assets = new address[](9);
+            SwapKind[] memory kind = new SwapKind[](9);
             assets[0] = getAddress(sourceChain, "WETH");
             kind[0] = SwapKind.BuyAndSell;
             assets[1] = getAddress(sourceChain, "WSTETH");
@@ -154,6 +155,12 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             kind[4] = SwapKind.Sell;
             assets[5] = getAddress(sourceChain, "EUL");
             kind[5] = SwapKind.Sell;
+            assets[6] = getAddress(sourceChain, "ETHFI");
+            kind[6] = SwapKind.Sell;
+            assets[7] = getAddress(sourceChain, "EIGEN");
+            kind[7] = SwapKind.Sell;
+            assets[8] = getAddress(sourceChain, "MORPHO");
+            kind[8] = SwapKind.Sell;
 
             _addOdosSwapLeafs(leafs, assets, kind);
 
@@ -348,7 +355,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         _addLayerZeroLeafs(
             leafs,
             getERC20(sourceChain, "WEETH"),
-            getAddress(sourceChain, "WEETH"),
+            getAddress(sourceChain, "EtherFiOFTAdapter"),
             layerZeroBaseEndpointId,
             getBytes32(sourceChain, "boringVault")
         );
@@ -360,6 +367,13 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
             _addLineaNativeBridgeLeafs(leafs, "linea", lineaTokens); 
         }
+
+        // ========================== King Claiming  ==========================
+        {
+             setAddress(true, mainnet, "rawDataDecoderAndSanitizer", kingClaimingDecoderAndSanitizer);
+            _addKingRewardsClaimingLeafs(leafs, new address[](0), getAddress(sourceChain, "boringVault"));
+        }
+
         // ========================== Verify & Generate ==========================
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
