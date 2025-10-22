@@ -124,4 +124,11 @@ contract TellerWithRemediation is TellerWithMultiAssetSupport {
         if (remediationInfo[operator].isFrozen) revert TellerWithRemediation__RemediationInProgress(operator);
         super.beforeTransfer(from, to, operator);
     }
+
+    /**
+     * @notice Returns the version of the contract.
+     */
+    function version() public pure virtual override returns (string memory) {
+        return string(abi.encodePacked("Remediation V0.1, ", super.version()));
+    }
 }

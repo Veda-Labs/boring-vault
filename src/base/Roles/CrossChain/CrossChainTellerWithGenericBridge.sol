@@ -11,6 +11,22 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
     using MessageLib for uint256;
     using MessageLib for MessageLib.Message;
 
+    //============================== STRUCTS ===============================
+    struct DepositAndBridgeWithPermitParams {
+        ERC20 depositAsset;
+        uint256 depositAmount;
+        uint256 minimumMint;
+        uint256 deadline;
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
+        address to;
+        bytes bridgeWildCard;
+        ERC20 feeToken;
+        uint256 maxFee;
+        address referralAddress; 
+    }
+
     //============================== ERRORS ===============================
 
     error CrossChainTellerWithGenericBridge__UnsafeCastToUint96();
@@ -43,7 +59,8 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
         address to,
         bytes calldata bridgeWildCard,
         ERC20 feeToken,
-        uint256 maxFee
+        uint256 maxFee,
+        address referralAddress
     )
         external
         payable
@@ -55,7 +72,7 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
         // Deposit
         Asset memory asset = _beforeDeposit(depositAsset);
         sharesBridged = _erc20Deposit(depositAsset, depositAmount, minimumMint, msg.sender, msg.sender, asset);
-        _afterPublicDeposit(msg.sender, depositAsset, depositAmount, sharesBridged, shareLockPeriod);
+        _afterPublicDeposit(msg.sender, depositAsset, depositAmount, sharesBridged, shareLockPeriod, referralAddress);
 
         // Bridge shares
         if (sharesBridged > type(uint96).max) revert CrossChainTellerWithGenericBridge__UnsafeCastToUint96();
@@ -71,36 +88,26 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
      *      are also granted to the `depositWithPermit` and `bridge` function.
      */
     function depositAndBridgeWithPermit(
-        ERC20 depositAsset,
-        uint256 depositAmount,
-        uint256 minimumMint,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s,
-        address to,
-        bytes calldata bridgeWildCard,
-        ERC20 feeToken,
-        uint256 maxFee
+        DepositAndBridgeWithPermitParams calldata params
     )
         external
         payable
         requiresAuth
         nonReentrant
-        revertOnNativeDeposit(address(depositAsset))
+        revertOnNativeDeposit(address(params.depositAsset))
         returns (uint256 sharesBridged)
     {
         // Permit deposit
         {
-            Asset memory asset = _beforeDeposit(depositAsset);
-            _handlePermit(depositAsset, depositAmount, deadline, v, r, s);
-            sharesBridged = _erc20Deposit(depositAsset, depositAmount, minimumMint, msg.sender, msg.sender, asset);
+            Asset memory asset = _beforeDeposit(params.depositAsset);
+            _handlePermit(params.depositAsset, params.depositAmount, params.deadline, params.v, params.r, params.s);
+            sharesBridged = _erc20Deposit(params.depositAsset, params.depositAmount, params.minimumMint, msg.sender, msg.sender, asset);
         }
-        _afterPublicDeposit(msg.sender, depositAsset, depositAmount, sharesBridged, shareLockPeriod);
+        _afterPublicDeposit(msg.sender, params.depositAsset, params.depositAmount, sharesBridged, shareLockPeriod, params.referralAddress);
 
         // Bridge shares
         if (sharesBridged > type(uint96).max) revert CrossChainTellerWithGenericBridge__UnsafeCastToUint96();
-        _bridge(uint96(sharesBridged), to, bridgeWildCard, feeToken, maxFee);
+        _bridge(uint96(sharesBridged), params.to, params.bridgeWildCard, params.feeToken, params.maxFee);
     }
 
     /**
@@ -195,4 +202,11 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
         view
         virtual
         returns (uint256 fee);
+
+    /**
+     * @notice Returns the version of the contract.
+     */
+    function version() public pure virtual override returns (string memory) {
+        return string(abi.encodePacked("Cross Chain V0.1, ", super.version()));
+    }    
 }
