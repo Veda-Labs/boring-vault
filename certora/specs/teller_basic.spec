@@ -2,20 +2,11 @@ import "setup/dispatching_BoringVault.spec";
 import "setup/snippet_ERC20_Mock.spec"; // B
 import "MathSummaries.spec";
 
+import "setup/dispatching_AccountantWithRateProviders.spec";    // A, B, D, E
+import "setup/dispatching_TellerWithMultiAssetSupport.spec";    // A
 
-import "setup/dispatching_AccountantWithRateProviders.spec";      // A, B, D
-//import "setup/dispatching_AccountantWithYieldStreaming.spec";     // C
-import "setup/dispatching_TellerWithMultiAssetSupport.spec";      // A
-//import "setup/dispatching_TellerWithBuffer.spec";                 // B
-//import "setup/dispatching_TellerWithYieldStreaming.spec";         // C
-//import "setup/dispatching_LayerZeroTeller.spec";                  // D
-
-using AccountantWithRateProviders as accountant_contract;       // A, B, D
-//using AccountantWithYieldStreaming as accountant_contract;      // C
+using AccountantWithRateProviders as accountant_contract;       // A, B, D, E
 using TellerWithMultiAssetSupport as teller_contract;           // A
-//using TellerWithBuffer as teller_contract;                      // B
-//using TellerWithYieldStreaming as teller_contract;              // C
-//using LayerZeroTeller as teller_contract;                       // D
 
 using BoringVault as vault_contract;
 using WETH as WETH;
@@ -58,14 +49,20 @@ function nonSceneAddress(address sender)
         ;
 }
 
+// refundDeposit is whitelisted: denied user can still be refunded. E.g. user deposits, then gets denied, then gets refunded.
+// denied users can still withdraw
 rule deniedUsers_balanceNonDecreasing(env e, method f)
-    filtered { f -> !ignoredMethod(f) }
+    filtered { f -> !ignoredMethod(f) 
+        && f.selector != sig:teller_contract.refundDeposit(uint256,address,address,uint256,uint256,uint256,uint256,address).selector
+        && f.selector != sig:teller_contract.withdraw(address,uint256,uint256,address).selector 
+        && f.selector != sig:teller_contract.bulkWithdraw(address,uint256,uint256,address).selector;
+        && f.contract != vault_contract }
 {
     safeAssumptions();
     if (f.selector != sig:accountant_contract.claimFees(address).selector)
         nonSceneAddress(e.msg.sender);   // the claimFees can only be called by the Vault so this condidtion would cause vacuity
 
-    address user;
+    address user; nonSceneAddress(user);
     bool isDeniedFrom = teller_contract.beforeTransferData[user].denyFrom;
     uint balance_pre = vault_contract.balanceOf(e, user);
 
@@ -77,7 +74,8 @@ rule deniedUsers_balanceNonDecreasing(env e, method f)
 }
 
 rule deniedUsers_balanceNonIncreasing(env e, method f)
-    filtered { f -> !ignoredMethod(f) }
+    filtered { f -> !ignoredMethod(f) 
+        && f.contract != vault_contract }
 {
     safeAssumptions();
     if (f.selector != sig:accountant_contract.claimFees(address).selector)
@@ -132,7 +130,8 @@ rule dustFavorsTheHouse(uint assetsIn, env e)
 
 rule tellerDoesntHoldTokens(env e, method f)
     filtered { f -> !ignoredMethod(f)
-        && f.contract != ERC20Mock }
+        && f.contract != ERC20Mock 
+        && f.contract != vault_contract }
 {
     safeAssumptions();
     if (f.selector != sig:accountant_contract.claimFees(address).selector)
@@ -177,7 +176,7 @@ rule tellerPaused_valuesFrozen(env e, method f)
 
     assert depositNonce_post == depositNonce_pre
         && (historyItem_post == historyItem_pre 
-            || f.selector == sig:teller_contract.refundDeposit(uint256,address,address,uint256,uint256,uint256,uint256,address).selector) //refunds are allowed during pause
+            || f.selector == sig:teller_contract.refundDeposit(uint256,address,address,uint256,uint256,uint256,uint256,address).selector) //refunds are allowed during a pause
     ;
 }
 

@@ -22,7 +22,7 @@ rule accountantDoesntHoldTokens(env e, method f)
 rule accountantPaused_valuesFrozen(env e, method f)
     filtered { f -> !ignoredMethod(f) }
 {
-    require accountant_contract.accountantState.isPaused;
+    bool paused = accountant_contract.accountantState.isPaused;
 
     uint128 feesOwedInBase_pre = accountant_contract.accountantState.feesOwedInBase;
     uint96 exchangeRate_pre = accountant_contract.accountantState.exchangeRate;
@@ -33,8 +33,12 @@ rule accountantPaused_valuesFrozen(env e, method f)
     uint128 feesOwedInBase_post = accountant_contract.accountantState.feesOwedInBase;
     uint96 exchangeRate_post = accountant_contract.accountantState.exchangeRate;
     
-    assert feesOwedInBase_post == feesOwedInBase_pre &&
-        exchangeRate_post == exchangeRate_pre;
+    assert paused => (
+        exchangeRate_post == exchangeRate_pre &&
+         (feesOwedInBase_post == feesOwedInBase_pre 
+            || f.selector == sig:accountant_contract.resetHighwaterMark().selector //fees should only be able to change via this method when paused
+         )
+        );
 
 }
 

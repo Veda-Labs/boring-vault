@@ -76,12 +76,13 @@ rule noDynamicCalls(env e, method f)
 rule conversionOfZero {
     address asset;
     storage init = lastStorage;
-    uint256 convertZeroShares = convertToAssets(init, 0, asset);
-    uint256 convertZeroAssets = convertToShares(init, 0, asset);
+    uint256 amount;
+    uint256 convertZeroShares = convertToAssets(init, amount, asset);
+    uint256 convertZeroAssets = convertToShares(init, amount, asset);
 
-    assert convertZeroShares == 0,
+    assert amount == 0 => convertZeroShares == 0,
         "converting zero shares must return zero assets";
-    assert convertZeroAssets == 0,
+    assert amount == 0 => convertZeroAssets == 0,
         "converting zero assets must return zero shares";
 }
 
@@ -155,6 +156,22 @@ rule conversionWeakIntegrity_assets() {
 
     assert assets_post <= assets_pre,
         "converting assets to shares then back to assets must return assets less than or equal to the original amount";
+}
+
+rule totalAssetsDoesntChange(env e, method f) 
+{
+    if (f.selector != sig:accountant_contract.claimFees(address).selector)
+        nonSceneAddress(e.msg.sender);   // the claimFees can only be called by the Vault so this condidtion would cause vacuity
+
+    address asset;
+    uint256 totalAssetsBefore = asset.totalSupply(e);
+
+    calldataarg args;
+    f(e, args);
+
+    uint256 totalAssetsAfter = asset.totalSupply(e);
+    
+    assert totalAssetsBefore == totalAssetsAfter;
 }
 
 // totalSupply and totalAssets must not change in opposite directions
