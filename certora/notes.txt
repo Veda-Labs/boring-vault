@@ -35,38 +35,26 @@ ONE_SHARE defined twice.. even though there is a reference
 bulkDeposit: comments say it doesnt support native deposits. Where is this enforced?
 There's no revertOnNativeDeposit modifier
 
+deniedTo not checked in mint
+
 ------------------------------------
 16. 10.
 
+ - switched to new code.
+  before 3c768bd068af856b5de3def86b1940676847eb9d
+  now 2a5c497fe29287fdf4b997787835c14b971c5681
+
+running the other scenarios too.
+
+finish date: next thursday, report handover thursday or friday
+
 ExchangeRateChangeLower, ExchangeRateChangeUpper: not checked in the constructor
+    for both accountants
+AccountantWithYieldStreaming.postLoss breaks the highWaterMark
+ - not expected, prepare CEX
 
+fees can change while paused
+ - thats fine
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
------
-general complaints
-
-when i forgot a semicolon in conf (e.g. adding another conf item after the last one)
-read_from_conf_file: certora/confs/scenarioA.conf: Failed
-<string>:55 Unexpected """ at column 5
-can we make the error msg more user friendly? E.g. "semicolon is missing on line X in file Y.conf"
-
-invariants vs. parametric rules
-
-braces around the body: no yes
-filtered section:   after before
-semicolon after the body: sometimes yes
-
+write rules for findings!
 
