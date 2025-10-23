@@ -4,9 +4,23 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
-
 contract FluidDexDecoderAndSanitizer {
+    /// @notice T1 (normal collateral, normal debt)
+    /*
+    * @param nftId The ID of the NFT representing the vault position
+    * @param newCol The change in collateral amount (positive for deposit, negative for withdrawal)
+    * @param newDebt The change in debt amount (positive for borrowing, negative for repayment)
+    * @param to The address to receive funds (if address(0), defaults to msg.sender)
+    */
+    function operate(
+        uint256, /*nftId*/
+        int256, /*newCol*/
+        int256, /*newDebt*/
+        address to
+    ) external pure virtual returns (bytes memory addressesFound) {
+        addressesFound = abi.encodePacked(to);
+    }
+
     /// @notice T2 and T3
 
     /*  

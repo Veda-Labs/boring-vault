@@ -7257,6 +7257,21 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             }
         }
 
+        if (dexType == 1000) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                address(dex),
+                false,
+                "operate(uint256,int256,int256,address)",
+                new address[](1),
+                string.concat("Operate on Fluid Dex Vault"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        }
+
         //t2 and t3 leaves
         if (dexType == 2000 || dexType == 3000) {
             unchecked {
