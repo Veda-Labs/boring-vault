@@ -884,12 +884,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== Merkl ==========================
         {
-        ERC20[] memory tokensToClaim = new ERC20[](3); 
-        tokensToClaim[0] = getERC20(sourceChain, "RLUSD"); 
-        tokensToClaim[1] = getERC20(sourceChain, "rEUL"); 
-        tokensToClaim[2] = getERC20(sourceChain, "aRLUSD"); 
-        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"));
-        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "etherfiRewardClaimer"));
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address")); 
         }
 
         // ========================== Reward Token Unwrapping ==========================
@@ -1119,11 +1114,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== Merkl ==========================
         {
-        ERC20[] memory tokensToClaim = new ERC20[](3); 
-        tokensToClaim[0] = getERC20(sourceChain, "RLUSD"); 
-        tokensToClaim[1] = getERC20(sourceChain, "rEUL"); 
-        tokensToClaim[2] = getERC20(sourceChain, "aRLUSD"); 
-        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"));
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address")); 
         }
 
         // ========================== Ethena Withdraws ==========================
