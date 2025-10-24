@@ -2072,6 +2072,14 @@ contract ChainValues {
         // LBTC Bridge
         values[bsc]["lbtcBridge"] = 0xA869817b48b25EeE986bdF4bE04062e6fd2C418B.toBytes32();
 
+        // Pendle
+        values[bsc]["pendleRouter"] = 0x888888888889758F76e7103c6CbF23ABbF58F946.toBytes32();
+        values[bsc]["pendleLimitOrderRouter"] = 0x000000000000c9B3E2C3Ec88B1B4c0cD853f4321.toBytes32();
+        values[bsc]["pendleMusdMarket"] = 0x2d1Ee953d17e68673af1401b34FA9A21E5e830F6.toBytes32();
+        values[bsc]["pendleMusdSy"] = 0xa809c9814d04282490c0078200a7597452A9452D.toBytes32();
+        values[bsc]["pendleMusdPt"] = 0x44fe4959331A07608A13a9a711F86213367b7235.toBytes32();
+        values[bsc]["pendleMusdYt"] = 0x9AF5fD2039792b7e9207F8C6bf379AD03c1150e6.toBytes32();
+
         // Layer Zero
         values[bsc]["LayerZeroEndPoint"] = 0x1a44076050125825900e736c501f859c50fE728c.toBytes32();
         values[bsc]["ZRO"] = address(1).toBytes32();
