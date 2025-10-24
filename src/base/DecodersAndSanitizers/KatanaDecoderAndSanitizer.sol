@@ -29,6 +29,7 @@ contract KatanaDecoderAndSanitizer is
     AgglayerDecoderAndSanitizer,
     CCIPDecoderAndSanitizer,
     OneInchDecoderAndSanitizer,
+    OdosDecoderAndSanitizer,
     EtherFiDecoderAndSanitizer,
     NativeWrapperDecoderAndSanitizer,
     LidoDecoderAndSanitizer,
@@ -40,8 +41,9 @@ contract KatanaDecoderAndSanitizer is
     SpectraDecoderAndSanitizer,
     BTCKDecoderAndSanitizer
 {
-    constructor(address _nonFungiblePositionManager)
+    constructor(address _nonFungiblePositionManager, address _odosRouter)
         UniswapV3DecoderAndSanitizer(_nonFungiblePositionManager)
+        OdosDecoderAndSanitizer(_odosRouter)
         AtomicQueueDecoderAndSanitizer(0.9e4, 1.1e4)
     {}
 
