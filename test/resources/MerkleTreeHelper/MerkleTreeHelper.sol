@@ -13786,72 +13786,37 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     }
 
     // ========================================= dvStETH  =========================================
-    function _addDvStETHLeafs(ManageLeaf[] memory leafs, address[] memory depositTokens) internal {
-        for (uint256 i = 0; i < depositTokens.length; i++) {
-            unchecked {
-                leafIndex++;
-            }
-            leafs[leafIndex] = ManageLeaf(
-                depositTokens[i],
-                false,
-                "approve(address,uint256)",
-                new address[](1),
-                string.concat("Approve dvStETH Vault to spend WETH"),
-                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-            );
-            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "dvStETHVault");
-
-            unchecked {
-                leafIndex++;
-            }
-            leafs[leafIndex] = ManageLeaf(
-                getAddress(sourceChain, "dvStETHVault"),
-                false,
-                "deposit(address,uint256[],uint256,uint256,uint256)",
-                new address[](2),
-                string.concat("Deposit into dvStETH "),
-                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-            );
-            leafs[leafIndex].argumentAddresses[0] = depositTokens[i];
-            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
-        }
-
+    function _addDvStETHLeafs(ManageLeaf[] memory leafs) internal {
         unchecked {
             leafIndex++;
         }
         leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "dvStETHVault"),
+            getAddress(sourceChain, "WETH"),
             false,
-            "registerWithdrawal(address,uint256,uint256[],uint256,uint256,bool)",
+            "approve(address,uint256)",
             new address[](1),
-            string.concat("Register withdraw request from dvStETH "),
+            string.concat("Approve Whitelisted Eth Wrapper to spend WETH"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "dvStethWhitelistedEthWrapper");
 
         unchecked {
             leafIndex++;
         }
         leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "dvStETHVault"),
+            getAddress(sourceChain, "dvStethWhitelistedEthWrapper"),
             false,
-            "cancelWithdrawalRequest()",
-            new address[](0),
-            string.concat("Cancel withdraw request"),
+            "deposit(address,uint256,address,address,address)",
+            new address[](4),
+            string.concat("Deposit into dvStETH "),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "WETH");
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "dvstETH");
+        leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[3] = address(0);
 
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "dvStETHVault"),
-            false,
-            "emergencyWithdraw(uint256[],uint256)",
-            new address[](0),
-            string.concat("Cancel withdraw request"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "dvStETHVault")));
     }
 
     function _addWSwellUnwrappingLeafs(ManageLeaf[] memory leafs) internal {
