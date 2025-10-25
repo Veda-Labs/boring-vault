@@ -145,9 +145,14 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(KatanaDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2"));
-        deployer.deployContract("Katana Decoder and Sanitizer V0.2", creationCode, constructorArgs, 0);
+        creationCode = type(GoldenGooseDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(
+            getAddress(sourceChain, "uniswapV4PositionManager"), 
+            getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
+            getAddress(sourceChain, "odosRouterV2"),
+            getAddress(sourceChain, "dvStETHVault")
+            );
+        deployer.deployContract("GoldenGoose Decoder and Sanitizer V0.3", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }

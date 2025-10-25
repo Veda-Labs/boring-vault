@@ -749,7 +749,7 @@ contract ChainValues {
 
         // Uniswap V4
         values[mainnet]["uniV4UniversalRouter"] = 0x66a9893cC07D91D95644AEDD05D03f95e1dBA8Af.toBytes32();
-
+        values[mainnet]["uniswapV4PositionManager"] = 0xbD216513d74C8cf14cf4747E6AaA6420FF64ee9e.toBytes32();
         // Redstone
         values[mainnet]["swEthAdapter"] = 0x68ba9602B2AeE30847412109D2eE89063bf08Ec2.toBytes32();
         values[mainnet]["swEthDataFeedId"] = 0x5357455448000000000000000000000000000000000000000000000000000000;
@@ -1152,7 +1152,7 @@ contract ChainValues {
 
         // Mantle
         values[mainnet]["mantleLspStaking"] = 0xe3cBd06D7dadB3F4e6557bAb7EdD924CD1489E8f.toBytes32();
-
+        values[mainnet]["MNT"] = 0x3c3a81e81dc49A522A592e7622A7E711c06bf354.toBytes32();
         // Fluid
         values[mainnet]["fUSDT"] = 0x5C20B550819128074FD538Edf79791733ccEdd18.toBytes32();
         values[mainnet]["fUSDTStakingRewards"] = 0x490681095ed277B45377d28cA15Ac41d64583048.toBytes32();
@@ -1176,7 +1176,7 @@ contract ChainValues {
         values[mainnet]["wstETH_ETH"] = 0x82B27fA821419F5689381b565a8B0786aA2548De.toBytes32(); //T1
         values[mainnet]["DEX-wstETH-ETH_DEX-wstETH-ETH"] = 0x528CF7DBBff878e02e48E83De5097F8071af768D.toBytes32(); //T4
         values[mainnet]["wstUSR-USDC"] = 0xee327311D8640156E87eC33ea55FcbF2309e0ce6.toBytes32(); //T1
-
+        values[mainnet]["wstUSR-USDT"] = 0x984636a30ed2B4A61FB7150CED644096349275d3.toBytes32();
         // Symbiotic
         values[mainnet]["wstETHDefaultCollateral"] = 0xC329400492c6ff2438472D4651Ad17389fCb843a.toBytes32();
         values[mainnet]["cbETHDefaultCollateral"] = 0xB26ff591F44b04E78de18f43B46f8b70C6676984.toBytes32();
