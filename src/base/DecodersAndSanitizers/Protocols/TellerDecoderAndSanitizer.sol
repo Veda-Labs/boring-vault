@@ -46,7 +46,7 @@ contract TellerDecoderAndSanitizer {
         virtual
         returns (bytes memory addressesFound)
     {
-        addressesFound = abi.encodePacked(depositAsset);
+        addressesFound = abi.encodePacked(depositAsset, referrer);
     }
 
     function withdraw(address withdrawAsset, uint256, /*shareAmount*/ uint256 /*minimumAssets*/, address to)
@@ -153,6 +153,6 @@ contract TellerDecoderAndSanitizer {
         }
         bridgeWildCard0 = address(uint160(bridgeWildCard0));
 
-        addressesFound = abi.encodePacked(depositAsset, to, bridgeWildCard0, feeToken);
+        addressesFound = abi.encodePacked(depositAsset, to, bridgeWildCard0, feeToken, referrer);
     }
 }

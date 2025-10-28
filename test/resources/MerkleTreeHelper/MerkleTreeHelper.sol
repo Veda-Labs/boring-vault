@@ -10538,6 +10538,20 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = address(assets[i]);
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                teller,
+                false,
+                "withdraw(address,uint256,uint256,address)",
+                new address[](2),
+                string.concat("Withdraw ", assets[i].symbol(), " from ", boringVault.name()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(assets[i]);
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
         }
 
         if (addNativeDeposit) {
@@ -10556,6 +10570,108 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         }
     }
 
+    // ========================================= Teller with referrer =========================================
+function _addTellerLeafsWithReferral(
+        ManageLeaf[] memory leafs,
+        address teller,
+        ERC20[] memory assets,
+        bool addNativeDeposit,
+        bool addBulkWithdraw
+    ) internal {
+        ERC20 boringVault = TellerWithMultiAssetSupport(teller).vault();
+
+        for (uint256 i; i < assets.length; ++i) {
+            // Approve BoringVault to spend all assets.
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                address(assets[i]),
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve ", boringVault.name(), ", to spend ", assets[i].symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(boringVault);
+
+            // BulkDeposit asset.
+            if (addBulkWithdraw) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    teller,
+                    false,
+                    "bulkDeposit(address,uint256,uint256,address)",
+                    new address[](2),
+                    string.concat("Bulk deposit ", assets[i].symbol(), " into ", boringVault.name()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = address(assets[i]);
+                leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+
+                // BulkWithdraw asset.
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    teller,
+                    false,
+                    "bulkWithdraw(address,uint256,uint256,address)",
+                    new address[](2),
+                    string.concat("Bulk withdraw ", assets[i].symbol(), " from ", boringVault.name()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = address(assets[i]);
+                leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+            }
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                teller,
+                false,
+                "deposit(address,uint256,uint256,address)",
+                new address[](1),
+                string.concat("Deposit ", assets[i].symbol(), " into ", boringVault.name()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(assets[i]);
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                teller,
+                false,
+                "withdraw(address,uint256,uint256,address)",
+                new address[](2),
+                string.concat("Withdraw ", assets[i].symbol(), " from ", boringVault.name()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(assets[i]);
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+        }
+
+        if (addNativeDeposit) {
+
+            // Deposite ETH with referrer
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                teller,
+                true,
+                "deposit(address,uint256,uint256,address)",
+                new address[](1),
+                string.concat("Deposit ETH into ", boringVault.name()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "ETH");
+        }
+    }
     // ========================================= CrossChain Teller =========================================
 
     function _addCrossChainTellerLeafs(
@@ -10665,6 +10781,163 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                     leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
                     leafs[leafIndex].argumentAddresses[2] = destChain0;
                     leafs[leafIndex].argumentAddresses[3] = feeAssets[j];
+                }
+            }
+        }
+
+        for (uint256 i = 0; i < feeAssets.length; i++) {
+            if (feeAssets[i] == getAddress(sourceChain, "ETH")) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    teller,
+                    true,
+                    "bridge(uint96,address,bytes,address,uint256)",
+                    new address[](3),
+                    string.concat("Bridge ", ERC20(ITeller(teller).vault()).symbol(), " with ETH as fee"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+                leafs[leafIndex].argumentAddresses[1] = destChain0;
+                leafs[leafIndex].argumentAddresses[2] = feeAssets[i];
+            } else {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    teller,
+                    false,
+                    "bridge(uint96,address,bytes,address,uint256)",
+                    new address[](4),
+                    string.concat(
+                        "Bridge ",
+                        ERC20(ITeller(teller).vault()).symbol(),
+                        " with ",
+                        ERC20(feeAssets[i]).symbol(),
+                        " as fee"
+                    ),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+                leafs[leafIndex].argumentAddresses[1] = destChain0;
+                leafs[leafIndex].argumentAddresses[2] = feeAssets[i];
+            }
+        }
+    }
+
+    // ========================================= CrossChain Teller with referral =========================================
+
+    function _addCrossChainTellerLeafsWithReferral(
+        ManageLeaf[] memory leafs,
+        address teller,
+        address[] memory depositAssets,
+        address[] memory feeAssets,
+        bytes memory destChain,
+        address referrer
+    ) internal {
+        address boringVault = ITeller(teller).vault();
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            boringVault,
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve CrossChain Teller to spend ", ERC20(boringVault).symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = teller;
+
+        for (uint256 i = 0; i < feeAssets.length; i++) {
+            if (feeAssets[i] != getAddress(sourceChain, "ETH")) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    feeAssets[i],
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve CrossChain Teller to spend ", ERC20(feeAssets[i]).symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = teller;
+            }
+        }
+
+        for (uint256 i = 0; i < depositAssets.length; i++) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                depositAssets[i],
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve CrossChain Teller to spend ", ERC20(depositAssets[i]).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = boringVault;
+        }
+
+        // Extract first 16 bytes and convert to address
+        //require(destChain.length == 32, "Invalid input length");
+        address destChain0;
+
+        if (destChain.length >= 20) {
+            assembly {
+                // Skip the 32-byte length prefix of memory arrays
+                let word := mload(add(destChain, 32))
+                destChain0 := word
+            }
+            destChain0 = address(uint160(destChain0)); // cast outside assembly
+        }
+
+        for (uint256 i = 0; i < depositAssets.length; i++) {
+            for (uint256 j = 0; j < feeAssets.length; j++) {
+                if (feeAssets[j] == getAddress(sourceChain, "ETH")) {
+                    unchecked {
+                        leafIndex++;
+                    }
+                    leafs[leafIndex] = ManageLeaf(
+                        teller,
+                        true,
+                        "depositAndBridge(address,uint256,uint256,address,bytes,address,uint256,address)",
+                        new address[](5),
+                        string.concat("Deposit and bridge ", ERC20(depositAssets[i]).symbol(), " with ETH as fee"),
+                        getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                    );
+                    leafs[leafIndex].argumentAddresses[0] = depositAssets[i];
+                    leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+                    leafs[leafIndex].argumentAddresses[2] = destChain0;
+                    leafs[leafIndex].argumentAddresses[3] = feeAssets[j];
+                    leafs[leafIndex].argumentAddresses[4] = referrer;
+                } else {
+                    unchecked {
+                        leafIndex++;
+                    }
+                    leafs[leafIndex] = ManageLeaf(
+                        teller,
+                        false,
+                        "depositAndBridge(address,uint256,uint256,address,bytes,address,uint256,address)",
+                        new address[](5),
+                        string.concat(
+                            "Deposit and bridge ",
+                            ERC20(depositAssets[i]).symbol(),
+                            " with ",
+                            ERC20(feeAssets[j]).symbol(),
+                            " as fee"
+                        ),
+                        getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                    );
+                    leafs[leafIndex].argumentAddresses[0] = depositAssets[i];
+                    leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+                    leafs[leafIndex].argumentAddresses[2] = destChain0;
+                    leafs[leafIndex].argumentAddresses[3] = feeAssets[j];
+                    leafs[leafIndex].argumentAddresses[4] = referrer;
                 }
             }
         }
