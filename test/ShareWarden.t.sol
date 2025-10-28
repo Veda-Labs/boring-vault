@@ -20,17 +20,11 @@ import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper
 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
-// Mock sanctions list for testing
-contract MockSanctionsList is ISanctionsList {
-    mapping(address => bool) public sanctioned;
-
-    function setSanctioned(address addr, bool status) external {
-        sanctioned[addr] = status;
-    }
-
-    function isSanctioned(address addr) external view override returns (bool) {
-        return sanctioned[addr];
-    }
+// Full interface for sanctions list for testing
+interface ISanctionsListFull is ISanctionsList {
+    function addToSanctionsList(address[] memory newSanctions) external;
+    function removeFromSanctionsList(address[] memory removeSanctions) external;
+    function owner() external view returns (address);
 }
 
 contract ShareWardenTest is Test, MerkleTreeHelper {
@@ -43,7 +37,8 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
     ShareWarden public shareWarden;
     AccountantWithRateProviders public accountant;
     RolesAuthority public rolesAuthority;
-    MockSanctionsList public sanctionsList;
+    ISanctionsListFull public sanctionsList;
+    address public sanctionsListOwner;
 
     uint8 public constant ADMIN_ROLE = 1;
     uint8 public constant MINTER_ROLE = 7;
@@ -56,7 +51,6 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
     ERC20 internal WETH;
     ERC20 internal EETH;
     ERC20 internal WEETH;
-    address internal EETH_LIQUIDITY_POOL;
     address internal WEETH_RATE_PROVIDER;
 
     address public user1 = vm.addr(101);
@@ -73,7 +67,6 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         WETH = getERC20(sourceChain, "WETH");
         EETH = getERC20(sourceChain, "EETH");
         WEETH = getERC20(sourceChain, "WEETH");
-        EETH_LIQUIDITY_POOL = getAddress(sourceChain, "EETH_LIQUIDITY_POOL");
         WEETH_RATE_PROVIDER = getAddress(sourceChain, "WEETH_RATE_PROVIDER");
 
         // Deploy core contracts
@@ -88,8 +81,9 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         shareWarden = new ShareWarden(address(this));
 
-        // Deploy mock oracles
-        sanctionsList = new MockSanctionsList();
+        // Get Chainalysis sanctions list address and owner
+        sanctionsList = ISanctionsListFull(getAddress(sourceChain, "sanctionsList"));
+        sanctionsListOwner = sanctionsList.owner();
 
         // Setup roles
         rolesAuthority = new RolesAuthority(address(this), Authority(address(0)));
@@ -232,7 +226,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         uint8[] memory listIds = new uint8[](1);
         listIds[0] = shareWarden.LIST_ID_SANCTIONS();
         shareWarden.updateVaultListIds(address(boringVault), listIds);
-        sanctionsList.setSanctioned(user1, true);
+        _addUserToSanctionsList(user1);
 
         // Transfer should fail due to SanctionsList sanction
         vm.prank(user1);
@@ -255,7 +249,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         uint8[] memory listIds = new uint8[](1);
         listIds[0] = shareWarden.LIST_ID_SANCTIONS();
         shareWarden.updateVaultListIds(address(boringVault), listIds);
-        sanctionsList.setSanctioned(user2, true);
+        _addUserToSanctionsList(user2);
 
         // Transfer should fail due to SanctionsList sanction on recipient
         vm.prank(user1);
@@ -279,7 +273,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         uint8[] memory listIds = new uint8[](1);
         listIds[0] = shareWarden.LIST_ID_SANCTIONS();
         shareWarden.updateVaultListIds(address(boringVault), listIds);
-        sanctionsList.setSanctioned(address(this), true);
+        _addUserToSanctionsList(address(this));
 
         // TransferFrom should fail due to SanctionsList sanction on operator
         vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__SanctionsListBlacklisted.selector, address(this)));
@@ -301,7 +295,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         uint8[] memory listIds = new uint8[](1);
         listIds[0] = shareWarden.LIST_ID_SANCTIONS();
         shareWarden.updateVaultListIds(address(boringVault), listIds);
-        sanctionsList.setSanctioned(user1, true);
+        _addUserToSanctionsList(user1);
 
         // Transfer should fail
         vm.prank(user1);
@@ -389,14 +383,14 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         shareWarden.updateVaultListIds(address(boringVault), listIds);
 
         // Sanction on SanctionsList
-        sanctionsList.setSanctioned(user1, true);
+        _addUserToSanctionsList(user1);
         
         vm.prank(user1);
         vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__SanctionsListBlacklisted.selector, user1));
         boringVault.transfer(user2, shares);
 
         // Clear SanctionsList, add to custom list
-        sanctionsList.setSanctioned(user1, false);
+        _removeUserFromSanctionsList(user1);
         bytes32[] memory addressHashes = new bytes32[](1);
         addressHashes[0] = keccak256(abi.encodePacked(user1));
         shareWarden.updateBlacklist(2, addressHashes, true);
@@ -698,7 +692,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         uint8[] memory listIds = new uint8[](1);
         listIds[0] = shareWarden.LIST_ID_SANCTIONS();
         shareWarden.updateVaultListIds(address(boringVault), listIds);
-        sanctionsList.setSanctioned(user1, true);
+        _addUserToSanctionsList(user1);
 
         // Transfer should fail due to SanctionsList (checked first)
         vm.prank(user1);
@@ -706,7 +700,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         boringVault.transfer(user2, shares);
 
         // Clear SanctionsList sanction
-        sanctionsList.setSanctioned(user1, false);
+        _removeUserFromSanctionsList(user1);
 
         // Should fail due to share lock now
         vm.prank(user1);
@@ -757,7 +751,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         uint8[] memory listIds = new uint8[](1);
         listIds[0] = shareWarden.LIST_ID_SANCTIONS();
         shareWarden.updateVaultListIds(address(boringVault), listIds);
-        sanctionsList.setSanctioned(user1, true);
+        _addUserToSanctionsList(user1);
 
         // This would typically be called by the vault's transfer function
         // Simulating the single-parameter version
@@ -786,14 +780,14 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         uint8[] memory listIds = new uint8[](1);
         listIds[0] = shareWarden.LIST_ID_SANCTIONS();
         shareWarden.updateVaultListIds(address(boringVault), listIds);
-        sanctionsList.setSanctioned(user1, true);
+        _addUserToSanctionsList(user1);
         
         vm.prank(user1);
         vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__SanctionsListBlacklisted.selector, user1));
         boringVault.transfer(user2, shares / 4);
 
         // Clear SanctionsList, add teller deny
-        sanctionsList.setSanctioned(user1, false);
+        _removeUserFromSanctionsList(user1);
         teller.denyAll(user1);
 
         vm.prank(user1);
@@ -853,13 +847,13 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         shareWarden.updateVaultListIds(address(boringVault), listIds);
 
         if (sanctionFrom) {
-            sanctionsList.setSanctioned(user1, true);
+            _addUserToSanctionsList(user1);
         }
         if (sanctionTo) {
-            sanctionsList.setSanctioned(user2, true);
+            _addUserToSanctionsList(user2);
         }
         if (sanctionOperator) {
-            sanctionsList.setSanctioned(address(this), true);
+            _addUserToSanctionsList(address(this));
         }
 
         bool shouldFail = sanctionFrom || sanctionTo || sanctionOperator;
@@ -933,6 +927,20 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
     function _startFork(string memory rpcKey, uint256 blockNumber) internal returns (uint256 forkId) {
         forkId = vm.createFork(vm.envString(rpcKey), blockNumber);
         vm.selectFork(forkId);
+    }
+
+    function _addUserToSanctionsList(address user) internal {
+        address[] memory newSanctions = new address[](1);
+        newSanctions[0] = user;
+        vm.prank(sanctionsListOwner);
+        sanctionsList.addToSanctionsList(newSanctions);
+    }
+
+    function _removeUserFromSanctionsList(address user) internal {
+        address[] memory removeSanctions = new address[](1);
+        removeSanctions[0] = user;
+        vm.prank(sanctionsListOwner);
+        sanctionsList.removeFromSanctionsList(removeSanctions);
     }
 }
 
