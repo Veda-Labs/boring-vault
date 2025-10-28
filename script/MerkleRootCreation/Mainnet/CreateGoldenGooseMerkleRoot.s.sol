@@ -133,6 +133,8 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         // ========================== Balancer Flash Loans ==========================
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "WETH"));
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "WSTETH"));
+        _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDC"));
+        _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDT"));
 
         // =========================== Lido ==========================
         _addLidoLeafs(leafs);
@@ -417,9 +419,6 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         borrowAssets[1] = getERC20(sourceChain, "USDT");
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
 
-        // ========================== balancer Leaves ==========================
-        _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDC"));
-        _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDT"));
         // ========================== resolv leaves ==========================
         _addAllResolvLeafs(leafs);
         // ========================== swap leaves ==========================
