@@ -10576,7 +10576,8 @@ function _addTellerLeafsWithReferral(
         address teller,
         ERC20[] memory assets,
         bool addNativeDeposit,
-        bool addBulkWithdraw
+        bool addBulkWithdraw,
+        address referrer
     ) internal {
         ERC20 boringVault = TellerWithMultiAssetSupport(teller).vault();
 
@@ -10634,11 +10635,12 @@ function _addTellerLeafsWithReferral(
                 teller,
                 false,
                 "deposit(address,uint256,uint256,address)",
-                new address[](1),
+                new address[](2),
                 string.concat("Deposit ", assets[i].symbol(), " into ", boringVault.name()),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = address(assets[i]);
+            leafs[leafIndex].argumentAddresses[1] = referrer;
 
             unchecked {
                 leafIndex++;
@@ -10665,11 +10667,12 @@ function _addTellerLeafsWithReferral(
                 teller,
                 true,
                 "deposit(address,uint256,uint256,address)",
-                new address[](1),
+                new address[](2),
                 string.concat("Deposit ETH into ", boringVault.name()),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "ETH");
+            leafs[leafIndex].argumentAddresses[1] = referrer;
         }
     }
     // ========================================= CrossChain Teller =========================================
