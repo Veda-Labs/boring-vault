@@ -335,11 +335,9 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         listIds[0] = 2;
         shareWarden.updateVaultListIds(address(boringVault), listIds);
         
-        uint8[] memory blacklistListIds = new uint8[](1);
-        blacklistListIds[0] = 2;
         bytes32[] memory addressHashes = new bytes32[](1);
         addressHashes[0] = keccak256(abi.encodePacked(user1));
-        shareWarden.updateBlacklist(blacklistListIds, addressHashes, true);
+        shareWarden.updateBlacklist(2, addressHashes, true);
 
         // Transfer should fail due to custom blacklist
         vm.prank(user1);
@@ -362,11 +360,9 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         listIds[0] = 2;
         shareWarden.updateVaultListIds(address(boringVault), listIds);
         
-        uint8[] memory blacklistListIds = new uint8[](1);
-        blacklistListIds[0] = 2;
         bytes32[] memory addressHashes = new bytes32[](1);
         addressHashes[0] = keccak256(abi.encodePacked(user2));
-        shareWarden.updateBlacklist(blacklistListIds, addressHashes, true);
+        shareWarden.updateBlacklist(2, addressHashes, true);
 
         // Transfer should fail due to custom blacklist on recipient
         vm.prank(user1);
@@ -400,18 +396,16 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         // Clear OFAC, add to custom list
         ofacOracle.setSanctioned(user1, false);
-        uint8[] memory blacklistListIds = new uint8[](1);
-        blacklistListIds[0] = 2;
         bytes32[] memory addressHashes = new bytes32[](1);
         addressHashes[0] = keccak256(abi.encodePacked(user1));
-        shareWarden.updateBlacklist(blacklistListIds, addressHashes, true);
+        shareWarden.updateBlacklist(2, addressHashes, true);
 
         vm.prank(user1);
         vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__VedaBlacklisted.selector, user1, uint8(2)));
         boringVault.transfer(user2, shares);
 
         // Clear custom list
-        shareWarden.updateBlacklist(blacklistListIds, addressHashes, false);
+        shareWarden.updateBlacklist(2, addressHashes, false);
 
         vm.prank(user1);
         boringVault.transfer(user2, shares);
@@ -435,11 +429,9 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         listIds[0] = 2;
         shareWarden.updateVaultListIds(address(boringVault), listIds);
         
-        uint8[] memory blacklistListIds = new uint8[](1);
-        blacklistListIds[0] = 2;
         bytes32[] memory addressHashes = new bytes32[](1);
         addressHashes[0] = keccak256(abi.encodePacked(address(this)));
-        shareWarden.updateBlacklist(blacklistListIds, addressHashes, true);
+        shareWarden.updateBlacklist(2, addressHashes, true);
 
         // TransferFrom should fail due to blacklisted operator
         vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__VedaBlacklisted.selector, address(this), uint8(2)));
@@ -461,11 +453,9 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         listIds[0] = 2;
         shareWarden.updateVaultListIds(address(boringVault), listIds);
         
-        uint8[] memory blacklistListIds = new uint8[](1);
-        blacklistListIds[0] = 2;
         bytes32[] memory addressHashes = new bytes32[](1);
         addressHashes[0] = keccak256(abi.encodePacked(user1));
-        shareWarden.updateBlacklist(blacklistListIds, addressHashes, true);
+        shareWarden.updateBlacklist(2, addressHashes, true);
 
         // Transfer should fail
         vm.prank(user1);
@@ -473,13 +463,119 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         boringVault.transfer(user2, shares);
 
         // Unblacklist user1
-        shareWarden.updateBlacklist(blacklistListIds, addressHashes, false);
+        shareWarden.updateBlacklist(2, addressHashes, false);
 
         // Transfer should succeed
         vm.prank(user1);
         boringVault.transfer(user2, shares);
 
         assertEq(boringVault.balanceOf(user2), shares, "Transfer should succeed after unblacklisting");
+    }
+
+    function testBatchUpdateBlacklistMultipleAddresses() external {
+        uint256 depositAmount = 1e18;
+        
+        // Setup multiple users with shares
+        deal(address(WETH), user1, depositAmount);
+        vm.startPrank(user1);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        uint256 shares1 = teller.deposit(WETH, depositAmount, 0, referrer);
+        vm.stopPrank();
+
+        deal(address(WETH), user2, depositAmount);
+        vm.startPrank(user2);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        uint256 shares2 = teller.deposit(WETH, depositAmount, 0, referrer);
+        vm.stopPrank();
+
+        address user3 = vm.addr(103);
+        deal(address(WETH), user3, depositAmount);
+        vm.startPrank(user3);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        uint256 shares3 = teller.deposit(WETH, depositAmount, 0, referrer);
+        vm.stopPrank();
+
+        // Setup custom blacklist
+        uint8[] memory listIds = new uint8[](1);
+        listIds[0] = 3;
+        shareWarden.updateVaultListIds(address(boringVault), listIds);
+
+        // Batch blacklist user1 and user2 to list 3
+        bytes32[] memory addressHashes = new bytes32[](2);
+        addressHashes[0] = keccak256(abi.encodePacked(user1));
+        addressHashes[1] = keccak256(abi.encodePacked(user2));
+        shareWarden.updateBlacklist(3, addressHashes, true);
+
+        // User1 transfer should fail
+        vm.prank(user1);
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__VedaBlacklisted.selector, user1, uint8(3)));
+        boringVault.transfer(referrer, shares1);
+
+        // User2 transfer should fail
+        vm.prank(user2);
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__VedaBlacklisted.selector, user2, uint8(3)));
+        boringVault.transfer(referrer, shares2);
+
+        // User3 transfer should succeed (not blacklisted)
+        vm.prank(user3);
+        boringVault.transfer(referrer, shares3);
+        assertEq(boringVault.balanceOf(referrer), shares3, "User3 transfer should succeed");
+
+        // Batch unblacklist user1 and user2
+        shareWarden.updateBlacklist(3, addressHashes, false);
+
+        // Both users should now be able to transfer
+        vm.prank(user1);
+        boringVault.transfer(referrer, shares1);
+        
+        vm.prank(user2);
+        boringVault.transfer(referrer, shares2);
+
+        assertEq(boringVault.balanceOf(referrer), shares1 + shares2 + shares3, "All transfers should succeed after unblacklisting");
+    }
+
+    function testUpdateBlacklistMultipleLists() external {
+        uint256 depositAmount = 1e18;
+        
+        // User deposits
+        deal(address(WETH), user1, depositAmount);
+        vm.startPrank(user1);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        uint256 shares = teller.deposit(WETH, depositAmount, 0, referrer);
+        vm.stopPrank();
+
+        // Setup multiple custom lists
+        uint8[] memory listIds = new uint8[](2);
+        listIds[0] = 4;
+        listIds[1] = 5;
+        shareWarden.updateVaultListIds(address(boringVault), listIds);
+
+        // Add user1 to both list 4 and list 5 (requires separate calls per list)
+        bytes32[] memory user1Hash = new bytes32[](1);
+        user1Hash[0] = keccak256(abi.encodePacked(user1));
+        shareWarden.updateBlacklist(4, user1Hash, true);
+        shareWarden.updateBlacklist(5, user1Hash, true);
+
+        // Transfer should fail (will hit list 4 first)
+        vm.prank(user1);
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__VedaBlacklisted.selector, user1, uint8(4)));
+        boringVault.transfer(user2, shares);
+
+        // Remove from list 4 only
+        shareWarden.updateBlacklist(4, user1Hash, false);
+
+        // Transfer should still fail (still on list 5)
+        vm.prank(user1);
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__VedaBlacklisted.selector, user1, uint8(5)));
+        boringVault.transfer(user2, shares);
+
+        // Remove from list 5
+        shareWarden.updateBlacklist(5, user1Hash, false);
+
+        // Transfer should now succeed
+        vm.prank(user1);
+        boringVault.transfer(user2, shares);
+        assertEq(boringVault.balanceOf(user2), shares, "Transfer should succeed after removing from all lists");
     }
 
     // ========================================= Teller Integration Tests =========================================

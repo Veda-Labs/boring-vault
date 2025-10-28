@@ -114,15 +114,14 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
      * @notice Blacklist an address for a list ID.
      * @dev Callable by OWNER_ROLE.
      */
-    function updateBlacklist(uint8[] memory listIds, bytes32[] memory addressHashes, bool isBlacklisted)
+    function updateBlacklist(uint8 listId, bytes32[] memory addressHashes, bool isBlacklisted)
         external
         requiresAuth
     {
-        require(listIds.length == addressHashes.length, "List IDs and address hashes must have the same length");
-        for (uint256 i = 0; i < listIds.length; i++) {
-            require(listIds[i] != 0, "List ID cannot be 0");
-            require(listIds[i] != LIST_ID_OFAC, "OFAC list cannot be updated in this contract");
-            listIdToBlacklisted[listIds[i]][addressHashes[i]] = isBlacklisted;
+        require(listId != 0, "List ID cannot be 0");
+        require(listId != LIST_ID_OFAC, "OFAC list cannot be updated in this contract");
+        for (uint256 i = 0; i < addressHashes.length; i++) {
+            listIdToBlacklisted[listId][addressHashes[i]] = isBlacklisted;
         }
     }
 
