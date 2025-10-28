@@ -9,7 +9,7 @@ import {IPausable} from "src/interfaces/IPausable.sol";
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 
-interface SanctionsList {
+interface ISanctionsList {
     function isSanctioned(address addr) external view returns (bool);
 }
 
@@ -39,25 +39,25 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
     mapping(uint8 => mapping(bytes32 => bool)) internal listIdToBlacklisted;
 
     /**
-     * @notice The OFAC oracle.
+     * @notice The SanctionsList oracle.
      */
-    SanctionsList public ofacOracle;
+    ISanctionsList public sanctionsList;
 
-    uint8 public constant LIST_ID_OFAC = type(uint8).max;
+    uint8 public constant LIST_ID_SANCTIONS = type(uint8).max;
 
     // =============================== EVENTS ===============================
 
     event Paused();
     event Unpaused();
-    event OFACOracleUpdated(address indexed oracle);
+    event SanctionsListUpdated(address indexed sanctionsList);
     event VaultTellerUpdated(address indexed vault, address indexed teller);
     event VaultListIdsUpdated(address indexed vault, uint8[] listIds);
 
     // =============================== ERRORS ===============================
 
     error ShareWarden__Paused();
-    error ShareWarden__OFACBlacklisted(address account);
-    error ShareWarden__VedaBlacklisted(address account, uint8 listId);
+    error ShareWarden__SanctionsListBlacklisted(address account);
+    error ShareWarden__Blacklisted(address account, uint8 listId);
 
     // =============================== CONSTRUCTOR ===============================
 
@@ -84,12 +84,12 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
     }
 
     /**
-     * @notice Update the OFAC oracle.
+     * @notice Update the SanctionsList oracle.
      * @dev Callable by OWNER_ROLE.
      */
-    function updateOFACOracle(address oracle) external requiresAuth {
-        ofacOracle = SanctionsList(oracle);
-        emit OFACOracleUpdated(oracle);
+    function updateSanctionsList(address _sanctionsList) external requiresAuth {
+        sanctionsList = ISanctionsList(_sanctionsList);
+        emit SanctionsListUpdated(_sanctionsList);
     }
 
     /**
@@ -114,11 +114,8 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
      * @notice Blacklist an address for a list ID.
      * @dev Callable by OWNER_ROLE.
      */
-    function updateBlacklist(uint8 listId, bytes32[] memory addressHashes, bool isBlacklisted)
-        external
-        requiresAuth
-    {
-        require(listId != LIST_ID_OFAC, "OFAC list cannot be updated in this contract");
+    function updateBlacklist(uint8 listId, bytes32[] memory addressHashes, bool isBlacklisted) external requiresAuth {
+        require(listId != LIST_ID_SANCTIONS, "SanctionsList list cannot be updated in this contract");
         for (uint256 i = 0; i < addressHashes.length; i++) {
             listIdToBlacklisted[listId][addressHashes[i]] = isBlacklisted;
         }
@@ -159,10 +156,10 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
         for (uint256 i = 0; i < listIds.length; i++) {
             uint8 listId = listIds[i];
             if (listIdToBlacklisted[listId][keccak256(abi.encodePacked(from))]) {
-                revert ShareWarden__VedaBlacklisted(from, listId);
+                revert ShareWarden__Blacklisted(from, listId);
             }
-            if (listId == LIST_ID_OFAC && address(ofacOracle) != address(0)) {
-                if (ofacOracle.isSanctioned(from)) revert ShareWarden__OFACBlacklisted(from);
+            if (listId == LIST_ID_SANCTIONS && address(sanctionsList) != address(0)) {
+                if (sanctionsList.isSanctioned(from)) revert ShareWarden__SanctionsListBlacklisted(from);
             }
         }
     }
@@ -172,19 +169,19 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
         for (uint256 i = 0; i < listIds.length; i++) {
             uint8 listId = listIds[i];
             if (listIdToBlacklisted[listId][keccak256(abi.encodePacked(from))]) {
-                revert ShareWarden__VedaBlacklisted(from, listId);
+                revert ShareWarden__Blacklisted(from, listId);
             }
             if (listIdToBlacklisted[listId][keccak256(abi.encodePacked(to))]) {
-                revert ShareWarden__VedaBlacklisted(to, listId);
+                revert ShareWarden__Blacklisted(to, listId);
             }
             if (listIdToBlacklisted[listId][keccak256(abi.encodePacked(operator))]) {
-                revert ShareWarden__VedaBlacklisted(operator, listId);
+                revert ShareWarden__Blacklisted(operator, listId);
             }
 
-            if (listId == LIST_ID_OFAC && address(ofacOracle) != address(0)) {
-                if (ofacOracle.isSanctioned(from)) revert ShareWarden__OFACBlacklisted(from);
-                if (ofacOracle.isSanctioned(to)) revert ShareWarden__OFACBlacklisted(to);
-                if (ofacOracle.isSanctioned(operator)) revert ShareWarden__OFACBlacklisted(operator);
+            if (listId == LIST_ID_SANCTIONS && address(sanctionsList) != address(0)) {
+                if (sanctionsList.isSanctioned(from)) revert ShareWarden__SanctionsListBlacklisted(from);
+                if (sanctionsList.isSanctioned(to)) revert ShareWarden__SanctionsListBlacklisted(to);
+                if (sanctionsList.isSanctioned(operator)) revert ShareWarden__SanctionsListBlacklisted(operator);
             }
         }
     }

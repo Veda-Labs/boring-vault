@@ -42,7 +42,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
     ShareWarden public shareWarden;
     AccountantWithRateProviders public accountant;
     RolesAuthority public rolesAuthority;
-    MockSanctionsList public ofacOracle;
+    MockSanctionsList public sanctionsList;
 
     uint8 public constant ADMIN_ROLE = 1;
     uint8 public constant MINTER_ROLE = 7;
@@ -88,7 +88,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         shareWarden = new ShareWarden(address(this));
 
         // Deploy mock oracles
-        ofacOracle = new MockSanctionsList();
+        sanctionsList = new MockSanctionsList();
 
         // Setup roles
         rolesAuthority = new RolesAuthority(address(this), Authority(address(0)));
@@ -214,9 +214,9 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         assertEq(boringVault.balanceOf(user1), shares, "Deposits should work even when ShareWarden is paused");
     }
 
-    // ========================================= OFAC Oracle Tests =========================================
+    // ========================================= SanctionsList Oracle Tests =========================================
 
-    function testOFACSanctionBlocksTransferFrom() external {
+    function testSanctionsListSanctionBlocksTransferFrom() external {
         uint256 depositAmount = 1e18;
         
         // User deposits
@@ -226,20 +226,20 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         uint256 shares = teller.deposit(WETH, depositAmount, 0, referrer);
         vm.stopPrank();
 
-        // Setup OFAC oracle and enable OFAC list for vault
-        shareWarden.updateOFACOracle(address(ofacOracle));
+        // Setup SanctionsList oracle and enable SanctionsList list for vault
+        shareWarden.updateSanctionsList(address(sanctionsList));
         uint8[] memory listIds = new uint8[](1);
-        listIds[0] = shareWarden.LIST_ID_OFAC();
+        listIds[0] = shareWarden.LIST_ID_SANCTIONS();
         shareWarden.updateVaultListIds(address(boringVault), listIds);
-        ofacOracle.setSanctioned(user1, true);
+        sanctionsList.setSanctioned(user1, true);
 
-        // Transfer should fail due to OFAC sanction
+        // Transfer should fail due to SanctionsList sanction
         vm.prank(user1);
-        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__OFACBlacklisted.selector, user1));
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__SanctionsListBlacklisted.selector, user1));
         boringVault.transfer(user2, shares);
     }
 
-    function testOFACSanctionBlocksTransferTo() external {
+    function testSanctionsListSanctionBlocksTransferTo() external {
         uint256 depositAmount = 1e18;
         
         // User deposits
@@ -249,20 +249,20 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         uint256 shares = teller.deposit(WETH, depositAmount, 0, referrer);
         vm.stopPrank();
 
-        // Setup OFAC oracle and enable OFAC list for vault
-        shareWarden.updateOFACOracle(address(ofacOracle));
+        // Setup SanctionsList oracle and enable SanctionsList list for vault
+        shareWarden.updateSanctionsList(address(sanctionsList));
         uint8[] memory listIds = new uint8[](1);
-        listIds[0] = shareWarden.LIST_ID_OFAC();
+        listIds[0] = shareWarden.LIST_ID_SANCTIONS();
         shareWarden.updateVaultListIds(address(boringVault), listIds);
-        ofacOracle.setSanctioned(user2, true);
+        sanctionsList.setSanctioned(user2, true);
 
-        // Transfer should fail due to OFAC sanction on recipient
+        // Transfer should fail due to SanctionsList sanction on recipient
         vm.prank(user1);
-        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__OFACBlacklisted.selector, user2));
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__SanctionsListBlacklisted.selector, user2));
         boringVault.transfer(user2, shares);
     }
 
-    function testOFACSanctionBlocksOperator() external {
+    function testSanctionsListSanctionBlocksOperator() external {
         uint256 depositAmount = 1e18;
         
         // User deposits
@@ -273,19 +273,19 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         boringVault.approve(address(this), shares);
         vm.stopPrank();
 
-        // Setup OFAC oracle and enable OFAC list for vault
-        shareWarden.updateOFACOracle(address(ofacOracle));
+        // Setup SanctionsList oracle and enable SanctionsList list for vault
+        shareWarden.updateSanctionsList(address(sanctionsList));
         uint8[] memory listIds = new uint8[](1);
-        listIds[0] = shareWarden.LIST_ID_OFAC();
+        listIds[0] = shareWarden.LIST_ID_SANCTIONS();
         shareWarden.updateVaultListIds(address(boringVault), listIds);
-        ofacOracle.setSanctioned(address(this), true);
+        sanctionsList.setSanctioned(address(this), true);
 
-        // TransferFrom should fail due to OFAC sanction on operator
-        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__OFACBlacklisted.selector, address(this)));
+        // TransferFrom should fail due to SanctionsList sanction on operator
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__SanctionsListBlacklisted.selector, address(this)));
         boringVault.transferFrom(user1, user2, shares);
     }
 
-    function testOFACOracleCanBeRemoved() external {
+    function testSanctionsListCanBeRemoved() external {
         uint256 depositAmount = 1e18;
         
         // User deposits
@@ -295,19 +295,19 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         uint256 shares = teller.deposit(WETH, depositAmount, 0, referrer);
         vm.stopPrank();
 
-        // Setup OFAC oracle and enable OFAC list for vault and sanction user
-        shareWarden.updateOFACOracle(address(ofacOracle));
+        // Setup SanctionsList oracle and enable SanctionsList list for vault and sanction user
+        shareWarden.updateSanctionsList(address(sanctionsList));
         uint8[] memory listIds = new uint8[](1);
-        listIds[0] = shareWarden.LIST_ID_OFAC();
+        listIds[0] = shareWarden.LIST_ID_SANCTIONS();
         shareWarden.updateVaultListIds(address(boringVault), listIds);
-        ofacOracle.setSanctioned(user1, true);
+        sanctionsList.setSanctioned(user1, true);
 
         // Transfer should fail
         vm.prank(user1);
-        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__OFACBlacklisted.selector, user1));
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__SanctionsListBlacklisted.selector, user1));
         boringVault.transfer(user2, shares);
 
-        // Remove OFAC list from vault
+        // Remove SanctionsList list from vault
         uint8[] memory emptyListIds = new uint8[](0);
         shareWarden.updateVaultListIds(address(boringVault), emptyListIds);
 
@@ -315,7 +315,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         vm.prank(user1);
         boringVault.transfer(user2, shares);
 
-        assertEq(boringVault.balanceOf(user2), shares, "Transfer should succeed after removing OFAC list");
+        assertEq(boringVault.balanceOf(user2), shares, "Transfer should succeed after removing SanctionsList list");
     }
 
     // ========================================= Custom Blacklist Tests =========================================
@@ -341,7 +341,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         // Transfer should fail due to custom blacklist
         vm.prank(user1);
-        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__VedaBlacklisted.selector, user1, uint8(2)));
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user1, uint8(2)));
         boringVault.transfer(user2, shares);
     }
 
@@ -366,7 +366,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         // Transfer should fail due to custom blacklist on recipient
         vm.prank(user1);
-        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__VedaBlacklisted.selector, user2, uint8(2)));
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user2, uint8(2)));
         boringVault.transfer(user2, shares);
     }
 
@@ -380,28 +380,28 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         uint256 shares = teller.deposit(WETH, depositAmount, 0, referrer);
         vm.stopPrank();
 
-        // Setup OFAC oracle and enable both OFAC and custom list
-        shareWarden.updateOFACOracle(address(ofacOracle));
+        // Setup SanctionsList oracle and enable both SanctionsList and custom list
+        shareWarden.updateSanctionsList(address(sanctionsList));
         uint8[] memory listIds = new uint8[](2);
-        listIds[0] = shareWarden.LIST_ID_OFAC(); // OFAC
+        listIds[0] = shareWarden.LIST_ID_SANCTIONS(); // SanctionsList
         listIds[1] = 2; // Custom list
         shareWarden.updateVaultListIds(address(boringVault), listIds);
 
-        // Sanction on OFAC
-        ofacOracle.setSanctioned(user1, true);
+        // Sanction on SanctionsList
+        sanctionsList.setSanctioned(user1, true);
         
         vm.prank(user1);
-        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__OFACBlacklisted.selector, user1));
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__SanctionsListBlacklisted.selector, user1));
         boringVault.transfer(user2, shares);
 
-        // Clear OFAC, add to custom list
-        ofacOracle.setSanctioned(user1, false);
+        // Clear SanctionsList, add to custom list
+        sanctionsList.setSanctioned(user1, false);
         bytes32[] memory addressHashes = new bytes32[](1);
         addressHashes[0] = keccak256(abi.encodePacked(user1));
         shareWarden.updateBlacklist(2, addressHashes, true);
 
         vm.prank(user1);
-        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__VedaBlacklisted.selector, user1, uint8(2)));
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user1, uint8(2)));
         boringVault.transfer(user2, shares);
 
         // Clear custom list
@@ -434,7 +434,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         shareWarden.updateBlacklist(2, addressHashes, true);
 
         // TransferFrom should fail due to blacklisted operator
-        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__VedaBlacklisted.selector, address(this), uint8(2)));
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, address(this), uint8(2)));
         boringVault.transferFrom(user1, user2, shares);
     }
 
@@ -459,7 +459,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         // Transfer should fail
         vm.prank(user1);
-        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__VedaBlacklisted.selector, user1, uint8(2)));
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user1, uint8(2)));
         boringVault.transfer(user2, shares);
 
         // Unblacklist user1
@@ -508,12 +508,12 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         // User1 transfer should fail
         vm.prank(user1);
-        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__VedaBlacklisted.selector, user1, uint8(3)));
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user1, uint8(3)));
         boringVault.transfer(referrer, shares1);
 
         // User2 transfer should fail
         vm.prank(user2);
-        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__VedaBlacklisted.selector, user2, uint8(3)));
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user2, uint8(3)));
         boringVault.transfer(referrer, shares2);
 
         // User3 transfer should succeed (not blacklisted)
@@ -558,7 +558,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         // Transfer should fail (will hit list 4 first)
         vm.prank(user1);
-        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__VedaBlacklisted.selector, user1, uint8(4)));
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user1, uint8(4)));
         boringVault.transfer(user2, shares);
 
         // Remove from list 4 only
@@ -566,7 +566,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         // Transfer should still fail (still on list 5)
         vm.prank(user1);
-        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__VedaBlacklisted.selector, user1, uint8(5)));
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user1, uint8(5)));
         boringVault.transfer(user2, shares);
 
         // Remove from list 5
@@ -679,7 +679,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         boringVault.transfer(user2, shares);
     }
 
-    function testCombinedChecks_OFACAndTellerShareLock() external {
+    function testCombinedChecks_SanctionsListAndTellerShareLock() external {
         uint256 depositAmount = 1e18;
         
         // Set share lock period
@@ -692,20 +692,20 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         uint256 shares = teller.deposit(WETH, depositAmount, 0, referrer);
         vm.stopPrank();
 
-        // Setup OFAC oracle and enable OFAC list
-        shareWarden.updateOFACOracle(address(ofacOracle));
+        // Setup SanctionsList oracle and enable SanctionsList list
+        shareWarden.updateSanctionsList(address(sanctionsList));
         uint8[] memory listIds = new uint8[](1);
-        listIds[0] = shareWarden.LIST_ID_OFAC();
+        listIds[0] = shareWarden.LIST_ID_SANCTIONS();
         shareWarden.updateVaultListIds(address(boringVault), listIds);
-        ofacOracle.setSanctioned(user1, true);
+        sanctionsList.setSanctioned(user1, true);
 
-        // Transfer should fail due to OFAC (checked first)
+        // Transfer should fail due to SanctionsList (checked first)
         vm.prank(user1);
-        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__OFACBlacklisted.selector, user1));
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__SanctionsListBlacklisted.selector, user1));
         boringVault.transfer(user2, shares);
 
-        // Clear OFAC sanction
-        ofacOracle.setSanctioned(user1, false);
+        // Clear SanctionsList sanction
+        sanctionsList.setSanctioned(user1, false);
 
         // Should fail due to share lock now
         vm.prank(user1);
@@ -751,17 +751,17 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         teller.deposit(WETH, depositAmount, 0, referrer);
         vm.stopPrank();
 
-        // Setup OFAC oracle and enable OFAC list and sanction user1
-        shareWarden.updateOFACOracle(address(ofacOracle));
+        // Setup SanctionsList oracle and enable SanctionsList list and sanction user1
+        shareWarden.updateSanctionsList(address(sanctionsList));
         uint8[] memory listIds = new uint8[](1);
-        listIds[0] = shareWarden.LIST_ID_OFAC();
+        listIds[0] = shareWarden.LIST_ID_SANCTIONS();
         shareWarden.updateVaultListIds(address(boringVault), listIds);
-        ofacOracle.setSanctioned(user1, true);
+        sanctionsList.setSanctioned(user1, true);
 
         // This would typically be called by the vault's transfer function
         // Simulating the single-parameter version
         vm.prank(address(boringVault));
-        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__OFACBlacklisted.selector, user1));
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__SanctionsListBlacklisted.selector, user1));
         shareWarden.beforeTransfer(user1);
     }
 
@@ -780,19 +780,19 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         boringVault.transfer(user2, shares / 4);
         assertEq(boringVault.balanceOf(user2), shares / 4, "First transfer should succeed");
 
-        // Setup OFAC, transfer fails
-        shareWarden.updateOFACOracle(address(ofacOracle));
+        // Setup SanctionsList, transfer fails
+        shareWarden.updateSanctionsList(address(sanctionsList));
         uint8[] memory listIds = new uint8[](1);
-        listIds[0] = shareWarden.LIST_ID_OFAC();
+        listIds[0] = shareWarden.LIST_ID_SANCTIONS();
         shareWarden.updateVaultListIds(address(boringVault), listIds);
-        ofacOracle.setSanctioned(user1, true);
+        sanctionsList.setSanctioned(user1, true);
         
         vm.prank(user1);
-        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__OFACBlacklisted.selector, user1));
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__SanctionsListBlacklisted.selector, user1));
         boringVault.transfer(user2, shares / 4);
 
-        // Clear OFAC, add teller deny
-        ofacOracle.setSanctioned(user1, false);
+        // Clear SanctionsList, add teller deny
+        sanctionsList.setSanctioned(user1, false);
         teller.denyAll(user1);
 
         vm.prank(user1);
@@ -834,7 +834,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         assertEq(boringVault.balanceOf(user1), shares - shares / 2, "User1 should have remaining shares");
     }
 
-    function testFuzzOFACSanction(uint256 amount, bool sanctionFrom, bool sanctionTo, bool sanctionOperator) external {
+    function testFuzzSanctionsListSanction(uint256 amount, bool sanctionFrom, bool sanctionTo, bool sanctionOperator) external {
         amount = bound(amount, 0.0001e18, 10_000e18);
 
         // User deposits
@@ -845,27 +845,27 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         boringVault.approve(address(this), shares);
         vm.stopPrank();
 
-        // Setup OFAC oracle and enable OFAC list
-        shareWarden.updateOFACOracle(address(ofacOracle));
+        // Setup SanctionsList oracle and enable SanctionsList list
+        shareWarden.updateSanctionsList(address(sanctionsList));
         uint8[] memory listIds = new uint8[](1);
-        listIds[0] = shareWarden.LIST_ID_OFAC();
+        listIds[0] = shareWarden.LIST_ID_SANCTIONS();
         shareWarden.updateVaultListIds(address(boringVault), listIds);
 
         if (sanctionFrom) {
-            ofacOracle.setSanctioned(user1, true);
+            sanctionsList.setSanctioned(user1, true);
         }
         if (sanctionTo) {
-            ofacOracle.setSanctioned(user2, true);
+            sanctionsList.setSanctioned(user2, true);
         }
         if (sanctionOperator) {
-            ofacOracle.setSanctioned(address(this), true);
+            sanctionsList.setSanctioned(address(this), true);
         }
 
         bool shouldFail = sanctionFrom || sanctionTo || sanctionOperator;
 
         if (shouldFail) {
             address sanctionedAddr = sanctionFrom ? user1 : (sanctionTo ? user2 : address(this));
-            vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__OFACBlacklisted.selector, sanctionedAddr));
+            vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__SanctionsListBlacklisted.selector, sanctionedAddr));
         }
         
         boringVault.transferFrom(user1, user2, shares);
@@ -879,7 +879,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
     event Paused();
     event Unpaused();
-    event OFACOracleUpdated(address indexed oracle);
+    event SanctionsListUpdated(address indexed sanctionsList);
     event VaultTellerUpdated(address indexed vault, address indexed teller);
     event VaultListIdsUpdated(address indexed vault, uint8[] listIds);
 
@@ -899,10 +899,10 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
     }
 
     function testOracleUpdateEvents() external {
-        // Test OFAC oracle update event
+        // Test SanctionsList oracle update event
         vm.expectEmit(true, false, false, false);
-        emit OFACOracleUpdated(address(ofacOracle));
-        shareWarden.updateOFACOracle(address(ofacOracle));
+        emit SanctionsListUpdated(address(sanctionsList));
+        shareWarden.updateSanctionsList(address(sanctionsList));
     }
 
     function testVaultListIdsUpdateEvent() external {
