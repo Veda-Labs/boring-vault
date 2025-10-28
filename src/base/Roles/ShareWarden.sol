@@ -14,6 +14,13 @@ interface SanctionsList {
 }
 
 contract ShareWarden is BeforeTransferHook, IPausable, Auth {
+    // ========================================= STRUCTS =========================================
+
+    struct VaultData {
+        address teller; // The teller for the vault.
+        uint8[] listIds; // The blacklist IDs for the vault.
+    }
+
     // ========================================= STATE =========================================
 
     /**
@@ -22,26 +29,35 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
     bool public isPaused;
 
     /**
-     * @notice Maps a vault to a teller.
+     * @notice Maps a vault to its configuration data (teller and list IDs).
      */
-    mapping(address => address) public vaultToTeller;
+    mapping(address => VaultData) internal vaultData;
 
+    /**
+     * @notice Maps a list ID to a mapping of address hashes to blacklisted status.
+     */
+    mapping(uint8 => mapping(bytes32 => bool)) internal listIdToBlacklisted;
+
+    /**
+     * @notice The OFAC oracle.
+     */
     SanctionsList public ofacOracle;
-    SanctionsList public vedaOracle;
+
+    uint8 constant LIST_ID_OFAC = 1;
 
     // =============================== EVENTS ===============================
 
     event Paused();
     event Unpaused();
-    event VaultToTellerUpdated(address indexed vault, address indexed teller);
     event OFACOracleUpdated(address indexed oracle);
-    event VedaOracleUpdated(address indexed oracle);
+    event VaultTellerUpdated(address indexed vault, address indexed teller);
+    event VaultListIdsUpdated(address indexed vault, uint8[] listIds);
 
     // =============================== ERRORS ===============================
 
     error ShareWarden__Paused();
     error ShareWarden__OFACBlacklisted(address account);
-    error ShareWarden__VedaBlacklisted(address account);
+    error ShareWarden__VedaBlacklisted(address account, uint8 listId);
 
     // =============================== CONSTRUCTOR ===============================
 
@@ -53,7 +69,7 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
      * @notice Pause this contract, which prevents future calls to `deposit` and `depositWithPermit`.
      * @dev Callable by MULTISIG_ROLE.
      */
-     function pause() external requiresAuth {
+    function pause() external requiresAuth {
         isPaused = true;
         emit Paused();
     }
@@ -68,15 +84,6 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
     }
 
     /**
-     * @notice Update the teller for a vault.
-     * @dev Callable by OWNER_ROLE.
-     */
-    function updateVaultToTeller(address vault, address teller) external requiresAuth {
-        vaultToTeller[vault] = teller;
-        emit VaultToTellerUpdated(vault, teller);
-    }
-
-    /**
      * @notice Update the OFAC oracle.
      * @dev Callable by OWNER_ROLE.
      */
@@ -86,12 +93,43 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
     }
 
     /**
-     * @notice Update the VEDA oracle.
+     * @notice Update the teller for a vault.
      * @dev Callable by OWNER_ROLE.
      */
-    function updateVedaOracle(address oracle) external requiresAuth {
-        vedaOracle = SanctionsList(oracle);
-        emit VedaOracleUpdated(oracle);
+    function updateVaultTeller(address vault, address teller) external requiresAuth {
+        vaultData[vault].teller = teller;
+        emit VaultTellerUpdated(vault, teller);
+    }
+
+    /**
+     * @notice Update the blacklist IDs for a vault.
+     * @dev Callable by OWNER_ROLE.
+     */
+    function updateVaultListIds(address vault, uint8[] memory listIds) external requiresAuth {
+        vaultData[vault].listIds = listIds;
+        emit VaultListIdsUpdated(vault, listIds);
+    }
+
+    /**
+     * @notice Blacklist an address for a list ID.
+     * @dev Callable by OWNER_ROLE.
+     */
+    function updateBlacklist(uint8[] memory listIds, bytes32[] memory addressHashes, bool isBlacklisted)
+        external
+        requiresAuth
+    {
+        require(listIds.length == addressHashes.length, "List IDs and address hashes must have the same length");
+        for (uint256 i = 0; i < listIds.length; i++) {
+            require(listIds[i] != 0, "List ID cannot be 0");
+            require(listIds[i] != LIST_ID_OFAC, "OFAC list cannot be updated in this contract");
+            listIdToBlacklisted[listIds[i]][addressHashes[i]] = isBlacklisted;
+        }
+    }
+
+    // =============================== VIEW FUNCTIONS ===============================
+
+    function getVaultData(address vault) external view returns (address teller, uint8[] memory listIds) {
+        return (vaultData[vault].teller, vaultData[vault].listIds);
     }
 
     // ========================================= BeforeTransferHook FUNCTIONS =========================================
@@ -100,33 +138,56 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
         if (isPaused) revert ShareWarden__Paused();
 
         _checkBlacklist(from, to, operator);
- 
-        if (vaultToTeller[msg.sender] != address(0)) {
-            TellerWithMultiAssetSupport(vaultToTeller[msg.sender]).beforeTransfer(from, to, operator);
+
+        address teller = vaultData[msg.sender].teller;
+        if (teller != address(0)) {
+            TellerWithMultiAssetSupport(teller).beforeTransfer(from, to, operator);
         }
     }
 
     function beforeTransfer(address from) external view {
         if (isPaused) revert ShareWarden__Paused();
 
-        if (address(ofacOracle) != address(0) && ofacOracle.isSanctioned(from)) revert ShareWarden__OFACBlacklisted(from);
-        if (address(vedaOracle) != address(0) && vedaOracle.isSanctioned(from)) revert ShareWarden__VedaBlacklisted(from);
+        _checkBlacklist(from);
 
-        if (vaultToTeller[msg.sender] != address(0)) {
-            TellerWithMultiAssetSupport(vaultToTeller[msg.sender]).beforeTransfer(from);
+        address teller = vaultData[msg.sender].teller;
+        if (teller != address(0)) {
+            TellerWithMultiAssetSupport(teller).beforeTransfer(from);
+        }
+    }
+
+    function _checkBlacklist(address from) internal view {
+        uint8[] memory listIds = vaultData[msg.sender].listIds;
+        for (uint256 i = 0; i < listIds.length; i++) {
+            uint8 listId = listIds[i];
+            if (listIdToBlacklisted[listId][keccak256(abi.encodePacked(from))]) {
+                revert ShareWarden__VedaBlacklisted(from, listId);
+            }
+            if (listId == LIST_ID_OFAC && address(ofacOracle) != address(0)) {
+                if (ofacOracle.isSanctioned(from)) revert ShareWarden__OFACBlacklisted(from);
+            }
         }
     }
 
     function _checkBlacklist(address from, address to, address operator) internal view {
-        if (address(ofacOracle) != address(0)) {
-            if (ofacOracle.isSanctioned(from)) revert ShareWarden__OFACBlacklisted(from);
-            if (ofacOracle.isSanctioned(to)) revert ShareWarden__OFACBlacklisted(to);
-            if (ofacOracle.isSanctioned(operator)) revert ShareWarden__OFACBlacklisted(operator);
-        }
-        if (address(vedaOracle) != address(0)) {
-            if (vedaOracle.isSanctioned(from)) revert ShareWarden__VedaBlacklisted(from);
-            if (vedaOracle.isSanctioned(to)) revert ShareWarden__VedaBlacklisted(to);
-            if (vedaOracle.isSanctioned(operator)) revert ShareWarden__VedaBlacklisted(operator);
+        uint8[] memory listIds = vaultData[msg.sender].listIds;
+        for (uint256 i = 0; i < listIds.length; i++) {
+            uint8 listId = listIds[i];
+            if (listIdToBlacklisted[listId][keccak256(abi.encodePacked(from))]) {
+                revert ShareWarden__VedaBlacklisted(from, listId);
+            }
+            if (listIdToBlacklisted[listId][keccak256(abi.encodePacked(to))]) {
+                revert ShareWarden__VedaBlacklisted(to, listId);
+            }
+            if (listIdToBlacklisted[listId][keccak256(abi.encodePacked(operator))]) {
+                revert ShareWarden__VedaBlacklisted(operator, listId);
+            }
+
+            if (listId == LIST_ID_OFAC && address(ofacOracle) != address(0)) {
+                if (ofacOracle.isSanctioned(from)) revert ShareWarden__OFACBlacklisted(from);
+                if (ofacOracle.isSanctioned(to)) revert ShareWarden__OFACBlacklisted(to);
+                if (ofacOracle.isSanctioned(operator)) revert ShareWarden__OFACBlacklisted(operator);
+            }
         }
     }
 }
