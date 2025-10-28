@@ -8,10 +8,7 @@ import {BeforeTransferHook} from "src/interfaces/BeforeTransferHook.sol";
 import {IPausable} from "src/interfaces/IPausable.sol";
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
-
-interface ISanctionsList {
-    function isSanctioned(address addr) external view returns (bool);
-}
+import {ISanctionsList} from "src/interfaces/ISanctionsList.sol";
 
 contract ShareWarden is BeforeTransferHook, IPausable, Auth {
     // ========================================= STRUCTS =========================================

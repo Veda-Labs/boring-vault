@@ -14,20 +14,21 @@ import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
 import {ILiquidityPool} from "src/interfaces/IStaking.sol";
+import {ISanctionsList} from "src/interfaces/ISanctionsList.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
 // Mock sanctions list for testing
-contract MockSanctionsList {
+contract MockSanctionsList is ISanctionsList {
     mapping(address => bool) public sanctioned;
 
     function setSanctioned(address addr, bool status) external {
         sanctioned[addr] = status;
     }
 
-    function isSanctioned(address addr) external view returns (bool) {
+    function isSanctioned(address addr) external view override returns (bool) {
         return sanctioned[addr];
     }
 }
