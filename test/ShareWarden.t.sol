@@ -229,7 +229,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // Setup OFAC oracle and enable OFAC list for vault
         shareWarden.updateOFACOracle(address(ofacOracle));
         uint8[] memory listIds = new uint8[](1);
-        listIds[0] = 1; // LIST_ID_OFAC
+        listIds[0] = shareWarden.LIST_ID_OFAC();
         shareWarden.updateVaultListIds(address(boringVault), listIds);
         ofacOracle.setSanctioned(user1, true);
 
@@ -252,7 +252,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // Setup OFAC oracle and enable OFAC list for vault
         shareWarden.updateOFACOracle(address(ofacOracle));
         uint8[] memory listIds = new uint8[](1);
-        listIds[0] = 1; // LIST_ID_OFAC
+        listIds[0] = shareWarden.LIST_ID_OFAC();
         shareWarden.updateVaultListIds(address(boringVault), listIds);
         ofacOracle.setSanctioned(user2, true);
 
@@ -276,7 +276,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // Setup OFAC oracle and enable OFAC list for vault
         shareWarden.updateOFACOracle(address(ofacOracle));
         uint8[] memory listIds = new uint8[](1);
-        listIds[0] = 1; // LIST_ID_OFAC
+        listIds[0] = shareWarden.LIST_ID_OFAC();
         shareWarden.updateVaultListIds(address(boringVault), listIds);
         ofacOracle.setSanctioned(address(this), true);
 
@@ -298,7 +298,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // Setup OFAC oracle and enable OFAC list for vault and sanction user
         shareWarden.updateOFACOracle(address(ofacOracle));
         uint8[] memory listIds = new uint8[](1);
-        listIds[0] = 1; // LIST_ID_OFAC
+        listIds[0] = shareWarden.LIST_ID_OFAC();
         shareWarden.updateVaultListIds(address(boringVault), listIds);
         ofacOracle.setSanctioned(user1, true);
 
@@ -383,7 +383,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // Setup OFAC oracle and enable both OFAC and custom list
         shareWarden.updateOFACOracle(address(ofacOracle));
         uint8[] memory listIds = new uint8[](2);
-        listIds[0] = 1; // OFAC
+        listIds[0] = shareWarden.LIST_ID_OFAC(); // OFAC
         listIds[1] = 2; // Custom list
         shareWarden.updateVaultListIds(address(boringVault), listIds);
 
@@ -695,7 +695,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // Setup OFAC oracle and enable OFAC list
         shareWarden.updateOFACOracle(address(ofacOracle));
         uint8[] memory listIds = new uint8[](1);
-        listIds[0] = 1; // LIST_ID_OFAC
+        listIds[0] = shareWarden.LIST_ID_OFAC();
         shareWarden.updateVaultListIds(address(boringVault), listIds);
         ofacOracle.setSanctioned(user1, true);
 
@@ -754,7 +754,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // Setup OFAC oracle and enable OFAC list and sanction user1
         shareWarden.updateOFACOracle(address(ofacOracle));
         uint8[] memory listIds = new uint8[](1);
-        listIds[0] = 1; // LIST_ID_OFAC
+        listIds[0] = shareWarden.LIST_ID_OFAC();
         shareWarden.updateVaultListIds(address(boringVault), listIds);
         ofacOracle.setSanctioned(user1, true);
 
@@ -783,7 +783,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // Setup OFAC, transfer fails
         shareWarden.updateOFACOracle(address(ofacOracle));
         uint8[] memory listIds = new uint8[](1);
-        listIds[0] = 1; // LIST_ID_OFAC
+        listIds[0] = shareWarden.LIST_ID_OFAC();
         shareWarden.updateVaultListIds(address(boringVault), listIds);
         ofacOracle.setSanctioned(user1, true);
         
@@ -848,7 +848,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // Setup OFAC oracle and enable OFAC list
         shareWarden.updateOFACOracle(address(ofacOracle));
         uint8[] memory listIds = new uint8[](1);
-        listIds[0] = 1; // LIST_ID_OFAC
+        listIds[0] = shareWarden.LIST_ID_OFAC();
         shareWarden.updateVaultListIds(address(boringVault), listIds);
 
         if (sanctionFrom) {
@@ -907,8 +907,8 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
     function testVaultListIdsUpdateEvent() external {
         uint8[] memory listIds = new uint8[](2);
-        listIds[0] = 1;
-        listIds[1] = 2;
+        listIds[0] = 10;
+        listIds[1] = 20;
 
         vm.expectEmit(true, false, false, true);
         emit VaultListIdsUpdated(address(boringVault), listIds);

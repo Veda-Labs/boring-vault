@@ -43,7 +43,7 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
      */
     SanctionsList public ofacOracle;
 
-    uint8 constant LIST_ID_OFAC = 1;
+    uint8 public constant LIST_ID_OFAC = type(uint8).max;
 
     // =============================== EVENTS ===============================
 
@@ -118,7 +118,6 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
         external
         requiresAuth
     {
-        require(listId != 0, "List ID cannot be 0");
         require(listId != LIST_ID_OFAC, "OFAC list cannot be updated in this contract");
         for (uint256 i = 0; i < addressHashes.length; i++) {
             listIdToBlacklisted[listId][addressHashes[i]] = isBlacklisted;
