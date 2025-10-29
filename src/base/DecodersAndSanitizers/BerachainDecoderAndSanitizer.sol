@@ -61,6 +61,6 @@ contract BerachainDecoderAndSanitizer is
         override(WeETHDecoderAndSanitizer, TellerDecoderAndSanitizer)
         returns (bytes memory addressesFound)
     {
-        return addressesFound;
+        addressesFound = abi.encodePacked(tokenIn, referral);
     }
 }
