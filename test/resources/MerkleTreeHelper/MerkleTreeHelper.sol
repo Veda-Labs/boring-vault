@@ -10538,20 +10538,6 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = address(assets[i]);
-
-            unchecked {
-                leafIndex++;
-            }
-            leafs[leafIndex] = ManageLeaf(
-                teller,
-                false,
-                "withdraw(address,uint256,uint256,address)",
-                new address[](2),
-                string.concat("Withdraw ", assets[i].symbol(), " from ", boringVault.name()),
-                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-            );
-            leafs[leafIndex].argumentAddresses[0] = address(assets[i]);
-            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
         }
 
         if (addNativeDeposit) {
