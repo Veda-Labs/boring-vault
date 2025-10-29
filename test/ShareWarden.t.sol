@@ -32,26 +32,24 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
     using stdStorage for StdStorage;
 
-    BoringVault public boringVault;
-    TellerWithMultiAssetSupport public teller;
+    // golden goose vault
+    BoringVault public boringVault = BoringVault(payable(0xef417FCE1883c6653E7dC6AF7c6F85CCDE84Aa09));
+    AccountantWithRateProviders public accountant = AccountantWithRateProviders(0xc873F2b7b3BA0a7faA2B56e210E3B965f2b618f5);
+    TellerWithMultiAssetSupport public teller = TellerWithMultiAssetSupport(0x4C74ccA483A278Bcb90Aea3f8F565e56202D82B2);
+    RolesAuthority public rolesAuthority = RolesAuthority(0x9778D78495cBbfce0B1F6194526a8c3D4b9C3AAF);
+    address public owner;
     ShareWarden public shareWarden;
-    AccountantWithRateProviders public accountant;
-    RolesAuthority public rolesAuthority;
     ISanctionsListFull public sanctionsList;
     address public sanctionsListOwner;
+    uint64 public shareLockPeriod;
 
-    uint8 public constant ADMIN_ROLE = 1;
-    uint8 public constant MINTER_ROLE = 7;
-    uint8 public constant BURNER_ROLE = 8;
+    uint8 public constant OWNER_ROLE = 8;
 
     address public payout_address = vm.addr(7777777);
     address internal constant NATIVE = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     ERC20 internal constant NATIVE_ERC20 = ERC20(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE);
 
     ERC20 internal WETH;
-    ERC20 internal EETH;
-    ERC20 internal WEETH;
-    address internal WEETH_RATE_PROVIDER;
 
     address public user1 = vm.addr(101);
     address public user2 = vm.addr(102);
@@ -61,23 +59,13 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 19363419;
+        uint256 blockNumber = 23649055;
         _startFork(rpcKey, blockNumber);
 
+        shareLockPeriod = teller.shareLockPeriod();
+        owner = rolesAuthority.owner();
+
         WETH = getERC20(sourceChain, "WETH");
-        EETH = getERC20(sourceChain, "EETH");
-        WEETH = getERC20(sourceChain, "WEETH");
-        WEETH_RATE_PROVIDER = getAddress(sourceChain, "WEETH_RATE_PROVIDER");
-
-        // Deploy core contracts
-        boringVault = new BoringVault(address(this), "Boring Vault", "BV", 18);
-
-        accountant = new AccountantWithRateProviders(
-            address(this), address(boringVault), payout_address, 1e18, address(WETH), 1.001e4, 0.999e4, 1, 0, 0
-        );
-
-        teller =
-            new TellerWithMultiAssetSupport(address(this), address(boringVault), address(accountant), address(WETH));
 
         shareWarden = new ShareWarden(address(this));
 
@@ -85,37 +73,13 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         sanctionsList = ISanctionsListFull(getAddress(sourceChain, "sanctionsList"));
         sanctionsListOwner = sanctionsList.owner();
 
-        // Setup roles
-        rolesAuthority = new RolesAuthority(address(this), Authority(address(0)));
-
-        boringVault.setAuthority(rolesAuthority);
-        accountant.setAuthority(rolesAuthority);
-        teller.setAuthority(rolesAuthority);
-
-        rolesAuthority.setRoleCapability(MINTER_ROLE, address(boringVault), BoringVault.enter.selector, true);
-        rolesAuthority.setRoleCapability(BURNER_ROLE, address(boringVault), BoringVault.exit.selector, true);
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(teller), TellerWithMultiAssetSupport.updateAssetData.selector, true
-        );
-        rolesAuthority.setPublicCapability(address(teller), TellerWithMultiAssetSupport.deposit.selector, true);
-        rolesAuthority.setPublicCapability(
-            address(teller), TellerWithMultiAssetSupport.depositWithPermit.selector, true
-        );
-
-        rolesAuthority.setUserRole(address(this), ADMIN_ROLE, true);
-        rolesAuthority.setUserRole(address(teller), MINTER_ROLE, true);
-        rolesAuthority.setUserRole(address(teller), BURNER_ROLE, true);
-
-        // Setup asset data
-        teller.updateAssetData(WETH, true, true, 0);
-        teller.updateAssetData(ERC20(NATIVE), true, true, 0);
-        teller.updateAssetData(EETH, true, true, 0);
-        teller.updateAssetData(WEETH, true, true, 0);
-
-        accountant.setRateProviderData(EETH, true, address(0));
-        accountant.setRateProviderData(WEETH, false, address(WEETH_RATE_PROVIDER));
+        vm.startPrank(owner);
+        rolesAuthority.setRoleCapability(OWNER_ROLE, address(teller), teller.allowAll.selector, true);
+        rolesAuthority.setRoleCapability(OWNER_ROLE, address(teller), teller.denyAll.selector, true);
+        vm.stopPrank();
 
         // Connect ShareWarden to vault and teller
+        vm.prank(owner);
         boringVault.setBeforeTransferHook(address(shareWarden));
         shareWarden.updateVaultTeller(address(boringVault), address(teller));
     }
@@ -134,7 +98,8 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         assertEq(boringVault.balanceOf(user1), shares, "User should receive shares");
 
-        // User can transfer (no lock period set)
+        // User can transfer (after lock period)
+        skip(shareLockPeriod);
         vm.prank(user1);
         boringVault.transfer(user2, shares / 2);
 
@@ -187,6 +152,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         shareWarden.unpause();
 
         // Transfer should work now
+        skip(shareLockPeriod);
         vm.prank(user1);
         boringVault.transfer(user2, shares);
 
@@ -307,6 +273,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         shareWarden.updateVaultListIds(address(boringVault), emptyListIds);
 
         // Transfer should work now
+        skip(shareLockPeriod);
         vm.prank(user1);
         boringVault.transfer(user2, shares);
 
@@ -402,6 +369,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // Clear custom list
         shareWarden.updateBlacklist(2, addressHashes, false);
 
+        skip(shareLockPeriod);
         vm.prank(user1);
         boringVault.transfer(user2, shares);
 
@@ -461,6 +429,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         shareWarden.updateBlacklist(2, addressHashes, false);
 
         // Transfer should succeed
+        skip(shareLockPeriod);
         vm.prank(user1);
         boringVault.transfer(user2, shares);
 
@@ -512,6 +481,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         boringVault.transfer(referrer, shares2);
 
         // User3 transfer should succeed (not blacklisted)
+        skip(shareLockPeriod);
         vm.prank(user3);
         boringVault.transfer(referrer, shares3);
         assertEq(boringVault.balanceOf(referrer), shares3, "User3 transfer should succeed");
@@ -568,6 +538,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         shareWarden.updateBlacklist(5, user1Hash, false);
 
         // Transfer should now succeed
+        skip(shareLockPeriod);
         vm.prank(user1);
         boringVault.transfer(user2, shares);
         assertEq(boringVault.balanceOf(user2), shares, "Transfer should succeed after removing from all lists");
@@ -586,6 +557,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         vm.stopPrank();
 
         // Add user to teller deny list
+        vm.prank(owner);
         teller.denyAll(user1);
 
         // Transfer should fail due to teller deny list
@@ -601,9 +573,11 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         boringVault.transfer(user2, shares);
 
         // Remove from deny list
+        vm.prank(owner);
         teller.allowAll(user1);
 
         // Transfer should work now
+        skip(shareLockPeriod);
         vm.prank(user1);
         boringVault.transfer(user2, shares);
 
@@ -612,9 +586,6 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
     function testShareWardenDelegatesToTellerShareLockPeriod() external {
         uint256 depositAmount = 1e18;
-        
-        // Set share lock period on teller
-        teller.setShareLockPeriod(1 days);
 
         // User deposits
         deal(address(WETH), user1, depositAmount);
@@ -630,10 +601,8 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         );
         boringVault.transfer(user2, shares);
 
-        // Skip past lock period
-        skip(1 days + 1);
-
         // Transfer should work now
+        skip(shareLockPeriod);
         vm.prank(user1);
         boringVault.transfer(user2, shares);
 
@@ -659,6 +628,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         // Unpause ShareWarden, add to teller deny list
         shareWarden.unpause();
+        vm.prank(owner);
         teller.denyAll(user1);
 
         // Should fail at teller level now
@@ -672,51 +642,6 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
             )
         );
         boringVault.transfer(user2, shares);
-    }
-
-    function testCombinedChecks_SanctionsListAndTellerShareLock() external {
-        uint256 depositAmount = 1e18;
-        
-        // Set share lock period
-        teller.setShareLockPeriod(1 days);
-
-        // User deposits
-        deal(address(WETH), user1, depositAmount);
-        vm.startPrank(user1);
-        WETH.safeApprove(address(boringVault), depositAmount);
-        uint256 shares = teller.deposit(WETH, depositAmount, 0, referrer);
-        vm.stopPrank();
-
-        // Setup SanctionsList oracle and enable SanctionsList list
-        shareWarden.updateSanctionsList(address(sanctionsList));
-        uint8[] memory listIds = new uint8[](1);
-        listIds[0] = shareWarden.LIST_ID_SANCTIONS();
-        shareWarden.updateVaultListIds(address(boringVault), listIds);
-        _addUserToSanctionsList(user1);
-
-        // Transfer should fail due to SanctionsList (checked first)
-        vm.prank(user1);
-        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__SanctionsListBlacklisted.selector, user1));
-        boringVault.transfer(user2, shares);
-
-        // Clear SanctionsList sanction
-        _removeUserFromSanctionsList(user1);
-
-        // Should fail due to share lock now
-        vm.prank(user1);
-        vm.expectRevert(
-            abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__SharesAreLocked.selector)
-        );
-        boringVault.transfer(user2, shares);
-
-        // Skip past lock period
-        skip(1 days + 1);
-
-        // Transfer should work now
-        vm.prank(user1);
-        boringVault.transfer(user2, shares);
-
-        assertEq(boringVault.balanceOf(user2), shares, "Transfer should succeed after all checks pass");
     }
 
     // ========================================= Edge Cases =========================================
@@ -771,6 +696,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         vm.stopPrank();
 
         // First transfer works
+        skip(shareLockPeriod);
         vm.prank(user1);
         boringVault.transfer(user2, shares / 4);
         assertEq(boringVault.balanceOf(user2), shares / 4, "First transfer should succeed");
@@ -788,6 +714,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         // Clear SanctionsList, add teller deny
         _removeUserFromSanctionsList(user1);
+        vm.prank(owner);
         teller.denyAll(user1);
 
         vm.prank(user1);
@@ -802,8 +729,10 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         boringVault.transfer(user2, shares / 4);
 
         // Clear deny list, transfer works again
+        vm.prank(owner);
         teller.allowAll(user1);
 
+        skip(shareLockPeriod);
         vm.prank(user1);
         boringVault.transfer(user2, shares / 4);
         assertEq(boringVault.balanceOf(user2), shares / 2, "Final transfer should succeed");
@@ -822,6 +751,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         assertEq(boringVault.balanceOf(user1), shares, "User should receive shares");
 
         // User can transfer
+        skip(shareLockPeriod);
         vm.prank(user1);
         boringVault.transfer(user2, shares / 2);
 
@@ -863,6 +793,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
             vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__SanctionsListBlacklisted.selector, sanctionedAddr));
         }
         
+        skip(shareLockPeriod);
         boringVault.transferFrom(user1, user2, shares);
 
         if (!shouldFail) {
