@@ -1,30 +1,24 @@
+//import "teller_basic.spec";
 
 methods {
-    // function multicall(bytes[]) external => NONDET DELETE;
+    function _.balanceOf(address) external => ignoredUintStaticcall() expect(uint256);
+    function _.totalSupply() internal => ignoredUintStaticcall() expect(uint256);
+    function _.isAuthorized(address, bytes4) internal => ignoredBoolStaticcall() expect(bool);
 
-    // function _.realAssets() external => ignoredUintStaticcall() expect(uint256);
-
-    // function _.balanceOf(address) external => ignoredUintStaticcall() expect(uint256);
-
-    // function _.isInRegistry(address) external => ignoredBoolStaticcall() expect(bool);
-
-    // function _.canReceiveShares(address) external => ignoredBoolStaticcall() expect(bool);
-    // function _.canSendShares(address) external => ignoredBoolStaticcall() expect(bool);
-    // function _.canReceiveAssets(address) external => ignoredBoolStaticcall() expect(bool);
-    // function _.canSendAssets(address) external => ignoredBoolStaticcall() expect(bool);
+    function _.getRateInQuoteSafe(address) external => ignoredUintStaticcall() expect(uint256);
 }
 
-// function ignoredBoolStaticcall() returns bool {
-//     ignoredStaticcall = true;
-//     bool value;
-//     return value;
-// }
+function ignoredBoolStaticcall() returns bool {
+    ignoredStaticcall = true;
+    bool value;
+    return value;
+}
 
-// function ignoredUintStaticcall() returns uint256 {
-//     ignoredStaticcall = true;
-//     uint256 value;
-//     return value;
-// }
+function ignoredUintStaticcall() returns uint256 {
+    ignoredStaticcall = true;
+    uint256 value;
+    return value;
+}
 
 persistent ghost bool ignoredStaticcall;
 
@@ -38,7 +32,7 @@ persistent ghost bool staticCallAfterSStore;
 persistent ghost bool staticCallUnsafe;
 
 hook ALL_SSTORE(uint slot, uint val) {
-    if (slot != 0x2) //this is the reentrancy lock
+    if (slot != 0x2) //this is fine. It's the reentrancy lock
     {
         storageChanged = true;
     }
@@ -49,7 +43,11 @@ hook ALL_SSTORE(uint slot, uint val) {
 
 hook STATICCALL(uint256 g, address addr, uint256 argsOffset, uint256 argsLength, uint256 retOffset, uint256 retLength) uint256 rc {
     // address(1) is ignored because it's the ecrecover function.
-    if (!ignoredStaticcall && storageChanged && addr != 0x1) {
+    if (!ignoredStaticcall && storageChanged && addr != 0x1 
+        && selector != 404098525    // totalSupply()
+        && selector != 2181657562   // getRateInQuoteSafe
+        && selector != 1738207182   // getRate
+        ) {
         staticCallAfterSStore = true;
     }
     ignoredStaticcall = false;

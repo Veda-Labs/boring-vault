@@ -5,6 +5,7 @@ persistent ghost bool delegatecallMade;
 
 hook CALL(uint g, address addr, uint value, uint argsOffset, uint argsLength, uint retOffset, uint retLength) uint rc {
     if (addr != vault_contract
+        && addr != accountant_contract
         && addr != ERC20Mock) 
     {
         // TODO whitelist the asset.. e.g whenever the asset is passed to deposit, e.g.) {
@@ -21,7 +22,9 @@ This rule proves there are no instances in the code in which the user can act as
 By proving this rule we can safely assume in our spec that e.msg.sender != currentContract.
 */
 rule noDynamicCalls(env e, method f)
-    filtered { f -> !ignoredMethod(f) }
+    filtered { f -> !ignoredMethod(f) 
+        && f.selector != 3395204577 // LayerZeroTellerWithRateLimiting.setDelegate(address) //allowed to call on endpoint
+    }
 {
     require !callMade && !delegatecallMade;
 
@@ -119,7 +122,9 @@ rule onlyContributionMethodsReduceAssets(env e, method f)
         (f.selector == sig:deposit(address, uint256, uint256,address).selector 
         || f.selector == sig:depositWithPermit(address,uint256,uint256,uint256,uint8,bytes32,bytes32,address).selector
         || f.selector == sig:bulkDeposit(address,uint256,uint256,address).selector
-        ),
+        || f.selector == 4172789357 // sig:depositAndBridge(..).selector
+        || f.selector == 1539645794 // sig:depositAndBridgeWithPermit(..).selector
+),
         "a user's assets must not go down except on calls to contribution methods or calls directly to the asset.";
 }
 

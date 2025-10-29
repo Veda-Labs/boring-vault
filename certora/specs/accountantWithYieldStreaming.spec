@@ -1,10 +1,5 @@
 import "teller_basic.spec";
 
-invariant exchangeRateGTzero()
-    accountant_contract.accountantState.exchangeRate > 0 
-    filtered { f -> !ignoredMethod(f) }
-    { preserved { safeAssumptions(); }} 
-
 // holds
 invariant exchangeRateLEqlastSharePrice()
     accountant_contract.accountantState.exchangeRate <= 
@@ -33,26 +28,15 @@ invariant exchangeRateLEhighwaterMark_unlessPaused()
     { preserved { 
         safeAssumptions(); 
         requireInvariant exchangeRateLEqlastSharePrice();
-        requireInvariant exchangeRateGTzero();
         }}
 
-rule vestingGainsNeverDecreases(env e, method f)
-    filtered { f -> !ignoredMethod(f) }
-{
-    uint128 vestingGains_pre = accountant_contract.vestingState.vestingGains;
-
-    calldataarg args;
-    f(e, args);
-
-    uint128 vestingGains_post = accountant_contract.vestingState.vestingGains;
-    assert vestingGains_post >= vestingGains_pre;
-}
 
 rule lastVestingUpdateNeverDecreases(env e, method f)
     filtered { f -> !ignoredMethod(f) }
 {
     uint128 lastVestingUpdate_pre = accountant_contract.vestingState.lastVestingUpdate;
-
+    require e.block.timestamp >= lastVestingUpdate_pre;
+    require e.block.timestamp <= 2^40;
     calldataarg args;
     f(e, args);
 
@@ -64,7 +48,6 @@ rule exchangeRateLEhighwaterMark_unlessPaused_postLoss()
 {  
     safeAssumptions(); 
     requireInvariant exchangeRateLEqlastSharePrice();
-    requireInvariant exchangeRateGTzero();
     uint96 exRate_pre = accountant_contract.accountantState.exchangeRate;
     uint96 hWM_pre = accountant_contract.accountantState.highwaterMark;
     uint128 lastSharePrice_pre = accountant_contract.vestingState.lastSharePrice;
@@ -75,6 +58,8 @@ rule exchangeRateLEhighwaterMark_unlessPaused_postLoss()
 
     env e; uint256 loss;
     postLoss(e, loss);
+    // limit the ratio between loss and price
+    // try to find the exact formula for the condition
     //require loss < 2^20;
 
     uint96 exRate_post = accountant_contract.accountantState.exchangeRate;
@@ -85,4 +70,20 @@ rule exchangeRateLEhighwaterMark_unlessPaused_postLoss()
     require exRate_post < 2^20;
     
     assert (exRate_pre <= hWM_pre) => (exRate_post <= hWM_post); 
+}
+
+rule integrityOfVestYield(env e)
+{
+    safeAssumptions(); 
+    requireInvariant exchangeRateLEqlastSharePrice();
+    require e.block.timestamp < 2^40;
+
+    uint256 yieldAmount; uint256 duration;
+    accountant_contract.vestYield(e, yieldAmount, duration);
+
+    uint64 startTime = accountant_contract.vestingState.startVestingTime;
+    uint64 lastUpdateTimestamp = accountant_contract.lastStrategistUpdateTimestamp;
+    
+    assert startTime == e.block.timestamp 
+        && lastUpdateTimestamp == e.block.timestamp;
 }

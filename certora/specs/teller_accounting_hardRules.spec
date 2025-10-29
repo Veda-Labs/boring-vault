@@ -69,7 +69,8 @@ invariant vaultSolvency_1Asset(address asset, env e)
     userAssets(e, ERC20Mock, vault_contract) * teller_contract.ONE_SHARE 
         >= vault_contract.totalSupply(e) * accountant_contract.getRateInQuoteSafe(e, ERC20Mock)
 filtered { f -> !ignoredMethod(f)
-    && f.contract == teller_contract  //funds could be moved by methods called on the Vault or on the Asset
+    && (f.contract == teller_contract  //funds could be moved by methods called on the Vault or on the Asset
+    || f.contract == accountant_contract)
     && f.selector != sig:teller_contract.refundDeposit(uint256,address,address,uint256,uint256,uint256,uint256,address).selector // can break if the sharesAmount is too low. This can happen since we don't really track the sum of deposits and their shares in publicDepositHistory
     && f.selector == sig:teller_contract.deposit(address, uint256, uint256,address).selector 
     //&& f.selector == sig:teller_contract.depositWithPermit(address,uint256,uint256,uint256,uint8,bytes32,bytes32,address).selector
