@@ -44,6 +44,12 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
     uint64 public shareLockPeriod;
 
     uint8 public constant OWNER_ROLE = 8;
+    uint8 internal constant CUSTOM_LIST_ONE = 1 << 0;
+    uint8 internal constant CUSTOM_LIST_TWO = 1 << 1;
+    uint8 internal constant CUSTOM_LIST_THREE = 1 << 2;
+    uint8 internal constant CUSTOM_LIST_FOUR = 1 << 3;
+    uint8 internal constant CUSTOM_LIST_FIVE = 1 << 4;
+    uint8 internal constant CUSTOM_LIST_SIX = 1 << 5;
 
     address public payout_address = vm.addr(7777777);
     address internal constant NATIVE = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
@@ -189,9 +195,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         // Setup SanctionsList oracle and enable SanctionsList list for vault
         shareWarden.updateSanctionsList(address(sanctionsList));
-        uint8[] memory listIds = new uint8[](1);
-        listIds[0] = shareWarden.LIST_ID_SANCTIONS();
-        shareWarden.updateVaultListIds(address(boringVault), listIds);
+        shareWarden.updateVaultListIds(address(boringVault), shareWarden.LIST_ID_SANCTIONS());
         _addUserToSanctionsList(user1);
 
         // Transfer should fail due to SanctionsList sanction
@@ -212,9 +216,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         // Setup SanctionsList oracle and enable SanctionsList list for vault
         shareWarden.updateSanctionsList(address(sanctionsList));
-        uint8[] memory listIds = new uint8[](1);
-        listIds[0] = shareWarden.LIST_ID_SANCTIONS();
-        shareWarden.updateVaultListIds(address(boringVault), listIds);
+        shareWarden.updateVaultListIds(address(boringVault), shareWarden.LIST_ID_SANCTIONS());
         _addUserToSanctionsList(user2);
 
         // Transfer should fail due to SanctionsList sanction on recipient
@@ -236,9 +238,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         // Setup SanctionsList oracle and enable SanctionsList list for vault
         shareWarden.updateSanctionsList(address(sanctionsList));
-        uint8[] memory listIds = new uint8[](1);
-        listIds[0] = shareWarden.LIST_ID_SANCTIONS();
-        shareWarden.updateVaultListIds(address(boringVault), listIds);
+        shareWarden.updateVaultListIds(address(boringVault), shareWarden.LIST_ID_SANCTIONS());
         _addUserToSanctionsList(address(this));
 
         // TransferFrom should fail due to SanctionsList sanction on operator
@@ -258,9 +258,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         // Setup SanctionsList oracle and enable SanctionsList list for vault and sanction user
         shareWarden.updateSanctionsList(address(sanctionsList));
-        uint8[] memory listIds = new uint8[](1);
-        listIds[0] = shareWarden.LIST_ID_SANCTIONS();
-        shareWarden.updateVaultListIds(address(boringVault), listIds);
+        shareWarden.updateVaultListIds(address(boringVault), shareWarden.LIST_ID_SANCTIONS());
         _addUserToSanctionsList(user1);
 
         // Transfer should fail
@@ -269,8 +267,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         boringVault.transfer(user2, shares);
 
         // Remove SanctionsList list from vault
-        uint8[] memory emptyListIds = new uint8[](0);
-        shareWarden.updateVaultListIds(address(boringVault), emptyListIds);
+        shareWarden.updateVaultListIds(address(boringVault), 0);
 
         // Transfer should work now
         skip(shareLockPeriod);
@@ -292,18 +289,16 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         uint256 shares = teller.deposit(WETH, depositAmount, 0, referrer);
         vm.stopPrank();
 
-        // Setup custom blacklist (list ID 2)
-        uint8[] memory listIds = new uint8[](1);
-        listIds[0] = 2;
-        shareWarden.updateVaultListIds(address(boringVault), listIds);
+        // Setup custom blacklist (list ID CUSTOM_LIST_TWO)
+        shareWarden.updateVaultListIds(address(boringVault), CUSTOM_LIST_TWO);
         
         bytes32[] memory addressHashes = new bytes32[](1);
         addressHashes[0] = keccak256(abi.encodePacked(user1));
-        shareWarden.updateBlacklist(2, addressHashes, true);
+        shareWarden.updateBlacklist(CUSTOM_LIST_TWO, addressHashes, true);
 
         // Transfer should fail due to custom blacklist
         vm.prank(user1);
-        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user1, uint8(2)));
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user1, CUSTOM_LIST_TWO));
         boringVault.transfer(user2, shares);
     }
 
@@ -317,18 +312,16 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         uint256 shares = teller.deposit(WETH, depositAmount, 0, referrer);
         vm.stopPrank();
 
-        // Setup custom blacklist (list ID 2)
-        uint8[] memory listIds = new uint8[](1);
-        listIds[0] = 2;
-        shareWarden.updateVaultListIds(address(boringVault), listIds);
+        // Setup custom blacklist (list ID CUSTOM_LIST_TWO)
+        shareWarden.updateVaultListIds(address(boringVault), CUSTOM_LIST_TWO);
         
         bytes32[] memory addressHashes = new bytes32[](1);
         addressHashes[0] = keccak256(abi.encodePacked(user2));
-        shareWarden.updateBlacklist(2, addressHashes, true);
+        shareWarden.updateBlacklist(CUSTOM_LIST_TWO, addressHashes, true);
 
         // Transfer should fail due to custom blacklist on recipient
         vm.prank(user1);
-        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user2, uint8(2)));
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user2, CUSTOM_LIST_TWO));
         boringVault.transfer(user2, shares);
     }
 
@@ -344,10 +337,8 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         // Setup SanctionsList oracle and enable both SanctionsList and custom list
         shareWarden.updateSanctionsList(address(sanctionsList));
-        uint8[] memory listIds = new uint8[](2);
-        listIds[0] = shareWarden.LIST_ID_SANCTIONS(); // SanctionsList
-        listIds[1] = 2; // Custom list
-        shareWarden.updateVaultListIds(address(boringVault), listIds);
+        uint8 listBitmap = shareWarden.LIST_ID_SANCTIONS() | CUSTOM_LIST_TWO;
+        shareWarden.updateVaultListIds(address(boringVault), listBitmap);
 
         // Sanction on SanctionsList
         _addUserToSanctionsList(user1);
@@ -360,14 +351,14 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         _removeUserFromSanctionsList(user1);
         bytes32[] memory addressHashes = new bytes32[](1);
         addressHashes[0] = keccak256(abi.encodePacked(user1));
-        shareWarden.updateBlacklist(2, addressHashes, true);
+        shareWarden.updateBlacklist(CUSTOM_LIST_TWO, addressHashes, true);
 
         vm.prank(user1);
-        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user1, uint8(2)));
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user1, CUSTOM_LIST_TWO));
         boringVault.transfer(user2, shares);
 
         // Clear custom list
-        shareWarden.updateBlacklist(2, addressHashes, false);
+        shareWarden.updateBlacklist(CUSTOM_LIST_TWO, addressHashes, false);
 
         skip(shareLockPeriod);
         vm.prank(user1);
@@ -387,17 +378,15 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         boringVault.approve(address(this), shares);
         vm.stopPrank();
 
-        // Setup custom blacklist (list ID 2) and blacklist operator
-        uint8[] memory listIds = new uint8[](1);
-        listIds[0] = 2;
-        shareWarden.updateVaultListIds(address(boringVault), listIds);
+        // Setup custom blacklist (list ID CUSTOM_LIST_TWO) and blacklist operator
+        shareWarden.updateVaultListIds(address(boringVault), CUSTOM_LIST_TWO);
         
         bytes32[] memory addressHashes = new bytes32[](1);
         addressHashes[0] = keccak256(abi.encodePacked(address(this)));
-        shareWarden.updateBlacklist(2, addressHashes, true);
+        shareWarden.updateBlacklist(CUSTOM_LIST_TWO, addressHashes, true);
 
         // TransferFrom should fail due to blacklisted operator
-        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, address(this), uint8(2)));
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, address(this), CUSTOM_LIST_TWO));
         boringVault.transferFrom(user1, user2, shares);
     }
 
@@ -412,21 +401,19 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         vm.stopPrank();
 
         // Setup custom blacklist and blacklist user1
-        uint8[] memory listIds = new uint8[](1);
-        listIds[0] = 2;
-        shareWarden.updateVaultListIds(address(boringVault), listIds);
+        shareWarden.updateVaultListIds(address(boringVault), CUSTOM_LIST_TWO);
         
         bytes32[] memory addressHashes = new bytes32[](1);
         addressHashes[0] = keccak256(abi.encodePacked(user1));
-        shareWarden.updateBlacklist(2, addressHashes, true);
+        shareWarden.updateBlacklist(CUSTOM_LIST_TWO, addressHashes, true);
 
         // Transfer should fail
         vm.prank(user1);
-        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user1, uint8(2)));
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user1, CUSTOM_LIST_TWO));
         boringVault.transfer(user2, shares);
 
         // Unblacklist user1
-        shareWarden.updateBlacklist(2, addressHashes, false);
+        shareWarden.updateBlacklist(CUSTOM_LIST_TWO, addressHashes, false);
 
         // Transfer should succeed
         skip(shareLockPeriod);
@@ -460,24 +447,22 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         vm.stopPrank();
 
         // Setup custom blacklist
-        uint8[] memory listIds = new uint8[](1);
-        listIds[0] = 3;
-        shareWarden.updateVaultListIds(address(boringVault), listIds);
+        shareWarden.updateVaultListIds(address(boringVault), CUSTOM_LIST_THREE);
 
         // Batch blacklist user1 and user2 to list 3
         bytes32[] memory addressHashes = new bytes32[](2);
         addressHashes[0] = keccak256(abi.encodePacked(user1));
         addressHashes[1] = keccak256(abi.encodePacked(user2));
-        shareWarden.updateBlacklist(3, addressHashes, true);
+        shareWarden.updateBlacklist(CUSTOM_LIST_THREE, addressHashes, true);
 
         // User1 transfer should fail
         vm.prank(user1);
-        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user1, uint8(3)));
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user1, CUSTOM_LIST_THREE));
         boringVault.transfer(referrer, shares1);
 
         // User2 transfer should fail
         vm.prank(user2);
-        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user2, uint8(3)));
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user2, CUSTOM_LIST_THREE));
         boringVault.transfer(referrer, shares2);
 
         // User3 transfer should succeed (not blacklisted)
@@ -487,7 +472,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         assertEq(boringVault.balanceOf(referrer), shares3, "User3 transfer should succeed");
 
         // Batch unblacklist user1 and user2
-        shareWarden.updateBlacklist(3, addressHashes, false);
+        shareWarden.updateBlacklist(CUSTOM_LIST_THREE, addressHashes, false);
 
         // Both users should now be able to transfer
         vm.prank(user1);
@@ -510,32 +495,30 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         vm.stopPrank();
 
         // Setup multiple custom lists
-        uint8[] memory listIds = new uint8[](2);
-        listIds[0] = 4;
-        listIds[1] = 5;
-        shareWarden.updateVaultListIds(address(boringVault), listIds);
+        uint8 listBitmap = CUSTOM_LIST_FOUR | CUSTOM_LIST_FIVE;
+        shareWarden.updateVaultListIds(address(boringVault), listBitmap);
 
         // Add user1 to both list 4 and list 5 (requires separate calls per list)
         bytes32[] memory user1Hash = new bytes32[](1);
         user1Hash[0] = keccak256(abi.encodePacked(user1));
-        shareWarden.updateBlacklist(4, user1Hash, true);
-        shareWarden.updateBlacklist(5, user1Hash, true);
+        shareWarden.updateBlacklist(CUSTOM_LIST_FOUR, user1Hash, true);
+        shareWarden.updateBlacklist(CUSTOM_LIST_FIVE, user1Hash, true);
 
         // Transfer should fail (will hit list 4 first)
         vm.prank(user1);
-        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user1, uint8(4)));
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user1, CUSTOM_LIST_FOUR));
         boringVault.transfer(user2, shares);
 
         // Remove from list 4 only
-        shareWarden.updateBlacklist(4, user1Hash, false);
+        shareWarden.updateBlacklist(CUSTOM_LIST_FOUR, user1Hash, false);
 
         // Transfer should still fail (still on list 5)
         vm.prank(user1);
-        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user1, uint8(5)));
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user1, CUSTOM_LIST_FIVE));
         boringVault.transfer(user2, shares);
 
         // Remove from list 5
-        shareWarden.updateBlacklist(5, user1Hash, false);
+        shareWarden.updateBlacklist(CUSTOM_LIST_FIVE, user1Hash, false);
 
         // Transfer should now succeed
         skip(shareLockPeriod);
@@ -673,9 +656,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         // Setup SanctionsList oracle and enable SanctionsList list and sanction user1
         shareWarden.updateSanctionsList(address(sanctionsList));
-        uint8[] memory listIds = new uint8[](1);
-        listIds[0] = shareWarden.LIST_ID_SANCTIONS();
-        shareWarden.updateVaultListIds(address(boringVault), listIds);
+        shareWarden.updateVaultListIds(address(boringVault), shareWarden.LIST_ID_SANCTIONS());
         _addUserToSanctionsList(user1);
 
         // This would typically be called by the vault's transfer function
@@ -703,9 +684,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         // Setup SanctionsList, transfer fails
         shareWarden.updateSanctionsList(address(sanctionsList));
-        uint8[] memory listIds = new uint8[](1);
-        listIds[0] = shareWarden.LIST_ID_SANCTIONS();
-        shareWarden.updateVaultListIds(address(boringVault), listIds);
+        shareWarden.updateVaultListIds(address(boringVault), shareWarden.LIST_ID_SANCTIONS());
         _addUserToSanctionsList(user1);
         
         vm.prank(user1);
@@ -772,9 +751,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         // Setup SanctionsList oracle and enable SanctionsList list
         shareWarden.updateSanctionsList(address(sanctionsList));
-        uint8[] memory listIds = new uint8[](1);
-        listIds[0] = shareWarden.LIST_ID_SANCTIONS();
-        shareWarden.updateVaultListIds(address(boringVault), listIds);
+        shareWarden.updateVaultListIds(address(boringVault), shareWarden.LIST_ID_SANCTIONS());
 
         if (sanctionFrom) {
             _addUserToSanctionsList(user1);
@@ -832,13 +809,14 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
     }
 
     function testVaultListIdsUpdateEvent() external {
-        uint8[] memory listIds = new uint8[](2);
-        listIds[0] = 10;
-        listIds[1] = 20;
+        uint8 listBitmap = CUSTOM_LIST_FIVE | CUSTOM_LIST_SIX;
+        uint8[] memory expectedListIds = new uint8[](2);
+        expectedListIds[0] = CUSTOM_LIST_FIVE;
+        expectedListIds[1] = CUSTOM_LIST_SIX;
 
         vm.expectEmit(true, false, false, true);
-        emit VaultListIdsUpdated(address(boringVault), listIds);
-        shareWarden.updateVaultListIds(address(boringVault), listIds);
+        emit VaultListIdsUpdated(address(boringVault), expectedListIds);
+        shareWarden.updateVaultListIds(address(boringVault), listBitmap);
     }
 
     function testPauseUnpauseEvents() external {
@@ -874,4 +852,3 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         sanctionsList.removeFromSanctionsList(removeSanctions);
     }
 }
-
