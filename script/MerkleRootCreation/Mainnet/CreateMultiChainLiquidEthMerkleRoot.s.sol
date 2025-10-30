@@ -233,11 +233,10 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             kind[31] = SwapKind.Sell;
             assets[32] = getAddress(sourceChain, "SWELL"); // Address in ChainValues ++ checked
             kind[32] = SwapKind.Sell;
-            kind[33] = SwapKind.Sell;
             assets[33] = getAddress(sourceChain, "RLUSD");
-            kind[33] = SwapKind.BuyAndSell;
+            kind[33] = SwapKind.Sell;
             assets[34] = getAddress(sourceChain, "PYUSD");
-            kind[34] = SwapKind.BuyAndSell;
+            kind[34] = SwapKind.Sell;
             _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
 
             _addLeafsFor1InchUniswapV3Swapping(leafs, getAddress(sourceChain, "wstETH_wETH_01"));
@@ -808,9 +807,13 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "ITB Position Manager");
 
         address itbPositionManager2 = 0xA40aFb15275A94F64aF37C0cEaAaA45Cb568A361;
+        address itbPositionManager3 = 0x2A601FC6C0Cb854fDA82715E49Ab04C5340A0396;
         ERC20[] memory itbTokensUsed2 = new ERC20[](1);
         itbTokensUsed2[0] = getERC20(sourceChain, "WEETH");
+        // Aave weETH -> RLUSD -> RLUSD Aave Horizon 
         _addLeafsForITBPositionManager(leafs, itbPositionManager2, itbTokensUsed2, "ITB Position Manager 2");
+        //Spark weETH → PYUSD → PYUSD Euler
+        _addLeafsForITBPositionManager(leafs, itbPositionManager3, itbTokensUsed2, "ITB Position Manager 3");
 
         // ========================== Drone Setup ===============================
         {
