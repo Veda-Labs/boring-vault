@@ -22,12 +22,12 @@ contract DeployDrone is Script, ContractNames, Test {
     uint256 public privateKey;
     
     //liquidETH
-    address boringVault = 0x6fDcB0654B4814c2eC1E7e9dbC4cEBf1a2038a84; 
+    address boringVault = 0xef417FCE1883c6653E7dC6AF7c6F85CCDE84Aa09; 
     Deployer deployer = Deployer(0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d); 
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("plasma");
+        vm.createSelectFork("mainnet");
     }
 
 
@@ -37,10 +37,9 @@ contract DeployDrone is Script, ContractNames, Test {
         vm.startBroadcast(privateKey);
 
         creationCode = type(BoringDrone).creationCode;
-        constructorArgs = abi.encode(boringVault, 0);
-        deployer.deployContract("Plasma USD+ Boring Drone 0", creationCode, constructorArgs, 0);
-        deployer.deployContract("Plasma USD+ Boring Drone 1", creationCode, constructorArgs, 0);
-        deployer.deployContract("Plasma USD+ Boring Drone 2", creationCode, constructorArgs, 0);
+        constructorArgs = abi.encode(boringVault, 21000);
+        deployer.deployContract("GoldenGoose Boring Drone 0", creationCode, constructorArgs, 0);
+
     }
 
 }

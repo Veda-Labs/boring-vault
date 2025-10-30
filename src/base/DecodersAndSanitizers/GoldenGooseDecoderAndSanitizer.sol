@@ -44,6 +44,7 @@ import {ArbitrumNativeBridgeDecoderAndSanitizer} from
 import {AgglayerDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/AgglayerDecoderAndSanitizer.sol";
 import {LineaBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LineaBridgeDecoderAndSanitizer.sol";
+import {ResolvDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ResolvDecoderAndSanitizer.sol";
 
 contract GoldenGooseDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
@@ -73,7 +74,8 @@ contract GoldenGooseDecoderAndSanitizer is
     TreehouseDecoderAndSanitizer,
     ArbitrumNativeBridgeDecoderAndSanitizer,
     AgglayerDecoderAndSanitizer,
-    LineaBridgeDecoderAndSanitizer
+    LineaBridgeDecoderAndSanitizer,
+    ResolvDecoderAndSanitizer
 {
     constructor(
         address _uniswapV4PositionManager,
@@ -177,6 +179,19 @@ contract GoldenGooseDecoderAndSanitizer is
     }
 
     /**
+     * @notice ResolvDecoderAndSanitizer and FluidFTokenDecoderAndSanitizer both specify a `redeem(uint256,address,address)`,
+     *         all cases are handled the same way.
+     */
+    function redeem(uint256, address receiver, address owner, uint256)
+        external
+        pure
+        override(ResolvDecoderAndSanitizer, FluidFTokenDecoderAndSanitizer)
+        returns (bytes memory addressesFound)
+    {
+        addressesFound = abi.encodePacked(receiver, owner);
+    }
+
+    /**
      * @notice Multiple decoders specify different withdraw functions
      * NativeWrapper: withdraw(uint256)
      * CurveDecoderAndSanitizer: withdraw(uint256)
@@ -187,7 +202,7 @@ contract GoldenGooseDecoderAndSanitizer is
     function withdraw(uint256)
         external
         pure
-        override(NativeWrapperDecoderAndSanitizer, CurveDecoderAndSanitizer, BalancerV2DecoderAndSanitizer)
+        override(NativeWrapperDecoderAndSanitizer, CurveDecoderAndSanitizer, BalancerV2DecoderAndSanitizer, ResolvDecoderAndSanitizer)
         returns (bytes memory addressesFound)
     {
         return addressesFound;
@@ -240,7 +255,7 @@ contract GoldenGooseDecoderAndSanitizer is
     function wrap(uint256)
         external
         pure
-        override(EtherFiDecoderAndSanitizer, LidoDecoderAndSanitizer)
+        override(EtherFiDecoderAndSanitizer, LidoDecoderAndSanitizer, ResolvDecoderAndSanitizer)
         returns (bytes memory addressesFound)
     {
         return addressesFound;
@@ -252,7 +267,7 @@ contract GoldenGooseDecoderAndSanitizer is
     function unwrap(uint256)
         external
         pure
-        override(EtherFiDecoderAndSanitizer, LidoDecoderAndSanitizer)
+        override(EtherFiDecoderAndSanitizer, LidoDecoderAndSanitizer, ResolvDecoderAndSanitizer)
         returns (bytes memory addressesFound)
     {
         return addressesFound;
