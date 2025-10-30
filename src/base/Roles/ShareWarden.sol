@@ -157,7 +157,7 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
 
         bytes32 fromHash = _hashAddress(from);
 
-        for (uint8 bit = 0; bit < 8; bit++) {
+        for (uint256 bit = 0; bit < 8; bit++) {
             uint8 listId = uint8(1 << bit);
             if ((listBitmap & listId) == 0) continue;
 
@@ -217,7 +217,7 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
 
         listIds = new uint8[](count);
         uint256 index;
-        for (uint8 bit = 0; bit < 8; bit++) {
+        for (uint256 bit = 0; bit < 8; bit++) {
             uint8 listId = uint8(1 << bit);
             if ((listBitmap & listId) == 0) continue;
             listIds[index] = listId;
