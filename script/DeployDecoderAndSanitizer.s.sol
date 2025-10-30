@@ -145,9 +145,9 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(KatanaDecoderAndSanitizer).creationCode;
+        creationCode = type(EtherFiLiquidUsdDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2"));
-        deployer.deployContract("Katana Decoder and Sanitizer V0.2", creationCode, constructorArgs, 0);
+        deployer.deployContract("Etherfi LiquidUSD Decoder And Sanitizer V0.7", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
