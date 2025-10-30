@@ -11,9 +11,10 @@ import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/
 import {EulerEVKDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/EulerEVKDecoderAndSanitizer.sol";
 import {wSwellUnwrappingDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/wSwellUnwrappingDecoderAndSanitizer.sol";
 import {PancakeSwapV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/PancakeSwapV3DecoderAndSanitizer.sol";
+import {PendleRouterDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/PendleRouterDecoderAndSanitizer.sol";
 import {MerklDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MerklDecoderAndSanitizer.sol";
 
-contract TurtleMUSDDecoderAndSanitizer is 
+contract TurtleMUSDDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
     NativeWrapperDecoderAndSanitizer,
     OneInchDecoderAndSanitizer,
@@ -21,6 +22,7 @@ contract TurtleMUSDDecoderAndSanitizer is
     EulerEVKDecoderAndSanitizer,
     wSwellUnwrappingDecoderAndSanitizer,
     PancakeSwapV3DecoderAndSanitizer,
+    PendleRouterDecoderAndSanitizer,
     MerklDecoderAndSanitizer
 {
     constructor(
