@@ -15,7 +15,7 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
 
     struct VaultData {
         address teller; // The teller for the vault.
-        uint8[] listIds; // The blacklist IDs for the vault.
+        uint8 listBitmap; // Bitmap representing up to 8 blacklist IDs for the vault.
     }
 
     // ========================================= STATE =========================================
@@ -40,7 +40,7 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
      */
     ISanctionsList public sanctionsList;
 
-    uint8 public constant LIST_ID_SANCTIONS = type(uint8).max;
+    uint8 public constant LIST_ID_SANCTIONS = 1 << 7;
 
     // =============================== EVENTS ===============================
 
@@ -55,6 +55,7 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
     error ShareWarden__Paused();
     error ShareWarden__SanctionsListBlacklisted(address account);
     error ShareWarden__Blacklisted(address account, uint8 listId);
+    error ShareWarden__InvalidListId(uint8 listId);
 
     // =============================== CONSTRUCTOR ===============================
 
@@ -102,9 +103,9 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
      * @notice Update the blacklist IDs for a vault.
      * @dev Callable by OWNER_ROLE.
      */
-    function updateVaultListIds(address vault, uint8[] memory listIds) external requiresAuth {
-        vaultData[vault].listIds = listIds;
-        emit VaultListIdsUpdated(vault, listIds);
+    function updateVaultListIds(address vault, uint8 listBitmap) external requiresAuth {
+        vaultData[vault].listBitmap = listBitmap;
+        emit VaultListIdsUpdated(vault, _bitmapToListIds(listBitmap));
     }
 
     /**
@@ -112,6 +113,7 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
      * @dev Callable by OWNER_ROLE.
      */
     function updateBlacklist(uint8 listId, bytes32[] memory addressHashes, bool isBlacklisted) external requiresAuth {
+        _validateListId(listId);
         require(listId != LIST_ID_SANCTIONS, "SanctionsList list cannot be updated in this contract");
         for (uint256 i = 0; i < addressHashes.length; i++) {
             listIdToBlacklisted[listId][addressHashes[i]] = isBlacklisted;
@@ -121,7 +123,8 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
     // =============================== VIEW FUNCTIONS ===============================
 
     function getVaultData(address vault) external view returns (address teller, uint8[] memory listIds) {
-        return (vaultData[vault].teller, vaultData[vault].listIds);
+        VaultData storage data = vaultData[vault];
+        return (data.teller, _bitmapToListIds(data.listBitmap));
     }
 
     // ========================================= BeforeTransferHook FUNCTIONS =========================================
@@ -149,37 +152,88 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
     }
 
     function _checkBlacklist(address from) internal view {
-        uint8[] memory listIds = vaultData[msg.sender].listIds;
-        for (uint256 i = 0; i < listIds.length; i++) {
-            uint8 listId = listIds[i];
-            if (listIdToBlacklisted[listId][keccak256(abi.encodePacked(from))]) {
+        uint8 listBitmap = vaultData[msg.sender].listBitmap;
+        if (listBitmap == 0) return;
+
+        bytes32 fromHash = _hashAddress(from);
+
+        for (uint256 bit = 0; bit < 8; bit++) {
+            uint8 listId = uint8(1 << bit);
+            if ((listBitmap & listId) == 0) continue;
+
+            if (listId == LIST_ID_SANCTIONS) continue;
+
+            if (listIdToBlacklisted[listId][fromHash]) {
                 revert ShareWarden__Blacklisted(from, listId);
             }
-            if (listId == LIST_ID_SANCTIONS && address(sanctionsList) != address(0)) {
-                if (sanctionsList.isSanctioned(from)) revert ShareWarden__SanctionsListBlacklisted(from);
-            }
+        }
+
+        if ((listBitmap & LIST_ID_SANCTIONS) != 0 && address(sanctionsList) != address(0)) {
+            if (sanctionsList.isSanctioned(from)) revert ShareWarden__SanctionsListBlacklisted(from);
         }
     }
 
     function _checkBlacklist(address from, address to, address operator) internal view {
-        uint8[] memory listIds = vaultData[msg.sender].listIds;
-        for (uint256 i = 0; i < listIds.length; i++) {
-            uint8 listId = listIds[i];
-            if (listIdToBlacklisted[listId][keccak256(abi.encodePacked(from))]) {
+        uint8 listBitmap = vaultData[msg.sender].listBitmap;
+        if (listBitmap == 0) return;
+
+        bytes32 fromHash = _hashAddress(from);
+        bytes32 toHash = _hashAddress(to);
+        bytes32 operatorHash = _hashAddress(operator);
+
+        for (uint256 bit = 0; bit < 8; bit++) {
+            uint8 listId = uint8(1 << bit);
+            if ((listBitmap & listId) == 0) continue;
+
+            if (listId == LIST_ID_SANCTIONS) continue;
+
+            if (listIdToBlacklisted[listId][fromHash]) {
                 revert ShareWarden__Blacklisted(from, listId);
             }
-            if (listIdToBlacklisted[listId][keccak256(abi.encodePacked(to))]) {
+            if (listIdToBlacklisted[listId][toHash]) {
                 revert ShareWarden__Blacklisted(to, listId);
             }
-            if (listIdToBlacklisted[listId][keccak256(abi.encodePacked(operator))]) {
+            if (listIdToBlacklisted[listId][operatorHash]) {
                 revert ShareWarden__Blacklisted(operator, listId);
             }
+        }
 
-            if (listId == LIST_ID_SANCTIONS && address(sanctionsList) != address(0)) {
-                if (sanctionsList.isSanctioned(from)) revert ShareWarden__SanctionsListBlacklisted(from);
-                if (sanctionsList.isSanctioned(to)) revert ShareWarden__SanctionsListBlacklisted(to);
-                if (sanctionsList.isSanctioned(operator)) revert ShareWarden__SanctionsListBlacklisted(operator);
+        if ((listBitmap & LIST_ID_SANCTIONS) != 0 && address(sanctionsList) != address(0)) {
+            if (sanctionsList.isSanctioned(from)) revert ShareWarden__SanctionsListBlacklisted(from);
+            if (sanctionsList.isSanctioned(to)) revert ShareWarden__SanctionsListBlacklisted(to);
+            if (sanctionsList.isSanctioned(operator)) revert ShareWarden__SanctionsListBlacklisted(operator);
+        }
+    }
+
+    function _bitmapToListIds(uint8 listBitmap) internal pure returns (uint8[] memory listIds) {
+        uint256 count;
+        uint8 temp = listBitmap;
+        while (temp != 0) {
+            unchecked {
+                temp &= temp - 1;
+                count++;
             }
+        }
+
+        listIds = new uint8[](count);
+        uint256 index;
+        for (uint256 bit = 0; bit < 8; bit++) {
+            uint8 listId = uint8(1 << bit);
+            if ((listBitmap & listId) == 0) continue;
+            listIds[index] = listId;
+            unchecked {
+                index++;
+            }
+        }
+    }
+
+    function _hashAddress(address account) internal pure returns (bytes32) {
+        return keccak256(abi.encodePacked(account));
+    }
+
+    function _validateListId(uint8 listId) internal pure {
+        if (listId == 0 || (listId & (listId - 1)) != 0) {
+            revert ShareWarden__InvalidListId(listId);
         }
     }
 }
