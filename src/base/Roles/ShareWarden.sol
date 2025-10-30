@@ -181,7 +181,7 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
         bytes32 toHash = _hashAddress(to);
         bytes32 operatorHash = _hashAddress(operator);
 
-        for (uint8 bit = 0; bit < 8; bit++) {
+        for (uint256 bit = 0; bit < 8; bit++) {
             uint8 listId = uint8(1 << bit);
             if ((listBitmap & listId) == 0) continue;
 
@@ -206,7 +206,7 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
     }
 
     function _bitmapToListIds(uint8 listBitmap) internal pure returns (uint8[] memory listIds) {
-        uint8 count;
+        uint256 count;
         uint8 temp = listBitmap;
         while (temp != 0) {
             unchecked {
@@ -216,7 +216,7 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
         }
 
         listIds = new uint8[](count);
-        uint8 index;
+        uint256 index;
         for (uint8 bit = 0; bit < 8; bit++) {
             uint8 listId = uint8(1 << bit);
             if ((listBitmap & listId) == 0) continue;
