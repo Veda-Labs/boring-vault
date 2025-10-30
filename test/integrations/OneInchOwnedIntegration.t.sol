@@ -251,17 +251,19 @@ contract OneInchOwnedIntegrationTest is Test, MerkleTreeHelper {
 
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
-        ManageLeaf[] memory manageLeafs = new ManageLeaf[](2);
+        ManageLeaf[] memory manageLeafs = new ManageLeaf[](3);
         manageLeafs[0] = leafs[0]; //approve weth
         manageLeafs[1] = leafs[1]; //swap() weth -> weeth
+        manageLeafs[2] = leafs[2]; //swap() weth -> weeth
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 
-        address[] memory targets = new address[](2);
+        address[] memory targets = new address[](3);
         targets[0] = getAddress(sourceChain, "WETH"); //approve
-        targets[1] = getAddress(sourceChain, "aggregationRouterV5"); //approve
+        targets[1] = getAddress(sourceChain, "aggregationRouterV5"); //swap
+        targets[2] = getAddress(sourceChain, "aggregationRouterV5"); //swap
 
-        bytes[] memory targetData = new bytes[](2);
+        bytes[] memory targetData = new bytes[](3);
         targetData[0] = abi.encodeWithSignature(
             "approve(address,uint256)", getAddress(sourceChain, "aggregationRouterV5"), type(uint256).max
         );
@@ -280,15 +282,16 @@ contract OneInchOwnedIntegrationTest is Test, MerkleTreeHelper {
         bytes memory data = hex"0000000000000000000000000000000000000002520002240001da00001a0020d6bdbf78c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200a0c9e75c4800000000000000000000000000000029000000090000000000000000000000000000000000000000000001880000ec0000b05100db74dfdd3bb46be8ce6c33dc9d82777bcfc3ded5c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200443df0212400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000014101c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200042e1a7d4d0000000000000000000000000000000000000000000000000000000000000000416086f874212335af27c41cdb855c2255543d1499ce00242668dfaa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000008c864d0c8e476bf9eb9d620c10e1296fb0e2f94000a0f2fa6b66cd5fe23c85820f7b72d0926fc9b05b43e359b7ee0000000000000000000000000000000000000000000000646a08526a24695c2e00000000000000000003ea6740d11d1f80a06c4eca27cd5fe23c85820f7b72d0926fc9b05b43e359b7ee1111111254eeb25477b68fb85ed929f73a960582";
 
         // right executor here
-        targetData[0] = abi.encodeWithSignature(
+        targetData[1] = abi.encodeWithSignature(
             "swap(address,(address,address,address,address,uint256,uint256,uint256),bytes,bytes)", NEW_ONE_INCH_EXECUTOR_MAINNET, swapTokenInfo, "", data
         );
 
-        address[] memory decodersAndSanitizers = new address[](2);
+        address[] memory decodersAndSanitizers = new address[](3);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[2] = rawDataDecoderAndSanitizer;
 
-        uint256[] memory values = new uint256[](2);
+        uint256[] memory values = new uint256[](3);
 
         vm.expectRevert(
             OneInchOwnedDecoderAndSanitizer.OneInchDecoderAndSanitizer__InvalidExecutor.selector
@@ -307,7 +310,7 @@ contract OneInchOwnedIntegrationTest is Test, MerkleTreeHelper {
         });
         
         // wrong executor here
-        targetData[1] = abi.encodeWithSignature(
+        targetData[2] = abi.encodeWithSignature(
             "swap(address,(address,address,address,address,uint256,uint256,uint256),bytes,bytes)", OLD_ONE_INCH_EXECUTOR_MAINNET, swapTokenInfo, "", data
         );
 
