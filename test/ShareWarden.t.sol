@@ -325,6 +325,21 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         boringVault.transfer(user2, shares);
     }
 
+    function testUpdateBlacklistRevertsForZeroListId() external {
+        bytes32[] memory addressHashes = new bytes32[](1);
+        addressHashes[0] = keccak256(abi.encodePacked(user1));
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__InvalidListId.selector, uint8(0)));
+        shareWarden.updateBlacklist(0, addressHashes, true);
+    }
+
+    function testUpdateBlacklistRevertsForNonBitAlignedListId() external {
+        bytes32[] memory addressHashes = new bytes32[](1);
+        addressHashes[0] = keccak256(abi.encodePacked(user1));
+        uint8 invalidListId = CUSTOM_LIST_TWO | CUSTOM_LIST_THREE;
+        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__InvalidListId.selector, invalidListId));
+        shareWarden.updateBlacklist(invalidListId, addressHashes, true);
+    }
+
     function testMultipleListsWorkTogether() external {
         uint256 depositAmount = 1e18;
         

@@ -55,6 +55,7 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
     error ShareWarden__Paused();
     error ShareWarden__SanctionsListBlacklisted(address account);
     error ShareWarden__Blacklisted(address account, uint8 listId);
+    error ShareWarden__InvalidListId(uint8 listId);
 
     // =============================== CONSTRUCTOR ===============================
 
@@ -112,6 +113,7 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
      * @dev Callable by OWNER_ROLE.
      */
     function updateBlacklist(uint8 listId, bytes32[] memory addressHashes, bool isBlacklisted) external requiresAuth {
+        _validateListId(listId);
         require(listId != LIST_ID_SANCTIONS, "SanctionsList list cannot be updated in this contract");
         for (uint256 i = 0; i < addressHashes.length; i++) {
             listIdToBlacklisted[listId][addressHashes[i]] = isBlacklisted;
@@ -159,6 +161,8 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
             uint8 listId = uint8(1 << bit);
             if ((listBitmap & listId) == 0) continue;
 
+            if (listId == LIST_ID_SANCTIONS) continue;
+
             if (listIdToBlacklisted[listId][fromHash]) {
                 revert ShareWarden__Blacklisted(from, listId);
             }
@@ -180,6 +184,8 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
         for (uint8 bit = 0; bit < 8; bit++) {
             uint8 listId = uint8(1 << bit);
             if ((listBitmap & listId) == 0) continue;
+
+            if (listId == LIST_ID_SANCTIONS) continue;
 
             if (listIdToBlacklisted[listId][fromHash]) {
                 revert ShareWarden__Blacklisted(from, listId);
@@ -223,5 +229,11 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
 
     function _hashAddress(address account) internal pure returns (bytes32) {
         return keccak256(abi.encodePacked(account));
+    }
+
+    function _validateListId(uint8 listId) internal pure {
+        if (listId == 0 || (listId & (listId - 1)) != 0) {
+            revert ShareWarden__InvalidListId(listId);
+        }
     }
 }
