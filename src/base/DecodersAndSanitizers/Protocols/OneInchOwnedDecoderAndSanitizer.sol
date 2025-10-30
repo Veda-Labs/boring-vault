@@ -12,16 +12,6 @@ contract OneInchOwnedDecoderAndSanitizer is Owned {
 
     address public oneInchExecutor;
 
-    constructor(address _owner, address _oneInchExecutor) Owned(_owner) {
-        setOneInchExecutor(_oneInchExecutor);
-    }
-
-    function setOneInchExecutor(address _oneInchExecutor) public onlyOwner {
-        if (_oneInchExecutor == address(0)) revert OneInchDecoderAndSanitizer__InvalidExecutor();
-        oneInchExecutor = _oneInchExecutor;
-        emit OneInchExecutorSet(_oneInchExecutor);
-    }
-
     //============================== ERRORS ===============================
 
     error OneInchDecoderAndSanitizer__PermitNotSupported();
@@ -30,6 +20,16 @@ contract OneInchOwnedDecoderAndSanitizer is Owned {
     //============================== EVENTS ===============================
 
     event OneInchExecutorSet(address oneInchExecutor);
+
+    constructor(address _owner, address _oneInchExecutor) Owned(_owner) {
+        oneInchExecutor = _oneInchExecutor;
+    }
+
+    function setOneInchExecutor(address _oneInchExecutor) external onlyOwner {
+        if (_oneInchExecutor == address(0)) revert OneInchDecoderAndSanitizer__InvalidExecutor();
+        oneInchExecutor = _oneInchExecutor;
+        emit OneInchExecutorSet(_oneInchExecutor);
+    }
 
     //============================== ONEINCH ===============================
 

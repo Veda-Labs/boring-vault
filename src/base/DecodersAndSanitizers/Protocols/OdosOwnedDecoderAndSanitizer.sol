@@ -15,17 +15,6 @@ contract OdosOwnedDecoderAndSanitizer is Owned {
 
     address public odosExecutor;
 
-    constructor(address _owner, address _odosRouter, address _odosExecutor) Owned(_owner) {
-        odosRouter = IOdosRouterV2(_odosRouter);
-        setOdosExecutor(_odosExecutor);
-    }
-
-    function setOdosExecutor(address _odosExecutor) public onlyOwner {
-        if (_odosExecutor == address(0)) revert OdosOwnedDecoderAndSanitizer__InvalidExecutor();
-        odosExecutor = _odosExecutor;
-        emit OdosExecutorSet(_odosExecutor);
-    }
-
     //============================== ERRORS ===============================
 
     error OdosOwnedDecoderAndSanitizer__InvalidExecutor();
@@ -33,6 +22,17 @@ contract OdosOwnedDecoderAndSanitizer is Owned {
     //============================== EVENTS ===============================
 
     event OdosExecutorSet(address odosExecutor);
+
+    constructor(address _owner, address _odosRouter, address _odosExecutor) Owned(_owner) {
+        odosRouter = IOdosRouterV2(_odosRouter);
+        odosExecutor = _odosExecutor;
+    }
+
+    function setOdosExecutor(address _odosExecutor) external onlyOwner {
+        if (_odosExecutor == address(0)) revert OdosOwnedDecoderAndSanitizer__InvalidExecutor();
+        odosExecutor = _odosExecutor;
+        emit OdosExecutorSet(_odosExecutor);
+    }
 
     //============================== ODOS ===============================
 

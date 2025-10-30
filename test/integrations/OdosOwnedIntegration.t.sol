@@ -577,9 +577,10 @@ contract OdosOwnedIntegrationTest is Test, MerkleTreeHelper {
 
         _startFork(rpcKey, blockNumber);
 
-        OdosOwnedDecoderAndSanitizer decoder = new FullOdosOwnedDecoderAndSanitizer(address(this), getAddress(sourceChain, "odosRouterV2"), OLD_ODOS_EXECUTOR_MAINNET);
+        OdosOwnedDecoderAndSanitizer decoder = new FullOdosOwnedDecoderAndSanitizer(address(1), getAddress(sourceChain, "odosRouterV2"), OLD_ODOS_EXECUTOR_MAINNET);
         vm.expectEmit(true, true, true, true);
         emit OdosExecutorSet(getAddress(sourceChain, "odosExecutor"));
+        vm.prank(address(1));
         decoder.setOdosExecutor(getAddress(sourceChain, "odosExecutor"));
         assertEq(decoder.odosExecutor(), getAddress(sourceChain, "odosExecutor"));
     }

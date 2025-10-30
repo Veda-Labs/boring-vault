@@ -330,9 +330,10 @@ contract OneInchOwnedIntegrationTest is Test, MerkleTreeHelper {
 
         _startFork(rpcKey, blockNumber);
 
-        OneInchOwnedDecoderAndSanitizer decoder = new FullOneInchOwnedDecoderAndSanitizer(address(this), getAddress(sourceChain, "oneInchExecutor"));
+        OneInchOwnedDecoderAndSanitizer decoder = new FullOneInchOwnedDecoderAndSanitizer(address(1), getAddress(sourceChain, "oneInchExecutor"));
         vm.expectEmit(true, true, true, true);
         emit OneInchExecutorSet(getAddress(sourceChain, "oneInchExecutor"));
+        vm.prank(address(1));
         decoder.setOneInchExecutor(getAddress(sourceChain, "oneInchExecutor"));
         assertEq(decoder.oneInchExecutor(), getAddress(sourceChain, "oneInchExecutor"));
     }
