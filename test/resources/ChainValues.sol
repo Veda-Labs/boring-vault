@@ -178,6 +178,7 @@ contract ChainValues {
         values[mainnet]["eBTCOnChainQueue"] = 0x74EC75fb641ec17B04007733d9efBE2D1dA5CA2C.toBytes32();
         values[mainnet]["eBTCOnChainQueueFast"] = 0x686696A3e59eE16e8A8533d84B62cfA504827135.toBytes32();
         values[mainnet]["eBTCTeller"] = 0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268.toBytes32();
+        values[mainnet]["etherfiRewardClaimer"] = 0xBdA9e965CdA04eD5Bfc841E54573Dc083447E15a.toBytes32();
 
         // Tellers
         values[mainnet]["eBTCTeller"] = 0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268.toBytes32();
@@ -223,6 +224,7 @@ contract ChainValues {
 
         // DeFi Ecosystem
         values[mainnet]["ETH"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32();
+        values[mainnet]["NATIVE"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32();
         values[mainnet]["uniV3Router"] = 0xE592427A0AEce92De3Edee1F18E0157C05861564.toBytes32();
         values[mainnet]["uniV2Router"] = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D.toBytes32();
         values[mainnet]["uniV2Factory"] = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f.toBytes32();
@@ -357,6 +359,7 @@ contract ChainValues {
         values[mainnet]["USDtb"] = 0xC139190F447e929f090Edeb554D95AbB8b18aC1C.toBytes32();
         values[mainnet]["ETHPlus"] = 0xE72B141DF173b999AE7c1aDcbF60Cc9833Ce56a8.toBytes32();
         values[mainnet]["eEigen"] = 0xE77076518A813616315EaAba6cA8e595E845EeE9.toBytes32();
+        values[mainnet]["USCC"] = 0x14d60E7FDC0D71d8611742720E4C50E7a974020c.toBytes32();
 
         // Rate providers
         values[mainnet]["WEETH_RATE_PROVIDER"] = 0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee.toBytes32();
@@ -641,6 +644,7 @@ contract ChainValues {
         values[mainnet]["weETH_wETH_NG_Convex_Reward"] = 0x5411CC583f0b51104fA523eEF9FC77A29DF80F58.toBytes32();
 
         values[mainnet]["pyUsd_Usdc_Curve_Pool"] = 0x383E6b4437b59fff47B619CBA855CA29342A8559.toBytes32();
+        values[mainnet]["pyUsd_Usdc_Curve_Gauge"] = 0x9da75997624C697444958aDeD6790bfCa96Af19A.toBytes32();
         values[mainnet]["pyUsd_Usdc_Convex_Id"] = address(270).toBytes32();
         values[mainnet]["frax_Usdc_Curve_Pool"] = 0xDcEF968d416a41Cdac0ED8702fAC8128A64241A2.toBytes32();
         values[mainnet]["frax_Usdc_Convex_Id"] = address(100).toBytes32();
@@ -747,7 +751,7 @@ contract ChainValues {
 
         // Uniswap V4
         values[mainnet]["uniV4UniversalRouter"] = 0x66a9893cC07D91D95644AEDD05D03f95e1dBA8Af.toBytes32();
-
+        values[mainnet]["uniswapV4PositionManager"] = 0xbD216513d74C8cf14cf4747E6AaA6420FF64ee9e.toBytes32();
         // Redstone
         values[mainnet]["swEthAdapter"] = 0x68ba9602B2AeE30847412109D2eE89063bf08Ec2.toBytes32();
         values[mainnet]["swEthDataFeedId"] = 0x5357455448000000000000000000000000000000000000000000000000000000;
@@ -889,7 +893,7 @@ contract ChainValues {
 
         // 1Inch
         values[mainnet]["aggregationRouterV5"] = 0x1111111254EEB25477B68fb85Ed929f73A960582.toBytes32();
-        values[mainnet]["oneInchExecutor"] = 0x5141B82f5fFDa4c6fE1E372978F1C5427640a190.toBytes32();
+        values[mainnet]["oneInchExecutor"] = 0x8C864D0c8E476Bf9eb9d620C10E1296fb0E2F940.toBytes32();
         values[mainnet]["wETHweETH5bps"] = 0x7A415B19932c0105c82FDB6b720bb01B0CC2CAe3.toBytes32();
 
         // Gearbox
@@ -1090,6 +1094,9 @@ contract ChainValues {
         // Aave V3 Lido
         values[mainnet]["v3LidoPool"] = 0x4e033931ad43597d96D6bcc25c280717730B58B1.toBytes32();
 
+        // Aave V3 Horizon
+        values[mainnet]["v3HorizonPool"] = 0xAe05Cd22df81871bc7cC2a04BeCfb516bFe332C8.toBytes32();
+
         // SparkLend
         values[mainnet]["sparkLendPool"] = 0xC13e21B648A5Ee794902342038FF3aDAB66BE987.toBytes32();
 
@@ -1147,7 +1154,7 @@ contract ChainValues {
 
         // Mantle
         values[mainnet]["mantleLspStaking"] = 0xe3cBd06D7dadB3F4e6557bAb7EdD924CD1489E8f.toBytes32();
-
+        values[mainnet]["MNT"] = 0x3c3a81e81dc49A522A592e7622A7E711c06bf354.toBytes32();
         // Fluid
         values[mainnet]["fUSDT"] = 0x5C20B550819128074FD538Edf79791733ccEdd18.toBytes32();
         values[mainnet]["fUSDTStakingRewards"] = 0x490681095ed277B45377d28cA15Ac41d64583048.toBytes32();
@@ -1170,7 +1177,8 @@ contract ChainValues {
         values[mainnet]["sUSDe_DEX-USDC-USDT"] = 0xe210d8ded13Abe836a10E8Aa956dd424658d0034.toBytes32(); //T3
         values[mainnet]["wstETH_ETH"] = 0x82B27fA821419F5689381b565a8B0786aA2548De.toBytes32(); //T1
         values[mainnet]["DEX-wstETH-ETH_DEX-wstETH-ETH"] = 0x528CF7DBBff878e02e48E83De5097F8071af768D.toBytes32(); //T4
-
+        values[mainnet]["wstUSR-USDC"] = 0xee327311D8640156E87eC33ea55FcbF2309e0ce6.toBytes32(); //T1
+        values[mainnet]["wstUSR-USDT"] = 0x984636a30ed2B4A61FB7150CED644096349275d3.toBytes32();
         // Symbiotic
         values[mainnet]["wstETHDefaultCollateral"] = 0xC329400492c6ff2438472D4651Ad17389fCb843a.toBytes32();
         values[mainnet]["cbETHDefaultCollateral"] = 0xB26ff591F44b04E78de18f43B46f8b70C6676984.toBytes32();
@@ -1467,6 +1475,14 @@ contract ChainValues {
         values[mainnet]["odosRouterV2"] = 0xCf5540fFFCdC3d510B18bFcA6d2b9987b0772559.toBytes32();
         values[mainnet]["odosExecutor"] = 0x365084B05Fa7d5028346bD21D842eD0601bAB5b8.toBytes32();
 
+        // GlueX
+        values[mainnet]["glueXRouter"] = 0xe95F6EAeaE1E4d650576Af600b33D9F7e5f9f7fd.toBytes32();
+        values[mainnet]["glueXExecutor"] = 0x2102Ab11A3c74B1D543891020969dc3D46C132AB.toBytes32();
+
+        // Sushi/Swnapper/RedSnwapper
+        values[mainnet]["redSnwapperRouter"] = 0xAC4c6e212A361c968F1725b4d055b47E63F80b75.toBytes32();
+        values[mainnet]["redSnwapperExecutor"] = 0xd2b37aDE14708bf18904047b1E31F8166d39612b.toBytes32();
+
         // Level
         values[mainnet]["levelMinter"] = 0x9136aB0294986267b71BeED86A75eeb3336d09E1.toBytes32();
         values[mainnet]["levelShares"] = 0x834D9c7688ca1C10479931dE906bCC44879A0446.toBytes32();
@@ -1518,6 +1534,10 @@ contract ChainValues {
 
         // Ethena
         values[mainnet]["ethenaMinterV2"] = 0xe3490297a08d6fC8Da46Edb7B6142E4F461b62D3.toBytes32();
+    
+        //Mellow DVstETH 
+        values[mainnet]["dvStethWhitelistedEthWrapper"] = 0xfD4a4922d1AFe70000Ce0Ec6806454e78256504e.toBytes32();
+    
     }
 
     function _addBaseValues() private {
@@ -1613,7 +1633,7 @@ contract ChainValues {
         values[base]["uniV3Router"] = 0x2626664c2603336E57B271c5C0b26F421741e481.toBytes32();
 
         values[base]["aggregationRouterV5"] = 0x1111111254EEB25477B68fb85Ed929f73A960582.toBytes32();
-        values[base]["oneInchExecutor"] = 0x6Ea77f83eC8693666866ecE250411C974aB962a8.toBytes32();
+        values[base]["oneInchExecutor"] = 0x8C864D0c8E476Bf9eb9d620C10E1296fb0E2F940.toBytes32();
 
         // Compound V3
         values[base]["cWETHV3"] = 0x46e6b214b524310239732D51387075E0e70970bf.toBytes32();
@@ -1701,7 +1721,7 @@ contract ChainValues {
 
         // 1Inch
         values[arbitrum]["aggregationRouterV5"] = 0x1111111254EEB25477B68fb85Ed929f73A960582.toBytes32();
-        values[arbitrum]["oneInchExecutor"] = 0xE37e799D5077682FA0a244D46E5649F71457BD09.toBytes32();
+        values[arbitrum]["oneInchExecutor"] = 0x8C864D0c8E476Bf9eb9d620C10E1296fb0E2F940.toBytes32();
 
         // Odos
         values[arbitrum]["odosRouterV2"] = 0xa669e7A0d4b3e4Fa48af2dE86BD4CD7126Be4e13.toBytes32();
@@ -1811,7 +1831,7 @@ contract ChainValues {
         values[optimism]["liquidPayoutAddress"] = 0xA9962a5BfBea6918E958DeE0647E99fD7863b95A.toBytes32();
         values[optimism]["uniV3Router"] = 0xE592427A0AEce92De3Edee1F18E0157C05861564.toBytes32();
         values[optimism]["aggregationRouterV5"] = 0x1111111254EEB25477B68fb85Ed929f73A960582.toBytes32();
-        values[optimism]["oneInchExecutor"] = 0xE37e799D5077682FA0a244D46E5649F71457BD09.toBytes32();
+        values[optimism]["oneInchExecutor"] = 0x8C864D0c8E476Bf9eb9d620C10E1296fb0E2F940.toBytes32();
         values[optimism]["txBundlerAddress"] = 0xd249755C0E79dF8F3A05C2398A73333eFDb6EB59.toBytes32();
         values[optimism]["LayerZeroEndPoint"] = 0x1a44076050125825900e736c501f859c50fE728c.toBytes32();
 
@@ -2029,7 +2049,7 @@ contract ChainValues {
 
         // 1Inch
         values[bsc]["aggregationRouterV5"] = 0x1111111254EEB25477B68fb85Ed929f73A960582.toBytes32();
-        values[bsc]["oneInchExecutor"] = 0xde9e4FE32B049f821c7f3e9802381aa470FFCA73.toBytes32();
+        values[bsc]["oneInchExecutor"] = 0x8C864D0c8E476Bf9eb9d620C10E1296fb0E2F940.toBytes32();
 
         // PancakeSwapV3
         values[bsc]["pancakeSwapV3NonFungiblePositionManager"] = 0x46A15B0b27311cedF172AB29E4f4766fbE7F4364.toBytes32();
@@ -2053,6 +2073,14 @@ contract ChainValues {
 
         // LBTC Bridge
         values[bsc]["lbtcBridge"] = 0xA869817b48b25EeE986bdF4bE04062e6fd2C418B.toBytes32();
+
+        // Pendle
+        values[bsc]["pendleRouter"] = 0x888888888889758F76e7103c6CbF23ABbF58F946.toBytes32();
+        values[bsc]["pendleLimitOrderRouter"] = 0x000000000000c9B3E2C3Ec88B1B4c0cD853f4321.toBytes32();
+        values[bsc]["pendleMusdMarket"] = 0x2d1Ee953d17e68673af1401b34FA9A21E5e830F6.toBytes32();
+        values[bsc]["pendleMusdSy"] = 0xa809c9814d04282490c0078200a7597452A9452D.toBytes32();
+        values[bsc]["pendleMusdPt"] = 0x44fe4959331A07608A13a9a711F86213367b7235.toBytes32();
+        values[bsc]["pendleMusdYt"] = 0x9AF5fD2039792b7e9207F8C6bf379AD03c1150e6.toBytes32();
 
         // Layer Zero
         values[bsc]["LayerZeroEndPoint"] = 0x1a44076050125825900e736c501f859c50fE728c.toBytes32();
@@ -2701,7 +2729,7 @@ contract ChainValues {
         values[unichain]["odosExecutor"] = 0xAA8C506Ce5e087c81ABb44Fc286106f4403FE0Ba.toBytes32();
 
         values[unichain]["aggregationRouterV5"] = 0x111111125421cA6dc452d289314280a0f8842A65.toBytes32();
-        values[unichain]["oneInchExecutor"] = 0xE37e799D5077682FA0a244D46E5649F71457BD09.toBytes32();
+        values[unichain]["oneInchExecutor"] = 0x8C864D0c8E476Bf9eb9d620C10E1296fb0E2F940.toBytes32();
 
         values[unichain]["eulerWETH"] = 0x1f3134C3f3f8AdD904B9635acBeFC0eA0D0E1ffC.toBytes32();
         values[unichain]["eulerwstETHmarket"] = 0x54ff502df96CD9B9585094EaCd86AAfCe902d06A.toBytes32();
@@ -3041,6 +3069,8 @@ contract ChainValues {
         values[plasma]["txBundlerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
         values[plasma]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
         values[plasma]["dev5Address"] = 0x1cdF47387358A1733968df92f7cC14546D9E1047.toBytes32();
+        values[plasma]["etherfiRewardClaimer"] = 0xBdA9e965CdA04eD5Bfc841E54573Dc083447E15a.toBytes32();
+        values[plasma]["vault"] = 0xbA1333333333a1BA1108E8412f11850A5C319bA9.toBytes32();
         
         // Factory Contracts
         values[plasma]["create2Factory"] = 0x4e59b44847b379578588920cA78FbF26c0B4956C.toBytes32();
@@ -3071,7 +3101,9 @@ contract ChainValues {
         
         // Token
         values[plasma]["ETH"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32(); // Plasma doesn't have native ETH, using common ETH placeholder to bypass fluidDex helper check
+        values[mainnet]["NATIVE"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32();
         values[plasma]["wXPL"] = 0x6100E367285b01F48D07953803A2d8dCA5D19873.toBytes32();
+        values[plasma]["WXPL"] = 0x6100E367285b01F48D07953803A2d8dCA5D19873.toBytes32();
         values[plasma]["USDT0"] = 0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb.toBytes32();
         values[plasma]["USDT0_OFT"] = 0x02ca37966753bDdDf11216B73B16C1dE756A7CF9.toBytes32();
         values[plasma]["ZRO"] = address(1).toBytes32();
@@ -3136,6 +3168,15 @@ contract ChainValues {
         values[plasma]["pendle_pt_USDe_01_15_26"] = 0x93B544c330F60A2aa05ceD87aEEffB8D38FD8c9a.toBytes32();
         values[plasma]["pendle_market_sUSDe_01_15_26"] = 0xe06C3B972BA630cCF3392cEcdbe070690b4e6b55.toBytes32();
         values[plasma]["pendle_pt_sUSDe_01_15_26"] = 0x02FCC4989B4C9D435b7ceD3fE1Ba4CF77BBb5Dd8.toBytes32();
+
+        // GlueX
+        values[plasma]["glueXRouter"] = 0xe95F6EAeaE1E4d650576Af600b33D9F7e5f9f7fd.toBytes32();
+        values[plasma]["glueXExecutor"] = 0x2102Ab11A3c74B1D543891020969dc3D46C132AB.toBytes32();
+
+        // Sushi/Swnapper/RedSnwapper
+        values[plasma]["redSnwapperRouter"] = 0xAC4c6e212A361c968F1725b4d055b47E63F80b75.toBytes32();
+        values[plasma]["redSnwapperExecutor"] = 0xd2b37aDE14708bf18904047b1E31F8166d39612b.toBytes32();
+
     }
 
     

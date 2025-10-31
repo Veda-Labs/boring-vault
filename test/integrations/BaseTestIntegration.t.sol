@@ -61,6 +61,7 @@ contract BaseTestIntegration is Test, MerkleTreeHelper {
         nameToRPC["hyperEVM"] = "HYPER_EVM_RPC_URL"; 
         nameToRPC["tac"] = "TAC_RPC_URL"; 
         nameToRPC["katana"] = "KATANA_RPC_URL"; 
+        nameToRPC["plasma"] = "PLASMA_RPC_URL"; 
     }
     
     function _setupChain(string memory chain, uint256 blockNumber) internal {
