@@ -114,7 +114,7 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
      */
     function updateBlacklist(uint8 listId, bytes32[] memory addressHashes, bool isBlacklisted) external requiresAuth {
         _validateListId(listId);
-        require(listId != LIST_ID_SANCTIONS, "SanctionsList list cannot be updated in this contract");
+        if(listId == LIST_ID_SANCTIONS) revert ShareWarden__InvalidListId(listId);
         for (uint256 i = 0; i < addressHashes.length; i++) {
             listIdToBlacklisted[listId][addressHashes[i]] = isBlacklisted;
         }
@@ -157,11 +157,9 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
 
         bytes32 fromHash = _hashAddress(from);
 
-        for (uint256 bit = 0; bit < 8; bit++) {
+        for (uint256 bit = 0; bit < 7; bit++) {
             uint8 listId = uint8(1 << bit);
             if ((listBitmap & listId) == 0) continue;
-
-            if (listId == LIST_ID_SANCTIONS) continue;
 
             if (listIdToBlacklisted[listId][fromHash]) {
                 revert ShareWarden__Blacklisted(from, listId);
@@ -181,11 +179,9 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
         bytes32 toHash = _hashAddress(to);
         bytes32 operatorHash = _hashAddress(operator);
 
-        for (uint256 bit = 0; bit < 8; bit++) {
+        for (uint256 bit = 0; bit < 7; bit++) {
             uint8 listId = uint8(1 << bit);
             if ((listBitmap & listId) == 0) continue;
-
-            if (listId == LIST_ID_SANCTIONS) continue;
 
             if (listIdToBlacklisted[listId][fromHash]) {
                 revert ShareWarden__Blacklisted(from, listId);
