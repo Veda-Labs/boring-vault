@@ -3115,7 +3115,9 @@ contract ChainValues {
         values[plasma]["USDe"] = 0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34.toBytes32(); 
         values[plasma]["sUSDe"] = 0x211Cc4DD073734dA055fbF44a2b4667d5E5fE5d2.toBytes32(); 
         values[plasma]["ENA"] = 0x58538e6A46E07434d7E7375Bc268D3cb839C0133.toBytes32(); 
-        
+        values[plasma]["wstETH"] = 0xe48D935e6C9e735463ccCf29a7F11e32bC09136E.toBytes32();
+        values[plasma]["FLUID"] = 0x61E030A56D33e8260FdD81f03B162A79Fe3449Cd.toBytes32();
+
         // Uniswap V3
         values[plasma]["uniswapV3NonFungiblePositionManager"] = 0x743E03cceB4af2efA3CC76838f6E8B50B63F184c.toBytes32();
         values[plasma]["uniV3Router"] = 0x807F4E281B7A3B324825C64ca53c69F0b418dE40.toBytes32();
@@ -3139,9 +3141,19 @@ contract ChainValues {
         values[plasma]["v3Pool"] = 0x925a2A7214Ed92428B5b1B090F80b25700095e12.toBytes32();
         values[plasma]["v3RewardsController"] = 0x3A57eAa3Ca3794D66977326af7991eB3F6dD5a5A.toBytes32();
 
+        // Gearbox
+        values[plasma]["dUSDT0"] = 0x53E4e9b8766969c43895839CC9c673bb6bC8Ac97.toBytes32();
+
+        // Euler
+        values[plasma]["ethereumVaultConnector"] = 0x7bdbd0A7114aA42CA957F292145F6a931a345583.toBytes32();
+        values[plasma]["evkTelosCurveUSDT0"] = 0xa9C251F8304b1B3Fc2b9e8fcae78D94Eff82Ac66.toBytes32();
+        values[plasma]["evkK3KapitalUSDT0"] = 0xe818ad0D20D504C55601b9d5e0E137314414dec4.toBytes32();
+        values[plasma]["evkRe7USDT0Core"] = 0xa5EeD1615cd883dD6883ca3a385F525e3bEB4E79.toBytes32();
 
         // Fluid Dex
         values[plasma]["weETH_ETHDex_wETH"] = 0x0C8C77B7FF4c2aF7F6CEBbe67350A490E3DD6cB3.toBytes32();
+
+        values[plasma]["fUSDT0"] = 0x1DD4b13fcAE900C60a350589BE8052959D2Ed27B.toBytes32();
 
         // Merkl
         values[plasma]["merklDistributor"] = 0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae.toBytes32();
