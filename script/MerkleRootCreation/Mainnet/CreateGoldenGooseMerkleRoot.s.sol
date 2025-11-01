@@ -360,6 +360,35 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             getBytes32(sourceChain, "boringVault")
         );
 
+        // to Plasma
+        // TODO: wstETH - No universal OFT adapter for Plasma exists. Options:
+        //   1. Bridge WETH and swap to wstETH on Plasma
+        //   2. Add wstETH Plasma OFT adapter if it exists
+        // _addLayerZeroLeafs(
+        //     leafs,
+        //     getERC20(sourceChain, "WSTETH"),
+        //     getAddress(sourceChain, "WSTETHOFTAdapterPlasma"), // DOES NOT EXIST
+        //     layerZeroPlasmaEndpointId,
+        //     getBytes32(sourceChain, "boringVault")
+        // );
+
+        // WETH/ETH - Use Stargate native bridge (same pattern as CreateMultiChainLiquidEthMerkleRoot.s.sol:733-738)
+        _addLayerZeroLeafNative(
+            leafs,
+            getAddress(sourceChain, "stargateNative"),
+            layerZeroPlasmaEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+
+        // WEETH - Use EtherFi universal OFT adapter (same pattern as CreateMultiChainLiquidEthMerkleRoot.s.sol:759-765)
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "WEETH"),
+            getAddress(sourceChain, "EtherFiOFTAdapter"),
+            layerZeroPlasmaEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+
         // ========================== Linea Bridge ==========================
         {
             ERC20[] memory lineaTokens = new ERC20[](1); 
