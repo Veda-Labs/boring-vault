@@ -25,7 +25,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
     address public scrollBridgeDecoderAndSanitizer = 0xA66a6B289FB5559b7e4ebf598B8e0A97C776c200;
     address public itbPositionManager = 0x7AAf9539B7359470Def1920ca41b5AAA05C13726;
     address public itbPositionManager2 = 0x11Fd9E49c41738b7500748f7B94B4DBb0E8c13d2; // Spark LBTC (PYUSD) + Aave Core Euler PYUSD Supervised Loan
-    address public itbDecoderAndSanitizer = 0xCe39e869C2010A3C049E1cA11F7dfB70ae2ddBF5; 
+    address public itbDecoderAndSanitizer = 0xb75bfC8B0Cc8588C510DcAE75c67A9DC9cF508d5; 
 
     function setUp() external {}
 
@@ -541,28 +541,26 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
                 itbDecoderAndSanitizer
             );
             leafs[leafIndex].argumentAddresses[0] = positionManager;
-            // Withdraw
+        }
+                    // Withdraw
             leafIndex++;
             leafs[leafIndex] = ManageLeaf(
                 positionManager,
                 false,
                 "withdraw(address,uint256)",
-                new address[](1),
-                string.concat("Withdraw ", tokensUsed[i].symbol(), " from the ", itbContractName, " contract"),
+                new address[](0),
+                string.concat("Withdraw from the ", itbContractName, " contract"),
                 itbDecoderAndSanitizer
             );
-            leafs[leafIndex].argumentAddresses[0] = address(tokensUsed[i]);
             // WithdrawAll
             leafIndex++;
             leafs[leafIndex] = ManageLeaf(
                 positionManager,
                 false,
                 "withdrawAll(address)",
-                new address[](1),
-                string.concat("Withdraw all ", tokensUsed[i].symbol(), " from the ", itbContractName, " contract"),
+                new address[](0),
+                string.concat("Withdraw all from the ", itbContractName, " contract"),
                 itbDecoderAndSanitizer
             );
-            leafs[leafIndex].argumentAddresses[0] = address(tokensUsed[i]);
-        }
     }
 }
