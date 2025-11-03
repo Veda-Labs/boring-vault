@@ -112,6 +112,7 @@ contract CreateSyUsdMorphoAgentMerkleRootScript is Script, MerkleTreeHelper {
         vm.startBroadcast(vm.envUint("BORING_OWNER"));
         manager.setManageRoot(managerAddress, manageTree[manageTree.length - 1][0]);
         manager.setManageRoot(vm.addr(vm.envUint("BORING_MORPHO_AGENT")), manageTree[manageTree.length - 1][0]);
+        manager.setManageRoot(0x0307AD25281C99F22A8F3Af9e272fE3968810239, manageTree[manageTree.length - 1][0]);
         vm.stopBroadcast();
     }
 }

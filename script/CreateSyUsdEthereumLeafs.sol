@@ -17,7 +17,11 @@ import {SyUsdDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyUsdDeco
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {
-    MerkleTreeHelper, IMB, PendleMarket, PendleSy, ISilo
+    MerkleTreeHelper,
+    IMB,
+    PendleMarket,
+    PendleSy,
+    ISilo
 } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import {BalancerVault} from "src/interfaces/BalancerVault.sol";
 
@@ -91,6 +95,7 @@ contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
         manager.setManageRoot(agent, manageTree[manageTree.length - 1][0]);
         manager.setManageRoot(0xa86b3Bf249478488B4304B50726c7D4689aD6320, manageTree[manageTree.length - 1][0]);
         manager.setManageRoot(getAddress(sourceChain, "managerAddress"), manageTree[manageTree.length - 1][0]);
+        manager.setManageRoot(0x0307AD25281C99F22A8F3Af9e272fE3968810239, manageTree[manageTree.length - 1][0]);
         vm.stopBroadcast();
     }
 
