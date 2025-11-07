@@ -44,6 +44,24 @@ rule lastVestingUpdateNeverDecreases(env e, method f)
     assert lastVestingUpdate_post >= lastVestingUpdate_pre;
 }
 
+invariant cumulativeSupplyBounded()
+    accountant_contract.supplyObservation.cumulativeSupplyLast <= 
+        accountant_contract.supplyObservation.cumulativeSupply;
+
+invariant vestingGainsBounded(env e)
+    getPendingVestingGains(e) <= vault_contract.totalSupply() + 10^18
+    filtered { f -> f.selector == sig:accountant_contract.vestYield(uint256,uint256).selector }
+    { preserved { 
+        safeAssumptions(); 
+        requireInvariant exchangeRateLEqlastSharePrice();
+        requireInvariant cumulativeSupplyBounded();
+        //require accountant_contract.vestingState.lastSharePrice <= 2^50;
+        require accountant_contract.minimumVestingTime >= 86400; //1 day
+        require accountant_contract.maxDeviationYield <= 500;   // 5% per day
+    }}
+    
+
+
 rule exchangeRateLEhighwaterMark_unlessPaused_postLoss()
 {  
     safeAssumptions(); 
@@ -52,11 +70,11 @@ rule exchangeRateLEhighwaterMark_unlessPaused_postLoss()
     uint96 hWM_pre = accountant_contract.accountantState.highwaterMark;
     uint128 lastSharePrice_pre = accountant_contract.vestingState.lastSharePrice;
 
-    
-    require lastSharePrice_pre < 2^20;
-    require hWM_pre < 2^10;
+    //require lastSharePrice_pre < 2^20;
+    //require hWM_pre < 2^10;
 
     env e; uint256 loss;
+    require getPendingVestingGains(e) * accountant_contract.ONE_SHARE -2 <= (max_uint96 - lastSharePrice_pre) * vault_contract.totalSupply();
     postLoss(e, loss);
     // limit the ratio between loss and price
     // try to find the exact formula for the condition
@@ -66,8 +84,8 @@ rule exchangeRateLEhighwaterMark_unlessPaused_postLoss()
     uint96 hWM_post = accountant_contract.accountantState.highwaterMark;
     uint128 lastSharePrice_post = accountant_contract.vestingState.lastSharePrice;
 
-    require lastSharePrice_post < 2^20;
-    require exRate_post < 2^20;
+    //require lastSharePrice_post < 2^20;
+    //require exRate_post < 2^20;
     
     assert (exRate_pre <= hWM_pre) => (exRate_post <= hWM_post); 
 }

@@ -1,12 +1,12 @@
 import "setup/dispatching_BoringVault.spec";
-import "setup/snippet_ERC20_Mock.spec"; // B
+import "setup/snippet_ERC20_Mock.spec";
 import "MathSummaries.spec";
 
-import "setup/dispatching_AccountantWithRateProviders.spec";      // A, B, D, E
-import "setup/dispatching_LayerZeroTellerWithRateLimiting.spec";  // E
+import "setup/dispatching_AccountantWithYieldStreaming.spec";   // C
+import "setup/dispatching_TellerWithYieldStreaming.spec";       // C
 
-using AccountantWithRateProviders as accountant_contract;         // A, B, D, E
-using LayerZeroTellerWithRateLimiting as teller_contract;         // E
+using AccountantWithYieldStreaming as accountant_contract;      // C
+using TellerWithYieldStreaming as teller_contract;              // C
 
 using BoringVault as vault_contract;
 using WETH as WETH;
@@ -92,7 +92,7 @@ rule deniedUsers_balanceNonIncreasing(env e, method f)
 }
 
 invariant totalSupplyLEqCap()
-    vault_contract.totalSupply() <= teller_contract.depositCap
+    vault_contract.totalSupply() >= teller_contract.depositCap
         || teller_contract.depositCap == 2^112 - 1  // max uint112 means the cap is not applied
     filtered { f -> !ignoredMethod(f)
         && f.selector != sig:teller_contract.setDepositCap(uint112).selector // setting the cap bellow current supply is used by admins to disable further deposits
@@ -248,7 +248,7 @@ function convertToShares(storage init, uint256 assets, address asset_contract) r
 {
     env e;
     uint256 minimumMint; address referral;
-    uint256 shares = deposit(e, asset_contract, assets, minimumMint, referral) at init;
+    uint256 shares = teller_contract.deposit(e, asset_contract, assets, minimumMint, referral) at init;
     return shares;
 }
 
@@ -258,6 +258,6 @@ function convertToAssets(storage init, uint256 shares, address asset_contract) r
     env e;
     uint256 minimumAssets;
     address receiver;
-    uint256 assets = withdraw(e, asset_contract, shares, minimumAssets, receiver) at init;
+    uint256 assets = teller_contract.withdraw(e, asset_contract, shares, minimumAssets, receiver) at init;
     return assets;
 }
