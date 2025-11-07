@@ -3516,6 +3516,75 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         }
     }
 
+    function _addUniswapV3OneWaySwapLeafs(
+        ManageLeaf[] memory leafs,
+        address[] memory token0,
+        address[] memory token1,
+        bool swapRouter02
+    ) internal {
+        require(token0.length == token1.length, "Token arrays must be of equal length");
+
+        for (uint256 i; i < token0.length; ++i) {
+
+            if (!ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token0[i]][getAddress(sourceChain, "uniV3Router")]) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    token0[i],
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve UniswapV3 Router to spend ", ERC20(token0[i]).symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "uniV3Router");
+                ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token0[i]][getAddress(sourceChain, "uniV3Router")] = true;
+            }
+
+            if (swapRouter02) {
+                leafIndex++;
+                leafs[leafIndex] = ManageLeaf(
+                    getAddress(sourceChain, "uniV3Router"),
+                    false,
+                    "exactInput((bytes,address,uint256,uint256))",
+                    new address[](3),
+                    string.concat(
+                        "Swap ",
+                        ERC20(token0[i]).symbol(),
+                        " for ",
+                        ERC20(token1[i]).symbol(),
+                        " using UniswapV3 router"
+                    ),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = token0[i];
+                leafs[leafIndex].argumentAddresses[1] = token1[i];
+                leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+            } else {
+                leafIndex++;
+                leafs[leafIndex] = ManageLeaf(
+                    getAddress(sourceChain, "uniV3Router"),
+                    false,
+                    "exactInput((bytes,address,uint256,uint256,uint256))",
+                    new address[](3),
+                    string.concat(
+                        "Swap ",
+                        ERC20(token0[i]).symbol(),
+                        " for ",
+                        ERC20(token1[i]).symbol(),
+                        " using UniswapV3 router"
+                    ),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = token0[i];
+                leafs[leafIndex].argumentAddresses[1] = token1[i];
+                leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+            }
+        }
+    }
+
+
     // ========================================= Uniswap V4 =========================================
 
     /// @dev NOTE that for decreasing and burning positions, the decoder has the option to include a SWEEP, but isn't needed for regular functionality and thus

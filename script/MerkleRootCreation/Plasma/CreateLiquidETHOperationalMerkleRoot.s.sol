@@ -11,7 +11,7 @@ import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import "forge-std/Script.sol";
 
-contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleTreeHelper {
+contract CreateLiquidETHOperationalMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     address public boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C;
@@ -46,9 +46,8 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
             token1[0] = getAddress(sourceChain, "USDT0");
             token1[1] = getAddress(sourceChain, "WETH");
 
-            bool swapOnly = true;
             bool swapRouter02 = true;
-            _addUniswapV3Leafs(leafs, token0, token1, swapOnly, swapRouter02);
+            _addUniswapV3OneWaySwapLeafs(leafs, token0, token1, swapRouter02);
         }
 
         // ========================== Merkl ==========================
@@ -85,9 +84,8 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
             token1[0] = getAddress(sourceChain, "USDT0");
             token1[1] = getAddress(sourceChain, "WETH");
 
-            bool swapOnly = true;
             bool swapRouter02 = true;
-            _addUniswapV3Leafs(leafs, token0, token1, swapOnly, swapRouter02);
+            _addUniswapV3OneWaySwapLeafs(leafs, token0, token1, swapRouter02);
         }
 
         // ========================== Merkl ==========================

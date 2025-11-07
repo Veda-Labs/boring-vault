@@ -55,8 +55,8 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
             token1[3] = getAddress(sourceChain, "WETH");
             token1[4] = getAddress(sourceChain, "WETH");
 
-            bool swapOnly = true;
-            _addUniswapV3Leafs(leafs, token0, token1, swapOnly);
+            bool swapRouter02 = false;
+            _addUniswapV3OneWaySwapLeafs(leafs, token0, token1, swapRouter02);
         }
 
         // ========================== Odos ==========================
@@ -123,8 +123,8 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
         token1[3] = getAddress(sourceChain, "WETH");
         token1[4] = getAddress(sourceChain, "WETH");
 
-        bool swapOnly = true;
-        _addUniswapV3Leafs(leafs, token0, token1, swapOnly);
+        bool swapRouter02 = false;
+        _addUniswapV3OneWaySwapLeafs(leafs, token0, token1, swapRouter02);
 
         // ========================== Odos ==========================
         {
