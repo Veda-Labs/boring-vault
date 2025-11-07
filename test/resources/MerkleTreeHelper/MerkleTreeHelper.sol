@@ -7298,13 +7298,9 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
     }
 
-    function _addLayerZeroLeafs(
-        ManageLeaf[] memory leafs,
-        ERC20 asset,
-        address oftAdapter,
-        uint32 endpoint,
-        bytes32 to
-    ) internal {
+    function _addLayerZeroLeafs(ManageLeaf[] memory leafs, ERC20 asset, address oftAdapter, uint32 endpoint, bytes32 to)
+        internal
+    {
         if (address(asset) != oftAdapter) {
             unchecked {
                 leafIndex++;
@@ -10809,12 +10805,9 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     }
 
     // ========================================= BGT Reward Vault =========================================
-    function _addBGTRewardVaultLeafs(
-        ManageLeaf[] memory leafs,
-        address vault,
-        address delegateStaker,
-        address operator
-    ) internal {
+    function _addBGTRewardVaultLeafs(ManageLeaf[] memory leafs, address vault, address delegateStaker, address operator)
+        internal
+    {
         address stakingToken = IBGTRewardVault(vault).stakeToken();
 
         unchecked {
@@ -11810,6 +11803,78 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         }
     }
 
+    // ========================================= Agglayer =========================================
+
+    function _addAgglayerBridgeLeafs(
+        ManageLeaf[] memory leafs,
+        address bridge,
+        address token,
+        uint32 fromChain,
+        uint32 toChain
+    ) internal {
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            token,
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve zkEVM Compatible Bridge to spend", ERC20(token).symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = bridge;
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            bridge,
+            false,
+            "bridgeAsset(uint32,address,uint256,address,bool,bytes)",
+            new address[](3),
+            string.concat("Bridge ", ERC20(token).symbol(), " using zkEVM Compatible Bridge"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = address(uint160(toChain));
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[2] = token;
+
+        if (token == getAddress(sourceChain, "ETH")) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                bridge,
+                true,
+                "bridgeAsset(uint32,address,uint256,address,bool,bytes)",
+                new address[](3),
+                string.concat("Bridge ETH using zkEVM Compatible Bridge"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(uint160(toChain));
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[2] = address(uint160(fromChain)); //zkEVM bridge expects native eth to be address(0)
+        }
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            bridge,
+            false,
+            "claimAsset(bytes32[32],bytes32[32],uint256,bytes32,bytes32,uint32,address,uint32,address,uint256,bytes)",
+            new address[](4),
+            string.concat("Claim  ", ERC20(token).symbol(), " from zkEVM Compatible Bridge"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        leafs[leafIndex].argumentAddresses[0] = address(uint160(fromChain));
+        leafs[leafIndex].argumentAddresses[1] = token;
+        leafs[leafIndex].argumentAddresses[2] = address(uint160(fromChain));
+        leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "boringVault");
+    }
+
     // ========================================= Magpie/fly.trade =========================================
 
     function _addMagpieSwapLeafs(ManageLeaf[] memory leafs, address[] memory tokens, SwapKind[] memory kind) internal {
@@ -12752,11 +12817,9 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         }
     }
 
-    function _addBoringChefDistributeRewardsLeaf(
-        ManageLeaf[] memory leafs,
-        address boringChef,
-        address[] memory tokens
-    ) internal {
+    function _addBoringChefDistributeRewardsLeaf(ManageLeaf[] memory leafs, address boringChef, address[] memory tokens)
+        internal
+    {
         unchecked {
             leafIndex++;
         }
