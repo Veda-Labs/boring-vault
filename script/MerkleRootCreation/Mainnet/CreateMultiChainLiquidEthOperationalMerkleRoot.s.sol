@@ -20,6 +20,8 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
     address public drone = 0x0a42b2F3a0D54157Dbd7CC346335A4F1909fc02c;
 
+    address public kingClaimingDecoderAndSanitizer = 0xd4067b594C6D48990BE42a559C8CfDddad4e8D6F;
+
     function setUp() external {}
 
     function run() external {
@@ -77,6 +79,7 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
             _addMerklClaimLeaf(leafs, getAddress(sourceChain, "merklDistributor"));
         }
 
+
         // ========================== Drone ==========================
         {
             ERC20[] memory droneTransferTokens = new ERC20[](4);
@@ -89,6 +92,11 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
             _addLeafsForDrone(leafs, drone);
         }
 
+        // ==================== KING Claiming ========================
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", kingClaimingDecoderAndSanitizer);
+        _addKingRewardsClaimingLeafs(leafs, new address[](0), getAddress(sourceChain, "boringVault"));
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+
         // ========================== Finalize ===================================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
@@ -96,8 +104,8 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
     }
 
-    function _addLeafsForDrone(ManageLeaf[] memory leafs, address drone) internal {
-        setAddress(true, mainnet, "boringVault", drone);
+    function _addLeafsForDrone(ManageLeaf[] memory leafs, address _drone) internal {
+        setAddress(true, mainnet, "boringVault", _drone);
         uint256 droneStartIndex = leafIndex + 1;
 
         // ========================== UniswapV3 ==========================
@@ -138,7 +146,7 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
             _addMerklClaimLeaf(leafs, getAddress(sourceChain, "merklDistributor"));
         }
 
-        _createDroneLeafs(leafs, drone, droneStartIndex, leafIndex + 1);
+        _createDroneLeafs(leafs, _drone, droneStartIndex, leafIndex + 1);
         setAddress(true, mainnet, "boringVault", boringVault);
     }
 }
