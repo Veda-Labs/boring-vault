@@ -168,7 +168,7 @@ contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "LP_sUSDf_9_25_2025"), false);
 
         // 1inch assets;
-        address[] memory oneInchAssets = new address[](13);
+        address[] memory oneInchAssets = new address[](14);
         oneInchAssets[0] = getAddress(sourceChain, "USDC");
         oneInchAssets[1] = getAddress(sourceChain, "SUSDE");
         oneInchAssets[2] = getAddress(sourceChain, "USDS");
@@ -182,7 +182,8 @@ contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
         oneInchAssets[10] = getAddress(sourceChain, "USDf");
         oneInchAssets[11] = getAddress(sourceChain, "sUSDf");
         oneInchAssets[12] = getAddress(sourceChain, "RESOLV");
-        SwapKind[] memory kind = new SwapKind[](13);
+        oneInchAssets[13] = getAddress(sourceChain, "sUSDS");
+        SwapKind[] memory kind = new SwapKind[](14);
         kind[0] = SwapKind.BuyAndSell;
         kind[1] = SwapKind.BuyAndSell;
         kind[2] = SwapKind.BuyAndSell;
@@ -196,6 +197,7 @@ contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
         kind[10] = SwapKind.BuyAndSell;
         kind[11] = SwapKind.BuyAndSell;
         kind[12] = SwapKind.BuyAndSell;
+        kind[13] = SwapKind.BuyAndSell;
         _addLeafsFor1InchGeneralSwapping(leafs, oneInchAssets, kind);
         _addOdosSwapLeafs(leafs, oneInchAssets, kind);
 

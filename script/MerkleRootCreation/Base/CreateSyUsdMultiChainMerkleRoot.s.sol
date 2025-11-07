@@ -69,6 +69,8 @@ contract CreateSyUsdMultiChainMerkleRootScript is Script, MerkleTreeHelper {
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "SENIOR TRANCHE Tranche USD Coin")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "JUNIOR TRANCHE Tranche USD Coin")));
 
+        _addAllSkyMoneyLeafs(leafs);
+
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
         string memory filePath = "./leafs/Base/SyUsdBaseStrategyLeafs.json";
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
