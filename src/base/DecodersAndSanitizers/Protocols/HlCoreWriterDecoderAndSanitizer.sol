@@ -22,6 +22,12 @@ abstract contract CoreWriterDecoderAndSanitizer is BaseDecoderAndSanitizer {
         } else if (actionID == 0x06) {
             (address destination, uint64 token, uint64 _wei) = abi.decode(data[4:], (address, uint64, uint64));
             return abi.encodePacked(destination);
+        } else if(actionID == 0x02) {
+            (address vault,bool isDeposit, uint64 usd) = abi.decode(data[4:], (address, bool, uint64));
+            return abi.encodePacked(vault);
+        } else if(actionID == 0x07) {
+            (uint64 ntl,bool toPerp) = abi.decode(data[4:], (uint64,bool));
+            return abi.encodePacked(ntl,toPerp);
         }
     }
 }
