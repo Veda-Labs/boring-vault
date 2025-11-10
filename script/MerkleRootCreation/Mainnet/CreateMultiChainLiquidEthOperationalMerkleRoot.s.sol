@@ -41,19 +41,21 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
 
         // ========================== UniswapV3 ==========================
         {
-            address[] memory token0 = new address[](5);
+            address[] memory token0 = new address[](6);
             token0[0] = getAddress(sourceChain, "RLUSD");
             token0[1] = getAddress(sourceChain, "RLUSD");
             token0[2] = getAddress(sourceChain, "USDC");
             token0[3] = getAddress(sourceChain, "EIGEN");
             token0[4] = getAddress(sourceChain, "rEUL");
+            token0[5] = getAddress(sourceChain, "MNT");
 
-            address[] memory token1 = new address[](5);
+            address[] memory token1 = new address[](6);
             token1[0] = getAddress(sourceChain, "USDC");
             token1[1] = getAddress(sourceChain, "WETH");
             token1[2] = getAddress(sourceChain, "WETH");
             token1[3] = getAddress(sourceChain, "WETH");
             token1[4] = getAddress(sourceChain, "WETH");
+            token1[5] = getAddress(sourceChain, "WETH");
 
             bool swapRouter02 = false;
             _addUniswapV3OneWaySwapLeafs(leafs, token0, token1, swapRouter02);
@@ -66,12 +68,14 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
             address WETH = getAddress(sourceChain, "WETH");
             address EIGEN = getAddress(sourceChain, "EIGEN");
             address rEUL = getAddress(sourceChain, "rEUL");
+            address MNT = getAddress(sourceChain, "MNT");
 
             _addOdosOneWaySwapLeafs(leafs, RLUSD, USDC);
             _addOdosOneWaySwapLeafs(leafs, RLUSD, WETH);
             _addOdosOneWaySwapLeafs(leafs, USDC, WETH);
             _addOdosOneWaySwapLeafs(leafs, EIGEN, WETH);
             _addOdosOneWaySwapLeafs(leafs, rEUL, WETH);
+            _addOdosOneWaySwapLeafs(leafs, MNT, WETH);
         }
 
         // ========================== Merkl ==========================
@@ -82,11 +86,12 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
 
         // ========================== Drone ==========================
         {
-            ERC20[] memory droneTransferTokens = new ERC20[](4);
+            ERC20[] memory droneTransferTokens = new ERC20[](5);
             droneTransferTokens[0] = getERC20(sourceChain, "USDC"); 
             droneTransferTokens[1] = getERC20(sourceChain, "RLUSD");
             droneTransferTokens[2] = getERC20(sourceChain, "EIGEN");
             droneTransferTokens[3] = getERC20(sourceChain, "rEUL");
+            droneTransferTokens[4] = getERC20(sourceChain, "MNT");
 
             _addLeafsForDroneTransfers(leafs, drone, droneTransferTokens);
             _addLeafsForDrone(leafs, drone);
@@ -109,19 +114,21 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
         uint256 droneStartIndex = leafIndex + 1;
 
         // ========================== UniswapV3 ==========================
-        address[] memory token0 = new address[](5);
+        address[] memory token0 = new address[](6);
         token0[0] = getAddress(sourceChain, "RLUSD");
         token0[1] = getAddress(sourceChain, "RLUSD");
         token0[2] = getAddress(sourceChain, "USDC");
         token0[3] = getAddress(sourceChain, "EIGEN");
         token0[4] = getAddress(sourceChain, "rEUL");
+        token0[5] = getAddress(sourceChain, "MNT");
 
-        address[] memory token1 = new address[](5);
+        address[] memory token1 = new address[](6);
         token1[0] = getAddress(sourceChain, "USDC");
         token1[1] = getAddress(sourceChain, "WETH");
         token1[2] = getAddress(sourceChain, "WETH");
         token1[3] = getAddress(sourceChain, "WETH");
         token1[4] = getAddress(sourceChain, "WETH");
+        token1[5] = getAddress(sourceChain, "WETH");
 
         bool swapRouter02 = false;
         _addUniswapV3OneWaySwapLeafs(leafs, token0, token1, swapRouter02);
@@ -133,12 +140,14 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
             address WETH = getAddress(sourceChain, "WETH");
             address EIGEN = getAddress(sourceChain, "EIGEN");
             address rEUL = getAddress(sourceChain, "rEUL");
+            address MNT = getAddress(sourceChain, "MNT");
 
             _addOdosOneWaySwapLeafs(leafs, RLUSD, USDC);
             _addOdosOneWaySwapLeafs(leafs, RLUSD, WETH);
             _addOdosOneWaySwapLeafs(leafs, USDC, WETH);
             _addOdosOneWaySwapLeafs(leafs, EIGEN, WETH);
             _addOdosOneWaySwapLeafs(leafs, rEUL, WETH);
+            _addOdosOneWaySwapLeafs(leafs, MNT, WETH);
         }
 
         // ========================== Merkl ==========================
