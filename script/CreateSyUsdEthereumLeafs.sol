@@ -17,7 +17,11 @@ import {SyUsdDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyUsdDeco
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {
-    MerkleTreeHelper, IMB, PendleMarket, PendleSy, ISilo
+    MerkleTreeHelper,
+    IMB,
+    PendleMarket,
+    PendleSy,
+    ISilo
 } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import {BalancerVault} from "src/interfaces/BalancerVault.sol";
 
@@ -91,6 +95,7 @@ contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
         manager.setManageRoot(agent, manageTree[manageTree.length - 1][0]);
         manager.setManageRoot(0xa86b3Bf249478488B4304B50726c7D4689aD6320, manageTree[manageTree.length - 1][0]);
         manager.setManageRoot(getAddress(sourceChain, "managerAddress"), manageTree[manageTree.length - 1][0]);
+        manager.setManageRoot(0x0307AD25281C99F22A8F3Af9e272fE3968810239, manageTree[manageTree.length - 1][0]);
         vm.stopBroadcast();
     }
 
@@ -156,13 +161,14 @@ contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "PT-syrupUSDC-28AUG2025_USDC_915"));
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "PT-iUSD-4SEP2025_USDC_915"));
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "RLP_USDC_86"));
+        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "siUSD_USDC_915"));
 
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_iUSD_09_04_2025"), false);
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_syrupUSDC_08_28_2025"), false);
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "LP_sUSDf_9_25_2025"), false);
 
         // 1inch assets;
-        address[] memory oneInchAssets = new address[](12);
+        address[] memory oneInchAssets = new address[](14);
         oneInchAssets[0] = getAddress(sourceChain, "USDC");
         oneInchAssets[1] = getAddress(sourceChain, "SUSDE");
         oneInchAssets[2] = getAddress(sourceChain, "USDS");
@@ -175,7 +181,9 @@ contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
         oneInchAssets[9] = getAddress(sourceChain, "cUSDO");
         oneInchAssets[10] = getAddress(sourceChain, "USDf");
         oneInchAssets[11] = getAddress(sourceChain, "sUSDf");
-        SwapKind[] memory kind = new SwapKind[](12);
+        oneInchAssets[12] = getAddress(sourceChain, "RESOLV");
+        oneInchAssets[13] = getAddress(sourceChain, "sUSDS");
+        SwapKind[] memory kind = new SwapKind[](14);
         kind[0] = SwapKind.BuyAndSell;
         kind[1] = SwapKind.BuyAndSell;
         kind[2] = SwapKind.BuyAndSell;
@@ -188,6 +196,8 @@ contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
         kind[9] = SwapKind.BuyAndSell;
         kind[10] = SwapKind.BuyAndSell;
         kind[11] = SwapKind.BuyAndSell;
+        kind[12] = SwapKind.BuyAndSell;
+        kind[13] = SwapKind.BuyAndSell;
         _addLeafsFor1InchGeneralSwapping(leafs, oneInchAssets, kind);
         _addOdosSwapLeafs(leafs, oneInchAssets, kind);
 

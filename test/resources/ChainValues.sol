@@ -356,6 +356,7 @@ contract ChainValues {
         values[mainnet]["wstUSR"] = 0x1202F5C7b4B9E47a1A484E8B270be34dbbC75055.toBytes32();
         values[mainnet]["cUSDO"] = 0xaD55aebc9b8c03FC43cd9f62260391c13c23e7c0.toBytes32();
         values[mainnet]["RLP"] = 0x4956b52aE2fF65D74CA2d61207523288e4528f96.toBytes32();
+        values[mainnet]["RESOLV"] = 0x259338656198eC7A76c729514D3CB45Dfbf768A1.toBytes32();
 
         // Magpie Router v3
         values[mainnet]["magpieRouterV3"] = 0xA6E941eaB67569ca4522f70d343714fF51d571c4.toBytes32();
@@ -837,6 +838,7 @@ contract ChainValues {
             0x3bdb58058b41bb700458ba3df317e254244ddec7fc35fec93d2d53475cc6ebdc;
         values[mainnet]["PT-iUSD-4SEP2025_USDC_915"] =
             0x3a3b0aab54883f5b2561d8327fbe234142db4f50f87574cd07daf2ed3fbee01a;
+        values[mainnet]["siUSD_USDC_915"] = 0xbbf7ce1b40d32d3e3048f5cf27eeaa6de8cb27b80194690aab191a63381d8c99;
 
         values[mainnet]["WBTC_USDC_86"] = 0x3a85e619751152991742810df6ec69ce473daef99e28a64ab2340d7b7ccfee49;
         values[mainnet]["WBTC_USDT_86"] = 0xa921ef34e2fc7a27ccc50ae7e4b154e16c9799d3387076c421423ef52ac4df99;
@@ -1467,6 +1469,7 @@ contract ChainValues {
         values[base]["USDC"] = 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913.toBytes32();
         values[base]["USDT"] = 0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2.toBytes32();
         values[base]["USDS"] = 0x820C137fa70C8691f0e44Dc420a5e53c168921Dc.toBytes32();
+        values[base]["sUSDS"] = 0x5875eEE11Cf8398102FdAd704C9E96607675467a.toBytes32();
         values[base]["GHO"] = 0x6Bb7a212910682DCFdbd5BCBb3e28FB4E8da10Ee.toBytes32();
         values[base]["WETH"] = 0x4200000000000000000000000000000000000006.toBytes32();
         values[base]["WEETH"] = 0x04C0599Ae5A44757c0af6F9eC3b93da8976c150A.toBytes32();
@@ -1556,7 +1559,7 @@ contract ChainValues {
 
         // Odos
         values[base]["odosRouterV2"] = 0x19cEeAd7105607Cd444F5ad10dd51356436095a1.toBytes32();
-        values[base]["odosExecutor"] = 0x6877B1b0c6267E0AD9aa4C0df18A547AA2f6B08d.toBytes32();
+        values[base]["odosExecutor"] = 0xbF44De8fc9EEEED8615b0b3bc095CB0ddef35e09.toBytes32();
 
         // LBTC Bridge
         values[base]["lbtcBridge"] = 0xA869817b48b25EeE986bdF4bE04062e6fd2C418B.toBytes32();
@@ -1566,6 +1569,10 @@ contract ChainValues {
 
         // ccip
         values[base]["ccipRouter"] = 0x881e3A65B4d4a04dD529061dd0071cf975F58bCD.toBytes32();
+
+        // avantis
+        values[base]["SENIOR TRANCHE Tranche USD Coin"] = 0x83084cB182162473d6FEFfCd3Aa48BA55a7B66F7.toBytes32();
+        values[base]["JUNIOR TRANCHE Tranche USD Coin"] = 0x944766f715b51967E56aFdE5f0Aa76cEaCc9E7f9.toBytes32();
     }
 
     function _addArbitrumValues() private {
