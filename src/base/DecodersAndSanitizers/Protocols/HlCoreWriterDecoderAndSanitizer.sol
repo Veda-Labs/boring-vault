@@ -3,7 +3,7 @@ pragma solidity 0.8.21;
 
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 
-abstract contract CoreWriterDecoderAndSanitizer is BaseDecoderAndSanitizer {
+abstract contract HlCoreWriterDecoderAndSanitizer is BaseDecoderAndSanitizer {
     uint64 constant G = 10;
 
     error CoreWriterDecoderAndSanitizer__InvalidEncodingVersion();
