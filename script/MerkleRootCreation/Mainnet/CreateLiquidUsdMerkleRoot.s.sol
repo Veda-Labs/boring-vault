@@ -19,7 +19,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x08c6F91e2B681FaF5e17227F2a44C307b3C1364C;
-    address public rawDataDecoderAndSanitizer = 0xc6288B06365019dF18B2076Bf9B5e191826fB57F;
+    address public rawDataDecoderAndSanitizer = 0xB781C6Ab69B63A10B05D120Bcbe40C58D1b0Bc2e;
     address public managerAddress = 0x7b57Ad1A0AA89583130aCfAD024241170D24C13C;
     address public accountantAddress = 0xc315D6e14DDCDC7407784e2Caf815d131Bc1D3E7;
     address public drone = 0x3683fc2792F676BBAbc1B5555dE0DfAFee546e9a;
