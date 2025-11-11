@@ -116,7 +116,7 @@ import {LiquidETHPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers
 import {PlasmaUSDPlusPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/PlasmaUSDPlusPlasmaDecoderAndSanitizer.sol";
 import {TurtleMUSDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TurtleMUSDDecoderAndSanitizer.sol";
 import {GoldenGoosePlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGoosePlasmaDecoderAndSanitizer.sol";
-
+import {CCIPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCIPDecoderAndSanitizer.sol";
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
 
@@ -130,50 +130,53 @@ import "forge-std/StdJson.sol";
 contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
     uint256 public privateKey;
     Deployer public deployer = Deployer(deployerAddress);
-    Deployer public bobDeployer = Deployer(0xF3d0672a91Fd56C9ef04C79ec67d60c34c6148a0);
+    //Deployer public bobDeployer = Deployer(0xF3d0672a91Fd56C9ef04C79ec67d60c34c6148a0);
 
     string[] addressKeys;
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("plasma");
-        setSourceChainName("plasma");
+        vm.createSelectFork("mainnet");
+        setSourceChainName("mainnet");
     }
 
     function run() external {
         bytes memory creationCode;
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
-
-        creationCode = type(GoldenGoosePlasmaDecoderAndSanitizer).creationCode;
-        constructorArgs = hex"";
+        creationCode = type(CCIPDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(
+                         
+        );
         console.logBytes(constructorArgs);
-        deployer.deployContract("Golden Goose Plasma Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        address deployed = deployer.deployContract("CCIP Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
+
+        console.log("Deployed To: ", deployed);
 
         vm.stopBroadcast();
     }
 
     // do not use, this is really intended for doing a giga deploy on a new chain
-    function deployContract(string memory name, bytes memory creationCode, uint256 value) internal {
-        address _contract = deployer.getAddress(name);
-        if (_contract.code.length > 0) {
-            console.log(name, "already deployed at", _contract);
-            return;
-        }
+    // function deployContract(string memory name, bytes memory creationCode, uint256 value) internal {
+    //     address _contract = deployer.getAddress(name);
+    //     if (_contract.code.length > 0) {
+    //         console.log(name, "already deployed at", _contract);
+    //         return;
+    //     }
 
-        bytes memory constructorArgs;
-        for (uint256 i = 0; i < addressKeys.length; i++) {
-            if (values[sourceChain][addressKeys[i]] != bytes32(0)) {
-                constructorArgs = abi.encodePacked(constructorArgs, abi.encode(getAddress(sourceChain, addressKeys[i])));
-            } else {
-                console.log(string.concat("Skipping ", name, " because ", addressKeys[i], " is not set"));
-                return;
-            }
-        }
+    //     bytes memory constructorArgs;
+    //     for (uint256 i = 0; i < addressKeys.length; i++) {
+    //         if (values[sourceChain][addressKeys[i]] != bytes32(0)) {
+    //             constructorArgs = abi.encodePacked(constructorArgs, abi.encode(getAddress(sourceChain, addressKeys[i])));
+    //         } else {
+    //             console.log(string.concat("Skipping ", name, " because ", addressKeys[i], " is not set"));
+    //             return;
+    //         }
+    //     }
 
-        address deployed = deployer.deployContract(name, creationCode, constructorArgs, value);
-        console.log(unicode"✅", name, "deployed to", deployed);
-        console.logBytes(constructorArgs);
-    }
+    //     address deployed = deployer.deployContract(name, creationCode, constructorArgs, value);
+    //     console.log(unicode"✅", name, "deployed to", deployed);
+    //     console.logBytes(constructorArgs);
+    // }
 }

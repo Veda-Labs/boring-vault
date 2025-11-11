@@ -22,9 +22,10 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0xef417FCE1883c6653E7dC6AF7c6F85CCDE84Aa09;
     address public managerAddress = 0x5F341B1cf8C5949d6bE144A725c22383a5D3880B;
     address public accountantAddress = 0xc873F2b7b3BA0a7faA2B56e210E3B965f2b618f5;
-    address public rawDataDecoderAndSanitizer = 0xFdd941183bc1Bb63F614e235b11B285a1A016c0A;
+    address public rawDataDecoderAndSanitizer = 0xe8A62cafa522819Ab14e40aDcAd36BB7148Ca216;
     address public primeGoldenGooseTeller = 0x4ecC202775678F7bCfF8350894e2F2E3167Cc3Df;
     address public kingClaimingDecoderAndSanitizer = 0xd4067b594C6D48990BE42a559C8CfDddad4e8D6F;
+    address public ccipDecoderAndSanitizer = 0x155eDD64a7312e8fDBa39e5C0BB9824c210CE42c;
 
     function setUp() external {}
 
@@ -232,7 +233,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         address[] memory mellowTokens = new address[](2);
         mellowTokens[0] = getAddress(sourceChain, "WETH");
         mellowTokens[1] = getAddress(sourceChain, "WSTETH");
-        _addDvStETHLeafs(leafs, mellowTokens);
+        _addDvStETHLeafs(leafs);
 
         // rstETH restaking via Mellow (Lido restaked ETH)
         // TODO: Add Mellow rstETH restaking implementation once decoder supports it
@@ -360,18 +361,6 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             getBytes32(sourceChain, "boringVault")
         );
 
-        // to Plasma
-        // TODO: wstETH - No universal OFT adapter for Plasma exists. Options:
-        //   1. Bridge WETH and swap to wstETH on Plasma
-        //   2. Add wstETH Plasma OFT adapter if it exists
-        // _addLayerZeroLeafs(
-        //     leafs,
-        //     getERC20(sourceChain, "WSTETH"),
-        //     getAddress(sourceChain, "WSTETHOFTAdapterPlasma"), // DOES NOT EXIST
-        //     layerZeroPlasmaEndpointId,
-        //     getBytes32(sourceChain, "boringVault")
-        // );
-
         // WETH/ETH - Use Stargate native bridge (same pattern as CreateMultiChainLiquidEthMerkleRoot.s.sol:733-738)
         _addLayerZeroLeafNative(
             leafs,
@@ -402,6 +391,18 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
              setAddress(true, mainnet, "rawDataDecoderAndSanitizer", kingClaimingDecoderAndSanitizer);
             _addKingRewardsClaimingLeafs(leafs, new address[](0), getAddress(sourceChain, "boringVault"));
         }
+
+        // ========================== CCIP ==========================
+        {
+            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", ccipDecoderAndSanitizer);
+            ERC20[] memory ccipBridgeAssets = new ERC20[](1);
+            ccipBridgeAssets[0] = getERC20(sourceChain, "WSTETH");
+            ERC20[] memory ccipBridgeFeeAssets = new ERC20[](2);
+            ccipBridgeFeeAssets[0] = getERC20(sourceChain, "WETH");
+            ccipBridgeFeeAssets[1] = getERC20(sourceChain, "LINK");
+            _addCcipBridgeLeafs(leafs, ccipPlasmaChainSelector, ccipBridgeAssets, ccipBridgeFeeAssets);
+        }
+      
 
         // ========================== Verify & Generate ==========================
 

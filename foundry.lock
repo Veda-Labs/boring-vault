@@ -1,0 +1,17 @@
+{
+  "lib/OAppAuth": {
+    "rev": "5beb4df293c7558520f0d63b38179b8e47a08ef2"
+  },
+  "lib/ccip": {
+    "rev": "171f9f0cf249765116e3131b61f5b4157566f25f"
+  },
+  "lib/forge-std": {
+    "rev": "100b0d756adda67bc70aab816fa5a1a95dcf78b6"
+  },
+  "lib/openzeppelin-contracts": {
+    "rev": "04e683b550b496bfbf471ed960b7feed25b47669"
+  },
+  "lib/solmate": {
+    "rev": "89365b880c4f3c786bdd453d4b8e8fe410344a69"
+  }
+}

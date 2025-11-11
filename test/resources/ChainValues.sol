@@ -52,6 +52,7 @@ contract ChainValues {
     uint64 public constant ccipBaseChainSelector = 15971525489660198786;
     uint64 public constant ccipBscChainSelector = 11344663589394136015;
     uint64 public constant ccipKatanaChainSelector = 2459028469735686113;
+    uint64 public constant ccipPlasmaChainSelector = 9335212494177455608;
     uint32 public constant layerZeroBaseEndpointId = 30184;
     uint32 public constant layerZeroMainnetEndpointId = 30101;
     uint32 public constant layerZeroOptimismEndpointId = 30111;
