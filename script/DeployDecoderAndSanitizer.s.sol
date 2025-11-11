@@ -137,20 +137,20 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("mainnet");
-        setSourceChainName("mainnet");
+        vm.createSelectFork("plasma");
+        setSourceChainName("plasma");
     }
 
     function run() external {
         bytes memory creationCode;
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
-        creationCode = type(CCIPDecoderAndSanitizer).creationCode;
+        creationCode = type(GoldenGoosePlasmaDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(
                          
         );
         console.logBytes(constructorArgs);
-        address deployed = deployer.deployContract("CCIP Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
+        address deployed = deployer.deployContract("Golden Goose Plasma Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
 
         console.log("Deployed To: ", deployed);
 

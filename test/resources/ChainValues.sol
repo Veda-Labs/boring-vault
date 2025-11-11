@@ -3089,6 +3089,7 @@ contract ChainValues {
         values[plasma]["ENA"] = 0x58538e6A46E07434d7E7375Bc268D3cb839C0133.toBytes32(); 
         values[plasma]["wstETH"] = 0xe48D935e6C9e735463ccCf29a7F11e32bC09136E.toBytes32();
         values[plasma]["FLUID"] = 0x61E030A56D33e8260FdD81f03B162A79Fe3449Cd.toBytes32();
+        values[plasma]["LINK"] = 0x76a443768A5e3B8d1AED0105FC250877841Deb40.toBytes32();
 
         // Uniswap V3
         values[plasma]["uniswapV3NonFungiblePositionManager"] = 0x743E03cceB4af2efA3CC76838f6E8B50B63F184c.toBytes32();
@@ -3160,6 +3161,9 @@ contract ChainValues {
         // Sushi/Swnapper/RedSnwapper
         values[plasma]["redSnwapperRouter"] = 0xAC4c6e212A361c968F1725b4d055b47E63F80b75.toBytes32();
         values[plasma]["redSnwapperExecutor"] = 0xd2b37aDE14708bf18904047b1E31F8166d39612b.toBytes32();
+
+        // CCIP
+        values[plasma]["ccipRouter"] = 0xcDca5D374e46A6DDDab50bD2D9acB8c796eC35C3.toBytes32();
 
     }
 

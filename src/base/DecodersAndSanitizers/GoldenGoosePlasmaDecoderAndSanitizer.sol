@@ -14,6 +14,7 @@ import {FluidRewardsClaimingDecoderAndSanitizer} from "src/base/DecodersAndSanit
 import {EulerEVKDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/EulerEVKDecoderAndSanitizer.sol";
 import {GearboxDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/GearboxDecoderAndSanitizer.sol";
 import {MerklDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MerklDecoderAndSanitizer.sol";
+import {CCIPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCIPDecoderAndSanitizer.sol";
 
 /**
  * @title GoldenGoosePlasmaDecoderAndSanitizer
@@ -37,7 +38,8 @@ contract GoldenGoosePlasmaDecoderAndSanitizer is
     FluidRewardsClaimingDecoderAndSanitizer,
     EulerEVKDecoderAndSanitizer,
     GearboxDecoderAndSanitizer,
-    MerklDecoderAndSanitizer
+    MerklDecoderAndSanitizer,
+    CCIPDecoderAndSanitizer
 {
     //============================== HANDLE FUNCTION COLLISIONS ===============================
 
