@@ -584,6 +584,22 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             );
         }
 
+        {
+            ERC20[] memory inkLocalTokens = new ERC20[](0);
+            ERC20[] memory inkRemoteTokens = new ERC20[](0);
+
+            _addStandardBridgeLeafs(
+                leafs,
+                ink,
+                getAddress(ink, "crossDomainMessenger"),
+                getAddress(sourceChain, "inkResolvedDelegate"),
+                getAddress(sourceChain, "inkStandardBridge"),
+                getAddress(sourceChain, "inkPortal"),
+                inkLocalTokens,
+                inkRemoteTokens
+            );
+        }
+
         // ========================== LayerZero ==========================
         {
             _addLayerZeroLeafs(
@@ -623,6 +639,14 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
                 getERC20(sourceChain, "WEETH"),
                 getAddress(sourceChain, "EtherFiOFTAdapter"),
                 layerZeroScrollEndpointId,
+                getBytes32(sourceChain, "boringVault")
+            );
+
+            _addLayerZeroLeafs(
+                leafs,
+                getERC20(sourceChain, "WEETH"),
+                getAddress(sourceChain, "EtherFiOFTAdapter"),
+                layerZeroInkEndpointId,
                 getBytes32(sourceChain, "boringVault")
             );
 

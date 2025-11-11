@@ -1294,6 +1294,11 @@ contract ChainValues {
         values[mainnet]["unichainPortal"] = 0x0bd48f6B86a26D3a217d0Fa6FfE2B491B956A7a2.toBytes32();
         values[mainnet]["unichainResolvedDelegate"] = 0x9A3D64E386C18Cb1d6d5179a9596A4B5736e98A6.toBytes32();
 
+        // Ink Standard Bridge.
+        values[mainnet]["inkStandardBridge"] = 0x88FF1e5b602916615391F55854588EFcBB7663f0.toBytes32();
+        values[mainnet]["inkPortal"] = 0x5d66C1782664115999C47c9fA5cd031f495D3e4F.toBytes32();
+        values[mainnet]["inkResolvedDelegate"] = 0x69d3Cf86B2Bf1a9e99875B7e2D9B6a84426c171f.toBytes32();
+
         // Layer Zero.
         values[mainnet]["LayerZeroEndPoint"] = 0x1a44076050125825900e736c501f859c50fE728c.toBytes32();
         values[mainnet]["EtherFiOFTAdapter"] = 0xcd2eb13D6831d4602D80E5db9230A57596CDCA63.toBytes32();
@@ -2875,6 +2880,10 @@ contract ChainValues {
         values[ink]["USDT"] = 0x0200C29006150606B650577BBE7B6248F58470c1.toBytes32(); // USDT0
         values[ink]["USDC"] = 0xF1815bd50389c46847f0Bda824eC8da914045D14.toBytes32(); // Stargate USDC.e
         values[ink]["KBTC"] = 0x73E0C0d45E048D25Fc26Fa3159b0aA04BfA4Db98.toBytes32(); // Kraken Wrapped BTC
+
+        // Standard Bridge.
+        values[ink]["standardBridge"] = 0x4200000000000000000000000000000000000010.toBytes32();
+        values[ink]["crossDomainMessenger"] = 0x4200000000000000000000000000000000000007.toBytes32();
 
         // LayerZero
         values[ink]["LayerZeroEndPoint"] = 0xca29f3A6f966Cb2fc0dE625F8f325c0C46dbE958.toBytes32();
