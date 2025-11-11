@@ -21,7 +21,7 @@ contract CreateRoyUSDCSonicMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0x74D1fAfa4e0163b2f1035F1b052137F3f9baD5cC;
     address public managerAddress = 0xD4F870516a3B67b64238Bb803392Cd1A52D54Fb2;
     address public accountantAddress = 0x80f0B206B7E5dAa1b1ba4ea1478A33241ee6baC9;
-    address public rawDataDecoderAndSanitizer = 0x9Ab7Fce3C2B0B409DC79706367659C1bd512F44d;
+    address public rawDataDecoderAndSanitizer = 0x35a04C9dA7D1C23e14D07bB2B7740b43C66b7134;
 
     function setUp() external {}
 
@@ -49,8 +49,11 @@ contract CreateRoyUSDCSonicMerkleRoot is Script, MerkleTreeHelper {
         sonicAssets[0] = getAddress(sonicMainnet, "USDC");
         _addSonicGatewayLeafsSonic(leafs, mainnetAssets, sonicAssets);
 
+        // ========================== CCTP ==========================
+        _addCCTPBridgeLeafs(leafs, uint32(0));
+
         // ========================== LayerZero ========================== //Using Stargate USDC Pool As OFT
-        _addLayerZeroLeafs(leafs, getERC20(sonicMainnet, "USDC"), getAddress(sonicMainnet, "stargateUSDC"), layerZeroMainnetEndpointId);
+        _addLayerZeroLeafs(leafs, getERC20(sonicMainnet, "USDC"), getAddress(sonicMainnet, "stargateUSDC"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
 
         // ========================== Fee Claiming ==========================
         ERC20[] memory feeAssets = new ERC20[](1);

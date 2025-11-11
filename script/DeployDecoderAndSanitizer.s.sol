@@ -137,8 +137,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("sonicMainnet");
-        setSourceChainName("sonicMainnet");
+        vm.createSelectFork("mainnet");
+        setSourceChainName("mainnet");
     }
 
     function run() external {
@@ -146,10 +146,10 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(RoySonicUSDCDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(getAddress(sourceChain, "odosRouterV2"), getAddress(sourceChain, "recipeMarketHub"));
+        creationCode = type(RoyUSDCMainnetDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "odosRouterV2"));
         console.logBytes(constructorArgs);
-        deployer.deployContract("roysonicUSDC Decoder and Sanitizer V1.1", creationCode, constructorArgs, 0);
+        deployer.deployContract("royUSDC Mainnet Decoder and Sanitizer V1.1", creationCode, constructorArgs, 0);
 
 
         vm.stopBroadcast();
