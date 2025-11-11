@@ -40,12 +40,14 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](128);
 
         // ========================== Ooga Booga ==========================
-        address[] memory assets = new address[](2);
-        SwapKind[] memory kind = new SwapKind[](2);
+        address[] memory assets = new address[](3);
+        SwapKind[] memory kind = new SwapKind[](3);
         assets[0] = getAddress(sourceChain, "KHYPE");
         kind[0] = SwapKind.BuyAndSell;
         assets[1] = getAddress(sourceChain, "WHYPE");
         kind[1] = SwapKind.BuyAndSell;
+        assets[2] = getAddress(sourceChain, "PENDLE");
+        kind[2] = SwapKind.Sell;
 
         _addOogaBoogaSwapLeafs(leafs, assets, kind);
 
