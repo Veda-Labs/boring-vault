@@ -58,14 +58,16 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
         // ========================== AaveV3 ==========================
-        ERC20[] memory supplyAssets = new ERC20[](3);
+        ERC20[] memory supplyAssets = new ERC20[](4);
         supplyAssets[0] = getERC20(sourceChain, "KHYPE");
         supplyAssets[1] = getERC20(sourceChain, "WHYPE");
         supplyAssets[2] = getERC20(sourceChain, "pendle_kHYPE_pt_11_13_25");
-        ERC20[] memory borrowAssets = new ERC20[](3);
+        supplyAssets[3] = getERC20(sourceChain, "pendle_kHYPE_pt_3_19_26");
+        ERC20[] memory borrowAssets = new ERC20[](4);
         borrowAssets[0] = getERC20(sourceChain, "KHYPE");
         borrowAssets[1] = getERC20(sourceChain, "WHYPE");
         borrowAssets[2] = getERC20(sourceChain, "pendle_kHYPE_pt_11_13_25");
+        borrowAssets[3] = getERC20(sourceChain, "pendle_kHYPE_pt_3_19_26");
         _addHyperLendLeafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== Morpho Blue ==========================
