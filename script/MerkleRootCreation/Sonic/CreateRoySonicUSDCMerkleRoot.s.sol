@@ -48,10 +48,12 @@ contract CreateRoySonicUSDCMerkleRoot is Script, MerkleTreeHelper {
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, true); //add yield claiming
 
          // ========================== Odos ==========================
-         address[] memory tokens = new address[](1);
-         SwapKind[] memory kind = new SwapKind[](1);
+         address[] memory tokens = new address[](2);
+         SwapKind[] memory kind = new SwapKind[](2);
          tokens[0] = getAddress(sourceChain, "USDC");
          kind[0] = SwapKind.BuyAndSell;
+         tokens[1] = getAddress(sourceChain, "scUSD");
+         kind[1] = SwapKind.BuyAndSell;
 
          _addOdosSwapLeafs(leafs, tokens, kind);
 
@@ -113,6 +115,13 @@ contract CreateRoySonicUSDCMerkleRoot is Script, MerkleTreeHelper {
                 rewardsTokensCombo1
             );
         }
+
+        // ========================== wstkscUSD ==========================
+        _addERC4626Leafs(leafs, getAddress(sonicMainnet, "wstkscUSD"));
+
+        // ========================== Boring Queues ==========================
+        _addWithdrawQueueLeafs(leafs, getAddress(sonicMainnet, "stkscUSDQueue"), getAddress(sonicMainnet, "stkscUSD"));
+        _addWithdrawQueueLeafs(leafs, getAddress(sonicMainnet, "scUSDQueue"), getAddress(sonicMainnet, "scUSD"));
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
