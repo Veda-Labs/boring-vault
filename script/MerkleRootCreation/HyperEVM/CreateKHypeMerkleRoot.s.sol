@@ -87,6 +87,7 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Pendle ==========================
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "kHypePendle"), true);
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_kHYPE_market_3_19_26"), true);
 
         // ========================== Native Wrapping ==========================
         _addNativeLeafs(leafs, getAddress(sourceChain, "WHYPE"));
