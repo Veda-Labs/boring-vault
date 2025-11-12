@@ -2,7 +2,7 @@
   "deploymentParameters": {
     "logLevel": 4,
     "privateKeyEnvName": "BORING_DEVELOPER",
-    "chainName": "mainnet",
+    "chainName": "ink",
     "evmVersion": "cancun",
     "deployerContractAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
@@ -16,7 +16,7 @@
       "address": "0x0000000000000000000000000000000000000000",
       "name": "txBundlerAddress"
     },
-    "deploymentFileName": "skeletons/addresses/Mainnet/BalancedUSDC.json"
+    "deploymentFileName": "skeletons/addresses/Ink/BalancedUSDC.json"
   },
   "rolesAuthorityConfiguration": {
     "rolesAuthorityDeploymentName": "Balanced Yield USDC Roles Authority V0.1"

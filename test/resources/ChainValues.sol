@@ -2882,6 +2882,10 @@ contract ChainValues {
         // Balancer
         values[ink]["balancerVault"] = address(1).toBytes32();
         values[ink]["vault"] = address(1).toBytes32();
+
+        // Tydro/AaveV3
+        values[ink]["v3Pool"] = 0x2816cf15F6d2A220E789aA011D5EE4eB6c47FEbA.toBytes32();
+        values[ink]["v3RewardsController"] = 0xD93e3Ae8f69D04d484d1652Ca569d4b0522414DF.toBytes32();
     }
 
     function _addInkSepoliaValues() private {
