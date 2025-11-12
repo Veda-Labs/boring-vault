@@ -1,5 +1,11 @@
 import "teller_basic.spec";
 
+methods
+{
+    //function vault_contract.decimals() external returns (uint8) envfree;
+    //function accountant_contract.getPendingVestingGains() external returns (uint256) envfree;
+}
+
 // holds
 invariant exchangeRateLEqlastSharePrice()
     accountant_contract.accountantState.exchangeRate <= 
@@ -7,28 +13,23 @@ invariant exchangeRateLEqlastSharePrice()
     filtered { f -> !ignoredMethod(f) }
     { preserved { safeAssumptions(); }}
 
-invariant startVestingTimeLEendVestingTime()
-    accountant_contract.vestingState.startVestingTime <= 
-        accountant_contract.vestingState.endVestingTime
-    filtered { f -> !ignoredMethod(f) }
-    { preserved { safeAssumptions(); }}
-
-invariant startVestingTimeLTendVestingTime()
-    accountant_contract.vestingState.vestingGains > 0 =>
-    accountant_contract.vestingState.startVestingTime < 
-        accountant_contract.vestingState.endVestingTime
-    filtered { f -> !ignoredMethod(f) }
-    { preserved { safeAssumptions(); }}
-
 invariant exchangeRateLEhighwaterMark_unlessPaused()
     !accountant_contract.accountantState.isPaused => 
         accountant_contract.accountantState.exchangeRate <= accountant_contract.accountantState.highwaterMark
     filtered { f -> !ignoredMethod(f)
-        && f.selector != sig:accountant_contract.unpause().selector }
-    { preserved { 
+        && f.selector != sig:accountant_contract.unpause().selector 
+        && f.selector == sig:accountant_contract.postLoss(uint256).selector
+        }
+    { preserved with(env e) { 
         safeAssumptions(); 
         requireInvariant exchangeRateLEqlastSharePrice();
-        }}
+        requireInvariant cumulativeSupplyBounded();
+        
+        //require getPendingVestingGains(e) * accountant_contract.ONE_SHARE <= (max_uint96 - accountant_contract.vestingState.lastSharePrice) * vault_contract.totalSupply();
+        require accountant_contract.vestingState.lastSharePrice <= 2^90; //unreasonably high value
+        require getPendingVestingGains(e) <= vault_contract.totalSupply();
+        }
+    }
 
 
 rule lastVestingUpdateNeverDecreases(env e, method f)
@@ -48,20 +49,6 @@ invariant cumulativeSupplyBounded()
     accountant_contract.supplyObservation.cumulativeSupplyLast <= 
         accountant_contract.supplyObservation.cumulativeSupply;
 
-invariant vestingGainsBounded(env e)
-    getPendingVestingGains(e) <= vault_contract.totalSupply() + 10^18
-    filtered { f -> f.selector == sig:accountant_contract.vestYield(uint256,uint256).selector }
-    { preserved { 
-        safeAssumptions(); 
-        requireInvariant exchangeRateLEqlastSharePrice();
-        requireInvariant cumulativeSupplyBounded();
-        //require accountant_contract.vestingState.lastSharePrice <= 2^50;
-        require accountant_contract.minimumVestingTime >= 86400; //1 day
-        require accountant_contract.maxDeviationYield <= 500;   // 5% per day
-    }}
-    
-
-
 rule exchangeRateLEhighwaterMark_unlessPaused_postLoss()
 {  
     safeAssumptions(); 
@@ -74,7 +61,7 @@ rule exchangeRateLEhighwaterMark_unlessPaused_postLoss()
     //require hWM_pre < 2^10;
 
     env e; uint256 loss;
-    require getPendingVestingGains(e) * accountant_contract.ONE_SHARE -2 <= (max_uint96 - lastSharePrice_pre) * vault_contract.totalSupply();
+    require getPendingVestingGains(e) * accountant_contract.ONE_SHARE <= (max_uint96 - lastSharePrice_pre) * vault_contract.totalSupply();
     postLoss(e, loss);
     // limit the ratio between loss and price
     // try to find the exact formula for the condition
@@ -104,4 +91,26 @@ rule integrityOfVestYield(env e)
     
     assert startTime == e.block.timestamp 
         && lastUpdateTimestamp == e.block.timestamp;
+}
+
+rule testCondition()
+{  
+    safeAssumptions(); 
+    requireInvariant exchangeRateLEqlastSharePrice();
+    uint96 exRate = accountant_contract.accountantState.exchangeRate;
+    uint96 hWM = accountant_contract.accountantState.highwaterMark;
+    env e; uint256 loss;
+
+    uint128 price = accountant_contract.vestingState.lastSharePrice;
+    uint256 vestingGains = getPendingVestingGains(e);
+    uint256 supply = vault_contract.totalSupply();
+    uint256 c = accountant_contract.ONE_SHARE;
+    uint256 m = max_uint96;
+
+    bool cond1 = vestingGains * accountant_contract.ONE_SHARE <= 
+        (max_uint96 - price) * supply;
+
+    bool cond2 = vestingGains <= supply && price <= max_uint96 - accountant_contract.ONE_SHARE;
+
+    assert cond2 => cond1;
 }

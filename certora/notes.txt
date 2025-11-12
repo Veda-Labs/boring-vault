@@ -58,3 +58,37 @@ fees can change while paused
 
 write rules for findings!
 
+TellerWithMultiAssetSupport, TellerWithBuffer, TellerWithYieldStreaming, LayerZeroTeller, LayerZeroTellerWithRateLimiting
+
+AccountantWithRateProviders, AccountantWithYieldStreaming
+
+
+integrityOfBulkDeposit
+integrityOfBulkWithdraw
+integrityOfDeposit
+integrityOfDepositWithPermit
+integrityOfWithdraw
+
+open a ticket on nonexisting signatures wont compile
+
+/////////////////////////////////////////////////////
+
+currentShares = vault.totalSupply()
+
+_totalAssets = lastSharePrice * currentShares / ONE_SHARE
+
+lastSharePrice = (_totalAssets + newlyVested) * ONE_SHARE / currentShares
+
+lastSharePrice > max_uint96
+
+((lastSharePrice * currentShares / ONE_SHARE) + newlyVested) * ONE_SHARE / currentShares > max_uint96
+
+newlyVested > (max_uint96 - lastSharePrice) * currentShares / ONE_SHARE
+
+if newlyVested <= currentShares:
+    currentShares >= newlyVested > (max_uint96 - lastSharePrice) * currentShares / ONE_SHARE
+
+    lastSharePrice > max_uint96 - ONE_SHARE
+
+
+//////////////////////////////
