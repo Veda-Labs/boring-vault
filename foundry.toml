@@ -48,14 +48,15 @@ plume = "${PLUME_RPC_URL}"
 katana = "${KATANA_RPC_URL}"
 tac = "${TAC_RPC_URL}"
 plasma = "${PLASMA_RPC_URL}"
+inkSepolia= "${INK_SEPOLIA_RPC_URL}"
 
 [etherscan]
 #bob = { key = "${BOBSCAN_KEY}", chain = 60808, url = "https://explorer.gobob.xyz/api?"}
 #corn = { key = "${CORNSCAN_KEY}", chain = 21000000, url = "https://api.routescan.io/v2/network/mainnet/evm/21000000/etherscan" }
 #arbitrum = { key = "${ARBISCAN_KEY}" }
-mainnet = { key = "${ETHERSCAN_KEY}", chain = 1, url = "https://api.etherscan.io/v2/api?chainid=1" }
+#mainnet = { key = "${ETHERSCAN_KEY}", chain = 1, url = "https://api.etherscan.io/v2/api?chainid=1" }
 #polygon = { key = "${POLYGONSCAN_KEY}" }
-bsc = { key = "${ETHERSCAN_KEY}" }
+#bsc = { key = "${ETHERSCAN_KEY}" }
 #avalanche = { key = "${SNOWTRACE_KEY}" }
 #optimism = { key = "${OPTIMISMSCAN_KEY}" }
 #base = { key = "${BASESCAN_KEY}", chain = 8453, url = " https://api.etherscan.io/v2/api?chainid=8453" }
@@ -65,7 +66,7 @@ bsc = { key = "${ETHERSCAN_KEY}" }
 #sonicMainnet = { key = "${SONICSCAN_KEY}", chain = 146, url = "https://api.sonicscan.org/api" }
 #swell = { key = "${SWELLSCAN_KEY}", chain = 1923, url = "https://explorer.swellnetwork.io:443/api/" }
 #berachainTestnet = { key = "${BERASCAN_TESTNET_KEY}", chain = 80000, url = "https://api.routescan.io/v2/network/testnet/evm/80000/etherscan" }
-#sepolia = { key = "${ETHERSCAN_KEY}" }
+sepolia = { key = "${ETHERSCAN_KEY}" }
 #berachain = { key = "${BERASCAN_KEY}", chain = 80094, url = "https://api.berascan.com/api" }
 #bob = { key = "${BOBSCAN_KEY}", chain = 60808, url = "https://explorer.gobob.xyz/api?"}
 #unichain = { key = "${UNISCAN_KEY}", chain = 130, url = "https://api.uniscan.xyz/api" }

@@ -115,6 +115,7 @@ import {PlasmaUSDPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers
 import {LiquidETHPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidETHPlasmaDecoderAndSanitizer.sol";
 import {PlasmaUSDPlusPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/PlasmaUSDPlusPlasmaDecoderAndSanitizer.sol";
 import {TurtleMUSDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TurtleMUSDDecoderAndSanitizer.sol";
+import {TestVault0DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TestVault0DecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -136,8 +137,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("mainnet");
-        setSourceChainName("mainnet");
+        vm.createSelectFork("sepolia");
+        setSourceChainName("sepolia");
     }
 
     function run() external {
@@ -145,9 +146,15 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(KatanaDecoderAndSanitizer).creationCode;
+        creationCode = type(EtherFiLiquidUsdDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2"));
-        deployer.deployContract("Katana Decoder and Sanitizer V0.2", creationCode, constructorArgs, 0);
+        deployer.deployContract("Etherfi LiquidUSD Decoder And Sanitizer V0.7", creationCode, constructorArgs, 0);
+
+        creationCode = type(TurtleMUSDDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "odosRouterV2"), getAddress(sourceChain, "pancakeSwapV3NonFungiblePositionManager"), getAddress(sourceChain, "pancakeSwapV3MasterChefV3"));
+        console.logBytes(constructorArgs);
+        deployer.deployContract("Turtle MUSD Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
+
 
         vm.stopBroadcast();
     }

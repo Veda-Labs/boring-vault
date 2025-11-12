@@ -12,16 +12,17 @@ import {AccountantWithYieldStreaming} from "src/base/Roles/AccountantWithYieldSt
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 
 import "forge-std/Script.sol";
+import "forge-std/Test.sol";
 import "forge-std/StdJson.sol";
 
 /**
  *  source .env && forge script script/DeployAccountantWithYieldStreaming.s.sol:DeployAccountantWithYieldStreamingScript --with-gas-price 30000000000 --broadcast --etherscan-api-key $ETHERSCAN_KEY --verify
  * @dev Optionally can change `--with-gas-price` to something more reasonable
  */
-contract DeployAccountantWithYieldStreamingScript is Script, ContractNames, MainnetAddresses {
+contract DeployAccountantWithYieldStreamingScript is Script, Test, ContractNames, MainnetAddresses {
     uint256 public privateKey;
     Deployer public deployer = Deployer(deployerAddress);
-    address public boringVault = 0x573dD6B134eC83673ff3f2319079B247355Eb05f;
+    address public boringVault = 0xA53a60245922836B73184f443338FA24152d6AeE;
     address public payoutAddress = 0xc871E437627E40005b6fC8cdCf0AACb1B8Eb5ab0;
     address public USDTmainnet = 0xdAC17F958D2ee523a2206206994597C13D831ec7;
     address public USDCmainnet = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
@@ -42,13 +43,15 @@ contract DeployAccountantWithYieldStreamingScript is Script, ContractNames, Main
         constructorArgs = abi.encode(tempOwner, boringVault, payoutAddress, 1e6, USDTmainnet, 1.01e4, 0.99e4, 1, 0.1e4, 0.1e4);
         AccountantWithYieldStreaming accountant = AccountantWithYieldStreaming(
             deployer.deployContract(
-                "Insipid Ferret Accountant With Yield Streaming V0.0", creationCode, constructorArgs, 0
+                "Balanced Yield USDC Accountant With Yield Streaming V0.0", creationCode, constructorArgs, 0
             )
         );
         
-        accountant.setRateProviderData(ERC20(USDCmainnet), true, address(0));
-        accountant.setAuthority(Authority(rolesAuthority));
-        accountant.transferOwnership(address(0));
+        //console.log("accountant address: ", accountant); 
+
+        //accountant.setRateProviderData(ERC20(USDCmainnet), true, address(0));
+        //accountant.setAuthority(Authority(rolesAuthority));
+        //accountant.transferOwnership(address(0));
 
         vm.stopBroadcast();
     }
