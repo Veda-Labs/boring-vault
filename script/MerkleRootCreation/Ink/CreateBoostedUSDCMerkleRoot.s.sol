@@ -18,10 +18,10 @@ contract CreateBoostedUSDCMerkleRoot is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     //standard
-    address public boringVault = 0xf52E683b521D38A319C1c4EbC73cF9a07781e181;
+    address public boringVault = 0xDbD87325D7b1189Dcc9255c4926076fF4a96A271;
     address public rawDataDecoderAndSanitizer = ;
-    address public managerAddress = 0xf2b2CC21BAA4f7641270634e860d1050B5b232a0;
-    address public accountantAddress = 0xF525ef91438c2ba2cff6acF87a57Fa0FCaa4E06C;
+    address public managerAddress = 0xEd23b12e7700BeB638562A22ED65f74291901c25;
+    address public accountantAddress = 0x62A88Bea6fe527b5DEfAA103A3f8b5010205aF92;
 
     function setUp() external {}
 

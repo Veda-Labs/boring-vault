@@ -1,16 +1,17 @@
 {
   "Drones": "",
   "contractAddresses": {
+    "AaveV3BufferHelper": "0x1bAb9A7d8b56C2c67889466cc6dca6F5821f6dc7",
     "AaveV3BufferLens": "0xfDF39Ed5E55780b4B8d56Db36E80A20C4c50eB5f",
-    "AccountantWithYieldStreaming": "0xF2886D9b30C56340c4c5b61A090Acb9562FFaFfd",
-    "BoringOnChainQueue": "0x6f1bc217D186eAD12732E079291E6C406dcB4aC1",
-    "BoringVault": "0xac7fAbc2515B30763C0BdF1C46E65a607296BF1D",
+    "AccountantWithYieldStreaming": "0x62A88Bea6fe527b5DEfAA103A3f8b5010205aF92",
+    "BoringOnChainQueue": "0x359Db9A866c1276a571b3A9FbbBc47ED1F945E71",
+    "BoringVault": "0xDbD87325D7b1189Dcc9255c4926076fF4a96A271",
     "Lens": "0x5232bc0F5999f8dA604c42E1748A13a170F94A1B",
-    "ManagerWithMerkleVerification": "0x9d569ff39471340DFc49a11994A39E5806924d80",
-    "Pauser": "0x5A8116e04A03E8247d265e1b6B972212e681f1D0",
-    "QueueSolver": "0xe42c4383C50B49272a142800D2993b9de741Dd98",
-    "RolesAuthority": "0x01EEf36CeAbE784983542c517eD9DfA9ED32a39a",
-    "TellerWithYieldStreaming": "0xea3Af555f65c71C9269E96Feabb981023f93F7A8",
+    "ManagerWithMerkleVerification": "0xEd23b12e7700BeB638562A22ED65f74291901c25",
+    "Pauser": "0x4B0B3164B6731ACd96e29F13bF6c112204d5f024",
+    "QueueSolver": "0xde2519e53BE8DC8d87638e790DfCe20a74bc187e",
+    "RolesAuthority": "0x1F53135155d6fF516bCcfDd9424fcdB8AD1eFB77",
+    "TellerWithYieldStreaming": "0x4E0292caa97128e35a695dCd53c465E56F69c3A0",
     "Timelock": "0x0000000000000000000000000000000000000000"
   }
 }

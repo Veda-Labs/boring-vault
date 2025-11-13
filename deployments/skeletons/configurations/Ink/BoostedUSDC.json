@@ -19,26 +19,26 @@
     "deploymentFileName": "skeletons/addresses/Ink/BoostedUSDC.json"
   },
   "rolesAuthorityConfiguration": {
-    "rolesAuthorityDeploymentName": "Boosted Yield USDC Roles Authority V0.2"
+    "rolesAuthorityDeploymentName": "Boosted Yield USDC Roles Authority V0.3"
   },
   "lensConfiguration": {
     "lensDeploymentName": "Arctic Architecture Lens V0.0"
   },
   "boringVaultConfiguration": {
-    "boringVaultDeploymentName": "Boosted Yield USDC Boring Vault V0.2",
+    "boringVaultDeploymentName": "Boosted Yield USDC Boring Vault V0.3",
     "boringVaultName": "Boosted Yield USDC",
     "boringVaultSymbol": "boostedUSDC",
     "boringVaultDecimals": 6
   },
   "managerConfiguration": {
-    "managerDeploymentName": "Boosted Yield USDC Manager V0.2",
+    "managerDeploymentName": "Boosted Yield USDC Manager V0.3",
     "balancerVaultAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
       "name": "balancerVault"
     }
   },
   "accountantConfiguration": {
-    "accountantDeploymentName": "Boosted Yield USDC Accountant V0.2",
+    "accountantDeploymentName": "Boosted Yield USDC Accountant V0.3",
     "accountantParameters": {
       "kind": {
         "variableRate": false,
@@ -47,7 +47,7 @@
       },
       "payoutConfiguration": {
         "payoutTo": "0x0000000000000000000000000000000000000001",
-        "optionalPaymentSplitterName": "Boosted Yield USDC Payment Splitter V0.2",
+        "optionalPaymentSplitterName": "Boosted Yield USDC Payment Splitter V0.3",
         "splits": []
       },
       "accountantDeploymentParameters": {
@@ -65,7 +65,7 @@
     }
   },
   "tellerConfiguration": {
-    "tellerDeploymentName": "Boosted Yield USDC Teller V0.2",
+    "tellerDeploymentName": "Boosted Yield USDC Teller V0.3",
     "tellerParameters": {
       "kind": {
         "teller": false,
@@ -78,8 +78,8 @@
     }
   },
   "boringQueueConfiguration": {
-    "boringQueueDeploymentName": "Boosted Yield USDC Boring Queue V0.2",
-    "boringQueueSolverName": "Boosted Yield USDC Boring Solver V0.2",
+    "boringQueueDeploymentName": "Boosted Yield USDC Boring Queue V0.3",
+    "boringQueueSolverName": "Boosted Yield USDC Boring Solver V0.3",
     "excessToSolverNonSelfSolve": true,
     "queueParameters": {
       "kind": {
@@ -95,7 +95,7 @@
   },
   "pauserConfiguration": {
     "shouldDeploy": true,
-    "pauserDeploymentName": "Boosted Yield USDC Pauser V0.2"
+    "pauserDeploymentName": "Boosted Yield USDC Pauser V0.3"
   },
   "timelockConfiguration": {
     "shouldDeploy": false,
@@ -108,7 +108,7 @@
   },
   "aaveV3BufferHelperConfiguration": {
     "shouldDeploy": true,
-    "aaveV3BufferHelperDeploymentName": "Boosted Yield USDC AaveV3 Buffer Helper V0.2",
+    "aaveV3BufferHelperDeploymentName": "Boosted Yield USDC AaveV3 Buffer Helper V0.3",
     "aaveV3PoolAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
       "name": "v3Pool"
