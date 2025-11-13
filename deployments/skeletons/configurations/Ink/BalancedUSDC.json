@@ -19,26 +19,26 @@
     "deploymentFileName": "skeletons/addresses/Ink/BalancedUSDC.json"
   },
   "rolesAuthorityConfiguration": {
-    "rolesAuthorityDeploymentName": "Balanced Yield USDC Roles Authority V0.1"
+    "rolesAuthorityDeploymentName": "Balanced Yield USDC Roles Authority V0.2"
   },
   "lensConfiguration": {
-    "lensDeploymentName": "Arctic Architecture Lens V0.1"
+    "lensDeploymentName": "Arctic Architecture Lens V0.2"
   },
   "boringVaultConfiguration": {
-    "boringVaultDeploymentName": "Balanced Yield USDC Boring Vault V0.1",
+    "boringVaultDeploymentName": "Balanced Yield USDC Boring Vault V0.2",
     "boringVaultName": "Balanced Yield USDC",
     "boringVaultSymbol": "balancedUSDC",
     "boringVaultDecimals": 6
   },
   "managerConfiguration": {
-    "managerDeploymentName": "Balanced Yield USDC Manager V0.1",
+    "managerDeploymentName": "Balanced Yield USDC Manager V0.2",
     "balancerVaultAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
       "name": "balancerVault"
     }
   },
   "accountantConfiguration": {
-    "accountantDeploymentName": "Balanced Yield USDC Accountant V0.1",
+    "accountantDeploymentName": "Balanced Yield USDC Accountant V0.2",
     "accountantParameters": {
       "kind": {
         "variableRate": false,
@@ -47,7 +47,7 @@
       },
       "payoutConfiguration": {
         "payoutTo": "0x0000000000000000000000000000000000000001",
-        "optionalPaymentSplitterName": "Balanced Yield USDC Payment Splitter V0.1",
+        "optionalPaymentSplitterName": "Balanced Yield USDC Payment Splitter V0.2",
         "splits": []
       },
       "accountantDeploymentParameters": {
@@ -55,7 +55,7 @@
         "allowedExchangeRateChangeUpper": 10050,
         "base": {
           "address": "0x0000000000000000000000000000000000000000",
-          "name": "USDT"
+          "name": "USDC"
         },
         "minimumUpateDelayInSeconds": 21600,
         "performanceFee": 1000,
@@ -65,7 +65,7 @@
     }
   },
   "tellerConfiguration": {
-    "tellerDeploymentName": "Balanced Yield USDC Teller V0.1",
+    "tellerDeploymentName": "Balanced Yield USDC Teller V0.2",
     "tellerParameters": {
       "kind": {
         "teller": false,
@@ -88,8 +88,8 @@
     }
   },
   "boringQueueConfiguration": {
-    "boringQueueDeploymentName": "Balanced Yield USDC Boring Queue V0.1",
-    "boringQueueSolverName": "Balanced Yield USDC Boring Solver V0.1",
+    "boringQueueDeploymentName": "Balanced Yield USDC Boring Queue V0.2",
+    "boringQueueSolverName": "Balanced Yield USDC Boring Solver V0.2",
     "excessToSolverNonSelfSolve": false,
     "queueParameters": {
       "kind": {
@@ -99,17 +99,17 @@
     }
   },
   "droneConfiguration": {
-    "droneDeploymentBaseName": "Balanced Yield USDC Drone V0.1",
+    "droneDeploymentBaseName": "Balanced Yield USDC Drone V0.2",
     "droneCount": 0,
     "safeGasToForwardNative": 21000
   },
   "pauserConfiguration": {
     "shouldDeploy": false,
-    "pauserDeploymentName": "Balanced Yield USDC Pauser V0.1"
+    "pauserDeploymentName": "Balanced Yield USDC Pauser V0.2"
   },
   "timelockConfiguration": {
     "shouldDeploy": false,
-    "timelockDeploymentName": "Balanced Yield USDC Timelock V0.1",
+    "timelockDeploymentName": "Balanced Yield USDC Timelock V0.2",
     "timelockParameters": {
       "executors": [""],
       "minDelay": 300,
@@ -117,15 +117,15 @@
     }
   },
     "aaveV3BufferHelperConfiguration": {
-      "shouldDeploy": false,
-      "aaveV3BufferHelperDeploymentName": "Balanced Yield USDC AaveV3 Buffer Helper V0.1",
+      "shouldDeploy": true,
+      "aaveV3BufferHelperDeploymentName": "Balanced Yield USDC AaveV3 Buffer Helper V0.2",
       "aaveV3PoolAddressOrName": {
         "address": "0x0000000000000000000000000000000000000000",
         "name": "v3Pool"
       }
     },
     "aaveV3BufferLensConfiguration": {
-      "shouldDeploy": false,
-      "aaveV3BufferLensDeploymentName": "AaveV3 Buffer Lens V0.1"
+      "shouldDeploy": true,
+      "aaveV3BufferLensDeploymentName": "AaveV3 Buffer Lens V0.2"
     }
 }
