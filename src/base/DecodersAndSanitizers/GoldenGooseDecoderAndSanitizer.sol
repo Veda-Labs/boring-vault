@@ -46,7 +46,6 @@ import {AgglayerDecoderAndSanitizer} from
 import {LineaBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LineaBridgeDecoderAndSanitizer.sol";
 import {ResolvDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ResolvDecoderAndSanitizer.sol";
 import {GearboxDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/GearboxDecoderAndSanitizer.sol";
-import {CCIPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCIPDecoderAndSanitizer.sol";
 
 contract GoldenGooseDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
@@ -78,8 +77,7 @@ contract GoldenGooseDecoderAndSanitizer is
     AgglayerDecoderAndSanitizer,
     LineaBridgeDecoderAndSanitizer,
     ResolvDecoderAndSanitizer,
-    GearboxDecoderAndSanitizer,
-    CCIPDecoderAndSanitizer
+    GearboxDecoderAndSanitizer
 {
     constructor(
         address _uniswapV4PositionManager,

@@ -22,8 +22,9 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0xef417FCE1883c6653E7dC6AF7c6F85CCDE84Aa09;
     address public managerAddress = 0x5F341B1cf8C5949d6bE144A725c22383a5D3880B;
     address public accountantAddress = 0xc873F2b7b3BA0a7faA2B56e210E3B965f2b618f5;
-    address public rawDataDecoderAndSanitizer = 0x7175d9F5e30a7bA944E9727D1aBd87726f61204A;
+    address public rawDataDecoderAndSanitizer = 0xD735785b16C96441d699dFA29f16F5D483dA6c0a;
     address public kingClaimingDecoderAndSanitizer = 0xd4067b594C6D48990BE42a559C8CfDddad4e8D6F;
+    address public ccipDecoderAndSanitizer = 0xbbe87088F1D3a8fEF3aB0F2Ab7ae564188D099D4;
     address public drone = 0x4341135454A602D46b95ACfaDD88db967Bcc35CA;
     function setUp() external {}
 
@@ -418,12 +419,14 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== CCIP ==========================
         {
+            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", ccipDecoderAndSanitizer);
             ERC20[] memory ccipBridgeAssets = new ERC20[](1);
             ccipBridgeAssets[0] = getERC20(sourceChain, "WSTETH");
             ERC20[] memory ccipBridgeFeeAssets = new ERC20[](2);
             ccipBridgeFeeAssets[0] = getERC20(sourceChain, "WETH");
             ccipBridgeFeeAssets[1] = getERC20(sourceChain, "LINK");
             _addCcipBridgeLeafs(leafs, ccipPlasmaChainSelector, ccipBridgeAssets, ccipBridgeFeeAssets);
+            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 
         // ========================== Verify & Generate ==========================

@@ -117,6 +117,7 @@ import {PlasmaUSDPlusPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSaniti
 import {TurtleMUSDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TurtleMUSDDecoderAndSanitizer.sol";
 import {TestVault0DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TestVault0DecoderAndSanitizer.sol";
 import {GoldenGoosePlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGoosePlasmaDecoderAndSanitizer.sol";
+import {CCIPDecoderAndSanitizerWithBase} from "src/base/DecodersAndSanitizers/CCIPDecoderAndSanitizerWithBase.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -149,8 +150,9 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
 
         creationCode = type(GoldenGooseDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV4PositionManager"), getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2"), getAddress(sourceChain, "dvStETHVault"));
+        //constructorArgs = hex"";
         console.logBytes(constructorArgs);
-        address deployed = deployer.deployContract("Golden Goose Decoder and Sanitizer V1.5", creationCode, constructorArgs, 0);
+        address deployed = deployer.deployContract("GoldenGoose Decoder and Sanitizer V1.0", creationCode, constructorArgs, 0);
         console.log("Decoder deployed to", deployed);
         vm.stopBroadcast();
     }
