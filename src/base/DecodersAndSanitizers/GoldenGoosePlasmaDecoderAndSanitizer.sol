@@ -14,6 +14,8 @@ import {FluidRewardsClaimingDecoderAndSanitizer} from "src/base/DecodersAndSanit
 import {EulerEVKDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/EulerEVKDecoderAndSanitizer.sol";
 import {GearboxDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/GearboxDecoderAndSanitizer.sol";
 import {MerklDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MerklDecoderAndSanitizer.sol";
+import {OFTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OFTDecoderAndSanitizer.sol";
+import {CCIPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCIPDecoderAndSanitizer.sol";
 
 /**
  * @title GoldenGoosePlasmaDecoderAndSanitizer
@@ -26,6 +28,8 @@ import {MerklDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols
  *      - Euler vaults (TelosC Surge, K3 Kapital, Re7 USDT0 Core)
  *      - Gearbox Edge UltraYield and GEAR rewards (swap to WETH)
  *      - Merkl rewards claiming
+ *      - CCIP bridging (wstETH to Mainnet)
+ *      - LayerZero OFT bridging (WETH and weETH to Mainnet)
  */
 contract GoldenGoosePlasmaDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
@@ -37,7 +41,9 @@ contract GoldenGoosePlasmaDecoderAndSanitizer is
     FluidRewardsClaimingDecoderAndSanitizer,
     EulerEVKDecoderAndSanitizer,
     GearboxDecoderAndSanitizer,
-    MerklDecoderAndSanitizer
+    MerklDecoderAndSanitizer,
+    OFTDecoderAndSanitizer,
+    CCIPDecoderAndSanitizer
 {
     //============================== HANDLE FUNCTION COLLISIONS ===============================
 

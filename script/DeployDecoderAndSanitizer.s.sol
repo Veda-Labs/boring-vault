@@ -138,8 +138,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("plasma");
-        setSourceChainName("plasma");
+        vm.createSelectFork("mainnet");
+        setSourceChainName("mainnet");
     }
 
     function run() external {
@@ -147,11 +147,11 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(GoldenGoosePlasmaDecoderAndSanitizer).creationCode;
-        constructorArgs = hex"";
+        creationCode = type(GoldenGooseDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV4PositionManager"), getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2"), getAddress(sourceChain, "dvStETHVault"));
         console.logBytes(constructorArgs);
-        deployer.deployContract("Golden Goose Plasma Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
+        address deployed = deployer.deployContract("Golden Goose Decoder and Sanitizer V1.5", creationCode, constructorArgs, 0);
+        console.log("Decoder deployed to", deployed);
         vm.stopBroadcast();
     }
 

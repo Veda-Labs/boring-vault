@@ -22,7 +22,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0xef417FCE1883c6653E7dC6AF7c6F85CCDE84Aa09;
     address public managerAddress = 0x5F341B1cf8C5949d6bE144A725c22383a5D3880B;
     address public accountantAddress = 0xc873F2b7b3BA0a7faA2B56e210E3B965f2b618f5;
-    address public rawDataDecoderAndSanitizer = 0x2aa1F761eC74EC12Aa465332C29446311425712f;
+    address public rawDataDecoderAndSanitizer = 0x7175d9F5e30a7bA944E9727D1aBd87726f61204A;
     address public kingClaimingDecoderAndSanitizer = 0xd4067b594C6D48990BE42a559C8CfDddad4e8D6F;
     address public drone = 0x4341135454A602D46b95ACfaDD88db967Bcc35CA;
     function setUp() external {}
@@ -98,6 +98,9 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         _addMorphoBlueCollateralLeafs(leafs, 0xc54d7acf14de29e0e5527cabd7a576506870346a78a11a6762e2cca66322ec41);
         _addMorphoBlueSupplyLeafs(leafs, 0xc54d7acf14de29e0e5527cabd7a576506870346a78a11a6762e2cca66322ec41);
 
+        _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "WSTETH_USDC"));
+        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "WSTETH_USDT"));
+
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "steakhouseETH")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletWETHPrime")));
 
@@ -141,8 +144,8 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         // =========================== Odos ==========================
         {
-            address[] memory assets = new address[](14);
-            SwapKind[] memory kind = new SwapKind[](14);
+            address[] memory assets = new address[](15);
+            SwapKind[] memory kind = new SwapKind[](15);
             assets[0] = getAddress(sourceChain, "WETH");
             kind[0] = SwapKind.BuyAndSell;
             assets[1] = getAddress(sourceChain, "WSTETH");
@@ -171,6 +174,8 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             kind[12] = SwapKind.BuyAndSell;
             assets[13] = getAddress(sourceChain, "wstUSR");
             kind[13] = SwapKind.BuyAndSell;
+            assets[14] = getAddress(sourceChain, "GEAR");
+            kind[14] = SwapKind.Sell;
 
             _addOdosSwapLeafs(leafs, assets, kind);
 
@@ -267,7 +272,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         }
 
         // =========================== Gearbox ==========================
-        // TODO: Add Gearbox rstETH/wstETH loop strategy when decoder supports it
+        _addGearboxLeafs(leafs, ERC4626(getAddress(sourceChain, "dWETHV3")), getAddress(sourceChain, "sdWETHV3"));
 
         // =========================== Turtle Club ==========================
         // Katana Pre-deposit vault for WETH - commented out until vault address is available
@@ -367,19 +372,6 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             getBytes32(sourceChain, "boringVault")
         );
 
-        // to Plasma
-        // TODO: wstETH - No universal OFT adapter for Plasma exists. Options:
-        //   1. Bridge WETH and swap to wstETH on Plasma
-        //   2. Add wstETH Plasma OFT adapter if it exists
-        // _addLayerZeroLeafs(
-        //     leafs,
-        //     getERC20(sourceChain, "WSTETH"),
-        //     getAddress(sourceChain, "WSTETHOFTAdapterPlasma"), // DOES NOT EXIST
-        //     layerZeroPlasmaEndpointId,
-        //     getBytes32(sourceChain, "boringVault")
-        // );
-
-        // WETH/ETH - Use Stargate native bridge (same pattern as CreateMultiChainLiquidEthMerkleRoot.s.sol:733-738)
         _addLayerZeroLeafNative(
             leafs,
             getAddress(sourceChain, "stargateNative"),
@@ -387,7 +379,6 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             getBytes32(sourceChain, "boringVault")
         );
 
-        // WEETH - Use EtherFi universal OFT adapter (same pattern as CreateMultiChainLiquidEthMerkleRoot.s.sol:759-765)
         _addLayerZeroLeafs(
             leafs,
             getERC20(sourceChain, "WEETH"),
@@ -423,6 +414,16 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             droneTokens[5] = getERC20(sourceChain, "USR");
             _addLeafsForDroneTransfers(leafs, drone, droneTokens);
             _addLeafsForDrone(leafs);
+        }
+
+        // ========================== CCIP ==========================
+        {
+            ERC20[] memory ccipBridgeAssets = new ERC20[](1);
+            ccipBridgeAssets[0] = getERC20(sourceChain, "WSTETH");
+            ERC20[] memory ccipBridgeFeeAssets = new ERC20[](2);
+            ccipBridgeFeeAssets[0] = getERC20(sourceChain, "WETH");
+            ccipBridgeFeeAssets[1] = getERC20(sourceChain, "LINK");
+            _addCcipBridgeLeafs(leafs, ccipPlasmaChainSelector, ccipBridgeAssets, ccipBridgeFeeAssets);
         }
 
         // ========================== Verify & Generate ==========================

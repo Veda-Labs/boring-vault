@@ -16,8 +16,8 @@ import "forge-std/Script.sol";
 /**
  * @title CreateGoldenGooseMerkleRoot
  * @notice Creates merkle root for Golden Goose vault on Plasma network
- * Usage:
- *  source .env && forge script script/MerkleRootCreation/Plasma/CreateGoldenGooseMerkleRoot.s.sol --rpc-url $PLASMA_RPC_URL
+ * Usage:source .env && forge script script/MerkleRootCreation/Plasma/CreateGoldenGooseMerkleRoot.s.sol --rpc-url $PLASMA_RPC_URL
+ *  
  */
 contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
@@ -25,7 +25,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0xef417FCE1883c6653E7dC6AF7c6F85CCDE84Aa09;
     address public managerAddress = 0x5F341B1cf8C5949d6bE144A725c22383a5D3880B;
     address public accountantAddress = 0xc873F2b7b3BA0a7faA2B56e210E3B965f2b618f5;
-    address public rawDataDecoderAndSanitizer = 0x648Ea7629EEed1a7F081079850b278FF919dbb89;
+    address public rawDataDecoderAndSanitizer = 0xc2c1D2c6E6e86C66c13A808C5Bd5AE32D1C88C14;
     address public goldenGooseTeller = 0xE89fAaf3968ACa5dCB054D4a9287E54aa84F67e9;
 
     function setUp() external {}
@@ -154,7 +154,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             getAddress(sourceChain, "dev1Address") 
         );
 
-          // ========================== CCIP ==========================
+        // ========================== CCIP ==========================
         {
             ERC20[] memory ccipBridgeAssets = new ERC20[](1);
             ccipBridgeAssets[0] = getERC20(sourceChain, "wstETH");
@@ -164,6 +164,24 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             _addCcipBridgeLeafs(leafs, ccipMainnetChainSelector, ccipBridgeAssets, ccipBridgeFeeAssets);
         }
 
+        // ========================== LayerZero ==========================
+        // WETH bridging to Mainnet via Stargate
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "WETH"),
+            getAddress(sourceChain, "WETH_OFT_STARGATE"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+
+        // weETH bridging to Mainnet (weETH is itself an OFT)
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "WEETH"),
+            getAddress(sourceChain, "WEETH"), // weETH is itself an OFT
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
 
         // ========================== Verify & Generate ==========================
 

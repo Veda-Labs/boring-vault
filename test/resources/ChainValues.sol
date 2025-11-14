@@ -53,6 +53,7 @@ contract ChainValues {
     uint64 public constant ccipBaseChainSelector = 15971525489660198786;
     uint64 public constant ccipBscChainSelector = 11344663589394136015;
     uint64 public constant ccipKatanaChainSelector = 2459028469735686113;
+    uint64 public constant ccipPlasmaChainSelector = 9335212494177455608;
     uint32 public constant layerZeroBaseEndpointId = 30184;
     uint32 public constant layerZeroMainnetEndpointId = 30101;
     uint32 public constant layerZeroOptimismEndpointId = 30111;
@@ -860,6 +861,8 @@ contract ChainValues {
             0x83e10b446f0f2013bb5417fbab8de0371808da605d9d88bdd3ad9de4e7303048;
         values[mainnet]["sUSDe_PT09_25_25_USDtb_915"] =
             0xbf2526a242545bbf0f3d42ffb879fa1eb562ed74704bce0a319b975818dd525a; //sUSDe
+        values[mainnet]["WSTETH_USDT"] = 0xe7e9694b754c4d4f7e21faf7223f6fa71abaeb10296a4c43a54a7977149687d2;
+        values[mainnet]["WSTETH_USDC"] = 0xb323495f7e4148be5643a4ea4a8221eef163e4bccfdedc2a6f4696baacbc86cc;
 
         // MetaMorpho
         values[mainnet]["usualBoostedUSDC"] = 0xd63070114470f685b75B74D60EEc7c1113d33a3D.toBytes32();
@@ -1473,6 +1476,7 @@ contract ChainValues {
 
         // Odos
         values[mainnet]["odosRouterV2"] = 0xCf5540fFFCdC3d510B18bFcA6d2b9987b0772559.toBytes32();
+        values[mainnet]["odosRouterV3"] = 0x0D05a7D3448512B78fa8A9e46c4872C88C4a0D05.toBytes32();
         values[mainnet]["odosExecutor"] = 0x365084B05Fa7d5028346bD21D842eD0601bAB5b8.toBytes32();
 
         // GlueX
@@ -3108,7 +3112,7 @@ contract ChainValues {
         values[plasma]["USDT0_OFT"] = 0x02ca37966753bDdDf11216B73B16C1dE756A7CF9.toBytes32();
         values[plasma]["ZRO"] = address(1).toBytes32();
         values[plasma]["WETH"] = 0x9895D81bB462A195b4922ED7De0e3ACD007c32CB.toBytes32();
-        values[plasma]["WEETH"] = 0xA3D68b74bF0528fdD07263c60d6488749044914b.toBytes32();
+        values[plasma]["WEETH"] = 0xA3D68b74bF0528fdD07263c60d6488749044914b.toBytes32(); //also OFT
         values[plasma]["WETH_OFT_STARGATE"] = 0x0cEb237E109eE22374a567c6b09F373C73FA4cBb.toBytes32();
         values[plasma]["USDE"] = 0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34.toBytes32();
         values[plasma]["SUSDE"] = 0x211Cc4DD073734dA055fbF44a2b4667d5E5fE5d2.toBytes32();

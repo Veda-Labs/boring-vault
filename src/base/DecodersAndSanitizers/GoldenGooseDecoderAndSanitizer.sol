@@ -45,6 +45,8 @@ import {AgglayerDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/AgglayerDecoderAndSanitizer.sol";
 import {LineaBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LineaBridgeDecoderAndSanitizer.sol";
 import {ResolvDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ResolvDecoderAndSanitizer.sol";
+import {GearboxDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/GearboxDecoderAndSanitizer.sol";
+import {CCIPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCIPDecoderAndSanitizer.sol";
 
 contract GoldenGooseDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
@@ -75,7 +77,9 @@ contract GoldenGooseDecoderAndSanitizer is
     ArbitrumNativeBridgeDecoderAndSanitizer,
     AgglayerDecoderAndSanitizer,
     LineaBridgeDecoderAndSanitizer,
-    ResolvDecoderAndSanitizer
+    ResolvDecoderAndSanitizer,
+    GearboxDecoderAndSanitizer,
+    CCIPDecoderAndSanitizer
 {
     constructor(
         address _uniswapV4PositionManager,
@@ -202,7 +206,7 @@ contract GoldenGooseDecoderAndSanitizer is
     function withdraw(uint256)
         external
         pure
-        override(NativeWrapperDecoderAndSanitizer, CurveDecoderAndSanitizer, BalancerV2DecoderAndSanitizer, ResolvDecoderAndSanitizer)
+        override(BalancerV2DecoderAndSanitizer, CurveDecoderAndSanitizer, GearboxDecoderAndSanitizer, NativeWrapperDecoderAndSanitizer, ResolvDecoderAndSanitizer)
         returns (bytes memory addressesFound)
     {
         return addressesFound;
@@ -247,6 +251,13 @@ contract GoldenGooseDecoderAndSanitizer is
         returns (bytes memory addressesFound)
     {
         addressesFound = abi.encodePacked(addressParam);
+    }
+
+    function deposit(uint256) external pure
+        override(GearboxDecoderAndSanitizer, ResolvDecoderAndSanitizer)
+        returns (bytes memory addressesFound)
+    {
+        return addressesFound;
     }
 
     /**
