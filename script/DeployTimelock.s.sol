@@ -21,13 +21,13 @@ contract DeployTimelockScript is Script, ContractNames, MainnetAddresses {
     Deployer public deployer;
     TimelockController public timelock;
 
-    address public canceller = 0x3e6577E643c3D1E42cD504F96C345E85557e7C6E;
-    address public executor = 0x3e6577E643c3D1E42cD504F96C345E85557e7C6E;
-    address public proposer = 0x3e6577E643c3D1E42cD504F96C345E85557e7C6E;
+    address public canceller = 0xD48b7e87fDCCaCa7ea93F347755c799eBE0fD35F;
+    address public executor = 0xD48b7e87fDCCaCa7ea93F347755c799eBE0fD35F;
+    address public proposer = 0xD48b7e87fDCCaCa7ea93F347755c799eBE0fD35F;
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("mainnet");
+        vm.createSelectFork("plasma");
     }
 
     function run() external {
@@ -44,16 +44,16 @@ contract DeployTimelockScript is Script, ContractNames, MainnetAddresses {
         address[] memory executors = new address[](1);
         executors[0] = executor;
     
-        address tempAdmin = 0xBBc5569B0b32403037F37255f4ff50B8Bb825b2A;
+        address tempAdmin = 0x1cdF47387358A1733968df92f7cC14546D9E1047;
     
         constructorArgs = abi.encode(minDelay, proposers, executors, tempAdmin);
         timelock =
-            TimelockController(payable(deployer.deployContract("Plasma USD+ Timelock V0.1", creationCode, constructorArgs, 0)));
+            TimelockController(payable(deployer.deployContract("Golden Goose Timelock V0.1", creationCode, constructorArgs, 0)));
 
 
         timelock.grantRole(timelock.CANCELLER_ROLE(), canceller);
         timelock.renounceRole(timelock.DEFAULT_ADMIN_ROLE(), tempAdmin);
-
+        console.log("Timelock deployed to", address(timelock));
         vm.stopBroadcast();
     }
 }
