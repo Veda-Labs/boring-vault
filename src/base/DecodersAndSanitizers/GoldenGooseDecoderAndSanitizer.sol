@@ -93,26 +93,20 @@ contract GoldenGooseDecoderAndSanitizer is
 
     //============================== HANDLE FUNCTION COLLISIONS ===============================
 
-    /**
-     * @notice StandardBridge and LidoStandardBridge both specify finalizeWithdrawalTransaction
-     */
     function finalizeWithdrawalTransaction(DecoderCustomTypes.WithdrawalTransaction calldata _tx)
         external
         pure
         override(StandardBridgeDecoderAndSanitizer, LidoStandardBridgeDecoderAndSanitizer)
         returns (bytes memory sensitiveArguments)
-    {
+        {
         sensitiveArguments = abi.encodePacked(_tx.sender, _tx.target);
-    }
+        }
 
-    /**
-     * @notice StandardBridge and LidoStandardBridge both specify proveWithdrawalTransaction
-     */
     function proveWithdrawalTransaction(
         DecoderCustomTypes.WithdrawalTransaction calldata _tx,
-        uint256, /*_l2OutputIndex*/
-        DecoderCustomTypes.OutputRootProof calldata, /*_outputRootProof*/
-        bytes[] calldata /*_withdrawalProof*/
+        uint256,
+        DecoderCustomTypes.OutputRootProof calldata,
+        bytes[] calldata
     )
         external
         pure
@@ -122,68 +116,15 @@ contract GoldenGooseDecoderAndSanitizer is
         sensitiveArguments = abi.encodePacked(_tx.sender, _tx.target);
     }
 
-    /**
-     * @notice TellerDecoderAndSanitizer and ERC4626DecoderAndSanitizer both specify a deposit function
-     * ERC4626: deposit(uint256,address)
-     * Teller: deposit(address,uint256,uint256)
-     * These have different signatures so no conflict exists
-     */
-
-    /**
-     * @notice ERC4626, BalancerV3, and BalancerV2 all specify a `deposit(uint256,address)`,
-     *         all cases are handled the same way.
-     */
-    function deposit(uint256, address receiver)
+    function approve(address token, address spender, uint160, uint48)
         external
         pure
-        override(ERC4626DecoderAndSanitizer, BalancerV3DecoderAndSanitizer, BalancerV2DecoderAndSanitizer)
+        override(UniswapV4DecoderAndSanitizer, Permit2DecoderAndSanitizer)
         returns (bytes memory addressesFound)
     {
-        addressesFound = abi.encodePacked(receiver);
+        addressesFound = abi.encodePacked(token, spender);
     }
 
-    /**
-     * @notice NativeWrapper and EtherFi both specify a `deposit()`.
-     */
-    function deposit() external pure override(NativeWrapperDecoderAndSanitizer, EtherFiDecoderAndSanitizer) returns (bytes memory addressesFound) {
-        return addressesFound;
-    }
-
-    /**
-     * @notice NativeWrapper specifies a `withdraw(uint256)`,
-     *         this is handled by NativeWrapper.
-     */
-
-    /**
-     * @notice ERC4626 and BalancerV3 both specify a `redeem(uint256,address,address)`,
-     *         all cases are handled the same way.
-     */
-    function redeem(uint256, address receiver, address owner)
-        external
-        pure
-        override(ERC4626DecoderAndSanitizer)
-        returns (bytes memory addressesFound)
-    {
-        addressesFound = abi.encodePacked(receiver, owner);
-    }
-
-    /**
-     * @notice ERC4626 and BalancerV3 both specify a `withdraw(uint256,address,address)`,
-     *         all cases are handled the same way.
-     */
-    function withdraw(uint256, address receiver, address owner)
-        external
-        pure
-        override(ERC4626DecoderAndSanitizer)
-        returns (bytes memory addressesFound)
-    {
-        addressesFound = abi.encodePacked(receiver, owner);
-    }
-
-    /**
-     * @notice ResolvDecoderAndSanitizer and FluidFTokenDecoderAndSanitizer both specify a `redeem(uint256,address,address)`,
-     *         all cases are handled the same way.
-     */
     function redeem(uint256, address receiver, address owner, uint256)
         external
         pure
@@ -193,14 +134,15 @@ contract GoldenGooseDecoderAndSanitizer is
         addressesFound = abi.encodePacked(receiver, owner);
     }
 
-    /**
-     * @notice Multiple decoders specify different withdraw functions
-     * NativeWrapper: withdraw(uint256)
-     * CurveDecoderAndSanitizer: withdraw(uint256)
-     * BalancerV2DecoderAndSanitizer: withdraw(uint256)
-     * AaveV3: withdraw(address,uint256,address)
-     * MorphoBlue: withdraw(MarketParams,uint256,uint256,address,address)
-     */
+    function withdraw(uint256, address receiver, address owner)
+        external
+        pure
+        override(ERC4626DecoderAndSanitizer)
+        returns (bytes memory addressesFound)
+    {
+        addressesFound = abi.encodePacked(receiver, owner);
+    }
+
     function withdraw(uint256)
         external
         pure
@@ -219,29 +161,19 @@ contract GoldenGooseDecoderAndSanitizer is
         addressesFound = abi.encodePacked(asset, to);
     }
 
-    // MorphoBlue withdraw function is not virtual, so we don't override it
-
-    /**
-     * @notice Multiple decoders specify approve functions
-     * BaseDecoderAndSanitizer: approve(address,uint256) - not virtual
-     * UniswapV4DecoderAndSanitizer: approve(address,address,uint160,uint48)
-     */
-    // BaseDecoderAndSanitizer approve is not virtual, so we don't override it
-
-    function approve(address token, address spender, uint160, uint48)
-        external
-        pure
-        override(UniswapV4DecoderAndSanitizer, Permit2DecoderAndSanitizer)
-        returns (bytes memory addressesFound)
-    {
-        addressesFound = abi.encodePacked(token, spender);
+    function deposit() external pure override(NativeWrapperDecoderAndSanitizer, EtherFiDecoderAndSanitizer) returns (bytes memory addressesFound) {
+        return addressesFound;
     }
 
-    /**
-     * @notice SymbioticVault and Treehouse both specify deposit(address,uint256)
-     * SymbioticVault: deposit(address onBehalfOf, uint256)
-     * Treehouse: deposit(address _asset, uint256)
-     */
+    function deposit(uint256, address receiver)
+        external
+        pure
+        override(ERC4626DecoderAndSanitizer, BalancerV3DecoderAndSanitizer, BalancerV2DecoderAndSanitizer)
+        returns (bytes memory addressesFound)
+    {
+        addressesFound = abi.encodePacked(receiver);
+    }
+
     function deposit(address addressParam, uint256)
         external
         pure
@@ -258,10 +190,7 @@ contract GoldenGooseDecoderAndSanitizer is
         return addressesFound;
     }
 
-    /**
-     * @notice EtherFi and Lido both specify wrap(uint256)
-     */
-    function wrap(uint256)
+     function wrap(uint256)
         external
         pure
         override(EtherFiDecoderAndSanitizer, LidoDecoderAndSanitizer, ResolvDecoderAndSanitizer)
@@ -270,9 +199,6 @@ contract GoldenGooseDecoderAndSanitizer is
         return addressesFound;
     }
 
-    /**
-     * @notice EtherFi and Lido both specify unwrap(uint256)
-     */
     function unwrap(uint256)
         external
         pure

@@ -1476,7 +1476,6 @@ contract ChainValues {
 
         // Odos
         values[mainnet]["odosRouterV2"] = 0xCf5540fFFCdC3d510B18bFcA6d2b9987b0772559.toBytes32();
-        values[mainnet]["odosRouterV3"] = 0x0D05a7D3448512B78fa8A9e46c4872C88C4a0D05.toBytes32();
         values[mainnet]["odosExecutor"] = 0x365084B05Fa7d5028346bD21D842eD0601bAB5b8.toBytes32();
 
         // GlueX
@@ -3162,6 +3161,7 @@ contract ChainValues {
 
         // Merkl
         values[plasma]["merklDistributor"] = 0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae.toBytes32();
+        values[plasma]["fluidMerkleDistributor"] = 0x3413D18500D5140095513d57a9Fcd9D882CbD064.toBytes32();
         
         // Curve
         values[plasma]["USDe_USDT0_Curve_Pool"] = 0x2D84D79C852f6842AbE0304b70bBaA1506AdD457.toBytes32();

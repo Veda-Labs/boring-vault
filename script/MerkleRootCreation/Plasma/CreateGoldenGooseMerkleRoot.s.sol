@@ -25,7 +25,8 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0xef417FCE1883c6653E7dC6AF7c6F85CCDE84Aa09;
     address public managerAddress = 0x5F341B1cf8C5949d6bE144A725c22383a5D3880B;
     address public accountantAddress = 0xc873F2b7b3BA0a7faA2B56e210E3B965f2b618f5;
-    address public rawDataDecoderAndSanitizer = 0xc2c1D2c6E6e86C66c13A808C5Bd5AE32D1C88C14;
+    address public rawDataDecoderAndSanitizer = 0x12AbC3A31150695c43c261ffF75A97889145e35a;
+    address public ccipDecoderAndSanitizer = 0x8f41410db1228BaF85D925bc6cc73B5Ab14Fe8C0;
     address public goldenGooseTeller = 0xE89fAaf3968ACa5dCB054D4a9287E54aa84F67e9;
 
     function setUp() external {}
@@ -38,7 +39,6 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
     }
 
     function generateMerkleRoot() public {
-        vm.createSelectFork(vm.envString("PLASMA_RPC_URL"));
 
         setSourceChainName(plasma);
         setAddress(false, plasma, "boringVault", boringVault);
@@ -47,7 +47,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, plasma, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         setAddress(false, plasma, "goldenGooseTeller", goldenGooseTeller);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](1024);
+        ManageLeaf[] memory leafs = new ManageLeaf[](256);
 
         // ========================== Native Wrapping ==========================
         _addNativeLeafs(leafs, getAddress(sourceChain, "wXPL"));
@@ -89,10 +89,6 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             assets[5] = getAddress(sourceChain, "FLUID");
             kind[5] = SwapKind.Sell;
 
-            // TODO: Add GEAR token once available on Plasma for Gearbox rewards
-            // assets[6] = getAddress(sourceChain, "GEAR");
-            // kind[6] = SwapKind.Sell;
-
             _addSnwapLeafs(leafs, assets, kind);
         }
 
@@ -125,8 +121,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         // ========================== Fluid fUSDT0 Vault ==========================
         _addFluidFTokenLeafs(leafs, getAddress(sourceChain, "fUSDT0"));
 
-        // TODO: Add Fluid rewards claiming once addresses verified
-        // _addFluidRewardsClaiming(leafs);
+        _addFluidRewardsClaiming(leafs);
 
         // ========================== Euler Vaults ==========================
         {
@@ -142,10 +137,8 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         }
 
         // ========================== Gearbox Edge UltraYield ==========================
-            _addGearboxLeafs(leafs, ERC4626(getAddress(sourceChain, "dUSDT0")), address(0)); // No staking address yet
-        
-        // TODO: Add staking address once GEAR rewards become available on Plasma
-        // TODO: Add GEAR token to ChainValues for swap support once available
+            _addGearboxLeafs(leafs, ERC4626(getAddress(sourceChain, "dUSDT0")), address(0));
+    
 
         // ========================== Merkl Rewards ==========================
         _addMerklLeafs(
@@ -156,16 +149,17 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== CCIP ==========================
         {
+            setAddress(true, plasma, "rawDataDecoderAndSanitizer", ccipDecoderAndSanitizer);
             ERC20[] memory ccipBridgeAssets = new ERC20[](1);
             ccipBridgeAssets[0] = getERC20(sourceChain, "wstETH");
             ERC20[] memory ccipBridgeFeeAssets = new ERC20[](2);
             ccipBridgeFeeAssets[0] = getERC20(sourceChain, "WETH");
             ccipBridgeFeeAssets[1] = getERC20(sourceChain, "LINK");
             _addCcipBridgeLeafs(leafs, ccipMainnetChainSelector, ccipBridgeAssets, ccipBridgeFeeAssets);
+            setAddress(true, plasma, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 
         // ========================== LayerZero ==========================
-        // WETH bridging to Mainnet via Stargate
         _addLayerZeroLeafs(
             leafs,
             getERC20(sourceChain, "WETH"),
@@ -174,11 +168,10 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             getBytes32(sourceChain, "boringVault")
         );
 
-        // weETH bridging to Mainnet (weETH is itself an OFT)
         _addLayerZeroLeafs(
             leafs,
             getERC20(sourceChain, "WEETH"),
-            getAddress(sourceChain, "WEETH"), // weETH is itself an OFT
+            getAddress(sourceChain, "WEETH"),
             layerZeroMainnetEndpointId,
             getBytes32(sourceChain, "boringVault")
         );

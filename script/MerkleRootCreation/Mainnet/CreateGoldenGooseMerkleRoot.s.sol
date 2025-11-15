@@ -95,7 +95,6 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "WSTETH_WETH_945"));
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "WSTETH_WETH_965"));
 
-        // Additional Morpho Blue market: 0xc54d7acf14de29e0e5527cabd7a576506870346a78a11a6762e2cca66322ec41
         _addMorphoBlueCollateralLeafs(leafs, 0xc54d7acf14de29e0e5527cabd7a576506870346a78a11a6762e2cca66322ec41);
         _addMorphoBlueSupplyLeafs(leafs, 0xc54d7acf14de29e0e5527cabd7a576506870346a78a11a6762e2cca66322ec41);
 
@@ -224,7 +223,6 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         }
         // ========================== Aave V3 ==========================
         {
-            // Core - including weETH supply
             ERC20[] memory coreSupplyAssets = new ERC20[](3);
             coreSupplyAssets[0] = getERC20(sourceChain, "WETH");
             coreSupplyAssets[1] = getERC20(sourceChain, "WSTETH");
@@ -244,19 +242,14 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         }
 
         // =========================== Mellow ==========================
-        // dvstETH operations (handles Mellow vault deposits/withdrawals)
         _addDvStETHLeafs(leafs);
 
-        // rstETH restaking via Mellow (Lido restaked ETH)
-        // TODO: Add Mellow rstETH restaking implementation once decoder supports it
-        // This is different from dvstETH and requires specific rstETH handling
+        
 
         // =========================== EtherFi ==========================
-        // weETH operations
         _addEtherFiLeafs(leafs);
 
         // =========================== Treehouse ==========================
-        // tETH vault deposits
         {
             ERC20[] memory routerTokensIn = new ERC20[](1);
             routerTokensIn[0] = getERC20(sourceChain, "WSTETH");
@@ -268,20 +261,13 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
                 getERC20(sourceChain, "tETH"),
                 getAddress(sourceChain, "tETH_wstETH_curve_pool"),
                 2,
-                address(0) // No gauge
+                address(0)
             );
         }
 
-        // =========================== Gearbox ==========================
-        _addGearboxLeafs(leafs, ERC4626(getAddress(sourceChain, "dWETHV3")), getAddress(sourceChain, "sdWETHV3"));
-
-        // =========================== Turtle Club ==========================
-        // Katana Pre-deposit vault for WETH - commented out until vault address is available
-        // Note: Turtle Club Katana vault is intentionally commented out pending final address confirmation
-        // _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "katanaVault")));
+       
 
         // =========================== Additional Bridging ==========================
-        // Arbitrum Bridge
         {
             ERC20[] memory arbBridgeAssets = new ERC20[](2);
             arbBridgeAssets[0] = getERC20(sourceChain, "WETH");
@@ -289,8 +275,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             _addArbitrumNativeBridgeLeafs(leafs, arbBridgeAssets);
         }
 
-        // Optimism Bridge (using standard bridge which is already configured above)
-        // Base Bridge (using standard bridge pattern)
+       
         {
             ERC20[] memory baseLocalTokens = new ERC20[](0);
             ERC20[] memory baseRemoteTokens = new ERC20[](0);
@@ -316,7 +301,6 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             );
         }
 
-        // Optimism Bridge addition
         {
             ERC20[] memory opLocalTokens = new ERC20[](0);
             ERC20[] memory opRemoteTokens = new ERC20[](0);
@@ -346,25 +330,23 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "vbETH")));
 
-        // Agglayer bridging to Katana
-        // Note: Agglayer bridge addresses need to be added to MainnetAddresses.sol
+        
         _addAgglayerTokenLeafs(
             leafs,
             getAddress(sourceChain, "agglayerBridgeKatana"),
             getAddress(sourceChain, "vbETH"),
-            0, // Mainnet chain ID in Agglayer
-            20 // Katana chain ID in Agglayer
+            0, 
+            20 
         );
         _addAgglayerTokenLeafs(
             leafs,
             getAddress(sourceChain, "agglayerBridgeKatana"),
             getAddress(sourceChain, "WSTETH"),
-            0, // Mainnet chain ID in Agglayer
-            20 // Katana chain ID in Agglayer
+            0, 
+            20 
         );
 
         // ========================== Layer Zero ==========================
-        // to Base
         _addLayerZeroLeafs(
             leafs,
             getERC20(sourceChain, "WEETH"),

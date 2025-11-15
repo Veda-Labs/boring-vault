@@ -152,7 +152,7 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV4PositionManager"), getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2"), getAddress(sourceChain, "dvStETHVault"));
         //constructorArgs = hex"";
         console.logBytes(constructorArgs);
-        address deployed = deployer.deployContract("GoldenGoose Decoder and Sanitizer V1.0", creationCode, constructorArgs, 0);
+        address deployed = deployer.deployContract("GoldenGoose Decoder and Sanitizer V0.2", creationCode, constructorArgs, 0);
         console.log("Decoder deployed to", deployed);
         vm.stopBroadcast();
     }
