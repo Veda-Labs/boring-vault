@@ -4,13 +4,21 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
+import {ModuleRegistry, IModule} from "src/base/Registry/ModuleRegistry.sol";
+
 contract AaveV3RulesetDecoder {
+
+    ModuleRegistry internal moduleRegistry; 
+
+    constructor (address _moduleRegistry) {
+        moduleRegistry = ModuleRegistry(_moduleRegistry);
+    }
 
     //============================== AAVEV3 ===============================
 
     function supply(address asset, uint256, address onBehalfOf, uint16)
         external
-        pure
+        view
         virtual
         returns (bool)
     {
@@ -19,10 +27,12 @@ contract AaveV3RulesetDecoder {
         tokens[0] = asset; 
         
         //ideally there is some mechanism to loop through these checks if there are multiple we need to or something?
-        bool success = Modules.TokenWhitelistModule.checkRule(abi.encode(msg.sender, tokens));
-        if (!success) return false; 
+        //bool success = Modules.TokenWhitelistModule.checkRule(abi.encode(msg.sender, tokens));
+        //if (!success) return false; 
 
-        success = Modules.RecipientModule.checkRule(abi.encode(msg.sender, onBehalfOf));
+        IModule module = moduleRegistry.getModule("recipientModule");
+        bool success = module.checkRule(abi.encode(msg.sender, onBehalfOf));
+
         if (!success) return false; 
 
         return true; 
