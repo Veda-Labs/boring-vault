@@ -12846,6 +12846,121 @@ function _addTellerLeafsWithReferral(
         _addERC4626Leafs(leafs, ERC4626(swToken));
     }
 
+    // ========================================= Cap =========================================
+
+    function _addCapLeafs(ManageLeaf[] memory leafs, address[] memory assets) internal {
+
+        for (uint256 i = 0; i < assets.length; i++) {
+
+            // add approval for cUSD to accept each collateral token
+            if (!ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][assets[i]][getAddress(sourceChain, "cUSD")]) {
+                ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][assets[i]][getAddress(sourceChain, "cUSD")] = true;
+                leafIndex++;
+                leafs[leafIndex] = ManageLeaf(
+                    assets[i],
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("approve cUSD to mint with ", ERC20(assets[i]).symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "cUSD");
+            }
+
+            // ability to mint cUSD with each input asset
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "cUSD"),
+                false,
+                "mint(address,uint256,uint256,address,uint256)",
+                new address[](2),
+                string.concat("mint cUSD with ", ERC20(assets[i]).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = assets[i];
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+
+            // ability to burn cUSD for each input asset
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "cUSD"),
+                false,
+                "burn(address,uint256,uint256,address,uint256)",
+                new address[](2),
+                string.concat("burn cUSD for ", ERC20(assets[i]).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = assets[i];
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+        }
+
+        // approval for stcUSD to stake cUSD
+        leafIndex++;
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "cUSD"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("approve stcUSD to stake cUSD"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "stcUSD");
+
+        // stake cUSD for stcUSD (ERC4626)
+        {
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "stcUSD"),
+                false,
+                "deposit(uint256,address)",
+                new address[](1),
+                string.concat("stake (ERC4626 deposit) cUSD for stcUSD"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "stcUSD"),
+                false,
+                "mint(uint256,address)",
+                new address[](1),
+                string.concat("stake (ERC4626 mint) cUSD for stcUSD"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        }
+
+        // unstake stcUSD for cUSD (ERC4626)
+        {
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "stcUSD"),
+                false,
+                "withdraw(uint256,address,address)",
+                new address[](2),
+                string.concat("unstake (ERC4626 withdraw) stcUSD for cUSD"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "stcUSD"),
+                false,
+                "redeem(uint256,address,address)",
+                new address[](2),
+                string.concat("unstake (ERC4646 redeem) stcUSD for cUSD"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+
+        }
+
+    }
+
     // ========================================= Odos =========================================
 
     function _addOdosSwapLeafs(ManageLeaf[] memory leafs, address[] memory tokens, SwapKind[] memory kind) internal {

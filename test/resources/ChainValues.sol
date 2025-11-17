@@ -493,6 +493,10 @@ contract ChainValues {
         values[mainnet]["balancerV3_Surge_Fluid_wstETH-wETH_boosted_gauge"] =
             0x1CCE9d493224A19FcB5f7fBade8478630141CB54.toBytes32();
 
+        // Cap
+        values[mainnet]["cUSD"] = 0xcCcc62962d17b8914c62D74FfB843d73B2a3cccC.toBytes32();
+        values[mainnet]["stcUSD"] = 0x88887bE419578051FF9F4eb6C858A951921D8888.toBytes32();
+
         // Aura
         values[mainnet]["auraBooster"] = 0xA57b8d98dAE62B26Ec3bcC4a365338157060B234.toBytes32();
 

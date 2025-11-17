@@ -41,6 +41,10 @@ contract CapDecoderAndSanitizer is ERC4626DecoderAndSanitizer {
         return abi.encodePacked(_receiver);
     }
 
+    function approve(address spender, uint256) external pure returns (bytes memory addressesFound) {
+        addressesFound = abi.encodePacked(spender);
+    }
+
     //============================== stcUSD ===============================
     // ERC4626DecoderAndSanitizer
 
