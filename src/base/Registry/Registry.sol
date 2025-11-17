@@ -15,11 +15,10 @@ contract Registry {
         uint256 index; 
     }
 
+    uint256[] public allProtocolIds;
     mapping(uint256 protocolId => ProtocolConfig protocolConfig) public protocolConfigs;
     mapping(address target => ProtocolConfig protocolConfig) public targetToConfigs;
-    
-    // INDEX 0
-    uint256 internal constant AAVE_V3 = 1 << 0; 
+    mapping(uint256 => bool) internal _exists;
     
     //auth this eventually if we keep it 
     function addConfig(
@@ -28,6 +27,10 @@ contract Registry {
         address decoder, 
         uint256 index 
     ) external {
+        if (_exists[protocolId]) revert("nah"); 
+        allProtocolIds.push(protocolId);
+        _exists[protocolId] = true;
+
         protocolConfigs[protocolId] = ProtocolConfig({
             targets: targets,
             decoder: decoder,
@@ -45,5 +48,13 @@ contract Registry {
 
     function getProtocolConfigFromTarget(address target) external view returns (ProtocolConfig memory) {
         return targetToConfigs[target];
+    }
+    
+    function getAllProtocols() external view returns (uint256[] memory) {
+        return allProtocolIds;
+    }
+
+    function getProtocolCount() external view returns (uint256) {
+        return allProtocolIds.length;
     }
 }

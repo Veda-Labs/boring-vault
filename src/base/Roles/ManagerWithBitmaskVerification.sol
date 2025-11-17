@@ -65,10 +65,6 @@ contract ManagerWithBitmaskVerification is Auth, Test {
     }
        
 
-    /**
-     */
-
-
     //this is interesting because we have a couple of options here
     //1) keep passing in the decoders along w/ the call (kinda aids devex)
     //2) pull it out for the user somewhere (increases gas cost, have to SLOAD it)
@@ -98,8 +94,16 @@ contract ManagerWithBitmaskVerification is Auth, Test {
         //if the mapping is wrong the target data will be wrong? no, we can still check that the call is going where we need it to in the module
         //the real question is, is that a waste? We can optionally pass in the decoder like before, and instead ONLY verify the target in the module
         //for now, I think we can do both and then see what the devex is like
+       
+        //approvals:
+        //the issue is that approvals need special handling because we cannot map every erc20 to an approval decoder, that would suck
+        //I do not like handling them in an if/else because that is gross, though it is clear what is happening
+        //perhaps we move the logic to the registry?
         
         for (uint256 i; i < targetsLength; ++i) {
+            if (protocolConfigs[i].decoder == address(0) {
+                _verifyApproval(targets[i]
+            } else {
             _verifyCallData(
                 protocolConfigs[i], targets[i], values[i], targetData[i]
             );
