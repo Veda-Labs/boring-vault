@@ -21,6 +21,7 @@ contract TokenWhitelistStorageModule {
     //reuse the protocol bit from the master registry as the id
     //register tokens PER protocol -> works for 95% of cases (approvals included naturally)
     mapping(uint256 protocolId => uint256 tokenMask) public tokenMasks; 
+    //mapping(address adminMsig => address vault) public approvals; //we only do that once per vault theoretically  
         
     //keep track of which vault this belongs to
     address internal immutable boringVault; 
@@ -40,6 +41,7 @@ contract TokenWhitelistStorageModule {
     
     //adds a single token to the whitelist 
     function addTokens(uint256 protocolId, uint256 tokenBits) external {
+        //check the mapping here 
         tokenMasks[protocolId] |= tokenBits;
     } 
     

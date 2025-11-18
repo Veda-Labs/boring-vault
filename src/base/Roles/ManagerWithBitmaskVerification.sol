@@ -4,8 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
+import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol"; import {BoringVault} from "src/base/BoringVault.sol";
 import {MerkleProofLib} from "@solmate/utils/MerkleProofLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
@@ -101,16 +100,17 @@ contract ManagerWithBitmaskVerification is Auth, Test {
         //perhaps we move the logic to the registry?
         
         for (uint256 i; i < targetsLength; ++i) {
-            if (protocolConfigs[i].decoder == address(0) {
-                _verifyApproval(targets[i]
+            if (protocolConfigs[i].decoder == address(0)) {
+                //TODO figure out a better way to this, it's a POS
+                _verifyApproval(targets[i], values[i], targetData[i], address(vault));
             } else {
-            _verifyCallData(
-                protocolConfigs[i], targets[i], values[i], targetData[i]
-            );
-            vault.manage(targets[i], targetData[i], values[i]);
-            
-            //after each manage call, we can run some optional checks to verify the state of the vault across manage calls
+                _verifyCallData(
+                    protocolConfigs[i], targets[i], values[i], targetData[i]
+                );
+            }
+                //after each manage call, we can run some optional checks to verify the state of the vault across manage calls
             // _postManageModuleChecks(postRunHooks); //check slippage, check target received funds, check other things, whatever you want
+            vault.manage(targets[i], targetData[i], values[i]);
         }
 
         //at the end, we still just verify the supply doesn't change
@@ -156,5 +156,20 @@ contract ManagerWithBitmaskVerification is Auth, Test {
         //we can potentially extract the same things here and then reuse them in the module checks? so we do not have to rewrite decoders
         //some call to a module failed, we should handle this inside the module itself so errors are more clear, 
         //rather than handling them here with a generic failure case, which is confusing and unclear
+    }
+
+    function _verifyApproval(
+        address target,
+        uint256 value,
+        bytes calldata targetData,
+        address vault
+    ) internal view {
+        //this sucks hard, but for now we are hardcoding the approval decoder to the 1 address and a special case
+        //approve(aaave, 500);
+        //append calldata to the targetData
+        bytes memory appended = abi.encodePacked(targetData, vault);
+        bool success = abi.decode(registry.getProtocolConfigFromTarget(address(1)).decoder.functionStaticCall(appended), (bool));
+        //if (!success) revert ManagerWithBitmaskVerification__ProtocolNotInMask(protocolConfig.bit, protocolConfig.index);
+
     }
 }

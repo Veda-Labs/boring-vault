@@ -9,7 +9,7 @@ pragma solidity 0.8.21;
 contract Registry {
        
     struct ProtocolConfig {
-        address[] targets;
+        address[] targets; //each gauge would have to go here
         address decoder;
         uint256 bit;
         uint256 index; 
@@ -47,7 +47,7 @@ contract Registry {
     }
 
     function getProtocolConfigFromTarget(address target) external view returns (ProtocolConfig memory) {
-        return targetToConfigs[target];
+        return targetToConfigs[target]; //return address(69);
     }
     
     function getAllProtocols() external view returns (uint256[] memory) {

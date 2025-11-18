@@ -12,9 +12,12 @@ import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
-import {RecipientModule} from "src/base/Modules/RecipientModule.sol"; 
-import {ModuleRegistry} from "src/base/Registry/ModuleRegistry.sol"; 
-import {Registry} from "src/base/Registry/Registry.sol"; 
+import {RecipientModule} from "src/base/Modules/RecipientModule.sol";
+import {TokenWhitelistModule} from "src/base/Modules/TokenWhitelistModule.sol";
+import {ModuleRegistry} from "src/base/Registry/ModuleRegistry.sol";
+import {Registry} from "src/base/Registry/Registry.sol";
+import {TokenRegistry} from "src/base/Registry/TokenRegistry.sol";
+import {ApprovalRulesetDecoder} from "src/base/RulesetDecoder/ApprovalRulesetDecoder.sol";
 import {AaveV3RulesetDecoder} from "src/base/RulesetDecoder/AaveV3RulesetDecoder.sol";
 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
@@ -39,15 +42,19 @@ contract ManagerWithBitmaskVerificationTest is Test, MerkleTreeHelper {
     //registeries 
     Registry public registry;
     ModuleRegistry public moduleRegistry;
+    TokenRegistry public tokenRegistry; //veda approved tokens
 
     //manager
     ManagerWithBitmaskVerification public manager; 
     
     //modules
-    RecipientModule public recipientModule; 
+    RecipientModule public recipientModule;
+    TokenWhitelistModule public tokenModule;
     
     //aaveV3
     AaveV3RulesetDecoder public aaveV3Decoder;
+    ApprovalRulesetDecoder public approvalDecoder;
+    //decodeers 100
 
     function setUp() public {
 
@@ -68,13 +75,25 @@ contract ManagerWithBitmaskVerificationTest is Test, MerkleTreeHelper {
         moduleRegistry.addModule("recipientModule", address(recipientModule)); 
         
         //decoders
+        approvalDecoder = new ApprovalRulesetDecoder(address(moduleRegistry));
         aaveV3Decoder = new AaveV3RulesetDecoder(address(moduleRegistry));
         
         //registry
         registry = new Registry(); 
 
-        uint256 AAVE_V3 = 1 << 0; 
+        uint256 APPROVAL = 1 << 0; 
         address[] memory targets = new address[](1);
+        targets[0] = address(1);
+
+        registry.addConfig(
+            APPROVAL, 
+            targets,
+            address(approvalDecoder),
+            0 //0 index
+        ); 
+
+        uint256 AAVE_V3  = 1 << 1; 
+        //address[] memory targets = new address[](1);
         targets[0] = getAddress(sourceChain, "v3Pool");
 
         registry.addConfig(
@@ -120,12 +139,20 @@ contract ManagerWithBitmaskVerificationTest is Test, MerkleTreeHelper {
     
 
     function testManagerCanCall() public {
-        
-        address[] memory targets = new address[](1); 
-        targets[0] = getAddress(sourceChain, "v3Pool");
 
-        bytes[] memory targetDatas = new bytes[](1); 
+        deal(getAddress(sourceChain, "USDC"), address(boringVault), 200e6);  
+        
+        address[] memory targets = new address[](2); 
+        targets[0] = getAddress(sourceChain, "USDC");
+        targets[1] = getAddress(sourceChain, "v3Pool");
+
+        bytes[] memory targetDatas = new bytes[](2); 
         targetDatas[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", 
+            getAddress(sourceChain, "v3Pool"), 
+            type(uint256).max
+        );
+        targetDatas[1] = abi.encodeWithSignature(
             "supply(address,uint256,address,uint16)", 
             getAddress(sourceChain, "USDC"), 
             100e6,
@@ -137,7 +164,7 @@ contract ManagerWithBitmaskVerificationTest is Test, MerkleTreeHelper {
         manager.manageVaultWithBitmaskVerification(
             targets, 
             targetDatas,
-            new uint256[](1)
+            new uint256[](2)
         ); 
     } 
 
