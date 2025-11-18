@@ -21,7 +21,7 @@ contract CreateSuperSymbioticLRTMerkleRootScript is Script, MerkleTreeHelper {
     address public boringVault = 0x917ceE801a67f933F2e6b33fC0cD1ED2d5909D88;
     address public managerAddress = 0xA24dD7B978Fbe36125cC4817192f7b8AA18d213c;
     address public accountantAddress = 0xbe16605B22a7faCEf247363312121670DFe5afBE;
-    address public rawDataDecoderAndSanitizer = 0xcDCb893d1Bd7462a30519bD90EB865b99735E4D7;
+    address public rawDataDecoderAndSanitizer = 0xa0f45529DdF2B4a17DD394Bd1459bbfb03f4E87E;
 
     function setUp() external {}
 
@@ -67,7 +67,7 @@ contract CreateSuperSymbioticLRTMerkleRootScript is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "accountantAddress", accountantAddress);
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](512);
+        ManageLeaf[] memory leafs = new ManageLeaf[](1024);
 
         // ========================== Symbiotic ==========================
         address[] memory defaultCollaterals = new address[](8);
@@ -247,6 +247,12 @@ contract CreateSuperSymbioticLRTMerkleRootScript is Script, MerkleTreeHelper {
         assets[12] = getAddress(sourceChain, "FRXETH");
         kind[12] = SwapKind.BuyAndSell;
         _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
+
+        // ========================== Odos ==========================
+        _addOdosSwapLeafs(leafs, assets, kind);
+
+        // ========================== EtherFi ==========================
+        _addEtherFiLeafs(leafs);
 
         // ========================== Symbiotic Vault ==========================
         address[] memory vaults = new address[](1);

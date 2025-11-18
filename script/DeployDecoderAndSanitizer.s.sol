@@ -115,6 +115,7 @@ import {PlasmaUSDPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers
 import {LiquidETHPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidETHPlasmaDecoderAndSanitizer.sol";
 import {PlasmaUSDPlusPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/PlasmaUSDPlusPlasmaDecoderAndSanitizer.sol";
 import {TurtleMUSDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TurtleMUSDDecoderAndSanitizer.sol";
+import {TestVault0DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TestVault0DecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -136,8 +137,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("bsc");
-        setSourceChainName("bsc");
+        vm.createSelectFork("mainnet");
+        setSourceChainName("mainnet");
     }
 
     function run() external {
@@ -145,13 +146,11 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(TurtleMUSDDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(getAddress(sourceChain, "odosRouterV2"), getAddress(sourceChain, "pancakeSwapV3NonFungiblePositionManager"), getAddress(sourceChain, "pancakeSwapV3MasterChefV3"));
-        deployer.deployContract("turtlemUSD Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        creationCode = type(SentoraDecoderAndSanitizer).creationCode;
+        creationCode = type(RoyUSDCMainnetDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(getAddress(sourceChain, "odosRouterV2"));
-        deployer.deployContract("Sentora Decoder and Sanitizer V0.2", creationCode, constructorArgs, 0);
+        console.logBytes(constructorArgs);
+        deployer.deployContract("royUSDC Mainnet Decoder and Sanitizer V1.1", creationCode, constructorArgs, 0);
+
 
         vm.stopBroadcast();
     }

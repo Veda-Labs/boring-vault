@@ -15,6 +15,16 @@ contract DvStETHDecoderAndSanitizer {
     constructor(address _dvStETHVault) {
         dvStETHVault = _dvStETHVault;
     }
+    //whitelisted ETH wrapper
+    function deposit(
+        address depositToken,
+        uint256 /*amount*/,
+        address vault,
+        address receiver,
+        address referral
+    ) external view virtual returns (bytes memory addressesFound) {
+        addressesFound = abi.encodePacked(depositToken, vault, receiver, referral);
+    }
 
     function deposit(
         address to,

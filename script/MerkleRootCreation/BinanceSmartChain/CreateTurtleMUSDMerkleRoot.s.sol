@@ -21,7 +21,7 @@ contract CreateTurtleMUSDMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0x8c76940cC63a09F9CaB9ff35e09BC9f9715c05aa;
     address public managerAddress = 0x9EF3F2dB577000E3Cf420777FC64A2087856C720;
     address public accountantAddress = 0x210DcD63F4dCE1F5A502a3fDf5663A75255663eD;
-    address public rawDataDecoderAndSanitizer = 0xc014E9DA575509e87AFad9Db21CAf263Ad837093;
+    address public rawDataDecoderAndSanitizer = 0xab7d3d3b990751a4DB70B165f23187BaB77c8AAf;
 
     function setUp() external {}
 
@@ -40,7 +40,7 @@ contract CreateTurtleMUSDMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, bsc, "accountantAddress", accountantAddress);
         setAddress(false, bsc, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](64);
+        ManageLeaf[] memory leafs = new ManageLeaf[](128);
 
         // ========================== PancakeSwapV3 ==========================
         address[] memory token0 = new address[](1);
@@ -82,6 +82,14 @@ contract CreateTurtleMUSDMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Native Leafs ==========================
         _addNativeLeafs(leafs, getAddress(sourceChain, "WBNB"));
+
+        // ========================== Fee Claiming ==========================
+        ERC20[] memory feeAssets = new ERC20[](2);
+        feeAssets[0] = getERC20(sourceChain, "USDT");
+        feeAssets[1] = getERC20(sourceChain, "mUSD");
+        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
+
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendleMusdMarket"), true);
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

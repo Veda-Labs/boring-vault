@@ -19,7 +19,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x08c6F91e2B681FaF5e17227F2a44C307b3C1364C;
-    address public rawDataDecoderAndSanitizer = 0xc6288B06365019dF18B2076Bf9B5e191826fB57F;
+    address public rawDataDecoderAndSanitizer = 0xB781C6Ab69B63A10B05D120Bcbe40C58D1b0Bc2e;
     address public managerAddress = 0x7b57Ad1A0AA89583130aCfAD024241170D24C13C;
     address public accountantAddress = 0xc315D6e14DDCDC7407784e2Caf815d131Bc1D3E7;
     address public drone = 0x3683fc2792F676BBAbc1B5555dE0DfAFee546e9a;
@@ -90,7 +90,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== Aave V3 ==========================
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", aaveV3DecoderAndSanitizer);
-        ERC20[] memory supplyAssets = new ERC20[](18);
+        ERC20[] memory supplyAssets = new ERC20[](19);
         supplyAssets[0] = getERC20(sourceChain, "USDC");
         supplyAssets[1] = getERC20(sourceChain, "USDT");
         supplyAssets[2] = getERC20(sourceChain, "DAI");
@@ -109,6 +109,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         supplyAssets[15] = getERC20(sourceChain, "pendle_USDe_11_26_25_pt");
         supplyAssets[16] = getERC20(sourceChain, "pendle_sUSDe_09_25_25_pt");
         supplyAssets[17] = getERC20(sourceChain, "pendle_sUSDe_11_26_25_pt");
+        supplyAssets[18] = getERC20(sourceChain, "PYUSD");
         ERC20[] memory borrowAssets = new ERC20[](8);
         borrowAssets[0] = getERC20(sourceChain, "USDC");
         borrowAssets[1] = getERC20(sourceChain, "USDT");
@@ -141,6 +142,13 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         borrowAssets[0] = getERC20(sourceChain, "USDC");
         borrowAssets[1] = getERC20(sourceChain, "USDS");
         _addAaveV3LidoLeafs(leafs, supplyAssets, borrowAssets);
+
+        // ========================== Aave V3 Horizon =======================
+        supplyAssets = new ERC20[](2);
+        supplyAssets[0] = getERC20(sourceChain, "RLUSD");
+        supplyAssets[1] = getERC20(sourceChain, "USCC");
+        borrowAssets = new ERC20[](0);
+        _addAaveV3HorizonLeafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== MakerDAO ==========================
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -440,6 +448,12 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
             getAddress(sourceChain, "USDC_RLUSD_Curve_Pool"),
             2,
             getAddress(sourceChain, "USDC_RLUSD_Curve_Gauge")
+        );
+        _addCurveLeafs(
+            leafs,
+            getAddress(sourceChain, "pyUsd_Usdc_Curve_Pool"),
+            2,
+            getAddress(sourceChain, "pyUsd_Usdc_Curve_Gauge")
         );
 
         // ========================== Resolv ==========================
@@ -870,11 +884,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== Merkl ==========================
         {
-        ERC20[] memory tokensToClaim = new ERC20[](3); 
-        tokensToClaim[0] = getERC20(sourceChain, "RLUSD"); 
-        tokensToClaim[1] = getERC20(sourceChain, "rEUL"); 
-        tokensToClaim[2] = getERC20(sourceChain, "aRLUSD"); 
-        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"), tokensToClaim); 
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address")); 
         }
 
         // ========================== Reward Token Unwrapping ==========================
@@ -1104,11 +1114,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== Merkl ==========================
         {
-        ERC20[] memory tokensToClaim = new ERC20[](3); 
-        tokensToClaim[0] = getERC20(sourceChain, "RLUSD"); 
-        tokensToClaim[1] = getERC20(sourceChain, "rEUL"); 
-        tokensToClaim[2] = getERC20(sourceChain, "aRLUSD"); 
-        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"), tokensToClaim); 
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address")); 
         }
 
         // ========================== Ethena Withdraws ==========================
