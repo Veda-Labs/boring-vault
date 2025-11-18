@@ -137,8 +137,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("mainnet");
-        setSourceChainName("mainnet");
+        vm.createSelectFork("linea");
+        setSourceChainName("linea");
     }
 
     function run() external {
@@ -146,11 +146,10 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(RoyUSDCMainnetDecoderAndSanitizer).creationCode;
+        creationCode = type(GoldenGooseLineaDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(getAddress(sourceChain, "odosRouterV2"));
         console.logBytes(constructorArgs);
-        deployer.deployContract("royUSDC Mainnet Decoder and Sanitizer V1.1", creationCode, constructorArgs, 0);
-
+        deployer.deployContract("Golden Goose Linea Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }

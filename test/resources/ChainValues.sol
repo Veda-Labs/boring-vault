@@ -1955,6 +1955,7 @@ contract ChainValues {
         values[linea]["ZRO"] = address(1).toBytes32();
         values[linea]["USDC"] = 0x176211869cA2b568f2A7D4EE941E073a821EE1ff.toBytes32();
         values[linea]["USDT"] = 0xA219439258ca9da29E9Cc4cE5596924745e12B93.toBytes32();
+        values[linea]["LINEA"] = 0x1789e0043623282D5DCc7F213d703C6D8BAfBB04.toBytes32();
 
         // Linea Bridge.
         values[linea]["tokenBridge"] = 0x353012dc4a9A6cF55c941bADC267f82004A8ceB9.toBytes32(); //approve, also bridge token
@@ -1974,6 +1975,10 @@ contract ChainValues {
         // Odos
         values[linea]["odosRouterV2"] = 0x2d8879046f1559E53eb052E949e9544bCB72f414.toBytes32();
         values[linea]["odosExecutor"] = 0xFB66e944021bf915cFb4dAC2b20653930Bf7d35A.toBytes32();
+
+        // 1Inch
+        values[linea]["oneInchExecutor"] = 0x8C864D0c8E476Bf9eb9d620C10E1296fb0E2F940.toBytes32();
+        values[linea]["aggregationRouterV5"] = 0x111111125421cA6dc452d289314280a0f8842A65.toBytes32();
 
         // Aave
         values[linea]["v3Pool"] = 0xc47b8C00b0f69a36fa203Ffeac0334874574a8Ac.toBytes32();
