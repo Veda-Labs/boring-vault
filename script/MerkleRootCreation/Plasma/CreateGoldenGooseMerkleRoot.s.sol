@@ -125,10 +125,11 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Euler Vaults ==========================
         {
-            ERC4626[] memory depositVaults = new ERC4626[](3);
+            ERC4626[] memory depositVaults = new ERC4626[](1);
             depositVaults[0] = ERC4626(getAddress(sourceChain, "evkTelosCurveUSDT0"));
-            depositVaults[1] = ERC4626(getAddress(sourceChain, "evkK3KapitalUSDT0"));
-            depositVaults[2] = ERC4626(getAddress(sourceChain, "evkRe7USDT0Core"));
+            // K3 and R7 removed
+            // depositVaults[1] = ERC4626(getAddress(sourceChain, "evkK3KapitalUSDT0"));
+            // depositVaults[2] = ERC4626(getAddress(sourceChain, "evkRe7USDT0Core"));
 
             address[] memory subaccounts = new address[](1);
             subaccounts[0] = getAddress(sourceChain, "boringVault");
