@@ -295,7 +295,7 @@ contract DeploySkeletonScript is Script, ChainValues {
     function run(string memory configurationFileName) external {
         {
             string memory root = vm.projectRoot();
-            string memory configurationPath = string.concat(root, "/deployments/skeletons/", configurationFileName);
+            string memory configurationPath = string.concat(root, "/deployments/skeletons/configurations/", configurationFileName);
             rawJson = vm.readFile(configurationPath);
         }
 

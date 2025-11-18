@@ -40,12 +40,14 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](128);
 
         // ========================== Ooga Booga ==========================
-        address[] memory assets = new address[](2);
-        SwapKind[] memory kind = new SwapKind[](2);
+        address[] memory assets = new address[](3);
+        SwapKind[] memory kind = new SwapKind[](3);
         assets[0] = getAddress(sourceChain, "KHYPE");
         kind[0] = SwapKind.BuyAndSell;
         assets[1] = getAddress(sourceChain, "WHYPE");
         kind[1] = SwapKind.BuyAndSell;
+        assets[2] = getAddress(sourceChain, "PENDLE");
+        kind[2] = SwapKind.Sell;
 
         _addOogaBoogaSwapLeafs(leafs, assets, kind);
 
@@ -56,14 +58,16 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
         // ========================== AaveV3 ==========================
-        ERC20[] memory supplyAssets = new ERC20[](3);
+        ERC20[] memory supplyAssets = new ERC20[](4);
         supplyAssets[0] = getERC20(sourceChain, "KHYPE");
         supplyAssets[1] = getERC20(sourceChain, "WHYPE");
         supplyAssets[2] = getERC20(sourceChain, "pendle_kHYPE_pt_11_13_25");
-        ERC20[] memory borrowAssets = new ERC20[](3);
+        supplyAssets[3] = getERC20(sourceChain, "pendle_kHYPE_pt_3_19_26");
+        ERC20[] memory borrowAssets = new ERC20[](4);
         borrowAssets[0] = getERC20(sourceChain, "KHYPE");
         borrowAssets[1] = getERC20(sourceChain, "WHYPE");
         borrowAssets[2] = getERC20(sourceChain, "pendle_kHYPE_pt_11_13_25");
+        borrowAssets[3] = getERC20(sourceChain, "pendle_kHYPE_pt_3_19_26");
         _addHyperLendLeafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== Morpho Blue ==========================
@@ -87,6 +91,7 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Pendle ==========================
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "kHypePendle"), true);
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_kHYPE_market_3_19_26"), true);
 
         // ========================== Native Wrapping ==========================
         _addNativeLeafs(leafs, getAddress(sourceChain, "WHYPE"));
