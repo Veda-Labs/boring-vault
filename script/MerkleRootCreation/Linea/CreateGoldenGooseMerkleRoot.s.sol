@@ -22,7 +22,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0xef417FCE1883c6653E7dC6AF7c6F85CCDE84Aa09;
     address public managerAddress = 0x5F341B1cf8C5949d6bE144A725c22383a5D3880B;
     address public accountantAddress = 0xc873F2b7b3BA0a7faA2B56e210E3B965f2b618f5;
-    address public rawDataDecoderAndSanitizer = 0xCdE51B0D48e8452F915A6dcFdB0FbE0E32A0b41E; 
+    address public rawDataDecoderAndSanitizer = 0xef34830ac7d32873Cce15392EB4D23eaC71Cb581; 
 
     function setUp() external {}
 
@@ -87,11 +87,6 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         {
 
             _addOdosSwapLeafs(leafs, assets, kind);
-        }
-
-        // =========================== 1Inch ==========================
-        {
-            _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
         }
 
         // ========================== Aave V3 ==========================
