@@ -1537,10 +1537,12 @@ contract ChainValues {
 
         // Ethena
         values[mainnet]["ethenaMinterV2"] = 0xe3490297a08d6fC8Da46Edb7B6142E4F461b62D3.toBytes32();
+
+        // Chainalysis SanctionsList
+        values[mainnet]["sanctionsList"] = 0x40C57923924B5c5c5455c48D93317139ADDaC8fb.toBytes32();
     
         //Mellow DVstETH 
         values[mainnet]["dvStethWhitelistedEthWrapper"] = 0xfD4a4922d1AFe70000Ce0Ec6806454e78256504e.toBytes32();
-    
     }
 
     function _addBaseValues() private {
