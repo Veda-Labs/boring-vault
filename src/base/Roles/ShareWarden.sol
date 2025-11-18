@@ -64,7 +64,7 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
     // ========================================= ADMIN FUNCTIONS =========================================
 
     /**
-     * @notice Pause this contract, which prevents future calls to `deposit` and `depositWithPermit`.
+     * @notice Pause this contract, which prevents future calls to `beforeTransfer`.
      * @dev Callable by MULTISIG_ROLE.
      */
     function pause() external requiresAuth {
@@ -73,7 +73,7 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
     }
 
     /**
-     * @notice Unpause this contract, which allows future calls to `deposit` and `depositWithPermit`.
+     * @notice Unpause this contract, which allows future calls to `beforeTransfer`.
      * @dev Callable by MULTISIG_ROLE.
      */
     function unpause() external requiresAuth {
