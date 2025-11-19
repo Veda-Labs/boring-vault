@@ -91,13 +91,6 @@ contract CreateBoostedUSDCMerkleRoot is Script, MerkleTreeHelper {
         // ========================== CCTP ==========================
         _addCCTPBridgeLeafs(leafs, cctpInkDomainId);
 
-        // ========================== Ethena RWA Teller ==========================
-        ERC20[] memory tellerAssets = new ERC20[](3);
-        tellerAssets[0] = getERC20(sourceChain, "USDE");
-        tellerAssets[1] = getERC20(sourceChain, "USDC");
-        tellerAssets[2] = getERC20(sourceChain, "USDT");
-        _addTellerLeafs(leafs, getAddress(sourceChain, "ethenaRWATeller"), tellerAssets, false, true);
-
         // ========================== Verify ==========================
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
