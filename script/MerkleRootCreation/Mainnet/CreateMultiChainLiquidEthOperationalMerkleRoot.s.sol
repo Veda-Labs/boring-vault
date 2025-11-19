@@ -83,6 +83,47 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
             _addMerklClaimLeaf(leafs, getAddress(sourceChain, "merklDistributor"));
         }
 
+        // ========================== EtherFi ==========================
+        {
+            _addEtherFiLeafs(leafs);
+        }
+
+        // ========================== Scroll Bridge ==========================
+        {
+            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", scrollBridgeDecoderAndSanitizer);
+            ERC20[] memory tokens = new ERC20[](1);
+            tokens[0] = getERC20(sourceChain, "WETH");
+            address[] memory scrollGateways = new address[](1);
+            scrollGateways[0] = getAddress(scroll, "scrollWETHGateway");
+            _addScrollNativeBridgeLeafs(leafs, "scroll", tokens, scrollGateways);
+        }
+
+        // ========================== Plasma Bridging ==========================
+        {
+            // USDT
+            _addLayerZeroLeafs(
+                leafs,
+                getERC20(sourceChain, "USDT"),
+                getAddress(sourceChain, "usdt0OFTAdapter"),
+                layerZeroPlasmaEndpointId,
+                getBytes32(sourceChain, "boringVault")
+            );
+            // ETH
+            _addLayerZeroLeafNative(
+                leafs,
+                getAddress(sourceChain, "stargateNative"),
+                layerZeroPlasmaEndpointId,
+                getBytes32(sourceChain, "boringVault")
+            );
+            // WEETH
+            _addLayerZeroLeafs(
+                leafs,
+                getERC20(sourceChain, "WEETH"),
+                getAddress(sourceChain, "EtherFiOFTAdapter"),
+                layerZeroPlasmaEndpointId,
+                getBytes32(sourceChain, "boringVault")
+            );
+        }
 
         // ========================== Drone ==========================
         {
@@ -153,6 +194,11 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
         // ========================== Merkl ==========================
         {
             _addMerklClaimLeaf(leafs, getAddress(sourceChain, "merklDistributor"));
+        }
+
+        // ========================== EtherFi ==========================
+        {
+            _addEtherFiLeafs(leafs);
         }
 
         _createDroneLeafs(leafs, _drone, droneStartIndex, leafIndex + 1);

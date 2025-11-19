@@ -50,6 +50,13 @@ contract CreateLiquidETHOperationalMerkleRootScript is Script, MerkleTreeHelper 
             _addUniswapV3OneWaySwapLeafs(leafs, token0, token1, swapRouter02);
         }
 
+        // ========================== LayerZero ==========================
+        {
+            _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDT0"), getAddress(sourceChain, "USDT0_OFT"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
+            _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "WEETH"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
+            _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WETH"), getAddress(sourceChain, "WETH_OFT_STARGATE"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
+        }
+
         // ========================== Merkl ==========================
         {
             _addMerklClaimLeaf(leafs, getAddress(sourceChain, "merklDistributor"));
