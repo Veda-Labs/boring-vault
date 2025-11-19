@@ -2877,6 +2877,7 @@ contract ChainValues {
         // ERC20s
         values[ink]["ETH"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32();
         values[ink]["WETH"] = 0x4200000000000000000000000000000000000006.toBytes32();
+        values[ink]["WEETH"] = 0xA3D68b74bF0528fdD07263c60d6488749044914b.toBytes32();
         values[ink]["USDT"] = 0x0200C29006150606B650577BBE7B6248F58470c1.toBytes32(); // USDT0
         values[ink]["USDC"] = 0xF1815bd50389c46847f0Bda824eC8da914045D14.toBytes32(); // Stargate USDC.e
         values[ink]["KBTC"] = 0x73E0C0d45E048D25Fc26Fa3159b0aA04BfA4Db98.toBytes32(); // Kraken Wrapped BTC
@@ -2892,6 +2893,15 @@ contract ChainValues {
         // Balancer
         values[ink]["balancerVault"] = address(1).toBytes32();
         values[ink]["vault"] = address(1).toBytes32();
+
+
+        // Aave/Tydro
+        values[ink]["v3Pool"] = 0x2816cf15F6d2A220E789aA011D5EE4eB6c47FEbA.toBytes32();
+        values[ink]["v3RewardsController"] = 0xD93e3Ae8f69D04d484d1652Ca569d4b0522414DF.toBytes32();
+
+        // Velodrome
+        values[ink]["velodromeNonFungiblePositionManager"] = 0x991d5546C4B442B4c5fdc4c8B8b8d131DEB24702.toBytes32();
+        values[ink]["velodrome_WETH_WEETH_Gauge"] = 0xa9595E55A0a34f4Bf21d3a0B93aeD29a6bf3E310.toBytes32();
     }
 
     function _addInkSepoliaValues() private {
