@@ -96,14 +96,6 @@ contract CreateBalancedUSDCMerkleRoot is Script, MerkleTreeHelper {
         // ========================== CCTP ==========================
         _addCCTPBridgeLeafs(leafs, cctpInkDomainId);
 
-        // ========================== Tellers ==========================
-        ERC20[] memory ethenaRWATellerAssets = new ERC20[](3);
-        ethenaRWATellerAssets[0] = getERC20(sourceChain, "USDE");
-        ethenaRWATellerAssets[1] = getERC20(sourceChain, "USDT");
-        ethenaRWATellerAssets[2] = getERC20(sourceChain, "USDC");
-        address ethenaRWATeller = 0xDEa662f24389eB7CaFA9b3B10021884FCe7314f0;
-        _addTellerLeafs(leafs, ethenaRWATeller, ethenaRWATellerAssets, false, true);
-
         // ========================== Verify ==========================
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
