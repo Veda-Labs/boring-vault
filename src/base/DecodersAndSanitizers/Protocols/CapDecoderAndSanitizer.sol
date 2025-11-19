@@ -7,7 +7,7 @@ pragma solidity 0.8.21;
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
 
-contract CapDecoderAndSanitizer is ERC4626DecoderAndSanitizer {
+contract CapDecoderAndSanitizer is BaseDecoderAndSanitizer, ERC4626DecoderAndSanitizer {
 
     //============================== cUSD ===============================
     // note that these cUSD methads have different signatures than the erc4626 methods of the same name used for stcUSD
@@ -39,10 +39,6 @@ contract CapDecoderAndSanitizer is ERC4626DecoderAndSanitizer {
         uint256 /*_deadline*/
     ) external pure virtual returns (bytes memory addressesFound) {
         return abi.encodePacked(_receiver);
-    }
-
-    function approve(address spender, uint256) external pure returns (bytes memory addressesFound) {
-        addressesFound = abi.encodePacked(spender);
     }
 
     //============================== stcUSD ===============================
