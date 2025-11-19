@@ -19,7 +19,7 @@ contract CreateBoostedUSDCMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0xDbD87325D7b1189Dcc9255c4926076fF4a96A271;
-    address public rawDataDecoderAndSanitizer = ;
+    address public rawDataDecoderAndSanitizer = 0x7f3A794f99Db3d745DC1A924Afb0fa8CFdFADCca;
     address public managerAddress = 0xEd23b12e7700BeB638562A22ED65f74291901c25;
     address public accountantAddress = 0x62A88Bea6fe527b5DEfAA103A3f8b5010205aF92;
 
@@ -69,22 +69,17 @@ contract CreateBoostedUSDCMerkleRoot is Script, MerkleTreeHelper {
         _addNativeLeafs(leafs);
 
         // ========================== Aave V3 ==========================
-        ERC20[] memory supplyAssets = new ERC20[](5);
-        supplyAssets[0] = getERC20(sourceChain, "USDE");
-        supplyAssets[1] = getERC20(sourceChain, "SUSDE");
-        supplyAssets[2] = getERC20(sourceChain, "USDC");
-        supplyAssets[3] = getERC20(sourceChain, "USDT");
-        supplyAssets[4] = getERC20(sourceChain, "USDS");
-        ERC20[] memory borrowAssets = new ERC20[](5);
-        borrowAssets[0] = getERC20(sourceChain, "USDE");
-        borrowAssets[1] = getERC20(sourceChain, "SUSDE");
-        borrowAssets[2] = getERC20(sourceChain, "USDC");
-        borrowAssets[3] = getERC20(sourceChain, "USDT");
-        borrowAssets[4] = getERC20(sourceChain, "USDS");
+        ERC20[] memory supplyAssets = new ERC20[](2);
+        supplyAssets[0] = getERC20(sourceChain, "USDC");
+        supplyAssets[1] = getERC20(sourceChain, "USDT");
+        ERC20[] memory borrowAssets = new ERC20[](0);
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== Sky Money ==========================
         _addAllSkyMoneyLeafs(leafs);
+
+        // ========================== SUSDS ==========================
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "SUSDS")));
 
         // ========================== Ethena ==========================
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "SUSDE")));
@@ -96,6 +91,13 @@ contract CreateBoostedUSDCMerkleRoot is Script, MerkleTreeHelper {
         // ========================== CCTP ==========================
         _addCCTPBridgeLeafs(leafs, cctpInkDomainId);
 
+        // ========================== Ethena RWA Teller ==========================
+        ERC20[] memory tellerAssets = new ERC20[](3);
+        tellerAssets[0] = getERC20(sourceChain, "USDE");
+        tellerAssets[1] = getERC20(sourceChain, "USDC");
+        tellerAssets[2] = getERC20(sourceChain, "USDT");
+        _addTellerLeafs(leafs, getAddress(sourceChain, "ethenaRWATeller"), tellerAssets, false, true);
+
         // ========================== Verify ==========================
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
@@ -105,7 +107,5 @@ contract CreateBoostedUSDCMerkleRoot is Script, MerkleTreeHelper {
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
-
-
     }
 }

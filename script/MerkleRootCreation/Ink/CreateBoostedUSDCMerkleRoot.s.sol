@@ -19,7 +19,7 @@ contract CreateBoostedUSDCMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0xDbD87325D7b1189Dcc9255c4926076fF4a96A271;
-    address public rawDataDecoderAndSanitizer = ;
+    address public rawDataDecoderAndSanitizer = 0x4e3dE36A40D80491f4Ea58DFcdf2AEe082AB949c;
     address public managerAddress = 0xEd23b12e7700BeB638562A22ED65f74291901c25;
     address public accountantAddress = 0x62A88Bea6fe527b5DEfAA103A3f8b5010205aF92;
 
@@ -54,9 +54,7 @@ contract CreateBoostedUSDCMerkleRoot is Script, MerkleTreeHelper {
         ERC20[] memory supplyAssets = new ERC20[](2);
         supplyAssets[0] = getERC20(sourceChain, "USDC");
         supplyAssets[1] = getERC20(sourceChain, "USDT");
-        ERC20[] memory borrowAssets = new ERC20[](2);
-        borrowAssets[0] = getERC20(sourceChain, "USDC");
-        borrowAssets[1] = getERC20(sourceChain, "USDT");
+        ERC20[] memory borrowAssets = new ERC20[](0);
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== LayerZero ==========================

@@ -117,6 +117,7 @@ import {PlasmaUSDPlusPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSaniti
 import {TurtleMUSDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TurtleMUSDDecoderAndSanitizer.sol";
 import {TestVault0DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TestVault0DecoderAndSanitizer.sol";
 import {TestBalancedUSDCDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TestBalancedUSDCDecoderAndSanitizer.sol";
+import {BoostedUSDCInkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BoostedUSDCInkDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -152,10 +153,10 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //console.logBytes(constructorArgs);
         //deployer.deployContract("Turtle MUSD Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
 
-        creationCode = type(TestBalancedUSDCDecoderAndSanitizer).creationCode;
+        creationCode = type(BoostedUSDCInkDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode();
         console.logBytes(constructorArgs);
-        deployer.deployContract("Test Balanced Yield USDC Decoder and Sanitizer V0.2", creationCode, constructorArgs, 0);
+        deployer.deployContract("Boosted USDC Ink Decoder and Sanitizer V0.3", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
