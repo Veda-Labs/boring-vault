@@ -2997,6 +2997,28 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
     }
 
+    function _addAaveV3RepayLeafs(
+        string memory protocolName,
+        address protocolAddress,
+        ManageLeaf[] memory leafs,
+        ERC20[] memory borrowAssets
+    ) public {
+
+        for (uint256 i; i < borrowAssets.length; ++i) {
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                protocolAddress,
+                false,
+                "repay(address,uint256,uint256,address)",
+                new address[](2),
+                string.concat("Repay ", borrowAssets[i].symbol(), " to ", protocolName),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(borrowAssets[i]);
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+        }
+    }
+
     // ========================================= Uniswap V2 =========================================
 
     function _addUniswapV2Leafs(
@@ -6086,6 +6108,41 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             leafs[leafIndex].argumentAddresses[4] = getAddress(sourceChain, "boringVault");
             leafs[leafIndex].argumentAddresses[5] = getAddress(sourceChain, "boringVault");
         }
+    }
+
+    function _addMorphoBlueRepayLeafs(ManageLeaf[] memory leafs, bytes32 marketId) internal {
+        IMB.MarketParams memory marketParams = IMB(getAddress(sourceChain, "morphoBlue")).idToMarketParams(marketId);
+        ERC20 loanToken = ERC20(marketParams.loanToken);
+        ERC20 collateralToken = ERC20(marketParams.collateralToken);
+        uint256 leftSideLLTV = marketParams.lltv / 1e16;
+        uint256 rightSideLLTV = (marketParams.lltv / 1e14) % 100;
+
+        string memory morphoBlueMarketName = string.concat(
+            "MorphoBlue ",
+            collateralToken.symbol(),
+            "/",
+            loanToken.symbol(),
+            " ",
+            vm.toString(leftSideLLTV),
+            ".",
+            vm.toString(rightSideLLTV),
+            " LLTV market"
+        );
+
+        leafIndex++;
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "morphoBlue"),
+            false,
+            "repay((address,address,address,address,uint256),uint256,uint256,address,bytes)",
+            new address[](5),
+            string.concat("Repay ", loanToken.symbol(), " to ", morphoBlueMarketName),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = marketParams.loanToken;
+        leafs[leafIndex].argumentAddresses[1] = marketParams.collateralToken;
+        leafs[leafIndex].argumentAddresses[2] = marketParams.oracle;
+        leafs[leafIndex].argumentAddresses[3] = marketParams.irm;
+        leafs[leafIndex].argumentAddresses[4] = getAddress(sourceChain, "boringVault");
     }
 
     function _addMorphoRewardWrapperLeafs(ManageLeaf[] memory leafs) internal {
