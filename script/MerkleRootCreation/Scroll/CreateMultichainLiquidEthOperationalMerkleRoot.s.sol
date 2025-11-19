@@ -61,7 +61,7 @@ contract CreateLiquidETHOperationalMerkleRootScript is Script, MerkleTreeHelper 
         // ========================== Finalize ===================================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
-        string memory filePath = "./leafs/Plasma/LiquidETHOperationalStrategistLeafs.json";
+        string memory filePath = "./leafs/Scroll/LiquidETHOperationalStrategistLeafs.json";
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
     }
 
