@@ -2,69 +2,69 @@
   "deploymentParameters": {
     "logLevel": 4,
     "privateKeyEnvName": "BORING_DEVELOPER",
-    "chainName": "mainnet",
-    "evmVersion": "cancun",
+    "chainName": "plasma",
+    "evmVersion": "shanghai",
     "deployerContractAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
       "name": "deployerAddress"
     },
     "nativeWrapperAddressOrName": {
-      "address": "0x0000000000000000000000000000000000000000",
-      "name": "WETH"
+      "address": "0x9895D81bB462A195b4922ED7De0e3ACD007c32CB",
+      "name": "wETH"
     },
     "deploymentOwnerAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
       "name": "txBundlerAddress"
     },
-    "deploymentFileName": "skeletons/addresses/Mainnet/BalancedUSDC.json"
+    "deploymentFileName": "skeletons/addresses/Plasma/GoldenGoose.json"
   },
   "rolesAuthorityConfiguration": {
-    "rolesAuthorityDeploymentName": "Balanced Yield USDC Roles Authority V0.0"
+    "rolesAuthorityDeploymentName": "Golden Goose Roles Authority V0.3"
   },
   "lensConfiguration": {
     "lensDeploymentName": "Arctic Architecture Lens V0.0"
   },
   "boringVaultConfiguration": {
-    "boringVaultDeploymentName": "Balanced Yield USDC Boring Vault V0.0",
-    "boringVaultName": "Balanced Yield USDC",
-    "boringVaultSymbol": "balancedUSDC",
-    "boringVaultDecimals": 6
+    "boringVaultDeploymentName": "Golden Goose Boring Vault V0.3",
+    "boringVaultName": "Golden Goose Vault",
+    "boringVaultSymbol": "GG",
+    "boringVaultDecimals": 18
   },
   "managerConfiguration": {
-    "managerDeploymentName": "Balanced Yield USDC Manager V0.0",
+    "managerDeploymentName": "Golden Goose Manager V0.3",
     "balancerVaultAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
-      "name": "balancerVault"
+      "name": "balancerV3Vault"
     }
   },
   "accountantConfiguration": {
-    "accountantDeploymentName": "Balanced Yield USDC Accountant V0.0",
+    "accountantDeploymentName": "Golden Goose Accountant V0.3",
     "accountantParameters": {
       "kind": {
         "variableRate": true,
         "fixedRate": false
       },
       "payoutConfiguration": {
-        "payoutTo": "0x0000000000000000000000000000000000000001",
-        "optionalPaymentSplitterName": "Balanced Yield USDC Payment Splitter V0.0",
+        "payoutTo": "0x68eC1FdD4Bb202B2e07aE751CB5553644aA48cFA",
+        "optionalPaymentSplitterName": "Golden Goose Payment Splitter V0.3",
         "splits": []
       },
       "accountantDeploymentParameters": {
         "allowedExchangeRateChangeLower": 9950,
         "allowedExchangeRateChangeUpper": 10050,
         "base": {
-          "address": "0x0000000000000000000000000000000000000000",
-          "name": "USDC"
+          "address": "0x9895D81bB462A195b4922ED7De0e3ACD007c32CB",
+          "name": "wETH"
         },
         "minimumUpateDelayInSeconds": 21600,
-        "performanceFee": 2500,
-        "platformFee": 0,
-        "startingExchangeRate": 1000000
+        "performanceFee": 0,
+        "platformFee": 100,
+        "startingExchangeRate": 1000000000000000000
       }
     }
   },
   "tellerConfiguration": {
-    "tellerDeploymentName": "Balanced Yield USDC Teller V0.0",
+    "tellerDeploymentName": "Golden Goose Teller V0.3",
     "tellerParameters": {
       "kind": {
         "teller": false,
@@ -86,8 +86,8 @@
     }
   },
   "boringQueueConfiguration": {
-    "boringQueueDeploymentName": "Balanced Yield USDC Boring Queue V0.0",
-    "boringQueueSolverName": "Balanced Yield USDC Boring Solver V0.0",
+    "boringQueueDeploymentName": "Golden Goose Boring Queue V0.3",
+    "boringQueueSolverName": "Golden Goose Boring Solver V0.3",
     "excessToSolverNonSelfSolve": false,
     "queueParameters": {
       "kind": {
@@ -97,21 +97,21 @@
     }
   },
   "droneConfiguration": {
-    "droneDeploymentBaseName": "Balanced Yield USDC Drone V0.0",
+    "droneDeploymentBaseName": "Golden Goose Drone V0.3",
     "droneCount": 0,
     "safeGasToForwardNative": 21000
   },
   "pauserConfiguration": {
     "shouldDeploy": false,
-    "pauserDeploymentName": "Balanced Yield USDC Pauser V0.0"
+    "pauserDeploymentName": "Golden Goose Pauser V0.3"
   },
   "timelockConfiguration": {
-    "shouldDeploy": false,
-    "timelockDeploymentName": "Balanced Yield USDC Timelock V0.0",
+    "shouldDeploy": true,
+    "timelockDeploymentName": "Golden Goose Timelock V0.3",
     "timelockParameters": {
-      "executors": ["0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b"],
-      "minDelay": 300,
-      "proposers": ["0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b"]
+      "executors": ["0x68eC1FdD4Bb202B2e07aE751CB5553644aA48cFA"],
+      "minDelay": 43200,
+      "proposers": ["0x68eC1FdD4Bb202B2e07aE751CB5553644aA48cFA"]
     }
   }
 }

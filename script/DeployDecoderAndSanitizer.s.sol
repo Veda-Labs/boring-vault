@@ -119,6 +119,7 @@ import {TestVault0DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Test
 import {SentoraUSDCInkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentoraUSDCInkDecoderAndSanitizer.sol";
 import {SentoraUSDCMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentoraUSDCMainnetDecoderAndSanitizer.sol";
 import {ITBBasePositionDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/ITBBasePositionDecoderAndSanitizer.sol";
+import {TestBalancedUSDCDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TestBalancedUSDCDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";

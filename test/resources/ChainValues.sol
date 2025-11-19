@@ -1537,10 +1537,12 @@ contract ChainValues {
 
         // Ethena
         values[mainnet]["ethenaMinterV2"] = 0xe3490297a08d6fC8Da46Edb7B6142E4F461b62D3.toBytes32();
+
+        // Chainalysis SanctionsList
+        values[mainnet]["sanctionsList"] = 0x40C57923924B5c5c5455c48D93317139ADDaC8fb.toBytes32();
     
         //Mellow DVstETH 
         values[mainnet]["dvStethWhitelistedEthWrapper"] = 0xfD4a4922d1AFe70000Ce0Ec6806454e78256504e.toBytes32();
-    
     }
 
     function _addBaseValues() private {
@@ -2169,6 +2171,7 @@ contract ChainValues {
         values[sonicMainnet]["scETH"] = 0x3bcE5CB273F0F148010BbEa2470e7b5df84C7812.toBytes32();
         values[sonicMainnet]["scBTC"] = 0xBb30e76d9Bb2CC9631F7fC5Eb8e87B5Aff32bFbd.toBytes32();
         values[sonicMainnet]["stkscUSD"] = 0x4D85bA8c3918359c78Ed09581E5bc7578ba932ba.toBytes32();
+        values[sonicMainnet]["wstkscUSD"] = 0x9fb76f7ce5FCeAA2C42887ff441D46095E494206.toBytes32();
         values[sonicMainnet]["EBTC"] = 0x657e8C867D8B37dCC18fA4Caead9C45EB088C642.toBytes32();
         values[sonicMainnet]["LBTC"] = 0xecAc9C5F704e954931349Da37F60E39f515c11c1.toBytes32();
         values[sonicMainnet]["WBTC"] = 0x0555E30da8f98308EdB960aa94C0Db47230d2B9c.toBytes32(); //also OFT
@@ -2218,6 +2221,8 @@ contract ChainValues {
 
         // Queues
         values[sonicMainnet]["roysonicUSDCQueue"] = 0xd0885A285f9a00aa2d9734d2D26be1186f850E38.toBytes32();
+        values[sonicMainnet]["stkscUSDQueue"] = 0x5448A65ddB14e6F273cd0eD6598805105A39d8cC.toBytes32();
+        values[sonicMainnet]["scUSDQueue"] = 0x3754480db8b3E607fbE125697EB496a44A1Be720.toBytes32();
 
         // Accountant
         values[sonicMainnet]["scUSDAccountant"] = 0xA76E0F54918E39A63904b51F688513043242a0BE.toBytes32();
@@ -2760,6 +2765,7 @@ contract ChainValues {
         // ERC20s
         values[hyperEVM]["WHYPE"] = 0x5555555555555555555555555555555555555555.toBytes32();
         values[hyperEVM]["KHYPE"] = 0xfD739d4e423301CE9385c1fb8850539D657C296D.toBytes32();
+        values[hyperEVM]["PENDLE"] = 0xD6Eb81136884713E843936843E286FD2a85A205A.toBytes32();
 
         // Balanacer
         values[hyperEVM]["balancerVault"] = address(1).toBytes32();
@@ -2791,6 +2797,8 @@ contract ChainValues {
         values[hyperEVM]["pendleLimitOrderRouter"] = 0x000000000000c9B3E2C3Ec88B1B4c0cD853f4321.toBytes32();
         values[hyperEVM]["kHypePendle"] = 0x8867d2b7aDb8609c51810237EcC9A25A2F601B97.toBytes32();
         values[hyperEVM]["pendle_kHYPE_pt_11_13_25"] = 0x311dB0FDe558689550c68355783c95eFDfe25329.toBytes32();
+        values[hyperEVM]["pendle_kHYPE_market_3_19_26"] = 0x31104779B2A07A273D6C662419377773083d0b2E.toBytes32();
+        values[hyperEVM]["pendle_kHYPE_pt_3_19_26"] = 0xea84ca9849D9e76a78B91F221F84e9Ca065FC9f5.toBytes32();
 
         // Valantis
         values[hyperEVM]["KHYPE_WHYPE_sovereign_pool"] = 0x88B214eC94276B825E641820D5C97a9042F9Dd60.toBytes32();
