@@ -38,7 +38,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         setAddress(false, ink, "accountantAddress", accountantAddress);
         setAddress(false, ink, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](4096);
+        ManageLeaf[] memory leafs = new ManageLeaf[](32);
 
         // ========================== Aave V3 ==========================
         ERC20[] memory supplyAssets = new ERC20[](2);
