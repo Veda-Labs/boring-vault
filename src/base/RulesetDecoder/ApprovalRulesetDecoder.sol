@@ -4,29 +4,49 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
+import {Registry} from "src/base/Registry/Registry.sol";
 import {ModuleRegistry, IModule} from "src/base/Registry/ModuleRegistry.sol";
+import {ManagerWithBitmaskVerification} from "src/base/Roles/ManagerWithBitmaskVerification.sol";
+import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
-contract ApprovalRulesetDecoder {
+contract ApprovalRulesetDecoder is Test {
 
+    Registry internal registry; 
     ModuleRegistry internal moduleRegistry; 
 
-    constructor (address _moduleRegistry) {
+    constructor (address _registry, address _moduleRegistry) {
+        registry = Registry(_registry); 
         moduleRegistry = ModuleRegistry(_moduleRegistry);
     }
     
     function approve(address spender, uint256 /*amount*/) external view virtual returns (bool) {
+    
+        address vault;
+        address token; 
+        address storageContract; 
+        assembly {
+            //skip 4 bytes for selector, skip 32 for padding + first spender address, skip 32 for uin256
+            let vaultData := calldataload(0x44)   //4 * 16 + 4 = 68
+            let tokenData := calldataload(0x58)   //5 * 16 + 8 = 88 (next 20)
+            let storageData := calldataload(0x6C) //6 * 16 + 12 = 108 (next 20)
+            
+            //shift right so we are left padded (0x123abc...)
+            vault := shr(96, vaultData)
+            token := shr(96, tokenData)
+            storageContract := shr(96, storageData)
+        }
          
-        //things we need here: 
-        //1) vault -> msg.sender...? I think this is preserved since it is a delegateCall, will have to double check that
-        //2) protocolId we are checking -> can get from spender lookup (target -> protocolConfig from registry)
-        //3) token we're checking -> can get from target?
-        //--> none of these are in the function signature, maybe we append some calldata?
-        //or just have a special case for this where we pass those in as params...?
+        Registry.ProtocolConfig memory config = registry.getProtocolConfigFromTarget(spender);
+        if (config.decoder == address(0) || config.targets.length == 0) revert("bad spender"); 
 
-        //we need to somehow get the address of the vault that is calling this
-        //then, we can get the storage contract associated with it
-        //
-        //after that, we can check the token whitelist for the protocolId and verify that it is an acceptable token
-        //after that we can check the spender by verifying is is the correct target address/addresses for that protocolConfig
+        bool success = ManagerWithBitmaskVerification(msg.sender).hasProtocol(config.bit, config.index); 
+        if (!success) revert("no success"); 
+
+        address[] memory tokens = new address[](1); 
+        tokens[0] = token; 
+        IModule module = moduleRegistry.getModule("tokenWhitelistModule");
+        success = module.checkRule(abi.encode(config.bit, storageContract, tokens));
+
+        return success;
     }
 }

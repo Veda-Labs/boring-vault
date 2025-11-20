@@ -4,7 +4,8 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol"; import {BoringVault} from "src/base/BoringVault.sol";
+import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol"; 
+import {BoringVault} from "src/base/BoringVault.sol";
 import {MerkleProofLib} from "@solmate/utils/MerkleProofLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
@@ -14,10 +15,11 @@ import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {IPausable} from "src/interfaces/IPausable.sol";
 import {DroneLib} from "src/base/Drones/DroneLib.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+import {TokenWhitelistStorageModule} from "src/base/Modules/StorgeModules/TokenWhitelistStorageModule.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+//import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
-contract ManagerWithBitmaskVerification is Auth, Test { 
+contract ManagerWithBitmaskVerification is Auth { 
     using Address for address;
 
     //bits and bobs
@@ -37,14 +39,20 @@ contract ManagerWithBitmaskVerification is Auth, Test {
      */
     Registry public immutable registry;
 
+    /**
+     */
+    TokenWhitelistStorageModule public storageContract;
+
     //============================== ERRORS ===============================
     
     error ManagerWithBitmaskVerification__ProtocolNotInMask(uint256 bit, uint256 index); 
+    error ManagerWithBitmaskVerification__TokenNotApproved(address token); 
 
 
-    constructor(address _owner, address _vault, address _registry) Auth(_owner, Authority(address(0))) {
+    constructor(address _owner, address _vault, address _registry, address _storageContract) Auth(_owner, Authority(address(0))) {
         vault = BoringVault(payable(_vault));
         registry = Registry(_registry);
+        storageContract = TokenWhitelistStorageModule(_storageContract);
     }
 
     /**
@@ -167,9 +175,8 @@ contract ManagerWithBitmaskVerification is Auth, Test {
         //this sucks hard, but for now we are hardcoding the approval decoder to the 1 address and a special case
         //approve(aaave, 500);
         //append calldata to the targetData
-        bytes memory appended = abi.encodePacked(targetData, vault);
+        bytes memory appended = abi.encodePacked(targetData, vault, target, storageContract);
         bool success = abi.decode(registry.getProtocolConfigFromTarget(address(1)).decoder.functionStaticCall(appended), (bool));
-        //if (!success) revert ManagerWithBitmaskVerification__ProtocolNotInMask(protocolConfig.bit, protocolConfig.index);
-
+        if (!success) revert ManagerWithBitmaskVerification__TokenNotApproved(target);
     }
 }

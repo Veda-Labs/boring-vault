@@ -14,6 +14,7 @@ import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthorit
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import {RecipientModule} from "src/base/Modules/RecipientModule.sol";
 import {TokenWhitelistModule} from "src/base/Modules/TokenWhitelistModule.sol";
+import {TokenWhitelistStorageModule} from "src/base/Modules/StorgeModules/TokenWhitelistStorageModule.sol";
 import {ModuleRegistry} from "src/base/Registry/ModuleRegistry.sol";
 import {Registry} from "src/base/Registry/Registry.sol";
 import {TokenRegistry} from "src/base/Registry/TokenRegistry.sol";
@@ -38,6 +39,9 @@ contract ManagerWithBitmaskVerificationTest is Test, MerkleTreeHelper {
     
     //roles auth
     RolesAuthority public rolesAuthority;
+
+    //storage
+    TokenWhitelistStorageModule public storageContract;
 
     //registeries 
     Registry public registry;
@@ -64,22 +68,30 @@ contract ManagerWithBitmaskVerificationTest is Test, MerkleTreeHelper {
 
         boringVault = new BoringVault(address(this), "Boring Vault", "BV", 18);
 
+        //deploy token registry
+        uint256 USDCbit = 1 << 0; 
+        tokenRegistry = new TokenRegistry(); 
+        tokenRegistry.addToken(getAddress(sourceChain, "USDC"), USDCbit); 
+
+
         rolesAuthority = new RolesAuthority(address(this), Authority(address(0)));
         boringVault.setAuthority(rolesAuthority);
 
         //register the recipient module
         recipientModule = new RecipientModule();  
+        tokenModule = new TokenWhitelistModule(address(tokenRegistry));  
 
         //deploy module registry
         moduleRegistry = new ModuleRegistry(); 
         moduleRegistry.addModule("recipientModule", address(recipientModule)); 
-        
-        //decoders
-        approvalDecoder = new ApprovalRulesetDecoder(address(moduleRegistry));
-        aaveV3Decoder = new AaveV3RulesetDecoder(address(moduleRegistry));
+        moduleRegistry.addModule("tokenWhitelistModule", address(tokenModule)); 
         
         //registry
         registry = new Registry(); 
+        
+        //decoders
+        approvalDecoder = new ApprovalRulesetDecoder(address(registry), address(moduleRegistry));
+        aaveV3Decoder = new AaveV3RulesetDecoder(address(moduleRegistry));
 
         uint256 APPROVAL = 1 << 0; 
         address[] memory targets = new address[](1);
@@ -102,8 +114,13 @@ contract ManagerWithBitmaskVerificationTest is Test, MerkleTreeHelper {
             address(aaveV3Decoder),
             0 //0 index
         ); 
+        
+        //deploy + link
+        storageContract = new TokenWhitelistStorageModule(address(boringVault));   
+        storageContract.addTokens(AAVE_V3, USDCbit); 
 
-        manager = new ManagerWithBitmaskVerification(address(0), address(boringVault), address(registry));
+        //deploy manager
+        manager = new ManagerWithBitmaskVerification(address(0), address(boringVault), address(registry), address(storageContract));
         manager.subscribe(AAVE_V3, 0); 
         //manager.setAuthority(rolesAuthority);
 

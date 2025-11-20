@@ -7,6 +7,7 @@ pragma solidity 0.8.21;
 import {IModule} from "src/base/Registry/ModuleRegistry.sol"; 
 import {TokenRegistry} from "src/base/Registry/TokenRegistry.sol";
 import {TokenWhitelistStorageModule} from "src/base/Modules/StorgeModules/TokenWhitelistStorageModule.sol";
+import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
 contract TokenWhitelistModule is IModule {
     
@@ -21,9 +22,9 @@ contract TokenWhitelistModule is IModule {
     }
 
     function checkRule(bytes calldata params) external view returns (bool) {
-
         //importantly, the storageContract can only come from the vault, a vault wouldn't be able to simply pass in anothers storageContract to get access to their tokens
         //what mechanism is used here to make that happen is undecided at the moment
+        //TODO need index here
         (uint256 protocolId, address storageContract, address[] memory tokens) = abi.decode(params, (uint256, address, address[])); 
 
         for (uint256 i = 0; i < tokens.length; i++) {
@@ -31,7 +32,7 @@ contract TokenWhitelistModule is IModule {
             bool approved = tokenRegistry.isApprovedGlobally(tokens[i]);
             if (!approved) return false;
         } 
-        
+       
         uint256 mask = _createMask(tokens); //creates a mask based on the tokens passed in by looking them up in the registry 
         bool inMask = TokenWhitelistStorageModule(storageContract).checkMask(protocolId, mask); //compares the bits against each other
         if (!inMask) revert("ya right ur denied"); 
