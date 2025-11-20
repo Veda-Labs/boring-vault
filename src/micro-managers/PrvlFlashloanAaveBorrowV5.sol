@@ -9,32 +9,7 @@ import {BoringVault} from "src/base/BoringVault.sol";
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
 
 interface IQuoter {
-    function quoteExactInputSingle(
-        address tokenIn,
-        address tokenOut,
-        uint24 fee,
-        uint256 amountIn,
-        uint160 sqrtPriceLimitX96
-    ) external returns (uint256 amountOut);
-
-    function quoteExactOutputSingle(
-        address tokenIn,
-        address tokenOut,
-        uint24 fee,
-        uint256 amountOut,
-        uint160 sqrtPriceLimitX96
-    ) external returns (uint256 amountIn);
-}
-
-interface IAavePool {
-    function getUserAccountData(address user) external view returns (
-        uint256 totalCollateralBase,
-        uint256 totalDebtBase,
-        uint256 availableBorrowsBase,
-        uint256 currentLiquidationThreshold,
-        uint256 ltv,
-        uint256 healthFactor
-    );
+    function quoteExactInput(bytes memory path, uint256 amountIn) external returns (uint256 amountOut);     
 }
 
 struct TokenConfig {
@@ -44,12 +19,8 @@ struct TokenConfig {
     address debtToken; // eg variableDebtEthWETH
 }
 
-contract PrvlFlashloanAaveBorrowV4 is UManager {
+contract PrvlFlashloanAaveBorrowV5 is UManager {
     using FixedPointMathLib for uint256;
-
-    /*
-     * @dev V4 uses struct to avoid stack too deep
-     */
 
     IUniswapV3Router public immutable uniswapV3Router;
     IQuoter public immutable quoter;
@@ -59,15 +30,15 @@ contract PrvlFlashloanAaveBorrowV4 is UManager {
     address public immutable depositToken; // eg wstdepositToken
     address public immutable aToken; // eg awstETH
     address public immutable debtToken; // eg variableDebtEthWETH;
-    uint24 public immutable uniFeeTier;
     uint256 public immutable aaveVariableRate;
 
-    bytes4 constant EXACT_INPUT_SINGLE_SELECTOR = 0x04e45aaf;
+    bytes4 constant EXACT_INPUT_SELECTOR = 0xb858183f; 
     bytes4 constant SUPPLY_SELECTOR = 0x617ba037;
     bytes4 constant BORROW_SELECTOR = 0xa415bcad;
     bytes4 constant FLASHLOAN_SELECTOR = 0x5c38449e;
     bytes4 constant REPAY_SELECTOR = 0x573ade81;
     bytes4 constant WITHDRAW_SELECTOR = 0x69328dec;
+    uint256 internal constant MAX_SLIPPAGE = 0.1e4;
 
     bytes32[][] private borrowInnerManageProofs;
     address[] private borrowInnerDecodersAndSanitizers;
@@ -85,7 +56,6 @@ contract PrvlFlashloanAaveBorrowV4 is UManager {
         address _quoter,
         address _aave,
         TokenConfig memory _tokens,
-        uint24 _uniFeeTier,
         uint256 _aaveVariableRate
     ) UManager(_owner, _manager, _boringVault) {
         uniswapV3Router = IUniswapV3Router(_uniswapV3Router);
@@ -96,11 +66,10 @@ contract PrvlFlashloanAaveBorrowV4 is UManager {
         depositToken = _tokens.depositToken;
         aToken = _tokens.aToken;
         debtToken = _tokens.debtToken;
-        uniFeeTier = _uniFeeTier;
         aaveVariableRate = _aaveVariableRate;
     }
 
-    error InsufficientVaultBalance();
+    error PrvlFlashloanAaveBorrowV5__Slippage();
 
     function setBorrowInnerManageProofs(bytes32[][] calldata _borrowInnerManageProofs) external requiresAuth {
         // Manual deep copy to avoid calldata-to-storage issue
@@ -171,30 +140,19 @@ contract PrvlFlashloanAaveBorrowV4 is UManager {
         }
     }
 
-    function borrow(uint256 collateralAmount, uint256 borrowAmount) external requiresAuth {
-        uint256 vaultBalance = ERC20(baseToken).balanceOf(boringVault);
-        if (vaultBalance < collateralAmount) {
-            revert InsufficientVaultBalance();
-        }
-
-        bytes memory innerUserData = getBorrowUserData(collateralAmount, borrowAmount);
-
+    function borrow(uint256 collateralAmount, uint256 borrowAmount, DecoderCustomTypes.ExactInputParamsRouter02 calldata exactInputParams) external requiresAuth {
+        bytes memory innerUserData = getBorrowUserData(collateralAmount, borrowAmount , exactInputParams);
         _executeFlashloan(innerUserData, borrowAmount);
     }
 
-    function repay(uint256 borrowAmount, uint256 supplyAmount) external requiresAuth {
-        bytes memory innerUserData = getRepayUserData(borrowAmount, supplyAmount);
+    function repay(uint256 borrowAmount, uint256 supplyAmount, DecoderCustomTypes.ExactInputParamsRouter02 calldata exactInputParams) external requiresAuth {
+        bytes memory innerUserData = getRepayUserData(borrowAmount, supplyAmount, exactInputParams);
         _executeFlashloan(innerUserData, borrowAmount);
     }
 
-    function settle() external requiresAuth {
-        // Get total debt in USD (base currency)
-
+    function settle(DecoderCustomTypes.ExactInputParamsRouter02 calldata exactInputParams) external requiresAuth {
         uint256 debtAmount = ERC20(debtToken).balanceOf(boringVault);
-
-        bytes memory innerUserData = getRepayUserData(type(uint256).max, type(uint256).max);
-        
-        // Use actual debt amount for flashloan
+        bytes memory innerUserData = getRepayUserData(type(uint256).max, type(uint256).max, exactInputParams);
         _executeFlashloan(innerUserData, debtAmount);
     }
 
@@ -224,16 +182,18 @@ contract PrvlFlashloanAaveBorrowV4 is UManager {
         );
     }
 
-    function getBorrowUserData(uint256 collateralAmount, uint256 borrowAmount)
+    function getBorrowUserData(uint256 collateralAmount, uint256 borrowAmount, DecoderCustomTypes.ExactInputParamsRouter02 calldata exactInputParams)
         internal
         returns (bytes memory userData)
     {
         uint256 swapAmount = collateralAmount + borrowAmount;
-        uint256 supplyAmount = quoter.quoteExactInputSingle(baseToken, depositToken, uniFeeTier, swapAmount, uint160(0));
+        uint256 supplyAmount = quoter.quoteExactInput(exactInputParams.path, swapAmount);
 
         bytes memory swapData = abi.encodeWithSelector(
-            EXACT_INPUT_SINGLE_SELECTOR, baseToken, depositToken, uniFeeTier, boringVault, swapAmount, 0, uint160(0)
+            EXACT_INPUT_SELECTOR,
+            exactInputParams
         );
+
         bytes memory supplyData = abi.encodeWithSelector(SUPPLY_SELECTOR, depositToken, supplyAmount, boringVault, 0);
         bytes memory borrowData =
             abi.encodeWithSelector(BORROW_SELECTOR, baseToken, borrowAmount, aaveVariableRate, 0, boringVault);
@@ -255,7 +215,7 @@ contract PrvlFlashloanAaveBorrowV4 is UManager {
         );
     }
 
-    function getRepayUserData(uint256 borrowAmount, uint256 supplyAmount) internal returns (bytes memory userData) {
+    function getRepayUserData(uint256 borrowAmount, uint256 supplyAmount, DecoderCustomTypes.ExactInputParamsRouter02 calldata exactInputParams) internal returns (bytes memory userData) {
         bytes memory repayData =
             abi.encodeWithSelector(REPAY_SELECTOR, baseToken, borrowAmount, aaveVariableRate, boringVault);
         bytes memory withdrawData = abi.encodeWithSelector(WITHDRAW_SELECTOR, depositToken, supplyAmount, boringVault);
@@ -267,7 +227,8 @@ contract PrvlFlashloanAaveBorrowV4 is UManager {
         }
         
         bytes memory swapData = abi.encodeWithSelector(
-            EXACT_INPUT_SINGLE_SELECTOR, depositToken, baseToken, uniFeeTier, boringVault, swapAmount, 0, uint160(0)
+            EXACT_INPUT_SELECTOR,
+            exactInputParams
         );
 
         address[] memory innerTargets = new address[](3);
