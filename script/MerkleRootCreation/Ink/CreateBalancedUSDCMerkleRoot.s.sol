@@ -54,9 +54,7 @@ contract CreateBalancedUSDCMerkleRoot is Script, MerkleTreeHelper {
         ERC20[] memory supplyAssets = new ERC20[](2);
         supplyAssets[0] = getERC20(sourceChain, "USDC");
         supplyAssets[1] = getERC20(sourceChain, "USDT");
-        ERC20[] memory borrowAssets = new ERC20[](2);
-        borrowAssets[0] = getERC20(sourceChain, "USDC");
-        borrowAssets[1] = getERC20(sourceChain, "USDT");
+        ERC20[] memory borrowAssets = new ERC20[](0);
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== LayerZero ==========================

@@ -69,22 +69,17 @@ contract CreateBalancedUSDCMerkleRoot is Script, MerkleTreeHelper {
         _addNativeLeafs(leafs);
 
         // ========================== Aave V3 ==========================
-        ERC20[] memory supplyAssets = new ERC20[](5);
-        supplyAssets[0] = getERC20(sourceChain, "USDE");
-        supplyAssets[1] = getERC20(sourceChain, "SUSDE");
-        supplyAssets[2] = getERC20(sourceChain, "USDC");
-        supplyAssets[3] = getERC20(sourceChain, "USDT");
-        supplyAssets[4] = getERC20(sourceChain, "USDS");
-        ERC20[] memory borrowAssets = new ERC20[](5);
-        borrowAssets[0] = getERC20(sourceChain, "USDE");
-        borrowAssets[1] = getERC20(sourceChain, "SUSDE");
-        borrowAssets[2] = getERC20(sourceChain, "USDC");
-        borrowAssets[3] = getERC20(sourceChain, "USDT");
-        borrowAssets[4] = getERC20(sourceChain, "USDS");
+        ERC20[] memory supplyAssets = new ERC20[](2);
+        supplyAssets[0] = getERC20(sourceChain, "USDC");
+        supplyAssets[1] = getERC20(sourceChain, "USDT");
+        ERC20[] memory borrowAssets = new ERC20[](0);
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== Sky Money ==========================
         _addAllSkyMoneyLeafs(leafs);
+
+        // ========================== SUSDS ==========================
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "SUSDS")));
 
         // ========================== Ethena ==========================
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "SUSDE")));
