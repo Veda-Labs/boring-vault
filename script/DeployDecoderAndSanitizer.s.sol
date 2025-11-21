@@ -117,6 +117,7 @@ import {PlasmaUSDPlusPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSaniti
 import {TurtleMUSDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TurtleMUSDDecoderAndSanitizer.sol";
 import {TestVault0DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TestVault0DecoderAndSanitizer.sol";
 import {InkLiquidETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/InkLiquidETHDecoderAndSanitizer.sol";
+import {TestBalancedUSDCDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TestBalancedUSDCDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -150,6 +151,16 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         creationCode = type(InkLiquidETHDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(getAddress(sourceChain, "velodromeNonFungiblePositionManager"));
         deployer.deployContract("Liquid Eth Ink Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        //creationCode = type(TurtleMUSDDecoderAndSanitizer).creationCode;
+        //constructorArgs = abi.encode(getAddress(sourceChain, "odosRouterV2"), getAddress(sourceChain, "pancakeSwapV3NonFungiblePositionManager"), getAddress(sourceChain, "pancakeSwapV3MasterChefV3"));
+        //console.logBytes(constructorArgs);
+        //deployer.deployContract("Turtle MUSD Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
+
+        creationCode = type(TestBalancedUSDCDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode();
+        console.logBytes(constructorArgs);
+        deployer.deployContract("Test Balanced Yield USDC Decoder and Sanitizer V0.2", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
