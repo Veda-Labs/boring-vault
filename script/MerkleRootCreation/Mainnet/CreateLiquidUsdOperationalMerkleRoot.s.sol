@@ -11,9 +11,6 @@ import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import "forge-std/Script.sol";
 
-/**
- *  source .env && forge script script/MerkleRootCreation/Mainnet/CreateLiquidUsdMerkleRoot.s.sol --rpc-url $MAINNET_RPC_URL --gas-limit 1000000000000000000
- */
 contract CreateLiquidUsdOperationalMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
@@ -96,7 +93,7 @@ contract CreateLiquidUsdOperationalMerkleRootScript is Script, MerkleTreeHelper 
             layerZeroFlareEndpointId,
             getBytes32(sourceChain, "boringVault")
         );
-       // Scroll 
+       // Scroll
         _addLayerZeroLeafs(
             leafs,
             getERC20(sourceChain, "USDC"),
@@ -198,7 +195,6 @@ contract CreateLiquidUsdOperationalMerkleRootScript is Script, MerkleTreeHelper 
     function _addLeafsForDroneOne(ManageLeaf[] memory leafs) internal {
         setAddress(true, mainnet, "boringVault", drone1);
         uint256 drone1StartIndex = leafIndex + 1;
-
 
         //NOTE: ensure this is drone1 address
         _createDroneLeafs(leafs, drone1, drone1StartIndex, leafIndex + 1);
