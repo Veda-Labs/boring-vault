@@ -9,6 +9,9 @@ import {ModuleRegistry, IModule} from "src/base/Registry/ModuleRegistry.sol";
 contract AaveV3RulesetDecoder {
 
     ModuleRegistry internal moduleRegistry; 
+    
+    //this will get confusing, maybe we pass it in? 
+    uint256 public constant AAVE_V3 = 1 << 1; //this does have the benefit of telling you which protocolId is which tho
 
     constructor (address _moduleRegistry) {
         moduleRegistry = ModuleRegistry(_moduleRegistry);
@@ -22,17 +25,29 @@ contract AaveV3RulesetDecoder {
         virtual
         returns (bool)
     {
+
+        address vault;
+        address storageContract; 
+        assembly {
+            //skip 4 bytes for selector, skip 32 for padding + first spender address, skip 32 for uin256
+            let vaultData := calldataload(0x84)    //8 * 16 = 128 
+            let storageData := calldataload(0x98)  //9 * 16 + 4 = 148 (next 20)
+            
+            //shift right so we are left padded (0x123abc...)
+            vault := shr(96, vaultData)
+            storageContract := shr(96, storageData)
+        }
+        
         //apply the logic here directly from the modules!
         address[] memory tokens = new address[](1); 
         tokens[0] = asset; 
-        
-        //ideally there is some mechanism to loop through these checks if there are multiple we need to or something?
-        //bool success = Modules.TokenWhitelistModule.checkRule(abi.encode(msg.sender, tokens));
-        //if (!success) return false; 
 
-        IModule module = moduleRegistry.getModule("recipientModule");
-        bool success = module.checkRule(abi.encode(msg.sender, onBehalfOf));
+        IModule module = moduleRegistry.getModule("tokenWhitelistModule");
+        bool success = module.checkRule(abi.encode(AAVE_V3, storageContract, tokens));
+        if (!success) return false; 
 
+        module = moduleRegistry.getModule("recipientModule");
+        success = module.checkRule(abi.encode(vault, onBehalfOf));
         if (!success) return false; 
 
         return true; 

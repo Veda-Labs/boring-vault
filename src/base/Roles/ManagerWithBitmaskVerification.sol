@@ -160,7 +160,9 @@ contract ManagerWithBitmaskVerification is Auth {
         bool success = hasProtocol(protocolConfig.bit, protocolConfig.index); 
         if (!success) revert ManagerWithBitmaskVerification__ProtocolNotInMask(protocolConfig.bit, protocolConfig.index);
         
-        success = abi.decode(protocolConfig.decoder.functionStaticCall(targetData), (bool));
+        bytes memory appended = abi.encodePacked(targetData, vault, storageContract);
+        success = abi.decode(protocolConfig.decoder.functionStaticCall(appended), (bool));
+        if (!success) revert("failure"); 
         //we can potentially extract the same things here and then reuse them in the module checks? so we do not have to rewrite decoders
         //some call to a module failed, we should handle this inside the module itself so errors are more clear, 
         //rather than handling them here with a generic failure case, which is confusing and unclear
@@ -172,8 +174,8 @@ contract ManagerWithBitmaskVerification is Auth {
         bytes calldata targetData,
         address vault
     ) internal view {
-        //this sucks hard, but for now we are hardcoding the approval decoder to the 1 address and a special case
-        //approve(aaave, 500);
+        //still super scuffed
+        //approve(aave, 500);
         //append calldata to the targetData
         bytes memory appended = abi.encodePacked(targetData, vault, target, storageContract);
         bool success = abi.decode(registry.getProtocolConfigFromTarget(address(1)).decoder.functionStaticCall(appended), (bool));
