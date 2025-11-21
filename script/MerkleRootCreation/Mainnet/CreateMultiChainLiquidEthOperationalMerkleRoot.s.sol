@@ -20,6 +20,12 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
     address public drone = 0x0a42b2F3a0D54157Dbd7CC346335A4F1909fc02c;
 
+    address public itbDecoderAndSanitizer = 0xEEb53299Cb894968109dfa420D69f0C97c835211;
+    address public itbReserveProtocolPositionManager = 0x778aC5d0EE062502fADaa2d300a51dE0869f7995;
+    address public itbAaveLidoPositionManager = 0xC4F5Ee078a1C4DA280330546C29840d45ab32753;
+    address public itbAaveLidoPositionManager2 = 0x572F323Aa330B467C356c5a30Bf9A20480F4fD52;
+
+    address public scrollBridgeDecoderAndSanitizer = 0xA66a6B289FB5559b7e4ebf598B8e0A97C776c200;
     address public kingClaimingDecoderAndSanitizer = 0xd4067b594C6D48990BE42a559C8CfDddad4e8D6F;
 
     function setUp() external {}
@@ -36,8 +42,9 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
         setAddress(false, mainnet, "accountantAddress", accountantAddress);
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](128);
+        ManageLeaf[] memory leafs = new ManageLeaf[](256);
         leafIndex = 0;
+
 
         // ========================== UniswapV3 ==========================
         {
@@ -88,6 +95,25 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
             _addEtherFiLeafs(leafs);
         }
 
+        // =========================== ITB =============================
+        {
+            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", itbDecoderAndSanitizer);
+            ERC20[] memory tokens = new ERC20[](7);
+            tokens[0] = getERC20(sourceChain, "SFRXETH");
+            tokens[1] = getERC20(sourceChain, "WSTETH");
+            tokens[2] = getERC20(sourceChain, "RETH");
+            tokens[3] = getERC20(sourceChain, "ETHX");
+            tokens[4] = getERC20(sourceChain, "WETH");
+            tokens[5] = getERC20(sourceChain, "WEETH");
+            tokens[6] = getERC20(sourceChain, "WSTETH");
+
+            _addITBPositionManagerWithdrawals(leafs, itbReserveProtocolPositionManager, tokens, "itb reserve position manager");
+            _addITBPositionManagerWithdrawals(leafs, itbAaveLidoPositionManager, tokens, "itb aave position manager 1");
+            _addITBPositionManagerWithdrawals(leafs, itbAaveLidoPositionManager2, tokens, "itb aave position manager 2");
+            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
+
+
         // ========================== Scroll Bridge ==========================
         {
             setAddress(true, mainnet, "rawDataDecoderAndSanitizer", scrollBridgeDecoderAndSanitizer);
@@ -96,6 +122,7 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
             address[] memory scrollGateways = new address[](1);
             scrollGateways[0] = getAddress(scroll, "scrollWETHGateway");
             _addScrollNativeBridgeLeafs(leafs, "scroll", tokens, scrollGateways);
+            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 
         // ========================== Plasma Bridging ==========================
@@ -204,4 +231,35 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
         _createDroneLeafs(leafs, _drone, droneStartIndex, leafIndex + 1);
         setAddress(true, mainnet, "boringVault", boringVault);
     }
+
+     function _addITBPositionManagerWithdrawals(
+         ManageLeaf[] memory leafs,
+         address itbPositionManager,
+         ERC20[] memory tokensUsed,
+         string memory itbContractName
+     ) internal {
+
+         for (uint256 i; i < tokensUsed.length; ++i) {
+             // Withdraw
+             leafIndex++;
+             leafs[leafIndex] = ManageLeaf(
+                 itbPositionManager,
+                 false,
+                 "withdraw(address,uint256)",
+                 new address[](0),
+                 string.concat("Withdraw ", tokensUsed[i].symbol(), " from the ", itbContractName, " contract"),
+                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+             );
+             // WithdrawAll
+             leafIndex++;
+             leafs[leafIndex] = ManageLeaf(
+                 itbPositionManager,
+                 false,
+                 "withdrawAll(address)",
+                 new address[](0),
+                 string.concat("Withdraw all ", tokensUsed[i].symbol(), " from the ", itbContractName, " contract"),
+                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+             );
+         }
+     }
 }
