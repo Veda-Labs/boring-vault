@@ -11,9 +11,6 @@ import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import "forge-std/Script.sol";
 
-/**
- *  source .env && forge script script/MerkleRootCreation/Flare/CreateLiquidUsdMerkleRoot.s.sol --rpc-url $FLARE_RPC_URL --gas-limit 1000000000000000000
- */
 contract CreateLiquidUsdOperationalMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
@@ -27,9 +24,6 @@ contract CreateLiquidUsdOperationalMerkleRootScript is Script, MerkleTreeHelper 
 
     function setUp() external {}
 
-    /**
-     * @notice Uncomment which script you want to run.
-     */
     function run() external {
         generateLiquidUsdStrategistMerkleRoot();
     }
@@ -41,7 +35,7 @@ contract CreateLiquidUsdOperationalMerkleRootScript is Script, MerkleTreeHelper 
         setAddress(false, flare, "accountantAddress", accountantAddress);
         setAddress(false, flare, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](256);
+        ManageLeaf[] memory leafs = new ManageLeaf[](64);
 
         // ========================== SparkDEX ===============================
         {
@@ -54,8 +48,8 @@ contract CreateLiquidUsdOperationalMerkleRootScript is Script, MerkleTreeHelper 
             address[] memory token1 = new address[](4);
             token1[0] = getAddress(sourceChain, "USDT0");
             token1[1] = getAddress(sourceChain, "USDC");
-            token0[2] = getAddress(sourceChain, "USDT0");
-            token0[3] = getAddress(sourceChain, "USDC");
+            token1[2] = getAddress(sourceChain, "USDT0");
+            token1[3] = getAddress(sourceChain, "USDC");
 
             bool swapRouter02 = false;
             _addUniswapV3OneWaySwapLeafs(leafs, token0, token1, swapRouter02);
@@ -108,8 +102,8 @@ contract CreateLiquidUsdOperationalMerkleRootScript is Script, MerkleTreeHelper 
             address[] memory token1 = new address[](4);
             token1[0] = getAddress(sourceChain, "USDT0");
             token1[1] = getAddress(sourceChain, "USDC");
-            token0[2] = getAddress(sourceChain, "USDT0");
-            token0[3] = getAddress(sourceChain, "USDC");
+            token1[2] = getAddress(sourceChain, "USDT0");
+            token1[3] = getAddress(sourceChain, "USDC");
 
             bool swapRouter02 = false;
             _addUniswapV3OneWaySwapLeafs(leafs, token0, token1, swapRouter02);
