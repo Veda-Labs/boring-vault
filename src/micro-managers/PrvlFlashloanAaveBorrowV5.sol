@@ -8,10 +8,6 @@ import {BalancerVault} from "src/interfaces/BalancerVault.sol";
 import {BoringVault} from "src/base/BoringVault.sol";
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
 
-interface IQuoter {
-    function quoteExactInput(bytes memory path, uint256 amountIn) external returns (uint256 amountOut);     
-}
-
 struct TokenConfig {
     address baseToken; // eg WETH
     address depositToken; // eg wstETH
@@ -23,7 +19,6 @@ contract PrvlFlashloanAaveBorrowV5 is UManager {
     using FixedPointMathLib for uint256;
 
     IUniswapV3Router public immutable uniswapV3Router;
-    IQuoter public immutable quoter;
     BalancerVault public immutable balancerVault;
     address public immutable AAVE;
     address public immutable baseToken; // eg depositToken
@@ -38,7 +33,6 @@ contract PrvlFlashloanAaveBorrowV5 is UManager {
     bytes4 constant FLASHLOAN_SELECTOR = 0x5c38449e;
     bytes4 constant REPAY_SELECTOR = 0x573ade81;
     bytes4 constant WITHDRAW_SELECTOR = 0x69328dec;
-    uint256 internal constant MAX_SLIPPAGE = 0.1e4;
 
     bytes32[][] private borrowInnerManageProofs;
     address[] private borrowInnerDecodersAndSanitizers;
@@ -53,13 +47,11 @@ contract PrvlFlashloanAaveBorrowV5 is UManager {
         address _boringVault,
         address _balancerVault,
         address _uniswapV3Router,
-        address _quoter,
         address _aave,
         TokenConfig memory _tokens,
         uint256 _aaveVariableRate
     ) UManager(_owner, _manager, _boringVault) {
         uniswapV3Router = IUniswapV3Router(_uniswapV3Router);
-        quoter = IQuoter(_quoter);
         balancerVault = BalancerVault(_balancerVault);
         AAVE = _aave;
         baseToken = _tokens.baseToken;
@@ -184,17 +176,15 @@ contract PrvlFlashloanAaveBorrowV5 is UManager {
 
     function getBorrowUserData(uint256 collateralAmount, uint256 borrowAmount, DecoderCustomTypes.ExactInputParamsRouter02 calldata exactInputParams)
         internal
+        view
         returns (bytes memory userData)
     {
-        uint256 swapAmount = collateralAmount + borrowAmount;
-        uint256 supplyAmount = quoter.quoteExactInput(exactInputParams.path, swapAmount);
-
         bytes memory swapData = abi.encodeWithSelector(
             EXACT_INPUT_SELECTOR,
             exactInputParams
         );
 
-        bytes memory supplyData = abi.encodeWithSelector(SUPPLY_SELECTOR, depositToken, supplyAmount, boringVault, 0);
+        bytes memory supplyData = abi.encodeWithSelector(SUPPLY_SELECTOR, depositToken, type(uint256).max, boringVault, 0);
         bytes memory borrowData =
             abi.encodeWithSelector(BORROW_SELECTOR, baseToken, borrowAmount, aaveVariableRate, 0, boringVault);
 
