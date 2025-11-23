@@ -57,6 +57,16 @@ contract CreateMultichainLiquidBtcOperationalMerkleRootScript is Script, MerkleT
             _addOdosOneWaySwapLeafs(leafs, token0[2], token1[2]);
         }
 
+        // ========================== Teller ==========================
+        {
+            ERC20[] memory eBTCTellerAssets = new ERC20[](3);
+            eBTCTellerAssets[0] = getERC20(sourceChain, "WBTC");
+            eBTCTellerAssets[1] = getERC20(sourceChain, "LBTC");
+            eBTCTellerAssets[2] = getERC20(sourceChain, "cbBTC");
+            _addTellerLeafs(leafs, getAddress(sourceChain, "eBTCTeller"), eBTCTellerAssets, false, true);
+        }
+
+        // ========================== ITB =============================
         {
             setAddress(true, mainnet, "rawDataDecoderAndSanitizer", itbDecoderAndSanitizer);
             ERC20[] memory itbTokensUsed = new ERC20[](1);
