@@ -26,7 +26,6 @@ contract CreateLiquidUsdOperationalMerkleRootScript is Script, MerkleTreeHelper 
     address public symbioticDecoderAndSanitizer = 0xdaEfE2146908BAd73A1C45f75eB2B8E46935c781;
     address public pancakeSwapDataDecoderAndSanitizer = 0xfdC73Fc6B60e4959b71969165876213918A443Cd;
     address public aaveV3DecoderAndSanitizer = 0x159Af850c18a83B67aeEB9597409f6C4Aa07ACb3;
-    address public scrollBridgeDecoderAndSanitizer = 0xA66a6B289FB5559b7e4ebf598B8e0A97C776c200; 
 
     function setUp() external {}
 
@@ -75,46 +74,6 @@ contract CreateLiquidUsdOperationalMerkleRootScript is Script, MerkleTreeHelper 
             _addMorphoBlueRepayLeafs(leafs, getBytes32(sourceChain, "syrupUSDC_USDC_915"));
             _addMorphoBlueRepayLeafs(leafs, getBytes32(sourceChain, "sUSDePT_07_30_25_DAI_915"));
             _addMorphoBlueRepayLeafs(leafs, getBytes32(sourceChain, "sUSDePT_07_30_25_USDC_915"));
-        }
-
-        // ========================== Layer Zero Bridging ==========================
-        // Flare
-        _addLayerZeroLeafs(
-            leafs,
-            getERC20(sourceChain, "USDC"),
-            getAddress(sourceChain, "stargateUSDC"),
-            layerZeroFlareEndpointId,
-            getBytes32(sourceChain, "boringVault")
-        );
-        _addLayerZeroLeafs(
-            leafs,
-            getERC20(sourceChain, "USDT"),
-            getAddress(sourceChain, "usdt0OFTAdapter"),
-            layerZeroFlareEndpointId,
-            getBytes32(sourceChain, "boringVault")
-        );
-       // Scroll
-        _addLayerZeroLeafs(
-            leafs,
-            getERC20(sourceChain, "USDC"),
-            getAddress(sourceChain, "stargateUSDC"),
-            layerZeroScrollEndpointId,
-            getBytes32(sourceChain, "boringVault")
-        );
-
-        // ========================== Scroll Bridge ==========================
-        {
-            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", scrollBridgeDecoderAndSanitizer);
-            ERC20[] memory tokens = new ERC20[](3);
-            tokens[0] = getERC20(sourceChain, "USDC");
-            tokens[1] = getERC20(sourceChain, "USDT");
-            tokens[2] = getERC20(sourceChain, "DAI");
-            address[] memory scrollGateways = new address[](3);
-            scrollGateways[0] = getAddress(scroll, "scrollUSDCGateway");
-            scrollGateways[1] = getAddress(scroll, "scrollUSDTGateway");
-            scrollGateways[2] = getAddress(scroll, "scrollDAIGateway");
-            _addScrollNativeBridgeLeafs(leafs, "scroll", tokens, scrollGateways);
-            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 
         // ========================== Merkl ==========================
