@@ -41,7 +41,7 @@ contract CreateLiquidETHOperationalMerkleRootScript is Script, MerkleTreeHelper 
         {
             address[] memory token0 = new address[](2);
             token0[0] = getAddress(sourceChain, "wXPL");
-            token0[1] = getAddress(sourceChain, "USDT0");
+            token0[1] = getAddress(sourceChain, "wXPL");
             address[] memory token1 = new address[](2);
             token1[0] = getAddress(sourceChain, "USDT0");
             token1[1] = getAddress(sourceChain, "WETH");
