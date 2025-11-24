@@ -152,6 +152,43 @@ contract CreateLiquidUsdOperationalMerkleRootScript is Script, MerkleTreeHelper 
         setAddress(true, mainnet, "boringVault", drone1);
         uint256 drone1StartIndex = leafIndex + 1;
 
+        // ========================== Aave V3 ==========================
+        {
+            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", aaveV3DecoderAndSanitizer);
+            ERC20[] memory assets = new ERC20[](2);
+            assets[0] = getERC20(sourceChain, "USDC");
+            assets[1] = getERC20(sourceChain, "USDT");
+            _addAaveV3EOALeafs("Aave V3", getAddress(mainnet, "v3Pool"), leafs, assets);
+            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
+
+        // ========================== MorphoBlue ==========================
+        {
+            _addMorphoBlueRepayLeafs(leafs, 0xdc5333039bcf15f1237133f74d5806675d83d9cf19cfd4cfdd9be674842651bf);
+            _addMorphoBlueRepayLeafs(leafs, 0xcec858380cba2d9ca710fce3ce864d74c3f620d53826f69d08508902e09be86f);
+            _addMorphoBlueRepayLeafs(leafs, 0x8e6aeb10c401de3279ac79b4b2ea15fc94b7d9cfc098d6c2a1ff7b2b26d9d02c);
+            _addMorphoBlueRepayLeafs(leafs, 0x1247f1c237eceae0602eab1470a5061a6dd8f734ba88c7cdc5d6109fb0026b28);
+            _addMorphoBlueRepayLeafs(leafs, 0xdb760246f6859780f6c1b272d47a8f64710777121118e56e0cdb4b8b744a3094);
+            _addMorphoBlueRepayLeafs(leafs, 0xc581c5f70bd1afa283eed57d1418c6432cbff1d862f94eaf58fdd4e46afbb67f);
+            _addMorphoBlueRepayLeafs(leafs, 0xfd8493f09eb6203615221378d89f53fcd92ff4f7d62cca87eece9a2fff59e86f);
+            _addMorphoBlueRepayLeafs(leafs, 0x7dde86a1e94561d9690ec678db673c1a6396365f7d1d65e129c5fff0990ff758);
+            _addMorphoBlueRepayLeafs(leafs, 0xf9acc677910cc17f650416a22e2a14d5da7ccb9626db18f1bf94efe64f92b372);
+            _addMorphoBlueRepayLeafs(leafs, 0x42dcfb38bb98767afb6e38ccf90d59d0d3f0aa216beb3a234f12850323d17536);
+            _addMorphoBlueRepayLeafs(leafs, 0x39d11026eae1c6ec02aa4c0910778664089cdd97c3fd23f68f7cd05e2e95af48);
+            _addMorphoBlueRepayLeafs(leafs, 0xe7e9694b754c4d4f7e21faf7223f6fa71abaeb10296a4c43a54a7977149687d2);
+            _addMorphoBlueRepayLeafs(leafs, 0xb323495f7e4148be5643a4ea4a8221eef163e4bccfdedc2a6f4696baacbc86cc);
+            _addMorphoBlueRepayLeafs(leafs, getBytes32(sourceChain, "eUSDePT_05_28_25_USDC_915"));
+            _addMorphoBlueRepayLeafs(leafs, getBytes32(sourceChain, "eUSDePT_05_28_25_DAI_915"));
+            _addMorphoBlueRepayLeafs(leafs, getBytes32(sourceChain, "syrupUSDC_USDC_915"));
+            _addMorphoBlueRepayLeafs(leafs, getBytes32(sourceChain, "sUSDePT_07_30_25_DAI_915"));
+            _addMorphoBlueRepayLeafs(leafs, getBytes32(sourceChain, "sUSDePT_07_30_25_USDC_915"));
+        }
+
+        // ========================== Merkl ==========================
+        {
+            _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"));
+        }
+
         //NOTE: ensure this is drone1 address
         _createDroneLeafs(leafs, drone1, drone1StartIndex, leafIndex + 1);
         setAddress(true, mainnet, "boringVault", boringVault);
