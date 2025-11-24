@@ -20,12 +20,13 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
     address public drone = 0x0a42b2F3a0D54157Dbd7CC346335A4F1909fc02c;
 
-    address public itbDecoderAndSanitizer = 0xEEb53299Cb894968109dfa420D69f0C97c835211;
     address public itbReserveProtocolPositionManager = 0x778aC5d0EE062502fADaa2d300a51dE0869f7995;
     address public itbAaveLidoPositionManager = 0xC4F5Ee078a1C4DA280330546C29840d45ab32753;
     address public itbAaveLidoPositionManager2 = 0x572F323Aa330B467C356c5a30Bf9A20480F4fD52;
 
-    address public scrollBridgeDecoderAndSanitizer = 0xA66a6B289FB5559b7e4ebf598B8e0A97C776c200;
+    // The cork decoder and sanitizer relaxes restrictions around which tokens can be withdrawn
+    address public itbCorkDecoderAndSanitizer = 0x457Cce6Ec3fEb282952a7e50a1Bc727Ca235Eb0a;
+
     address public kingClaimingDecoderAndSanitizer = 0xd4067b594C6D48990BE42a559C8CfDddad4e8D6F;
 
     function setUp() external {}
@@ -97,8 +98,8 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
 
         // =========================== ITB =============================
         {
-            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", itbDecoderAndSanitizer);
-            ERC20[] memory tokens = new ERC20[](7);
+            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", itbCorkDecoderAndSanitizer);
+            ERC20[] memory tokens = new ERC20[](9);
             tokens[0] = getERC20(sourceChain, "SFRXETH");
             tokens[1] = getERC20(sourceChain, "WSTETH");
             tokens[2] = getERC20(sourceChain, "RETH");
@@ -106,50 +107,13 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
             tokens[4] = getERC20(sourceChain, "WETH");
             tokens[5] = getERC20(sourceChain, "WEETH");
             tokens[6] = getERC20(sourceChain, "WSTETH");
+            tokens[7] = getERC20(sourceChain, "RLUSD");
+            tokens[8] = getERC20(sourceChain, "PYUSD");
 
             _addITBPositionManagerWithdrawals(leafs, itbReserveProtocolPositionManager, tokens, "itb reserve position manager");
             _addITBPositionManagerWithdrawals(leafs, itbAaveLidoPositionManager, tokens, "itb aave position manager 1");
             _addITBPositionManagerWithdrawals(leafs, itbAaveLidoPositionManager2, tokens, "itb aave position manager 2");
             setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
-        }
-
-
-        // ========================== Scroll Bridge ==========================
-        {
-            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", scrollBridgeDecoderAndSanitizer);
-            ERC20[] memory tokens = new ERC20[](1);
-            tokens[0] = getERC20(sourceChain, "WETH");
-            address[] memory scrollGateways = new address[](1);
-            scrollGateways[0] = getAddress(scroll, "scrollWETHGateway");
-            _addScrollNativeBridgeLeafs(leafs, "scroll", tokens, scrollGateways);
-            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
-        }
-
-        // ========================== Plasma Bridging ==========================
-        {
-            // USDT
-            _addLayerZeroLeafs(
-                leafs,
-                getERC20(sourceChain, "USDT"),
-                getAddress(sourceChain, "usdt0OFTAdapter"),
-                layerZeroPlasmaEndpointId,
-                getBytes32(sourceChain, "boringVault")
-            );
-            // ETH
-            _addLayerZeroLeafNative(
-                leafs,
-                getAddress(sourceChain, "stargateNative"),
-                layerZeroPlasmaEndpointId,
-                getBytes32(sourceChain, "boringVault")
-            );
-            // WEETH
-            _addLayerZeroLeafs(
-                leafs,
-                getERC20(sourceChain, "WEETH"),
-                getAddress(sourceChain, "EtherFiOFTAdapter"),
-                layerZeroPlasmaEndpointId,
-                getBytes32(sourceChain, "boringVault")
-            );
         }
 
         // ========================== Drone ==========================
