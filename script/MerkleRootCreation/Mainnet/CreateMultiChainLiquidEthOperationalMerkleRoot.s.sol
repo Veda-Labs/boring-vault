@@ -49,21 +49,15 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
 
         // ========================== UniswapV3 ==========================
         {
-            address[] memory token0 = new address[](6);
-            token0[0] = getAddress(sourceChain, "RLUSD");
-            token0[1] = getAddress(sourceChain, "RLUSD");
-            token0[2] = getAddress(sourceChain, "USDC");
-            token0[3] = getAddress(sourceChain, "EIGEN");
-            token0[4] = getAddress(sourceChain, "rEUL");
-            token0[5] = getAddress(sourceChain, "MNT");
+            address[] memory token0 = new address[](3);
+            token0[0] = getAddress(sourceChain, "EIGEN");
+            token0[1] = getAddress(sourceChain, "rEUL");
+            token0[2] = getAddress(sourceChain, "MNT");
 
-            address[] memory token1 = new address[](6);
-            token1[0] = getAddress(sourceChain, "USDC");
+            address[] memory token1 = new address[](3);
+            token1[0] = getAddress(sourceChain, "WETH");
             token1[1] = getAddress(sourceChain, "WETH");
             token1[2] = getAddress(sourceChain, "WETH");
-            token1[3] = getAddress(sourceChain, "WETH");
-            token1[4] = getAddress(sourceChain, "WETH");
-            token1[5] = getAddress(sourceChain, "WETH");
 
             bool swapRouter02 = false;
             _addUniswapV3OneWaySwapLeafs(leafs, token0, token1, swapRouter02);
@@ -144,21 +138,15 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
         uint256 droneStartIndex = leafIndex + 1;
 
         // ========================== UniswapV3 ==========================
-        address[] memory token0 = new address[](6);
-        token0[0] = getAddress(sourceChain, "RLUSD");
-        token0[1] = getAddress(sourceChain, "RLUSD");
-        token0[2] = getAddress(sourceChain, "USDC");
-        token0[3] = getAddress(sourceChain, "EIGEN");
-        token0[4] = getAddress(sourceChain, "rEUL");
-        token0[5] = getAddress(sourceChain, "MNT");
+        address[] memory token0 = new address[](3);
+        token0[0] = getAddress(sourceChain, "EIGEN");
+        token0[1] = getAddress(sourceChain, "rEUL");
+        token0[2] = getAddress(sourceChain, "MNT");
 
-        address[] memory token1 = new address[](6);
-        token1[0] = getAddress(sourceChain, "USDC");
+        address[] memory token1 = new address[](3);
+        token1[0] = getAddress(sourceChain, "WETH");
         token1[1] = getAddress(sourceChain, "WETH");
         token1[2] = getAddress(sourceChain, "WETH");
-        token1[3] = getAddress(sourceChain, "WETH");
-        token1[4] = getAddress(sourceChain, "WETH");
-        token1[5] = getAddress(sourceChain, "WETH");
 
         bool swapRouter02 = false;
         _addUniswapV3OneWaySwapLeafs(leafs, token0, token1, swapRouter02);
