@@ -205,6 +205,23 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         // ========================== Odos ==========================
         _addOdosSwapLeafs(leafs, assets, kind);  
 
+        {
+            address[] memory token0 = new address[](3);
+            token0[0] = getAddress(sourceChain, "RLUSD");
+            token0[1] = getAddress(sourceChain, "PYUSD");
+            token0[2] = getAddress(sourceChain, "USDC");
+
+
+            address[] memory token1 = new address[](3);
+            token1[0] = getAddress(sourceChain, "USDC");
+            token1[1] = getAddress(sourceChain, "USDC");
+            token1[2] = getAddress(sourceChain, "WBTC");
+
+            _addOdosOneWaySwapLeafs(leafs, token0[0], token1[0]);
+            _addOdosOneWaySwapLeafs(leafs, token0[1], token1[1]);
+            _addOdosOneWaySwapLeafs(leafs, token0[2], token1[2]);
+        }
+
         // ========================== Euler ==========================
         {
         ERC4626[] memory depositVaults = new ERC4626[](1);

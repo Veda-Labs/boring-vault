@@ -869,6 +869,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
 
         ERC4626[] memory depositVaults = new ERC4626[](1);   
         depositVaults[0] = ERC4626(getAddress(sourceChain, "evkeRLUSD-1")); 
+        depositVaults[1] = ERC4626(getAddress(sourceChain, "evkeRLUSD-7")); 
 
         address[] memory subaccounts = new address[](1); 
         subaccounts[0] = getAddress(sourceChain, "boringVault"); 
