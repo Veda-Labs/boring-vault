@@ -44,7 +44,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "accountantAddress", accountantAddress);
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](4096);
+        ManageLeaf[] memory leafs = new ManageLeaf[](8192);
 
         // ========================== Fee Claiming ==========================
         ERC20[] memory feeAssets = new ERC20[](3);
