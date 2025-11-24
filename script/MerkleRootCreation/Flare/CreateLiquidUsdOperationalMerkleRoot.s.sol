@@ -55,10 +55,6 @@ contract CreateLiquidUsdOperationalMerkleRootScript is Script, MerkleTreeHelper 
             _addUniswapV3OneWaySwapLeafs(leafs, token0, token1, swapRouter02);
         }
 
-        // ========================== LayerZero ===============================
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDC"), getAddress(sourceChain, "USDC_OFT_stargate"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault")); 
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDT0"), getAddress(sourceChain, "USDT0_OFT"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault")); 
-
         // ========================== Drone Transfer ===============================
         {
             ERC20[] memory localTokens = new ERC20[](3);
@@ -108,10 +104,6 @@ contract CreateLiquidUsdOperationalMerkleRootScript is Script, MerkleTreeHelper 
             bool swapRouter02 = false;
             _addUniswapV3OneWaySwapLeafs(leafs, token0, token1, swapRouter02);
         }
-
-        // ========================== LayerZero ===============================
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDC"), getAddress(sourceChain, "USDC_OFT_stargate"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDT0"), getAddress(sourceChain, "USDT0_OFT"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
 
         // ========================== Native Leafs ===============================
         _addNativeLeafs(leafs, getAddress(sourceChain, "WFLR"));
