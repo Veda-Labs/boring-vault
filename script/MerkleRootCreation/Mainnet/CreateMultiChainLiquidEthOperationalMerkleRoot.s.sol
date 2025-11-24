@@ -71,16 +71,11 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
 
         // ========================== Odos ==========================
         {
-            address RLUSD = getAddress(sourceChain, "RLUSD");
-            address USDC = getAddress(sourceChain, "USDC");
             address WETH = getAddress(sourceChain, "WETH");
             address EIGEN = getAddress(sourceChain, "EIGEN");
             address rEUL = getAddress(sourceChain, "rEUL");
             address MNT = getAddress(sourceChain, "MNT");
 
-            _addOdosOneWaySwapLeafs(leafs, RLUSD, USDC);
-            _addOdosOneWaySwapLeafs(leafs, RLUSD, WETH);
-            _addOdosOneWaySwapLeafs(leafs, USDC, WETH);
             _addOdosOneWaySwapLeafs(leafs, EIGEN, WETH);
             _addOdosOneWaySwapLeafs(leafs, rEUL, WETH);
             _addOdosOneWaySwapLeafs(leafs, MNT, WETH);
@@ -170,16 +165,11 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
 
         // ========================== Odos ==========================
         {
-            address RLUSD = getAddress(sourceChain, "RLUSD");
-            address USDC = getAddress(sourceChain, "USDC");
             address WETH = getAddress(sourceChain, "WETH");
             address EIGEN = getAddress(sourceChain, "EIGEN");
             address rEUL = getAddress(sourceChain, "rEUL");
             address MNT = getAddress(sourceChain, "MNT");
 
-            _addOdosOneWaySwapLeafs(leafs, RLUSD, USDC);
-            _addOdosOneWaySwapLeafs(leafs, RLUSD, WETH);
-            _addOdosOneWaySwapLeafs(leafs, USDC, WETH);
             _addOdosOneWaySwapLeafs(leafs, EIGEN, WETH);
             _addOdosOneWaySwapLeafs(leafs, rEUL, WETH);
             _addOdosOneWaySwapLeafs(leafs, MNT, WETH);
