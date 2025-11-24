@@ -96,6 +96,9 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
             _addEtherFiLeafs(leafs);
         }
 
+        // ========================== Native ==========================
+        _addNativeLeafs(leafs);
+
         // =========================== ITB =============================
         {
             setAddress(true, mainnet, "rawDataDecoderAndSanitizer", itbCorkDecoderAndSanitizer);
@@ -191,6 +194,10 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
         {
             _addEtherFiLeafs(leafs);
         }
+
+        // ========================== Native ==========================
+        _addNativeLeafs(leafs);
+
 
         _createDroneLeafs(leafs, _drone, droneStartIndex, leafIndex + 1);
         setAddress(true, mainnet, "boringVault", boringVault);
