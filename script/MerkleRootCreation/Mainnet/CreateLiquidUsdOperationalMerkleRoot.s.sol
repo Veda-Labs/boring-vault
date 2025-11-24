@@ -41,16 +41,15 @@ contract CreateLiquidUsdOperationalMerkleRootScript is Script, MerkleTreeHelper 
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](256);
+        leafIndex = 0;
 
         // ========================== Aave V3 ==========================
         {
             setAddress(true, mainnet, "rawDataDecoderAndSanitizer", aaveV3DecoderAndSanitizer);
-            ERC20[] memory supplyAssets = new ERC20[](2);
-            supplyAssets[0] = getERC20(sourceChain, "USDC");
-            supplyAssets[1] = getERC20(sourceChain, "USDT");
-            ERC20[] memory borrowAssets = new ERC20[](0);
-            _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
-            _addAaveV3RepayLeafs("Aave V3", getAddress(mainnet, "v3Pool"), leafs, supplyAssets);
+            ERC20[] memory assets = new ERC20[](2);
+            assets[0] = getERC20(sourceChain, "USDC");
+            assets[1] = getERC20(sourceChain, "USDT");
+            _addAaveV3EOALeafs("Aave V3", getAddress(mainnet, "v3Pool"), leafs, assets);
             setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 
@@ -111,12 +110,10 @@ contract CreateLiquidUsdOperationalMerkleRootScript is Script, MerkleTreeHelper 
         // ========================== Aave V3 ==========================
         {
             setAddress(true, mainnet, "rawDataDecoderAndSanitizer", aaveV3DecoderAndSanitizer);
-            ERC20[] memory supplyAssets = new ERC20[](2);
-            supplyAssets[0] = getERC20(sourceChain, "USDC");
-            supplyAssets[1] = getERC20(sourceChain, "USDT");
-            ERC20[] memory borrowAssets = new ERC20[](0);
-            _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
-            _addAaveV3RepayLeafs("Aave V3", getAddress(mainnet, "v3Pool"), leafs, supplyAssets);
+            ERC20[] memory assets = new ERC20[](2);
+            assets[0] = getERC20(sourceChain, "USDC");
+            assets[1] = getERC20(sourceChain, "USDT");
+            _addAaveV3EOALeafs("Aave V3", getAddress(mainnet, "v3Pool"), leafs, assets);
             setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 
