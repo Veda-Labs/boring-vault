@@ -125,8 +125,8 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         _addUniswapV3Leafs(leafs, token0, token1, false);
 
         // ========================== 1inch ==========================
-        address[] memory assets = new address[](36);
-        SwapKind[] memory kind = new SwapKind[](36);
+        address[] memory assets = new address[](38);
+        SwapKind[] memory kind = new SwapKind[](38);
         assets[0] = getAddress(sourceChain, "WBTC");
         kind[0] = SwapKind.BuyAndSell;
         assets[1] = getAddress(sourceChain, "LBTC");
@@ -199,28 +199,15 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         kind[34] = SwapKind.BuyAndSell;
         assets[35] = getAddress(sourceChain, "sdeUSD");
         kind[35] = SwapKind.BuyAndSell;
+        assets[36] = getAddress(sourceChain, "RLUSD");
+        kind[36] = SwapKind.Sell;
+        assets[37] = getAddress(sourceChain, "PYUSD");
+        kind[37] = SwapKind.Sell;
 
         _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
 
         // ========================== Odos ==========================
         _addOdosSwapLeafs(leafs, assets, kind);  
-
-        {
-            address[] memory token0 = new address[](3);
-            token0[0] = getAddress(sourceChain, "RLUSD");
-            token0[1] = getAddress(sourceChain, "PYUSD");
-            token0[2] = getAddress(sourceChain, "USDC");
-
-
-            address[] memory token1 = new address[](3);
-            token1[0] = getAddress(sourceChain, "USDC");
-            token1[1] = getAddress(sourceChain, "USDC");
-            token1[2] = getAddress(sourceChain, "WBTC");
-
-            _addOdosOneWaySwapLeafs(leafs, token0[0], token1[0]);
-            _addOdosOneWaySwapLeafs(leafs, token0[1], token1[1]);
-            _addOdosOneWaySwapLeafs(leafs, token0[2], token1[2]);
-        }
 
         // ========================== Euler ==========================
         {
