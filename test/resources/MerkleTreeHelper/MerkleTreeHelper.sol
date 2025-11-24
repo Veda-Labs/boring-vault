@@ -2997,27 +2997,75 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
     }
 
-    function _addAaveV3RepayLeafs(
+    // only functions that can't hurt LTV of the position
+    function _addAaveV3EOALeafs(
         string memory protocolName,
         address protocolAddress,
         ManageLeaf[] memory leafs,
-        ERC20[] memory borrowAssets
+        ERC20[] memory assets
     ) public {
 
-        for (uint256 i; i < borrowAssets.length; ++i) {
+        // Approvals
+        string memory baseApprovalString = string.concat("Approve ", protocolName, " Pool to spend ");
+        for (uint256 i; i < assets.length; ++i) {
+            if (!ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][address(assets[i])][protocolAddress]) {
+                leafIndex++;
+                leafs[leafIndex] = ManageLeaf(
+                    address(assets[i]),
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat(baseApprovalString, assets[i].symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = protocolAddress;
+                ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][address(assets[i])][protocolAddress]= true;
+            }
+        }
+
+        // repay
+        for (uint256 i; i < assets.length; ++i) {
             leafIndex++;
             leafs[leafIndex] = ManageLeaf(
                 protocolAddress,
                 false,
                 "repay(address,uint256,uint256,address)",
                 new address[](2),
-                string.concat("Repay ", borrowAssets[i].symbol(), " to ", protocolName),
+                string.concat("Repay ", assets[i].symbol(), " to ", protocolName),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
-            leafs[leafIndex].argumentAddresses[0] = address(borrowAssets[i]);
+            leafs[leafIndex].argumentAddresses[0] = address(assets[i]);
             leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
         }
+
+        // supply
+        for (uint256 i; i < assets.length; ++i) {
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                protocolAddress,
+                false,
+                "supply(address,uint256,address,uint16)",
+                new address[](2),
+                string.concat("Supply ", assets[i].symbol(), " to ", protocolName),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(assets[i]);
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+        }
+
+        // rewards
+        leafIndex++;
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "v3RewardsController"),
+            false,
+            "claimRewards(address[],uint256,address,address)",
+            new address[](1),
+            string.concat("Claim rewards"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
     }
+
 
     // ========================================= Uniswap V2 =========================================
 
