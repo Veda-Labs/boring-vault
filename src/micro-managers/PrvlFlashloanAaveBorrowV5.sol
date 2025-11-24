@@ -5,7 +5,6 @@ import {UManager, FixedPointMathLib, ManagerWithMerkleVerification, ERC20} from 
 import {IUniswapV3Router} from "src/interfaces/IUniswapV3Router.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {BoringVault} from "src/base/BoringVault.sol";
-import {Auth, Authority} from "@solmate/auth/Auth.sol";
 
 interface IQuoter {
     function quoteExactInput(bytes memory path, uint256 amountIn) external returns (uint256 amountOut);     
@@ -225,16 +224,10 @@ contract PrvlFlashloanAaveBorrowV5 is UManager {
         );
     }
 
-    function getRepayUserData(uint256 borrowAmount, uint256 supplyAmount, DecoderCustomTypes.ExactInputParamsRouter02 calldata exactInputParams) internal returns (bytes memory userData) {
+    function getRepayUserData(uint256 borrowAmount, uint256 supplyAmount, DecoderCustomTypes.ExactInputParamsRouter02 calldata exactInputParams) internal view returns (bytes memory userData) {
         bytes memory repayData =
             abi.encodeWithSelector(REPAY_SELECTOR, baseToken, borrowAmount, aaveVariableRate, boringVault);
         bytes memory withdrawData = abi.encodeWithSelector(WITHDRAW_SELECTOR, depositToken, supplyAmount, boringVault);
-        
-        // For swap, use actual adepositToken balance if supplyAmount is max
-        uint256 swapAmount = supplyAmount;
-        if (supplyAmount == type(uint256).max) {
-            swapAmount = ERC20(aToken).balanceOf(boringVault);
-        }
         
         bytes memory swapData = abi.encodeWithSelector(
             EXACT_INPUT_SELECTOR,
