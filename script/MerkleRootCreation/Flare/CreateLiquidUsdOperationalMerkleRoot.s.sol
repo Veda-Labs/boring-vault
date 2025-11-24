@@ -39,17 +39,13 @@ contract CreateLiquidUsdOperationalMerkleRootScript is Script, MerkleTreeHelper 
 
         // ========================== SparkDEX ===============================
         {
-            address[] memory token0 = new address[](4);
+            address[] memory token0 = new address[](2);
             token0[0] = getAddress(sourceChain, "WFLR");
             token0[1] = getAddress(sourceChain, "WFLR");
-            token0[2] = getAddress(sourceChain, "USDC");
-            token0[3] = getAddress(sourceChain, "USDT0");
 
-            address[] memory token1 = new address[](4);
+            address[] memory token1 = new address[](2);
             token1[0] = getAddress(sourceChain, "USDT0");
             token1[1] = getAddress(sourceChain, "USDC");
-            token1[2] = getAddress(sourceChain, "USDT0");
-            token1[3] = getAddress(sourceChain, "USDC");
 
             bool swapRouter02 = false;
             _addUniswapV3OneWaySwapLeafs(leafs, token0, token1, swapRouter02);
@@ -89,17 +85,13 @@ contract CreateLiquidUsdOperationalMerkleRootScript is Script, MerkleTreeHelper 
 
         // ========================== SparkDEX ===============================
         {
-            address[] memory token0 = new address[](4);
+            address[] memory token0 = new address[](2);
             token0[0] = getAddress(sourceChain, "WFLR");
             token0[1] = getAddress(sourceChain, "WFLR");
-            token0[2] = getAddress(sourceChain, "USDC");
-            token0[3] = getAddress(sourceChain, "USDT0");
 
-            address[] memory token1 = new address[](4);
+            address[] memory token1 = new address[](2);
             token1[0] = getAddress(sourceChain, "USDT0");
             token1[1] = getAddress(sourceChain, "USDC");
-            token1[2] = getAddress(sourceChain, "USDT0");
-            token1[3] = getAddress(sourceChain, "USDC");
 
             bool swapRouter02 = false;
             _addUniswapV3OneWaySwapLeafs(leafs, token0, token1, swapRouter02);
