@@ -104,7 +104,7 @@ contract CreateLiquidUsdOperationalMerkleRootScript is Script, MerkleTreeHelper 
         _addrFLRLeafs(leafs, getAddress(sourceChain, "rFLR"));
 
         _createDroneLeafs(leafs, drone, droneStartIndex, leafIndex + 1);
-        setAddress(true, mainnet, "boringVault", boringVault);
+        setAddress(true, flare, "boringVault", boringVault);
     }
 
 }
