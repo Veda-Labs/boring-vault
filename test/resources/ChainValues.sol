@@ -2891,6 +2891,7 @@ contract ChainValues {
         values[ink]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
         values[ink]["dev3Address"] = 0xBBc5569B0b32403037F37255f4ff50B8Bb825b2A.toBytes32();
         values[ink]["dev4Address"] = 0xD3d742a82524b6de30E54315E471264dc4CF2BcC.toBytes32();
+        values[ink]["dev6Address"] = 0x60084013A39eeE05c71Efca92F7BA47884a98EDA.toBytes32();
         values[ink]["dev5Address"] = 0x1cdF47387358A1733968df92f7cC14546D9E1047.toBytes32();
 
         // ERC20s
@@ -2926,11 +2927,10 @@ contract ChainValues {
         // Tydro/Aave
         values[ink]["v3Pool"] = 0x2816cf15F6d2A220E789aA011D5EE4eB6c47FEbA.toBytes32();
         values[ink]["v3RewardsController"] = 0xD93e3Ae8f69D04d484d1652Ca569d4b0522414DF.toBytes32();
-        
+
         // CCTP USDC Bridge
         values[ink]["usdcTokenMessengerV2"] = 0x28b5a0e9C621a5BadaA536219b3a228C8168cf5d.toBytes32();
         values[ink]["usdcMessageTransmitterV2"] = 0x81D40F21F12A8F0E3252Bccb954D722d4c464B64.toBytes32();
-
     }
 
     function _addInkSepoliaValues() private {
