@@ -1755,6 +1755,7 @@ contract ChainValues {
         values[arbitrum]["arbitrumRetryableTx"] = 0x000000000000000000000000000000000000006E.toBytes32();
         values[arbitrum]["arbitrumL2Sender"] = 0x09e9222E96E7B4AE2a407B98d48e330053351EEe.toBytes32();
         values[arbitrum]["arbitrumL2SenderLido"] = 0x07D4692291B9E30E326fd31706f686f83f331B82.toBytes32();
+        values[arbitrum]["arbitrumL2SenderWeth"] = 0x6c411aD3E74De3E7Bd422b94A27770f5B86C623B.toBytes32();
 
         // Pendle
         values[arbitrum]["pendleMarketFactory"] = 0x2FCb47B58350cD377f94d3821e7373Df60bD9Ced.toBytes32();

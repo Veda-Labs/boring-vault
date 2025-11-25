@@ -1253,6 +1253,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         if (keccak256(abi.encode(sourceChain)) == keccak256(abi.encode(mainnet))) {
             // Bridge ERC20 Assets to Arbitrum
             bool hasWstETH = false;
+            bool hasWETH = false;
             bool hasOtherERC20 = false;
             for (uint256 i; i < bridgeAssets.length; i++) {
                 bool isWstETH = address(bridgeAssets[i]) == getAddress(sourceChain, "WSTETH");
@@ -1263,6 +1264,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                     hasWstETH = true;
                 } else if (isWETH) {
                     spender = getAddress(sourceChain, "arbitrumWethGateway");
+                    hasWETH = true;
                 } else {
                     spender = getAddress(sourceChain, "arbitrumL1ERC20Gateway");
                     hasOtherERC20 = true;
@@ -1402,6 +1404,22 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 );
                 leafs[leafIndex].argumentAddresses[0] = getAddress(arbitrum, "arbitrumL2SenderLido");
                 leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "arbitrumL1ERC20GatewayLido");
+            }
+            if (hasWETH) {
+                // Execute Transaction For WETH claim.
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    getAddress(sourceChain, "arbitrumOutbox"),
+                    false,
+                    "executeTransaction(bytes32[],uint256,address,address,uint256,uint256,uint256,uint256,bytes)",
+                    new address[](2),
+                    "Execute transaction to claim WETH",
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(arbitrum, "arbitrumL2SenderWeth");
+                leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "arbitrumWethGateway");
             }
 
             // Execute Transaction For ETH claim.
