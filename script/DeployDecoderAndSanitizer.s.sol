@@ -119,13 +119,19 @@ import {TestVault0DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Test
 import {SentoraUSDCInkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentoraUSDCInkDecoderAndSanitizer.sol";
 import {SentoraUSDCMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentoraUSDCMainnetDecoderAndSanitizer.sol";
 import {ITBBasePositionDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/ITBBasePositionDecoderAndSanitizer.sol";
+import {BalancedUSDCDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TestBalancedUSDCDecoderAndSanitizer.sol";
+import {InkLiquidETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/InkLiquidETHDecoderAndSanitizer.sol";
 import {TestBalancedUSDCDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TestBalancedUSDCDecoderAndSanitizer.sol";
+import {SentayUSDCInkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentayUSDCInkDecoderAndSanitizer.sol";
+import {SentayUSDCMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentayUSDCMainnetDecoderAndSanitizer.sol";
+import {ITBBasePositionDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/ITBBasePositionDecoderAndSanitizer.sol";
+import {BoostedUSDCInkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BoostedUSDCInkDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
 
 /**
- *  source .env && forge script script/DeployDecoderAndSanitizer.s.sol:DeployDecoderAndSanitizerScript --broadcast --etherscan-api-key $ETHERSCAN_API_KEY
+ *  source .env && forge script script/DeployDecoderAndSanitizer.s.sol:DeployDecoderAndSanitizerScript --broadcast --etherscan-api-key $ETHERSCAN_API_KEY --verify
  */
 /** *   --verify --verifier-url 'https://api.routescan.io/v2/network/mainnet/evm/21000000/etherscan'
  * @dev Optionally can change `--with-gas-price` to something more reasonable
@@ -141,8 +147,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("ink");
-        setSourceChainName("ink");
+        vm.createSelectFork("mainnet");
+        setSourceChainName("mainnet");
     }
 
     function run() external {
@@ -155,6 +161,18 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         console.log("SentoraUSDC Ink Decoder and Sanitizer V0.0");
         console.logBytes(constructorArgs);
         deployer.deployContract("SentoraUSDC Ink Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        creationCode = type(BalancedUSDCDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode();
+        console.log("SentayUSDC Ink Decoder and Sanitizer V0.0");
+        console.logBytes(constructorArgs);
+        deployer.deployContract("SentayUSDC Ink Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        creationCode = type(ITBBasePositionDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode();
+        console.log("ITB Base Position Decoder and Sanitizer V0.1");
+        console.logBytes(constructorArgs);
+        deployer.deployContract("ITB Base Position Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
         vm.stopBroadcast();
     }
 

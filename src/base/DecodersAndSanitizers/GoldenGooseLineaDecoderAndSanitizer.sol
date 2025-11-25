@@ -12,6 +12,7 @@ import {AaveV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocol
 import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol";
 import {LineaBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LineaBridgeDecoderAndSanitizer.sol";
 import {EulerEVKDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/EulerEVKDecoderAndSanitizer.sol";
+import {OneInchDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OneInchDecoderAndSanitizer.sol";
 
 contract GoldenGooseLineaDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
@@ -20,7 +21,8 @@ contract GoldenGooseLineaDecoderAndSanitizer is
     AaveV3DecoderAndSanitizer,
     OdosDecoderAndSanitizer,
     LineaBridgeDecoderAndSanitizer,
-    EulerEVKDecoderAndSanitizer
+    EulerEVKDecoderAndSanitizer,
+    OneInchDecoderAndSanitizer
 {
     constructor(
         address _odosRouter
