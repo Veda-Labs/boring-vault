@@ -2898,9 +2898,11 @@ contract ChainValues {
         values[ink]["WETH"] = 0x4200000000000000000000000000000000000006.toBytes32();
         values[ink]["WEETH"] = 0xA3D68b74bF0528fdD07263c60d6488749044914b.toBytes32();
         values[ink]["USDT"] = 0x0200C29006150606B650577BBE7B6248F58470c1.toBytes32(); // USDT0
+
         values[ink]["USDC"] = 0x2D270e6886d130D724215A266106e6832161EAEd.toBytes32(); // native Circle USDC
         values[ink]["USDCe"] = 0xF1815bd50389c46847f0Bda824eC8da914045D14.toBytes32(); // Stargate USDC.e
         values[ink]["USDC.e"] = 0xF1815bd50389c46847f0Bda824eC8da914045D14.toBytes32(); // Stargate USDC.e
+
         values[ink]["KBTC"] = 0x73E0C0d45E048D25Fc26Fa3159b0aA04BfA4Db98.toBytes32(); // Kraken Wrapped BTC
         values[ink]["stargateUSDC"] = 0xF1815bd50389c46847f0Bda824eC8da914045D14.toBytes32(); // Stargate USDC.e
 

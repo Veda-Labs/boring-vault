@@ -119,6 +119,9 @@ import {TestVault0DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Test
 import {BalancedUSDCDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TestBalancedUSDCDecoderAndSanitizer.sol";
 import {InkLiquidETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/InkLiquidETHDecoderAndSanitizer.sol";
 import {TestBalancedUSDCDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TestBalancedUSDCDecoderAndSanitizer.sol";
+import {SentayUSDCInkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentayUSDCInkDecoderAndSanitizer.sol";
+import {SentayUSDCMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentayUSDCMainnetDecoderAndSanitizer.sol";
+import {ITBBasePositionDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/ITBBasePositionDecoderAndSanitizer.sol";
 import {BoostedUSDCInkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BoostedUSDCInkDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
@@ -150,20 +153,17 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        //creationCode = type(TurtleMUSDDecoderAndSanitizer).creationCode;
-        //constructorArgs = abi.encode(getAddress(sourceChain, "odosRouterV2"), getAddress(sourceChain, "pancakeSwapV3NonFungiblePositionManager"), getAddress(sourceChain, "pancakeSwapV3MasterChefV3"));
-        //console.logBytes(constructorArgs);
-        //deployer.deployContract("Turtle MUSD Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
-
         creationCode = type(BalancedUSDCDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode();
+        console.log("SentayUSDC Ink Decoder and Sanitizer V0.0");
         console.logBytes(constructorArgs);
-        deployer.deployContract("Balanced Yield USDC Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        deployer.deployContract("SentayUSDC Ink Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        creationCode = type(LiquidBtcDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2"), getAddress(sourceChain, "convexFXPoolRegistry"));
+        creationCode = type(ITBBasePositionDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode();
+        console.log("ITB Base Position Decoder and Sanitizer V0.1");
         console.logBytes(constructorArgs);
-        deployer.deployContract("Liquid BTC Decoder and Sanitizer V0.5", creationCode, constructorArgs, 0);
+        deployer.deployContract("ITB Base Position Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
