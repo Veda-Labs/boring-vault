@@ -2902,6 +2902,7 @@ contract ChainValues {
         values[ink]["USDCe"] = 0xF1815bd50389c46847f0Bda824eC8da914045D14.toBytes32(); // Stargate USDC.e
         values[ink]["USDC.e"] = 0xF1815bd50389c46847f0Bda824eC8da914045D14.toBytes32(); // Stargate USDC.e
         values[ink]["KBTC"] = 0x73E0C0d45E048D25Fc26Fa3159b0aA04BfA4Db98.toBytes32(); // Kraken Wrapped BTC
+        values[ink]["stargateUSDC"] = 0xF1815bd50389c46847f0Bda824eC8da914045D14.toBytes32(); // Stargate USDC.e
 
         // Standard Bridge.
         values[ink]["standardBridge"] = 0x4200000000000000000000000000000000000010.toBytes32();
