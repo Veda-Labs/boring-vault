@@ -496,6 +496,10 @@ contract ChainValues {
         values[mainnet]["balancerV3_Surge_Fluid_wstETH-wETH_boosted_gauge"] =
             0x1CCE9d493224A19FcB5f7fBade8478630141CB54.toBytes32();
 
+        // Cap
+        values[mainnet]["cUSD"] = 0xcCcc62962d17b8914c62D74FfB843d73B2a3cccC.toBytes32();
+        values[mainnet]["stcUSD"] = 0x88887bE419578051FF9F4eb6C858A951921D8888.toBytes32();
+
         // Aura
         values[mainnet]["auraBooster"] = 0xA57b8d98dAE62B26Ec3bcC4a365338157060B234.toBytes32();
 
@@ -1297,6 +1301,11 @@ contract ChainValues {
         values[mainnet]["unichainPortal"] = 0x0bd48f6B86a26D3a217d0Fa6FfE2B491B956A7a2.toBytes32();
         values[mainnet]["unichainResolvedDelegate"] = 0x9A3D64E386C18Cb1d6d5179a9596A4B5736e98A6.toBytes32();
 
+        // Ink Standard Bridge.
+        values[mainnet]["inkStandardBridge"] = 0x88FF1e5b602916615391F55854588EFcBB7663f0.toBytes32();
+        values[mainnet]["inkPortal"] = 0x5d66C1782664115999C47c9fA5cd031f495D3e4F.toBytes32();
+        values[mainnet]["inkResolvedDelegate"] = 0x69d3Cf86B2Bf1a9e99875B7e2D9B6a84426c171f.toBytes32();
+
         // Layer Zero.
         values[mainnet]["LayerZeroEndPoint"] = 0x1a44076050125825900e736c501f859c50fE728c.toBytes32();
         values[mainnet]["EtherFiOFTAdapter"] = 0xcd2eb13D6831d4602D80E5db9230A57596CDCA63.toBytes32();
@@ -1960,6 +1969,7 @@ contract ChainValues {
         values[linea]["ZRO"] = address(1).toBytes32();
         values[linea]["USDC"] = 0x176211869cA2b568f2A7D4EE941E073a821EE1ff.toBytes32();
         values[linea]["USDT"] = 0xA219439258ca9da29E9Cc4cE5596924745e12B93.toBytes32();
+        values[linea]["LINEA"] = 0x1789e0043623282D5DCc7F213d703C6D8BAfBB04.toBytes32();
 
         // Linea Bridge.
         values[linea]["tokenBridge"] = 0x353012dc4a9A6cF55c941bADC267f82004A8ceB9.toBytes32(); //approve, also bridge token
@@ -1979,6 +1989,9 @@ contract ChainValues {
         // Odos
         values[linea]["odosRouterV2"] = 0x2d8879046f1559E53eb052E949e9544bCB72f414.toBytes32();
         values[linea]["odosExecutor"] = 0xFB66e944021bf915cFb4dAC2b20653930Bf7d35A.toBytes32();
+
+        // 1Inch
+        values[linea]["oneInchExecutor"] = 0x8C864D0c8E476Bf9eb9d620C10E1296fb0E2F940.toBytes32();
 
         // Aave
         values[linea]["v3Pool"] = 0xc47b8C00b0f69a36fa203Ffeac0334874574a8Ac.toBytes32();
@@ -2878,14 +2891,22 @@ contract ChainValues {
         values[ink]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
         values[ink]["dev3Address"] = 0xBBc5569B0b32403037F37255f4ff50B8Bb825b2A.toBytes32();
         values[ink]["dev4Address"] = 0xD3d742a82524b6de30E54315E471264dc4CF2BcC.toBytes32();
+        values[ink]["dev5Address"] = 0x1cdF47387358A1733968df92f7cC14546D9E1047.toBytes32();
 
         // ERC20s
         values[ink]["ETH"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32();
         values[ink]["WETH"] = 0x4200000000000000000000000000000000000006.toBytes32();
+        values[ink]["WEETH"] = 0xA3D68b74bF0528fdD07263c60d6488749044914b.toBytes32();
         values[ink]["USDT"] = 0x0200C29006150606B650577BBE7B6248F58470c1.toBytes32(); // USDT0
-        values[ink]["USDC"] = 0x2D270e6886d130D724215A266106e6832161EAEd.toBytes32();
+        values[ink]["USDC"] = 0x2D270e6886d130D724215A266106e6832161EAEd.toBytes32(); // native Circle USDC
+        values[ink]["USDCe"] = 0xF1815bd50389c46847f0Bda824eC8da914045D14.toBytes32(); // Stargate USDC.e
+        values[ink]["USDC.e"] = 0xF1815bd50389c46847f0Bda824eC8da914045D14.toBytes32(); // Stargate USDC.e
         values[ink]["KBTC"] = 0x73E0C0d45E048D25Fc26Fa3159b0aA04BfA4Db98.toBytes32(); // Kraken Wrapped BTC
         values[ink]["stargateUSDC"] = 0xF1815bd50389c46847f0Bda824eC8da914045D14.toBytes32(); // Stargate USDC.e
+
+        // Standard Bridge.
+        values[ink]["standardBridge"] = 0x4200000000000000000000000000000000000010.toBytes32();
+        values[ink]["crossDomainMessenger"] = 0x4200000000000000000000000000000000000007.toBytes32();
 
         // LayerZero
         values[ink]["LayerZeroEndPoint"] = 0xca29f3A6f966Cb2fc0dE625F8f325c0C46dbE958.toBytes32();
@@ -2895,6 +2916,10 @@ contract ChainValues {
         // Balancer
         values[ink]["balancerVault"] = address(1).toBytes32();
         values[ink]["vault"] = address(1).toBytes32();
+
+        // Velodrome
+        values[ink]["velodromeNonFungiblePositionManager"] = 0x991d5546C4B442B4c5fdc4c8B8b8d131DEB24702.toBytes32();
+        values[ink]["velodrome_WETH_WEETH_Gauge"] = 0xa9595E55A0a34f4Bf21d3a0B93aeD29a6bf3E310.toBytes32();
 
         // Tydro/Aave
         values[ink]["v3Pool"] = 0x2816cf15F6d2A220E789aA011D5EE4eB6c47FEbA.toBytes32();

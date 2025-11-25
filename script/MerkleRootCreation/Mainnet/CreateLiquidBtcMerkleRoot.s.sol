@@ -21,7 +21,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0x5f46d540b6eD704C3c8789105F30E075AA900726;
     address public managerAddress = 0xaFa8c08bedB2eC1bbEb64A7fFa44c604e7cca68d;
     address public accountantAddress = 0xEa23aC6D7D11f6b181d6B98174D334478ADAe6b0;
-    address public rawDataDecoderAndSanitizer = 0x74522D571f80FF8024b176d710cD963002aC4278;
+    address public rawDataDecoderAndSanitizer = 0x003BcF9eebc322dF6462dEb187452155bf8e8C43;
     address public scrollBridgeDecoderAndSanitizer = 0xA66a6B289FB5559b7e4ebf598B8e0A97C776c200;
     address public itbPositionManager = 0x7AAf9539B7359470Def1920ca41b5AAA05C13726;
     address public itbPositionManager2 = 0x11Fd9E49c41738b7500748f7B94B4DBb0E8c13d2; // Spark LBTC (PYUSD) + Aave Core Euler PYUSD Supervised Loan
@@ -327,8 +327,9 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
             liquidBeraBTCTellerAssets[3] = getERC20(sourceChain, "eBTC");
             _addTellerLeafs(leafs, newLiquidBeraBTCTeller, liquidBeraBTCTellerAssets, false, true);
 
-            ERC20[] memory tacBTCAssets = new ERC20[](1);
+            ERC20[] memory tacBTCAssets = new ERC20[](2);
             tacBTCAssets[0] = getERC20(sourceChain, "cbBTC");
+            tacBTCAssets[1] = getERC20(sourceChain, "LBTC");
             _addTellerLeafs(leafs, getAddress(sourceChain, "TurtleTACBTCTeller"), tacBTCAssets, false, false);
             _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "TurtleTACBTCQueue"), getAddress(sourceChain, "TurtleTACBTC"), tacBTCAssets);
 
