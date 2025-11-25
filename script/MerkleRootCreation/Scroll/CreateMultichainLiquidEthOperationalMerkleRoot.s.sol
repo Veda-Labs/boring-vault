@@ -15,10 +15,9 @@ contract CreateLiquidETHOperationalMerkleRootScript is Script, MerkleTreeHelper 
     using FixedPointMathLib for uint256;
 
     address public boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C;
-    address public rawDataDecoderAndSanitizer = 0x6727a35867EDCdDE01B92F5104D09D4561A4C2D9;
-    address public managerAddress = 0xf9f7969C357ce6dfd7973098Ea0D57173592bCCa;
+    address public rawDataDecoderAndSanitizer = 0xf6cF44791ee924597f8D1EFf98562435aFae29B8;
+    address public managerAddress = 0x227975088C28DBBb4b421c6d96781a53578f19a8;
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
-    address public drone = 0x7c391d7856fcbC4Fd3a3C3CD8787c7eBF85934aF;
 
     function setUp() external {}
 
