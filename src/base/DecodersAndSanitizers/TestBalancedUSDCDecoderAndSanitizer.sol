@@ -15,18 +15,18 @@ import {EthenaWithdrawDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/
 import {NativeWrapperDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol";
 import {SkyMoneyDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SkyMoneyDecoderAndSanitizer.sol";
 import {CCTPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCTPDecoderAndSanitizer.sol";
+import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
 
-contract TestBalancedUSDCDecoderAndSanitizer is 
+contract BalancedUSDCDecoderAndSanitizer is 
     BaseDecoderAndSanitizer,
     AaveV3DecoderAndSanitizer,
     ERC4626DecoderAndSanitizer,
     OFTDecoderAndSanitizer,
     OneInchDecoderAndSanitizer,
-    OdosDecoderAndSanitizer,
     EthenaWithdrawDecoderAndSanitizer,
     NativeWrapperDecoderAndSanitizer,
     SkyMoneyDecoderAndSanitizer,
-    CCTPDecoderAndSanitizer
+    CCTPDecoderAndSanitizer,
+    TellerDecoderAndSanitizer
 {
-   constructor(address _odosRouter) OdosDecoderAndSanitizer(_odosRouter){} 
 }
