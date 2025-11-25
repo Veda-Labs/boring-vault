@@ -21,18 +21,18 @@ import "forge-std/StdJson.sol";
 contract DeployTellerWithYieldStreamingScript is Script, ContractNames, MainnetAddresses {
     uint256 public privateKey;
     Deployer public deployer = Deployer(deployerAddress);
-    address public v3PoolMainnet = 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2;
-    address public accountant = 0xb9583126AFa968935d99c4B515b508741CfeaF27;
-    address public boringVault = 0x573dD6B134eC83673ff3f2319079B247355Eb05f;
-    address public WETHmainnet = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
-    address public USDTmainnet = 0xdAC17F958D2ee523a2206206994597C13D831ec7;
-    address public USDCmainnet = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
-    address public tempOwner = 0x7E97CaFdd8772706dbC3c83d36322f7BfC0f63C7;
-    address public rolesAuthority = 0xA22B0Ad31097ab7903Cf6a70109e500Bd109F6E9;
+    address public v3PoolMainnet = 0x2816cf15F6d2A220E789aA011D5EE4eB6c47FEbA;
+    //address public accountant = 0xb9583126AFa968935d99c4B515b508741CfeaF27;
+    address public boringVault = 0x41359177826535F1Fa18937A421aDa03eE45c653;
+    //address public WETHmainnet = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+    //address public USDTmainnet = 0xdAC17F958D2ee523a2206206994597C13D831ec7;
+    //address public USDCmainnet = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
+    //address public tempOwner = 0x7E97CaFdd8772706dbC3c83d36322f7BfC0f63C7;
+    //address public rolesAuthority = 0xA22B0Ad31097ab7903Cf6a70109e500Bd109F6E9;
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("mainnet");
+        vm.createSelectFork("ink");
     }
 
     function run() external {
@@ -45,28 +45,28 @@ contract DeployTellerWithYieldStreamingScript is Script, ContractNames, MainnetA
         constructorArgs = abi.encode(v3PoolMainnet, boringVault);
         AaveV3BufferHelper bufferHelper = AaveV3BufferHelper(
             deployer.deployContract(
-                "Insipid Ferret Aave Buffer Helper V0.0", creationCode, constructorArgs, 0
+                "Balanced Yield USDC Aave Buffer Helper V0.1", creationCode, constructorArgs, 0
             )
         );
 
         // deploy teller
-        creationCode = type(TellerWithYieldStreaming).creationCode;
-        constructorArgs = abi.encode(tempOwner, boringVault, accountant, WETHmainnet);
-        TellerWithYieldStreaming teller = TellerWithYieldStreaming(
-            deployer.deployContract(
-                "Insipid Ferret Teller With Yield Streaming V0.0", creationCode, constructorArgs, 0
-            )
-        );
-        teller.updateAssetData(ERC20(USDTmainnet), true, true, 0);
-        teller.updateAssetData(ERC20(USDCmainnet), true, true, 0);
-        teller.allowBufferHelper(ERC20(USDTmainnet), bufferHelper);
-        teller.allowBufferHelper(ERC20(USDCmainnet), bufferHelper);
-        teller.setDepositBufferHelper(ERC20(USDTmainnet), bufferHelper);
-        teller.setDepositBufferHelper(ERC20(USDCmainnet), bufferHelper);
-        teller.setWithdrawBufferHelper(ERC20(USDTmainnet), bufferHelper);
-        teller.setWithdrawBufferHelper(ERC20(USDCmainnet), bufferHelper);
-        teller.setAuthority(Authority(rolesAuthority));
-        teller.transferOwnership(address(0));
+        //creationCode = type(TellerWithYieldStreaming).creationCode;
+        //constructorArgs = abi.encode(tempOwner, boringVault, accountant, WETHmainnet);
+        //TellerWithYieldStreaming teller = TellerWithYieldStreaming(
+        //    deployer.deployContract(
+        //        "Insipid Ferret Teller With Yield Streaming V0.0", creationCode, constructorArgs, 0
+        //    )
+        //);
+        //teller.updateAssetData(ERC20(USDTmainnet), true, true, 0);
+        //teller.updateAssetData(ERC20(USDCmainnet), true, true, 0);
+        //teller.allowBufferHelper(ERC20(USDTmainnet), bufferHelper);
+        //teller.allowBufferHelper(ERC20(USDCmainnet), bufferHelper);
+        //teller.setDepositBufferHelper(ERC20(USDTmainnet), bufferHelper);
+        //teller.setDepositBufferHelper(ERC20(USDCmainnet), bufferHelper);
+        //teller.setWithdrawBufferHelper(ERC20(USDTmainnet), bufferHelper);
+        //teller.setWithdrawBufferHelper(ERC20(USDCmainnet), bufferHelper);
+        //teller.setAuthority(Authority(rolesAuthority));
+        //teller.transferOwnership(address(0));
 
         vm.stopBroadcast();
     }

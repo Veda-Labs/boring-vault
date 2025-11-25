@@ -31,6 +31,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
     address public hyperlaneDecoderAndSanitizer = 0xfC823909C7D2Cb8701FE7d6EE74508C57Df1D6dE;
     address public termFinanceDecoderAndSanitizer = 0xF8e9517e7e98D7134E306aD3747A50AC8dC1dbc9;
     address public kingClaimingDecoderAndSanitizer = 0xd4067b594C6D48990BE42a559C8CfDddad4e8D6F;
+    address public capDecoderAndSanitizer = 0xE0e86bf98dAA0D2b408Cb038E94bCB9B7864309C;
 
     address public itbCorkDecoderAndSanitizer = 0x457Cce6Ec3fEb282952a7e50a1Bc727Ca235Eb0a;
 
@@ -97,6 +98,18 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== Gearbox ==========================
         _addGearboxLeafs(leafs, ERC4626(getAddress(sourceChain, "dWETHV3")), getAddress(sourceChain, "sdWETHV3"));
+
+        // ============================ Cap ============================
+        {
+
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", capDecoderAndSanitizer);
+            address[] memory capDepositAssets = new address[](3);
+            capDepositAssets[0] = getAddress(sourceChain, "USDC");
+            capDepositAssets[1] = getAddress(sourceChain, "USDT");
+            capDepositAssets[2] = getAddress(sourceChain, "PYUSD");
+            _addCapLeafs(leafs, capDepositAssets);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
 
         // ========================== MorphoBlue ==========================
         /**
@@ -165,8 +178,8 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
             // ========================== 1inch ==========================
-            address[] memory assets = new address[](33);
-            SwapKind[] memory kind = new SwapKind[](33);
+            address[] memory assets = new address[](35);
+            SwapKind[] memory kind = new SwapKind[](35);
             assets[0] = getAddress(sourceChain, "WETH");
             kind[0] = SwapKind.BuyAndSell;
             assets[1] = getAddress(sourceChain, "WEETH");
@@ -233,6 +246,10 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             kind[31] = SwapKind.Sell;
             assets[32] = getAddress(sourceChain, "SWELL"); // Address in ChainValues ++ checked
             kind[32] = SwapKind.Sell;
+            assets[33] = getAddress(sourceChain, "RLUSD");
+            kind[33] = SwapKind.Sell;
+            assets[34] = getAddress(sourceChain, "PYUSD");
+            kind[34] = SwapKind.Sell;
             _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
 
             _addLeafsFor1InchUniswapV3Swapping(leafs, getAddress(sourceChain, "wstETH_wETH_01"));
@@ -584,6 +601,22 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             );
         }
 
+        {
+            ERC20[] memory inkLocalTokens = new ERC20[](0);
+            ERC20[] memory inkRemoteTokens = new ERC20[](0);
+
+            _addStandardBridgeLeafs(
+                leafs,
+                ink,
+                getAddress(ink, "crossDomainMessenger"),
+                getAddress(sourceChain, "inkResolvedDelegate"),
+                getAddress(sourceChain, "inkStandardBridge"),
+                getAddress(sourceChain, "inkPortal"),
+                inkLocalTokens,
+                inkRemoteTokens
+            );
+        }
+
         // ========================== LayerZero ==========================
         {
             _addLayerZeroLeafs(
@@ -623,6 +656,14 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
                 getERC20(sourceChain, "WEETH"),
                 getAddress(sourceChain, "EtherFiOFTAdapter"),
                 layerZeroScrollEndpointId,
+                getBytes32(sourceChain, "boringVault")
+            );
+
+            _addLayerZeroLeafs(
+                leafs,
+                getERC20(sourceChain, "WEETH"),
+                getAddress(sourceChain, "EtherFiOFTAdapter"),
+                layerZeroInkEndpointId,
                 getBytes32(sourceChain, "boringVault")
             );
 
@@ -803,9 +844,13 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "ITB Position Manager");
 
         address itbPositionManager2 = 0xA40aFb15275A94F64aF37C0cEaAaA45Cb568A361;
+        address itbPositionManager3 = 0x2A601FC6C0Cb854fDA82715E49Ab04C5340A0396;
         ERC20[] memory itbTokensUsed2 = new ERC20[](1);
         itbTokensUsed2[0] = getERC20(sourceChain, "WEETH");
+        // Aave weETH -> RLUSD -> RLUSD Aave Horizon 
         _addLeafsForITBPositionManager(leafs, itbPositionManager2, itbTokensUsed2, "ITB Position Manager 2");
+        //Spark weETH → PYUSD → PYUSD Euler
+        _addLeafsForITBPositionManager(leafs, itbPositionManager3, itbTokensUsed2, "ITB Position Manager 3");
 
         // ========================== Drone Setup ===============================
         {

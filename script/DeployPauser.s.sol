@@ -22,14 +22,15 @@ contract DeployPauserScript is Script, ContractNames, MainnetAddresses {
     Deployer public deployer;
     Pauser public pauser;
 
-    address public accountant = 0x1b293DC39F94157fA0D1D36d7e0090C8B8B8c13F;
-    address public teller = 0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268;
-    address public manager = 0x382d0106F308864D5462332D9D3bB54a60384B70;
-    address public rolesAuthority = 0x6889E57BcA038C28520C0B047a75e567502ea5F6;
+    address public accountant = 0x727929AF06Fa4f6E96cbC3fF7F4b60A65E168e23;
+    address public teller = 0x1d8016AEdE8Bd0143C311Bb28CCdd8af8a245df9;
+    address public manager = 0xA0e501F98A1B5d3d8e6Ffd161c76f92570E42931;
+    address public queue = 0xF13d0670Ad2FD78e404a52Da45c6af1df7AD33DD;
+    address public rolesAuthority = 0x3E8B0ee1D05267fE9F8d2b1f8CB48F2e23d69c6B;
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("mainnet");
+        vm.createSelectFork("ink");
     }
 
     function run() external {
@@ -39,12 +40,13 @@ contract DeployPauserScript is Script, ContractNames, MainnetAddresses {
 
         deployer = Deployer(deployerAddress);
         creationCode = type(Pauser).creationCode;
-        address[] memory pausables = new address[](3);
-        pausables[0] = accountant;
-        pausables[1] = teller;
-        pausables[2] = manager;
+        address[] memory pausables = new address[](4);
+        pausables[0] = teller;
+        pausables[1] = queue;
+        pausables[2] = accountant;
+        pausables[3] = manager;
         constructorArgs = abi.encode(dev1Address, rolesAuthority, pausables);
-        pauser = Pauser(deployer.deployContract("ether.fi BTC Pauser V0.0", creationCode, constructorArgs, 0));
+        pauser = Pauser(deployer.deployContract("Balanced Yield USDC Pauser V0.2", creationCode, constructorArgs, 0));
         vm.stopBroadcast();
     }
 }

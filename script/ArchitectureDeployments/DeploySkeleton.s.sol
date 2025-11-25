@@ -19,8 +19,12 @@ import {
 import {LayerZeroTeller} from "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTeller.sol";
 import {LayerZeroTellerWithRateLimiting} from
     "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTellerWithRateLimiting.sol";
+import {TellerWithYieldStreaming} from "src/base/Roles/TellerWithYieldStreaming.sol";
 import {AccountantWithRateProviders, IRateProvider} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {AccountantWithFixedRate} from "src/base/Roles/AccountantWithFixedRate.sol";
+import {AccountantWithYieldStreaming} from "src/base/Roles/AccountantWithYieldStreaming.sol";
+import {AaveV3BufferHelper} from "src/base/Roles/AaveV3BufferHelper.sol";
+import {AaveV3BufferLens} from "src/helper/AaveV3BufferLens.sol";
 import {Deployer} from "src/helper/Deployer.sol";
 import {ArcticArchitectureLens} from "src/helper/ArcticArchitectureLens.sol";
 import {ContractNames} from "resources/ContractNames.sol";
@@ -122,8 +126,10 @@ contract DeploySkeletonScript is Script, ChainValues {
     BoringVault public boringVault;
     RolesAuthority public rolesAuthority;
     address public rawDataDecoderAndSanitizer;
-    TellerWithMultiAssetSupport public teller;
-    AccountantWithRateProviders public accountant;
+    AaveV3BufferHelper public aaveV3BufferHelper;
+    AaveV3BufferLens public aaveV3BufferLens;
+    TellerWithYieldStreaming public teller;
+    AccountantWithYieldStreaming public accountant;
     DelayedWithdraw public delayedWithdrawer;
     PaymentSplitter public paymentSplitter;
     BoringOnChainQueue public queue;
@@ -169,7 +175,8 @@ contract DeploySkeletonScript is Script, ChainValues {
 
     enum AccountantKind {
         VariableRate,
-        FixedRate
+        FixedRate,
+        YieldStreaming
     }
 
     AccountantKind internal accountantKind;
@@ -179,7 +186,8 @@ contract DeploySkeletonScript is Script, ChainValues {
         TellerWithRemediation,
         TellerWithCcip,
         TellerWithLayerZero,
-        TellerWithLayerZeroRateLimiting
+        TellerWithLayerZeroRateLimiting,
+        TellerWithYieldStreaming
     }
 
     TellerKind internal tellerKind;
@@ -246,6 +254,8 @@ contract DeploySkeletonScript is Script, ChainValues {
 
     string internal rolesAuthorityDeploymentName;
     string internal lensDeploymentName;
+    string internal aaveV3BufferHelperDeploymentName;
+    string internal aaveV3BufferLensDeploymentName;
     string internal boringVaultDeploymentName;
     string internal managerDeploymentName;
     string internal accountantDeploymentName;
@@ -285,7 +295,7 @@ contract DeploySkeletonScript is Script, ChainValues {
     function run(string memory configurationFileName) external {
         {
             string memory root = vm.projectRoot();
-            string memory configurationPath = string.concat(root, "/deployments/skeletons/", configurationFileName);
+            string memory configurationPath = string.concat(root, "/deployments/skeletons/configurations/", configurationFileName);
             rawJson = vm.readFile(configurationPath);
         }
 
@@ -352,6 +362,8 @@ contract DeploySkeletonScript is Script, ChainValues {
         droneBaseDeploymentName = vm.parseJsonString(rawJson, ".droneConfiguration.droneDeploymentBaseName");
         pauserDeploymentName = vm.parseJsonString(rawJson, ".pauserConfiguration.pauserDeploymentName");
         timelockDeploymentName = vm.parseJsonString(rawJson, ".timelockConfiguration.timelockDeploymentName");
+        aaveV3BufferHelperDeploymentName = vm.parseJsonString(rawJson, ".aaveV3BufferHelperConfiguration.aaveV3BufferHelperDeploymentName");
+        aaveV3BufferLensDeploymentName = vm.parseJsonString(rawJson, ".aaveV3BufferLensConfiguration.aaveV3BufferLensDeploymentName");
 
         // Get Deployer address from configuration file.
         deployer = Deployer(_handleAddressOrName(".deploymentParameters.deployerContractAddressOrName"));
@@ -369,7 +381,8 @@ contract DeploySkeletonScript is Script, ChainValues {
         _deployPauser();
         _deployTimelock();
         _deployDrones();
-
+        _deployAaveV3BufferHelper();
+        _deployAaveV3BufferLens();
         vm.stopBroadcast();
 
         _saveContractAddresses();
@@ -400,6 +413,35 @@ contract DeploySkeletonScript is Script, ChainValues {
             constructorArgs = hex"";
             deployer.deployContract(lensDeploymentName, creationCode, constructorArgs, 0);
             _log("Lens deployment TX added", 3);
+        }
+    }
+
+    function _deployAaveV3BufferHelper() internal {
+        bytes memory constructorArgs;
+        bytes memory creationCode;
+        (address deployedAddress) = _getAddressIfDeployed(aaveV3BufferHelperDeploymentName);
+        aaveV3BufferHelper = AaveV3BufferHelper(deployedAddress);
+        bool shouldDeploy = vm.parseJsonBool(rawJson, ".aaveV3BufferHelperConfiguration.shouldDeploy");
+        if (deployedAddress == address(0) && shouldDeploy) {
+            // Get aaveV3Pool from configuration file.
+            address aaveV3Pool = _handleAddressOrName(".aaveV3BufferHelperConfiguration.aaveV3PoolAddressOrName");
+            creationCode = type(AaveV3BufferHelper).creationCode;
+            constructorArgs = abi.encode(aaveV3Pool, address(boringVault));
+            deployer.deployContract(aaveV3BufferHelperDeploymentName, creationCode, constructorArgs, 0);
+            _log("AaveV3BufferHelper deployment TX added", 3);
+        }
+    }
+    function _deployAaveV3BufferLens() internal {
+        bytes memory constructorArgs;
+        bytes memory creationCode;
+        (address deployedAddress) = _getAddressIfDeployed(aaveV3BufferLensDeploymentName);
+        aaveV3BufferLens = AaveV3BufferLens(deployedAddress);
+        bool shouldDeploy = vm.parseJsonBool(rawJson, ".aaveV3BufferLensConfiguration.shouldDeploy");
+        if (deployedAddress == address(0) && shouldDeploy) {
+            creationCode = type(AaveV3BufferLens).creationCode;
+            constructorArgs = hex"";
+            deployer.deployContract(aaveV3BufferLensDeploymentName, creationCode, constructorArgs, 0);
+            _log("AaveV3BufferLens deployment TX added", 3);
         }
     }
 
@@ -452,7 +494,7 @@ contract DeploySkeletonScript is Script, ChainValues {
         bytes memory constructorArgs;
         bytes memory creationCode;
         (address deployedAddress, bool isDeployed) = _getAddressAndIfDeployed(accountantDeploymentName);
-        accountant = AccountantWithRateProviders(deployedAddress);
+        accountant = AccountantWithYieldStreaming(deployedAddress);
         if (!isDeployed) {
             // Figure out the payout address.
             address payoutAddress = vm.parseJsonAddress(
@@ -497,7 +539,8 @@ contract DeploySkeletonScript is Script, ChainValues {
             bool variableRate =
                 vm.parseJsonBool(rawJson, ".accountantConfiguration.accountantParameters.kind.variableRate");
             bool fixedRate = vm.parseJsonBool(rawJson, ".accountantConfiguration.accountantParameters.kind.fixedRate");
-            if (variableRate && fixedRate) {
+            bool yieldStreaming = vm.parseJsonBool(rawJson, ".accountantConfiguration.accountantParameters.kind.yieldStreaming");
+            if (variableRate && fixedRate && yieldStreaming) {
                 _log("Invalid accountant kind", 1);
             }
             // Get AccountantDeploymentParameters from configuration file.
@@ -530,7 +573,13 @@ contract DeploySkeletonScript is Script, ChainValues {
                 creationCode = type(AccountantWithFixedRate).creationCode;
                 accountantKind = AccountantKind.FixedRate;
                 _log("Fixed rate accountant deployment TX added", 3);
-            } else {
+            } else if (yieldStreaming) {
+                // Deploy YieldStreamingAccountant.
+                creationCode = type(AccountantWithYieldStreaming).creationCode;
+                accountantKind = AccountantKind.YieldStreaming;
+                _log("Yield streaming accountant deployment TX added", 3);
+            }
+            else {
                 _log("Accountant kind not set in configuration file", 1);
             }
             deployer.deployContract(accountantDeploymentName, creationCode, constructorArgs, 0);
@@ -582,7 +631,7 @@ contract DeploySkeletonScript is Script, ChainValues {
         bytes memory constructorArgs;
         bytes memory creationCode;
         (address deployedAddress, bool isDeployed) = _getAddressAndIfDeployed(tellerDeploymentName);
-        teller = TellerWithMultiAssetSupport(deployedAddress);
+        teller = TellerWithYieldStreaming(deployedAddress);
         if (!isDeployed) {
             // Get native wrapper address from configuration file.
             address nativeWrapperAddress = _handleAddressOrName(".deploymentParameters.nativeWrapperAddressOrName");
@@ -700,6 +749,20 @@ contract DeploySkeletonScript is Script, ChainValues {
                 _log(string.concat("Native wrapper address: ", vm.toString(nativeWrapperAddress)), 4);
                 _log(string.concat("LayerZero endpoint address: ", vm.toString(layerZeroEndpointAddress)), 4);
                 _log(string.concat("LayerZero token address: ", vm.toString(layerZeroTokenAddress)), 4);
+            }
+            bool tellerWithYieldStreaming = vm.parseJsonBool(rawJson, ".tellerConfiguration.tellerParameters.kind.tellerWithYieldStreaming");
+            if (tellerWithYieldStreaming) {
+                if (tellerKindSet) {
+                    _log("Teller kind already set", 1);
+                }
+                creationCode = type(TellerWithYieldStreaming).creationCode;
+                tellerKind = TellerKind.TellerWithYieldStreaming;
+                constructorArgs = abi.encode(deploymentOwner, address(boringVault), address(accountant), nativeWrapperAddress);
+                tellerKindSet = true;
+                _log("Teller with Yield Streaming deployment TX added", 3);
+                _log(string.concat("Boring vault address: ", vm.toString(address(boringVault))), 4);
+                _log(string.concat("Accountant address: ", vm.toString(address(accountant))), 4);
+                _log(string.concat("Native wrapper address: ", vm.toString(nativeWrapperAddress)), 4);
             }
 
             deployer.deployContract(tellerDeploymentName, creationCode, constructorArgs, 0);
@@ -859,7 +922,10 @@ contract DeploySkeletonScript is Script, ChainValues {
                     vm.serializeAddress(coreContracts, "AccountantWithRateProviders", address(accountant));
                 } else if (accountantKind == AccountantKind.FixedRate) {
                     vm.serializeAddress(coreContracts, "AccountantWithFixedRate", address(accountant));
+                } else if (accountantKind == AccountantKind.YieldStreaming) {
+                    vm.serializeAddress(coreContracts, "AccountantWithYieldStreaming", address(accountant));
                 }
+
                 if (tellerKind == TellerKind.Teller) {
                     vm.serializeAddress(coreContracts, "TellerWithMultiAssetSupport", address(teller));
                 } else if (tellerKind == TellerKind.TellerWithRemediation) {
@@ -870,6 +936,15 @@ contract DeploySkeletonScript is Script, ChainValues {
                     vm.serializeAddress(coreContracts, "TellerWithLayerZero", address(teller));
                 } else if (tellerKind == TellerKind.TellerWithLayerZeroRateLimiting) {
                     vm.serializeAddress(coreContracts, "TellerWithLayerZeroRateLimiting", address(teller));
+                }
+                else if (tellerKind == TellerKind.TellerWithYieldStreaming) {
+                    vm.serializeAddress(coreContracts, "TellerWithYieldStreaming", address(teller));
+                }
+                if(address(aaveV3BufferHelper)!=address(0)) {
+                    vm.serializeAddress(coreContracts, "AaveV3BufferHelper", address(aaveV3BufferHelper));
+                }
+                if(address(aaveV3BufferLens)!=address(0)) {
+                    vm.serializeAddress(coreContracts, "AaveV3BufferLens", address(aaveV3BufferLens));
                 }
                 vm.serializeAddress(coreContracts, "BoringOnChainQueue", address(queue));
                 coreOutput = vm.serializeAddress(coreContracts, "QueueSolver", address(queueSolver));

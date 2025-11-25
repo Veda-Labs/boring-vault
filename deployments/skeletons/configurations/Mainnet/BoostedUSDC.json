@@ -1,0 +1,121 @@
+{
+  "deploymentParameters": {
+    "logLevel": 4,
+    "privateKeyEnvName": "BORING_DEVELOPER",
+    "chainName": "mainnet",
+    "evmVersion": "cancun",
+    "deployerContractAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "deployerAddress"
+    },
+    "nativeWrapperAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "WETH"
+    },
+    "deploymentOwnerAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "txBundlerAddress"
+    },
+    "deploymentFileName": "skeletons/addresses/Mainnet/BoostedUSDC.json"
+  },
+  "rolesAuthorityConfiguration": {
+    "rolesAuthorityDeploymentName": "Boosted Yield USDC Roles Authority V0.3"
+  },
+  "lensConfiguration": {
+    "lensDeploymentName": "Arctic Architecture Lens V0.0"
+  },
+  "boringVaultConfiguration": {
+    "boringVaultDeploymentName": "Boosted Yield USDC Boring Vault V0.3",
+    "boringVaultName": "Boosted Yield USDC",
+    "boringVaultSymbol": "boostedUSDC",
+    "boringVaultDecimals": 6
+  },
+  "managerConfiguration": {
+    "managerDeploymentName": "Boosted Yield USDC Manager V0.3",
+    "balancerVaultAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "balancerVault"
+    }
+  },
+  "accountantConfiguration": {
+    "accountantDeploymentName": "Boosted Yield USDC Accountant V0.3",
+    "accountantParameters": {
+      "kind": {
+        "variableRate": false,
+        "fixedRate": false,
+        "yieldStreaming": true
+      },
+      "payoutConfiguration": {
+        "payoutTo": "0x0000000000000000000000000000000000000001",
+        "optionalPaymentSplitterName": "Boosted Yield USDC Payment Splitter V0.3",
+        "splits": []
+      },
+      "accountantDeploymentParameters": {
+        "allowedExchangeRateChangeLower": 9950,
+        "allowedExchangeRateChangeUpper": 10050,
+        "base": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "USDC"
+        },
+        "minimumUpateDelayInSeconds": 21600,
+        "performanceFee": 2500,
+        "platformFee": 0,
+        "startingExchangeRate": 1000000
+      }
+    }
+  },
+  "tellerConfiguration": {
+    "tellerDeploymentName": "Boosted Yield USDC Teller V0.3",
+    "tellerParameters": {
+      "kind": {
+        "teller": false,
+        "tellerWithRemediation": false,
+        "tellerWithCcip": false,
+        "tellerWithLayerZero": false,
+        "tellerWithLayerZeroRateLimiting": false,
+        "tellerWithYieldStreaming": true
+      }
+    }
+  },
+  "boringQueueConfiguration": {
+    "boringQueueDeploymentName": "Boosted Yield USDC Boring Queue V0.3",
+    "boringQueueSolverName": "Boosted Yield USDC Boring Solver V0.3",
+    "excessToSolverNonSelfSolve": true,
+    "queueParameters": {
+      "kind": {
+        "boringQueue": true,
+        "boringQueueWithTracking": false
+      }
+    }
+  },
+  "droneConfiguration": {
+    "droneDeploymentBaseName": "Boosted Yield USDC Drone V0.0",
+    "droneCount": 0,
+    "safeGasToForwardNative": 21000
+  },
+  "pauserConfiguration": {
+    "shouldDeploy": true,
+    "pauserDeploymentName": "Boosted Yield USDC Pauser V0.3"
+  },
+  "timelockConfiguration": {
+    "shouldDeploy": false,
+    "timelockDeploymentName": "Boosted Yield USDC Timelock V0.0",
+    "timelockParameters": {
+      "executors": ["0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b"],
+      "minDelay": 0,
+      "proposers": ["0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b"]
+    }
+  },
+  "aaveV3BufferHelperConfiguration": {
+    "shouldDeploy": true,
+    "aaveV3BufferHelperDeploymentName": "Boosted Yield USDC AaveV3 Buffer Helper V0.3",
+    "aaveV3PoolAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "v3Pool"
+    }
+  },
+  "aaveV3BufferLensConfiguration": {
+    "shouldDeploy": true,
+    "aaveV3BufferLensDeploymentName": "AaveV3 Buffer Lens V0.0"
+  }
+}
