@@ -116,6 +116,7 @@ import {LiquidETHPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers
 import {PlasmaUSDPlusPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/PlasmaUSDPlusPlasmaDecoderAndSanitizer.sol";
 import {TurtleMUSDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TurtleMUSDDecoderAndSanitizer.sol";
 import {TestVault0DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TestVault0DecoderAndSanitizer.sol";
+import {InkLiquidETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/InkLiquidETHDecoderAndSanitizer.sol";
 import {TestBalancedUSDCDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TestBalancedUSDCDecoderAndSanitizer.sol";
 import {BoostedUSDCInkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BoostedUSDCInkDecoderAndSanitizer.sol";
 
@@ -123,7 +124,7 @@ import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
 
 /**
- *  source .env && forge script script/DeployDecoderAndSanitizer.s.sol:DeployDecoderAndSanitizerScript --broadcast --etherscan-api-key $ETHERSCAN_API_KEY
+ *  source .env && forge script script/DeployDecoderAndSanitizer.s.sol:DeployDecoderAndSanitizerScript --broadcast --etherscan-api-key $ETHERSCAN_API_KEY --verify
  */
 /** *   --verify --verifier-url 'https://api.routescan.io/v2/network/mainnet/evm/21000000/etherscan'
  * @dev Optionally can change `--with-gas-price` to something more reasonable
@@ -139,8 +140,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("ink");
-        setSourceChainName("ink");
+        vm.createSelectFork("mainnet");
+        setSourceChainName("mainnet");
     }
 
     function run() external {
@@ -153,10 +154,10 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         //console.logBytes(constructorArgs);
         //deployer.deployContract("Turtle MUSD Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
 
-        creationCode = type(BoostedUSDCInkDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode();
+        creationCode = type(LiquidBtcDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2"), getAddress(sourceChain, "convexFXPoolRegistry"));
         console.logBytes(constructorArgs);
-        deployer.deployContract("Boosted USDC Ink Decoder and Sanitizer V0.3", creationCode, constructorArgs, 0);
+        deployer.deployContract("Liquid BTC Decoder and Sanitizer V0.5", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
