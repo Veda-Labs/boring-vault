@@ -6177,6 +6177,22 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             " LLTV market"
         );
 
+        // Approve morpho blue to spend loan token.
+        if (!ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][marketParams.collateralToken][getAddress(sourceChain, "morphoBlue")]) {
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                marketParams.loanToken,
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve MorhoBlue to spend ", loanToken.symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "morphoBlue");
+            ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][marketParams.loanToken][getAddress(sourceChain, "morphoBlue")] = true;
+        }
+
+        // repay morpho loan
         leafIndex++;
         leafs[leafIndex] = ManageLeaf(
             getAddress(sourceChain, "morphoBlue"),
