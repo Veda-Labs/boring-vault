@@ -89,20 +89,20 @@ contract LiquidBtcDecoderAndSanitizer is
         return addressesFound;
     }
 
-    function deposit(uint256, address) external pure override(CurveDecoderAndSanitizer, ERC4626DecoderAndSanitizer) returns (bytes memory addressesFound) {
-        return addressesFound;
+    function deposit(uint256, address a) external pure override(CurveDecoderAndSanitizer, ERC4626DecoderAndSanitizer) returns (bytes memory addressesFound) {
+        addressesFound = abi.encodePacked(a);
     }
 
     function redeem(
         uint256 /*shares*/,
-        address,
-        address,
+        address a,
+        address b,
         uint256 /*minAssets*/
     ) external pure override(ResolvDecoderAndSanitizer, SpectraDecoderAndSanitizer) returns (bytes memory addressesFound) {
-        return addressesFound;
+        addressesFound = abi.encodePacked(a, b);
     }
 
-    function burn(uint256) external pure override( SpectraDecoderAndSanitizer, UniswapV3DecoderAndSanitizer) returns (bytes memory addressesFound) {
+    function burn(uint256) external pure override(SpectraDecoderAndSanitizer, UniswapV3DecoderAndSanitizer) returns (bytes memory addressesFound) {
         return addressesFound;
     }
 }
