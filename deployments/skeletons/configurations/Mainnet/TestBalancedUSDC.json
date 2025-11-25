@@ -19,34 +19,35 @@
     "deploymentFileName": "skeletons/addresses/Mainnet/BalancedUSDC.json"
   },
   "rolesAuthorityConfiguration": {
-    "rolesAuthorityDeploymentName": "Balanced Yield USDC Roles Authority V0.0"
+    "rolesAuthorityDeploymentName": "Balanced Yield USDC Roles Authority V0.2"
   },
   "lensConfiguration": {
-    "lensDeploymentName": "Arctic Architecture Lens V0.0"
+    "lensDeploymentName": "Arctic Architecture Lens V0.2"
   },
   "boringVaultConfiguration": {
-    "boringVaultDeploymentName": "Balanced Yield USDC Boring Vault V0.0",
+    "boringVaultDeploymentName": "Balanced Yield USDC Boring Vault V0.2",
     "boringVaultName": "Balanced Yield USDC",
     "boringVaultSymbol": "balancedUSDC",
     "boringVaultDecimals": 6
   },
   "managerConfiguration": {
-    "managerDeploymentName": "Balanced Yield USDC Manager V0.0",
+    "managerDeploymentName": "Balanced Yield USDC Manager V0.2",
     "balancerVaultAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
       "name": "balancerVault"
     }
   },
   "accountantConfiguration": {
-    "accountantDeploymentName": "Balanced Yield USDC Accountant V0.0",
+    "accountantDeploymentName": "Balanced Yield USDC Accountant V0.2",
     "accountantParameters": {
       "kind": {
-        "variableRate": true,
-        "fixedRate": false
+        "variableRate": false,
+        "fixedRate": false,
+        "yieldStreaming": true
       },
       "payoutConfiguration": {
         "payoutTo": "0x0000000000000000000000000000000000000001",
-        "optionalPaymentSplitterName": "Balanced Yield USDC Payment Splitter V0.0",
+        "optionalPaymentSplitterName": "Balanced Yield USDC Payment Splitter V0.2",
         "splits": []
       },
       "accountantDeploymentParameters": {
@@ -64,14 +65,15 @@
     }
   },
   "tellerConfiguration": {
-    "tellerDeploymentName": "Balanced Yield USDC Teller V0.0",
+    "tellerDeploymentName": "Balanced Yield USDC Teller V0.2",
     "tellerParameters": {
       "kind": {
         "teller": false,
         "tellerWithRemediation": false,
         "tellerWithCcip": false,
-        "tellerWithLayerZero": true,
-        "tellerWithLayerZeroRateLimiting": false
+        "tellerWithLayerZero": false,
+        "tellerWithLayerZeroRateLimiting": false,
+        "tellerWithYieldStreaming": true
       },
       "layerZero": {
         "endpointAddressOrName": {
@@ -86,8 +88,8 @@
     }
   },
   "boringQueueConfiguration": {
-    "boringQueueDeploymentName": "Balanced Yield USDC Boring Queue V0.0",
-    "boringQueueSolverName": "Balanced Yield USDC Boring Solver V0.0",
+    "boringQueueDeploymentName": "Balanced Yield USDC Boring Queue V0.2",
+    "boringQueueSolverName": "Balanced Yield USDC Boring Solver V0.2",
     "excessToSolverNonSelfSolve": false,
     "queueParameters": {
       "kind": {
@@ -97,21 +99,33 @@
     }
   },
   "droneConfiguration": {
-    "droneDeploymentBaseName": "Balanced Yield USDC Drone V0.0",
+    "droneDeploymentBaseName": "Balanced Yield USDC Drone V0.2",
     "droneCount": 0,
     "safeGasToForwardNative": 21000
   },
   "pauserConfiguration": {
-    "shouldDeploy": false,
-    "pauserDeploymentName": "Balanced Yield USDC Pauser V0.0"
+    "shouldDeploy": true,
+    "pauserDeploymentName": "Balanced Yield USDC Pauser V0.2"
   },
   "timelockConfiguration": {
     "shouldDeploy": false,
-    "timelockDeploymentName": "Balanced Yield USDC Timelock V0.0",
+    "timelockDeploymentName": "Balanced Yield USDC Timelock V0.2",
     "timelockParameters": {
-      "executors": ["0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b"],
+      "executors": [""],
       "minDelay": 300,
-      "proposers": ["0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b"]
+      "proposers": [""]
     }
-  }
+  },
+    "aaveV3BufferHelperConfiguration": {
+      "shouldDeploy": true,
+      "aaveV3BufferHelperDeploymentName": "Balanced Yield USDC AaveV3 Buffer Helper V0.2",
+      "aaveV3PoolAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "v3Pool"
+      }
+    },
+    "aaveV3BufferLensConfiguration": {
+      "shouldDeploy": true,
+      "aaveV3BufferLensDeploymentName": "AaveV3 Buffer Lens V0.2"
+    }
 }

@@ -3,7 +3,7 @@
     "logLevel": 4,
     "privateKeyEnvName": "BORING_DEVELOPER",
     "chainName": "ink",
-    "evmVersion": "cancun",
+    "evmVersion": "shanghai",
     "deployerContractAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
       "name": "deployerAddress"
@@ -19,35 +19,34 @@
     "deploymentFileName": "skeletons/addresses/Ink/BalancedUSDC.json"
   },
   "rolesAuthorityConfiguration": {
-    "rolesAuthorityDeploymentName": "Balanced Yield USDC Roles Authority V0.2"
+    "rolesAuthorityDeploymentName": "Balanced Yield USDC Roles Authority V0.0"
   },
   "lensConfiguration": {
-    "lensDeploymentName": "Arctic Architecture Lens V0.2"
+    "lensDeploymentName": "Arctic Architecture Lens V0.0"
   },
   "boringVaultConfiguration": {
-    "boringVaultDeploymentName": "Balanced Yield USDC Boring Vault V0.2",
+    "boringVaultDeploymentName": "Balanced Yield USDC Boring Vault V0.0",
     "boringVaultName": "Balanced Yield USDC",
     "boringVaultSymbol": "balancedUSDC",
     "boringVaultDecimals": 6
   },
   "managerConfiguration": {
-    "managerDeploymentName": "Balanced Yield USDC Manager V0.2",
+    "managerDeploymentName": "Balanced Yield USDC Manager V0.0",
     "balancerVaultAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
       "name": "balancerVault"
     }
   },
   "accountantConfiguration": {
-    "accountantDeploymentName": "Balanced Yield USDC Accountant V0.2",
+    "accountantDeploymentName": "Balanced Yield USDC Accountant V0.0",
     "accountantParameters": {
       "kind": {
-        "variableRate": false,
-        "fixedRate": false,
-        "yieldStreaming": true
+        "variableRate": true,
+        "fixedRate": false
       },
       "payoutConfiguration": {
         "payoutTo": "0x0000000000000000000000000000000000000001",
-        "optionalPaymentSplitterName": "Balanced Yield USDC Payment Splitter V0.2",
+        "optionalPaymentSplitterName": "Balanced Yield USDC Payment Splitter V0.0",
         "splits": []
       },
       "accountantDeploymentParameters": {
@@ -58,22 +57,21 @@
           "name": "USDC"
         },
         "minimumUpateDelayInSeconds": 21600,
-        "performanceFee": 1000,
+        "performanceFee": 2500,
         "platformFee": 0,
         "startingExchangeRate": 1000000
       }
     }
   },
   "tellerConfiguration": {
-    "tellerDeploymentName": "Balanced Yield USDC Teller V0.2",
+    "tellerDeploymentName": "Balanced Yield USDC Teller V0.0",
     "tellerParameters": {
       "kind": {
         "teller": false,
         "tellerWithRemediation": false,
         "tellerWithCcip": false,
-        "tellerWithLayerZero": false,
-        "tellerWithLayerZeroRateLimiting": false,
-        "tellerWithYieldStreaming": true
+        "tellerWithLayerZero": true,
+        "tellerWithLayerZeroRateLimiting": false
       },
       "layerZero": {
         "endpointAddressOrName": {
@@ -88,8 +86,8 @@
     }
   },
   "boringQueueConfiguration": {
-    "boringQueueDeploymentName": "Balanced Yield USDC Boring Queue V0.2",
-    "boringQueueSolverName": "Balanced Yield USDC Boring Solver V0.2",
+    "boringQueueDeploymentName": "Balanced Yield USDC Boring Queue V0.0",
+    "boringQueueSolverName": "Balanced Yield USDC Boring Solver V0.0",
     "excessToSolverNonSelfSolve": false,
     "queueParameters": {
       "kind": {
@@ -99,33 +97,21 @@
     }
   },
   "droneConfiguration": {
-    "droneDeploymentBaseName": "Balanced Yield USDC Drone V0.2",
+    "droneDeploymentBaseName": "Balanced Yield USDC Drone V0.0",
     "droneCount": 0,
     "safeGasToForwardNative": 21000
   },
   "pauserConfiguration": {
     "shouldDeploy": false,
-    "pauserDeploymentName": "Balanced Yield USDC Pauser V0.2"
+    "pauserDeploymentName": "Balanced Yield USDC Pauser V0.0"
   },
   "timelockConfiguration": {
     "shouldDeploy": false,
-    "timelockDeploymentName": "Balanced Yield USDC Timelock V0.2",
+    "timelockDeploymentName": "Balanced Yield USDC Timelock V0.0",
     "timelockParameters": {
-      "executors": [""],
+      "executors": ["0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b"],
       "minDelay": 300,
-      "proposers": [""]
+      "proposers": ["0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b"]
     }
-  },
-    "aaveV3BufferHelperConfiguration": {
-      "shouldDeploy": true,
-      "aaveV3BufferHelperDeploymentName": "Balanced Yield USDC AaveV3 Buffer Helper V0.2",
-      "aaveV3PoolAddressOrName": {
-        "address": "0x0000000000000000000000000000000000000000",
-        "name": "v3Pool"
-      }
-    },
-    "aaveV3BufferLensConfiguration": {
-      "shouldDeploy": true,
-      "aaveV3BufferLensDeploymentName": "AaveV3 Buffer Lens V0.2"
-    }
+  }
 }
