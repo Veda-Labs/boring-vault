@@ -148,10 +148,6 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(InkLiquidETHDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(getAddress(sourceChain, "velodromeNonFungiblePositionManager"));
-        deployer.deployContract("Liquid Eth Ink Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
         //creationCode = type(TurtleMUSDDecoderAndSanitizer).creationCode;
         //constructorArgs = abi.encode(getAddress(sourceChain, "odosRouterV2"), getAddress(sourceChain, "pancakeSwapV3NonFungiblePositionManager"), getAddress(sourceChain, "pancakeSwapV3MasterChefV3"));
         //console.logBytes(constructorArgs);
