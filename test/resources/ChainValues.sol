@@ -2017,6 +2017,7 @@ contract ChainValues {
         values[scroll]["USDT"] = 0xf55BEC9cafDbE8730f096Aa55dad6D22d44099Df.toBytes32();
         values[scroll]["EBTC"] = 0x657e8C867D8B37dCC18fA4Caead9C45EB088C642.toBytes32();
         values[scroll]["ZRO"] = address(1).toBytes32();
+        values[scroll]["ETHFI"] = 0x056A5FA5da84ceb7f93d36e545C5905607D8bD81.toBytes32();
 
         // Layer Zero
         values[scroll]["LayerZeroEndPoint"] = 0x1a44076050125825900e736c501f859c50fE728c.toBytes32();

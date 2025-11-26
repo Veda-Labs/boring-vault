@@ -54,7 +54,7 @@
         "allowedExchangeRateChangeLower": 9950,
         "allowedExchangeRateChangeUpper": 10050,
         "base": {
-          "address": "0x056A5FA5da84ceb7f93d36e545C5905607D8bD81",
+          "address": "0x0000000000000000000000000000000000000000",
           "name": "ETHFI"
         },
         "minimumUpateDelayInSeconds": 21600,
