@@ -23,12 +23,10 @@ contract DeployDeployerScript is Script, ContractNames, Test {
     Deployer public deployer;
 
     //address public deployerAddress = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d;
-    address public deployerAddress = 0xF3d0672a91Fd56C9ef04C79ec67d60c34c6148a0;
+    address public deployerAddress = 0x5BD97A73333B6EC2e38B687bcED159566A14C5BA;
     //address public dev0Address = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b;
-    address public dev0Address = 0x4AB9A68D93271EFF863fFc3F5091d6F050f48eDA;
-    address public dev1Address = 0xf8553c8552f906C19286F21711721E206EE4909E;
-    address public dev2Address = 0xBBc5569B0b32403037F37255f4ff50B8Bb825b2A;
-    address public dev3Address = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b;
+    address public dev0Address = 0x3Dd95962fC01EcEC5f867189A929d036D5aC12A6;
+    address public dev1Address = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5;
 
     uint8 public DEPLOYER_ROLE = 1;
 
@@ -36,8 +34,8 @@ contract DeployDeployerScript is Script, ContractNames, Test {
         //privateKey = vm.envUint("BORING_DEVELOPER");
         //vm.createSelectFork("mainnet");
 
-        privateKey = vm.envUint("DEPLOYER_KEY");
-        vm.createSelectFork("bob");
+        privateKey = vm.envUint("PK");
+        vm.createSelectFork("monad");
     }
 
     function run() external {
@@ -45,7 +43,7 @@ contract DeployDeployerScript is Script, ContractNames, Test {
         bytes memory creationCode;
         vm.startBroadcast(privateKey);
 
-        deployer = new Deployer(dev0Address, Authority(address(0)));
+        deployer = new Deployer{salt: keccak256("LucidlyDeployer")}(dev0Address, Authority(address(0)));
 
         require(address(deployer) == deployerAddress, "Deployer address mismatch");
         creationCode = type(RolesAuthority).creationCode;
@@ -66,8 +64,6 @@ contract DeployDeployerScript is Script, ContractNames, Test {
         rolesAuthority.setRoleCapability(DEPLOYER_ROLE, address(deployer), Deployer.bundleTxs.selector, true);
         rolesAuthority.setUserRole(dev0Address, DEPLOYER_ROLE, true);
         rolesAuthority.setUserRole(dev1Address, DEPLOYER_ROLE, true);
-        rolesAuthority.setUserRole(dev2Address, DEPLOYER_ROLE, true);
-        rolesAuthority.setUserRole(dev3Address, DEPLOYER_ROLE, true);
         rolesAuthority.setUserRole(address(deployer), DEPLOYER_ROLE, true);
 
         // deployer = Deployer(deployerAddress);
