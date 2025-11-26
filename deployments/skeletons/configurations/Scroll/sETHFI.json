@@ -16,7 +16,7 @@
       "address": "0x0000000000000000000000000000000000000000",
       "name": "txBundlerAddress"
     },
-    "deploymentFileName": "skeletons/addresses/Scroll/stETHFI.json"
+    "deploymentFileName": "skeletons/addresses/Scroll/sETHFI.json"
   },
   "rolesAuthorityConfiguration": {
     "rolesAuthorityDeploymentName": "Staked ETHFI RolesAuthority Version 0.0"
@@ -27,7 +27,7 @@
   "boringVaultConfiguration": {
     "boringVaultDeploymentName": "Staked ETHFI V0.0",
     "boringVaultName": "Staked ETHFI",
-    "boringVaultSymbol": "stETHFI",
+    "boringVaultSymbol": "sETHFI",
     "boringVaultDecimals": 18
   },
   "managerConfiguration": {
