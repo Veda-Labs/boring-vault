@@ -837,20 +837,24 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
          * withdrawAll ETH tokens from ITB position manager
          */
         address itbPositionManager = 0x7F37350F463525c2670b10234FB014BC406F851c;
-        ERC20[] memory itbTokensUsed = new ERC20[](3);
+        ERC20[] memory itbTokensUsed = new ERC20[](4);
         itbTokensUsed[0] = getERC20(sourceChain, "WETH");
         itbTokensUsed[1] = getERC20(sourceChain, "WEETH");
         itbTokensUsed[2] = getERC20(sourceChain, "EETH");
+        itbTokensUsed[3] = getERC20(sourceChain, "USDC");
         _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "ITB Position Manager");
 
         address itbPositionManager2 = 0xA40aFb15275A94F64aF37C0cEaAaA45Cb568A361;
         address itbPositionManager3 = 0x2A601FC6C0Cb854fDA82715E49Ab04C5340A0396;
+        address itbPositionManager4 = 0xfBCA329E2Ee0c44d8F115A4B8F7ceda9E109f436;
         ERC20[] memory itbTokensUsed2 = new ERC20[](1);
         itbTokensUsed2[0] = getERC20(sourceChain, "WEETH");
         // Aave weETH -> RLUSD -> RLUSD Aave Horizon 
         _addLeafsForITBPositionManager(leafs, itbPositionManager2, itbTokensUsed2, "ITB Position Manager 2");
         //Spark weETH → PYUSD → PYUSD Euler
         _addLeafsForITBPositionManager(leafs, itbPositionManager3, itbTokensUsed2, "ITB Position Manager 3");
+        // Spark weETH -> USDC -> USDC Aave Horizon
+        _addLeafsForITBPositionManager(leafs, itbPositionManager4, itbTokensUsed2, "ITB Position Manager 4");
 
         // ========================== Drone Setup ===============================
         {
