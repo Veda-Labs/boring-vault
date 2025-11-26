@@ -16,7 +16,7 @@ contract CreateLiquidUSDMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x08c6F91e2B681FaF5e17227F2a44C307b3C1364C;
-    address public rawDataDecoderAndSanitizer = 0x6727a35867EDCdDE01B92F5104D09D4561A4C2D9;
+    address public rawDataDecoderAndSanitizer = 0x180e32788541663FbA09D022A439215d0243fd8d;
     address public managerAddress = 0x7b57Ad1A0AA89583130aCfAD024241170D24C13C;
     address public accountantAddress = 0xc315D6e14DDCDC7407784e2Caf815d131Bc1D3E7;
 
@@ -33,7 +33,7 @@ contract CreateLiquidUSDMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, plasma, "accountantAddress", accountantAddress);
         setAddress(false, plasma, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](32);
+        ManageLeaf[] memory leafs = new ManageLeaf[](64);
 
         // ========================== Fluid ==========================
         ERC20[] memory supplyTokens = new ERC20[](1);
@@ -41,7 +41,7 @@ contract CreateLiquidUSDMerkleRoot is Script, MerkleTreeHelper {
 
         ERC20[] memory borrowTokens = new ERC20[](1);
         borrowTokens[0] = getERC20(sourceChain, "USDT0");
-        _addFluidDexLeafs(leafs, getAddress(sourceChain, "Vaultt1_Wstusr_Usdt0"), 2000, supplyTokens, borrowTokens, false);
+        _addFluidDexLeafs(leafs, getAddress(sourceChain, "Vaultt1_Wstusr_Usdt0"), 1000, supplyTokens, borrowTokens, false);
 
         // ========================== Aave V3 ==========================
         ERC20[] memory supplyAssets = new ERC20[](3);
@@ -57,6 +57,7 @@ contract CreateLiquidUSDMerkleRoot is Script, MerkleTreeHelper {
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDT0"), getAddress(sourceChain, "USDT0_OFT"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "SUSDE"), getAddress(sourceChain, "SUSDE"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDE"), getAddress(sourceChain, "USDE"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
+        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "wstUSR"), getAddress(sourceChain, "wstUSR"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
 
         // ========================== Native ==========================
         _addNativeLeafs(leafs, getAddress(sourceChain, "wXPL"));
