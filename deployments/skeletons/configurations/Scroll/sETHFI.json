@@ -3,7 +3,7 @@
     "logLevel": 4,
     "privateKeyEnvName": "BORING_DEVELOPER",
     "chainName": "scroll",
-    "evmVersion": "shanghai",
+    "evmVersion": "cancun",
     "deployerContractAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
       "name": "deployerAddress"
@@ -25,13 +25,13 @@
     "lensDeploymentName": "Arctic Architecture Lens V0.0"
   },
   "boringVaultConfiguration": {
-    "boringVaultDeploymentName": "Staked ETHFI V0.0",
+    "boringVaultDeploymentName": "Staked ETHFI V0.1",
     "boringVaultName": "Staked ETHFI",
     "boringVaultSymbol": "sETHFI",
     "boringVaultDecimals": 18
   },
   "managerConfiguration": {
-    "managerDeploymentName": "Staked ETHFI ManagerWithMerkleVerification V0.0",
+    "managerDeploymentName": "sETHFI Manager with Merkle Verification V0.0",
     "balancerVaultAddressOrName": {
       "address": "0x0000000000000000000000000000000000000001",
       "name": "balancerV2Vault"
@@ -54,7 +54,7 @@
         "allowedExchangeRateChangeLower": 9950,
         "allowedExchangeRateChangeUpper": 10050,
         "base": {
-          "address": "0xFe0c30065B384F05761f15d0CC899D4F9F9Cc0eB",
+          "address": "0x056A5FA5da84ceb7f93d36e545C5905607D8bD81",
           "name": "ETHFI"
         },
         "minimumUpateDelayInSeconds": 21600,
@@ -88,8 +88,8 @@
     }
   },
   "boringQueueConfiguration": {
-    "boringQueueDeploymentName": "Staked ETHFI Queue V0.0",
-    "boringQueueSolverName": "Staked ETHFI Queue Solver V0.0",
+    "boringQueueDeploymentName": "Staked ETHFI Boring Queue V0.0",
+    "boringQueueSolverName": "Staked ETHFI Boring Queue Solver V0.0",
     "excessToSolverNonSelfSolve": true,
     "queueParameters": {
       "kind": {
