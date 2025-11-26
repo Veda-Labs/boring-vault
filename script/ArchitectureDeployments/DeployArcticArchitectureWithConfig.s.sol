@@ -183,8 +183,7 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
         Teller,
         TellerWithRemediation,
         TellerWithCcip,
-        TellerWithLayerZero,
-        TellerWithLayerZeroRateLimiting
+        TellerWithLayerZero
     }
 
     TellerKind internal tellerKind;
@@ -372,6 +371,7 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
         _deployPauser();
         _deployTimelock();
         _deployDrones();
+        // _addSetRolesAuthorityTxs();
         _setupRoles();
         _setupAccountantAssets();
         _setupDepositAssets();
@@ -382,6 +382,20 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
         _setupTestUser();
         _saveContractAddresses();
         _bundleTxs();
+
+        // _log(string.concat("lens.owner() - ", vm.toString(lens.owner())), 4);
+        _log(string.concat("manager.owner() - ", vm.toString(manager.owner())), 4);
+        _log(string.concat("boringVault.owner() - ", vm.toString(boringVault.owner())), 4);
+        _log(string.concat("rolesAuthority.owner() - ", vm.toString(rolesAuthority.owner())), 4);
+        _log(string.concat("teller.owner() - ", vm.toString(teller.owner())), 4);
+        _log(string.concat("accountant.owner() - ", vm.toString(accountant.owner())), 4);
+        _log(string.concat("deployer.owner() - ", vm.toString(deployer.owner())), 4);
+        // _log(string.concat("delayedWithdrawer.owner() - ", vm.toString(delayedWithdrawer.owner())), 4);
+        // _log(string.concat("paymentSplitter.owner() - ", vm.toString(paymentSplitter.owner())), 4);
+        _log(string.concat("queue.owner() - ", vm.toString(queue.owner())), 4);
+        _log(string.concat("queueSolver.owner() - ", vm.toString(queueSolver.owner())), 4);
+        _log(string.concat("pauser.owner() - ", vm.toString(pauser.owner())), 4);
+        // _log(string.concat("timelock.owner() - ", vm.toString(timelock.owner())), 4);
     }
 
     function _deployRolesAuthority() internal {
@@ -400,6 +414,7 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
                 uint256(0)
             );
             _log("Roles authority deployment TX added", 3);
+            _log(string.concat("Roles authority address: ", vm.toString(address(rolesAuthority))), 4);
         } else {
             rolesAuthorityExists = true;
         }
@@ -720,36 +735,6 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
                 _log(string.concat("LayerZero endpoint address: ", vm.toString(layerZeroEndpointAddress)), 4);
                 _log(string.concat("LayerZero token address: ", vm.toString(layerZeroTokenAddress)), 4);
             }
-            bool tellerWithLayerZeroRateLimiting =
-                vm.parseJsonBool(rawJson, ".tellerConfiguration.tellerParameters.kind.tellerWithLayerZeroRateLimiting");
-            if (tellerWithLayerZeroRateLimiting) {
-                if (tellerKindSet) {
-                    _log("Teller kind already set", 1);
-                }
-                creationCode = type(LayerZeroTellerWithRateLimiting).creationCode;
-                tellerKind = TellerKind.TellerWithLayerZeroRateLimiting;
-                // Read the endpoint and lztoken from the configuration file.
-                address layerZeroEndpointAddress =
-                    _handleAddressOrName(".tellerConfiguration.tellerParameters.layerZero.endpointAddressOrName");
-                address layerZeroTokenAddress =
-                    _handleAddressOrName(".tellerConfiguration.tellerParameters.layerZero.lzTokenAddressOrName");
-                constructorArgs = abi.encode(
-                    deploymentOwner,
-                    address(boringVault),
-                    address(accountant),
-                    nativeWrapperAddress,
-                    layerZeroEndpointAddress,
-                    deploymentOwner,
-                    layerZeroTokenAddress
-                );
-                tellerKindSet = true;
-                _log("Teller with LayerZero Rate Limiting deployment TX added", 3);
-                _log(string.concat("Boring vault address: ", vm.toString(address(boringVault))), 4);
-                _log(string.concat("Accountant address: ", vm.toString(address(accountant))), 4);
-                _log(string.concat("Native wrapper address: ", vm.toString(nativeWrapperAddress)), 4);
-                _log(string.concat("LayerZero endpoint address: ", vm.toString(layerZeroEndpointAddress)), 4);
-                _log(string.concat("LayerZero token address: ", vm.toString(layerZeroTokenAddress)), 4);
-            }
 
             _addTx(
                 address(deployer),
@@ -767,9 +752,7 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
         bool tellerWithCcip = vm.parseJsonBool(rawJson, ".tellerConfiguration.tellerParameters.kind.tellerWithCcip");
         bool tellerWithLayerZero =
             vm.parseJsonBool(rawJson, ".tellerConfiguration.tellerParameters.kind.tellerWithLayerZero");
-        bool tellerWithLayerZeroRateLimiting =
-            vm.parseJsonBool(rawJson, ".tellerConfiguration.tellerParameters.kind.tellerWithLayerZeroRateLimiting");
-        if (tellerWithCcip || tellerWithLayerZero || tellerWithLayerZeroRateLimiting) {
+        if (tellerWithCcip || tellerWithLayerZero) {
             _log("Setting up cross chain teller", 3);
             if (tellerWithCcip) {
                 // Set CCIP chains.
@@ -792,7 +775,7 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
                         uint256(0)
                     );
                 }
-            } else if (tellerWithLayerZero || tellerWithLayerZeroRateLimiting) {
+            } else if (tellerWithLayerZero) {
                 // Set LayerZero chains.
                 bytes memory lzChainsRaw =
                     vm.parseJson(rawJson, ".tellerConfiguration.tellerParameters.layerZero.lzChains");
@@ -1152,9 +1135,7 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
                     OWNER_ROLE, address(teller), ChainlinkCCIPTeller.setChainGasLimit.selector
                 );
             }
-            if (
-                tellerKind == TellerKind.TellerWithLayerZero || tellerKind == TellerKind.TellerWithLayerZeroRateLimiting
-            ) {
+            if (tellerKind == TellerKind.TellerWithLayerZero) {
                 _addRoleCapabilityIfNotPresent(OWNER_ROLE, address(teller), LayerZeroTeller.addChain.selector);
                 _addRoleCapabilityIfNotPresent(MULTISIG_ROLE, address(teller), LayerZeroTeller.removeChain.selector);
                 _addRoleCapabilityIfNotPresent(
@@ -1176,10 +1157,7 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
                 _setPublicCapabilityIfNotPresent(
                     address(teller), TellerWithMultiAssetSupport.depositWithPermit.selector
                 );
-                if (
-                    tellerKind == TellerKind.TellerWithCcip || tellerKind == TellerKind.TellerWithLayerZero
-                        || tellerKind == TellerKind.TellerWithLayerZeroRateLimiting
-                ) {
+                if (tellerKind == TellerKind.TellerWithCcip || tellerKind == TellerKind.TellerWithLayerZero) {
                     _setPublicCapabilityIfNotPresent(
                         address(teller), CrossChainTellerWithGenericBridge.depositAndBridge.selector
                     );
@@ -1201,9 +1179,6 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
                 MULTISIG_ROLE, address(queue), BoringOnChainQueue.stopWithdrawsInAsset.selector
             );
             _addRoleCapabilityIfNotPresent(
-                MULTISIG_ROLE, address(queue), BoringOnChainQueue.setWithdrawCapacity.selector
-            );
-            _addRoleCapabilityIfNotPresent(
                 STRATEGIST_MULTISIG_ROLE, address(queue), BoringOnChainQueue.stopWithdrawsInAsset.selector
             );
             _addRoleCapabilityIfNotPresent(
@@ -1214,9 +1189,6 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
             );
             _addRoleCapabilityIfNotPresent(
                 SOLVER_ORIGIN_ROLE, address(queue), BoringOnChainQueue.solveOnChainWithdraws.selector
-            );
-            _addRoleCapabilityIfNotPresent(
-                STRATEGIST_MULTISIG_ROLE, address(queue), BoringOnChainQueue.setWithdrawCapacity.selector
             );
             _addRoleCapabilityIfNotPresent(ONLY_QUEUE_ROLE, address(queueSolver), BoringSolver.boringSolve.selector);
 
@@ -1381,6 +1353,8 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
 
     function _finalizeSetup() internal {
         _log("Finalizing setup...", 3);
+        _log(string.concat("rolesAuthority: ", vm.toString(address(rolesAuthority))), 3);
+        address ownerAddress = 0x3Dd95962fC01EcEC5f867189A929d036D5aC12A6;
         uint256 shareLockPeriod = vm.parseJsonUint(rawJson, ".tellerConfiguration.tellerParameters.shareLockPeriod");
         if (tellerExists) {
             // Get sharelock period from configuration file.
@@ -1395,14 +1369,14 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
                 _addTx(address(teller), abi.encodeWithSelector(teller.setAuthority.selector, rolesAuthority), 0);
             }
             if (teller.owner() != address(0)) {
-                _addTx(address(teller), abi.encodeWithSelector(teller.transferOwnership.selector, address(0)), 0);
+                _addTx(address(teller), abi.encodeWithSelector(teller.transferOwnership.selector, ownerAddress), 0);
             }
         } else {
             _addTx(
                 address(teller), abi.encodeWithSelector(teller.setShareLockPeriod.selector, uint64(shareLockPeriod)), 0
             );
             _addTx(address(teller), abi.encodeWithSelector(teller.setAuthority.selector, rolesAuthority), 0);
-            _addTx(address(teller), abi.encodeWithSelector(teller.transferOwnership.selector, address(0)), 0);
+            _addTx(address(teller), abi.encodeWithSelector(teller.transferOwnership.selector, ownerAddress), 0);
         }
 
         if (boringVaultExists) {
@@ -1420,7 +1394,9 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
             }
             if (boringVault.owner() != address(0)) {
                 _addTx(
-                    address(boringVault), abi.encodeWithSelector(boringVault.transferOwnership.selector, address(0)), 0
+                    address(boringVault),
+                    abi.encodeWithSelector(boringVault.transferOwnership.selector, ownerAddress),
+                    0
                 );
             }
         } else {
@@ -1430,7 +1406,9 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
                 abi.encodeWithSelector(boringVault.setBeforeTransferHook.selector, address(teller)),
                 0
             );
-            _addTx(address(boringVault), abi.encodeWithSelector(boringVault.transferOwnership.selector, address(0)), 0);
+            _addTx(
+                address(boringVault), abi.encodeWithSelector(boringVault.transferOwnership.selector, ownerAddress), 0
+            );
         }
 
         if (managerExists) {
@@ -1438,11 +1416,11 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
                 _addTx(address(manager), abi.encodeWithSelector(manager.setAuthority.selector, rolesAuthority), 0);
             }
             if (manager.owner() != address(0)) {
-                _addTx(address(manager), abi.encodeWithSelector(manager.transferOwnership.selector, address(0)), 0);
+                _addTx(address(manager), abi.encodeWithSelector(manager.transferOwnership.selector, ownerAddress), 0);
             }
         } else {
             _addTx(address(manager), abi.encodeWithSelector(manager.setAuthority.selector, rolesAuthority), 0);
-            _addTx(address(manager), abi.encodeWithSelector(manager.transferOwnership.selector, address(0)), 0);
+            _addTx(address(manager), abi.encodeWithSelector(manager.transferOwnership.selector, ownerAddress), 0);
         }
 
         if (accountantExists) {
@@ -1451,12 +1429,12 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
             }
             if (accountant.owner() != address(0)) {
                 _addTx(
-                    address(accountant), abi.encodeWithSelector(accountant.transferOwnership.selector, address(0)), 0
+                    address(accountant), abi.encodeWithSelector(accountant.transferOwnership.selector, ownerAddress), 0
                 );
             }
         } else {
             _addTx(address(accountant), abi.encodeWithSelector(accountant.setAuthority.selector, rolesAuthority), 0);
-            _addTx(address(accountant), abi.encodeWithSelector(accountant.transferOwnership.selector, address(0)), 0);
+            _addTx(address(accountant), abi.encodeWithSelector(accountant.transferOwnership.selector, ownerAddress), 0);
         }
 
         if (queueExists) {
@@ -1464,11 +1442,11 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
                 _addTx(address(queue), abi.encodeWithSelector(queue.setAuthority.selector, rolesAuthority), 0);
             }
             if (queue.owner() != address(0)) {
-                _addTx(address(queue), abi.encodeWithSelector(queue.transferOwnership.selector, address(0)), 0);
+                _addTx(address(queue), abi.encodeWithSelector(queue.transferOwnership.selector, ownerAddress), 0);
             }
         } else {
             _addTx(address(queue), abi.encodeWithSelector(queue.setAuthority.selector, rolesAuthority), 0);
-            _addTx(address(queue), abi.encodeWithSelector(queue.transferOwnership.selector, address(0)), 0);
+            _addTx(address(queue), abi.encodeWithSelector(queue.transferOwnership.selector, ownerAddress), 0);
         }
 
         if (queueSolverExists) {
@@ -1479,26 +1457,31 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
             }
             if (queueSolver.owner() != address(0)) {
                 _addTx(
-                    address(queueSolver), abi.encodeWithSelector(queueSolver.transferOwnership.selector, address(0)), 0
+                    address(queueSolver),
+                    abi.encodeWithSelector(queueSolver.transferOwnership.selector, ownerAddress),
+                    0
                 );
             }
         } else {
             _addTx(address(queueSolver), abi.encodeWithSelector(queueSolver.setAuthority.selector, rolesAuthority), 0);
-            _addTx(address(queueSolver), abi.encodeWithSelector(queueSolver.transferOwnership.selector, address(0)), 0);
+            _addTx(
+                address(queueSolver), abi.encodeWithSelector(queueSolver.transferOwnership.selector, ownerAddress), 0
+            );
         }
 
         bool shouldDeployPauser = vm.parseJsonBool(rawJson, ".pauserConfiguration.shouldDeploy");
+
         if (shouldDeployPauser) {
             if (pauserExists) {
                 if (pauser.authority() != rolesAuthority) {
                     _addTx(address(pauser), abi.encodeWithSelector(pauser.setAuthority.selector, rolesAuthority), 0);
                 }
                 if (pauser.owner() != address(0)) {
-                    _addTx(address(pauser), abi.encodeWithSelector(pauser.transferOwnership.selector, address(0)), 0);
+                    _addTx(address(pauser), abi.encodeWithSelector(pauser.transferOwnership.selector, ownerAddress), 0);
                 }
             } else {
                 _addTx(address(pauser), abi.encodeWithSelector(pauser.setAuthority.selector, rolesAuthority), 0);
-                _addTx(address(pauser), abi.encodeWithSelector(pauser.transferOwnership.selector, address(0)), 0);
+                _addTx(address(pauser), abi.encodeWithSelector(pauser.transferOwnership.selector, ownerAddress), 0);
             }
         }
 
@@ -1566,8 +1549,6 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
                     vm.serializeAddress(coreContracts, "TellerWithCcip", address(teller));
                 } else if (tellerKind == TellerKind.TellerWithLayerZero) {
                     vm.serializeAddress(coreContracts, "TellerWithLayerZero", address(teller));
-                } else if (tellerKind == TellerKind.TellerWithLayerZeroRateLimiting) {
-                    vm.serializeAddress(coreContracts, "TellerWithLayerZeroRateLimiting", address(teller));
                 }
                 vm.serializeAddress(coreContracts, "BoringOnChainQueue", address(queue));
                 coreOutput = vm.serializeAddress(coreContracts, "QueueSolver", address(queueSolver));
@@ -1586,6 +1567,38 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
 
             vm.writeJson(finalJson, filePath);
         }
+    }
+
+    function _addSetRolesAuthorityTxs() internal {
+        address ownerAddress = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5;
+        address deployerDeployed = 0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC;
+        address accountantDeployed = 0x98C0B9042C6142F3cBc5bed58a7BF412752737b5;
+        address queueDeployed = 0x9B299494Cd9bb88ecdFeA2a43C4b91391fB02275;
+        address boringVaultDeployed = 0x592B45AeaeaaA75D58FD097a7254bA3F56125904;
+        address lensDeployed = 0x2d8651E1cdd95480D64Ed079973b4839E7e8342a;
+        address managerDeployed = 0x7E35B3dE911C179ab9d3582CBd2c94166B9c4350;
+        address pauserDeployed = 0x69BFfAF7D86bfC70bb31e0a65e34189EE69A4b33;
+        address solverDeployed = 0x1839322eEC5E5892242eb9ac303C0353739FB079;
+        address rolesAuthorityDeployed = 0x517B17f45FCfe73C38C3bcC3f416E43a17cbC927;
+        address tellerDeployed = 0xabbA9E382f9b14441E60B9E68559e3a22762dFb6;
+        address timelockDeployed = 0x0000000000000000000000000000000000000000;
+
+        _addTx(boringVaultDeployed, abi.encodeWithSelector(Auth.setAuthority.selector, rolesAuthorityDeployed), 0);
+        _addTx(tellerDeployed, abi.encodeWithSelector(Auth.setAuthority.selector, rolesAuthorityDeployed), 0);
+        _addTx(queueDeployed, abi.encodeWithSelector(Auth.setAuthority.selector, rolesAuthorityDeployed), 0);
+        _addTx(managerDeployed, abi.encodeWithSelector(Auth.setAuthority.selector, rolesAuthorityDeployed), 0);
+        _addTx(accountantDeployed, abi.encodeWithSelector(Auth.setAuthority.selector, rolesAuthorityDeployed), 0);
+        _addTx(solverDeployed, abi.encodeWithSelector(Auth.setAuthority.selector, rolesAuthorityDeployed), 0);
+        _addTx(pauserDeployed, abi.encodeWithSelector(Auth.setAuthority.selector, rolesAuthorityDeployed), 0);
+
+        _addTx(managerDeployed, abi.encodeWithSelector(Auth.transferOwnership.selector, ownerAddress), 0);
+        _addTx(boringVaultDeployed, abi.encodeWithSelector(Auth.transferOwnership.selector, ownerAddress), 0);
+        _addTx(rolesAuthorityDeployed, abi.encodeWithSelector(Auth.transferOwnership.selector, ownerAddress), 0);
+        _addTx(tellerDeployed, abi.encodeWithSelector(Auth.transferOwnership.selector, ownerAddress), 0);
+        _addTx(queueDeployed, abi.encodeWithSelector(Auth.transferOwnership.selector, ownerAddress), 0);
+        _addTx(accountantDeployed, abi.encodeWithSelector(Auth.transferOwnership.selector, ownerAddress), 0);
+        _addTx(solverDeployed, abi.encodeWithSelector(Auth.transferOwnership.selector, ownerAddress), 0);
+        _addTx(pauserDeployed, abi.encodeWithSelector(Auth.transferOwnership.selector, ownerAddress), 0);
     }
 
     function _bundleTxs() internal {
@@ -1660,7 +1673,9 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
 
     function _addRoleCapabilityIfNotPresent(uint8 role, address target, bytes4 selector) internal {
         if (rolesAuthorityExists) {
-            if (rolesAuthority.doesRoleHaveCapability(role, target, selector)) return;
+            if (rolesAuthority.doesRoleHaveCapability(role, target, selector)) {
+                return;
+            }
         }
         _addTx(
             address(rolesAuthority),

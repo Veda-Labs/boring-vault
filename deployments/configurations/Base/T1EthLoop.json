@@ -1,0 +1,237 @@
+{
+    "deploymentParameters": {
+        "logLevel": 4,
+        "privateKeyEnvName": "PRIVATE_KEY_1",
+        "chainName": "base",
+        "evmVersion": "cancun",
+        "desiredNumberOfDeploymentTxs": 1,
+        "txBundlerAddressOrName": {
+            "address": "0x5BD97A73333B6EC2e38B687bcED159566A14C5BA",
+            "name": "txBundlerAddress"
+        },
+        "setupRoles": true,
+        "setupTestUser": false,
+        "saveDeploymentDetails": true,
+        "testUserAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "dev1Address"
+        },
+        "deployerContractAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "deployerAddress"
+        },
+        "nativeWrapperAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "WETH"
+        },
+        "deploymentOwnerAddressOrName": {
+            "address": "0x5BD97A73333B6EC2e38B687bcED159566A14C5BA",
+            "name": "dev0Address"
+        },
+        "deploymentFileName": "BaseT1EthLoopDeployment.json"
+    },
+    "rolesAuthorityConfiguration": {
+        "rolesAuthorityDeploymentName": "T1EthLoop rolesAuthorityV1.0"
+    },
+    "lensConfiguration": {
+        "lensDeploymentName": "T1EthLoop lensV1.0"
+    },
+    "boringVaultConfiguration": {
+        "boringVaultDeploymentName": "T1EthLoop boringVaultV1.0",
+        "boringVaultName": "T1 ETH Loop",
+        "boringVaultSymbol": "T1EthLoop",
+        "boringVaultDecimals": 18
+    },
+    "managerConfiguration": {
+        "managerDeploymentName": "T1EthLoop managerV1.0",
+        "balancerVaultAddressOrName": {
+            "address": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+            "name": "balancerVault"
+        }
+    },
+    "accountantConfiguration": {
+        "accountantDeploymentName": "T1EthLoop accountantV1.0",
+        "accountantParameters": {
+            "kind": {
+                "variableRate": true,
+                "fixedRate": false
+            },
+            "payoutConfiguration": {
+                "payoutTo": "0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5",
+                "optionalPaymentSplitterName": "Payment Splitter",
+                "splits": []
+            },
+            "accountantDeploymentParameters": {
+                "allowedExchangeRateChangeLower": 9900,
+                "allowedExchangeRateChangeUpper": 10000,
+                "baseAddressOrName": {
+                    "address": "0x0000000000000000000000000000000000000000",
+                    "name": "WETH"
+                },
+                "minimumUpateDelayInSeconds": 86400,
+                "performanceFee": 100,
+                "platformFee": 0,
+                "startingExchangeRate": 1000000
+            }
+        }
+    },
+    "tellerConfiguration": {
+        "tellerDeploymentName": "T1EthLoop TellerV1.0",
+        "tellerParameters": {
+            "allowPublicDeposits": false,
+            "shareLockPeriod": 86400,
+            "kind": {
+                "teller": false,
+                "tellerWithRemediation": false,
+                "tellerWithCcip": false,
+                "tellerWithLayerZero": true
+            },
+            "ccip": {
+                "routerAddressOrName": {
+                    "address": "0x0000000000000000000000000000000000000000",
+                    "name": "ccipRouter"
+                },
+                "ccipChains": [
+                    {
+                        "chainSelector": 1,
+                        "allowMessagesFrom": true,
+                        "allowMessagesTo": true,
+                        "targetTellerOrSelf": {
+                            "address": "0x0000000000000000000000000000000000000000",
+                            "self": true
+                        },
+                        "messageGasLimit": 100000
+                    }
+                ]
+            },
+            "layerZero": {
+                "endpointAddressOrName": {
+                    "address": "0x1a44076050125825900e736c501f859c50fE728c",
+                    "name": "LayerZeroEndPoint"
+                },
+                "lzTokenAddressOrName": {
+                    "address": "0x6985884C4392D348587B19cb9eAAf157F13271cd",
+                    "name": "ZRO"
+                },
+                "lzChains": [
+                    {
+                        "chainId": 42161,
+                        "allowMessagesFrom": true,
+                        "allowMessagesTo": true,
+                        "targetTellerOrSelf": {
+                            "address": "0x0000000000000000000000000000000000000000",
+                            "self": true
+                        },
+                        "messageGasLimit": 100000
+                    },
+                    {
+                        "chainId": 8453,
+                        "allowMessagesFrom": true,
+                        "allowMessagesTo": true,
+                        "targetTellerOrSelf": {
+                            "address": "0x0000000000000000000000000000000000000000",
+                            "self": true
+                        },
+                        "messageGasLimit": 100000
+                    },
+                    {
+                        "chainId": 1,
+                        "allowMessagesFrom": true,
+                        "allowMessagesTo": true,
+                        "targetTellerOrSelf": {
+                            "address": "0x0000000000000000000000000000000000000000",
+                            "self": true
+                        },
+                        "messageGasLimit": 100000
+                    }
+                ]
+            }
+        }
+    },
+    "boringQueueConfiguration": {
+        "boringQueueDeploymentName": "T1EthLoop BoringOnChainQueueV1.0",
+        "boringQueueSolverName": "T1EthLoop BoringSolverV1.0",
+        "queueParameters": {
+            "allowPublicWithdrawals": false,
+            "allowPublicSelfWithdrawals": false,
+            "kind": {
+                "boringQueue": true,
+                "boringQueueWithTracking": false
+            }
+        }
+    },
+    "droneConfiguration": {
+        "droneDeploymentBaseName": "T1EthLoop boring drone",
+        "droneCount": 1,
+        "safeGasToForwardNative": 21000
+    },
+    "pauserConfiguration": {
+        "shouldDeploy": true,
+        "pauserDeploymentName": "pauser",
+        "makeGenericPauser": [
+            "0x0000000000000000000000000000000000000000"
+        ],
+        "makeGenericUnpauser": [
+            "0x0000000000000000000000000000000000000000"
+        ],
+        "makePauseAll": [
+            "0x0000000000000000000000000000000000000000"
+        ],
+        "makeUnpauseAll": [
+            "0x0000000000000000000000000000000000000000"
+        ],
+        "senderToPausable": [
+            {
+                "sender": "0x0000000000000000000000000000000000000000",
+                "pausable": "0x0000000000000000000000000000000000000000"
+            }
+        ]
+    },
+    "timelockConfiguration": {
+        "shouldDeploy": false,
+        "timelockDeploymentName": "timelock",
+        "timelockParameters": {
+            "minDelay": 86400,
+            "proposers": [
+                "0x0000000000000000000000000000000000000000"
+            ],
+            "executors": [
+                "0x0000000000000000000000000000000000000000"
+            ]
+        }
+    },
+    "accountantAssets": [
+        {
+            "addressOrName": {
+                "address": "0x0000000000000000000000000000000000000000",
+                "name": "WETH"
+            },
+            "isPeggedToBase": true,
+            "rateProvider": "0x0000000000000000000000000000000000000000"
+        }
+    ],
+    "depositAssets": [
+        {
+            "addressOrName": {
+                "address": "0x0000000000000000000000000000000000000000",
+                "name": "WETH"
+            },
+            "allowDeposits": true,
+            "allowWithdraws": true,
+            "sharePremium": 0
+        }
+    ],
+    "withdrawAssets": [
+        {
+            "addressOrName": {
+                "address": "0x0000000000000000000000000000000000000000",
+                "name": "WETH"
+            },
+            "maxDiscount": 100,
+            "minDiscount": 0,
+            "minimumSecondsToDeadline": 0,
+            "minimumShares": 0,
+            "secondsToMaturity": 60
+        }
+    ]
+}
