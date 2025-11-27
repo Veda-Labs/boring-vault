@@ -860,14 +860,14 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         _addLayerZeroLeafs(
             leafs,
             getERC20(sourceChain, "SUSDE"),
-            getAddress(sourceChain, "SUSDE"),
+            getAddress(sourceChain, "SUSDEOFTAdapter"),
             layerZeroPlasmaEndpointId,
             getBytes32(sourceChain, "boringVault")
         );
         _addLayerZeroLeafs(
             leafs,
             getERC20(sourceChain, "USDE"),
-            getAddress(sourceChain, "USDE"),
+            getAddress(sourceChain, "USDEOFTAdapter"),
             layerZeroPlasmaEndpointId,
             getBytes32(sourceChain, "boringVault")
         );
