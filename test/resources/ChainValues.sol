@@ -36,6 +36,7 @@ contract ChainValues {
     string public constant katana = "katana";
     string public constant hyperevm = "hyperevm";
     string public constant plasma = "plasma";
+    string public constant monad = "monad";
 
     // Bridging constants.
     uint64 public constant ccipArbitrumChainSelector = 4949039107694359620;
@@ -128,6 +129,16 @@ contract ChainValues {
         _addBerachainTestnetValues();
         _addBartioValues();
         _addHyperEvmValues();
+        _addMonadValues();
+    }
+
+    function _addMonadValues() private {
+        values[monad]["deployerAddress"] = 0x5BD97A73333B6EC2e38B687bcED159566A14C5BA.toBytes32();
+        values[monad]["txBundlerAddress"] = 0x5BD97A73333B6EC2e38B687bcED159566A14C5BA.toBytes32();
+        values[monad]["dev0Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
+        values[monad]["dev1Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
+        values[monad]["WMON"] = 0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A.toBytes32();
+        
     }
 
     function _addPlasmaValues() private {
