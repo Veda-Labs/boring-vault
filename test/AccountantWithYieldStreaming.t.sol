@@ -877,6 +877,52 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         assertEq(assetsOutAlice, WETHAmount); //assert no dilution, no extra yield
     }
 
+    function testRoundingIssuesAfterYieldStreamEnds() external {
+        uint256 WETHAmount = 1e18; 
+        deal(address(WETH), address(this), 1_000e18);
+        WETH.approve(address(boringVault), 1_000e18);
+        uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
+        assertEq(WETHAmount, shares0); 
+
+        //vest some yield
+        deal(address(WETH), address(boringVault), WETHAmount * 2);
+        accountant.vestYield(70, 24 hours); 
+
+        skip(24 hours);
+
+        //now the state of the contract should be 
+        //totalSupply > 1
+        //exchange rate > 1 
+        uint256 supplyBefore = boringVault.totalSupply();
+        uint256 rateBefore = accountant.getRate();
+        console.log("supply before:", supplyBefore);
+        console.log("rate before:", rateBefore);
+
+        // Attacker deposits
+        uint256 depositAmount = 389998;
+        uint256 attackerShares = teller.deposit(WETH, depositAmount, 0, referrer);
+
+        // Check rate AFTER deposit
+        uint256 supplyAfter = boringVault.totalSupply();
+        uint256 rateAfter = accountant.getRate();
+        console.log("supply after:", supplyAfter);
+        console.log("rate after:", rateAfter);
+        //console.log("rate increased by:", rateAfter - rateBefore);
+
+        // Attacker immediately withdraws
+        boringVault.approve(address(teller), attackerShares);
+        uint256 assetsOut = teller.withdraw(WETH, attackerShares, 0, address(this));
+
+        console.log("deposited:", depositAmount);
+        console.log("shares received:", attackerShares);
+        console.log("assets out:", assetsOut);
+        console.log("any profit:", int256(assetsOut) - int256(depositAmount));
+
+        // THIS is the bug - user gets more out than they put in
+        assertLt(assetsOut, depositAmount, "Attacker should not profit");
+
+    }
+
     // ========================= REVERT TESTS / FAILURE CASES ===============================
     
     function testVestYieldCannotExceedMaximumDuration() external {

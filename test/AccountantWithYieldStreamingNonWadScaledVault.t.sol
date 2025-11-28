@@ -681,6 +681,54 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         assertEq(assetsOutAlice, USDCAmount); //assert no dilution, no extra yield
     }
 
+    function testRoundingIssuesAfterYieldStreamEnds() external {
+        uint256 USDCAmount = 10002; 
+        deal(address(USDC), address(this), 1_000e6);
+        USDC.approve(address(boringVault), 1_000e6);
+        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0, referrer);
+        assertEq(USDCAmount, shares0); 
+
+        //vest some yield
+        deal(address(USDC), address(boringVault), USDCAmount * 2);
+        accountant.vestYield(1, 24 hours); 
+
+        skip(24 hours);
+
+        accountant.updateExchangeRate();
+
+        //now the state of the contract should be 
+        //totalSupply > 1
+        //exchange rate > 1 
+        uint256 supplyBefore = boringVault.totalSupply();
+        uint256 rateBefore = accountant.getRate();
+        console.log("supply before:", supplyBefore);
+        console.log("rate before:", rateBefore);
+
+        // Attacker deposits
+        uint256 depositAmount = 389998;
+        uint256 attackerShares = teller.deposit(USDC, depositAmount, 0, referrer);
+
+        // Check rate AFTER deposit
+        uint256 supplyAfter = boringVault.totalSupply();
+        uint256 rateAfter = accountant.getRate();
+        console.log("supply after:", supplyAfter);
+        console.log("rate after:", rateAfter);
+        console.log("rate increased by:", rateAfter - rateBefore);
+
+        // Attacker immediately withdraws
+        boringVault.approve(address(teller), attackerShares);
+        uint256 assetsOut = teller.withdraw(USDC, attackerShares, 0, address(this));
+
+        console.log("deposited:", depositAmount);
+        console.log("shares received:", attackerShares);
+        console.log("assets out:", assetsOut);
+        console.log("any profit:", int256(assetsOut) - int256(depositAmount));
+
+        // THIS is the bug - user gets more out than they put in
+        assertLt(assetsOut, depositAmount, "Attacker should not profit");
+
+    }
+
     // ========================= REVERT TESTS / FAILURE CASES ===============================
     
     function testVestYieldCannotExceedMaximumDuration() external {
@@ -874,6 +922,54 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
             "Second depositor should get back their deposit"
         );
     }
+
+    function testRoundingIssuesAfterYieldStreamEndsFuzz(uint96 USDCAmount, uint96 secondDepositAmount) external {
+        deal(address(USDC), address(this), USDCAmount);
+        USDC.approve(address(boringVault), USDCAmount);
+        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0, referrer);
+        assertEq(USDCAmount, shares0); 
+
+        //vest some yield
+        deal(address(USDC), address(boringVault), USDCAmount * 2);
+        accountant.vestYield(1, 24 hours); 
+
+        skip(24 hours);
+
+        accountant.updateExchangeRate();
+
+        //now the state of the contract should be 
+        //totalSupply > 1
+        //exchange rate > 1 
+        uint256 supplyBefore = boringVault.totalSupply();
+        uint256 rateBefore = accountant.getRate();
+        //console.log("supply before:", supplyBefore);
+        //console.log("rate before:", rateBefore);
+
+        // Attacker deposits
+        uint256 depositAmount = 389998;
+        uint256 attackerShares = teller.deposit(USDC, depositAmount, 0, referrer);
+
+        // Check rate AFTER deposit
+        uint256 supplyAfter = boringVault.totalSupply();
+        uint256 rateAfter = accountant.getRate();
+        console.log("supply after:", supplyAfter);
+        console.log("rate after:", rateAfter);
+        console.log("rate increased by:", rateAfter - rateBefore);
+
+        // Attacker immediately withdraws
+        boringVault.approve(address(teller), attackerShares);
+        uint256 assetsOut = teller.withdraw(USDC, attackerShares, 0, address(this));
+
+        console.log("deposited:", depositAmount);
+        console.log("shares received:", attackerShares);
+        console.log("assets out:", assetsOut);
+        console.log("any profit:", int256(assetsOut) - int256(depositAmount));
+
+        // THIS is the bug - user gets more out than they put in
+        assertLt(assetsOut, depositAmount, "Attacker should not profit");
+
+    }
+
 
     // ========================================= HELPER FUNCTIONS =========================================
     
