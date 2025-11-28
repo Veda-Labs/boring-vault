@@ -196,7 +196,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         skip(12 hours); 
 
         //==== BEGIN DEPOSIT 2 ====
-            uint256 shares1 = teller.deposit(WETH, WETHAmount, 0, referrer);
+        uint256 shares1 = teller.deposit(WETH, WETHAmount, 0, referrer);
         vm.assertApproxEqAbs(shares1, 6666666666666666666, 10);  
 
         //total of 2 deposits to 10 weth each + 5 vested yield 
@@ -361,7 +361,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         //==== BEGIN WITHDRAW USER 2 ====
         vm.prank(alice); 
         assetsOut = teller.withdraw(WETH, shares1, 0, address(alice));   
-        vm.assertApproxEqAbs(assetsOut, 15e18, 10); 
+        //vm.assertApproxEqAbs(assetsOut, 15e18, 10); 
+        vm.assertEq(assetsOut, 15e18); 
     }
 
     function testVestLossAbsorbBuffer() external {
@@ -1143,6 +1144,47 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
        // // === TEST EDGE CASE: Try to withdraw more than balance ===
        // vm.expectRevert(); // Should revert due to insufficient shares
        // teller.withdraw(WETH, shares0, 0, address(this)); // Try to withdraw all of shares0 (but we only have half left)
+    }
+
+    function testRoundingIssuesAfterYieldStreamEndsFuzz(uint96 WETHAmount, uint96 secondDepositAmount) external {
+        WETHAmount = uint96(bound(WETHAmount, 1, 1e6));
+        secondDepositAmount = uint96(bound(secondDepositAmount, 1e1, 1e11)); 
+        //vm.assume(secondDepositAmount > 1e1 && secondDepositAmount <= 1e11); 
+        deal(address(WETH), address(this), WETHAmount);
+        WETH.approve(address(boringVault), type(uint256).max);
+        uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
+        //assertEq(WETHAmount, shares0); 
+
+        // Use a yield that's safely under the limit (e.g., 5%)
+        uint256 yieldAmount = uint256(WETHAmount) * 500 / 10_000;
+
+        // Ensure yield is at least 1 to be meaningful
+        vm.assume(yieldAmount > 0);
+
+        //vest some yield
+        deal(address(WETH), address(boringVault), secondDepositAmount * 2);
+        accountant.vestYield(yieldAmount, 24 hours); 
+
+        skip(24 hours);
+
+        accountant.updateExchangeRate();
+
+        //now the state of the contract should be 
+        //totalSupply > 1
+        //exchange rate > 1 
+
+        // Attacker deposits
+        deal(address(WETH), address(this), secondDepositAmount);
+        uint256 attackerShares = teller.deposit(WETH, secondDepositAmount, 0, referrer);
+
+        // Check rate AFTER deposit
+
+        // Attacker immediately withdraws
+        boringVault.approve(address(teller), attackerShares);
+        uint256 assetsOut = teller.withdraw(WETH, attackerShares, 0, address(this));
+
+        // this is the bug - user gets more out than they put in
+        assertLe(assetsOut, secondDepositAmount, "Attacker should not profit");
     }
 
 
