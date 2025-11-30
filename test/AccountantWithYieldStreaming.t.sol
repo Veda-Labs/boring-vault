@@ -1146,7 +1146,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
        // teller.withdraw(WETH, shares0, 0, address(this)); // Try to withdraw all of shares0 (but we only have half left)
     }
 
-    function testRoundingIssuesAfterYieldStreamEndsFuzz(uint96 WETHAmount, uint96 secondDepositAmount) external {
+    function testRoundingAfterYieldStreamEndsFuzz(uint96 WETHAmount, uint96 secondDepositAmount) external {
         WETHAmount = uint96(bound(WETHAmount, 1, 1e6));
         secondDepositAmount = uint96(bound(secondDepositAmount, 1e1, 1e11)); 
         //vm.assume(secondDepositAmount > 1e1 && secondDepositAmount <= 1e11); 
@@ -1173,18 +1173,18 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         //totalSupply > 1
         //exchange rate > 1 
 
-        // Attacker deposits
+        // Second Depositor deposits
         deal(address(WETH), address(this), secondDepositAmount);
-        uint256 attackerShares = teller.deposit(WETH, secondDepositAmount, 0, referrer);
+        uint256 secondDepositorShares = teller.deposit(WETH, secondDepositAmount, 0, referrer);
 
         // Check rate AFTER deposit
 
-        // Attacker immediately withdraws
-        boringVault.approve(address(teller), attackerShares);
-        uint256 assetsOut = teller.withdraw(WETH, attackerShares, 0, address(this));
+        // Second Depositor immediately withdraws
+        boringVault.approve(address(teller), secondDepositorShares);
+        uint256 assetsOut = teller.withdraw(WETH, secondDepositorShares, 0, address(this));
 
         // this is the bug - user gets more out than they put in
-        assertLe(assetsOut, secondDepositAmount, "Attacker should not profit");
+        assertLe(assetsOut, secondDepositAmount, "Second depositor should not profit");
     }
 
 
