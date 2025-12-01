@@ -40,7 +40,7 @@ contract CreateSentoraMerkleRootScript is Script, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](128);
 
-        // ========================== Odos ==========================
+        // ========================== Odos/1inch ==========================
         address[] memory assets = new address[](2);
         assets[0] = getAddress(sourceChain, "LBTC");
         assets[1] = getAddress(sourceChain, "WBTC");
@@ -48,28 +48,31 @@ contract CreateSentoraMerkleRootScript is Script, MerkleTreeHelper {
         kind[0] = SwapKind.BuyAndSell;
         kind[1] = SwapKind.BuyAndSell;
         _addOdosSwapLeafs(leafs, assets, kind);
-
-        // ========================== 1Inch ==========================
-        assets = new address[](2);
-        assets[0] = getAddress(sourceChain, "LBTC");
-        assets[1] = getAddress(sourceChain, "WBTC");
-        kind = new SwapKind[](2);
-        kind[0] = SwapKind.BuyAndSell;
-        kind[1] = SwapKind.BuyAndSell;
         _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
 
         // ========================== ITB Position Manager ==========================
-        ERC20[] memory itbTokensUsed = new ERC20[](2);
+        ERC20[] memory itbTokensUsed = new ERC20[](1);
         itbTokensUsed[0] = getERC20(sourceChain, "LBTC");
-        itbTokensUsed[1] = getERC20(sourceChain, "WBTC");
         address itbPositionManager = 0x701D7Fc25577602dc77280108a8cef0B72b8F8A7;
-        _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "Supervised Loan");
+        _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "LBTC > USDC > RLUSD Supervised Loan");
+        itbPositionManager = 0x9B6a57Fda106eff13ffE4ea4Ef2783C547f75cd7;
+        _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "LBTC > RLUSD > RLUSD Supervised Loan");
+        itbPositionManager = 0x284D3b0eF51F0A6432948A9cCbCb5cAF30d6EE96;
+        _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "LBTC > PYUSD > RLUSD Supervised Loan");
 
         itbTokensUsed = new ERC20[](0);
         itbPositionManager = 0xcA1fB3fECFbA0CB89c95C298f5329b793B4d8fa3;
-        _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "Loan Manager");
+        _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "LBTC > USDC > RLUSD Loan Manager");
         itbPositionManager = 0x97c1deFaC7c1e5Ce0FBE34C684Ac09EA640d4A7a;
-        _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "Yield Position");
+        _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "LBTC > USDC > RLUSD Yield Position");
+        itbPositionManager = 0x1D3fA8bD88F246c6c6E5582690F9198fae16B195;
+        _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "LBTC > RLUSD > RLUSD Loan Manager");
+        itbPositionManager = 0x2e343AD2e670A2139b05Ea4cf90312612D7a42Ae;
+        _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "LBTC > RLUSD > RLUSD Yield Strategy");
+        itbPositionManager = 0xE5165B3E2568D011ad906eEcDEdbcc777F3976ef;
+        _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "LBTC > PYUSD > RLUSD Loan Manager");
+        itbPositionManager = 0x882dcA0307C80131d82f27BD9F7f88c5c4A94dbD;
+        _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "LBTC > PYUSD > RLUSD Yield Strategy");
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
@@ -95,17 +98,6 @@ contract CreateSentoraMerkleRootScript is Script, MerkleTreeHelper {
              "acceptOwnership()",
              new address[](0),
              string.concat("Accept ownership of the ", itbContractName, " contract"),
-             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-         );
- 
-         // removeExecutor
-         leafIndex++;
-         leafs[leafIndex] = ManageLeaf(
-             itbPositionManager,
-             false,
-             "removeExecutor(address)",
-             new address[](0),
-             string.concat("Remove executor from the ", itbContractName, " contract"),
              getAddress(sourceChain, "rawDataDecoderAndSanitizer")
          );
  
