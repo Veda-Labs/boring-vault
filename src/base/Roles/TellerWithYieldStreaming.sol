@@ -67,7 +67,7 @@ contract TellerWithYieldStreaming is TellerWithBuffer {
         nonReentrant
         returns (uint256 assetsOut) {
         _getAccountant().updateExchangeRate();
-        assetsOut = _withdraw(withdrawAsset, shareAmount - 1, minimumAssets, to);
+        assetsOut = _withdraw(withdrawAsset, shareAmount, minimumAssets, to);
         emit BulkWithdraw(address(withdrawAsset), shareAmount);
     }
 
