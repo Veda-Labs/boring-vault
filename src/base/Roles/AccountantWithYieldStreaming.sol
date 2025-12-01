@@ -79,6 +79,8 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
      */
     uint64 public lastStrategistUpdateTimestamp;
 
+    bool public downCastOverflow = false;
+
     //============================== ERRORS ===============================
 
     error AccountantWithYieldStreaming__UpdateExchangeRateNotSupported();
@@ -178,6 +180,8 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         //update the cumulative supply checkpoint
         supplyObservation.cumulativeSupplyLast = supplyObservation.cumulativeSupply;
 
+        if (yieldAmount > type(uint128).max)
+            downCastOverflow = true;
         //strategists should account for any unvested yield they want, gives more flexibility in posting pnl updates
         vestingState.vestingGains = uint128(yieldAmount);
 
@@ -207,6 +211,8 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         _updateExchangeRate(); //vested gains are moved to totalAssets, only unvested remains in `vestingState.vestingGains`
 
         if (vestingState.vestingGains >= lossAmount) {
+            if (lossAmount > type(uint128).max)
+            downCastOverflow = true;
             //remaining unvested gains absorb the loss
             vestingState.vestingGains -= uint128(lossAmount);
         } else {
@@ -219,6 +225,9 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
             uint256 currentShares = vault.totalSupply();
             if (currentShares > 0) {
                 uint128 cachedSharePrice = vestingState.lastSharePrice;
+                if ((totalAssets() - principalLoss).mulDivDown(ONE_SHARE, currentShares) > type(uint128).max)
+                    downCastOverflow = true;
+
                 vestingState.lastSharePrice =
                     uint128((totalAssets() - principalLoss).mulDivDown(ONE_SHARE, currentShares));
 
@@ -235,6 +244,8 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         
 
         AccountantState storage state = accountantState;
+        if (vestingState.lastSharePrice > type(uint96).max)
+            downCastOverflow = true;
         state.exchangeRate = uint96(vestingState.lastSharePrice);
 
         //update state timestamp
@@ -453,8 +464,14 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         if (newlyVested > 0) {
             // update the share price w/o reincluding the pending gains (done in `newlyVested`)
             uint256 _totalAssets = uint256(vestingState.lastSharePrice).mulDivDown(currentShares, ONE_SHARE);
+            
+            if ((_totalAssets + newlyVested).mulDivDown(ONE_SHARE, currentShares) > type(uint128).max)
+                downCastOverflow = true;
+
             vestingState.lastSharePrice = uint128((_totalAssets + newlyVested).mulDivDown(ONE_SHARE, currentShares));
 
+            if (newlyVested > type(uint128).max)
+                downCastOverflow = true;
 
             //move vested amount from pending to realized
             vestingState.vestingGains -= uint128(newlyVested); // remove from pending
@@ -466,6 +483,8 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         //always update timestamp 
         vestingState.lastVestingUpdate = uint128(block.timestamp); // update timestamp
 
+        if (currentShares > type(uint128).max)
+            downCastOverflow = true;
         state.totalSharesLastUpdate = uint128(currentShares);
 
         emit ExchangeRateUpdated(vestingState.lastSharePrice);
@@ -495,6 +514,8 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         uint64 currentTime = uint64(block.timestamp);
 
         //calculate fees using function inherited from `AccountantWithRateProviders`
+        if (vestingState.lastSharePrice > type(uint96).max)
+            downCastOverflow = true;
         _calculateFeesOwed(
             state, uint96(vestingState.lastSharePrice), state.exchangeRate, currentTotalShares, currentTime
         );

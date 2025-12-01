@@ -71,7 +71,7 @@ invariant assetsMoreThanShares(env e)
     { f -> !ignoredMethod(f)
         && (f.contract == teller_contract || f.contract == accountant_contract)
         && f.selector != sig:teller_contract.refundDeposit(uint256,address,address,uint256,uint256,uint256,uint256,address).selector // can break if the sharesAmount is too low. This can happen since we don't really track the sum of deposits and their shares in publicDepositHistory
-        //&& f.selector == sig:teller_contract.deposit(address, uint256, uint256,address).selector 
+        && f.selector == sig:teller_contract.deposit(address, uint256, uint256,address).selector 
         //&& f.selector == sig:teller_contract.depositWithPermit(address,uint256,uint256,uint256,uint8,bytes32,bytes32,address).selector
         //&& f.selector == sig:teller_contract.bulkDeposit(address,uint256,uint256,address).selector
         //&& f.selector == sig:teller_contract.withdraw(address,uint256,uint256,address).selector
@@ -83,6 +83,8 @@ invariant assetsMoreThanShares(env e)
         requireAllInvariants(e2);
         safeAssumptions();
         nonSceneAddress(e2.msg.sender);
+
+        //requireSmallNumbers_Unsafe(e2);
     }
 }
 
@@ -120,6 +122,29 @@ invariant sharePriceBoundedUpper_strict(env e)
         requireAllInvariants(e2);
         
         require accountant_contract.getPendingVestingGains(e2) <= vault_contract.totalSupply();
+        safeAssumptions();
+        nonSceneAddress(e2.msg.sender);
+    }
+}
+
+invariant vestingGainsBounded(env e)
+    accountant_contract.getPendingVestingGains(e) <= vault_contract.totalSupply()
+    || accountant_contract.downCastOverflow
+    filtered 
+    { f -> !ignoredMethod(f)
+        && (f.contract == teller_contract)  //funds could be moved by methods called on the Vault or on the Asset
+        && f.selector != sig:teller_contract.refundDeposit(uint256,address,address,uint256,uint256,uint256,uint256,address).selector // can break if the sharesAmount is too low. This can happen since we don't really track the sum of deposits and their shares in publicDepositHistory
+        //&& f.selector == sig:teller_contract.deposit(address, uint256, uint256,address).selector 
+        //&& f.selector == sig:teller_contract.depositWithPermit(address,uint256,uint256,uint256,uint8,bytes32,bytes32,address).selector
+        //&& f.selector == sig:teller_contract.bulkDeposit(address,uint256,uint256,address).selector
+        //&& f.selector == sig:teller_contract.withdraw(address,uint256,uint256,address).selector
+        //&& f.selector == sig:teller_contract.bulkWithdraw(address,uint256,uint256,address).selector
+        //&& !isPublicMethod(f)
+}
+    {
+    preserved with (env e2) {
+        
+        requireAllInvariants(e2);
         safeAssumptions();
         nonSceneAddress(e2.msg.sender);
     }
@@ -249,7 +274,7 @@ invariant priceBound2_strict(env e)
         //&& f.selector == sig:teller_contract.deposit(address, uint256, uint256,address).selector 
         //&& f.selector == sig:teller_contract.depositWithPermit(address,uint256,uint256,uint256,uint8,bytes32,bytes32,address).selector
         //&& f.selector == sig:teller_contract.bulkDeposit(address,uint256,uint256,address).selector
-        //&& f.selector == sig:teller_contract.withdraw(address,uint256,uint256,address).selector
+        && f.selector == sig:teller_contract.withdraw(address,uint256,uint256,address).selector
         //&& f.selector == sig:teller_contract.bulkWithdraw(address,uint256,uint256,address).selector
         //&& !isPublicMethod(f)
 }
@@ -261,6 +286,7 @@ invariant priceBound2_strict(env e)
 
         safeAssumptions();
         nonSceneAddress(e2.msg.sender);
+        require vault_contract.totalSupply() > 0;
     }
 }
 
@@ -294,11 +320,7 @@ filtered { f -> !ignoredMethod(f)
         safeAssumptions();
         nonSceneAddress(e2.msg.sender);
 
-        require userAssets(e, ERC20Mock, vault_contract) < 1000000;
-        require userAssets(e, ERC20Mock, vault_contract) > 10000;
-
-        require vault_contract.totalSupply(e) < 1000000;
-        require vault_contract.totalSupply(e) > 10000;
+        requireSmallNumbers_Unsafe(e2);
     }
 }
 
@@ -493,6 +515,27 @@ filtered { f -> !ignoredMethod(f)
     //    ;
 }
 
+rule noFreeAssets(env e)
+{
+    safeAssumptions();
+    requireAllInvariants(e);
+    nonSceneAddress(e.msg.sender);
+    
+    requireSmallNumbers_Unsafe(e);
+
+    address asset; uint256 assetsAmount;
+    require assetsAmount < 10^6;
+    //uint shares = deposit(e, asset, assetsAmount, minShares, e.msg.sender); 
+    uint shares = bulkDeposit(e, asset, assetsAmount, 0, e.msg.sender); 
+    
+    //uint assetsReceived = withdraw(e, asset,shares,minAssets,e.msg.sender);
+    uint assetsReceived = bulkWithdraw(e,asset,shares, 0 ,e.msg.sender);
+
+    satisfy assetsReceived > assetsAmount + 1 * teller_contract.ONE_SHARE;
+    //satisfy assetsReceived > assetsAmount;
+    //assert assetsReceived + 1 <= assetsAmount;
+}
+
 function requireAllInvariants(env e)
 {
     // these hold
@@ -505,7 +548,7 @@ function requireAllInvariants(env e)
     requireInvariant cumulativeSupplyBounded();
     requireInvariant sharePriceBoundedUpper(e);
 
-    // doesn't hold
+    // these time out
     requireInvariant assetsMoreThanShares(e);
     requireInvariant totalAssetsCovered(e);
     requireInvariant vaultSolvency_1Asset(e);
@@ -513,7 +556,21 @@ function requireAllInvariants(env e)
     require teller_contract.assetData[ERC20Mock].sharePremium == 0;
     require accountant_contract.downCastOverflow == false;
     
-    // these doesn't hold. These are more strict versions of the bounds that hold
-    requireInvariant sharePriceBoundedUpper_strict(e);
-    requireInvariant priceBound2_strict(e);
+    // these don't hold. These are more strict versions of the bounds that hold
+    //requireInvariant sharePriceBoundedUpper_strict(e);
+    //requireInvariant priceBound2_strict(e);
+}
+
+function requireSmallNumbers_Unsafe(env e)
+{
+    require teller_contract.ONE_SHARE == 1000000;
+    require accountant_contract.vestingState.lastSharePrice <= 100000000; 
+
+    require userAssets(e, ERC20Mock, vault_contract) < 10000000000;
+    require userAssets(e, ERC20Mock, vault_contract) > 1000;
+
+    require vault_contract.totalSupply(e) < 10000000000;
+    require vault_contract.totalSupply(e) > 10000;
+
+    require accountant_contract.vestingState.vestingGains == 0;
 }

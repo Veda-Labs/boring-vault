@@ -1,0 +1,16 @@
+# invariants
+certora/scripts/setup.sh C
+# certoraRun certora/confs/scenarioC.conf --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_hardRules.spec" --msg exchangeRateLEhighwaterMark_unlessPaused --rule exchangeRateLEhighwaterMark_unlessPaused --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20"
+# certoraRun certora/confs/scenarioC.conf --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_hardRules.spec" --msg sharePriceBoundedLower --rule sharePriceBoundedLower --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20"
+# certoraRun certora/confs/scenarioC.conf --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_hardRules.spec" --msg exchangeRateEqlastSharePrice --rule exchangeRateEqlastSharePrice --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20"
+# certoraRun certora/confs/scenarioC.conf --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_hardRules.spec" --msg priceBound2 --rule priceBound2 --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20"
+# certoraRun certora/confs/scenarioC.conf --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_hardRules.spec" --msg cumulativeSupplyBounded --rule cumulativeSupplyBounded --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20"
+# certoraRun certora/confs/scenarioC.conf --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_hardRules.spec" --msg sharePriceBoundedUpper --rule sharePriceBoundedUpper --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20"
+# certoraRun certora/confs/scenarioC.conf --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_hardRules.spec" --msg sharePriceMoreThanOne --rule sharePriceMoreThanOne --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20"
+
+certoraRun certora/confs/scenarioC.conf --msg assetsMoreThanShares --rule assetsMoreThanShares --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_hardRules.spec" --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20"
+certoraRun certora/confs/scenarioC.conf --msg totalAssetsCovered --rule totalAssetsCovered --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_hardRules.spec" --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20"
+certoraRun certora/confs/scenarioC.conf --msg vaultSolvency_1Asset --rule vaultSolvency_1Asset --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_hardRules.spec" --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20"
+
+certoraRun certora/confs/scenarioC.conf --msg sharePriceBoundedUpper_strict --rule sharePriceBoundedUpper_strict --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_hardRules.spec" --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20"
+
