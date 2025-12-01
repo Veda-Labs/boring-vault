@@ -21,7 +21,7 @@ contract CreateStakedSonicUSDMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0x4D85bA8c3918359c78Ed09581E5bc7578ba932ba;
     address public managerAddress = 0x5F7f5205A3E7c63c3bd287EecBe7879687D4c698;
     address public accountantAddress = 0x13cCc810DfaA6B71957F2b87060aFE17e6EB8034;
-    address public rawDataDecoderAndSanitizer = 0xE96762FD748EfdCF4156c64aBc39227529FaF021;
+    address public rawDataDecoderAndSanitizer = 0xE1aD269404Aee1998b569D6e9F21F3dca32b0743;
     
     //one offs
     address public siloVaultDecoder = 0x62eab851AC6aF5C0B3e017F70db71A40Dfa1B1f0; 
@@ -73,8 +73,8 @@ contract CreateStakedSonicUSDMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Odos ==========================
         
-        address[] memory tokens = new address[](10);   
-        SwapKind[] memory kind = new SwapKind[](10); 
+        address[] memory tokens = new address[](11);   
+        SwapKind[] memory kind = new SwapKind[](11); 
         tokens[0] = getAddress(sourceChain, "USDC"); 
         kind[0] = SwapKind.BuyAndSell; 
         tokens[1] = getAddress(sourceChain, "stS"); 
@@ -94,7 +94,9 @@ contract CreateStakedSonicUSDMerkleRoot is Script, MerkleTreeHelper {
         tokens[8] = getAddress(sourceChain, "SILO"); 
         kind[8] = SwapKind.Sell; 
         tokens[9] = getAddress(sourceChain, "UNI"); 
-        kind[9] = SwapKind.Sell; 
+        kind[9] = SwapKind.Sell;
+        tokens[10] = getAddress(sourceChain, "EUL");
+        kind[10] = SwapKind.Sell;
 
         _addOdosSwapLeafs(leafs, tokens, kind); 
         
@@ -165,16 +167,13 @@ contract CreateStakedSonicUSDMerkleRoot is Script, MerkleTreeHelper {
         subaccounts[0] = address(boringVault);
 
         _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
+        _addrEULWrappingLeafs(leafs); //unwrap rEUL for EUL
         
         // ========================== Native =========================
         _addNativeLeafs(leafs, getAddress(sourceChain, "wS"));
 
          // ========================== Merkl =========================
-        ERC20[] memory tokensToClaim = new ERC20[](3);
-        tokensToClaim[0] = getERC20(sourceChain, "rEUL");
-        tokensToClaim[1] = getERC20(sourceChain, "wS");
-        tokensToClaim[2] = getERC20(sourceChain, "UNI");
-        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"), tokensToClaim);
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"));
 
         // ========================== Verify =========================
 

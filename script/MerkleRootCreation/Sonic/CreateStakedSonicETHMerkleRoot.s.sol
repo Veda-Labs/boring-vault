@@ -21,7 +21,7 @@ contract CreateStakedSonicETHMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0x455d5f11Fea33A8fa9D3e285930b478B6bF85265;
     address public managerAddress = 0xB77F31E02797724021F822181dff29F966A7B2cb;
     address public accountantAddress = 0x61bE1eC20dfE0197c27B80bA0f7fcdb1a6B236E2;
-    address public rawDataDecoderAndSanitizer = 0xE96762FD748EfdCF4156c64aBc39227529FaF021;
+    address public rawDataDecoderAndSanitizer = 0xE1aD269404Aee1998b569D6e9F21F3dca32b0743;
 
     function setUp() external {}
 
@@ -72,8 +72,8 @@ contract CreateStakedSonicETHMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Odos ==========================
         
-        address[] memory tokens = new address[](9);   
-        SwapKind[] memory kind = new SwapKind[](9);
+        address[] memory tokens = new address[](10);   
+        SwapKind[] memory kind = new SwapKind[](10);
         tokens[0] = getAddress(sourceChain, "WETH"); 
         kind[0] = SwapKind.BuyAndSell;
         tokens[1] = getAddress(sourceChain, "stS"); 
@@ -92,6 +92,8 @@ contract CreateStakedSonicETHMerkleRoot is Script, MerkleTreeHelper {
         kind[7] = SwapKind.Sell;
         tokens[8] = getAddress(sourceChain, "BEETSFRAGMENTSS1");
         kind[8] = SwapKind.Sell;
+        tokens[9] = getAddress(sourceChain, "EUL");
+        kind[9] = SwapKind.Sell;
 
         _addOdosSwapLeafs(leafs, tokens, kind); 
 
@@ -127,16 +129,13 @@ contract CreateStakedSonicETHMerkleRoot is Script, MerkleTreeHelper {
         subaccounts[0] = address(boringVault);
 
         _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
+        _addrEULWrappingLeafs(leafs); //unwrap rEUL for EUL
 
          // ========================== Native =========================
         _addNativeLeafs(leafs, getAddress(sourceChain, "wS"));
        
         // ========================== Merkl =========================
-        ERC20[] memory tokensToClaim = new ERC20[](3); 
-        tokensToClaim[0] = getERC20(sourceChain, "rEUL"); 
-        tokensToClaim[1] = getERC20(sourceChain, "wS"); 
-        tokensToClaim[2] = getERC20(sourceChain, "BEETSFRAGMENTSS1"); 
-        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"), tokensToClaim); 
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address")); 
 
         // ========================== Verify =========================
 

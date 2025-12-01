@@ -4,7 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity ^0.8.0;
 
-contract AaveDecoderAndSanitizer {
+contract ITBAaveDecoderAndSanitizer {
     function deposit(address asset, uint256) external pure returns (bytes memory addressesFound) {
         addressesFound = abi.encodePacked(asset);
     }

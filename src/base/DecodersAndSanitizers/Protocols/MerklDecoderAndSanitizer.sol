@@ -33,7 +33,7 @@ contract MerklDecoderAndSanitizer {
         }
 
         for (uint256 i; i < usersLength; ++i) {
-            sensitiveArguments = abi.encodePacked(sensitiveArguments, users[i], tokens[i]);
+            sensitiveArguments = abi.encodePacked(sensitiveArguments, users[i]);
         }
     }
 }

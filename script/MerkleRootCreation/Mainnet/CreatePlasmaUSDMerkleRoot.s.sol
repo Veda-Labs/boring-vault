@@ -19,7 +19,7 @@ contract CreatePlasmaUSDMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0xd1074E0AE85610dDBA0147e29eBe0D8E5873a000;
-    address public rawDataDecoderAndSanitizer = 0x13b65C19F43d6c3cfB7BB2a9c7F019Fcba20d2e8;
+    address public rawDataDecoderAndSanitizer = 0xe00405868cb175277DF6e948C08dDBE289557661;
     address public managerAddress = 0xbFD60C2D4C1eee3307a2317529183e8045d0D7F3;
     address public accountantAddress = 0x737f2522d09E58a3Ea9dcCFDB127dD0dF5eB3F18;
 
@@ -39,7 +39,7 @@ contract CreatePlasmaUSDMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "accountantAddress", accountantAddress);
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](32);
+        ManageLeaf[] memory leafs = new ManageLeaf[](64);
 
         // ========================== Aave V3 ==========================
         ERC20[] memory supplyAssets = new ERC20[](4);
@@ -56,6 +56,15 @@ contract CreatePlasmaUSDMerkleRoot is Script, MerkleTreeHelper {
         // ========================== sUSDs ==========================
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sUSDs")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sDAI")));
+
+        // ========================== LayerZero to Plasma ==========================
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "USDT"),
+            getAddress(sourceChain, "usdt0OFTAdapter"),
+            layerZeroPlasmaEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

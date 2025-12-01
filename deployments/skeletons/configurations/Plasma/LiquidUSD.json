@@ -1,0 +1,132 @@
+{
+    "deploymentParameters": {
+      "logLevel": 4,
+      "privateKeyEnvName": "BORING_DEVELOPER",
+      "chainName": "plasma",
+      "evmVersion": "shanghai",
+      "deployerContractAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "deployerAddress"
+      },
+      "nativeWrapperAddressOrName": {
+        "address": "0x9895D81bB462A195b4922ED7De0e3ACD007c32CB",
+        "name": "wETH"
+      },
+      "deploymentOwnerAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "txBundlerAddress"
+      },
+      "deploymentFileName": "skeletons/addresses/Plasma/LiquidUSD.json"
+    },
+    "rolesAuthorityConfiguration": {
+      "rolesAuthorityDeploymentName": "EtherFi Liquid USD RolesAuthority Version 0.0"
+    },
+    "lensConfiguration": {
+      "lensDeploymentName": "Arctic Architecture Lens V0.0"
+    },
+    "boringVaultConfiguration": {
+      "boringVaultDeploymentName": "EtherFi Liquid USD V0.0",
+      "boringVaultName": "Ether.Fi Liquid USD",
+      "boringVaultSymbol": "liquidUSD",
+      "boringVaultDecimals": 6
+    },
+    "managerConfiguration": {
+      "managerDeploymentName": "liquidUSD ManagerWithMerkleVerification V0.1",
+      "balancerVaultAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000001",
+        "name": "balancerV2Vault"
+      }
+    },
+    "accountantConfiguration": {
+      "accountantDeploymentName": "EtherFi Liquid USD Accountant With Rate Providers V0.0",
+      "accountantParameters": {
+        "kind": {
+          "variableRate": true,
+          "fixedRate": false,
+          "yieldStreaming": false
+        },
+        "payoutConfiguration": {
+          "payoutTo": "0xf6BD950c66869a32170Bf26A38c8b7C6d6eCa863",
+          "optionalPaymentSplitterName": "EtherFi Liquid USD Payment Splitter V0.0",
+          "splits": []
+        },
+        "accountantDeploymentParameters": {
+          "allowedExchangeRateChangeLower": 9950,
+          "allowedExchangeRateChangeUpper": 10050,
+          "base": {
+            "address": "0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb",
+            "name": "USDT0"
+          },
+          "minimumUpateDelayInSeconds": 21600,
+          "performanceFee": 0,
+          "platformFee": 200,
+          "startingExchangeRate": 1128351
+        }
+      }
+    },
+    "tellerConfiguration": {
+      "tellerDeploymentName": "Liquid USD LayerZero Teller V0.2",
+      "tellerParameters": {
+        "kind": {
+          "teller": false,
+          "tellerWithRemediation": false,
+          "tellerWithCcip": false,
+          "tellerWithLayerZero": false,
+          "tellerWithLayerZeroRateLimiting": true,
+          "tellerWithYieldStreaming": false
+        },
+        "layerZero": {
+          "endpointAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "LayerZeroEndPoint"
+          },
+          "lzTokenAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "ZRO"
+          }
+        }
+      }
+    },
+    "boringQueueConfiguration": {
+      "boringQueueDeploymentName": "EtherFi Liquid USD Queue V0.0",
+      "boringQueueSolverName": "EtherFi Liquid USD Queue Solver V0.0",
+      "excessToSolverNonSelfSolve": true,
+      "queueParameters": {
+        "kind": {
+          "boringQueue": true,
+          "boringQueueWithTracking": false
+        }
+      }
+    },
+    "droneConfiguration": {
+      "droneDeploymentBaseName": "EtherFi Liquid USD Drone V0.0",
+      "droneCount": 0,
+      "safeGasToForwardNative": 21000
+    },
+    "pauserConfiguration": {
+      "shouldDeploy": true,
+      "pauserDeploymentName": "EtherFi Liquid USD Pauser V0.0"
+    },
+    "timelockConfiguration": {
+      "shouldDeploy": false,
+      "timelockDeploymentName": "EtherFi Liquid USD Timelock V0.0",
+      "timelockParameters": {
+        "executors": ["0x68eC1FdD4Bb202B2e07aE751CB5553644aA48cFA"],
+        "minDelay": 43200,
+        "proposers": ["0x68eC1FdD4Bb202B2e07aE751CB5553644aA48cFA"]
+      }
+    },
+    "aaveV3BufferHelperConfiguration": {
+        "shouldDeploy": false,
+        "aaveV3BufferHelperDeploymentName": "EtherFi Liquid USD AaveV3 Buffer Helper V0.0",
+        "aaveV3PoolAddressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "v3Pool"
+        }
+      },
+      "aaveV3BufferLensConfiguration": {
+        "shouldDeploy": false,
+        "aaveV3BufferLensDeploymentName": "AaveV3 Buffer Lens V0.0"
+      }
+  }
+  

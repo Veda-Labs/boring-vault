@@ -11,6 +11,7 @@ import {OFTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/O
 import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol";
 import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
 import {BoringChefDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BoringChefDecoderAndSanitizer.sol";
+import {CCTPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCTPDecoderAndSanitizer.sol";
 
 contract RoyUSDCSonicDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
@@ -18,7 +19,8 @@ contract RoyUSDCSonicDecoderAndSanitizer is
     OFTDecoderAndSanitizer,
     OdosDecoderAndSanitizer,
     TellerDecoderAndSanitizer,
-    BoringChefDecoderAndSanitizer
+    BoringChefDecoderAndSanitizer,
+    CCTPDecoderAndSanitizer
 {
     constructor(address _odosRouter)
         BaseDecoderAndSanitizer()
@@ -27,5 +29,6 @@ contract RoyUSDCSonicDecoderAndSanitizer is
         OdosDecoderAndSanitizer(_odosRouter)
         TellerDecoderAndSanitizer()
         BoringChefDecoderAndSanitizer()
+        CCTPDecoderAndSanitizer()
     {}
 }

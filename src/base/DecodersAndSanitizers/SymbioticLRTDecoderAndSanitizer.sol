@@ -13,6 +13,7 @@ import {MantleDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocol
 import {NativeWrapperDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol";
 import {OneInchDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OneInchDecoderAndSanitizer.sol";
+import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol";
 import {SwellDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SwellDecoderAndSanitizer.sol";
 import {SymbioticDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SymbioticDecoderAndSanitizer.sol";
 import {UniswapV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV3DecoderAndSanitizer.sol";
@@ -30,6 +31,7 @@ contract SymbioticLRTDecoderAndSanitizer is
     NativeWrapperDecoderAndSanitizer,
     MantleDecoderAndSanitizer,
     OneInchDecoderAndSanitizer,
+    OdosDecoderAndSanitizer,
     SwellDecoderAndSanitizer,
     SymbioticDecoderAndSanitizer,
     UniswapV3DecoderAndSanitizer,
@@ -37,8 +39,9 @@ contract SymbioticLRTDecoderAndSanitizer is
     EigenLayerLSTStakingDecoderAndSanitizer,
     KarakDecoderAndSanitizer
 {
-    constructor(address _uniswapV3NonfungiblePositionManager)
+    constructor(address _uniswapV3NonfungiblePositionManager, address _odosRouter)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonfungiblePositionManager)
+        OdosDecoderAndSanitizer(_odosRouter)
     {}
 
     // //============================== HANDLE FUNCTION COLLISIONS ===============================

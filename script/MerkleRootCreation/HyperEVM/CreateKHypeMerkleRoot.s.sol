@@ -19,7 +19,7 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x9BA2EDc44E0A4632EB4723E81d4142353e1bB160;
-    address public rawDataDecoderAndSanitizer = 0x62389729eAf94c87Ec1644D16C2F7de41f9ce176;
+    address public rawDataDecoderAndSanitizer = 0xCB7ABCE463b91C72233483ec366a943F537b0B0d;
     address public managerAddress = 0x7f8CcAA760E0F621c7245d47DC46d40A400d3639;
     address public accountantAddress = 0x74392Fa56405081d5C7D93882856c245387Cece2;
 
@@ -39,6 +39,18 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](128);
 
+        // ========================== Ooga Booga ==========================
+        address[] memory assets = new address[](3);
+        SwapKind[] memory kind = new SwapKind[](3);
+        assets[0] = getAddress(sourceChain, "KHYPE");
+        kind[0] = SwapKind.BuyAndSell;
+        assets[1] = getAddress(sourceChain, "WHYPE");
+        kind[1] = SwapKind.BuyAndSell;
+        assets[2] = getAddress(sourceChain, "PENDLE");
+        kind[2] = SwapKind.Sell;
+
+        _addOogaBoogaSwapLeafs(leafs, assets, kind);
+
         // ========================== Fee Claiming ==========================
         ERC20[] memory feeAssets = new ERC20[](2);
         feeAssets[0] = getERC20(sourceChain, "KHYPE");
@@ -46,12 +58,16 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
         // ========================== AaveV3 ==========================
-        ERC20[] memory supplyAssets = new ERC20[](2);
+        ERC20[] memory supplyAssets = new ERC20[](4);
         supplyAssets[0] = getERC20(sourceChain, "KHYPE");
         supplyAssets[1] = getERC20(sourceChain, "WHYPE");
-        ERC20[] memory borrowAssets = new ERC20[](2);
+        supplyAssets[2] = getERC20(sourceChain, "pendle_kHYPE_pt_11_13_25");
+        supplyAssets[3] = getERC20(sourceChain, "pendle_kHYPE_pt_3_19_26");
+        ERC20[] memory borrowAssets = new ERC20[](4);
         borrowAssets[0] = getERC20(sourceChain, "KHYPE");
         borrowAssets[1] = getERC20(sourceChain, "WHYPE");
+        borrowAssets[2] = getERC20(sourceChain, "pendle_kHYPE_pt_11_13_25");
+        borrowAssets[3] = getERC20(sourceChain, "pendle_kHYPE_pt_3_19_26");
         _addHyperLendLeafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== Morpho Blue ==========================
@@ -75,9 +91,22 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Pendle ==========================
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "kHypePendle"), true);
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_kHYPE_market_3_19_26"), true);
 
         // ========================== Native Wrapping ==========================
         _addNativeLeafs(leafs, getAddress(sourceChain, "WHYPE"));
+
+        // ========================== Valantis ==========================
+        _addValantisLSTLeafs(leafs, getAddress(sourceChain, "KHYPE_WHYPE_sovereign_pool"), false); 
+
+        // ========================== UniswapV3/Project X ==========================
+        address[] memory token0 = new address[](1);
+        token0[0] = getAddress(sourceChain, "KHYPE");
+
+        address[] memory token1 = new address[](1);
+        token1[0] = getAddress(sourceChain, "WHYPE");
+
+        _addUniswapV3Leafs(leafs, token0, token1, false);
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

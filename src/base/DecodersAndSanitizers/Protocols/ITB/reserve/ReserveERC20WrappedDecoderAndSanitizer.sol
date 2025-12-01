@@ -4,7 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity ^0.8.0;
 
-contract ReserveERC20WrappedDecoderAndSanitizer {
+contract ITBReserveERC20WrappedDecoderAndSanitizer {
     function deposit(uint256) external pure returns (bytes memory addressesFound) {
         // Nothing to sanitize or return
         return addressesFound;

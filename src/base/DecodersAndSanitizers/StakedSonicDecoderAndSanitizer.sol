@@ -16,7 +16,7 @@ import {NativeWrapperDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/P
 import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol"; 
 import {MerklDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MerklDecoderAndSanitizer.sol"; 
 import {BalancerV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BalancerV3DecoderAndSanitizer.sol"; 
-
+import {wSwellUnwrappingDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/wSwellUnwrappingDecoderAndSanitizer.sol";
 
 contract StakedSonicDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
@@ -29,7 +29,8 @@ contract StakedSonicDecoderAndSanitizer is
     NativeWrapperDecoderAndSanitizer,
     OdosDecoderAndSanitizer,
     MerklDecoderAndSanitizer,
-    BalancerV3DecoderAndSanitizer
+    BalancerV3DecoderAndSanitizer,
+    wSwellUnwrappingDecoderAndSanitizer
 {
     constructor(address _nonFungiblePositionManager, address _odosRouter) 
         UniswapV3SwapRouter02DecoderAndSanitizer(_nonFungiblePositionManager) 

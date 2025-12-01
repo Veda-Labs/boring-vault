@@ -10,13 +10,15 @@ import {SonicGatewayDecoderAndSanitizer} from
 import {OFTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OFTDecoderAndSanitizer.sol";
 import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol";
 import {BoringChefDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BoringChefDecoderAndSanitizer.sol";
+import {CCTPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCTPDecoderAndSanitizer.sol";
 
 contract RoyUSDCMainnetDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
     SonicGatewayDecoderAndSanitizer,
     OFTDecoderAndSanitizer,
     OdosDecoderAndSanitizer,
-    BoringChefDecoderAndSanitizer
+    BoringChefDecoderAndSanitizer,
+    CCTPDecoderAndSanitizer
 {
     constructor(address _odosRouter) OdosDecoderAndSanitizer(_odosRouter){}
 }

@@ -21,12 +21,13 @@ contract DeployTimelockScript is Script, ContractNames, MainnetAddresses {
     Deployer public deployer;
     TimelockController public timelock;
 
-    address public canceller = 0xA916fD5252160A7E56A6405741De76dc0Da5A0Cd;
-    address public executor = address(0);
+    address public canceller = 0x3e6577E643c3D1E42cD504F96C345E85557e7C6E;
+    address public executor = 0x3e6577E643c3D1E42cD504F96C345E85557e7C6E;
+    address public proposer = 0x3e6577E643c3D1E42cD504F96C345E85557e7C6E;
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("unichain");
+        vm.createSelectFork("mainnet");
     }
 
     function run() external {
@@ -36,23 +37,21 @@ contract DeployTimelockScript is Script, ContractNames, MainnetAddresses {
 
         deployer = Deployer(deployerAddress);
         creationCode = type(TimelockController).creationCode;
+
         uint256 minDelay = 0;
-        address[] memory proposers = new address[](3);
-        proposers[0] = 0xD48b7e87fDCCaCa7ea93F347755c799eBE0fD35F; // real
-        proposers[1] = 0xf8553c8552f906C19286F21711721E206EE4909E; // temp
-        proposers[2] = 0x1cdF47387358A1733968df92f7cC14546D9E1047; // temp
+        address[] memory proposers = new address[](1);
+        proposers[0] = proposer;
         address[] memory executors = new address[](1);
         executors[0] = executor;
-        address tempAdmin = 0x7E97CaFdd8772706dbC3c83d36322f7BfC0f63C7;
+    
+        address tempAdmin = 0xBBc5569B0b32403037F37255f4ff50B8Bb825b2A;
+    
         constructorArgs = abi.encode(minDelay, proposers, executors, tempAdmin);
         timelock =
-        TimelockController(payable(deployer.deployContract("Golden Goose Timelock V0.1", creationCode, constructorArgs, 0)));
+            TimelockController(payable(deployer.deployContract("Plasma USD+ Timelock V0.1", creationCode, constructorArgs, 0)));
 
 
         timelock.grantRole(timelock.CANCELLER_ROLE(), canceller);
-        for (uint256 i = 0; i < proposers.length; i++) {
-            timelock.revokeRole(timelock.CANCELLER_ROLE(), proposers[i]);
-        }
         timelock.renounceRole(timelock.DEFAULT_ADMIN_ROLE(), tempAdmin);
 
         vm.stopBroadcast();

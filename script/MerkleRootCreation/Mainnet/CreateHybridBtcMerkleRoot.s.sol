@@ -55,8 +55,8 @@ contract CreateHybridBtcMerkleRoot is Script, MerkleTreeHelper {
         _addUniswapV3Leafs(leafs, token0, token1, true);
 
         // ========================== 1inch ==========================
-        address[] memory assets = new address[](5);
-        SwapKind[] memory kind = new SwapKind[](5);
+        address[] memory assets = new address[](6);
+        SwapKind[] memory kind = new SwapKind[](6);
         assets[0] = getAddress(sourceChain, "WBTC");
         kind[0] = SwapKind.BuyAndSell;
         assets[1] = getAddress(sourceChain, "LBTC");
@@ -67,6 +67,8 @@ contract CreateHybridBtcMerkleRoot is Script, MerkleTreeHelper {
         kind[3] = SwapKind.BuyAndSell;
         assets[4] = getAddress(sourceChain, "solvBTC.BBN");
         kind[4] = SwapKind.BuyAndSell;
+        assets[5] = getAddress(sourceChain, "cbBTC");
+        kind[5] = SwapKind.BuyAndSell;
         _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
 
         // ========================== Standard Bridge ==========================
@@ -91,9 +93,10 @@ contract CreateHybridBtcMerkleRoot is Script, MerkleTreeHelper {
         );  //?
 
         // ========================== CCIP ==========================
-        // bridge xsolvBTC to BOB
-        ERC20[] memory ccipBridgeAssets = new ERC20[](1);
+        // bridge xsolvBTC and solvBTC to BOB
+        ERC20[] memory ccipBridgeAssets = new ERC20[](2);
         ccipBridgeAssets[0] = getERC20(sourceChain, "xsolvBTC");
+        ccipBridgeAssets[1] = getERC20(sourceChain, "solvBTC");
         ERC20[] memory ccipBridgeFeeAssets = new ERC20[](2);
         ccipBridgeFeeAssets[0] = getERC20(sourceChain, "WETH");
         ccipBridgeFeeAssets[1] = getERC20(sourceChain, "LINK");

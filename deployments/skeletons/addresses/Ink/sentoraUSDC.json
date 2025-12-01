@@ -1,0 +1,15 @@
+{
+  "Drones": "",
+  "contractAddresses": {
+    "AccountantWithRateProviders": "0x427a3c091F09fa6212d177060bb7456Abf538b22",
+    "BoringOnChainQueue": "0x1eFA708E6c88af86Ba4b4e5c0Fd126bf8a01f70E",
+    "BoringVault": "0x9761DDF8e79930b334f1Be1BD93aBE3695061CcA",
+    "Lens": "0x5232bc0F5999f8dA604c42E1748A13a170F94A1B",
+    "ManagerWithMerkleVerification": "0x38Fe609799ED585e9154c92D1D801B461F538753",
+    "Pauser": "0x2bD7fb78D24cF2f6E09410b2dF498849554F8452",
+    "QueueSolver": "0x29017C933EF28a43B59200C6944EC4Ac73b4718C",
+    "RolesAuthority": "0xAcF65Bd3ff5FfeEFed4241e71d33781610D418B6",
+    "TellerWithLayerZero": "0x48639C1934F14Dc666Af663299294F9e863BDedB",
+    "Timelock": "0x0000000000000000000000000000000000000000"
+  }
+}

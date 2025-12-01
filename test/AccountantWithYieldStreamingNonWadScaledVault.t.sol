@@ -681,6 +681,54 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         assertEq(assetsOutAlice, USDCAmount); //assert no dilution, no extra yield
     }
 
+    function testRoundingIssuesAfterYieldStreamEndsNoFuzz() external {
+        uint256 USDCAmount = 1e6; 
+        deal(address(USDC), address(this), 1_000e6);
+        USDC.approve(address(boringVault), 1_000e6);
+        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0, referrer);
+        assertEq(USDCAmount, shares0); 
+
+        //vest some yield
+        deal(address(USDC), address(boringVault), USDCAmount * 2);
+        accountant.vestYield(1, 24 hours); 
+
+        skip(24 hours);
+
+        accountant.updateExchangeRate();
+
+        //now the state of the contract should be 
+        //totalSupply > 1
+        //exchange rate > 1 
+        uint256 supplyBefore = boringVault.totalSupply();
+        uint256 rateBefore = accountant.getRate();
+        console.log("supply before:", supplyBefore);
+        console.log("rate before:", rateBefore);
+
+        // Attacker deposits
+        uint256 depositAmount = 389998;
+        uint256 attackerShares = teller.deposit(USDC, depositAmount, 0, referrer);
+
+        // Check rate AFTER deposit
+        uint256 supplyAfter = boringVault.totalSupply();
+        uint256 rateAfter = accountant.getRate();
+        console.log("supply after:", supplyAfter);
+        console.log("rate after:", rateAfter);
+        console.logInt(int256(rateAfter) - int256(rateBefore));
+
+        // Attacker immediately withdraws
+        boringVault.approve(address(teller), attackerShares);
+        uint256 assetsOut = teller.withdraw(USDC, attackerShares, 0, address(this));
+
+        console.log("deposited:", depositAmount);
+        console.log("shares received:", attackerShares);
+        console.log("assets out:", assetsOut);
+        console.log("any profit:", int256(assetsOut) - int256(depositAmount));
+
+        // THIS is the bug - user gets more out than they put in
+        assertLt(assetsOut, depositAmount, "Attacker should not profit");
+
+    }
+
     // ========================= REVERT TESTS / FAILURE CASES ===============================
     
     function testVestYieldCannotExceedMaximumDuration() external {
@@ -874,6 +922,48 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
             "Second depositor should get back their deposit"
         );
     }
+
+    function testRoundingIssuesAfterYieldStreamEndsFuzz(uint96 USDCAmount, uint96 secondDepositAmount) external {
+        USDCAmount = uint96(bound(USDCAmount, 1, 1e6));
+        secondDepositAmount = uint96(bound(secondDepositAmount, 1e1, 1e11)); 
+        //vm.assume(secondDepositAmount > 1e1 && secondDepositAmount <= 1e11); 
+        deal(address(USDC), address(this), USDCAmount);
+        USDC.approve(address(boringVault), type(uint256).max);
+        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0, referrer);
+        //assertEq(USDCAmount, shares0); 
+
+        // Use a yield that's safely under the limit (e.g., 5%)
+        uint256 yieldAmount = uint256(USDCAmount) * 500 / 10_000;
+
+        // Ensure yield is at least 1 to be meaningful
+        vm.assume(yieldAmount > 0);
+
+        //vest some yield
+        deal(address(USDC), address(boringVault), secondDepositAmount * 2);
+        accountant.vestYield(yieldAmount, 24 hours); 
+
+        skip(24 hours);
+
+        accountant.updateExchangeRate();
+
+        //now the state of the contract should be 
+        //totalSupply > 1
+        //exchange rate > 1 
+
+        // Attacker deposits
+        deal(address(USDC), address(this), secondDepositAmount);
+        uint256 attackerShares = teller.deposit(USDC, secondDepositAmount, 0, referrer);
+
+        // Check rate AFTER deposit
+
+        // Attacker immediately withdraws
+        boringVault.approve(address(teller), attackerShares);
+        uint256 assetsOut = teller.withdraw(USDC, attackerShares, 0, address(this));
+
+        // this is the bug - user gets more out than they put in
+        assertLe(assetsOut, secondDepositAmount, "Attacker should not profit");
+    }
+
 
     // ========================================= HELPER FUNCTIONS =========================================
     

@@ -6,8 +6,8 @@ pragma solidity 0.8.21;
 
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 
-/// @notice provides a full flow for borings vaults to use and claim rewards from Derive (Basis) Vaults
-contract DeriveDecoderAndSanitizer {
+/// @notice provides withdraw flow for boring vaults to use Derive (Basis) Vaults
+contract DeriveWithdrawDecoderAndSanitizer {
     //============================== ERRORS ===============================
 
     error DeriveDecoderAndSanitizer__OptionsLengthNonZero();

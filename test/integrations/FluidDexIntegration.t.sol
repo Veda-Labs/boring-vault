@@ -15,8 +15,12 @@ import {FluidDexDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protoc
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
-
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+
+contract FluidDexFullDecoderAndSanitizer is FluidDexDecoderAndSanitizer, BaseDecoderAndSanitizer {
+
+}
 
 contract FluidDexIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -39,7 +43,7 @@ contract FluidDexIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 21215737;
+        uint256 blockNumber = 23641760;
 
         _startFork(rpcKey, blockNumber);
 
@@ -179,6 +183,57 @@ contract FluidDexIntegrationTest is Test, MerkleTreeHelper {
 
         // Allow the boring vault to receive ETH.
         rolesAuthority.setPublicCapability(address(boringVault), bytes4(0), true);
+    }
+
+    function testFluidDexIntegrationFluidT1() public {
+        _setUpOldBlock();
+        deal(getAddress(sourceChain, "WSTUSR"), address(boringVault), 100e18);
+        deal(getAddress(sourceChain, "USDC"), address(boringVault), 10);//give some dust to payback borrow
+        ERC20[] memory supplyTokens = new ERC20[](1);
+        supplyTokens[0] = getERC20(sourceChain, "WSTUSR");
+        ERC20[] memory borrowTokens = new ERC20[](1);
+        borrowTokens[0] = getERC20(sourceChain, "USDC");
+        uint256 dexType = 1000;
+        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        _addFluidDexLeafs(leafs, getAddress(sourceChain, "wstUSR-USDC"), dexType, supplyTokens, borrowTokens, false);
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+        ManageLeaf[] memory manageLeafs = new ManageLeaf[](6);
+        manageLeafs[0] = leafs[0]; //approval supply
+        manageLeafs[1] = leafs[1]; //approval borrow
+        manageLeafs[2] = leafs[2]; 
+        manageLeafs[3] = leafs[2]; 
+        manageLeafs[4] = leafs[2]; 
+        manageLeafs[5] = leafs[2]; 
+
+        bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
+
+        address[] memory targets = new address[](6);
+        targets[0] = getAddress(sourceChain, "WSTUSR"); //approve supply
+        targets[1] = getAddress(sourceChain, "USDC"); //aprove borrow for repay
+        targets[2] = getAddress(sourceChain, "wstUSR-USDC"); //operate() deposit Collateral wstUSR
+        targets[3] = getAddress(sourceChain, "wstUSR-USDC"); //operate() borrow USDC
+        targets[4] = getAddress(sourceChain, "wstUSR-USDC"); //operate() payback USDC
+        targets[5] = getAddress(sourceChain, "wstUSR-USDC"); //operate() withdraw wstUSR
+
+        bytes[] memory targetData = new bytes[](6);
+        targetData[0] = abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "wstUSR-USDC"), 1000e18);
+        targetData[1] = abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "wstUSR-USDC"), 1000e18);
+        targetData[2] = abi.encodeWithSignature("operate(uint256,int256,int256,address)", 0, 90e18, 0, getAddress(sourceChain, "boringVault"));
+        targetData[3] = abi.encodeWithSignature("operate(uint256,int256,int256,address)", 8574, 0, 9e6, getAddress(sourceChain, "boringVault"));
+        targetData[4] = abi.encodeWithSignature("operate(uint256,int256,int256,address)", 8574, 0, type(int256).min, getAddress(sourceChain, "boringVault"));
+        targetData[5] = abi.encodeWithSignature("operate(uint256,int256,int256,address)", 8574, type(int256).min, 0, getAddress(sourceChain, "boringVault"));
+
+        uint256[] memory values = new uint256[](6);
+        address[] memory decodersAndSanitizers = new address[](6);
+        decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[2] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[3] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[4] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[5] = rawDataDecoderAndSanitizer;
+
+        manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
     }
 
     function testFluidDexIntegration() public {
@@ -447,5 +502,3 @@ contract FluidDexIntegrationTest is Test, MerkleTreeHelper {
         vm.selectFork(forkId);
     }
 }
-
-contract FluidDexFullDecoderAndSanitizer is FluidDexDecoderAndSanitizer {}

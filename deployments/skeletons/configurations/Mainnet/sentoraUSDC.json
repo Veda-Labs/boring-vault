@@ -1,0 +1,133 @@
+{
+    "deploymentParameters": {
+      "logLevel": 4,
+      "privateKeyEnvName": "BORING_DEVELOPER",
+      "chainName": "mainnet",
+      "evmVersion": "cancun",
+      "deployerContractAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "deployerAddress"
+      },
+      "nativeWrapperAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "WETH"
+      },
+      "deploymentOwnerAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "txBundlerAddress"
+      },
+      "deploymentFileName": "skeletons/addresses/Mainnet/sentoraUSDC.json"
+    },
+    "rolesAuthorityConfiguration": {
+      "rolesAuthorityDeploymentName": "Advanced Strategies USDC Roles Authority V0.0"
+    },
+    "lensConfiguration": {
+      "lensDeploymentName": "Arctic Architecture Lens V0.0"
+    },
+    "boringVaultConfiguration": {
+      "boringVaultDeploymentName": "Advanced Strategies USDC Vault V0.0",
+      "boringVaultName": "Advanced Strategies USDC",
+      "boringVaultSymbol": "sentoraUSDC",
+      "boringVaultDecimals": 6
+    },
+    "managerConfiguration": {
+      "managerDeploymentName": "Advanced Strategies USDC Manager V0.0",
+      "balancerVaultAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "balancerVault"
+      }
+    },
+    "accountantConfiguration": {
+      "accountantDeploymentName": "Advanced Strategies USDC Accountant V0.0",
+      "accountantParameters": {
+        "kind": {
+          "variableRate": true,
+          "fixedRate": false,
+          "yieldStreaming": false
+        },
+        "payoutConfiguration": {
+          "payoutTo": "0x0000000000000000000000000000000000000001",
+          "optionalPaymentSplitterName": "Advanced Strategies USDC Payment Splitter V0.0",
+          "splits": []
+        },
+        "accountantDeploymentParameters": {
+          "allowedExchangeRateChangeLower": 9950,
+          "allowedExchangeRateChangeUpper": 10050,
+          "base": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "USDC"
+          },
+          "minimumUpateDelayInSeconds": 21600,
+          "performanceFee": 2500,
+          "platformFee": 0,
+          "startingExchangeRate": 1000000
+        }
+      }
+    },
+    "tellerConfiguration": {
+      "tellerDeploymentName": "Advanced Strategies USDC Teller V0.0",
+      "tellerParameters": {
+        "kind": {
+          "teller": false,
+          "tellerWithRemediation": false,
+          "tellerWithCcip": false,
+          "tellerWithLayerZero": true,
+          "tellerWithLayerZeroRateLimiting": false,
+          "tellerWithYieldStreaming": false
+        },
+        "layerZero": {
+          "endpointAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "LayerZeroEndPoint"
+          },
+          "lzTokenAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "ZRO"
+          }
+        }
+      }
+    },
+    "boringQueueConfiguration": {
+      "boringQueueDeploymentName": "Advanced Strategies USDC Boring Queue V0.0",
+      "boringQueueSolverName": "Advanced Strategies USDC Boring Solver V0.0",
+      "excessToSolverNonSelfSolve": true,
+      "queueParameters": {
+        "kind": {
+          "boringQueue": true,
+          "boringQueueWithTracking": false
+        }
+      }
+    },
+    "droneConfiguration": {
+      "droneDeploymentBaseName": "Advanced Strategies USDC Drone V0.0",
+      "droneCount": 0,
+      "safeGasToForwardNative": 21000
+    },
+    "pauserConfiguration": {
+      "shouldDeploy": true,
+      "pauserDeploymentName": "Advanced Strategies USDC Pauser V0.0"
+    },
+    "timelockConfiguration": {
+      "shouldDeploy": false,
+      "timelockDeploymentName": "Advanced Strategies USDC Timelock V0.0",
+      "timelockParameters": {
+        "executors": ["0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b"],
+        "minDelay": 300,
+        "proposers": ["0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b"]
+      }
+    },
+    "aaveV3BufferHelperConfiguration": {
+        "aaveV3BufferHelperDeploymentName": "Advanced Strategies USDC AaveV3 Buffer Helper V0.0",
+        "aaveV3PoolAddressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "v3Pool"
+        },
+        "shouldDeploy": false
+    },
+    "aaveV3BufferLensConfiguration": {
+      "aaveV3BufferLensDeploymentName": "Advanced Strategies USDC AaveV3 Buffer Lens V0.0",
+      "shouldDeploy": false
+    }
+    
+  }
+  

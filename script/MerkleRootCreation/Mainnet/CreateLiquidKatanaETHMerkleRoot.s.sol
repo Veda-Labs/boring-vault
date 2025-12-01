@@ -19,7 +19,7 @@ contract CreateLiquidKatanaETHMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x69d210d3b60E939BFA6E87cCcC4fAb7e8F44C16B;
-    address public rawDataDecoderAndSanitizer = 0x770B3AAA48096b3fB36876b8dD55789372775bf0;
+    address public rawDataDecoderAndSanitizer = 0x0E92BD95868E537F219b862438A8b6c8f2B633f2;
     address public managerAddress = 0x51CdEcC111c21BED72Ab99f415Bab6d35984BfEB;
     address public accountantAddress = 0xFCb9a6bF02C43f9E38Bb102fd960Cc1e738e787d;
 
@@ -41,7 +41,7 @@ contract CreateLiquidKatanaETHMerkleRoot is Script, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](128);
 
-        // ========================== 1inch ==========================
+        // ========================== 1inch/Odos ==========================
         address[] memory assets = new address[](4);
         SwapKind[] memory kind = new SwapKind[](4);
         assets[0] = getAddress(sourceChain, "WETH");

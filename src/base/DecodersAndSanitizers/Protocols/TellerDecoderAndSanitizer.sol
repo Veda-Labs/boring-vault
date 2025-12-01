@@ -40,6 +40,25 @@ contract TellerDecoderAndSanitizer {
         addressesFound = abi.encodePacked(depositAsset);
     }
 
+    function deposit(address depositAsset, uint256, /*depositAmount*/ uint256, /*minimumMint*/ address referrer)
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
+        addressesFound = abi.encodePacked(depositAsset, referrer);
+    }
+
+    function withdraw(address withdrawAsset, uint256, /*shareAmount*/ uint256 /*minimumAssets*/, address to)
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
+        addressesFound = abi.encodePacked(withdrawAsset, to);
+    }
+
+
     // BoringOnChainQueue.sol
     function requestOnChainWithdraw(address asset, uint128, uint16, uint24)
         external
@@ -111,5 +130,29 @@ contract TellerDecoderAndSanitizer {
         bridgeWildCard0 = address(uint160(bridgeWildCard0));
 
         addressesFound = abi.encodePacked(depositAsset, to, bridgeWildCard0, feeToken);
+    }
+
+    function depositAndBridge(
+        address depositAsset,
+        uint256, /*depositAmount*/
+        uint256, /*minimumMint*/
+        address to,
+        bytes calldata bridgeWildCard,
+        address feeToken,
+        uint256, /*maxFee*/
+        address referrer
+    ) external pure virtual returns (bytes memory addressesFound) {
+        if (bridgeWildCard.length != 32) revert TellerDecoderAndSanitizer__BridgeWildCardLengthMustBe32Bytes();
+
+        address bridgeWildCard0;
+        assembly {
+            // Allocate memory
+            let memPtr := mload(0x40)
+            calldatacopy(memPtr, bridgeWildCard.offset, 32)
+            bridgeWildCard0 := mload(memPtr)
+        }
+        bridgeWildCard0 = address(uint160(bridgeWildCard0));
+
+        addressesFound = abi.encodePacked(depositAsset, to, bridgeWildCard0, feeToken, referrer);
     }
 }

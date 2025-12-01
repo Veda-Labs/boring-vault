@@ -46,7 +46,7 @@ import {EulerEVKDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protoc
 import {KingClaimingDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/KingClaimingDecoderAndSanitizer.sol";
 import {OFTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OFTDecoderAndSanitizer.sol";
-
+import {MFOneDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MFOneDecoderAndSanitizer.sol";
 contract EtherFiLiquidUsdDecoderAndSanitizer is
     UniswapV3DecoderAndSanitizer,
     BalancerV2DecoderAndSanitizer,
@@ -81,7 +81,8 @@ contract EtherFiLiquidUsdDecoderAndSanitizer is
     FluidDexDecoderAndSanitizer,
     EulerEVKDecoderAndSanitizer,
     KingClaimingDecoderAndSanitizer,
-    OFTDecoderAndSanitizer
+    OFTDecoderAndSanitizer,
+    MFOneDecoderAndSanitizer
 {
     constructor(address _uniswapV3NonFungiblePositionManager, address _odosRouter)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)

@@ -4,7 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity ^0.8.0;
 
-contract EigenLayerDecoderAndSanitizer {
+contract ITBEigenLayerDecoderAndSanitizer {
     function updateStrategyManager(address _strategy_manager) external pure returns (bytes memory addressesFound) {
         addressesFound = abi.encodePacked(_strategy_manager);
     }

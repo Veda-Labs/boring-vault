@@ -21,7 +21,7 @@ contract CreateRoySonicUSDCMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0x45088fb2FfEBFDcf4dFf7b7201bfA4Cd2077c30E;
     address public managerAddress = 0x0413986C24A254191c2D3fA8F0661789DE9B073B;
     address public accountantAddress = 0x8301294E84cA5a2644E7F3CD47A86369F1b0416e;
-    address public rawDataDecoderAndSanitizer = 0xe4B958cc989EB9Bb47179D406279767b675e33FC;
+    address public rawDataDecoderAndSanitizer = 0x68892235e8708EC9F8133E29E14940bd498AD049;
 
     function setUp() external {}
 
@@ -48,10 +48,12 @@ contract CreateRoySonicUSDCMerkleRoot is Script, MerkleTreeHelper {
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, true); //add yield claiming
 
          // ========================== Odos ==========================
-         address[] memory tokens = new address[](1);
-         SwapKind[] memory kind = new SwapKind[](1);
+         address[] memory tokens = new address[](2);
+         SwapKind[] memory kind = new SwapKind[](2);
          tokens[0] = getAddress(sourceChain, "USDC");
          kind[0] = SwapKind.BuyAndSell;
+         tokens[1] = getAddress(sourceChain, "scUSD");
+         kind[1] = SwapKind.BuyAndSell;
 
          _addOdosSwapLeafs(leafs, tokens, kind);
 
@@ -114,6 +116,19 @@ contract CreateRoySonicUSDCMerkleRoot is Script, MerkleTreeHelper {
             );
         }
 
+        // ========================== wstkscUSD ==========================
+        {
+            _addERC4626Leafs(leafs, ERC4626(getAddress(sonicMainnet, "wstkscUSD")));
+        }
+        // ========================== Boring Queues ==========================
+        {
+            ERC20[] memory queueAssets0 = new ERC20[](1);
+            queueAssets0[0] = getERC20(sonicMainnet, "scUSD");
+            _addWithdrawQueueLeafs(leafs, getAddress(sonicMainnet, "stkscUSDQueue"), getAddress(sonicMainnet, "stkscUSD"), queueAssets0);
+            ERC20[] memory queueAssets1 = new ERC20[](1);
+            queueAssets1[0] = getERC20(sonicMainnet, "USDC");
+            _addWithdrawQueueLeafs(leafs, getAddress(sonicMainnet, "scUSDQueue"), getAddress(sonicMainnet, "scUSD"), queueAssets1);
+        }
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 

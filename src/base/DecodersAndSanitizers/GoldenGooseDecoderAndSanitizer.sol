@@ -33,6 +33,18 @@ import {FluidFTokenDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/FluidFTokenDecoderAndSanitizer.sol";
 import {wSwellUnwrappingDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/wSwellUnwrappingDecoderAndSanitizer.sol";
+import {SymbioticVaultDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/SymbioticVaultDecoderAndSanitizer.sol";
+import {EtherFiDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/EtherFiDecoderAndSanitizer.sol";
+import {TreehouseDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/TreehouseDecoderAndSanitizer.sol";
+import {ArbitrumNativeBridgeDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/ArbitrumNativeBridgeDecoderAndSanitizer.sol";
+import {AgglayerDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/AgglayerDecoderAndSanitizer.sol";
+import {LineaBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LineaBridgeDecoderAndSanitizer.sol";
+import {ResolvDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ResolvDecoderAndSanitizer.sol";
 
 contract GoldenGooseDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
@@ -56,7 +68,14 @@ contract GoldenGooseDecoderAndSanitizer is
     LidoDecoderAndSanitizer,
     DvStETHDecoderAndSanitizer,
     FluidFTokenDecoderAndSanitizer,
-    wSwellUnwrappingDecoderAndSanitizer
+    wSwellUnwrappingDecoderAndSanitizer,
+    SymbioticVaultDecoderAndSanitizer,
+    EtherFiDecoderAndSanitizer,
+    TreehouseDecoderAndSanitizer,
+    ArbitrumNativeBridgeDecoderAndSanitizer,
+    AgglayerDecoderAndSanitizer,
+    LineaBridgeDecoderAndSanitizer,
+    ResolvDecoderAndSanitizer
 {
     constructor(
         address _uniswapV4PositionManager,
@@ -122,9 +141,9 @@ contract GoldenGooseDecoderAndSanitizer is
     }
 
     /**
-     * @notice NativeWrapper specifies a `deposit()`.
+     * @notice NativeWrapper and EtherFi both specify a `deposit()`.
      */
-    function deposit() external pure override(NativeWrapperDecoderAndSanitizer) returns (bytes memory addressesFound) {
+    function deposit() external pure override(NativeWrapperDecoderAndSanitizer, EtherFiDecoderAndSanitizer) returns (bytes memory addressesFound) {
         return addressesFound;
     }
 
@@ -160,6 +179,19 @@ contract GoldenGooseDecoderAndSanitizer is
     }
 
     /**
+     * @notice ResolvDecoderAndSanitizer and FluidFTokenDecoderAndSanitizer both specify a `redeem(uint256,address,address)`,
+     *         all cases are handled the same way.
+     */
+    function redeem(uint256, address receiver, address owner, uint256)
+        external
+        pure
+        override(ResolvDecoderAndSanitizer, FluidFTokenDecoderAndSanitizer)
+        returns (bytes memory addressesFound)
+    {
+        addressesFound = abi.encodePacked(receiver, owner);
+    }
+
+    /**
      * @notice Multiple decoders specify different withdraw functions
      * NativeWrapper: withdraw(uint256)
      * CurveDecoderAndSanitizer: withdraw(uint256)
@@ -170,7 +202,7 @@ contract GoldenGooseDecoderAndSanitizer is
     function withdraw(uint256)
         external
         pure
-        override(NativeWrapperDecoderAndSanitizer, CurveDecoderAndSanitizer, BalancerV2DecoderAndSanitizer)
+        override(NativeWrapperDecoderAndSanitizer, CurveDecoderAndSanitizer, BalancerV2DecoderAndSanitizer, ResolvDecoderAndSanitizer)
         returns (bytes memory addressesFound)
     {
         return addressesFound;
@@ -201,5 +233,43 @@ contract GoldenGooseDecoderAndSanitizer is
         returns (bytes memory addressesFound)
     {
         addressesFound = abi.encodePacked(token, spender);
+    }
+
+    /**
+     * @notice SymbioticVault and Treehouse both specify deposit(address,uint256)
+     * SymbioticVault: deposit(address onBehalfOf, uint256)
+     * Treehouse: deposit(address _asset, uint256)
+     */
+    function deposit(address addressParam, uint256)
+        external
+        pure
+        override(SymbioticVaultDecoderAndSanitizer, TreehouseDecoderAndSanitizer)
+        returns (bytes memory addressesFound)
+    {
+        addressesFound = abi.encodePacked(addressParam);
+    }
+
+    /**
+     * @notice EtherFi and Lido both specify wrap(uint256)
+     */
+    function wrap(uint256)
+        external
+        pure
+        override(EtherFiDecoderAndSanitizer, LidoDecoderAndSanitizer, ResolvDecoderAndSanitizer)
+        returns (bytes memory addressesFound)
+    {
+        return addressesFound;
+    }
+
+    /**
+     * @notice EtherFi and Lido both specify unwrap(uint256)
+     */
+    function unwrap(uint256)
+        external
+        pure
+        override(EtherFiDecoderAndSanitizer, LidoDecoderAndSanitizer, ResolvDecoderAndSanitizer)
+        returns (bytes memory addressesFound)
+    {
+        return addressesFound;
     }
 }

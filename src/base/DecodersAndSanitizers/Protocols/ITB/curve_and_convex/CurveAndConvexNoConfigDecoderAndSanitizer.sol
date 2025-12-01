@@ -4,7 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity ^0.8.0;
 
-contract CurveAndConvexNoConfigDecoderAndSanitizer {
+contract ITBCurveAndConvexNoConfigDecoderAndSanitizer {
     function addLiquidityAllCoinsAndStake(address _pool, uint256[] memory, address _gauge, uint256)
         external
         pure

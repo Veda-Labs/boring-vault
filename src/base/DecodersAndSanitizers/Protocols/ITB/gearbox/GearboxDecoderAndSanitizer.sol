@@ -4,7 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity ^0.8.0;
 
-contract GearboxDecoderAndSanitizer {
+contract ITBGearboxDecoderAndSanitizer {
     function deposit(uint256, uint256) external pure returns (bytes memory addressesFound) {
         // Nothing to sanitize or return
         return addressesFound;

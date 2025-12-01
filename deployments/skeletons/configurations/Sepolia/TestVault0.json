@@ -1,0 +1,121 @@
+{
+    "deploymentParameters": {
+      "logLevel": 4,
+      "privateKeyEnvName": "BORING_DEVELOPER",
+      "chainName": "sepolia",
+      "evmVersion": "cancun",
+      "deployerContractAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "deployerAddress"
+      },
+      "nativeWrapperAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "WETH"
+      },
+      "deploymentOwnerAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "txBundlerAddress"
+      },
+      "deploymentFileName": "skeletons/addresses/Sepolia/TestVault0.json"
+    },
+    "rolesAuthorityConfiguration": {
+      "rolesAuthorityDeploymentName": "Test Vault 0 Roles Authority V0.0"
+    },
+    "lensConfiguration": {
+      "lensDeploymentName": "Arctic Architecture Lens V0.3"
+    },
+    "boringVaultConfiguration": {
+      "boringVaultDeploymentName": "Test Vault 0 Boring Vault V0.0",
+      "boringVaultName": "Test Vault 0",
+      "boringVaultSymbol": "TV0",
+      "boringVaultDecimals": 6
+    },
+    "managerConfiguration": {
+      "managerDeploymentName": "Test Vault 0 Manager V0.0",
+      "balancerVaultAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000001",
+        "name": "balancerVault"
+      }
+    },
+    "accountantConfiguration": {
+      "accountantDeploymentName": "Test Vault 0 Accountant V0.0",
+      "accountantParameters": {
+        "kind": {
+          "variableRate": false,
+          "fixedRate": false,
+          "yieldStreaming": true
+        },
+        "payoutConfiguration": {
+          "payoutTo": "0x0000000000000000000000000000000000000001",
+          "optionalPaymentSplitterName": "Test Vault 0 Payment Splitter V0.0",
+          "splits": []
+        },
+        "accountantDeploymentParameters": {
+          "allowedExchangeRateChangeLower": 9950,
+          "allowedExchangeRateChangeUpper": 10050,
+          "base": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "USDT"
+          },
+          "minimumUpateDelayInSeconds": 21600,
+          "performanceFee": 0,
+          "platformFee": 0,
+          "startingExchangeRate": 1000000
+        }
+      }
+    },
+    "tellerConfiguration": {
+      "tellerDeploymentName": "Test Vault 0 Teller V0.0",
+      "tellerParameters": {
+        "kind": {
+          "teller": false,
+          "tellerWithRemediation": false,
+          "tellerWithCcip": false,
+          "tellerWithLayerZero": false,
+          "tellerWithYieldStreaming": true,
+          "tellerWithLayerZeroRateLimiting": false
+        }
+      }
+    },
+    "boringQueueConfiguration": {
+      "boringQueueDeploymentName": "Test Vault 0 Boring Queue V0.0",
+      "boringQueueSolverName": "Test Vault 0 Boring Solver V0.0",
+      "excessToSolverNonSelfSolve": true,
+      "queueParameters": {
+        "kind": {
+          "boringQueue": true,
+          "boringQueueWithTracking": false
+        }
+      }
+    },
+    "droneConfiguration": {
+      "droneDeploymentBaseName": "Test Vault 0 Drone V0.0",
+      "droneCount": 0,
+      "safeGasToForwardNative": 21000
+    },
+    "pauserConfiguration": {
+      "shouldDeploy": true,
+      "pauserDeploymentName": "Test Vault 0 Pauser V0.0"
+    },
+    "timelockConfiguration": {
+      "shouldDeploy": false,
+      "timelockDeploymentName": "Test Vault 0 Timelock V0.0",
+      "timelockParameters": {
+        "executors": ["0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b"],
+        "minDelay": 0,
+        "proposers": ["0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b"]
+      }
+    },
+    "aaveV3BufferHelperConfiguration": {
+      "shouldDeploy": true,
+      "aaveV3BufferHelperDeploymentName": "Test Vault 0 AaveV3 Buffer Helper V0.0",
+      "aaveV3PoolAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "v3Pool"
+      }
+    },
+    "aaveV3BufferLensConfiguration": {
+      "shouldDeploy": true,
+      "aaveV3BufferLensDeploymentName": "AaveV3 Buffer Lens V0.0"
+    }
+  }

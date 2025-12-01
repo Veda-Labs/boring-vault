@@ -19,7 +19,7 @@ contract CreateTacTestMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x00007EDa736C6CdF973BDefF2191bbCfE6175db7;
-    address public rawDataDecoderAndSanitizer = ;
+    address public rawDataDecoderAndSanitizer = address(1);
     address public managerAddress = 0x999999e868Fb298c6EDbf0060f7cE077f01ad782; 
     address public accountantAddress = 0x5555559e499d2107aBb035a5feA1235b7f942E6D;
     

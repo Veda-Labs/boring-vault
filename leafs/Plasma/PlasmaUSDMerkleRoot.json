@@ -1,0 +1,248 @@
+{
+  "metadata": {
+    "AccountantAddress": "0x737f2522d09E58a3Ea9dcCFDB127dD0dF5eB3F18",
+    "BoringVaultAddress": "0xd1074E0AE85610dDBA0147e29eBe0D8E5873a000",
+    "DecoderAndSanitizerAddress": "0xA999F4c3D982F777a11180F3240D58c37BF9CbCd",
+    "DigestComposition": [
+      "Bytes20(DECODER_AND_SANITIZER_ADDRESS)",
+      "Bytes20(TARGET_ADDRESS)",
+      "Bytes1(CAN_SEND_VALUE)",
+      "Bytes4(TARGET_FUNCTION_SELECTOR)",
+      "Bytes{N*20}(ADDRESS_ARGUMENT_0,...,ADDRESS_ARGUMENT_N)"
+    ],
+    "LeafCount": 10,
+    "ManageRoot": "0x9218ead671a53f625d1acb2125cd47e98567683e66175ffa8f72e61d4bbe89d4",
+    "ManagerAddress": "0xbFD60C2D4C1eee3307a2317529183e8045d0D7F3",
+    "TreeCapacity": 16
+  },
+  "leafs": [
+    {
+      "AddressArguments": ["0x925a2A7214Ed92428B5b1B090F80b25700095e12"],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0xA999F4c3D982F777a11180F3240D58c37BF9CbCd",
+      "Description": "Approve Aave V3 Pool to spend USDT0",
+      "FunctionSelector": "0x095ea7b3",
+      "FunctionSignature": "approve(address,uint256)",
+      "LeafDigest": "0x050b187a3a02faa5dba5c338ed7f489f62c244be5610248724cf97bb1f818393",
+      "PackedArgumentAddresses": "0x925a2a7214ed92428b5b1b090f80b25700095e12",
+      "TargetAddress": "0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb"
+    },
+    {
+      "AddressArguments": [
+        "0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb",
+        "0xd1074E0AE85610dDBA0147e29eBe0D8E5873a000"
+      ],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0xA999F4c3D982F777a11180F3240D58c37BF9CbCd",
+      "Description": "Supply USDT0 to Aave V3",
+      "FunctionSelector": "0x617ba037",
+      "FunctionSignature": "supply(address,uint256,address,uint16)",
+      "LeafDigest": "0x5009744f13171a66b04ccb669c4c6c837d26a804602bc5d8ef88eeb47d795870",
+      "PackedArgumentAddresses": "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebbd1074e0ae85610ddba0147e29ebe0d8e5873a000",
+      "TargetAddress": "0x925a2A7214Ed92428B5b1B090F80b25700095e12"
+    },
+    {
+      "AddressArguments": [
+        "0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb",
+        "0xd1074E0AE85610dDBA0147e29eBe0D8E5873a000"
+      ],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0xA999F4c3D982F777a11180F3240D58c37BF9CbCd",
+      "Description": "Withdraw USDT0 from Aave V3",
+      "FunctionSelector": "0x69328dec",
+      "FunctionSignature": "withdraw(address,uint256,address)",
+      "LeafDigest": "0x108b98dde353f08b5cb74d65071711d5c147e94349d39de9f6936601318ed1be",
+      "PackedArgumentAddresses": "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebbd1074e0ae85610ddba0147e29ebe0d8e5873a000",
+      "TargetAddress": "0x925a2A7214Ed92428B5b1B090F80b25700095e12"
+    },
+    {
+      "AddressArguments": ["0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb"],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0xA999F4c3D982F777a11180F3240D58c37BF9CbCd",
+      "Description": "Toggle USDT0 as collateral in Aave V3",
+      "FunctionSelector": "0x5a3b74b9",
+      "FunctionSignature": "setUserUseReserveAsCollateral(address,bool)",
+      "LeafDigest": "0xd7dcf1c3584b7412076b2159aaefaab254e4e5bbde9e52e33a825e7169ffdd86",
+      "PackedArgumentAddresses": "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
+      "TargetAddress": "0x925a2A7214Ed92428B5b1B090F80b25700095e12"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0xA999F4c3D982F777a11180F3240D58c37BF9CbCd",
+      "Description": "Set user e-mode in Aave V3",
+      "FunctionSelector": "0x28530a47",
+      "FunctionSignature": "setUserEMode(uint8)",
+      "LeafDigest": "0x9c769093bbfb53950774246944dc4a1f04ff136624dfe0c54af80789100e198d",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x925a2A7214Ed92428B5b1B090F80b25700095e12"
+    },
+    {
+      "AddressArguments": ["0xd1074E0AE85610dDBA0147e29eBe0D8E5873a000"],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0xA999F4c3D982F777a11180F3240D58c37BF9CbCd",
+      "Description": "Claim rewards",
+      "FunctionSelector": "0x236300dc",
+      "FunctionSignature": "claimRewards(address[],uint256,address,address)",
+      "LeafDigest": "0x98509c1e4f4605d094be66b2fc577e2cb3f4b73d97c86c75d2eddb7376dd29fa",
+      "PackedArgumentAddresses": "0xd1074e0ae85610ddba0147e29ebe0d8e5873a000",
+      "TargetAddress": "0x3A57eAa3Ca3794D66977326af7991eB3F6dD5a5A"
+    },
+    {
+      "AddressArguments": ["0x02ca37966753bDdDf11216B73B16C1dE756A7CF9"],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0xA999F4c3D982F777a11180F3240D58c37BF9CbCd",
+      "Description": "Approve LayerZero to spend USDT0",
+      "FunctionSelector": "0x095ea7b3",
+      "FunctionSignature": "approve(address,uint256)",
+      "LeafDigest": "0x4463003e438df9133efceb960e8511f93950f1156c1cc9b45184a7221f21745e",
+      "PackedArgumentAddresses": "0x02ca37966753bdddf11216b73b16c1de756a7cf9",
+      "TargetAddress": "0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb"
+    },
+    {
+      "AddressArguments": [
+        "0x0000000000000000000000000000000000007595",
+        "0x000000000000000000000000d1074E0A00000000",
+        "0xe85610ddba0147E29EBE0d8e5873a00000000000",
+        "0xd1074E0AE85610dDBA0147e29eBe0D8E5873a000"
+      ],
+      "CanSendValue": true,
+      "DecoderAndSanitizerAddress": "0xA999F4c3D982F777a11180F3240D58c37BF9CbCd",
+      "Description": "Bridge USDT0 to LayerZero endpoint: 30101",
+      "FunctionSelector": "0xc7c7f5b3",
+      "FunctionSignature": "send((uint32,bytes32,uint256,uint256,bytes,bytes,bytes),(uint256,uint256),address)",
+      "LeafDigest": "0x7c8a8b8110b765ef5a719565f5ca3643ea2640fb38496e9e9209781658fa5cd9",
+      "PackedArgumentAddresses": "0x0000000000000000000000000000000000007595000000000000000000000000d1074e0a00000000e85610ddba0147e29ebe0d8e5873a00000000000d1074e0ae85610ddba0147e29ebe0d8e5873a000",
+      "TargetAddress": "0x02ca37966753bDdDf11216B73B16C1dE756A7CF9"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": true,
+      "DecoderAndSanitizerAddress": "0xA999F4c3D982F777a11180F3240D58c37BF9CbCd",
+      "Description": "Wrap Native to WXPL",
+      "FunctionSelector": "0xd0e30db0",
+      "FunctionSignature": "deposit()",
+      "LeafDigest": "0x49d3bd55f6facbaf4ef3ebca14427ae366c4704ec262f75835a9ba9ffafdd5d4",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x6100E367285b01F48D07953803A2d8dCA5D19873"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0xA999F4c3D982F777a11180F3240D58c37BF9CbCd",
+      "Description": "Unwrap WXPL to Native",
+      "FunctionSelector": "0x2e1a7d4d",
+      "FunctionSignature": "withdraw(uint256)",
+      "LeafDigest": "0x1db2edb971eb3b7c3361457ae769e73b24755c11411b1329341d26b041e9eec8",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x6100E367285b01F48D07953803A2d8dCA5D19873"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    }
+  ],
+  "MerkleTree": {
+    "0": ["0x9218ead671a53f625d1acb2125cd47e98567683e66175ffa8f72e61d4bbe89d4"],
+    "1": [
+      "0xa7e4fc3d64d664511c213e1bfd4e36fd9a0c8beb3e7aaeaf95e44804c3ab19e3",
+      "0xbf94314282d161bc2068fcc0b942785c0bb9aee971c3aec79fc8df367ac976a1"
+    ],
+    "2": [
+      "0xe12e1b4a41dd4fc96045d6b19af1c3ae4c217efab4b4dccff248919922a1bdeb",
+      "0xbfd39360821a6ddf3fb14ef373d8e70141d40e80816420b95d944ef23c354b23",
+      "0xf7b3fd5302a3afdc0ca5706cad86e8ad6d3840726b8db0f23b8938e93be5ebbc",
+      "0x849eda7a295b642e5ddaf49a30eec4470cf507efa83b4104c0752d069c7638fe"
+    ],
+    "3": [
+      "0x31b48ed52b013f893e2bed7d94fdf18557648a1b24783f256349a5fad7fe604c",
+      "0x6a52bd0a50e7f51af32689bfdb2afea7e3e27d0e5dbab8ea4660035e86a1ac00",
+      "0xa639188bd4ea4be340ed68c9489c54d76dfcd34a89a3d2bd702441fe13426d89",
+      "0xc642635570c2b836c583a9e4d33c394b8ca9c55549e09a5a51c8702096ac89ed",
+      "0xa0e9738e985750f1e31c1cce87ab6f56e5597f1f529d5852035f4d6494d3a8e0",
+      "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
+      "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
+      "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba"
+    ],
+    "4": [
+      "0x050b187a3a02faa5dba5c338ed7f489f62c244be5610248724cf97bb1f818393",
+      "0x5009744f13171a66b04ccb669c4c6c837d26a804602bc5d8ef88eeb47d795870",
+      "0x108b98dde353f08b5cb74d65071711d5c147e94349d39de9f6936601318ed1be",
+      "0xd7dcf1c3584b7412076b2159aaefaab254e4e5bbde9e52e33a825e7169ffdd86",
+      "0x9c769093bbfb53950774246944dc4a1f04ff136624dfe0c54af80789100e198d",
+      "0x98509c1e4f4605d094be66b2fc577e2cb3f4b73d97c86c75d2eddb7376dd29fa",
+      "0x4463003e438df9133efceb960e8511f93950f1156c1cc9b45184a7221f21745e",
+      "0x7c8a8b8110b765ef5a719565f5ca3643ea2640fb38496e9e9209781658fa5cd9",
+      "0x49d3bd55f6facbaf4ef3ebca14427ae366c4704ec262f75835a9ba9ffafdd5d4",
+      "0x1db2edb971eb3b7c3361457ae769e73b24755c11411b1329341d26b041e9eec8",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400"
+    ]
+  }
+}

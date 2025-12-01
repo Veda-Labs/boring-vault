@@ -42,15 +42,17 @@ contract CreateTurtleTacBTCMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "accountantAddress", accountantAddress);
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](32);
+        ManageLeaf[] memory leafs = new ManageLeaf[](64);
 
         // ========================== 1inch ==========================
-        address[] memory assets = new address[](2);
-        SwapKind[] memory kind = new SwapKind[](2);
+        address[] memory assets = new address[](3);
+        SwapKind[] memory kind = new SwapKind[](3);
         assets[0] = getAddress(sourceChain, "fBTC");
         kind[0] = SwapKind.BuyAndSell;
         assets[1] = getAddress(sourceChain, "cbBTC");
         kind[1] = SwapKind.BuyAndSell;
+        assets[2] = getAddress(sourceChain, "USDT");
+        kind[2] = SwapKind.Sell;
 
         _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
 
@@ -71,6 +73,13 @@ contract CreateTurtleTacBTCMerkleRoot is Script, MerkleTreeHelper {
         tellerAssets[1] = getERC20(sourceChain, "cbBTC");
         address tacLBTCvTeller = 0xAe499dAa7350b78746681931c47394eB7cC4Cf7F;
         _addTellerLeafs(leafs, tacLBTCvTeller, tellerAssets, false, true);
+
+        // ========================== Fee Claiming ==========================
+        ERC20[] memory feeAssets = new ERC20[](3);
+        feeAssets[0] = getERC20(sourceChain, "WBTC");
+        feeAssets[1] = getERC20(sourceChain, "LBTC");
+        feeAssets[2] = getERC20(sourceChain, "cbBTC");
+        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

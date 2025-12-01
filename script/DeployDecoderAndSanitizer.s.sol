@@ -58,7 +58,7 @@ import {TacETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacETHDe
 import {TacUSDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacUSDDecoderAndSanitizer.sol";
 import {TacLBTCvDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacLBTCvDecoderAndSanitizer.sol";
 import {sBTCNDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/sBTCNDecoderAndSanitizer.sol";
-import {CamelotFullDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/CamelotFullDecoderAndSanitizer.sol";
+import {CamelotDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CamelotDecoderAndSanitizer.sol";
 import {EtherFiEigenDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EtherFiEigenDecoderAndSanitizer.sol";
 import {UnichainEtherFiLiquidEthDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/UnichainEtherFiLiquidEthDecoderAndSanitizer.sol";
 import {LiquidBeraDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidBeraDecoderAndSanitizer.sol";
@@ -85,18 +85,53 @@ import {PrimeGoldenGooseUnichainDecoderAndSanitizer} from
 import {PrimeGoldenGooseDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/PrimeGoldenGooseDecoderAndSanitizer.sol";
 import {GoldenGooseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseDecoderAndSanitizer.sol";
+import {GoldenGooseArbitrumDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseArbitrumDecoderAndSanitizer.sol";
 import {KatanaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/KatanaDecoderAndSanitizer.sol";
-import {TacTONDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacTONDecoderAndSanitizer.sol";
 import {EthMainnetTacDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EthMainnetTacDecoderAndSanitizer.sol";
 import {TacDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacUSDTacDecoderAndSanitizer.sol";
+import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol";
+import {UniswapV3SwapRouter02DecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/UniswapV3SwapRouter02DecoderAndSanitizer.sol";
+import {ConvexFXDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ConvexFXDecoderAndSanitizer.sol";
+import {DolomiteDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/DolomiteDecoderAndSanitizer.sol";
+import {DvStETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/DvStETHDecoderAndSanitizer.sol";
+import {PancakeSwapV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/PancakeSwapV3DecoderAndSanitizer.sol";
+import {RoycoWeirollDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/RoycoDecoderAndSanitizer.sol";
+import {UniswapV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV3DecoderAndSanitizer.sol";
+import {UniswapV4DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV4DecoderAndSanitizer.sol";
+import {VelodromeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/VelodromeDecoderAndSanitizer.sol";
+import {AtomicQueueDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AtomicQueueDecoderAndSanitizer.sol";
 import {KHypeHyperEVMDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/KHypeHyperEVMDecoderAndSanitizer.sol";
-
+import {TacETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacETHDecoderAndSanitizer.sol";
+import {PlasmaUSDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/PlasmaUSDDecoderAndSanitizer.sol";
+import {GoldenGooseUnichainDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseUnichainDecoderAndSanitizer.sol";
+import {OptimismGoldenGooseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/OptimismGoldenGooseDecoderAndSanitizer.sol";
+import {GoldenGooseBaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseBaseDecoderAndSanitizer.sol";
+import {SentoraDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentoraDecoderAndSanitizer.sol";
+import {GoldenGooseLineaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GoldenGooseLineaDecoderAndSanitizer.sol";
+import {EthenaRWADecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EthenaRWADecoderAndSanitizer.sol";
+import {LiquidMoveEthDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidMoveEthDecoderAndSanitizer.sol";
+import {PlasmaUSDPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/PlasmaUSDPlasmaDecoderAndSanitizer.sol";
+import {LiquidETHPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidETHPlasmaDecoderAndSanitizer.sol";
+import {PlasmaUSDPlusPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/PlasmaUSDPlusPlasmaDecoderAndSanitizer.sol";
+import {TurtleMUSDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TurtleMUSDDecoderAndSanitizer.sol";
+import {TestVault0DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TestVault0DecoderAndSanitizer.sol";
+import {SentoraUSDCInkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentoraUSDCInkDecoderAndSanitizer.sol";
+import {SentoraUSDCMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentoraUSDCMainnetDecoderAndSanitizer.sol";
+import {ITBBasePositionDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/ITBBasePositionDecoderAndSanitizer.sol";
+import {BalancedUSDCDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TestBalancedUSDCDecoderAndSanitizer.sol";
+import {InkLiquidETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/InkLiquidETHDecoderAndSanitizer.sol";
+import {TestBalancedUSDCDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TestBalancedUSDCDecoderAndSanitizer.sol";
+import {SentayUSDCInkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentayUSDCInkDecoderAndSanitizer.sol";
+import {SentayUSDCMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentayUSDCMainnetDecoderAndSanitizer.sol";
+import {ITBBasePositionDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/ITBBasePositionDecoderAndSanitizer.sol";
+import {BoostedUSDCInkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BoostedUSDCInkDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
 
 /**
- *  source .env && forge script script/DeployDecoderAndSanitizer.s.sol:DeployDecoderAndSanitizerScript --broadcast --etherscan-api-key $ETHERSCAN_API_KEY
+ *  source .env && forge script script/DeployDecoderAndSanitizer.s.sol:DeployDecoderAndSanitizerScript --broadcast --etherscan-api-key $ETHERSCAN_API_KEY --verify
  */
 /** *   --verify --verifier-url 'https://api.routescan.io/v2/network/mainnet/evm/21000000/etherscan'
  * @dev Optionally can change `--with-gas-price` to something more reasonable
@@ -105,14 +140,15 @@ import "forge-std/StdJson.sol";
 contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
     uint256 public privateKey;
     Deployer public deployer = Deployer(deployerAddress);
-    //Deployer public bobDeployer = Deployer(0xF3d0672a91Fd56C9ef04C79ec67d60c34c6148a0);
+    Deployer public bobDeployer = Deployer(0xF3d0672a91Fd56C9ef04C79ec67d60c34c6148a0);
+
+    string[] addressKeys;
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("hyperEVM");
-        setSourceChainName("hyperEVM");
-
+        vm.createSelectFork("mainnet");
+        setSourceChainName("mainnet");
     }
 
     function run() external {
@@ -120,31 +156,46 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        //creationCode = type(TacDecoderAndSanitizer).creationCode;
-        //creationCode = type(LombardBtcDecoderAndSanitizer).creationCode;
-        //constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "convexFXPoolRegistry"), getAddress(sourceChain, "odosRouterV2"));
-        //deployer.deployContract("Lombard BTC Decoder And Sanitizer v0.5", creationCode, constructorArgs, 0);
-
-        creationCode = type(KHypeHyperEVMDecoderAndSanitizer).creationCode;
+        creationCode = type(SentoraUSDCInkDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode();
-        deployer.deployContract("KHype HyperEVM Decoder And Sanitizer V0.2", creationCode, constructorArgs, 0);
+        console.log("SentoraUSDC Ink Decoder and Sanitizer V0.0");
+        console.logBytes(constructorArgs);
+        deployer.deployContract("SentoraUSDC Ink Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        //address uniswapV4PositionManager = getAddress(sourceChain, "uniV4PositionManager");
-        //address uniswapV3NonFungiblePositionManager = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager");
-        //address odosRouterV2 = getAddress(sourceChain, "odosRouterV2");
-        //address dvStETHVault = getAddress(sourceChain, "dvStETHVault");
-        //creationCode = type(GoldenGooseDecoderAndSanitizer).creationCode;
-        //constructorArgs =
-        //    abi.encode(uniswapV4PositionManager, uniswapV3NonFungiblePositionManager, odosRouterV2, dvStETHVault);
-        //deployer.deployContract("Golden Goose Decoder And Sanitizer v0.4", creationCode, constructorArgs, 0);
+        creationCode = type(BalancedUSDCDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode();
+        console.log("SentayUSDC Ink Decoder and Sanitizer V0.0");
+        console.logBytes(constructorArgs);
+        deployer.deployContract("SentayUSDC Ink Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-
-
-        //creationCode = type(TacTONDecoderAndSanitizer).creationCode;
-        //constructorArgs = abi.encode();
-        //deployer.deployContract("TAC Decoder And Sanitizer v0.0", creationCode, constructorArgs, 0);
-
-
+        creationCode = type(ITBBasePositionDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode();
+        console.log("ITB Base Position Decoder and Sanitizer V0.1");
+        console.logBytes(constructorArgs);
+        deployer.deployContract("ITB Base Position Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
         vm.stopBroadcast();
+    }
+
+    // do not use, this is really intended for doing a giga deploy on a new chain
+    function deployContract(string memory name, bytes memory creationCode, uint256 value) internal {
+        address _contract = deployer.getAddress(name);
+        if (_contract.code.length > 0) {
+            console.log(name, "already deployed at", _contract);
+            return;
+        }
+
+        bytes memory constructorArgs;
+        for (uint256 i = 0; i < addressKeys.length; i++) {
+            if (values[sourceChain][addressKeys[i]] != bytes32(0)) {
+                constructorArgs = abi.encodePacked(constructorArgs, abi.encode(getAddress(sourceChain, addressKeys[i])));
+            } else {
+                console.log(string.concat("Skipping ", name, " because ", addressKeys[i], " is not set"));
+                return;
+            }
+        }
+
+        address deployed = deployer.deployContract(name, creationCode, constructorArgs, value);
+        console.log(unicode"✅", name, "deployed to", deployed);
+        console.logBytes(constructorArgs);
     }
 }

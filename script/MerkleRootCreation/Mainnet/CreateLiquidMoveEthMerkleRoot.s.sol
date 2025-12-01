@@ -20,7 +20,7 @@ contract CreateLiquidMoveEthMerkleRootScript is Script, MerkleTreeHelper {
     address public boringVault = 0xca8711dAF13D852ED2121E4bE3894Dae366039E4;
     address public managerAddress = 0xb12FfF6512712ea3b30EeAB6F9dEA2fe903cA6ab;
     address public accountantAddress = 0xb53244f7716dC83811C8fB1a91971dC188C1C5aA;
-    address public rawDataDecoderAndSanitizer = 0xB6e56b6c8f0BC8DD2B266554629100BB3BAB323D;
+    address public rawDataDecoderAndSanitizer = 0xf95abC9b46117f68521DB3255bc887AC2Ba8e939;
 
     function setUp() external {}
 
@@ -70,6 +70,11 @@ contract CreateLiquidMoveEthMerkleRootScript is Script, MerkleTreeHelper {
          * wrap, unwrap
          */
         _addNativeLeafs(leafs);
+
+        // ========================== Fee Claiming ==========================
+        ERC20[] memory feeAssets = new ERC20[](1);
+        feeAssets[0] = getERC20(sourceChain, "WETH");
+        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
         //Verify
 

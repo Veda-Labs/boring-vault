@@ -54,4 +54,13 @@ contract BerachainDecoderAndSanitizer is
         // Nothing to sanitizer or return
         return addressesFound;
     }
+
+    function deposit(address tokenIn, uint256, /*amountIn*/ uint256, /*minAmountOut*/ address referral)
+        external
+        pure
+        override(WeETHDecoderAndSanitizer, TellerDecoderAndSanitizer)
+        returns (bytes memory addressesFound)
+    {
+        addressesFound = abi.encodePacked(tokenIn, referral);
+    }
 }

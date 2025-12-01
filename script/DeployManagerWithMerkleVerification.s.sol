@@ -21,12 +21,13 @@ import "forge-std/Test.sol";
 contract DeployManagerWithMerkleVerification is Script, ContractNames, Test {
     uint256 public privateKey;
     
-    //liquidUSD
-    address boringVault = 0x08c6F91e2B681FaF5e17227F2a44C307b3C1364C; 
+    //liquidETH
+    address boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C; 
     Deployer deployer = Deployer(0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d); 
 
-    address dev1Address = 0xf8553c8552f906C19286F21711721E206EE4909E;
+    address tempOwner = 0x7E97CaFdd8772706dbC3c83d36322f7BfC0f63C7;
     address balancerVaultAddress = 0xBA12222222228d8Ba445958a75a0704d566BF2C8;
+    address existingRolesAuthority = 0x485Bde66Bb668a51f2372E34e45B1c6226798122;
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
@@ -40,8 +41,13 @@ contract DeployManagerWithMerkleVerification is Script, ContractNames, Test {
         vm.startBroadcast(privateKey);
 
         creationCode = type(ManagerWithMerkleVerification).creationCode;
-        constructorArgs = abi.encode(dev1Address, boringVault, balancerVaultAddress);
-        deployer.deployContract("liquidUSD ManagerWithMerkleVerification V0.1", creationCode, constructorArgs, 0); 
+        constructorArgs = abi.encode(tempOwner, boringVault, balancerVaultAddress);
+        ManagerWithMerkleVerification newManager = ManagerWithMerkleVerification(deployer.deployContract("EtherFi Liquid ETH Manager With Merkle Verification V0.2", creationCode, constructorArgs, 0)); 
+        
+        newManager.setAuthority(RolesAuthority(existingRolesAuthority));
+        newManager.transferOwnership(address(0));
+
+        vm.stopBroadcast();
     }
 
 }

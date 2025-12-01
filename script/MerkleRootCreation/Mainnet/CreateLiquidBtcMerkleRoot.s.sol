@@ -21,8 +21,11 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0x5f46d540b6eD704C3c8789105F30E075AA900726;
     address public managerAddress = 0xaFa8c08bedB2eC1bbEb64A7fFa44c604e7cca68d;
     address public accountantAddress = 0xEa23aC6D7D11f6b181d6B98174D334478ADAe6b0;
-    address public rawDataDecoderAndSanitizer = 0x74522D571f80FF8024b176d710cD963002aC4278;
-    address public scrollBridgeDecoderAndSanitizer = 0xA66a6B289FB5559b7e4ebf598B8e0A97C776c200; 
+    address public rawDataDecoderAndSanitizer = 0x003BcF9eebc322dF6462dEb187452155bf8e8C43;
+    address public scrollBridgeDecoderAndSanitizer = 0xA66a6B289FB5559b7e4ebf598B8e0A97C776c200;
+    address public itbPositionManager = 0x7AAf9539B7359470Def1920ca41b5AAA05C13726;
+    address public itbPositionManager2 = 0x11Fd9E49c41738b7500748f7B94B4DBb0E8c13d2; // Spark LBTC (PYUSD) + Aave Core Euler PYUSD Supervised Loan
+    address public itbDecoderAndSanitizer = 0xb75bfC8B0Cc8588C510DcAE75c67A9DC9cF508d5; 
 
     function setUp() external {}
 
@@ -42,6 +45,18 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](4096);
+
+        // ========================== Fee Claiming ==========================
+        ERC20[] memory feeAssets = new ERC20[](3);
+        feeAssets[0] = getERC20(sourceChain, "WBTC");
+        feeAssets[1] = getERC20(sourceChain, "LBTC");
+        feeAssets[2] = getERC20(sourceChain, "cbBTC");
+        _addLeafsForFeeClaiming(
+            leafs,
+            getAddress(sourceChain, "accountantAddress"),
+            feeAssets,
+            false
+        );
 
         // ========================== UniswapV3 ==========================
         address[] memory token0 = new address[](22);
@@ -299,9 +314,9 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
             eBTCTellerAssets2[0] = getAddress(sourceChain, "WBTC");
             eBTCTellerAssets2[1] = getAddress(sourceChain, "LBTC");
             eBTCTellerAssets2[2] = getAddress(sourceChain, "cbBTC");
-            address[] memory feeAssets = new address[](1);
-            feeAssets[0] = getAddress(sourceChain, "ETH"); 
-            _addCrossChainTellerLeafs(leafs, getAddress(sourceChain, "eBTCTeller"), eBTCTellerAssets2, feeAssets, abi.encode(layerZeroBerachainEndpointId));
+            address[] memory feeAssets1 = new address[](1);
+            feeAssets1[0] = getAddress(sourceChain, "ETH"); 
+            _addCrossChainTellerLeafs(leafs, getAddress(sourceChain, "eBTCTeller"), eBTCTellerAssets2, feeAssets1, abi.encode(layerZeroBerachainEndpointId));
 
         
             address newLiquidBeraBTCTeller = 0xe238e253b67f42ee3aF194BaF7Aba5E2eaddA1B8;  
@@ -312,8 +327,9 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
             liquidBeraBTCTellerAssets[3] = getERC20(sourceChain, "eBTC");
             _addTellerLeafs(leafs, newLiquidBeraBTCTeller, liquidBeraBTCTellerAssets, false, true);
 
-            ERC20[] memory tacBTCAssets = new ERC20[](1);
+            ERC20[] memory tacBTCAssets = new ERC20[](2);
             tacBTCAssets[0] = getERC20(sourceChain, "cbBTC");
+            tacBTCAssets[1] = getERC20(sourceChain, "LBTC");
             _addTellerLeafs(leafs, getAddress(sourceChain, "TurtleTACBTCTeller"), tacBTCAssets, false, false);
             _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "TurtleTACBTCQueue"), getAddress(sourceChain, "TurtleTACBTC"), tacBTCAssets);
 
@@ -456,7 +472,9 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", scrollBridgeDecoderAndSanitizer);
         ERC20[] memory tokens = new ERC20[](1); 
         tokens[0] = getERC20(sourceChain, "WBTC"); 
-        _addScrollNativeBridgeLeafs(leafs, "scroll", tokens);  
+        address[] memory scrollGateways = new address[](1);
+        scrollGateways[0] = getAddress(scroll, "scrollWBTCGateway");
+        _addScrollNativeBridgeLeafs(leafs, "scroll", tokens, scrollGateways);  
 
         // ========================== Elixir ==========================
         /**
@@ -464,6 +482,26 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
          */
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sdeUSD")));
+
+        // ========================== ITB Position Manager ==========================
+        {
+            /**
+            * acceptOwnership() of ITB position manager
+            * transfer BTC tokens to ITB position manager
+            * withdraw BTC tokens from ITB position manager
+            * withdrawAll BTC tokens from ITB position manager
+            */
+            ERC20[] memory itbTokensUsed = new ERC20[](4);
+            itbTokensUsed[0] = getERC20(sourceChain, "WBTC");
+            itbTokensUsed[1] = getERC20(sourceChain, "LBTC");
+            itbTokensUsed[2] = getERC20(sourceChain, "cbBTC");
+            itbTokensUsed[3] = getERC20(sourceChain, "eBTC");
+            _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "ITB Position Manager");
+
+            ERC20[] memory itbTokensUsed2 = new ERC20[](1);
+            itbTokensUsed2[0] = getERC20(sourceChain, "LBTC");
+            _addLeafsForITBPositionManager(leafs, itbPositionManager2, itbTokensUsed2, "ITB Position Manager 2");
+        }
 
         // ========================== Verify ==========================
 
@@ -474,5 +512,56 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
+    }
+
+    function _addLeafsForITBPositionManager(
+        ManageLeaf[] memory leafs,
+        address positionManager,
+        ERC20[] memory tokensUsed,
+        string memory itbContractName
+    ) internal {
+        // acceptOwnership
+        leafIndex++;
+        leafs[leafIndex] = ManageLeaf(
+            positionManager,
+            false,
+            "acceptOwnership()",
+            new address[](0),
+            string.concat("Accept ownership of the ", itbContractName, " contract"),
+            itbDecoderAndSanitizer
+        );
+        for (uint256 i; i < tokensUsed.length; ++i) {
+            // Transfer
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                address(tokensUsed[i]),
+                false,
+                "transfer(address,uint256)",
+                new address[](1),
+                string.concat("Transfer ", tokensUsed[i].symbol(), " to the ", itbContractName, " contract"),
+                itbDecoderAndSanitizer
+            );
+            leafs[leafIndex].argumentAddresses[0] = positionManager;
+        }
+                    // Withdraw
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                positionManager,
+                false,
+                "withdraw(address,uint256)",
+                new address[](0),
+                string.concat("Withdraw from the ", itbContractName, " contract"),
+                itbDecoderAndSanitizer
+            );
+            // WithdrawAll
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                positionManager,
+                false,
+                "withdrawAll(address)",
+                new address[](0),
+                string.concat("Withdraw all from the ", itbContractName, " contract"),
+                itbDecoderAndSanitizer
+            );
     }
 }
