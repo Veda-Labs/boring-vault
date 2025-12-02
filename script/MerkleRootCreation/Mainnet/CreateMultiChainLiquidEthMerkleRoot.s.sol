@@ -837,10 +837,11 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
          * withdrawAll ETH tokens from ITB position manager
          */
         address itbPositionManager = 0x7F37350F463525c2670b10234FB014BC406F851c;
-        ERC20[] memory itbTokensUsed = new ERC20[](3);
+        ERC20[] memory itbTokensUsed = new ERC20[](4);
         itbTokensUsed[0] = getERC20(sourceChain, "WETH");
         itbTokensUsed[1] = getERC20(sourceChain, "WEETH");
         itbTokensUsed[2] = getERC20(sourceChain, "EETH");
+        itbTokensUsed[3] = getERC20(sourceChain, "USDC");
         _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "ITB Position Manager");
 
         address itbPositionManager2 = 0xA40aFb15275A94F64aF37C0cEaAaA45Cb568A361;
