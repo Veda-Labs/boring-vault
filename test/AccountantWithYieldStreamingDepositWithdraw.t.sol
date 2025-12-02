@@ -728,7 +728,7 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
         // Deposit yield again after Alice withdraws ==========================================
         
         // Update manual exchange rate math
-        expectedTotalAssets = expectedTotalAssets + charlieDepositAmount + davidDepositAmount;
+        expectedTotalAssets += charlieDepositAmount + davidDepositAmount;
         expectedExchangeRate = expectedTotalAssets * 1e6 / vaultUSDC.vault.totalSupply();
 
         // We re-use the same yield amount in this whole test
@@ -744,7 +744,8 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
         // Deposits and withdrawals MUST not affect the exchange rate, it must always be bigger if there is incoming yield or equal if there is no yield
         // It will be equal if the yield deposited is less than 1 USD (1e6 wei)
         if (yieldAmount > 1e6) {
-            assertLe(vaultUSDC.accountant.getRate(), expectedExchangeRate, "Exchange rate should be equal or less than the older exchange rate");
+            //@todo This revert doesn't look right
+            assertGe(vaultUSDC.accountant.getRate(), expectedExchangeRate, "Exchange rate should be equal or less than the older exchange rate");
         } else {
             assertEq(vaultUSDC.accountant.getRate(), expectedExchangeRate, "Exchange rate should be equal to the older exchange rate");
         }
