@@ -341,11 +341,6 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         if (currentShares == 0) {
             return rate = vestingState.lastSharePrice; //startingExchangeRate
         }
-        //to avoid any weird edge cases, we separate the two conditions so we don't get currentShares == 0 and pendingGains > 0; 
-        uint256 pendingGains = getPendingVestingGains(); 
-        if (pendingGains == 0) {
-            return rate = vestingState.lastSharePrice;
-        } 
         rate = totalAssets().mulDivDown(ONE_SHARE, currentShares);
     }
 

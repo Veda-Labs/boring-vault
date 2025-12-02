@@ -745,9 +745,9 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
         // It will be equal if the yield deposited is less than 1 USD (1e6 wei)
         if (yieldAmount > 1e6) {
             //@todo This revert doesn't look right
-            assertGe(vaultUSDC.accountant.getRate(), expectedExchangeRate, "Exchange rate should be equal or less than the older exchange rate");
+            assertGe(vaultUSDC.accountant.getRate(), expectedExchangeRate, "Exchange rate should be equal or greater expected exchange rate");
         } else {
-            assertEq(vaultUSDC.accountant.getRate(), expectedExchangeRate, "Exchange rate should be equal to the older exchange rate");
+            assertEq(vaultUSDC.accountant.getRate(), expectedExchangeRate, "Exchange rate should be equal to expected exchange rate");
         }
     }
 
