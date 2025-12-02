@@ -18,9 +18,10 @@ import {GenericRateProviderWithDecimalScaling} from "src/helper/GenericRateProvi
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import {TestActors} from "test/resources/TestActors.t.sol";
 
 
-contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
+contract AccountantWithYieldStreamingTest is Test, TestActors, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     event Paused();
@@ -30,7 +31,6 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     TellerWithYieldStreaming public teller;
     RolesAuthority public rolesAuthority;
 
-    address public payoutAddress = vm.addr(7777777);
     ERC20 internal WETH;
     ERC20 internal EETH;
     ERC20 internal WEETH;
@@ -51,10 +51,6 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     uint8 public constant QUEUE_ROLE = 10;
     uint8 public constant CAN_SOLVE_ROLE = 11;
     
-    address public alice = address(69); 
-    address public bill = address(6969); 
-    address public referrer = vm.addr(1337);
-
     function setUp() external {
         setSourceChainName("mainnet");
         // Setup forked environment.

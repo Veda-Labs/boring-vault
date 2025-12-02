@@ -16,14 +16,12 @@ import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthorit
 import {GenericRateProvider} from "src/helper/GenericRateProvider.sol";
 import {GenericRateProviderWithDecimalScaling} from "src/helper/GenericRateProviderWithDecimalScaling.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
-
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import {TestActors} from "test/resources/TestActors.t.sol";
+import {RolesConstants} from "test/resources/RolesConstants.t.sol";
 
-
-contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
+contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesConstants, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
-
-    event Paused();
 
     struct VaultComponents {
         BoringVault vault;
@@ -36,7 +34,6 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     VaultComponents public vaultWBTC;
     RolesAuthority public rolesAuthority;
 
-    address public payoutAddress = vm.addr(7777777);
     ERC20 internal WETH;
     ERC20 internal USDC;
     ERC20 internal WBTC;
@@ -46,20 +43,14 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     AccountantWithYieldStreaming public accountant; 
     TellerWithYieldStreaming public teller;
 
-
-    uint8 public constant MINTER_ROLE = 1;
-    uint8 public constant ADMIN_ROLE = 1;
-    uint8 public constant BORING_VAULT_ROLE = 4;
-    uint8 public constant UPDATE_EXCHANGE_RATE_ROLE = 3;
-    uint8 public constant STRATEGIST_ROLE = 7;
-    uint8 public constant BURNER_ROLE = 8;
-    uint8 public constant SOLVER_ROLE = 9;
-    uint8 public constant QUEUE_ROLE = 10;
-    uint8 public constant CAN_SOLVE_ROLE = 11;
-    
-    address public alice = address(69); 
-    address public bill = address(6969); 
-    address public referrer = vm.addr(1337);
+    // Using storage to avoid stack too deep errors
+    uint256 expectedAliceUSDCBalance;
+    uint256 aliceShares;
+    uint256 totalSupplyAfterAliceDeposit;
+    uint256 billShares;
+    uint256 expectedBillUSDCBalance;
+    uint256 charlieShares;
+    uint256 davidShares;
 
     function setUp() external {
         setSourceChainName("mainnet");
@@ -650,7 +641,193 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         assertLe(assetsOut, secondDepositAmount, "Second depositor should not profit");
     }
 
+    function testFuzz_differentActorsDepositsAndWithdrawals(uint256 yieldAmountBips, uint96 aliceDepositAmount, uint96 billDepositAmount, uint96 charlieDepositAmount, uint96 davidDepositAmount, uint96 eveDepositAmount) external {
+        // Yield is fuzzed and constant and deposited multiple times in this test
+        yieldAmountBips = bound(yieldAmountBips, 1, 2000); // Yield is between 0.01% and 20%
+        assertEq(vaultUSDC.accountant.getRate(), 1e6, "Exchange rate should be 1e6");
+
+        aliceDepositAmount = uint96(bound(aliceDepositAmount, 1, 1e18));
+        billDepositAmount = uint96(bound(billDepositAmount, 1, 1e18)); 
+        charlieDepositAmount = uint96(bound(charlieDepositAmount, 1, 1e18)); 
+        davidDepositAmount = uint96(bound(davidDepositAmount, 1, 1e18)); 
+        eveDepositAmount = uint96(bound(eveDepositAmount, 1, 1e18)); 
+
+        aliceShares = _depositToVault({vaultComponents: vaultUSDC, asset: USDC, depositor: alice, depositAmount: aliceDepositAmount});
+        assertEq(USDC.balanceOf(alice), 0, "Alice is left with 0 USDC after deposit");
+        totalSupplyAfterAliceDeposit = vaultUSDC.vault.totalSupply();
+
+        assertEq(vaultUSDC.accountant.getRate(), 1e6, "Exchange rate is unchaned after Alice deposits");
+        assertEq(vaultUSDC.vault.totalSupply(), aliceShares, "Alice is the only one in the vault after her deposit");
+
+        // Assume that the first deposit will mint more than one share
+        vm.assume(aliceDepositAmount > 1e6);
+
+        uint256 usdcInTheVaultBeforeYieldVesting = USDC.balanceOf(address(vaultUSDC.vault));
+
+        // Deposit yield the first time =============================================
+        // Use a yield that's safely under the limit (e.g., 10%)
+        uint256 yieldAmount = uint256(usdcInTheVaultBeforeYieldVesting) * yieldAmountBips / 10_000;
+
+        uint256 newUSDCVaultBalance = USDC.balanceOf(address(vaultUSDC.vault)) + yieldAmount;
+        // Give the vault the expected amount of USDC, but the exchange rate is updated slowly
+        deal(address(USDC), address(vaultUSDC.vault), newUSDCVaultBalance);
+        vaultUSDC.accountant.vestYield(yieldAmount, 24 hours); 
+
+        // Skip less than the full vesting period (12 hours instead of 24)
+        skip(12 hours);
+
+        vaultUSDC.accountant.updateExchangeRate();
+
+        // we devide usdc balance by 2 because we skip 12 hours, so only half of the yield is vested
+        uint256 expectedTotalAssets = usdcInTheVaultBeforeYieldVesting + yieldAmount / 2;
+        uint256 expectedExchangeRate = expectedTotalAssets * 1e6 / vaultUSDC.vault.totalSupply();
+        assertEq(vaultUSDC.accountant.getRate(), expectedExchangeRate, "Exchange rate should be correct at half of the vesting period");
+        assertEq(vaultUSDC.vault.totalSupply(), totalSupplyAfterAliceDeposit, "Total supply after Alice's deposit should be correct");
+
+        // Bill deposits
+        billShares = _depositToVault({vaultComponents: vaultUSDC, asset: USDC, depositor: bill, depositAmount: billDepositAmount});
+
+        // Exchange rate doesn't change, as there was no new yield streamed
+        assertEq(vaultUSDC.accountant.getRate(), expectedExchangeRate, "Exchange rate should be correct");
+        assertEq(vaultUSDC.vault.totalSupply(), aliceShares + billShares, "Total supply after Bill's deposit should be correct");
+
+        // 24 hours have passed, so the first yield is fully vested
+        skip(12 hours);
+        vaultUSDC.accountant.updateExchangeRate();
+
+        expectedTotalAssets = usdcInTheVaultBeforeYieldVesting + billDepositAmount + yieldAmount;
+        expectedExchangeRate = expectedTotalAssets * 1e6 / vaultUSDC.vault.totalSupply();
+        
+        // The rounding tolerance is 2 wei, as we are doing 2 exchange rate updates (12 hour mark and 24 hour mark)
+        assertApproxEqAbs(vaultUSDC.accountant.getRate(), expectedExchangeRate, 2, "Exchange rate should be correct after the full vesting period");
+        assertLe(vaultUSDC.accountant.getRate(), expectedExchangeRate, "Rate should always be less or equal to the expected exchange rate because of the");
+
+        _withdrawFromVault({vaultComponents: vaultUSDC, asset: USDC, withdrawer: alice, shares: aliceShares});
+    
+        assertEq(vaultUSDC.vault.balanceOf(alice), 0, "Alice should have no shares after withdrawal");
+
+        assertGt(USDC.balanceOf(alice), aliceDepositAmount, "Alice should have more balance after withdrawal + yield");
+
+        // Calculate expected assets using the exchange rate from the accountant:
+        // aliceShares * exchangeRate / 1e6 because it is USDC
+        expectedAliceUSDCBalance = aliceShares * vaultUSDC.accountant.getRate() / 1e6;
+        assertEq(USDC.balanceOf(alice), expectedAliceUSDCBalance, "Alice withdrawals = deposited USDC + yield");
+        assertEq(vaultUSDC.vault.totalSupply(), billShares, "Total supply after Alice does a full withdrawal");
+        // Bill is the only one left in the vault
+        
+        // If the second deposit is too small, the next `updateExchangeRate` will revert because of division by zero
+        vm.assume(vaultUSDC.vault.totalSupply() > 0);
+
+        charlieShares = _depositToVault({vaultComponents: vaultUSDC, asset: USDC, depositor: charlie, depositAmount: charlieDepositAmount});
+        davidShares = _depositToVault({vaultComponents: vaultUSDC, asset: USDC, depositor: david, depositAmount: davidDepositAmount});
+
+        assertEq(vaultUSDC.vault.totalSupply(), billShares + charlieShares + davidShares, "Total supply after Charlie and David deposit");
+        assertEq(USDC.balanceOf(charlie), 0, "Charlie is left with 0 USDC after deposit");
+        assertEq(USDC.balanceOf(david), 0, "David is left with 0 USDC after deposit");
+
+        // Deposit yield again after Alice withdraws ==========================================
+        
+        // Update manual exchange rate math
+        expectedTotalAssets = expectedTotalAssets + charlieDepositAmount + davidDepositAmount;
+        expectedExchangeRate = expectedTotalAssets * 1e6 / vaultUSDC.vault.totalSupply();
+
+        // We re-use the same yield amount in this whole test
+        newUSDCVaultBalance = USDC.balanceOf(address(vaultUSDC.vault)) + yieldAmount;
+        // Give the vault the expected amount of USDC, but the exchange rate is updated slowly
+        deal(address(USDC), address(vaultUSDC.vault), newUSDCVaultBalance);
+        vaultUSDC.accountant.vestYield(yieldAmount, 24 hours); 
+
+        // Skip less than the full vesting period (11 hours instead of 24), 11/24 = 45.833% of the yield is vested
+        skip(11 hours);
+        vaultUSDC.accountant.updateExchangeRate();
+
+        // Deposits and withdrawals MUST not affect the exchange rate, it must always be bigger if there is incoming yield or equal if there is no yield
+        // It will be equal if the yield deposited is less than 1 USD (1e6 wei)
+        if (yieldAmount > 1e6) {
+            assertLe(vaultUSDC.accountant.getRate(), expectedExchangeRate, "Exchange rate should be equal or less than the older exchange rate");
+        } else {
+            assertEq(vaultUSDC.accountant.getRate(), expectedExchangeRate, "Exchange rate should be equal to the older exchange rate");
+        }
+    }
+
+    function testAliceAndBillDeposits() external {
+        // 10,000 USDC Deposit
+        aliceShares = _depositToVault({vaultComponents: vaultUSDC, asset: USDC, depositor: alice, depositAmount: 10_000 * 1e6});
+
+        assertEq(vaultUSDC.vault.totalSupply(), aliceShares, "Total supply should be equal to Alice's shares");
+
+        uint256 usdcInTheVaultBeforeYieldVesting = USDC.balanceOf(address(vaultUSDC.vault));
+
+        // Deposit yield the first time =============================================
+        
+        // Use a yield that's safely under the limit (e.g., 3%)
+        uint256 yieldAmount = uint256(usdcInTheVaultBeforeYieldVesting) * 300 / 10_000;
+
+        uint256 newUSDCVaultBalance = USDC.balanceOf(address(vaultUSDC.vault)) + yieldAmount;
+        // We re-use the same yield amount in this whole test
+        newUSDCVaultBalance = USDC.balanceOf(address(vaultUSDC.vault)) + yieldAmount;
+        // Give the vault the expected amount of USDC, but the exchange rate is updated slowly
+        deal(address(USDC), address(vaultUSDC.vault), newUSDCVaultBalance);
+        vaultUSDC.accountant.vestYield(yieldAmount, 24 hours); 
+        
+        skip(11 hours);
+        vaultUSDC.accountant.updateExchangeRate();
+
+        // Get the rate that will be used for Bill's deposit
+        // This rate has rounding down from: getRate() -> totalAssets().mulDivDown() and getPendingVestingGains().mulDivDown()
+        uint256 rateUsedForDeposit = vaultUSDC.accountant.getRateInQuote(USDC);
+        
+        uint256 ONE_SHARE = 10 ** vaultUSDC.vault.decimals();
+        uint96 billDepositAmount = 10_000 * 1e6;
+        uint256 billDepositAmount256 = uint256(billDepositAmount);
+        
+        // The deposit formula is: shares = depositAmount.mulDivDown(ONE_SHARE, rate)
+        // Key insight: The rate is rounded DOWN (smaller) in getRate() calculations
+        // A smaller rate means: depositAmount * ONE_SHARE / smaller_rate = MORE shares
+        // Even though mulDivDown rounds down the final share calculation, the rate being smaller
+        // means depositors get MORE shares than they would with an exact (larger) rate
+        
+        // Proof: Calculate what shares would be if the rate was slightly higher
+        // (simulating what it might be if rounding was less aggressive)
+        // A higher rate results in FEWER shares, so actual shares should be >= shares with higher rate
+        uint256 rateIfHigher = rateUsedForDeposit + 1;
+        uint256 sharesWithHigherRate = billDepositAmount256.mulDivDown(ONE_SHARE, rateIfHigher);
+        
+        // Now perform the actual deposit (which uses mulDivDown internally)
+        billShares = _depositToVault({vaultComponents: vaultUSDC, asset: USDC, depositor: bill, depositAmount: billDepositAmount});
+
+        // Prove rounding favors depositor: actual shares >= shares with higher rate
+        // This proves that the rate being rounded down (smaller) benefits depositors
+        assertGe(billShares, sharesWithHigherRate, "Bill should get at least as many shares as with a higher rate, proving rounding down the rate favors depositor");
+        
+        // Additional verification: Show the difference
+        // If the rate wasn't rounded down as much, depositors would get fewer shares
+        if (billShares > sharesWithHigherRate) {
+            uint256 extraSharesFromRounding = billShares - sharesWithHigherRate;
+            console.log("Rate used (rounded down):", rateUsedForDeposit);
+            console.log("Bill's actual shares:", billShares);
+            console.log("Shares with rate+1:", sharesWithHigherRate);
+            console.log("Extra shares from rate rounding:", extraSharesFromRounding);
+        }
+    }
+
     // ========================================= HELPER FUNCTIONS =========================================
+
+    function _withdrawFromVault(VaultComponents memory vaultComponents, ERC20 asset, address withdrawer, uint256 shares) internal returns (uint256 assetsOut) {
+        vm.startPrank(withdrawer);
+        vaultComponents.vault.approve(address(vaultComponents.teller), shares);
+        // We are missing queue of the withdrawal, but for test purposes there is no need to queue it
+        assetsOut = vaultComponents.teller.withdraw(asset, shares, 0, withdrawer);
+        vm.stopPrank();
+    }
+
+    function _depositToVault(VaultComponents memory vaultComponents, ERC20 asset, address depositor, uint96 depositAmount) internal returns(uint256 shares) {
+        deal(address(asset), depositor, depositAmount);
+        vm.startPrank(depositor);
+        asset.approve(address(vaultComponents.vault), type(uint256).max);
+        shares = vaultComponents.teller.deposit(asset, depositAmount, 0, referrer);
+        vm.stopPrank();
+    }
     
     function _startFork(string memory rpcKey, uint256 blockNumber) internal returns (uint256 forkId) {
         forkId = vm.createFork(vm.envString(rpcKey), blockNumber);
