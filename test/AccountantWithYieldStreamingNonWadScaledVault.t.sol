@@ -704,9 +704,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         console.log("supply before:", supplyBefore);
         console.log("rate before:", rateBefore);
 
-        // Attacker deposits
         uint256 depositAmount = 389998;
-        uint256 attackerShares = teller.deposit(USDC, depositAmount, 0, referrer);
+        uint256 shares1 = teller.deposit(USDC, depositAmount, 0, referrer);
 
         // Check rate AFTER deposit
         uint256 supplyAfter = boringVault.totalSupply();
@@ -715,17 +714,15 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         console.log("rate after:", rateAfter);
         console.logInt(int256(rateAfter) - int256(rateBefore));
 
-        // Attacker immediately withdraws
-        boringVault.approve(address(teller), attackerShares);
-        uint256 assetsOut = teller.withdraw(USDC, attackerShares, 0, address(this));
+        boringVault.approve(address(teller), shares1);
+        uint256 assetsOut = teller.withdraw(USDC, shares1, 0, address(this));
 
         console.log("deposited:", depositAmount);
-        console.log("shares received:", attackerShares);
+        console.log("shares received:", shares1);
         console.log("assets out:", assetsOut);
         console.log("any profit:", int256(assetsOut) - int256(depositAmount));
 
-        // THIS is the bug - user gets more out than they put in
-        assertLt(assetsOut, depositAmount, "Attacker should not profit");
+        assertLt(assetsOut, depositAmount, "should not profit");
 
     }
 
@@ -950,17 +947,13 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         //totalSupply > 1
         //exchange rate > 1 
 
-        // Attacker deposits
         deal(address(USDC), address(this), secondDepositAmount);
         uint256 shares1 = teller.deposit(USDC, secondDepositAmount, 0, referrer);
 
         // Check rate AFTER deposit
-
-        // Attacker immediately withdraws
         boringVault.approve(address(teller), shares1);
         uint256 assetsOut = teller.withdraw(USDC, shares1, 0, address(this));
 
-        // this is the bug - user gets more out than they put in
         assertLe(assetsOut, secondDepositAmount, "should not profit");
     }
 
@@ -994,13 +987,11 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         //totalSupply > 1
         //exchange rate > 1 
 
-        // Attacker deposits
         deal(address(USDC), address(this), secondDepositAmount);
         uint256 shares1 = teller.deposit(USDC, secondDepositAmount, 0, referrer);
 
         // Check rate AFTER deposit
 
-        // Attacker immediately withdraws
         boringVault.approve(address(teller), shares1);
         uint256 assetsOut = teller.withdraw(USDC, shares1, 0, address(this));
 
