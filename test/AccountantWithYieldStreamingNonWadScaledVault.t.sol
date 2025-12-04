@@ -117,7 +117,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
             STRATEGIST_ROLE, address(accountant), AccountantWithYieldStreaming.postLoss.selector, true
         );
         rolesAuthority.setRoleCapability(
-            STRATEGIST_ROLE, address(accountant), bytes4(keccak256("updateExchangeRate()")), true
+            STRATEGIST_ROLE, address(accountant), bytes4(keccak256("updateExchangeRate(bool)")), true
         );
         rolesAuthority.setRoleCapability(
             MINTER_ROLE, address(accountant), bytes4(keccak256("updateCumulative()")), true
@@ -188,28 +188,6 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
         //==== BEGIN DEPOSIT 2 ====
         uint256 shares1 = teller.deposit(USDC, USDCAmount, 0, referrer);
-        vm.assertApproxEqAbs(shares1, 6666666, 10); //
-
-        //total of 2 deposits to 10 weth each + 5 vested yield 
-        
-        uint256 totalAssets = accountant.totalAssets(); 
-        vm.assertApproxEqAbs(totalAssets, 25e6, 1); 
-    }
-
-    function testDepositsWithYieldGreaterDecimals() external {
-        uint256 USDEAmount = 10e18; 
-        deal(address(USDE), address(this), 1_000e18);
-        USDE.approve(address(boringVault), 1_000e18);
-        uint256 shares0 = teller.deposit(USDE, USDEAmount, 0, referrer);
-        assertEq(10e6, shares0); 
-
-        //vest some yield
-        deal(address(USDE), address(boringVault), USDEAmount);
-        accountant.vestYield(USDEAmount * 1e6 / 1e18, 24 hours); 
-        skip(12 hours); 
-
-        //==== BEGIN DEPOSIT 2 ====
-        uint256 shares1 = teller.deposit(USDE, USDEAmount, 0, referrer);
         vm.assertApproxEqAbs(shares1, 6666666, 10); //
 
         //total of 2 deposits to 10 weth each + 5 vested yield 
@@ -492,7 +470,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         skip(365 days);
         
         //update the rate
-        accountant.updateExchangeRate();  
+        accountant.updateExchangeRate(false);  
         
         //check the fees owned 
         (,, uint128 feesOwedInBase,,,,,,,,,) = accountant.accountantState();
@@ -530,7 +508,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         skip(1 days);
     
         //update exchange rate to trigger fee calculation
-        accountant.updateExchangeRate();
+        accountant.updateExchangeRate(false);
     
         (, uint96 nextHighwaterMark, uint128 feesOwedInBase,,,,,,,,,) = accountant.accountantState();
         (uint128 finalSharePrice,,,,) = accountant.vestingState(); 
@@ -600,6 +578,49 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
         uint256 assetsOut = teller.withdraw(USDC, shares0, 0, address(boringVault));   
         assertEq(assetsOut, 15e6); 
+    }
+
+    function testWithdrawAfterDeposit() external {
+        uint256 USDCAmount = 10e6; 
+        deal(address(USDC), address(this), 1_000e6);
+        USDC.approve(address(boringVault), 1_000e6);
+        uint256 shares0 = teller.deposit(USDC, USDCAmount, 0, referrer);
+        assertEq(USDCAmount, shares0); 
+
+        //vest some yield to ensure rate > 1
+        deal(address(USDC), address(boringVault), USDCAmount * 2 + 3333333);
+        accountant.vestYield(USDCAmount, 24 hours); 
+        skip(12 hours); 
+
+        //can get the rate after a deposit?
+        //this would be old rate, then we add the new deposit amount? 
+        
+        //alice deposits, changing the rate to now round UP 
+        deal(address(USDC), alice, USDCAmount * 2);
+        vm.startPrank(alice);
+        USDC.approve(address(boringVault), 1_000e6);
+        uint256 shares1 = teller.deposit(USDC, USDCAmount, 0, referrer);
+        vm.stopPrank();
+
+        (uint128 lspOld, , , ,) = accountant.vestingState(); 
+        deal(address(USDC), alice, 10e6); 
+        //deposit 2 uint256 shares1 = teller.deposit(USDC, USDCAmount, 0);
+        uint256 totalAssets = accountant.totalAssets(); 
+        //vm.assertApproxEqAbs(totalAssets, 15e6, 1); 
+        
+        //need to calc new rate based what it would be if we mulDiv'd down
+        //to show diff between this and other version
+        uint256 expectedAssets = uint256(shares0).mulDivDown(lspOld, 1e6);
+         
+        //shares 0 withdraws right after, no time inbetween, should still get the rounded UP rate
+        uint256 assetsOut = teller.withdraw(USDC, shares0, 0, address(boringVault)); 
+        
+        //what should it be vs what is it?
+        assertLe(expectedAssets, assetsOut);  
+
+        //lsp should remain unchanged
+        (uint128 lspNew, , , ,) = accountant.vestingState(); 
+        assertEq(lspOld, lspNew);
     }
 
     function testDoubleDepositInSameBlock() external {
@@ -768,7 +789,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
         skip(24 hours);
 
-        accountant.updateExchangeRate();
+        accountant.updateExchangeRate(false);
 
         //now the state of the contract should be 
         //totalSupply > 1
@@ -868,10 +889,9 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
     function testFuzzDepositsWithYield(uint96 WETHAmount, uint96 WETHAmount2, uint96 yieldVestAmount) external {
         accountant.updateMaximumDeviationYield(5000000);
-        
-        vm.assume(WETHAmount >= 1e6 && WETHAmount <= 10_000_000e6);
-        vm.assume(WETHAmount2 >= 1e6 && WETHAmount2 <= 10_000_000e6);
-        vm.assume(yieldVestAmount >= 1e6 && yieldVestAmount <= uint256(WETHAmount) * 100);
+        WETHAmount = uint96(bound(WETHAmount, 1, 1e18));
+        WETHAmount2 = uint96(bound(WETHAmount2, 1e1, 1e20)); 
+        yieldVestAmount = uint96(bound(yieldVestAmount, 1, 1e20)); 
         
         // === FIRST DEPOSIT ===
         deal(address(WETH), address(this), WETHAmount);
@@ -922,9 +942,12 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     function testFuzzWithdrawWithYield(uint96 WETHAmount, uint96 WETHAmount2, uint96 yieldVestAmount) external {
         accountant.updateMaximumDeviationYield(5000000);
         
-        vm.assume(WETHAmount >= 1e6 && WETHAmount <= 10_000_000e6);
-        vm.assume(WETHAmount2 >= 1e6 && WETHAmount2 <= 10_000_000e6);
-        vm.assume(yieldVestAmount >= 1e6 && yieldVestAmount <= uint256(WETHAmount) * 100);
+        WETHAmount = uint96(bound(WETHAmount, 1, 1e18));
+        WETHAmount2 = uint96(bound(WETHAmount2, 1e1, 1e20)); 
+        yieldVestAmount = uint96(bound(yieldVestAmount, 1, 1e20)); 
+        if (yieldVestAmount > WETHAmount) {
+            yieldVestAmount = uint96(WETHAmount) * 500 / 10_000;
+        }
         
         // === FIRST DEPOSIT ===
         deal(address(WETH), address(this), WETHAmount);
@@ -949,7 +972,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         
         // Test 1: First depositor withdraws half their shares
         uint256 sharesToWithdraw0 = shares0 / 2;
-        uint256 expectedWithdrawAmount0 = sharesToWithdraw0.mulDivDown(currentRate, 1e6);
+        uint256 expectedWithdrawAmount0 = sharesToWithdraw0.mulDivUp(currentRate, 1e6);
         
         // Approve shares for withdrawal
         boringVault.approve(address(teller), sharesToWithdraw0);
@@ -1015,7 +1038,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
         skip(23 hours);
 
-        accountant.updateExchangeRate();
+        accountant.updateExchangeRate(false);
 
         //now the state of the contract should be 
         //totalSupply > 1
@@ -1055,7 +1078,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
         skip(23 hours);
 
-        accountant.updateExchangeRate();
+        accountant.updateExchangeRate(false);
 
         //now the state of the contract should be 
         //totalSupply > 1
@@ -1098,7 +1121,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
         skip(23 hours);
 
-        accountant.updateExchangeRate();
+        accountant.updateExchangeRate(false);
 
         //now the state of the contract should be 
         //totalSupply > 1

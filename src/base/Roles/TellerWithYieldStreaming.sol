@@ -33,7 +33,7 @@ contract TellerWithYieldStreaming is TellerWithBuffer {
         returns (uint256 assetsOut)
     {
         //update vested yield before withdraw
-        _getAccountant().updateExchangeRate();
+        _getAccountant().updateExchangeRate(false);
         beforeTransfer(msg.sender, address(0), msg.sender);
         assetsOut = _withdraw(withdrawAsset, shareAmount, minimumAssets, to);
 
@@ -48,12 +48,13 @@ contract TellerWithYieldStreaming is TellerWithBuffer {
         address to,
         Asset memory asset
     ) internal override returns (uint256 shares) {
-        //update vested yield before deposit
-        _getAccountant().updateExchangeRate();
+        //update vested yield before deposit, rounds UP
+        _getAccountant().updateExchangeRate(true);
         if (vault.totalSupply() == 0) {
             _getAccountant().setFirstDepositTimestamp(); 
         }
         shares = super._erc20Deposit(depositAsset, depositAmount, minimumMint, from, to, asset);
+        if (shares == 0) revert TellerWithMultiAssetSupport__ZeroShares();
     }
 
     /**
@@ -66,7 +67,7 @@ contract TellerWithYieldStreaming is TellerWithBuffer {
         requiresAuth
         nonReentrant
         returns (uint256 assetsOut) {
-        _getAccountant().updateExchangeRate();
+        _getAccountant().updateExchangeRate(false);
         assetsOut = _withdraw(withdrawAsset, shareAmount, minimumAssets, to);
         emit BulkWithdraw(address(withdrawAsset), shareAmount);
     }

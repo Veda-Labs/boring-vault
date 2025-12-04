@@ -164,7 +164,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         }
 
         //update the exchange rate, then validate if everything checks out
-        _updateExchangeRate();
+        _updateExchangeRate(false);
 
         //use TWAS to validate the yield amount:
         uint256 averageSupply = _getTWAS();
@@ -206,7 +206,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         }
 
         //ensure most up to date data
-        _updateExchangeRate(); //vested gains are moved to totalAssets, only unvested remains in `vestingState.vestingGains`
+        _updateExchangeRate(false); //vested gains are moved to totalAssets, only unvested remains in `vestingState.vestingGains`
 
         if (vestingState.vestingGains >= lossAmount) {
             //remaining unvested gains absorb the loss
@@ -248,8 +248,8 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     /**
      * @dev calling this moves any vested gains to be calculated into the current share price
      */
-    function updateExchangeRate() external requiresAuth {
-        _updateExchangeRate();
+    function updateExchangeRate(bool roundUp) external requiresAuth {
+        _updateExchangeRate(roundUp);
     }
 
     /**
@@ -448,7 +448,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     /**
      * @dev calling this moves any vested gains to be calculated into the current share price
      */
-    function _updateExchangeRate() internal {
+    function _updateExchangeRate(bool roundUp) internal {
         AccountantState storage state = accountantState;
         if (state.isPaused) revert AccountantWithRateProviders__Paused();
         _updateCumulative();
@@ -457,10 +457,11 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         uint256 newlyVested = getPendingVestingGains();
 
         uint256 currentShares = vault.totalSupply();
-        if (newlyVested > 0) {
+        if (currentShares > 0) {
             // update the share price w/o reincluding the pending gains (done in `newlyVested`)
-            uint256 _totalAssets = uint256(vestingState.lastSharePrice).mulDivDown(currentShares, ONE_SHARE);
-            vestingState.lastSharePrice = uint128((_totalAssets + newlyVested).mulDivDown(ONE_SHARE, currentShares));
+            vestingState.lastSharePrice += roundUp 
+            ? uint128((newlyVested).mulDivUp(ONE_SHARE, currentShares))
+            : uint128((newlyVested).mulDivDown(ONE_SHARE, currentShares));
 
             //move vested amount from pending to realized
             vestingState.vestingGains -= uint128(newlyVested); // remove from pending

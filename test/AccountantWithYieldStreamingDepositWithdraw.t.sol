@@ -157,7 +157,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
             STRATEGIST_ROLE, address(accountant_), AccountantWithYieldStreaming.postLoss.selector, true
         );
         rolesAuthority.setRoleCapability(
-            STRATEGIST_ROLE, address(accountant_), bytes4(keccak256("updateExchangeRate()")), true
+            STRATEGIST_ROLE, address(accountant_), bytes4(keccak256("updateExchangeRate(bool)")), true
         );
         rolesAuthority.setRoleCapability(
             MINTER_ROLE, address(accountant_), bytes4(keccak256("updateCumulative()")), true
@@ -214,7 +214,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
 
         // No yield
         // vaultUSDC.accountant.vestYield(...) is intentionally omitted
-        vaultUSDC.accountant.updateExchangeRate();
+        vaultUSDC.accountant.updateExchangeRate(false);
 
         // Second Depositor deposits
         deal(address(USDC), address(this), secondUSDCAmount);
@@ -237,7 +237,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
 
         // No yield
         // vaultWBTC.accountant.vestYield(...) is intentionally omitted
-        vaultWBTC.accountant.updateExchangeRate();
+        vaultWBTC.accountant.updateExchangeRate(false);
 
         // Second Depositor deposits
         deal(address(WBTC), address(this), secondWBTCAmount);
@@ -260,7 +260,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
 
         // No yield
         // vaultWETH.accountant.vestYield(...) is intentionally omitted
-        vaultWETH.accountant.updateExchangeRate();
+        vaultWETH.accountant.updateExchangeRate(false);
 
         // Second Depositor deposits
         deal(address(WETH), address(this), secondWETHAmount);
@@ -294,7 +294,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         // Skip less than the full vesting period (12 hours instead of 24)
         skip(12 hours);
 
-        vaultUSDC.accountant.updateExchangeRate();
+        vaultUSDC.accountant.updateExchangeRate(false);
 
         //now the state of the contract should be 
         //totalSupply > 1
@@ -332,7 +332,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         // Skip less than the full vesting period (12 hours instead of 24)
         skip(12 hours);
 
-        vaultWBTC.accountant.updateExchangeRate();
+        vaultWBTC.accountant.updateExchangeRate(false);
 
         //now the state of the contract should be 
         //totalSupply > 1
@@ -370,7 +370,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         // Skip less than the full vesting period (12 hours instead of 24)
         skip(12 hours);
 
-        vaultWETH.accountant.updateExchangeRate();
+        vaultWETH.accountant.updateExchangeRate(false);
 
         //now the state of the contract should be 
         //totalSupply > 1
@@ -407,7 +407,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
 
         skip(24 hours);
 
-        vaultUSDC.accountant.updateExchangeRate();
+        vaultUSDC.accountant.updateExchangeRate(false);
 
         //now the state of the contract should be 
         //totalSupply > 1
@@ -444,7 +444,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
 
         skip(24 hours);
 
-        vaultWBTC.accountant.updateExchangeRate();
+        vaultWBTC.accountant.updateExchangeRate(false);
 
         //now the state of the contract should be 
         //totalSupply > 1
@@ -481,7 +481,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
 
         skip(24 hours);
 
-        vaultWETH.accountant.updateExchangeRate();
+        vaultWETH.accountant.updateExchangeRate(false);
 
         //now the state of the contract should be 
         //totalSupply > 1
@@ -619,7 +619,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
 
         skip(24 hours);
 
-        vaultUSDC.accountant.updateExchangeRate();
+        vaultUSDC.accountant.updateExchangeRate(false);
 
         //now the state of the contract should be 
         //totalSupply > 1
@@ -635,7 +635,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         // Skip midway through the new vesting period (12 hours)
         skip(12 hours);
 
-        vaultUSDC.accountant.updateExchangeRate();
+        vaultUSDC.accountant.updateExchangeRate(false);
 
         // Second Depositor deposits
         deal(address(USDC), address(this), secondDepositAmount);
@@ -668,7 +668,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
 
         skip(24 hours);
 
-        vaultWBTC.accountant.updateExchangeRate();
+        vaultWBTC.accountant.updateExchangeRate(false);
 
         //now the state of the contract should be 
         //totalSupply > 1
@@ -684,7 +684,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         // Skip midway through the new vesting period (12 hours)
         skip(12 hours);
 
-        vaultWBTC.accountant.updateExchangeRate();
+        vaultWBTC.accountant.updateExchangeRate(false);
 
         // Second Depositor deposits
         deal(address(WBTC), address(this), secondDepositAmount);
@@ -717,7 +717,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
 
         skip(24 hours);
 
-        vaultWETH.accountant.updateExchangeRate();
+        vaultWETH.accountant.updateExchangeRate(false);
 
         //now the state of the contract should be 
         //totalSupply > 1
@@ -733,7 +733,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         // Skip midway through the new vesting period (12 hours)
         skip(12 hours);
 
-        vaultWETH.accountant.updateExchangeRate();
+        vaultWETH.accountant.updateExchangeRate(false);
 
         // Second Depositor deposits
         deal(address(WETH), address(this), secondDepositAmount);
