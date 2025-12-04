@@ -122,6 +122,9 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
             STRATEGIST_ROLE, address(accountant), bytes4(keccak256("updateExchangeRate()")), true
         );
         rolesAuthority.setRoleCapability(
+            STRATEGIST_ROLE, address(accountant), bytes4(keccak256("updateExchangeRate(bool)")), true
+        );
+        rolesAuthority.setRoleCapability(
             MINTER_ROLE, address(accountant), bytes4(keccak256("updateCumulative()")), true
         );
         rolesAuthority.setPublicCapability(address(teller), TellerWithMultiAssetSupport.deposit.selector, true);

@@ -151,6 +151,12 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         rolesAuthority.setRoleCapability(
             TELLER_MANAGER_ROLE,
             address(accountant),
+            bytes4(keccak256("updateExchangeRate(bool)")),
+            true
+        );
+        rolesAuthority.setRoleCapability(
+            TELLER_MANAGER_ROLE,
+            address(accountant),
             bytes4(keccak256("updateCumulative()")),
             true
         );
@@ -445,21 +451,21 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
     
         teller.bulkWithdraw(sUSDe, expectedShares / 2, 0, address(this));
 
-        assertApproxEqAbs(boringVault.balanceOf(address(this)), expectedShares / 2, 3, "Should have eliminated expected shares");
+        assertApproxEqAbs(boringVault.balanceOf(address(this)), expectedShares / 2, 2, "Should have eliminated expected shares");
 
-        assertApproxEqAbs(asUSDe.balanceOf(address(boringVault)),  amount / 2, 2e12, "Should have removed half of the deposit from aave");
+        assertApproxEqAbs(asUSDe.balanceOf(address(boringVault)),  amount / 2, 1e12, "Should have removed half of the deposit from aave");
 
-        assertApproxEqAbs(sUSDe.balanceOf(address(this)), amount / 2, 2e12, "Should have received expected sUSDe");
+        assertApproxEqAbs(sUSDe.balanceOf(address(this)), amount / 2, 1e12, "Should have received expected sUSDe");
 
         // test regular withdraw
         teller.withdraw(sUSDe, expectedShares / 2, 0, address(this));
 
-        assertApproxEqAbs(boringVault.balanceOf(address(this)), 0, 3, "Should have eliminated expected shares");
+        assertApproxEqAbs(boringVault.balanceOf(address(this)), 0, 2, "Should have eliminated expected shares");
 
         // increase error to account for 2x rounding errors
-        assertApproxEqAbs(asUSDe.balanceOf(address(boringVault)), 0, 3e12, "Should have removed entire remaining deposit from aave");
+        assertApproxEqAbs(asUSDe.balanceOf(address(boringVault)), 0, 2e12, "Should have removed entire remaining deposit from aave");
 
-        assertApproxEqAbs(sUSDe.balanceOf(address(this)), amount, 3e12, "Should have received expected sUSDe");
+        assertApproxEqAbs(sUSDe.balanceOf(address(this)), amount, 2e12, "Should have received expected sUSDe");
     }
 
     function testWithdrawFailureWhenBufferIsTooSmall(uint256 amount) external {

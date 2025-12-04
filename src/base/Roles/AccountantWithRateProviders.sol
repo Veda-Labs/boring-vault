@@ -385,12 +385,48 @@ contract AccountantWithRateProviders is Auth, IRateProvider, IPausable {
     /**
      * @notice Get this BoringVault's current rate in the provided quote.
      * @dev `quote` must have its RateProviderData set, else this will revert.
+     * @dev This function will lose precision if the exchange rate
+     *      decimals is greater than the quote's decimals.
+     * @dev Rounds up the rate.
+     */
+    function getRateInQuoteCeil(ERC20 quote) public virtual view returns (uint256 rateInQuote) {
+        if (address(quote) == address(base)) {
+            return accountantState.exchangeRate;
+        }
+
+        RateProviderData memory data = rateProviderData[quote];
+        uint8 quoteDecimals = ERC20(quote).decimals();
+        uint256 exchangeRateInQuoteDecimals = _changeDecimals(accountantState.exchangeRate, decimals, quoteDecimals);
+        if (data.isPeggedToBase) {
+            rateInQuote = exchangeRateInQuoteDecimals;
+        } else {
+            uint256 quoteRate = data.rateProvider.getRate();
+            uint256 oneQuote = 10 ** quoteDecimals;
+            rateInQuote = oneQuote.mulDivUp(exchangeRateInQuoteDecimals, quoteRate);
+        }
+    }
+
+    /**
+     * @notice Get this BoringVault's current rate in the provided quote.
+     * @dev `quote` must have its RateProviderData set, else this will revert.
+     * @dev Revert if paused.
+     * @dev Rounds up the rate.
+     */
+    function getRateInQuoteSafeCeil(ERC20 quote) external virtual view returns (uint256 rateInQuote) {
+        if (accountantState.isPaused) revert AccountantWithRateProviders__Paused();
+        rateInQuote = getRateInQuoteCeil(quote);
+    }
+
+    /**
+     * @notice Get this BoringVault's current rate in the provided quote.
+     * @dev `quote` must have its RateProviderData set, else this will revert.
      * @dev Revert if paused.
      */
     function getRateInQuoteSafe(ERC20 quote) external virtual view returns (uint256 rateInQuote) {
         if (accountantState.isPaused) revert AccountantWithRateProviders__Paused();
         rateInQuote = getRateInQuote(quote);
     }
+
 
     /**
      * @notice Preview the result of an update to the exchange rate.
