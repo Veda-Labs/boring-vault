@@ -268,9 +268,12 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 shares0 = teller.deposit(USDE, USDEAmount, 0, referrer);
         assertEq(10e6, shares0); 
 
+        // DownScale yield amount
+        uint256 yieldAmount = (USDEAmount * 1e6) / 1e18;
+
         //==== Add Vesting Yield Stream ====
         deal(address(USDE), address(boringVault), USDEAmount);
-        accountant.vestYield(USDEAmount, 24 hours); 
+        accountant.vestYield(yieldAmount, 24 hours); 
         skip(12 hours); 
         
         //==== BEGIN DEPOSIT 2 ====
@@ -287,7 +290,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         //==== BEGIN WITHDRAW USER 2 ====
         vm.prank(alice); 
         assetsOut = teller.withdraw(USDE, shares1, 0, address(alice));   
-        vm.assertApproxEqAbs(assetsOut, 10e18, 1); 
+        // Tolerance is 1e12, as the vault is denominated in 1e6, so the assets out have a rounding error
+        vm.assertApproxEqAbs(assetsOut, 10e18, 1e12);  
     }
 
     function testWithdrawWithYieldStreamUser2WaitsForYield() external {
@@ -997,11 +1001,11 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     function testRoundingIssuesAfterYieldStreamEndsFuzz(uint96 USDCAmount, uint96 secondDepositAmount) external {
         USDCAmount = uint96(bound(USDCAmount, 1, 1e6));
         secondDepositAmount = uint96(bound(secondDepositAmount, 1e1, 1e11)); 
-        //vm.assume(secondDepositAmount > 1e1 && secondDepositAmount <= 1e11); 
+
         deal(address(USDC), address(this), USDCAmount);
         USDC.approve(address(boringVault), type(uint256).max);
         uint256 shares0 = teller.deposit(USDC, USDCAmount, 0, referrer);
-        //assertEq(USDCAmount, shares0); 
+        assertEq(USDCAmount, shares0, "Shares0 should be equal to USDCAmount"); 
 
         // Use a yield that's safely under the limit (e.g., 5%)
         uint256 yieldAmount = uint256(USDCAmount) * 500 / 10_000;

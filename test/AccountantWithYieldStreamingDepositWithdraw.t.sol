@@ -837,40 +837,36 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
         vaultUSDC.accountant.updateExchangeRate();
 
         // Get the rate that will be used for Bill's deposit
-        // This rate has rounding down from: getRate() -> totalAssets().mulDivDown() and getPendingVestingGains().mulDivDown()
-        uint256 rateUsedForDeposit = vaultUSDC.accountant.getRateInQuote(USDC);
+        // Now we use getRateInQuoteSafeCeil which uses mulDivUp
+        uint256 rateUsedForDeposit = vaultUSDC.accountant.getRateInQuoteSafeCeil(USDC);
         
         uint256 ONE_SHARE = 10 ** vaultUSDC.vault.decimals();
         uint96 billDepositAmount = 10_000 * 1e6;
         uint256 billDepositAmount256 = uint256(billDepositAmount);
         
         // The deposit formula is: shares = depositAmount.mulDivDown(ONE_SHARE, rate)
-        // Key insight: The rate is rounded DOWN (smaller) in getRate() calculations
-        // A smaller rate means: depositAmount * ONE_SHARE / smaller_rate = MORE shares
-        // Even though mulDivDown rounds down the final share calculation, the rate being smaller
-        // means depositors get MORE shares than they would with an exact (larger) rate
+        // Key insight: The rate is rounded UP (larger) in getRateInQuoteSafeCeil
+        // A larger rate means: depositAmount * ONE_SHARE / larger_rate = FEWER shares
         
-        // Proof: Calculate what shares would be if the rate was slightly higher
-        // (simulating what it might be if rounding was less aggressive)
-        // A higher rate results in FEWER shares, so actual shares should be >= shares with higher rate
-        uint256 rateIfHigher = rateUsedForDeposit + 1;
-        uint256 sharesWithHigherRate = billDepositAmount256.mulDivDown(ONE_SHARE, rateIfHigher);
+        // Calculate what shares would be if the rate was rounded DOWN (standard getRateInQuote)
+        uint256 rateRoundedDown = vaultUSDC.accountant.getRateInQuote(USDC);
+        uint256 sharesWithRateRoundedDown = billDepositAmount256.mulDivDown(ONE_SHARE, rateRoundedDown);
         
-        // Now perform the actual deposit (which uses mulDivDown internally)
+        // Now perform the actual deposit (which uses mulDivDown internally with Ceil rate)
         billShares = _depositToVault({vaultComponents: vaultUSDC, asset: USDC, depositor: bill, depositAmount: billDepositAmount});
 
-        // Prove rounding favors depositor: actual shares >= shares with higher rate
-        // This proves that the rate being rounded down (smaller) benefits depositors
-        assertGe(billShares, sharesWithHigherRate, "Bill should get at least as many shares as with a higher rate, proving rounding down the rate favors depositor");
+        // Prove rounding favors Vault: actual shares <= shares with rounded down rate
+        // This proves that the rate being rounded up (larger) benefits the Vault/existing shareholders
+        assertLe(billShares, sharesWithRateRoundedDown, "Bill should get at most as many shares as with a lower rate, proving rounding up the rate favors Vault");
         
         // Additional verification: Show the difference
-        // If the rate wasn't rounded down as much, depositors would get fewer shares
-        if (billShares > sharesWithHigherRate) {
-            uint256 extraSharesFromRounding = billShares - sharesWithHigherRate;
-            console.log("Rate used (rounded down):", rateUsedForDeposit);
+        if (billShares < sharesWithRateRoundedDown) {
+            uint256 extraSharesSavedForVault = sharesWithRateRoundedDown - billShares;
+            console.log("Rate used (rounded up):", rateUsedForDeposit);
+            console.log("Rate (rounded down):", rateRoundedDown);
             console.log("Bill's actual shares:", billShares);
-            console.log("Shares with rate+1:", sharesWithHigherRate);
-            console.log("Extra shares from rate rounding:", extraSharesFromRounding);
+            console.log("Shares with rate rounded down:", sharesWithRateRoundedDown);
+            console.log("Shares saved for Vault:", extraSharesSavedForVault);
         }
     }
 

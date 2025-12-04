@@ -356,6 +356,49 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     }
 
     /**
+     * @notice Get this BoringVault's current rate in the provided quote.
+     * @dev `quote` must have its RateProviderData set, else this will revert.
+     * @dev Rounds up the rate.
+     */
+    function getRateInQuoteCeil(ERC20 quote) public view override returns (uint256 rateInQuote) {
+        uint256 rate;
+        if (vault.totalSupply() == 0) {
+            rate = vestingState.lastSharePrice;
+        } else {
+            // Avoid round-trip precision loss by using lastSharePrice directly
+            // rate = lastSharePrice + (pendingGains / totalSupply)
+            // We round up the pending gains contribution to ensure we favor the vault
+            rate = uint256(vestingState.lastSharePrice) + getPendingVestingGains().mulDivUp(ONE_SHARE, vault.totalSupply());
+        }
+
+        if (address(quote) == address(base)) {
+            return rate;
+        }
+        
+        RateProviderData memory data = rateProviderData[quote];
+        uint8 quoteDecimals = ERC20(quote).decimals();
+        uint256 exchangeRateInQuoteDecimals = _changeDecimals(rate, decimals, quoteDecimals);
+        if (data.isPeggedToBase) {
+            rateInQuote = exchangeRateInQuoteDecimals;
+        } else {
+            uint256 quoteRate = data.rateProvider.getRate();
+            uint256 oneQuote = 10 ** quoteDecimals;
+            rateInQuote = oneQuote.mulDivUp(exchangeRateInQuoteDecimals, quoteRate);
+        }
+    }
+
+    /**
+     * @notice Get this BoringVault's current rate in the provided quote.
+     * @dev `quote` must have its RateProviderData set, else this will revert.
+     * @dev Revert if paused.
+     * @dev Rounds up the rate.
+     */
+    function getRateInQuoteSafeCeil(ERC20 quote) external view override returns (uint256 rateInQuote) {
+        if (accountantState.isPaused) revert AccountantWithRateProviders__Paused();
+        rateInQuote = getRateInQuoteCeil(quote);
+    }
+
+    /**
      * @notice Returns the amount of yield that has already vested based on the current block and `vestingGains`
      */
     function getPendingVestingGains() public view returns (uint256 amountVested) {
@@ -454,8 +497,8 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         uint256 currentShares = vault.totalSupply();
         if (newlyVested > 0) {
             // update the share price w/o reincluding the pending gains (done in `newlyVested`)
-            uint256 _totalAssets = uint256(vestingState.lastSharePrice).mulDivDown(currentShares, ONE_SHARE);
-            vestingState.lastSharePrice = uint128((_totalAssets + newlyVested).mulDivDown(ONE_SHARE, currentShares));
+            // we add the newly vested yield to the share price directly to avoid precision loss
+            vestingState.lastSharePrice += uint128(newlyVested.mulDivDown(ONE_SHARE, currentShares));
 
             //move vested amount from pending to realized
             vestingState.vestingGains -= uint128(newlyVested); // remove from pending

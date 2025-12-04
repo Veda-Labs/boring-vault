@@ -207,7 +207,7 @@ contract AccountantWithYieldStreamingTest is Test, TestActors, MerkleTreeHelper 
         deal(address(WEETH), address(this), 1_000e18);
         WEETH.approve(address(boringVault), 1_000e18);
 
-        uint256 rateInWEETH = accountant.getRateInQuote(WEETH);
+        uint256 rateInWEETH = accountant.getRateInQuoteCeil(WEETH);
 
         // shares = depositAmount * 1e18 / rateInWEETH
         uint256 expectedShares = WEETHAmount.mulDivDown(1e18, rateInWEETH);
@@ -230,7 +230,7 @@ contract AccountantWithYieldStreamingTest is Test, TestActors, MerkleTreeHelper 
         deal(address(WEETH), address(this), 1_000e18);
         WEETH.approve(address(boringVault), 1_000e18);
 
-        uint256 rateInWEETH = accountant.getRateInQuote(WEETH);
+        uint256 rateInWEETH = accountant.getRateInQuoteCeil(WEETH);
 
         // shares = depositAmount * 1e18 / rateInWEETH
         uint256 expectedShares = WEETHAmount.mulDivDown(1e18, rateInWEETH);
@@ -329,7 +329,7 @@ contract AccountantWithYieldStreamingTest is Test, TestActors, MerkleTreeHelper 
         vm.assertApproxEqAbs(assetsOut, 10e18, 1); 
     }
 
-    function testWithdrawWithYieldStreamUser2WaitsForYield() external {
+    function testWithdrawWithYieldStreamUser2WaitsForYield1() external {
         uint256 WETHAmount = 10e18; 
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
@@ -357,8 +357,8 @@ contract AccountantWithYieldStreamingTest is Test, TestActors, MerkleTreeHelper 
         //==== BEGIN WITHDRAW USER 2 ====
         vm.prank(alice); 
         assetsOut = teller.withdraw(WETH, shares1, 0, address(alice));   
-        //vm.assertApproxEqAbs(assetsOut, 15e18, 10); 
-        vm.assertEq(assetsOut, 15e18); 
+        assertLt(assetsOut, 15e18, "assetsOut should be less than 15e18"); 
+        vm.assertApproxEqAbs(assetsOut, 15e18, 10); 
     }
 
     function testVestLossAbsorbBuffer() external {
