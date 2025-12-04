@@ -255,10 +255,12 @@ contract CreateSuperSymbioticLRTMerkleRootScript is Script, MerkleTreeHelper {
         _addEtherFiLeafs(leafs);
 
         // ========================== Symbiotic Vault ==========================
-        address[] memory vaults = new address[](1);
+        address[] memory vaults = new address[](2);
         vaults[0] = getAddress(sourceChain, "EtherFi_wstETHSymbioticVault");
-        ERC20[] memory vault_assets = new ERC20[](1);
+        vaults[1] = getAddress(sourceChain, "EtherFi_Cap_weETHSymbioticVault");
+        ERC20[] memory vault_assets = new ERC20[](2);
         vault_assets[0] = ERC20(getAddress(sourceChain, "WSTETH"));
+        vault_assets[1] = ERC20(getAddress(sourceChain, "weETH"));
 
         // NOTE: No rewards for EtherFi wstETH vault for now.
         address[] memory rewards = new address[](0);
