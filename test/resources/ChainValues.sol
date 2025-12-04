@@ -1526,6 +1526,7 @@ contract ChainValues {
         values[base]["aerodromeRouter"] = 0xcF77a3Ba9A5CA399B7c97c74d54e5b1Beb874E43.toBytes32();
         values[base]["aerodromeNonFungiblePositionManager"] = 0x827922686190790b37229fd06084350E74485b72.toBytes32();
         values[base]["aerodrome_Weth_Wsteth_v3_1_gauge"] = 0x2A1f7bf46bd975b5004b61c6040597E1B6117040.toBytes32();
+        values[base]["aerodrome_Weth_Usdc_v3_1_gauge"] = 0xF33a96b5932D9E9B9A0eDA447AbD8C9d48d2e0c8.toBytes32();
         values[base]["aerodrome_Weth_Bsdeth_v3_1_gauge"] = 0x0b537aC41400433F09d97Cd370C1ea9CE78D8a74.toBytes32();
         values[base]["aerodrome_Cbeth_Weth_v3_1_gauge"] = 0xF5550F8F0331B8CAA165046667f4E6628E9E3Aac.toBytes32();
         values[base]["aerodrome_Weth_Wsteth_v2_30_gauge"] = 0xDf7c8F17Ab7D47702A4a4b6D951d2A4c90F99bf4.toBytes32();

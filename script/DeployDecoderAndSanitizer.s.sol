@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.21;
+pragma solidity ^0.8;
 
 import {ChainValues} from "test/resources/ChainValues.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
@@ -281,24 +281,24 @@ contract DeploySyUsdPlasmaDecoderAndSanitizer is Script, ContractNames, MainnetA
     }
 }
 
-contract DeployLpUsdcArbitrumDecoderAndSanitizer {
-    uint256 public privateKey;
-    Deployer public deployer = Deployer(0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC);
+// contract DeployLpUsdcArbitrumDecoderAndSanitizer {
+//     uint256 public privateKey;
+//     Deployer public deployer = Deployer(0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC);
 
-    function setUp() external {
-        privateKey = vm.envUint("BORING_DEVELOPER");
-    }
+//     function setUp() external {
+//         privateKey = vm.envUint("BORING_DEVELOPER");
+//     }
 
-    function run() external {
-        bytes memory creationCode;
-        bytes memory constructorArgs;
+//     function run() external {
+//         bytes memory creationCode;
+//         bytes memory constructorArgs;
 
-        vm.createSelectFork("arbitrum");
-        setSourceChainName("arbitrum");
-        vm.startBroadcast(privateKey);
-        creationCode = type(SyUsdBaseDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
-        deployer.deployContract("SyUsd Base DecodersAndSanitizers Batch 1", creationCode, constructorArgs, 0);
-        vm.stopBroadcast();
-    }
-}
+//         vm.createSelectFork("arbitrum");
+//         setSourceChainName("arbitrum");
+//         vm.startBroadcast(privateKey);
+//         creationCode = type(SyUsdBaseDecoderAndSanitizer).creationCode;
+//         constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
+//         deployer.deployContract("SyUsd Base DecodersAndSanitizers Batch 1", creationCode, constructorArgs, 0);
+//         vm.stopBroadcast();
+//     }
+// }
