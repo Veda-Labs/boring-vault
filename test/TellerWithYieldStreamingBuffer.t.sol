@@ -151,6 +151,12 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         rolesAuthority.setRoleCapability(
             TELLER_MANAGER_ROLE,
             address(accountant),
+            bytes4(keccak256("updateExchangeRate(bool)")),
+            true
+        );
+        rolesAuthority.setRoleCapability(
+            TELLER_MANAGER_ROLE,
+            address(accountant),
             bytes4(keccak256("updateCumulative()")),
             true
         );

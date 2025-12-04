@@ -121,7 +121,10 @@ contract AccountantWithYieldStreamingTest is Test, TestActors, MerkleTreeHelper 
             STRATEGIST_ROLE, address(accountant), AccountantWithYieldStreaming.postLoss.selector, true
         );
         rolesAuthority.setRoleCapability(
-            STRATEGIST_ROLE, address(accountant), bytes4(keccak256("updateExchangeRate()")), true
+            STRATEGIST_ROLE, address(accountant), bytes4(keccak256("updateExchangeRate(bool)")), true
+        );
+        rolesAuthority.setRoleCapability(
+            STRATEGIST_ROLE, address(accountant), bytes4(keccak256("updateExchangeRate(bool)")), true
         );
         rolesAuthority.setRoleCapability(
             MINTER_ROLE, address(accountant), bytes4(keccak256("updateCumulative()")), true
@@ -382,9 +385,9 @@ contract AccountantWithYieldStreamingTest is Test, TestActors, MerkleTreeHelper 
 
         uint256 totalAssetsAfterLoss = accountant.totalAssets(); 
         
-        //assert the vestingGains is removed from  
-        (, uint128 vestingGains, , , ) = accountant.vestingState(); 
-        assertEq(unvested - 2.5e18, vestingGains); 
+        //assert the unvestedGains is removed from  
+        (, uint128 unvestedGains, , , ) = accountant.vestingState(); 
+        assertEq(unvested - 2.5e18, unvestedGains); 
 
         //total assets should remain the same as the buffer absorbed the entire loss
         assertEq(totalAssetsBeforeLoss, totalAssetsAfterLoss); 
@@ -430,9 +433,9 @@ contract AccountantWithYieldStreamingTest is Test, TestActors, MerkleTreeHelper 
 
         uint256 totalAssetsInBaseAfter = accountant.totalAssets();  
         
-        //vesting gains should be 0
-        (, uint128 vestingGains, , , ) = accountant.vestingState(); 
-        assertEq(0, vestingGains); 
+        //unvested gains should be 0
+        (, uint128 unvestedGains, , , ) = accountant.vestingState(); 
+        assertEq(0, unvestedGains); 
 
         //total assets should be 5e18 -> 10 initial, 5 yield, 5 unvested -> 15 weth loss (5 from buffer) -> 15 - 10 = 5 totalAssets remaining
         assertEq(totalAssetsInBaseAfter, 5e18); 
@@ -488,8 +491,8 @@ contract AccountantWithYieldStreamingTest is Test, TestActors, MerkleTreeHelper 
 
         //total assets = 15
 
-        uint256 unvested = accountant.getPendingVestingGains(); 
-
+        uint256 unvested = accountant.getPendingUnvestedGains(); 
+        
         //unvested = 5
         
         //strategist posts another yield update, halfway through the remaining update 
@@ -503,17 +506,17 @@ contract AccountantWithYieldStreamingTest is Test, TestActors, MerkleTreeHelper 
         uint256 totalAssets = accountant.totalAssets();  
         assertEq(totalAssets, 22.5e18); 
         
-        (, uint128 gains, uint128 lastVestingUpdate, uint64 startVestingTime, uint64 endVestingTime) = accountant.vestingState(); 
+        (, uint128 gains, uint128 totalVestingGains, uint64 startVestingTime, uint64 endVestingTime) = accountant.vestingState(); 
         assertEq(gains, 15e18); 
         
-        uint256 lastUpdate = lastVestingUpdate; 
+        uint256 lastUpdate = accountant.lastStrategistUpdateTimestamp();
         assertEq(lastUpdate, block.timestamp - 12 hours); 
         
         uint256 startTime = startVestingTime; 
-        assertEq(startTime, block.timestamp - 12 hours); 
+        assertEq(startTime, block.timestamp - 12 hours);
 
         uint256 endTime = endVestingTime; 
-        assertEq((block.timestamp - 12 hours) + 24 hours, endTime); 
+        assertEq((block.timestamp - 12 hours) + 24 hours, endTime);
     }
 
 
@@ -533,7 +536,7 @@ contract AccountantWithYieldStreamingTest is Test, TestActors, MerkleTreeHelper 
         skip(365 days);
         
         //update the rate
-        accountant.updateExchangeRate();  
+        accountant.updateExchangeRate(false);  
         
         //check the fees owned 
         (,, uint128 feesOwedInBase,,,,,,,,,) = accountant.accountantState();
@@ -571,7 +574,7 @@ contract AccountantWithYieldStreamingTest is Test, TestActors, MerkleTreeHelper 
         skip(1 days);
     
         //update exchange rate to trigger fee calculation
-        accountant.updateExchangeRate();
+        accountant.updateExchangeRate(false);
     
         (, uint96 nextHighwaterMark, uint128 feesOwedInBase,,,,,,,,,) = accountant.accountantState();
         (uint128 finalSharePrice,,,,) = accountant.vestingState(); 
@@ -622,7 +625,7 @@ contract AccountantWithYieldStreamingTest is Test, TestActors, MerkleTreeHelper 
         uint256 supplyAfter = boringVault.totalSupply();
         assertApproxEqRel(supplyAfter, 199.5e18, 0.01e18, "Supply should be ~199.5e18");
     
-        (uint256 cumulative,,) = accountant.supplyObservation();
+        (uint256 cumulative,) = accountant.supplyObservation();
         uint256 expectedCumulative = 100e18 * 12 hours; // 4.32e24
         assertEq(cumulative, expectedCumulative, "Cumulative should be 100e18 * 12 hours");
     
@@ -631,12 +634,12 @@ contract AccountantWithYieldStreamingTest is Test, TestActors, MerkleTreeHelper 
     
         // After second vestYield, cumulative should account for actual supply
         // (100e18 * 12 hours) + (supplyAfter * 12 hours)
-        (cumulative,,) = accountant.supplyObservation();
+        (cumulative,) = accountant.supplyObservation();
         expectedCumulative = (100e18 * 12 hours) + (supplyAfter * 12 hours);
         assertApproxEqAbs(cumulative, expectedCumulative, 1e6, "Cumulative should match actual supply changes");
     
         // Verify checkpoint
-        (, uint256 cumulativeSupplyLast,) = accountant.supplyObservation();
+        (, uint256 cumulativeSupplyLast) = accountant.supplyObservation();
         assertEq(cumulativeSupplyLast, cumulative, "Checkpoint should equal cumulative at vest time");
     
         // Verify the TWAS was calculated correctly for the yield check
@@ -671,7 +674,7 @@ contract AccountantWithYieldStreamingTest is Test, TestActors, MerkleTreeHelper 
         uint256 supplyAfter = boringVault.totalSupply();
         assertApproxEqRel(supplyAfter, 199.5e18, 0.01e18, "Supply should be ~199.5e18");
     
-        (uint256 cumulativeBefore, uint256 cumulativeLastBefore,) = accountant.supplyObservation();
+        (uint256 cumulativeBefore, uint256 cumulativeLastBefore) = accountant.supplyObservation();
         uint256 expectedCumulative = 100e18 * 12 hours; // 4.32e24
         assertEq(cumulativeBefore, expectedCumulative, "Cumulative should be 100e18 * 12 hours");
         
@@ -682,9 +685,8 @@ contract AccountantWithYieldStreamingTest is Test, TestActors, MerkleTreeHelper 
         accountant.postLoss(2e18);
 
         //verify the cumulative is updated
-        (uint256 cumulativeAfter, uint256 cumulativeLastAfter, uint256 timestamp) = accountant.supplyObservation();
+        (uint256 cumulativeAfter, uint256 cumulativeLastAfter) = accountant.supplyObservation();
         assertGt(cumulativeAfter, cumulativeBefore); 
-        assertEq(timestamp, block.timestamp); 
         assertEq(cumulativeLastBefore, cumulativeLastAfter); 
 
         //now post a very large loss
@@ -1159,7 +1161,7 @@ contract AccountantWithYieldStreamingTest is Test, TestActors, MerkleTreeHelper 
 
         skip(24 hours);
 
-        accountant.updateExchangeRate();
+        accountant.updateExchangeRate(false);
 
         //now the state of the contract should be 
         //totalSupply > 1

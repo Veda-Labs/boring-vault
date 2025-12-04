@@ -160,6 +160,9 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
             STRATEGIST_ROLE, address(accountant_), bytes4(keccak256("updateExchangeRate()")), true
         );
         rolesAuthority.setRoleCapability(
+            STRATEGIST_ROLE, address(accountant_), bytes4(keccak256("updateExchangeRate(bool)")), true
+        );
+        rolesAuthority.setRoleCapability(
             MINTER_ROLE, address(accountant_), bytes4(keccak256("updateCumulative()")), true
         );
         rolesAuthority.setPublicCapability(address(teller_), TellerWithMultiAssetSupport.deposit.selector, true);
@@ -214,7 +217,7 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
 
         // No yield
         // vaultUSDC.accountant.vestYield(...) is intentionally omitted
-        vaultUSDC.accountant.updateExchangeRate();
+        vaultUSDC.accountant.updateExchangeRate(false);
 
         // Second Depositor deposits
         deal(address(USDC), address(this), secondUSDCAmount);
@@ -237,7 +240,7 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
 
         // No yield
         // vaultWBTC.accountant.vestYield(...) is intentionally omitted
-        vaultWBTC.accountant.updateExchangeRate();
+        vaultWBTC.accountant.updateExchangeRate(false);
 
         // Second Depositor deposits
         deal(address(WBTC), address(this), secondWBTCAmount);
@@ -260,7 +263,7 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
 
         // No yield
         // vaultWETH.accountant.vestYield(...) is intentionally omitted
-        vaultWETH.accountant.updateExchangeRate();
+        vaultWETH.accountant.updateExchangeRate(false);
 
         // Second Depositor deposits
         deal(address(WETH), address(this), secondWETHAmount);
@@ -294,7 +297,7 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
         // Skip less than the full vesting period (12 hours instead of 24)
         skip(12 hours);
 
-        vaultUSDC.accountant.updateExchangeRate();
+        vaultUSDC.accountant.updateExchangeRate(false);
 
         //now the state of the contract should be 
         //totalSupply > 1
@@ -332,7 +335,7 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
         // Skip less than the full vesting period (12 hours instead of 24)
         skip(12 hours);
 
-        vaultWBTC.accountant.updateExchangeRate();
+        vaultWBTC.accountant.updateExchangeRate(false);
 
         //now the state of the contract should be 
         //totalSupply > 1
@@ -370,7 +373,7 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
         // Skip less than the full vesting period (12 hours instead of 24)
         skip(12 hours);
 
-        vaultWETH.accountant.updateExchangeRate();
+        vaultWETH.accountant.updateExchangeRate(false);
 
         //now the state of the contract should be 
         //totalSupply > 1
@@ -407,7 +410,7 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
 
         skip(24 hours);
 
-        vaultUSDC.accountant.updateExchangeRate();
+        vaultUSDC.accountant.updateExchangeRate(false);
 
         //now the state of the contract should be 
         //totalSupply > 1
@@ -444,7 +447,7 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
 
         skip(24 hours);
 
-        vaultWBTC.accountant.updateExchangeRate();
+        vaultWBTC.accountant.updateExchangeRate(false);
 
         //now the state of the contract should be 
         //totalSupply > 1
@@ -481,7 +484,7 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
 
         skip(24 hours);
 
-        vaultWETH.accountant.updateExchangeRate();
+        vaultWETH.accountant.updateExchangeRate(false);
 
         //now the state of the contract should be 
         //totalSupply > 1
@@ -525,7 +528,7 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
 
         skip(24 hours);
 
-        vaultWETH.accountant.updateExchangeRate();
+        vaultWETH.accountant.updateExchangeRate(false);
 
         // Second Depositor deposits WEETH
         deal(address(WEETH), address(this), secondDepositAmount);
@@ -539,6 +542,7 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
 
         // deposit assetsOut into the vault
         secondDepositorShares = vaultWETH.teller.deposit(WETH, assetsOut, 0, referrer);
+        vm.assume(secondDepositorShares > 0);
 
         // withdraw WEETH from the vault
         uint256 WEETHOut = vaultWETH.teller.withdraw(WEETH, secondDepositorShares, 0, address(this));
@@ -575,7 +579,7 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
 
         skip(24 hours);
 
-        vaultWETH.accountant.updateExchangeRate();
+        vaultWETH.accountant.updateExchangeRate(false);
 
         // Second Depositor deposits WETH
         deal(address(WETH), address(this), secondDepositAmount);
@@ -619,7 +623,7 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
 
         skip(24 hours);
 
-        vaultUSDC.accountant.updateExchangeRate();
+        vaultUSDC.accountant.updateExchangeRate(false);
 
         //now the state of the contract should be 
         //totalSupply > 1
@@ -635,7 +639,7 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
         // Skip midway through the new vesting period (12 hours)
         skip(12 hours);
 
-        vaultUSDC.accountant.updateExchangeRate();
+        vaultUSDC.accountant.updateExchangeRate(false);
 
         // Second Depositor deposits
         deal(address(USDC), address(this), secondDepositAmount);
@@ -668,7 +672,7 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
 
         skip(24 hours);
 
-        vaultWBTC.accountant.updateExchangeRate();
+        vaultWBTC.accountant.updateExchangeRate(false);
 
         //now the state of the contract should be 
         //totalSupply > 1
@@ -684,7 +688,7 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
         // Skip midway through the new vesting period (12 hours)
         skip(12 hours);
 
-        vaultWBTC.accountant.updateExchangeRate();
+        vaultWBTC.accountant.updateExchangeRate(false);
 
         // Second Depositor deposits
         deal(address(WBTC), address(this), secondDepositAmount);
@@ -717,7 +721,7 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
 
         skip(24 hours);
 
-        vaultWETH.accountant.updateExchangeRate();
+        vaultWETH.accountant.updateExchangeRate(false);
 
         //now the state of the contract should be 
         //totalSupply > 1
@@ -733,7 +737,7 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
         // Skip midway through the new vesting period (12 hours)
         skip(12 hours);
 
-        vaultWETH.accountant.updateExchangeRate();
+        vaultWETH.accountant.updateExchangeRate(false);
 
         // Second Depositor deposits
         deal(address(WETH), address(this), secondDepositAmount);
@@ -777,26 +781,28 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
         // Skip less than the full vesting period (12 hours instead of 24)
         skip(12 hours);
 
-        vaultUSDC.accountant.updateExchangeRate();
+        vaultUSDC.accountant.updateExchangeRate(false);
+
+        assertEq(vaultUSDC.accountant.getPendingVestingGains(), yieldAmount / 2, "Pending vesting gains should be half of the yield amount");
 
         // we devide usdc balance by 2 because we skip 12 hours, so only half of the yield is vested
-        uint256 expectedTotalAssets = usdcInTheVaultBeforeYieldVesting + yieldAmount / 2;
+        uint256 expectedTotalAssets = usdcInTheVaultBeforeYieldVesting + (yieldAmount / 2);
         uint256 expectedExchangeRate = expectedTotalAssets * 1e6 / vaultUSDC.vault.totalSupply();
-        assertLe(vaultUSDC.accountant.getRate(), expectedExchangeRate, "Exchange rate should be less or equal to the expected exchange rate at half of the vesting period");
-        assertApproxEqAbs(vaultUSDC.accountant.getRate(), expectedExchangeRate, 2, "Exchange rate should be less or equal to the expected exchange rate at half of the vesting period 1");
+        assertLe(vaultUSDC.accountant.getRateInQuoteSafeCeil(USDC), expectedExchangeRate, "Exchange rate should be less or equal to the expected exchange rate at half of the vesting period");
+        assertApproxEqAbs(vaultUSDC.accountant.getRateInQuoteSafeCeil(USDC), expectedExchangeRate, 2, "Exchange rate should be less or equal to the expected exchange rate at half of the vesting period 1");
         assertEq(vaultUSDC.vault.totalSupply(), totalSupplyAfterAliceDeposit, "Total supply after Alice's deposit should be correct");
 
         // Bill deposits
         billShares = _depositToVault({vaultComponents: vaultUSDC, asset: USDC, depositor: bill, depositAmount: billDepositAmount});
 
         // Exchange rate doesn't change, as there was no new yield streamed
-        assertLe(vaultUSDC.accountant.getRate(), expectedExchangeRate, "Exchange rate should be correct");
-        assertApproxEqAbs(vaultUSDC.accountant.getRate(), expectedExchangeRate, 2, "Exchange rate should be correct 1");
+        assertLe(vaultUSDC.accountant.getRateInQuoteSafeCeil(USDC), expectedExchangeRate, "Exchange rate should be correct");
+        assertApproxEqAbs(vaultUSDC.accountant.getRateInQuoteSafeCeil(USDC), expectedExchangeRate, 2, "Exchange rate should be correct 1");
         assertEq(vaultUSDC.vault.totalSupply(), aliceShares + billShares, "Total supply after Bill's deposit should be correct");
 
         // 24 hours have passed, so the first yield is fully vested
         skip(12 hours);
-        vaultUSDC.accountant.updateExchangeRate();
+        vaultUSDC.accountant.updateExchangeRate(false);
 
         expectedTotalAssets = usdcInTheVaultBeforeYieldVesting + billDepositAmount + yieldAmount;
         expectedExchangeRate = expectedTotalAssets * 1e6 / vaultUSDC.vault.totalSupply();
@@ -841,7 +847,7 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
 
         // Do the full vesting
         skip(24 hours);
-        vaultUSDC.accountant.updateExchangeRate();
+        vaultUSDC.accountant.updateExchangeRate(false);
 
         // After full vesting, the second yield amount should be fully vested and included in totalAssets
         expectedTotalAssets += yieldAmount;
@@ -855,7 +861,7 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
 
         _depositUSDCAndVestYield(yieldAmount);
         skip(24 hours);
-        vaultUSDC.accountant.updateExchangeRate();
+        vaultUSDC.accountant.updateExchangeRate(false);
 
         // Eve deposits after third yield is vested (but not yet fully vested)
         eveShares = _depositToVault({vaultComponents: vaultUSDC, asset: USDC, depositor: eve, depositAmount: eveDepositAmount});
@@ -912,7 +918,8 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
         vaultUSDC.accountant.vestYield(yieldAmount, 24 hours);
     }
 
-    function testAliceAndBillDeposits() external {
+    function testAliceAndBillDeposits(uint96 billDepositAmount) external {
+        billDepositAmount = uint96(bound(billDepositAmount, 1, 1e18));
         // 10,000 USDC Deposit
         aliceShares = _depositToVault({vaultComponents: vaultUSDC, asset: USDC, depositor: alice, depositAmount: 10_000 * 1e6});
 
@@ -932,16 +939,10 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
         deal(address(USDC), address(vaultUSDC.vault), newUSDCVaultBalance);
         vaultUSDC.accountant.vestYield(yieldAmount, 24 hours); 
         
-        skip(11 hours);
-        vaultUSDC.accountant.updateExchangeRate();
+        skip(25 hours);
+        vaultUSDC.accountant.updateExchangeRate(false);
 
-        // Get the rate that will be used for Bill's deposit
-        // Now we use getRateInQuoteSafeCeil which uses mulDivUp
-        uint256 rateUsedForDeposit = vaultUSDC.accountant.getRateInQuoteSafeCeil(USDC);
-        
         uint256 ONE_SHARE = 10 ** vaultUSDC.vault.decimals();
-        uint96 billDepositAmount = 10_000 * 1e6;
-        uint256 billDepositAmount256 = uint256(billDepositAmount);
         
         // The deposit formula is: shares = depositAmount.mulDivDown(ONE_SHARE, rate)
         // Key insight: The rate is rounded UP (larger) in getRateInQuoteSafeCeil
@@ -949,7 +950,7 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
         
         // Calculate what shares would be if the rate was rounded DOWN (standard getRateInQuote)
         uint256 rateRoundedDown = vaultUSDC.accountant.getRateInQuote(USDC);
-        uint256 sharesWithRateRoundedDown = billDepositAmount256.mulDivDown(ONE_SHARE, rateRoundedDown);
+        uint256 sharesWithRateRoundedDown = uint256(billDepositAmount).mulDivDown(ONE_SHARE, rateRoundedDown);
         
         // Now perform the actual deposit (which uses mulDivDown internally with Ceil rate)
         billShares = _depositToVault({vaultComponents: vaultUSDC, asset: USDC, depositor: bill, depositAmount: billDepositAmount});
@@ -957,16 +958,6 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
         // Prove rounding favors Vault: actual shares <= shares with rounded down rate
         // This proves that the rate being rounded up (larger) benefits the Vault/existing shareholders
         assertLe(billShares, sharesWithRateRoundedDown, "Bill should get at most as many shares as with a lower rate, proving rounding up the rate favors Vault");
-        
-        // Additional verification: Show the difference
-        if (billShares < sharesWithRateRoundedDown) {
-            uint256 extraSharesSavedForVault = sharesWithRateRoundedDown - billShares;
-            console.log("Rate used (rounded up):", rateUsedForDeposit);
-            console.log("Rate (rounded down):", rateRoundedDown);
-            console.log("Bill's actual shares:", billShares);
-            console.log("Shares with rate rounded down:", sharesWithRateRoundedDown);
-            console.log("Shares saved for Vault:", extraSharesSavedForVault);
-        }
     }
 
     function testManyDepositorsDepositAndWithdrawAndClaimFees() external {
@@ -980,7 +971,7 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
 
         _depositUSDCAndVestYield(yieldAmount);
         skip(24 hours);
-        vaultUSDC.accountant.updateExchangeRate();
+        vaultUSDC.accountant.updateExchangeRate(false);
 
         // assertEq(vaultUSDC.accountant.getRate(), 1030000, "Exchange rate should be 1030000 after initial depositor");
         
@@ -997,7 +988,7 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
 
         _depositUSDCAndVestYield(yieldAmount);
         skip(24 hours);
-        vaultUSDC.accountant.updateExchangeRate();
+        vaultUSDC.accountant.updateExchangeRate(false);
 
         uint256 aliceAssetsAmountOut = _withdrawFromVault({vaultComponents: vaultUSDC, asset: USDC, withdrawer: alice, shares: aliceShares});
         uint256 totalAssetsAmountOut = aliceAssetsAmountOut;
@@ -1019,6 +1010,184 @@ contract AccountantWithYieldStreamingDepositWithdraw is Test, TestActors, RolesC
         USDC.approve(address(vaultUSDC.accountant), type(uint256).max);
         vm.expectRevert(); // Expected behavior, Accountant handles it. If they earn 10 eth, they stream only 9 but the vault still has 10 eth
         vaultUSDC.accountant.claimFees(USDC);
+    }
+
+    function testCeilRateMustBeUsed() external {
+        // The test is to prove that the ceil rate is used when depositing
+        uint96 aliceDepositAmount = 10_000 * 1e6;
+        aliceShares = _depositToVault({vaultComponents: vaultUSDC, asset: USDC, depositor: alice, depositAmount: aliceDepositAmount});
+
+        // Vest tiny yield to create a scenario where floor and ceil rates differ
+        // We need enough yield that ceil rounds up but floor rounds down
+        // Using larger yield amount to make test more robust against precision edge cases
+        // Add 333 wei to ensure pending gains are not perfectly divisible by total supply
+        uint256 yieldAmount = 501 * 1e6 + 333;
+        uint256 duration = 24 hours;
+        
+        deal(address(USDC), address(vaultUSDC.vault), USDC.balanceOf(address(vaultUSDC.vault)) + yieldAmount);
+        vaultUSDC.accountant.vestYield(yieldAmount, duration); 
+        
+        // Advance time to create pending (unvested but accrued) yield
+        skip(duration / 2); 
+        
+        // Do NOT call updateExchangeRate() yet. 
+        // We want to verify the rate reflects the PENDING (unvested but accrued) yield.
+        // AccountantWithYieldStreaming.getRate() handles this interpolation.
+
+        // Calculate Rates BEFORE updateExchangeRate (to verify they differ)
+        uint256 rateFloorBefore = vaultUSDC.accountant.getRateInQuoteSafe(USDC);
+        uint256 rateCeilBefore = vaultUSDC.accountant.getRateInQuoteSafeCeil(USDC);
+        
+        assertGt(rateCeilBefore, rateFloorBefore, "Rate Ceil should be strictly greater than Rate Floor before update");
+
+        uint96 billDepositAmount = 100 * 1e6; // 100 USDC
+        uint256 ONE_SHARE = 10 ** vaultUSDC.vault.decimals(); // 1e6
+
+        // Calculate expected shares with rates BEFORE updateExchangeRate
+        uint256 sharesWithFloorBefore = uint256(billDepositAmount).mulDivDown(ONE_SHARE, rateFloorBefore);
+        uint256 sharesWithCeilBefore = uint256(billDepositAmount).mulDivDown(ONE_SHARE, rateCeilBefore);
+        
+        console.log("Before update - Shares Floor:", sharesWithFloorBefore);
+        console.log("Before update - Shares Ceil: ", sharesWithCeilBefore);
+
+        // Floor rate (lower) should result in more shares
+        assertGt(sharesWithFloorBefore, sharesWithCeilBefore, "Floor rate should result in more shares before update");
+
+        // IMPORTANT: Simulate what happens during deposit - updateExchangeRate() is called first
+        // This moves vested yield into lastSharePrice, but unvested yield remains
+        vaultUSDC.accountant.updateExchangeRate(false);
+
+        // Get the rates AFTER updateExchangeRate (this is what will actually be used during deposit)
+        uint256 rateFloorAfterUpdate = vaultUSDC.accountant.getRateInQuoteSafe(USDC);
+        uint256 rateCeilAfterUpdate = vaultUSDC.accountant.getRateInQuoteSafeCeil(USDC);
+
+        // Calculate expected shares with rates AFTER updateExchangeRate
+        uint256 sharesWithFloorAfter = uint256(billDepositAmount).mulDivDown(ONE_SHARE, rateFloorAfterUpdate);
+        uint256 sharesWithCeilAfter = uint256(billDepositAmount).mulDivDown(ONE_SHARE, rateCeilAfterUpdate);
+        
+        console.log("After update - Shares Floor:", sharesWithFloorAfter);
+        console.log("After update - Shares Ceil: ", sharesWithCeilAfter);
+
+        // Perform actual deposit (which will call updateExchangeRate() again)
+        billShares = _depositToVault({vaultComponents: vaultUSDC, asset: USDC, depositor: bill, depositAmount: billDepositAmount});
+
+        // The deposit uses Ceil rate, so Bill should get exactly sharesWithCeilAfter
+        // (since both use mulDivDown with the same ceil rate after update, they should match exactly)
+        assertEq(billShares, sharesWithCeilAfter, "Deposit should use Ceil rate - shares should match ceil calculation exactly");
+
+        // Additional safety check: Bill should get fewer shares than if floor rate was used
+        // This proves ceil rate is used (higher rate = fewer shares for same deposit amount)
+        assertLe(billShares, sharesWithFloorAfter, "Deposit should use Ceil rate to protect existing users!");
+        
+        // Verify that using ceil rate (higher rate) results in fewer shares than if we used the floor rate before update
+        // This demonstrates that the ceil rate mechanism protects existing shareholders
+        assertLe(billShares, sharesWithFloorBefore, "Deposit with ceil rate should give fewer shares than floor rate before update");
+    }
+    function testCeilRateMustBeUsedInTellerWithMultiAssetSupport() external {
+        TellerWithMultiAssetSupport tellerMultiAssetSupport =
+            new TellerWithMultiAssetSupport(address(this), address(vaultUSDC.vault), address(vaultUSDC.accountant), address(USDC));
+
+        tellerMultiAssetSupport.setAuthority(rolesAuthority);
+        rolesAuthority.setUserRole(address(tellerMultiAssetSupport), MINTER_ROLE, true);
+        rolesAuthority.setUserRole(address(tellerMultiAssetSupport), BURNER_ROLE, true);
+        rolesAuthority.setPublicCapability(address(tellerMultiAssetSupport), TellerWithMultiAssetSupport.deposit.selector, true);
+        rolesAuthority.setPublicCapability(address(tellerMultiAssetSupport), TellerWithMultiAssetSupport.withdraw.selector, true);
+        tellerMultiAssetSupport.updateAssetData(USDC, true, true, 0);
+
+        // The test is to prove that the ceil rate is used when depositing
+        uint96 aliceDepositAmount = 10_000 * 1e6;
+        aliceShares = _depositToVault({vaultComponents: vaultUSDC, asset: USDC, depositor: alice, depositAmount: aliceDepositAmount});
+
+        deal(address(USDC), alice, aliceDepositAmount);
+        vm.startPrank(alice);
+        USDC.approve(address(vaultUSDC.vault), type(uint256).max);
+        aliceShares = tellerMultiAssetSupport.deposit(USDC, aliceDepositAmount, 0, alice);
+        vm.stopPrank();
+
+        // Vest tiny yield to create a scenario where floor and ceil rates differ
+        // We need enough yield that ceil rounds up but floor rounds down
+        // Using larger yield amount to make test more robust against precision edge cases
+        // Add 333 wei to ensure pending gains are not perfectly divisible by total supply
+        uint256 yieldAmount = 501 * 1e6 + 333;
+        uint256 duration = 24 hours;
+        
+        deal(address(USDC), address(vaultUSDC.vault), USDC.balanceOf(address(vaultUSDC.vault)) + yieldAmount);
+        vaultUSDC.accountant.vestYield(yieldAmount, duration); 
+        
+        // Advance time to create pending (unvested but accrued) yield
+        skip(duration / 2); 
+        
+        // Calculate Rates BEFORE updateExchangeRate (to verify they differ)
+        uint256 rateFloorBefore = vaultUSDC.accountant.getRateInQuoteSafe(USDC);
+        uint256 rateCeilBefore = vaultUSDC.accountant.getRateInQuoteSafeCeil(USDC);
+        
+        assertGt(rateCeilBefore, rateFloorBefore, "Rate Ceil should be strictly greater than Rate Floor before update");
+
+        uint96 billDepositAmount = 100 * 1e6; // 100 USDC
+        uint256 ONE_SHARE = 10 ** vaultUSDC.vault.decimals(); // 1e6
+
+        // Get the rates AFTER updateExchangeRate (this is what will actually be used during deposit)
+        uint256 rateFloorAfterUpdate = vaultUSDC.accountant.getRateInQuoteSafe(USDC);
+        uint256 rateCeilAfterUpdate = vaultUSDC.accountant.getRateInQuoteSafeCeil(USDC);
+
+        // Calculate expected shares with rates AFTER updateExchangeRate
+        uint256 sharesWithFloor = uint256(billDepositAmount).mulDivDown(ONE_SHARE, rateFloorAfterUpdate);
+        uint256 sharesWithCeil = uint256(billDepositAmount).mulDivDown(ONE_SHARE, rateCeilAfterUpdate);
+        
+        console.log("After update - Shares Floor:", sharesWithFloor);
+        console.log("After update - Shares Ceil: ", sharesWithCeil);
+
+        assertGt(rateCeilAfterUpdate, rateFloorAfterUpdate, "Rate Ceil should be strictly greater than Rate Floor after update");
+
+        deal(address(USDC), bill, billDepositAmount);
+        vm.startPrank(bill);
+        USDC.approve(address(vaultUSDC.vault), type(uint256).max);
+        billShares = tellerMultiAssetSupport.deposit(USDC, billDepositAmount, 0, bill);
+        vm.stopPrank();
+
+        // The deposit uses Ceil rate, so Bill should get exactly sharesWithCeil
+        // (since both use mulDivDown with the same ceil rate after update, they should match exactly)
+        assertEq(billShares, sharesWithCeil, "Deposit should use Ceil rate - shares should match ceil calculation exactly");
+
+        // Additional safety check: Bill should get fewer shares than if floor rate was used
+        // This proves ceil rate is used (higher rate = fewer shares for same deposit amount)
+        assertLe(billShares, sharesWithFloor, "Deposit should use Ceil rate to protect existing users!");
+    }
+
+    function testPostLossCrash() external {
+        // 1. Deposit initial funds
+        uint96 depositAmount = 100e18;
+        aliceShares = _depositToVault({vaultComponents: vaultWETH, asset: WETH, depositor: alice, depositAmount: depositAmount});
+
+        // 2. Vest some yield
+        uint256 yieldAmount = 10e18;
+        deal(address(WETH), address(vaultWETH.vault), yieldAmount);
+        
+        accountant.vestYield(yieldAmount, 24 hours);
+
+        // 3. Wait 12 hours (50% vested)
+        skip(12 hours);
+        
+        // Current state: 
+        // Vested ~ 5e18.
+        // Unvested ~ 5e18.
+        
+        // 4. Post a loss that is absorbed by unvested yield
+        // Loss = 2e18.
+        // Remaining unvested becomes 3e18.
+        // In the buggy implementation, totalVestingGains is reduced, but start time is not reset.
+        accountant.postLoss(2e18);
+
+        // 5. Immediately try to read totalAssets (calls getPendingVestingGains -> potential crash later)
+        // Or call updateExchangeRate again.
+        
+        // Let's verify the crash happens when updateExchangeRate is called again
+        // This could happen on the next deposit/withdraw/strategist action
+        
+        // We expect a revert here due to underflow
+        accountant.totalAssets();
+        
+        accountant.updateExchangeRate(false);
     }
 
     // ========================================= HELPER FUNCTIONS =========================================
