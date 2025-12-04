@@ -34,7 +34,7 @@ contract TellerWithYieldStreaming is TellerWithBuffer {
     {
         //update vested yield before withdraw
         // Round down to protect remaining shareholders
-        _getAccountant().updateExchangeRate(false);
+        _getAccountant().updateExchangeRate({roundCeil: false});
         beforeTransfer(msg.sender, address(0), msg.sender);
         assetsOut = _withdraw(withdrawAsset, shareAmount, minimumAssets, to);
 
@@ -51,7 +51,7 @@ contract TellerWithYieldStreaming is TellerWithBuffer {
     ) internal override returns (uint256 shares) {
         //update vested yield before deposit
         // Round up to protect existing shareholders
-        _getAccountant().updateExchangeRate(true);
+        _getAccountant().updateExchangeRate({roundCeil: true});
         if (vault.totalSupply() == 0) {
             _getAccountant().setFirstDepositTimestamp(); 
         }
@@ -69,7 +69,7 @@ contract TellerWithYieldStreaming is TellerWithBuffer {
         nonReentrant
         returns (uint256 assetsOut) {
         // Round down to protect remaining shareholders
-        _getAccountant().updateExchangeRate(false);
+        _getAccountant().updateExchangeRate({roundCeil: false});
         assetsOut = _withdraw(withdrawAsset, shareAmount, minimumAssets, to);
         emit BulkWithdraw(address(withdrawAsset), shareAmount);
     }
