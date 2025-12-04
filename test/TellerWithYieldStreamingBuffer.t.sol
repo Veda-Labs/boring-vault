@@ -490,7 +490,7 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         amount = bound(amount, 0.01e6, 10_000e6);
         deal(address(USDT), address(this), amount);
 
-        teller.setShareLockPeriod(10);
+        teller.setShareLockPeriod(1);
         USDT.safeApprove(address(boringVault), amount);
         teller.deposit(USDT, amount, 0, referrer);
 
@@ -505,7 +505,7 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         // skip to end of share lock period, regular withdraw should work
         vm.warp(block.timestamp + 10);
         teller.withdraw(USDT, amount / 5, 0, address(this));
-        assertApproxEqAbs(USDT.balanceOf(address(this)), amount / 5 + amount / 10, 4, "Should have received expected USDT");
+        assertApproxEqAbs(USDT.balanceOf(address(this)), amount / 5 + amount / 10, 2, "Should have received expected USDT");
     }
 
     function testBufferHelperZeroAddress(uint256 amount) external {
