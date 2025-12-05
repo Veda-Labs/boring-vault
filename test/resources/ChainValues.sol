@@ -196,6 +196,7 @@ contract ChainValues {
         values[mainnet]["katanaLBTCTeller"] = 0x38d4066cC4B42E2B6615aE15cAa6e347114779E2.toBytes32();
         values[mainnet]["sLBTCTeller"] = 0x97Deb8Fb02A2553976DCD3d25FaA1501Eef4585b.toBytes32();
         values[mainnet]["ethenaRWATeller"] = 0xDEa662f24389eB7CaFA9b3B10021884FCe7314f0.toBytes32();
+        values[mainnet]["lbtcvTeller"] = 0x2eA43384F1A98765257bc6Cb26c7131dEbdEB9B3.toBytes32();
 
         // Withdraw Queues
         values[mainnet]["sBTCNWithdrawQueue"] = 0xB316940529B85234ec7C4F48CD8Bef8d1BAe5F7f.toBytes32();
