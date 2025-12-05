@@ -81,6 +81,17 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
      */
     uint64 public lastStrategistUpdateTimestamp;
 
+    /**
+     * @notice Tracks the rounding direction of the last exchange rate update request
+     * @dev true = round up (Deposit), false = round down (Withdraw)
+     */
+    bool public rateRoundingUp;
+
+    /**
+     * @notice Tracks if the lastSharePrice currently represents a rounded-up value
+     */
+    bool public sharePriceRoundedUp;
+
     //============================== ERRORS ===============================
 
     error AccountantWithYieldStreaming__UpdateExchangeRateNotSupported();
@@ -343,12 +354,28 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         if (currentShares == 0) {
             return rate = vestingState.lastSharePrice; //startingExchangeRate
         }
+
+        uint256 adjustedSharePrice = vestingState.lastSharePrice;
+        // If the last update rounded down, but we want to round up, we add 1 to the share price.
+        if (rateRoundingUp && !sharePriceRoundedUp) {
+            adjustedSharePrice++;
+        } 
+        // If the last update rounded up, but we want to round down, we subtract 1 from the share price.
+        else if (!rateRoundingUp && sharePriceRoundedUp && adjustedSharePrice > 0) {
+            adjustedSharePrice--;
+        }
+
         //to avoid any weird edge cases, we separate the two conditions so we don't get currentShares == 0 and pendingGains > 0; 
         uint256 pendingGains = getPendingVestingGains(); 
         if (pendingGains == 0) {
-            return rate = vestingState.lastSharePrice;
+            return rate = adjustedSharePrice;
         } 
-        rate = totalAssets().mulDivDown(ONE_SHARE, currentShares);
+        
+        uint256 pendingRate = rateRoundingUp 
+            ? pendingGains.mulDivUp(ONE_SHARE, currentShares)
+            : pendingGains.mulDivDown(ONE_SHARE, currentShares);
+
+        return adjustedSharePrice + pendingRate;
     }
 
     /**
@@ -449,6 +476,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
      * @dev calling this moves any vested gains to be calculated into the current share price
      */
     function _updateExchangeRate(bool roundUp) internal {
+        rateRoundingUp = roundUp;
         AccountantState storage state = accountantState;
         if (state.isPaused) revert AccountantWithRateProviders__Paused();
         _updateCumulative();
@@ -459,9 +487,15 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         uint256 currentShares = vault.totalSupply();
         if (currentShares > 0) {
             // update the share price w/o reincluding the pending gains (done in `newlyVested`)
-            vestingState.lastSharePrice += roundUp 
+            uint256 increase = roundUp 
             ? uint128((newlyVested).mulDivUp(ONE_SHARE, currentShares))
             : uint128((newlyVested).mulDivDown(ONE_SHARE, currentShares));
+
+            vestingState.lastSharePrice += uint128(increase);
+
+            if (increase > 0) {
+                sharePriceRoundedUp = roundUp;
+            }
 
             //move vested amount from pending to realized
             vestingState.vestingGains -= uint128(newlyVested); // remove from pending
