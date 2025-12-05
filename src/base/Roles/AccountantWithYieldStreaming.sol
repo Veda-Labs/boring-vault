@@ -459,8 +459,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         uint256 currentShares = vault.totalSupply();
         if (newlyVested > 0) {
             // update the share price w/o reincluding the pending gains (done in `newlyVested`)
-            uint256 _totalAssets = uint256(vestingState.lastSharePrice).mulDivDown(currentShares, ONE_SHARE);
-            vestingState.lastSharePrice = uint128((_totalAssets + newlyVested).mulDivDown(ONE_SHARE, currentShares));
+            vestingState.lastSharePrice += uint128((newlyVested).mulDivDown(ONE_SHARE, currentShares));
 
             //move vested amount from pending to realized
             vestingState.vestingGains -= uint128(newlyVested); // remove from pending
