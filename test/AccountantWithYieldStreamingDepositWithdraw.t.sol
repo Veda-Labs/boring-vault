@@ -797,7 +797,28 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
             skip(1 hours);
         }
     }
-    
+
+    function testZeroWithdrawalBoolManiuplation() external {
+        uint256 initialDeposit = 100 ether;
+        deal(address(WETH), address(this), initialDeposit);
+        WETH.approve(address(vaultWETH.vault), type(uint256).max);
+        vaultWETH.teller.deposit(WETH, initialDeposit, 0, referrer);
+
+        uint256 yieldAmount = 50 ether;
+        deal(address(WETH), address(vaultWETH.vault), yieldAmount);
+        vaultWETH.accountant.vestYield(yieldAmount, 24 hours);
+
+        // Try to deposit 0 shares to flip the rounding bool in user's favor direction
+        // This MUST never be allowed to happen
+        vm.expectRevert(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ZeroAssets.selector);
+        vaultWETH.teller.deposit(WETH, 0, 0, address(this));
+        
+        // Try to redeem 0 assets to flip the rounding bool in user's favor direction
+        // This MUST never be allowed to happen
+        vm.expectRevert(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ZeroShares.selector);
+        vaultWETH.teller.withdraw(WETH, 0, 0, address(this));
+    }
+
     function testFuzzRoundTripProfitCheck(
         uint96 amount, 
         uint32 timeJump

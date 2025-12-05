@@ -8,7 +8,6 @@ import {TellerWithBuffer, ERC20} from "src/base/Roles/TellerWithBuffer.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {AccountantWithYieldStreaming} from "src/base/Roles/AccountantWithYieldStreaming.sol";
-import {ReentrancyGuard} from "@solmate/utils/ReentrancyGuard.sol";
 
 contract TellerWithYieldStreaming is TellerWithBuffer {
     using FixedPointMathLib for uint256;
