@@ -2606,7 +2606,7 @@ contract ChainValues {
 
         // Ooga Booga
         values[berachain]["OBRouter"] = 0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7.toBytes32();
-        values[berachain]["OBExecutor"] = 0x415744995e9D35A00189C216c37546E9139F5C2c.toBytes32();
+        values[berachain]["OBExecutor"] = 0xD0619f184Bc735f4d07fa36322e69ff15E8bfBb2.toBytes32();
 
         // Royco
         values[berachain]["depositExecutor"] = 0xEC1F64Cd852c65A22bCaA778b2ed76Bc5502645C.toBytes32();
@@ -2780,6 +2780,8 @@ contract ChainValues {
         values[hyperEVM]["WHYPE"] = 0x5555555555555555555555555555555555555555.toBytes32();
         values[hyperEVM]["KHYPE"] = 0xfD739d4e423301CE9385c1fb8850539D657C296D.toBytes32();
         values[hyperEVM]["PENDLE"] = 0xD6Eb81136884713E843936843E286FD2a85A205A.toBytes32();
+        values[hyperEVM]["USDT"] = 0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb.toBytes32();
+        values[hyperEVM]["USDC"] = 0xb88339CB7199b77E23DB6E890353E22632Ba630f.toBytes32();
 
         // Balanacer
         values[hyperEVM]["balancerVault"] = address(1).toBytes32();
@@ -2823,7 +2825,7 @@ contract ChainValues {
 
         // Ooga Booga
         values[hyperEVM]["OBRouter"] = 0x5fbD1B5AA82d09359C05428647871fe9aDd3F411.toBytes32();
-        values[hyperEVM]["OBExecutor"] = 0x65d1eA56196B9451AE11813E44AC5b2367f93eaD.toBytes32();
+        values[hyperEVM]["OBExecutor"] = 0xD0619f184Bc735f4d07fa36322e69ff15E8bfBb2.toBytes32();
 
     }
 
