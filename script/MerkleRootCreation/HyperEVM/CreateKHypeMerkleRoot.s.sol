@@ -6,7 +6,6 @@ pragma solidity 0.8.21;
 
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import "forge-std/Script.sol";
@@ -19,7 +18,7 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x9BA2EDc44E0A4632EB4723E81d4142353e1bB160;
-    address public rawDataDecoderAndSanitizer = 0xCB7ABCE463b91C72233483ec366a943F537b0B0d;
+    address public rawDataDecoderAndSanitizer = 0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E; //@todo update when deployed I've tested this on a local Anvil HyperEVM fork
     address public managerAddress = 0x7f8CcAA760E0F621c7245d47DC46d40A400d3639;
     address public accountantAddress = 0x74392Fa56405081d5C7D93882856c245387Cece2;
 
@@ -37,17 +36,21 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, hyperEVM, "accountantAddress", accountantAddress);
         setAddress(false, hyperEVM, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](128);
+        ManageLeaf[] memory leafs = new ManageLeaf[](144);
 
         // ========================== Ooga Booga ==========================
-        address[] memory assets = new address[](3);
-        SwapKind[] memory kind = new SwapKind[](3);
+        address[] memory assets = new address[](5);
+        SwapKind[] memory kind = new SwapKind[](5);
         assets[0] = getAddress(sourceChain, "KHYPE");
         kind[0] = SwapKind.BuyAndSell;
         assets[1] = getAddress(sourceChain, "WHYPE");
         kind[1] = SwapKind.BuyAndSell;
         assets[2] = getAddress(sourceChain, "PENDLE");
         kind[2] = SwapKind.Sell;
+        assets[3] = getAddress(sourceChain, "USDT");
+        kind[3] = SwapKind.Sell;
+        assets[4] = getAddress(sourceChain, "USDC");
+        kind[4] = SwapKind.Sell;
 
         _addOogaBoogaSwapLeafs(leafs, assets, kind);
 
@@ -100,13 +103,27 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
         _addValantisLSTLeafs(leafs, getAddress(sourceChain, "KHYPE_WHYPE_sovereign_pool"), false); 
 
         // ========================== UniswapV3/Project X ==========================
-        address[] memory token0 = new address[](1);
+        address[] memory token0 = new address[](3);
         token0[0] = getAddress(sourceChain, "KHYPE");
+        token0[1] = getAddress(sourceChain, "USDT");
+        token0[2] = getAddress(sourceChain, "USDC");
 
-        address[] memory token1 = new address[](1);
+        address[] memory token1 = new address[](3);
         token1[0] = getAddress(sourceChain, "WHYPE");
-
+        token1[1] = getAddress(sourceChain, "WHYPE");
+        token1[2] = getAddress(sourceChain, "WHYPE");
+        
         _addUniswapV3Leafs(leafs, token0, token1, false);
+
+        // ========================== Layer Zero / Stargate ==========================
+        // Bridge PENDLE to Mainnet
+        _addLayerZeroLeafs({
+            leafs: leafs,
+            asset: getERC20(sourceChain, "PENDLE"),
+            oftAdapter: getAddress(sourceChain, "PENDLE"),
+            endpoint: layerZeroMainnetEndpointId,
+            to: getBytes32(sourceChain, "boringVault") //@todo Assumes the same boring vault for both chains
+        });
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
