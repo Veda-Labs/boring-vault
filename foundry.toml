@@ -8,7 +8,7 @@ optimizer = true
 optimizer_runs = 200 
 fs_permissions = [{ access = "read-write", path = "./" }]
 prompt_timeout = 10
-deny_warnings = false
+# deny_warnings = false
 remappings = [
     "@solmate/=lib/solmate/src/",
     "@forge-std/=lib/forge-std/src/",
