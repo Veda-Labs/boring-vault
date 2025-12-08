@@ -44,7 +44,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "accountantAddress", accountantAddress);
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](4096);
+        ManageLeaf[] memory leafs = new ManageLeaf[](8192);
 
         // ========================== Fee Claiming ==========================
         ERC20[] memory feeAssets = new ERC20[](3);
@@ -125,8 +125,8 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         _addUniswapV3Leafs(leafs, token0, token1, false);
 
         // ========================== 1inch ==========================
-        address[] memory assets = new address[](36);
-        SwapKind[] memory kind = new SwapKind[](36);
+        address[] memory assets = new address[](38);
+        SwapKind[] memory kind = new SwapKind[](38);
         assets[0] = getAddress(sourceChain, "WBTC");
         kind[0] = SwapKind.BuyAndSell;
         assets[1] = getAddress(sourceChain, "LBTC");
@@ -199,6 +199,10 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         kind[34] = SwapKind.BuyAndSell;
         assets[35] = getAddress(sourceChain, "sdeUSD");
         kind[35] = SwapKind.BuyAndSell;
+        assets[36] = getAddress(sourceChain, "RLUSD");
+        kind[36] = SwapKind.Sell;
+        assets[37] = getAddress(sourceChain, "PYUSD");
+        kind[37] = SwapKind.Sell;
 
         _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
 
