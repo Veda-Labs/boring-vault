@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: SEL-1.0
-// Copyright © 2025 Veda Tech Labs // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE) // Licensed under Software Evaluation License, Version 1.0
+// Copyright © 2025 Veda Tech Labs // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE) 
+// Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
 import {BoringVault} from "src/base/BoringVault.sol";
@@ -871,8 +872,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     function testFuzzDepositsWithYield(uint96 WETHAmount, uint96 WETHAmount2, uint96 yieldVestAmount) external {
         accountant.updateMaximumDeviationYield(5000000);
         
-        vm.assume(WETHAmount >= 1e6 && WETHAmount <= 10_000_000e6);
-        vm.assume(WETHAmount2 >= 1e6 && WETHAmount2 <= 10_000_000e6);
+        WETHAmount = uint96(bound(WETHAmount, 1e6, 10_000_000e6)); 
+        WETHAmount2 = uint96(bound(WETHAmount2, 1e6, 10_000_000e6)); 
         vm.assume(yieldVestAmount >= 1e6 && yieldVestAmount <= uint256(WETHAmount) * 100);
         
         // === FIRST DEPOSIT ===
@@ -890,22 +891,21 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         skip(12 hours); // Half vesting period
         
         // === SECOND DEPOSIT - INDEPENDENT CALCULATION ===
-        
+
         // Calculate expected shares from first principles:
         uint256 expectedVestedYield = uint256(yieldVestAmount).mulDivDown(12 hours, 24 hours);
         assertEq(expectedVestedYield, accountant.getPendingVestingGains()); 
 
-        uint256 totalValueInVault = WETHAmount + expectedVestedYield;
-        assertApproxEqAbs(accountant.totalAssets(), totalValueInVault, 1e8); 
-        assertLe(accountant.totalAssets(), totalValueInVault); 
+        uint256 totalValueInVault = shares0 + expectedVestedYield; //this is higher than totalAssets(); 
+        assertEq(accountant.totalAssets(), totalValueInVault); 
 
         uint256 totalSharesBefore = shares0;
         assertEq(totalSharesBefore, boringVault.totalSupply()); 
 
         uint256 sharePrice = totalValueInVault.mulDivDown(1e6, totalSharesBefore);
-        assertApproxEqAbs(sharePrice, accountant.getRate(), 1e1);  
+        assertEq(sharePrice, accountant.getRate());  
         
-        uint256 expectedShares1 = uint256(WETHAmount2).mulDivDown(1e6, sharePrice + 1);
+        uint256 expectedShares1 = uint256(WETHAmount2).mulDivDown(1e6, sharePrice + 1); //account for rounding
 
         //when calling deposit, the rate is updated before getting the rate 
         //rate before deposit should be totalassets * 1e6 / shares0  where totalassets == (last share price * shares0) / 1e6
@@ -913,16 +913,18 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         // === EXECUTE SECOND DEPOSIT ===
         deal(address(WETH), address(this), WETHAmount2);
         uint256 shares1 = teller.deposit(WETH, WETHAmount2, 0, referrer);
+
+        uint256 calcAmount = uint256(shares1).mulDivDown(sharePrice + 1, 1e6); 
         
         //check total assets after
         uint256 totalAssetsAfter = accountant.totalAssets();
-        uint256 expectedTotalAssets = WETHAmount + WETHAmount2 + expectedVestedYield;
-        assertApproxEqAbs(totalAssetsAfter, expectedTotalAssets, 1e9, "Total assets mismatch");
+        uint256 expectedTotalAssets = totalValueInVault + calcAmount;
+        assertEq(totalAssetsAfter, expectedTotalAssets, "Total assets mismatch");
         assertLe(totalAssetsAfter, expectedTotalAssets);  
         
         // === VERIFY ===
         assertApproxEqAbs(shares1, expectedShares1, 1e9, "Second deposit shares mismatch"); //1e5 diff is expected
-        assertLe(shares1, expectedShares1);  
+        assertLe(shares1, expectedShares1, "shares mismatch");  
     }
 
     function testFuzzWithdrawWithYield(uint96 WETHAmount, uint96 WETHAmount2, uint96 yieldVestAmount) external {
