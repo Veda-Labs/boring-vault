@@ -308,6 +308,7 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
 
         // check withdrawn balances
         assertApproxEqAbs(USDT.balanceOf(address(this)), amount, 10001, "Should have received expected USDT");
+        assertLe(USDT.balanceOf(address(this)), amount);
     }
 
     function testWithdraw(uint256 amount) external {
@@ -328,6 +329,7 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
 
         // check withdrawn balances
         assertApproxEqAbs(USDT.balanceOf(address(this)), amount, 10001, "Should have received expected USDT");
+        assertLe(USDT.balanceOf(address(this)), amount);
     }
 
     function testMultipleDepositWithdraws(uint256 amount) external {
