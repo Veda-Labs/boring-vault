@@ -555,8 +555,7 @@ contract DeploySkeletonV2Script is Script, Roles, ChainValues {
             _deployPaymentSplitter();
         }
 
-        accountantKind =
-            _handleAccountantSelection(vm.parseJsonString(rawJson, ".accountantConfiguration.type"));
+        accountantKind = _handleAccountantSelection(vm.parseJsonString(rawJson, ".accountantConfiguration.type"));
         if (accountantKind == AccountantKind.VariableRate) {
             creationCode = type(AccountantWithRateProviders).creationCode;
             accountantName = "AccountantWithRateProviders";
