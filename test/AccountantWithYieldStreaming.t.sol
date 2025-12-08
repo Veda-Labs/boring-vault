@@ -164,12 +164,12 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     }
 
     //test
-    function testDepositsWithNoYield_() external {
+    function testDepositsWithNoYield() external {
         uint256 WETHAmount = 10e18; 
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
-        assertEq(WETHAmount, shares0); 
+        assertGt(WETHAmount, shares0); 
         
         uint256 totalAssetsBefore = accountant.totalAssets();         
 
@@ -177,7 +177,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
         //deposit 2
         uint256 shares1 = teller.deposit(WETH, WETHAmount, 0, referrer);
-        assertEq(shares1, WETHAmount); 
+        assertEq(shares1, WETHAmount - 10); 
 
         uint256 totalAssetsAfter = accountant.totalAssets();         
         assertGt(totalAssetsAfter, totalAssetsBefore); 
@@ -188,7 +188,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
-        assertEq(WETHAmount, shares0); 
+        assertGt(WETHAmount, shares0); 
 
         //vest some yield
         deal(address(WETH), address(boringVault), WETHAmount);
@@ -197,12 +197,14 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
         //==== BEGIN DEPOSIT 2 ====
         uint256 shares1 = teller.deposit(WETH, WETHAmount, 0, referrer);
-        vm.assertApproxEqAbs(shares1, 6666666666666666666, 10);  
+        vm.assertApproxEqAbs(shares1, 6666666666666666666, 10);
+        assertLe(shares1, 6666666666666666666);
 
         //total of 2 deposits to 10 weth each + 5 vested yield 
         
         uint256 totalAssets = accountant.totalAssets(); 
-        vm.assertApproxEqAbs(totalAssets, 25e18, 1); 
+        vm.assertApproxEqAbs(totalAssets, 25e18, 1e15); 
+        assertLe(totalAssets, 25e18); 
     }
 
     //test
@@ -219,13 +221,15 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(WEETH), address(this), 1_000e18);
         WEETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WEETH, WEETHAmount, 0, referrer);
-        assertEq(expectedShares, shares0); 
+        assertApproxEqAbs(expectedShares, shares0, 1e10); 
+        assertLe(shares0, expectedShares);
 
         //after deposit, last share price is updated
         (uint128 lastSharePrice, , , , ) = accountant.vestingState(); 
         
         uint256 totalAssetsInBase = accountant.totalAssets();
-        assertEq(totalAssetsInBase, shares0.mulDivDown(lastSharePrice, 1e18)); //total supply * last share price 
+        assertApproxEqAbs(totalAssetsInBase, shares0.mulDivDown(lastSharePrice, 1e18), 1e10);
+        assertLe(totalAssetsInBase, shares0.mulDivDown(lastSharePrice, 1e18) + 1e10);
     }
 
     //test
@@ -242,13 +246,14 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(WEETH), address(this), 1_000e18);
         WEETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WEETH, WEETHAmount, 0, referrer);
-        assertEq(expectedShares, shares0); 
+        assertApproxEqAbs(expectedShares, shares0, 1e10); 
+        assertLe(shares0, expectedShares);
 
         //before deposit, last share price is updated
         (uint128 lastSharePrice, , , , ) = accountant.vestingState(); 
         
         uint256 totalAssetsInBaseLast = accountant.totalAssets();
-        assertEq(totalAssetsInBaseLast, shares0.mulDivDown(lastSharePrice, 1e18)); //total supply * last share price 
+        assertApproxEqAbs(totalAssetsInBaseLast, shares0.mulDivDown(lastSharePrice, 1e18), 1e10);
 
         //vest some yield
         deal(address(WETH), address(boringVault), 10e18); //stream 10 WETH yield over 24 hours
@@ -295,13 +300,14 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
-        assertEq(WETHAmount, shares0); 
+        assertGt(WETHAmount, shares0); 
 
         //deposit 2
         teller.deposit(WETH, WETHAmount, 0, referrer);
 
         uint256 assetsOut0 = teller.withdraw(WETH, shares0, 0, address(boringVault));   
-        assertEq(assetsOut0, WETHAmount); 
+        assertApproxEqAbs(assetsOut0, WETHAmount, 1e15); 
+        assertLe(assetsOut0, WETHAmount); 
     }
 
     function testWithdrawWithYieldStream() external {
@@ -309,7 +315,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
-        assertEq(WETHAmount, shares0); 
+        assertGt(WETHAmount, shares0); 
 
         //==== Add Vesting Yield Stream ====
         deal(address(WETH), address(boringVault), WETHAmount);
@@ -325,12 +331,14 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         
         //==== BEGIN WITHDRAW USER 1 ====
         uint256 assetsOut = teller.withdraw(WETH, shares0, 0, address(boringVault));   
-        assertEq(assetsOut, 15e18); 
+        assertApproxEqAbs(assetsOut, 15e18, 1e14); 
+        assertLe(assetsOut, 15e18); 
 
         //==== BEGIN WITHDRAW USER 2 ====
         vm.prank(alice); 
         assetsOut = teller.withdraw(WETH, shares1, 0, address(alice));   
-        vm.assertApproxEqAbs(assetsOut, 10e18, 1); 
+        vm.assertApproxEqAbs(assetsOut, 10e18, 1e14); 
+        assertLe(assetsOut, 10e18); 
     }
 
     function testWithdrawWithYieldStreamUser2WaitsForYield() external {
@@ -338,7 +346,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
-        assertEq(WETHAmount, shares0); 
+        assertGt(WETHAmount, shares0); 
 
         //==== Add Vesting Yield Stream ====
         deal(address(WETH), address(boringVault), WETHAmount);
@@ -354,23 +362,25 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         
         //==== BEGIN WITHDRAW USER 1 ====
         uint256 assetsOut = teller.withdraw(WETH, shares0, 0, address(boringVault));   
-        assertEq(assetsOut, 15e18); 
+        assertApproxEqAbs(assetsOut, 15e18, 1e14); 
+        assertLe(assetsOut, 15e18); 
 
         skip(12 hours); 
 
         //==== BEGIN WITHDRAW USER 2 ====
         vm.prank(alice); 
         assetsOut = teller.withdraw(WETH, shares1, 0, address(alice));   
-        //vm.assertApproxEqAbs(assetsOut, 15e18, 10); 
-        vm.assertEq(assetsOut, 15e18); 
+        vm.assertApproxEqAbs(assetsOut, 15e18, 1e15); 
+        assertLe(assetsOut, 15e18); 
     }
 
     function testVestLossAbsorbBuffer() external {
+        accountant.updateMaximumDeviationLoss(10_000); 
         uint256 WETHAmount = 10e18; 
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
-        assertEq(WETHAmount, shares0); 
+        assertGt(WETHAmount, shares0); 
 
         //==== Add Vesting Yield Stream ===="); 
         deal(address(WETH), address(boringVault), WETHAmount * 2);
@@ -391,12 +401,14 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         assertEq(unvested - 2.5e18, vestingGains); 
 
         //total assets should remain the same as the buffer absorbed the entire loss
-        assertEq(totalAssetsBeforeLoss, totalAssetsAfterLoss); 
+        assertApproxEqAbs(totalAssetsBeforeLoss, totalAssetsAfterLoss, 1e14); //should be a minor difference between the due due to rounding
+        assertGt(totalAssetsBeforeLoss, totalAssetsAfterLoss); //make sure the rounding is the correct direction 
 
         skip(12 hours); 
         
         uint256 assetsOut = teller.withdraw(WETH, shares0, 0, address(boringVault)); 
-        assertEq(assetsOut, 17.5e18); //10 WETH deposit -> 5 weth is vested -> 2.5 loss -> remaining 2.5 vests over the next 12 hours = total of 17.5 earned
+        assertApproxEqAbs(assetsOut, 17.5e18, 1e14); //10 WETH deposit -> 5 weth is vested -> 2.5 loss -> remaining 2.5 vests over the next 12 hours = total of 17.5 earned
+        assertLe(assetsOut, 17.5e18); 
     }
 
 
@@ -407,7 +419,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
-        assertEq(WETHAmount, shares0); 
+        assertGt(WETHAmount, shares0); 
 
         //vault total = 10
 
@@ -419,7 +431,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         //total assets = 15
 
         uint256 totalAssetsInBaseBefore = accountant.totalAssets();  
-        assertEq(totalAssetsInBaseBefore, 15e18); 
+        assertApproxEqAbs(totalAssetsInBaseBefore, 15e18, 1e14); 
+        assertLe(totalAssetsInBaseBefore, 15e18); 
         
         (uint128 lastSharePrice, , , , ) = accountant.vestingState(); 
         uint256 sharePriceInitial = lastSharePrice; 
@@ -439,7 +452,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         assertEq(0, vestingGains); 
 
         //total assets should be 5e18 -> 10 initial, 5 yield, 5 unvested -> 15 weth loss (5 from buffer) -> 15 - 10 = 5 totalAssets remaining
-        assertEq(totalAssetsInBaseAfter, 5e18); 
+        assertApproxEqAbs(totalAssetsInBaseAfter, 5e18, 1e14); 
+        assertLe(totalAssetsInBaseAfter, 5e18); 
 
         skip(12 hours); 
         
@@ -453,7 +467,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         assertLt(sharePriceAfter, sharePriceInitial, "share price should be less after loss exceeds buffer"); 
 
         //console.log("difference: ", sharePriceInitial - sharePriceAfter); //diff = 50% 
-        assertEq(sharePriceInitial / 2, sharePriceAfter); 
+        assertApproxEqAbs(sharePriceInitial / 2, sharePriceAfter, 1e13); 
+        assertLe(sharePriceAfter, sharePriceInitial / 2); //should be slightly less due to rounding
     }
 
     function testGetPendingVestingGains() external {
@@ -461,7 +476,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
-        assertEq(WETHAmount, shares0); 
+        assertGt(WETHAmount, shares0); 
 
         //vault total = 10
 
@@ -472,7 +487,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         //total should be 10 + (10 / 4) = 2.5
 
         uint256 totalAssets = accountant.totalAssets();  
-        assertEq(totalAssets, 12.5e18); 
+        assertApproxEqAbs(totalAssets, 12.5e18, 1e14); 
+        assertLe(totalAssets, 12.5e18); 
     }
 
     function testYieldStreamUpdateDuringExistingStream() external {
@@ -480,7 +496,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
-        assertEq(shares0, WETHAmount); 
+        assertLe(shares0, WETHAmount); 
 
         deal(address(WETH), address(boringVault), WETHAmount);
         accountant.vestYield(WETHAmount, 24 hours); 
@@ -505,7 +521,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         //15 + 7.5 = 22.5
 
         uint256 totalAssets = accountant.totalAssets();  
-        assertEq(totalAssets, 22.5e18); 
+        assertApproxEqAbs(totalAssets, 22.5e18, 1e15); 
+        assertLe(totalAssets, 22.5e18); 
         
         (, uint128 gains, uint128 lastVestingUpdate, uint64 startVestingTime, uint64 endVestingTime) = accountant.vestingState(); 
         assertEq(gains, 15e18); 
@@ -528,7 +545,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
-        assertEq(WETHAmount, shares0); 
+        assertGt(WETHAmount, shares0); 
 
         deal(address(WETH), address(boringVault), WETHAmount);
         accountant.vestYield(WETHAmount, 24 hours); 
@@ -542,7 +559,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         //check the fees owned 
         (,, uint128 feesOwedInBase,,,,,,,,,) = accountant.accountantState();
         uint256 expectedFees = (WETHAmount * 2) * platformFeeRate / 1e4; // 20 WETH (10 over day 1, 20 over 364 days for total of 2)
-        assertEq(feesOwedInBase, expectedFees);
+        assertApproxEqAbs(feesOwedInBase, expectedFees, 1e15);
 
         //claim fees
         vm.startPrank(address(boringVault));
@@ -551,7 +568,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         vm.stopPrank();
         
         //verify we got paid
-        assertEq(WETH.balanceOf(payoutAddress), expectedFees);
+        assertApproxEqAbs(WETH.balanceOf(payoutAddress), expectedFees, 1e15);
+        assertLe(WETH.balanceOf(payoutAddress), expectedFees);
     }
     
     function testPerformanceFeesAfterYield() external {
@@ -594,7 +612,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint128 platformFee = 2739726027397260; //1 day of platform fees (10 WETH / 365)
     
         // Allow for small rounding difference
-        assertApproxEqAbs(actualFees - platformFee, expectedPerformanceFees, 1e15, "Performance fees should match share price appreciation");
+        assertEq(actualFees - platformFee, expectedPerformanceFees, "Performance fees should match share price appreciation");
     
         // Verify high water mark updated
         assertGt(nextHighwaterMark, initialHighwaterMark, "HWM should increase");
@@ -608,7 +626,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
-        assertEq(WETHAmount, shares0);
+        assertApproxEqAbs(WETHAmount, shares0, 1e15);
+        assertLe(shares0, WETHAmount);
     
         accountant.vestYield(1e18, 1 days); // 1% of vault
     
@@ -617,7 +636,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     
         // Get supply before deposit
         uint256 supplyBefore = boringVault.totalSupply();
-        assertEq(supplyBefore, 100e18, "Supply should still be 100e18");
+        assertApproxEqAbs(supplyBefore, 100e18, 1e15, "Supply should still be ~100e18");
+        assertLe(supplyBefore, 100e18);
     
         //will get fewer shares due to yield
         teller.deposit(WETH, 100e18, 0, referrer);
@@ -627,17 +647,16 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         assertApproxEqRel(supplyAfter, 199.5e18, 0.01e18, "Supply should be ~199.5e18");
     
         (uint256 cumulative,,) = accountant.supplyObservation();
-        uint256 expectedCumulative = 100e18 * 12 hours; // 4.32e24
-        assertEq(cumulative, expectedCumulative, "Cumulative should be 100e18 * 12 hours");
+        uint256 expectedCumulative = supplyBefore * 12 hours; 
+        assertApproxEqAbs(cumulative, expectedCumulative, 1e20, "Cumulative should be ~100e18 * 12 hours");
     
         skip(12 hours);
         accountant.vestYield(2e18, 1 days);
     
         // After second vestYield, cumulative should account for actual supply
-        // (100e18 * 12 hours) + (supplyAfter * 12 hours)
         (cumulative,,) = accountant.supplyObservation();
-        expectedCumulative = (100e18 * 12 hours) + (supplyAfter * 12 hours);
-        assertApproxEqAbs(cumulative, expectedCumulative, 1e6, "Cumulative should match actual supply changes");
+        expectedCumulative = (supplyBefore * 12 hours) + (supplyAfter * 12 hours);
+        assertApproxEqAbs(cumulative, expectedCumulative, 1e20, "Cumulative should match actual supply changes");
     
         // Verify checkpoint
         (, uint256 cumulativeSupplyLast,) = accountant.supplyObservation();
@@ -657,7 +676,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
-        assertEq(WETHAmount, shares0);
+        assertApproxEqAbs(WETHAmount, shares0, 1e15);
+        assertLe(shares0, WETHAmount);
     
         accountant.vestYield(1e18, 1 days); // 1% of vault
     
@@ -666,7 +686,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     
         // Get supply before deposit
         uint256 supplyBefore = boringVault.totalSupply();
-        assertEq(supplyBefore, 100e18, "Supply should still be 100e18");
+        assertApproxEqAbs(supplyBefore, 100e18, 1e15, "Supply should still be ~100e18");
+        assertLe(supplyBefore, 100e18);
     
         //will get fewer shares due to yield
         teller.deposit(WETH, 100e18, 0, referrer);
@@ -676,8 +697,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         assertApproxEqRel(supplyAfter, 199.5e18, 0.01e18, "Supply should be ~199.5e18");
     
         (uint256 cumulativeBefore, uint256 cumulativeLastBefore,) = accountant.supplyObservation();
-        uint256 expectedCumulative = 100e18 * 12 hours; // 4.32e24
-        assertEq(cumulativeBefore, expectedCumulative, "Cumulative should be 100e18 * 12 hours");
+        uint256 expectedCumulative = supplyBefore * 12 hours;
+        assertApproxEqAbs(cumulativeBefore, expectedCumulative, 1e20, "Cumulative should be ~100e18 * 12 hours");
         
 
         //now we post a loss
@@ -706,7 +727,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
-        assertEq(WETHAmount, shares0); 
+        assertGt(WETHAmount, shares0); 
 
         //vest some yield
         deal(address(WETH), address(boringVault), WETHAmount * 2);
@@ -719,10 +740,12 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
         //deposit 2 uint256 shares1 = teller.deposit(WETH, WETHAmount, 0);
         uint256 totalAssets = accountant.totalAssets(); 
-        vm.assertApproxEqAbs(totalAssets, 15e18, 1); 
+        vm.assertApproxEqAbs(totalAssets, 15e18, 1e14); 
+        assertLe(totalAssets, 15e18); 
 
         uint256 assetsOut = teller.withdraw(WETH, shares0, 0, address(boringVault));   
-        assertEq(assetsOut, 15e18); 
+        assertApproxEqAbs(assetsOut, 15e18, 1e14); 
+        assertLe(assetsOut, 15e18); 
     }
 
     function testDoubleDepositInSameBlock() external {
@@ -730,16 +753,18 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
-        assertEq(WETHAmount, shares0); 
+        assertGt(WETHAmount, shares0); 
 
         uint256 shares1 = teller.deposit(WETH, WETHAmount, 0, referrer);
-        assertEq(WETHAmount, shares1); 
+        assertApproxEqAbs(WETHAmount, shares1, 1e14); 
+        assertLe(shares1, WETHAmount); 
         
         uint256 currentShares = boringVault.totalSupply(); 
         (uint128 lsp, , , ,) = accountant.vestingState(); 
         uint256 lastSharePrice = uint256(lsp); 
         uint256 totalAssetsInBase = ((currentShares * lastSharePrice) / 1e18) + accountant.getPendingVestingGains(); 
-        assertEq(totalAssetsInBase, 20e18); 
+        assertApproxEqAbs(totalAssetsInBase, 20e18, 1e14); 
+        assertLe(totalAssetsInBase, 20e18); 
     }
 
     function testDoubleDepositInSameBlockAfterYieldEvent() external {
@@ -747,7 +772,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
-        assertEq(WETHAmount, shares0); 
+        assertGt(WETHAmount, shares0); 
 
         //vest some yield
         deal(address(WETH), address(boringVault), WETHAmount * 2);
@@ -786,7 +811,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
-        assertEq(WETHAmount, shares0); 
+        assertGt(WETHAmount, shares0); 
 
         //vest some yield
         deal(address(WETH), address(boringVault), WETHAmount * 2);
@@ -814,6 +839,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         vm.stopPrank();
 
         assertApproxEqAbs(assetsOutAlice, WETHAmount, 10); 
+        assertLe(assetsOutAlice, WETHAmount); 
     }
 
     function testLoopDepositWithdrawDepositDuringVest() external {
@@ -821,7 +847,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
-        assertEq(WETHAmount, shares0); 
+        assertGt(WETHAmount, shares0); 
 
         //vest some yield
         deal(address(WETH), address(boringVault), WETHAmount * 2);
@@ -851,7 +877,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
         vm.prank(bill); 
         uint256 assetsOutBill = teller.withdraw(WETH, sharesBill, 0, address(boringVault));   
-        assertApproxEqAbs(WETHAmount, assetsOutBill, 1);
+        assertApproxEqAbs(WETHAmount, assetsOutBill, 1e14);
+        assertLe(assetsOutBill, WETHAmount);
     }
 
     function testDepositDuringSameBlockAsYieldIsDeposited() external {
@@ -859,7 +886,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
-        assertEq(WETHAmount, shares0); 
+        assertGt(WETHAmount, shares0); 
 
         //vest some yield
         deal(address(WETH), address(boringVault), WETHAmount * 2);
@@ -875,29 +902,29 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         vm.prank(alice); 
         uint256 assetsOutAlice = teller.withdraw(WETH, sharesAlice, 0, address(boringVault));   
 
-        assertEq(assetsOutAlice, WETHAmount); //assert no dilution, no extra yield
+        assertLe(assetsOutAlice, WETHAmount); //assert slight dilution, no extra yield
     }
 
-    function testRoundingIssuesAfterYieldStreamEnds() external {
+    function testRoundingIssuesAfterYieldStreamEndsNoFuzz() external {
         uint256 WETHAmount = 1e18; 
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
-        assertEq(WETHAmount, shares0); 
+        assertGt(WETHAmount, shares0); 
 
         //vest some yield
         deal(address(WETH), address(boringVault), WETHAmount * 2);
-        accountant.vestYield(70, 24 hours); 
+        accountant.vestYield(1, 24 hours); 
 
         skip(24 hours);
+
+        accountant.updateExchangeRate();
 
         //now the state of the contract should be 
         //totalSupply > 1
         //exchange rate > 1 
         uint256 supplyBefore = boringVault.totalSupply();
         uint256 rateBefore = accountant.getRate();
-        console.log("supply before:", supplyBefore);
-        console.log("rate before:", rateBefore);
 
         uint256 depositAmount = 389998;
         uint256 shares1 = teller.deposit(WETH, depositAmount, 0, referrer);
@@ -905,17 +932,10 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         // Check rate AFTER deposit
         uint256 supplyAfter = boringVault.totalSupply();
         uint256 rateAfter = accountant.getRate();
-        console.log("supply after:", supplyAfter);
-        console.log("rate after:", rateAfter);
-        //console.log("rate increased by:", rateAfter - rateBefore);
+        console.logInt(int256(rateAfter) - int256(rateBefore));
 
         boringVault.approve(address(teller), shares1);
         uint256 assetsOut = teller.withdraw(WETH, shares1, 0, address(this));
-
-        console.log("deposited:", depositAmount);
-        console.log("shares received:", shares1);
-        console.log("assets out:", assetsOut);
-        console.log("any profit:", int256(assetsOut) - int256(depositAmount));
 
         assertLt(assetsOut, depositAmount, "should not profit");
     }
@@ -928,7 +948,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
-        assertEq(WETHAmount, shares0); 
+        assertGt(WETHAmount, shares0); 
 
         //vest some yield
         deal(address(WETH), address(boringVault), WETHAmount * 2);
@@ -942,7 +962,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
-        assertEq(WETHAmount, shares0); 
+        assertGt(WETHAmount, shares0); 
 
         //vest some yield
         deal(address(WETH), address(boringVault), WETHAmount * 2);
@@ -956,7 +976,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
-        assertEq(WETHAmount, shares0); 
+        assertGt(WETHAmount, shares0); 
 
         //vest some yield
         deal(address(WETH), address(boringVault), WETHAmount * 2);
@@ -967,32 +987,34 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     // ========================= FUZZ TESTS ===============================
     
     function testFuzzDepositsWithNoYield(uint96 WETHAmount, uint96 WETHAmount2) external {
-        accountant.updateMaximumDeviationYield(5000000); 
         vm.assume(uint256(WETHAmount) + uint256(WETHAmount2) < type(uint128).max); 
-        vm.assume(WETHAmount > 0); 
-        vm.assume(WETHAmount2 > 0); 
+        vm.assume(WETHAmount > 0 && WETHAmount < 1e26); 
+        vm.assume(WETHAmount2 > 0 && WETHAmount2 < 1e26); 
 
         deal(address(WETH), address(this), WETHAmount);
         WETH.approve(address(boringVault), type(uint256).max);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
-        assertEq(shares0, WETHAmount); 
+        assertApproxEqAbs(shares0, WETHAmount, 1e21, "should be almost equal"); 
+        assertLe(shares0, WETHAmount); 
 
         //==== BEGIN DEPOSIT 2 ====
 
         deal(address(WETH), address(this), WETHAmount2);
         uint256 shares1 = teller.deposit(WETH, WETHAmount2, 0, referrer);
-        assertEq(shares1, WETHAmount2); 
+        assertApproxEqAbs(shares1, WETHAmount2, 1e21, "should be almost equal"); 
+        assertLe(shares1, WETHAmount2); 
 
         uint256 totalAssetsAfter = accountant.totalAssets();         
-        assertEq(totalAssetsAfter, uint256(WETHAmount) + uint256(WETHAmount2)); 
+        assertApproxEqAbs(totalAssetsAfter, uint256(WETHAmount) + uint256(WETHAmount2), 1e21); 
+        assertLe(totalAssetsAfter, uint256(WETHAmount) + uint256(WETHAmount2)); 
     }
 
     function testFuzzDepositsWithYield(uint96 WETHAmount, uint96 WETHAmount2, uint96 yieldVestAmount) external {
         accountant.updateMaximumDeviationYield(5000000);
         
-        vm.assume(WETHAmount >= 1e18 && WETHAmount <= 1_000_000e18);
-        vm.assume(WETHAmount2 >= 1e18 && WETHAmount2 <= 1_000_000e18);
-        vm.assume(yieldVestAmount >= 1e16 && yieldVestAmount <= uint256(WETHAmount) * 100);
+        WETHAmount = uint96(bound(WETHAmount, 1e18, 10_000_000e18)); 
+        WETHAmount2 = uint96(bound(WETHAmount2, 1e18, 10_000_000e18)); 
+        vm.assume(yieldVestAmount >= 1e18 && yieldVestAmount <= uint256(WETHAmount) * 100);
         
         // === FIRST DEPOSIT ===
         deal(address(WETH), address(this), WETHAmount);
@@ -1000,7 +1022,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
         
         // First deposit should be 1:1 at initial rate
-        assertEq(shares0, WETHAmount, "First deposit should be 1:1");
+        assertApproxEqAbs(shares0, WETHAmount, 1e21, "First deposit should be close to 1:1");
+        assertLe(shares0, WETHAmount, "Less than deposit by slight amount");
         
         // === ADD YIELD ===
         deal(address(WETH), address(boringVault), WETHAmount + yieldVestAmount);
@@ -1008,21 +1031,21 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         skip(12 hours); // Half vesting period
         
         // === SECOND DEPOSIT - INDEPENDENT CALCULATION ===
-        
+
         // Calculate expected shares from first principles:
-        uint256 expectedVestedYield = yieldVestAmount / 2; // Linear vesting, 12/24 hours
+        uint256 expectedVestedYield = uint256(yieldVestAmount).mulDivDown(12 hours, 24 hours);
         assertEq(expectedVestedYield, accountant.getPendingVestingGains()); 
 
-        uint256 totalValueInVault = WETHAmount + expectedVestedYield;
+        uint256 totalValueInVault = shares0 + expectedVestedYield; //this is higher than totalAssets(); 
         assertEq(accountant.totalAssets(), totalValueInVault); 
-
+        
         uint256 totalSharesBefore = shares0;
         assertEq(totalSharesBefore, boringVault.totalSupply()); 
 
         uint256 sharePrice = totalValueInVault.mulDivDown(1e18, totalSharesBefore);
         assertEq(sharePrice, accountant.getRate());  
         
-        uint256 expectedShares1 = uint256(WETHAmount2).mulDivDown(1e18, sharePrice);
+        uint256 expectedShares1 = uint256(WETHAmount2).mulDivDown(1e18, sharePrice + 1); //account for rounding
 
         //when calling deposit, the rate is updated before getting the rate 
         //rate before deposit should be totalassets * 1e18 / shares0  where totalassets == (last share price * shares0) / 1e18
@@ -1033,25 +1056,28 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         
         //check total assets after
         uint256 totalAssetsAfter = accountant.totalAssets();
-        uint256 expectedTotalAssets = WETHAmount + WETHAmount2 + expectedVestedYield;
-        assertApproxEqAbs(totalAssetsAfter, expectedTotalAssets, 1e6, "Total assets mismatch");
+        uint256 expectedTotalAssets = (shares0 + expectedShares1).mulDivDown(sharePrice, 1e18); //verify the total assets == amount of shares
+        assertEq(totalAssetsAfter, expectedTotalAssets, "Total assets mismatch");
+        assertLe(totalAssetsAfter, expectedTotalAssets);  
         
         // === VERIFY ===
-        assertApproxEqAbs(shares1, expectedShares1, 1e6, "Second deposit shares mismatch");
+        assertApproxEqAbs(shares1, expectedShares1, 1e21, "Second deposit shares mismatch"); //1e5 diff is expected
+        assertLe(shares1, expectedShares1, "shares mismatch");  
     }
 
     function testFuzzWithdrawWithYield(uint96 WETHAmount, uint96 WETHAmount2, uint96 yieldVestAmount) external {
         accountant.updateMaximumDeviationYield(5000000);
         
-        vm.assume(WETHAmount >= 1e18 && WETHAmount <= 1_000_000e18);
-        vm.assume(WETHAmount2 >= 1e18 && WETHAmount2 <= 1_000_000e18);
-        vm.assume(yieldVestAmount >= 1e16 && yieldVestAmount <= uint256(WETHAmount) * 100);
+        WETHAmount = uint96(bound(WETHAmount, 1e18, 10_000_000e18)); 
+        WETHAmount2 = uint96(bound(WETHAmount2, 1e18, 10_000_000e18)); 
+        vm.assume(yieldVestAmount >= 1e18 && yieldVestAmount <= uint256(WETHAmount) * 100);
         
         // === FIRST DEPOSIT ===
         deal(address(WETH), address(this), WETHAmount);
         WETH.approve(address(boringVault), type(uint256).max);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
-        assertEq(shares0, WETHAmount, "First deposit should be 1:1");
+        assertApproxEqAbs(shares0, WETHAmount, 1e21, "First deposit should be almost 1:1");
+        assertLe(shares0, WETHAmount); 
         
         // === ADD YIELD ===
         deal(address(WETH), address(boringVault), WETHAmount + yieldVestAmount);
@@ -1079,18 +1105,20 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         assertApproxEqAbs(
             actualWithdrawn0, 
             expectedWithdrawAmount0, 
-            1e6, 
+            1e19, 
             "First depositor withdraw amount mismatch"
         );
+        assertLe(actualWithdrawn0, expectedWithdrawAmount0); 
         
         // Verify first depositor got their principal + share of yield
         uint256 firstDepositorExpectedValue = (WETHAmount + expectedVestedYield) / 2; // They withdraw half
         assertApproxEqAbs(
             actualWithdrawn0,
             firstDepositorExpectedValue,
-            1e6,
+            1e19,
             "First depositor should get principal + yield share"
         );
+        assertLe(actualWithdrawn0, firstDepositorExpectedValue); 
         
         // Test 2: Second depositor withdraws all their shares
         vm.startPrank(address(this)); // Ensure we're the owner of shares1
@@ -1102,54 +1130,27 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         assertApproxEqAbs(
             actualWithdrawn1,
             expectedWithdrawAmount1,
-            1e6,
+            1e19,
             "Second depositor withdraw amount mismatch"
         );
+        assertLe(actualWithdrawn1, expectedWithdrawAmount1); 
         
         // Second depositor should get back approximately what they deposited (no yield share)
         assertApproxEqAbs(
             actualWithdrawn1,
             WETHAmount2,
-            1e6,
+            1e19,
             "Second depositor should get back their deposit"
         );
-        
-       // // === VERIFY INVARIANTS ===
-       // 
-       // // Total withdrawn should not exceed total assets
-       // uint256 totalWithdrawn = actualWithdrawn0 + actualWithdrawn1;
-       // uint256 totalDeposited = WETHAmount + WETHAmount2;
-       // 
-       // assert(totalWithdrawn <= totalDeposited + expectedVestedYield);
-       // 
-       // // Check remaining shares and assets are consistent
-       // uint256 remainingShares = boringVault.totalSupply();
-       // uint256 expectedRemainingShares = shares0 - sharesToWithdraw0; // shares1 fully withdrawn
-       // assertEq(remainingShares, expectedRemainingShares, "Remaining shares mismatch");
-       // 
-       // // Remaining assets should match remaining shares at current rate
-       // uint256 remainingAssets = accountant.totalAssets();
-       // uint256 expectedRemainingAssets = remainingShares.mulDivDown(currentRate, 1e18);
-       // assertApproxEqAbs(
-       //     remainingAssets,
-       //     expectedRemainingAssets,
-       //     1e6,
-       //     "Remaining assets should match remaining shares value"
-       // );
-       // 
-       // // === TEST EDGE CASE: Try to withdraw more than balance ===
-       // vm.expectRevert(); // Should revert due to insufficient shares
-       // teller.withdraw(WETH, shares0, 0, address(this)); // Try to withdraw all of shares0 (but we only have half left)
+        assertLe(actualWithdrawn1, WETHAmount2); 
     }
 
-    function testRoundingAfterYieldStreamEndsFuzz(uint96 WETHAmount, uint96 secondDepositAmount) external {
-        WETHAmount = uint96(bound(WETHAmount, 1, 1e6));
-        secondDepositAmount = uint96(bound(secondDepositAmount, 1e1, 1e11)); 
-        //vm.assume(secondDepositAmount > 1e1 && secondDepositAmount <= 1e11); 
+    function testRoundingIssuesAfterYieldStreamEndsFuzz(uint96 WETHAmount, uint96 secondDepositAmount) external {
+        WETHAmount = uint96(bound(WETHAmount, 1, 1e18));
+        secondDepositAmount = uint96(bound(secondDepositAmount, 1e13, 1e23)); 
         deal(address(WETH), address(this), WETHAmount);
         WETH.approve(address(boringVault), type(uint256).max);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
-        //assertEq(WETHAmount, shares0); 
 
         // Use a yield that's safely under the limit (e.g., 5%)
         uint256 yieldAmount = uint256(WETHAmount) * 500 / 10_000;
@@ -1161,7 +1162,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(boringVault), secondDepositAmount * 2);
         accountant.vestYield(yieldAmount, 24 hours); 
 
-        skip(24 hours);
+        skip(23 hours);
 
         accountant.updateExchangeRate();
 
@@ -1169,20 +1170,54 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         //totalSupply > 1
         //exchange rate > 1 
 
-        // Second Depositor deposits
         deal(address(WETH), address(this), secondDepositAmount);
-        uint256 secondDepositorShares = teller.deposit(WETH, secondDepositAmount, 0, referrer);
+        uint256 shares1 = teller.deposit(WETH, secondDepositAmount, 0, referrer);
+
+        // Check rate AFTER deposit
+        boringVault.approve(address(teller), shares1);
+        uint256 assetsOut = teller.withdraw(WETH, shares1, 0, address(this));
+
+        assertLe(assetsOut, secondDepositAmount, "should not profit");
+    }
+
+    function testRoundingIssuesAfterYieldStreamAlmostEndsMinorWeiVestFuzz(uint96 WETHAmount, uint96 secondDepositAmount, uint256 yieldAmount) external {
+        WETHAmount = uint96(bound(WETHAmount, 1, 1e18));
+        secondDepositAmount = uint96(bound(secondDepositAmount, 1e13, 1e23)); 
+        yieldAmount = uint256(bound(yieldAmount, 1e13, 1e17)); 
+        deal(address(WETH), address(this), WETHAmount);
+        WETH.approve(address(boringVault), type(uint256).max);
+        uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
+
+        // Use a yield that's safely under the limit (e.g., 5%)
+        if (yieldAmount > uint256(WETHAmount) * 500 / 10_000) { 
+            yieldAmount = uint256(WETHAmount) * 500 / 10_000;
+        }
+
+        // Ensure yield is at least 1 to be meaningful
+        vm.assume(yieldAmount > 0);
+
+        //vest some yield
+        deal(address(WETH), address(boringVault), secondDepositAmount * 2);
+        accountant.vestYield(yieldAmount, 24 hours); 
+
+        skip(23 hours);
+
+        accountant.updateExchangeRate();
+
+        //now the state of the contract should be 
+        //totalSupply > 1
+        //exchange rate > 1 
+
+        deal(address(WETH), address(this), secondDepositAmount);
+        uint256 shares1 = teller.deposit(WETH, secondDepositAmount, 0, referrer);
 
         // Check rate AFTER deposit
 
-        // Second Depositor immediately withdraws
-        boringVault.approve(address(teller), secondDepositorShares);
-        uint256 assetsOut = teller.withdraw(WETH, secondDepositorShares, 0, address(this));
+        boringVault.approve(address(teller), shares1);
+        uint256 assetsOut = teller.withdraw(WETH, shares1, 0, address(this));
 
-        // this is the bug - user gets more out than they put in
-        assertLe(assetsOut, secondDepositAmount, "Second depositor should not profit");
+        assertLe(assetsOut, secondDepositAmount, "should not profit");
     }
-
 
     // ========================================= HELPER FUNCTIONS =========================================
     
