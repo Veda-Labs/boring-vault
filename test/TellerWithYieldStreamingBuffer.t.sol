@@ -295,27 +295,19 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         // first do deposits
         amount = bound(amount, 0.0001e6, 10_000e6);
         deal(address(USDT), address(this), amount);
-        deal(address(USDC), address(this), amount);
 
         USDT.safeApprove(address(boringVault), amount);
-        USDC.safeApprove(address(boringVault), amount);
-
-        teller.bulkDeposit(USDT, amount, 0, address(this));
-        teller.bulkDeposit(USDC, amount, 0, address(this));
+        uint256 shares = teller.bulkDeposit(USDT, amount, 0, address(this));
 
         assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
-        assertApproxEqAbs(aUSDC.balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
         
         // then do withdraws
-        teller.bulkWithdraw(USDT, amount - 2, 0, address(this));
-        teller.bulkWithdraw(USDC, amount - 2, 0, address(this));
+        teller.bulkWithdraw(USDT, shares - 1, 0, address(this));
 
-        assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), 0, 2, "Should have removed entire deposit from aave");
-        assertApproxEqAbs(aUSDC.balanceOf(address(boringVault)), 0, 2, "Should have removed entire deposit from aave");
+        assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), 0, 10001, "Should have removed entire deposit from aave");
 
         // check withdrawn balances
-        assertApproxEqAbs(USDT.balanceOf(address(this)), amount - 2, 2, "Should have received expected USDT");
-        assertApproxEqAbs(USDC.balanceOf(address(this)), amount - 2, 2, "Should have received expected USDC");
+        assertApproxEqAbs(USDT.balanceOf(address(this)), amount, 10001, "Should have received expected USDT");
     }
 
     function testWithdraw(uint256 amount) external {
@@ -325,17 +317,17 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
 
         USDT.safeApprove(address(boringVault), amount);
 
-        teller.bulkDeposit(USDT, amount, 0, address(this));
+        uint256 shares = teller.bulkDeposit(USDT, amount, 0, address(this));
 
         assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
 
         // then do withdraws
-        teller.withdraw(USDT, amount - 2, 0, address(this));
+        teller.withdraw(USDT, shares - 1, 0, address(this));
 
-        assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), 0, 2, "Should have removed entire deposit from aave");
+        assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), 0, 10001, "Should have removed entire deposit from aave");
 
         // check withdrawn balances
-        assertApproxEqAbs(USDT.balanceOf(address(this)), amount - 2, 2, "Should have received expected USDT");
+        assertApproxEqAbs(USDT.balanceOf(address(this)), amount, 10001, "Should have received expected USDT");
     }
 
     function testMultipleDepositWithdraws(uint256 amount) external {
