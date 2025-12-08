@@ -207,17 +207,16 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
     function testNoYieldStreamedUSDCDepositWithdraw(uint96 USDCAmount, uint96 secondUSDCAmount) external {
         // Case 1: No yield has been streamed yet, asset: USDC
         USDCAmount = uint96(bound(USDCAmount, 1, 1e18));
-        secondUSDCAmount = uint96(bound(secondUSDCAmount, 1, 1e18));
+        secondUSDCAmount = uint96(bound(secondUSDCAmount, 2, 1e18)); // we get 0 shares if it is 1 which reverts
         deal(address(USDC), address(this), USDCAmount);
         USDC.approve(address(vaultUSDC.vault), type(uint256).max);
         vaultUSDC.teller.deposit(USDC, USDCAmount, 0, referrer);
 
         // No yield
-        // vaultUSDC.accountant.vestYield(...) is intentionally omitted
-        vaultUSDC.accountant.updateExchangeRate();
 
         // Second Depositor deposits
         deal(address(USDC), address(this), secondUSDCAmount);
+
         uint256 secondDepositorShares = vaultUSDC.teller.deposit(USDC, secondUSDCAmount, 0, referrer);
 
         uint256 assetsOut = vaultUSDC.teller.withdraw(USDC, secondDepositorShares, 0, address(this));
@@ -230,14 +229,12 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
     function testNoYieldStreamedWBTCDepositWithdraw(uint96 WBTCAmount, uint96 secondWBTCAmount) external {
         // Case 1: No yield has been streamed yet, asset: WBTC
         WBTCAmount = uint96(bound(WBTCAmount, 1, 1e18));
-        secondWBTCAmount = uint96(bound(secondWBTCAmount, 1, 1e18));
+        secondWBTCAmount = uint96(bound(secondWBTCAmount, 2, 1e18)); // we get 0 shares if it is 1 which reverts
         deal(address(WBTC), address(this), WBTCAmount);
         WBTC.approve(address(vaultWBTC.vault), type(uint256).max);
         vaultWBTC.teller.deposit(WBTC, WBTCAmount, 0, referrer);
 
         // No yield
-        // vaultWBTC.accountant.vestYield(...) is intentionally omitted
-        vaultWBTC.accountant.updateExchangeRate();
 
         // Second Depositor deposits
         deal(address(WBTC), address(this), secondWBTCAmount);
@@ -253,14 +250,12 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
     function testNoYieldStreamedWETHDepositWithdraw(uint96 WETHAmount, uint96 secondWETHAmount) external {
         // Case 1: No yield has been streamed yet, asset: WETH
         WETHAmount = uint96(bound(WETHAmount, 1, 2e27));
-        secondWETHAmount = uint96(bound(secondWETHAmount, 1, 2e27));
+        secondWETHAmount = uint96(bound(secondWETHAmount, 2, 2e27)); // we get 0 shares if it is 1 which reverts
         deal(address(WETH), address(this), WETHAmount);
         WETH.approve(address(vaultWETH.vault), type(uint256).max);
         vaultWETH.teller.deposit(WETH, WETHAmount, 0, referrer);
 
         // No yield
-        // vaultWETH.accountant.vestYield(...) is intentionally omitted
-        vaultWETH.accountant.updateExchangeRate();
 
         // Second Depositor deposits
         deal(address(WETH), address(this), secondWETHAmount);
@@ -293,8 +288,6 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
 
         // Skip less than the full vesting period (12 hours instead of 24)
         skip(12 hours);
-
-        vaultUSDC.accountant.updateExchangeRate();
 
         //now the state of the contract should be 
         //totalSupply > 1
@@ -332,8 +325,6 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         // Skip less than the full vesting period (12 hours instead of 24)
         skip(12 hours);
 
-        vaultWBTC.accountant.updateExchangeRate();
-
         //now the state of the contract should be 
         //totalSupply > 1
         //exchange rate > 1 (but still vesting, not fully vested)
@@ -370,8 +361,6 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         // Skip less than the full vesting period (12 hours instead of 24)
         skip(12 hours);
 
-        vaultWETH.accountant.updateExchangeRate();
-
         //now the state of the contract should be 
         //totalSupply > 1
         //exchange rate > 1 (but still vesting, not fully vested)
@@ -406,8 +395,6 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         vaultUSDC.accountant.vestYield(yieldAmount, 24 hours); 
 
         skip(24 hours);
-
-        vaultUSDC.accountant.updateExchangeRate();
 
         //now the state of the contract should be 
         //totalSupply > 1
@@ -444,8 +431,6 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
 
         skip(24 hours);
 
-        vaultWBTC.accountant.updateExchangeRate();
-
         //now the state of the contract should be 
         //totalSupply > 1
         //exchange rate > 1 
@@ -480,8 +465,6 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         vaultWETH.accountant.vestYield(yieldAmount, 24 hours); 
 
         skip(24 hours);
-
-        vaultWETH.accountant.updateExchangeRate();
 
         //now the state of the contract should be 
         //totalSupply > 1
@@ -524,8 +507,6 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         vaultWETH.accountant.vestYield(yieldAmount, 24 hours);
 
         skip(24 hours);
-
-        vaultWETH.accountant.updateExchangeRate();
 
         // Second Depositor deposits WEETH
         deal(address(WEETH), address(this), secondDepositAmount);
@@ -575,8 +556,6 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
 
         skip(24 hours);
 
-        vaultWETH.accountant.updateExchangeRate();
-
         // Second Depositor deposits WETH
         deal(address(WETH), address(this), secondDepositAmount);
         WETH.approve(address(vaultWETH.vault), secondDepositAmount);
@@ -619,8 +598,6 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
 
         skip(24 hours);
 
-        vaultUSDC.accountant.updateExchangeRate();
-
         //now the state of the contract should be 
         //totalSupply > 1
         //exchange rate > 1 
@@ -634,8 +611,6 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
 
         // Skip midway through the new vesting period (12 hours)
         skip(12 hours);
-
-        vaultUSDC.accountant.updateExchangeRate();
 
         // Second Depositor deposits
         deal(address(USDC), address(this), secondDepositAmount);
@@ -668,8 +643,6 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
 
         skip(24 hours);
 
-        vaultWBTC.accountant.updateExchangeRate();
-
         //now the state of the contract should be 
         //totalSupply > 1
         //exchange rate > 1 
@@ -683,8 +656,6 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
 
         // Skip midway through the new vesting period (12 hours)
         skip(12 hours);
-
-        vaultWBTC.accountant.updateExchangeRate();
 
         // Second Depositor deposits
         deal(address(WBTC), address(this), secondDepositAmount);
@@ -717,8 +688,6 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
 
         skip(24 hours);
 
-        vaultWETH.accountant.updateExchangeRate();
-
         //now the state of the contract should be 
         //totalSupply > 1
         //exchange rate > 1 
@@ -732,8 +701,6 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
 
         // Skip midway through the new vesting period (12 hours)
         skip(12 hours);
-
-        vaultWETH.accountant.updateExchangeRate();
 
         // Second Depositor deposits
         deal(address(WETH), address(this), secondDepositAmount);

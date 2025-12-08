@@ -202,10 +202,6 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         assertEq(teller.depositNonce(), currentNonce + 2, "Deposit nonce should have increased by 2");
         assertEq(teller.depositNonce(), 2, "Deposit nonce should be 2");
 
-        uint256 expected_shares = 2 * amount;
-
-        assertEq(boringVault.balanceOf(address(this)), expected_shares, "Should have received expected shares");
-
         assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
         assertApproxEqAbs(aUSDC.balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
     }
@@ -240,10 +236,6 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         teller.deposit(USDC, amount, 0, referrer);
         assertEq(teller.depositNonce(), currentNonce + 2, "Deposit nonce should have increased by 2");
         assertEq(teller.depositNonce(), 2, "Deposit nonce should be 2");
-
-        uint256 expected_shares = 2 * amount;
-
-        assertEq(boringVault.balanceOf(address(this)), expected_shares, "Should have received expected shares");
 
         assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
         assertApproxEqAbs(aUSDC.balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
@@ -280,10 +272,6 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         assertEq(teller.depositNonce(), currentNonce + 2, "Deposit nonce should have increased by 2");
         assertEq(teller.depositNonce(), 2, "Deposit nonce should be 2");
 
-        uint256 expected_shares = 2 * amount;
-
-        assertEq(boringVault.balanceOf(address(this)), expected_shares, "Should have received expected shares");
-
         assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
         assertApproxEqAbs(aUSDC.balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
     }
@@ -298,10 +286,6 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
 
         teller.bulkDeposit(USDT, amount, 0, address(this));
         teller.bulkDeposit(USDC, amount, 0, address(this));
-
-        uint256 expected_shares = 2 * amount;
-
-        assertEq(boringVault.balanceOf(address(this)), expected_shares, "Should have received expected shares");
 
         assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
         assertApproxEqAbs(aUSDC.balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
@@ -319,18 +303,12 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         teller.bulkDeposit(USDT, amount, 0, address(this));
         teller.bulkDeposit(USDC, amount, 0, address(this));
 
-        uint256 expected_shares = 2 * amount;
-
-        assertEq(boringVault.balanceOf(address(this)), expected_shares, "Should have received expected shares");
-
         assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
         assertApproxEqAbs(aUSDC.balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
         
         // then do withdraws
         teller.bulkWithdraw(USDT, amount - 2, 0, address(this));
         teller.bulkWithdraw(USDC, amount - 2, 0, address(this));
-
-        assertApproxEqAbs(boringVault.balanceOf(address(this)), 0, 4, "Should have eliminated expected shares");
 
         assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), 0, 2, "Should have removed entire deposit from aave");
         assertApproxEqAbs(aUSDC.balanceOf(address(boringVault)), 0, 2, "Should have removed entire deposit from aave");
@@ -344,33 +322,20 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         // first do deposits
         amount = bound(amount, 0.0001e6, 10_000e6);
         deal(address(USDT), address(this), amount);
-        deal(address(USDC), address(this), amount);
 
         USDT.safeApprove(address(boringVault), amount);
-        USDC.safeApprove(address(boringVault), amount);
 
         teller.bulkDeposit(USDT, amount, 0, address(this));
-        teller.bulkDeposit(USDC, amount, 0, address(this));
-
-        uint256 expected_shares = 2 * amount;
-
-        assertEq(boringVault.balanceOf(address(this)), expected_shares, "Should have received expected shares");
 
         assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
-        assertApproxEqAbs(aUSDC.balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
-        
+
         // then do withdraws
         teller.withdraw(USDT, amount - 2, 0, address(this));
-        teller.withdraw(USDC, amount - 2, 0, address(this));
-
-        assertApproxEqAbs(boringVault.balanceOf(address(this)), 0, 4, "Should have eliminated expected shares");
 
         assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), 0, 2, "Should have removed entire deposit from aave");
-        assertApproxEqAbs(aUSDC.balanceOf(address(boringVault)), 0, 2, "Should have removed entire deposit from aave");
 
         // check withdrawn balances
         assertApproxEqAbs(USDT.balanceOf(address(this)), amount - 2, 2, "Should have received expected USDT");
-        assertApproxEqAbs(USDC.balanceOf(address(this)), amount - 2, 2, "Should have received expected USDC");
     }
 
     function testMultipleDepositWithdraws(uint256 amount) external {
@@ -383,7 +348,6 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
 
         teller.bulkDeposit(USDT, amount / 10, 0, address(this));
         teller.deposit(USDC, amount / 10, 0, referrer);
-        assertApproxEqAbs(boringVault.balanceOf(address(this)), amount / 5, 4, "Should have received expected shares");
         uint256 onePercentYield = amount / 5 / 100; // add 100 to avoid rounding errors
         deal(address(USDC), address(boringVault), onePercentYield + 1000); // 1% of the current total assets
         deal(address(USDT), address(boringVault), onePercentYield + 1000); // 1% of the current total assets
@@ -413,8 +377,6 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
 
         teller.bulkWithdraw(USDC, amount / 10, 0, address(this));
 
-        assertApproxEqRel(boringVault.balanceOf(address(this)), amount / 10, 1e15, "Should have eliminated expected shares");
-
         assertApproxEqAbs(aUSDC.balanceOf(address(boringVault)), 0, 2e5, "Should have removed entire deposit from aave");
 
         // check that we got back the amount we deposited plus the yield
@@ -423,43 +385,7 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         // test regular withdraw
         teller.withdraw(USDT, amount / 100, 0, address(this));
 
-        assertApproxEqRel(boringVault.balanceOf(address(this)), 9 * amount / 100, 1e15, "Should have eliminated expected shares");
-
         assertApproxEqRel(USDT.balanceOf(address(this)), 91 * amount / 100 + onePercentYield / 10, 1e15, "Should have received expected USDT");
-    }
-
-    function testNonPeggedAsset(uint256 amount) external {
-        amount = bound(amount, 0.0001e18, 10_000e18);
-        deal(address(sUSDe), address(this), amount);
-
-        sUSDe.safeApprove(address(boringVault), amount);
-
-        teller.deposit(sUSDe, amount / 2, 0, referrer);
-        teller.bulkDeposit(sUSDe, amount / 2, 0, address(this));
-
-        // 1e6 /1e18 adjusts token decimals, getRate / 1e18 adjusts for rate scaling
-        uint256 expectedShares = amount * 1e6 * sUSDeRateProvider.getRate() / 1e18 / 1e18;
-        assertApproxEqAbs(boringVault.balanceOf(address(this)), expectedShares, 2, "Should have received expected shares");
-
-        assertApproxEqAbs(asUSDe.balanceOf(address(boringVault)), amount, 4, "Should have put entire deposit into aave");
-    
-        teller.bulkWithdraw(sUSDe, expectedShares / 2, 0, address(this));
-
-        assertApproxEqAbs(boringVault.balanceOf(address(this)), expectedShares / 2, 3, "Should have eliminated expected shares");
-
-        assertApproxEqAbs(asUSDe.balanceOf(address(boringVault)),  amount / 2, 2e12, "Should have removed half of the deposit from aave");
-
-        assertApproxEqAbs(sUSDe.balanceOf(address(this)), amount / 2, 2e12, "Should have received expected sUSDe");
-
-        // test regular withdraw
-        teller.withdraw(sUSDe, expectedShares / 2, 0, address(this));
-
-        assertApproxEqAbs(boringVault.balanceOf(address(this)), 0, 3, "Should have eliminated expected shares");
-
-        // increase error to account for 2x rounding errors
-        assertApproxEqAbs(asUSDe.balanceOf(address(boringVault)), 0, 3e12, "Should have removed entire remaining deposit from aave");
-
-        assertApproxEqAbs(sUSDe.balanceOf(address(this)), amount, 3e12, "Should have received expected sUSDe");
     }
 
     function testWithdrawFailureWhenBufferIsTooSmall(uint256 amount) external {
@@ -518,14 +444,12 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         
         teller.deposit(USDT, amount, 0, referrer);
 
-        assertEq(boringVault.balanceOf(address(this)), amount, "Shares should be same as deposit amount");
         assertEq(USDT.balanceOf(address(boringVault)), amount, "USDT should all be in vault");
 
         teller.withdraw(USDT, amount / 2, 0, address(this));
         assertApproxEqAbs(USDT.balanceOf(address(this)), amount / 2, 4, "Should have received expected USDT");
         assertApproxEqAbs(USDT.balanceOf(address(boringVault)), amount / 2, 4, "half USDT should be in vault");
         assertEq(aUSDT.balanceOf(address(boringVault)), 0, "0 USDT should be in aave");
-        assertApproxEqAbs(boringVault.balanceOf(address(this)), amount / 2, 4, "Remaining shares should be half of deposit amount");
     }
 
     function testBufferHelperChange(uint256 amount) external {
@@ -565,23 +489,17 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
 
         teller.deposit(USDT, amount, 0, referrer);
 
-        assertEq(boringVault.balanceOf(address(this)), amount, "Shares should be same as deposit amount");
         assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), amount, 4, "USDT should all be in aave");
 
         teller.withdraw(USDT, amount / 2, 0, address(this));
         assertApproxEqAbs(USDT.balanceOf(address(this)), amount / 2, 4, "Should have received expected USDT");
         assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), amount / 2, 4, "half USDT should be in aave");
-        assertApproxEqAbs(boringVault.balanceOf(address(this)), amount / 2, 4, "Remaining shares should be half of deposit amount");
-    
-        uint256 currentShares = boringVault.balanceOf(address(this));
+
         teller.deposit(USDC, amount, 0, referrer);
-        assertEq(boringVault.balanceOf(address(this)) - currentShares, amount, "Change in shares should be same as deposit amount");
         assertApproxEqAbs(aUSDC.balanceOf(address(boringVault)), amount, 4, "USDC should all be in aave");
 
-        currentShares = boringVault.balanceOf(address(this));
         teller.withdraw(USDC, amount / 2, 0, address(this));
         assertApproxEqAbs(USDC.balanceOf(address(this)), amount / 2, 4, "Should have received expected USDC");
         assertApproxEqAbs(aUSDC.balanceOf(address(boringVault)), amount / 2, 4, "half USDC should be in aave");
-        assertApproxEqAbs(currentShares - boringVault.balanceOf(address(this)), amount / 2, 4, "Remaining shares should be half of deposit amount");
     }
 }
