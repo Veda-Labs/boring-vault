@@ -189,11 +189,13 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         //==== BEGIN DEPOSIT 2 ====
         uint256 shares1 = teller.deposit(USDC, USDCAmount, 0, referrer);
         vm.assertApproxEqAbs(shares1, 6666666, 10); //
+        assertLe(shares1, 6666666);
 
         //total of 2 deposits to 10 weth each + 5 vested yield 
         
         uint256 totalAssets = accountant.totalAssets(); 
         vm.assertApproxEqAbs(totalAssets, 25e6, 1e3); 
+        assertLe(totalAssets, 25e6); 
     }
 
     function testDepositsWithYieldGreaterDecimals() external {
@@ -202,6 +204,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         USDE.approve(address(boringVault), 1_000e18);
         uint256 shares0 = teller.deposit(USDE, USDEAmount, 0, referrer);
         assertApproxEqAbs(10e6, shares0, 1e1); 
+        assertLe(shares0, 10e6); 
 
         //vest some yield
         deal(address(USDE), address(boringVault), USDEAmount);
@@ -211,11 +214,13 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         //==== BEGIN DEPOSIT 2 ====
         uint256 shares1 = teller.deposit(USDE, USDEAmount, 0, referrer);
         vm.assertApproxEqAbs(shares1, 6666666, 10); //
+        assertLe(shares1, 6666666); 
 
         //total of 2 deposits to 10 weth each + 5 vested yield 
         
         uint256 totalAssets = accountant.totalAssets(); 
         vm.assertApproxEqAbs(totalAssets, 25e6, 5); 
+        assertLe(totalAssets, 25e6); 
     }
 
     function testWithdrawNoYieldStream() external {
@@ -230,6 +235,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
         uint256 assetsOut0 = teller.withdraw(USDC, shares0, 0, address(boringVault));   
         assertApproxEqAbs(assetsOut0, USDCAmount, 1e3); 
+        assertLe(assetsOut0, USDCAmount); 
     }
 
     function testWithdrawWithYieldStream() external {
@@ -254,11 +260,13 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         //==== BEGIN WITHDRAW USER 1 ====
         uint256 assetsOut = teller.withdraw(USDC, shares0, 0, address(boringVault));   
         assertApproxEqAbs(assetsOut, 15e6, 1e2); 
+        assertLe(assetsOut, 15e6); 
 
         //==== BEGIN WITHDRAW USER 2 ====
         vm.prank(alice); 
         assetsOut = teller.withdraw(USDC, shares1, 0, address(alice));   
         vm.assertApproxEqAbs(assetsOut, 10e6, 1e2); 
+        assertLe(assetsOut, 10e6); 
     }
 
     function testWithdrawWithYieldStreamGreaterDecimals() external {
@@ -282,12 +290,14 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         
         //==== BEGIN WITHDRAW USER 1 ====
         uint256 assetsOut = teller.withdraw(USDE, shares0, 0, address(boringVault));   
-        assertApproxEqAbs(assetsOut, 15e18, 1e13); 
+        assertApproxEqAbs(assetsOut, 15e18, 1e13); //account for higher decimals
+        assertLe(assetsOut, 15e18); 
 
         //==== BEGIN WITHDRAW USER 2 ====
         vm.prank(alice); 
         assetsOut = teller.withdraw(USDE, shares1, 0, address(alice));   
         vm.assertApproxEqAbs(assetsOut, 10e18, 1e13); 
+        assertLe(assetsOut, 10e18); 
     }
 
     function testWithdrawWithYieldStreamUser2WaitsForYield() external {
@@ -311,7 +321,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         
         //==== BEGIN WITHDRAW USER 1 ====
         uint256 assetsOut = teller.withdraw(USDC, shares0, 0, address(boringVault));   
-        assertApproxEqAbs(assetsOut, 15e6, 1e3); 
+        assertApproxEqAbs(assetsOut, 15e6, 1e2); 
+        assertLe(assetsOut, 15e6); 
 
         skip(12 hours); 
 
@@ -319,6 +330,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         vm.prank(alice); 
         assetsOut = teller.withdraw(USDC, shares1, 0, address(alice));   
         vm.assertApproxEqAbs(assetsOut, 15e6, 1e3); 
+        assertLe(assetsOut, 15e6); 
     }
 
     function testVestLossAbsorbBuffer() external {
@@ -348,12 +360,13 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         assertEq(unvested - 2.5e6, vestingGains); 
 
         //total assets should remain the same as the buffer absorbed the entire loss
-        assertApproxEqAbs(totalAssetsBeforeLoss, totalAssetsAfterLoss, 1e2); 
+        assertApproxEqAbs(totalAssetsBeforeLoss, totalAssetsAfterLoss, 1e2); //should be a minor difference between the due due to rounding
 
         skip(12 hours); 
         
         uint256 assetsOut = teller.withdraw(USDC, shares0, 0, address(boringVault)); 
-        assertLe(assetsOut, 17.5e6); //10 USDC deposit -> 5 weth is vested -> 2.5 loss -> remaining 2.5 vests over the next 12 hours = total of 17.5 earned
+        assertApproxEqAbs(assetsOut, 17.5e6, 1e2); //10 USDC deposit -> 5 usdc is vested -> 2.5 loss -> remaining 2.5 vests over the next 12 hours = total of 17.5 earned
+        assertLe(assetsOut, 17.5e6); 
     }
 
 
@@ -898,7 +911,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
         uint256 totalValueInVault = shares0 + expectedVestedYield; //this is higher than totalAssets(); 
         assertEq(accountant.totalAssets(), totalValueInVault); 
-
+        
         uint256 totalSharesBefore = shares0;
         assertEq(totalSharesBefore, boringVault.totalSupply()); 
 
@@ -913,12 +926,10 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         // === EXECUTE SECOND DEPOSIT ===
         deal(address(WETH), address(this), WETHAmount2);
         uint256 shares1 = teller.deposit(WETH, WETHAmount2, 0, referrer);
-
-        uint256 calcAmount = uint256(shares1).mulDivDown(sharePrice + 1, 1e6); 
         
         //check total assets after
         uint256 totalAssetsAfter = accountant.totalAssets();
-        uint256 expectedTotalAssets = totalValueInVault + calcAmount;
+        uint256 expectedTotalAssets = (shares0 + expectedShares1).mulDivDown(sharePrice, 1e6); //verify the total assets == amount of shares
         assertEq(totalAssetsAfter, expectedTotalAssets, "Total assets mismatch");
         assertLe(totalAssetsAfter, expectedTotalAssets);  
         
@@ -930,8 +941,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     function testFuzzWithdrawWithYield(uint96 WETHAmount, uint96 WETHAmount2, uint96 yieldVestAmount) external {
         accountant.updateMaximumDeviationYield(5000000);
         
-        vm.assume(WETHAmount >= 1e6 && WETHAmount <= 10_000_000e6);
-        vm.assume(WETHAmount2 >= 1e6 && WETHAmount2 <= 10_000_000e6);
+        WETHAmount = uint96(bound(WETHAmount, 1e6, 10_000_000e6)); 
+        WETHAmount2 = uint96(bound(WETHAmount2, 1e6, 10_000_000e6)); 
         vm.assume(yieldVestAmount >= 1e6 && yieldVestAmount <= uint256(WETHAmount) * 100);
         
         // === FIRST DEPOSIT ===
