@@ -42,7 +42,7 @@ import {Roles} from "resources/Roles.sol";
  *  To simulate the deployment on the RPC url defined in foundry.toml, use the following command:
  *  It will assume that deployer is `0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b` It is allowlisted(on mainnet) to call `deployContract` on `src/helper/Deployer.sol`
  *
- *  forge script script/ArchitectureDeployments/DeploySkeletonV2.s.sol:DeploySkeletonV2Script --sig "run(string)" Mainnet/Benjamin-test.json --slow -vvvvvv --sender 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b
+ *  forge script script/ArchitectureDeployments/DeploySkeletonV2.s.sol:DeploySkeletonV2Script --sig "run(string)" skeletons/configurations/Mainnet/Benjamin-test.json --slow -vvvvvv --sender 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b
  *
  *
  *  To deploy on Tenderly vnet, change the rpc url in foundry.toml to the vnet url of the fork for mainnet (because this is a mainnet deployment config) and use the following command:
@@ -50,7 +50,7 @@ import {Roles} from "resources/Roles.sol";
  *
  *  Example with keystore and account name `ben-dev` in keystore
  *
- *  forge script script/ArchitectureDeployments/DeploySkeletonV2.s.sol:DeploySkeletonV2Script --sig "run(string)" Mainnet/Benjamin-test.json --with-gas-price 3000000000 --broadcast --slow --verify --account ben-dev
+ *  forge script script/ArchitectureDeployments/DeploySkeletonV2.s.sol:DeploySkeletonV2Script --sig "run(string)" skeletons/configurations/Mainnet/Benjamin-test.json --with-gas-price 3000000000 --broadcast --slow --verify --account ben-dev
  *
  */
 contract DeploySkeletonV2Script is Script, Roles, ChainValues {
@@ -167,31 +167,6 @@ contract DeploySkeletonV2Script is Script, Roles, ChainValues {
         return txs;
     }
 
-    function _addTx(address target, bytes memory data, uint256 value) internal {
-        txs.push(Deployer.Tx(target, data, value));
-    }
-
-    function _getAddressAndIfDeployed(string memory name) internal view returns (address, bool) {
-        address deployedAt = deployer.getAddress(name);
-        uint256 size;
-        assembly {
-            size := extcodesize(deployedAt)
-        }
-        return (deployedAt, size > 0);
-    }
-
-    function _getAddressIfDeployed(string memory name) internal view returns (address) {
-        address deployedAt = deployer.getAddress(name);
-        uint256 size;
-        assembly {
-            size := extcodesize(deployedAt)
-        }
-        if (size > 0) {
-            return deployedAt;
-        }
-        return address(0);
-    }
-
     bool internal deployContracts;
     Deployer internal deployer;
 
@@ -249,14 +224,7 @@ contract DeploySkeletonV2Script is Script, Roles, ChainValues {
         }
     }
 
-    function _readConfigurationFile(string memory configurationFileName) internal virtual {
-        string memory root = vm.projectRoot();
-        string memory configurationPath =
-            string.concat(root, "/deployments/skeletons/configurations/", configurationFileName);
-        rawJson = vm.readFile(configurationPath);
-    }
-
-    function run(string memory configurationFileName) external virtual {
+    function run(string memory configurationFileName) public virtual {
         _readConfigurationFile(configurationFileName);
 
         if (vm.keyExists(rawJson, ".deploymentParameters.logLevel")) {
@@ -352,6 +320,37 @@ contract DeploySkeletonV2Script is Script, Roles, ChainValues {
         _deployAaveV3BufferHelper();
         _deployAaveV3BufferLens();
         _saveContractAddresses();
+    }
+
+    function _readConfigurationFile(string memory configurationFileName) internal virtual {
+        string memory root = vm.projectRoot();
+        string memory configurationPath = string.concat(root, "/deployments/", configurationFileName);
+        rawJson = vm.readFile(configurationPath);
+    }
+
+    function _addTx(address target, bytes memory data, uint256 value) internal {
+        txs.push(Deployer.Tx(target, data, value));
+    }
+
+    function _getAddressAndIfDeployed(string memory name) internal view returns (address, bool) {
+        address deployedAt = deployer.getAddress(name);
+        uint256 size;
+        assembly {
+            size := extcodesize(deployedAt)
+        }
+        return (deployedAt, size > 0);
+    }
+
+    function _getAddressIfDeployed(string memory name) internal view returns (address) {
+        address deployedAt = deployer.getAddress(name);
+        uint256 size;
+        assembly {
+            size := extcodesize(deployedAt)
+        }
+        if (size > 0) {
+            return deployedAt;
+        }
+        return address(0);
     }
 
     function _deployRolesAuthority() internal {
