@@ -1321,6 +1321,7 @@ contract ChainValues {
         values[mainnet]["USDEOFTAdapter"] = 0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34.toBytes32();
         values[mainnet]["USDTOFTAdapter2"] = 0x1F748c76dE468e9D11bd340fA9D5CBADf315dFB0.toBytes32();
         values[mainnet]["SUSDEOFTAdapter"] = 0x211Cc4DD073734dA055fbF44a2b4667d5E5fE5d2.toBytes32();
+        values[mainnet]["wstUSROFTAdapter"] = 0xab17c1fE647c37ceb9b96d1c27DD189bf8451978.toBytes32();
 
         // Stargate OFTs
         values[mainnet]["stargateUSDC"] = 0xc026395860Db2d07ee33e05fE50ed7bD583189C7.toBytes32();
@@ -3163,6 +3164,7 @@ contract ChainValues {
         values[plasma]["USDe"] = 0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34.toBytes32(); 
         values[plasma]["sUSDe"] = 0x211Cc4DD073734dA055fbF44a2b4667d5E5fE5d2.toBytes32(); 
         values[plasma]["ENA"] = 0x58538e6A46E07434d7E7375Bc268D3cb839C0133.toBytes32(); 
+        values[plasma]["wstUSR"] = 0x2a52B289bA68bBd02676640aA9F605700c9e5699.toBytes32(); // also OFT
         
         // Uniswap V3
         values[plasma]["uniswapV3NonFungiblePositionManager"] = 0x743E03cceB4af2efA3CC76838f6E8B50B63F184c.toBytes32();
@@ -3190,6 +3192,7 @@ contract ChainValues {
 
         // Fluid Dex
         values[plasma]["weETH_ETHDex_wETH"] = 0x0C8C77B7FF4c2aF7F6CEBbe67350A490E3DD6cB3.toBytes32();
+        values[plasma]["Vaultt1_Wstusr_Usdt0"] = 0xBc345229C1b52e4c30530C614BB487323BA38Da5.toBytes32();
 
         // Merkl
         values[plasma]["merklDistributor"] = 0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae.toBytes32();
