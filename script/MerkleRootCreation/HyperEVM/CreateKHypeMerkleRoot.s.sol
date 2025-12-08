@@ -36,7 +36,7 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, hyperEVM, "accountantAddress", accountantAddress);
         setAddress(false, hyperEVM, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](144);
+        ManageLeaf[] memory leafs = new ManageLeaf[](256);
 
         // ========================== Ooga Booga ==========================
         address[] memory assets = new address[](5);
