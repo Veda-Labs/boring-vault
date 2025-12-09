@@ -18,7 +18,7 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x9BA2EDc44E0A4632EB4723E81d4142353e1bB160;
-    address public rawDataDecoderAndSanitizer = 0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E; //@todo update when deployed I've tested this on a local Anvil HyperEVM fork
+    address public rawDataDecoderAndSanitizer = 0x8beBEcEad5206DF4fCa68b96af08dB7215B1F39e;
     address public managerAddress = 0x7f8CcAA760E0F621c7245d47DC46d40A400d3639;
     address public accountantAddress = 0x74392Fa56405081d5C7D93882856c245387Cece2;
 
