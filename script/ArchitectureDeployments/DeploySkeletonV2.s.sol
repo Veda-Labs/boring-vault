@@ -42,7 +42,7 @@ import {Roles} from "resources/Roles.sol";
  *  To simulate the deployment on the RPC url defined in foundry.toml, use the following command:
  *  It will assume that deployer is `0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b` It is allowlisted(on mainnet) to call `deployContract` on `src/helper/Deployer.sol`
  *
- *  forge script script/ArchitectureDeployments/DeploySkeletonV2.s.sol:DeploySkeletonV2Script --sig "run(string)" skeletons/configurations/Mainnet/Benjamin-test.json --slow -vvvvvv --sender 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b
+ *  forge script script/ArchitectureDeployments/DeploySkeletonV2.s.sol:DeploySkeletonV2Script --sig "run(string)" skeletons/configurations/Mainnet/TestBooostedYieldNewConfig.json --slow -vvvvvv --sender 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b
  *
  *
  *  To deploy on Tenderly vnet, change the rpc url in foundry.toml to the vnet url of the fork for mainnet (because this is a mainnet deployment config) and use the following command:
@@ -50,7 +50,7 @@ import {Roles} from "resources/Roles.sol";
  *
  *  Example with keystore and account name `ben-dev` in keystore
  *
- *  forge script script/ArchitectureDeployments/DeploySkeletonV2.s.sol:DeploySkeletonV2Script --sig "run(string)" skeletons/configurations/Mainnet/Benjamin-test.json --with-gas-price 3000000000 --broadcast --slow --verify --account ben-dev
+ *  forge script script/ArchitectureDeployments/DeploySkeletonV2.s.sol:DeploySkeletonV2Script --sig "run(string)" skeletons/configurations/Mainnet/TestBooostedYieldNewConfig.json --with-gas-price 3000000000 --broadcast --slow --verify --account ben-dev
  *
  */
 contract DeploySkeletonV2Script is Script, Roles, ChainValues {
@@ -161,12 +161,6 @@ contract DeploySkeletonV2Script is Script, Roles, ChainValues {
 
     address internal baseAsset;
 
-    Deployer.Tx[] internal txs;
-
-    function getTxs() public view returns (Deployer.Tx[] memory) {
-        return txs;
-    }
-
     bool internal deployContracts;
     Deployer internal deployer;
 
@@ -208,21 +202,8 @@ contract DeploySkeletonV2Script is Script, Roles, ChainValues {
     bool internal pauserExists;
     bool internal timelockExists;
     bool internal paymentSplitterExists;
-
-    function _log(string memory message, uint256 level) internal view {
-        if (logLevel >= level) {
-            if (level == 1) {
-                revert DeployError(message);
-            } else if (level == 2) {
-                message = string.concat("[WARN]: ", message);
-            } else if (level == 3) {
-                message = string.concat("[INFO]: ", message);
-            } else if (level == 4) {
-                message = string.concat("[DEBUG]: ", message);
-            }
-            console.log(message);
-        }
-    }
+    bool internal maybeDeployAaveV3BufferHelper;
+    bool internal maybeDeployAaveV3BufferLens;
 
     function run(string memory configurationFileName) public virtual {
         _readConfigurationFile(configurationFileName);
@@ -288,13 +269,24 @@ contract DeploySkeletonV2Script is Script, Roles, ChainValues {
         droneBaseDeploymentName = vm.parseJsonString(rawJson, ".droneConfiguration.droneDeploymentBaseName");
         pauserDeploymentName = vm.parseJsonString(rawJson, ".pauserConfiguration.pauserDeploymentName");
         timelockDeploymentName = vm.parseJsonString(rawJson, ".timelockConfiguration.timelockDeploymentName");
-        aaveV3BufferHelperDeploymentName =
-            vm.parseJsonString(rawJson, ".aaveV3BufferHelperConfiguration.aaveV3BufferHelperDeploymentName");
-        aaveV3BufferLensDeploymentName =
-            vm.parseJsonString(rawJson, ".aaveV3BufferLensConfiguration.aaveV3BufferLensDeploymentName");
 
-        // Get Deployer address from configuration file.
-        deployer = Deployer(_handleAddressOrName(".deploymentParameters.deployerContractAddressOrName"));
+        if (vm.keyExists(rawJson, ".aaveV3BufferHelperConfiguration.aaveV3BufferHelperDeploymentName")) {
+            maybeDeployAaveV3BufferHelper = true;
+            aaveV3BufferHelperDeploymentName =
+                vm.parseJsonString(rawJson, ".aaveV3BufferHelperConfiguration.aaveV3BufferHelperDeploymentName");
+        }
+
+        if (vm.keyExists(rawJson, ".aaveV3BufferLensConfiguration.aaveV3BufferLensDeploymentName")) {
+            maybeDeployAaveV3BufferLens = true;
+            aaveV3BufferLensDeploymentName =
+                vm.parseJsonString(rawJson, ".aaveV3BufferLensConfiguration.aaveV3BufferLensDeploymentName");
+        }
+
+        // Get deployer or tx bundler address from configuration file.
+        if (vm.keyExists(rawJson, ".deploymentParameters.deployerContractAddressOrName")) {
+            deployer = Deployer(_handleAddressOrName(".deploymentParameters.deployerContractAddressOrName"));
+            _log(string.concat("Deployer address: ", vm.toString(address(deployer))), 3);
+        }
 
         // This will be true if private key is comming from the configuration file and environment variable (NOT RECOMMENDED)
         if (privateKey > 0) {
@@ -322,14 +314,25 @@ contract DeploySkeletonV2Script is Script, Roles, ChainValues {
         _saveContractAddresses();
     }
 
+    function _log(string memory message, uint256 level) internal view {
+        if (logLevel >= level) {
+            if (level == 1) {
+                revert DeployError(message);
+            } else if (level == 2) {
+                message = string.concat("[WARN]: ", message);
+            } else if (level == 3) {
+                message = string.concat("[INFO]: ", message);
+            } else if (level == 4) {
+                message = string.concat("[DEBUG]: ", message);
+            }
+            console.log(message);
+        }
+    }
+
     function _readConfigurationFile(string memory configurationFileName) internal virtual {
         string memory root = vm.projectRoot();
         string memory configurationPath = string.concat(root, "/deployments/", configurationFileName);
         rawJson = vm.readFile(configurationPath);
-    }
-
-    function _addTx(address target, bytes memory data, uint256 value) internal {
-        txs.push(Deployer.Tx(target, data, value));
     }
 
     function _getAddressAndIfDeployed(string memory name) internal view returns (address, bool) {
@@ -395,6 +398,10 @@ contract DeploySkeletonV2Script is Script, Roles, ChainValues {
     }
 
     function _deployAaveV3BufferHelper() internal {
+        if (!maybeDeployAaveV3BufferHelper) {
+            return;
+        }
+
         bytes memory constructorArgs;
         bytes memory creationCode;
 
@@ -414,6 +421,10 @@ contract DeploySkeletonV2Script is Script, Roles, ChainValues {
     }
 
     function _deployAaveV3BufferLens() internal {
+        if (!maybeDeployAaveV3BufferLens) {
+            return;
+        }
+
         bytes memory constructorArgs;
         bytes memory creationCode;
 
@@ -481,7 +492,7 @@ contract DeploySkeletonV2Script is Script, Roles, ChainValues {
         constructorArgs = abi.encode(deploymentOwner, address(boringVault), balancerVaultAddress);
         deployer.deployContract(managerDeploymentName, creationCode, constructorArgs, 0);
 
-        manager = ManagerWithMerkleVerification(deployedAddress);
+        manager = ManagerWithMerkleVerification(deployer.getAddress(managerDeploymentName));
         managerExists = true;
 
         _log("Manager deployment TX added", 3);

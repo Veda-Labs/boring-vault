@@ -11,34 +11,34 @@
         "address": "0x0000000000000000000000000000000000000000",
         "name": "WETH"
       },
-      "deploymentFileName": "skeletons/addresses/Mainnet/Benjamin-test.json"
+      "deploymentFileName": "skeletons/addresses/Mainnet/TestBoostedYieldUSDC.json"
     },
     "rolesAuthorityConfiguration": {
-      "rolesAuthorityDeploymentName": "Ben Boosted Yield USDC Roles Authority V0.3"
+      "rolesAuthorityDeploymentName": "Test Boosted Yield USDC Roles Authority V0.3"
     },
     "lensConfiguration": {
-      "lensDeploymentName": "Ben Arctic Architecture Lens V0.0"
+      "lensDeploymentName": "Test Arctic Architecture Lens V0.0"
     },
     "boringVaultConfiguration": {
-      "boringVaultDeploymentName": "Ben Boosted Yield USDC Boring Vault V0.3",
-      "boringVaultName": "Ben Boosted Yield USDC",
-      "boringVaultSymbol": "BenboostedUSDC",
+      "boringVaultDeploymentName": "Test Boosted Yield USDC Boring Vault V0.3",
+      "boringVaultName": "Test Boosted Yield USDC",
+      "boringVaultSymbol": "TestboostedUSDC",
       "boringVaultDecimals": 6
     },
     "managerConfiguration": {
-      "managerDeploymentName": "BenBoosted Yield USDC Manager V0.3",
+      "managerDeploymentName": "TestBoosted Yield USDC Manager V0.3",
       "balancerVaultAddressOrName": {
         "address": "0x0000000000000000000000000000000000000000",
         "name": "balancerVault"
       }
     },
     "accountantConfiguration": {
-      "accountantDeploymentName": "Ben Boosted Yield USDC Accountant V0.3",
+      "accountantDeploymentName": "Test Boosted Yield USDC Accountant V0.3",
       "type": "yieldStreaming",
       "accountantParameters": {
         "payoutConfiguration": {
           "payoutTo": "0x0000000000000000000000000000000000000001",
-          "optionalPaymentSplitterName": "BenBoosted Yield USDC Payment Splitter V0.3",
+          "optionalPaymentSplitterName": "Test Boosted Yield USDC Payment Splitter V0.3",
           "splits": []
         },
         "accountantDeploymentParameters": {
@@ -56,27 +56,27 @@
       }
     },
     "tellerConfiguration": {
-      "tellerDeploymentName": "Benjamin Boosted Yield USDC Teller V0.3",
+      "tellerDeploymentName": "Test Boosted Yield USDC Teller V0.3",
       "type": "tellerWithYieldStreaming"
     },
     "boringQueueConfiguration": {
-      "boringQueueDeploymentName": "Ben Boosted Yield USDC Boring Queue V0.3",
-      "boringQueueSolverName": "Ben Boosted Yield USDC Boring Solver V0.3",
+      "boringQueueDeploymentName": "Test Boosted Yield USDC Boring Queue V0.3",
+      "boringQueueSolverName": "Test Boosted Yield USDC Boring Solver V0.3",
       "type": "boringQueue",
       "excessToSolverNonSelfSolve": true
     },
     "droneConfiguration": {
-      "droneDeploymentBaseName": "Ben Boosted Yield USDC Drone V0.0",
+      "droneDeploymentBaseName": "Test Boosted Yield USDC Drone V0.0",
       "droneCount": 0,
       "safeGasToForwardNative": 21000
     },
     "pauserConfiguration": {
       "shouldDeploy": true,
-      "pauserDeploymentName": "Ben Boosted Yield USDC Pauser V0.3"
+      "pauserDeploymentName": "Test Boosted Yield USDC Pauser V0.3"
     },
     "timelockConfiguration": {
       "shouldDeploy": false,
-      "timelockDeploymentName": "Ben Boosted Yield USDC Timelock V0.0",
+      "timelockDeploymentName": "Test Boosted Yield USDC Timelock V0.0",
       "timelockParameters": {
         "executors": ["0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b"],
         "minDelay": 0,
@@ -85,7 +85,7 @@
     },
     "aaveV3BufferHelperConfiguration": {
       "shouldDeploy": true,
-      "aaveV3BufferHelperDeploymentName": "Ben Boosted Yield USDC AaveV3 Buffer Helper V0.3",
+      "aaveV3BufferHelperDeploymentName": "Test Boosted Yield USDC AaveV3 Buffer Helper V0.3",
       "aaveV3PoolAddressOrName": {
         "address": "0x0000000000000000000000000000000000000000",
         "name": "v3Pool"
@@ -93,7 +93,7 @@
     },
     "aaveV3BufferLensConfiguration": {
       "shouldDeploy": true,
-      "aaveV3BufferLensDeploymentName": "Ben AaveV3 Buffer Lens V0.0"
+      "aaveV3BufferLensDeploymentName": "Test AaveV3 Buffer Lens V0.0"
     }
   }
   
