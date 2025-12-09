@@ -1243,7 +1243,8 @@ contract ChainValues {
         values[mainnet]["arbitrumDelayedInbox"] = 0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f.toBytes32();
         values[mainnet]["arbitrumOutbox"] = 0x0B9857ae2D4A3DBe74ffE1d7DF045bb7F96E4840.toBytes32();
         values[mainnet]["arbitrumL1GatewayRouter"] = 0x72Ce9c846789fdB6fC1f34aC4AD25Dd9ef7031ef.toBytes32();
-        values[mainnet]["arbitrumL1ERC20Gateway"] = 0x0F25c1DC2a9922304f2eac71DCa9B07E310e8E5a.toBytes32();
+        values[mainnet]["arbitrumL1ERC20Gateway"] = 0xa3A7B6F88361F48403514059F1F16C8E78d60EeC.toBytes32();
+        values[mainnet]["arbitrumL1ERC20GatewayLido"] = 0x0F25c1DC2a9922304f2eac71DCa9B07E310e8E5a.toBytes32();
         values[mainnet]["arbitrumWethGateway"] = 0xd92023E9d9911199a6711321D1277285e6d4e2db.toBytes32();
 
         // Base Standard Bridge.
@@ -1755,6 +1756,8 @@ contract ChainValues {
         values[arbitrum]["arbitrumSys"] = 0x0000000000000000000000000000000000000064.toBytes32();
         values[arbitrum]["arbitrumRetryableTx"] = 0x000000000000000000000000000000000000006E.toBytes32();
         values[arbitrum]["arbitrumL2Sender"] = 0x09e9222E96E7B4AE2a407B98d48e330053351EEe.toBytes32();
+        values[arbitrum]["arbitrumL2SenderLido"] = 0x07D4692291B9E30E326fd31706f686f83f331B82.toBytes32();
+        values[arbitrum]["arbitrumL2SenderWeth"] = 0x6c411aD3E74De3E7Bd422b94A27770f5B86C623B.toBytes32();
 
         // Pendle
         values[arbitrum]["pendleMarketFactory"] = 0x2FCb47B58350cD377f94d3821e7373Df60bD9Ced.toBytes32();
