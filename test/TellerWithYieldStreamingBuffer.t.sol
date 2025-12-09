@@ -300,7 +300,7 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         uint256 shares = teller.bulkDeposit(USDT, amount, 0, address(this));
 
         assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
-        
+         
         // then do withdraws
         teller.bulkWithdraw(USDT, shares - 1, 0, address(this));
 
