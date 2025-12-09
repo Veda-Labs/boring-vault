@@ -27,34 +27,34 @@
         "address": "0x0000000000000000000000000000000000000000",
         "name": "txBundlerAddress"
       },
-      "deploymentFileName": "addresses/Mainnet/Benjamin-test2.json"
+      "deploymentFileName": "addresses/Mainnet/InkedBTC-test.json"
     },
     "rolesAuthorityConfiguration": {
-      "rolesAuthorityDeploymentName": "Ben InkedBTC Roles Authority V0.0"
+      "rolesAuthorityDeploymentName": "Test InkedBTC Roles Authority V0.0"
     },
     "lensConfiguration": {
-      "lensDeploymentName": "Ben Arctic Architecture Lens V0.0"
+      "lensDeploymentName": "Test Arctic Architecture Lens V0.0"
     },
     "boringVaultConfiguration": {
-      "boringVaultDeploymentName": "BenInkedBTC Boring Vault V0.0",
-      "boringVaultName": "Ben Ink BTC Veda Vault",
-      "boringVaultSymbol": "BeninkedBTC",
+      "boringVaultDeploymentName": "Test InkedBTC Boring Vault V0.0",
+      "boringVaultName": "Test Ink BTC Veda Vault",
+      "boringVaultSymbol": "TestinkedBTC",
       "boringVaultDecimals": 8
     },
     "managerConfiguration": {
-      "managerDeploymentName": "BenInkedBTC Manager V0.0",
+      "managerDeploymentName": "Test InkedBTC Manager V0.0",
       "balancerVaultAddressOrName": {
         "address": "0x0000000000000000000000000000000000000000",
         "name": "balancerVault"
       }
     },
     "accountantConfiguration": {
-      "accountantDeploymentName": "Ben InkedBTC Accountant V0.0",
+      "accountantDeploymentName": "Test InkedBTC Accountant V0.0",
       "type": "variableRate",
       "accountantParameters": {
         "payoutConfiguration": {
           "payoutTo": "0x0000000000000000000000000000000000000000",
-          "optionalPaymentSplitterName": "Ben InkedBTC Payment Splitter V0.0",
+          "optionalPaymentSplitterName": "Test InkedBTC Payment Splitter V0.0",
           "splits": []
         },
         "accountantDeploymentParameters": {
@@ -72,7 +72,7 @@
       }
     },
     "tellerConfiguration": {
-      "tellerDeploymentName": "BenInkedBTC Teller V0.0",
+      "tellerDeploymentName": "Test InkedBTC Teller V0.0",
       "type": "tellerWithLayerZero",
       "tellerParameters": {
         "allowPublicDeposits": true,
@@ -91,8 +91,8 @@
       }
     },
     "boringQueueConfiguration": {
-      "boringQueueDeploymentName": "BenInkedBTC Boring Queue V0.0",
-      "boringQueueSolverName": "Ben InkedBTC Boring Solver V0.0",
+      "boringQueueDeploymentName": "Test InkedBTC Boring Queue V0.0",
+      "boringQueueSolverName": "Test InkedBTC Boring Solver V0.0",
       "excessToSolverNonSelfSolve": true,
       "type": "boringQueue",
       "queueParameters": {
@@ -101,13 +101,13 @@
       }
     },
     "droneConfiguration": {
-      "droneDeploymentBaseName": "Ben InkedBTC Drone V0.0",
+      "droneDeploymentBaseName": "Test InkedBTC Drone V0.0",
       "droneCount": 0,
       "safeGasToForwardNative": 21000
     },
     "pauserConfiguration": {
       "shouldDeploy": true,
-      "pauserDeploymentName": "Ben InkedBTC Pauser V0.0",
+      "pauserDeploymentName": "Test InkedBTC Pauser V0.0",
       "makeGenericPauser": [
         "0x0000000000000000000000000000000000000000"
       ],
@@ -129,7 +129,7 @@
     },
     "timelockConfiguration": {
       "shouldDeploy": true,
-      "timelockDeploymentName": "Ben InkedBTC Timelock V0.0",
+      "timelockDeploymentName": "Test InkedBTC Timelock V0.0",
       "timelockParameters": {
         "minDelay": 0,
         "proposers": [
