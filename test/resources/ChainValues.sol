@@ -138,7 +138,8 @@ contract ChainValues {
         values[monad]["dev0Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
         values[monad]["dev1Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
         values[monad]["WMON"] = 0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A.toBytes32();
-        
+        values[monad]["USDC"] = 0x754704Bc059F8C67012fEd69BC8A327a5aafb603.toBytes32();
+        values[monad]["vault"] = address(1).toBytes32();
     }
 
     function _addPlasmaValues() private {
@@ -842,13 +843,13 @@ contract ChainValues {
         values[mainnet]["USD0_plusPT03_USDC_915"] = 0x8411eeb07c8e32de0b3784b6b967346a45593bfd8baeb291cc209dc195c7b3ad;
         values[mainnet]["sUSDePT_03_27_DAI_915"] = 0x5e3e6b1e01c5708055548d82d01db741e37d03b948a7ef9f3d4b962648bcbfa7;
         values[mainnet]["eUSDePT_05_28_25_USDC_915"] =
-            0x21e55c99123958ff5667f824948c97d0f64dfaa6e2848062e72bc68d200d35f9;
+        0x21e55c99123958ff5667f824948c97d0f64dfaa6e2848062e72bc68d200d35f9;
         values[mainnet]["eUSDePT_05_28_25_DAI_915"] = 0xae4571cdcad4191b9a59d1bb27a10a1b05c92c84fe423e4886d5781a30a9c8f1;
         values[mainnet]["syrupUSDC_USDC_915"] = 0x729badf297ee9f2f6b3f717b96fd355fc6ec00422284ce1968e76647b258cf44;
         values[mainnet]["PT-syrupUSDC-28AUG2025_USDC_915"] =
-            0x3bdb58058b41bb700458ba3df317e254244ddec7fc35fec93d2d53475cc6ebdc;
+        0x3bdb58058b41bb700458ba3df317e254244ddec7fc35fec93d2d53475cc6ebdc;
         values[mainnet]["PT-iUSD-4SEP2025_USDC_915"] =
-            0x3a3b0aab54883f5b2561d8327fbe234142db4f50f87574cd07daf2ed3fbee01a;
+        0x3a3b0aab54883f5b2561d8327fbe234142db4f50f87574cd07daf2ed3fbee01a;
         values[mainnet]["siUSD_USDC_915"] = 0xbbf7ce1b40d32d3e3048f5cf27eeaa6de8cb27b80194690aab191a63381d8c99;
 
         values[mainnet]["WBTC_USDC_86"] = 0x3a85e619751152991742810df6ec69ce473daef99e28a64ab2340d7b7ccfee49;
@@ -862,9 +863,9 @@ contract ChainValues {
         values[mainnet]["WBTC_USR_86"] = 0xf84288cdcf652627f66cd7a6d4c43c3ee43ca7146d9a9cfab3a136a861144d6f;
         values[mainnet]["EBTC_USR_86"] = 0xa4577bf93e8c70d9f91b6e000ae084ae0a7a29d4ebe28cbfea24975c28dccfb5;
         values[mainnet]["Corn_eBTC_PT03_2025_WETH_915"] =
-            0x4758ddbbcb96c8d0c10f46ca260d505e32399c2dd995380a832578ee84ef2d54;
+        0x4758ddbbcb96c8d0c10f46ca260d505e32399c2dd995380a832578ee84ef2d54;
         values[mainnet]["Corn_eBTC_PT03_2025_WBTC_915"] =
-            0x9dd533d05afa8dfce6a2ed82219e1c1dcebb16fe7722fb5912b989ef69df487f;
+        0x9dd533d05afa8dfce6a2ed82219e1c1dcebb16fe7722fb5912b989ef69df487f;
         values[mainnet]["eUSDe_PT05_2025_USDC_915"] = 0x21e55c99123958ff5667f824948c97d0f64dfaa6e2848062e72bc68d200d35f9;
         values[mainnet]["MCUSR_USD0_915"] = 0xcc39b6c92fd03ac608b9239618db8b80a4a2034b0450bdf47b404229571312da;
         values[mainnet]["MCUSR_USDC_915"] = 0x3889dee51674c6e728f7d05f11a3407c6853e433a0e63f8febbc45887a26a475;
@@ -872,7 +873,7 @@ contract ChainValues {
         values[mainnet]["sdeUSD_USDC_915"] = 0x0f9563442d64ab3bd3bcb27058db0b0d4046a4c46f0acd811dacae9551d2b129;
         values[mainnet]["sUSDePT_07_30_25_DAI_915"] = 0xb81eaed0df42ff6646c8daf4fe38afab93b13b6a89c9750d08e705223a45e2ef;
         values[mainnet]["sUSDePT_07_30_25_USDC_915"] =
-            0xbc552f0b14dd6f8e60b760a534ac1d8613d3539153b4d9675d697e048f2edc7e;
+        0xbc552f0b14dd6f8e60b760a534ac1d8613d3539153b4d9675d697e048f2edc7e;
         values[mainnet]["RLP_USDC_86"] = 0xe1b65304edd8ceaea9b629df4c3c926a37d1216e27900505c04f14b2ed279f33;
 
         // MetaMorpho
@@ -1467,11 +1468,11 @@ contract ChainValues {
     }
 
     function _addBaseValues() private {
-        // Liquid Ecosystem
-        values[base]["deployerAddress"] = 0x5BD97A73333B6EC2e38B687bcED159566A14C5BA.toBytes32();
-        values[base]["dev0Address"] = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b.toBytes32();
-        values[base]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
-        values[base]["liquidPayoutAddress"] = 0xA9962a5BfBea6918E958DeE0647E99fD7863b95A.toBytes32();
+        values[base]["deployerAddress"] = 0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC.toBytes32();
+        values[base]["deployerAddress1"] = 0xAb77C16026A12D12122F11450615B8D54f82Df53.toBytes32();
+        values[base]["dev0Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
+        values[base]["dev1Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
+        values[base]["liquidPayoutAddress"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
 
         // DeFi Ecosystem
         values[base]["ETH"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32();
@@ -1480,6 +1481,7 @@ contract ChainValues {
         values[base]["USDC"] = 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913.toBytes32();
         values[base]["USDT"] = 0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2.toBytes32();
         values[base]["USDS"] = 0x820C137fa70C8691f0e44Dc420a5e53c168921Dc.toBytes32();
+        values[base]["DAI"] = 0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb.toBytes32();
         values[base]["sUSDS"] = 0x5875eEE11Cf8398102FdAd704C9E96607675467a.toBytes32();
         values[base]["GHO"] = 0x6Bb7a212910682DCFdbd5BCBb3e28FB4E8da10Ee.toBytes32();
         values[base]["WETH"] = 0x4200000000000000000000000000000000000006.toBytes32();

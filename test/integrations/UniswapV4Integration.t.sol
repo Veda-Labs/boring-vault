@@ -624,6 +624,22 @@ contract UniswapV4IntegrationTest is Test, MerkleTreeHelper {
         );
     }
 
+    function testUniswapV4LiquidityFunctions_Monad() external {
+        setSourceChainName("monad");
+
+        BoringVault monUsdc;
+        ManagerWithMerkleVerification monUsdcManager;
+        address monUsdcDas; // decoderAndSanitizer
+        RolesAuthority monUsdcRolesAuthority;
+
+        monUsdc = new BoringVault(address(this), "Monad USDC", "monUSDC", 18);
+        monUsdcManager =
+            new ManagerWithMerkleVerification(address(this), address(monUsdc), getAddress(sourceChain, "vault"));
+
+        deal(getAddress(sourceChain, "WMON"), address(boringVault), 1_000_000e18);
+        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000_000e6);
+    }
+
     function testUniswapV4LiquidityFunctions() external {
         deal(getAddress(sourceChain, "USDT"), address(boringVault), 1_000_000e6);
         deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000_000e8);
