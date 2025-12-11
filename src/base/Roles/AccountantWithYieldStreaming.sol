@@ -10,6 +10,8 @@ import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
+
+
 contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
@@ -467,16 +469,11 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
 
         uint256 currentShares = vault.totalSupply();
         if (newlyVested > 0) {
+            if ((newlyVested).mulDivDown(ONE_SHARE, currentShares) > type(uint128).max)
+                downCastOverflow = true;
+
             // update the share price w/o reincluding the pending gains (done in `newlyVested`)
-            uint256 _totalAssets = uint256(vestingState.lastSharePrice).mulDivDown(currentShares, ONE_SHARE);
-            
-            if ((_totalAssets + newlyVested).mulDivDown(ONE_SHARE, currentShares) > type(uint128).max)
-                downCastOverflow = true;
-
-            vestingState.lastSharePrice = uint128((_totalAssets + newlyVested).mulDivDown(ONE_SHARE, currentShares));
-
-            if (newlyVested > type(uint128).max)
-                downCastOverflow = true;
+            vestingState.lastSharePrice += uint128((newlyVested).mulDivDown(ONE_SHARE, currentShares));
 
             //move vested amount from pending to realized
             vestingState.vestingGains -= uint128(newlyVested); // remove from pending

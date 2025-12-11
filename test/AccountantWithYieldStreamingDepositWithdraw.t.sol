@@ -20,7 +20,7 @@ import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
 
-contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
+contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     event Paused();
@@ -40,6 +40,9 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     ERC20 internal WETH;
     ERC20 internal USDC;
     ERC20 internal WBTC;
+
+    ERC20 internal WEETH;
+    address internal WEETH_RATE_PROVIDER;
 
     // Keep legacy variables for backward compatibility with existing tests
     BoringVault public boringVault;
@@ -71,6 +74,9 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         WETH = getERC20(sourceChain, "WETH");
         USDC = getERC20(sourceChain, "USDC");
         WBTC = getERC20(sourceChain, "WBTC");
+
+        WEETH = getERC20(sourceChain, "WEETH");
+        WEETH_RATE_PROVIDER = getAddress(sourceChain, "WEETH_RATE_PROVIDER");
 
         // Create shared roles authority
         rolesAuthority = new RolesAuthority(address(this), Authority(address(0)));
@@ -201,20 +207,18 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     function testNoYieldStreamedUSDCDepositWithdraw(uint96 USDCAmount, uint96 secondUSDCAmount) external {
         // Case 1: No yield has been streamed yet, asset: USDC
         USDCAmount = uint96(bound(USDCAmount, 1, 1e18));
-        secondUSDCAmount = uint96(bound(secondUSDCAmount, 1, 1e18));
+        secondUSDCAmount = uint96(bound(secondUSDCAmount, 2, 1e18)); // we get 0 shares if it is 1 which reverts
         deal(address(USDC), address(this), USDCAmount);
         USDC.approve(address(vaultUSDC.vault), type(uint256).max);
         vaultUSDC.teller.deposit(USDC, USDCAmount, 0, referrer);
 
         // No yield
-        // vaultUSDC.accountant.vestYield(...) is intentionally omitted
-        vaultUSDC.accountant.updateExchangeRate();
 
         // Second Depositor deposits
         deal(address(USDC), address(this), secondUSDCAmount);
+
         uint256 secondDepositorShares = vaultUSDC.teller.deposit(USDC, secondUSDCAmount, 0, referrer);
 
-        vaultUSDC.vault.approve(address(vaultUSDC.teller), secondDepositorShares);
         uint256 assetsOut = vaultUSDC.teller.withdraw(USDC, secondDepositorShares, 0, address(this));
 
         // Withdrawn amount should be less than or equal to the deposited amount (with no yield and no fee, this should be exactly equal unless there's rounding)
@@ -225,20 +229,17 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     function testNoYieldStreamedWBTCDepositWithdraw(uint96 WBTCAmount, uint96 secondWBTCAmount) external {
         // Case 1: No yield has been streamed yet, asset: WBTC
         WBTCAmount = uint96(bound(WBTCAmount, 1, 1e18));
-        secondWBTCAmount = uint96(bound(secondWBTCAmount, 1, 1e18));
+        secondWBTCAmount = uint96(bound(secondWBTCAmount, 2, 1e18)); // we get 0 shares if it is 1 which reverts
         deal(address(WBTC), address(this), WBTCAmount);
         WBTC.approve(address(vaultWBTC.vault), type(uint256).max);
         vaultWBTC.teller.deposit(WBTC, WBTCAmount, 0, referrer);
 
         // No yield
-        // vaultWBTC.accountant.vestYield(...) is intentionally omitted
-        vaultWBTC.accountant.updateExchangeRate();
 
         // Second Depositor deposits
         deal(address(WBTC), address(this), secondWBTCAmount);
         uint256 secondDepositorShares = vaultWBTC.teller.deposit(WBTC, secondWBTCAmount, 0, referrer);
 
-        vaultWBTC.vault.approve(address(vaultWBTC.teller), secondDepositorShares);
         uint256 assetsOut = vaultWBTC.teller.withdraw(WBTC, secondDepositorShares, 0, address(this));
 
         // Withdrawn amount should be less than or equal to the deposited amount (with no yield and no fee, this should be exactly equal unless there's rounding)
@@ -249,20 +250,17 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     function testNoYieldStreamedWETHDepositWithdraw(uint96 WETHAmount, uint96 secondWETHAmount) external {
         // Case 1: No yield has been streamed yet, asset: WETH
         WETHAmount = uint96(bound(WETHAmount, 1, 2e27));
-        secondWETHAmount = uint96(bound(secondWETHAmount, 1, 2e27));
+        secondWETHAmount = uint96(bound(secondWETHAmount, 2, 2e27)); // we get 0 shares if it is 1 which reverts
         deal(address(WETH), address(this), WETHAmount);
         WETH.approve(address(vaultWETH.vault), type(uint256).max);
         vaultWETH.teller.deposit(WETH, WETHAmount, 0, referrer);
 
         // No yield
-        // vaultWETH.accountant.vestYield(...) is intentionally omitted
-        vaultWETH.accountant.updateExchangeRate();
 
         // Second Depositor deposits
         deal(address(WETH), address(this), secondWETHAmount);
         uint256 secondDepositorShares = vaultWETH.teller.deposit(WETH, secondWETHAmount, 0, referrer);
 
-        vaultWETH.vault.approve(address(vaultWETH.teller), secondDepositorShares);
         uint256 assetsOut = vaultWETH.teller.withdraw(WETH, secondDepositorShares, 0, address(this));
 
         // Withdrawn amount should be less than or equal to the deposited amount (with no yield and no fee, this should be exactly equal unless there's rounding)
@@ -291,8 +289,6 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         // Skip less than the full vesting period (12 hours instead of 24)
         skip(12 hours);
 
-        vaultUSDC.accountant.updateExchangeRate();
-
         //now the state of the contract should be 
         //totalSupply > 1
         //exchange rate > 1 (but still vesting, not fully vested)
@@ -301,7 +297,6 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(USDC), address(this), secondDepositAmount);
         uint256 secondDepositorShares = vaultUSDC.teller.deposit(USDC, secondDepositAmount, 0, referrer);
 
-        vaultUSDC.vault.approve(address(vaultUSDC.teller), secondDepositorShares);
         uint256 assetsOut = vaultUSDC.teller.withdraw(USDC, secondDepositorShares, 0, address(this));
 
         // Withdrawn amount should be less than or equal to the deposited amount
@@ -330,8 +325,6 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         // Skip less than the full vesting period (12 hours instead of 24)
         skip(12 hours);
 
-        vaultWBTC.accountant.updateExchangeRate();
-
         //now the state of the contract should be 
         //totalSupply > 1
         //exchange rate > 1 (but still vesting, not fully vested)
@@ -340,7 +333,6 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(WBTC), address(this), secondDepositAmount);
         uint256 secondDepositorShares = vaultWBTC.teller.deposit(WBTC, secondDepositAmount, 0, referrer);
 
-        vaultWBTC.vault.approve(address(vaultWBTC.teller), secondDepositorShares);
         uint256 assetsOut = vaultWBTC.teller.withdraw(WBTC, secondDepositorShares, 0, address(this));
 
         // Withdrawn amount should be less than or equal to the deposited amount
@@ -369,8 +361,6 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         // Skip less than the full vesting period (12 hours instead of 24)
         skip(12 hours);
 
-        vaultWETH.accountant.updateExchangeRate();
-
         //now the state of the contract should be 
         //totalSupply > 1
         //exchange rate > 1 (but still vesting, not fully vested)
@@ -379,7 +369,6 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(this), secondDepositAmount);
         uint256 secondDepositorShares = vaultWETH.teller.deposit(WETH, secondDepositAmount, 0, referrer);
 
-        vaultWETH.vault.approve(address(vaultWETH.teller), secondDepositorShares);
         uint256 assetsOut = vaultWETH.teller.withdraw(WETH, secondDepositorShares, 0, address(this));
 
         // Withdrawn amount should be less than or equal to the deposited amount
@@ -407,8 +396,6 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
         skip(24 hours);
 
-        vaultUSDC.accountant.updateExchangeRate();
-
         //now the state of the contract should be 
         //totalSupply > 1
         //exchange rate > 1 
@@ -417,7 +404,6 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(USDC), address(this), secondDepositAmount);
         uint256 secondDepositorShares = vaultUSDC.teller.deposit(USDC, secondDepositAmount, 0, referrer);
 
-        vaultUSDC.vault.approve(address(vaultUSDC.teller), secondDepositorShares);
         uint256 assetsOut = vaultUSDC.teller.withdraw(USDC, secondDepositorShares, 0, address(this));
 
         // Withdrawn amount should be less than or equal to the deposited amount
@@ -445,8 +431,6 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
         skip(24 hours);
 
-        vaultWBTC.accountant.updateExchangeRate();
-
         //now the state of the contract should be 
         //totalSupply > 1
         //exchange rate > 1 
@@ -455,7 +439,6 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(WBTC), address(this), secondDepositAmount);
         uint256 secondDepositorShares = vaultWBTC.teller.deposit(WBTC, secondDepositAmount, 0, referrer);
 
-        vaultWBTC.vault.approve(address(vaultWBTC.teller), secondDepositorShares);
         uint256 assetsOut = vaultWBTC.teller.withdraw(WBTC, secondDepositorShares, 0, address(this));
 
         // Withdrawn amount should be less than or equal to the deposited amount
@@ -483,8 +466,6 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
         skip(24 hours);
 
-        vaultWETH.accountant.updateExchangeRate();
-
         //now the state of the contract should be 
         //totalSupply > 1
         //exchange rate > 1 
@@ -493,11 +474,107 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(this), secondDepositAmount);
         uint256 secondDepositorShares = vaultWETH.teller.deposit(WETH, secondDepositAmount, 0, referrer);
 
-        vaultWETH.vault.approve(address(vaultWETH.teller), secondDepositorShares);
         uint256 assetsOut = vaultWETH.teller.withdraw(WETH, secondDepositorShares, 0, address(this));
 
         // Withdrawn amount should be less than or equal to the deposited amount
         assertLe(assetsOut, secondDepositAmount, "Second depositor should not profit");
+    }
+
+    // 3d
+    function testYieldStreamedWEETHDepositWithdrawWETH(uint96 WEETHAmount, uint96 secondDepositAmount) external {
+        // Case 3d: Yield streamed for full vesting period, first depositor is normal, second depositor: deposit WEETH -> withdraw WETH -> deposit WETH -> withdraw WEETH
+
+        WEETHAmount = uint96(bound(WEETHAmount, 1, 2e27));
+        secondDepositAmount = uint96(bound(secondDepositAmount, 2, 2e27));
+
+        // --- ENABLE WEETH as a deposit/withdrawal asset in Accountant and Teller (on vaultWETH) ---
+        // Enable WEETH as deposit/withdrawal asset on the accountant
+        vaultWETH.accountant.setRateProviderData(WEETH, false, address(WEETH_RATE_PROVIDER));
+        // Enable WEETH on the teller as well
+        vaultWETH.teller.updateAssetData(WEETH, true, true, 0);
+
+        // --- Deposit WEETH ---
+        deal(address(WEETH), address(this), WEETHAmount);
+        WEETH.approve(address(vaultWETH.vault), type(uint256).max);
+        vaultWETH.teller.deposit(WEETH, WEETHAmount, 0, referrer);
+
+        // Use a yield that's safely under the limit (e.g., 5%)
+        uint256 yieldAmount = uint256(WEETHAmount) * 500 / 10_000;
+        vm.assume(yieldAmount > 0);
+
+        // Vest some yield as WETH into the vault
+        deal(address(WETH), address(vaultWETH.vault), secondDepositAmount * 2);
+        vaultWETH.accountant.vestYield(yieldAmount, 24 hours);
+
+        skip(24 hours);
+
+        // Second Depositor deposits WEETH
+        deal(address(WEETH), address(this), secondDepositAmount);
+        uint256 secondDepositorShares = vaultWETH.teller.deposit(WEETH, secondDepositAmount, 0, referrer);
+
+        // Withdraw and request WETH as the output token
+        uint256 assetsOut = vaultWETH.teller.withdraw(WETH, secondDepositorShares, 0, address(this));
+
+        // approve the assetsOut to be deposited into the vault
+        WETH.approve(address(vaultWETH.vault), assetsOut);
+
+        // deposit assetsOut into the vault
+        secondDepositorShares = vaultWETH.teller.deposit(WETH, assetsOut, 0, referrer);
+
+        // withdraw WEETH from the vault
+        uint256 WEETHOut = vaultWETH.teller.withdraw(WEETH, secondDepositorShares, 0, address(this));
+
+        // assert that the WEETHOut is equal to the secondDepositAmount
+        assertLe(WEETHOut, secondDepositAmount);
+    }
+
+    // 3e
+    function testYieldStreamedWETHDepositWithdrawWEETH(uint96 WEETHAmount, uint96 secondDepositAmount) external {
+        // Case 3e: Yield streamed for full vesting period, first depositor is normal, second depositor: deposit WETH -> withdraw WEETH -> deposit WEETH -> withdraw WETH
+
+        WEETHAmount = uint96(bound(WEETHAmount, 1, 2e27));
+        secondDepositAmount = uint96(bound(secondDepositAmount, 3, 2e27)); //at 2 this rounds down to 0 assets on repeated action -- double check
+
+        // --- ENABLE WEETH as a deposit/withdrawal asset in Accountant and Teller (on vaultWETH) ---
+        // Enable WEETH as deposit/withdrawal asset on the accountant
+        vaultWETH.accountant.setRateProviderData(WEETH, false, address(WEETH_RATE_PROVIDER));
+        // Enable WEETH on the teller as well
+        vaultWETH.teller.updateAssetData(WEETH, true, true, 0);
+
+        // --- Deposit WEETH ---
+        deal(address(WEETH), address(this), WEETHAmount);
+        WEETH.approve(address(vaultWETH.vault), type(uint256).max);
+        vaultWETH.teller.deposit(WEETH, WEETHAmount, 0, referrer);
+
+        // Use a yield that's safely under the limit (e.g., 5%)
+        uint256 yieldAmount = uint256(WEETHAmount) * 500 / 10_000;
+        vm.assume(yieldAmount > 0);
+
+        // Vest some yield as WEETH into the vault
+        deal(address(WEETH), address(vaultWETH.vault), secondDepositAmount * 2);
+        vaultWETH.accountant.vestYield(yieldAmount, 24 hours);
+
+        skip(24 hours);
+
+        // Second Depositor deposits WETH
+        deal(address(WETH), address(this), secondDepositAmount);
+        WETH.approve(address(vaultWETH.vault), secondDepositAmount);
+        uint256 secondDepositorShares = vaultWETH.teller.deposit(WETH, secondDepositAmount, 0, referrer);
+
+        // Withdraw and request WEETH as the output token
+        uint256 assetsOut = vaultWETH.teller.withdraw(WEETH, secondDepositorShares, 0, address(this));
+
+        // approve the assetsOut to be deposited into the vault
+        WEETH.approve(address(vaultWETH.vault), assetsOut);
+
+        // deposit assetsOut into the vault
+        secondDepositorShares = vaultWETH.teller.deposit(WEETH, assetsOut, 0, referrer);
+
+        // withdraw WEETH from the vault
+        uint256 WETHOut = vaultWETH.teller.withdraw(WETH, secondDepositorShares, 0, address(this));
+
+        // assert that the WEETHOut is equal to the secondDepositAmount
+        assertLe(WETHOut, secondDepositAmount);
     }
 
     // 4a
@@ -521,8 +598,6 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
         skip(24 hours);
 
-        vaultUSDC.accountant.updateExchangeRate();
-
         //now the state of the contract should be 
         //totalSupply > 1
         //exchange rate > 1 
@@ -537,13 +612,10 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         // Skip midway through the new vesting period (12 hours)
         skip(12 hours);
 
-        vaultUSDC.accountant.updateExchangeRate();
-
         // Second Depositor deposits
         deal(address(USDC), address(this), secondDepositAmount);
         uint256 secondDepositorShares = vaultUSDC.teller.deposit(USDC, secondDepositAmount, 0, referrer);
 
-        vaultUSDC.vault.approve(address(vaultUSDC.teller), secondDepositorShares);
         uint256 assetsOut = vaultUSDC.teller.withdraw(USDC, secondDepositorShares, 0, address(this));
 
         // Withdrawn amount should be less than or equal to the deposited amount
@@ -571,8 +643,6 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
         skip(24 hours);
 
-        vaultWBTC.accountant.updateExchangeRate();
-
         //now the state of the contract should be 
         //totalSupply > 1
         //exchange rate > 1 
@@ -587,13 +657,10 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         // Skip midway through the new vesting period (12 hours)
         skip(12 hours);
 
-        vaultWBTC.accountant.updateExchangeRate();
-
         // Second Depositor deposits
         deal(address(WBTC), address(this), secondDepositAmount);
         uint256 secondDepositorShares = vaultWBTC.teller.deposit(WBTC, secondDepositAmount, 0, referrer);
 
-        vaultWBTC.vault.approve(address(vaultWBTC.teller), secondDepositorShares);
         uint256 assetsOut = vaultWBTC.teller.withdraw(WBTC, secondDepositorShares, 0, address(this));
 
         // Withdrawn amount should be less than or equal to the deposited amount
@@ -621,8 +688,6 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
         skip(24 hours);
 
-        vaultWETH.accountant.updateExchangeRate();
-
         //now the state of the contract should be 
         //totalSupply > 1
         //exchange rate > 1 
@@ -637,13 +702,10 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         // Skip midway through the new vesting period (12 hours)
         skip(12 hours);
 
-        vaultWETH.accountant.updateExchangeRate();
-
         // Second Depositor deposits
         deal(address(WETH), address(this), secondDepositAmount);
         uint256 secondDepositorShares = vaultWETH.teller.deposit(WETH, secondDepositAmount, 0, referrer);
 
-        vaultWETH.vault.approve(address(vaultWETH.teller), secondDepositorShares);
         uint256 assetsOut = vaultWETH.teller.withdraw(WETH, secondDepositorShares, 0, address(this));
 
         // Withdrawn amount should be less than or equal to the deposited amount
