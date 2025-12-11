@@ -3015,6 +3015,8 @@ contract ChainValues {
         values[katana]["BTCK"] = 0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072.toBytes32();
         values[katana]["WBTC"] = 0x0913DA6Da4b42f538B445599b46Bb4622342Cf52.toBytes32(); //WBTC == vbWBTC
         values[katana]["vbWBTC"] = 0x0913DA6Da4b42f538B445599b46Bb4622342Cf52.toBytes32();
+        values[katana]["SUSHI"] = 0x17BFF452dae47e07CeA877Ff0E1aba17eB62b0aB.toBytes32();
+        values[katana]["USDC"] = 0x203A662b0BD271A6ed5a60EdFbd04bFce608FD36.toBytes32(); //vbUSDC == USDC
 
         // Balancer
         values[katana]["balancerVault"] = address(1).toBytes32();
@@ -3051,6 +3053,13 @@ contract ChainValues {
         // Yearn
         values[katana]["yvbWETH"] = 0xE007CA01894c863d7898045ed5A3B4Abf0b18f37.toBytes32();
         values[katana]["yvWSTETH"] = 0x1769111aA8EA46fee3BA23EF9B57F3CBe1873408.toBytes32();
+
+        // Merkl
+        values[katana]["merklDistributor"] = 0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae.toBytes32();
+
+         // Sushi/Swnapper/RedSnwapper
+        values[katana]["redSnwapperRouter"] = 0xAC4c6e212A361c968F1725b4d055b47E63F80b75.toBytes32();
+        values[katana]["redSnwapperExecutor"] = 0xd2b37aDE14708bf18904047b1E31F8166d39612b.toBytes32();
     }
 
     function _addTACValues() private {
