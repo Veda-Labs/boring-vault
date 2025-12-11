@@ -44,14 +44,22 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
 
         // ========================== LayerZero ==========================
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDC"), getAddress(sourceChain, "stargateUSDC"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));   
+        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDC"), getAddress(sourceChain, "stargateUSDC"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
+
+                // Fee Claiming 
+        ERC20[] memory feeAssets = new ERC20[](2);
+        feeAssets[0] = getERC20(sourceChain, "USDC");
+        feeAssets[1] = getERC20(sourceChain, "USDT");
+        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);   
 
         // ========================== Scroll Native Bridge ==========================
-        ERC20[] memory tokens = new ERC20[](3); 
+        ERC20[] memory tokens = new ERC20[](2); 
         tokens[0] = getERC20(sourceChain, "USDC"); 
         tokens[1] = getERC20(sourceChain, "USDT"); 
-        tokens[2] = getERC20(sourceChain, "DAI"); 
-        _addScrollNativeBridgeLeafs(leafs, "mainnet", tokens);  
+        address[] memory scrollGateways = new address[](2);
+        scrollGateways[0] = getAddress(scroll, "scrollUSDCGateway");
+        scrollGateways[1] = getAddress(scroll, "scrollUSDTGateway");
+        _addScrollNativeBridgeLeafs(leafs, "mainnet", tokens, scrollGateways);  
 
         // ========================== Verify ==========================
 
