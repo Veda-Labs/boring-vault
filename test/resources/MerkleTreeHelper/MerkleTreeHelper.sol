@@ -9853,40 +9853,14 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
 
     // ========================================= Resolv =========================================
 
-    function _addAllResolvLeafs(ManageLeaf[] memory leafs) internal {
-        _addResolvUsrExternalRequestsManagerLeafs(leafs);
+    function _addAllResolvLeafs(ManageLeaf[] memory leafs, ERC20[] memory assets) internal {
+        _addResolvUsrExternalRequestsManagerLeafs(leafs, assets);
         _addResolvStUSRLeafs(leafs);
         _addResolvWstUSRLeafs(leafs);
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "wstUSR")));
     }
 
-    function _addResolvUsrExternalRequestsManagerLeafs(ManageLeaf[] memory leafs) internal {
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "USDC"),
-            false,
-            "approve(address,uint256)",
-            new address[](1),
-            string.concat("Approve USDC to be spent by USR External Requests Manager"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "UsrExternalRequestsManager");
-
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "USDT"),
-            false,
-            "approve(address,uint256)",
-            new address[](1),
-            string.concat("Approve USDT to be spent by USR External Requests Manager"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "UsrExternalRequestsManager");
-
+    function _addResolvUsrExternalRequestsManagerLeafs(ManageLeaf[] memory leafs, ERC20[] memory assets) internal {
         unchecked {
             leafIndex++;
         }
@@ -9900,57 +9874,45 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "UsrExternalRequestsManager");
 
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "UsrExternalRequestsManager"),
-            false,
-            "requestMint(address,uint256,uint256)",
-            new address[](1),
-            string.concat("Convert USDC to USR"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "USDC");
+        for (uint256 i = 0; i < assets.length; i++) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                address(assets[i]),
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve ", assets[i].symbol(), " to be spent by USR External Requests Manager"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
 
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "UsrExternalRequestsManager"),
-            false,
-            "requestBurn(uint256,address,uint256)",
-            new address[](1),
-            string.concat("Convert USR to USDC"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "USDC");
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "UsrExternalRequestsManager"),
+                false,
+                "requestMint(address,uint256,uint256)",
+                new address[](1),
+                string.concat("Convert ", assets[i].symbol(), " to USR"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(assets[i]);
 
-        unchecked {
-            leafIndex++;
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "UsrExternalRequestsManager"),
+                false,
+                "requestBurn(uint256,address,uint256)",
+                new address[](1),
+                string.concat("Convert USR to ", assets[i].symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(assets[i]);
         }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "UsrExternalRequestsManager"),
-            false,
-            "requestMint(address,uint256,uint256)",
-            new address[](1),
-            string.concat("Convert USDT to USR"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "USDT");
-
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "UsrExternalRequestsManager"),
-            false,
-            "requestBurn(uint256,address,uint256)",
-            new address[](1),
-            string.concat("Convert USR to USDT"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "USDT");
 
         unchecked {
             leafIndex++;
