@@ -22,6 +22,8 @@ import {MorphoBlueDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Prot
 import {UniswapV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV3DecoderAndSanitizer.sol";
 import {SpectraDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SpectraDecoderAndSanitizer.sol";
 import {BTCKDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BTCKDecoderAndSanitizer.sol"; 
+import {MerklDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MerklDecoderAndSanitizer.sol";
+import {RedSnwapperDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/RedSnwapperDecoderAndSanitizer.sol";
 
 contract KatanaDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
@@ -29,7 +31,6 @@ contract KatanaDecoderAndSanitizer is
     AgglayerDecoderAndSanitizer,
     CCIPDecoderAndSanitizer,
     OneInchDecoderAndSanitizer,
-    OdosDecoderAndSanitizer,
     EtherFiDecoderAndSanitizer,
     NativeWrapperDecoderAndSanitizer,
     LidoDecoderAndSanitizer,
@@ -39,11 +40,12 @@ contract KatanaDecoderAndSanitizer is
     MorphoBlueDecoderAndSanitizer,
     UniswapV3DecoderAndSanitizer,
     SpectraDecoderAndSanitizer,
-    BTCKDecoderAndSanitizer
+    BTCKDecoderAndSanitizer,
+    MerklDecoderAndSanitizer,
+    RedSnwapperDecoderAndSanitizer
 {
-    constructor(address _nonFungiblePositionManager, address _odosRouter)
+    constructor(address _nonFungiblePositionManager)
         UniswapV3DecoderAndSanitizer(_nonFungiblePositionManager)
-        OdosDecoderAndSanitizer(_odosRouter)
         AtomicQueueDecoderAndSanitizer(0.9e4, 1.1e4)
     {}
 

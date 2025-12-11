@@ -19,7 +19,7 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x75231079973C23e9eB6180fa3D2fc21334565aB5;
-    address public rawDataDecoderAndSanitizer = 0x3222c878bFDC72573a39dF711DE2bd530eB45054;
+    address public rawDataDecoderAndSanitizer = 0xf6F82Dccb47Ead8772F51A955222247391FdC20e;
     address public managerAddress = 0x9aC5AEf62eCe812FEfb77a0d1771c9A5ce3D04E4;
     address public accountantAddress = 0x90e864A256E58DBCe034D9C43C3d8F18A00f55B6;
 
@@ -37,7 +37,7 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, katana, "accountantAddress", accountantAddress);
         setAddress(false, katana, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](64);
+        ManageLeaf[] memory leafs = new ManageLeaf[](128);
 
         // ========================== LBTC Bridge Wrapper ==========================
         // To Mainnet
@@ -72,18 +72,40 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
         );
 
         // ========================== Sushi ==========================
-        address[] memory token0 = new address[](3);
+        address[] memory token0 = new address[](5);
         token0[0] = getAddress(sourceChain, "LBTC");
         token0[1] = getAddress(sourceChain, "WBTC");
         token0[2] = getAddress(sourceChain, "LBTC");
+        token0[3] = getAddress(sourceChain, "SUSHI");
+        token0[4] = getAddress(sourceChain, "USDC");
 
-        address[] memory token1 = new address[](3);
+        address[] memory token1 = new address[](5);
         token1[0] = getAddress(sourceChain, "BTCK");
         token1[1] = getAddress(sourceChain, "BTCK");
         token1[2] = getAddress(sourceChain, "WBTC");
+        token1[3] = getAddress(sourceChain, "USDC");
+        token1[4] = getAddress(sourceChain, "WBTC");
+
 
         _addUniswapV3Leafs(leafs, token0, token1, false);
-            
+
+        // ========================== Merkl Claiming ==========================
+        _addMerklClaimLeaf(leafs, getAddress(sourceChain, "merklDistributor"));
+
+        // ========================== Sushi Snwapper ==========================
+        address[] memory tokens = new address[](4);
+        tokens[0] = getAddress(sourceChain, "SUSHI");
+        tokens[1] = getAddress(sourceChain, "USDC");
+        tokens[2] = getAddress(sourceChain, "WBTC");
+        tokens[3] = getAddress(sourceChain, "LBTC");
+
+        SwapKind[] memory kinds = new SwapKind[](4);
+        kinds[0] = SwapKind.Sell;
+        kinds[1] = SwapKind.Sell;
+        kinds[2] = SwapKind.BuyAndSell;
+        kinds[3] = SwapKind.BuyAndSell;
+
+        _addSnwapLeafs(leafs, tokens, kinds);
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
