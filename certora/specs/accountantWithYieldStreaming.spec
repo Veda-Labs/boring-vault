@@ -114,3 +114,9 @@ rule testCondition()
 
     assert cond2 => cond1;
 }
+
+invariant accountantDecimalsCorrect(env e)
+    accountant_contract.decimals == accountant_contract.base.decimals(e)
+    filtered { f ->
+        f.selector == sig:accountant_contract.vestYield(uint256,uint256).selector
+}
