@@ -36,6 +36,14 @@ contract ResolvDecoderAndSanitizer is ERC4626DecoderAndSanitizer {
         addressesFound = abi.encodePacked(_receiver, _withdrawalTokenAddress);
     }
 
+    function cancelMint(uint256 /*_id*/) external pure virtual returns (bytes memory addressesFound) {
+        return addressesFound;
+    }
+
+    function cancelBurn(uint256 /*_id*/) external pure virtual returns (bytes memory addressesFound) {
+        return addressesFound;
+    }
+
     //============================== stUSR ===============================
 
     function deposit(uint256 /*_usrAmount*/ ) external pure virtual returns (bytes memory addressesFound) {
@@ -47,6 +55,21 @@ contract ResolvDecoderAndSanitizer is ERC4626DecoderAndSanitizer {
     }
 
     //============================== wstUSR ===============================
+
+    /*
+    The following functions are available on wstUSR but the signature conflicts with
+    the above stUSR methods of the same name. Leaves have been added against wstUSR
+
+    // direct from USR -> wstUSR
+    function deposit(uint256 _usrAmount ) external pure virtual returns (bytes memory addressesFound) {
+        return addressesFound;
+    }
+
+    // direct from wstUSR -> USR
+    function withdraw(uint256 _usrAmount) external pure virtual returns (bytes memory addressesFound) {
+        return addressesFound;
+    }
+    */
 
     function wrap(uint256 /*_stUSRAmount*/ ) external pure virtual returns (bytes memory addressesFound) {
         return addressesFound;

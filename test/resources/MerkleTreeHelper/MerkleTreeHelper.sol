@@ -9951,6 +9951,30 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "USDT");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "UsrExternalRequestsManager"),
+            false,
+            "cancelMint(uint256)",
+            new address[](0),
+            string.concat("Cancel USR mint request"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "UsrExternalRequestsManager"),
+            false,
+            "cancelBurn(uint256)",
+            new address[](0),
+            string.concat("Cancel USR burn request"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
     }
 
     function _addResolvStUSRLeafs(ManageLeaf[] memory leafs) internal {
@@ -10050,9 +10074,33 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex] = ManageLeaf(
             getAddress(sourceChain, "wstUSR"),
             false,
+            "deposit(uint256)",
+            new address[](0),
+            string.concat("Stake + Wrap USR for wstUSR"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "wstUSR"),
+            false,
             "unwrap(uint256)",
             new address[](0),
             string.concat("Convert wstUSR to stUSR"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "wstUSR"),
+            false,
+            "withdraw(uint256)",
+            new address[](0),
+            string.concat("Unwrap + Unstake wstUSR for USR"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
     }
