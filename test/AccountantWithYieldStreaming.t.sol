@@ -932,7 +932,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         // Check rate AFTER deposit
         uint256 supplyAfter = boringVault.totalSupply();
         uint256 rateAfter = accountant.getRate();
-        console.logInt(int256(rateAfter) - int256(rateBefore));
+        //console.logInt(int256(rateAfter) - int256(rateBefore));
 
         boringVault.approve(address(teller), shares1);
         uint256 assetsOut = teller.withdraw(WETH, shares1, 0, address(this));
