@@ -95,7 +95,7 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
         tokens[3] = getAddress(sourceChain, "LBTC");
 
         SwapKind[] memory kinds = new SwapKind[](4);
-        kinds[0] = SwapKind.BuyAndSell;
+        kinds[0] = SwapKind.Sell;
         kinds[1] = SwapKind.BuyAndSell;
         kinds[2] = SwapKind.BuyAndSell;
         kinds[3] = SwapKind.BuyAndSell;
