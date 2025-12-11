@@ -25,6 +25,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
     address public scrollBridgeDecoderAndSanitizer = 0xA66a6B289FB5559b7e4ebf598B8e0A97C776c200;
     address public itbPositionManager = 0x7AAf9539B7359470Def1920ca41b5AAA05C13726;
     address public itbPositionManager2 = 0x11Fd9E49c41738b7500748f7B94B4DBb0E8c13d2; // Spark LBTC (PYUSD) + Aave Core Euler PYUSD Supervised Loan
+    address public itbPositionManager3 = 0xfBCA329E2Ee0c44d8F115A4B8F7ceda9E109f436; // Aave eBTC->RLUSD-> Euler Sentora RLUSD
     address public itbDecoderAndSanitizer = 0xb75bfC8B0Cc8588C510DcAE75c67A9DC9cF508d5; 
 
     function setUp() external {}
@@ -505,6 +506,10 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
             ERC20[] memory itbTokensUsed2 = new ERC20[](1);
             itbTokensUsed2[0] = getERC20(sourceChain, "LBTC");
             _addLeafsForITBPositionManager(leafs, itbPositionManager2, itbTokensUsed2, "ITB Position Manager 2");
+
+            ERC20[] memory itbTokensUsed3 = new ERC20[](1);
+            itbTokensUsed3[0] = getERC20(sourceChain, "eBTC");
+            _addLeafsForITBPositionManager(leafs, itbPositionManager3, itbTokensUsed3, "ITB Position Manager 3");
         }
 
         // ========================== Verify ==========================
