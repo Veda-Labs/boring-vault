@@ -72,15 +72,20 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
         );
 
         // ========================== Sushi ==========================
-        address[] memory token0 = new address[](3);
+        address[] memory token0 = new address[](5);
         token0[0] = getAddress(sourceChain, "LBTC");
         token0[1] = getAddress(sourceChain, "WBTC");
         token0[2] = getAddress(sourceChain, "LBTC");
+        token0[3] = getAddress(sourceChain, "SUSHI");
+        token0[4] = getAddress(sourceChain, "USDC");
 
-        address[] memory token1 = new address[](3);
+        address[] memory token1 = new address[](5);
         token1[0] = getAddress(sourceChain, "BTCK");
         token1[1] = getAddress(sourceChain, "BTCK");
         token1[2] = getAddress(sourceChain, "WBTC");
+        token1[3] = getAddress(sourceChain, "USDC");
+        token1[4] = getAddress(sourceChain, "WBTC");
+
 
         _addUniswapV3Leafs(leafs, token0, token1, false);
 
@@ -96,7 +101,7 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
 
         SwapKind[] memory kinds = new SwapKind[](4);
         kinds[0] = SwapKind.Sell;
-        kinds[1] = SwapKind.BuyAndSell;
+        kinds[1] = SwapKind.Sell;
         kinds[2] = SwapKind.BuyAndSell;
         kinds[3] = SwapKind.BuyAndSell;
 
