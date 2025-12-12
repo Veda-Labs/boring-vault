@@ -121,11 +121,11 @@ import {SentoraUSDCMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitiz
 import {ITBBasePositionDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/ITBBasePositionDecoderAndSanitizer.sol";
 import {BalancedUSDCDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TestBalancedUSDCDecoderAndSanitizer.sol";
 import {InkLiquidETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/InkLiquidETHDecoderAndSanitizer.sol";
-import {TestBalancedUSDCDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TestBalancedUSDCDecoderAndSanitizer.sol";
 import {SentayUSDCInkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentayUSDCInkDecoderAndSanitizer.sol";
 import {SentayUSDCMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentayUSDCMainnetDecoderAndSanitizer.sol";
 import {ITBBasePositionDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/ITBBasePositionDecoderAndSanitizer.sol";
 import {BoostedUSDCInkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BoostedUSDCInkDecoderAndSanitizer.sol";
+import {KHypeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/KHypeDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -156,24 +156,24 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(SentoraUSDCInkDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode();
-        console.log("SentoraUSDC Ink Decoder and Sanitizer V0.0");
+        creationCode = type(KHypeDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "odosRouterV2"));
+        console.log("KHype Decoder and Sanitizer V0.1");
         console.logBytes(constructorArgs);
-        deployer.deployContract("SentoraUSDC Ink Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        deployer.deployContract("KHype Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
 
-        creationCode = type(BalancedUSDCDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode();
-        console.log("SentayUSDC Ink Decoder and Sanitizer V0.0");
-        console.logBytes(constructorArgs);
-        deployer.deployContract("SentayUSDC Ink Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // creationCode = type(BalancedUSDCDecoderAndSanitizer).creationCode;
+        // constructorArgs = abi.encode();
+        // console.log("SentayUSDC Ink Decoder and Sanitizer V0.0");
+        // console.logBytes(constructorArgs);
+        // deployer.deployContract("SentayUSDC Ink Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        creationCode = type(ITBBasePositionDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode();
-        console.log("ITB Base Position Decoder and Sanitizer V0.1");
-        console.logBytes(constructorArgs);
-        deployer.deployContract("ITB Base Position Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
-        vm.stopBroadcast();
+        // creationCode = type(ITBBasePositionDecoderAndSanitizer).creationCode;
+        // constructorArgs = abi.encode();
+        // console.log("ITB Base Position Decoder and Sanitizer V0.1");
+        // console.logBytes(constructorArgs);
+        // deployer.deployContract("ITB Base Position Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
+        // vm.stopBroadcast();
     }
 
     // do not use, this is really intended for doing a giga deploy on a new chain

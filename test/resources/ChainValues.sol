@@ -80,6 +80,7 @@ contract ChainValues {
 
     uint32 public constant cctpMainnetDomainId = 0; 
     uint32 public constant cctpInkDomainId = 21; 
+    uint32 public constant cctpHyperEVMDomainId = 19;
 
     error ChainValues__ZeroAddress(string chainName, string valueName);
     error ChainValues__ZeroBytes32(string chainName, string valueName);
@@ -1322,6 +1323,7 @@ contract ChainValues {
         values[mainnet]["CBBTCOFTAdapterTAC"] = 0x59Ea2825d8Ad7D60cC6Aa77FFbDD0E89c0fBF539.toBytes32();
         values[mainnet]["USDEOFTAdapter"] = 0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34.toBytes32();
         values[mainnet]["USDTOFTAdapter2"] = 0x1F748c76dE468e9D11bd340fA9D5CBADf315dFB0.toBytes32();
+        values[mainnet]["USDT0OFTAdapter"] = 0x6C96dE32CEa08842dcc4058c14d3aaAD7Fa41dee.toBytes32();
         values[mainnet]["SUSDEOFTAdapter"] = 0x211Cc4DD073734dA055fbF44a2b4667d5E5fE5d2.toBytes32();
         values[mainnet]["wstUSROFTAdapter"] = 0xab17c1fE647c37ceb9b96d1c27DD189bf8451978.toBytes32();
 
@@ -2786,6 +2788,8 @@ contract ChainValues {
         values[hyperEVM]["WHYPE"] = 0x5555555555555555555555555555555555555555.toBytes32();
         values[hyperEVM]["KHYPE"] = 0xfD739d4e423301CE9385c1fb8850539D657C296D.toBytes32();
         values[hyperEVM]["PENDLE"] = 0xD6Eb81136884713E843936843E286FD2a85A205A.toBytes32();
+        values[hyperEVM]["USDT"] = 0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb.toBytes32();
+        values[hyperEVM]["USDC"] = 0xb88339CB7199b77E23DB6E890353E22632Ba630f.toBytes32();
 
         // Balanacer
         values[hyperEVM]["balancerVault"] = address(1).toBytes32();
@@ -2829,7 +2833,7 @@ contract ChainValues {
 
         // Ooga Booga
         values[hyperEVM]["OBRouter"] = 0x5fbD1B5AA82d09359C05428647871fe9aDd3F411.toBytes32();
-        values[hyperEVM]["OBExecutor"] = 0x65d1eA56196B9451AE11813E44AC5b2367f93eaD.toBytes32();
+        values[hyperEVM]["OBExecutor"] = 0xD0619f184Bc735f4d07fa36322e69ff15E8bfBb2.toBytes32();
 
     }
 
