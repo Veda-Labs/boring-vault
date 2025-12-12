@@ -120,7 +120,8 @@ contract ChainValues {
         _addDeriveValues();
         _addUnichainValues();
         _addKatanaValues();
-        _addPlasmaValues(); // Plasma
+        _addPlasmaValues();
+        _addMonadValues();
         // Add testnet values
         _addHoleskyValues();
         _addSepoliaValues();
@@ -129,7 +130,6 @@ contract ChainValues {
         _addBerachainTestnetValues();
         _addBartioValues();
         _addHyperEvmValues();
-        _addMonadValues();
     }
 
     function _addMonadValues() private {
@@ -139,7 +139,14 @@ contract ChainValues {
         values[monad]["dev1Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
         values[monad]["WMON"] = 0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A.toBytes32();
         values[monad]["USDC"] = 0x754704Bc059F8C67012fEd69BC8A327a5aafb603.toBytes32();
+        values[monad]["AUSD"] = 0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a.toBytes32();
         values[monad]["vault"] = address(1).toBytes32();
+
+        // uniswap v4
+        values[monad]["uniV4PoolManager"] = 0x188d586Ddcf52439676Ca21A244753fA19F9Ea8e.toBytes32();
+        values[monad]["uniV4PositionManager"] = 0x5b7eC4a94fF9beDb700fb82aB09d5846972F4016.toBytes32();
+        values[monad]["uniV4UniversalRouter"] = 0x0D97Dc33264bfC1c226207428A79b26757fb9dc3.toBytes32();
+        values[monad]["permit2"] = 0x000000000022D473030F116dDEE9F6B43aC78BA3.toBytes32();
     }
 
     function _addPlasmaValues() private {
