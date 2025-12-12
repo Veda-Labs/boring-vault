@@ -125,6 +125,7 @@ import {SentayUSDCInkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/S
 import {SentayUSDCMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentayUSDCMainnetDecoderAndSanitizer.sol";
 import {ITBBasePositionDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/ITBBasePositionDecoderAndSanitizer.sol";
 import {BoostedUSDCInkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BoostedUSDCInkDecoderAndSanitizer.sol";
+import {KHypeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/KHypeDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -146,8 +147,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("hyperEVM");
-        setSourceChainName("hyperEVM");
+        vm.createSelectFork("mainnet");
+        setSourceChainName("mainnet");
     }
 
     function run() external {
@@ -155,11 +156,11 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(KHypeHyperEVMDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(getAddress("hyperEVM", "uniswapV3NonFungiblePositionManager"));
-        console.log("KHype HyperEVM Decoder and Sanitizer V0.2");
+        creationCode = type(KHypeDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "odosRouterV2"));
+        console.log("KHype Decoder and Sanitizer V0.0");
         console.logBytes(constructorArgs);
-        deployer.deployContract("KHype HyperEVM Decoder and Sanitizer V0.2", creationCode, constructorArgs, 0);
+        deployer.deployContract("KHype Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         // creationCode = type(BalancedUSDCDecoderAndSanitizer).creationCode;
         // constructorArgs = abi.encode();
