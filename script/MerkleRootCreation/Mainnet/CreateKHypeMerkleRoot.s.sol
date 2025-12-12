@@ -18,7 +18,7 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x9BA2EDc44E0A4632EB4723E81d4142353e1bB160;
-    address public rawDataDecoderAndSanitizer = 0x7F0392dda62074A20BE914f3e7C4B6feDaF959E5;
+    address public rawDataDecoderAndSanitizer = 0xd0f4BE941054BB09E73Da3405F849B4783415197;
     address public managerAddress = 0x7f8CcAA760E0F621c7245d47DC46d40A400d3639;
     address public accountantAddress = 0x7835d0C886CB10aC235df372303FAE86f1b7FD86;
 
@@ -55,22 +55,18 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
         _addNativeLeafs(leafs, getAddress(sourceChain, "WETH"));
 
         // ========================== Layer Zero / Stargate ==========================
-        // Bridge USDC to HyperEVM
-        _addLayerZeroLeafs({
-            leafs: leafs,
-            asset: getERC20(sourceChain, "USDC"),
-            oftAdapter: getAddress(sourceChain, "stargateUSDC"),
-            endpoint: HyperEVMEndpointId,
-            to: getBytes32(sourceChain, "boringVault")
-        });
         // Bridge USDT to HyperEVM
         _addLayerZeroLeafs({
             leafs: leafs,
             asset: getERC20(sourceChain, "USDT"),
-            oftAdapter: getAddress(sourceChain, "USDTOFTAdapter2"),
+            oftAdapter: getAddress(sourceChain, "USDT0OFTAdapter"),
             endpoint: HyperEVMEndpointId,
             to: getBytes32(sourceChain, "boringVault")
         });
+
+        // ========================== CCTP ==========================
+        // Bridge USDC to HyperEVM
+        _addCCTPBridgeLeafs(leafs, cctpHyperEVMDomainId);
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

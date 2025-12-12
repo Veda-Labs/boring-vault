@@ -158,9 +158,9 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
 
         creationCode = type(KHypeDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(getAddress(sourceChain, "odosRouterV2"));
-        console.log("KHype Decoder and Sanitizer V0.0");
+        console.log("KHype Decoder and Sanitizer V0.1");
         console.logBytes(constructorArgs);
-        deployer.deployContract("KHype Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        deployer.deployContract("KHype Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
 
         // creationCode = type(BalancedUSDCDecoderAndSanitizer).creationCode;
         // constructorArgs = abi.encode();

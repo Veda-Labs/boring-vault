@@ -9,13 +9,15 @@ import {NativeWrapperDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/P
 import {OFTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OFTDecoderAndSanitizer.sol";
 import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol";
 import {OneInchDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OneInchDecoderAndSanitizer.sol";
+import {CCTPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCTPDecoderAndSanitizer.sol";
 
 contract KHypeDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
     NativeWrapperDecoderAndSanitizer,
     OFTDecoderAndSanitizer,
     OdosDecoderAndSanitizer,
-    OneInchDecoderAndSanitizer
+    OneInchDecoderAndSanitizer,
+    CCTPDecoderAndSanitizer
 {
 
     constructor(address _odosRouter) 
