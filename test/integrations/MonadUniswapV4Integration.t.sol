@@ -105,6 +105,14 @@ contract MonadUniswapV4IntegrationTest is Test, MerkleTreeHelper {
     function testUniswapV4Swap() external {
         deal(getAddress(sourceChain, "WMON"), address(boringVault), 1_000_000e18);
         deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000_000e6);
+
+        ManageLeaf[] memory leafs = new ManageLeaf[](32);
+        address[] memory token0 = new address[](1);
+        token0[0] = getAddress(sourceChain, "USDT");
+        address[] memory token1 = new address[](1);
+        token1[0] = getAddress(sourceChain, "USDC");
+        address[] memory hooks = new address[](1);
+        hooks[0] = address(0);
     }
 
     // ========================================= HELPER FUNCTIONS =========================================
