@@ -53,7 +53,17 @@ contract TellerWithYieldStreaming is TellerWithBuffer {
         if (vault.totalSupply() == 0) {
             _getAccountant().setFirstDepositTimestamp(); 
         }
-        shares = super._erc20Deposit(depositAsset, depositAmount, minimumMint, from, to, asset);
+        _handleDenyList(from, to, msg.sender);
+        uint112 cap = depositCap;
+        if (depositAmount == 0) revert TellerWithMultiAssetSupport__ZeroAssets();
+        shares = depositAmount.mulDivDown(ONE_SHARE, accountant.getRateInQuoteSafe(depositAsset) + 1); 
+        shares = asset.sharePremium > 0 ? shares.mulDivDown(1e4 - asset.sharePremium, 1e4) : shares;
+        if (shares < minimumMint) revert TellerWithMultiAssetSupport__MinimumMintNotMet();
+        if (cap != type(uint112).max) {
+            if (shares + vault.totalSupply() > cap) revert TellerWithMultiAssetSupport__DepositExceedsCap();
+        }
+        vault.enter(from, depositAsset, depositAmount, to, shares);
+        _afterDeposit(depositAsset, depositAmount);
     }
 
     /**
