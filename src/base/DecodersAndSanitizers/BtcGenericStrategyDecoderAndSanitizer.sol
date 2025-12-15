@@ -23,18 +23,12 @@ import {
     PendleRouterDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/Protocols/PendleRouterDecoderAndSanitizer.sol";
 import {AaveV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AaveV3DecoderAndSanitizer.sol";
-import {
-    EigenLayerLSTStakingDecoderAndSanitizer
-} from "src/base/DecodersAndSanitizers/Protocols/EigenLayerLSTStakingDecoderAndSanitizer.sol";
-import {
-    SwellSimpleStakingDecoderAndSanitizer
-} from "src/base/DecodersAndSanitizers/Protocols/SwellSimpleStakingDecoderAndSanitizer.sol";
-import {
-    ZircuitSimpleStakingDecoderAndSanitizer
-} from "src/base/DecodersAndSanitizers/Protocols/ZircuitSimpleStakingDecoderAndSanitizer.sol";
 import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
+import {OFTDecoderAndSanitizer} from "./Protocols/OFTDecoderAndSanitizer.sol";
+import {OdosDecoderAndSanitizer} from "./Protocols/OdosDecoderAndSanitizer.sol";
+import {FluidDexDecoderAndSanitizer} from "./Protocols/FluidDexDecoderAndSanitizer.sol";
 
-contract EtherFiLiquidBtcDecoderAndSanitizer is
+contract BtcGenericStrategyDecoderAndSanitizer is
     UniswapV3DecoderAndSanitizer,
     BalancerV2DecoderAndSanitizer,
     MorphoBlueDecoderAndSanitizer,
@@ -44,17 +38,17 @@ contract EtherFiLiquidBtcDecoderAndSanitizer is
     ConvexDecoderAndSanitizer,
     EtherFiDecoderAndSanitizer,
     NativeWrapperDecoderAndSanitizer,
-    OneInchDecoderAndSanitizer,
     GearboxDecoderAndSanitizer,
     PendleRouterDecoderAndSanitizer,
     AaveV3DecoderAndSanitizer,
-    EigenLayerLSTStakingDecoderAndSanitizer,
-    SwellSimpleStakingDecoderAndSanitizer,
-    ZircuitSimpleStakingDecoderAndSanitizer,
-    TellerDecoderAndSanitizer
+    TellerDecoderAndSanitizer,
+    OFTDecoderAndSanitizer,
+    OdosDecoderAndSanitizer,
+    FluidDexDecoderAndSanitizer
 {
-    constructor(address _uniswapV3NonFungiblePositionManager)
+    constructor(address _uniswapV3NonFungiblePositionManager, address _odosRouter)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
+        OdosDecoderAndSanitizer(_odosRouter)
     {}
 
     //============================== HANDLE FUNCTION COLLISIONS ===============================
@@ -128,7 +122,7 @@ contract EtherFiLiquidBtcDecoderAndSanitizer is
     )
         external
         pure
-        override(AaveV3DecoderAndSanitizer, SwellSimpleStakingDecoderAndSanitizer)
+        override(AaveV3DecoderAndSanitizer)
         returns (bytes memory addressesFound)
     {
         addressesFound = abi.encodePacked(_token, _receiver);

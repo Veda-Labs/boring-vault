@@ -4,9 +4,9 @@
         "privateKeyEnvName": "PRIVATE_KEY_1",
         "chainName": "mainnet",
         "evmVersion": "cancun",
-        "desiredNumberOfDeploymentTxs": 1,
+        "desiredNumberOfDeploymentTxs": 20,
         "txBundlerAddressOrName": {
-            "address": "0x5BD97A73333B6EC2e38B687bcED159566A14C5BA",
+            "address": "0x0000000000000000000000000000000000000000",
             "name": "txBundlerAddress"
         },
         "setupRoles": true,
@@ -25,32 +25,32 @@
             "name": "WETH"
         },
         "deploymentOwnerAddressOrName": {
-            "address": "0x5BD97A73333B6EC2e38B687bcED159566A14C5BA",
+            "address": "0x0000000000000000000000000000000000000000",
             "name": "dev0Address"
         },
-        "deploymentFileName": "MainnetBTCCarryDeployment.json"
+        "deploymentFileName": "EthereumBtcCarryDeployment.json"
     },
     "rolesAuthorityConfiguration": {
-        "rolesAuthorityDeploymentName": "BTCCarry rolesAuthorityV1.0"
+        "rolesAuthorityDeploymentName": "BtcCarry rolesAuthorityV1.0"
     },
     "lensConfiguration": {
-        "lensDeploymentName": "BTCCarry lensV1.0"
+        "lensDeploymentName": "BtcCarry lensV1.0"
     },
     "boringVaultConfiguration": {
-        "boringVaultDeploymentName": "BTCCarry boringVaultV1.0",
-        "boringVaultName": "BTC Carry Boring Vault",
-        "boringVaultSymbol": "BTCCarry",
+        "boringVaultDeploymentName": "BtcCarry boringVaultV1.0",
+        "boringVaultName": "LucidlyFi BTC Carry Strategy",
+        "boringVaultSymbol": "LBTCC",
         "boringVaultDecimals": 8
     },
     "managerConfiguration": {
-        "managerDeploymentName": "BTCCarry managerV1.0",
+        "managerDeploymentName": "BtcCarry managerV1.0",
         "balancerVaultAddressOrName": {
             "address": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
             "name": "balancerVault"
         }
     },
     "accountantConfiguration": {
-        "accountantDeploymentName": "BTCCarry accountantV1.0",
+        "accountantDeploymentName": "BtcCarry accountantV1.0",
         "accountantParameters": {
             "kind": {
                 "variableRate": true,
@@ -76,7 +76,7 @@
         }
     },
     "tellerConfiguration": {
-        "tellerDeploymentName": "BTCCarry TellerV1.0",
+        "tellerDeploymentName": "BtcCarry TellerV1.0",
         "tellerParameters": {
             "allowPublicDeposits": false,
             "shareLockPeriod": 86400,
@@ -115,17 +115,7 @@
                 },
                 "lzChains": [
                     {
-                        "chainId": 42161,
-                        "allowMessagesFrom": true,
-                        "allowMessagesTo": true,
-                        "targetTellerOrSelf": {
-                            "address": "0x0000000000000000000000000000000000000000",
-                            "self": true
-                        },
-                        "messageGasLimit": 100000
-                    },
-                    {
-                        "chainId": 1,
+                        "chainId": 30184,
                         "allowMessagesFrom": true,
                         "allowMessagesTo": true,
                         "targetTellerOrSelf": {
@@ -139,8 +129,8 @@
         }
     },
     "boringQueueConfiguration": {
-        "boringQueueDeploymentName": "BTCCarry BoringOnChainQueueV1.0",
-        "boringQueueSolverName": "BTCCarry BoringSolverV1.0",
+        "boringQueueDeploymentName": "BtcCarry BoringOnChainQueueV1.0",
+        "boringQueueSolverName": "BtcCarry BoringSolverV1.0",
         "queueParameters": {
             "allowPublicWithdrawals": false,
             "allowPublicSelfWithdrawals": false,
@@ -151,13 +141,13 @@
         }
     },
     "droneConfiguration": {
-        "droneDeploymentBaseName": "BTCCarry boring drone",
+        "droneDeploymentBaseName": "BtcCarry Boring Drone",
         "droneCount": 1,
         "safeGasToForwardNative": 21000
     },
     "pauserConfiguration": {
         "shouldDeploy": true,
-        "pauserDeploymentName": "pauser",
+        "pauserDeploymentName": "BtcCarry Pauser",
         "makeGenericPauser": [
             "0x0000000000000000000000000000000000000000"
         ],
