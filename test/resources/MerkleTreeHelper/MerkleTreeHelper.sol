@@ -10047,6 +10047,19 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             leafIndex++;
         }
         leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "USR"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve USR to be converted to wstUSR"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "wstUSR");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
             getAddress(sourceChain, "wstUSR"),
             false,
             "approve(address,uint256)",
