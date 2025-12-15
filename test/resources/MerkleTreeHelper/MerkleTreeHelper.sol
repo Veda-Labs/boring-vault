@@ -9886,6 +9886,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 string.concat("Approve ", assets[i].symbol(), " to be spent by USR External Requests Manager"),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "UsrExternalRequestsManager");
 
             unchecked {
                 leafIndex++;
