@@ -1,10 +1,10 @@
 {
     "deploymentParameters": {
         "logLevel": 4,
-        "privateKeyEnvName": "PRIVATE_KEY_1",
+        "privateKeyEnvName": "PK",
         "chainName": "base",
         "evmVersion": "cancun",
-        "desiredNumberOfDeploymentTxs": 5,
+        "desiredNumberOfDeploymentTxs": 20,
         "txBundlerAddressOrName": {
             "address": "0x5BD97A73333B6EC2e38B687bcED159566A14C5BA",
             "name": "txBundlerAddress"
@@ -31,26 +31,26 @@
         "deploymentFileName": "BaseMevUsdcDeployment.json"
     },
     "rolesAuthorityConfiguration": {
-        "rolesAuthorityDeploymentName": "mevUSDC rolesAuthorityV1.0"
+        "rolesAuthorityDeploymentName": "MevUSDC rolesAuthorityV1.0"
     },
     "lensConfiguration": {
-        "lensDeploymentName": "mevUSDC lensV1.0"
+        "lensDeploymentName": "MevUSDC lensV1.0"
     },
     "boringVaultConfiguration": {
-        "boringVaultDeploymentName": "mevUSDC boringVaultV1.0",
+        "boringVaultDeploymentName": "MevUSDC boringVaultV1.0",
         "boringVaultName": "Mev USDC Vault",
-        "boringVaultSymbol": "mevUSDC",
+        "boringVaultSymbol": "MevUSDC",
         "boringVaultDecimals": 6
     },
     "managerConfiguration": {
-        "managerDeploymentName": "mevUSDC managerV1.0",
+        "managerDeploymentName": "MevUSDC managerV1.0",
         "balancerVaultAddressOrName": {
             "address": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
             "name": "balancerVault"
         }
     },
     "accountantConfiguration": {
-        "accountantDeploymentName": "mevUSDC accountantV1.0",
+        "accountantDeploymentName": "MevUSDC accountantV1.0",
         "accountantParameters": {
             "kind": {
                 "variableRate": true,
@@ -76,7 +76,7 @@
         }
     },
     "tellerConfiguration": {
-        "tellerDeploymentName": "mevUSDC TellerV1.0",
+        "tellerDeploymentName": "MevUSDC TellerV1.0",
         "tellerParameters": {
             "allowPublicDeposits": false,
             "shareLockPeriod": 60,
@@ -129,8 +129,8 @@
         }
     },
     "boringQueueConfiguration": {
-        "boringQueueDeploymentName": "mevUSDC BoringOnChainQueueV1.0",
-        "boringQueueSolverName": "mevUSDC BoringSolverV1.0",
+        "boringQueueDeploymentName": "MevUSDC BoringOnChainQueueV1.0",
+        "boringQueueSolverName": "MevUSDC BoringSolverV1.0",
         "queueParameters": {
             "allowPublicWithdrawals": false,
             "allowPublicSelfWithdrawals": false,
@@ -141,13 +141,13 @@
         }
     },
     "droneConfiguration": {
-        "droneDeploymentBaseName": "mevUSDC Boring Drone",
+        "droneDeploymentBaseName": "MevUSDC Boring Drone",
         "droneCount": 1,
         "safeGasToForwardNative": 21000
     },
     "pauserConfiguration": {
         "shouldDeploy": true,
-        "pauserDeploymentName": "mevUSDC Pauser",
+        "pauserDeploymentName": "MevUSDC Pauser",
         "makeGenericPauser": [
             "0x0000000000000000000000000000000000000000"
         ],
@@ -169,7 +169,7 @@
     },
     "timelockConfiguration": {
         "shouldDeploy": true,
-        "timelockDeploymentName": "mevUSDC Timelock",
+        "timelockDeploymentName": "MevUSDC Timelock",
         "timelockParameters": {
             "minDelay": 86400,
             "proposers": [
