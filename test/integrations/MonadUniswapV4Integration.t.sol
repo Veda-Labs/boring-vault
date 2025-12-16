@@ -102,17 +102,257 @@ contract MonadUniswapV4IntegrationTest is Test, MerkleTreeHelper {
         rolesAuthority.setUserRole(getAddress(sourceChain, "vault"), BALANCER_VAULT_ROLE, true);
     }
 
-    function testUniswapV4Swap() external {
-        deal(getAddress(sourceChain, "WMON"), address(boringVault), 1_000_000e18);
+    function testUniswapV4LiquidityFunctionsNative() external {
+        deal(address(boringVault), 1_000_000e18);
         deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000_000e6);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](32);
         address[] memory token0 = new address[](1);
-        token0[0] = getAddress(sourceChain, "USDT");
+        token0[0] = getAddress(sourceChain, "MON");
         address[] memory token1 = new address[](1);
         token1[0] = getAddress(sourceChain, "USDC");
         address[] memory hooks = new address[](1);
         hooks[0] = address(0);
+
+        _addUniswapV4Leafs(leafs, token0, token1, hooks);
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        ManageLeaf[] memory manageLeafs = new ManageLeaf[](6);
+
+        // approve usdc on permit2
+        manageLeafs[0] = ManageLeaf(
+            token1[0],
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("approve Permit2 to spend USDC"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        manageLeaf[0].argumentAddresses[0] = getAddress(sourceChain, "permit2");
+
+        // use permit2 to approve USDC for PositionManager
+        manageLeafs[1] = ManageLeaf(
+            getAddress(sourceChain, "permit2"),
+            false,
+            "approve(address,address,uint160,uint48)",
+            new address[](2),
+            string.concat("use permit2 to approve USDC on PositionManager"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        manageLeafs[1].argumentAddresses[0] = token1[0];
+        manageLeafs[1].argumentAddresses[1] = getAddress(sourceChain, "uniV4PositionManager");
+
+        // mint position leaves (native)
+        manageLeafs[2] = ManageLeaf(
+            getAddress(sourceChain, "uniV4PositionManager"),
+            true,
+            "modifyLiquidities(bytes,uint256)",
+            new address[](8),
+            string.concat("mint uniswap v4 position for MON and USDC"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        manageLeafs[2].argumentAddresses[0] = token0[0];
+        manageLeafs[2].argumentAddresses[1] = token1[0];
+        manageLeafs[2].argumentAddresses[2] = hooks[0];
+        manageLeafs[2].argumentAddresses[3] = getAddress(sourceChain, "boringVault");
+        manageLeafs[2].argumentAddresses[4] = token0[0];
+        manageLeafs[2].argumentAddresses[5] = token1[0];
+        manageLeafs[2].argumentAddresses[6] = token0[0];
+        manageLeafs[2].argumentAddresses[7] = getAddress(sourceChain, "boringVault");
+
+        // increase via SETTLE
+        manageLeafs[3] = ManageLeaf(
+            getAddress(sourceChain, "uniV4PositionManager"),
+            true,
+            "modifyLiquidities(bytes,uint256)",
+            new address[](7),
+            string.concat("increase liquidity for univ4 position for MON and USDC"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        manageLeafs[3].argumentAddresses[0] = token0[0];
+        manageLeafs[3].argumentAddresses[1] = token1[0];
+        manageLeafs[3].argumentAddresses[2] = hooks[0];
+        manageLeafs[3].argumentAddresses[3] = token0[0];
+        manageLeafs[3].argumentAddresses[4] = token1[0];
+        manageLeafs[3].argumentAddresses[5] = token0[0];
+        manageLeafs[3].argumentAddresses[7] = getAddress(sourceChain, "boringVault");
+
+        // decrease liquidity
+        manageLeafs[4] = ManageLeaf(
+            getAddress(sourceChain, "uniV4PositionManager"),
+            true,
+            "modifyLiquidities(bytes,uint256)",
+            new address[](6),
+            string.concat("decrease liquidity for univ4 position for MON and USDC using SETTLE"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        manageLeafs[4].argumentAddresses[0] = token0[0];
+        manageLeafs[4].argumentAddresses[1] = token1[0];
+        manageLeafs[4].argumentAddresses[2] = hooks[0];
+        manageLeafs[4].argumentAddresses[3] = token0[0];
+        manageLeafs[4].argumentAddresses[4] = token1[0];
+        manageLeafs[4].argumentAddresses[5] = getAddress(sourceChain, "boringVault");
+
+        // collect
+        manageLeafs[5] = ManageLeaf(
+            getAddress(sourceChain, "uniV4PositionManager"),
+            true,
+            "modifyLiquidities(bytes,uint256)",
+            new address[](6),
+            string.concat("decrease liquidity for univ4 position for MON and USDC using SETTLE"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        manageLeafs[5].argumentAddresses[0] = token0[0];
+        manageLeafs[5].argumentAddresses[1] = token1[0];
+        manageLeafs[5].argumentAddresses[2] = hooks[0];
+        manageLeafs[5].argumentAddresses[3] = token0[0];
+        manageLeafs[5].argumentAddresses[4] = token1[0];
+        manageLeafs[5].argumentAddresses[5] = getAddress(sourceChain, "boringVault");
+
+        bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
+
+        address[] memory targets = new address[](6);
+        targets[0] = getAddress(sourceChain, "USDC"); //approve usdt permit2
+        targets[1] = getAddress(sourceChain, "permit2"); //approve permit2 posm usdc
+        targets[2] = getAddress(sourceChain, "uniV4PositionManager"); //modifyLiquidities mint
+        targets[3] = getAddress(sourceChain, "uniV4PositionManager"); //modifyLiquidities increase
+        targets[4] = getAddress(sourceChain, "uniV4PositionManager"); //modifyLiquidities decrease
+        targets[5] = getAddress(sourceChain, "uniV4PositionManager"); //modifyLiquidities collect
+
+        bytes[] memory targetData = new bytes[](6);
+        targetData[0] =
+            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "permit2"), type(uint256).max);
+        targetData[1] = abi.encodeWithSignature(
+            "approve(address,address,uint160,uint48)",
+            getAddress(sourceChain, "USDC"),
+            getAddress(sourceChain, "uniV4PositionManager"),
+            type(uint160).max,
+            type(uint48).max
+        );
+
+        DecoderCustomTypes.PoolKey memory key = DecoderCustomTypes.PoolKey(
+            address(0), // MON
+            getAddress(sourceChain, "USDC"),
+            500, // fee = 0.05%
+            10, // tick spacing
+            address(0)
+        );
+
+        // actions
+        bytes memory liquidityActions =
+            abi.encodePacked(uint8(Actions.MINT_POSITION), uint8(Actions.SETTLE_PAIR), uint8(Actions.SWEEP));
+
+        bytes[] memory params = new bytes[](3);
+        params[0] = abi.encode(
+            key,
+            TickMath.minUsableTick(key.tickSpacing),
+            TickMath.maxUsableTick(key.tickSpacing),
+            1e6,
+            type(uint128).max,
+            type(uint128).max,
+            address(boringVault),
+            new bytes(0)
+        );
+        params[1] = abi.encode(key.currency0, key.currency1);
+        params[2] = abi.encode(key.currency0, address(boringVault));
+
+        targetData[2] = abi.encodeWithSignature(
+            "modifyLiquidities(bytes,uint256", abi.encode(liquidityActions, params), block.timestamp
+        );
+
+        // increase liquidity
+        liquidtyActions =
+            abi.encodePacked(uint8(Actions.INCREASE_LIQUIDITY), uint8(Actions.SETTLE_PAIR), uint8(Actions.SWEEP));
+        params = new bytes[](3);
+        params[0] = abi.encode(2345, 1e6, type(uint128).max, type(uint128).max, new bytes(0));
+        params[1] = abi.encode(key.currency0, key.currency1);
+        params[2] = abi.encode(key.currency0, address(boringVault));
+
+        targetData[3] = abi.encodeWithSignature(
+            "modifyLiquidities(bytes,uint256)", abi.encode(liquidityActions, params), block.timestamp
+        );
+
+        // decrease liquidity
+        liquidityActions = abi.encodePacked(uint8(Actions.DECREASE_LIQUIDITY), uint8(Actions, TAKE_PAIR));
+        params = new bytes[](2);
+        params[0] = abi.encode(2345, 50e3, 0, 0, new bytes(0));
+        params[1] = abi.encode(key.currency0, key.currency1, address(boringVault));
+
+        targetData[4] = abi.encodeWithSignature(
+            "modifyLiquidities(bytes,uint256)", abi.encode(liquidityActions, params), block.timestamp
+        );
+
+        // collect
+        liquidityActions = abi.encodePacked(uint8(Actions.DECREASE_LIQUIDITY), uint8(Actions.TAKE_PAIR));
+        params = new bytes[](2);
+        params[0] = abi.encode(2345, 0, 0, 0, new bytes(0));
+        params[1] = abi.encode(key.currency0, key.currency1, address(boringVault));
+
+        targetData[5] =
+            abi.encodeWithSignature("modifyLiquidities(bytes,uint256)", abi.encode(liquidityActions), block.timestamp);
+
+        address[] memory decoderAndSanitizers = new address[](6);
+        decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[2] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[3] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[4] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[5] = rawDataDecoderAndSanitizer;
+
+        values[0] = 0;
+        values[1] = 0;
+        values[2] = 1e16;
+        values[3] = 1e16;
+        values[4] = 0;
+        values[5] = 0;
+
+        manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
+
+        skip(1 days);
+
+        // burn liquidity
+        manageLeafs = new ManageLeafs[](1);
+        manageLeafs[0] = ManageLeaf(
+            getAddress(sourceChain, "uniV4PositionManager"),
+            false,
+            "modifyLiquidities(bytes,uint256)",
+            new address[](6),
+            string.concat("Burn liquidity position for UniswapV4 position for MON and USDC "),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        manageLeafs[0].argumentAddresses[0] = token0[0];
+        manageLeafs[0].argumentAddresses[1] = token1[0];
+        manageLeafs[0].argumentAddresses[2] = hooks[0];
+        manageLeafs[0].argumentAddresses[3] = token0[0];
+        manageLeafs[0].argumentAddresses[4] = token1[0];
+        manageLeafs[0].argumentAddresses[5] = getAddress(sourceChain, "boringVault");
+
+        manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
+
+        targets = new address[](1);
+        targets[0] = getAddress(sourceChain, "uniV4PositionManager");
+
+        targetData = new bytes[](1);
+        liquidityActions = abi.encodePacked(uint8(Actions.BURN_POSITION), uint8(Actions.TAKE_PAIR));
+        params = new bytes[](2);
+        params[0] = abi.encode(
+            2345,
+            0, //amount0 full slippage
+            0, //amount1 full slippage
+            new bytes(0)
+        );
+        params[1] = abi.encode(key.currency0, key.currency1, address(boringVault));
+        targetData[0] = abi.encodeWithSignature(
+            "modifyLiquidities(bytes,uint256)", abi.encode(liquidityActions, params), block.timestamp + 1
+        );
+
+        decodersAndSanitizers = new address[](1);
+        decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+
+        manager.manageVaultWithMerkleVerification(
+            manageProofs, decodersAndSanitizers, targets, targetData, new uint256[](1)
+        );
     }
 
     // ========================================= HELPER FUNCTIONS =========================================
