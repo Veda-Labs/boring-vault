@@ -24,6 +24,9 @@ contract CreateSentoraUSDCMerkleRoot is Script, MerkleTreeHelper {
     address public managerAddress = 0x38Fe609799ED585e9154c92D1D801B461F538753;
     address public accountantAddress = 0x427a3c091F09fa6212d177060bb7456Abf538b22;
 
+    address public odosOwnedDecoderAndSanitizer = 0x905BD71FbcF1922B72b861d6D867Bfb93c63bFEd;
+    address public oneInchOwnedDecoderAndSanitizer = 0x9893Dd7e8EFF29063685E3469e2aaF895929b96b;
+
     function setUp() external {}
 
     /**
@@ -47,7 +50,7 @@ contract CreateSentoraUSDCMerkleRoot is Script, MerkleTreeHelper {
         feeAssets[0] = getERC20(sourceChain, "USDC");
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
-        // ========================== 1inch ==========================
+        // ========================== 1inch/Odos ==========================
         address[] memory assets = new address[](4);
         SwapKind[] memory kind = new SwapKind[](4);
         assets[0] = getAddress(sourceChain, "USDC");
@@ -59,10 +62,11 @@ contract CreateSentoraUSDCMerkleRoot is Script, MerkleTreeHelper {
         assets[3] = getAddress(sourceChain, "RLUSD");
         kind[3] = SwapKind.BuyAndSell;
 
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
         _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
-
-        // ========================== Odos ==========================
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
         _addOdosSwapLeafs(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== LayerZero ==========================
         // bridge USDT to Ink via USDT0

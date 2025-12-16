@@ -23,6 +23,9 @@ contract CreateBalancedUSDCMerkleRoot is Script, MerkleTreeHelper {
     address public managerAddress = 0xA0e501F98A1B5d3d8e6Ffd161c76f92570E42931;
     address public accountantAddress = 0x727929AF06Fa4f6E96cbC3fF7F4b60A65E168e23;
 
+    address public odosOwnedDecoderAndSanitizer = 0x905BD71FbcF1922B72b861d6D867Bfb93c63bFEd;
+    address public oneInchOwnedDecoderAndSanitizer = 0x9893Dd7e8EFF29063685E3469e2aaF895929b96b;
+
     function setUp() external {}
 
     /**
@@ -62,8 +65,11 @@ contract CreateBalancedUSDCMerkleRoot is Script, MerkleTreeHelper {
         kind[4] = SwapKind.BuyAndSell;
         assets[5] = getAddress(sourceChain, "USDE");
         kind[5] = SwapKind.BuyAndSell;
-        _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
-        _addOdosSwapLeafs(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+        _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
+        _addOdosOwnedSwapLeafs(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== NativeWrapper ==========================
         _addNativeLeafs(leafs);
