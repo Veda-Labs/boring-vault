@@ -144,10 +144,14 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         _addAaveV3LidoLeafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== Aave V3 Horizon =======================
-        supplyAssets = new ERC20[](2);
+        supplyAssets = new ERC20[](3);
         supplyAssets[0] = getERC20(sourceChain, "RLUSD");
         supplyAssets[1] = getERC20(sourceChain, "USCC");
-        borrowAssets = new ERC20[](0);
+        supplyAssets[2] = getERC20(sourceChain, "GHO");
+        borrowAssets = new ERC20[](3);
+        borrowAssets[0] = getERC20(sourceChain, "RLUSD");
+        borrowAssets[1] = getERC20(sourceChain, "USDC");
+        borrowAssets[2] = getERC20(sourceChain, "GHO");
         _addAaveV3HorizonLeafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== MakerDAO ==========================
