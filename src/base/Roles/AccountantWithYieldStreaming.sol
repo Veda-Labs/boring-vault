@@ -463,7 +463,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
             uint128 newSharePrice = uint128((_totalAssets + newlyVested).mulDivDown(ONE_SHARE, currentShares));
             
             if (newSharePrice > vestingState.lastSharePrice) {
-                 vestingState.lastSharePrice = newSharePrice;
+                vestingState.lastSharePrice = newSharePrice;
                 //move vested amount from pending to realized
                 vestingState.vestingGains -= uint128(newlyVested); // remove from pending
             }
