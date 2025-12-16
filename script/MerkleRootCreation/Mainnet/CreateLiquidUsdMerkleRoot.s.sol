@@ -144,10 +144,14 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         _addAaveV3LidoLeafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== Aave V3 Horizon =======================
-        supplyAssets = new ERC20[](2);
+        supplyAssets = new ERC20[](3);
         supplyAssets[0] = getERC20(sourceChain, "RLUSD");
         supplyAssets[1] = getERC20(sourceChain, "USCC");
-        borrowAssets = new ERC20[](0);
+        supplyAssets[2] = getERC20(sourceChain, "GHO");
+        borrowAssets = new ERC20[](3);
+        borrowAssets[0] = getERC20(sourceChain, "RLUSD");
+        borrowAssets[1] = getERC20(sourceChain, "USDC");
+        borrowAssets[2] = getERC20(sourceChain, "GHO");
         _addAaveV3HorizonLeafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== MakerDAO ==========================
@@ -457,7 +461,15 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         );
 
         // ========================== Resolv ==========================
-        _addAllResolvLeafs(leafs);
+        {
+            XXX: either need to point at new deployment of resolv decoder here
+                 or deploy a new version of the full liquidUSD decoder and regenerate root
+
+            ERC20[] memory assets = new ERC20[](2);
+            assets[0] = getERC20(sourceChain, "USDC");
+            assets[1] = getERC20(sourceChain, "USDT");
+            _addAllResolvLeafs(leafs, assets);
+        }
 
         // ========================== Ethena Withdraws ==========================
         _addEthenaSUSDeWithdrawLeafs(leafs);
