@@ -19,7 +19,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x08c6F91e2B681FaF5e17227F2a44C307b3C1364C;
-    address public rawDataDecoderAndSanitizer = 0xB781C6Ab69B63A10B05D120Bcbe40C58D1b0Bc2e;
+    address public rawDataDecoderAndSanitizer = 0x6C4F39e861bf3FE37c4988FcB652758B9cF43C67;
     address public managerAddress = 0x7b57Ad1A0AA89583130aCfAD024241170D24C13C;
     address public accountantAddress = 0xc315D6e14DDCDC7407784e2Caf815d131Bc1D3E7;
     address public drone = 0x3683fc2792F676BBAbc1B5555dE0DfAFee546e9a;
@@ -30,6 +30,8 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
     address public pancakeSwapDataDecoderAndSanitizer = 0xfdC73Fc6B60e4959b71969165876213918A443Cd;
     address public aaveV3DecoderAndSanitizer = 0x159Af850c18a83B67aeEB9597409f6C4Aa07ACb3;
     address public scrollBridgeDecoderAndSanitizer = 0xA66a6B289FB5559b7e4ebf598B8e0A97C776c200; 
+    address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
+    address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
 
     //itb
     address public itbAaveV3Usdc = 0xa6c9A887F5Ae28A70E457178AABDd153859B572b;
@@ -412,7 +414,9 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         kind[29] = SwapKind.Sell;
         assets[30] = getAddress(sourceChain, "rEUL");
         kind[30] = SwapKind.Sell;
-        _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+        _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         _addLeafsFor1InchUniswapV3Swapping(leafs, getAddress(sourceChain, "PENDLE_wETH_30"));
         _addLeafsFor1InchUniswapV3Swapping(leafs, getAddress(sourceChain, "USDe_USDT_01"));
@@ -433,7 +437,9 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         _addLeafsFor1InchUniswapV3Swapping(leafs, getAddress(sourceChain, "PYUSD_USDC_01"));
 
         // ========================== Odos ==========================
-        _addOdosSwapLeafs(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
+        _addOdosOwnedSwapLeafs(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Curve Swapping ==========================
         /**
@@ -462,9 +468,6 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== Resolv ==========================
         {
-            XXX: either need to point at new deployment of resolv decoder here
-                 or deploy a new version of the full liquidUSD decoder and regenerate root
-
             ERC20[] memory assets = new ERC20[](2);
             assets[0] = getERC20(sourceChain, "USDC");
             assets[1] = getERC20(sourceChain, "USDT");
@@ -1040,10 +1043,15 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         droneKind[5] = SwapKind.Sell;
         droneAssets[6] = getAddress(sourceChain, "RLUSD");
         droneKind[6] = SwapKind.BuyAndSell;
-        _addLeafsFor1InchGeneralSwapping(leafs, droneAssets, droneKind);
+
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+        _addLeafsFor1InchOwnedGeneralSwapping(leafs, droneAssets, droneKind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Odos ==========================
-        _addOdosSwapLeafs(leafs, droneAssets, droneKind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
+        _addOdosOwnedSwapLeafs(leafs, droneAssets, droneKind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Layer Zero ==========================
         bytes32 droneAsBytes32 = bytes32(uint256(uint160(drone)));
@@ -1150,10 +1158,14 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         droneKind[6] = SwapKind.BuyAndSell;
         droneAssets[7] = getAddress(sourceChain, "EUL");
         droneKind[7] = SwapKind.BuyAndSell;
-        _addLeafsFor1InchGeneralSwapping(leafs, droneAssets, droneKind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+        _addLeafsFor1InchOwnedGeneralSwapping(leafs, droneAssets, droneKind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Odos ==========================
-        _addOdosSwapLeafs(leafs, droneAssets, droneKind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
+        _addOdosOwnedSwapLeafs(leafs, droneAssets, droneKind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Merkl ==========================
         {
