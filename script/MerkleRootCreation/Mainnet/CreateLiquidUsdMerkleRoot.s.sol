@@ -457,7 +457,15 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         );
 
         // ========================== Resolv ==========================
-        _addAllResolvLeafs(leafs);
+        {
+            XXX: either need to point at new deployment of resolv decoder here
+                 or deploy a new version of the full liquidUSD decoder and regenerate root
+
+            ERC20[] memory assets = new ERC20[](2);
+            assets[0] = getERC20(sourceChain, "USDC");
+            assets[1] = getERC20(sourceChain, "USDT");
+            _addAllResolvLeafs(leafs, assets);
+        }
 
         // ========================== Ethena Withdraws ==========================
         _addEthenaSUSDeWithdrawLeafs(leafs);
