@@ -199,6 +199,9 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         vestingState.startVestingTime = uint64(block.timestamp);
         vestingState.endVestingTime = uint64(block.timestamp + duration);
 
+        //always update timestamp 
+        vestingState.lastVestingUpdate = uint128(block.timestamp); // update timestamp
+
         //update state timestamp
         lastStrategistUpdateTimestamp = uint64(block.timestamp);
 
