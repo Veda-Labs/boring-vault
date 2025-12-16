@@ -16,8 +16,14 @@ import {AerodromeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Aerod
 import {SyUsdDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyUsdDecoderAndSanitizer.sol";
 import {SyUsdArbitrumDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyUsdArbitrumDecoderAndSanitizer.sol";
 import {SyUsdPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyUsdPlasmaDecoderAndSanitizer.sol";
+import {
+    BaseStablecoinStrategyDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/BaseStablecoinStrategyDecoderAndSanitizer.sol";
 import {SyEthArbitrumDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyEthArbitrumDecoderAndSanitizer.sol";
 import {SyBtcArbitrumDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyBtcArbitrumDecoderAndSanitizer.sol";
+import {
+    BtcGenericStrategyDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/BtcGenericStrategyDecoderAndSanitizer.sol";
 import {SyHlpBaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyHlpArbitrumDecoderAndSanitizer.sol";
 import {
     TestVaultArbitrumDecoderAndSanitizer
@@ -187,6 +193,28 @@ contract DeployTestVaultArbitrumDecoderAndSanitizer is Script, ContractNames, Ma
     }
 }
 
+contract DeployBtcGenericStrategyDecoderAndSanitizer is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
+    // uint256 public privateKey;
+    Deployer public deployer = Deployer(0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC);
+
+    function setUp() external {
+        // privateKey = vm.envUint("BORING_DEVELOPER");
+    }
+
+    function run() external {
+        bytes memory creationCode;
+        bytes memory constructorArgs;
+
+        vm.createSelectFork("mainnet");
+        setSourceChainName("mainnet");
+        vm.startBroadcast(vm.envUint("BORING_DEVELOPER"));
+        new BtcGenericStrategyDecoderAndSanitizer(
+            getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2")
+        );
+        vm.stopBroadcast();
+    }
+}
+
 contract DeploySyEthArbitrumDecoderAndSanitizer is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
     uint256 public privateKey;
     Deployer public deployer = Deployer(0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC);
@@ -281,10 +309,32 @@ contract DeploySyUsdPlasmaDecoderAndSanitizer is Script, ContractNames, MainnetA
     }
 }
 
+contract DeployBaseStablecoinStrategyDecoderAndSanitizer is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
+    uint256 public privateKey;
+    Deployer public deployer = Deployer(0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC);
+
+    function setUp() external {
+        privateKey = vm.envUint("BORING_DEVELOPER");
+    }
+
+    function run() external {
+        bytes memory creationCode;
+        bytes memory constructorArgs;
+
+        vm.createSelectFork("base");
+        setSourceChainName(plasma);
+        vm.startBroadcast(privateKey);
+        creationCode = type(BaseStablecoinStrategyDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "aerodromeNonFungiblePositionManager"));
+        deployer.deployContract("Base Stablecoin Strategy DecodersAndSanitizers", creationCode, constructorArgs, 0);
+        vm.stopBroadcast();
+    }
+}
+
 // contract DeployLpUsdcArbitrumDecoderAndSanitizer {
 //     uint256 public privateKey;
 //     Deployer public deployer = Deployer(0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC);
-
+//
 //     function setUp() external {
 //         privateKey = vm.envUint("BORING_DEVELOPER");
 //     }

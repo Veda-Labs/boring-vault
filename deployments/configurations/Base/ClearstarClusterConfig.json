@@ -2,11 +2,11 @@
     "deploymentParameters": {
         "logLevel": 4,
         "privateKeyEnvName": "PRIVATE_KEY_1",
-        "chainName": "mainnet",
+        "chainName": "base",
         "evmVersion": "cancun",
         "desiredNumberOfDeploymentTxs": 20,
         "txBundlerAddressOrName": {
-            "address": "0x0000000000000000000000000000000000000000",
+            "address": "0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC",
             "name": "txBundlerAddress"
         },
         "setupRoles": true,
@@ -26,49 +26,49 @@
         },
         "deploymentOwnerAddressOrName": {
             "address": "0x0000000000000000000000000000000000000000",
-            "name": "dev0Address"
+            "name": "deployerAddress"
         },
-        "deploymentFileName": "EthereumBtcCarryDeployment.json"
+        "deploymentFileName": "BaseClearstarClusterdDeployment.json"
     },
     "rolesAuthorityConfiguration": {
-        "rolesAuthorityDeploymentName": "BtcCarry rolesAuthorityV1.0"
+        "rolesAuthorityDeploymentName": "csUSDC rolesAuthorityV1.0"
     },
     "lensConfiguration": {
-        "lensDeploymentName": "BtcCarry lensV1.0"
+        "lensDeploymentName": "csUSDC lensV1.0"
     },
     "boringVaultConfiguration": {
-        "boringVaultDeploymentName": "BtcCarry boringVaultV1.0",
-        "boringVaultName": "LucidlyFi BTC Carry Strategy",
-        "boringVaultSymbol": "LBTCC",
-        "boringVaultDecimals": 8
+        "boringVaultDeploymentName": "csUSDC boringVaultV1.0",
+        "boringVaultName": "Clearstar USDC Cluster",
+        "boringVaultSymbol": "csUSDC",
+        "boringVaultDecimals": 6
     },
     "managerConfiguration": {
-        "managerDeploymentName": "BtcCarry managerV1.0",
+        "managerDeploymentName": "csUSDC managerV1.0",
         "balancerVaultAddressOrName": {
             "address": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
             "name": "balancerVault"
         }
     },
     "accountantConfiguration": {
-        "accountantDeploymentName": "BtcCarry accountantV1.0",
+        "accountantDeploymentName": "csUSDC accountantV1.0",
         "accountantParameters": {
             "kind": {
                 "variableRate": true,
                 "fixedRate": false
             },
             "payoutConfiguration": {
-                "payoutTo": "0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5",
+                "payoutTo": "0x829A13850b684A575C0580a83322890e19c5eFaa",
                 "optionalPaymentSplitterName": "Payment Splitter",
                 "splits": []
             },
             "accountantDeploymentParameters": {
-                "allowedExchangeRateChangeLower": 9900,
-                "allowedExchangeRateChangeUpper": 10000,
+                "allowedExchangeRateChangeLower": 8000,
+                "allowedExchangeRateChangeUpper": 12000,
                 "baseAddressOrName": {
                     "address": "0x0000000000000000000000000000000000000000",
-                    "name": "WBTC"
+                    "name": "USDC"
                 },
-                "minimumUpateDelayInSeconds": 86400,
+                "minimumUpateDelayInSeconds": 3600,
                 "performanceFee": 100,
                 "platformFee": 0,
                 "startingExchangeRate": 1000000
@@ -76,10 +76,10 @@
         }
     },
     "tellerConfiguration": {
-        "tellerDeploymentName": "BtcCarry TellerV1.0",
+        "tellerDeploymentName": "csUSDC TellerV1.0",
         "tellerParameters": {
             "allowPublicDeposits": false,
-            "shareLockPeriod": 86400,
+            "shareLockPeriod": 60,
             "kind": {
                 "teller": false,
                 "tellerWithRemediation": false,
@@ -115,7 +115,7 @@
                 },
                 "lzChains": [
                     {
-                        "chainId": 30184,
+                        "chainId": 1,
                         "allowMessagesFrom": true,
                         "allowMessagesTo": true,
                         "targetTellerOrSelf": {
@@ -129,8 +129,8 @@
         }
     },
     "boringQueueConfiguration": {
-        "boringQueueDeploymentName": "BtcCarry BoringOnChainQueueV1.0",
-        "boringQueueSolverName": "BtcCarry BoringSolverV1.0",
+        "boringQueueDeploymentName": "csUSDC BoringOnChainQueueV1.0",
+        "boringQueueSolverName": "csUSDC BoringSolverV1.0",
         "queueParameters": {
             "allowPublicWithdrawals": false,
             "allowPublicSelfWithdrawals": false,
@@ -141,13 +141,13 @@
         }
     },
     "droneConfiguration": {
-        "droneDeploymentBaseName": "BtcCarry Boring Drone",
+        "droneDeploymentBaseName": "csUSDC Boring Drone",
         "droneCount": 1,
         "safeGasToForwardNative": 21000
     },
     "pauserConfiguration": {
         "shouldDeploy": true,
-        "pauserDeploymentName": "BtcCarry Pauser",
+        "pauserDeploymentName": "csUSDC Pauser",
         "makeGenericPauser": [
             "0x0000000000000000000000000000000000000000"
         ],
@@ -168,8 +168,8 @@
         ]
     },
     "timelockConfiguration": {
-        "shouldDeploy": false,
-        "timelockDeploymentName": "timelock",
+        "shouldDeploy": true,
+        "timelockDeploymentName": "csUSDC Timelock",
         "timelockParameters": {
             "minDelay": 86400,
             "proposers": [
@@ -184,17 +184,17 @@
         {
             "addressOrName": {
                 "address": "0x0000000000000000000000000000000000000000",
-                "name": "WBTC"
+                "name": "USDC"
             },
             "isPeggedToBase": true,
-            "rateProvider": "0x0000000000000000000000000000000000000000"
+            "rateProvider": ""
         }
     ],
     "depositAssets": [
         {
             "addressOrName": {
                 "address": "0x0000000000000000000000000000000000000000",
-                "name": "WBTC"
+                "name": "USDC"
             },
             "allowDeposits": true,
             "allowWithdraws": true,
@@ -204,8 +204,8 @@
     "withdrawAssets": [
         {
             "addressOrName": {
-                "address": "0x0000000000000000000000000000000000000000",
-                "name": "WBTC"
+                "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                "name": "USDC"
             },
             "maxDiscount": 100,
             "minDiscount": 0,

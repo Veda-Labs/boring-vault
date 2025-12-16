@@ -7,8 +7,9 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {BalancerVault} from "src/interfaces/BalancerVault.sol";
-import {EtherFiLiquidEthDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/EtherFiLiquidEthDecoderAndSanitizer.sol";
+import {
+    EtherFiLiquidEthDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/EtherFiLiquidEthDecoderAndSanitizer.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {TellerWithRemediation} from "src/base/Roles/TellerWithRemediation.sol";
@@ -17,8 +18,9 @@ import {
     CrossChainTellerWithGenericBridge
 } from "src/base/Roles/CrossChain/Bridges/CCIP/ChainlinkCCIPTeller.sol";
 import {LayerZeroTeller} from "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTeller.sol";
-import {LayerZeroTellerWithRateLimiting} from
-    "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTellerWithRateLimiting.sol";
+import {
+    LayerZeroTellerWithRateLimiting
+} from "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTellerWithRateLimiting.sol";
 import {AccountantWithRateProviders, IRateProvider} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {AccountantWithFixedRate} from "src/base/Roles/AccountantWithFixedRate.sol";
 import {Deployer} from "src/helper/Deployer.sol";
@@ -1354,7 +1356,7 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
     function _finalizeSetup() internal {
         _log("Finalizing setup...", 3);
         _log(string.concat("rolesAuthority: ", vm.toString(address(rolesAuthority))), 3);
-        address ownerAddress = 0x3Dd95962fC01EcEC5f867189A929d036D5aC12A6;
+        address ownerAddress = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5;
         uint256 shareLockPeriod = vm.parseJsonUint(rawJson, ".tellerConfiguration.tellerParameters.shareLockPeriod");
         if (tellerExists) {
             // Get sharelock period from configuration file.
