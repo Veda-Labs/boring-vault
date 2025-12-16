@@ -129,7 +129,7 @@ contract MonadUniswapV4IntegrationTest is Test, MerkleTreeHelper {
             string.concat("approve Permit2 to spend USDC"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
-        manageLeaf[0].argumentAddresses[0] = getAddress(sourceChain, "permit2");
+        manageLeafs[0].argumentAddresses[0] = getAddress(sourceChain, "permit2");
 
         // use permit2 to approve USDC for PositionManager
         manageLeafs[1] = ManageLeaf(
@@ -262,7 +262,7 @@ contract MonadUniswapV4IntegrationTest is Test, MerkleTreeHelper {
         );
 
         // increase liquidity
-        liquidtyActions =
+        liquidityActions =
             abi.encodePacked(uint8(Actions.INCREASE_LIQUIDITY), uint8(Actions.SETTLE_PAIR), uint8(Actions.SWEEP));
         params = new bytes[](3);
         params[0] = abi.encode(2345, 1e6, type(uint128).max, type(uint128).max, new bytes(0));
@@ -274,7 +274,7 @@ contract MonadUniswapV4IntegrationTest is Test, MerkleTreeHelper {
         );
 
         // decrease liquidity
-        liquidityActions = abi.encodePacked(uint8(Actions.DECREASE_LIQUIDITY), uint8(Actions, TAKE_PAIR));
+        liquidityActions = abi.encodePacked(uint8(Actions.DECREASE_LIQUIDITY), uint8(Actions.TAKE_PAIR));
         params = new bytes[](2);
         params[0] = abi.encode(2345, 50e3, 0, 0, new bytes(0));
         params[1] = abi.encode(key.currency0, key.currency1, address(boringVault));
@@ -292,7 +292,7 @@ contract MonadUniswapV4IntegrationTest is Test, MerkleTreeHelper {
         targetData[5] =
             abi.encodeWithSignature("modifyLiquidities(bytes,uint256)", abi.encode(liquidityActions), block.timestamp);
 
-        address[] memory decoderAndSanitizers = new address[](6);
+        address[] memory decodersAndSanitizers = new address[](6);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[2] = rawDataDecoderAndSanitizer;
@@ -300,6 +300,7 @@ contract MonadUniswapV4IntegrationTest is Test, MerkleTreeHelper {
         decodersAndSanitizers[4] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[5] = rawDataDecoderAndSanitizer;
 
+        uint256[] memory values = new uint256[](6);
         values[0] = 0;
         values[1] = 0;
         values[2] = 1e16;
@@ -312,7 +313,7 @@ contract MonadUniswapV4IntegrationTest is Test, MerkleTreeHelper {
         skip(1 days);
 
         // burn liquidity
-        manageLeafs = new ManageLeafs[](1);
+        manageLeafs = new ManageLeaf[](1);
         manageLeafs[0] = ManageLeaf(
             getAddress(sourceChain, "uniV4PositionManager"),
             false,
