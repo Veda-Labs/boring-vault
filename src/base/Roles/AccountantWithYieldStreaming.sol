@@ -237,7 +237,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
             if (currentShares > 0) {
                 uint128 cachedSharePrice = vestingState.lastSharePrice;
                 
-                lastVirtualSharePrice = (totalAssets() - principalLoss) * (RAY / currentShares);
+                lastVirtualSharePrice = (totalAssets() - principalLoss).mulDivDown(RAY, currentShares);
 
                 vestingState.lastSharePrice = _calculateSharePriceFromVirtual();
 
