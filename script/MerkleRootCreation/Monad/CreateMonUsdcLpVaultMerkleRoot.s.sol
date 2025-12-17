@@ -13,9 +13,9 @@ import {console} from "forge-std/Test.sol";
 contract CreateMonUsdcLpVaultMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
-    address public accountantAddress = 0xD096d5EF85f33f78e656f5D32B1e52d02D882b90;
-    address public boringVault = 0x2Fb4AEDa648e4a89f1e3193C5f7f2c5f121599aA;
-    address public managerAddress = 0x01058DbBE1807F117fCcaEDDec8CAA2Bf5DA5bf2;
+    address public accountantAddress = 0xcbEa6c591d9B373a67aC3292CeD592550e63c9dE;
+    address public boringVault = 0x3F28BE0867F3A4504C769A54e2E6a7443381811B;
+    address public managerAddress = 0x524631b72A942fa8Ede58f629F1e60B117ae4F0C;
     address public rawDataDecoderAndSanitizer01 = 0xf220c6614DAe7d52dCef1e6E60f50F669BcC24c1;
 
     function setUp() external {
