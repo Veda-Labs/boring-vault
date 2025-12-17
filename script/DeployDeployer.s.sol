@@ -84,7 +84,6 @@ contract DeployDeployerScriptV2 is Script {
     Deployer public deployer;
     uint8 public DEPLOYER_ROLE = 1;
     address public admin = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5;
-    address public create2Deployer = 0x4e59b44847b379578588920cA78FbF26c0B4956C;
 
     function setUp() external {
         privateKey = vm.envUint("BORING_OWNER");

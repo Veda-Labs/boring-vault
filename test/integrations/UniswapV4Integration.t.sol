@@ -1506,7 +1506,7 @@ contract UniswapV4IntegrationTest is Test, MerkleTreeHelper {
         );
     }
 
-    function testUniswapV4LiquidityFunctionsNative__Reverts() external {
+    function test__RevertsUniswapV4LiquidityFunctionsNative() external {
         deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000_000e6);
         deal(address(boringVault), 1_000e18);
 

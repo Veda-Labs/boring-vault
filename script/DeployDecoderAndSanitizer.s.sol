@@ -14,6 +14,7 @@ import {
 } from "src/base/DecodersAndSanitizers/PancakeSwapV3FullDecoderAndSanitizer.sol";
 import {AerodromeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/AerodromeDecoderAndSanitizer.sol";
 import {SyUsdDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyUsdDecoderAndSanitizer.sol";
+import {FullUniswapV4DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/FullUniswapV4DecoderAndSanitizer.sol";
 import {SyUsdArbitrumDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyUsdArbitrumDecoderAndSanitizer.sol";
 import {SyUsdPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyUsdPlasmaDecoderAndSanitizer.sol";
 import {SyEthArbitrumDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyEthArbitrumDecoderAndSanitizer.sol";
@@ -277,6 +278,16 @@ contract DeploySyUsdPlasmaDecoderAndSanitizer is Script, ContractNames, MainnetA
         creationCode = type(SyUsdPlasmaDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
         deployer.deployContract("SyUsd Plasma DecodersAndSanitizers Batch 1", creationCode, constructorArgs, 0);
+        vm.stopBroadcast();
+    }
+}
+
+contract DeployUniswapV4DecoderAndSanitizer is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
+    function run() external {
+        vm.createSelectFork("monad");
+        setSourceChainName(monad);
+        vm.startBroadcast(vm.envUint("BORING_DEVELOPER"));
+        new FullUniswapV4DecoderAndSanitizer(getAddress(sourceChain, "uniV4PositionManager"));
         vm.stopBroadcast();
     }
 }

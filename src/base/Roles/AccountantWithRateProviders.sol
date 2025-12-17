@@ -491,11 +491,7 @@ contract AccountantWithRateProviders is Auth, IRateProvider, IPausable {
     /**
      * @notice Set the exchange rate.
      */
-    function _setExchangeRate(uint96 newExchangeRate, AccountantState storage state)
-        internal
-        virtual
-        returns (uint96)
-    {
+    function _setExchangeRate(uint96 newExchangeRate, AccountantState storage state) internal virtual returns (uint96) {
         state.exchangeRate = newExchangeRate;
         return newExchangeRate;
     }

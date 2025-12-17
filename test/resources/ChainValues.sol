@@ -133,17 +133,19 @@ contract ChainValues {
     }
 
     function _addMonadValues() private {
-        values[monad]["deployerAddress"] = 0x5BD97A73333B6EC2e38B687bcED159566A14C5BA.toBytes32();
-        values[monad]["txBundlerAddress"] = 0x5BD97A73333B6EC2e38B687bcED159566A14C5BA.toBytes32();
+        values[monad]["deployerAddress"] = 0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC.toBytes32();
+        values[monad]["txBundlerAddress"] = 0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC.toBytes32();
         values[monad]["dev0Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
         values[monad]["dev1Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
-        values[monad]["vault"] = address(1).toBytes32();
+        values[monad]["balancerVault"] = address(1).toBytes32();
 
         // tokens
         values[monad]["MON"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32();
+        values[monad]["ETH"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32(); // native token for EVM networks
         values[monad]["AUSD"] = 0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a.toBytes32();
         values[monad]["USDC"] = 0x754704Bc059F8C67012fEd69BC8A327a5aafb603.toBytes32();
         values[monad]["WMON"] = 0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A.toBytes32();
+        values[monad]["WETH"] = 0xEE8c0E9f1BFFb4Eb878d8f15f368A02a35481242.toBytes32();
 
         // uniswap v4
         values[monad]["uniV4PoolManager"] = 0x188d586Ddcf52439676Ca21A244753fA19F9Ea8e.toBytes32();
@@ -151,6 +153,10 @@ contract ChainValues {
         values[monad]["uniV4PositionManager"] = 0x5b7eC4a94fF9beDb700fb82aB09d5846972F4016.toBytes32();
         values[monad]["uniV4UniversalRouter"] = 0x0D97Dc33264bfC1c226207428A79b26757fb9dc3.toBytes32();
         values[monad]["permit2"] = 0x000000000022D473030F116dDEE9F6B43aC78BA3.toBytes32();
+
+        // layerzero
+        values[monad]["ZRO"] = address(1).toBytes32();
+        values[monad]["LayerZeroEndPoint"] = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B.toBytes32();
     }
 
     function _addPlasmaValues() private {

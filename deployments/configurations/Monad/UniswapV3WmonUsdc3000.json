@@ -22,13 +22,13 @@
     },
     "nativeWrapperAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
-      "name": "WETH"
+      "name": "WMON"
     },
     "deploymentOwnerAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
       "name": "txBundlerAddress"
     },
-    "deploymentFileName": "addresses/Monad/UniswapV3WmonUsdc3000.json"
+    "deploymentFileName": "addresses/Monad/MonadMonUsdcLpVault.json"
   },
   "rolesAuthorityConfiguration": {
     "rolesAuthorityDeploymentName": "MONUSDC-LP Roles Authority V0.0"

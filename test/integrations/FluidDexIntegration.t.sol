@@ -400,10 +400,12 @@ contract FluidDexIntegrationTest is Test, MerkleTreeHelper {
         targets[3] = getAddress(sourceChain, "weETH_ETHDex_wstETH");
 
         bytes[] memory targetData = new bytes[](4);
-        targetData[0] =
-            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "weETH_ETHDex_wstETH"), 1000e18);
-        targetData[1] =
-            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "weETH_ETHDex_wstETH"), 1000e18);
+        targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "weETH_ETHDex_wstETH"), 1000e18
+        );
+        targetData[1] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "weETH_ETHDex_wstETH"), 1000e18
+        );
         //deposit
         targetData[2] = abi.encodeWithSignature(
             "operate(uint256,int256,int256,int256,int256,address)",
