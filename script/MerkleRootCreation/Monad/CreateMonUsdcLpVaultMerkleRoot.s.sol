@@ -16,7 +16,8 @@ contract CreateMonUsdcLpVaultMerkleRootScript is Script, MerkleTreeHelper {
     address public accountantAddress = 0xcbEa6c591d9B373a67aC3292CeD592550e63c9dE;
     address public boringVault = 0x3F28BE0867F3A4504C769A54e2E6a7443381811B;
     address public managerAddress = 0x524631b72A942fa8Ede58f629F1e60B117ae4F0C;
-    address public rawDataDecoderAndSanitizer01 = 0xf220c6614DAe7d52dCef1e6E60f50F669BcC24c1;
+    address public rawDataDecoderAndSanitizer01 = 0xa93C9411f8FeCF5E6aCd81ECd99a71C165d48c4D;
+    // address public rawDataDecoderAndSanitizer01 = 0xf220c6614DAe7d52dCef1e6E60f50F669BcC24c1;
 
     function setUp() external {
         setSourceChainName(monad);
@@ -33,7 +34,7 @@ contract CreateMonUsdcLpVaultMerkleRootScript is Script, MerkleTreeHelper {
         setAddress(true, sourceChain, "accountantAddress", accountantAddress);
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer01);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](32);
+        ManageLeaf[] memory leafs = new ManageLeaf[](64);
         address[] memory token0 = new address[](1);
         token0[0] = getAddress(sourceChain, "ETH");
         address[] memory token1 = new address[](1);
@@ -42,6 +43,9 @@ contract CreateMonUsdcLpVaultMerkleRootScript is Script, MerkleTreeHelper {
         hooks[0] = address(0);
 
         _addUniswapV4Leafs(leafs, token0, token1, hooks);
+
+        token0[0] = getAddress(sourceChain, "WMON");
+        _addUniswapV3Leafs(leafs, token0, token1, false, false);
 
         ERC20[] memory feeAssets = new ERC20[](1);
         feeAssets[0] = getERC20(sourceChain, "USDC");
