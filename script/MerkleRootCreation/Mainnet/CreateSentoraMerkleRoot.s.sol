@@ -51,7 +51,7 @@ contract CreateSentoraMerkleRootScript is Script, MerkleTreeHelper {
         kind[0] = SwapKind.BuyAndSell;
         kind[1] = SwapKind.BuyAndSell;
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
-        _addOdosSwapLeafs(leafs, assets, kind);
+        _addOdosOwnedSwapLeafs(leafs, assets, kind);
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
         _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
