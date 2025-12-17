@@ -41,8 +41,9 @@ contract MonadUniswapV4IntegrationTest is Test, MerkleTreeHelper {
 
         boringVault = new BoringVault(address(this), "Boring Vault", "BV", 18);
 
-        manager =
-            new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
+        manager = new ManagerWithMerkleVerification(
+            address(this), address(boringVault), getAddress(sourceChain, "balancerVault")
+        );
 
         rawDataDecoderAndSanitizer =
             address(new FullUniswapV4DecoderAndSanitizer(getAddress(sourceChain, "uniV4PositionManager")));
@@ -99,7 +100,7 @@ contract MonadUniswapV4IntegrationTest is Test, MerkleTreeHelper {
         rolesAuthority.setUserRole(address(this), ADMIN_ROLE, true);
         rolesAuthority.setUserRole(address(manager), MANAGER_ROLE, true);
         rolesAuthority.setUserRole(address(boringVault), BORING_VAULT_ROLE, true);
-        rolesAuthority.setUserRole(getAddress(sourceChain, "vault"), BALANCER_VAULT_ROLE, true);
+        rolesAuthority.setUserRole(getAddress(sourceChain, "balancerVault"), BALANCER_VAULT_ROLE, true);
     }
 
     function testUniswapV4LiquidityFunctionsNative() external {
@@ -119,10 +120,66 @@ contract MonadUniswapV4IntegrationTest is Test, MerkleTreeHelper {
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
         _generateTestLeafs(leafs, manageTree);
+
         ManageLeaf[] memory manageLeafs = new ManageLeaf[](6);
+        address[] memory targets = new address[](6);
+        bytes[] memory targetData = new bytes[](6);
+        address[] memory decodersAndSanitizers = new address[](6);
+        uint256[] memory values = new uint256[](6);
+
         manageLeafs[0] = leafs[2]; //approve usdc permit2
+        targets[0] = getAddress(sourceChain, "USDC"); //approve usdt permit2
+        targetData[0] =
+            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "permit2"), type(uint256).max);
+        decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        values[0] = 0;
+
         manageLeafs[1] = leafs[4]; //approve usdc permit2 for positionManager
+        targets[1] = getAddress(sourceChain, "permit2"); //approve permit2 posm usdc
+        targetData[1] = abi.encodeWithSignature(
+            "approve(address,address,uint160,uint48)",
+            getAddress(sourceChain, "USDC"),
+            getAddress(sourceChain, "uniV4PositionManager"),
+            type(uint160).max,
+            type(uint48).max
+        );
+        decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+        values[1] = 0;
+
         manageLeafs[2] = leafs[7]; //modifyLiquidities() mint (native)
+        targets[2] = getAddress(sourceChain, "uniV4PositionManager"); //modifyLiquidities mint
+        DecoderCustomTypes.PoolKey memory key = DecoderCustomTypes.PoolKey(
+            address(0), // MON
+            getAddress(sourceChain, "USDC"),
+            500,
+            10,
+            address(0) //no hook address?
+        );
+
+        //actions
+        bytes memory liquidityActions =
+            abi.encodePacked(uint8(Actions.MINT_POSITION), uint8(Actions.SETTLE_PAIR), uint8(Actions.SWEEP));
+        bytes[] memory params = new bytes[](3);
+        params[0] = abi.encode(
+            key,
+            TickMath.minUsableTick(key.tickSpacing),
+            TickMath.maxUsableTick(key.tickSpacing),
+            1e6,
+            type(uint128).max,
+            type(uint128).max,
+            address(boringVault),
+            new bytes(0)
+        );
+        params[1] = abi.encode(key.currency0, key.currency1);
+        params[2] = abi.encode(key.currency0, address(boringVault));
+
+        //mint token id = 2345
+        targetData[2] = abi.encodeWithSignature(
+            "modifyLiquidities(bytes,uint256)", abi.encode(liquidityActions, params), block.timestamp
+        );
+        decodersAndSanitizers[2] = rawDataDecoderAndSanitizer;
+        values[2] = 1e16;
+
         manageLeafs[3] = leafs[8]; //modifyLiquidities() increase via SETTLE
         manageLeafs[4] = leafs[9]; //modifyLiquidities() decrease
         manageLeafs[5] = leafs[9]; //modifyLiquidities() collect (same leaf as decrease)
@@ -219,54 +276,9 @@ contract MonadUniswapV4IntegrationTest is Test, MerkleTreeHelper {
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 
-        address[] memory targets = new address[](6);
-        targets[0] = getAddress(sourceChain, "USDC"); //approve usdt permit2
-        targets[1] = getAddress(sourceChain, "permit2"); //approve permit2 posm usdc
-        targets[2] = getAddress(sourceChain, "uniV4PositionManager"); //modifyLiquidities mint
         targets[3] = getAddress(sourceChain, "uniV4PositionManager"); //modifyLiquidities increase
         targets[4] = getAddress(sourceChain, "uniV4PositionManager"); //modifyLiquidities decrease
         targets[5] = getAddress(sourceChain, "uniV4PositionManager"); //modifyLiquidities collect
-
-        bytes[] memory targetData = new bytes[](6);
-        targetData[0] =
-            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "permit2"), type(uint256).max);
-        targetData[1] = abi.encodeWithSignature(
-            "approve(address,address,uint160,uint48)",
-            getAddress(sourceChain, "USDC"),
-            getAddress(sourceChain, "uniV4PositionManager"),
-            type(uint160).max,
-            type(uint48).max
-        );
-
-        DecoderCustomTypes.PoolKey memory key = DecoderCustomTypes.PoolKey(
-            address(0), // MON
-            getAddress(sourceChain, "USDC"),
-            500,
-            10,
-            address(0) //no hook address?
-        );
-
-        //actions
-        bytes memory liquidityActions =
-            abi.encodePacked(uint8(Actions.MINT_POSITION), uint8(Actions.SETTLE_PAIR), uint8(Actions.SWEEP));
-        bytes[] memory params = new bytes[](3);
-        params[0] = abi.encode(
-            key,
-            TickMath.minUsableTick(key.tickSpacing),
-            TickMath.maxUsableTick(key.tickSpacing),
-            1e6,
-            type(uint128).max,
-            type(uint128).max,
-            address(boringVault),
-            new bytes(0)
-        );
-        params[1] = abi.encode(key.currency0, key.currency1);
-        params[2] = abi.encode(key.currency0, address(boringVault));
-
-        //mint token id = 2345
-        targetData[2] = abi.encodeWithSignature(
-            "modifyLiquidities(bytes,uint256)", abi.encode(liquidityActions, params), block.timestamp
-        );
 
         //increase liquidity
         liquidityActions =
@@ -308,18 +320,10 @@ contract MonadUniswapV4IntegrationTest is Test, MerkleTreeHelper {
             "modifyLiquidities(bytes,uint256)", abi.encode(liquidityActions, params), block.timestamp
         );
 
-        address[] memory decodersAndSanitizers = new address[](6);
-        decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
-        decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
-        decodersAndSanitizers[2] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[3] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[4] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[5] = rawDataDecoderAndSanitizer;
 
-        uint256[] memory values = new uint256[](6);
-        values[0] = 0;
-        values[1] = 0;
-        values[2] = 1e16;
         values[3] = 1e16;
         values[4] = 0;
         values[5] = 0;
