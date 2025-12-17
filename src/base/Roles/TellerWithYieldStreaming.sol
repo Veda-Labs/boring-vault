@@ -19,7 +19,9 @@ contract TellerWithYieldStreaming is TellerWithBuffer {
         address _vault,
         address _accountant,
         address _weth
-    ) TellerWithBuffer(_owner, _vault, _accountant, _weth) {}
+    ) TellerWithBuffer(_owner, _vault, _accountant, _weth) {
+        _getAccountant().lastVirtualSharePrice(); // Reverts if the accountant doesn't support lastVirtualSharePrice()
+    }
 
     /**
      * @notice Allows off ramp role to withdraw from this contract.
