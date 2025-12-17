@@ -57,7 +57,6 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         _startFork(rpcKey, blockNumber);
 
         USDC = getERC20(sourceChain, "USDC");
-        USDC = getERC20(sourceChain, "USDC");
         USDE = getERC20(sourceChain, "USDE");
 
         boringVault = new BoringVault(address(this), "Boring Vault", "BV", 6);
