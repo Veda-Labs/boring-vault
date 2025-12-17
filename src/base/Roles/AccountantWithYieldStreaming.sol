@@ -244,8 +244,6 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
                 uint256 lossBps =
                     uint256(cachedSharePrice - vestingState.lastSharePrice).mulDivDown(10_000, cachedSharePrice);
 
-
-
                 //verify the loss isn't too large
                 if (lossBps > maxDeviationLoss) {
                     accountantState.isPaused = true;
