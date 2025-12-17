@@ -24,8 +24,8 @@ contract CreateSentoraUSDCMerkleRoot is Script, MerkleTreeHelper {
     address public managerAddress = 0x38Fe609799ED585e9154c92D1D801B461F538753;
     address public accountantAddress = 0x427a3c091F09fa6212d177060bb7456Abf538b22;
 
-    address public odosOwnedDecoderAndSanitizer = 0x905BD71FbcF1922B72b861d6D867Bfb93c63bFEd;
-    address public oneInchOwnedDecoderAndSanitizer = 0x9893Dd7e8EFF29063685E3469e2aaF895929b96b;
+    address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
+    address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
 
     function setUp() external {}
 
