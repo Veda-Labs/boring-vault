@@ -276,6 +276,120 @@ contract MonadUniswapV4IntegrationTest is Test, MerkleTreeHelper {
         );
     }
 
+    function testUniswapV4SwapsNativeForToken1() external {
+        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000_000e8);
+        deal(address(boringVault), 2e18);
+
+        ManageLeaf[] memory leafs = new ManageLeaf[](32);
+        address[] memory token0 = new address[](1);
+        token0[0] = getAddress(sourceChain, "MON"); //should be address(0), but this is handled in MerkleTreeHelper
+        address[] memory token1 = new address[](1);
+        token1[0] = getAddress(sourceChain, "USDC");
+        address[] memory hooks = new address[](1);
+        hooks[0] = address(0);
+
+        _addUniswapV4Leafs(leafs, token0, token1, hooks);
+
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        //_generateTestLeafs(leafs, manageTree);
+
+        ManageLeaf[] memory manageLeafs = new ManageLeaf[](4);
+        manageLeafs[0] = leafs[0]; //approve USDC router
+        manageLeafs[1] = leafs[2]; //approve USDC permit2
+        manageLeafs[2] = leafs[3]; //approve USDC permit2 router
+
+        manageLeafs[3] = leafs[5]; //execute() V4_SWAP
+
+        bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
+
+        address[] memory targets = new address[](4);
+        targets[0] = getAddress(sourceChain, "USDC"); //approve router
+        targets[1] = getAddress(sourceChain, "USDC"); //approve permit2
+        targets[2] = getAddress(sourceChain, "permit2"); //approve permit2 router
+
+        targets[3] = getAddress(sourceChain, "uniV4UniversalRouter");
+
+        bytes[] memory targetData = new bytes[](4);
+        targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "uniV4UniversalRouter"), type(uint256).max
+        );
+        targetData[1] =
+            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "permit2"), type(uint256).max);
+        targetData[2] = abi.encodeWithSignature(
+            "approve(address,address,uint160,uint48)",
+            getAddress(sourceChain, "USDC"),
+            getAddress(sourceChain, "uniV4UniversalRouter"),
+            1000e8,
+            block.timestamp + 1000
+        );
+
+        // Universal Router takes 2 params, commands and inputs.
+        // Commands == V4_SWAP
+        // Inputs are broken down into smaller things: Actions and Params
+        // Actions help the flow of the swap, and Params are params for the actions
+        // Actions.SWAP_SINGLE would have params of SwapParams, etc
+        // these are then put together in inputs[0] = abi.encode(actions, params);
+        // and this is used in the `execute()` function
+
+        bytes memory commands = abi.encodePacked(uint8(Commands.V4_SWAP), uint8(Commands.SWEEP));
+        bytes[] memory inputs = new bytes[](2);
+
+        //bytes memory commands = abi.encodePacked(uint8(Commands.V4_SWAP));
+        //bytes[] memory inputs = new bytes[](1);
+
+        bytes memory actions =
+            abi.encodePacked(uint8(Actions.SWAP_EXACT_IN_SINGLE), uint8(Actions.SETTLE_ALL), uint8(Actions.TAKE_ALL));
+
+        DecoderCustomTypes.PoolKey memory key = DecoderCustomTypes.PoolKey(
+            address(0), // MON
+            getAddress(sourceChain, "USDC"),
+            500,
+            10,
+            address(0)
+        );
+
+        uint128 amountIn = 1e18;
+        uint128 minAmountOut = 0;
+
+        bytes[] memory params = new bytes[](3);
+        params[0] = abi.encode(
+            DecoderCustomTypes.ExactInputSingleParams({
+                poolKey: key, zeroForOne: true, amountIn: amountIn, amountOutMinimum: minAmountOut, hookData: bytes("")
+            })
+        );
+
+        // Second parameter: specify input tokens for the swap
+        // encode SETTLE_ALL parameters
+        params[1] = abi.encode(key.currency0, amountIn);
+        // Third parameter: specify output tokens from the swap
+        params[2] = abi.encode(key.currency1, minAmountOut);
+        // Combine actions and params into inputs
+        inputs[0] = abi.encode(actions, params);
+        inputs[1] = abi.encode(key.currency0, address(boringVault), 0);
+
+        targetData[3] = abi.encodeWithSignature("execute(bytes,bytes[],uint256)", commands, inputs, block.timestamp);
+
+        address[] memory decodersAndSanitizers = new address[](4);
+        decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[2] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[3] = rawDataDecoderAndSanitizer;
+
+        uint256[] memory values = new uint256[](4);
+        values[0] = 0;
+        values[1] = 0;
+        values[2] = 0;
+        values[3] = 2e18;
+
+        manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
+
+        uint256 ethBal = address(boringVault).balance;
+        assertEq(ethBal, 1e18);
+    }
+
     // ========================================= HELPER FUNCTIONS =========================================
 
     function _startFork(string memory rpcKey, uint256 blockNumber) internal returns (uint256 forkId) {
