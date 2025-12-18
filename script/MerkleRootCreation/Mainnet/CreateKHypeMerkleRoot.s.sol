@@ -22,6 +22,9 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
     address public managerAddress = 0x7f8CcAA760E0F621c7245d47DC46d40A400d3639;
     address public accountantAddress = 0x7835d0C886CB10aC235df372303FAE86f1b7FD86;
 
+    address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
+    address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
+
     function setUp() external {} /**
      * @notice Uncomment which script you want to run.
      */
@@ -48,8 +51,11 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
         assets[2] = getAddress(sourceChain, "PENDLE");
         kind[2] = SwapKind.Sell;
 
-        _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
-        _addOdosSwapLeafs(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+        _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
+        _addOdosOwnedSwapLeafs(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Native Wrapping ==========================
         _addNativeLeafs(leafs, getAddress(sourceChain, "WETH"));
