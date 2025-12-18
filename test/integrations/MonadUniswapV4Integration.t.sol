@@ -123,25 +123,25 @@ contract MonadUniswapV4IntegrationTest is Test, MerkleTreeHelper {
 
         _generateTestLeafs(leafs, manageTree);
 
-        ManageLeaf[] memory manageLeafs = new ManageLeaf[](3);
+        ManageLeaf[] memory manageLeafs = new ManageLeaf[](6);
         manageLeafs[0] = leafs[2]; //approve usdc permit2
         manageLeafs[1] = leafs[4]; //approve usdc permit2 for positionManager
         manageLeafs[2] = leafs[7]; //modifyLiquidities() mint (native)
-        // manageLeafs[3] = leafs[8]; //modifyLiquidities() increase via SETTLE
-        // manageLeafs[4] = leafs[9]; //modifyLiquidities() decrease
-        // manageLeafs[5] = leafs[9]; //modifyLiquidities() collect (same leaf as decrease)
+        manageLeafs[3] = leafs[8]; //modifyLiquidities() increase via SETTLE
+        manageLeafs[4] = leafs[9]; //modifyLiquidities() decrease
+        manageLeafs[5] = leafs[9]; //modifyLiquidities() collect (same leaf as decrease)
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 
-        address[] memory targets = new address[](3);
+        address[] memory targets = new address[](6);
         targets[0] = getAddress(sourceChain, "USDC"); //approve usdt permit2
         targets[1] = getAddress(sourceChain, "permit2"); //approve permit2 posm usdc
         targets[2] = getAddress(sourceChain, "uniV4PositionManager"); //modifyLiquidities mint
-        // targets[3] = getAddress(sourceChain, "uniV4PositionManager"); //modifyLiquidities increase
-        // targets[4] = getAddress(sourceChain, "uniV4PositionManager"); //modifyLiquidities decrease
-        // targets[5] = getAddress(sourceChain, "uniV4PositionManager"); //modifyLiquidities collect
+        targets[3] = getAddress(sourceChain, "uniV4PositionManager"); //modifyLiquidities increase
+        targets[4] = getAddress(sourceChain, "uniV4PositionManager"); //modifyLiquidities decrease
+        targets[5] = getAddress(sourceChain, "uniV4PositionManager"); //modifyLiquidities collect
 
-        bytes[] memory targetData = new bytes[](3);
+        bytes[] memory targetData = new bytes[](6);
         targetData[0] =
             abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "permit2"), type(uint256).max);
         targetData[1] = abi.encodeWithSignature(
@@ -153,7 +153,7 @@ contract MonadUniswapV4IntegrationTest is Test, MerkleTreeHelper {
         );
 
         DecoderCustomTypes.PoolKey memory key = DecoderCustomTypes.PoolKey(
-            address(0), //ETH
+            address(0), // MON
             getAddress(sourceChain, "USDC"),
             500,
             10,
@@ -177,103 +177,103 @@ contract MonadUniswapV4IntegrationTest is Test, MerkleTreeHelper {
         params[1] = abi.encode(key.currency0, key.currency1);
         params[2] = abi.encode(key.currency0, address(boringVault));
 
-        //mint token id = 2345
+        //mint token id = 45213 - checked from traces
         targetData[2] = abi.encodeWithSignature(
             "modifyLiquidities(bytes,uint256)", abi.encode(liquidityActions, params), block.timestamp
         );
 
-        // //increase liquidity
-        // liquidityActions =
-        //     abi.encodePacked(uint8(Actions.INCREASE_LIQUIDITY), uint8(Actions.SETTLE_PAIR), uint8(Actions.SWEEP));
-        // params = new bytes[](3);
-        // params[0] = abi.encode(2345, 1e6, type(uint128).max, type(uint128).max, new bytes(0));
-        // params[1] = abi.encode(key.currency0, key.currency1);
-        // params[2] = abi.encode(key.currency0, address(boringVault));
+        //increase liquidity
+        liquidityActions =
+            abi.encodePacked(uint8(Actions.INCREASE_LIQUIDITY), uint8(Actions.SETTLE_PAIR), uint8(Actions.SWEEP));
+        params = new bytes[](3);
+        params[0] = abi.encode(45213, 1e6, type(uint128).max, type(uint128).max, new bytes(0));
+        params[1] = abi.encode(key.currency0, key.currency1);
+        params[2] = abi.encode(key.currency0, address(boringVault));
 
-        // targetData[3] = abi.encodeWithSignature(
-        //     "modifyLiquidities(bytes,uint256)", abi.encode(liquidityActions, params), block.timestamp
-        // );
+        targetData[3] = abi.encodeWithSignature(
+            "modifyLiquidities(bytes,uint256)", abi.encode(liquidityActions, params), block.timestamp
+        );
 
-        // //decrease liquidity
-        // liquidityActions = abi.encodePacked(uint8(Actions.DECREASE_LIQUIDITY), uint8(Actions.TAKE_PAIR));
-        // params = new bytes[](2);
-        // params[0] = abi.encode(2345, 50e3, 0, 0, new bytes(0));
-        // params[1] = abi.encode(key.currency0, key.currency1, address(boringVault));
+        //decrease liquidity
+        liquidityActions = abi.encodePacked(uint8(Actions.DECREASE_LIQUIDITY), uint8(Actions.TAKE_PAIR));
+        params = new bytes[](2);
+        params[0] = abi.encode(45213, 50e3, 0, 0, new bytes(0));
+        params[1] = abi.encode(key.currency0, key.currency1, address(boringVault));
 
-        // targetData[4] = abi.encodeWithSignature(
-        //     "modifyLiquidities(bytes,uint256)", abi.encode(liquidityActions, params), block.timestamp
-        // );
+        targetData[4] = abi.encodeWithSignature(
+            "modifyLiquidities(bytes,uint256)", abi.encode(liquidityActions, params), block.timestamp
+        );
 
-        // //collect, no fees are collected here in the test because none have accumulated (view the logs with -vvvv to see this happening)
-        // // @dev collect is done by decreasing liquidity with a 0 amount, and then taking the pair
-        // liquidityActions = abi.encodePacked(uint8(Actions.DECREASE_LIQUIDITY), uint8(Actions.TAKE_PAIR));
-        // params = new bytes[](2);
-        // params[0] = abi.encode(
-        //     2345,
-        //     0, //no liquidity decrease
-        //     0,
-        //     0,
-        //     new bytes(0)
-        // );
-        // //still take fees here
-        // params[1] = abi.encode(key.currency0, key.currency1, address(boringVault));
+        //collect, no fees are collected here in the test because none have accumulated (view the logs with -vvvv to see this happening)
+        // @dev collect is done by decreasing liquidity with a 0 amount, and then taking the pair
+        liquidityActions = abi.encodePacked(uint8(Actions.DECREASE_LIQUIDITY), uint8(Actions.TAKE_PAIR));
+        params = new bytes[](2);
+        params[0] = abi.encode(
+            45213,
+            0, //no liquidity decrease
+            0,
+            0,
+            new bytes(0)
+        );
+        //still take fees here
+        params[1] = abi.encode(key.currency0, key.currency1, address(boringVault));
 
-        // targetData[5] = abi.encodeWithSignature(
-        //     "modifyLiquidities(bytes,uint256)", abi.encode(liquidityActions, params), block.timestamp
-        // );
+        targetData[5] = abi.encodeWithSignature(
+            "modifyLiquidities(bytes,uint256)", abi.encode(liquidityActions, params), block.timestamp
+        );
 
-        address[] memory decodersAndSanitizers = new address[](3);
+        address[] memory decodersAndSanitizers = new address[](6);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[2] = rawDataDecoderAndSanitizer;
-        // decodersAndSanitizers[3] = rawDataDecoderAndSanitizer;
-        // decodersAndSanitizers[4] = rawDataDecoderAndSanitizer;
-        // decodersAndSanitizers[5] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[3] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[4] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[5] = rawDataDecoderAndSanitizer;
 
-        uint256[] memory values = new uint256[](3);
+        uint256[] memory values = new uint256[](6);
         values[0] = 0;
         values[1] = 0;
         values[2] = 1e16;
-        // values[3] = 1e16;
-        // values[4] = 0;
-        // values[5] = 0;
+        values[3] = 1e16;
+        values[4] = 0;
+        values[5] = 0;
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
-        // skip(1 days);
+        skip(1 days);
 
-        // manageLeafs = new ManageLeaf[](1);
-        // manageLeafs[0] = leafs[11];
+        manageLeafs = new ManageLeaf[](1);
+        manageLeafs[0] = leafs[11];
 
-        // manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
+        manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 
-        // targets = new address[](1);
-        // targets[0] = getAddress(sourceChain, "uniV4PositionManager"); //modifyLiquidities
+        targets = new address[](1);
+        targets[0] = getAddress(sourceChain, "uniV4PositionManager"); //modifyLiquidities
 
-        // targetData = new bytes[](1);
+        targetData = new bytes[](1);
 
-        // // @dev docs are wrong here, we need to take pair still
-        // liquidityActions = abi.encodePacked(uint8(Actions.BURN_POSITION), uint8(Actions.TAKE_PAIR));
-        // params = new bytes[](2);
-        // params[0] = abi.encode(
-        //     2345,
-        //     0, //amount0 full slippage
-        //     0, //amount1 full slippage
-        //     new bytes(0)
-        // );
-        // //still take fees here
-        // params[1] = abi.encode(key.currency0, key.currency1, address(boringVault));
+        // @dev docs are wrong here, we need to take pair still
+        liquidityActions = abi.encodePacked(uint8(Actions.BURN_POSITION), uint8(Actions.TAKE_PAIR));
+        params = new bytes[](2);
+        params[0] = abi.encode(
+            45213,
+            0, //amount0 full slippage
+            0, //amount1 full slippage
+            new bytes(0)
+        );
+        //still take fees here
+        params[1] = abi.encode(key.currency0, key.currency1, address(boringVault));
 
-        // targetData[0] = abi.encodeWithSignature(
-        //     "modifyLiquidities(bytes,uint256)", abi.encode(liquidityActions, params), block.timestamp + 1
-        // );
+        targetData[0] = abi.encodeWithSignature(
+            "modifyLiquidities(bytes,uint256)", abi.encode(liquidityActions, params), block.timestamp + 1
+        );
 
-        // decodersAndSanitizers = new address[](1);
-        // decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers = new address[](1);
+        decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
 
-        // manager.manageVaultWithMerkleVerification(
-        //     manageProofs, decodersAndSanitizers, targets, targetData, new uint256[](1)
-        // );
+        manager.manageVaultWithMerkleVerification(
+            manageProofs, decodersAndSanitizers, targets, targetData, new uint256[](1)
+        );
     }
 
     // ========================================= HELPER FUNCTIONS =========================================
