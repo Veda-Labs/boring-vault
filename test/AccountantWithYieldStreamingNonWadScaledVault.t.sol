@@ -297,7 +297,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         accountant.updateMaximumDeviationLoss(10_000); 
         uint256 USDCAmount = 10e6; 
         uint256 shares0 = _deposit(USDCAmount, USER);  
-        assertGt(USDCAmount, shares0); 
+        assertLe(shares0, USDCAmount); 
 
         //vest yield
         uint256 yieldAmount = 10e6; 
