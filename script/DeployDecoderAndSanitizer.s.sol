@@ -147,8 +147,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("mainnet");
-        setSourceChainName("mainnet");
+        vm.createSelectFork("katana");
+        setSourceChainName("katana");
     }
 
     function run() external {
@@ -156,24 +156,13 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(KHypeDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(getAddress(sourceChain, "odosRouterV2"));
-        console.log("KHype Decoder and Sanitizer V0.1");
+        creationCode = type(KatanaDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
+        console.log("Katana Decoder and Sanitizer V1.1");
         console.logBytes(constructorArgs);
-        deployer.deployContract("KHype Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
+        deployer.deployContract("Katana Decoder and Sanitizer V1.1", creationCode, constructorArgs, 0);
 
-        // creationCode = type(BalancedUSDCDecoderAndSanitizer).creationCode;
-        // constructorArgs = abi.encode();
-        // console.log("SentayUSDC Ink Decoder and Sanitizer V0.0");
-        // console.logBytes(constructorArgs);
-        // deployer.deployContract("SentayUSDC Ink Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-
-        // creationCode = type(ITBBasePositionDecoderAndSanitizer).creationCode;
-        // constructorArgs = abi.encode();
-        // console.log("ITB Base Position Decoder and Sanitizer V0.1");
-        // console.logBytes(constructorArgs);
-        // deployer.deployContract("ITB Base Position Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
-        // vm.stopBroadcast();
+        vm.stopBroadcast();
     }
 
     // do not use, this is really intended for doing a giga deploy on a new chain

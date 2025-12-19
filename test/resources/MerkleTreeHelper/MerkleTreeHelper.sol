@@ -1252,10 +1252,23 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     function _addArbitrumNativeBridgeLeafs(ManageLeaf[] memory leafs, ERC20[] memory bridgeAssets) internal {
         if (keccak256(abi.encode(sourceChain)) == keccak256(abi.encode(mainnet))) {
             // Bridge ERC20 Assets to Arbitrum
+            bool hasWstETH = false;
+            bool hasWETH = false;
+            bool hasOtherERC20 = false;
             for (uint256 i; i < bridgeAssets.length; i++) {
-                address spender = address(bridgeAssets[i]) == getAddress(sourceChain, "WETH")
-                    ? getAddress(sourceChain, "arbitrumWethGateway")
-                    : getAddress(sourceChain, "arbitrumL1ERC20Gateway");
+                bool isWstETH = address(bridgeAssets[i]) == getAddress(sourceChain, "WSTETH");
+                bool isWETH = address(bridgeAssets[i]) == getAddress(sourceChain, "WETH");
+                address spender;
+                if (isWstETH) {
+                    spender = getAddress(sourceChain, "arbitrumL1ERC20GatewayLido");
+                    hasWstETH = true;
+                } else if (isWETH) {
+                    spender = getAddress(sourceChain, "arbitrumWethGateway");
+                    hasWETH = true;
+                } else {
+                    spender = getAddress(sourceChain, "arbitrumL1ERC20Gateway");
+                    hasOtherERC20 = true;
+                }
                 unchecked {
                     leafIndex++;
                 }
@@ -1360,20 +1373,54 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
             leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
 
-            // Execute Transaction For ERC20 claim.
-            unchecked {
-                leafIndex++;
+            if (hasOtherERC20) {
+                // Execute Transaction For ERC20 claim.
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    getAddress(sourceChain, "arbitrumOutbox"),
+                    false,
+                    "executeTransaction(bytes32[],uint256,address,address,uint256,uint256,uint256,uint256,bytes)",
+                    new address[](2),
+                    "Execute transaction to claim ERC20",
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(arbitrum, "arbitrumL2Sender");
+                leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "arbitrumL1ERC20Gateway");
             }
-            leafs[leafIndex] = ManageLeaf(
-                getAddress(sourceChain, "arbitrumOutbox"),
-                false,
-                "executeTransaction(bytes32[],uint256,address,address,uint256,uint256,uint256,uint256,bytes)",
-                new address[](2),
-                "Execute transaction to claim ERC20",
-                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-            );
-            leafs[leafIndex].argumentAddresses[0] = getAddress(arbitrum, "arbitrumL2Sender");
-            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "arbitrumL1ERC20Gateway");
+            if (hasWstETH) {
+                // Execute Transaction For WSTETH claim.
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    getAddress(sourceChain, "arbitrumOutbox"),
+                    false,
+                    "executeTransaction(bytes32[],uint256,address,address,uint256,uint256,uint256,uint256,bytes)",
+                    new address[](2),
+                    "Execute transaction to claim WSTETH",
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(arbitrum, "arbitrumL2SenderLido");
+                leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "arbitrumL1ERC20GatewayLido");
+            }
+            if (hasWETH) {
+                // Execute Transaction For WETH claim.
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    getAddress(sourceChain, "arbitrumOutbox"),
+                    false,
+                    "executeTransaction(bytes32[],uint256,address,address,uint256,uint256,uint256,uint256,bytes)",
+                    new address[](2),
+                    "Execute transaction to claim WETH",
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(arbitrum, "arbitrumL2SenderWeth");
+                leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "arbitrumWethGateway");
+            }
 
             // Execute Transaction For ETH claim.
             unchecked {
@@ -9904,6 +9951,30 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "USDT");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "UsrExternalRequestsManager"),
+            false,
+            "cancelMint(uint256)",
+            new address[](0),
+            string.concat("Cancel USR mint request"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "UsrExternalRequestsManager"),
+            false,
+            "cancelBurn(uint256)",
+            new address[](0),
+            string.concat("Cancel USR burn request"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
     }
 
     function _addResolvStUSRLeafs(ManageLeaf[] memory leafs) internal {
@@ -9976,6 +10047,19 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             leafIndex++;
         }
         leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "USR"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve USR to be converted to wstUSR"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "wstUSR");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
             getAddress(sourceChain, "wstUSR"),
             false,
             "approve(address,uint256)",
@@ -10003,9 +10087,33 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex] = ManageLeaf(
             getAddress(sourceChain, "wstUSR"),
             false,
+            "deposit(uint256)",
+            new address[](0),
+            string.concat("Stake + Wrap USR for wstUSR"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "wstUSR"),
+            false,
             "unwrap(uint256)",
             new address[](0),
             string.concat("Convert wstUSR to stUSR"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "wstUSR"),
+            false,
+            "withdraw(uint256)",
+            new address[](0),
+            string.concat("Unwrap + Unstake wstUSR for USR"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
     }
