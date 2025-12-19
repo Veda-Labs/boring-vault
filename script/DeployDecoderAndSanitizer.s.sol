@@ -126,6 +126,7 @@ import {SentayUSDCInkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/S
 import {SentayUSDCMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentayUSDCMainnetDecoderAndSanitizer.sol";
 import {ITBBasePositionDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/ITBBasePositionDecoderAndSanitizer.sol";
 import {BoostedUSDCInkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BoostedUSDCInkDecoderAndSanitizer.sol";
+import {TacDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacUSDTacDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -147,8 +148,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("katana");
-        setSourceChainName("katana");
+        vm.createSelectFork("tac");
+        setSourceChainName("tac");
     }
 
     function run() external {
@@ -156,11 +157,9 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(KatanaDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
-        console.log("Katana Decoder and Sanitizer V1.1");
-        console.logBytes(constructorArgs);
-        deployer.deployContract("Katana Decoder and Sanitizer V1.1", creationCode, constructorArgs, 0);
+        creationCode = type(TacDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode();
+        deployer.deployContract("TAC Decoder And Sanitizer V0.1", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
