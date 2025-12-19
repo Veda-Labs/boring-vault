@@ -122,7 +122,7 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
             asset: getERC20(sourceChain, "PENDLE"),
             oftAdapter: getAddress(sourceChain, "PENDLE"),
             endpoint: layerZeroMainnetEndpointId,
-            to: getBytes32(sourceChain, "boringVault") //@todo Assumes the same boring vault for both chains
+            to: getBytes32(sourceChain, "boringVault")
         });
 
         // ========================== Verify ==========================
