@@ -65,14 +65,14 @@ contract CreateMevUsdcMerkleRootScript is Script, MerkleTreeHelper {
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "JUNIOR TRANCHE Tranche USD Coin")));
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
-        string memory filePath = "./leafs/Base/UsdcStrategyLeafs.json";
+        string memory filePath = "./leafs/Base/MevUsdcStrategyLeafs.json";
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
 
         ManagerWithMerkleVerification manager = ManagerWithMerkleVerification(managerAddress);
         vm.startBroadcast(vm.envUint("PRIVATE_KEY_1"));
         manager.setManageRoot(managerAddress, manageTree[manageTree.length - 1][0]);
         manager.setManageRoot(0xa86b3Bf249478488B4304B50726c7D4689aD6320, manageTree[manageTree.length - 1][0]);
-        manager.setManageRoot(0x3Dd95962fC01EcEC5f867189A929d036D5aC12A6, manageTree[manageTree.length - 1][0]);
+        manager.setManageRoot(0x82362918071eC32823Cd0144257663F52f022b47, manageTree[manageTree.length - 1][0]);
         manager.setManageRoot(0x0307AD25281C99F22A8F3Af9e272fE3968810239, manageTree[manageTree.length - 1][0]);
         vm.stopBroadcast();
     }
