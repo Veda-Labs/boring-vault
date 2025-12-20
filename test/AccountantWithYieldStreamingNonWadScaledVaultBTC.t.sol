@@ -1117,8 +1117,16 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
             lastVirtualSharePrice, 
             "exchangeRate scaled to RAY must be <= lastVirtualSharePrice"
         );
+
+         // Assertion 2: lastVirtualSharePrice scaled to ONE_SHARE should always be == exchangeRate
+         uint256 lastVirtualSharePriceScaledToOneShare = lastVirtualSharePrice.mulDivDown(ONE_SHARE, RAY);
+         assertEq(
+             lastVirtualSharePriceScaledToOneShare,
+             lastSharePrice,
+             "lastVirtualSharePrice scaled to ONE_SHARE must be == exchangeRate"
+         );
         
-        // Assertion 2: lastVirtualSharePrice should not be too much higher than scaled exchangeRate
+        // Assertion 3: lastVirtualSharePrice should not be too much higher than scaled exchangeRate
         // The maximum difference should be bounded by precision loss during scaling
         uint256 difference = lastVirtualSharePrice - exchangeRateScaledToRay;
         assertLt(
