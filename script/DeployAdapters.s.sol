@@ -1,32 +1,34 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-// import "forge-std/Script.sol";
-// import {console} from "../lib/forge-std/src/console.sol";
-// import {UniV3PositionTvlAdapter} from "src/adapters/Univ3TvlAdapter.sol";
+import "forge-std/Script.sol";
+import {console} from "../lib/forge-std/src/console.sol";
+import {UniV3PositionTvlAdapter} from "src/adapters/Univ3TvlAdapter.sol";
+import {
+    MerkleTreeHelper
+} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
+contract DeployUniAdapter is Script, MerkleTreeHelper {
+    uint256 public privateKey;
 
-// contract DeployUniAdapter is Script, MerkleTreeHelper {
-//     uint256 public privateKey;
+    function setUp() external {
+        privateKey = vm.envUint("PK");
 
-//     function setUp() external {
-//         privateKey = vm.envUint("PK");
+        setSourceChainName("arbitrum");
+    }
 
-//         setSourceChainName("arbitrum");
-//     }
+    function run() external {
+        vm.startBroadcast(privateKey);
 
-//     function run() external {
-//         vm.startBroadcast(privateKey);
+        UniV3PositionTvlAdapter adapter = new UniV3PositionTvlAdapter(
+            0x2f5e87C9312fa29aed5c179E456625D79015299c,
+            5167902,
+            18
+        );
 
-//         address adapter = new UniV3PositionTvlAdapter(
-//             0x2f5e87C9312fa29aed5c179E456625D79015299c,
-//             5167902,
-//             18
-//         );
+        console.log("TVL of user",adapter.getUserTvl(address(0)));
 
-//         console.log("TVL of user",adapter.getUserTvl(address(0)));
-
-//         vm.stopBroadcast();
-//     }
-// }
+        vm.stopBroadcast();
+    }
+}
 
