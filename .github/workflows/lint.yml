@@ -11,10 +11,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Foundry
-        uses: foundry-rs/foundry-toolchain@v1
-        with:
-          version: stable
+       - name: Install Foundry
+         uses: foundry-rs/foundry-toolchain@v1
+          with:
+          version: 1.4.3
 
       - name: Check formatting
         run: forge fmt --check
