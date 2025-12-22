@@ -4,7 +4,9 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
-import {HyperlaneDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/HyperlaneDecoderAndSanitizer.sol";
+import { BaseDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {
+    HyperlaneDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/HyperlaneDecoderAndSanitizer.sol";
 
-contract OnlyHyperlaneDecoderAndSanitizer is HyperlaneDecoderAndSanitizer, BaseDecoderAndSanitizer {}
+contract OnlyHyperlaneDecoderAndSanitizer is HyperlaneDecoderAndSanitizer, BaseDecoderAndSanitizer { }

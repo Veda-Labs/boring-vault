@@ -4,22 +4,22 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {EulerEVKFullDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EulerEVKFullDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {DroneLib} from "src/base/Drones/DroneLib.sol";
-import {BoringDrone} from "src/base/Drones/BoringDrone.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
+import { EulerEVKFullDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/EulerEVKFullDecoderAndSanitizer.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { DroneLib } from "src/base/Drones/DroneLib.sol";
+import { BoringDrone } from "src/base/Drones/BoringDrone.sol";
 
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract EulerEVKIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -43,7 +43,7 @@ contract EulerEVKIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 21695774;
+        uint256 blockNumber = 21_695_774;
 
         _startFork(rpcKey, blockNumber);
 
@@ -111,7 +111,7 @@ contract EulerEVKIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testEulerEVKIntegration() external {
-        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1000e18);
         ERC4626 evkWETH = ERC4626(getAddress(sourceChain, "evkWETH"));
         ERC4626 evkUSDC = ERC4626(getAddress(sourceChain, "evkUSDC"));
 
@@ -205,7 +205,7 @@ contract EulerEVKIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testEulerEVKIntegrationDisableCollateral() external {
-        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1000e18);
         ERC4626 evkWETH = ERC4626(getAddress(sourceChain, "evkWETH"));
         ERC4626 evkUSDC = ERC4626(getAddress(sourceChain, "evkUSDC"));
 
@@ -455,8 +455,8 @@ contract EulerEVKIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testEulerEVKIntegrationSubaccountsViaCall() external {
-        deal(getAddress(sourceChain, "LBTC"), address(boringVault), 1_000e18);
-        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000e6);
+        deal(getAddress(sourceChain, "LBTC"), address(boringVault), 1000e18);
+        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1000e6);
         deal(getAddress(sourceChain, "DAI"), address(boringVault), 10e18);
         ERC4626 evkLBTC = ERC4626(getAddress(sourceChain, "evkLBTC"));
         //ERC4626 evkWEETH = ERC4626(getAddress(sourceChain, "evkWEETH"));
@@ -583,7 +583,7 @@ contract EulerEVKIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testEulerEVKIntegrationBorrow() external {
-        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1000e18);
         ERC4626 evkWETH = ERC4626(getAddress(sourceChain, "evkWETH"));
         ERC4626 evkUSDC = ERC4626(getAddress(sourceChain, "evkUSDC"));
 

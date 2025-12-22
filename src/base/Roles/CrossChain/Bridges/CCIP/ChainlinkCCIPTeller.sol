@@ -8,10 +8,10 @@ import {
     CrossChainTellerWithGenericBridge,
     ERC20
 } from "src/base/Roles/CrossChain/CrossChainTellerWithGenericBridge.sol";
-import {CCIPReceiver} from "@ccip/contracts/src/v0.8/ccip/applications/CCIPReceiver.sol";
-import {Client} from "@ccip/contracts/src/v0.8/ccip/libraries/Client.sol";
-import {IRouterClient} from "@ccip/contracts/src/v0.8/ccip/interfaces/IRouterClient.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
+import { CCIPReceiver } from "@ccip/contracts/src/v0.8/ccip/applications/CCIPReceiver.sol";
+import { Client } from "@ccip/contracts/src/v0.8/ccip/libraries/Client.sol";
+import { IRouterClient } from "@ccip/contracts/src/v0.8/ccip/interfaces/IRouterClient.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
 
 contract ChainlinkCCIPTeller is CrossChainTellerWithGenericBridge, CCIPReceiver {
     using SafeTransferLib for ERC20;
@@ -67,7 +67,7 @@ contract ChainlinkCCIPTeller is CrossChainTellerWithGenericBridge, CCIPReceiver 
     constructor(address _owner, address _vault, address _accountant, address _weth, address _router)
         CrossChainTellerWithGenericBridge(_owner, _vault, _accountant, _weth)
         CCIPReceiver(_router)
-    {}
+    { }
 
     // ========================================= ADMIN FUNCTIONS =========================================
     /**

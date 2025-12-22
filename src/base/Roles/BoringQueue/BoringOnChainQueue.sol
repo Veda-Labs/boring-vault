@@ -4,18 +4,18 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {WETH} from "@solmate/tokens/WETH.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {BeforeTransferHook} from "src/interfaces/BeforeTransferHook.sol";
-import {Auth, Authority} from "@solmate/auth/Auth.sol";
-import {ReentrancyGuard} from "@solmate/utils/ReentrancyGuard.sol";
-import {IPausable} from "src/interfaces/IPausable.sol";
-import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-import {IBoringSolver} from "src/base/Roles/BoringQueue/IBoringSolver.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { WETH } from "@solmate/tokens/WETH.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { AccountantWithRateProviders } from "src/base/Roles/AccountantWithRateProviders.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { BeforeTransferHook } from "src/interfaces/BeforeTransferHook.sol";
+import { Auth, Authority } from "@solmate/auth/Auth.sol";
+import { ReentrancyGuard } from "@solmate/utils/ReentrancyGuard.sol";
+import { IPausable } from "src/interfaces/IPausable.sol";
+import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import { IBoringSolver } from "src/base/Roles/BoringQueue/IBoringSolver.sol";
 
 contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
     using EnumerableSet for EnumerableSet.Bytes32Set;
@@ -398,7 +398,7 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
 
         _beforeNewRequest(withdrawAsset, amountOfShares, discount, secondsToDeadline);
 
-        try boringVault.permit(msg.sender, address(this), amountOfShares, permitDeadline, v, r, s) {}
+        try boringVault.permit(msg.sender, address(this), amountOfShares, permitDeadline, v, r, s) { }
         catch {
             if (boringVault.allowance(msg.sender, address(this)) < amountOfShares) {
                 revert BoringOnChainQueue__PermitFailedAndAllowanceTooLow();

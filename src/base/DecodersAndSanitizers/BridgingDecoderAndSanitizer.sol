@@ -4,12 +4,12 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
-import {CCIPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCIPDecoderAndSanitizer.sol";
+import { BaseDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import { CCIPDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/CCIPDecoderAndSanitizer.sol";
 import {
     ArbitrumNativeBridgeDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/Protocols/ArbitrumNativeBridgeDecoderAndSanitizer.sol";
-import {OFTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OFTDecoderAndSanitizer.sol";
+import { OFTDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/OFTDecoderAndSanitizer.sol";
 import {
     StandardBridgeDecoderAndSanitizer,
     DecoderCustomTypes
@@ -26,7 +26,9 @@ import {
 import {
     LidoStandardBridgeDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/Protocols/LidoStandardBridgeDecoderAndSanitizer.sol";
-import {HyperlaneDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/HyperlaneDecoderAndSanitizer.sol";
+import {
+    HyperlaneDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/HyperlaneDecoderAndSanitizer.sol";
 
 contract BridgingDecoderAndSanitizer is
     ArbitrumNativeBridgeDecoderAndSanitizer,
@@ -50,7 +52,7 @@ contract BridgingDecoderAndSanitizer is
     )
         external
         pure
-        override(StandardBridgeDecoderAndSanitizer, LidoStandardBridgeDecoderAndSanitizer)
+        override (StandardBridgeDecoderAndSanitizer, LidoStandardBridgeDecoderAndSanitizer)
         returns (bytes memory sensitiveArguments)
     {
         sensitiveArguments = abi.encodePacked(_tx.sender, _tx.target);
@@ -59,7 +61,7 @@ contract BridgingDecoderAndSanitizer is
     function finalizeWithdrawalTransaction(DecoderCustomTypes.WithdrawalTransaction calldata _tx)
         external
         pure
-        override(StandardBridgeDecoderAndSanitizer, LidoStandardBridgeDecoderAndSanitizer)
+        override (StandardBridgeDecoderAndSanitizer, LidoStandardBridgeDecoderAndSanitizer)
         returns (bytes memory sensitiveArguments)
     {
         sensitiveArguments = abi.encodePacked(_tx.sender, _tx.target);

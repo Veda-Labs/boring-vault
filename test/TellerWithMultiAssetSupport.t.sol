@@ -4,20 +4,20 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
-import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {IRateProvider} from "src/interfaces/IRateProvider.sol";
-import {ILiquidityPool} from "src/interfaces/IStaking.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {AtomicSolverV3, AtomicQueue} from "src/atomic-queue/AtomicSolverV3.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { TellerWithMultiAssetSupport } from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import { AccountantWithRateProviders } from "src/base/Roles/AccountantWithRateProviders.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { IRateProvider } from "src/interfaces/IRateProvider.sol";
+import { ILiquidityPool } from "src/interfaces/IStaking.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { AtomicSolverV3, AtomicQueue } from "src/atomic-queue/AtomicSolverV3.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -35,7 +35,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
     TellerWithMultiAssetSupport public teller;
     AccountantWithRateProviders public accountant;
-    address public payout_address = vm.addr(7777777);
+    address public payout_address = vm.addr(7_777_777);
     address internal constant NATIVE = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     ERC20 internal constant NATIVE_ERC20 = ERC20(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE);
     RolesAuthority public rolesAuthority;
@@ -55,7 +55,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 19363419;
+        uint256 blockNumber = 19_363_419;
         _startFork(rpcKey, blockNumber);
 
         WETH = getERC20(sourceChain, "WETH");
@@ -138,7 +138,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(this), wETH_amount);
         uint256 eETH_amount = amount;
         deal(address(this), eETH_amount + 1);
-        ILiquidityPool(EETH_LIQUIDITY_POOL).deposit{value: eETH_amount + 1}();
+        ILiquidityPool(EETH_LIQUIDITY_POOL).deposit{ value: eETH_amount + 1 }();
 
         WETH.safeApprove(address(boringVault), wETH_amount);
         EETH.safeApprove(address(boringVault), eETH_amount);
@@ -181,7 +181,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(this), wETH_amount);
         uint256 eETH_amount = amount;
         deal(address(this), eETH_amount + 1);
-        ILiquidityPool(EETH_LIQUIDITY_POOL).deposit{value: eETH_amount + 1}();
+        ILiquidityPool(EETH_LIQUIDITY_POOL).deposit{ value: eETH_amount + 1 }();
 
         WETH.safeApprove(address(boringVault), wETH_amount);
         EETH.safeApprove(address(boringVault), eETH_amount);
@@ -221,7 +221,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
         deal(address(this), 2 * amount);
 
-        teller.deposit{value: amount}(ERC20(NATIVE), 0, 0, referrer);
+        teller.deposit{ value: amount }(ERC20(NATIVE), 0, 0, referrer);
 
         assertEq(boringVault.balanceOf(address(this)), amount, "Should have received expected shares");
     }
@@ -334,7 +334,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(this), wETH_amount);
         uint256 eETH_amount = amount;
         deal(address(this), eETH_amount + 1);
-        ILiquidityPool(EETH_LIQUIDITY_POOL).deposit{value: eETH_amount + 1}();
+        ILiquidityPool(EETH_LIQUIDITY_POOL).deposit{ value: eETH_amount + 1 }();
         uint256 weETH_amount = amount.mulDivDown(1e18, IRateProvider(WEETH_RATE_PROVIDER).getRate());
         deal(address(WEETH), address(this), weETH_amount);
 
@@ -360,7 +360,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(this), wETH_amount);
         uint256 eETH_amount = amount;
         deal(address(this), eETH_amount + 1);
-        ILiquidityPool(EETH_LIQUIDITY_POOL).deposit{value: eETH_amount + 1}();
+        ILiquidityPool(EETH_LIQUIDITY_POOL).deposit{ value: eETH_amount + 1 }();
         uint256 weETH_amount = amount.mulDivDown(1e18, IRateProvider(WEETH_RATE_PROVIDER).getRate());
         deal(address(WEETH), address(this), weETH_amount);
 
@@ -552,8 +552,8 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     }
 
     function testSharePremiumLogicERC20Deposit(uint256 depositAmount, uint16 sharePremium) external {
-        depositAmount = bound(depositAmount, 0.0001e18, 1_000e18);
-        sharePremium = uint16(bound(sharePremium, 0, 1_000));
+        depositAmount = bound(depositAmount, 0.0001e18, 1000e18);
+        sharePremium = uint16(bound(sharePremium, 0, 1000));
         teller.updateAssetData(WETH, true, true, sharePremium);
 
         deal(address(WETH), address(this), depositAmount);
@@ -573,14 +573,14 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     }
 
     function testSharePremiumLogicNativeDeposit(uint256 depositAmount, uint16 sharePremium) external {
-        depositAmount = bound(depositAmount, 0.0001e18, 1_000e18);
-        sharePremium = uint16(bound(sharePremium, 0, 1_000));
+        depositAmount = bound(depositAmount, 0.0001e18, 1000e18);
+        sharePremium = uint16(bound(sharePremium, 0, 1000));
         teller.updateAssetData(ERC20(NATIVE), true, true, sharePremium);
 
         deal(address(this), depositAmount);
 
         uint256 shareDelta = boringVault.balanceOf(address(this));
-        uint256 sharesOut = teller.deposit{value: depositAmount}(ERC20(NATIVE), 0, 0, referrer);
+        uint256 sharesOut = teller.deposit{ value: depositAmount }(ERC20(NATIVE), 0, 0, referrer);
         shareDelta = boringVault.balanceOf(address(this)) - shareDelta;
 
         // ETH is 1:1 with share price, so shares out should equal depositAmount - sharePremium
@@ -696,7 +696,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     }
 
     function testMultipleDepositsWithShareLockPeriod() external {
-        teller.setShareLockPeriod(10000);
+        teller.setShareLockPeriod(10_000);
         // can deposit multiple times in a row without share lock blocking
         deal(address(WETH), address(this), 1e18);
         WETH.safeApprove(address(boringVault), 1e18);
@@ -790,7 +790,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__DualDeposit.selector)
         );
-        teller.deposit{value: 1}(WETH, 1, 0, referrer);
+        teller.deposit{ value: 1 }(WETH, 1, 0, referrer);
 
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__MinimumMintNotMet.selector)
@@ -805,7 +805,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__MinimumMintNotMet.selector)
         );
-        teller.deposit{value: 1}(NATIVE_ERC20, 1, type(uint256).max, referrer);
+        teller.deposit{ value: 1 }(NATIVE_ERC20, 1, type(uint256).max, referrer);
 
         // updateAssetData revert
         vm.expectRevert(
@@ -813,7 +813,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
                 TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__SharePremiumTooLarge.selector
             )
         );
-        teller.updateAssetData(WETH, true, true, 1_001);
+        teller.updateAssetData(WETH, true, true, 1001);
 
         // bulkDeposit reverts
         vm.expectRevert(

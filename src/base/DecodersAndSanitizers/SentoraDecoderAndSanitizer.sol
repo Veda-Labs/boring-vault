@@ -7,13 +7,13 @@ pragma solidity 0.8.21;
 import {
     ITBBasePositionDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/Protocols/ITB/ITBBasePositionDecoderAndSanitizer.sol";
-import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol";
-import {OneInchDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OneInchDecoderAndSanitizer.sol";
+import { OdosDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol";
+import { OneInchDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/OneInchDecoderAndSanitizer.sol";
 
 contract SentoraDecoderAndSanitizer is
     ITBBasePositionDecoderAndSanitizer,
     OdosDecoderAndSanitizer,
     OneInchDecoderAndSanitizer
 {
-    constructor(address _odosRouter) OdosDecoderAndSanitizer(_odosRouter) {}
+    constructor(address _odosRouter) OdosDecoderAndSanitizer(_odosRouter) { }
 }

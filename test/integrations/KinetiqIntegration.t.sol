@@ -4,19 +4,19 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
-import {KinetiqDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/KinetiqDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { BaseTestIntegration } from "test/integrations/BaseTestIntegration.t.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { BaseDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import { KinetiqDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/KinetiqDecoderAndSanitizer.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
-contract FullKinetiqDecoderAndSanitizer is KinetiqDecoderAndSanitizer, BaseDecoderAndSanitizer {}
+contract FullKinetiqDecoderAndSanitizer is KinetiqDecoderAndSanitizer, BaseDecoderAndSanitizer { }
 
 contract KinetiqIntegration is BaseTestIntegration {
     function _setUpHyperEVM() internal {
         super.setUp();
-        _setupChain("hyperEVM", 8668511);
+        _setupChain("hyperEVM", 8_668_511);
 
         address kinetiqDecoder = address(new FullKinetiqDecoderAndSanitizer());
 
@@ -28,7 +28,7 @@ contract KinetiqIntegration is BaseTestIntegration {
 
         //starting with just the base assets
         deal(address(boringVault), 100e18);
-        deal(getAddress(sourceChain, "kHypeStakingManager"), 10000000e18);
+        deal(getAddress(sourceChain, "kHypeStakingManager"), 10_000_000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
 

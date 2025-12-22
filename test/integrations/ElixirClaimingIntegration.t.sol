@@ -4,21 +4,21 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
 import {
     ElixirClaimingDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/Protocols/ElixirClaimingDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract EthenaWithdrawIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -41,7 +41,7 @@ contract EthenaWithdrawIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 22024506;
+        uint256 blockNumber = 22_024_506;
 
         _startFork(rpcKey, blockNumber);
 
@@ -153,8 +153,9 @@ contract EthenaWithdrawIntegrationTest is Test, MerkleTreeHelper {
             hex"eb0748848725cbc35cbe170d438626fd014784227138e103ffc08e26dc7f02932d46deb785b0962923b2220dab0a401592f589d59ddb2be56683dbc2e6da14931b";
 
         bytes[] memory targetData = new bytes[](1);
-        targetData[0] =
-            abi.encodeWithSignature("claim(uint256,bytes32[],bytes)", 8973715174000000000000, merkleProofs, signature);
+        targetData[0] = abi.encodeWithSignature(
+            "claim(uint256,bytes32[],bytes)", 8_973_715_174_000_000_000_000, merkleProofs, signature
+        );
 
         address[] memory decodersAndSanitizers = new address[](1);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
@@ -176,8 +177,8 @@ contract EthenaWithdrawIntegrationTest is Test, MerkleTreeHelper {
         uint256 ELXBalanace =
             getERC20(sourceChain, "ELX").balanceOf(address(0xbc0f3B23930fff9f4894914bD745ABAbA9588265));
 
-        uint256 claimable =
-            (8973715174000000000000 / 2) + ((8973715174000000000000 / 2) * (block.timestamp - 1741341600) / 7776000);
+        uint256 claimable = (8_973_715_174_000_000_000_000 / 2)
+            + ((8_973_715_174_000_000_000_000 / 2) * (block.timestamp - 1_741_341_600) / 7_776_000);
 
         //after forfeiting claim, claim amount is 4697531591687134387860;
         assertEq(ELXBalanace, claimable);
@@ -191,5 +192,5 @@ contract EthenaWithdrawIntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullElxDecoderAndSanitizer is ElixirClaimingDecoderAndSanitizer {}
+contract FullElxDecoderAndSanitizer is ElixirClaimingDecoderAndSanitizer { }
 

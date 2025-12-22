@@ -4,22 +4,22 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
 import {
     PointFarmingDecoderAndSanitizer,
     KarakDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/PointFarmingDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract KarakIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -42,7 +42,7 @@ contract KarakIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 20522188;
+        uint256 blockNumber = 20_522_188;
 
         _startFork(rpcKey, blockNumber);
 
@@ -112,7 +112,7 @@ contract KarakIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testDepositAndWithdrawingFromKarak() external {
-        deal(getAddress(sourceChain, "WEETH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WEETH"), address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addKarakLeafs(leafs, getAddress(sourceChain, "vaultSupervisor"), getAddress(sourceChain, "kweETH"));
@@ -146,7 +146,7 @@ contract KarakIntegrationTest is Test, MerkleTreeHelper {
             "approve(address,uint256)", getAddress(sourceChain, "vaultSupervisor"), type(uint256).max
         );
         targetData[2] =
-            abi.encodeWithSignature("deposit(address,uint256,uint256)", getAddress(sourceChain, "kweETH"), 1_000e18, 0);
+            abi.encodeWithSignature("deposit(address,uint256,uint256)", getAddress(sourceChain, "kweETH"), 1000e18, 0);
         targetData[3] =
             abi.encodeWithSignature("gimmieShares(address,uint256)", getAddress(sourceChain, "kweETH"), 500e18);
         targetData[4] =
@@ -156,7 +156,7 @@ contract KarakIntegrationTest is Test, MerkleTreeHelper {
         requests[0].vaults = new address[](1);
         requests[0].vaults[0] = getAddress(sourceChain, "kweETH");
         requests[0].shares = new uint256[](1);
-        requests[0].shares[0] = 1_000e18;
+        requests[0].shares[0] = 1000e18;
         requests[0].withdrawer = address(boringVault);
         targetData[5] = abi.encodeWithSignature("startWithdraw((address[],uint256[],address)[])", requests);
 
@@ -204,11 +204,11 @@ contract KarakIntegrationTest is Test, MerkleTreeHelper {
         );
         uint256 weETHBalanceAfter = getERC20(sourceChain, "WEETH").balanceOf(address(boringVault));
 
-        assertEq(weETHBalanceAfter - weETHBalanceBefore, 1_000e18, "Should have received 1_000e18 WEETH");
+        assertEq(weETHBalanceAfter - weETHBalanceBefore, 1000e18, "Should have received 1_000e18 WEETH");
     }
 
     function testKarakReverts() external {
-        deal(getAddress(sourceChain, "WEETH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WEETH"), address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addKarakLeafs(leafs, getAddress(sourceChain, "vaultSupervisor"), getAddress(sourceChain, "kweETH"));
@@ -242,7 +242,7 @@ contract KarakIntegrationTest is Test, MerkleTreeHelper {
             "approve(address,uint256)", getAddress(sourceChain, "vaultSupervisor"), type(uint256).max
         );
         targetData[2] =
-            abi.encodeWithSignature("deposit(address,uint256,uint256)", getAddress(sourceChain, "kweETH"), 1_000e18, 0);
+            abi.encodeWithSignature("deposit(address,uint256,uint256)", getAddress(sourceChain, "kweETH"), 1000e18, 0);
         targetData[3] =
             abi.encodeWithSignature("gimmieShares(address,uint256)", getAddress(sourceChain, "kweETH"), 500e18);
         targetData[4] =
@@ -252,7 +252,7 @@ contract KarakIntegrationTest is Test, MerkleTreeHelper {
         requests[0].vaults = new address[](1);
         requests[0].vaults[0] = getAddress(sourceChain, "kweETH");
         requests[0].shares = new uint256[](1);
-        requests[0].shares[0] = 1_000e18;
+        requests[0].shares[0] = 1000e18;
         requests[0].withdrawer = address(boringVault);
         targetData[5] = abi.encodeWithSignature("startWithdraw((address[],uint256[],address)[])", requests);
 
@@ -279,7 +279,7 @@ contract KarakIntegrationTest is Test, MerkleTreeHelper {
         requests[0].vaults = new address[](2);
         requests[0].vaults[0] = getAddress(sourceChain, "kweETH");
         requests[0].shares = new uint256[](1);
-        requests[0].shares[0] = 1_000e18;
+        requests[0].shares[0] = 1000e18;
         requests[0].withdrawer = address(boringVault);
         targetData[5] = abi.encodeWithSignature("startWithdraw((address[],uint256[],address)[])", requests);
 
@@ -298,7 +298,7 @@ contract KarakIntegrationTest is Test, MerkleTreeHelper {
         requests[0].vaults = new address[](1);
         requests[0].vaults[0] = getAddress(sourceChain, "kweETH");
         requests[0].shares = new uint256[](2);
-        requests[0].shares[0] = 1_000e18;
+        requests[0].shares[0] = 1000e18;
         requests[0].withdrawer = address(boringVault);
         targetData[5] = abi.encodeWithSignature("startWithdraw((address[],uint256[],address)[])", requests);
 
@@ -317,7 +317,7 @@ contract KarakIntegrationTest is Test, MerkleTreeHelper {
         requests[0].vaults = new address[](1);
         requests[0].vaults[0] = getAddress(sourceChain, "kweETH");
         requests[0].shares = new uint256[](1);
-        requests[0].shares[0] = 1_000e18;
+        requests[0].shares[0] = 1000e18;
         requests[0].withdrawer = address(boringVault);
         targetData[5] = abi.encodeWithSignature("startWithdraw((address[],uint256[],address)[])", requests);
 
@@ -365,7 +365,7 @@ contract KarakIntegrationTest is Test, MerkleTreeHelper {
         requests[0].vaults = new address[](2);
         requests[0].vaults[0] = getAddress(sourceChain, "kweETH");
         requests[0].shares = new uint256[](1);
-        requests[0].shares[0] = 1_000e18;
+        requests[0].shares[0] = 1000e18;
         requests[0].withdrawer = address(boringVault);
         startedWithdrawals = new DecoderCustomTypes.QueuedWithdrawal[](1);
         startedWithdrawals[0].staker = address(boringVault);
@@ -391,7 +391,7 @@ contract KarakIntegrationTest is Test, MerkleTreeHelper {
         requests[0].vaults = new address[](1);
         requests[0].vaults[0] = getAddress(sourceChain, "kweETH");
         requests[0].shares = new uint256[](2);
-        requests[0].shares[0] = 1_000e18;
+        requests[0].shares[0] = 1000e18;
         requests[0].withdrawer = address(boringVault);
         startedWithdrawals = new DecoderCustomTypes.QueuedWithdrawal[](1);
         startedWithdrawals[0].staker = address(boringVault);
@@ -417,7 +417,7 @@ contract KarakIntegrationTest is Test, MerkleTreeHelper {
         requests[0].vaults = new address[](1);
         requests[0].vaults[0] = getAddress(sourceChain, "kweETH");
         requests[0].shares = new uint256[](1);
-        requests[0].shares[0] = 1_000e18;
+        requests[0].shares[0] = 1000e18;
         requests[0].withdrawer = address(boringVault);
         startedWithdrawals = new DecoderCustomTypes.QueuedWithdrawal[](1);
         startedWithdrawals[0].staker = address(boringVault);

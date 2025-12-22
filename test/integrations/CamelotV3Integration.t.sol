@@ -4,22 +4,22 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
 import {
     CamelotFullDecoderAndSanitizer,
     CamelotDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/CamelotFullDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract CamelotV3IntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -42,7 +42,7 @@ contract CamelotV3IntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("arbitrum");
         // Setup forked environment.
         string memory rpcKey = "ARBITRUM_RPC_URL";
-        uint256 blockNumber = 235601319;
+        uint256 blockNumber = 235_601_319;
 
         _startFork(rpcKey, blockNumber);
 
@@ -110,8 +110,8 @@ contract CamelotV3IntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testCamelotV3Integration() external {
-        deal(getAddress(sourceChain, "WSTETH"), address(boringVault), 1_000e18);
-        deal(getAddress(sourceChain, "WEETH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WSTETH"), address(boringVault), 1000e18);
+        deal(getAddress(sourceChain, "WEETH"), address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](32);
         address[] memory token0 = new address[](2);
@@ -182,13 +182,13 @@ contract CamelotV3IntegrationTest is Test, MerkleTreeHelper {
         targetData[4] = abi.encodeWithSignature(
             "mint((address,address,int24,int24,uint256,uint256,uint256,uint256,address,uint256))", mintParams
         );
-        uint256 expectedTokenId = 119901;
+        uint256 expectedTokenId = 119_901;
         DecoderCustomTypes.IncreaseLiquidityParams memory increaseLiquidityParams =
-            DecoderCustomTypes.IncreaseLiquidityParams(119901, 45e18, 45e18, 0, 0, block.timestamp);
+            DecoderCustomTypes.IncreaseLiquidityParams(119_901, 45e18, 45e18, 0, 0, block.timestamp);
         targetData[5] = abi.encodeWithSignature(
             "increaseLiquidity((uint256,uint256,uint256,uint256,uint256,uint256))", increaseLiquidityParams
         );
-        uint128 expectedLiquidity = 35024744166363799012869 + 35024744166363799012869;
+        uint128 expectedLiquidity = 35_024_744_166_363_799_012_869 + 35_024_744_166_363_799_012_869;
         DecoderCustomTypes.DecreaseLiquidityParams memory decreaseLiquidityParams =
             DecoderCustomTypes.DecreaseLiquidityParams(expectedTokenId, expectedLiquidity, 0, 0, block.timestamp);
         targetData[6] = abi.encodeWithSignature(
@@ -217,8 +217,8 @@ contract CamelotV3IntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testCamelotV3IntegrationReverts() external {
-        deal(getAddress(sourceChain, "WSTETH"), address(boringVault), 1_000e18);
-        deal(getAddress(sourceChain, "WEETH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WSTETH"), address(boringVault), 1000e18);
+        deal(getAddress(sourceChain, "WEETH"), address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](32);
         address[] memory token0 = new address[](2);
@@ -289,13 +289,13 @@ contract CamelotV3IntegrationTest is Test, MerkleTreeHelper {
         targetData[4] = abi.encodeWithSignature(
             "mint((address,address,int24,int24,uint256,uint256,uint256,uint256,address,uint256))", mintParams
         );
-        uint256 expectedTokenId = 119901;
+        uint256 expectedTokenId = 119_901;
         DecoderCustomTypes.IncreaseLiquidityParams memory increaseLiquidityParams =
             DecoderCustomTypes.IncreaseLiquidityParams(expectedTokenId, 45e18, 45e18, 0, 0, block.timestamp);
         targetData[5] = abi.encodeWithSignature(
             "increaseLiquidity((uint256,uint256,uint256,uint256,uint256,uint256))", increaseLiquidityParams
         );
-        uint128 expectedLiquidity = 35024744166363799012869 + 35024744166363799012869;
+        uint128 expectedLiquidity = 35_024_744_166_363_799_012_869 + 35_024_744_166_363_799_012_869;
         DecoderCustomTypes.DecreaseLiquidityParams memory decreaseLiquidityParams =
             DecoderCustomTypes.DecreaseLiquidityParams(expectedTokenId, expectedLiquidity, 0, 0, block.timestamp);
         targetData[6] = abi.encodeWithSignature(

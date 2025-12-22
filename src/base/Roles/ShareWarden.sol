@@ -4,11 +4,11 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BeforeTransferHook} from "src/interfaces/BeforeTransferHook.sol";
-import {IPausable} from "src/interfaces/IPausable.sol";
-import {Auth, Authority} from "@solmate/auth/Auth.sol";
-import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
-import {ISanctionsList} from "src/interfaces/ISanctionsList.sol";
+import { BeforeTransferHook } from "src/interfaces/BeforeTransferHook.sol";
+import { IPausable } from "src/interfaces/IPausable.sol";
+import { Auth, Authority } from "@solmate/auth/Auth.sol";
+import { TellerWithMultiAssetSupport } from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import { ISanctionsList } from "src/interfaces/ISanctionsList.sol";
 
 contract ShareWarden is BeforeTransferHook, IPausable, Auth {
     // ========================================= STRUCTS =========================================
@@ -59,7 +59,7 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
 
     // =============================== CONSTRUCTOR ===============================
 
-    constructor(address _owner) Auth(_owner, Authority(address(0))) {}
+    constructor(address _owner) Auth(_owner, Authority(address(0))) { }
 
     // ========================================= ADMIN FUNCTIONS =========================================
 

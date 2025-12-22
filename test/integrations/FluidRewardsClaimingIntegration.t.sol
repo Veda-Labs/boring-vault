@@ -4,22 +4,22 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
+import { BaseTestIntegration } from "test/integrations/BaseTestIntegration.t.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
 import {
     FluidRewardsClaimingDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/Protocols/FluidRewardsClaimingDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
-import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { ERC4626DecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
+import { CurveDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
-contract FullFluidRewardsClaimingDecoderAndSanitizer is FluidRewardsClaimingDecoderAndSanitizer {}
+contract FullFluidRewardsClaimingDecoderAndSanitizer is FluidRewardsClaimingDecoderAndSanitizer { }
 
 contract FluidRewardsClaimingIntegration is BaseTestIntegration {
     function _setUpMainnet() internal {
         super.setUp();
-        _setupChain("mainnet", 22175064);
+        _setupChain("mainnet", 22_175_064);
 
         address fluidDecoder = address(new FullFluidRewardsClaimingDecoderAndSanitizer());
 
@@ -30,7 +30,7 @@ contract FluidRewardsClaimingIntegration is BaseTestIntegration {
         _setUpMainnet();
 
         //starting with just the base assets
-        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
         _addFluidRewardsClaiming(leafs);

@@ -4,11 +4,11 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { Strings } from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import "forge-std/Script.sol";
 
 /**
@@ -64,7 +64,7 @@ contract CreateUltraUsdMerkleRootScript is Script, MerkleTreeHelper {
     // address public accountantAddress = 0x95fE19b324bE69250138FE8EE50356e9f6d17Cfe;
     // address public drone = 0x20A0d13C4643AB962C6804BC6ba6Eea0505F11De;
 
-    function setUp() external {}
+    function setUp() external { }
 
     /**
      * @notice Uncomment which script you want to run.

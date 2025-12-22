@@ -4,13 +4,13 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {IRateProvider} from "src/interfaces/IRateProvider.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {Auth, Authority} from "@solmate/auth/Auth.sol";
-import {IPausable} from "src/interfaces/IPausable.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { IRateProvider } from "src/interfaces/IRateProvider.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { Auth, Authority } from "@solmate/auth/Auth.sol";
+import { IPausable } from "src/interfaces/IPausable.sol";
 
 contract AccountantWithRateProviders is Auth, IRateProvider, IPausable {
     using FixedPointMathLib for uint256;
@@ -248,7 +248,7 @@ contract AccountantWithRateProviders is Auth, IRateProvider, IPausable {
      */
     function setRateProviderData(ERC20 asset, bool isPeggedToBase, address rateProvider) external requiresAuth {
         rateProviderData[asset] =
-            RateProviderData({isPeggedToBase: isPeggedToBase, rateProvider: IRateProvider(rateProvider)});
+            RateProviderData({ isPeggedToBase: isPeggedToBase, rateProvider: IRateProvider(rateProvider) });
         emit RateProviderUpdated(address(asset), isPeggedToBase, rateProvider);
     }
 

@@ -4,22 +4,22 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {SiloDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SiloDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
-import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { BaseTestIntegration } from "test/integrations/BaseTestIntegration.t.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { SiloDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/SiloDecoderAndSanitizer.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { ERC4626DecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
+import { CurveDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
-contract FullSiloDecoderAndSanitizer is SiloDecoderAndSanitizer {}
+contract FullSiloDecoderAndSanitizer is SiloDecoderAndSanitizer { }
 
 contract SiloVaultsIntegration is BaseTestIntegration {
     address WBERA_HONEY_lp = 0x2c4a603A2aA5596287A06886862dc29d56DbC354;
 
     function _setUpSonic() internal {
         super.setUp();
-        _setupChain("sonicMainnet", 25048440);
+        _setupChain("sonicMainnet", 25_048_440);
 
         address siloDecoder = address(new FullSiloDecoderAndSanitizer());
 

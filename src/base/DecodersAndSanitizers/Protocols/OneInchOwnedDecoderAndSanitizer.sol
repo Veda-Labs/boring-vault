@@ -4,9 +4,9 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {Owned} from "lib/solmate/src/auth/Owned.sol";
-import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { Owned } from "lib/solmate/src/auth/Owned.sol";
+import { BaseDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 
 contract OneInchOwnedDecoderAndSanitizer is Owned, BaseDecoderAndSanitizer {
     //============================== STORAGE ===============================

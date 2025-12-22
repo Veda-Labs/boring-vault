@@ -4,15 +4,15 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {Address} from "@openzeppelin/contracts/utils/Address.sol";
-import {ERC721Holder} from "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
-import {ERC1155Holder} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
-import {BeforeTransferHook} from "src/interfaces/BeforeTransferHook.sol";
-import {ShareLocker} from "src/interfaces/ShareLocker.sol";
-import {Auth, Authority} from "@solmate/auth/Auth.sol";
-import {ERC20Votes, ERC20} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
-import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
+import { Address } from "@openzeppelin/contracts/utils/Address.sol";
+import { ERC721Holder } from "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
+import { ERC1155Holder } from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
+import { BeforeTransferHook } from "src/interfaces/BeforeTransferHook.sol";
+import { ShareLocker } from "src/interfaces/ShareLocker.sol";
+import { Auth, Authority } from "@solmate/auth/Auth.sol";
+import { ERC20Votes, ERC20 } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import { EIP712 } from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 
 contract BoringGovernance is ERC20Votes, Auth, ERC721Holder, ERC1155Holder {
     using Address for address;
@@ -178,5 +178,5 @@ contract BoringGovernance is ERC20Votes, Auth, ERC721Holder, ERC1155Holder {
 
     //============================== RECEIVE ===============================
 
-    receive() external payable {}
+    receive() external payable { }
 }

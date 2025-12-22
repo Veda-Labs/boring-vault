@@ -4,8 +4,8 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {IRateProvider} from "src/interfaces/IRateProvider.sol";
-import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+import { IRateProvider } from "src/interfaces/IRateProvider.sol";
+import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 
 contract GenericRateProvider is IRateProvider {
     using Address for address;

@@ -4,8 +4,8 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {TellerWithMultiAssetSupport, ERC20} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
-import {MessageLib} from "src/base/Roles/CrossChain/MessageLib.sol";
+import { TellerWithMultiAssetSupport, ERC20 } from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import { MessageLib } from "src/base/Roles/CrossChain/MessageLib.sol";
 
 abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSupport {
     using MessageLib for uint256;
@@ -40,7 +40,7 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
 
     constructor(address _owner, address _vault, address _accountant, address _weth)
         TellerWithMultiAssetSupport(_owner, _vault, _accountant, _weth)
-    {}
+    { }
 
     // ========================================= PUBLIC FUNCTIONS =========================================
 

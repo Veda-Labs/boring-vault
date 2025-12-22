@@ -4,11 +4,11 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { Strings } from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import "forge-std/Script.sol";
 /**
  *  source .env && forge script script/MerkleRootCreation/Mainnet/CreateLiquidMoveEthMerkleRoot.s.sol --rpc-url $MAINNET_RPC_URL
@@ -22,7 +22,7 @@ contract CreateLiquidMoveEthMerkleRootScript is Script, MerkleTreeHelper {
     address public accountantAddress = 0xb53244f7716dC83811C8fB1a91971dC188C1C5aA;
     address public rawDataDecoderAndSanitizer = 0xf95abC9b46117f68521DB3255bc887AC2Ba8e939;
 
-    function setUp() external {}
+    function setUp() external { }
 
     /**
      * @notice Uncomment which script you want to run.

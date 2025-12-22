@@ -4,23 +4,23 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
 import {
     OnlyTreehouseDecoderAndSanitizer,
     TreehouseDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/OnlyTreehouseDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
 
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract SwellSimpleStakingIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -43,7 +43,7 @@ contract SwellSimpleStakingIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 20825215;
+        uint256 blockNumber = 20_825_215;
 
         _startFork(rpcKey, blockNumber);
 
@@ -110,7 +110,7 @@ contract SwellSimpleStakingIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testTreehouseIntegration() external {
-        deal(getAddress(sourceChain, "WSTETH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WSTETH"), address(boringVault), 1000e18);
 
         // approve
         // Call deposit
@@ -153,12 +153,12 @@ contract SwellSimpleStakingIntegrationTest is Test, MerkleTreeHelper {
             "approve(address,uint256)", getAddress(sourceChain, "TreehouseRouter"), type(uint256).max
         );
         targetData[1] = abi.encodeWithSignature(
-            "deposit(address,uint256)", getAddress(sourceChain, "WSTETH"), 1_000e18, address(boringVault)
+            "deposit(address,uint256)", getAddress(sourceChain, "WSTETH"), 1000e18, address(boringVault)
         );
         targetData[2] = abi.encodeWithSignature(
             "approve(address,uint256)", getAddress(sourceChain, "TreehouseRedemption"), type(uint256).max
         );
-        uint96 expectedShareBalance = 999994557806148621988;
+        uint96 expectedShareBalance = 999_994_557_806_148_621_988;
         targetData[3] = abi.encodeWithSignature("redeem(uint96)", expectedShareBalance);
 
         address[] memory decodersAndSanitizers = new address[](4);
@@ -200,7 +200,7 @@ contract SwellSimpleStakingIntegrationTest is Test, MerkleTreeHelper {
     }
 
     // TODO test curve pool interactions
-    function testCurvePoolIntegration() external {}
+    function testCurvePoolIntegration() external { }
 
     // ========================================= HELPER FUNCTIONS =========================================
 

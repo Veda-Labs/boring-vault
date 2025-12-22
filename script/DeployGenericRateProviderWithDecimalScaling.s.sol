@@ -4,12 +4,12 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {Deployer} from "src/helper/Deployer.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {ContractNames} from "resources/ContractNames.sol";
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {GenericRateProviderWithDecimalScaling} from "src/helper/GenericRateProviderWithDecimalScaling.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { Deployer } from "src/helper/Deployer.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { ContractNames } from "resources/ContractNames.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { GenericRateProviderWithDecimalScaling } from "src/helper/GenericRateProviderWithDecimalScaling.sol";
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
 import "forge-std/Test.sol";

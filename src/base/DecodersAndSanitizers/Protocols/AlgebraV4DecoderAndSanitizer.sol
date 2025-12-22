@@ -4,8 +4,8 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {AlgebraNonFungiblePositionManager} from "src/interfaces/RawDataDecoderAndSanitizerInterfaces.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
+import { AlgebraNonFungiblePositionManager } from "src/interfaces/RawDataDecoderAndSanitizerInterfaces.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
 
 contract AlgebraV4DecoderAndSanitizer {
     //============================== ERRORS ===============================

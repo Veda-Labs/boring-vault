@@ -4,28 +4,30 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
+import { BaseTestIntegration } from "test/integrations/BaseTestIntegration.t.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
 import {
     KodiakIslandDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/Protocols/KodiakIslandDecoderAndSanitizer.sol";
-import {InfraredDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/InfraredDecoderAndSanitizer.sol";
-import {OogaBoogaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OogaBoogaDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
-import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { InfraredDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/InfraredDecoderAndSanitizer.sol";
+import {
+    OogaBoogaDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/OogaBoogaDecoderAndSanitizer.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { ERC4626DecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
+import { CurveDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract FullBerachainDecoder is
     KodiakIslandDecoderAndSanitizer,
     InfraredDecoderAndSanitizer,
     OogaBoogaDecoderAndSanitizer
-{}
+{ }
 
 contract BerachainPOLIntegrationTest is BaseTestIntegration {
     function _setUpBerachain() internal {
         super.setUp();
-        _setupChain("berachain", 2950067);
+        _setupChain("berachain", 2_950_067);
 
         address berachainDecoder = address(new FullBerachainDecoder());
 
@@ -36,8 +38,8 @@ contract BerachainPOLIntegrationTest is BaseTestIntegration {
         _setUpBerachain();
 
         //starting with just the base assets
-        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18);
-        deal(getAddress(sourceChain, "beraETH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1000e18);
+        deal(getAddress(sourceChain, "beraETH"), address(boringVault), 1000e18);
 
         address[] memory islands = new address[](1);
         islands[0] = 0x03bCcF796cDef61064c4a2EffdD21f1AC8C29E92;
@@ -180,8 +182,8 @@ contract BerachainPOLIntegrationTest is BaseTestIntegration {
             inputToken: getAddress(sourceChain, "iBGT"),
             inputAmount: rewardBalance,
             outputToken: getAddress(sourceChain, "WETH"),
-            outputQuote: 4453404017,
-            outputMin: 4448636996,
+            outputQuote: 4_453_404_017,
+            outputMin: 4_448_636_996,
             outputReceiver: address(boringVault)
         });
 

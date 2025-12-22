@@ -4,8 +4,8 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {AddressToBytes32Lib} from "src/helper/AddressToBytes32Lib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { AddressToBytes32Lib } from "src/helper/AddressToBytes32Lib.sol";
 
 contract ChainValues {
     using AddressToBytes32Lib for address;
@@ -47,36 +47,36 @@ contract ChainValues {
     string public constant inkSepolia = "inkSepolia";
 
     // Bridging constants.
-    uint64 public constant ccipArbitrumChainSelector = 4949039107694359620;
-    uint64 public constant ccipMainnetChainSelector = 5009297550715157269;
-    uint64 public constant ccipBobChainSelector = 3849287863852499584;
-    uint64 public constant ccipBaseChainSelector = 15971525489660198786;
-    uint64 public constant ccipBscChainSelector = 11344663589394136015;
-    uint64 public constant ccipKatanaChainSelector = 2459028469735686113;
-    uint32 public constant layerZeroBaseEndpointId = 30184;
-    uint32 public constant layerZeroMainnetEndpointId = 30101;
-    uint32 public constant layerZeroOptimismEndpointId = 30111;
-    uint32 public constant layerZeroArbitrumEndpointId = 30110;
-    uint32 public constant layerZeroLineaEndpointId = 30183;
-    uint32 public constant layerZeroScrollEndpointId = 30214;
-    uint32 public constant layerZeroCornEndpointId = 30331;
-    uint32 public constant layerZeroSwellEndpointId = 30335;
-    uint32 public constant layerZeroSonicMainnetEndpointId = 30332;
-    uint32 public constant layerZeroUnichainEndpointId = 30320;
-    uint32 public constant layerZeroBerachainEndpointId = 30362;
-    uint32 public constant layerZeroSepoliaEndpointId = 40161;
-    uint32 public constant layerZeroSonicBlazeEndpointId = 40349;
-    uint32 public constant layerZeroMovementEndpointId = 30325;
-    uint32 public constant layerZeroFlareEndpointId = 30295;
-    uint32 public constant layerZeroInkEndpointId = 30339;
+    uint64 public constant ccipArbitrumChainSelector = 4_949_039_107_694_359_620;
+    uint64 public constant ccipMainnetChainSelector = 5_009_297_550_715_157_269;
+    uint64 public constant ccipBobChainSelector = 3_849_287_863_852_499_584;
+    uint64 public constant ccipBaseChainSelector = 15_971_525_489_660_198_786;
+    uint64 public constant ccipBscChainSelector = 11_344_663_589_394_136_015;
+    uint64 public constant ccipKatanaChainSelector = 2_459_028_469_735_686_113;
+    uint32 public constant layerZeroBaseEndpointId = 30_184;
+    uint32 public constant layerZeroMainnetEndpointId = 30_101;
+    uint32 public constant layerZeroOptimismEndpointId = 30_111;
+    uint32 public constant layerZeroArbitrumEndpointId = 30_110;
+    uint32 public constant layerZeroLineaEndpointId = 30_183;
+    uint32 public constant layerZeroScrollEndpointId = 30_214;
+    uint32 public constant layerZeroCornEndpointId = 30_331;
+    uint32 public constant layerZeroSwellEndpointId = 30_335;
+    uint32 public constant layerZeroSonicMainnetEndpointId = 30_332;
+    uint32 public constant layerZeroUnichainEndpointId = 30_320;
+    uint32 public constant layerZeroBerachainEndpointId = 30_362;
+    uint32 public constant layerZeroSepoliaEndpointId = 40_161;
+    uint32 public constant layerZeroSonicBlazeEndpointId = 40_349;
+    uint32 public constant layerZeroMovementEndpointId = 30_325;
+    uint32 public constant layerZeroFlareEndpointId = 30_295;
+    uint32 public constant layerZeroInkEndpointId = 30_339;
     uint32 public constant hyperlaneMainnetEndpointId = 1;
-    uint32 public constant hyperlaneEclipseEndpointId = 1408864445;
-    uint32 public constant HyperEVMEndpointId = 30367;
-    uint32 public constant layerZeroPlumeEndpointId = 30370;
-    uint32 public constant layerZeroKatanaEndpointId = 30375;
-    uint32 public constant layerZeroTACEndpointId = 30377;
-    uint32 public constant layerZeroTONEndpointId = 30343;
-    uint32 public constant layerZeroPlasmaEndpointId = 30383;
+    uint32 public constant hyperlaneEclipseEndpointId = 1_408_864_445;
+    uint32 public constant HyperEVMEndpointId = 30_367;
+    uint32 public constant layerZeroPlumeEndpointId = 30_370;
+    uint32 public constant layerZeroKatanaEndpointId = 30_375;
+    uint32 public constant layerZeroTACEndpointId = 30_377;
+    uint32 public constant layerZeroTONEndpointId = 30_343;
+    uint32 public constant layerZeroPlasmaEndpointId = 30_383;
 
     uint32 public constant cctpMainnetDomainId = 0;
     uint32 public constant cctpInkDomainId = 21;

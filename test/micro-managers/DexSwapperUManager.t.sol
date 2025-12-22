@@ -4,24 +4,24 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
 import {
     EtherFiLiquidDecoderAndSanitizer,
     BalancerV2DecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/EtherFiLiquidDecoderAndSanitizer.sol";
-import {BalancerVault} from "src/interfaces/BalancerVault.sol";
-import {IUniswapV3Router} from "src/interfaces/IUniswapV3Router.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {DexSwapperUManager, UManager} from "src/micro-managers/DexSwapperUManager.sol";
-import {PriceRouter} from "src/interfaces/PriceRouter.sol";
+import { BalancerVault } from "src/interfaces/BalancerVault.sol";
+import { IUniswapV3Router } from "src/interfaces/IUniswapV3Router.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { DexSwapperUManager, UManager } from "src/micro-managers/DexSwapperUManager.sol";
+import { PriceRouter } from "src/interfaces/PriceRouter.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract DexSwapperUManagerTest is Test, MainnetAddresses {
     using SafeTransferLib for ERC20;
@@ -45,7 +45,7 @@ contract DexSwapperUManagerTest is Test, MainnetAddresses {
     function setUp() external {
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 19512443;
+        uint256 blockNumber = 19_512_443;
         _startFork(rpcKey, blockNumber);
 
         boringVault = new BoringVault(address(this), "Boring Vault", "BV", 18);
@@ -152,7 +152,7 @@ contract DexSwapperUManagerTest is Test, MainnetAddresses {
         // But if strategist tries to perform a high slippage swap it reverts.
         vm.expectRevert(abi.encodeWithSelector(DexSwapperUManager.DexSwapperUManager__Slippage.selector));
         dexSwapperUManager.swapWithUniswapV3(
-            manageProofs, decodersAndSanitizers, path, fees, 9_990e18, 0, block.timestamp
+            manageProofs, decodersAndSanitizers, path, fees, 9990e18, 0, block.timestamp
         );
 
         // uManager should also be able to revoke approvals to router.

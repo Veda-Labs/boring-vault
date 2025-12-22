@@ -4,15 +4,15 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
+import { BaseTestIntegration } from "test/integrations/BaseTestIntegration.t.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
 import {
     BalancerV3DecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/Protocols/BalancerV3DecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
-import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { ERC4626DecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
+import { CurveDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract FullBalancerV3DecoderAndSanitizer is BalancerV3DecoderAndSanitizer {
     //function deposit(uint256, address receiver) external pure override(ERC4626DecoderAndSanitizer, CurveDecoderAndSanitizer) returns (bytes memory addressesFound) {
@@ -36,7 +36,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
 
     function _setUpMainnet() internal {
         super.setUp();
-        _setupChain("mainnet", 22067550);
+        _setupChain("mainnet", 22_067_550);
 
         address balancerV3Decoder = address(new FullBalancerV3DecoderAndSanitizer());
 
@@ -45,7 +45,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
 
     function _setUpSonic() internal {
         super.setUp();
-        _setupChain("sonicMainnet", 14684422);
+        _setupChain("sonicMainnet", 14_684_422);
 
         address balancerV3Decoder = address(new FullBalancerV3DecoderAndSanitizer());
 
@@ -56,10 +56,10 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
         _setUpMainnet();
         //Test all the leaves necessary for building an LP position from a base asset (USDC, USDT)
 
-        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000e6);
-        deal(waETHUSDC, address(boringVault), 1_000e18);
-        deal(waETHUSDT, address(boringVault), 1_000e18);
-        deal(waETHGHO, address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1000e6);
+        deal(waETHUSDC, address(boringVault), 1000e18);
+        deal(waETHUSDT, address(boringVault), 1000e18);
+        deal(waETHGHO, address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](64);
         bool boosted = true;
@@ -104,7 +104,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
             "approve(address,address,uint160,uint48)",
             waETHUSDC,
             getAddress(sourceChain, "balancerV3Router"),
-            1_000e18,
+            1000e18,
             type(uint48).max
         );
         tx_.targetData[2] =
@@ -113,7 +113,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
             "approve(address,address,uint160,uint48)",
             waETHUSDT,
             getAddress(sourceChain, "balancerV3Router"),
-            1_000e18,
+            1000e18,
             type(uint48).max
         );
         tx_.targetData[4] =
@@ -122,7 +122,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
             "approve(address,address,uint160,uint48)",
             waETHGHO,
             getAddress(sourceChain, "balancerV3Router"),
-            1_000e18,
+            1000e18,
             type(uint48).max
         );
         tx_.targetData[6] = abi.encodeWithSignature(
@@ -196,10 +196,10 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
         _setUpMainnet();
         //Test all the leaves necessary for building an LP position from a base asset (USDC, USDT)
 
-        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000e6);
-        deal(waETHUSDC, address(boringVault), 1_000e18);
-        deal(waETHUSDT, address(boringVault), 1_000e18);
-        deal(waETHGHO, address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1000e6);
+        deal(waETHUSDC, address(boringVault), 1000e18);
+        deal(waETHUSDT, address(boringVault), 1000e18);
+        deal(waETHGHO, address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](64);
         bool boosted = true;
@@ -231,7 +231,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
             "approve(address,address,uint160,uint48)",
             waETHUSDC,
             getAddress(sourceChain, "balancerV3Router"),
-            1_000e18,
+            1000e18,
             type(uint48).max
         );
 
@@ -252,10 +252,10 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
         _setUpMainnet();
         //Test all the leaves necessary for building an LP position from a base asset (USDC, USDT)
 
-        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000e6);
-        deal(waETHUSDC, address(boringVault), 1_000e18);
-        deal(waETHUSDT, address(boringVault), 1_000e18);
-        deal(waETHGHO, address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1000e6);
+        deal(waETHUSDC, address(boringVault), 1000e18);
+        deal(waETHUSDT, address(boringVault), 1000e18);
+        deal(waETHGHO, address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](64);
         bool boosted = true;
@@ -308,7 +308,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
             "approve(address,address,uint160,uint48)",
             waETHUSDC,
             getAddress(sourceChain, "balancerV3Router"),
-            1_000e18,
+            1000e18,
             type(uint48).max
         );
         tx_.targetData[2] =
@@ -317,7 +317,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
             "approve(address,address,uint160,uint48)",
             waETHUSDT,
             getAddress(sourceChain, "balancerV3Router"),
-            1_000e18,
+            1000e18,
             type(uint48).max
         );
         tx_.targetData[4] =
@@ -326,7 +326,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
             "approve(address,address,uint160,uint48)",
             waETHGHO,
             getAddress(sourceChain, "balancerV3Router"),
-            1_000e18,
+            1000e18,
             type(uint48).max
         );
         tx_.targetData[6] = abi.encodeWithSignature(
@@ -418,9 +418,9 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
         _setUpMainnet();
         //Test all the leaves necessary for building an LP position from a base asset (USDC, USDT, GHO)
 
-        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000e6);
-        deal(getAddress(sourceChain, "GHO"), address(boringVault), 1_000e18);
-        deal(getAddress(sourceChain, "USDT"), address(boringVault), 1_000e6);
+        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1000e6);
+        deal(getAddress(sourceChain, "GHO"), address(boringVault), 1000e18);
+        deal(getAddress(sourceChain, "USDT"), address(boringVault), 1000e6);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](64);
         bool boosted = true;
@@ -498,7 +498,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
             "approve(address,address,uint160,uint48)",
             waETHUSDC,
             getAddress(sourceChain, "balancerV3Router"),
-            1_000e18,
+            1000e18,
             type(uint48).max
         );
         tx_.targetData[8] =
@@ -507,7 +507,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
             "approve(address,address,uint160,uint48)",
             waETHUSDT,
             getAddress(sourceChain, "balancerV3Router"),
-            1_000e18,
+            1000e18,
             type(uint48).max
         );
         tx_.targetData[10] =
@@ -516,7 +516,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
             "approve(address,address,uint160,uint48)",
             waETHGHO,
             getAddress(sourceChain, "balancerV3Router"),
-            1_000e18,
+            1000e18,
             type(uint48).max
         );
         tx_.targetData[12] = abi.encodeWithSignature(
@@ -635,10 +635,10 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
         _setUpMainnet();
         //Test all the leaves necessary for building an LP position from a base asset (USDC, USDT)
 
-        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000e6);
-        deal(waETHUSDC, address(boringVault), 1_000e18);
-        deal(waETHUSDT, address(boringVault), 1_000e18);
-        deal(waETHGHO, address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1000e6);
+        deal(waETHUSDC, address(boringVault), 1000e18);
+        deal(waETHUSDT, address(boringVault), 1000e18);
+        deal(waETHGHO, address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](64);
         bool boosted = true;
@@ -682,7 +682,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
             "approve(address,address,uint160,uint48)",
             waETHUSDC,
             getAddress(sourceChain, "balancerV3Router"),
-            1_000e18,
+            1000e18,
             type(uint48).max
         );
         tx_.targetData[2] =
@@ -691,7 +691,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
             "approve(address,address,uint160,uint48)",
             waETHUSDT,
             getAddress(sourceChain, "balancerV3Router"),
-            1_000e18,
+            1000e18,
             type(uint48).max
         );
         tx_.targetData[4] =
@@ -700,7 +700,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
             "approve(address,address,uint160,uint48)",
             waETHGHO,
             getAddress(sourceChain, "balancerV3Router"),
-            1_000e18,
+            1000e18,
             type(uint48).max
         );
         tx_.targetData[6] = abi.encodeWithSignature(
@@ -775,8 +775,8 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
         _setUpMainnet();
         //Test all the leaves necessary for building an LP position from a base asset (USDC, USDT)
 
-        deal(waETHWETH, address(boringVault), 1_000e18);
-        deal(waETHWSTETH, address(boringVault), 1_000e18);
+        deal(waETHWETH, address(boringVault), 1000e18);
+        deal(waETHWSTETH, address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](64);
         bool boosted = true;
@@ -817,7 +817,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
             "approve(address,address,uint160,uint48)",
             waETHWETH,
             getAddress(sourceChain, "balancerV3Router"),
-            1_000e18,
+            1000e18,
             type(uint48).max
         );
         tx_.targetData[2] =
@@ -826,7 +826,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
             "approve(address,address,uint160,uint48)",
             waETHWSTETH,
             getAddress(sourceChain, "balancerV3Router"),
-            1_000e18,
+            1000e18,
             type(uint48).max
         );
         tx_.targetData[4] = abi.encodeWithSignature(
@@ -896,8 +896,8 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
         _setUpMainnet();
         //Test all the leaves necessary for building an LP position from a base asset (USDC, USDT)
 
-        deal(waETHWETH, address(boringVault), 1_000e18);
-        deal(waETHWSTETH, address(boringVault), 1_000e18);
+        deal(waETHWETH, address(boringVault), 1000e18);
+        deal(waETHWSTETH, address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](32);
         bool boosted = true;
@@ -938,7 +938,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
             "approve(address,address,uint160,uint48)",
             waETHWETH,
             getAddress(sourceChain, "balancerV3Router"),
-            1_000e18,
+            1000e18,
             type(uint48).max
         );
         tx_.targetData[2] =
@@ -947,7 +947,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
             "approve(address,address,uint160,uint48)",
             waETHWSTETH,
             getAddress(sourceChain, "balancerV3Router"),
-            1_000e18,
+            1000e18,
             type(uint48).max
         );
         tx_.targetData[4] = abi.encodeWithSignature(
@@ -1016,7 +1016,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
         //Test all the leaves necessary for building an LP position from a base asset (USDC, USDT)
 
         //deal(waETHWETH, address(boringVault), 1_000e18);
-        deal(waETHWSTETH, address(boringVault), 1_000e18);
+        deal(waETHWSTETH, address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](32);
         bool boosted = true;
@@ -1057,7 +1057,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
             "approve(address,address,uint160,uint48)",
             waETHWETH,
             getAddress(sourceChain, "balancerV3Router"),
-            1_000e18,
+            1000e18,
             type(uint48).max
         );
         tx_.targetData[2] =
@@ -1066,7 +1066,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
             "approve(address,address,uint160,uint48)",
             waETHWSTETH,
             getAddress(sourceChain, "balancerV3Router"),
-            1_000e18,
+            1000e18,
             type(uint48).max
         );
         tx_.targetData[4] = abi.encodeWithSignature(
@@ -1133,7 +1133,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
     function testBalancerV3Swap__ExactIn() external {
         _setUpMainnet();
 
-        deal(waETHWETH, address(boringVault), 1_000e18);
+        deal(waETHWETH, address(boringVault), 1000e18);
         //deal(waETHWSTETH, address(boringVault), 1_000e18);
 
         //swapping assumes you already have the necessary tokens to swap into the pool
@@ -1170,7 +1170,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
             "approve(address,address,uint160,uint48)",
             waETHWETH,
             getAddress(sourceChain, "balancerV3Router"),
-            1_000e18,
+            1000e18,
             type(uint48).max
         );
         tx_.targetData[2] =
@@ -1179,7 +1179,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
             "approve(address,address,uint160,uint48)",
             waETHWSTETH,
             getAddress(sourceChain, "balancerV3Router"),
-            1_000e18,
+            1000e18,
             type(uint48).max
         );
 
@@ -1212,7 +1212,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
     function testBalancerV3Swap__ExactOut() external {
         _setUpMainnet();
 
-        deal(waETHWETH, address(boringVault), 1_000e18);
+        deal(waETHWETH, address(boringVault), 1000e18);
         //deal(waETHWSTETH, address(boringVault), 1_000e18);
 
         //swapping assumes you already have the necessary tokens to swap into the pool
@@ -1249,7 +1249,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
             "approve(address,address,uint160,uint48)",
             waETHWETH,
             getAddress(sourceChain, "balancerV3Router"),
-            1_000e18,
+            1000e18,
             type(uint48).max
         );
         tx_.targetData[2] =
@@ -1258,7 +1258,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
             "approve(address,address,uint160,uint48)",
             waETHWSTETH,
             getAddress(sourceChain, "balancerV3Router"),
-            1_000e18,
+            1000e18,
             type(uint48).max
         );
 
@@ -1291,8 +1291,8 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
     function testBalancerAddRemoveLiqUnbalanced__HooksStableSurge() external {
         _setUpMainnet();
 
-        deal(tETH, address(boringVault), 1_000e18);
-        deal(waETHWSTETH, address(boringVault), 1_000e18);
+        deal(tETH, address(boringVault), 1000e18);
+        deal(waETHWSTETH, address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](32);
         bool boosted = true;
@@ -1333,7 +1333,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
             "approve(address,address,uint160,uint48)",
             waETHWSTETH,
             getAddress(sourceChain, "balancerV3Router"),
-            1_000e18,
+            1000e18,
             type(uint48).max
         );
         tx_.targetData[2] =
@@ -1342,7 +1342,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
             "approve(address,address,uint160,uint48)",
             tETH,
             getAddress(sourceChain, "balancerV3Router"),
-            1_000e18,
+            1000e18,
             type(uint48).max
         );
         tx_.targetData[4] = abi.encodeWithSignature(
@@ -1414,8 +1414,8 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
         _setUpSonic();
         //Test all the leaves necessary for building an LP position from a base asset (USDC, USDT)
 
-        deal(wsSonicUSDC, address(boringVault), 1_000e6);
-        deal(scUSD, address(boringVault), 1_000e6);
+        deal(wsSonicUSDC, address(boringVault), 1000e6);
+        deal(scUSD, address(boringVault), 1000e6);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](32);
         bool boosted = true;
@@ -1456,7 +1456,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
             "approve(address,address,uint160,uint48)",
             wsSonicUSDC,
             getAddress(sourceChain, "balancerV3Router"),
-            1_000e18,
+            1000e18,
             type(uint48).max
         );
         tx_.targetData[2] =
@@ -1465,7 +1465,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
             "approve(address,address,uint160,uint48)",
             scUSD,
             getAddress(sourceChain, "balancerV3Router"),
-            1_000e18,
+            1000e18,
             type(uint48).max
         );
         tx_.targetData[4] = abi.encodeWithSignature(
@@ -1535,8 +1535,8 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
         _setUpSonic();
         //Test all the leaves necessary for building an LP position from a base asset (USDC, USDT)
 
-        deal(wsSonicUSDC, address(boringVault), 1_000e6);
-        deal(scUSD, address(boringVault), 1_000e6);
+        deal(wsSonicUSDC, address(boringVault), 1000e6);
+        deal(scUSD, address(boringVault), 1000e6);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](64);
         bool boosted = true;
@@ -1586,7 +1586,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
             "approve(address,address,uint160,uint48)",
             wsSonicUSDC,
             getAddress(sourceChain, "balancerV3Router"),
-            1_000e18,
+            1000e18,
             type(uint48).max
         );
         tx_.targetData[2] =
@@ -1595,7 +1595,7 @@ contract BalancerV3IntegrationTest is BaseTestIntegration {
             "approve(address,address,uint160,uint48)",
             scUSD,
             getAddress(sourceChain, "balancerV3Router"),
-            1_000e18,
+            1000e18,
             type(uint48).max
         );
         tx_.targetData[4] = abi.encodeWithSignature(

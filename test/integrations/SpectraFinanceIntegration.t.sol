@@ -4,20 +4,20 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
-import {SpectraDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SpectraDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
+import { BaseDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import { SpectraDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/SpectraDecoderAndSanitizer.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract SpectraIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -40,7 +40,7 @@ contract SpectraIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 21868408;
+        uint256 blockNumber = 21_868_408;
 
         _startFork(rpcKey, blockNumber);
 
@@ -536,7 +536,7 @@ contract SpectraIntegrationTest is Test, MerkleTreeHelper {
 
         uint256 COOLDOWN_DURATION_SLOT = 14;
 
-        uint256 expectedCooldown = 604800; // 0x00093a80
+        uint256 expectedCooldown = 604_800; // 0x00093a80
         address expectedSilo = 0x96948ca569fFAEf0CE0f05B79aA9CDe073690CEd;
 
         for (uint256 slot = 0; slot < 100; slot++) {
@@ -764,7 +764,7 @@ contract SpectraIntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullSpectraFinanceDecoderAndSanitizer is SpectraDecoderAndSanitizer {}
+contract FullSpectraFinanceDecoderAndSanitizer is SpectraDecoderAndSanitizer { }
 
 interface ILvlUSD {
     function cooldownDuration() external view returns (uint24);

@@ -3,20 +3,20 @@
 // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
-import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
-import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
-import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { BaseDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import { BaseTestIntegration } from "test/integrations/BaseTestIntegration.t.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { TellerDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
+import { CurveDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
-contract FullTellerDecoderAndSanitizer is TellerDecoderAndSanitizer, BaseDecoderAndSanitizer {}
+contract FullTellerDecoderAndSanitizer is TellerDecoderAndSanitizer, BaseDecoderAndSanitizer { }
 
 contract CrossChainTellerIntegration is BaseTestIntegration {
     function _setUpMainnet() internal {
         super.setUp();
-        _setupChain("mainnet", 22238421);
+        _setupChain("mainnet", 22_238_421);
 
         address tellerDecoder = address(new FullTellerDecoderAndSanitizer());
 
@@ -85,7 +85,7 @@ contract CrossChainTellerIntegration is BaseTestIntegration {
 
         tx_.values[0] = 0;
         tx_.values[1] = 0;
-        tx_.values[2] = 30819757242215;
+        tx_.values[2] = 30_819_757_242_215;
 
         _submitManagerCall(manageProofs, tx_);
     }
@@ -160,7 +160,7 @@ contract CrossChainTellerIntegration is BaseTestIntegration {
 
         tx_.values[0] = 0;
         tx_.values[1] = 0;
-        tx_.values[2] = 30819757242215;
+        tx_.values[2] = 30_819_757_242_215;
 
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -240,7 +240,7 @@ contract CrossChainTellerIntegration is BaseTestIntegration {
 
         tx_.values[0] = 0;
         tx_.values[1] = 0;
-        tx_.values[2] = 30819757242215;
+        tx_.values[2] = 30_819_757_242_215;
 
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -304,7 +304,7 @@ contract CrossChainTellerIntegration is BaseTestIntegration {
         tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
 
         tx_.values[0] = 0;
-        tx_.values[1] = 30819757242215;
+        tx_.values[1] = 30_819_757_242_215;
 
         _submitManagerCall(manageProofs, tx_);
     }

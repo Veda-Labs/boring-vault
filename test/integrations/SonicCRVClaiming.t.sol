@@ -4,23 +4,23 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
+import { BaseTestIntegration } from "test/integrations/BaseTestIntegration.t.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
 import {
     BalancerV2DecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/Protocols/BalancerV2DecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
-import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { ERC4626DecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
+import { CurveDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 /// @notice balancer decoder has the correct funciton signature already, so we can reuse it here
-contract FullBalancerDecoderAndSanitizer is BalancerV2DecoderAndSanitizer {}
+contract FullBalancerDecoderAndSanitizer is BalancerV2DecoderAndSanitizer { }
 
 contract SonicCRVClaimingIntegrationTest is BaseTestIntegration {
     function _setUpSonic() internal {
         super.setUp();
-        _setupChain("sonicMainnet", 19168242);
+        _setupChain("sonicMainnet", 19_168_242);
 
         address balancerDecoder = address(new FullBalancerDecoderAndSanitizer());
 

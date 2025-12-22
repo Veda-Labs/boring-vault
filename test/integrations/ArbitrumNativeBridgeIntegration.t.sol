@@ -4,21 +4,21 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
 import {
     BridgingDecoderAndSanitizer,
     ArbitrumNativeBridgeDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/BridgingDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract ArbitrumNativeBridgeIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -40,14 +40,14 @@ contract ArbitrumNativeBridgeIntegrationTest is Test, MerkleTreeHelper {
     address public weEthOracle = 0x3fa58b74e9a8eA8768eb33c8453e9C2Ed089A40a;
     address public weEthIrm = 0x870aC11D48B15DB9a138Cf899d20F13F79Ba00BC;
 
-    function setUp() external {}
+    function setUp() external { }
 
     function testBridgingToArbitrumERC20() external {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
         // uint256 blockNumber = 19369928;
-        uint256 blockNumber = 19826676;
+        uint256 blockNumber = 19_826_676;
         _createForkAndSetup(rpcKey, blockNumber);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -85,8 +85,8 @@ contract ArbitrumNativeBridgeIntegrationTest is Test, MerkleTreeHelper {
             getAddress(sourceChain, "WEETH"),
             address(boringVault),
             100e18,
-            125062,
-            60000000,
+            125_062,
+            60_000_000,
             bridgeData
         );
         uint256[] memory values = new uint256[](2);
@@ -102,8 +102,8 @@ contract ArbitrumNativeBridgeIntegrationTest is Test, MerkleTreeHelper {
             getAddress(sourceChain, "WEETH"),
             address(boringVault),
             100e18,
-            125062,
-            60000000,
+            125_062,
+            60_000_000,
             badFormedBridgeData
         );
 
@@ -122,8 +122,8 @@ contract ArbitrumNativeBridgeIntegrationTest is Test, MerkleTreeHelper {
             getAddress(sourceChain, "WEETH"),
             address(boringVault),
             100e18,
-            125062,
-            60000000,
+            125_062,
+            60_000_000,
             bridgeData
         );
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
@@ -134,7 +134,7 @@ contract ArbitrumNativeBridgeIntegrationTest is Test, MerkleTreeHelper {
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
         // uint256 blockNumber = 19369928;
-        uint256 blockNumber = 19826676;
+        uint256 blockNumber = 19_826_676;
         _createForkAndSetup(rpcKey, blockNumber);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -173,8 +173,8 @@ contract ArbitrumNativeBridgeIntegrationTest is Test, MerkleTreeHelper {
             address(boringVault),
             address(boringVault),
             100e18,
-            125062,
-            60000000,
+            125_062,
+            60_000_000,
             bridgeData
         );
         uint256[] memory values = new uint256[](2);
@@ -190,8 +190,8 @@ contract ArbitrumNativeBridgeIntegrationTest is Test, MerkleTreeHelper {
             address(boringVault),
             address(boringVault),
             100e18,
-            125062,
-            60000000,
+            125_062,
+            60_000_000,
             badFormedBridgeData
         );
 
@@ -211,8 +211,8 @@ contract ArbitrumNativeBridgeIntegrationTest is Test, MerkleTreeHelper {
             address(boringVault),
             address(boringVault),
             100e18,
-            125062,
-            60000000,
+            125_062,
+            60_000_000,
             bridgeData
         );
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
@@ -224,7 +224,7 @@ contract ArbitrumNativeBridgeIntegrationTest is Test, MerkleTreeHelper {
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
         // uint256 blockNumber = 19369928;
-        uint256 blockNumber = 19826676;
+        uint256 blockNumber = 19_826_676;
         _createForkAndSetup(rpcKey, blockNumber);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -266,7 +266,7 @@ contract ArbitrumNativeBridgeIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 20191506;
+        uint256 blockNumber = 20_191_506;
         _createForkAndSetup(rpcKey, blockNumber);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -315,12 +315,12 @@ contract ArbitrumNativeBridgeIntegrationTest is Test, MerkleTreeHelper {
         targetData[0] = abi.encodeWithSignature(
             "executeTransaction(bytes32[],uint256,address,address,uint256,uint256,uint256,uint256,bytes)",
             proof,
-            121803,
+            121_803,
             getAddress(arbitrum, "arbitrumL2Sender"),
             getAddress(sourceChain, "arbitrumL1ERC20Gateway"),
-            224245394,
-            20141384,
-            1718988440,
+            224_245_394,
+            20_141_384,
+            1_718_988_440,
             0,
             bridgeData
         );
@@ -338,7 +338,7 @@ contract ArbitrumNativeBridgeIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 20188705;
+        uint256 blockNumber = 20_188_705;
         _createForkAndSetup(rpcKey, blockNumber);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -384,16 +384,16 @@ contract ArbitrumNativeBridgeIntegrationTest is Test, MerkleTreeHelper {
         proof[14] = 0xe293e3dc5befe34c72d718dc7b2e5f5cfdeb11a8c3387f0811a76c1d8825903c;
         proof[15] = 0xc0425084107ea9f7a4118f5ed1e3566cda4e90b550363fc804df1e52ed5f2386;
         proof[16] = 0xb43a6b28077d49f37d58c87aec0b51f7bce13b648143f3295385f3b3d5ac3b9b;
-        uint256 expectedNative = 29555044972135104000;
+        uint256 expectedNative = 29_555_044_972_135_104_000;
         targetData[0] = abi.encodeWithSignature(
             "executeTransaction(bytes32[],uint256,address,address,uint256,uint256,uint256,uint256,bytes)",
             proof,
-            121738,
+            121_738,
             userToClaimFor,
             userToClaimFor,
-            224084768,
-            20138051,
-            1718948280,
+            224_084_768,
+            20_138_051,
+            1_718_948_280,
             expectedNative,
             hex""
         );
@@ -415,7 +415,7 @@ contract ArbitrumNativeBridgeIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("arbitrum");
         // Setup forked environment.
         string memory rpcKey = "ARBITRUM_RPC_URL";
-        uint256 blockNumber = 228366826;
+        uint256 blockNumber = 228_366_826;
         _createForkAndSetup(rpcKey, blockNumber);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -486,7 +486,7 @@ contract ArbitrumNativeBridgeIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("arbitrum");
         // Setup forked environment.
         string memory rpcKey = "ARBITRUM_RPC_URL";
-        uint256 blockNumber = 228366826;
+        uint256 blockNumber = 228_366_826;
         _createForkAndSetup(rpcKey, blockNumber);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -527,7 +527,7 @@ contract ArbitrumNativeBridgeIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("arbitrum");
         // Setup forked environment.
         string memory rpcKey = "ARBITRUM_RPC_URL";
-        uint256 blockNumber = 226704376;
+        uint256 blockNumber = 226_704_376;
         _createForkAndSetup(rpcKey, blockNumber);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -569,13 +569,13 @@ contract ArbitrumNativeBridgeIntegrationTest is Test, MerkleTreeHelper {
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
         // uint256 blockNumber = 19369928;
-        uint256 blockNumber = 19826676;
+        uint256 blockNumber = 19_826_676;
         _createForkAndSetup(rpcKey, blockNumber);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         deal(address(getAddress(sourceChain, "WEETH")), address(boringVault), 100e18);
-        deal(address(boringVault), 1_000e18);
+        deal(address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
         ERC20[] memory bridgeAssets = new ERC20[](1);

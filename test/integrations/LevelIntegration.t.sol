@@ -4,20 +4,20 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
-import {LevelDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LevelDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
+import { BaseDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import { LevelDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/LevelDecoderAndSanitizer.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract LevelIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -40,7 +40,7 @@ contract LevelIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 22682962;
+        uint256 blockNumber = 22_682_962;
 
         _startFork(rpcKey, blockNumber);
 
@@ -192,8 +192,8 @@ contract LevelIntegrationTest is Test, MerkleTreeHelper {
         DecoderCustomTypes.LevelOrderV2 memory order = DecoderCustomTypes.LevelOrderV2(
             address(boringVault), //beneficiary
             getAddress(sourceChain, "USDC"),
-            860000000, //gotten from on-chain
-            859548540855159900000 //gotten from on-chain
+            860_000_000, //gotten from on-chain
+            859_548_540_855_159_900_000 //gotten from on-chain
         );
 
         targetData[3] = abi.encodeWithSignature("mint((address,address,uint256,uint256))", order);
@@ -201,8 +201,8 @@ contract LevelIntegrationTest is Test, MerkleTreeHelper {
         DecoderCustomTypes.LevelOrderV2 memory order1 = DecoderCustomTypes.LevelOrderV2(
             address(boringVault), //beneficiary
             getAddress(sourceChain, "USDT"),
-            106513946, //gotten from on-chain
-            106481991816200010000 //gotten from on-chain
+            106_513_946, //gotten from on-chain
+            106_481_991_816_200_010_000 //gotten from on-chain
         );
 
         targetData[4] = abi.encodeWithSignature("mint((address,address,uint256,uint256))", order1);
@@ -329,7 +329,7 @@ contract LevelIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testLevelERC4626Integration() external {
-        deal(getAddress(sourceChain, "lvlUSD"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "lvlUSD"), address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](32);
         _addLevelLeafs(leafs);
@@ -377,7 +377,7 @@ contract LevelIntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullLevelMoneyDecoderAndSanitizer is LevelDecoderAndSanitizer {}
+contract FullLevelMoneyDecoderAndSanitizer is LevelDecoderAndSanitizer { }
 
 interface EthenaSusde {
     function cooldownDuration() external view returns (uint24);

@@ -4,11 +4,11 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {Deployer} from "src/helper/Deployer.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {ContractNames} from "resources/ContractNames.sol";
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringDrone} from "src/base/Drones/BoringDrone.sol";
+import { Deployer } from "src/helper/Deployer.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { ContractNames } from "resources/ContractNames.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringDrone } from "src/base/Drones/BoringDrone.sol";
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
 import "forge-std/Test.sol";
@@ -36,7 +36,7 @@ contract DeployDrone is Script, ContractNames, Test {
         vm.startBroadcast(privateKey);
 
         creationCode = type(BoringDrone).creationCode;
-        constructorArgs = abi.encode(boringVault, 21000);
+        constructorArgs = abi.encode(boringVault, 21_000);
         deployer.deployContract("GoldenGoose Boring Drone 0", creationCode, constructorArgs, 0);
     }
 }

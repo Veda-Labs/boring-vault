@@ -4,22 +4,22 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
 import {
     AerodromeDecoderAndSanitizer,
     VelodromeDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/AerodromeDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract AerodromeIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -42,7 +42,7 @@ contract AerodromeIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("base");
         // Setup forked environment.
         string memory rpcKey = "BASE_RPC_URL";
-        uint256 blockNumber = 17446047;
+        uint256 blockNumber = 17_446_047;
 
         _startFork(rpcKey, blockNumber);
 
@@ -113,8 +113,8 @@ contract AerodromeIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testAerodromeV2() external {
-        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18);
-        deal(getAddress(sourceChain, "WSTETH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1000e18);
+        deal(getAddress(sourceChain, "WSTETH"), address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
         address[] memory token0 = new address[](1);
@@ -159,15 +159,15 @@ contract AerodromeIntegrationTest is Test, MerkleTreeHelper {
             getAddress(sourceChain, "WETH"),
             getAddress(sourceChain, "WSTETH"),
             false,
-            1_000e18,
-            1_000e18,
+            1000e18,
+            1000e18,
             0,
             0,
             address(boringVault),
             block.timestamp + 1
         );
         targetData[3] = abi.encodeWithSignature("approve(address,uint256)", gauges[0], type(uint256).max);
-        uint256 lpTokens = 923627556299184964559;
+        uint256 lpTokens = 923_627_556_299_184_964_559;
         targetData[4] = abi.encodeWithSignature("deposit(uint256)", lpTokens);
         uint256[] memory values = new uint256[](5);
         address[] memory decodersAndSanitizers = new address[](5);
@@ -228,8 +228,8 @@ contract AerodromeIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testAerodromeV3() external {
-        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18);
-        deal(getAddress(sourceChain, "WSTETH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1000e18);
+        deal(getAddress(sourceChain, "WSTETH"), address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
         address[] memory token0 = new address[](1);
@@ -292,7 +292,7 @@ contract AerodromeIntegrationTest is Test, MerkleTreeHelper {
             "mint((address,address,int24,int24,int24,uint256,uint256,uint256,uint256,address,uint256,uint160))",
             mintParams
         );
-        uint256 expectedTokenId = 249881;
+        uint256 expectedTokenId = 249_881;
         DecoderCustomTypes.IncreaseLiquidityParams memory increaseLiquidityParams =
             DecoderCustomTypes.IncreaseLiquidityParams(expectedTokenId, 500e18, 500e18, 0, 0, block.timestamp);
         targetData[3] = abi.encodeWithSignature(
@@ -333,7 +333,7 @@ contract AerodromeIntegrationTest is Test, MerkleTreeHelper {
         targetData = new bytes[](5);
         targetData[0] = abi.encodeWithSignature("getReward(uint256)", expectedTokenId);
         targetData[1] = abi.encodeWithSignature("withdraw(uint256)", expectedTokenId);
-        uint128 expectedLiquidity = 13997094079385443670261480;
+        uint128 expectedLiquidity = 13_997_094_079_385_443_670_261_480;
         DecoderCustomTypes.DecreaseLiquidityParams memory decreaseLiquidityParams =
             DecoderCustomTypes.DecreaseLiquidityParams(expectedTokenId, expectedLiquidity, 0, 0, block.timestamp);
         targetData[2] = abi.encodeWithSignature(
@@ -363,8 +363,8 @@ contract AerodromeIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testAerodromeV3Reverts() external {
-        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18);
-        deal(getAddress(sourceChain, "WSTETH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1000e18);
+        deal(getAddress(sourceChain, "WSTETH"), address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
         address[] memory token0 = new address[](1);
@@ -427,8 +427,8 @@ contract AerodromeIntegrationTest is Test, MerkleTreeHelper {
             "mint((address,address,int24,int24,int24,uint256,uint256,uint256,uint256,address,uint256,uint160))",
             mintParams
         );
-        uint256 expectedTokenId = 249881;
-        uint256 badTokenId = 249782;
+        uint256 expectedTokenId = 249_881;
+        uint256 badTokenId = 249_782;
         DecoderCustomTypes.IncreaseLiquidityParams memory increaseLiquidityParams =
             DecoderCustomTypes.IncreaseLiquidityParams(badTokenId, 500e18, 500e18, 0, 0, block.timestamp);
         targetData[3] = abi.encodeWithSignature(
@@ -534,7 +534,7 @@ contract AerodromeIntegrationTest is Test, MerkleTreeHelper {
         targetData = new bytes[](5);
         targetData[0] = abi.encodeWithSignature("getReward(uint256)", expectedTokenId);
         targetData[1] = abi.encodeWithSignature("withdraw(uint256)", expectedTokenId);
-        uint128 expectedLiquidity = 13997094079385443670261480;
+        uint128 expectedLiquidity = 13_997_094_079_385_443_670_261_480;
         DecoderCustomTypes.DecreaseLiquidityParams memory decreaseLiquidityParams =
             DecoderCustomTypes.DecreaseLiquidityParams(badTokenId, expectedLiquidity, 0, 0, block.timestamp);
         targetData[2] = abi.encodeWithSignature(

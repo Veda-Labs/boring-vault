@@ -4,23 +4,23 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
 import {
     StakingDecoderAndSanitizer,
     EigenLayerLSTStakingDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/StakingDecoderAndSanitizer.sol";
 
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract EigenStakingIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -47,7 +47,7 @@ contract EigenStakingIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 20965167;
+        uint256 blockNumber = 20_965_167;
 
         _startFork(rpcKey, blockNumber);
 
@@ -134,7 +134,7 @@ contract EigenStakingIntegrationTest is Test, MerkleTreeHelper {
         // Must wait atleast delegationManager.minWithdrawalDelayBlocks() blocks which is 50400.
         {
             uint32 withdrawRequestBlock = uint32(block.number);
-            vm.roll(block.number + 50400);
+            vm.roll(block.number + 50_400);
 
             // Complete the withdrawal
             manageLeafs = new ManageLeaf[](1);
@@ -188,7 +188,7 @@ contract EigenStakingIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testDelegation() external {
-        deal(getAddress(sourceChain, "EIGEN"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "EIGEN"), address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
         _addLeafsForEigenLayerLST(

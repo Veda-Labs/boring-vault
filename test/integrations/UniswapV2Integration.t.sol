@@ -4,19 +4,21 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {UniswapV2DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV2DecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
+import {
+    UniswapV2DecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/UniswapV2DecoderAndSanitizer.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract UniswapV2IntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -39,7 +41,7 @@ contract UniswapV2IntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 21665883;
+        uint256 blockNumber = 21_665_883;
 
         _startFork(rpcKey, blockNumber);
 
@@ -106,7 +108,7 @@ contract UniswapV2IntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testUniswapV2IntegrationLiquidityFunctionsNoETH() external {
-        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1000e18);
         deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000_000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
@@ -157,13 +159,13 @@ contract UniswapV2IntegrationTest is Test, MerkleTreeHelper {
             getAddress(sourceChain, "USDC"),
             getAddress(sourceChain, "WETH"),
             100_000e8,
-            1_000e18,
+            1000e18,
             0,
             0,
             getAddress(sourceChain, "boringVault"),
             block.timestamp + 1
         );
-        uint256 amountLiquidity = 26539317965273;
+        uint256 amountLiquidity = 26_539_317_965_273;
         targetData[4] = abi.encodeWithSignature(
             "removeLiquidity(address,address,uint256,uint256,uint256,address,uint256)",
             getAddress(sourceChain, "USDC"),
@@ -188,7 +190,7 @@ contract UniswapV2IntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testUniswapV2IntegrationLiquidityFunctionsWithETH() external {
-        deal(address(boringVault), 1_000e18);
+        deal(address(boringVault), 1000e18);
         deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000_000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
@@ -238,7 +240,7 @@ contract UniswapV2IntegrationTest is Test, MerkleTreeHelper {
             getAddress(sourceChain, "boringVault"),
             block.timestamp + 1
         );
-        uint256 amountLiquidity = 26539317965273;
+        uint256 amountLiquidity = 26_539_317_965_273;
         targetData[3] = abi.encodeWithSignature(
             "removeLiquidityETH(address,uint256,uint256,uint256,address,uint256)",
             getAddress(sourceChain, "USDC"),
@@ -265,7 +267,7 @@ contract UniswapV2IntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testUniswapV2IntegrationSwapsNoETH() external {
-        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1000e18);
         deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000_000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
@@ -323,7 +325,7 @@ contract UniswapV2IntegrationTest is Test, MerkleTreeHelper {
             block.timestamp + 1
         );
 
-        uint256 wethOut = 2112645616190283048320;
+        uint256 wethOut = 2_112_645_616_190_283_048_320;
         path[0] = getAddress(sourceChain, "WETH");
         path[1] = getAddress(sourceChain, "USDC");
 
@@ -375,7 +377,7 @@ contract UniswapV2IntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testUniswapV2IntegrationSwapsWithETH() external {
-        deal(address(boringVault), 1_000e18);
+        deal(address(boringVault), 1000e18);
         deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000_000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
@@ -491,7 +493,7 @@ contract UniswapV2IntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullUniswapV2DecoderAndSanitizer is UniswapV2DecoderAndSanitizer {}
+contract FullUniswapV2DecoderAndSanitizer is UniswapV2DecoderAndSanitizer { }
 
 interface IUniswapV2Factory {
     function getPair(address token0, address token1) external view returns (address);

@@ -4,23 +4,23 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
 import {
     EtherFiLiquidDecoderAndSanitizer,
     CurveDecoderAndSanitizer,
     ConvexDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/EtherFiLiquidDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract CurveAndConvexIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -43,7 +43,7 @@ contract CurveAndConvexIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 19826676;
+        uint256 blockNumber = 19_826_676;
 
         _startFork(rpcKey, blockNumber);
 
@@ -300,10 +300,10 @@ contract CurveAndConvexIntegrationTest is Test, MerkleTreeHelper {
             "approve(address,uint256)", getAddress(sourceChain, "weETH_wETH_Curve_LP"), type(uint256).max
         );
         uint256[] memory amounts = new uint256[](2);
-        amounts[0] = 48082277094560238132;
+        amounts[0] = 48_082_277_094_560_238_132;
         amounts[1] = 50e18;
         targetData[4] = abi.encodeWithSignature("add_liquidity(uint256[],uint256)", amounts, 0);
-        uint256 lpTokens = 98371392079353838711;
+        uint256 lpTokens = 98_371_392_079_353_838_711;
         targetData[5] = abi.encodeWithSignature(
             "approve(address,uint256)", getAddress(sourceChain, "weETH_wETH_Curve_Gauge"), type(uint256).max
         );

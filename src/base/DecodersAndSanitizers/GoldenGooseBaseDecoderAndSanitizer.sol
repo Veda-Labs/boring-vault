@@ -4,23 +4,28 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
-import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
+import {
+    BaseDecoderAndSanitizer,
+    DecoderCustomTypes
+} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import { TellerDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
 import {
     NativeWrapperDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol";
-import {AaveV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AaveV3DecoderAndSanitizer.sol";
+import { AaveV3DecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/AaveV3DecoderAndSanitizer.sol";
 import {
     BalancerV3DecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/Protocols/BalancerV3DecoderAndSanitizer.sol";
-import {VelodromeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/VelodromeDecoderAndSanitizer.sol";
-import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol";
-import {OneInchDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OneInchDecoderAndSanitizer.sol";
+import {
+    VelodromeDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/VelodromeDecoderAndSanitizer.sol";
+import { OdosDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol";
+import { OneInchDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/OneInchDecoderAndSanitizer.sol";
 import {
     StandardBridgeDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/Protocols/StandardBridgeDecoderAndSanitizer.sol";
-import {OFTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OFTDecoderAndSanitizer.sol";
-import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
+import { OFTDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/OFTDecoderAndSanitizer.sol";
+import { CurveDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
 import {
     LidoStandardBridgeDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/Protocols/LidoStandardBridgeDecoderAndSanitizer.sol";
@@ -41,7 +46,7 @@ contract GoldenGooseBaseDecoderAndSanitizer is
     constructor(address _aerodromeNonFungiblePositionManager, address _odosRouter)
         VelodromeDecoderAndSanitizer(_aerodromeNonFungiblePositionManager)
         OdosDecoderAndSanitizer(_odosRouter)
-    {}
+    { }
 
     //============================== HANDLE FUNCTION COLLISIONS ===============================
 
@@ -58,7 +63,7 @@ contract GoldenGooseBaseDecoderAndSanitizer is
     function deposit(uint256, address receiver)
         external
         pure
-        override(BalancerV3DecoderAndSanitizer)
+        override (BalancerV3DecoderAndSanitizer)
         returns (bytes memory addressesFound)
     {
         addressesFound = abi.encodePacked(receiver);
@@ -67,7 +72,7 @@ contract GoldenGooseBaseDecoderAndSanitizer is
     /**
      * @notice NativeWrapper specifies a `deposit()`.
      */
-    function deposit() external pure override(NativeWrapperDecoderAndSanitizer) returns (bytes memory addressesFound) {
+    function deposit() external pure override (NativeWrapperDecoderAndSanitizer) returns (bytes memory addressesFound) {
         return addressesFound;
     }
 
@@ -80,7 +85,7 @@ contract GoldenGooseBaseDecoderAndSanitizer is
     function withdraw(uint256)
         external
         pure
-        override(NativeWrapperDecoderAndSanitizer, VelodromeDecoderAndSanitizer, CurveDecoderAndSanitizer)
+        override (NativeWrapperDecoderAndSanitizer, VelodromeDecoderAndSanitizer, CurveDecoderAndSanitizer)
         returns (bytes memory addressesFound)
     {
         return addressesFound;
@@ -89,7 +94,7 @@ contract GoldenGooseBaseDecoderAndSanitizer is
     function withdraw(address asset, uint256, address to)
         external
         pure
-        override(AaveV3DecoderAndSanitizer)
+        override (AaveV3DecoderAndSanitizer)
         returns (bytes memory addressesFound)
     {
         addressesFound = abi.encodePacked(asset, to);
@@ -101,7 +106,7 @@ contract GoldenGooseBaseDecoderAndSanitizer is
     function finalizeWithdrawalTransaction(DecoderCustomTypes.WithdrawalTransaction calldata _tx)
         external
         pure
-        override(StandardBridgeDecoderAndSanitizer, LidoStandardBridgeDecoderAndSanitizer)
+        override (StandardBridgeDecoderAndSanitizer, LidoStandardBridgeDecoderAndSanitizer)
         returns (bytes memory sensitiveArguments)
     {
         sensitiveArguments = abi.encodePacked(_tx.sender, _tx.target);
@@ -118,7 +123,7 @@ contract GoldenGooseBaseDecoderAndSanitizer is
     )
         external
         pure
-        override(StandardBridgeDecoderAndSanitizer, LidoStandardBridgeDecoderAndSanitizer)
+        override (StandardBridgeDecoderAndSanitizer, LidoStandardBridgeDecoderAndSanitizer)
         returns (bytes memory sensitiveArguments)
     {
         sensitiveArguments = abi.encodePacked(_tx.sender, _tx.target);

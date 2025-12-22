@@ -4,14 +4,14 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {Address} from "@openzeppelin/contracts/utils/Address.sol";
-import {ERC721Holder} from "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
-import {ERC1155Holder} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {BeforeTransferHook} from "src/interfaces/BeforeTransferHook.sol";
-import {Auth, Authority} from "@solmate/auth/Auth.sol";
+import { Address } from "@openzeppelin/contracts/utils/Address.sol";
+import { ERC721Holder } from "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
+import { ERC1155Holder } from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { BeforeTransferHook } from "src/interfaces/BeforeTransferHook.sol";
+import { Auth, Authority } from "@solmate/auth/Auth.sol";
 
 contract BoringVault is ERC20, Auth, ERC721Holder, ERC1155Holder {
     using Address for address;
@@ -35,7 +35,7 @@ contract BoringVault is ERC20, Auth, ERC721Holder, ERC1155Holder {
     constructor(address _owner, string memory _name, string memory _symbol, uint8 _decimals)
         ERC20(_name, _symbol, _decimals)
         Auth(_owner, Authority(address(0)))
-    {}
+    { }
 
     //============================== MANAGE ===============================
 
@@ -136,5 +136,5 @@ contract BoringVault is ERC20, Auth, ERC721Holder, ERC1155Holder {
 
     //============================== RECEIVE ===============================
 
-    receive() external payable {}
+    receive() external payable { }
 }

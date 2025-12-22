@@ -4,22 +4,22 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
 import {
     PointFarmingDecoderAndSanitizer,
     ZircuitSimpleStakingDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/PointFarmingDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract SwellSimpleStakingIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -42,7 +42,7 @@ contract SwellSimpleStakingIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 19826676;
+        uint256 blockNumber = 19_826_676;
 
         _startFork(rpcKey, blockNumber);
 
@@ -109,7 +109,7 @@ contract SwellSimpleStakingIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testZircuitSimpleStakingIntegration() external {
-        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1000e18);
 
         // approve
         // Call deposit
@@ -139,9 +139,9 @@ contract SwellSimpleStakingIntegrationTest is Test, MerkleTreeHelper {
             "approve(address,uint256)", getAddress(sourceChain, "zircuitSimpleStaking"), type(uint256).max
         );
         targetData[1] = abi.encodeWithSignature(
-            "depositFor(address,address,uint256)", getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18
+            "depositFor(address,address,uint256)", getAddress(sourceChain, "WETH"), address(boringVault), 1000e18
         );
-        targetData[2] = abi.encodeWithSignature("withdraw(address,uint256)", getAddress(sourceChain, "WETH"), 1_000e18);
+        targetData[2] = abi.encodeWithSignature("withdraw(address,uint256)", getAddress(sourceChain, "WETH"), 1000e18);
 
         address[] memory decodersAndSanitizers = new address[](3);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
@@ -154,7 +154,7 @@ contract SwellSimpleStakingIntegrationTest is Test, MerkleTreeHelper {
 
         assertEq(
             getERC20(sourceChain, "WETH").balanceOf(address(boringVault)),
-            1_000e18,
+            1000e18,
             "BoringVault should have received 1,000 WETH"
         );
     }

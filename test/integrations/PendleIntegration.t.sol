@@ -4,22 +4,22 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
 import {
     EtherFiLiquidDecoderAndSanitizer,
     PendleRouterDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/EtherFiLiquidDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract PendleIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -42,7 +42,7 @@ contract PendleIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 19826676;
+        uint256 blockNumber = 19_826_676;
 
         _startFork(rpcKey, blockNumber);
 
@@ -111,7 +111,7 @@ contract PendleIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testPendleRouterSwapBetweenSyAndPt() external {
-        deal(getAddress(sourceChain, "WEETH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WEETH"), address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](32);
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendleWeETHMarket"), false);
@@ -150,7 +150,7 @@ contract PendleIntegrationTest is Test, MerkleTreeHelper {
         DecoderCustomTypes.SwapData memory swapData =
             DecoderCustomTypes.SwapData(DecoderCustomTypes.SwapType.NONE, address(0), hex"", false);
         DecoderCustomTypes.TokenInput memory tokenInput = DecoderCustomTypes.TokenInput(
-            getAddress(sourceChain, "WEETH"), 1_000e18, getAddress(sourceChain, "WEETH"), address(0), swapData
+            getAddress(sourceChain, "WEETH"), 1000e18, getAddress(sourceChain, "WEETH"), address(0), swapData
         );
         targetData[3] = abi.encodeWithSignature(
             "mintSyFromToken(address,address,uint256,(address,uint256,address,address,(uint8,address,bytes,bool)))",
@@ -166,7 +166,7 @@ contract PendleIntegrationTest is Test, MerkleTreeHelper {
             "swapExactSyForPt(address,address,uint256,uint256,(uint256,uint256,uint256,uint256,uint256),(address,uint256,((uint256,uint256,uint256,uint8,address,address,address,address,uint256,uint256,uint256,bytes),bytes,uint256)[],((uint256,uint256,uint256,uint8,address,address,address,address,uint256,uint256,uint256,bytes),bytes,uint256)[],bytes))",
             address(boringVault),
             getAddress(sourceChain, "pendleWeETHMarket"),
-            1_000e18,
+            1000e18,
             0,
             approxParams,
             limitOrderData
@@ -175,7 +175,7 @@ contract PendleIntegrationTest is Test, MerkleTreeHelper {
             "swapExactPtForSy(address,address,uint256,uint256,(address,uint256,((uint256,uint256,uint256,uint8,address,address,address,address,uint256,uint256,uint256,bytes),bytes,uint256)[],((uint256,uint256,uint256,uint8,address,address,address,address,uint256,uint256,uint256,bytes),bytes,uint256)[],bytes))",
             address(boringVault),
             getAddress(sourceChain, "pendleWeETHMarket"),
-            1067250850449490881768,
+            1_067_250_850_449_490_881_768,
             0,
             limitOrderData
         );
@@ -193,7 +193,7 @@ contract PendleIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testPendleRouterSwapBetweenSyAndYt() external {
-        deal(getAddress(sourceChain, "WEETH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WEETH"), address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](32);
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendleWeETHMarket"), false);
@@ -232,7 +232,7 @@ contract PendleIntegrationTest is Test, MerkleTreeHelper {
         DecoderCustomTypes.SwapData memory swapData =
             DecoderCustomTypes.SwapData(DecoderCustomTypes.SwapType.NONE, address(0), hex"", false);
         DecoderCustomTypes.TokenInput memory tokenInput = DecoderCustomTypes.TokenInput(
-            getAddress(sourceChain, "WEETH"), 1_000e18, getAddress(sourceChain, "WEETH"), address(0), swapData
+            getAddress(sourceChain, "WEETH"), 1000e18, getAddress(sourceChain, "WEETH"), address(0), swapData
         );
         targetData[3] = abi.encodeWithSignature(
             "mintSyFromToken(address,address,uint256,(address,uint256,address,address,(uint8,address,bytes,bool)))",
@@ -248,7 +248,7 @@ contract PendleIntegrationTest is Test, MerkleTreeHelper {
             "swapExactSyForYt(address,address,uint256,uint256,(uint256,uint256,uint256,uint256,uint256),(address,uint256,((uint256,uint256,uint256,uint8,address,address,address,address,uint256,uint256,uint256,bytes),bytes,uint256)[],((uint256,uint256,uint256,uint8,address,address,address,address,uint256,uint256,uint256,bytes),bytes,uint256)[],bytes))",
             address(boringVault),
             getAddress(sourceChain, "pendleWeETHMarket"),
-            1_000e18,
+            1000e18,
             0,
             approxParams,
             limitOrderData
@@ -257,7 +257,7 @@ contract PendleIntegrationTest is Test, MerkleTreeHelper {
             "swapExactYtForSy(address,address,uint256,uint256,(address,uint256,((uint256,uint256,uint256,uint8,address,address,address,address,uint256,uint256,uint256,bytes),bytes,uint256)[],((uint256,uint256,uint256,uint8,address,address,address,address,uint256,uint256,uint256,bytes),bytes,uint256)[],bytes))",
             address(boringVault),
             getAddress(sourceChain, "pendleWeETHMarket"),
-            1067250850449490881768,
+            1_067_250_850_449_490_881_768,
             0,
             limitOrderData
         );
@@ -275,7 +275,7 @@ contract PendleIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testPendleRouterIntegration() external {
-        deal(getAddress(sourceChain, "WEETH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WEETH"), address(boringVault), 1000e18);
 
         // Need 4 approvals all for router, WEETH, SY, PT, YT
         // WEETH -> SY
@@ -343,7 +343,7 @@ contract PendleIntegrationTest is Test, MerkleTreeHelper {
         DecoderCustomTypes.SwapData memory swapData =
             DecoderCustomTypes.SwapData(DecoderCustomTypes.SwapType.NONE, address(0), hex"", false);
         DecoderCustomTypes.TokenInput memory tokenInput = DecoderCustomTypes.TokenInput(
-            getAddress(sourceChain, "WEETH"), 1_000e18, getAddress(sourceChain, "WEETH"), address(0), swapData
+            getAddress(sourceChain, "WEETH"), 1000e18, getAddress(sourceChain, "WEETH"), address(0), swapData
         );
         targetData[5] = abi.encodeWithSignature(
             "mintSyFromToken(address,address,uint256,(address,uint256,address,address,(uint8,address,bytes,bool)))",
@@ -431,7 +431,7 @@ contract PendleIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testPendleRouterReverts() external {
-        deal(getAddress(sourceChain, "WEETH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WEETH"), address(boringVault), 1000e18);
 
         // Need 4 approvals all for router, WEETH, SY, PT, YT
         // WEETH -> SY
@@ -497,7 +497,7 @@ contract PendleIntegrationTest is Test, MerkleTreeHelper {
         DecoderCustomTypes.SwapData memory swapData =
             DecoderCustomTypes.SwapData(DecoderCustomTypes.SwapType.NONE, address(0), hex"", false);
         DecoderCustomTypes.TokenInput memory tokenInput = DecoderCustomTypes.TokenInput(
-            getAddress(sourceChain, "WEETH"), 1_000e18, getAddress(sourceChain, "WEETH"), address(0), swapData
+            getAddress(sourceChain, "WEETH"), 1000e18, getAddress(sourceChain, "WEETH"), address(0), swapData
         );
         targetData[5] = abi.encodeWithSignature(
             "mintSyFromToken(address,address,uint256,(address,uint256,address,address,(uint8,address,bytes,bool)))",
@@ -584,7 +584,7 @@ contract PendleIntegrationTest is Test, MerkleTreeHelper {
 
         // Change token input to try and swap.
         tokenInput = DecoderCustomTypes.TokenInput(
-            getAddress(sourceChain, "EETH"), 1_000e18, getAddress(sourceChain, "WEETH"), address(0), swapData
+            getAddress(sourceChain, "EETH"), 1000e18, getAddress(sourceChain, "WEETH"), address(0), swapData
         );
         targetData[5] = abi.encodeWithSignature(
             "mintSyFromToken(address,address,uint256,(address,uint256,address,address,(uint8,address,bytes,bool)))",
@@ -603,7 +603,7 @@ contract PendleIntegrationTest is Test, MerkleTreeHelper {
 
         // Fix tokenInput
         tokenInput = DecoderCustomTypes.TokenInput(
-            getAddress(sourceChain, "WEETH"), 1_000e18, getAddress(sourceChain, "WEETH"), address(0), swapData
+            getAddress(sourceChain, "WEETH"), 1000e18, getAddress(sourceChain, "WEETH"), address(0), swapData
         );
         targetData[5] = abi.encodeWithSignature(
             "mintSyFromToken(address,address,uint256,(address,uint256,address,address,(uint8,address,bytes,bool)))",

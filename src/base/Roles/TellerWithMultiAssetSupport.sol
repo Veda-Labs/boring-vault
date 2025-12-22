@@ -4,16 +4,16 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {WETH} from "@solmate/tokens/WETH.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {BeforeTransferHook} from "src/interfaces/BeforeTransferHook.sol";
-import {Auth, Authority} from "@solmate/auth/Auth.sol";
-import {ReentrancyGuard} from "@solmate/utils/ReentrancyGuard.sol";
-import {IPausable} from "src/interfaces/IPausable.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { WETH } from "@solmate/tokens/WETH.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { AccountantWithRateProviders } from "src/base/Roles/AccountantWithRateProviders.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { BeforeTransferHook } from "src/interfaces/BeforeTransferHook.sol";
+import { Auth, Authority } from "@solmate/auth/Auth.sol";
+import { ReentrancyGuard } from "@solmate/utils/ReentrancyGuard.sol";
+import { IPausable } from "src/interfaces/IPausable.sol";
 
 contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuard, IPausable {
     using FixedPointMathLib for uint256;
@@ -64,7 +64,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @notice The maximum possible share premium that can be set using `updateAssetData`.
      * @dev 1,000 or 10%
      */
-    uint16 internal constant MAX_SHARE_PREMIUM = 1_000;
+    uint16 internal constant MAX_SHARE_PREMIUM = 1000;
 
     // ========================================= STATE =========================================
 
@@ -483,7 +483,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         address from;
         if (address(depositAsset) == NATIVE) {
             if (msg.value == 0) revert TellerWithMultiAssetSupport__ZeroAssets();
-            nativeWrapper.deposit{value: msg.value}();
+            nativeWrapper.deposit{ value: msg.value }();
             // Set depositAmount to msg.value.
             depositAmount = msg.value;
             nativeWrapper.safeApprove(address(vault), depositAmount);
@@ -665,7 +665,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     function _handlePermit(ERC20 depositAsset, uint256 depositAmount, uint256 deadline, uint8 v, bytes32 r, bytes32 s)
         internal
     {
-        try depositAsset.permit(msg.sender, address(vault), depositAmount, deadline, v, r, s) {}
+        try depositAsset.permit(msg.sender, address(vault), depositAmount, deadline, v, r, s) { }
         catch {
             if (depositAsset.allowance(msg.sender, address(vault)) < depositAmount) {
                 revert TellerWithMultiAssetSupport__PermitFailedAndAllowanceTooLow();
@@ -679,7 +679,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @param depositAsset The ERC20 token that was deposited.
      * @param assetAmount The amount of the asset that was deposited.
      */
-    function _afterDeposit(ERC20 depositAsset, uint256 assetAmount) internal virtual {}
+    function _afterDeposit(ERC20 depositAsset, uint256 assetAmount) internal virtual { }
 
     /**
      * @notice Hook that is called before a withdrawal operation.
@@ -687,7 +687,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @param withdrawAsset The ERC20 token that will be withdrawn.
      * @param assetAmount The amount of the asset that will be withdrawn.
      */
-    function _beforeWithdraw(ERC20 withdrawAsset, uint256 assetAmount) internal virtual {}
+    function _beforeWithdraw(ERC20 withdrawAsset, uint256 assetAmount) internal virtual { }
 
     // ========================================= VIEW FUNCTIONS =========================================
 

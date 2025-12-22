@@ -4,18 +4,18 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {MFOneDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MFOneDecoderAndSanitizer.sol";
-import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { BaseTestIntegration } from "test/integrations/BaseTestIntegration.t.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { MFOneDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/MFOneDecoderAndSanitizer.sol";
+import { BaseDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
-contract FullMFOneDecoderAndSanitizer is MFOneDecoderAndSanitizer, BaseDecoderAndSanitizer {}
+contract FullMFOneDecoderAndSanitizer is MFOneDecoderAndSanitizer, BaseDecoderAndSanitizer { }
 
 contract MFOneIntegrationTest is BaseTestIntegration {
     function _setUpMainnet() internal {
         super.setUp();
-        _setupChain("mainnet", 23234480);
+        _setupChain("mainnet", 23_234_480);
 
         address mfOneDecoder = address(new FullMFOneDecoderAndSanitizer());
 

@@ -4,22 +4,22 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BoringVault} from "src/base/BoringVault.sol";
-import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {IRateProvider} from "src/interfaces/IRateProvider.sol";
-import {ILiquidityPool} from "src/interfaces/IStaking.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {AtomicSolverV3, AtomicQueue} from "src/atomic-queue/AtomicSolverV3.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
-import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
-import {BoringOnChainQueueWithTracking} from "src/base/Roles/BoringQueue/BoringOnChainQueueWithTracking.sol";
-import {BoringOnChainQueue} from "src/base/Roles/BoringQueue/BoringOnChainQueue.sol";
-import {BoringSolver} from "src/base/Roles/BoringQueue/BoringSolver.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { AccountantWithRateProviders } from "src/base/Roles/AccountantWithRateProviders.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { IRateProvider } from "src/interfaces/IRateProvider.sol";
+import { ILiquidityPool } from "src/interfaces/IStaking.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { AtomicSolverV3, AtomicQueue } from "src/atomic-queue/AtomicSolverV3.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { TellerWithMultiAssetSupport } from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import { BoringOnChainQueueWithTracking } from "src/base/Roles/BoringQueue/BoringOnChainQueueWithTracking.sol";
+import { BoringOnChainQueue } from "src/base/Roles/BoringQueue/BoringOnChainQueue.sol";
+import { BoringSolver } from "src/base/Roles/BoringQueue/BoringSolver.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract BoringQueueWithtrackingTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -59,7 +59,7 @@ contract BoringQueueWithtrackingTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 20842935;
+        uint256 blockNumber = 20_842_935;
         _startFork(rpcKey, blockNumber);
 
         WETH = getERC20(sourceChain, "WETH");
@@ -110,7 +110,7 @@ contract BoringQueueWithtrackingTest is Test, MerkleTreeHelper {
         vm.stopPrank();
 
         // Give test user some Liquid ETH shares.
-        deal(liquidEth, testUser, 1_000e18);
+        deal(liquidEth, testUser, 1000e18);
 
         // Make sure liquidEth has wETH.
         deal(address(WETH), liquidEth, 10_000e18);
@@ -128,7 +128,7 @@ contract BoringQueueWithtrackingTest is Test, MerkleTreeHelper {
     }
 
     function testUserRequestsThenCancelsUsingRequestId(uint128 amountOfShares, uint16 discount) external {
-        amountOfShares = uint128(bound(amountOfShares, 0.01e18, 1_000e18));
+        amountOfShares = uint128(bound(amountOfShares, 0.01e18, 1000e18));
         discount = uint16(bound(discount, 1, 100));
         uint24 secondsToDeadline = 1 days;
         uint256 startingShares = ERC20(liquidEth).balanceOf(testUser);
@@ -147,7 +147,7 @@ contract BoringQueueWithtrackingTest is Test, MerkleTreeHelper {
     function testUserRequestsThenReplacesUsingRequestId(uint128 amountOfShares, uint16 discount, uint16 newDiscount)
         external
     {
-        amountOfShares = uint128(bound(amountOfShares, 0.01e18, 1_000e18));
+        amountOfShares = uint128(bound(amountOfShares, 0.01e18, 1000e18));
         discount = uint16(bound(discount, 1, 100));
         newDiscount = uint16(bound(newDiscount, 1, 100));
         uint24 secondsToDeadline = 1 days;

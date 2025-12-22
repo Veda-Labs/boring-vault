@@ -4,21 +4,21 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
+import { BaseTestIntegration } from "test/integrations/BaseTestIntegration.t.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
 import {
     EthenaMintingDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/Protocols/EthenaMintingDecoderAndSanitizer.sol";
-import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { BaseDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
-contract FullEthenaMintingDecoderAndSanitizer is EthenaMintingDecoderAndSanitizer, BaseDecoderAndSanitizer {}
+contract FullEthenaMintingDecoderAndSanitizer is EthenaMintingDecoderAndSanitizer, BaseDecoderAndSanitizer { }
 
 contract EthenaMintingIntegrationTest is BaseTestIntegration {
     function _setUpMainnet() internal {
         super.setUp();
-        _setupChain("mainnet", 23370056);
+        _setupChain("mainnet", 23_370_056);
 
         address ethenaDecoder = address(new FullEthenaMintingDecoderAndSanitizer());
 
@@ -84,19 +84,19 @@ contract EthenaMintingIntegrationTest is BaseTestIntegration {
         DecoderCustomTypes.EthenaOrder memory order = DecoderCustomTypes.EthenaOrder(
             "RFQ-P0VD6VB7S5OXY",
             DecoderCustomTypes.EthenaOrderType.MINT,
-            1757959283,
-            1757959283,
+            1_757_959_283,
+            1_757_959_283,
             address(boringVault),
             address(boringVault),
             getAddress(sourceChain, "USDT"),
-            1531628760000,
-            1530859540000000000000000
+            1_531_628_760_000,
+            1_530_859_540_000_000_000_000_000
         );
 
         address[] memory eRoute = new address[](1);
         eRoute[0] = 0x8f0eE0393Eae7fc1638BD7860a3FEc6a663786AE;
         uint128[] memory eRatio = new uint128[](1);
-        eRatio[0] = 10000;
+        eRatio[0] = 10_000;
 
         DecoderCustomTypes.EthenaRoute memory routes = DecoderCustomTypes.EthenaRoute(eRoute, eRatio);
 
@@ -119,7 +119,7 @@ contract EthenaMintingIntegrationTest is BaseTestIntegration {
         _submitManagerCall(manageProofs, tx_);
 
         uint256 usdeBalance = getERC20(sourceChain, "USDE").balanceOf(address(boringVault));
-        assertEq(usdeBalance, 1530859540000000000000000);
+        assertEq(usdeBalance, 1_530_859_540_000_000_000_000_000);
     }
 
     function testEthenaRedeem() external {
@@ -135,7 +135,7 @@ contract EthenaMintingIntegrationTest is BaseTestIntegration {
         IRoleGranter(getAddress(sourceChain, "ethenaMinterV2")).addWhitelistedBenefactor(address(boringVault));
         vm.stopPrank();
 
-        deal(getAddress(sourceChain, "USDE"), address(boringVault), 9909000000000000000000);
+        deal(getAddress(sourceChain, "USDE"), address(boringVault), 9_909_000_000_000_000_000_000);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addEthenaMintingLeafs(leafs, signer);
@@ -181,13 +181,13 @@ contract EthenaMintingIntegrationTest is BaseTestIntegration {
         DecoderCustomTypes.EthenaOrder memory order = DecoderCustomTypes.EthenaOrder(
             "RFQ-P0VD6VB7S5OXY",
             DecoderCustomTypes.EthenaOrderType.REDEEM,
-            1757959283,
-            1757959283,
+            1_757_959_283,
+            1_757_959_283,
             address(boringVault),
             address(boringVault),
             getAddress(sourceChain, "USDT"),
-            9903565040,
-            9909000000000000000000
+            9_903_565_040,
+            9_909_000_000_000_000_000_000
         );
 
         bytes32 orderHash = IRoleGranter(getAddress(sourceChain, "ethenaMinterV2")).hashOrder(order);
@@ -208,7 +208,7 @@ contract EthenaMintingIntegrationTest is BaseTestIntegration {
         _submitManagerCall(manageProofs, tx_);
 
         uint256 usdtBalance = getERC20(sourceChain, "USDT").balanceOf(address(boringVault));
-        assertEq(usdtBalance, 9903565040);
+        assertEq(usdtBalance, 9_903_565_040);
     }
 
     function testEthenaMintRevertsIfSignerRemoved() external {
@@ -285,19 +285,19 @@ contract EthenaMintingIntegrationTest is BaseTestIntegration {
         DecoderCustomTypes.EthenaOrder memory order = DecoderCustomTypes.EthenaOrder(
             "RFQ-P0VD6VB7S5OXY",
             DecoderCustomTypes.EthenaOrderType.MINT,
-            1757959283,
-            1757959283,
+            1_757_959_283,
+            1_757_959_283,
             address(boringVault),
             address(boringVault),
             getAddress(sourceChain, "USDT"),
-            1531628760000,
-            1530859540000000000000000
+            1_531_628_760_000,
+            1_530_859_540_000_000_000_000_000
         );
 
         address[] memory eRoute = new address[](1);
         eRoute[0] = 0x8f0eE0393Eae7fc1638BD7860a3FEc6a663786AE;
         uint128[] memory eRatio = new uint128[](1);
-        eRatio[0] = 10000;
+        eRatio[0] = 10_000;
 
         DecoderCustomTypes.EthenaRoute memory routes = DecoderCustomTypes.EthenaRoute(eRoute, eRatio);
 

@@ -4,19 +4,19 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BoringVault} from "src/base/BoringVault.sol";
-import {DelayedWithdraw} from "src/base/Roles/DelayedWithdraw.sol";
-import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {IRateProvider} from "src/interfaces/IRateProvider.sol";
-import {ILiquidityPool} from "src/interfaces/IStaking.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {AtomicSolverV3, AtomicQueue} from "src/atomic-queue/AtomicSolverV3.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { DelayedWithdraw } from "src/base/Roles/DelayedWithdraw.sol";
+import { AccountantWithRateProviders } from "src/base/Roles/AccountantWithRateProviders.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { IRateProvider } from "src/interfaces/IRateProvider.sol";
+import { ILiquidityPool } from "src/interfaces/IStaking.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { AtomicSolverV3, AtomicQueue } from "src/atomic-queue/AtomicSolverV3.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract DelayedWithdrawTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -29,7 +29,7 @@ contract DelayedWithdrawTest is Test, MerkleTreeHelper {
 
     DelayedWithdraw public withdrawer;
     AccountantWithRateProviders public accountant;
-    address public payoutAddress = vm.addr(7777777);
+    address public payoutAddress = vm.addr(7_777_777);
     address internal constant NATIVE = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     ERC20 internal constant NATIVE_ERC20 = ERC20(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE);
     RolesAuthority public rolesAuthority;
@@ -43,7 +43,7 @@ contract DelayedWithdrawTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 19363419;
+        uint256 blockNumber = 19_363_419;
         _startFork(rpcKey, blockNumber);
 
         WETH = getERC20(sourceChain, "WETH");
@@ -88,8 +88,8 @@ contract DelayedWithdrawTest is Test, MerkleTreeHelper {
         address user = vm.addr(1);
 
         // Simulate user deposit by minting 1_000 shares to them, and giving BoringVault 1_000 WETH/.
-        deal(address(boringVault), user, 1_000e18, true);
-        deal(address(WETH), address(boringVault), 1_000e18);
+        deal(address(boringVault), user, 1000e18, true);
+        deal(address(WETH), address(boringVault), 1000e18);
 
         uint96 sharesToWithdraw = 100e18;
         vm.startPrank(user);
@@ -124,8 +124,8 @@ contract DelayedWithdrawTest is Test, MerkleTreeHelper {
         address user = vm.addr(1);
 
         // Simulate user deposit by minting 1_000 shares to them, and giving BoringVault 1_000 WETH/.
-        deal(address(boringVault), user, 1_000e18, true);
-        deal(address(WETH), address(boringVault), 1_000e18);
+        deal(address(boringVault), user, 1000e18, true);
+        deal(address(WETH), address(boringVault), 1000e18);
 
         uint96 sharesToWithdraw = 100e18;
         vm.startPrank(user);
@@ -164,8 +164,8 @@ contract DelayedWithdrawTest is Test, MerkleTreeHelper {
         address user = vm.addr(1);
 
         // Simulate user deposit by minting 1_000 shares to them, and giving BoringVault 1_000 WETH.
-        deal(address(boringVault), user, 1_000e18, true);
-        deal(address(WETH), address(boringVault), 1_000e18);
+        deal(address(boringVault), user, 1000e18, true);
+        deal(address(WETH), address(boringVault), 1000e18);
 
         uint96 sharesToWithdraw = 100e18;
         vm.startPrank(user);
@@ -193,8 +193,8 @@ contract DelayedWithdrawTest is Test, MerkleTreeHelper {
         address user = vm.addr(1);
 
         // Simulate user deposit by minting 1_000 shares to them, and giving BoringVault 1_000 WETH.
-        deal(address(boringVault), user, 1_000e18, true);
-        deal(address(WETH), address(boringVault), 1_000e18);
+        deal(address(boringVault), user, 1000e18, true);
+        deal(address(WETH), address(boringVault), 1000e18);
 
         uint96 sharesToWithdraw = 100e18;
         vm.startPrank(user);
@@ -222,8 +222,8 @@ contract DelayedWithdrawTest is Test, MerkleTreeHelper {
         address user = vm.addr(1);
 
         // Simulate user deposit by minting 1_000 shares to them, and giving BoringVault 1_000 WETH.
-        deal(address(boringVault), user, 1_000e18, true);
-        deal(address(WETH), address(boringVault), 1_000e18);
+        deal(address(boringVault), user, 1000e18, true);
+        deal(address(WETH), address(boringVault), 1000e18);
 
         uint96 sharesToWithdraw = 100e18;
         vm.startPrank(user);
@@ -256,8 +256,8 @@ contract DelayedWithdrawTest is Test, MerkleTreeHelper {
         address user = vm.addr(1);
 
         // Simulate user deposit by minting 1_000 shares to them, and giving BoringVault 1_000 WETH.
-        deal(address(boringVault), user, 1_000e18, true);
-        deal(address(WETH), address(boringVault), 1_000e18);
+        deal(address(boringVault), user, 1000e18, true);
+        deal(address(WETH), address(boringVault), 1000e18);
 
         uint256 userShareBalance = boringVault.balanceOf(user);
 
@@ -290,8 +290,8 @@ contract DelayedWithdrawTest is Test, MerkleTreeHelper {
         address user = vm.addr(1);
 
         // Simulate user deposit by minting 1_000 shares to them, and giving BoringVault 1_000 WETH.
-        deal(address(boringVault), user, 1_000e18, true);
-        deal(address(WETH), address(boringVault), 1_000e18);
+        deal(address(boringVault), user, 1000e18, true);
+        deal(address(WETH), address(boringVault), 1000e18);
 
         uint96 sharesToWithdraw = 100e18;
         vm.startPrank(user);
@@ -337,8 +337,8 @@ contract DelayedWithdrawTest is Test, MerkleTreeHelper {
         address user = vm.addr(1);
 
         // Simulate user deposit by minting 1_000 shares to them, and giving BoringVault 1_000 WETH.
-        deal(address(boringVault), user, 1_000e18, true);
-        deal(address(WETH), address(boringVault), 1_000e18);
+        deal(address(boringVault), user, 1000e18, true);
+        deal(address(WETH), address(boringVault), 1000e18);
 
         uint96 sharesToWithdraw = 100e18;
         vm.startPrank(user);
@@ -384,8 +384,8 @@ contract DelayedWithdrawTest is Test, MerkleTreeHelper {
         address user = vm.addr(1);
 
         // Simulate user deposit by minting 1_000 shares to them, and giving BoringVault 1_000 WETH.
-        deal(address(boringVault), user, 1_000e18, true);
-        deal(address(WETH), address(boringVault), 1_000e18);
+        deal(address(boringVault), user, 1000e18, true);
+        deal(address(WETH), address(boringVault), 1000e18);
 
         uint96 sharesToWithdraw = 100e18;
         vm.startPrank(user);
@@ -413,8 +413,8 @@ contract DelayedWithdrawTest is Test, MerkleTreeHelper {
         address user = vm.addr(1);
 
         // Simulate user deposit by minting 1_000 shares to them, and giving BoringVault 1_000 WETH.
-        deal(address(boringVault), user, 1_000e18, true);
-        deal(address(WETH), address(boringVault), 1_000e18);
+        deal(address(boringVault), user, 1000e18, true);
+        deal(address(WETH), address(boringVault), 1000e18);
 
         uint96 sharesToWithdraw = 100e18;
         vm.startPrank(user);
@@ -481,13 +481,13 @@ contract DelayedWithdrawTest is Test, MerkleTreeHelper {
         pullFundsFromVault = withdrawer.pullFundsFromVault();
         assertEq(pullFundsFromVault, true, "pullFundsFromVault should be true.");
 
-        deal(address(WETH), address(withdrawer), 1_000e18);
+        deal(address(WETH), address(withdrawer), 1000e18);
 
         vm.prank(address(boringVault));
         withdrawer.withdrawNonBoringToken(WETH, type(uint256).max);
 
         assertEq(WETH.balanceOf(address(withdrawer)), 0, "DelayedWithdraw should have 0 WETH.");
-        assertEq(WETH.balanceOf(address(boringVault)), 1_000e18, "BoringVault should have 1_000 WETH.");
+        assertEq(WETH.balanceOf(address(boringVault)), 1000e18, "BoringVault should have 1_000 WETH.");
     }
 
     function testFeeLogic() external {
@@ -497,8 +497,8 @@ contract DelayedWithdrawTest is Test, MerkleTreeHelper {
         address user = vm.addr(1);
 
         // Simulate user deposit by minting 1_000 shares to them, and giving BoringVault 1_000 WETH.
-        deal(address(boringVault), user, 1_000e18, true);
-        deal(address(WETH), address(boringVault), 1_000e18);
+        deal(address(boringVault), user, 1000e18, true);
+        deal(address(WETH), address(boringVault), 1000e18);
 
         uint96 sharesToWithdraw = 100e18;
         vm.startPrank(user);
@@ -547,8 +547,8 @@ contract DelayedWithdrawTest is Test, MerkleTreeHelper {
         withdrawer.setAllowThirdPartyToComplete(WETH, true);
 
         // Simulate user deposit by minting 1_000 shares to them, and giving BoringVault 1_000 WETH.
-        deal(address(boringVault), user, 1_000e18, true);
-        deal(address(WETH), address(boringVault), 1_000e18);
+        deal(address(boringVault), user, 1000e18, true);
+        deal(address(WETH), address(boringVault), 1000e18);
 
         // Requeting withdraws in an asset that is not withdrawable.
         ERC20 nonWithdrawableAsset = USDC;

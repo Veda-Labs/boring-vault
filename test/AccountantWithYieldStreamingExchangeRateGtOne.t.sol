@@ -3,21 +3,21 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BoringVault} from "src/base/BoringVault.sol";
-import {AccountantWithYieldStreaming} from "src/base/Roles/AccountantWithYieldStreaming.sol";
-import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
-import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
-import {TellerWithYieldStreaming} from "src/base/Roles/TellerWithYieldStreaming.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {IRateProvider} from "src/interfaces/IRateProvider.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {GenericRateProvider} from "src/helper/GenericRateProvider.sol";
-import {GenericRateProviderWithDecimalScaling} from "src/helper/GenericRateProviderWithDecimalScaling.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { AccountantWithYieldStreaming } from "src/base/Roles/AccountantWithYieldStreaming.sol";
+import { AccountantWithRateProviders } from "src/base/Roles/AccountantWithRateProviders.sol";
+import { TellerWithMultiAssetSupport } from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import { TellerWithYieldStreaming } from "src/base/Roles/TellerWithYieldStreaming.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { IRateProvider } from "src/interfaces/IRateProvider.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { GenericRateProvider } from "src/helper/GenericRateProvider.sol";
+import { GenericRateProviderWithDecimalScaling } from "src/helper/GenericRateProviderWithDecimalScaling.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
@@ -27,7 +27,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     TellerWithYieldStreaming public teller;
     RolesAuthority public rolesAuthority;
 
-    address public payoutAddress = vm.addr(7777777);
+    address public payoutAddress = vm.addr(7_777_777);
     ERC20 internal WETH;
     ERC20 internal EETH;
     ERC20 internal WEETH;
@@ -53,7 +53,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 23039901;
+        uint256 blockNumber = 23_039_901;
         _startFork(rpcKey, blockNumber);
 
         WETH = getERC20(sourceChain, "WETH");
@@ -157,8 +157,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     //test basics
     function testDepositsWithNoYield() external {
         uint256 WETHAmount = 10e18;
-        deal(address(WETH), address(this), 1_000e18);
-        WETH.approve(address(boringVault), 1_000e18);
+        deal(address(WETH), address(this), 1000e18);
+        WETH.approve(address(boringVault), 1000e18);
         address referrer = vm.addr(1337);
         uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
 

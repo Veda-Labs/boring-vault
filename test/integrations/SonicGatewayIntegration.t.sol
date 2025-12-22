@@ -4,22 +4,22 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
 import {
     SonicGatewayDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/Protocols/SonicGatewayDecoderAndSanitizer.sol";
-import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { BaseDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract SonicGatewayIntegration is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -42,7 +42,7 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
         setSourceChainName("sonicMainnet");
         // Setup forked environment.
         string memory rpcKey = "SONIC_MAINNET_RPC_URL";
-        uint256 blockNumber = 2350914;
+        uint256 blockNumber = 2_350_914;
 
         _startFork(rpcKey, blockNumber);
 
@@ -115,7 +115,7 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 21572390;
+        uint256 blockNumber = 21_572_390;
 
         _startFork(rpcKey, blockNumber);
 
@@ -188,7 +188,7 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
     function testSonicGatewayDeposits() external {
         setUpMainnet();
 
-        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000e6);
+        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1000e6);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](4);
         ERC20[] memory bridgeAssets = new ERC20[](1);
@@ -216,7 +216,7 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
             "approve(address,uint256)", getAddress(sourceChain, "sonicGateway"), type(uint256).max
         );
         targetData[1] = abi.encodeWithSignature(
-            "deposit(uint96,address,uint256)", 1234123412342314556, getAddress(sourceChain, "USDC"), 100e6
+            "deposit(uint96,address,uint256)", 1_234_123_412_342_314_556, getAddress(sourceChain, "USDC"), 100e6
         );
 
         address[] memory decodersAndSanitizers = new address[](2);
@@ -231,7 +231,7 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
     //test bridge sonic l2 -> eth mainnet
     function testSonicGatewaySonicWitdraw2() external {
         setUpSonic();
-        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e6);
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1000e6);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](4);
         address[] memory mainnetAssets = new address[](1);
@@ -261,7 +261,7 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
             "approve(address,uint256)", getAddress(sourceChain, "sonicGateway"), type(uint256).max
         );
         targetData[1] = abi.encodeWithSignature(
-            "withdraw(uint96,address,uint256)", 1234123412342314556, getAddress(mainnet, "WETH"), 100e6
+            "withdraw(uint96,address,uint256)", 1_234_123_412_342_314_556, getAddress(mainnet, "WETH"), 100e6
         );
 
         address[] memory decodersAndSanitizers = new address[](2);
@@ -276,7 +276,7 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
     //test bridge sonic l2 -> eth mainnet
     function testSonicGatewaySonicWitdraw() external {
         setUpSonic();
-        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000e6);
+        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1000e6);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](4);
         address[] memory mainnetAssets = new address[](1);
@@ -311,7 +311,7 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
             "approve(address,uint256)", getAddress(sourceChain, "sonicGateway"), type(uint256).max
         );
         targetData[2] = abi.encodeWithSignature(
-            "withdraw(uint96,address,uint256)", 1234123412342314556, getAddress(mainnet, "USDC"), 100e6
+            "withdraw(uint96,address,uint256)", 1_234_123_412_342_314_556, getAddress(mainnet, "USDC"), 100e6
         );
 
         address[] memory decodersAndSanitizers = new address[](3);
@@ -335,7 +335,7 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
         );
         bytes memory proof = "";
 
-        uint256 depositId = 917551056842671309452305380979543736893630245704;
+        uint256 depositId = 917_551_056_842_671_309_452_305_380_979_543_736_893_630_245_704;
         bytes32 mappingSlot = bytes32(uint256(7));
         bytes32 depositSlot = keccak256(abi.encode(depositId, mappingSlot));
         // Calculate the hash that should be stored
@@ -351,7 +351,7 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
             bytes32(uint256(1)) // Any non-zero value will work
         );
 
-        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000e6);
+        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1000e6);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](4);
         ERC20[] memory bridgeAssets = new ERC20[](1);
@@ -424,7 +424,7 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
         address[] memory targets = new address[](1);
         targets[0] = getAddress(sourceChain, "sonicGateway");
 
-        uint256 depositId = 10169420;
+        uint256 depositId = 10_169_420;
         bytes[] memory targetData = new bytes[](1);
         targetData[0] = abi.encodeWithSignature(
             "claim(uint256,address,uint256,bytes)", depositId, getAddress(sourceChain, "USDC"), 100e6, proof
@@ -476,7 +476,7 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
         //NOTE: address of token here is mainnet address
         bytes[] memory targetData = new bytes[](1);
         targetData[0] = abi.encodeWithSignature(
-            "claim(uint256,address,uint256,bytes)", 1234123412342314556, getAddress(mainnet, "USDC"), 100e6, proof
+            "claim(uint256,address,uint256,bytes)", 1_234_123_412_342_314_556, getAddress(mainnet, "USDC"), 100e6, proof
         );
 
         address[] memory decodersAndSanitizers = new address[](1);
@@ -498,7 +498,7 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
     }
 }
 
-contract FullSonicGatewayDecoderAndSanitizer is SonicGatewayDecoderAndSanitizer {}
+contract FullSonicGatewayDecoderAndSanitizer is SonicGatewayDecoderAndSanitizer { }
 
 contract MockProofVerifier {
     function verifyProof(address target, bytes32 slot, bytes32 value, bytes32 stateRoot, bytes calldata proof)

@@ -4,23 +4,23 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
 import {
     EtherFiLiquidDecoderAndSanitizer,
     BalancerV2DecoderAndSanitizer,
     AuraDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/EtherFiLiquidDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract BalancerAndAuraIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -43,7 +43,7 @@ contract BalancerAndAuraIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 19826676;
+        uint256 blockNumber = 19_826_676;
 
         _startFork(rpcKey, blockNumber);
 
@@ -112,7 +112,7 @@ contract BalancerAndAuraIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testBalancerV2AndAuraIntegration() external {
-        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1000e18);
         bytes32 poolId = 0x1e19cf2d73a72ef1332c882f20534b6519be0276000200000000000000000112;
         // Make sure the vault can
         // swap wETH -> rETH
@@ -210,21 +210,23 @@ contract BalancerAndAuraIntegrationTest is Test, MerkleTreeHelper {
         targetData[4] = abi.encodeWithSignature(
             "approve(address,uint256)", getAddress(sourceChain, "rETH_wETH_gauge"), type(uint256).max
         );
-        targetData[5] = abi.encodeWithSignature("deposit(uint256,address)", 203690537881715311640, address(boringVault));
-        targetData[6] = abi.encodeWithSignature("withdraw(uint256)", 203690537881715311640, address(boringVault));
+        targetData[5] =
+            abi.encodeWithSignature("deposit(uint256,address)", 203_690_537_881_715_311_640, address(boringVault));
+        targetData[6] = abi.encodeWithSignature("withdraw(uint256)", 203_690_537_881_715_311_640, address(boringVault));
         targetData[7] = abi.encodeWithSignature(
             "approve(address,uint256)", getAddress(sourceChain, "aura_reth_weth"), type(uint256).max
         );
-        targetData[8] = abi.encodeWithSignature("deposit(uint256,address)", 203690537881715311640, address(boringVault));
+        targetData[8] =
+            abi.encodeWithSignature("deposit(uint256,address)", 203_690_537_881_715_311_640, address(boringVault));
         targetData[9] = abi.encodeWithSignature(
-            "withdraw(uint256,address,address)", 203690537881715311640, address(boringVault), address(boringVault)
+            "withdraw(uint256,address,address)", 203_690_537_881_715_311_640, address(boringVault), address(boringVault)
         );
         DecoderCustomTypes.ExitPoolRequest memory exitRequest = DecoderCustomTypes.ExitPoolRequest({
             assets: new address[](2), minAmountsOut: new uint256[](2), userData: hex"", toInternalBalance: false
         });
         exitRequest.assets[0] = getAddress(sourceChain, "RETH");
         exitRequest.assets[1] = getAddress(sourceChain, "WETH");
-        exitRequest.userData = abi.encode(1, 203690537881715311640); // EXACT_BPT_IN_FOR_TOKENS_OUT, 203690537881715311640
+        exitRequest.userData = abi.encode(1, 203_690_537_881_715_311_640); // EXACT_BPT_IN_FOR_TOKENS_OUT, 203690537881715311640
         targetData[10] = abi.encodeWithSelector(
             BalancerV2DecoderAndSanitizer.exitPool.selector,
             poolId,
@@ -269,7 +271,7 @@ contract BalancerAndAuraIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testBalancerV2IntegrationReverts() external {
-        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1000e18);
         bytes32 poolId = 0x1e19cf2d73a72ef1332c882f20534b6519be0276000200000000000000000112;
         // Make sure the vault can
         // swap wETH -> rETH
@@ -368,21 +370,23 @@ contract BalancerAndAuraIntegrationTest is Test, MerkleTreeHelper {
         targetData[4] = abi.encodeWithSignature(
             "approve(address,uint256)", getAddress(sourceChain, "rETH_wETH_gauge"), type(uint256).max
         );
-        targetData[5] = abi.encodeWithSignature("deposit(uint256,address)", 203690537881715311640, address(boringVault));
-        targetData[6] = abi.encodeWithSignature("withdraw(uint256)", 203690537881715311640, address(boringVault));
+        targetData[5] =
+            abi.encodeWithSignature("deposit(uint256,address)", 203_690_537_881_715_311_640, address(boringVault));
+        targetData[6] = abi.encodeWithSignature("withdraw(uint256)", 203_690_537_881_715_311_640, address(boringVault));
         targetData[7] = abi.encodeWithSignature(
             "approve(address,uint256)", getAddress(sourceChain, "aura_reth_weth"), type(uint256).max
         );
-        targetData[8] = abi.encodeWithSignature("deposit(uint256,address)", 203690537881715311640, address(boringVault));
+        targetData[8] =
+            abi.encodeWithSignature("deposit(uint256,address)", 203_690_537_881_715_311_640, address(boringVault));
         targetData[9] = abi.encodeWithSignature(
-            "withdraw(uint256,address,address)", 203690537881715311640, address(boringVault), address(boringVault)
+            "withdraw(uint256,address,address)", 203_690_537_881_715_311_640, address(boringVault), address(boringVault)
         );
         DecoderCustomTypes.ExitPoolRequest memory exitRequest = DecoderCustomTypes.ExitPoolRequest({
             assets: new address[](2), minAmountsOut: new uint256[](2), userData: hex"", toInternalBalance: false
         });
         exitRequest.assets[0] = getAddress(sourceChain, "RETH");
         exitRequest.assets[1] = getAddress(sourceChain, "WETH");
-        exitRequest.userData = abi.encode(1, 203690537881715311640); // EXACT_BPT_IN_FOR_TOKENS_OUT, 203690537881715311640
+        exitRequest.userData = abi.encode(1, 203_690_537_881_715_311_640); // EXACT_BPT_IN_FOR_TOKENS_OUT, 203690537881715311640
         targetData[10] = abi.encodeWithSelector(
             BalancerV2DecoderAndSanitizer.exitPool.selector,
             poolId,
@@ -530,7 +534,7 @@ contract BalancerAndAuraIntegrationTest is Test, MerkleTreeHelper {
         });
         exitRequest.assets[0] = getAddress(sourceChain, "RETH");
         exitRequest.assets[1] = getAddress(sourceChain, "WETH");
-        exitRequest.userData = abi.encode(1, 203690537881715311640); // EXACT_BPT_IN_FOR_TOKENS_OUT, 203690537881715311640
+        exitRequest.userData = abi.encode(1, 203_690_537_881_715_311_640); // EXACT_BPT_IN_FOR_TOKENS_OUT, 203690537881715311640
         targetData[10] = abi.encodeWithSelector(
             BalancerV2DecoderAndSanitizer.exitPool.selector,
             poolId,
@@ -554,7 +558,7 @@ contract BalancerAndAuraIntegrationTest is Test, MerkleTreeHelper {
         });
         exitRequest.assets[0] = getAddress(sourceChain, "RETH");
         exitRequest.assets[1] = getAddress(sourceChain, "WETH");
-        exitRequest.userData = abi.encode(1, 203690537881715311640); // EXACT_BPT_IN_FOR_TOKENS_OUT, 203690537881715311640
+        exitRequest.userData = abi.encode(1, 203_690_537_881_715_311_640); // EXACT_BPT_IN_FOR_TOKENS_OUT, 203690537881715311640
         targetData[10] = abi.encodeWithSelector(
             BalancerV2DecoderAndSanitizer.exitPool.selector,
             poolId,

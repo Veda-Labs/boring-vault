@@ -4,7 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {ERC20} from "@solmate/tokens/ERC20.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
 
 contract BaseAddresses {
     // Liquid Ecosystem
@@ -15,7 +15,7 @@ contract BaseAddresses {
 
     // DeFi Ecosystem
     address public ETH = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
-    uint64 public mainnetChainSelector = 5009297550715157269;
+    uint64 public mainnetChainSelector = 5_009_297_550_715_157_269;
 
     ERC20 public USDC = ERC20(0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913);
     ERC20 public WETH = ERC20(0x4200000000000000000000000000000000000006);

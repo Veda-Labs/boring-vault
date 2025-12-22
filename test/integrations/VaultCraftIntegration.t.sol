@@ -4,21 +4,21 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
 import {
     EtherFiLiquidEthDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/EtherFiLiquidEthDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract VaultCraftIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -41,7 +41,7 @@ contract VaultCraftIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("arbitrum");
         // Setup forked environment.
         string memory rpcKey = "ARBITRUM_RPC_URL";
-        uint256 blockNumber = 235623820;
+        uint256 blockNumber = 235_623_820;
 
         _startFork(rpcKey, blockNumber);
 
@@ -113,7 +113,7 @@ contract VaultCraftIntegrationTest is Test, MerkleTreeHelper {
 
     function testVaultCraftIntegration() external {
         // Give BoringVault some wETH.
-        uint256 assets = 1_000e18;
+        uint256 assets = 1000e18;
         deal(getAddress(sourceChain, "WETH"), address(boringVault), assets);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
@@ -147,7 +147,7 @@ contract VaultCraftIntegrationTest is Test, MerkleTreeHelper {
         targetData[2] = abi.encodeWithSignature(
             "approve(address,uint256)", getAddress(sourceChain, "compoundV3WethGauge"), type(uint256).max
         );
-        uint256 expectedShares = 999945552337352695179;
+        uint256 expectedShares = 999_945_552_337_352_695_179;
         targetData[3] = abi.encodeWithSignature("deposit(uint256,address)", expectedShares, address(boringVault));
 
         address[] memory decodersAndSanitizers = new address[](4);

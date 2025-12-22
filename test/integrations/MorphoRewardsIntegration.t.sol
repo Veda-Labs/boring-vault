@@ -4,19 +4,19 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {MorphoRewardsDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/MorphoRewardsDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
+import { MorphoRewardsDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/MorphoRewardsDecoderAndSanitizer.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract MorphoRewardsIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -39,7 +39,7 @@ contract MorphoRewardsIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 21537952;
+        uint256 blockNumber = 21_537_952;
 
         _startFork(rpcKey, blockNumber);
 
@@ -106,7 +106,7 @@ contract MorphoRewardsIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testMorphoRewardsWrapperIntegration() external {
-        deal(getAddress(sourceChain, "legacyMorpho"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "legacyMorpho"), address(boringVault), 1000e18);
 
         // approve
         // Call deposit
@@ -140,8 +140,8 @@ contract MorphoRewardsIntegrationTest is Test, MerkleTreeHelper {
         targetData[1] = abi.encodeWithSignature(
             "approve(address,uint256)", getAddress(sourceChain, "morphoRewardsWrapper"), type(uint256).max
         );
-        targetData[2] = abi.encodeWithSignature("depositFor(address,uint256)", boringVault, 1_000e18);
-        targetData[3] = abi.encodeWithSignature("withdrawTo(address,uint256)", boringVault, 1_000e18);
+        targetData[2] = abi.encodeWithSignature("depositFor(address,uint256)", boringVault, 1000e18);
+        targetData[3] = abi.encodeWithSignature("withdrawTo(address,uint256)", boringVault, 1000e18);
 
         address[] memory decodersAndSanitizers = new address[](4);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
@@ -155,7 +155,7 @@ contract MorphoRewardsIntegrationTest is Test, MerkleTreeHelper {
 
         assertEq(
             getERC20(sourceChain, "legacyMorpho").balanceOf(address(boringVault)),
-            1_000e18,
+            1000e18,
             "BoringVault should have received 1,000 legacyMorpho"
         );
     }

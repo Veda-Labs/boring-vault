@@ -4,7 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BoringOnChainQueue} from "src/base/Roles/BoringQueue/BoringOnChainQueue.sol";
+import { BoringOnChainQueue } from "src/base/Roles/BoringQueue/BoringOnChainQueue.sol";
 
 contract BoringOnChainQueueWithTracking is BoringOnChainQueue {
     // ========================================= GLOBAL STATE =========================================

@@ -4,20 +4,22 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {UniswapV4DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV4DecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {Actions, Commands, TickMath, LiquidityAmounts, Constants} from "src/interfaces/UniswapV4Actions.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
+import {
+    UniswapV4DecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/UniswapV4DecoderAndSanitizer.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { Actions, Commands, TickMath, LiquidityAmounts, Constants } from "src/interfaces/UniswapV4Actions.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract UniswapV4IntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -40,7 +42,7 @@ contract UniswapV4IntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 21838936;
+        uint256 blockNumber = 21_838_936;
 
         _startFork(rpcKey, blockNumber);
 
@@ -1222,7 +1224,7 @@ contract UniswapV4IntegrationTest is Test, MerkleTreeHelper {
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
         uint256 ethBal = address(boringVault).balance;
-        assertEq(ethBal, 4619890037295905924);
+        assertEq(ethBal, 4_619_890_037_295_905_924);
     }
 
     function testUniswapV4SwapsToken1ForNative() external {
@@ -1338,7 +1340,7 @@ contract UniswapV4IntegrationTest is Test, MerkleTreeHelper {
 
     function testUniswapV4LiquidityFunctionsNative() external {
         deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000_000e6);
-        deal(address(boringVault), 1_000e18);
+        deal(address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](32);
         address[] memory token0 = new address[](1);
@@ -1511,7 +1513,7 @@ contract UniswapV4IntegrationTest is Test, MerkleTreeHelper {
 
     function testUniswapV4LiquidityFunctionsNative__Reverts() external {
         deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000_000e6);
-        deal(address(boringVault), 1_000e18);
+        deal(address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](32);
         address[] memory token0 = new address[](1);
@@ -1659,7 +1661,7 @@ contract UniswapV4IntegrationTest is Test, MerkleTreeHelper {
 }
 
 contract FullUniswapV4DecoderAndSanitizer is UniswapV4DecoderAndSanitizer {
-    constructor(address _posm) UniswapV4DecoderAndSanitizer(_posm) {}
+    constructor(address _posm) UniswapV4DecoderAndSanitizer(_posm) { }
 }
 
 interface IUniswapV2Factory {

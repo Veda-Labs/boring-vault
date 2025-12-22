@@ -4,7 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {GenericRateProvider} from "src/helper/GenericRateProvider.sol";
+import { GenericRateProvider } from "src/helper/GenericRateProvider.sol";
 
 contract GenericRateProviderWithDecimalScaling is GenericRateProvider {
     //============================== STRUCTS ===============================

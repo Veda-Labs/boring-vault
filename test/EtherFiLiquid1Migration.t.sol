@@ -4,37 +4,37 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {BalancerVault} from "src/interfaces/BalancerVault.sol";
-import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
-import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
-import {AtomicQueue} from "src/atomic-queue/AtomicQueue.sol";
-import {AtomicSolver} from "src/atomic-queue/AtomicSolver.sol";
-import {IRateProvider} from "src/interfaces/IRateProvider.sol";
-import {IWEETH} from "src/interfaces/IStaking.sol";
-import {ILiquidityPool} from "src/interfaces/IStaking.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { BalancerVault } from "src/interfaces/BalancerVault.sol";
+import { TellerWithMultiAssetSupport } from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import { AccountantWithRateProviders } from "src/base/Roles/AccountantWithRateProviders.sol";
+import { AtomicQueue } from "src/atomic-queue/AtomicQueue.sol";
+import { AtomicSolver } from "src/atomic-queue/AtomicSolver.sol";
+import { IRateProvider } from "src/interfaces/IRateProvider.sol";
+import { IWEETH } from "src/interfaces/IStaking.sol";
+import { ILiquidityPool } from "src/interfaces/IStaking.sol";
 // import {WETH} from "@solmate/tokens/WETH.sol";
-import {EtherFiLiquidDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EtherFiLiquidDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {EtherFiLiquid1} from "src/interfaces/EtherFiLiquid1.sol";
-import {CellarMigrationAdaptor} from "src/migration/CellarMigrationAdaptor.sol";
-import {CellarMigrationAdaptor2} from "src/migration/CellarMigrationAdaptor2.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {GenericRateProvider} from "src/helper/GenericRateProvider.sol";
-import {ParitySharePriceOracle} from "src/migration/ParitySharePriceOracle.sol";
-import {CellarMigratorWithSharePriceParity, ERC4626} from "src/migration/CellarMigratorWithSharePriceParity.sol";
-import {AddressToBytes32Lib} from "src/helper/AddressToBytes32Lib.sol";
-import {Address} from "@openzeppelin/contracts/utils/Address.sol";
-import {Deployer} from "src/helper/Deployer.sol";
-import {AtomicSolverV4} from "src/atomic-queue/AtomicSolverV4.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { EtherFiLiquidDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/EtherFiLiquidDecoderAndSanitizer.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { EtherFiLiquid1 } from "src/interfaces/EtherFiLiquid1.sol";
+import { CellarMigrationAdaptor } from "src/migration/CellarMigrationAdaptor.sol";
+import { CellarMigrationAdaptor2 } from "src/migration/CellarMigrationAdaptor2.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { GenericRateProvider } from "src/helper/GenericRateProvider.sol";
+import { ParitySharePriceOracle } from "src/migration/ParitySharePriceOracle.sol";
+import { CellarMigratorWithSharePriceParity, ERC4626 } from "src/migration/CellarMigratorWithSharePriceParity.sol";
+import { AddressToBytes32Lib } from "src/helper/AddressToBytes32Lib.sol";
+import { Address } from "@openzeppelin/contracts/utils/Address.sol";
+import { Deployer } from "src/helper/Deployer.sol";
+import { AtomicSolverV4 } from "src/atomic-queue/AtomicSolverV4.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract EtherFiLiquid1MigrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -84,8 +84,8 @@ contract EtherFiLiquid1MigrationTest is Test, MerkleTreeHelper {
 
     // Position IDs.
     uint32 public EETH_POSITION = 2;
-    uint32 public ILLIQUID_MIGRATION_POSITION = 77777777;
-    uint32 public LIQUID_MIGRATION_POSITION = 77777778;
+    uint32 public ILLIQUID_MIGRATION_POSITION = 77_777_777;
+    uint32 public LIQUID_MIGRATION_POSITION = 77_777_778;
 
     // Registry getAddress ID.
     uint256 ETHER_FI_LIQUID_SHARE_PRICE_ORACLE_ID = 3;
@@ -132,7 +132,7 @@ contract EtherFiLiquid1MigrationTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 20179060;
+        uint256 blockNumber = 20_179_060;
         _startFork(rpcKey, blockNumber);
 
         WETH = getERC20(sourceChain, "WETH");
@@ -645,7 +645,7 @@ contract EtherFiLiquid1MigrationTest is Test, MerkleTreeHelper {
         adaptorCalls[11] =
             abi.encodeWithSignature("deposit(address,uint256,uint256)", pendleEethYtDecember, type(uint256).max, 0);
 
-        data[0] = EtherFiLiquid1.AdaptorCall({adaptor: address(migrationAdaptor), callData: adaptorCalls});
+        data[0] = EtherFiLiquid1.AdaptorCall({ adaptor: address(migrationAdaptor), callData: adaptorCalls });
         vm.startPrank(strategist);
         etherFiLiquid1.callOnAdaptor(data);
         vm.stopPrank();
@@ -657,9 +657,9 @@ contract EtherFiLiquid1MigrationTest is Test, MerkleTreeHelper {
         bytes[] memory adaptorCalls1 = new bytes[](1);
         adaptorCalls[0] =
             abi.encodeWithSignature("withdrawFromVault(address,uint256)", aura_reth_weeth, type(uint256).max);
-        data[0] = EtherFiLiquid1.AdaptorCall({adaptor: auraERC4626Adaptor, callData: adaptorCalls});
+        data[0] = EtherFiLiquid1.AdaptorCall({ adaptor: auraERC4626Adaptor, callData: adaptorCalls });
         adaptorCalls1[0] = abi.encodeWithSignature("deposit(address,uint256,uint256)", rETH_weETH, type(uint256).max, 0);
-        data[1] = EtherFiLiquid1.AdaptorCall({adaptor: address(migrationAdaptor), callData: adaptorCalls1});
+        data[1] = EtherFiLiquid1.AdaptorCall({ adaptor: address(migrationAdaptor), callData: adaptorCalls1 });
         vm.startPrank(strategist);
         etherFiLiquid1.callOnAdaptor(data);
         vm.stopPrank();
@@ -685,7 +685,7 @@ contract EtherFiLiquid1MigrationTest is Test, MerkleTreeHelper {
             EtherFiLiquid1.AdaptorCall[] memory data = new EtherFiLiquid1.AdaptorCall[](1);
             bytes[] memory adaptorCalls = new bytes[](1);
             adaptorCalls[0] = abi.encodeWithSignature("closePosition(uint256,uint256,uint256)", tokenIds[i], 0, 0);
-            data[0] = EtherFiLiquid1.AdaptorCall({adaptor: uniswapV3Adaptor, callData: adaptorCalls});
+            data[0] = EtherFiLiquid1.AdaptorCall({ adaptor: uniswapV3Adaptor, callData: adaptorCalls });
             vm.startPrank(strategist);
             etherFiLiquid1.callOnAdaptor(data);
             vm.stopPrank();
@@ -696,7 +696,7 @@ contract EtherFiLiquid1MigrationTest is Test, MerkleTreeHelper {
         EtherFiLiquid1.AdaptorCall[] memory data = new EtherFiLiquid1.AdaptorCall[](1);
         bytes[] memory adaptorCalls = new bytes[](1);
         adaptorCalls[0] = abi.encodeWithSignature("withdrawFromVault(address,uint256)", dWETHV3, type(uint256).max);
-        data[0] = EtherFiLiquid1.AdaptorCall({adaptor: erc4626Adaptor, callData: adaptorCalls});
+        data[0] = EtherFiLiquid1.AdaptorCall({ adaptor: erc4626Adaptor, callData: adaptorCalls });
         vm.startPrank(strategist);
         etherFiLiquid1.callOnAdaptor(data);
         vm.stopPrank();
@@ -734,7 +734,7 @@ contract EtherFiLiquid1MigrationTest is Test, MerkleTreeHelper {
             EtherFiLiquid1.AdaptorCall[] memory data = new EtherFiLiquid1.AdaptorCall[](1);
             bytes[] memory adaptorCalls = new bytes[](1);
             adaptorCalls[0] = abi.encodeWithSignature("deposit(address,uint256,uint256)", token, type(uint256).max, 0);
-            data[0] = EtherFiLiquid1.AdaptorCall({adaptor: address(migrationAdaptor), callData: adaptorCalls});
+            data[0] = EtherFiLiquid1.AdaptorCall({ adaptor: address(migrationAdaptor), callData: adaptorCalls });
             vm.startPrank(strategistMultisig);
             etherFiLiquid1.callOnAdaptor(data);
             vm.stopPrank();
@@ -781,7 +781,7 @@ contract EtherFiLiquid1MigrationTest is Test, MerkleTreeHelper {
         EtherFiLiquid1.AdaptorCall[] memory data = new EtherFiLiquid1.AdaptorCall[](1);
         bytes[] memory adaptorCalls = new bytes[](1);
         adaptorCalls[0] = abi.encodeWithSignature("repayAaveDebt(address,uint256)", WETH, amountToRepay);
-        data[0] = EtherFiLiquid1.AdaptorCall({adaptor: aaveV3DebtTokenAdaptor, callData: adaptorCalls});
+        data[0] = EtherFiLiquid1.AdaptorCall({ adaptor: aaveV3DebtTokenAdaptor, callData: adaptorCalls });
         vm.startPrank(strategist);
         etherFiLiquid1.callOnAdaptor(data);
         vm.stopPrank();
@@ -789,7 +789,7 @@ contract EtherFiLiquid1MigrationTest is Test, MerkleTreeHelper {
         // Now migrate 1/3 of the aTokens to BoringVault.
         uint256 amountToMigrate = aV3WeETH.balanceOf(address(etherFiLiquid1)) / 3;
         adaptorCalls[0] = abi.encodeWithSignature("deposit(address,uint256,uint256)", aV3WeETH, amountToMigrate, 0);
-        data[0] = EtherFiLiquid1.AdaptorCall({adaptor: address(migrationAdaptor), callData: adaptorCalls});
+        data[0] = EtherFiLiquid1.AdaptorCall({ adaptor: address(migrationAdaptor), callData: adaptorCalls });
         vm.startPrank(strategist);
         etherFiLiquid1.callOnAdaptor(data);
         vm.stopPrank();
@@ -807,7 +807,7 @@ contract EtherFiLiquid1MigrationTest is Test, MerkleTreeHelper {
         uint256 rate = accountant.getRate();
         uint256 amountToRedeem = amountToBorrow.mulDivDown(1e18, rate);
         adaptorCalls[0] = abi.encodeWithSignature("withdraw(address,uint256,uint256)", WETH, amountToRedeem, 0);
-        data[0] = EtherFiLiquid1.AdaptorCall({adaptor: address(migrationAdaptor), callData: adaptorCalls});
+        data[0] = EtherFiLiquid1.AdaptorCall({ adaptor: address(migrationAdaptor), callData: adaptorCalls });
         vm.startPrank(strategist);
         etherFiLiquid1.callOnAdaptor(data);
         vm.stopPrank();
@@ -817,7 +817,7 @@ contract EtherFiLiquid1MigrationTest is Test, MerkleTreeHelper {
         data = new EtherFiLiquid1.AdaptorCall[](1);
         adaptorCalls = new bytes[](1);
         adaptorCalls[0] = abi.encodeWithSignature("repayAaveDebt(address,uint256)", WETH, amountToRepay);
-        data[0] = EtherFiLiquid1.AdaptorCall({adaptor: aaveV3DebtTokenAdaptor, callData: adaptorCalls});
+        data[0] = EtherFiLiquid1.AdaptorCall({ adaptor: aaveV3DebtTokenAdaptor, callData: adaptorCalls });
         vm.startPrank(strategist);
         etherFiLiquid1.callOnAdaptor(data);
         vm.stopPrank();
@@ -825,7 +825,7 @@ contract EtherFiLiquid1MigrationTest is Test, MerkleTreeHelper {
         // Now migrate 1/2 of the aTokens to BoringVault.
         amountToMigrate = aV3WeETH.balanceOf(address(etherFiLiquid1)) / 3;
         adaptorCalls[0] = abi.encodeWithSignature("deposit(address,uint256,uint256)", aV3WeETH, amountToMigrate, 0);
-        data[0] = EtherFiLiquid1.AdaptorCall({adaptor: address(migrationAdaptor), callData: adaptorCalls});
+        data[0] = EtherFiLiquid1.AdaptorCall({ adaptor: address(migrationAdaptor), callData: adaptorCalls });
         vm.startPrank(strategist);
         etherFiLiquid1.callOnAdaptor(data);
         vm.stopPrank();
@@ -843,7 +843,7 @@ contract EtherFiLiquid1MigrationTest is Test, MerkleTreeHelper {
         rate = accountant.getRate();
         amountToRedeem = amountToBorrow.mulDivDown(1e18, rate);
         adaptorCalls[0] = abi.encodeWithSignature("withdraw(address,uint256,uint256)", WETH, amountToRedeem, 0);
-        data[0] = EtherFiLiquid1.AdaptorCall({adaptor: address(migrationAdaptor), callData: adaptorCalls});
+        data[0] = EtherFiLiquid1.AdaptorCall({ adaptor: address(migrationAdaptor), callData: adaptorCalls });
         vm.startPrank(strategist);
         etherFiLiquid1.callOnAdaptor(data);
         vm.stopPrank();
@@ -853,7 +853,7 @@ contract EtherFiLiquid1MigrationTest is Test, MerkleTreeHelper {
         data = new EtherFiLiquid1.AdaptorCall[](1);
         adaptorCalls = new bytes[](1);
         adaptorCalls[0] = abi.encodeWithSignature("repayAaveDebt(address,uint256)", WETH, amountToRepay);
-        data[0] = EtherFiLiquid1.AdaptorCall({adaptor: aaveV3DebtTokenAdaptor, callData: adaptorCalls});
+        data[0] = EtherFiLiquid1.AdaptorCall({ adaptor: aaveV3DebtTokenAdaptor, callData: adaptorCalls });
         vm.startPrank(strategist);
         etherFiLiquid1.callOnAdaptor(data);
         vm.stopPrank();
@@ -861,7 +861,7 @@ contract EtherFiLiquid1MigrationTest is Test, MerkleTreeHelper {
         // Now migrate 1/2 of the aTokens to BoringVault.
         amountToMigrate = aV3WeETH.balanceOf(address(etherFiLiquid1)) / 2;
         adaptorCalls[0] = abi.encodeWithSignature("deposit(address,uint256,uint256)", aV3WeETH, amountToMigrate, 0);
-        data[0] = EtherFiLiquid1.AdaptorCall({adaptor: address(migrationAdaptor), callData: adaptorCalls});
+        data[0] = EtherFiLiquid1.AdaptorCall({ adaptor: address(migrationAdaptor), callData: adaptorCalls });
         vm.startPrank(strategist);
         etherFiLiquid1.callOnAdaptor(data);
         vm.stopPrank();
@@ -879,7 +879,7 @@ contract EtherFiLiquid1MigrationTest is Test, MerkleTreeHelper {
         rate = accountant.getRate();
         amountToRedeem = amountToBorrow.mulDivDown(1e18, rate);
         adaptorCalls[0] = abi.encodeWithSignature("withdraw(address,uint256,uint256)", WETH, amountToRedeem, 0);
-        data[0] = EtherFiLiquid1.AdaptorCall({adaptor: address(migrationAdaptor), callData: adaptorCalls});
+        data[0] = EtherFiLiquid1.AdaptorCall({ adaptor: address(migrationAdaptor), callData: adaptorCalls });
         vm.startPrank(strategist);
         etherFiLiquid1.callOnAdaptor(data);
         vm.stopPrank();
@@ -888,10 +888,10 @@ contract EtherFiLiquid1MigrationTest is Test, MerkleTreeHelper {
         data = new EtherFiLiquid1.AdaptorCall[](2);
         adaptorCalls = new bytes[](1);
         adaptorCalls[0] = abi.encodeWithSignature("repayAaveDebt(address,uint256)", WETH, type(uint256).max);
-        data[0] = EtherFiLiquid1.AdaptorCall({adaptor: aaveV3DebtTokenAdaptor, callData: adaptorCalls});
+        data[0] = EtherFiLiquid1.AdaptorCall({ adaptor: aaveV3DebtTokenAdaptor, callData: adaptorCalls });
         bytes[] memory adaptorCalls1 = new bytes[](1);
         adaptorCalls1[0] = abi.encodeWithSignature("deposit(address,uint256,uint256)", aV3WeETH, type(uint256).max, 0);
-        data[1] = EtherFiLiquid1.AdaptorCall({adaptor: address(migrationAdaptor), callData: adaptorCalls1});
+        data[1] = EtherFiLiquid1.AdaptorCall({ adaptor: address(migrationAdaptor), callData: adaptorCalls1 });
         vm.startPrank(strategist);
         etherFiLiquid1.callOnAdaptor(data);
         vm.stopPrank();

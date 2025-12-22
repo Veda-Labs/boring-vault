@@ -4,13 +4,13 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {AtomicQueue, ERC20, SafeTransferLib} from "./AtomicQueue.sol";
-import {IAtomicSolver} from "./IAtomicSolver.sol";
+import { AtomicQueue, ERC20, SafeTransferLib } from "./AtomicQueue.sol";
+import { IAtomicSolver } from "./IAtomicSolver.sol";
 
-import {Owned} from "@solmate/auth/Owned.sol";
-import {ERC721Holder} from "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
-import {Address} from "@openzeppelin/contracts/utils/Address.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
+import { Owned } from "@solmate/auth/Owned.sol";
+import { ERC721Holder } from "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
+import { Address } from "@openzeppelin/contracts/utils/Address.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
 
 contract AtomicSolver is IAtomicSolver, Owned, ERC721Holder {
     using Address for address;
@@ -80,5 +80,5 @@ contract AtomicSolver is IAtomicSolver, Owned, ERC721Holder {
         receiver.transfer(address(this).balance);
     }
 
-    receive() external payable {}
+    receive() external payable { }
 }

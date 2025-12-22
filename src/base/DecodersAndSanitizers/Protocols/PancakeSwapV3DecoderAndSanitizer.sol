@@ -4,9 +4,11 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {UniswapV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV3DecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {PancakeSwapV3MasterChef} from "src/interfaces/RawDataDecoderAndSanitizerInterfaces.sol";
+import {
+    UniswapV3DecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/UniswapV3DecoderAndSanitizer.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { PancakeSwapV3MasterChef } from "src/interfaces/RawDataDecoderAndSanitizerInterfaces.sol";
 
 /// @notice When positions are staked in Masterchef, they can be managed, as if they were being held in the BoringVault.
 /// To support this, we just need the merkle tree to specify the masterchef contract instead of the position manager.

@@ -4,19 +4,19 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {BeraETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BeraETHDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
+import { BeraETHDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/BeraETHDecoderAndSanitizer.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract BeraETHIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -39,7 +39,7 @@ contract BeraETHIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("berachain");
         // Setup forked environment.
         string memory rpcKey = "BERA_CHAIN_RPC_URL";
-        uint256 blockNumber = 372325;
+        uint256 blockNumber = 372_325;
 
         _startFork(rpcKey, blockNumber);
 
@@ -138,7 +138,7 @@ contract BeraETHIntegrationTest is Test, MerkleTreeHelper {
         targetData[1] = abi.encodeWithSignature(
             "depositAndWrap(address,uint256,uint256)", getAddress(sourceChain, "WETH"), 10e18, 0
         );
-        targetData[2] = abi.encodeWithSignature("unwrap(uint256)", 9997638401662115534);
+        targetData[2] = abi.encodeWithSignature("unwrap(uint256)", 9_997_638_401_662_115_534);
 
         address[] memory decodersAndSanitizers = new address[](3);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
@@ -158,4 +158,4 @@ contract BeraETHIntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullBeraETHDecoderAndSanitizer is BeraETHDecoderAndSanitizer {}
+contract FullBeraETHDecoderAndSanitizer is BeraETHDecoderAndSanitizer { }

@@ -4,21 +4,21 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
 import {
     TermFinanceDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/Protocols/TermFinanceDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract TermFinanceIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -42,9 +42,9 @@ contract TermFinanceIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testTermFinanceIntegrationLockOffer() public {
-        _setupEnv(20684989);
+        _setupEnv(20_684_989);
         address weth = getAddress(sourceChain, "WETH");
-        deal(weth, address(boringVault), 10000e18);
+        deal(weth, address(boringVault), 10_000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](2);
         ERC20[] memory purchaseTokens = new ERC20[](1);
@@ -131,7 +131,7 @@ contract TermFinanceIntegrationTest is Test, MerkleTreeHelper {
         testTermFinanceIntegrationLockOffer();
         bytes32 idHash = keccak256(abi.encodePacked(uint256(block.timestamp), address(boringVault)));
 
-        vm.warp(1725555601);
+        vm.warp(1_725_555_601);
         leafIndex = type(uint256).max;
         ManageLeaf[] memory leafs = new ManageLeaf[](2); // only need 1 leaf, but _generateMerkleTree needs at least 2.
         address[] memory termAuctionOfferLockers = new address[](1);
@@ -170,7 +170,7 @@ contract TermFinanceIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testTermFinanceIntegrationRedeemTermRepoTokens() external {
-        _setupEnv(20896437);
+        _setupEnv(20_896_437);
 
         address termRepoToken = getAddress(sourceChain, "termRepoToken");
         deal(termRepoToken, address(boringVault), 10e18);

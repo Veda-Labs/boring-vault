@@ -4,21 +4,21 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {StakingDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/StakingDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
-import {BoringDrone} from "src/base/Drones/BoringDrone.sol";
-import {DroneLib} from "src/base/Drones/DroneLib.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
+import { StakingDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/StakingDecoderAndSanitizer.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { BoringDrone } from "src/base/Drones/BoringDrone.sol";
+import { DroneLib } from "src/base/Drones/DroneLib.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract StakingIntegrationsTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -46,7 +46,7 @@ contract StakingIntegrationsTest is Test, MerkleTreeHelper {
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
         // uint256 blockNumber = 19369928;
-        uint256 blockNumber = 19826676;
+        uint256 blockNumber = 19_826_676;
         // uint256 blockNumber = 20036275;
 
         _startFork(rpcKey, blockNumber);
@@ -158,7 +158,7 @@ contract StakingIntegrationsTest is Test, MerkleTreeHelper {
         targetData[2] =
             abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "WEETH"), type(uint256).max);
         targetData[3] = abi.encodeWithSignature("wrap(uint256)", 100e18 - 1);
-        uint256 weETHAmount = 96346539735660261219;
+        uint256 weETHAmount = 96_346_539_735_660_261_219;
         targetData[4] = abi.encodeWithSignature("unwrap(uint256)", weETHAmount);
         targetData[5] = abi.encodeWithSignature(
             "approve(address,uint256)", getAddress(sourceChain, "EETH_LIQUIDITY_POOL"), type(uint256).max
@@ -176,7 +176,7 @@ contract StakingIntegrationsTest is Test, MerkleTreeHelper {
         decodersAndSanitizers[6] = rawDataDecoderAndSanitizer;
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
-        uint256 withdrawRequestId = 17743;
+        uint256 withdrawRequestId = 17_743;
 
         _finalizeRequest(withdrawRequestId, 100e18 - 2);
 
@@ -197,7 +197,7 @@ contract StakingIntegrationsTest is Test, MerkleTreeHelper {
     }
 
     function testLidoIntegration() external {
-        deal(address(boringVault), 1_000e18);
+        deal(address(boringVault), 1000e18);
 
         // Call submit
         // call approve
@@ -256,7 +256,7 @@ contract StakingIntegrationsTest is Test, MerkleTreeHelper {
         decodersAndSanitizers[5] = rawDataDecoderAndSanitizer;
 
         uint256[] memory values = new uint256[](6);
-        values[0] = 1_000e18;
+        values[0] = 1000e18;
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
@@ -265,9 +265,9 @@ contract StakingIntegrationsTest is Test, MerkleTreeHelper {
             .getRoleMember(IUNSTETH(getAddress(sourceChain, "unstETH")).FINALIZE_ROLE(), 0);
         deal(admin, 300e18);
         vm.startPrank(admin);
-        IUNSTETH(getAddress(sourceChain, "unstETH")).finalize{value: 100e18}(37_767, type(uint256).max);
-        IUNSTETH(getAddress(sourceChain, "unstETH")).finalize{value: 100e18}(37_768, type(uint256).max);
-        IUNSTETH(getAddress(sourceChain, "unstETH")).finalize{value: 100e18}(37_769, type(uint256).max);
+        IUNSTETH(getAddress(sourceChain, "unstETH")).finalize{ value: 100e18 }(37_767, type(uint256).max);
+        IUNSTETH(getAddress(sourceChain, "unstETH")).finalize{ value: 100e18 }(37_768, type(uint256).max);
+        IUNSTETH(getAddress(sourceChain, "unstETH")).finalize{ value: 100e18 }(37_769, type(uint256).max);
         vm.stopPrank();
 
         manageLeafs = new ManageLeaf[](2);
@@ -418,7 +418,7 @@ contract StakingIntegrationsTest is Test, MerkleTreeHelper {
         targetData[1] = abi.encodeWithSignature("deposit()");
         targetData[2] =
             abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "swEXIT"), type(uint256).max);
-        uint256 expectedSweth = 94453026416214353277;
+        uint256 expectedSweth = 94_453_026_416_214_353_277;
         targetData[3] = abi.encodeWithSignature("createWithdrawRequest(uint256)", expectedSweth);
         uint256[] memory values = new uint256[](4);
         values[1] = 100e18;
@@ -484,7 +484,7 @@ contract StakingIntegrationsTest is Test, MerkleTreeHelper {
         targetData[2] = abi.encodeWithSignature(
             "approve(address,uint256)", getAddress(sourceChain, "mantleLspStaking"), type(uint256).max
         );
-        uint256 expectedMeth = 96846201237918440407;
+        uint256 expectedMeth = 96_846_201_237_918_440_407;
         targetData[3] = abi.encodeWithSignature("unstakeRequest(uint128,uint128)", expectedMeth, 0);
         uint256[] memory values = new uint256[](4);
         values[1] = 100e18;
@@ -500,7 +500,7 @@ contract StakingIntegrationsTest is Test, MerkleTreeHelper {
 
         uint256 withdrawRequestId = 1500;
 
-        _finalizeMantleRequest(2_000e18);
+        _finalizeMantleRequest(2000e18);
 
         manageLeafs = new ManageLeaf[](1);
         manageLeafs[0] = leafs[5];
@@ -642,7 +642,7 @@ contract StakingIntegrationsTest is Test, MerkleTreeHelper {
         ILiquidityPool lp = ILiquidityPool(getAddress(sourceChain, "EETH_LIQUIDITY_POOL"));
 
         deal(address(this), amount);
-        lp.deposit{value: amount}();
+        lp.deposit{ value: amount }();
         address admin = lp.etherFiAdminContract();
 
         vm.startPrank(admin);
@@ -665,7 +665,7 @@ contract StakingIntegrationsTest is Test, MerkleTreeHelper {
         deal(getAddress(sourceChain, "mantleLspStaking"), amount);
 
         vm.prank(getAddress(sourceChain, "mantleLspStaking"));
-        MantleStaking(0x38fDF7b489316e03eD8754ad339cb5c4483FDcf9).allocateETH{value: amount}();
+        MantleStaking(0x38fDF7b489316e03eD8754ad339cb5c4483FDcf9).allocateETH{ value: amount }();
     }
 
     function withdraw(uint256 amount) external {

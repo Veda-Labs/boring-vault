@@ -4,7 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
 
 contract CCIPDecoderAndSanitizer {
     bytes4 internal constant EVM_EXTRA_ARGS_V1_TAG = 0x97a657c9;

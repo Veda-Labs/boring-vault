@@ -4,20 +4,20 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {DolomiteDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/DolomiteDecoderAndSanitizer.sol";
-import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
+import { DolomiteDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/DolomiteDecoderAndSanitizer.sol";
+import { ERC4626DecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract DolomiteFinanceIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -40,7 +40,7 @@ contract DolomiteFinanceIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("arbitrum");
         // Setup forked environment.
         string memory rpcKey = "ARBITRUM_RPC_URL";
-        uint256 blockNumber = 298481162;
+        uint256 blockNumber = 298_481_162;
 
         _startFork(rpcKey, blockNumber);
 
@@ -114,7 +114,7 @@ contract DolomiteFinanceIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("berachain");
         // Setup forked environment.
         string memory rpcKey = "BERA_CHAIN_RPC_URL";
-        uint256 blockNumber = 2298972;
+        uint256 blockNumber = 2_298_972;
 
         _startFork(rpcKey, blockNumber);
 
@@ -443,7 +443,7 @@ contract DolomiteFinanceIntegrationTest is Test, MerkleTreeHelper {
 
         deal(getAddress(sourceChain, "WEETH"), address(boringVault), 1000e18);
         //deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18);
-        deal(address(boringVault), 1_000e18);
+        deal(address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](64);
         _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "WETH"), false);
@@ -485,14 +485,14 @@ contract DolomiteFinanceIntegrationTest is Test, MerkleTreeHelper {
         targetData[2] = abi.encodeWithSignature(
             "openBorrowPosition(uint256,uint256,uint256,uint256,uint8)",
             0,
-            95646612764453240722844410166875739203076655042923654016204376702392130422212,
+            95_646_612_764_453_240_722_844_410_166_875_739_203_076_655_042_923_654_016_204_376_702_392_130_422_212,
             marketId,
             100e18,
             1 //use WEETH as collateral
         );
         targetData[3] = abi.encodeWithSignature(
             "withdrawWei(uint256,uint256,uint256,uint8)",
-            95646612764453240722844410166875739203076655042923654016204376702392130422212,
+            95_646_612_764_453_240_722_844_410_166_875_739_203_076_655_042_923_654_016_204_376_702_392_130_422_212,
             marketIdBorrow,
             1e18,
             3
@@ -526,13 +526,13 @@ contract DolomiteFinanceIntegrationTest is Test, MerkleTreeHelper {
         targetData = new bytes[](2);
         targetData[0] = abi.encodeWithSignature(
             "depositWei(uint256,uint256,uint256)",
-            95646612764453240722844410166875739203076655042923654016204376702392130422212,
+            95_646_612_764_453_240_722_844_410_166_875_739_203_076_655_042_923_654_016_204_376_702_392_130_422_212,
             marketId,
             10e18
         ); //deposit into WETH (repay)
         targetData[1] = abi.encodeWithSignature(
             "withdrawWei(uint256,uint256,uint256,uint8)",
-            95646612764453240722844410166875739203076655042923654016204376702392130422212,
+            95_646_612_764_453_240_722_844_410_166_875_739_203_076_655_042_923_654_016_204_376_702_392_130_422_212,
             marketIdBorrow,
             1e18,
             3
@@ -574,7 +574,7 @@ contract DolomiteFinanceIntegrationTest is Test, MerkleTreeHelper {
         );
         targetData[1] = abi.encodeWithSignature(
             "depositWei(uint256,uint256,uint256)",
-            95646612764453240722844410166875739203076655042923654016204376702392130422212,
+            95_646_612_764_453_240_722_844_410_166_875_739_203_076_655_042_923_654_016_204_376_702_392_130_422_212,
             marketIdBorrow,
             2e18,
             0
@@ -585,7 +585,7 @@ contract DolomiteFinanceIntegrationTest is Test, MerkleTreeHelper {
 
         targetData[2] = abi.encodeWithSignature(
             "closeBorrowPosition(uint256,uint256,uint256[])",
-            95646612764453240722844410166875739203076655042923654016204376702392130422212,
+            95_646_612_764_453_240_722_844_410_166_875_739_203_076_655_042_923_654_016_204_376_702_392_130_422_212,
             0,
             collateralIds //here funds are sent back to account 0
         );
@@ -683,7 +683,7 @@ contract DolomiteFinanceIntegrationTest is Test, MerkleTreeHelper {
 }
 
 contract FullDolomiteDecoderAndSanitizer is DolomiteDecoderAndSanitizer, ERC4626DecoderAndSanitizer {
-    constructor(address _dolomiteMargin) DolomiteDecoderAndSanitizer(_dolomiteMargin) {}
+    constructor(address _dolomiteMargin) DolomiteDecoderAndSanitizer(_dolomiteMargin) { }
 }
 
 interface IDolomiteMargin {

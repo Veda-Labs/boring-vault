@@ -4,7 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {ERC20} from "@solmate/tokens/ERC20.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
 
 interface DefaultCollateral {
     function balanceOf(address account) external view returns (uint256);

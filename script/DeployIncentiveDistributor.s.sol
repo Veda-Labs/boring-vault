@@ -4,8 +4,8 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {Deployer} from "src/helper/Deployer.sol";
-import {IncentiveDistributor} from "src/helper/IncentiveDistributor.sol";
+import { Deployer } from "src/helper/Deployer.sol";
+import { IncentiveDistributor } from "src/helper/IncentiveDistributor.sol";
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
 

@@ -3,19 +3,19 @@
 // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {AmbientDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AmbientDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
+import { AmbientDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/AmbientDecoderAndSanitizer.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract AmbientIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -38,7 +38,7 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("swell");
         // Setup forked environment.
         string memory rpcKey = "SWELL_CHAIN_RPC_URL";
-        uint256 blockNumber = 4242847;
+        uint256 blockNumber = 4_242_847;
 
         _startFork(rpcKey, blockNumber);
 
@@ -108,7 +108,7 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("swell");
         // Setup forked environment.
         string memory rpcKey = "SWELL_CHAIN_RPC_URL";
-        uint256 blockNumber = 4247935;
+        uint256 blockNumber = 4_247_935;
 
         _startFork(rpcKey, blockNumber);
 
@@ -178,7 +178,7 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("swell");
         // Setup forked environment.
         string memory rpcKey = "SWELL_CHAIN_RPC_URL";
-        uint256 blockNumber = 4255703;
+        uint256 blockNumber = 4_255_703;
 
         _startFork(rpcKey, blockNumber);
 
@@ -246,8 +246,8 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
 
     function testAmbientLiquidityWarmPath__Concentrated() external {
         _setUp();
-        deal(address(boringVault), 1_000e18);
-        deal(getAddress(sourceChain, "USDE"), address(boringVault), 1_000e18);
+        deal(address(boringVault), 1000e18);
+        deal(getAddress(sourceChain, "USDE"), address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
 
@@ -342,8 +342,8 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
 
     function testAmbientLiquidityWarmPath__Ambient() external {
         _setUp();
-        deal(address(boringVault), 1_000e18);
-        deal(getAddress(sourceChain, "USDE"), address(boringVault), 1_000e18);
+        deal(address(boringVault), 1000e18);
+        deal(getAddress(sourceChain, "USDE"), address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
 
@@ -439,8 +439,8 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
     function testAmbientLiquidityWarmPath__ConcentratedHarvest() external {
         _setUpHarvestBlock();
 
-        deal(address(boringVault), 1_000e18);
-        deal(getAddress(sourceChain, "USDE"), address(boringVault), 1_000e18);
+        deal(address(boringVault), 1000e18);
+        deal(getAddress(sourceChain, "USDE"), address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
 
@@ -507,7 +507,7 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
         // Due to the JIT liquidity protection enabled on Ambient, we must skip a few blocks before removing liquidity
-        vm.warp(4248458);
+        vm.warp(4_248_458);
 
         manageLeafs = new ManageLeaf[](1);
         manageLeafs[0] = leafs[2]; //remove liq ETH/USDE
@@ -548,8 +548,8 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
     function testAmbientSwap__SwapETHForToken() external {
         _setUpHarvestBlock();
 
-        deal(address(boringVault), 1_000e18);
-        deal(getAddress(sourceChain, "USDE"), address(boringVault), 1_000e18);
+        deal(address(boringVault), 1000e18);
+        deal(getAddress(sourceChain, "USDE"), address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
 
@@ -608,7 +608,7 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
     function testAmbientSwap__SwapTokenForETH() external {
         _setUpHarvestBlock();
 
-        deal(address(boringVault), 1_000e18);
+        deal(address(boringVault), 1000e18);
         deal(getAddress(sourceChain, "USDE"), address(boringVault), 10_000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
@@ -668,7 +668,7 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
     function testAmbientSwap__UserCmd() external {
         _setUpHarvestBlock();
 
-        deal(address(boringVault), 1_000e18);
+        deal(address(boringVault), 1000e18);
         deal(getAddress(sourceChain, "USDE"), address(boringVault), 10_000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
@@ -729,7 +729,7 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
     function testAmbientKnockout() external {
         _setUpKnockoutBlock();
 
-        deal(address(boringVault), 1_000e18);
+        deal(address(boringVault), 1000e18);
         deal(getAddress(sourceChain, "USDE"), address(boringVault), 10_000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
@@ -795,4 +795,4 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullAmbientDecoderAndSanitizer is AmbientDecoderAndSanitizer {}
+contract FullAmbientDecoderAndSanitizer is AmbientDecoderAndSanitizer { }

@@ -4,23 +4,23 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
 import {
     StakingDecoderAndSanitizer,
     EigenLayerLSTStakingDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/StakingDecoderAndSanitizer.sol";
 
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract EigenLayerLSTStakingIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -46,7 +46,7 @@ contract EigenLayerLSTStakingIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 19826676;
+        uint256 blockNumber = 19_826_676;
 
         _startFork(rpcKey, blockNumber);
 
@@ -116,7 +116,7 @@ contract EigenLayerLSTStakingIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 22324979;
+        uint256 blockNumber = 22_324_979;
 
         _startFork(rpcKey, blockNumber);
 
@@ -184,7 +184,7 @@ contract EigenLayerLSTStakingIntegrationTest is Test, MerkleTreeHelper {
 
     function testEigenLayerLSTStakingIntegration() external {
         _setUpOld();
-        deal(getAddress(sourceChain, "METH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "METH"), address(boringVault), 1000e18);
 
         // approve
         // Call deposit
@@ -226,14 +226,14 @@ contract EigenLayerLSTStakingIntegrationTest is Test, MerkleTreeHelper {
             "depositIntoStrategy(address,address,uint256)",
             getAddress(sourceChain, "mETHStrategy"),
             getAddress(sourceChain, "METH"),
-            1_000e18
+            1000e18
         );
         DecoderCustomTypes.QueuedWithdrawalParams[] memory queuedParams =
             new DecoderCustomTypes.QueuedWithdrawalParams[](1);
         queuedParams[0].strategies = new address[](1);
         queuedParams[0].strategies[0] = getAddress(sourceChain, "mETHStrategy");
         queuedParams[0].shares = new uint256[](1);
-        queuedParams[0].shares[0] = 1_000e18;
+        queuedParams[0].shares[0] = 1000e18;
         queuedParams[0].withdrawer = address(boringVault);
         targetData[2] = abi.encodeWithSignature("queueWithdrawals((address[],uint256[],address)[])", queuedParams);
 
@@ -249,7 +249,7 @@ contract EigenLayerLSTStakingIntegrationTest is Test, MerkleTreeHelper {
         // Finalize withdraw requests.
         // Must wait atleast delegationManager.minWithdrawalDelayBlocks() blocks which is 50400.
         uint32 withdrawRequestBlock = uint32(block.number);
-        vm.roll(block.number + 50400);
+        vm.roll(block.number + 50_400);
 
         // Complete the withdrawal
         manageLeafs = new ManageLeaf[](1);
@@ -270,7 +270,7 @@ contract EigenLayerLSTStakingIntegrationTest is Test, MerkleTreeHelper {
         withdrawParams[0].strategies = new address[](1);
         withdrawParams[0].strategies[0] = getAddress(sourceChain, "mETHStrategy");
         withdrawParams[0].shares = new uint256[](1);
-        withdrawParams[0].shares[0] = 1_000e18;
+        withdrawParams[0].shares[0] = 1000e18;
         address[][] memory tokens = new address[][](1);
         tokens[0] = new address[](1);
         tokens[0][0] = getAddress(sourceChain, "METH");
@@ -295,14 +295,14 @@ contract EigenLayerLSTStakingIntegrationTest is Test, MerkleTreeHelper {
 
         assertEq(
             getERC20(sourceChain, "METH").balanceOf(address(boringVault)),
-            1_000e18,
+            1000e18,
             "BoringVault should have received 1,000 METH"
         );
     }
 
     function testEigenLayerLSTStakingReverts() external {
         _setUpOld();
-        deal(getAddress(sourceChain, "METH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "METH"), address(boringVault), 1000e18);
 
         // approve
         // Call deposit
@@ -344,14 +344,14 @@ contract EigenLayerLSTStakingIntegrationTest is Test, MerkleTreeHelper {
             "depositIntoStrategy(address,address,uint256)",
             getAddress(sourceChain, "mETHStrategy"),
             getAddress(sourceChain, "METH"),
-            1_000e18
+            1000e18
         );
         DecoderCustomTypes.QueuedWithdrawalParams[] memory queuedParams =
             new DecoderCustomTypes.QueuedWithdrawalParams[](1);
         queuedParams[0].strategies = new address[](1);
         queuedParams[0].strategies[0] = getAddress(sourceChain, "mETHStrategy");
         queuedParams[0].shares = new uint256[](1);
-        queuedParams[0].shares[0] = 1_000e18;
+        queuedParams[0].shares[0] = 1000e18;
         queuedParams[0].withdrawer = address(boringVault);
         targetData[2] = abi.encodeWithSignature("queueWithdrawals((address[],uint256[],address)[])", queuedParams);
 
@@ -367,7 +367,7 @@ contract EigenLayerLSTStakingIntegrationTest is Test, MerkleTreeHelper {
         // Finalize withdraw requests.
         // Must wait atleast delegationManager.minWithdrawalDelayBlocks() blocks which is 50400.
         uint32 withdrawRequestBlock = uint32(block.number);
-        vm.roll(block.number + 50400);
+        vm.roll(block.number + 50_400);
 
         // Complete the withdrawal
         manageLeafs = new ManageLeaf[](1);
@@ -388,7 +388,7 @@ contract EigenLayerLSTStakingIntegrationTest is Test, MerkleTreeHelper {
         withdrawParams[0].strategies = new address[](1);
         withdrawParams[0].strategies[0] = getAddress(sourceChain, "mETHStrategy");
         withdrawParams[0].shares = new uint256[](1);
-        withdrawParams[0].shares[0] = 1_000e18;
+        withdrawParams[0].shares[0] = 1000e18;
         address[][] memory tokens = new address[][](1);
         tokens[0] = new address[](1);
         tokens[0][0] = getAddress(sourceChain, "METH");
@@ -422,7 +422,7 @@ contract EigenLayerLSTStakingIntegrationTest is Test, MerkleTreeHelper {
 
     function testDelegation() external {
         _setUpOld();
-        deal(getAddress(sourceChain, "METH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "METH"), address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
         _addLeafsForEigenLayerLST(
@@ -470,7 +470,7 @@ contract EigenLayerLSTStakingIntegrationTest is Test, MerkleTreeHelper {
 
     function testEigenLayerLSTStakingIntegrationNew() external {
         _setUpNew();
-        deal(getAddress(sourceChain, "METH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "METH"), address(boringVault), 1000e18);
 
         // approve
         // Call deposit
@@ -512,14 +512,14 @@ contract EigenLayerLSTStakingIntegrationTest is Test, MerkleTreeHelper {
             "depositIntoStrategy(address,address,uint256)",
             getAddress(sourceChain, "mETHStrategy"),
             getAddress(sourceChain, "METH"),
-            1_000e18
+            1000e18
         );
         DecoderCustomTypes.QueuedWithdrawalParams[] memory queuedParams =
             new DecoderCustomTypes.QueuedWithdrawalParams[](1);
         queuedParams[0].strategies = new address[](1);
         queuedParams[0].strategies[0] = getAddress(sourceChain, "mETHStrategy");
         queuedParams[0].shares = new uint256[](1);
-        queuedParams[0].shares[0] = 1_000e18;
+        queuedParams[0].shares[0] = 1000e18;
         queuedParams[0].withdrawer = address(boringVault);
         targetData[2] = abi.encodeWithSignature("queueWithdrawals((address[],uint256[],address)[])", queuedParams);
 
@@ -536,8 +536,8 @@ contract EigenLayerLSTStakingIntegrationTest is Test, MerkleTreeHelper {
         // Must wait atleast delegationManager.minWithdrawalDelayBlocks() blocks which is noew 100800
         uint32 withdrawRequestBlock = uint32(block.number);
         //vm.roll(block.number + 100800); //this doesn't work
-        vm.roll(block.number + 100801); //this does? lol ok
-        assertLt(withdrawRequestBlock + 100800, block.number);
+        vm.roll(block.number + 100_801); //this does? lol ok
+        assertLt(withdrawRequestBlock + 100_800, block.number);
 
         // Complete the withdrawal
         manageLeafs = new ManageLeaf[](1);
@@ -558,7 +558,7 @@ contract EigenLayerLSTStakingIntegrationTest is Test, MerkleTreeHelper {
         withdrawParams[0].strategies = new address[](1);
         withdrawParams[0].strategies[0] = getAddress(sourceChain, "mETHStrategy");
         withdrawParams[0].shares = new uint256[](1);
-        withdrawParams[0].shares[0] = 1_000e18;
+        withdrawParams[0].shares[0] = 1000e18;
         address[][] memory tokens = new address[][](1);
         tokens[0] = new address[](1);
         tokens[0][0] = getAddress(sourceChain, "METH");
@@ -580,7 +580,7 @@ contract EigenLayerLSTStakingIntegrationTest is Test, MerkleTreeHelper {
 
         assertEq(
             getERC20(sourceChain, "METH").balanceOf(address(boringVault)),
-            1_000e18,
+            1000e18,
             "BoringVault should have received 1,000 METH"
         );
     }

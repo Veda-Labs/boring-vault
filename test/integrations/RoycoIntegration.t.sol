@@ -4,18 +4,18 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {RoycoWeirollDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/RoycoDecoderAndSanitizer.sol";
-import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { BaseTestIntegration } from "test/integrations/BaseTestIntegration.t.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
+import { RoycoWeirollDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/RoycoDecoderAndSanitizer.sol";
+import { ERC4626DecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract RoycoIntegrationTest is BaseTestIntegration {
     function _setUpMainnet() internal {
         super.setUp();
-        _setupChain("mainnet", 21713448);
+        _setupChain("mainnet", 21_713_448);
 
         address roycoDecoder = address(new FullRoycoDecoderAndSanitizer(0x783251f103555068c1E9D755f69458f39eD937c0));
 
@@ -24,7 +24,7 @@ contract RoycoIntegrationTest is BaseTestIntegration {
 
     function _setUpSonic() internal {
         super.setUp();
-        _setupChain("sonicMainnet", 14684422);
+        _setupChain("sonicMainnet", 14_684_422);
 
         address roycoDecoder = address(new FullRoycoDecoderAndSanitizer(0xFcc593aD3705EBcd72eC961c63eb484BE795BDbD));
 
@@ -33,13 +33,13 @@ contract RoycoIntegrationTest is BaseTestIntegration {
 
     function testRoycoERC4626Integration() external {
         _setUpMainnet();
-        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000e6);
+        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1000e6);
         runRoycoERC4626Integration(getAddress(sourceChain, "supplyUSDCAaveWrappedVault"));
     }
 
     function testRoycoERC4626IntegrationClaiming() external {
         _setUpMainnet();
-        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000e6);
+        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1000e6);
 
         runRoycoERC4626Integration(getAddress(sourceChain, "supplyUSDCAaveWrappedVault"));
     }
@@ -47,7 +47,7 @@ contract RoycoIntegrationTest is BaseTestIntegration {
     function testRoycoWeirollForfeitIntegration() external {
         _setUpMainnet();
         address asset = getAddress(sourceChain, "USDC");
-        deal(asset, address(boringVault), 1_000e6);
+        deal(asset, address(boringVault), 1000e6);
 
         bytes32 stkGHOMarketHash = 0x83c459782b2ff36629401b1a592354fc085f29ae00cf97b803f73cac464d389b;
         bytes32 stkGHOHash = 0x8349eff9a17d01f2e9fa015121d0d03cd4b15ae9f2b8b17add16bbad006a1c6a;
@@ -58,7 +58,7 @@ contract RoycoIntegrationTest is BaseTestIntegration {
     function testRoycoWeirollExecuteWithdrawIntegrationComplete() external {
         _setUpMainnet();
         address asset = getAddress(sourceChain, "USDC");
-        deal(asset, address(boringVault), 1_000e6);
+        deal(asset, address(boringVault), 1000e6);
         bytes32 stkGHOMarketHash = 0x83c459782b2ff36629401b1a592354fc085f29ae00cf97b803f73cac464d389b;
         bytes32 stkGHOHash = 0x8349eff9a17d01f2e9fa015121d0d03cd4b15ae9f2b8b17add16bbad006a1c6a;
         address expectedWeirollWallet = 0xF2075aBc3cC8EE8F75F28Ac9A3c5CAeBe1E9C7Cb;
@@ -111,7 +111,7 @@ contract RoycoIntegrationTest is BaseTestIntegration {
     function testRoycoWeirollForfeitIntegrationSonic() external {
         _setUpSonic();
         address asset = getAddress(sourceChain, "USDC");
-        deal(asset, address(boringVault), 1_000e6);
+        deal(asset, address(boringVault), 1000e6);
 
         bytes32 scUSDMarketHash = 0x7d1f2a66eabf9142dd30d1355efcbfd4cfbefd2872d24ca9855641434816a525;
         bytes32 ipOfferHash = 0xcd3b9f1c7a3f90bf397c46f2a641315d6e81d063811d4ccfc683046e33f323e9;
@@ -123,7 +123,7 @@ contract RoycoIntegrationTest is BaseTestIntegration {
     function testRoycoWeirollExecuteWithdrawIntegrationCompleteSonic() external {
         _setUpSonic();
         address asset = getAddress(sourceChain, "USDC");
-        deal(asset, address(boringVault), 1_000e6);
+        deal(asset, address(boringVault), 1000e6);
         bytes32 scUSDMarketHash = 0x7d1f2a66eabf9142dd30d1355efcbfd4cfbefd2872d24ca9855641434816a525;
         bytes32 ipOfferHash = 0xcd3b9f1c7a3f90bf397c46f2a641315d6e81d063811d4ccfc683046e33f323e9;
         address expectedWeirollWallet = 0x119D69120c9940a9D8eE78A35f865d39bF08A622;
@@ -133,7 +133,7 @@ contract RoycoIntegrationTest is BaseTestIntegration {
     function testRoycoWeirollExecuteWithdrawIntegrationSonic() external {
         _setUpSonic();
         address asset = getAddress(sourceChain, "USDC");
-        deal(asset, address(boringVault), 1_000e6);
+        deal(asset, address(boringVault), 1000e6);
         bytes32 scUSDMarketHash = 0x7d1f2a66eabf9142dd30d1355efcbfd4cfbefd2872d24ca9855641434816a525;
         bytes32 ipOfferHash = 0xcd3b9f1c7a3f90bf397c46f2a641315d6e81d063811d4ccfc683046e33f323e9;
         //address expectedWeirollWallet = 0x119D69120c9940a9D8eE78A35f865d39bF08A622;
@@ -532,7 +532,7 @@ contract RoycoIntegrationTest is BaseTestIntegration {
             vault,
             address(0),
             100 * (10 ** ERC20(asset).decimals()),
-            1773880121, // March 19 2026
+            1_773_880_121, // March 19 2026
             incentivesRequested,
             amountsRequested
         );
@@ -543,7 +543,7 @@ contract RoycoIntegrationTest is BaseTestIntegration {
                 vault, // msg.sender of createAPOffer call
                 getAddress(sourceChain, "boringVault"),
                 address(0), // funding vault
-                1773880121, // March 19 2026
+                1_773_880_121, // March 19 2026
                 incentivesRequested,
                 amountsRequested
             )
@@ -599,7 +599,7 @@ contract RoycoIntegrationTest is BaseTestIntegration {
             targetMarketHash,
             address(0),
             100 * (10 ** ERC20(asset).decimals()),
-            1773880121, // March 19 2026
+            1_773_880_121, // March 19 2026
             incentivesRequested,
             amountsRequested
         );
@@ -611,7 +611,7 @@ contract RoycoIntegrationTest is BaseTestIntegration {
                 getAddress(sourceChain, "boringVault"), // msg.sender of createAPOffer call
                 address(0),
                 100 * (10 ** ERC20(asset).decimals()),
-                1773880121, // March 19 2026
+                1_773_880_121, // March 19 2026
                 incentivesRequested,
                 amountsRequested
             )
@@ -629,5 +629,5 @@ contract RoycoIntegrationTest is BaseTestIntegration {
 }
 
 contract FullRoycoDecoderAndSanitizer is RoycoWeirollDecoderAndSanitizer {
-    constructor(address _recipeMarketHub) RoycoWeirollDecoderAndSanitizer(_recipeMarketHub) {}
+    constructor(address _recipeMarketHub) RoycoWeirollDecoderAndSanitizer(_recipeMarketHub) { }
 }

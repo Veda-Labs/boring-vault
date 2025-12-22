@@ -4,10 +4,13 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
-import {AtomicQueue} from "src/atomic-queue/AtomicQueue.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
+import {
+    BaseDecoderAndSanitizer,
+    DecoderCustomTypes
+} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import { AtomicQueue } from "src/atomic-queue/AtomicQueue.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
 
 contract AtomicQueueDecoderAndSanitizer is BaseDecoderAndSanitizer {
     using FixedPointMathLib for uint256;

@@ -4,8 +4,8 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {TellerWithMultiAssetSupport, ERC20} from "./TellerWithMultiAssetSupport.sol";
-import {IBufferHelper} from "src/interfaces/IBufferHelper.sol";
+import { TellerWithMultiAssetSupport, ERC20 } from "./TellerWithMultiAssetSupport.sol";
+import { IBufferHelper } from "src/interfaces/IBufferHelper.sol";
 
 /**
  * @title TellerWithBuffer
@@ -44,7 +44,7 @@ contract TellerWithBuffer is TellerWithMultiAssetSupport {
      */
     constructor(address _owner, address _vault, address _accountant, address _weth)
         TellerWithMultiAssetSupport(_owner, _vault, _accountant, _weth)
-    {}
+    { }
 
     /**
      * @notice Executes buffer management after a deposit operation

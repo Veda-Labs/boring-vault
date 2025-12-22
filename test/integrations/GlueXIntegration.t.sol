@@ -4,21 +4,21 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {GlueXDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/GlueXDecoderAndSanitizer.sol";
-import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
-import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { BaseTestIntegration } from "test/integrations/BaseTestIntegration.t.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { GlueXDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/GlueXDecoderAndSanitizer.sol";
+import { BaseDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { ERC4626DecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
+import { CurveDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
-contract FullGlueXDecoderAndSanitizer is GlueXDecoderAndSanitizer, BaseDecoderAndSanitizer {}
+contract FullGlueXDecoderAndSanitizer is GlueXDecoderAndSanitizer, BaseDecoderAndSanitizer { }
 
 contract GlueXIntegration is BaseTestIntegration {
     function _setUpMainnet() internal {
         super.setUp();
-        _setupChain("mainnet", 23569229);
+        _setupChain("mainnet", 23_569_229);
 
         address glueXDecoder = address(new FullGlueXDecoderAndSanitizer());
 
@@ -27,7 +27,7 @@ contract GlueXIntegration is BaseTestIntegration {
 
     function _setUpPlasma() internal {
         super.setUp();
-        _setupChain("plasma", 3506874);
+        _setupChain("plasma", 3_506_874);
 
         address glueXDecoder = address(new FullGlueXDecoderAndSanitizer());
 
@@ -38,7 +38,7 @@ contract GlueXIntegration is BaseTestIntegration {
         _setUpMainnet();
 
         //starting with just the base assets
-        deal(getAddress(sourceChain, "USDT"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "USDT"), address(boringVault), 1000e18);
 
         address[] memory tokens = new address[](2);
         SwapKind[] memory kind = new SwapKind[](2);
@@ -73,16 +73,16 @@ contract GlueXIntegration is BaseTestIntegration {
             inputReceiver: payable(0x2102Ab11A3c74B1D543891020969dc3D46C132AB),
             outputReceiver: payable(address(boringVault)),
             partnerAddress: payable(address(0)),
-            inputAmount: 640629735,
-            outputAmount: 562120106,
+            inputAmount: 640_629_735,
+            outputAmount: 562_120_106,
             partnerFee: 0,
             routingFee: 0,
             partnerSurplusShare: 5000,
             protocolSurplusShare: 5000,
             partnerSlippageShare: 3300,
             protocolSlippageShare: 6600,
-            effectiveOutputAmount: 562120106,
-            minOutputAmount: 550877703,
+            effectiveOutputAmount: 562_120_106,
+            minOutputAmount: 550_877_703,
             isPermit2: false,
             uniquePID: 0x1d9b2b29e27b739431a7883b86f1b45be9d0a8ad037a91519bf36c593ef07c46
         });
@@ -117,14 +117,14 @@ contract GlueXIntegration is BaseTestIntegration {
 
         address hwHLP = 0x9FD7466f987Fd4C45a5BBDe22ED8aba5BC8D72d1;
         uint256 vaultBalance = ERC20(hwHLP).balanceOf(address(boringVault));
-        assertEq(vaultBalance, 562120106);
+        assertEq(vaultBalance, 562_120_106);
     }
 
     function testSwapPlasma() external {
         _setUpPlasma();
 
         //starting with just the base assets
-        deal(getAddress(sourceChain, "WXPL"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WXPL"), address(boringVault), 1000e18);
 
         address[] memory tokens = new address[](2);
         SwapKind[] memory kind = new SwapKind[](2);
@@ -159,16 +159,16 @@ contract GlueXIntegration is BaseTestIntegration {
             inputReceiver: payable(0x2102Ab11A3c74B1D543891020969dc3D46C132AB),
             outputReceiver: payable(address(boringVault)),
             partnerAddress: payable(address(0)),
-            inputAmount: 1943727989510338943,
-            outputAmount: 135401478313139290112,
+            inputAmount: 1_943_727_989_510_338_943,
+            outputAmount: 135_401_478_313_139_290_112,
             partnerFee: 0,
             routingFee: 0,
             partnerSurplusShare: 0,
-            protocolSurplusShare: 10000,
+            protocolSurplusShare: 10_000,
             partnerSlippageShare: 0,
             protocolSlippageShare: 6600,
-            effectiveOutputAmount: 135333777573982720464,
-            minOutputAmount: 132356434467355099136,
+            effectiveOutputAmount: 135_333_777_573_982_720_464,
+            minOutputAmount: 132_356_434_467_355_099_136,
             isPermit2: false,
             uniquePID: 0x866a61811189692e8eccae5d2759724a812fa6f8703ebffe90c29dc1f886bbc1
         });

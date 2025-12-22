@@ -4,14 +4,14 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {AtomicQueue, ERC20, SafeTransferLib} from "./AtomicQueue.sol";
-import {IAtomicSolver} from "./IAtomicSolver.sol";
-import {Auth, Authority} from "@solmate/auth/Auth.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {IWEETH} from "src/interfaces/IStaking.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
-import {Multicall} from "@openzeppelin/contracts/utils/Multicall.sol";
+import { AtomicQueue, ERC20, SafeTransferLib } from "./AtomicQueue.sol";
+import { IAtomicSolver } from "./IAtomicSolver.sol";
+import { Auth, Authority } from "@solmate/auth/Auth.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
+import { IWEETH } from "src/interfaces/IStaking.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { TellerWithMultiAssetSupport } from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import { Multicall } from "@openzeppelin/contracts/utils/Multicall.sol";
 
 /**
  * @title AtomicSolverV4
@@ -52,7 +52,7 @@ contract AtomicSolverV4 is IAtomicSolver, Auth, Multicall {
 
     //============================== IMMUTABLES ===============================
 
-    constructor(address _owner, Authority _authority) Auth(_owner, _authority) {}
+    constructor(address _owner, Authority _authority) Auth(_owner, _authority) { }
 
     //============================== ADMIN FUNCTIONS ===============================
 

@@ -4,10 +4,10 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {OAppAuth, Origin, MessagingFee, MessagingReceipt} from "@oapp-auth/OAppAuth.sol";
-import {MessagingParams} from "@oapp-auth/OAppAuthSender.sol";
-import {AddressToBytes32Lib} from "src/helper/AddressToBytes32Lib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { OAppAuth, Origin, MessagingFee, MessagingReceipt } from "@oapp-auth/OAppAuth.sol";
+import { MessagingParams } from "@oapp-auth/OAppAuthSender.sol";
+import { AddressToBytes32Lib } from "src/helper/AddressToBytes32Lib.sol";
 
 contract MockLayerZeroEndPoint {
     using AddressToBytes32Lib for address;
@@ -93,5 +93,5 @@ contract MockLayerZeroEndPoint {
         lastMessageId = guid;
     }
 
-    function setDelegate(address _delegate) external pure {}
+    function setDelegate(address _delegate) external pure { }
 }

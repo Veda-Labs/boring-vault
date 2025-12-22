@@ -4,21 +4,21 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
 import {
     BalancerV2DecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/Protocols/BalancerV2DecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract RingsVoterIntegration is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -41,7 +41,7 @@ contract RingsVoterIntegration is Test, MerkleTreeHelper {
         setSourceChainName("sonicMainnet");
         // Setup forked environment.
         string memory rpcKey = "SONIC_MAINNET_RPC_URL";
-        uint256 blockNumber = 8737910;
+        uint256 blockNumber = 8_737_910;
 
         _startFork(rpcKey, blockNumber);
 
@@ -111,7 +111,7 @@ contract RingsVoterIntegration is Test, MerkleTreeHelper {
     }
 
     function testBalancerSwapToken0ForToken1() external {
-        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000e6);
+        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1000e6);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
         _addBalancerSwapLeafs(leafs, 0x713fb5036dc70012588d77a5b066f1dd05c712d7000200000000000000000041);
@@ -161,7 +161,7 @@ contract RingsVoterIntegration is Test, MerkleTreeHelper {
     }
 
     function testBalancerSwapToken1ForToken0() external {
-        deal(getAddress(sourceChain, "stS"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "stS"), address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
         _addBalancerSwapLeafs(leafs, 0x713fb5036dc70012588d77a5b066f1dd05c712d7000200000000000000000041);
@@ -218,4 +218,4 @@ contract RingsVoterIntegration is Test, MerkleTreeHelper {
     }
 }
 
-contract FullRingsDecoderAndSanitizer is BalancerV2DecoderAndSanitizer {}
+contract FullRingsDecoderAndSanitizer is BalancerV2DecoderAndSanitizer { }

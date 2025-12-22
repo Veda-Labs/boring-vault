@@ -4,8 +4,8 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {Auth, Authority} from "@solmate/auth/Auth.sol";
-import {IPausable} from "src/interfaces/IPausable.sol";
+import { Auth, Authority } from "@solmate/auth/Auth.sol";
+import { IPausable } from "src/interfaces/IPausable.sol";
 
 contract Pauser is Auth {
     // ========================================= STATE =========================================

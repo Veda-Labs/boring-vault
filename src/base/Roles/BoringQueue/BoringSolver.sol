@@ -4,12 +4,12 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {Auth, Authority} from "@solmate/auth/Auth.sol";
-import {BoringOnChainQueue, ERC20, SafeTransferLib} from "src/base/Roles/BoringQueue/BoringOnChainQueue.sol";
-import {IBoringSolver} from "src/base/Roles/BoringQueue/IBoringSolver.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
-import {Multicall} from "@openzeppelin/contracts/utils/Multicall.sol";
+import { Auth, Authority } from "@solmate/auth/Auth.sol";
+import { BoringOnChainQueue, ERC20, SafeTransferLib } from "src/base/Roles/BoringQueue/BoringOnChainQueue.sol";
+import { IBoringSolver } from "src/base/Roles/BoringQueue/IBoringSolver.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { TellerWithMultiAssetSupport } from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import { Multicall } from "@openzeppelin/contracts/utils/Multicall.sol";
 
 contract BoringSolver is IBoringSolver, Auth, Multicall {
     using SafeTransferLib for ERC20;

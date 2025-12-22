@@ -82,13 +82,13 @@ ink = { key = "${INKSCAN_KEY}", chain = 57073, url = "https://explorer.inkonchai
 #plasma = { key = "${PLASMASCAN_KEY}", chain = 9745, url = "https://api.routescan.io/v2/network/mainnet/evm/9745/etherscan" }
 
 [fmt]
-FOUNDRY_FMT_LINE_LENGTH = 120
-FOUNDRY_FMT_TAB_WIDTH = 4
-FOUNDRY_FMT_BRACKET_SPACING = true
-FOUNDRY_FMT_INT_TYPES = "long"
-FOUNDRY_FMT_MULTILINE_FUNC_HEADER = "attributes_first"
-FOUNDRY_FMT_QUOTE_STYLE = "double"
-FOUNDRY_FMT_NUMBER_UNDERSCORE = "thousands"
-FOUNDRY_FMT_OVERRIDE_SPACING = true
-FOUNDRY_FMT_WRAP_COMMENTS = false
-FOUNDRY_FMT_IGNORE = []
+line_length = 120
+tab_width = 4
+bracket_spacing = true
+int_types = "long"
+multiline_func_header = "attributes_first"
+quote_style = "double"
+number_underscore = "thousands"
+override_spacing = true
+wrap_comments = false
+ignore = []

@@ -4,10 +4,10 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {Auth, Authority} from "@solmate/auth/Auth.sol";
-import {MockPausable} from "test/mocks/MockPausable.sol";
-import {Pauser, IPausable} from "src/base/Roles/Pauser.sol";
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Auth, Authority } from "@solmate/auth/Auth.sol";
+import { MockPausable } from "test/mocks/MockPausable.sol";
+import { Pauser, IPausable } from "src/base/Roles/Pauser.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract PauserTest is Test {
     IPausable[] public pausables;
@@ -16,7 +16,7 @@ contract PauserTest is Test {
     function setUp() external {
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 20083900;
+        uint256 blockNumber = 20_083_900;
 
         _startFork(rpcKey, blockNumber);
 

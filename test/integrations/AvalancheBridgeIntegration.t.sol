@@ -4,21 +4,21 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
+import { BaseTestIntegration } from "test/integrations/BaseTestIntegration.t.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { BaseDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
 import {
     AvalancheBridgeDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/Protocols/AvalancheBridgeDecoderAndSanitizer.sol";
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
-contract FullAvalancheBridgeDecoderAndSanitizer is BaseDecoderAndSanitizer, AvalancheBridgeDecoderAndSanitizer {}
+contract FullAvalancheBridgeDecoderAndSanitizer is BaseDecoderAndSanitizer, AvalancheBridgeDecoderAndSanitizer { }
 
 contract AvalancheBridgeIntegration is BaseTestIntegration {
     function _setUpMainnet() internal {
         super.setUp();
-        _setupChain("mainnet", 22775708);
+        _setupChain("mainnet", 22_775_708);
 
         address avalancheDecoder = address(new FullAvalancheBridgeDecoderAndSanitizer());
 
@@ -27,7 +27,7 @@ contract AvalancheBridgeIntegration is BaseTestIntegration {
 
     function _setUpAvalanche() internal {
         super.setUp();
-        _setupChain("avalanche", 38455925);
+        _setupChain("avalanche", 38_455_925);
 
         address avalancheDecoder = address(new FullAvalancheBridgeDecoderAndSanitizer());
 
@@ -37,8 +37,8 @@ contract AvalancheBridgeIntegration is BaseTestIntegration {
     function testAvalancheBridgeETHMainnet() external {
         _setUpMainnet();
 
-        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18);
-        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000e6);
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1000e18);
+        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1000e6);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](4);
         ERC20[] memory assets = new ERC20[](2);
@@ -89,8 +89,8 @@ contract AvalancheBridgeIntegration is BaseTestIntegration {
     function testAvalancheBridgeAvalancheUSDC() external {
         _setUpAvalanche();
 
-        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18);
-        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000e6);
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1000e18);
+        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1000e6);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](4);
         ERC20[] memory assets = new ERC20[](1);
@@ -135,8 +135,8 @@ contract AvalancheBridgeIntegration is BaseTestIntegration {
     function testAvalancheBridgeAvalancheWETH__Fails() external {
         _setUpAvalanche();
 
-        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18);
-        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000e6);
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1000e18);
+        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1000e6);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](4);
         ERC20[] memory assets = new ERC20[](1);

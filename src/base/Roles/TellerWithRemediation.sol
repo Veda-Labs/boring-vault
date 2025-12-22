@@ -4,7 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {TellerWithMultiAssetSupport, ERC20} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import { TellerWithMultiAssetSupport, ERC20 } from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 
 contract TellerWithRemediation is TellerWithMultiAssetSupport {
     // ========================================= STRUCTS =========================================
@@ -50,7 +50,7 @@ contract TellerWithRemediation is TellerWithMultiAssetSupport {
 
     constructor(address _owner, address _vault, address _accountant, address _weth)
         TellerWithMultiAssetSupport(_owner, _vault, _accountant, _weth)
-    {}
+    { }
 
     // ========================================= ADMIN FUNCTIONS =========================================
 

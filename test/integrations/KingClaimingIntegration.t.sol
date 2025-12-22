@@ -4,22 +4,22 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
+import { BaseTestIntegration } from "test/integrations/BaseTestIntegration.t.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
 import {
     KingClaimingDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/Protocols/KingClaimingDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
-import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { ERC4626DecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
+import { CurveDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
-contract FullKingClaimingDecoderAndSanitizer is KingClaimingDecoderAndSanitizer {}
+contract FullKingClaimingDecoderAndSanitizer is KingClaimingDecoderAndSanitizer { }
 
 contract KingRewardsClaimingIntegration is BaseTestIntegration {
     function _setUpMainnet() internal {
         super.setUp();
-        _setupChain("mainnet", 22282617);
+        _setupChain("mainnet", 22_282_617);
 
         address kingDecoder = address(new FullKingClaimingDecoderAndSanitizer());
 
@@ -30,7 +30,7 @@ contract KingRewardsClaimingIntegration is BaseTestIntegration {
         _setUpMainnet();
 
         //starting with just the base assets
-        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
 
@@ -82,7 +82,7 @@ contract KingRewardsClaimingIntegration is BaseTestIntegration {
 
         //bytes[] memory targetData = new bytes[](7);
         tx_.targetData[0] = abi.encodeWithSignature(
-            "claim(address,uint256,bytes32,bytes32[])", claimFor, 2213478001621304080, root, claimProofs
+            "claim(address,uint256,bytes32,bytes32[])", claimFor, 2_213_478_001_621_304_080, root, claimProofs
         );
 
         tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;

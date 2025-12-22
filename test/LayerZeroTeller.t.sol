@@ -4,20 +4,20 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BoringVault} from "src/base/BoringVault.sol";
-import {LayerZeroTeller} from "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTeller.sol";
-import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {IRateProvider} from "src/interfaces/IRateProvider.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MockLayerZeroEndPoint} from "src/helper/MockLayerZeroEndPoint.sol";
-import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
-import {AddressToBytes32Lib} from "src/helper/AddressToBytes32Lib.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { LayerZeroTeller } from "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTeller.sol";
+import { AccountantWithRateProviders } from "src/base/Roles/AccountantWithRateProviders.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { IRateProvider } from "src/interfaces/IRateProvider.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MockLayerZeroEndPoint } from "src/helper/MockLayerZeroEndPoint.sol";
+import { TellerWithMultiAssetSupport } from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { AddressToBytes32Lib } from "src/helper/AddressToBytes32Lib.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract LayerZeroTellerTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -38,7 +38,7 @@ contract LayerZeroTellerTest is Test, MerkleTreeHelper {
     LayerZeroTeller public sourceTeller;
     LayerZeroTeller public destinationTeller;
     AccountantWithRateProviders public accountant;
-    address public payout_address = vm.addr(7777777);
+    address public payout_address = vm.addr(7_777_777);
     address internal constant NATIVE = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     ERC20 internal constant NATIVE_ERC20 = ERC20(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE);
     RolesAuthority public rolesAuthority;
@@ -58,7 +58,7 @@ contract LayerZeroTellerTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 21023546;
+        uint256 blockNumber = 21_023_546;
         _startFork(rpcKey, blockNumber);
 
         WETH = getERC20(sourceChain, "WETH");
@@ -130,8 +130,8 @@ contract LayerZeroTellerTest is Test, MerkleTreeHelper {
         endPoint.setSenderToId(address(destinationTeller), DESTINATION_ID);
 
         // Give BoringVault some WETH, and this address some shares.
-        deal(address(WETH), address(boringVault), 1_000e18);
-        deal(address(boringVault), address(this), 1_000e18, true);
+        deal(address(WETH), address(boringVault), 1000e18);
+        deal(address(boringVault), address(this), 1000e18, true);
 
         // Setup chains on bridge.
         sourceTeller.addChain(DESTINATION_ID, true, true, address(destinationTeller), 1_000_000);
@@ -139,13 +139,15 @@ contract LayerZeroTellerTest is Test, MerkleTreeHelper {
     }
 
     function testBridgingShares(uint96 sharesToBridge) external {
-        sharesToBridge = uint96(bound(sharesToBridge, 1, 1_000e18));
+        sharesToBridge = uint96(bound(sharesToBridge, 1, 1000e18));
         // uint256 startingShareBalance = boringVault.balanceOf(address(this));
 
         // Bridge 100 shares.
         address to = vm.addr(1);
         uint256 expectedFee = 1e18;
-        sourceTeller.bridge{value: 0.001e18}(sharesToBridge, to, abi.encode(DESTINATION_ID), NATIVE_ERC20, expectedFee);
+        sourceTeller.bridge{ value: 0.001e18 }(
+            sharesToBridge, to, abi.encode(DESTINATION_ID), NATIVE_ERC20, expectedFee
+        );
 
         MockLayerZeroEndPoint.Packet memory m = endPoint.getLastMessage();
 
@@ -269,7 +271,7 @@ contract LayerZeroTellerTest is Test, MerkleTreeHelper {
 
         endPoint.setFee(NATIVE_ERC20, 0.001e18);
 
-        sourceTeller.bridge{value: 0.001e18}(1e18, address(this), abi.encode(DESTINATION_ID), NATIVE_ERC20, 1e18);
+        sourceTeller.bridge{ value: 0.001e18 }(1e18, address(this), abi.encode(DESTINATION_ID), NATIVE_ERC20, 1e18);
 
         MockLayerZeroEndPoint.Packet memory m = endPoint.getLastMessage();
 

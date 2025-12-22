@@ -4,10 +4,10 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {Address} from "@openzeppelin/contracts/utils/Address.sol";
-import {ERC721Holder} from "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
-import {ERC1155Holder} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
-import {DroneLib} from "src/base/Drones/DroneLib.sol";
+import { Address } from "@openzeppelin/contracts/utils/Address.sol";
+import { ERC721Holder } from "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
+import { ERC1155Holder } from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
+import { DroneLib } from "src/base/Drones/DroneLib.sol";
 
 //                                            .
 //                                         ......
@@ -96,7 +96,7 @@ contract BoringDrone is ERC721Holder, ERC1155Holder {
      * @notice Withdraws all native from the drone.
      */
     function withdrawNativeFromDrone() external onlyBoringVault {
-        (bool success,) = boringVault.call{value: address(this).balance}("");
+        (bool success,) = boringVault.call{ value: address(this).balance }("");
         if (!success) revert BoringDrone__ReceiveFailed();
     }
 
@@ -121,7 +121,7 @@ contract BoringDrone is ERC721Holder, ERC1155Holder {
         // If gas left is less than safe gas needed to forward native, return.
         if (gasleft() < safeGasToForwardNative) return;
 
-        (bool success,) = boringVault.call{value: msg.value}("");
+        (bool success,) = boringVault.call{ value: msg.value }("");
         if (!success) revert BoringDrone__ReceiveFailed();
     }
 }

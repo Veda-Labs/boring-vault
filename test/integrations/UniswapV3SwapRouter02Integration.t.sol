@@ -4,13 +4,13 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
 import {
     EtherFiLiquidDecoderAndSanitizer,
     UniswapV3DecoderAndSanitizer
@@ -18,11 +18,11 @@ import {
 import {
     UniswapV3SwapRouter02DecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/Protocols/UniswapV3SwapRouter02DecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract UniswapV3SwapRouter02IntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -45,7 +45,7 @@ contract UniswapV3SwapRouter02IntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("sonicMainnet");
         // Setup forked environment.
         string memory rpcKey = "SONIC_MAINNET_RPC_URL";
-        uint256 blockNumber = 7438521;
+        uint256 blockNumber = 7_438_521;
 
         _startFork(rpcKey, blockNumber);
 
@@ -114,8 +114,8 @@ contract UniswapV3SwapRouter02IntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testUniswapV3Integration() external {
-        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18);
-        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1000e18);
+        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
 
@@ -173,5 +173,5 @@ contract UniswapV3SwapRouter02IntegrationTest is Test, MerkleTreeHelper {
 }
 
 contract FullUniswapV3DecoderAndSanitizer is UniswapV3SwapRouter02DecoderAndSanitizer {
-    constructor(address _nfpm) UniswapV3SwapRouter02DecoderAndSanitizer(_nfpm) {}
+    constructor(address _nfpm) UniswapV3SwapRouter02DecoderAndSanitizer(_nfpm) { }
 }

@@ -4,20 +4,20 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BoringVault} from "src/base/BoringVault.sol";
-import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {IRateProvider} from "src/interfaces/IRateProvider.sol";
-import {ILiquidityPool} from "src/interfaces/IStaking.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {AtomicSolverV3, AtomicQueue} from "src/atomic-queue/AtomicSolverV3.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
-import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
-import {AtomicSolverV3, AtomicQueue} from "src/atomic-queue/AtomicSolverV3.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { AccountantWithRateProviders } from "src/base/Roles/AccountantWithRateProviders.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { IRateProvider } from "src/interfaces/IRateProvider.sol";
+import { ILiquidityPool } from "src/interfaces/IStaking.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { AtomicSolverV3, AtomicQueue } from "src/atomic-queue/AtomicSolverV3.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { TellerWithMultiAssetSupport } from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import { AtomicSolverV3, AtomicQueue } from "src/atomic-queue/AtomicSolverV3.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract AtomicQueueTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -35,7 +35,7 @@ contract AtomicQueueTest is Test, MerkleTreeHelper {
     AccountantWithRateProviders public accountant;
     AtomicQueue public atomicQueue;
     AtomicSolverV3 public atomicSolverV3;
-    address public payoutAddress = vm.addr(7777777);
+    address public payoutAddress = vm.addr(7_777_777);
     address internal constant NATIVE = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     ERC20 internal constant NATIVE_ERC20 = ERC20(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE);
     RolesAuthority public rolesAuthority;
@@ -51,7 +51,7 @@ contract AtomicQueueTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 20341522;
+        uint256 blockNumber = 20_341_522;
         _startFork(rpcKey, blockNumber);
 
         WETH = getERC20(sourceChain, "WETH");
@@ -103,16 +103,16 @@ contract AtomicQueueTest is Test, MerkleTreeHelper {
         teller.updateAssetData(WEETH, true, true, 0);
 
         // User buys some BoringVault shares.
-        deal(address(WETH), address(user), 1_000e18);
-        deal(address(WEETH), address(user), 1_001e18);
+        deal(address(WETH), address(user), 1000e18);
+        deal(address(WEETH), address(user), 1001e18);
         address referrer = vm.addr(1337);
         vm.startPrank(user);
         WETH.approve(address(boringVault), type(uint256).max);
         WEETH.approve(address(boringVault), type(uint256).max);
         WEETH.approve(address(atomicQueue), type(uint256).max);
         boringVault.approve(address(atomicQueue), type(uint256).max);
-        teller.deposit(WETH, 1_000e18, 0, referrer);
-        teller.deposit(WEETH, 1_000e18, 0, referrer);
+        teller.deposit(WETH, 1000e18, 0, referrer);
+        teller.deposit(WEETH, 1000e18, 0, referrer);
         vm.stopPrank();
     }
 
@@ -151,7 +151,7 @@ contract AtomicQueueTest is Test, MerkleTreeHelper {
         deal(address(WEETH), user, 0);
 
         // Solver solves it.
-        deal(address(WEETH), address(this), 1_000e18);
+        deal(address(WEETH), address(this), 1000e18);
         WEETH.approve(address(atomicSolverV3), type(uint256).max);
         address[] memory users = new address[](1);
         users[0] = user;

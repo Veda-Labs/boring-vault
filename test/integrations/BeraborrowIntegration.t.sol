@@ -4,15 +4,15 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
+import { BaseTestIntegration } from "test/integrations/BaseTestIntegration.t.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
 import {
     BeraborrowDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/Protocols/BeraborrowDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { ERC4626DecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
 
-contract FullBeraborrowDecoderAndSanitizer is BeraborrowDecoderAndSanitizer {}
+contract FullBeraborrowDecoderAndSanitizer is BeraborrowDecoderAndSanitizer { }
 
 contract BeraborrowIntegrationTest is BaseTestIntegration {
     struct ExecuteWithdrawalParams {
@@ -23,7 +23,7 @@ contract BeraborrowIntegrationTest is BaseTestIntegration {
 
     function _setUpBerachain() internal {
         super.setUp();
-        _setupChain("berachain", 4312769);
+        _setupChain("berachain", 4_312_769);
 
         address beraborrowDecoder = address(new FullBeraborrowDecoderAndSanitizer());
 
@@ -32,7 +32,7 @@ contract BeraborrowIntegrationTest is BaseTestIntegration {
 
     function _setUpBerachainLater() internal {
         super.setUp();
-        _setupChain("berachain", 5393637);
+        _setupChain("berachain", 5_393_637);
 
         address beraborrowDecoder = address(new FullBeraborrowDecoderAndSanitizer());
 
@@ -90,12 +90,12 @@ contract BeraborrowIntegrationTest is BaseTestIntegration {
         DecoderCustomTypes.OpenDenVaultParams memory openParams = DecoderCustomTypes.OpenDenVaultParams(
             getAddress(sourceChain, "WETHDenManager"),
             getAddress(sourceChain, "bWETH"),
-            10000000000000000,
-            70000000000000000000,
-            73500000000000000,
+            10_000_000_000_000_000,
+            70_000_000_000_000_000_000,
+            73_500_000_000_000_000,
             0xE5A8929c08Dc8382D9E9F7D3C2f5e122e3e42315,
             0x89185DA0B3d2AA20c42F9D12fE765572e1A7bdA6,
-            73132500000000000,
+            73_132_500_000_000_000,
             14,
             ""
         );
@@ -125,16 +125,16 @@ contract BeraborrowIntegrationTest is BaseTestIntegration {
         DecoderCustomTypes.AdjustDenVaultParams memory adjustParams = DecoderCustomTypes.AdjustDenVaultParams(
             getAddress(sourceChain, "WETHDenManager"),
             getAddress(sourceChain, "bWETH"),
-            10000000000000000,
+            10_000_000_000_000_000,
             0,
-            1000000000000000,
+            1_000_000_000_000_000,
             0,
             false,
             0xE5A8929c08Dc8382D9E9F7D3C2f5e122e3e42315,
             0x89185DA0B3d2AA20c42F9D12fE765572e1A7bdA6,
             true,
             0,
-            994005000000000,
+            994_005_000_000_000,
             14,
             ""
         );
@@ -218,7 +218,7 @@ contract BeraborrowIntegrationTest is BaseTestIntegration {
             "redeemIntent(uint256,address,address)", 10e8, address(boringVault), address(boringVault)
         );
         tx_.targetData[3] = abi.encodeWithSignature(
-            "cancelWithdrawalIntent(uint256,uint256,address)", 1941935, 10e8, address(boringVault)
+            "cancelWithdrawalIntent(uint256,uint256,address)", 1_941_935, 10e8, address(boringVault)
         );
 
         tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;

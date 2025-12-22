@@ -4,21 +4,21 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
 import {
     CompoundV2DecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/Protocols/CompoundV2DecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract CompoundV2IntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -41,7 +41,7 @@ contract CompoundV2IntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("flare");
         // Setup forked environment.
         string memory rpcKey = "FLARE_RPC_URL";
-        uint256 blockNumber = 40871926; // Block where USDT0 borrows are enabled and there is still cap remaining
+        uint256 blockNumber = 40_871_926; // Block where USDT0 borrows are enabled and there is still cap remaining
 
         _startFork(rpcKey, blockNumber);
 
@@ -246,7 +246,7 @@ contract CompoundV2IntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullCompoundV2DecoderAndSanitizer is CompoundV2DecoderAndSanitizer {}
+contract FullCompoundV2DecoderAndSanitizer is CompoundV2DecoderAndSanitizer { }
 
 interface IUnitroller {
     function _setMarketBorrowCaps(address[] memory cTokens, uint256[] memory newBorrowCaps) external;

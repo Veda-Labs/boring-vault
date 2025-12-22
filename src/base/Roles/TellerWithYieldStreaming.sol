@@ -4,11 +4,11 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {TellerWithBuffer, ERC20} from "src/base/Roles/TellerWithBuffer.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {AccountantWithYieldStreaming} from "src/base/Roles/AccountantWithYieldStreaming.sol";
-import {ReentrancyGuard} from "@solmate/utils/ReentrancyGuard.sol";
+import { TellerWithBuffer, ERC20 } from "src/base/Roles/TellerWithBuffer.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { AccountantWithYieldStreaming } from "src/base/Roles/AccountantWithYieldStreaming.sol";
+import { ReentrancyGuard } from "@solmate/utils/ReentrancyGuard.sol";
 
 contract TellerWithYieldStreaming is TellerWithBuffer {
     using FixedPointMathLib for uint256;
@@ -16,7 +16,7 @@ contract TellerWithYieldStreaming is TellerWithBuffer {
 
     constructor(address _owner, address _vault, address _accountant, address _weth)
         TellerWithBuffer(_owner, _vault, _accountant, _weth)
-    {}
+    { }
 
     /**
      * @notice Allows off ramp role to withdraw from this contract.

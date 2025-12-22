@@ -4,9 +4,9 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {Auth, Authority} from "@solmate/auth/Auth.sol";
-import {CREATE3} from "@solmate/utils/CREATE3.sol";
-import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+import { Auth, Authority } from "@solmate/auth/Auth.sol";
+import { CREATE3 } from "@solmate/utils/CREATE3.sol";
+import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 
 contract Deployer is Auth {
     using Address for address;
@@ -29,7 +29,7 @@ contract Deployer is Auth {
      */
     event ContractDeployed(string name, address contractAddress, bytes32 creationCodeHash);
 
-    constructor(address _owner, Authority _auth) Auth(_owner, _auth) {}
+    constructor(address _owner, Authority _auth) Auth(_owner, _auth) { }
 
     /**
      * @notice Deploy some contract to a deterministic address.

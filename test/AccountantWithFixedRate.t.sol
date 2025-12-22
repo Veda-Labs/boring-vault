@@ -4,17 +4,17 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BoringVault} from "src/base/BoringVault.sol";
-import {AccountantWithFixedRate} from "src/base/Roles/AccountantWithFixedRate.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {IRateProvider} from "src/interfaces/IRateProvider.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {GenericRateProvider} from "src/helper/GenericRateProvider.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { AccountantWithFixedRate } from "src/base/Roles/AccountantWithFixedRate.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { IRateProvider } from "src/interfaces/IRateProvider.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { GenericRateProvider } from "src/helper/GenericRateProvider.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract AccountantWithFixedRateTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -23,7 +23,7 @@ contract AccountantWithFixedRateTest is Test, MerkleTreeHelper {
 
     BoringVault public boringVault;
     AccountantWithFixedRate public accountant;
-    address public payout_address = vm.addr(7777777);
+    address public payout_address = vm.addr(7_777_777);
     RolesAuthority public rolesAuthority;
     GenericRateProvider public mETHRateProvider;
     GenericRateProvider public ptRateProvider;
@@ -51,7 +51,7 @@ contract AccountantWithFixedRateTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 19827152;
+        uint256 blockNumber = 19_827_152;
         _startFork(rpcKey, blockNumber);
 
         WETH = getERC20(sourceChain, "WETH");
@@ -92,9 +92,9 @@ contract AccountantWithFixedRateTest is Test, MerkleTreeHelper {
         rolesAuthority.setUserRole(address(this), ADMIN_ROLE, true);
         rolesAuthority.setUserRole(address(this), UPDATE_EXCHANGE_RATE_ROLE, true);
         rolesAuthority.setUserRole(address(boringVault), BORING_VAULT_ROLE, true);
-        deal(address(WETH), address(this), 1_000e18);
-        WETH.safeApprove(address(boringVault), 1_000e18);
-        boringVault.enter(address(this), WETH, 1_000e18, address(address(this)), 1_000e18);
+        deal(address(WETH), address(this), 1000e18);
+        WETH.safeApprove(address(boringVault), 1000e18);
+        boringVault.enter(address(this), WETH, 1000e18, address(address(this)), 1000e18);
 
         accountant.setRateProviderData(EETH, true, address(0));
         accountant.setRateProviderData(WEETH, false, address(WEETH_RATE_PROVIDER));

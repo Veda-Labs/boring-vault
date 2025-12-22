@@ -4,22 +4,22 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
 import {
     BridgingDecoderAndSanitizer,
     StandardBridgeDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/BridgingDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract StandardBridgeIntegrationMantleTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -38,11 +38,11 @@ contract StandardBridgeIntegrationMantleTest is Test, MerkleTreeHelper {
     uint8 public constant BORING_VAULT_ROLE = 5;
     uint8 public constant BALANCER_VAULT_ROLE = 6;
 
-    function setUp() external {}
+    function setUp() external { }
 
     function testBridgingToMantleERC20() external {
         setSourceChainName("mainnet");
-        _createForkAndSetup("MAINNET_RPC_URL", 20279353);
+        _createForkAndSetup("MAINNET_RPC_URL", 20_279_353);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
@@ -102,7 +102,7 @@ contract StandardBridgeIntegrationMantleTest is Test, MerkleTreeHelper {
 
     function testBridgingToMantleETH() external {
         setSourceChainName("mainnet");
-        _createForkAndSetup("MAINNET_RPC_URL", 20279353);
+        _createForkAndSetup("MAINNET_RPC_URL", 20_279_353);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
@@ -147,7 +147,7 @@ contract StandardBridgeIntegrationMantleTest is Test, MerkleTreeHelper {
 
     function testBridgingFromMantleERC20() external {
         setSourceChainName("mantle");
-        _createForkAndSetup("MANTLE_RPC_URL", 68627116);
+        _createForkAndSetup("MANTLE_RPC_URL", 68_627_116);
         setAddress(false, "mantle", "boringVault", address(boringVault));
         setAddress(false, "mantle", "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
@@ -208,7 +208,7 @@ contract StandardBridgeIntegrationMantleTest is Test, MerkleTreeHelper {
 
     function testBridgingFromMantleETH() external {
         setSourceChainName("mantle");
-        _createForkAndSetup("MANTLE_RPC_URL", 68627116);
+        _createForkAndSetup("MANTLE_RPC_URL", 68_627_116);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         setAddress(false, sourceChain, "managerAddress", address(1));
@@ -263,7 +263,7 @@ contract StandardBridgeIntegrationMantleTest is Test, MerkleTreeHelper {
 
     function testProvingWithdrawalTransactionFromMantle() external {
         setSourceChainName("mainnet");
-        _createForkAndSetup("MAINNET_RPC_URL", 20671587);
+        _createForkAndSetup("MAINNET_RPC_URL", 20_671_587);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
@@ -306,7 +306,7 @@ contract StandardBridgeIntegrationMantleTest is Test, MerkleTreeHelper {
 
     function testFinalizingWithdrawalTransactionFromMantle() external {
         setSourceChainName("mainnet");
-        _createForkAndSetup("MAINNET_RPC_URL", 20671049);
+        _createForkAndSetup("MAINNET_RPC_URL", 20_671_049);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 

@@ -4,19 +4,19 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {EtherFiLiquidDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EtherFiLiquidDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
+import { EtherFiLiquidDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/EtherFiLiquidDecoderAndSanitizer.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract AaveV3IntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -39,7 +39,7 @@ contract AaveV3IntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 20227663;
+        uint256 blockNumber = 20_227_663;
 
         _startFork(rpcKey, blockNumber);
 
@@ -111,8 +111,8 @@ contract AaveV3IntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testAaveV3Integration() external {
-        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18);
-        deal(getAddress(sourceChain, "WSTETH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1000e18);
+        deal(getAddress(sourceChain, "WSTETH"), address(boringVault), 1000e18);
 
         // Approve WSTETH
         // Approve WETH
@@ -170,7 +170,7 @@ contract AaveV3IntegrationTest is Test, MerkleTreeHelper {
         targetData[2] = abi.encodeWithSignature(
             "supply(address,uint256,address,uint16)",
             getAddress(sourceChain, "WSTETH"),
-            1_000e18,
+            1000e18,
             address(boringVault),
             0
         );
@@ -190,7 +190,7 @@ contract AaveV3IntegrationTest is Test, MerkleTreeHelper {
             address(boringVault)
         );
         targetData[5] = abi.encodeWithSignature(
-            "withdraw(address,uint256,address)", getAddress(sourceChain, "WSTETH"), 1_000e18 - 1, address(boringVault)
+            "withdraw(address,uint256,address)", getAddress(sourceChain, "WSTETH"), 1000e18 - 1, address(boringVault)
         );
         targetData[6] = abi.encodeWithSignature(
             "setUserUseReserveAsCollateral(address,bool)", getAddress(sourceChain, "WSTETH"), true
@@ -220,8 +220,8 @@ contract AaveV3IntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testAaveV3IntegrationNoClaimAsset() external {
-        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18);
-        deal(getAddress(sourceChain, "WSTETH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1000e18);
+        deal(getAddress(sourceChain, "WSTETH"), address(boringVault), 1000e18);
 
         // Approve WSTETH
         // Approve WETH
@@ -274,7 +274,7 @@ contract AaveV3IntegrationTest is Test, MerkleTreeHelper {
         targetData[2] = abi.encodeWithSignature(
             "supply(address,uint256,address,uint16)",
             getAddress(sourceChain, "WSTETH"),
-            1_000e18,
+            1000e18,
             address(boringVault),
             0
         );
@@ -294,7 +294,7 @@ contract AaveV3IntegrationTest is Test, MerkleTreeHelper {
             address(boringVault)
         );
         targetData[5] = abi.encodeWithSignature(
-            "withdraw(address,uint256,address)", getAddress(sourceChain, "WSTETH"), 1_000e18 - 1, address(boringVault)
+            "withdraw(address,uint256,address)", getAddress(sourceChain, "WSTETH"), 1000e18 - 1, address(boringVault)
         );
         targetData[6] = abi.encodeWithSignature(
             "setUserUseReserveAsCollateral(address,bool)", getAddress(sourceChain, "WSTETH"), true

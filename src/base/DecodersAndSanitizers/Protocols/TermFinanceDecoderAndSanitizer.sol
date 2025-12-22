@@ -4,7 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
 
 contract TermFinanceDecoderAndSanitizer {
     //============================== TERM FINANCE ===============================
@@ -21,14 +21,14 @@ contract TermFinanceDecoderAndSanitizer {
         }
     }
 
-    function unlockOffers(bytes32[] calldata offerIds) external pure virtual returns (bytes memory addressesFound) {}
+    function unlockOffers(bytes32[] calldata offerIds) external pure virtual returns (bytes memory addressesFound) { }
 
     function revealOffers(bytes32[] calldata ids, uint256[] calldata prices, uint256[] calldata nonces)
         external
         pure
         virtual
         returns (bytes memory addressesFound)
-    {}
+    { }
 
     function redeemTermRepoTokens(address redeemer, uint256)
         external

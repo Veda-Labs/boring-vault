@@ -528,10 +528,10 @@ library TickMath {
 
     /// @dev The minimum tick that may be passed to #getSqrtPriceAtTick computed from log base 1.0001 of 2**-128
     /// @dev If ever MIN_TICK and MAX_TICK are not centered around 0, the absTick logic in getSqrtPriceAtTick cannot be used
-    int24 internal constant MIN_TICK = -887272;
+    int24 internal constant MIN_TICK = -887_272;
     /// @dev The maximum tick that may be passed to #getSqrtPriceAtTick computed from log base 1.0001 of 2**128
     /// @dev If ever MIN_TICK and MAX_TICK are not centered around 0, the absTick logic in getSqrtPriceAtTick cannot be used
-    int24 internal constant MAX_TICK = 887272;
+    int24 internal constant MAX_TICK = 887_272;
 
     /// @dev The minimum tick spacing value drawn from the range of type int16 that is greater than 0, i.e. min from the range [1, 32767]
     int24 internal constant MIN_TICK_SPACING = 1;
@@ -539,12 +539,12 @@ library TickMath {
     int24 internal constant MAX_TICK_SPACING = type(int16).max;
 
     /// @dev The minimum value that can be returned from #getSqrtPriceAtTick. Equivalent to getSqrtPriceAtTick(MIN_TICK)
-    uint160 internal constant MIN_SQRT_PRICE = 4295128739;
+    uint160 internal constant MIN_SQRT_PRICE = 4_295_128_739;
     /// @dev The maximum value that can be returned from #getSqrtPriceAtTick. Equivalent to getSqrtPriceAtTick(MAX_TICK)
-    uint160 internal constant MAX_SQRT_PRICE = 1461446703485210103287273052203988822378723970342;
+    uint160 internal constant MAX_SQRT_PRICE = 1_461_446_703_485_210_103_287_273_052_203_988_822_378_723_970_342;
     /// @dev A threshold used for optimized bounds check, equals `MAX_SQRT_PRICE - MIN_SQRT_PRICE - 1`
     uint160 internal constant MAX_SQRT_PRICE_MINUS_MIN_SQRT_PRICE_MINUS_ONE =
-        1461446703485210103287273052203988822378723970342 - 4295128739 - 1;
+        1_461_446_703_485_210_103_287_273_052_203_988_822_378_723_970_342 - 4_295_128_739 - 1;
 
     /// @notice Given a tickSpacing, compute the maximum usable tick
     function maxUsableTick(int24 tickSpacing) internal pure returns (int24) {
@@ -733,15 +733,15 @@ library TickMath {
                 log_2 := or(log_2, shl(50, f))
             }
 
-            int256 log_sqrt10001 = log_2 * 255738958999603826347141; // Q22.128 number
+            int256 log_sqrt10001 = log_2 * 255_738_958_999_603_826_347_141; // Q22.128 number
 
             // Magic number represents the ceiling of the maximum value of the error when approximating log_sqrt10001(x)
-            int24 tickLow = int24((log_sqrt10001 - 3402992956809132418596140100660247210) >> 128);
+            int24 tickLow = int24((log_sqrt10001 - 3_402_992_956_809_132_418_596_140_100_660_247_210) >> 128);
 
             // Magic number represents the minimum value of the error when approximating log_sqrt10001(x), when
             // sqrtPrice is from the range (2^-64, 2^64). This is safe as MIN_SQRT_PRICE is more than 2^-64. If MIN_SQRT_PRICE
             // is changed, this may need to be changed too
-            int24 tickHi = int24((log_sqrt10001 + 291339464771989622907027621153398088495) >> 128);
+            int24 tickHi = int24((log_sqrt10001 + 291_339_464_771_989_622_907_027_621_153_398_088_495) >> 128);
 
             tick = tickLow == tickHi ? tickLow : getSqrtPriceAtTick(tickHi) <= sqrtPriceX96 ? tickHi : tickLow;
         }
@@ -751,18 +751,18 @@ library TickMath {
 library Constants {
     /// @dev All sqrtPrice calculations are calculated as
     /// sqrtPriceX96 = floor(sqrt(A / B) * 2 ** 96) where A and B are the currency reserves
-    uint160 public constant SQRT_PRICE_1_1 = 79228162514264337593543950336;
-    uint160 public constant SQRT_PRICE_1_2 = 56022770974786139918731938227;
-    uint160 public constant SQRT_PRICE_1_4 = 39614081257132168796771975168;
-    uint160 public constant SQRT_PRICE_2_1 = 112045541949572279837463876454;
-    uint160 public constant SQRT_PRICE_4_1 = 158456325028528675187087900672;
-    uint160 public constant SQRT_PRICE_121_100 = 87150978765690771352898345369;
-    uint160 public constant SQRT_PRICE_99_100 = 78831026366734652303669917531;
-    uint160 public constant SQRT_PRICE_99_1000 = 24928559360766947368818086097;
-    uint160 public constant SQRT_PRICE_101_100 = 79623317895830914510639640423;
-    uint160 public constant SQRT_PRICE_1000_100 = 250541448375047931186413801569;
-    uint160 public constant SQRT_PRICE_1010_100 = 251791039410471229173201122529;
-    uint160 public constant SQRT_PRICE_10000_100 = 792281625142643375935439503360;
+    uint160 public constant SQRT_PRICE_1_1 = 79_228_162_514_264_337_593_543_950_336;
+    uint160 public constant SQRT_PRICE_1_2 = 56_022_770_974_786_139_918_731_938_227;
+    uint160 public constant SQRT_PRICE_1_4 = 39_614_081_257_132_168_796_771_975_168;
+    uint160 public constant SQRT_PRICE_2_1 = 112_045_541_949_572_279_837_463_876_454;
+    uint160 public constant SQRT_PRICE_4_1 = 158_456_325_028_528_675_187_087_900_672;
+    uint160 public constant SQRT_PRICE_121_100 = 87_150_978_765_690_771_352_898_345_369;
+    uint160 public constant SQRT_PRICE_99_100 = 78_831_026_366_734_652_303_669_917_531;
+    uint160 public constant SQRT_PRICE_99_1000 = 24_928_559_360_766_947_368_818_086_097;
+    uint160 public constant SQRT_PRICE_101_100 = 79_623_317_895_830_914_510_639_640_423;
+    uint160 public constant SQRT_PRICE_1000_100 = 250_541_448_375_047_931_186_413_801_569;
+    uint160 public constant SQRT_PRICE_1010_100 = 251_791_039_410_471_229_173_201_122_529;
+    uint160 public constant SQRT_PRICE_10000_100 = 792_281_625_142_643_375_935_439_503_360;
 
     uint256 constant MAX_UINT256 = type(uint256).max;
     uint128 constant MAX_UINT128 = type(uint128).max;
@@ -777,7 +777,7 @@ library Constants {
 
     uint24 constant FEE_LOW = 500;
     uint24 constant FEE_MEDIUM = 3000;
-    uint24 constant FEE_HIGH = 10000;
+    uint24 constant FEE_HIGH = 10_000;
 
     bytes constant ZERO_BYTES = new bytes(0);
 }

@@ -4,22 +4,22 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
+import { BaseDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {
     StakeStoneDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/Protocols/StakeStoneDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract StakeStoneIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -42,7 +42,7 @@ contract StakeStoneIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 22470437;
+        uint256 blockNumber = 22_470_437;
 
         _startFork(rpcKey, blockNumber);
 
@@ -112,7 +112,7 @@ contract StakeStoneIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testStakeStoneIntegration() external {
-        deal(address(boringVault), 1_000e18);
+        deal(address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
         _addStoneLeafs(leafs);
@@ -150,7 +150,7 @@ contract StakeStoneIntegrationTest is Test, MerkleTreeHelper {
         targetData[4] = abi.encodeWithSignature("cancelWithdraw(uint256)", 50e18);
 
         uint256[] memory values = new uint256[](5);
-        values[0] = 1_000e18;
+        values[0] = 1000e18;
 
         address[] memory decodersAndSanitizers = new address[](5);
         for (uint256 i = 0; i < decodersAndSanitizers.length; i++) {
@@ -170,4 +170,4 @@ contract StakeStoneIntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullStakeStoneDecoderAndSanitizer is StakeStoneDecoderAndSanitizer {}
+contract FullStakeStoneDecoderAndSanitizer is StakeStoneDecoderAndSanitizer { }

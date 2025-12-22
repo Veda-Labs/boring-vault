@@ -4,11 +4,11 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BoringVault} from "src/base/BoringVault.sol";
-import {PositionManager as EigenLayerPositionManager} from "src/interfaces/EigenLayerPositionManager.sol";
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { PositionManager as EigenLayerPositionManager } from "src/interfaces/EigenLayerPositionManager.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
 
 contract ITBEigenLayerPositionManagerTest is Test, MerkleTreeHelper {
     using stdStorage for StdStorage;
@@ -22,7 +22,7 @@ contract ITBEigenLayerPositionManagerTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 19986186;
+        uint256 blockNumber = 19_986_186;
 
         _startFork(rpcKey, blockNumber);
 
@@ -31,12 +31,12 @@ contract ITBEigenLayerPositionManagerTest is Test, MerkleTreeHelper {
 
     function testPositionManager() external {
         // Give position manager some mETH to stake.
-        deal(address(METH), address(eigenLayerPositionManager), 1_000e18);
+        deal(address(METH), address(eigenLayerPositionManager), 1000e18);
 
         vm.startPrank(address(boringVault));
 
-        eigenLayerPositionManager.approveToken(address(METH), getAddress(sourceChain, "strategyManager"), 1_000e18);
-        eigenLayerPositionManager.deposit(1_000e18, 0);
+        eigenLayerPositionManager.approveToken(address(METH), getAddress(sourceChain, "strategyManager"), 1000e18);
+        eigenLayerPositionManager.deposit(1000e18, 0);
 
         // We have successfully deposited 1_000e18 mETH into the mETH strategy.
 
@@ -50,17 +50,15 @@ contract ITBEigenLayerPositionManagerTest is Test, MerkleTreeHelper {
         eigenLayerPositionManager.delegate();
 
         // Try withdrawing everything.
-        eigenLayerPositionManager.startWithdrawal(1_000e18);
+        eigenLayerPositionManager.startWithdrawal(1000e18);
 
         // Roll forward so withdraw can be claimed.
-        vm.roll(block.number + 50400);
+        vm.roll(block.number + 50_400);
 
-        eigenLayerPositionManager.completeNextWithdrawal(1_000e18);
+        eigenLayerPositionManager.completeNextWithdrawal(1000e18);
 
         assertEq(
-            METH.balanceOf(address(eigenLayerPositionManager)),
-            1_000e18,
-            "Position Manager should have fully withdrawn."
+            METH.balanceOf(address(eigenLayerPositionManager)), 1000e18, "Position Manager should have fully withdrawn."
         );
 
         // Delegating again still fails.

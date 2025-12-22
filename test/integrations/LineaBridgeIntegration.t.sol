@@ -4,22 +4,22 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
 import {
     BridgingDecoderAndSanitizer,
     StandardBridgeDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/BridgingDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract LineaBridgeIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -38,11 +38,11 @@ contract LineaBridgeIntegrationTest is Test, MerkleTreeHelper {
     uint8 public constant BORING_VAULT_ROLE = 5;
     uint8 public constant BALANCER_VAULT_ROLE = 6;
 
-    function setUp() external {}
+    function setUp() external { }
 
     function testBridgingToLineaETH() external {
         setSourceChainName("mainnet");
-        _createForkAndSetup("MAINNET_RPC_URL", 20279353);
+        _createForkAndSetup("MAINNET_RPC_URL", 20_279_353);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
@@ -77,7 +77,7 @@ contract LineaBridgeIntegrationTest is Test, MerkleTreeHelper {
 
     function testClaimingFromLineaETH() external {
         setSourceChainName("mainnet");
-        _createForkAndSetup("MAINNET_RPC_URL", 20671268);
+        _createForkAndSetup("MAINNET_RPC_URL", 20_671_268);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
@@ -117,7 +117,7 @@ contract LineaBridgeIntegrationTest is Test, MerkleTreeHelper {
 
     function testBridgingToLineaERC20() external {
         setSourceChainName("mainnet");
-        _createForkAndSetup("MAINNET_RPC_URL", 20279353);
+        _createForkAndSetup("MAINNET_RPC_URL", 20_279_353);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
@@ -158,7 +158,7 @@ contract LineaBridgeIntegrationTest is Test, MerkleTreeHelper {
 
     function testClaimingFromLineaERC20() external {
         setSourceChainName("mainnet");
-        _createForkAndSetup("MAINNET_RPC_URL", 20671658);
+        _createForkAndSetup("MAINNET_RPC_URL", 20_671_658);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
@@ -198,7 +198,7 @@ contract LineaBridgeIntegrationTest is Test, MerkleTreeHelper {
 
     function testBridgingToMainnetETH() external {
         setSourceChainName("linea");
-        _createForkAndSetup("LINEA_RPC_URL", 9022390);
+        _createForkAndSetup("LINEA_RPC_URL", 9_022_390);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
@@ -221,7 +221,7 @@ contract LineaBridgeIntegrationTest is Test, MerkleTreeHelper {
         targets[0] = getAddress(sourceChain, "lineaMessageService");
 
         bytes[] memory targetData = new bytes[](1);
-        uint256 fee = 100000000000000;
+        uint256 fee = 100_000_000_000_000;
         targetData[0] = abi.encodeWithSignature("sendMessage(address,uint256,bytes)", boringVault, fee, hex"");
 
         uint256[] memory values = new uint256[](1);
@@ -234,7 +234,7 @@ contract LineaBridgeIntegrationTest is Test, MerkleTreeHelper {
 
     function testClaimingFromMainnetETH() external {
         setSourceChainName("linea");
-        _createForkAndSetup("LINEA_RPC_URL", 8987665);
+        _createForkAndSetup("LINEA_RPC_URL", 8_987_665);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
@@ -270,12 +270,12 @@ contract LineaBridgeIntegrationTest is Test, MerkleTreeHelper {
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
         userETHBalanceDelta = user.balance - userETHBalanceDelta;
 
-        assertEq(userETHBalanceDelta, 512720001484000, "User should have received ~0.0005 ETH");
+        assertEq(userETHBalanceDelta, 512_720_001_484_000, "User should have received ~0.0005 ETH");
     }
 
     function testBridgingToMainnetERC20() external {
         setSourceChainName("linea");
-        _createForkAndSetup("LINEA_RPC_URL", 9022390);
+        _createForkAndSetup("LINEA_RPC_URL", 9_022_390);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
@@ -318,7 +318,7 @@ contract LineaBridgeIntegrationTest is Test, MerkleTreeHelper {
 
     function testClaimingFromMainnetERC20() external {
         setSourceChainName("linea");
-        _createForkAndSetup("LINEA_RPC_URL", 8989040);
+        _createForkAndSetup("LINEA_RPC_URL", 8_989_040);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 

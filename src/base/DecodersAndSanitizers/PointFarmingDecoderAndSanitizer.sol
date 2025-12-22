@@ -4,7 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import { BaseDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {
     EigenLayerLSTStakingDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/Protocols/EigenLayerLSTStakingDecoderAndSanitizer.sol";
@@ -26,8 +26,8 @@ import {
 import {
     StandardBridgeDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/Protocols/StandardBridgeDecoderAndSanitizer.sol";
-import {KarakDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/KarakDecoderAndSanitizer.sol";
-import {OFTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OFTDecoderAndSanitizer.sol";
+import { KarakDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/KarakDecoderAndSanitizer.sol";
+import { OFTDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/OFTDecoderAndSanitizer.sol";
 import {
     SatlayerStakingDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/Protocols/SatlayerStakingDecoderAndSanitizer.sol";
@@ -57,7 +57,7 @@ contract PointFarmingDecoderAndSanitizer is
     )
         external
         pure
-        override(ZircuitSimpleStakingDecoderAndSanitizer, SatlayerStakingDecoderAndSanitizer)
+        override (ZircuitSimpleStakingDecoderAndSanitizer, SatlayerStakingDecoderAndSanitizer)
         returns (bytes memory addressesFound)
     {
         addressesFound = abi.encodePacked(_token);
@@ -70,7 +70,7 @@ contract PointFarmingDecoderAndSanitizer is
     )
         external
         pure
-        override(ZircuitSimpleStakingDecoderAndSanitizer, SatlayerStakingDecoderAndSanitizer)
+        override (ZircuitSimpleStakingDecoderAndSanitizer, SatlayerStakingDecoderAndSanitizer)
         returns (bytes memory addressesFound)
     {
         addressesFound = abi.encodePacked(_token, _for);

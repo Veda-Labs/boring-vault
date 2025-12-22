@@ -4,18 +4,18 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {BTCKDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BTCKDecoderAndSanitizer.sol";
-import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { BaseTestIntegration } from "test/integrations/BaseTestIntegration.t.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { BTCKDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/BTCKDecoderAndSanitizer.sol";
+import { BaseDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
-contract FullBTCKDecoderAndSanitizer is BTCKDecoderAndSanitizer, BaseDecoderAndSanitizer {}
+contract FullBTCKDecoderAndSanitizer is BTCKDecoderAndSanitizer, BaseDecoderAndSanitizer { }
 
 contract BTCKIntegration is BaseTestIntegration {
     function _setUpKatana() internal {
         super.setUp();
-        _setupChain("katana", 7426189);
+        _setupChain("katana", 7_426_189);
 
         address btckDecoder = address(new FullBTCKDecoderAndSanitizer());
 

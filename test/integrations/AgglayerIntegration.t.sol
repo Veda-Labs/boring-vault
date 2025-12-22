@@ -4,17 +4,17 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {AgglayerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AgglayerDecoderAndSanitizer.sol";
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { BaseTestIntegration } from "test/integrations/BaseTestIntegration.t.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { AgglayerDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/AgglayerDecoderAndSanitizer.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
-contract FullAgglayerDecoderAndSanitizer is AgglayerDecoderAndSanitizer {}
+contract FullAgglayerDecoderAndSanitizer is AgglayerDecoderAndSanitizer { }
 
 contract AgglayerIntegrationTest is BaseTestIntegration {
     function _setUpMainnet() internal {
         super.setUp();
-        _setupChain("mainnet", 22474150);
+        _setupChain("mainnet", 22_474_150);
 
         address agglayerDecoder = address(new FullAgglayerDecoderAndSanitizer());
 
@@ -222,14 +222,14 @@ contract AgglayerIntegrationTest is BaseTestIntegration {
             "claimAsset(bytes32[32],bytes32[32],uint256,bytes32,bytes32,uint32,address,uint32,address,uint256,bytes)",
             proofs0,
             proofs1,
-            uint256(8589941366),
+            uint256(8_589_941_366),
             bytes32(0x47b23a8f9e6977ccb5ebc3a11268206e473e00b55faca3e2e850ce4a97dffefd),
             bytes32(0x02c5c82f37c11d01da3a0a63035f7b8c3c8cb5aa8eb76a2139dc5bbb574989e9),
             uint32(0),
             getAddress(sourceChain, "USDT"),
             uint32(0),
             address(boringVault),
-            4000000,
+            4_000_000,
             metadata
         );
 

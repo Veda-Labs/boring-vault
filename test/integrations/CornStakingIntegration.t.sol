@@ -4,23 +4,23 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
 import {
     PointFarmingDecoderAndSanitizer,
     CornStakingDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/PointFarmingDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
 
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract CornStakingIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -43,7 +43,7 @@ contract CornStakingIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 20944634;
+        uint256 blockNumber = 20_944_634;
 
         _startFork(rpcKey, blockNumber);
 
@@ -110,7 +110,7 @@ contract CornStakingIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testCornStakingIntegrationWBTC() external {
-        deal(getAddress(sourceChain, "WBTC"), address(boringVault), 1_000e8);
+        deal(getAddress(sourceChain, "WBTC"), address(boringVault), 1000e8);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](4);
         ERC20[] memory tokens = new ERC20[](1);
@@ -136,8 +136,8 @@ contract CornStakingIntegrationTest is Test, MerkleTreeHelper {
         bytes[] memory targetData = new bytes[](3);
         targetData[0] =
             abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "cornSilo"), type(uint256).max);
-        targetData[1] = abi.encodeWithSignature("mintAndDepositBitcorn(uint256)", 1_000e8);
-        targetData[2] = abi.encodeWithSignature("redeemBitcorn(uint256)", 1_000e18);
+        targetData[1] = abi.encodeWithSignature("mintAndDepositBitcorn(uint256)", 1000e8);
+        targetData[2] = abi.encodeWithSignature("redeemBitcorn(uint256)", 1000e18);
 
         address[] memory decodersAndSanitizers = new address[](3);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
@@ -150,13 +150,13 @@ contract CornStakingIntegrationTest is Test, MerkleTreeHelper {
 
         assertEq(
             getERC20(sourceChain, "WBTC").balanceOf(address(boringVault)),
-            1_000e8,
+            1000e8,
             "BoringVault should have received 1,000 WBTC"
         );
     }
 
     function testCornStakingIntegrationGeneric() external {
-        deal(getAddress(sourceChain, "LBTC"), address(boringVault), 1_000e8);
+        deal(getAddress(sourceChain, "LBTC"), address(boringVault), 1000e8);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](4);
         ERC20[] memory tokens = new ERC20[](1);
@@ -182,9 +182,8 @@ contract CornStakingIntegrationTest is Test, MerkleTreeHelper {
         bytes[] memory targetData = new bytes[](3);
         targetData[0] =
             abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "cornSilo"), type(uint256).max);
-        targetData[1] = abi.encodeWithSignature("deposit(address,uint256)", getAddress(sourceChain, "LBTC"), 1_000e8);
-        targetData[2] =
-            abi.encodeWithSignature("redeemToken(address,uint256)", getAddress(sourceChain, "LBTC"), 1_000e8);
+        targetData[1] = abi.encodeWithSignature("deposit(address,uint256)", getAddress(sourceChain, "LBTC"), 1000e8);
+        targetData[2] = abi.encodeWithSignature("redeemToken(address,uint256)", getAddress(sourceChain, "LBTC"), 1000e8);
 
         address[] memory decodersAndSanitizers = new address[](3);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
@@ -197,7 +196,7 @@ contract CornStakingIntegrationTest is Test, MerkleTreeHelper {
 
         assertEq(
             getERC20(sourceChain, "LBTC").balanceOf(address(boringVault)),
-            1_000e8,
+            1000e8,
             "BoringVault should have received 1,000 LBTC"
         );
     }

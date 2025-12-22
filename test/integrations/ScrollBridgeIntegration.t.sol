@@ -4,22 +4,22 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
 import {
     BridgingDecoderAndSanitizer,
     StandardBridgeDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/BridgingDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper, IScrollGateway} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper, IScrollGateway } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract ScrollBridgeIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -38,11 +38,11 @@ contract ScrollBridgeIntegrationTest is Test, MerkleTreeHelper {
     uint8 public constant BORING_VAULT_ROLE = 5;
     uint8 public constant BALANCER_VAULT_ROLE = 6;
 
-    function setUp() external {}
+    function setUp() external { }
 
     function testBridgingToScrollETH() external {
         setSourceChainName("mainnet");
-        _createForkAndSetup("MAINNET_RPC_URL", 20279353);
+        _createForkAndSetup("MAINNET_RPC_URL", 20_279_353);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
@@ -79,7 +79,7 @@ contract ScrollBridgeIntegrationTest is Test, MerkleTreeHelper {
 
     function testClaimingFromScrollETH() external {
         setSourceChainName("mainnet");
-        _createForkAndSetup("MAINNET_RPC_URL", 20678804);
+        _createForkAndSetup("MAINNET_RPC_URL", 20_678_804);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
@@ -120,7 +120,7 @@ contract ScrollBridgeIntegrationTest is Test, MerkleTreeHelper {
 
     function testBridgingToScrollERC20() external {
         setSourceChainName("mainnet");
-        _createForkAndSetup("MAINNET_RPC_URL", 20279353);
+        _createForkAndSetup("MAINNET_RPC_URL", 20_279_353);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
@@ -151,7 +151,11 @@ contract ScrollBridgeIntegrationTest is Test, MerkleTreeHelper {
         targetData[0] =
             abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "scrollGatewayRouter"), 100e18);
         targetData[1] = abi.encodeWithSignature(
-            "depositERC20(address,address,uint256,uint256)", getAddress(sourceChain, "DAI"), boringVault, 100e18, 180000
+            "depositERC20(address,address,uint256,uint256)",
+            getAddress(sourceChain, "DAI"),
+            boringVault,
+            100e18,
+            180_000
         );
         uint256[] memory values = new uint256[](2);
         values[1] = 0.0001e18;
@@ -164,7 +168,7 @@ contract ScrollBridgeIntegrationTest is Test, MerkleTreeHelper {
 
     function testClaimingFromScrollERC20() external {
         setSourceChainName("mainnet");
-        _createForkAndSetup("MAINNET_RPC_URL", 20678805);
+        _createForkAndSetup("MAINNET_RPC_URL", 20_678_805);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         setAddress(false, sourceChain, "accountantAddress", rawDataDecoderAndSanitizer);
@@ -209,7 +213,7 @@ contract ScrollBridgeIntegrationTest is Test, MerkleTreeHelper {
 
     function testUSDCClaimingFromScrollERC20() external {
         setSourceChainName("mainnet");
-        _createForkAndSetup("MAINNET_RPC_URL", 22780991);
+        _createForkAndSetup("MAINNET_RPC_URL", 22_780_991);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         setAddress(false, sourceChain, "accountantAddress", rawDataDecoderAndSanitizer);
@@ -254,7 +258,7 @@ contract ScrollBridgeIntegrationTest is Test, MerkleTreeHelper {
 
     function testBridgingToMainnetETH() external {
         setSourceChainName("scroll");
-        _createForkAndSetup("SCROLL_RPC_URL", 9022390);
+        _createForkAndSetup("SCROLL_RPC_URL", 9_022_390);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
@@ -290,7 +294,7 @@ contract ScrollBridgeIntegrationTest is Test, MerkleTreeHelper {
 
     function testBridgingToMainnetERC20() external {
         setSourceChainName("scroll");
-        _createForkAndSetup("SCROLL_RPC_URL", 9022390);
+        _createForkAndSetup("SCROLL_RPC_URL", 9_022_390);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         setAddress(false, sourceChain, "accountantAddress", rawDataDecoderAndSanitizer);
@@ -339,7 +343,7 @@ contract ScrollBridgeIntegrationTest is Test, MerkleTreeHelper {
 
     function testBridgingToMainnetERC20NoApproveDAI() external {
         setSourceChainName("scroll");
-        _createForkAndSetup("SCROLL_RPC_URL", 16394981);
+        _createForkAndSetup("SCROLL_RPC_URL", 16_394_981);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         setAddress(false, sourceChain, "accountantAddress", rawDataDecoderAndSanitizer);
@@ -381,7 +385,7 @@ contract ScrollBridgeIntegrationTest is Test, MerkleTreeHelper {
 
     function testBridgingToMainnetERC20NoApproveUSDT() external {
         setSourceChainName("scroll");
-        _createForkAndSetup("SCROLL_RPC_URL", 16394981);
+        _createForkAndSetup("SCROLL_RPC_URL", 16_394_981);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         setAddress(false, sourceChain, "accountantAddress", rawDataDecoderAndSanitizer);
@@ -423,7 +427,7 @@ contract ScrollBridgeIntegrationTest is Test, MerkleTreeHelper {
 
     function testBridgingToMainnetERC20NoApproveUSDC() external {
         setSourceChainName("scroll");
-        _createForkAndSetup("SCROLL_RPC_URL", 16394981);
+        _createForkAndSetup("SCROLL_RPC_URL", 16_394_981);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         setAddress(false, sourceChain, "accountantAddress", rawDataDecoderAndSanitizer);
@@ -471,7 +475,7 @@ contract ScrollBridgeIntegrationTest is Test, MerkleTreeHelper {
 
     function testBridgingToMainnetERC20NoApproveWBTC() external {
         setSourceChainName("scroll");
-        _createForkAndSetup("SCROLL_RPC_URL", 16394981);
+        _createForkAndSetup("SCROLL_RPC_URL", 16_394_981);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         setAddress(false, sourceChain, "accountantAddress", rawDataDecoderAndSanitizer);
@@ -514,7 +518,7 @@ contract ScrollBridgeIntegrationTest is Test, MerkleTreeHelper {
 
     function testBridgingToMainnetERC20NoApproveWETH() external {
         setSourceChainName("scroll");
-        _createForkAndSetup("SCROLL_RPC_URL", 16394981);
+        _createForkAndSetup("SCROLL_RPC_URL", 16_394_981);
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         setAddress(false, sourceChain, "accountantAddress", rawDataDecoderAndSanitizer);

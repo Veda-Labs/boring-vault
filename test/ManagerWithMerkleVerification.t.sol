@@ -4,12 +4,12 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
 import {
     EtherFiLiquidDecoderAndSanitizer,
     MorphoBlueDecoderAndSanitizer,
@@ -20,18 +20,18 @@ import {
 import {
     EtherFiLiquidUsdDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/EtherFiLiquidUsdDecoderAndSanitizer.sol";
-import {LidoLiquidDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LidoLiquidDecoderAndSanitizer.sol";
-import {BalancerVault} from "src/interfaces/BalancerVault.sol";
-import {IUniswapV3Router} from "src/interfaces/IUniswapV3Router.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
+import { LidoLiquidDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/LidoLiquidDecoderAndSanitizer.sol";
+import { BalancerVault } from "src/interfaces/BalancerVault.sol";
+import { IUniswapV3Router } from "src/interfaces/IUniswapV3Router.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
 import {
     PointFarmingDecoderAndSanitizer,
     EigenLayerLSTStakingDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/PointFarmingDecoderAndSanitizer.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract ManagerWithMerkleVerificationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -60,7 +60,7 @@ contract ManagerWithMerkleVerificationTest is Test, MerkleTreeHelper {
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
         // uint256 blockNumber = 19369928;
-        uint256 blockNumber = 19826676;
+        uint256 blockNumber = 19_826_676;
         // uint256 blockNumber = 20036275;
 
         _startFork(rpcKey, blockNumber);
@@ -219,7 +219,7 @@ contract ManagerWithMerkleVerificationTest is Test, MerkleTreeHelper {
         decodersAndSanitizers = new address[](1);
 
         targets[0] = address(USDC);
-        targetData[0] = abi.encodeWithSelector(ERC20.approve.selector, address(this), 1_000);
+        targetData[0] = abi.encodeWithSelector(ERC20.approve.selector, address(this), 1000);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
 
         vm.expectRevert(
@@ -277,7 +277,7 @@ contract ManagerWithMerkleVerificationTest is Test, MerkleTreeHelper {
     }
 
     function testPlatformMintingSharesRevert() external {
-        deal(address(boringVault), 1_000e18);
+        deal(address(boringVault), 1000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](2);
         leafs[0] =

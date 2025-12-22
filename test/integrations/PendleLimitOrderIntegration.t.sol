@@ -4,22 +4,22 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
 import {
     EtherFiLiquidDecoderAndSanitizer,
     PendleRouterDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/EtherFiLiquidDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract PendleLimitOrderIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -39,7 +39,7 @@ contract PendleLimitOrderIntegrationTest is Test, MerkleTreeHelper {
     uint8 public constant BALANCER_VAULT_ROLE = 6;
 
     function setUp() external {
-        uint256 blockNumber = 20421105;
+        uint256 blockNumber = 20_421_105;
 
         _setup(blockNumber);
     }
@@ -141,22 +141,22 @@ contract PendleLimitOrderIntegrationTest is Test, MerkleTreeHelper {
         );
         DecoderCustomTypes.FillOrderParams[] memory orders = new DecoderCustomTypes.FillOrderParams[](1);
         orders[0].order = DecoderCustomTypes.Order({
-            salt: 8373482081934227929253689972963323292519685394038939188831665232063109942581,
-            expiry: 1723946188,
+            salt: 8_373_482_081_934_227_929_253_689_972_963_323_292_519_685_394_038_939_188_831_665_232_063_109_942_581,
+            expiry: 1_723_946_188,
             nonce: 0,
             orderType: DecoderCustomTypes.OrderType.SY_FOR_YT,
             token: 0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee,
             YT: getAddress(sourceChain, "pendleEethYtDecember"),
             maker: 0x9fb1750Da6266a05601855bb62767eBC742707B1,
             receiver: 0x9fb1750Da6266a05601855bb62767eBC742707B1,
-            makingAmount: 16158236360418398872,
-            lnImpliedRate: 67658648473814805,
-            failSafeRate: 900000000000000000,
+            makingAmount: 16_158_236_360_418_398_872,
+            lnImpliedRate: 67_658_648_473_814_805,
+            failSafeRate: 900_000_000_000_000_000,
             permit: hex""
         });
         orders[0].signature =
             hex"89c53ba1ee3f7edd13d82cf5de29bbf0fd9ff3a48de32ec3651bd89f0196bbed0fcf94c12d1853cf935cac31c6900159bf157e29ad17d3e2a04dedf1247849d91c";
-        orders[0].makingAmount = 1687467958106575287;
+        orders[0].makingAmount = 1_687_467_958_106_575_287;
         targetData[1] = abi.encodeWithSignature(
             "fill(((uint256,uint256,uint256,uint8,address,address,address,address,uint256,uint256,uint256,bytes),bytes,uint256)[],address,uint256,bytes,bytes)",
             orders,
@@ -205,29 +205,29 @@ contract PendleLimitOrderIntegrationTest is Test, MerkleTreeHelper {
             "approve(address,uint256)", getAddress(sourceChain, "pendleRouter"), type(uint256).max
         );
         DecoderCustomTypes.ApproxParams memory approxParams = DecoderCustomTypes.ApproxParams(
-            21114594311676358609, 107181111776638002478, 42229188623352717218, 30, 11629871223418
+            21_114_594_311_676_358_609, 107_181_111_776_638_002_478, 42_229_188_623_352_717_218, 30, 11_629_871_223_418
         );
         DecoderCustomTypes.LimitOrderData memory limitOrderData;
         limitOrderData.limitRouter = getAddress(sourceChain, "pendleLimitOrderRouter");
         limitOrderData.epsSkipMarket = 0;
         limitOrderData.flashFills = new DecoderCustomTypes.FillOrderParams[](1);
         limitOrderData.flashFills[0].order = DecoderCustomTypes.Order({
-            salt: 8373482081934227929253689972963323292519685394038939188831665232063109942581,
-            expiry: 1723946188,
+            salt: 8_373_482_081_934_227_929_253_689_972_963_323_292_519_685_394_038_939_188_831_665_232_063_109_942_581,
+            expiry: 1_723_946_188,
             nonce: 0,
             orderType: DecoderCustomTypes.OrderType.SY_FOR_YT,
             token: 0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee,
             YT: getAddress(sourceChain, "pendleEethYtDecember"),
             maker: 0x9fb1750Da6266a05601855bb62767eBC742707B1,
             receiver: 0x9fb1750Da6266a05601855bb62767eBC742707B1,
-            makingAmount: 16158236360418398872,
-            lnImpliedRate: 67658648473814805,
-            failSafeRate: 900000000000000000,
+            makingAmount: 16_158_236_360_418_398_872,
+            lnImpliedRate: 67_658_648_473_814_805,
+            failSafeRate: 900_000_000_000_000_000,
             permit: hex""
         });
         limitOrderData.flashFills[0].signature =
             hex"89c53ba1ee3f7edd13d82cf5de29bbf0fd9ff3a48de32ec3651bd89f0196bbed0fcf94c12d1853cf935cac31c6900159bf157e29ad17d3e2a04dedf1247849d91c";
-        limitOrderData.flashFills[0].makingAmount = 1687467958106575287;
+        limitOrderData.flashFills[0].makingAmount = 1_687_467_958_106_575_287;
         targetData[1] = abi.encodeWithSignature(
             "swapExactSyForPt(address,address,uint256,uint256,(uint256,uint256,uint256,uint256,uint256),(address,uint256,((uint256,uint256,uint256,uint8,address,address,address,address,uint256,uint256,uint256,bytes),bytes,uint256)[],((uint256,uint256,uint256,uint8,address,address,address,address,uint256,uint256,uint256,bytes),bytes,uint256)[],bytes))",
             address(boringVault),
@@ -251,7 +251,7 @@ contract PendleLimitOrderIntegrationTest is Test, MerkleTreeHelper {
 
     function testPendleLimitOrdersSwapExactYtForSy() external {
         // Call _setup again so a more recent block number can be used.
-        uint256 blockNumber = 20484884;
+        uint256 blockNumber = 20_484_884;
         _setup(blockNumber);
 
         // Mint Super Symbiotic SY to Boring Vault
@@ -282,39 +282,39 @@ contract PendleLimitOrderIntegrationTest is Test, MerkleTreeHelper {
         limitOrderData.epsSkipMarket = 0;
         limitOrderData.normalFills = new DecoderCustomTypes.FillOrderParams[](2);
         limitOrderData.normalFills[0].order = DecoderCustomTypes.Order({
-            salt: 8047857094735320382736058386853120644420157220700791925551291130259777545960,
-            expiry: 1723136926,
+            salt: 8_047_857_094_735_320_382_736_058_386_853_120_644_420_157_220_700_791_925_551_291_130_259_777_545_960,
+            expiry: 1_723_136_926,
             nonce: 0,
             orderType: DecoderCustomTypes.OrderType.SY_FOR_YT,
             token: 0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee,
             YT: getAddress(sourceChain, "pendleEethYtDecember"),
             maker: 0xA14ad7F4C766BD5ca9b79A4A81873b8bCdF57C86,
             receiver: 0xA14ad7F4C766BD5ca9b79A4A81873b8bCdF57C86,
-            makingAmount: 120000000000000000,
-            lnImpliedRate: 73250461739592673,
-            failSafeRate: 900000000000000000,
+            makingAmount: 120_000_000_000_000_000,
+            lnImpliedRate: 73_250_461_739_592_673,
+            failSafeRate: 900_000_000_000_000_000,
             permit: hex""
         });
         limitOrderData.normalFills[0].signature =
             hex"708f7929a84c358f0a1dfae34c8d18da50b1b926ac20cf5f57104609fae0f5dc5bb6d1e6415e17c52b70440fc3c79fb2854e8e1b0d658826d81150cbdf5896f81b";
-        limitOrderData.normalFills[0].makingAmount = 120000000000000000;
+        limitOrderData.normalFills[0].makingAmount = 120_000_000_000_000_000;
         limitOrderData.normalFills[1].order = DecoderCustomTypes.Order({
-            salt: 8373482081934227929253689972963323292519685394038939188831665232063109942581,
-            expiry: 1723946188,
+            salt: 8_373_482_081_934_227_929_253_689_972_963_323_292_519_685_394_038_939_188_831_665_232_063_109_942_581,
+            expiry: 1_723_946_188,
             nonce: 0,
             orderType: DecoderCustomTypes.OrderType.SY_FOR_YT,
             token: 0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee,
             YT: getAddress(sourceChain, "pendleEethYtDecember"),
             maker: 0x9fb1750Da6266a05601855bb62767eBC742707B1,
             receiver: 0x9fb1750Da6266a05601855bb62767eBC742707B1,
-            makingAmount: 16158236360418398872,
-            lnImpliedRate: 67658648473814805,
-            failSafeRate: 900000000000000000,
+            makingAmount: 16_158_236_360_418_398_872,
+            lnImpliedRate: 67_658_648_473_814_805,
+            failSafeRate: 900_000_000_000_000_000,
             permit: hex""
         });
         limitOrderData.normalFills[1].signature =
             hex"89c53ba1ee3f7edd13d82cf5de29bbf0fd9ff3a48de32ec3651bd89f0196bbed0fcf94c12d1853cf935cac31c6900159bf157e29ad17d3e2a04dedf1247849d91c";
-        limitOrderData.normalFills[1].makingAmount = 834128382588750478;
+        limitOrderData.normalFills[1].makingAmount = 834_128_382_588_750_478;
         targetData[1] = abi.encodeWithSignature(
             "swapExactYtForSy(address,address,uint256,uint256,(address,uint256,((uint256,uint256,uint256,uint8,address,address,address,address,uint256,uint256,uint256,bytes),bytes,uint256)[],((uint256,uint256,uint256,uint8,address,address,address,address,uint256,uint256,uint256,bytes),bytes,uint256)[],bytes))",
             address(boringVault),
@@ -360,7 +360,7 @@ contract PendleLimitOrderIntegrationTest is Test, MerkleTreeHelper {
             "approve(address,uint256)", getAddress(sourceChain, "pendleRouter"), type(uint256).max
         );
         DecoderCustomTypes.ApproxParams memory approxParams = DecoderCustomTypes.ApproxParams(
-            21114594311676358609, 107181111776638002478, 42229188623352717218, 30, 11629871223418
+            21_114_594_311_676_358_609, 107_181_111_776_638_002_478, 42_229_188_623_352_717_218, 30, 11_629_871_223_418
         );
         DecoderCustomTypes.LimitOrderData memory limitOrderData;
         limitOrderData.limitRouter = getAddress(sourceChain, "pendleLimitOrderRouter");
@@ -368,22 +368,22 @@ contract PendleLimitOrderIntegrationTest is Test, MerkleTreeHelper {
         limitOrderData.optData = hex"00";
         limitOrderData.flashFills = new DecoderCustomTypes.FillOrderParams[](1);
         limitOrderData.flashFills[0].order = DecoderCustomTypes.Order({
-            salt: 8373482081934227929253689972963323292519685394038939188831665232063109942581,
-            expiry: 1723946188,
+            salt: 8_373_482_081_934_227_929_253_689_972_963_323_292_519_685_394_038_939_188_831_665_232_063_109_942_581,
+            expiry: 1_723_946_188,
             nonce: 0,
             orderType: DecoderCustomTypes.OrderType.SY_FOR_YT,
             token: 0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee,
             YT: getAddress(sourceChain, "pendleEethYtDecember"),
             maker: 0x9fb1750Da6266a05601855bb62767eBC742707B1,
             receiver: 0x9fb1750Da6266a05601855bb62767eBC742707B1,
-            makingAmount: 16158236360418398872,
-            lnImpliedRate: 67658648473814805,
-            failSafeRate: 900000000000000000,
+            makingAmount: 16_158_236_360_418_398_872,
+            lnImpliedRate: 67_658_648_473_814_805,
+            failSafeRate: 900_000_000_000_000_000,
             permit: hex""
         });
         limitOrderData.flashFills[0].signature =
             hex"89c53ba1ee3f7edd13d82cf5de29bbf0fd9ff3a48de32ec3651bd89f0196bbed0fcf94c12d1853cf935cac31c6900159bf157e29ad17d3e2a04dedf1247849d91c";
-        limitOrderData.flashFills[0].makingAmount = 1687467958106575287;
+        limitOrderData.flashFills[0].makingAmount = 1_687_467_958_106_575_287;
         targetData[1] = abi.encodeWithSignature(
             "swapExactSyForPt(address,address,uint256,uint256,(uint256,uint256,uint256,uint256,uint256),(address,uint256,((uint256,uint256,uint256,uint8,address,address,address,address,uint256,uint256,uint256,bytes),bytes,uint256)[],((uint256,uint256,uint256,uint8,address,address,address,address,uint256,uint256,uint256,bytes),bytes,uint256)[],bytes))",
             address(boringVault),
@@ -413,39 +413,39 @@ contract PendleLimitOrderIntegrationTest is Test, MerkleTreeHelper {
         limitOrderData.optData = hex"";
         limitOrderData.flashFills = new DecoderCustomTypes.FillOrderParams[](2);
         limitOrderData.flashFills[0].order = DecoderCustomTypes.Order({
-            salt: 8373482081934227929253689972963323292519685394038939188831665232063109942581,
-            expiry: 1723946188,
+            salt: 8_373_482_081_934_227_929_253_689_972_963_323_292_519_685_394_038_939_188_831_665_232_063_109_942_581,
+            expiry: 1_723_946_188,
             nonce: 0,
             orderType: DecoderCustomTypes.OrderType.SY_FOR_YT,
             token: 0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee,
             YT: getAddress(sourceChain, "pendleEethYtDecember"),
             maker: 0x9fb1750Da6266a05601855bb62767eBC742707B1,
             receiver: 0x9fb1750Da6266a05601855bb62767eBC742707B1,
-            makingAmount: 16158236360418398872,
-            lnImpliedRate: 67658648473814805,
-            failSafeRate: 900000000000000000,
+            makingAmount: 16_158_236_360_418_398_872,
+            lnImpliedRate: 67_658_648_473_814_805,
+            failSafeRate: 900_000_000_000_000_000,
             permit: hex""
         });
         limitOrderData.flashFills[0].signature =
             hex"89c53ba1ee3f7edd13d82cf5de29bbf0fd9ff3a48de32ec3651bd89f0196bbed0fcf94c12d1853cf935cac31c6900159bf157e29ad17d3e2a04dedf1247849d91c";
-        limitOrderData.flashFills[0].makingAmount = 1687467958106575287;
+        limitOrderData.flashFills[0].makingAmount = 1_687_467_958_106_575_287;
         limitOrderData.flashFills[1].order = DecoderCustomTypes.Order({
-            salt: 8373482081934227929253689972963323292519685394038939188831665232063109942581,
-            expiry: 1723946188,
+            salt: 8_373_482_081_934_227_929_253_689_972_963_323_292_519_685_394_038_939_188_831_665_232_063_109_942_581,
+            expiry: 1_723_946_188,
             nonce: 0,
             orderType: DecoderCustomTypes.OrderType.SY_FOR_YT,
             token: 0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee,
             YT: getAddress(sourceChain, "pendle_weETHs_yt_08_28_24"),
             maker: 0x9fb1750Da6266a05601855bb62767eBC742707B1,
             receiver: 0x9fb1750Da6266a05601855bb62767eBC742707B1,
-            makingAmount: 16158236360418398872,
-            lnImpliedRate: 67658648473814805,
-            failSafeRate: 900000000000000000,
+            makingAmount: 16_158_236_360_418_398_872,
+            lnImpliedRate: 67_658_648_473_814_805,
+            failSafeRate: 900_000_000_000_000_000,
             permit: hex""
         });
         limitOrderData.flashFills[1].signature =
             hex"89c53ba1ee3f7edd13d82cf5de29bbf0fd9ff3a48de32ec3651bd89f0196bbed0fcf94c12d1853cf935cac31c6900159bf157e29ad17d3e2a04dedf1247849d91c";
-        limitOrderData.flashFills[1].makingAmount = 1687467958106575287;
+        limitOrderData.flashFills[1].makingAmount = 1_687_467_958_106_575_287;
 
         targetData[1] = abi.encodeWithSignature(
             "swapExactSyForPt(address,address,uint256,uint256,(uint256,uint256,uint256,uint256,uint256),(address,uint256,((uint256,uint256,uint256,uint8,address,address,address,address,uint256,uint256,uint256,bytes),bytes,uint256)[],((uint256,uint256,uint256,uint8,address,address,address,address,uint256,uint256,uint256,bytes),bytes,uint256)[],bytes))",
@@ -495,22 +495,22 @@ contract PendleLimitOrderIntegrationTest is Test, MerkleTreeHelper {
         );
         DecoderCustomTypes.FillOrderParams[] memory orders = new DecoderCustomTypes.FillOrderParams[](1);
         orders[0].order = DecoderCustomTypes.Order({
-            salt: 8373482081934227929253689972963323292519685394038939188831665232063109942581,
-            expiry: 1723946188,
+            salt: 8_373_482_081_934_227_929_253_689_972_963_323_292_519_685_394_038_939_188_831_665_232_063_109_942_581,
+            expiry: 1_723_946_188,
             nonce: 0,
             orderType: DecoderCustomTypes.OrderType.SY_FOR_YT,
             token: 0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee,
             YT: getAddress(sourceChain, "pendleEethYtDecember"),
             maker: 0x9fb1750Da6266a05601855bb62767eBC742707B1,
             receiver: 0x9fb1750Da6266a05601855bb62767eBC742707B1,
-            makingAmount: 16158236360418398872,
-            lnImpliedRate: 67658648473814805,
-            failSafeRate: 900000000000000000,
+            makingAmount: 16_158_236_360_418_398_872,
+            lnImpliedRate: 67_658_648_473_814_805,
+            failSafeRate: 900_000_000_000_000_000,
             permit: hex""
         });
         orders[0].signature =
             hex"89c53ba1ee3f7edd13d82cf5de29bbf0fd9ff3a48de32ec3651bd89f0196bbed0fcf94c12d1853cf935cac31c6900159bf157e29ad17d3e2a04dedf1247849d91c";
-        orders[0].makingAmount = 1687467958106575287;
+        orders[0].makingAmount = 1_687_467_958_106_575_287;
         targetData[1] = abi.encodeWithSignature(
             "fill(((uint256,uint256,uint256,uint8,address,address,address,address,uint256,uint256,uint256,bytes),bytes,uint256)[],address,uint256,bytes,bytes)",
             orders,
@@ -555,39 +555,39 @@ contract PendleLimitOrderIntegrationTest is Test, MerkleTreeHelper {
 
         orders = new DecoderCustomTypes.FillOrderParams[](2);
         orders[0].order = DecoderCustomTypes.Order({
-            salt: 8373482081934227929253689972963323292519685394038939188831665232063109942581,
-            expiry: 1723946188,
+            salt: 8_373_482_081_934_227_929_253_689_972_963_323_292_519_685_394_038_939_188_831_665_232_063_109_942_581,
+            expiry: 1_723_946_188,
             nonce: 0,
             orderType: DecoderCustomTypes.OrderType.SY_FOR_YT,
             token: 0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee,
             YT: getAddress(sourceChain, "pendleEethYtDecember"),
             maker: 0x9fb1750Da6266a05601855bb62767eBC742707B1,
             receiver: 0x9fb1750Da6266a05601855bb62767eBC742707B1,
-            makingAmount: 16158236360418398872,
-            lnImpliedRate: 67658648473814805,
-            failSafeRate: 900000000000000000,
+            makingAmount: 16_158_236_360_418_398_872,
+            lnImpliedRate: 67_658_648_473_814_805,
+            failSafeRate: 900_000_000_000_000_000,
             permit: hex""
         });
         orders[0].signature =
             hex"89c53ba1ee3f7edd13d82cf5de29bbf0fd9ff3a48de32ec3651bd89f0196bbed0fcf94c12d1853cf935cac31c6900159bf157e29ad17d3e2a04dedf1247849d91c";
-        orders[0].makingAmount = 1687467958106575287;
+        orders[0].makingAmount = 1_687_467_958_106_575_287;
         orders[1].order = DecoderCustomTypes.Order({
-            salt: 8373482081934227929253689972963323292519685394038939188831665232063109942581,
-            expiry: 1723946188,
+            salt: 8_373_482_081_934_227_929_253_689_972_963_323_292_519_685_394_038_939_188_831_665_232_063_109_942_581,
+            expiry: 1_723_946_188,
             nonce: 0,
             orderType: DecoderCustomTypes.OrderType.SY_FOR_YT,
             token: 0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee,
             YT: getAddress(sourceChain, "pendle_weETHs_yt_08_28_24"),
             maker: 0x9fb1750Da6266a05601855bb62767eBC742707B1,
             receiver: 0x9fb1750Da6266a05601855bb62767eBC742707B1,
-            makingAmount: 16158236360418398872,
-            lnImpliedRate: 67658648473814805,
-            failSafeRate: 900000000000000000,
+            makingAmount: 16_158_236_360_418_398_872,
+            lnImpliedRate: 67_658_648_473_814_805,
+            failSafeRate: 900_000_000_000_000_000,
             permit: hex""
         });
         orders[1].signature =
             hex"89c53ba1ee3f7edd13d82cf5de29bbf0fd9ff3a48de32ec3651bd89f0196bbed0fcf94c12d1853cf935cac31c6900159bf157e29ad17d3e2a04dedf1247849d91c";
-        orders[1].makingAmount = 1687467958106575287;
+        orders[1].makingAmount = 1_687_467_958_106_575_287;
         targetData[1] = abi.encodeWithSignature(
             "fill(((uint256,uint256,uint256,uint8,address,address,address,address,uint256,uint256,uint256,bytes),bytes,uint256)[],address,uint256,bytes,bytes)",
             orders,

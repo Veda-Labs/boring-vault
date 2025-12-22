@@ -4,7 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {ERC20} from "@solmate/tokens/ERC20.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
 
 contract ArbitrumAddresses {
     // Liquid Ecosystem
@@ -19,7 +19,7 @@ contract ArbitrumAddresses {
     address public uniV2Router = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
     address public uniswapV3NonFungiblePositionManager = 0xC36442b4a4522E871399CD717aBDD847Ab11FE88;
     address public ccipRouter = 0x141fa059441E0ca23ce184B6A78bafD2A517DdE8;
-    uint64 public mainnetChainSelector = 5009297550715157269;
+    uint64 public mainnetChainSelector = 5_009_297_550_715_157_269;
 
     ERC20 public USDC = ERC20(0xaf88d065e77c8cC2239327C5EDb3A432268e5831);
     ERC20 public USDCe = ERC20(0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8);

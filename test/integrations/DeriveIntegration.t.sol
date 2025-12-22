@@ -4,20 +4,20 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {DeriveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/DeriveDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
-import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { BaseTestIntegration } from "test/integrations/BaseTestIntegration.t.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { DeriveDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/DeriveDecoderAndSanitizer.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { ERC4626DecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
+import { CurveDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
-contract FullDeriveDecoderAndSanitizer is DeriveDecoderAndSanitizer {}
+contract FullDeriveDecoderAndSanitizer is DeriveDecoderAndSanitizer { }
 
 contract DeriveIntegrationTest is BaseTestIntegration {
     function _setUpMainnet() internal {
         super.setUp();
-        _setupChain("mainnet", 22124456);
+        _setupChain("mainnet", 22_124_456);
 
         address deriveDecoder = address(new FullDeriveDecoderAndSanitizer());
 
@@ -26,7 +26,7 @@ contract DeriveIntegrationTest is BaseTestIntegration {
 
     function _setUpDerive() internal {
         super.setUp();
-        _setupChain("derive", 21711962);
+        _setupChain("derive", 21_711_962);
 
         address deriveDecoder = address(new FullDeriveDecoderAndSanitizer());
 
@@ -89,7 +89,7 @@ contract DeriveIntegrationTest is BaseTestIntegration {
             "bridge(address,uint256,uint256,address,bytes,bytes)",
             address(boringVault),
             234,
-            2000000,
+            2_000_000,
             0x457379de638CAFeB1759a22457fe893b288E2e89, //connector (https://github.com/0xdomrom/socket-plugs/blob/main/deployments/superbridge/prod_lyra_addresses.json#L99)
             extraDepositData,
             ""
@@ -134,7 +134,7 @@ contract DeriveIntegrationTest is BaseTestIntegration {
             "bridge(address,uint256,uint256,address,bytes,bytes)",
             address(boringVault),
             234,
-            2000000,
+            2_000_000,
             0x5E72430EC945CCc183c34e2860FFC2b5bac712c2, //connector (https://github.com/0xdomrom/socket-plugs/blob/main/deployments/supertoken/prod_lyra-tsa_addresses.json#L178)
             extraDepositData,
             ""
@@ -312,7 +312,7 @@ contract DeriveIntegrationTest is BaseTestIntegration {
             "bridge(address,uint256,uint256,address,bytes,bytes)",
             address(boringVault),
             234,
-            2000000,
+            2_000_000,
             0x52CB41109b637F03B81b3FD6Dce4E3948b2F0923,
             extra,
             ""

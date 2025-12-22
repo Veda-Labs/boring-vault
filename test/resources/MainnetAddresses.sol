@@ -4,7 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {ERC20} from "@solmate/tokens/ERC20.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
 
 contract MainnetAddresses {
     // Liquid Ecosystem
@@ -579,7 +579,7 @@ contract MainnetAddresses {
     address public krsETH = 0x9a23e79a8E6D77F940F2C30eb3d9282Af2E4036c;
     // CCIP token transfers.
     address public ccipRouter = 0x80226fc0Ee2b096224EeAc085Bb9a8cba1146f7D;
-    uint64 public arbitrumDestinationChainId = 4949039107694359620;
+    uint64 public arbitrumDestinationChainId = 4_949_039_107_694_359_620;
 
     // PancakeSwap V3
     address public pancakeSwapV3NonFungiblePositionManager = 0x46A15B0b27311cedF172AB29E4f4766fbE7F4364;
@@ -595,7 +595,7 @@ contract MainnetAddresses {
 
     // LayerZero
     address public EtherFiOFTAdapter = 0xFE7fe01F8B9A76803aF3750144C2715D9bcf7D0D;
-    uint32 public baseEndpointId = 30184;
+    uint32 public baseEndpointId = 30_184;
 
     // Term Finance
     address public termAuctionOfferLocker = 0xa557a6099d1a85d7569EA4B6d8ad59a94a8162CC;

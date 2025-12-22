@@ -4,10 +4,10 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {Auth, Authority} from "@solmate/auth/Auth.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { Auth, Authority } from "@solmate/auth/Auth.sol";
 
 abstract contract UManager is Auth {
     using FixedPointMathLib for uint256;

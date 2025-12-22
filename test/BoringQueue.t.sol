@@ -4,20 +4,20 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BoringVault} from "src/base/BoringVault.sol";
-import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {IRateProvider} from "src/interfaces/IRateProvider.sol";
-import {ILiquidityPool} from "src/interfaces/IStaking.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {AtomicSolverV3, AtomicQueue} from "src/atomic-queue/AtomicSolverV3.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
-import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
-import {BoringOnChainQueue} from "src/base/Roles/BoringQueue/BoringOnChainQueue.sol";
-import {BoringSolver} from "src/base/Roles/BoringQueue/BoringSolver.sol";
-import {Test, stdStorage, StdStorage, stdError, console, Vm} from "@forge-std/Test.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { AccountantWithRateProviders } from "src/base/Roles/AccountantWithRateProviders.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { IRateProvider } from "src/interfaces/IRateProvider.sol";
+import { ILiquidityPool } from "src/interfaces/IStaking.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { AtomicSolverV3, AtomicQueue } from "src/atomic-queue/AtomicSolverV3.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { TellerWithMultiAssetSupport } from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import { BoringOnChainQueue } from "src/base/Roles/BoringQueue/BoringOnChainQueue.sol";
+import { BoringSolver } from "src/base/Roles/BoringQueue/BoringSolver.sol";
+import { Test, stdStorage, StdStorage, stdError, console, Vm } from "@forge-std/Test.sol";
 
 contract BoringQueueTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -57,7 +57,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 20842935;
+        uint256 blockNumber = 20_842_935;
         _startFork(rpcKey, blockNumber);
 
         WETH = getERC20(sourceChain, "WETH");
@@ -102,7 +102,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
         vm.stopPrank();
 
         // Give test user some Liquid ETH shares.
-        deal(liquidEth, testUser, 1_000e18);
+        deal(liquidEth, testUser, 1000e18);
 
         // Make sure liquidEth has wETH.
         deal(address(WETH), liquidEth, 10_000e18);
@@ -121,7 +121,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
 
     // User interacts with atomic queue directly to "buy" shares
     function testP2PSolve(uint128 amountOfShares, uint16 discount) external {
-        amountOfShares = uint128(bound(amountOfShares, 0.01e18, 1_000e18));
+        amountOfShares = uint128(bound(amountOfShares, 0.01e18, 1000e18));
         discount = uint16(bound(discount, 1, 100));
         uint24 secondsToDeadline = 1 days;
         BoringOnChainQueue.OnChainWithdraw[] memory requests = new BoringOnChainQueue.OnChainWithdraw[](1);
@@ -146,7 +146,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
     }
 
     function testUsingPermitToCreateRequest(uint128 amountOfShares, uint16 discount) external {
-        amountOfShares = uint128(bound(amountOfShares, 0.01e18, 1_000e18));
+        amountOfShares = uint128(bound(amountOfShares, 0.01e18, 1000e18));
         discount = uint16(bound(discount, 1, 100));
         uint24 secondsToDeadline = 1 days;
 
@@ -183,7 +183,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
     }
 
     function testUsingPermitToCreateRequestWithFrontRunning(uint128 amountOfShares, uint16 discount) external {
-        amountOfShares = uint128(bound(amountOfShares, 0.01e18, 1_000e18));
+        amountOfShares = uint128(bound(amountOfShares, 0.01e18, 1000e18));
         discount = uint16(bound(discount, 1, 100));
         uint24 secondsToDeadline = 1 days;
 
@@ -223,7 +223,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
     }
 
     function testRedeemSolve(uint128 amountOfShares, uint16 discount) external {
-        amountOfShares = uint128(bound(amountOfShares, 0.01e18, 1_000e18));
+        amountOfShares = uint128(bound(amountOfShares, 0.01e18, 1000e18));
         discount = uint16(bound(discount, 1, 100));
         uint24 secondsToDeadline = 1 days;
         BoringOnChainQueue.OnChainWithdraw[] memory requests = new BoringOnChainQueue.OnChainWithdraw[](1);
@@ -242,7 +242,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
     }
 
     function testRedeemSolveCoverDeficit() external {
-        uint128 amountOfShares = 1_000e18;
+        uint128 amountOfShares = 1000e18;
         uint16 sharePriceBpsDecrease = 2;
         uint16 discount = 1;
         uint24 secondsToDeadline = 1 days;
@@ -258,7 +258,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
 
         skip(3 days);
 
-        uint256 expectedDeficit = 103525308149087000; // Pulled from logs of revert.
+        uint256 expectedDeficit = 103_525_308_149_087_000; // Pulled from logs of revert.
         vm.expectRevert(
             abi.encodeWithSelector(BoringSolver.BoringSolver___CannotCoverDeficit.selector, expectedDeficit)
         );
@@ -275,7 +275,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
     }
 
     function testRedeemSolveExcessToSolver() external {
-        uint128 amountOfShares = 1_000e18;
+        uint128 amountOfShares = 1000e18;
         uint16 sharePriceBpsIncrease = 2;
         uint16 discount = 1;
         uint24 secondsToDeadline = 1 days;
@@ -298,7 +298,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
 
     function testRedeemSolveExcessToVault() external {
         _deployExcessToVaultSolver();
-        uint128 amountOfShares = 1_000e18;
+        uint128 amountOfShares = 1000e18;
         uint16 sharePriceBpsIncrease = 2;
         uint16 discount = 1;
         uint24 secondsToDeadline = 1 days;
@@ -322,7 +322,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
         uint256 userDelta = userBalanceAfter - userBalanceBefore;
         console.log("Vault delta: ", vaultDelta);
         console.log("User delta: ", userDelta);
-        uint256 amountBulkWithdrawn = 1035460132107172293000; // from test trace
+        uint256 amountBulkWithdrawn = 1_035_460_132_107_172_293_000; // from test trace
         console.log("Amount bulk withdrawn: ", amountBulkWithdrawn);
         uint256 vaultExcess = amountBulkWithdrawn - userDelta;
         console.log("Vault excess: ", vaultExcess);
@@ -330,7 +330,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
     }
 
     function testRedeemMintSolve(uint128 amountOfShares, uint16 discount) external {
-        amountOfShares = uint128(bound(amountOfShares, 0.01e18, 1_000e18));
+        amountOfShares = uint128(bound(amountOfShares, 0.01e18, 1000e18));
         discount = uint16(bound(discount, 1, 100));
         uint24 secondsToDeadline = 1 days;
         BoringOnChainQueue.OnChainWithdraw[] memory requests = new BoringOnChainQueue.OnChainWithdraw[](1);
@@ -351,7 +351,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
     }
 
     function testRedeemMintSolveCoverDeficit() external {
-        uint128 amountOfShares = 1_000e18;
+        uint128 amountOfShares = 1000e18;
         uint16 sharePriceBpsDecrease = 2;
         uint16 discount = 1;
         uint24 secondsToDeadline = 1 days;
@@ -369,7 +369,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
 
         // Solve users request using p2p solve.
 
-        uint256 expectedDeficit = 103525308149085736; // Pulled from logs of revert.
+        uint256 expectedDeficit = 103_525_308_149_085_736; // Pulled from logs of revert.
         vm.expectRevert(
             abi.encodeWithSelector(BoringSolver.BoringSolver___CannotCoverDeficit.selector, expectedDeficit)
         );
@@ -388,7 +388,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
     }
 
     function testRedeemMintSolveExcessToSolver() external {
-        uint128 amountOfShares = 1_000e18;
+        uint128 amountOfShares = 1000e18;
         uint16 sharePriceBpsIncrease = 2;
         uint16 discount = 1;
         uint24 secondsToDeadline = 1 days;
@@ -415,7 +415,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
 
     function testRedeemMintSolveExcessToVault() external {
         _deployExcessToVaultSolver();
-        uint128 amountOfShares = 1_000e18;
+        uint128 amountOfShares = 1000e18;
         uint16 sharePriceBpsIncrease = 2;
         uint16 discount = 1;
         uint24 secondsToDeadline = 1 days;
@@ -435,8 +435,8 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
         boringSolver.boringRedeemMintSolve(requests, liquidEth_teller, weETHs_teller, address(WETH), false);
         uint256 vaultDelta = WETH.balanceOf(address(this)) - vaultBalanceBefore;
         console.log("Vault delta: ", vaultDelta);
-        uint256 amountBulkWithdrawn = 1035460132107172293000; // from test trace
-        uint256 amountBulkDeposited = 1035149556182725029736; // from test trace
+        uint256 amountBulkWithdrawn = 1_035_460_132_107_172_293_000; // from test trace
+        uint256 amountBulkDeposited = 1_035_149_556_182_725_029_736; // from test trace
         uint256 vaultExcess = amountBulkWithdrawn - amountBulkDeposited;
         console.log("Vault excess: ", vaultExcess);
 
@@ -447,7 +447,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
     }
 
     function testUserRequestsThenCancels(uint128 amountOfShares, uint16 discount) external {
-        amountOfShares = uint128(bound(amountOfShares, 0.01e18, 1_000e18));
+        amountOfShares = uint128(bound(amountOfShares, 0.01e18, 1000e18));
         discount = uint16(bound(discount, 1, 100));
         uint24 secondsToDeadline = 1 days;
         uint256 startingShares = ERC20(liquidEth).balanceOf(testUser);
@@ -465,7 +465,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
     }
 
     function testUserRequestsThenReplaces(uint128 amountOfShares, uint16 discount, uint16 newDiscount) external {
-        amountOfShares = uint128(bound(amountOfShares, 0.01e18, 1_000e18));
+        amountOfShares = uint128(bound(amountOfShares, 0.01e18, 1000e18));
         discount = uint16(bound(discount, 1, 100));
         newDiscount = uint16(bound(newDiscount, 1, 100));
         uint24 secondsToDeadline = 1 days;
@@ -484,7 +484,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
     }
 
     function testUserRequestsThenSelfSolves(uint128 amountOfShares, uint16 discount) external {
-        amountOfShares = uint128(bound(amountOfShares, 0.01e18, 1_000e18));
+        amountOfShares = uint128(bound(amountOfShares, 0.01e18, 1000e18));
         discount = uint16(bound(discount, 1, 100));
         uint24 secondsToDeadline = 1 days;
         uint256 startingShares = ERC20(liquidEth).balanceOf(testUser);

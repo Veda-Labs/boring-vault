@@ -4,22 +4,22 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {TellerWithBuffer, TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithBuffer.sol";
-import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {IRateProvider} from "src/interfaces/IRateProvider.sol";
-import {ILiquidityPool} from "src/interfaces/IStaking.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
-import {AaveV3BufferHelper} from "src/base/Roles/AaveV3BufferHelper.sol";
-import {GenericRateProviderWithDecimalScaling} from "src/helper/GenericRateProviderWithDecimalScaling.sol";
-import {IBufferHelper} from "src/interfaces/IBufferHelper.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { TellerWithBuffer, TellerWithMultiAssetSupport } from "src/base/Roles/TellerWithBuffer.sol";
+import { AccountantWithRateProviders } from "src/base/Roles/AccountantWithRateProviders.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { IRateProvider } from "src/interfaces/IRateProvider.sol";
+import { ILiquidityPool } from "src/interfaces/IStaking.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { AaveV3BufferHelper } from "src/base/Roles/AaveV3BufferHelper.sol";
+import { GenericRateProviderWithDecimalScaling } from "src/helper/GenericRateProviderWithDecimalScaling.sol";
+import { IBufferHelper } from "src/interfaces/IBufferHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract TellerBufferTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -38,7 +38,7 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
 
     TellerWithBuffer public teller;
     AccountantWithRateProviders public accountant;
-    address public payout_address = vm.addr(7777777);
+    address public payout_address = vm.addr(7_777_777);
     address internal constant NATIVE = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     ERC20 internal constant NATIVE_ERC20 = ERC20(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE);
     RolesAuthority public rolesAuthority;
@@ -59,7 +59,7 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 23091932;
+        uint256 blockNumber = 23_091_932;
         vm.createSelectFork(vm.envString(rpcKey), blockNumber);
 
         USDT = getERC20(sourceChain, "USDT");
@@ -70,7 +70,7 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
         asUSDe = ERC20(0x4579a27aF00A62C0EB156349f31B345c08386419); // aV3sUSDe
         v3Pool = getAddress(sourceChain, "v3Pool");
         bytes32 salt = keccak256("boring-vault-salt");
-        boringVault = new BoringVault{salt: salt}(address(this), "Boring Vault", "BV", 6);
+        boringVault = new BoringVault{ salt: salt }(address(this), "Boring Vault", "BV", 6);
 
         accountant = new AccountantWithRateProviders(
             address(this), address(boringVault), payout_address, 1e6, address(USDT), 1.1e4, 0.9e4, 1, 0, 0

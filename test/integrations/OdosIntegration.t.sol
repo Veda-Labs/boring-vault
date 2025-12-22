@@ -4,19 +4,19 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
+import { OdosDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract OdosIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -39,7 +39,7 @@ contract OdosIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 22140604;
+        uint256 blockNumber = 22_140_604;
 
         _startFork(rpcKey, blockNumber);
 
@@ -109,7 +109,7 @@ contract OdosIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 22140604;
+        uint256 blockNumber = 22_140_604;
 
         _startFork(rpcKey, blockNumber);
 
@@ -179,7 +179,7 @@ contract OdosIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("sonicMainnet");
         // Setup forked environment.
         string memory rpcKey = "SONIC_MAINNET_RPC_URL";
-        uint256 blockNumber = 16413113;
+        uint256 blockNumber = 16_413_113;
 
         _startFork(rpcKey, blockNumber);
 
@@ -249,7 +249,7 @@ contract OdosIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("sonicMainnet");
         // Setup forked environment.
         string memory rpcKey = "SONIC_MAINNET_RPC_URL";
-        uint256 blockNumber = 16175047;
+        uint256 blockNumber = 16_175_047;
 
         _startFork(rpcKey, blockNumber);
 
@@ -319,7 +319,7 @@ contract OdosIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("base");
         // Setup forked environment.
         string memory rpcKey = "BASE_RPC_URL";
-        uint256 blockNumber = 28158816;
+        uint256 blockNumber = 28_158_816;
 
         _startFork(rpcKey, blockNumber);
 
@@ -388,7 +388,7 @@ contract OdosIntegrationTest is Test, MerkleTreeHelper {
     function testOdosSwapERC20() external {
         _setUpSpecificBlock__USDCSwap();
 
-        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1000e18);
         deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000_000e18);
 
         address[] memory tokens = new address[](3);
@@ -428,11 +428,11 @@ contract OdosIntegrationTest is Test, MerkleTreeHelper {
 
         DecoderCustomTypes.swapTokenInfo memory swapTokenInfo = DecoderCustomTypes.swapTokenInfo({
             inputToken: getAddress(sourceChain, "USDC"),
-            inputAmount: 100000000,
+            inputAmount: 100_000_000,
             inputReceiver: getAddress(sourceChain, "odosExecutor"),
             outputToken: getAddress(sourceChain, "WETH"),
-            outputQuote: 44870662095406488,
-            outputMin: 44770662095406488,
+            outputQuote: 44_870_662_095_406_488,
+            outputMin: 44_770_662_095_406_488,
             outputReceiver: address(boringVault)
         });
 
@@ -464,7 +464,7 @@ contract OdosIntegrationTest is Test, MerkleTreeHelper {
     function testOdosSwapERC20__Reverts() external {
         _setUpSpecificBlock__USDCSwap();
 
-        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1000e18);
         deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000_000e18);
 
         address[] memory tokens = new address[](3);
@@ -505,11 +505,11 @@ contract OdosIntegrationTest is Test, MerkleTreeHelper {
         //include wrong output token
         DecoderCustomTypes.swapTokenInfo memory swapTokenInfo = DecoderCustomTypes.swapTokenInfo({
             inputToken: getAddress(sourceChain, "USDC"),
-            inputAmount: 100000000,
+            inputAmount: 100_000_000,
             inputReceiver: getAddress(sourceChain, "odosExecutor"),
             outputToken: getAddress(sourceChain, "USDT"),
-            outputQuote: 44870662095406488,
-            outputMin: 44770662095406488,
+            outputQuote: 44_870_662_095_406_488,
+            outputMin: 44_770_662_095_406_488,
             outputReceiver: address(boringVault)
         });
 
@@ -548,11 +548,11 @@ contract OdosIntegrationTest is Test, MerkleTreeHelper {
         //correct output token
         swapTokenInfo = DecoderCustomTypes.swapTokenInfo({
             inputToken: getAddress(sourceChain, "USDC"),
-            inputAmount: 100000000,
+            inputAmount: 100_000_000,
             inputReceiver: getAddress(sourceChain, "odosExecutor"),
             outputToken: getAddress(sourceChain, "WETH"),
-            outputQuote: 44870662095406488,
-            outputMin: 44770662095406488,
+            outputQuote: 44_870_662_095_406_488,
+            outputMin: 44_770_662_095_406_488,
             outputReceiver: address(boringVault)
         });
 
@@ -652,7 +652,7 @@ contract OdosIntegrationTest is Test, MerkleTreeHelper {
     function testOdosSwapERC20_Sonic() external {
         _setUpSpecificBlock_SonicWETHSwap();
 
-        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1000e18);
 
         address[] memory tokens = new address[](3);
         SwapKind[] memory kind = new SwapKind[](3);
@@ -694,8 +694,8 @@ contract OdosIntegrationTest is Test, MerkleTreeHelper {
             inputAmount: 1e18,
             inputReceiver: getAddress(sourceChain, "odosExecutor"),
             outputToken: getAddress(sourceChain, "USDC"),
-            outputQuote: 2239355834,
-            outputMin: 2229355834,
+            outputQuote: 2_239_355_834,
+            outputMin: 2_229_355_834,
             outputReceiver: address(boringVault)
         });
 
@@ -731,7 +731,7 @@ contract OdosIntegrationTest is Test, MerkleTreeHelper {
     function testOdosSwapERC20_Sonic2() external {
         _setUpSpecificBlock_SonicWETHSwap2();
 
-        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1000e18);
 
         address[] memory tokens = new address[](3);
         SwapKind[] memory kind = new SwapKind[](3);
@@ -785,7 +785,7 @@ contract OdosIntegrationTest is Test, MerkleTreeHelper {
     function testOdosSwapERC20_BASE() external {
         _setUpSpecificBlock_Base();
 
-        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1000e18);
 
         address[] memory tokens = new address[](3);
         SwapKind[] memory kind = new SwapKind[](3);
@@ -827,8 +827,8 @@ contract OdosIntegrationTest is Test, MerkleTreeHelper {
             inputAmount: 1e18,
             inputReceiver: getAddress(sourceChain, "odosExecutor"),
             outputToken: getAddress(sourceChain, "USDC"),
-            outputQuote: 1946173011,
-            outputMin: 1936173011,
+            outputQuote: 1_946_173_011,
+            outputMin: 1_936_173_011,
             outputReceiver: address(boringVault)
         });
 
@@ -869,5 +869,5 @@ contract OdosIntegrationTest is Test, MerkleTreeHelper {
 }
 
 contract FullOdosDecoderAndSanitizer is OdosDecoderAndSanitizer {
-    constructor(address _odosRouter) OdosDecoderAndSanitizer(_odosRouter) {}
+    constructor(address _odosRouter) OdosDecoderAndSanitizer(_odosRouter) { }
 }

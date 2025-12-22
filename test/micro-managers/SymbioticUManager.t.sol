@@ -4,18 +4,18 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {SymbioticUManager, DefaultCollateral} from "src/micro-managers/SymbioticUManager.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { SymbioticUManager, DefaultCollateral } from "src/micro-managers/SymbioticUManager.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract SymbioticUManagerTest is Test, MainnetAddresses, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -38,7 +38,7 @@ contract SymbioticUManagerTest is Test, MainnetAddresses, MerkleTreeHelper {
     function setUp() external {
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 20083900;
+        uint256 blockNumber = 20_083_900;
 
         _startFork(rpcKey, blockNumber);
 
@@ -262,18 +262,18 @@ contract SymbioticUManagerTest is Test, MainnetAddresses, MerkleTreeHelper {
         );
         symbioticUManager.setConfiguration(defaultCollateral, 0, rawDataDecoderAndSanitizer);
 
-        symbioticUManager.setConfiguration(defaultCollateral, 1_000e18, rawDataDecoderAndSanitizer);
+        symbioticUManager.setConfiguration(defaultCollateral, 1000e18, rawDataDecoderAndSanitizer);
 
         // Sniper bot tries assembling with a specified amount that is too large.
         uint256 limitDelta = defaultCollateral.limit() - defaultCollateral.totalSupply();
         vm.expectRevert(
             bytes(
                 abi.encodeWithSelector(
-                    SymbioticUManager.SymbioticUManager__DepositAmountExceedsLimit.selector, 1_000e18, limitDelta
+                    SymbioticUManager.SymbioticUManager__DepositAmountExceedsLimit.selector, 1000e18, limitDelta
                 )
             )
         );
-        symbioticUManager.assemble(defaultCollateral, 1_000e18);
+        symbioticUManager.assemble(defaultCollateral, 1000e18);
 
         // Sniper bot tries assembling with a specified amount that is below the limit but larger than the mETH balance.
         vm.expectRevert(
@@ -292,7 +292,7 @@ contract SymbioticUManagerTest is Test, MainnetAddresses, MerkleTreeHelper {
         vm.expectRevert(
             bytes(
                 abi.encodeWithSelector(
-                    SymbioticUManager.SymbioticUManager__DepositAmountTooSmall.selector, limitDelta, 1_000e18
+                    SymbioticUManager.SymbioticUManager__DepositAmountTooSmall.selector, limitDelta, 1000e18
                 )
             )
         );

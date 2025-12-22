@@ -4,21 +4,21 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
-import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
-import {DelayedWithdraw} from "src/base/Roles/DelayedWithdraw.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
+import { TellerDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
+import { BaseDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import { DelayedWithdraw } from "src/base/Roles/DelayedWithdraw.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract BoringOnChainQueueIntegration is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -42,7 +42,7 @@ contract BoringOnChainQueueIntegration is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 21580030;
+        uint256 blockNumber = 21_580_030;
 
         _startFork(rpcKey, blockNumber);
 
@@ -123,7 +123,7 @@ contract BoringOnChainQueueIntegration is Test, MerkleTreeHelper {
     }
 
     function testBoringOnChainQueueWithdraw() external {
-        deal(getAddress(sourceChain, "eBTC"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "eBTC"), address(boringVault), 1000e18);
         deal(getAddress(sourceChain, "WBTC"), address(boringVault), 100e8);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
@@ -167,7 +167,7 @@ contract BoringOnChainQueueIntegration is Test, MerkleTreeHelper {
             getAddress(sourceChain, "WBTC"),
             uint128(100e8),
             uint16(100),
-            uint24(2592000)
+            uint24(2_592_000)
         );
 
         address[] memory decodersAndSanitizers = new address[](4);
@@ -226,9 +226,9 @@ contract BoringOnChainQueueIntegration is Test, MerkleTreeHelper {
         targetData[3] = abi.encodeWithSignature(
             "requestOnChainWithdraw(address,uint128,uint16,uint24)",
             getAddress(sourceChain, "WBTC"),
-            uint128(9970000000),
+            uint128(9_970_000_000),
             uint16(100),
-            uint24(2592000)
+            uint24(2_592_000)
         );
 
         //uint96 nonce = vm.getNonce(address(boringVault));
@@ -237,11 +237,11 @@ contract BoringOnChainQueueIntegration is Test, MerkleTreeHelper {
             1,
             address(boringVault),
             getAddress(sourceChain, "WBTC"),
-            uint128(9970000000),
-            uint128(9870300000),
-            uint40(1736342615),
-            uint24(43200),
-            uint24(2592000)
+            uint128(9_970_000_000),
+            uint128(9_870_300_000),
+            uint40(1_736_342_615),
+            uint24(43_200),
+            uint24(2_592_000)
         );
 
         targetData[4] = abi.encodeWithSignature(
@@ -260,7 +260,7 @@ contract BoringOnChainQueueIntegration is Test, MerkleTreeHelper {
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
         uint256 eBTCSharesAmount = getERC20(sourceChain, "eBTC").balanceOf(address(boringVault));
-        assertEq(eBTCSharesAmount, 9970000000);
+        assertEq(eBTCSharesAmount, 9_970_000_000);
     }
 
     function testBoringOnChainQueueReplace() external {
@@ -308,9 +308,9 @@ contract BoringOnChainQueueIntegration is Test, MerkleTreeHelper {
         targetData[3] = abi.encodeWithSignature(
             "requestOnChainWithdraw(address,uint128,uint16,uint24)",
             getAddress(sourceChain, "WBTC"),
-            uint128(9970000000),
+            uint128(9_970_000_000),
             uint16(100),
-            uint24(2592000)
+            uint24(2_592_000)
         );
 
         //uint96 nonce = vm.getNonce(address(boringVault));
@@ -319,18 +319,18 @@ contract BoringOnChainQueueIntegration is Test, MerkleTreeHelper {
             1,
             address(boringVault),
             getAddress(sourceChain, "WBTC"),
-            uint128(9970000000),
-            uint128(9870300000),
-            uint40(1736342615),
-            uint24(43200),
-            uint24(2592000)
+            uint128(9_970_000_000),
+            uint128(9_870_300_000),
+            uint40(1_736_342_615),
+            uint24(43_200),
+            uint24(2_592_000)
         );
 
         targetData[4] = abi.encodeWithSignature(
             "replaceOnChainWithdraw((uint96,address,address,uint128,uint128,uint40,uint24,uint24),uint16,uint24)",
             request,
             uint16(100),
-            uint24(2592000)
+            uint24(2_592_000)
         );
 
         address[] memory decodersAndSanitizers = new address[](5);
@@ -356,4 +356,4 @@ contract BoringOnChainQueueIntegration is Test, MerkleTreeHelper {
     }
 }
 
-contract FullBoringVaultDecoder is TellerDecoderAndSanitizer {}
+contract FullBoringVaultDecoder is TellerDecoderAndSanitizer { }

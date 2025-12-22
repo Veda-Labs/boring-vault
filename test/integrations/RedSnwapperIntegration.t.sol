@@ -4,23 +4,23 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
+import { BaseTestIntegration } from "test/integrations/BaseTestIntegration.t.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
 import {
     RedSnwapperDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/Protocols/RedSnwapperDecoderAndSanitizer.sol";
-import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
-import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { BaseDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { ERC4626DecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
+import { CurveDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
-contract FullRedSnwapperDecoderAndSanitizer is RedSnwapperDecoderAndSanitizer, BaseDecoderAndSanitizer {}
+contract FullRedSnwapperDecoderAndSanitizer is RedSnwapperDecoderAndSanitizer, BaseDecoderAndSanitizer { }
 
 contract RedSnwapperIntegration is BaseTestIntegration {
     function _setUpMainnet() internal {
         super.setUp();
-        _setupChain("mainnet", 23576581);
+        _setupChain("mainnet", 23_576_581);
 
         address snwapperDecoder = address(new FullRedSnwapperDecoderAndSanitizer());
 
@@ -29,7 +29,7 @@ contract RedSnwapperIntegration is BaseTestIntegration {
 
     function _setUpPlasma() internal {
         super.setUp();
-        _setupChain("plasma", 3512356);
+        _setupChain("plasma", 3_512_356);
 
         address snwapperDecoder = address(new FullRedSnwapperDecoderAndSanitizer());
 
@@ -42,7 +42,7 @@ contract RedSnwapperIntegration is BaseTestIntegration {
         address SNX = 0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F;
 
         vm.prank(0xA31231E727Ca53Ff95f0D00a06C645110c4aB647);
-        ERC20(SNX).transfer(address(boringVault), 100000e18);
+        ERC20(SNX).transfer(address(boringVault), 100_000e18);
 
         address[] memory tokens = new address[](2);
         SwapKind[] memory kind = new SwapKind[](2);
@@ -80,10 +80,10 @@ contract RedSnwapperIntegration is BaseTestIntegration {
         tx_.targetData[1] = abi.encodeWithSignature(
             "snwap(address,uint256,address,address,uint256,address,bytes)",
             0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F,
-            1132015887667565350796,
+            1_132_015_887_667_565_350_796,
             address(boringVault),
             getAddress(sourceChain, "WETH"),
-            530321444838082344,
+            530_321_444_838_082_344,
             0xd2b37aDE14708bf18904047b1E31F8166d39612b,
             hex"ba3f2165000000000000000000000000de7259893af7cdbc9fd806c6ba61d22d581d56670000000000000000000000000000000000000000000000000004b8d55c9cc5f3000000000000000000000000c011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f00000000000000000000000000000000000000000000003d5de054280bbacf8c000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2000000000000000000000000000000000000000000000000076a4b31984794400000000000000000000000005615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f00000000000000000000000000000000000000000000000000000000000001400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000bb0199e3270bdf000301c011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f03aaaa0043ae24960e5534731fc831386c07755a2dc33d4701d2b37ade14708bf18904047b1e31f8166d39612b000bb8a3a5369e5a2baaaa00a1d7b2d891e3a1f9ef4bbc5be20630c2feb1c47001d2b37ade14708bf18904047b1e31f8166d39612b000bb8da3134d2bf29ffff01ede8dd046586d22625ae7ff2708f879ef7bdb8cf01d2b37ade14708bf18904047b1e31f8166d39612b00da3133d1fd280000000000"
         );
@@ -100,7 +100,7 @@ contract RedSnwapperIntegration is BaseTestIntegration {
     function testSwapPlasma() external {
         _setUpPlasma();
 
-        deal(getAddress(sourceChain, "WXPL"), address(boringVault), 100000e18);
+        deal(getAddress(sourceChain, "WXPL"), address(boringVault), 100_000e18);
 
         address[] memory tokens = new address[](2);
         SwapKind[] memory kind = new SwapKind[](2);
@@ -141,7 +141,7 @@ contract RedSnwapperIntegration is BaseTestIntegration {
             1.64e20,
             address(boringVault),
             getAddress(sourceChain, "USDT0"),
-            68001365,
+            68_001_365,
             0xd2b37aDE14708bf18904047b1E31F8166d39612b,
             hex"ba3f2165000000000000000000000000de7259893af7cdbc9fd806c6ba61d22d581d566700000000000000000000000000000000000000000000000000000000000299bd0000000000000000000000006100e367285b01f48d07953803a2d8dca5d19873000000000000000000000000000000000000000000000008debbe5fdadb62b56000000000000000000000000b8ce59fc3717ada4c02eadf9682a9e934f625ebb000000000000000000000000000000000000000000000000000000000415723e0000000000000000000000005615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f00000000000000000000000000000000000000000000000000000000000001400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000510199e28153f60001016100e367285b01f48d07953803a2d8dca5d1987301ffff018603c67b7cc056ef6981a9c709854c53b699fa6601d2b37ade14708bf18904047b1e31f8166d39612b008dec3482ae0b000000000000000000000000000000"
         );

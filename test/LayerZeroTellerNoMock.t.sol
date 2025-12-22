@@ -4,22 +4,22 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BoringVault} from "src/base/BoringVault.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
 import {
     LayerZeroTeller,
     CrossChainTellerWithGenericBridge
 } from "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTeller.sol";
-import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {IRateProvider} from "src/interfaces/IRateProvider.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
-import {AddressToBytes32Lib} from "src/helper/AddressToBytes32Lib.sol";
+import { AccountantWithRateProviders } from "src/base/Roles/AccountantWithRateProviders.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { IRateProvider } from "src/interfaces/IRateProvider.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { TellerWithMultiAssetSupport } from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { AddressToBytes32Lib } from "src/helper/AddressToBytes32Lib.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -39,7 +39,7 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
     address public endPoint;
     LayerZeroTeller public sourceTeller;
     AccountantWithRateProviders public accountant;
-    address public payout_address = vm.addr(7777777);
+    address public payout_address = vm.addr(7_777_777);
     address internal constant NATIVE = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     ERC20 internal constant NATIVE_ERC20 = ERC20(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE);
     RolesAuthority public rolesAuthority;
@@ -60,7 +60,7 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 21023546;
+        uint256 blockNumber = 21_023_546;
         _startFork(rpcKey, blockNumber);
 
         endPoint = getAddress(sourceChain, "LayerZeroEndPoint");
@@ -114,8 +114,8 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
         accountant.setRateProviderData(WEETH, false, address(WEETH_RATE_PROVIDER));
 
         // Give BoringVault some WETH, and this address some shares.
-        deal(address(WETH), address(boringVault), 1_000e18);
-        deal(address(boringVault), address(this), 1_000e18, true);
+        deal(address(WETH), address(boringVault), 1000e18);
+        deal(address(boringVault), address(this), 1000e18, true);
 
         // Setup deposit assets.
         sourceTeller.updateAssetData(WETH, true, true, 0);
@@ -125,19 +125,19 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
     }
 
     function testBridgingShares(uint96 sharesToBridge) external {
-        sharesToBridge = uint96(bound(sharesToBridge, 1, 1_000e18));
+        sharesToBridge = uint96(bound(sharesToBridge, 1, 1000e18));
 
         // Get fee.
         address to = vm.addr(1);
         uint256 fee = sourceTeller.previewFee(sharesToBridge, to, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20);
         uint256 expectedFee = 1e18;
-        sourceTeller.bridge{value: fee}(
+        sourceTeller.bridge{ value: fee }(
             sharesToBridge, to, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20, expectedFee
         );
     }
 
     function testDepositAndBridgeShares(uint256 depositAmount) external {
-        depositAmount = bound(depositAmount, 1, 1_000e18);
+        depositAmount = bound(depositAmount, 1, 1000e18);
 
         address user = vm.addr(1);
         deal(address(WETH), user, depositAmount);
@@ -146,7 +146,7 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
         deal(user, fee);
         vm.startPrank(user);
         WETH.approve(address(boringVault), depositAmount);
-        sourceTeller.depositAndBridge{value: fee}(
+        sourceTeller.depositAndBridge{ value: fee }(
             WETH, depositAmount, 0, user, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20, fee, referrer
         );
         vm.stopPrank();
@@ -208,7 +208,7 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
                 maxFee: fee,
                 referralAddress: referrer
             });
-        sourceTeller.depositAndBridgeWithPermit{value: fee}(params);
+        sourceTeller.depositAndBridgeWithPermit{ value: fee }(params);
         vm.stopPrank();
     }
 

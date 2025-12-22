@@ -4,22 +4,22 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
+import { MainnetAddresses } from "test/resources/MainnetAddresses.sol";
+import { BoringVault } from "src/base/BoringVault.sol";
+import { ManagerWithMerkleVerification } from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import { SafeTransferLib } from "@solmate/utils/SafeTransferLib.sol";
+import { FixedPointMathLib } from "@solmate/utils/FixedPointMathLib.sol";
+import { ERC20 } from "@solmate/tokens/ERC20.sol";
+import { ERC4626 } from "@solmate/tokens/ERC4626.sol";
 import {
     OneInchOwnedDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/Protocols/OneInchOwnedDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
-import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import { DecoderCustomTypes } from "src/interfaces/DecoderCustomTypes.sol";
+import { RolesAuthority, Authority } from "@solmate/auth/authorities/RolesAuthority.sol";
+import { MerkleTreeHelper } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import { BaseDecoderAndSanitizer } from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import { Test, stdStorage, StdStorage, stdError, console } from "@forge-std/Test.sol";
 
 contract OneInchOwnedIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -111,9 +111,9 @@ contract OneInchOwnedIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testOneInchSwapERC20__OldExecutor() external {
-        _setUpSpecificBlock__WETHSwap(OLD_ONE_INCH_EXECUTOR_MAINNET, 23591300);
+        _setUpSpecificBlock__WETHSwap(OLD_ONE_INCH_EXECUTOR_MAINNET, 23_591_300);
 
-        deal(getAddress(sourceChain, "WETH"), address(boringVault), 2_000e18);
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 2000e18);
 
         address[] memory tokens = new address[](2);
         SwapKind[] memory kind = new SwapKind[](2);
@@ -151,8 +151,8 @@ contract OneInchOwnedIntegrationTest is Test, MerkleTreeHelper {
             dstToken: getAddress(sourceChain, "WEETH"),
             srcReceiver: payable(OLD_ONE_INCH_EXECUTOR_MAINNET),
             dstReceiver: payable(address(boringVault)),
-            amount: 2000000000000000000000,
-            minReturnAmount: 1853168613540785108260,
+            amount: 2_000_000_000_000_000_000_000,
+            minReturnAmount: 1_853_168_613_540_785_108_260,
             flags: 4
         });
 
@@ -177,9 +177,9 @@ contract OneInchOwnedIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testOneInchSwapERC20__NewExecutor() external {
-        _setUpSpecificBlock__WETHSwap(NEW_ONE_INCH_EXECUTOR_MAINNET, 23671018);
+        _setUpSpecificBlock__WETHSwap(NEW_ONE_INCH_EXECUTOR_MAINNET, 23_671_018);
 
-        deal(getAddress(sourceChain, "WETH"), address(boringVault), 2_000e18);
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 2000e18);
 
         address[] memory tokens = new address[](2);
         SwapKind[] memory kind = new SwapKind[](2);
@@ -217,8 +217,8 @@ contract OneInchOwnedIntegrationTest is Test, MerkleTreeHelper {
             dstToken: getAddress(sourceChain, "WEETH"),
             srcReceiver: payable(NEW_ONE_INCH_EXECUTOR_MAINNET),
             dstReceiver: payable(address(boringVault)),
-            amount: 2000000000000000000000,
-            minReturnAmount: 1852129623269144641715,
+            amount: 2_000_000_000_000_000_000_000,
+            minReturnAmount: 1_852_129_623_269_144_641_715,
             flags: 4
         });
 
@@ -243,9 +243,9 @@ contract OneInchOwnedIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testOneInchSwapERC20__Reverts() external {
-        _setUpSpecificBlock__WETHSwap(NEW_ONE_INCH_EXECUTOR_MAINNET, 23671018);
+        _setUpSpecificBlock__WETHSwap(NEW_ONE_INCH_EXECUTOR_MAINNET, 23_671_018);
 
-        deal(getAddress(sourceChain, "WETH"), address(boringVault), 2_000e18);
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 2000e18);
 
         address[] memory tokens = new address[](2);
         SwapKind[] memory kind = new SwapKind[](2);
@@ -286,8 +286,8 @@ contract OneInchOwnedIntegrationTest is Test, MerkleTreeHelper {
             dstToken: getAddress(sourceChain, "WEETH"),
             srcReceiver: payable(OLD_ONE_INCH_EXECUTOR_MAINNET),
             dstReceiver: payable(address(boringVault)),
-            amount: 2000000000000000000000,
-            minReturnAmount: 1852129623269144641715,
+            amount: 2_000_000_000_000_000_000_000,
+            minReturnAmount: 1_852_129_623_269_144_641_715,
             flags: 4
         });
 
@@ -319,8 +319,8 @@ contract OneInchOwnedIntegrationTest is Test, MerkleTreeHelper {
             dstToken: getAddress(sourceChain, "WEETH"),
             srcReceiver: payable(NEW_ONE_INCH_EXECUTOR_MAINNET),
             dstReceiver: payable(address(boringVault)),
-            amount: 2000000000000000000000,
-            minReturnAmount: 1852129623269144641715,
+            amount: 2_000_000_000_000_000_000_000,
+            minReturnAmount: 1_852_129_623_269_144_641_715,
             flags: 4
         });
 
@@ -344,7 +344,7 @@ contract OneInchOwnedIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 22140604;
+        uint256 blockNumber = 22_140_604;
 
         _startFork(rpcKey, blockNumber);
 
@@ -366,5 +366,5 @@ contract OneInchOwnedIntegrationTest is Test, MerkleTreeHelper {
 }
 
 contract FullOneInchOwnedDecoderAndSanitizer is BaseDecoderAndSanitizer, OneInchOwnedDecoderAndSanitizer {
-    constructor(address _owner, address _oneInchExecutor) OneInchOwnedDecoderAndSanitizer(_owner, _oneInchExecutor) {}
+    constructor(address _owner, address _oneInchExecutor) OneInchOwnedDecoderAndSanitizer(_owner, _oneInchExecutor) { }
 }
