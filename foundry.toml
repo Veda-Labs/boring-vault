@@ -20,13 +20,6 @@ remappings = [
     "@oapp-auth=lib/OAppAuth/src/",
 ]
 
-[fmt]
-line_length = 120
-int_types = "long"
-tab_width = 4
-quote_style = "double"
-bracket_spacing = true
-
 [rpc_endpoints]
 mainnet = "${MAINNET_RPC_URL}"
 polygon = "${MATIC_RPC_URL}"
