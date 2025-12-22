@@ -539,7 +539,7 @@ contract SpectraIntegrationTest is Test, MerkleTreeHelper {
         uint256 expectedCooldown = 604800; // 0x00093a80
         address expectedSilo = 0x96948ca569fFAEf0CE0f05B79aA9CDe073690CEd;
 
-        for (uint256 slot = 0; // Search first 100 slots slot < 100; slot++) {
+        for (uint256 slot = 0; slot < 100; slot++) {
             bytes32 slotValue = vm.load(getAddress(sourceChain, "slvlUSD"), bytes32(slot));
 
             uint24 cooldown = uint24(uint256(slotValue)); // Lower 3 bytes
