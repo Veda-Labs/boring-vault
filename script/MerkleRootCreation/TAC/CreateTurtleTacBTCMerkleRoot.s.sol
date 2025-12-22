@@ -19,10 +19,9 @@ contract CreateTurtleTacBTCMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x6Bf340dB729d82af1F6443A0Ea0d79647b1c3DDf;
-    address public rawDataDecoderAndSanitizer = 0xDBf7fb9C3B3285ac4d46d65C726aeFA865A3F373; 
-    address public managerAddress = 0x85A8821a579736e7E5e98296D34C50B77122BB5e; 
-    address public accountantAddress = 0xe4858a89d5602Ad30de2018C408d33d101F53d53; 
-    
+    address public rawDataDecoderAndSanitizer = 0xDBf7fb9C3B3285ac4d46d65C726aeFA865A3F373;
+    address public managerAddress = 0x85A8821a579736e7E5e98296D34C50B77122BB5e;
+    address public accountantAddress = 0xe4858a89d5602Ad30de2018C408d33d101F53d53;
 
     function setUp() external {}
 
@@ -42,24 +41,40 @@ contract CreateTurtleTacBTCMerkleRoot is Script, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](64);
 
-
         // ========================== LayerZero ==========================
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "cbBTC"), getAddress(sourceChain, "cbBTC"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "LBTC"), getAddress(sourceChain, "LBTCOFTAdapter"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "cbBTC"),
+            getAddress(sourceChain, "cbBTC"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "LBTC"),
+            getAddress(sourceChain, "LBTCOFTAdapter"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
 
         // ========================== Cross Chain Layer ==========================
-        string memory tvmTarget = "EQBc4bruxc39m7qOItgoOU634GGFs-W8KT0cKQce591I-HFe"; 
+        string memory tvmTarget = "EQBc4bruxc39m7qOItgoOU634GGFs-W8KT0cKQce591I-HFe";
         _addTacCrossChainLeafs(leafs, getERC20(sourceChain, "USDT"), tvmTarget);
 
         // ========================== Curve ==========================
-        _addCurveLeafs(leafs, getAddress(sourceChain, "cbBTC_LBTC_Curve_Pool"), 2, getAddress(sourceChain, "cbBTC_LBTC_Curve_Gauge")); 
-        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "cbBTC_LBTC_Curve_Pool")); 
-        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "USDT_wTAC_Curve_Pool")); 
-        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "USDT_cbBTC_Curve_Pool")); 
+        _addCurveLeafs(
+            leafs,
+            getAddress(sourceChain, "cbBTC_LBTC_Curve_Pool"),
+            2,
+            getAddress(sourceChain, "cbBTC_LBTC_Curve_Gauge")
+        );
+        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "cbBTC_LBTC_Curve_Pool"));
+        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "USDT_wTAC_Curve_Pool"));
+        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "USDT_cbBTC_Curve_Pool"));
 
         // ========================== MetaMorpho ==========================
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "re7cbBTC")));
-        
+
         // ========================== Euler ==========================
         ERC4626[] memory depositVaults = new ERC4626[](2);
         depositVaults[0] = ERC4626(getAddress(sourceChain, "evkecbBTC-3"));
@@ -71,16 +86,14 @@ contract CreateTurtleTacBTCMerkleRoot is Script, MerkleTreeHelper {
         _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
 
         // ========================== Merkl ==========================
-        _addMerklLeafs(
-            leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address")
-        );
-        
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"));
+
         // ========================== ZeroLend ==========================
-        //ERC20[] memory supplyAssets = new ERC20[](1);  //Pending Zerolend 
-        //supplyAssets[0] = getAddress(sourceChain, "cbBTC"); 
-        //ERC20[] memory borrowAssets = new ERC20[](1); 
-        //borrowAssets[0] = getAddress(sourceChain, "cbBTC"); 
-        //_addZeroLendLeafs(leafs, supplyAssets, borrowAssets);  
+        //ERC20[] memory supplyAssets = new ERC20[](1);  //Pending Zerolend
+        //supplyAssets[0] = getAddress(sourceChain, "cbBTC");
+        //ERC20[] memory borrowAssets = new ERC20[](1);
+        //borrowAssets[0] = getAddress(sourceChain, "cbBTC");
+        //_addZeroLendLeafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
@@ -90,7 +103,5 @@ contract CreateTurtleTacBTCMerkleRoot is Script, MerkleTreeHelper {
         string memory filePath = "./leafs/TAC/TurtleTacBTCStrategistLeafs.json";
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
-
     }
-
 }

@@ -49,7 +49,8 @@ contract ConvexFXIntegrationTest is Test, MerkleTreeHelper {
         manager =
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
-        rawDataDecoderAndSanitizer = address(new FullConvexDecoderAndSanitizer(getAddress(sourceChain, "convexFXPoolRegistry")));
+        rawDataDecoderAndSanitizer =
+            address(new FullConvexDecoderAndSanitizer(getAddress(sourceChain, "convexFXPoolRegistry")));
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -110,11 +111,10 @@ contract ConvexFXIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testConvexFXIntegration() external {
-
         // We need a 2 step flow here where the vault is first created, then whitelisted. Annoying, but they use `create` and not `create2` so we cannot reliably premine an address
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addConvexFXBoosterLeafs(
-            leafs, 
+            leafs,
             getAddress(sourceChain, "convexFX_gauge_USDC_fxUSD"), //convex gauge (from FE) !(not the curve gauge)!
             getAddress(sourceChain, "convexFX_lp_USDC_fxUSD") //curve lp (from convex or curve FE)
         );
@@ -134,8 +134,7 @@ contract ConvexFXIntegrationTest is Test, MerkleTreeHelper {
         targets[0] = getAddress(sourceChain, "convexFXBooster"); //createVault
 
         bytes[] memory targetData = new bytes[](1);
-        targetData[0] =
-            abi.encodeWithSignature("createVault(uint256)", 32);
+        targetData[0] = abi.encodeWithSignature("createVault(uint256)", 32);
 
         uint256[] memory values = new uint256[](1);
 
@@ -145,22 +144,21 @@ contract ConvexFXIntegrationTest is Test, MerkleTreeHelper {
         }
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
-        
-        address expectedVaultAddress = 0x9B8cd3346bA58D92D0601558D9F01c2C0C80B6ae; 
+
+        address expectedVaultAddress = 0x9B8cd3346bA58D92D0601558D9F01c2C0C80B6ae;
 
         //now vault has been created, we need to add leaves
-        _addConvexFXVaultLeafs(leafs, expectedVaultAddress); 
-        
+        _addConvexFXVaultLeafs(leafs, expectedVaultAddress);
+
         manageTree = _generateMerkleTree(leafs);
 
         _generateTestLeafs(leafs, manageTree);
 
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
-
         //deal LP token
-        deal(getAddress(sourceChain, "convexFX_lp_USDC_fxUSD"), address(boringVault), 100e18); 
-        deal(getAddress(sourceChain, "USDC"), address(expectedVaultAddress), 100e8); 
+        deal(getAddress(sourceChain, "convexFX_lp_USDC_fxUSD"), address(boringVault), 100e18);
+        deal(getAddress(sourceChain, "USDC"), address(expectedVaultAddress), 100e8);
 
         manageLeafs = new ManageLeaf[](5);
         manageLeafs[0] = leafs[1]; //approve
@@ -179,20 +177,15 @@ contract ConvexFXIntegrationTest is Test, MerkleTreeHelper {
         targets[4] = expectedVaultAddress; //transferTokens
 
         targetData = new bytes[](5);
-        targetData[0] =
-            abi.encodeWithSignature("approve(address,uint256)", expectedVaultAddress, type(uint256).max);
-        targetData[1] =
-            abi.encodeWithSignature("deposit(uint256,bool)", 10e18, false);
-        targetData[2] =
-            abi.encodeWithSignature("withdraw(uint256)", 5e18);
-        targetData[3] =
-            abi.encodeWithSignature("getReward(bool)", true);
+        targetData[0] = abi.encodeWithSignature("approve(address,uint256)", expectedVaultAddress, type(uint256).max);
+        targetData[1] = abi.encodeWithSignature("deposit(uint256,bool)", 10e18, false);
+        targetData[2] = abi.encodeWithSignature("withdraw(uint256)", 5e18);
+        targetData[3] = abi.encodeWithSignature("getReward(bool)", true);
 
-        address[] memory tokens = new address[](1); 
-        tokens[0] = getAddress(sourceChain, "USDC"); 
+        address[] memory tokens = new address[](1);
+        tokens[0] = getAddress(sourceChain, "USDC");
 
-        targetData[4] =
-            abi.encodeWithSignature("transferTokens(address[])", tokens);
+        targetData[4] = abi.encodeWithSignature("transferTokens(address[])", tokens);
 
         values = new uint256[](5);
 
@@ -202,7 +195,6 @@ contract ConvexFXIntegrationTest is Test, MerkleTreeHelper {
         }
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
-
     }
 
     // ========================================= HELPER FUNCTIONS =========================================
@@ -214,5 +206,5 @@ contract ConvexFXIntegrationTest is Test, MerkleTreeHelper {
 }
 
 contract FullConvexDecoderAndSanitizer is ConvexFXDecoderAndSanitizer {
-    constructor(address _poolRegistry) ConvexFXDecoderAndSanitizer(_poolRegistry){}
+    constructor(address _poolRegistry) ConvexFXDecoderAndSanitizer(_poolRegistry) {}
 }

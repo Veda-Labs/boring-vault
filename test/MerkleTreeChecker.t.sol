@@ -24,7 +24,6 @@ contract MerkleTreeCheckerTest is Test, MerkleTreeHelper {
 
         _startFork(rpcKey, blockNumber);
 
-
         rawDataDecoderAndSanitizer = address(new LombardBtcDecoderAndSanitizer(address(0), address(0), address(0)));
     }
 

@@ -14,12 +14,9 @@ contract TellerWithYieldStreaming is TellerWithBuffer {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
 
-    constructor(
-        address _owner,
-        address _vault,
-        address _accountant,
-        address _weth
-    ) TellerWithBuffer(_owner, _vault, _accountant, _weth) {}
+    constructor(address _owner, address _vault, address _accountant, address _weth)
+        TellerWithBuffer(_owner, _vault, _accountant, _weth)
+    {}
 
     /**
      * @notice Allows off ramp role to withdraw from this contract.
@@ -51,7 +48,7 @@ contract TellerWithYieldStreaming is TellerWithBuffer {
         //update vested yield before deposit
         _getAccountant().updateExchangeRate();
         if (vault.totalSupply() == 0) {
-            _getAccountant().setFirstDepositTimestamp(); 
+            _getAccountant().setFirstDepositTimestamp();
         }
         shares = super._erc20Deposit(depositAsset, depositAmount, minimumMint, from, to, asset);
     }
@@ -65,7 +62,8 @@ contract TellerWithYieldStreaming is TellerWithBuffer {
         override
         requiresAuth
         nonReentrant
-        returns (uint256 assetsOut) {
+        returns (uint256 assetsOut)
+    {
         _getAccountant().updateExchangeRate();
         assetsOut = _withdraw(withdrawAsset, shareAmount, minimumAssets, to);
         emit BulkWithdraw(address(withdrawAsset), shareAmount);

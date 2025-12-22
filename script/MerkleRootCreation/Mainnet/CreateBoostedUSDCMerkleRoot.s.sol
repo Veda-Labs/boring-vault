@@ -92,7 +92,13 @@ contract CreateBoostedUSDCMerkleRoot is Script, MerkleTreeHelper {
         _addEthenaSUSDeWithdrawLeafs(leafs);
 
         // ========================== LayerZero ==========================
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDT"), getAddress(sourceChain, "usdt0OFTAdapter"), layerZeroInkEndpointId, getBytes32(sourceChain, "boringVault"));
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "USDT"),
+            getAddress(sourceChain, "usdt0OFTAdapter"),
+            layerZeroInkEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
 
         // ========================== CCTP ==========================
         _addCCTPBridgeLeafs(leafs, cctpInkDomainId);

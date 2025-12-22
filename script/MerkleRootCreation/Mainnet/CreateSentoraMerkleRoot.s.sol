@@ -68,24 +68,24 @@ contract CreateSentoraMerkleRootScript is Script, MerkleTreeHelper {
         string memory filePath = "./leafs/Mainnet/SentoraStrategistLeafs.json";
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
-     }
- 
-     function _addLeafsForITBPositionManager(
-         ManageLeaf[] memory leafs,
-         address itbPositionManager,
-         ERC20[] memory tokensUsed,
-         string memory itbContractName
-     ) internal {
-         // acceptOwnership
-         leafIndex++;
-         leafs[leafIndex] = ManageLeaf(
-             itbPositionManager,
-             false,
-             "acceptOwnership()",
-             new address[](0),
-             string.concat("Accept ownership of the ", itbContractName, " contract"),
-             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-         );
+    }
+
+    function _addLeafsForITBPositionManager(
+        ManageLeaf[] memory leafs,
+        address itbPositionManager,
+        ERC20[] memory tokensUsed,
+        string memory itbContractName
+    ) internal {
+        // acceptOwnership
+        leafIndex++;
+        leafs[leafIndex] = ManageLeaf(
+            itbPositionManager,
+            false,
+            "acceptOwnership()",
+            new address[](0),
+            string.concat("Accept ownership of the ", itbContractName, " contract"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
 
         // Withdraw
         leafIndex++;
@@ -107,19 +107,19 @@ contract CreateSentoraMerkleRootScript is Script, MerkleTreeHelper {
             string.concat("Withdraw all from the ", itbContractName, " contract"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
- 
-         for (uint256 i; i < tokensUsed.length; ++i) {
-             // Transfer
-             leafIndex++;
-             leafs[leafIndex] = ManageLeaf(
-                 address(tokensUsed[i]),
-                 false,
-                 "transfer(address,uint256)",
-                 new address[](1),
-                 string.concat("Transfer ", tokensUsed[i].symbol(), " to the ", itbContractName, " contract"),
-                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-             );
-             leafs[leafIndex].argumentAddresses[0] = itbPositionManager;
-         }
-     }
+
+        for (uint256 i; i < tokensUsed.length; ++i) {
+            // Transfer
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                address(tokensUsed[i]),
+                false,
+                "transfer(address,uint256)",
+                new address[](1),
+                string.concat("Transfer ", tokensUsed[i].symbol(), " to the ", itbContractName, " contract"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = itbPositionManager;
+        }
+    }
 }

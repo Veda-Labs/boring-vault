@@ -65,14 +65,14 @@ contract CreateLBTCvMerkleRoot is Script, MerkleTreeHelper {
         _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
 
         // ========================== Odos ==========================
-        _addOdosSwapLeafs(leafs, assets, kind); 
+        _addOdosSwapLeafs(leafs, assets, kind);
 
         // ========================== Native Leafs ==========================
-        _addNativeLeafs(leafs, getAddress(sourceChain, "WBNB")); 
+        _addNativeLeafs(leafs, getAddress(sourceChain, "WBNB"));
 
         // ========================== LBTC Bridge Wrapper ==========================
-        _addLBTCBridgeLeafs(leafs, 0x0000000000000000000000000000000000000000000000000000000000002105);  
-        _addLBTCBridgeLeafs(leafs, 0x0000000000000000000000000000000000000000000000000000000000000001);  
+        _addLBTCBridgeLeafs(leafs, 0x0000000000000000000000000000000000000000000000000000000000002105);
+        _addLBTCBridgeLeafs(leafs, 0x0000000000000000000000000000000000000000000000000000000000000001);
 
         // ==========================  Fee Claiming ==========================
 

@@ -11,13 +11,12 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {EtherFiLiquidDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EtherFiLiquidDecoderAndSanitizer.sol"; 
+import {EtherFiLiquidDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EtherFiLiquidDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
-
 
 contract BaseTestIntegration is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -25,11 +24,11 @@ contract BaseTestIntegration is Test, MerkleTreeHelper {
     using stdStorage for StdStorage;
 
     struct Tx {
-        ManageLeaf[] manageLeafs;  
-        address[] targets;  
-        bytes[] targetData; 
+        ManageLeaf[] manageLeafs;
+        address[] targets;
+        bytes[] targetData;
         address[] decodersAndSanitizers;
-        uint256[] values;    
+        uint256[] values;
     }
 
     ManagerWithMerkleVerification public manager;
@@ -37,7 +36,7 @@ contract BaseTestIntegration is Test, MerkleTreeHelper {
     address public rawDataDecoderAndSanitizer;
     RolesAuthority public rolesAuthority;
 
-    address public strategist; 
+    address public strategist;
 
     uint8 public constant MANAGER_ROLE = 1;
     uint8 public constant STRATEGIST_ROLE = 2;
@@ -45,30 +44,29 @@ contract BaseTestIntegration is Test, MerkleTreeHelper {
     uint8 public constant ADMIN_ROLE = 4;
     uint8 public constant BORING_VAULT_ROLE = 5;
     uint8 public constant BALANCER_VAULT_ROLE = 6;
-    
-    mapping(string => string) public nameToRPC; 
+
+    mapping(string => string) public nameToRPC;
 
     function setUp() public virtual {
-        nameToRPC["mainnet"] = "MAINNET_RPC_URL";  
-        nameToRPC["base"] = "BASE_RPC_URL";  
-        nameToRPC["arbitrum"] = "ARBITRUM_RPC_URL";  
-        nameToRPC["sonicMainnet"] = "SONIC_MAINNET_RPC_URL";  
-        nameToRPC["berachain"] = "BERA_CHAIN_RPC_URL";  
-        nameToRPC["bsc"] = "BNB_RPC_URL"; 
-        nameToRPC["swell"] = "SWELL_CHAIN_RPC_URL"; 
-        nameToRPC["derive"] = "DERIVE_RPC_URL"; 
-        nameToRPC["avalanche"] = "AVALANCHE_RPC_URL"; 
-        nameToRPC["hyperEVM"] = "HYPER_EVM_RPC_URL"; 
-        nameToRPC["tac"] = "TAC_RPC_URL"; 
-        nameToRPC["katana"] = "KATANA_RPC_URL"; 
-        nameToRPC["plasma"] = "PLASMA_RPC_URL"; 
+        nameToRPC["mainnet"] = "MAINNET_RPC_URL";
+        nameToRPC["base"] = "BASE_RPC_URL";
+        nameToRPC["arbitrum"] = "ARBITRUM_RPC_URL";
+        nameToRPC["sonicMainnet"] = "SONIC_MAINNET_RPC_URL";
+        nameToRPC["berachain"] = "BERA_CHAIN_RPC_URL";
+        nameToRPC["bsc"] = "BNB_RPC_URL";
+        nameToRPC["swell"] = "SWELL_CHAIN_RPC_URL";
+        nameToRPC["derive"] = "DERIVE_RPC_URL";
+        nameToRPC["avalanche"] = "AVALANCHE_RPC_URL";
+        nameToRPC["hyperEVM"] = "HYPER_EVM_RPC_URL";
+        nameToRPC["tac"] = "TAC_RPC_URL";
+        nameToRPC["katana"] = "KATANA_RPC_URL";
+        nameToRPC["plasma"] = "PLASMA_RPC_URL";
     }
-    
-    function _setupChain(string memory chain, uint256 blockNumber) internal {
 
+    function _setupChain(string memory chain, uint256 blockNumber) internal {
         setSourceChainName(chain);
         // Setup forked environment.
-        string memory rpcKey = nameToRPC[chain]; 
+        string memory rpcKey = nameToRPC[chain];
         _startFork(rpcKey, blockNumber);
 
         boringVault = new BoringVault(address(this), "Boring Vault", "BV", 18);
@@ -76,8 +74,7 @@ contract BaseTestIntegration is Test, MerkleTreeHelper {
         manager =
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
-        rawDataDecoderAndSanitizer = address(
-            new EtherFiLiquidDecoderAndSanitizer(address(0)));
+        rawDataDecoderAndSanitizer = address(new EtherFiLiquidDecoderAndSanitizer(address(0)));
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -141,17 +138,17 @@ contract BaseTestIntegration is Test, MerkleTreeHelper {
 
     function _overrideDecoder(address newDecoder) internal {
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", newDecoder);
-        rawDataDecoderAndSanitizer = newDecoder; 
+        rawDataDecoderAndSanitizer = newDecoder;
     }
 
     function _overrideBoringVault(address newBoringVault) internal {
         setAddress(true, sourceChain, "boringVault", newBoringVault);
-        boringVault = BoringVault(payable(newBoringVault)); 
+        boringVault = BoringVault(payable(newBoringVault));
     }
 
     function _overrideManager(address newManager) internal {
         setAddress(true, sourceChain, "manager", newManager);
-        manager = ManagerWithMerkleVerification(newManager); 
+        manager = ManagerWithMerkleVerification(newManager);
     }
 
     function _overrideRolesAuthority() internal {
@@ -159,22 +156,24 @@ contract BaseTestIntegration is Test, MerkleTreeHelper {
     }
 
     function _setStrategist(address _strategist) internal {
-        strategist = _strategist;  
+        strategist = _strategist;
     }
 
     function _getTxArrays(uint256 size) internal pure returns (Tx memory) {
-        Tx memory tx_; 
+        Tx memory tx_;
 
-        tx_.manageLeafs = new ManageLeaf[](size); 
-        tx_.targets = new address[](size); 
-        tx_.targetData = new bytes[](size); 
-        tx_.decodersAndSanitizers = new address[](size); 
-        tx_.values = new uint256[](size); 
+        tx_.manageLeafs = new ManageLeaf[](size);
+        tx_.targets = new address[](size);
+        tx_.targetData = new bytes[](size);
+        tx_.decodersAndSanitizers = new address[](size);
+        tx_.values = new uint256[](size);
 
-        return tx_; 
+        return tx_;
     }
 
     function _submitManagerCall(bytes32[][] memory proofs, Tx memory tx_) internal {
-        manager.manageVaultWithMerkleVerification(proofs, tx_.decodersAndSanitizers, tx_.targets, tx_.targetData, tx_.values);
+        manager.manageVaultWithMerkleVerification(
+            proofs, tx_.decodersAndSanitizers, tx_.targets, tx_.targetData, tx_.values
+        );
     }
 }

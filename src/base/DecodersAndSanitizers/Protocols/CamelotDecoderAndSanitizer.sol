@@ -99,7 +99,14 @@ contract CamelotDecoderAndSanitizer {
         addressesFound = abi.encodePacked(params.recipient, owner);
     }
 
-    function burn(uint256 /*tokenId*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function burn(
+        uint256 /*tokenId*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         // positionManager.burn(tokenId) will verify that the tokenId has no liquidity, and no tokens owed.
         // Nothing to sanitize or return
         return addressesFound;

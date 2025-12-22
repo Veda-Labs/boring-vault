@@ -19,10 +19,9 @@ contract CreateTacLBTCvMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0xD86fC1CaA0a5B82cC16B16B70DFC59F6f034C348;
-    address public rawDataDecoderAndSanitizer = 0x5ebE12dE67970a6d3DD70d23f90EbBA4dD38726A; 
-    address public managerAddress = 0x1F95Ae26c62D24c3a5E118922Fe2ddc3B433331D; 
-    address public accountantAddress = 0xB4703f17e3212E9959cC560e0592837292b14ECE; 
-    
+    address public rawDataDecoderAndSanitizer = 0x5ebE12dE67970a6d3DD70d23f90EbBA4dD38726A;
+    address public managerAddress = 0x1F95Ae26c62D24c3a5E118922Fe2ddc3B433331D;
+    address public accountantAddress = 0xB4703f17e3212E9959cC560e0592837292b14ECE;
 
     function setUp() external {}
 
@@ -43,11 +42,28 @@ contract CreateTacLBTCvMerkleRoot is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](64);
 
         // ========================== LayerZero ==========================
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "LBTC"), getAddress(sourceChain, "LBTCOFTAdapter"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "cbBTC"), getAddress(sourceChain, "cbBTC"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "LBTC"),
+            getAddress(sourceChain, "LBTCOFTAdapter"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "cbBTC"),
+            getAddress(sourceChain, "cbBTC"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
 
         // ========================== Curve ==========================
-        _addCurveLeafs(leafs, getAddress(sourceChain, "cbBTC_LBTC_Curve_Pool"), 2, getAddress(sourceChain, "cbBTC_LBTC_Curve_Gauge"));
+        _addCurveLeafs(
+            leafs,
+            getAddress(sourceChain, "cbBTC_LBTC_Curve_Pool"),
+            2,
+            getAddress(sourceChain, "cbBTC_LBTC_Curve_Gauge")
+        );
         _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "cbBTC_LBTC_Curve_Pool"));
 
         // ========================== MetaMorpho ==========================
@@ -70,8 +86,13 @@ contract CreateTacLBTCvMerkleRoot is Script, MerkleTreeHelper {
         //_addZerolendLeafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== Curve ==========================
-        _addCurveLeafs(leafs, getAddress(sourceChain, "cbBTC_LBTC_Curve_Pool"), 2, getAddress(sourceChain, "cbBTC_LBTC_Curve_Gauge")); 
-        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "cbBTC_LBTC_Curve_Pool")); 
+        _addCurveLeafs(
+            leafs,
+            getAddress(sourceChain, "cbBTC_LBTC_Curve_Pool"),
+            2,
+            getAddress(sourceChain, "cbBTC_LBTC_Curve_Gauge")
+        );
+        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "cbBTC_LBTC_Curve_Pool"));
 
         // ========================== MetaMorpho ==========================
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "re7LBTC")));
@@ -86,11 +107,11 @@ contract CreateTacLBTCvMerkleRoot is Script, MerkleTreeHelper {
         _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
 
         // ========================== ZeroLend ==========================
-        //ERC20[] memory supplyAssets = new ERC20[](1);  //Pending Zerolend 
-        //supplyAssets[0] = getAddress(sourceChain, "LBTC"); 
-        //ERC20[] memory borrowAssets = new ERC20[](1); 
-        //borrowAssets[0] = getAddress(sourceChain, "LBTC"); 
-        //_addZerolendLeafs(leafs, supplyAssets, borrowAssets);  
+        //ERC20[] memory supplyAssets = new ERC20[](1);  //Pending Zerolend
+        //supplyAssets[0] = getAddress(sourceChain, "LBTC");
+        //ERC20[] memory borrowAssets = new ERC20[](1);
+        //borrowAssets[0] = getAddress(sourceChain, "LBTC");
+        //_addZerolendLeafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

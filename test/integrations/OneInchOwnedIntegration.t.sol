@@ -11,7 +11,9 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {OneInchOwnedDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OneInchOwnedDecoderAndSanitizer.sol";
+import {
+    OneInchOwnedDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/OneInchOwnedDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
@@ -109,17 +111,17 @@ contract OneInchOwnedIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testOneInchSwapERC20__OldExecutor() external {
-        _setUpSpecificBlock__WETHSwap(OLD_ONE_INCH_EXECUTOR_MAINNET, 23591300); 
+        _setUpSpecificBlock__WETHSwap(OLD_ONE_INCH_EXECUTOR_MAINNET, 23591300);
 
         deal(getAddress(sourceChain, "WETH"), address(boringVault), 2_000e18);
-        
-        address[] memory tokens = new address[](2);   
-        SwapKind[] memory kind = new SwapKind[](2); 
-        tokens[0] = getAddress(sourceChain, "WETH"); 
-        kind[0] = SwapKind.BuyAndSell; 
-        tokens[1] = getAddress(sourceChain, "WEETH"); 
-        kind[1] = SwapKind.BuyAndSell; 
-       
+
+        address[] memory tokens = new address[](2);
+        SwapKind[] memory kind = new SwapKind[](2);
+        tokens[0] = getAddress(sourceChain, "WETH");
+        kind[0] = SwapKind.BuyAndSell;
+        tokens[1] = getAddress(sourceChain, "WEETH");
+        kind[1] = SwapKind.BuyAndSell;
+
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addLeafsFor1InchOwnedGeneralSwapping(leafs, tokens, kind);
 
@@ -143,7 +145,7 @@ contract OneInchOwnedIntegrationTest is Test, MerkleTreeHelper {
         targetData[0] = abi.encodeWithSignature(
             "approve(address,uint256)", getAddress(sourceChain, "aggregationRouterV5"), type(uint256).max
         );
-        
+
         DecoderCustomTypes.SwapDescription memory swapTokenInfo = DecoderCustomTypes.SwapDescription({
             srcToken: getAddress(sourceChain, "WETH"),
             dstToken: getAddress(sourceChain, "WEETH"),
@@ -154,12 +156,17 @@ contract OneInchOwnedIntegrationTest is Test, MerkleTreeHelper {
             flags: 4
         });
 
-        bytes memory data = hex"00000000000000000000000000000000000000029700026900021f00001a0020d6bdbf78c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200a0c9e75c480000000000001e0012020000000000000000000000000000000000000001d700013b0000ff00004f02a00000000000000000000000000000000000000000000000000000000000000001ee63c1e501202a6012894ae5c288ea824cbc8a9bfb26a49b93c02aaa39b223fe8d0a0e5c4f27ead9083c756cc25100db74dfdd3bb46be8ce6c33dc9d82777bcfc3ded5c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200443df0212400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000014101c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200042e1a7d4d0000000000000000000000000000000000000000000000000000000000000000416086f874212335af27c41cdb855c2255543d1499ce00242668dfaa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000005141b82f5ffda4c6fe1e372978f1c5427640a19000a0f2fa6b66cd5fe23c85820f7b72d0926fc9b05b43e359b7ee0000000000000000000000000000000000000000000000647873ed1122954ca0000000000000000000043784c68b019880a06c4eca27cd5fe23c85820f7b72d0926fc9b05b43e359b7ee1111111254eeb25477b68fb85ed929f73a960582";
+        bytes memory data =
+            hex"00000000000000000000000000000000000000029700026900021f00001a0020d6bdbf78c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200a0c9e75c480000000000001e0012020000000000000000000000000000000000000001d700013b0000ff00004f02a00000000000000000000000000000000000000000000000000000000000000001ee63c1e501202a6012894ae5c288ea824cbc8a9bfb26a49b93c02aaa39b223fe8d0a0e5c4f27ead9083c756cc25100db74dfdd3bb46be8ce6c33dc9d82777bcfc3ded5c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200443df0212400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000014101c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200042e1a7d4d0000000000000000000000000000000000000000000000000000000000000000416086f874212335af27c41cdb855c2255543d1499ce00242668dfaa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000005141b82f5ffda4c6fe1e372978f1c5427640a19000a0f2fa6b66cd5fe23c85820f7b72d0926fc9b05b43e359b7ee0000000000000000000000000000000000000000000000647873ed1122954ca0000000000000000000043784c68b019880a06c4eca27cd5fe23c85820f7b72d0926fc9b05b43e359b7ee1111111254eeb25477b68fb85ed929f73a960582";
 
         targetData[1] = abi.encodeWithSignature(
-            "swap(address,(address,address,address,address,uint256,uint256,uint256),bytes,bytes)", OLD_ONE_INCH_EXECUTOR_MAINNET, swapTokenInfo, "", data
+            "swap(address,(address,address,address,address,uint256,uint256,uint256),bytes,bytes)",
+            OLD_ONE_INCH_EXECUTOR_MAINNET,
+            swapTokenInfo,
+            "",
+            data
         );
-        
+
         address[] memory decodersAndSanitizers = new address[](2);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
@@ -170,17 +177,17 @@ contract OneInchOwnedIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testOneInchSwapERC20__NewExecutor() external {
-        _setUpSpecificBlock__WETHSwap(NEW_ONE_INCH_EXECUTOR_MAINNET, 23671018); 
+        _setUpSpecificBlock__WETHSwap(NEW_ONE_INCH_EXECUTOR_MAINNET, 23671018);
 
         deal(getAddress(sourceChain, "WETH"), address(boringVault), 2_000e18);
-        
-        address[] memory tokens = new address[](2);   
-        SwapKind[] memory kind = new SwapKind[](2); 
-        tokens[0] = getAddress(sourceChain, "WETH"); 
-        kind[0] = SwapKind.BuyAndSell; 
-        tokens[1] = getAddress(sourceChain, "WEETH"); 
-        kind[1] = SwapKind.BuyAndSell; 
-       
+
+        address[] memory tokens = new address[](2);
+        SwapKind[] memory kind = new SwapKind[](2);
+        tokens[0] = getAddress(sourceChain, "WETH");
+        kind[0] = SwapKind.BuyAndSell;
+        tokens[1] = getAddress(sourceChain, "WEETH");
+        kind[1] = SwapKind.BuyAndSell;
+
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addLeafsFor1InchOwnedGeneralSwapping(leafs, tokens, kind);
 
@@ -204,7 +211,7 @@ contract OneInchOwnedIntegrationTest is Test, MerkleTreeHelper {
         targetData[0] = abi.encodeWithSignature(
             "approve(address,uint256)", getAddress(sourceChain, "aggregationRouterV5"), type(uint256).max
         );
-        
+
         DecoderCustomTypes.SwapDescription memory swapTokenInfo = DecoderCustomTypes.SwapDescription({
             srcToken: getAddress(sourceChain, "WETH"),
             dstToken: getAddress(sourceChain, "WEETH"),
@@ -215,12 +222,17 @@ contract OneInchOwnedIntegrationTest is Test, MerkleTreeHelper {
             flags: 4
         });
 
-        bytes memory data = hex"0000000000000000000000000000000000000002520002240001da00001a0020d6bdbf78c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200a0c9e75c4800000000000000000000000000000029000000090000000000000000000000000000000000000000000001880000ec0000b05100db74dfdd3bb46be8ce6c33dc9d82777bcfc3ded5c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200443df0212400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000014101c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200042e1a7d4d0000000000000000000000000000000000000000000000000000000000000000416086f874212335af27c41cdb855c2255543d1499ce00242668dfaa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000008c864d0c8e476bf9eb9d620c10e1296fb0e2f94000a0f2fa6b66cd5fe23c85820f7b72d0926fc9b05b43e359b7ee0000000000000000000000000000000000000000000000646a08526a24695c2e00000000000000000003ea6740d11d1f80a06c4eca27cd5fe23c85820f7b72d0926fc9b05b43e359b7ee1111111254eeb25477b68fb85ed929f73a960582";
+        bytes memory data =
+            hex"0000000000000000000000000000000000000002520002240001da00001a0020d6bdbf78c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200a0c9e75c4800000000000000000000000000000029000000090000000000000000000000000000000000000000000001880000ec0000b05100db74dfdd3bb46be8ce6c33dc9d82777bcfc3ded5c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200443df0212400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000014101c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200042e1a7d4d0000000000000000000000000000000000000000000000000000000000000000416086f874212335af27c41cdb855c2255543d1499ce00242668dfaa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000008c864d0c8e476bf9eb9d620c10e1296fb0e2f94000a0f2fa6b66cd5fe23c85820f7b72d0926fc9b05b43e359b7ee0000000000000000000000000000000000000000000000646a08526a24695c2e00000000000000000003ea6740d11d1f80a06c4eca27cd5fe23c85820f7b72d0926fc9b05b43e359b7ee1111111254eeb25477b68fb85ed929f73a960582";
 
         targetData[1] = abi.encodeWithSignature(
-            "swap(address,(address,address,address,address,uint256,uint256,uint256),bytes,bytes)", NEW_ONE_INCH_EXECUTOR_MAINNET, swapTokenInfo, "", data
+            "swap(address,(address,address,address,address,uint256,uint256,uint256),bytes,bytes)",
+            NEW_ONE_INCH_EXECUTOR_MAINNET,
+            swapTokenInfo,
+            "",
+            data
         );
-        
+
         address[] memory decodersAndSanitizers = new address[](2);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
@@ -231,17 +243,17 @@ contract OneInchOwnedIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testOneInchSwapERC20__Reverts() external {
-        _setUpSpecificBlock__WETHSwap(NEW_ONE_INCH_EXECUTOR_MAINNET, 23671018); 
+        _setUpSpecificBlock__WETHSwap(NEW_ONE_INCH_EXECUTOR_MAINNET, 23671018);
 
         deal(getAddress(sourceChain, "WETH"), address(boringVault), 2_000e18);
-        
-        address[] memory tokens = new address[](2);   
-        SwapKind[] memory kind = new SwapKind[](2); 
-        tokens[0] = getAddress(sourceChain, "WETH"); 
-        kind[0] = SwapKind.BuyAndSell; 
-        tokens[1] = getAddress(sourceChain, "WEETH"); 
-        kind[1] = SwapKind.BuyAndSell; 
-       
+
+        address[] memory tokens = new address[](2);
+        SwapKind[] memory kind = new SwapKind[](2);
+        tokens[0] = getAddress(sourceChain, "WETH");
+        kind[0] = SwapKind.BuyAndSell;
+        tokens[1] = getAddress(sourceChain, "WEETH");
+        kind[1] = SwapKind.BuyAndSell;
+
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addLeafsFor1InchOwnedGeneralSwapping(leafs, tokens, kind);
 
@@ -267,7 +279,7 @@ contract OneInchOwnedIntegrationTest is Test, MerkleTreeHelper {
         targetData[0] = abi.encodeWithSignature(
             "approve(address,uint256)", getAddress(sourceChain, "aggregationRouterV5"), type(uint256).max
         );
-        
+
         // wrong executor here
         DecoderCustomTypes.SwapDescription memory swapTokenInfo = DecoderCustomTypes.SwapDescription({
             srcToken: getAddress(sourceChain, "WETH"),
@@ -279,11 +291,16 @@ contract OneInchOwnedIntegrationTest is Test, MerkleTreeHelper {
             flags: 4
         });
 
-        bytes memory data = hex"0000000000000000000000000000000000000002520002240001da00001a0020d6bdbf78c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200a0c9e75c4800000000000000000000000000000029000000090000000000000000000000000000000000000000000001880000ec0000b05100db74dfdd3bb46be8ce6c33dc9d82777bcfc3ded5c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200443df0212400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000014101c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200042e1a7d4d0000000000000000000000000000000000000000000000000000000000000000416086f874212335af27c41cdb855c2255543d1499ce00242668dfaa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000008c864d0c8e476bf9eb9d620c10e1296fb0e2f94000a0f2fa6b66cd5fe23c85820f7b72d0926fc9b05b43e359b7ee0000000000000000000000000000000000000000000000646a08526a24695c2e00000000000000000003ea6740d11d1f80a06c4eca27cd5fe23c85820f7b72d0926fc9b05b43e359b7ee1111111254eeb25477b68fb85ed929f73a960582";
+        bytes memory data =
+            hex"0000000000000000000000000000000000000002520002240001da00001a0020d6bdbf78c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200a0c9e75c4800000000000000000000000000000029000000090000000000000000000000000000000000000000000001880000ec0000b05100db74dfdd3bb46be8ce6c33dc9d82777bcfc3ded5c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200443df0212400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000014101c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200042e1a7d4d0000000000000000000000000000000000000000000000000000000000000000416086f874212335af27c41cdb855c2255543d1499ce00242668dfaa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000008c864d0c8e476bf9eb9d620c10e1296fb0e2f94000a0f2fa6b66cd5fe23c85820f7b72d0926fc9b05b43e359b7ee0000000000000000000000000000000000000000000000646a08526a24695c2e00000000000000000003ea6740d11d1f80a06c4eca27cd5fe23c85820f7b72d0926fc9b05b43e359b7ee1111111254eeb25477b68fb85ed929f73a960582";
 
         // right executor here
         targetData[1] = abi.encodeWithSignature(
-            "swap(address,(address,address,address,address,uint256,uint256,uint256),bytes,bytes)", NEW_ONE_INCH_EXECUTOR_MAINNET, swapTokenInfo, "", data
+            "swap(address,(address,address,address,address,uint256,uint256,uint256),bytes,bytes)",
+            NEW_ONE_INCH_EXECUTOR_MAINNET,
+            swapTokenInfo,
+            "",
+            data
         );
 
         address[] memory decodersAndSanitizers = new address[](3);
@@ -293,9 +310,7 @@ contract OneInchOwnedIntegrationTest is Test, MerkleTreeHelper {
 
         uint256[] memory values = new uint256[](3);
 
-        vm.expectRevert(
-            OneInchOwnedDecoderAndSanitizer.OneInchDecoderAndSanitizer__InvalidExecutor.selector
-        ); 
+        vm.expectRevert(OneInchOwnedDecoderAndSanitizer.OneInchDecoderAndSanitizer__InvalidExecutor.selector);
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
         // right executor here
@@ -308,20 +323,23 @@ contract OneInchOwnedIntegrationTest is Test, MerkleTreeHelper {
             minReturnAmount: 1852129623269144641715,
             flags: 4
         });
-        
+
         // wrong executor here
         targetData[2] = abi.encodeWithSignature(
-            "swap(address,(address,address,address,address,uint256,uint256,uint256),bytes,bytes)", OLD_ONE_INCH_EXECUTOR_MAINNET, swapTokenInfo, "", data
+            "swap(address,(address,address,address,address,uint256,uint256,uint256),bytes,bytes)",
+            OLD_ONE_INCH_EXECUTOR_MAINNET,
+            swapTokenInfo,
+            "",
+            data
         );
 
-        vm.expectRevert(
-            OneInchOwnedDecoderAndSanitizer.OneInchDecoderAndSanitizer__InvalidExecutor.selector
-        ); 
+        vm.expectRevert(OneInchOwnedDecoderAndSanitizer.OneInchDecoderAndSanitizer__InvalidExecutor.selector);
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
     }
 
     event OneInchExecutorSet(address oneInchExecutor);
+
     function testDecoderSetExecutor() external {
         setSourceChainName("mainnet");
         // Setup forked environment.
@@ -330,7 +348,8 @@ contract OneInchOwnedIntegrationTest is Test, MerkleTreeHelper {
 
         _startFork(rpcKey, blockNumber);
 
-        OneInchOwnedDecoderAndSanitizer decoder = new FullOneInchOwnedDecoderAndSanitizer(address(1), getAddress(sourceChain, "oneInchExecutor"));
+        OneInchOwnedDecoderAndSanitizer decoder =
+            new FullOneInchOwnedDecoderAndSanitizer(address(1), getAddress(sourceChain, "oneInchExecutor"));
         vm.expectEmit(true, true, true, true);
         emit OneInchExecutorSet(getAddress(sourceChain, "oneInchExecutor"));
         vm.prank(address(1));
@@ -347,5 +366,5 @@ contract OneInchOwnedIntegrationTest is Test, MerkleTreeHelper {
 }
 
 contract FullOneInchOwnedDecoderAndSanitizer is BaseDecoderAndSanitizer, OneInchOwnedDecoderAndSanitizer {
-    constructor(address _owner, address _oneInchExecutor) OneInchOwnedDecoderAndSanitizer(_owner, _oneInchExecutor){}
+    constructor(address _owner, address _oneInchExecutor) OneInchOwnedDecoderAndSanitizer(_owner, _oneInchExecutor) {}
 }

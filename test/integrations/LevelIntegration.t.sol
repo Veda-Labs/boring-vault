@@ -114,7 +114,7 @@ contract LevelIntegrationTest is Test, MerkleTreeHelper {
         deal(getAddress(sourceChain, "USDT"), address(boringVault), 100_000e6);
 
         address contractAddress = getAddress(sourceChain, "levelMinter");
-        
+
         // contract has no funds to actually redeem on this block
         deal(getAddress(sourceChain, "USDC"), getAddress(sourceChain, "levelMinter"), 100_000e6);
         deal(getAddress(sourceChain, "USDT"), getAddress(sourceChain, "levelMinter"), 100_000e6);
@@ -146,11 +146,11 @@ contract LevelIntegrationTest is Test, MerkleTreeHelper {
         //        console.log("Value after change: 0x%x", uint256(verifyValue));
         //    }
         //}
-        
 
-        vm.startPrank(0x0798880E772009DDf6eF062F2Ef32c738119d086); 
-        RolesAuthority(0xc8425ACE617acA1dDcB09Cb7784b67403440098A).setPublicCapability(getAddress(sourceChain, "levelMinter"), 0xabaaabae, true); 
-        vm.stopPrank(); 
+        vm.startPrank(0x0798880E772009DDf6eF062F2Ef32c738119d086);
+        RolesAuthority(0xc8425ACE617acA1dDcB09Cb7784b67403440098A)
+            .setPublicCapability(getAddress(sourceChain, "levelMinter"), 0xabaaabae, true);
+        vm.stopPrank();
 
         ManageLeaf[] memory leafs = new ManageLeaf[](32);
         _addLevelLeafs(leafs);
@@ -194,26 +194,26 @@ contract LevelIntegrationTest is Test, MerkleTreeHelper {
             getAddress(sourceChain, "USDC"),
             860000000, //gotten from on-chain
             859548540855159900000 //gotten from on-chain
-        ); 
+        );
 
-        targetData[3] =
-            abi.encodeWithSignature("mint((address,address,uint256,uint256))", order);
+        targetData[3] = abi.encodeWithSignature("mint((address,address,uint256,uint256))", order);
 
         DecoderCustomTypes.LevelOrderV2 memory order1 = DecoderCustomTypes.LevelOrderV2(
             address(boringVault), //beneficiary
             getAddress(sourceChain, "USDT"),
             106513946, //gotten from on-chain
             106481991816200010000 //gotten from on-chain
-        ); 
+        );
 
-        targetData[4] =
-            abi.encodeWithSignature("mint((address,address,uint256,uint256))", order1);
+        targetData[4] = abi.encodeWithSignature("mint((address,address,uint256,uint256))", order1);
 
-        targetData[5] =
-            abi.encodeWithSignature("initiateRedeem(address,uint256,uint256)", getAddress(sourceChain, "USDC"), 24e18, 1e6); 
+        targetData[5] = abi.encodeWithSignature(
+            "initiateRedeem(address,uint256,uint256)", getAddress(sourceChain, "USDC"), 24e18, 1e6
+        );
 
-        targetData[6] =
-            abi.encodeWithSignature("initiateRedeem(address,uint256,uint256)", getAddress(sourceChain, "USDT"), 10e18, 1e6); 
+        targetData[6] = abi.encodeWithSignature(
+            "initiateRedeem(address,uint256,uint256)", getAddress(sourceChain, "USDT"), 10e18, 1e6
+        );
 
         uint256[] memory values = new uint256[](7);
 
@@ -224,9 +224,8 @@ contract LevelIntegrationTest is Test, MerkleTreeHelper {
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
-
-        //skip time until we can complete the redeem 
-        skip(12 hours); 
+        //skip time until we can complete the redeem
+        skip(12 hours);
 
         manageLeafs = new ManageLeaf[](2);
         manageLeafs[0] = leafs[7]; //completeRedeem usdc
@@ -240,10 +239,12 @@ contract LevelIntegrationTest is Test, MerkleTreeHelper {
 
         targetData = new bytes[](2);
 
-        targetData[0] =
-            abi.encodeWithSignature("completeRedeem(address,address)", getAddress(sourceChain, "USDC"), address(boringVault));
-        targetData[1] =
-            abi.encodeWithSignature("completeRedeem(address,address)", getAddress(sourceChain, "USDT"), address(boringVault));
+        targetData[0] = abi.encodeWithSignature(
+            "completeRedeem(address,address)", getAddress(sourceChain, "USDC"), address(boringVault)
+        );
+        targetData[1] = abi.encodeWithSignature(
+            "completeRedeem(address,address)", getAddress(sourceChain, "USDT"), address(boringVault)
+        );
 
         values = new uint256[](2);
 
@@ -254,9 +255,9 @@ contract LevelIntegrationTest is Test, MerkleTreeHelper {
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
-        //uint256 expectedlvlUSDBalance = 67167210184620000; //dust 
-        //uint256 lvlUSDBalance = getERC20(sourceChain, "lvlUSD").balanceOf(address(boringVault)); 
-        //assertEq(expectedlvlUSDBalance, lvlUSDBalance); 
+        //uint256 expectedlvlUSDBalance = 67167210184620000; //dust
+        //uint256 lvlUSDBalance = getERC20(sourceChain, "lvlUSD").balanceOf(address(boringVault));
+        //assertEq(expectedlvlUSDBalance, lvlUSDBalance);
     }
 
     function testStakedLvlUSDFunctions() external {
@@ -331,12 +332,12 @@ contract LevelIntegrationTest is Test, MerkleTreeHelper {
         deal(getAddress(sourceChain, "lvlUSD"), address(boringVault), 1_000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](32);
-        _addLevelLeafs(leafs); 
+        _addLevelLeafs(leafs);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
-        
+
         //we cannot withdraw/redeem while cooldown active
         ManageLeaf[] memory manageLeafs = new ManageLeaf[](3);
         manageLeafs[0] = leafs[11]; //approve
@@ -351,13 +352,12 @@ contract LevelIntegrationTest is Test, MerkleTreeHelper {
         targets[2] = getAddress(sourceChain, "slvlUSD");
 
         bytes[] memory targetData = new bytes[](3);
-        targetData[0] = abi.encodeWithSignature(
-            "approve(address,uint256)", getAddress(sourceChain, "slvlUSD"), type(uint256).max
-        );
+        targetData[0] =
+            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "slvlUSD"), type(uint256).max);
         targetData[1] =
             abi.encodeWithSignature("deposit(uint256,address)", 100e18, getAddress(sourceChain, "boringVault"));
         targetData[2] = //mint 10 shares
-         abi.encodeWithSignature("mint(uint256,address)", 10e18, getAddress(sourceChain, "boringVault"));
+            abi.encodeWithSignature("mint(uint256,address)", 10e18, getAddress(sourceChain, "boringVault"));
 
         address[] memory decodersAndSanitizers = new address[](3);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
@@ -368,7 +368,6 @@ contract LevelIntegrationTest is Test, MerkleTreeHelper {
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
     }
-    
 
     // ========================================= HELPER FUNCTIONS =========================================
 

@@ -26,7 +26,10 @@ contract BaseDecoderAndSanitizer {
         addressesFound = abi.encodePacked(yieldAsset);
     }
 
-    function withdrawNonBoringToken(address token, uint256 /*amount*/ )
+    function withdrawNonBoringToken(
+        address token,
+        uint256 /*amount*/
+    )
         external
         pure
         returns (bytes memory addressesFound)

@@ -6,15 +6,20 @@ pragma solidity 0.8.21;
 
 import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
-import {NativeWrapperDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol";
-import {StandardBridgeDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/StandardBridgeDecoderAndSanitizer.sol";
-import {LidoStandardBridgeDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/LidoStandardBridgeDecoderAndSanitizer.sol";
+import {
+    NativeWrapperDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol";
+import {
+    StandardBridgeDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/StandardBridgeDecoderAndSanitizer.sol";
+import {
+    LidoStandardBridgeDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/LidoStandardBridgeDecoderAndSanitizer.sol";
 import {OFTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OFTDecoderAndSanitizer.sol";
 import {MerklDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MerklDecoderAndSanitizer.sol";
-import {MorphoBlueDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MorphoBlueDecoderAndSanitizer.sol";
+import {
+    MorphoBlueDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/MorphoBlueDecoderAndSanitizer.sol";
 import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
 import {EulerEVKDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/EulerEVKDecoderAndSanitizer.sol";
 import {UniswapV4DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV4DecoderAndSanitizer.sol";
@@ -22,28 +27,35 @@ import {UniswapV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Proto
 import {AaveV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AaveV3DecoderAndSanitizer.sol";
 import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol";
 import {OneInchDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OneInchDecoderAndSanitizer.sol";
-import {BalancerV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BalancerV3DecoderAndSanitizer.sol";
-import {BalancerV2DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BalancerV2DecoderAndSanitizer.sol";
+import {
+    BalancerV3DecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/BalancerV3DecoderAndSanitizer.sol";
+import {
+    BalancerV2DecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/BalancerV2DecoderAndSanitizer.sol";
 import {FluidDexDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/FluidDexDecoderAndSanitizer.sol";
 import {LidoDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LidoDecoderAndSanitizer.sol";
 import {DvStETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/DvStETHDecoderAndSanitizer.sol";
 import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
 import {Permit2DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/Permit2DecoderAndSanitizer.sol";
-import {FluidFTokenDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/FluidFTokenDecoderAndSanitizer.sol";
-import {wSwellUnwrappingDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/wSwellUnwrappingDecoderAndSanitizer.sol";
-import {SymbioticVaultDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/SymbioticVaultDecoderAndSanitizer.sol";
-import {EtherFiDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/EtherFiDecoderAndSanitizer.sol";
-import {TreehouseDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/TreehouseDecoderAndSanitizer.sol";
-import {ArbitrumNativeBridgeDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/ArbitrumNativeBridgeDecoderAndSanitizer.sol";
-import {AgglayerDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/AgglayerDecoderAndSanitizer.sol";
-import {LineaBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LineaBridgeDecoderAndSanitizer.sol";
+import {
+    FluidFTokenDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/FluidFTokenDecoderAndSanitizer.sol";
+import {
+    wSwellUnwrappingDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/wSwellUnwrappingDecoderAndSanitizer.sol";
+import {
+    SymbioticVaultDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/SymbioticVaultDecoderAndSanitizer.sol";
+import {EtherFiDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/EtherFiDecoderAndSanitizer.sol";
+import {TreehouseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TreehouseDecoderAndSanitizer.sol";
+import {
+    ArbitrumNativeBridgeDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/ArbitrumNativeBridgeDecoderAndSanitizer.sol";
+import {AgglayerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AgglayerDecoderAndSanitizer.sol";
+import {
+    LineaBridgeDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/LineaBridgeDecoderAndSanitizer.sol";
 import {ResolvDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ResolvDecoderAndSanitizer.sol";
 
 contract GoldenGooseDecoderAndSanitizer is
@@ -143,7 +155,12 @@ contract GoldenGooseDecoderAndSanitizer is
     /**
      * @notice NativeWrapper and EtherFi both specify a `deposit()`.
      */
-    function deposit() external pure override(NativeWrapperDecoderAndSanitizer, EtherFiDecoderAndSanitizer) returns (bytes memory addressesFound) {
+    function deposit()
+        external
+        pure
+        override(NativeWrapperDecoderAndSanitizer, EtherFiDecoderAndSanitizer)
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 
@@ -202,7 +219,12 @@ contract GoldenGooseDecoderAndSanitizer is
     function withdraw(uint256)
         external
         pure
-        override(NativeWrapperDecoderAndSanitizer, CurveDecoderAndSanitizer, BalancerV2DecoderAndSanitizer, ResolvDecoderAndSanitizer)
+        override(
+            NativeWrapperDecoderAndSanitizer,
+            CurveDecoderAndSanitizer,
+            BalancerV2DecoderAndSanitizer,
+            ResolvDecoderAndSanitizer
+        )
         returns (bytes memory addressesFound)
     {
         return addressesFound;

@@ -44,9 +44,7 @@ contract DeployTellerWithYieldStreamingScript is Script, ContractNames, MainnetA
         creationCode = type(AaveV3BufferHelper).creationCode;
         constructorArgs = abi.encode(v3PoolMainnet, boringVault);
         AaveV3BufferHelper bufferHelper = AaveV3BufferHelper(
-            deployer.deployContract(
-                "Balanced Yield USDC Aave Buffer Helper V0.1", creationCode, constructorArgs, 0
-            )
+            deployer.deployContract("Balanced Yield USDC Aave Buffer Helper V0.1", creationCode, constructorArgs, 0)
         );
 
         // deploy teller

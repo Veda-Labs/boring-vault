@@ -200,11 +200,11 @@ contract RoycoIntegrationTest is BaseTestIntegration {
             getAddress(sourceChain, "boringVault")
         );
         targetData[3] = //mint 10 shares
-        abi.encodeWithSignature(
+            abi.encodeWithSignature(
             "mint(uint256,address)", 10 * (10 ** ERC4626(vault).decimals()), getAddress(sourceChain, "boringVault")
         );
         targetData[4] = //redeem 10 shares
-        abi.encodeWithSignature(
+            abi.encodeWithSignature(
             "redeem(uint256,address,address)",
             10 * (10 ** ERC4626(vault).decimals()),
             getAddress(sourceChain, "boringVault"),

@@ -9,15 +9,36 @@ import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecode
 contract PumpStakingDecoderAndSanitizer {
     //============================== PUMP STAKING ===============================
 
-    function stake(uint256 /*amount*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function stake(
+        uint256 /*amount*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 
-    function unstakeRequest(uint256 /*amount*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function unstakeRequest(
+        uint256 /*amount*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 
-    function claimSlot(uint8 /*slot*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function claimSlot(
+        uint8 /*slot*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 
@@ -25,7 +46,14 @@ contract PumpStakingDecoderAndSanitizer {
         return addressesFound;
     }
 
-    function unstakeInstant(uint256 /*amount*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function unstakeInstant(
+        uint256 /*amount*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 }

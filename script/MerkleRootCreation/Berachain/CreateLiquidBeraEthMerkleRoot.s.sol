@@ -18,8 +18,8 @@ import "forge-std/Script.sol";
 contract CreateLiquidBeraEthMerkleRoot is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
-    address public boringVault = 0x83599937c2C9bEA0E0E8ac096c6f32e86486b410; 
-    address public managerAddress = 0x62b283d4FeFB2a120e1120dba9f83bE6CA41bCD7; 
+    address public boringVault = 0x83599937c2C9bEA0E0E8ac096c6f32e86486b410;
+    address public managerAddress = 0x62b283d4FeFB2a120e1120dba9f83bE6CA41bCD7;
     address public accountantAddress = 0x04B8136820598A4e50bEe21b8b6a23fE25Df9Bd8;
     address public rawDataDecoderAndSanitizer = 0x934aF04aBF72B9dB1D5425F0d8bDbf6670E7d2C1;
 
@@ -43,22 +43,34 @@ contract CreateLiquidBeraEthMerkleRoot is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](64);
 
         // ========================== Ooga Booga ==========================
-        address[] memory assets = new address[](4); 
-        SwapKind[] memory kind = new SwapKind[](4); 
-        assets[0] = getAddress(sourceChain, "iBGT"); 
-        kind[0] = SwapKind.Sell; 
-        assets[1] = getAddress(sourceChain, "WETH"); 
-        kind[1] = SwapKind.BuyAndSell; 
-        assets[2] = getAddress(sourceChain, "WEETH"); 
-        kind[2] = SwapKind.BuyAndSell; 
+        address[] memory assets = new address[](4);
+        SwapKind[] memory kind = new SwapKind[](4);
+        assets[0] = getAddress(sourceChain, "iBGT");
+        kind[0] = SwapKind.Sell;
+        assets[1] = getAddress(sourceChain, "WETH");
+        kind[1] = SwapKind.BuyAndSell;
+        assets[2] = getAddress(sourceChain, "WEETH");
+        kind[2] = SwapKind.BuyAndSell;
         assets[3] = getAddress(sourceChain, "BGT"); //just in case
-        kind[3] = SwapKind.Sell; 
-        
+        kind[3] = SwapKind.Sell;
+
         _addOogaBoogaSwapLeafs(leafs, assets, kind);
 
         // ========================== LayerZero ==========================
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WETH"), getAddress(sourceChain, "stargateWETH"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "WEETH"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "WETH"),
+            getAddress(sourceChain, "stargateWETH"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "WEETH"),
+            getAddress(sourceChain, "WEETH"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
 
         // ========================== PrimeLiquidBeraETH ==========================
         ERC20[] memory tellerAssets = new ERC20[](2);
@@ -86,7 +98,6 @@ contract CreateLiquidBeraEthMerkleRoot is Script, MerkleTreeHelper {
 
         //     address[] memory denManagers = new address[](2);
 
-
         //     _addBeraborrowLeafs(leafs, collateralAssets, borrowAssets, denManagers, false);
         // }
 
@@ -97,7 +108,7 @@ contract CreateLiquidBeraEthMerkleRoot is Script, MerkleTreeHelper {
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, true);
 
         // ========================== Verify ==========================
-        
+
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
         string memory filePath = "./leafs/Berachain/LiquidBeraEth.json";

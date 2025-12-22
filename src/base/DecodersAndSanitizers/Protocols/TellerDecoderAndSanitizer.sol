@@ -15,7 +15,14 @@ contract TellerDecoderAndSanitizer {
 
     //============================== Teller ===============================
 
-    function bulkDeposit(address depositAsset, uint256, /*depositAmount*/ uint256, /*minimumMint*/ address to)
+    function bulkDeposit(
+        address depositAsset,
+        uint256,
+        /*depositAmount*/
+        uint256,
+        /*minimumMint*/
+        address to
+    )
         external
         pure
         returns (bytes memory addressesFound)
@@ -23,7 +30,14 @@ contract TellerDecoderAndSanitizer {
         addressesFound = abi.encodePacked(depositAsset, to);
     }
 
-    function bulkWithdraw(address withdrawAsset, uint256, /*shareAmount*/ uint256, /*minimumAssets*/ address to)
+    function bulkWithdraw(
+        address withdrawAsset,
+        uint256,
+        /*shareAmount*/
+        uint256,
+        /*minimumAssets*/
+        address to
+    )
         external
         pure
         returns (bytes memory addressesFound)
@@ -31,7 +45,12 @@ contract TellerDecoderAndSanitizer {
         addressesFound = abi.encodePacked(withdrawAsset, to);
     }
 
-    function deposit(address depositAsset, uint256, /*depositAmount*/ uint256 /*minimumMint*/ )
+    function deposit(
+        address depositAsset,
+        uint256,
+        /*depositAmount*/
+        uint256 /*minimumMint*/
+    )
         external
         pure
         virtual
@@ -40,7 +59,14 @@ contract TellerDecoderAndSanitizer {
         addressesFound = abi.encodePacked(depositAsset);
     }
 
-    function deposit(address depositAsset, uint256, /*depositAmount*/ uint256, /*minimumMint*/ address referrer)
+    function deposit(
+        address depositAsset,
+        uint256,
+        /*depositAmount*/
+        uint256,
+        /*minimumMint*/
+        address referrer
+    )
         external
         pure
         virtual
@@ -49,7 +75,14 @@ contract TellerDecoderAndSanitizer {
         addressesFound = abi.encodePacked(depositAsset, referrer);
     }
 
-    function withdraw(address withdrawAsset, uint256, /*shareAmount*/ uint256 /*minimumAssets*/, address to)
+    function withdraw(
+        address withdrawAsset,
+        uint256,
+        /*shareAmount*/
+        uint256,
+        /*minimumAssets*/
+        address to
+    )
         external
         pure
         virtual
@@ -57,7 +90,6 @@ contract TellerDecoderAndSanitizer {
     {
         addressesFound = abi.encodePacked(withdrawAsset, to);
     }
-
 
     // BoringOnChainQueue.sol
     function requestOnChainWithdraw(address asset, uint128, uint16, uint24)
@@ -82,7 +114,12 @@ contract TellerDecoderAndSanitizer {
         DecoderCustomTypes.OnChainWithdraw memory oldRequest,
         uint16, /*discount*/
         uint24 /*secondsToDeadline*/
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(oldRequest.user, oldRequest.assetOut);
     }
 
@@ -93,7 +130,12 @@ contract TellerDecoderAndSanitizer {
         bytes calldata bridgeWildCard,
         address feeToken,
         uint256 /*maxFee*/
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         if (bridgeWildCard.length != 32) revert TellerDecoderAndSanitizer__BridgeWildCardLengthMustBe32Bytes();
 
         address bridgeWildCard0;

@@ -7,17 +7,17 @@ pragma solidity 0.8.21;
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 
 contract RedSnwapperDecoderAndSanitizer {
-
     function snwap(
         address tokenIn,
-        uint256 /*amountIn*/,
+        uint256,
+        /*amountIn*/
         address recipient,
         address tokenOut,
-        uint256 /*amountOutMin*/,
+        uint256,
+        /*amountOutMin*/
         address executor,
         bytes calldata /*executorData*/
     ) external pure virtual returns (bytes memory addressesFound) {
-        addressesFound = abi.encodePacked(tokenIn, recipient, tokenOut, executor); 
-    } 
-
+        addressesFound = abi.encodePacked(tokenIn, recipient, tokenOut, executor);
+    }
 }

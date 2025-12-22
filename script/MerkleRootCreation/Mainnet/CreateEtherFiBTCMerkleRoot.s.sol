@@ -96,7 +96,6 @@ contract CreateEtherFiBTCMerkleRootScript is Script, MerkleTreeHelper {
         _addKarakLeafs(leafs, getAddress(sourceChain, "vaultSupervisor"), getAddress(sourceChain, "kWBTC"));
         _addKarakLeafs(leafs, getAddress(sourceChain, "vaultSupervisor"), getAddress(sourceChain, "kLBTC"));
 
-
         // ========================== Symbiotic Vault ==========================
         address[] memory vaults = new address[](1);
         vaults[0] = getAddress(sourceChain, "EtherFi_LBTCSymbioticVault");
@@ -115,7 +114,6 @@ contract CreateEtherFiBTCMerkleRootScript is Script, MerkleTreeHelper {
         //    layerZeroScrollEndpointId,
         //    getBytes32(sourceChain, "boringVault")
         //);
-
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

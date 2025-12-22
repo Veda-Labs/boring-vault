@@ -17,8 +17,9 @@ import {
     BalancerV2DecoderAndSanitizer,
     PendleRouterDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/EtherFiLiquidDecoderAndSanitizer.sol";
-import {EtherFiLiquidUsdDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/EtherFiLiquidUsdDecoderAndSanitizer.sol";
+import {
+    EtherFiLiquidUsdDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/EtherFiLiquidUsdDecoderAndSanitizer.sol";
 import {LidoLiquidDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LidoLiquidDecoderAndSanitizer.sol";
 import {BalancerVault} from "src/interfaces/BalancerVault.sol";
 import {IUniswapV3Router} from "src/interfaces/IUniswapV3Router.sol";
@@ -301,8 +302,7 @@ contract ManagerWithMerkleVerificationTest is Test, MerkleTreeHelper {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                ManagerWithMerkleVerification
-                    .ManagerWithMerkleVerification__TotalSupplyMustRemainConstantDuringPlatform
+                ManagerWithMerkleVerification.ManagerWithMerkleVerification__TotalSupplyMustRemainConstantDuringPlatform
                     .selector
             )
         );

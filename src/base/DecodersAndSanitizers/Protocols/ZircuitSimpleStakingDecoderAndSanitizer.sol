@@ -9,7 +9,11 @@ import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecode
 contract ZircuitSimpleStakingDecoderAndSanitizer {
     //============================== ZIRCUIT SIMPLE STAKING ===============================
 
-    function depositFor(address _token, address _for, uint256 /*_amount*/ )
+    function depositFor(
+        address _token,
+        address _for,
+        uint256 /*_amount*/
+    )
         external
         pure
         virtual
@@ -18,7 +22,10 @@ contract ZircuitSimpleStakingDecoderAndSanitizer {
         addressesFound = abi.encodePacked(_token, _for);
     }
 
-    function withdraw(address _token, uint256 /*_amount*/ )
+    function withdraw(
+        address _token,
+        uint256 /*_amount*/
+    )
         external
         pure
         virtual

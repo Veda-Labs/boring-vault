@@ -27,7 +27,6 @@ contract CreateLiquidETHOperationalMerkleRootScript is Script, MerkleTreeHelper 
     }
 
     function generateLiquidEthOperationalStrategistMerkleRoot() public {
-
         setSourceChainName(plasma);
         setAddress(false, plasma, "boringVault", boringVault);
         setAddress(false, plasma, "managerAddress", managerAddress);

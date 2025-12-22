@@ -283,9 +283,7 @@ contract BalancerV2FlashloansIntegrationTest is Test, MerkleTreeHelper {
 
     bool doNothing = true;
 
-    function flashLoan(address, address[] calldata tokens, uint256[] calldata amounts, bytes memory userData)
-        external
-    {
+    function flashLoan(address, address[] calldata tokens, uint256[] calldata amounts, bytes memory userData) external {
         if (doNothing) {
             return;
         } else {

@@ -4,39 +4,40 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol"; 
+import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {KingClaimingDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/KingClaimingDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol"; 
+import {
+    KingClaimingDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/KingClaimingDecoderAndSanitizer.sol";
+import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
-import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol"; 
+import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
-contract FullKingClaimingDecoderAndSanitizer is KingClaimingDecoderAndSanitizer { }
+contract FullKingClaimingDecoderAndSanitizer is KingClaimingDecoderAndSanitizer {}
 
 contract KingRewardsClaimingIntegration is BaseTestIntegration {
-        
     function _setUpMainnet() internal {
-        super.setUp(); 
-        _setupChain("mainnet", 22282617); 
-            
-        address kingDecoder = address(new FullKingClaimingDecoderAndSanitizer()); 
+        super.setUp();
+        _setupChain("mainnet", 22282617);
 
-        _overrideDecoder(kingDecoder); 
+        address kingDecoder = address(new FullKingClaimingDecoderAndSanitizer());
+
+        _overrideDecoder(kingDecoder);
     }
 
     function testKingRewardsClaiming() external {
-        _setUpMainnet(); 
-        
-        //starting with just the base assets 
-        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000e18); 
+        _setUpMainnet();
+
+        //starting with just the base assets
+        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
-            
-        address[] memory depositTokens = new address[](2); 
-        depositTokens[0] = getAddress(sourceChain, "ETHFI");  
-        depositTokens[1] = getAddress(sourceChain, "EIGEN");  
-        address claimFor = 0x09CdfF26536BCfd97E14FB06880B21b7bb9e729A; 
+
+        address[] memory depositTokens = new address[](2);
+        depositTokens[0] = getAddress(sourceChain, "ETHFI");
+        depositTokens[1] = getAddress(sourceChain, "EIGEN");
+        address claimFor = 0x09CdfF26536BCfd97E14FB06880B21b7bb9e729A;
 
         _addKingRewardsClaimingLeafs(leafs, depositTokens, claimFor);
 
@@ -46,18 +47,18 @@ contract KingRewardsClaimingIntegration is BaseTestIntegration {
 
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
-        Tx memory tx_ = _getTxArrays(1); 
+        Tx memory tx_ = _getTxArrays(1);
 
-        tx_.manageLeafs[0] = leafs[4]; //claim 
+        tx_.manageLeafs[0] = leafs[4]; //claim
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
-    
+
         //targets
         tx_.targets[0] = getAddress(sourceChain, "kingMerkleDistributor"); //claim
 
-        bytes32 root = 0x7c2229cfe3ad53683ed32e59062880d383c431240dfc1d33ee68cc9af646e6db; 
+        bytes32 root = 0x7c2229cfe3ad53683ed32e59062880d383c431240dfc1d33ee68cc9af646e6db;
 
-        bytes32[] memory claimProofs = new bytes32[](20); 
+        bytes32[] memory claimProofs = new bytes32[](20);
         claimProofs[0] = 0xf3aa01b2022cd135c973cdf7cc6ed8105af988cab16df1727453ceb06b106a97;
         claimProofs[1] = 0xa7fca71a6c585854c613fac44d7280be65dad2096bc9370b91267d1b0c46cf1b;
         claimProofs[2] = 0xc9fa5dfa06162d001a11cc5c3211b8034b44acbcadee827d08254255e06d61bb;
@@ -81,31 +82,26 @@ contract KingRewardsClaimingIntegration is BaseTestIntegration {
 
         //bytes[] memory targetData = new bytes[](7);
         tx_.targetData[0] = abi.encodeWithSignature(
-            "claim(address,uint256,bytes32,bytes32[])",
-            claimFor,
-            2213478001621304080,
-            root,
-            claimProofs
+            "claim(address,uint256,bytes32,bytes32[])", claimFor, 2213478001621304080, root, claimProofs
         );
 
-        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer; 
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
 
-        _submitManagerCall(manageProofs, tx_); 
-         
+        _submitManagerCall(manageProofs, tx_);
     }
 
     function testKingRedeem() external {
-        _setUpMainnet(); 
-        
-        //starting with just the base assets 
-        deal(getAddress(sourceChain, "KING"), address(boringVault), 1e18); 
+        _setUpMainnet();
+
+        //starting with just the base assets
+        deal(getAddress(sourceChain, "KING"), address(boringVault), 1e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
-            
-        address[] memory depositTokens = new address[](2); 
-        depositTokens[0] = getAddress(sourceChain, "ETHFI");  
-        depositTokens[1] = getAddress(sourceChain, "EIGEN");  
-        address claimFor = 0x09CdfF26536BCfd97E14FB06880B21b7bb9e729A; 
+
+        address[] memory depositTokens = new address[](2);
+        depositTokens[0] = getAddress(sourceChain, "ETHFI");
+        depositTokens[1] = getAddress(sourceChain, "EIGEN");
+        address claimFor = 0x09CdfF26536BCfd97E14FB06880B21b7bb9e729A;
 
         _addKingRewardsClaimingLeafs(leafs, depositTokens, claimFor);
 
@@ -115,36 +111,35 @@ contract KingRewardsClaimingIntegration is BaseTestIntegration {
 
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
-        Tx memory tx_ = _getTxArrays(1); 
+        Tx memory tx_ = _getTxArrays(1);
 
         tx_.manageLeafs[0] = leafs[3]; //redeem
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
-    
+
         //targets
-        tx_.targets[0] = getAddress(sourceChain, "KING"); //claim 
+        tx_.targets[0] = getAddress(sourceChain, "KING"); //claim
 
         //bytes[] memory targetData = new bytes[](7);
         tx_.targetData[0] = abi.encodeWithSignature("redeem(uint256)", 1e18);
 
-        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer; 
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
 
-        _submitManagerCall(manageProofs, tx_); 
-         
+        _submitManagerCall(manageProofs, tx_);
     }
 
     function testKingDeposit() external {
-        _setUpMainnet(); 
-        
-        deal(getAddress(sourceChain, "ETHFI"), address(boringVault), 1e18); 
-        deal(getAddress(sourceChain, "EIGEN"), address(boringVault), 1e18); 
+        _setUpMainnet();
+
+        deal(getAddress(sourceChain, "ETHFI"), address(boringVault), 1e18);
+        deal(getAddress(sourceChain, "EIGEN"), address(boringVault), 1e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
-            
-        address[] memory depositTokens = new address[](2); 
-        depositTokens[0] = getAddress(sourceChain, "ETHFI");  
-        depositTokens[1] = getAddress(sourceChain, "EIGEN");  
-        address claimFor = 0x09CdfF26536BCfd97E14FB06880B21b7bb9e729A; 
+
+        address[] memory depositTokens = new address[](2);
+        depositTokens[0] = getAddress(sourceChain, "ETHFI");
+        depositTokens[1] = getAddress(sourceChain, "EIGEN");
+        address claimFor = 0x09CdfF26536BCfd97E14FB06880B21b7bb9e729A;
 
         _addKingRewardsClaimingLeafs(leafs, depositTokens, claimFor);
 
@@ -154,14 +149,14 @@ contract KingRewardsClaimingIntegration is BaseTestIntegration {
 
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
-        Tx memory tx_ = _getTxArrays(3); 
+        Tx memory tx_ = _getTxArrays(3);
 
         tx_.manageLeafs[0] = leafs[0]; //approve ethfi
         tx_.manageLeafs[1] = leafs[1]; //approve eigen
         tx_.manageLeafs[2] = leafs[2]; //deposit
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
-    
+
         //targets
         tx_.targets[0] = getAddress(sourceChain, "ETHFI"); //approve
         tx_.targets[1] = getAddress(sourceChain, "EIGEN"); //approve
@@ -171,19 +166,19 @@ contract KingRewardsClaimingIntegration is BaseTestIntegration {
         tx_.targetData[0] = abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "KING"), 1e18);
         tx_.targetData[1] = abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "KING"), 1e18);
 
-        uint256[] memory amounts = new uint256[](2); 
-        amounts[0] = 1e18; 
-        amounts[1] = 1e18; 
+        uint256[] memory amounts = new uint256[](2);
+        amounts[0] = 1e18;
+        amounts[1] = 1e18;
 
-        tx_.targetData[2] = abi.encodeWithSignature("deposit(address[],uint256[],address)", depositTokens, amounts, address(boringVault));
+        tx_.targetData[2] = abi.encodeWithSignature(
+            "deposit(address[],uint256[],address)", depositTokens, amounts, address(boringVault)
+        );
 
-        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer; 
-        tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer; 
-        tx_.decodersAndSanitizers[2] = rawDataDecoderAndSanitizer; 
-        
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+        tx_.decodersAndSanitizers[2] = rawDataDecoderAndSanitizer;
+
         vm.expectRevert(); //onlyDepositors(); //0x0afa41a8
-        _submitManagerCall(manageProofs, tx_); 
-         
+        _submitManagerCall(manageProofs, tx_);
     }
-
 }

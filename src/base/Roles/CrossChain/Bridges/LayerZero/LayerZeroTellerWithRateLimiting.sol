@@ -5,7 +5,8 @@
 pragma solidity 0.8.21;
 
 import {
-    CrossChainTellerWithGenericBridge, ERC20
+    CrossChainTellerWithGenericBridge,
+    ERC20
 } from "src/base/Roles/CrossChain/CrossChainTellerWithGenericBridge.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {OAppAuth, Origin, MessagingFee, MessagingReceipt} from "@oapp-auth/OAppAuth.sol";
@@ -133,10 +134,7 @@ contract LayerZeroTellerWithRateLimiting is CrossChainTellerWithGenericBridge, O
      * @notice Allow messages to a chain.
      * @dev Callable by OWNER_ROLE.
      */
-    function allowMessagesToChain(uint32 chainId, address targetTeller, uint128 messageGasLimit)
-        external
-        requiresAuth
-    {
+    function allowMessagesToChain(uint32 chainId, address targetTeller, uint128 messageGasLimit) external requiresAuth {
         if (messageGasLimit == 0) {
             revert LayerZeroTeller__ZeroMessageGasLimit();
         }
@@ -213,7 +211,10 @@ contract LayerZeroTellerWithRateLimiting is CrossChainTellerWithGenericBridge, O
         bytes calldata _message,
         address, /*_executor*/
         bytes calldata /*_extraData*/
-    ) internal override {
+    )
+        internal
+        override
+    {
         Chain memory source = idToChains[_origin.srcEid];
         if (!source.allowMessagesFrom) revert LayerZeroTeller__MessagesNotAllowedFrom(_origin.srcEid);
         uint256 message = abi.decode(_message, (uint256));

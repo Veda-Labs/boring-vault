@@ -14,7 +14,11 @@ contract StakeStoneDecoderAndSanitizer {
         return addressesFound;
     }
 
-    function instantWithdraw(uint256, /*_amount*/ uint256 /*_shares*/ )
+    function instantWithdraw(
+        uint256,
+        /*_amount*/
+        uint256 /*_shares*/
+    )
         external
         pure
         virtual
@@ -24,12 +28,26 @@ contract StakeStoneDecoderAndSanitizer {
         return addressesFound;
     }
 
-    function requestWithdraw(uint256 /*_shares*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function requestWithdraw(
+        uint256 /*_shares*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         // Nothing to sanitize or return
         return addressesFound;
     }
 
-    function cancelWithdraw(uint256 /*_shares*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function cancelWithdraw(
+        uint256 /*_shares*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         // Nothing to sanitize or return
         return addressesFound;
     }

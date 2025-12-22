@@ -58,7 +58,13 @@ contract CreateBalancedUSDCMerkleRoot is Script, MerkleTreeHelper {
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== LayerZero ==========================
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDT"), getAddress(sourceChain, "usdt0OFTAdapter"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "USDT"),
+            getAddress(sourceChain, "usdt0OFTAdapter"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
 
         // ========================== CCTP ==========================
         _addCCTPBridgeLeafs(leafs, cctpMainnetDomainId);

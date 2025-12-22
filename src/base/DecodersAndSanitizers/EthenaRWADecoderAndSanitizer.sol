@@ -5,9 +5,8 @@
 pragma solidity 0.8.21;
 
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
-import {EthenaMintingDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/EthenaMintingDecoderAndSanitizer.sol";
-
-contract EthenaRWADecoderAndSanitizer is
-    BaseDecoderAndSanitizer,
+import {
     EthenaMintingDecoderAndSanitizer
-{}
+} from "src/base/DecodersAndSanitizers/Protocols/EthenaMintingDecoderAndSanitizer.sol";
+
+contract EthenaRWADecoderAndSanitizer is BaseDecoderAndSanitizer, EthenaMintingDecoderAndSanitizer {}

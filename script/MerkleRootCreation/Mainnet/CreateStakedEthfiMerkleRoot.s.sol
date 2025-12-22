@@ -28,13 +28,13 @@ contract CreateStakedEthfiMerkleRootScript is Script, MerkleTreeHelper {
 
     address public itbKETHFIPositionManager = 0xCF413A1989e33C8Ef59fbA79935d93205C9BE4c7;
 
-    address drone0 = 0x15CBAF5ca8859A8623306a99528d38E077337CF0; 
-    address drone1 = 0xC4AF99074450d7c9569853b09Cf8402faFd71d19; 
-    address drone2 = 0x87Dd519F85697d7dA46603869985c46a381ecDfa;  
+    address drone0 = 0x15CBAF5ca8859A8623306a99528d38E077337CF0;
+    address drone1 = 0xC4AF99074450d7c9569853b09Cf8402faFd71d19;
+    address drone2 = 0x87Dd519F85697d7dA46603869985c46a381ecDfa;
 
-    address operator0 = 0xDd777e5158Cb11DB71B4AF93C75A96eA11A2A615; 
-    address operator1 = 0x2c7cB7d5dC4aF9caEE654553a144C76F10D4b320;  
-    address operator2 = 0x2692fEe60fF9037F1b73EF5A5C263539221e8085; 
+    address operator0 = 0xDd777e5158Cb11DB71B4AF93C75A96eA11A2A615;
+    address operator1 = 0x2c7cB7d5dC4aF9caEE654553a144C76F10D4b320;
+    address operator2 = 0x2692fEe60fF9037F1b73EF5A5C263539221e8085;
 
     function setUp() external {}
 
@@ -79,12 +79,12 @@ contract CreateStakedEthfiMerkleRootScript is Script, MerkleTreeHelper {
         }
 
         // ========================== Symbiotic ==========================
-        address[] memory vaults = new address[](1); 
-        vaults[0] = getAddress(sourceChain, "EtherFi_ETHFISymbioticVault"); 
-        ERC20[] memory assets = new ERC20[](1); 
-        assets[0] = getERC20(sourceChain, "ETHFI"); 
-        address[] memory rewards = new address[](1); 
-        _addSymbioticVaultLeafs(leafs, vaults, assets, rewards); 
+        address[] memory vaults = new address[](1);
+        vaults[0] = getAddress(sourceChain, "EtherFi_ETHFISymbioticVault");
+        ERC20[] memory assets = new ERC20[](1);
+        assets[0] = getERC20(sourceChain, "ETHFI");
+        address[] memory rewards = new address[](1);
+        _addSymbioticVaultLeafs(leafs, vaults, assets, rewards);
 
         // ========================== Drone Transfers ==========================
         ERC20[] memory localTokens = new ERC20[](1);
@@ -98,73 +98,69 @@ contract CreateStakedEthfiMerkleRootScript is Script, MerkleTreeHelper {
 
         uint256 drone0StartIndex = leafIndex + 1;
         setAddress(true, sourceChain, "boringVault", drone0);
-        
+
         // ========================== Drone0 Leafs ==========================
-        
+
         _addLeafsForEigenLayerLST(
             leafs,
-            getAddress(sourceChain, "ETHFI"), 
+            getAddress(sourceChain, "ETHFI"),
             getAddress(sourceChain, "ethfiStrategy"), //strategy
             getAddress(sourceChain, "strategyManager"),
-            getAddress(sourceChain, "delegationManager"),            
+            getAddress(sourceChain, "delegationManager"),
             operator0, //operator
             getAddress(sourceChain, "eigenRewards"), //eigenRewards
             getAddress(sourceChain, "dev1Address") //claimerFor
-        );  
-
+        );
 
         // ========================== Drone Functions ==========================
         _createDroneLeafs(leafs, drone0, drone0StartIndex, leafIndex + 1);
-
 
         // ========================== Drone1 Leafs ==========================
 
         uint256 drone1StartIndex = leafIndex + 1;
         setAddress(true, sourceChain, "boringVault", drone1);
-        
+
         // ========================== Drone1 Leafs ==========================
-        
+
         _addLeafsForEigenLayerLST(
             leafs,
-            getAddress(sourceChain, "ETHFI"), 
+            getAddress(sourceChain, "ETHFI"),
             getAddress(sourceChain, "ethfiStrategy"), //strategy
             getAddress(sourceChain, "strategyManager"),
-            getAddress(sourceChain, "delegationManager"),            
+            getAddress(sourceChain, "delegationManager"),
             operator1, //operator
             getAddress(sourceChain, "eigenRewards"), //eigenRewards
             getAddress(sourceChain, "dev1Address") //claimerFor
-        );  
+        );
 
         // ========================== Drone Functions ==========================
         _createDroneLeafs(leafs, drone1, drone1StartIndex, leafIndex + 1);
-
 
         // ========================== Drone2 Leafs ==========================
 
         uint256 drone2StartIndex = leafIndex + 1;
         setAddress(true, sourceChain, "boringVault", drone2);
-        
+
         // ========================== Drone2 Leafs ==========================
-        
+
         _addLeafsForEigenLayerLST(
             leafs,
-            getAddress(sourceChain, "ETHFI"), 
+            getAddress(sourceChain, "ETHFI"),
             getAddress(sourceChain, "ethfiStrategy"), //strategy
             getAddress(sourceChain, "strategyManager"),
-            getAddress(sourceChain, "delegationManager"),            
+            getAddress(sourceChain, "delegationManager"),
             operator2, //operator
             getAddress(sourceChain, "eigenRewards"), //eigenRewards
             getAddress(sourceChain, "dev1Address") //claimerFor
-        );  
+        );
 
         // ========================== Drone Functions ==========================
         _createDroneLeafs(leafs, drone2, drone2StartIndex, leafIndex + 1);
-        
-        
+
         // ========================== Verify ==========================
-        
+
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
-        
+
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
         string memory filePath = "./leafs/StakedETHFIStrategistLeafs.json";

@@ -5,24 +5,40 @@
 pragma solidity 0.8.21;
 
 import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
-import {StandardBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/StandardBridgeDecoderAndSanitizer.sol";
-import {LidoStandardBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LidoStandardBridgeDecoderAndSanitizer.sol";
+import {
+    StandardBridgeDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/StandardBridgeDecoderAndSanitizer.sol";
+import {
+    LidoStandardBridgeDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/LidoStandardBridgeDecoderAndSanitizer.sol";
 import {OFTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OFTDecoderAndSanitizer.sol";
-import {MorphoBlueDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MorphoBlueDecoderAndSanitizer.sol";
+import {
+    MorphoBlueDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/MorphoBlueDecoderAndSanitizer.sol";
 import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
 import {EulerEVKDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/EulerEVKDecoderAndSanitizer.sol";
-import {BalancerV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BalancerV3DecoderAndSanitizer.sol";
-import {BalancerV2DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BalancerV2DecoderAndSanitizer.sol";
+import {
+    BalancerV3DecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/BalancerV3DecoderAndSanitizer.sol";
+import {
+    BalancerV2DecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/BalancerV2DecoderAndSanitizer.sol";
 import {LidoDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LidoDecoderAndSanitizer.sol";
 import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol";
 import {OneInchDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OneInchDecoderAndSanitizer.sol";
-import {NativeWrapperDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol";
+import {
+    NativeWrapperDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol";
 import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
 import {MerklDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MerklDecoderAndSanitizer.sol";
-import {wSwellUnwrappingDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/wSwellUnwrappingDecoderAndSanitizer.sol";
-import {FluidFTokenDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/FluidFTokenDecoderAndSanitizer.sol";
+import {
+    wSwellUnwrappingDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/wSwellUnwrappingDecoderAndSanitizer.sol";
+import {
+    FluidFTokenDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/FluidFTokenDecoderAndSanitizer.sol";
 
-contract PrimeGoldenGooseDecoderAndSanitizer is 
+contract PrimeGoldenGooseDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
     StandardBridgeDecoderAndSanitizer,
     LidoStandardBridgeDecoderAndSanitizer,
@@ -40,12 +56,10 @@ contract PrimeGoldenGooseDecoderAndSanitizer is
     wSwellUnwrappingDecoderAndSanitizer,
     FluidFTokenDecoderAndSanitizer
 {
-    constructor(address _odosRouter)
-        OdosDecoderAndSanitizer(_odosRouter)
-    {}
+    constructor(address _odosRouter) OdosDecoderAndSanitizer(_odosRouter) {}
 
     //============================== HANDLE FUNCTION COLLISIONS ===============================
-    
+
     /**
      * @notice StandardBridge and LidoStandardBridge both specify finalizeWithdrawalTransaction
      */
@@ -92,12 +106,7 @@ contract PrimeGoldenGooseDecoderAndSanitizer is
      * @notice Lido and NativeWrapper both specify a `deposit()`,
      *         all cases are handled the same way.
      */
-    function deposit()
-        external
-        pure
-        override(NativeWrapperDecoderAndSanitizer)
-        returns (bytes memory addressesFound)
-    {
+    function deposit() external pure override(NativeWrapperDecoderAndSanitizer) returns (bytes memory addressesFound) {
         return addressesFound;
     }
 

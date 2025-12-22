@@ -137,8 +137,9 @@ contract BoringOnChainQueueWithTracking is BoringOnChainQueue {
         uint24 secondsToMaturity,
         uint24 secondsToDeadline
     ) internal override returns (bytes32 requestId, OnChainWithdraw memory req) {
-        (requestId, req) =
-            super._queueOnChainWithdraw(user, assetOut, amountOfShares, discount, secondsToMaturity, secondsToDeadline);
+        (requestId, req) = super._queueOnChainWithdraw(
+            user, assetOut, amountOfShares, discount, secondsToMaturity, secondsToDeadline
+        );
 
         if (trackWithdrawsOnChain) {
             // Save withdraw request on chain.

@@ -9,7 +9,10 @@ import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 contract MorphoRewardsWrapperDecoderAndSanitizer {
     //============================== MORPHO REWARDS ===============================
 
-    function depositFor(address user, uint256 /*amount*/ )
+    function depositFor(
+        address user,
+        uint256 /*amount*/
+    )
         external
         pure
         virtual
@@ -18,7 +21,10 @@ contract MorphoRewardsWrapperDecoderAndSanitizer {
         addressesFound = abi.encodePacked(user);
     }
 
-    function withdrawTo(address user, uint256 /*amount*/ )
+    function withdrawTo(
+        address user,
+        uint256 /*amount*/
+    )
         external
         pure
         virtual

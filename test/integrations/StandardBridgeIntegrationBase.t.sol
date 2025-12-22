@@ -184,8 +184,9 @@ contract StandardBridgeIntegrationBaseTest is Test, MerkleTreeHelper {
         targets[1] = getAddress("base", "standardBridge");
 
         bytes[] memory targetData = new bytes[](2);
-        targetData[0] =
-            abi.encodeWithSignature("approve(address,uint256)", getAddress("base", "standardBridge"), type(uint256).max);
+        targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress("base", "standardBridge"), type(uint256).max
+        );
 
         targetData[1] = abi.encodeWithSignature(
             "bridgeERC20To(address,address,address,uint256,uint32,bytes)",

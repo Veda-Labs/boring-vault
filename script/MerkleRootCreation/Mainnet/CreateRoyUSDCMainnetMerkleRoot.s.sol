@@ -5,7 +5,8 @@
 pragma solidity 0.8.21;
 
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol"; import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
+import {ERC20} from "@solmate/tokens/ERC20.sol";
+import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
@@ -52,8 +53,20 @@ contract CreateRoyUSDCMainnetMerkleRoot is Script, MerkleTreeHelper {
         _addCCTPBridgeLeafs(leafs, uint32(13));
 
         // ========================== LayerZero ========================== // Using stargate pool as OFT
-        _addLayerZeroLeafs(leafs, getERC20(mainnet, "USDC"), getAddress(mainnet, "stargateUSDC"), layerZeroSonicMainnetEndpointId, getBytes32(mainnet, "boringVault"));
-        _addLayerZeroLeafs(leafs, getERC20(mainnet, "USDC"), getAddress(mainnet, "stargateUSDC"), layerZeroPlumeEndpointId, getBytes32(mainnet, "boringVault"));
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(mainnet, "USDC"),
+            getAddress(mainnet, "stargateUSDC"),
+            layerZeroSonicMainnetEndpointId,
+            getBytes32(mainnet, "boringVault")
+        );
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(mainnet, "USDC"),
+            getAddress(mainnet, "stargateUSDC"),
+            layerZeroPlumeEndpointId,
+            getBytes32(mainnet, "boringVault")
+        );
 
         // ========================== Fee Claiming ==========================
         ERC20[] memory feeAssets = new ERC20[](1);
@@ -61,12 +74,12 @@ contract CreateRoyUSDCMainnetMerkleRoot is Script, MerkleTreeHelper {
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, true); //add yield claiming
 
         // ========================== Odos ==========================
-         address[] memory tokens = new address[](1);
-         SwapKind[] memory kind = new SwapKind[](1);
-         tokens[0] = getAddress(sourceChain, "USDC");
-         kind[0] = SwapKind.BuyAndSell;
+        address[] memory tokens = new address[](1);
+        SwapKind[] memory kind = new SwapKind[](1);
+        tokens[0] = getAddress(sourceChain, "USDC");
+        kind[0] = SwapKind.BuyAndSell;
 
-         _addOdosSwapLeafs(leafs, tokens, kind);
+        _addOdosSwapLeafs(leafs, tokens, kind);
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

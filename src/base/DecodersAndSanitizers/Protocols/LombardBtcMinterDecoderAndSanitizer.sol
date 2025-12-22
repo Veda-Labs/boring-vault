@@ -8,12 +8,23 @@ import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 
 contract LombardBTCMinterDecoderAndSanitizer {
     /// @notice for permissioned users
-    function mint(address to, uint256 /*amount*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function mint(
+        address to,
+        uint256 /*amount*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(to);
     }
 
     /// @notice minting directly via LTBC contract
-    function mint(bytes calldata data, bytes calldata /*proofSignature*/ )
+    function mint(
+        bytes calldata data,
+        bytes calldata /*proofSignature*/
+    )
         external
         pure
         virtual
@@ -24,12 +35,26 @@ contract LombardBTCMinterDecoderAndSanitizer {
     }
 
     /// @notice for minting using cbBTCPPM contract (on Base)
-    function swapCBBTCToLBTC(uint256 /*amount*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function swapCBBTCToLBTC(
+        uint256 /*amount*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 
     /// @notice for minting using btcbPMM contract (on BSC)
-    function swapBTCBToLBTC(uint256 /*amount*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function swapBTCBToLBTC(
+        uint256 /*amount*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 }

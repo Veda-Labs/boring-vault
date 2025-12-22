@@ -637,8 +637,9 @@ contract EtherFiLiquid1MigrationTest is Test, MerkleTreeHelper {
             abi.encodeWithSignature("deposit(address,uint256,uint256)", pendleEethPtSeptember, type(uint256).max, 0);
         adaptorCalls[8] =
             abi.encodeWithSignature("deposit(address,uint256,uint256)", pendleEethYtSeptember, type(uint256).max, 0);
-        adaptorCalls[9] =
-            abi.encodeWithSignature("deposit(address,uint256,uint256)", pendleWeETHMarketDecember, type(uint256).max, 0);
+        adaptorCalls[9] = abi.encodeWithSignature(
+            "deposit(address,uint256,uint256)", pendleWeETHMarketDecember, type(uint256).max, 0
+        );
         adaptorCalls[10] =
             abi.encodeWithSignature("deposit(address,uint256,uint256)", pendleEethPtDecember, type(uint256).max, 0);
         adaptorCalls[11] =

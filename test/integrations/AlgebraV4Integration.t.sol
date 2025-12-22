@@ -11,9 +11,7 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {
-    AlgebraV4DecoderAndSanitizer
-} from "src/base/DecodersAndSanitizers/Protocols/AlgebraV4DecoderAndSanitizer.sol";
+import {AlgebraV4DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AlgebraV4DecoderAndSanitizer.sol";
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
@@ -22,7 +20,7 @@ import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
 contract FullAlgebraDecoderAndSanitizer is BaseDecoderAndSanitizer, AlgebraV4DecoderAndSanitizer {
-    constructor(address _nfp) AlgebraV4DecoderAndSanitizer(_nfp){}
+    constructor(address _nfp) AlgebraV4DecoderAndSanitizer(_nfp) {}
 }
 
 contract AlgebraV3IntegrationTest is Test, MerkleTreeHelper {
@@ -213,9 +211,9 @@ contract AlgebraV3IntegrationTest is Test, MerkleTreeHelper {
         manager.manageVaultWithMerkleVerification(
             manageProofs, decodersAndSanitizers, targets, targetData, new uint256[](6)
         );
-    
+
         //positions
-        (, , , , , , , uint128 liquidity,,,,) =
+        (,,,,,,, uint128 liquidity,,,,) =
             AlgebraNonFungiblePositionManager(0x368435A76B1a855D054D3CDf4c20f5E0B2bABBC8).positions(expectedTokenId);
 
         manageLeafs = new ManageLeaf[](3);
@@ -251,220 +249,217 @@ contract AlgebraV3IntegrationTest is Test, MerkleTreeHelper {
         manager.manageVaultWithMerkleVerification(
             manageProofs, decodersAndSanitizers, targets, targetData, new uint256[](3)
         );
-
-        
-
     }
 
-//    function testCamelotV3IntegrationReverts() external {
-//        deal(getAddress(sourceChain, "WSTETH"), address(boringVault), 1_000e18);
-//        deal(getAddress(sourceChain, "WEETH"), address(boringVault), 1_000e18);
-//
-//        ManageLeaf[] memory leafs = new ManageLeaf[](32);
-//        address[] memory token0 = new address[](2);
-//        token0[0] = getAddress(sourceChain, "WETH");
-//        token0[1] = getAddress(sourceChain, "WETH");
-//        address[] memory token1 = new address[](2);
-//        token1[0] = getAddress(sourceChain, "WSTETH");
-//        token1[1] = getAddress(sourceChain, "WEETH");
-//        _addCamelotV3Leafs(leafs, token0, token1);
-//
-//        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
-//
-//        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
-//
-//        ManageLeaf[] memory manageLeafs = new ManageLeaf[](9);
-//        manageLeafs[0] = leafs[2];
-//        manageLeafs[1] = leafs[6];
-//        manageLeafs[2] = leafs[1];
-//        manageLeafs[3] = leafs[8];
-//        manageLeafs[4] = leafs[10];
-//        manageLeafs[5] = leafs[11];
-//        manageLeafs[6] = leafs[14];
-//        manageLeafs[7] = leafs[15];
-//        manageLeafs[8] = leafs[16];
-//        bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
-//
-//        address[] memory targets = new address[](9);
-//        targets[0] = getAddress(sourceChain, "WSTETH");
-//        targets[1] = getAddress(sourceChain, "camelotRouterV3");
-//        targets[2] = getAddress(sourceChain, "WETH");
-//        targets[3] = getAddress(sourceChain, "WEETH");
-//        targets[4] = getAddress(sourceChain, "camelotNonFungiblePositionManager");
-//        targets[5] = getAddress(sourceChain, "camelotNonFungiblePositionManager");
-//        targets[6] = getAddress(sourceChain, "camelotNonFungiblePositionManager");
-//        targets[7] = getAddress(sourceChain, "camelotNonFungiblePositionManager");
-//        targets[8] = getAddress(sourceChain, "camelotNonFungiblePositionManager");
-//        bytes[] memory targetData = new bytes[](9);
-//        targetData[0] = abi.encodeWithSignature(
-//            "approve(address,uint256)", getAddress(sourceChain, "camelotRouterV3"), type(uint256).max
-//        );
-//        DecoderCustomTypes.ExactInputParams memory exactInputParams = DecoderCustomTypes.ExactInputParams(
-//            abi.encodePacked(getAddress(sourceChain, "WSTETH"), getAddress(sourceChain, "WETH")),
-//            address(boringVault),
-//            block.timestamp,
-//            100e18,
-//            0
-//        );
-//        targetData[1] = abi.encodeWithSignature("exactInput((bytes,address,uint256,uint256,uint256))", exactInputParams);
-//        targetData[2] = abi.encodeWithSignature(
-//            "approve(address,uint256)", getAddress(sourceChain, "camelotNonFungiblePositionManager"), type(uint256).max
-//        );
-//        targetData[3] = abi.encodeWithSignature(
-//            "approve(address,uint256)", getAddress(sourceChain, "camelotNonFungiblePositionManager"), type(uint256).max
-//        );
-//
-//        DecoderCustomTypes.CamelotMintParams memory mintParams = DecoderCustomTypes.CamelotMintParams(
-//            getAddress(sourceChain, "WEETH"),
-//            getAddress(sourceChain, "WETH"),
-//            int24(400), // lower tick
-//            int24(450), // upper tick
-//            45e18,
-//            45e18,
-//            0,
-//            0,
-//            address(boringVault),
-//            block.timestamp
-//        );
-//        targetData[4] = abi.encodeWithSignature(
-//            "mint((address,address,int24,int24,uint256,uint256,uint256,uint256,address,uint256))", mintParams
-//        );
-//        uint256 expectedTokenId = 119901;
-//        DecoderCustomTypes.IncreaseLiquidityParams memory increaseLiquidityParams =
-//            DecoderCustomTypes.IncreaseLiquidityParams(expectedTokenId, 45e18, 45e18, 0, 0, block.timestamp);
-//        targetData[5] = abi.encodeWithSignature(
-//            "increaseLiquidity((uint256,uint256,uint256,uint256,uint256,uint256))", increaseLiquidityParams
-//        );
-//        uint128 expectedLiquidity = 35024744166363799012869 + 35024744166363799012869;
-//        DecoderCustomTypes.DecreaseLiquidityParams memory decreaseLiquidityParams =
-//            DecoderCustomTypes.DecreaseLiquidityParams(expectedTokenId, expectedLiquidity, 0, 0, block.timestamp);
-//        targetData[6] = abi.encodeWithSignature(
-//            "decreaseLiquidity((uint256,uint128,uint256,uint256,uint256))", decreaseLiquidityParams
-//        );
-//
-//        DecoderCustomTypes.CollectParams memory collectParams = DecoderCustomTypes.CollectParams(
-//            expectedTokenId, address(boringVault), type(uint128).max, type(uint128).max
-//        );
-//        targetData[7] = abi.encodeWithSignature("collect((uint256,address,uint128,uint128))", collectParams);
-//        targetData[8] = abi.encodeWithSignature("burn(uint256)", expectedTokenId);
-//
-//        address[] memory decodersAndSanitizers = new address[](9);
-//        decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
-//        decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
-//        decodersAndSanitizers[2] = rawDataDecoderAndSanitizer;
-//        decodersAndSanitizers[3] = rawDataDecoderAndSanitizer;
-//        decodersAndSanitizers[4] = rawDataDecoderAndSanitizer;
-//        decodersAndSanitizers[5] = rawDataDecoderAndSanitizer;
-//        decodersAndSanitizers[6] = rawDataDecoderAndSanitizer;
-//        decodersAndSanitizers[7] = rawDataDecoderAndSanitizer;
-//        decodersAndSanitizers[8] = rawDataDecoderAndSanitizer;
-//
-//        // Make swap path data malformed.
-//        exactInputParams = DecoderCustomTypes.ExactInputParams(
-//            abi.encodePacked(getAddress(sourceChain, "WSTETH"), uint24(100), getAddress(sourceChain, "WETH")),
-//            address(boringVault),
-//            block.timestamp,
-//            100e18,
-//            0
-//        );
-//        targetData[1] = abi.encodeWithSignature("exactInput((bytes,address,uint256,uint256,uint256))", exactInputParams);
-//
-//        vm.expectRevert(
-//            abi.encodeWithSelector(CamelotDecoderAndSanitizer.CamelotDecoderAndSanitizer__BadPathFormat.selector)
-//        );
-//        manager.manageVaultWithMerkleVerification(
-//            manageProofs, decodersAndSanitizers, targets, targetData, new uint256[](9)
-//        );
-//
-//        // Fix swap path data.
-//        exactInputParams = DecoderCustomTypes.ExactInputParams(
-//            abi.encodePacked(getAddress(sourceChain, "WSTETH"), getAddress(sourceChain, "WETH")),
-//            address(boringVault),
-//            block.timestamp,
-//            100e18,
-//            0
-//        );
-//        targetData[1] = abi.encodeWithSignature("exactInput((bytes,address,uint256,uint256,uint256))", exactInputParams);
-//
-//        // Try adding liquidity to a token not owned by the boring vault.
-//        increaseLiquidityParams =
-//            DecoderCustomTypes.IncreaseLiquidityParams(expectedTokenId - 1, 45e18, 45e18, 0, 0, block.timestamp);
-//        targetData[5] = abi.encodeWithSignature(
-//            "increaseLiquidity((uint256,uint256,uint256,uint256,uint256,uint256))", increaseLiquidityParams
-//        );
-//
-//        vm.expectRevert(
-//            abi.encodeWithSelector(
-//                ManagerWithMerkleVerification.ManagerWithMerkleVerification__FailedToVerifyManageProof.selector,
-//                targets[5],
-//                targetData[5],
-//                0
-//            )
-//        );
-//        manager.manageVaultWithMerkleVerification(
-//            manageProofs, decodersAndSanitizers, targets, targetData, new uint256[](9)
-//        );
-//
-//        // Fix increase liquidity, but change decreaseLiquidity tokenId.
-//        increaseLiquidityParams =
-//            DecoderCustomTypes.IncreaseLiquidityParams(expectedTokenId, 45e18, 45e18, 0, 0, block.timestamp);
-//        targetData[5] = abi.encodeWithSignature(
-//            "increaseLiquidity((uint256,uint256,uint256,uint256,uint256,uint256))", increaseLiquidityParams
-//        );
-//
-//        decreaseLiquidityParams =
-//            DecoderCustomTypes.DecreaseLiquidityParams(expectedTokenId - 1, expectedLiquidity, 0, 0, block.timestamp);
-//        targetData[6] = abi.encodeWithSignature(
-//            "decreaseLiquidity((uint256,uint128,uint256,uint256,uint256))", decreaseLiquidityParams
-//        );
-//
-//        vm.expectRevert(
-//            abi.encodeWithSelector(
-//                ManagerWithMerkleVerification.ManagerWithMerkleVerification__FailedToVerifyManageProof.selector,
-//                targets[6],
-//                targetData[6],
-//                0
-//            )
-//        );
-//        manager.manageVaultWithMerkleVerification(
-//            manageProofs, decodersAndSanitizers, targets, targetData, new uint256[](9)
-//        );
-//
-//        // Fix decrease liquidity but change collect tokenId.
-//        decreaseLiquidityParams =
-//            DecoderCustomTypes.DecreaseLiquidityParams(expectedTokenId, expectedLiquidity, 0, 0, block.timestamp);
-//        targetData[6] = abi.encodeWithSignature(
-//            "decreaseLiquidity((uint256,uint128,uint256,uint256,uint256))", decreaseLiquidityParams
-//        );
-//
-//        collectParams = DecoderCustomTypes.CollectParams(
-//            expectedTokenId - 1, address(boringVault), type(uint128).max, type(uint128).max
-//        );
-//        targetData[7] = abi.encodeWithSignature("collect((uint256,address,uint128,uint128))", collectParams);
-//
-//        vm.expectRevert(
-//            abi.encodeWithSelector(
-//                ManagerWithMerkleVerification.ManagerWithMerkleVerification__FailedToVerifyManageProof.selector,
-//                targets[7],
-//                targetData[7],
-//                0
-//            )
-//        );
-//        manager.manageVaultWithMerkleVerification(
-//            manageProofs, decodersAndSanitizers, targets, targetData, new uint256[](9)
-//        );
-//
-//        // Fix collect tokenId.
-//        collectParams = DecoderCustomTypes.CollectParams(
-//            expectedTokenId, address(boringVault), type(uint128).max, type(uint128).max
-//        );
-//        targetData[7] = abi.encodeWithSignature("collect((uint256,address,uint128,uint128))", collectParams);
-//
-//        // Call now works.
-//        manager.manageVaultWithMerkleVerification(
-//            manageProofs, decodersAndSanitizers, targets, targetData, new uint256[](9)
-//        );
-//    }
+    //    function testCamelotV3IntegrationReverts() external {
+    //        deal(getAddress(sourceChain, "WSTETH"), address(boringVault), 1_000e18);
+    //        deal(getAddress(sourceChain, "WEETH"), address(boringVault), 1_000e18);
+    //
+    //        ManageLeaf[] memory leafs = new ManageLeaf[](32);
+    //        address[] memory token0 = new address[](2);
+    //        token0[0] = getAddress(sourceChain, "WETH");
+    //        token0[1] = getAddress(sourceChain, "WETH");
+    //        address[] memory token1 = new address[](2);
+    //        token1[0] = getAddress(sourceChain, "WSTETH");
+    //        token1[1] = getAddress(sourceChain, "WEETH");
+    //        _addCamelotV3Leafs(leafs, token0, token1);
+    //
+    //        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+    //
+    //        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+    //
+    //        ManageLeaf[] memory manageLeafs = new ManageLeaf[](9);
+    //        manageLeafs[0] = leafs[2];
+    //        manageLeafs[1] = leafs[6];
+    //        manageLeafs[2] = leafs[1];
+    //        manageLeafs[3] = leafs[8];
+    //        manageLeafs[4] = leafs[10];
+    //        manageLeafs[5] = leafs[11];
+    //        manageLeafs[6] = leafs[14];
+    //        manageLeafs[7] = leafs[15];
+    //        manageLeafs[8] = leafs[16];
+    //        bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
+    //
+    //        address[] memory targets = new address[](9);
+    //        targets[0] = getAddress(sourceChain, "WSTETH");
+    //        targets[1] = getAddress(sourceChain, "camelotRouterV3");
+    //        targets[2] = getAddress(sourceChain, "WETH");
+    //        targets[3] = getAddress(sourceChain, "WEETH");
+    //        targets[4] = getAddress(sourceChain, "camelotNonFungiblePositionManager");
+    //        targets[5] = getAddress(sourceChain, "camelotNonFungiblePositionManager");
+    //        targets[6] = getAddress(sourceChain, "camelotNonFungiblePositionManager");
+    //        targets[7] = getAddress(sourceChain, "camelotNonFungiblePositionManager");
+    //        targets[8] = getAddress(sourceChain, "camelotNonFungiblePositionManager");
+    //        bytes[] memory targetData = new bytes[](9);
+    //        targetData[0] = abi.encodeWithSignature(
+    //            "approve(address,uint256)", getAddress(sourceChain, "camelotRouterV3"), type(uint256).max
+    //        );
+    //        DecoderCustomTypes.ExactInputParams memory exactInputParams = DecoderCustomTypes.ExactInputParams(
+    //            abi.encodePacked(getAddress(sourceChain, "WSTETH"), getAddress(sourceChain, "WETH")),
+    //            address(boringVault),
+    //            block.timestamp,
+    //            100e18,
+    //            0
+    //        );
+    //        targetData[1] = abi.encodeWithSignature("exactInput((bytes,address,uint256,uint256,uint256))", exactInputParams);
+    //        targetData[2] = abi.encodeWithSignature(
+    //            "approve(address,uint256)", getAddress(sourceChain, "camelotNonFungiblePositionManager"), type(uint256).max
+    //        );
+    //        targetData[3] = abi.encodeWithSignature(
+    //            "approve(address,uint256)", getAddress(sourceChain, "camelotNonFungiblePositionManager"), type(uint256).max
+    //        );
+    //
+    //        DecoderCustomTypes.CamelotMintParams memory mintParams = DecoderCustomTypes.CamelotMintParams(
+    //            getAddress(sourceChain, "WEETH"),
+    //            getAddress(sourceChain, "WETH"),
+    //            int24(400), // lower tick
+    //            int24(450), // upper tick
+    //            45e18,
+    //            45e18,
+    //            0,
+    //            0,
+    //            address(boringVault),
+    //            block.timestamp
+    //        );
+    //        targetData[4] = abi.encodeWithSignature(
+    //            "mint((address,address,int24,int24,uint256,uint256,uint256,uint256,address,uint256))", mintParams
+    //        );
+    //        uint256 expectedTokenId = 119901;
+    //        DecoderCustomTypes.IncreaseLiquidityParams memory increaseLiquidityParams =
+    //            DecoderCustomTypes.IncreaseLiquidityParams(expectedTokenId, 45e18, 45e18, 0, 0, block.timestamp);
+    //        targetData[5] = abi.encodeWithSignature(
+    //            "increaseLiquidity((uint256,uint256,uint256,uint256,uint256,uint256))", increaseLiquidityParams
+    //        );
+    //        uint128 expectedLiquidity = 35024744166363799012869 + 35024744166363799012869;
+    //        DecoderCustomTypes.DecreaseLiquidityParams memory decreaseLiquidityParams =
+    //            DecoderCustomTypes.DecreaseLiquidityParams(expectedTokenId, expectedLiquidity, 0, 0, block.timestamp);
+    //        targetData[6] = abi.encodeWithSignature(
+    //            "decreaseLiquidity((uint256,uint128,uint256,uint256,uint256))", decreaseLiquidityParams
+    //        );
+    //
+    //        DecoderCustomTypes.CollectParams memory collectParams = DecoderCustomTypes.CollectParams(
+    //            expectedTokenId, address(boringVault), type(uint128).max, type(uint128).max
+    //        );
+    //        targetData[7] = abi.encodeWithSignature("collect((uint256,address,uint128,uint128))", collectParams);
+    //        targetData[8] = abi.encodeWithSignature("burn(uint256)", expectedTokenId);
+    //
+    //        address[] memory decodersAndSanitizers = new address[](9);
+    //        decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+    //        decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+    //        decodersAndSanitizers[2] = rawDataDecoderAndSanitizer;
+    //        decodersAndSanitizers[3] = rawDataDecoderAndSanitizer;
+    //        decodersAndSanitizers[4] = rawDataDecoderAndSanitizer;
+    //        decodersAndSanitizers[5] = rawDataDecoderAndSanitizer;
+    //        decodersAndSanitizers[6] = rawDataDecoderAndSanitizer;
+    //        decodersAndSanitizers[7] = rawDataDecoderAndSanitizer;
+    //        decodersAndSanitizers[8] = rawDataDecoderAndSanitizer;
+    //
+    //        // Make swap path data malformed.
+    //        exactInputParams = DecoderCustomTypes.ExactInputParams(
+    //            abi.encodePacked(getAddress(sourceChain, "WSTETH"), uint24(100), getAddress(sourceChain, "WETH")),
+    //            address(boringVault),
+    //            block.timestamp,
+    //            100e18,
+    //            0
+    //        );
+    //        targetData[1] = abi.encodeWithSignature("exactInput((bytes,address,uint256,uint256,uint256))", exactInputParams);
+    //
+    //        vm.expectRevert(
+    //            abi.encodeWithSelector(CamelotDecoderAndSanitizer.CamelotDecoderAndSanitizer__BadPathFormat.selector)
+    //        );
+    //        manager.manageVaultWithMerkleVerification(
+    //            manageProofs, decodersAndSanitizers, targets, targetData, new uint256[](9)
+    //        );
+    //
+    //        // Fix swap path data.
+    //        exactInputParams = DecoderCustomTypes.ExactInputParams(
+    //            abi.encodePacked(getAddress(sourceChain, "WSTETH"), getAddress(sourceChain, "WETH")),
+    //            address(boringVault),
+    //            block.timestamp,
+    //            100e18,
+    //            0
+    //        );
+    //        targetData[1] = abi.encodeWithSignature("exactInput((bytes,address,uint256,uint256,uint256))", exactInputParams);
+    //
+    //        // Try adding liquidity to a token not owned by the boring vault.
+    //        increaseLiquidityParams =
+    //            DecoderCustomTypes.IncreaseLiquidityParams(expectedTokenId - 1, 45e18, 45e18, 0, 0, block.timestamp);
+    //        targetData[5] = abi.encodeWithSignature(
+    //            "increaseLiquidity((uint256,uint256,uint256,uint256,uint256,uint256))", increaseLiquidityParams
+    //        );
+    //
+    //        vm.expectRevert(
+    //            abi.encodeWithSelector(
+    //                ManagerWithMerkleVerification.ManagerWithMerkleVerification__FailedToVerifyManageProof.selector,
+    //                targets[5],
+    //                targetData[5],
+    //                0
+    //            )
+    //        );
+    //        manager.manageVaultWithMerkleVerification(
+    //            manageProofs, decodersAndSanitizers, targets, targetData, new uint256[](9)
+    //        );
+    //
+    //        // Fix increase liquidity, but change decreaseLiquidity tokenId.
+    //        increaseLiquidityParams =
+    //            DecoderCustomTypes.IncreaseLiquidityParams(expectedTokenId, 45e18, 45e18, 0, 0, block.timestamp);
+    //        targetData[5] = abi.encodeWithSignature(
+    //            "increaseLiquidity((uint256,uint256,uint256,uint256,uint256,uint256))", increaseLiquidityParams
+    //        );
+    //
+    //        decreaseLiquidityParams =
+    //            DecoderCustomTypes.DecreaseLiquidityParams(expectedTokenId - 1, expectedLiquidity, 0, 0, block.timestamp);
+    //        targetData[6] = abi.encodeWithSignature(
+    //            "decreaseLiquidity((uint256,uint128,uint256,uint256,uint256))", decreaseLiquidityParams
+    //        );
+    //
+    //        vm.expectRevert(
+    //            abi.encodeWithSelector(
+    //                ManagerWithMerkleVerification.ManagerWithMerkleVerification__FailedToVerifyManageProof.selector,
+    //                targets[6],
+    //                targetData[6],
+    //                0
+    //            )
+    //        );
+    //        manager.manageVaultWithMerkleVerification(
+    //            manageProofs, decodersAndSanitizers, targets, targetData, new uint256[](9)
+    //        );
+    //
+    //        // Fix decrease liquidity but change collect tokenId.
+    //        decreaseLiquidityParams =
+    //            DecoderCustomTypes.DecreaseLiquidityParams(expectedTokenId, expectedLiquidity, 0, 0, block.timestamp);
+    //        targetData[6] = abi.encodeWithSignature(
+    //            "decreaseLiquidity((uint256,uint128,uint256,uint256,uint256))", decreaseLiquidityParams
+    //        );
+    //
+    //        collectParams = DecoderCustomTypes.CollectParams(
+    //            expectedTokenId - 1, address(boringVault), type(uint128).max, type(uint128).max
+    //        );
+    //        targetData[7] = abi.encodeWithSignature("collect((uint256,address,uint128,uint128))", collectParams);
+    //
+    //        vm.expectRevert(
+    //            abi.encodeWithSelector(
+    //                ManagerWithMerkleVerification.ManagerWithMerkleVerification__FailedToVerifyManageProof.selector,
+    //                targets[7],
+    //                targetData[7],
+    //                0
+    //            )
+    //        );
+    //        manager.manageVaultWithMerkleVerification(
+    //            manageProofs, decodersAndSanitizers, targets, targetData, new uint256[](9)
+    //        );
+    //
+    //        // Fix collect tokenId.
+    //        collectParams = DecoderCustomTypes.CollectParams(
+    //            expectedTokenId, address(boringVault), type(uint128).max, type(uint128).max
+    //        );
+    //        targetData[7] = abi.encodeWithSignature("collect((uint256,address,uint128,uint128))", collectParams);
+    //
+    //        // Call now works.
+    //        manager.manageVaultWithMerkleVerification(
+    //            manageProofs, decodersAndSanitizers, targets, targetData, new uint256[](9)
+    //        );
+    //    }
 
     // ========================================= HELPER FUNCTIONS =========================================
 
@@ -473,7 +468,6 @@ contract AlgebraV3IntegrationTest is Test, MerkleTreeHelper {
         vm.selectFork(forkId);
     }
 }
-
 
 interface AlgebraNonFungiblePositionManager {
     function ownerOf(uint256 tokenId) external view returns (address);

@@ -461,7 +461,9 @@ contract DelayedWithdraw is Auth, ReentrancyGuard, IPausable {
         WithdrawAsset storage withdrawAsset,
         WithdrawRequest storage req
     ) internal returns (uint256 assetsOut) {
-        if (!withdrawAsset.allowWithdraws) revert DelayedWithdraw__WithdrawsNotAllowed();
+        if (!withdrawAsset.allowWithdraws) {
+            revert DelayedWithdraw__WithdrawsNotAllowed();
+        }
 
         if (block.timestamp < req.maturity) revert DelayedWithdraw__WithdrawNotMatured();
         if (req.shares == 0) revert DelayedWithdraw__NoSharesToWithdraw();

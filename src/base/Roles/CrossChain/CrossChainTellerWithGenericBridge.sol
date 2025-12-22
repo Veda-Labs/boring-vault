@@ -24,7 +24,7 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
         bytes bridgeWildCard;
         ERC20 feeToken;
         uint256 maxFee;
-        address referralAddress; 
+        address referralAddress;
     }
 
     //============================== ERRORS ===============================
@@ -87,9 +87,7 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
      * @dev Since calls to `depositWithPermit` and `bridge` are public, msg.sig is not updated which means any role capabilities regarding this function
      *      are also granted to the `depositWithPermit` and `bridge` function.
      */
-    function depositAndBridgeWithPermit(
-        DepositAndBridgeWithPermitParams calldata params
-    )
+    function depositAndBridgeWithPermit(DepositAndBridgeWithPermitParams calldata params)
         external
         payable
         requiresAuth
@@ -101,9 +99,18 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
         {
             Asset memory asset = _beforeDeposit(params.depositAsset);
             _handlePermit(params.depositAsset, params.depositAmount, params.deadline, params.v, params.r, params.s);
-            sharesBridged = _erc20Deposit(params.depositAsset, params.depositAmount, params.minimumMint, msg.sender, msg.sender, asset);
+            sharesBridged = _erc20Deposit(
+                params.depositAsset, params.depositAmount, params.minimumMint, msg.sender, msg.sender, asset
+            );
         }
-        _afterPublicDeposit(msg.sender, params.depositAsset, params.depositAmount, sharesBridged, shareLockPeriod, params.referralAddress);
+        _afterPublicDeposit(
+            msg.sender,
+            params.depositAsset,
+            params.depositAmount,
+            sharesBridged,
+            shareLockPeriod,
+            params.referralAddress
+        );
 
         // Bridge shares
         if (sharesBridged > type(uint96).max) revert CrossChainTellerWithGenericBridge__UnsafeCastToUint96();
@@ -208,5 +215,5 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
      */
     function version() public pure virtual override returns (string memory) {
         return string(abi.encodePacked("Cross Chain V0.1, ", super.version()));
-    }    
+    }
 }

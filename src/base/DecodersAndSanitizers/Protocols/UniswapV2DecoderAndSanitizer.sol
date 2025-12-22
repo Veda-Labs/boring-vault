@@ -17,7 +17,11 @@ contract UniswapV2DecoderAndSanitizer {
         address[] calldata path,
         address to,
         uint256 /*deadline*/
-    ) external pure returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        returns (bytes memory addressesFound)
+    {
         if (path.length > 2) revert UniswapV2DecoderAndSanitizer__PathTooLong();
         addressesFound = abi.encodePacked(path[0], path[1], to);
     }
@@ -28,12 +32,22 @@ contract UniswapV2DecoderAndSanitizer {
         address[] calldata path,
         address to,
         uint256 /*deadline*/
-    ) external pure returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        returns (bytes memory addressesFound)
+    {
         if (path.length > 2) revert UniswapV2DecoderAndSanitizer__PathTooLong();
         addressesFound = abi.encodePacked(path[0], path[1], to);
     }
 
-    function swapExactETHForTokens(uint256, /*amountOutMin*/ address[] calldata path, address to, uint256 /*deadline*/ )
+    function swapExactETHForTokens(
+        uint256,
+        /*amountOutMin*/
+        address[] calldata path,
+        address to,
+        uint256 /*deadline*/
+    )
         external
         pure
         returns (bytes memory addressesFound)
@@ -48,7 +62,11 @@ contract UniswapV2DecoderAndSanitizer {
         address[] calldata path,
         address to,
         uint256 /*deadline*/
-    ) external pure returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        returns (bytes memory addressesFound)
+    {
         if (path.length > 2) revert UniswapV2DecoderAndSanitizer__PathTooLong();
         addressesFound = abi.encodePacked(path[0], path[1], to);
     }
@@ -59,12 +77,22 @@ contract UniswapV2DecoderAndSanitizer {
         address[] calldata path,
         address to,
         uint256 /*deadline*/
-    ) external pure returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        returns (bytes memory addressesFound)
+    {
         if (path.length > 2) revert UniswapV2DecoderAndSanitizer__PathTooLong();
         addressesFound = abi.encodePacked(path[0], path[1], to);
     }
 
-    function swapETHForExactTokens(uint256, /*amountOut*/ address[] calldata path, address to, uint256 /*deadline*/ )
+    function swapETHForExactTokens(
+        uint256,
+        /*amountOut*/
+        address[] calldata path,
+        address to,
+        uint256 /*deadline*/
+    )
         external
         pure
         returns (bytes memory addressesFound)
@@ -82,7 +110,11 @@ contract UniswapV2DecoderAndSanitizer {
         uint256, /*amountBMin*/
         address to,
         uint256 /*deadline*/
-    ) external pure returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(tokenA, tokenB, to);
     }
 
@@ -94,7 +126,11 @@ contract UniswapV2DecoderAndSanitizer {
         uint256, /*amountBMin*/
         address to,
         uint256 /*deadline*/
-    ) external pure returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(tokenA, tokenB, to);
     }
 
@@ -105,7 +141,11 @@ contract UniswapV2DecoderAndSanitizer {
         uint256, /*amountETHMin*/
         address to,
         uint256 /*deadline*/
-    ) external pure returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(token, to);
     }
 
@@ -116,7 +156,11 @@ contract UniswapV2DecoderAndSanitizer {
         uint256, /*amountETHMin*/
         address to,
         uint256 /*deadline*/
-    ) external pure returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(token, to);
     }
 }

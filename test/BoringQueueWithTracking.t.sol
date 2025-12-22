@@ -164,9 +164,7 @@ contract BoringQueueWithtrackingTest is Test, MerkleTreeHelper {
         assertEq(endingShares, startingShares, "User should have not gotten any shares back.");
     }
 
-    function testUsingGetWithdrawRequestsToSolve(uint128[4] memory amountOfShares, uint16[4] memory discount)
-        external
-    {
+    function testUsingGetWithdrawRequestsToSolve(uint128[4] memory amountOfShares, uint16[4] memory discount) external {
         uint24 secondsToDeadline = 1 days;
         bytes32[4] memory requestIds;
         uint256 startingShares = ERC20(liquidEth).balanceOf(testUser);

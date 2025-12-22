@@ -47,15 +47,15 @@ contract CreateRoySonicUSDCMerkleRoot is Script, MerkleTreeHelper {
         feeAssets[0] = getERC20(sourceChain, "USDC");
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, true); //add yield claiming
 
-         // ========================== Odos ==========================
-         address[] memory tokens = new address[](2);
-         SwapKind[] memory kind = new SwapKind[](2);
-         tokens[0] = getAddress(sourceChain, "USDC");
-         kind[0] = SwapKind.BuyAndSell;
-         tokens[1] = getAddress(sourceChain, "scUSD");
-         kind[1] = SwapKind.BuyAndSell;
+        // ========================== Odos ==========================
+        address[] memory tokens = new address[](2);
+        SwapKind[] memory kind = new SwapKind[](2);
+        tokens[0] = getAddress(sourceChain, "USDC");
+        kind[0] = SwapKind.BuyAndSell;
+        tokens[1] = getAddress(sourceChain, "scUSD");
+        kind[1] = SwapKind.BuyAndSell;
 
-         _addOdosSwapLeafs(leafs, tokens, kind);
+        _addOdosSwapLeafs(leafs, tokens, kind);
 
         // ========================== Royco ==========================
         bytes32 marketHash0 = 0x7d1f2a66eabf9142dd30d1355efcbfd4cfbefd2872d24ca9855641434816a525;
@@ -70,13 +70,19 @@ contract CreateRoySonicUSDCMerkleRoot is Script, MerkleTreeHelper {
 
         address[] memory incentivesRequested2 = new address[](1);
         incentivesRequested2[0] = getAddress(sonicMainnet, "USDC"); // USDC Token (this is a test royco market)
-        
-        _addRoycoRecipeAPOfferLeafs(leafs, getAddress(sonicMainnet, "USDC"), marketHash0, address(0), incentivesRequested0);
-        _addRoycoRecipeAPOfferLeafs(leafs, getAddress(sonicMainnet, "USDC"), marketHash1, address(0), incentivesRequested1);
-        _addRoycoRecipeAPOfferLeafs(leafs, getAddress(sonicMainnet, "USDC"), marketHash2, address(0), incentivesRequested2);
-        
+
+        _addRoycoRecipeAPOfferLeafs(
+            leafs, getAddress(sonicMainnet, "USDC"), marketHash0, address(0), incentivesRequested0
+        );
+        _addRoycoRecipeAPOfferLeafs(
+            leafs, getAddress(sonicMainnet, "USDC"), marketHash1, address(0), incentivesRequested1
+        );
+        _addRoycoRecipeAPOfferLeafs(
+            leafs, getAddress(sonicMainnet, "USDC"), marketHash2, address(0), incentivesRequested2
+        );
+
         address frontendFeeRecipient = 0x169C8c63aaC6433be8fdFE4AA116286329226E0a;
-        
+
         _addRoycoWeirollLeafs(leafs, getERC20(sonicMainnet, "USDC"), marketHash0, frontendFeeRecipient);
         _addRoycoWeirollLeafs(leafs, getERC20(sonicMainnet, "USDC"), marketHash1, frontendFeeRecipient);
         _addRoycoWeirollLeafs(leafs, getERC20(sonicMainnet, "USDC"), marketHash2, frontendFeeRecipient);
@@ -93,27 +99,11 @@ contract CreateRoySonicUSDCMerkleRoot is Script, MerkleTreeHelper {
             address[] memory rewardsTokensCombo1 = new address[](1);
             rewardsTokensCombo1[0] = 0xD152f4C29fB0db011c8a5503Aee3Ce60C44F8985; //SJP Points Wrapper Token
 
-            _addBoringChefApproveRewardsLeafs(
-                leafs,
-                boringVault,
-                allRewardsTokens
-            );
+            _addBoringChefApproveRewardsLeafs(leafs, boringVault, allRewardsTokens);
 
-            _addBoringChefDistributeRewardsLeaf(
-                leafs,
-                boringVault,
-                allRewardsTokens
-            );
-            _addBoringChefDistributeRewardsLeaf(
-                leafs,
-                boringVault,
-                rewardsTokensCombo0
-            );
-            _addBoringChefDistributeRewardsLeaf(
-                leafs,
-                boringVault,
-                rewardsTokensCombo1
-            );
+            _addBoringChefDistributeRewardsLeaf(leafs, boringVault, allRewardsTokens);
+            _addBoringChefDistributeRewardsLeaf(leafs, boringVault, rewardsTokensCombo0);
+            _addBoringChefDistributeRewardsLeaf(leafs, boringVault, rewardsTokensCombo1);
         }
 
         // ========================== wstkscUSD ==========================
@@ -124,10 +114,14 @@ contract CreateRoySonicUSDCMerkleRoot is Script, MerkleTreeHelper {
         {
             ERC20[] memory queueAssets0 = new ERC20[](1);
             queueAssets0[0] = getERC20(sonicMainnet, "scUSD");
-            _addWithdrawQueueLeafs(leafs, getAddress(sonicMainnet, "stkscUSDQueue"), getAddress(sonicMainnet, "stkscUSD"), queueAssets0);
+            _addWithdrawQueueLeafs(
+                leafs, getAddress(sonicMainnet, "stkscUSDQueue"), getAddress(sonicMainnet, "stkscUSD"), queueAssets0
+            );
             ERC20[] memory queueAssets1 = new ERC20[](1);
             queueAssets1[0] = getERC20(sonicMainnet, "USDC");
-            _addWithdrawQueueLeafs(leafs, getAddress(sonicMainnet, "scUSDQueue"), getAddress(sonicMainnet, "scUSD"), queueAssets1);
+            _addWithdrawQueueLeafs(
+                leafs, getAddress(sonicMainnet, "scUSDQueue"), getAddress(sonicMainnet, "scUSD"), queueAssets1
+            );
         }
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

@@ -44,7 +44,12 @@ contract DeriveWithdrawDecoderAndSanitizer {
         uint256, /*burnAmount_*/
         uint256, /*msgGasLimit_*/
         address connector_
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(receiver_, connector_);
     }
 }

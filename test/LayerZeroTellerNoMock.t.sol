@@ -193,21 +193,22 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
         deal(user, fee);
 
         vm.startPrank(user);
-        CrossChainTellerWithGenericBridge.DepositAndBridgeWithPermitParams memory params = CrossChainTellerWithGenericBridge.DepositAndBridgeWithPermitParams({
-            depositAsset: WEETH,
-            depositAmount: weETH_amount,
-            minimumMint: 0,
-            deadline: block.timestamp,
-            v: v,
-            r: r,
-            s: s,
-            to: user,
-            bridgeWildCard: abi.encode(layerZeroArbitrumEndpointId),
-            feeToken: NATIVE_ERC20,
-            maxFee: fee,
-            referralAddress: referrer
-        });
-        sourceTeller.depositAndBridgeWithPermit{value: fee}(params);   
+        CrossChainTellerWithGenericBridge.DepositAndBridgeWithPermitParams memory params =
+            CrossChainTellerWithGenericBridge.DepositAndBridgeWithPermitParams({
+                depositAsset: WEETH,
+                depositAmount: weETH_amount,
+                minimumMint: 0,
+                deadline: block.timestamp,
+                v: v,
+                r: r,
+                s: s,
+                to: user,
+                bridgeWildCard: abi.encode(layerZeroArbitrumEndpointId),
+                feeToken: NATIVE_ERC20,
+                maxFee: fee,
+                referralAddress: referrer
+            });
+        sourceTeller.depositAndBridgeWithPermit{value: fee}(params);
         vm.stopPrank();
     }
 

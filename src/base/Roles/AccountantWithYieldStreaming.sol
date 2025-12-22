@@ -10,6 +10,7 @@ import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
+
 contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
@@ -232,7 +233,6 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
                 }
             }
         }
-        
 
         AccountantState storage state = accountantState;
         state.exchangeRate = uint96(vestingState.lastSharePrice);
@@ -253,7 +253,14 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     /**
      * @notice Override updateExchangeRate to revert if called accidentally
      */
-    function updateExchangeRate(uint96 /*newExchangeRate*/ ) external view override requiresAuth {
+    function updateExchangeRate(
+        uint96 /*newExchangeRate*/
+    )
+        external
+        view
+        override
+        requiresAuth
+    {
         revert AccountantWithYieldStreaming__UpdateExchangeRateNotSupported();
     }
 
@@ -426,12 +433,18 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     /**
      * @notice Override previewUpdateExchangeRate to revert if called accidentally
      */
-    function previewUpdateExchangeRate(uint96 /*newExchangeRate*/ )
+    function previewUpdateExchangeRate(
+        uint96 /*newExchangeRate*/
+    )
         external
         view
         override
         requiresAuth
-        returns (bool, /*updateWillPause*/ uint256, /*newFeesOwedInBase*/ uint256 /*totalFeesOwedInBase*/ )
+        returns (
+            bool, /*updateWillPause*/
+            uint256, /*newFeesOwedInBase*/
+            uint256 /*totalFeesOwedInBase*/
+        )
     {
         revert AccountantWithYieldStreaming__UpdateExchangeRateNotSupported();
     }
@@ -455,15 +468,14 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
             uint256 _totalAssets = uint256(vestingState.lastSharePrice).mulDivDown(currentShares, ONE_SHARE);
             vestingState.lastSharePrice = uint128((_totalAssets + newlyVested).mulDivDown(ONE_SHARE, currentShares));
 
-
             //move vested amount from pending to realized
             vestingState.vestingGains -= uint128(newlyVested); // remove from pending
         }
-        
-        //sync fee variables 
+
+        //sync fee variables
         _collectFees();
 
-        //always update timestamp 
+        //always update timestamp
         vestingState.lastVestingUpdate = uint128(block.timestamp); // update timestamp
 
         state.totalSharesLastUpdate = uint128(currentShares);

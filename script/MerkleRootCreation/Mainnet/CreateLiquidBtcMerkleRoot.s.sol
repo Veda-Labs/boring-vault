@@ -26,7 +26,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
     address public itbPositionManager = 0x7AAf9539B7359470Def1920ca41b5AAA05C13726;
     address public itbPositionManager2 = 0x11Fd9E49c41738b7500748f7B94B4DBb0E8c13d2; // Spark LBTC (PYUSD) + Aave Core Euler PYUSD Supervised Loan
     address public itbPositionManager3 = 0xfBCA329E2Ee0c44d8F115A4B8F7ceda9E109f436; // Aave eBTC->RLUSD-> Euler Sentora RLUSD
-    address public itbDecoderAndSanitizer = 0xb75bfC8B0Cc8588C510DcAE75c67A9DC9cF508d5; 
+    address public itbDecoderAndSanitizer = 0xb75bfC8B0Cc8588C510DcAE75c67A9DC9cF508d5;
 
     function setUp() external {}
 
@@ -52,12 +52,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         feeAssets[0] = getERC20(sourceChain, "WBTC");
         feeAssets[1] = getERC20(sourceChain, "LBTC");
         feeAssets[2] = getERC20(sourceChain, "cbBTC");
-        _addLeafsForFeeClaiming(
-            leafs,
-            getAddress(sourceChain, "accountantAddress"),
-            feeAssets,
-            false
-        );
+        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
         // ========================== UniswapV3 ==========================
         address[] memory token0 = new address[](22);
@@ -208,21 +203,31 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
 
         // ========================== Odos ==========================
-        _addOdosSwapLeafs(leafs, assets, kind);  
+        _addOdosSwapLeafs(leafs, assets, kind);
 
         // ========================== Euler ==========================
         {
-        ERC4626[] memory depositVaults = new ERC4626[](1);
-        depositVaults[0] = ERC4626(getAddress(sourceChain, "eulerCBTC"));
+            ERC4626[] memory depositVaults = new ERC4626[](1);
+            depositVaults[0] = ERC4626(getAddress(sourceChain, "eulerCBTC"));
 
-        address[] memory subaccounts = new address[](1);
-        subaccounts[0] = address(boringVault);
+            address[] memory subaccounts = new address[](1);
+            subaccounts[0] = address(boringVault);
 
-        _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
+            _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
         }
 
-         _addBTCNLeafs(leafs, getERC20(sourceChain, "cbBTC"), getERC20(sourceChain, "BTCN"), getAddress(sourceChain, "cornSwapFacilitycbBTC"));
-        _addBTCNLeafs(leafs, getERC20(sourceChain, "WBTC"), getERC20(sourceChain, "BTCN"), getAddress(sourceChain, "cornSwapFacilityWBTC"));
+        _addBTCNLeafs(
+            leafs,
+            getERC20(sourceChain, "cbBTC"),
+            getERC20(sourceChain, "BTCN"),
+            getAddress(sourceChain, "cornSwapFacilitycbBTC")
+        );
+        _addBTCNLeafs(
+            leafs,
+            getERC20(sourceChain, "WBTC"),
+            getERC20(sourceChain, "BTCN"),
+            getAddress(sourceChain, "cornSwapFacilityWBTC")
+        );
 
         // ========================== Aave ==========================
         ERC20[] memory supplyAssets = new ERC20[](6);
@@ -320,11 +325,16 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
             eBTCTellerAssets2[1] = getAddress(sourceChain, "LBTC");
             eBTCTellerAssets2[2] = getAddress(sourceChain, "cbBTC");
             address[] memory feeAssets1 = new address[](1);
-            feeAssets1[0] = getAddress(sourceChain, "ETH"); 
-            _addCrossChainTellerLeafs(leafs, getAddress(sourceChain, "eBTCTeller"), eBTCTellerAssets2, feeAssets1, abi.encode(layerZeroBerachainEndpointId));
+            feeAssets1[0] = getAddress(sourceChain, "ETH");
+            _addCrossChainTellerLeafs(
+                leafs,
+                getAddress(sourceChain, "eBTCTeller"),
+                eBTCTellerAssets2,
+                feeAssets1,
+                abi.encode(layerZeroBerachainEndpointId)
+            );
 
-        
-            address newLiquidBeraBTCTeller = 0xe238e253b67f42ee3aF194BaF7Aba5E2eaddA1B8;  
+            address newLiquidBeraBTCTeller = 0xe238e253b67f42ee3aF194BaF7Aba5E2eaddA1B8;
             ERC20[] memory liquidBeraBTCTellerAssets = new ERC20[](4);
             liquidBeraBTCTellerAssets[0] = getERC20(sourceChain, "WBTC");
             liquidBeraBTCTellerAssets[1] = getERC20(sourceChain, "LBTC");
@@ -336,115 +346,166 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
             tacBTCAssets[0] = getERC20(sourceChain, "cbBTC");
             tacBTCAssets[1] = getERC20(sourceChain, "LBTC");
             _addTellerLeafs(leafs, getAddress(sourceChain, "TurtleTACBTCTeller"), tacBTCAssets, false, false);
-            _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "TurtleTACBTCQueue"), getAddress(sourceChain, "TurtleTACBTC"), tacBTCAssets);
+            _addWithdrawQueueLeafs(
+                leafs,
+                getAddress(sourceChain, "TurtleTACBTCQueue"),
+                getAddress(sourceChain, "TurtleTACBTC"),
+                tacBTCAssets
+            );
 
             ERC20[] memory tacLBTCvAssets = new ERC20[](2);
             tacLBTCvAssets[0] = getERC20(sourceChain, "LBTC");
             tacLBTCvAssets[1] = getERC20(sourceChain, "cbBTC");
             _addTellerLeafs(leafs, getAddress(sourceChain, "TACLBTCvTeller"), tacLBTCvAssets, false, false);
-            _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "TACLBTCvQueue"), getAddress(sourceChain, "TACLBTCv"), tacLBTCvAssets);
-
+            _addWithdrawQueueLeafs(
+                leafs, getAddress(sourceChain, "TACLBTCvQueue"), getAddress(sourceChain, "TACLBTCv"), tacLBTCvAssets
+            );
         }
 
         // ========================== Resolv ==========================
-        _addAllResolvLeafs(leafs);  
+        _addAllResolvLeafs(leafs);
 
         // ========================== Curve ==========================
-        _addCurveLeafs(leafs, getAddress(sourceChain, "fxUSD_USDC_Curve_Pool"), 2, getAddress(sourceChain, "fxUSD_USDC_Curve_Gauge"));   
-        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "fxUSD_USDC_Curve_Pool")); 
+        _addCurveLeafs(
+            leafs,
+            getAddress(sourceChain, "fxUSD_USDC_Curve_Pool"),
+            2,
+            getAddress(sourceChain, "fxUSD_USDC_Curve_Gauge")
+        );
+        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "fxUSD_USDC_Curve_Pool"));
 
-        _addCurveLeafs(leafs, getAddress(sourceChain, "WETH_PXETH_Curve_Pool"), 2, getAddress(sourceChain, "WETH_PXETH_Curve_Gauge"));   
-        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "WETH_PXETH_Curve_Pool"));   
+        _addCurveLeafs(
+            leafs,
+            getAddress(sourceChain, "WETH_PXETH_Curve_Pool"),
+            2,
+            getAddress(sourceChain, "WETH_PXETH_Curve_Gauge")
+        );
+        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "WETH_PXETH_Curve_Pool"));
 
-        _addCurveLeafs(leafs, getAddress(sourceChain, "STETH_PXETH_Curve_Pool"), 2, getAddress(sourceChain, "STETH_PXETH_Curve_Gauge"));   
-        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "STETH_PXETH_Curve_Pool"));   
+        _addCurveLeafs(
+            leafs,
+            getAddress(sourceChain, "STETH_PXETH_Curve_Pool"),
+            2,
+            getAddress(sourceChain, "STETH_PXETH_Curve_Gauge")
+        );
+        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "STETH_PXETH_Curve_Pool"));
 
-        _addCurveLeafs(leafs, getAddress(sourceChain, "FXUSD_GHO_Curve_Pool"), 2, getAddress(sourceChain, "FXUSD_GHO_Curve_Gauge")); 
-        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "FXUSD_GHO_Curve_Pool"));   
-        
+        _addCurveLeafs(
+            leafs, getAddress(sourceChain, "FXUSD_GHO_Curve_Pool"), 2, getAddress(sourceChain, "FXUSD_GHO_Curve_Gauge")
+        );
+        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "FXUSD_GHO_Curve_Pool"));
+
         //tBTC/eBTC
-        _addCurveLeafs(leafs, getAddress(sourceChain, "TBTC_EBTC_Curve_Pool"), 2, getAddress(sourceChain, "TBTC_EBTC_Curve_Gauge")); 
-        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "TBTC_EBTC_Curve_Pool"));   
-        
+        _addCurveLeafs(
+            leafs, getAddress(sourceChain, "TBTC_EBTC_Curve_Pool"), 2, getAddress(sourceChain, "TBTC_EBTC_Curve_Gauge")
+        );
+        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "TBTC_EBTC_Curve_Pool"));
+
         //tBTC/cbBTC
-        _addCurveLeafs(leafs, getAddress(sourceChain, "TBTC_CBBTC_Curve_Pool"), 2, getAddress(sourceChain, "TBTC_CBBTC_Curve_Gauge")); 
-        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "TBTC_CBBTC_Curve_Pool"));   
+        _addCurveLeafs(
+            leafs,
+            getAddress(sourceChain, "TBTC_CBBTC_Curve_Pool"),
+            2,
+            getAddress(sourceChain, "TBTC_CBBTC_Curve_Gauge")
+        );
+        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "TBTC_CBBTC_Curve_Pool"));
 
         //frxUSD/FRAX
         _addCurveLeafs(leafs, getAddress(sourceChain, "frxUSD_FRAX_Curve_Pool"), 2, address(0)); //no gauge currently
-        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "frxUSD_FRAX_Curve_Pool"));   
+        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "frxUSD_FRAX_Curve_Pool"));
 
         //frxUSD/SUSDS
-        _addCurveLeafs(leafs, getAddress(sourceChain, "frxUSD_SUSDS_Curve_Pool"), 2, getAddress(sourceChain, "frxUSD_SUSDS_Curve_Gauge")); 
-        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "frxUSD_SUSDS_Curve_Pool"));   
+        _addCurveLeafs(
+            leafs,
+            getAddress(sourceChain, "frxUSD_SUSDS_Curve_Pool"),
+            2,
+            getAddress(sourceChain, "frxUSD_SUSDS_Curve_Gauge")
+        );
+        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "frxUSD_SUSDS_Curve_Pool"));
 
         //frxUSD/USDE
-        _addCurveLeafs(leafs, getAddress(sourceChain, "frxUSD_USDE_Curve_Pool"), 2, getAddress(sourceChain, "frxUSD_USDE_Curve_Gauge")); 
-        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "frxUSD_USDE_Curve_Pool"));   
-        
+        _addCurveLeafs(
+            leafs,
+            getAddress(sourceChain, "frxUSD_USDE_Curve_Pool"),
+            2,
+            getAddress(sourceChain, "frxUSD_USDE_Curve_Gauge")
+        );
+        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "frxUSD_USDE_Curve_Pool"));
+
         //triBTCFi
-        _addCurveLeafs(leafs, getAddress(sourceChain, "triBTCFi_Curve_Pool"), 3, getAddress(sourceChain, "triBTCFi_Curve_Gauge")); 
-        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "triBTCFi_Curve_Pool"));   
-       
+        _addCurveLeafs(
+            leafs, getAddress(sourceChain, "triBTCFi_Curve_Pool"), 3, getAddress(sourceChain, "triBTCFi_Curve_Gauge")
+        );
+        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "triBTCFi_Curve_Pool"));
+
         // ========================== Convex ==========================
         // F(x) booster
         //step 1)
         _addConvexFXBoosterLeafs(
-            leafs, 
+            leafs,
             getAddress(sourceChain, "convexFX_gauge_USDC_fxUSD"),
             getAddress(sourceChain, "convexFX_lp_USDC_fxUSD")
         );
         //step 2) (after vault creation)
-        address expectedVaultAddress = 0x7bA41E927caed25bD8D25f5e6c82813Bb1d51310; 
-        _addConvexFXVaultLeafs(leafs, expectedVaultAddress); 
+        address expectedVaultAddress = 0x7bA41E927caed25bD8D25f5e6c82813Bb1d51310;
+        _addConvexFXVaultLeafs(leafs, expectedVaultAddress);
 
         _addConvexFXBoosterLeafs(
-            leafs, 
-            getAddress(sourceChain, "convexFX_gauge_fxUSD_GHO"),
-            getAddress(sourceChain, "convexFX_lp_fxUSD_GHO")
-        ); 
+            leafs, getAddress(sourceChain, "convexFX_gauge_fxUSD_GHO"), getAddress(sourceChain, "convexFX_lp_fxUSD_GHO")
+        );
         //step 2) (after vault creation)
-        //address expectedVaultAddress2 = 0x123...; 
-        //_addConvexFXVaultLeafs(leafs, expectedVaultAddress2); 
+        //address expectedVaultAddress2 = 0x123...;
+        //_addConvexFXVaultLeafs(leafs, expectedVaultAddress2);
 
-        
         //leafs, lpToken, rewardsContract
-        _addConvexLeafs(leafs, getERC20(sourceChain, "WETH_PXETH_Curve_Pool"), getAddress(sourceChain, "WETH_PXETH_Convex_Rewards"));  
-        _addConvexLeafs(leafs, getERC20(sourceChain, "STETH_PXETH_Curve_Pool"), getAddress(sourceChain, "STETH_PXETH_Convex_Rewards"));  
-        _addConvexLeafs(leafs, getERC20(sourceChain, "FXUSD_GHO_Curve_Pool"), getAddress(sourceChain, "FXUSD_GHO_Convex_Rewards")); 
-        _addConvexLeafs(leafs, getERC20(sourceChain, "TBTC_EBTC_Curve_Pool"), getAddress(sourceChain, "TBTC_EBTC_Convex_Rewards")); 
-        _addConvexLeafs(leafs, getERC20(sourceChain, "TBTC_CBBTC_Curve_Pool"), getAddress(sourceChain, "TBTC_CBBTC_Convex_Rewards")); 
-        _addConvexLeafs(leafs, getERC20(sourceChain, "frxUSD_SUSDS_Curve_Pool"), getAddress(sourceChain, "frxUSD_SUSDS_Convex_Rewards")); 
-        _addConvexLeafs(leafs, getERC20(sourceChain, "frxUSD_USDE_Curve_Pool"), getAddress(sourceChain, "frxUSD_USDE_Convex_Rewards")); 
-
+        _addConvexLeafs(
+            leafs, getERC20(sourceChain, "WETH_PXETH_Curve_Pool"), getAddress(sourceChain, "WETH_PXETH_Convex_Rewards")
+        );
+        _addConvexLeafs(
+            leafs,
+            getERC20(sourceChain, "STETH_PXETH_Curve_Pool"),
+            getAddress(sourceChain, "STETH_PXETH_Convex_Rewards")
+        );
+        _addConvexLeafs(
+            leafs, getERC20(sourceChain, "FXUSD_GHO_Curve_Pool"), getAddress(sourceChain, "FXUSD_GHO_Convex_Rewards")
+        );
+        _addConvexLeafs(
+            leafs, getERC20(sourceChain, "TBTC_EBTC_Curve_Pool"), getAddress(sourceChain, "TBTC_EBTC_Convex_Rewards")
+        );
+        _addConvexLeafs(
+            leafs, getERC20(sourceChain, "TBTC_CBBTC_Curve_Pool"), getAddress(sourceChain, "TBTC_CBBTC_Convex_Rewards")
+        );
+        _addConvexLeafs(
+            leafs,
+            getERC20(sourceChain, "frxUSD_SUSDS_Curve_Pool"),
+            getAddress(sourceChain, "frxUSD_SUSDS_Convex_Rewards")
+        );
+        _addConvexLeafs(
+            leafs,
+            getERC20(sourceChain, "frxUSD_USDE_Curve_Pool"),
+            getAddress(sourceChain, "frxUSD_USDE_Convex_Rewards")
+        );
 
         // ========================== Fluid Dex ==========================
         {
-            uint256 dexType = 4000; 
-            ERC20[] memory supplyTokens = new ERC20[](2);    
-            supplyTokens[0] = getERC20(sourceChain, "WBTC"); 
-            supplyTokens[1] = getERC20(sourceChain, "cbBTC"); 
+            uint256 dexType = 4000;
+            ERC20[] memory supplyTokens = new ERC20[](2);
+            supplyTokens[0] = getERC20(sourceChain, "WBTC");
+            supplyTokens[1] = getERC20(sourceChain, "cbBTC");
 
-            ERC20[] memory borrowTokens = new ERC20[](2);    
-            borrowTokens[0] = getERC20(sourceChain, "WBTC"); 
-            borrowTokens[1] = getERC20(sourceChain, "cbBTC"); 
+            ERC20[] memory borrowTokens = new ERC20[](2);
+            borrowTokens[0] = getERC20(sourceChain, "WBTC");
+            borrowTokens[1] = getERC20(sourceChain, "cbBTC");
             _addFluidDexLeafs(
-                leafs,
-                getAddress(sourceChain, "wBTC_cbBTCDex_wBTC_cbBTC"),
-                dexType,
-                supplyTokens,
-                borrowTokens,
-                false
-            ); 
+                leafs, getAddress(sourceChain, "wBTC_cbBTCDex_wBTC_cbBTC"), dexType, supplyTokens, borrowTokens, false
+            );
         }
 
         // ========================== Syrup ==========================
-        _addAllSyrupLeafs(leafs);   
-
+        _addAllSyrupLeafs(leafs);
 
         // ========================== Sky Money ==========================
-        _addAllSkyMoneyLeafs(leafs); //for better swaps between stables (USDC/SUSDS) 
-
+        _addAllSkyMoneyLeafs(leafs); //for better swaps between stables (USDC/SUSDS)
 
         // ========================== Spectra ==========================
         _addSpectraLeafs(
@@ -452,34 +513,76 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
             getAddress(sourceChain, "spectra_stkGHO_Pool_04_28_25"),
             getAddress(sourceChain, "spectra_stkGHO_PT_04_28_25"),
             getAddress(sourceChain, "spectra_stkGHO_YT_04_28_25"),
-            getAddress(sourceChain, "spectra_stkGHO_IBT_04_28_25") //IBT or swToken 
-        );  
+            getAddress(sourceChain, "spectra_stkGHO_IBT_04_28_25") //IBT or swToken
+        );
 
         // ========================== EUSDE ==========================
-        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "EUSDE"))); 
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "EUSDE")));
 
         // ========================== SUSDS ==========================
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "SUSDS")));
 
         // ========================== LayerZero/Stargate ==========================
         // Berachain
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WBTC"), getAddress(sourceChain, "WBTCOFTAdapter"), layerZeroBerachainEndpointId, bytes32(uint256(uint160(address(boringVault)))));   
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "solvBTC"), getAddress(sourceChain, "stargateSolvBTC"), layerZeroBerachainEndpointId, bytes32(uint256(uint160(address(boringVault)))));   
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "srUSD"), getAddress(sourceChain, "stargatesrUSD"), layerZeroBerachainEndpointId, bytes32(uint256(uint160(address(boringVault)))));   
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDC"), getAddress(sourceChain, "stargateUSDC"), layerZeroBerachainEndpointId, bytes32(uint256(uint160(address(boringVault)))));   
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "LBTC"), getAddress(sourceChain, "LBTCOFTAdapter"), layerZeroCornEndpointId, bytes32(uint256(uint160(address(boringVault)))));   
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "BTCN"), getAddress(sourceChain, "BTCN"), layerZeroCornEndpointId, bytes32(uint256(uint160(address(boringVault))))); 
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "WBTC"),
+            getAddress(sourceChain, "WBTCOFTAdapter"),
+            layerZeroBerachainEndpointId,
+            bytes32(uint256(uint160(address(boringVault))))
+        );
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "solvBTC"),
+            getAddress(sourceChain, "stargateSolvBTC"),
+            layerZeroBerachainEndpointId,
+            bytes32(uint256(uint160(address(boringVault))))
+        );
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "srUSD"),
+            getAddress(sourceChain, "stargatesrUSD"),
+            layerZeroBerachainEndpointId,
+            bytes32(uint256(uint160(address(boringVault))))
+        );
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "USDC"),
+            getAddress(sourceChain, "stargateUSDC"),
+            layerZeroBerachainEndpointId,
+            bytes32(uint256(uint160(address(boringVault))))
+        );
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "LBTC"),
+            getAddress(sourceChain, "LBTCOFTAdapter"),
+            layerZeroCornEndpointId,
+            bytes32(uint256(uint160(address(boringVault))))
+        );
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "BTCN"),
+            getAddress(sourceChain, "BTCN"),
+            layerZeroCornEndpointId,
+            bytes32(uint256(uint160(address(boringVault))))
+        );
 
         //Scroll
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WBTC"), getAddress(sourceChain, "WBTCOFTAdapter"), layerZeroScrollEndpointId, bytes32(uint256(uint160(address(boringVault)))));   
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "WBTC"),
+            getAddress(sourceChain, "WBTCOFTAdapter"),
+            layerZeroScrollEndpointId,
+            bytes32(uint256(uint160(address(boringVault))))
+        );
 
         // ========================== Scroll Native Bridge==========================
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", scrollBridgeDecoderAndSanitizer);
-        ERC20[] memory tokens = new ERC20[](1); 
-        tokens[0] = getERC20(sourceChain, "WBTC"); 
+        ERC20[] memory tokens = new ERC20[](1);
+        tokens[0] = getERC20(sourceChain, "WBTC");
         address[] memory scrollGateways = new address[](1);
         scrollGateways[0] = getAddress(scroll, "scrollWBTCGateway");
-        _addScrollNativeBridgeLeafs(leafs, "scroll", tokens, scrollGateways);  
+        _addScrollNativeBridgeLeafs(leafs, "scroll", tokens, scrollGateways);
 
         // ========================== Elixir ==========================
         /**
@@ -491,11 +594,11 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         // ========================== ITB Position Manager ==========================
         {
             /**
-            * acceptOwnership() of ITB position manager
-            * transfer BTC tokens to ITB position manager
-            * withdraw BTC tokens from ITB position manager
-            * withdrawAll BTC tokens from ITB position manager
-            */
+             * acceptOwnership() of ITB position manager
+             * transfer BTC tokens to ITB position manager
+             * withdraw BTC tokens from ITB position manager
+             * withdrawAll BTC tokens from ITB position manager
+             */
             ERC20[] memory itbTokensUsed = new ERC20[](4);
             itbTokensUsed[0] = getERC20(sourceChain, "WBTC");
             itbTokensUsed[1] = getERC20(sourceChain, "LBTC");
@@ -552,25 +655,25 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
             );
             leafs[leafIndex].argumentAddresses[0] = positionManager;
         }
-                    // Withdraw
-            leafIndex++;
-            leafs[leafIndex] = ManageLeaf(
-                positionManager,
-                false,
-                "withdraw(address,uint256)",
-                new address[](0),
-                string.concat("Withdraw from the ", itbContractName, " contract"),
-                itbDecoderAndSanitizer
-            );
-            // WithdrawAll
-            leafIndex++;
-            leafs[leafIndex] = ManageLeaf(
-                positionManager,
-                false,
-                "withdrawAll(address)",
-                new address[](0),
-                string.concat("Withdraw all from the ", itbContractName, " contract"),
-                itbDecoderAndSanitizer
-            );
+        // Withdraw
+        leafIndex++;
+        leafs[leafIndex] = ManageLeaf(
+            positionManager,
+            false,
+            "withdraw(address,uint256)",
+            new address[](0),
+            string.concat("Withdraw from the ", itbContractName, " contract"),
+            itbDecoderAndSanitizer
+        );
+        // WithdrawAll
+        leafIndex++;
+        leafs[leafIndex] = ManageLeaf(
+            positionManager,
+            false,
+            "withdrawAll(address)",
+            new address[](0),
+            string.concat("Withdraw all from the ", itbContractName, " contract"),
+            itbDecoderAndSanitizer
+        );
     }
 }

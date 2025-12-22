@@ -19,10 +19,9 @@ contract CreateTurtleTacUSDMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x699e04F98dE2Fc395a7dcBf36B48EC837A976490;
-    address public rawDataDecoderAndSanitizer = 0x5ebE12dE67970a6d3DD70d23f90EbBA4dD38726A; 
-    address public managerAddress = 0x2FA91E4eb6Ace724EfFbDD61bBC1B55EF8bD7aAc; 
+    address public rawDataDecoderAndSanitizer = 0x5ebE12dE67970a6d3DD70d23f90EbBA4dD38726A;
+    address public managerAddress = 0x2FA91E4eb6Ace724EfFbDD61bBC1B55EF8bD7aAc;
     address public accountantAddress = 0x58cD5e97ffaeA62986C86ac44bB8EF7092c7ff5B;
-    
 
     function setUp() external {}
 
@@ -43,7 +42,7 @@ contract CreateTurtleTacUSDMerkleRoot is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](32);
 
         // ========================== Cross Chain Layer ==========================
-        string memory tvmTarget = "EQBc4bruxc39m7qOItgoOU634GGFs-W8KT0cKQce591I-HFe"; 
+        string memory tvmTarget = "EQBc4bruxc39m7qOItgoOU634GGFs-W8KT0cKQce591I-HFe";
         _addTacCrossChainLeafs(leafs, getERC20(sourceChain, "USDT"), tvmTarget);
 
         // ========================== Morpho ==========================
@@ -57,7 +56,7 @@ contract CreateTurtleTacUSDMerkleRoot is Script, MerkleTreeHelper {
         address[] memory subaccounts = new address[](1);
         subaccounts[0] = address(boringVault);
 
-        _addEulerDepositLeafs(leafs, depositVaults, subaccounts); 
+        _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
@@ -67,7 +66,5 @@ contract CreateTurtleTacUSDMerkleRoot is Script, MerkleTreeHelper {
         string memory filePath = "./leafs/TAC/TurtleTacUSDStrategistLeafs.json";
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
-
     }
-
 }

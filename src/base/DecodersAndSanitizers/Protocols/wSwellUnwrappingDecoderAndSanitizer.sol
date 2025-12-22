@@ -9,7 +9,12 @@ import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 contract wSwellUnwrappingDecoderAndSanitizer {
     //============================== ETHERFI ===============================
 
-    function withdrawToByLockTimestamp(address account, uint256, /*lockTimestamp*/ bool /*allowRemainderLoss*/ )
+    function withdrawToByLockTimestamp(
+        address account,
+        uint256,
+        /*lockTimestamp*/
+        bool /*allowRemainderLoss*/
+    )
         external
         pure
         virtual
@@ -22,7 +27,12 @@ contract wSwellUnwrappingDecoderAndSanitizer {
         address account,
         uint256[] memory, /*lockTimetamp*/
         bool /*allowRemainderLoss*/
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(account);
     }
 }

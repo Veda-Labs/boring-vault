@@ -115,21 +115,20 @@ contract EulerEVKIntegrationTest is Test, MerkleTreeHelper {
         ERC4626 evkWETH = ERC4626(getAddress(sourceChain, "evkWETH"));
         ERC4626 evkUSDC = ERC4626(getAddress(sourceChain, "evkUSDC"));
 
-        ERC4626[] memory depositVaults = new ERC4626[](1);  
-        depositVaults[0] = evkWETH; 
+        ERC4626[] memory depositVaults = new ERC4626[](1);
+        depositVaults[0] = evkWETH;
 
-        ERC4626[] memory borrowVaults = new ERC4626[](1);  
-        borrowVaults[0] = evkUSDC; 
+        ERC4626[] memory borrowVaults = new ERC4626[](1);
+        borrowVaults[0] = evkUSDC;
 
-        address[] memory subaccounts = new address[](1); 
-        subaccounts[0] = address(boringVault); 
+        address[] memory subaccounts = new address[](1);
+        subaccounts[0] = address(boringVault);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
-        _addEulerDepositLeafs(leafs, depositVaults, subaccounts); 
+        _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
         _addEulerBorrowLeafs(leafs, borrowVaults, subaccounts);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
-
 
         _generateTestLeafs(leafs, manageTree);
 
@@ -210,17 +209,17 @@ contract EulerEVKIntegrationTest is Test, MerkleTreeHelper {
         ERC4626 evkWETH = ERC4626(getAddress(sourceChain, "evkWETH"));
         ERC4626 evkUSDC = ERC4626(getAddress(sourceChain, "evkUSDC"));
 
-        ERC4626[] memory depositVaults = new ERC4626[](1);  
-        depositVaults[0] = evkWETH; 
+        ERC4626[] memory depositVaults = new ERC4626[](1);
+        depositVaults[0] = evkWETH;
 
-        ERC4626[] memory borrowVaults = new ERC4626[](1);  
-        borrowVaults[0] = evkUSDC; 
+        ERC4626[] memory borrowVaults = new ERC4626[](1);
+        borrowVaults[0] = evkUSDC;
 
-        address[] memory subaccounts = new address[](1); 
-        subaccounts[0] = address(boringVault); 
+        address[] memory subaccounts = new address[](1);
+        subaccounts[0] = address(boringVault);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
-        _addEulerDepositLeafs(leafs, depositVaults, subaccounts); 
+        _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
         _addEulerBorrowLeafs(leafs, borrowVaults, subaccounts);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
@@ -271,7 +270,6 @@ contract EulerEVKIntegrationTest is Test, MerkleTreeHelper {
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
     }
 
-
     function testEulerEVKIntegrationEulerPrimeMultiple() external {
         deal(getAddress(sourceChain, "LBTC"), address(boringVault), 1e8);
         deal(getAddress(sourceChain, "WEETH"), address(boringVault), 10e18);
@@ -281,24 +279,24 @@ contract EulerEVKIntegrationTest is Test, MerkleTreeHelper {
         ERC4626 evkUSDC = ERC4626(getAddress(sourceChain, "evkUSDC"));
         ERC4626 evkWETH = ERC4626(getAddress(sourceChain, "evkWETH"));
 
-        ERC4626[] memory depositVaults = new ERC4626[](2);  
-        depositVaults[0] = evkLBTC; 
-        depositVaults[1] = evkWEETH; 
+        ERC4626[] memory depositVaults = new ERC4626[](2);
+        depositVaults[0] = evkLBTC;
+        depositVaults[1] = evkWEETH;
 
-        ERC4626[] memory borrowVaults = new ERC4626[](2);  
-        borrowVaults[0] = evkUSDC; 
-        borrowVaults[1] = evkWETH; 
+        ERC4626[] memory borrowVaults = new ERC4626[](2);
+        borrowVaults[0] = evkUSDC;
+        borrowVaults[1] = evkWETH;
 
-        address[] memory subaccounts = new address[](2); 
-        subaccounts[0] = address(boringVault); 
-        subaccounts[1] = address(uint160(address(boringVault)) ^ 0x10); 
+        address[] memory subaccounts = new address[](2);
+        subaccounts[0] = address(boringVault);
+        subaccounts[1] = address(uint160(address(boringVault)) ^ 0x10);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](128);
-        _addEulerDepositLeafs(leafs, depositVaults, subaccounts); 
-        _addEulerBorrowLeafs(leafs, borrowVaults, subaccounts); 
+        _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
+        _addEulerBorrowLeafs(leafs, borrowVaults, subaccounts);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
-    
+
         // Test leaves w/ index
         //_generateTestLeafs(leafsC20: transfer amount exceeds balance
 
@@ -312,7 +310,7 @@ contract EulerEVKIntegrationTest is Test, MerkleTreeHelper {
         manageLeafs[3] = leafs[27]; //approve for deposit subaccount 1
         manageLeafs[4] = leafs[28]; //deposit subaccount 1
         manageLeafs[5] = leafs[32]; //enableCollateral subaccount 1
-        
+
         manageLeafs[6] = leafs[36]; //approve usdc account 0
         manageLeafs[7] = leafs[37]; //enableController account 0
         manageLeafs[8] = leafs[38]; //borrow account 0
@@ -329,14 +327,14 @@ contract EulerEVKIntegrationTest is Test, MerkleTreeHelper {
         targets[2] = getAddress(sourceChain, "ethereumVaultConnector");
 
         targets[3] = getAddress(sourceChain, "WEETH");
-        targets[4] = getAddress(sourceChain, "evkWEETH"); 
+        targets[4] = getAddress(sourceChain, "evkWEETH");
         targets[5] = getAddress(sourceChain, "ethereumVaultConnector");
 
-        targets[6] = getAddress(sourceChain, "USDC");  
-        targets[7] = getAddress(sourceChain, "ethereumVaultConnector");  
-        targets[8] = getAddress(sourceChain, "evkUSDC"); 
+        targets[6] = getAddress(sourceChain, "USDC");
+        targets[7] = getAddress(sourceChain, "ethereumVaultConnector");
+        targets[8] = getAddress(sourceChain, "evkUSDC");
 
-        targets[9] = getAddress(sourceChain, "WETH");  
+        targets[9] = getAddress(sourceChain, "WETH");
         targets[10] = getAddress(sourceChain, "ethereumVaultConnector"); //enable controller
         targets[11] = getAddress(sourceChain, "ethereumVaultConnector"); //call borrow via `call()` for subaccount #1
 
@@ -344,33 +342,32 @@ contract EulerEVKIntegrationTest is Test, MerkleTreeHelper {
         targetData[0] =
             abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "evkLBTC"), type(uint256).max);
         targetData[1] = abi.encodeWithSignature("deposit(uint256,address)", 1e8, subaccounts[0]);
-        targetData[2] = abi.encodeWithSignature("enableCollateral(address,address)", subaccounts[0], getAddress(sourceChain, "evkLBTC"));
-        targetData[3] = 
+        targetData[2] = abi.encodeWithSignature(
+            "enableCollateral(address,address)", subaccounts[0], getAddress(sourceChain, "evkLBTC")
+        );
+        targetData[3] =
             abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "evkWEETH"), type(uint256).max);
         targetData[4] = abi.encodeWithSignature("deposit(uint256,address)", 10e18, subaccounts[1]);
-        targetData[5] = abi.encodeWithSignature("enableCollateral(address,address)", subaccounts[1], getAddress(sourceChain, "evkWEETH"));
-        targetData[6] = 
+        targetData[5] = abi.encodeWithSignature(
+            "enableCollateral(address,address)", subaccounts[1], getAddress(sourceChain, "evkWEETH")
+        );
+        targetData[6] =
             abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "evkUSDC"), type(uint256).max);
-        targetData[7] = 
-            abi.encodeWithSignature("enableController(address,address)", address(boringVault), getAddress(sourceChain, "evkUSDC"));
-        targetData[8] = 
-            abi.encodeWithSignature("borrow(uint256,address)", 100e8, address(boringVault));
-        targetData[9] = 
+        targetData[7] = abi.encodeWithSignature(
+            "enableController(address,address)", address(boringVault), getAddress(sourceChain, "evkUSDC")
+        );
+        targetData[8] = abi.encodeWithSignature("borrow(uint256,address)", 100e8, address(boringVault));
+        targetData[9] =
             abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "evkWETH"), type(uint256).max);
-        targetData[10] = 
-            abi.encodeWithSignature("enableController(address,address)", subaccounts[1], getAddress(sourceChain, "evkWETH"));
+        targetData[10] = abi.encodeWithSignature(
+            "enableController(address,address)", subaccounts[1], getAddress(sourceChain, "evkWETH")
+        );
 
-        bytes memory functionToCall = abi.encodeWithSignature("borrow(uint256,address)", 1e18, subaccounts[0]); 
-            
-        targetData[11] = 
-            abi.encodeWithSignature(
-                "call(address,address,uint256,bytes)",
-                address(evkWETH),
-                address(subaccounts[1]),
-                uint256(0),
-                functionToCall 
-            ); 
+        bytes memory functionToCall = abi.encodeWithSignature("borrow(uint256,address)", 1e18, subaccounts[0]);
 
+        targetData[11] = abi.encodeWithSignature(
+            "call(address,address,uint256,bytes)", address(evkWETH), address(subaccounts[1]), uint256(0), functionToCall
+        );
 
         uint256[] memory values = new uint256[](12);
 
@@ -390,18 +387,14 @@ contract EulerEVKIntegrationTest is Test, MerkleTreeHelper {
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
+        //skip some time
+        skip(2 days);
 
-
-        //skip some time 
-        skip(2 days); 
-
-        
-        
-        deal(getAddress(sourceChain, "USDC"), address(boringVault), 100e8 + 1e8); //dust to cover repay  
-        deal(getAddress(sourceChain, "WETH"), address(boringVault), 2e18); //dust to cover repay  
+        deal(getAddress(sourceChain, "USDC"), address(boringVault), 100e8 + 1e8); //dust to cover repay
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 2e18); //dust to cover repay
 
         //repay both loans, disable the controllers for both acccounts, and withdraw deposits
-       
+
         manageLeafs = new ManageLeaf[](6);
         manageLeafs[0] = leafs[39]; //repay
         manageLeafs[1] = leafs[41]; //disableContoller (usdc)
@@ -414,32 +407,33 @@ contract EulerEVKIntegrationTest is Test, MerkleTreeHelper {
         manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 
         targets = new address[](6);
-        targets[0] = getAddress(sourceChain, "evkUSDC"); 
-        targets[1] = getAddress(sourceChain, "evkUSDC"); 
-        targets[2] = getAddress(sourceChain, "evkLBTC"); 
+        targets[0] = getAddress(sourceChain, "evkUSDC");
+        targets[1] = getAddress(sourceChain, "evkUSDC");
+        targets[2] = getAddress(sourceChain, "evkLBTC");
 
-        targets[3] = getAddress(sourceChain, "evkWETH"); 
-        targets[4] = getAddress(sourceChain, "evkWETH"); 
-        targets[5] = getAddress(sourceChain, "ethereumVaultConnector"); 
+        targets[3] = getAddress(sourceChain, "evkWETH");
+        targets[4] = getAddress(sourceChain, "evkWETH");
+        targets[5] = getAddress(sourceChain, "ethereumVaultConnector");
 
-        targetData = new bytes[](6); 
-        targetData[0] = abi.encodeWithSignature("repay(uint256,address)", type(uint256).max, subaccounts[0]); 
-        targetData[1] = abi.encodeWithSignature("disableController()");  
-        targetData[2] = abi.encodeWithSignature("withdraw(uint256,address,address)", 1e8, subaccounts[0], subaccounts[0]); 
+        targetData = new bytes[](6);
+        targetData[0] = abi.encodeWithSignature("repay(uint256,address)", type(uint256).max, subaccounts[0]);
+        targetData[1] = abi.encodeWithSignature("disableController()");
+        targetData[2] =
+            abi.encodeWithSignature("withdraw(uint256,address,address)", 1e8, subaccounts[0], subaccounts[0]);
 
-        targetData[3] = abi.encodeWithSignature("repay(uint256,address)", type(uint256).max, subaccounts[1]); 
-        targetData[4] = abi.encodeWithSignature("disableController()");  
+        targetData[3] = abi.encodeWithSignature("repay(uint256,address)", type(uint256).max, subaccounts[1]);
+        targetData[4] = abi.encodeWithSignature("disableController()");
 
-        functionToCall = abi.encodeWithSignature("withdraw(uint256,address,address)", 9.9e18, subaccounts[0], subaccounts[1]); //recipient MUST be boringVault
-            
-        targetData[5] = 
-            abi.encodeWithSignature(
-                "call(address,address,uint256,bytes)",
-                address(evkWEETH), //target vault
-                address(subaccounts[1]), //onBehalfOf account #1
-                uint256(0), //value 
-                functionToCall //function encoded as bytes w/ data
-            ); 
+        functionToCall =
+            abi.encodeWithSignature("withdraw(uint256,address,address)", 9.9e18, subaccounts[0], subaccounts[1]); //recipient MUST be boringVault
+
+        targetData[5] = abi.encodeWithSignature(
+            "call(address,address,uint256,bytes)",
+            address(evkWEETH), //target vault
+            address(subaccounts[1]), //onBehalfOf account #1
+            uint256(0), //value
+            functionToCall //function encoded as bytes w/ data
+        );
 
         values = new uint256[](6);
 
@@ -453,11 +447,11 @@ contract EulerEVKIntegrationTest is Test, MerkleTreeHelper {
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
-        uint256 lbtcBalance = getERC20(sourceChain, "LBTC").balanceOf(address(boringVault)); 
-        assertEq(lbtcBalance, 1e8); 
+        uint256 lbtcBalance = getERC20(sourceChain, "LBTC").balanceOf(address(boringVault));
+        assertEq(lbtcBalance, 1e8);
 
-        uint256 weethBalance = getERC20(sourceChain, "WEETH").balanceOf(address(boringVault)); 
-        assertEq(weethBalance, 9.9e18); //rounding on euler's part due to shares? full 10e18 deposit is not able to be withdrawn, but this is not the fault of the boringVault or decoder 
+        uint256 weethBalance = getERC20(sourceChain, "WEETH").balanceOf(address(boringVault));
+        assertEq(weethBalance, 9.9e18); //rounding on euler's part due to shares? full 10e18 deposit is not able to be withdrawn, but this is not the fault of the boringVault or decoder
     }
 
     function testEulerEVKIntegrationSubaccountsViaCall() external {
@@ -470,21 +464,21 @@ contract EulerEVKIntegrationTest is Test, MerkleTreeHelper {
         ERC4626 evkUSDC = ERC4626(getAddress(sourceChain, "evkUSDC"));
         ERC4626 evkDAI = ERC4626(getAddress(sourceChain, "evkDAI"));
 
-        ERC4626[] memory depositVaults = new ERC4626[](2);  
-        depositVaults[0] = evkLBTC; 
-        depositVaults[1] = evkUSDC; 
+        ERC4626[] memory depositVaults = new ERC4626[](2);
+        depositVaults[0] = evkLBTC;
+        depositVaults[1] = evkUSDC;
 
-        ERC4626[] memory borrowVaults = new ERC4626[](2);  
-        borrowVaults[0] = evkUSDC; 
-        borrowVaults[1] = evkDAI; 
+        ERC4626[] memory borrowVaults = new ERC4626[](2);
+        borrowVaults[0] = evkUSDC;
+        borrowVaults[1] = evkDAI;
 
-        address[] memory subaccounts = new address[](2); 
-        subaccounts[0] = address(boringVault); 
-        subaccounts[1] = address(uint160(address(boringVault)) ^ 0x10); 
+        address[] memory subaccounts = new address[](2);
+        subaccounts[0] = address(boringVault);
+        subaccounts[1] = address(uint160(address(boringVault)) ^ 0x10);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](128);
-        _addEulerDepositLeafs(leafs, depositVaults, subaccounts); 
-        _addEulerBorrowLeafs(leafs, borrowVaults, subaccounts); 
+        _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
+        _addEulerBorrowLeafs(leafs, borrowVaults, subaccounts);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -505,31 +499,32 @@ contract EulerEVKIntegrationTest is Test, MerkleTreeHelper {
 
         address[] memory targets = new address[](6);
         targets[0] = getAddress(sourceChain, "USDC");
-        targets[1] = getAddress(sourceChain, "evkUSDC"); 
+        targets[1] = getAddress(sourceChain, "evkUSDC");
         targets[2] = getAddress(sourceChain, "ethereumVaultConnector");
 
-        targets[3] = getAddress(sourceChain, "DAI");  
+        targets[3] = getAddress(sourceChain, "DAI");
         targets[4] = getAddress(sourceChain, "ethereumVaultConnector"); //enable controller
-        targets[5] = getAddress(sourceChain, "ethereumVaultConnector"); 
+        targets[5] = getAddress(sourceChain, "ethereumVaultConnector");
 
         bytes[] memory targetData = new bytes[](6);
-        targetData[0] = abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "evkUSDC"), type(uint256).max);
+        targetData[0] =
+            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "evkUSDC"), type(uint256).max);
         targetData[1] = abi.encodeWithSignature("deposit(uint256,address)", 1000e6, subaccounts[1]);
-        targetData[2] = abi.encodeWithSignature("enableCollateral(address,address)", subaccounts[1], getAddress(sourceChain, "evkUSDC"));
+        targetData[2] = abi.encodeWithSignature(
+            "enableCollateral(address,address)", subaccounts[1], getAddress(sourceChain, "evkUSDC")
+        );
 
-        targetData[3] = abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "evkDAI"), type(uint256).max);
-        targetData[4] = abi.encodeWithSignature("enableController(address,address)", subaccounts[1], getAddress(sourceChain, "evkDAI"));
+        targetData[3] =
+            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "evkDAI"), type(uint256).max);
+        targetData[4] = abi.encodeWithSignature(
+            "enableController(address,address)", subaccounts[1], getAddress(sourceChain, "evkDAI")
+        );
 
-        bytes memory functionToCall = abi.encodeWithSignature("borrow(uint256,address)", 10e18, subaccounts[0]); 
-            
-        targetData[5] = 
-            abi.encodeWithSignature(
-                "call(address,address,uint256,bytes)",
-                address(evkDAI),
-                address(subaccounts[1]),
-                uint256(0),
-                functionToCall 
-            ); 
+        bytes memory functionToCall = abi.encodeWithSignature("borrow(uint256,address)", 10e18, subaccounts[0]);
+
+        targetData[5] = abi.encodeWithSignature(
+            "call(address,address,uint256,bytes)", address(evkDAI), address(subaccounts[1]), uint256(0), functionToCall
+        );
 
         uint256[] memory values = new uint256[](6);
 
@@ -543,16 +538,14 @@ contract EulerEVKIntegrationTest is Test, MerkleTreeHelper {
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
-        
-        uint256 daiBalance = ERC20(getAddress(sourceChain, "DAI")).balanceOf(address(boringVault)); 
-        assertEq(daiBalance, 20e18); 
+        uint256 daiBalance = ERC20(getAddress(sourceChain, "DAI")).balanceOf(address(boringVault));
+        assertEq(daiBalance, 20e18);
 
+        //skip some time
+        skip(2 days);
 
-        //skip some time 
-        skip(2 days); 
-        
         //now we try and repay our loan, disable the controller for our subaccount, and withdraw our usdc
-       
+
         manageLeafs = new ManageLeaf[](3);
         manageLeafs[0] = leafs[60]; //repay
         manageLeafs[1] = leafs[62]; //disableContoller (dai)
@@ -561,24 +554,20 @@ contract EulerEVKIntegrationTest is Test, MerkleTreeHelper {
         manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 
         targets = new address[](3);
-        targets[0] = getAddress(sourceChain, "evkDAI"); 
-        targets[1] = getAddress(sourceChain, "evkDAI"); 
-        targets[2] = getAddress(sourceChain, "ethereumVaultConnector"); 
+        targets[0] = getAddress(sourceChain, "evkDAI");
+        targets[1] = getAddress(sourceChain, "evkDAI");
+        targets[2] = getAddress(sourceChain, "ethereumVaultConnector");
 
-        targetData = new bytes[](3); 
-        targetData[0] = abi.encodeWithSignature("repay(uint256,address)", type(uint256).max, subaccounts[1]); 
-        targetData[1] = abi.encodeWithSignature("disableController()");  
+        targetData = new bytes[](3);
+        targetData[0] = abi.encodeWithSignature("repay(uint256,address)", type(uint256).max, subaccounts[1]);
+        targetData[1] = abi.encodeWithSignature("disableController()");
 
-        functionToCall = abi.encodeWithSignature("withdraw(uint256,address,address)", 1000e6, subaccounts[0], subaccounts[1]); 
-            
-        targetData[2] = 
-            abi.encodeWithSignature(
-                "call(address,address,uint256,bytes)",
-                address(evkUSDC),
-                address(subaccounts[1]),
-                uint256(0),
-                functionToCall 
-            ); 
+        functionToCall =
+            abi.encodeWithSignature("withdraw(uint256,address,address)", 1000e6, subaccounts[0], subaccounts[1]);
+
+        targetData[2] = abi.encodeWithSignature(
+            "call(address,address,uint256,bytes)", address(evkUSDC), address(subaccounts[1]), uint256(0), functionToCall
+        );
 
         values = new uint256[](3);
 
@@ -589,9 +578,8 @@ contract EulerEVKIntegrationTest is Test, MerkleTreeHelper {
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
-        uint256 usdcBalance = getERC20(sourceChain, "USDC").balanceOf(address(boringVault)); 
-        assertEq(usdcBalance, 1000e6); 
-
+        uint256 usdcBalance = getERC20(sourceChain, "USDC").balanceOf(address(boringVault));
+        assertEq(usdcBalance, 1000e6);
     }
 
     function testEulerEVKIntegrationBorrow() external {
@@ -599,21 +587,20 @@ contract EulerEVKIntegrationTest is Test, MerkleTreeHelper {
         ERC4626 evkWETH = ERC4626(getAddress(sourceChain, "evkWETH"));
         ERC4626 evkUSDC = ERC4626(getAddress(sourceChain, "evkUSDC"));
 
-        ERC4626[] memory depositVaults = new ERC4626[](1);  
-        depositVaults[0] = evkWETH; 
+        ERC4626[] memory depositVaults = new ERC4626[](1);
+        depositVaults[0] = evkWETH;
 
-        ERC4626[] memory borrowVaults = new ERC4626[](1);  
-        borrowVaults[0] = evkUSDC; 
+        ERC4626[] memory borrowVaults = new ERC4626[](1);
+        borrowVaults[0] = evkUSDC;
 
-        address[] memory subaccounts = new address[](1); 
-        subaccounts[0] = address(boringVault); 
+        address[] memory subaccounts = new address[](1);
+        subaccounts[0] = address(boringVault);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
-        _addEulerDepositLeafs(leafs, depositVaults, subaccounts); 
+        _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
         _addEulerBorrowLeafs(leafs, borrowVaults, subaccounts);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
-
 
         _generateTestLeafs(leafs, manageTree);
 
@@ -663,11 +650,10 @@ contract EulerEVKIntegrationTest is Test, MerkleTreeHelper {
         decodersAndSanitizers[5] = rawDataDecoderAndSanitizer;
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
-        
-        uint256 usdcBalance = getERC20(sourceChain, "USDC").balanceOf(address(boringVault)); 
-        assertEq(usdcBalance, 100e6); 
-    }
 
+        uint256 usdcBalance = getERC20(sourceChain, "USDC").balanceOf(address(boringVault));
+        assertEq(usdcBalance, 100e6);
+    }
 
     // ========================================= HELPER FUNCTIONS =========================================
 
@@ -684,6 +670,6 @@ interface IEVK {
 }
 
 interface IEVC {
-    function getAccountOwner(address account) external view returns (address); 
+    function getAccountOwner(address account) external view returns (address);
 }
 

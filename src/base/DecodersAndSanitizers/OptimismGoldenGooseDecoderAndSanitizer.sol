@@ -5,14 +5,19 @@
 pragma solidity 0.8.21;
 
 import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
-import {NativeWrapperDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol";
+import {
+    NativeWrapperDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol";
 import {AaveV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AaveV3DecoderAndSanitizer.sol";
 import {VelodromeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/VelodromeDecoderAndSanitizer.sol";
 import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol";
 import {OneInchDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OneInchDecoderAndSanitizer.sol";
-import {StandardBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/StandardBridgeDecoderAndSanitizer.sol";
-import {LidoStandardBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LidoStandardBridgeDecoderAndSanitizer.sol";
+import {
+    StandardBridgeDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/StandardBridgeDecoderAndSanitizer.sol";
+import {
+    LidoStandardBridgeDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/LidoStandardBridgeDecoderAndSanitizer.sol";
 
 contract OptimismGoldenGooseDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
@@ -24,10 +29,7 @@ contract OptimismGoldenGooseDecoderAndSanitizer is
     StandardBridgeDecoderAndSanitizer,
     LidoStandardBridgeDecoderAndSanitizer
 {
-    constructor(
-        address _velodromeNonFungiblePositionManager,
-        address _odosRouter
-    )
+    constructor(address _velodromeNonFungiblePositionManager, address _odosRouter)
         VelodromeDecoderAndSanitizer(_velodromeNonFungiblePositionManager)
         OdosDecoderAndSanitizer(_odosRouter)
     {}
@@ -57,11 +59,13 @@ contract OptimismGoldenGooseDecoderAndSanitizer is
     /**
      * @notice VelodromeDecoderAndSanitizer specifies a `burn(uint256)` for NFT positions
      */
-    function burn(uint256 /*tokenId*/) 
-        external 
-        pure 
-        override(VelodromeDecoderAndSanitizer) 
-        returns (bytes memory addressesFound) 
+    function burn(
+        uint256 /*tokenId*/
+    )
+        external
+        pure
+        override(VelodromeDecoderAndSanitizer)
+        returns (bytes memory addressesFound)
     {
         // Nothing to sanitize or return
         return addressesFound;

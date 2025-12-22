@@ -8,7 +8,12 @@ import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecode
 
 contract HoneyDecoderAndSanitizer {
     //=========================== Honey Factor (Vault Router) ============================
-    function mint(address asset, uint256, /*amount*/ address receiver)
+    function mint(
+        address asset,
+        uint256,
+        /*amount*/
+        address receiver
+    )
         external
         pure
         returns (bytes memory addressesFound)
@@ -16,7 +21,12 @@ contract HoneyDecoderAndSanitizer {
         addressesFound = abi.encodePacked(asset, receiver);
     }
 
-    function redeem(address asset, uint256, /*honeyAmount*/ address receiver)
+    function redeem(
+        address asset,
+        uint256,
+        /*honeyAmount*/
+        address receiver
+    )
         external
         pure
         returns (bytes memory addressesFound)

@@ -23,9 +23,12 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
     address public managerAddress = 0x7f8CcAA760E0F621c7245d47DC46d40A400d3639;
     address public accountantAddress = 0x74392Fa56405081d5C7D93882856c245387Cece2;
 
-    function setUp() external {} /**
+    function setUp() external {}
+
+    /**
      * @notice Uncomment which script you want to run.
      */
+
     function run() external {
         generateStrategistMerkleRoot();
     }
@@ -71,12 +74,12 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
         _addHyperLendLeafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== Morpho Blue ==========================
-        _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "KHYPE_WHYPE_915")); 
+        _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "KHYPE_WHYPE_915"));
 
-        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "KHYPE_WHYPE_915")); 
+        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "KHYPE_WHYPE_915"));
 
         // ========================== MetaMorhpo ==========================
-        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "feHYPE")));  
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "feHYPE")));
 
         // ========================== Curve ==========================
         _addCurveLeafs(
@@ -87,7 +90,7 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
         );
 
         // ========================== KHYPE ==========================
-        _addKHypeLeafs(leafs); 
+        _addKHypeLeafs(leafs);
 
         // ========================== Pendle ==========================
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "kHypePendle"), true);
@@ -97,7 +100,7 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
         _addNativeLeafs(leafs, getAddress(sourceChain, "WHYPE"));
 
         // ========================== Valantis ==========================
-        _addValantisLSTLeafs(leafs, getAddress(sourceChain, "KHYPE_WHYPE_sovereign_pool"), false); 
+        _addValantisLSTLeafs(leafs, getAddress(sourceChain, "KHYPE_WHYPE_sovereign_pool"), false);
 
         // ========================== UniswapV3/Project X ==========================
         address[] memory token0 = new address[](1);

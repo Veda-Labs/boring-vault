@@ -51,19 +51,19 @@ contract CreateHyperUsdMerkleRootScript is Script, MerkleTreeHelper {
         // ========================== 1inch Swaps ==========================
         address[] memory oneInchAssets = new address[](4);
         SwapKind[] memory oneInchKind = new SwapKind[](4);
-        
+
         // USR <-> USDC swaps
         oneInchAssets[0] = getAddress(sourceChain, "USR");
         oneInchKind[0] = SwapKind.BuyAndSell;
-        
+
         // USDC <-> USR swaps (already covered above with BuyAndSell)
         oneInchAssets[1] = getAddress(sourceChain, "USDC");
         oneInchKind[1] = SwapKind.BuyAndSell;
-        
-        // USR <-> USDT swaps  
+
+        // USR <-> USDT swaps
         oneInchAssets[2] = getAddress(sourceChain, "USDT");
         oneInchKind[2] = SwapKind.BuyAndSell;
-        
+
         // WSTUSR for potential swaps
         oneInchAssets[3] = getAddress(sourceChain, "WSTUSR");
         oneInchKind[3] = SwapKind.BuyAndSell;
@@ -73,11 +73,9 @@ contract CreateHyperUsdMerkleRootScript is Script, MerkleTreeHelper {
         // ========================== Odos ============================
         _addOdosSwapLeafs(leafs, oneInchAssets, oneInchKind);
 
-
         // ========================== Resolv USR Protocol ==========================
         // USR uses Resolv protocol for minting and burning (redeeming)
         _addAllResolvLeafs(leafs);
-
 
         // // ========================== Teller ==========================
         // ERC20[] memory tellerAssets = new ERC20[](4);
@@ -85,7 +83,7 @@ contract CreateHyperUsdMerkleRootScript is Script, MerkleTreeHelper {
         // tellerAssets[1] = getERC20(sourceChain, "USDT");
         // tellerAssets[2] = getERC20(sourceChain, "USR");
         // tellerAssets[3] = getERC20(sourceChain, "WSTUSR");
-        
+
         // // Find the teller address from the deployment
         // address hyperUsdTeller = 0xbC08eF3368615Be8495EB394a0b7d8d5FC6d1A55; // TellerWithLayerZero from HyperUSD deployment
         // _addTellerLeafs(leafs, hyperUsdTeller, tellerAssets, false, false);

@@ -5,9 +5,11 @@
 pragma solidity 0.8.21;
 
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
-import {SymbioticVaultDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/SymbioticVaultDecoderAndSanitizer.sol";
+import {
+    SymbioticVaultDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/SymbioticVaultDecoderAndSanitizer.sol";
 
 contract SymbioticVaultDecoderAndSanitizerFull is BaseDecoderAndSanitizer, SymbioticVaultDecoderAndSanitizer {
-//============================== HANDLE FUNCTION COLLISIONS ===============================
-}
+    //============================== HANDLE FUNCTION COLLISIONS ===============================
+
+    }

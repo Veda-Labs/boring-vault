@@ -261,9 +261,8 @@ contract StakingIntegrationsTest is Test, MerkleTreeHelper {
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
         // Finalize withdraw requests.
-        address admin = IUNSTETH(getAddress(sourceChain, "unstETH")).getRoleMember(
-            IUNSTETH(getAddress(sourceChain, "unstETH")).FINALIZE_ROLE(), 0
-        );
+        address admin = IUNSTETH(getAddress(sourceChain, "unstETH"))
+            .getRoleMember(IUNSTETH(getAddress(sourceChain, "unstETH")).FINALIZE_ROLE(), 0);
         deal(admin, 300e18);
         vm.startPrank(admin);
         IUNSTETH(getAddress(sourceChain, "unstETH")).finalize{value: 100e18}(37_767, type(uint256).max);
@@ -286,9 +285,8 @@ contract StakingIntegrationsTest is Test, MerkleTreeHelper {
         uint256[] memory ids = new uint256[](2);
         ids[0] = 37_768;
         ids[1] = 37_769;
-        uint256[] memory hints = IUNSTETH(getAddress(sourceChain, "unstETH")).findCheckpointHints(
-            ids, 100, IUNSTETH(getAddress(sourceChain, "unstETH")).getLastCheckpointIndex()
-        );
+        uint256[] memory hints = IUNSTETH(getAddress(sourceChain, "unstETH"))
+            .findCheckpointHints(ids, 100, IUNSTETH(getAddress(sourceChain, "unstETH")).getLastCheckpointIndex());
         targetData[1] = abi.encodeWithSignature("claimWithdrawals(uint256[],uint256[])", ids, hints);
 
         decodersAndSanitizers = new address[](2);

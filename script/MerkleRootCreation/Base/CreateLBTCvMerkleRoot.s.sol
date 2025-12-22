@@ -64,8 +64,8 @@ contract CreateLBTCvMerkleRootScript is Script, MerkleTreeHelper {
         _addUniswapV3Leafs(leafs, token0, token1, false, true);
 
         // ========================== 1inch ==========================
-        address[] memory assets = new address[](7); 
-        SwapKind[] memory kind = new SwapKind[](7); 
+        address[] memory assets = new address[](7);
+        SwapKind[] memory kind = new SwapKind[](7);
         assets[0] = getAddress(sourceChain, "cbBTC");
         kind[0] = SwapKind.BuyAndSell;
         assets[1] = getAddress(sourceChain, "LBTC");
@@ -83,10 +83,10 @@ contract CreateLBTCvMerkleRootScript is Script, MerkleTreeHelper {
         _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
 
         // ========================== Odos ==========================
-        _addOdosSwapLeafs(leafs, assets, kind);  
+        _addOdosSwapLeafs(leafs, assets, kind);
 
         // ========================== Native ==========================
-        _addNativeLeafs(leafs); 
+        _addNativeLeafs(leafs);
 
         // ========================== Pendle ==========================
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_LBTC_05_28_25"), true);
@@ -100,9 +100,9 @@ contract CreateLBTCvMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== LBTC Bridge Wrapper ==========================
         // Mainnet
-        _addLBTCBridgeLeafs(leafs, 0x0000000000000000000000000000000000000000000000000000000000000001);  
+        _addLBTCBridgeLeafs(leafs, 0x0000000000000000000000000000000000000000000000000000000000000001);
         // BNB
-        _addLBTCBridgeLeafs(leafs, 0x0000000000000000000000000000000000000000000000000000000000000038);  
+        _addLBTCBridgeLeafs(leafs, 0x0000000000000000000000000000000000000000000000000000000000000038);
 
         // ========================= Aerodrome ========================
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", aerodromeDecoderAndSanitizer);
@@ -112,12 +112,12 @@ contract CreateLBTCvMerkleRootScript is Script, MerkleTreeHelper {
         _token1[0] = getAddress(sourceChain, "cbBTC");
 
         address[] memory gauges = new address[](1);
-        gauges[0] = getAddress(sourceChain, "aerodrome_LBTC_cbBTC_gauge"); 
+        gauges[0] = getAddress(sourceChain, "aerodrome_LBTC_cbBTC_gauge");
 
         _addVelodromeV3Leafs(
             leafs, _token0, _token1, getAddress(sourceChain, "aerodromeNonFungiblePositionManager"), gauges
         );
-        
+
         // ========================== Verify & Generate ==========================
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

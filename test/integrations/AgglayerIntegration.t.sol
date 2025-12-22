@@ -4,45 +4,35 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol"; 
+import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {AgglayerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AgglayerDecoderAndSanitizer.sol"; 
+import {AgglayerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AgglayerDecoderAndSanitizer.sol";
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
-contract FullAgglayerDecoderAndSanitizer is AgglayerDecoderAndSanitizer{}
-
+contract FullAgglayerDecoderAndSanitizer is AgglayerDecoderAndSanitizer {}
 
 contract AgglayerIntegrationTest is BaseTestIntegration {
-
-
     function _setUpMainnet() internal {
-        super.setUp(); 
-        _setupChain("mainnet", 22474150); 
-            
-        address agglayerDecoder = address(new FullAgglayerDecoderAndSanitizer()); 
+        super.setUp();
+        _setupChain("mainnet", 22474150);
 
-        _overrideDecoder(agglayerDecoder); 
+        address agglayerDecoder = address(new FullAgglayerDecoderAndSanitizer());
+
+        _overrideDecoder(agglayerDecoder);
     }
 
     function testAgglayerBridgeAsset() external {
-        _setUpMainnet(); 
+        _setUpMainnet();
 
-        deal(getAddress(sourceChain, "USDC"), address(boringVault), 100e6);  
-        deal(address(boringVault), 1e18); 
+        deal(getAddress(sourceChain, "USDC"), address(boringVault), 100e6);
+        deal(address(boringVault), 1e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
 
-
-        uint32 toChain = uint32(3); 
-        uint32 fromChain = uint32(0); 
+        uint32 toChain = uint32(3);
+        uint32 fromChain = uint32(0);
         address zkEVMBridge = 0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe;
-        _addAgglayerTokenLeafs(
-            leafs, 
-            zkEVMBridge,
-            getAddress(sourceChain, "USDC"),
-            fromChain,
-            toChain 
-        );    
+        _addAgglayerTokenLeafs(leafs, zkEVMBridge, getAddress(sourceChain, "USDC"), fromChain, toChain);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -50,56 +40,51 @@ contract AgglayerIntegrationTest is BaseTestIntegration {
 
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
-        
-        Tx memory tx_ = _getTxArrays(2); 
+        Tx memory tx_ = _getTxArrays(2);
 
         tx_.manageLeafs[0] = leafs[0]; //approve USDC
         tx_.manageLeafs[1] = leafs[1]; //bridgeAsset (USDC)
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
-        
-        tx_.targets[0] = getAddress(sourceChain, "USDC"); //approve 
-        tx_.targets[1] = zkEVMBridge;  
 
-        tx_.targetData[0] = abi.encodeWithSignature(
-            "approve(address,uint256)", zkEVMBridge, type(uint256).max
-        ); 
+        tx_.targets[0] = getAddress(sourceChain, "USDC"); //approve
+        tx_.targets[1] = zkEVMBridge;
+
+        tx_.targetData[0] = abi.encodeWithSignature("approve(address,uint256)", zkEVMBridge, type(uint256).max);
         tx_.targetData[1] = abi.encodeWithSignature(
             "bridgeAsset(uint32,address,uint256,address,bool,bytes)",
-            toChain, 
+            toChain,
             address(boringVault),
             100e6,
-            getAddress(sourceChain, "USDC"), 
+            getAddress(sourceChain, "USDC"),
             true,
             ""
-        ); 
+        );
 
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
 
-        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer; 
-        tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer; 
-
-        _submitManagerCall(manageProofs, tx_); 
+        _submitManagerCall(manageProofs, tx_);
     }
 
     //function testAgglayerBridgeMessage() external {
-    //    _setUpMainnet(); 
+    //    _setUpMainnet();
 
-    //    deal(getAddress(sourceChain, "USDC"), address(boringVault), 100e6);  
-    //    deal(address(boringVault), 1e18); 
+    //    deal(getAddress(sourceChain, "USDC"), address(boringVault), 100e6);
+    //    deal(address(boringVault), 1e18);
 
     //    ManageLeaf[] memory leafs = new ManageLeaf[](8);
 
-
-    //    uint32 toChain = uint32(3); 
-    //    uint32 fromChain = uint32(0); 
+    //    uint32 toChain = uint32(3);
+    //    uint32 fromChain = uint32(0);
     //    address zkEVMBridge = 0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe;
     //    _addAgglayerTokenLeafs(
-    //        leafs, 
+    //        leafs,
     //        zkEVMBridge,
     //        getAddress(sourceChain, "USDC"),
     //        fromChain,
-    //        toChain 
-    //    );    
+    //        toChain
+    //    );
 
     //    bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -107,54 +92,47 @@ contract AgglayerIntegrationTest is BaseTestIntegration {
 
     //    manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
-    //    
-    //    Tx memory tx_ = _getTxArrays(2); 
+    //
+    //    Tx memory tx_ = _getTxArrays(2);
 
     //    tx_.manageLeafs[0] = leafs[0]; //approve USDC
     //    tx_.manageLeafs[1] = leafs[3]; //bridgeAsset (USDC)
 
     //    bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
-    //    
-    //    tx_.targets[0] = getAddress(sourceChain, "USDC"); //approve 
-    //    tx_.targets[1] = zkEVMBridge;  
-    //    
-    //    bytes memory metadata = abi.encode(getAddress(sourceChain, "USDC"), 100e6); 
+    //
+    //    tx_.targets[0] = getAddress(sourceChain, "USDC"); //approve
+    //    tx_.targets[1] = zkEVMBridge;
+    //
+    //    bytes memory metadata = abi.encode(getAddress(sourceChain, "USDC"), 100e6);
     //    tx_.targetData[0] = abi.encodeWithSignature(
     //        "approve(address,uint256)", zkEVMBridge, type(uint256).max
-    //    ); 
+    //    );
     //    tx_.targetData[1] = abi.encodeWithSignature(
     //        "bridgeMessage(uint32,address,bool,bytes)",
-    //        toChain, 
+    //        toChain,
     //        address(boringVault),
     //        true,
     //        metadata
-    //    ); 
+    //    );
 
-    //    tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer; 
-    //    tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer; 
+    //    tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+    //    tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
 
-    //    _submitManagerCall(manageProofs, tx_); 
+    //    _submitManagerCall(manageProofs, tx_);
     //}
 
-
     function testAgglayerClaimAsset() external {
-        _setUpMainnet(); 
+        _setUpMainnet();
 
-        deal(getAddress(sourceChain, "USDC"), address(boringVault), 100e6);  
-        deal(address(boringVault), 1e18); 
+        deal(getAddress(sourceChain, "USDC"), address(boringVault), 100e6);
+        deal(address(boringVault), 1e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
 
-        uint32 toChain = uint32(3); 
-        uint32 fromChain = uint32(0); 
+        uint32 toChain = uint32(3);
+        uint32 fromChain = uint32(0);
         address zkEVMBridge = 0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe;
-        _addAgglayerTokenLeafs(
-            leafs, 
-            zkEVMBridge,
-            getAddress(sourceChain, "USDT"),
-            fromChain,
-            toChain 
-        );    
+        _addAgglayerTokenLeafs(leafs, zkEVMBridge, getAddress(sourceChain, "USDT"), fromChain, toChain);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -162,16 +140,15 @@ contract AgglayerIntegrationTest is BaseTestIntegration {
 
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
-        
-        Tx memory tx_ = _getTxArrays(1); 
+        Tx memory tx_ = _getTxArrays(1);
 
         tx_.manageLeafs[0] = leafs[2]; //claimAsset
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
-        
-        tx_.targets[0] = zkEVMBridge;  
 
-        bytes32[32] memory proofs0; 
+        tx_.targets[0] = zkEVMBridge;
+
+        bytes32[32] memory proofs0;
         proofs0[0] = 0xea16a4729192f84bddfed2897b05c59ac5f5361767e10812ce0a9d73e545f6d4;
         proofs0[1] = 0x43db1a9ea1c72a5d36d7d3a5d3dd79a018580781e67ef13cd55dcd6ba35d26e5;
         proofs0[2] = 0xd231824f33000c12729b039d76d7d5a86db0ec5ab43bd26992bba0b6b9011bee;
@@ -205,7 +182,7 @@ contract AgglayerIntegrationTest is BaseTestIntegration {
         proofs0[30] = 0x93237c50ba75ee485f4c22adf2f741400bdf8d6a9cc7df7ecae576221665d735;
         proofs0[31] = 0x8448818bb4ae4562849e949e17ac16e0be16688e156b5cf15e098c627c0056a9;
 
-        bytes32[32] memory proofs1; 
+        bytes32[32] memory proofs1;
         proofs1[0] = 0x0000000000000000000000000000000000000000000000000000000000000000;
         proofs1[1] = 0xc5a60307fb57becb76bc2651f1a6d0e091331eb18ff8fd58a50b66fb7d4b6f34;
         proofs1[2] = 0x65eb29cce8d586de8920a6b22c36731d9b9e138f25ad98c67bcff0cdc6c9b66c;
@@ -239,7 +216,8 @@ contract AgglayerIntegrationTest is BaseTestIntegration {
         proofs1[30] = 0x93237c50ba75ee485f4c22adf2f741400bdf8d6a9cc7df7ecae576221665d735;
         proofs1[31] = 0x8448818bb4ae4562849e949e17ac16e0be16688e156b5cf15e098c627c0056a9;
 
-        bytes memory metadata = hex"000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a546574686572205553440000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000045553445400000000000000000000000000000000000000000000000000000000"; 
+        bytes memory metadata =
+            hex"000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a546574686572205553440000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000045553445400000000000000000000000000000000000000000000000000000000";
         tx_.targetData[0] = abi.encodeWithSignature(
             "claimAsset(bytes32[32],bytes32[32],uint256,bytes32,bytes32,uint32,address,uint32,address,uint256,bytes)",
             proofs0,
@@ -253,34 +231,33 @@ contract AgglayerIntegrationTest is BaseTestIntegration {
             address(boringVault),
             4000000,
             metadata
-        ); 
+        );
 
-        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer; 
-        
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+
         vm.expectRevert(); //custom error: 0xe0417cec (InvalidSmtProof) expected as we are checking the leafs here with data taken from this tx: https://etherscan.io/tx/0x65912ac7d83068b2a2a48e95d0d3ae3f96634128647235ed6d849a628f959040
         //This test verifies that the boring vault can call this function as expected
-        _submitManagerCall(manageProofs, tx_); 
+        _submitManagerCall(manageProofs, tx_);
     }
 
-
     //function testAgglayerClaimMessage() external {
-    //    _setUpMainnet(); 
+    //    _setUpMainnet();
 
-    //    deal(getAddress(sourceChain, "USDC"), address(boringVault), 100e6);  
-    //    deal(address(boringVault), 1e18); 
+    //    deal(getAddress(sourceChain, "USDC"), address(boringVault), 100e6);
+    //    deal(address(boringVault), 1e18);
 
     //    ManageLeaf[] memory leafs = new ManageLeaf[](8);
 
-    //    uint32 toChain = uint32(3); 
-    //    uint32 fromChain = uint32(0); 
+    //    uint32 toChain = uint32(3);
+    //    uint32 fromChain = uint32(0);
     //    address zkEVMBridge = 0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe;
     //    _addAgglayerTokenLeafs(
-    //        leafs, 
+    //        leafs,
     //        zkEVMBridge,
     //        getAddress(sourceChain, "USDT"),
     //        fromChain,
-    //        toChain 
-    //    );    
+    //        toChain
+    //    );
 
     //    bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -288,16 +265,16 @@ contract AgglayerIntegrationTest is BaseTestIntegration {
 
     //    manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
-    //    
-    //    Tx memory tx_ = _getTxArrays(1); 
+    //
+    //    Tx memory tx_ = _getTxArrays(1);
 
     //    tx_.manageLeafs[0] = leafs[2]; //claimAsset
 
     //    bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
-    //    
-    //    tx_.targets[0] = zkEVMBridge;  
+    //
+    //    tx_.targets[0] = zkEVMBridge;
 
-    //    bytes32[32] memory proofs0; 
+    //    bytes32[32] memory proofs0;
     //    proofs0[0] = 0xea16a4729192f84bddfed2897b05c59ac5f5361767e10812ce0a9d73e545f6d4;
     //    proofs0[1] = 0x43db1a9ea1c72a5d36d7d3a5d3dd79a018580781e67ef13cd55dcd6ba35d26e5;
     //    proofs0[2] = 0xd231824f33000c12729b039d76d7d5a86db0ec5ab43bd26992bba0b6b9011bee;
@@ -331,7 +308,7 @@ contract AgglayerIntegrationTest is BaseTestIntegration {
     //    proofs0[30] = 0x93237c50ba75ee485f4c22adf2f741400bdf8d6a9cc7df7ecae576221665d735;
     //    proofs0[31] = 0x8448818bb4ae4562849e949e17ac16e0be16688e156b5cf15e098c627c0056a9;
 
-    //    bytes32[32] memory proofs1; 
+    //    bytes32[32] memory proofs1;
     //    proofs1[0] = 0x0000000000000000000000000000000000000000000000000000000000000000;
     //    proofs1[1] = 0xc5a60307fb57becb76bc2651f1a6d0e091331eb18ff8fd58a50b66fb7d4b6f34;
     //    proofs1[2] = 0x65eb29cce8d586de8920a6b22c36731d9b9e138f25ad98c67bcff0cdc6c9b66c;
@@ -365,7 +342,7 @@ contract AgglayerIntegrationTest is BaseTestIntegration {
     //    proofs1[30] = 0x93237c50ba75ee485f4c22adf2f741400bdf8d6a9cc7df7ecae576221665d735;
     //    proofs1[31] = 0x8448818bb4ae4562849e949e17ac16e0be16688e156b5cf15e098c627c0056a9;
 
-    //    bytes memory metadata = hex"000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a546574686572205553440000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000045553445400000000000000000000000000000000000000000000000000000000"; 
+    //    bytes memory metadata = hex"000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a546574686572205553440000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000045553445400000000000000000000000000000000000000000000000000000000";
     //    tx_.targetData[0] = abi.encodeWithSignature(
     //        "claimAsset(bytes32[32],bytes32[32],uint256,bytes32,bytes32,uint32,address,uint32,address,uint256,bytes)",
     //        proofs0,
@@ -379,14 +356,13 @@ contract AgglayerIntegrationTest is BaseTestIntegration {
     //        address(boringVault),
     //        4000000,
     //        metadata
-    //    ); 
+    //    );
 
-    //    tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer; 
-    //    
+    //    tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+    //
     //    vm.expectRevert(); //custom error: 0xe0417cec (InvalidSmtProof) expected as we are checking the leafs here with data taken from this tx: https://etherscan.io/tx/0x65912ac7d83068b2a2a48e95d0d3ae3f96634128647235ed6d849a628f959040
     //    //This test verifies that the boring vault can call this function as expected
-    //    _submitManagerCall(manageProofs, tx_); 
+    //    _submitManagerCall(manageProofs, tx_);
     //}
-
 }
-        
+

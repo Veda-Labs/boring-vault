@@ -353,12 +353,12 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
      * @param secondsToDeadline The time in seconds the request is valid for.
      * @return requestId The request Id.
      */
-    function requestOnChainWithdraw(address assetOut, uint128 amountOfShares, uint16 discount, uint24 secondsToDeadline)
-        external
-        virtual
-        requiresAuth
-        returns (bytes32 requestId)
-    {
+    function requestOnChainWithdraw(
+        address assetOut,
+        uint128 amountOfShares,
+        uint16 discount,
+        uint24 secondsToDeadline
+    ) external virtual requiresAuth returns (bytes32 requestId) {
         _decrementWithdrawCapacity(assetOut, amountOfShares);
         WithdrawAsset memory withdrawAsset = withdrawAssets[assetOut];
 
@@ -479,9 +479,10 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
 
         // Run callback function if data is provided.
         if (solveData.length > 0) {
-            IBoringSolver(solver).boringSolve(
-                msg.sender, address(boringVault), address(solveAsset), totalShares, requiredAssets, solveData
-            );
+            IBoringSolver(solver)
+                .boringSolve(
+                    msg.sender, address(boringVault), address(solveAsset), totalShares, requiredAssets, solveData
+                );
         }
 
         for (uint256 i = 0; i < requestsLength; ++i) {
@@ -618,7 +619,9 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
     function _decrementWithdrawCapacity(address assetOut, uint256 amountOfShares) internal {
         WithdrawAsset storage withdrawAsset = withdrawAssets[assetOut];
         if (withdrawAsset.withdrawCapacity < type(uint256).max) {
-            if (withdrawAsset.withdrawCapacity < amountOfShares) revert BoringOnChainQueue__NotEnoughWithdrawCapacity();
+            if (withdrawAsset.withdrawCapacity < amountOfShares) {
+                revert BoringOnChainQueue__NotEnoughWithdrawCapacity();
+            }
             withdrawAsset.withdrawCapacity -= amountOfShares;
             emit WithdrawCapacityUpdated(assetOut, withdrawAsset.withdrawCapacity);
         }

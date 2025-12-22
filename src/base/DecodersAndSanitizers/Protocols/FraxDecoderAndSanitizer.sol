@@ -21,7 +21,10 @@ contract FraxDecoderAndSanitizer is ERC4626DecoderAndSanitizer {
 
     // Call enterRedemptionQueue on 0x82bA8da44Cd5261762e629dd5c605b17715727bd
     // Example TX https://etherscan.io/tx/0xf5d8df0a082cfb667b955057cc7e763168233905b37062426637f7b2aa490d62
-    function enterRedemptionQueue(address _recipient, uint120 /*_amountOfFrxEth*/ )
+    function enterRedemptionQueue(
+        address _recipient,
+        uint120 /*_amountOfFrxEth*/
+    )
         external
         pure
         virtual
@@ -30,7 +33,10 @@ contract FraxDecoderAndSanitizer is ERC4626DecoderAndSanitizer {
         addressesFound = abi.encodePacked(_recipient);
     }
 
-    function enterRedemptionQueueViaSfrxEth(address _recipient, uint120 /*_amountOfSfrxETH*/ )
+    function enterRedemptionQueueViaSfrxEth(
+        address _recipient,
+        uint120 /*_amountOfSfrxETH*/
+    )
         external
         pure
         virtual
@@ -39,7 +45,11 @@ contract FraxDecoderAndSanitizer is ERC4626DecoderAndSanitizer {
         addressesFound = abi.encodePacked(_recipient);
     }
 
-    function burnRedemptionTicketNft(uint256, /*_nftId*/ address _recipient)
+    function burnRedemptionTicketNft(
+        uint256,
+        /*_nftId*/
+        address _recipient
+    )
         external
         pure
         virtual
@@ -49,7 +59,10 @@ contract FraxDecoderAndSanitizer is ERC4626DecoderAndSanitizer {
     }
 
     // returns frxETH minus penalty
-    function earlyBurnRedemptionTicketNft(address _recipient, uint256 /*_nftId*/ )
+    function earlyBurnRedemptionTicketNft(
+        address _recipient,
+        uint256 /*_nftId*/
+    )
         external
         pure
         virtual

@@ -13,11 +13,21 @@ contract ITBBasePositionDecoderAndSanitizer {
         addressesFound = abi.encodePacked(_to);
     }
 
-    function removeExecutor(address /*_executor*/ ) external pure returns (bytes memory addressesFound) {
+    function removeExecutor(
+        address /*_executor*/
+    )
+        external
+        pure
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 
-    function withdraw(address, /*_asset_address*/ uint256)
+    function withdraw(
+        address,
+        /*_asset_address*/
+        uint256
+    )
         external
         pure
         virtual
@@ -26,7 +36,13 @@ contract ITBBasePositionDecoderAndSanitizer {
         return addressesFound;
     }
 
-    function withdrawAll(address /*_asset_address*/ ) external pure returns (bytes memory addressesFound) {
+    function withdrawAll(
+        address /*_asset_address*/
+    )
+        external
+        pure
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 

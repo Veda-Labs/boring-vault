@@ -5,7 +5,8 @@
 pragma solidity 0.8.21;
 
 import {
-    CrossChainTellerWithGenericBridge, ERC20
+    CrossChainTellerWithGenericBridge,
+    ERC20
 } from "src/base/Roles/CrossChain/CrossChainTellerWithGenericBridge.sol";
 import {CCIPReceiver} from "@ccip/contracts/src/v0.8/ccip/applications/CCIPReceiver.sol";
 import {Client} from "@ccip/contracts/src/v0.8/ccip/libraries/Client.sol";
@@ -169,6 +170,7 @@ contract ChainlinkCCIPTeller is CrossChainTellerWithGenericBridge, CCIPReceiver 
 
         emit ChainSetGasLimit(chainSelector, messageGasLimit);
     }
+
     // ========================================= CCIP RECEIVER =========================================
 
     /**
@@ -266,7 +268,9 @@ contract ChainlinkCCIPTeller is CrossChainTellerWithGenericBridge, CCIPReceiver 
             tokenAmounts: new Client.EVMTokenAmount[](0),
             extraArgs: Client._argsToBytes(
                 // Additional arguments, setting gas limit and non-strict sequencing mode
-                Client.EVMExtraArgsV1({gasLimit: gasLimit /*, strict: false*/ })
+                Client.EVMExtraArgsV1({
+                    gasLimit: gasLimit /*, strict: false*/
+                })
             ),
             feeToken: feeToken
         });

@@ -94,7 +94,11 @@ contract PancakeSwapV3DecoderAndSanitizer is UniswapV3DecoderAndSanitizer {
     // Target 0x46A15B0b27311cedF172AB29E4f4766fbE7F4364
     // Exmaple TX https://etherscan.io/tx/0x78226c1fa7a7a003f696bd8e622c8362da9acc3e00f6f3a6aff87b04b144e10e
 
-    function safeTransferFrom(address from, address to, uint256 /*tokenId*/ )
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 /*tokenId*/
+    )
         external
         pure
         returns (bytes memory addressesFound)
@@ -105,14 +109,30 @@ contract PancakeSwapV3DecoderAndSanitizer is UniswapV3DecoderAndSanitizer {
     // In order to harvest cake rewards.
     // Target 0x556B9306565093C855AEA9AE92A594704c2Cd59e
     // Example TX https://etherscan.io/tx/0x27e1a277f1211ee1ab214e94effb139f6a7681e18edf552d4fea100ed9a8d3a3
-    function harvest(uint256, /*_tokenId*/ address _to) external pure returns (bytes memory addressesFound) {
+    function harvest(
+        uint256,
+        /*_tokenId*/
+        address _to
+    )
+        external
+        pure
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(_to);
     }
 
     // In order to unstake, this will also harvest rewards.
     // Target 0x556B9306565093C855AEA9AE92A594704c2Cd59e
     // Example TX https://etherscan.io/tx/0x5759e8965232d86822f137af6aae3c9cdbc3b5f73ec50b5a8c24e3646b9d6af2
-    function withdraw(uint256, /*_tokenId*/ address _to) external pure returns (bytes memory addressesFound) {
+    function withdraw(
+        uint256,
+        /*_tokenId*/
+        address _to
+    )
+        external
+        pure
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(_to);
     }
 }

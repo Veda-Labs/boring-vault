@@ -12,7 +12,9 @@ import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
-import {UltraYieldDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UltraYieldDecoderAndSanitizer.sol";
+import {
+    UltraYieldDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/UltraYieldDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
@@ -46,8 +48,9 @@ contract UltraYieldIntegrationTest is Test, MerkleTreeHelper {
 
         boringVault = new BoringVault(address(this), "Boring Vault", "BV", 18);
 
-        manager =
-            new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "balancerVault"));
+        manager = new ManagerWithMerkleVerification(
+            address(this), address(boringVault), getAddress(sourceChain, "balancerVault")
+        );
 
         rawDataDecoderAndSanitizer = address(new FullUltraYieldDecoderAndSanitizer());
 
@@ -114,9 +117,8 @@ contract UltraYieldIntegrationTest is Test, MerkleTreeHelper {
 
         // prank into owner address to grant operator role to this contract
         vm.prank(0xE665CEf14cB016b37014D0BDEAB4A693c3F46Cc0);
-        IUltraYield(getAddress(sourceChain, "UltraYieldWETH")).updateRole(
-            keccak256("OPERATOR_ROLE"), address(this), true
-        );
+        IUltraYield(getAddress(sourceChain, "UltraYieldWETH"))
+            .updateRole(keccak256("OPERATOR_ROLE"), address(this), true);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addUltraYieldLeafs(leafs, getAddress(sourceChain, "UltraYieldWETH"));
@@ -135,7 +137,6 @@ contract UltraYieldIntegrationTest is Test, MerkleTreeHelper {
         manageLeafs0[2] = leafs[9]; //approve vault to spend itself
         manageLeafs0[3] = leafs[10]; //requestRedeem
         manageLeafs0[4] = leafs[7]; //mint using non-4626 function
-
 
         ManageLeaf[] memory manageLeafs1 = new ManageLeaf[](2);
         manageLeafs1[0] = leafs[6]; //withdraw using non-4626 function
@@ -156,16 +157,15 @@ contract UltraYieldIntegrationTest is Test, MerkleTreeHelper {
         targets1[1] = getAddress(sourceChain, "UltraYieldWETH");
 
         bytes[] memory targetData0 = new bytes[](5);
-        targetData0[0] =
-            abi.encodeWithSelector(ERC20.approve.selector, getAddress(sourceChain, "UltraYieldWETH"), type(uint256).max);
-        targetData0[1] =
-            abi.encodeWithSignature("deposit(uint256)", 500e18);
-        targetData0[2] =
-            abi.encodeWithSelector(ERC20.approve.selector, getAddress(sourceChain, "UltraYieldWETH"), type(uint256).max);
-        targetData0[3] =
-            abi.encodeWithSignature("requestRedeem(uint256)", 200e18);
-        targetData0[4] =
-            abi.encodeWithSignature("mint(uint256)", 100e18);
+        targetData0[0] = abi.encodeWithSelector(
+            ERC20.approve.selector, getAddress(sourceChain, "UltraYieldWETH"), type(uint256).max
+        );
+        targetData0[1] = abi.encodeWithSignature("deposit(uint256)", 500e18);
+        targetData0[2] = abi.encodeWithSelector(
+            ERC20.approve.selector, getAddress(sourceChain, "UltraYieldWETH"), type(uint256).max
+        );
+        targetData0[3] = abi.encodeWithSignature("requestRedeem(uint256)", 200e18);
+        targetData0[4] = abi.encodeWithSignature("mint(uint256)", 100e18);
 
         bytes[] memory targetData1 = new bytes[](2);
         targetData1[0] = abi.encodeWithSignature("withdraw(uint256)", 100e18);
@@ -186,7 +186,9 @@ contract UltraYieldIntegrationTest is Test, MerkleTreeHelper {
 
         manager.manageVaultWithMerkleVerification(manageProofs0, decodersAndSanitizers0, targets0, targetData0, values0);
         assertEq(
-            ERC20(getAddress(sourceChain, "UltraYieldWETH")).balanceOf(address(boringVault)), 400e18, "Not managed as intended"
+            ERC20(getAddress(sourceChain, "UltraYieldWETH")).balanceOf(address(boringVault)),
+            400e18,
+            "Not managed as intended"
         );
         assertEq(
             ERC20(getAddress(sourceChain, "WETH9")).balanceOf(address(boringVault)), 400e18, "Not managed as intended"
@@ -197,7 +199,9 @@ contract UltraYieldIntegrationTest is Test, MerkleTreeHelper {
         manager.manageVaultWithMerkleVerification(manageProofs1, decodersAndSanitizers1, targets1, targetData1, values1);
 
         assertEq(
-            ERC20(getAddress(sourceChain, "UltraYieldWETH")).balanceOf(address(boringVault)), 400e18, "Not managed as intended"
+            ERC20(getAddress(sourceChain, "UltraYieldWETH")).balanceOf(address(boringVault)),
+            400e18,
+            "Not managed as intended"
         );
         assertEq(
             ERC20(getAddress(sourceChain, "WETH9")).balanceOf(address(boringVault)), 600e18, "Not managed as intended"
@@ -213,11 +217,7 @@ contract UltraYieldIntegrationTest is Test, MerkleTreeHelper {
 }
 
 interface IUltraYield {
-    function updateRole(
-        bytes32 role,
-        address account,
-        bool approved
-    ) external;
+    function updateRole(bytes32 role, address account, bool approved) external;
 
     function fulfillRedeem(uint256 shares, address controller) external;
 }

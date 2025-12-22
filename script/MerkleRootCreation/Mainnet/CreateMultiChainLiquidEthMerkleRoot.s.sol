@@ -685,11 +685,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         // ========================== Merkl ==========================
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         {
-            _addMerklLeafs(
-                leafs,
-                getAddress(sourceChain, "merklDistributor"),
-                getAddress(sourceChain, "dev1Address")
-            );
+            _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"));
         }
 
         // ========================== Karak ==========================
@@ -746,64 +742,64 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
 
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         {
-        // ========================== sUSDe ==========================
-        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "SUSDE")));
+            // ========================== sUSDe ==========================
+            _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "SUSDE")));
 
-        // ========================== RWA Vault ==========================
-        // ERC20[] memory rwaVaultAssets = new ERC20[](2);
-        // rwaVaultAssets[0] = getERC20(sourceChain, "USDT");
-        // rwaVaultAssets[1] = getERC20(sourceChain, "USDE");
+            // ========================== RWA Vault ==========================
+            // ERC20[] memory rwaVaultAssets = new ERC20[](2);
+            // rwaVaultAssets[0] = getERC20(sourceChain, "USDT");
+            // rwaVaultAssets[1] = getERC20(sourceChain, "USDE");
 
-        // address ethenaRWATeller = 0xDEa662f24389eB7CaFA9b3B10021884FCe7314f0;
-        // _addTellerLeafs(leafs, ethenaRWATeller, rwaVaultAssets, true, true);
+            // address ethenaRWATeller = 0xDEa662f24389eB7CaFA9b3B10021884FCe7314f0;
+            // _addTellerLeafs(leafs, ethenaRWATeller, rwaVaultAssets, true, true);
         }
 
         // ========================== Plasma Bridging ==========================
         // Needs info
         // USDT
         {
-        _addLayerZeroLeafs(
-            leafs,
-            getERC20(sourceChain, "USDT"),
-            getAddress(sourceChain, "usdt0OFTAdapter"),
-            layerZeroPlasmaEndpointId,
-            getBytes32(sourceChain, "boringVault")
-        );
+            _addLayerZeroLeafs(
+                leafs,
+                getERC20(sourceChain, "USDT"),
+                getAddress(sourceChain, "usdt0OFTAdapter"),
+                layerZeroPlasmaEndpointId,
+                getBytes32(sourceChain, "boringVault")
+            );
 
-        // ETH
-        _addLayerZeroLeafNative(
-            leafs,
-            getAddress(sourceChain, "stargateNative"),
-            layerZeroPlasmaEndpointId,
-            getBytes32(sourceChain, "boringVault")
-        );
+            // ETH
+            _addLayerZeroLeafNative(
+                leafs,
+                getAddress(sourceChain, "stargateNative"),
+                layerZeroPlasmaEndpointId,
+                getBytes32(sourceChain, "boringVault")
+            );
 
-        // SUSDE
-        _addLayerZeroLeafs(
-            leafs,
-            getERC20(sourceChain, "SUSDE"),
-            getAddress(sourceChain, "SUSDEOFTAdapter"),
-            layerZeroPlasmaEndpointId,
-            getBytes32(sourceChain, "boringVault")
-        );
+            // SUSDE
+            _addLayerZeroLeafs(
+                leafs,
+                getERC20(sourceChain, "SUSDE"),
+                getAddress(sourceChain, "SUSDEOFTAdapter"),
+                layerZeroPlasmaEndpointId,
+                getBytes32(sourceChain, "boringVault")
+            );
 
-        // USDE
-        _addLayerZeroLeafs(
-            leafs,
-            getERC20(sourceChain, "USDE"),
-            getAddress(sourceChain, "USDEOFTAdapter"),
-            layerZeroPlasmaEndpointId,
-            getBytes32(sourceChain, "boringVault")
-        );
-        
-        // WEETH
-        _addLayerZeroLeafs(
-            leafs,
-            getERC20(sourceChain, "WEETH"),
-            getAddress(sourceChain, "EtherFiOFTAdapter"),
-            layerZeroPlasmaEndpointId,
-            getBytes32(sourceChain, "boringVault")
-        );
+            // USDE
+            _addLayerZeroLeafs(
+                leafs,
+                getERC20(sourceChain, "USDE"),
+                getAddress(sourceChain, "USDEOFTAdapter"),
+                layerZeroPlasmaEndpointId,
+                getBytes32(sourceChain, "boringVault")
+            );
+
+            // WEETH
+            _addLayerZeroLeafs(
+                leafs,
+                getERC20(sourceChain, "WEETH"),
+                getAddress(sourceChain, "EtherFiOFTAdapter"),
+                layerZeroPlasmaEndpointId,
+                getBytes32(sourceChain, "boringVault")
+            );
         }
 
         // ========================== Reclamation ==========================
@@ -848,15 +844,15 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         address itbPositionManager3 = 0x2A601FC6C0Cb854fDA82715E49Ab04C5340A0396;
         ERC20[] memory itbTokensUsed2 = new ERC20[](1);
         itbTokensUsed2[0] = getERC20(sourceChain, "WEETH");
-        // Aave weETH -> RLUSD -> RLUSD Aave Horizon 
+        // Aave weETH -> RLUSD -> RLUSD Aave Horizon
         _addLeafsForITBPositionManager(leafs, itbPositionManager2, itbTokensUsed2, "ITB Position Manager 2");
         //Spark weETH → PYUSD → PYUSD Euler
         _addLeafsForITBPositionManager(leafs, itbPositionManager3, itbTokensUsed2, "ITB Position Manager 3");
 
         // ========================== Drone Setup ===============================
         {
-            ERC20[] memory localTokens = new ERC20[](3);   
-            localTokens[0] = getERC20(sourceChain, "USDC"); 
+            ERC20[] memory localTokens = new ERC20[](3);
+            localTokens[0] = getERC20(sourceChain, "USDC");
             localTokens[1] = getERC20(sourceChain, "WEETH");
             localTokens[2] = getERC20(sourceChain, "USDE");
 
@@ -977,7 +973,9 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
                 false,
                 "approveToken(address,address,uint256)",
                 new address[](2),
-                string.concat(itbContractName, ": Approve ", tokensUsed[i].symbol(), " to be spent by the Lido v3 Pool"),
+                string.concat(
+                    itbContractName, ": Approve ", tokensUsed[i].symbol(), " to be spent by the Lido v3 Pool"
+                ),
                 itbDecoderAndSanitizer
             );
             leafs[leafIndex].argumentAddresses[0] = address(tokensUsed[i]);

@@ -16,7 +16,6 @@ import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
 contract SiloFinanceClaimingIntegrationTest is Test, MerkleTreeHelper {
@@ -46,8 +45,8 @@ contract SiloFinanceClaimingIntegrationTest is Test, MerkleTreeHelper {
 
         boringVault = BoringVault(payable(0x4D85bA8c3918359c78Ed09581E5bc7578ba932ba)); //stkscUSD
 
-        manager = ManagerWithMerkleVerification(0x5F7f5205A3E7c63c3bd287EecBe7879687D4c698); 
-        
+        manager = ManagerWithMerkleVerification(0x5F7f5205A3E7c63c3bd287EecBe7879687D4c698);
+
         rawDataDecoderAndSanitizer = address(new FullSiloDecoderAndSanitizer());
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
@@ -109,23 +108,19 @@ contract SiloFinanceClaimingIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testSiloClaiming() external {
-        address stkscUSDStrategist = 0xE89CeE9837e6Fce3b1Ebd8E1C779b76fd6E20136;  
+        address stkscUSDStrategist = 0xE89CeE9837e6Fce3b1Ebd8E1C779b76fd6E20136;
 
         ManageLeaf[] memory leafs = new ManageLeaf[](64);
-        address[] memory incentivesControllers = new address[](2); 
-        incentivesControllers[0] = getAddress(sourceChain, "silo_wS_USDC_id20_USDC_IncentivesController"); 
+        address[] memory incentivesControllers = new address[](2);
+        incentivesControllers[0] = getAddress(sourceChain, "silo_wS_USDC_id20_USDC_IncentivesController");
         incentivesControllers[1] = address(0);
-        _addSiloV2Leafs(
-            leafs, 
-            getAddress(sourceChain, "silo_wS_USDC_id20_config"),
-            incentivesControllers
-        );
+        _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_wS_USDC_id20_config"), incentivesControllers);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
-        _generateTestLeafs(leafs, manageTree); 
-        
-        vm.prank(boringVault.owner()); 
+        _generateTestLeafs(leafs, manageTree);
+
+        vm.prank(boringVault.owner());
         manager.setManageRoot(stkscUSDStrategist, manageTree[manageTree.length - 1][0]);
 
         ManageLeaf[] memory manageLeafs = new ManageLeaf[](1);
@@ -137,26 +132,26 @@ contract SiloFinanceClaimingIntegrationTest is Test, MerkleTreeHelper {
         targets[0] = getAddress(sourceChain, "silo_wS_USDC_id20_USDC_IncentivesController");
 
         bytes[] memory targetData = new bytes[](1);
-        targetData[0] = abi.encodeWithSignature(
-            "claimRewards(address)", address(boringVault)
-        );
+        targetData[0] = abi.encodeWithSignature("claimRewards(address)", address(boringVault));
 
         address[] memory decodersAndSanitizers = new address[](1);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
 
         uint256[] memory values = new uint256[](1);
-        
-        uint256 wSBalance = getERC20(sourceChain, "wS").balanceOf(address(0x4D85bA8c3918359c78Ed09581E5bc7578ba932ba)); 
 
-        vm.prank(stkscUSDStrategist); 
+        uint256 wSBalance = getERC20(sourceChain, "wS").balanceOf(address(0x4D85bA8c3918359c78Ed09581E5bc7578ba932ba));
+
+        vm.prank(stkscUSDStrategist);
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
-        uint256 wSBalanceAfter = getERC20(sourceChain, "wS").balanceOf(address(0x4D85bA8c3918359c78Ed09581E5bc7578ba932ba)); 
-        uint256 siloBalance = getERC20(sourceChain, "SILO").balanceOf(address(0x4D85bA8c3918359c78Ed09581E5bc7578ba932ba)); 
+        uint256 wSBalanceAfter =
+            getERC20(sourceChain, "wS").balanceOf(address(0x4D85bA8c3918359c78Ed09581E5bc7578ba932ba));
+        uint256 siloBalance =
+            getERC20(sourceChain, "SILO").balanceOf(address(0x4D85bA8c3918359c78Ed09581E5bc7578ba932ba));
 
-        //after forfeiting claim, claim amount is 4697531591687134387860; 
-        assertGt(wSBalanceAfter, wSBalance); 
-        assertGt(siloBalance, 0); 
+        //after forfeiting claim, claim amount is 4697531591687134387860;
+        assertGt(wSBalanceAfter, wSBalance);
+        assertGt(siloBalance, 0);
     }
 
     // ========================================= HELPER FUNCTIONS =========================================

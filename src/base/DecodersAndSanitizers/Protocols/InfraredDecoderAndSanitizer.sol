@@ -7,11 +7,25 @@ pragma solidity 0.8.21;
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 
 contract InfraredDecoderAndSanitizer {
-    function stake(uint256 /*amount*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function stake(
+        uint256 /*amount*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 
-    function withdraw(uint256 /*amount*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function withdraw(
+        uint256 /*amount*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 

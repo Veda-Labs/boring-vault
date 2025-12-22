@@ -11,7 +11,7 @@ contract GenericRateProvider is IRateProvider {
     using Address for address;
 
     //============================== ERRORS ===============================
-    error GenericRateProvider__PriceCannotBeLtZero(); 
+    error GenericRateProvider__PriceCannotBeLtZero();
 
     //============================== IMMUTABLES ===============================
 
@@ -29,7 +29,7 @@ contract GenericRateProvider is IRateProvider {
      * @notice boolean indicating if we need to check for a signed return value.
      * @dev if true, this indicates an int256 return value or similar signed number
      */
-    bool public immutable signed; 
+    bool public immutable signed;
 
     /**
      * @notice Static arguments to pass to the target.
@@ -66,7 +66,7 @@ contract GenericRateProvider is IRateProvider {
         staticArgument5 = _staticArgument5;
         staticArgument6 = _staticArgument6;
         staticArgument7 = _staticArgument7;
-        signed = _signed; 
+        signed = _signed;
 
         // Make sure getRate succeeds.
         getRate();
@@ -80,7 +80,7 @@ contract GenericRateProvider is IRateProvider {
      *      and calls will likely fail.
      * @dev If staticArgumentN is not used, it can be left as 0.
      */
-    function getRate() public virtual view returns (uint256) {
+    function getRate() public view virtual returns (uint256) {
         bytes memory callData = abi.encodeWithSelector(
             selector,
             staticArgument0,
@@ -96,13 +96,11 @@ contract GenericRateProvider is IRateProvider {
 
         if (signed) {
             //if target func() returns an int, we get the result and then cast it to a uint256
-            int256 res = abi.decode(result, (int256)); 
-            if (res < 0) revert GenericRateProvider__PriceCannotBeLtZero(); 
+            int256 res = abi.decode(result, (int256));
+            if (res < 0) revert GenericRateProvider__PriceCannotBeLtZero();
 
-            return uint256(res); 
-        
+            return uint256(res);
         } else {
-
             return abi.decode(result, (uint256));
         }
     }

@@ -10,7 +10,12 @@ import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protoco
 contract ResolvDecoderAndSanitizer is ERC4626DecoderAndSanitizer {
     //============================== UsrExternalRequestManager ===============================
 
-    function requestMint(address _depositTokenAddress, uint256, /*_amount*/ uint256 /*_minMintAmount*/ )
+    function requestMint(
+        address _depositTokenAddress,
+        uint256,
+        /*_amount*/
+        uint256 /*_minMintAmount*/
+    )
         external
         pure
         virtual
@@ -23,7 +28,12 @@ contract ResolvDecoderAndSanitizer is ERC4626DecoderAndSanitizer {
         uint256, /*_issueTokenAmount*/
         address _withdrawalTokenAddress,
         uint256 /*_minWithdrawalAmount*/
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return abi.encodePacked(_withdrawalTokenAddress);
     }
 
@@ -32,25 +42,58 @@ contract ResolvDecoderAndSanitizer is ERC4626DecoderAndSanitizer {
         address _receiver,
         address _withdrawalTokenAddress,
         uint256 /*_minExpectedAmount*/
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(_receiver, _withdrawalTokenAddress);
     }
 
-    function cancelMint(uint256 /*_id*/) external pure virtual returns (bytes memory addressesFound) {
+    function cancelMint(
+        uint256 /*_id*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 
-    function cancelBurn(uint256 /*_id*/) external pure virtual returns (bytes memory addressesFound) {
+    function cancelBurn(
+        uint256 /*_id*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 
     //============================== stUSR ===============================
 
-    function deposit(uint256 /*_usrAmount*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function deposit(
+        uint256 /*_usrAmount*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 
-    function withdraw(uint256 /*_usrAmount*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function withdraw(
+        uint256 /*_usrAmount*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 
@@ -71,11 +114,25 @@ contract ResolvDecoderAndSanitizer is ERC4626DecoderAndSanitizer {
     }
     */
 
-    function wrap(uint256 /*_stUSRAmount*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function wrap(
+        uint256 /*_stUSRAmount*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 
-    function unwrap(uint256 /*_wstUSRAmount*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function unwrap(
+        uint256 /*_wstUSRAmount*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 }

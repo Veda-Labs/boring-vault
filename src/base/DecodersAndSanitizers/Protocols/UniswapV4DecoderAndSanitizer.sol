@@ -31,7 +31,11 @@ contract UniswapV4DecoderAndSanitizer {
 
     // @dev in order to sanitize we require that only command be passed in a time. This defeats the ability to batch commands together, but is necessary to avoid having a gajillion leaves for all possible orders that can be used here
     // @dev inputs can be grouped together based on common things, ie. swaps will always be swap, settle, take, etc.
-    function execute(bytes calldata commands, bytes[] calldata inputs, uint256 /*deadline*/ )
+    function execute(
+        bytes calldata commands,
+        bytes[] calldata inputs,
+        uint256 /*deadline*/
+    )
         external
         pure
         returns (bytes memory addressesFound)
@@ -91,7 +95,13 @@ contract UniswapV4DecoderAndSanitizer {
 
     //============================== Permit2 ===============================
 
-    function approve(address token, address spender, uint160, /*amount*/ uint48 /*expiraton*/ )
+    function approve(
+        address token,
+        address spender,
+        uint160,
+        /*amount*/
+        uint48 /*expiraton*/
+    )
         external
         pure
         virtual
@@ -102,7 +112,10 @@ contract UniswapV4DecoderAndSanitizer {
 
     //============================== Position Manager ===============================
 
-    function modifyLiquidities(bytes calldata unlockData, uint256 /*deadline*/ )
+    function modifyLiquidities(
+        bytes calldata unlockData,
+        uint256 /*deadline*/
+    )
         external
         view
         returns (bytes memory addressesFound)

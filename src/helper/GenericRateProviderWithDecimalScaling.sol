@@ -31,21 +31,21 @@ contract GenericRateProviderWithDecimalScaling is GenericRateProvider {
     uint8 public immutable inputDecimals;
     uint8 public immutable outputDecimals;
 
-    constructor(
-        ConstructorArgs memory _args
-    ) GenericRateProvider(
-        _args.target,
-        _args.selector,
-        _args.staticArgument0,
-        _args.staticArgument1,
-        _args.staticArgument2,
-        _args.staticArgument3,
-        _args.staticArgument4,
-        _args.staticArgument5,
-        _args.staticArgument6,
-        _args.staticArgument7,
-        _args.signed
-    ) {
+    constructor(ConstructorArgs memory _args)
+        GenericRateProvider(
+            _args.target,
+            _args.selector,
+            _args.staticArgument0,
+            _args.staticArgument1,
+            _args.staticArgument2,
+            _args.staticArgument3,
+            _args.staticArgument4,
+            _args.staticArgument5,
+            _args.staticArgument6,
+            _args.staticArgument7,
+            _args.signed
+        )
+    {
         if (_args.inputDecimals == 0 || _args.outputDecimals == 0) {
             revert GenericRateProviderWithDecimalScaling__DecimalsCannotBeZero();
         }
@@ -53,7 +53,7 @@ contract GenericRateProviderWithDecimalScaling is GenericRateProvider {
         outputDecimals = _args.outputDecimals;
     }
 
-    function getRate() public override view returns (uint256) {
+    function getRate() public view override returns (uint256) {
         uint256 rate = super.getRate();
         if (inputDecimals > outputDecimals) {
             return rate / 10 ** (inputDecimals - outputDecimals);

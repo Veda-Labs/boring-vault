@@ -11,6 +11,7 @@ import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import "forge-std/Script.sol";
+
 /**
  *  source .env && forge script script/MerkleRootCreation/Berachain/CreateLiquidBeraBtcMerkleRoot.s.sol:CreateLiquidBeraBtcMerkleRoot --rpc-url $BERA_CHAIN_RPC_URL
  */
@@ -21,7 +22,6 @@ contract CreateLiquidBeraBtcMerkleRoot is Script, MerkleTreeHelper {
     address public managerAddress = 0x603064caAf2e76C414C5f7b6667D118322d311E6;
     address public accountantAddress = 0xF44BD12956a0a87c2C20113DdFe1537A442526B5;
     address public rawDataDecoderAndSanitizer = 0x592dE5aa69eD7855b4126d3818af23A634d46214;
-    
 
     function setUp() external {}
 
@@ -44,11 +44,11 @@ contract CreateLiquidBeraBtcMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Fee Claiming ==========================
         {
-        ERC20[] memory feeAssets = new ERC20[](3); 
-        feeAssets[0] = getERC20(sourceChain, "WBTC");
-        feeAssets[1] = getERC20(sourceChain, "LBTC");
-        feeAssets[2] = getERC20(sourceChain, "eBTC");
-        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, true);  
+            ERC20[] memory feeAssets = new ERC20[](3);
+            feeAssets[0] = getERC20(sourceChain, "WBTC");
+            feeAssets[1] = getERC20(sourceChain, "LBTC");
+            feeAssets[2] = getERC20(sourceChain, "eBTC");
+            _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, true);
         }
 
         // ========================== Ooga Booga ==========================
@@ -76,16 +76,16 @@ contract CreateLiquidBeraBtcMerkleRoot is Script, MerkleTreeHelper {
         _addOogaBoogaSwapLeafs(leafs, assets, kind);
 
         // ========================== Royco ==========================
-        address[] memory weirollWallets = new address[](2); 
-        weirollWallets[0] = 0x8704852E95AA04799db5A1B03C4205156A74af0F; 
-        weirollWallets[1] = 0x7f668bAee90cA161e6a7a9D3E0148a6738C78360; 
-        _addRoycoWithdrawMerkleDepositLeafs(leafs, weirollWallets); 
-        
+        address[] memory weirollWallets = new address[](2);
+        weirollWallets[0] = 0x8704852E95AA04799db5A1B03C4205156A74af0F;
+        weirollWallets[1] = 0x7f668bAee90cA161e6a7a9D3E0148a6738C78360;
+        _addRoycoWithdrawMerkleDepositLeafs(leafs, weirollWallets);
+
         // ========================== Tellers ==========================
         // Prime
         {
             address oldPrimeLiquidBeraBTCTeller = 0xf16Cd75E975163f3A0A1af42E5609aB67A6553D7;
-            address newPrimeLiquidBeraBTCTeller = 0xCD20c63dDAfAc686d311B40f24DcaD316dDE8D9c; 
+            address newPrimeLiquidBeraBTCTeller = 0xCD20c63dDAfAc686d311B40f24DcaD316dDE8D9c;
 
             ERC20[] memory tellerAssets = new ERC20[](3);
             tellerAssets[0] = getERC20(sourceChain, "WBTC");
@@ -104,25 +104,39 @@ contract CreateLiquidBeraBtcMerkleRoot is Script, MerkleTreeHelper {
         }
 
         // ========================== LayerZero ==========================
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WBTC"), getAddress(sourceChain, "WBTC"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));   
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "LBTC"), getAddress(sourceChain, "LBTC_OFT"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));   
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "WBTC"),
+            getAddress(sourceChain, "WBTC"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "LBTC"),
+            getAddress(sourceChain, "LBTC_OFT"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
 
         // ========================== Crosschain Teller ==========================
         {
-        address eBTCTellerLZ = 0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268;
+            address eBTCTellerLZ = 0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268;
 
-        address[] memory depositAssets = new address[](2); 
-        depositAssets[0] = getAddress(sourceChain, "LBTC"); 
-        depositAssets[1] = getAddress(sourceChain, "WBTC"); 
+            address[] memory depositAssets = new address[](2);
+            depositAssets[0] = getAddress(sourceChain, "LBTC");
+            depositAssets[1] = getAddress(sourceChain, "WBTC");
 
-        address[] memory feeAssets = new address[](1); 
-        feeAssets[0] = getAddress(sourceChain, "ETH"); //pay bridge fee in ETH
+            address[] memory feeAssets = new address[](1);
+            feeAssets[0] = getAddress(sourceChain, "ETH"); //pay bridge fee in ETH
 
-        _addCrossChainTellerLeafs(leafs, eBTCTellerLZ, depositAssets, feeAssets, abi.encode(layerZeroMainnetEndpointId));  
+            _addCrossChainTellerLeafs(
+                leafs, eBTCTellerLZ, depositAssets, feeAssets, abi.encode(layerZeroMainnetEndpointId)
+            );
         }
 
         // ========================== Kodiak ==========================
-        address[] memory islands = new address[](1);  
+        address[] memory islands = new address[](1);
         islands[0] = getAddress(sourceChain, "kodiak_island_EBTC_WBTC_005%");
 
         _addKodiakIslandLeafs(leafs, islands, false); //don't include native leaves
@@ -141,13 +155,11 @@ contract CreateLiquidBeraBtcMerkleRoot is Script, MerkleTreeHelper {
             collateralAssets[2] = getAddress(sourceChain, "bbeBTC");
             collateralAssets[3] = getAddress(sourceChain, "bbeBTC-WBTC");
 
-
             address[] memory denManagers = new address[](4);
             denManagers[0] = getAddress(sourceChain, "WBTCDenManager");
             denManagers[1] = getAddress(sourceChain, "LBTCDenManager");
             denManagers[2] = getAddress(sourceChain, "eBTCDenManager");
             denManagers[3] = getAddress(sourceChain, "eBTC-WBTCDenManager");
-
 
             _addBeraborrowLeafs(leafs, collateralAssets, denManagers, false);
 
@@ -162,7 +174,6 @@ contract CreateLiquidBeraBtcMerkleRoot is Script, MerkleTreeHelper {
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
-
     }
 }
 

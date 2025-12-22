@@ -44,7 +44,7 @@ contract CreateSentayUSDCMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](128);
-        
+
         // ========================== Fee Claiming ==========================
         ERC20[] memory feeAssets = new ERC20[](1);
         feeAssets[0] = getERC20(sourceChain, "USDC");
@@ -86,19 +86,28 @@ contract CreateSentayUSDCMerkleRoot is Script, MerkleTreeHelper {
         address eulerPYUSDPositionManager = 0x78dcD64EddF80D6116E05A868A2C6B85000dccba;
         ERC20[] memory eulerPYUSDTokensUsed = new ERC20[](1);
         eulerPYUSDTokensUsed[0] = getERC20(sourceChain, "PYUSD");
-        _addLeafsForITBPositionManager(leafs, eulerPYUSDPositionManager, eulerPYUSDTokensUsed, "Euler PYUSD ITB Position Manager");
+        _addLeafsForITBPositionManager(
+            leafs, eulerPYUSDPositionManager, eulerPYUSDTokensUsed, "Euler PYUSD ITB Position Manager"
+        );
 
         // Aave Horizon RLUSD
         address aaveHorizonRLUSDPositionManager = 0xD404E184CCB16783E78CD0B1c140A18713d720B4;
         ERC20[] memory aaveHorizonRLUSDTokensUsed = new ERC20[](1);
         aaveHorizonRLUSDTokensUsed[0] = getERC20(sourceChain, "RLUSD");
-        _addLeafsForITBPositionManager(leafs, aaveHorizonRLUSDPositionManager, aaveHorizonRLUSDTokensUsed, "Aave Horizon RLUSD ITB Position Manager");
+        _addLeafsForITBPositionManager(
+            leafs,
+            aaveHorizonRLUSDPositionManager,
+            aaveHorizonRLUSDTokensUsed,
+            "Aave Horizon RLUSD ITB Position Manager"
+        );
 
         // Euler RLUSD
         address eulerRLUSDPositionManager = 0xcF365715d637d7014412b6963b5Aa2b6291221a2;
         ERC20[] memory eulerRLUSDTokensUsed = new ERC20[](1);
         eulerRLUSDTokensUsed[0] = getERC20(sourceChain, "RLUSD");
-        _addLeafsForITBPositionManager(leafs, eulerRLUSDPositionManager, eulerRLUSDTokensUsed, "Euler RLUSD ITB Position Manager");
+        _addLeafsForITBPositionManager(
+            leafs, eulerRLUSDPositionManager, eulerRLUSDTokensUsed, "Euler RLUSD ITB Position Manager"
+        );
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
@@ -111,65 +120,65 @@ contract CreateSentayUSDCMerkleRoot is Script, MerkleTreeHelper {
     }
 
     function _addLeafsForITBPositionManager(
-         ManageLeaf[] memory leafs,
-         address itbPositionManager,
-         ERC20[] memory tokensUsed,
-         string memory itbContractName
-     ) internal {
-         // acceptOwnership
-         leafIndex++;
-         leafs[leafIndex] = ManageLeaf(
-             itbPositionManager,
-             false,
-             "acceptOwnership()",
-             new address[](0),
-             string.concat("Accept ownership of the ", itbContractName, " contract"),
-             itbDecoderAndSanitizer
-         );
- 
-         // removeExecutor
-         leafIndex++;
-         leafs[leafIndex] = ManageLeaf(
-             itbPositionManager,
-             false,
-             "removeExecutor(address)",
-             new address[](0),
-             string.concat("Remove executor from the ", itbContractName, " contract"),
-             itbDecoderAndSanitizer
-         );
- 
-         for (uint256 i; i < tokensUsed.length; ++i) {
-             // Transfer
-             leafIndex++;
-             leafs[leafIndex] = ManageLeaf(
-                 address(tokensUsed[i]),
-                 false,
-                 "transfer(address,uint256)",
-                 new address[](1),
-                 string.concat("Transfer ", tokensUsed[i].symbol(), " to the ", itbContractName, " contract"),
-                 itbDecoderAndSanitizer
-             );
-             leafs[leafIndex].argumentAddresses[0] = itbPositionManager;
-             // Withdraw
-             leafIndex++;
-             leafs[leafIndex] = ManageLeaf(
-                 itbPositionManager,
-                 false,
-                 "withdraw(address,uint256)",
-                 new address[](0),
-                 string.concat("Withdraw ", tokensUsed[i].symbol(), " from the ", itbContractName, " contract"),
-                 itbDecoderAndSanitizer
-             );
-             // WithdrawAll
-             leafIndex++;
-             leafs[leafIndex] = ManageLeaf(
-                 itbPositionManager,
-                 false,
-                 "withdrawAll(address)",
-                 new address[](0),
-                 string.concat("Withdraw all ", tokensUsed[i].symbol(), " from the ", itbContractName, " contract"),
-                 itbDecoderAndSanitizer
-             );
-         }
-     }
+        ManageLeaf[] memory leafs,
+        address itbPositionManager,
+        ERC20[] memory tokensUsed,
+        string memory itbContractName
+    ) internal {
+        // acceptOwnership
+        leafIndex++;
+        leafs[leafIndex] = ManageLeaf(
+            itbPositionManager,
+            false,
+            "acceptOwnership()",
+            new address[](0),
+            string.concat("Accept ownership of the ", itbContractName, " contract"),
+            itbDecoderAndSanitizer
+        );
+
+        // removeExecutor
+        leafIndex++;
+        leafs[leafIndex] = ManageLeaf(
+            itbPositionManager,
+            false,
+            "removeExecutor(address)",
+            new address[](0),
+            string.concat("Remove executor from the ", itbContractName, " contract"),
+            itbDecoderAndSanitizer
+        );
+
+        for (uint256 i; i < tokensUsed.length; ++i) {
+            // Transfer
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                address(tokensUsed[i]),
+                false,
+                "transfer(address,uint256)",
+                new address[](1),
+                string.concat("Transfer ", tokensUsed[i].symbol(), " to the ", itbContractName, " contract"),
+                itbDecoderAndSanitizer
+            );
+            leafs[leafIndex].argumentAddresses[0] = itbPositionManager;
+            // Withdraw
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                itbPositionManager,
+                false,
+                "withdraw(address,uint256)",
+                new address[](0),
+                string.concat("Withdraw ", tokensUsed[i].symbol(), " from the ", itbContractName, " contract"),
+                itbDecoderAndSanitizer
+            );
+            // WithdrawAll
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                itbPositionManager,
+                false,
+                "withdrawAll(address)",
+                new address[](0),
+                string.concat("Withdraw all ", tokensUsed[i].symbol(), " from the ", itbContractName, " contract"),
+                itbDecoderAndSanitizer
+            );
+        }
+    }
 }

@@ -126,10 +126,7 @@ contract AtomicQueueTest is Test, MerkleTreeHelper {
         atomicQueue.pause();
         vm.startPrank(user);
         AtomicQueue.AtomicRequest memory req = AtomicQueue.AtomicRequest({
-            deadline: uint64(block.timestamp + 1),
-            atomicPrice: uint88(1e18),
-            offerAmount: uint96(1e18),
-            inSolve: false
+            deadline: uint64(block.timestamp + 1), atomicPrice: uint88(1e18), offerAmount: uint96(1e18), inSolve: false
         });
         vm.expectRevert(bytes(abi.encodeWithSelector(AtomicQueue.AtomicQueue__Paused.selector)));
         atomicQueue.updateAtomicRequest(boringVault, WETH, req);
@@ -145,10 +142,7 @@ contract AtomicQueueTest is Test, MerkleTreeHelper {
     function testSafeUpadteAtomicRequest() external {
         // User makes a safe atomic request
         AtomicQueue.AtomicRequest memory req = AtomicQueue.AtomicRequest({
-            deadline: uint64(block.timestamp + 1),
-            atomicPrice: uint88(0),
-            offerAmount: uint96(1e18),
-            inSolve: false
+            deadline: uint64(block.timestamp + 1), atomicPrice: uint88(0), offerAmount: uint96(1e18), inSolve: false
         });
         vm.prank(user);
         atomicQueue.safeUpdateAtomicRequest(boringVault, WEETH, req, accountant, 0.0001e6);
@@ -187,10 +181,7 @@ contract AtomicQueueTest is Test, MerkleTreeHelper {
         atomicQueue.safeUpdateAtomicRequest(boringVault, WETH, unsafeRequest, accountant, 0.0001e6);
 
         unsafeRequest = AtomicQueue.AtomicRequest({
-            deadline: uint64(block.timestamp - 1),
-            atomicPrice: uint88(1e18),
-            offerAmount: uint96(1e18),
-            inSolve: false
+            deadline: uint64(block.timestamp - 1), atomicPrice: uint88(1e18), offerAmount: uint96(1e18), inSolve: false
         });
         vm.expectRevert(
             bytes(
@@ -202,10 +193,7 @@ contract AtomicQueueTest is Test, MerkleTreeHelper {
         atomicQueue.safeUpdateAtomicRequest(boringVault, WETH, unsafeRequest, accountant, 0.0001e6);
 
         unsafeRequest = AtomicQueue.AtomicRequest({
-            deadline: uint64(block.timestamp + 1),
-            atomicPrice: uint88(1e18),
-            offerAmount: uint96(1e18),
-            inSolve: false
+            deadline: uint64(block.timestamp + 1), atomicPrice: uint88(1e18), offerAmount: uint96(1e18), inSolve: false
         });
 
         boringVault.approve(address(atomicQueue), 0);
@@ -224,19 +212,13 @@ contract AtomicQueueTest is Test, MerkleTreeHelper {
         boringVault.approve(address(atomicQueue), type(uint256).max);
 
         unsafeRequest = AtomicQueue.AtomicRequest({
-            deadline: uint64(block.timestamp + 1),
-            atomicPrice: uint88(1e18),
-            offerAmount: uint96(0),
-            inSolve: false
+            deadline: uint64(block.timestamp + 1), atomicPrice: uint88(1e18), offerAmount: uint96(0), inSolve: false
         });
         vm.expectRevert(bytes(abi.encodeWithSelector(AtomicQueue.AtomicQueue__SafeRequestOfferAmountZero.selector)));
         atomicQueue.safeUpdateAtomicRequest(boringVault, WETH, unsafeRequest, accountant, 0.0001e6);
 
         unsafeRequest = AtomicQueue.AtomicRequest({
-            deadline: uint64(block.timestamp + 1),
-            atomicPrice: uint88(1e18),
-            offerAmount: uint96(1e18),
-            inSolve: false
+            deadline: uint64(block.timestamp + 1), atomicPrice: uint88(1e18), offerAmount: uint96(1e18), inSolve: false
         });
         vm.expectRevert(bytes(abi.encodeWithSelector(AtomicQueue.AtomicQueue__SafeRequestDiscountTooLarge.selector)));
         atomicQueue.safeUpdateAtomicRequest(boringVault, WETH, unsafeRequest, accountant, 0.010001e6);

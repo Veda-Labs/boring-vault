@@ -8,7 +8,10 @@ import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecode
 
 contract SkyMoneyDecoderAndSanitizer {
     //Dai Converter
-    function daiToUsds(address recipient, uint256 /*amount/*/ )
+    function daiToUsds(
+        address recipient,
+        uint256 /*amount/*/
+    )
         external
         pure
         virtual
@@ -17,7 +20,10 @@ contract SkyMoneyDecoderAndSanitizer {
         return abi.encodePacked(recipient);
     }
 
-    function usdsToDai(address recipient, uint256 /*amount*/ )
+    function usdsToDai(
+        address recipient,
+        uint256 /*amount*/
+    )
         external
         pure
         virtual
@@ -28,7 +34,10 @@ contract SkyMoneyDecoderAndSanitizer {
 
     //USDS LitePSM USDC & DAI LitePSM USDC
     //where Gem == 'USDC' and amounts are in USDC decimals
-    function sellGem(address recipient, uint256 /*gemAmt*/ )
+    function sellGem(
+        address recipient,
+        uint256 /*gemAmt*/
+    )
         external
         pure
         virtual
@@ -37,7 +46,10 @@ contract SkyMoneyDecoderAndSanitizer {
         return abi.encodePacked(recipient);
     }
 
-    function buyGem(address recipient, uint256 /*gemAmt*/ )
+    function buyGem(
+        address recipient,
+        uint256 /*gemAmt*/
+    )
         external
         pure
         virtual

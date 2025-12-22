@@ -15,7 +15,6 @@ import {IBufferHelper} from "src/interfaces/IBufferHelper.sol";
  * The buffer helpers can trigger additional vault management calls during these operations.
  */
 contract TellerWithBuffer is TellerWithMultiAssetSupport {
-
     //============================== STRUCTS ===============================
     struct BufferHelpers {
         IBufferHelper depositBufferHelper;
@@ -43,12 +42,9 @@ contract TellerWithBuffer is TellerWithMultiAssetSupport {
      * @param _accountant The accountant contract address associated with the vault
      * @param _weth The WETH token address for ETH wrapping/unwrapping operations
      */
-    constructor(
-        address _owner,
-        address _vault,
-        address _accountant,
-        address _weth
-    ) TellerWithMultiAssetSupport(_owner, _vault, _accountant, _weth) {}
+    constructor(address _owner, address _vault, address _accountant, address _weth)
+        TellerWithMultiAssetSupport(_owner, _vault, _accountant, _weth)
+    {}
 
     /**
      * @notice Executes buffer management after a deposit operation
@@ -60,7 +56,9 @@ contract TellerWithBuffer is TellerWithMultiAssetSupport {
      */
     function _afterDeposit(ERC20 depositAsset, uint256 assetAmount) internal override {
         if (address(currentBufferHelpers[depositAsset].depositBufferHelper) != address(0)) {
-            (address[] memory targets, bytes[] memory data, uint256[] memory values) = currentBufferHelpers[depositAsset]
+            (address[] memory targets, bytes[] memory data, uint256[] memory values) = currentBufferHelpers[
+                    depositAsset
+                ]
                 .depositBufferHelper
                 .getDepositManageCall(address(depositAsset), assetAmount);
             vault.manage(targets, data, values);
@@ -77,7 +75,9 @@ contract TellerWithBuffer is TellerWithMultiAssetSupport {
      */
     function _beforeWithdraw(ERC20 withdrawAsset, uint256 assetAmount) internal override {
         if (address(currentBufferHelpers[withdrawAsset].withdrawBufferHelper) != address(0)) {
-            (address[] memory targets, bytes[] memory data, uint256[] memory values) = currentBufferHelpers[withdrawAsset]
+            (address[] memory targets, bytes[] memory data, uint256[] memory values) = currentBufferHelpers[
+                    withdrawAsset
+                ]
                 .withdrawBufferHelper
                 .getWithdrawManageCall(address(withdrawAsset), assetAmount);
             vault.manage(targets, data, values);

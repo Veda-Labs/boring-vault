@@ -58,11 +58,41 @@ contract CreateLiquidETHMerkleRoot is Script, MerkleTreeHelper {
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== LayerZero ==========================
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDT0"), getAddress(sourceChain, "USDT0_OFT"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "SUSDE"), getAddress(sourceChain, "SUSDE"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "WEETH"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDE"), getAddress(sourceChain, "USDE"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WETH"), getAddress(sourceChain, "WETH_OFT_STARGATE"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "USDT0"),
+            getAddress(sourceChain, "USDT0_OFT"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "SUSDE"),
+            getAddress(sourceChain, "SUSDE"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "WEETH"),
+            getAddress(sourceChain, "WEETH"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "USDE"),
+            getAddress(sourceChain, "USDE"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "WETH"),
+            getAddress(sourceChain, "WETH_OFT_STARGATE"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
 
         // ========================== UniswapV3 ==========================
         address[] memory token0 = new address[](4);
@@ -91,17 +121,13 @@ contract CreateLiquidETHMerkleRoot is Script, MerkleTreeHelper {
         _addNativeLeafs(leafs, getAddress(sourceChain, "wXPL"));
 
         // ========================== Merkl ==========================
-        _addMerklLeafs(
-            leafs,
-            getAddress(sourceChain, "merklDistributor"),
-            getAddress(sourceChain, "dev1Address")
-        );
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"));
 
         // DRONE LEAFS
         // ========================== Drone Setup ===============================
         {
-            ERC20[] memory localTokens = new ERC20[](6);   
-            localTokens[0] = getERC20(sourceChain, "USDE"); 
+            ERC20[] memory localTokens = new ERC20[](6);
+            localTokens[0] = getERC20(sourceChain, "USDE");
             localTokens[1] = getERC20(sourceChain, "WEETH");
             localTokens[2] = getERC20(sourceChain, "SUSDE");
             localTokens[3] = getERC20(sourceChain, "USDT0");
@@ -165,11 +191,7 @@ contract CreateLiquidETHMerkleRoot is Script, MerkleTreeHelper {
         _addFluidDexLeafs(leafs, getAddress(sourceChain, "weETH_ETHDex_wETH"), 2000, supplyTokens, borrowTokens, false);
 
         // ========================== Merkl ==========================
-        _addMerklLeafs(
-            leafs,
-            getAddress(sourceChain, "merklDistributor"),
-            getAddress(sourceChain, "dev1Address")
-        );
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"));
 
         _createDroneLeafs(leafs, drone, droneStartIndex, leafIndex + 1);
         setAddress(true, plasma, "boringVault", boringVault);

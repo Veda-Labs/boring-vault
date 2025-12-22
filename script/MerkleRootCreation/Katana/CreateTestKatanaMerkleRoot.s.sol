@@ -41,24 +41,15 @@ contract CreateTestKatanaMerkleRoot is Script, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
 
-
         // ========================== NativeWrapper ==========================
         _addNativeLeafs(leafs);
 
         // ========================== Agglayer ==========================
         _addAgglayerTokenLeafs(
-            leafs,
-            getAddress(sourceChain, "agglayerBridgeKatana"),
-            getAddress(sourceChain, "vbETH"),
-            20,
-            0
+            leafs, getAddress(sourceChain, "agglayerBridgeKatana"), getAddress(sourceChain, "vbETH"), 20, 0
         );
         _addAgglayerTokenLeafs(
-            leafs,
-            getAddress(sourceChain, "agglayerBridgeKatana"),
-            getAddress(sourceChain, "WEETH"),
-            20,
-            0
+            leafs, getAddress(sourceChain, "agglayerBridgeKatana"), getAddress(sourceChain, "WEETH"), 20, 0
         );
 
         // ========================== Fee Claiming ==========================
@@ -66,7 +57,6 @@ contract CreateTestKatanaMerkleRoot is Script, MerkleTreeHelper {
         feeAssets[0] = getERC20(sourceChain, "WETH");
         feeAssets[1] = getERC20(sourceChain, "WEETH");
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
-
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

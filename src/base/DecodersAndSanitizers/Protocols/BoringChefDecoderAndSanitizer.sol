@@ -10,7 +10,9 @@ import {IBoringChef} from "src/interfaces/RawDataDecoderAndSanitizerInterfaces.s
 contract BoringChefDecoderAndSanitizer {
     //============================== BoringChef ===============================
 
-    function claimRewards(uint256[] calldata /*rewardIds*/ )
+    function claimRewards(
+        uint256[] calldata /*rewardIds*/
+    )
         external
         view
         virtual
@@ -19,7 +21,11 @@ contract BoringChefDecoderAndSanitizer {
         return addressesFound;
     }
 
-    function claimRewardsOnBehalfOfUser(uint256[] calldata, /*rewardIds*/ address user)
+    function claimRewardsOnBehalfOfUser(
+        uint256[] calldata,
+        /*rewardIds*/
+        address user
+    )
         external
         view
         virtual
@@ -33,7 +39,12 @@ contract BoringChefDecoderAndSanitizer {
         uint256[] calldata, /*amounts*/
         uint48[] calldata, /*startEpochs*/
         uint48[] calldata /*endEpochs*/
-    ) external view virtual returns (bytes memory addressesFound) {
+    )
+        external
+        view
+        virtual
+        returns (bytes memory addressesFound)
+    {
         for (uint256 i = 0; i < tokens.length; i++) {
             addressesFound = abi.encodePacked(addressesFound, tokens[i]);
         }

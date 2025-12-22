@@ -16,13 +16,27 @@ contract SwellDecoderAndSanitizer {
     }
 
     // Call swEXIT 0x48C11b86807627AF70a34662D4865cF854251663
-    function createWithdrawRequest(uint256 /*amount*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function createWithdrawRequest(
+        uint256 /*amount*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         // Nothing to sanitize or return
         return addressesFound;
     }
 
     // Call swEXIT 0x48C11b86807627AF70a34662D4865cF854251663
-    function finalizeWithdrawal(uint256 /*tokenId*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function finalizeWithdrawal(
+        uint256 /*tokenId*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         // Nothing to sanitize or return
         return addressesFound;
     }

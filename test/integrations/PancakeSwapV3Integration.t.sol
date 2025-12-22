@@ -11,8 +11,9 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {PancakeSwapV3FullDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/PancakeSwapV3FullDecoderAndSanitizer.sol";
+import {
+    PancakeSwapV3FullDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/PancakeSwapV3FullDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {UniswapV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV3DecoderAndSanitizer.sol";
@@ -162,13 +163,13 @@ contract PancakeSwapV3IntegrationTest is Test, MerkleTreeHelper {
         targetData[0] = abi.encodeWithSignature(
             "approve(address,uint256)", getAddress(sourceChain, "pancakeSwapV3Router"), type(uint256).max
         );
-        DecoderCustomTypes.PancakeSwapExactInputParams memory exactInputParams = DecoderCustomTypes
-            .PancakeSwapExactInputParams(
-            abi.encodePacked(getAddress(sourceChain, "WETH"), uint24(500), getAddress(sourceChain, "RETH")),
-            address(boringVault),
-            100e18,
-            0
-        );
+        DecoderCustomTypes.PancakeSwapExactInputParams memory exactInputParams =
+            DecoderCustomTypes.PancakeSwapExactInputParams(
+                abi.encodePacked(getAddress(sourceChain, "WETH"), uint24(500), getAddress(sourceChain, "RETH")),
+                address(boringVault),
+                100e18,
+                0
+            );
         targetData[1] = abi.encodeWithSignature("exactInput((bytes,address,uint256,uint256))", exactInputParams);
         targetData[2] = abi.encodeWithSignature(
             "approve(address,uint256)",
@@ -291,13 +292,13 @@ contract PancakeSwapV3IntegrationTest is Test, MerkleTreeHelper {
         targetData[0] = abi.encodeWithSignature(
             "approve(address,uint256)", getAddress(sourceChain, "pancakeSwapV3Router"), type(uint256).max
         );
-        DecoderCustomTypes.PancakeSwapExactInputParams memory exactInputParams = DecoderCustomTypes
-            .PancakeSwapExactInputParams(
-            abi.encodePacked(getAddress(sourceChain, "WETH"), uint24(500), getAddress(sourceChain, "RETH")),
-            address(boringVault),
-            100e18,
-            0
-        );
+        DecoderCustomTypes.PancakeSwapExactInputParams memory exactInputParams =
+            DecoderCustomTypes.PancakeSwapExactInputParams(
+                abi.encodePacked(getAddress(sourceChain, "WETH"), uint24(500), getAddress(sourceChain, "RETH")),
+                address(boringVault),
+                100e18,
+                0
+            );
         targetData[1] = abi.encodeWithSignature("exactInput((bytes,address,uint256,uint256))", exactInputParams);
         targetData[2] = abi.encodeWithSignature(
             "approve(address,uint256)",
@@ -422,13 +423,13 @@ contract PancakeSwapV3IntegrationTest is Test, MerkleTreeHelper {
         targetData[0] = abi.encodeWithSignature(
             "approve(address,uint256)", getAddress(sourceChain, "pancakeSwapV3Router"), type(uint256).max
         );
-        DecoderCustomTypes.PancakeSwapExactInputParams memory exactInputParams = DecoderCustomTypes
-            .PancakeSwapExactInputParams(
-            abi.encodePacked(getAddress(sourceChain, "WETH"), uint24(500), getAddress(sourceChain, "RETH")),
-            address(boringVault),
-            100e18,
-            0
-        );
+        DecoderCustomTypes.PancakeSwapExactInputParams memory exactInputParams =
+            DecoderCustomTypes.PancakeSwapExactInputParams(
+                abi.encodePacked(getAddress(sourceChain, "WETH"), uint24(500), getAddress(sourceChain, "RETH")),
+                address(boringVault),
+                100e18,
+                0
+            );
         targetData[1] = abi.encodeWithSignature("exactInput((bytes,address,uint256,uint256))", exactInputParams);
         targetData[2] = abi.encodeWithSignature(
             "approve(address,uint256)",

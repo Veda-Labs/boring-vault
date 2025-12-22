@@ -11,7 +11,14 @@ contract MantleStandardBridgeDecoderAndSanitizer {
     /// that are accounted for using the functions below.
     //============================== MantleStandardBridge ===============================
 
-    function bridgeETHTo(uint256, /*amount*/ address _to, uint32, /*_minGasLimit*/ bytes calldata /*_extraData*/ )
+    function bridgeETHTo(
+        uint256,
+        /*amount*/
+        address _to,
+        uint32,
+        /*_minGasLimit*/
+        bytes calldata /*_extraData*/
+    )
         external
         pure
         virtual

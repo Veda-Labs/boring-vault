@@ -33,7 +33,17 @@ contract EtherFiDecoderAndSanitizer {
         return addressesFound;
     }
 
-    function depositWithERC20(address _token, uint256 /*_amount*/, address _referral) external pure virtual returns (bytes memory addressesFound) {
-        addressesFound = abi.encodePacked(_token, _referral); 
+    function depositWithERC20(
+        address _token,
+        uint256,
+        /*_amount*/
+        address _referral
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
+        addressesFound = abi.encodePacked(_token, _referral);
     }
 }

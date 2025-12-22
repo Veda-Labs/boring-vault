@@ -9,7 +9,12 @@ import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 contract BeraETHDecoderAndSanitizer {
     //============================== rberaETH ===============================
 
-    function depositAndWrap(address WETH, uint256, /*amount*/ uint256 /*minAmountOut*/ )
+    function depositAndWrap(
+        address WETH,
+        uint256,
+        /*amount*/
+        uint256 /*minAmountOut*/
+    )
         external
         pure
         virtual
@@ -25,7 +30,14 @@ contract BeraETHDecoderAndSanitizer {
 
     //============================== beraETH ===============================
 
-    function unwrap(uint256 /*amount*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function unwrap(
+        uint256 /*amount*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 }

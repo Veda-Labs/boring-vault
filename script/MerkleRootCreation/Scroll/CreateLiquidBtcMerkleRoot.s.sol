@@ -43,33 +43,39 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](32);
 
         // ========================== Scroll Native Bridge ==========================
-        ERC20[] memory tokens = new ERC20[](1); 
-        tokens[0] = getERC20(sourceChain, "WBTC"); 
+        ERC20[] memory tokens = new ERC20[](1);
+        tokens[0] = getERC20(sourceChain, "WBTC");
         address[] memory scrollGateways = new address[](1);
         scrollGateways[0] = getAddress(scroll, "scrollWBTCGateway");
-        _addScrollNativeBridgeLeafs(leafs, "mainnet", tokens, scrollGateways);  
+        _addScrollNativeBridgeLeafs(leafs, "mainnet", tokens, scrollGateways);
 
         // ========================== Tellers & Withdraw Queues ==========================
         // deposit WBTC into eBTC, receive eBTC shares
-        address eBTCTeller = 0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268; 
-        ERC20[] memory tellerAssets = new ERC20[](1); 
-        tellerAssets[0] = getERC20(sourceChain, "WBTC"); 
-        _addTellerLeafs(leafs, eBTCTeller, tellerAssets, false, true);  
-        
+        address eBTCTeller = 0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268;
+        ERC20[] memory tellerAssets = new ERC20[](1);
+        tellerAssets[0] = getERC20(sourceChain, "WBTC");
+        _addTellerLeafs(leafs, eBTCTeller, tellerAssets, false, true);
+
         //request withdraw from eBTC if needed
-        address eBTCWithdrawQueue = 0x686696A3e59eE16e8A8533d84B62cfA504827135; 
-        _addWithdrawQueueLeafs(leafs, eBTCWithdrawQueue, getAddress(sourceChain, "EBTC"), tellerAssets); 
+        address eBTCWithdrawQueue = 0x686696A3e59eE16e8A8533d84B62cfA504827135;
+        _addWithdrawQueueLeafs(leafs, eBTCWithdrawQueue, getAddress(sourceChain, "EBTC"), tellerAssets);
 
         // ========================== CrossChain Tellers ==========================
-        address[] memory depositAssets = new address[](1); 
-        depositAssets[0] = getAddress(sourceChain, "WBTC"); 
+        address[] memory depositAssets = new address[](1);
+        depositAssets[0] = getAddress(sourceChain, "WBTC");
 
-        address[] memory feeAssets = new address[](1); 
-        feeAssets[0] = getAddress(sourceChain, "ETH"); 
+        address[] memory feeAssets = new address[](1);
+        feeAssets[0] = getAddress(sourceChain, "ETH");
 
-        _addCrossChainTellerLeafs(leafs, getAddress(sourceChain, "EBTCTeller"), depositAssets, feeAssets, abi.encode(layerZeroMainnetEndpointId)); 
+        _addCrossChainTellerLeafs(
+            leafs,
+            getAddress(sourceChain, "EBTCTeller"),
+            depositAssets,
+            feeAssets,
+            abi.encode(layerZeroMainnetEndpointId)
+        );
 
-        // Fee Claiming 
+        // Fee Claiming
         ERC20[] memory claimingAssets = new ERC20[](1);
         claimingAssets[0] = getERC20(sourceChain, "WBTC");
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), claimingAssets, false);
@@ -83,7 +89,6 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
-
     }
 }
 

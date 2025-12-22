@@ -23,9 +23,12 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
     address public managerAddress = 0x9aC5AEf62eCe812FEfb77a0d1771c9A5ce3D04E4;
     address public accountantAddress = 0x90e864A256E58DBCe034D9C43C3d8F18A00f55B6;
 
-    function setUp() external {} /**
+    function setUp() external {}
+
+    /**
      * @notice Uncomment which script you want to run.
      */
+
     function run() external {
         generateStrategistMerkleRoot();
     }
@@ -41,7 +44,7 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== LBTC Bridge Wrapper ==========================
         // To Mainnet
-        _addLBTCBridgeLeafs(leafs, 0x0000000000000000000000000000000000000000000000000000000000000001);  
+        _addLBTCBridgeLeafs(leafs, 0x0000000000000000000000000000000000000000000000000000000000000001);
 
         // ========================== BTCk Minter ==========================
         _addBTCKLeafs(leafs);
@@ -52,15 +55,15 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
         // ========================== Morpho Blue ==========================
-        _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "LBTC_vbWBTC_915")); 
+        _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "LBTC_vbWBTC_915"));
 
-        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "LBTC_vbWBTC_915")); 
+        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "LBTC_vbWBTC_915"));
 
         // ========================== MetaMorhpo ==========================
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletWBTC")));
-        
+
         // BTCK MetaMorpho vault (one-sided lending)
-        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletBTCK")));  
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletBTCK")));
 
         // ========================== Agglayer ==========================
         _addAgglayerTokenLeafs(
@@ -85,7 +88,6 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
         token1[2] = getAddress(sourceChain, "WBTC");
         token1[3] = getAddress(sourceChain, "USDC");
         token1[4] = getAddress(sourceChain, "WBTC");
-
 
         _addUniswapV3Leafs(leafs, token0, token1, false);
 

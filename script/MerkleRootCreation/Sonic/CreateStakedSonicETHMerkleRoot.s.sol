@@ -42,7 +42,6 @@ contract CreateStakedSonicETHMerkleRoot is Script, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](256);
 
-
         // ========================== Fee Claiming ==========================
         ERC20[] memory feeAssets = new ERC20[](2);
         feeAssets[0] = getERC20(sourceChain, "WETH");
@@ -56,10 +55,12 @@ contract CreateStakedSonicETHMerkleRoot is Script, MerkleTreeHelper {
         address[] memory token1 = new address[](1);
         token1[0] = getAddress(sourceChain, "WETH");
 
-        _addUniswapV3Leafs(leafs, token0, token1, false, true); //use router02  
+        _addUniswapV3Leafs(leafs, token0, token1, false, true); //use router02
 
         // ========================== Beets ==========================
-        _addBalancerLeafs(leafs, getBytes32(sourceChain, "scETH_WETH_PoolId"), getAddress(sourceChain, "scETH_WETH_gauge")); 
+        _addBalancerLeafs(
+            leafs, getBytes32(sourceChain, "scETH_WETH_PoolId"), getAddress(sourceChain, "scETH_WETH_gauge")
+        );
         _addBalancerSwapLeafs(leafs, getBytes32(sourceChain, "USDC_stS_PoolId")); //sell stS for USDC
         _addBalancerSwapLeafs(leafs, getBytes32(sourceChain, "USDC_wS_PoolId")); //sell wS for USDC
         _addBalancerSwapLeafs(leafs, getBytes32(sourceChain, "stS_BEETS_PoolId")); //stS, BEETS (swap BEETS for stS, then USDC, swap function leaves only support 2 token pools atm)
@@ -69,20 +70,19 @@ contract CreateStakedSonicETHMerkleRoot is Script, MerkleTreeHelper {
             leafs, getBytes32(sourceChain, "scETH_WETH_PoolId"), getAddress(sourceChain, "scETH_WETH_gauge")
         );
 
-
         // ========================== Odos ==========================
-        
-        address[] memory tokens = new address[](10);   
+
+        address[] memory tokens = new address[](10);
         SwapKind[] memory kind = new SwapKind[](10);
-        tokens[0] = getAddress(sourceChain, "WETH"); 
+        tokens[0] = getAddress(sourceChain, "WETH");
         kind[0] = SwapKind.BuyAndSell;
-        tokens[1] = getAddress(sourceChain, "stS"); 
+        tokens[1] = getAddress(sourceChain, "stS");
         kind[1] = SwapKind.BuyAndSell;
-        tokens[2] = getAddress(sourceChain, "wS"); 
+        tokens[2] = getAddress(sourceChain, "wS");
         kind[2] = SwapKind.BuyAndSell;
-        tokens[3] = getAddress(sourceChain, "scETH"); 
+        tokens[3] = getAddress(sourceChain, "scETH");
         kind[3] = SwapKind.BuyAndSell;
-        tokens[4] = getAddress(sourceChain, "BEETS"); 
+        tokens[4] = getAddress(sourceChain, "BEETS");
         kind[4] = SwapKind.Sell;
         tokens[5] = getAddress(sourceChain, "CRV");
         kind[5] = SwapKind.Sell;
@@ -95,7 +95,7 @@ contract CreateStakedSonicETHMerkleRoot is Script, MerkleTreeHelper {
         tokens[9] = getAddress(sourceChain, "EUL");
         kind[9] = SwapKind.Sell;
 
-        _addOdosSwapLeafs(leafs, tokens, kind); 
+        _addOdosSwapLeafs(leafs, tokens, kind);
 
         // ========================== Teller ==========================
         ERC20[] memory tellerAssets = new ERC20[](1);
@@ -103,9 +103,9 @@ contract CreateStakedSonicETHMerkleRoot is Script, MerkleTreeHelper {
         _addTellerLeafs(leafs, getAddress(sourceChain, "scETHTeller"), tellerAssets, false, true);
 
         // ========================== Silo ==========================
-        address[] memory incentivesControllers = new address[](2); 
-        incentivesControllers[0] = address(0);  
-        incentivesControllers[0] = address(0);   
+        address[] memory incentivesControllers = new address[](2);
+        incentivesControllers[0] = address(0);
+        incentivesControllers[0] = address(0);
         _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_S_ETH_config"), incentivesControllers);
         _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_ETH_wstkscETH_id26_config"), incentivesControllers);
 
@@ -131,11 +131,11 @@ contract CreateStakedSonicETHMerkleRoot is Script, MerkleTreeHelper {
         _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
         _addrEULWrappingLeafs(leafs); //unwrap rEUL for EUL
 
-         // ========================== Native =========================
+        // ========================== Native =========================
         _addNativeLeafs(leafs, getAddress(sourceChain, "wS"));
-       
+
         // ========================== Merkl =========================
-        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address")); 
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"));
 
         // ========================== Verify =========================
 

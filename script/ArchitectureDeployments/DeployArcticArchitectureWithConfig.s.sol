@@ -10,16 +10,20 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {BalancerVault} from "src/interfaces/BalancerVault.sol";
-import {EtherFiLiquidEthDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/EtherFiLiquidEthDecoderAndSanitizer.sol";
+import {
+    EtherFiLiquidEthDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/EtherFiLiquidEthDecoderAndSanitizer.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {TellerWithRemediation} from "src/base/Roles/TellerWithRemediation.sol";
 import {
-    ChainlinkCCIPTeller, CrossChainTellerWithGenericBridge
+    ChainlinkCCIPTeller,
+    CrossChainTellerWithGenericBridge
 } from "src/base/Roles/CrossChain/Bridges/CCIP/ChainlinkCCIPTeller.sol";
 import {LayerZeroTeller} from "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTeller.sol";
-import {LayerZeroTellerWithRateLimiting} from "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTellerWithRateLimiting.sol";
+import {
+    LayerZeroTellerWithRateLimiting
+} from "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTellerWithRateLimiting.sol";
 import {AccountantWithRateProviders, IRateProvider} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {AccountantWithFixedRate} from "src/base/Roles/AccountantWithFixedRate.sol";
 import {Deployer} from "src/helper/Deployer.sol";
@@ -768,7 +772,7 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
         bool tellerWithCcip = vm.parseJsonBool(rawJson, ".tellerConfiguration.tellerParameters.kind.tellerWithCcip");
         bool tellerWithLayerZero =
             vm.parseJsonBool(rawJson, ".tellerConfiguration.tellerParameters.kind.tellerWithLayerZero");
-        bool tellerWithLayerZeroRateLimiting = 
+        bool tellerWithLayerZeroRateLimiting =
             vm.parseJsonBool(rawJson, ".tellerConfiguration.tellerParameters.kind.tellerWithLayerZeroRateLimiting");
         if (tellerWithCcip || tellerWithLayerZero || tellerWithLayerZeroRateLimiting) {
             _log("Setting up cross chain teller", 3);
@@ -862,7 +866,8 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
         if (!isDeployed) {
             creationCode = type(BoringSolver).creationCode;
             // Read config to determine excessToSolverNonSelfSolve constructor argument.
-            bool excessToSolverNonSelfSolve = vm.parseJsonBool(rawJson, ".boringQueueConfiguration.excessToSolverNonSelfSolve");
+            bool excessToSolverNonSelfSolve =
+                vm.parseJsonBool(rawJson, ".boringQueueConfiguration.excessToSolverNonSelfSolve");
             constructorArgs = abi.encode(deploymentOwner, address(0), address(queue), excessToSolverNonSelfSolve);
             _log("Boring solver deployment TX added", 3);
             _log(string.concat("Boring queue address: ", vm.toString(address(queue))), 4);
@@ -1155,7 +1160,9 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
                     OWNER_ROLE, address(teller), ChainlinkCCIPTeller.setChainGasLimit.selector
                 );
             }
-            if (tellerKind == TellerKind.TellerWithLayerZero || tellerKind == TellerKind.TellerWithLayerZeroRateLimiting) {
+            if (
+                tellerKind == TellerKind.TellerWithLayerZero || tellerKind == TellerKind.TellerWithLayerZeroRateLimiting
+            ) {
                 _addRoleCapabilityIfNotPresent(OWNER_ROLE, address(teller), LayerZeroTeller.addChain.selector);
                 _addRoleCapabilityIfNotPresent(MULTISIG_ROLE, address(teller), LayerZeroTeller.removeChain.selector);
                 _addRoleCapabilityIfNotPresent(
@@ -1177,7 +1184,10 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
                 _setPublicCapabilityIfNotPresent(
                     address(teller), TellerWithMultiAssetSupport.depositWithPermit.selector
                 );
-                if (tellerKind == TellerKind.TellerWithCcip || tellerKind == TellerKind.TellerWithLayerZero || tellerKind == TellerKind.TellerWithLayerZeroRateLimiting) {
+                if (
+                    tellerKind == TellerKind.TellerWithCcip || tellerKind == TellerKind.TellerWithLayerZero
+                        || tellerKind == TellerKind.TellerWithLayerZeroRateLimiting
+                ) {
                     _setPublicCapabilityIfNotPresent(
                         address(teller), CrossChainTellerWithGenericBridge.depositAndBridge.selector
                     );

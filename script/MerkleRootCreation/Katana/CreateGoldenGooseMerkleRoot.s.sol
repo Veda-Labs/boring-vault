@@ -13,9 +13,9 @@ import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthorit
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import "forge-std/Script.sol";
 
- /**
-  *  source .env && forge script script/MerkleRootCreation/Katana/CreateGoldenGooseMerkleRoot.s.sol --rpc-url $KATANA_RPC_URL
-  */
+/**
+ *  source .env && forge script script/MerkleRootCreation/Katana/CreateGoldenGooseMerkleRoot.s.sol --rpc-url $KATANA_RPC_URL
+ */
 contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
@@ -48,20 +48,12 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Agglayer ==========================
         _addAgglayerTokenLeafs(
-            leafs,
-            getAddress(sourceChain, "agglayerBridgeKatana"),
-            getAddress(sourceChain, "vbETH"),
-            20,
-            0
+            leafs, getAddress(sourceChain, "agglayerBridgeKatana"), getAddress(sourceChain, "vbETH"), 20, 0
         );
         _addAgglayerTokenLeafs(
-            leafs,
-            getAddress(sourceChain, "agglayerBridgeKatana"),
-            getAddress(sourceChain, "WSTETH"),
-            20,
-            0
+            leafs, getAddress(sourceChain, "agglayerBridgeKatana"), getAddress(sourceChain, "WSTETH"), 20, 0
         );
-          
+
         // ========================== Yearn ==========================
         _addYearnLeafs(leafs, ERC4626(getAddress(sourceChain, "yvbWETH")));
         _addYearnLeafs(leafs, ERC4626(getAddress(sourceChain, "yvWSTETH")));
@@ -74,11 +66,6 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
-        _generateLeafs(
-            filePath,
-            leafs,
-            manageTree[manageTree.length - 1][0],
-            manageTree
-        );
+        _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
     }
 }

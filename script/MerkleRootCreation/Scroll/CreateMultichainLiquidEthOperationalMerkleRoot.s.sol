@@ -26,7 +26,6 @@ contract CreateLiquidETHOperationalMerkleRootScript is Script, MerkleTreeHelper 
     }
 
     function generateLiquidEthOperationalStrategistMerkleRoot() public {
-
         setSourceChainName(scroll);
         setAddress(false, scroll, "boringVault", boringVault);
         setAddress(false, scroll, "managerAddress", managerAddress);
@@ -52,5 +51,4 @@ contract CreateLiquidETHOperationalMerkleRootScript is Script, MerkleTreeHelper 
         string memory filePath = "./leafs/Scroll/LiquidETHOperationalStrategistLeafs.json";
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
     }
-
 }

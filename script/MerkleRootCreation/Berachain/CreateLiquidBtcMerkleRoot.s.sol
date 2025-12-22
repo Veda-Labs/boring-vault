@@ -18,7 +18,7 @@ import "forge-std/Script.sol";
 contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
-    address public boringVault = 0x5f46d540b6eD704C3c8789105F30E075AA900726; 
+    address public boringVault = 0x5f46d540b6eD704C3c8789105F30E075AA900726;
     address public managerAddress = 0xaFa8c08bedB2eC1bbEb64A7fFa44c604e7cca68d;
     address public accountantAddress = 0xEa23aC6D7D11f6b181d6B98174D334478ADAe6b0;
     address public rawDataDecoderAndSanitizer = 0x4Ab8cCC0412497D27fD1A982DECb76B9963f448C;
@@ -41,38 +41,37 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, berachain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](256);
-        
 
         // ========================== Kodiak Swaps ==========================
 
-        address[] memory token0 = new address[](1);  
-        token0[0] = getAddress(sourceChain, "WBTC");    
+        address[] memory token0 = new address[](1);
+        token0[0] = getAddress(sourceChain, "WBTC");
 
-        address[] memory token1 = new address[](1);  
-        token1[0] = getAddress(sourceChain, "solvBTC");    
+        address[] memory token1 = new address[](1);
+        token1[0] = getAddress(sourceChain, "solvBTC");
 
-        _addUniswapV3Leafs(leafs, token0, token1, false); 
+        _addUniswapV3Leafs(leafs, token0, token1, false);
 
         // ========================== Kodiak Islands ==========================
 
-        address[] memory islands = new address[](2);  
+        address[] memory islands = new address[](2);
         islands[0] = getAddress(sourceChain, "kodiak_island_WBTC_solvBTC_005%");
         islands[1] = getAddress(sourceChain, "kodiak_island_rUSD_HONEY_005%");
 
-        _addKodiakIslandLeafs(leafs, islands); 
+        _addKodiakIslandLeafs(leafs, islands);
 
         // ========================== Dolomite Supply ==========================
-        
+
         _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "srUSD"), false);
         _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "USDC"), false);
-        _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "eBTC"), false); 
+        _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "eBTC"), false);
         _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "HONEY"), false);
         _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "rUSD"), false);
         _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "solvBTC"), false);
         _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "WBTC"), false);
 
         // ========================== Dolomite Borrow ==========================
-        
+
         _addDolomiteBorrowLeafs(leafs, getAddress(sourceChain, "srUSD"));
         _addDolomiteBorrowLeafs(leafs, getAddress(sourceChain, "USDC"));
         _addDolomiteBorrowLeafs(leafs, getAddress(sourceChain, "HONEY"));
@@ -114,10 +113,34 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         _addInfraredVaultLeafs(leafs, getAddress(sourceChain, "infrared_vault_rUSD_honey"));
 
         // ========================== LayerZero/Stargate ==========================
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WBTC"), getAddress(sourceChain, "WBTC"), layerZeroMainnetEndpointId, bytes32(uint256(uint160(address(boringVault)))));   
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "solvBTC"), getAddress(sourceChain, "solvBTC_OFT"), layerZeroMainnetEndpointId, bytes32(uint256(uint160(address(boringVault)))));   
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "srUSD"), getAddress(sourceChain, "stargatesrUSD"), layerZeroMainnetEndpointId, bytes32(uint256(uint160(address(boringVault)))));   
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDC"), getAddress(sourceChain, "stargateUSDC"), layerZeroMainnetEndpointId, bytes32(uint256(uint160(address(boringVault)))));   
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "WBTC"),
+            getAddress(sourceChain, "WBTC"),
+            layerZeroMainnetEndpointId,
+            bytes32(uint256(uint160(address(boringVault))))
+        );
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "solvBTC"),
+            getAddress(sourceChain, "solvBTC_OFT"),
+            layerZeroMainnetEndpointId,
+            bytes32(uint256(uint160(address(boringVault))))
+        );
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "srUSD"),
+            getAddress(sourceChain, "stargatesrUSD"),
+            layerZeroMainnetEndpointId,
+            bytes32(uint256(uint160(address(boringVault))))
+        );
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "USDC"),
+            getAddress(sourceChain, "stargateUSDC"),
+            layerZeroMainnetEndpointId,
+            bytes32(uint256(uint160(address(boringVault))))
+        );
 
         // ========================== Honey ==========================
         _addHoneyLeafs(leafs);
@@ -136,13 +159,19 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
 
         _addTellerLeafs(leafs, getAddress(sourceChain, "eBTCTeller"), eBTCAssets, false, true);
         _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "eBTCQueue"), getAddress(sourceChain, "eBTC"), eBTCAssets);
-        _addCrossChainTellerLeafs(leafs, getAddress(sourceChain, "eBTCTeller"), eBTCAssetsAddresses, feeAssets, abi.encode(layerZeroMainnetEndpointId));
+        _addCrossChainTellerLeafs(
+            leafs,
+            getAddress(sourceChain, "eBTCTeller"),
+            eBTCAssetsAddresses,
+            feeAssets,
+            abi.encode(layerZeroMainnetEndpointId)
+        );
 
         // =============================== Native Wrapper ==========================
         _addNativeLeafs(leafs, getAddress(sourceChain, "WBERA"));
 
         // ========================== Verify ==========================
-        
+
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
         string memory filePath = "./leafs/Berachain/LiquidBtcStrategistLeafs.json";

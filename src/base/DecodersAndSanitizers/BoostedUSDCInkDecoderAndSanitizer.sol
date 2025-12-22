@@ -8,14 +8,15 @@ import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {AaveV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AaveV3DecoderAndSanitizer.sol";
 import {OFTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OFTDecoderAndSanitizer.sol";
-import {NativeWrapperDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol";
+import {
+    NativeWrapperDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol";
 import {CCTPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCTPDecoderAndSanitizer.sol";
 
-contract BoostedUSDCInkDecoderAndSanitizer is 
+contract BoostedUSDCInkDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
     AaveV3DecoderAndSanitizer,
     OFTDecoderAndSanitizer,
     NativeWrapperDecoderAndSanitizer,
     CCTPDecoderAndSanitizer
-{
-}
+{}

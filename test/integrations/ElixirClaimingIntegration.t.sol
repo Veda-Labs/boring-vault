@@ -11,7 +11,9 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {ElixirClaimingDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ElixirClaimingDecoderAndSanitizer.sol";
+import {
+    ElixirClaimingDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/ElixirClaimingDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
@@ -45,11 +47,9 @@ contract EthenaWithdrawIntegrationTest is Test, MerkleTreeHelper {
 
         boringVault = BoringVault(payable(0xbc0f3B23930fff9f4894914bD745ABAbA9588265)); //UltraUSD
 
-        manager = ManagerWithMerkleVerification(0x4f81c27e750A453d6206C2d10548d6566F60886C); 
-        
-        rawDataDecoderAndSanitizer = address(
-            new FullElxDecoderAndSanitizer()
-        );
+        manager = ManagerWithMerkleVerification(0x4f81c27e750A453d6206C2d10548d6566F60886C);
+
+        rawDataDecoderAndSanitizer = address(new FullElxDecoderAndSanitizer());
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -110,16 +110,16 @@ contract EthenaWithdrawIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testElixirClaiming() external {
-        address ultraUSDStrategist = 0xFBc847FA8AFA576c43dc85afE84edD637bc0A904;  
+        address ultraUSDStrategist = 0xFBc847FA8AFA576c43dc85afE84edD637bc0A904;
 
         ManageLeaf[] memory leafs = new ManageLeaf[](2);
         _addELXClaimingLeafs(leafs);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
-        _generateTestLeafs(leafs, manageTree); 
-        
-        vm.prank(boringVault.owner()); 
+        _generateTestLeafs(leafs, manageTree);
+
+        vm.prank(boringVault.owner());
         manager.setManageRoot(ultraUSDStrategist, manageTree[manageTree.length - 1][0]);
 
         ManageLeaf[] memory manageLeafs = new ManageLeaf[](1);
@@ -148,41 +148,39 @@ contract EthenaWithdrawIntegrationTest is Test, MerkleTreeHelper {
         merkleProofs[13] = 0x76a6af0464b1bcb4885c79f5fec9cc90b1eb2b64531d95b67a8f5e0df8ab60be;
         merkleProofs[14] = 0x68c1a707e1cfd1455b08ae4e78968aae753a84b63cca9e602e4d19443fd51201;
         merkleProofs[15] = 0xc869131cd48425d0df2a4a7b527891ab52b9e26fdedaa27cb053f46fb8fb35a1;
-       
-        bytes memory signature = hex"eb0748848725cbc35cbe170d438626fd014784227138e103ffc08e26dc7f02932d46deb785b0962923b2220dab0a401592f589d59ddb2be56683dbc2e6da14931b"; 
+
+        bytes memory signature =
+            hex"eb0748848725cbc35cbe170d438626fd014784227138e103ffc08e26dc7f02932d46deb785b0962923b2220dab0a401592f589d59ddb2be56683dbc2e6da14931b";
 
         bytes[] memory targetData = new bytes[](1);
-        targetData[0] = abi.encodeWithSignature(
-            "claim(uint256,bytes32[],bytes)", 
-            8973715174000000000000, 
-            merkleProofs,
-            signature
-        );
+        targetData[0] =
+            abi.encodeWithSignature("claim(uint256,bytes32[],bytes)", 8973715174000000000000, merkleProofs, signature);
 
         address[] memory decodersAndSanitizers = new address[](1);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
 
         uint256[] memory values = new uint256[](1);
-        
-        // NOTE: without a way to generate the proofs or signature for the vault, this is going to fail. 
+
+        // NOTE: without a way to generate the proofs or signature for the vault, this is going to fail.
         // The above proofs and signatures were taken from a passing TX for a user, but the vaults proofs and sig are unknown as this appears
-        // to be generated on the FE for claims.  
-        // At this point, I am unable to find any SDK or FE code that will do this for the vault addresses we need. 
-        // The signature can be obtained from pranking the wallet on Rabby, but in order to generate the proofs this requires a siganture to be sent. 
+        // to be generated on the FE for claims.
+        // At this point, I am unable to find any SDK or FE code that will do this for the vault addresses we need.
+        // The signature can be obtained from pranking the wallet on Rabby, but in order to generate the proofs this requires a siganture to be sent.
         //
-        // We could bastardize the state of the contract for the sake of a passing test, but that would defeat the purpose of the test. 
-        // In this case, we are testing that the boring vault CAN call the claim function, which the revert below indicates. 
-        //vm.expectRevert(); //use -vvvv to verify this is erroring with: InvalidSignature() or 0x8baa579f; 
-        vm.prank(ultraUSDStrategist); 
+        // We could bastardize the state of the contract for the sake of a passing test, but that would defeat the purpose of the test.
+        // In this case, we are testing that the boring vault CAN call the claim function, which the revert below indicates.
+        //vm.expectRevert(); //use -vvvv to verify this is erroring with: InvalidSignature() or 0x8baa579f;
+        vm.prank(ultraUSDStrategist);
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
-        
-        uint256 ELXBalanace = getERC20(sourceChain, "ELX").balanceOf(address(0xbc0f3B23930fff9f4894914bD745ABAbA9588265)); 
+        uint256 ELXBalanace =
+            getERC20(sourceChain, "ELX").balanceOf(address(0xbc0f3B23930fff9f4894914bD745ABAbA9588265));
 
-        uint256 claimable = (8973715174000000000000 / 2) + ((8973715174000000000000 / 2) * (block.timestamp - 1741341600) / 7776000); 
+        uint256 claimable =
+            (8973715174000000000000 / 2) + ((8973715174000000000000 / 2) * (block.timestamp - 1741341600) / 7776000);
 
-        //after forfeiting claim, claim amount is 4697531591687134387860; 
-        assertEq(ELXBalanace, claimable); 
+        //after forfeiting claim, claim amount is 4697531591687134387860;
+        assertEq(ELXBalanace, claimable);
     }
 
     // ========================================= HELPER FUNCTIONS =========================================
@@ -192,7 +190,6 @@ contract EthenaWithdrawIntegrationTest is Test, MerkleTreeHelper {
         vm.selectFork(forkId);
     }
 }
-
 
 contract FullElxDecoderAndSanitizer is ElixirClaimingDecoderAndSanitizer {}
 

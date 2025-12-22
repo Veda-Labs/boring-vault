@@ -29,7 +29,6 @@ contract CreateMultichainLiquidBtcOperationalMerkleRootScript is Script, MerkleT
     }
 
     function generateLiquidBtcOperationalStrategistMerkleRoot() public {
-
         setSourceChainName(mainnet);
         setAddress(false, mainnet, "boringVault", boringVault);
         setAddress(false, mainnet, "managerAddress", managerAddress);
@@ -67,35 +66,34 @@ contract CreateMultichainLiquidBtcOperationalMerkleRootScript is Script, MerkleT
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
     }
 
-     function _addITBPositionManagerWithdrawals(
-         ManageLeaf[] memory leafs,
-         address itbPositionManager,
-         ERC20[] memory tokensUsed,
-         string memory itbContractName
-     ) internal {
+    function _addITBPositionManagerWithdrawals(
+        ManageLeaf[] memory leafs,
+        address itbPositionManager,
+        ERC20[] memory tokensUsed,
+        string memory itbContractName
+    ) internal {
+        for (uint256 i; i < tokensUsed.length; ++i) {
+            // Withdraw
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                itbPositionManager,
+                false,
+                "withdraw(address,uint256)",
+                new address[](0),
+                string.concat("Withdraw ", tokensUsed[i].symbol(), " from the ", itbContractName, " contract"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
 
-         for (uint256 i; i < tokensUsed.length; ++i) {
-             // Withdraw
-             leafIndex++;
-             leafs[leafIndex] = ManageLeaf(
-                 itbPositionManager,
-                 false,
-                 "withdraw(address,uint256)",
-                 new address[](0),
-                 string.concat("Withdraw ", tokensUsed[i].symbol(), " from the ", itbContractName, " contract"),
-                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-             );
-
-             // WithdrawAll
-             leafIndex++;
-             leafs[leafIndex] = ManageLeaf(
-                 itbPositionManager,
-                 false,
-                 "withdrawAll(address)",
-                 new address[](0),
-                 string.concat("Withdraw all ", tokensUsed[i].symbol(), " from the ", itbContractName, " contract"),
-                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-             );
-         }
-     }
+            // WithdrawAll
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                itbPositionManager,
+                false,
+                "withdrawAll(address)",
+                new address[](0),
+                string.concat("Withdraw all ", tokensUsed[i].symbol(), " from the ", itbContractName, " contract"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+        }
+    }
 }

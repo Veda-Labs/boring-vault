@@ -39,29 +39,29 @@ contract AlgebraV4DecoderAndSanitizer {
         if (pathLength < 60 || pathLength % 40 != 20) {
             revert AlgebraDecoderAndSanitizer__BadPathFormat();
         }
-        
+
         // Extract first tokenIn outside the loop
         address tokenIn;
         assembly {
             tokenIn := shr(96, mload(add(path, 32)))
         }
         addressesFound = abi.encodePacked(addressesFound, tokenIn);
-        
+
         // start at position 20 (after first tokenIn)
         uint256 i = 20;
         while (i + 40 <= pathLength) {
             address deployer;
             address tokenOut;
-        
+
             assembly {
                 deployer := shr(96, mload(add(add(path, 32), i)))
                 tokenOut := shr(96, mload(add(add(path, 32), add(i, 20))))
             }
-        
+
             addressesFound = abi.encodePacked(addressesFound, deployer, tokenOut);
             i += 40; // move to next deployer/tokenOut pair
         }
-        
+
         // Append recipient
         addressesFound = abi.encodePacked(addressesFound, params.recipient);
     }
@@ -116,7 +116,14 @@ contract AlgebraV4DecoderAndSanitizer {
         addressesFound = abi.encodePacked(params.recipient, owner);
     }
 
-    function burn(uint256 /*tokenId*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function burn(
+        uint256 /*tokenId*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         // positionManager.burn(tokenId) will verify that the tokenId has no liquidity, and no tokens owed.
         // Nothing to sanitize or return
         return addressesFound;

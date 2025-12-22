@@ -486,7 +486,9 @@ contract WithdrawQueue is Auth, ReentrancyGuard, IPausable {
         WithdrawAsset storage withdrawAsset,
         WithdrawRequest storage req
     ) internal returns (uint256 assetsToUser) {
-        if (!withdrawAsset.allowWithdraws) revert WithdrawQueue__WithdrawsNotAllowed();
+        if (!withdrawAsset.allowWithdraws) {
+            revert WithdrawQueue__WithdrawsNotAllowed();
+        }
 
         if (block.timestamp < req.maturity) revert WithdrawQueue__WithdrawNotMatured();
         if (req.shares == 0) revert WithdrawQueue__NoSharesToWithdraw();

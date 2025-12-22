@@ -31,7 +31,12 @@ contract RoycoWeirollDecoderAndSanitizer is ERC4626DecoderAndSanitizer {
         uint256, /*_merkleDepositNonce*/
         uint256, /*_amountDepositedOnSource*/
         bytes32[] calldata /*_merkleProof*/
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(_weirollWallet);
     }
 
@@ -72,7 +77,9 @@ contract RoycoWeirollDecoderAndSanitizer is ERC4626DecoderAndSanitizer {
         address fundingVault,
         address frontendFeeRecipient
     ) external view virtual returns (bytes memory addressesFound) {
-        if (ipOfferHashes.length != 1) revert RoycoWeirollDecoderAndSanitizer__TooManyOfferHashes();
+        if (ipOfferHashes.length != 1) {
+            revert RoycoWeirollDecoderAndSanitizer__TooManyOfferHashes();
+        }
 
         (, bytes32 marketHash,,,,) = recipeMarketHub.offerHashToIPOffer(ipOfferHashes[0]);
 
@@ -93,7 +100,10 @@ contract RoycoWeirollDecoderAndSanitizer is ERC4626DecoderAndSanitizer {
         return abi.encodePacked(owner);
     }
 
-    function forfeit(address weirollWallet, bool /*executeWithdraw*/ )
+    function forfeit(
+        address weirollWallet,
+        bool /*executeWithdraw*/
+    )
         external
         view
         virtual
@@ -138,7 +148,12 @@ contract RoycoWeirollDecoderAndSanitizer is ERC4626DecoderAndSanitizer {
     }
 
     // WrappedVault (other functions handled by ERC4626 decoder)
-    function safeDeposit(uint256, /*assets*/ address receiver, uint256 /*minShares*/ )
+    function safeDeposit(
+        uint256,
+        /*assets*/
+        address receiver,
+        uint256 /*minShares*/
+    )
         external
         pure
         virtual

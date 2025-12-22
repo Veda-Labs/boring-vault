@@ -12,7 +12,9 @@ import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
-import {BoringChefDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BoringChefDecoderAndSanitizer.sol";
+import {
+    BoringChefDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/BoringChefDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
@@ -51,7 +53,6 @@ contract BoringChefIntegrationTest is Test, MerkleTreeHelper {
 
         manager =
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
-
 
         // TODO: DELETE MOCK, replace with real BoringVault using BoringChef
         mockBoringChef = address(new MockBoringChef());
@@ -133,7 +134,6 @@ contract BoringChefIntegrationTest is Test, MerkleTreeHelper {
         _addBoringChefClaimLeaf(leafs, mockBoringChef);
         _addBoringChefClaimOnBehalfOfLeaf(leafs, mockBoringChef, address(this));
 
-
         //string memory filePath = "./TestTEST.json";
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
@@ -146,7 +146,6 @@ contract BoringChefIntegrationTest is Test, MerkleTreeHelper {
         manageLeafs[0] = leafs[0]; //claimRewards
         manageLeafs[1] = leafs[1]; //claimRewardsOnBehalfOfUser
 
-
         (bytes32[][] memory manageProofs) = _getProofsUsingTree(manageLeafs, manageTree);
 
         address[] memory targets = new address[](2);
@@ -157,8 +156,7 @@ contract BoringChefIntegrationTest is Test, MerkleTreeHelper {
         rewardIds[0] = 0;
         rewardIds[1] = 1;
         bytes[] memory targetData = new bytes[](2);
-        targetData[0] =
-            abi.encodeWithSignature("claimRewards(uint256[])", rewardIds);
+        targetData[0] = abi.encodeWithSignature("claimRewards(uint256[])", rewardIds);
         targetData[1] =
             abi.encodeWithSignature("claimRewardsOnBehalfOfUser(uint256[],address)", rewardIds, address(this)); // TODO test with real user
 
@@ -196,7 +194,6 @@ contract BoringChefIntegrationTest is Test, MerkleTreeHelper {
         // _addBoringChefDistributeRewardsLeafs(leafs, boringVault, rewardTokens0);
         // _addBoringChefDistributeRewardsLeafs(leafs, boringVault, rewardTokens1);
 
-
         //string memory filePath = "./TestTEST.json";
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
@@ -210,7 +207,6 @@ contract BoringChefIntegrationTest is Test, MerkleTreeHelper {
         manageLeafs[1] = leafs[1]; //approve wS
         manageLeafs[2] = leafs[2]; //distribute Beets and wS
 
-
         (bytes32[][] memory manageProofs) = _getProofsUsingTree(manageLeafs, manageTree);
 
         address[] memory targets = new address[](3);
@@ -219,13 +215,15 @@ contract BoringChefIntegrationTest is Test, MerkleTreeHelper {
         targets[2] = mockBoringChef; //BoringVault inheriting from BoringChef
 
         bytes[] memory targetData = new bytes[](3);
-        targetData[0] =
-            abi.encodeWithSignature("approve(address,uint256)", mockBoringChef, type(uint256).max);
-        targetData[1] =
-            abi.encodeWithSignature("approve(address,uint256)", mockBoringChef, type(uint256).max); // TODO test with real user
-        targetData[2] =
-            abi.encodeWithSignature("distributeRewards(address[],uint256[],uint48[],uint48[])", 
-                rewardTokens, rewardAmounts, new uint48[](2), new uint48[](2));
+        targetData[0] = abi.encodeWithSignature("approve(address,uint256)", mockBoringChef, type(uint256).max);
+        targetData[1] = abi.encodeWithSignature("approve(address,uint256)", mockBoringChef, type(uint256).max); // TODO test with real user
+        targetData[2] = abi.encodeWithSignature(
+            "distributeRewards(address[],uint256[],uint48[],uint48[])",
+            rewardTokens,
+            rewardAmounts,
+            new uint48[](2),
+            new uint48[](2)
+        );
 
         uint256[] memory values = new uint256[](3);
 
@@ -245,8 +243,7 @@ contract BoringChefIntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullBoringChefDecoderAndSanitizer is BoringChefDecoderAndSanitizer {
-}
+contract FullBoringChefDecoderAndSanitizer is BoringChefDecoderAndSanitizer {}
 
 // Temporary Mock Contract for test until real BoringChef is deployed
 contract MockBoringChef {
@@ -255,24 +252,39 @@ contract MockBoringChef {
     address wS = 0x039e2fB66102314Ce7b64Ce5Ce3E5183bc94aD38;
     address mockSafe = address(1);
 
-    mapping (uint256 => DecoderCustomTypes.Reward) public rewards;
+    mapping(uint256 => DecoderCustomTypes.Reward) public rewards;
 
     constructor() {
         rewards[0] = DecoderCustomTypes.Reward(1, 2, beets, 10);
         rewards[1] = DecoderCustomTypes.Reward(1, 3, wS, 100);
     }
 
-    function claimRewards(uint256[] calldata /*rewardIds*/) external {
+    function claimRewards(
+        uint256[] calldata /*rewardIds*/
+    )
+        external
+    {
         ERC20(beets).transfer(msg.sender, 1e7);
         ERC20(wS).transfer(msg.sender, 10_000e18);
     }
 
-    function claimRewardsOnBehalfOfUser(uint256[] calldata /*rewardIds*/, address user) external {
+    function claimRewardsOnBehalfOfUser(
+        uint256[] calldata,
+        /*rewardIds*/
+        address user
+    )
+        external
+    {
         ERC20(beets).transfer(user, 2e7);
         ERC20(wS).transfer(user, 20_000e18);
     }
 
-    function distributeRewards(address[] calldata tokens, uint256[] calldata amounts, uint48[] calldata startEpochs, uint48[] calldata endEpochs) external {
+    function distributeRewards(
+        address[] calldata tokens,
+        uint256[] calldata amounts,
+        uint48[] calldata startEpochs,
+        uint48[] calldata endEpochs
+    ) external {
         ERC20(beets).safeTransferFrom(msg.sender, mockSafe, amounts[0]);
         ERC20(wS).safeTransferFrom(msg.sender, mockSafe, amounts[1]);
     }

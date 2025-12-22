@@ -11,13 +11,17 @@ import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protoco
 import {OFTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OFTDecoderAndSanitizer.sol";
 import {OneInchDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OneInchDecoderAndSanitizer.sol";
 import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol";
-import {EthenaWithdrawDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/EthenaWithdrawDecoderAndSanitizer.sol";
-import {NativeWrapperDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol";
+import {
+    EthenaWithdrawDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/EthenaWithdrawDecoderAndSanitizer.sol";
+import {
+    NativeWrapperDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol";
 import {SkyMoneyDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SkyMoneyDecoderAndSanitizer.sol";
 import {CCTPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCTPDecoderAndSanitizer.sol";
 import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
 
-contract BoostedUSDCDecoderAndSanitizer is 
+contract BoostedUSDCDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
     AaveV3DecoderAndSanitizer,
     ERC4626DecoderAndSanitizer,
@@ -30,5 +34,5 @@ contract BoostedUSDCDecoderAndSanitizer is
     CCTPDecoderAndSanitizer,
     TellerDecoderAndSanitizer
 {
-   constructor(address _odosRouter) OdosDecoderAndSanitizer(_odosRouter){} 
+    constructor(address _odosRouter) OdosDecoderAndSanitizer(_odosRouter) {}
 }

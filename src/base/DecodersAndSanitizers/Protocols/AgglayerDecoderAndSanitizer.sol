@@ -51,7 +51,12 @@ contract AgglayerDecoderAndSanitizer {
         address destinationAddress,
         bool, /*forceUpdateGlobalExitRoot*/
         bytes calldata /*metadata*/
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(address(uint160(destinationNetwork)), destinationAddress);
     }
 
@@ -61,7 +66,12 @@ contract AgglayerDecoderAndSanitizer {
         uint256, /*amountWETH*/
         bool, /*forceUpdateGlobalExitRoot*/
         bytes calldata /*metadata*/
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(address(uint160(destinationNetwork)), destinationAddress);
     }
 
@@ -79,10 +89,7 @@ contract AgglayerDecoderAndSanitizer {
         bytes calldata /*metadata*/
     ) external pure virtual returns (bytes memory addressesFound) {
         addressesFound = abi.encodePacked(
-            address(uint160(originNetwork)),
-            originAddress,
-            address(uint160(destinationNetwork)),
-            destinationAddress
+            address(uint160(originNetwork)), originAddress, address(uint160(destinationNetwork)), destinationAddress
         );
     }
 }

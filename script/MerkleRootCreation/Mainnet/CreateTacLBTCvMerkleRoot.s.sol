@@ -20,10 +20,10 @@ contract CreateTacLBTCvMerkleRoot is Script, MerkleTreeHelper {
     //standard
     address public boringVault = 0xD86fC1CaA0a5B82cC16B16B70DFC59F6f034C348;
     address public rawDataDecoderAndSanitizer = 0xc52220989809D748a958798ca8FEf7CaF88022b4;
-    address public managerAddress = 0x1F95Ae26c62D24c3a5E118922Fe2ddc3B433331D; 
+    address public managerAddress = 0x1F95Ae26c62D24c3a5E118922Fe2ddc3B433331D;
     address public accountantAddress = 0xB4703f17e3212E9959cC560e0592837292b14ECE;
 
-    address public oftDecoderAndSanitizer = 0x678Ff354a12a6fC0b9D357647879F32df45f5177;     
+    address public oftDecoderAndSanitizer = 0x678Ff354a12a6fC0b9D357647879F32df45f5177;
 
     function setUp() external {}
 
@@ -68,8 +68,20 @@ contract CreateTacLBTCvMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== LayerZero ==========================
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oftDecoderAndSanitizer);
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "LBTC"), getAddress(sourceChain, "LBTCOFTAdapterTAC"), layerZeroTACEndpointId, getBytes32(sourceChain, "boringVault"));
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "cbBTC"), getAddress(sourceChain, "CBBTCOFTAdapterTAC"), layerZeroTACEndpointId, getBytes32(sourceChain, "boringVault")); 
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "LBTC"),
+            getAddress(sourceChain, "LBTCOFTAdapterTAC"),
+            layerZeroTACEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "cbBTC"),
+            getAddress(sourceChain, "CBBTCOFTAdapterTAC"),
+            layerZeroTACEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
 
         // ========================== BoringVaults ==========================
         //setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -87,7 +99,5 @@ contract CreateTacLBTCvMerkleRoot is Script, MerkleTreeHelper {
         string memory filePath = "./leafs/Mainnet/TacLBTCvStrategistLeafs.json";
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
-
     }
-
 }

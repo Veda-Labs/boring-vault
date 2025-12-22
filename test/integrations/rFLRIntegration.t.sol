@@ -15,11 +15,10 @@ import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecode
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
-import {rFLRDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/rFLRDecoderAndSanitizer.sol"; 
+import {rFLRDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/rFLRDecoderAndSanitizer.sol";
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
-contract FullrFLRDecoderAndSanitizer is rFLRDecoderAndSanitizer{}
-
+contract FullrFLRDecoderAndSanitizer is rFLRDecoderAndSanitizer {}
 
 contract rFLRIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -128,7 +127,6 @@ contract rFLRIntegrationTest is Test, MerkleTreeHelper {
         manageLeafs[1] = leafs[1]; //withdraw
         manageLeafs[2] = leafs[2]; //withdrawAll
 
-
         (bytes32[][] memory manageProofs) = _getProofsUsingTree(manageLeafs, manageTree);
 
         address[] memory targets = new address[](3);
@@ -139,12 +137,9 @@ contract rFLRIntegrationTest is Test, MerkleTreeHelper {
         uint256[] memory projectIds = new uint256[](1);
         projectIds[0] = 2;
         bytes[] memory targetData = new bytes[](3);
-        targetData[0] =
-            abi.encodeWithSignature("claimRewards(uint256[],uint256)", projectIds, 11);
-        targetData[1] =
-            abi.encodeWithSignature("withdraw(uint128,bool)", 0, true); // test with 0 value since we cannot deal
-        targetData[2] =
-            abi.encodeWithSignature("withdrawAll(bool)", false);
+        targetData[0] = abi.encodeWithSignature("claimRewards(uint256[],uint256)", projectIds, 11);
+        targetData[1] = abi.encodeWithSignature("withdraw(uint128,bool)", 0, true); // test with 0 value since we cannot deal
+        targetData[2] = abi.encodeWithSignature("withdrawAll(bool)", false);
 
         uint256[] memory values = new uint256[](3);
 
@@ -154,7 +149,6 @@ contract rFLRIntegrationTest is Test, MerkleTreeHelper {
         }
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
-
     }
 
     // ========================================= HELPER FUNCTIONS =========================================
@@ -163,5 +157,4 @@ contract rFLRIntegrationTest is Test, MerkleTreeHelper {
         forkId = vm.createFork(vm.envString(rpcKey), blockNumber);
         vm.selectFork(forkId);
     }
-
 }

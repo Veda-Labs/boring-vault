@@ -41,7 +41,9 @@ contract CreateLiquidUSDMerkleRoot is Script, MerkleTreeHelper {
 
         ERC20[] memory borrowTokens = new ERC20[](1);
         borrowTokens[0] = getERC20(sourceChain, "USDT0");
-        _addFluidDexLeafs(leafs, getAddress(sourceChain, "Vaultt1_Wstusr_Usdt0"), 1000, supplyTokens, borrowTokens, false);
+        _addFluidDexLeafs(
+            leafs, getAddress(sourceChain, "Vaultt1_Wstusr_Usdt0"), 1000, supplyTokens, borrowTokens, false
+        );
 
         // ========================== Aave V3 ==========================
         ERC20[] memory supplyAssets = new ERC20[](3);
@@ -54,20 +56,40 @@ contract CreateLiquidUSDMerkleRoot is Script, MerkleTreeHelper {
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== LayerZero ==========================
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDT0"), getAddress(sourceChain, "USDT0_OFT"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "SUSDE"), getAddress(sourceChain, "SUSDE"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDE"), getAddress(sourceChain, "USDE"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "wstUSR"), getAddress(sourceChain, "wstUSR"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "USDT0"),
+            getAddress(sourceChain, "USDT0_OFT"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "SUSDE"),
+            getAddress(sourceChain, "SUSDE"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "USDE"),
+            getAddress(sourceChain, "USDE"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "wstUSR"),
+            getAddress(sourceChain, "wstUSR"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
 
         // ========================== Native ==========================
         _addNativeLeafs(leafs, getAddress(sourceChain, "wXPL"));
 
         // ========================== Merkl ==========================
-        _addMerklLeafs(
-            leafs,
-            getAddress(sourceChain, "merklDistributor"),
-            getAddress(sourceChain, "dev1Address")
-        );
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"));
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
@@ -78,5 +100,4 @@ contract CreateLiquidUSDMerkleRoot is Script, MerkleTreeHelper {
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
     }
-
 }

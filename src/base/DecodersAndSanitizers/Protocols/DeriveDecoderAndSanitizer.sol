@@ -27,7 +27,10 @@ contract DeriveDecoderAndSanitizer {
         addressesFound = abi.encodePacked(receiver_, connector_, user, connectorPlugOnDeriveChain);
     }
 
-    function retry(address connector_, bytes32 /*messageId_*/ )
+    function retry(
+        address connector_,
+        bytes32 /*messageId_*/
+    )
         external
         pure
         virtual
@@ -44,7 +47,11 @@ contract DeriveDecoderAndSanitizer {
 
     //============================== stDRV ===============================
 
-    function redeem(uint256, /*stDeriveAmount*/ uint256 /*duration*/ )
+    function redeem(
+        uint256,
+        /*stDeriveAmount*/
+        uint256 /*duration*/
+    )
         external
         pure
         virtual
@@ -53,11 +60,25 @@ contract DeriveDecoderAndSanitizer {
         return addressesFound;
     }
 
-    function finalizeRedeem(uint256 /*redeemIndex*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function finalizeRedeem(
+        uint256 /*redeemIndex*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 
-    function cancelRedeem(uint256 /*redeemIndex*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function cancelRedeem(
+        uint256 /*redeemIndex*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 }

@@ -306,7 +306,7 @@ contract CreateKarakVaultMerkleRootScript is Script, MerkleTreeHelper {
         _addEtherFiLeafs(leafs);
         _addLidoLeafs(leafs);
         _addSwellStakingLeafs(leafs);
-        _addRsWETHUnstakingLeafs(leafs); 
+        _addRsWETHUnstakingLeafs(leafs);
         _addMantleStakingLeafs(leafs);
         _addFraxLeafs(leafs);
 

@@ -20,9 +20,8 @@ contract CreateTacTestMerkleRoot is Script, MerkleTreeHelper {
     //standard
     address public boringVault = 0x00007EDa736C6CdF973BDefF2191bbCfE6175db7;
     address public rawDataDecoderAndSanitizer = address(1);
-    address public managerAddress = 0x999999e868Fb298c6EDbf0060f7cE077f01ad782; 
+    address public managerAddress = 0x999999e868Fb298c6EDbf0060f7cE077f01ad782;
     address public accountantAddress = 0x5555559e499d2107aBb035a5feA1235b7f942E6D;
-    
 
     function setUp() external {}
 
@@ -43,15 +42,50 @@ contract CreateTacTestMerkleRoot is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](64);
 
         // ========================== LayerZero ==========================
-        _addLayerZeroBridgeLeafs(leafs, getERC20(sourceChain, "LBTC"), getAddress(sourceChain, ""), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault")); 
-        _addLayerZeroBridgeLeafs(leafs, getERC20(sourceChain, "cbBTC"), getAddress(sourceChain, ""), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault")); 
-        _addLayerZeroBridgeLeafs(leafs, getERC20(sourceChain, "WETH"), getAddress(sourceChain, ""), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
-        _addLayerZeroBridgeLeafs(leafs, getERC20(sourceChain, "WSTETH"), getAddress(sourceChain, ""), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
-        _addLayerZeroBridgeLeafs(leafs, getERC20(sourceChain, "USDT"), getAddress(sourceChain, ""), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
+        _addLayerZeroBridgeLeafs(
+            leafs,
+            getERC20(sourceChain, "LBTC"),
+            getAddress(sourceChain, ""),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+        _addLayerZeroBridgeLeafs(
+            leafs,
+            getERC20(sourceChain, "cbBTC"),
+            getAddress(sourceChain, ""),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+        _addLayerZeroBridgeLeafs(
+            leafs,
+            getERC20(sourceChain, "WETH"),
+            getAddress(sourceChain, ""),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+        _addLayerZeroBridgeLeafs(
+            leafs,
+            getERC20(sourceChain, "WSTETH"),
+            getAddress(sourceChain, ""),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+        _addLayerZeroBridgeLeafs(
+            leafs,
+            getERC20(sourceChain, "USDT"),
+            getAddress(sourceChain, ""),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
 
         // ========================== Curve ==========================
-        _addCurveLeafs(leafs, getAddress(sourceChain, "cbBTC_LBTC_Curve_Pool"), 2, getAddress(sourceChain, "cbBTC_LBTC_Curve_Gauge")); 
-        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "cbBTC_LBTC_Curve_Pool")); 
+        _addCurveLeafs(
+            leafs,
+            getAddress(sourceChain, "cbBTC_LBTC_Curve_Pool"),
+            2,
+            getAddress(sourceChain, "cbBTC_LBTC_Curve_Gauge")
+        );
+        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "cbBTC_LBTC_Curve_Pool"));
 
         // ========================== Euler ==========================
         ERC4626[] memory depositVaults = new ERC4626[](2);
@@ -74,7 +108,5 @@ contract CreateTacTestMerkleRoot is Script, MerkleTreeHelper {
         string memory filePath = "./leafs/TAC/TurtleTacTestStrategistLeafs.json";
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
-
     }
-
 }

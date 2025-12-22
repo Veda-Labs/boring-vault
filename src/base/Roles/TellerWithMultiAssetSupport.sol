@@ -442,7 +442,13 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         }
         bytes32 depositHash = keccak256(
             abi.encode(
-                receiver, depositAsset, depositAmount, shareAmount, depositTimestamp, shareLockUpPeriodAtTimeOfDeposit, referralAddress
+                receiver,
+                depositAsset,
+                depositAmount,
+                shareAmount,
+                depositTimestamp,
+                shareLockUpPeriodAtTimeOfDeposit,
+                referralAddress
             )
         );
         if (publicDepositHistory[nonce] != depositHash) revert TellerWithMultiAssetSupport__BadDepositHash();
@@ -507,14 +513,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         bytes32 r,
         bytes32 s,
         address referralAddress
-    )
-        external
-        virtual
-        requiresAuth
-        nonReentrant
-        revertOnNativeDeposit(address(depositAsset))
-        returns (uint256 shares)
-    {
+    ) external virtual requiresAuth nonReentrant revertOnNativeDeposit(address(depositAsset)) returns (uint256 shares) {
         Asset memory asset = _beforeDeposit(depositAsset);
 
         _handlePermit(depositAsset, depositAmount, deadline, v, r, s);
@@ -601,7 +600,11 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     /**
      * @notice Implements a common ERC20 withdraw from BoringVault.
      */
-    function _withdraw(ERC20 withdrawAsset, uint256 shareAmount, uint256 minimumAssets, address to) internal virtual returns (uint256 assetsOut) {
+    function _withdraw(ERC20 withdrawAsset, uint256 shareAmount, uint256 minimumAssets, address to)
+        internal
+        virtual
+        returns (uint256 assetsOut)
+    {
         if (isPaused) revert TellerWithMultiAssetSupport__Paused();
         Asset memory asset = assetData[withdrawAsset];
         if (!asset.allowWithdraws) revert TellerWithMultiAssetSupport__AssetNotSupported();
@@ -639,10 +642,21 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         if (currentShareLockPeriod > 0) {
             beforeTransferData[user].shareUnlockTime = block.timestamp + currentShareLockPeriod;
             publicDepositHistory[nonce] = keccak256(
-                abi.encode(user, depositAsset, depositAmount, shares, block.timestamp, currentShareLockPeriod, referralAddress)
+                abi.encode(
+                    user, depositAsset, depositAmount, shares, block.timestamp, currentShareLockPeriod, referralAddress
+                )
             );
         }
-        emit Deposit(nonce, user, address(depositAsset), depositAmount, shares, block.timestamp, currentShareLockPeriod, referralAddress);
+        emit Deposit(
+            nonce,
+            user,
+            address(depositAsset),
+            depositAmount,
+            shares,
+            block.timestamp,
+            currentShareLockPeriod,
+            referralAddress
+        );
     }
 
     /**

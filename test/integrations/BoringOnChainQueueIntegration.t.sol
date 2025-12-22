@@ -230,8 +230,8 @@ contract BoringOnChainQueueIntegration is Test, MerkleTreeHelper {
             uint16(100),
             uint24(2592000)
         );
-        
-        //uint96 nonce = vm.getNonce(address(boringVault));         
+
+        //uint96 nonce = vm.getNonce(address(boringVault));
 
         DecoderCustomTypes.OnChainWithdraw memory request = DecoderCustomTypes.OnChainWithdraw(
             1,
@@ -242,11 +242,10 @@ contract BoringOnChainQueueIntegration is Test, MerkleTreeHelper {
             uint40(1736342615),
             uint24(43200),
             uint24(2592000)
-        ); 
+        );
 
         targetData[4] = abi.encodeWithSignature(
-            "cancelOnChainWithdraw((uint96,address,address,uint128,uint128,uint40,uint24,uint24))",
-            request
+            "cancelOnChainWithdraw((uint96,address,address,uint128,uint128,uint40,uint24,uint24))", request
         );
 
         address[] memory decodersAndSanitizers = new address[](5);
@@ -260,8 +259,8 @@ contract BoringOnChainQueueIntegration is Test, MerkleTreeHelper {
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
-        uint256 eBTCSharesAmount = getERC20(sourceChain, "eBTC").balanceOf(address(boringVault)); 
-        assertEq(eBTCSharesAmount, 9970000000); 
+        uint256 eBTCSharesAmount = getERC20(sourceChain, "eBTC").balanceOf(address(boringVault));
+        assertEq(eBTCSharesAmount, 9970000000);
     }
 
     function testBoringOnChainQueueReplace() external {
@@ -313,8 +312,8 @@ contract BoringOnChainQueueIntegration is Test, MerkleTreeHelper {
             uint16(100),
             uint24(2592000)
         );
-        
-        //uint96 nonce = vm.getNonce(address(boringVault));         
+
+        //uint96 nonce = vm.getNonce(address(boringVault));
 
         DecoderCustomTypes.OnChainWithdraw memory request = DecoderCustomTypes.OnChainWithdraw(
             1,
@@ -325,7 +324,7 @@ contract BoringOnChainQueueIntegration is Test, MerkleTreeHelper {
             uint40(1736342615),
             uint24(43200),
             uint24(2592000)
-        ); 
+        );
 
         targetData[4] = abi.encodeWithSignature(
             "replaceOnChainWithdraw((uint96,address,address,uint128,uint128,uint40,uint24,uint24),uint16,uint24)",
@@ -345,8 +344,8 @@ contract BoringOnChainQueueIntegration is Test, MerkleTreeHelper {
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
-        uint256 eBTCSharesAmount = getERC20(sourceChain, "eBTC").balanceOf(address(boringVault)); 
-        assertEq(eBTCSharesAmount, 0); 
+        uint256 eBTCSharesAmount = getERC20(sourceChain, "eBTC").balanceOf(address(boringVault));
+        assertEq(eBTCSharesAmount, 0);
     }
 
     // ========================================= HELPER FUNCTIONS =========================================

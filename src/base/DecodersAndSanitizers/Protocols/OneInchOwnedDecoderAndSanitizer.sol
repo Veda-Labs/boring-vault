@@ -41,7 +41,9 @@ contract OneInchOwnedDecoderAndSanitizer is Owned, BaseDecoderAndSanitizer {
         bytes calldata
     ) external view returns (bytes memory addressesFound) {
         if (permit.length > 0) revert OneInchDecoderAndSanitizer__PermitNotSupported();
-        if (executor != oneInchExecutor || desc.srcReceiver != oneInchExecutor) revert OneInchDecoderAndSanitizer__InvalidExecutor();
+        if (executor != oneInchExecutor || desc.srcReceiver != oneInchExecutor) {
+            revert OneInchDecoderAndSanitizer__InvalidExecutor();
+        }
         addressesFound = abi.encodePacked(desc.srcToken, desc.dstToken, desc.dstReceiver);
     }
 

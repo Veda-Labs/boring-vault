@@ -44,9 +44,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](1024);
 
         // ========================== Rewards ==========================
-        _addMerklLeafs(
-            leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address")
-        );
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"));
         _addrEULWrappingLeafs(leafs);
 
         // ========================== Native Wrapping ==========================
@@ -366,15 +364,15 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Linea Bridge ==========================
         {
-            ERC20[] memory lineaTokens = new ERC20[](1); 
-            lineaTokens[0] = getERC20(sourceChain, "WSTETH"); 
+            ERC20[] memory lineaTokens = new ERC20[](1);
+            lineaTokens[0] = getERC20(sourceChain, "WSTETH");
 
-            _addLineaNativeBridgeLeafs(leafs, "linea", lineaTokens); 
+            _addLineaNativeBridgeLeafs(leafs, "linea", lineaTokens);
         }
 
         // ========================== King Claiming  ==========================
         {
-             setAddress(true, mainnet, "rawDataDecoderAndSanitizer", kingClaimingDecoderAndSanitizer);
+            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", kingClaimingDecoderAndSanitizer);
             _addKingRewardsClaimingLeafs(leafs, new address[](0), getAddress(sourceChain, "boringVault"));
         }
 
@@ -414,7 +412,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
     function _addLeafsForDrone(ManageLeaf[] memory leafs) internal {
         setAddress(true, mainnet, "boringVault", drone);
         uint256 droneStartIndex = leafIndex + 1;
-        
+
         // ========================== AAVE Drone Leaves ==========================
         ERC20[] memory supplyAssets = new ERC20[](1);
         supplyAssets[0] = getERC20(sourceChain, "WSTETH");
@@ -443,23 +441,17 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         _addLeafsFor1InchGeneralSwapping(leafs, swapAssets, kind);
         _addOdosSwapLeafs(leafs, swapAssets, kind);
         // ========================== merkl claiming leaves ==========================
-        _addMerklLeafs(
-            leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address")
-        );
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"));
         // ========================== fluid leaves ==========================
         ERC20[] memory supplyAssets2 = new ERC20[](1);
         supplyAssets2[0] = getERC20(sourceChain, "wstUSR");
         ERC20[] memory borrowAssets2 = new ERC20[](1);
         borrowAssets2[0] = getERC20(sourceChain, "USDC");
-        _addFluidDexLeafs(
-            leafs, getAddress(sourceChain, "wstUSR-USDC"), 1000, supplyAssets2, borrowAssets2, false
-        );
+        _addFluidDexLeafs(leafs, getAddress(sourceChain, "wstUSR-USDC"), 1000, supplyAssets2, borrowAssets2, false);
         ERC20[] memory borrowAssets3 = new ERC20[](1);
         borrowAssets3[0] = getERC20(sourceChain, "USDT");
-        _addFluidDexLeafs(
-            leafs, getAddress(sourceChain, "wstUSR-USDT"), 1000, supplyAssets2, borrowAssets3, false
-        );
-        
+        _addFluidDexLeafs(leafs, getAddress(sourceChain, "wstUSR-USDT"), 1000, supplyAssets2, borrowAssets3, false);
+
         _createDroneLeafs(leafs, drone, droneStartIndex, leafIndex + 1);
         setAddress(true, mainnet, "boringVault", boringVault);
     }

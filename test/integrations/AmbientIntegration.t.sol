@@ -47,9 +47,7 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
         manager =
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
-        rawDataDecoderAndSanitizer = address(
-            new FullAmbientDecoderAndSanitizer()
-        );
+        rawDataDecoderAndSanitizer = address(new FullAmbientDecoderAndSanitizer());
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -103,9 +101,9 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
         rolesAuthority.setUserRole(address(this), ADMIN_ROLE, true);
         rolesAuthority.setUserRole(address(manager), MANAGER_ROLE, true);
         rolesAuthority.setUserRole(address(boringVault), BORING_VAULT_ROLE, true);
-        rolesAuthority.setUserRole(getAddress(sourceChain, "vault"), BALANCER_VAULT_ROLE, true); 
+        rolesAuthority.setUserRole(getAddress(sourceChain, "vault"), BALANCER_VAULT_ROLE, true);
     }
-    
+
     function _setUpHarvestBlock() internal {
         setSourceChainName("swell");
         // Setup forked environment.
@@ -119,9 +117,7 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
         manager =
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
-        rawDataDecoderAndSanitizer = address(
-            new FullAmbientDecoderAndSanitizer()
-        );
+        rawDataDecoderAndSanitizer = address(new FullAmbientDecoderAndSanitizer());
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -175,7 +171,7 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
         rolesAuthority.setUserRole(address(this), ADMIN_ROLE, true);
         rolesAuthority.setUserRole(address(manager), MANAGER_ROLE, true);
         rolesAuthority.setUserRole(address(boringVault), BORING_VAULT_ROLE, true);
-        rolesAuthority.setUserRole(getAddress(sourceChain, "vault"), BALANCER_VAULT_ROLE, true); 
+        rolesAuthority.setUserRole(getAddress(sourceChain, "vault"), BALANCER_VAULT_ROLE, true);
     }
 
     function _setUpKnockoutBlock() internal {
@@ -191,9 +187,7 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
         manager =
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
-        rawDataDecoderAndSanitizer = address(
-            new FullAmbientDecoderAndSanitizer()
-        );
+        rawDataDecoderAndSanitizer = address(new FullAmbientDecoderAndSanitizer());
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -247,18 +241,18 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
         rolesAuthority.setUserRole(address(this), ADMIN_ROLE, true);
         rolesAuthority.setUserRole(address(manager), MANAGER_ROLE, true);
         rolesAuthority.setUserRole(address(boringVault), BORING_VAULT_ROLE, true);
-        rolesAuthority.setUserRole(getAddress(sourceChain, "vault"), BALANCER_VAULT_ROLE, true); 
+        rolesAuthority.setUserRole(getAddress(sourceChain, "vault"), BALANCER_VAULT_ROLE, true);
     }
 
     function testAmbientLiquidityWarmPath__Concentrated() external {
-        _setUp(); 
+        _setUp();
         deal(address(boringVault), 1_000e18);
         deal(getAddress(sourceChain, "USDE"), address(boringVault), 1_000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
-        
-        address baseToken= getAddress(sourceChain, "ETH");  
-        address quoteToken = getAddress(sourceChain, "USDE");  
+
+        address baseToken = getAddress(sourceChain, "ETH");
+        address quoteToken = getAddress(sourceChain, "USDE");
 
         _addAmbientLPLeafs(leafs, baseToken, quoteToken);
 
@@ -270,7 +264,7 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
 
         ManageLeaf[] memory manageLeafs = new ManageLeaf[](2);
         manageLeafs[0] = leafs[0]; //approve USDE
-        manageLeafs[1] = leafs[1]; //mint USDE/ETH 
+        manageLeafs[1] = leafs[1]; //mint USDE/ETH
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 
@@ -287,13 +281,13 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
         //(uint8 code, address base, address quote, uint256 poolIdx,
         // int24 bidTick, int24 askTick, uint128 liq,
         // uint128 limitLower, uint128 limitHigher,
-        // uint8 reserveFlags, address lpConduit) = 
-        
-        //This is what is encoded 
+        // uint8 reserveFlags, address lpConduit) =
+
+        //This is what is encoded
         //bytes memory mintParams = abi.encode(
         //    uint8(12),
         //    address(0), //ETH
-        //    getAddress(sourceChain, "USDE"), 
+        //    getAddress(sourceChain, "USDE"),
         //    uint256(420),
         //    int24(-12412),
         //    int24(-10408),
@@ -302,28 +296,26 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
         //    uint128(0.255e18),
         //    uint8(0),
         //    address(0) //lpConduit
-        //);  
-        
-        bytes memory mintParams = hex"000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000005d3a1ff2b6bab83b63cd9ad0787074081a52ef3400000000000000000000000000000000000000000000000000000000000001a4fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffecf84fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed7580000000000000000000000000000000000000000000000001bc16d674ec80000000000000000000000000000000000000000000000000000056f8f4d80ef0000000000000000000000000000000000000000000000000000057d52561522000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"; 
+        //);
 
-        targetData[1] = abi.encodeWithSignature(
-            "userCmd(uint16,bytes)", uint16(128), mintParams
-        );
+        bytes memory mintParams =
+            hex"000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000005d3a1ff2b6bab83b63cd9ad0787074081a52ef3400000000000000000000000000000000000000000000000000000000000001a4fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffecf84fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed7580000000000000000000000000000000000000000000000001bc16d674ec80000000000000000000000000000000000000000000000000000056f8f4d80ef0000000000000000000000000000000000000000000000000000057d52561522000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+
+        targetData[1] = abi.encodeWithSignature("userCmd(uint16,bytes)", uint16(128), mintParams);
 
         address[] memory decodersAndSanitizers = new address[](2);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
 
-        uint256[] memory values = new uint256[](2); 
-        values[0] = 0; 
-        values[1] = 0.1e18;  //verify that we are refunded excess ETH (use -vvvv to check the call data) 
+        uint256[] memory values = new uint256[](2);
+        values[0] = 0;
+        values[1] = 0.1e18; //verify that we are refunded excess ETH (use -vvvv to check the call data)
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
-
         // Due to the JIT liquidity protection enabled on Ambient, we must skip a few blocks before removing liquidity
-        skip(100); 
-            
+        skip(100);
+
         manageLeafs = new ManageLeaf[](1);
         manageLeafs[0] = leafs[2]; //remove liq ETH/USDE
 
@@ -332,18 +324,16 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
         targets = new address[](1);
         targets[0] = getAddress(sourceChain, "crocSwapDex");
 
-        
-        bytes memory burnParams = hex"000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000000000000005d3a1ff2b6bab83b63cd9ad0787074081a52ef3400000000000000000000000000000000000000000000000000000000000001a4fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffecf84fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed7580000000000000000000000000000000000000000000000000c198a12647360000000000000000000000000000000000000000000000000000572a5852c0200000000000000000000000000000000000000000000000000000580a9d8c479000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+        bytes memory burnParams =
+            hex"000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000000000000005d3a1ff2b6bab83b63cd9ad0787074081a52ef3400000000000000000000000000000000000000000000000000000000000001a4fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffecf84fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed7580000000000000000000000000000000000000000000000000c198a12647360000000000000000000000000000000000000000000000000000572a5852c0200000000000000000000000000000000000000000000000000000580a9d8c479000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
 
         targetData = new bytes[](1);
-        targetData[0] = abi.encodeWithSignature(
-            "userCmd(uint16,bytes)", uint16(128), burnParams
-        );
+        targetData[0] = abi.encodeWithSignature("userCmd(uint16,bytes)", uint16(128), burnParams);
 
         decodersAndSanitizers = new address[](1);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
 
-        values = new uint256[](1); 
+        values = new uint256[](1);
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
@@ -351,14 +341,14 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testAmbientLiquidityWarmPath__Ambient() external {
-        _setUp(); 
+        _setUp();
         deal(address(boringVault), 1_000e18);
         deal(getAddress(sourceChain, "USDE"), address(boringVault), 1_000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
-        
-        address baseToken= getAddress(sourceChain, "ETH");  
-        address quoteToken = getAddress(sourceChain, "USDE");  
+
+        address baseToken = getAddress(sourceChain, "ETH");
+        address quoteToken = getAddress(sourceChain, "USDE");
 
         _addAmbientLPLeafs(leafs, baseToken, quoteToken);
 
@@ -370,7 +360,7 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
 
         ManageLeaf[] memory manageLeafs = new ManageLeaf[](2);
         manageLeafs[0] = leafs[0]; //approve USDE
-        manageLeafs[1] = leafs[1]; //mint USDE/ETH 
+        manageLeafs[1] = leafs[1]; //mint USDE/ETH
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 
@@ -387,13 +377,13 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
         //(uint8 code, address base, address quote, uint256 poolIdx,
         // int24 bidTick, int24 askTick, uint128 liq,
         // uint128 limitLower, uint128 limitHigher,
-        // uint8 reserveFlags, address lpConduit) = 
-        
-        //This is what is encoded 
+        // uint8 reserveFlags, address lpConduit) =
+
+        //This is what is encoded
         //bytes memory mintParams = abi.encode(
         //    uint8(12),
         //    address(0), //ETH
-        //    getAddress(sourceChain, "USDE"), 
+        //    getAddress(sourceChain, "USDE"),
         //    uint256(420),
         //    int24(-12412),
         //    int24(-10408),
@@ -402,28 +392,26 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
         //    uint128(0.255e18),
         //    uint8(0),
         //    address(0) //lpConduit
-        //);  
-        
-        bytes memory mintParams = hex"000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005d3a1ff2b6bab83b63cd9ad0787074081a52ef3400000000000000000000000000000000000000000000000000000000000001a4000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001bc16d674ec80000000000000000000000000000000000000000000000000000057556196d56000000000000000000000000000000000000000000000000000005836158b016000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"; 
+        //);
 
-        targetData[1] = abi.encodeWithSignature(
-            "userCmd(uint16,bytes)", uint16(128), mintParams
-        );
+        bytes memory mintParams =
+            hex"000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005d3a1ff2b6bab83b63cd9ad0787074081a52ef3400000000000000000000000000000000000000000000000000000000000001a4000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001bc16d674ec80000000000000000000000000000000000000000000000000000057556196d56000000000000000000000000000000000000000000000000000005836158b016000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+
+        targetData[1] = abi.encodeWithSignature("userCmd(uint16,bytes)", uint16(128), mintParams);
 
         address[] memory decodersAndSanitizers = new address[](2);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
 
-        uint256[] memory values = new uint256[](2); 
-        values[0] = 0; 
-        values[1] = 0.1e18;  //verify that we are refunded excess ETH (use -vvvv to check the call data) 
+        uint256[] memory values = new uint256[](2);
+        values[0] = 0;
+        values[1] = 0.1e18; //verify that we are refunded excess ETH (use -vvvv to check the call data)
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
-
         // Due to the JIT liquidity protection enabled on Ambient, we must skip a few blocks before removing liquidity
-        skip(100); 
-            
+        skip(100);
+
         manageLeafs = new ManageLeaf[](1);
         manageLeafs[0] = leafs[2]; //remove liq ETH/USDE
 
@@ -432,18 +420,16 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
         targets = new address[](1);
         targets[0] = getAddress(sourceChain, "crocSwapDex");
 
-        
-        bytes memory burnParams = hex"000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000000000000000000000000000005d3a1ff2b6bab83b63cd9ad0787074081a52ef3400000000000000000000000000000000000000000000000000000000000001a40000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffff00000000000000000000000000000000000000000000000005746c0da3ba0000000000000000000000000000000000000000000000000000058274f2b769000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+        bytes memory burnParams =
+            hex"000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000000000000000000000000000005d3a1ff2b6bab83b63cd9ad0787074081a52ef3400000000000000000000000000000000000000000000000000000000000001a40000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffff00000000000000000000000000000000000000000000000005746c0da3ba0000000000000000000000000000000000000000000000000000058274f2b769000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
 
         targetData = new bytes[](1);
-        targetData[0] = abi.encodeWithSignature(
-            "userCmd(uint16,bytes)", uint16(128), burnParams
-        );
+        targetData[0] = abi.encodeWithSignature("userCmd(uint16,bytes)", uint16(128), burnParams);
 
         decodersAndSanitizers = new address[](1);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
 
-        values = new uint256[](1); 
+        values = new uint256[](1);
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
@@ -451,15 +437,15 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testAmbientLiquidityWarmPath__ConcentratedHarvest() external {
-        _setUpHarvestBlock(); 
+        _setUpHarvestBlock();
 
         deal(address(boringVault), 1_000e18);
         deal(getAddress(sourceChain, "USDE"), address(boringVault), 1_000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
-        
-        address baseToken= getAddress(sourceChain, "ETH");  
-        address quoteToken = getAddress(sourceChain, "USDE");  
+
+        address baseToken = getAddress(sourceChain, "ETH");
+        address quoteToken = getAddress(sourceChain, "USDE");
 
         _addAmbientLPLeafs(leafs, baseToken, quoteToken);
 
@@ -471,7 +457,7 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
 
         ManageLeaf[] memory manageLeafs = new ManageLeaf[](2);
         manageLeafs[0] = leafs[0]; //approve USDE
-        manageLeafs[1] = leafs[1]; //mint USDE/ETH 
+        manageLeafs[1] = leafs[1]; //mint USDE/ETH
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 
@@ -488,13 +474,13 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
         //(uint8 code, address base, address quote, uint256 poolIdx,
         // int24 bidTick, int24 askTick, uint128 liq,
         // uint128 limitLower, uint128 limitHigher,
-        // uint8 reserveFlags, address lpConduit) = 
-        
-        //This is what is encoded 
+        // uint8 reserveFlags, address lpConduit) =
+
+        //This is what is encoded
         //bytes memory mintParams = abi.encode(
         //    uint8(12),
         //    address(0), //ETH
-        //    getAddress(sourceChain, "USDE"), 
+        //    getAddress(sourceChain, "USDE"),
         //    uint256(420),
         //    int24(-12412),
         //    int24(-10408),
@@ -503,28 +489,26 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
         //    uint128(0.255e18),
         //    uint8(0),
         //    address(0) //lpConduit
-        //);  
-        
-        bytes memory mintParams = hex"000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000005d3a1ff2b6bab83b63cd9ad0787074081a52ef3400000000000000000000000000000000000000000000000000000000000001a4fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed018fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed7ec0000000000000000000000000000000000000000000000001bc16d674ec80000000000000000000000000000000000000000000000000000057a24173b260000000000000000000000000000000000000000000000000000058807eeca68000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"; 
+        //);
 
-        targetData[1] = abi.encodeWithSignature(
-            "userCmd(uint16,bytes)", uint16(128), mintParams
-        );
+        bytes memory mintParams =
+            hex"000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000005d3a1ff2b6bab83b63cd9ad0787074081a52ef3400000000000000000000000000000000000000000000000000000000000001a4fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed018fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed7ec0000000000000000000000000000000000000000000000001bc16d674ec80000000000000000000000000000000000000000000000000000057a24173b260000000000000000000000000000000000000000000000000000058807eeca68000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+
+        targetData[1] = abi.encodeWithSignature("userCmd(uint16,bytes)", uint16(128), mintParams);
 
         address[] memory decodersAndSanitizers = new address[](2);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
 
-        uint256[] memory values = new uint256[](2); 
-        values[0] = 0; 
-        values[1] = 0.1e18;  //verify that we are refunded excess ETH (use -vvvv to check the call data) 
+        uint256[] memory values = new uint256[](2);
+        values[0] = 0;
+        values[1] = 0.1e18; //verify that we are refunded excess ETH (use -vvvv to check the call data)
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
-
         // Due to the JIT liquidity protection enabled on Ambient, we must skip a few blocks before removing liquidity
-        vm.warp(4248458); 
-            
+        vm.warp(4248458);
+
         manageLeafs = new ManageLeaf[](1);
         manageLeafs[0] = leafs[2]; //remove liq ETH/USDE
 
@@ -536,7 +520,7 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
         //bytes memory harvestParams = abi.encode(
         //    uint8(5),
         //    address(0), //ETH
-        //    getAddress(sourceChain, "USDE"), 
+        //    getAddress(sourceChain, "USDE"),
         //    uint256(420),
         //    int24(-12412),
         //    int24(-10408),
@@ -545,37 +529,35 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
         //    uint128(0.255e18),
         //    uint8(0),
         //    address(0) //lpConduit
-        //);  
-        
-        bytes memory harvestParams = hex"000000000000000000000000000000000000000000000000000000000000000500000000000000000000000000000000000000000000000000000000000000000000000000000000000000005d3a1ff2b6bab83b63cd9ad0787074081a52ef3400000000000000000000000000000000000000000000000000000000000001a4fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed018fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed7ec00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000579fcfedeb100000000000000000000000000000000000000000000000000000588143638dc000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+        //);
+
+        bytes memory harvestParams =
+            hex"000000000000000000000000000000000000000000000000000000000000000500000000000000000000000000000000000000000000000000000000000000000000000000000000000000005d3a1ff2b6bab83b63cd9ad0787074081a52ef3400000000000000000000000000000000000000000000000000000000000001a4fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed018fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed7ec00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000579fcfedeb100000000000000000000000000000000000000000000000000000588143638dc000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
 
         targetData = new bytes[](1);
-        targetData[0] = abi.encodeWithSignature(
-            "userCmd(uint16,bytes)", uint16(128), harvestParams
-        );
+        targetData[0] = abi.encodeWithSignature("userCmd(uint16,bytes)", uint16(128), harvestParams);
 
         decodersAndSanitizers = new address[](1);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
 
-        values = new uint256[](1); 
-
+        values = new uint256[](1);
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
     }
 
     function testAmbientSwap__SwapETHForToken() external {
-        _setUpHarvestBlock(); 
+        _setUpHarvestBlock();
 
         deal(address(boringVault), 1_000e18);
         deal(getAddress(sourceChain, "USDE"), address(boringVault), 1_000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
-        
-        address baseToken= getAddress(sourceChain, "ETH");  
-        address quoteToken = getAddress(sourceChain, "USDE");  
+
+        address baseToken = getAddress(sourceChain, "ETH");
+        address quoteToken = getAddress(sourceChain, "USDE");
 
         _addAmbientLPLeafs(leafs, baseToken, quoteToken);
-        _addAmbientSwapLeafs(leafs, baseToken, quoteToken); 
+        _addAmbientSwapLeafs(leafs, baseToken, quoteToken);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -616,27 +598,26 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
 
-        uint256[] memory values = new uint256[](2); 
-        values[0] = 0; 
-        values[1] = 1e18; 
+        uint256[] memory values = new uint256[](2);
+        values[0] = 0;
+        values[1] = 1e18;
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
-
     }
 
     function testAmbientSwap__SwapTokenForETH() external {
-        _setUpHarvestBlock(); 
+        _setUpHarvestBlock();
 
         deal(address(boringVault), 1_000e18);
         deal(getAddress(sourceChain, "USDE"), address(boringVault), 10_000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
-        
-        address baseToken= getAddress(sourceChain, "ETH");  
-        address quoteToken = getAddress(sourceChain, "USDE");  
+
+        address baseToken = getAddress(sourceChain, "ETH");
+        address quoteToken = getAddress(sourceChain, "USDE");
 
         _addAmbientLPLeafs(leafs, baseToken, quoteToken);
-        _addAmbientSwapLeafs(leafs, baseToken, quoteToken); 
+        _addAmbientSwapLeafs(leafs, baseToken, quoteToken);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -677,27 +658,26 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
 
-        uint256[] memory values = new uint256[](2); 
-        values[0] = 0; 
-        values[1] = 0; 
+        uint256[] memory values = new uint256[](2);
+        values[0] = 0;
+        values[1] = 0;
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
-
     }
 
     function testAmbientSwap__UserCmd() external {
-        _setUpHarvestBlock(); 
+        _setUpHarvestBlock();
 
         deal(address(boringVault), 1_000e18);
         deal(getAddress(sourceChain, "USDE"), address(boringVault), 10_000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
-        
-        address baseToken= getAddress(sourceChain, "ETH");  
-        address quoteToken = getAddress(sourceChain, "USDE");  
+
+        address baseToken = getAddress(sourceChain, "ETH");
+        address quoteToken = getAddress(sourceChain, "USDE");
 
         _addAmbientLPLeafs(leafs, baseToken, quoteToken);
-        _addAmbientSwapLeafs(leafs, baseToken, quoteToken); 
+        _addAmbientSwapLeafs(leafs, baseToken, quoteToken);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -719,7 +699,7 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
         targetData[0] = abi.encodeWithSignature(
             "approve(address,uint256)", getAddress(sourceChain, "crocSwapDex"), type(uint256).max
         );
-        
+
         bytes memory swapParams = abi.encode(
             address(0),
             getAddress(sourceChain, "USDE"),
@@ -733,35 +713,32 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
             uint8(0)
         );
 
-        targetData[1] = abi.encodeWithSignature(
-            "userCmd(uint16,bytes)", uint16(1), swapParams
-        );
+        targetData[1] = abi.encodeWithSignature("userCmd(uint16,bytes)", uint16(1), swapParams);
 
         address[] memory decodersAndSanitizers = new address[](2);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
 
-        uint256[] memory values = new uint256[](2); 
-        values[0] = 0; 
-        values[1] = 1e18; 
+        uint256[] memory values = new uint256[](2);
+        values[0] = 0;
+        values[1] = 1e18;
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
-
     }
 
     function testAmbientKnockout() external {
-        _setUpKnockoutBlock(); 
+        _setUpKnockoutBlock();
 
         deal(address(boringVault), 1_000e18);
         deal(getAddress(sourceChain, "USDE"), address(boringVault), 10_000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
-        
-        address baseToken= getAddress(sourceChain, "ETH");  
-        address quoteToken = getAddress(sourceChain, "USDE");  
+
+        address baseToken = getAddress(sourceChain, "ETH");
+        address quoteToken = getAddress(sourceChain, "USDE");
 
         _addAmbientLPLeafs(leafs, baseToken, quoteToken);
-        _addAmbientSwapLeafs(leafs, baseToken, quoteToken); 
+        _addAmbientSwapLeafs(leafs, baseToken, quoteToken);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -784,33 +761,30 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
             "approve(address,uint256)", getAddress(sourceChain, "crocSwapDex"), type(uint256).max
         );
 
+        // /*uint8 code*/,
+        // address base,
+        // address quote,
+        // /*uint256 poolIdx*/,
+        // /*int24 idTick*/,
+        // /*int24 askTick*/,
+        // /*bool isBid*/,
+        // /*uint8 reserveFlags*/,
+        // /*bytes memory args*/
 
-               // /*uint8 code*/,
-               // address base,
-               // address quote,
-               // /*uint256 poolIdx*/,
-               // /*int24 idTick*/,
-               // /*int24 askTick*/,
-               // /*bool isBid*/,
-               // /*uint8 reserveFlags*/,
-               // /*bytes memory args*/
-    
-        bytes memory knockoutParams = hex"000000000000000000000000000000000000000000000000000000000000005b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000005d3a1ff2b6bab83b63cd9ad0787074081a52ef3400000000000000000000000000000000000000000000000000000000000001a4fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed370fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed37400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000001e785ff3576500000000000000000000000000000000000000000000000000000000000000000000"; 
+        bytes memory knockoutParams =
+            hex"000000000000000000000000000000000000000000000000000000000000005b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000005d3a1ff2b6bab83b63cd9ad0787074081a52ef3400000000000000000000000000000000000000000000000000000000000001a4fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed370fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed37400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000001e785ff3576500000000000000000000000000000000000000000000000000000000000000000000";
 
-        targetData[1] = abi.encodeWithSignature(
-            "userCmd(uint16,bytes)", uint16(7), knockoutParams
-        );
+        targetData[1] = abi.encodeWithSignature("userCmd(uint16,bytes)", uint16(7), knockoutParams);
 
         address[] memory decodersAndSanitizers = new address[](2);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
 
-        uint256[] memory values = new uint256[](2); 
-        values[0] = 0; 
-        values[1] = 1e18; 
+        uint256[] memory values = new uint256[](2);
+        values[0] = 0;
+        values[1] = 1e18;
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
-
     }
 
     // ========================================= HELPER FUNCTIONS =========================================
@@ -821,5 +795,4 @@ contract AmbientIntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-
-contract FullAmbientDecoderAndSanitizer is AmbientDecoderAndSanitizer{}
+contract FullAmbientDecoderAndSanitizer is AmbientDecoderAndSanitizer {}

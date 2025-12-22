@@ -20,7 +20,7 @@ contract CreateLiquidUsdOperationalMerkleRootScript is Script, MerkleTreeHelper 
     address public managerAddress = 0x7b57Ad1A0AA89583130aCfAD024241170D24C13C;
     address public accountantAddress = 0xc315D6e14DDCDC7407784e2Caf815d131Bc1D3E7;
     address public drone = 0x3683fc2792F676BBAbc1B5555dE0DfAFee546e9a;
-    address public drone1 = 0x08777996b26bD82aD038Bca80De5B8dEA742370f; 
+    address public drone1 = 0x08777996b26bD82aD038Bca80De5B8dEA742370f;
 
     //one offs
     address public symbioticDecoderAndSanitizer = 0xdaEfE2146908BAd73A1C45f75eB2B8E46935c781;
@@ -77,7 +77,7 @@ contract CreateLiquidUsdOperationalMerkleRootScript is Script, MerkleTreeHelper 
 
         // ========================== Merkl ==========================
         {
-            _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address")); 
+            _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"));
         }
 
         // ========================== Drone Transfers ==========================
@@ -141,7 +141,7 @@ contract CreateLiquidUsdOperationalMerkleRootScript is Script, MerkleTreeHelper 
 
         // ========================== Merkl ==========================
         {
-            _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address")); 
+            _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"));
         }
 
         _createDroneLeafs(leafs, drone, droneStartIndex, leafIndex + 1);
@@ -193,5 +193,4 @@ contract CreateLiquidUsdOperationalMerkleRootScript is Script, MerkleTreeHelper 
         _createDroneLeafs(leafs, drone1, drone1StartIndex, leafIndex + 1);
         setAddress(true, mainnet, "boringVault", boringVault);
     }
-
 }

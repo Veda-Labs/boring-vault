@@ -18,9 +18,8 @@ contract CreateLiquidUsdOperationalMerkleRootScript is Script, MerkleTreeHelper 
     address public boringVault = 0x08c6F91e2B681FaF5e17227F2a44C307b3C1364C;
     address public rawDataDecoderAndSanitizer = 0x330f85CD9C04236145C8cB9531112Ced3E8D9fDD;
     address public managerAddress = 0xcFF411d5C54FE0583A984beE1eF43a4776854B9A;
-    address public accountantAddress = 0xc315D6e14DDCDC7407784e2Caf815d131Bc1D3E7; 
-    address public drone = 0x3683fc2792F676BBAbc1B5555dE0DfAFee546e9a; 
-
+    address public accountantAddress = 0xc315D6e14DDCDC7407784e2Caf815d131Bc1D3E7;
+    address public drone = 0x3683fc2792F676BBAbc1B5555dE0DfAFee546e9a;
 
     function setUp() external {}
 
@@ -106,5 +105,4 @@ contract CreateLiquidUsdOperationalMerkleRootScript is Script, MerkleTreeHelper 
         _createDroneLeafs(leafs, drone, droneStartIndex, leafIndex + 1);
         setAddress(true, flare, "boringVault", boringVault);
     }
-
 }

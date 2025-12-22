@@ -34,7 +34,8 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
     // golden goose vault
     BoringVault public boringVault = BoringVault(payable(0xef417FCE1883c6653E7dC6AF7c6F85CCDE84Aa09));
-    AccountantWithRateProviders public accountant = AccountantWithRateProviders(0xc873F2b7b3BA0a7faA2B56e210E3B965f2b618f5);
+    AccountantWithRateProviders public accountant =
+        AccountantWithRateProviders(0xc873F2b7b3BA0a7faA2B56e210E3B965f2b618f5);
     TellerWithMultiAssetSupport public teller = TellerWithMultiAssetSupport(0x4C74ccA483A278Bcb90Aea3f8F565e56202D82B2);
     RolesAuthority public rolesAuthority = RolesAuthority(0x9778D78495cBbfce0B1F6194526a8c3D4b9C3AAF);
     address public owner;
@@ -94,7 +95,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
     function testBasicDepositAndTransferWithShareWarden() external {
         uint256 depositAmount = 1e18;
-        
+
         // User deposits
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
@@ -138,7 +139,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
     function testShareWardenPausePreventsTransfers() external {
         uint256 depositAmount = 1e18;
-        
+
         // User deposits
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
@@ -170,7 +171,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         shareWarden.pause();
 
         uint256 depositAmount = 1e18;
-        
+
         // User can still deposit (pause only affects transfers)
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
@@ -185,7 +186,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
     function testSanctionsListSanctionBlocksTransferFrom() external {
         uint256 depositAmount = 1e18;
-        
+
         // User deposits
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
@@ -206,7 +207,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
     function testSanctionsListSanctionBlocksTransferTo() external {
         uint256 depositAmount = 1e18;
-        
+
         // User deposits
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
@@ -227,7 +228,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
     function testSanctionsListSanctionBlocksOperator() external {
         uint256 depositAmount = 1e18;
-        
+
         // User deposits
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
@@ -242,13 +243,15 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         _addUserToSanctionsList(address(this));
 
         // TransferFrom should fail due to SanctionsList sanction on operator
-        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__SanctionsListBlacklisted.selector, address(this)));
+        vm.expectRevert(
+            abi.encodeWithSelector(ShareWarden.ShareWarden__SanctionsListBlacklisted.selector, address(this))
+        );
         boringVault.transferFrom(user1, user2, shares);
     }
 
     function testSanctionsListCanBeRemoved() external {
         uint256 depositAmount = 1e18;
-        
+
         // User deposits
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
@@ -281,7 +284,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
     function testCustomBlacklistBlocksTransferFrom() external {
         uint256 depositAmount = 1e18;
-        
+
         // User deposits
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
@@ -291,7 +294,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         // Setup custom blacklist (list ID CUSTOM_LIST_TWO)
         shareWarden.updateVaultListIds(address(boringVault), CUSTOM_LIST_TWO);
-        
+
         bytes32[] memory addressHashes = new bytes32[](1);
         addressHashes[0] = keccak256(abi.encodePacked(user1));
         shareWarden.updateBlacklist(CUSTOM_LIST_TWO, addressHashes, true);
@@ -304,7 +307,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
     function testCustomBlacklistBlocksTransferTo() external {
         uint256 depositAmount = 1e18;
-        
+
         // User deposits
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
@@ -314,7 +317,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         // Setup custom blacklist (list ID CUSTOM_LIST_TWO)
         shareWarden.updateVaultListIds(address(boringVault), CUSTOM_LIST_TWO);
-        
+
         bytes32[] memory addressHashes = new bytes32[](1);
         addressHashes[0] = keccak256(abi.encodePacked(user2));
         shareWarden.updateBlacklist(CUSTOM_LIST_TWO, addressHashes, true);
@@ -342,7 +345,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
     function testMultipleListsWorkTogether() external {
         uint256 depositAmount = 1e18;
-        
+
         // User deposits
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
@@ -357,7 +360,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         // Sanction on SanctionsList
         _addUserToSanctionsList(user1);
-        
+
         vm.prank(user1);
         vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__SanctionsListBlacklisted.selector, user1));
         boringVault.transfer(user2, shares);
@@ -384,7 +387,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
     function testCustomBlacklistBlocksOperator() external {
         uint256 depositAmount = 1e18;
-        
+
         // User deposits
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
@@ -395,19 +398,21 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         // Setup custom blacklist (list ID CUSTOM_LIST_TWO) and blacklist operator
         shareWarden.updateVaultListIds(address(boringVault), CUSTOM_LIST_TWO);
-        
+
         bytes32[] memory addressHashes = new bytes32[](1);
         addressHashes[0] = keccak256(abi.encodePacked(address(this)));
         shareWarden.updateBlacklist(CUSTOM_LIST_TWO, addressHashes, true);
 
         // TransferFrom should fail due to blacklisted operator
-        vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, address(this), CUSTOM_LIST_TWO));
+        vm.expectRevert(
+            abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, address(this), CUSTOM_LIST_TWO)
+        );
         boringVault.transferFrom(user1, user2, shares);
     }
 
     function testCanUnblacklistAddress() external {
         uint256 depositAmount = 1e18;
-        
+
         // User deposits
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
@@ -417,7 +422,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         // Setup custom blacklist and blacklist user1
         shareWarden.updateVaultListIds(address(boringVault), CUSTOM_LIST_TWO);
-        
+
         bytes32[] memory addressHashes = new bytes32[](1);
         addressHashes[0] = keccak256(abi.encodePacked(user1));
         shareWarden.updateBlacklist(CUSTOM_LIST_TWO, addressHashes, true);
@@ -440,7 +445,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
     function testBatchUpdateBlacklistMultipleAddresses() external {
         uint256 depositAmount = 1e18;
-        
+
         // Setup multiple users with shares
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
@@ -492,16 +497,20 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // Both users should now be able to transfer
         vm.prank(user1);
         boringVault.transfer(referrer, shares1);
-        
+
         vm.prank(user2);
         boringVault.transfer(referrer, shares2);
 
-        assertEq(boringVault.balanceOf(referrer), shares1 + shares2 + shares3, "All transfers should succeed after unblacklisting");
+        assertEq(
+            boringVault.balanceOf(referrer),
+            shares1 + shares2 + shares3,
+            "All transfers should succeed after unblacklisting"
+        );
     }
 
     function testUpdateBlacklistMultipleLists() external {
         uint256 depositAmount = 1e18;
-        
+
         // User deposits
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
@@ -546,7 +555,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
     function testShareWardenDelegatesToTellerDenyList() external {
         uint256 depositAmount = 1e18;
-        
+
         // User deposits
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
@@ -562,10 +571,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         vm.prank(user1);
         vm.expectRevert(
             abi.encodeWithSelector(
-                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector,
-                user1,
-                user2,
-                user1
+                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector, user1, user2, user1
             )
         );
         boringVault.transfer(user2, shares);
@@ -609,7 +615,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
     function testCombinedChecks_ShareWardenPausedAndTellerDeny() external {
         uint256 depositAmount = 1e18;
-        
+
         // User deposits
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
@@ -633,10 +639,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         vm.prank(user1);
         vm.expectRevert(
             abi.encodeWithSelector(
-                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector,
-                user1,
-                user2,
-                user1
+                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector, user1, user2, user1
             )
         );
         boringVault.transfer(user2, shares);
@@ -661,7 +664,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
     function testBeforeTransferWithSingleParameter() external {
         uint256 depositAmount = 1e18;
-        
+
         // User deposits
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
@@ -683,7 +686,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
     function testMultipleTransfersWithVaryingChecks() external {
         uint256 depositAmount = 1e18;
-        
+
         // User deposits
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
@@ -701,7 +704,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         shareWarden.updateSanctionsList(address(sanctionsList));
         shareWarden.updateVaultListIds(address(boringVault), shareWarden.LIST_ID_SANCTIONS());
         _addUserToSanctionsList(user1);
-        
+
         vm.prank(user1);
         vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__SanctionsListBlacklisted.selector, user1));
         boringVault.transfer(user2, shares / 4);
@@ -714,10 +717,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         vm.prank(user1);
         vm.expectRevert(
             abi.encodeWithSelector(
-                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector,
-                user1,
-                user2,
-                user1
+                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector, user1, user2, user1
             )
         );
         boringVault.transfer(user2, shares / 4);
@@ -753,7 +753,9 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         assertEq(boringVault.balanceOf(user1), shares - shares / 2, "User1 should have remaining shares");
     }
 
-    function testFuzzSanctionsListSanction(uint256 amount, bool sanctionFrom, bool sanctionTo, bool sanctionOperator) external {
+    function testFuzzSanctionsListSanction(uint256 amount, bool sanctionFrom, bool sanctionTo, bool sanctionOperator)
+        external
+    {
         amount = bound(amount, 0.0001e18, 10_000e18);
 
         // User deposits
@@ -782,9 +784,11 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         if (shouldFail) {
             address sanctionedAddr = sanctionFrom ? user1 : (sanctionTo ? user2 : address(this));
-            vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__SanctionsListBlacklisted.selector, sanctionedAddr));
+            vm.expectRevert(
+                abi.encodeWithSelector(ShareWarden.ShareWarden__SanctionsListBlacklisted.selector, sanctionedAddr)
+            );
         }
-        
+
         skip(shareLockPeriod);
         boringVault.transferFrom(user1, user2, shares);
 

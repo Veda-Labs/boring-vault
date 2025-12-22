@@ -10,7 +10,9 @@ import {TellerWithRemediation} from "src/base/Roles/TellerWithRemediation.sol";
 import {TellerWithYieldStreaming} from "src/base/Roles/TellerWithYieldStreaming.sol";
 import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {LayerZeroTeller} from "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTeller.sol";
-import {LayerZeroTellerWithRateLimiting} from "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTellerWithRateLimiting.sol";
+import {
+    LayerZeroTellerWithRateLimiting
+} from "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTellerWithRateLimiting.sol";
 import {BoringVault} from "src/base/BoringVault.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {ChainValues} from "test/resources/ChainValues.sol";
@@ -39,15 +41,44 @@ contract TellerVersionsTest is Test, MerkleTreeHelper {
         endPoint = new MockLayerZeroEndPoint();
 
         boringVault = new BoringVault(address(this), "Boring Vault", "BV", 18);
-        accountant = new AccountantWithRateProviders(address(this), address(boringVault), address(0), 1e18, getAddress(mainnet, "WETH"), 1.001e4, 0.999e4, 1, 0, 0);
+        accountant = new AccountantWithRateProviders(
+            address(this),
+            address(boringVault),
+            address(0),
+            1e18,
+            getAddress(mainnet, "WETH"),
+            1.001e4,
+            0.999e4,
+            1,
+            0,
+            0
+        );
         tellerWithBuffer = new TellerWithBuffer(address(this), address(boringVault), address(accountant), address(0));
-        tellerWithRemediation = new TellerWithRemediation(address(this), address(boringVault), address(accountant), address(0));
-        tellerWithYieldStreaming = new TellerWithYieldStreaming(address(this), address(boringVault), address(accountant), address(0));
-        layerZeroTeller = new LayerZeroTeller(address(this), address(boringVault), address(accountant), address(0), address(endPoint), address(this), address(0));
-        layerZeroTellerWithRateLimiting = new LayerZeroTellerWithRateLimiting(address(this), address(boringVault), address(accountant), address(0), address(endPoint), address(this), address(0));
+        tellerWithRemediation =
+            new TellerWithRemediation(address(this), address(boringVault), address(accountant), address(0));
+        tellerWithYieldStreaming =
+            new TellerWithYieldStreaming(address(this), address(boringVault), address(accountant), address(0));
+        layerZeroTeller = new LayerZeroTeller(
+            address(this),
+            address(boringVault),
+            address(accountant),
+            address(0),
+            address(endPoint),
+            address(this),
+            address(0)
+        );
+        layerZeroTellerWithRateLimiting = new LayerZeroTellerWithRateLimiting(
+            address(this),
+            address(boringVault),
+            address(accountant),
+            address(0),
+            address(endPoint),
+            address(this),
+            address(0)
+        );
     }
 
-    function testTellerVersions() view public {
+    function testTellerVersions() public view {
         assertEq(tellerWithBuffer.version(), "Buffer V0.1, Base V0.1");
         assertEq(tellerWithRemediation.version(), "Remediation V0.1, Base V0.1");
         assertEq(tellerWithYieldStreaming.version(), "Yield Streaming V0.1, Buffer V0.1, Base V0.1");

@@ -227,17 +227,12 @@ contract AccountantWithRateProvidersTest is Test, MerkleTreeHelper {
         accountant.updateExchangeRate(new_exchange_rate);
 
         (
-            ,
-            ,
+            ,,
             uint128 fees_owed,
             uint128 total_shares,
-            uint96 current_exchange_rate,
-            ,
-            ,
+            uint96 current_exchange_rate,,,
             uint64 last_update_timestamp,
-            bool is_paused,
-            ,
-            ,
+            bool is_paused,,,
         ) = accountant.accountantState();
         assertEq(fees_owed, 0, "Fees owed should be 0");
         assertEq(total_shares, 1_000e18, "Total shares should be 1_000e18");
@@ -317,13 +312,9 @@ contract AccountantWithRateProvidersTest is Test, MerkleTreeHelper {
             uint96 highwaterMark,
             uint128 fees_owed,
             uint128 total_shares,
-            uint96 current_exchange_rate,
-            ,
-            ,
+            uint96 current_exchange_rate,,,
             uint64 last_update_timestamp,
-            bool is_paused,
-            ,
-            ,
+            bool is_paused,,,
         ) = accountant.accountantState();
         assertEq(highwaterMark, new_exchange_rate, "Highwater mark should be new_exchange_rate");
         assertEq(fees_owed, 0, "Fees owed should be 0");
@@ -455,7 +446,8 @@ contract AccountantWithRateProvidersTest is Test, MerkleTreeHelper {
         // Deploy GenericRateProvider for mETH.
         bytes4 selector = bytes4(keccak256(abi.encodePacked("mETHToETH(uint256)")));
         uint256 amount = 1e18;
-        mETHRateProvider = new GenericRateProvider(mantleLspStaking, selector, bytes32(amount), 0, 0, 0, 0, 0, 0, 0, false);
+        mETHRateProvider =
+            new GenericRateProvider(mantleLspStaking, selector, bytes32(amount), 0, 0, 0, 0, 0, 0, 0, false);
 
         uint256 expectedRate = MantleLspStaking(mantleLspStaking).mETHToETH(1e18);
         uint256 gas = gasleft();
@@ -622,9 +614,11 @@ contract AccountantWithRateProvidersTest is Test, MerkleTreeHelper {
         // Deploy GenericRateProviderWithDecimalScaling for mETH.
         bytes4 selector = bytes4(keccak256(abi.encodePacked("mETHToETH(uint256)")));
         uint256 amount = 1e18;
-        mETHRateProvider = new GenericRateProviderWithDecimalScaling(GenericRateProviderWithDecimalScaling.ConstructorArgs(
-            mantleLspStaking, selector, bytes32(amount), 0, 0, 0, 0, 0, 0, 0, false, 18, 18
-        ));
+        mETHRateProvider = new GenericRateProviderWithDecimalScaling(
+            GenericRateProviderWithDecimalScaling.ConstructorArgs(
+                mantleLspStaking, selector, bytes32(amount), 0, 0, 0, 0, 0, 0, 0, false, 18, 18
+            )
+        );
 
         uint256 expectedRate = MantleLspStaking(mantleLspStaking).mETHToETH(1e18);
         uint256 rate = mETHRateProvider.getRate();
@@ -643,27 +637,33 @@ contract AccountantWithRateProvidersTest is Test, MerkleTreeHelper {
         assertLt(rateInMeth, 1e18, "Rate should be less than 1e18");
 
         // Adapt old methRateProvider to have lower decimals with decimal scaling.
-        mETHRateProvider = new GenericRateProviderWithDecimalScaling(GenericRateProviderWithDecimalScaling.ConstructorArgs(
-            mantleLspStaking, selector, bytes32(amount), 0, 0, 0, 0, 0, 0, 0, false, 18, 6
-        ));
+        mETHRateProvider = new GenericRateProviderWithDecimalScaling(
+            GenericRateProviderWithDecimalScaling.ConstructorArgs(
+                mantleLspStaking, selector, bytes32(amount), 0, 0, 0, 0, 0, 0, 0, false, 18, 6
+            )
+        );
 
         expectedRate = MantleLspStaking(mantleLspStaking).mETHToETH(1e18) / 1e12; // 1e6 / 1e18 = 1e12
         rate = mETHRateProvider.getRate();
         assertEq(rate, expectedRate, "Rate should be expected rate");
 
         // Adapt old methRateProvider to have higher decimals with decimal scaling.
-        mETHRateProvider = new GenericRateProviderWithDecimalScaling(GenericRateProviderWithDecimalScaling.ConstructorArgs(
-            mantleLspStaking, selector, bytes32(amount), 0, 0, 0, 0, 0, 0, 0, false, 18, 30
-        ));
+        mETHRateProvider = new GenericRateProviderWithDecimalScaling(
+            GenericRateProviderWithDecimalScaling.ConstructorArgs(
+                mantleLspStaking, selector, bytes32(amount), 0, 0, 0, 0, 0, 0, 0, false, 18, 30
+            )
+        );
 
         expectedRate = MantleLspStaking(mantleLspStaking).mETHToETH(1e18) * 1e12; // 1e30 / 1e18 = 1e12
         rate = mETHRateProvider.getRate();
         assertEq(rate, expectedRate, "Rate should be expected rate");
 
         // Adapt old methRateProvider to have same decimals with decimal scaling.
-        mETHRateProvider = new GenericRateProviderWithDecimalScaling(GenericRateProviderWithDecimalScaling.ConstructorArgs(
-            mantleLspStaking, selector, bytes32(amount), 0, 0, 0, 0, 0, 0, 0, false, 18, 18
-        ));
+        mETHRateProvider = new GenericRateProviderWithDecimalScaling(
+            GenericRateProviderWithDecimalScaling.ConstructorArgs(
+                mantleLspStaking, selector, bytes32(amount), 0, 0, 0, 0, 0, 0, 0, false, 18, 18
+            )
+        );
         expectedRate = MantleLspStaking(mantleLspStaking).mETHToETH(1e18); // 1e18 / 1e18 = 1e0
         rate = mETHRateProvider.getRate();
         assertEq(rate, expectedRate, "Rate should be expected rate");
@@ -671,21 +671,27 @@ contract AccountantWithRateProvidersTest is Test, MerkleTreeHelper {
         // Test Reverts
         vm.expectRevert(
             abi.encodeWithSelector(
-                GenericRateProviderWithDecimalScaling.GenericRateProviderWithDecimalScaling__DecimalsCannotBeZero.selector
+                GenericRateProviderWithDecimalScaling.GenericRateProviderWithDecimalScaling__DecimalsCannotBeZero
+                .selector
             )
         );
-        mETHRateProvider = new GenericRateProviderWithDecimalScaling(GenericRateProviderWithDecimalScaling.ConstructorArgs(
-            mantleLspStaking, selector, bytes32(amount), 0, 0, 0, 0, 0, 0, 0, false, 18, 0
-        ));
+        mETHRateProvider = new GenericRateProviderWithDecimalScaling(
+            GenericRateProviderWithDecimalScaling.ConstructorArgs(
+                mantleLspStaking, selector, bytes32(amount), 0, 0, 0, 0, 0, 0, 0, false, 18, 0
+            )
+        );
 
         vm.expectRevert(
-        abi.encodeWithSelector(
-            GenericRateProviderWithDecimalScaling.GenericRateProviderWithDecimalScaling__DecimalsCannotBeZero.selector
-        )
+            abi.encodeWithSelector(
+                GenericRateProviderWithDecimalScaling.GenericRateProviderWithDecimalScaling__DecimalsCannotBeZero
+                .selector
+            )
         );
-        mETHRateProvider = new GenericRateProviderWithDecimalScaling(GenericRateProviderWithDecimalScaling.ConstructorArgs(
-            mantleLspStaking, selector, bytes32(amount), 0, 0, 0, 0, 0, 0, 0, false, 0, 18
-        ));
+        mETHRateProvider = new GenericRateProviderWithDecimalScaling(
+            GenericRateProviderWithDecimalScaling.ConstructorArgs(
+                mantleLspStaking, selector, bytes32(amount), 0, 0, 0, 0, 0, 0, 0, false, 0, 18
+            )
+        );
     }
 
     // ========================================= HELPER FUNCTIONS =========================================
