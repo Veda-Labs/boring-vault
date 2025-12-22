@@ -7,7 +7,7 @@ evm_version = 'cancun'
 optimizer = true
 optimizer_runs = 200
 fs_permissions = [{ access = "read-write", path = "./" }]
-deny_warnings = false
+deny = warnings
 use_literal_content = true
 cbor_metadata=true
 remappings = [
