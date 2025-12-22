@@ -134,7 +134,7 @@ contract MonadUniswapV4IntegrationTest is Test, MerkleTreeHelper {
         bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 
         address[] memory targets = new address[](6);
-        targets[0] = getAddress(sourceChain, "USDC"); //approve usdt permit2
+        targets[0] = getAddress(sourceChain, "USDC"); //approve usdc permit2
         targets[1] = getAddress(sourceChain, "permit2"); //approve permit2 posm usdc
         targets[2] = getAddress(sourceChain, "uniV4PositionManager"); //modifyLiquidities mint
         targets[3] = getAddress(sourceChain, "uniV4PositionManager"); //modifyLiquidities increase
@@ -294,7 +294,7 @@ contract MonadUniswapV4IntegrationTest is Test, MerkleTreeHelper {
 
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
-        //_generateTestLeafs(leafs, manageTree);
+        _generateTestLeafs(leafs, manageTree);
 
         ManageLeaf[] memory manageLeafs = new ManageLeaf[](4);
         manageLeafs[0] = leafs[0]; //approve USDC router
