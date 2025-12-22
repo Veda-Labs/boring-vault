@@ -79,3 +79,4 @@ In order to run the tests make sure the following is done.
 2. Copy `sample.env`, rename the copy to `.env`, and update all RPCs.
 3. Run `forge install`
 4. Run `forge test`
+5. Run `git config core.hooksPath .githooks`

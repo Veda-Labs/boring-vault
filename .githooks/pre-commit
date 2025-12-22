@@ -1,0 +1,9 @@
+#!/bin/sh
+
+FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.sol$')
+
+if [ -n "$FILES" ]; then
+    echo "Running forge fmt..."
+    forge fmt $FILES
+    git add $FILES
+fi
