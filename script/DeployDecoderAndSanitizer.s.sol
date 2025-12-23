@@ -217,22 +217,24 @@ contract DeploySyBtcArbitrumDecoderAndSanitizer is Script, ContractNames, Mainne
     uint256 public privateKey;
     Deployer public deployer = Deployer(0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC);
 
-    function setUp() external {
-        privateKey = vm.envUint("BORING_DEVELOPER");
-    }
+    function setUp() external {}
 
     function run() external {
-        bytes memory creationCode;
-        bytes memory constructorArgs;
-
         vm.createSelectFork("arbitrum");
         setSourceChainName("arbitrum");
-        vm.startBroadcast(privateKey);
-        creationCode = type(SyBtcArbitrumDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(
-            getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2")
+
+        vm.startBroadcast(vm.envUint("BORING_DEVELOPER"));
+
+        deployer.deployContract(
+            "SyBtc Arbitrum DecodersAndSanitizers Batch 2",
+            type(SyBtcArbitrumDecoderAndSanitizer).creationCode,
+            abi.encode(
+                getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
+                getAddress(sourceChain, "magpieRouterV3")
+            ),
+            0
         );
-        deployer.deployContract("SyBtc Arbitrum DecodersAndSanitizers Batch 1", creationCode, constructorArgs, 0);
+
         vm.stopBroadcast();
     }
 }

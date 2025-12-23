@@ -1774,6 +1774,9 @@ contract ChainValues {
         // Morpho Blue
         values[arbitrum]["morphoBlue"] = 0x6c247b1F6182318877311737BaC0844bAa518F5e.toBytes32();
         values[arbitrum]["syrupUSDC_USDC_915"] = 0xf86f3edd6f16cd8211f4d206866dc4ecd41be6211063ac11f8508e1b7112ef40;
+
+        // Magpie Router v3
+        values[arbitrum]["magpieRouterV3"] = 0xfB1B08BA6BA284934D817Ea3C9D18f592cc59a50.toBytes32();
     }
 
     function _addOptimismValues() private {
