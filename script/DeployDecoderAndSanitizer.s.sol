@@ -147,8 +147,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("katana");
-        setSourceChainName("katana");
+        vm.createSelectFork("mainnet");
+        setSourceChainName("mainnet");
     }
 
     function run() external {
@@ -156,11 +156,11 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(KatanaDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
-        console.log("Katana Decoder and Sanitizer V1.1");
+        creationCode = type(GoldenGooseDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV4PositionManager"), getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2"), getAddress(sourceChain, "dvStETHVault"));
+        console.log("GoldenGoose Decoder and Sanitizer V1.5");
         console.logBytes(constructorArgs);
-        deployer.deployContract("Katana Decoder and Sanitizer V1.1", creationCode, constructorArgs, 0);
+        deployer.deployContract("GoldenGoose Decoder and Sanitizer V1.5", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
