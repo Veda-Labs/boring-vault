@@ -126,6 +126,7 @@ import {SentayUSDCInkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/S
 import {SentayUSDCMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentayUSDCMainnetDecoderAndSanitizer.sol";
 import {ITBBasePositionDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/ITBBasePositionDecoderAndSanitizer.sol";
 import {BoostedUSDCInkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BoostedUSDCInkDecoderAndSanitizer.sol";
+import {FullResolvDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/FullResolvDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -156,11 +157,11 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(GoldenGooseDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV4PositionManager"), getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2"), getAddress(sourceChain, "dvStETHVault"));
-        console.log("GoldenGoose Decoder and Sanitizer V1.5");
+        creationCode = type(FullResolvDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode();
+        console.log("Full Resolv Decoder and Sanitizer V0.0");
         console.logBytes(constructorArgs);
-        deployer.deployContract("GoldenGoose Decoder and Sanitizer V1.5", creationCode, constructorArgs, 0);
+        deployer.deployContract("Full Resolv Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }

@@ -25,7 +25,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
     address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
-    address public resolvDecoderAndSanitizer = 0x206983E924863b20529F0A6c4612A3b12Dc0e160;
+    address public resolvDecoderAndSanitizer = 0x79f99F8e9331083308438A0274c0ac5831761f9d;
     function setUp() external {}
 
     /**
