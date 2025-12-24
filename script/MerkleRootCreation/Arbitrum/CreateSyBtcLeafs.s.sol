@@ -86,6 +86,7 @@ contract SyBtcMerkleRootScript is Script, MerkleTreeHelper {
         kind[5] = SwapKind.BuyAndSell;
         kind[6] = SwapKind.BuyAndSell;
         _addOdosSwapLeafs(leafs, oneInchAssets, kind);
+        _addMagpieSwapLeafs(leafs, oneInchAssets, kind);
 
         address[] memory token0 = new address[](3);
         token0[0] = getAddress(sourceChain, "WETH");
