@@ -11915,9 +11915,9 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                         string.concat("Swap ", ERC20(tokens[i]).symbol(), " for ", ERC20(tokens[j]).symbol()),
                         getAddress(sourceChain, "rawDataDecoderAndSanitizer")
                     );
-                    leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
-                    leafs[leafIndex].argumentAddresses[1] = tokens[i];
-                    leafs[leafIndex].argumentAddresses[2] = tokens[j];
+                    leafs[leafIndex].argumentAddresses[0] = tokens[i];
+                    leafs[leafIndex].argumentAddresses[1] = tokens[j];
+                    leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
 
                     ownerToMagpieSellTokenToBuyTokenToInTree[
                         getAddress(sourceChain, "boringVault")
