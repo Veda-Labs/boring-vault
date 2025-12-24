@@ -11881,7 +11881,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         for (uint256 i = 0; i < tokens.length; i++) {
             if (!ownerToTokenToSpenderToApprovalInTree[
                     getAddress(sourceChain, "boringVault")
-                ][tokens[i]][getAddress(sourceChain, "MagpieRouterV3")]) {
+                ][tokens[i]][getAddress(sourceChain, "magpieRouterV3")]) {
                 unchecked {
                     leafIndex++;
                 }
@@ -11893,7 +11893,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                     string.concat("approve MagpieRouter to spend ", ERC20(tokens[i]).symbol()),
                     getAddress(sourceChain, "rawDataDecoderAndSanitizer")
                 );
-                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "MagpieRouterV3");
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "magpieRouterV3");
             }
 
             for (uint256 j = 0; j < tokens.length; j++) {
@@ -11908,16 +11908,16 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                         leafIndex++;
                     }
                     leafs[leafIndex] = ManageLeaf(
-                        getAddress(sourceChain, "MagpieRouterV3"),
+                        getAddress(sourceChain, "magpieRouterV3"),
                         false,
                         "swapWithMagpieSignature(bytes)",
                         new address[](3),
                         string.concat("Swap ", ERC20(tokens[i]).symbol(), " for ", ERC20(tokens[j]).symbol()),
                         getAddress(sourceChain, "rawDataDecoderAndSanitizer")
                     );
-                    leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
-                    leafs[leafIndex].argumentAddresses[1] = tokens[i];
-                    leafs[leafIndex].argumentAddresses[2] = tokens[j];
+                    leafs[leafIndex].argumentAddresses[0] = tokens[i];
+                    leafs[leafIndex].argumentAddresses[1] = tokens[j];
+                    leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
 
                     ownerToMagpieSellTokenToBuyTokenToInTree[
                         getAddress(sourceChain, "boringVault")
@@ -11934,16 +11934,17 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                         leafIndex++;
                     }
                     leafs[leafIndex] = ManageLeaf(
-                        getAddress(sourceChain, "MagpieRouterV3"),
+                        getAddress(sourceChain, "magpieRouterV3"),
                         false,
                         "swapWithMagpieSignature(bytes)",
                         new address[](3),
                         string.concat("Swap ", ERC20(tokens[j]).symbol(), " for ", ERC20(tokens[i]).symbol()),
                         getAddress(sourceChain, "rawDataDecoderAndSanitizer")
                     );
-                    leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+                    leafs[leafIndex].argumentAddresses[0] = tokens[j];
                     leafs[leafIndex].argumentAddresses[1] = tokens[i];
-                    leafs[leafIndex].argumentAddresses[2] = tokens[j];
+                    leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
 
                     ownerToMagpieSellTokenToBuyTokenToInTree[
                         getAddress(sourceChain, "boringVault")

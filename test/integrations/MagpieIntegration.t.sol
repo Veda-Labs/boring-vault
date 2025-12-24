@@ -27,14 +27,6 @@ import {AddressToBytes32Lib} from "../../src/helper/AddressToBytes32Lib.sol";
 import {BaseDecoderAndSanitizer} from "../../src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {MagpieDecoderAndSanitizer} from "../../src/base/DecodersAndSanitizers/MagpieDecoderAndSanitizer.sol";
 import {console} from "../../lib/forge-std/src/Test.sol";
-// struct ManageLeaf {
-//     address target;
-//     bool canSendValue;
-//     string signature;
-//     address[] argumentAddresses;
-//     string description;
-//     address decoderAndSanitizer;
-// }
 
 contract MagpieIntegTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -42,80 +34,30 @@ contract MagpieIntegTest is Test, MerkleTreeHelper {
     using stdStorage for StdStorage;
     using AddressToBytes32Lib for address;
 
-    ERC20 public USDC;
-    ERC20 public RLP;
-    address public owner;
-    address user01 = makeAddr("user01");
-    address user02 = makeAddr("user02");
-    RolesAuthority internal rolesAuthority = RolesAuthority(0xf7F3ace7f6cA2Cb1E7ccbE3Bf2Da13D001D36fdF);
-    BoringVault internal boringVault = BoringVault(payable(0x279CAD277447965AF3d24a78197aad1B02a2c589));
-    LayerZeroTeller internal teller = LayerZeroTeller(0xaefc11908fF97c335D16bdf9F2Bf720817423825);
-    ManagerWithMerkleVerification internal manager =
-        ManagerWithMerkleVerification(0x9B3e565ffC70c4b72516BC2dbec4b3c790940CE8);
-    AccountantWithRateProviders internal accountant =
-        AccountantWithRateProviders(0x03D9a9cE13D16C7cFCE564f41bd7E85E5cde8Da6);
-    BoringOnChainQueue internal queue = BoringOnChainQueue(0xF632c10b19f2a0451cD4A653fC9ca0c15eA1040b);
-    BoringSolver internal solver = BoringSolver(0x1d82e9bCc8F325caBBca6E6A3B287fE586536805);
-    Deployer internal deployer = Deployer(0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC);
-    Pauser internal pauser = Pauser(0x31b9236A58f6EF7e0431811DAbBa8C706AFB0F2D);
+    ManagerWithMerkleVerification public manager;
+    BoringVault public boringVault;
     address public rawDataDecoderAndSanitizer;
-    address public uniswapV3NonFungiblePositionManager;
+    RolesAuthority public rolesAuthority;
 
-    /// roles
     uint8 public constant MANAGER_ROLE = 1;
-    uint8 public constant MINTER_ROLE = 2;
-    uint8 public constant BURNER_ROLE = 3;
-    uint8 public constant MANAGER_INTERNAL_ROLE = 4;
-    uint8 public constant PAUSER_ROLE = 5;
-    uint8 public constant SOLVER_ROLE = 12;
-    uint8 public constant OWNER_ROLE = 8;
-    uint8 public constant MULTISIG_ROLE = 9;
-    uint8 public constant STRATEGIST_MULTISIG_ROLE = 10;
-    uint8 public constant STRATEGIST_ROLE = 7;
-    uint8 public constant UPDATE_EXCHANGE_RATE_ROLE = 11;
-    uint8 public constant GENERIC_PAUSER_ROLE = 14;
-    uint8 public constant GENERIC_UNPAUSER_ROLE = 15;
-    uint8 public constant PAUSE_ALL_ROLE = 16;
-    uint8 public constant UNPAUSE_ALL_ROLE = 17;
-    uint8 public constant SENDER_PAUSER_ROLE = 18;
-    uint8 public constant SENDER_UNPAUSER_ROLE = 19;
-    uint8 public constant CAN_SOLVE_ROLE = 31;
-    uint8 public constant ONLY_QUEUE_ROLE = 32;
-    uint8 public constant SOLVER_ORIGIN_ROLE = 33;
+    uint8 public constant STRATEGIST_ROLE = 2;
+    uint8 public constant MANGER_INTERNAL_ROLE = 3;
+    uint8 public constant ADMIN_ROLE = 4;
+    uint8 public constant BORING_VAULT_ROLE = 5;
+    uint8 public constant BALANCER_VAULT_ROLE = 6;
 
-    struct DepositAsset {
-        ERC20 asset;
-        bool isPeggedToBase;
-        address rateProvider;
-        string genericRateProviderName;
-        address target;
-        bytes4 selector;
-        bytes32[8] params;
-    }
-
-    struct AddressOrName {
-        address address_;
-        string name;
-    }
-
-    struct WithdrawAsset {
-        AddressOrName addressOrName;
-        uint16 maxDiscount;
-        uint16 minDiscount;
-        uint24 minimumSecondsToDeadline;
-        uint96 minimumShares;
-        uint24 secondsToMaturity;
-    }
-
-    DepositAsset[] public depositAssets;
-    WithdrawAsset[] public withdrawAssets;
-
-    function setUp() external {
+    function _setUpSpecificBlock__USDCSwap() internal {
         setSourceChainName("mainnet");
-        vm.createSelectFork(sourceChain);
-        owner = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5;
-        USDC = getERC20(sourceChain, "USDC");
-        RLP = getERC20(sourceChain, "RLP");
+        // Setup forked environment.
+        string memory rpcKey = "MAINNET_RPC_URL";
+        uint256 blockNumber = 24070616;
+
+        _startFork(rpcKey, blockNumber);
+
+        boringVault = new BoringVault(address(this), "Boring Vault", "BV", 18);
+
+        manager =
+            new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
         rawDataDecoderAndSanitizer =
             address(new FullMagpieDecoderAndSanitizer(address(boringVault), getAddress(sourceChain, "magpieRouterV3")));
@@ -124,81 +66,141 @@ contract MagpieIntegTest is Test, MerkleTreeHelper {
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         setAddress(false, sourceChain, "manager", address(manager));
         setAddress(false, sourceChain, "managerAddress", address(manager));
-        setAddress(false, sourceChain, "accountantAddress", address(accountant));
+        setAddress(false, sourceChain, "accountantAddress", address(1));
+
+        rolesAuthority = new RolesAuthority(address(this), Authority(address(0)));
+        boringVault.setAuthority(rolesAuthority);
+        manager.setAuthority(rolesAuthority);
+
+        // Setup roles authority.
+        rolesAuthority.setRoleCapability(
+            MANAGER_ROLE,
+            address(boringVault),
+            bytes4(keccak256(abi.encodePacked("manage(address,bytes,uint256)"))),
+            true
+        );
+        rolesAuthority.setRoleCapability(
+            MANAGER_ROLE,
+            address(boringVault),
+            bytes4(keccak256(abi.encodePacked("manage(address[],bytes[],uint256[])"))),
+            true
+        );
+
+        rolesAuthority.setRoleCapability(
+            STRATEGIST_ROLE,
+            address(manager),
+            ManagerWithMerkleVerification.manageVaultWithMerkleVerification.selector,
+            true
+        );
+        rolesAuthority.setRoleCapability(
+            MANGER_INTERNAL_ROLE,
+            address(manager),
+            ManagerWithMerkleVerification.manageVaultWithMerkleVerification.selector,
+            true
+        );
+        rolesAuthority.setRoleCapability(
+            ADMIN_ROLE, address(manager), ManagerWithMerkleVerification.setManageRoot.selector, true
+        );
+        rolesAuthority.setRoleCapability(
+            BORING_VAULT_ROLE, address(manager), ManagerWithMerkleVerification.flashLoan.selector, true
+        );
+        rolesAuthority.setRoleCapability(
+            BALANCER_VAULT_ROLE, address(manager), ManagerWithMerkleVerification.receiveFlashLoan.selector, true
+        );
+
+        // Grant roles
+        rolesAuthority.setUserRole(address(this), STRATEGIST_ROLE, true);
+        rolesAuthority.setUserRole(address(manager), MANGER_INTERNAL_ROLE, true);
+        rolesAuthority.setUserRole(address(this), ADMIN_ROLE, true);
+        rolesAuthority.setUserRole(address(manager), MANAGER_ROLE, true);
+        rolesAuthority.setUserRole(address(boringVault), BORING_VAULT_ROLE, true);
+        rolesAuthority.setUserRole(getAddress(sourceChain, "vault"), BALANCER_VAULT_ROLE, true);
     }
 
-    // One Inch Integration
-    function test__CreateMagpieInteg() public {
-        // give roles
+    function testFlyTradeSwapERC20() external {
+        _setUpSpecificBlock__USDCSwap();
 
-        vm.startPrank(rolesAuthority.owner());
-        rolesAuthority.setRoleCapability(
-            STRATEGIST_ROLE, address(manager), manager.manageVaultWithMerkleVerification.selector, true
-        );
-        rolesAuthority.setUserRole(address(this), STRATEGIST_ROLE, true);
-        vm.stopPrank();
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000_000e18);
 
-        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1 * 1e18);
+        address[] memory tokens = new address[](3);
+        SwapKind[] memory kind = new SwapKind[](3);
+        tokens[0] = getAddress(sourceChain, "USDC");
+        kind[0] = SwapKind.BuyAndSell;
+        tokens[1] = getAddress(sourceChain, "WETH");
+        kind[1] = SwapKind.BuyAndSell;
+        tokens[2] = getAddress(sourceChain, "USDT");
+        kind[2] = SwapKind.BuyAndSell;
 
-        console.log("BoringVault USDC balance: %s", USDC.balanceOf(address(boringVault)));
-        console.log("BoringVault RLP balance: %s", RLP.balanceOf(address(boringVault)));
-        console.log("Address of boringVault: %s", address(boringVault));
+        ERC20 token0 = ERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2); // weth
+        ERC20 token1 = ERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48); // usdc
 
-        uint256 cachedRLPBalance = RLP.balanceOf(address(boringVault));
-        uint256 cachedUSDCBalance = USDC.balanceOf(address(boringVault));
-        console.log("Cached RLP balance: %s", cachedRLPBalance);
-        console.log("Cached USDC balance: %s", cachedUSDCBalance);
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
-        // _addOdosSwapLeafs(leafs, tokens, kind);
+        _addMagpieSwapLeafs(leafs, tokens, kind);
 
-        leafs[0] = ManageLeaf(
-            address(USDC),
+        // leafs[0] = ManageLeaf(
+        //     address(token0),
+        //     false,
+        //     "approve(address,uint256)",
+        //     new address[](1),
+        //     string.concat("Approve Magpie Router V3 to spend ", token0.symbol()),
+        //     getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        // );
+        // leafs[0].argumentAddresses[0] = getAddress(sourceChain, "magpieRouterV3");
+
+        // leafs[1] = ManageLeaf(
+        //     getAddress(sourceChain, "magpieRouterV3"),
+        //     false,
+        //     "swapWithMagpieSignature(bytes)",
+        //     new address[](3),
+        //     string.concat("Swap Compact ", token0.symbol(), " for ", token1.symbol()),
+        //     getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        // );
+        // leafs[1].argumentAddresses[0] = getAddress(sourceChain, "WETH");
+        // leafs[1].argumentAddresses[1] = getAddress(sourceChain, "USDC");
+        // leafs[1].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+
+        _generateTestLeafs(leafs, manageTree);
+
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        ManageLeaf[] memory manageLeafs = new ManageLeaf[](2);
+        manageLeafs[0] = ManageLeaf(
+            getAddress(sourceChain, "WETH"),
             false,
             "approve(address,uint256)",
             new address[](1),
-            string.concat("Approve Magpie Router V3 to spend ", RLP.symbol()),
+            "",
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
-        leafs[0].argumentAddresses[0] = getAddress(sourceChain, "magpieRouterV3");
+        manageLeafs[0].argumentAddresses[0] = getAddress(sourceChain, "magpieRouterV3");
 
-        leafs[1] = ManageLeaf(
+        manageLeafs[1] = ManageLeaf(
             getAddress(sourceChain, "magpieRouterV3"),
             false,
             "swapWithMagpieSignature(bytes)",
             new address[](3),
-            string.concat("Swap Compact ", USDC.symbol(), " for ", RLP.symbol()),
+            "",
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
-        leafs[1].argumentAddresses[0] = getAddress(sourceChain, "USDC");
-        leafs[1].argumentAddresses[1] = getAddress(sourceChain, "RLP");
-        leafs[1].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
-
-        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
-
-        //_generateTestLeafs(leafs, manageTree);
-
-        vm.prank(manager.owner());
-        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
-
-        ManageLeaf[] memory manageLeafs = new ManageLeaf[](2);
-        manageLeafs[0] = leafs[0]; //approve RLP to Magpie Router V3
-        manageLeafs[1] = leafs[1]; //swapWithMagpieSignature() USDC <-> RLP
+        manageLeafs[1].argumentAddresses[0] = getAddress(sourceChain, "WETH");
+        manageLeafs[1].argumentAddresses[1] = getAddress(sourceChain, "USDC");
+        manageLeafs[1].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 
         address[] memory targets = new address[](2);
-        targets[0] = getAddress(sourceChain, "USDC"); //approve
-        targets[1] = getAddress(sourceChain, "magpieRouterV3"); //approve
+        targets[0] = getAddress(sourceChain, "WETH");
+        targets[1] = getAddress(sourceChain, "magpieRouterV3");
 
         bytes[] memory targetData = new bytes[](2);
         targetData[0] = abi.encodeWithSignature(
             "approve(address,uint256)", getAddress(sourceChain, "magpieRouterV3"), type(uint256).max
         );
-
-        // // @dev NOTE: this is swapWithMagpieSignature ABI-encoded. This tx data was retrieved directly from the MagpieV3 API. After assembling the tx, the output from the /assemble endpoint will return the following data in the data field. This includes everything needed for swapping. Submit the entire tx data as the targetData. Note that is already includes the function signature, etc.
-
         targetData[1] =
-            hex"73fc445700000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000305027c0140279cad277447965af3d24a78197aad1b02a2c589a0b86991c6218b36c1d19d4a2e9eb0ce3606eb484956b52ae2ff65d74ca2d61207523288e4528f96e000d4b800d9f800e3e000e506f6a1db9710dfd361799fa6e3c3dc87c0dc978e38b688ed4b47c025463b5fcf36865da559789cd11cad30fdb157d6719d204822a892f863d6826951b8cffb5e1b0000e0688f14f5b82a262c0bfec7221ad8f800e03b9aca00060300e490455bd11ce8a67c57d467e634dc142b8e4105aa02005c0200ed0300e43df02124f80101010a03010e03008a0300e403008aad55aebc9b8c03fc43cd9f62260391c13c23e7c002011f000000000022d473030f116ddee9f6b43ac78ba302011f02013605000087517c45136f1efcc3f8f88516b9e94110d56fdbfb1778d1e0688f14f601015302011f02015705000003016b286f580df880f001c0f820ed487afc303358d528fe76781ebd03a7470a97121202f5c7b4b9e47a1a484e8b270be34dbbc7505501017f03018303016b03008a03018503010e03018802011f03018305000003008a03010e02018a02019e03008a03008a42cf3b7e98a1bbc51ed6e5c09f5a93743e60088902019e0201e20500a001010a03008a03010e0500a003008a020070000206070706000000000000000000000000000000000000000000000000000000b82c5e136af13d6744ad0302110500c003023200020a0b00000000000000000000000000000000000000000000000000000000000302450500e0030232eda49bce2f38d284f839be1f4f2e23e6c7cc7dbd02007002026f05010000050607080700000000000000000000000000000000000000000000000000000003028c0500e00302320500c002007002004805012002000000e900ed00000100000101010a00000000000110011f00ed060020013301360000010000014a015300000000000170017f01360000a001b201e2015701000001f601ff000000000001ff020e01e2060020020e02110000080020023c024500000700200266026f00000300000283028c000008002002ad02b9000003000002b902c20000000000000000000000000000000000000000000000000000000000";
+            hex"73fc44570000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000035502de01405615deb798bb3e4dfa0139dfa1b3d433cc23b72fc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48e000d4e000d9f800dec800e016c3600a15d1d4b78f454f15ae4cb7f74de7fc7373dc7c2d511afcc4e6ca6c5f1397aebf0b4030c56a44c462322f3bd889c6fce0e3cf638042e829db30ae24c61b0000e06949b1cfe00198edc8f800c82386f26fc10000060300df128acb08f80100000000000000000000000000000000000000000000000000000001000276a400000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000014c02aaa39b223fe8d0a0e5c4f27ead9083c756cc20000000000000000000000000100eb060300ef0300df0400f10080c7bbec68d12a0d1830360f8ec58fa599ba1b0e9b00070a000000000000000000000000000000000000000000000000000000000000030194050020dac17f958d2ee523a2206206994597c13d831ec79995855c00494d039ab6792f18e368e530dff9310201bb0201cf03008a0201bb0201cf050040f196187fb053e2d6238da300000032a0ffff9a5889f795069a41a8a2f001d70080000000000000000000000000000000000000000000000000000000000000000101f50200700201bb0301f90300ef0500400302040302110302140600060a000000000000000000000000000000000000000000000000000000000000030251050060000206070706000000000000000000000000000000000000000000000000000000e001c65d890302780500c003029900020a0b00000000000000000000000000000000000000000000000000000000000302a70500e0030299eda49bce2f38d284f839be1f4f2e23e6c7cc7dbd0200700202d10501000005060708070000000000000000000000000000000000000000000000000000000302ee0500e00302990500c002007002004805012002000000e700eb000000004001710180018007002001b501bb000001000001e301ec000001000001ec01f500000000400235025101cf0700200272027800000600200238023b0000080020029e02a7000007002002c802d1000003000002e502ee0000080020030f031b0000030000031b032400000000000000000000000000";
 
         address[] memory decodersAndSanitizers = new address[](2);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
@@ -207,17 +209,11 @@ contract MagpieIntegTest is Test, MerkleTreeHelper {
         uint256[] memory values = new uint256[](2);
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
+    }
 
-        uint256 newRLPBalance = RLP.balanceOf(address(boringVault));
-        uint256 newUSDCBalance = USDC.balanceOf(address(boringVault));
-        console.log("New RLP balance: %s", newRLPBalance);
-        console.log("New USDC balance: %s", newUSDCBalance);
-
-        console.log("RLP balance change: %s", newRLPBalance - cachedRLPBalance);
-        // console.log(
-        //     "USDC balance change: %s",
-        //     newUSDCBalance - cachedUSDCBalance
-        // );
+    function _startFork(string memory rpcKey, uint256 blockNumber) internal returns (uint256 forkId) {
+        forkId = vm.createFork(vm.envString(rpcKey), blockNumber);
+        vm.selectFork(forkId);
     }
 }
 

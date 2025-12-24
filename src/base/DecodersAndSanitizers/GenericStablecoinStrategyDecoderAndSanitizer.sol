@@ -11,11 +11,12 @@ import {CurveDecoderAndSanitizer} from "./Protocols/CurveDecoderAndSanitizer.sol
 import {NativeWrapperDecoderAndSanitizer} from "./Protocols/NativeWrapperDecoderAndSanitizer.sol";
 import {PendleRouterDecoderAndSanitizer} from "./Protocols/PendleRouterDecoderAndSanitizer.sol";
 import {CCIPDecoderAndSanitizer} from "./Protocols/CCIPDecoderAndSanitizer.sol";
+import {SiloDecoderAndSanitizer} from "./Protocols/SiloDecoderAndSanitizer.sol";
 import {OdosDecoderAndSanitizer} from "./Protocols/OdosDecoderAndSanitizer.sol";
-import {TellerDecoderAndSanitizer} from "./Protocols/TellerDecoderAndSanitizer.sol";
-import {MagpieDecoderAndSanitizer} from "./MagpieDecoderAndSanitizer.sol";
+import {OneInchDecoderAndSanitizer} from "./Protocols/OneInchDecoderAndSanitizer.sol";
+import {UniswapV4DecoderAndSanitizer} from "./Protocols/UniswapV4DecoderAndSanitizer.sol";
 
-contract SyBtcArbitrumDecoderAndSanitizer is
+contract SyUsdArbitrumDecoderAndSanitizer is
     UniswapV3DecoderAndSanitizer,
     AaveV3DecoderAndSanitizer,
     BalancerV2DecoderAndSanitizer,
@@ -25,12 +26,13 @@ contract SyBtcArbitrumDecoderAndSanitizer is
     NativeWrapperDecoderAndSanitizer,
     PendleRouterDecoderAndSanitizer,
     CCIPDecoderAndSanitizer,
-    MagpieDecoderAndSanitizer,
-    TellerDecoderAndSanitizer
+    SiloDecoderAndSanitizer,
+    OdosDecoderAndSanitizer,
+    OneInchDecoderAndSanitizer
 {
-    constructor(address _uniswapV3NonFungiblePositionManager, address _flyTradeRouterV3)
+    constructor(address _uniswapV3NonFungiblePositionManager, address _odosRouter)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
-        MagpieDecoderAndSanitizer(_flyTradeRouterV3)
+        OdosDecoderAndSanitizer(_odosRouter)
     {}
 
     //============================== HANDLE FUNCTION COLLISIONS ===============================

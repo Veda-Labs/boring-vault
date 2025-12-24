@@ -14,16 +14,12 @@ import {
 } from "src/base/DecodersAndSanitizers/PancakeSwapV3FullDecoderAndSanitizer.sol";
 import {AerodromeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/AerodromeDecoderAndSanitizer.sol";
 import {SyUsdDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyUsdDecoderAndSanitizer.sol";
+import {FullUniswapV4DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/FullUniswapV4DecoderAndSanitizer.sol";
+import {GenericUniswapDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GenericUniswapDecoderAndSanitizer.sol";
 import {SyUsdArbitrumDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyUsdArbitrumDecoderAndSanitizer.sol";
 import {SyUsdPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyUsdPlasmaDecoderAndSanitizer.sol";
-import {
-    BaseStablecoinStrategyDecoderAndSanitizer
-} from "src/base/DecodersAndSanitizers/BaseStablecoinStrategyDecoderAndSanitizer.sol";
 import {SyEthArbitrumDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyEthArbitrumDecoderAndSanitizer.sol";
 import {SyBtcArbitrumDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyBtcArbitrumDecoderAndSanitizer.sol";
-import {
-    BtcGenericStrategyDecoderAndSanitizer
-} from "src/base/DecodersAndSanitizers/BtcGenericStrategyDecoderAndSanitizer.sol";
 import {SyHlpBaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyHlpArbitrumDecoderAndSanitizer.sol";
 import {
     TestVaultArbitrumDecoderAndSanitizer
@@ -193,28 +189,6 @@ contract DeployTestVaultArbitrumDecoderAndSanitizer is Script, ContractNames, Ma
     }
 }
 
-contract DeployBtcGenericStrategyDecoderAndSanitizer is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
-    // uint256 public privateKey;
-    Deployer public deployer = Deployer(0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC);
-
-    function setUp() external {
-        // privateKey = vm.envUint("BORING_DEVELOPER");
-    }
-
-    function run() external {
-        bytes memory creationCode;
-        bytes memory constructorArgs;
-
-        vm.createSelectFork("mainnet");
-        setSourceChainName("mainnet");
-        vm.startBroadcast(vm.envUint("BORING_DEVELOPER"));
-        new BtcGenericStrategyDecoderAndSanitizer(
-            getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2")
-        );
-        vm.stopBroadcast();
-    }
-}
-
 contract DeploySyEthArbitrumDecoderAndSanitizer is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
     uint256 public privateKey;
     Deployer public deployer = Deployer(0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC);
@@ -243,22 +217,24 @@ contract DeploySyBtcArbitrumDecoderAndSanitizer is Script, ContractNames, Mainne
     uint256 public privateKey;
     Deployer public deployer = Deployer(0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC);
 
-    function setUp() external {
-        privateKey = vm.envUint("BORING_DEVELOPER");
-    }
+    function setUp() external {}
 
     function run() external {
-        bytes memory creationCode;
-        bytes memory constructorArgs;
-
         vm.createSelectFork("arbitrum");
         setSourceChainName("arbitrum");
-        vm.startBroadcast(privateKey);
-        creationCode = type(SyBtcArbitrumDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(
-            getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2")
+
+        vm.startBroadcast(vm.envUint("BORING_DEVELOPER"));
+
+        deployer.deployContract(
+            "SyBtc Arbitrum DecodersAndSanitizers Batch 2",
+            type(SyBtcArbitrumDecoderAndSanitizer).creationCode,
+            abi.encode(
+                getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
+                getAddress(sourceChain, "magpieRouterV3")
+            ),
+            0
         );
-        deployer.deployContract("SyBtc Arbitrum DecodersAndSanitizers Batch 1", creationCode, constructorArgs, 0);
+
         vm.stopBroadcast();
     }
 }
@@ -309,24 +285,25 @@ contract DeploySyUsdPlasmaDecoderAndSanitizer is Script, ContractNames, MainnetA
     }
 }
 
-contract DeployBaseStablecoinStrategyDecoderAndSanitizer is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
-    uint256 public privateKey;
-    Deployer public deployer = Deployer(0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC);
-
-    function setUp() external {
-        privateKey = vm.envUint("BORING_DEVELOPER");
-    }
-
+contract DeployUniswapV4DecoderAndSanitizer is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
     function run() external {
-        bytes memory creationCode;
-        bytes memory constructorArgs;
+        vm.createSelectFork("monad");
+        setSourceChainName(monad);
+        vm.startBroadcast(vm.envUint("BORING_DEVELOPER"));
+        new FullUniswapV4DecoderAndSanitizer(getAddress(sourceChain, "uniV4PositionManager"));
+        vm.stopBroadcast();
+    }
+}
 
-        vm.createSelectFork("base");
-        setSourceChainName(plasma);
-        vm.startBroadcast(privateKey);
-        creationCode = type(BaseStablecoinStrategyDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(getAddress(sourceChain, "aerodromeNonFungiblePositionManager"));
-        deployer.deployContract("Base Stablecoin Strategy DecodersAndSanitizers", creationCode, constructorArgs, 0);
+contract DeployGenericUniswapDecoderAndSanitizer is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
+    function run() external {
+        vm.createSelectFork("monad");
+        setSourceChainName(monad);
+        vm.startBroadcast(vm.envUint("BORING_DEVELOPER"));
+        new GenericUniswapDecoderAndSanitizer(
+            getAddress(sourceChain, "uniV4PositionManager"),
+            getAddress(sourceChain, "uniswapV3NonFungiblePositionManager")
+        );
         vm.stopBroadcast();
     }
 }

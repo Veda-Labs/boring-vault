@@ -11,44 +11,37 @@ import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVer
 import "forge-std/Script.sol";
 
 /**
- *  source .env && forge script script/MerkleRootCreation/Arbitrum/CreateSyBtcLeafs.s.sol --rpc-url $ARBITRUM_RPC_URL
+ *  source .env && forge script script/MerkleRootCreation/Arbitrum/BtcCarryStrategyMerkleRoot.s.sol --rpc-url $ARBITRUM_RPC_URL
  */
-contract SyBtcMerkleRootScript is Script, MerkleTreeHelper {
+contract BtcCStrategyMerkleRootScript is Script, MerkleTreeHelper {
     uint256 public privateKey;
 
     //standard
-    address public boringVault = 0xC0D48269f8d6E427B0637F5e0695De11C8E75F6c;
-    address public rawDataDecoderAndSanitizer = 0xA902f4dADE492e44c455F1D8A848D835d70b4854;
+    address public boringVault = 0x02B2784DC5a994a06a880b57B38b526c318c7490;
+    address public rawDataDecoderAndSanitizer = 0x307803373Ac73Fb99077d363cdD4D26bf28b89ed;
     ManagerWithMerkleVerification internal manager =
-        ManagerWithMerkleVerification(0x0dE47e4c2A0de8833e7bC8285eecb17c296fBB8A);
-    address public accountant = 0xDda6274D69F464172CC7F52194d16FF27ec0D5A6;
-
-    //one offs
-    address public camelotFullDecoderAndSanitizer = 0xe315ADA67dB9Fd97523620194ccdd727102830c7;
-
-    //itb
-    address public itbDecoderAndSanitizer = 0xEEb53299Cb894968109dfa420D69f0C97c835211;
-    address public itbGearboxProtocolPositionManager = 0xad5dB17b44506785931dbc49c8857482c3b4F622;
+        ManagerWithMerkleVerification(0x1E9bEF0e9f33C438aF4C29ee393857d1E92f4485);
+    address public accountant = 0x83a9d9aE20C0C5b36FB211Ef32BF269B43097FEC;
     address agent = 0x0307AD25281C99F22A8F3Af9e272fE3968810239;
     address agent1 = 0xa86b3Bf249478488B4304B50726c7D4689aD6320;
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("arbitrum");
-        setSourceChainName(arbitrum);
+        vm.createSelectFork("mainnet");
+        setSourceChainName(mainnet);
 
-        setAddress(true, arbitrum, "boringVault", address(boringVault));
-        setAddress(true, arbitrum, "managerAddress", address(manager));
-        setAddress(true, arbitrum, "manager", address(manager));
-        setAddress(true, arbitrum, "accountantAddress", address(accountant));
-        setAddress(true, arbitrum, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        setAddress(true, mainnet, "boringVault", address(boringVault));
+        setAddress(true, mainnet, "managerAddress", address(manager));
+        setAddress(true, mainnet, "manager", address(manager));
+        setAddress(true, mainnet, "accountantAddress", address(accountant));
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
     }
 
     function run() public {
         ManageLeaf[] memory leafs = new ManageLeaf[](1024);
         _addLeafs(leafs);
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
-        string memory filePath = "./leafs/Arbitrum/SyBtcArbitrumStrategyLeafs.json";
+        string memory filePath = "./leafs/Mainnet/BtcCarryStrategyLeafs.json";
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
 
         vm.startBroadcast(privateKey);
@@ -86,7 +79,6 @@ contract SyBtcMerkleRootScript is Script, MerkleTreeHelper {
         kind[5] = SwapKind.BuyAndSell;
         kind[6] = SwapKind.BuyAndSell;
         _addOdosSwapLeafs(leafs, oneInchAssets, kind);
-        _addMagpieSwapLeafs(leafs, oneInchAssets, kind);
 
         address[] memory token0 = new address[](3);
         token0[0] = getAddress(sourceChain, "WETH");
@@ -109,12 +101,17 @@ contract SyBtcMerkleRootScript is Script, MerkleTreeHelper {
 
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
 
-        ERC20[] memory depositAssets = new ERC20[](1);
-        depositAssets[0] = getERC20(sourceChain, "WBTC");
-        _addTellerLeafs(leafs, 0x779D6E59F86C9E379ccb8e7dc131bbE0c952d3a6, depositAssets, false, false);
+        ERC20[] memory supplyTokens = new ERC20[](2);
+        supplyTokens[0] = getERC20(sourceChain, "WBTC");
+        supplyTokens[1] = getERC20(sourceChain, "cbBTC");
 
-        _addWithdrawQueueLeafs(
-            leafs, 0x88eE351D6Ef93BC4F7481a5a4fd05423639C88e4, 0xA923d8C976388518D65528324A587E4700f8F40f, depositAssets
+        ERC20[] memory borrowTokens = new ERC20[](1);
+        borrowTokens[0] = getERC20(sourceChain, "USDT");
+
+        uint256 dexType = 2000;
+
+        _addFluidDexLeafs(
+            leafs, getAddress(sourceChain, "wBTC-cbBTCDex-USDT"), dexType, supplyTokens, borrowTokens, false
         );
     }
 }

@@ -4,7 +4,7 @@
     "privateKeyEnvName": "PRIVATE_KEY_1",
     "chainName": "arbitrum",
     "evmVersion": "cancun",
-    "desiredNumberOfDeploymentTxs": 1,
+    "desiredNumberOfDeploymentTxs": 10,
     "txBundlerAddressOrName": {
       "address": "0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC",
       "name": "txBundlerAddress"
@@ -42,7 +42,7 @@
   },
   "boringVaultConfiguration": {
     "boringVaultDeploymentName": "boringVaultV1.0",
-    "boringVaultName": "lucidly BTC Strategy A (delta neutral)",
+    "boringVaultName": "Lucidly syBTC Strategy A (delta neutral)",
     "boringVaultSymbol": "syBTC Strategy A",
     "boringVaultDecimals": 8
   },
@@ -70,7 +70,7 @@
         "allowedExchangeRateChangeUpper": 15000,
         "baseAddressOrName": {
           "address": "0x0000000000000000000000000000000000000000",
-          "name": "WETH"
+          "name": "WBTC"
         },
         "minimumUpateDelayInSeconds": 3600,
         "performanceFee": 100,
@@ -188,7 +188,7 @@
     {
       "addressOrName": {
         "address": "0x0000000000000000000000000000000000000000",
-        "name": "WETH"
+        "name": "WBTC"
       },
       "isPeggedToBase": true,
       "rateProvider": "0x0000000000000000000000000000000000000000"
@@ -198,7 +198,7 @@
     {
       "addressOrName": {
         "address": "0x0000000000000000000000000000000000000000",
-        "name": "WETH"
+        "name": "WBTC"
       },
       "allowDeposits": true,
       "allowWithdraws": true,
@@ -209,7 +209,7 @@
     {
       "addressOrName": {
         "address": "0x0000000000000000000000000000000000000000",
-        "name": "WETH"
+        "name": "WBTC"
       },
       "maxDiscount": 100,
       "minDiscount": 0,

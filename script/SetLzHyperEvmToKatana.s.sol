@@ -18,9 +18,8 @@ contract SetSendConfig is Script, MerkleTreeHelper {
     uint32 constant EXECUTOR_CONFIG_TYPE = 1;
     uint32 constant ULN_CONFIG_TYPE = 2;
 
-    address constant LAYERZEROLABS_DVN = 0x282b3386571f7f794450d5789911a9804FA346b4;
-    address constant NETHERMIND_DVN = 0xaCDe1f22EEAb249d3ca6Ba8805C8fEe9f52a16e7;
-    address constant BASE_LZ_EXECUTOR = 0x2CCA08ae69E0C44b18a57Ab2A87644234dAebaE4;
+    address constant HYPEREVM_LZ_EXECUTOR = 0x41Bdb4aa4A63a5b2Efc531858d3118392B1A1C3d;
+    address constant KATANA_LZ_EXECUTOR = 0x4208D6E27538189bB48E603D6123A94b8Abe0A0b;
     address public signer;
     Deployer deployer = Deployer(0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC);
 
@@ -29,15 +28,22 @@ contract SetSendConfig is Script, MerkleTreeHelper {
     }
 
     function run() external {
-        vm.createSelectFork("base");
-        address endpoint = 0x1a44076050125825900e736c501f859c50fE728c;
-        address oapp = vm.envAddress("SENDER_OAPP_ADDRESS");
-        uint32 eid = 30375;
-        address sendLib = 0xB5320B0B3a13cC860893E2Bd79FCd7e13484Dda2;
+        // _setDvnOnKatana();
+        _setDvnOnHyperEvm();
+    }
+
+    function _setDvnOnHyperEvm() internal {
+        vm.createSelectFork("hyperevm");
+        uint32 RECEIVE_CONFIG_TYPE = 2;
+        address endpoint = 0x3A73033C0b1407574C76BdBAc67f126f6b4a9AA9;
+        address oapp = 0xabbA9E382f9b14441E60B9E68559e3a22762dFb6;
+        uint32 eid = 30375; // katana endpoint id
+        address sendLib = 0xfd76d9CB0Bac839725aB79127E7411fe71b1e3CA;
+        address receiveLib = 0x7cacBe439EaD55fa1c22790330b12835c6884a91;
 
         address[] memory requiredDvns = new address[](2);
-        requiredDvns[0] = 0x9e059a54699a285714207b43B055483E78FAac25; // layerzero labs
-        requiredDvns[1] = 0xcd37CA043f8479064e10635020c65FfC005d36f6; // base nethermind dvn
+        requiredDvns[0] = 0x8E49eF1DfAe17e547CA0E7526FfDA81FbaCA810A; // hyperevm nethermind dvn
+        requiredDvns[1] = 0xc097ab8CD7b053326DFe9fB3E3a31a0CCe3B526f; // hyperevm layerzero labs dvn
 
         address[] memory optionalDvns = new address[](0);
 
@@ -58,7 +64,7 @@ contract SetSendConfig is Script, MerkleTreeHelper {
         /// @notice ExecutorConfig sets message size limit + fee‑paying executor
         ExecutorConfig memory exec = ExecutorConfig({
             maxMessageSize: 1000000, // max bytes per cross-chain message
-            executor: BASE_LZ_EXECUTOR // address that pays destination execution fees
+            executor: HYPEREVM_LZ_EXECUTOR // address that pays destination execution fees
         });
 
         bytes memory encodedUln = abi.encode(uln);
@@ -68,25 +74,35 @@ contract SetSendConfig is Script, MerkleTreeHelper {
         params[0] = SetConfigParam(eid, EXECUTOR_CONFIG_TYPE, encodedExec);
         params[1] = SetConfigParam(eid, ULN_CONFIG_TYPE, encodedUln);
 
-        vm.startBroadcast(vm.envUint("BORING_OWNER"));
-        ILayerZeroEndpointV2(endpoint).setConfig(oapp, sendLib, params);
-        vm.stopBroadcast();
+        _addTx(
+            endpoint, abi.encodeWithSelector(IMessageLibManager.setConfig.selector, oapp, sendLib, params), uint256(0)
+        );
 
-        _setDvnOnKatana();
+        SetConfigParam[] memory receiveParams = new SetConfigParam[](1);
+        receiveParams[0] = SetConfigParam(eid, RECEIVE_CONFIG_TYPE, encodedUln);
+
+        _addTx(
+            endpoint,
+            abi.encodeWithSelector(IMessageLibManager.setConfig.selector, oapp, receiveLib, receiveParams),
+            uint256(0)
+        );
+
+        _bundleTxs();
     }
 
     function _setDvnOnKatana() internal {
         vm.createSelectFork("katana");
         uint32 RECEIVE_CONFIG_TYPE = 2;
         address endpoint = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B;
-        address oapp = vm.envAddress("SENDER_OAPP_ADDRESS");
-        uint32 eid = uint32(30184);
+        address oapp = 0xabbA9E382f9b14441E60B9E68559e3a22762dFb6;
+        uint32 eid = uint32(30367); // hyperevm endpoint id
         address receiveLib = 0xe1844c5D63a9543023008D332Bd3d2e6f1FE1043;
+        address sendLib = 0xC39161c743D0307EB9BCc9FEF03eeb9Dc4802de7;
         address signer = vm.envAddress("SIGNER");
 
         address[] memory requiredDvns = new address[](2);
-        requiredDvns[0] = 0x282b3386571f7f794450d5789911a9804FA346b4; // layerzero labs dvn
-        requiredDvns[1] = 0xaCDe1f22EEAb249d3ca6Ba8805C8fEe9f52a16e7; // base nethermind dvn
+        requiredDvns[0] = 0x282b3386571f7f794450d5789911a9804FA346b4; // katana layerzero labs dvn
+        requiredDvns[1] = 0xaCDe1f22EEAb249d3ca6Ba8805C8fEe9f52a16e7; // katana nethermind dvn
 
         address[] memory optionalDvns = new address[](0);
 
@@ -112,6 +128,22 @@ contract SetSendConfig is Script, MerkleTreeHelper {
         _addTx(
             endpoint,
             abi.encodeWithSelector(IMessageLibManager.setConfig.selector, oapp, receiveLib, params),
+            uint256(0)
+        );
+
+        /// @notice ExecutorConfig sets message size limit + fee‑paying executor
+        ExecutorConfig memory exec = ExecutorConfig({
+            maxMessageSize: 1000000, // max bytes per cross-chain message
+            executor: KATANA_LZ_EXECUTOR // address that pays destination execution fees
+        });
+        bytes memory encodedExec = abi.encode(exec);
+        SetConfigParam[] memory sendParams = new SetConfigParam[](2);
+        sendParams[0] = SetConfigParam(eid, EXECUTOR_CONFIG_TYPE, encodedExec);
+        sendParams[1] = SetConfigParam(eid, ULN_CONFIG_TYPE, encodedUln);
+
+        _addTx(
+            endpoint,
+            abi.encodeWithSelector(IMessageLibManager.setConfig.selector, oapp, sendLib, sendParams),
             uint256(0)
         );
 

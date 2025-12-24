@@ -7,8 +7,9 @@ import {
     ILayerZeroEndpointV2,
     IMessageLibManager
 } from "LayerZero-v2/packages/layerzero-v2/evm/protocol/contracts/interfaces/ILayerZeroEndpointV2.sol";
-import {SetConfigParam} from
-    "LayerZero-v2/packages/layerzero-v2/evm/protocol/contracts/interfaces/IMessageLibManager.sol";
+import {
+    SetConfigParam
+} from "LayerZero-v2/packages/layerzero-v2/evm/protocol/contracts/interfaces/IMessageLibManager.sol";
 import {UlnConfig} from "LayerZero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/UlnBase.sol";
 import {ExecutorConfig} from "LayerZero-v2/packages/layerzero-v2/evm/messagelib/contracts/SendLibBase.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";

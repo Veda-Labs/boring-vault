@@ -1,16 +1,16 @@
 {
   "deploymentParameters": {
     "logLevel": 4,
-    "privateKeyEnvName": "PRIVATE_KEY_1",
-    "chainName": "arbitrum",
+    "privateKeyEnvName": "BORING_DEVELOPER",
+    "chainName": "monad",
     "evmVersion": "cancun",
-    "desiredNumberOfDeploymentTxs": 1,
+    "desiredNumberOfDeploymentTxs": 5,
     "txBundlerAddressOrName": {
-      "address": "0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC",
+      "address": "0x0000000000000000000000000000000000000000",
       "name": "txBundlerAddress"
     },
     "setupRoles": true,
-    "setupTestUser": false,
+    "setupTestUser": true,
     "saveDeploymentDetails": true,
     "testUserAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
@@ -22,122 +22,89 @@
     },
     "nativeWrapperAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
-      "name": "WETH"
+      "name": "WMON"
     },
     "deploymentOwnerAddressOrName": {
-      "address": "0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC",
-      "name": "dev0Address"
-    },
-    "systemOwnerAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
-      "name": "dev0Address"
+      "name": "txBundlerAddress"
     },
-    "deploymentFileName": "addresses/Arbitrum/LucidlySyBtcStrategyA.json"
+    "deploymentFileName": "addresses/Monad/MonadMonUsdcLpVault.json"
   },
   "rolesAuthorityConfiguration": {
-    "rolesAuthorityDeploymentName": "BTC strategy A rolesAuthorityV1.0"
+    "rolesAuthorityDeploymentName": "MONUSDC-LP Roles Authority V0.0"
   },
   "lensConfiguration": {
-    "lensDeploymentName": " lensV1.0"
+    "lensDeploymentName": "MONUSDC-LP Arctic Architecture Lens V0.0"
   },
   "boringVaultConfiguration": {
-    "boringVaultDeploymentName": "boringVaultV1.0",
-    "boringVaultName": "lucidly BTC Strategy A (delta neutral)",
-    "boringVaultSymbol": "syBTC Strategy A",
-    "boringVaultDecimals": 8
+    "boringVaultDeploymentName": "MONUSDC-LP Boring Vault V0.0",
+    "boringVaultName": "l-MON-USDC-LP",
+    "boringVaultSymbol": "Lucidly Managed MONUSDC-LP Strategy",
+    "boringVaultDecimals": 6
   },
   "managerConfiguration": {
-    "managerDeploymentName": "BTC Strategy A managerV1.0",
+    "managerDeploymentName": "MONUSDCLP Manager V0.0",
     "balancerVaultAddressOrName": {
-      "address": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+      "address": "0x0000000000000000000000000000000000000000",
       "name": "balancerVault"
     }
   },
   "accountantConfiguration": {
-    "accountantDeploymentName": "BTC Strategy A AccountantV1.0",
+    "accountantDeploymentName": "MONUSDCLP Accountant V0.0",
     "accountantParameters": {
       "kind": {
         "variableRate": true,
         "fixedRate": false
       },
       "payoutConfiguration": {
-        "payoutTo": "0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5",
-        "optionalPaymentSplitterName": "Payment Splitter",
+        "payoutTo": "0x0000000000000000000000000000000000000000",
+        "optionalPaymentSplitterName": "MONUSDCLP Payment Splitter V0.0",
         "splits": []
       },
       "accountantDeploymentParameters": {
         "allowedExchangeRateChangeLower": 9900,
-        "allowedExchangeRateChangeUpper": 15000,
+        "allowedExchangeRateChangeUpper": 11000,
         "baseAddressOrName": {
           "address": "0x0000000000000000000000000000000000000000",
-          "name": "WETH"
+          "name": "USDC"
         },
-        "minimumUpateDelayInSeconds": 3600,
-        "performanceFee": 100,
+        "minimumUpateDelayInSeconds": 21600,
+        "performanceFee": 1000,
         "platformFee": 0,
         "startingExchangeRate": 1000000
       }
     }
   },
   "tellerConfiguration": {
-    "tellerDeploymentName": "BTC Strategy A TellerV1.0",
+    "tellerDeploymentName": "MONUSDCLP Teller V0.0",
     "tellerParameters": {
-      "allowPublicDeposits": false,
-      "shareLockPeriod": 86400,
+      "allowPublicDeposits": true,
+      "shareLockPeriod": 0,
       "kind": {
         "teller": false,
         "tellerWithRemediation": false,
         "tellerWithCcip": false,
         "tellerWithLayerZero": true
       },
-      "ccip": {
-        "routerAddressOrName": {
-          "address": "0x0000000000000000000000000000000000000000",
-          "name": "ccipRouter"
-        },
-        "ccipChains": [
-          {
-            "chainSelector": 1,
-            "allowMessagesFrom": true,
-            "allowMessagesTo": true,
-            "targetTellerOrSelf": {
-              "address": "0x0000000000000000000000000000000000000000",
-              "self": true
-            },
-            "messageGasLimit": 100000
-          }
-        ]
-      },
       "layerZero": {
         "endpointAddressOrName": {
-          "address": "0x1a44076050125825900e736c501f859c50fE728c",
+          "address": "0x0000000000000000000000000000000000000000",
           "name": "LayerZeroEndPoint"
         },
         "lzTokenAddressOrName": {
-          "address": "0x6985884C4392D348587B19cb9eAAf157F13271cd",
+          "address": "0x0000000000000000000000000000000000000000",
           "name": "ZRO"
         },
-        "lzChains": [
-          {
-            "chainId": 42161,
-            "allowMessagesFrom": true,
-            "allowMessagesTo": true,
-            "targetTellerOrSelf": {
-              "address": "0x0000000000000000000000000000000000000000",
-              "self": true
-            },
-            "messageGasLimit": 100000
-          }
-        ]
+        "lzChains": []
       }
     }
   },
   "boringQueueConfiguration": {
-    "boringQueueDeploymentName": "BTC Strategy A BoringOnChainQueueV1.0",
-    "boringQueueSolverName": "BTC Strategy A BoringSolverV1.0",
+    "boringQueueDeploymentName": "MONUSDCLP Boring Queue V0.0",
+    "boringQueueSolverName": "MONUSDCLP Boring Solver V1.0",
     "queueParameters": {
-      "allowPublicWithdrawals": false,
-      "allowPublicSelfWithdrawals": false,
+      "allowPublicWithdrawals": true,
+      "allowPublicSelfWithdrawals": true,
       "kind": {
         "boringQueue": true,
         "boringQueueWithTracking": false
@@ -145,13 +112,13 @@
     }
   },
   "droneConfiguration": {
-    "droneDeploymentBaseName": "BTC Strategy A Boring Drone",
-    "droneCount": 1,
+    "droneDeploymentBaseName": "MONUSDCLP Drone V0.0",
+    "droneCount": 0,
     "safeGasToForwardNative": 21000
   },
   "pauserConfiguration": {
-    "shouldDeploy": true,
-    "pauserDeploymentName": "BTC Strategy A Pauser",
+    "shouldDeploy": false,
+    "pauserDeploymentName": "MONUSDCLP Pauser V0.0",
     "makeGenericPauser": [
       "0x0000000000000000000000000000000000000000"
     ],
@@ -173,9 +140,9 @@
   },
   "timelockConfiguration": {
     "shouldDeploy": false,
-    "timelockDeploymentName": "BTC Strategy A Timelock",
+    "timelockDeploymentName": "MONUSDCLP Timelock V0.0",
     "timelockParameters": {
-      "minDelay": 86400,
+      "minDelay": 300,
       "proposers": [
         "0x0000000000000000000000000000000000000000"
       ],
@@ -188,7 +155,7 @@
     {
       "addressOrName": {
         "address": "0x0000000000000000000000000000000000000000",
-        "name": "WETH"
+        "name": "USDC"
       },
       "isPeggedToBase": true,
       "rateProvider": "0x0000000000000000000000000000000000000000"
@@ -198,7 +165,7 @@
     {
       "addressOrName": {
         "address": "0x0000000000000000000000000000000000000000",
-        "name": "WETH"
+        "name": "USDC"
       },
       "allowDeposits": true,
       "allowWithdraws": true,
@@ -209,13 +176,13 @@
     {
       "addressOrName": {
         "address": "0x0000000000000000000000000000000000000000",
-        "name": "WETH"
+        "name": "USDC"
       },
-      "maxDiscount": 100,
+      "maxDiscount": 10,
       "minDiscount": 0,
       "minimumSecondsToDeadline": 0,
       "minimumShares": 0,
-      "secondsToMaturity": 60
-    }
+      "secondsToMaturity": 86400 
+    } 
   ]
 }

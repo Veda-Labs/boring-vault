@@ -120,7 +120,8 @@ contract ChainValues {
         _addDeriveValues();
         _addUnichainValues();
         _addKatanaValues();
-        _addPlasmaValues(); // Plasma
+        _addPlasmaValues();
+        _addMonadValues();
         // Add testnet values
         _addHoleskyValues();
         _addSepoliaValues();
@@ -129,17 +130,38 @@ contract ChainValues {
         _addBerachainTestnetValues();
         _addBartioValues();
         _addHyperEvmValues();
-        _addMonadValues();
     }
 
     function _addMonadValues() private {
-        values[monad]["deployerAddress"] = 0x5BD97A73333B6EC2e38B687bcED159566A14C5BA.toBytes32();
-        values[monad]["txBundlerAddress"] = 0x5BD97A73333B6EC2e38B687bcED159566A14C5BA.toBytes32();
+        values[monad]["deployerAddress"] = 0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC.toBytes32();
+        values[monad]["txBundlerAddress"] = 0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC.toBytes32();
         values[monad]["dev0Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
         values[monad]["dev1Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
-        values[monad]["WMON"] = 0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A.toBytes32();
+        values[monad]["balancerVault"] = address(1).toBytes32();
+
+        // tokens
+        values[monad]["MON"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32();
+        values[monad]["ETH"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32(); // native token for EVM networks
+        values[monad]["AUSD"] = 0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a.toBytes32();
         values[monad]["USDC"] = 0x754704Bc059F8C67012fEd69BC8A327a5aafb603.toBytes32();
-        values[monad]["vault"] = address(1).toBytes32();
+        values[monad]["WMON"] = 0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A.toBytes32();
+        values[monad]["WETH"] = 0xEE8c0E9f1BFFb4Eb878d8f15f368A02a35481242.toBytes32();
+
+        // uniswap v4
+        values[monad]["uniV4PoolManager"] = 0x188d586Ddcf52439676Ca21A244753fA19F9Ea8e.toBytes32();
+        values[monad]["univ4PositionDescriptor"] = 0x5770D2914355a6D0a39A70AeEa9bcCe55Df4201B.toBytes32();
+        values[monad]["uniV4PositionManager"] = 0x5b7eC4a94fF9beDb700fb82aB09d5846972F4016.toBytes32();
+        values[monad]["uniV4UniversalRouter"] = 0x0D97Dc33264bfC1c226207428A79b26757fb9dc3.toBytes32();
+        values[monad]["permit2"] = 0x000000000022D473030F116dDEE9F6B43aC78BA3.toBytes32();
+
+        // uniswap v3
+        values[monad]["universalRouter"] = 0x0D97Dc33264bfC1c226207428A79b26757fb9dc3.toBytes32();
+        values[monad]["uniV3Router"] = 0xfE31F71C1b106EAc32F1A19239c9a9A72ddfb900.toBytes32();
+        values[monad]["uniswapV3NonFungiblePositionManager"] = 0x7197E214c0b767cFB76Fb734ab638E2c192F4E53.toBytes32();
+
+        // layerzero
+        values[monad]["ZRO"] = address(1).toBytes32();
+        values[monad]["LayerZeroEndPoint"] = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B.toBytes32();
     }
 
     function _addPlasmaValues() private {
@@ -190,11 +212,10 @@ contract ChainValues {
     function _addMainnetValues() private {
         values[mainnet]["boringDeployerContract"] = 0xFD65ADF7d2f9ea09287543520a703522E0a360C9.toBytes32();
         // Liquid Ecosystem
-        values[mainnet]["deployerAddress"] = 0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC.toBytes32();
-        values[mainnet]["deployerAddress2"] = 0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC.toBytes32();
-        values[mainnet]["txBundlerAddress"] = 0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC.toBytes32();
-        values[mainnet]["dev0Address"] = 0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC.toBytes32();
-        values[mainnet]["dev1Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
+        values[mainnet]["deployerAddress"] = 0x5BD97A73333B6EC2e38B687bcED159566A14C5BA.toBytes32();
+        values[mainnet]["deployerAddress2"] = 0xF3d0672a91Fd56C9ef04C79ec67d60c34c6148a0.toBytes32();
+        values[mainnet]["dev0Address"] = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b.toBytes32();
+        values[mainnet]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
         values[mainnet]["dev3Address"] = 0xBBc5569B0b32403037F37255f4ff50B8Bb825b2A.toBytes32();
         values[mainnet]["dev4Address"] = 0xD3d742a82524b6de30E54315E471264dc4CF2BcC.toBytes32();
         values[mainnet]["liquidV1PriceRouter"] = 0x693799805B502264f9365440B93C113D86a4fFF5.toBytes32();
@@ -207,6 +228,7 @@ contract ChainValues {
         values[mainnet]["superSymbiotic"] = 0x917ceE801a67f933F2e6b33fC0cD1ED2d5909D88.toBytes32();
         values[mainnet]["superSymbioticTeller"] = 0x99dE9e5a3eC2750a6983C8732E6e795A35e7B861.toBytes32();
         values[mainnet]["weETHs"] = 0x917ceE801a67f933F2e6b33fC0cD1ED2d5909D88.toBytes32();
+        values[mainnet]["txBundlerAddress"] = 0x47Cec90FACc9364D7C21A8ab5e2aD9F1f75D740C.toBytes32();
         values[mainnet]["eBTCVault"] = 0x657e8C867D8B37dCC18fA4Caead9C45EB088C642.toBytes32();
         values[mainnet]["eBTCDelayedWithdraw"] = 0x75E3f26Ceff44258CE8cB451D7d2cC8966Ef3554.toBytes32();
         values[mainnet]["eBTCOnChainQueue"] = 0x74EC75fb641ec17B04007733d9efBE2D1dA5CA2C.toBytes32();
@@ -1468,8 +1490,8 @@ contract ChainValues {
     }
 
     function _addBaseValues() private {
-        values[base]["deployerAddress"] = 0x5BD97A73333B6EC2e38B687bcED159566A14C5BA.toBytes32();
-        values[base]["deployerAddress1"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
+        values[base]["deployerAddress"] = 0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC.toBytes32();
+        values[base]["deployerAddress1"] = 0xAb77C16026A12D12122F11450615B8D54f82Df53.toBytes32();
         values[base]["dev0Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
         values[base]["dev1Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
         values[base]["liquidPayoutAddress"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
@@ -1591,11 +1613,11 @@ contract ChainValues {
 
     function _addArbitrumValues() private {
         // Liquid Ecosystem
-        values[arbitrum]["deployerAddress"] = 0x5BD97A73333B6EC2e38B687bcED159566A14C5BA.toBytes32();
+        values[arbitrum]["deployerAddress"] = 0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC.toBytes32();
         values[arbitrum]["dev0Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
         values[arbitrum]["dev1Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
-        values[arbitrum]["liquidPayoutAddress"] = 0xA9962a5BfBea6918E958DeE0647E99fD7863b95A.toBytes32();
-        values[arbitrum]["txBundlerAddress"] = 0x5BD97A73333B6EC2e38B687bcED159566A14C5BA.toBytes32();
+        values[arbitrum]["liquidPayoutAddress"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
+        values[arbitrum]["txBundlerAddress"] = 0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC.toBytes32();
 
         // DeFi Ecosystem
         values[arbitrum]["ETH"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32();
@@ -1641,8 +1663,6 @@ contract ChainValues {
         values[arbitrum]["GHO"] = 0x7dfF72693f6A4149b17e7C6314655f6A9F7c8B33.toBytes32();
         values[arbitrum]["HLP0"] = 0x3D75F2BB8aBcDBd1e27443cB5CBCE8A668046C81.toBytes32();
         values[arbitrum]["GYD"] = 0xCA5d8F8a8d49439357d3CF46Ca2e720702F132b8.toBytes32();
-        values[arbitrum]["ZRO"] = 0x6985884C4392D348587B19cb9eAAf157F13271cd.toBytes32();
-        values[arbitrum]["LayerZeroEndPoint"] = 0x1a44076050125825900e736c501f859c50fE728c.toBytes32();
 
         // Aave V3
         values[arbitrum]["v3Pool"] = 0x794a61358D6845594F94dc1DB02A252b5b4814aD.toBytes32();
@@ -1754,6 +1774,9 @@ contract ChainValues {
         // Morpho Blue
         values[arbitrum]["morphoBlue"] = 0x6c247b1F6182318877311737BaC0844bAa518F5e.toBytes32();
         values[arbitrum]["syrupUSDC_USDC_915"] = 0xf86f3edd6f16cd8211f4d206866dc4ecd41be6211063ac11f8508e1b7112ef40;
+
+        // Magpie Router v3
+        values[arbitrum]["magpieRouterV3"] = 0xfB1B08BA6BA284934D817Ea3C9D18f592cc59a50.toBytes32();
     }
 
     function _addOptimismValues() private {

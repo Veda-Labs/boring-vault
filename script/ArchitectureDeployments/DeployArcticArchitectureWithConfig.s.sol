@@ -7,8 +7,9 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {BalancerVault} from "src/interfaces/BalancerVault.sol";
-import {EtherFiLiquidEthDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/EtherFiLiquidEthDecoderAndSanitizer.sol";
+import {
+    EtherFiLiquidEthDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/EtherFiLiquidEthDecoderAndSanitizer.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {TellerWithRemediation} from "src/base/Roles/TellerWithRemediation.sol";
@@ -17,8 +18,9 @@ import {
     CrossChainTellerWithGenericBridge
 } from "src/base/Roles/CrossChain/Bridges/CCIP/ChainlinkCCIPTeller.sol";
 import {LayerZeroTeller} from "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTeller.sol";
-import {LayerZeroTellerWithRateLimiting} from
-    "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTellerWithRateLimiting.sol";
+import {
+    LayerZeroTellerWithRateLimiting
+} from "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTellerWithRateLimiting.sol";
 import {AccountantWithRateProviders, IRateProvider} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {AccountantWithFixedRate} from "src/base/Roles/AccountantWithFixedRate.sol";
 import {Deployer} from "src/helper/Deployer.sol";
@@ -371,7 +373,6 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
         _deployPauser();
         _deployTimelock();
         _deployDrones();
-        // _addSetRolesAuthorityTxs();
         _setupRoles();
         _setupAccountantAssets();
         _setupDepositAssets();
@@ -383,19 +384,27 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
         _saveContractAddresses();
         _bundleTxs();
 
-        // _log(string.concat("lens.owner() - ", vm.toString(lens.owner())), 4);
         _log(string.concat("manager.owner() - ", vm.toString(manager.owner())), 4);
         _log(string.concat("boringVault.owner() - ", vm.toString(boringVault.owner())), 4);
         _log(string.concat("rolesAuthority.owner() - ", vm.toString(rolesAuthority.owner())), 4);
         _log(string.concat("teller.owner() - ", vm.toString(teller.owner())), 4);
         _log(string.concat("accountant.owner() - ", vm.toString(accountant.owner())), 4);
         _log(string.concat("deployer.owner() - ", vm.toString(deployer.owner())), 4);
-        // _log(string.concat("delayedWithdrawer.owner() - ", vm.toString(delayedWithdrawer.owner())), 4);
-        // _log(string.concat("paymentSplitter.owner() - ", vm.toString(paymentSplitter.owner())), 4);
+
         _log(string.concat("queue.owner() - ", vm.toString(queue.owner())), 4);
         _log(string.concat("queueSolver.owner() - ", vm.toString(queueSolver.owner())), 4);
-        _log(string.concat("pauser.owner() - ", vm.toString(pauser.owner())), 4);
-        // _log(string.concat("timelock.owner() - ", vm.toString(timelock.owner())), 4);
+
+        if (address(delayedWithdrawer) != address(0)) {
+            _log(string.concat("delayedWithdrawer.owner() - ", vm.toString(delayedWithdrawer.owner())), 4);
+        }
+
+        if (address(paymentSplitter) != address(0)) {
+            _log(string.concat("paymentSplitter.owner() - ", vm.toString(paymentSplitter.owner())), 4);
+        }
+
+        if (address(pauser) != address(0)) {
+            _log(string.concat("pauser.owner() - ", vm.toString(pauser.owner())), 4);
+        }
     }
 
     function _deployRolesAuthority() internal {
@@ -1353,8 +1362,8 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
 
     function _finalizeSetup() internal {
         _log("Finalizing setup...", 3);
-        _log(string.concat("rolesAuthority: ", vm.toString(address(rolesAuthority))), 3);
-        address ownerAddress = 0x3Dd95962fC01EcEC5f867189A929d036D5aC12A6;
+        address ownerAddress = _handleAddressOrName(".deploymentParameters.systemOwnerAddressOrName");
+        _log(string.concat("Transferring ownership to ", vm.toString(ownerAddress)), 3);
         uint256 shareLockPeriod = vm.parseJsonUint(rawJson, ".tellerConfiguration.tellerParameters.shareLockPeriod");
         if (tellerExists) {
             // Get sharelock period from configuration file.
@@ -1567,38 +1576,6 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
 
             vm.writeJson(finalJson, filePath);
         }
-    }
-
-    function _addSetRolesAuthorityTxs() internal {
-        address ownerAddress = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5;
-        address deployerDeployed = 0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC;
-        address accountantDeployed = 0x98C0B9042C6142F3cBc5bed58a7BF412752737b5;
-        address queueDeployed = 0x9B299494Cd9bb88ecdFeA2a43C4b91391fB02275;
-        address boringVaultDeployed = 0x592B45AeaeaaA75D58FD097a7254bA3F56125904;
-        address lensDeployed = 0x2d8651E1cdd95480D64Ed079973b4839E7e8342a;
-        address managerDeployed = 0x7E35B3dE911C179ab9d3582CBd2c94166B9c4350;
-        address pauserDeployed = 0x69BFfAF7D86bfC70bb31e0a65e34189EE69A4b33;
-        address solverDeployed = 0x1839322eEC5E5892242eb9ac303C0353739FB079;
-        address rolesAuthorityDeployed = 0x517B17f45FCfe73C38C3bcC3f416E43a17cbC927;
-        address tellerDeployed = 0xabbA9E382f9b14441E60B9E68559e3a22762dFb6;
-        address timelockDeployed = 0x0000000000000000000000000000000000000000;
-
-        _addTx(boringVaultDeployed, abi.encodeWithSelector(Auth.setAuthority.selector, rolesAuthorityDeployed), 0);
-        _addTx(tellerDeployed, abi.encodeWithSelector(Auth.setAuthority.selector, rolesAuthorityDeployed), 0);
-        _addTx(queueDeployed, abi.encodeWithSelector(Auth.setAuthority.selector, rolesAuthorityDeployed), 0);
-        _addTx(managerDeployed, abi.encodeWithSelector(Auth.setAuthority.selector, rolesAuthorityDeployed), 0);
-        _addTx(accountantDeployed, abi.encodeWithSelector(Auth.setAuthority.selector, rolesAuthorityDeployed), 0);
-        _addTx(solverDeployed, abi.encodeWithSelector(Auth.setAuthority.selector, rolesAuthorityDeployed), 0);
-        _addTx(pauserDeployed, abi.encodeWithSelector(Auth.setAuthority.selector, rolesAuthorityDeployed), 0);
-
-        _addTx(managerDeployed, abi.encodeWithSelector(Auth.transferOwnership.selector, ownerAddress), 0);
-        _addTx(boringVaultDeployed, abi.encodeWithSelector(Auth.transferOwnership.selector, ownerAddress), 0);
-        _addTx(rolesAuthorityDeployed, abi.encodeWithSelector(Auth.transferOwnership.selector, ownerAddress), 0);
-        _addTx(tellerDeployed, abi.encodeWithSelector(Auth.transferOwnership.selector, ownerAddress), 0);
-        _addTx(queueDeployed, abi.encodeWithSelector(Auth.transferOwnership.selector, ownerAddress), 0);
-        _addTx(accountantDeployed, abi.encodeWithSelector(Auth.transferOwnership.selector, ownerAddress), 0);
-        _addTx(solverDeployed, abi.encodeWithSelector(Auth.transferOwnership.selector, ownerAddress), 0);
-        _addTx(pauserDeployed, abi.encodeWithSelector(Auth.transferOwnership.selector, ownerAddress), 0);
     }
 
     function _bundleTxs() internal {
