@@ -22,6 +22,9 @@ contract CreateSonicUsdMerkleRoot is Script, MerkleTreeHelper {
     address public accountantAddress = 0xA76E0F54918E39A63904b51F688513043242a0BE;
     address public rawDataDecoderAndSanitizer = 0x808C101469d723E48874c9450C3C99771493057F;
 
+    address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
+    address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
+
     function setUp() external {}
 
     /**
@@ -98,7 +101,7 @@ contract CreateSonicUsdMerkleRoot is Script, MerkleTreeHelper {
 
         _addUniswapV3Leafs(leafs, token0, token1, true);
 
-        // ========================== 1inch ==========================
+        // ========================== 1inch/Odos ==========================
         address[] memory assets = new address[](13);
         SwapKind[] memory kind = new SwapKind[](13);
         assets[0] = getAddress(sourceChain, "USDC");
@@ -130,8 +133,11 @@ contract CreateSonicUsdMerkleRoot is Script, MerkleTreeHelper {
         assets[12] = getAddress(sourceChain, "CRVUSD");
         kind[12] = SwapKind.BuyAndSell;
         
-
-        _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+        _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
+        _addOdosOwnedSwapLeafs(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Aave V3 ==========================
         // Core
@@ -212,11 +218,6 @@ contract CreateSonicUsdMerkleRoot is Script, MerkleTreeHelper {
                 leafs, getAddress(sourceChain, "GHO_USDCDex_GHO_USDCDex"), dexType, supplyTokens, borrowTokens, false //no native ETH leaves
             );
         }
-        
-        // ========================== Odos ==========================
-        // reuse same assets from 1inch array since we want those same swaps
-        _addOdosSwapLeafs(leafs, assets, kind); 
-
 
         // ========================== Sparklend ==========================
         {
