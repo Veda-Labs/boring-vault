@@ -35,6 +35,9 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
 
     address public itbCorkDecoderAndSanitizer = 0x457Cce6Ec3fEb282952a7e50a1Bc727Ca235Eb0a;
 
+    address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
+    address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
+
     address public drone = 0x0a42b2F3a0D54157Dbd7CC346335A4F1909fc02c;
 
     function setUp() external {}
@@ -250,7 +253,10 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             kind[33] = SwapKind.Sell;
             assets[34] = getAddress(sourceChain, "PYUSD");
             kind[34] = SwapKind.Sell;
-            _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
+
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+            _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
             _addLeafsFor1InchUniswapV3Swapping(leafs, getAddress(sourceChain, "wstETH_wETH_01"));
             _addLeafsFor1InchUniswapV3Swapping(leafs, getAddress(sourceChain, "rETH_wETH_01"));
@@ -261,8 +267,10 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             _addLeafsFor1InchUniswapV3Swapping(leafs, getAddress(sourceChain, "GEAR_wETH_100"));
 
             // ========================== Odos ==========================
-            _addOdosSwapLeafs(leafs, assets, kind);
-
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
+            _addOdosOwnedSwapLeafs(leafs, assets, kind);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+            
             // ========================== Curve Swapping ==========================
             _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "weETH_wETH_Pool"));
             _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "weETH_wETH_NG_Pool"));
@@ -1314,10 +1322,12 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         kind[1] = SwapKind.BuyAndSell;
         assets[2] = getAddress(sourceChain, "USDE");
         kind[2] = SwapKind.BuyAndSell;
-        _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
-
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+        _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
         // ========================== Odos ===============================
-        _addOdosSwapLeafs(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
+        _addOdosOwnedSwapLeafs(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         _createDroneLeafs(leafs, drone, droneStartIndex, leafIndex + 1);
         setAddress(true, mainnet, "boringVault", boringVault);

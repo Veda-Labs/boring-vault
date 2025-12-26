@@ -19,16 +19,15 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C;
-    address public rawDataDecoderAndSanitizer = 0x44F9F4bF2E4caA06Da685d1f8F9df0FeAD022D2E; 
+    address public rawDataDecoderAndSanitizer = 0x5b429F7C75Ec9d57a9A345186cD69d89e98c732b; 
     address public managerAddress = 0x227975088C28DBBb4b421c6d96781a53578f19a8;
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
 
     //one offs
     address public aerodromeDecoderAndSanitizer = 0xbBC56C19282BB3C115fE3B909edeA3dF5Cc296d5;
 
-    //itb
-    address public itbDecoderAndSanitizer = 0xEEb53299Cb894968109dfa420D69f0C97c835211;
-    address public itbGearboxProtocolPositionManager = 0xad5dB17b44506785931dbc49c8857482c3b4F622;
+    address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
+    address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
 
     function setUp() external {}
 
@@ -46,7 +45,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         setAddress(false, base, "accountantAddress", accountantAddress);
         setAddress(false, base, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](256);
+        ManageLeaf[] memory leafs = new ManageLeaf[](512);
 
         // ========================== Aave V3 ==========================
         ERC20[] memory supplyAssets = new ERC20[](4);
@@ -95,7 +94,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         feeAssets[1] = getERC20(sourceChain, "WEETH");
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
-        // ========================== 1inch ==========================
+        // ========================== 1inch/Odos ==========================
         {
             address[] memory assets = new address[](11);
             SwapKind[] memory kind = new SwapKind[](11);
@@ -121,7 +120,13 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             kind[9] = SwapKind.Sell;
             assets[10] = getAddress(sourceChain, "SFRXETH");
             kind[10] = SwapKind.BuyAndSell;
-            _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+            _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
+
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
+            _addOdosOwnedSwapLeafs(leafs, assets, kind);
+
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 
         // ========================== Compound V3 ==========================
@@ -177,10 +182,8 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         );
 
         // ========================== Merkl ==========================
-        ERC20[] memory tokensToClaim = new ERC20[](1);
-        tokensToClaim[0] = getERC20(sourceChain, "UNI");
         _addMerklLeafs(
-            leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"), tokensToClaim
+            leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address")
         );
 
         // ========================== LayerZero ==========================
@@ -231,140 +234,5 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         string memory filePath = "./leafs/BaseMultiChainLiquidEthStrategistLeafs.json";
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
-    }
-
-    function _addLeafsForITBPositionManager(
-        ManageLeaf[] memory leafs,
-        address itbPositionManager,
-        ERC20[] memory tokensUsed,
-        string memory itbContractName
-    ) internal {
-        // acceptOwnership
-        leafIndex++;
-        leafs[leafIndex] = ManageLeaf(
-            itbPositionManager,
-            false,
-            "acceptOwnership()",
-            new address[](0),
-            string.concat("Accept ownership of the ", itbContractName, " contract"),
-            itbDecoderAndSanitizer
-        );
-        for (uint256 i; i < tokensUsed.length; ++i) {
-            // Transfer
-            leafIndex++;
-            leafs[leafIndex] = ManageLeaf(
-                address(tokensUsed[i]),
-                false,
-                "transfer(address,uint256)",
-                new address[](1),
-                string.concat("Transfer ", tokensUsed[i].symbol(), " to the ", itbContractName, " contract"),
-                itbDecoderAndSanitizer
-            );
-            leafs[leafIndex].argumentAddresses[0] = itbPositionManager;
-            // Withdraw
-            leafIndex++;
-            leafs[leafIndex] = ManageLeaf(
-                itbPositionManager,
-                false,
-                "withdraw(address,uint256)",
-                new address[](1),
-                string.concat("Withdraw ", tokensUsed[i].symbol(), " from the ", itbContractName, " contract"),
-                itbDecoderAndSanitizer
-            );
-            leafs[leafIndex].argumentAddresses[0] = address(tokensUsed[i]);
-            // WithdrawAll
-            leafIndex++;
-            leafs[leafIndex] = ManageLeaf(
-                itbPositionManager,
-                false,
-                "withdrawAll(address)",
-                new address[](1),
-                string.concat("Withdraw all ", tokensUsed[i].symbol(), " from the ", itbContractName, " contract"),
-                itbDecoderAndSanitizer
-            );
-            leafs[leafIndex].argumentAddresses[0] = address(tokensUsed[i]);
-        }
-    }
-
-    function _addLeafsForItbGearbox(
-        ManageLeaf[] memory leafs,
-        address itbPositionManager,
-        ERC20 underlying,
-        ERC20 diesal,
-        address diesalStaking,
-        string memory itbContractName
-    ) internal {
-        ERC20[] memory tokensUsed = new ERC20[](2);
-        tokensUsed[0] = underlying;
-        tokensUsed[1] = diesal;
-        _addLeafsForITBPositionManager(leafs, itbPositionManager, tokensUsed, itbContractName);
-
-        // Approvals
-        leafIndex++;
-        leafs[leafIndex] = ManageLeaf(
-            itbGearboxProtocolPositionManager,
-            false,
-            "approveToken(address,address,uint256)",
-            new address[](2),
-            string.concat("Approve Gearbox ", diesal.symbol(), " to spend ", underlying.symbol()),
-            itbDecoderAndSanitizer
-        );
-        leafs[leafIndex].argumentAddresses[0] = address(underlying);
-        leafs[leafIndex].argumentAddresses[1] = address(diesal);
-        leafIndex++;
-        leafs[leafIndex] = ManageLeaf(
-            itbGearboxProtocolPositionManager,
-            false,
-            "approveToken(address,address,uint256)",
-            new address[](2),
-            string.concat("Approve Gearbox s", diesal.symbol(), " to spend ", diesal.symbol()),
-            itbDecoderAndSanitizer
-        );
-        leafs[leafIndex].argumentAddresses[0] = address(diesal);
-        leafs[leafIndex].argumentAddresses[1] = address(diesalStaking);
-
-        // Deposit
-        leafIndex++;
-        leafs[leafIndex] = ManageLeaf(
-            itbGearboxProtocolPositionManager,
-            false,
-            "deposit(uint256,uint256)",
-            new address[](0),
-            string.concat("Deposit ", underlying.symbol(), " into Gearbox ", diesal.symbol(), " contract"),
-            itbDecoderAndSanitizer
-        );
-
-        // Withdraw
-        leafIndex++;
-        leafs[leafIndex] = ManageLeaf(
-            itbGearboxProtocolPositionManager,
-            false,
-            "withdrawSupply(uint256,uint256)",
-            new address[](0),
-            string.concat("Withdraw ", underlying.symbol(), " from Gearbox ", diesal.symbol(), " contract"),
-            itbDecoderAndSanitizer
-        );
-
-        // Stake
-        leafIndex++;
-        leafs[leafIndex] = ManageLeaf(
-            itbGearboxProtocolPositionManager,
-            false,
-            "stake(uint256)",
-            new address[](0),
-            string.concat("Stake ", diesal.symbol(), " into Gearbox s", diesal.symbol(), " contract"),
-            itbDecoderAndSanitizer
-        );
-
-        // Unstake
-        leafIndex++;
-        leafs[leafIndex] = ManageLeaf(
-            itbGearboxProtocolPositionManager,
-            false,
-            "unstake(uint256)",
-            new address[](0),
-            string.concat("Unstake ", diesal.symbol(), " from Gearbox s", diesal.symbol(), " contract"),
-            itbDecoderAndSanitizer
-        );
     }
 }
