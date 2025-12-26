@@ -1739,7 +1739,7 @@ contract ChainValues {
 
         // 1Inch
         values[arbitrum]["aggregationRouterV5"] = 0x1111111254EEB25477B68fb85Ed929f73A960582.toBytes32();
-        values[arbitrum]["oneInchExecutor"] = 0x8C864D0c8E476Bf9eb9d620C10E1296fb0E2F940.toBytes32();
+        values[arbitrum]["oneInchExecutor"] = 0x990636ecB3FF04d33D92e970d3d588bF5cD8d086.toBytes32();
 
         // Odos
         values[arbitrum]["odosRouterV2"] = 0xa669e7A0d4b3e4Fa48af2dE86BD4CD7126Be4e13.toBytes32();
@@ -1851,7 +1851,7 @@ contract ChainValues {
         values[optimism]["liquidPayoutAddress"] = 0xA9962a5BfBea6918E958DeE0647E99fD7863b95A.toBytes32();
         values[optimism]["uniV3Router"] = 0xE592427A0AEce92De3Edee1F18E0157C05861564.toBytes32();
         values[optimism]["aggregationRouterV5"] = 0x1111111254EEB25477B68fb85Ed929f73A960582.toBytes32();
-        values[optimism]["oneInchExecutor"] = 0x8C864D0c8E476Bf9eb9d620C10E1296fb0E2F940.toBytes32();
+        values[optimism]["oneInchExecutor"] = 0x990636ecB3FF04d33D92e970d3d588bF5cD8d086.toBytes32();
         values[optimism]["txBundlerAddress"] = 0xd249755C0E79dF8F3A05C2398A73333eFDb6EB59.toBytes32();
         values[optimism]["LayerZeroEndPoint"] = 0x1a44076050125825900e736c501f859c50fE728c.toBytes32();
 
@@ -2074,7 +2074,7 @@ contract ChainValues {
 
         // 1Inch
         values[bsc]["aggregationRouterV5"] = 0x1111111254EEB25477B68fb85Ed929f73A960582.toBytes32();
-        values[bsc]["oneInchExecutor"] = 0x8C864D0c8E476Bf9eb9d620C10E1296fb0E2F940.toBytes32();
+        values[bsc]["oneInchExecutor"] = 0x990636ecB3FF04d33D92e970d3d588bF5cD8d086.toBytes32();
 
         // PancakeSwapV3
         values[bsc]["pancakeSwapV3NonFungiblePositionManager"] = 0x46A15B0b27311cedF172AB29E4f4766fbE7F4364.toBytes32();
@@ -2757,7 +2757,7 @@ contract ChainValues {
         values[unichain]["odosExecutor"] = 0xAA8C506Ce5e087c81ABb44Fc286106f4403FE0Ba.toBytes32();
 
         values[unichain]["aggregationRouterV5"] = 0x111111125421cA6dc452d289314280a0f8842A65.toBytes32();
-        values[unichain]["oneInchExecutor"] = 0x8C864D0c8E476Bf9eb9d620C10E1296fb0E2F940.toBytes32();
+        values[unichain]["oneInchExecutor"] = 0x990636ecB3FF04d33D92e970d3d588bF5cD8d086.toBytes32();
 
         values[unichain]["eulerWETH"] = 0x1f3134C3f3f8AdD904B9635acBeFC0eA0D0E1ffC.toBytes32();
         values[unichain]["eulerwstETHmarket"] = 0x54ff502df96CD9B9585094EaCd86AAfCe902d06A.toBytes32();
@@ -3016,6 +3016,8 @@ contract ChainValues {
         values[katana]["BTCK"] = 0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072.toBytes32();
         values[katana]["WBTC"] = 0x0913DA6Da4b42f538B445599b46Bb4622342Cf52.toBytes32(); //WBTC == vbWBTC
         values[katana]["vbWBTC"] = 0x0913DA6Da4b42f538B445599b46Bb4622342Cf52.toBytes32();
+        values[katana]["SUSHI"] = 0x17BFF452dae47e07CeA877Ff0E1aba17eB62b0aB.toBytes32();
+        values[katana]["USDC"] = 0x203A662b0BD271A6ed5a60EdFbd04bFce608FD36.toBytes32(); //vbUSDC == USDC
 
         // Balancer
         values[katana]["balancerVault"] = address(1).toBytes32();
@@ -3052,6 +3054,13 @@ contract ChainValues {
         // Yearn
         values[katana]["yvbWETH"] = 0xE007CA01894c863d7898045ed5A3B4Abf0b18f37.toBytes32();
         values[katana]["yvWSTETH"] = 0x1769111aA8EA46fee3BA23EF9B57F3CBe1873408.toBytes32();
+
+        // Merkl
+        values[katana]["merklDistributor"] = 0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae.toBytes32();
+
+         // Sushi/Swnapper/RedSnwapper
+        values[katana]["redSnwapperRouter"] = 0xAC4c6e212A361c968F1725b4d055b47E63F80b75.toBytes32();
+        values[katana]["redSnwapperExecutor"] = 0xd2b37aDE14708bf18904047b1E31F8166d39612b.toBytes32();
     }
 
     function _addTACValues() private {

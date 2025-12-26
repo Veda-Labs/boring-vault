@@ -146,8 +146,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("base");
-        setSourceChainName("base");
+        vm.createSelectFork("katana");
+        setSourceChainName("katana");
     }
 
     function run() external {
@@ -155,12 +155,13 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(EtherFiLiquidEthDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2"));
-        console.log("EtherFi Liquid Eth Decoder and Sanitizer V0.0");
+        creationCode = type(KatanaDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
+        console.log("Katana Decoder and Sanitizer V1.1");
         console.logBytes(constructorArgs);
-        deployer.deployContract("EtherFi Liquid Eth Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        deployer.deployContract("Katana Decoder and Sanitizer V1.1", creationCode, constructorArgs, 0);
 
+        vm.stopBroadcast();
     }
 
     // do not use, this is really intended for doing a giga deploy on a new chain

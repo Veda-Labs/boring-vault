@@ -6,10 +6,7 @@ pragma solidity 0.8.21;
 
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import "forge-std/Script.sol";
 
@@ -395,6 +392,13 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             _addLeafsForDroneTransfers(leafs, drone, droneTokens);
             _addLeafsForDrone(leafs);
         }
+
+        // ==========================  Fee Claiming ==========================
+
+        ERC20[] memory feeAssets = new ERC20[](2);
+        feeAssets[0] = getERC20(sourceChain, "WETH");
+        feeAssets[1] = getERC20(sourceChain, "WSTETH");
+        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
         // ========================== Verify & Generate ==========================
 
