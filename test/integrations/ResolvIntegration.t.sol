@@ -120,8 +120,14 @@ contract ResolvIntegrationTest is Test, MerkleTreeHelper {
         IStUSR(getAddress(sourceChain, "stUSR")).transferShares(address(boringVault), 100_000e18);
         deal(getAddress(sourceChain, "wstUSR"), address(boringVault), 100_000e18);
 
+        uint256 mintRequestsCounter = IUsrExternalRequestsManager(getAddress(sourceChain, "UsrExternalRequestsManager")).mintRequestsCounter();
+        uint256 burnRequestsCounter = IUsrExternalRequestsManager(getAddress(sourceChain, "UsrExternalRequestsManager")).burnRequestsCounter();
+
         ManageLeaf[] memory leafs = new ManageLeaf[](32);
-        _addAllResolvLeafs(leafs);
+        ERC20[] memory assets = new ERC20[](2);
+        assets[0] = getERC20(sourceChain, "USDC");
+        assets[1] = getERC20(sourceChain, "USDT");
+        _addAllResolvLeafs(leafs, assets);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -129,57 +135,67 @@ contract ResolvIntegrationTest is Test, MerkleTreeHelper {
 
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
-        ManageLeaf[] memory manageLeafs = new ManageLeaf[](15);
-        manageLeafs[0] = leafs[0]; //approve USDC
-        manageLeafs[1] = leafs[1]; //approve USDT
-        manageLeafs[2] = leafs[2]; //approve USR
-        manageLeafs[3] = leafs[3]; //requestMint USDC -> USR
-        manageLeafs[4] = leafs[4]; //requestBurn USR -> USDC
+        uint256 numLeafs = 19;
+
+        ManageLeaf[] memory manageLeafs = new ManageLeaf[](numLeafs);
+        manageLeafs[0] = leafs[0]; //approve USR
+        manageLeafs[1] = leafs[1]; //approve USDC
+        manageLeafs[2] = leafs[2]; //requestMint USDC -> USR
+        manageLeafs[3] = leafs[3]; //requestBurn USR -> USDC
+        manageLeafs[4] = leafs[4]; //approve USDT
         manageLeafs[5] = leafs[5]; //requestMint USDT -> USR
         manageLeafs[6] = leafs[6]; //requestBurn USR -> USDT
-        manageLeafs[7] = leafs[7]; //approve USR
-        manageLeafs[8] = leafs[8]; //approve stUSR
-        manageLeafs[9] = leafs[9]; //deposit USR -> stUSR
-        manageLeafs[10] = leafs[10]; //withdraw stUSR -> USR
-        manageLeafs[11] = leafs[11]; //approve stUSR
-        manageLeafs[12] = leafs[12]; //approve wstUSR
-        manageLeafs[13] = leafs[13]; //wrap stUSR -> wstUSR
-        manageLeafs[14] = leafs[14]; //unwrap wstUSR -> stUSR
+        manageLeafs[7] = leafs[7]; //cancelMint USR
+        manageLeafs[8] = leafs[8]; //cancelBurn USR
+        manageLeafs[9] = leafs[9]; //approve USR
+        manageLeafs[10] = leafs[10]; //approve stUSR
+        manageLeafs[11] = leafs[11]; //deposit USR -> stUSR
+        manageLeafs[12] = leafs[12]; //withdraw stUSR -> USR
+        manageLeafs[13] = leafs[13]; //approve stUSR
+        manageLeafs[14] = leafs[14]; //approve USR
+        manageLeafs[15] = leafs[15]; //approve wstUSR
+        manageLeafs[16] = leafs[16]; //wrap stUSR -> wstUSR
+        manageLeafs[17] = leafs[17]; //deposit stUSR -> wstUSR
+        manageLeafs[18] = leafs[18]; //unwrap wstUSR -> stUSR
 
         (bytes32[][] memory manageProofs) = _getProofsUsingTree(manageLeafs, manageTree);
 
-        address[] memory targets = new address[](15);
-        targets[0] = getAddress(sourceChain, "USDC"); //approve UsrExternalRequestsManager
-        targets[1] = getAddress(sourceChain, "USDT"); //approve UsrExternalRequestsManager
-        targets[2] = getAddress(sourceChain, "USR"); //approve UsrExternalRequestsManager
-        targets[3] = getAddress(sourceChain, "UsrExternalRequestsManager"); //swap USDC to USR
-        targets[4] = getAddress(sourceChain, "UsrExternalRequestsManager"); //swap USR to USDC
+        address[] memory targets = new address[](numLeafs);
+        targets[0] = getAddress(sourceChain, "USR"); //approve UsrExternalRequestsManager
+        targets[1] = getAddress(sourceChain, "USDC"); //approve UsrExternalRequestsManager
+        targets[2] = getAddress(sourceChain, "UsrExternalRequestsManager"); //swap USDC to USR
+        targets[3] = getAddress(sourceChain, "UsrExternalRequestsManager"); //swap USR to USDC
+        targets[4] = getAddress(sourceChain, "USDT"); //approve UsrExternalRequestsManager
         targets[5] = getAddress(sourceChain, "UsrExternalRequestsManager"); //swap USDT to USR
         targets[6] = getAddress(sourceChain, "UsrExternalRequestsManager"); //swap USR to USDT
-        targets[7] = getAddress(sourceChain, "USR"); //approve
-        targets[8] = getAddress(sourceChain, "stUSR"); //approve
-        targets[9] = getAddress(sourceChain, "stUSR"); //convert USR to stUSR
-        targets[10] = getAddress(sourceChain, "stUSR"); //convert stUSR to USR
-        targets[11] = getAddress(sourceChain, "stUSR"); //approve
-        targets[12] = getAddress(sourceChain, "wstUSR"); //approve
-        targets[13] = getAddress(sourceChain, "wstUSR"); //wrap stUSR to wstUSR
-        targets[14] = getAddress(sourceChain, "wstUSR"); //unwrap wstUSR to stUSR
+        targets[7] = getAddress(sourceChain, "UsrExternalRequestsManager"); //cancelMint USR
+        targets[8] = getAddress(sourceChain, "UsrExternalRequestsManager"); //cancelBurn USR
+        targets[9] = getAddress(sourceChain, "USR"); //approve
+        targets[10] = getAddress(sourceChain, "stUSR"); //approve
+        targets[11] = getAddress(sourceChain, "stUSR"); //convert USR to stUSR
+        targets[12] = getAddress(sourceChain, "stUSR"); //convert stUSR to USR
+        targets[13] = getAddress(sourceChain, "stUSR"); //approve
+        targets[14] = getAddress(sourceChain, "USR"); //approve
+        targets[15] = getAddress(sourceChain, "wstUSR"); //approve
+        targets[16] = getAddress(sourceChain, "wstUSR"); //wrap stUSR to wstUSR
+        targets[17] = getAddress(sourceChain, "wstUSR"); //deposit stUSR -> wstUSR
+        targets[18] = getAddress(sourceChain, "wstUSR"); //unwrap wstUSR to stUSR
 
-        bytes[] memory targetData = new bytes[](15);
+        bytes[] memory targetData = new bytes[](numLeafs);
         targetData[0] = abi.encodeWithSelector(
             ERC20.approve.selector, getAddress(sourceChain, "UsrExternalRequestsManager"), type(uint256).max
         );
         targetData[1] = abi.encodeWithSelector(
             ERC20.approve.selector, getAddress(sourceChain, "UsrExternalRequestsManager"), type(uint256).max
         );
-        targetData[2] = abi.encodeWithSelector(
-            ERC20.approve.selector, getAddress(sourceChain, "UsrExternalRequestsManager"), type(uint256).max
-        );
-        targetData[3] = abi.encodeWithSignature(
+        targetData[2] = abi.encodeWithSignature(
             "requestMint(address,uint256,uint256)", getAddress(sourceChain, "USDC"), 100e6, 99e18
         );
-        targetData[4] = abi.encodeWithSignature(
+        targetData[3] = abi.encodeWithSignature(
             "requestBurn(uint256,address,uint256)", 100e18, getAddress(sourceChain, "USDC"), 99e6
+        );
+        targetData[4] = abi.encodeWithSelector(
+            ERC20.approve.selector, getAddress(sourceChain, "UsrExternalRequestsManager"), type(uint256).max
         );
         targetData[5] = abi.encodeWithSignature(
             "requestMint(address,uint256,uint256)", getAddress(sourceChain, "USDT"), 100e6, 99e18
@@ -187,22 +203,31 @@ contract ResolvIntegrationTest is Test, MerkleTreeHelper {
         targetData[6] = abi.encodeWithSignature(
             "requestBurn(uint256,address,uint256)", 100e18, getAddress(sourceChain, "USDT"), 99e6
         );
-        targetData[7] =
+        targetData[7] = abi.encodeWithSignature(
+            "cancelMint(uint256)", mintRequestsCounter
+        );
+        targetData[8] = abi.encodeWithSignature(
+            "cancelBurn(uint256)", burnRequestsCounter
+        );
+        targetData[9] =
             abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "stUSR"), type(uint256).max);
-        targetData[8] =
+        targetData[10] =
             abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "stUSR"), type(uint256).max);
-        targetData[9] = abi.encodeWithSignature("deposit(uint256)", 100e18);
-        targetData[10] = abi.encodeWithSignature("withdraw(uint256)", 100e18);
-        targetData[11] =
+        targetData[11] = abi.encodeWithSignature("deposit(uint256)", 100e18);
+        targetData[12] = abi.encodeWithSignature("withdraw(uint256)", 100e18);
+        targetData[13] =
             abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "wstUSR"), type(uint256).max);
-        targetData[12] =
+        targetData[14] =
             abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "wstUSR"), type(uint256).max);
-        targetData[13] = abi.encodeWithSignature("wrap(uint256)", 100e18);
-        targetData[14] = abi.encodeWithSignature("unwrap(uint256)", 100e18);
+        targetData[15] =
+            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "wstUSR"), type(uint256).max);
+        targetData[16] = abi.encodeWithSignature("wrap(uint256)", 100e18);
+        targetData[17] = abi.encodeWithSignature("deposit(uint256)", 100e18);
+        targetData[18] = abi.encodeWithSignature("unwrap(uint256)", 100e18);
 
-        uint256[] memory values = new uint256[](15);
+        uint256[] memory values = new uint256[](numLeafs);
 
-        address[] memory decodersAndSanitizers = new address[](15);
+        address[] memory decodersAndSanitizers = new address[](numLeafs);
         for (uint256 i = 0; i < decodersAndSanitizers.length; i++) {
             decodersAndSanitizers[i] = rawDataDecoderAndSanitizer;
         }
@@ -218,7 +243,7 @@ contract ResolvIntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullResolvDecoderAndSanitizer is ResolvDecoderAndSanitizer {}
+contract FullResolvDecoderAndSanitizer is ResolvDecoderAndSanitizer, BaseDecoderAndSanitizer {}
 
 interface IAddressesWhitelist {
     function addAccount(address _account) external;
@@ -226,4 +251,9 @@ interface IAddressesWhitelist {
 
 interface IStUSR {
     function transferShares(address _to, uint256 _shares) external;
+}
+
+interface IUsrExternalRequestsManager {
+    function burnRequestsCounter() external view returns (uint256);
+    function mintRequestsCounter() external view returns (uint256);
 }
