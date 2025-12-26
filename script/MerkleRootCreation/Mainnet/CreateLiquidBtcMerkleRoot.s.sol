@@ -26,10 +26,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
     address public itbPositionManager = 0x7AAf9539B7359470Def1920ca41b5AAA05C13726;
     address public itbPositionManager2 = 0x11Fd9E49c41738b7500748f7B94B4DBb0E8c13d2; // Spark LBTC (PYUSD) + Aave Core Euler PYUSD Supervised Loan
     address public itbPositionManager3 = 0xfBCA329E2Ee0c44d8F115A4B8F7ceda9E109f436; // Aave eBTC->RLUSD-> Euler Sentora RLUSD
-    address public itbDecoderAndSanitizer = 0xb75bfC8B0Cc8588C510DcAE75c67A9DC9cF508d5;
-
-    address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
-    address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
+    address public itbDecoderAndSanitizer = 0xb75bfC8B0Cc8588C510DcAE75c67A9DC9cF508d5; 
 
     function setUp() external {}
 
@@ -208,14 +205,10 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         assets[37] = getAddress(sourceChain, "PYUSD");
         kind[37] = SwapKind.Sell;
 
-        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
-        _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
+        _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
 
         // ========================== Odos ==========================
-        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
-        _addOdosOwnedSwapLeafs(leafs, assets, kind);  
-
-        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        _addOdosSwapLeafs(leafs, assets, kind);  
 
         // ========================== Euler ==========================
         {
