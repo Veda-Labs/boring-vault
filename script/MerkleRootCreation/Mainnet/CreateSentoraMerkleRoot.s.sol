@@ -22,6 +22,9 @@ contract CreateSentoraMerkleRootScript is Script, MerkleTreeHelper {
     address public accountantAddress = 0x42135D908efa4E6aFd7E9B73D5A1bA55955F93fA;
     address public rawDataDecoderAndSanitizer = 0xBf6199F596D7296875Faa175Ed02Dc3940C1682E;
 
+    address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
+    address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
+
     function setUp() external {}
 
     /**
@@ -47,8 +50,11 @@ contract CreateSentoraMerkleRootScript is Script, MerkleTreeHelper {
         SwapKind[] memory kind = new SwapKind[](2);
         kind[0] = SwapKind.BuyAndSell;
         kind[1] = SwapKind.BuyAndSell;
-        _addOdosSwapLeafs(leafs, assets, kind);
-        _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
+        _addOdosOwnedSwapLeafs(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+        _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== ITB Position Manager ==========================
         ERC20[] memory itbTokensUsed = new ERC20[](1);

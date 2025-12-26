@@ -24,6 +24,8 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
 
     //one offs
     address public pancakeSwapDataDecoderAndSanitizer = 0xac226f3e2677d79c0688A9f6f05B9B4eBBeDdebD;
+    address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
+    address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
 
     function setUp() external {}
 
@@ -124,10 +126,14 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
         kind[12] = SwapKind.Sell;
         assets[13] = getAddress(sourceChain, "WETH");
         kind[13] = SwapKind.BuyAndSell;
-        _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
+
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+        _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
 
         // ========================== Odos ==========================
-        _addOdosSwapLeafs(leafs, assets, kind);  
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
+        _addOdosOwnedSwapLeafs(leafs, assets, kind);  
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Native ==========================
         _addNativeLeafs(leafs); 
