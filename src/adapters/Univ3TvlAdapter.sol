@@ -2,23 +2,14 @@
 pragma solidity ^0.8.19;
 
 import {TickMath} from "./libraries/TickMath.sol";
+import {LiquidityAmounts} from "./libraries/LiquidityAmounts.sol";
+import {AggregatorV3Interface, ChainlinkDataFeedLib} from "./libraries/ChainlinkDataFeedLib.sol";
 
-import {
-    LiquidityAmounts
-} from "./libraries/LiquidityAmounts.sol";
-
-import {
-    AggregatorV3Interface,
-    ChainlinkDataFeedLib
-} from "./libraries/ChainlinkDataFeedLib.sol";
-
-// /*//////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////
 //                         ADAPTER
-// //////////////////////////////////////////////////////////////*/
+/////////////////////////////////////////////////////////////////
 interface INonfungiblePositionManager {
-    function positions(
-        uint256 tokenId
-    )
+    function positions(uint256 tokenId)
         external
         view
         returns (
@@ -36,6 +27,7 @@ interface INonfungiblePositionManager {
             uint128 tokensOwed1
         );
 }
+
 interface IUniswapV3Pool {
     function slot0()
         external
@@ -52,24 +44,17 @@ interface IUniswapV3Pool {
 }
 
 contract UniV3PositionTvlAdapter {
-
     using ChainlinkDataFeedLib for AggregatorV3Interface;
+    address public constant POSITION_MANAGER = 0xC36442b4a4522E871399CD717aBDD847Ab11FE88;
+    address public constant WETH = 0x82aF49447D8a07e3bd95BD0d56f35241523fBab1;
+    address public constant WBTC = 0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f;
+    address public constant BTC_ETH_ORACLE = 0xc5a90A6d7e4Af242dA238FFe279e9f2BA0c64B2e;
     uint256 public immutable token_id;
     uint8 private immutable target_decimals;
 
-    address public constant POSITION_MANAGER =
-        0xC36442b4a4522E871399CD717aBDD847Ab11FE88;
-
-    address public constant WETH = 0x82aF49447D8a07e3bd95BD0d56f35241523fBab1;
-
-    address public constant WBTC = 0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f;
-
-    address public constant BTC_ETH_ORACLE =
-        0xc5a90A6d7e4Af242dA238FFe279e9f2BA0c64B2e;
-
-    /*//////////////////////////////////////////////////////////////
-//                             STORAGE
-//     //////////////////////////////////////////////////////////////*/
+    ///////////////////////////////////////////////////////////////
+    //                        storage
+    ///////////////////////////////////////////////////////////////
 
     INonfungiblePositionManager private immutable npm;
     IUniswapV3Pool private immutable pool;
@@ -83,9 +68,9 @@ contract UniV3PositionTvlAdapter {
         btcEthOracle = AggregatorV3Interface(BTC_ETH_ORACLE);
     }
 
-    /*//////////////////////////////////////////////////////////////
-//                         EXTERNAL API
-//     //////////////////////////////////////////////////////////////*/
+    ///////////////////////////////////////////////////////////////
+    //                      external api
+    ///////////////////////////////////////////////////////////////
 
     /// @dev returns total value locked in USDC terms (6 decimals)
     function getUserTvl(address user) external view returns (uint256 tvl) {
@@ -94,33 +79,23 @@ contract UniV3PositionTvlAdapter {
     }
 
     /// @dev mirrors Morpho adapter structure
-    function getUserPositionValues(
-        address user
-    ) public view returns (uint256 totalValueInEth) {
+    function getUserPositionValues(address user) public view returns (uint256 totalValueInEth) {
         (
-            ,
-            ,
+            ,,
             address token0,
-            address token1,
-            ,
+            address token1,,
             int24 tickLower,
             int24 tickUpper,
-            uint128 liquidity,
-            ,
-            ,
+            uint128 liquidity,,,
             uint128 tokensOwed0,
             uint128 tokensOwed1
         ) = npm.positions(token_id);
 
-        (uint160 sqrtPriceX96, , , , , , ) = pool.slot0();
+        (uint160 sqrtPriceX96,,,,,,) = pool.slot0();
 
-        (uint256 amount0, uint256 amount1) = LiquidityAmounts
-            .getAmountsForLiquidity(
-                sqrtPriceX96,
-                TickMath.getSqrtRatioAtTick(tickLower),
-                TickMath.getSqrtRatioAtTick(tickUpper),
-                liquidity
-            );
+        (uint256 amount0, uint256 amount1) = LiquidityAmounts.getAmountsForLiquidity(
+            sqrtPriceX96, TickMath.getSqrtRatioAtTick(tickLower), TickMath.getSqrtRatioAtTick(tickUpper), liquidity
+        );
 
         amount0 += tokensOwed0;
         amount1 += tokensOwed1;
@@ -139,9 +114,9 @@ contract UniV3PositionTvlAdapter {
         totalValueInEth = valuesInEth;
     }
 
-    /*//////////////////////////////////////////////////////////////
-//                         PRICE HELPERS
-//     //////////////////////////////////////////////////////////////*/
+    ///////////////////////////////////////////////////////////////
+    //                      price helpers
+    ///////////////////////////////////////////////////////////////
 
     function _btcToEth(uint256 amount) internal view returns (uint256) {
         uint256 price = btcEthOracle.getPrice();
