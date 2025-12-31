@@ -75,11 +75,11 @@ contract CreateSonicEthMerkleRoot is Script, MerkleTreeHelper {
         kind[2] = SwapKind.BuyAndSell;
         assets[3] = getAddress(sourceChain, "MORPHO");
         kind[3] = SwapKind.Sell;
-        setAddress(true, sourceChain, "rawDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
         _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
-        setAddress(true, sourceChain, "rawDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
         _addOdosOwnedSwapLeafs(leafs, assets, kind);
-        setAddress(true, sourceChain, "rawDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
             
         // ========================== Aave V3 ==========================
