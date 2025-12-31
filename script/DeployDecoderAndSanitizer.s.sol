@@ -162,27 +162,4 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
 
         vm.stopBroadcast();
     }
-
-    // do not use, this is really intended for doing a giga deploy on a new chain
-    function deployContract(string memory name, bytes memory creationCode, uint256 value) internal {
-        address _contract = deployer.getAddress(name);
-        if (_contract.code.length > 0) {
-            console.log(name, "already deployed at", _contract);
-            return;
-        }
-
-        bytes memory constructorArgs;
-        for (uint256 i = 0; i < addressKeys.length; i++) {
-            if (values[sourceChain][addressKeys[i]] != bytes32(0)) {
-                constructorArgs = abi.encodePacked(constructorArgs, abi.encode(getAddress(sourceChain, addressKeys[i])));
-            } else {
-                console.log(string.concat("Skipping ", name, " because ", addressKeys[i], " is not set"));
-                return;
-            }
-        }
-
-        address deployed = deployer.deployContract(name, creationCode, constructorArgs, value);
-        console.log(unicode"✅", name, "deployed to", deployed);
-        console.logBytes(constructorArgs);
-    }
 }

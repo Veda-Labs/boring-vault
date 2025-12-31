@@ -79,7 +79,7 @@ sonicMainnet = { key = "${ETHERSCAN_KEY}", chain = 146, url = "https://api.ether
 #tac = { key = "${TACSCAN_KEY}", chain = 239, url = "https://explorer.tac.build/api" }
 ink = { key = "${INKSCAN_KEY}", chain = 57073, url = "https://explorer.inkonchain.com/api" }
 #linea = { key = "${LINEASCAN_KEY}", chain = 59144, url = "https://api.etherscan.io/v2/api?chainid=59144" }
-#plasma = { key = "${PLASMASCAN_KEY}", chain = 9745, url = "https://api.routescan.io/v2/network/mainnet/evm/9745/etherscan" }
+plasma = { key = "${ETHERSCAN_KEY}", chain = 9745, url = "https://api.etherscan.io/v2/api?chainid=9745" }
 
 [fmt]
 FOUNDRY_FMT_LINE_LENGTH = 120
