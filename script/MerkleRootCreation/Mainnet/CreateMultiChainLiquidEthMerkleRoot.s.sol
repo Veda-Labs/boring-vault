@@ -59,10 +59,11 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](4096);
 
         // ========================== Aave V3 ==========================
-        ERC20[] memory supplyAssets = new ERC20[](3);
+        ERC20[] memory supplyAssets = new ERC20[](4);
         supplyAssets[0] = getERC20(sourceChain, "WETH");
         supplyAssets[1] = getERC20(sourceChain, "WEETH");
         supplyAssets[2] = getERC20(sourceChain, "WSTETH");
+        supplyAssets[3] = getERC20(sourceChain, "USDG");
         ERC20[] memory borrowAssets = new ERC20[](3);
         borrowAssets[0] = getERC20(sourceChain, "WETH");
         borrowAssets[1] = getERC20(sourceChain, "WEETH");
@@ -181,8 +182,8 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
             // ========================== 1inch ==========================
-            address[] memory assets = new address[](35);
-            SwapKind[] memory kind = new SwapKind[](35);
+            address[] memory assets = new address[](36);
+            SwapKind[] memory kind = new SwapKind[](36);
             assets[0] = getAddress(sourceChain, "WETH");
             kind[0] = SwapKind.BuyAndSell;
             assets[1] = getAddress(sourceChain, "WEETH");
@@ -253,6 +254,8 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             kind[33] = SwapKind.Sell;
             assets[34] = getAddress(sourceChain, "PYUSD");
             kind[34] = SwapKind.Sell;
+            assets[35] = getAddress(sourceChain, "USDG");
+            kind[35] = SwapKind.BuyAndSell;
 
             setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
             _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
