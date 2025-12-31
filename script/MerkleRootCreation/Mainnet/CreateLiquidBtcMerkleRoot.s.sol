@@ -130,8 +130,8 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         _addUniswapV3Leafs(leafs, token0, token1, false);
 
         // ========================== 1inch ==========================
-        address[] memory assets = new address[](38);
-        SwapKind[] memory kind = new SwapKind[](38);
+        address[] memory assets = new address[](39);
+        SwapKind[] memory kind = new SwapKind[](39);
         assets[0] = getAddress(sourceChain, "WBTC");
         kind[0] = SwapKind.BuyAndSell;
         assets[1] = getAddress(sourceChain, "LBTC");
@@ -208,6 +208,8 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         kind[36] = SwapKind.Sell;
         assets[37] = getAddress(sourceChain, "PYUSD");
         kind[37] = SwapKind.Sell;
+        assets[38] = getAddress(sourceChain, "USDG");
+        kind[38] = SwapKind.BuyAndSell;
 
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
         _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
@@ -233,13 +235,14 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         _addBTCNLeafs(leafs, getERC20(sourceChain, "WBTC"), getERC20(sourceChain, "BTCN"), getAddress(sourceChain, "cornSwapFacilityWBTC"));
 
         // ========================== Aave ==========================
-        ERC20[] memory supplyAssets = new ERC20[](6);
+        ERC20[] memory supplyAssets = new ERC20[](7);
         supplyAssets[0] = getERC20(sourceChain, "WBTC");
         supplyAssets[1] = getERC20(sourceChain, "LBTC");
         supplyAssets[2] = getERC20(sourceChain, "cbBTC");
         supplyAssets[3] = getERC20(sourceChain, "USDC");
         supplyAssets[4] = getERC20(sourceChain, "USDT");
         supplyAssets[5] = getERC20(sourceChain, "EBTC");
+        supplyAssets[6] = getERC20(sourceChain, "USDG");
 
         ERC20[] memory borrowAssets = new ERC20[](4);
         borrowAssets[0] = getERC20(sourceChain, "USDC");
