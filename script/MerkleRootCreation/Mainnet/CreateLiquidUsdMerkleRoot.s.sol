@@ -92,7 +92,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== Aave V3 ==========================
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", aaveV3DecoderAndSanitizer);
-        ERC20[] memory supplyAssets = new ERC20[](19);
+        ERC20[] memory supplyAssets = new ERC20[](20);
         supplyAssets[0] = getERC20(sourceChain, "USDC");
         supplyAssets[1] = getERC20(sourceChain, "USDT");
         supplyAssets[2] = getERC20(sourceChain, "DAI");
@@ -112,6 +112,8 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         supplyAssets[16] = getERC20(sourceChain, "pendle_sUSDe_09_25_25_pt");
         supplyAssets[17] = getERC20(sourceChain, "pendle_sUSDe_11_26_25_pt");
         supplyAssets[18] = getERC20(sourceChain, "PYUSD");
+        supplyAssets[19] = getERC20(sourceChain, "USDG");
+
         ERC20[] memory borrowAssets = new ERC20[](8);
         borrowAssets[0] = getERC20(sourceChain, "USDC");
         borrowAssets[1] = getERC20(sourceChain, "USDT");
@@ -348,8 +350,8 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
          * Swap PYUSD <-> FRAX
          * Swap PYUSD <-> crvUSD
          */
-        address[] memory assets = new address[](31);
-        SwapKind[] memory kind = new SwapKind[](31);
+        address[] memory assets = new address[](32);
+        SwapKind[] memory kind = new SwapKind[](32);
         assets[0] = getAddress(sourceChain, "USDC");
         kind[0] = SwapKind.BuyAndSell;
         assets[1] = getAddress(sourceChain, "USDT");
@@ -414,6 +416,8 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         kind[29] = SwapKind.Sell;
         assets[30] = getAddress(sourceChain, "rEUL");
         kind[30] = SwapKind.Sell;
+        assets[31] = getAddress(sourceChain, "USDG");
+        kind[31] = SwapKind.BuyAndSell;
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
         _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
