@@ -21,12 +21,16 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0x5f46d540b6eD704C3c8789105F30E075AA900726;
     address public managerAddress = 0xaFa8c08bedB2eC1bbEb64A7fFa44c604e7cca68d;
     address public accountantAddress = 0xEa23aC6D7D11f6b181d6B98174D334478ADAe6b0;
-    address public rawDataDecoderAndSanitizer = 0x003BcF9eebc322dF6462dEb187452155bf8e8C43;
+    address public rawDataDecoderAndSanitizer = 0x05E817E83B264b7710c6cE80b342FfE2469Acb69;
     address public scrollBridgeDecoderAndSanitizer = 0xA66a6B289FB5559b7e4ebf598B8e0A97C776c200;
     address public itbPositionManager = 0x7AAf9539B7359470Def1920ca41b5AAA05C13726;
     address public itbPositionManager2 = 0x11Fd9E49c41738b7500748f7B94B4DBb0E8c13d2; // Spark LBTC (PYUSD) + Aave Core Euler PYUSD Supervised Loan
     address public itbPositionManager3 = 0xfBCA329E2Ee0c44d8F115A4B8F7ceda9E109f436; // Aave eBTC->RLUSD-> Euler Sentora RLUSD
     address public itbDecoderAndSanitizer = 0xb75bfC8B0Cc8588C510DcAE75c67A9DC9cF508d5; 
+
+    //one offs
+    address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
+    address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
 
     function setUp() external {}
 
@@ -205,10 +209,14 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         assets[37] = getAddress(sourceChain, "PYUSD");
         kind[37] = SwapKind.Sell;
 
-        _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+        _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Odos ==========================
-        _addOdosSwapLeafs(leafs, assets, kind);  
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
+        _addOdosOwnedSwapLeafs(leafs, assets, kind);  
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Euler ==========================
         {
@@ -347,7 +355,12 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         }
 
         // ========================== Resolv ==========================
-        _addAllResolvLeafs(leafs);  
+        {
+            ERC20[] memory resolvAssets = new ERC20[](2);
+            resolvAssets[0] = getERC20(sourceChain, "USDC");
+            resolvAssets[1] = getERC20(sourceChain, "USDT");
+            _addAllResolvLeafs(leafs, resolvAssets);
+        }
 
         // ========================== Curve ==========================
         _addCurveLeafs(leafs, getAddress(sourceChain, "fxUSD_USDC_Curve_Pool"), 2, getAddress(sourceChain, "fxUSD_USDC_Curve_Gauge"));   

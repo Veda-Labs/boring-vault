@@ -27,6 +27,8 @@ contract CreateKarakVaultMerkleRootScript is Script, MerkleTreeHelper {
 
     address public itbDecoderAndSanitizer = 0xcfa57ea1b1E138cf89050253CcF5d0836566C06D;
 
+    address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
+
     address public itbKmETHPositionManager = 0x280f4eE00dD5A96D328ec91B182b2c0F9d0eB815;
     address public itbKweETHPositionManager = 0x276E81Fb6A0b445F923Fe113a934a5B22e62a54C;
     address public itbKwstETHPositionManager = 0xFdc479a18d06e2721d17024b549f3f6173a68805;
@@ -297,7 +299,10 @@ contract CreateKarakVaultMerkleRootScript is Script, MerkleTreeHelper {
         kind[11] = SwapKind.Sell;
         assets[12] = getAddress(sourceChain, "RSETH");
         kind[12] = SwapKind.BuyAndSell;
-        _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
+
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+        _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Staking ==========================
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", stakingDecoderAndSanitizer);

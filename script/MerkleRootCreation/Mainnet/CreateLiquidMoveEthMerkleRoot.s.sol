@@ -22,6 +22,8 @@ contract CreateLiquidMoveEthMerkleRootScript is Script, MerkleTreeHelper {
     address public accountantAddress = 0xb53244f7716dC83811C8fB1a91971dC188C1C5aA;
     address public rawDataDecoderAndSanitizer = 0xf95abC9b46117f68521DB3255bc887AC2Ba8e939;
 
+    address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
+
     function setUp() external {}
 
     /**
@@ -54,7 +56,9 @@ contract CreateLiquidMoveEthMerkleRootScript is Script, MerkleTreeHelper {
         assets[4] = getAddress(sourceChain, "WSTETH");
         kind[4] = SwapKind.BuyAndSell;
 
-        _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+        _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Lido ==========================
         _addLidoLeafs(leafs);

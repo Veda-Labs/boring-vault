@@ -19,7 +19,7 @@ contract CreateTurtleTacBTCMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x6Bf340dB729d82af1F6443A0Ea0d79647b1c3DDf;
-    address public rawDataDecoderAndSanitizer = 0xDBf7fb9C3B3285ac4d46d65C726aeFA865A3F373; 
+    address public rawDataDecoderAndSanitizer = 0x5CeEB02799A6fc75641c2793Dc8138508f71642d; 
     address public managerAddress = 0x85A8821a579736e7E5e98296D34C50B77122BB5e; 
     address public accountantAddress = 0xe4858a89d5602Ad30de2018C408d33d101F53d53; 
     
@@ -75,6 +75,9 @@ contract CreateTurtleTacBTCMerkleRoot is Script, MerkleTreeHelper {
             leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address")
         );
         
+        // ========================== rEUL ==========================
+        _addrEULWrappingLeafs(leafs);  
+
         // ========================== ZeroLend ==========================
         //ERC20[] memory supplyAssets = new ERC20[](1);  //Pending Zerolend 
         //supplyAssets[0] = getAddress(sourceChain, "cbBTC"); 
