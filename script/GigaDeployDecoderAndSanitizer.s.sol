@@ -196,8 +196,8 @@ contract GigaDeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAd
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("plasma");
-        setSourceChainName("plasma");
+        vm.createSelectFork("arbitrum");
+        setSourceChainName("arbitrum");
     }
 
     function run() external {
@@ -988,6 +988,7 @@ contract GigaDeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAd
         uint256 desiredNumberOfDeploymentTxs = DESIRED_NUMBER_OF_DEPLOYMENT_TXS;
         if (desiredNumberOfDeploymentTxs == 0) {
             console.log("Desired number of deployment txs is 0");
+            return;
         }
         desiredNumberOfDeploymentTxs =
             desiredNumberOfDeploymentTxs > txsLength ? txsLength : desiredNumberOfDeploymentTxs;
