@@ -152,22 +152,22 @@ import {WithdrawQueueDecoderAndSanitizer} from
 import {wSwellUnwrappingDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/wSwellUnwrappingDecoderAndSanitizer.sol";
 import {ZircuitSimpleStakingDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/ZircuitSimpleStakingDecoderAndSanitizer.sol";
-// import {ITBBasePositionDecoderAndSanitizer} from
-//     "src/base/DecodersAndSanitizers/Protocols/ITB/ITBBasePositionDecoderAndSanitizer.sol";
-// import {ITBAaveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/ITBAaveDecoderAndSanitizer.sol";
-// import {ITBCorkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/ITBCorkDecoderAndSanitizer.sol";
-// import {ITBCurveAndConvexDecoderAndSanitizer} from
-//     "src/base/DecodersAndSanitizers/Protocols/ITB/ITBCurveAndConvexDecoderAndSanitizer.sol";
-// import {ITBEigenLayerDecoderAndSanitizer} from
-//     "src/base/DecodersAndSanitizers/Protocols/ITB/ITBEigenLayerDecoderAndSanitizer.sol";
-// import {ITBGearboxDecoderAndSanitizer} from
-//     "src/base/DecodersAndSanitizers/Protocols/ITB/ITBGearboxDecoderAndSanitizer.sol";
-// import {ITBKarakDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/ITBKarakDecoderAndSanitizer.sol";
-// import {ITBReserveDecoderAndSanitizer} from
-//     "src/base/DecodersAndSanitizers/Protocols/ITB/ITBReserveDecoderAndSanitizer.sol";
-// import {ITBReserveWrapperDecoderAndSanitizer} from
-//     "src/base/DecodersAndSanitizers/Protocols/ITB/ITBReserveWrapperDecoderAndSanitizer.sol";
-// import {ITBSyrupDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/ITBSyrupDecoderAndSanitizer.sol";
+import {ITBBasePositionDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/ITB/ITBBasePositionDecoderAndSanitizer.sol";
+import {ITBAaveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/aave/AaveDecoderAndSanitizer.sol";
+import {ITBCorkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/cork/CorkDecoderAndSanitizer.sol";
+import {ITBCurveAndConvexNoConfigDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/ITB/curve_and_convex/CurveAndConvexNoConfigDecoderAndSanitizer.sol";
+import {ITBEigenLayerDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/ITB/eigen_layer/EigenLayerDecoderAndSanitizer.sol";
+import {ITBGearboxDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/ITB/gearbox/GearboxDecoderAndSanitizer.sol";
+import {ITBKarakDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/karak/KarakDecoderAndSanitizer.sol";
+import {ITBReserveDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/ITB/reserve/ReserveDecoderAndSanitizer.sol";
+import {ITBReserveERC20WrappedDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/ITB/reserve/ReserveERC20WrappedDecoderAndSanitizer.sol";
+import {ITBSyrupDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/syrup/SyrupDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -850,7 +850,7 @@ contract GigaDeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAd
         // Deploy ValantisDecoderAndSanitizer
         creationCode = type(ValantisDecoderAndSanitizer).creationCode;
         constructorArgs = hex"";
-        _contract = deployContract("Valantis Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        _contract = deployContract("Valantis Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
         // console.log("ValantisDecoderAndSanitizer", _contract);
 
         // Deploy GlueXDecoderAndSanitizer
@@ -865,9 +865,70 @@ contract GigaDeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAd
         _contract = deployContract("Red Snwapper Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
         // console.log("RedSnwapperDecoderAndSanitizer", _contract);
 
+        // Deploy ITBBasePositionDecoderAndSanitizer
+        creationCode = type(ITBBasePositionDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        _contract = deployContract("ITB Base Position Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // console.log("ITBBasePositionDecoderAndSanitizer", _contract);
+
+        // Deploy ITBAaveDecoderAndSanitizer
+        creationCode = type(ITBAaveDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        _contract = deployContract("ITB Aave Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // console.log("ITBAaveDecoderAndSanitizer", _contract);
+        
+        // Deploy ITBCorkDecoderAndSanitizer
+        creationCode = type(ITBCorkDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        _contract = deployContract("ITB Cork Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // console.log("ITBCorkDecoderAndSanitizer", _contract);
+
+        // Deploy ITBCurveAndConvexNoConfigDecoderAndSanitizer
+        creationCode = type(ITBCurveAndConvexNoConfigDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        _contract = deployContract("ITB Curve and Convex Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // console.log("ITBCurveAndConvexNoConfigDecoderAndSanitizer", _contract);
+        
+        // Deploy ITBEigenLayerDecoderAndSanitizer
+        creationCode = type(ITBEigenLayerDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        _contract = deployContract("ITB Eigen Layer Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // console.log("ITBEigenLayerDecoderAndSanitizer", _contract);
+
+        // Deploy ITBGearboxDecoderAndSanitizer
+        creationCode = type(ITBGearboxDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        _contract = deployContract("ITB Gearbox Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // console.log("ITBGearboxDecoderAndSanitizer", _contract);
+
+        // Deploy ITBKarakDecoderAndSanitizer
+        creationCode = type(ITBKarakDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        _contract = deployContract("ITB Karak Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // console.log("ITBKarakDecoderAndSanitizer", _contract);
+
+        // Deploy ITBReserveDecoderAndSanitizer
+        creationCode = type(ITBReserveDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        _contract = deployContract("ITB Reserve Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // console.log("ITBReserveDecoderAndSanitizer", _contract);
+
+        // Deploy ITBReserveERC20WrappedDecoderAndSanitizer
+        creationCode = type(ITBReserveERC20WrappedDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        _contract = deployContract("ITB Reserve Wrapper Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // console.log("ITBReserveERC20WrappedDecoderAndSanitizer", _contract);
+
+        // Deploy ITBSyrupDecoderAndSanitizer
+        creationCode = type(ITBSyrupDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        _contract = deployContract("ITB Syrup Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // console.log("ITBSyrupDecoderAndSanitizer", _contract);
+
         _bundleTxs();
     }
 
+    // Deploy contract with constructor arguments retrieved from addressKeys
     function deployContract(string memory name, bytes memory creationCode, uint256 value) internal returns (address _contract) {
         _contract = deployer.getAddress(name);
         if (_contract.code.length > 0) {
@@ -890,6 +951,7 @@ contract GigaDeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAd
         console.logBytes(constructorArgs);
     }
 
+    // Deploy contract with manual (useful for non-address values) or empty constructor arguments
     function deployContract(string memory name, bytes memory creationCode, bytes memory constructorArgs, uint256 value) internal returns (address _contract) {
         _contract = deployer.getAddress(name);
         if (_contract.code.length > 0) {
