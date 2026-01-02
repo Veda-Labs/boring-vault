@@ -298,6 +298,7 @@ contract GigaDeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAd
         constructorArgs = hex"";
         addressKeys = ["camelotNonFungiblePositionManager"];
         _contract = deployContract("Camelot Decoder and Sanitizer V0.0", creationCode, 0);
+        delete addressKeys;
         // console.log("CamelotDecoderAndSanitizer", _contract);
 
         // Deploy CapDecoderAndSanitizer
@@ -329,6 +330,7 @@ contract GigaDeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAd
         constructorArgs = hex"";
         addressKeys = ["convexFXPoolRegistry"];
         _contract = deployContract("Convex FX Decoder and Sanitizer V0.0", creationCode, 0);
+        delete addressKeys;
         // console.log("ConvexFXDecoderAndSanitizer", _contract);
 
         // Deploy CornStakingDecoderAndSanitizer
@@ -360,6 +362,7 @@ contract GigaDeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAd
         constructorArgs = hex"";
         addressKeys = ["dolomiteMargin"];
         _contract = deployContract("Dolomite Decoder and Sanitizer V0.0", creationCode, 0);
+        delete addressKeys;
         // console.log("DolomiteDecoderAndSanitizer", _contract);
 
         // Deploy DvStETHDecoderAndSanitizer
@@ -367,6 +370,7 @@ contract GigaDeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAd
         constructorArgs = hex"";
         addressKeys = ["dvStETHVault"];
         _contract = deployContract("Dv St ETH Decoder and Sanitizer V0.2", creationCode, 0);
+        delete addressKeys;
         // console.log("DvStETHDecoderAndSanitizer", _contract);
 
         // Deploy EigenLayerLSTStakingDecoderAndSanitizer
@@ -562,6 +566,7 @@ contract GigaDeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAd
         constructorArgs = hex"";
         addressKeys = ["odosRouterV2"];
         _contract = deployContract("Odos Decoder and Sanitizer V0.0", creationCode, 0);
+        delete addressKeys;
         // console.log("OdosDecoderAndSanitizer", _contract);
 
         // Deploy OFTDecoderAndSanitizer
@@ -587,6 +592,7 @@ contract GigaDeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAd
         constructorArgs = hex"";
         addressKeys = ["pancakeSwapV3NonFungiblePositionManager", "pancakeSwapV3MasterChefV3"];
         _contract = deployContract("Pancake Swap V3 Decoder and Sanitizer V0.0", creationCode, 0);
+        delete addressKeys;
         // console.log("PancakeSwapV3DecoderAndSanitizer", _contract);
 
         // Deploy PendleRouterDecoderAndSanitizer
@@ -618,6 +624,7 @@ contract GigaDeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAd
         constructorArgs = hex"";
         addressKeys = ["recipeMarketHub"];
         _contract = deployContract("Royco Decoder and Sanitizer V0.0", creationCode, 0);
+        delete addressKeys;
         // console.log("RoycoWeirollDecoderAndSanitizer", _contract);
 
         // Deploy SatlayerStakingDecoderAndSanitizer
@@ -727,6 +734,7 @@ contract GigaDeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAd
         constructorArgs = hex"";
         addressKeys = ["uniswapV3NonFungiblePositionManager"];
         _contract = deployContract("Uniswap V3 Decoder and Sanitizer V0.0", creationCode, 0);
+        delete addressKeys;
         // console.log("UniswapV3DecoderAndSanitizer", _contract);
 
         // Deploy UniswapV3SwapRouter02DecoderAndSanitizer
@@ -734,6 +742,7 @@ contract GigaDeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAd
         constructorArgs = hex"";
         addressKeys = ["uniswapV3NonFungiblePositionManager"];
         _contract = deployContract("Uniswap V3 Swap Router02 Decoder and Sanitizer V0.1", creationCode, 0);
+        delete addressKeys;
         // console.log("UniswapV3SwapRouter02DecoderAndSanitizer", _contract);
 
         // Deploy UniswapV4DecoderAndSanitizer
@@ -741,6 +750,7 @@ contract GigaDeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAd
         constructorArgs = hex"";
         addressKeys = ["uniV4PositionManager"];
         _contract = deployContract("Uniswap V4 Decoder and Sanitizer V0.1", creationCode, 0);
+        delete addressKeys;
         // console.log("UniswapV4DecoderAndSanitizer", _contract);
 
         // Deploy UsualMoneyDecoderAndSanitizer
@@ -760,6 +770,7 @@ contract GigaDeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAd
         constructorArgs = hex"";
         addressKeys = ["velodromeNonFungiblePositionManager"];
         _contract = deployContract("Velodrome Decoder and Sanitizer V0.2", creationCode, 0);
+        delete addressKeys;
         // console.log("VelodromeDecoderAndSanitizer", _contract);
 
         // Deploy WithdrawQueueDecoderAndSanitizer
@@ -826,7 +837,7 @@ contract GigaDeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAd
         creationCode = type(StakeStoneDecoderAndSanitizer).creationCode;
         constructorArgs = hex"";
         _contract = deployContract("Stake Stone Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
-        console.log("StakeStoneDecoderAndSanitizer", _contract);
+        // console.log("StakeStoneDecoderAndSanitizer", _contract);
 
         // Deploy TacCrossChainLayerDecoderAndSanitizer
         creationCode = type(TacCrossChainLayerDecoderAndSanitizer).creationCode;
@@ -839,6 +850,7 @@ contract GigaDeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAd
         constructorArgs = hex"";
         addressKeys = ["algebraNonFungiblePositionManager"];
         _contract = deployContract("Algebra V4 Decoder and Sanitizer V0.0", creationCode, 0);
+        delete addressKeys;
         // console.log("AlgebraV4DecoderAndSanitizer", _contract);
 
         // Deploy KinetiqDecoderAndSanitizer
@@ -988,7 +1000,8 @@ contract GigaDeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAd
 
         for (uint256 i; i < desiredNumberOfDeploymentTxs; i++) {
             uint256 txsInBundle;
-            if (i == desiredNumberOfDeploymentTxs - 1 && txsLength % txsPerBundle != 0) {
+            if (i == desiredNumberOfDeploymentTxs - 1) {
+                // Last bundle always collects all remaining transactions
                 txsInBundle = txsLength - lastIndexDeployed;
             } else {
                 txsInBundle = txsPerBundle;
