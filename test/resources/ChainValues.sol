@@ -37,6 +37,7 @@ contract ChainValues {
     string public constant hyperevm = "hyperevm";
     string public constant plasma = "plasma";
     string public constant monad = "monad";
+    string public constant tacBuild = "tacBuild";
 
     // Bridging constants.
     uint64 public constant ccipArbitrumChainSelector = 4949039107694359620;
@@ -58,6 +59,7 @@ contract ChainValues {
     uint32 public constant layerZeroSonicBlazeEndpointId = 40349;
     uint32 public constant layerZeroPlasmaEndpointId = 30383;
     uint32 public constant layerZeroMovementEndpointId = 30325;
+    uint32 public constant layerZeroTacEndpointId = 30377;
     uint32 public constant hyperlaneMainnetEndpointId = 1;
     uint32 public constant hyperlaneEclipseEndpointId = 1408864445;
 
@@ -130,6 +132,32 @@ contract ChainValues {
         _addBerachainTestnetValues();
         _addBartioValues();
         _addHyperEvmValues();
+<<<<<<< Updated upstream
+=======
+        _addMonadValues();
+        _addTacBuildValues();
+    }
+
+    function _addTacBuildValues() private {
+        values[tacBuild]["deployerAddress"] = 0x5BD97A73333B6EC2e38B687bcED159566A14C5BA.toBytes32();
+        values[tacBuild]["txBundlerAddress"] = 0x5BD97A73333B6EC2e38B687bcED159566A14C5BA.toBytes32();
+        values[tacBuild]["dev0Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
+        values[tacBuild]["dev1Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
+        values[tacBuild]["WTAC"] = 0xB63B9f0eb4A6E6f191529D71d4D88cc8900Df2C9.toBytes32();
+        values[tacBuild]["USDT0"] = 0xAF988C3f7CB2AceAbB15f96b19388a259b6C438f.toBytes32();
+        values[tacBuild]["vault"] = address(1).toBytes32();
+
+         // LayerZero
+        values[tacBuild]["LayerZeroEndPoint"] = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B.toBytes32();
+        values[tacBuild]["ZRO"] = 0x6985884C4392D348587B19cb9eAAf157F13271cd.toBytes32();
+
+        // BalancerVaultV2
+        values[tacBuild]["balancerVault"] = address(1).toBytes32();
+
+        // ccip
+        values[tacBuild]["ccipRouter"] = 0x966519C334D895121B61584CAdeBc15571b62983.toBytes32();
+
+>>>>>>> Stashed changes
     }
 
     function _addMonadValues() private {
@@ -1526,6 +1554,7 @@ contract ChainValues {
         values[base]["MORPHO"] = 0xBAa5CC21fd487B8Fcc2F632f3F4E8D37262a0842.toBytes32();
         values[base]["LBTC"] = 0xecAc9C5F704e954931349Da37F60E39f515c11c1.toBytes32();
         values[base]["WBTC"] = 0x0555E30da8f98308EdB960aa94C0Db47230d2B9c.toBytes32();
+        values[base]["EURC"] = 0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42.toBytes32();
 
         // Balancer vault
         values[base]["vault"] = 0xBA12222222228d8Ba445958a75a0704d566BF2C8.toBytes32();
@@ -1557,6 +1586,7 @@ contract ChainValues {
         values[base]["aerodrome_Weth_Weeth_v2_30_gauge"] = 0xf8d47b641eD9DF1c924C0F7A6deEEA2803b9CfeF.toBytes32();
         values[base]["aerodrome_Weth_Reth_v2_05_gauge"] = 0xAa3D51d36BfE7C5C63299AF71bc19988BdBa0A06.toBytes32();
         values[base]["aerodrome_Sfrxeth_Wsteth_v2_30_gauge"] = 0xCe7Cb6260fCBf17485cd2439B89FdDf8B0Eb39cC.toBytes32();
+        values[base]["aerodrome_Eurc_Usdc_v3_07_gauge"] = 0x85af8D930cB738954d307D6E62F04dd05D839C37.toBytes32();
 
         // MorphoBlue
         values[base]["morphoBlue"] = 0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb.toBytes32();

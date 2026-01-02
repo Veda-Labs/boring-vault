@@ -45,6 +45,7 @@ katana = "${KATANA_RPC_URL}"
 hyperevm= "${HYPEREVM_RPC_URL}"
 plasma= "${PLASMA_RPC_URL}"
 monad= "${MONAD_RPC_URL}"
+tacBuild= "${TAC_RPC_URL}"
 
 [etherscan]
 #bob = { key = "${BOBSCAN_KEY}", chain = 60808, url = "https://explorer.gobob.xyz/api?"}
