@@ -1,0 +1,217 @@
+{
+    "deploymentParameters": {
+        "logLevel": 4,
+        "privateKeyEnvName": "PRIVATE_KEY_1",
+        "chainName": "mainnet",
+        "evmVersion": "cancun",
+        "desiredNumberOfDeploymentTxs": 30,
+        "txBundlerAddressOrName": {
+            "address": "0x5BD97A73333B6EC2e38B687bcED159566A14C5BA",
+            "name": "txBundlerAddress"
+        },
+        "setupRoles": true,
+        "setupTestUser": false,
+        "saveDeploymentDetails": true,
+        "testUserAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "dev1Address"
+        },
+        "deployerContractAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "deployerAddress"
+        },
+        "nativeWrapperAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "WETH"
+        },
+        "deploymentOwnerAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "deployerAddress"
+        },
+        "deploymentFileName": "MainnetBoinkersUsdDeployment.json"
+    },
+    "rolesAuthorityConfiguration": {
+        "rolesAuthorityDeploymentName": "boinkersUSD rolesAuthorityV1.0"
+    },
+    "lensConfiguration": {
+        "lensDeploymentName": "boinkersUSD lensV1.0"
+    },
+    "boringVaultConfiguration": {
+        "boringVaultDeploymentName": "boinkersUSD boringVaultV1.0",
+        "boringVaultName": "Boinkers USD",
+        "boringVaultSymbol": "boinkersUSD",
+        "boringVaultDecimals": 6
+    },
+    "managerConfiguration": {
+        "managerDeploymentName": "boinkersUSD managerV1.0",
+        "balancerVaultAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "balancerVault"
+        }
+    },
+    "accountantConfiguration": {
+        "accountantDeploymentName": "boinkersUSD accountantV1.0",
+        "accountantParameters": {
+            "kind": {
+                "variableRate": true,
+                "fixedRate": false
+            },
+            "payoutConfiguration": {
+                "payoutTo": "0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5",
+                "optionalPaymentSplitterName": "Payment Splitter",
+                "splits": []
+            },
+            "accountantDeploymentParameters": {
+                "allowedExchangeRateChangeLower": 9900,
+                "allowedExchangeRateChangeUpper": 10000,
+                "baseAddressOrName": {
+                    "address": "0x0000000000000000000000000000000000000000",
+                    "name": "USDT"
+                },
+                "minimumUpateDelayInSeconds": 21600,
+                "performanceFee": 100,
+                "platformFee": 0,
+                "startingExchangeRate": 1000000
+            }
+        }
+    },
+    "tellerConfiguration": {
+        "tellerDeploymentName": "boinkersUSD TellerV1.0",
+        "tellerParameters": {
+            "allowPublicDeposits": false,
+            "shareLockPeriod": 60,
+            "kind": {
+                "teller": false,
+                "tellerWithRemediation": false,
+                "tellerWithCcip": false,
+                "tellerWithLayerZero": true
+            },
+            "ccip": {
+                "routerAddressOrName": {
+                    "address": "0x0000000000000000000000000000000000000000",
+                    "name": "ccipRouter"
+                },
+                "ccipChains": [
+                    {
+                        "chainSelector": 1,
+                        "allowMessagesFrom": true,
+                        "allowMessagesTo": true,
+                        "targetTellerOrSelf": {
+                            "address": "0x0000000000000000000000000000000000000000",
+                            "self": true
+                        },
+                        "messageGasLimit": 100000
+                    }
+                ]
+            },
+            "layerZero": {
+                "endpointAddressOrName": {
+                    "address": "0x0000000000000000000000000000000000000000",
+                    "name": "LayerZeroEndPoint"
+                },
+                "lzTokenAddressOrName": {
+                    "address": "0x0000000000000000000000000000000000000000",
+                    "name": "ZRO"
+                },
+                "lzChains": [
+                    {
+                        "chainId": 1,
+                        "allowMessagesFrom": true,
+                        "allowMessagesTo": true,
+                        "targetTellerOrSelf": {
+                            "address": "0x0000000000000000000000000000000000000000",
+                            "self": true
+                        },
+                        "messageGasLimit": 100000
+                    }
+                ]
+            }
+        }
+    },
+    "boringQueueConfiguration": {
+        "boringQueueDeploymentName": "boinkersUSD BoringOnChainQueueV1.0",
+        "boringQueueSolverName": "boinkersUSD BoringSolverV1.0",
+        "queueParameters": {
+            "allowPublicWithdrawals": false,
+            "allowPublicSelfWithdrawals": false,
+            "kind": {
+                "boringQueue": true,
+                "boringQueueWithTracking": false
+            }
+        }
+    },
+    "droneConfiguration": {
+        "droneDeploymentBaseName": "boinkersUSD boring drone",
+        "droneCount": 1,
+        "safeGasToForwardNative": 21000
+    },
+    "pauserConfiguration": {
+        "shouldDeploy": true,
+        "pauserDeploymentName": "boinkersUSD pauser",
+        "makeGenericPauser": [
+            "0x0000000000000000000000000000000000000000"
+        ],
+        "makeGenericUnpauser": [
+            "0x0000000000000000000000000000000000000000"
+        ],
+        "makePauseAll": [
+            "0x0000000000000000000000000000000000000000"
+        ],
+        "makeUnpauseAll": [
+            "0x0000000000000000000000000000000000000000"
+        ],
+        "senderToPausable": [
+            {
+                "sender": "0x0000000000000000000000000000000000000000",
+                "pausable": "0x0000000000000000000000000000000000000000"
+            }
+        ]
+    },
+    "timelockConfiguration": {
+        "shouldDeploy": true,
+        "timelockDeploymentName": "timelock",
+        "timelockParameters": {
+            "minDelay": 86400,
+            "proposers": [
+                "0x0000000000000000000000000000000000000000"
+            ],
+            "executors": [
+                "0x0000000000000000000000000000000000000000"
+            ]
+        }
+    },
+    "accountantAssets": [
+        {
+            "addressOrName": {
+                "address": "0x0000000000000000000000000000000000000000",
+                "name": "USDT"
+            },
+            "isPeggedToBase": true,
+            "rateProvider": ""
+        }
+    ],
+    "depositAssets": [
+        {
+            "addressOrName": {
+                "address": "0x0000000000000000000000000000000000000000",
+                "name": "USDT"
+            },
+            "allowDeposits": true,
+            "allowWithdraws": true,
+            "sharePremium": 0
+        }
+    ],
+    "withdrawAssets": [
+        {
+            "addressOrName": {
+                "address": "0x0000000000000000000000000000000000000000",
+                "name": "USDT"
+            },
+            "maxDiscount": 100,
+            "minDiscount": 0,
+            "minimumSecondsToDeadline": 0,
+            "minimumShares": 0,
+            "secondsToMaturity": 60
+        }
+    ]
+}
