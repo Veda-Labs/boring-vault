@@ -21,7 +21,7 @@ contract CreateCbBTCMerkleRootScript is Script, MerkleTreeHelper {
     address public boringVault = 0x42A03534DBe07077d705311854E3B6933dD6Af85;
     address public managerAddress = 0xcb4647c77688489655F45bB5bac42E14a0b05F85;
     address public accountantAddress = 0x1c217f17d57d3CCD1CB3d8CB16B21e8f0b544156;
-    address public rawDataDecoderAndSanitizer = 0xA6b52921652A828Da445b457442F8cA10638a4Bb;
+    address public rawDataDecoderAndSanitizer = 0x422B5a85Cc4710E3a2E3BaEBE1b11769B29A720f;
 
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
     address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
@@ -82,6 +82,14 @@ contract CreateCbBTCMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== Pendle ==========================
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_eBTC_market_12_26_24"), true);
+
+        // ========================== eBTC Boring Queue ==========================
+        ERC20[] memory withdrawAssets = new ERC20[](3);
+        withdrawAssets[0] = getERC20(sourceChain, "WBTC");
+        withdrawAssets[1] = getERC20(sourceChain, "cbBTC");
+        withdrawAssets[2] = getERC20(sourceChain, "LBTC");
+        _addWithdrawQueueLeafs(leafs, 0x74EC75fb641ec17B04007733d9efBE2D1dA5CA2C, getAddress(sourceChain, "eBTC"), withdrawAssets);
+        _addWithdrawQueueLeafs(leafs, 0x686696A3e59eE16e8A8533d84B62cfA504827135, getAddress(sourceChain, "eBTC"), withdrawAssets);
 
         string memory filePath = "./leafs/Mainnet/CbBTCStrategistLeafs.json";
 
