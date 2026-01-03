@@ -50,133 +50,136 @@ contract CreateAeroUsdcMerkleRootScript is Script, MerkleTreeHelper {
     function _generateSyUsdMultiChainMerkleRoot() public {
 
         rawDataDecoderAndSanitizer = address(
-            new BaseStablecoinStrategyDecoderAndSanitizer(getAddress(sourceChain, "aerodromeNonFungiblePositionManager"),getAddress(sourceChain, "odosRouterV2"))
+            0x5F2863EeF8854171F2AC4E07A0D056CFC8e13c3E
         );
 
         console.log("Address of decoder and sanitizer:", rawDataDecoderAndSanitizer);
 
-        // setAddress(true, base, "boringVault", boringVault);
-        // setAddress(true, base, "managerAddress", managerAddress);
-        // setAddress(true, base, "accountantAddress", accountantAddress);
-        // setAddress(
-        //     true,
-        //     base,
-        //     "rawDataDecoderAndSanitizer",
-        //     rawDataDecoderAndSanitizer
-        // );
+        setAddress(true, base, "boringVault", boringVault);
+        setAddress(true, base, "managerAddress", managerAddress);
+        setAddress(true, base, "accountantAddress", accountantAddress);
+        setAddress(
+            true,
+            base,
+            "rawDataDecoderAndSanitizer",
+            rawDataDecoderAndSanitizer
+        );
 
-        // ManageLeaf[] memory leafs = new ManageLeaf[](512);
-        // ERC20[] memory feeAssets = new ERC20[](1);
-        // feeAssets[0] = getERC20(sourceChain, "USDC");
-        // _addLeafsForFeeClaiming(
-        //     leafs,
-        //     getAddress(sourceChain, "accountantAddress"),
-        //     feeAssets,
-        //     false
-        // );
+        ManageLeaf[] memory leafs = new ManageLeaf[](512);
+        ERC20[] memory feeAssets = new ERC20[](1);
+        feeAssets[0] = getERC20(sourceChain, "USDC");
+        _addLeafsForFeeClaiming(
+            leafs,
+            getAddress(sourceChain, "accountantAddress"),
+            feeAssets,
+            false
+        );
 
-        // ERC20[] memory bridgeAssets = new ERC20[](1);
-        // bridgeAssets[0] = getERC20(sourceChain, "USDC");
-        // ERC20[] memory feeTokens = new ERC20[](1);
-        // feeTokens[0] = getERC20(sourceChain, "WETH");
-        // _addCcipBridgeLeafs(
-        //     leafs,
-        //     ccipMainnetChainSelector,
-        //     bridgeAssets,
-        //     feeTokens
-        // );
-        // _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDC"));
-        // _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "WETH"));
+        ERC20[] memory bridgeAssets = new ERC20[](1);
+        bridgeAssets[0] = getERC20(sourceChain, "USDC");
+        ERC20[] memory feeTokens = new ERC20[](1);
+        feeTokens[0] = getERC20(sourceChain, "WETH");
+        _addCcipBridgeLeafs(
+            leafs,
+            ccipMainnetChainSelector,
+            bridgeAssets,
+            feeTokens
+        );
+        _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDC"));
+        _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "WETH"));
 
-        // // 1inch assets;
-        // address[] memory oneInchAssets = new address[](3);
-        // oneInchAssets[0] = getAddress(sourceChain, "USDC");
-        // oneInchAssets[1] = getAddress(sourceChain, "USDS");
-        // oneInchAssets[2] = getAddress(sourceChain, "sUSDS");
-        // SwapKind[] memory kind = new SwapKind[](3);
-        // kind[0] = SwapKind.BuyAndSell;
-        // kind[1] = SwapKind.BuyAndSell;
-        // kind[2] = SwapKind.BuyAndSell;
+        // 1inch assets;
+        address[] memory oneInchAssets = new address[](3);
+        oneInchAssets[0] = getAddress(sourceChain, "USDC");
+        oneInchAssets[1] = getAddress(sourceChain, "USDS");
+        oneInchAssets[2] = getAddress(sourceChain, "EURC");
+        SwapKind[] memory kind = new SwapKind[](3);
+        kind[0] = SwapKind.BuyAndSell;
+        kind[1] = SwapKind.BuyAndSell;
+        kind[2] = SwapKind.BuyAndSell;
 
-        // _addLeafsFor1InchGeneralSwapping(leafs, oneInchAssets, kind);
-        // _addOdosSwapLeafs(leafs, oneInchAssets, kind);
-        // _addERC4626Leafs(
-        //     leafs,
-        //     ERC4626(getAddress(sourceChain, "YearnOgUsdc"))
-        // );
-        // _addERC4626Leafs(
-        //     leafs,
-        //     ERC4626(getAddress(sourceChain, "JUNIOR TRANCHE Tranche USD Coin"))
-        // );
+        _addLeafsFor1InchGeneralSwapping(leafs, oneInchAssets, kind);
+        _addOdosSwapLeafs(leafs, oneInchAssets, kind);
+        _addERC4626Leafs(
+            leafs,
+            ERC4626(getAddress(sourceChain, "YearnOgUsdc"))
+        );
+        _addERC4626Leafs(
+            leafs,
+            ERC4626(getAddress(sourceChain, "JUNIOR TRANCHE Tranche USD Coin"))
+        );
 
-        // ERC20[] memory assets = new ERC20[](1);
-        // assets[0] = ERC20(getAddress(sourceChain, "USDC"));
-        // _addTellerLeafs(leafs, address(teller), assets, false, true);
+        ERC20[] memory assets = new ERC20[](1);
+        assets[0] = ERC20(getAddress(sourceChain, "USDC"));
+        _addTellerLeafs(leafs, address(teller), assets, false, true);
 
-        // address[] memory token0 = new address[](2);
-        // token0[0] = getAddress(sourceChain, "WETH");
-        // token0[1] = getAddress(sourceChain, "EURC");
-        // address[] memory token1 = new address[](2);
-        // token1[0] = getAddress(sourceChain, "USDC");
-        // token1[1] = getAddress(sourceChain, "USDC");
-        // address[] memory gauges = new address[](2);
-        // gauges[0] = getAddress(sourceChain, "aerodrome_Weth_Usdc_v3_1_gauge");
-        // gauges[1] = getAddress(sourceChain, "aerodrome_Eurc_Usdc_v3_07_gauge");
-        // _addVelodromeV3Leafs(
-        //     leafs, token0, token1, getAddress(sourceChain, "aerodromeNonFungiblePositionManager"), gauges
-        // );
+        address[] memory token0 = new address[](2);
+        token0[0] = getAddress(sourceChain, "WETH");
+        token0[1] = getAddress(sourceChain, "EURC");
+        address[] memory token1 = new address[](2);
+        token1[0] = getAddress(sourceChain, "USDC");
+        token1[1] = getAddress(sourceChain, "USDC");
+        address[] memory gauges = new address[](2);
+        gauges[0] = getAddress(sourceChain, "aerodrome_Weth_Usdc_v3_1_gauge");
+        gauges[1] = getAddress(sourceChain, "aerodrome_Eurc_Usdc_v3_07_gauge");
+        _addVelodromeV3Leafs(
+            leafs, token0, token1, getAddress(sourceChain, "aerodromeNonFungiblePositionManager"), gauges
+        );
 
-        // bytes32[][] memory manageTree = _generateMerkleTree(leafs);
-        // string memory filePath = "./leafs/Base/AeroUsdStrategyLeafs.json";
-        // _generateLeafs(
-        //     filePath,
-        //     leafs,
-        //     manageTree[manageTree.length - 1][0],
-        //     manageTree
-        // );
+        _addMagpieSwapLeafs(leafs, oneInchAssets, kind);
 
-        // ManagerWithMerkleVerification manager = ManagerWithMerkleVerification(
-        //     managerAddress
-        // );
-        // vm.startBroadcast(vm.envUint("PK"));
 
-        // if (
-        //     !rolesAuthority.doesRoleHaveCapability(
-        //         MANAGER_INTERNAL_ROLE,
-        //         address(manager),
-        //         ManagerWithMerkleVerification
-        //             .manageVaultWithMerkleVerification
-        //             .selector
-        //     )
-        // ) {
-        //     rolesAuthority.setRoleCapability(
-        //         MANAGER_INTERNAL_ROLE,
-        //         address(manager),
-        //         ManagerWithMerkleVerification
-        //             .manageVaultWithMerkleVerification
-        //             .selector,
-        //         true
-        //     );
-        // }
-        // rolesAuthority.setUserRole(user1, MANAGER_INTERNAL_ROLE, true);
-        // rolesAuthority.setUserRole(user2, MANAGER_INTERNAL_ROLE, true);
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+        string memory filePath = "./leafs/Base/AeroUsdStrategyLeafs.json";
+        _generateLeafs(
+            filePath,
+            leafs,
+            manageTree[manageTree.length - 1][0],
+            manageTree
+        );
 
+        ManagerWithMerkleVerification manager = ManagerWithMerkleVerification(
+            managerAddress
+        );
+        vm.startBroadcast(vm.envUint("PK"));
+
+        if (
+            !rolesAuthority.doesRoleHaveCapability(
+                MANAGER_INTERNAL_ROLE,
+                address(manager),
+                ManagerWithMerkleVerification
+                    .manageVaultWithMerkleVerification
+                    .selector
+            )
+        ) {
+            rolesAuthority.setRoleCapability(
+                MANAGER_INTERNAL_ROLE,
+                address(manager),
+                ManagerWithMerkleVerification
+                    .manageVaultWithMerkleVerification
+                    .selector,
+                true
+            );
+        }
+        rolesAuthority.setUserRole(user1, MANAGER_INTERNAL_ROLE, true);
+        rolesAuthority.setUserRole(user3, MANAGER_INTERNAL_ROLE, true);
+
+        manager.setManageRoot(
+            managerAddress,
+            manageTree[manageTree.length - 1][0]
+        );
+        manager.setManageRoot(
+            user1,
+            manageTree[manageTree.length - 1][0]
+        );
         // manager.setManageRoot(
-        //     managerAddress,
+        //     user2,
         //     manageTree[manageTree.length - 1][0]
         // );
-        // manager.setManageRoot(
-        //     user1,
-        //     manageTree[manageTree.length - 1][0]
-        // );
-        // // manager.setManageRoot(
-        // //     user2,
-        // //     manageTree[manageTree.length - 1][0]
-        // // );
-        // manager.setManageRoot(
-        //     user3,
-        //     manageTree[manageTree.length - 1][0]
-        // );
-        // vm.stopBroadcast();
+        manager.setManageRoot(
+            user3,
+            manageTree[manageTree.length - 1][0]
+        );
+        vm.stopBroadcast();
     }
 }

@@ -132,8 +132,6 @@ contract ChainValues {
         _addBerachainTestnetValues();
         _addBartioValues();
         _addHyperEvmValues();
-<<<<<<< Updated upstream
-=======
         _addMonadValues();
         _addTacBuildValues();
     }
@@ -157,7 +155,6 @@ contract ChainValues {
         // ccip
         values[tacBuild]["ccipRouter"] = 0x966519C334D895121B61584CAdeBc15571b62983.toBytes32();
 
->>>>>>> Stashed changes
     }
 
     function _addMonadValues() private {
