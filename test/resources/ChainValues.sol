@@ -1639,6 +1639,9 @@ contract ChainValues {
         // avantis
         values[base]["SENIOR TRANCHE Tranche USD Coin"] = 0x83084cB182162473d6FEFfCd3Aa48BA55a7B66F7.toBytes32();
         values[base]["JUNIOR TRANCHE Tranche USD Coin"] = 0x944766f715b51967E56aFdE5f0Aa76cEaCc9E7f9.toBytes32();
+
+        // fly.trade
+        values[base]["magpieRouterV3"] = 0x5E766616AaBFB588E23a8EA854e9dbd1042afFD3.toBytes32();
     }
 
     function _addArbitrumValues() private {

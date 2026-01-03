@@ -10,7 +10,7 @@ import {CurveDecoderAndSanitizer} from "./Protocols/CurveDecoderAndSanitizer.sol
 import {NativeWrapperDecoderAndSanitizer} from "./Protocols/NativeWrapperDecoderAndSanitizer.sol";
 import {PendleRouterDecoderAndSanitizer} from "./Protocols/PendleRouterDecoderAndSanitizer.sol";
 import {CCIPDecoderAndSanitizer} from "./Protocols/CCIPDecoderAndSanitizer.sol";
-import {OdosDecoderAndSanitizer} from "./Protocols/OdosDecoderAndSanitizer.sol";
+import {MagpieDecoderAndSanitizer} from "./MagpieDecoderAndSanitizer.sol";
 import {AerodromeDecoderAndSanitizer} from "./AerodromeDecoderAndSanitizer.sol";
 import {VelodromeDecoderAndSanitizer} from "./Protocols/VelodromeDecoderAndSanitizer.sol";
 
@@ -23,12 +23,12 @@ contract BaseStablecoinStrategyDecoderAndSanitizer is
     NativeWrapperDecoderAndSanitizer,
     PendleRouterDecoderAndSanitizer,
     CCIPDecoderAndSanitizer,
-    OdosDecoderAndSanitizer,
+    MagpieDecoderAndSanitizer,
     AerodromeDecoderAndSanitizer
 {
-    constructor(address _aerodromeNonFungiblePositionManager, address _odosRouter)
+    constructor(address _aerodromeNonFungiblePositionManager, address _magpieRouter)
         AerodromeDecoderAndSanitizer(_aerodromeNonFungiblePositionManager)
-        OdosDecoderAndSanitizer(_odosRouter)
+        MagpieDecoderAndSanitizer(_magpieRouter)
     {}
 
     //============================== HANDLE FUNCTION COLLISIONS ===============================

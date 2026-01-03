@@ -92,6 +92,10 @@ import {
     FullCorkDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/Protocols/ITB/cork/FullCorkDecoderAndSanitizer.sol";
 
+import {
+    BaseStablecoinStrategyDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/BaseStablecoinStrategyDecoderAndSanitizer.sol";
+
 import {BoringDrone} from "src/base/Drones/BoringDrone.sol";
 
 import "forge-std/Script.sol";
@@ -308,6 +312,18 @@ contract DeployGenericUniswapDecoderAndSanitizer is Script, ContractNames, Mainn
     }
 }
 
+contract DeployBaseStableStrategyDecoderAndSanitizer is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
+    function run() external {
+        vm.createSelectFork("base");
+        setSourceChainName(base);
+        vm.startBroadcast(vm.envUint("BORING_DEVELOPER"));
+        new BaseStablecoinStrategyDecoderAndSanitizer(
+            getAddress(sourceChain, "aerodromeNonFungiblePositionManager"), getAddress(sourceChain, "magpieRouterV3")
+        );
+        vm.stopBroadcast();
+    }
+}
+
 // contract DeployLpUsdcArbitrumDecoderAndSanitizer {
 //     uint256 public privateKey;
 //     Deployer public deployer = Deployer(0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC);
@@ -329,3 +345,4 @@ contract DeployGenericUniswapDecoderAndSanitizer is Script, ContractNames, Mainn
 //         vm.stopBroadcast();
 //     }
 // }
+
