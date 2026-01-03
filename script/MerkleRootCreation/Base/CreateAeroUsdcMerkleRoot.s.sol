@@ -27,12 +27,12 @@ contract CreateAeroUsdcMerkleRootScript is Script, MerkleTreeHelper {
     uint8 public MANAGER_INTERNAL_ROLE = 4;
 
     address public accountantAddress =
-        0x49C1df396FfeD48d821A425beFc1C021Af0D43fE;
-    address public boringVault = 0x8645756d4DF86Ff81419Bd50B936774452bbF313;
-    address public managerAddress = 0x540511A761Aaa6E009748e3eD77b3053ABe52280;
+        0xEe5d60a0B460C91b9cb4406d9cD4f79Ea2c68d49;
+    address public boringVault = 0x2903f57B2C657FFB1f5dc328667389A6e79840B1;
+    address public managerAddress = 0x572BC3c3F78e91db980Ef97582a903e04d7DEd8d;
     address public rawDataDecoderAndSanitizer;
-    RolesAuthority public rolesAuthority = RolesAuthority(0x24f7B70331bCeddb1bd5000b61941582cf3f15A8);
-    address public teller = 0xC586C775bcc2Fa5f787Ef288B333af9Ea332BAAe;
+    RolesAuthority public rolesAuthority = RolesAuthority(0x18e62e19A367d91eaD1652B8CAFd5a03962DF136);
+    address public teller = 0x6Df0089fd66f99Ab8FFfBCAe122D137aB24e68d6;
 
     address public user1 = 0xa86b3Bf249478488B4304B50726c7D4689aD6320;
     address public user2 = 0x124B527d76cB8192ac59da7276f815b4529870C9;
