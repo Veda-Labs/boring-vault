@@ -13312,12 +13312,12 @@ function _addTellerLeafsWithReferral(
                         false,
                         "swap(address,(address,address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,bool,bytes32),(address,uint256,bytes)[])",
                         new address[](5),
-                        string.concat("Swap ", ERC20(tokens[i]).symbol(), " for ", ERC20(tokens[j]).symbol()),
+                        string.concat("Swap ", ERC20(tokens[j]).symbol(), " for ", ERC20(tokens[i]).symbol()),
                         getAddress(sourceChain, "rawDataDecoderAndSanitizer")
                     );
                     leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "glueXExecutor");
-                    leafs[leafIndex].argumentAddresses[1] = tokens[i];
-                    leafs[leafIndex].argumentAddresses[2] = tokens[j];
+                    leafs[leafIndex].argumentAddresses[1] = tokens[j];
+                    leafs[leafIndex].argumentAddresses[2] = tokens[i];
                     leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "boringVault");
                     leafs[leafIndex].argumentAddresses[4] = address(0); 
 
