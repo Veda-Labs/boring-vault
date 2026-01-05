@@ -120,3 +120,26 @@ invariant accountantDecimalsCorrect(env e)
     filtered { f ->
         f.selector == sig:accountant_contract.vestYield(uint256,uint256).selector
 }
+
+invariant sharePriceMoreThanOneAsset()
+    accountant_contract.vestingState.lastSharePrice >= 10^vault_contract.decimals
+    || accountant_contract.downCastOverflow
+    filtered 
+    { f -> !ignoredMethod(f)
+        //&& (f.contract == teller_contract)  //funds could be moved by methods called on the Vault or on the Asset
+        //&& f.selector != sig:teller_contract.refundDeposit(uint256,address,address,uint256,uint256,uint256,uint256,address).selector // can break if the sharesAmount is too low. This can happen since we don't really track the sum of deposits and their shares in publicDepositHistory
+        //&& f.selector == sig:teller_contract.deposit(address, uint256, uint256,address).selector 
+        //&& f.selector == sig:teller_contract.depositWithPermit(address,uint256,uint256,uint256,uint8,bytes32,bytes32,address).selector
+        //&& f.selector == sig:teller_contract.bulkDeposit(address,uint256,uint256,address).selector
+        //&& f.selector == sig:teller_contract.withdraw(address,uint256,uint256,address).selector
+        //&& f.selector == sig:teller_contract.bulkWithdraw(address,uint256,uint256,address).selector
+        //&& !isPublicMethod(f)
+    }
+{ preserved with (env e2) {
+        //requireAllInvariants(e2);
+
+        //require accountant_contract.getPendingVestingGains(e2) <= vault_contract.totalSupply();
+        safeAssumptions();
+        nonSceneAddress(e2.msg.sender);
+    }
+}
