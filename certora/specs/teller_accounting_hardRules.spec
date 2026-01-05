@@ -349,7 +349,7 @@ rule vaultSolvency_1Asset_test(env e)
     require (userAssets(e, ERC20Mock, vault_contract) - accountant_contract.getPendingVestingGains(e)) * teller_contract.ONE_SHARE 
         >= (vault_contract.totalSupply(e)) * (accountant_contract.getRateInQuoteSafe(e, ERC20Mock)); 
 
-    require totalAssets() == 12000000002;
+    require accountant_contract.totalAssets(e) == 12000000002;
     require vault_contract.totalSupply(e) == 10000000002;
 
     require accountant_contract.getRateInQuoteSafe(e, ERC20Mock) == 1199999;

@@ -1,7 +1,7 @@
 # invariants
 certora/scripts/setup.sh C
 
-# certoraRun certora/confs/scenarioC.conf --msg exchangeRateLEhighwaterMark_unlessPaused --rule exchangeRateLEhighwaterMark_unlessPaused --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_hardRules.spec" --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20 -splitParallel true"
+certoraRun certora/confs/scenarioC.conf --msg exchangeRateLEhighwaterMark_unlessPaused --rule exchangeRateLEhighwaterMark_unlessPaused --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_hardRules.spec" --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20 -splitParallel true"
 certoraRun certora/confs/scenarioC.conf --msg sharePriceBoundedLower --rule sharePriceBoundedLower --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_hardRules.spec" --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20 -splitParallel true"
 certoraRun certora/confs/scenarioC.conf --msg exchangeRateEqlastSharePrice --rule exchangeRateEqlastSharePrice --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_hardRules.spec" --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20 -splitParallel true"
 certoraRun certora/confs/scenarioC.conf --msg cumulativeSupplyBounded --rule cumulativeSupplyBounded --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_hardRules.spec" --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20 -splitParallel true"
