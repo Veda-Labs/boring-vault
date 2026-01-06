@@ -9,6 +9,7 @@
     "Lens": "0x5232bc0F5999f8dA604c42E1748A13a170F94A1B",
     "ManagerWithMerkleVerification": "0xEd23b12e7700BeB638562A22ED65f74291901c25",
     "Pauser": "0x4B0B3164B6731ACd96e29F13bF6c112204d5f024",
+    "PaymentSplitter": "0x055f5080c49CC092c1bc78975Ff316A1db43AA2F",
     "QueueSolver": "0xdf4123c18DC985ed94061f2C08cE17b7b17f21fF",
     "RolesAuthority": "0x1F53135155d6fF516bCcfDd9424fcdB8AD1eFB77",
     "TellerWithYieldStreaming": "0xc46f2443b3521632E2E2a903D6da8f965B46f6a0",

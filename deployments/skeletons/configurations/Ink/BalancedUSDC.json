@@ -46,9 +46,22 @@
         "yieldStreaming": true
       },
       "payoutConfiguration": {
-        "payoutTo": "0x0000000000000000000000000000000000000001",
+        "payoutTo": "0x0000000000000000000000000000000000000000",
         "optionalPaymentSplitterName": "Balanced Yield USDC Payment Splitter V0.3",
-        "splits": []
+        "splits": [
+          {
+            "to": "0xb66e29480354602b01edb2098dffa17f709be3d8",
+            "percent": 8000
+          },
+          {
+            "to": "0x8e3b323cB3Cf8E417274b6540367007e6e6c482D",
+            "percent": 1500
+          },
+          {
+            "to": "0x68eC1FdD4Bb202B2e07aE751CB5553644aA48cFA",
+            "percent": 500
+          }
+        ]
       },
       "accountantDeploymentParameters": {
         "allowedExchangeRateChangeLower": 9950,
