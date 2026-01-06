@@ -701,6 +701,11 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
                 getAddress(sourceChain, "merklDistributor"),
                 getAddress(sourceChain, "dev1Address")
             );
+            _addMerklLeafs(
+                leafs,
+                getAddress(sourceChain, "merklDistributor"),
+                getAddress(sourceChain, "etherfiOpsAddress")
+            );
         }
 
         // ========================== Karak ==========================
