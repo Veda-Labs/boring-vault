@@ -38,7 +38,7 @@
     }
   },
   "accountantConfiguration": {
-    "accountantDeploymentName": "Boosted Yield USDC Accountant V0.3",
+    "accountantDeploymentName": "Boosted Yield USDC Accountant V0.5",
     "accountantParameters": {
       "kind": {
         "variableRate": false,
@@ -60,12 +60,12 @@
         "minimumUpateDelayInSeconds": 21600,
         "performanceFee": 2500,
         "platformFee": 0,
-        "startingExchangeRate": 1000000
+        "startingExchangeRate": 1000636
       }
     }
   },
   "tellerConfiguration": {
-    "tellerDeploymentName": "Boosted Yield USDC Teller V0.3",
+    "tellerDeploymentName": "Boosted Yield USDC Teller V0.5",
     "tellerParameters": {
       "kind": {
         "teller": false,
@@ -78,8 +78,8 @@
     }
   },
   "boringQueueConfiguration": {
-    "boringQueueDeploymentName": "Boosted Yield USDC Boring Queue V0.3",
-    "boringQueueSolverName": "Boosted Yield USDC Boring Solver V0.3",
+    "boringQueueDeploymentName": "Boosted Yield USDC Boring Queue V0.4",
+    "boringQueueSolverName": "Boosted Yield USDC Boring Solver V0.4",
     "excessToSolverNonSelfSolve": true,
     "queueParameters": {
       "kind": {
@@ -107,7 +107,7 @@
     }
   },
   "aaveV3BufferHelperConfiguration": {
-    "shouldDeploy": true,
+    "shouldDeploy": false,
     "aaveV3BufferHelperDeploymentName": "Boosted Yield USDC AaveV3 Buffer Helper V0.3",
     "aaveV3PoolAddressOrName": {
       "address": "0x0000000000000000000000000000000000000000",
@@ -115,7 +115,7 @@
     }
   },
   "aaveV3BufferLensConfiguration": {
-    "shouldDeploy": true,
+    "shouldDeploy": false,
     "aaveV3BufferLensDeploymentName": "AaveV3 Buffer Lens V0.0"
   }
 }
