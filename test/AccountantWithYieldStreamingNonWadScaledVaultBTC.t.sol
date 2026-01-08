@@ -23,15 +23,13 @@ import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.s
 contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
-    event Paused();
-
     BoringVault public boringVault;
     AccountantWithYieldStreaming public accountant; 
     TellerWithYieldStreaming public teller;
     RolesAuthority public rolesAuthority;
 
     address public payoutAddress = vm.addr(7777777);
-    ERC20 internal WETH;
+    ERC20 internal WBTC;
 
     address internal USER = address(this); 
     uint256 internal ACCEPTABLE_PRECISION_LOSS = 1e13; 
@@ -47,14 +45,14 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     uint8 public constant CAN_SOLVE_ROLE = 11;
     
     address public alice = address(69); 
-    address public bill = address(6969); 
+    address public bill = address(6969);
     address public referrer = vm.addr(1337);
 
     uint256 internal constant RAY = 1e27;
-    uint256 internal constant ONE_SHARE = 1e18; // vault has 18 decimals
+    uint256 internal constant ONE_SHARE = 1e8; // vault has 8 decimals
     // Maximum precision loss when scaling from RAY to ONE_SHARE and back
-    // This is approximately RAY / ONE_SHARE = 1e9
-    uint256 internal constant MAX_PRECISION_LOSS_RAY = 1e9;
+    // This is approximately RAY / ONE_SHARE = 1e19
+    uint256 internal constant MAX_PRECISION_LOSS_RAY = 1e19;
 
     function setUp() external {
         setSourceChainName("mainnet");
@@ -63,14 +61,14 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 blockNumber = 23039901;
         _startFork(rpcKey, blockNumber);
 
-        WETH = getERC20(sourceChain, "WETH");
+        WBTC = getERC20(sourceChain, "WBTC");
 
-        boringVault = new BoringVault(address(this), "Boring Vault", "BV", 18);
+        boringVault = new BoringVault(address(this), "Boring Vault", "BV", 8);
         accountant = new AccountantWithYieldStreaming(
-            address(this), address(boringVault), payoutAddress, 1e18, address(WETH), 1.001e4, 0.999e4, 1, 0.1e4, 0.1e4
+            address(this), address(boringVault), payoutAddress, 1e8, address(WBTC), 1.001e4, 0.999e4, 1, 0.1e4, 0.1e4
         );
         teller =
-            new TellerWithYieldStreaming(address(this), address(boringVault), address(accountant), address(WETH));
+            new TellerWithYieldStreaming(address(this), address(boringVault), address(accountant), address(WBTC));
 
         rolesAuthority = new RolesAuthority(address(this), Authority(address(0)));
         accountant.setAuthority(rolesAuthority);
@@ -146,22 +144,22 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         rolesAuthority.setUserRole(address(this), STRATEGIST_ROLE, true);
         rolesAuthority.setUserRole(address(teller), STRATEGIST_ROLE, true);
        
-        teller.updateAssetData(WETH, true, true, 0);
+        teller.updateAssetData(WBTC, true, true, 0);
 
         accountant.updateMaximumDeviationYield(50000); //500% allowable (for testing)
     }
 
     //test
     function testDepositsWithNoYield() external {
-        uint256 WETHAmount = 10e18; 
-        _deposit(WETHAmount, USER); 
+        uint256 WBTCAmount = 10e8; 
+        _deposit(WBTCAmount, USER); 
         _assertExchangeRateVsVirtualSharePrice();
         
         uint256 totalAssetsBefore = accountant.totalAssets();         
 
         //deposit 2
-        uint256 shares1 = _deposit(WETHAmount, USER);
-        assertEq(shares1, WETHAmount - 10); //same rate as first, (1:1 - rate favoring protocol)
+        uint256 shares1 = _deposit(WBTCAmount, USER);
+        assertEq(shares1, WBTCAmount - 10); //same rate as first, (1:1 - rate favoring protocol)
         _assertExchangeRateVsVirtualSharePrice();
         
         //check we actually increased our total assets 
@@ -170,31 +168,31 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     }
 
     function testDepositsWithYield() external {
-        uint256 WETHAmount = 10e18; 
-        uint256 shares0 = _deposit(WETHAmount, USER); 
-        assertLe(shares0, WETHAmount); 
+        uint256 WBTCAmount = 10e8; 
+        uint256 shares0 = _deposit(WBTCAmount, USER); 
+        assertLe(shares0, WBTCAmount); 
         _assertExchangeRateVsVirtualSharePrice();
 
         //vest some yield
-        uint256 yieldAmount = 10e18; 
+        uint256 yieldAmount = 10e8; 
         _vestYieldAndSkip(yieldAmount, 24 hours, 12 hours); 
         _assertExchangeRateVsVirtualSharePrice();
 
         //==== BEGIN DEPOSIT 2 ====
-        uint256 shares1 = _deposit(WETHAmount, USER); 
-        vm.assertApproxEqAbs(shares1, 6666666666666666666, 10); 
-        assertLe(shares1, 6666666666666666666);
+        uint256 shares1 = _deposit(WBTCAmount, USER); 
+        vm.assertApproxEqAbs(shares1, 666666666, 10); 
+        assertLe(shares1, 666666666);
         _assertExchangeRateVsVirtualSharePrice();
 
-        //total of 2 deposits to 10 weth each + 5 vested yield 
+        //total of 2 deposits to 10 wbtc each + 5 vested yield 
         
         uint256 totalAssets = accountant.totalAssets(); 
-        vm.assertApproxEqRel(totalAssets, 25e18, ACCEPTABLE_PRECISION_LOSS); 
-        assertLe(totalAssets, 25e18);
+        vm.assertApproxEqRel(totalAssets, 25e8, ACCEPTABLE_PRECISION_LOSS); 
+        assertLe(totalAssets, 25e8);
     }
 
     function testDepositsUpdateFirstDepositTimestamp() external {
-        uint256 WETHAmount = 10e18;
+        uint256 WBTCAmount = 10e8;
 
         //before deposit, last share price is updated
         (, , , uint64 startVestingTimeLast, ) = accountant.vestingState(); 
@@ -202,72 +200,72 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
             
         skip(1 days); 
 
-        _deposit(WETHAmount, USER);
+        _deposit(WBTCAmount, USER);
        
         (, , , uint64 startVestingTimeNow, ) = accountant.vestingState(); 
         assertEq(startVestingTimeLast + 1 days, startVestingTimeNow);  
     }
 
     function testWithdrawNoYieldStream() external {
-        uint256 WETHAmount = 10e18; 
-        uint256 shares0 = _deposit(WETHAmount, USER); 
-        assertLe(shares0, WETHAmount); 
+        uint256 WBTCAmount = 10e8; 
+        uint256 shares0 = _deposit(WBTCAmount, USER); 
+        assertLe(shares0, WBTCAmount); 
         _assertExchangeRateVsVirtualSharePrice();
 
         //deposit 2
-        _deposit(WETHAmount, USER); 
+        _deposit(WBTCAmount, USER); 
         _assertExchangeRateVsVirtualSharePrice();
 
-        uint256 assetsOut = teller.withdraw(WETH, shares0, 0, address(boringVault));   
-        assertApproxEqRel(assetsOut, WETHAmount, ACCEPTABLE_PRECISION_LOSS); 
-        assertLe(assetsOut, WETHAmount); 
+        uint256 assetsOut = teller.withdraw(WBTC, shares0, 0, address(boringVault));   
+        assertApproxEqRel(assetsOut, WBTCAmount, ACCEPTABLE_PRECISION_LOSS); 
+        assertLe(assetsOut, WBTCAmount); 
         _assertExchangeRateVsVirtualSharePrice();
     }
 
     function testWithdrawWithYieldStream() external {
-        uint256 WETHAmount = 10e18; 
-        uint256 shares0 = _deposit(WETHAmount, USER); 
-        assertLe(shares0, WETHAmount); 
+        uint256 WBTCAmount = 10e8; 
+        uint256 shares0 = _deposit(WBTCAmount, USER); 
+        assertLe(shares0, WBTCAmount); 
         _assertExchangeRateVsVirtualSharePrice();
 
         //==== Add Vesting Yield Stream ====
-        _vestYieldAndSkip(WETHAmount, 24 hours, 12 hours); 
+        _vestYieldAndSkip(WBTCAmount, 24 hours, 12 hours); 
         _assertExchangeRateVsVirtualSharePrice();
         
         //second deposit midstream 
-        uint256 shares1 = _deposit(WETHAmount, alice); 
+        uint256 shares1 = _deposit(WBTCAmount, alice); 
         _assertExchangeRateVsVirtualSharePrice();
         
         //withdraw first deposit 
-        uint256 assetsOut0 = teller.withdraw(WETH, shares0, 0, address(boringVault));   
-        assertApproxEqRel(assetsOut0, 15e18, ACCEPTABLE_PRECISION_LOSS); 
-        assertLe(assetsOut0, 15e18); 
+        uint256 assetsOut0 = teller.withdraw(WBTC, shares0, 0, address(boringVault));   
+        assertApproxEqRel(assetsOut0, 15e8, ACCEPTABLE_PRECISION_LOSS); 
+        assertLe(assetsOut0, 15e8); 
         _assertExchangeRateVsVirtualSharePrice();
         
         //withdraw second deposit
         vm.prank(alice); 
-        uint256 assetsOut1 = teller.withdraw(WETH, shares1, 0, address(alice));   
-        vm.assertApproxEqRel(assetsOut1, 10e18, ACCEPTABLE_PRECISION_LOSS); 
-        assertLe(assetsOut1, WETHAmount); //initial deposit out, no yield was obtained
+        uint256 assetsOut1 = teller.withdraw(WBTC, shares1, 0, address(alice));   
+        vm.assertApproxEqRel(assetsOut1, 10e8, ACCEPTABLE_PRECISION_LOSS); 
+        assertLe(assetsOut1, WBTCAmount); //initial deposit out, no yield was obtained
         _assertExchangeRateVsVirtualSharePrice();
     }
 
     function testWithdrawWithYieldStreamUser2WaitsForYield() external {
-        uint256 WETHAmount = 10e18; 
-        uint256 shares0 = _deposit(WETHAmount, USER); 
-        assertLe(shares0, WETHAmount); 
+        uint256 WBTCAmount = 10e8; 
+        uint256 shares0 = _deposit(WBTCAmount, USER); 
+        assertLe(shares0, WBTCAmount); 
         
         //vest some yield
-        uint256 yieldAmount = 10e18; 
+        uint256 yieldAmount = 10e8; 
         _vestYieldAndSkip(yieldAmount, 24 hours, 12 hours); 
         
         //second deposit midstream
-        uint256 aliceAmount = 10e18; 
+        uint256 aliceAmount = 10e8; 
         uint256 shares1 = _deposit(aliceAmount, alice); 
         
         //withdraw user 1 
-        uint256 expectedYield = WETHAmount + (yieldAmount / 2); //halfway through stream, so half of yield should be distributed
-        uint256 assetsOut0 = teller.withdraw(WETH, shares0, 0, address(boringVault));   
+        uint256 expectedYield = WBTCAmount + (yieldAmount / 2); //halfway through stream, so half of yield should be distributed
+        uint256 assetsOut0 = teller.withdraw(WBTC, shares0, 0, address(boringVault));   
         assertApproxEqRel(assetsOut0, expectedYield, ACCEPTABLE_PRECISION_LOSS); 
         assertLe(assetsOut0, expectedYield); 
         
@@ -275,29 +273,29 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         
         //withdraw 2 after stream ends, rest of yield should be distributed to alice 
         vm.prank(alice); 
-        uint256 assetsOut1 = teller.withdraw(WETH, shares1, 0, address(alice));   
+        uint256 assetsOut1 = teller.withdraw(WBTC, shares1, 0, address(alice));   
         vm.assertApproxEqRel(assetsOut1, expectedYield, ACCEPTABLE_PRECISION_LOSS); 
         assertLe(assetsOut1, expectedYield); 
     }
 
     function testVestLossAbsorbBuffer() external {
         accountant.updateMaximumDeviationLoss(10_000); 
-        uint256 WETHAmount = 10e18; 
-        uint256 shares0 = _deposit(WETHAmount, USER); 
-        assertLe(shares0, WETHAmount); 
+        uint256 WBTCAmount = 10e8; 
+        uint256 shares0 = _deposit(WBTCAmount, USER); 
+        assertLe(shares0, WBTCAmount); 
         _assertExchangeRateVsVirtualSharePrice();
         
         //vest yield
-        uint256 yieldAmount = 10e18; 
+        uint256 yieldAmount = 10e8; 
         _vestYieldAndSkip(yieldAmount, 24 hours, 12 hours); 
         _assertExchangeRateVsVirtualSharePrice();
         
         uint256 totalAssetsBeforeLoss = accountant.totalAssets(); 
-        uint256 unvested = accountant.getPendingVestingGains(); //5e18 after 12 hours (10 - 5) = 5; 
+        uint256 unvested = accountant.getPendingVestingGains(); //5e8 after 12 hours (10 - 5) = 5; 
         
         //post a small loss
-        uint256 lossAmount = 2.5e18; 
-        accountant.postLoss(lossAmount); //smaller loss than buffer (5 weth at this point)
+        uint256 lossAmount = 2.5e8; 
+        accountant.postLoss(lossAmount); //smaller loss than buffer (5 wbtc at this point)
         _assertExchangeRateVsVirtualSharePrice();
 
         uint256 totalAssetsAfterLoss = accountant.totalAssets(); 
@@ -315,27 +313,27 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         _assertExchangeRateVsVirtualSharePrice();
         
         //grab the remainder of the gains 
-        uint256 expectedYield = WETHAmount + (yieldAmount - lossAmount);   
-        uint256 assetsOut = teller.withdraw(WETH, shares0, 0, address(boringVault)); 
-        assertApproxEqRel(assetsOut, expectedYield, ACCEPTABLE_PRECISION_LOSS); //10 WETH deposit -> 5 weth is vested -> 2.5 loss -> remaining 2.5 vests over the next 12 hours = total of 17.5 earned
+        uint256 expectedYield = WBTCAmount + (yieldAmount - lossAmount);   
+        uint256 assetsOut = teller.withdraw(WBTC, shares0, 0, address(boringVault)); 
+        assertApproxEqRel(assetsOut, expectedYield, ACCEPTABLE_PRECISION_LOSS); //10 WBTC deposit -> 5 wbtc is vested -> 2.5 loss -> remaining 2.5 vests over the next 12 hours = total of 17.5 earned
         assertLe(assetsOut, expectedYield); 
         _assertExchangeRateVsVirtualSharePrice();
     }
 
     function testVestLossAffectsSharePrice() external {
         accountant.updateMaximumDeviationLoss(10_000); 
-        uint256 WETHAmount = 10e18; 
-        uint256 shares0 = _deposit(WETHAmount, USER);  
-        assertLe(shares0, WETHAmount); 
+        uint256 WBTCAmount = 10e8; 
+        uint256 shares0 = _deposit(WBTCAmount, USER);  
+        assertLe(shares0, WBTCAmount); 
         _assertExchangeRateVsVirtualSharePrice();
 
         //vest yield
-        uint256 yieldAmount = 10e18; 
+        uint256 yieldAmount = 10e8; 
         _vestYieldAndSkip(yieldAmount, 24 hours, 12 hours);
         _assertExchangeRateVsVirtualSharePrice();
 
         //total assets = 15
-        uint256 expectedTotalAssets = WETHAmount + (yieldAmount / 2); 
+        uint256 expectedTotalAssets = WBTCAmount + (yieldAmount / 2); 
         uint256 totalAssetsInBaseBefore = accountant.totalAssets();  
         assertApproxEqRel(totalAssetsInBaseBefore, expectedTotalAssets, ACCEPTABLE_PRECISION_LOSS); 
         assertLe(totalAssetsInBaseBefore, expectedTotalAssets); 
@@ -344,7 +342,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 sharePriceInitial = lastSharePrice; 
         
         //post a loss 
-        uint256 lossAmount = 15e18; 
+        uint256 lossAmount = 15e8; 
         accountant.postLoss(lossAmount); //this moves vested yield -> share price (to protect share price)
         //note: the buffer absorbs the loss, so we're left with 5 remaining (the vested yield)
         _assertExchangeRateVsVirtualSharePrice();
@@ -357,7 +355,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         (, uint128 vestingGains, , , ) = accountant.vestingState(); 
         assertEq(0, vestingGains); 
 
-        //total assets should be 5e18 -> 10 initial, 5 yield, 5 unvested -> 15 weth loss (5 from buffer) -> 15 - 10 = 5 totalAssets remaining
+        //total assets should be 5e8 -> 10 initial, 5 yield, 5 unvested -> 15 wbtc loss (5 from buffer) -> 15 - 10 = 5 totalAssets remaining
         //after positing a loss the yield earned is moved into the share price first, then because we have a buffer left over the math is 15 - 10 = 5; 
         uint256 remainingUnvested = yieldAmount / 2; 
         assertApproxEqRel(totalAssetsInBaseAfter, remainingUnvested, ACCEPTABLE_PRECISION_LOSS); 
@@ -381,26 +379,26 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     }
 
     function testGetPendingVestingGains() external {
-        uint256 WETHAmount = 10e18; 
-        uint256 shares = _deposit(WETHAmount, USER); 
-        assertLe(shares, WETHAmount); 
+        uint256 WBTCAmount = 10e8; 
+        uint256 shares = _deposit(WBTCAmount, USER); 
+        assertLe(shares, WBTCAmount); 
         
-        uint256 yieldAmount = 10e18;  
+        uint256 yieldAmount = 10e8;  
         _vestYieldAndSkip(yieldAmount, 24 hours, 6 hours); 
 
-        //total should be 10 + (10 / 4) = 2.5
-        uint256 expectedTotalAssets = WETHAmount + (yieldAmount / 4); 
+        //total should be 10 + (10 / 4) = 12.5
+        uint256 expectedTotalAssets = WBTCAmount + (yieldAmount / 4); 
         uint256 totalAssets = accountant.totalAssets();  
         assertApproxEqRel(totalAssets, expectedTotalAssets, ACCEPTABLE_PRECISION_LOSS); 
         assertLe(totalAssets, expectedTotalAssets); 
     }
 
     function testYieldStreamUpdateDuringExistingStream() external {
-        uint256 WETHAmount = 10e18; 
-        uint256 shares = _deposit(WETHAmount, USER); 
-        assertLe(shares, WETHAmount); 
+        uint256 WBTCAmount = 10e8; 
+        uint256 shares = _deposit(WBTCAmount, USER); 
+        assertLe(shares, WBTCAmount); 
         
-        uint256 yieldAmount = 10e18;  
+        uint256 yieldAmount = 10e8;  
         _vestYieldAndSkip(yieldAmount, 24 hours, 12 hours); 
 
         accountant.updateMinimumVestDuration(6 hours); 
@@ -438,37 +436,37 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     function testPlatformFees() external {
         uint256 platformFeeRate = 0.1e4; // 10%
 
-        uint256 WETHAmount = 10e18; 
-        uint256 shares = _deposit(WETHAmount, USER); 
-        assertLe(shares, WETHAmount); 
+        uint256 WBTCAmount = 10e8; 
+        uint256 shares = _deposit(WBTCAmount, USER); 
+        assertLe(shares, WBTCAmount); 
         
         //vest and skip 1 year
-        _vestYieldAndSkip(WETHAmount, 24 hours, 365 days); 
+        _vestYieldAndSkip(WBTCAmount, 24 hours, 365 days); 
         
         //update the rate
         accountant.updateExchangeRate();  
         
         //check the fees owned 
         (,, uint128 feesOwedInBase,,,,,,,,,) = accountant.accountantState();
-        uint256 expectedFees = (WETHAmount * 2) * platformFeeRate / 1e4; // 20 WETH (10 over day 1, 20 over 364 days for total of 2)
-        assertApproxEqAbs(feesOwedInBase, expectedFees, 1e15);
+        uint256 expectedFees = (WBTCAmount * 2) * platformFeeRate / 1e4; // 20 WBTC (10 over day 1, 20 over 364 days for total of 2)
+        assertApproxEqAbs(feesOwedInBase, expectedFees, 1e5);
 
         //claim fees
         vm.startPrank(address(boringVault));
-        WETH.approve(address(accountant), feesOwedInBase);
-        accountant.claimFees(WETH);
+        WBTC.approve(address(accountant), feesOwedInBase);
+        accountant.claimFees(WBTC);
         vm.stopPrank();
         
         //verify we got paid
-        assertApproxEqRel(WETH.balanceOf(payoutAddress), expectedFees, ACCEPTABLE_PRECISION_LOSS);
-        assertLe(WETH.balanceOf(payoutAddress), expectedFees);
+        assertApproxEqRel(WBTC.balanceOf(payoutAddress), expectedFees, ACCEPTABLE_PRECISION_LOSS);
+        assertLe(WBTC.balanceOf(payoutAddress), expectedFees);
     }
     
     function testPerformanceFeesAfterYield() external {
         uint256 performanceFeeRate = 0.1e4; // 10%
     
-        uint256 WETHAmount = 10e18;
-        _deposit(WETHAmount, USER); 
+        uint256 WBTCAmount = 10e8;
+        _deposit(WBTCAmount, USER); 
         _assertExchangeRateVsVirtualSharePrice();
     
         // Record initial state
@@ -476,7 +474,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         (uint128 initialSharePrice,,,,) = accountant.vestingState(); 
         uint256 totalShares = boringVault.totalSupply();
     
-        _vestYieldAndSkip(WETHAmount, 24 hours, 1 days); 
+        _vestYieldAndSkip(WBTCAmount, 24 hours, 1 days); 
         _assertExchangeRateVsVirtualSharePrice();
     
         //update exchange rate to trigger fee calculation
@@ -489,262 +487,166 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         // Calculate expected performance fees based on SHARE PRICE APPRECIATION
         uint256 sharePriceIncrease = uint256(finalSharePrice - initialSharePrice); 
     
-        // The appreciation in value = price increase * total shares / 10^18
-        uint256 valueAppreciation = (sharePriceIncrease * totalShares) / 1e18;
+        // The appreciation in value = price increase * total shares / 10^8
+        uint256 valueAppreciation = (sharePriceIncrease * totalShares) / 1e8;
     
         // Expected fees = 10% of appreciation
         uint256 expectedPerformanceFees = (valueAppreciation * performanceFeeRate) / 1e4;
         uint256 actualFees = feesOwedInBase;
 
-        uint128 platformFee = 2739726027397260; //1 day of platform fees (10 WETH / 365)
+        uint128 platformFee = 273973; //1 day of platform fees (10 WBTC / 365)
     
         // Allow for small rounding difference
-        assertEq(actualFees - platformFee, expectedPerformanceFees, "Performance fees should match share price appreciation");
+        assertApproxEqAbs(actualFees - platformFee, expectedPerformanceFees, 1e1, "Performance fees should match share price appreciation");
+        assertLe(actualFees - platformFee, expectedPerformanceFees); 
     
         // Verify high water mark updated
         assertGt(nextHighwaterMark, initialHighwaterMark, "HWM should increase");
         assertEq(uint256(nextHighwaterMark), finalSharePrice, "HWM should equal new share price");
     }
 
-    function testTWASWorksAsExpectedWhenUpdatingYield() external {
-        accountant.updateMaximumDeviationYield(500); // 5%
-    
-        uint256 WETHAmount = 100e18;
-        uint256 shares0 = _deposit(WETHAmount, USER);
-        assertApproxEqRel(WETHAmount, shares0, ACCEPTABLE_PRECISION_LOSS);
-        assertLe(shares0, WETHAmount);
-    
-        _vestYieldAndSkip(1e18, 1 days, 0); // 1% of vault, don't skip yet
-    
-        // T=12 hours: Deposit more to change supply
-        skip(12 hours);
-    
-        // Get supply before deposit
-        uint256 supplyBefore = boringVault.totalSupply();
-        assertApproxEqRel(supplyBefore, 100e18, ACCEPTABLE_PRECISION_LOSS, "Supply should still be ~100e18");
-        assertLe(supplyBefore, 100e18);
-    
-        //will get fewer shares due to yield
-        _deposit(100e18, USER);
-    
-        // Get actual supply after deposit (not exactly 200e18 due to share price)
-        uint256 supplyAfter = boringVault.totalSupply();
-        assertApproxEqRel(supplyAfter, 199.5e18, 0.01e18, "Supply should be ~199.5e18");
-    
-        (uint256 cumulative,,) = accountant.supplyObservation();
-        uint256 expectedCumulative = supplyBefore * 12 hours; 
-        assertApproxEqAbs(cumulative, expectedCumulative, 1e20, "Cumulative should be ~100e18 * 12 hours");
-    
-        skip(12 hours);
-        deal(address(WETH), address(boringVault), WETH.balanceOf(address(boringVault)) + 2e18);
-        accountant.vestYield(2e18, 1 days);
-    
-        // After second vestYield, cumulative should account for actual supply
-        (cumulative,,) = accountant.supplyObservation();
-        expectedCumulative = (supplyBefore * 12 hours) + (supplyAfter * 12 hours);
-        assertApproxEqAbs(cumulative, expectedCumulative, 1e20, "Cumulative should match actual supply changes");
-    
-        // Verify checkpoint
-        (, uint256 cumulativeSupplyLast,) = accountant.supplyObservation();
-        assertEq(cumulativeSupplyLast, cumulative, "Checkpoint should equal cumulative at vest time");
-    
-        // Verify the TWAS was calculated correctly for the yield check
-        // TWAS = cumulative / 24 hours ≈ 149.75e18 (as shown in logs)
-        uint256 calculatedTWAS = cumulative / (24 hours);
-        assertApproxEqRel(calculatedTWAS, 149.75e18, 0.01e18, "TWAS should be ~149.75e18");
-    }
-
-    function testTWASWorksAsExpectedWhenPostingLoss() external {
-        accountant.updateMaximumDeviationYield(500); // 5%
-        accountant.updateDelay(0); 
-    
-        uint256 WETHAmount = 100e18;
-        uint256 shares0 = _deposit(WETHAmount, USER);
-        assertApproxEqRel(WETHAmount, shares0, ACCEPTABLE_PRECISION_LOSS);
-        assertLe(shares0, WETHAmount);
-    
-        _vestYieldAndSkip(1e18, 1 days, 0); // 1% of vault, don't skip yet
-    
-        // T=12 hours: Deposit more to change supply
-        skip(12 hours);
-    
-        // Get supply before deposit
-        uint256 supplyBefore = boringVault.totalSupply();
-        assertApproxEqRel(supplyBefore, 100e18, ACCEPTABLE_PRECISION_LOSS, "Supply should still be ~100e18");
-        assertLe(supplyBefore, 100e18);
-    
-        //will get fewer shares due to yield
-        _deposit(100e18, USER);
-    
-        // Get actual supply after deposit (not exactly 200e18 due to share price)
-        uint256 supplyAfter = boringVault.totalSupply();
-        assertApproxEqRel(supplyAfter, 199.5e18, 0.01e18, "Supply should be ~199.5e18");
-    
-        (uint256 cumulativeBefore, uint256 cumulativeLastBefore,) = accountant.supplyObservation();
-        uint256 expectedCumulative = supplyBefore * 12 hours;
-        assertApproxEqAbs(cumulativeBefore, expectedCumulative, 1e20, "Cumulative should be ~100e18 * 12 hours");
-        
-
-        //now we post a loss
-        //this passing means it works
-        skip(12 hours);
-        accountant.postLoss(2e18);
-
-        //verify the cumulative is updated
-        (uint256 cumulativeAfter, uint256 cumulativeLastAfter, uint256 timestamp) = accountant.supplyObservation();
-        assertGt(cumulativeAfter, cumulativeBefore); 
-        assertEq(timestamp, block.timestamp); 
-        assertEq(cumulativeLastBefore, cumulativeLastAfter); 
-
-        //now post a very large loss
-        vm.expectEmit(address(accountant));
-        emit Paused();
-
-        accountant.postLoss(10e18);
-    }
-
     // ========================= EDGE CASES ===============================
     
     function testDonationsShouldNotBeConsideredInCalculations() external {
-        uint256 WETHAmount = 10e18; 
-        uint256 shares0 = _deposit(WETHAmount, USER); 
-        assertLe(shares0, WETHAmount); 
+        uint256 WBTCAmount = 10e8; 
+        uint256 shares0 = _deposit(WBTCAmount, USER); 
+        assertLe(shares0, WBTCAmount); 
         
         //vest some yield 
-        uint256 yieldAmount = 10e18; 
+        uint256 yieldAmount = 10e8; 
         _vestYieldAndSkip(yieldAmount, 24 hours, 12 hours); 
         
-        deal(address(WETH), alice, 10e18); 
+        deal(address(WBTC), alice, 10e8); 
         vm.prank(alice);
-        WETH.transfer(address(boringVault), 10e18); 
+        WBTC.transfer(address(boringVault), 10e8); 
 
-        //deposit 2 uint256 shares1 = teller.deposit(WETH, WETHAmount, 0);
-        uint256 expectedTotalAssets = WETHAmount + (yieldAmount / 2); 
+        //deposit 2 uint256 shares1 = teller.deposit(WBTC, WBTCAmount, 0);
+        uint256 expectedTotalAssets = WBTCAmount + (yieldAmount / 2); 
         uint256 totalAssets = accountant.totalAssets(); 
         vm.assertApproxEqRel(totalAssets, expectedTotalAssets, ACCEPTABLE_PRECISION_LOSS); 
         assertLe(totalAssets, expectedTotalAssets); 
         
-        uint256 expectedAssetsOut = WETHAmount + (yieldAmount / 2); 
-        uint256 assetsOut = teller.withdraw(WETH, shares0, 0, address(boringVault));   
+        uint256 expectedAssetsOut = WBTCAmount + (yieldAmount / 2); 
+        uint256 assetsOut = teller.withdraw(WBTC, shares0, 0, address(boringVault));   
         assertApproxEqRel(assetsOut, expectedAssetsOut, ACCEPTABLE_PRECISION_LOSS); 
         assertLe(assetsOut, expectedAssetsOut); 
     }
 
     function testDoubleDepositInSameBlock() external {
-        uint256 WETHAmount0 = 10e18; 
-        uint256 shares0 = _deposit(WETHAmount0, USER);
-        assertLe(shares0, WETHAmount0); 
+        uint256 WBTCAmount0 = 10e8; 
+        uint256 shares0 = _deposit(WBTCAmount0, USER);
+        assertLe(shares0, WBTCAmount0); 
         
-        uint256 WETHAmount1 = 10e18;
-        uint256 shares1 = _deposit(WETHAmount1, USER);
-        assertApproxEqRel(WETHAmount1, shares1, ACCEPTABLE_PRECISION_LOSS);
-        assertLe(shares1, WETHAmount1);
+        uint256 WBTCAmount1 = 10e8;
+        uint256 shares1 = _deposit(WBTCAmount1, USER);
+        assertApproxEqRel(WBTCAmount1, shares1, ACCEPTABLE_PRECISION_LOSS);
+        assertLe(shares1, WBTCAmount1);
         
         uint256 currentShares = boringVault.totalSupply();
         (uint128 lsp, , , ,) = accountant.vestingState();
         uint256 lastSharePrice = uint256(lsp);
-        uint256 totalAssetsInBase = ((currentShares * lastSharePrice) / 1e18) + accountant.getPendingVestingGains(); 
-        uint256 expectedTotalAssets = WETHAmount0 + WETHAmount1; 
+        uint256 totalAssetsInBase = ((currentShares * lastSharePrice) / 1e8) + accountant.getPendingVestingGains(); 
+        uint256 expectedTotalAssets = WBTCAmount0 + WBTCAmount1; 
         assertApproxEqRel(totalAssetsInBase, expectedTotalAssets, ACCEPTABLE_PRECISION_LOSS); 
         assertLe(totalAssetsInBase, expectedTotalAssets);
     }
 
     function testDoubleDepositInSameBlockAfterYieldEvent() external {
-        uint256 WETHAmount = 10e18; 
-        uint256 shares0 = _deposit(WETHAmount, USER);  
-        assertLe(shares0, WETHAmount); 
+        uint256 WBTCAmount = 10e8; 
+        uint256 shares0 = _deposit(WBTCAmount, USER);  
+        assertLe(shares0, WBTCAmount); 
 
         //vest some yield
-        uint256 yieldAmount = 10e18;
+        uint256 yieldAmount = 10e8;
         _vestYieldAndSkip(yieldAmount, 24 hours, 12 hours);
         
         //double deposit -> alice, bill both deposit in the same block 
-        uint256 sharesAlice = _deposit(WETHAmount, alice); 
-        uint256 sharesBill  = _deposit(WETHAmount, bill); 
+        uint256 sharesAlice = _deposit(WBTCAmount, alice); 
+        uint256 sharesBill  = _deposit(WBTCAmount, bill); 
 
         //skip time
         skip(12 hours); 
         
         //alice withdraws
         vm.prank(alice); 
-        uint256 assetsOutAlice = teller.withdraw(WETH, sharesAlice, 0, address(boringVault));   
+        uint256 assetsOutAlice = teller.withdraw(WBTC, sharesAlice, 0, address(boringVault));   
 
         //bob withdraws
         vm.prank(bill); 
-        uint256 assetsOutBill = teller.withdraw(WETH, sharesBill, 0, address(boringVault));   
+        uint256 assetsOutBill = teller.withdraw(WBTC, sharesBill, 0, address(boringVault));   
 
         assertEq(assetsOutAlice, assetsOutBill); 
     }
 
     function testLoopDepositWithdrawDuringVest() external {
-        uint256 WETHAmount = 10e18; 
-        uint256 shares0 = _deposit(WETHAmount, USER); 
-        assertLe(shares0, WETHAmount); 
+        uint256 WBTCAmount = 10e8; 
+        uint256 shares0 = _deposit(WBTCAmount, USER); 
+        assertLe(shares0, WBTCAmount); 
 
         //vest some yield
-        uint256 yieldAmount = 10e18;
+        uint256 yieldAmount = 10e8;
         _vestYieldAndSkip(yieldAmount, 24 hours, 12 hours);
         
         //double deposit -> alice, bill both deposit in the same block 
-        uint256 sharesAlice = _deposit(WETHAmount, alice);
+        uint256 sharesAlice = _deposit(WBTCAmount, alice);
         
         //bill deposits before alice withdraws
-        _deposit(WETHAmount, bill); 
+        _deposit(WBTCAmount, bill); 
 
         //alice withdraws
         vm.prank(alice); 
-        uint256 assetsOutAlice = teller.withdraw(WETH, sharesAlice, 0, address(boringVault));   
+        uint256 assetsOutAlice = teller.withdraw(WBTC, sharesAlice, 0, address(boringVault));   
         
-        assertApproxEqRel(assetsOutAlice, WETHAmount, ACCEPTABLE_PRECISION_LOSS); 
-        assertLe(assetsOutAlice, WETHAmount); 
+        assertApproxEqRel(assetsOutAlice, WBTCAmount, ACCEPTABLE_PRECISION_LOSS); 
+        assertLe(assetsOutAlice, WBTCAmount); 
     }
 
     function testLoopDepositWithdrawDepositDuringVest() external {
-        uint256 WETHAmount = 10e18; 
-        uint256 shares0 = _deposit(WETHAmount, USER); 
-        assertLe(shares0, WETHAmount); 
+        uint256 WBTCAmount = 10e8; 
+        uint256 shares0 = _deposit(WBTCAmount, USER); 
+        assertLe(shares0, WBTCAmount); 
 
         //vest some yield
-        uint256 yieldAmount = 10e18; 
+        uint256 yieldAmount = 10e8; 
         _vestYieldAndSkip(yieldAmount, 24 hours, 12 hours); 
         
-        uint256 sharesAlice = _deposit(WETHAmount, alice); 
+        uint256 sharesAlice = _deposit(WBTCAmount, alice); 
         
         //alice withdraws
         vm.prank(alice); 
-        uint256 assetsOutAlice = teller.withdraw(WETH, sharesAlice, 0, address(boringVault));   
-        assertLt(assetsOutAlice, WETHAmount); 
+        uint256 assetsOutAlice = teller.withdraw(WBTC, sharesAlice, 0, address(boringVault));   
+        assertLt(assetsOutAlice, WBTCAmount); 
 
-        uint256 sharesBill = _deposit(WETHAmount, bill); 
+        uint256 sharesBill = _deposit(WBTCAmount, bill); 
 
         vm.prank(bill); 
-        uint256 assetsOutBill = teller.withdraw(WETH, sharesBill, 0, address(boringVault));   
-        assertApproxEqRel(WETHAmount, assetsOutBill, ACCEPTABLE_PRECISION_LOSS);
-        assertLe(assetsOutBill, WETHAmount);
+        uint256 assetsOutBill = teller.withdraw(WBTC, sharesBill, 0, address(boringVault));   
+        assertApproxEqRel(WBTCAmount, assetsOutBill, ACCEPTABLE_PRECISION_LOSS);
+        assertLe(assetsOutBill, WBTCAmount);
     }
 
     function testDepositDuringSameBlockAsYieldIsDeposited() external {
-        uint256 WETHAmount = 10e18; 
-        uint256 shares0 = _deposit(WETHAmount, USER); 
-        assertLe(shares0, WETHAmount); 
+        uint256 WBTCAmount = 10e8; 
+        uint256 shares0 = _deposit(WBTCAmount, USER); 
+        assertLe(shares0, WBTCAmount); 
 
         //vest some yield
-        deal(address(WETH), address(boringVault), WETHAmount * 2);
-        accountant.vestYield(WETHAmount, 24 hours); 
+        deal(address(WBTC), address(boringVault), WBTCAmount * 2);
+        accountant.vestYield(WBTCAmount, 24 hours); 
         
-        uint256 sharesAlice = _deposit(WETHAmount, alice); 
+        uint256 sharesAlice = _deposit(WBTCAmount, alice); 
 
         //alice withdraws
         vm.prank(alice); 
-        uint256 assetsOutAlice = teller.withdraw(WETH, sharesAlice, 0, address(boringVault));   
+        uint256 assetsOutAlice = teller.withdraw(WBTC, sharesAlice, 0, address(boringVault));   
 
-        assertLe(assetsOutAlice, WETHAmount); //assert slight dilution, no extra yield
+        assertLe(assetsOutAlice, WBTCAmount); //assert slight dilution, no extra yield
     }
 
     function testRoundingIssuesAfterYieldStreamEndsNoFuzz() external {
-        uint256 WETHAmount = 1e18; 
-        uint256 shares0 = _deposit(WETHAmount, USER); 
-        assertLe(shares0, WETHAmount); 
+        uint256 WBTCAmount = 1e8; 
+        uint256 shares0 = _deposit(WBTCAmount, USER); 
+        assertLe(shares0, WBTCAmount); 
 
         uint256 yieldAmount = 1;  
         _vestYieldAndSkip(1, 24 hours, 24 hours); 
@@ -766,7 +668,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 rateAfter = accountant.getRate();
         console.logInt(int256(rateAfter) - int256(rateBefore));
 
-        uint256 assetsOut = teller.withdraw(WETH, shares1, 0, address(this));
+        uint256 assetsOut = teller.withdraw(WBTC, shares1, 0, address(this));
         assertLt(assetsOut, depositAmount, "should not profit");
     }
 
@@ -774,70 +676,72 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     
     function testVestYieldCannotExceedMaximumDuration() external {
         //by default, maximum duration is 7 days
-        uint256 WETHAmount = 10e18; 
-        _deposit(WETHAmount, USER); 
+        uint256 WBTCAmount = 10e8; 
+        _deposit(WBTCAmount, USER); 
 
         //vest some yield
-        deal(address(WETH), address(boringVault), WETHAmount * 2);
+        deal(address(WBTC), address(boringVault), WBTCAmount * 2);
         vm.expectRevert(AccountantWithYieldStreaming.AccountantWithYieldStreaming__DurationExceedsMaximum.selector); 
-        accountant.vestYield(WETHAmount, 7 days + 1 hours); 
+        accountant.vestYield(WBTCAmount, 7 days + 1 hours); 
     }
 
     function testVestYieldUnderMinimumDuration() external {
         //by default, maximum duration is 7 days
-        uint256 WETHAmount = 10e18; 
-        _deposit(WETHAmount, USER); 
+        uint256 WBTCAmount = 10e8; 
+        _deposit(WBTCAmount, USER); 
 
         //vest some yield
-        deal(address(WETH), address(boringVault), WETHAmount * 2);
+        deal(address(WBTC), address(boringVault), WBTCAmount * 2);
         vm.expectRevert(AccountantWithYieldStreaming.AccountantWithYieldStreaming__DurationUnderMinimum.selector); 
-        accountant.vestYield(WETHAmount, 23 hours); 
+        accountant.vestYield(WBTCAmount, 23 hours); 
     }
 
     function testVestYieldZeroAmount() external {
         //by default, maximum duration is 7 days
-        uint256 WETHAmount = 10e18; 
-        _deposit(WETHAmount, USER); 
+        uint256 WBTCAmount = 10e8; 
+        _deposit(WBTCAmount, USER); 
 
         //vest some yield
-        deal(address(WETH), address(boringVault), WETHAmount * 2);
+        deal(address(WBTC), address(boringVault), WBTCAmount * 2);
         vm.expectRevert(AccountantWithYieldStreaming.AccountantWithYieldStreaming__ZeroYieldUpdate.selector); 
         accountant.vestYield(0, 24 hours); 
     }
 
     // ========================= FUZZ TESTS ===============================
-    
-    function testFuzzDepositsWithNoYield(uint96 WETHAmount0, uint96 WETHAmount1) external {
-        WETHAmount0 = uint96(bound(WETHAmount0, 1e13, 1e26)); 
-        WETHAmount1 = uint96(bound(WETHAmount1, 1e13, 1e26)); 
+    function testFuzzDepositsWithNoYield(uint96 WBTCAmount0, uint96 WBTCAmount1) external {
+        WBTCAmount0 = uint96(bound(WBTCAmount0, 1e1, 1e16)); 
+        WBTCAmount1 = uint96(bound(WBTCAmount1, 1e1, 1e16)); 
         
-        uint256 shares0 = _deposit(WETHAmount0, USER); 
-        assertApproxEqRel(shares0, WETHAmount0, ACCEPTABLE_PRECISION_LOSS, "should be almost equal"); 
-        assertLe(shares0, WETHAmount0); 
+        uint256 tolerance0 = WBTCAmount0 < 1e8 ? 10e16 : ACCEPTABLE_PRECISION_LOSS;  //scale to get amounts under 1e8
+        uint256 shares0 = _deposit(WBTCAmount0, USER); 
+        assertApproxEqRel(shares0, WBTCAmount0, tolerance0, "should be almost equal"); 
+        assertLe(shares0, WBTCAmount0); 
         _assertExchangeRateVsVirtualSharePrice();
-
-        uint256 shares1 = _deposit(WETHAmount1, USER); 
-        assertApproxEqRel(shares1, WETHAmount1, ACCEPTABLE_PRECISION_LOSS, "should be almost equal"); 
-        assertLe(shares1, WETHAmount1); 
+    
+        uint256 tolerance1 = WBTCAmount1 < 1e8 ? 10e16 : ACCEPTABLE_PRECISION_LOSS;  //scale to get amounts under 1e8
+        uint256 shares1 = _deposit(WBTCAmount1, USER); 
+        assertApproxEqRel(shares1, WBTCAmount1, tolerance1, "should be almost equal"); 
+        assertLe(shares1, WBTCAmount1); 
         _assertExchangeRateVsVirtualSharePrice();
-
+    
+        uint256 toleranceTotal = WBTCAmount1 < 1e8 ? 10e16 : ACCEPTABLE_PRECISION_LOSS;  //scale to get amounts under 1e8
         uint256 totalAssetsAfter = accountant.totalAssets();         
-        assertApproxEqRel(totalAssetsAfter, uint256(WETHAmount0) + uint256(WETHAmount1), ACCEPTABLE_PRECISION_LOSS, "total assets mismatch"); 
-        assertLe(totalAssetsAfter, uint256(WETHAmount0) + uint256(WETHAmount1)); 
-    }
+        assertApproxEqRel(totalAssetsAfter, uint256(WBTCAmount0) + uint256(WBTCAmount1), toleranceTotal, "total assets mismatch"); 
+        assertLe(totalAssetsAfter, uint256(WBTCAmount0) + uint256(WBTCAmount1)); 
+    }    
 
-    function testFuzzDepositsWithYield(uint96 WETHAmount0, uint96 WETHAmount1, uint96 yieldVestAmount) external {
+    function testFuzzDepositsWithYield(uint96 WBTCAmount0, uint96 WBTCAmount1, uint96 yieldVestAmount) external {
         accountant.updateMaximumDeviationYield(5000000);
         
-        WETHAmount0 = uint96(bound(WETHAmount0, 1e18, 10e24)); 
-        WETHAmount1 = uint96(bound(WETHAmount1, 1e18, 10e24)); 
-        yieldVestAmount = uint96(bound(yieldVestAmount, 1e18, WETHAmount0 * 100)); 
+        WBTCAmount0 = uint96(bound(WBTCAmount0, 1e8, 10e16)); 
+        WBTCAmount1 = uint96(bound(WBTCAmount1, 1e8, 10e16)); 
+        yieldVestAmount = uint96(bound(yieldVestAmount, 1e8, WBTCAmount0 * 100)); 
 
-        uint256 shares0 = _deposit(WETHAmount0, USER); 
+        uint256 shares0 = _deposit(WBTCAmount0, USER); 
         
         //first deposit should be 1:1 at initial rate
-        assertApproxEqRel(shares0, WETHAmount0, ACCEPTABLE_PRECISION_LOSS, "First deposit should be close to 1:1");
-        assertLe(shares0, WETHAmount0, "Less than deposit by slight amount");
+        assertApproxEqRel(shares0, WBTCAmount0, ACCEPTABLE_PRECISION_LOSS, "First deposit should be close to 1:1");
+        assertLe(shares0, WBTCAmount0, "Less than deposit by slight amount");
         _assertExchangeRateVsVirtualSharePrice();
         
         _vestYieldAndSkip(yieldVestAmount, 24 hours, 12 hours); 
@@ -855,20 +759,20 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         uint256 totalSharesBefore = shares0;
         assertEq(totalSharesBefore, boringVault.totalSupply()); 
 
-        uint256 sharePrice = totalValueInVault.mulDivDown(1e18, totalSharesBefore);
+        uint256 sharePrice = totalValueInVault.mulDivDown(1e8, totalSharesBefore);
         assertEq(sharePrice, accountant.getRate());  
         
-        uint256 expectedShares1 = uint256(WETHAmount1).mulDivDown(1e18, sharePrice + 1); //account for rounding
+        uint256 expectedShares1 = uint256(WBTCAmount1).mulDivDown(1e8, sharePrice + 1); //account for rounding
 
         //when calling deposit, the rate is updated before getting the rate 
-        //rate before deposit should be totalassets * 1e18 / shares0  where totalassets == (last share price * shares0) / 1e18
+        //rate before deposit should be totalassets * 1e8 / shares0  where totalassets == (last share price * shares0) / 1e8
         
-        uint256 shares1 = _deposit(WETHAmount1, USER); 
+        uint256 shares1 = _deposit(WBTCAmount1, USER); 
         _assertExchangeRateVsVirtualSharePrice();
         
         //check total assets after
         uint256 totalAssetsAfter = accountant.totalAssets();
-        uint256 expectedTotalAssets = (shares0 + expectedShares1).mulDivDown(sharePrice, 1e18) + accountant.getPendingVestingGains(); //verify the total assets == amount of shares
+        uint256 expectedTotalAssets = (shares0 + expectedShares1).mulDivDown(sharePrice, 1e8) + accountant.getPendingVestingGains(); //verify the total assets == amount of shares
         assertApproxEqAbs(totalAssetsAfter, expectedTotalAssets, 1, "Total assets mismatch");
         assertLe(totalAssetsAfter, expectedTotalAssets);  
         
@@ -877,16 +781,16 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         assertLe(shares1, expectedShares1, "shares mismatch");  
     }
 
-    function testFuzzWithdrawWithYield(uint96 WETHAmount0, uint96 WETHAmount1, uint96 yieldVestAmount) external {
+    function testFuzzWithdrawWithYield(uint96 WBTCAmount0, uint96 WBTCAmount1, uint96 yieldVestAmount) external {
         accountant.updateMaximumDeviationYield(5000000);
         
-        WETHAmount0 = uint96(bound(WETHAmount0, 1e18, 1e26)); 
-        WETHAmount1 = uint96(bound(WETHAmount1, 1e18, 1e26)); 
-        yieldVestAmount = uint96(bound(yieldVestAmount, 1e13, WETHAmount0 * 500 / 10_000)); 
+        WBTCAmount0 = uint96(bound(WBTCAmount0, 1e8, 1e18)); 
+        WBTCAmount1 = uint96(bound(WBTCAmount1, 1e8, 1e18)); 
+        yieldVestAmount = uint96(bound(yieldVestAmount, 1e3, WBTCAmount0 * 500 / 10_000)); 
 
         //first deposit 
-        uint256 shares0 = _deposit(WETHAmount0, USER); 
-        assertLe(shares0, WETHAmount0); 
+        uint256 shares0 = _deposit(WBTCAmount0, USER); 
+        assertLe(shares0, WBTCAmount0); 
         _assertExchangeRateVsVirtualSharePrice();
         
         _vestYieldAndSkip(yieldVestAmount, 24 hours, 12 hours); 
@@ -894,8 +798,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         
         //second deposit
         uint256 expectedVestedYield = yieldVestAmount / 2;
-        deal(address(WETH), address(this), WETHAmount1);
-        uint256 shares1 = _deposit(WETHAmount1, USER);
+        deal(address(WBTC), address(this), WBTCAmount1);
+        uint256 shares1 = _deposit(WBTCAmount1, USER);
         _assertExchangeRateVsVirtualSharePrice();
 
         // === CHECK WITHDRAW AMOUNTS ===
@@ -905,14 +809,14 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         
         
         //make sure the vault has the funds
-        deal(address(WETH), address(boringVault), yieldVestAmount + WETHAmount0 + WETHAmount1); 
+        deal(address(WBTC), address(boringVault), yieldVestAmount + WBTCAmount0 + WBTCAmount1); 
 
         //first depositor withdraws half their shares
         uint256 sharesToWithdraw0 = shares0 / 2;
-        uint256 expectedWithdrawAmount0 = sharesToWithdraw0.mulDivDown(currentRate, 1e18);
+        uint256 expectedWithdrawAmount0 = sharesToWithdraw0.mulDivDown(currentRate, 1e8);
         
         //approve shares for withdrawal
-        uint256 actualWithdrawn0 = teller.withdraw(WETH, sharesToWithdraw0, 0, address(this)); 
+        uint256 actualWithdrawn0 = teller.withdraw(WBTC, sharesToWithdraw0, 0, address(this)); 
         assertApproxEqRel(
             actualWithdrawn0, 
             expectedWithdrawAmount0, 
@@ -924,7 +828,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         
         //verify first depositor got their principal + share of yield
         //we need a large net to account for the large dis
-        uint256 firstDepositorExpectedValue = (WETHAmount0 + expectedVestedYield) / 2; // They withdraw half
+        uint256 firstDepositorExpectedValue = (WBTCAmount0 + expectedVestedYield) / 2; // They withdraw half
         assertApproxEqRel(
             actualWithdrawn0,
             firstDepositorExpectedValue,
@@ -935,8 +839,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         
         //second depositor withdraws all their shares
         uint256 rateBeforeWithdraw1 = accountant.getRate(); //rate changes due to the withdraw
-        uint256 expectedWithdrawAmount1 = shares1.mulDivDown(rateBeforeWithdraw1, 1e18);
-        uint256 actualWithdrawn1 = teller.withdraw(WETH, shares1, 0, address(this));
+        uint256 expectedWithdrawAmount1 = shares1.mulDivDown(rateBeforeWithdraw1, 1e8);
+        uint256 actualWithdrawn1 = teller.withdraw(WBTC, shares1, 0, address(this));
         vm.stopPrank();
         _assertExchangeRateVsVirtualSharePrice();
         
@@ -951,23 +855,23 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         // Second depositor should get back approximately what they deposited (no yield share)
         assertApproxEqRel(
             actualWithdrawn1,
-            WETHAmount1,
+            WBTCAmount1,
             ACCEPTABLE_PRECISION_LOSS,
             "Second depositor should get back their deposit"
         );
-        assertLe(actualWithdrawn1, WETHAmount1, "second deposit > weth amount"); 
+        assertLe(actualWithdrawn1, WBTCAmount1, "second deposit > wbtc amount"); 
     }
 
-    function testRoundingIssuesAfterYieldStreamEndsFuzz(uint96 WETHAmount0, uint96 WETHAmount1) external {
-        WETHAmount0 = uint96(bound(WETHAmount0, 1, 1e18)); //bound to small amounts
-        WETHAmount1 = uint96(bound(WETHAmount1, 1e13, 1e24)); 
+    function testRoundingIssuesAfterYieldStreamEndsFuzz(uint96 WBTCAmount0, uint96 WBTCAmount1) external {
+        WBTCAmount0 = uint96(bound(WBTCAmount0, 1, 1e8)); //bound to small amounts
+        WBTCAmount1 = uint96(bound(WBTCAmount1, 1e3, 1e16)); 
 
-        uint256 shares0 = _deposit(WETHAmount0, USER);
-        assertLe(shares0, WETHAmount0); 
+        uint256 shares0 = _deposit(WBTCAmount0, USER);
+        assertLe(shares0, WBTCAmount0); 
         _assertExchangeRateVsVirtualSharePrice();
 
         // use a yield that's safely under the limit (e.g., 5%)
-        uint256 yieldAmount = uint256(WETHAmount0) * 500 / 10_000;
+        uint256 yieldAmount = uint256(WBTCAmount0) * 500 / 10_000;
 
         // Ensure yield is at least 1 to be meaningful
         vm.assume(yieldAmount > 0);
@@ -980,35 +884,35 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         _assertExchangeRateVsVirtualSharePrice();
         
         //make sure the vault has enough funds to fund withdraws
-        deal(address(WETH), address(boringVault), WETHAmount0 + WETHAmount1 + yieldAmount);
+        deal(address(WBTC), address(boringVault), WBTCAmount0 + WBTCAmount1 + yieldAmount);
 
         //now the state of the contract should be 
         //totalSupply > 1
         //exchange rate > 1 
         
         //second deposit
-        uint256 shares1 = _deposit(WETHAmount1, USER);
+        uint256 shares1 = _deposit(WBTCAmount1, USER);
         _assertExchangeRateVsVirtualSharePrice();
 
         //check rate AFTER deposit
         boringVault.approve(address(teller), shares1);
-        uint256 assetsOut = teller.withdraw(WETH, shares1, 0, address(this));
-        assertLe(assetsOut, WETHAmount1, "should not profit");
+        uint256 assetsOut = teller.withdraw(WBTC, shares1, 0, address(this));
+        assertLe(assetsOut, WBTCAmount1, "should not profit");
         _assertExchangeRateVsVirtualSharePrice();
     }
 
-    function testRoundingIssuesAfterYieldStreamAlmostEndsMinorWeiVestFuzz(uint96 WETHAmount0, uint96 WETHAmount1, uint256 yieldAmount) external {
-        WETHAmount0 = uint96(bound(WETHAmount0, 1, 1e18));
-        WETHAmount1 = uint96(bound(WETHAmount1, 1e13, 1e23)); 
-        yieldAmount = uint256(bound(yieldAmount, 1e13, 1e17)); 
+    function testRoundingIssuesAfterYieldStreamAlmostEndsMinorWeiVestFuzz(uint96 WBTCAmount0, uint96 WBTCAmount1, uint256 yieldAmount) external {
+        WBTCAmount0 = uint96(bound(WBTCAmount0, 1, 1e8));
+        WBTCAmount1 = uint96(bound(WBTCAmount1, 1e3, 1e15)); 
+        yieldAmount = uint256(bound(yieldAmount, 1e3, 1e7)); 
 
-        uint256 shares0 = _deposit(WETHAmount0, USER);
-        assertLe(shares0, WETHAmount0); 
+        uint256 shares0 = _deposit(WBTCAmount0, USER);
+        assertLe(shares0, WBTCAmount0); 
         _assertExchangeRateVsVirtualSharePrice();
 
         // Use a yield that's safely under the limit (e.g., 5%)
-        if (yieldAmount > uint256(WETHAmount0) * 500 / 10_000) { 
-            yieldAmount = uint256(WETHAmount0) * 500 / 10_000;
+        if (yieldAmount > uint256(WBTCAmount0) * 500 / 10_000) { 
+            yieldAmount = uint256(WBTCAmount0) * 500 / 10_000;
         }
 
         // Ensure yield is at least 1 to be meaningful
@@ -1025,13 +929,13 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         //totalSupply > 1
         //exchange rate > 1 
 
-        deal(address(WETH), address(this), WETHAmount1);
-        uint256 shares1 = _deposit(WETHAmount1, USER);
+        deal(address(WBTC), address(this), WBTCAmount1);
+        uint256 shares1 = _deposit(WBTCAmount1, USER);
         _assertExchangeRateVsVirtualSharePrice();
 
         //check rate AFTER deposit
-        uint256 assetsOut = teller.withdraw(WETH, shares1, 0, address(this));
-        assertLe(assetsOut, WETHAmount1, "should not profit");
+        uint256 assetsOut = teller.withdraw(WBTC, shares1, 0, address(this));
+        assertLe(assetsOut, WBTCAmount1, "should not profit");
         _assertExchangeRateVsVirtualSharePrice();
     }
 
@@ -1049,7 +953,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         accountant.updateMaximumDeviationYield(500000); // 5000% for testing flexibility
         
         // Bound inputs to reasonable ranges
-        depositAmount = uint96(bound(depositAmount, 2, 1e24)); // 2 wei to 1M WETH
+        depositAmount = uint96(bound(depositAmount, 2, 1e16)); // 0.00000002 WBTC to 100M WBTC
         yieldAmount = uint96(bound(yieldAmount, 1, depositAmount)); // Up to 100% yield
         vestDuration = uint64(bound(vestDuration, 1 days, 7 days));
         timeElapsed = uint64(bound(timeElapsed, 0, vestDuration));
@@ -1059,7 +963,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         _assertExchangeRateVsVirtualSharePrice();
         
         // Vest yield
-        deal(address(WETH), address(boringVault), uint256(depositAmount) + uint256(yieldAmount) * 2);
+        deal(address(WBTC), address(boringVault), uint256(depositAmount) + uint256(yieldAmount) * 2);
         accountant.vestYield(yieldAmount, vestDuration);
         _assertExchangeRateVsVirtualSharePrice();
         
@@ -1074,7 +978,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         // Optionally do a withdraw
         if (doWithdraw && shares0 > 1) {
             uint256 sharesToWithdraw = shares0 / 2;
-            teller.withdraw(WETH, sharesToWithdraw, 0, address(this));
+            teller.withdraw(WBTC, sharesToWithdraw, 0, address(this));
             _assertExchangeRateVsVirtualSharePrice();
         }
         
@@ -1103,7 +1007,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         accountant.updateMaximumDeviationLoss(10_000); // Allow up to 100% loss for testing
         
         // Bound inputs
-        depositAmount = uint96(bound(depositAmount, 2, 1e24));
+        depositAmount = uint96(bound(depositAmount, 2, 1e16));
         yieldAmount = uint96(bound(yieldAmount, 1, depositAmount));
         lossAmount = uint96(bound(lossAmount, 1, yieldAmount)); // Loss <= yield to avoid pause
         
@@ -1112,7 +1016,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         _assertExchangeRateVsVirtualSharePrice();
         
         // Vest yield
-        deal(address(WETH), address(boringVault), uint256(depositAmount) + uint256(yieldAmount) * 2);
+        deal(address(WBTC), address(boringVault), uint256(depositAmount) + uint256(yieldAmount) * 2);
         accountant.vestYield(yieldAmount, 24 hours);
         _assertExchangeRateVsVirtualSharePrice();
         
@@ -1146,7 +1050,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         accountant.updateMinimumVestDuration(1 hours); // Reduce for faster testing
         
         // Bound inputs
-        depositAmount = uint96(bound(depositAmount, 2, 1e24));
+        depositAmount = uint96(bound(depositAmount, 2, 1e16));
         yield1 = uint96(bound(yield1, 1, depositAmount));
         yield2 = uint96(bound(yield2, 1, depositAmount));
         yield3 = uint96(bound(yield3, 1, depositAmount));
@@ -1156,7 +1060,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         _assertExchangeRateVsVirtualSharePrice();
         
         // First yield vest
-        deal(address(WETH), address(boringVault), depositAmount + yield1 + yield2 + yield3);
+        deal(address(WBTC), address(boringVault), depositAmount + yield1 + yield2 + yield3);
         accountant.vestYield(yield1, 24 hours);
         _assertExchangeRateVsVirtualSharePrice();
         
@@ -1233,17 +1137,17 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     }
 
     function _deposit(uint256 amount, address user) internal returns (uint256) {
-        uint256 WETHAmount = amount; 
+        uint256 WBTCAmount = amount; 
         vm.startPrank(user);
-        deal(address(WETH), user, amount);
-        WETH.approve(address(boringVault), amount);
-        uint256 shares = teller.deposit(WETH, WETHAmount, 0, referrer);
+        deal(address(WBTC), user, amount);
+        WBTC.approve(address(boringVault), amount);
+        uint256 shares = teller.deposit(WBTC, WBTCAmount, 0, referrer);
         vm.stopPrank(); 
         return shares; 
     }
 
     function _vestYieldAndSkip(uint256 amount, uint256 duration, uint256 skipDuration) internal {
-        deal(address(WETH), address(boringVault), amount * 2); //give the vault funds for withdraw + buffer
+        deal(address(WBTC), address(boringVault), amount * 2); //give the vault funds for withdraw + buffer
         accountant.vestYield(amount, duration); 
         skip(skipDuration); 
     }
