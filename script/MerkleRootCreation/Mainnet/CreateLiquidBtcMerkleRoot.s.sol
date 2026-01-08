@@ -13,7 +13,7 @@ import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper
 import "forge-std/Script.sol";
 
 /**
- *  source .env && forge script script/MerkleRootCreation/Mainnet/CreateLiquidBtcMerkleRoot.s.sol:CreateLiquidBtcMerkleRoot --rpc-url $MAINNET_RPC_URL --gas-limit 100000000000000000
+ *  source .env && forge script script/MerkleRootCreation/Mainnet/CreateLiquidBtcMerkleRoot.s.sol:CreateLiquidBtcMerkleRoot --rpc-url $MAINNET_RPC_URL --gas-limit 1000000000000000000
  */
 contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
@@ -258,6 +258,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "MCwBTC")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "MCcbBTC")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "MCUSR")));
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sentoraPYUSDMain")));
 
         // ========================== MorphoBlue ==========================
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "WBTC_USDC_86"));
