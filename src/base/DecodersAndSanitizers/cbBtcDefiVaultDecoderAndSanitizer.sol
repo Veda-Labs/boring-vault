@@ -27,6 +27,7 @@ import {SwellSimpleStakingDecoderAndSanitizer} from
 import {ZircuitSimpleStakingDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/ZircuitSimpleStakingDecoderAndSanitizer.sol";
 import {SymbioticDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SymbioticDecoderAndSanitizer.sol";
+import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
 
 contract cbBtcDefiVaultDecoderAndSanitizer is
     UniswapV3DecoderAndSanitizer,
@@ -46,7 +47,8 @@ contract cbBtcDefiVaultDecoderAndSanitizer is
     EigenLayerLSTStakingDecoderAndSanitizer,
     SwellSimpleStakingDecoderAndSanitizer,
     ZircuitSimpleStakingDecoderAndSanitizer,
-    SymbioticDecoderAndSanitizer
+    SymbioticDecoderAndSanitizer,
+    TellerDecoderAndSanitizer
 {
     constructor(address _uniswapV3NonFungiblePositionManager)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)

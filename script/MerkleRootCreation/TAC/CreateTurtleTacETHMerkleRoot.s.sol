@@ -19,7 +19,7 @@ contract CreateTurtleTacETHMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x294eecec65A0142e84AEdfD8eB2FBEA8c9a9fbad; 
-    address public rawDataDecoderAndSanitizer = 0x5ebE12dE67970a6d3DD70d23f90EbBA4dD38726A;
+    address public rawDataDecoderAndSanitizer = 0x5CeEB02799A6fc75641c2793Dc8138508f71642d; 
     address public managerAddress = 0x401C29bafA0A205a0dAb316Dc6136A18023eF08A; 
     address public accountantAddress = 0x1683870f3347F2837865C5D161079Dc3fDbf1087;
     
@@ -57,6 +57,14 @@ contract CreateTurtleTacETHMerkleRoot is Script, MerkleTreeHelper {
         subaccounts[0] = address(boringVault);
 
         _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
+
+        // ========================== Merkl ==========================
+        _addMerklLeafs(
+            leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address")
+        );
+        
+        // ========================== rEUL ==========================
+        _addrEULWrappingLeafs(leafs);  
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
