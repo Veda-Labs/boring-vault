@@ -3,15 +3,16 @@
   "contractAddresses": {
     "AaveV3BufferHelper": "0x1bAb9A7d8b56C2c67889466cc6dca6F5821f6dc7",
     "AaveV3BufferLens": "0xfDF39Ed5E55780b4B8d56Db36E80A20C4c50eB5f",
-    "AccountantWithYieldStreaming": "0x62A88Bea6fe527b5DEfAA103A3f8b5010205aF92",
-    "BoringOnChainQueue": "0x359Db9A866c1276a571b3A9FbbBc47ED1F945E71",
+    "AccountantWithYieldStreaming": "0x9c2477D4Ea17d3cCC45e6b1087c94d14926F54C9",
+    "BoringOnChainQueue": "0x406E63323EF5d39D41C6fD895Ef9665AF926184c",
     "BoringVault": "0xDbD87325D7b1189Dcc9255c4926076fF4a96A271",
     "Lens": "0x5232bc0F5999f8dA604c42E1748A13a170F94A1B",
     "ManagerWithMerkleVerification": "0xEd23b12e7700BeB638562A22ED65f74291901c25",
     "Pauser": "0x4B0B3164B6731ACd96e29F13bF6c112204d5f024",
-    "QueueSolver": "0xde2519e53BE8DC8d87638e790DfCe20a74bc187e",
+    "PaymentSplitter": "0x055f5080c49CC092c1bc78975Ff316A1db43AA2F",
+    "QueueSolver": "0xdf4123c18DC985ed94061f2C08cE17b7b17f21fF",
     "RolesAuthority": "0x1F53135155d6fF516bCcfDd9424fcdB8AD1eFB77",
-    "TellerWithYieldStreaming": "0x4E0292caa97128e35a695dCd53c465E56F69c3A0",
+    "TellerWithYieldStreaming": "0xc46f2443b3521632E2E2a903D6da8f965B46f6a0",
     "Timelock": "0x0000000000000000000000000000000000000000"
   }
 }
