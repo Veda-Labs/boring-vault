@@ -6,10 +6,7 @@ pragma solidity 0.8.21;
 
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import "forge-std/Script.sol";
 
@@ -25,6 +22,10 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
     address public rawDataDecoderAndSanitizer = 0x2aa1F761eC74EC12Aa465332C29446311425712f;
     address public kingClaimingDecoderAndSanitizer = 0xd4067b594C6D48990BE42a559C8CfDddad4e8D6F;
     address public drone = 0x4341135454A602D46b95ACfaDD88db967Bcc35CA;
+
+    address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
+    address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
+    address public resolvDecoderAndSanitizer = 0x79f99F8e9331083308438A0274c0ac5831761f9d;
     function setUp() external {}
 
     /**
@@ -139,7 +140,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         // =========================== Lido ==========================
         _addLidoLeafs(leafs);
 
-        // =========================== Odos ==========================
+        // =========================== Odos/1inch ==========================
         {
             address[] memory assets = new address[](14);
             SwapKind[] memory kind = new SwapKind[](14);
@@ -172,10 +173,11 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             assets[13] = getAddress(sourceChain, "wstUSR");
             kind[13] = SwapKind.BuyAndSell;
 
-            _addOdosSwapLeafs(leafs, assets, kind);
-
-            // =========================== 1Inch ==========================
-            _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
+            _addOdosOwnedSwapLeafs(leafs, assets, kind);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+            _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 
         // =========================== Fluid Dex ==========================
@@ -396,6 +398,13 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             _addLeafsForDrone(leafs);
         }
 
+        // ==========================  Fee Claiming ==========================
+
+        ERC20[] memory feeAssets = new ERC20[](2);
+        feeAssets[0] = getERC20(sourceChain, "WETH");
+        feeAssets[1] = getERC20(sourceChain, "WSTETH");
+        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
+
         // ========================== Verify & Generate ==========================
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
@@ -420,7 +429,9 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== resolv leaves ==========================
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", resolvDecoderAndSanitizer);
         _addAllResolvLeafs(leafs);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         // ========================== swap leaves ==========================
         address[] memory swapAssets = new address[](6);
         swapAssets[0] = getAddress(sourceChain, "USDC");
@@ -436,8 +447,11 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         kind[3] = SwapKind.BuyAndSell; // We only want to buy wstETH and WETH
         kind[4] = SwapKind.BuyAndSell;
         kind[5] = SwapKind.BuyAndSell;
-        _addLeafsFor1InchGeneralSwapping(leafs, swapAssets, kind);
-        _addOdosSwapLeafs(leafs, swapAssets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+        _addLeafsFor1InchOwnedGeneralSwapping(leafs, swapAssets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
+        _addOdosOwnedSwapLeafs(leafs, swapAssets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         // ========================== merkl claiming leaves ==========================
         _addMerklLeafs(
             leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address")

@@ -22,6 +22,9 @@ contract CreateSentoraMerkleRootScript is Script, MerkleTreeHelper {
     address public accountantAddress = 0x42135D908efa4E6aFd7E9B73D5A1bA55955F93fA;
     address public rawDataDecoderAndSanitizer = 0xBf6199F596D7296875Faa175Ed02Dc3940C1682E;
 
+    address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
+    address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
+
     function setUp() external {}
 
     /**
@@ -40,36 +43,28 @@ contract CreateSentoraMerkleRootScript is Script, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](128);
 
-        // ========================== Odos ==========================
+        // ========================== Odos/1inch ==========================
         address[] memory assets = new address[](2);
         assets[0] = getAddress(sourceChain, "LBTC");
         assets[1] = getAddress(sourceChain, "WBTC");
         SwapKind[] memory kind = new SwapKind[](2);
         kind[0] = SwapKind.BuyAndSell;
         kind[1] = SwapKind.BuyAndSell;
-        _addOdosSwapLeafs(leafs, assets, kind);
-
-        // ========================== 1Inch ==========================
-        assets = new address[](2);
-        assets[0] = getAddress(sourceChain, "LBTC");
-        assets[1] = getAddress(sourceChain, "WBTC");
-        kind = new SwapKind[](2);
-        kind[0] = SwapKind.BuyAndSell;
-        kind[1] = SwapKind.BuyAndSell;
-        _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
+        _addOdosOwnedSwapLeafs(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+        _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== ITB Position Manager ==========================
-        ERC20[] memory itbTokensUsed = new ERC20[](2);
+        ERC20[] memory itbTokensUsed = new ERC20[](1);
         itbTokensUsed[0] = getERC20(sourceChain, "LBTC");
-        itbTokensUsed[1] = getERC20(sourceChain, "WBTC");
         address itbPositionManager = 0x701D7Fc25577602dc77280108a8cef0B72b8F8A7;
-        _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "Supervised Loan");
-
-        itbTokensUsed = new ERC20[](0);
-        itbPositionManager = 0xcA1fB3fECFbA0CB89c95C298f5329b793B4d8fa3;
-        _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "Loan Manager");
-        itbPositionManager = 0x97c1deFaC7c1e5Ce0FBE34C684Ac09EA640d4A7a;
-        _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "Yield Position");
+        _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "LBTC > USDC > RLUSD Supervised Loan");
+        itbPositionManager = 0x9B6a57Fda106eff13ffE4ea4Ef2783C547f75cd7;
+        _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "LBTC > RLUSD > RLUSD Supervised Loan");
+        itbPositionManager = 0x284D3b0eF51F0A6432948A9cCbCb5cAF30d6EE96;
+        _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "LBTC > PYUSD > RLUSD Supervised Loan");
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
@@ -97,17 +92,27 @@ contract CreateSentoraMerkleRootScript is Script, MerkleTreeHelper {
              string.concat("Accept ownership of the ", itbContractName, " contract"),
              getAddress(sourceChain, "rawDataDecoderAndSanitizer")
          );
- 
-         // removeExecutor
-         leafIndex++;
-         leafs[leafIndex] = ManageLeaf(
-             itbPositionManager,
-             false,
-             "removeExecutor(address)",
-             new address[](0),
-             string.concat("Remove executor from the ", itbContractName, " contract"),
-             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-         );
+
+        // Withdraw
+        leafIndex++;
+        leafs[leafIndex] = ManageLeaf(
+            itbPositionManager,
+            false,
+            "withdraw(address,uint256)",
+            new address[](0),
+            string.concat("Withdraw from the ", itbContractName, " contract"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        // WithdrawAll
+        leafIndex++;
+        leafs[leafIndex] = ManageLeaf(
+            itbPositionManager,
+            false,
+            "withdrawAll(address)",
+            new address[](0),
+            string.concat("Withdraw all from the ", itbContractName, " contract"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
  
          for (uint256 i; i < tokensUsed.length; ++i) {
              // Transfer
@@ -121,26 +126,6 @@ contract CreateSentoraMerkleRootScript is Script, MerkleTreeHelper {
                  getAddress(sourceChain, "rawDataDecoderAndSanitizer")
              );
              leafs[leafIndex].argumentAddresses[0] = itbPositionManager;
-             // Withdraw
-             leafIndex++;
-             leafs[leafIndex] = ManageLeaf(
-                 itbPositionManager,
-                 false,
-                 "withdraw(address,uint256)",
-                 new address[](0),
-                 string.concat("Withdraw ", tokensUsed[i].symbol(), " from the ", itbContractName, " contract"),
-                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-             );
-             // WithdrawAll
-             leafIndex++;
-             leafs[leafIndex] = ManageLeaf(
-                 itbPositionManager,
-                 false,
-                 "withdrawAll(address)",
-                 new address[](0),
-                 string.concat("Withdraw all ", tokensUsed[i].symbol(), " from the ", itbContractName, " contract"),
-                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-             );
          }
      }
 }
