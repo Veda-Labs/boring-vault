@@ -244,11 +244,12 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         supplyAssets[5] = getERC20(sourceChain, "EBTC");
         supplyAssets[6] = getERC20(sourceChain, "USDG");
 
-        ERC20[] memory borrowAssets = new ERC20[](4);
+        ERC20[] memory borrowAssets = new ERC20[](5);
         borrowAssets[0] = getERC20(sourceChain, "USDC");
         borrowAssets[1] = getERC20(sourceChain, "USDT");
         borrowAssets[2] = getERC20(sourceChain, "WBTC");
         borrowAssets[3] = getERC20(sourceChain, "WETH");
+        borrowAssets[4] = getERC20(sourceChain, "RLUSD");
 
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
 
