@@ -127,6 +127,8 @@ import {ITBBasePositionDecoderAndSanitizer} from "src/base/DecodersAndSanitizers
 import {BoostedUSDCInkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BoostedUSDCInkDecoderAndSanitizer.sol";
 import {WhopDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/WhopDecoderAndSanitizer.sol";
 import {TacDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacUSDTacDecoderAndSanitizer.sol";
+import {FullResolvDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/FullResolvDecoderAndSanitizer.sol";
+import {FullFluidDexDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/FullFluidDexDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -157,11 +159,11 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(WhopDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
-        console.log("Whop Decoder and Sanitizer V0.0");
+        creationCode = type(FullFluidDexDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode();
+        console.log("Full Fluid Dex Decoder and Sanitizer V0.0");
         console.logBytes(constructorArgs);
-        deployer.deployContract("Whop Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        deployer.deployContract("Full Fluid Dex Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
         
         vm.stopBroadcast();
     }
