@@ -63,6 +63,18 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
             false
         );
 
+        // ============================ Cap ============================
+        {
+
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", capDecoderAndSanitizer);
+            address[] memory capDepositAssets = new address[](3);
+            capDepositAssets[0] = getAddress(sourceChain, "USDC");
+            capDepositAssets[1] = getAddress(sourceChain, "USDT");
+            capDepositAssets[2] = getAddress(sourceChain, "PYUSD");
+            _addCapLeafs(leafs, capDepositAssets);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
+
         // ========================== UniswapV3 ==========================
         address[] memory token0 = new address[](22);
         token0[0] = getAddress(sourceChain, "WBTC");
@@ -252,6 +264,17 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         borrowAssets[4] = getERC20(sourceChain, "RLUSD");
 
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
+
+        // ========================== SparkLend ==========================
+        supplyAssets = new ERC20[](2);
+        supplyAssets[0] = getERC20(sourceChain, "LBTC");
+        supplyAssets[1] = getERC20(sourceChain, "cbBTC");
+
+        borrowAssets = new ERC20[](3);
+        borrowAssets[0] = getERC20(sourceChain, "USDT");
+        borrowAssets[0] = getERC20(sourceChain, "USDC");
+        borrowAssets[1] = getERC20(sourceChain, "PYUSD");
+        _addSparkLendLeafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== MetaMorpho ==========================
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "usualBoostedUSDC")));

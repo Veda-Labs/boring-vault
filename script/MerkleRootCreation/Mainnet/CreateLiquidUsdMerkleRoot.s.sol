@@ -90,6 +90,18 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](4096);
 
+        // ============================ Cap ============================
+        {
+
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", capDecoderAndSanitizer);
+            address[] memory capDepositAssets = new address[](3);
+            capDepositAssets[0] = getAddress(sourceChain, "USDC");
+            capDepositAssets[1] = getAddress(sourceChain, "USDT");
+            capDepositAssets[2] = getAddress(sourceChain, "PYUSD");
+            _addCapLeafs(leafs, capDepositAssets);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
+
         // ========================== Aave V3 ==========================
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", aaveV3DecoderAndSanitizer);
         ERC20[] memory supplyAssets = new ERC20[](20);
