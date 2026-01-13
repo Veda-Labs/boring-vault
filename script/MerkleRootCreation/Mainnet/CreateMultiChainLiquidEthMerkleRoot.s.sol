@@ -37,6 +37,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
 
     address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
+    address public resolvDecoderAndSanitizer = 0xa4561A172D998561b22b574f291bF4E2d5C60aA3;
 
     address public drone = 0x0a42b2F3a0D54157Dbd7CC346335A4F1909fc02c;
 
@@ -112,6 +113,16 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             capDepositAssets[1] = getAddress(sourceChain, "USDT");
             capDepositAssets[2] = getAddress(sourceChain, "PYUSD");
             _addCapLeafs(leafs, capDepositAssets);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
+
+        // ========================== Resolv ==========================
+        {
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", resolvDecoderAndSanitizer);
+            ERC20[] memory assets = new ERC20[](2);
+            assets[0] = getERC20(sourceChain, "USDC");
+            assets[1] = getERC20(sourceChain, "USDT");
+            _addAllResolvLeafs(leafs, assets);
             setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 
@@ -815,6 +826,17 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             layerZeroPlasmaEndpointId,
             getBytes32(sourceChain, "boringVault")
         );
+
+        // wstUSR
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "wstUSR"),
+            getAddress(sourceChain, "wstUSROFTAdapter"),
+            layerZeroPlasmaEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+
+
         }
 
         // ========================== Reclamation ==========================
