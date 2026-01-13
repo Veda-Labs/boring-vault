@@ -37,7 +37,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
 
     address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
-    address public resolvDecoderAndSanitizer = 0xa4561A172D998561b22b574f291bF4E2d5C60aA3;
+    address public resolvDecoderAndSanitizer = 0x87f67Eb9Bb1a606923A17696E06AFAa72da65f86;
 
     address public drone = 0x0a42b2F3a0D54157Dbd7CC346335A4F1909fc02c;
 
