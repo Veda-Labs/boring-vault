@@ -13,7 +13,7 @@ import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper
 import "forge-std/Script.sol";
 
 /**
- *  source .env && forge script script/MerkleRootCreation/Mainnet/CreateLiquidBtcMerkleRoot.s.sol:CreateLiquidBtcMerkleRoot --rpc-url $MAINNET_RPC_URL --gas-limit 100000000000000000
+ *  source .env && forge script script/MerkleRootCreation/Mainnet/CreateLiquidBtcMerkleRoot.s.sol:CreateLiquidBtcMerkleRoot --rpc-url $MAINNET_RPC_URL --gas-limit 1000000000000000000
  */
 contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
@@ -27,6 +27,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
     address public itbPositionManager2 = 0x11Fd9E49c41738b7500748f7B94B4DBb0E8c13d2; // Spark LBTC (PYUSD) + Aave Core Euler PYUSD Supervised Loan
     address public itbPositionManager3 = 0xfBCA329E2Ee0c44d8F115A4B8F7ceda9E109f436; // Aave eBTC->RLUSD-> Euler Sentora RLUSD
     address public itbDecoderAndSanitizer = 0xb75bfC8B0Cc8588C510DcAE75c67A9DC9cF508d5; 
+    address public capDecoderAndSanitizer = 0xE0e86bf98dAA0D2b408Cb038E94bCB9B7864309C;
 
     //one offs
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
@@ -234,6 +235,18 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
          _addBTCNLeafs(leafs, getERC20(sourceChain, "cbBTC"), getERC20(sourceChain, "BTCN"), getAddress(sourceChain, "cornSwapFacilitycbBTC"));
         _addBTCNLeafs(leafs, getERC20(sourceChain, "WBTC"), getERC20(sourceChain, "BTCN"), getAddress(sourceChain, "cornSwapFacilityWBTC"));
 
+        // ============================ Cap ============================
+        {
+
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", capDecoderAndSanitizer);
+            address[] memory capDepositAssets = new address[](3);
+            capDepositAssets[0] = getAddress(sourceChain, "USDC");
+            capDepositAssets[1] = getAddress(sourceChain, "USDT");
+            capDepositAssets[2] = getAddress(sourceChain, "PYUSD");
+            _addCapLeafs(leafs, capDepositAssets);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
+
         // ========================== Aave ==========================
         ERC20[] memory supplyAssets = new ERC20[](7);
         supplyAssets[0] = getERC20(sourceChain, "WBTC");
@@ -244,13 +257,25 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         supplyAssets[5] = getERC20(sourceChain, "EBTC");
         supplyAssets[6] = getERC20(sourceChain, "USDG");
 
-        ERC20[] memory borrowAssets = new ERC20[](4);
+        ERC20[] memory borrowAssets = new ERC20[](5);
         borrowAssets[0] = getERC20(sourceChain, "USDC");
         borrowAssets[1] = getERC20(sourceChain, "USDT");
         borrowAssets[2] = getERC20(sourceChain, "WBTC");
         borrowAssets[3] = getERC20(sourceChain, "WETH");
+        borrowAssets[4] = getERC20(sourceChain, "RLUSD");
 
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
+
+        // ========================== SparkLend ==========================
+        supplyAssets = new ERC20[](2);
+        supplyAssets[0] = getERC20(sourceChain, "LBTC");
+        supplyAssets[1] = getERC20(sourceChain, "cbBTC");
+
+        borrowAssets = new ERC20[](3);
+        borrowAssets[0] = getERC20(sourceChain, "USDT");
+        borrowAssets[1] = getERC20(sourceChain, "USDC");
+        borrowAssets[2] = getERC20(sourceChain, "PYUSD");
+        _addSparkLendLeafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== MetaMorpho ==========================
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "usualBoostedUSDC")));
@@ -258,6 +283,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "MCwBTC")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "MCcbBTC")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "MCUSR")));
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sentoraPYUSDMain")));
 
         // ========================== MorphoBlue ==========================
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "WBTC_USDC_86"));
