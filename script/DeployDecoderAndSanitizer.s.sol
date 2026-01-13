@@ -159,9 +159,9 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
 
         creationCode = type(WhopDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
-        console.log("Whop Decoder and Sanitizer V0.0");
+        console.log("Whop Decoder and Sanitizer V0.3");
         console.logBytes(constructorArgs);
-        deployer.deployContract("Whop Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        deployer.deployContract("Whop Decoder and Sanitizer V0.3", creationCode, constructorArgs, 0);
         
         vm.stopBroadcast();
     }
