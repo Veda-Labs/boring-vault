@@ -126,7 +126,6 @@ import {SentayUSDCMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitize
 import {ITBBasePositionDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/ITBBasePositionDecoderAndSanitizer.sol";
 import {BoostedUSDCInkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BoostedUSDCInkDecoderAndSanitizer.sol";
 import {WhopDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/WhopDecoderAndSanitizer.sol";
-import {TacDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacUSDTacDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -159,9 +158,9 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
 
         creationCode = type(WhopDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
-        console.log("Whop Decoder and Sanitizer V0.3");
+        console.log("Whop Decoder and Sanitizer V0.6");
         console.logBytes(constructorArgs);
-        deployer.deployContract("Whop Decoder and Sanitizer V0.3", creationCode, constructorArgs, 0);
+        deployer.deployContract("Whop Decoder and Sanitizer V0.6", creationCode, constructorArgs, 0);
         
         vm.stopBroadcast();
     }
