@@ -1,0 +1,122 @@
+{
+    "deploymentParameters": {
+      "logLevel": 4,
+      "privateKeyEnvName": "BORING_DEVELOPER",
+      "chainName": "plasma",
+      "evmVersion": "shanghai",
+      "deployerContractAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "deployerAddress"
+      },
+      "nativeWrapperAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "wXPL"
+      },
+      "deploymentOwnerAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "txBundlerAddress"
+      },
+      "deploymentFileName": "skeletons/addresses/Plasma/whopUSD.json"
+    },
+    "rolesAuthorityConfiguration": {
+      "rolesAuthorityDeploymentName": "Whop USD Vault RolesAuthority Version 0.0"
+    },
+    "lensConfiguration": {
+      "lensDeploymentName": "Arctic Architecture Lens V0.0"
+    },
+    "boringVaultConfiguration": {
+      "boringVaultDeploymentName": "Whop USD Vault V0.0",
+      "boringVaultName": "Whop USD Vault",
+      "boringVaultSymbol": "whopUSD",
+      "boringVaultDecimals": 6
+    },
+    "managerConfiguration": {
+      "managerDeploymentName": "Whop USD Vault ManagerWithMerkleVerification V0.0",
+      "balancerVaultAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000001",
+        "name": "balancerV2Vault"
+      }
+    },
+    "accountantConfiguration": {
+      "accountantDeploymentName": "Whop USD Vault Accountant With Yield Streaming V0.0",
+      "accountantParameters": {
+        "kind": {
+          "variableRate": false,
+          "fixedRate": false,
+          "yieldStreaming": true
+        },
+        "payoutConfiguration": {
+          "payoutTo": "0x0000000000000000000000000000000000000001",
+          "optionalPaymentSplitterName": "Whop USD Vault Payment Splitter V0.0",
+          "splits": []
+        },
+        "accountantDeploymentParameters": {
+          "allowedExchangeRateChangeLower": 9950,
+          "allowedExchangeRateChangeUpper": 10050,
+          "base": {
+            "address": "0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb",
+            "name": "USDT0"
+          },
+          "minimumUpateDelayInSeconds": 21600,
+          "performanceFee": 0,
+          "platformFee": 0,
+          "startingExchangeRate": 1000000
+        }
+      }
+    },
+    "tellerConfiguration": {
+      "tellerDeploymentName": "Whop USD Vault Teller With Yield Streaming V0.0",
+      "tellerParameters": {
+        "kind": {
+          "teller": false,
+          "tellerWithRemediation": false,
+          "tellerWithCcip": false,
+          "tellerWithLayerZero": false,
+          "tellerWithLayerZeroRateLimiting": false,
+          "tellerWithYieldStreaming": true
+        }
+      }
+    },
+    "boringQueueConfiguration": {
+      "boringQueueDeploymentName": "Whop USD Vault Queue V0.0",
+      "boringQueueSolverName": "Whop USD Vault Queue Solver V0.0",
+      "excessToSolverNonSelfSolve": true,
+      "queueParameters": {
+        "kind": {
+          "boringQueue": true,
+          "boringQueueWithTracking": false
+        }
+      }
+    },
+    "droneConfiguration": {
+      "droneDeploymentBaseName": "Whop USD Vault Drone V0.0",
+      "droneCount": 0,
+      "safeGasToForwardNative": 21000
+    },
+    "pauserConfiguration": {
+      "shouldDeploy": true,
+      "pauserDeploymentName": "Whop USD Vault Pauser V0.0"
+    },
+    "timelockConfiguration": {
+      "shouldDeploy": false,
+      "timelockDeploymentName": "Whop USD Vault Timelock V0.0",
+      "timelockParameters": {
+        "executors": ["0x68eC1FdD4Bb202B2e07aE751CB5553644aA48cFA"],
+        "minDelay": 43200,
+        "proposers": ["0x68eC1FdD4Bb202B2e07aE751CB5553644aA48cFA"]
+      }
+    },
+    "aaveV3BufferHelperConfiguration": {
+        "shouldDeploy": true,
+        "aaveV3BufferHelperDeploymentName": "Whop USD Vault AaveV3 Buffer Helper V0.0",
+        "aaveV3PoolAddressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "v3Pool"
+        }
+      },
+      "aaveV3BufferLensConfiguration": {
+        "shouldDeploy": true,
+        "aaveV3BufferLensDeploymentName": "AaveV3 Buffer Lens V0.0"
+      }
+  }
+  

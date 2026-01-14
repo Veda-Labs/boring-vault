@@ -126,6 +126,8 @@ import {SentayUSDCMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitize
 import {ITBBasePositionDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/ITBBasePositionDecoderAndSanitizer.sol";
 import {BoostedUSDCInkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BoostedUSDCInkDecoderAndSanitizer.sol";
 import {KHypeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/KHypeDecoderAndSanitizer.sol";
+import {WhopDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/WhopDecoderAndSanitizer.sol";
+import {TacDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacUSDTacDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -147,8 +149,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("katana");
-        setSourceChainName("katana");
+        vm.createSelectFork("plasma");
+        setSourceChainName("plasma");
     }
 
     function run() external {
@@ -156,35 +158,12 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(KatanaDecoderAndSanitizer).creationCode;
+        creationCode = type(WhopDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
-        console.log("Katana Decoder and Sanitizer V1.1");
+        console.log("Whop Decoder and Sanitizer V0.0");
         console.logBytes(constructorArgs);
-        deployer.deployContract("Katana Decoder and Sanitizer V1.1", creationCode, constructorArgs, 0);
-
+        deployer.deployContract("Whop Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        
         vm.stopBroadcast();
-    }
-
-    // do not use, this is really intended for doing a giga deploy on a new chain
-    function deployContract(string memory name, bytes memory creationCode, uint256 value) internal {
-        address _contract = deployer.getAddress(name);
-        if (_contract.code.length > 0) {
-            console.log(name, "already deployed at", _contract);
-            return;
-        }
-
-        bytes memory constructorArgs;
-        for (uint256 i = 0; i < addressKeys.length; i++) {
-            if (values[sourceChain][addressKeys[i]] != bytes32(0)) {
-                constructorArgs = abi.encodePacked(constructorArgs, abi.encode(getAddress(sourceChain, addressKeys[i])));
-            } else {
-                console.log(string.concat("Skipping ", name, " because ", addressKeys[i], " is not set"));
-                return;
-            }
-        }
-
-        address deployed = deployer.deployContract(name, creationCode, constructorArgs, value);
-        console.log(unicode"✅", name, "deployed to", deployed);
-        console.logBytes(constructorArgs);
     }
 }

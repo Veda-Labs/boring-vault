@@ -6,8 +6,9 @@ pragma solidity 0.8.21;
 
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {Owned} from "lib/solmate/src/auth/Owned.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 
-contract OdosOwnedDecoderAndSanitizer is Owned {
+contract OdosOwnedDecoderAndSanitizer is Owned, BaseDecoderAndSanitizer {
     //============================== STORAGE ===============================
 
     // Reference to the OdosRouterV2 contract

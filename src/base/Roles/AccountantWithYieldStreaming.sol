@@ -10,6 +10,8 @@ import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
+
+
 contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
@@ -79,6 +81,15 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
      */
     uint64 public lastStrategistUpdateTimestamp;
 
+    /**
+     * @notice The virtual share price is the share price expressed in ray
+     * @dev useful for calculating the impact of vested gains when the sharePrice (in asset decimals) is not precise enough
+     */
+
+    uint256 public lastVirtualSharePrice;
+
+    uint256 internal constant RAY = 1e27;
+
     //============================== ERRORS ===============================
 
     error AccountantWithYieldStreaming__UpdateExchangeRateNotSupported();
@@ -137,6 +148,9 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
 
         //initialize strategist update time to deploy time so first posts are valid
         lastStrategistUpdateTimestamp = uint64(block.timestamp);
+
+        //initialize virtual share price
+        lastVirtualSharePrice = (uint256(startingExchangeRate)).mulDivDown(RAY, ONE_SHARE);
     }
 
     // ========================================= UPDATE EXCHANGE RATE/FEES FUNCTIONS =========================================
@@ -166,7 +180,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
 
         //use TWAS to validate the yield amount:
         uint256 averageSupply = _getTWAS();
-        uint256 _totalAssets = averageSupply.mulDivDown(vestingState.lastSharePrice, ONE_SHARE);
+        uint256 _totalAssets = averageSupply.mulDivDown(lastVirtualSharePrice, RAY);
         uint256 dailyYieldAmount = yieldAmount.mulDivDown(1 days, duration);
         uint256 dailyYieldBps = dailyYieldAmount.mulDivDown(10_000, _totalAssets);
 
@@ -184,6 +198,9 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         //update vesting timestamps
         vestingState.startVestingTime = uint64(block.timestamp);
         vestingState.endVestingTime = uint64(block.timestamp + duration);
+
+        //always update timestamp 
+        vestingState.lastVestingUpdate = uint128(block.timestamp); // update timestamp
 
         //update state timestamp
         lastStrategistUpdateTimestamp = uint64(block.timestamp);
@@ -219,8 +236,10 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
             uint256 currentShares = vault.totalSupply();
             if (currentShares > 0) {
                 uint128 cachedSharePrice = vestingState.lastSharePrice;
-                vestingState.lastSharePrice =
-                    uint128((totalAssets() - principalLoss).mulDivDown(ONE_SHARE, currentShares));
+                
+                lastVirtualSharePrice = (totalAssets() - principalLoss).mulDivDown(RAY, currentShares);
+
+                vestingState.lastSharePrice = _calculateSharePriceFromVirtual();
 
                 uint256 lossBps =
                     uint256(cachedSharePrice - vestingState.lastSharePrice).mulDivDown(10_000, cachedSharePrice);
@@ -341,6 +360,11 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         if (currentShares == 0) {
             return rate = vestingState.lastSharePrice; //startingExchangeRate
         }
+        //to avoid any weird edge cases, we separate the two conditions so we don't get currentShares == 0 and pendingGains > 0; 
+        uint256 pendingGains = getPendingVestingGains(); 
+        if (pendingGains == 0) {
+            return rate = vestingState.lastSharePrice;
+        } 
         rate = totalAssets().mulDivDown(ONE_SHARE, currentShares);
     }
 
@@ -450,21 +474,18 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         uint256 newlyVested = getPendingVestingGains();
 
         uint256 currentShares = vault.totalSupply();
-        if (newlyVested > 0) {
+        if (newlyVested > 0 && currentShares > 0) {
             // update the share price w/o reincluding the pending gains (done in `newlyVested`)
-            uint256 _totalAssets = uint256(vestingState.lastSharePrice).mulDivDown(currentShares, ONE_SHARE);
-            vestingState.lastSharePrice = uint128((_totalAssets + newlyVested).mulDivDown(ONE_SHARE, currentShares));
-
+            lastVirtualSharePrice = lastVirtualSharePrice + newlyVested.mulDivDown(RAY, currentShares);
 
             //move vested amount from pending to realized
             vestingState.vestingGains -= uint128(newlyVested); // remove from pending
+            vestingState.lastVestingUpdate = uint128(block.timestamp); //update timestamp
+            vestingState.lastSharePrice = _calculateSharePriceFromVirtual();
         }
-        
+
         //sync fee variables 
         _collectFees();
-
-        //always update timestamp 
-        vestingState.lastVestingUpdate = uint128(block.timestamp); // update timestamp
 
         state.totalSharesLastUpdate = uint128(currentShares);
 
@@ -501,5 +522,9 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
 
         state.exchangeRate = uint96(vestingState.lastSharePrice);
         state.lastUpdateTimestamp = currentTime;
+    }
+
+    function _calculateSharePriceFromVirtual() internal view returns (uint128) {
+        return uint128(lastVirtualSharePrice.mulDivDown(ONE_SHARE, RAY));
     }
 }
