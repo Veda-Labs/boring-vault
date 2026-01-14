@@ -75,9 +75,11 @@ contract CreateBoostedUSDCMerkleRoot is Script, MerkleTreeHelper {
         _addNativeLeafs(leafs);
 
         // ========================== Aave V3 ==========================
-        ERC20[] memory supplyAssets = new ERC20[](2);
+        ERC20[] memory supplyAssets = new ERC20[](4);
         supplyAssets[0] = getERC20(sourceChain, "USDC");
         supplyAssets[1] = getERC20(sourceChain, "USDT");
+        supplyAssets[2] = getERC20(sourceChain, "SUSDE");
+        supplyAssets[3] = getERC20(sourceChain, "USDE");
         ERC20[] memory borrowAssets = new ERC20[](0);
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
 
