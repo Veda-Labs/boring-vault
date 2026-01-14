@@ -119,7 +119,7 @@ import {TestVault0DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Test
 import {SentoraUSDCInkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentoraUSDCInkDecoderAndSanitizer.sol";
 import {SentoraUSDCMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentoraUSDCMainnetDecoderAndSanitizer.sol";
 import {ITBBasePositionDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/ITBBasePositionDecoderAndSanitizer.sol";
-import {BalancedUSDCDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TestBalancedUSDCDecoderAndSanitizer.sol";
+import {BalancedUSDCDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BalancedUSDCDecoderAndSanitizer.sol";
 import {InkLiquidETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/InkLiquidETHDecoderAndSanitizer.sol";
 import {SentayUSDCInkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentayUSDCInkDecoderAndSanitizer.sol";
 import {SentayUSDCMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentayUSDCMainnetDecoderAndSanitizer.sol";
@@ -127,7 +127,7 @@ import {ITBBasePositionDecoderAndSanitizer} from "src/base/DecodersAndSanitizers
 import {BoostedUSDCInkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BoostedUSDCInkDecoderAndSanitizer.sol";
 import {WhopDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/WhopDecoderAndSanitizer.sol";
 import {TacDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacUSDTacDecoderAndSanitizer.sol";
-
+import {BoostedUSDCDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BoostedUSDCDecoderAndSanitizer.sol";
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
 
@@ -148,8 +148,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("plasma");
-        setSourceChainName("plasma");
+        vm.createSelectFork("mainnet");
+        setSourceChainName("mainnet");
     }
 
     function run() external {
@@ -157,11 +157,11 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(WhopDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
-        console.log("Whop Decoder and Sanitizer V0.0");
+        creationCode = type(BoostedUSDCDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "odosRouterV2"));
+        console.log("Boosted USDC Decoder and Sanitizer V0.3");
         console.logBytes(constructorArgs);
-        deployer.deployContract("Whop Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        deployer.deployContract("Boosted USDC Decoder and Sanitizer V0.3", creationCode, constructorArgs, 0);
         
         vm.stopBroadcast();
     }

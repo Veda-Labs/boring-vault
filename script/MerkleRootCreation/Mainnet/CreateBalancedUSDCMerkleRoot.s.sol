@@ -19,7 +19,7 @@ contract CreateBalancedUSDCMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0xcaae49fb7f74cCFBE8A05E6104b01c097a78789f;
-    address public rawDataDecoderAndSanitizer = 0x5901da9Ca757Bf6ce3e232024840D32e0bfbc692;
+    address public rawDataDecoderAndSanitizer = 0xBFf8D04E816C3a208A209EaE7a0df5155bB41D93;
     address public managerAddress = 0xA0e501F98A1B5d3d8e6Ffd161c76f92570E42931;
     address public accountantAddress = 0x727929AF06Fa4f6E96cbC3fF7F4b60A65E168e23;
 
@@ -51,8 +51,8 @@ contract CreateBalancedUSDCMerkleRoot is Script, MerkleTreeHelper {
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
         // ========================== 1inch/Odos ==========================
-        address[] memory assets = new address[](6);
-        SwapKind[] memory kind = new SwapKind[](6);
+        address[] memory assets = new address[](7);
+        SwapKind[] memory kind = new SwapKind[](7);
         assets[0] = getAddress(sourceChain, "USDC");
         kind[0] = SwapKind.BuyAndSell;
         assets[1] = getAddress(sourceChain, "USDT");
@@ -65,6 +65,8 @@ contract CreateBalancedUSDCMerkleRoot is Script, MerkleTreeHelper {
         kind[4] = SwapKind.BuyAndSell;
         assets[5] = getAddress(sourceChain, "USDE");
         kind[5] = SwapKind.BuyAndSell;
+        assets[6] = getAddress(sourceChain, "RLUSD");
+        kind[6] = SwapKind.BuyAndSell;
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
         _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
@@ -75,13 +77,19 @@ contract CreateBalancedUSDCMerkleRoot is Script, MerkleTreeHelper {
         _addNativeLeafs(leafs);
 
         // ========================== Aave V3 ==========================
-        ERC20[] memory supplyAssets = new ERC20[](4);
+        ERC20[] memory supplyAssets = new ERC20[](5);
         supplyAssets[0] = getERC20(sourceChain, "USDC");
         supplyAssets[1] = getERC20(sourceChain, "USDT");
         supplyAssets[2] = getERC20(sourceChain, "SUSDE");
         supplyAssets[3] = getERC20(sourceChain, "USDE");
+        supplyAssets[4] = getERC20(sourceChain, "RLUSD");
         ERC20[] memory borrowAssets = new ERC20[](0);
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
+
+        // ========================== Merkl Claim ==========================
+        _addMerklLeafs(
+            leafs, getAddress(sourceChain, "merklDistributor"), 0xe373248E02c5a342d453ecB8eBFC449b8BE70Bc1
+        );
 
         // ========================== Sky Money ==========================
         _addAllSkyMoneyLeafs(leafs);
