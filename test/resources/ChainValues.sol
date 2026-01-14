@@ -196,6 +196,7 @@ contract ChainValues {
         values[mainnet]["katanaLBTCTeller"] = 0x38d4066cC4B42E2B6615aE15cAa6e347114779E2.toBytes32();
         values[mainnet]["sLBTCTeller"] = 0x97Deb8Fb02A2553976DCD3d25FaA1501Eef4585b.toBytes32();
         values[mainnet]["ethenaRWATeller"] = 0xDEa662f24389eB7CaFA9b3B10021884FCe7314f0.toBytes32();
+        values[mainnet]["lbtcvTeller"] = 0x4E8f5128F473C6948127f9Cbca474a6700F99bab.toBytes32();
 
         // Withdraw Queues
         values[mainnet]["sBTCNWithdrawQueue"] = 0xB316940529B85234ec7C4F48CD8Bef8d1BAe5F7f.toBytes32();
@@ -221,6 +222,7 @@ contract ChainValues {
         values[mainnet]["turtleKatanaETH"] = 0x69d210d3b60E939BFA6E87cCcC4fAb7e8F44C16B.toBytes32();
         values[mainnet]["sLBTC"] = 0x13Cc1b39cb259BA10cd174EAe42012e698ed7c51.toBytes32();
         values[mainnet]["ethenaRWA"] = 0x6fDcB0654B4814c2eC1E7e9dbC4cEBf1a2038a84.toBytes32();
+        values[mainnet]["LBTCv"] = 0x5401b8620E5FB570064CA9114fd1e135fd77D57c.toBytes32();
 
         // Decoders
         values[mainnet]["rewardTokenUnwrappingDecoder"] = 0x3fF425c112d4363a7e21934a5D1EE09b1D2F8c91.toBytes32();
