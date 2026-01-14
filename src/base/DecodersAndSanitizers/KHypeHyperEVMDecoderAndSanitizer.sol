@@ -16,6 +16,7 @@ import {ValantisDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protoc
 import {UniswapV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV3DecoderAndSanitizer.sol";
 import {OogaBoogaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OogaBoogaDecoderAndSanitizer.sol";
 import {OFTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OFTDecoderAndSanitizer.sol";
+import {CCTPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCTPDecoderAndSanitizer.sol";
 
 contract KHypeHyperEVMDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
@@ -29,7 +30,8 @@ contract KHypeHyperEVMDecoderAndSanitizer is
     ValantisDecoderAndSanitizer,
     UniswapV3DecoderAndSanitizer,
     OogaBoogaDecoderAndSanitizer,
-    OFTDecoderAndSanitizer
+    OFTDecoderAndSanitizer,
+    CCTPDecoderAndSanitizer
 {
 
     constructor(address _uniswapV3NonFungiblePositionManager) 

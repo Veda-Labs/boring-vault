@@ -2790,6 +2790,7 @@ contract ChainValues {
         values[hyperEVM]["PENDLE"] = 0xD6Eb81136884713E843936843E286FD2a85A205A.toBytes32();
         values[hyperEVM]["USDT"] = 0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb.toBytes32();
         values[hyperEVM]["USDC"] = 0xb88339CB7199b77E23DB6E890353E22632Ba630f.toBytes32();
+        values[hyperEVM]["USDTOFTAdapter"] = 0x904861a24F30EC96ea7CFC3bE9EA4B476d237e98.toBytes32();
 
         // Balanacer
         values[hyperEVM]["balancerVault"] = address(1).toBytes32();
@@ -2808,6 +2809,7 @@ contract ChainValues {
         // MorphoBlue
         values[hyperEVM]["morphoBlue"] = 0x68e37dE8d93d3496ae143F2E900490f6280C57cD.toBytes32();
         values[hyperEVM]["KHYPE_WHYPE_915"] = 0x64e7db7f042812d4335947a7cdf6af1093d29478aff5f1ccd93cc67f8aadfddc;
+        values[hyperEVM]["KHYPE_USDC_625"] = 0xe7aa046832007a975d4619260d221229e99cc27da2e6ef162881202b4cd2349b;
 
         // MetaMorpho
         values[hyperEVM]["feHYPE"] = 0x2900ABd73631b2f60747e687095537B673c06A76.toBytes32();
@@ -2833,7 +2835,11 @@ contract ChainValues {
 
         // Ooga Booga
         values[hyperEVM]["OBRouter"] = 0x5fbD1B5AA82d09359C05428647871fe9aDd3F411.toBytes32();
-        values[hyperEVM]["OBExecutor"] = 0xD0619f184Bc735f4d07fa36322e69ff15E8bfBb2.toBytes32();
+        values[hyperEVM]["OBExecutor"] = 0x474BbbE5108930472e7D4b9F6A2ce5f81FeF6456.toBytes32();
+
+        // CCTP USDC Bridge
+        values[hyperEVM]["usdcTokenMessengerV2"] = 0x28b5a0e9C621a5BadaA536219b3a228C8168cf5d.toBytes32();
+        values[hyperEVM]["usdcMessageTransmitterV2"] = 0x81D40F21F12A8F0E3252Bccb954D722d4c464B64.toBytes32();
 
     }
 
