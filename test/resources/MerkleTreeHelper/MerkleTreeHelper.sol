@@ -15325,6 +15325,232 @@ function _addTellerLeafsWithReferral(
             }
         }
     }
+
+    // ========================================= Hyperliquid CoreWriter =========================================
+
+    /**
+     * @notice Add leafs for placing limit orders on HyperCore perps.
+     * @dev Action ID 1: (asset, isBuy, limitPx, sz, reduceOnly, encodedTif, cloid)
+     */
+    function _addCoreWriterLimitOrderLeafs(ManageLeaf[] memory leafs) internal {
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "coreWriter"),
+            false,
+            "placeLimitOrder(uint32,bool,uint64,uint64,bool,uint8,uint128)",
+            new address[](0),
+            "Place limit order on HyperCore perps",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "coreWriter"),
+            false,
+            "cancelOrderByCloid(uint32,uint128)",
+            new address[](0),
+            "Cancel order by cloid on HyperCore",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "coreWriter"),
+            false,
+            "cancelOrderByOid(uint32,uint64)",
+            new address[](0),
+            "Cancel order by oid on HyperCore",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+    }
+
+    /**
+     * @notice Add leafs for USD class transfer (move between spot and perp).
+     * @dev Action ID 7: (ntl, toPerp)
+     */
+    function _addCoreWriterUsdClassTransferLeafs(ManageLeaf[] memory leafs) internal {
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "coreWriter"),
+            false,
+            "usdClassTransfer(uint64,bool)",
+            new address[](0),
+            "Transfer USD between spot and perp on HyperCore",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+    }
+
+    /**
+     * @notice Add leafs for staking deposit/withdraw.
+     * @dev Action ID 4: stakingDeposit(wei)
+     *      Action ID 5: stakingWithdraw(wei)
+     */
+    function _addCoreWriterStakingLeafs(ManageLeaf[] memory leafs) internal {
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "coreWriter"),
+            false,
+            "stakingDeposit(uint64)",
+            new address[](0),
+            "Deposit HYPE into staking on HyperCore",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "coreWriter"),
+            false,
+            "stakingWithdraw(uint64)",
+            new address[](0),
+            "Withdraw HYPE from staking on HyperCore",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+    }
+
+    /**
+     * @notice Add leafs for spot send on HyperCore.
+     * @dev Action ID 6: (destination, token, wei)
+     * @param recipients Array of allowed recipient addresses
+     */
+    function _addCoreWriterSpotSendLeafs(ManageLeaf[] memory leafs, address[] memory recipients) internal {
+        for (uint256 i; i < recipients.length; ++i) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "coreWriter"),
+                false,
+                "spotSend(address,uint32,uint64)",
+                new address[](1),
+                string.concat("Send spot tokens to ", vm.toString(recipients[i]), " on HyperCore"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = recipients[i];
+        }
+    }
+
+    /**
+     * @notice Add leafs for vault transfer on HyperCore.
+     * @dev Action ID 2: (vault, isDeposit, usd)
+     * @param vaults Array of allowed vault addresses
+     */
+    function _addCoreWriterVaultTransferLeafs(ManageLeaf[] memory leafs, address[] memory vaults) internal {
+        for (uint256 i; i < vaults.length; ++i) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "coreWriter"),
+                false,
+                "vaultTransfer(address,bool,uint64)",
+                new address[](1),
+                string.concat("Transfer to/from vault ", vm.toString(vaults[i]), " on HyperCore"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = vaults[i];
+        }
+    }
+
+    /**
+     * @notice Add leafs for token delegate (HYPE staking) on HyperCore.
+     * @dev Action ID 3: (validator, wei, isUndelegate)
+     * @param validators Array of allowed validator addresses
+     */
+    function _addCoreWriterTokenDelegateLeafs(ManageLeaf[] memory leafs, address[] memory validators) internal {
+        for (uint256 i; i < validators.length; ++i) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "coreWriter"),
+                false,
+                "tokenDelegate(address,uint64,bool)",
+                new address[](1),
+                string.concat("Delegate/undelegate HYPE to validator ", vm.toString(validators[i])),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = validators[i];
+        }
+    }
+
+    /**
+     * @notice Add leaf for bridging HYPE from HyperEVM to HyperCore.
+     * @dev Send native ETH to 0x2222...2222 to bridge HYPE.
+     */
+    function _addCoreWriterBridgeHypeToCoreLeaf(ManageLeaf[] memory leafs) internal {
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "hypeBridge"),
+            true, // valueNonZero - we send ETH to bridge HYPE
+            "bridgeHypeToCore()",
+            new address[](0),
+            "Bridge HYPE from HyperEVM to HyperCore",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+    }
+
+    /**
+     * @notice Add leafs for bridging ERC20 tokens from HyperEVM to HyperCore.
+     * @dev Transfer ERC20 to system address (0x20...) to bridge to HyperCore.
+     * @param tokens Array of ERC20 token addresses to bridge
+     * @param systemAddresses Array of corresponding system addresses for each token
+     */
+    function _addCoreWriterBridgeERC20ToCoreLeafs(
+        ManageLeaf[] memory leafs,
+        address[] memory tokens,
+        address[] memory systemAddresses
+    ) internal {
+        require(tokens.length == systemAddresses.length, "Array length mismatch");
+        for (uint256 i; i < tokens.length; ++i) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                tokens[i],
+                false,
+                "transfer(address,uint256)",
+                new address[](1),
+                string.concat("Bridge ", ERC20(tokens[i]).symbol(), " to HyperCore"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = systemAddresses[i];
+        }
+    }
+
+    /**
+     * @notice Add all CoreWriter leafs for full HyperCore integration.
+     * @param spotSendRecipients Allowed recipients for spot sends
+     * @param vaults Allowed vault addresses
+     * @param validators Allowed validators for staking
+     */
+    function _addAllCoreWriterLeafs(
+        ManageLeaf[] memory leafs,
+        address[] memory spotSendRecipients,
+        address[] memory vaults,
+        address[] memory validators
+    ) internal {
+        _addCoreWriterLimitOrderLeafs(leafs);
+        _addCoreWriterUsdClassTransferLeafs(leafs);
+        _addCoreWriterStakingLeafs(leafs);
+        _addCoreWriterSpotSendLeafs(leafs, spotSendRecipients);
+        _addCoreWriterVaultTransferLeafs(leafs, vaults);
+        _addCoreWriterTokenDelegateLeafs(leafs, validators);
+        _addCoreWriterBridgeHypeToCoreLeaf(leafs);
+    }
 }
 
 interface IMB {

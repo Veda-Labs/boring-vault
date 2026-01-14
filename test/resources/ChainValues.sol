@@ -2831,6 +2831,16 @@ contract ChainValues {
         values[hyperEVM]["OBRouter"] = 0x5fbD1B5AA82d09359C05428647871fe9aDd3F411.toBytes32();
         values[hyperEVM]["OBExecutor"] = 0x65d1eA56196B9451AE11813E44AC5b2367f93eaD.toBytes32();
 
+        // Hyperliquid CoreWriter - sends transactions to HyperCore
+        values[hyperEVM]["coreWriter"] = 0x3333333333333333333333333333333333333333.toBytes32();
+        // HYPE Bridge - send native ETH to bridge HYPE to HyperCore
+        values[hyperEVM]["hypeBridge"] = 0x2222222222222222222222222222222222222222.toBytes32();
+
+        // Native USDC on HyperEVM (Circle)
+        values[hyperEVM]["USDC"] = 0xb88339CB7199b77E23DB6E890353E22632Ba630f.toBytes32();
+        // CoreDepositWallet for bridging native USDC to HyperCore (from spotMeta API)
+        // Use: approve USDC to CoreDepositWallet, then call deposit(amount)
+        values[hyperEVM]["coreDepositWallet"] = 0x6B9E773128f453f5c2C60935Ee2DE2CBc5390A24.toBytes32();
     }
 
     function _addTACTestnetValues() private {
