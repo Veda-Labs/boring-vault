@@ -87,13 +87,13 @@ contract HyperliquidCoreWriterDecoderAndSanitizer {
                 addressesFound = abi.encodePacked(vault);
             }
         } else if (actionId == ACTION_TOKEN_DELEGATE) {
-            // Token delegate: (address validator, uint64 wei, bool isUndelegate)
+            // Token delegate: (address validator, uint64 token, uint64 wei)
             if (data.length >= 36) {
                 address validator = abi.decode(data[4:36], (address));
                 addressesFound = abi.encodePacked(validator);
             }
         } else if (actionId == ACTION_SPOT_SEND) {
-            // Spot send: (address destination, uint32 token, uint64 wei)
+            // Spot send: (address destination, uint64 token, uint64 wei)
             if (data.length >= 36) {
                 address destination = abi.decode(data[4:36], (address));
                 addressesFound = abi.encodePacked(destination);
@@ -112,7 +112,7 @@ contract HyperliquidCoreWriterDecoderAndSanitizer {
                 addressesFound = abi.encodePacked(builder);
             }
         } else if (actionId == ACTION_SEND_ASSET) {
-            // Send asset: (address destination, bytes1 subAccount, uint8 sourceDex, uint8 destDex, uint32 token, uint64 wei)
+            // Send asset: (address destination, address subAccount, uint32 sourceDex, uint32 destDex, uint64 token, uint64 wei)
             if (data.length >= 36) {
                 address destination = abi.decode(data[4:36], (address));
                 addressesFound = abi.encodePacked(destination);
