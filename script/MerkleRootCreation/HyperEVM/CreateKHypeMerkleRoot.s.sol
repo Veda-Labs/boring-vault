@@ -6,7 +6,6 @@ pragma solidity 0.8.21;
 
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import "forge-std/Script.sol";
@@ -19,7 +18,7 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x9BA2EDc44E0A4632EB4723E81d4142353e1bB160;
-    address public rawDataDecoderAndSanitizer = 0xCB7ABCE463b91C72233483ec366a943F537b0B0d;
+    address public rawDataDecoderAndSanitizer = 0x06Fac6B4614c8eEf2F63c88d5956Db3144De72c2;
     address public managerAddress = 0x7f8CcAA760E0F621c7245d47DC46d40A400d3639;
     address public accountantAddress = 0x74392Fa56405081d5C7D93882856c245387Cece2;
 
@@ -37,17 +36,21 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, hyperEVM, "accountantAddress", accountantAddress);
         setAddress(false, hyperEVM, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](128);
+        ManageLeaf[] memory leafs = new ManageLeaf[](256);
 
         // ========================== Ooga Booga ==========================
-        address[] memory assets = new address[](3);
-        SwapKind[] memory kind = new SwapKind[](3);
+        address[] memory assets = new address[](5);
+        SwapKind[] memory kind = new SwapKind[](5);
         assets[0] = getAddress(sourceChain, "KHYPE");
         kind[0] = SwapKind.BuyAndSell;
         assets[1] = getAddress(sourceChain, "WHYPE");
         kind[1] = SwapKind.BuyAndSell;
         assets[2] = getAddress(sourceChain, "PENDLE");
         kind[2] = SwapKind.Sell;
+        assets[3] = getAddress(sourceChain, "USDT");
+        kind[3] = SwapKind.Sell;
+        assets[4] = getAddress(sourceChain, "USDC");
+        kind[4] = SwapKind.Sell;
 
         _addOogaBoogaSwapLeafs(leafs, assets, kind);
 
@@ -58,22 +61,25 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
         // ========================== AaveV3 ==========================
-        ERC20[] memory supplyAssets = new ERC20[](4);
+        ERC20[] memory supplyAssets = new ERC20[](5);
         supplyAssets[0] = getERC20(sourceChain, "KHYPE");
         supplyAssets[1] = getERC20(sourceChain, "WHYPE");
         supplyAssets[2] = getERC20(sourceChain, "pendle_kHYPE_pt_11_13_25");
         supplyAssets[3] = getERC20(sourceChain, "pendle_kHYPE_pt_3_19_26");
-        ERC20[] memory borrowAssets = new ERC20[](4);
+        supplyAssets[4] = getERC20(sourceChain, "USDC");
+        ERC20[] memory borrowAssets = new ERC20[](5);
         borrowAssets[0] = getERC20(sourceChain, "KHYPE");
         borrowAssets[1] = getERC20(sourceChain, "WHYPE");
         borrowAssets[2] = getERC20(sourceChain, "pendle_kHYPE_pt_11_13_25");
         borrowAssets[3] = getERC20(sourceChain, "pendle_kHYPE_pt_3_19_26");
+        borrowAssets[4] = getERC20(sourceChain, "USDC");
         _addHyperLendLeafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== Morpho Blue ==========================
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "KHYPE_WHYPE_915")); 
-
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "KHYPE_WHYPE_915")); 
+        _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "KHYPE_USDC_625")); 
+        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "KHYPE_USDC_625")); 
 
         // ========================== MetaMorhpo ==========================
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "feHYPE")));  
@@ -100,13 +106,38 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
         _addValantisLSTLeafs(leafs, getAddress(sourceChain, "KHYPE_WHYPE_sovereign_pool"), false); 
 
         // ========================== UniswapV3/Project X ==========================
-        address[] memory token0 = new address[](1);
+        address[] memory token0 = new address[](3);
         token0[0] = getAddress(sourceChain, "KHYPE");
+        token0[1] = getAddress(sourceChain, "USDC");
+        token0[2] = getAddress(sourceChain, "USDT");
 
-        address[] memory token1 = new address[](1);
+        address[] memory token1 = new address[](3);
         token1[0] = getAddress(sourceChain, "WHYPE");
+        token1[1] = getAddress(sourceChain, "WHYPE");
+        token1[2] = getAddress(sourceChain, "WHYPE");
 
         _addUniswapV3Leafs(leafs, token0, token1, false);
+
+        // ========================== Layer Zero / Stargate ==========================
+        // Bridge PENDLE to Mainnet
+        _addLayerZeroLeafs({
+            leafs: leafs,
+            asset: getERC20(sourceChain, "PENDLE"),
+            oftAdapter: getAddress(sourceChain, "PENDLE"),
+            endpoint: layerZeroMainnetEndpointId,
+            to: getBytes32(sourceChain, "boringVault")
+        });
+        _addLayerZeroLeafs(
+            leafs, 
+            getERC20(sourceChain, "USDT"), 
+            getAddress(sourceChain, "USDTOFTAdapter"), 
+            layerZeroMainnetEndpointId, 
+            getBytes32(sourceChain, "boringVault")
+        );
+
+        // ========================== CCTP ==========================
+        // Bridge USDC to mainnet
+        _addCCTPBridgeLeafs(leafs, cctpMainnetDomainId);
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
