@@ -4,7 +4,7 @@
         "privateKeyEnvName": "PRIVATE_KEY_1",
         "chainName": "hyperevm",
         "evmVersion": "cancun",
-        "desiredNumberOfDeploymentTxs": 20,
+        "desiredNumberOfDeploymentTxs": 10,
         "txBundlerAddressOrName": {
             "address": "0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC",
             "name": "txBundlerAddress"
@@ -22,7 +22,7 @@
         },
         "nativeWrapperAddressOrName": {
             "address": "0x0000000000000000000000000000000000000000",
-            "name": "WETH"
+            "name": "WHYPE"
         },
         "deploymentOwnerAddressOrName": {
             "address": "0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC",
@@ -81,10 +81,10 @@
             "allowPublicDeposits": false,
             "shareLockPeriod": 86400,
             "kind": {
-                "teller": true,
+                "teller": false,
                 "tellerWithRemediation": false,
                 "tellerWithCcip": false,
-                "tellerWithLayerZero": false
+                "tellerWithLayerZero": true
             },
             "ccip": {
                 "routerAddressOrName": {
@@ -94,6 +94,28 @@
                 "ccipChains": [
                     {
                         "chainSelector": 1,
+                        "allowMessagesFrom": true,
+                        "allowMessagesTo": true,
+                        "targetTellerOrSelf": {
+                            "address": "0x0000000000000000000000000000000000000000",
+                            "self": true
+                        },
+                        "messageGasLimit": 100000
+                    }
+                ]
+            },
+            "layerZero": {
+                "endpointAddressOrName": {
+                    "address": "0x0000000000000000000000000000000000000000",
+                    "name": "LayerZeroEndPoint"
+                },
+                "lzTokenAddressOrName": {
+                    "address": "0x0000000000000000000000000000000000000000",
+                    "name": "ZRO"
+                },
+                "lzChains": [
+                    {
+                        "chainId": 999,
                         "allowMessagesFrom": true,
                         "allowMessagesTo": true,
                         "targetTellerOrSelf": {
@@ -125,7 +147,7 @@
     },
     "pauserConfiguration": {
         "shouldDeploy": true,
-        "pauserDeploymentName": "pauser",
+        "pauserDeploymentName": "DnMonUsdc pauser",
         "makeGenericPauser": [
             "0x0000000000000000000000000000000000000000"
         ],
@@ -147,7 +169,7 @@
     },
     "timelockConfiguration": {
         "shouldDeploy": false,
-        "timelockDeploymentName": "timelock",
+        "timelockDeploymentName": "DnMonUsdc timelock",
         "timelockParameters": {
             "minDelay": 86400,
             "proposers": [

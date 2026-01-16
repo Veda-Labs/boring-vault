@@ -84,7 +84,7 @@
                 "teller": true,
                 "tellerWithRemediation": false,
                 "tellerWithCcip": false,
-                "tellerWithLayerZero": false
+                "tellerWithLayerZero": true
             },
             "ccip": {
                 "routerAddressOrName": {
