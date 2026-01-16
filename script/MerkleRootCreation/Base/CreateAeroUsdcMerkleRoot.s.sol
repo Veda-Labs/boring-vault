@@ -5,16 +5,14 @@ import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {
-    MerkleTreeHelper
-} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
-import {
-    ManagerWithMerkleVerification
-} from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
 
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 
-import {BaseStablecoinStrategyDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseStablecoinStrategyDecoderAndSanitizer.sol";
+import {
+    BaseStablecoinStrategyDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/BaseStablecoinStrategyDecoderAndSanitizer.sol";
 import "forge-std/Script.sol";
 import {console} from "forge-std/Test.sol";
 
@@ -26,8 +24,7 @@ contract CreateAeroUsdcMerkleRootScript is Script, MerkleTreeHelper {
 
     uint8 public MANAGER_INTERNAL_ROLE = 4;
 
-    address public accountantAddress =
-        0xEe5d60a0B460C91b9cb4406d9cD4f79Ea2c68d49;
+    address public accountantAddress = 0xEe5d60a0B460C91b9cb4406d9cD4f79Ea2c68d49;
     address public boringVault = 0x2903f57B2C657FFB1f5dc328667389A6e79840B1;
     address public managerAddress = 0x572BC3c3F78e91db980Ef97582a903e04d7DEd8d;
     address public rawDataDecoderAndSanitizer;
@@ -48,43 +45,25 @@ contract CreateAeroUsdcMerkleRootScript is Script, MerkleTreeHelper {
     }
 
     function _generateSyUsdMultiChainMerkleRoot() public {
-
-        rawDataDecoderAndSanitizer = address(
-            0x5F2863EeF8854171F2AC4E07A0D056CFC8e13c3E
-        );
+        rawDataDecoderAndSanitizer = address(0x5F2863EeF8854171F2AC4E07A0D056CFC8e13c3E);
 
         console.log("Address of decoder and sanitizer:", rawDataDecoderAndSanitizer);
 
         setAddress(true, base, "boringVault", boringVault);
         setAddress(true, base, "managerAddress", managerAddress);
         setAddress(true, base, "accountantAddress", accountantAddress);
-        setAddress(
-            true,
-            base,
-            "rawDataDecoderAndSanitizer",
-            rawDataDecoderAndSanitizer
-        );
+        setAddress(true, base, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](512);
         ERC20[] memory feeAssets = new ERC20[](1);
         feeAssets[0] = getERC20(sourceChain, "USDC");
-        _addLeafsForFeeClaiming(
-            leafs,
-            getAddress(sourceChain, "accountantAddress"),
-            feeAssets,
-            false
-        );
+        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
         ERC20[] memory bridgeAssets = new ERC20[](1);
         bridgeAssets[0] = getERC20(sourceChain, "USDC");
         ERC20[] memory feeTokens = new ERC20[](1);
         feeTokens[0] = getERC20(sourceChain, "WETH");
-        _addCcipBridgeLeafs(
-            leafs,
-            ccipMainnetChainSelector,
-            bridgeAssets,
-            feeTokens
-        );
+        _addCcipBridgeLeafs(leafs, ccipMainnetChainSelector, bridgeAssets, feeTokens);
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDC"));
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "WETH"));
 
@@ -100,14 +79,8 @@ contract CreateAeroUsdcMerkleRootScript is Script, MerkleTreeHelper {
 
         _addLeafsFor1InchGeneralSwapping(leafs, oneInchAssets, kind);
         _addOdosSwapLeafs(leafs, oneInchAssets, kind);
-        _addERC4626Leafs(
-            leafs,
-            ERC4626(getAddress(sourceChain, "YearnOgUsdc"))
-        );
-        _addERC4626Leafs(
-            leafs,
-            ERC4626(getAddress(sourceChain, "JUNIOR TRANCHE Tranche USD Coin"))
-        );
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "YearnOgUsdc")));
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "JUNIOR TRANCHE Tranche USD Coin")));
 
         ERC20[] memory assets = new ERC20[](1);
         assets[0] = ERC20(getAddress(sourceChain, "USDC"));
@@ -128,58 +101,35 @@ contract CreateAeroUsdcMerkleRootScript is Script, MerkleTreeHelper {
 
         _addMagpieSwapLeafs(leafs, oneInchAssets, kind);
 
-
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
         string memory filePath = "./leafs/Base/AeroUsdStrategyLeafs.json";
-        _generateLeafs(
-            filePath,
-            leafs,
-            manageTree[manageTree.length - 1][0],
-            manageTree
-        );
+        _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
 
-        ManagerWithMerkleVerification manager = ManagerWithMerkleVerification(
-            managerAddress
-        );
+        ManagerWithMerkleVerification manager = ManagerWithMerkleVerification(managerAddress);
         vm.startBroadcast(vm.envUint("PK"));
 
-        if (
-            !rolesAuthority.doesRoleHaveCapability(
+        if (!rolesAuthority.doesRoleHaveCapability(
                 MANAGER_INTERNAL_ROLE,
                 address(manager),
-                ManagerWithMerkleVerification
-                    .manageVaultWithMerkleVerification
-                    .selector
-            )
-        ) {
+                ManagerWithMerkleVerification.manageVaultWithMerkleVerification.selector
+            )) {
             rolesAuthority.setRoleCapability(
                 MANAGER_INTERNAL_ROLE,
                 address(manager),
-                ManagerWithMerkleVerification
-                    .manageVaultWithMerkleVerification
-                    .selector,
+                ManagerWithMerkleVerification.manageVaultWithMerkleVerification.selector,
                 true
             );
         }
         rolesAuthority.setUserRole(user1, MANAGER_INTERNAL_ROLE, true);
         rolesAuthority.setUserRole(user3, MANAGER_INTERNAL_ROLE, true);
 
-        manager.setManageRoot(
-            managerAddress,
-            manageTree[manageTree.length - 1][0]
-        );
-        manager.setManageRoot(
-            user1,
-            manageTree[manageTree.length - 1][0]
-        );
+        manager.setManageRoot(managerAddress, manageTree[manageTree.length - 1][0]);
+        manager.setManageRoot(user1, manageTree[manageTree.length - 1][0]);
         // manager.setManageRoot(
         //     user2,
         //     manageTree[manageTree.length - 1][0]
         // );
-        manager.setManageRoot(
-            user3,
-            manageTree[manageTree.length - 1][0]
-        );
+        manager.setManageRoot(user3, manageTree[manageTree.length - 1][0]);
         vm.stopBroadcast();
     }
 }
