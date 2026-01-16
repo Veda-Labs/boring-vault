@@ -100,6 +100,12 @@ contract CreateSentoraUSDCMerkleRoot is Script, MerkleTreeHelper {
         eulerRLUSDTokensUsed[0] = getERC20(sourceChain, "RLUSD");
         _addLeafsForITBPositionManager(leafs, eulerRLUSDPositionManager, eulerRLUSDTokensUsed, "Euler RLUSD ITB Position Manager");
 
+        // Morpho PYUSD
+        address morphoPYUSDPositionManager = 0xC5e0E2Bd8B8663c621b5051d863D072295dA9720;
+        ERC20[] memory morphoPYUSDTokensUsed = new ERC20[](1);
+        morphoPYUSDTokensUsed[0] = getERC20(sourceChain, "PYUSD");
+        _addLeafsForITBPositionManager(leafs, morphoPYUSDPositionManager, morphoPYUSDTokensUsed, "Morpho PYUSD ITB Position Manager");
+
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
