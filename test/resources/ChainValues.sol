@@ -145,7 +145,7 @@ contract ChainValues {
         values[tacBuild]["USDT0"] = 0xAF988C3f7CB2AceAbB15f96b19388a259b6C438f.toBytes32();
         values[tacBuild]["vault"] = address(1).toBytes32();
 
-         // LayerZero
+        // LayerZero
         values[tacBuild]["LayerZeroEndPoint"] = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B.toBytes32();
         values[tacBuild]["ZRO"] = 0x6985884C4392D348587B19cb9eAAf157F13271cd.toBytes32();
 
@@ -154,7 +154,6 @@ contract ChainValues {
 
         // ccip
         values[tacBuild]["ccipRouter"] = 0x966519C334D895121B61584CAdeBc15571b62983.toBytes32();
-
     }
 
     function _addMonadValues() private {
@@ -183,6 +182,9 @@ contract ChainValues {
         values[monad]["universalRouter"] = 0x0D97Dc33264bfC1c226207428A79b26757fb9dc3.toBytes32();
         values[monad]["uniV3Router"] = 0xfE31F71C1b106EAc32F1A19239c9a9A72ddfb900.toBytes32();
         values[monad]["uniswapV3NonFungiblePositionManager"] = 0x7197E214c0b767cFB76Fb734ab638E2c192F4E53.toBytes32();
+
+        // magpie router
+        values[monad]["magpieRouterV3"] = 0x956Df8424B556F0076E8abf5481605f5A791cc7f.toBytes32();
 
         // layerzero
         values[monad]["ZRO"] = address(1).toBytes32();

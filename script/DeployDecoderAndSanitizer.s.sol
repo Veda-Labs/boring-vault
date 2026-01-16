@@ -95,6 +95,9 @@ import {
 import {
     BaseStablecoinStrategyDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/BaseStablecoinStrategyDecoderAndSanitizer.sol";
+import {
+    MonadStablecoinStrategyDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/MonStablecoinStrategyDecoderAndSanitizer.sol";
 
 import {BoringDrone} from "src/base/Drones/BoringDrone.sol";
 
@@ -319,6 +322,18 @@ contract DeployBaseStableStrategyDecoderAndSanitizer is Script, ContractNames, M
         vm.startBroadcast(vm.envUint("BORING_DEVELOPER"));
         new BaseStablecoinStrategyDecoderAndSanitizer(
             getAddress(sourceChain, "aerodromeNonFungiblePositionManager"), getAddress(sourceChain, "magpieRouterV3")
+        );
+        vm.stopBroadcast();
+    }
+}
+
+contract DeployMonadStableStrategyDecoderAndSanitizer is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
+    function run() external {
+        vm.createSelectFork("monad");
+        setSourceChainName(monad);
+        vm.startBroadcast(vm.envUint("BORING_DEVELOPER"));
+        new MonadStablecoinStrategyDecoderAndSanitizer(
+            getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "magpieRouterV3")
         );
         vm.stopBroadcast();
     }
