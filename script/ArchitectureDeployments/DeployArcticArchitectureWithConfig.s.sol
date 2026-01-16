@@ -1362,7 +1362,7 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
 
     function _finalizeSetup() internal {
         _log("Finalizing setup...", 3);
-        address ownerAddress = 0x3Dd95962fC01EcEC5f867189A929d036D5aC12A6;
+        address ownerAddress = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5;
         _log(string.concat("Transferring ownership to ", vm.toString(ownerAddress)), 3);
         uint256 shareLockPeriod = vm.parseJsonUint(rawJson, ".tellerConfiguration.tellerParameters.shareLockPeriod");
         if (tellerExists) {
