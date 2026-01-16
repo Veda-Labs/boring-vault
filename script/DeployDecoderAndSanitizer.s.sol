@@ -128,6 +128,9 @@ import {BoostedUSDCInkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/
 import {WhopDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/WhopDecoderAndSanitizer.sol";
 import {TacDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacUSDTacDecoderAndSanitizer.sol";
 import {BoostedUSDCDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BoostedUSDCDecoderAndSanitizer.sol";
+import {FullResolvDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/FullResolvDecoderAndSanitizer.sol";
+import {FullFluidDexDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/FullFluidDexDecoderAndSanitizer.sol";
+
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
 

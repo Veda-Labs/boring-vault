@@ -19,7 +19,7 @@ contract CreateWhopUSDMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0xd447b8776cEd03C4Cb40C7F6515dA89d90f6648A;
-    address public rawDataDecoderAndSanitizer = 0xEBbFFb805750661a39367276f4B8fEb486d7eCce;
+    address public rawDataDecoderAndSanitizer = 0x9143CCda202E86706F38CC06ed8F8d822a935fCe;
     address public managerAddress = 0xB7E9CD6bF9De2807B15a472B6398282Afc5E8b3f;
     address public accountantAddress = 0x0cBBb8A916A4F9bc735f6D39c8f685E6eD597CaC;
 
@@ -63,6 +63,13 @@ contract CreateWhopUSDMerkleRoot is Script, MerkleTreeHelper {
         kind[1] = SwapKind.Sell;
         _addGlueXLeafs(leafs, tokens, kind);
         _addSnwapLeafs(leafs, tokens, kind);
+
+        // ========================== Merkl ==========================
+        _addMerklLeafs(
+            leafs,
+            getAddress(sourceChain, "merklDistributor"),
+            getAddress(sourceChain, "dev1Address")
+        );
 
 
         // ========================== Verify ==========================
