@@ -226,11 +226,22 @@ contract ChainValues {
     }
 
     function _addHyperEvmValues() private {
+        values[hyperevm]["deployerAddress"] = 0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC.toBytes32();
+        values[hyperevm]["txBundlerAddress"] = 0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC.toBytes32();
+        values[hyperevm]["dev0Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
+        values[hyperevm]["dev1Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
+        values[hyperevm]["balancerVault"] = address(1).toBytes32();
         values[hyperevm]["CoreWriter"] = 0x3333333333333333333333333333333333333333.toBytes32();
 
         // tokens
         values[hyperevm]["USDT0"] = 0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb.toBytes32();
+        values[hyperevm]["USDC"] = 0xb88339CB7199b77E23DB6E890353E22632Ba630f.toBytes32();
+        values[hyperevm]["WHYPE"] = 0x5555555555555555555555555555555555555555.toBytes32();
         values[hyperevm]["USDT0CoreSystemAddress"] = 0x200000000000000000000000000000000000010C.toBytes32();
+        values[hyperevm]["ZRO"] = address(1).toBytes32();
+
+        // LayerZero
+        values[hyperevm]["LayerZeroEndPoint"] = 0x3A73033C0b1407574C76BdBAc67f126f6b4a9AA9.toBytes32();
 
         // Bunjee
         values[hyperevm]["BunjeeInbox"] = 0x7ad979C6b0C9924F79ea571280071595ba13D002.toBytes32();

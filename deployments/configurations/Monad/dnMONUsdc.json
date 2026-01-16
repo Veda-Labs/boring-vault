@@ -6,7 +6,7 @@
         "evmVersion": "cancun",
         "desiredNumberOfDeploymentTxs": 1,
         "txBundlerAddressOrName": {
-            "address": "0x5BD97A73333B6EC2e38B687bcED159566A14C5BA",
+            "address": "0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC",
             "name": "txBundlerAddress"
         },
         "setupRoles": true,
@@ -25,32 +25,32 @@
             "name": "WMON"
         },
         "deploymentOwnerAddressOrName": {
-            "address": "0x5BD97A73333B6EC2e38B687bcED159566A14C5BA",
+            "address": "0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC",
             "name": "dev0Address"
         },
-        "deploymentFileName": "MonadSYMonDeployment.json"
+        "deploymentFileName": "MonadDnMonUsdcDeployment.json"
     },
     "rolesAuthorityConfiguration": {
-        "rolesAuthorityDeploymentName": "SYMon rolesAuthorityV1.0"
+        "rolesAuthorityDeploymentName": "DnMonUsdc rolesAuthorityV1.0"
     },
     "lensConfiguration": {
-        "lensDeploymentName": "SYMon lensV1.0"
+        "lensDeploymentName": "DnMonUsdc lensV1.0"
     },
     "boringVaultConfiguration": {
-        "boringVaultDeploymentName": "SYMon boringVaultV1.0",
-        "boringVaultName": "Stable Yield Monad",
-        "boringVaultSymbol": "SYMon",
-        "boringVaultDecimals": 18
+        "boringVaultDeploymentName": "DnMonUsdc boringVaultV1.0",
+        "boringVaultName": "Delta Neutral Monad USDC",
+        "boringVaultSymbol": "DnMonUsdc",
+        "boringVaultDecimals": 6
     },
     "managerConfiguration": {
-        "managerDeploymentName": "SYMon managerV1.0",
+        "managerDeploymentName": "DnMonUsdc managerV1.0",
         "balancerVaultAddressOrName": {
             "address": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
             "name": "balancerVault"
         }
     },
     "accountantConfiguration": {
-        "accountantDeploymentName": "SYMon accountantV1.0",
+        "accountantDeploymentName": "DnMonUsdc accountantV1.0",
         "accountantParameters": {
             "kind": {
                 "variableRate": true,
@@ -66,7 +66,7 @@
                 "allowedExchangeRateChangeUpper": 10000,
                 "baseAddressOrName": {
                     "address": "0x0000000000000000000000000000000000000000",
-                    "name": "WMON"
+                    "name": "USDC"
                 },
                 "minimumUpateDelayInSeconds": 86400,
                 "performanceFee": 100,
@@ -76,12 +76,12 @@
         }
     },
     "tellerConfiguration": {
-        "tellerDeploymentName": "SYMon TellerV1.0",
+        "tellerDeploymentName": "DnMonUsdc TellerV1.0",
         "tellerParameters": {
             "allowPublicDeposits": false,
             "shareLockPeriod": 86400,
             "kind": {
-                "teller": true,
+                "teller": false,
                 "tellerWithRemediation": false,
                 "tellerWithCcip": false,
                 "tellerWithLayerZero": true
@@ -103,12 +103,34 @@
                         "messageGasLimit": 100000
                     }
                 ]
+            },
+            "layerZero": {
+                "endpointAddressOrName": {
+                    "address": "0x0000000000000000000000000000000000000000",
+                    "name": "LayerZeroEndPoint"
+                },
+                "lzTokenAddressOrName": {
+                    "address": "0x0000000000000000000000000000000000000000",
+                    "name": "ZRO"
+                },
+                "lzChains": [
+                    {
+                        "chainId": 143,
+                        "allowMessagesFrom": true,
+                        "allowMessagesTo": true,
+                        "targetTellerOrSelf": {
+                            "address": "0x0000000000000000000000000000000000000000",
+                            "self": true
+                        },
+                        "messageGasLimit": 100000
+                    }
+                ]
             }
         }
     },
     "boringQueueConfiguration": {
-        "boringQueueDeploymentName": "SYMon BoringOnChainQueueV1.0",
-        "boringQueueSolverName": "SYMon BoringSolverV1.0",
+        "boringQueueDeploymentName": "DnMonUsdc BoringOnChainQueueV1.0",
+        "boringQueueSolverName": "DnMonUsdc BoringSolverV1.0",
         "queueParameters": {
             "allowPublicWithdrawals": false,
             "allowPublicSelfWithdrawals": false,
@@ -119,13 +141,13 @@
         }
     },
     "droneConfiguration": {
-        "droneDeploymentBaseName": "SYMon boring drone",
+        "droneDeploymentBaseName": "DnMonUsdc boring drone",
         "droneCount": 1,
         "safeGasToForwardNative": 21000
     },
     "pauserConfiguration": {
         "shouldDeploy": true,
-        "pauserDeploymentName": "pauser",
+        "pauserDeploymentName": "DnMonUsdc pauser",
         "makeGenericPauser": [
             "0x0000000000000000000000000000000000000000"
         ],
@@ -147,7 +169,7 @@
     },
     "timelockConfiguration": {
         "shouldDeploy": false,
-        "timelockDeploymentName": "timelock",
+        "timelockDeploymentName": "DnMonUsdc timelock",
         "timelockParameters": {
             "minDelay": 86400,
             "proposers": [
@@ -162,7 +184,7 @@
         {
             "addressOrName": {
                 "address": "0x0000000000000000000000000000000000000000",
-                "name": "WMON"
+                "name": "USDC"
             },
             "isPeggedToBase": true,
             "rateProvider": "0x0000000000000000000000000000000000000000"
@@ -172,7 +194,7 @@
         {
             "addressOrName": {
                 "address": "0x0000000000000000000000000000000000000000",
-                "name": "WMON"
+                "name": "USDC"
             },
             "allowDeposits": true,
             "allowWithdraws": true,
@@ -183,7 +205,7 @@
         {
             "addressOrName": {
                 "address": "0x0000000000000000000000000000000000000000",
-                "name": "WMON"
+                "name": "USDC"
             },
             "maxDiscount": 100,
             "minDiscount": 0,
