@@ -15329,45 +15329,62 @@ function _addTellerLeafsWithReferral(
     // ========================================= Hyperliquid CoreWriter =========================================
 
     /**
-     * @notice Add leafs for placing limit orders on HyperCore perps.
-     * @dev Action ID 1: (asset, isBuy, limitPx, sz, reduceOnly, encodedTif, cloid)
+     * @notice Add leafs for perp trading with asset ID validation.
+     * @dev Action ID 1: placeLimitOrder, Action ID 10: cancelOrderByOid, Action ID 11: cancelOrderByCloid
+     * @param perpAssets Array of allowed perp asset IDs (e.g., 0 for BTC, 1 for ETH)
      */
-    function _addCoreWriterLimitOrderLeafs(ManageLeaf[] memory leafs) internal {
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "coreWriter"),
-            false,
-            "placeLimitOrder(uint32,bool,uint64,uint64,bool,uint8,uint128)",
-            new address[](0),
-            "Place limit order on HyperCore perps",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
+    function _addCoreWriterLimitOrderLeafs(ManageLeaf[] memory leafs, uint32[] memory perpAssets) internal {
+        // Action IDs as pseudo-addresses
+        address actionLimitOrder = address(uint160(1));      // ACTION_LIMIT_ORDER
+        address actionCancelByOid = address(uint160(10));    // ACTION_CANCEL_BY_OID
+        address actionCancelByCloid = address(uint160(11));  // ACTION_CANCEL_BY_CLOID
 
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "coreWriter"),
-            false,
-            "cancelOrderByCloid(uint32,uint128)",
-            new address[](0),
-            "Cancel order by cloid on HyperCore",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
+        for (uint256 i; i < perpAssets.length; ++i) {
+            // placeLimitOrder for each asset
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "coreWriter"),
+                false,
+                "placeLimitOrder(uint32,bool,uint64,uint64,bool,uint8,uint128)",
+                new address[](2),
+                string.concat("Place limit order for perp asset ", vm.toString(perpAssets[i])),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = actionLimitOrder;
+            leafs[leafIndex].argumentAddresses[1] = address(uint160(perpAssets[i]));
 
-        unchecked {
-            leafIndex++;
+            // cancelOrderByOid for each asset
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "coreWriter"),
+                false,
+                "cancelOrderByOid(uint32,uint64)",
+                new address[](2),
+                string.concat("Cancel order by OID for perp asset ", vm.toString(perpAssets[i])),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = actionCancelByOid;
+            leafs[leafIndex].argumentAddresses[1] = address(uint160(perpAssets[i]));
+
+            // cancelOrderByCloid for each asset
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "coreWriter"),
+                false,
+                "cancelOrderByCloid(uint32,uint128)",
+                new address[](2),
+                string.concat("Cancel order by CLOID for perp asset ", vm.toString(perpAssets[i])),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = actionCancelByCloid;
+            leafs[leafIndex].argumentAddresses[1] = address(uint160(perpAssets[i]));
         }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "coreWriter"),
-            false,
-            "cancelOrderByOid(uint32,uint64)",
-            new address[](0),
-            "Cancel order by oid on HyperCore",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
     }
 
     /**
@@ -15375,6 +15392,8 @@ function _addTellerLeafsWithReferral(
      * @dev Action ID 7: (ntl, toPerp)
      */
     function _addCoreWriterUsdClassTransferLeafs(ManageLeaf[] memory leafs) internal {
+        address actionUsdClassTransfer = address(uint160(7)); // ACTION_USD_CLASS_TRANSFER
+
         unchecked {
             leafIndex++;
         }
@@ -15382,10 +15401,11 @@ function _addTellerLeafsWithReferral(
             getAddress(sourceChain, "coreWriter"),
             false,
             "usdClassTransfer(uint64,bool)",
-            new address[](0),
+            new address[](1),
             "Transfer USD between spot and perp on HyperCore",
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
+        leafs[leafIndex].argumentAddresses[0] = actionUsdClassTransfer;
     }
 
     /**
@@ -15394,6 +15414,9 @@ function _addTellerLeafsWithReferral(
      *      Action ID 5: stakingWithdraw(wei)
      */
     function _addCoreWriterStakingLeafs(ManageLeaf[] memory leafs) internal {
+        address actionStakingDeposit = address(uint160(4));  // ACTION_STAKING_DEPOSIT
+        address actionStakingWithdraw = address(uint160(5)); // ACTION_STAKING_WITHDRAW
+
         unchecked {
             leafIndex++;
         }
@@ -15401,10 +15424,11 @@ function _addTellerLeafsWithReferral(
             getAddress(sourceChain, "coreWriter"),
             false,
             "stakingDeposit(uint64)",
-            new address[](0),
+            new address[](1),
             "Deposit HYPE into staking on HyperCore",
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
+        leafs[leafIndex].argumentAddresses[0] = actionStakingDeposit;
 
         unchecked {
             leafIndex++;
@@ -15413,31 +15437,45 @@ function _addTellerLeafsWithReferral(
             getAddress(sourceChain, "coreWriter"),
             false,
             "stakingWithdraw(uint64)",
-            new address[](0),
+            new address[](1),
             "Withdraw HYPE from staking on HyperCore",
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
+        leafs[leafIndex].argumentAddresses[0] = actionStakingWithdraw;
     }
 
     /**
      * @notice Add leafs for spot send on HyperCore.
-     * @dev Action ID 6: (destination, token, wei)
+     * @dev Action ID 6: (address destination, uint64 token, uint64 wei)
      * @param recipients Array of allowed recipient addresses
+     * @param spotTokens Array of allowed spot token IDs
      */
-    function _addCoreWriterSpotSendLeafs(ManageLeaf[] memory leafs, address[] memory recipients) internal {
+    function _addCoreWriterSpotSendLeafs(
+        ManageLeaf[] memory leafs,
+        address[] memory recipients,
+        uint64[] memory spotTokens
+    ) internal {
+        address actionSpotSend = address(uint160(6)); // ACTION_SPOT_SEND
+
         for (uint256 i; i < recipients.length; ++i) {
-            unchecked {
-                leafIndex++;
+            for (uint256 j; j < spotTokens.length; ++j) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    getAddress(sourceChain, "coreWriter"),
+                    false,
+                    "spotSend(address,uint64,uint64)",
+                    new address[](3),
+                    string.concat(
+                        "Send spot token ", vm.toString(spotTokens[j]), " to ", vm.toString(recipients[i]), " on HyperCore"
+                    ),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = actionSpotSend;
+                leafs[leafIndex].argumentAddresses[1] = recipients[i];
+                leafs[leafIndex].argumentAddresses[2] = address(uint160(spotTokens[j]));
             }
-            leafs[leafIndex] = ManageLeaf(
-                getAddress(sourceChain, "coreWriter"),
-                false,
-                "spotSend(address,uint32,uint64)",
-                new address[](1),
-                string.concat("Send spot tokens to ", vm.toString(recipients[i]), " on HyperCore"),
-                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-            );
-            leafs[leafIndex].argumentAddresses[0] = recipients[i];
         }
     }
 
@@ -15447,6 +15485,8 @@ function _addTellerLeafsWithReferral(
      * @param vaults Array of allowed vault addresses
      */
     function _addCoreWriterVaultTransferLeafs(ManageLeaf[] memory leafs, address[] memory vaults) internal {
+        address actionVaultTransfer = address(uint160(2)); // ACTION_VAULT_TRANSFER
+
         for (uint256 i; i < vaults.length; ++i) {
             unchecked {
                 leafIndex++;
@@ -15455,11 +15495,12 @@ function _addTellerLeafsWithReferral(
                 getAddress(sourceChain, "coreWriter"),
                 false,
                 "vaultTransfer(address,bool,uint64)",
-                new address[](1),
+                new address[](2),
                 string.concat("Transfer to/from vault ", vm.toString(vaults[i]), " on HyperCore"),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
-            leafs[leafIndex].argumentAddresses[0] = vaults[i];
+            leafs[leafIndex].argumentAddresses[0] = actionVaultTransfer;
+            leafs[leafIndex].argumentAddresses[1] = vaults[i];
         }
     }
 
@@ -15469,6 +15510,8 @@ function _addTellerLeafsWithReferral(
      * @param validators Array of allowed validator addresses
      */
     function _addCoreWriterTokenDelegateLeafs(ManageLeaf[] memory leafs, address[] memory validators) internal {
+        address actionTokenDelegate = address(uint160(3)); // ACTION_TOKEN_DELEGATE
+
         for (uint256 i; i < validators.length; ++i) {
             unchecked {
                 leafIndex++;
@@ -15477,11 +15520,12 @@ function _addTellerLeafsWithReferral(
                 getAddress(sourceChain, "coreWriter"),
                 false,
                 "tokenDelegate(address,uint64,bool)",
-                new address[](1),
+                new address[](2),
                 string.concat("Delegate/undelegate HYPE to validator ", vm.toString(validators[i])),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
-            leafs[leafIndex].argumentAddresses[0] = validators[i];
+            leafs[leafIndex].argumentAddresses[0] = actionTokenDelegate;
+            leafs[leafIndex].argumentAddresses[1] = validators[i];
         }
     }
 
@@ -15533,20 +15577,24 @@ function _addTellerLeafsWithReferral(
 
     /**
      * @notice Add all CoreWriter leafs for full HyperCore integration.
+     * @param perpAssets Allowed perp asset IDs (e.g., 0 for BTC, 1 for ETH)
      * @param spotSendRecipients Allowed recipients for spot sends
+     * @param spotTokens Allowed spot token IDs for sends
      * @param vaults Allowed vault addresses
      * @param validators Allowed validators for staking
      */
     function _addAllCoreWriterLeafs(
         ManageLeaf[] memory leafs,
+        uint32[] memory perpAssets,
         address[] memory spotSendRecipients,
+        uint64[] memory spotTokens,
         address[] memory vaults,
         address[] memory validators
     ) internal {
-        _addCoreWriterLimitOrderLeafs(leafs);
+        _addCoreWriterLimitOrderLeafs(leafs, perpAssets);
         _addCoreWriterUsdClassTransferLeafs(leafs);
         _addCoreWriterStakingLeafs(leafs);
-        _addCoreWriterSpotSendLeafs(leafs, spotSendRecipients);
+        _addCoreWriterSpotSendLeafs(leafs, spotSendRecipients, spotTokens);
         _addCoreWriterVaultTransferLeafs(leafs, vaults);
         _addCoreWriterTokenDelegateLeafs(leafs, validators);
         _addCoreWriterBridgeHypeToCoreLeaf(leafs);

@@ -16,19 +16,20 @@ pragma solidity 0.8.21;
  *      - Bytes 1-3: Action ID (big-endian uint24)
  *      - Remaining bytes: ABI-encoded action parameters
  *
- *      Action IDs:
- *      - 1: Limit order (asset, isBuy, limitPx, sz, reduceOnly, encodedTif, cloid)
- *      - 2: Vault transfer (vault, isDeposit, usd)
- *      - 3: Token delegate (validator, wei, isUndelegate)
- *      - 4: Staking deposit (wei)
- *      - 5: Staking withdraw (wei)
- *      - 6: Spot send (destination, token, wei)
- *      - 7: USD class transfer (ntl, toPerp)
- *      - 9: Add API wallet (apiWallet, name)
- *      - 10: Cancel order by oid (asset, oid)
- *      - 11: Cancel order by cloid (asset, cloid)
- *      - 12: Approve builder fee (maxFeeRate, builder)
- *      - 13: Send asset (destination, subAccount, sourceDex, destDex, token, wei)
+ *      Action IDs (with types from official docs):
+ *      - 1: Limit order (uint32 asset, bool isBuy, uint64 limitPx, uint64 sz, bool reduceOnly, uint8 encodedTif, uint128 cloid)
+ *      - 2: Vault transfer (address vault, bool isDeposit, uint64 usd)
+ *      - 3: Token delegate (address validator, uint64 wei, bool isUndelegate)
+ *      - 4: Staking deposit (uint64 wei)
+ *      - 5: Staking withdraw (uint64 wei)
+ *      - 6: Spot send (address destination, uint64 token, uint64 wei)
+ *      - 7: USD class transfer (uint64 ntl, bool toPerp)
+ *      - 8: Finalize EVM contract (uint64 token, uint8 encodedVariant, uint64 createNonce)
+ *      - 9: Add API wallet (address apiWallet, string name)
+ *      - 10: Cancel order by oid (uint32 asset, uint64 oid)
+ *      - 11: Cancel order by cloid (uint32 asset, uint128 cloid)
+ *      - 12: Approve builder fee (uint64 maxFeeRate, address builder)
+ *      - 13: Send asset (address destination, address subAccount, uint32 sourceDex, uint32 destDex, uint64 token, uint64 wei)
  *
  *      For ERC20 transfers to HyperCore, tokens are sent to system addresses starting with 0x20.
  *      For HYPE transfers to HyperCore, send native ETH to 0x2222222222222222222222222222222222222222.
@@ -79,46 +80,78 @@ contract HyperliquidCoreWriterDecoderAndSanitizer {
         // Extract action ID from bytes 1-3 (big-endian)
         uint24 actionId = uint24(uint8(data[1])) << 16 | uint24(uint8(data[2])) << 8 | uint24(uint8(data[3]));
 
-        // Extract addresses based on action type
-        if (actionId == ACTION_VAULT_TRANSFER) {
+        // Encode actionId as first pseudo-address for Merkle tree validation
+        address actionIdAddress = address(uint160(actionId));
+
+        // Extract addresses and asset IDs based on action type
+        if (actionId == ACTION_LIMIT_ORDER) {
+            // Limit order: (uint32 asset, bool isBuy, uint64 limitPx, uint64 sz, bool reduceOnly, uint8 encodedTif, uint128 cloid)
+            if (data.length >= 36) {
+                uint32 asset = abi.decode(data[4:36], (uint32));
+                addressesFound = abi.encodePacked(actionIdAddress, address(uint160(asset)));
+            }
+        } else if (actionId == ACTION_VAULT_TRANSFER) {
             // Vault transfer: (address vault, bool isDeposit, uint64 usd)
             if (data.length >= 36) {
                 address vault = abi.decode(data[4:36], (address));
-                addressesFound = abi.encodePacked(vault);
+                addressesFound = abi.encodePacked(actionIdAddress, vault);
             }
         } else if (actionId == ACTION_TOKEN_DELEGATE) {
-            // Token delegate: (address validator, uint64 token, uint64 wei)
+            // Token delegate: (address validator, uint64 wei, bool isUndelegate)
             if (data.length >= 36) {
                 address validator = abi.decode(data[4:36], (address));
-                addressesFound = abi.encodePacked(validator);
+                addressesFound = abi.encodePacked(actionIdAddress, validator);
             }
+        } else if (actionId == ACTION_STAKING_DEPOSIT) {
+            // Staking deposit: (uint64 wei) - no addresses, just actionId
+            addressesFound = abi.encodePacked(actionIdAddress);
+        } else if (actionId == ACTION_STAKING_WITHDRAW) {
+            // Staking withdraw: (uint64 wei) - no addresses, just actionId
+            addressesFound = abi.encodePacked(actionIdAddress);
         } else if (actionId == ACTION_SPOT_SEND) {
             // Spot send: (address destination, uint64 token, uint64 wei)
-            if (data.length >= 36) {
+            // ABI layout: [destination: 32 bytes][token: 32 bytes][wei: 32 bytes]
+            if (data.length >= 68) {
                 address destination = abi.decode(data[4:36], (address));
-                addressesFound = abi.encodePacked(destination);
+                uint64 token = abi.decode(data[36:68], (uint64));
+                addressesFound = abi.encodePacked(actionIdAddress, destination, address(uint160(token)));
             }
+        } else if (actionId == ACTION_USD_CLASS_TRANSFER) {
+            // USD class transfer: (uint64 ntl, bool toPerp) - no addresses, just actionId
+            addressesFound = abi.encodePacked(actionIdAddress);
         } else if (actionId == ACTION_ADD_API_WALLET) {
             // Add API wallet: (address apiWallet, bytes name)
             if (data.length >= 36) {
                 address apiWallet = abi.decode(data[4:36], (address));
-                addressesFound = abi.encodePacked(apiWallet);
+                addressesFound = abi.encodePacked(actionIdAddress, apiWallet);
+            }
+        } else if (actionId == ACTION_CANCEL_BY_OID) {
+            // Cancel by OID: (uint32 asset, uint64 oid)
+            if (data.length >= 36) {
+                uint32 asset = abi.decode(data[4:36], (uint32));
+                addressesFound = abi.encodePacked(actionIdAddress, address(uint160(asset)));
+            }
+        } else if (actionId == ACTION_CANCEL_BY_CLOID) {
+            // Cancel by CLOID: (uint32 asset, uint128 cloid)
+            if (data.length >= 36) {
+                uint32 asset = abi.decode(data[4:36], (uint32));
+                addressesFound = abi.encodePacked(actionIdAddress, address(uint160(asset)));
             }
         } else if (actionId == ACTION_APPROVE_BUILDER_FEE) {
             // Approve builder fee: (uint64 maxFeeRate, address builder)
             // Address is second param, starts at offset 4 + 32 = 36
             if (data.length >= 68) {
                 address builder = abi.decode(data[36:68], (address));
-                addressesFound = abi.encodePacked(builder);
+                addressesFound = abi.encodePacked(actionIdAddress, builder);
             }
         } else if (actionId == ACTION_SEND_ASSET) {
             // Send asset: (address destination, address subAccount, uint32 sourceDex, uint32 destDex, uint64 token, uint64 wei)
             if (data.length >= 36) {
                 address destination = abi.decode(data[4:36], (address));
-                addressesFound = abi.encodePacked(destination);
+                addressesFound = abi.encodePacked(actionIdAddress, destination);
             }
         }
-        // Actions 1, 4, 5, 7, 10, 11 have no addresses to extract
+        // Note: All known actions now return at least the actionId
 
         return addressesFound;
     }
@@ -137,7 +170,7 @@ contract HyperliquidCoreWriterDecoderAndSanitizer {
      *      - cloid: Client order ID (0 for none)
      */
     function placeLimitOrder(
-        uint32, /*asset*/
+        uint32 asset,
         bool, /*isBuy*/
         uint64, /*limitPx*/
         uint64, /*sz*/
@@ -145,36 +178,36 @@ contract HyperliquidCoreWriterDecoderAndSanitizer {
         uint8, /*encodedTif*/
         uint128 /*cloid*/
     ) external pure virtual returns (bytes memory addressesFound) {
-        // No addresses to extract - asset is an index, not an address
-        return addressesFound;
+        // Encode actionId and asset ID as pseudo-addresses for Merkle tree validation
+        addressesFound = abi.encodePacked(address(uint160(ACTION_LIMIT_ORDER)), address(uint160(asset)));
     }
 
     /**
      * @notice Cancel an order by order ID on HyperCore.
      * @dev Action ID 10: (uint32 asset, uint64 oid)
      */
-    function cancelOrderByOid(uint32, /*asset*/ uint64 /*oid*/ )
+    function cancelOrderByOid(uint32 asset, uint64 /*oid*/ )
         external
         pure
         virtual
         returns (bytes memory addressesFound)
     {
-        // No addresses to extract
-        return addressesFound;
+        // Encode actionId and asset ID as pseudo-addresses for Merkle tree validation
+        addressesFound = abi.encodePacked(address(uint160(ACTION_CANCEL_BY_OID)), address(uint160(asset)));
     }
 
     /**
      * @notice Cancel an order by client order ID on HyperCore.
      * @dev Action ID 11: (uint32 asset, uint128 cloid)
      */
-    function cancelOrderByCloid(uint32, /*asset*/ uint128 /*cloid*/ )
+    function cancelOrderByCloid(uint32 asset, uint128 /*cloid*/ )
         external
         pure
         virtual
         returns (bytes memory addressesFound)
     {
-        // No addresses to extract
-        return addressesFound;
+        // Encode actionId and asset ID as pseudo-addresses for Merkle tree validation
+        addressesFound = abi.encodePacked(address(uint160(ACTION_CANCEL_BY_CLOID)), address(uint160(asset)));
     }
 
     /**
@@ -188,7 +221,8 @@ contract HyperliquidCoreWriterDecoderAndSanitizer {
         virtual
         returns (bytes memory addressesFound)
     {
-        addressesFound = abi.encodePacked(builder);
+        // Encode actionId and builder address for Merkle tree validation
+        addressesFound = abi.encodePacked(address(uint160(ACTION_APPROVE_BUILDER_FEE)), builder);
     }
 
     //============================== VAULT OPERATIONS ===============================
@@ -204,7 +238,8 @@ contract HyperliquidCoreWriterDecoderAndSanitizer {
         virtual
         returns (bytes memory addressesFound)
     {
-        addressesFound = abi.encodePacked(vault);
+        // Encode actionId and vault address for Merkle tree validation
+        addressesFound = abi.encodePacked(address(uint160(ACTION_VAULT_TRANSFER)), vault);
     }
 
     //============================== STAKING ===============================
@@ -220,7 +255,8 @@ contract HyperliquidCoreWriterDecoderAndSanitizer {
         virtual
         returns (bytes memory addressesFound)
     {
-        addressesFound = abi.encodePacked(validator);
+        // Encode actionId and validator address for Merkle tree validation
+        addressesFound = abi.encodePacked(address(uint160(ACTION_TOKEN_DELEGATE)), validator);
     }
 
     /**
@@ -228,8 +264,8 @@ contract HyperliquidCoreWriterDecoderAndSanitizer {
      * @dev Action ID 4: (uint64 wei)
      */
     function stakingDeposit(uint64 /*wei*/ ) external pure virtual returns (bytes memory addressesFound) {
-        // No addresses to extract
-        return addressesFound;
+        // Encode actionId for Merkle tree validation
+        addressesFound = abi.encodePacked(address(uint160(ACTION_STAKING_DEPOSIT)));
     }
 
     /**
@@ -237,40 +273,42 @@ contract HyperliquidCoreWriterDecoderAndSanitizer {
      * @dev Action ID 5: (uint64 wei)
      */
     function stakingWithdraw(uint64 /*wei*/ ) external pure virtual returns (bytes memory addressesFound) {
-        // No addresses to extract
-        return addressesFound;
+        // Encode actionId for Merkle tree validation
+        addressesFound = abi.encodePacked(address(uint160(ACTION_STAKING_WITHDRAW)));
     }
 
     //============================== SPOT TRANSFERS ===============================
 
     /**
      * @notice Send spot tokens to another address on HyperCore.
-     * @dev Action ID 6: (address destination, uint32 token, uint64 wei)
+     * @dev Action ID 6: (address destination, uint64 token, uint64 wei)
      * @param destination Recipient address on HyperCore
      */
-    function spotSend(address destination, uint32, /*token*/ uint64 /*wei*/ )
+    function spotSend(address destination, uint64 token, uint64 /*wei*/ )
         external
         pure
         virtual
         returns (bytes memory addressesFound)
     {
-        addressesFound = abi.encodePacked(destination);
+        // Encode actionId, destination, and token for Merkle tree validation
+        addressesFound = abi.encodePacked(address(uint160(ACTION_SPOT_SEND)), destination, address(uint160(token)));
     }
 
     /**
      * @notice Send asset with full routing control.
-     * @dev Action ID 13: (address destination, bytes1 subAccount, uint8 sourceDex, uint8 destDex, uint32 token, uint64 wei)
+     * @dev Action ID 13: (address destination, address subAccount, uint32 sourceDex, uint32 destDex, uint64 token, uint64 wei)
      * @param destination Recipient address on HyperCore
      */
     function sendAsset(
         address destination,
-        bytes1, /*subAccount*/
-        uint8, /*sourceDex*/
-        uint8, /*destDex*/
-        uint32, /*token*/
+        address, /*subAccount*/
+        uint32, /*sourceDex*/
+        uint32, /*destDex*/
+        uint64, /*token*/
         uint64 /*wei*/
     ) external pure virtual returns (bytes memory addressesFound) {
-        addressesFound = abi.encodePacked(destination);
+        // Encode actionId and destination address for Merkle tree validation
+        addressesFound = abi.encodePacked(address(uint160(ACTION_SEND_ASSET)), destination);
     }
 
     //============================== USD TRANSFERS ===============================
@@ -286,8 +324,8 @@ contract HyperliquidCoreWriterDecoderAndSanitizer {
         virtual
         returns (bytes memory addressesFound)
     {
-        // No addresses to extract
-        return addressesFound;
+        // Encode actionId for Merkle tree validation
+        addressesFound = abi.encodePacked(address(uint160(ACTION_USD_CLASS_TRANSFER)));
     }
 
     //============================== API WALLET ===============================
@@ -303,7 +341,8 @@ contract HyperliquidCoreWriterDecoderAndSanitizer {
         virtual
         returns (bytes memory addressesFound)
     {
-        addressesFound = abi.encodePacked(apiWallet);
+        // Encode actionId and apiWallet address for Merkle tree validation
+        addressesFound = abi.encodePacked(address(uint160(ACTION_ADD_API_WALLET)), apiWallet);
     }
 
     //============================== HYPE BRIDGE ===============================
