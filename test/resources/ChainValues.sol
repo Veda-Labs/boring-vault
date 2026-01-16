@@ -365,6 +365,7 @@ contract ChainValues {
         values[mainnet]["eEigen"] = 0xE77076518A813616315EaAba6cA8e595E845EeE9.toBytes32();
         values[mainnet]["USCC"] = 0x14d60E7FDC0D71d8611742720E4C50E7a974020c.toBytes32();
         values[mainnet]["USDG"] = 0xe343167631d89B6Ffc58B88d6b7fB0228795491D.toBytes32();
+        values[mainnet]["axlSAGA"] = 0xF42fCFfc27A5B8d0afEC45659407B82f9F32fA98.toBytes32();
 
         // Rate providers
         values[mainnet]["WEETH_RATE_PROVIDER"] = 0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee.toBytes32();
