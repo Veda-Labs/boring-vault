@@ -18,7 +18,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     address public boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C;
-    address public rawDataDecoderAndSanitizer = 0x8fB043d30BAf4Eba2C8f7158aCBc07ec9A53Fe85;
+    address public rawDataDecoderAndSanitizer = 0xe825B233EEc65C3C55f06a1782ddF97a31e93C99;
     address public managerAddress = 0xf9f7969C357ce6dfd7973098Ea0D57173592bCCa;
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
     address public pancakeSwapDataDecoderAndSanitizer = 0xfdC73Fc6B60e4959b71969165876213918A443Cd;
@@ -37,6 +37,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
 
     address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
+    address public resolvDecoderAndSanitizer = 0x87f67Eb9Bb1a606923A17696E06AFAa72da65f86;
 
     address public drone = 0x0a42b2F3a0D54157Dbd7CC346335A4F1909fc02c;
 
@@ -59,10 +60,11 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](4096);
 
         // ========================== Aave V3 ==========================
-        ERC20[] memory supplyAssets = new ERC20[](3);
+        ERC20[] memory supplyAssets = new ERC20[](4);
         supplyAssets[0] = getERC20(sourceChain, "WETH");
         supplyAssets[1] = getERC20(sourceChain, "WEETH");
         supplyAssets[2] = getERC20(sourceChain, "WSTETH");
+        supplyAssets[3] = getERC20(sourceChain, "USDG");
         ERC20[] memory borrowAssets = new ERC20[](3);
         borrowAssets[0] = getERC20(sourceChain, "WETH");
         borrowAssets[1] = getERC20(sourceChain, "WEETH");
@@ -114,6 +116,16 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 
+        // ========================== Resolv ==========================
+        {
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", resolvDecoderAndSanitizer);
+            ERC20[] memory assets = new ERC20[](2);
+            assets[0] = getERC20(sourceChain, "USDC");
+            assets[1] = getERC20(sourceChain, "USDT");
+            _addAllResolvLeafs(leafs, assets);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
+
         // ========================== MorphoBlue ==========================
         /**
          * weETH/wETH  86.00 LLTV market 0x698fe98247a40c5771537b5786b2f3f9d78eb487b4ce4d75533cd0e94d88a115
@@ -128,6 +140,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletWETHCore")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "mevCapitalwWeth")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "Re7WETH")));
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sentoraPYUSDMain")));
 
         // ========================== Pendle ==========================
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendleWeETHMarket"), true);
@@ -181,8 +194,8 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
             // ========================== 1inch ==========================
-            address[] memory assets = new address[](35);
-            SwapKind[] memory kind = new SwapKind[](35);
+            address[] memory assets = new address[](36);
+            SwapKind[] memory kind = new SwapKind[](36);
             assets[0] = getAddress(sourceChain, "WETH");
             kind[0] = SwapKind.BuyAndSell;
             assets[1] = getAddress(sourceChain, "WEETH");
@@ -253,6 +266,8 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             kind[33] = SwapKind.Sell;
             assets[34] = getAddress(sourceChain, "PYUSD");
             kind[34] = SwapKind.Sell;
+            assets[35] = getAddress(sourceChain, "USDG");
+            kind[35] = SwapKind.BuyAndSell;
 
             setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
             _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
@@ -698,6 +713,11 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
                 getAddress(sourceChain, "merklDistributor"),
                 getAddress(sourceChain, "dev1Address")
             );
+            _addMerklLeafs(
+                leafs,
+                getAddress(sourceChain, "merklDistributor"),
+                getAddress(sourceChain, "etherfiOpsAddress")
+            );
         }
 
         // ========================== Karak ==========================
@@ -812,6 +832,17 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             layerZeroPlasmaEndpointId,
             getBytes32(sourceChain, "boringVault")
         );
+
+        // wstUSR
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "wstUSR"),
+            getAddress(sourceChain, "wstUSROFTAdapter"),
+            layerZeroPlasmaEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+
+
         }
 
         // ========================== Reclamation ==========================
@@ -825,6 +856,15 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             _addReclamationLeafs(leafs, target, reclamationDecoder);
         }
 
+        // ========================== LidoStandardBridge ==========================
+            _addLidoStandardBridgeLeafs(
+                leafs,
+                base,
+                getAddress(base, "crossDomainMessenger"),
+                getAddress(sourceChain, "lidoBaseResolvedDelegate"),
+                getAddress(sourceChain, "lidoBaseStandardBridge"),
+                getAddress(sourceChain, "lidoBasePortal")
+            );
         // ========================== Hyperlane ==========================
         {
             setAddress(true, mainnet, "rawDataDecoderAndSanitizer", hyperlaneDecoderAndSanitizer);

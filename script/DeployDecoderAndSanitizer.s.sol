@@ -126,6 +126,9 @@ import {SentayUSDCMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitize
 import {ITBBasePositionDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/ITBBasePositionDecoderAndSanitizer.sol";
 import {BoostedUSDCInkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BoostedUSDCInkDecoderAndSanitizer.sol";
 import {WhopDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/WhopDecoderAndSanitizer.sol";
+import {TacDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacUSDTacDecoderAndSanitizer.sol";
+import {FullResolvDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/FullResolvDecoderAndSanitizer.sol";
+import {FullFluidDexDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/FullFluidDexDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
