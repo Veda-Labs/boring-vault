@@ -159,11 +159,11 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(FullFluidDexDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode();
-        console.log("Full Fluid Dex Decoder and Sanitizer V0.0");
+        creationCode = type(WhopDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
+        console.log("Whop Decoder and Sanitizer V0.6");
         console.logBytes(constructorArgs);
-        deployer.deployContract("Full Fluid Dex Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        deployer.deployContract("Whop Decoder and Sanitizer V0.6", creationCode, constructorArgs, 0);
         
         vm.stopBroadcast();
     }
