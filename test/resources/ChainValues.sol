@@ -184,6 +184,9 @@ contract ChainValues {
         values[monad]["uniV3Router"] = 0xfE31F71C1b106EAc32F1A19239c9a9A72ddfb900.toBytes32();
         values[monad]["uniswapV3NonFungiblePositionManager"] = 0x7197E214c0b767cFB76Fb734ab638E2c192F4E53.toBytes32();
 
+        // magpie router
+        values[monad]["magpieRouterV3"] = 0x956Df8424B556F0076E8abf5481605f5A791cc7f.toBytes32();
+
         // layerzero
         values[monad]["ZRO"] = address(1).toBytes32();
         values[monad]["LayerZeroEndPoint"] = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B.toBytes32();
