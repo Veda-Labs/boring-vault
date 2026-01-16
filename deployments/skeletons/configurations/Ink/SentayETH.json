@@ -1,0 +1,141 @@
+{
+    "deploymentParameters": {
+      "logLevel": 4,
+      "privateKeyEnvName": "BORING_DEVELOPER",
+      "chainName": "ink",
+      "evmVersion": "cancun",
+      "deployerContractAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "deployerAddress"
+      },
+      "nativeWrapperAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "WETH"
+      },
+      "deploymentOwnerAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "txBundlerAddress"
+      },
+      "deploymentFileName": "skeletons/addresses/Ink/SentayETH.json"
+    },
+    "rolesAuthorityConfiguration": {
+      "rolesAuthorityDeploymentName": "Sentora Advanced Yields ETH Roles Authority V0.0"
+    },
+    "lensConfiguration": {
+      "lensDeploymentName": "Arctic Architecture Lens V0.3"
+    },
+    "boringVaultConfiguration": {
+      "boringVaultDeploymentName": "Sentora Advanced Yields ETH Boring Vault V0.0",
+      "boringVaultName": "Sentora Advanced Yields ETH Vault ",
+      "boringVaultSymbol": "sentayETH",
+      "boringVaultDecimals": 18
+    },
+    "managerConfiguration": {
+      "managerDeploymentName": "Sentora Advanced Yields ETH Manager V0.0",
+      "balancerVaultAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000001",
+        "name": "balancerVault"
+      }
+    },
+    "accountantConfiguration": {
+      "accountantDeploymentName": "Sentora Advanced Yields ETH Accountant V0.0",
+      "accountantParameters": {
+        "kind": {
+          "variableRate": true,
+          "fixedRate": false,
+          "yieldStreaming": false
+        },
+        "payoutConfiguration": {
+          "payoutTo": "0x0000000000000000000000000000000000000000",
+          "optionalPaymentSplitterName": "Sentora Advanced Yields ETH Payment Splitter V0.0",
+          "splits": [
+            {
+              "to": "0xbE6b7dCa8D5FCE23B07E0Da9b01d466b95b3EDF3",
+              "percent": 7143
+            },
+            {
+              "to": "0x68eC1FdD4Bb202B2e07aE751CB5553644aA48cFA",
+              "percent": 2857
+            }
+          ]
+        },
+        "accountantDeploymentParameters": {
+          "allowedExchangeRateChangeLower": 9950,
+          "allowedExchangeRateChangeUpper": 10050,
+          "base": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "WETH"
+          },
+          "minimumUpateDelayInSeconds": 21600,
+          "performanceFee": 1050,
+          "platformFee": 0,
+          "startingExchangeRate": 1000000000000000000
+        }
+      }
+    },
+    "tellerConfiguration": {
+      "tellerDeploymentName": "Sentora Advanced Yields ETH Teller V0.0",
+      "tellerParameters": {
+        "kind": {
+          "teller": false,
+          "tellerWithRemediation": false,
+          "tellerWithCcip": false,
+          "tellerWithLayerZero": true,
+          "tellerWithYieldStreaming": false,
+          "tellerWithLayerZeroRateLimiting": false
+        },
+        "layerZero": {
+          "endpointAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "LayerZeroEndPoint"
+          },
+          "lzTokenAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000001",
+            "name": "ZRO"
+          },
+          "lzChains": []
+        }
+      }
+    },
+    "boringQueueConfiguration": {
+      "boringQueueDeploymentName": "Sentora Advanced Yields ETH Boring Queue V0.0",
+      "boringQueueSolverName": "Sentora Advanced Yields ETH Boring Solver V0.0",
+      "excessToSolverNonSelfSolve": true,
+      "queueParameters": {
+        "kind": {
+          "boringQueue": true,
+          "boringQueueWithTracking": false
+        }
+      }
+    },
+    "droneConfiguration": {
+      "droneDeploymentBaseName": "Sentora Advanced Yields ETH Drone V0.0",
+      "droneCount": 0,
+      "safeGasToForwardNative": 21000
+    },
+    "pauserConfiguration": {
+      "shouldDeploy": true,
+      "pauserDeploymentName": "Sentora Advanced Yields ETH Pauser V0.0"
+    },
+    "timelockConfiguration": {
+      "shouldDeploy": true,
+      "timelockDeploymentName": "Sentora Advanced Yields ETH Timelock V0.0",
+      "timelockParameters": {
+        "executors": ["0xb492839Eb591AF313e2B382BAF6f0Bf7C4D22722"],
+        "minDelay": 0,
+        "proposers": ["0xb492839Eb591AF313e2B382BAF6f0Bf7C4D22722"]
+      }
+    },
+    "aaveV3BufferHelperConfiguration": {
+      "shouldDeploy": false,
+      "aaveV3BufferHelperDeploymentName": "Sentora Advanced Yields ETH AaveV3 Buffer Helper V0.0",
+      "aaveV3PoolAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "v3Pool"
+      }
+    },
+    "aaveV3BufferLensConfiguration": {
+      "shouldDeploy": false,
+      "aaveV3BufferLensDeploymentName": "AaveV3 Buffer Lens V0.0"
+    }
+  }
