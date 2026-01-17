@@ -130,6 +130,7 @@ import {TacDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacUSDTacDe
 import {BoostedUSDCDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BoostedUSDCDecoderAndSanitizer.sol";
 import {FullResolvDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/FullResolvDecoderAndSanitizer.sol";
 import {FullFluidDexDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/FullFluidDexDecoderAndSanitizer.sol";
+import {P1USDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/P1USDDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -151,8 +152,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("mainnet");
-        setSourceChainName("mainnet");
+        vm.createSelectFork("plasma");
+        setSourceChainName("plasma");
     }
 
     function run() external {
@@ -160,11 +161,11 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(BoostedUSDCDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(getAddress(sourceChain, "odosRouterV2"));
-        console.log("Boosted USDC Decoder and Sanitizer V0.3");
+        creationCode = type(P1USDDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
+        console.log("P1USD Decoder and Sanitizer V0.0");
         console.logBytes(constructorArgs);
-        deployer.deployContract("Boosted USDC Decoder and Sanitizer V0.3", creationCode, constructorArgs, 0);
+        deployer.deployContract("P1USD Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
         
         vm.stopBroadcast();
     }
