@@ -429,6 +429,8 @@ contract ChainValues {
         values[mainnet]["cUSDO"] = 0xaD55aebc9b8c03FC43cd9f62260391c13c23e7c0.toBytes32();
         values[mainnet]["RLP"] = 0x4956b52aE2fF65D74CA2d61207523288e4528f96.toBytes32();
         values[mainnet]["RESOLV"] = 0x259338656198eC7A76c729514D3CB45Dfbf768A1.toBytes32();
+        values[mainnet]["cUSD"] = 0xcCcc62962d17b8914c62D74FfB843d73B2a3cccC.toBytes32();
+        values[mainnet]["stcUSD"] = 0x88887bE419578051FF9F4eb6C858A951921D8888.toBytes32();
 
         // Magpie Router v3
         values[mainnet]["magpieRouterV3"] = 0xA6E941eaB67569ca4522f70d343714fF51d571c4.toBytes32();
@@ -911,6 +913,9 @@ contract ChainValues {
         values[mainnet]["PT-iUSD-4SEP2025_USDC_915"] =
         0x3a3b0aab54883f5b2561d8327fbe234142db4f50f87574cd07daf2ed3fbee01a;
         values[mainnet]["siUSD_USDC_915"] = 0xbbf7ce1b40d32d3e3048f5cf27eeaa6de8cb27b80194690aab191a63381d8c99;
+        values[mainnet]["PTcUSD29Jan2026_USDC_915"] = 0x802ec6e878dc9fe6905b8a0a18962dcca10440a87fa2242fbf4a0461c7b0c789;
+        values[mainnet]["PTstcUSD29Jan2026_USDC_915"] =
+        0x03f715ef1ae508ab3e1faf4dffdbf2a077d1f0ad10c5aad42cf4438d5e3328af;
 
         values[mainnet]["WBTC_USDC_86"] = 0x3a85e619751152991742810df6ec69ce473daef99e28a64ab2340d7b7ccfee49;
         values[mainnet]["WBTC_USDT_86"] = 0xa921ef34e2fc7a27ccc50ae7e4b154e16c9799d3387076c421423ef52ac4df99;
@@ -1126,6 +1131,8 @@ contract ChainValues {
         values[mainnet]["pendle_syrupUSDC_04_23_25_sy"] = 0xc9e9C85B33E87fde85c44DBf72b4B842A071551D.toBytes32();
         values[mainnet]["pendle_syrupUSDC_04_23_25_pt"] = 0x2beEb2c4809954e5b514a3205afbDC097eb810B4.toBytes32();
         values[mainnet]["pendle_syrupUSDC_04_23_25_yt"] = 0x01eCe02951395b7AdBa57cA3281C4d6a565d347e.toBytes32();
+        values[mainnet]["pendle_cUSD_29Jan2026"] = 0x307c15f808914Df5a5DbE17E5608f84953fFa023.toBytes32();
+        values[mainnet]["pendle_stcUSD_29Jan2026"] = 0xCC781b043933c10a04409b22aaDa3a3D1A7f29D4.toBytes32();
 
         // Aave V3 Core
         values[mainnet]["v3Pool"] = 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2.toBytes32();

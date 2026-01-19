@@ -27,7 +27,7 @@ contract CreateDnMonUsdcMerkleRootScript is Script, MerkleTreeHelper {
     address public accountantAddress = 0x5017ca1305C441A7d98DEEE71D48e3D80972C770;
     address public boringVault = 0x5Aa0d6Fc93B827cB0eCb34Dc7bbe78Cc18616f8f;
     address public managerAddress = 0xC9e0fcD928A37D794298275FfF4a22C15356B50A;
-    address public rawDataDecoderAndSanitizer = address(0x5F2863EeF8854171F2AC4E07A0D056CFC8e13c3E);
+    address public rawDataDecoderAndSanitizer = address(0x2210A9357D51fF909EAa43570b3F1275E76cB6d6);
     RolesAuthority public rolesAuthority = RolesAuthority(0x921f524740Dee566eFD71C7AA821F84f1e726E87);
     address public teller = 0x33E1Df8DF212A88a9514e4E166e315D0945Fd8fd;
 
@@ -44,8 +44,6 @@ contract CreateDnMonUsdcMerkleRootScript is Script, MerkleTreeHelper {
     }
 
     function _generateDnMOnUsdcMultiChainMerkleRoot() public {
-        
-
         console.log("Address of decoder and sanitizer:", rawDataDecoderAndSanitizer);
 
         setAddress(true, monad, "boringVault", boringVault);
@@ -62,7 +60,6 @@ contract CreateDnMonUsdcMerkleRootScript is Script, MerkleTreeHelper {
         SwapKind[] memory kind = new SwapKind[](2);
         kind[0] = SwapKind.BuyAndSell;
         kind[1] = SwapKind.BuyAndSell;
-
 
         address[] memory token0 = new address[](1);
         token0[0] = getAddress(sourceChain, "WMON");
