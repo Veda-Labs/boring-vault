@@ -24,8 +24,8 @@ contract CreateElsaEarnUsdcMerkleRootScript is Script, MerkleTreeHelper {
     address public boringVault = 0xA416CcCbD79A3b9A11D08747622E42c1003F97F0;
     address public queue = 0xe805DBa580Fd26DD205ce554D12Fa53eA7b8d899;
     address public managerAddress = 0x4dDb20a7d144787cb994F0D57bD836FB37Fe3980;
-    address public rawDataDecoderAndSanitizer01 = 0x0053fd970D9a18eD1C52E0ddB2F0a88CE197c611;
-    RolesAuthority public rolesAuthority = RolesAuthority(0x24f7B70331bCeddb1bd5000b61941582cf3f15A8);
+    address public rawDataDecoderAndSanitizer01 = 0x5F2863EeF8854171F2AC4E07A0D056CFC8e13c3E;
+    RolesAuthority public rolesAuthority = RolesAuthority(0x9E77719CD5AF96CD405fB27761c49215101A1dcA);
     address public teller = 0x1A82209E4120a6DfAab14fFb58F67b33A10ca836;
 
     address public syusdTeller = 0xaefc11908fF97c335D16bdf9F2Bf720817423825;
