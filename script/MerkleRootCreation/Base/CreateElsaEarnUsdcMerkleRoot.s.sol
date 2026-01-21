@@ -31,6 +31,8 @@ contract CreateElsaEarnUsdcMerkleRootScript is Script, MerkleTreeHelper {
     address public syusdTeller = 0xaefc11908fF97c335D16bdf9F2Bf720817423825;
     address public syusdQueue = 0xF632c10b19f2a0451cD4A653fC9ca0c15eA1040b;
 
+    address public syusd = 0x279CAD277447965AF3d24a78197aad1B02a2c589;
+
     address public user1 = 0xa86b3Bf249478488B4304B50726c7D4689aD6320;
     address public user2 = 0x0307AD25281C99F22A8F3Af9e272fE3968810239;
 
@@ -80,7 +82,7 @@ contract CreateElsaEarnUsdcMerkleRootScript is Script, MerkleTreeHelper {
         ERC20[] memory assets = new ERC20[](1);
         assets[0] = ERC20(getAddress(sourceChain, "USDC"));
         _addTellerLeafs(leafs, address(syusdTeller), assets, false, true);
-        _addWithdrawQueueLeafs(leafs, syusdQueue, boringVault, assets);
+        _addWithdrawQueueLeafs(leafs, syusdQueue, syusd, assets);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
         string memory filePath = "./leafs/Base/ElsaEarnUsdcStrategyLeafs.json";
