@@ -13,6 +13,8 @@ import {CCIPDecoderAndSanitizer} from "./Protocols/CCIPDecoderAndSanitizer.sol";
 import {MagpieDecoderAndSanitizer} from "./MagpieDecoderAndSanitizer.sol";
 import {AerodromeDecoderAndSanitizer} from "./AerodromeDecoderAndSanitizer.sol";
 import {VelodromeDecoderAndSanitizer} from "./Protocols/VelodromeDecoderAndSanitizer.sol";
+import {WithdrawQueueDecoderAndSanitizer} from "./Protocols/WithdrawQueueDecoderAndSanitizer.sol";
+import {TellerDecoderAndSanitizer} from "./Protocols/TellerDecoderAndSanitizer.sol";
 
 contract BaseStablecoinStrategyDecoderAndSanitizer is
     AaveV3DecoderAndSanitizer,
@@ -24,7 +26,8 @@ contract BaseStablecoinStrategyDecoderAndSanitizer is
     PendleRouterDecoderAndSanitizer,
     CCIPDecoderAndSanitizer,
     MagpieDecoderAndSanitizer,
-    AerodromeDecoderAndSanitizer
+    AerodromeDecoderAndSanitizer,
+    TellerDecoderAndSanitizer
 {
     constructor(address _aerodromeNonFungiblePositionManager, address _magpieRouter)
         AerodromeDecoderAndSanitizer(_aerodromeNonFungiblePositionManager)

@@ -276,7 +276,7 @@ contract DeployBaseStableStrategyDecoderAndSanitizer is Script, ContractNames, M
     function run() external {
         vm.createSelectFork("base");
         setSourceChainName(base);
-        vm.startBroadcast(vm.envUint("BORING_DEVELOPER"));
+        vm.startBroadcast(vm.envUint("PRIVATE_KEY_1"));
         new BaseStablecoinStrategyDecoderAndSanitizer(
             getAddress(sourceChain, "aerodromeNonFungiblePositionManager"), getAddress(sourceChain, "magpieRouterV3")
         );
