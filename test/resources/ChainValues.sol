@@ -230,7 +230,7 @@ contract ChainValues {
         values[hyperevm]["txBundlerAddress"] = 0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC.toBytes32();
         values[hyperevm]["dev0Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
         values[hyperevm]["dev1Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
-        values[hyperevm]["balancerVault"] = address(1).toBytes32();
+        values[hyperevm]["balancerVault"] = 0xbA1333333333a1BA1108E8412f11850A5C319bA9.toBytes32();
         values[hyperevm]["CoreWriter"] = 0x3333333333333333333333333333333333333333.toBytes32();
 
         // tokens

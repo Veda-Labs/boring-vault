@@ -1,0 +1,217 @@
+{
+    "deploymentParameters": {
+        "logLevel": 4,
+        "privateKeyEnvName": "PRIVATE_KEY_1",
+        "chainName": "hyperevm",
+        "evmVersion": "cancun",
+        "desiredNumberOfDeploymentTxs": 10,
+        "txBundlerAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "txBundlerAddress"
+        },
+        "setupRoles": true,
+        "setupTestUser": false,
+        "saveDeploymentDetails": true,
+        "testUserAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "dev1Address"
+        },
+        "deployerContractAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "deployerAddress"
+        },
+        "nativeWrapperAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "WHYPE"
+        },
+        "deploymentOwnerAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "deployerAddress"
+        },
+        "deploymentFileName": "addresses/HyperEVM/HyperCoreTestVaultDeployment.json"
+    },
+    "rolesAuthorityConfiguration": {
+        "rolesAuthorityDeploymentName": "HlTestVault rolesAuthorityV1.0"
+    },
+    "lensConfiguration": {
+        "lensDeploymentName": "HlTestVault lensV1.0"
+    },
+    "boringVaultConfiguration": {
+        "boringVaultDeploymentName": "HlTestVault boringVaultV1.0",
+        "boringVaultName": "HlCore Test USDC",
+        "boringVaultSymbol": "HlTestVault",
+        "boringVaultDecimals": 6
+    },
+    "managerConfiguration": {
+        "managerDeploymentName": "HlTestVault managerV1.0",
+        "balancerVaultAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "balancerVault"
+        }
+    },
+    "accountantConfiguration": {
+        "accountantDeploymentName": "HlTestVault accountantV1.0",
+        "accountantParameters": {
+            "kind": {
+                "variableRate": true,
+                "fixedRate": false
+            },
+            "payoutConfiguration": {
+                "payoutTo": "0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5",
+                "optionalPaymentSplitterName": "Payment Splitter",
+                "splits": []
+            },
+            "accountantDeploymentParameters": {
+                "allowedExchangeRateChangeLower": 9900,
+                "allowedExchangeRateChangeUpper": 15000,
+                "baseAddressOrName": {
+                    "address": "0x0000000000000000000000000000000000000000",
+                    "name": "USDC"
+                },
+                "minimumUppateDelayInSeconds": 3600,
+                "performanceFee": 2000,
+                "platformFee": 0,
+                "startingExchangeRate": 1000000
+            }
+        }
+    },
+    "tellerConfiguration": {
+        "tellerDeploymentName": "HlTestVault TellerV1.0",
+        "tellerParameters": {
+            "allowPublicDeposits": false,
+            "shareLockPeriod": 60,
+            "kind": {
+                "teller": false,
+                "tellerWithRemediation": false,
+                "tellerWithCcip": false,
+                "tellerWithLayerZero": true
+            },
+            "ccip": {
+                "routerAddressOrName": {
+                    "address": "0x0000000000000000000000000000000000000000",
+                    "name": "ccipRouter"
+                },
+                "ccipChains": [
+                    {
+                        "chainSelector": 1,
+                        "allowMessagesFrom": true,
+                        "allowMessagesTo": true,
+                        "targetTellerOrSelf": {
+                            "address": "0x0000000000000000000000000000000000000000",
+                            "self": true
+                        },
+                        "messageGasLimit": 100000
+                    }
+                ]
+            },
+            "layerZero": {
+                "endpointAddressOrName": {
+                    "address": "0x0000000000000000000000000000000000000000",
+                    "name": "LayerZeroEndPoint"
+                },
+                "lzTokenAddressOrName": {
+                    "address": "0x0000000000000000000000000000000000000000",
+                    "name": "ZRO"
+                },
+                "lzChains": [
+                    {
+                        "chainId": 999,
+                        "allowMessagesFrom": true,
+                        "allowMessagesTo": true,
+                        "targetTellerOrSelf": {
+                            "address": "0x0000000000000000000000000000000000000000",
+                            "self": true
+                        },
+                        "messageGasLimit": 100000
+                    }
+                ]
+            }
+        }
+    },
+    "boringQueueConfiguration": {
+        "boringQueueDeploymentName": "HlTestVault BoringOnChainQueueV1.0",
+        "boringQueueSolverName": "HlTestVault BoringSolverV1.0",
+        "queueParameters": {
+            "allowPublicWithdrawals": false,
+            "allowPublicSelfWithdrawals": false,
+            "kind": {
+                "boringQueue": true,
+                "boringQueueWithTracking": false
+            }
+        }
+    },
+    "droneConfiguration": {
+        "droneDeploymentBaseName": "HlTestVault boring drone",
+        "droneCount": 1,
+        "safeGasToForwardNative": 21000
+    },
+    "pauserConfiguration": {
+        "shouldDeploy": true,
+        "pauserDeploymentName": "HlTestVault pauser",
+        "makeGenericPauser": [
+            "0x0000000000000000000000000000000000000000"
+        ],
+        "makeGenericUnpauser": [
+            "0x0000000000000000000000000000000000000000"
+        ],
+        "makePauseAll": [
+            "0x0000000000000000000000000000000000000000"
+        ],
+        "makeUnpauseAll": [
+            "0x0000000000000000000000000000000000000000"
+        ],
+        "senderToPausable": [
+            {
+                "sender": "0x0000000000000000000000000000000000000000",
+                "pausable": "0x0000000000000000000000000000000000000000"
+            }
+        ]
+    },
+    "timelockConfiguration": {
+        "shouldDeploy": false,
+        "timelockDeploymentName": "HlTestVault timelock",
+        "timelockParameters": {
+            "minDelay": 86400,
+            "proposers": [
+                "0x0000000000000000000000000000000000000000"
+            ],
+            "executors": [
+                "0x0000000000000000000000000000000000000000"
+            ]
+        }
+    },
+    "accountantAssets": [
+        {
+            "addressOrName": {
+                "address": "0x0000000000000000000000000000000000000000",
+                "name": "USDC"
+            },
+            "isPeggedToBase": true,
+            "rateProvider": "0x0000000000000000000000000000000000000000"
+        }
+    ],
+    "depositAssets": [
+        {
+            "addressOrName": {
+                "address": "0x0000000000000000000000000000000000000000",
+                "name": "USDC"
+            },
+            "allowDeposits": true,
+            "allowWithdraws": true,
+            "sharePremium": 0
+        }
+    ],
+    "withdrawAssets": [
+        {
+            "addressOrName": {
+                "address": "0x0000000000000000000000000000000000000000",
+                "name": "USDC"
+            },
+            "maxDiscount": 100,
+            "minDiscount": 0,
+            "minimumSecondsToDeadline": 0,
+            "minimumShares": 0,
+            "secondsToMaturity": 60
+        }
+    ]
+}
