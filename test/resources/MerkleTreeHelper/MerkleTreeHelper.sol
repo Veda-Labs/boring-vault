@@ -15331,6 +15331,7 @@ function _addTellerLeafsWithReferral(
     /**
      * @notice Add leafs for perp trading with asset ID validation.
      * @dev Action ID 1: placeLimitOrder, Action ID 10: cancelOrderByOid, Action ID 11: cancelOrderByCloid
+     *      Uses sendRawAction(bytes) since CoreWriter only exposes that function.
      * @param perpAssets Array of allowed perp asset IDs (e.g., 0 for BTC, 1 for ETH)
      */
     function _addCoreWriterLimitOrderLeafs(ManageLeaf[] memory leafs, uint32[] memory perpAssets) internal {
@@ -15347,7 +15348,7 @@ function _addTellerLeafsWithReferral(
             leafs[leafIndex] = ManageLeaf(
                 getAddress(sourceChain, "coreWriter"),
                 false,
-                "placeLimitOrder(uint32,bool,uint64,uint64,bool,uint8,uint128)",
+                "sendRawAction(bytes)",
                 new address[](2),
                 string.concat("Place limit order for perp asset ", vm.toString(perpAssets[i])),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
@@ -15362,7 +15363,7 @@ function _addTellerLeafsWithReferral(
             leafs[leafIndex] = ManageLeaf(
                 getAddress(sourceChain, "coreWriter"),
                 false,
-                "cancelOrderByOid(uint32,uint64)",
+                "sendRawAction(bytes)",
                 new address[](2),
                 string.concat("Cancel order by OID for perp asset ", vm.toString(perpAssets[i])),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
@@ -15377,7 +15378,7 @@ function _addTellerLeafsWithReferral(
             leafs[leafIndex] = ManageLeaf(
                 getAddress(sourceChain, "coreWriter"),
                 false,
-                "cancelOrderByCloid(uint32,uint128)",
+                "sendRawAction(bytes)",
                 new address[](2),
                 string.concat("Cancel order by CLOID for perp asset ", vm.toString(perpAssets[i])),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
@@ -15390,6 +15391,7 @@ function _addTellerLeafsWithReferral(
     /**
      * @notice Add leafs for USD class transfer (move between spot and perp).
      * @dev Action ID 7: (ntl, toPerp)
+     *      Uses sendRawAction(bytes) since CoreWriter only exposes that function.
      */
     function _addCoreWriterUsdClassTransferLeafs(ManageLeaf[] memory leafs) internal {
         address actionUsdClassTransfer = address(uint160(7)); // ACTION_USD_CLASS_TRANSFER
@@ -15400,7 +15402,7 @@ function _addTellerLeafsWithReferral(
         leafs[leafIndex] = ManageLeaf(
             getAddress(sourceChain, "coreWriter"),
             false,
-            "usdClassTransfer(uint64,bool)",
+            "sendRawAction(bytes)",
             new address[](1),
             "Transfer USD between spot and perp on HyperCore",
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
@@ -15412,6 +15414,7 @@ function _addTellerLeafsWithReferral(
      * @notice Add leafs for staking deposit/withdraw.
      * @dev Action ID 4: stakingDeposit(wei)
      *      Action ID 5: stakingWithdraw(wei)
+     *      Uses sendRawAction(bytes) since CoreWriter only exposes that function.
      */
     function _addCoreWriterStakingLeafs(ManageLeaf[] memory leafs) internal {
         address actionStakingDeposit = address(uint160(4));  // ACTION_STAKING_DEPOSIT
@@ -15423,7 +15426,7 @@ function _addTellerLeafsWithReferral(
         leafs[leafIndex] = ManageLeaf(
             getAddress(sourceChain, "coreWriter"),
             false,
-            "stakingDeposit(uint64)",
+            "sendRawAction(bytes)",
             new address[](1),
             "Deposit HYPE into staking on HyperCore",
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
@@ -15436,7 +15439,7 @@ function _addTellerLeafsWithReferral(
         leafs[leafIndex] = ManageLeaf(
             getAddress(sourceChain, "coreWriter"),
             false,
-            "stakingWithdraw(uint64)",
+            "sendRawAction(bytes)",
             new address[](1),
             "Withdraw HYPE from staking on HyperCore",
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
@@ -15447,6 +15450,7 @@ function _addTellerLeafsWithReferral(
     /**
      * @notice Add leafs for spot send on HyperCore.
      * @dev Action ID 6: (address destination, uint64 token, uint64 wei)
+     *      Uses sendRawAction(bytes) since CoreWriter only exposes that function.
      * @param recipients Array of allowed recipient addresses
      * @param spotTokens Array of allowed spot token IDs
      */
@@ -15465,7 +15469,7 @@ function _addTellerLeafsWithReferral(
                 leafs[leafIndex] = ManageLeaf(
                     getAddress(sourceChain, "coreWriter"),
                     false,
-                    "spotSend(address,uint64,uint64)",
+                    "sendRawAction(bytes)",
                     new address[](3),
                     string.concat(
                         "Send spot token ", vm.toString(spotTokens[j]), " to ", vm.toString(recipients[i]), " on HyperCore"
@@ -15482,6 +15486,7 @@ function _addTellerLeafsWithReferral(
     /**
      * @notice Add leafs for vault transfer on HyperCore.
      * @dev Action ID 2: (vault, isDeposit, usd)
+     *      Uses sendRawAction(bytes) since CoreWriter only exposes that function.
      * @param vaults Array of allowed vault addresses
      */
     function _addCoreWriterVaultTransferLeafs(ManageLeaf[] memory leafs, address[] memory vaults) internal {
@@ -15494,7 +15499,7 @@ function _addTellerLeafsWithReferral(
             leafs[leafIndex] = ManageLeaf(
                 getAddress(sourceChain, "coreWriter"),
                 false,
-                "vaultTransfer(address,bool,uint64)",
+                "sendRawAction(bytes)",
                 new address[](2),
                 string.concat("Transfer to/from vault ", vm.toString(vaults[i]), " on HyperCore"),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
@@ -15507,6 +15512,7 @@ function _addTellerLeafsWithReferral(
     /**
      * @notice Add leafs for token delegate (HYPE staking) on HyperCore.
      * @dev Action ID 3: (validator, wei, isUndelegate)
+     *      Uses sendRawAction(bytes) since CoreWriter only exposes that function.
      * @param validators Array of allowed validator addresses
      */
     function _addCoreWriterTokenDelegateLeafs(ManageLeaf[] memory leafs, address[] memory validators) internal {
@@ -15519,7 +15525,7 @@ function _addTellerLeafsWithReferral(
             leafs[leafIndex] = ManageLeaf(
                 getAddress(sourceChain, "coreWriter"),
                 false,
-                "tokenDelegate(address,uint64,bool)",
+                "sendRawAction(bytes)",
                 new address[](2),
                 string.concat("Delegate/undelegate HYPE to validator ", vm.toString(validators[i])),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
@@ -15550,6 +15556,7 @@ function _addTellerLeafsWithReferral(
     /**
      * @notice Add leafs for registering API wallets on HyperCore.
      * @dev Action ID 9: (address apiWallet, bytes name)
+     *      Uses sendRawAction(bytes) since CoreWriter only exposes that function.
      * @param apiWallets Allowed API wallet addresses to register
      */
     function _addCoreWriterAddApiWalletLeafs(ManageLeaf[] memory leafs, address[] memory apiWallets) internal {
@@ -15563,7 +15570,7 @@ function _addTellerLeafsWithReferral(
             leafs[leafIndex] = ManageLeaf(
                 coreWriter,
                 false,
-                "addApiWallet(address,bytes)",
+                "sendRawAction(bytes)",
                 new address[](2),
                 string.concat("Add API wallet ", vm.toString(apiWallets[i]), " on HyperCore"),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")

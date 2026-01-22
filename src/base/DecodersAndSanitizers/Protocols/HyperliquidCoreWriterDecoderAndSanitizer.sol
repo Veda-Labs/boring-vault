@@ -32,7 +32,7 @@ pragma solidity 0.8.21;
  *      - 13: Send asset (address destination, address subAccount, uint32 sourceDex, uint32 destDex, uint64 token, uint64 wei)
  *
  *      For ERC20 transfers to HyperCore, tokens are sent to system addresses starting with 0x20.
- *      For HYPE transfers to HyperCore, send native ETH to 0x2222222222222222222222222222222222222222.
+ *      For HYPE transfers to HyperCore, send native HYPE to 0x2222222222222222222222222222222222222222.
  */
 contract HyperliquidCoreWriterDecoderAndSanitizer {
     //============================== ERRORS ===============================
@@ -44,7 +44,7 @@ contract HyperliquidCoreWriterDecoderAndSanitizer {
     /// @notice CoreWriter contract address on HyperEVM
     address internal constant CORE_WRITER = 0x3333333333333333333333333333333333333333;
 
-    /// @notice HYPE bridge address - send native ETH here to transfer HYPE to HyperCore
+    /// @notice HYPE bridge address - send native HYPE here to transfer HYPE to HyperCore
     address internal constant HYPE_BRIDGE = 0x2222222222222222222222222222222222222222;
 
     /// @notice System address prefix for ERC20 transfers to HyperCore
@@ -154,195 +154,6 @@ contract HyperliquidCoreWriterDecoderAndSanitizer {
         // Note: All known actions now return at least the actionId
 
         return addressesFound;
-    }
-
-    //============================== PERP TRADING ===============================
-
-    /**
-     * @notice Place a limit order on HyperCore perps.
-     * @dev Action ID 1: (uint32 asset, bool isBuy, uint64 limitPx, uint64 sz, bool reduceOnly, uint8 encodedTif, uint128 cloid)
-     *      - asset: Perpetual asset index
-     *      - isBuy: True for long, false for short
-     *      - limitPx: Limit price (10^8 scaled)
-     *      - sz: Size (10^8 scaled)
-     *      - reduceOnly: Only reduce position
-     *      - encodedTif: Time in force (1=Alo, 2=Gtc, 3=Ioc)
-     *      - cloid: Client order ID (0 for none)
-     */
-    function placeLimitOrder(
-        uint32 asset,
-        bool, /*isBuy*/
-        uint64, /*limitPx*/
-        uint64, /*sz*/
-        bool, /*reduceOnly*/
-        uint8, /*encodedTif*/
-        uint128 /*cloid*/
-    ) external pure virtual returns (bytes memory addressesFound) {
-        // Encode actionId and asset ID as pseudo-addresses for Merkle tree validation
-        addressesFound = abi.encodePacked(address(uint160(ACTION_LIMIT_ORDER)), address(uint160(asset)));
-    }
-
-    /**
-     * @notice Cancel an order by order ID on HyperCore.
-     * @dev Action ID 10: (uint32 asset, uint64 oid)
-     */
-    function cancelOrderByOid(uint32 asset, uint64 /*oid*/ )
-        external
-        pure
-        virtual
-        returns (bytes memory addressesFound)
-    {
-        // Encode actionId and asset ID as pseudo-addresses for Merkle tree validation
-        addressesFound = abi.encodePacked(address(uint160(ACTION_CANCEL_BY_OID)), address(uint160(asset)));
-    }
-
-    /**
-     * @notice Cancel an order by client order ID on HyperCore.
-     * @dev Action ID 11: (uint32 asset, uint128 cloid)
-     */
-    function cancelOrderByCloid(uint32 asset, uint128 /*cloid*/ )
-        external
-        pure
-        virtual
-        returns (bytes memory addressesFound)
-    {
-        // Encode actionId and asset ID as pseudo-addresses for Merkle tree validation
-        addressesFound = abi.encodePacked(address(uint160(ACTION_CANCEL_BY_CLOID)), address(uint160(asset)));
-    }
-
-    /**
-     * @notice Approve a builder to charge fees.
-     * @dev Action ID 12: (uint64 maxFeeRate, address builder)
-     * @param builder The builder address to approve
-     */
-    function approveBuilderFee(uint64, /*maxFeeRate*/ address builder)
-        external
-        pure
-        virtual
-        returns (bytes memory addressesFound)
-    {
-        // Encode actionId and builder address for Merkle tree validation
-        addressesFound = abi.encodePacked(address(uint160(ACTION_APPROVE_BUILDER_FEE)), builder);
-    }
-
-    //============================== VAULT OPERATIONS ===============================
-
-    /**
-     * @notice Transfer funds to/from a HyperCore vault.
-     * @dev Action ID 2: (address vault, bool isDeposit, uint64 usd)
-     * @param vault The vault address on HyperCore
-     */
-    function vaultTransfer(address vault, bool, /*isDeposit*/ uint64 /*usd*/ )
-        external
-        pure
-        virtual
-        returns (bytes memory addressesFound)
-    {
-        // Encode actionId and vault address for Merkle tree validation
-        addressesFound = abi.encodePacked(address(uint160(ACTION_VAULT_TRANSFER)), vault);
-    }
-
-    //============================== STAKING ===============================
-
-    /**
-     * @notice Delegate/undelegate HYPE tokens to a validator for staking.
-     * @dev Action ID 3: (address validator, uint64 wei, bool isUndelegate)
-     * @param validator The validator address to delegate to
-     */
-    function tokenDelegate(address validator, uint64, /*wei*/ bool /*isUndelegate*/ )
-        external
-        pure
-        virtual
-        returns (bytes memory addressesFound)
-    {
-        // Encode actionId and validator address for Merkle tree validation
-        addressesFound = abi.encodePacked(address(uint160(ACTION_TOKEN_DELEGATE)), validator);
-    }
-
-    /**
-     * @notice Deposit HYPE into staking.
-     * @dev Action ID 4: (uint64 wei)
-     */
-    function stakingDeposit(uint64 /*wei*/ ) external pure virtual returns (bytes memory addressesFound) {
-        // Encode actionId for Merkle tree validation
-        addressesFound = abi.encodePacked(address(uint160(ACTION_STAKING_DEPOSIT)));
-    }
-
-    /**
-     * @notice Withdraw HYPE from staking.
-     * @dev Action ID 5: (uint64 wei)
-     */
-    function stakingWithdraw(uint64 /*wei*/ ) external pure virtual returns (bytes memory addressesFound) {
-        // Encode actionId for Merkle tree validation
-        addressesFound = abi.encodePacked(address(uint160(ACTION_STAKING_WITHDRAW)));
-    }
-
-    //============================== SPOT TRANSFERS ===============================
-
-    /**
-     * @notice Send spot tokens to another address on HyperCore.
-     * @dev Action ID 6: (address destination, uint64 token, uint64 wei)
-     * @param destination Recipient address on HyperCore
-     */
-    function spotSend(address destination, uint64 token, uint64 /*wei*/ )
-        external
-        pure
-        virtual
-        returns (bytes memory addressesFound)
-    {
-        // Encode actionId, destination, and token for Merkle tree validation
-        addressesFound = abi.encodePacked(address(uint160(ACTION_SPOT_SEND)), destination, address(uint160(token)));
-    }
-
-    /**
-     * @notice Send asset with full routing control.
-     * @dev Action ID 13: (address destination, address subAccount, uint32 sourceDex, uint32 destDex, uint64 token, uint64 wei)
-     * @param destination Recipient address on HyperCore
-     */
-    function sendAsset(
-        address destination,
-        address, /*subAccount*/
-        uint32, /*sourceDex*/
-        uint32, /*destDex*/
-        uint64, /*token*/
-        uint64 /*wei*/
-    ) external pure virtual returns (bytes memory addressesFound) {
-        // Encode actionId and destination address for Merkle tree validation
-        addressesFound = abi.encodePacked(address(uint160(ACTION_SEND_ASSET)), destination);
-    }
-
-    //============================== USD TRANSFERS ===============================
-
-    /**
-     * @notice Transfer USD between spot and perp accounts on HyperCore.
-     * @dev Action ID 7: (uint64 ntl, bool toPerp)
-     *      Moves USD balance between spot wallet and perp margin.
-     */
-    function usdClassTransfer(uint64, /*ntl*/ bool /*toPerp*/ )
-        external
-        pure
-        virtual
-        returns (bytes memory addressesFound)
-    {
-        // Encode actionId for Merkle tree validation
-        addressesFound = abi.encodePacked(address(uint160(ACTION_USD_CLASS_TRANSFER)));
-    }
-
-    //============================== API WALLET ===============================
-
-    /**
-     * @notice Add an API wallet for trading.
-     * @dev Action ID 9: (address apiWallet, bytes name)
-     * @param apiWallet The API wallet address to add
-     */
-    function addApiWallet(address apiWallet, bytes calldata /*name*/ )
-        external
-        pure
-        virtual
-        returns (bytes memory addressesFound)
-    {
-        // Encode actionId and apiWallet address for Merkle tree validation
-        addressesFound = abi.encodePacked(address(uint160(ACTION_ADD_API_WALLET)), apiWallet);
     }
 
     //============================== HYPE BRIDGE ===============================

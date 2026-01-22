@@ -371,11 +371,11 @@ contract HyperliquidCoreWriterIntegration is BaseTestIntegration {
     //============================== LEAF HELPERS ===============================
 
     function _addCoreWriterLeafs(ManageLeaf[] memory leafs, uint32 asset) internal {
-        // Leaf 0: placeLimitOrder - needs actionId and asset
+        // Leaf 0: placeLimitOrder via sendRawAction - needs actionId and asset
         leafs[0] = ManageLeaf(
             CORE_WRITER,
             false,
-            "placeLimitOrder(uint32,bool,uint64,uint64,bool,uint8,uint128)",
+            "sendRawAction(bytes)",
             new address[](2),
             "Place limit order on HyperCore perps",
             rawDataDecoderAndSanitizer
@@ -383,22 +383,22 @@ contract HyperliquidCoreWriterIntegration is BaseTestIntegration {
         leafs[0].argumentAddresses[0] = address(uint160(1)); // ACTION_LIMIT_ORDER
         leafs[0].argumentAddresses[1] = address(uint160(asset));
 
-        // Leaf 1: usdClassTransfer - needs actionId
+        // Leaf 1: usdClassTransfer via sendRawAction - needs actionId
         leafs[1] = ManageLeaf(
             CORE_WRITER,
             false,
-            "usdClassTransfer(uint64,bool)",
+            "sendRawAction(bytes)",
             new address[](1),
             "Transfer USD between spot and perp",
             rawDataDecoderAndSanitizer
         );
         leafs[1].argumentAddresses[0] = address(uint160(7)); // ACTION_USD_CLASS_TRANSFER
 
-        // Leaf 2: cancelOrderByCloid - needs actionId and asset
+        // Leaf 2: cancelOrderByCloid via sendRawAction - needs actionId and asset
         leafs[2] = ManageLeaf(
             CORE_WRITER,
             false,
-            "cancelOrderByCloid(uint32,uint128)",
+            "sendRawAction(bytes)",
             new address[](2),
             "Cancel order by cloid on HyperCore",
             rawDataDecoderAndSanitizer
@@ -406,11 +406,11 @@ contract HyperliquidCoreWriterIntegration is BaseTestIntegration {
         leafs[2].argumentAddresses[0] = address(uint160(11)); // ACTION_CANCEL_BY_CLOID
         leafs[2].argumentAddresses[1] = address(uint160(asset));
 
-        // Leaf 3: cancelOrderByOid - needs actionId and asset
+        // Leaf 3: cancelOrderByOid via sendRawAction - needs actionId and asset
         leafs[3] = ManageLeaf(
             CORE_WRITER,
             false,
-            "cancelOrderByOid(uint32,uint64)",
+            "sendRawAction(bytes)",
             new address[](2),
             "Cancel order by oid on HyperCore",
             rawDataDecoderAndSanitizer
@@ -418,22 +418,22 @@ contract HyperliquidCoreWriterIntegration is BaseTestIntegration {
         leafs[3].argumentAddresses[0] = address(uint160(10)); // ACTION_CANCEL_BY_OID
         leafs[3].argumentAddresses[1] = address(uint160(asset));
 
-        // Leaf 4: stakingDeposit - needs actionId
+        // Leaf 4: stakingDeposit via sendRawAction - needs actionId
         leafs[4] = ManageLeaf(
             CORE_WRITER,
             false,
-            "stakingDeposit(uint64)",
+            "sendRawAction(bytes)",
             new address[](1),
             "Deposit HYPE into staking",
             rawDataDecoderAndSanitizer
         );
         leafs[4].argumentAddresses[0] = address(uint160(4)); // ACTION_STAKING_DEPOSIT
 
-        // Leaf 5: stakingWithdraw - needs actionId
+        // Leaf 5: stakingWithdraw via sendRawAction - needs actionId
         leafs[5] = ManageLeaf(
             CORE_WRITER,
             false,
-            "stakingWithdraw(uint64)",
+            "sendRawAction(bytes)",
             new address[](1),
             "Withdraw HYPE from staking",
             rawDataDecoderAndSanitizer
@@ -445,7 +445,7 @@ contract HyperliquidCoreWriterIntegration is BaseTestIntegration {
         leafs[0] = ManageLeaf(
             CORE_WRITER,
             false,
-            "spotSend(address,uint64,uint64)",
+            "sendRawAction(bytes)",
             new address[](3),
             "Send spot tokens on HyperCore",
             rawDataDecoderAndSanitizer
@@ -459,7 +459,7 @@ contract HyperliquidCoreWriterIntegration is BaseTestIntegration {
         leafs[0] = ManageLeaf(
             CORE_WRITER,
             false,
-            "vaultTransfer(address,bool,uint64)",
+            "sendRawAction(bytes)",
             new address[](2),
             "Transfer to/from HyperCore vault",
             rawDataDecoderAndSanitizer
@@ -472,7 +472,7 @@ contract HyperliquidCoreWriterIntegration is BaseTestIntegration {
         leafs[0] = ManageLeaf(
             CORE_WRITER,
             false,
-            "tokenDelegate(address,uint64,bool)",
+            "sendRawAction(bytes)",
             new address[](2),
             "Delegate HYPE to validator",
             rawDataDecoderAndSanitizer
