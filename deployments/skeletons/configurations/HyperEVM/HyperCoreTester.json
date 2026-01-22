@@ -1,0 +1,122 @@
+{
+    "deploymentParameters": {
+      "logLevel": 4,
+      "privateKeyEnvName": "BORING_DEVELOPER",
+      "chainName": "hyperEVM",
+      "evmVersion": "cancun",
+      "deployerContractAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "deployerAddress"
+      },
+      "nativeWrapperAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "WHYPE"
+      },
+      "deploymentOwnerAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "txBundlerAddress"
+      },
+    "deploymentFileName": "skeletons/addresses/HyperEVM/HyperCoreTester.json"
+    },
+    "rolesAuthorityConfiguration": {
+      "rolesAuthorityDeploymentName": "HyperCore Tester RolesAuthority Version 0.0"
+    },
+    "lensConfiguration": {
+      "lensDeploymentName": "Arctic Architecture Lens V0.0"
+    },
+    "boringVaultConfiguration": {
+      "boringVaultDeploymentName": "HyperCore Tester V0.0",
+      "boringVaultName": "HyperCore Tester",
+      "boringVaultSymbol": "HYPETEST",
+      "boringVaultDecimals": 18
+    },
+    "managerConfiguration": {
+      "managerDeploymentName": "HyperCore Tester ManagerWithMerkleVerification V0.0",
+      "balancerVaultAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000001",
+        "name": "balancerV2Vault"
+      }
+    },
+    "accountantConfiguration": {
+      "accountantDeploymentName": "HyperCore Tester Accountant With Yield Streaming V0.0",
+      "accountantParameters": {
+        "kind": {
+          "variableRate": false,
+          "fixedRate": false,
+          "yieldStreaming": true
+        },
+        "payoutConfiguration": {
+          "payoutTo": "0x0000000000000000000000000000000000000001",
+          "optionalPaymentSplitterName": "HyperCore Tester Payment Splitter V0.0",
+          "splits": []
+        },
+        "accountantDeploymentParameters": {
+          "allowedExchangeRateChangeLower": 9950,
+          "allowedExchangeRateChangeUpper": 10050,
+          "base": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "WHYPE"
+          },
+          "minimumUpateDelayInSeconds": 21600,
+          "performanceFee": 0,
+          "platformFee": 0,
+          "startingExchangeRate": 1000000
+        }
+      } 
+    },
+    "tellerConfiguration": {
+      "tellerDeploymentName": "HyperCore Tester Teller With Yield Streaming V0.0",
+      "tellerParameters": {
+        "kind": {
+          "teller": false,
+          "tellerWithRemediation": false,
+          "tellerWithCcip": false,
+          "tellerWithLayerZero": false,
+          "tellerWithLayerZeroRateLimiting": false,
+          "tellerWithYieldStreaming": true
+        }
+      }
+    },
+    "boringQueueConfiguration": {
+      "boringQueueDeploymentName": "HyperCore Tester Queue V0.0",
+      "boringQueueSolverName": "HyperCore Tester Queue Solver V0.0",
+      "excessToSolverNonSelfSolve": true,
+      "queueParameters": {
+        "kind": {
+          "boringQueue": true,
+          "boringQueueWithTracking": false
+        }
+      }
+    },
+    "droneConfiguration": {
+      "droneDeploymentBaseName": "HyperCore Tester Drone V0.0",
+      "droneCount": 0,
+      "safeGasToForwardNative": 21000
+    },
+    "pauserConfiguration": {
+      "shouldDeploy": true,
+      "pauserDeploymentName": "HyperCore Tester Pauser V0.0"
+    },
+    "timelockConfiguration": {
+      "shouldDeploy": false,
+      "timelockDeploymentName": "HyperCore Tester Timelock V0.0",
+      "timelockParameters": {
+        "executors": ["0x68eC1FdD4Bb202B2e07aE751CB5553644aA48cFA"],
+        "minDelay": 43200,
+        "proposers": ["0x68eC1FdD4Bb202B2e07aE751CB5553644aA48cFA"]
+      }
+    },
+    "aaveV3BufferHelperConfiguration": {
+        "shouldDeploy": false,
+        "aaveV3BufferHelperDeploymentName": "HyperCore Tester AaveV3 Buffer Helper V0.0",
+        "aaveV3PoolAddressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "v3Pool"
+        }
+      },
+      "aaveV3BufferLensConfiguration": {
+        "shouldDeploy": true,
+        "aaveV3BufferLensDeploymentName": "AaveV3 Buffer Lens V0.0"
+      }
+  }
+  

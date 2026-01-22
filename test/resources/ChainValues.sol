@@ -2841,6 +2841,17 @@ contract ChainValues {
         // CoreDepositWallet for bridging native USDC to HyperCore (from spotMeta API)
         // Use: approve USDC to CoreDepositWallet, then call deposit(amount)
         values[hyperEVM]["coreDepositWallet"] = 0x6B9E773128f453f5c2C60935Ee2DE2CBc5390A24.toBytes32();
+
+        // HyperEVM ↔ HyperCore Bridge System Addresses
+        // System addresses follow pattern: 0x20 + token_index (big-endian, zero-padded)
+        // These addresses are both the ERC20 token on HyperEVM AND the bridge destination
+        // To bridge: transfer tokens TO the system address → tokens credited to HyperCore spot wallet
+
+        // UBTC (token_index 197 = 0xC5) - Unit Protocol wrapped BTC
+        values[hyperEVM]["UBTC"] = 0x20000000000000000000000000000000000000c5.toBytes32();
+
+        // UETH (token_index 221 = 0xDD) - Unit Protocol wrapped ETH
+        values[hyperEVM]["UETH"] = 0x20000000000000000000000000000000000000dD.toBytes32();
     }
 
     function _addTACTestnetValues() private {

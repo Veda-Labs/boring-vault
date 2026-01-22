@@ -15548,6 +15548,32 @@ function _addTellerLeafsWithReferral(
     }
 
     /**
+     * @notice Add leafs for registering API wallets on HyperCore.
+     * @dev Action ID 9: (address apiWallet, bytes name)
+     * @param apiWallets Allowed API wallet addresses to register
+     */
+    function _addCoreWriterAddApiWalletLeafs(ManageLeaf[] memory leafs, address[] memory apiWallets) internal {
+        address coreWriter = getAddress(sourceChain, "coreWriter");
+        address actionAddApiWallet = address(uint160(9)); // ACTION_ADD_API_WALLET
+
+        for (uint256 i; i < apiWallets.length; ++i) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                coreWriter,
+                false,
+                "addApiWallet(address,bytes)",
+                new address[](2),
+                string.concat("Add API wallet ", vm.toString(apiWallets[i]), " on HyperCore"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = actionAddApiWallet;
+            leafs[leafIndex].argumentAddresses[1] = apiWallets[i];
+        }
+    }
+
+    /**
      * @notice Add leafs for bridging ERC20 tokens from HyperEVM to HyperCore.
      * @dev Transfer ERC20 to system address (0x20...) to bridge to HyperCore.
      * @param tokens Array of ERC20 token addresses to bridge
@@ -15573,6 +15599,110 @@ function _addTellerLeafsWithReferral(
             );
             leafs[leafIndex].argumentAddresses[0] = systemAddresses[i];
         }
+    }
+
+    /**
+     * @notice Add leafs for depositing native USDC from HyperEVM to HyperCore.
+     * @dev Flow: 1) approve USDC to coreDepositWallet, 2) call deposit(amount, destinationDex)
+     *      Adds leafs for BOTH spot and perps destinations for maximum flexibility.
+     *      destinationDex: 0 = perps margin, 0xFFFFFFFF = spot wallet
+     */
+    function _addCoreWriterUsdcDepositLeafs(ManageLeaf[] memory leafs) internal {
+        address usdc = getAddress(sourceChain, "USDC");
+        address coreDepositWallet = getAddress(sourceChain, "coreDepositWallet");
+
+        // Approve USDC to coreDepositWallet
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            usdc,
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve USDC to coreDepositWallet for HyperCore bridge",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = coreDepositWallet;
+
+        // Deposit USDC to HyperCore perps margin (destinationDex = 0)
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            coreDepositWallet,
+            false,
+            "deposit(uint256,uint32)",
+            new address[](0),
+            "Deposit USDC to HyperCore perps margin",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        // Deposit USDC to HyperCore spot wallet (destinationDex = 0xFFFFFFFF)
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            coreDepositWallet,
+            false,
+            "deposit(uint256,uint32)",
+            new address[](0),
+            "Deposit USDC to HyperCore spot wallet",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+    }
+
+    /**
+     * @notice Add leafs for bridging tokens from HyperCore to HyperEVM via sendAsset.
+     * @dev Action ID 13: (destination, subAccount, sourceDex, destDex, token, wei)
+     * @param destinations Allowed recipient addresses on HyperEVM
+     */
+    function _addCoreWriterSendAssetLeafs(ManageLeaf[] memory leafs, address[] memory destinations) internal {
+        address actionSendAsset = address(uint160(13)); // ACTION_SEND_ASSET
+
+        for (uint256 i; i < destinations.length; ++i) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "coreWriter"),
+                false,
+                "sendAsset(address,address,uint32,uint32,uint64,uint64)",
+                new address[](2),
+                string.concat("Bridge token from HyperCore to ", vm.toString(destinations[i])),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = actionSendAsset;
+            leafs[leafIndex].argumentAddresses[1] = destinations[i];
+        }
+    }
+
+    /**
+     * @notice Add all leafs for bridging tokens from HyperEVM to HyperCore.
+     * @param bridgeUsdc Whether to add USDC bridge leafs (via coreDepositWallet)
+     * @param bridgeTokens Array of ERC20 tokens to bridge via transfer (UBTC, UETH)
+     * @param systemAddresses Corresponding system addresses for each token
+     */
+    function _addHyperEVMToCoreBridgeLeafs(
+        ManageLeaf[] memory leafs,
+        bool bridgeUsdc,
+        address[] memory bridgeTokens,
+        address[] memory systemAddresses
+    ) internal {
+        if (bridgeUsdc) {
+            _addCoreWriterUsdcDepositLeafs(leafs);
+        }
+        if (bridgeTokens.length > 0) {
+            _addCoreWriterBridgeERC20ToCoreLeafs(leafs, bridgeTokens, systemAddresses);
+        }
+    }
+
+    /**
+     * @notice Add all leafs for bridging tokens from HyperCore to HyperEVM.
+     * @param destinations Allowed recipient addresses (typically boringVault)
+     */
+    function _addHyperCoreToEVMBridgeLeafs(ManageLeaf[] memory leafs, address[] memory destinations) internal {
+        _addCoreWriterSendAssetLeafs(leafs, destinations);
     }
 
     /**
