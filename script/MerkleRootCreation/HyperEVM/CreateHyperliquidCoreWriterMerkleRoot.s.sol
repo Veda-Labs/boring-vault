@@ -17,16 +17,12 @@ import "forge-std/Script.sol";
 contract CreateHyperliquidCoreWriterMerkleRoot is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
-    // ========================== Configuration ==========================
-    // Update these addresses for your deployment
-    address public boringVault = address(0); // TODO: Set your boring vault address
-    address public rawDataDecoderAndSanitizer = address(0); // TODO: Set your decoder address
-    address public managerAddress = address(0); // TODO: Set your manager address
-    address public accountantAddress = address(0); // TODO: Set your accountant address
-
-    // CoreWriter system contract on HyperEVM
-    address public constant CORE_WRITER = 0x3333333333333333333333333333333333333333;
-    address public constant HYPE_BRIDGE = 0x2222222222222222222222222222222222222222;
+    // ========================== HyperCore Tester Vault Addresses ==========================
+    address public boringVault = 0xDBb925377aA9d66c1a7E33282932c3A8F264B876;
+    address public managerAddress = 0x95271861969755d700a2aF8A71E10f0F1FF95ECC;
+    address public accountantAddress = 0x71D7aC5a462bE93f2D4Bd53ABD18750C1bD9e5A5;
+    // TODO: Update with actual deployed decoder address before generating final merkle root
+    address public rawDataDecoderAndSanitizer = 0x351C889cA39Af07101bFA22eAb6C47c3C7d8a725;
 
     function setUp() external {}
 
@@ -34,39 +30,34 @@ contract CreateHyperliquidCoreWriterMerkleRoot is Script, MerkleTreeHelper {
      * @notice Uncomment which script you want to run.
      */
     function run() external {
-        generateHyperliquidStrategistMerkleRoot();
+        generateHyperliquidCoreWriterMerkleRoot();
     }
 
-    function generateHyperliquidStrategistMerkleRoot() public {
+    function generateHyperliquidCoreWriterMerkleRoot() public {
         setSourceChainName(hyperEVM);
         setAddress(false, hyperEVM, "boringVault", boringVault);
         setAddress(false, hyperEVM, "managerAddress", managerAddress);
         setAddress(false, hyperEVM, "accountantAddress", accountantAddress);
         setAddress(false, hyperEVM, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
-        setAddress(false, hyperEVM, "coreWriter", CORE_WRITER);
-        setAddress(false, hyperEVM, "hypeBridge", HYPE_BRIDGE);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](512);
 
         // ========================== Define Allowed Perp Assets ==========================
-        // See HyperliquidAssetIds.sol for full list
-        // Common perps: BTC=0, ETH=1, SOL=5, HYPE=163
-        uint32[] memory perpAssets = new uint32[](4);
-        perpAssets[0] = 0;   // BTC
-        perpAssets[1] = 1;   // ETH
-        perpAssets[2] = 5;   // SOL
-        perpAssets[3] = 163; // HYPE
+        // BTC=0, ETH=1 (see HyperliquidAssetIds.sol for full list)
+        uint32[] memory perpAssets = new uint32[](2);
+        perpAssets[0] = 0; // BTC
+        perpAssets[1] = 1; // ETH
 
         // ========================== Define Allowed Recipients ==========================
         address[] memory spotSendRecipients = new address[](1);
         spotSendRecipients[0] = boringVault; // Allow sending back to self
 
         // ========================== Define Allowed Spot Tokens ==========================
-        // See HyperliquidAssetIds.sol for full list
-        // Common spot tokens: USDC=0, HYPE=122
-        uint64[] memory spotTokens = new uint64[](2);
+        // USDC=0, UBTC=197, UETH=221 (for spot sends on HyperCore)
+        uint64[] memory spotTokens = new uint64[](3);
         spotTokens[0] = 0;   // USDC
-        spotTokens[1] = 122; // HYPE
+        spotTokens[1] = 197; // UBTC
+        spotTokens[2] = 221; // UETH
 
         // ========================== Define Allowed Vaults ==========================
         address[] memory vaults = new address[](0); // No vault transfers by default
@@ -84,18 +75,29 @@ contract CreateHyperliquidCoreWriterMerkleRoot is Script, MerkleTreeHelper {
             validators
         );
 
-        // ========================== Fee Claiming ==========================
-        // Add fee claiming if needed
-        // ERC20[] memory feeAssets = new ERC20[](1);
-        // feeAssets[0] = getERC20(sourceChain, "USDC");
-        // _addLeafsForFeeClaiming(leafs, accountantAddress, feeAssets, false);
+        // ========================== USDC Bridging (HyperEVM -> HyperCore) ==========================
+        // Bridge native USDC from HyperEVM to HyperCore via CoreDepositWallet
+        _addCoreWriterUsdcDepositLeafs(leafs);
+
+        // ========================== Token Bridging (HyperCore -> HyperEVM) ==========================
+        // Allow bridging tokens back from HyperCore to the vault on HyperEVM
+        address[] memory bridgeDestinations = new address[](1);
+        bridgeDestinations[0] = boringVault;
+        _addCoreWriterSendAssetLeafs(leafs, bridgeDestinations);
+
+        // ========================== Add API Wallets ==============================
+
+        address[] memory apiWallets = new address[](2);
+        apiWallets[0] = 0x996213ed4099707059b8b5d7489ffF23dAC9770d;
+        apiWallets[1] = 0x60084013A39eeE05c71Efca92F7BA47884a98EDA;
+        _addCoreWriterAddApiWalletLeafs(leafs, apiWallets);
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
-        string memory filePath = "./leafs/HyperEVM/HyperliquidCoreWriterStrategistLeafs.json";
+        string memory filePath = "./leafs/HyperEVM/HyperliquidCoreWriterLeafs.json";
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
     }
