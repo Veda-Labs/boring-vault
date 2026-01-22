@@ -156,19 +156,6 @@ contract HyperliquidCoreWriterDecoderAndSanitizer {
         return addressesFound;
     }
 
-    //============================== HYPE BRIDGE ===============================
-
-    /**
-     * @notice Bridge HYPE from HyperEVM to HyperCore.
-     * @dev Send native ETH to 0x2222...2222 to bridge HYPE to the sender's HyperCore account.
-     *      This is typically called via boringVault.manage() with value > 0.
-     *      The receive() function at 0x2222...2222 emits Received(address user, uint256 amount).
-     */
-    function bridgeHypeToCore() external pure virtual returns (bytes memory addressesFound) {
-        // No addresses to extract - the sender's address is used as the recipient on HyperCore
-        return addressesFound;
-    }
-
     //============================== USDC BRIDGE (CoreDepositWallet) ===============================
 
     /**
