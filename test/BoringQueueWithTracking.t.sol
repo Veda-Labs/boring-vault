@@ -161,9 +161,7 @@ contract BoringQueueWithtrackingTest is Test, MerkleTreeHelper {
         assertEq(endingShares, startingShares, "User should have not gotten any shares back.");
     }
 
-    function testUsingGetWithdrawRequestsToSolve(uint128[4] memory amountOfShares, uint16[4] memory discount)
-        external
-    {
+    function testUsingGetWithdrawRequestsToSolve(uint128[4] memory amountOfShares, uint16[4] memory discount) external {
         uint24 secondsToDeadline = 1 days;
         bytes32[4] memory requestIds;
         uint256 startingShares = ERC20(liquidEth).balanceOf(testUser);
@@ -188,7 +186,7 @@ contract BoringQueueWithtrackingTest is Test, MerkleTreeHelper {
         skip(3 days);
 
         uint256 wETHDelta = WETH.balanceOf(address(this));
-        boringSolver.boringRedeemSolve(requests, liquidEth_teller, false);
+        boringSolver.boringRedeemSolve(requests, liquidEth_teller);
         wETHDelta = WETH.balanceOf(address(this)) - wETHDelta;
         uint256 endingShares = ERC20(liquidEth).balanceOf(testUser);
 

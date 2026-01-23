@@ -2,10 +2,14 @@
 pragma solidity 0.8.21;
 
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
-import {BoringOnChainQueue, ERC20, SafeTransferLib} from "src/base/Roles/BoringQueue/BoringOnChainQueue.sol";
-import {IBoringSolver} from "src/base/Roles/BoringQueue/IBoringSolver.sol";
+import {
+    BoringOnChainQueue,
+    ERC20,
+    SafeTransferLib
+} from "../../../../src/base/Roles/BoringQueue/BoringOnChainQueue.sol";
+import {IBoringSolver} from "../../../../src/base/Roles/BoringQueue/IBoringSolver.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import {TellerWithMultiAssetSupport} from "../../../../src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {Multicall} from "@openzeppelin/contracts/utils/Multicall.sol";
 
 contract BoringSolver is IBoringSolver, Auth, Multicall {
@@ -16,7 +20,6 @@ contract BoringSolver is IBoringSolver, Auth, Multicall {
     enum SolveType {
         BORING_REDEEM, // Fill multiple user requests with a single transaction.
         BORING_REDEEM_MINT // Fill multiple user requests to redeem shares and mint new shares.
-
     }
 
     //============================== ERRORS ===============================
@@ -25,7 +28,7 @@ contract BoringSolver is IBoringSolver, Auth, Multicall {
     error BoringSolver___OnlySelf();
     error BoringSolver___FailedToSolve();
     error BoringSolver___OnlyQueue();
-    error BoringSolver___CannotCoverDeficit(uint256 deficit);
+
     //============================== IMMUTABLES ===============================
 
     BoringOnChainQueue internal immutable queue;
@@ -53,12 +56,11 @@ contract BoringSolver is IBoringSolver, Auth, Multicall {
     /**
      * @notice Solve multiple user requests to redeem Boring Vault shares.
      */
-    function boringRedeemSolve(
-        BoringOnChainQueue.OnChainWithdraw[] calldata requests,
-        address teller,
-        bool coverDeficit
-    ) external requiresAuth {
-        bytes memory solveData = abi.encode(SolveType.BORING_REDEEM, msg.sender, teller, true, coverDeficit);
+    function boringRedeemSolve(BoringOnChainQueue.OnChainWithdraw[] calldata requests, address teller)
+        external
+        requiresAuth
+    {
+        bytes memory solveData = abi.encode(SolveType.BORING_REDEEM, msg.sender, teller, true);
 
         queue.solveOnChainWithdraws(requests, solveData, address(this));
     }
@@ -71,11 +73,10 @@ contract BoringSolver is IBoringSolver, Auth, Multicall {
         BoringOnChainQueue.OnChainWithdraw[] calldata requests,
         address fromTeller,
         address toTeller,
-        address intermediateAsset,
-        bool coverDeficit
+        address intermediateAsset
     ) external requiresAuth {
         bytes memory solveData = abi.encode(
-            SolveType.BORING_REDEEM_MINT, msg.sender, fromTeller, toTeller, intermediateAsset, true, coverDeficit
+            SolveType.BORING_REDEEM_MINT, msg.sender, fromTeller, toTeller, intermediateAsset, true
         );
 
         queue.solveOnChainWithdraws(requests, solveData, address(this));
@@ -95,7 +96,7 @@ contract BoringSolver is IBoringSolver, Auth, Multicall {
         BoringOnChainQueue.OnChainWithdraw[] memory requests = new BoringOnChainQueue.OnChainWithdraw[](1);
         requests[0] = request;
 
-        bytes memory solveData = abi.encode(SolveType.BORING_REDEEM, msg.sender, teller, false, false);
+        bytes memory solveData = abi.encode(SolveType.BORING_REDEEM, msg.sender, teller, false);
 
         queue.solveOnChainWithdraws(requests, solveData, address(this));
     }
@@ -116,7 +117,7 @@ contract BoringSolver is IBoringSolver, Auth, Multicall {
         requests[0] = request;
 
         bytes memory solveData =
-            abi.encode(SolveType.BORING_REDEEM_MINT, msg.sender, fromTeller, toTeller, intermediateAsset, false, false);
+            abi.encode(SolveType.BORING_REDEEM_MINT, msg.sender, fromTeller, toTeller, intermediateAsset, false);
 
         queue.solveOnChainWithdraws(requests, solveData, address(this));
     }
@@ -162,8 +163,8 @@ contract BoringSolver is IBoringSolver, Auth, Multicall {
         uint256 totalShares,
         uint256 requiredAssets
     ) internal {
-        (, address solverOrigin, TellerWithMultiAssetSupport teller, bool excessToSolver, bool coverDeficit) =
-            abi.decode(solveData, (SolveType, address, TellerWithMultiAssetSupport, bool, bool));
+        (, address solverOrigin, TellerWithMultiAssetSupport teller, bool excessToSolver) =
+            abi.decode(solveData, (SolveType, address, TellerWithMultiAssetSupport, bool));
 
         if (boringVault != address(teller.vault())) {
             revert BoringSolver___BoringVaultTellerMismatch(boringVault, address(teller));
@@ -171,29 +172,19 @@ contract BoringSolver is IBoringSolver, Auth, Multicall {
 
         ERC20 asset = ERC20(solveAsset);
         // Redeem the Boring Vault shares for Solve Asset.
-        uint256 assetsOut = teller.bulkWithdraw(asset, totalShares, 0, address(this));
+        uint256 assetsOut = teller.bulkWithdraw(asset, totalShares, requiredAssets, address(this));
 
-        if (assetsOut > requiredAssets) {
-            // Transfer excess assets to solver origin or Boring Vault.
-            // Assets are sent to solver to cover gas fees.
-            // But if users are self solving, then the excess assets go to the Boring Vault.
-            if (excessToSolver) {
-                asset.safeTransfer(solverOrigin, assetsOut - requiredAssets);
-            } else {
-                asset.safeTransfer(boringVault, assetsOut - requiredAssets);
-            }
-        } else if (assetsOut < requiredAssets) {
-            // We have a deficit, cover it using solver origin funds if allowed.
-            uint256 deficit = requiredAssets - assetsOut;
-            if (coverDeficit) {
-                asset.safeTransferFrom(solverOrigin, address(this), deficit);
-            } else {
-                revert BoringSolver___CannotCoverDeficit(deficit);
-            }
-        } // else nothing to do, we have exact change.
+        // Transfer excess assets to solver origin or Boring Vault.
+        // Assets are sent to solver to cover gas fees.
+        // But if users are self solving, then the excess assets go to the Boring Vault.
+        if (excessToSolver) {
+            asset.safeTransfer(solverOrigin, assetsOut - requiredAssets);
+        } else {
+            asset.safeTransfer(boringVault, assetsOut - requiredAssets);
+        }
 
         // Approve Boring Queue to spend the required assets.
-        asset.safeApprove(address(queue), requiredAssets);
+        asset.approve(address(queue), requiredAssets);
     }
 
     /**
@@ -212,10 +203,9 @@ contract BoringSolver is IBoringSolver, Auth, Multicall {
             TellerWithMultiAssetSupport fromTeller,
             TellerWithMultiAssetSupport toTeller,
             ERC20 intermediateAsset,
-            bool excessToSolver,
-            bool coverDeficit
+            bool excessToSolver
         ) = abi.decode(
-            solveData, (SolveType, address, TellerWithMultiAssetSupport, TellerWithMultiAssetSupport, ERC20, bool, bool)
+            solveData, (SolveType, address, TellerWithMultiAssetSupport, TellerWithMultiAssetSupport, ERC20, bool)
         );
 
         if (fromBoringVault != address(fromTeller.vault())) {
@@ -234,21 +224,9 @@ contract BoringSolver is IBoringSolver, Auth, Multicall {
             uint256 assetsToMintRequiredShares = requiredShares.mulDivUp(
                 toTeller.accountant().getRateInQuoteSafe(intermediateAsset), BoringOnChainQueue(queue).ONE_SHARE()
             );
-            if (excessAssets > assetsToMintRequiredShares) {
-                // Remove assetsToMintRequiredShares from excessAssets.
-                excessAssets = excessAssets - assetsToMintRequiredShares;
-            } else if (excessAssets < assetsToMintRequiredShares) {
-                // We have a deficit, cover it using solver origin funds if allowed.
-                uint256 deficit = assetsToMintRequiredShares - excessAssets;
-                if (coverDeficit) {
-                    intermediateAsset.safeTransferFrom(solverOrigin, address(this), deficit);
-                } else {
-                    revert BoringSolver___CannotCoverDeficit(deficit);
-                }
-                excessAssets = 0;
-            } else {
-                excessAssets = 0;
-            }
+
+            // Remove assetsToMintRequiredShares from excessAssets.
+            excessAssets = excessAssets - assetsToMintRequiredShares;
 
             // Approve toBoringVault to spend the Intermediate Asset.
             intermediateAsset.safeApprove(toBoringVault, assetsToMintRequiredShares);
@@ -260,15 +238,14 @@ contract BoringSolver is IBoringSolver, Auth, Multicall {
         // Transfer excess assets to solver origin or Boring Vault.
         // Assets are sent to solver to cover gas fees.
         // But if users are self solving, then the excess assets go to the from Boring Vault.
-        if (excessAssets > 0) {
-            if (excessToSolver) {
-                intermediateAsset.safeTransfer(solverOrigin, excessAssets);
-            } else {
-                intermediateAsset.safeTransfer(fromBoringVault, excessAssets);
-            }
+        if (excessToSolver) {
+            intermediateAsset.safeTransfer(solverOrigin, excessAssets);
+        } else {
+            intermediateAsset.safeTransfer(fromBoringVault, excessAssets);
         }
 
         // Approve Boring Queue to spend the required assets.
-        ERC20(toBoringVault).safeApprove(address(queue), requiredShares);
+        ERC20(toBoringVault).approve(address(queue), requiredShares);
     }
 }
+

@@ -13054,6 +13054,36 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "Bridge2");
     }
 
+    // ========================================= USDC HyperEVM->HyperCore =========================================
+    function _addSendUsdcHyperEvmToCoreLeafs(ManageLeaf[] memory leafs) internal {
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "USDC"),
+            false,
+            "approve(address,uint256)",
+            new address[](0),
+            string.concat("Approve Circle CoreDepositWallet to spend USDC"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "UsdcCoreDepositWallet");
+
+        unchecked {
+            leafIndex++;
+        }
+
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "UsdcCoreDepositWallet"),
+            false,
+            "deposit(uint256,uint32)",
+            new address[](0),
+            string.concat("Transfer USDC from EVM to Core"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = address(0);
+    }
+
     // ========================================= Arbitrum Hyperliquid Bridge 2 =========================================
     function _addArbitrumHyperliquidBridge2Leafs(ManageLeaf[] memory leafs) internal {
         unchecked {

@@ -245,6 +245,9 @@ contract ChainValues {
 
         // Bunjee
         values[hyperevm]["BunjeeInbox"] = 0x7ad979C6b0C9924F79ea571280071595ba13D002.toBytes32();
+
+        // CCTP
+        values[hyperevm]["UsdcCoreDepositWallet"] = 0x6B9E773128f453f5c2C60935Ee2DE2CBc5390A24.toBytes32();
     }
 
     function _addMainnetValues() private {
