@@ -15662,9 +15662,16 @@ function _addTellerLeafsWithReferral(
     /**
      * @notice Add leafs for bridging tokens from HyperCore to HyperEVM via sendAsset.
      * @dev Action ID 13: (destination, subAccount, sourceDex, destDex, token, wei)
+     *      Both destination and subAccount are validated to prevent funds being redirected to unintended sub-accounts
      * @param destinations Allowed recipient addresses on HyperEVM
+     * @param subAccounts Allowed sub-accounts for each destination (use address(0) for main account)
      */
-    function _addCoreWriterSendAssetLeafs(ManageLeaf[] memory leafs, address[] memory destinations) internal {
+    function _addCoreWriterSendAssetLeafs(
+        ManageLeaf[] memory leafs,
+        address[] memory destinations,
+        address[] memory subAccounts
+    ) internal {
+        require(destinations.length == subAccounts.length, "Array length mismatch");
         address actionSendAsset = address(uint160(13)); // ACTION_SEND_ASSET
 
         for (uint256 i; i < destinations.length; ++i) {
@@ -15674,13 +15681,19 @@ function _addTellerLeafsWithReferral(
             leafs[leafIndex] = ManageLeaf(
                 getAddress(sourceChain, "coreWriter"),
                 false,
-                "sendAsset(address,address,uint32,uint32,uint64,uint64)",
-                new address[](2),
-                string.concat("Bridge token from HyperCore to ", vm.toString(destinations[i])),
+                "sendRawAction(bytes)",
+                new address[](3),
+                string.concat(
+                    "Send asset to ",
+                    vm.toString(destinations[i]),
+                    " subAccount ",
+                    vm.toString(subAccounts[i])
+                ),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = actionSendAsset;
             leafs[leafIndex].argumentAddresses[1] = destinations[i];
+            leafs[leafIndex].argumentAddresses[2] = subAccounts[i];
         }
     }
 
@@ -15707,9 +15720,14 @@ function _addTellerLeafsWithReferral(
     /**
      * @notice Add all leafs for bridging tokens from HyperCore to HyperEVM.
      * @param destinations Allowed recipient addresses (typically boringVault)
+     * @param subAccounts Allowed sub-accounts for each destination (use address(0) for main account)
      */
-    function _addHyperCoreToEVMBridgeLeafs(ManageLeaf[] memory leafs, address[] memory destinations) internal {
-        _addCoreWriterSendAssetLeafs(leafs, destinations);
+    function _addHyperCoreToEVMBridgeLeafs(
+        ManageLeaf[] memory leafs,
+        address[] memory destinations,
+        address[] memory subAccounts
+    ) internal {
+        _addCoreWriterSendAssetLeafs(leafs, destinations, subAccounts);
     }
 
     /**

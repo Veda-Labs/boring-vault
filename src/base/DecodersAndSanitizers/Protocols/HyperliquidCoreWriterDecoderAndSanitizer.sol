@@ -77,6 +77,9 @@ contract HyperliquidCoreWriterDecoderAndSanitizer {
     function sendRawAction(bytes calldata data) external pure virtual returns (bytes memory addressesFound) {
         if (data.length < 4) revert HyperliquidCoreWriterDecoderAndSanitizer__InvalidActionEncoding();
 
+        // Validate encoding version (must be 0x01)
+        if (data[0] != 0x01) revert HyperliquidCoreWriterDecoderAndSanitizer__InvalidActionEncoding();
+
         // Extract action ID from bytes 1-3 (big-endian)
         uint24 actionId = uint24(uint8(data[1])) << 16 | uint24(uint8(data[2])) << 8 | uint24(uint8(data[3]));
 
@@ -146,12 +149,17 @@ contract HyperliquidCoreWriterDecoderAndSanitizer {
             }
         } else if (actionId == ACTION_SEND_ASSET) {
             // Send asset: (address destination, address subAccount, uint32 sourceDex, uint32 destDex, uint64 token, uint64 wei)
-            if (data.length >= 36) {
+            // Both destination and subAccount are validated to prevent funds being redirected to unintended sub-accounts
+            if (data.length >= 68) {
+                // 4 header + 32 destination + 32 subAccount
                 address destination = abi.decode(data[4:36], (address));
-                addressesFound = abi.encodePacked(actionIdAddress, destination);
+                address subAccount = abi.decode(data[36:68], (address));
+                addressesFound = abi.encodePacked(actionIdAddress, destination, subAccount);
             }
+        } else {
+            // Unknown/unimplemented action IDs - return actionId only
+            addressesFound = abi.encodePacked(actionIdAddress);
         }
-        // Note: All known actions now return at least the actionId
 
         return addressesFound;
     }
