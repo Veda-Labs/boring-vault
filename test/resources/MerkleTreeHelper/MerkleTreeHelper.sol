@@ -10462,141 +10462,162 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     }
 
     // ========================================= Syrup =========================================
-    function _addAllSyrupLeafs(ManageLeaf[] memory leafs) internal {
-        _addSyrupRouterLeafs(leafs);
-        _addSyrupPoolLeafs(leafs);
+    function _addAllSyrupLeafs(ManageLeaf[] memory leafs, address[] memory tokens) internal {
+        _addSyrupRouterLeafs(leafs, tokens);
+        _addSyrupPoolLeafs(leafs, tokens);
     }
 
-    function _addSyrupRouterLeafs(ManageLeaf[] memory leafs) internal {
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "USDC"),
-            false,
-            "approve(address,uint256)",
-            new address[](1),
-            string.concat("Approve USDC to be spent by USDC syrupRouter"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "syrupRouterUSDC");
+    function _addSyrupRouterLeafs(ManageLeaf[] memory leafs, address[] memory tokens) internal {
+        for (uint i; i < tokens.length; i++) {
+            if (tokens[i] != getAddress(sourceChain, "USDC") &&
+                tokens[i] != getAddress(sourceChain, "USDT")) revert("Must be USDC or USDT");  
 
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "USDT"),
-            false,
-            "approve(address,uint256)",
-            new address[](1),
-            string.concat("Approve USDT to be spent by USDT syrupRouter"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "syrupRouterUSDT");
+            if (tokens[i] == getAddress(sourceChain, "USDC")) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    getAddress(sourceChain, "USDC"),
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve USDC to be spent by USDC syrupRouter"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "syrupRouterUSDC");
 
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "syrupRouterUSDC"),
-            false,
-            "deposit(uint256,bytes32)",
-            new address[](0),
-            string.concat("Deposit USDC to syrupUSDC"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    getAddress(sourceChain, "syrupRouterUSDC"),
+                    false,
+                    "deposit(uint256,bytes32)",
+                    new address[](0),
+                    string.concat("Deposit USDC to syrupUSDC"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+            }
+            
+           if (tokens[i] == getAddress(sourceChain, "USDT")) { 
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    getAddress(sourceChain, "USDT"),
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve USDT to be spent by USDT syrupRouter"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "syrupRouterUSDT");
 
-        unchecked {
-            leafIndex++;
+
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    getAddress(sourceChain, "syrupRouterUSDT"),
+                    false,
+                    "deposit(uint256,bytes32)",
+                    new address[](0),
+                    string.concat("Deposit USDT to syrupUSDT"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+           }
         }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "syrupRouterUSDT"),
-            false,
-            "deposit(uint256,bytes32)",
-            new address[](0),
-            string.concat("Deposit USDT to syrupUSDT"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
     }
 
-    function _addSyrupPoolLeafs(ManageLeaf[] memory leafs) internal {
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "syrupUSDC"),
-            false,
-            "approve(address,uint256)",
-            new address[](1),
-            string.concat("Approve syrupUSDC to be redeemed for USDC"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "syrupUSDC");
+    function _addSyrupPoolLeafs(ManageLeaf[] memory leafs, address[] memory tokens) internal {
+        for (uint i; i < tokens.length; i++) {
+            if (tokens[i] != getAddress(sourceChain, "USDC") &&
+                tokens[i] != getAddress(sourceChain, "USDT")) revert("Must be USDC or USDT");  
 
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "syrupUSDT"),
-            false,
-            "approve(address,uint256)",
-            new address[](1),
-            string.concat("Approve syrupUSDT to be redeemed for USDT"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "syrupUSDT");
+            if (tokens[i] == getAddress(sourceChain, "USDC")) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    getAddress(sourceChain, "syrupUSDC"),
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve syrupUSDC to be redeemed for USDC"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "syrupUSDC");
 
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "syrupUSDC"),
-            false,
-            "requestRedeem(uint256,address)",
-            new address[](1),
-            string.concat("Request redeem syrupUSDC for USDC"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    getAddress(sourceChain, "syrupUSDC"),
+                    false,
+                    "requestRedeem(uint256,address)",
+                    new address[](1),
+                    string.concat("Request redeem syrupUSDC for USDC"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
 
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "syrupUSDT"),
-            false,
-            "requestRedeem(uint256,address)",
-            new address[](1),
-            string.concat("Request redeem syrupUSDT for USDT"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    getAddress(sourceChain, "syrupUSDC"),
+                    false,
+                    "removeShares(uint256,address)",
+                    new address[](1),
+                    string.concat("Cancel syrupUSDC for USDC redemption request"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
 
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "syrupUSDC"),
-            false,
-            "removeShares(uint256,address)",
-            new address[](1),
-            string.concat("Cancel syrupUSDC for USDC redemption request"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+            }
 
-        unchecked {
-            leafIndex++;
+            if (tokens[i] == getAddress(sourceChain, "USDT")) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    getAddress(sourceChain, "syrupUSDT"),
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve syrupUSDT to be redeemed for USDT"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "syrupUSDT");
+
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    getAddress(sourceChain, "syrupUSDT"),
+                    false,
+                    "requestRedeem(uint256,address)",
+                    new address[](1),
+                    string.concat("Request redeem syrupUSDT for USDT"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    getAddress(sourceChain, "syrupUSDT"),
+                    false,
+                    "removeShares(uint256,address)",
+                    new address[](1),
+                    string.concat("Cancel syrupUSDT for USDT redemption request"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+            }
         }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "syrupUSDT"),
-            false,
-            "removeShares(uint256,address)",
-            new address[](1),
-            string.concat("Cancel syrupUSDC for USDC redemption request"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
     }
 
     // ========================================= Golilocks =========================================
