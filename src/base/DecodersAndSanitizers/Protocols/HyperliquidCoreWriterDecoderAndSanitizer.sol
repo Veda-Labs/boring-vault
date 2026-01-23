@@ -89,22 +89,19 @@ contract HyperliquidCoreWriterDecoderAndSanitizer {
         // Extract addresses and asset IDs based on action type
         if (actionId == ACTION_LIMIT_ORDER) {
             // Limit order: (uint32 asset, bool isBuy, uint64 limitPx, uint64 sz, bool reduceOnly, uint8 encodedTif, uint128 cloid)
-            if (data.length >= 36) {
-                uint32 asset = abi.decode(data[4:36], (uint32));
-                addressesFound = abi.encodePacked(actionIdAddress, address(uint160(asset)));
-            }
+            if (data.length < 36) revert HyperliquidCoreWriterDecoderAndSanitizer__InvalidActionEncoding();
+            uint32 asset = abi.decode(data[4:36], (uint32));
+            addressesFound = abi.encodePacked(actionIdAddress, address(uint160(asset)));
         } else if (actionId == ACTION_VAULT_TRANSFER) {
             // Vault transfer: (address vault, bool isDeposit, uint64 usd)
-            if (data.length >= 36) {
-                address vault = abi.decode(data[4:36], (address));
-                addressesFound = abi.encodePacked(actionIdAddress, vault);
-            }
+            if (data.length < 36) revert HyperliquidCoreWriterDecoderAndSanitizer__InvalidActionEncoding();
+            address vault = abi.decode(data[4:36], (address));
+            addressesFound = abi.encodePacked(actionIdAddress, vault);
         } else if (actionId == ACTION_TOKEN_DELEGATE) {
             // Token delegate: (address validator, uint64 wei, bool isUndelegate)
-            if (data.length >= 36) {
-                address validator = abi.decode(data[4:36], (address));
-                addressesFound = abi.encodePacked(actionIdAddress, validator);
-            }
+            if (data.length < 36) revert HyperliquidCoreWriterDecoderAndSanitizer__InvalidActionEncoding();
+            address validator = abi.decode(data[4:36], (address));
+            addressesFound = abi.encodePacked(actionIdAddress, validator);
         } else if (actionId == ACTION_STAKING_DEPOSIT) {
             // Staking deposit: (uint64 wei) - no addresses, just actionId
             addressesFound = abi.encodePacked(actionIdAddress);
@@ -114,48 +111,42 @@ contract HyperliquidCoreWriterDecoderAndSanitizer {
         } else if (actionId == ACTION_SPOT_SEND) {
             // Spot send: (address destination, uint64 token, uint64 wei)
             // ABI layout: [destination: 32 bytes][token: 32 bytes][wei: 32 bytes]
-            if (data.length >= 68) {
-                address destination = abi.decode(data[4:36], (address));
-                uint64 token = abi.decode(data[36:68], (uint64));
-                addressesFound = abi.encodePacked(actionIdAddress, destination, address(uint160(token)));
-            }
+            if (data.length < 68) revert HyperliquidCoreWriterDecoderAndSanitizer__InvalidActionEncoding();
+            address destination = abi.decode(data[4:36], (address));
+            uint64 token = abi.decode(data[36:68], (uint64));
+            addressesFound = abi.encodePacked(actionIdAddress, destination, address(uint160(token)));
         } else if (actionId == ACTION_USD_CLASS_TRANSFER) {
             // USD class transfer: (uint64 ntl, bool toPerp) - no addresses, just actionId
             addressesFound = abi.encodePacked(actionIdAddress);
         } else if (actionId == ACTION_ADD_API_WALLET) {
             // Add API wallet: (address apiWallet, bytes name)
-            if (data.length >= 36) {
-                address apiWallet = abi.decode(data[4:36], (address));
-                addressesFound = abi.encodePacked(actionIdAddress, apiWallet);
-            }
+            if (data.length < 36) revert HyperliquidCoreWriterDecoderAndSanitizer__InvalidActionEncoding();
+            address apiWallet = abi.decode(data[4:36], (address));
+            addressesFound = abi.encodePacked(actionIdAddress, apiWallet);
         } else if (actionId == ACTION_CANCEL_BY_OID) {
             // Cancel by OID: (uint32 asset, uint64 oid)
-            if (data.length >= 36) {
-                uint32 asset = abi.decode(data[4:36], (uint32));
-                addressesFound = abi.encodePacked(actionIdAddress, address(uint160(asset)));
-            }
+            if (data.length < 36) revert HyperliquidCoreWriterDecoderAndSanitizer__InvalidActionEncoding();
+            uint32 asset = abi.decode(data[4:36], (uint32));
+            addressesFound = abi.encodePacked(actionIdAddress, address(uint160(asset)));
         } else if (actionId == ACTION_CANCEL_BY_CLOID) {
             // Cancel by CLOID: (uint32 asset, uint128 cloid)
-            if (data.length >= 36) {
-                uint32 asset = abi.decode(data[4:36], (uint32));
-                addressesFound = abi.encodePacked(actionIdAddress, address(uint160(asset)));
-            }
+            if (data.length < 36) revert HyperliquidCoreWriterDecoderAndSanitizer__InvalidActionEncoding();
+            uint32 asset = abi.decode(data[4:36], (uint32));
+            addressesFound = abi.encodePacked(actionIdAddress, address(uint160(asset)));
         } else if (actionId == ACTION_APPROVE_BUILDER_FEE) {
             // Approve builder fee: (uint64 maxFeeRate, address builder)
             // Address is second param, starts at offset 4 + 32 = 36
-            if (data.length >= 68) {
-                address builder = abi.decode(data[36:68], (address));
-                addressesFound = abi.encodePacked(actionIdAddress, builder);
-            }
+            if (data.length < 68) revert HyperliquidCoreWriterDecoderAndSanitizer__InvalidActionEncoding();
+            address builder = abi.decode(data[36:68], (address));
+            addressesFound = abi.encodePacked(actionIdAddress, builder);
         } else if (actionId == ACTION_SEND_ASSET) {
             // Send asset: (address destination, address subAccount, uint32 sourceDex, uint32 destDex, uint64 token, uint64 wei)
             // Both destination and subAccount are validated to prevent funds being redirected to unintended sub-accounts
-            if (data.length >= 68) {
-                // 4 header + 32 destination + 32 subAccount
-                address destination = abi.decode(data[4:36], (address));
-                address subAccount = abi.decode(data[36:68], (address));
-                addressesFound = abi.encodePacked(actionIdAddress, destination, subAccount);
-            }
+            if (data.length < 68) revert HyperliquidCoreWriterDecoderAndSanitizer__InvalidActionEncoding();
+            // 4 header + 32 destination + 32 subAccount
+            address destination = abi.decode(data[4:36], (address));
+            address subAccount = abi.decode(data[36:68], (address));
+            addressesFound = abi.encodePacked(actionIdAddress, destination, subAccount);
         } else {
             // Unknown/unimplemented action IDs - return actionId only
             addressesFound = abi.encodePacked(actionIdAddress);
