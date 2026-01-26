@@ -394,20 +394,21 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         {
-            ERC20[] memory droneTokens = new ERC20[](13);
+            ERC20[] memory droneTokens = new ERC20[](14);
             droneTokens[0] = getERC20(sourceChain, "WSTUSR");
             droneTokens[1] = getERC20(sourceChain, "USDC");
             droneTokens[2] = getERC20(sourceChain, "WSTETH");
             droneTokens[3] = getERC20(sourceChain, "USDT");
             droneTokens[4] = getERC20(sourceChain, "WETH");
-            droneTokens[5] = getERC20(sourceChain, "USDE");
-            droneTokens[6] = getERC20(sourceChain, "SUSDE");
-            droneTokens[7] = getERC20(sourceChain, "SRUSDE");
-            droneTokens[8] = getERC20(sourceChain, "syrupUSDC");
-            droneTokens[9] = getERC20(sourceChain, "syrupUSDT");
-            droneTokens[10] = getERC20(sourceChain, "RLUSD");
-            droneTokens[11] = getERC20(sourceChain, "PYUSD");
-            droneTokens[12] = getERC20(sourceChain, "SYRUP");
+            droneTokens[5] = getERC20(sourceChain, "USR");
+            droneTokens[6] = getERC20(sourceChain, "USDE");
+            droneTokens[7] = getERC20(sourceChain, "SUSDE");
+            droneTokens[8] = getERC20(sourceChain, "SRUSDE");
+            droneTokens[9] = getERC20(sourceChain, "syrupUSDC");
+            droneTokens[10] = getERC20(sourceChain, "syrupUSDT");
+            droneTokens[11] = getERC20(sourceChain, "RLUSD");
+            droneTokens[12] = getERC20(sourceChain, "PYUSD");
+            droneTokens[13] = getERC20(sourceChain, "SYRUP");
             _addLeafsForDroneTransfers(leafs, drone, droneTokens);
             _addLeafsForDrone(leafs);
         }
@@ -556,7 +557,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         {
             address[] memory subaccounts = new address[](1);
-            subaccounts[0] = address(boringVault);
+            subaccounts[0] = address(drone);
 
             ERC4626[] memory depositVaults = new ERC4626[](2);
             depositVaults[0] = ERC4626(getAddress(sourceChain, "evkePYUSD-6"));
