@@ -90,7 +90,7 @@ contract CreateSentoraUSDCMerkleRoot is Script, MerkleTreeHelper {
             _addLeafsForITBPositionManager(leafs, aavePYUSDPositionManager, aavePYUSDTokensUsed, "Aave PYUSD ITB Position Manager");
         }
         {
-            // aave PYUSD
+            // aave RLUSD
             address aaveRLUSDPositionManager = 0x89dfbb43dd50954a3CCe48b611E4ED231579224e;
             ERC20[] memory aaveRLUSDTokensUsed = new ERC20[](1);
             aaveRLUSDTokensUsed[0] = getERC20(sourceChain, "RLUSD");
