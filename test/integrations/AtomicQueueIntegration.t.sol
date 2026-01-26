@@ -13,7 +13,7 @@ import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
-import {AtomicQueue} from "src/atomic-queue/AtomicQueue.sol";
+import {AtomicQueue} from "src/archive/atomic-queue/AtomicQueue.sol";
 import {
     OnlyAtomicQueueDecoderAndSanitizer,
     AtomicQueueDecoderAndSanitizer
