@@ -1,0 +1,219 @@
+{
+  "deploymentParameters": {
+    "logLevel": 4,
+    "privateKeyEnvName": "MAINNET_DEPLOYER_KEY",
+    "chainName": "mainnet",
+    "evmVersion": "cancun",
+    "desiredNumberOfDeploymentTxs": 1,
+    "txBundlerAddressOrName": {
+      "address": "0x70A3d136472aB0bda4635D194543A2afBaD098c8",
+      "name": "txBundlerAddress"
+    },
+    "setupRoles": true,
+    "setupTestUser": true,
+    "saveDeploymentDetails": true,
+    "testUserAddressOrName": {
+      "address": "0xA45A9b2bC0230Fa78aF0C92031a2E4016aFA9B40",
+      "name": "dev1Address"
+    },
+    "deployerContractAddressOrName": {
+      "address": "0x70A3d136472aB0bda4635D194543A2afBaD098c8",
+      "name": "deployerAddress"
+    },
+    "nativeWrapperAddressOrName": {
+      "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      "name": "WETH"
+    },
+    "deploymentOwnerAddressOrName": {
+      "address": "0x70A3d136472aB0bda4635D194543A2afBaD098c8",
+      "name": "txBundlerAddress"
+    },
+    "deploymentFileName": "addresses/Mainnet/iPrvlAgent2VaultUSDC.json"
+  },
+  "rolesAuthorityConfiguration": {
+    "rolesAuthorityDeploymentName": "iPrvlAgent2USDC RolesAuthority Version 0.0"
+  },
+  "lensConfiguration": {
+    "lensDeploymentName": "iPrvlAgent2USDC Arctic Architecture Lens V0.0"
+  },
+  "boringVaultConfiguration": {
+    "boringVaultDeploymentName": "iPrvlAgent2USDC V0.0",
+    "boringVaultName": "iPrvlAgent2USDC Vault",
+    "boringVaultSymbol": "iPrvlAgent2USDC",
+    "boringVaultDecimals": 6
+  },
+  "managerConfiguration": {
+    "managerDeploymentName": "iPrvlAgent2USDC Manager With Merkle Verification V0.0",
+    "balancerVaultAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "balancerVault"
+    }
+  },
+  "accountantConfiguration": {
+    "accountantDeploymentName": "iPrvlAgent2USDC Accountant With Rate Providers V0.0",
+    "accountantParameters": {
+      "kind": {
+        "variableRate": true,
+        "fixedRate": false
+      },
+      "payoutConfiguration": {
+        "payoutTo": "0x2Bfbde68c536C189e81515c207A6830179F7E0be",
+        "optionalPaymentSplitterName": "iPrvlAgent2USDC Payment Splitter V0.0",
+        "splits": []
+      },
+      "accountantDeploymentParameters": {
+        "allowedExchangeRateChangeLower": 9900,
+        "allowedExchangeRateChangeUpper": 10000,
+        "baseAddressOrName": {
+          "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+          "name": "USDC"
+        },
+        "minimumUpateDelayInSeconds": 21600,
+        "performanceFee": 0,
+        "platformFee": 0,
+        "startingExchangeRate": 1000000
+      }
+    }
+  },
+  "tellerConfiguration": {
+    "tellerDeploymentName": "iPrvlAgent2USDC Teller With Multi Asset Support V0.0",
+    "tellerParameters": {
+      "allowPublicDeposits": false,
+      "shareLockPeriod": 60,
+      "kind": {
+        "teller": true,
+        "tellerWithRemediation": false,
+        "tellerWithCcip": false,
+        "tellerWithLayerZero": false,
+        "tellerWithLayerZeroRateLimiting": false
+      },
+      "ccip": {
+        "routerAddressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "ccipRouter"
+        },
+        "ccipChains": [
+          {
+            "chainSelector": 1,
+            "allowMessagesFrom": true,
+            "allowMessagesTo": true,
+            "targetTellerOrSelf": {
+              "address": "0x0000000000000000000000000000000000000000",
+              "self": true
+            },
+            "messageGasLimit": 100000
+          }
+        ]
+      },
+      "layerZero": {
+        "endpointAddressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "LayerZeroEndPoint"
+        },
+        "lzTokenAddressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "ZRO"
+        },
+        "lzChains": [
+          {
+            "chainId": 1,
+            "allowMessagesFrom": true,
+            "allowMessagesTo": true,
+            "targetTellerOrSelf": {
+              "address": "0x0000000000000000000000000000000000000000",
+              "self": true
+            },
+            "messageGasLimit": 100000
+          }
+        ]
+      }
+    }
+  },
+  "boringQueueConfiguration": {
+    "boringQueueDeploymentName": "iPrvlAgent2USDC Boring Queue V0.0",
+    "boringQueueSolverName": "iPrvlAgent2USDC Boring Solver V0.0",
+    "excessToSolverNonSelfSolve": false,
+    "queueParameters": {
+      "allowPublicWithdrawals": false,
+      "allowPublicSelfWithdrawals": false,
+      "kind": {
+        "boringQueue": true,
+        "boringQueueWithTracking": false
+      }
+    }
+  },
+  "droneConfiguration": {
+    "droneDeploymentBaseName": "iPrvlAgent2USDC Drone V0.0",
+    "droneCount": 0,
+    "safeGasToForwardNative": 21000
+  },
+  "pauserConfiguration": {
+    "shouldDeploy": true,
+    "pauserDeploymentName": "iPrvlAgent2USDC Pauser V0.0",
+    "makeGenericPauser": [
+      "0x9c2081240E5F1d34Faffe322A38F86Aa6F57bba9"
+    ],
+    "makeGenericUnpauser": [
+      "0x9c2081240E5F1d34Faffe322A38F86Aa6F57bba9"
+    ],
+    "makePauseAll": [
+      "0x9c2081240E5F1d34Faffe322A38F86Aa6F57bba9"
+    ],
+    "makeUnpauseAll": [
+      "0x9c2081240E5F1d34Faffe322A38F86Aa6F57bba9"
+    ],
+    "senderToPausable": [
+      {
+        "sender": "0x0000000000000000000000000000000000000000",
+        "pausable": "0x0000000000000000000000000000000000000000"
+      }
+    ]
+  },
+  "timelockConfiguration": {
+    "shouldDeploy": false,
+    "timelockDeploymentName": "timelock",
+    "timelockParameters": {
+      "minDelay": 86400,
+      "proposers": [
+        "0x0000000000000000000000000000000000000000"
+      ],
+      "executors": [
+        "0x0000000000000000000000000000000000000000"
+      ]
+    }
+  },
+  "accountantAssets": [
+    {
+      "addressOrName": {
+        "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        "name": "USDC"
+      },
+      "isPeggedToBase": true,
+      "rateProvider": "0x0000000000000000000000000000000000000000"
+    }
+  ],
+  "depositAssets": [
+    {
+      "addressOrName": {
+        "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        "name": "USDC"
+      },
+      "allowDeposits": true,
+      "allowWithdraws": true,
+      "sharePremium": 0
+    }
+  ],
+  "withdrawAssets": [
+    {
+      "addressOrName": {
+        "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        "name": "USDC"
+      },
+      "maxDiscount": 10,
+      "minDiscount": 0,
+      "minimumSecondsToDeadline": 259200,
+      "minimumShares": 0,
+      "secondsToMaturity": 0
+    }
+  ]
+}
