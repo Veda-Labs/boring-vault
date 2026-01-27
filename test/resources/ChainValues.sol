@@ -656,8 +656,6 @@ contract ChainValues {
 
         values[mainnet]["pyUsd_Usdc_Curve_Pool"] = 0x383E6b4437b59fff47B619CBA855CA29342A8559.toBytes32();
         values[mainnet]["pyUsd_Usdc_Curve_Gauge"] = 0x9da75997624C697444958aDeD6790bfCa96Af19A.toBytes32();
-        values[mainnet]["pyUsd_Usdc_PayPool_Curve_Pool"] = 0x383E6b4437b59fff47B619CBA855CA29342A8559.toBytes32();
-        values[mainnet]["pyUsd_Usdc_PayPool_Curve_Gauge"] = 0x9da75997624C697444958aDeD6790bfCa96Af19A.toBytes32();
         values[mainnet]["pyUsd_Usdc_Convex_Id"] = address(270).toBytes32();
         values[mainnet]["frax_Usdc_Curve_Pool"] = 0xDcEF968d416a41Cdac0ED8702fAC8128A64241A2.toBytes32();
         values[mainnet]["frax_Usdc_Convex_Id"] = address(100).toBytes32();

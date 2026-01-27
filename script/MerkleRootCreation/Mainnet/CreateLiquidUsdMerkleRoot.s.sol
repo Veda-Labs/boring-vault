@@ -484,12 +484,6 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
             2,
             getAddress(sourceChain, "pyUsd_Usdc_Curve_Gauge")
         );
-        _addCurveLeafs(
-            leafs,
-            getAddress(sourceChain, "pyUsd_Usdc_PayPool_Curve_Pool"),
-            2,
-            getAddress(sourceChain, "pyUsd_Usdc_PayPool_Curve_Gauge")
-        );
 
         // ========================== Resolv ==========================
         {
