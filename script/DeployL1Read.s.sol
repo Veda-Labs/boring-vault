@@ -22,8 +22,11 @@ contract DeployL1Read is Script, MerkleTreeHelper {
         vm.createSelectFork("hyperevm");
         setSourceChainName("hyperevm");
         vm.startBroadcast(pk);
-        creationCode = type(L1Read).creationCode;
-        deployer.deployContract("Lucidly L1Read", creationCode, constructorArgs, 0);
+        // creationCode = type(L1Read).creationCode;
+        // deployer.deployContract("Lucidly L1ReadV1.0", creationCode, constructorArgs, 0);
+
+        new L1Read();
+
         vm.stopBroadcast();
     }
 }

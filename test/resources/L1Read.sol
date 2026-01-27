@@ -91,6 +91,27 @@ contract L1Read {
         bool exists;
     }
 
+    struct BasisAndValue {
+        uint64 basis;
+        uint64 value;
+    }
+
+    struct BorrowLendUserTokenState {
+        BasisAndValue borrow;
+        BasisAndValue supply;
+    }
+
+    struct BorrowLendReserveState {
+        uint64 borrowYearlyRateBps;
+        uint64 supplyYearlyRateBps;
+        uint64 balance;
+        uint64 utilizationBps;
+        uint64 oraclePx;
+        uint64 ltvBps;
+        uint64 totalSupplied;
+        uint64 totalBorrowed;
+    }
+
     address constant POSITION_PRECOMPILE_ADDRESS = 0x0000000000000000000000000000000000000800;
     address constant SPOT_BALANCE_PRECOMPILE_ADDRESS = 0x0000000000000000000000000000000000000801;
     address constant VAULT_EQUITY_PRECOMPILE_ADDRESS = 0x0000000000000000000000000000000000000802;
@@ -108,6 +129,8 @@ contract L1Read {
     address constant BBO_PRECOMPILE_ADDRESS = 0x000000000000000000000000000000000000080e;
     address constant ACCOUNT_MARGIN_SUMMARY_PRECOMPILE_ADDRESS = 0x000000000000000000000000000000000000080F;
     address constant CORE_USER_EXISTS_PRECOMPILE_ADDRESS = 0x0000000000000000000000000000000000000810;
+    address constant BORROW_LEND_USER_STATE_PRECOMPILE_ADDRESS = 0x0000000000000000000000000000000000000811;
+    address constant BORROW_LEND_RESERVE_STATE_PRECOMPILE_ADDRESS = 0x0000000000000000000000000000000000000812;
 
     function position(address user, uint16 perp) external view returns (Position memory) {
         bool success;
@@ -248,4 +271,21 @@ contract L1Read {
         require(success, "Core user exists precompile call failed");
         return abi.decode(result, (CoreUserExists));
     }
+
+    function borrowLendUserState(address user, uint64 token) external view returns (BorrowLendUserTokenState memory) {
+        bool success;
+        bytes memory result;
+        (success, result) = BORROW_LEND_USER_STATE_PRECOMPILE_ADDRESS.staticcall(abi.encode(user, token));
+        require(success, "Borrow lend user state precompile call failed");
+        return abi.decode(result, (BorrowLendUserTokenState));
+    }
+
+    function borrowLendReserveState(uint64 token) external view returns (BorrowLendReserveState memory) {
+        bool success;
+        bytes memory result;
+        (success, result) = BORROW_LEND_RESERVE_STATE_PRECOMPILE_ADDRESS.staticcall(abi.encode(token));
+        require(success, "Borrow lend reserve state precompile call failed");
+        return abi.decode(result, (BorrowLendReserveState));
+    }
 }
+

@@ -28,6 +28,7 @@ import {
 import {
     MonadStablecoinStrategyDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/MonStablecoinStrategyDecoderAndSanitizer.sol";
+import {HlCoreVaultDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/HlCoreVaultDecoderAndSanitizer.sol";
 
 import {BoringDrone} from "src/base/Drones/BoringDrone.sol";
 
@@ -77,6 +78,30 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         // constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
         // deployer.deployContract("SyUsd Base DecodersAndSanitizers Batch 1", creationCode, constructorArgs, 0);
         // vm.stopBroadcast();
+    }
+}
+
+contract DeployHlCoreVaultDecoderAndSanitizer is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
+    uint256 public privateKey;
+    Deployer public deployer = Deployer(0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC);
+
+    function setUp() external {}
+
+    function run() external {
+        bytes memory creationCode;
+        bytes memory constructorArgs;
+
+        vm.createSelectFork("hyperevm");
+        setSourceChainName("hyperevm");
+
+        vm.startBroadcast(vm.envUint("BORING_DEVELOPER"));
+
+        creationCode = type(HlCoreVaultDecoderAndSanitizer).creationCode;
+        // deployer.deployContract("HlCoreVaultDecodersAndSanitizerV0.1", creationCode, constructorArgs, 0);
+
+        new HlCoreVaultDecoderAndSanitizer();
+
+        vm.stopBroadcast();
     }
 }
 

@@ -13102,7 +13102,22 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     }
 
     // ========================================= HyperEvm CoreWriter =========================================
-    function _addCoreWriterLeaves(ManageLeaf[] memory leafs) internal {
+    function _addCoreWriterLeafs(ManageLeaf[] memory leafs) internal {
+        unchecked {
+            leafIndex++;
+        }
+
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "CoreWriter"),
+            false,
+            "sendRawAction(bytes)",
+            new address[](0),
+            string.concat("Call CoreWriter"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+    }
+
+    function _addHyperCoreLimitOrderLeafs(ManageLeaf[] memory leafs) internal {
         unchecked {
             leafIndex++;
         }

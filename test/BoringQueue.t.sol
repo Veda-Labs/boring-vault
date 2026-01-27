@@ -238,6 +238,26 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
         assertGt(wETHDelta, 0, "This address should have received some wETH.");
     }
 
+    function test2RedeemSolve() external {
+        vm.createSelectFork("base");
+        setSourceChainName("base");
+        vm.startPrank(0xB6BD3d172686Ae78ee99F5897deE2BFEc0FE4FB3);
+
+        BoringOnChainQueue.OnChainWithdraw[] memory reqs = new BoringOnChainQueue.OnChainWithdraw[](1);
+
+        reqs[0].user = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5;
+        reqs[0].assetOut = 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913;
+        reqs[0].nonce = uint96(1);
+        reqs[0].amountOfShares = uint128(20_000_000);
+        reqs[0].amountOfAssets = uint128(20_000_000);
+        reqs[0].creationTime = uint40(1769073723);
+        reqs[0].secondsToMaturity = uint24(60);
+        reqs[0].secondsToDeadline = uint24(604_800);
+
+        BoringSolver(0x315b7485C1566600cfB9fa12e3Cec604a0609efD)
+            .boringRedeemSolve(reqs, 0x1A82209E4120a6DfAab14fFb58F67b33A10ca836);
+    }
+
     function testRedeemMintSolve(uint128 amountOfShares, uint16 discount) external {
         amountOfShares = uint128(bound(amountOfShares, 0.01e18, 1_000e18));
         discount = uint16(bound(discount, 1, 100));
