@@ -366,6 +366,7 @@ contract ChainValues {
         values[mainnet]["USCC"] = 0x14d60E7FDC0D71d8611742720E4C50E7a974020c.toBytes32();
         values[mainnet]["USDG"] = 0xe343167631d89B6Ffc58B88d6b7fB0228795491D.toBytes32();
         values[mainnet]["axlSAGA"] = 0xF42fCFfc27A5B8d0afEC45659407B82f9F32fA98.toBytes32();
+        values[mainnet]["USD1"] = 0x8d0D000Ee44948FC98c9B98A4FA4921476f08B0d.toBytes32();
 
         // Rate providers
         values[mainnet]["WEETH_RATE_PROVIDER"] = 0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee.toBytes32();
@@ -655,6 +656,8 @@ contract ChainValues {
 
         values[mainnet]["pyUsd_Usdc_Curve_Pool"] = 0x383E6b4437b59fff47B619CBA855CA29342A8559.toBytes32();
         values[mainnet]["pyUsd_Usdc_Curve_Gauge"] = 0x9da75997624C697444958aDeD6790bfCa96Af19A.toBytes32();
+        values[mainnet]["pyUsd_Usdc_PayPool_Curve_Pool"] = 0x383E6b4437b59fff47B619CBA855CA29342A8559.toBytes32();
+        values[mainnet]["pyUsd_Usdc_PayPool_Curve_Gauge"] = 0x9da75997624C697444958aDeD6790bfCa96Af19A.toBytes32();
         values[mainnet]["pyUsd_Usdc_Convex_Id"] = address(270).toBytes32();
         values[mainnet]["frax_Usdc_Curve_Pool"] = 0xDcEF968d416a41Cdac0ED8702fAC8128A64241A2.toBytes32();
         values[mainnet]["frax_Usdc_Convex_Id"] = address(100).toBytes32();
@@ -689,6 +692,11 @@ contract ChainValues {
         values[mainnet]["TBTC_EBTC_Curve_Pool"] = 0x272BF7e4Ce3308B1Fb5e54d6a1Fc32113619c401.toBytes32(); //lp token
         values[mainnet]["TBTC_EBTC_Curve_Gauge"] = 0x48727018D010Dc2e414C5A14D588385Ae112869e.toBytes32();
         values[mainnet]["TBTC_EBTC_Convex_Rewards"] = 0xDbd17Dc03a442D4349de988533737db3fBb5eC39.toBytes32();
+
+        // Dolomite
+        values[mainnet]["dolomiteMargin"] = 0x003Ca23Fd5F0ca87D01F6eC6CD14A8AE60c2b97D.toBytes32();
+        values[mainnet]["dolomiteDepositWithdrawRouter"] = 0xf8b2c637A68cF6A17b1DF9F8992EeBeFf63d2dFf.toBytes32();
+        values[mainnet]["dolomiteBorrowProxy"] = 0xC06271eb97d960F4034DDF953e16271CcB2B10BD.toBytes32();
 
         //TBTC/CBBTC
         values[mainnet]["TBTC_CBBTC_Curve_Pool"] = 0xAE6Ee608b297305AbF3EB609B81FEBbb8F6A0bb3.toBytes32(); //lp token

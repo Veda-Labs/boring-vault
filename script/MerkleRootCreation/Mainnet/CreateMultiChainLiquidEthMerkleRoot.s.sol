@@ -38,6 +38,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
     address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
     address public resolvDecoderAndSanitizer = 0x87f67Eb9Bb1a606923A17696E06AFAa72da65f86;
+    address public dolomiteDecoderAndSanitizer = 0x2f7D1Bbc14Fc3a859EB82ffCB195f9FC3DfCde2f;
 
     address public drone = 0x0a42b2F3a0D54157Dbd7CC346335A4F1909fc02c;
 
@@ -123,6 +124,22 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             assets[0] = getERC20(sourceChain, "USDC");
             assets[1] = getERC20(sourceChain, "USDT");
             _addAllResolvLeafs(leafs, assets);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
+
+        // ========================== Dolomite ==========================
+        {
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", dolomiteDecoderAndSanitizer);
+
+            // supply
+            _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "USDC"), false);
+            _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "USDT"), false);
+            _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "USD1"), false);
+            _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "weETH"), false);
+
+            // borrow
+            _addDolomiteBorrowLeafs(leafs, getAddress(sourceChain, "USD1"));
+
             setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 
