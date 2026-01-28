@@ -69,8 +69,9 @@ contract BoringSwapper is Auth {
         if (amountOut < minAmountOut) revert SlippageExceeded(); 
         
         //clear approvals and send tokens
-        if (tokenIn != NATIVE) {
-            ERC20(tokenIn).approve(target, 0);
+        if (tokenIn != NATIVE) ERC20(tokenIn).approve(target, 0);
+
+        if (tokenOut != NATIVE) {
             ERC20(tokenOut).safeTransfer(receiver, amountOut); 
         } else {
             (bool sent,) = receiver.call{value: amountOut}("");
