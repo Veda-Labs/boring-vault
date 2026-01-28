@@ -29,7 +29,7 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
     address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
     //uniswap v4 supplemental decoder and sanitizer
     address public lombardBtcSupplementalDecoderAndSanitizer = 0x59F89Ee3383D173658d1C56b2834797682f069Da;
-
+    address public btcbDecoderAndSanitizer = 0x82c5CD4C858707aa95C73Fb5698e77109FD2bC70;
     function setUp() external {}
 
     /**
@@ -152,9 +152,9 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
             3,
             getAddress(sourceChain, "eBTC_LBTC_WBTC_Curve_Gauge")
         );
-        _addCurveLeafs(leafs, getAddress(sourceChain, "BTCb_cbBTC_Curve_Pool"), 2, address(0));
-        _addCurveLeafs(leafs, getAddress(sourceChain, "BTCb_WBTC_Curve_Pool"), 2, address(0));
-        _addCurveLeafs(leafs, getAddress(sourceChain, "BTCb_LBTC_Curve_Pool"), 2, address(0));
+        _addCurveLeafs(leafs, getAddress(sourceChain, "BTCb_cbBTC_Curve_Pool"), 2, getAddress(sourceChain, "BTCb_cbBTC_Curve_Gauge"));
+        _addCurveLeafs(leafs, getAddress(sourceChain, "BTCb_WBTC_Curve_Pool"), 2, getAddress(sourceChain, "BTCb_WBTC_Curve_Gauge"));
+        _addCurveLeafs(leafs, getAddress(sourceChain, "BTCb_LBTC_Curve_Pool"), 2, getAddress(sourceChain, "BTCb_LBTC_Curve_Gauge"));
         _addLeafsForCurveSwapping3Pool(leafs, getAddress(sourceChain, "eBTC_LBTC_WBTC_Curve_Pool"));
 
         // ========================== Convex ==========================
@@ -342,6 +342,10 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
         
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
+        // ========================== BTCb ==========================
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", btcbDecoderAndSanitizer);
+        _addBTCbLeafs(leafs);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Verify ==========================
 
