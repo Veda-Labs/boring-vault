@@ -10227,6 +10227,54 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         );
     }
 
+        // ========================================= BTC.b =========================================
+    function _addBTCbLeafs(ManageLeaf[] memory leafs) internal {
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "LBTC"), //target
+            false,
+            "deposit(uint256)",
+            new address[](0),
+            string.concat("Deposit BTC.b for LBTC payload"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "LBTC"), //target
+            false,
+            "mint(bytes,bytes)",
+            new address[](0),
+            string.concat("Mint LBTC with payload"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "LBTC"), //target
+            false,
+            "redeem(uint256)",
+            new address[](0),
+            string.concat("Redeem LBTC for BTC.b payload"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "BTCb"), //target
+            false,
+            "mintV1(bytes,bytes)",
+            new address[](0),
+            string.concat("Mint BTC.b with payload"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+    }
+
     // ============================================= BTCN Corn ==================================================
 
     function _addBTCNLeafs(ManageLeaf[] memory leafs, ERC20 collateralToken, ERC20 BTCN, address cornSwapFacility)
