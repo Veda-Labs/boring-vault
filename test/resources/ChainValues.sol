@@ -370,7 +370,7 @@ contract ChainValues {
         values[mainnet]["USDG"] = 0xe343167631d89B6Ffc58B88d6b7fB0228795491D.toBytes32();
         values[mainnet]["axlSAGA"] = 0xF42fCFfc27A5B8d0afEC45659407B82f9F32fA98.toBytes32();
         values[mainnet]["USD1"] = 0x8d0D000Ee44948FC98c9B98A4FA4921476f08B0d.toBytes32();
-
+        values[mainnet]["BTCb"] = 0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072.toBytes32();
         // Rate providers
         values[mainnet]["WEETH_RATE_PROVIDER"] = 0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee.toBytes32();
         values[mainnet]["ETHX_RATE_PROVIDER"] = 0xAAE054B9b822554dd1D9d1F48f892B4585D3bbf0.toBytes32();
@@ -739,6 +739,10 @@ contract ChainValues {
 
 
         values[mainnet]["lBTC_wBTC_Curve_Pool"] = 0x2f3bC4c27A4437AeCA13dE0e37cdf1028f3706F0.toBytes32();
+
+        values[mainnet]["BTCb_cbBTC_Curve_Pool"] = 0xA7741d3d29a4391a7CA671D00e444342b6a8ad5a.toBytes32();
+        values[mainnet]["BTCb_WBTC_Curve_Pool"] = 0xB78AF33f29Cee29403657BDb56cbCcBc1c67769B.toBytes32();
+        values[mainnet]["BTCb_LBTC_Curve_Pool"] = 0x3124A8526Ed3E0513158ac6182725bab1f766033.toBytes32();
 
         values[mainnet]["WethMkUsdPool"] = 0xc89570207c5BA1B0E3cD372172cCaEFB173DB270.toBytes32();
 
