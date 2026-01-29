@@ -15,7 +15,7 @@ import "forge-std/Script.sol";
  *  source .env && forge script script/MerkleRootCreation/Plasma/CreateLiquidUSDOperationalMerkleRoot.s.sol --rpc-url $PLASMA_RPC_URL --gas-limit 1000000000000000000
  */
 
-contract CreateLiquidUSDMerkleRoot is Script, MerkleTreeHelper {
+contract CreateLiquidUSDOperationalMerkleRoot is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     //standard
@@ -37,18 +37,9 @@ contract CreateLiquidUSDMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, plasma, "accountantAddress", accountantAddress);
         setAddress(false, plasma, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](256);
+        ManageLeaf[] memory leafs = new ManageLeaf[](64);
 
-        // // ========================== Aave V3 ==========================
-        {
-            ERC20[] memory supplyAssets = new ERC20[](3);
-            supplyAssets[0] = getERC20(sourceChain, "USDE");
-            supplyAssets[1] = getERC20(sourceChain, "SUSDE");
-            supplyAssets[2] = getERC20(sourceChain, "USDT0");
-            _addAaveV3EOALeafs("Aave V3", getAddress(sourceChain, "v3Pool"), leafs, supplyAssets);
-        }
-
-        // ========================== LayerZero ==========================
+        // // ========================== LayerZero ==========================
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDT0"), getAddress(sourceChain, "USDT0_OFT"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
 
         // ========================== Native ==========================
@@ -63,13 +54,22 @@ contract CreateLiquidUSDMerkleRoot is Script, MerkleTreeHelper {
 
         // ====================== UniswapV3/OKU ==========================
         {
-            address[] memory token0 = new address[](2);
+            address[] memory token0 = new address[](1);
             token0[0] = getAddress(sourceChain, "wXPL");
-            address[] memory token1 = new address[](2);
+            address[] memory token1 = new address[](1);
             token1[0] = getAddress(sourceChain, "USDT0");
 
             bool swapRouter02 = true;
             _addUniswapV3OneWaySwapLeafs(leafs, token0, token1, swapRouter02);
+        }
+
+        // // ========================== Aave V3 ==========================
+        {
+            ERC20[] memory supplyAssets = new ERC20[](3);
+            supplyAssets[0] = getERC20(sourceChain, "USDE");
+            supplyAssets[1] = getERC20(sourceChain, "SUSDE");
+            supplyAssets[2] = getERC20(sourceChain, "USDT0");
+            _addAaveV3EOALeafs("Aave V3", getAddress(sourceChain, "v3Pool"), leafs, supplyAssets);
         }
 
         // ========================== Verify ==========================
@@ -77,7 +77,7 @@ contract CreateLiquidUSDMerkleRoot is Script, MerkleTreeHelper {
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
-        string memory filePath = "./leafs/Plasma/LiquidUSDMerkleRoot.json";
+        string memory filePath = "./leafs/Plasma/LiquidUSDOperationalStrategistMerkleRoot.json";
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
     }
