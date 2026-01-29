@@ -3138,6 +3138,7 @@ contract ChainValues {
         values[plasma]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
         values[plasma]["dev5Address"] = 0x1cdF47387358A1733968df92f7cC14546D9E1047.toBytes32();
         values[plasma]["etherfiRewardClaimer"] = 0xBdA9e965CdA04eD5Bfc841E54573Dc083447E15a.toBytes32();
+        values[plasma]["etherfiOpsAddress"] = 0xC8111D00351765c64D301CDFc1848bf5Ff2E23A2.toBytes32();
         values[plasma]["vault"] = 0xbA1333333333a1BA1108E8412f11850A5C319bA9.toBytes32();
         
         // Factory Contracts

@@ -13173,6 +13173,53 @@ function _addTellerLeafsWithReferral(
 
     }
 
+    function _addCapWithdrawLeafs(ManageLeaf[] memory leafs, address[] memory assets) internal {
+
+        for (uint256 i = 0; i < assets.length; i++) {
+        // ability to burn/withdraw cUSD for each input asset
+        leafIndex++;
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "cUSD"),
+            false,
+            "burn(address,uint256,uint256,address,uint256)",
+            new address[](2),
+            string.concat("burn cUSD for ", ERC20(assets[i]).symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = assets[i];
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+        }
+
+        // unstake stcUSD for cUSD (ERC4626)
+        {
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "stcUSD"),
+                false,
+                "withdraw(uint256,address,address)",
+                new address[](2),
+                string.concat("unstake (ERC4626 withdraw) stcUSD for cUSD"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "stcUSD"),
+                false,
+                "redeem(uint256,address,address)",
+                new address[](2),
+                string.concat("unstake (ERC4646 redeem) stcUSD for cUSD"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+        }
+
+    }
+
+
     // ========================================= Odos =========================================
 
     function _addOdosSwapLeafs(ManageLeaf[] memory leafs, address[] memory tokens, SwapKind[] memory kind) internal {
