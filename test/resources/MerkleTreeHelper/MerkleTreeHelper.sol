@@ -15089,6 +15089,45 @@ function _addTellerLeafsWithReferral(
         }
     }
 
+    function _addScratchpadLeafs(ManageLeaf[] memory leafs, address scratchpad) internal {
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            scratchpad,
+            false,
+            "write(uint256,bytes32)",
+            new address[](0),
+            string.concat("Write to scratchpad"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            scratchpad,
+            false,
+            "read(uint256)",
+            new address[](0),
+            string.concat("Read from scratchpad"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            scratchpad,
+            false,
+            "gte(uint256,uint256)",
+            new address[](0),
+            string.concat("Read from scratchpad"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+    }
+
     // ========================================= JSON FUNCTIONS =========================================
     // TODO this should pass in a bool or something to generate leafs indicating that we want leaf indexes printed.
     bool addLeafIndex = false;

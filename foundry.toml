@@ -1,8 +1,8 @@
 [profile.default]
 # Sets the concrete solc version to use
 # This overrides the `auto_detect_solc` value
-solc_version = '0.8.21'
-auto_detect_solc = false
+#solc_version = '0.8.25'
+auto_detect_solc = true
 evm_version = 'cancun'
 optimizer = true
 optimizer_runs = 200
