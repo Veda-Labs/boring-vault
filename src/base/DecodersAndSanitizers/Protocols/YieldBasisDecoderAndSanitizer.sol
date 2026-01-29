@@ -11,18 +11,18 @@ contract YieldBasisDecoderAndSanitizer is ERC4626DecoderAndSanitizer, BaseDecode
 
     //=============== YB Leveraged Liquidity (LT.vy) ===============
 
-    function deposit(uint256 assets, uint256 debt, uint256 min_shares) external pure returns (bytes memory addressesFound) {
+    function deposit(uint256 assets, uint256 debt, uint256 min_shares) external pure virtual returns (bytes memory addressesFound) {
         return addressesFound;
     }
 
-    function withdraw(uint256 shares, uint256 min_assets) external pure returns (bytes memory addressesFound) {
+    function withdraw(uint256 shares, uint256 min_assets) external pure virtual returns (bytes memory addressesFound) {
         return addressesFound;
     }
 
     //====================== Liquidity Gauge =======================
 
     // no restriction on reward address as we want to be able to claim all reward tokens
-    function claim(address reward) external pure returns (bytes memory addressesFound) {
+    function claim(address reward) external pure virtual returns (bytes memory addressesFound) {
         return addressesFound;
     }
 
