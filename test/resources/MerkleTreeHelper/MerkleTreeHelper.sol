@@ -13163,7 +13163,7 @@ function _addTellerLeafsWithReferral(
                 false,
                 "redeem(uint256,address,address)",
                 new address[](2),
-                string.concat("unstake (ERC4646 redeem) stcUSD for cUSD"),
+                string.concat("unstake (ERC4626 redeem) stcUSD for cUSD"),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
@@ -13210,7 +13210,7 @@ function _addTellerLeafsWithReferral(
                 false,
                 "redeem(uint256,address,address)",
                 new address[](2),
-                string.concat("unstake (ERC4646 redeem) stcUSD for cUSD"),
+                string.concat("unstake (ERC4626 redeem) stcUSD for cUSD"),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
