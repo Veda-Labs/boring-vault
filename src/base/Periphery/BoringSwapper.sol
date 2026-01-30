@@ -17,10 +17,19 @@ contract BoringSwapper is Auth {
     //State Variables
     address internal immutable NATIVE; 
 
+    struct TokenOracleConfig {
+        address usdOracle;
+        address ethOracle;
+        address btcOracle;
+    }
+
+    mapping(address token => TokenOracleConfig config) public tokenOracleConfigs;
+
     //Errors
     error SwapFailed();
     error SlippageExceeded();
-    error NativeTransferFailed(); 
+    error NativeTransferFailed();
+    error NoSlippageProtection();
     
     //Events
     event Swap(
@@ -44,15 +53,26 @@ contract BoringSwapper is Auth {
         uint256 minAmountOut,
         address receiver,
         address target,
-        bytes calldata swapData
+        bytes calldata swapData,
+        bool useOracle,
+        uint256 maxSlippageBps //for demonstration only, this function sig should be compacted/cleaned up
     ) public payable { //add auth, reentrency protection, and other guards 
         
         //optionally check the target here, or do it directly in the decoder for more flexibility
         //this contract could act as a global list of approved swap targets, or it could be given at the vault level
         
         //_checkTarget(target); 
+        uint256 minRequired;  
+        if (useOracle) {
+            //helper that would calculate the amount based on slippage in terms of quoteAsset (ie: USDC, ETH, BTC) 
+            //minRequired = _calculateMinOut(tokenIn, tokenOut, amountIn, maxSlippageBps, USD); where the usd value is an enum, or an address to USDC passed in via a config. 
+            //getting stack too deep tho so leaving it out for now
+        } else {
+            if (minAmountOut == 0) revert NoSlippageProtection();
+            minRequired = minAmountOut;
+        }
         
-         uint256 outBefore = _balanceOf(tokenOut);
+        uint256 outBefore = _balanceOf(tokenOut);
 
         if (tokenIn == NATIVE) {
             require(msg.value == amountIn, "bad msg.value");
@@ -66,7 +86,7 @@ contract BoringSwapper is Auth {
         if (!success) revert SwapFailed();
 
         uint256 amountOut = _balanceOf(tokenOut) - outBefore; 
-        if (amountOut < minAmountOut) revert SlippageExceeded(); 
+        if (amountOut < minRequired) revert SlippageExceeded(); 
         
         //clear approvals and send tokens
         if (tokenIn != NATIVE) ERC20(tokenIn).approve(target, 0);
@@ -86,6 +106,11 @@ contract BoringSwapper is Auth {
     function _balanceOf(address token) internal view returns (uint256) {
         if (token == NATIVE) return address(this).balance;
         return ERC20(token).balanceOf(address(this));
+    }
+
+    function _calculateMinOut(address tokenIn, address tokenOut, uint256 amountIn, uint256 maxSlippageBps, address quoteAsset) internal returns (uint256) {
+        //do the stuff
+        return amountIn;
     }
 }
 
