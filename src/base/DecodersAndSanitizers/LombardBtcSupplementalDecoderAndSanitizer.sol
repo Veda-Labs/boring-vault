@@ -5,9 +5,14 @@
 pragma solidity 0.8.21;
 
 import {UniswapV4DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV4DecoderAndSanitizer.sol";
+import {BTCbDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BTCbDecoderAndSanitizer.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 
-contract LombardBtcSupplementalDecoderAndSanitizer is UniswapV4DecoderAndSanitizer {
+contract LombardBtcSupplementalDecoderAndSanitizer is BaseDecoderAndSanitizer, UniswapV4DecoderAndSanitizer, BTCbDecoderAndSanitizer {
     constructor(address _uniswapV4PositionManager)
+        BaseDecoderAndSanitizer()
         UniswapV4DecoderAndSanitizer(_uniswapV4PositionManager)
+        BTCbDecoderAndSanitizer()
     {}
+ 
 }
