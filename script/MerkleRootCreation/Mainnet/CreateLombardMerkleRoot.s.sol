@@ -27,9 +27,8 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
     address public pancakeSwapDataDecoderAndSanitizer = 0xac226f3e2677d79c0688A9f6f05B9B4eBBeDdebD;
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
     address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
-    //uniswap v4 supplemental decoder and sanitizer
-    address public lombardBtcSupplementalDecoderAndSanitizer = 0x59F89Ee3383D173658d1C56b2834797682f069Da;
-    address public btcbDecoderAndSanitizer = 0x82c5CD4C858707aa95C73Fb5698e77109FD2bC70;
+    //uniswap v4 + btc.bsupplemental decoder and sanitizer
+    address public lombardBtcSupplementalDecoderAndSanitizer = 0xE5FEC15cbb2aC971fC12a6Fa7A2368CF05F9892E;
     function setUp() external {}
 
     /**
@@ -343,7 +342,7 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== BTCb ==========================
-        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", btcbDecoderAndSanitizer);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", lombardBtcSupplementalDecoderAndSanitizer);
         _addBTCbLeafs(leafs);
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
