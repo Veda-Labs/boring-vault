@@ -83,6 +83,12 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
             20
         );
 
+        // ========================== LBTCv Teller ==========================
+        ERC20[] memory lbtcvTellerAssets = new ERC20[](1);
+        lbtcvTellerAssets[0] = getERC20(sourceChain, "LBTC");
+        address lbtcvTeller = getAddress(sourceChain, "lbtcvTeller");
+        _addTellerLeafs(leafs, lbtcvTeller, lbtcvTellerAssets, false, true);  // no native, yes bulk actions
+
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
