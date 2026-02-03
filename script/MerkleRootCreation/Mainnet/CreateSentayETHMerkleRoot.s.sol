@@ -85,7 +85,7 @@ contract CreateSentayETHMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== LayerZero ==========================
         
-        _addLayerZeroLeafs(leafs, ERC20(getAddress(sourceChain, "WEETH")), getAddress(sourceChain, "WEETH"), layerZeroInkEndpointId, getBytes32(sourceChain, "boringVault"));
+        _addLayerZeroLeafs(leafs, ERC20(getAddress(sourceChain, "WEETH")), getAddress(sourceChain, "EtherFiOFTAdapter"), layerZeroInkEndpointId, getBytes32(sourceChain, "boringVault"));
 
         // ============================ ITB ============================
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", itbDecoderAndSanitizer);
