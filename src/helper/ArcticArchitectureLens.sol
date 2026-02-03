@@ -312,8 +312,8 @@ contract ArcticArchitectureLens {
             if (res.assetsOut < minimumAssets) res.minimumAssetsNotMet = true;
         }
 
-        // Withdrawable amount is at least the balance of the asset in the vault
-        uint256 withdrawable = withdrawAsset.balanceOf(address(boringVault));
+        // Calculate the withdrawable amount
+        uint256 withdrawable;
         // Check if there is a buffer helper for the asset
         (, IBufferHelper withdrawBufferHelper) = teller.currentBufferHelpers(withdrawAsset);
         if (address(withdrawBufferHelper) != address(0)) {
@@ -323,11 +323,15 @@ contract ArcticArchitectureLens {
                 if (totalCollateralBase > 0) {
                     revert("Unsupported calculation: AaveV3 pool has borrowed assets");
                 }
+                // Withdrawable amount is the balance of the aToken in the vault
                 ERC20 aToken = ERC20(IPoolExtended(aaveV3Pool).getReserveATokenAddress(address(withdrawAsset)));
-                withdrawable += aToken.balanceOf(address(boringVault));
+                withdrawable = aToken.balanceOf(address(boringVault));
             } catch {
                 revert("Unsupported buffer type: AaveV3 pool not found");
             }
+        } else {
+            // Withdrawable amount is the balance of the asset in the vault
+            withdrawable = withdrawAsset.balanceOf(address(boringVault));
         }
 
         if (withdrawable < res.assetsOut) {
