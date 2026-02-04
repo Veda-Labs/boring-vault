@@ -277,6 +277,9 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         borrowAssets[2] = getERC20(sourceChain, "PYUSD");
         _addSparkLendLeafs(leafs, supplyAssets, borrowAssets);
 
+        // ========================== SparkSwap ==========================
+        _addSkyUSDSLitePSMUSDCLeafs(leafs);
+
         // ========================== MetaMorpho ==========================
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "usualBoostedUSDC")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "PendleWBTC")));
@@ -427,6 +430,9 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         //triBTCFi
         _addCurveLeafs(leafs, getAddress(sourceChain, "triBTCFi_Curve_Pool"), 3, getAddress(sourceChain, "triBTCFi_Curve_Gauge")); 
         _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "triBTCFi_Curve_Pool"));   
+
+        // "Spark.fi PYUSD Reserve" PYUSD/USDS
+        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "spark_PYUSD_USDS_Curve_Pool"));
        
         // ========================== Convex ==========================
         // F(x) booster
@@ -481,7 +487,12 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         }
 
         // ========================== Syrup ==========================
-        _addAllSyrupLeafs(leafs);   
+        {
+            address[] memory tokens = new address[](2);
+            tokens[0] = getAddress(sourceChain, "USDC");
+            tokens[1] = getAddress(sourceChain, "USDT");
+            _addAllSyrupLeafs(leafs, tokens);
+        }
 
 
         // ========================== Sky Money ==========================

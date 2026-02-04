@@ -731,6 +731,9 @@ contract ChainValues {
         values[mainnet]["deUSD_FRAX_Curve_Gauge"] = 0x7C634909DDbfd5C6EEd7Ccf3611e8C4f3643635d.toBytes32();
         values[mainnet]["eBTC_LBTC_WBTC_Curve_Pool"] = 0xabaf76590478F2fE0b396996f55F0b61101e9502.toBytes32();
         values[mainnet]["eBTC_LBTC_WBTC_Curve_Gauge"] = 0x8D666daED20B502e5Cf692B101028fc0058a5d4E.toBytes32();
+        values[mainnet]["spark_PYUSD_USDS_Curve_Pool"] = 0xA632D59b9B804a956BfaA9b48Af3A1b74808FC1f.toBytes32();
+        values[mainnet]["spark_PYUSD_USDS_Curve_Gauge"] = 0xEB15909cbA81c1C1E052Ac23D12276bb493D7807.toBytes32();
+
 
         values[mainnet]["lBTC_wBTC_Curve_Pool"] = 0x2f3bC4c27A4437AeCA13dE0e37cdf1028f3706F0.toBytes32();
 
