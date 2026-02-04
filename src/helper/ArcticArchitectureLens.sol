@@ -319,13 +319,17 @@ contract ArcticArchitectureLens {
         if (address(withdrawBufferHelper) != address(0)) {
             // We only support AaveV3 supply-only buffer helpers for now
             try AaveV3BufferHelper(address(withdrawBufferHelper)).aaveV3Pool() returns (address aaveV3Pool) {
-                (uint256 totalCollateralBase,,,,,) = IPool(aaveV3Pool).getUserAccountData(address(boringVault));
-                if (totalCollateralBase > 0) {
+                (, uint256 totalDebtBase,,,,) = IPool(aaveV3Pool).getUserAccountData(address(boringVault));
+                if (totalDebtBase > 0) {
                     revert("Unsupported calculation: AaveV3 pool has borrowed assets");
                 }
-                // Withdrawable amount is the balance of the aToken in the vault
+                // Get the balance of the aToken in the vault
                 ERC20 aToken = ERC20(IPoolExtended(aaveV3Pool).getReserveATokenAddress(address(withdrawAsset)));
-                withdrawable = aToken.balanceOf(address(boringVault));
+                withdrawable = aToken.balanceOf(address(boringVault)); // We will reuse withdrawable to avoid stack too deep
+
+                // Withdrawable amount is the balance of the asset in the aToken or the available liquidity, whichever is less
+                uint256 availableLiquidity = withdrawAsset.balanceOf(address(aToken));
+                withdrawable = withdrawable > availableLiquidity ? availableLiquidity : withdrawable;
             } catch {
                 revert("Unsupported buffer type: AaveV3 pool not found");
             }
@@ -334,6 +338,7 @@ contract ArcticArchitectureLens {
             withdrawable = withdrawAsset.balanceOf(address(boringVault));
         }
 
+        // Check if the withdrawable amount is less than the requested assets out
         if (withdrawable < res.assetsOut) {
             res.notEnoughWithdrawableAssets = true;
         }
