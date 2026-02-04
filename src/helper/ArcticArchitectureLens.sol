@@ -16,7 +16,7 @@ import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 interface IPoolExtended is IPool {
-    function getReserveATokenAddress(address asset) external view returns (address);
+    function getReserveAToken(address asset) external view returns (ERC20);
 }
 
 contract ArcticArchitectureLens {
@@ -324,7 +324,7 @@ contract ArcticArchitectureLens {
                     revert("Unsupported calculation: AaveV3 pool has borrowed assets");
                 }
                 // Get the balance of the aToken in the vault
-                ERC20 aToken = ERC20(IPoolExtended(aaveV3Pool).getReserveATokenAddress(address(withdrawAsset)));
+                ERC20 aToken = IPoolExtended(aaveV3Pool).getReserveAToken(address(withdrawAsset));
                 withdrawable = aToken.balanceOf(address(boringVault)); // We will reuse withdrawable to avoid stack too deep
 
                 // Withdrawable amount is the balance of the asset in the aToken or the available liquidity, whichever is less
