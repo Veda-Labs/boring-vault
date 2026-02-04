@@ -213,7 +213,6 @@ contract ArcticArchitectureLens {
     }
 
     struct PreviewWithdrawResult {
-        uint256 assetsOut;
         bool withdrawsNotAllowed;
         bool withdrawNotMatured;
         bool deadlinePassed;
@@ -225,12 +224,11 @@ contract ArcticArchitectureLens {
      * @notice Helper function to preview a users withdraw for a specific asset.
      */
     function previewWithdraw(
-        ERC20 asset,
         BoringOnChainQueue.OnChainWithdraw memory req,
         BoringVault boringVault,
         BoringOnChainQueue queue
     ) public view returns (PreviewWithdrawResult memory res) {
-        BoringOnChainQueue.WithdrawAsset memory withdrawAsset = getWithdrawAsset(address(asset), queue);
+        BoringOnChainQueue.WithdrawAsset memory withdrawAsset = getWithdrawAsset(req.assetOut, queue);
 
         if (!withdrawAsset.allowWithdraws) res.withdrawsNotAllowed = true;
 
@@ -242,10 +240,7 @@ contract ArcticArchitectureLens {
 
         if (req.amountOfShares == 0) res.noShares = true;
 
-        // In BoringOnChainQueue, amountOfAssets is pre-calculated at request time
-        res.assetsOut = req.amountOfAssets;
-
-        if (asset.balanceOf(address(boringVault)) < res.assetsOut) {
+        if (ERC20(req.assetOut).balanceOf(address(boringVault)) < req.amountOfAssets) {
             res.notEnoughAssetsForWithdraw = true;
         }
     }
@@ -262,7 +257,7 @@ contract ArcticArchitectureLens {
         res = new PreviewWithdrawResult[](requestsLength);
 
         for (uint256 i = 0; i < requestsLength; i++) {
-            res[i] = previewWithdraw(ERC20(requests[i].assetOut), requests[i], boringVault, queue);
+            res[i] = previewWithdraw(requests[i], boringVault, queue);
         }
     }
 
