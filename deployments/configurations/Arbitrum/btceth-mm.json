@@ -83,7 +83,7 @@
     "tellerDeploymentName": "Hedged BTCETH-MM Strategy TellerV1.0",
     "tellerParameters": {
       "allowPublicDeposits": false,
-      "shareLockPeriod": 86400,
+      "shareLockPeriod": 60,
       "kind": {
         "teller": false,
         "tellerWithRemediation": false,
