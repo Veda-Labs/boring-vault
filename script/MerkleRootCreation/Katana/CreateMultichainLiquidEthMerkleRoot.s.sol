@@ -39,7 +39,7 @@ contract CreateMultichainLiquidEthMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, katana, "accountantAddress", accountantAddress);
         setAddress(false, katana, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](64);
+        ManageLeaf[] memory leafs = new ManageLeaf[](128);
 
         // ========================== NativeWrapper ==========================
         _addNativeLeafs(leafs);
@@ -84,8 +84,13 @@ contract CreateMultichainLiquidEthMerkleRoot is Script, MerkleTreeHelper {
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletWETH"))); 
 
         // ========================== ERC4626 ==========================
-        _addYearnLeafs(leafs, ERC4626(getAddress(sourceChain, "yvbWETH"))); 
-        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "yvbWETH"))); 
+        _addYearnLeafs(leafs, ERC4626(getAddress(sourceChain, "yvbWETH")));
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "yvbWETH")));
+
+        // ========================== LiquidKatana Queue ==========================
+        ERC20[] memory liquidKatanaQueueAssets = new ERC20[](1);
+        liquidKatanaQueueAssets[0] = getERC20(sourceChain, "WEETH");
+        _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "LiquidKatanaQueue"), getAddress(sourceChain, "LiquidKatanaBoringVault"), liquidKatanaQueueAssets);
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

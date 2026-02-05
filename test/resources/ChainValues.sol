@@ -3058,6 +3058,10 @@ contract ChainValues {
         // Merkl
         values[katana]["merklDistributor"] = 0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae.toBytes32();
 
+        // LiquidKatana
+        values[katana]["LiquidKatanaBoringVault"] = 0x69d210d3b60E939BFA6E87cCcC4fAb7e8F44C16B.toBytes32();
+        values[katana]["LiquidKatanaQueue"] = 0x52E523B849c584F86bF460A3cF2962b118Ce2506.toBytes32();
+
          // Sushi/Swnapper/RedSnwapper
         values[katana]["redSnwapperRouter"] = 0xAC4c6e212A361c968F1725b4d055b47E63F80b75.toBytes32();
         values[katana]["redSnwapperExecutor"] = 0xd2b37aDE14708bf18904047b1E31F8166d39612b.toBytes32();
