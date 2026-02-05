@@ -32,6 +32,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
     //one offs
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
     address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
+    address public skyMoneyDecoderAndSanitizer = 0x93740255Db97B8005e5F4E84e0E08F69A3267b30;
 
     function setUp() external {}
 
@@ -278,7 +279,11 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         _addSparkLendLeafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== SparkSwap ==========================
-        _addSkyUSDSLitePSMUSDCLeafs(leafs);
+        {
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", skyMoneyDecoderAndSanitizer);
+            _addSkyUSDSLitePSMUSDCLeafs(leafs);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
 
         // ========================== MetaMorpho ==========================
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "usualBoostedUSDC")));
