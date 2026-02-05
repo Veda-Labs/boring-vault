@@ -3061,6 +3061,7 @@ contract ChainValues {
         // LiquidKatana
         values[katana]["LiquidKatanaBoringVault"] = 0x69d210d3b60E939BFA6E87cCcC4fAb7e8F44C16B.toBytes32();
         values[katana]["LiquidKatanaQueue"] = 0x52E523B849c584F86bF460A3cF2962b118Ce2506.toBytes32();
+        values[katana]["LiquidKatanaTeller"] = 0x739A1efFaDDB0b07ef1284598819232df4FD8d16.toBytes32();
 
          // Sushi/Swnapper/RedSnwapper
         values[katana]["redSnwapperRouter"] = 0xAC4c6e212A361c968F1725b4d055b47E63F80b75.toBytes32();

@@ -92,6 +92,13 @@ contract CreateMultichainLiquidEthMerkleRoot is Script, MerkleTreeHelper {
         liquidKatanaQueueAssets[0] = getERC20(sourceChain, "WEETH");
         _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "LiquidKatanaQueue"), getAddress(sourceChain, "LiquidKatanaBoringVault"), liquidKatanaQueueAssets);
 
+        // ========================== LiquidKatana Teller ==========================
+        ERC20[] memory liquidKatanaTellerAssets = new ERC20[](3);
+        liquidKatanaTellerAssets[0] = getERC20(sourceChain, "WEETH");
+        liquidKatanaTellerAssets[1] = getERC20(sourceChain, "vbETH");
+        liquidKatanaTellerAssets[2] = getERC20(sourceChain, "WETH");
+        _addTellerLeafs(leafs, getAddress(sourceChain, "LiquidKatanaTeller"), liquidKatanaTellerAssets, false, true);
+
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
