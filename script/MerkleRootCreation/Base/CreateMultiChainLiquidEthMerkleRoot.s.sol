@@ -19,7 +19,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C;
-    address public rawDataDecoderAndSanitizer = 0x5b429F7C75Ec9d57a9A345186cD69d89e98c732b; 
+    address public rawDataDecoderAndSanitizer = 0x5Fb5455dDa970adc53Ab6949FD318ff8aecf461e; 
     address public managerAddress = 0x227975088C28DBBb4b421c6d96781a53578f19a8;
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
 
@@ -193,6 +193,17 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         _addLayerZeroLeafs(
             leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "WEETH"), layerZeroOptimismEndpointId, getBytes32(sourceChain, "boringVault")
         );
+
+        // ========================== Lido Standard Bridge ==========================
+        _addLidoStandardBridgeLeafs(
+            leafs,
+            mainnet,
+            address(0),
+            address(0),
+            getAddress(sourceChain, "l2ERC20TokenBridge"),
+            address(0)
+        );
+
 
         // ========================== Aerodrome ==========================
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", aerodromeDecoderAndSanitizer);
