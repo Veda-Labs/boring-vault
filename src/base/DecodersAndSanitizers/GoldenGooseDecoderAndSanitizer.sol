@@ -74,7 +74,6 @@ contract GoldenGooseDecoderAndSanitizer is
     TreehouseDecoderAndSanitizer,
     ArbitrumNativeBridgeDecoderAndSanitizer,
     AgglayerDecoderAndSanitizer,
-    LineaBridgeDecoderAndSanitizer,
     ResolvDecoderAndSanitizer
 {
     constructor(
