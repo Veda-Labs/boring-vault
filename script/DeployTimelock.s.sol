@@ -27,7 +27,7 @@ contract DeployTimelockScript is Script, ContractNames, MainnetAddresses {
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("plasma");
+        vm.createSelectFork("mainnet");
     }
 
     function run() external {
@@ -44,11 +44,15 @@ contract DeployTimelockScript is Script, ContractNames, MainnetAddresses {
         address[] memory executors = new address[](1);
         executors[0] = executor;
     
+        address tempAdmin = 0xBBc5569B0b32403037F37255f4ff50B8Bb825b2A;
     
-        constructorArgs = abi.encode(minDelay, proposers, executors, address(0));
+        constructorArgs = abi.encode(minDelay, proposers, executors, tempAdmin);
         timelock =
-            TimelockController(payable(deployer.deployContract("Plasma One USD Vault Timelock V0.0", creationCode, constructorArgs, 0)));
+            TimelockController(payable(deployer.deployContract("Plasma USD+ Timelock V0.1", creationCode, constructorArgs, 0)));
 
+
+        timelock.grantRole(timelock.CANCELLER_ROLE(), canceller);
+        timelock.renounceRole(timelock.DEFAULT_ADMIN_ROLE(), tempAdmin);
 
         vm.stopBroadcast();
     }

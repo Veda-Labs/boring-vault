@@ -16,7 +16,6 @@ import {NativeWrapperDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/P
 import {SkyMoneyDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SkyMoneyDecoderAndSanitizer.sol";
 import {CCTPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCTPDecoderAndSanitizer.sol";
 import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
-import {MerklDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MerklDecoderAndSanitizer.sol";
 
 contract BoostedUSDCDecoderAndSanitizer is 
     BaseDecoderAndSanitizer,
@@ -29,8 +28,7 @@ contract BoostedUSDCDecoderAndSanitizer is
     NativeWrapperDecoderAndSanitizer,
     SkyMoneyDecoderAndSanitizer,
     CCTPDecoderAndSanitizer,
-    TellerDecoderAndSanitizer,
-    MerklDecoderAndSanitizer
+    TellerDecoderAndSanitizer
 {
    constructor(address _odosRouter) OdosDecoderAndSanitizer(_odosRouter){} 
 }

@@ -22,8 +22,7 @@ contract CreateTurtleTacETHMerkleRoot is Script, MerkleTreeHelper {
     address public rawDataDecoderAndSanitizer = 0x678Ff354a12a6fC0b9D357647879F32df45f5177;
     address public managerAddress = 0x401C29bafA0A205a0dAb316Dc6136A18023eF08A; 
     address public accountantAddress = 0x1683870f3347F2837865C5D161079Dc3fDbf1087;
-    address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
-    address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
+    
 
     function setUp() external {}
 
@@ -43,13 +42,7 @@ contract CreateTurtleTacETHMerkleRoot is Script, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](64);
 
-        // ========================== Fee Claiming ==========================
-        ERC20[] memory feeAssets = new ERC20[](2);
-        feeAssets[0] = getERC20(sourceChain, "WETH");
-        feeAssets[1] = getERC20(sourceChain, "WSTETH");
-        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
-
-        // ========================== 1inch/Odos ==========================
+        // ========================== 1inch ==========================
         address[] memory assets = new address[](3);
         SwapKind[] memory kind = new SwapKind[](3);
         assets[0] = getAddress(sourceChain, "WETH");
@@ -59,11 +52,10 @@ contract CreateTurtleTacETHMerkleRoot is Script, MerkleTreeHelper {
         assets[2] = getAddress(sourceChain, "WSTETH");
         kind[2] = SwapKind.BuyAndSell;
 
-        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
-        _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
-        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
-        _addOdosOwnedSwapLeafs(leafs, assets, kind);
-        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
+
+        // ========================== Odos ==========================
+        _addOdosSwapLeafs(leafs, assets, kind);  
 
         // ========================== Native Leafs ==========================
         _addNativeLeafs(leafs); 

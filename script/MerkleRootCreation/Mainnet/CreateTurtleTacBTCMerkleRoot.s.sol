@@ -25,8 +25,6 @@ contract CreateTurtleTacBTCMerkleRoot is Script, MerkleTreeHelper {
     
     //one offs
     address public tellerDecoder = 0xc52220989809D748a958798ca8FEf7CaF88022b4; 
-    address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
-    address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
 
     function setUp() external {}
 
@@ -46,23 +44,20 @@ contract CreateTurtleTacBTCMerkleRoot is Script, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](64);
 
-        // ========================== 1inch/Odos ==========================
-        address[] memory assets = new address[](4);
-        SwapKind[] memory kind = new SwapKind[](4);
+        // ========================== 1inch ==========================
+        address[] memory assets = new address[](3);
+        SwapKind[] memory kind = new SwapKind[](3);
         assets[0] = getAddress(sourceChain, "fBTC");
         kind[0] = SwapKind.BuyAndSell;
         assets[1] = getAddress(sourceChain, "cbBTC");
         kind[1] = SwapKind.BuyAndSell;
         assets[2] = getAddress(sourceChain, "USDT");
         kind[2] = SwapKind.Sell;
-        assets[3] = getAddress(sourceChain, "LBTC");
-        kind[3] = SwapKind.Sell;
 
-        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
-        _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
-        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
-        _addOdosOwnedSwapLeafs(leafs, assets, kind);
-        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
+
+        // ========================== Odos ==========================
+        _addOdosSwapLeafs(leafs, assets, kind);  
 
         // ========================== Native Leafs ==========================
         _addNativeLeafs(leafs); 

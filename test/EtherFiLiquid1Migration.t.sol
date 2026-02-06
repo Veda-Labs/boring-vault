@@ -13,8 +13,8 @@ import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {BalancerVault} from "src/interfaces/BalancerVault.sol";
 import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
-import {AtomicQueue} from "src/archive/atomic-queue/AtomicQueue.sol";
-import {AtomicSolver} from "src/archive/atomic-queue/AtomicSolver.sol";
+import {AtomicQueue} from "src/atomic-queue/AtomicQueue.sol";
+import {AtomicSolver} from "src/atomic-queue/AtomicSolver.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
 import {IWEETH} from "src/interfaces/IStaking.sol";
 import {ILiquidityPool} from "src/interfaces/IStaking.sol";
@@ -31,7 +31,7 @@ import {CellarMigratorWithSharePriceParity, ERC4626} from "src/migration/CellarM
 import {AddressToBytes32Lib} from "src/helper/AddressToBytes32Lib.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {Deployer} from "src/helper/Deployer.sol";
-import {AtomicSolverV4} from "src/archive/atomic-queue/AtomicSolverV4.sol";
+import {AtomicSolverV4} from "src/atomic-queue/AtomicSolverV4.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";

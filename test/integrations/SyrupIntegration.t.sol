@@ -125,31 +125,28 @@ contract SyrupIntegrationTest is Test, MerkleTreeHelper {
         permManager.setLenderAllowlist(poolManagerUSDC, lenders_, booleans_);
         permManager.setLenderAllowlist(poolManagerUSDT, lenders_, booleans_);
         vm.stopPrank();
-        
-        address[] memory tokens = new address[](2); 
-        tokens[0] = getAddress(sourceChain, "USDC"); 
-        tokens[1] = getAddress(sourceChain, "USDT"); 
-        ManageLeaf[] memory leafs = new ManageLeaf[](16);
-        _addAllSyrupLeafs(leafs, tokens);
 
-        string memory filePath = "./TestTEST.json";
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
+        _addAllSyrupLeafs(leafs);
+
+        //string memory filePath = "./TestTEST.json";
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
-        _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
+        //_generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
 
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
         ManageLeaf[] memory manageLeafs = new ManageLeaf[](10);
         manageLeafs[0] = leafs[0]; //approve syrupRouter (USDC) to spend USDC
-        manageLeafs[1] = leafs[2]; //approve syrupRouter (USDT) to spend USDT
-        manageLeafs[2] = leafs[1]; //USDC -> syrupUSDC
+        manageLeafs[1] = leafs[1]; //approve syrupRouter (USDT) to spend USDT
+        manageLeafs[2] = leafs[2]; //USDC -> syrupUSDC
         manageLeafs[3] = leafs[3]; //USDT -> syrupUSDT
         manageLeafs[4] = leafs[4]; //approve syrupUSDC to spend syrupUSDC
-        manageLeafs[5] = leafs[7]; //approve syrupUSDT to spend syrupUSDT
-        manageLeafs[6] = leafs[5]; //request redeem syrupUSDC
-        manageLeafs[7] = leafs[8]; //request redeem syrupUSDT
-        manageLeafs[8] = leafs[6]; //cancel redeem syrupUSDC
+        manageLeafs[5] = leafs[5]; //approve syrupUSDT to spend syrupUSDT
+        manageLeafs[6] = leafs[6]; //request redeem syrupUSDC
+        manageLeafs[7] = leafs[7]; //request redeem syrupUSDT
+        manageLeafs[8] = leafs[8]; //cancel redeem syrupUSDC
         manageLeafs[9] = leafs[9]; //cancel redeem syrupUSDT
 
         (bytes32[][] memory manageProofs) = _getProofsUsingTree(manageLeafs, manageTree);
@@ -214,4 +211,4 @@ interface IPoolPermissionManager {
     function setLenderAllowlist(address poolManager_, address[] calldata lenders_, bool[] calldata booleans_) external;
 }
 
-contract FullSyrupDecoderAndSanitizer is SyrupDecoderAndSanitizer, BaseDecoderAndSanitizer {}
+contract FullSyrupDecoderAndSanitizer is SyrupDecoderAndSanitizer {}

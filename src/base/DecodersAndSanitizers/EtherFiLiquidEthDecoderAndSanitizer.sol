@@ -48,9 +48,6 @@ import {EulerEVKDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protoc
 import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol";
 import {AgglayerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AgglayerDecoderAndSanitizer.sol";
 import {AtomicQueueDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AtomicQueueDecoderAndSanitizer.sol";
-import {LidoStandardBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LidoStandardBridgeDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-
 
 contract EtherFiLiquidEthDecoderAndSanitizer is
     UniswapV3DecoderAndSanitizer,
@@ -86,8 +83,7 @@ contract EtherFiLiquidEthDecoderAndSanitizer is
     EulerEVKDecoderAndSanitizer,
     OdosDecoderAndSanitizer,
     BaseDecoderAndSanitizer,
-    AgglayerDecoderAndSanitizer,
-    LidoStandardBridgeDecoderAndSanitizer
+    AgglayerDecoderAndSanitizer
 {
     constructor(address _uniswapV3NonFungiblePositionManager, address _odosRouter)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
@@ -211,27 +207,5 @@ contract EtherFiLiquidEthDecoderAndSanitizer is
     {
         // Nothing to sanitize or return
         return addressesFound;
-    }
-
-    function finalizeWithdrawalTransaction(DecoderCustomTypes.WithdrawalTransaction calldata _tx)
-        external
-        pure
-        override(LidoStandardBridgeDecoderAndSanitizer, StandardBridgeDecoderAndSanitizer)
-        returns (bytes memory sensitiveArguments)
-    {
-        sensitiveArguments = abi.encodePacked(_tx.sender, _tx.target);
-    }
-
-    function proveWithdrawalTransaction(
-        DecoderCustomTypes.WithdrawalTransaction calldata _tx,
-        uint256, /*_l2OutputIndex*/
-        DecoderCustomTypes.OutputRootProof calldata, /*_outputRootProof*/
-        bytes[] calldata /*_withdrawalProof*/
-    )   external
-        pure
-        override(LidoStandardBridgeDecoderAndSanitizer, StandardBridgeDecoderAndSanitizer)
-        returns (bytes memory sensitiveArguments)
-    {
-        sensitiveArguments = abi.encodePacked(_tx.sender, _tx.target);
     }
 }
