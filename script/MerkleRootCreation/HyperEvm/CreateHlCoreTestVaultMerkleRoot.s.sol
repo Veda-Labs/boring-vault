@@ -32,7 +32,7 @@ contract CreateHlCoreTestVaultMerkleRootScript is Script, MerkleTreeHelper {
     address public user2 = 0x0307AD25281C99F22A8F3Af9e272fE3968810239;
 
     function setUp() external {
-        setSourceChainName(base);
+        setSourceChainName(hyperevm);
         vm.createSelectFork(sourceChain);
     }
 
@@ -41,20 +41,16 @@ contract CreateHlCoreTestVaultMerkleRootScript is Script, MerkleTreeHelper {
     }
 
     function _generateMerkleRoot() public {
-        setAddress(true, base, "boringVault", boringVault);
-        setAddress(true, base, "managerAddress", managerAddress);
-        setAddress(true, base, "accountantAddress", accountantAddress);
-        setAddress(true, base, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        setAddress(true, hyperevm, "boringVault", boringVault);
+        setAddress(true, hyperevm, "managerAddress", managerAddress);
+        setAddress(true, hyperevm, "accountantAddress", accountantAddress);
+        setAddress(true, hyperevm, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](512);
+
         ERC20[] memory feeAssets = new ERC20[](1);
         feeAssets[0] = getERC20(sourceChain, "USDC");
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
-
-        ERC20[] memory assets = new ERC20[](1);
-        assets[0] = ERC20(getAddress(sourceChain, "USDC"));
-        _addTellerLeafs(leafs, address(syusdTeller), assets, false, true);
-        _addWithdrawQueueLeafs(leafs, syusdQueue, syusd, assets);
 
         _addSendUsdcHyperEvmToCoreLeafs(leafs);
         _addCoreWriterLeafs(leafs);
@@ -67,21 +63,23 @@ contract CreateHlCoreTestVaultMerkleRootScript is Script, MerkleTreeHelper {
 
         vm.startBroadcast(vm.envUint("PK"));
 
-        if (!rolesAuthority.doesRoleHaveCapability(
-                MANAGER_INTERNAL_ROLE,
-                address(manager),
-                ManagerWithMerkleVerification.manageVaultWithMerkleVerification.selector
-            )) {
-            rolesAuthority.setRoleCapability(
-                MANAGER_INTERNAL_ROLE,
-                address(manager),
-                ManagerWithMerkleVerification.manageVaultWithMerkleVerification.selector,
-                true
-            );
+        if (!RolesAuthority(rolesAuthority)
+                .doesRoleHaveCapability(
+                    MANAGER_INTERNAL_ROLE,
+                    address(manager),
+                    ManagerWithMerkleVerification.manageVaultWithMerkleVerification.selector
+                )) {
+            RolesAuthority(rolesAuthority)
+                .setRoleCapability(
+                    MANAGER_INTERNAL_ROLE,
+                    address(manager),
+                    ManagerWithMerkleVerification.manageVaultWithMerkleVerification.selector,
+                    true
+                );
         }
 
-        rolesAuthority.setUserRole(user1, MANAGER_INTERNAL_ROLE, true);
-        rolesAuthority.setUserRole(user2, MANAGER_INTERNAL_ROLE, true);
+        RolesAuthority(rolesAuthority).setUserRole(user1, MANAGER_INTERNAL_ROLE, true);
+        RolesAuthority(rolesAuthority).setUserRole(user2, MANAGER_INTERNAL_ROLE, true);
 
         manager.setManageRoot(managerAddress, manageTree[manageTree.length - 1][0]);
         manager.setManageRoot(user1, manageTree[manageTree.length - 1][0]);

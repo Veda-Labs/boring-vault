@@ -13063,7 +13063,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             getAddress(sourceChain, "USDC"),
             false,
             "approve(address,uint256)",
-            new address[](0),
+            new address[](1),
             string.concat("Approve Circle CoreDepositWallet to spend USDC"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
@@ -13077,7 +13077,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             getAddress(sourceChain, "UsdcCoreDepositWallet"),
             false,
             "deposit(uint256,uint32)",
-            new address[](0),
+            new address[](1),
             string.concat("Transfer USDC from EVM to Core"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
