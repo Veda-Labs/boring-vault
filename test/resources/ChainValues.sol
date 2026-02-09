@@ -254,11 +254,11 @@ contract ChainValues {
         values[mainnet]["boringDeployerContract"] = 0xFD65ADF7d2f9ea09287543520a703522E0a360C9.toBytes32();
         // Liquid Ecosystem
         values[mainnet]["deployerAddress"] = 0x5BD97A73333B6EC2e38B687bcED159566A14C5BA.toBytes32();
-        values[mainnet]["deployerAddress2"] = 0xF3d0672a91Fd56C9ef04C79ec67d60c34c6148a0.toBytes32();
-        values[mainnet]["dev0Address"] = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b.toBytes32();
-        values[mainnet]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
-        values[mainnet]["dev3Address"] = 0xBBc5569B0b32403037F37255f4ff50B8Bb825b2A.toBytes32();
-        values[mainnet]["dev4Address"] = 0xD3d742a82524b6de30E54315E471264dc4CF2BcC.toBytes32();
+        values[mainnet]["deployerAddress2"] = 0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC.toBytes32();
+        values[mainnet]["dev0Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
+        values[mainnet]["dev1Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
+        values[mainnet]["dev3Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
+        values[mainnet]["dev4Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
         values[mainnet]["liquidV1PriceRouter"] = 0x693799805B502264f9365440B93C113D86a4fFF5.toBytes32();
         values[mainnet]["liquidPayoutAddress"] = 0xA9962a5BfBea6918E958DeE0647E99fD7863b95A.toBytes32();
         values[mainnet]["liquidMultisig"] = 0xCEA8039076E35a825854c5C2f85659430b06ec96.toBytes32();
