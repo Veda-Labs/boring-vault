@@ -27,7 +27,7 @@ contract CreateHlCoreTestVaultMerkleRootScript is Script, MerkleTreeHelper {
     address public rolesAuthority = 0xf37d11401897FD1114A1B7816BD923264cB11050;
     address public teller = 0x5C0d2f6cF8a237669FB6d07511a1Ff4D9eB819E1;
 
-    address public rawDataDecoderAndSanitizer = 0x29fFc74Ed4f0b12A9673623f8270C79FB0BAF0C0;
+    address public rawDataDecoderAndSanitizer = 0xF267699929FBe258A3aEdC76c5402f860a629496;
     address public user1 = 0xa86b3Bf249478488B4304B50726c7D4689aD6320;
     address public user2 = 0x0307AD25281C99F22A8F3Af9e272fE3968810239;
 

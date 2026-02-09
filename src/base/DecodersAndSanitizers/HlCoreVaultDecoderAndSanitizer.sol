@@ -6,7 +6,7 @@ import {
 } from "src/base/DecodersAndSanitizers/Protocols/CctpCoreDepositWalletDecoderAndSanitizer.sol";
 import {
     CoreWriterDecoderAndSanitizer
-} from "src/base/DecodersAndSanitizers/Protocols/HlCoreWriterDecoderAndSanitizer.sol";
+} from "src/base/DecodersAndSanitizers/Protocols/HlCoreWriterDecoderAndSanitizerTemp.sol";
 
 contract HlCoreVaultDecoderAndSanitizer is CctpCoreDepositWalletDecoderAndSanitizer, CoreWriterDecoderAndSanitizer {
     constructor() {}
