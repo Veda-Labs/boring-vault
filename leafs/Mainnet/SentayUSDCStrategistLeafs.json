@@ -10,8 +10,8 @@
       "Bytes4(TARGET_FUNCTION_SELECTOR)",
       "Bytes{N*20}(ADDRESS_ARGUMENT_0,...,ADDRESS_ARGUMENT_N)"
     ],
-    "LeafCount": 66,
-    "ManageRoot": "0xe555c50f4bd2edc1529a698bb9c6d1129b281fc7f2b248200959a3f3b9b73718",
+    "LeafCount": 71,
+    "ManageRoot": "0xa981eec62dfc026298afe8ba6b007184071da63159dcdd4a41b8127b988f56a7",
     "ManagerAddress": "0x770AA9BAEFeB8ff51572eEc7940D80cAf33bb3a4",
     "TreeCapacity": 128
   },
@@ -899,57 +899,57 @@
     {
       "AddressArguments": [],
       "CanSendValue": false,
-      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-      "Description": "",
-      "FunctionSelector": "0xc5d24601",
-      "FunctionSignature": "",
-      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "DecoderAndSanitizerAddress": "0x51cDDE815429fb7Bce964601774018eA0Cc119f7",
+      "Description": "Accept ownership of the Morpho PYUSD ITB Position Manager contract",
+      "FunctionSelector": "0x79ba5097",
+      "FunctionSignature": "acceptOwnership()",
+      "LeafDigest": "0x9fbf2e3aaf2f2aa4b69602ea5da6a370eec377099fde88deb689369a9c7a404e",
       "PackedArgumentAddresses": "0x",
-      "TargetAddress": "0x0000000000000000000000000000000000000000"
+      "TargetAddress": "0xaDbdDE2769B220922e1504DF58B93b13CF93C61D"
     },
     {
       "AddressArguments": [],
       "CanSendValue": false,
-      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-      "Description": "",
-      "FunctionSelector": "0xc5d24601",
-      "FunctionSignature": "",
-      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "DecoderAndSanitizerAddress": "0x51cDDE815429fb7Bce964601774018eA0Cc119f7",
+      "Description": "Remove executor from the Morpho PYUSD ITB Position Manager contract",
+      "FunctionSelector": "0x24788429",
+      "FunctionSignature": "removeExecutor(address)",
+      "LeafDigest": "0xab117c25656ed772acacd74a638d959507c1a103ed505b0fca0271487a45ea16",
       "PackedArgumentAddresses": "0x",
-      "TargetAddress": "0x0000000000000000000000000000000000000000"
+      "TargetAddress": "0xaDbdDE2769B220922e1504DF58B93b13CF93C61D"
+    },
+    {
+      "AddressArguments": ["0xaDbdDE2769B220922e1504DF58B93b13CF93C61D"],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x51cDDE815429fb7Bce964601774018eA0Cc119f7",
+      "Description": "Transfer PYUSD to the Morpho PYUSD ITB Position Manager contract",
+      "FunctionSelector": "0xa9059cbb",
+      "FunctionSignature": "transfer(address,uint256)",
+      "LeafDigest": "0xa953365ac1e11333842a9afaf8448adb3b560299fbd182f3ce50c279dbfa5e7f",
+      "PackedArgumentAddresses": "0xadbdde2769b220922e1504df58b93b13cf93c61d",
+      "TargetAddress": "0x6c3ea9036406852006290770BEdFcAbA0e23A0e8"
     },
     {
       "AddressArguments": [],
       "CanSendValue": false,
-      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-      "Description": "",
-      "FunctionSelector": "0xc5d24601",
-      "FunctionSignature": "",
-      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "DecoderAndSanitizerAddress": "0x51cDDE815429fb7Bce964601774018eA0Cc119f7",
+      "Description": "Withdraw PYUSD from the Morpho PYUSD ITB Position Manager contract",
+      "FunctionSelector": "0xf3fef3a3",
+      "FunctionSignature": "withdraw(address,uint256)",
+      "LeafDigest": "0x6d620e8348d9eb27af5c3af05c38cd7209dece05b1b36276cfb09eb364ee2fdc",
       "PackedArgumentAddresses": "0x",
-      "TargetAddress": "0x0000000000000000000000000000000000000000"
+      "TargetAddress": "0xaDbdDE2769B220922e1504DF58B93b13CF93C61D"
     },
     {
       "AddressArguments": [],
       "CanSendValue": false,
-      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-      "Description": "",
-      "FunctionSelector": "0xc5d24601",
-      "FunctionSignature": "",
-      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "DecoderAndSanitizerAddress": "0x51cDDE815429fb7Bce964601774018eA0Cc119f7",
+      "Description": "Withdraw all PYUSD from the Morpho PYUSD ITB Position Manager contract",
+      "FunctionSelector": "0xfa09e630",
+      "FunctionSignature": "withdrawAll(address)",
+      "LeafDigest": "0xa9929002d2b0590aae441066d2f6a5a07f995e08e445e06cedca6b38fee29b87",
       "PackedArgumentAddresses": "0x",
-      "TargetAddress": "0x0000000000000000000000000000000000000000"
-    },
-    {
-      "AddressArguments": [],
-      "CanSendValue": false,
-      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-      "Description": "",
-      "FunctionSelector": "0xc5d24601",
-      "FunctionSignature": "",
-      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-      "PackedArgumentAddresses": "0x",
-      "TargetAddress": "0x0000000000000000000000000000000000000000"
+      "TargetAddress": "0xaDbdDE2769B220922e1504DF58B93b13CF93C61D"
     },
     {
       "AddressArguments": [],
@@ -1580,15 +1580,15 @@
     }
   ],
   "MerkleTree": {
-    "0": ["0xe555c50f4bd2edc1529a698bb9c6d1129b281fc7f2b248200959a3f3b9b73718"],
+    "0": ["0xa981eec62dfc026298afe8ba6b007184071da63159dcdd4a41b8127b988f56a7"],
     "1": [
       "0xa6da5dae7e095da77e488bb81bfecd2fdc7e1b3bed1b4113c43adac408ab369b",
-      "0xdcca1cf9cb9cded694976e6548156d1b73c1f69a6698d8bd02d32f5c07424224"
+      "0x290cee798c47f5575ceeebf58b7026949594a6809fadd81c65628cd72dc60e20"
     ],
     "2": [
       "0x7ecb5e695baed71cf8979f2604e5076c6e5a9559c3845e1049d0be1ef947c823",
       "0x43ee35db3891821b4516ac6cb4e7dd607f4eb353a85db11e05b9358dfd3bd897",
-      "0xb44b9085de966840075fd4420246ab5265a5be7f4c9bd1b26ef8bf00a9939883",
+      "0x9d514bf16455c67a635e999fbd66caa5e1ac9b87b8726d2bfbdeb41d5bba91d1",
       "0xec36dbe395dc9c97e82d5ef9325fb13a264faf4bc614c184837bb3dfc0c6a31a"
     ],
     "3": [
@@ -1596,7 +1596,7 @@
       "0xa31261f001f12eecf4351c65dc2db68d89b6d6723917d8820e27c7f897327f2b",
       "0xadb2c803c1c7f80b45c061a315e5133699242d8a3f32ffd30a2d50578a5beaa2",
       "0xf40bd78827b09673528577d0a72db39ad1646506950c49e73225a461924a6626",
-      "0x33cf0c3e16f709b86d941ea1803ce77bf876dd6d19446a89d4119e3773511d7c",
+      "0xa7475034be9277032622bf87869938eed1fc5580b9ff89bfe86db5d6c5d84864",
       "0xc8e2d8c65f68c2edf703a349b0189c66520f43472e76097f69a501107adf656c",
       "0xc8e2d8c65f68c2edf703a349b0189c66520f43472e76097f69a501107adf656c",
       "0xc8e2d8c65f68c2edf703a349b0189c66520f43472e76097f69a501107adf656c"
@@ -1610,7 +1610,7 @@
       "0x32868a97b1294b555899fe27e7ed9a0e9c5511d29326eda79316fbab71a894dc",
       "0xc26aae564b3994a15323e91932520d8b6338fdefe3cf041640e86170ccbc88f8",
       "0xc4ef0fa82eae25a13bc3e4f58d33e03ddfc94759b5fc7a04f03ffa27642aa0a2",
-      "0x80340d7dd348c93f4e66bfd2000ea5ab946fc6fec11916f56485f52dae9f596c",
+      "0x08bb724d9dcb09deb45870ca672bb3e4b8bf0a0705426220d2c0e61755129ff6",
       "0x41fbd3a0cfdfcee05cf3eb16d95ed1c81f50c3c6268bb806b406ec06ee93e704",
       "0x41fbd3a0cfdfcee05cf3eb16d95ed1c81f50c3c6268bb806b406ec06ee93e704",
       "0x41fbd3a0cfdfcee05cf3eb16d95ed1c81f50c3c6268bb806b406ec06ee93e704",
@@ -1636,8 +1636,8 @@
       "0x1bef0abfba0df308072d1c503f75e6ca7ce2f9bf2c81a797c3b16c4809ee94fa",
       "0xff14571b2680a28d0edfeb94e1abef0ec1f290f9ca5e2c009c456571e57d80b1",
       "0xd92705ce4e1e7d1e156624facdf7a1031ef4bd98fe451f972d0a5e9e200bf770",
-      "0xe9f618bc0d5f0dfe42353a1d24b37e6ca6b6fe1c7fb0aea6aa404eb75c230234",
-      "0x849eda7a295b642e5ddaf49a30eec4470cf507efa83b4104c0752d069c7638fe",
+      "0x1511057949ed0718e1bd95fc50df04880e80dda5d49d3b4454ec8d6bcc5aff5e",
+      "0xc20c8c8cc3826ef4f4071f4122e27e34d97e01666c9307c43efacf37e9788325",
       "0x849eda7a295b642e5ddaf49a30eec4470cf507efa83b4104c0752d069c7638fe",
       "0x849eda7a295b642e5ddaf49a30eec4470cf507efa83b4104c0752d069c7638fe",
       "0x849eda7a295b642e5ddaf49a30eec4470cf507efa83b4104c0752d069c7638fe",
@@ -1687,9 +1687,9 @@
       "0x5e10f04080b8a0eee30914e2739c48705cf1f2304c1f24ff220793d848f3957e",
       "0xef07980b0abf77cc21cfad16359b605a8aed95986613f123c29368b2a869d3cd",
       "0xeb6b7f0b11a56fa79670547797deb64e009f81baa54e647fdf6fc87feafb5ad7",
-      "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
-      "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
-      "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
+      "0x1c8bbeeccd983cbeff1968b77379b8105a05f74c92ef9910bab23657a841fcc8",
+      "0x76f8a1ccbebd5d0a9f93714c6b3097b3ad69368291ec7e8470eb3da25158a31a",
+      "0x97020f2420029716789488b810fee3ff916ccd66aa0a33e6f936dddb45265d7f",
       "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
       "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
       "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
@@ -1786,11 +1786,11 @@
       "0xc6d0462d042660900bdae3975dc7811ec131ed14d0bdc49d1b760c8694241be2",
       "0x4cd109d030e95bb3f9c3d23b99aaca0df3768ecbb946e8ff3a5a4b0b90f2686c",
       "0x249411be15d7946f33813014c0bd9ec1ebb45362fc8515c19d26374b2f084063",
-      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "0x9fbf2e3aaf2f2aa4b69602ea5da6a370eec377099fde88deb689369a9c7a404e",
+      "0xab117c25656ed772acacd74a638d959507c1a103ed505b0fca0271487a45ea16",
+      "0xa953365ac1e11333842a9afaf8448adb3b560299fbd182f3ce50c279dbfa5e7f",
+      "0x6d620e8348d9eb27af5c3af05c38cd7209dece05b1b36276cfb09eb364ee2fdc",
+      "0xa9929002d2b0590aae441066d2f6a5a07f995e08e445e06cedca6b38fee29b87",
       "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
       "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
       "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
