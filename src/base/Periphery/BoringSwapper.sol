@@ -7,15 +7,30 @@ pragma solidity 0.8.21;
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {BoringVault} from "src/base/BoringVault.sol";
+import {ReentrancyGuard} from "@solmate/utils/ReentrancyGuard.sol";
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
+import {IPriceFeed} from "src/interfaces/IPriceFeed.sol";
 
-contract BoringSwapper is Auth {
+enum QuoteAsset { USD, ETH, BTC }
+
+struct SwapParams {
+    address tokenIn;
+    address tokenOut;
+    uint256 amountIn;
+    uint256 minAmountOut;
+    address receiver;
+    address target;
+    bytes swapData;
+    bool useOracle;
+    QuoteAsset quoteAsset;
+    uint256 maxSlippageBps;
+}
+
+contract BoringSwapper is Auth, ReentrancyGuard {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
 
-    //State Variables
-    address internal immutable NATIVE; 
+    // ========================================= STRUCTS =========================================
 
     struct TokenOracleConfig {
         address usdOracle;
@@ -23,15 +38,22 @@ contract BoringSwapper is Auth {
         address btcOracle;
     }
 
-    mapping(address token => TokenOracleConfig config) public tokenOracleConfigs;
+    // ========================================= STATE =========================================
 
-    //Errors
-    error SwapFailed();
-    error SlippageExceeded();
-    error NativeTransferFailed();
-    error NoSlippageProtection();
-    
-    //Events
+    mapping(address token => TokenOracleConfig config) public tokenOracleConfigs;
+    mapping(address => bool) public approvedTargets;
+
+    //============================== ERRORS ===============================
+
+    error BoringSwapper__SwapFailed();
+    error BoringSwapper__SlippageExceeded();
+    error BoringSwapper__NativeTransferFailed();
+    error BoringSwapper__NoSlippageProtection();
+    error BoringSwapper__TargetNotApproved();
+    error BoringSwapper__OracleNotConfigured();
+
+    //============================== EVENTS ===============================
+
     event Swap(
         address indexed tokenIn,
         address indexed tokenOut,
@@ -39,78 +61,125 @@ contract BoringSwapper is Auth {
         uint256 amountOut,
         address target
     );
+    event TargetApprovalUpdated(address indexed target, bool approved);
+    event TokenOracleConfigUpdated(address indexed token);
+
+    //============================== IMMUTABLES ===============================
+
+    address internal immutable NATIVE;
 
     constructor(address _NATIVE, address _owner, Authority _auth) Auth(_owner, _auth) {
-        NATIVE = _NATIVE; 
+        NATIVE = _NATIVE;
     }
 
     receive() external payable {}
 
-    function swap(
-        address tokenIn,
-        address tokenOut, 
-        uint256 amountIn,
-        uint256 minAmountOut,
-        address receiver,
-        address target,
-        bytes calldata swapData,
-        bool useOracle,
-        uint256 maxSlippageBps //for demonstration only, this function sig should be compacted/cleaned up
-    ) public payable { //add auth, reentrency protection, and other guards 
-        
-        //optionally check the target here, or do it directly in the decoder for more flexibility
-        //this contract could act as a global list of approved swap targets, or it could be given at the vault level
-        
-        //_checkTarget(target); 
-        uint256 minRequired;  
-        if (useOracle) {
-            //helper that would calculate the amount based on slippage in terms of quoteAsset (ie: USDC, ETH, BTC) 
-            //minRequired = _calculateMinOut(tokenIn, tokenOut, amountIn, maxSlippageBps, USD); where the usd value is an enum, or an address to USDC passed in via a config. 
-            //getting stack too deep tho so leaving it out for now
-        } else {
-            if (minAmountOut == 0) revert NoSlippageProtection();
-            minRequired = minAmountOut;
-        }
-        
-        uint256 outBefore = _balanceOf(tokenOut);
+    // ========================================= ADMIN FUNCTIONS =========================================
 
-        if (tokenIn == NATIVE) {
-            require(msg.value == amountIn, "bad msg.value");
-        } else {
-            ERC20(tokenIn).safeTransferFrom(msg.sender, address(this), amountIn);
-            ERC20(tokenIn).approve(target, amountIn);
-        }
-        
-        //can potentially preapprove function selectors as well, but may be too limiting        
-        (bool success,) = target.call{value: tokenIn == NATIVE ? amountIn : 0}(swapData);
-        if (!success) revert SwapFailed();
-
-        uint256 amountOut = _balanceOf(tokenOut) - outBefore; 
-        if (amountOut < minRequired) revert SlippageExceeded(); 
-        
-        //clear approvals and send tokens
-        if (tokenIn != NATIVE) ERC20(tokenIn).approve(target, 0);
-
-        if (tokenOut != NATIVE) {
-            ERC20(tokenOut).safeTransfer(receiver, amountOut); 
-        } else {
-            (bool sent,) = receiver.call{value: amountOut}("");
-            if(!sent) revert NativeTransferFailed(); 
-        }
-        
-        emit Swap(tokenIn, tokenOut, amountIn, amountOut, target); 
+    function setApprovedTarget(address target, bool approved) external requiresAuth {
+        approvedTargets[target] = approved;
+        emit TargetApprovalUpdated(target, approved);
     }
-    
-    //HELPERS
+
+    function setTokenOracleConfig(address token, TokenOracleConfig calldata config) external requiresAuth {
+        tokenOracleConfigs[token] = config;
+        emit TokenOracleConfigUpdated(token);
+    }
+
+    // ========================================= SWAP =========================================
+
+    function swap(SwapParams calldata params) public payable requiresAuth nonReentrant {
+        if (!approvedTargets[params.target]) revert BoringSwapper__TargetNotApproved();
+
+        uint256 minRequired;
+        if (params.useOracle) {
+            minRequired = _calculateMinOut(params);
+        } else {
+            if (params.minAmountOut == 0) revert BoringSwapper__NoSlippageProtection();
+            minRequired = params.minAmountOut;
+        }
+
+        uint256 outBefore = _balanceOf(params.tokenOut);
+
+        if (params.tokenIn == NATIVE) {
+            require(msg.value == params.amountIn, "bad msg.value");
+        } else {
+            ERC20(params.tokenIn).safeTransferFrom(msg.sender, address(this), params.amountIn);
+            ERC20(params.tokenIn).approve(params.target, params.amountIn);
+        }
+
+        (bool success,) = params.target.call{value: params.tokenIn == NATIVE ? params.amountIn : 0}(params.swapData);
+        if (!success) revert BoringSwapper__SwapFailed();
+
+        uint256 amountOut = _balanceOf(params.tokenOut) - outBefore;
+        if (amountOut < minRequired) revert BoringSwapper__SlippageExceeded();
+
+        // Clear approvals
+        if (params.tokenIn != NATIVE) ERC20(params.tokenIn).approve(params.target, 0);
+
+        // Send output tokens
+        if (params.tokenOut != NATIVE) {
+            ERC20(params.tokenOut).safeTransfer(params.receiver, amountOut);
+        } else {
+            (bool sent,) = params.receiver.call{value: amountOut}("");
+            if (!sent) revert BoringSwapper__NativeTransferFailed();
+        }
+
+        // Return dust
+        uint256 remainingIn = _balanceOf(params.tokenIn);
+        if (remainingIn > 0) {
+            if (params.tokenIn != NATIVE) {
+                ERC20(params.tokenIn).safeTransfer(msg.sender, remainingIn);
+            } else {
+                (bool sent,) = msg.sender.call{value: remainingIn}("");
+                if (!sent) revert BoringSwapper__NativeTransferFailed();
+            }
+        }
+
+        emit Swap(params.tokenIn, params.tokenOut, params.amountIn, amountOut, params.target);
+    }
+
+    // ========================================= HELPERS =========================================
 
     function _balanceOf(address token) internal view returns (uint256) {
         if (token == NATIVE) return address(this).balance;
         return ERC20(token).balanceOf(address(this));
     }
 
-    function _calculateMinOut(address tokenIn, address tokenOut, uint256 amountIn, uint256 maxSlippageBps, address quoteAsset) internal returns (uint256) {
-        //do the stuff
-        return amountIn;
+    function _calculateMinOut(SwapParams calldata params) internal view returns (uint256) {
+        (uint256 numerator, uint256 denominator) = _getOracleQuote(
+            params.tokenIn, params.tokenOut, params.amountIn, params.quoteAsset
+        );
+        uint256 expectedOut = numerator / denominator;
+        return expectedOut * (10000 - params.maxSlippageBps) / 10000;
+    }
+
+    function _getOracleQuote(
+        address tokenIn,
+        address tokenOut,
+        uint256 amountIn,
+        QuoteAsset quoteAsset
+    ) internal view returns (uint256 numerator, uint256 denominator) {
+        address oracleIn = _getOracle(tokenIn, quoteAsset);
+        address oracleOut = _getOracle(tokenOut, quoteAsset);
+        if (oracleIn == address(0) || oracleOut == address(0)) revert BoringSwapper__OracleNotConfigured();
+
+        (uint256 priceIn, uint8 oracleDecimalsIn) = IPriceFeed(oracleIn).getPrice();
+        (uint256 priceOut, uint8 oracleDecimalsOut) = IPriceFeed(oracleOut).getPrice();
+
+        uint8 decimalsIn = tokenIn == NATIVE ? 18 : ERC20(tokenIn).decimals();
+        uint8 decimalsOut = tokenOut == NATIVE ? 18 : ERC20(tokenOut).decimals();
+
+        // expectedOut = amountIn * priceIn * 10^decimalsOut / (priceOut * 10^decimalsIn)
+        // with oracle decimal normalization
+        numerator = amountIn * priceIn * (10 ** decimalsOut) * (10 ** oracleDecimalsOut);
+        denominator = priceOut * (10 ** decimalsIn) * (10 ** oracleDecimalsIn);
+    }
+
+    function _getOracle(address token, QuoteAsset quoteAsset) internal view returns (address) {
+        TokenOracleConfig storage config = tokenOracleConfigs[token];
+        if (quoteAsset == QuoteAsset.USD) return config.usdOracle;
+        if (quoteAsset == QuoteAsset.ETH) return config.ethOracle;
+        return config.btcOracle;
     }
 }
-
