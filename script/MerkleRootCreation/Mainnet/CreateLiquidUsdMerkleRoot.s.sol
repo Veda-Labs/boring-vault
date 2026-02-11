@@ -44,6 +44,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
     address public itbSyrupUsdt = 0x1bc7694b92AE221E7d3d775BaDe5C4e1C996d69B;
     address public itbReserveProtocolPositionManager = 0x78Dbb5495044779562A584F133C2eca0B8e349ba;
     address public itbDecoderAndSanitizer = 0xCe39e869C2010A3C049E1cA11F7dfB70ae2ddBF5;
+    address public skyMoneyDecoderAndSanitizer = 0x93740255Db97B8005e5F4E84e0E08F69A3267b30;
 
     function setUp() external {}
 
@@ -470,6 +471,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "USDe_DAI_Curve_Pool"));
         _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "sDAI_sUSDe_Curve_Pool"));
         _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "USDC_RLUSD_Curve_Pool"));
+        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "spark_PYUSD_USDS_Curve_Pool"));
 
         // ========================== Curve ==========================
         _addCurveLeafs(
@@ -484,6 +486,13 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
             2,
             getAddress(sourceChain, "pyUsd_Usdc_Curve_Gauge")
         );
+
+        // ========================== SparkSwap ==========================
+        {
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", skyMoneyDecoderAndSanitizer);
+            _addSkyUSDSLitePSMUSDCLeafs(leafs);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
 
         // ========================== Resolv ==========================
         {

@@ -39,6 +39,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
     address public resolvDecoderAndSanitizer = 0x87f67Eb9Bb1a606923A17696E06AFAa72da65f86;
     address public dolomiteDecoderAndSanitizer = 0x2f7D1Bbc14Fc3a859EB82ffCB195f9FC3DfCde2f;
+    address public skyMoneyDecoderAndSanitizer = 0x93740255Db97B8005e5F4E84e0E08F69A3267b30;
 
     address public drone = 0x0a42b2F3a0D54157Dbd7CC346335A4F1909fc02c;
 
@@ -307,7 +308,17 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "weETH_wETH_Pool"));
             _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "weETH_wETH_NG_Pool"));
             _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "tETH_wstETH_curve_pool"));
+            _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "spark_PYUSD_USDS_Curve_Pool"));
         }
+
+        // ========================== SparkSwap ==========================
+        {
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", skyMoneyDecoderAndSanitizer);
+            _addSkyUSDSLitePSMUSDCLeafs(leafs);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
+
+
         // ========================== Swell ==========================
         {
             _addSwellSimpleStakingLeafs(
