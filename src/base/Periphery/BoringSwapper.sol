@@ -51,6 +51,7 @@ contract BoringSwapper is Auth, ReentrancyGuard {
     error BoringSwapper__NoSlippageProtection();
     error BoringSwapper__TargetNotApproved();
     error BoringSwapper__OracleNotConfigured();
+    error BoringSwapper__NotEnoughNative();
 
     //============================== EVENTS ===============================
 
@@ -102,7 +103,7 @@ contract BoringSwapper is Auth, ReentrancyGuard {
         uint256 outBefore = _balanceOf(params.tokenOut);
 
         if (params.tokenIn == NATIVE) {
-            require(msg.value == params.amountIn, "bad msg.value");
+         if (msg.value != params.amountIn) revert BoringSwpper_NotEnoughtNative();
         } else {
             ERC20(params.tokenIn).safeTransferFrom(msg.sender, address(this), params.amountIn);
             ERC20(params.tokenIn).approve(params.target, params.amountIn);
@@ -147,11 +148,11 @@ contract BoringSwapper is Auth, ReentrancyGuard {
     }
 
     function _calculateMinOut(SwapParams calldata params) internal view returns (uint256) {
-        if (params.maxSlippageBps >= 10000) revert BoringSwapper__NoSlippageProtection();
+        if (params.maxSlippageBps >= 10_000) revert BoringSwapper__NoSlippageProtection();
         (uint256 numerator, uint256 denominator) = _getOracleQuote(
             params.tokenIn, params.tokenOut, params.amountIn, params.quoteAsset
         );
-        return numerator.mulDivDown(10000 - params.maxSlippageBps, denominator * 10000);
+        return numerator.mulDivDown(10_000 - params.maxSlippageBps, denominator * 10_000);
     }
 
     function _getOracleQuote(
@@ -166,7 +167,6 @@ contract BoringSwapper is Auth, ReentrancyGuard {
 
         // expectedOut = amountIn * priceIn * 10^decimalsOut * 10^oracleDecimalsOut
         //             / (priceOut * 10^decimalsIn * 10^oracleDecimalsIn)
-        // Use mulDivDown to avoid overflow in the numerator multiplication.
         {
             (uint256 priceIn,) = IPriceFeed(oracleIn).getPrice();
             (uint256 priceOut, uint8 oracleDecimalsOut) = IPriceFeed(oracleOut).getPrice();

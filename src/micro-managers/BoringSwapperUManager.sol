@@ -106,12 +106,10 @@ contract BoringSwapperUManager is UManager {
         address[] calldata decodersAndSanitizers,
         SwapParams calldata swapParams
     ) external requiresAuth enforceRateLimit {
-        // 1. Snapshot tokenOut balance before swap (NATIVE-aware).
         uint256 tokenOutBalanceBefore = _getBalance(swapParams.tokenOut);
 
-        // 2. Build manage call arrays — branch on tokenIn == NATIVE.
         if (swapParams.tokenIn == boringSwapper.NATIVE()) {
-            // No approve needed; single call with ETH value.
+            //no approve needed for native in
             address[] memory targets = new address[](1);
             bytes[] memory targetData = new bytes[](1);
             uint256[] memory values = new uint256[](1);
@@ -121,7 +119,6 @@ contract BoringSwapperUManager is UManager {
 
             manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
         } else {
-            // ERC20: approve + swap (2 proofs/decoders).
             address[] memory targets = new address[](2);
             bytes[] memory targetData = new bytes[](2);
             uint256[] memory values = new uint256[](2);
@@ -136,12 +133,10 @@ contract BoringSwapperUManager is UManager {
             manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
         }
 
-        // 3. Measure actual output received and enforce per-strategist rate limit.
         uint256 amountOut = _getBalance(swapParams.tokenOut) - tokenOutBalanceBefore;
         uint256 normalizedValue = _getNormalizedValue(swapParams.tokenOut, amountOut);
         _checkAndUpdateStrategistRateLimit(msg.sender, normalizedValue);
 
-        // 4. Revoke leftover approval if any remains (skip if tokenIn is NATIVE).
         if (swapParams.tokenIn != boringSwapper.NATIVE()) {
             if (ERC20(swapParams.tokenIn).allowance(boringVault, address(boringSwapper)) > 0) {
                 bytes32[][] memory revokeProof = new bytes32[][](1);
