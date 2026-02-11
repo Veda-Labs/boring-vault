@@ -66,7 +66,7 @@ contract BoringSwapper is Auth, ReentrancyGuard {
 
     //============================== IMMUTABLES ===============================
 
-    address internal immutable NATIVE;
+    address public immutable NATIVE;
 
     constructor(address _NATIVE, address _owner, Authority _auth) Auth(_owner, _auth) {
         NATIVE = _NATIVE;
@@ -147,11 +147,11 @@ contract BoringSwapper is Auth, ReentrancyGuard {
     }
 
     function _calculateMinOut(SwapParams calldata params) internal view returns (uint256) {
+        if (params.maxSlippageBps >= 10000) revert BoringSwapper__NoSlippageProtection();
         (uint256 numerator, uint256 denominator) = _getOracleQuote(
             params.tokenIn, params.tokenOut, params.amountIn, params.quoteAsset
         );
-        uint256 expectedOut = numerator / denominator;
-        return expectedOut * (10000 - params.maxSlippageBps) / 10000;
+        return numerator.mulDivDown(10000 - params.maxSlippageBps, denominator * 10000);
     }
 
     function _getOracleQuote(
@@ -164,16 +164,20 @@ contract BoringSwapper is Auth, ReentrancyGuard {
         address oracleOut = _getOracle(tokenOut, quoteAsset);
         if (oracleIn == address(0) || oracleOut == address(0)) revert BoringSwapper__OracleNotConfigured();
 
-        (uint256 priceIn, uint8 oracleDecimalsIn) = IPriceFeed(oracleIn).getPrice();
-        (uint256 priceOut, uint8 oracleDecimalsOut) = IPriceFeed(oracleOut).getPrice();
-
-        uint8 decimalsIn = tokenIn == NATIVE ? 18 : ERC20(tokenIn).decimals();
-        uint8 decimalsOut = tokenOut == NATIVE ? 18 : ERC20(tokenOut).decimals();
-
-        // expectedOut = amountIn * priceIn * 10^decimalsOut / (priceOut * 10^decimalsIn)
-        // with oracle decimal normalization
-        numerator = amountIn * priceIn * (10 ** decimalsOut) * (10 ** oracleDecimalsOut);
-        denominator = priceOut * (10 ** decimalsIn) * (10 ** oracleDecimalsIn);
+        // expectedOut = amountIn * priceIn * 10^decimalsOut * 10^oracleDecimalsOut
+        //             / (priceOut * 10^decimalsIn * 10^oracleDecimalsIn)
+        // Use mulDivDown to avoid overflow in the numerator multiplication.
+        {
+            (uint256 priceIn,) = IPriceFeed(oracleIn).getPrice();
+            (uint256 priceOut, uint8 oracleDecimalsOut) = IPriceFeed(oracleOut).getPrice();
+            uint8 decimalsOut = tokenOut == NATIVE ? 18 : ERC20(tokenOut).decimals();
+            numerator = amountIn.mulDivDown(priceIn, priceOut) * (10 ** decimalsOut) * (10 ** oracleDecimalsOut);
+        }
+        {
+            (, uint8 oracleDecimalsIn) = IPriceFeed(oracleIn).getPrice();
+            uint8 decimalsIn = tokenIn == NATIVE ? 18 : ERC20(tokenIn).decimals();
+            denominator = (10 ** decimalsIn) * (10 ** oracleDecimalsIn);
+        }
     }
 
     function _getOracle(address token, QuoteAsset quoteAsset) internal view returns (address) {
