@@ -285,6 +285,13 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
             setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 
+        // ========================== USDD ==========================
+        {
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", skyMoneyDecoderAndSanitizer);
+            _addUSDDPSMLeafs(leafs);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
+
         // ========================== MetaMorpho ==========================
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "usualBoostedUSDC")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "PendleWBTC")));
