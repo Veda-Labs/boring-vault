@@ -10296,6 +10296,8 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     // =================================== USDD ====================================================
 
     function _addUSDDPSMLeafs(ManageLeaf[] memory leafs) internal {
+
+        // XXX: Approvals are not symmetrical. Need to approve JoinAuth when minting (sellGem) but, PSM when exiting (buyGem)
         unchecked {
             leafIndex++;
         }
@@ -10307,7 +10309,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             string.concat("Approve USDD to be swapped for USDT"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "usddJoinAuth");
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "usddPsmUsdt");
         unchecked {
             leafIndex++;
         }
