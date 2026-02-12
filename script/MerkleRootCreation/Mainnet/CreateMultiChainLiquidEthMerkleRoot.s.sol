@@ -323,7 +323,9 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         {
             setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", skyMoneyDecoderAndSanitizer);
             _addUSDDPSMLeafs(leafs);
+
             setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+            _addSUSDDLeafs(leafs);
         }
 
 

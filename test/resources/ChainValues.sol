@@ -371,6 +371,7 @@ contract ChainValues {
         values[mainnet]["axlSAGA"] = 0xF42fCFfc27A5B8d0afEC45659407B82f9F32fA98.toBytes32();
         values[mainnet]["USD1"] = 0x8d0D000Ee44948FC98c9B98A4FA4921476f08B0d.toBytes32();
         values[mainnet]["USDD"] = 0x4f8e5DE400DE08B164E7421B3EE387f461beCD1A.toBytes32();
+        values[mainnet]["sUSDD"] = 0xC5d6A7B61d18AfA11435a889557b068BB9f29930.toBytes32();
 
         // Rate providers
         values[mainnet]["WEETH_RATE_PROVIDER"] = 0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee.toBytes32();
@@ -1461,6 +1462,7 @@ contract ChainValues {
 
         // USDD
         values[mainnet]["usddPsmUsdt"] = 0xcE355440c00014A229bbEc030A2B8f8EB45a2897.toBytes32();
+        values[mainnet]["usddJoinAuth"] = 0x217e42CEB2eAE9ECB788fDF0e31c806c531760A3.toBytes32();
 
         // Resolv
         values[mainnet]["UsrExternalRequestsManager"] = 0xAC85eF29192487E0a109b7f9E40C267a9ea95f2e.toBytes32();

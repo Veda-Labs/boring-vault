@@ -10307,7 +10307,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             string.concat("Approve USDD to be swapped for USDT"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "usddPsmUsdt");
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "usddJoinAuth");
         unchecked {
             leafIndex++;
         }
@@ -10319,7 +10319,8 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             string.concat("Approve USDT to be swapped for USDD"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "usddPsmUsdt");
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "usddJoinAuth");
+
 
         unchecked {
             leafIndex++;
@@ -10346,6 +10347,50 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+    }
+
+    function _addSUSDDLeafs(ManageLeaf[] memory leafs) internal {
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "USDD"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve USDD to be staked for sUSDD"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "sUSDD");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "sUSDD"),
+            false,
+            "deposit(uint256,address)",
+            new address[](1),
+            string.concat("stake USDD for sUSDD"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "sUSDD"),
+            false,
+            "redeem(uint256,address,address)",
+            new address[](2),
+            string.concat("unstake sUSDD for USDD"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
     }
 
 
