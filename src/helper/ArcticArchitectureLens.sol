@@ -9,7 +9,7 @@ import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSu
 import {TellerWithYieldStreaming} from "src/base/Roles/TellerWithYieldStreaming.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {BoringOnChainQueue} from "src/base/Roles/BoringQueue/BoringOnChainQueue.sol";
-import {AaveV3BufferLens} from "src/helper/AaveV3BufferLens.sol";
+import {IBufferLens} from "src/interfaces/IBufferLens.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
@@ -218,7 +218,7 @@ contract ArcticArchitectureLens {
         BoringOnChainQueue.OnChainWithdraw memory req,
         BoringVault boringVault,
         BoringOnChainQueue queue,
-        AaveV3BufferLens aaveV3BufferLens
+        IBufferLens bufferLens
     ) public view returns (PreviewWithdrawResult memory res) {
         BoringOnChainQueue.WithdrawAsset memory withdrawAsset = getWithdrawAsset(req.assetOut, queue);
 
@@ -233,9 +233,10 @@ contract ArcticArchitectureLens {
         if (req.amountOfShares == 0) res.noShares = true;
 
         uint256 withdrawable;
-        if (address(aaveV3BufferLens) != address(0)) {
+        if (address(bufferLens) != address(0)) {
             address teller = address(boringVault.hook());
-            withdrawable = aaveV3BufferLens.getInstantlyWithdrawableAmount(TellerWithYieldStreaming(teller), ERC20(req.assetOut));
+            withdrawable =
+                bufferLens.getInstantlyWithdrawableAmount(TellerWithYieldStreaming(teller), ERC20(req.assetOut));
         } else {
             withdrawable = ERC20(req.assetOut).balanceOf(address(boringVault));
         }
@@ -251,13 +252,13 @@ contract ArcticArchitectureLens {
         BoringOnChainQueue.OnChainWithdraw[] calldata requests,
         BoringVault boringVault,
         BoringOnChainQueue queue,
-        AaveV3BufferLens aaveV3BufferLens
+        IBufferLens bufferLens
     ) external view returns (PreviewWithdrawResult[] memory res) {
         uint256 requestsLength = requests.length;
         res = new PreviewWithdrawResult[](requestsLength);
 
         for (uint256 i = 0; i < requestsLength; i++) {
-            res[i] = previewWithdraw(requests[i], boringVault, queue, aaveV3BufferLens);
+            res[i] = previewWithdraw(requests[i], boringVault, queue, bufferLens);
         }
     }
 
@@ -288,7 +289,7 @@ contract ArcticArchitectureLens {
         BoringVault boringVault,
         AccountantWithRateProviders accountant,
         TellerWithYieldStreaming teller,
-        AaveV3BufferLens aaveV3BufferLens
+        IBufferLens bufferLens
     ) external view returns (PreviewInstantWithdrawResult memory res) {
         if (teller.isPaused()) res.tellerPaused = true;
 
@@ -309,7 +310,7 @@ contract ArcticArchitectureLens {
         }
 
         // Calculate the withdrawable amount
-        uint256 withdrawable = aaveV3BufferLens.getInstantlyWithdrawableAmount(teller, withdrawAsset);
+        uint256 withdrawable = bufferLens.getInstantlyWithdrawableAmount(teller, withdrawAsset);
 
         // Check if the withdrawable amount is less than the requested assets out
         if (withdrawable < res.assetsOut) {
