@@ -217,7 +217,8 @@ contract ArcticArchitectureLens {
     function previewWithdraw(
         BoringOnChainQueue.OnChainWithdraw memory req,
         BoringVault boringVault,
-        BoringOnChainQueue queue
+        BoringOnChainQueue queue,
+        AaveV3BufferLens aaveV3BufferLens
     ) public view returns (PreviewWithdrawResult memory res) {
         BoringOnChainQueue.WithdrawAsset memory withdrawAsset = getWithdrawAsset(req.assetOut, queue);
 
@@ -231,7 +232,14 @@ contract ArcticArchitectureLens {
 
         if (req.amountOfShares == 0) res.noShares = true;
 
-        if (ERC20(req.assetOut).balanceOf(address(boringVault)) < req.amountOfAssets) {
+        uint256 withdrawable;
+        if (address(aaveV3BufferLens) != address(0)) {
+            address teller = address(boringVault.hook());
+            withdrawable = aaveV3BufferLens.getInstantlyWithdrawableAmount(TellerWithYieldStreaming(teller), ERC20(req.assetOut));
+        } else {
+            withdrawable = ERC20(req.assetOut).balanceOf(address(boringVault));
+        }
+        if (withdrawable < req.amountOfAssets) {
             res.notEnoughAssetsForWithdraw = true;
         }
     }
@@ -242,13 +250,14 @@ contract ArcticArchitectureLens {
     function previewWithdraws(
         BoringOnChainQueue.OnChainWithdraw[] calldata requests,
         BoringVault boringVault,
-        BoringOnChainQueue queue
+        BoringOnChainQueue queue,
+        AaveV3BufferLens aaveV3BufferLens
     ) external view returns (PreviewWithdrawResult[] memory res) {
         uint256 requestsLength = requests.length;
         res = new PreviewWithdrawResult[](requestsLength);
 
         for (uint256 i = 0; i < requestsLength; i++) {
-            res[i] = previewWithdraw(requests[i], boringVault, queue);
+            res[i] = previewWithdraw(requests[i], boringVault, queue, aaveV3BufferLens);
         }
     }
 
