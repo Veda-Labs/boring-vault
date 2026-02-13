@@ -218,6 +218,7 @@ contract ArcticArchitectureLens {
         BoringOnChainQueue.OnChainWithdraw memory req,
         BoringVault boringVault,
         BoringOnChainQueue queue,
+        TellerWithYieldStreaming teller,
         IBufferLens bufferLens
     ) public view returns (PreviewWithdrawResult memory res) {
         BoringOnChainQueue.WithdrawAsset memory withdrawAsset = getWithdrawAsset(req.assetOut, queue);
@@ -234,9 +235,7 @@ contract ArcticArchitectureLens {
 
         uint256 withdrawable;
         if (address(bufferLens) != address(0)) {
-            address teller = address(boringVault.hook());
-            withdrawable =
-                bufferLens.getInstantlyWithdrawableAmount(TellerWithYieldStreaming(teller), ERC20(req.assetOut));
+            withdrawable = bufferLens.getInstantlyWithdrawableAmount(teller, ERC20(req.assetOut));
         } else {
             withdrawable = ERC20(req.assetOut).balanceOf(address(boringVault));
         }
@@ -252,13 +251,14 @@ contract ArcticArchitectureLens {
         BoringOnChainQueue.OnChainWithdraw[] calldata requests,
         BoringVault boringVault,
         BoringOnChainQueue queue,
+        TellerWithYieldStreaming teller,
         IBufferLens bufferLens
     ) external view returns (PreviewWithdrawResult[] memory res) {
         uint256 requestsLength = requests.length;
         res = new PreviewWithdrawResult[](requestsLength);
 
         for (uint256 i = 0; i < requestsLength; i++) {
-            res[i] = previewWithdraw(requests[i], boringVault, queue, bufferLens);
+            res[i] = previewWithdraw(requests[i], boringVault, queue, teller, bufferLens);
         }
     }
 
