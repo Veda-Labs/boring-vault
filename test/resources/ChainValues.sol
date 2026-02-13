@@ -370,8 +370,6 @@ contract ChainValues {
         values[mainnet]["USDG"] = 0xe343167631d89B6Ffc58B88d6b7fB0228795491D.toBytes32();
         values[mainnet]["axlSAGA"] = 0xF42fCFfc27A5B8d0afEC45659407B82f9F32fA98.toBytes32();
         values[mainnet]["USD1"] = 0x8d0D000Ee44948FC98c9B98A4FA4921476f08B0d.toBytes32();
-        values[mainnet]["yzUSD"] = 0x6695c0f8706C5ACe3Bdf8995073179cCA47926dc.toBytes32();
-        values[mainnet]["syzUSD"] = 0xC8A8DF9B210243c55D31c73090F06787aD0A1Bf6.toBytes32();
 
         // Rate providers
         values[mainnet]["WEETH_RATE_PROVIDER"] = 0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee.toBytes32();
@@ -3204,6 +3202,8 @@ contract ChainValues {
         values[plasma]["sUSDe"] = 0x211Cc4DD073734dA055fbF44a2b4667d5E5fE5d2.toBytes32(); 
         values[plasma]["ENA"] = 0x58538e6A46E07434d7E7375Bc268D3cb839C0133.toBytes32(); 
         values[plasma]["wstUSR"] = 0x2a52B289bA68bBd02676640aA9F605700c9e5699.toBytes32(); // also OFT
+        values[plasma]["yzUSD"] = 0x6695c0f8706C5ACe3Bdf8995073179cCA47926dc.toBytes32();
+        values[plasma]["syzUSD"] = 0xC8A8DF9B210243c55D31c73090F06787aD0A1Bf6.toBytes32();
         
         // Uniswap V3
         values[plasma]["uniswapV3NonFungiblePositionManager"] = 0x743E03cceB4af2efA3CC76838f6E8B50B63F184c.toBytes32();
