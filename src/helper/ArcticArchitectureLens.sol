@@ -174,10 +174,7 @@ contract ArcticArchitectureLens {
         ) = queue.withdrawAssets(asset);
     }
 
-    function getWithdrawAssets(
-        address[] calldata assets,
-        BoringOnChainQueue queue
-    )
+    function getWithdrawAssets(address[] calldata assets, BoringOnChainQueue queue)
         external
         view
         returns (BoringOnChainQueue.WithdrawAsset[] memory withdrawAssets)
@@ -286,7 +283,7 @@ contract ArcticArchitectureLens {
     ) external view returns (PreviewInstantWithdrawResult memory res) {
         if (teller.isPaused()) res.tellerPaused = true;
 
-        (,bool allowWithdraws,) = teller.assetData(withdrawAsset);
+        (, bool allowWithdraws,) = teller.assetData(withdrawAsset);
         if (!allowWithdraws) res.withdrawsNotAllowed = true;
 
         if (shareAmount == 0) res.noShares = true;
