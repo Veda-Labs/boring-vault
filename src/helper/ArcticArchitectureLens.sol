@@ -291,6 +291,8 @@ contract ArcticArchitectureLens {
         TellerWithYieldStreaming teller,
         IBufferLens bufferLens
     ) external view returns (PreviewInstantWithdrawResult memory res) {
+        require(address(bufferLens) != address(0), "Buffer lens required for instant withdraw");
+
         if (teller.isPaused()) res.tellerPaused = true;
 
         (, bool allowWithdraws,) = teller.assetData(withdrawAsset);
