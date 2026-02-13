@@ -7,17 +7,11 @@ pragma solidity 0.8.21;
 import {BoringVault, ERC20} from "src/base/BoringVault.sol";
 import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {TellerWithYieldStreaming} from "src/base/Roles/TellerWithYieldStreaming.sol";
-import {IBufferHelper} from "src/interfaces/IBufferHelper.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {BoringOnChainQueue} from "src/base/Roles/BoringQueue/BoringOnChainQueue.sol";
-import {AaveV3BufferHelper} from "src/base/Roles/AaveV3BufferHelper.sol";
-import {IPool} from "src/interfaces/IPool.sol";
+import {AaveV3BufferLens} from "src/helper/AaveV3BufferLens.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
-
-interface IPoolExtended is IPool {
-    function getReserveAToken(address asset) external view returns (ERC20);
-}
 
 contract ArcticArchitectureLens {
     using FixedPointMathLib for uint256;
@@ -287,7 +281,8 @@ contract ArcticArchitectureLens {
         uint256 minimumAssets,
         BoringVault boringVault,
         AccountantWithRateProviders accountant,
-        TellerWithYieldStreaming teller
+        TellerWithYieldStreaming teller,
+        AaveV3BufferLens aaveV3BufferLens
     ) external view returns (PreviewInstantWithdrawResult memory res) {
         if (teller.isPaused()) res.tellerPaused = true;
 
@@ -308,30 +303,7 @@ contract ArcticArchitectureLens {
         }
 
         // Calculate the withdrawable amount
-        uint256 withdrawable;
-        // Check if there is a buffer helper for the asset
-        (, IBufferHelper withdrawBufferHelper) = teller.currentBufferHelpers(withdrawAsset);
-        if (address(withdrawBufferHelper) != address(0)) {
-            // We only support AaveV3 supply-only buffer helpers for now
-            try AaveV3BufferHelper(address(withdrawBufferHelper)).aaveV3Pool() returns (address aaveV3Pool) {
-                (, uint256 totalDebtBase,,,,) = IPool(aaveV3Pool).getUserAccountData(address(boringVault));
-                if (totalDebtBase > 0) {
-                    revert("Unsupported calculation: AaveV3 pool has borrowed assets");
-                }
-                // Get the balance of the aToken in the vault
-                ERC20 aToken = IPoolExtended(aaveV3Pool).getReserveAToken(address(withdrawAsset));
-                withdrawable = aToken.balanceOf(address(boringVault)); // We will reuse withdrawable to avoid stack too deep
-
-                // Withdrawable amount is the balance of the asset in the aToken or the available liquidity, whichever is less
-                uint256 availableLiquidity = withdrawAsset.balanceOf(address(aToken));
-                withdrawable = withdrawable > availableLiquidity ? availableLiquidity : withdrawable;
-            } catch {
-                revert("Unsupported buffer type: AaveV3 pool not found");
-            }
-        } else {
-            // Withdrawable amount is the balance of the asset in the vault
-            withdrawable = withdrawAsset.balanceOf(address(boringVault));
-        }
+        uint256 withdrawable = aaveV3BufferLens.getInstantlyWithdrawableAmount(teller, withdrawAsset);
 
         // Check if the withdrawable amount is less than the requested assets out
         if (withdrawable < res.assetsOut) {
