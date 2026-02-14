@@ -11,9 +11,12 @@ contract YuzuDecoderAndSanitizer is ERC4626DecoderAndSanitizer, BaseDecoderAndSa
 
     //======================== yzUSD  ==============================
 
+    // Covered by by parent ERC4626 decoder
+    /*
     function deposit(uint256 assets, address receiver) external pure virtual returns (bytes memory addressesFound) {
         return abi.encodePacked(receiver);
     }
+    */
 
     function createRedeemOrder(uint256 tokens, address receiver, address owner) external pure virtual returns (bytes memory addressesFound) {
         return abi.encodePacked(receiver, owner);
@@ -21,19 +24,22 @@ contract YuzuDecoderAndSanitizer is ERC4626DecoderAndSanitizer, BaseDecoderAndSa
 
     //======================== syzUSD  =============================
 
-    function deposit(uint256 assets, address receiver) external pure virtual (bytes memory addressesFound) {
+    // Covered by by parent ERC4626 decoder
+    /*
+    function deposit(uint256 assets, address receiver) external pure virtual returns (bytes memory addressesFound) {
         return abi.encodePacked(receiver);
     }
+    */
 
-    function initiateRedeem(uint256 shares, address receiver, address owner) external pure virtual (bytes memory addressesFound) {
+    function initiateRedeem(uint256 shares, address receiver, address owner) external pure virtual returns (bytes memory addressesFound) {
         return abi.encodePacked(receiver, owner);
     }
 
-    function initiateRedeemWithSlippage(uint256 shares, address receiver, address owner, uint256 minAssets) external pure virtual (bytes memory addressesFound) {
+    function initiateRedeemWithSlippage(uint256 shares, address receiver, address owner, uint256 minAssets) external pure virtual returns (bytes memory addressesFound) {
         return abi.encodePacked(receiver, owner);
     }
 
-    function finalizeRedeem(uint256 orderId) external pure virtual (bytes memory addressesFound) {
+    function finalizeRedeem(uint256 orderId) external pure virtual returns (bytes memory addressesFound) {
         return addressesFound;
     }
 

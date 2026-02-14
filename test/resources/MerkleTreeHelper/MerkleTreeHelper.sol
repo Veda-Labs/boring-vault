@@ -9692,12 +9692,6 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
 
     function _addYuzuLeafs(ManageLeaf[] memory leafs) internal {
 
-        /*
-        address usdt0 = getAddress(sourceChain, "USDT0");
-        address yzUSD = getAddress(sourceChain, "yzUSD");
-        address syzUSD = getAddress(sourceChain, "syzUSD");
-        */
-
         unchecked {
             leafIndex++;
         }
