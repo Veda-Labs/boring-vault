@@ -10,6 +10,9 @@ fs_permissions = [{ access = "read-write", path = "./" }]
 deny_warnings = false
 use_literal_content = true
 cbor_metadata=true
+extra_output = [
+  "evm.methodIdentifiers",
+]
 remappings = [
     "@solmate/=lib/solmate/src/",
     "@forge-std/=lib/forge-std/src/",
