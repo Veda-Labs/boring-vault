@@ -69,6 +69,9 @@ contract CreateLiquidUSDMerkleRoot is Script, MerkleTreeHelper {
             getAddress(sourceChain, "dev1Address")
         );
 
+        // ========================== Yuzu ============================
+        _addYuzuLeafs(leafs);
+
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
