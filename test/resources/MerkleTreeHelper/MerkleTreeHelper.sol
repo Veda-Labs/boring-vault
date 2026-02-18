@@ -9713,6 +9713,21 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex] = ManageLeaf(
             getAddress(sourceChain, "yzUSD"),
             false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat(
+                "Approve syzUSD to spend yzUSD"
+            ),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "syzUSD");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "yzUSD"),
+            false,
             "deposit(uint256,address)",
             new address[](1),
             string.concat("mint yzUSD with USDT0"),
