@@ -20,7 +20,7 @@ contract CreateLiquidUSDMerkleRoot is Script, MerkleTreeHelper {
     address public managerAddress = 0x7b57Ad1A0AA89583130aCfAD024241170D24C13C;
     address public accountantAddress = 0xc315D6e14DDCDC7407784e2Caf815d131Bc1D3E7;
 
-    address public yuzuDecoderAndSanitizer = 0x9574a7132780080A420f04FBE03AA2B85aF5bC76;
+    address public yuzuDecoderAndSanitizer = 0x6A1Be80d1F3e762B9ff73b5FF122B68027F17abF;
 
     function setUp() external {}
 
