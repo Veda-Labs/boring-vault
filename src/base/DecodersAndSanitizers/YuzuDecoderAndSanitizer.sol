@@ -22,6 +22,15 @@ contract YuzuDecoderAndSanitizer is ERC4626DecoderAndSanitizer, BaseDecoderAndSa
         return abi.encodePacked(receiver, owner);
     }
 
+    function finalizeRedeemOrder(uint256 orderId) external pure virtual returns (bytes memory addressesFound) {
+        return addressesFound;
+    }
+
+    function cancelRedeemOrder(uint256 orderId) external pure virtual returns (bytes memory addressesFound) {
+        return addressesFound;
+    }
+
+
     //======================== syzUSD  =============================
 
     // Covered by by parent ERC4626 decoder

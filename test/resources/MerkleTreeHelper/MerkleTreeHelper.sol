@@ -9753,6 +9753,30 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             leafIndex++;
         }
         leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "yzUSD"),
+            false,
+            "cancelRedeemOrder(uint256)",
+            new address[](0),
+            string.concat("cancel redemption of yzUSD for USDT0"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "yzUSD"),
+            false,
+            "finalizeRedeemOrder(uint256)",
+            new address[](0),
+            string.concat("finalize redemption of yzUSD for USDT0"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
             getAddress(sourceChain, "syzUSD"),
             false,
             "deposit(uint256,address)",
