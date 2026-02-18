@@ -33,6 +33,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
     address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
     address public capDecoderAndSanitizer = 0xE0e86bf98dAA0D2b408Cb038E94bCB9B7864309C;
+    address public dolomiteDecoderAndSanitizer = 0x2f7D1Bbc14Fc3a859EB82ffCB195f9FC3DfCde2f;
 
     //itb
     address public itbAaveV3Usdc = 0xa6c9A887F5Ae28A70E457178AABDd153859B572b;
@@ -43,6 +44,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
     address public itbSyrupUsdt = 0x1bc7694b92AE221E7d3d775BaDe5C4e1C996d69B;
     address public itbReserveProtocolPositionManager = 0x78Dbb5495044779562A584F133C2eca0B8e349ba;
     address public itbDecoderAndSanitizer = 0xCe39e869C2010A3C049E1cA11F7dfB70ae2ddBF5;
+    address public skyMoneyDecoderAndSanitizer = 0x93740255Db97B8005e5F4E84e0E08F69A3267b30;
 
     function setUp() external {}
 
@@ -469,6 +471,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "USDe_DAI_Curve_Pool"));
         _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "sDAI_sUSDe_Curve_Pool"));
         _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "USDC_RLUSD_Curve_Pool"));
+        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "spark_PYUSD_USDS_Curve_Pool"));
 
         // ========================== Curve ==========================
         _addCurveLeafs(
@@ -484,12 +487,35 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
             getAddress(sourceChain, "pyUsd_Usdc_Curve_Gauge")
         );
 
+        // ========================== SparkSwap ==========================
+        {
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", skyMoneyDecoderAndSanitizer);
+            _addSkyUSDSLitePSMUSDCLeafs(leafs);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
+
         // ========================== Resolv ==========================
         {
             ERC20[] memory assets = new ERC20[](2);
             assets[0] = getERC20(sourceChain, "USDC");
             assets[1] = getERC20(sourceChain, "USDT");
             _addAllResolvLeafs(leafs, assets);
+        }
+
+        // ========================== Dolomite ==========================
+        {
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", dolomiteDecoderAndSanitizer);
+
+            // supply
+            _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "USDC"), false);
+            _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "USDT"), false);
+            _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "USD1"), false);
+            _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "weETH"), false);
+
+            // borrow
+            _addDolomiteBorrowLeafs(leafs, getAddress(sourceChain, "USD1"));
+
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 
         // ========================== Ethena Withdraws ==========================
@@ -505,7 +531,12 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         _addELXClaimingLeafs(leafs);
 
         // ========================== Syrup ==========================
-        _addAllSyrupLeafs(leafs);
+        {
+            address[] memory tokens = new address[](2);
+            tokens[0] = getAddress(sourceChain, "USDC");
+            tokens[1] = getAddress(sourceChain, "USDT");
+            _addAllSyrupLeafs(leafs, tokens);
+        }
 
         // ========================== Balancer ==========================
         _addBalancerLeafs(

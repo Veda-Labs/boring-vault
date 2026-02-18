@@ -132,6 +132,7 @@ import {FullResolvDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Full
 import {FullFluidDexDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/FullFluidDexDecoderAndSanitizer.sol";
 import {P1USDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/P1USDDecoderAndSanitizer.sol";
 import {SentayETHMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentayETHMainnetDecoderAndSanitizer.sol";
+import {GoldenGooseFillerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/FillerDecoderAndSanitizer.sol"; 
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -153,8 +154,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("ink");
-        setSourceChainName("ink");
+        vm.createSelectFork("mainnet");
+        setSourceChainName("mainnet");
     }
 
     function run() external {
