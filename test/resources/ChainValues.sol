@@ -902,6 +902,9 @@ contract ChainValues {
 
         values[mainnet]["uniswapV3PositionManager"] = 0xC36442b4a4522E871399CD717aBDD847Ab11FE88.toBytes32();
 
+        // LI.FI
+        values[mainnet]["lifi"] = 0x1231DEB6f5749EF6cE6943a275A1D3E7486F4EaE.toBytes32();
+
         // 1Inch
         values[mainnet]["aggregationRouterV5"] = 0x1111111254EEB25477B68fb85Ed929f73A960582.toBytes32();
         values[mainnet]["oneInchExecutor"] = 0x990636ecB3FF04d33D92e970d3d588bF5cD8d086.toBytes32();

@@ -26,6 +26,27 @@ contract MockPriceFeed {
     }
 }
 
+interface ILiFiGenericSwap {
+    struct SwapData {
+        address callTo;
+        address approveTo;
+        address sendingAssetId;
+        address receivingAssetId;
+        uint256 fromAmount;
+        bytes callData;
+        bool requiresDeposit;
+    }
+
+    function swapTokensGeneric(
+        bytes32 _transactionId,
+        string calldata _integrator,
+        string calldata _referrer,
+        address payable _receiver,
+        uint256 _minAmount,
+        SwapData[] calldata _swapData
+    ) external payable;
+}
+
 contract RestrictedSwapperDecoderAndSanitizer is BaseDecoderAndSanitizer {
     function swap(SwapParams calldata params) external pure returns (bytes memory addressesFound) {
         return abi.encodePacked(
@@ -315,5 +336,102 @@ contract RestrictedSwapperIntegrationTest is BaseTestIntegration {
         uint256 usdcAfter = ERC20(getAddress(sourceChain, "USDC")).balanceOf(address(boringVault));
 
         assertGt(usdcAfter, usdcBefore, "Vault should have received USDC (oracle used regardless of useOracle flag)");
+    }
+
+    function testLifiSwap() external {
+        _setUpMainnet();
+
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 10e18);
+
+        address lifi = getAddress(sourceChain, "lifi");
+        address uniV3Router = getAddress(sourceChain, "uniV3Router");
+        restrictedSwapper.setApprovedTarget(lifi, true);
+
+        // Build merkle tree
+        address[] memory tokensIn = new address[](2);
+        tokensIn[0] = getAddress(sourceChain, "WETH");
+        tokensIn[1] = getAddress(sourceChain, "USDC");
+
+        SwapKind[] memory kindsIn = new SwapKind[](2);
+        kindsIn[0] = SwapKind.BuyAndSell;
+        kindsIn[1] = SwapKind.BuyAndSell;
+
+        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        _addBoringSwapperLeafs(leafs, address(restrictedSwapper), address(swapperDecoder), tokensIn, kindsIn);
+
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        // Inner Uniswap V3 calldata — LIFI will execute this on the DEX
+        bytes memory uniswapCallData = abi.encodeWithSignature(
+            "exactInputSingle((address,address,uint24,address,uint256,uint256,uint256,uint160))",
+            getAddress(sourceChain, "WETH"),
+            getAddress(sourceChain, "USDC"),
+            uint24(500),
+            lifi,                // recipient = LIFI Diamond
+            block.timestamp,
+            1e18,
+            uint256(1),
+            uint160(0)
+        );
+
+        // Build LIFI SwapData array
+        ILiFiGenericSwap.SwapData[] memory swapDatas = new ILiFiGenericSwap.SwapData[](1);
+        swapDatas[0] = ILiFiGenericSwap.SwapData({
+            callTo: uniV3Router,
+            approveTo: uniV3Router,
+            sendingAssetId: getAddress(sourceChain, "WETH"),
+            receivingAssetId: getAddress(sourceChain, "USDC"),
+            fromAmount: 1e18,
+            callData: uniswapCallData,
+            requiresDeposit: true
+        });
+
+        // Encode the LIFI swapTokensGeneric call
+        bytes memory lifiCallData = abi.encodeWithSelector(
+            ILiFiGenericSwap.swapTokensGeneric.selector,
+            bytes32("boring-vault-lifi-test"),
+            "boring-vault",
+            "",
+            payable(address(restrictedSwapper)),  // _receiver: LIFI sends output back to RestrictedSwapper
+            uint256(1),                           // _minAmount
+            swapDatas
+        );
+
+        SwapParams memory swapParams = SwapParams({
+            tokenIn: getAddress(sourceChain, "WETH"),
+            tokenOut: getAddress(sourceChain, "USDC"),
+            amountIn: 1e18,
+            minAmountOut: 1,
+            receiver: address(boringVault),
+            target: lifi,
+            swapData: lifiCallData,
+            useOracle: true,
+            quoteAsset: QuoteAsset.USD,
+            maxSlippageBps: 500
+        });
+
+        // Build Tx: approve RestrictedSwapper + call swap
+        Tx memory tx_ = _getTxArrays(2);
+
+        tx_.manageLeafs[0] = leafs[0]; // approve WETH
+        tx_.manageLeafs[1] = leafs[1]; // swap WETH -> USDC
+
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+
+        tx_.targets[0] = getAddress(sourceChain, "WETH");
+        tx_.targets[1] = address(restrictedSwapper);
+
+        tx_.targetData[0] = abi.encodeWithSelector(ERC20.approve.selector, address(restrictedSwapper), swapParams.amountIn);
+        tx_.targetData[1] = abi.encodeWithSelector(BoringSwapper.swap.selector, swapParams);
+
+        tx_.decodersAndSanitizers[0] = address(swapperDecoder);
+        tx_.decodersAndSanitizers[1] = address(swapperDecoder);
+
+        uint256 usdcBefore = ERC20(getAddress(sourceChain, "USDC")).balanceOf(address(boringVault));
+        _submitManagerCall(manageProofs, tx_);
+        uint256 usdcAfter = ERC20(getAddress(sourceChain, "USDC")).balanceOf(address(boringVault));
+
+        assertGt(usdcAfter, usdcBefore, "Vault should have received USDC via LIFI");
     }
 }
