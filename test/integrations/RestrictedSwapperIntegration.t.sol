@@ -6,7 +6,7 @@ pragma solidity 0.8.21;
 
 import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
 import {RestrictedSwapper} from "src/base/Periphery/RestrictedSwapper.sol";
-import {SwapParams, QuoteAsset} from "src/base/Periphery/BoringSwapper.sol";
+import {BoringSwapper, SwapParams, QuoteAsset} from "src/base/Periphery/BoringSwapper.sol";
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {Authority} from "@solmate/auth/Auth.sol";
@@ -53,14 +53,13 @@ contract RestrictedSwapperIntegrationTest is BaseTestIntegration {
         restrictedSwapper = new RestrictedSwapper(
             nativeAddress,
             address(this),
-            Authority(address(0)),
-            QuoteAsset.USD
+            Authority(address(0))
         );
 
         // Authorize the BoringVault to call swap on RestrictedSwapper
         restrictedSwapper.setAuthority(rolesAuthority);
         rolesAuthority.setRoleCapability(
-            BORING_VAULT_ROLE, address(restrictedSwapper), RestrictedSwapper.swap.selector, true
+            BORING_VAULT_ROLE, address(restrictedSwapper), BoringSwapper.swap.selector, true
         );
 
         // Configure oracles (Chainlink-style 8 decimals)
@@ -70,7 +69,7 @@ contract RestrictedSwapperIntegrationTest is BaseTestIntegration {
 
         restrictedSwapper.setTokenOracleConfig(
             getAddress(sourceChain, "WETH"),
-            RestrictedSwapper.TokenOracleConfig({
+            BoringSwapper.TokenOracleConfig({
                 usdOracle: address(wethUsdFeed),
                 ethOracle: address(0),
                 btcOracle: address(0)
@@ -78,7 +77,7 @@ contract RestrictedSwapperIntegrationTest is BaseTestIntegration {
         );
         restrictedSwapper.setTokenOracleConfig(
             getAddress(sourceChain, "USDC"),
-            RestrictedSwapper.TokenOracleConfig({
+            BoringSwapper.TokenOracleConfig({
                 usdOracle: address(usdcUsdFeed),
                 ethOracle: address(0),
                 btcOracle: address(0)
@@ -165,7 +164,7 @@ contract RestrictedSwapperIntegrationTest is BaseTestIntegration {
             bytes[] memory targetData = new bytes[](1);
             uint256[] memory values = new uint256[](1);
             targets[0] = address(restrictedSwapper);
-            targetData[0] = abi.encodeWithSelector(RestrictedSwapper.swap.selector, swapParams);
+            targetData[0] = abi.encodeWithSelector(BoringSwapper.swap.selector, swapParams);
             values[0] = swapParams.amountIn;
             manager.manageVaultWithMerkleVerification(manageProofs, decoders, targets, targetData, values);
         } else {
@@ -177,7 +176,7 @@ contract RestrictedSwapperIntegrationTest is BaseTestIntegration {
             targetData[0] = abi.encodeWithSelector(ERC20.approve.selector, address(restrictedSwapper), swapParams.amountIn);
 
             targets[1] = address(restrictedSwapper);
-            targetData[1] = abi.encodeWithSelector(RestrictedSwapper.swap.selector, swapParams);
+            targetData[1] = abi.encodeWithSelector(BoringSwapper.swap.selector, swapParams);
 
             manager.manageVaultWithMerkleVerification(manageProofs, decoders, targets, targetData, values);
         }
@@ -209,7 +208,7 @@ contract RestrictedSwapperIntegrationTest is BaseTestIntegration {
         (bytes32[][] memory proofs, address[] memory decoders, SwapParams memory swapParams) = _buildSwapContext();
         swapParams.maxSlippageBps = 600; // exceeds 500 ceiling
 
-        vm.expectRevert(RestrictedSwapper.RestrictedSwapper__SlippageExceedsCeiling.selector);
+        vm.expectRevert(BoringSwapper.BoringSwapper__SlippageExceedsCeiling.selector);
         _executeSwapViaManager(proofs, decoders, swapParams);
     }
 
@@ -222,7 +221,7 @@ contract RestrictedSwapperIntegrationTest is BaseTestIntegration {
 
         (bytes32[][] memory proofs, address[] memory decoders, SwapParams memory swapParams) = _buildSwapContext();
 
-        vm.expectRevert(RestrictedSwapper.RestrictedSwapper__SwapAmountExceedsMax.selector);
+        vm.expectRevert(BoringSwapper.BoringSwapper__SwapAmountExceedsMax.selector);
         _executeSwapViaManager(proofs, decoders, swapParams);
     }
 
@@ -259,12 +258,12 @@ contract RestrictedSwapperIntegrationTest is BaseTestIntegration {
         // Remove WETH oracle
         restrictedSwapper.setTokenOracleConfig(
             getAddress(sourceChain, "WETH"),
-            RestrictedSwapper.TokenOracleConfig({usdOracle: address(0), ethOracle: address(0), btcOracle: address(0)})
+            BoringSwapper.TokenOracleConfig({usdOracle: address(0), ethOracle: address(0), btcOracle: address(0)})
         );
 
         (bytes32[][] memory proofs, address[] memory decoders, SwapParams memory swapParams) = _buildSwapContext();
 
-        vm.expectRevert(RestrictedSwapper.RestrictedSwapper__OracleNotConfigured.selector);
+        vm.expectRevert(BoringSwapper.BoringSwapper__OracleNotConfigured.selector);
         _executeSwapViaManager(proofs, decoders, swapParams);
     }
 
@@ -274,7 +273,7 @@ contract RestrictedSwapperIntegrationTest is BaseTestIntegration {
         // Skip setApprovedTarget
         (bytes32[][] memory proofs, address[] memory decoders, SwapParams memory swapParams) = _buildSwapContext();
 
-        vm.expectRevert(RestrictedSwapper.RestrictedSwapper__TargetNotApproved.selector);
+        vm.expectRevert(BoringSwapper.BoringSwapper__TargetNotApproved.selector);
         _executeSwapViaManager(proofs, decoders, swapParams);
     }
 
@@ -286,7 +285,7 @@ contract RestrictedSwapperIntegrationTest is BaseTestIntegration {
         (bytes32[][] memory proofs, address[] memory decoders, SwapParams memory swapParams) = _buildSwapContext();
         swapParams.swapData = hex"dead";
 
-        vm.expectRevert(RestrictedSwapper.RestrictedSwapper__SwapFailed.selector);
+        vm.expectRevert(BoringSwapper.BoringSwapper__SwapFailed.selector);
         _executeSwapViaManager(proofs, decoders, swapParams);
     }
 

@@ -43,6 +43,9 @@ contract BoringSwapper is Auth, ReentrancyGuard {
     mapping(address token => TokenOracleConfig config) public tokenOracleConfigs;
     mapping(address => bool) public approvedTargets;
 
+    uint256 public maxSlippageCeilingBps;
+    uint256 public maxSwapAmountNormalized;
+
     //============================== ERRORS ===============================
 
     error BoringSwapper__SwapFailed();
@@ -52,6 +55,8 @@ contract BoringSwapper is Auth, ReentrancyGuard {
     error BoringSwapper__TargetNotApproved();
     error BoringSwapper__OracleNotConfigured();
     error BoringSwapper__NotEnoughNative();
+    error BoringSwapper__SlippageExceedsCeiling();
+    error BoringSwapper__SwapAmountExceedsMax();
 
     //============================== EVENTS ===============================
 
@@ -64,6 +69,8 @@ contract BoringSwapper is Auth, ReentrancyGuard {
     );
     event TargetApprovalUpdated(address indexed target, bool approved);
     event TokenOracleConfigUpdated(address indexed token);
+    event MaxSlippageCeilingBpsUpdated(uint256 maxSlippageCeilingBps);
+    event MaxSwapAmountNormalizedUpdated(uint256 maxSwapAmountNormalized);
 
     //============================== IMMUTABLES ===============================
 
@@ -87,19 +94,43 @@ contract BoringSwapper is Auth, ReentrancyGuard {
         emit TokenOracleConfigUpdated(token);
     }
 
+    function setMaxSlippageCeilingBps(uint256 _maxSlippageCeilingBps) external requiresAuth {
+        if (_maxSlippageCeilingBps >= 10_000) revert BoringSwapper__NoSlippageProtection();
+        maxSlippageCeilingBps = _maxSlippageCeilingBps;
+        emit MaxSlippageCeilingBpsUpdated(_maxSlippageCeilingBps);
+    }
+
+    function setMaxSwapAmountNormalized(uint256 _maxSwapAmountNormalized) external requiresAuth {
+        maxSwapAmountNormalized = _maxSwapAmountNormalized;
+        emit MaxSwapAmountNormalizedUpdated(_maxSwapAmountNormalized);
+    }
+
     // ========================================= SWAP =========================================
 
-    function swap(SwapParams calldata params) public payable requiresAuth nonReentrant {
+    function swap(SwapParams calldata params) public payable virtual requiresAuth nonReentrant {
+        _validateSwap(params);
+        uint256 minRequired = _resolveMinOut(params);
+        _executeSwap(params, minRequired);
+    }
+
+    function _validateSwap(SwapParams calldata params) internal view virtual {
         if (!approvedTargets[params.target]) revert BoringSwapper__TargetNotApproved();
-
-        uint256 minRequired;
-        if (params.useOracle) {
-            minRequired = _calculateMinOut(params);
-        } else {
-            if (params.minAmountOut == 0) revert BoringSwapper__NoSlippageProtection();
-            minRequired = params.minAmountOut;
+        if (maxSlippageCeilingBps > 0 && params.maxSlippageBps > maxSlippageCeilingBps) {
+            revert BoringSwapper__SlippageExceedsCeiling();
         }
+        if (maxSwapAmountNormalized > 0) {
+            uint256 normalized = _getNormalizedValue(params.tokenIn, params.amountIn, params.quoteAsset);
+            if (normalized > maxSwapAmountNormalized) revert BoringSwapper__SwapAmountExceedsMax();
+        }
+    }
 
+    function _resolveMinOut(SwapParams calldata params) internal view virtual returns (uint256) {
+        if (params.useOracle) return _calculateMinOut(params);
+        if (params.minAmountOut == 0) revert BoringSwapper__NoSlippageProtection();
+        return params.minAmountOut;
+    }
+
+    function _executeSwap(SwapParams calldata params, uint256 minRequired) internal virtual {
         uint256 outBefore = _balanceOf(params.tokenOut);
 
         if (params.tokenIn == NATIVE) {
@@ -185,5 +216,15 @@ contract BoringSwapper is Auth, ReentrancyGuard {
         if (quoteAsset == QuoteAsset.USD) return config.usdOracle;
         if (quoteAsset == QuoteAsset.ETH) return config.ethOracle;
         return config.btcOracle;
+    }
+
+    function _getNormalizedValue(address token, uint256 amount, QuoteAsset quoteAsset) internal view returns (uint256) {
+        address oracle = _getOracle(token, quoteAsset);
+        if (oracle == address(0)) revert BoringSwapper__OracleNotConfigured();
+
+        (uint256 price, uint8 oracleDecimals) = IPriceFeed(oracle).getPrice();
+        uint8 tokenDecimals = token == NATIVE ? 18 : ERC20(token).decimals();
+
+        return amount.mulDivDown(price, 10 ** (uint256(tokenDecimals) + uint256(oracleDecimals)));
     }
 }
