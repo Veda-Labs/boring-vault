@@ -126,20 +126,205 @@ invariant sharePriceMoreThanOneAsset()
     || accountant_contract.downCastOverflow
     filtered 
     { f -> !ignoredMethod(f)
-        //&& (f.contract == teller_contract)  //funds could be moved by methods called on the Vault or on the Asset
-        //&& f.selector != sig:teller_contract.refundDeposit(uint256,address,address,uint256,uint256,uint256,uint256,address).selector // can break if the sharesAmount is too low. This can happen since we don't really track the sum of deposits and their shares in publicDepositHistory
+       
+    }
+{ preserved with (env e2) {
+        requireAllInvariants_accountant(e2);
+        safeAssumptions();
+        nonSceneAddress(e2.msg.sender);
+    }
+}
+
+invariant assetsMoreThanShares(env e)
+    accountant_contract.totalAssets(e) + 1 >= vault_contract.totalSupply()
+    filtered 
+    { f -> !ignoredMethod(f)
+        && (f.contract == teller_contract || f.contract == accountant_contract)
+        && f.selector != sig:teller_contract.refundDeposit(uint256,address,address,uint256,uint256,uint256,uint256,address).selector // can break if the sharesAmount is too low. This can happen since we don't really track the sum of deposits and their shares in publicDepositHistory
+        //&& f.selector == sig:teller_contract.deposit(address, uint256, uint256,address).selector 
+        //&& f.selector == sig:teller_contract.depositWithPermit(address,uint256,uint256,uint256,uint8,bytes32,bytes32,address).selector
+        //&& f.selector == sig:teller_contract.bulkDeposit(address,uint256,uint256,address).selector
+        //&& f.selector == sig:teller_contract.withdraw(address,uint256,uint256,address).selector
+        //&& f.selector == sig:teller_contract.bulkWithdraw(address,uint256,uint256,address).selector
+        && isPublicMethod(f)
+    }
+    {
+    preserved with (env e2) {
+        requireAllInvariants_accountant(e2);
+        safeAssumptions();
+        nonSceneAddress(e2.msg.sender);
+
+        //requireSmallNumbers_Unsafe(e2);
+    }
+}
+
+invariant sharePriceBoundedUpper(env e)
+    accountant_contract.vestingState.lastSharePrice * vault_contract.totalSupply() <= 
+        (accountant_contract.totalAssets(e)+1) * teller_contract.ONE_SHARE
+    filtered 
+    { f -> !ignoredMethod(f)
+        && (f.contract == teller_contract || f.contract == accountant_contract)
+        //&& f.selector == sig:teller_contract.deposit(address, uint256, uint256,address).selector 
+        //&& f.selector == sig:teller_contract.withdraw(address,uint256,uint256,address).selector
+    }
+    {
+    preserved with (env e2) {
+        requireAllInvariants_accountant(e2);
+        safeAssumptions();
+        nonSceneAddress(e2.msg.sender);
+    }
+}
+
+invariant sharePriceBoundedUpper_strict(env e)
+    accountant_contract.vestingState.lastSharePrice * vault_contract.totalSupply() <= 
+        (accountant_contract.totalAssets(e)) * teller_contract.ONE_SHARE
+filtered 
+    { f -> !ignoredMethod(f)
+        && (f.contract == teller_contract || f.contract == accountant_contract)
+        && f.selector != sig:teller_contract.refundDeposit(uint256,address,address,uint256,uint256,uint256,uint256,address).selector // can break if the sharesAmount is too low. This can happen since we don't really track the sum of deposits and their shares in publicDepositHistory
+        && (
+            f.selector == sig:teller_contract.deposit(address, uint256, uint256,address).selector 
+            || f.selector == sig:teller_contract.withdraw(address,uint256,uint256,address).selector
+        )
+        
+    }
+    {
+    preserved with (env e2) {
+        requireAllInvariants_accountant(e2);
+        safeAssumptions();
+        nonSceneAddress(e2.msg.sender);
+    
+        //require vault_contract.totalSupply() > 0;
+    }
+}
+
+invariant sharePriceBoundedLower(env e)
+    (accountant_contract.vestingState.lastSharePrice) * vault_contract.totalSupply() >= 
+        (accountant_contract.totalAssets(e)) * teller_contract.ONE_SHARE
+    filtered 
+    { f -> !ignoredMethod(f)
+        && (f.contract == teller_contract)  //funds could be moved by methods called on the Vault or on the Asset
+        && f.selector != sig:teller_contract.refundDeposit(uint256,address,address,uint256,uint256,uint256,uint256,address).selector // can break if the sharesAmount is too low. This can happen since we don't really track the sum of deposits and their shares in publicDepositHistory
         //&& f.selector == sig:teller_contract.deposit(address, uint256, uint256,address).selector 
         //&& f.selector == sig:teller_contract.depositWithPermit(address,uint256,uint256,uint256,uint8,bytes32,bytes32,address).selector
         //&& f.selector == sig:teller_contract.bulkDeposit(address,uint256,uint256,address).selector
         //&& f.selector == sig:teller_contract.withdraw(address,uint256,uint256,address).selector
         //&& f.selector == sig:teller_contract.bulkWithdraw(address,uint256,uint256,address).selector
         //&& !isPublicMethod(f)
-    }
-{ preserved with (env e2) {
-        //requireAllInvariants(e2);
+}
+    {
+    preserved with (env e2) {
+        //require accountant_contract.supplyObservation.cumulativeSupply <= vault_contract.totalSupply();
 
-        //require accountant_contract.getPendingVestingGains(e2) <= vault_contract.totalSupply();
+        requireAllInvariants_accountant(e2);
+
+        require e2.block.timestamp == e.block.timestamp;
+        require accountant_contract.getPendingVestingGains(e2) <= vault_contract.totalSupply();
+        //require vault_contract.totalSupply() > 0; //the initial state uses the lastSharePrice directly that could be incorrectly initialized
         safeAssumptions();
         nonSceneAddress(e2.msg.sender);
     }
+}
+
+invariant totalAssetsCovered(env e)
+    accountant_contract.totalAssets(e) <= userAssets(e, ERC20Mock, vault_contract) 
+    || accountant_contract.downCastOverflow
+    filtered 
+    { f -> !ignoredMethod(f)
+        && (f.contract == teller_contract || f.contract == accountant_contract)
+        && f.selector != sig:teller_contract.refundDeposit(uint256,address,address,uint256,uint256,uint256,uint256,address).selector // can break if the sharesAmount is too low. This can happen since we don't really track the sum of deposits and their shares in publicDepositHistory
+        //&& f.selector == sig:teller_contract.deposit(address, uint256, uint256,address).selector 
+        //&& f.selector == sig:teller_contract.depositWithPermit(address,uint256,uint256,uint256,uint8,bytes32,bytes32,address).selector
+        //&& f.selector == sig:teller_contract.bulkDeposit(address,uint256,uint256,address).selector
+        //&& f.selector == sig:teller_contract.withdraw(address,uint256,uint256,address).selector
+        //&& f.selector == sig:teller_contract.bulkWithdraw(address,uint256,uint256,address).selector
+        //&& !isPublicMethod(f)
+}
+    {
+    preserved with (env e2) {
+        //require accountant_contract.supplyObservation.cumulativeSupply <= vault_contract.totalSupply();
+
+        requireAllInvariants_accountant(e2);
+
+        require e2.block.timestamp == e.block.timestamp;
+        require accountant_contract.getPendingVestingGains(e2) <= vault_contract.totalSupply();
+        require vault_contract.totalSupply() > 0; //the initial state uses the lastSharePrice directly that could be incorrectly initialized
+        require teller_contract.ONE_SHARE == 1000000;
+
+        safeAssumptions();
+        nonSceneAddress(e2.msg.sender);
+
+    }
+}
+
+invariant vaultSolvency_1Asset(env e)
+    (userAssets(e, ERC20Mock, vault_contract) - accountant_contract.getPendingVestingGains(e)) * teller_contract.ONE_SHARE 
+        >= (vault_contract.totalSupply(e)) * (accountant_contract.getRateInQuoteSafe(e, ERC20Mock)) 
+    || accountant_contract.downCastOverflow
+filtered { f -> !ignoredMethod(f)
+    && (f.contract == teller_contract || f.contract == accountant_contract)
+    && f.selector != sig:teller_contract.refundDeposit(uint256,address,address,uint256,uint256,uint256,uint256,address).selector // can break if the sharesAmount is too low. This can happen since we don't really track the sum of deposits and their shares in publicDepositHistory
+
+    //&& f.selector == sig:teller_contract.deposit(address, uint256, uint256,address).selector 
+    //&& f.selector == sig:teller_contract.depositWithPermit(address,uint256,uint256,uint256,uint8,bytes32,bytes32,address).selector
+    //&& f.selector == sig:teller_contract.bulkDeposit(address,uint256,uint256,address).selector
+    //&& f.selector == sig:teller_contract.withdraw(address,uint256,uint256,address).selector
+    //&& f.selector == sig:teller_contract.bulkWithdraw(address,uint256,uint256,address).selector
+    //&& isPublicMethod(f)
+}
+{
+    preserved with (env e2) {
+        requireAllInvariants_accountant(e2);
+        
+        require e2.block.timestamp == e.block.timestamp;
+
+        safeAssumptions();
+        nonSceneAddress(e2.msg.sender);
+        //require vault_contract.totalSupply() > 0;
+        //requireSmallNumbers_Unsafe(e2);
+        //require accountant_contract.getPendingVestingGains(e) == 0;
+    }
+}
+
+invariant exchangeRateEqlastSharePrice()
+    accountant_contract.accountantState.exchangeRate == 
+        accountant_contract.vestingState.lastSharePrice
+    || accountant_contract.downCastOverflow
+    filtered { f -> !ignoredMethod(f) }
+    { preserved with (env e2) { 
+        requireAllInvariants_accountant(e2);
+        safeAssumptions(); }
+}
+
+invariant virtualPriceIsCorrect()
+    accountant_contract.vestingState.lastSharePrice == 
+    accountant_contract.lastVirtualSharePrice * accountant_contract.ONE_SHARE / 10^27
+    { preserved with(env e) { 
+        safeAssumptions(); 
+        requireAllInvariants_accountant(e);
+    }
+}
+
+function requireAllInvariants_accountant(env e)
+{
+    // these hold
+    requireInvariant exchangeRateLEhighwaterMark_unlessPaused();
+    requireInvariant sharePriceBoundedLower(e);
+    requireInvariant exchangeRateEqlastSharePrice();
+    requireInvariant cumulativeSupplyBounded();
+    requireInvariant sharePriceBoundedUpper(e);
+    requireInvariant sharePriceMoreThanOneAsset(); // doesnt hold after the constructor
+    requireInvariant assetsMoreThanShares(e);
+    requireInvariant totalAssetsCovered(e);
+    requireInvariant vaultSolvency_1Asset(e);
+    
+    requireInvariant virtualPriceIsCorrect();
+
+    // holds as an invariant accountantDecimalsCorrect
+    require accountant_contract.decimals == accountant_contract.base.decimals(e); 
+    require accountant_contract.base == ERC20Mock;
+
+    require teller_contract.assetData[ERC20Mock].sharePremium == 0;
+    require accountant_contract.downCastOverflow == false;
+    
 }

@@ -283,6 +283,15 @@ invariant exchangeRateLEhighwaterMark_unlessPaused()
         }
 }
 
+invariant virtualPriceIsCorrect()
+    accountant_contract.vestingState.lastSharePrice == 
+    accountant_contract.lastVirtualSharePrice * accountant_contract.ONE_SHARE / 10^27
+    { preserved with(env e) { 
+        safeAssumptions(); 
+        requireAllInvariants(e);
+    }
+}
+
 rule noFreeAssets(env e)
 {
     safeAssumptions();
@@ -318,6 +327,8 @@ function requireAllInvariants(env e)
     requireInvariant totalAssetsCovered(e);
     requireInvariant vaultSolvency_1Asset(e);
     
+    requireInvariant virtualPriceIsCorrect();
+
     // holds as an invariant accountantDecimalsCorrect
     require accountant_contract.decimals == accountant_contract.base.decimals(e); 
     require accountant_contract.base == ERC20Mock;
