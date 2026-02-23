@@ -61,8 +61,9 @@ contract OneInchOwnedDecoderAndSanitizer is Owned, BaseDecoderAndSanitizer {
         address executor,
         DecoderCustomTypes.SwapDescription calldata desc,
         bytes calldata /*data*/
-    ) external pure returns (bytes memory addressesFound) {
-        addressesFound = abi.encodePacked(executor, desc.srcToken, desc.dstToken, desc.srcReceiver, desc.dstReceiver);
+    ) external view returns (bytes memory addressesFound) {
+        if (executor != oneInchExecutor || desc.srcReceiver != oneInchExecutor) revert OneInchDecoderAndSanitizer__InvalidExecutor();
+        addressesFound = abi.encodePacked(desc.srcToken, desc.dstToken, desc.dstReceiver);
     }
 
     // V6 Address type is uint256 with the address in the lower 160 bits and flags in the upper 96 bits.
