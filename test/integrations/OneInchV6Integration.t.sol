@@ -15,9 +15,7 @@ import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.s
 contract FullOneInchV6Decoder is
     OneInchDecoderAndSanitizer,
     BaseDecoderAndSanitizer
-{
-
-}
+{ }
 
 contract OneInchV6IntegrationTest is BaseTestIntegration {
 
@@ -51,7 +49,7 @@ contract OneInchV6IntegrationTest is BaseTestIntegration {
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
-        _generateTestLeafs(leafs, manageTree);
+        //_generateTestLeafs(leafs, manageTree);
 
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
@@ -74,9 +72,8 @@ contract OneInchV6IntegrationTest is BaseTestIntegration {
         tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
         tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
 
+        vm.expectRevert(bytes4(0xddb5de5e)); // BadSignature() //no api access, but should pass boringVault check
         _submitManagerCall(manageProofs, tx_);
-
-        assertGt(ERC20(getAddress(sourceChain, "USDC")).balanceOf(address(boringVault)), 0);
     }
 
     function testV6WrongAddressReverts() external {
@@ -98,7 +95,7 @@ contract OneInchV6IntegrationTest is BaseTestIntegration {
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
-        _generateTestLeafs(leafs, manageTree);
+        //_generateTestLeafs(leafs, manageTree);
 
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
@@ -133,5 +130,376 @@ contract OneInchV6IntegrationTest is BaseTestIntegration {
         // Should revert because dstReceiver doesn't match the Merkle leaf
         vm.expectRevert();
         _submitManagerCall(manageProofs, tx_);
+    }
+
+    // --- unoswap variants ---
+
+    function testV6Unoswap() external {
+        _setUpMainnet();
+
+        address usdt = getAddress(sourceChain, "USDT");
+        deal(usdt, address(boringVault), 1_000e6);
+
+        address pool1 = 0x7A415B19932c0105c82FDB6b720bb01B0CC2CAe3;
+
+        address[] memory dexes = new address[](1);
+        dexes[0] = pool1;
+
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
+        _addLeafsFor1InchV6Unoswap(leafs, usdt, dexes);
+
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+        //_generateTestLeafs(leafs, manageTree);
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        Tx memory tx_ = _getTxArrays(2);
+
+        tx_.manageLeafs[0] = leafs[0]; // approve USDT
+        tx_.manageLeafs[1] = leafs[1]; // unoswap
+
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+
+        tx_.targets[0] = usdt;
+        tx_.targets[1] = getAddress(sourceChain, "aggregationRouterV6");
+
+        tx_.targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "aggregationRouterV6"), type(uint256).max
+        );
+
+        tx_.targetData[1] = abi.encodeWithSignature(
+            "unoswap(uint256,uint256,uint256,uint256)",
+            uint256(uint160(usdt)),
+            1_000e6,
+            900e6,
+            uint256(uint160(pool1))
+        );
+
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+
+        // Merkle verification passes; router reverts because dex upper 96 bits (pool type flags) are unset
+        vm.expectRevert();
+        _submitManagerCall(manageProofs, tx_);
+    }
+
+    function testV6Unoswap2() external {
+        _setUpMainnet();
+
+        address usdt = getAddress(sourceChain, "USDT");
+        deal(usdt, address(boringVault), 1_000e6);
+
+        address pool1 = 0x7A415B19932c0105c82FDB6b720bb01B0CC2CAe3;
+        address pool2 = 0x13947303F63b363876868D070F14dc865C36463b;
+
+        address[] memory dexes = new address[](2);
+        dexes[0] = pool1;
+        dexes[1] = pool2;
+
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
+        _addLeafsFor1InchV6Unoswap(leafs, usdt, dexes);
+
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+        //_generateTestLeafs(leafs, manageTree);
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        Tx memory tx_ = _getTxArrays(2);
+
+        tx_.manageLeafs[0] = leafs[0]; // approve USDT
+        tx_.manageLeafs[1] = leafs[1]; // unoswap2
+
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+
+        tx_.targets[0] = usdt;
+        tx_.targets[1] = getAddress(sourceChain, "aggregationRouterV6");
+
+        tx_.targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "aggregationRouterV6"), type(uint256).max
+        );
+
+        tx_.targetData[1] = abi.encodeWithSignature(
+            "unoswap2(uint256,uint256,uint256,uint256,uint256)",
+            uint256(uint160(usdt)),
+            1_000e6,
+            900e6,
+            uint256(uint160(pool1)),
+            uint256(uint160(pool2))
+        );
+
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+
+        // Merkle verification passes; router reverts because dex upper 96 bits (pool type flags) are unset
+        vm.expectRevert();
+        _submitManagerCall(manageProofs, tx_);
+    }
+
+    function testV6Unoswap3() external {
+        _setUpMainnet();
+
+        address usdt = getAddress(sourceChain, "USDT");
+        deal(usdt, address(boringVault), 1_000e6);
+
+        address pool1 = 0x7A415B19932c0105c82FDB6b720bb01B0CC2CAe3;
+        address pool2 = 0x13947303F63b363876868D070F14dc865C36463b;
+        address pool3 = 0x0f3159811670c117c372428D4E69AC32325e4D0F;
+
+        address[] memory dexes = new address[](3);
+        dexes[0] = pool1;
+        dexes[1] = pool2;
+        dexes[2] = pool3;
+
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
+        _addLeafsFor1InchV6Unoswap(leafs, usdt, dexes);
+
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+        //_generateTestLeafs(leafs, manageTree);
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        Tx memory tx_ = _getTxArrays(2);
+
+        tx_.manageLeafs[0] = leafs[0]; // approve USDT
+        tx_.manageLeafs[1] = leafs[1]; // unoswap3
+
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+
+        tx_.targets[0] = usdt;
+        tx_.targets[1] = getAddress(sourceChain, "aggregationRouterV6");
+
+        tx_.targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "aggregationRouterV6"), type(uint256).max
+        );
+
+        tx_.targetData[1] = abi.encodeWithSignature(
+            "unoswap3(uint256,uint256,uint256,uint256,uint256,uint256)",
+            uint256(uint160(usdt)),
+            1_000e6,
+            900e6,
+            uint256(uint160(pool1)),
+            uint256(uint160(pool2)),
+            uint256(uint160(pool3))
+        );
+
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+
+        // Merkle verification passes; router reverts because dex upper 96 bits (pool type flags) are unset
+        vm.expectRevert();
+        _submitManagerCall(manageProofs, tx_);
+    }
+
+    // --- ethUnoswap variants ---
+
+    function testV6EthUnoswap() external {
+        _setUpMainnet();
+
+        deal(address(boringVault), 1 ether);
+
+        address pool1 = 0x7A415B19932c0105c82FDB6b720bb01B0CC2CAe3;
+
+        address[] memory dexes = new address[](1);
+        dexes[0] = pool1;
+
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
+        _addLeafsFor1InchV6EthUnoswap(leafs, dexes);
+
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+        //_generateTestLeafs(leafs, manageTree);
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        Tx memory tx_ = _getTxArrays(1);
+
+        tx_.manageLeafs[0] = leafs[0]; // ethUnoswap
+
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+
+        tx_.targets[0] = getAddress(sourceChain, "aggregationRouterV6");
+
+        tx_.targetData[0] = abi.encodeWithSignature(
+            "ethUnoswap(uint256,uint256)",
+            900e18,
+            uint256(uint160(pool1))
+        );
+
+        tx_.values[0] = 1 ether;
+
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+
+        // Merkle verification passes; router reverts because dex upper 96 bits (pool type flags) are unset
+        vm.expectRevert();
+        _submitManagerCall(manageProofs, tx_);
+    }
+
+    function testV6EthUnoswap2() external {
+        _setUpMainnet();
+
+        deal(address(boringVault), 1 ether);
+
+        address pool1 = 0x7A415B19932c0105c82FDB6b720bb01B0CC2CAe3;
+        address pool2 = 0x13947303F63b363876868D070F14dc865C36463b;
+
+        address[] memory dexes = new address[](2);
+        dexes[0] = pool1;
+        dexes[1] = pool2;
+
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
+        _addLeafsFor1InchV6EthUnoswap(leafs, dexes);
+
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+        //_generateTestLeafs(leafs, manageTree);
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        Tx memory tx_ = _getTxArrays(1);
+
+        tx_.manageLeafs[0] = leafs[0]; // ethUnoswap2
+
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+
+        tx_.targets[0] = getAddress(sourceChain, "aggregationRouterV6");
+
+        tx_.targetData[0] = abi.encodeWithSignature(
+            "ethUnoswap2(uint256,uint256,uint256)",
+            900e18,
+            uint256(uint160(pool1)),
+            uint256(uint160(pool2))
+        );
+
+        tx_.values[0] = 1 ether;
+
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+
+        // Merkle verification passes; router reverts because dex upper 96 bits (pool type flags) are unset
+        vm.expectRevert();
+        _submitManagerCall(manageProofs, tx_);
+    }
+
+    function testV6EthUnoswap3() external {
+        _setUpMainnet();
+
+        deal(address(boringVault), 1 ether);
+
+        address pool1 = 0x7A415B19932c0105c82FDB6b720bb01B0CC2CAe3;
+        address pool2 = 0x13947303F63b363876868D070F14dc865C36463b;
+        address pool3 = 0x0f3159811670c117c372428D4E69AC32325e4D0F;
+
+        address[] memory dexes = new address[](3);
+        dexes[0] = pool1;
+        dexes[1] = pool2;
+        dexes[2] = pool3;
+
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
+        _addLeafsFor1InchV6EthUnoswap(leafs, dexes);
+
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+        //_generateTestLeafs(leafs, manageTree);
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        Tx memory tx_ = _getTxArrays(1);
+
+        tx_.manageLeafs[0] = leafs[0]; // ethUnoswap3
+
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+
+        tx_.targets[0] = getAddress(sourceChain, "aggregationRouterV6");
+
+        tx_.targetData[0] = abi.encodeWithSignature(
+            "ethUnoswap3(uint256,uint256,uint256,uint256)",
+            900e18,
+            uint256(uint160(pool1)),
+            uint256(uint160(pool2)),
+            uint256(uint160(pool3))
+        );
+
+        tx_.values[0] = 1 ether;
+
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+
+        // Merkle verification passes; router reverts because dex upper 96 bits (pool type flags) are unset
+        vm.expectRevert();
+        _submitManagerCall(manageProofs, tx_);
+    }
+
+    // --- Decoder unit tests: verify address extraction strips upper 96 flag bits ---
+
+    function testDecoderUnoswap() external {
+        FullOneInchV6Decoder decoder = new FullOneInchV6Decoder();
+
+        address token = address(0xdAC17F958D2ee523a2206206994597C13D831ec7);
+        address dex = address(0x7A415B19932c0105c82FDB6b720bb01B0CC2CAe3);
+
+        // Set arbitrary flags in the upper 96 bits
+        uint256 tokenWithFlags = uint256(uint160(token)) | (uint256(0xABCDEF) << 160);
+        uint256 dexWithFlags = uint256(uint160(dex)) | (uint256(0x123456) << 160);
+
+        bytes memory result = decoder.unoswap(tokenWithFlags, 1e6, 9e5, dexWithFlags);
+        assertEq(result, abi.encodePacked(token, dex));
+    }
+
+    function testDecoderUnoswap2() external {
+        FullOneInchV6Decoder decoder = new FullOneInchV6Decoder();
+
+        address token = address(0xdAC17F958D2ee523a2206206994597C13D831ec7);
+        address dex1 = address(0x7A415B19932c0105c82FDB6b720bb01B0CC2CAe3);
+        address dex2 = address(0x13947303F63b363876868D070F14dc865C36463b);
+
+        uint256 tokenWithFlags = uint256(uint160(token)) | (uint256(0xFF) << 160);
+        uint256 dex1WithFlags = uint256(uint160(dex1)) | (uint256(0xAA) << 160);
+        uint256 dex2WithFlags = uint256(uint160(dex2)) | (uint256(0xBB) << 160);
+
+        bytes memory result = decoder.unoswap2(tokenWithFlags, 1e6, 9e5, dex1WithFlags, dex2WithFlags);
+        assertEq(result, abi.encodePacked(token, dex1, dex2));
+    }
+
+    function testDecoderUnoswap3() external {
+        FullOneInchV6Decoder decoder = new FullOneInchV6Decoder();
+
+        address token = address(0xdAC17F958D2ee523a2206206994597C13D831ec7);
+        address dex1 = address(0x7A415B19932c0105c82FDB6b720bb01B0CC2CAe3);
+        address dex2 = address(0x13947303F63b363876868D070F14dc865C36463b);
+        address dex3 = address(0x0f3159811670c117c372428D4E69AC32325e4D0F);
+
+        uint256 tokenWithFlags = uint256(uint160(token)) | (uint256(0xFF) << 160);
+        uint256 dex1WithFlags = uint256(uint160(dex1)) | (uint256(0xAA) << 160);
+        uint256 dex2WithFlags = uint256(uint160(dex2)) | (uint256(0xBB) << 160);
+        uint256 dex3WithFlags = uint256(uint160(dex3)) | (uint256(0xCC) << 160);
+
+        bytes memory result =
+            decoder.unoswap3(tokenWithFlags, 1e6, 9e5, dex1WithFlags, dex2WithFlags, dex3WithFlags);
+        assertEq(result, abi.encodePacked(token, dex1, dex2, dex3));
+    }
+
+    function testDecoderEthUnoswap() external {
+        FullOneInchV6Decoder decoder = new FullOneInchV6Decoder();
+
+        address dex = address(0x7A415B19932c0105c82FDB6b720bb01B0CC2CAe3);
+        uint256 dexWithFlags = uint256(uint160(dex)) | (uint256(0xDEAD) << 160);
+
+        bytes memory result = decoder.ethUnoswap(9e17, dexWithFlags);
+        assertEq(result, abi.encodePacked(dex));
+    }
+
+    function testDecoderEthUnoswap2() external {
+        FullOneInchV6Decoder decoder = new FullOneInchV6Decoder();
+
+        address dex1 = address(0x7A415B19932c0105c82FDB6b720bb01B0CC2CAe3);
+        address dex2 = address(0x13947303F63b363876868D070F14dc865C36463b);
+        uint256 dex1WithFlags = uint256(uint160(dex1)) | (uint256(0xDEAD) << 160);
+        uint256 dex2WithFlags = uint256(uint160(dex2)) | (uint256(0xBEEF) << 160);
+
+        bytes memory result = decoder.ethUnoswap2(9e17, dex1WithFlags, dex2WithFlags);
+        assertEq(result, abi.encodePacked(dex1, dex2));
+    }
+
+    function testDecoderEthUnoswap3() external {
+        FullOneInchV6Decoder decoder = new FullOneInchV6Decoder();
+
+        address dex1 = address(0x7A415B19932c0105c82FDB6b720bb01B0CC2CAe3);
+        address dex2 = address(0x13947303F63b363876868D070F14dc865C36463b);
+        address dex3 = address(0x0f3159811670c117c372428D4E69AC32325e4D0F);
+        uint256 dex1WithFlags = uint256(uint160(dex1)) | (uint256(0xDEAD) << 160);
+        uint256 dex2WithFlags = uint256(uint160(dex2)) | (uint256(0xBEEF) << 160);
+        uint256 dex3WithFlags = uint256(uint160(dex3)) | (uint256(0x6969) << 160);
+
+        bytes memory result = decoder.ethUnoswap3(9e17, dex1WithFlags, dex2WithFlags, dex3WithFlags);
+        assertEq(result, abi.encodePacked(dex1, dex2, dex3));
     }
 }

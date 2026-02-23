@@ -409,6 +409,78 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         }
     }
 
+    function _addLeafsFor1InchV6Unoswap(ManageLeaf[] memory leafs, address token, address[] memory dexes) internal {
+        require(dexes.length >= 1 && dexes.length <= 3, "Invalid number of dexes");
+
+        // Add approval leaf if not already added
+        if (
+            !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token][getAddress(
+                sourceChain, "aggregationRouterV6"
+            )]
+        ) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                token,
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve 1Inch V6 router to spend ", ERC20(token).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "aggregationRouterV6");
+            ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token][getAddress(
+                sourceChain, "aggregationRouterV6"
+            )] = true;
+        }
+
+        string memory sig;
+        if (dexes.length == 1) sig = "unoswap(uint256,uint256,uint256,uint256)";
+        else if (dexes.length == 2) sig = "unoswap2(uint256,uint256,uint256,uint256,uint256)";
+        else sig = "unoswap3(uint256,uint256,uint256,uint256,uint256,uint256)";
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "aggregationRouterV6"),
+            false,
+            sig,
+            new address[](1 + dexes.length),
+            string.concat("Unoswap ", ERC20(token).symbol(), " using 1inch V6 router"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = token;
+        for (uint256 i; i < dexes.length; ++i) {
+            leafs[leafIndex].argumentAddresses[1 + i] = dexes[i];
+        }
+    }
+
+    function _addLeafsFor1InchV6EthUnoswap(ManageLeaf[] memory leafs, address[] memory dexes) internal {
+        require(dexes.length >= 1 && dexes.length <= 3, "Invalid number of dexes");
+
+        string memory sig;
+        if (dexes.length == 1) sig = "ethUnoswap(uint256,uint256)";
+        else if (dexes.length == 2) sig = "ethUnoswap2(uint256,uint256,uint256)";
+        else sig = "ethUnoswap3(uint256,uint256,uint256,uint256)";
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "aggregationRouterV6"),
+            true,
+            sig,
+            new address[](dexes.length),
+            "Eth unoswap using 1inch V6 router",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        for (uint256 i; i < dexes.length; ++i) {
+            leafs[leafIndex].argumentAddresses[i] = dexes[i];
+        }
+    }
+
     // ========================================= Curve/Convex =========================================
     // TODO need to use this in the test suite.
     function _addCurveLeafs(ManageLeaf[] memory leafs, address poolAddress, uint256 coinCount, address gauge)

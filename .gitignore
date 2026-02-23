@@ -10,6 +10,7 @@ broadcast/
 
 # Docs
 docs/
+tools/
 
 # Dotenv file
 .env
