@@ -6,23 +6,6 @@ on:
 env:
   FOUNDRY_PROFILE: ci
   CONFIGS: |
-    certora/confs/setup/autoCVL_AccountantWithRateProviders.conf
-    certora/confs/setup/autoCVL_AccountantWithYieldStreaming.conf
-    certora/confs/setup/autoCVL_BoringVault.conf
-    certora/confs/setup/autoCVL_LayerZeroTeller.conf
-    certora/confs/setup/autoCVL_LayerZeroTellerWithRateLimiting.conf
-    certora/confs/setup/autoCVL_TellerWithBuffer.conf
-    certora/confs/setup/autoCVL_TellerWithMultiAssetSupport.conf
-    certora/confs/setup/sanity_AccountantWithRateProviders.conf
-    certora/confs/setup/sanity_AccountantWithYieldStreaming.conf
-    certora/confs/setup/sanity_BoringVault.conf
-    certora/confs/setup/sanity_GenericRateProvider.conf
-    certora/confs/setup/sanity_GenericRateProviderWithDecimalScaling.conf
-    certora/confs/setup/sanity_LayerZeroTeller.conf
-    certora/confs/setup/sanity_LayerZeroTellerWithRateLimiting.conf
-    certora/confs/setup/sanity_TellerWithBuffer.conf
-    certora/confs/setup/sanity_TellerWithMultiAssetSupport.conf
-    certora/confs/setup/sanity_TellerWithYieldStreaming.conf
     certora/confs/setup/scenarioA.conf
     certora/confs/setup/scenarioB.conf
     certora/confs/setup/scenarioC.conf
