@@ -9,10 +9,12 @@ import {Authority} from "@solmate/auth/Auth.sol";
 
 contract RestrictedSwapper is BoringSwapper {
 
-    //============================== ERRORS ===============================
+    // ========================================= ERRORS =========================================
 
     error RestrictedSwapper__MaxSlippageCeilingNotSet();
     error RestrictedSwapper__MaxSwapAmountNotSet();
+
+    // ========================================= CONSTRUCTOR =========================================
 
     constructor(
         address _NATIVE,
@@ -20,14 +22,15 @@ contract RestrictedSwapper is BoringSwapper {
         Authority _auth
     ) BoringSwapper(_NATIVE, _owner, _auth) {}
 
-    // ========================================= OVERRIDES =========================================
+    // ========================================= INTERNAL VIEW/PURE =========================================
 
     function _validateSwap(SwapParams calldata params) internal view override {
         if (maxSlippageCeilingBps == 0) revert RestrictedSwapper__MaxSlippageCeilingNotSet();
         if (maxSwapAmountNormalized == 0) revert RestrictedSwapper__MaxSwapAmountNotSet();
         super._validateSwap(params);
     }
-
+    
+    //forces validation using oracles
     function _resolveMinOut(SwapParams calldata params) internal view override returns (uint256) {
         return _calculateMinOut(params);
     }

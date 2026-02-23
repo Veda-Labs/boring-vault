@@ -5,6 +5,7 @@
 pragma solidity 0.8.21;
 
 import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
+import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
 import {RestrictedSwapper} from "src/base/Periphery/RestrictedSwapper.sol";
 import {BoringSwapper, SwapParams, QuoteAsset} from "src/base/Periphery/BoringSwapper.sol";
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
@@ -319,6 +320,51 @@ contract RestrictedSwapperIntegrationTest is BaseTestIntegration {
 
         vm.prank(address(0xdead));
         vm.expectRevert(bytes("UNAUTHORIZED"));
+        _executeSwapViaManager(proofs, decoders, swapParams);
+    }
+
+    function testRevert_OracleSlippageExceeded() external {
+        _setUpMainnet();
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 10e18);
+        restrictedSwapper.setApprovedTarget(getAddress(sourceChain, "uniV3Router"), true);
+
+        // Override WETH oracle with deliberately high price ($3500 vs ~$1912 market at block 22067550)
+        // Oracle will compute minOut ≈ $3500 * 0.95 = $3325 worth of USDC, but actual output is ~$1912 worth
+        wethUsdFeed = new MockPriceFeed(3500e8, 8);
+        restrictedSwapper.setTokenOracleConfig(
+            getAddress(sourceChain, "WETH"),
+            BoringSwapper.TokenOracleConfig({
+                usdOracle: address(wethUsdFeed),
+                ethOracle: address(0),
+                btcOracle: address(0)
+            })
+        );
+
+        (bytes32[][] memory proofs, address[] memory decoders, SwapParams memory swapParams) = _buildSwapContext();
+
+        vm.expectRevert(BoringSwapper.BoringSwapper__SlippageExceeded.selector);
+        _executeSwapViaManager(proofs, decoders, swapParams);
+    }
+
+    function testRevert_WrongReceiver() external {
+        _setUpMainnet();
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 10e18);
+        restrictedSwapper.setApprovedTarget(getAddress(sourceChain, "uniV3Router"), true);
+
+        (bytes32[][] memory proofs, address[] memory decoders, SwapParams memory swapParams) = _buildSwapContext();
+        // Override receiver — mismatches the merkle leaf which encodes receiver = address(boringVault)
+        swapParams.receiver = address(0xdead);
+
+        vm.expectRevert(
+            bytes(
+                abi.encodeWithSelector(
+                    ManagerWithMerkleVerification.ManagerWithMerkleVerification__FailedToVerifyManageProof.selector,
+                    address(restrictedSwapper),
+                    abi.encodeWithSelector(BoringSwapper.swap.selector, swapParams),
+                    0
+                )
+            )
+        );
         _executeSwapViaManager(proofs, decoders, swapParams);
     }
 

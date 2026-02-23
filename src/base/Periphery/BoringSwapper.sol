@@ -40,25 +40,15 @@ contract BoringSwapper is Auth, ReentrancyGuard {
 
     // ========================================= STATE =========================================
 
+    address public immutable NATIVE;
+
     mapping(address token => TokenOracleConfig config) public tokenOracleConfigs;
     mapping(address => bool) public approvedTargets;
 
     uint256 public maxSlippageCeilingBps;
     uint256 public maxSwapAmountNormalized;
 
-    //============================== ERRORS ===============================
-
-    error BoringSwapper__SwapFailed();
-    error BoringSwapper__SlippageExceeded();
-    error BoringSwapper__NativeTransferFailed();
-    error BoringSwapper__NoSlippageProtection();
-    error BoringSwapper__TargetNotApproved();
-    error BoringSwapper__OracleNotConfigured();
-    error BoringSwapper__NotEnoughNative();
-    error BoringSwapper__SlippageExceedsCeiling();
-    error BoringSwapper__SwapAmountExceedsMax();
-
-    //============================== EVENTS ===============================
+    // ========================================= EVENTS =========================================
 
     event Swap(
         address indexed tokenIn,
@@ -72,9 +62,19 @@ contract BoringSwapper is Auth, ReentrancyGuard {
     event MaxSlippageCeilingBpsUpdated(uint256 maxSlippageCeilingBps);
     event MaxSwapAmountNormalizedUpdated(uint256 maxSwapAmountNormalized);
 
-    //============================== IMMUTABLES ===============================
+    // ========================================= ERRORS =========================================
 
-    address public immutable NATIVE;
+    error BoringSwapper__SwapFailed();
+    error BoringSwapper__SlippageExceeded();
+    error BoringSwapper__NativeTransferFailed();
+    error BoringSwapper__NoSlippageProtection();
+    error BoringSwapper__TargetNotApproved();
+    error BoringSwapper__OracleNotConfigured();
+    error BoringSwapper__NotEnoughNative();
+    error BoringSwapper__SlippageExceedsCeiling();
+    error BoringSwapper__SwapAmountExceedsMax();
+
+    // ========================================= CONSTRUCTOR =========================================
 
     constructor(address _NATIVE, address _owner, Authority _auth) Auth(_owner, _auth) {
         NATIVE = _NATIVE;
@@ -105,7 +105,7 @@ contract BoringSwapper is Auth, ReentrancyGuard {
         emit MaxSwapAmountNormalizedUpdated(_maxSwapAmountNormalized);
     }
 
-    // ========================================= SWAP =========================================
+    // ========================================= EXTERNAL/PUBLIC FUNCTIONS =========================================
 
     function swap(SwapParams calldata params) public payable virtual requiresAuth nonReentrant {
         _validateSwap(params);
@@ -113,22 +113,13 @@ contract BoringSwapper is Auth, ReentrancyGuard {
         _executeSwap(params, minRequired);
     }
 
-    function _validateSwap(SwapParams calldata params) internal view virtual {
-        if (!approvedTargets[params.target]) revert BoringSwapper__TargetNotApproved();
-        if (maxSlippageCeilingBps > 0 && params.maxSlippageBps > maxSlippageCeilingBps) {
-            revert BoringSwapper__SlippageExceedsCeiling();
-        }
-        if (maxSwapAmountNormalized > 0) {
-            uint256 normalized = _getNormalizedValue(params.tokenIn, params.amountIn, params.quoteAsset);
-            if (normalized > maxSwapAmountNormalized) revert BoringSwapper__SwapAmountExceedsMax();
-        }
+    // ========================================= VIEW FUNCTIONS =========================================
+    
+    function version() external view returns (string memory) {
+        return "V0.1"; 
     }
 
-    function _resolveMinOut(SwapParams calldata params) internal view virtual returns (uint256) {
-        if (params.useOracle) return _calculateMinOut(params);
-        if (params.minAmountOut == 0) revert BoringSwapper__NoSlippageProtection();
-        return params.minAmountOut;
-    }
+    // ========================================= INTERNAL =========================================
 
     function _executeSwap(SwapParams calldata params, uint256 minRequired) internal virtual {
         uint256 outBefore = _balanceOf(params.tokenOut);
@@ -171,7 +162,24 @@ contract BoringSwapper is Auth, ReentrancyGuard {
         emit Swap(params.tokenIn, params.tokenOut, params.amountIn, amountOut, params.target);
     }
 
-    // ========================================= HELPERS =========================================
+    // ========================================= INTERNAL VIEW/PURE =========================================
+
+    function _validateSwap(SwapParams calldata params) internal view virtual {
+        if (!approvedTargets[params.target]) revert BoringSwapper__TargetNotApproved();
+        if (maxSlippageCeilingBps > 0 && params.maxSlippageBps > maxSlippageCeilingBps) {
+            revert BoringSwapper__SlippageExceedsCeiling();
+        }
+        if (maxSwapAmountNormalized > 0) {
+            uint256 normalized = _getNormalizedValue(params.tokenIn, params.amountIn, params.quoteAsset);
+            if (normalized > maxSwapAmountNormalized) revert BoringSwapper__SwapAmountExceedsMax();
+        }
+    }
+
+    function _resolveMinOut(SwapParams calldata params) internal view virtual returns (uint256) {
+        if (params.useOracle) return _calculateMinOut(params);
+        if (params.minAmountOut == 0) revert BoringSwapper__NoSlippageProtection();
+        return params.minAmountOut;
+    }
 
     function _balanceOf(address token) internal view returns (uint256) {
         if (token == NATIVE) return address(this).balance;

@@ -8,6 +8,7 @@ import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
 import {BoringSwapper, SwapParams, QuoteAsset} from "src/base/Periphery/BoringSwapper.sol";
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
+import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {Authority} from "@solmate/auth/Auth.sol";
 import {Test, console} from "@forge-std/Test.sol";
@@ -111,6 +112,13 @@ contract BoringSwapperIntegrationTest is BaseTestIntegration {
         internal
         returns (bytes32[][] memory manageProofs, SwapParams memory swapParams)
     {
+        return _buildUniswapSwapContext(address(boringVault));
+    }
+
+    function _buildUniswapSwapContext(address receiver)
+        internal
+        returns (bytes32[][] memory manageProofs, SwapParams memory swapParams)
+    {
         address uniV3Router = getAddress(sourceChain, "uniV3Router");
 
         // Build merkle tree
@@ -152,7 +160,7 @@ contract BoringSwapperIntegrationTest is BaseTestIntegration {
             tokenOut: getAddress(sourceChain, "USDC"),
             amountIn: 1e18,
             minAmountOut: 1,
-            receiver: address(boringVault),
+            receiver: receiver,
             target: uniV3Router,
             swapData: swapData,
             useOracle: false,
@@ -161,7 +169,7 @@ contract BoringSwapperIntegrationTest is BaseTestIntegration {
         });
     }
 
-    function _executeSwapViaManager(
+    function _executeSwap(
         bytes32[][] memory manageProofs,
         SwapParams memory swapParams
     ) internal {
@@ -189,7 +197,7 @@ contract BoringSwapperIntegrationTest is BaseTestIntegration {
         (bytes32[][] memory proofs, SwapParams memory swapParams) = _buildUniswapSwapContext();
 
         uint256 usdcBefore = ERC20(getAddress(sourceChain, "USDC")).balanceOf(address(boringVault));
-        _executeSwapViaManager(proofs, swapParams);
+        _executeSwap(proofs, swapParams);
         uint256 usdcAfter = ERC20(getAddress(sourceChain, "USDC")).balanceOf(address(boringVault));
 
         assertGt(usdcAfter, usdcBefore, "Vault should have received USDC");
@@ -527,7 +535,7 @@ contract BoringSwapperIntegrationTest is BaseTestIntegration {
         swapParams.maxSlippageBps = 500; // 5%
 
         uint256 usdcBefore = ERC20(getAddress(sourceChain, "USDC")).balanceOf(address(boringVault));
-        _executeSwapViaManager(proofs, swapParams);
+        _executeSwap(proofs, swapParams);
         uint256 usdcAfter = ERC20(getAddress(sourceChain, "USDC")).balanceOf(address(boringVault));
 
         assertGt(usdcAfter, usdcBefore, "Vault should have received USDC with oracle-based slippage");
@@ -554,7 +562,7 @@ contract BoringSwapperIntegrationTest is BaseTestIntegration {
         swapParams.maxSlippageBps = 1; // 0.01% — impossibly tight
 
         vm.expectRevert(BoringSwapper.BoringSwapper__SlippageExceeded.selector);
-        _executeSwapViaManager(proofs, swapParams);
+        _executeSwap(proofs, swapParams);
     }
 
     // ========================================= REVERT TESTS =========================================
@@ -566,7 +574,7 @@ contract BoringSwapperIntegrationTest is BaseTestIntegration {
         (bytes32[][] memory proofs, SwapParams memory swapParams) = _buildUniswapSwapContext();
 
         vm.expectRevert(BoringSwapper.BoringSwapper__TargetNotApproved.selector);
-        _executeSwapViaManager(proofs, swapParams);
+        _executeSwap(proofs, swapParams);
     }
 
     function testRevert_NoSlippageProtection_ZeroMinOut() external {
@@ -577,7 +585,7 @@ contract BoringSwapperIntegrationTest is BaseTestIntegration {
         swapParams.minAmountOut = 0;
 
         vm.expectRevert(BoringSwapper.BoringSwapper__NoSlippageProtection.selector);
-        _executeSwapViaManager(proofs, swapParams);
+        _executeSwap(proofs, swapParams);
     }
 
     function testRevert_NoSlippageProtection_MaxSlippageTooHigh() external {
@@ -601,7 +609,7 @@ contract BoringSwapperIntegrationTest is BaseTestIntegration {
         swapParams.maxSlippageBps = 10_000;
 
         vm.expectRevert(BoringSwapper.BoringSwapper__NoSlippageProtection.selector);
-        _executeSwapViaManager(proofs, swapParams);
+        _executeSwap(proofs, swapParams);
     }
 
     function testRevert_OracleNotConfigured() external {
@@ -618,7 +626,7 @@ contract BoringSwapperIntegrationTest is BaseTestIntegration {
         swapParams.maxSlippageBps = 100;
 
         vm.expectRevert(BoringSwapper.BoringSwapper__OracleNotConfigured.selector);
-        _executeSwapViaManager(proofs, swapParams);
+        _executeSwap(proofs, swapParams);
     }
 
     function testRevert_SwapFailed() external {
@@ -629,7 +637,7 @@ contract BoringSwapperIntegrationTest is BaseTestIntegration {
         swapParams.swapData = hex"dead";
 
         vm.expectRevert(BoringSwapper.BoringSwapper__SwapFailed.selector);
-        _executeSwapViaManager(proofs, swapParams);
+        _executeSwap(proofs, swapParams);
     }
 
     function testRevert_SlippageExceeded() external {
@@ -640,7 +648,7 @@ contract BoringSwapperIntegrationTest is BaseTestIntegration {
         swapParams.minAmountOut = type(uint256).max;
 
         vm.expectRevert(BoringSwapper.BoringSwapper__SlippageExceeded.selector);
-        _executeSwapViaManager(proofs, swapParams);
+        _executeSwap(proofs, swapParams);
     }
 
     function testRevert_Unauthorized() external {
@@ -651,6 +659,25 @@ contract BoringSwapperIntegrationTest is BaseTestIntegration {
 
         vm.prank(address(0xdead));
         vm.expectRevert(bytes("UNAUTHORIZED"));
-        _executeSwapViaManager(proofs, swapParams);
+        _executeSwap(proofs, swapParams);
+    }
+
+    function testRevert_WrongReceiver() external {
+        _setUpMainnet();
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 10e18);
+        boringSwapper.setApprovedTarget(getAddress(sourceChain, "uniV3Router"), true);
+        (bytes32[][] memory proofs, SwapParams memory swapParams) = _buildUniswapSwapContext(address(69)); //won't match
+
+        vm.expectRevert(
+            bytes(
+                abi.encodeWithSelector(
+                    ManagerWithMerkleVerification.ManagerWithMerkleVerification__FailedToVerifyManageProof.selector,
+                    address(boringSwapper),
+                    abi.encodeWithSelector(BoringSwapper.swap.selector, swapParams),
+                    0
+                )
+            )
+        );
+        _executeSwap(proofs, swapParams);
     }
 }
