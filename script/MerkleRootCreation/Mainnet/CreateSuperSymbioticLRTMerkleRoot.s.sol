@@ -22,6 +22,8 @@ contract CreateSuperSymbioticLRTMerkleRootScript is Script, MerkleTreeHelper {
     address public managerAddress = 0xA24dD7B978Fbe36125cC4817192f7b8AA18d213c;
     address public accountantAddress = 0xbe16605B22a7faCEf247363312121670DFe5afBE;
     address public rawDataDecoderAndSanitizer = 0xa0f45529DdF2B4a17DD394Bd1459bbfb03f4E87E;
+    address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
+    address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
 
     function setUp() external {}
 
@@ -246,19 +248,25 @@ contract CreateSuperSymbioticLRTMerkleRootScript is Script, MerkleTreeHelper {
         kind[11] = SwapKind.Sell;
         assets[12] = getAddress(sourceChain, "FRXETH");
         kind[12] = SwapKind.BuyAndSell;
-        _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
+
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+        _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
 
         // ========================== Odos ==========================
-        _addOdosSwapLeafs(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
+        _addOdosOwnedSwapLeafs(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== EtherFi ==========================
         _addEtherFiLeafs(leafs);
 
         // ========================== Symbiotic Vault ==========================
-        address[] memory vaults = new address[](1);
+        address[] memory vaults = new address[](2);
         vaults[0] = getAddress(sourceChain, "EtherFi_wstETHSymbioticVault");
-        ERC20[] memory vault_assets = new ERC20[](1);
+        vaults[1] = getAddress(sourceChain, "EtherFi_Cap_weETHSymbioticVault");
+        ERC20[] memory vault_assets = new ERC20[](2);
         vault_assets[0] = ERC20(getAddress(sourceChain, "WSTETH"));
+        vault_assets[1] = ERC20(getAddress(sourceChain, "weETH"));
 
         // NOTE: No rewards for EtherFi wstETH vault for now.
         address[] memory rewards = new address[](0);

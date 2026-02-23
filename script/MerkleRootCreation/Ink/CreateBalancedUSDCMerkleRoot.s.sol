@@ -21,7 +21,7 @@ contract CreateBalancedUSDCMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0xcaae49fb7f74cCFBE8A05E6104b01c097a78789f;
     address public rawDataDecoderAndSanitizer = 0x5901da9Ca757Bf6ce3e232024840D32e0bfbc692;
     address public managerAddress = 0xA0e501F98A1B5d3d8e6Ffd161c76f92570E42931;
-    address public accountantAddress = 0x727929AF06Fa4f6E96cbC3fF7F4b60A65E168e23;
+    address public accountantAddress = 0x0C4dF79d9e35E5C4876BC1aE4663E834312DDc67;
 
     function setUp() external {}
 

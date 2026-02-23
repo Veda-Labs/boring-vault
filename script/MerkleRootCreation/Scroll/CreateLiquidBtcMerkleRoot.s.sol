@@ -40,12 +40,14 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, scroll, "accountantAddress", accountantAddress);
         setAddress(false, scroll, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](16);
+        ManageLeaf[] memory leafs = new ManageLeaf[](32);
 
         // ========================== Scroll Native Bridge ==========================
         ERC20[] memory tokens = new ERC20[](1); 
         tokens[0] = getERC20(sourceChain, "WBTC"); 
-        _addScrollNativeBridgeLeafs(leafs, "mainnet", tokens);  
+        address[] memory scrollGateways = new address[](1);
+        scrollGateways[0] = getAddress(scroll, "scrollWBTCGateway");
+        _addScrollNativeBridgeLeafs(leafs, "mainnet", tokens, scrollGateways);  
 
         // ========================== Tellers & Withdraw Queues ==========================
         // deposit WBTC into eBTC, receive eBTC shares
@@ -66,6 +68,11 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         feeAssets[0] = getAddress(sourceChain, "ETH"); 
 
         _addCrossChainTellerLeafs(leafs, getAddress(sourceChain, "EBTCTeller"), depositAssets, feeAssets, abi.encode(layerZeroMainnetEndpointId)); 
+
+        // Fee Claiming 
+        ERC20[] memory claimingAssets = new ERC20[](1);
+        claimingAssets[0] = getERC20(sourceChain, "WBTC");
+        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), claimingAssets, false);
 
         // ========================== Verify ==========================
 

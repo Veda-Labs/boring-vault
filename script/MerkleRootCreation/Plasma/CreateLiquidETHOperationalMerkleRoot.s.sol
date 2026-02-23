@@ -11,6 +11,10 @@ import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import "forge-std/Script.sol";
 
+/**
+ *  source .env && forge script script/MerkleRootCreation/Plasma/CreateLiquidETHOperationalMerkleRoot.s.sol --rpc-url $PLASMA_RPC_URL --gas-limit 1000000000000000000
+ */
+
 contract CreateLiquidETHOperationalMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
@@ -34,14 +38,14 @@ contract CreateLiquidETHOperationalMerkleRootScript is Script, MerkleTreeHelper 
         setAddress(false, plasma, "accountantAddress", accountantAddress);
         setAddress(false, plasma, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](32);
+        ManageLeaf[] memory leafs = new ManageLeaf[](128);
         leafIndex = 0;
 
         // ====================== UniswapV3/OKU ==========================
         {
             address[] memory token0 = new address[](2);
             token0[0] = getAddress(sourceChain, "wXPL");
-            token0[1] = getAddress(sourceChain, "USDT0");
+            token0[1] = getAddress(sourceChain, "wXPL");
             address[] memory token1 = new address[](2);
             token1[0] = getAddress(sourceChain, "USDT0");
             token1[1] = getAddress(sourceChain, "WETH");
@@ -50,15 +54,27 @@ contract CreateLiquidETHOperationalMerkleRootScript is Script, MerkleTreeHelper 
             _addUniswapV3OneWaySwapLeafs(leafs, token0, token1, swapRouter02);
         }
 
+        // ========================= AAVE ===============================
+        {
+            ERC20[] memory supplyAssets = new ERC20[](5);
+            supplyAssets[0] = getERC20(sourceChain, "USDE");
+            supplyAssets[1] = getERC20(sourceChain, "SUSDE");
+            supplyAssets[2] = getERC20(sourceChain, "WEETH");
+            supplyAssets[3] = getERC20(sourceChain, "WETH");
+            supplyAssets[4] = getERC20(sourceChain, "USDT0");
+            _addAaveV3EOALeafs("Aave V3", getAddress(sourceChain, "v3Pool"), leafs, supplyAssets);
+        }
+
         // ========================== Merkl ==========================
         {
-            _addMerklClaimLeaf(leafs, getAddress(sourceChain, "merklDistributor"));
+            _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "etherfiOpsAddress"));
         }
 
         // ========================== Drone ==========================
         {
-            ERC20[] memory droneTransferTokens = new ERC20[](1);
-            droneTransferTokens[0] = getERC20(sourceChain, "wXPL"); 
+            ERC20[] memory droneTransferTokens = new ERC20[](2);
+            droneTransferTokens[0] = getERC20(sourceChain, "wXPL");
+            droneTransferTokens[1] = getERC20(sourceChain, "USDT0");
 
             _addLeafsForDroneTransfers(leafs, drone, droneTransferTokens);
             _addLeafsForDrone(leafs, drone);
@@ -79,7 +95,7 @@ contract CreateLiquidETHOperationalMerkleRootScript is Script, MerkleTreeHelper 
         {
             address[] memory token0 = new address[](2);
             token0[0] = getAddress(sourceChain, "wXPL");
-            token0[1] = getAddress(sourceChain, "USDT0");
+            token0[1] = getAddress(sourceChain, "wXPL");
             address[] memory token1 = new address[](2);
             token1[0] = getAddress(sourceChain, "USDT0");
             token1[1] = getAddress(sourceChain, "WETH");
@@ -88,9 +104,20 @@ contract CreateLiquidETHOperationalMerkleRootScript is Script, MerkleTreeHelper 
             _addUniswapV3OneWaySwapLeafs(leafs, token0, token1, swapRouter02);
         }
 
+        // ========================= AAVE ===============================
+        {
+            ERC20[] memory assets = new ERC20[](5);
+            assets[0] = getERC20(sourceChain, "USDE");
+            assets[1] = getERC20(sourceChain, "SUSDE");
+            assets[2] = getERC20(sourceChain, "WEETH");
+            assets[3] = getERC20(sourceChain, "WETH");
+            assets[4] = getERC20(sourceChain, "USDT0");
+            _addAaveV3EOALeafs("Aave V3", getAddress(sourceChain, "v3Pool"), leafs, assets);
+        }
+
         // ========================== Merkl ==========================
         {
-            _addMerklClaimLeaf(leafs, getAddress(sourceChain, "merklDistributor"));
+            _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "etherfiOpsAddress"));
         }
 
         _createDroneLeafs(leafs, _drone, droneStartIndex, leafIndex + 1);

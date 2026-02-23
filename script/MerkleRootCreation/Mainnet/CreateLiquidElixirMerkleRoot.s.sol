@@ -27,6 +27,8 @@ contract CreateLiquidElixirMerkleRootScript is Script, MerkleTreeHelper {
     address public elixirWithdrawDecoderAndSanitizer = 0xF8e9517e7e98D7134E306aD3747A50AC8dC1dbc9;
     address public pancakeSwapDataDecoderAndSanitizer = 0xA33cA951986cE360eddaB0c9e3791E99aACde437;
 
+    address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
+
     function setUp() external {}
 
     /**
@@ -104,7 +106,10 @@ contract CreateLiquidElixirMerkleRootScript is Script, MerkleTreeHelper {
         kind[5] = SwapKind.Sell;
         assets[6] = getAddress(sourceChain, "BAL");
         kind[6] = SwapKind.Sell;
-        _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
+
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+        _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Curve ==========================
         _addCurveLeafs(leafs, getAddress(sourceChain, "deUSD_USDC_Curve_Pool"), 2, address(0));

@@ -23,6 +23,9 @@ contract CreateCbBTCMerkleRootScript is Script, MerkleTreeHelper {
     address public accountantAddress = 0x1c217f17d57d3CCD1CB3d8CB16B21e8f0b544156;
     address public rawDataDecoderAndSanitizer = 0xA6b52921652A828Da445b457442F8cA10638a4Bb;
 
+    address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
+    address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
+
     function setUp() external {}
 
     /**
@@ -40,7 +43,7 @@ contract CreateCbBTCMerkleRootScript is Script, MerkleTreeHelper {
         setAddress(false, base, "accountantAddress", accountantAddress);
         setAddress(false, base, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](32);
+        ManageLeaf[] memory leafs = new ManageLeaf[](64);
 
         // ========================== UniswapV3 ==========================
         address[] memory token0 = new address[](3);
@@ -55,7 +58,7 @@ contract CreateCbBTCMerkleRootScript is Script, MerkleTreeHelper {
 
         _addUniswapV3Leafs(leafs, token0, token1, false);
 
-        // ========================== 1inch ==========================
+        // ========================== 1inch/Odos ==========================
         address[] memory assets = new address[](3);
         SwapKind[] memory kind = new SwapKind[](3);
         assets[0] = getAddress(sourceChain, "cbBTC");
@@ -64,7 +67,14 @@ contract CreateCbBTCMerkleRootScript is Script, MerkleTreeHelper {
         kind[1] = SwapKind.BuyAndSell;
         assets[2] = getAddress(sourceChain, "tBTC");
         kind[2] = SwapKind.BuyAndSell;
-        _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
+
+        
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+        _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
+        _addOdosOwnedSwapLeafs(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+
 
         string memory filePath = "./leafs/Base/CbBTCStrategistLeafs.json";
 

@@ -26,6 +26,10 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
     address public rawDataDecoderAndSanitizer = 0xE2Fc8A38FA3B9a57E538fBed7101D0E059F82D7B;
     address public goldenGooseTeller = 0xE89fAaf3968ACa5dCB054D4a9287E54aa84F67e9;
 
+    address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
+    address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
+
+
     function setUp() external {}
 
     /**
@@ -152,7 +156,9 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             assets[2] = getAddress(sourceChain, "AERO");
             kind[2] = SwapKind.Sell;
 
-            _addOdosSwapLeafs(leafs, assets, kind);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
+            _addOdosOwnedSwapLeafs(leafs, assets, kind);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 
         // ========================== 1Inch ==========================
@@ -166,7 +172,9 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             assets[2] = getAddress(sourceChain, "AERO");
             kind[2] = SwapKind.Sell;
 
-            _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+            _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 
         // ========================== Verify & Generate ==========================

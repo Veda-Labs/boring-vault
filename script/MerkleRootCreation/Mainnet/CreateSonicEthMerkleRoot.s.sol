@@ -22,6 +22,9 @@ contract CreateSonicEthMerkleRoot is Script, MerkleTreeHelper {
     address public accountantAddress = 0x3a592F9Ea2463379c4154d03461A73c484993668;
     address public rawDataDecoderAndSanitizer = 0x74Bd1a5153Db3FE3a437dE0B7C74a088d447F9ab;
 
+    address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
+    address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
+
     function setUp() external {}
 
     /**
@@ -61,7 +64,7 @@ contract CreateSonicEthMerkleRoot is Script, MerkleTreeHelper {
 
         _addUniswapV3Leafs(leafs, token0, token1, true);
 
-        // ========================== 1inch ==========================
+        // ========================== 1inch/Odos ==========================
         address[] memory assets = new address[](4);
         SwapKind[] memory kind = new SwapKind[](4);
         assets[0] = getAddress(sourceChain, "WETH");
@@ -72,10 +75,12 @@ contract CreateSonicEthMerkleRoot is Script, MerkleTreeHelper {
         kind[2] = SwapKind.BuyAndSell;
         assets[3] = getAddress(sourceChain, "MORPHO");
         kind[3] = SwapKind.Sell;
-        _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+        _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
+        _addOdosOwnedSwapLeafs(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        // ========================== Odos ==========================
-        _addOdosSwapLeafs(leafs, assets, kind); 
             
         // ========================== Aave V3 ==========================
         // Core

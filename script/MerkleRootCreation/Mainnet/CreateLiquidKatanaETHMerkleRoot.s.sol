@@ -23,6 +23,9 @@ contract CreateLiquidKatanaETHMerkleRoot is Script, MerkleTreeHelper {
     address public managerAddress = 0x51CdEcC111c21BED72Ab99f415Bab6d35984BfEB;
     address public accountantAddress = 0xFCb9a6bF02C43f9E38Bb102fd960Cc1e738e787d;
 
+    address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
+    address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
+
     function setUp() external {}
 
     /**
@@ -52,8 +55,12 @@ contract CreateLiquidKatanaETHMerkleRoot is Script, MerkleTreeHelper {
         kind[2] = SwapKind.BuyAndSell;
         assets[3] = getAddress(sourceChain, "WSTETH");
         kind[3] = SwapKind.BuyAndSell;
-        _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
-        _addOdosSwapLeafs(leafs, assets, kind);
+
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+        _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
+        _addOdosOwnedSwapLeafs(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== NativeWrapper ==========================
         _addNativeLeafs(leafs);

@@ -24,6 +24,9 @@ contract CreateLBTCvMerkleRootScript is Script, MerkleTreeHelper {
     address public rawDataDecoderAndSanitizer = 0x967678F9E5E5a439ee4938738a6aa7b0c873CCeb;
     address public aerodromeDecoderAndSanitizer = 0xbBC56C19282BB3C115fE3B909edeA3dF5Cc296d5;
 
+    address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
+    address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
+
     function setUp() external {}
 
     /**
@@ -80,11 +83,14 @@ contract CreateLBTCvMerkleRootScript is Script, MerkleTreeHelper {
         kind[5] = SwapKind.Sell;
         assets[6] = getAddress(sourceChain, "WETH");
         kind[6] = SwapKind.BuyAndSell;
-        _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
+
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+        _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
 
         // ========================== Odos ==========================
-        _addOdosSwapLeafs(leafs, assets, kind);  
-
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
+        _addOdosOwnedSwapLeafs(leafs, assets, kind);  
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         // ========================== Native ==========================
         _addNativeLeafs(leafs); 
 

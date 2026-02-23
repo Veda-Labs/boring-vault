@@ -22,6 +22,8 @@ contract CreateEtherFiUsdMerkleRootScript is Script, MerkleTreeHelper {
     address public managerAddress = 0xDFC5b0d2eC65864Dc773F681E3D52c765dc083ac;
     address public accountantAddress = 0xEB440B36f61Bf62E0C54C622944545f159C3B790;
 
+    address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
+
     function setUp() external {}
 
     /**
@@ -110,7 +112,10 @@ contract CreateEtherFiUsdMerkleRootScript is Script, MerkleTreeHelper {
         kind[3] = SwapKind.BuyAndSell;
         assets[4] = getAddress(sourceChain, "SUSDE");
         kind[4] = SwapKind.BuyAndSell;
-        _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
+
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+        _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         _addLeafsFor1InchUniswapV3Swapping(leafs, getAddress(sourceChain, "USDe_USDT_01"));
         _addLeafsFor1InchUniswapV3Swapping(leafs, getAddress(sourceChain, "USDe_USDC_01"));

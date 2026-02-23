@@ -22,6 +22,9 @@ CLAUDE.md
 .serena
 flatten.sol
 
+tools/*
+
+
 # certora
 .certora_internal/
 .properties-*/

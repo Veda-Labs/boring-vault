@@ -74,6 +74,13 @@ contract CreateLBTCvMerkleRoot is Script, MerkleTreeHelper {
         _addLBTCBridgeLeafs(leafs, 0x0000000000000000000000000000000000000000000000000000000000002105);  
         _addLBTCBridgeLeafs(leafs, 0x0000000000000000000000000000000000000000000000000000000000000001);  
 
+        // ==========================  Fee Claiming ==========================
+
+        ERC20[] memory feeAssets = new ERC20[](2);
+        feeAssets[0] = getERC20(sourceChain, "BTCB");
+        feeAssets[1] = getERC20(sourceChain, "LBTC");
+        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
+
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
