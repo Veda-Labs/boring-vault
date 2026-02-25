@@ -103,6 +103,12 @@ filtered { f -> f.contract == teller_contract }
     preserved with (env e2) {
         nonSceneAddress(e2.msg.sender);
     }
+    preserved constructor() 
+    {
+        // we assume the allowance was not present before calling the constructor
+        // i.e. we're checking that it's not set by the constructor
+        require asset.allowance(e, currentContract, user) == 0;
+    }
 }
 
 rule onlyContributionMethodsReduceAssets(env e, method f) 

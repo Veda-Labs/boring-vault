@@ -281,6 +281,10 @@ invariant exchangeRateLEhighwaterMark_unlessPaused()
         //require accountant_contract.getPendingVestingGains(e) * accountant_contract.ONE_SHARE <= (max_uint96 - accountant_contract.vestingState.lastSharePrice) * vault_contract.totalSupply();
         //require getPendingVestingGains(e) <= vault_contract.totalSupply();
         }
+        preserved constructor() {
+            require accountant_contract.accountantState.highwaterMark ==
+                accountant_contract.accountantState.exchangeRate;
+        }
 }
 
 invariant virtualPriceIsCorrect()

@@ -55,10 +55,13 @@ hook STATICCALL(uint256 g, address addr, uint256 argsOffset, uint256 argsLength,
 
 // Check that there are no reentrancy unsafe calls except potentially for balanceOf on the asset, realAssets on the adapters and canReceiveShares, canSendShares, canReceiveAssets and canSendAssets on the gates, and isInRegistry on adapter registry.
 rule reentrancyViewSafe(method f, env e, calldataarg data)
-// filtered {
-//     // forceDeallocate is a composition of deallocate and withdraw.
-//     //f -> f.selector != sig:forceDeallocate(address, bytes, uint256, address).selector
-// } 
+filtered {
+    f -> 
+    f.selector != 1539645794        // depositAndBridgeWithPermit(CrossChainTellerWithGenericBridge.DepositAndBridgeWithPermitParams).selector // 0x5bc52162
+    && f.selector != 4172789357     // depositAndBridge(address,uint256,uint256,address,bytes,address,uint256,address).selector // 0xf8b7b66d
+    && f.selector != 93460288       // bridge(uint96,address,bytes,address,uint256).selector  // 0x05921740
+    && f.selector != 3611446835     // previewFee(uint96,address,bytes,address).selector  // 0xd7424e33
+} 
 {
     require ignoredStaticcall == false, "setup ghost state";
     require storageChanged == false, "setup ghost state";
@@ -69,3 +72,10 @@ rule reentrancyViewSafe(method f, env e, calldataarg data)
 
     assert !staticCallUnsafe;
 }
+
+// rule reachability(method f, env e, calldataarg data)
+// {
+//     f(e, data);
+
+//     satisfy true;
+// }

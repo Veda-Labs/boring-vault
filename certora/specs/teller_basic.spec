@@ -67,7 +67,8 @@ rule deniedUsers_balanceNonDecreasing(env e, method f)
 }
 
 rule deniedUsers_balanceNonIncreasing(env e, method f)
-    filtered { f -> !ignoredMethod(f) 
+    filtered { f -> !ignoredMethod(f)
+        && f.selector != 320044389 // lzReceive((uint32,bytes32,uint64),bytes32,bytes,address,bytes) // 0x13137d65 // the method is allowed to break this
         && f.contract != vault_contract }
 {
     safeAssumptions();
@@ -90,6 +91,7 @@ invariant totalSupplyLEqCap()
     filtered { f -> !ignoredMethod(f)
         && f.selector != sig:teller_contract.setDepositCap(uint112).selector // setting the cap bellow current supply is used by admins to disable further deposits
         && f.selector != sig:vault_contract.enter(address,address,uint256,address,uint256).selector // other tellers could operate the vault and increase its totalSupply
+        && f.selector != sig:vault_contract.exit(address,address,uint256,address,uint256).selector  // not to be called directly
         }
     { preserved { safeAssumptions();} }
 

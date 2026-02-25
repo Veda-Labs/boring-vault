@@ -1,3 +1,5 @@
+//import "erc20cvl.spec";
+
 methods {
     function ERC20Mock.totalSupply() external returns uint256 envfree;
 }
