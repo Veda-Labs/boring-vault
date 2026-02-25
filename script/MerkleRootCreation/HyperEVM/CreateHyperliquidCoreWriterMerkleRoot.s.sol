@@ -44,9 +44,11 @@ contract CreateHyperliquidCoreWriterMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Define Allowed Perp Assets ==========================
         // BTC=0, ETH=1 (see HyperliquidAssetIds.sol for full list)
-        uint32[] memory perpAssets = new uint32[](2);
+        uint32[] memory perpAssets = new uint32[](4);
         perpAssets[0] = 0; // BTC
         perpAssets[1] = 1; // ETH
+        perpAssets[2] = 159; // Hype (perp)
+        perpAssets[3] = 10107;// hype spot
 
         // ========================== Define Allowed Recipients ==========================
         address[] memory spotSendRecipients = new address[](1);
@@ -54,10 +56,12 @@ contract CreateHyperliquidCoreWriterMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Define Allowed Spot Tokens ==========================
         // USDC=0, UBTC=197, UETH=221 (for spot sends on HyperCore)
-        uint64[] memory spotTokens = new uint64[](3);
+        uint64[] memory spotTokens = new uint64[](5);
         spotTokens[0] = 0;   // USDC
         spotTokens[1] = 197; // UBTC
         spotTokens[2] = 221; // UETH
+        spotTokens[3] = 150; // HYPE
+        spotTokens[4] = 107; // HYPE
 
         // ========================== Define Allowed Vaults ==========================
         address[] memory vaults = new address[](0); // No vault transfers by default
@@ -83,7 +87,9 @@ contract CreateHyperliquidCoreWriterMerkleRoot is Script, MerkleTreeHelper {
         // Allow bridging tokens back from HyperCore to the vault on HyperEVM
         address[] memory bridgeDestinations = new address[](1);
         bridgeDestinations[0] = boringVault;
-        _addCoreWriterSendAssetLeafs(leafs, bridgeDestinations);
+        address[] memory bridgeSubAccounts = new address[](1);
+        bridgeSubAccounts[0] = address(0); // Main account
+        _addCoreWriterSendAssetLeafs(leafs, bridgeDestinations, bridgeSubAccounts);
 
         // ========================== Add API Wallets ==============================
 
