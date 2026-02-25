@@ -126,3 +126,23 @@ AccountantWithYieldStreaming.totalAssets() ↪ 145
 BoringVault.totalSupply() ↪ 127
 AccountantWithYieldStreaming.totalAssets() ↪ 147
 
+//////////////
+
+reachability
+
+previewFee
+    MessageLib.Message memory m = MessageLib.Message(shareAmount, to);
+    _previewFee(message, bridgeWildCard, feeToken);
+
+bridge
+    _bridge
+        beforeTransfer(msg.sender, address(0), msg.sender);
+        vault.exit(address(0), ERC20(address(0)), 0, msg.sender, shareAmount);
+        MessageLib.Message memory m = MessageLib.Message(shareAmount, to);
+        bytes32 messageId = _sendMessage(message, bridgeWildCard, feeToken, maxFee);
+
+depositAndBridge
+    _bridge
+
+depositAndBridgeWithPermit
+    _bridge

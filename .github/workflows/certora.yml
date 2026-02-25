@@ -2,15 +2,17 @@ name: test
 
 on:
   - pull_request
+  - push
 
 env:
   FOUNDRY_PROFILE: ci
   CONFIGS: |
-    certora/confs/setup/scenarioA.conf
-    certora/confs/setup/scenarioB.conf
-    certora/confs/setup/scenarioC.conf
-    certora/confs/setup/scenarioD.conf
-    certora/confs/setup/scenarioE.conf
+    certoraRun certora/confs/scenarioA.conf --verify "TellerWithMultiAssetSupport:certora/specs/rentrancy_view.spec" --prover_args "-enableStorageSplitting false"
+    certoraRun certora/confs/scenarioA.conf --verify "TellerWithMultiAssetSupport:certora/specs/teller_accounting_hardRules.spec" --rule vaultSolvency_1Asset --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20"
+    certoraRun certora/confs/scenarioA.conf --verify "TellerWithMultiAssetSupport:certora/specs/teller_basic.spec"
+    certoraRun certora/confs/scenarioA.conf --verify "TellerWithMultiAssetSupport:certora/specs/teller_accounting_easyRules.spec"
+    certoraRun certora/confs/accountantWithRateProviders.conf
+    certoraRun certora/confs/scenarioA.conf --verify "TellerWithMultiAssetSupport:certora/specs/teller_integrity.spec"
 
 jobs:
   check:
@@ -30,6 +32,9 @@ jobs:
         run: |
           corepack enable
           yarn install
+
+      - name: Certora munge
+        run: certora/scripts/setup.sh A
 
       - name: run configs
         uses: Certora/certora-run-action@v2
