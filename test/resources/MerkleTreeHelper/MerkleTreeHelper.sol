@@ -15506,6 +15506,46 @@ function _addTellerLeafsWithReferral(
             }
         }
     }
+
+    // ========================================= PREDICATE PROXY =========================================
+
+    function _addPredicateProxyDepositLeafs(
+        ManageLeaf[] memory leafs,
+        address predicateProxy,
+        ERC20 depositToken,
+        address receiver,
+        address teller
+    ) internal {
+        // Approve deposit token to predicate proxy.
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            address(depositToken),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve PredicateProxy to spend ", depositToken.symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = predicateProxy;
+
+        // Call deposit on predicate proxy.
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            predicateProxy,
+            false,
+            "deposit(address,uint256,uint256,address,address,(string,uint256,address[],bytes[]))",
+            new address[](3),
+            string.concat("Deposit ", depositToken.symbol(), " via PredicateProxy"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = address(depositToken);
+        leafs[leafIndex].argumentAddresses[1] = receiver;
+        leafs[leafIndex].argumentAddresses[2] = teller;
+    }
 }
 
 interface IMB {
