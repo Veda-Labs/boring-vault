@@ -5,6 +5,7 @@ certora/scripts/setup.sh C && certoraRun certora/confs/scenarioC.conf --verify "
 certora/scripts/setup.sh D && certoraRun certora/confs/scenarioD.conf --verify "LayerZeroTeller:certora/specs/rentrancy_view.spec" --msg reentrancy_D --prover_args "-enableStorageSplitting false"
 certora/scripts/setup.sh E && certoraRun certora/confs/scenarioE.conf --verify "LayerZeroTellerWithRateLimiting:certora/specs/rentrancy_view.spec" --msg reentrancy_E --prover_args "-enableStorageSplitting false"
 
+
 # solvency: all holds except for C
 certora/scripts/setup.sh A && certoraRun certora/confs/scenarioA.conf --verify "TellerWithMultiAssetSupport:certora/specs/teller_accounting_hardRules.spec" --msg vaultSolvency_1Asset --rule vaultSolvency_1Asset --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20"
 certora/scripts/setup.sh B && certoraRun certora/confs/scenarioB.conf --verify "TellerWithBuffer:certora/specs/teller_accounting_hardRules.spec" --msg vaultSolvency_1Asset --rule vaultSolvency_1Asset --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20"
