@@ -11917,6 +11917,27 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         }
     }
 
+    // ======================================= Katana OVault =========================================
+
+    /// @dev should be added on ethereum
+    function _addEthereumOVaultLeafs(ManageLeaf[] memory leafs) internal {}
+
+    /// @dev should be added on katana
+    function _addKatanaOVaultLeafs(ManageLeaf[] memory leafs, address token) internal {
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            token,
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("", ERC20(token).symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "vbUSDCShareOFT");
+    }
+
     // ========================================= Agglayer =========================================
 
     function _addAgglayerBridgeLeafs(

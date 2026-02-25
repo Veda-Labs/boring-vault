@@ -1528,13 +1528,16 @@ contract ChainValues {
         values[mainnet]["derive_controller"] = 0x52CB41109b637F03B81b3FD6Dce4E3948b2F0923.toBytes32();
         values[mainnet]["derive_LBTC_connectorPlugOnDeriveChain"] =
             0x2E1245D57a304C7314687E529D610071628117f3.toBytes32();
-        //values[mainnet]["derive_boringTestVault_wallet"] = .toBytes32();
 
         // Mellow
         values[mainnet]["dvStETHVault"] = 0x5E362eb2c0706Bd1d134689eC75176018385430B.toBytes32();
 
         // King
         values[mainnet]["kingMerkleDistributor"] = 0x6Db24Ee656843E3fE03eb8762a54D86186bA6B64.toBytes32();
+
+        // Katana values
+        values[mainnet]["vbUSDC"] = 0x53E82ABbb12638F09d9e624578ccB666217a765e.toBytes32();
+        values[mainnet]["OVaultComposerForvbUSDC"] = 0x8A35897fda9E024d2aC20a937193e099679eC477.toBytes32();
     }
 
     function _addBaseValues() private {
@@ -2627,5 +2630,8 @@ contract ChainValues {
         values[katana]["BungeeInbox"] = 0x7ad979C6b0C9924F79ea571280071595ba13D002.toBytes32();
         values[katana]["BungeeGateway"] = 0x8f503B6d9fFdae8d375d1E226b71B4B3144D3849.toBytes32();
         values[katana]["BungeeDelegate"] = 0x86C950FE91D96Fa113A96eE23EDc7C517b94BFDC.toBytes32();
+
+        // Katana USDC OVault
+        values[katana]["vbUSDCShareOFT"] = 0x807275727Dd3E640c5F2b5DE7d1eC72B4Dd293C0.toBytes32();
     }
 }
