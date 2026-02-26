@@ -11923,7 +11923,12 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     function _addEthereumOVaultLeafs(ManageLeaf[] memory leafs) internal {}
 
     /// @dev should be added on katana
-    function _addKatanaOVaultLeafs(ManageLeaf[] memory leafs, address token) internal {
+    function _addKatanaOVaultLeafs(
+        ManageLeaf[] memory leafs,
+        address token,
+        address shareOFT,
+        address composerOnEthereum
+    ) internal {
         unchecked {
             leafIndex++;
         }
@@ -11936,6 +11941,22 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "vbUSDCShareOFT");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            shareOFT,
+            true,
+            "send((uint32,bytes32,uint256,uint256,bytes,bytes,bytes),(uint256,uint256),address)",
+            new address[](2),
+            string.concat("bridge ", ERC20(token).symbol(), " using lz OVault tech to ethereum"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        // argumentAddresses[0] = `to` extracted from SendParam.to (the composer)
+        leafs[leafIndex].argumentAddresses[0] = composerOnEthereum;
+        // argumentAddresses[1] = refundAddress (the boring vault itself)
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
     }
 
     // ========================================= Agglayer =========================================
