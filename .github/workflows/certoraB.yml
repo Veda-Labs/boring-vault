@@ -1,4 +1,4 @@
-name: Certora_FV_A
+name: Certora_FV_B
 
 on:
   - pull_request
@@ -6,11 +6,10 @@ on:
 env:
   FOUNDRY_PROFILE: ci
   CONFIGS: |
-    certora/confs/scenarioA.conf --verify "TellerWithMultiAssetSupport:certora/specs/rentrancy_view.spec" --prover_args "-enableStorageSplitting false"
-    certora/confs/scenarioA.conf --verify "TellerWithMultiAssetSupport:certora/specs/teller_basic.spec"
-    certora/confs/scenarioA.conf --verify "TellerWithMultiAssetSupport:certora/specs/teller_accounting_easyRules.spec"
-    certora/confs/accountantWithRateProviders.conf
-    certora/confs/scenarioA.conf --verify "TellerWithMultiAssetSupport:certora/specs/teller_integrity.spec"
+    certora/confs/scenarioB.conf --verify "TellerWithBuffer:certora/specs/rentrancy_view.spec" --prover_args "-enableStorageSplitting false"
+    certora/confs/scenarioB.conf --verify "TellerWithBuffer:certora/specs/teller_basic.spec"
+    certora/confs/scenarioB.conf --verify "TellerWithBuffer:certora/specs/teller_accounting_easyRules.spec"
+    certora/confs/scenarioB.conf --verify "TellerWithBuffer:certora/specs/teller_integrity.spec"
 
 jobs:
   check:
@@ -32,7 +31,7 @@ jobs:
           yarn install
 
       - name: Certora munge
-        run: certora/scripts/setup.sh A
+        run: certora/scripts/setup.sh B
 
       - name: run configs
         uses: Certora/certora-run-action@v2
