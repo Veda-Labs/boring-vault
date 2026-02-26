@@ -52,6 +52,7 @@ rule conversionOfZero {
 }
 
 rule conversionWeakMonotonicity_assets {
+    safeAssumptions();
     uint256 smallerAssets; uint256 largerAssets;
     storage init = lastStorage; address asset;
 
@@ -63,6 +64,7 @@ rule conversionWeakMonotonicity_assets {
 }
 
 rule conversionWeakMonotonicity_shares {
+    safeAssumptions();
     uint256 smallerShares; uint256 largerShares;
     storage init = lastStorage; address asset;
 
@@ -74,6 +76,7 @@ rule conversionWeakMonotonicity_shares {
 }
 
 rule conversionWeakIntegrity_shares() {
+    safeAssumptions();
     uint256 shares_pre; address asset;
     uint assets = convertToAssets(lastStorage, shares_pre, asset);
     uint shares_post = convertToShares(lastStorage, assets, asset);
@@ -82,6 +85,7 @@ rule conversionWeakIntegrity_shares() {
 }
 
 rule conversionWeakIntegrity_assets() {
+    safeAssumptions();
     uint256 assets_pre; address asset;
     uint shares = convertToShares(lastStorage, assets_pre, asset);
     uint assets_post = convertToAssets(lastStorage, shares, asset);

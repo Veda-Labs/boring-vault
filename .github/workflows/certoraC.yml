@@ -13,6 +13,16 @@ env:
     certora/confs/accountantWithYieldStreaming.conf
     certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --rule integrityOfVestYield --rule exchangeRateLEhighwaterMark_unlessPaused
     certora/confs/scenarioC.conf --verify "TellerWithYieldStreaming:certora/specs/teller_integrity.spec"
+    certora/confs/scenarioC.conf --rule exchangeRateLEhighwaterMark_unlessPaused --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_hardRules.spec" --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20 -splitParallel true"
+    certora/confs/scenarioC.conf --rule sharePriceBoundedLower --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_hardRules.spec" --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20 -splitParallel true"
+    certora/confs/scenarioC.conf --rule exchangeRateEqlastSharePrice --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_hardRules.spec" --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20 -splitParallel true"
+    certora/confs/scenarioC.conf --rule cumulativeSupplyBounded --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_hardRules.spec" --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20 -splitParallel true"
+    certora/confs/scenarioC.conf --rule sharePriceBoundedUpper --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_hardRules.spec" --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20 -splitParallel true"
+    certora/confs/scenarioC.conf --rule sharePriceMoreThanOneAsset --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_hardRules.spec" --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20 -splitParallel true"
+    certora/confs/scenarioC.conf --rule assetsMoreThanShares --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_hardRules.spec" --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20 -splitParallel true"
+    certora/confs/scenarioC.conf --rule totalAssetsCovered --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_hardRules.spec" --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20 -splitParallel true"
+    certora/confs/scenarioC.conf --rule vaultSolvency_1Asset --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_hardRules.spec" --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20 -splitParallel true"
+    certora/confs/scenarioC.conf --rule sharePriceBoundedUpper_strict --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_hardRules.spec" --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20 -splitParallel true"
 
 jobs:
   check:

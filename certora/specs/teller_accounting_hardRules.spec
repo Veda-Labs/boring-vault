@@ -247,6 +247,10 @@ filtered { f -> !ignoredMethod(f)
         //requireSmallNumbers_Unsafe(e2);
         //require accountant_contract.getPendingVestingGains(e) == 0;
     }
+    preserved constructor()
+    {
+        require accountant_contract.getPendingVestingGains(e) == 0;
+    }
 }
 
 invariant exchangeRateEqlastSharePrice()

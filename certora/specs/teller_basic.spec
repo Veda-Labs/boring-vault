@@ -2,11 +2,11 @@ import "setup/dispatching_BoringVault.spec";
 import "setup/snippet_ERC20_Mock.spec";
 import "MathSummaries.spec";
 
-import "setup/dispatching_AccountantWithYieldStreaming.spec";   // C
-import "setup/dispatching_TellerWithYieldStreaming.spec";       // C
+import "setup/dispatching_AccountantWithRateProviders.spec";    // A, B, D, E
+import "setup/dispatching_TellerWithMultiAssetSupport.spec";    // A
 
-using AccountantWithYieldStreaming as accountant_contract;      // C
-using TellerWithYieldStreaming as teller_contract;              // C
+using AccountantWithRateProviders as accountant_contract;       // A, B, D, E
+using TellerWithMultiAssetSupport as teller_contract;           // A
 
 using BoringVault as vault_contract;
 using WETH as WETH;
@@ -86,7 +86,7 @@ rule deniedUsers_balanceNonIncreasing(env e, method f)
 }
 
 invariant totalSupplyLEqCap()
-    vault_contract.totalSupply() >= teller_contract.depositCap
+    vault_contract.totalSupply() <= teller_contract.depositCap
         || teller_contract.depositCap == 2^112 - 1  // max uint112 means the cap is not applied
     filtered { f -> !ignoredMethod(f)
         && f.selector != sig:teller_contract.setDepositCap(uint112).selector // setting the cap bellow current supply is used by admins to disable further deposits

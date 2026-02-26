@@ -1,4 +1,4 @@
-//import "teller_basic.spec";
+import "teller_basic.spec";
 
 methods {
     function _.balanceOf(address) external => ignoredUintStaticcall() expect(uint256);
