@@ -173,4 +173,17 @@ contract HyperliquidCoreWriterDecoderAndSanitizer {
         // No addresses to extract - deposits go to sender's HyperCore account
         return addressesFound;
     }
+
+    //============================== HYPE BRIDGE ===============================
+
+    /**
+     * @notice Decode and sanitize bridgeHypeToCore call.
+     * @dev Bridges native HYPE from HyperEVM to HyperCore by sending value to HYPE_BRIDGE.
+     *      The target address (0x2222...2222) is validated by the merkle tree.
+     *      Value amount is controlled by the strategist at execution time.
+     */
+    function bridgeHypeToCore() external pure virtual returns (bytes memory addressesFound) {
+        // No addresses to extract — target is validated by merkle leaf.
+        return addressesFound;
+    }
 }

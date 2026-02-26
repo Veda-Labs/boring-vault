@@ -346,10 +346,11 @@ contract HyperliquidCoreWriterIntegration is BaseTestIntegration {
         assertEq(balanceBefore - balanceAfter, 500e6, "Should have bridged 500 USDC");
     }
 
-    /// @notice Test HYPE bridge merkle verification (execution skipped - bridge only accepts raw ETH)
-    /// @dev The HYPE bridge at 0x2222...2222 only has a receive() function.
-    ///      This test verifies the merkle leaf setup is correct.
-    ///      In production, use boringVault.manage() to send raw ETH without calldata.
+    /// @notice Test HYPE bridge merkle verification and decoder function
+    /// @dev The HYPE bridge at 0x2222...2222 is a system precompile on HyperEVM.
+    ///      System precompiles cannot be tested via Forge fork (no EVM bytecode),
+    ///      so this test verifies the merkle leaf setup and decoder integration.
+    ///      Actual bridging works on-chain where the precompile is handled at the protocol level.
     function testBridgeHypeToCore_MerkleSetup() external {
         _setUpHyperEVM();
 
@@ -366,6 +367,12 @@ contract HyperliquidCoreWriterIntegration is BaseTestIntegration {
         // Verify merkle tree was generated correctly
         assertTrue(manageTree.length > 0, "Merkle tree should be generated");
         assertTrue(manageTree[manageTree.length - 1][0] != bytes32(0), "Root should be non-zero");
+
+        // Verify the decoder function works for merkle verification (staticcall path)
+        FullHyperliquidCoreWriterDecoderAndSanitizer decoder =
+            new FullHyperliquidCoreWriterDecoderAndSanitizer();
+        bytes memory addressesFound = decoder.bridgeHypeToCore();
+        assertEq(addressesFound.length, 0, "bridgeHypeToCore should return no addresses");
     }
 
     //============================== LEAF HELPERS ===============================
