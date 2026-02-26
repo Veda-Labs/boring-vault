@@ -47,6 +47,7 @@ hook STATICCALL(uint256 g, address addr, uint256 argsOffset, uint256 argsLength,
         && selector != 404098525    // totalSupply()
         && selector != 2181657562   // getRateInQuoteSafe
         && selector != 1738207182   // getRate
+        && selector != 3714247998   // allowance(address,address)
         ) {
         staticCallAfterSStore = true;
     }

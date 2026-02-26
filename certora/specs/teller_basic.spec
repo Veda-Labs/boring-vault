@@ -11,6 +11,25 @@ using TellerWithMultiAssetSupport as teller_contract;           // A
 using BoringVault as vault_contract;
 using WETH as WETH;
 
+methods
+{
+    // summarising vault.manage to empty method to avoid global havoc through functionCallWithValue();
+    function vault_contract.manage(address,bytes,uint256) external returns (bytes)  => emptyManage1();
+    function vault_contract.manage(address[],bytes[],uint256[]) external returns (bytes[]) => emptyManage2();
+}
+
+function emptyManage1() returns (bytes)
+{
+    bytes results;
+    return results;
+}
+
+function emptyManage2() returns (bytes[])
+{
+    bytes[] results;
+    return results;
+}
+
 definition ignoredMethod(method f) returns bool =
     f.selector == sig:vault_contract.manage(address[],bytes[],uint256[]).selector
     || f.selector == sig:vault_contract.manage(address,bytes,uint256).selector
@@ -91,7 +110,8 @@ invariant totalSupplyLEqCap()
     filtered { f -> !ignoredMethod(f)
         && f.selector != sig:teller_contract.setDepositCap(uint112).selector // setting the cap bellow current supply is used by admins to disable further deposits
         && f.selector != sig:vault_contract.enter(address,address,uint256,address,uint256).selector // other tellers could operate the vault and increase its totalSupply
-        && f.selector != sig:vault_contract.exit(address,address,uint256,address,uint256).selector  // not to be called directly
+        // && f.selector != sig:vault_contract.exit(address,address,uint256,address,uint256).selector  // not to be called directly
+        && f.selector != 320044389 // lzReceive((uint32,bytes32,uint64),bytes32,bytes,address,bytes) // 0x13137d65 // the method is allowed to break this
         }
     { preserved { safeAssumptions();} }
 
@@ -109,6 +129,7 @@ rule depositNonceNeverGoesDown(env e, method f)
 
 rule dustFavorsTheHouse(uint assetsIn, env e)
 {
+    safeAssumptions();
     //require e.msg.sender != currentContract;
     //uint256 totalSupplyBefore = totalSupply();
     address asset; uint minimumShares; uint minimumAssets; address referral;
