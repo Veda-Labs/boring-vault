@@ -3017,6 +3017,10 @@ contract ChainValues {
 
         //OFTs
         values[plume]["stargateUSDC"] = 0x9909fa99b7F7ee7F1c0CBf133f411D43083631E6.toBytes32();
+        //LZ
+        values[plume]["LayerZeroEndPoint"] = 0xC1b15d3B262bEeC0e3565C11C9e0F6134BdaCB36.toBytes32();
+        values[plume]["ZRO"] = address(1).toBytes32();
+
     }
 
     function _addAvalancheValues() private {
