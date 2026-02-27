@@ -21,8 +21,7 @@ contract CreateHyperliquidCoreWriterMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0xDBb925377aA9d66c1a7E33282932c3A8F264B876;
     address public managerAddress = 0x95271861969755d700a2aF8A71E10f0F1FF95ECC;
     address public accountantAddress = 0x71D7aC5a462bE93f2D4Bd53ABD18750C1bD9e5A5;
-    // TODO: Update with actual deployed decoder address before generating final merkle root
-    address public rawDataDecoderAndSanitizer = 0x351C889cA39Af07101bFA22eAb6C47c3C7d8a725;
+    address public rawDataDecoderAndSanitizer = 0x84B6c25e81F7a1EE20538fa4Ff5CCb35822Bb198;
 
     function setUp() external {}
 
@@ -40,7 +39,7 @@ contract CreateHyperliquidCoreWriterMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, hyperEVM, "accountantAddress", accountantAddress);
         setAddress(false, hyperEVM, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](512);
+        ManageLeaf[] memory leafs = new ManageLeaf[](32);
 
         // ========================== Define Allowed Perp Assets ==========================
         // BTC=0, ETH=1 (see HyperliquidAssetIds.sol for full list)
