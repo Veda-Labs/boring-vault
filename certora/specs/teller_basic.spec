@@ -49,6 +49,7 @@ function nonSceneAddress(address sender)
 {
     require sender != teller_contract 
         && sender != vault_contract
+        && sender != accountant_contract
         && sender != WETH;
 
     env e;
