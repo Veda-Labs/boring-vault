@@ -1,4 +1,4 @@
-import "teller_basic.spec";
+import "setup.spec";
 
 methods {
     function _.balanceOf(address) external => ignoredUintStaticcall() expect(uint256);
@@ -6,7 +6,9 @@ methods {
     function _.isAuthorized(address, bytes4) internal => ignoredBoolStaticcall() expect(bool);
 
     function _.getRateInQuoteSafe(address) external => ignoredUintStaticcall() expect(uint256);
-}
+    function _.getRateInQuote(address) external => ignoredUintStaticcall() expect(uint256);
+
+}   
 
 function ignoredBoolStaticcall() returns bool {
     ignoredStaticcall = true;
@@ -49,6 +51,8 @@ hook STATICCALL(uint256 g, address addr, uint256 argsOffset, uint256 argsLength,
         && selector != 2181657562   // getRateInQuoteSafe
         && selector != 1738207182   // getRate
         && selector != 3714247998   // allowance(address,address)
+        && selector != 434397065    // RateProviderMock.getRate(bytes32,bytes32,bytes32,bytes32,bytes32,bytes32,bytes32,bytes32)
+        && selector != sig:ERC20Mock.decimals().selector
         ) {
         staticCallAfterSStore = true;
     }

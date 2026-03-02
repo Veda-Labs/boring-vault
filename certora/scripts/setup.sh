@@ -1,7 +1,7 @@
 
 # Usage: ./setup.sh <letter A|B|C|D|E>
 
-input_file="certora/specs/teller_basic.spec"
+input_file="certora/specs/setup.spec"
 num_lines=9
 
 letter="$1"

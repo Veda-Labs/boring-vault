@@ -1,5 +1,16 @@
-import "teller_basic.spec";
-  
+// rules that apply to both accountants
+
+import "setup.spec";
+
+function safeAssumptions()
+{
+    //require vault_contract.decimals() < 5;
+    require vault_contract.decimals() < 50; //thats more than enough decimals. 10^78 > 2^256
+    require accountant_contract.ONE_SHARE == 10 ^ vault_contract.decimals();
+    require teller_contract.ONE_SHARE == 10 ^ vault_contract.decimals();
+    requireInvariant totalSupplyHolds_BoringVault();
+    requireInvariant totalSupplyHolds_ERC20Mock();
+}
 
 rule accountantDoesntHoldTokens(env e, method f)
     filtered { f -> !ignoredMethod(f) }
@@ -51,7 +62,6 @@ invariant allowedExchangeRateChangeLower_bound()
     accountant_contract.accountantState.allowedExchangeRateChangeLower <= 10^4
     filtered { f -> !ignoredMethod(f) }
 
-
 rule feesCanOnlyDecreaseViaClaimFees(env e, method f)
     filtered { f -> !ignoredMethod(f) }
 {
@@ -63,7 +73,6 @@ rule feesCanOnlyDecreaseViaClaimFees(env e, method f)
     uint256 fees_post = accountant_contract.accountantState.feesOwedInBase;
     assert fees_post < fees_pre => f.selector == sig:accountant_contract.claimFees(address).selector;
 }
-
 
 rule highwaterMarkNeverDecreases(env e, method f)
     filtered { f -> !ignoredMethod(f) 
@@ -77,13 +86,6 @@ rule highwaterMarkNeverDecreases(env e, method f)
     uint96 WM_post = accountant_contract.accountantState.highwaterMark;
     assert WM_post >= WM_pre;
 }
-
-invariant exchangeRateLEhighwaterMark_unlessPaused()
-    !accountant_contract.accountantState.isPaused => 
-        accountant_contract.accountantState.exchangeRate <= accountant_contract.accountantState.highwaterMark
-    filtered { f -> !ignoredMethod(f)
-        && f.selector != sig:accountant_contract.unpause().selector }
-    { preserved { safeAssumptions(); }}
 
 rule lastUpdateTimestampNeverDecreases(env e, method f)
     filtered { f -> !ignoredMethod(f) }

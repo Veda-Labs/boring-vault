@@ -1,66 +1,5 @@
-import "setup/dispatching_BoringVault.spec";
-import "setup/snippet_ERC20_Mock.spec";
-import "MathSummaries.spec";
-
-import "setup/dispatching_AccountantWithRateProviders.spec";    // A, B, D, E
-import "setup/dispatching_TellerWithMultiAssetSupport.spec";    // A
-
-using AccountantWithRateProviders as accountant_contract;       // A, B, D, E
-using TellerWithMultiAssetSupport as teller_contract;           // A
-
-using BoringVault as vault_contract;
-using WETH as WETH;
-
-methods
-{
-    // summarising vault.manage to empty method to avoid global havoc through functionCallWithValue();
-    function vault_contract.manage(address,bytes,uint256) external returns (bytes)  => emptyManage1();
-    function vault_contract.manage(address[],bytes[],uint256[]) external returns (bytes[]) => emptyManage2();
-}
-
-function emptyManage1() returns (bytes)
-{
-    bytes results;
-    return results;
-}
-
-function emptyManage2() returns (bytes[])
-{
-    bytes[] results;
-    return results;
-}
-
-definition ignoredMethod(method f) returns bool =
-    f.selector == sig:vault_contract.manage(address[],bytes[],uint256[]).selector
-    || f.selector == sig:vault_contract.manage(address,bytes,uint256).selector
-    || f.isView;
-
-function safeAssumptions()
-{
-    //require vault_contract.decimals() < 5;
-    require vault_contract.decimals() < 50; //thats more than enough decimals. 10^78 > 2^256
-    require accountant_contract.ONE_SHARE == 10 ^ vault_contract.decimals();
-    require teller_contract.ONE_SHARE == 10 ^ vault_contract.decimals();
-    requireInvariant totalSupplyHolds_BoringVault();
-    requireInvariant totalSupplyHolds_ERC20Mock();
-}
-
-function nonSceneAddress(address sender)
-{
-    require sender != teller_contract 
-        && sender != vault_contract
-        && sender != accountant_contract
-        && sender != WETH;
-
-    env e;
-    bytes4 signature_enter = to_bytes4(sig:vault_contract.enter(address,address,uint256,address,uint256).selector);
-    bytes4 signature_exit = to_bytes4(sig:vault_contract.exit(address,address,uint256,address,uint256).selector);
-    
-    require 
-        !vault_contract.isAuthorized(e, sender, signature_enter)
-        && !vault_contract.isAuthorized(e, sender, signature_exit)
-        ;
-}
+import "setup.spec";
+import "accountant_basic.spec";
 
 // refundDeposit is whitelisted: denied user can still be refunded. E.g. user deposits, then gets denied, then gets refunded.
 // denied users can still withdraw
@@ -168,10 +107,6 @@ rule tellerDoesntHoldTokens(env e, method f)
     assert balanceAfter == balanceBefore;
 }
 
-function userAssets(env e, address asset, address user) returns uint256
-{
-    return asset.balanceOf(e, user);
-}
 
 rule tellerPaused_valuesFrozen(env e, method f)
     filtered { f -> !ignoredMethod(f) &&
@@ -250,15 +185,6 @@ function callMethodWithReceiver(env e, method f, address receiver)
         f(e, args);
     }
 }
-
-// Method that can be called by non-priveleged addresses
-definition isPublicMethod(method f) returns bool = 
-    f.selector == sig:teller_contract.deposit(address,uint256,uint256,address).selector ||
-    f.selector == sig:teller_contract.bulkDeposit(address,uint256,uint256,address).selector ||
-    f.selector == sig:teller_contract.depositWithPermit(address,uint256,uint256,uint256,uint8,bytes32,bytes32,address).selector ||
-    f.selector == sig:teller_contract.withdraw(address,uint256,uint256,address).selector ||
-    f.selector == sig:teller_contract.bulkWithdraw(address,uint256,uint256,address).selector;
-
 
 // This resembles the convertToShares method.
 function convertToShares(storage init, uint256 assets, address asset_contract) returns uint256
