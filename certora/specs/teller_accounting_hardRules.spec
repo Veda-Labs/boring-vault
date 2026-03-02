@@ -163,7 +163,7 @@ invariant sharePriceBoundedLower(env e)
 
 invariant sharePriceMoreThanOneAsset()
     accountant_contract.vestingState.lastSharePrice >= 10^vault_contract.decimals
-    || accountant_contract.downCastOverflow
+    
     filtered 
     { f -> !ignoredMethod(f)
         && (f.contract == teller_contract)  //funds could be moved by methods called on the Vault or on the Asset
@@ -186,7 +186,7 @@ invariant sharePriceMoreThanOneAsset()
 
 invariant totalAssetsCovered(env e)
     accountant_contract.totalAssets(e) <= userAssets(e, ERC20Mock, vault_contract) 
-    || accountant_contract.downCastOverflow
+    
     filtered 
     { f -> !ignoredMethod(f)
         && (f.contract == teller_contract || f.contract == accountant_contract)
@@ -218,7 +218,7 @@ invariant totalAssetsCovered(env e)
 invariant vaultSolvency_1Asset(env e)
     (userAssets(e, ERC20Mock, vault_contract) - accountant_contract.getPendingVestingGains(e)) * teller_contract.ONE_SHARE 
         >= (vault_contract.totalSupply(e)) * (accountant_contract.getRateInQuoteSafe(e, ERC20Mock)) 
-    || accountant_contract.downCastOverflow
+    
 filtered { f -> !ignoredMethod(f)
     && (f.contract == teller_contract || f.contract == accountant_contract)
     && f.selector != sig:teller_contract.refundDeposit(uint256,address,address,uint256,uint256,uint256,uint256,address).selector // can break if the sharesAmount is too low. This can happen since we don't really track the sum of deposits and their shares in publicDepositHistory
@@ -251,7 +251,7 @@ filtered { f -> !ignoredMethod(f)
 invariant exchangeRateEqlastSharePrice()
     accountant_contract.accountantState.exchangeRate == 
         accountant_contract.vestingState.lastSharePrice
-    || accountant_contract.downCastOverflow
+    
     filtered { f -> !ignoredMethod(f) }
     { preserved with (env e2) { 
         requireAllInvariants(e2);
@@ -267,7 +267,7 @@ invariant cumulativeSupplyBounded()
 invariant exchangeRateLEhighwaterMark_unlessPaused()
     (!accountant_contract.accountantState.isPaused => 
         accountant_contract.accountantState.exchangeRate <= accountant_contract.accountantState.highwaterMark)
-    || accountant_contract.downCastOverflow
+    
     filtered { f -> !ignoredMethod(f)
         && f.selector != sig:accountant_contract.unpause().selector 
         //&& f.selector == sig:accountant_contract.postLoss(uint256).selector
@@ -275,7 +275,6 @@ invariant exchangeRateLEhighwaterMark_unlessPaused()
     { preserved with(env e) { 
         safeAssumptions(); 
         requireInvariant exchangeRateEqlastSharePrice();
-        require !accountant_contract.downCastOverflow;
         
         //require accountant_contract.getPendingVestingGains(e) * accountant_contract.ONE_SHARE <= (max_uint96 - accountant_contract.vestingState.lastSharePrice) * vault_contract.totalSupply();
         //require getPendingVestingGains(e) <= vault_contract.totalSupply();
@@ -336,9 +335,7 @@ function requireAllInvariants(env e)
     require accountant_contract.decimals == accountant_contract.base.decimals(e); 
     require accountant_contract.base == ERC20Mock;
 
-    require teller_contract.assetData[ERC20Mock].sharePremium == 0;
-    require accountant_contract.downCastOverflow == false;
-    
+    require teller_contract.assetData[ERC20Mock].sharePremium == 0;    
 }
 
 function requireSmallNumbers_Unsafe(env e)

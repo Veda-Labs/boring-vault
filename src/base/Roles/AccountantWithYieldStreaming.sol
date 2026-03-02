@@ -90,8 +90,6 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
 
     uint256 internal constant RAY = 1e27;
 
-    bool public downCastOverflow = false;
-
     //============================== ERRORS ===============================
 
     error AccountantWithYieldStreaming__UpdateExchangeRateNotSupported();
@@ -194,8 +192,6 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         //update the cumulative supply checkpoint
         supplyObservation.cumulativeSupplyLast = supplyObservation.cumulativeSupply;
 
-        if (yieldAmount > type(uint128).max)
-            downCastOverflow = true;
         //strategists should account for any unvested yield they want, gives more flexibility in posting pnl updates
         vestingState.vestingGains = uint128(yieldAmount);
 
@@ -228,8 +224,6 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         _updateExchangeRate(); //vested gains are moved to totalAssets, only unvested remains in `vestingState.vestingGains`
 
         if (vestingState.vestingGains >= lossAmount) {
-            if (lossAmount > type(uint128).max)
-            downCastOverflow = true;
             //remaining unvested gains absorb the loss
             vestingState.vestingGains -= uint128(lossAmount);
         } else {
@@ -260,8 +254,6 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         
 
         AccountantState storage state = accountantState;
-        if (vestingState.lastSharePrice > type(uint96).max)
-            downCastOverflow = true;
         state.exchangeRate = uint96(vestingState.lastSharePrice);
 
         //update state timestamp
@@ -524,8 +516,6 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         uint64 currentTime = uint64(block.timestamp);
 
         //calculate fees using function inherited from `AccountantWithRateProviders`
-        if (vestingState.lastSharePrice > type(uint96).max)
-            downCastOverflow = true;
         _calculateFeesOwed(
             state, uint96(vestingState.lastSharePrice), state.exchangeRate, currentTotalShares, currentTime
         );
