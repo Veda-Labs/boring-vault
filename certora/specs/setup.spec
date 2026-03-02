@@ -1,12 +1,12 @@
 import "setup/dispatching_BoringVault.spec";
-import "setup/snippet_ERC20_Mock.spec"; // B
+import "setup/snippet_ERC20_Mock.spec";
 import "MathSummaries.spec";
 
-import "setup/dispatching_AccountantWithRateProviders.spec";      // A, B, D, E
-import "setup/dispatching_LayerZeroTellerWithRateLimiting.spec";  // E
+import "setup/dispatching_AccountantWithYieldStreaming.spec";   // C
+import "setup/dispatching_TellerWithYieldStreaming.spec";       // C
 
-using AccountantWithRateProviders as accountant_contract;         // A, B, D, E
-using LayerZeroTellerWithRateLimiting as teller_contract;         // E
+using AccountantWithYieldStreaming as accountant_contract;      // C
+using TellerWithYieldStreaming as teller_contract;              // C
 
 using BoringVault as vault_contract;
 using WETH as WETH;

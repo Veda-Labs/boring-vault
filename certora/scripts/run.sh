@@ -17,11 +17,11 @@ certora/scripts/setup.sh E && certoraRun certora/confs/scenarioE.conf --verify "
 ##  holds except for AccountantWithYeildStreaming
 
 # teller accounting:
-certora/scripts/setup.sh A && certoraRun certora/confs/scenarioA.conf --verify "TellerWithMultiAssetSupport:certora/specs/teller_accounting_easyRules.spec" --msg accounting_easyRules_A
-certora/scripts/setup.sh B && certoraRun certora/confs/scenarioB.conf --verify "TellerWithBuffer:certora/specs/teller_accounting_easyRules.spec" --msg accounting_easyRules_B
+certora/scripts/setup.sh A && certoraRun certora/confs/scenarioA.conf --verify "TellerWithMultiAssetSupport:certora/specs/teller_accounting_easyRules.spec" --msg accounting_easyRules_A # done
+certora/scripts/setup.sh B && certoraRun certora/confs/scenarioB.conf --verify "TellerWithBuffer:certora/specs/teller_accounting_easyRules.spec" --msg accounting_easyRules_B # done
 certora/scripts/setup.sh C && certoraRun certora/confs/scenarioC.conf --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_easyRules.spec" --msg accounting_easyRules_C
-certora/scripts/setup.sh D && certoraRun certora/confs/scenarioD.conf --verify "LayerZeroTeller:certora/specs/teller_accounting_easyRules.spec" --msg accounting_easyRules_D
-certora/scripts/setup.sh E && certoraRun certora/confs/scenarioE.conf --verify "LayerZeroTellerWithRateLimiting:certora/specs/teller_accounting_easyRules.spec" --msg accounting_easyRules_E
+certora/scripts/setup.sh D && certoraRun certora/confs/scenarioD.conf --verify "LayerZeroTeller:certora/specs/teller_accounting_easyRules.spec" --msg accounting_easyRules_D # done
+certora/scripts/setup.sh E && certoraRun certora/confs/scenarioE.conf --verify "LayerZeroTellerWithRateLimiting:certora/specs/teller_accounting_easyRules.spec" --msg accounting_easyRules_E # done
 
 
 ################    DONE
@@ -43,4 +43,4 @@ certora/scripts/setup.sh E && certoraRun certora/confs/scenarioE.conf --verify "
 # certora/scripts/setup.sh C && certoraRun certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --msg accountantWithYieldStreaming_postLoss --rule exchangeRateLEhighwaterMark_unlessPaused_postLoss
 # certora/scripts/setup.sh C && certoraRun certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --msg accountantWithYieldStreaming
 
-# certora/scripts/setup.sh C && certoraRun certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --msg virtualPriceIsCorrect --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20"
+# certora/scripts/setup.sh C && certoraRun certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --msg accountantWithYieldStreaming --prover_args "-destructiveOptimizations twostage -mediumTimeout 20 -lowTimeout 20 -tinyTimeout 20 -depth 20" --rule totalAssetsCovered --rule vaultSolvency_1Asset

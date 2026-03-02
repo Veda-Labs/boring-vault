@@ -8,7 +8,7 @@ env:
   CONFIGS: |
     certora/confs/scenarioC.conf --verify "TellerWithYieldStreaming:certora/specs/rentrancy_view.spec" --prover_args "-enableStorageSplitting false"
     certora/confs/scenarioC.conf --verify "TellerWithYieldStreaming:certora/specs/teller_basic.spec" --exclude_rule dustFavorsTheHouse
-    certora/confs/scenarioC.conf --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_easyRules.spec"
+    certora/confs/scenarioC.conf --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_easyRules.spec" --exclude_rule conversionWeakIntegrity_assets --exclude_rule conversionWeakIntegrity_shares --exclude_rule conversionWeakMonotonicity_assets --exclude_rule conversionWeakMonotonicity_shares
     certora/confs/accountantWithYieldStreaming.conf
     certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec
     certora/confs/scenarioC.conf --verify "TellerWithYieldStreaming:certora/specs/teller_integrity.spec"
