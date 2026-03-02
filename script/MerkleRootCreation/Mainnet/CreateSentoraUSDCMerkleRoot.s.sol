@@ -20,7 +20,7 @@ contract CreateSentoraUSDCMerkleRoot is Script, MerkleTreeHelper {
     //standard
     address public boringVault = 0x9761DDF8e79930b334f1Be1BD93aBE3695061CcA;
     address public rawDataDecoderAndSanitizer = 0x07A291e6280f9eda09BDf4c453FBD149c9D4af7B;
-    address public itbDecoderAndSanitizer = 0x51cDDE815429fb7Bce964601774018eA0Cc119f7;
+    address public itbDecoderAndSanitizer = 0x2D7085602a85aFb417AE1dFcEc09C301FeC8Df36;
     address public managerAddress = 0x38Fe609799ED585e9154c92D1D801B461F538753;
     address public accountantAddress = 0x427a3c091F09fa6212d177060bb7456Abf538b22;
 
@@ -87,35 +87,41 @@ contract CreateSentoraUSDCMerkleRoot is Script, MerkleTreeHelper {
             address aavePYUSDPositionManager = 0xb0463294137E42Ca84dD837bC9135292EC97F270;
             ERC20[] memory aavePYUSDTokensUsed = new ERC20[](1);
             aavePYUSDTokensUsed[0] = getERC20(sourceChain, "PYUSD");
-            _addLeafsForITBPositionManager(leafs, aavePYUSDPositionManager, aavePYUSDTokensUsed, "Aave PYUSD ITB Position Manager");
+            address[] memory aavePYUSDAdditionalExecutors = new address[](0);
+            _addLeafsForITBPositionManager(leafs, aavePYUSDPositionManager, aavePYUSDTokensUsed, "Aave PYUSD ITB Position Manager", aavePYUSDAdditionalExecutors);
         }
         {
             // aave RLUSD
             address aaveRLUSDPositionManager = 0x89dfbb43dd50954a3CCe48b611E4ED231579224e;
             ERC20[] memory aaveRLUSDTokensUsed = new ERC20[](1);
             aaveRLUSDTokensUsed[0] = getERC20(sourceChain, "RLUSD");
-            _addLeafsForITBPositionManager(leafs, aaveRLUSDPositionManager, aaveRLUSDTokensUsed, "Aave RLUSD ITB Position Manager");
+            address[] memory aaveRLUSDAdditionalExecutors = new address[](0);
+            _addLeafsForITBPositionManager(leafs, aaveRLUSDPositionManager, aaveRLUSDTokensUsed, "Aave RLUSD ITB Position Manager", aaveRLUSDAdditionalExecutors);
         }
         {
             // Euler RLUSD
             address eulerRLUSDPositionManager = 0x4D6376DdDD67Af6f9aD40225eC566212F85B5A16;
             ERC20[] memory eulerRLUSDTokensUsed = new ERC20[](1);
             eulerRLUSDTokensUsed[0] = getERC20(sourceChain, "RLUSD");
-            _addLeafsForITBPositionManager(leafs, eulerRLUSDPositionManager, eulerRLUSDTokensUsed, "Euler RLUSD ITB Position Manager");
+            address[] memory eulerRLUSDAdditionalExecutors = new address[](0);
+            _addLeafsForITBPositionManager(leafs, eulerRLUSDPositionManager, eulerRLUSDTokensUsed, "Euler RLUSD ITB Position Manager", eulerRLUSDAdditionalExecutors);
         }
         {
             // Morpho PYUSD
             address morphoPYUSDPositionManager = 0xC5e0E2Bd8B8663c621b5051d863D072295dA9720;
             ERC20[] memory morphoPYUSDTokensUsed = new ERC20[](1);
             morphoPYUSDTokensUsed[0] = getERC20(sourceChain, "PYUSD");
-            _addLeafsForITBPositionManager(leafs, morphoPYUSDPositionManager, morphoPYUSDTokensUsed, "Morpho PYUSD ITB Position Manager");
+            address[] memory morphoPYUSDAdditionalExecutors = new address[](1);
+            morphoPYUSDAdditionalExecutors[0] = 0x49fAEBD1caed2488398E80fBB9D1dfCB8b502bDc;
+            _addLeafsForITBPositionManager(leafs, morphoPYUSDPositionManager, morphoPYUSDTokensUsed, "Morpho PYUSD ITB Position Manager", morphoPYUSDAdditionalExecutors);
         }
         {
             // Euler PYUSD
             address eulerPYUSDPositionManager = 0xba4970b839678168340f823EF8f255832AB18C12;
             ERC20[] memory eulerPYUSDTokensUsed = new ERC20[](1);
             eulerPYUSDTokensUsed[0] = getERC20(sourceChain, "PYUSD");
-            _addLeafsForITBPositionManager(leafs, eulerPYUSDPositionManager, eulerPYUSDTokensUsed, "Euler PYUSD ITB Position Manager");
+            address[] memory eulerPYUSDAdditionalExecutors = new address[](0);
+            _addLeafsForITBPositionManager(leafs, eulerPYUSDPositionManager, eulerPYUSDTokensUsed, "Euler PYUSD ITB Position Manager", eulerPYUSDAdditionalExecutors);
         
         }     
         {
@@ -123,14 +129,16 @@ contract CreateSentoraUSDCMerkleRoot is Script, MerkleTreeHelper {
             address eulerUSDCPositionManager = 0xB134641B80982bEd7cDbb307E56E55ABBC8b3197;
             ERC20[] memory eulerUSDCTokensUsed = new ERC20[](1);
             eulerUSDCTokensUsed[0] = getERC20(sourceChain, "USDC");
-            _addLeafsForITBPositionManager(leafs, eulerUSDCPositionManager, eulerUSDCTokensUsed, "Euler USDC ITB Position Manager");
+            address[] memory eulerUSDCAdditionalExecutors = new address[](0);
+            _addLeafsForITBPositionManager(leafs, eulerUSDCPositionManager, eulerUSDCTokensUsed, "Euler USDC ITB Position Manager", eulerUSDCAdditionalExecutors);
         }
         {
             address curvePYUSD_USDCPositionManager = 0xb11eD12e302815c8C5F12A3a1a93EBD7BD730A21;
             ERC20[] memory curveTokensUsed = new ERC20[](2);
             curveTokensUsed[0] = getERC20(sourceChain, "PYUSD");
             curveTokensUsed[1] = getERC20(sourceChain, "USDC");
-            _addLeafsForITBPositionManager(leafs, curvePYUSD_USDCPositionManager, curveTokensUsed, "Curve PYUSD/USDC ITB Position Manager");
+            address[] memory curvePYUSD_USDCAdditionalExecutors = new address[](0);
+            _addLeafsForITBPositionManager(leafs, curvePYUSD_USDCPositionManager, curveTokensUsed, "Curve PYUSD/USDC ITB Position Manager", curvePYUSD_USDCAdditionalExecutors);
         }
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
@@ -146,7 +154,8 @@ contract CreateSentoraUSDCMerkleRoot is Script, MerkleTreeHelper {
          ManageLeaf[] memory leafs,
          address itbPositionManager,
          ERC20[] memory tokensUsed,
-         string memory itbContractName
+         string memory itbContractName,
+         address[] memory additionalExecutors
      ) internal {
          // acceptOwnership
          leafIndex++;
@@ -202,6 +211,20 @@ contract CreateSentoraUSDCMerkleRoot is Script, MerkleTreeHelper {
                  string.concat("Withdraw all ", tokensUsed[i].symbol(), " from the ", itbContractName, " contract"),
                  itbDecoderAndSanitizer
              );
+         }
+
+         for (uint256 i; i < additionalExecutors.length; ++i) {
+             // AddExecutor
+             leafIndex++;
+             leafs[leafIndex] = ManageLeaf(
+                 itbPositionManager,
+                 false,
+                 "addExecutor(address)",
+                 new address[](1),
+                 string.concat("Add executor to the ", itbContractName, " contract"),
+                 itbDecoderAndSanitizer
+             );
+             leafs[leafIndex].argumentAddresses[0] = additionalExecutors[i];
          }
      }
 }
