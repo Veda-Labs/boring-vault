@@ -209,6 +209,7 @@ contract ArcticArchitectureLens {
         bool deadlinePassed;
         bool noShares;
         bool notEnoughAssetsForWithdraw;
+        uint256 withdrawableAssets;
     }
 
     /**
@@ -233,13 +234,12 @@ contract ArcticArchitectureLens {
 
         if (req.amountOfShares == 0) res.noShares = true;
 
-        uint256 withdrawable;
         if (address(bufferLens) != address(0)) {
-            withdrawable = bufferLens.getInstantlyWithdrawableAmount(teller, ERC20(req.assetOut));
+            res.withdrawableAssets = bufferLens.getInstantlyWithdrawableAmount(teller, ERC20(req.assetOut));
         } else {
-            withdrawable = ERC20(req.assetOut).balanceOf(address(boringVault));
+            res.withdrawableAssets = ERC20(req.assetOut).balanceOf(address(boringVault));
         }
-        if (withdrawable < req.amountOfAssets) {
+        if (res.withdrawableAssets < req.amountOfAssets) {
             res.notEnoughAssetsForWithdraw = true;
         }
     }
@@ -270,6 +270,7 @@ contract ArcticArchitectureLens {
         bool sharesLocked;
         bool notEnoughWithdrawableAssets;
         bool minimumAssetsNotMet;
+        uint256 withdrawableAssets;
     }
 
     /**
@@ -312,10 +313,10 @@ contract ArcticArchitectureLens {
         }
 
         // Calculate the withdrawable amount
-        uint256 withdrawable = bufferLens.getInstantlyWithdrawableAmount(teller, withdrawAsset);
+        res.withdrawableAssets = bufferLens.getInstantlyWithdrawableAmount(teller, withdrawAsset);
 
         // Check if the withdrawable amount is less than the requested assets out
-        if (withdrawable < res.assetsOut) {
+        if (res.withdrawableAssets < res.assetsOut) {
             res.notEnoughWithdrawableAssets = true;
         }
     }
