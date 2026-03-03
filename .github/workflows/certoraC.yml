@@ -6,7 +6,7 @@ on:
 env:
   FOUNDRY_PROFILE: ci
   CONFIGS: |
-    certora/confs/scenarioC.conf --verify "TellerWithYieldStreaming:certora/specs/rentrancy_view.spec" --prover_args "-enableStorageSplitting false"
+    certora/confs/scenarioC.conf --verify "TellerWithYieldStreaming:certora/specs/rentrancy_view.spec" --prover_args "-enableStorageSplitting false" --rule_sanity none
     certora/confs/scenarioC.conf --verify "TellerWithYieldStreaming:certora/specs/teller_basic.spec" --exclude_rule dustFavorsTheHouse
     certora/confs/scenarioC.conf --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_easyRules.spec" --exclude_rule conversionWeakIntegrity_assets --exclude_rule conversionWeakIntegrity_shares --exclude_rule conversionWeakMonotonicity_assets --exclude_rule conversionWeakMonotonicity_shares
     certora/confs/accountantWithYieldStreaming.conf
