@@ -181,9 +181,7 @@ contract OFTBridgeIntegrationTest is Test, MerkleTreeHelper {
             firstHopEndpoint: firstHopEndpoint,
             firstHopTo: getBytes32("arbitrum", "PYUSDOFTAdapter"),
             finalDestEndpoint: finalDestEndpoint,
-            finalDestTo: finalDestTo,
-            amountLD: 100e6,
-            finalAmountLD: 100e6
+            finalDestTo: finalDestTo
         });
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
@@ -224,7 +222,7 @@ contract OFTBridgeIntegrationTest is Test, MerkleTreeHelper {
 
         // Set the final destination parameters as the compose message for the first hop
         hopParam.composeMsg = abi.encode(finalDestParam);
-        
+
         DecoderCustomTypes.MessagingFee memory fee;
         fee.nativeFee = 0.0006e18;
         fee.lzTokenFee = 0;
@@ -261,9 +259,7 @@ contract OFTBridgeIntegrationTest is Test, MerkleTreeHelper {
             firstHopEndpoint: firstHopEndpoint,
             firstHopTo: getBytes32("arbitrum", "PYUSDOFTAdapter"),
             finalDestEndpoint: finalDestEndpoint,
-            finalDestTo: finalDestTo,
-            amountLD: 100e6,
-            finalAmountLD: 100e6
+            finalDestTo: finalDestTo
         });
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);

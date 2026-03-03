@@ -7,7 +7,6 @@ pragma solidity 0.8.21;
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 
 contract OFTDecoderAndSanitizer {
-    error OFTDecoderAndSanitizer__NonZeroMessage();
     error OFTDecoderAndSanitizer__NonZeroOFTCommand();
 
     //============================== OFT ===============================
@@ -27,26 +26,21 @@ contract OFTDecoderAndSanitizer {
             DecoderCustomTypes.SendParam memory finalDestinationParams =
                 abi.decode(_sendParam.composeMsg, (DecoderCustomTypes.SendParam));
 
-            bytes32 amountBytes = bytes32(_sendParam.amountLD);
-            bytes32 finalAmountBytes = bytes32(finalDestinationParams.amountLD);
+            if (finalDestinationParams.oftCmd.length > 0) {
+                revert OFTDecoderAndSanitizer__NonZeroOFTCommand();
+            }
 
-            // Layout (10 addresses):
+            // Layout (6 addresses):
             //   [0]   Packed endpoint IDs: (firstHopEid << 32 | finalDestEid) as address
             //   [1-2] First hop receiver (bytes32 `to`, split upper/lower)
             //   [3-4] Final destination receiver (bytes32 `to`, split upper/lower)
-            //   [5-6] First hop amount (uint256 `amountLD`, split upper/lower)
-            //   [7-8] Final destination amount (uint256 `amountLD`, split upper/lower)
-            //   [9]   Refund address
+            //   [5]   Refund address
             return abi.encodePacked(
                 address(uint160((uint256(_sendParam.dstEid) << 32) | uint256(finalDestinationParams.dstEid))),
                 address(bytes20(bytes16(_sendParam.to))),
                 address(bytes20(bytes16(_sendParam.to << 128))),
                 address(bytes20(bytes16(finalDestinationParams.to))),
                 address(bytes20(bytes16(finalDestinationParams.to << 128))),
-                address(bytes20(bytes16(amountBytes))),
-                address(bytes20(bytes16(amountBytes << 128))),
-                address(bytes20(bytes16(finalAmountBytes))),
-                address(bytes20(bytes16(finalAmountBytes << 128))),
                 _refundAddress
             );
         }
