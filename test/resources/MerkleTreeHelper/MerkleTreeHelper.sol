@@ -8344,6 +8344,60 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "boringVault");
     }
 
+    function _addLayerZeroMultiHopLeafs(
+        ManageLeaf[] memory leafs,
+        ERC20 asset,
+        address oftAdapter,
+        uint32 firstHopEndpoint,
+        bytes32 firstHopTo,
+        uint32 finalDestEndpoint,
+        bytes32 finalDestTo,
+        uint256 amountLD,
+        uint256 finalAmountLD
+    )
+        internal
+    {
+        if (address(asset) != oftAdapter) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                address(asset),
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve LayerZero to spend ", asset.symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = oftAdapter;
+        }
+        unchecked {
+            leafIndex++;
+        }
+
+        bytes32 amountBytes = bytes32(amountLD);
+        bytes32 finalAmountBytes = bytes32(finalAmountLD);
+
+        leafs[leafIndex] = ManageLeaf(
+            oftAdapter,
+            true,
+            "send((uint32,bytes32,uint256,uint256,bytes,bytes,bytes),(uint256,uint256),address)",
+            new address[](10),
+            string.concat("Bridge ", asset.symbol(), " to LayerZero MultiHop endpoint: ", vm.toString(firstHopEndpoint)),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = address(uint160((uint256(firstHopEndpoint) << 32) | uint256(finalDestEndpoint)));
+        leafs[leafIndex].argumentAddresses[1] = address(bytes20(bytes16(firstHopTo)));
+        leafs[leafIndex].argumentAddresses[2] = address(bytes20(bytes16(firstHopTo << 128)));
+        leafs[leafIndex].argumentAddresses[3] = address(bytes20(bytes16(finalDestTo)));
+        leafs[leafIndex].argumentAddresses[4] = address(bytes20(bytes16(finalDestTo << 128)));
+        leafs[leafIndex].argumentAddresses[5] = address(bytes20(bytes16(amountBytes)));
+        leafs[leafIndex].argumentAddresses[6] = address(bytes20(bytes16(amountBytes << 128)));
+        leafs[leafIndex].argumentAddresses[7] = address(bytes20(bytes16(finalAmountBytes)));
+        leafs[leafIndex].argumentAddresses[8] = address(bytes20(bytes16(finalAmountBytes << 128)));
+        leafs[leafIndex].argumentAddresses[9] = getAddress(sourceChain, "boringVault");
+    }
+
     function _addLayerZeroLeafNative(ManageLeaf[] memory leafs, address oftAdapter, uint32 endpoint, bytes32 to)
         internal
     {

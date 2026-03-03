@@ -43,7 +43,7 @@ contract OFTBridgeIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName(mainnet);
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 22238413;
+        uint256 blockNumber = 24575933;
 
         _startFork(rpcKey, blockNumber);
 
@@ -165,14 +165,26 @@ contract OFTBridgeIntegrationTest is Test, MerkleTreeHelper {
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
     }
 
-    function testBridgingToBaseERC20Reverts() external {
-        deal(getAddress(sourceChain, "WEETH"), address(boringVault), 101e18);
+    function testMultiHopBridging() external {
+        deal(getAddress(sourceChain, "PYUSD"), address(boringVault), 101e18);
         deal(getAddress(sourceChain, "boringVault"), 101e18);
 
+        uint32 firstHopEndpoint = 30110; // Arbitrum 
+        uint32 finalDestEndpoint = 30292; // Ink
+        bytes32 finalDestTo = makeAddr("boringVaultRecipient").toBytes32();
+
         ManageLeaf[] memory leafs = new ManageLeaf[](2);
-        _addLayerZeroLeafs(
-            leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "EtherFiOFTAdapter"), layerZeroBaseEndpointId, getBytes32(sourceChain, "boringVault")
-        );
+        _addLayerZeroMultiHopLeafs({
+            leafs: leafs,
+            asset: getERC20(sourceChain, "PYUSD"),
+            oftAdapter: getAddress(sourceChain, "PYUSDOFTAdapter"),
+            firstHopEndpoint: firstHopEndpoint,
+            firstHopTo: getBytes32("arbitrum", "PYUSDOFTAdapter"),
+            finalDestEndpoint: finalDestEndpoint,
+            finalDestTo: finalDestTo,
+            amountLD: 100e6,
+            finalAmountLD: 100e6
+        });
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -185,66 +197,121 @@ contract OFTBridgeIntegrationTest is Test, MerkleTreeHelper {
         bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 
         address[] memory targets = new address[](2);
-        targets[0] = getAddress(sourceChain, "WEETH");
-        targets[1] = getAddress(sourceChain, "EtherFiOFTAdapter");
+        targets[0] = getAddress(sourceChain, "PYUSD");
+        targets[1] = getAddress(sourceChain, "PYUSDOFTAdapter");
 
         bytes[] memory targetData = new bytes[](2);
         targetData[0] = abi.encodeWithSignature(
-            "approve(address,uint256)", getAddress(sourceChain, "EtherFiOFTAdapter"), type(uint256).max
+            "approve(address,uint256)", getAddress(sourceChain, "PYUSDOFTAdapter"), type(uint256).max
         );
-        DecoderCustomTypes.SendParam memory param;
-        param.dstEid = layerZeroBaseEndpointId;
-        param.to = address(boringVault).toBytes32();
-        param.amountLD = 100e18;
-        param.minAmountLD = 99e18;
-        param.extraOptions = hex"0003";
-        param.composeMsg = hex"00";
-        param.oftCmd = hex"";
 
+        // First Hop parameters
+        DecoderCustomTypes.SendParam memory hopParam;
+        hopParam.dstEid = firstHopEndpoint;
+        hopParam.to = getBytes32("arbitrum", "PYUSDOFTAdapter");
+        hopParam.amountLD = 100e6;
+        hopParam.minAmountLD = 99e6;
+        hopParam.extraOptions = hex"";
+        hopParam.oftCmd = hex"";
+
+        // Final destination parameters
+        DecoderCustomTypes.SendParam memory finalDestParam;
+        finalDestParam.dstEid = finalDestEndpoint;
+        finalDestParam.to = finalDestTo;
+        finalDestParam.amountLD = 100e6;
+        finalDestParam.minAmountLD = 99e6;
+        finalDestParam.extraOptions = hex"0003";
+
+        // Set the final destination parameters as the compose message for the first hop
+        hopParam.composeMsg = abi.encode(finalDestParam);
+        
         DecoderCustomTypes.MessagingFee memory fee;
         fee.nativeFee = 0.0006e18;
         fee.lzTokenFee = 0;
 
-        targetData[1] = abi.encodeWithSignature(
-            "send((uint32,bytes32,uint256,uint256,bytes,bytes,bytes),(uint256,uint256),address)",
-            param,
-            fee,
-            boringVault
-        );
         uint256[] memory values = new uint256[](2);
         values[1] = fee.nativeFee;
         address[] memory decodersAndSanitizers = new address[](2);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
 
-        vm.expectRevert(
-            bytes(abi.encodeWithSelector(OFTDecoderAndSanitizer.OFTDecoderAndSanitizer__NonZeroMessage.selector))
-        );
-        manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
-
-        param.composeMsg = hex"";
-        param.oftCmd = hex"00";
-
         targetData[1] = abi.encodeWithSignature(
             "send((uint32,bytes32,uint256,uint256,bytes,bytes,bytes),(uint256,uint256),address)",
-            param,
+            hopParam,
             fee,
             boringVault
         );
 
-        vm.expectRevert(
-            bytes(abi.encodeWithSelector(OFTDecoderAndSanitizer.OFTDecoderAndSanitizer__NonZeroOFTCommand.selector))
-        );
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
+    }
 
-        param.oftCmd = hex"";
+    function testRevertInvalidComposeMsg() external {
+        deal(getAddress(sourceChain, "PYUSD"), address(boringVault), 101e18);
+        deal(getAddress(sourceChain, "boringVault"), 101e18);
+
+        uint32 firstHopEndpoint = 30110; // Arbitrum
+        uint32 finalDestEndpoint = 30292; // Ink
+        bytes32 finalDestTo = makeAddr("boringVaultRecipient").toBytes32();
+
+        ManageLeaf[] memory leafs = new ManageLeaf[](2);
+        _addLayerZeroMultiHopLeafs({
+            leafs: leafs,
+            asset: getERC20(sourceChain, "PYUSD"),
+            oftAdapter: getAddress(sourceChain, "PYUSDOFTAdapter"),
+            firstHopEndpoint: firstHopEndpoint,
+            firstHopTo: getBytes32("arbitrum", "PYUSDOFTAdapter"),
+            finalDestEndpoint: finalDestEndpoint,
+            finalDestTo: finalDestTo,
+            amountLD: 100e6,
+            finalAmountLD: 100e6
+        });
+
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        ManageLeaf[] memory manageLeafs = new ManageLeaf[](2);
+        manageLeafs[0] = leafs[0];
+        manageLeafs[1] = leafs[1];
+
+        bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
+
+        address[] memory targets = new address[](2);
+        targets[0] = getAddress(sourceChain, "PYUSD");
+        targets[1] = getAddress(sourceChain, "PYUSDOFTAdapter");
+
+        bytes[] memory targetData = new bytes[](2);
+        targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "PYUSDOFTAdapter"), type(uint256).max
+        );
+
+        DecoderCustomTypes.SendParam memory hopParam;
+        hopParam.dstEid = firstHopEndpoint;
+        hopParam.to = getBytes32("arbitrum", "PYUSDOFTAdapter");
+        hopParam.amountLD = 100e6;
+        hopParam.minAmountLD = 99e6;
+        hopParam.extraOptions = hex"";
+        hopParam.oftCmd = hex"";
+        // Invalid composeMsg: non-empty but not a valid ABI-encoded SendParam
+        hopParam.composeMsg = hex"deadbeef";
+
+        DecoderCustomTypes.MessagingFee memory fee;
+        fee.nativeFee = 0.0006e18;
+        fee.lzTokenFee = 0;
+
+        uint256[] memory values = new uint256[](2);
+        values[1] = fee.nativeFee;
+        address[] memory decodersAndSanitizers = new address[](2);
+        decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+
         targetData[1] = abi.encodeWithSignature(
             "send((uint32,bytes32,uint256,uint256,bytes,bytes,bytes),(uint256,uint256),address)",
-            param,
+            hopParam,
             fee,
             boringVault
         );
 
+        vm.expectRevert();
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
     }
 
