@@ -7,6 +7,7 @@ pragma solidity 0.8.21;
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 
 contract OFTDecoderAndSanitizer {
+    error OFTDecoderAndSanitizer__NonZeroMessage();
     error OFTDecoderAndSanitizer__NonZeroOFTCommand();
 
     //============================== OFT ===============================
@@ -28,6 +29,11 @@ contract OFTDecoderAndSanitizer {
 
             if (finalDestinationParams.oftCmd.length > 0) {
                 revert OFTDecoderAndSanitizer__NonZeroOFTCommand();
+            }
+
+            // Do not allow more than one compose message.
+            if (finalDestinationParams.composeMsg.length > 0) {
+                revert OFTDecoderAndSanitizer__NonZeroMessage();
             }
 
             // Layout (6 addresses):
