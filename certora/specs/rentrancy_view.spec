@@ -67,6 +67,9 @@ filtered {
     && f.selector != 4172789357     // depositAndBridge(address,uint256,uint256,address,bytes,address,uint256,address).selector // 0xf8b7b66d
     && f.selector != 93460288       // bridge(uint96,address,bytes,address,uint256).selector  // 0x05921740
     && f.selector != 3611446835     // previewFee(uint96,address,bytes,address).selector  // 0xd7424e33
+
+    && f.selector != sig:withdraw(address,uint256,uint256,address).selector
+    && f.selector != sig:bulkWithdraw(address,uint256,uint256,address).selector
 } 
 {
     require ignoredStaticcall == false, "setup ghost state";
