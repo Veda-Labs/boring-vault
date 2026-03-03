@@ -27,8 +27,8 @@ certora/scripts/setup.sh E && certoraRun certora/confs/scenarioE.conf --verify "
 ################    DONE
 
 # accountants:
-certora/scripts/setup.sh A && certoraRun certora/confs/accountantWithRateProviders.conf --msg accountant_base   # done
-certora/scripts/setup.sh C && certoraRun certora/confs/accountantWithYieldStreaming.conf --msg accountant_base  # done
+certora/scripts/setup.sh A && certoraRun certora/confs/accountantWithRateProviders.conf --msg accountant_base_A
+certora/scripts/setup.sh C && certoraRun certora/confs/accountantWithYieldStreaming.conf --msg accountant_base_B
 certora/scripts/setup.sh C && certoraRun certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --msg accountantWithYieldStreaming
 
 # integrity

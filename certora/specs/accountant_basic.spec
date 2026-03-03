@@ -28,10 +28,7 @@ rule accountantDoesntHoldTokens(env e, method f)
 
     uint balanceAfter = asset.balanceOf(e, accountant_contract);
 
-    assert balanceAfter == balanceBefore
-        || f.selector == sig:refundDeposit(uint256,address,address,uint256,uint256,uint256,uint256,address).selector    // can be a recepient of a refund
-        || f.selector == sig:withdraw(address,uint256,uint256,address).selector                                         // can be a recepient of funds during a withdraw or bulkWithdraw
-        || f.selector == sig:bulkWithdraw(address,uint256,uint256,address).selector;
+    assert balanceAfter == balanceBefore;
 
 }
 
