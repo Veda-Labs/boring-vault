@@ -10,7 +10,14 @@ env:
     certora/confs/scenarioC.conf --verify "TellerWithYieldStreaming:certora/specs/teller_basic.spec" --exclude_rule dustFavorsTheHouse
     certora/confs/scenarioC.conf --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_easyRules.spec" --exclude_rule conversionWeakIntegrity_assets --exclude_rule conversionWeakIntegrity_shares --exclude_rule conversionWeakMonotonicity_assets --exclude_rule conversionWeakMonotonicity_shares
     certora/confs/accountantWithYieldStreaming.conf
-    certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec
+    certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --rule assetsMoreThanShares
+    certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --rule sharePriceMoreThanOneAsset
+    certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --rule sharePriceBoundedUpper
+    certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --rule sharePriceBoundedLower
+    certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --rule totalAssetsCovered
+    certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --rule vaultSolvency_1Asset
+    certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --rule virtualPriceIsCorrect
+    certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --rule accountantDecimalsCorrect --rule cumulativeSupplyBounded --rule exchangeRateLEqlastSharePrice --rule exchangeRateLEhighwaterMark_unlessPaused --rule exchangeRateEqlastSharePrice --rule integrityOfVestYield --rule lastVestingUpdateNeverDecreases
     certora/confs/scenarioC.conf --verify "TellerWithYieldStreaming:certora/specs/teller_integrity.spec"
     
 jobs:
