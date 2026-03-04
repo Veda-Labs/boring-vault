@@ -9755,6 +9755,131 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
     }
 
+    function _addYuzuLeafs(ManageLeaf[] memory leafs) internal {
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "USDT0"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat(
+                "Approve yzUSD to spend USDT0"
+            ),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "yzUSD");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "yzUSD"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat(
+                "Approve syzUSD to spend yzUSD"
+            ),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "syzUSD");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "yzUSD"),
+            false,
+            "deposit(uint256,address)",
+            new address[](1),
+            string.concat("mint yzUSD with USDT0"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "yzUSD"),
+            false,
+            "createRedeemOrder(uint256,address,address)",
+            new address[](2),
+            string.concat("request redemption of yzUSD for USDT0"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "yzUSD"),
+            false,
+            "cancelRedeemOrder(uint256)",
+            new address[](0),
+            string.concat("cancel redemption of yzUSD for USDT0"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "yzUSD"),
+            false,
+            "finalizeRedeemOrder(uint256)",
+            new address[](0),
+            string.concat("finalize redemption of yzUSD for USDT0"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "syzUSD"),
+            false,
+            "deposit(uint256,address)",
+            new address[](1),
+            string.concat("stake yzUSD for syzUSD"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "syzUSD"),
+            false,
+            "initiateRedeem(uint256,address,address)",
+            new address[](2),
+            string.concat("initiate unstaking syzUSD for yzUSD"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "syzUSD"),
+            false,
+            "finalizeRedeem(uint256)",
+            new address[](0),
+            string.concat("finalize a ready syzUSD unstaking request"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+    }
+
+
     function _addRoycoRecipeAPOfferLeafs(
         ManageLeaf[] memory leafs,
         address baseAsset,
