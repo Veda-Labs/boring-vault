@@ -131,6 +131,7 @@ import {BoostedUSDCDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Boo
 import {FullResolvDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/FullResolvDecoderAndSanitizer.sol";
 import {FullFluidDexDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/FullFluidDexDecoderAndSanitizer.sol";
 import {P1USDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/P1USDDecoderAndSanitizer.sol";
+import {SentayETHMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentayETHMainnetDecoderAndSanitizer.sol";
 import {GoldenGooseFillerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/FillerDecoderAndSanitizer.sol"; 
 
 import "forge-std/Script.sol";
@@ -162,10 +163,9 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(GoldenGooseFillerDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode("");
-        console.logBytes(constructorArgs);
-        deployer.deployContract("Golden Goose Filler Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        creationCode = type(SentayETHMainnetDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode();
+        deployer.deployContract("SentayETH Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
         
         vm.stopBroadcast();
     }

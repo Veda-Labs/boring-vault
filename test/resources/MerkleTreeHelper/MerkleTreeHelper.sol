@@ -8086,6 +8086,71 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         );
     }
 
+    // ========================================= ITB Position Manager =========================================
+
+    function _addLeafsForITBPositionManager(
+         ManageLeaf[] memory leafs,
+         address itbPositionManager,
+         ERC20[] memory tokensUsed,
+         string memory itbContractName
+     ) internal {
+         // acceptOwnership
+         leafIndex++;
+         leafs[leafIndex] = ManageLeaf(
+             itbPositionManager,
+             false,
+             "acceptOwnership()",
+             new address[](0),
+             string.concat("Accept ownership of the ", itbContractName, " contract"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+         );
+ 
+         // removeExecutor
+         leafIndex++;
+         leafs[leafIndex] = ManageLeaf(
+             itbPositionManager,
+             false,
+             "removeExecutor(address)",
+             new address[](0),
+             string.concat("Remove executor from the ", itbContractName, " contract"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+         );
+ 
+         for (uint256 i; i < tokensUsed.length; ++i) {
+             // Transfer
+             leafIndex++;
+             leafs[leafIndex] = ManageLeaf(
+                 address(tokensUsed[i]),
+                 false,
+                 "transfer(address,uint256)",
+                 new address[](1),
+                 string.concat("Transfer ", tokensUsed[i].symbol(), " to the ", itbContractName, " contract"),
+                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+             );
+             leafs[leafIndex].argumentAddresses[0] = itbPositionManager;
+             // Withdraw
+             leafIndex++;
+             leafs[leafIndex] = ManageLeaf(
+                 itbPositionManager,
+                 false,
+                 "withdraw(address,uint256)",
+                 new address[](0),
+                 string.concat("Withdraw ", tokensUsed[i].symbol(), " from the ", itbContractName, " contract"),
+                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+             );
+             // WithdrawAll
+             leafIndex++;
+             leafs[leafIndex] = ManageLeaf(
+                 itbPositionManager,
+                 false,
+                 "withdrawAll(address)",
+                 new address[](0),
+                 string.concat("Withdraw all ", tokensUsed[i].symbol(), " from the ", itbContractName, " contract"),
+                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+             );
+         }
+     }
+
     // ========================================= Fee Claiming =========================================
     function _addLeafsForFeeClaiming(
         ManageLeaf[] memory leafs,
@@ -10223,6 +10288,54 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             "mintV1(bytes,bytes)",
             new address[](0),
             string.concat("Mint BTCK with payload"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+    }
+
+        // ========================================= BTC.b =========================================
+    function _addBTCbLeafs(ManageLeaf[] memory leafs) internal {
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "LBTC"), //target
+            false,
+            "deposit(uint256)",
+            new address[](0),
+            string.concat("Deposit BTC.b for LBTC payload"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "LBTC"), //target
+            false,
+            "mint(bytes,bytes)",
+            new address[](0),
+            string.concat("Mint LBTC with payload"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "LBTC"), //target
+            false,
+            "redeem(uint256)",
+            new address[](0),
+            string.concat("Redeem LBTC for BTC.b payload"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "BTCb"), //target
+            false,
+            "mintV1(bytes,bytes)",
+            new address[](0),
+            string.concat("Mint BTC.b with payload"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
     }

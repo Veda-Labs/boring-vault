@@ -372,7 +372,7 @@ contract ChainValues {
         values[mainnet]["USD1"] = 0x8d0D000Ee44948FC98c9B98A4FA4921476f08B0d.toBytes32();
         values[mainnet]["USDD"] = 0x4f8e5DE400DE08B164E7421B3EE387f461beCD1A.toBytes32();
         values[mainnet]["sUSDD"] = 0xC5d6A7B61d18AfA11435a889557b068BB9f29930.toBytes32();
-
+        values[mainnet]["BTCb"] = 0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072.toBytes32();
         // Rate providers
         values[mainnet]["WEETH_RATE_PROVIDER"] = 0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee.toBytes32();
         values[mainnet]["ETHX_RATE_PROVIDER"] = 0xAAE054B9b822554dd1D9d1F48f892B4585D3bbf0.toBytes32();
@@ -741,6 +741,13 @@ contract ChainValues {
 
 
         values[mainnet]["lBTC_wBTC_Curve_Pool"] = 0x2f3bC4c27A4437AeCA13dE0e37cdf1028f3706F0.toBytes32();
+
+        values[mainnet]["BTCb_cbBTC_Curve_Pool"] = 0xA7741d3d29a4391a7CA671D00e444342b6a8ad5a.toBytes32();
+        values[mainnet]["BTCb_cbBTC_Curve_Gauge"] = 0x5834B561F0d5b28fa93D2785F37CaC68302B5Aed.toBytes32();
+        values[mainnet]["BTCb_WBTC_Curve_Pool"] = 0xB78AF33f29Cee29403657BDb56cbCcBc1c67769B.toBytes32();
+        values[mainnet]["BTCb_WBTC_Curve_Gauge"] = 0x3247f94273aa3c83Ac6B9F04d263E577E9109Cf4.toBytes32();
+        values[mainnet]["BTCb_LBTC_Curve_Pool"] = 0x3124A8526Ed3E0513158ac6182725bab1f766033.toBytes32();
+        values[mainnet]["BTCb_LBTC_Curve_Gauge"] = 0x2A9d1B9b123Bb92428594661d8bDB201fFC79CC3.toBytes32();
 
         values[mainnet]["WethMkUsdPool"] = 0xc89570207c5BA1B0E3cD372172cCaEFB173DB270.toBytes32();
 
@@ -2639,7 +2646,7 @@ contract ChainValues {
 
         // Ooga Booga
         values[berachain]["OBRouter"] = 0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7.toBytes32();
-        values[berachain]["OBExecutor"] = 0x415744995e9D35A00189C216c37546E9139F5C2c.toBytes32();
+        values[berachain]["OBExecutor"] = 0x27F66bA3fDa600239F48526Bb26A1F8D5700ccf7.toBytes32();
 
         // Royco
         values[berachain]["depositExecutor"] = 0xEC1F64Cd852c65A22bCaA778b2ed76Bc5502645C.toBytes32();
