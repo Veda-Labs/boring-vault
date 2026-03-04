@@ -117,9 +117,9 @@ contract NestBasisPlumeIntegrationTest is Test, MerkleTreeHelper {
         rolesAuthority.setUserRole(address(boringVault), BORING_VAULT_ROLE, true);
 
         // Cache addresses
-        predicateProxy = getAddress(plume, "nBASISPredicateProxy");
+        predicateProxy = getAddress(plume, "nPredicateProxy");
         nBASISTeller = getAddress(plume, "nBASISTeller");
-        nativeUSDC = getERC20(plume, "nativeUSDC");
+        nativeUSDC = getERC20(plume, "USDC");
         pUSD = ERC20(0xdddD73F5Df1F0DC31373357beAC77545dC5A6f3F);
         nBASIS = getERC20(plume, "nBASIS");
     }
