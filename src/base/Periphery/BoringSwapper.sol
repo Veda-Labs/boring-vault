@@ -12,6 +12,8 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {ReentrancyGuard} from "@solmate/utils/ReentrancyGuard.sol";
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
 
+//TODO let's set up a basic test and go from there, that is today's plan/agenda
+
 contract BoringSwapper is Auth {
         
     //EIP 1271
@@ -34,8 +36,6 @@ contract BoringSwapper is Auth {
         ERC20 tokenOut; 
     }
     
-    //again, export to another contract, and critically, these also probably need to be versioned (oof)
-
     struct SwapConfig{
         TokenRoute tokenRoute; 
         uint8 protocolId; 
@@ -51,7 +51,7 @@ contract BoringSwapper is Auth {
     
     /// @notice stores the current version this swapper subscribes to for a specific protocol
     /// @dev defaults to 0, the first version
-    mapping(uint8 protocolId => uint8 version) public versions;
+    mapping(uint8 protocolId => uint256 version) public versions;
 
     AdapterRegistry public adapterRegsitry; 
 
@@ -82,9 +82,10 @@ contract BoringSwapper is Auth {
         uint256 tokenBalanceBefore = swapConfig.tokenRoute.tokenOut.balanceOf(address(this)); 
 
         //if we succeeded, just execute the swap now. 
-        (address target, uint256 amount, bytes memory swapData) = abi.decode(result, (address, uint256, bytes));
+        (address target, uint256 amount) = abi.decode(result, (address, uint256));
+        swapConfig.tokenRoute.tokenIn.transferFrom(address(swapConfig.receiver), address(this), amount); 
         swapConfig.tokenRoute.tokenIn.approve(target, amount); 
-        (success, ) = target.call(swapData); 
+        (success, ) = target.call(swapConfig.swapData); 
         if (!success) revert("bad");
         
         uint256 tokenBalanceDelta = swapConfig.tokenRoute.tokenOut.balanceOf(address(this)) - tokenBalanceBefore; 
@@ -98,15 +99,23 @@ contract BoringSwapper is Auth {
         //send to vault
         swapConfig.tokenRoute.tokenOut.transfer(address(swapConfig.receiver), tokenBalanceDelta); 
     }  
-
-    //TODO add all helpers for adding/removing 
     
     //do we even want this?
     function addApprovedRoute(ERC20 tokenIn, ERC20 tokenOut, uint256 maxPriceImpact) external {
-        bytes32 key = _getRouteId(tokenIn, tokenOut); 
-        priceImpacts[key] = maxPriceImpact;  
+        bytes32 key = _getRouteId(tokenIn, tokenOut);
+        approvedRoutes[key] = true;
+        priceImpacts[key] = maxPriceImpact;
         //TODO add event
     }
+
+    function addApprovedProtocol(uint8 protocolId) external {
+        approvedProtocols[protocolId] = true;  
+        //TODO add event 
+    }
+
+    function addApprovedVersion(uint8 protocolId, uint256 version) external {
+        versions[protocolId] = version; 
+    } 
     
     /// @notice Called by CoW Protocol settlement contract to validate an order
     function isValidSignature(bytes32 _hash, bytes memory)

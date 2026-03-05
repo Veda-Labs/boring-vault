@@ -842,4 +842,24 @@ contract DecoderCustomTypes {
         bytes32 uniquePID; // Unique identifier for the partner
     }
 
+    // === Swapper ===
+
+    enum QuoteAsset {
+        USD,
+        ETH,
+        BTC
+    }
+
+    struct TokenRoute {
+        address tokenIn; 
+        address tokenOut; 
+    }
+
+    struct SwapConfig{
+        TokenRoute tokenRoute; 
+        uint8 protocolId; 
+        uint8 quoteAsset; 
+        bytes swapData; 
+        address receiver; 
+    }
 }

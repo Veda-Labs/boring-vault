@@ -13706,78 +13706,41 @@ function _addTellerLeafsWithReferral(
 
     function _addBoringSwapperLeafs(
         ManageLeaf[] memory leafs,
-        address boringSwapperAddress,
-        address swapperDecoderAddress,
-        address[] memory tokens,
-        SwapKind[] memory kind
+        address partnerSwapperAddress,
+        address[] memory tokens
+        //SwapKind[] memory kind
     ) internal {
-        require(tokens.length == kind.length, "Arrays must be of equal length");
+
         for (uint256 i = 0; i < tokens.length; i++) {
-            // Approval leaf: approve boringSwapper to spend token
-            if (
-                !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][tokens[i]][boringSwapperAddress]
-            ) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                tokens[i],
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve Swapper to spend", ERC20(tokens[i]).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = partnerSwapperAddress;
+            
+            for (uint256 j = 0; j < tokens.length; j++) {
+                if (tokens[i] == tokens[j]) continue; 
                 unchecked {
                     leafIndex++;
                 }
                 leafs[leafIndex] = ManageLeaf(
-                    tokens[i],
+                    partnerSwapperAddress,
                     false,
-                    "approve(address,uint256)",
-                    new address[](1),
-                    string.concat("Approve BoringSwapper to spend ", ERC20(tokens[i]).symbol()),
-                    swapperDecoderAddress
+                    "swap(((address,address),uint8,uint8,bytes,address))",
+                    new address[](3),
+                    string.concat("", ERC20(tokens[i]).symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
                 );
-                leafs[leafIndex].argumentAddresses[0] = boringSwapperAddress;
-                ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][tokens[i]][boringSwapperAddress] = true;
-            }
-
-            for (uint256 j = 0; j < tokens.length; j++) {
-                if (i == j) continue;
-
-                if (
-                    !ownerToBoringSwapperSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokens[i]][tokens[j]]
-                        && kind[j] != SwapKind.Sell
-                ) {
-                    // Add sell swap (i -> j), only if j can be bought
-                    unchecked {
-                        leafIndex++;
-                    }
-                    leafs[leafIndex] = ManageLeaf(
-                        boringSwapperAddress,
-                        false,
-                        "swap((address,address,uint256,uint256,address,address,bytes,bool,uint8,uint256))",
-                        new address[](3),
-                        string.concat("BoringSwapper Swap ", ERC20(tokens[i]).symbol(), " for ", ERC20(tokens[j]).symbol()),
-                        swapperDecoderAddress
-                    );
-                    leafs[leafIndex].argumentAddresses[0] = tokens[i];
-                    leafs[leafIndex].argumentAddresses[1] = tokens[j];
-                    leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
-                    ownerToBoringSwapperSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokens[i]][tokens[j]] = true;
-                }
-
-                if (
-                    kind[i] == SwapKind.BuyAndSell
-                        && !ownerToBoringSwapperSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokens[j]][tokens[i]]
-                ) {
-                    // Add buy swap (j -> i), only if i is BuyAndSell
-                    unchecked {
-                        leafIndex++;
-                    }
-                    leafs[leafIndex] = ManageLeaf(
-                        boringSwapperAddress,
-                        false,
-                        "swap((address,address,uint256,uint256,address,address,bytes,bool,uint8,uint256))",
-                        new address[](3),
-                        string.concat("BoringSwapper Swap ", ERC20(tokens[j]).symbol(), " for ", ERC20(tokens[i]).symbol()),
-                        swapperDecoderAddress
-                    );
-                    leafs[leafIndex].argumentAddresses[0] = tokens[j];
-                    leafs[leafIndex].argumentAddresses[1] = tokens[i];
-                    leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
-                    ownerToBoringSwapperSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokens[j]][tokens[i]] = true;
-                }
+                leafs[leafIndex].argumentAddresses[0] = tokens[j];
+                leafs[leafIndex].argumentAddresses[1] = tokens[i];
+                leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
             }
         }
     }

@@ -4,9 +4,6 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-
 interface IAdapter {
-
-    function swap(bytes calldata swapData) external; 
-
+    function version() external view returns (uint256);
 }
