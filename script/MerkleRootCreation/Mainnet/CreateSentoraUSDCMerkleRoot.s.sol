@@ -43,7 +43,7 @@ contract CreateSentoraUSDCMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "accountantAddress", accountantAddress);
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](128);
+        ManageLeaf[] memory leafs = new ManageLeaf[](256);
         
         // ========================== Fee Claiming ==========================
         ERC20[] memory feeAssets = new ERC20[](1);
@@ -51,8 +51,8 @@ contract CreateSentoraUSDCMerkleRoot is Script, MerkleTreeHelper {
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
         // ========================== 1inch/Odos ==========================
-        address[] memory assets = new address[](4);
-        SwapKind[] memory kind = new SwapKind[](4);
+        address[] memory assets = new address[](6);
+        SwapKind[] memory kind = new SwapKind[](6);
         assets[0] = getAddress(sourceChain, "USDC");
         kind[0] = SwapKind.BuyAndSell;
         assets[1] = getAddress(sourceChain, "USDT");
@@ -61,7 +61,10 @@ contract CreateSentoraUSDCMerkleRoot is Script, MerkleTreeHelper {
         kind[2] = SwapKind.BuyAndSell;
         assets[3] = getAddress(sourceChain, "RLUSD");
         kind[3] = SwapKind.BuyAndSell;
-
+        assets[4] = getAddress(sourceChain, "syrupUSDC");
+        kind[4] = SwapKind.BuyAndSell;
+        assets[5] = getAddress(sourceChain, "syrupUSDT");
+        kind[5] = SwapKind.BuyAndSell;
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
         _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
@@ -148,6 +151,14 @@ contract CreateSentoraUSDCMerkleRoot is Script, MerkleTreeHelper {
             curveTokensUsed[1] = getERC20(sourceChain, "USDC");
             address[] memory curvePYUSD_USDCAdditionalExecutors = new address[](0);
             _addLeafsForITBPositionManager(leafs, curvePYUSD_USDCPositionManager, curveTokensUsed, "Curve PYUSD/USDC ITB Position Manager", curvePYUSD_USDCAdditionalExecutors);
+        }
+        {
+            address eulerSyrupUSDC_RLUSDPositionManager = 0x08d1c957DB3aA98Dc398Fba2E06B9a148Bea58a5;
+            ERC20[] memory eulerTokensUsed = new ERC20[](2);
+            eulerTokensUsed[0] = getERC20(sourceChain, "syrupUSDC");
+            eulerTokensUsed[1] = getERC20(sourceChain, "PYUSD");
+            address[] memory eulerSyrupUSDC_PYUSDAdditionalExecutors = new address[](0);
+            _addLeafsForITBPositionManager(leafs, eulerSyrupUSDC_RLUSDPositionManager, eulerTokensUsed, "Euler Syrup USDC/PYUSD ITB Position Manager", eulerSyrupUSDC_PYUSDAdditionalExecutors);
         }
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
