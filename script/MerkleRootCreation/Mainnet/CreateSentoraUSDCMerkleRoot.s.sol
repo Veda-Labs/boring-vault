@@ -19,7 +19,7 @@ contract CreateSentoraUSDCMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x9761DDF8e79930b334f1Be1BD93aBE3695061CcA;
-    address public rawDataDecoderAndSanitizer = 0x07A291e6280f9eda09BDf4c453FBD149c9D4af7B;
+    address public rawDataDecoderAndSanitizer = 0x5fFc5881EFce9a75e5654FC815EcaD03695EFf36;
     address public itbDecoderAndSanitizer = 0x2D7085602a85aFb417AE1dFcEc09C301FeC8Df36;
     address public managerAddress = 0x38Fe609799ED585e9154c92D1D801B461F538753;
     address public accountantAddress = 0x427a3c091F09fa6212d177060bb7456Abf538b22;
@@ -80,6 +80,15 @@ contract CreateSentoraUSDCMerkleRoot is Script, MerkleTreeHelper {
 
         // bridge USDC to Ink via CCTP
         _addCCTPBridgeLeafs(leafs, cctpInkDomainId);
+
+        // ========================== Syrup ==========================
+
+        {
+            address[] memory syrupTokens = new address[](2);
+            syrupTokens[0] = getAddress(sourceChain, "USDC");
+            syrupTokens[1] = getAddress(sourceChain, "USDT");
+            _addAllSyrupLeafs(leafs, syrupTokens);
+        }
 
         // ========================== Position Manager ==========================
             // aave PYUSD

@@ -10,13 +10,15 @@ import {OdosDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol";
 import {OneInchDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OneInchDecoderAndSanitizer.sol";
 import {CCTPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCTPDecoderAndSanitizer.sol";
+import {SyrupDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SyrupDecoderAndSanitizer.sol";
 
 contract SentoraUSDCMainnetDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
     OFTDecoderAndSanitizer,
     OdosDecoderAndSanitizer,
     OneInchDecoderAndSanitizer,
-    CCTPDecoderAndSanitizer
+    CCTPDecoderAndSanitizer,
+    SyrupDecoderAndSanitizer
 {
     constructor(address _odosRouter)
         OdosDecoderAndSanitizer(_odosRouter)
