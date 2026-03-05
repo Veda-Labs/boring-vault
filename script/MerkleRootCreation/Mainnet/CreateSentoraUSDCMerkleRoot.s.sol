@@ -156,9 +156,9 @@ contract CreateSentoraUSDCMerkleRoot is Script, MerkleTreeHelper {
             address eulerSyrupUSDC_RLUSDPositionManager = 0x08d1c957DB3aA98Dc398Fba2E06B9a148Bea58a5;
             ERC20[] memory eulerTokensUsed = new ERC20[](2);
             eulerTokensUsed[0] = getERC20(sourceChain, "syrupUSDC");
-            eulerTokensUsed[1] = getERC20(sourceChain, "PYUSD");
-            address[] memory eulerSyrupUSDC_PYUSDAdditionalExecutors = new address[](0);
-            _addLeafsForITBPositionManager(leafs, eulerSyrupUSDC_RLUSDPositionManager, eulerTokensUsed, "Euler Syrup USDC/PYUSD ITB Position Manager", eulerSyrupUSDC_PYUSDAdditionalExecutors);
+            eulerTokensUsed[1] = getERC20(sourceChain, "RLUSD");
+            address[] memory eulerSyrupUSDC_RLUSDAdditionalExecutors = new address[](0);
+            _addLeafsForITBPositionManager(leafs, eulerSyrupUSDC_RLUSDPositionManager, eulerTokensUsed, "Euler Syrup USDC/RLUSD ITB Position Manager", eulerSyrupUSDC_RLUSDAdditionalExecutors);
         }
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
