@@ -191,7 +191,7 @@ contract DecoderCustomTypes {
         uint256 guessOffchain; // pass 0 in to skip this variable
         uint256 maxIteration; // every iteration, the diff between guessMin and guessMax will be divided by 2
         uint256 eps; // the max eps between the returned result & the correct result, base 1e18. Normally this number will be set
-            // to 1e15 (1e18/1000 = 0.1%)
+        // to 1e15 (1e18/1000 = 0.1%)
     }
 
     struct SwapData {
@@ -705,5 +705,28 @@ contract DecoderCustomTypes {
         uint256 minOutputAmount;
         // native token refuel amount on the destination chain
         uint256 refuelAmount;
+    }
+
+    // ========================================= Tac Relayer ==================================
+    struct TokenAmount {
+        address evmAddress;
+        uint256 amount;
+    }
+
+    struct NFTAmount {
+        address evmAddress;
+        uint256 tokenId;
+        uint256 amount;
+    }
+
+    struct OutMessageV1 {
+        uint64 shardsKey;
+        string tvmTarget;
+        string tvmPayload;
+        uint256 tvmProtocolFee;
+        uint256 tvmExecutorFee;
+        string[] tvmValidExecutors;
+        TokenAmount[] toBridge;
+        NFTAmount[] toBridgeNFT;
     }
 }

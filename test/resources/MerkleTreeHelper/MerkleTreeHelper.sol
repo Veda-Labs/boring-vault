@@ -13174,6 +13174,34 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         );
     }
 
+    // ========================================= TAC->TVM Relayer =========================================
+    function _addTacToTvmLeafs(ManageLeaf[] memory leafs, address tokenAddress, address crossChainLayer) internal {
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            tokenAddress,
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve ", ERC20(tokenAddress).symbol(), " to TAC CrossChainLayer"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = crossChainLayer;
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            crossChainLayer,
+            true,
+            "sendMessage(uint256,bytes)",
+            new address[](1),
+            string.concat("Bridge ", ERC20(tokenAddress).symbol(), " from EVM to TON TVM via TAC CrossChainLayer"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+    }
+
     // ========================================= JSON FUNCTIONS =========================================
     // TODO this should pass in a bool or something to generate leafs indicating that we want leaf indexes printed.
     bool addLeafIndex = false;
