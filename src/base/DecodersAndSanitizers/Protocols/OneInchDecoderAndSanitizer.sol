@@ -11,19 +11,19 @@ contract OneInchDecoderAndSanitizer {
 
     error OneInchDecoderAndSanitizer__PermitNotSupported();
 
-    //============================== ONEINCH ===============================
+    //============================== ONEINCH V5 ===============================
 
     function swap(
         address executor,
         DecoderCustomTypes.SwapDescription calldata desc,
         bytes calldata permit,
-        bytes calldata
+        bytes calldata /*data*/
     ) external pure returns (bytes memory addressesFound) {
         if (permit.length > 0) revert OneInchDecoderAndSanitizer__PermitNotSupported();
         addressesFound = abi.encodePacked(executor, desc.srcToken, desc.dstToken, desc.srcReceiver, desc.dstReceiver);
     }
 
-    function uniswapV3Swap(uint256, uint256, uint256[] calldata pools)
+    function uniswapV3Swap(uint256 /*amount*/, uint256 /*minReturn*/, uint256[] calldata pools)
         external
         pure
         returns (bytes memory addressesFound)
@@ -31,5 +31,64 @@ contract OneInchDecoderAndSanitizer {
         for (uint256 i; i < pools.length; ++i) {
             addressesFound = abi.encodePacked(addressesFound, uint160(pools[i]));
         }
+    }
+
+    //============================== ONEINCH V6 ===============================
+
+    function swap(
+        address executor,
+        DecoderCustomTypes.SwapDescription calldata desc,
+        bytes calldata /*data*/
+    ) external pure returns (bytes memory addressesFound) {
+        addressesFound = abi.encodePacked(executor, desc.srcToken, desc.dstToken, desc.srcReceiver, desc.dstReceiver);
+    }
+
+    // V6 Address type is uint256 with the address in the lower 160 bits and flags in the upper 96 bits.
+    function unoswap(uint256 token, uint256 /*amount*/, uint256 /*minReturn*/, uint256 dex)
+        external
+        pure
+        returns (bytes memory addressesFound)
+    {
+        addressesFound = abi.encodePacked(address(uint160(token)), address(uint160(dex)));
+    }
+
+    function unoswap2(uint256 token, uint256 /*amount*/, uint256 /*minReturn*/, uint256 dex, uint256 dex2)
+        external
+        pure
+        returns (bytes memory addressesFound)
+    {
+        addressesFound =
+            abi.encodePacked(address(uint160(token)), address(uint160(dex)), address(uint160(dex2)));
+    }
+
+    function unoswap3(uint256 token, uint256 /*amount*/, uint256 /*minReturn*/, uint256 dex, uint256 dex2, uint256 dex3)
+        external
+        pure
+        returns (bytes memory addressesFound)
+    {
+        addressesFound = abi.encodePacked(
+            address(uint160(token)), address(uint160(dex)), address(uint160(dex2)), address(uint160(dex3))
+        );
+    }
+
+    function ethUnoswap(uint256 /*minReturn*/, uint256 dex) external pure returns (bytes memory addressesFound) {
+        addressesFound = abi.encodePacked(address(uint160(dex)));
+    }
+
+    function ethUnoswap2(uint256 /*minReturn*/, uint256 dex, uint256 dex2)
+        external
+        pure
+        returns (bytes memory addressesFound)
+    {
+        addressesFound = abi.encodePacked(address(uint160(dex)), address(uint160(dex2)));
+    }
+
+    function ethUnoswap3(uint256 /*minReturn*/, uint256 dex, uint256 dex2, uint256 dex3)
+        external
+        pure
+        returns (bytes memory addressesFound)
+    {
+        addressesFound =
+            abi.encodePacked(address(uint160(dex)), address(uint160(dex2)), address(uint160(dex3)));
     }
 }

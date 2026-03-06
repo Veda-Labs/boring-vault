@@ -437,6 +437,8 @@ contract ChainValues {
         values[mainnet]["dV3CrvUsd"] = 0x028f7886F3e937f8479efaD64f31B3fE1119857a.toBytes32();
         values[mainnet]["aV3WeETH"] = 0xBdfa7b7893081B35Fb54027489e2Bc7A38275129.toBytes32();
         values[mainnet]["aRLUSD"] = 0xFa82580c16A31D0c1bC632A36F82e83EfEF3Eec0.toBytes32();
+        values[mainnet]["gsmUsdc"] = 0xFeeb6FE430B7523fEF2a38327241eE7153779535.toBytes32();
+        values[mainnet]["gsmUsdt"] = 0x535b2f7C20B9C83d70e519cf9991578eF9816B7B.toBytes32();
 
         // Balancer V2 Addresses
         values[mainnet]["BB_A_USD"] = 0xfeBb0bbf162E64fb9D0dfe186E517d84C395f016.toBytes32();
@@ -924,6 +926,7 @@ contract ChainValues {
 
         // 1Inch
         values[mainnet]["aggregationRouterV5"] = 0x1111111254EEB25477B68fb85Ed929f73A960582.toBytes32();
+        values[mainnet]["aggregationRouterV6"] = 0x111111125421cA6dc452d289314280a0f8842A65.toBytes32();
         values[mainnet]["oneInchExecutor"] = 0x990636ecB3FF04d33D92e970d3d588bF5cD8d086.toBytes32();
         values[mainnet]["wETHweETH5bps"] = 0x7A415B19932c0105c82FDB6b720bb01B0CC2CAe3.toBytes32();
 
@@ -1351,6 +1354,7 @@ contract ChainValues {
         values[mainnet]["USDTOFTAdapter2"] = 0x1F748c76dE468e9D11bd340fA9D5CBADf315dFB0.toBytes32();
         values[mainnet]["SUSDEOFTAdapter"] = 0x211Cc4DD073734dA055fbF44a2b4667d5E5fE5d2.toBytes32();
         values[mainnet]["wstUSROFTAdapter"] = 0xab17c1fE647c37ceb9b96d1c27DD189bf8451978.toBytes32();
+        values[mainnet]["PYUSDOFTAdapter"] = 0xa2C323fE5A74aDffAd2bf3E007E36bb029606444.toBytes32();
 
         // Stargate OFTs
         values[mainnet]["stargateUSDC"] = 0xc026395860Db2d07ee33e05fE50ed7bD583189C7.toBytes32();
@@ -1876,6 +1880,9 @@ contract ChainValues {
         values[arbitrum]["dolomiteMargin"] = 0x6Bd780E7fDf01D77e4d475c821f1e7AE05409072.toBytes32();
         values[arbitrum]["dolomiteDepositWithdrawRouter"] = 0xAdB9D68c613df4AA363B42161E1282117C7B9594.toBytes32();
         values[arbitrum]["dolomiteBorrowProxy"] = 0x38E49A617305101216eC6306e3a18065D14Bf3a7.toBytes32(); //V2
+
+        // OFT
+        values[arbitrum]["PYUSDOFTAdapter"] = 0x3CD2b89C49D130C08f1d683225b2e5DeB63ff876.toBytes32();
     }
 
     function _addOptimismValues() private {
@@ -2955,6 +2962,7 @@ contract ChainValues {
         values[ink]["LayerZeroEndPoint"] = 0xca29f3A6f966Cb2fc0dE625F8f325c0C46dbE958.toBytes32();
         values[ink]["ZRO"] = address(1).toBytes32();
         values[ink]["usdt0OFTAdapter"] = 0x1cB6De532588fCA4a21B7209DE7C456AF8434A65.toBytes32(); 
+        values[ink]["PYUSDOFTAdapter"] = 0x3CD2b89C49D130C08f1d683225b2e5DeB63ff876.toBytes32();
 
         // Balancer
         values[ink]["balancerVault"] = address(1).toBytes32();
