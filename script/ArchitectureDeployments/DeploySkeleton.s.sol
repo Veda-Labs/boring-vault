@@ -29,7 +29,6 @@ import {Deployer} from "src/helper/Deployer.sol";
 import {ArcticArchitectureLens} from "src/helper/ArcticArchitectureLens.sol";
 import {ContractNames} from "resources/ContractNames.sol";
 import {GenericRateProvider} from "src/helper/GenericRateProvider.sol";
-import {DelayedWithdraw} from "src/base/Roles/DelayedWithdraw.sol";
 import {BoringDrone} from "src/base/Drones/BoringDrone.sol";
 import {ChainValues} from "test/resources/ChainValues.sol";
 import {PaymentSplitter} from "src/helper/PaymentSplitter.sol";
@@ -130,7 +129,6 @@ contract DeploySkeletonScript is Script, ChainValues {
     AaveV3BufferLens public aaveV3BufferLens;
     TellerWithYieldStreaming public teller;
     AccountantWithYieldStreaming public accountant;
-    DelayedWithdraw public delayedWithdrawer;
     PaymentSplitter public paymentSplitter;
     BoringOnChainQueue public queue;
     BoringSolver public queueSolver;

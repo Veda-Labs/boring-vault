@@ -22,11 +22,13 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
     address public managerAddress = 0xcf38e37872748E3b66741A42560672A6cef75e9B;
     address public accountantAddress = 0x28634D0c5edC67CF2450E74deA49B90a4FF93dCE;
 
+
     //one offs
     address public pancakeSwapDataDecoderAndSanitizer = 0xac226f3e2677d79c0688A9f6f05B9B4eBBeDdebD;
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
     address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
-
+    //uniswap v4 + btc.bsupplemental decoder and sanitizer
+    address public lombardBtcSupplementalDecoderAndSanitizer = 0xE5FEC15cbb2aC971fC12a6Fa7A2368CF05F9892E;
     function setUp() external {}
 
     /**
@@ -149,6 +151,9 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
             3,
             getAddress(sourceChain, "eBTC_LBTC_WBTC_Curve_Gauge")
         );
+        _addCurveLeafs(leafs, getAddress(sourceChain, "BTCb_cbBTC_Curve_Pool"), 2, getAddress(sourceChain, "BTCb_cbBTC_Curve_Gauge"));
+        _addCurveLeafs(leafs, getAddress(sourceChain, "BTCb_WBTC_Curve_Pool"), 2, getAddress(sourceChain, "BTCb_WBTC_Curve_Gauge"));
+        _addCurveLeafs(leafs, getAddress(sourceChain, "BTCb_LBTC_Curve_Pool"), 2, getAddress(sourceChain, "BTCb_LBTC_Curve_Gauge"));
         _addLeafsForCurveSwapping3Pool(leafs, getAddress(sourceChain, "eBTC_LBTC_WBTC_Curve_Pool"));
 
         // ========================== Convex ==========================
@@ -318,6 +323,28 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
             leafs, getERC20(sourceChain, "LBTC"), getAddress(sourceChain, "LBTCOFTAdapter"), layerZeroCornEndpointId
         );
 
+        // ========================== Uniswap V4 ==========================
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", lombardBtcSupplementalDecoderAndSanitizer);
+        token0 = new address[](3);
+        token1 = new address[](3);
+        address[] memory hooks = new address[](3);
+        token0[0] = getAddress(sourceChain, "LBTC");
+        token1[0] = getAddress(sourceChain, "BTCb");
+        hooks[0] = address(0);
+        token0[1] = getAddress(sourceChain, "cbBTC");
+        token1[1] = getAddress(sourceChain, "BTCb");
+        hooks[1] = address(0);
+        token0[2] = getAddress(sourceChain, "WBTC");
+        token1[2] = getAddress(sourceChain, "BTCb");
+        hooks[2] = address(0);
+        _addUniswapV4Leafs(leafs, token0, token1, hooks);
+        
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+
+        // ========================== BTCb ==========================
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", lombardBtcSupplementalDecoderAndSanitizer);
+        _addBTCbLeafs(leafs);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Verify ==========================
 
