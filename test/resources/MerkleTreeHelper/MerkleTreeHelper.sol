@@ -15759,6 +15759,133 @@ function _addTellerLeafsWithReferral(
         }
     }
 
+    // ========================================= sGHO Staking =========================================
+
+    function _addSGHOLeafs(ManageLeaf[] memory leafs) internal {
+        address stkGHO = getAddress(sourceChain, "stkGHO");
+        address gho = getAddress(sourceChain, "GHO");
+        address boringVault_ = getAddress(sourceChain, "boringVault");
+
+        // Approve GHO for stkGHO
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            gho,
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve stkGHO to spend GHO",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = stkGHO;
+
+        // Stake GHO for sGHO
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            stkGHO,
+            false,
+            "stake(address,uint256)",
+            new address[](1),
+            "Stake GHO into stkGHO",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = boringVault_;
+
+        // Cooldown
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            stkGHO,
+            false,
+            "cooldown()",
+            new address[](0),
+            "Activate stkGHO cooldown",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        // Redeem sGHO for GHO
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            stkGHO,
+            false,
+            "redeem(address,uint256)",
+            new address[](1),
+            "Redeem stkGHO for GHO",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = boringVault_;
+    }
+
+    // ========================================= GHO GSM =========================================
+
+    function _addGHOGSMLeafs(ManageLeaf[] memory leafs, address gsm, ERC20 underlying) internal {
+        address gho = getAddress(sourceChain, "GHO");
+        address boringVault_ = getAddress(sourceChain, "boringVault");
+        string memory underlyingSymbol = underlying.symbol();
+
+        // Approve GHO for GSM
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            gho,
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve GSM to spend GHO",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = gsm;
+
+        // Approve underlying for GSM
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            address(underlying),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve GSM to spend ", underlyingSymbol),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = gsm;
+
+        // buyAsset
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            gsm,
+            false,
+            "buyAsset(uint256,address)",
+            new address[](1),
+            string.concat("Buy ", underlyingSymbol, " from GSM with GHO"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = boringVault_;
+
+        // sellAsset
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            gsm,
+            false,
+            "sellAsset(uint256,address)",
+            new address[](1),
+            string.concat("Sell ", underlyingSymbol, " to GSM for GHO"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = boringVault_;
+    }
+
     function _generateProof(bytes32 leaf, bytes32[][] memory tree) internal pure returns (bytes32[] memory proof) {
         // The length of each proof is the height of the tree - 1.
         uint256 tree_length = tree.length;
