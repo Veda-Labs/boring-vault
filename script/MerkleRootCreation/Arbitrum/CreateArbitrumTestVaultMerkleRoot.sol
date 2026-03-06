@@ -61,7 +61,7 @@ contract ArbitrumMerkleRootScript is Script, MerkleTreeHelper {
     function _addLeafs(ManageLeaf[] memory leafs) internal {
         // native leafs
         _addNativeLeafs(leafs);
-        
+
         // Balancer flashloan leafs
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDC"));
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDT0"));

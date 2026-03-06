@@ -9,7 +9,9 @@ import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
-import {BoringChefDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BoringChefDecoderAndSanitizer.sol";
+import {
+    BoringChefDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/BoringChefDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
@@ -255,12 +257,22 @@ contract MockBoringChef {
         rewards[1] = DecoderCustomTypes.Reward(1, 3, wS, 100);
     }
 
-    function claimRewards(uint256[] calldata /*rewardIds*/ ) external {
+    function claimRewards(
+        uint256[] calldata /*rewardIds*/
+    )
+        external
+    {
         ERC20(beets).transfer(msg.sender, 1e7);
         ERC20(wS).transfer(msg.sender, 10_000e18);
     }
 
-    function claimRewardsOnBehalfOfUser(uint256[] calldata, /*rewardIds*/ address user) external {
+    function claimRewardsOnBehalfOfUser(
+        uint256[] calldata,
+        /*rewardIds*/
+        address user
+    )
+        external
+    {
         ERC20(beets).transfer(user, 2e7);
         ERC20(wS).transfer(user, 20_000e18);
     }

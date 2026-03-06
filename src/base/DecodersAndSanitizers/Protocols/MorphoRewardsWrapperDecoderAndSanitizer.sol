@@ -6,7 +6,10 @@ import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndS
 abstract contract MorphoRewardsWrapperDecoderAndSanitizer is BaseDecoderAndSanitizer {
     //============================== MORPHO REWARDS ===============================
 
-    function depositFor(address user, uint256 /*amount*/ )
+    function depositFor(
+        address user,
+        uint256 /*amount*/
+    )
         external
         pure
         virtual
@@ -15,7 +18,10 @@ abstract contract MorphoRewardsWrapperDecoderAndSanitizer is BaseDecoderAndSanit
         addressesFound = abi.encodePacked(user);
     }
 
-    function withdrawTo(address user, uint256 /*amount*/ )
+    function withdrawTo(
+        address user,
+        uint256 /*amount*/
+    )
         external
         pure
         virtual

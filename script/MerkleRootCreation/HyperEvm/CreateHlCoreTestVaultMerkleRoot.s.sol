@@ -27,7 +27,7 @@ contract CreateHlCoreTestVaultMerkleRootScript is Script, MerkleTreeHelper {
     address public rolesAuthority = 0xf37d11401897FD1114A1B7816BD923264cB11050;
     address public teller = 0x5C0d2f6cF8a237669FB6d07511a1Ff4D9eB819E1;
 
-    address public rawDataDecoderAndSanitizer = 0xF267699929FBe258A3aEdC76c5402f860a629496;
+    address public rawDataDecoderAndSanitizer = 0xD834860459a89e609243f00C6fcb4861B351583f;
     address public user1 = 0xa86b3Bf249478488B4304B50726c7D4689aD6320;
     address public user2 = 0x0307AD25281C99F22A8F3Af9e272fE3968810239;
 
@@ -52,8 +52,55 @@ contract CreateHlCoreTestVaultMerkleRootScript is Script, MerkleTreeHelper {
         feeAssets[0] = getERC20(sourceChain, "USDC");
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
-        _addSendUsdcHyperEvmToCoreLeafs(leafs);
-        _addCoreWriterLeafs(leafs);
+        // ========================== Define Allowed Assets for limit order ==========================
+        // BTC=0, ETH=1 (see HyperliquidAssetIds.sol for full list)
+        uint32[] memory perpAssets = new uint32[](8);
+        perpAssets[0] = 0; // BTC
+        perpAssets[1] = 1; // ETH
+        perpAssets[2] = 5; // SOL
+        perpAssets[3] = 159; // HYPE
+        perpAssets[4] = 10197; // SPOT BTC
+        perpAssets[5] = 10221; // SPOT ETH
+        perpAssets[6] = 10254; // SPOT SOL
+        perpAssets[7] = 10150; // SPOT HYPE
+
+        // ========================== Define Allowed Recipients ==========================
+        address[] memory spotSendRecipients = new address[](1);
+        spotSendRecipients[0] = boringVault; // Allow sending back to self
+
+        // ========================== Define Allowed Spot Tokens ==========================
+        // USDC=0, UBTC=197, UETH=221 (for spot sends on HyperCore)
+        uint64[] memory spotTokens = new uint64[](3);
+        spotTokens[0] = 0; // USDC
+        spotTokens[1] = 150; // HYPE
+        spotTokens[2] = 107; // HYPE
+
+        // ========================== Define Allowed Vaults ==========================
+        address[] memory vaults = new address[](0); // No vault transfers by default
+
+        // ========================== Define Allowed Validators ==========================
+        address[] memory validators = new address[](0); // No staking by default
+
+        // ========================== CoreWriter Leafs ==========================
+        _addAllCoreWriterLeafs(leafs, perpAssets, spotSendRecipients, spotTokens, vaults, validators);
+
+        // ========================== USDC Bridging (HyperEVM -> HyperCore) ==========================
+        // Bridge native USDC from HyperEVM to HyperCore via CoreDepositWallet
+        _addCoreWriterUsdcDepositLeafs(leafs);
+
+        // ========================== Token Bridging (HyperCore -> HyperEVM) ==========================
+        // Allow bridging tokens back from HyperCore to the vault on HyperEVM
+        address[] memory bridgeDestinations = new address[](1);
+        bridgeDestinations[0] = boringVault;
+        address[] memory bridgeSubAccounts = new address[](1);
+        bridgeSubAccounts[0] = address(0); // Main account
+        _addCoreWriterSendAssetLeafs(leafs, bridgeDestinations, bridgeSubAccounts);
+
+        // ========================== Add API Wallets ==============================
+
+        address[] memory apiWallets = new address[](1);
+        apiWallets[0] = 0x0307AD25281C99F22A8F3Af9e272fE3968810239;
+        _addCoreWriterAddApiWalletLeafs(leafs, apiWallets);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
         string memory filePath = "./leafs/HyperEvm/HlCoreTestVaultStrategyLeafs.json";

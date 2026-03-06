@@ -5,7 +5,14 @@ import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecode
 
 abstract contract WeETHDecoderAndSanitizer is BaseDecoderAndSanitizer {
     //add the registry to check for whitelisted assets?
-    function deposit(address tokenIn, uint256, /*amountIn*/ uint256, /*minAmountOut*/ address referral)
+    function deposit(
+        address tokenIn,
+        uint256,
+        /*amountIn*/
+        uint256,
+        /*minAmountOut*/
+        address referral
+    )
         external
         pure
         virtual

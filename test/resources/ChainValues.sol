@@ -231,7 +231,16 @@ contract ChainValues {
         values[hyperevm]["dev0Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
         values[hyperevm]["dev1Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
         values[hyperevm]["balancerVault"] = 0xbA1333333333a1BA1108E8412f11850A5C319bA9.toBytes32();
-        values[hyperevm]["CoreWriter"] = 0x3333333333333333333333333333333333333333.toBytes32();
+        // Hyperliquid CoreWriter - sends transactions to HyperCore
+        values[hyperevm]["coreWriter"] = 0x3333333333333333333333333333333333333333.toBytes32();
+        // HYPE Bridge - send native ETH to bridge HYPE to HyperCore
+        values[hyperevm]["hypeBridge"] = 0x2222222222222222222222222222222222222222.toBytes32();
+
+        // Native USDC on HyperEVM (Circle)
+        values[hyperevm]["USDC"] = 0xb88339CB7199b77E23DB6E890353E22632Ba630f.toBytes32();
+        // CoreDepositWallet for bridging native USDC to HyperCore (from spotMeta API)
+        // Use: approve USDC to CoreDepositWallet, then call deposit(amount)
+        values[hyperevm]["coreDepositWallet"] = 0x6B9E773128f453f5c2C60935Ee2DE2CBc5390A24.toBytes32();
 
         // tokens
         values[hyperevm]["USDT0"] = 0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb.toBytes32();
@@ -245,9 +254,6 @@ contract ChainValues {
 
         // Bunjee
         values[hyperevm]["BunjeeInbox"] = 0x7ad979C6b0C9924F79ea571280071595ba13D002.toBytes32();
-
-        // CCTP
-        values[hyperevm]["UsdcCoreDepositWallet"] = 0x6B9E773128f453f5c2C60935Ee2DE2CBc5390A24.toBytes32();
     }
 
     function _addMainnetValues() private {

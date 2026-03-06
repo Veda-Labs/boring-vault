@@ -84,7 +84,14 @@ abstract contract VelodromeDecoderAndSanitizer is BaseDecoderAndSanitizer {
         addressesFound = abi.encodePacked(params.recipient, owner);
     }
 
-    function burn(uint256 /*tokenId*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function burn(
+        uint256 /*tokenId*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         // positionManager.burn(tokenId) will verify that the tokenId has no liquidity, and no tokens owed.
         // Nothing to sanitize or return
         return addressesFound;
@@ -102,7 +109,11 @@ abstract contract VelodromeDecoderAndSanitizer is BaseDecoderAndSanitizer {
         uint256, /*amountBMin*/
         address to,
         uint256 /*deadline*/
-    ) external pure returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        returns (bytes memory addressesFound)
+    {
         // Nothing to sanitize
         // Return addresses found
         addressesFound = abi.encodePacked(tokenA, tokenB, to);
@@ -117,7 +128,11 @@ abstract contract VelodromeDecoderAndSanitizer is BaseDecoderAndSanitizer {
         uint256, /*amountBMin*/
         address to,
         uint256 /*deadline*/
-    ) external pure returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        returns (bytes memory addressesFound)
+    {
         // Nothing to sanitize
         // Return addresses found
         addressesFound = abi.encodePacked(tokenA, tokenB, to);
@@ -125,18 +140,39 @@ abstract contract VelodromeDecoderAndSanitizer is BaseDecoderAndSanitizer {
 
     //============================== VELODROME V2/V3 GAUGE ===============================
 
-    function deposit(uint256 /*tokenId_or_amount*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function deposit(
+        uint256 /*tokenId_or_amount*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         // Nothing to sanitize or return
         return addressesFound;
     }
 
-    function withdraw(uint256 /*tokenId_or_amount*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function withdraw(
+        uint256 /*tokenId_or_amount*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         // Nothing to sanitize or return
         return addressesFound;
     }
 
     // Only callable on V3 gauge
-    function getReward(uint256 /*tokenId*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function getReward(
+        uint256 /*tokenId*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         // Nothing to sanitize or return
         return addressesFound;
     }

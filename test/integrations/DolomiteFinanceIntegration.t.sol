@@ -468,13 +468,11 @@ contract DolomiteFinanceIntegrationTest is Test, MerkleTreeHelper {
         targets[2] = getAddress(sourceChain, "dolomiteBorrowProxy");
         targets[3] = getAddress(sourceChain, "dolomiteDepositWithdrawRouter");
 
-        uint256 marketId = IDolomiteMargin(getAddress(sourceChain, "dolomiteMargin")).getMarketIdByTokenAddress(
-            getAddress(sourceChain, "WEETH")
-        );
+        uint256 marketId = IDolomiteMargin(getAddress(sourceChain, "dolomiteMargin"))
+            .getMarketIdByTokenAddress(getAddress(sourceChain, "WEETH"));
 
-        uint256 marketIdBorrow = IDolomiteMargin(getAddress(sourceChain, "dolomiteMargin")).getMarketIdByTokenAddress(
-            getAddress(sourceChain, "WETH")
-        );
+        uint256 marketIdBorrow = IDolomiteMargin(getAddress(sourceChain, "dolomiteMargin"))
+            .getMarketIdByTokenAddress(getAddress(sourceChain, "WETH"));
 
         bytes[] memory targetData = new bytes[](4);
         targetData[0] = abi.encodeWithSignature(

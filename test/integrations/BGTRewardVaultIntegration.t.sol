@@ -3,18 +3,20 @@ pragma solidity 0.8.21;
 
 import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {BGTRewardVaultDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/BGTRewardVaultDecoderAndSanitizer.sol";
+import {
+    BGTRewardVaultDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/BGTRewardVaultDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
 import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol";
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
 contract FullBGTRewardVaultDecoderAndSanitizer is BGTRewardVaultDecoderAndSanitizer {
-//function deposit(uint256, address receiver) external pure override(ERC4626DecoderAndSanitizer, CurveDecoderAndSanitizer) returns (bytes memory addressesFound) {
-//    addressesFound = abi.encodePacked(receiver);
-//}
-}
+    //function deposit(uint256, address receiver) external pure override(ERC4626DecoderAndSanitizer, CurveDecoderAndSanitizer) returns (bytes memory addressesFound) {
+    //    addressesFound = abi.encodePacked(receiver);
+    //}
+
+    }
 
 contract BGTRewardVault is BaseTestIntegration {
     address WBERA_HONEY_lp = 0x2c4a603A2aA5596287A06886862dc29d56DbC354;
@@ -189,8 +191,9 @@ contract BGTRewardVault is BaseTestIntegration {
         tx_.targets[0] = getAddress(sourceChain, "WBERA_HONEY_reward_vault"); //delegateWithdraw
 
         //targetDatas
-        tx_.targetData[0] =
-            abi.encodeWithSignature("delegateWithdraw(address,uint256)", getAddress(sourceChain, "dev1Address"), 100e18);
+        tx_.targetData[0] = abi.encodeWithSignature(
+            "delegateWithdraw(address,uint256)", getAddress(sourceChain, "dev1Address"), 100e18
+        );
 
         //decoders
         tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;

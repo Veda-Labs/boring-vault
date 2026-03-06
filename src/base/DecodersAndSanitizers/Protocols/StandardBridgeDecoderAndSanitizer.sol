@@ -8,7 +8,12 @@ abstract contract StandardBridgeDecoderAndSanitizer is BaseDecoderAndSanitizer {
 
     /// @notice Example TX https://etherscan.io/tx/0x0b1cc213286c328e3fb483cfef9342aee51409b67ee5af1dc409e37273710f9f
     /// @notice Eample TX https://basescan.org/tx/0x7805ac08f38bec2d98edafc2e6f9571271a76b5ede3928f96d3edbc459d0ea4d
-    function bridgeETHTo(address _to, uint32, /*_minGasLimit*/ bytes calldata /*_extraData*/ )
+    function bridgeETHTo(
+        address _to,
+        uint32,
+        /*_minGasLimit*/
+        bytes calldata /*_extraData*/
+    )
         external
         pure
         virtual
@@ -25,7 +30,12 @@ abstract contract StandardBridgeDecoderAndSanitizer is BaseDecoderAndSanitizer {
         uint256, /*_amount*/
         uint32, /*_minGasLimit*/
         bytes calldata /*_extraData*/
-    ) external pure virtual returns (bytes memory sensitiveArguments) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory sensitiveArguments)
+    {
         // Extract sensitive arguments.
         sensitiveArguments = abi.encodePacked(_localToken, _remoteToken, _to);
     }

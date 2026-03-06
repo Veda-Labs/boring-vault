@@ -10,7 +10,11 @@ abstract contract EigenLayerLSTStakingDecoderAndSanitizer is BaseDecoderAndSanit
 
     //============================== EIGEN LAYER ===============================
 
-    function depositIntoStrategy(address strategy, address token, uint256 /*amount*/ )
+    function depositIntoStrategy(
+        address strategy,
+        address token,
+        uint256 /*amount*/
+    )
         external
         pure
         virtual
@@ -40,7 +44,9 @@ abstract contract EigenLayerLSTStakingDecoderAndSanitizer is BaseDecoderAndSanit
         bool[] calldata receiveAsTokens
     ) external pure virtual returns (bytes memory addressesFound) {
         for (uint256 i = 0; i < withdrawals.length; i++) {
-            if (!receiveAsTokens[i]) revert EigenLayerLSTStakingDecoderAndSanitizer__CanOnlyReceiveAsTokens();
+            if (!receiveAsTokens[i]) {
+                revert EigenLayerLSTStakingDecoderAndSanitizer__CanOnlyReceiveAsTokens();
+            }
 
             addressesFound = abi.encodePacked(
                 addressesFound, withdrawals[i].staker, withdrawals[i].delegatedTo, withdrawals[i].withdrawer
@@ -61,7 +67,9 @@ abstract contract EigenLayerLSTStakingDecoderAndSanitizer is BaseDecoderAndSanit
         bool[] calldata receiveAsTokens
     ) external pure virtual returns (bytes memory addressesFound) {
         for (uint256 i = 0; i < withdrawals.length; i++) {
-            if (!receiveAsTokens[i]) revert EigenLayerLSTStakingDecoderAndSanitizer__CanOnlyReceiveAsTokens();
+            if (!receiveAsTokens[i]) {
+                revert EigenLayerLSTStakingDecoderAndSanitizer__CanOnlyReceiveAsTokens();
+            }
 
             addressesFound = abi.encodePacked(
                 addressesFound, withdrawals[i].staker, withdrawals[i].delegatedTo, withdrawals[i].withdrawer
@@ -79,7 +87,11 @@ abstract contract EigenLayerLSTStakingDecoderAndSanitizer is BaseDecoderAndSanit
         address operator,
         DecoderCustomTypes.SignatureWithExpiry calldata, /*approverSignatureAndExpiry*/
         bytes32 /*approverSalt*/
-    ) external pure returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(operator);
     }
 
@@ -95,7 +107,11 @@ abstract contract EigenLayerLSTStakingDecoderAndSanitizer is BaseDecoderAndSanit
      * @notice We intentionally do not report claim.earnerLeaf.earner, and claim.tokenLeaves[i].token
      *         These addresses are not important for the security of the call.
      */
-    function processClaim(DecoderCustomTypes.RewardsMerkleClaim calldata, /*claim*/ address recipient)
+    function processClaim(
+        DecoderCustomTypes.RewardsMerkleClaim calldata,
+        /*claim*/
+        address recipient
+    )
         external
         pure
         returns (bytes memory addressesFound)

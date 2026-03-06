@@ -23,7 +23,12 @@ abstract contract AmbientDecoderAndSanitizer is BaseDecoderAndSanitizer {
         uint128, /*limitPrice*/
         uint128, /*minOut*/
         uint8 /*reserveFlags*/
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(base, quote);
     }
 

@@ -6,7 +6,10 @@ import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecode
 abstract contract SymbioticVaultDecoderAndSanitizer is BaseDecoderAndSanitizer {
     //============================== SYMBIOTIC ===============================
 
-    function deposit(address onBehalfOf, uint256 /*amount*/ )
+    function deposit(
+        address onBehalfOf,
+        uint256 /*amount*/
+    )
         external
         pure
         virtual
@@ -15,7 +18,10 @@ abstract contract SymbioticVaultDecoderAndSanitizer is BaseDecoderAndSanitizer {
         addressesFound = abi.encodePacked(onBehalfOf);
     }
 
-    function withdraw(address claimer, uint256 /*amount*/ )
+    function withdraw(
+        address claimer,
+        uint256 /*amount*/
+    )
         external
         pure
         virtual
@@ -25,7 +31,12 @@ abstract contract SymbioticVaultDecoderAndSanitizer is BaseDecoderAndSanitizer {
     }
 
     //  Pulled from https://github.com/symbioticfi/rewards/blob/69bd269e53462c35093f40b16e24727abd110e9f/src/contracts/defaultStakerRewards/DefaultStakerRewards.sol#L232
-    function claimRewards(address recipient, address, /*token*/ bytes calldata /*data*/ )
+    function claimRewards(
+        address recipient,
+        address,
+        /*token*/
+        bytes calldata /*data*/
+    )
         external
         pure
         virtual
@@ -35,11 +46,22 @@ abstract contract SymbioticVaultDecoderAndSanitizer is BaseDecoderAndSanitizer {
         addressesFound = abi.encodePacked(recipient);
     }
 
-    function claim(address recipient, uint256 /*epoch*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function claim(
+        address recipient,
+        uint256 /*epoch*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(recipient);
     }
 
-    function claimBatch(address recipient, uint256[] calldata /*epoch*/ )
+    function claimBatch(
+        address recipient,
+        uint256[] calldata /*epoch*/
+    )
         external
         pure
         virtual

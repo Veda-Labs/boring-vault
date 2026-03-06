@@ -6,7 +6,10 @@ import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndS
 abstract contract CompoundV3DecoderAndSanitizer is BaseDecoderAndSanitizer {
     //============================== CompoundV3 ===============================
 
-    function supply(address asset, uint256 /*amount*/ )
+    function supply(
+        address asset,
+        uint256 /*amount*/
+    )
         external
         pure
         virtual
@@ -16,7 +19,10 @@ abstract contract CompoundV3DecoderAndSanitizer is BaseDecoderAndSanitizer {
         sensitiveArguments = abi.encodePacked(asset);
     }
 
-    function withdraw(address asset, uint256 /*amount*/ )
+    function withdraw(
+        address asset,
+        uint256 /*amount*/
+    )
         external
         pure
         virtual
@@ -26,7 +32,11 @@ abstract contract CompoundV3DecoderAndSanitizer is BaseDecoderAndSanitizer {
         sensitiveArguments = abi.encodePacked(asset);
     }
 
-    function claim(address comet, address src, bool /*shouldAccrue*/ )
+    function claim(
+        address comet,
+        address src,
+        bool /*shouldAccrue*/
+    )
         external
         pure
         virtual

@@ -8,7 +8,12 @@ abstract contract KarakDecoderAndSanitizer is BaseDecoderAndSanitizer {
 
     //============================== KARAK ===============================
 
-    function deposit(address vault, uint256, /*amount*/ uint256 /*minOut*/ )
+    function deposit(
+        address vault,
+        uint256,
+        /*amount*/
+        uint256 /*minOut*/
+    )
         external
         pure
         virtual
@@ -17,7 +22,10 @@ abstract contract KarakDecoderAndSanitizer is BaseDecoderAndSanitizer {
         addressesFound = abi.encodePacked(vault);
     }
 
-    function gimmieShares(address vault, uint256 /*shares*/ )
+    function gimmieShares(
+        address vault,
+        uint256 /*shares*/
+    )
         external
         pure
         virtual
@@ -26,7 +34,10 @@ abstract contract KarakDecoderAndSanitizer is BaseDecoderAndSanitizer {
         addressesFound = abi.encodePacked(vault);
     }
 
-    function returnShares(address vault, uint256 /*shares*/ )
+    function returnShares(
+        address vault,
+        uint256 /*shares*/
+    )
         external
         pure
         virtual

@@ -385,10 +385,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
         // Share lock period is not set, so user can submit withdraw request immediately.
         AtomicQueue.AtomicRequest memory req = AtomicQueue.AtomicRequest({
-            deadline: uint64(block.timestamp + 1 days),
-            atomicPrice: 1e18,
-            offerAmount: uint96(shares),
-            inSolve: false
+            deadline: uint64(block.timestamp + 1 days), atomicPrice: 1e18, offerAmount: uint96(shares), inSolve: false
         });
         boringVault.approve(address(atomicQueue), shares);
         atomicQueue.updateAtomicRequest(boringVault, WETH, req);

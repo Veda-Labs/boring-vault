@@ -6,7 +6,12 @@ import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndS
 abstract contract BeraETHDecoderAndSanitizer is BaseDecoderAndSanitizer {
     //============================== rberaETH ===============================
 
-    function depositAndWrap(address WETH, uint256, /*amount*/ uint256 /*minAmountOut*/ )
+    function depositAndWrap(
+        address WETH,
+        uint256,
+        /*amount*/
+        uint256 /*minAmountOut*/
+    )
         external
         pure
         virtual
@@ -22,7 +27,14 @@ abstract contract BeraETHDecoderAndSanitizer is BaseDecoderAndSanitizer {
 
     //============================== beraETH ===============================
 
-    function unwrap(uint256 /*amount*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function unwrap(
+        uint256 /*amount*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 }

@@ -16,12 +16,7 @@ abstract contract CurveDecoderAndSanitizer is BaseDecoderAndSanitizer {
         return addressesFound;
     }
 
-    function remove_liquidity(uint256, uint256[] calldata)
-        external
-        pure
-        virtual
-        returns (bytes memory addressesFound)
-    {
+    function remove_liquidity(uint256, uint256[] calldata) external pure virtual returns (bytes memory addressesFound) {
         // Nothing to sanitize or return
         return addressesFound;
     }

@@ -19,7 +19,12 @@ abstract contract DvStETHDecoderAndSanitizer is BaseDecoderAndSanitizer {
         uint256, /*minLpAmount*/
         uint256, /*deadline*/
         uint256 /*referralCode*/
-    ) external view virtual returns (bytes memory addressesFound) {
+    )
+        external
+        view
+        virtual
+        returns (bytes memory addressesFound)
+    {
         bool nonZero = false;
         for (uint256 i = 0; i < amounts.length; i++) {
             if (amounts[i] == 0) continue;
@@ -40,7 +45,12 @@ abstract contract DvStETHDecoderAndSanitizer is BaseDecoderAndSanitizer {
         uint256, /*deadline*/
         uint256, /*requestDeadline*/
         bool /*closePrevious*/
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(to);
     }
 
@@ -48,7 +58,11 @@ abstract contract DvStETHDecoderAndSanitizer is BaseDecoderAndSanitizer {
         return addressesFound;
     }
 
-    function emergencyWithdraw(uint256[] memory, /*minAmounts*/ uint256 /*deadline*/ )
+    function emergencyWithdraw(
+        uint256[] memory,
+        /*minAmounts*/
+        uint256 /*deadline*/
+    )
         external
         pure
         virtual

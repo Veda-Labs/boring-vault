@@ -13143,20 +13143,434 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "Bridge2");
     }
 
-    // ========================================= HyperEvm CoreWriter =========================================
-    function _addCoreWriterLeafs(ManageLeaf[] memory leafs) internal {
+    // ========================================= Hyperliquid CoreWriter =========================================
+
+    /**
+     * @notice Add leafs for perp trading with asset ID validation.
+     * @dev Action ID 1: placeLimitOrder, Action ID 10: cancelOrderByOid, Action ID 11: cancelOrderByCloid
+     *      Uses sendRawAction(bytes) since CoreWriter only exposes that function.
+     * @param perpAssets Array of allowed perp asset IDs (e.g., 0 for BTC, 1 for ETH)
+     */
+    function _addCoreWriterLimitOrderLeafs(ManageLeaf[] memory leafs, uint32[] memory perpAssets) internal {
+        // Action IDs as pseudo-addresses
+        address actionLimitOrder = address(uint160(1)); // ACTION_LIMIT_ORDER
+        address actionCancelByOid = address(uint160(10)); // ACTION_CANCEL_BY_OID
+        address actionCancelByCloid = address(uint160(11)); // ACTION_CANCEL_BY_CLOID
+
+        for (uint256 i; i < perpAssets.length; ++i) {
+            // placeLimitOrder for each asset
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "coreWriter"),
+                false,
+                "sendRawAction(bytes)",
+                new address[](2),
+                string.concat("Place limit order for perp asset ", vm.toString(perpAssets[i])),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = actionLimitOrder;
+            leafs[leafIndex].argumentAddresses[1] = address(uint160(perpAssets[i]));
+
+            // cancelOrderByOid for each asset
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "coreWriter"),
+                false,
+                "sendRawAction(bytes)",
+                new address[](2),
+                string.concat("Cancel order by OID for perp asset ", vm.toString(perpAssets[i])),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = actionCancelByOid;
+            leafs[leafIndex].argumentAddresses[1] = address(uint160(perpAssets[i]));
+
+            // cancelOrderByCloid for each asset
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "coreWriter"),
+                false,
+                "sendRawAction(bytes)",
+                new address[](2),
+                string.concat("Cancel order by CLOID for perp asset ", vm.toString(perpAssets[i])),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = actionCancelByCloid;
+            leafs[leafIndex].argumentAddresses[1] = address(uint160(perpAssets[i]));
+        }
+    }
+
+    /**
+     * @notice Add leafs for USD class transfer (move between spot and perp).
+     * @dev Action ID 7: (ntl, toPerp)
+     *      Uses sendRawAction(bytes) since CoreWriter only exposes that function.
+     */
+    function _addCoreWriterUsdClassTransferLeafs(ManageLeaf[] memory leafs) internal {
+        address actionUsdClassTransfer = address(uint160(7)); // ACTION_USD_CLASS_TRANSFER
+
         unchecked {
             leafIndex++;
         }
-
         leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "CoreWriter"),
+            getAddress(sourceChain, "coreWriter"),
             false,
             "sendRawAction(bytes)",
-            new address[](0),
-            string.concat("Call CoreWriter"),
+            new address[](1),
+            "Transfer USD between spot and perp on HyperCore",
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
+        leafs[leafIndex].argumentAddresses[0] = actionUsdClassTransfer;
+    }
+
+    /**
+     * @notice Add leafs for staking deposit/withdraw.
+     * @dev Action ID 4: stakingDeposit(wei)
+     *      Action ID 5: stakingWithdraw(wei)
+     *      Uses sendRawAction(bytes) since CoreWriter only exposes that function.
+     */
+    function _addCoreWriterStakingLeafs(ManageLeaf[] memory leafs) internal {
+        address actionStakingDeposit = address(uint160(4)); // ACTION_STAKING_DEPOSIT
+        address actionStakingWithdraw = address(uint160(5)); // ACTION_STAKING_WITHDRAW
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "coreWriter"),
+            false,
+            "sendRawAction(bytes)",
+            new address[](1),
+            "Deposit HYPE into staking on HyperCore",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = actionStakingDeposit;
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "coreWriter"),
+            false,
+            "sendRawAction(bytes)",
+            new address[](1),
+            "Withdraw HYPE from staking on HyperCore",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = actionStakingWithdraw;
+    }
+
+    /**
+     * @notice Add leafs for spot send on HyperCore.
+     * @dev Action ID 6: (address destination, uint64 token, uint64 wei)
+     *      Uses sendRawAction(bytes) since CoreWriter only exposes that function.
+     * @param recipients Array of allowed recipient addresses
+     * @param spotTokens Array of allowed spot token IDs
+     */
+    function _addCoreWriterSpotSendLeafs(
+        ManageLeaf[] memory leafs,
+        address[] memory recipients,
+        uint64[] memory spotTokens
+    ) internal {
+        address actionSpotSend = address(uint160(6)); // ACTION_SPOT_SEND
+
+        for (uint256 i; i < recipients.length; ++i) {
+            for (uint256 j; j < spotTokens.length; ++j) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    getAddress(sourceChain, "coreWriter"),
+                    false,
+                    "sendRawAction(bytes)",
+                    new address[](3),
+                    string.concat(
+                        "Send spot token ",
+                        vm.toString(spotTokens[j]),
+                        " to ",
+                        vm.toString(recipients[i]),
+                        " on HyperCore"
+                    ),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = actionSpotSend;
+                leafs[leafIndex].argumentAddresses[1] = recipients[i];
+                leafs[leafIndex].argumentAddresses[2] = address(uint160(spotTokens[j]));
+            }
+        }
+    }
+
+    /**
+     * @notice Add leafs for vault transfer on HyperCore.
+     * @dev Action ID 2: (vault, isDeposit, usd)
+     *      Uses sendRawAction(bytes) since CoreWriter only exposes that function.
+     * @param vaults Array of allowed vault addresses
+     */
+    function _addCoreWriterVaultTransferLeafs(ManageLeaf[] memory leafs, address[] memory vaults) internal {
+        address actionVaultTransfer = address(uint160(2)); // ACTION_VAULT_TRANSFER
+
+        for (uint256 i; i < vaults.length; ++i) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "coreWriter"),
+                false,
+                "sendRawAction(bytes)",
+                new address[](2),
+                string.concat("Transfer to/from vault ", vm.toString(vaults[i]), " on HyperCore"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = actionVaultTransfer;
+            leafs[leafIndex].argumentAddresses[1] = vaults[i];
+        }
+    }
+
+    /**
+     * @notice Add leafs for token delegate (HYPE staking) on HyperCore.
+     * @dev Action ID 3: (validator, wei, isUndelegate)
+     *      Uses sendRawAction(bytes) since CoreWriter only exposes that function.
+     * @param validators Array of allowed validator addresses
+     */
+    function _addCoreWriterTokenDelegateLeafs(ManageLeaf[] memory leafs, address[] memory validators) internal {
+        address actionTokenDelegate = address(uint160(3)); // ACTION_TOKEN_DELEGATE
+
+        for (uint256 i; i < validators.length; ++i) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "coreWriter"),
+                false,
+                "sendRawAction(bytes)",
+                new address[](2),
+                string.concat("Delegate/undelegate HYPE to validator ", vm.toString(validators[i])),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = actionTokenDelegate;
+            leafs[leafIndex].argumentAddresses[1] = validators[i];
+        }
+    }
+
+    /**
+     * @notice Add leaf for bridging HYPE from HyperEVM to HyperCore.
+     * @dev Send native ETH to 0x2222...2222 to bridge HYPE.
+     */
+    function _addCoreWriterBridgeHypeToCoreLeaf(ManageLeaf[] memory leafs) internal {
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "hypeBridge"),
+            true, // valueNonZero - we send ETH to bridge HYPE
+            "bridgeHypeToCore()",
+            new address[](0),
+            "Bridge HYPE from HyperEVM to HyperCore",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+    }
+
+    /**
+     * @notice Add leafs for registering API wallets on HyperCore.
+     * @dev Action ID 9: (address apiWallet, bytes name)
+     *      Uses sendRawAction(bytes) since CoreWriter only exposes that function.
+     * @param apiWallets Allowed API wallet addresses to register
+     */
+    function _addCoreWriterAddApiWalletLeafs(ManageLeaf[] memory leafs, address[] memory apiWallets) internal {
+        address coreWriter = getAddress(sourceChain, "coreWriter");
+        address actionAddApiWallet = address(uint160(9)); // ACTION_ADD_API_WALLET
+
+        for (uint256 i; i < apiWallets.length; ++i) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                coreWriter,
+                false,
+                "sendRawAction(bytes)",
+                new address[](2),
+                string.concat("Add API wallet ", vm.toString(apiWallets[i]), " on HyperCore"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = actionAddApiWallet;
+            leafs[leafIndex].argumentAddresses[1] = apiWallets[i];
+        }
+    }
+
+    /**
+     * @notice Add leafs for bridging ERC20 tokens from HyperEVM to HyperCore.
+     * @dev Transfer ERC20 to system address (0x20...) to bridge to HyperCore.
+     * @param tokens Array of ERC20 token addresses to bridge
+     * @param systemAddresses Array of corresponding system addresses for each token
+     */
+    function _addCoreWriterBridgeERC20ToCoreLeafs(
+        ManageLeaf[] memory leafs,
+        address[] memory tokens,
+        address[] memory systemAddresses
+    ) internal {
+        require(tokens.length == systemAddresses.length, "Array length mismatch");
+        for (uint256 i; i < tokens.length; ++i) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                tokens[i],
+                false,
+                "transfer(address,uint256)",
+                new address[](1),
+                string.concat("Bridge ", ERC20(tokens[i]).symbol(), " to HyperCore"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = systemAddresses[i];
+        }
+    }
+
+    /**
+     * @notice Add leafs for depositing native USDC from HyperEVM to HyperCore.
+     * @dev Flow: 1) approve USDC to coreDepositWallet, 2) call deposit(amount, destinationDex)
+     *      Adds leafs for BOTH spot and perps destinations for maximum flexibility.
+     *      destinationDex: 0 = perps margin, 0xFFFFFFFF = spot wallet
+     */
+    function _addCoreWriterUsdcDepositLeafs(ManageLeaf[] memory leafs) internal {
+        address usdc = getAddress(sourceChain, "USDC");
+        address coreDepositWallet = getAddress(sourceChain, "coreDepositWallet");
+
+        // Approve USDC to coreDepositWallet
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            usdc,
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve USDC to coreDepositWallet for HyperCore bridge",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = coreDepositWallet;
+
+        // Deposit USDC to HyperCore perps margin (destinationDex = 0)
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            coreDepositWallet,
+            false,
+            "deposit(uint256,uint32)",
+            new address[](0),
+            "Deposit USDC to HyperCore perps margin",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        // Deposit USDC to HyperCore spot wallet (destinationDex = 0xFFFFFFFF)
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            coreDepositWallet,
+            false,
+            "deposit(uint256,uint32)",
+            new address[](0),
+            "Deposit USDC to HyperCore spot wallet",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+    }
+
+    /**
+     * @notice Add leafs for bridging tokens from HyperCore to HyperEVM via sendAsset.
+     * @dev Action ID 13: (destination, subAccount, sourceDex, destDex, token, wei)
+     *      Both destination and subAccount are validated to prevent funds being redirected to unintended sub-accounts
+     * @param destinations Allowed recipient addresses on HyperEVM
+     * @param subAccounts Allowed sub-accounts for each destination (use address(0) for main account)
+     */
+    function _addCoreWriterSendAssetLeafs(
+        ManageLeaf[] memory leafs,
+        address[] memory destinations,
+        address[] memory subAccounts
+    ) internal {
+        require(destinations.length == subAccounts.length, "Array length mismatch");
+        address actionSendAsset = address(uint160(13)); // ACTION_SEND_ASSET
+
+        for (uint256 i; i < destinations.length; ++i) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "coreWriter"),
+                false,
+                "sendRawAction(bytes)",
+                new address[](3),
+                string.concat(
+                    "Send asset to ", vm.toString(destinations[i]), " subAccount ", vm.toString(subAccounts[i])
+                ),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = actionSendAsset;
+            leafs[leafIndex].argumentAddresses[1] = destinations[i];
+            leafs[leafIndex].argumentAddresses[2] = subAccounts[i];
+        }
+    }
+
+    /**
+     * @notice Add all leafs for bridging tokens from HyperEVM to HyperCore.
+     * @param bridgeUsdc Whether to add USDC bridge leafs (via coreDepositWallet)
+     * @param bridgeTokens Array of ERC20 tokens to bridge via transfer (UBTC, UETH)
+     * @param systemAddresses Corresponding system addresses for each token
+     */
+    function _addHyperEVMToCoreBridgeLeafs(
+        ManageLeaf[] memory leafs,
+        bool bridgeUsdc,
+        address[] memory bridgeTokens,
+        address[] memory systemAddresses
+    ) internal {
+        if (bridgeUsdc) {
+            _addCoreWriterUsdcDepositLeafs(leafs);
+        }
+        if (bridgeTokens.length > 0) {
+            _addCoreWriterBridgeERC20ToCoreLeafs(leafs, bridgeTokens, systemAddresses);
+        }
+    }
+
+    /**
+     * @notice Add all leafs for bridging tokens from HyperCore to HyperEVM.
+     * @param destinations Allowed recipient addresses (typically boringVault)
+     * @param subAccounts Allowed sub-accounts for each destination (use address(0) for main account)
+     */
+    function _addHyperCoreToEVMBridgeLeafs(
+        ManageLeaf[] memory leafs,
+        address[] memory destinations,
+        address[] memory subAccounts
+    ) internal {
+        _addCoreWriterSendAssetLeafs(leafs, destinations, subAccounts);
+    }
+
+    /**
+     * @notice Add all CoreWriter leafs for full HyperCore integration.
+     * @param perpAssets Allowed perp asset IDs (e.g., 0 for BTC, 1 for ETH)
+     * @param spotSendRecipients Allowed recipients for spot sends
+     * @param spotTokens Allowed spot token IDs for sends
+     * @param vaults Allowed vault addresses
+     * @param validators Allowed validators for staking
+     */
+    function _addAllCoreWriterLeafs(
+        ManageLeaf[] memory leafs,
+        uint32[] memory perpAssets,
+        address[] memory spotSendRecipients,
+        uint64[] memory spotTokens,
+        address[] memory vaults,
+        address[] memory validators
+    ) internal {
+        _addCoreWriterLimitOrderLeafs(leafs, perpAssets);
+        _addCoreWriterUsdClassTransferLeafs(leafs);
+        _addCoreWriterStakingLeafs(leafs);
+        _addCoreWriterSpotSendLeafs(leafs, spotSendRecipients, spotTokens);
+        _addCoreWriterVaultTransferLeafs(leafs, vaults);
+        _addCoreWriterTokenDelegateLeafs(leafs, validators);
+        _addCoreWriterBridgeHypeToCoreLeaf(leafs);
     }
 
     function _addHyperCoreLimitOrderLeafs(ManageLeaf[] memory leafs) internal {

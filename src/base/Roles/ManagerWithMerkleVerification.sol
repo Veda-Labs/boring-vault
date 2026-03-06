@@ -171,7 +171,9 @@ contract ManagerWithMerkleVerification is Auth, IPausable {
         uint256[] calldata amounts,
         bytes calldata userData
     ) external {
-        if (msg.sender != address(vault)) revert ManagerWithMerkleVerification__OnlyCallableByBoringVault();
+        if (msg.sender != address(vault)) {
+            revert ManagerWithMerkleVerification__OnlyCallableByBoringVault();
+        }
 
         flashLoanIntentHash = keccak256(userData);
         performingFlashLoan = true;
@@ -192,7 +194,9 @@ contract ManagerWithMerkleVerification is Auth, IPausable {
         uint256[] calldata feeAmounts,
         bytes calldata userData
     ) external {
-        if (msg.sender != address(balancerVault)) revert ManagerWithMerkleVerification__OnlyCallableByBalancerVault();
+        if (msg.sender != address(balancerVault)) {
+            revert ManagerWithMerkleVerification__OnlyCallableByBalancerVault();
+        }
         if (!performingFlashLoan) revert ManagerWithMerkleVerification__FlashLoanNotInProgress();
 
         // Validate userData using intentHash.
@@ -214,9 +218,8 @@ contract ManagerWithMerkleVerification is Auth, IPausable {
                 uint256[] memory values
             ) = abi.decode(userData, (bytes32[][], address[], address[], bytes[], uint256[]));
 
-            ManagerWithMerkleVerification(address(this)).manageVaultWithMerkleVerification(
-                manageProofs, decodersAndSanitizers, targets, data, values
-            );
+            ManagerWithMerkleVerification(address(this))
+                .manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, data, values);
         }
 
         // Transfer tokens back to balancer.
@@ -250,8 +253,7 @@ contract ManagerWithMerkleVerification is Auth, IPausable {
             packedArgumentAddresses = abi.encodePacked(packedArgumentAddresses, droneTarget);
         }
 
-        if (
-            !_verifyManageProof(
+        if (!_verifyManageProof(
                 currentManageRoot,
                 manageProof,
                 target,
@@ -259,8 +261,7 @@ contract ManagerWithMerkleVerification is Auth, IPausable {
                 value,
                 bytes4(targetData),
                 packedArgumentAddresses
-            )
-        ) {
+            )) {
             revert ManagerWithMerkleVerification__FailedToVerifyManageProof(target, targetData, value);
         }
     }

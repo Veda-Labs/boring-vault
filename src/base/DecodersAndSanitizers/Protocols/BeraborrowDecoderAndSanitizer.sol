@@ -34,7 +34,12 @@ abstract contract BeraborrowDecoderAndSanitizer is BaseDecoderAndSanitizer {
         uint256, /*minAssetsWithdrawn*/
         uint256, /*collIndex*/
         bool /*unwrap*/
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(denManager, collVault);
     }
 }

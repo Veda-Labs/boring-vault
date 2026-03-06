@@ -318,9 +318,8 @@ contract CreateMorphoLoopPosition is Test, MerkleTreeHelper {
         );
         flashloanLeafs[6].argumentAddresses[0] = getAddress(sourceChain, "morphoBlue");
 
-        IMB.MarketParams memory marketParams = IMB(getAddress(sourceChain, "morphoBlue")).idToMarketParams(
-            getBytes32(sourceChain, "PT-iUSD-4SEP2025_USDC_915")
-        );
+        IMB.MarketParams memory marketParams = IMB(getAddress(sourceChain, "morphoBlue"))
+            .idToMarketParams(getBytes32(sourceChain, "PT-iUSD-4SEP2025_USDC_915"));
 
         // supply PT-iUSD collateral on morpho
         flashloanLeafs[7] = ManageLeaf(

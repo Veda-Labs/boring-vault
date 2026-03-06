@@ -5,12 +5,14 @@ import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecode
 import {UniswapV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV3DecoderAndSanitizer.sol";
 import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
 import {OneInchDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OneInchDecoderAndSanitizer.sol";
-import {EigenLayerLSTStakingDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/EigenLayerLSTStakingDecoderAndSanitizer.sol";
+import {
+    EigenLayerLSTStakingDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/EigenLayerLSTStakingDecoderAndSanitizer.sol";
 import {SymbioticDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SymbioticDecoderAndSanitizer.sol";
 import {KarakDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/KarakDecoderAndSanitizer.sol";
-import {SymbioticVaultDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/SymbioticVaultDecoderAndSanitizer.sol";
+import {
+    SymbioticVaultDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/SymbioticVaultDecoderAndSanitizer.sol";
 
 contract EtherFiBtcDecoderAndSanitizer is
     UniswapV3DecoderAndSanitizer,
@@ -31,7 +33,10 @@ contract EtherFiBtcDecoderAndSanitizer is
      * @notice Symbiotic, and SymbioticVault both specify a `withdraw(address,uint256)`,
      *         all cases are handled the same way.
      */
-    function withdraw(address recipient, uint256 /*amount*/ )
+    function withdraw(
+        address recipient,
+        uint256 /*amount*/
+    )
         external
         pure
         override(SymbioticDecoderAndSanitizer, SymbioticVaultDecoderAndSanitizer)
@@ -44,7 +49,10 @@ contract EtherFiBtcDecoderAndSanitizer is
      * @notice Symbiotic, and SymbioticVault both specify a `deposit(address,uint256)`,
      *         all cases are handled the same way.
      */
-    function deposit(address recipient, uint256 /*amount*/ )
+    function deposit(
+        address recipient,
+        uint256 /*amount*/
+    )
         external
         pure
         override(SymbioticDecoderAndSanitizer, SymbioticVaultDecoderAndSanitizer)

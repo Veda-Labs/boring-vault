@@ -9,7 +9,12 @@ abstract contract BTCNMinterDecoderAndSanitizer is BaseDecoderAndSanitizer {
         uint256, /*debtOutMin*/
         address to,
         uint256 /*deadline*/
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return abi.encodePacked(to);
     }
 
@@ -18,7 +23,12 @@ abstract contract BTCNMinterDecoderAndSanitizer is BaseDecoderAndSanitizer {
         uint256, /*collateralOutMin*/
         address to,
         uint256 /*deadline*/
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return abi.encodePacked(to);
     }
 }

@@ -12,7 +12,12 @@ abstract contract FluidRewardsClaimingDecoderAndSanitizer is BaseDecoderAndSanit
         uint256, /*cycle_*/
         bytes32[] calldata, /*merkleProof_*/
         bytes memory /*metadata_*/
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(recipient_);
     }
 }

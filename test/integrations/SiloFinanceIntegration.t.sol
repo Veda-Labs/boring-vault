@@ -249,8 +249,9 @@ contract SiloFinanceIntegrationTest is Test, MerkleTreeHelper {
         bytes[] memory targetData = new bytes[](10);
         targetData[0] = abi.encodeWithSignature("approve(address,uint256)", silo0, type(uint256).max);
         targetData[1] = abi.encodeWithSignature("approve(address,uint256)", silo1, type(uint256).max);
-        targetData[2] =
-            abi.encodeWithSignature("deposit(uint256,address,uint8)", 100e18, getAddress(sourceChain, "boringVault"), 0);
+        targetData[2] = abi.encodeWithSignature(
+            "deposit(uint256,address,uint8)", 100e18, getAddress(sourceChain, "boringVault"), 0
+        );
         targetData[3] =
             abi.encodeWithSignature("mint(uint256,address,uint8)", 10e18, getAddress(sourceChain, "boringVault"), 0);
         targetData[4] = abi.encodeWithSignature(
@@ -267,8 +268,9 @@ contract SiloFinanceIntegrationTest is Test, MerkleTreeHelper {
             getAddress(sourceChain, "boringVault"),
             0
         );
-        targetData[6] =
-            abi.encodeWithSignature("deposit(uint256,address,uint8)", 100e18, getAddress(sourceChain, "boringVault"), 0);
+        targetData[6] = abi.encodeWithSignature(
+            "deposit(uint256,address,uint8)", 100e18, getAddress(sourceChain, "boringVault"), 0
+        );
         targetData[7] =
             abi.encodeWithSignature("mint(uint256,address,uint8)", 10e18, getAddress(sourceChain, "boringVault"), 0);
         targetData[8] = abi.encodeWithSignature(

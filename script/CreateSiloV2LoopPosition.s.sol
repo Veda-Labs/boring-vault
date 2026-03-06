@@ -17,7 +17,11 @@ import {SyUsdDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyUsdDeco
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {
-    MerkleTreeHelper, IMB, PendleMarket, PendleSy, ISilo
+    MerkleTreeHelper,
+    IMB,
+    PendleMarket,
+    PendleSy,
+    ISilo
 } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import {BalancerVault} from "src/interfaces/BalancerVault.sol";
 
@@ -140,8 +144,9 @@ contract CreateSiloV2LoopPosition is Script, MerkleTreeHelper {
                 abi.decode(result, (uint256))
             );
 
-            targetData[2] =
-                abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "sUSDf"), type(uint256).max);
+            targetData[2] = abi.encodeWithSignature(
+                "approve(address,uint256)", getAddress(sourceChain, "sUSDf"), type(uint256).max
+            );
 
             bytes memory previewDepositCalldata =
                 abi.encodeWithSelector(bytes4(keccak256("previewDeposit(uint256)")), abi.decode(result, (uint256)));

@@ -32,6 +32,12 @@ import {
 } from "src/base/DecodersAndSanitizers/MonStablecoinStrategyDecoderAndSanitizer.sol";
 import {HlCoreVaultDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/HlCoreVaultDecoderAndSanitizer.sol";
 
+import {
+    HyperliquidCoreWriterDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/HyperliquidCoreWriterDecoderAndSanitizer.sol";
+
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+
 import {BoringDrone} from "src/base/Drones/BoringDrone.sol";
 
 import "forge-std/Script.sol";
@@ -109,7 +115,7 @@ contract DeployKatanaDecoderAndSanitizer is Script, ContractNames, MainnetAddres
 
 contract DeployHlCoreVaultDecoderAndSanitizer is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
     uint256 public privateKey;
-    Deployer public deployer = Deployer(0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC);
+    Deployer public deployer = Deployer(0x5BD97A73333B6EC2e38B687bcED159566A14C5BA);
 
     function setUp() external {}
 
@@ -120,12 +126,12 @@ contract DeployHlCoreVaultDecoderAndSanitizer is Script, ContractNames, MainnetA
         vm.createSelectFork("hyperevm");
         setSourceChainName("hyperevm");
 
-        vm.startBroadcast(vm.envUint("BORING_DEVELOPER"));
+        vm.startBroadcast(vm.envUint("PK"));
 
-        creationCode = type(HlCoreVaultDecoderAndSanitizer).creationCode;
+        // creationCode = type(HlCoreVaultDecoderAndSanitizer).creationCode;
         // deployer.deployContract("HlCoreVaultDecodersAndSanitizerV0.1", creationCode, constructorArgs, 0);
 
-        new HlCoreVaultDecoderAndSanitizer();
+        new HyperliquidCoreWriterDecoderAndSanitizer();
 
         vm.stopBroadcast();
     }

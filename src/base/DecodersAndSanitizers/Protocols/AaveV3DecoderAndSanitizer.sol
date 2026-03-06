@@ -51,7 +51,14 @@ abstract contract AaveV3DecoderAndSanitizer is BaseDecoderAndSanitizer {
         return addressesFound;
     }
 
-    function claimRewards(address[] calldata, /*assets*/ uint256, /*amount*/ address to, address /*reward*/ )
+    function claimRewards(
+        address[] calldata,
+        /*assets*/
+        uint256,
+        /*amount*/
+        address to,
+        address /*reward*/
+    )
         external
         pure
         virtual

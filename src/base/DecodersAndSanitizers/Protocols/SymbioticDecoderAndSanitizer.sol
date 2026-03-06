@@ -6,7 +6,10 @@ import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecode
 abstract contract SymbioticDecoderAndSanitizer is BaseDecoderAndSanitizer {
     //============================== SYMBIOTIC ===============================
 
-    function deposit(address recipient, uint256 /*amount*/ )
+    function deposit(
+        address recipient,
+        uint256 /*amount*/
+    )
         external
         pure
         virtual
@@ -15,7 +18,10 @@ abstract contract SymbioticDecoderAndSanitizer is BaseDecoderAndSanitizer {
         addressesFound = abi.encodePacked(recipient);
     }
 
-    function withdraw(address recipient, uint256 /*amount*/ )
+    function withdraw(
+        address recipient,
+        uint256 /*amount*/
+    )
         external
         pure
         virtual
@@ -24,7 +30,10 @@ abstract contract SymbioticDecoderAndSanitizer is BaseDecoderAndSanitizer {
         addressesFound = abi.encodePacked(recipient);
     }
 
-    function issueDebt(address recipient, uint256 /*amount*/ )
+    function issueDebt(
+        address recipient,
+        uint256 /*amount*/
+    )
         external
         pure
         virtual

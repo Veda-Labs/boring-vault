@@ -7,7 +7,10 @@ abstract contract CornStakingDecoderAndSanitizer is BaseDecoderAndSanitizer {
     //============================== CORN STAKING ===============================
 
     // For staking general ERC20s
-    function deposit(address _token, uint256 /*_amount*/ )
+    function deposit(
+        address _token,
+        uint256 /*_amount*/
+    )
         external
         pure
         virtual
@@ -16,12 +19,22 @@ abstract contract CornStakingDecoderAndSanitizer is BaseDecoderAndSanitizer {
         addressesFound = abi.encodePacked(_token);
     }
 
-    function mintAndDepositBitcorn(uint256 /*_amount*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function mintAndDepositBitcorn(
+        uint256 /*_amount*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 
     // For redeeming general ERC20s
-    function redeemToken(address _token, uint256 /*_amount*/ )
+    function redeemToken(
+        address _token,
+        uint256 /*_amount*/
+    )
         external
         pure
         virtual
@@ -30,7 +43,14 @@ abstract contract CornStakingDecoderAndSanitizer is BaseDecoderAndSanitizer {
         addressesFound = abi.encodePacked(_token);
     }
 
-    function redeemBitcorn(uint256 /*_amount*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function redeemBitcorn(
+        uint256 /*_amount*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 }

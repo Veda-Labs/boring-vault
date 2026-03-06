@@ -8,7 +8,11 @@ abstract contract HyperlaneDecoderAndSanitizer is BaseDecoderAndSanitizer {
 
     // For bridging ERC20s.
     // Example TX: https://etherscan.io/tx/0x36f60aa50950df168c28460f553b764c0a049b8992e3d41d4533c00aefbb6756
-    function transferRemote(uint32 _destinationDomain, bytes32 _recipient, uint256 /*_amount*/ )
+    function transferRemote(
+        uint32 _destinationDomain,
+        bytes32 _recipient,
+        uint256 /*_amount*/
+    )
         external
         pure
         virtual

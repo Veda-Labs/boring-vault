@@ -25,11 +25,7 @@ abstract contract EigenLayerDecoderAndSanitizer is ITBContractDecoderAndSanitize
         return addressesFound;
     }
 
-    function delegateWithSignature(bytes memory, uint256, bytes32)
-        external
-        pure
-        returns (bytes memory addressesFound)
-    {
+    function delegateWithSignature(bytes memory, uint256, bytes32) external pure returns (bytes memory addressesFound) {
         // Nothing to sanitize or return
         return addressesFound;
     }

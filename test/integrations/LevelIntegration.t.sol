@@ -365,7 +365,7 @@ contract LevelIntegrationTest is Test, MerkleTreeHelper {
         targetData[1] =
             abi.encodeWithSignature("deposit(uint256,address)", 100e18, getAddress(sourceChain, "boringVault"));
         targetData[2] = //mint 10 shares
-         abi.encodeWithSignature("mint(uint256,address)", 10e18, getAddress(sourceChain, "boringVault"));
+            abi.encodeWithSignature("mint(uint256,address)", 10e18, getAddress(sourceChain, "boringVault"));
 
         address[] memory decodersAndSanitizers = new address[](3);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;

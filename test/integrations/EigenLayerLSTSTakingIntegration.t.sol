@@ -409,8 +409,7 @@ contract EigenLayerLSTStakingIntegrationTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             bytes(
                 abi.encodeWithSelector(
-                    EigenLayerLSTStakingDecoderAndSanitizer
-                        .EigenLayerLSTStakingDecoderAndSanitizer__CanOnlyReceiveAsTokens
+                    EigenLayerLSTStakingDecoderAndSanitizer.EigenLayerLSTStakingDecoderAndSanitizer__CanOnlyReceiveAsTokens
                         .selector
                 )
             )

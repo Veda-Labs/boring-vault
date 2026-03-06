@@ -6,7 +6,11 @@ import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndS
 abstract contract LBTCBridgeDecoderAndSanitizer is BaseDecoderAndSanitizer {
     //============================== LBTC Wrapper Bridge ===============================
 
-    function deposit(bytes32 toChain, bytes32 toAddress, uint64 /*amount*/ )
+    function deposit(
+        bytes32 toChain,
+        bytes32 toAddress,
+        uint64 /*amount*/
+    )
         external
         pure
         returns (bytes memory addressesFound)

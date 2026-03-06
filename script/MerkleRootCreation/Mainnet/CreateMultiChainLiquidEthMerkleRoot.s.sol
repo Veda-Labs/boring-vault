@@ -731,7 +731,9 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
                 false,
                 "approveToken(address,address,uint256)",
                 new address[](2),
-                string.concat(itbContractName, ": Approve ", tokensUsed[i].symbol(), " to be spent by the Lido v3 Pool"),
+                string.concat(
+                    itbContractName, ": Approve ", tokensUsed[i].symbol(), " to be spent by the Lido v3 Pool"
+                ),
                 itbDecoderAndSanitizer
             );
             leafs[leafIndex].argumentAddresses[0] = address(tokensUsed[i]);

@@ -489,17 +489,17 @@ contract SymbioticVaultIntegrationTest is Test, MerkleTreeHelper {
             vm.startPrank(0x96d37DC47CBE2486E25c4a4587FFCdc48cDd3172);
             ERC20(getAddress(sourceChain, "WETH")).approve(rewardsContract, 100e18);
 
-            IStakerRewards(rewardsContract).distributeRewards(
-                0x96d37DC47CBE2486E25c4a4587FFCdc48cDd3172,
-                getAddress(sourceChain, "WETH"),
-                100e18,
-                abi.encode(timestamp, maxAdminFee, "", "")
-            );
+            IStakerRewards(rewardsContract)
+                .distributeRewards(
+                    0x96d37DC47CBE2486E25c4a4587FFCdc48cDd3172,
+                    getAddress(sourceChain, "WETH"),
+                    100e18,
+                    abi.encode(timestamp, maxAdminFee, "", "")
+                );
             vm.stopPrank();
 
-            (uint256 a,) = IStakerRewards(getAddress(sourceChain, "wstETHSymbioticVaultRewards")).rewards(
-                getAddress(sourceChain, "WETH"), 0x96d37DC47CBE2486E25c4a4587FFCdc48cDd3172, 0
-            );
+            (uint256 a,) = IStakerRewards(getAddress(sourceChain, "wstETHSymbioticVaultRewards"))
+                .rewards(getAddress(sourceChain, "WETH"), 0x96d37DC47CBE2486E25c4a4587FFCdc48cDd3172, 0);
             assertGt(a, 0);
         }
 

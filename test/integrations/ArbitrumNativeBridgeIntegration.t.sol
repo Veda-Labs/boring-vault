@@ -107,9 +107,8 @@ contract ArbitrumNativeBridgeIntegrationTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             bytes(
                 abi.encodeWithSelector(
-                    ArbitrumNativeBridgeDecoderAndSanitizer
-                        .ArbitrumNativeBridgeDecoderAndSanitizer__ExtraDataNotSupported
-                        .selector
+                    ArbitrumNativeBridgeDecoderAndSanitizer.ArbitrumNativeBridgeDecoderAndSanitizer__ExtraDataNotSupported
+                    .selector
                 )
             )
         );
@@ -196,9 +195,8 @@ contract ArbitrumNativeBridgeIntegrationTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             bytes(
                 abi.encodeWithSelector(
-                    ArbitrumNativeBridgeDecoderAndSanitizer
-                        .ArbitrumNativeBridgeDecoderAndSanitizer__ExtraDataNotSupported
-                        .selector
+                    ArbitrumNativeBridgeDecoderAndSanitizer.ArbitrumNativeBridgeDecoderAndSanitizer__ExtraDataNotSupported
+                    .selector
                 )
             )
         );
@@ -462,9 +460,8 @@ contract ArbitrumNativeBridgeIntegrationTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             bytes(
                 abi.encodeWithSelector(
-                    ArbitrumNativeBridgeDecoderAndSanitizer
-                        .ArbitrumNativeBridgeDecoderAndSanitizer__ExtraDataNotSupported
-                        .selector
+                    ArbitrumNativeBridgeDecoderAndSanitizer.ArbitrumNativeBridgeDecoderAndSanitizer__ExtraDataNotSupported
+                    .selector
                 )
             )
         );
@@ -650,9 +647,8 @@ contract ArbitrumNativeBridgeIntegrationTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             bytes(
                 abi.encodeWithSelector(
-                    ArbitrumNativeBridgeDecoderAndSanitizer
-                        .ArbitrumNativeBridgeDecoderAndSanitizer__GasLimitTooSmall
-                        .selector
+                    ArbitrumNativeBridgeDecoderAndSanitizer.ArbitrumNativeBridgeDecoderAndSanitizer__GasLimitTooSmall
+                    .selector
                 )
             )
         );
@@ -672,8 +668,7 @@ contract ArbitrumNativeBridgeIntegrationTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             bytes(
                 abi.encodeWithSelector(
-                    ArbitrumNativeBridgeDecoderAndSanitizer
-                        .ArbitrumNativeBridgeDecoderAndSanitizer__NoCallDataForRetryables
+                    ArbitrumNativeBridgeDecoderAndSanitizer.ArbitrumNativeBridgeDecoderAndSanitizer__NoCallDataForRetryables
                         .selector
                 )
             )

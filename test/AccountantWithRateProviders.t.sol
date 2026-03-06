@@ -224,17 +224,12 @@ contract AccountantWithRateProvidersTest is Test, MerkleTreeHelper {
         accountant.updateExchangeRate(new_exchange_rate);
 
         (
-            ,
-            ,
+            ,,
             uint128 fees_owed,
             uint128 total_shares,
-            uint96 current_exchange_rate,
-            ,
-            ,
+            uint96 current_exchange_rate,,,
             uint64 last_update_timestamp,
-            bool is_paused,
-            ,
-            ,
+            bool is_paused,,,
         ) = accountant.accountantState();
         assertEq(fees_owed, 0, "Fees owed should be 0");
         assertEq(total_shares, 1_000e18, "Total shares should be 1_000e18");
@@ -314,13 +309,9 @@ contract AccountantWithRateProvidersTest is Test, MerkleTreeHelper {
             uint96 highwaterMark,
             uint128 fees_owed,
             uint128 total_shares,
-            uint96 current_exchange_rate,
-            ,
-            ,
+            uint96 current_exchange_rate,,,
             uint64 last_update_timestamp,
-            bool is_paused,
-            ,
-            ,
+            bool is_paused,,,
         ) = accountant.accountantState();
         assertEq(highwaterMark, new_exchange_rate, "Highwater mark should be new_exchange_rate");
         assertEq(fees_owed, 0, "Fees owed should be 0");
@@ -677,9 +668,8 @@ contract AccountantWithRateProvidersTest is Test, MerkleTreeHelper {
         // Test Reverts
         vm.expectRevert(
             abi.encodeWithSelector(
-                GenericRateProviderWithDecimalScaling
-                    .GenericRateProviderWithDecimalScaling__DecimalsCannotBeZero
-                    .selector
+                GenericRateProviderWithDecimalScaling.GenericRateProviderWithDecimalScaling__DecimalsCannotBeZero
+                .selector
             )
         );
         mETHRateProvider = new GenericRateProviderWithDecimalScaling(
@@ -690,9 +680,8 @@ contract AccountantWithRateProvidersTest is Test, MerkleTreeHelper {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                GenericRateProviderWithDecimalScaling
-                    .GenericRateProviderWithDecimalScaling__DecimalsCannotBeZero
-                    .selector
+                GenericRateProviderWithDecimalScaling.GenericRateProviderWithDecimalScaling__DecimalsCannotBeZero
+                .selector
             )
         );
         mETHRateProvider = new GenericRateProviderWithDecimalScaling(

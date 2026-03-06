@@ -169,10 +169,12 @@ contract SyrupIntegrationTest is Test, MerkleTreeHelper {
         );
         targetData[2] = abi.encodeWithSignature("deposit(uint256,bytes32)", 100e6, bytes32("0:vtl"));
         targetData[3] = abi.encodeWithSignature("deposit(uint256,bytes32)", 100e6, bytes32("0:vtl"));
-        targetData[4] =
-            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "syrupUSDC"), type(uint256).max);
-        targetData[5] =
-            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "syrupUSDT"), type(uint256).max);
+        targetData[4] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "syrupUSDC"), type(uint256).max
+        );
+        targetData[5] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "syrupUSDT"), type(uint256).max
+        );
         targetData[6] =
             abi.encodeWithSignature("requestRedeem(uint256,address)", 90e6, getAddress(sourceChain, "boringVault"));
         targetData[7] =
@@ -201,8 +203,7 @@ contract SyrupIntegrationTest is Test, MerkleTreeHelper {
 }
 
 interface IPoolPermissionManager {
-    function setLenderAllowlist(address poolManager_, address[] calldata lenders_, bool[] calldata booleans_)
-        external;
+    function setLenderAllowlist(address poolManager_, address[] calldata lenders_, bool[] calldata booleans_) external;
 }
 
 contract FullSyrupDecoderAndSanitizer is SyrupDecoderAndSanitizer {}

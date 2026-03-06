@@ -6,15 +6,36 @@ import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndS
 abstract contract GoldiVaultDecoderAndSanitizer is BaseDecoderAndSanitizer {
     //============================== GoldiVault ===============================
 
-    function deposit(uint256 /*amount*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function deposit(
+        uint256 /*amount*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 
-    function redeemOwnership(uint256 /*amount*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function redeemOwnership(
+        uint256 /*amount*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 
-    function redeemYield(uint256 /*amount*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function redeemYield(
+        uint256 /*amount*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 
@@ -24,7 +45,13 @@ abstract contract GoldiVaultDecoderAndSanitizer is BaseDecoderAndSanitizer {
 
     //============================== PointsGoldiVaultStreaming ===============================
 
-    function buyYT(uint256, /*ytAmount*/ uint256, /*dtAmountMax*/ uint256 /*amountOutMin*/ )
+    function buyYT(
+        uint256,
+        /*ytAmount*/
+        uint256,
+        /*dtAmountMax*/
+        uint256 /*amountOutMin*/
+    )
         external
         pure
         virtual
@@ -33,7 +60,13 @@ abstract contract GoldiVaultDecoderAndSanitizer is BaseDecoderAndSanitizer {
         return addressesFound;
     }
 
-    function sellYT(uint256, /*ytAmount*/ uint256, /*dtAmountMin*/ uint256 /*amountInMax*/ )
+    function sellYT(
+        uint256,
+        /*ytAmount*/
+        uint256,
+        /*dtAmountMin*/
+        uint256 /*amountInMax*/
+    )
         external
         pure
         virtual

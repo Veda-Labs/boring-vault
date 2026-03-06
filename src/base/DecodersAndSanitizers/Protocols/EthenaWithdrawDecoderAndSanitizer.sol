@@ -6,11 +6,25 @@ import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndS
 abstract contract EthenaWithdrawDecoderAndSanitizer is BaseDecoderAndSanitizer {
     //============================== Ethena Withdraw ===============================
 
-    function cooldownAssets(uint256 /*assets*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function cooldownAssets(
+        uint256 /*assets*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         // Nothing to do.
     }
 
-    function cooldownShares(uint256 /*shares*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function cooldownShares(
+        uint256 /*shares*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         // Nothing to do.
     }
 
