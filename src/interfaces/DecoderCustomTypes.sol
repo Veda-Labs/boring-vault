@@ -860,6 +860,7 @@ contract DecoderCustomTypes {
         uint8 protocolId; 
         uint8 quoteAsset; 
         bytes swapData; 
+        uint256 slippageBps;
         address receiver; 
     }
 }

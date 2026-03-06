@@ -14,6 +14,7 @@ import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVer
 import {UniswapV3Adapter} from "src/base/Periphery/adapters/UniswapV3Adapter.sol"; 
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {Authority} from "@solmate/auth/Auth.sol";
+import {IRateProvider} from "src/interfaces/IRateProvider.sol";
 import {Test, console} from "@forge-std/Test.sol";
 
 contract SwapperDecoder is BaseDecoderAndSanitizer {
@@ -22,12 +23,29 @@ contract SwapperDecoder is BaseDecoderAndSanitizer {
         return abi.encodePacked(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut, address(swapConfig.receiver));
     }
 }
+    
+//TODO
+contract MockRateProvider is IRateProvider {
+  
+    uint256 internal rate;
+
+    constructor(uint256 _rate) {
+        rate = _rate; 
+    }
+
+    function getRate() public view override returns (uint256) {
+        return rate; 
+    }
+}
 
 
 contract BoringSwapperIntegration is BaseTestIntegration {
     
     AdapterRegistry registry; 
     BoringSwapper swapper; 
+
+    MockRateProvider usdRate;
+    MockRateProvider ethRate;
 
     function setUp() public override {
         super.setUp(); 
@@ -44,11 +62,30 @@ contract BoringSwapperIntegration is BaseTestIntegration {
 
         address uniswapV3AdapterVersion0_1 = address(new UniswapV3Adapter(getAddress(sourceChain, "uniV3Router"))); 
 
-        swapper.addApprovedRoute(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDC"), 100_000); 
+        swapper.addApprovedRoute(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDC"), 50); 
         swapper.addApprovedProtocol(0); //UNI_V3
         swapper.addApprovedVersion(0, 1); 
 
         registry.put(0, uniswapV3AdapterVersion0_1);
+
+        //oracle setup
+        usdRate = new MockRateProvider(1e18);
+        ethRate = new MockRateProvider(2000e18);
+        
+        BoringSwapper.OracleConfig memory usdConfig = BoringSwapper.OracleConfig(
+            address(usdRate),
+            address(0),
+            address(0) 
+        ); 
+
+        BoringSwapper.OracleConfig memory ethConfig = BoringSwapper.OracleConfig(
+            address(ethRate),
+            address(0),
+            address(0) 
+        ); 
+
+        swapper.addApprovedOracleConfig(getERC20(sourceChain, "USDC"), usdConfig); 
+        swapper.addApprovedOracleConfig(getERC20(sourceChain, "WETH"), ethConfig); 
         
     }
 
@@ -110,6 +147,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
                 protocolId: UNISWAP_V3,
                 quoteAsset: BoringSwapper.QuoteAsset.USD,
                 swapData: uniswapSwapData,
+                slippageBps: 10,
                 receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
             })
         );
@@ -117,6 +155,32 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
         tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
 
-        _submitManagerCall(manageProofs, tx_); 
+        address vault = getAddress(sourceChain, "boringVault");
+        uint256 wethBefore = getERC20(sourceChain, "WETH").balanceOf(vault);
+        uint256 usdcBefore = getERC20(sourceChain, "USDC").balanceOf(vault);
+
+        _submitManagerCall(manageProofs, tx_);
+
+        uint256 wethAfter = getERC20(sourceChain, "WETH").balanceOf(vault);
+        uint256 usdcAfter = getERC20(sourceChain, "USDC").balanceOf(vault);
+
+        console.log("WETH before:", wethBefore);
+        console.log("WETH after:", wethAfter);
+        console.log("WETH spent:", wethBefore - wethAfter);
+        console.log("USDC before:", usdcBefore);
+        console.log("USDC after:", usdcAfter);
+        console.log("USDC received:", usdcAfter - usdcBefore);
+
+        // Expected USDC: 1 ETH * $2000 = 2000 USDC (2000e6)
+        uint256 expectedUsdc = 2000e6;
+        uint256 actualUsdc = usdcAfter - usdcBefore;
+        console.log("Expected USDC:", expectedUsdc);
+        if (actualUsdc >= expectedUsdc) {
+            uint256 bonusBps = (actualUsdc - expectedUsdc) * 10_000 / expectedUsdc;
+            console.log("Positive slippage (bps):", bonusBps);
+        } else {
+            uint256 slippageBps = (expectedUsdc - actualUsdc) * 10_000 / expectedUsdc;
+            console.log("Negative slippage (bps):", slippageBps);
+        }
     }
 }
