@@ -59,9 +59,9 @@ contract CreateHlCoreTestVaultMerkleRootScript is Script, MerkleTreeHelper {
         perpAssets[1] = 1; // ETH
         perpAssets[2] = 5; // SOL
         perpAssets[3] = 159; // HYPE
-        perpAssets[4] = 10197; // SPOT BTC
-        perpAssets[5] = 10221; // SPOT ETH
-        perpAssets[6] = 10254; // SPOT SOL
+        perpAssets[4] = 10142; // SPOT BTC
+        perpAssets[5] = 10151; // SPOT ETH
+        perpAssets[6] = 10156; // SPOT SOL
         perpAssets[7] = 10107; // SPOT HYPE
 
         // ========================== Define Allowed Recipients ==========================
