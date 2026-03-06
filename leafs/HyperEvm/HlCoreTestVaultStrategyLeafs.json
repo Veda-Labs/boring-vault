@@ -17,7 +17,9 @@
   },
   "leafs": [
     {
-      "AddressArguments": ["0xdBCaB4E98AC33f1E23fD5893d72196A0443f96fE"],
+      "AddressArguments": [
+        "0xdBCaB4E98AC33f1E23fD5893d72196A0443f96fE"
+      ],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0xD834860459a89e609243f00C6fcb4861B351583f",
       "Description": "Approve Accountant to spend USDC",
@@ -28,7 +30,9 @@
       "TargetAddress": "0xb88339CB7199b77E23DB6E890353E22632Ba630f"
     },
     {
-      "AddressArguments": ["0xb88339CB7199b77E23DB6E890353E22632Ba630f"],
+      "AddressArguments": [
+        "0xb88339CB7199b77E23DB6E890353E22632Ba630f"
+      ],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0xD834860459a89e609243f00C6fcb4861B351583f",
       "Description": "Claim fees in USDC",
@@ -375,7 +379,9 @@
       "TargetAddress": "0x3333333333333333333333333333333333333333"
     },
     {
-      "AddressArguments": ["0x0000000000000000000000000000000000000007"],
+      "AddressArguments": [
+        "0x0000000000000000000000000000000000000007"
+      ],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0xD834860459a89e609243f00C6fcb4861B351583f",
       "Description": "Transfer USD between spot and perp on HyperCore",
@@ -386,7 +392,9 @@
       "TargetAddress": "0x3333333333333333333333333333333333333333"
     },
     {
-      "AddressArguments": ["0x0000000000000000000000000000000000000004"],
+      "AddressArguments": [
+        "0x0000000000000000000000000000000000000004"
+      ],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0xD834860459a89e609243f00C6fcb4861B351583f",
       "Description": "Deposit HYPE into staking on HyperCore",
@@ -397,7 +405,9 @@
       "TargetAddress": "0x3333333333333333333333333333333333333333"
     },
     {
-      "AddressArguments": ["0x0000000000000000000000000000000000000005"],
+      "AddressArguments": [
+        "0x0000000000000000000000000000000000000005"
+      ],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0xD834860459a89e609243f00C6fcb4861B351583f",
       "Description": "Withdraw HYPE from staking on HyperCore",
@@ -464,7 +474,9 @@
       "TargetAddress": "0x2222222222222222222222222222222222222222"
     },
     {
-      "AddressArguments": ["0x6B9E773128f453f5c2C60935Ee2DE2CBc5390A24"],
+      "AddressArguments": [
+        "0x6B9E773128f453f5c2C60935Ee2DE2CBc5390A24"
+      ],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0xD834860459a89e609243f00C6fcb4861B351583f",
       "Description": "Approve USDC to coreDepositWallet for HyperCore bridge",
@@ -5741,7 +5753,9 @@
     }
   ],
   "MerkleTree": {
-    "0": ["0x30185f82ba6ae4c3f28d046906193508f20fda83aff8551498b6ea5ac7f12012"],
+    "0": [
+      "0x30185f82ba6ae4c3f28d046906193508f20fda83aff8551498b6ea5ac7f12012"
+    ],
     "1": [
       "0x7a59426799a5f646196f12a17066d62a15330d295c08cf51959289835a5efaee",
       "0xf99f6d2fb00c53b40c77eed68fd90b5bd2f61651850b4b92fc8902cc2c5841fa"
