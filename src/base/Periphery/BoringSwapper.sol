@@ -35,6 +35,12 @@ contract BoringSwapper is Auth {
         ERC20 tokenIn; 
         ERC20 tokenOut; 
     }
+
+    struct OracleConfig {
+        address usdOracle; 
+        address ethOracle;
+        address btcOracle;
+    }
     
     struct SwapConfig{
         TokenRoute tokenRoute; 
@@ -47,7 +53,8 @@ contract BoringSwapper is Auth {
     mapping(ERC20 token => bool approved) public approvedTokens;
     mapping(bytes32 routeId => bool approved) public approvedRoutes; //is this needed? annoying to auth (bad ux)
     mapping(bytes32 routeId => uint256 maxPriceImpact) public priceImpacts;
-    mapping(uint8 protocolId => bool approved) public approvedProtocols; 
+    mapping(uint8 protocolId => bool approved) public approvedProtocols;
+    mapping(ERC20 token => OracleConfig oracleConfig) public oracleConfigs; 
     
     /// @notice stores the current version this swapper subscribes to for a specific protocol
     /// @dev defaults to 0, the first version
@@ -136,5 +143,15 @@ contract BoringSwapper is Auth {
 
     function _getRouteId(ERC20 tokenIn, ERC20 tokenOut) internal returns (bytes32) {
         return keccak256(abi.encode(address(tokenIn), address(tokenOut)));
+    }
+
+    function _getOracle(ERC20 token, QuoteAsset quoteAsset) internal return (address) {
+        OracleConfig memory oracleConfig = oracleConfigs[token]; 
+         
+        if (quoteAsset == QuoteAsset.BTC) return oracleConfig.btcAddress;
+        if (quoteAsset == QuoteAsset.ETH) return oracleConfig.ethAddress;
+        if (quoteAsset == QuoteAsset.USD) return oracleConfig.usdAddress;
+
+        revert("unsupported quote asset"); 
     }
 }
