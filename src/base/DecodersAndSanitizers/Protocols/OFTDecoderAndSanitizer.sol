@@ -17,12 +17,38 @@ contract OFTDecoderAndSanitizer {
         DecoderCustomTypes.MessagingFee calldata, /*_fee*/
         address _refundAddress
     ) external pure virtual returns (bytes memory sensitiveArguments) {
-        // Sanitize Message.
-        if (_sendParam.composeMsg.length > 0) {
-            revert OFTDecoderAndSanitizer__NonZeroMessage();
-        }
         if (_sendParam.oftCmd.length > 0) {
             revert OFTDecoderAndSanitizer__NonZeroOFTCommand();
+        }
+
+        // MultiHop support.
+        if (_sendParam.composeMsg.length > 0) {
+            // It requires the final destination parameters to be encoded in the compose message.
+            DecoderCustomTypes.SendParam memory finalDestinationParams =
+                abi.decode(_sendParam.composeMsg, (DecoderCustomTypes.SendParam));
+
+            if (finalDestinationParams.oftCmd.length > 0) {
+                revert OFTDecoderAndSanitizer__NonZeroOFTCommand();
+            }
+
+            // Do not allow more than one compose message.
+            if (finalDestinationParams.composeMsg.length > 0) {
+                revert OFTDecoderAndSanitizer__NonZeroMessage();
+            }
+
+            // Layout (6 addresses):
+            //   [0]   Packed endpoint IDs: (firstHopEid << 32 | finalDestEid) as address
+            //   [1-2] First hop receiver (bytes32 `to`, split upper/lower)
+            //   [3-4] Final destination receiver (bytes32 `to`, split upper/lower)
+            //   [5]   Refund address
+            return abi.encodePacked(
+                address(uint160((uint256(_sendParam.dstEid) << 32) | uint256(finalDestinationParams.dstEid))),
+                address(bytes20(bytes16(_sendParam.to))),
+                address(bytes20(bytes16(_sendParam.to << 128))),
+                address(bytes20(bytes16(finalDestinationParams.to))),
+                address(bytes20(bytes16(finalDestinationParams.to << 128))),
+                _refundAddress
+            );
         }
 
         sensitiveArguments = abi.encodePacked(
