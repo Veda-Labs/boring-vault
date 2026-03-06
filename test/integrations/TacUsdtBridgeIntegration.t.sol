@@ -45,7 +45,7 @@ contract TacBridgeIntegrationTest is Test, MerkleTreeHelper {
         manager =
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
-        rawDataDecoderAndSanitizer = address(new TacDecoderAndSanitizer());
+        rawDataDecoderAndSanitizer = address(new TacUSDDecoderAndSanitizer());
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -133,16 +133,12 @@ contract TacBridgeIntegrationTest is Test, MerkleTreeHelper {
         internal
         returns (uint256 expectedAssets, uint256 minAssets)
     {
-        vm.selectFork(ethereumFork);
-
         address vault = 0x53E82ABbb12638F09d9e624578ccB666217a765e;
         (bool ok, bytes memory data) =
             vault.staticcall(abi.encodeWithSignature("previewRedeem(uint256)", sharesToBridge));
         require(ok, "previewRedeem failed");
         expectedAssets = abi.decode(data, (uint256));
         minAssets = expectedAssets * (1e4 - slippageBps) / 1e4;
-
-        vm.selectFork(katanaFork);
     }
 
     function _buildSendParam() internal returns (DecoderCustomTypes.SendParam memory sendParam, uint256 nativeFee) {
