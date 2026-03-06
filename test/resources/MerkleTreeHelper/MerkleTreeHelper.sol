@@ -24,6 +24,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
 
     mapping(address => mapping(address => mapping(address => bool))) public ownerToTokenToSpenderToApprovalInTree;
     mapping(address => mapping(address => mapping(address => bool))) public ownerToOneInchSellTokenToBuyTokenToInTree;
+    mapping(address => mapping(address => mapping(address => bool))) public ownerToOneInchV6SellTokenToBuyTokenToInTree;
     mapping(address => mapping(address => mapping(address => bool))) public ownerToOdosSellTokenToBuyTokenToInTree;
     mapping(address => mapping(address => mapping(address => bool))) public ownerToOogaBoogaSellTokenToBuyTokenToInTree;
     mapping(address => mapping(address => mapping(address => bool))) public ownerToGlueXSellTokenToBuyTokenToInTree;
@@ -304,6 +305,352 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = pool;
+    }
+
+    // ========================================= 1Inch V6 =========================================
+
+    function _addLeafsFor1InchV6GeneralSwapping(
+        ManageLeaf[] memory leafs,
+        address[] memory assets,
+        SwapKind[] memory kind
+    ) internal {
+        require(assets.length == kind.length, "Arrays must be of equal length");
+        for (uint256 i; i < assets.length; ++i) {
+            // Add approval leaf if not already added
+            if (
+                !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][assets[i]][getAddress(
+                    sourceChain, "aggregationRouterV6"
+                )]
+            ) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    assets[i],
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve 1Inch V6 router to spend ", ERC20(assets[i]).symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "aggregationRouterV6");
+                ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][assets[i]][getAddress(
+                    sourceChain, "aggregationRouterV6"
+                )] = true;
+            }
+            // Iterate through the list again.
+            for (uint256 j; j < assets.length; ++j) {
+                // Skip if we are on the same index
+                if (i == j) {
+                    continue;
+                }
+                if (
+                    !ownerToOneInchV6SellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][assets[i]][assets[j]]
+                        && kind[j] != SwapKind.Sell
+                ) {
+                    // Add sell swap.
+                    unchecked {
+                        leafIndex++;
+                    }
+                    leafs[leafIndex] = ManageLeaf(
+                        getAddress(sourceChain, "aggregationRouterV6"),
+                        false,
+                        "swap(address,(address,address,address,address,uint256,uint256,uint256),bytes)",
+                        new address[](5),
+                        string.concat(
+                            "Swap ",
+                            ERC20(assets[i]).symbol(),
+                            " for ",
+                            ERC20(assets[j]).symbol(),
+                            " using 1inch V6 router"
+                        ),
+                        getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                    );
+                    leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "oneInchExecutor");
+                    leafs[leafIndex].argumentAddresses[1] = assets[i];
+                    leafs[leafIndex].argumentAddresses[2] = assets[j];
+                    leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "oneInchExecutor");
+                    leafs[leafIndex].argumentAddresses[4] = getAddress(sourceChain, "boringVault");
+                    ownerToOneInchV6SellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][assets[i]][assets[j]]
+                    = true;
+                }
+
+                if (
+                    kind[i] == SwapKind.BuyAndSell
+                        && !ownerToOneInchV6SellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][assets[j]][assets[i]]
+                ) {
+                    // Add buy swap.
+                    unchecked {
+                        leafIndex++;
+                    }
+                    leafs[leafIndex] = ManageLeaf(
+                        getAddress(sourceChain, "aggregationRouterV6"),
+                        false,
+                        "swap(address,(address,address,address,address,uint256,uint256,uint256),bytes)",
+                        new address[](5),
+                        string.concat(
+                            "Swap ",
+                            ERC20(assets[j]).symbol(),
+                            " for ",
+                            ERC20(assets[i]).symbol(),
+                            " using 1inch V6 router"
+                        ),
+                        getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                    );
+                    leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "oneInchExecutor");
+                    leafs[leafIndex].argumentAddresses[1] = assets[j];
+                    leafs[leafIndex].argumentAddresses[2] = assets[i];
+                    leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "oneInchExecutor");
+                    leafs[leafIndex].argumentAddresses[4] = getAddress(sourceChain, "boringVault");
+                    ownerToOneInchV6SellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][assets[j]][assets[i]]
+                    = true;
+                }
+            }
+        }
+    }
+
+    function _addLeafsFor1InchV6Unoswap(ManageLeaf[] memory leafs, address token, address[] memory dexes) internal {
+        require(dexes.length >= 1 && dexes.length <= 3, "Invalid number of dexes");
+
+        // Add approval leaf if not already added
+        if (
+            !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token][getAddress(
+                sourceChain, "aggregationRouterV6"
+            )]
+        ) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                token,
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve 1Inch V6 router to spend ", ERC20(token).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "aggregationRouterV6");
+            ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token][getAddress(
+                sourceChain, "aggregationRouterV6"
+            )] = true;
+        }
+
+        string memory sig;
+        if (dexes.length == 1) sig = "unoswap(uint256,uint256,uint256,uint256)";
+        else if (dexes.length == 2) sig = "unoswap2(uint256,uint256,uint256,uint256,uint256)";
+        else sig = "unoswap3(uint256,uint256,uint256,uint256,uint256,uint256)";
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "aggregationRouterV6"),
+            false,
+            sig,
+            new address[](1 + dexes.length),
+            string.concat("Unoswap ", ERC20(token).symbol(), " using 1inch V6 router"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = token;
+        for (uint256 i; i < dexes.length; ++i) {
+            leafs[leafIndex].argumentAddresses[1 + i] = dexes[i];
+        }
+    }
+
+    function _addLeafsFor1InchV6EthUnoswap(ManageLeaf[] memory leafs, address[] memory dexes) internal {
+        require(dexes.length >= 1 && dexes.length <= 3, "Invalid number of dexes");
+
+        string memory sig;
+        if (dexes.length == 1) sig = "ethUnoswap(uint256,uint256)";
+        else if (dexes.length == 2) sig = "ethUnoswap2(uint256,uint256,uint256)";
+        else sig = "ethUnoswap3(uint256,uint256,uint256,uint256)";
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "aggregationRouterV6"),
+            true,
+            sig,
+            new address[](dexes.length),
+            "Eth unoswap using 1inch V6 router",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        for (uint256 i; i < dexes.length; ++i) {
+            leafs[leafIndex].argumentAddresses[i] = dexes[i];
+        }
+    }
+
+    // ========================================= 1Inch V6 Owned =========================================
+
+    function _addLeafsFor1InchV6OwnedGeneralSwapping(
+        ManageLeaf[] memory leafs,
+        address[] memory assets,
+        SwapKind[] memory kind
+    ) internal {
+        require(assets.length == kind.length, "Arrays must be of equal length");
+        for (uint256 i; i < assets.length; ++i) {
+            // Add approval leaf if not already added
+            if (
+                !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][assets[i]][getAddress(
+                    sourceChain, "aggregationRouterV6"
+                )]
+            ) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    assets[i],
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve 1Inch V6 router to spend ", ERC20(assets[i]).symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "aggregationRouterV6");
+                ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][assets[i]][getAddress(
+                    sourceChain, "aggregationRouterV6"
+                )] = true;
+            }
+            // Iterate through the list again.
+            for (uint256 j; j < assets.length; ++j) {
+                // Skip if we are on the same index
+                if (i == j) {
+                    continue;
+                }
+                if (
+                    !ownerToOneInchV6SellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][assets[i]][assets[j]]
+                        && kind[j] != SwapKind.Sell
+                ) {
+                    // Add sell swap.
+                    unchecked {
+                        leafIndex++;
+                    }
+                    leafs[leafIndex] = ManageLeaf(
+                        getAddress(sourceChain, "aggregationRouterV6"),
+                        false,
+                        "swap(address,(address,address,address,address,uint256,uint256,uint256),bytes)",
+                        new address[](3),
+                        string.concat(
+                            "Swap ",
+                            ERC20(assets[i]).symbol(),
+                            " for ",
+                            ERC20(assets[j]).symbol(),
+                            " using 1inch V6 router"
+                        ),
+                        getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                    );
+                    leafs[leafIndex].argumentAddresses[0] = assets[i];
+                    leafs[leafIndex].argumentAddresses[1] = assets[j];
+                    leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+                    ownerToOneInchV6SellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][assets[i]][assets[j]]
+                    = true;
+                }
+
+                if (
+                    kind[i] == SwapKind.BuyAndSell
+                        && !ownerToOneInchV6SellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][assets[j]][assets[i]]
+                ) {
+                    // Add buy swap.
+                    unchecked {
+                        leafIndex++;
+                    }
+                    leafs[leafIndex] = ManageLeaf(
+                        getAddress(sourceChain, "aggregationRouterV6"),
+                        false,
+                        "swap(address,(address,address,address,address,uint256,uint256,uint256),bytes)",
+                        new address[](3),
+                        string.concat(
+                            "Swap ",
+                            ERC20(assets[j]).symbol(),
+                            " for ",
+                            ERC20(assets[i]).symbol(),
+                            " using 1inch V6 router"
+                        ),
+                        getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                    );
+                    leafs[leafIndex].argumentAddresses[0] = assets[j];
+                    leafs[leafIndex].argumentAddresses[1] = assets[i];
+                    leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+                    ownerToOneInchV6SellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][assets[j]][assets[i]]
+                    = true;
+                }
+            }
+        }
+    }
+
+    function _addLeafsFor1InchV6OwnedUnoswap(ManageLeaf[] memory leafs, address token, address[] memory dexes)
+        internal
+    {
+        require(dexes.length >= 1 && dexes.length <= 3, "Invalid number of dexes");
+
+        // Add approval leaf if not already added
+        if (
+            !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token][getAddress(
+                sourceChain, "aggregationRouterV6"
+            )]
+        ) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                token,
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve 1Inch V6 router to spend ", ERC20(token).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "aggregationRouterV6");
+            ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token][getAddress(
+                sourceChain, "aggregationRouterV6"
+            )] = true;
+        }
+
+        string memory sig;
+        if (dexes.length == 1) sig = "unoswap(uint256,uint256,uint256,uint256)";
+        else if (dexes.length == 2) sig = "unoswap2(uint256,uint256,uint256,uint256,uint256)";
+        else sig = "unoswap3(uint256,uint256,uint256,uint256,uint256,uint256)";
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "aggregationRouterV6"),
+            false,
+            sig,
+            new address[](1 + dexes.length),
+            string.concat("Unoswap ", ERC20(token).symbol(), " using 1inch V6 router"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = token;
+        for (uint256 i; i < dexes.length; ++i) {
+            leafs[leafIndex].argumentAddresses[1 + i] = dexes[i];
+        }
+    }
+
+    function _addLeafsFor1InchV6OwnedEthUnoswap(ManageLeaf[] memory leafs, address[] memory dexes) internal {
+        require(dexes.length >= 1 && dexes.length <= 3, "Invalid number of dexes");
+
+        string memory sig;
+        if (dexes.length == 1) sig = "ethUnoswap(uint256,uint256)";
+        else if (dexes.length == 2) sig = "ethUnoswap2(uint256,uint256,uint256)";
+        else sig = "ethUnoswap3(uint256,uint256,uint256,uint256)";
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "aggregationRouterV6"),
+            true,
+            sig,
+            new address[](dexes.length),
+            "Eth unoswap using 1inch V6 router",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        for (uint256 i; i < dexes.length; ++i) {
+            leafs[leafIndex].argumentAddresses[i] = dexes[i];
+        }
     }
 
     // ========================================= Curve/Convex =========================================
