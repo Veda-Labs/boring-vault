@@ -5,10 +5,11 @@
 pragma solidity 0.8.21;
 
 import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol"; 
-import {BeraborrowDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BeraborrowDecoderAndSanitizer.sol"; 
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol"; 
+import {BeraborrowDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BeraborrowDecoderAndSanitizer.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 
-contract FullBeraborrowDecoderAndSanitizer is BeraborrowDecoderAndSanitizer {}
+contract FullBeraborrowDecoderAndSanitizer is BeraborrowDecoderAndSanitizer, BaseDecoderAndSanitizer {}
         
 
 contract BeraborrowIntegrationTest is BaseTestIntegration {

@@ -6,9 +6,10 @@ pragma solidity 0.8.21;
 
 import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol"; 
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {BGTRewardVaultDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BGTRewardVaultDecoderAndSanitizer.sol"; 
+import {BGTRewardVaultDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BGTRewardVaultDecoderAndSanitizer.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 
-contract FullBGTRewardVaultDecoderAndSanitizer is BGTRewardVaultDecoderAndSanitizer {
+contract FullBGTRewardVaultDecoderAndSanitizer is BGTRewardVaultDecoderAndSanitizer, BaseDecoderAndSanitizer {
 
     //function deposit(uint256, address receiver) external pure override(ERC4626DecoderAndSanitizer, CurveDecoderAndSanitizer) returns (bytes memory addressesFound) {
     //    addressesFound = abi.encodePacked(receiver);

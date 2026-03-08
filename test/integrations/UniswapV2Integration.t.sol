@@ -10,6 +10,7 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {UniswapV2DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV2DecoderAndSanitizer.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
@@ -488,7 +489,7 @@ contract UniswapV2IntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullUniswapV2DecoderAndSanitizer is UniswapV2DecoderAndSanitizer {}
+contract FullUniswapV2DecoderAndSanitizer is UniswapV2DecoderAndSanitizer, BaseDecoderAndSanitizer {}
 
 interface IUniswapV2Factory {
     function getPair(address token0, address token1) external view returns (address);

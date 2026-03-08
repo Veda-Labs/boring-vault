@@ -10,6 +10,7 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {LBTCBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LBTCBridgeDecoderAndSanitizer.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
@@ -156,4 +157,4 @@ contract LBTCBridgeIntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullLBTCBridgeDecoderAndSanitizer is LBTCBridgeDecoderAndSanitizer {}
+contract FullLBTCBridgeDecoderAndSanitizer is LBTCBridgeDecoderAndSanitizer, BaseDecoderAndSanitizer {}

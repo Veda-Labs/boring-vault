@@ -4,18 +4,20 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol"; 
+import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {KodiakIslandDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/KodiakIslandDecoderAndSanitizer.sol"; 
-import {InfraredDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/InfraredDecoderAndSanitizer.sol"; 
+import {KodiakIslandDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/KodiakIslandDecoderAndSanitizer.sol";
+import {InfraredDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/InfraredDecoderAndSanitizer.sol";
 import {OogaBoogaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OogaBoogaDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol"; 
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {console} from "@forge-std/Test.sol";
 
-contract FullBerachainDecoder is 
+contract FullBerachainDecoder is
     KodiakIslandDecoderAndSanitizer,
     InfraredDecoderAndSanitizer,
-    OogaBoogaDecoderAndSanitizer
+    OogaBoogaDecoderAndSanitizer,
+    BaseDecoderAndSanitizer
 {
 
 }

@@ -16095,8 +16095,14 @@ function _addTellerLeafsWithReferral(
         merkleTreeOut[merkleTreeIn_length] = new bytes32[](next_layer_length);
         uint256 count;
         for (uint256 i; i < layer_length; i += 2) {
-            merkleTreeOut[merkleTreeIn_length][count] =
-                _hashPair(merkleTreeIn[merkleTreeIn_length - 1][i], merkleTreeIn[merkleTreeIn_length - 1][i + 1]);
+            if (i + 1 < layer_length) {
+                merkleTreeOut[merkleTreeIn_length][count] =
+                    _hashPair(merkleTreeIn[merkleTreeIn_length - 1][i], merkleTreeIn[merkleTreeIn_length - 1][i + 1]);
+            } else {
+                // Odd leaf: duplicate it to form its own pair.
+                merkleTreeOut[merkleTreeIn_length][count] =
+                    _hashPair(merkleTreeIn[merkleTreeIn_length - 1][i], merkleTreeIn[merkleTreeIn_length - 1][i]);
+            }
             count++;
         }
 
@@ -16303,7 +16309,12 @@ function _addTellerLeafsWithReferral(
             for (uint256 j; j < tree[i].length; ++j) {
                 if (leaf == tree[i][j]) {
                     // We have found the leaf, so now figure out if the proof needs the next leaf or the previous one.
-                    proof[i] = j % 2 == 0 ? tree[i][j + 1] : tree[i][j - 1];
+                    if (j % 2 == 0) {
+                        // Even index: pair with next element, or self if last in odd-length layer.
+                        proof[i] = (j + 1 < tree[i].length) ? tree[i][j + 1] : tree[i][j];
+                    } else {
+                        proof[i] = tree[i][j - 1];
+                    }
                     leaf = _hashPair(leaf, proof[i]);
                     break;
                 } else if (j == tree[i].length - 1) {

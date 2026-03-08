@@ -10,6 +10,7 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {BeraETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BeraETHDecoderAndSanitizer.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
@@ -155,4 +156,4 @@ contract BeraETHIntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullBeraETHDecoderAndSanitizer is BeraETHDecoderAndSanitizer {}
+contract FullBeraETHDecoderAndSanitizer is BeraETHDecoderAndSanitizer, BaseDecoderAndSanitizer {}

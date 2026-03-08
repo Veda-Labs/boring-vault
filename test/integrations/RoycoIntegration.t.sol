@@ -7,6 +7,7 @@ pragma solidity 0.8.21;
 import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {RoycoWeirollDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/RoycoDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 
@@ -629,6 +630,6 @@ contract RoycoIntegrationTest is BaseTestIntegration {
     }
 }
 
-contract FullRoycoDecoderAndSanitizer is RoycoWeirollDecoderAndSanitizer {
+contract FullRoycoDecoderAndSanitizer is BaseDecoderAndSanitizer, RoycoWeirollDecoderAndSanitizer {
     constructor(address _recipeMarketHub) RoycoWeirollDecoderAndSanitizer(_recipeMarketHub) {}
 }

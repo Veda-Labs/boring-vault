@@ -10,6 +10,7 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {UniswapV4DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV4DecoderAndSanitizer.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {Actions, Commands, TickMath} from "src/interfaces/UniswapV4Actions.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
@@ -1706,7 +1707,7 @@ contract UniswapV4IntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullUniswapV4DecoderAndSanitizer is UniswapV4DecoderAndSanitizer {
+contract FullUniswapV4DecoderAndSanitizer is UniswapV4DecoderAndSanitizer, BaseDecoderAndSanitizer {
     constructor(address _posm) UniswapV4DecoderAndSanitizer(_posm){} 
 }
 

@@ -10,6 +10,7 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {ConvexFXDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ConvexFXDecoderAndSanitizer.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
@@ -209,6 +210,6 @@ contract ConvexFXIntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullConvexDecoderAndSanitizer is ConvexFXDecoderAndSanitizer {
-    constructor(address _poolRegistry) ConvexFXDecoderAndSanitizer(_poolRegistry){}
+contract FullConvexDecoderAndSanitizer is ConvexFXDecoderAndSanitizer, BaseDecoderAndSanitizer {
+    constructor(address _poolRegistry) ConvexFXDecoderAndSanitizer(_poolRegistry) {}
 }

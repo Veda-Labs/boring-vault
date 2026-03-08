@@ -10,6 +10,7 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {StakeStoneDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/StakeStoneDecoderAndSanitizer.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
@@ -163,4 +164,4 @@ contract StakeStoneIntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullStakeStoneDecoderAndSanitizer is StakeStoneDecoderAndSanitizer {}
+contract FullStakeStoneDecoderAndSanitizer is StakeStoneDecoderAndSanitizer, BaseDecoderAndSanitizer {}

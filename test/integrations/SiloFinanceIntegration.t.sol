@@ -10,6 +10,7 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {SiloDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SiloDecoderAndSanitizer.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
@@ -111,7 +112,7 @@ contract SiloFinanceIntegrationTest is Test, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](64); //24 leaves per silo v2 market
         address[] memory incentivesControllers = new address[](2); 
-        incentivesControllers[0] = getAddress(sourceChain, "silo_wS_USDC_id20_USDC_IncentiveController"); 
+        incentivesControllers[0] = getAddress(sourceChain, "silo_wS_USDC_id20_USDC_IncentivesController"); 
         incentivesControllers[1] = address(0);
         _addSiloV2Leafs(
             leafs, 
@@ -211,7 +212,7 @@ contract SiloFinanceIntegrationTest is Test, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](64); //17 leaves per silo v2 market
         address[] memory incentivesControllers = new address[](2); 
-        incentivesControllers[0] = getAddress(sourceChain, "silo_wS_USDC_id20_USDC_IncentiveController"); 
+        incentivesControllers[0] = getAddress(sourceChain, "silo_wS_USDC_id20_USDC_IncentivesController"); 
         incentivesControllers[1] = address(0);
         _addSiloV2Leafs(
             leafs, 
@@ -317,7 +318,7 @@ contract SiloFinanceIntegrationTest is Test, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](64); //17 leaves per silo v2 market
         address[] memory incentivesControllers = new address[](2); 
-        incentivesControllers[0] = getAddress(sourceChain, "silo_wS_USDC_id20_USDC_IncentiveController"); 
+        incentivesControllers[0] = getAddress(sourceChain, "silo_wS_USDC_id20_USDC_IncentivesController"); 
         incentivesControllers[1] = address(0);
         _addSiloV2Leafs(
             leafs, 
@@ -396,7 +397,7 @@ contract SiloFinanceIntegrationTest is Test, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](64); //17 leaves per silo v2 market
         address[] memory incentivesControllers = new address[](2); 
-        incentivesControllers[0] = getAddress(sourceChain, "silo_wS_USDC_id20_USDC_IncentiveController"); 
+        incentivesControllers[0] = getAddress(sourceChain, "silo_wS_USDC_id20_USDC_IncentivesController"); 
         incentivesControllers[1] = address(0);
         _addSiloV2Leafs(
             leafs, 
@@ -463,7 +464,7 @@ contract SiloFinanceIntegrationTest is Test, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](64); //17 leaves per silo v2 market
         address[] memory incentivesControllers = new address[](2); 
-        incentivesControllers[0] = getAddress(sourceChain, "silo_wS_USDC_id20_USDC_IncentiveController"); 
+        incentivesControllers[0] = getAddress(sourceChain, "silo_wS_USDC_id20_USDC_IncentivesController"); 
         incentivesControllers[1] = address(0);
         _addSiloV2Leafs(
             leafs, 
@@ -529,7 +530,7 @@ contract SiloFinanceIntegrationTest is Test, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](64); //17 leaves per silo v2 market
         address[] memory incentivesControllers = new address[](2); 
-        incentivesControllers[0] = getAddress(sourceChain, "silo_wS_USDC_id20_USDC_IncentiveController"); 
+        incentivesControllers[0] = getAddress(sourceChain, "silo_wS_USDC_id20_USDC_IncentivesController"); 
         incentivesControllers[1] = address(0);
         _addSiloV2Leafs(
             leafs, 
@@ -638,7 +639,7 @@ contract SiloFinanceIntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullSiloDecoderAndSanitizer is SiloDecoderAndSanitizer {}
+contract FullSiloDecoderAndSanitizer is SiloDecoderAndSanitizer, BaseDecoderAndSanitizer {}
 
 interface ISiloConfig {
     function getSilos() external view returns (address, address);

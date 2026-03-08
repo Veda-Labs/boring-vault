@@ -5,9 +5,10 @@
 pragma solidity 0.8.21;
 
 import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol"; 
-import {AgglayerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AgglayerDecoderAndSanitizer.sol"; 
+import {AgglayerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AgglayerDecoderAndSanitizer.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 
-contract FullAgglayerDecoderAndSanitizer is AgglayerDecoderAndSanitizer{}
+contract FullAgglayerDecoderAndSanitizer is AgglayerDecoderAndSanitizer, BaseDecoderAndSanitizer{}
 
 
 contract AgglayerIntegrationTest is BaseTestIntegration {

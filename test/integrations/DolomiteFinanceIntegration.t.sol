@@ -9,7 +9,8 @@ import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVer
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {DolomiteDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/DolomiteDecoderAndSanitizer.sol";  
+import {DolomiteDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/DolomiteDecoderAndSanitizer.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";  
 import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol"; 
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
@@ -650,7 +651,7 @@ contract DolomiteFinanceIntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullDolomiteDecoderAndSanitizer is DolomiteDecoderAndSanitizer, ERC4626DecoderAndSanitizer {
+contract FullDolomiteDecoderAndSanitizer is DolomiteDecoderAndSanitizer, ERC4626DecoderAndSanitizer, BaseDecoderAndSanitizer {
     constructor(address _dolomiteMargin) DolomiteDecoderAndSanitizer(_dolomiteMargin){}
 }
 

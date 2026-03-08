@@ -11,6 +11,7 @@ import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {SonicDepositDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/SonicDepositDecoderAndSanitizer.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
@@ -181,4 +182,4 @@ contract RingsVoterIntegration is Test, MerkleTreeHelper {
     }
 }
 
-contract FullRingsDecoderAndSanitizer is SonicDepositDecoderAndSanitizer {}
+contract FullRingsDecoderAndSanitizer is SonicDepositDecoderAndSanitizer, BaseDecoderAndSanitizer {}

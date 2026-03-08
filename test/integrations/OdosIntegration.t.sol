@@ -10,6 +10,7 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
@@ -841,6 +842,6 @@ contract OdosIntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullOdosDecoderAndSanitizer is OdosDecoderAndSanitizer {
-    constructor(address _odosRouter) OdosDecoderAndSanitizer(_odosRouter){}
+contract FullOdosDecoderAndSanitizer is OdosDecoderAndSanitizer, BaseDecoderAndSanitizer {
+    constructor(address _odosRouter) OdosDecoderAndSanitizer(_odosRouter) {}
 }

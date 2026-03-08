@@ -61,7 +61,7 @@ contract EigenStakingIntegrationTest is Test, MerkleTreeHelper {
         // Call deposit
         // withdraw
         // complete withdraw
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](9);
         _addLeafsForEigenLayerLST(
             leafs,
             getAddress(sourceChain, "EIGEN"),
@@ -183,7 +183,7 @@ contract EigenStakingIntegrationTest is Test, MerkleTreeHelper {
     function testDelegation() external {
         deal(getAddress(sourceChain, "EIGEN"), address(boringVault), 1_000e18);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](9);
         _addLeafsForEigenLayerLST(
             leafs,
             getAddress(sourceChain, "EIGEN"),
@@ -201,8 +201,8 @@ contract EigenStakingIntegrationTest is Test, MerkleTreeHelper {
         manager.setManageRoot(strategist, manageTree[manageTree.length - 1][0]);
 
         ManageLeaf[] memory manageLeafs = new ManageLeaf[](2);
-        manageLeafs[0] = leafs[4];
-        manageLeafs[1] = leafs[5];
+        manageLeafs[0] = leafs[6];
+        manageLeafs[1] = leafs[7];
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 

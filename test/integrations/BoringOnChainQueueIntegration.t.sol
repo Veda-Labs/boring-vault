@@ -10,6 +10,7 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {DelayedWithdraw} from "src/archive/DelayedWithdraw.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
@@ -354,4 +355,4 @@ contract BoringOnChainQueueIntegration is Test, MerkleTreeHelper {
     }
 }
 
-contract FullBoringVaultDecoder is TellerDecoderAndSanitizer {}
+contract FullBoringVaultDecoder is TellerDecoderAndSanitizer, BaseDecoderAndSanitizer {}

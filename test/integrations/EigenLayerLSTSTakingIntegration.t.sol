@@ -188,7 +188,7 @@ contract EigenLayerLSTStakingIntegrationTest is Test, MerkleTreeHelper {
         // Call deposit
         // withdraw
         // complete withdraw
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](9);
         _addLeafsForEigenLayerLST(
             leafs,
             getAddress(sourceChain, "METH"),
@@ -299,14 +299,14 @@ contract EigenLayerLSTStakingIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testEigenLayerLSTStakingReverts() external {
-        _setUpOld(); 
+        _setUpOld();
         deal(getAddress(sourceChain, "METH"), address(boringVault), 1_000e18);
 
         // approve
         // Call deposit
         // withdraw
         // complete withdraw
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](9);
         _addLeafsForEigenLayerLST(
             leafs,
             getAddress(sourceChain, "METH"),
@@ -420,10 +420,10 @@ contract EigenLayerLSTStakingIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testDelegation() external {
-        _setUpOld(); 
+        _setUpOld();
         deal(getAddress(sourceChain, "METH"), address(boringVault), 1_000e18);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](9);
         _addLeafsForEigenLayerLST(
             leafs,
             getAddress(sourceChain, "METH"),
@@ -440,8 +440,8 @@ contract EigenLayerLSTStakingIntegrationTest is Test, MerkleTreeHelper {
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
         ManageLeaf[] memory manageLeafs = new ManageLeaf[](2);
-        manageLeafs[0] = leafs[5];
-        manageLeafs[1] = leafs[6];
+        manageLeafs[0] = leafs[6];
+        manageLeafs[1] = leafs[7];
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 
@@ -468,14 +468,14 @@ contract EigenLayerLSTStakingIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testEigenLayerLSTStakingIntegrationNew() external {
-        _setUpNew(); 
+        _setUpNew();
         deal(getAddress(sourceChain, "METH"), address(boringVault), 1_000e18);
 
         // approve
         // Call deposit
         // withdraw
         // complete withdraw
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](9);
         _addLeafsForEigenLayerLST(
             leafs,
             getAddress(sourceChain, "METH"),

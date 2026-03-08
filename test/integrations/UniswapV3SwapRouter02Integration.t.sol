@@ -11,6 +11,7 @@ import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {UniswapV3SwapRouter02DecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/UniswapV3SwapRouter02DecoderAndSanitizer.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
@@ -166,6 +167,6 @@ contract UniswapV3SwapRouter02IntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullUniswapV3DecoderAndSanitizer is UniswapV3SwapRouter02DecoderAndSanitizer {
+contract FullUniswapV3DecoderAndSanitizer is UniswapV3SwapRouter02DecoderAndSanitizer, BaseDecoderAndSanitizer {
     constructor(address _nfpm) UniswapV3SwapRouter02DecoderAndSanitizer(_nfpm) {}
 }

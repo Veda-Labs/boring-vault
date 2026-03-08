@@ -5,11 +5,10 @@
 pragma solidity 0.8.21;
 
 import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol"; 
-import {SiloDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SiloDecoderAndSanitizer.sol"; 
+import {SiloDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SiloDecoderAndSanitizer.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 
-contract FullSiloDecoderAndSanitizer is SiloDecoderAndSanitizer {
-
-}
+contract FullSiloDecoderAndSanitizer is SiloDecoderAndSanitizer, BaseDecoderAndSanitizer {}
 
 contract SiloVaultsIntegration is BaseTestIntegration {
 

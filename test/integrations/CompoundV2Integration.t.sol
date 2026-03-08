@@ -10,6 +10,7 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {CompoundV2DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CompoundV2DecoderAndSanitizer.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
@@ -241,7 +242,7 @@ contract CompoundV2IntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullCompoundV2DecoderAndSanitizer is CompoundV2DecoderAndSanitizer {}
+contract FullCompoundV2DecoderAndSanitizer is CompoundV2DecoderAndSanitizer, BaseDecoderAndSanitizer {}
 
 interface IUnitroller {
     function _setMarketBorrowCaps(address[] memory cTokens, uint256[] memory newBorrowCaps) external;

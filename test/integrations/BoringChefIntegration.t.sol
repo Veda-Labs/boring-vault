@@ -10,6 +10,7 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {BoringChefDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BoringChefDecoderAndSanitizer.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
@@ -242,8 +243,7 @@ contract BoringChefIntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullBoringChefDecoderAndSanitizer is BoringChefDecoderAndSanitizer {
-}
+contract FullBoringChefDecoderAndSanitizer is BoringChefDecoderAndSanitizer, BaseDecoderAndSanitizer {}
 
 // Temporary Mock Contract for test until real BoringChef is deployed
 contract MockBoringChef {

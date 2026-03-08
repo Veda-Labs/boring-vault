@@ -10,6 +10,7 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {GoldiVaultDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/GoldiVaultDecoderAndSanitizer.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
@@ -591,7 +592,7 @@ contract GoldiVaultIntegration is Test, MerkleTreeHelper {
     }
 }
 
-contract FullGoldiVaultDecoderAndSanitizer is GoldiVaultDecoderAndSanitizer {}
+contract FullGoldiVaultDecoderAndSanitizer is GoldiVaultDecoderAndSanitizer, BaseDecoderAndSanitizer {}
 
 interface IGoldiVault {
     function concludeTime() external view returns (uint256);
