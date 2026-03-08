@@ -88,7 +88,12 @@ contract ChainlinkCCIPTeller is CrossChainTellerWithGenericBridge, CCIPReceiver 
         if (allowMessagesTo && messageGasLimit == 0) {
             revert ChainlinkCCIPTeller__ZeroMessageGasLimit();
         }
-        selectorToChains[chainSelector] = Chain(allowMessagesFrom, allowMessagesTo, targetTeller, messageGasLimit);
+        selectorToChains[chainSelector] = Chain({
+            allowMessagesFrom: allowMessagesFrom,
+            allowMessagesTo: allowMessagesTo,
+            targetTeller: targetTeller,
+            messageGasLimit: messageGasLimit
+        });
 
         emit ChainAdded(chainSelector, allowMessagesFrom, allowMessagesTo, targetTeller, messageGasLimit);
     }

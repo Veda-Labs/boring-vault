@@ -9,17 +9,13 @@ import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProv
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {IRateProvider} from "src/interfaces/IRateProvider.sol";
-import {ILiquidityPool} from "src/interfaces/IStaking.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {AtomicSolverV3, AtomicQueue} from "src/archive/atomic-queue/AtomicSolverV3.sol";
+import {RolesAuthority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
-import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {BoringOnChainQueueWithTracking} from "src/base/Roles/BoringQueue/BoringOnChainQueueWithTracking.sol";
 import {BoringOnChainQueue} from "src/base/Roles/BoringQueue/BoringOnChainQueue.sol";
 import {BoringSolver} from "src/base/Roles/BoringQueue/BoringSolver.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import {Test, stdStorage, StdStorage} from "@forge-std/Test.sol";
 
 contract BoringQueueWithtrackingTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;

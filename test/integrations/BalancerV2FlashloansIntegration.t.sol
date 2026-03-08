@@ -4,23 +4,19 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
 import {BoringVault} from "src/base/BoringVault.sol";
 import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {
-    EtherFiLiquidDecoderAndSanitizer,
-    UniswapV3DecoderAndSanitizer
+    EtherFiLiquidDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/EtherFiLiquidDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import {BalancerVault} from "src/interfaces/BalancerVault.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import {Test, stdStorage, StdStorage} from "@forge-std/Test.sol";
 
 contract BalancerV2FlashloansIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -115,23 +111,23 @@ contract BalancerV2FlashloansIntegrationTest is Test, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](4);
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDC"));
         // Add some extra leafs so we can do something during the flashloan.
-        leafs[1] = ManageLeaf(
-            address(this),
-            false,
-            "approve(address,uint256)",
-            new address[](1),
-            "",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
+        leafs[1] = ManageLeaf({
+            target: address(this),
+            canSendValue: false,
+            signature: "approve(address,uint256)",
+            argumentAddresses: new address[](1),
+            description: "",
+            decoderAndSanitizer: getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        });
         leafs[1].argumentAddresses[0] = getAddress(sourceChain, "USDC");
-        leafs[2] = ManageLeaf(
-            getAddress(sourceChain, "USDC"),
-            false,
-            "approve(address,uint256)",
-            new address[](1),
-            "",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
+        leafs[2] = ManageLeaf({
+            target: getAddress(sourceChain, "USDC"),
+            canSendValue: false,
+            signature: "approve(address,uint256)",
+            argumentAddresses: new address[](1),
+            description: "",
+            decoderAndSanitizer: getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        });
         leafs[2].argumentAddresses[0] = address(this);
         // leaf[3] empty
 
@@ -221,14 +217,14 @@ contract BalancerV2FlashloansIntegrationTest is Test, MerkleTreeHelper {
         manager.setAuthority(rolesAuthority);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](4);
-        leafs[0] = ManageLeaf(
-            address(manager),
-            false,
-            "flashLoan(address,address[],uint256[],bytes)",
-            new address[](2),
-            "",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
+        leafs[0] = ManageLeaf({
+            target: address(manager),
+            canSendValue: false,
+            signature: "flashLoan(address,address[],uint256[],bytes)",
+            argumentAddresses: new address[](2),
+            description: "",
+            decoderAndSanitizer: getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        });
         leafs[0].argumentAddresses[0] = address(manager);
         leafs[0].argumentAddresses[1] = getAddress(sourceChain, "USDC");
 

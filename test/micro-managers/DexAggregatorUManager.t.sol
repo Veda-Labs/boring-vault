@@ -11,18 +11,13 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {
-    EtherFiLiquidDecoderAndSanitizer,
-    BalancerV2DecoderAndSanitizer
+    EtherFiLiquidDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/EtherFiLiquidDecoderAndSanitizer.sol";
-import {BalancerVault} from "src/interfaces/BalancerVault.sol";
-import {IUniswapV3Router} from "src/interfaces/IUniswapV3Router.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {DexAggregatorUManager, UManager} from "src/micro-managers/DexAggregatorUManager.sol";
 import {PriceRouter} from "src/interfaces/PriceRouter.sol";
-import {AggregationRouterV5} from "src/interfaces/AggregationRouterV5.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import {Test, stdStorage, StdStorage} from "@forge-std/Test.sol";
 
 contract DexAggregatorUManagerTest is Test, MainnetAddresses {
     using SafeTransferLib for ERC20;
@@ -119,9 +114,19 @@ contract DexAggregatorUManagerTest is Test, MainnetAddresses {
         // Make sure the vault can
         // swap weETH -> wETH
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
-        leafs[0] = ManageLeaf(address(WETH), false, "approve(address,uint256)", new address[](1));
+        leafs[0] = ManageLeaf({
+            target: address(WETH),
+            canSendValue: false,
+            signature: "approve(address,uint256)",
+            argumentAddresses: new address[](1)
+        });
         leafs[0].argumentAddresses[0] = aggregationRouterV5;
-        leafs[1] = ManageLeaf(aggregationRouterV5, false, "uniswapV3Swap(uint256,uint256,uint256[])", new address[](1));
+        leafs[1] = ManageLeaf({
+            target: aggregationRouterV5,
+            canSendValue: false,
+            signature: "uniswapV3Swap(uint256,uint256,uint256[])",
+            argumentAddresses: new address[](1)
+        });
         leafs[1].argumentAddresses[0] = wETHweETH5bps;
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);

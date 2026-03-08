@@ -4,23 +4,18 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
 import {BoringVault} from "src/base/BoringVault.sol";
 import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {
-    EtherFiLiquidDecoderAndSanitizer,
-    CurveDecoderAndSanitizer,
-    ConvexDecoderAndSanitizer
+    EtherFiLiquidDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/EtherFiLiquidDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import {Test, stdStorage, StdStorage} from "@forge-std/Test.sol";
 
 contract CurveAndConvexIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -129,126 +124,126 @@ contract CurveAndConvexIntegrationTest is Test, MerkleTreeHelper {
         // claim rewards from convex
         // redeem LP for underlying
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
-        leafs[0] = ManageLeaf(
-            getAddress(sourceChain, "WETH"),
-            false,
-            "approve(address,uint256)",
-            new address[](1),
-            "",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
+        leafs[0] = ManageLeaf({
+            target: getAddress(sourceChain, "WETH"),
+            canSendValue: false,
+            signature: "approve(address,uint256)",
+            argumentAddresses: new address[](1),
+            description: "",
+            decoderAndSanitizer: getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        });
         leafs[0].argumentAddresses[0] = getAddress(sourceChain, "weETH_wETH_Curve_LP");
-        leafs[1] = ManageLeaf(
-            getAddress(sourceChain, "weETH_wETH_Curve_LP"),
-            false,
-            "exchange(int128,int128,uint256,uint256)",
-            new address[](0),
-            "",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[2] = ManageLeaf(
-            getAddress(sourceChain, "WETH"),
-            false,
-            "approve(address,uint256)",
-            new address[](1),
-            "",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
+        leafs[1] = ManageLeaf({
+            target: getAddress(sourceChain, "weETH_wETH_Curve_LP"),
+            canSendValue: false,
+            signature: "exchange(int128,int128,uint256,uint256)",
+            argumentAddresses: new address[](0),
+            description: "",
+            decoderAndSanitizer: getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        });
+        leafs[2] = ManageLeaf({
+            target: getAddress(sourceChain, "WETH"),
+            canSendValue: false,
+            signature: "approve(address,uint256)",
+            argumentAddresses: new address[](1),
+            description: "",
+            decoderAndSanitizer: getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        });
         leafs[2].argumentAddresses[0] = getAddress(sourceChain, "weETH_wETH_Curve_LP");
-        leafs[3] = ManageLeaf(
-            getAddress(sourceChain, "WEETH"),
-            false,
-            "approve(address,uint256)",
-            new address[](1),
-            "",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
+        leafs[3] = ManageLeaf({
+            target: getAddress(sourceChain, "WEETH"),
+            canSendValue: false,
+            signature: "approve(address,uint256)",
+            argumentAddresses: new address[](1),
+            description: "",
+            decoderAndSanitizer: getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        });
         leafs[3].argumentAddresses[0] = getAddress(sourceChain, "weETH_wETH_Curve_LP");
-        leafs[4] = ManageLeaf(
-            getAddress(sourceChain, "weETH_wETH_Curve_LP"),
-            false,
-            "add_liquidity(uint256[],uint256)",
-            new address[](0),
-            "",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[5] = ManageLeaf(
-            getAddress(sourceChain, "weETH_wETH_Curve_LP"),
-            false,
-            "approve(address,uint256)",
-            new address[](1),
-            "",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
+        leafs[4] = ManageLeaf({
+            target: getAddress(sourceChain, "weETH_wETH_Curve_LP"),
+            canSendValue: false,
+            signature: "add_liquidity(uint256[],uint256)",
+            argumentAddresses: new address[](0),
+            description: "",
+            decoderAndSanitizer: getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        });
+        leafs[5] = ManageLeaf({
+            target: getAddress(sourceChain, "weETH_wETH_Curve_LP"),
+            canSendValue: false,
+            signature: "approve(address,uint256)",
+            argumentAddresses: new address[](1),
+            description: "",
+            decoderAndSanitizer: getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        });
         leafs[5].argumentAddresses[0] = getAddress(sourceChain, "weETH_wETH_Curve_Gauge");
-        leafs[6] = ManageLeaf(
-            getAddress(sourceChain, "weETH_wETH_Curve_Gauge"),
-            false,
-            "deposit(uint256,address)",
-            new address[](1),
-            "",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
+        leafs[6] = ManageLeaf({
+            target: getAddress(sourceChain, "weETH_wETH_Curve_Gauge"),
+            canSendValue: false,
+            signature: "deposit(uint256,address)",
+            argumentAddresses: new address[](1),
+            description: "",
+            decoderAndSanitizer: getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        });
         leafs[6].argumentAddresses[0] = address(boringVault);
-        leafs[7] = ManageLeaf(
-            getAddress(sourceChain, "weETH_wETH_Curve_Gauge"),
-            false,
-            "withdraw(uint256)",
-            new address[](0),
-            "",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[8] = ManageLeaf(
-            getAddress(sourceChain, "weETH_wETH_Curve_Gauge"),
-            false,
-            "claim_rewards(address)",
-            new address[](1),
-            "",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
+        leafs[7] = ManageLeaf({
+            target: getAddress(sourceChain, "weETH_wETH_Curve_Gauge"),
+            canSendValue: false,
+            signature: "withdraw(uint256)",
+            argumentAddresses: new address[](0),
+            description: "",
+            decoderAndSanitizer: getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        });
+        leafs[8] = ManageLeaf({
+            target: getAddress(sourceChain, "weETH_wETH_Curve_Gauge"),
+            canSendValue: false,
+            signature: "claim_rewards(address)",
+            argumentAddresses: new address[](1),
+            description: "",
+            decoderAndSanitizer: getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        });
         leafs[8].argumentAddresses[0] = address(boringVault);
-        leafs[9] = ManageLeaf(
-            getAddress(sourceChain, "weETH_wETH_Curve_LP"),
-            false,
-            "approve(address,uint256)",
-            new address[](1),
-            "",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
+        leafs[9] = ManageLeaf({
+            target: getAddress(sourceChain, "weETH_wETH_Curve_LP"),
+            canSendValue: false,
+            signature: "approve(address,uint256)",
+            argumentAddresses: new address[](1),
+            description: "",
+            decoderAndSanitizer: getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        });
         leafs[9].argumentAddresses[0] = getAddress(sourceChain, "convexCurveMainnetBooster");
-        leafs[10] = ManageLeaf(
-            getAddress(sourceChain, "convexCurveMainnetBooster"),
-            false,
-            "deposit(uint256,uint256,bool)",
-            new address[](0),
-            "",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[11] = ManageLeaf(
-            getAddress(sourceChain, "weETH_wETH_Convex_Reward"),
-            false,
-            "withdrawAndUnwrap(uint256,bool)",
-            new address[](0),
-            "",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[12] = ManageLeaf(
-            getAddress(sourceChain, "weETH_wETH_Convex_Reward"),
-            false,
-            "getReward(address,bool)",
-            new address[](1),
-            "",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
+        leafs[10] = ManageLeaf({
+            target: getAddress(sourceChain, "convexCurveMainnetBooster"),
+            canSendValue: false,
+            signature: "deposit(uint256,uint256,bool)",
+            argumentAddresses: new address[](0),
+            description: "",
+            decoderAndSanitizer: getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        });
+        leafs[11] = ManageLeaf({
+            target: getAddress(sourceChain, "weETH_wETH_Convex_Reward"),
+            canSendValue: false,
+            signature: "withdrawAndUnwrap(uint256,bool)",
+            argumentAddresses: new address[](0),
+            description: "",
+            decoderAndSanitizer: getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        });
+        leafs[12] = ManageLeaf({
+            target: getAddress(sourceChain, "weETH_wETH_Convex_Reward"),
+            canSendValue: false,
+            signature: "getReward(address,bool)",
+            argumentAddresses: new address[](1),
+            description: "",
+            decoderAndSanitizer: getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        });
         leafs[12].argumentAddresses[0] = getAddress(sourceChain, "weETH_wETH_Convex_Reward");
-        leafs[13] = ManageLeaf(
-            getAddress(sourceChain, "weETH_wETH_Curve_LP"),
-            false,
-            "remove_liquidity(uint256,uint256[])",
-            new address[](0),
-            "",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
+        leafs[13] = ManageLeaf({
+            target: getAddress(sourceChain, "weETH_wETH_Curve_LP"),
+            canSendValue: false,
+            signature: "remove_liquidity(uint256,uint256[])",
+            argumentAddresses: new address[](0),
+            description: "",
+            decoderAndSanitizer: getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        });
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 

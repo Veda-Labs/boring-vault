@@ -5,7 +5,7 @@
 pragma solidity 0.8.21;
 
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {OAppAuth, Origin, MessagingFee, MessagingReceipt} from "@oapp-auth/OAppAuth.sol";
+import {Origin, MessagingFee, MessagingReceipt} from "@oapp-auth/OAppAuth.sol";
 import {MessagingParams} from "@oapp-auth/OAppAuthSender.sol";
 import {AddressToBytes32Lib} from "src/helper/AddressToBytes32Lib.sol";
 

@@ -5,12 +5,11 @@
 pragma solidity 0.8.21;
 
 import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {OneInchDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/OneInchDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import {console} from "@forge-std/Test.sol";
 
 contract FullOneInchV6Decoder is
     OneInchDecoderAndSanitizer,

@@ -6,7 +6,7 @@ pragma solidity 0.8.21;
 
 import {BoringVault} from "src/base/BoringVault.sol";
 import {PositionManager as EigenLayerPositionManager} from "src/interfaces/EigenLayerPositionManager.sol";
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import {Test, stdStorage, StdStorage} from "@forge-std/Test.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 

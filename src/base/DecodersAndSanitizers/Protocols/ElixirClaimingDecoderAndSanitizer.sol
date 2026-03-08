@@ -4,7 +4,6 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 
 contract ElixirClaimingDecoderAndSanitizer {
     function claim(uint256, /*_amount*/ bytes32[] calldata, /*_merkleProof*/ bytes calldata /*_signature*/ )

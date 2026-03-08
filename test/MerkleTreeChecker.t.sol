@@ -7,9 +7,8 @@ pragma solidity 0.8.21;
 import {LombardBtcDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LombardBtcDecoderAndSanitizer.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import {Test} from "@forge-std/Test.sol";
 
 contract MerkleTreeCheckerTest is Test, MerkleTreeHelper {
     address public boringVault = 0x5401b8620E5FB570064CA9114fd1e135fd77D57c;

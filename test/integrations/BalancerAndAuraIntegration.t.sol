@@ -4,23 +4,20 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
 import {BoringVault} from "src/base/BoringVault.sol";
 import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {
     EtherFiLiquidDecoderAndSanitizer,
-    BalancerV2DecoderAndSanitizer,
-    AuraDecoderAndSanitizer
+    BalancerV2DecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/EtherFiLiquidDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import {Test, stdStorage, StdStorage} from "@forge-std/Test.sol";
 
 contract BalancerAndAuraIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -125,14 +122,14 @@ contract BalancerAndAuraIntegrationTest is Test, MerkleTreeHelper {
         // remove liquidity from rETH/wETH
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addBalancerLeafs(leafs, poolId, getAddress(sourceChain, "rETH_wETH_gauge"));
-        leafs[8] = ManageLeaf(
-            getAddress(sourceChain, "vault"),
-            false,
-            "swap((bytes32,uint8,address,address,uint256,bytes),(address,bool,address,bool),uint256,uint256)",
-            new address[](5),
-            "Swap wETH for rETH using Balancer",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
+        leafs[8] = ManageLeaf({
+            target: getAddress(sourceChain, "vault"),
+            canSendValue: false,
+            signature: "swap((bytes32,uint8,address,address,uint256,bytes),(address,bool,address,bool),uint256,uint256)",
+            argumentAddresses: new address[](5),
+            description: "Swap wETH for rETH using Balancer",
+            decoderAndSanitizer: getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        });
         leafIndex++;
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "rETH_wETH");
         leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "WETH");
@@ -288,14 +285,14 @@ contract BalancerAndAuraIntegrationTest is Test, MerkleTreeHelper {
         // remove liquidity from rETH/wETH
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addBalancerLeafs(leafs, poolId, getAddress(sourceChain, "rETH_wETH_gauge"));
-        leafs[8] = ManageLeaf(
-            getAddress(sourceChain, "vault"),
-            false,
-            "swap((bytes32,uint8,address,address,uint256,bytes),(address,bool,address,bool),uint256,uint256)",
-            new address[](5),
-            "Swap wETH for rETH using Balancer",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
+        leafs[8] = ManageLeaf({
+            target: getAddress(sourceChain, "vault"),
+            canSendValue: false,
+            signature: "swap((bytes32,uint8,address,address,uint256,bytes),(address,bool,address,bool),uint256,uint256)",
+            argumentAddresses: new address[](5),
+            description: "Swap wETH for rETH using Balancer",
+            decoderAndSanitizer: getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        });
         leafIndex++;
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "rETH_wETH");
         leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "WETH");

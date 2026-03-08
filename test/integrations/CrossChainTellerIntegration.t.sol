@@ -5,11 +5,7 @@
 pragma solidity 0.8.21;
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol"; 
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol"; 
 import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
-import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol"; 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
 contract FullTellerDecoderAndSanitizer is 
     TellerDecoderAndSanitizer,

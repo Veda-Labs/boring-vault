@@ -4,37 +4,28 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
 import {BoringVault} from "src/base/BoringVault.sol";
 import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {BalancerVault} from "src/interfaces/BalancerVault.sol";
 import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {AtomicQueue} from "src/archive/atomic-queue/AtomicQueue.sol";
-import {AtomicSolver} from "src/archive/atomic-queue/AtomicSolver.sol";
-import {IRateProvider} from "src/interfaces/IRateProvider.sol";
-import {IWEETH} from "src/interfaces/IStaking.sol";
-import {ILiquidityPool} from "src/interfaces/IStaking.sol";
 // import {WETH} from "@solmate/tokens/WETH.sol";
-import {EtherFiLiquidDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EtherFiLiquidDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {EtherFiLiquid1} from "src/interfaces/EtherFiLiquid1.sol";
 import {CellarMigrationAdaptor} from "src/migration/CellarMigrationAdaptor.sol";
 import {CellarMigrationAdaptor2} from "src/migration/CellarMigrationAdaptor2.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {GenericRateProvider} from "src/helper/GenericRateProvider.sol";
+import {RolesAuthority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {ParitySharePriceOracle} from "src/migration/ParitySharePriceOracle.sol";
-import {CellarMigratorWithSharePriceParity, ERC4626} from "src/migration/CellarMigratorWithSharePriceParity.sol";
+import {CellarMigratorWithSharePriceParity} from "src/migration/CellarMigratorWithSharePriceParity.sol";
 import {AddressToBytes32Lib} from "src/helper/AddressToBytes32Lib.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {Deployer} from "src/helper/Deployer.sol";
 import {AtomicSolverV4} from "src/archive/atomic-queue/AtomicSolverV4.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import {Test, stdStorage, StdStorage} from "@forge-std/Test.sol";
 
 contract EtherFiLiquid1MigrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;

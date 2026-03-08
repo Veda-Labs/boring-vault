@@ -9,28 +9,15 @@ import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVer
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {
-    EtherFiLiquidDecoderAndSanitizer,
-    MorphoBlueDecoderAndSanitizer,
-    UniswapV3DecoderAndSanitizer,
-    BalancerV2DecoderAndSanitizer,
-    PendleRouterDecoderAndSanitizer
+    EtherFiLiquidDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/EtherFiLiquidDecoderAndSanitizer.sol";
 import {EtherFiLiquidUsdDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/EtherFiLiquidUsdDecoderAndSanitizer.sol";
-import {LidoLiquidDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LidoLiquidDecoderAndSanitizer.sol";
-import {BalancerVault} from "src/interfaces/BalancerVault.sol";
-import {IUniswapV3Router} from "src/interfaces/IUniswapV3Router.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {
-    PointFarmingDecoderAndSanitizer,
-    EigenLayerLSTStakingDecoderAndSanitizer
-} from "src/base/DecodersAndSanitizers/PointFarmingDecoderAndSanitizer.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import {Test, stdStorage, StdStorage, console} from "@forge-std/Test.sol";
 
 contract ManagerWithMerkleVerificationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -138,13 +125,23 @@ contract ManagerWithMerkleVerificationTest is Test, MerkleTreeHelper {
         address usdcSpender = vm.addr(0xDEAD);
         address usdtTo = vm.addr(0xDEAD1);
         ManageLeaf[] memory leafs = new ManageLeaf[](2);
-        leafs[0] = ManageLeaf(
-            address(USDC), false, "approve(address,uint256)", new address[](1), "", rawDataDecoderAndSanitizer
-        );
+        leafs[0] = ManageLeaf({
+            target: address(USDC),
+            canSendValue: false,
+            signature: "approve(address,uint256)",
+            argumentAddresses: new address[](1),
+            description: "",
+            decoderAndSanitizer: rawDataDecoderAndSanitizer
+        });
         leafs[0].argumentAddresses[0] = usdcSpender;
-        leafs[1] = ManageLeaf(
-            address(USDT), false, "approve(address,uint256)", new address[](1), "", rawDataDecoderAndSanitizer
-        );
+        leafs[1] = ManageLeaf({
+            target: address(USDT),
+            canSendValue: false,
+            signature: "approve(address,uint256)",
+            argumentAddresses: new address[](1),
+            description: "",
+            decoderAndSanitizer: rawDataDecoderAndSanitizer
+        });
         leafs[1].argumentAddresses[0] = usdtTo;
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
@@ -280,7 +277,14 @@ contract ManagerWithMerkleVerificationTest is Test, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](2);
         leafs[0] =
-            ManageLeaf(address(this), false, "withdraw(uint256)", new address[](0), "", rawDataDecoderAndSanitizer);
+            ManageLeaf({
+                target: address(this),
+                canSendValue: false,
+                signature: "withdraw(uint256)",
+                argumentAddresses: new address[](0),
+                description: "",
+                decoderAndSanitizer: rawDataDecoderAndSanitizer
+            });
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);

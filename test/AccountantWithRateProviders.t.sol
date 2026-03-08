@@ -15,7 +15,7 @@ import {GenericRateProvider} from "src/helper/GenericRateProvider.sol";
 import {GenericRateProviderWithDecimalScaling} from "src/helper/GenericRateProviderWithDecimalScaling.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import {Test, stdStorage, StdStorage, console} from "@forge-std/Test.sol";
 
 contract AccountantWithRateProvidersTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;

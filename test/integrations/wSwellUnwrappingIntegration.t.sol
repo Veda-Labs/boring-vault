@@ -5,10 +5,7 @@
 pragma solidity 0.8.21;
 
 import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol"; 
-import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {wSwellUnwrappingDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/wSwellUnwrappingDecoderAndSanitizer.sol"; 
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol"; 
-import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
 
 contract FullWSwellUnwrappingDecoderAndSanitier is wSwellUnwrappingDecoderAndSanitizer{}
 

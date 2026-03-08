@@ -5,9 +5,7 @@
 pragma solidity 0.8.21;
 
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
 contract TellerDecoderAndSanitizer {
     //============================== ERRORS ===============================

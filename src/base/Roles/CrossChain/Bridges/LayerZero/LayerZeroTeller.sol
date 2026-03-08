@@ -97,7 +97,11 @@ contract LayerZeroTeller is CrossChainTellerWithGenericBridge, OAppAuth {
         if (allowMessagesTo && messageGasLimit == 0) {
             revert LayerZeroTeller__ZeroMessageGasLimit();
         }
-        idToChains[chainId] = Chain(allowMessagesFrom, allowMessagesTo, messageGasLimit);
+        idToChains[chainId] = Chain({
+            allowMessagesFrom: allowMessagesFrom,
+            allowMessagesTo: allowMessagesTo,
+            messageGasLimit: messageGasLimit
+        });
         _setPeer(chainId, targetTeller.toBytes32());
 
         emit ChainAdded(chainId, allowMessagesFrom, allowMessagesTo, targetTeller);

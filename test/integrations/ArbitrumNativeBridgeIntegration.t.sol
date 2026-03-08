@@ -9,16 +9,14 @@ import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVer
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {
     BridgingDecoderAndSanitizer,
     ArbitrumNativeBridgeDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/BridgingDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import {Test, stdStorage, StdStorage} from "@forge-std/Test.sol";
 
 contract ArbitrumNativeBridgeIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -234,14 +232,14 @@ contract ArbitrumNativeBridgeIntegrationTest is Test, MerkleTreeHelper {
         deal(address(boringVault), 100e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](2);
-        leafs[0] = ManageLeaf(
-            getAddress(sourceChain, "arbitrumDelayedInbox"),
-            true,
-            "depositEth()",
-            new address[](0),
-            "Deposit ETH into Arbitrum",
-            rawDataDecoderAndSanitizer
-        );
+        leafs[0] = ManageLeaf({
+            target: getAddress(sourceChain, "arbitrumDelayedInbox"),
+            canSendValue: true,
+            signature: "depositEth()",
+            argumentAddresses: new address[](0),
+            description: "Deposit ETH into Arbitrum",
+            decoderAndSanitizer: rawDataDecoderAndSanitizer
+        });
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 

@@ -4,7 +4,6 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
 import {BoringVault} from "src/base/BoringVault.sol";
 import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
@@ -19,7 +18,7 @@ import {
     AtomicQueueDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/OnlyAtomicQueueDecoderAndSanitizer.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import {Test, stdStorage, StdStorage} from "@forge-std/Test.sol";
 
 contract AtomicQueueIntegrationTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;

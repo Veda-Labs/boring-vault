@@ -233,7 +233,11 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         requiresAuth
     {
         if (sharePremium > MAX_SHARE_PREMIUM) revert TellerWithMultiAssetSupport__SharePremiumTooLarge();
-        assetData[asset] = Asset(allowDeposits, allowWithdraws, sharePremium);
+        assetData[asset] = Asset({
+            allowDeposits: allowDeposits,
+            allowWithdraws: allowWithdraws,
+            sharePremium: sharePremium
+        });
         emit AssetDataUpdated(address(asset), allowDeposits, allowWithdraws, sharePremium);
     }
 

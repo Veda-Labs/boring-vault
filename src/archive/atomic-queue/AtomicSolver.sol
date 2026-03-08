@@ -4,7 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {AtomicQueue, ERC20, SafeTransferLib} from "./AtomicQueue.sol";
+import {ERC20, SafeTransferLib} from "./AtomicQueue.sol";
 import {IAtomicSolver} from "./IAtomicSolver.sol";
 
 import {Owned} from "@solmate/auth/Owned.sol";

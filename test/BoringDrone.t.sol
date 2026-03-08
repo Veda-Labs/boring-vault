@@ -4,13 +4,12 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {BoringDrone} from "src/base/Drones/BoringDrone.sol";
 import {DroneLib} from "src/base/Drones/DroneLib.sol";
 import {MerkleTreeHelper, ERC20} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import {Test} from "@forge-std/Test.sol";
 
 contract BoringDroneTest is Test, MerkleTreeHelper {
     using Address for address;

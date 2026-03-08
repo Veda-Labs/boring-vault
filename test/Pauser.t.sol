@@ -4,10 +4,10 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {Auth, Authority} from "@solmate/auth/Auth.sol";
+import {Authority} from "@solmate/auth/Auth.sol";
 import {MockPausable} from "test/mocks/MockPausable.sol";
 import {Pauser, IPausable} from "src/base/Roles/Pauser.sol";
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import {Test} from "@forge-std/Test.sol";
 
 contract PauserTest is Test {
     IPausable[] public pausables;

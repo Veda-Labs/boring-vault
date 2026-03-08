@@ -5,11 +5,9 @@
 pragma solidity 0.8.21;
 
 import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol"; 
-import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol"; 
 import {KinetiqDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/KinetiqDecoderAndSanitizer.sol"; 
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol"; 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import {console} from "@forge-std/Test.sol";
 
 contract FullKinetiqDecoderAndSanitizer is KinetiqDecoderAndSanitizer, BaseDecoderAndSanitizer { }
 

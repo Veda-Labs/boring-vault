@@ -9,7 +9,6 @@ import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVer
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {SSTORE2} from "lib/solmate/src/utils/SSTORE2.sol";
-import {SymbioticDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SymbioticDecoderAndSanitizer.sol";
 import {DefaultCollateral} from "src/interfaces/DefaultCollateral.sol";
 
 contract SymbioticUManager is Auth {
@@ -147,7 +146,10 @@ contract SymbioticUManager is Auth {
         if (minimumDeposit == 0) {
             revert SymbioticUManager__MinimumDepositNotSet();
         }
-        configurations[address(defaultCollateral)] = Configuration(minimumDeposit, decoderAndSanitizer);
+        configurations[address(defaultCollateral)] = Configuration({
+            minimumDeposit: minimumDeposit,
+            decoderAndSanitizer: decoderAndSanitizer
+        });
 
         emit ConfigurationSet(address(defaultCollateral), minimumDeposit, decoderAndSanitizer);
     }

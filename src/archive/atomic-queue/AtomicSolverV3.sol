@@ -7,8 +7,6 @@ pragma solidity 0.8.21;
 import {AtomicQueue, ERC20, SafeTransferLib} from "./AtomicQueue.sol";
 import {IAtomicSolver} from "./IAtomicSolver.sol";
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {IWEETH} from "src/interfaces/IStaking.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 

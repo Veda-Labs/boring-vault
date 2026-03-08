@@ -4,7 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {UManager, FixedPointMathLib, ManagerWithMerkleVerification, ERC20} from "src/micro-managers/UManager.sol";
+import {UManager, FixedPointMathLib, ERC20} from "src/micro-managers/UManager.sol";
 import {IUniswapV3Router} from "src/interfaces/IUniswapV3Router.sol";
 import {PriceRouter} from "src/interfaces/PriceRouter.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";

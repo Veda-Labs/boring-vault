@@ -43,7 +43,6 @@ import {ArbitrumNativeBridgeDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/ArbitrumNativeBridgeDecoderAndSanitizer.sol";
 import {AgglayerDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/AgglayerDecoderAndSanitizer.sol";
-import {LineaBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LineaBridgeDecoderAndSanitizer.sol";
 import {ResolvDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ResolvDecoderAndSanitizer.sol";
 
 contract GoldenGooseDecoderAndSanitizer is

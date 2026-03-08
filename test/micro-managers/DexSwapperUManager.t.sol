@@ -11,17 +11,14 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {
-    EtherFiLiquidDecoderAndSanitizer,
-    BalancerV2DecoderAndSanitizer
+    EtherFiLiquidDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/EtherFiLiquidDecoderAndSanitizer.sol";
-import {BalancerVault} from "src/interfaces/BalancerVault.sol";
-import {IUniswapV3Router} from "src/interfaces/IUniswapV3Router.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {DexSwapperUManager, UManager} from "src/micro-managers/DexSwapperUManager.sol";
 import {PriceRouter} from "src/interfaces/PriceRouter.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import {Test, stdStorage, StdStorage} from "@forge-std/Test.sol";
 
 contract DexSwapperUManagerTest is Test, MainnetAddresses {
     using SafeTransferLib for ERC20;
@@ -116,10 +113,20 @@ contract DexSwapperUManagerTest is Test, MainnetAddresses {
         // Make sure the vault can
         // swap weETH -> wETH
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
-        leafs[0] = ManageLeaf(address(WEETH), false, "approve(address,uint256)", new address[](1));
+        leafs[0] = ManageLeaf({
+            target: address(WEETH),
+            canSendValue: false,
+            signature: "approve(address,uint256)",
+            argumentAddresses: new address[](1)
+        });
         leafs[0].argumentAddresses[0] = uniV3Router;
         leafs[1] =
-            ManageLeaf(uniV3Router, false, "exactInput((bytes,address,uint256,uint256,uint256))", new address[](3));
+            ManageLeaf({
+                target: uniV3Router,
+                canSendValue: false,
+                signature: "exactInput((bytes,address,uint256,uint256,uint256))",
+                argumentAddresses: new address[](3)
+            });
         leafs[1].argumentAddresses[0] = address(WEETH);
         leafs[1].argumentAddresses[1] = address(WETH);
         leafs[1].argumentAddresses[2] = address(boringVault);
@@ -177,14 +184,19 @@ contract DexSwapperUManagerTest is Test, MainnetAddresses {
         bytes32 poolId = 0x1e19cf2d73a72ef1332c882f20534b6519be0276000200000000000000000112;
 
         ManageLeaf[] memory leafs = new ManageLeaf[](2);
-        leafs[0] = ManageLeaf(address(WETH), false, "approve(address,uint256)", new address[](1));
+        leafs[0] = ManageLeaf({
+            target: address(WETH),
+            canSendValue: false,
+            signature: "approve(address,uint256)",
+            argumentAddresses: new address[](1)
+        });
         leafs[0].argumentAddresses[0] = vault;
-        leafs[1] = ManageLeaf(
-            vault,
-            false,
-            "swap((bytes32,uint8,address,address,uint256,bytes),(address,bool,address,bool),uint256,uint256)",
-            new address[](5)
-        );
+        leafs[1] = ManageLeaf({
+            target: vault,
+            canSendValue: false,
+            signature: "swap((bytes32,uint8,address,address,uint256,bytes),(address,bool,address,bool),uint256,uint256)",
+            argumentAddresses: new address[](5)
+        });
         leafs[1].argumentAddresses[0] = address(rETH_wETH);
         leafs[1].argumentAddresses[1] = address(WETH);
         leafs[1].argumentAddresses[2] = address(RETH);
@@ -236,9 +248,19 @@ contract DexSwapperUManagerTest is Test, MainnetAddresses {
         deal(address(WETH), address(boringVault), 100_000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](2);
-        leafs[0] = ManageLeaf(address(WETH), false, "approve(address,uint256)", new address[](1));
+        leafs[0] = ManageLeaf({
+            target: address(WETH),
+            canSendValue: false,
+            signature: "approve(address,uint256)",
+            argumentAddresses: new address[](1)
+        });
         leafs[0].argumentAddresses[0] = weETH_wETH_Curve_LP;
-        leafs[1] = ManageLeaf(weETH_wETH_Curve_LP, false, "exchange(int128,int128,uint256,uint256)", new address[](0));
+        leafs[1] = ManageLeaf({
+            target: weETH_wETH_Curve_LP,
+            canSendValue: false,
+            signature: "exchange(int128,int128,uint256,uint256)",
+            argumentAddresses: new address[](0)
+        });
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -293,10 +315,20 @@ contract DexSwapperUManagerTest is Test, MainnetAddresses {
         // Make sure the vault can
         // swap weETH -> wETH
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
-        leafs[0] = ManageLeaf(address(WEETH), false, "approve(address,uint256)", new address[](1));
+        leafs[0] = ManageLeaf({
+            target: address(WEETH),
+            canSendValue: false,
+            signature: "approve(address,uint256)",
+            argumentAddresses: new address[](1)
+        });
         leafs[0].argumentAddresses[0] = uniV3Router;
         leafs[1] =
-            ManageLeaf(uniV3Router, false, "exactInput((bytes,address,uint256,uint256,uint256))", new address[](3));
+            ManageLeaf({
+                target: uniV3Router,
+                canSendValue: false,
+                signature: "exactInput((bytes,address,uint256,uint256,uint256))",
+                argumentAddresses: new address[](3)
+            });
         leafs[1].argumentAddresses[0] = address(WEETH);
         leafs[1].argumentAddresses[1] = address(WETH);
         leafs[1].argumentAddresses[2] = address(boringVault);
