@@ -129,6 +129,7 @@ contract TellerWithRemediationTest is Test, MerkleTreeHelper {
 
         // Assume phisher is able to steal victim0s shares.
         vm.prank(victim0);
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(phisher, amountOfSharesStolen);
 
         // Calling completeRemediation should revert since it has not been started.
@@ -145,6 +146,7 @@ contract TellerWithRemediationTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithRemediation.TellerWithRemediation__RemediationInProgress.selector, phisher)
         );
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(vm.addr(1), amountOfSharesStolen);
         vm.stopPrank();
 
@@ -164,6 +166,7 @@ contract TellerWithRemediationTest is Test, MerkleTreeHelper {
 
         // Assume phisher was able to trick victim0 again.
         vm.prank(victim0);
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(phisher, amountOfSharesStolen);
 
         // Calling completeRemediation should revert since it has not been started.
@@ -181,6 +184,7 @@ contract TellerWithRemediationTest is Test, MerkleTreeHelper {
 
         // Assume phisher is able to steal victim1s shares.
         vm.prank(victim1);
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(phisher, amountOfSharesStolen);
 
         // Start a new remediation but use type(uint256).max as amount of shares stolen.
@@ -228,6 +232,7 @@ contract TellerWithRemediationTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithRemediation.TellerWithRemediation__RemediationInProgress.selector, user)
         );
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(address(this), 1e18);
         vm.stopPrank();
 
@@ -242,6 +247,7 @@ contract TellerWithRemediationTest is Test, MerkleTreeHelper {
 
         // User should be able to transfer shares now.
         vm.prank(user);
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(address(this), 1e18);
     }
 

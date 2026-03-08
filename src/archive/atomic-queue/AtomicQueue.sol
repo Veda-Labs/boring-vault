@@ -281,6 +281,7 @@ contract AtomicQueue is Auth, ReentrancyGuard, IPausable {
         uint256 safeRate = accountant.getRateInQuoteSafe(want);
         uint256 safeAtomicPrice = safeRate.mulDivDown(1e6 - discount, 1e6);
         if (safeAtomicPrice > type(uint88).max) revert AtomicQueue__SafeRequestCannotCastToUint88();
+        // forge-lint: disable-next-line(unsafe-typecast)
         userRequest.atomicPrice = uint88(safeAtomicPrice);
         _updateAtomicRequest(offer, want, userRequest);
     }

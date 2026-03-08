@@ -176,6 +176,7 @@ contract EthenaWithdrawIntegrationTest is Test, MerkleTreeHelper {
         
         uint256 ELXBalanace = getERC20(sourceChain, "ELX").balanceOf(address(0xbc0f3B23930fff9f4894914bD745ABAbA9588265)); 
 
+        // forge-lint: disable-next-line(divide-before-multiply)
         uint256 claimable = (8973715174000000000000 / 2) + ((8973715174000000000000 / 2) * (block.timestamp - 1741341600) / 7776000); 
 
         //after forfeiting claim, claim amount is 4697531591687134387860; 

@@ -260,12 +260,16 @@ contract MockBoringChef {
     }
 
     function claimRewards(uint256[] calldata /*rewardIds*/) external {
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         ERC20(beets).transfer(msg.sender, 1e7);
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         ERC20(wS).transfer(msg.sender, 10_000e18);
     }
 
     function claimRewardsOnBehalfOfUser(uint256[] calldata /*rewardIds*/, address user) external {
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         ERC20(beets).transfer(user, 2e7);
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         ERC20(wS).transfer(user, 20_000e18);
     }
 

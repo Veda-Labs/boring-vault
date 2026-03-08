@@ -4,6 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
+// forge-lint: disable-next-line(unused-import)
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
 

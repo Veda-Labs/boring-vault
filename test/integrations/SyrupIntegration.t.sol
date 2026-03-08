@@ -169,8 +169,10 @@ contract SyrupIntegrationTest is Test, MerkleTreeHelper {
         targetData[1] =
             abi.encodeWithSelector(ERC20.approve.selector, getAddress(sourceChain, "syrupRouterUSDT"), type(uint256).max);
         targetData[2] =
+            // forge-lint: disable-next-line(unsafe-typecast)
             abi.encodeWithSignature("deposit(uint256,bytes32)", 100e6, bytes32("0:vtl"));
         targetData[3] =
+            // forge-lint: disable-next-line(unsafe-typecast)
             abi.encodeWithSignature("deposit(uint256,bytes32)", 100e6, bytes32("0:vtl"));
         targetData[4] = abi.encodeWithSignature(
             "approve(address,uint256)", getAddress(sourceChain, "syrupUSDC"), type(uint256).max

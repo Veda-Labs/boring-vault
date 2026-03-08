@@ -72,6 +72,7 @@ contract OneInchOwnedDecoderAndSanitizer is Owned, BaseDecoderAndSanitizer {
         pure
         returns (bytes memory addressesFound)
     {
+        // forge-lint: disable-next-line(unsafe-typecast)
         addressesFound = abi.encodePacked(address(uint160(token)), address(uint160(dex)));
     }
 
@@ -81,6 +82,7 @@ contract OneInchOwnedDecoderAndSanitizer is Owned, BaseDecoderAndSanitizer {
         returns (bytes memory addressesFound)
     {
         addressesFound =
+            // forge-lint: disable-next-line(unsafe-typecast)
             abi.encodePacked(address(uint160(token)), address(uint160(dex)), address(uint160(dex2)));
     }
 
@@ -90,11 +92,13 @@ contract OneInchOwnedDecoderAndSanitizer is Owned, BaseDecoderAndSanitizer {
         returns (bytes memory addressesFound)
     {
         addressesFound = abi.encodePacked(
+            // forge-lint: disable-next-line(unsafe-typecast)
             address(uint160(token)), address(uint160(dex)), address(uint160(dex2)), address(uint160(dex3))
         );
     }
 
     function ethUnoswap(uint256 /*minReturn*/, uint256 dex) external pure returns (bytes memory addressesFound) {
+        // forge-lint: disable-next-line(unsafe-typecast)
         addressesFound = abi.encodePacked(address(uint160(dex)));
     }
 
@@ -103,6 +107,7 @@ contract OneInchOwnedDecoderAndSanitizer is Owned, BaseDecoderAndSanitizer {
         pure
         returns (bytes memory addressesFound)
     {
+        // forge-lint: disable-next-line(unsafe-typecast)
         addressesFound = abi.encodePacked(address(uint160(dex)), address(uint160(dex2)));
     }
 
@@ -112,6 +117,7 @@ contract OneInchOwnedDecoderAndSanitizer is Owned, BaseDecoderAndSanitizer {
         returns (bytes memory addressesFound)
     {
         addressesFound =
+            // forge-lint: disable-next-line(unsafe-typecast)
             abi.encodePacked(address(uint160(dex)), address(uint160(dex2)), address(uint160(dex3)));
     }
 }

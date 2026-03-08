@@ -25,7 +25,9 @@ library MessageLib {
      * @notice Extracts a Message from a uint256.
      */
     function uint256ToMessage(uint256 b) internal pure returns (Message memory m) {
+        // forge-lint: disable-next-line(unsafe-typecast)
         m.shareAmount = uint96(b >> 160);
+        // forge-lint: disable-next-line(unsafe-typecast)
         m.to = address(uint160(b));
     }
 

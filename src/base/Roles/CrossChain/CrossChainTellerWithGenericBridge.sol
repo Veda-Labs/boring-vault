@@ -76,6 +76,7 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
 
         // Bridge shares
         if (sharesBridged > type(uint96).max) revert CrossChainTellerWithGenericBridge__UnsafeCastToUint96();
+        // forge-lint: disable-next-line(unsafe-typecast)
         _bridge(uint96(sharesBridged), to, bridgeWildCard, feeToken, maxFee);
     }
 
@@ -107,6 +108,7 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
 
         // Bridge shares
         if (sharesBridged > type(uint96).max) revert CrossChainTellerWithGenericBridge__UnsafeCastToUint96();
+        // forge-lint: disable-next-line(unsafe-typecast)
         _bridge(uint96(sharesBridged), params.to, params.bridgeWildCard, params.feeToken, params.maxFee);
     }
 

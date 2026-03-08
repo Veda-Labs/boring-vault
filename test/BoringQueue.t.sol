@@ -249,6 +249,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
         vm.startPrank(liquidEth_accountant.owner());
         uint256 newRate = liquidEth_accountant.getRate();
         newRate = newRate * (1e4 - sharePriceBpsDecrease) / 1e4;
+        // forge-lint: disable-next-line(unsafe-typecast)
         liquidEth_accountant.updateExchangeRate(uint96(newRate));
         vm.stopPrank();
 
@@ -282,6 +283,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
         vm.startPrank(liquidEth_accountant.owner());
         uint256 newRate = liquidEth_accountant.getRate();
         newRate = newRate * (1e4 + sharePriceBpsIncrease) / 1e4;
+        // forge-lint: disable-next-line(unsafe-typecast)
         liquidEth_accountant.updateExchangeRate(uint96(newRate));
         vm.stopPrank();
 
@@ -305,6 +307,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
         vm.startPrank(liquidEth_accountant.owner());
         uint256 newRate = liquidEth_accountant.getRate();
         newRate = newRate * (1e4 + sharePriceBpsIncrease) / 1e4;
+        // forge-lint: disable-next-line(unsafe-typecast)
         liquidEth_accountant.updateExchangeRate(uint96(newRate));
         vm.stopPrank();
 
@@ -359,6 +362,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
         vm.startPrank(liquidEth_accountant.owner());
         uint256 newRate = liquidEth_accountant.getRate();
         newRate = newRate * (1e4 - sharePriceBpsDecrease) / 1e4;
+        // forge-lint: disable-next-line(unsafe-typecast)
         liquidEth_accountant.updateExchangeRate(uint96(newRate));
         vm.stopPrank();
 
@@ -396,6 +400,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
         vm.startPrank(liquidEth_accountant.owner());
         uint256 newRate = liquidEth_accountant.getRate();
         newRate = newRate * (1e4 + sharePriceBpsIncrease) / 1e4;
+        // forge-lint: disable-next-line(unsafe-typecast)
         liquidEth_accountant.updateExchangeRate(uint96(newRate));
         vm.stopPrank();
 
@@ -423,6 +428,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
         vm.startPrank(liquidEth_accountant.owner());
         uint256 newRate = liquidEth_accountant.getRate();
         newRate = newRate * (1e4 + sharePriceBpsIncrease) / 1e4;
+        // forge-lint: disable-next-line(unsafe-typecast)
         liquidEth_accountant.updateExchangeRate(uint96(newRate));
         vm.stopPrank();
 

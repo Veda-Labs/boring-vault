@@ -18,7 +18,9 @@ contract HyperlaneDecoderAndSanitizer {
     {
         // Merkle tree helper is designed to work with addresses, so cast destination domain to an address, then
         // split _recipient into 2 addresses.
+        // forge-lint: disable-next-line(unsafe-typecast)
         address recipient0 = address(bytes20(bytes16(_recipient)));
+        // forge-lint: disable-next-line(unsafe-typecast)
         address recipient1 = address(bytes20(bytes16(_recipient << 128)));
         sensitiveArguments = abi.encodePacked(address(uint160(_destinationDomain)), recipient0, recipient1);
     }

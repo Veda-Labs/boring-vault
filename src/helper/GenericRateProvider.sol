@@ -99,6 +99,7 @@ contract GenericRateProvider is IRateProvider {
             int256 res = abi.decode(result, (int256)); 
             if (res < 0) revert GenericRateProvider__PriceCannotBeLtZero(); 
 
+            // forge-lint: disable-next-line(unsafe-typecast)
             return uint256(res); 
         
         } else {

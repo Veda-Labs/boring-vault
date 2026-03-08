@@ -612,6 +612,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         
         deal(address(WETH), alice, 10e18); 
         vm.prank(alice);
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         WETH.transfer(address(boringVault), 10e18); 
 
         //deposit 2 uint256 shares1 = teller.deposit(WETH, WETHAmount, 0);
@@ -760,6 +761,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         // Check rate AFTER deposit
         uint256 supplyAfter = boringVault.totalSupply();
         uint256 rateAfter = accountant.getRate();
+        // forge-lint: disable-next-line(unsafe-typecast)
         console.logInt(int256(rateAfter) - int256(rateBefore));
 
         uint256 assetsOut = teller.withdraw(WETH, shares1, 0, address(this));

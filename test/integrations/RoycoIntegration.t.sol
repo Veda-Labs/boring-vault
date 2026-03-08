@@ -94,6 +94,7 @@ contract RoycoIntegrationTest is BaseTestIntegration {
         _setUpSonic();
         //deal(getAddress(sourceChain, "OS"), address(boringVault), 100_000e18); -- does not work with OS
         vm.prank(0x86D888C3fA8A7F67452eF2Eccc1C5EE9751Ec8d6); // account with a lot of OS
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         ERC20(getAddress(sourceChain, "OS")).transfer(address(boringVault), 100_000e18);
         runRoycoERC4626Integration(getAddress(sourceChain, "originSonicWrappedVault"));
     }
@@ -102,6 +103,7 @@ contract RoycoIntegrationTest is BaseTestIntegration {
         _setUpSonic();
         //deal(getAddress(sourceChain, "OS"), address(boringVault), 100_000e18); -- does not work with OS
         vm.prank(0x86D888C3fA8A7F67452eF2Eccc1C5EE9751Ec8d6); // account with a lot of OS
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         ERC20(getAddress(sourceChain, "OS")).transfer(address(boringVault), 100_000e18);
         runRoycoERC4626Integration(getAddress(sourceChain, "originSonicWrappedVault"));
     }
@@ -144,6 +146,7 @@ contract RoycoIntegrationTest is BaseTestIntegration {
         address asset = getAddress(sourceChain, "OS");
         address vault = getAddress(sourceChain, "originSonicWrappedVault");
         vm.prank(0x86D888C3fA8A7F67452eF2Eccc1C5EE9751Ec8d6); // account with a lot of OS
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         ERC20(getAddress(sourceChain, "OS")).transfer(address(boringVault), 100_000e18);
         uint256 offerID = 0;
         runRoycoWeirollVaultMarketHubIntegration(asset, vault, offerID); //TODO find offerId

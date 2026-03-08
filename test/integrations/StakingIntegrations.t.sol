@@ -646,6 +646,7 @@ contract StakingIntegrationsTest is Test, MerkleTreeHelper {
         address admin = lp.etherFiAdminContract();
 
         vm.startPrank(admin);
+        // forge-lint: disable-next-line(unsafe-typecast)
         lp.addEthAmountLockedForWithdrawal(uint128(amount));
         vm.stopPrank();
 

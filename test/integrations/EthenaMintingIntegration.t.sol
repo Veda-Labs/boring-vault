@@ -4,7 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol"; import {ERC20} from "@solmate/tokens/ERC20.sol";
+import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
 import {EthenaMintingDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/EthenaMintingDecoderAndSanitizer.sol"; 
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol"; 
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";

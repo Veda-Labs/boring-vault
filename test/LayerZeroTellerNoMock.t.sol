@@ -142,6 +142,7 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
         address user = vm.addr(1);
         deal(address(WETH), user, depositAmount);
         uint256 fee =
+            // forge-lint: disable-next-line(unsafe-typecast)
             sourceTeller.previewFee(uint96(depositAmount), user, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20);
         deal(user, fee);
         vm.startPrank(user);
@@ -189,6 +190,7 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
 
         deal(address(WEETH), user, weETH_amount);
         uint256 fee =
+            // forge-lint: disable-next-line(unsafe-typecast)
             sourceTeller.previewFee(uint96(weETH_amount), user, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20);
         deal(user, fee);
 

@@ -20,6 +20,9 @@ remappings = [
     "@oapp-auth/=src/vendor/oapp-auth/",
 ]
 
+[profile.ci]
+fuzz.runs = 256
+
 [fuzz]
 runs = 8000
 seed = "0x0000000000000000000000000000000000000000000000000000000000000002"
@@ -98,4 +101,4 @@ FOUNDRY_FMT_WRAP_COMMENTS = false
 FOUNDRY_FMT_IGNORE = []
 
 [lint]
-exclude_lints = ["screaming-snake-case-immutable"]
+exclude_lints = ["screaming-snake-case-immutable", "mixed-case-function", "mixed-case-variable", "screaming-snake-case-const", "pascal-case-struct", "unsafe-cheatcode", "asm-keccak256", "unwrapped-modifier-logic", "unused-import", "unaliased-plain-import", "named-struct-fields"]

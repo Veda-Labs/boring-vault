@@ -104,6 +104,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // User can transfer (after lock period)
         skip(shareLockPeriod);
         vm.prank(user1);
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(user2, shares / 2);
 
         assertEq(boringVault.balanceOf(user2), shares / 2, "User2 should receive shares");
@@ -149,6 +150,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // Transfer should fail
         vm.prank(user1);
         vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Paused.selector));
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(user2, shares);
 
         // Unpause ShareWarden
@@ -157,6 +159,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // Transfer should work now
         skip(shareLockPeriod);
         vm.prank(user1);
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(user2, shares);
 
         assertEq(boringVault.balanceOf(user2), shares, "Transfer should succeed after unpause");
@@ -198,6 +201,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // Transfer should fail due to SanctionsList sanction
         vm.prank(user1);
         vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__SanctionsListBlacklisted.selector, user1));
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(user2, shares);
     }
 
@@ -219,6 +223,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // Transfer should fail due to SanctionsList sanction on recipient
         vm.prank(user1);
         vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__SanctionsListBlacklisted.selector, user2));
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(user2, shares);
     }
 
@@ -240,6 +245,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         // TransferFrom should fail due to SanctionsList sanction on operator
         vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__SanctionsListBlacklisted.selector, address(this)));
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transferFrom(user1, user2, shares);
     }
 
@@ -261,6 +267,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // Transfer should fail
         vm.prank(user1);
         vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__SanctionsListBlacklisted.selector, user1));
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(user2, shares);
 
         // Remove SanctionsList list from vault
@@ -269,6 +276,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // Transfer should work now
         skip(shareLockPeriod);
         vm.prank(user1);
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(user2, shares);
 
         assertEq(boringVault.balanceOf(user2), shares, "Transfer should succeed after removing SanctionsList list");
@@ -296,6 +304,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // Transfer should fail due to custom blacklist
         vm.prank(user1);
         vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user1, CUSTOM_LIST_TWO));
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(user2, shares);
     }
 
@@ -319,6 +328,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // Transfer should fail due to custom blacklist on recipient
         vm.prank(user1);
         vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user2, CUSTOM_LIST_TWO));
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(user2, shares);
     }
 
@@ -357,6 +367,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         
         vm.prank(user1);
         vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__SanctionsListBlacklisted.selector, user1));
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(user2, shares);
 
         // Clear SanctionsList, add to custom list
@@ -367,6 +378,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         vm.prank(user1);
         vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user1, CUSTOM_LIST_TWO));
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(user2, shares);
 
         // Clear custom list
@@ -374,6 +386,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         skip(shareLockPeriod);
         vm.prank(user1);
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(user2, shares);
 
         assertEq(boringVault.balanceOf(user2), shares, "Transfer should succeed when all lists clear");
@@ -399,6 +412,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         // TransferFrom should fail due to blacklisted operator
         vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, address(this), CUSTOM_LIST_TWO));
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transferFrom(user1, user2, shares);
     }
 
@@ -422,6 +436,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // Transfer should fail
         vm.prank(user1);
         vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user1, CUSTOM_LIST_TWO));
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(user2, shares);
 
         // Unblacklist user1
@@ -430,6 +445,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // Transfer should succeed
         skip(shareLockPeriod);
         vm.prank(user1);
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(user2, shares);
 
         assertEq(boringVault.balanceOf(user2), shares, "Transfer should succeed after unblacklisting");
@@ -470,16 +486,19 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // User1 transfer should fail
         vm.prank(user1);
         vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user1, CUSTOM_LIST_THREE));
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(referrer, shares1);
 
         // User2 transfer should fail
         vm.prank(user2);
         vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user2, CUSTOM_LIST_THREE));
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(referrer, shares2);
 
         // User3 transfer should succeed (not blacklisted)
         skip(shareLockPeriod);
         vm.prank(user3);
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(referrer, shares3);
         assertEq(boringVault.balanceOf(referrer), shares3, "User3 transfer should succeed");
 
@@ -488,9 +507,11 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         // Both users should now be able to transfer
         vm.prank(user1);
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(referrer, shares1);
         
         vm.prank(user2);
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(referrer, shares2);
 
         assertEq(boringVault.balanceOf(referrer), shares1 + shares2 + shares3, "All transfers should succeed after unblacklisting");
@@ -519,6 +540,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // Transfer should fail (will hit list 4 first)
         vm.prank(user1);
         vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user1, CUSTOM_LIST_FOUR));
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(user2, shares);
 
         // Remove from list 4 only
@@ -527,6 +549,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // Transfer should still fail (still on list 5)
         vm.prank(user1);
         vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Blacklisted.selector, user1, CUSTOM_LIST_FIVE));
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(user2, shares);
 
         // Remove from list 5
@@ -535,6 +558,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // Transfer should now succeed
         skip(shareLockPeriod);
         vm.prank(user1);
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(user2, shares);
         assertEq(boringVault.balanceOf(user2), shares, "Transfer should succeed after removing from all lists");
     }
@@ -565,6 +589,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
                 user1
             )
         );
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(user2, shares);
 
         // Remove from deny list
@@ -574,6 +599,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // Transfer should work now
         skip(shareLockPeriod);
         vm.prank(user1);
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(user2, shares);
 
         assertEq(boringVault.balanceOf(user2), shares, "Transfer should succeed after removing from deny list");
@@ -594,11 +620,13 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__SharesAreLocked.selector)
         );
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(user2, shares);
 
         // Transfer should work now
         skip(shareLockPeriod);
         vm.prank(user1);
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(user2, shares);
 
         assertEq(boringVault.balanceOf(user2), shares, "Transfer should succeed after lock period");
@@ -619,6 +647,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         vm.prank(user1);
         vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__Paused.selector));
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(user2, shares);
 
         // Unpause ShareWarden, add to teller deny list
@@ -636,6 +665,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
                 user1
             )
         );
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(user2, shares);
     }
 
@@ -651,6 +681,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         // Transfer should work (no teller to delegate to)
         vm.prank(user1);
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         newVault.transfer(user2, 0.5e18);
 
         assertEq(newVault.balanceOf(user2), 0.5e18, "Transfer should work without teller mapping");
@@ -691,6 +722,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // First transfer works
         skip(shareLockPeriod);
         vm.prank(user1);
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(user2, shares / 4);
         assertEq(boringVault.balanceOf(user2), shares / 4, "First transfer should succeed");
 
@@ -701,6 +733,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         
         vm.prank(user1);
         vm.expectRevert(abi.encodeWithSelector(ShareWarden.ShareWarden__SanctionsListBlacklisted.selector, user1));
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(user2, shares / 4);
 
         // Clear SanctionsList, add teller deny
@@ -717,6 +750,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
                 user1
             )
         );
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(user2, shares / 4);
 
         // Clear deny list, transfer works again
@@ -725,6 +759,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         skip(shareLockPeriod);
         vm.prank(user1);
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(user2, shares / 4);
         assertEq(boringVault.balanceOf(user2), shares / 2, "Final transfer should succeed");
     }
@@ -744,6 +779,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // User can transfer
         skip(shareLockPeriod);
         vm.prank(user1);
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(user2, shares / 2);
 
         assertEq(boringVault.balanceOf(user2), shares / 2, "User2 should receive half the shares");
@@ -783,6 +819,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         }
         
         skip(shareLockPeriod);
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transferFrom(user1, user2, shares);
 
         if (!shouldFail) {

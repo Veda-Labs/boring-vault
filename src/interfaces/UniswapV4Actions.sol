@@ -224,6 +224,7 @@ library LiquidityAmounts {
     /// @param x The uint258 to be downcasted
     /// @return y The passed value, downcasted to uint128
     function toUint128(uint256 x) private pure returns (uint128 y) {
+        // forge-lint: disable-next-line(unsafe-typecast)
         require((y = uint128(x)) == x, "liquidity overflow");
     }
 
@@ -545,6 +546,7 @@ library TickMath {
     /// @notice Given a tickSpacing, compute the maximum usable tick
     function maxUsableTick(int24 tickSpacing) internal pure returns (int24) {
         unchecked {
+            // forge-lint: disable-next-line(divide-before-multiply)
             return (MAX_TICK / tickSpacing) * tickSpacing;
         }
     }
@@ -552,6 +554,7 @@ library TickMath {
     /// @notice Given a tickSpacing, compute the minimum usable tick
     function minUsableTick(int24 tickSpacing) internal pure returns (int24) {
         unchecked {
+            // forge-lint: disable-next-line(divide-before-multiply)
             return (MIN_TICK / tickSpacing) * tickSpacing;
         }
     }
@@ -574,6 +577,7 @@ library TickMath {
                 absTick := xor(mask, add(mask, tick))
             }
 
+            // forge-lint: disable-next-line(unsafe-typecast)
             if (absTick > uint256(int256(MAX_TICK))) InvalidTick.selector.revertWith(tick);
 
             // The tick is decomposed into bits, and for each bit with index i that is set, the product of 1/sqrt(1.0001^(2^i))
@@ -643,6 +647,7 @@ library TickMath {
             if (msb >= 128) r = price >> (msb - 127);
             else r = price << (127 - msb);
 
+            // forge-lint: disable-next-line(unsafe-typecast)
             int256 log_2 = (int256(msb) - 128) << 64;
 
             assembly ("memory-safe") {

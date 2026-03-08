@@ -518,6 +518,7 @@ contract WithdrawQueue is Auth, ReentrancyGuard, IPausable {
         uint256 shares = req.shares;
 
         // Safe to cast shares to a uint128 since req.shares is constrained to be less than 2^96.
+        // forge-lint: disable-next-line(unsafe-typecast)
         withdrawAsset.outstandingShares -= uint128(shares);
 
         assetsToUser = shares.mulDivDown(minRate, ONE_SHARE);

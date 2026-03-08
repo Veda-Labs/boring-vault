@@ -379,9 +379,9 @@ contract EtherFiLiquid1MigrationTest is Test, MerkleTreeHelper {
         teller.removeAsset(ERC20(pendleEethPtDecember));
         teller.removeAsset(ERC20(pendleEethYtDecember));
 
-        rolesAuthority.setPublicCapability(address(teller), TellerWithMultiAssetSupport.deposit.selector, true);
+        rolesAuthority.setPublicCapability(address(teller), LegacyTeller.deposit.selector, true);
         rolesAuthority.setPublicCapability(
-            address(teller), TellerWithMultiAssetSupport.depositWithPermit.selector, true
+            address(teller), LegacyTeller.depositWithPermit.selector, true
         );
         vm.stopPrank();
 
@@ -423,6 +423,7 @@ contract EtherFiLiquid1MigrationTest is Test, MerkleTreeHelper {
         // Rate goes down.
         uint256 newRate = accountant.getRate().mulDivDown(0.95e4, 1e4);
         vm.prank(strategistMultisig);
+        // forge-lint: disable-next-line(unsafe-typecast)
         accountant.updateExchangeRate(uint96(newRate));
 
         vm.startPrank(liquidMultisig);
@@ -441,6 +442,7 @@ contract EtherFiLiquid1MigrationTest is Test, MerkleTreeHelper {
         // Rate goes up.
         newRate = accountant.getRate().mulDivDown(1.05e4, 1e4);
         vm.prank(strategistMultisig);
+        // forge-lint: disable-next-line(unsafe-typecast)
         accountant.updateExchangeRate(uint96(newRate));
 
         vm.startPrank(liquidMultisig);
@@ -459,6 +461,7 @@ contract EtherFiLiquid1MigrationTest is Test, MerkleTreeHelper {
         // If exchangeRate is updated to some extreme value, pause it triggered which causes all Cellar withdraws to revert.
         newRate = accountant.getRate().mulDivDown(0.01e4, 1e4);
         vm.prank(strategistMultisig);
+        // forge-lint: disable-next-line(unsafe-typecast)
         accountant.updateExchangeRate(uint96(newRate));
 
         vm.expectRevert(bytes(abi.encodeWithSelector(EtherFiLiquid1.Cellar__OracleFailure.selector)));
@@ -502,6 +505,7 @@ contract EtherFiLiquid1MigrationTest is Test, MerkleTreeHelper {
         AtomicQueue.AtomicRequest memory request = AtomicQueue.AtomicRequest({
             deadline: uint64(block.timestamp + 1 days),
             atomicPrice: expectedWethOut,
+            // forge-lint: disable-next-line(unsafe-typecast)
             offerAmount: uint96(amountToSolve),
             inSolve: false
         });
@@ -926,5 +930,6 @@ interface PositionManager {
 
 interface LegacyTeller {
     function deposit(ERC20 asset, uint256 amount, uint256 minMint) external returns (uint256);
+    function depositWithPermit(ERC20 asset, uint256 amount, uint256 minMint, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external returns (uint256);
     function removeAsset(ERC20 asset) external;
 }

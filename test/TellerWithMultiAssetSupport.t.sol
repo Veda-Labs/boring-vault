@@ -390,6 +390,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         AtomicQueue.AtomicRequest memory req = AtomicQueue.AtomicRequest({
             deadline: uint64(block.timestamp + 1 days),
             atomicPrice: 1e18,
+            // forge-lint: disable-next-line(unsafe-typecast)
             offerAmount: uint96(shares),
             inSolve: false
         });
@@ -437,6 +438,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         deal(address(boringVault), attacker, 1e18, true);
         // Transfers currently work.
         vm.prank(attacker);
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(address(this), 0.1e18);
 
         // But if attacker is added to the deny list, transfers should fail.
@@ -451,6 +453,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
                 attacker
             )
         );
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(address(this), 0.1e18);
         vm.stopPrank();
 
@@ -462,12 +465,14 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
                 address(this)
             )
         );
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transferFrom(attacker, address(this), 0.1e18);
 
         // If attacker is removed from the deny list, transfers should work again.
         teller.allowAll(attacker);
 
         vm.prank(attacker);
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(address(this), 0.1e18);
 
         // Make sure we can deny certain operators.
@@ -485,6 +490,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
                 operator
             )
         );
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transferFrom(normalUser, normalUser, 1e18);
         vm.stopPrank();
     }
@@ -499,6 +505,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         boringVault.approve(address(this), 100e18);
 
         // Transfers currently work.
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transferFrom(from, to, 1e18);
 
         // Transfers fail if from is denied.
@@ -511,6 +518,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
                 address(this)
             )
         );
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transferFrom(from, to, 1e18);
 
         teller.allowFrom(from);
@@ -525,6 +533,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
                 address(this)
             )
         );
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transferFrom(from, to, 1e18);
 
         teller.allowTo(to);
@@ -539,11 +548,13 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
                 address(this)
             )
         );
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transferFrom(from, to, 1e18);
 
         teller.allowOperator(address(this));
 
         // Transfers currently work.
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transferFrom(from, to, 1e18);
     }
 
@@ -839,6 +850,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__SharesAreLocked.selector)
         );
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(address(this), 1);
 
         vm.stopPrank();
@@ -846,12 +858,14 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__SharesAreLocked.selector)
         );
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transferFrom(user, address(this), 1);
 
         // But if user waits 3 days.
         skip(3 days + 1);
         // They can now transfer.
         vm.prank(user);
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(address(this), 1);
 
         // Test permissioned transfer mode
@@ -861,10 +875,12 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector, user, address(this), user)
         );
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(address(this), 1);
 
         teller.allowPermissionedOperator(user);
         vm.prank(user);
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(address(this), 1); // now succeeds
 
         teller.denyPermissionedOperator(user);
@@ -872,10 +888,12 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector, user, address(this), user)
         );
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(address(this), 1); // now fails
 
         teller.setPermissionedTransfers(false);
         vm.prank(user);
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(address(this), 1); // now succeeds again
 
         
@@ -921,8 +939,10 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
                     )
                 )
             );
+            // forge-lint: disable-next-line(erc20-unchecked-transfer)
             boringVault.transfer(to, shares);
         } else {
+            // forge-lint: disable-next-line(erc20-unchecked-transfer)
             boringVault.transfer(to, shares);
         }
     }

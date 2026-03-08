@@ -519,6 +519,7 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
         price = price.mulDivDown(1e4 - discount, 1e4);
         uint256 amountOfAssets = uint256(amountOfShares).mulDivDown(price, ONE_SHARE);
         if (amountOfAssets > type(uint128).max) revert BoringOnChainQueue__Overflow();
+        // forge-lint: disable-next-line(unsafe-typecast)
         amountOfAssets128 = uint128(amountOfAssets);
     }
 

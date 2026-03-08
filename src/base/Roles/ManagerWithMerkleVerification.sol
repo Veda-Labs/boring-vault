@@ -260,6 +260,7 @@ contract ManagerWithMerkleVerification is Auth, IPausable {
                 target,
                 decoderAndSanitizer,
                 value,
+                // forge-lint: disable-next-line(unsafe-typecast)
                 bytes4(targetData),
                 packedArgumentAddresses
             )

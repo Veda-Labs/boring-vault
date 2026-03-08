@@ -10,6 +10,7 @@ library AddressToBytes32Lib {
     }
 
     function toAddress(bytes32 bytes32Value) internal pure returns (address) {
+        // forge-lint: disable-next-line(unsafe-typecast)
         return address(bytes20(bytes32Value << 96));
     }
 }

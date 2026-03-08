@@ -5,7 +5,6 @@
 pragma solidity 0.8.21;
 
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {AddressToBytes32Lib} from "src/helper/AddressToBytes32Lib.sol";
 import {ChainValues} from "test/resources/ChainValues.sol";
 import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
@@ -17,6 +16,7 @@ interface ITellerVaultGetter {
 
 /// @dev Hardcoded selector for BaseDecoderAndSanitizer__FunctionSelectorNotSupported() = 0xde42fa1c
 bytes4 constant BASE_DECODER_UNSUPPORTED_SELECTOR = 0xde42fa1c;
+// forge-lint: disable-next-line(unused-import)
 import "forge-std/Base.sol";
 import "forge-std/Test.sol";
 
@@ -7229,7 +7229,9 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex].argumentAddresses[0] = hyperlaneTokenRouter;
 
         // Call transferRemote on hyperlaneTokenRouter
+        // forge-lint: disable-next-line(unsafe-typecast)
         address recipient0 = address(bytes20(bytes16(recipient)));
+        // forge-lint: disable-next-line(unsafe-typecast)
         address recipient1 = address(bytes20(bytes16(recipient << 128)));
         unchecked {
             leafIndex++;
@@ -8700,7 +8702,9 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             decoderAndSanitizer: getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         });
         leafs[leafIndex].argumentAddresses[0] = address(uint160(endpoint));
+        // forge-lint: disable-next-line(unsafe-typecast)
         leafs[leafIndex].argumentAddresses[1] = address(bytes20(bytes16(to)));
+        // forge-lint: disable-next-line(unsafe-typecast)
         leafs[leafIndex].argumentAddresses[2] = address(bytes20(bytes16(to << 128)));
         leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "boringVault");
     }
@@ -8743,9 +8747,13 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             decoderAndSanitizer: getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         });
         leafs[leafIndex].argumentAddresses[0] = address(uint160((uint256(firstHopEndpoint) << 32) | uint256(finalDestEndpoint)));
+        // forge-lint: disable-next-line(unsafe-typecast)
         leafs[leafIndex].argumentAddresses[1] = address(bytes20(bytes16(firstHopTo)));
+        // forge-lint: disable-next-line(unsafe-typecast)
         leafs[leafIndex].argumentAddresses[2] = address(bytes20(bytes16(firstHopTo << 128)));
+        // forge-lint: disable-next-line(unsafe-typecast)
         leafs[leafIndex].argumentAddresses[3] = address(bytes20(bytes16(finalDestTo)));
+        // forge-lint: disable-next-line(unsafe-typecast)
         leafs[leafIndex].argumentAddresses[4] = address(bytes20(bytes16(finalDestTo << 128)));
         leafs[leafIndex].argumentAddresses[5] = getAddress(sourceChain, "boringVault");
     }
@@ -8765,7 +8773,9 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             decoderAndSanitizer: getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         });
         leafs[leafIndex].argumentAddresses[0] = address(uint160(endpoint));
+        // forge-lint: disable-next-line(unsafe-typecast)
         leafs[leafIndex].argumentAddresses[1] = address(bytes20(bytes16(to)));
+        // forge-lint: disable-next-line(unsafe-typecast)
         leafs[leafIndex].argumentAddresses[2] = address(bytes20(bytes16(to << 128)));
         leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "boringVault");
     }
@@ -10072,7 +10082,9 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             leafIndex++;
         }
 
+        // forge-lint: disable-next-line(unsafe-typecast)
         address marketHash0 = address(bytes20(bytes16(marketHash)));
+        // forge-lint: disable-next-line(unsafe-typecast)
         address marketHash1 = address(bytes20(bytes16(marketHash << 128)));
 
         leafs[leafIndex] = ManageLeaf({
@@ -10319,7 +10331,9 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             description: string.concat("Create AP Offer for Recipe Market"),
             decoderAndSanitizer: getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         });
+        // forge-lint: disable-next-line(unsafe-typecast)
         leafs[leafIndex].argumentAddresses[0] = address(bytes20(bytes16(targetMarketHash)));
+        // forge-lint: disable-next-line(unsafe-typecast)
         leafs[leafIndex].argumentAddresses[1] = address(bytes20(bytes16(targetMarketHash << 128)));
         leafs[leafIndex].argumentAddresses[2] = fundingVault;
         for (uint256 i = 0; i < incentivesRequested.length; i++) {
@@ -10337,7 +10351,9 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             description: string.concat("Cancel AP Offer for Recipe Market"),
             decoderAndSanitizer: getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         });
+        // forge-lint: disable-next-line(unsafe-typecast)
         leafs[leafIndex].argumentAddresses[0] = address(bytes20(bytes16(targetMarketHash)));
+        // forge-lint: disable-next-line(unsafe-typecast)
         leafs[leafIndex].argumentAddresses[1] = address(bytes20(bytes16(targetMarketHash << 128)));
         leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault"); // AP address is caller of create, boringVault
         leafs[leafIndex].argumentAddresses[3] = fundingVault;
@@ -13472,12 +13488,16 @@ function _addTellerLeafsWithReferral(
         });
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "lbtcBridge");
 
+        // forge-lint: disable-next-line(unsafe-typecast)
         address toChain0 = address(bytes20(bytes16(toChain)));
+        // forge-lint: disable-next-line(unsafe-typecast)
         address toChain1 = address(bytes20(bytes16(toChain << 128)));
 
         //kinda scuffed, can maybe just use one address?
         bytes32 boringVaultBytes = getBytes32(sourceChain, "boringVault");
+        // forge-lint: disable-next-line(unsafe-typecast)
         address toAddress0 = address(bytes20(bytes16(boringVaultBytes)));
+        // forge-lint: disable-next-line(unsafe-typecast)
         address toAddress1 = address(bytes20(bytes16(boringVaultBytes << 128)));
 
         unchecked {

@@ -134,6 +134,7 @@ contract AccountantWithFixedRateTest is Test, MerkleTreeHelper {
         // Calculate performance fee.
         expectedFee += grossYield.mulDivDown(performanceFee, 1e4);
 
+        // forge-lint: disable-next-line(unsafe-typecast)
         assertEq(firstYield, uint96(grossYield - expectedFee), "First yield should be correct");
 
         // Accountant rate should still be 1e18.
@@ -241,6 +242,7 @@ contract AccountantWithFixedRateTest is Test, MerkleTreeHelper {
         uint256 grossYield = uint256(newExchangeRate - 1e18).mulDivDown(totalSupply, 1e18);
         uint256 expectedFee = grossYield.mulDivDown(performanceFee, 1e4);
 
+        // forge-lint: disable-next-line(unsafe-typecast)
         assertEq(yieldEarned, uint96(grossYield - expectedFee), "Yield earned should be correct");
 
         (,, uint128 actualFeesOwedInBase,,,,,,,,,) = accountant.accountantState();
@@ -292,6 +294,7 @@ contract AccountantWithFixedRateTest is Test, MerkleTreeHelper {
 
         // Update with 2% increase
         uint256 newRate = 1.02e18;
+        // forge-lint: disable-next-line(unsafe-typecast)
         accountant.updateExchangeRate(uint96(newRate));
 
         uint256 totalSupply = boringVault.totalSupply();
@@ -303,6 +306,7 @@ contract AccountantWithFixedRateTest is Test, MerkleTreeHelper {
 
         // Check yield earned
         (uint96 yieldEarned,) = accountant.fixedRateAccountantState();
+        // forge-lint: disable-next-line(unsafe-typecast)
         assertEq(yieldEarned, uint96(grossYield - expectedPlatformFee), "Incorrect yield earned");
 
         // Check fees owed
@@ -320,6 +324,7 @@ contract AccountantWithFixedRateTest is Test, MerkleTreeHelper {
 
         // Update with 2% increase
         uint256 newRate = 1.02e18;
+        // forge-lint: disable-next-line(unsafe-typecast)
         accountant.updateExchangeRate(uint96(newRate));
 
         uint256 totalSupply = boringVault.totalSupply();
@@ -330,6 +335,7 @@ contract AccountantWithFixedRateTest is Test, MerkleTreeHelper {
 
         // Check yield earned
         (uint96 yieldEarned,) = accountant.fixedRateAccountantState();
+        // forge-lint: disable-next-line(unsafe-typecast)
         assertEq(yieldEarned, uint96(grossYield - expectedPerformanceFee), "Incorrect yield earned");
 
         // Check fees owed
@@ -348,6 +354,7 @@ contract AccountantWithFixedRateTest is Test, MerkleTreeHelper {
 
         // Update with 2% increase
         uint256 newRate = 1.02e18;
+        // forge-lint: disable-next-line(unsafe-typecast)
         accountant.updateExchangeRate(uint96(newRate));
 
         uint256 totalSupply = boringVault.totalSupply();
@@ -355,6 +362,7 @@ contract AccountantWithFixedRateTest is Test, MerkleTreeHelper {
 
         // Check yield earned - should equal gross yield since no fees
         (uint96 yieldEarned,) = accountant.fixedRateAccountantState();
+        // forge-lint: disable-next-line(unsafe-typecast)
         assertEq(yieldEarned, uint96(grossYield), "Incorrect yield earned");
 
         // Check fees owed - should be 0

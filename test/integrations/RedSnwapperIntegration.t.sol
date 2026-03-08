@@ -38,6 +38,7 @@ contract RedSnwapperIntegration is BaseTestIntegration {
         address SNX = 0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F;
 
         vm.prank(0xA31231E727Ca53Ff95f0D00a06C645110c4aB647); 
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         ERC20(SNX).transfer(address(boringVault), 100000e18); 
 
         address[] memory tokens = new address[](2);   

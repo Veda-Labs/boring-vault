@@ -72,6 +72,7 @@ contract CellarMigratorWithSharePriceParity {
         uint256 startingSharePrice = targetTotalAssets.mulDivDown(10 ** targetDecimals, targetTotalSupply);
 
         // Update accountants exchange rate.
+        // forge-lint: disable-next-line(unsafe-typecast)
         accountant.updateExchangeRate(uint96(startingSharePrice));
 
         if (checkIfCellarOwnsAllShares) {

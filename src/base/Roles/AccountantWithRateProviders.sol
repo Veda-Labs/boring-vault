@@ -266,6 +266,7 @@ contract AccountantWithRateProviders is Auth, IRateProvider, IPausable {
         uint64 currentTime = uint64(block.timestamp);
         uint256 currentTotalShares = vault.totalSupply();
         _calculateFeesOwed(state, state.exchangeRate, state.exchangeRate, currentTotalShares, currentTime);
+        // forge-lint: disable-next-line(unsafe-typecast)
         state.totalSharesLastUpdate = uint128(currentTotalShares);
         state.highwaterMark = accountantState.exchangeRate;
         state.lastUpdateTimestamp = currentTime;
@@ -298,9 +299,11 @@ contract AccountantWithRateProviders is Auth, IRateProvider, IPausable {
         }
 
         newExchangeRate = _setExchangeRate(newExchangeRate, state);
+        // forge-lint: disable-next-line(unsafe-typecast)
         state.totalSharesLastUpdate = uint128(currentTotalShares);
         state.lastUpdateTimestamp = currentTime;
 
+        // forge-lint: disable-next-line(unsafe-typecast)
         emit ExchangeRateUpdated(uint96(currentExchangeRate), newExchangeRate, currentTime);
     }
 
@@ -567,6 +570,7 @@ contract AccountantWithRateProviders is Auth, IRateProvider, IPausable {
             state.highwaterMark = newExchangeRate;
         }
 
+        // forge-lint: disable-next-line(unsafe-typecast)
         state.feesOwedInBase += uint128(newFeesOwedInBase);
     }
 }

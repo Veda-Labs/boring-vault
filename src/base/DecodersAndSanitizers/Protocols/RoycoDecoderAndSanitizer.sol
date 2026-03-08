@@ -44,7 +44,9 @@ contract RoycoWeirollDecoderAndSanitizer is ERC4626DecoderAndSanitizer {
         address[] calldata incentivesRequested,
         uint256[] calldata /*incentiveAmountsRequested*/
     ) external pure virtual returns (bytes memory addressesFound) {
+        // forge-lint: disable-next-line(unsafe-typecast)
         address marketHash0 = address(bytes20(bytes16(targetMarketHash)));
+        // forge-lint: disable-next-line(unsafe-typecast)
         address marketHash1 = address(bytes20(bytes16(targetMarketHash << 128)));
         addressesFound = abi.encodePacked(marketHash0, marketHash1, fundingVault);
         for (uint256 i = 0; i < incentivesRequested.length; i++) {
@@ -76,7 +78,9 @@ contract RoycoWeirollDecoderAndSanitizer is ERC4626DecoderAndSanitizer {
 
         (, bytes32 marketHash,,,,) = recipeMarketHub.offerHashToIPOffer(ipOfferHashes[0]);
 
+        // forge-lint: disable-next-line(unsafe-typecast)
         address marketHash0 = address(bytes20(bytes16(marketHash)));
+        // forge-lint: disable-next-line(unsafe-typecast)
         address marketHash1 = address(bytes20(bytes16(marketHash << 128)));
         return abi.encodePacked(marketHash0, marketHash1, fundingVault, frontendFeeRecipient);
     }

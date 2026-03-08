@@ -69,6 +69,7 @@ contract TellerWithRemediation is TellerWithMultiAssetSupport {
     {
         // Set remediation info.
         remediationInfo[user].isFrozen = true;
+        // forge-lint: disable-next-line(unsafe-typecast)
         remediationInfo[user].remediationTime = uint64(block.timestamp + REMEDIATION_PERIOD);
         remediationInfo[user].remediationAddress = remediationAddress;
         remediationInfo[user].amount = amountToRemediate;

@@ -12,8 +12,6 @@ import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {
     EtherFiLiquidDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/EtherFiLiquidDecoderAndSanitizer.sol";
-import {EtherFiLiquidUsdDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/EtherFiLiquidUsdDecoderAndSanitizer.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 

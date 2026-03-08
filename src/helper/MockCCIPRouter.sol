@@ -36,6 +36,7 @@ contract MockCCIPRouter {
     }
 
     function ccipSend(uint64, Client.EVM2AnyMessage memory message) external returns (bytes32 messageId) {
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         ERC20(message.feeToken).transferFrom(msg.sender, address(this), fees[ERC20(message.feeToken)]);
         messageId = bytes32(messageCount);
         messageCount++;

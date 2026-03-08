@@ -191,10 +191,12 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         supplyObservation.cumulativeSupplyLast = supplyObservation.cumulativeSupply;
 
         //strategists should account for any unvested yield they want, gives more flexibility in posting pnl updates
+        // forge-lint: disable-next-line(unsafe-typecast)
         vestingState.vestingGains = uint128(yieldAmount);
 
         //update vesting timestamps
         vestingState.startVestingTime = uint64(block.timestamp);
+        // forge-lint: disable-next-line(unsafe-typecast)
         vestingState.endVestingTime = uint64(block.timestamp + duration);
 
         //always update timestamp 
@@ -223,6 +225,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
 
         if (vestingState.vestingGains >= lossAmount) {
             //remaining unvested gains absorb the loss
+            // forge-lint: disable-next-line(unsafe-typecast)
             vestingState.vestingGains -= uint128(lossAmount);
         } else {
             uint256 principalLoss = lossAmount - vestingState.vestingGains;
@@ -477,6 +480,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
             lastVirtualSharePrice = lastVirtualSharePrice + newlyVested.mulDivDown(RAY, currentShares);
 
             //move vested amount from pending to realized
+            // forge-lint: disable-next-line(unsafe-typecast)
             vestingState.vestingGains -= uint128(newlyVested); // remove from pending
             vestingState.lastVestingUpdate = uint128(block.timestamp); //update timestamp
             vestingState.lastSharePrice = _calculateSharePriceFromVirtual();
@@ -485,6 +489,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         //sync fee variables 
         _collectFees();
 
+        // forge-lint: disable-next-line(unsafe-typecast)
         state.totalSharesLastUpdate = uint128(currentShares);
 
         emit ExchangeRateUpdated(vestingState.lastSharePrice);

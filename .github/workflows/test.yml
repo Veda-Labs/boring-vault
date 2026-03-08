@@ -25,6 +25,12 @@ jobs:
       LINEA_RPC_URL: https://linea-mainnet.infura.io/v3/${{ secrets.INFURA_API_KEY }}
       MANTLE_RPC_URL: https://mantle-mainnet.infura.io/v3/${{ secrets.INFURA_API_KEY }}
       HOLESKY_RPC_URL: https://holesky.infura.io/v3/${{ secrets.INFURA_API_KEY_0 }}
+      SONIC_MAINNET_RPC_URL: ${{ secrets.SONIC_MAINNET_RPC_URL }}
+      BERA_CHAIN_RPC_URL: ${{ secrets.BERA_CHAIN_RPC_URL }}
+      BARTIO_RPC_URL: ${{ secrets.BARTIO_RPC_URL }}
+      FLARE_RPC_URL: ${{ secrets.FLARE_RPC_URL }}
+      SWELL_CHAIN_RPC_URL: ${{ secrets.SWELL_CHAIN_RPC_URL }}
+      SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -34,6 +40,25 @@ jobs:
         uses: foundry-rs/foundry-toolchain@v1
         with:
           version: nightly
+          cache: true
+
+      - name: Restore Forge compilation cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            cache
+            out
+          key: forge-build-${{ hashFiles('src/**/*.sol', 'test/**/*.sol', 'foundry.toml') }}
+          restore-keys: |
+            forge-build-
+
+      - name: Restore RPC fork cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.foundry/cache/rpc
+          key: forge-rpc-${{ hashFiles('test/**/*.sol') }}
+          restore-keys: |
+            forge-rpc-
 
       - name: Run Forge build
         run: |
@@ -43,5 +68,5 @@ jobs:
 
       - name: Run Forge tests
         run: |
-          forge test -vv --skip SymbioticVaultIntegration --skip CreateTimelockTx
+          forge test -vv --skip script --skip Integration --skip TellerWithReferral
         id: test

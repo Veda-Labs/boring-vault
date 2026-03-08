@@ -26,6 +26,7 @@ contract ITBCurveAndConvexNoConfigDecoderAndSanitizer {
         pure
         returns (bytes memory addressesFound)
     {
+        // forge-lint: disable-next-line(unsafe-typecast)
         addressesFound = abi.encodePacked(_pool, address(uint160(_convex_pool_id)));
     }
 
@@ -34,6 +35,7 @@ contract ITBCurveAndConvexNoConfigDecoderAndSanitizer {
         pure
         returns (bytes memory addressesFound)
     {
+        // forge-lint: disable-next-line(unsafe-typecast)
         addressesFound = abi.encodePacked(_pool, address(uint160(_convex_pool_id)));
     }
 }

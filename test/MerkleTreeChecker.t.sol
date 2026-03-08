@@ -107,7 +107,7 @@ contract MerkleTreeCheckerTest is Test, MerkleTreeHelper {
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
     }
 
-    function testFailCheckingBadTree() external {
+    function testRevert_CheckingBadTree() external {
         setSourceChainName(mainnet);
         setAddress(false, mainnet, "boringVault", boringVault);
         setAddress(false, mainnet, "managerAddress", managerAddress);
@@ -188,6 +188,7 @@ contract MerkleTreeCheckerTest is Test, MerkleTreeHelper {
         tellerAssets[0] = getERC20(sourceChain, "WBTC");
         _addTellerLeafs(leafs, 0xe19a43B1b8af6CeE71749Af2332627338B3242D1, tellerAssets, false, true);
 
+        vm.expectRevert();
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
     }
 

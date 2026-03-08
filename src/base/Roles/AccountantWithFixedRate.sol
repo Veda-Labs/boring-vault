@@ -258,7 +258,9 @@ contract AccountantWithFixedRate is AccountantWithRateProviders {
             if (yieldEarned > type(uint96).max) {
                 revert AccountantWithFixedRate__UnsafeUint96Cast();
             }
+            // forge-lint: disable-next-line(unsafe-typecast)
             fixedRateAccountantState.yieldEarnedInBase += uint96(yieldEarned);
+            // forge-lint: disable-next-line(unsafe-typecast)
             state.feesOwedInBase += uint128(feesOwedInBase);
         }
     }
