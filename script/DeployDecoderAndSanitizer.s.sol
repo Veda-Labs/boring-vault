@@ -11,6 +11,7 @@ import {
 import {FullUniswapV4DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/FullUniswapV4DecoderAndSanitizer.sol";
 import {GenericUniswapDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/GenericUniswapDecoderAndSanitizer.sol";
 import {SyUsdArbitrumDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyUsdArbitrumDecoderAndSanitizer.sol";
+import {BTCCarryDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BTCCarryDecoderAndSanitizer.sol";
 import {SyUsdPlasmaDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyUsdPlasmaDecoderAndSanitizer.sol";
 import {SyEthArbitrumDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyEthArbitrumDecoderAndSanitizer.sol";
 import {SyBtcArbitrumDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyBtcArbitrumDecoderAndSanitizer.sol";
@@ -132,6 +133,30 @@ contract DeployHlCoreVaultDecoderAndSanitizer is Script, ContractNames, MainnetA
         // deployer.deployContract("HlCoreVaultDecodersAndSanitizerV0.1", creationCode, constructorArgs, 0);
 
         new HyperliquidCoreWriterDecoderAndSanitizer();
+
+        vm.stopBroadcast();
+    }
+}
+contract DeployBTCCarryDecoderAndSanitizer is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
+    uint256 public privateKey;
+    Deployer public deployer = Deployer(0x5BD97A73333B6EC2e38B687bcED159566A14C5BA);
+
+    function setUp() external {}
+
+    function run() external {
+        bytes memory creationCode;
+        bytes memory constructorArgs;
+
+        vm.createSelectFork("base");
+        setSourceChainName("base");
+
+        vm.startBroadcast(vm.envUint("PK"));
+
+        // creationCode = type(HlCoreVaultDecoderAndSanitizer).creationCode;
+        // deployer.deployContract("HlCoreVaultDecodersAndSanitizerV0.1", creationCode, constructorArgs, 0);
+
+        new BTCCarryDecoderAndSanitizer(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
+                getAddress(sourceChain, "magpieRouterV3"));
 
         vm.stopBroadcast();
     }

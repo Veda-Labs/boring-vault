@@ -13142,90 +13142,6 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         }
     }
 
-    function _addWithdrawQueueLeafs(
-        ManageLeaf[] memory leafs,
-        address withdrawQueue,
-        address boringVault,
-        ERC20[] memory assets
-    ) internal {
-        for (uint256 i = 0; i < assets.length; i++) {
-            unchecked {
-                leafIndex++;
-            }
-            leafs[leafIndex] = ManageLeaf(
-                boringVault,
-                false,
-                "approve(address,uint256)",
-                new address[](1),
-                string.concat(
-                    "Approve BoringOnChainQueue to spend ",
-                    ERC20(boringVault).symbol()
-                ),
-                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-            );
-            leafs[leafIndex].argumentAddresses[0] = withdrawQueue;
-
-            unchecked {
-                leafIndex++;
-            }
-            leafs[leafIndex] = ManageLeaf(
-                withdrawQueue,
-                false,
-                "requestOnChainWithdraw(address,uint128,uint16,uint24)",
-                new address[](1),
-                string.concat(
-                    "Request Withdraw of ",
-                    assets[i].symbol(),
-                    ", from queue"
-                ),
-                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-            );
-            leafs[leafIndex].argumentAddresses[0] = address(assets[i]);
-
-            unchecked {
-                leafIndex++;
-            }
-            leafs[leafIndex] = ManageLeaf(
-                withdrawQueue,
-                false,
-                "cancelOnChainWithdraw((uint96,address,address,uint128,uint128,uint40,uint24,uint24))",
-                new address[](2),
-                string.concat(
-                    "Cancel Withdraw of ",
-                    assets[i].symbol(),
-                    ", from queue"
-                ),
-                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-            );
-            leafs[leafIndex].argumentAddresses[0] = getAddress(
-                sourceChain,
-                "boringVault"
-            );
-            leafs[leafIndex].argumentAddresses[1] = address(assets[i]);
-
-            unchecked {
-                leafIndex++;
-            }
-            leafs[leafIndex] = ManageLeaf(
-                withdrawQueue,
-                false,
-                "replaceOnChainWithdraw((uint96,address,address,uint128,uint128,uint40,uint24,uint24),uint16,uint24)",
-                new address[](2),
-                string.concat(
-                    "Replace Withdraw of ",
-                    assets[i].symbol(),
-                    ", from queue"
-                ),
-                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-            );
-            leafs[leafIndex].argumentAddresses[0] = getAddress(
-                sourceChain,
-                "boringVault"
-            );
-            leafs[leafIndex].argumentAddresses[1] = address(assets[i]);
-        }
-    }
-
     // ============================ Self Solve Leafs =========================================
 
     function _addSelfSolveLeafs(
@@ -13246,7 +13162,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 new address[](3),
                 string.concat(
                     "Self solving request of withdrawing",
-                    ERC20(boringVault).symbol(),
+                    assets[i].symbol(),
                     ", from queue"
                 ),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")

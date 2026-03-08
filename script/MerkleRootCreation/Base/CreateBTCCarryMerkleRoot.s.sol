@@ -26,14 +26,18 @@ contract CreateAeroUsdcMerkleRootScript is Script, MerkleTreeHelper {
 
     address public accountantAddress = 0x83a9d9aE20C0C5b36FB211Ef32BF269B43097FEC;
     address public boringVault = 0x02B2784DC5a994a06a880b57B38b526c318c7490;
+
+    address public syusd_vault = 0x279CAD277447965AF3d24a78197aad1B02a2c589;
+
+    address public withdrawQueue = 0xF632c10b19f2a0451cD4A653fC9ca0c15eA1040b;
     address public managerAddress = 0x1E9bEF0e9f33C438aF4C29ee393857d1E92f4485;
     address public rawDataDecoderAndSanitizer;
     RolesAuthority public rolesAuthority = RolesAuthority(0xdD2652b7995bEd0ccc585963fc00Cba3241B8133);
-    address public teller = 0xaefc11908fF97c335D16bdf9F2Bf720817423825;
+    address public syusd_teller = 0xaefc11908fF97c335D16bdf9F2Bf720817423825;
+    bytes32 cbBtc_market_id = 0x9103c3b4e834476c9a62ea009ba2c884ee42e94e6e314a26f04d312434191836;
 
     address public user1 = 0xa86b3Bf249478488B4304B50726c7D4689aD6320;
-    address public user2 = 0x124B527d76cB8192ac59da7276f815b4529870C9;
-    address public user3 = 0x0307AD25281C99F22A8F3Af9e272fE3968810239;
+    address public user2 = 0x0307AD25281C99F22A8F3Af9e272fE3968810239;
 
     function setUp() external {
         setSourceChainName(base);
@@ -45,7 +49,7 @@ contract CreateAeroUsdcMerkleRootScript is Script, MerkleTreeHelper {
     }
 
     function _generateSyUsdMultiChainMerkleRoot() public {
-        rawDataDecoderAndSanitizer = address(0x5F2863EeF8854171F2AC4E07A0D056CFC8e13c3E);
+        rawDataDecoderAndSanitizer = address(0xcE81e05962be48f8B692D11a62F33Bf9318E2A77);
 
         console.log("Address of decoder and sanitizer:", rawDataDecoderAndSanitizer);
 
@@ -82,7 +86,13 @@ contract CreateAeroUsdcMerkleRootScript is Script, MerkleTreeHelper {
 
         ERC20[] memory assets = new ERC20[](1);
         assets[0] = ERC20(getAddress(sourceChain, "USDC"));
-        _addTellerLeafs(leafs, address(teller), assets, false, true);
+        _addTellerLeafs(leafs, address(syusd_teller), assets, false, true);
+
+        _addMorphoBlueCollateralLeafs(leafs, cbBtc_market_id);
+        _addMorphoBlueSupplyLeafs(leafs, cbBtc_market_id);
+
+        _addWithdrawQueueLeafs(leafs, withdrawQueue, syusd_vault, assets);
+        _addSelfSolveLeafs(leafs, assets, withdrawQueue, boringVault, syusd_teller);
 
         _addMagpieSwapLeafs(leafs, oneInchAssets, kind);
 
@@ -106,15 +116,11 @@ contract CreateAeroUsdcMerkleRootScript is Script, MerkleTreeHelper {
             );
         }
         rolesAuthority.setUserRole(user1, MANAGER_INTERNAL_ROLE, true);
-        rolesAuthority.setUserRole(user3, MANAGER_INTERNAL_ROLE, true);
+        rolesAuthority.setUserRole(user2, MANAGER_INTERNAL_ROLE, true);
 
         manager.setManageRoot(managerAddress, manageTree[manageTree.length - 1][0]);
         manager.setManageRoot(user1, manageTree[manageTree.length - 1][0]);
-        // manager.setManageRoot(
-        //     user2,
-        //     manageTree[manageTree.length - 1][0]
-        // );
-        manager.setManageRoot(user3, manageTree[manageTree.length - 1][0]);
+        manager.setManageRoot(user2, manageTree[manageTree.length - 1][0]);
         vm.stopBroadcast();
     }
 }
