@@ -60,21 +60,21 @@ contract CreateAeroUsdcMerkleRootScript is Script, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](512);
         ERC20[] memory feeAssets = new ERC20[](1);
-        feeAssets[0] = getERC20(sourceChain, "WBTC");
+        feeAssets[0] = getERC20(sourceChain, "cbBTC");
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
         ERC20[] memory bridgeAssets = new ERC20[](1);
-        bridgeAssets[0] = getERC20(sourceChain, "WBTC");
+        bridgeAssets[0] = getERC20(sourceChain, "cbBTC");
         ERC20[] memory feeTokens = new ERC20[](1);
         feeTokens[0] = getERC20(sourceChain, "WETH");
         _addCcipBridgeLeafs(leafs, ccipMainnetChainSelector, bridgeAssets, feeTokens);
-        _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "WBTC"));
+        _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "cbBTC"));
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDC"));
 
         // 1inch assets;
         address[] memory oneInchAssets = new address[](2);
         oneInchAssets[0] = getAddress(sourceChain, "USDC");
-        oneInchAssets[1] = getAddress(sourceChain, "WBTC");
+        oneInchAssets[1] = getAddress(sourceChain, "cbBTC");
         SwapKind[] memory kind = new SwapKind[](2);
         kind[0] = SwapKind.BuyAndSell;
         kind[1] = SwapKind.BuyAndSell;
