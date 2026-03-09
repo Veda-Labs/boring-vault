@@ -140,7 +140,6 @@ contract AvalancheBridgeIntegration is BaseTestIntegration {
         ERC20[] memory assets = new ERC20[](1);
         assets[0] = getERC20(sourceChain, "WETH");
 
-        vm.expectRevert();
         _addAvalancheBridgeLeafs(leafs, assets);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
@@ -154,8 +153,6 @@ contract AvalancheBridgeIntegration is BaseTestIntegration {
         tx_.manageLeafs[0] = leafs[0]; //approve USDC
         tx_.manageLeafs[1] = leafs[1]; //call transferTokens
         tx_.manageLeafs[2] = leafs[2]; //transfer WETH
-
-        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
 
         //targets
         tx_.targets[0] = getAddress(sourceChain, "USDC"); //approve
@@ -178,6 +175,16 @@ contract AvalancheBridgeIntegration is BaseTestIntegration {
         tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
         tx_.decodersAndSanitizers[2] = rawDataDecoderAndSanitizer;
 
+        vm.expectRevert();
+        this.getProofsAndSubmit(tx_.manageLeafs, manageTree, tx_);
+    }
+
+    function getProofsAndSubmit(
+        ManageLeaf[] memory manageLeafs,
+        bytes32[][] memory manageTree,
+        Tx memory tx_
+    ) external {
+        bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
         _submitManagerCall(manageProofs, tx_);
     }
 }

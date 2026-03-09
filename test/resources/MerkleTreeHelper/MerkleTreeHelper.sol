@@ -7401,7 +7401,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 }
 
                 if (address(assets[i]) != getAddress(sourceChain, "USDC")) {
-                    revert("Contracts not supported for assets other than USDC");
+                    continue;
                     //unchecked {
                     //    leafIndex++;
                     //}

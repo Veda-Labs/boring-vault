@@ -68,5 +68,5 @@ jobs:
 
       - name: Run Forge tests
         run: |
-          forge test -vv --skip script --skip Integration --skip TellerWithReferral
+          forge test -vv --skip script --skip Integration
         id: test

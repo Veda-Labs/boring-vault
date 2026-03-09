@@ -178,7 +178,7 @@ contract BeraborrowIntegrationTest is BaseTestIntegration {
 
         deal(getAddress(sourceChain, "WBTC"), address(boringVault), 10e8);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](4);
+        ManageLeaf[] memory leafs = new ManageLeaf[](8);
 
         address[] memory managedVaults = new address[](1);
         managedVaults[0] = getAddress(sourceChain, "bbWBTCManagedVault");
@@ -217,7 +217,7 @@ contract BeraborrowIntegrationTest is BaseTestIntegration {
             "redeemIntent(uint256,address,address)", 10e8, address(boringVault), address(boringVault)
         );
         tx_.targetData[3] = abi.encodeWithSignature(
-            "cancelWithdrawalIntent(uint256,uint256,address)", 1941935, 10e8, address(boringVault)
+            "cancelWithdrawalIntent(uint256,uint256,address)", 1942271, 10e8, address(boringVault)
         );
 
         tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;

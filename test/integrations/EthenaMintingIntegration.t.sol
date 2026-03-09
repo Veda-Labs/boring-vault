@@ -26,9 +26,7 @@ contract EthenaMintingIntegrationTest is BaseTestIntegration {
     function testEthenaMint() external {
         _setUpMainnet();
 
-        //get env var
-        uint256 privateKey = vm.envUint("PRIVATE_KEY");
-        address signer = vm.addr(privateKey);
+        (address signer, uint256 privateKey) = makeAddrAndKey("signer");
 
         vm.startPrank(0x3B0AAf6e6fCd4a7cEEf8c92C32DFeA9E64dC1862);
         IRoleGranter(0xe3490297a08d6fC8Da46Edb7B6142E4F461b62D3)
@@ -123,9 +121,7 @@ contract EthenaMintingIntegrationTest is BaseTestIntegration {
     function testEthenaRedeem() external {
         _setUpMainnet();
 
-        //get env var
-        uint256 privateKey = vm.envUint("PRIVATE_KEY");
-        address signer = vm.addr(privateKey);
+        (address signer, uint256 privateKey) = makeAddrAndKey("signer");
 
         vm.startPrank(0x3B0AAf6e6fCd4a7cEEf8c92C32DFeA9E64dC1862);
         IRoleGranter(0xe3490297a08d6fC8Da46Edb7B6142E4F461b62D3)
@@ -212,9 +208,7 @@ contract EthenaMintingIntegrationTest is BaseTestIntegration {
     function testEthenaMintRevertsIfSignerRemoved() external {
         _setUpMainnet();
 
-        //get env var
-        uint256 privateKey = vm.envUint("PRIVATE_KEY");
-        address signer = vm.addr(privateKey);
+        (address signer, uint256 privateKey) = makeAddrAndKey("signer");
 
         vm.startPrank(0x3B0AAf6e6fCd4a7cEEf8c92C32DFeA9E64dC1862);
         IRoleGranter(0xe3490297a08d6fC8Da46Edb7B6142E4F461b62D3)
