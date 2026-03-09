@@ -64,9 +64,20 @@ contract BoringSwapperIntegration is BaseTestIntegration {
 
         swapper.addApprovedRoute(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDC"), 50); 
         swapper.addApprovedProtocol(0); //UNI_V3
+        swapper.addApprovedProtocol(3); //COWSWAP
         swapper.addApprovedVersion(0, 1); 
+        swapper.addApprovedVersion(3, 1); 
 
         registry.put(0, uniswapV3AdapterVersion0_1);
+        registry.put(3, cowswapAdapterVersion0_1);
+        bytes32 cowDomainSeparator = keccak256(abi.encode(
+            keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
+            keccak256("Gnosis Protocol"),
+            keccak256("v2"),
+            block.chainid,
+            0x9008D19f58AAbD9eD0D60971565AA8510560ab41
+        ));
+        registry.limitOrderProtocols(cowDomainSeparator, 3); //store the hash mapping in the registry
 
         //oracle setup
         usdRate = new MockRateProvider(1e18);
@@ -90,11 +101,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
     }
 
     function testUniV3Swap() external {
-        console.log("Test is working"); 
-        console.log("swapper", address(swapper)); 
         //create tokens array
-        
-
         deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18); 
 
         address[] memory tokens = new address[](2);  
@@ -183,4 +190,24 @@ contract BoringSwapperIntegration is BaseTestIntegration {
             console.log("Negative slippage (bps):", slippageBps);
         }
     }
+
+    function testCowswap() external {
+        //create tokens array
+        deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18); 
+
+        address[] memory tokens = new address[](2);  
+        tokens[0] = getAddress(sourceChain, "WETH");
+        tokens[1] = getAddress(sourceChain, "USDC");
+    
+        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        _addBoringSwapperLeafs(leafs, address(swapper), tokens); 
+        
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+
+        _generateTestLeafs(leafs, manageTree);
+
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        Tx memory tx_ = _getTxArrays(2); 
+
 }

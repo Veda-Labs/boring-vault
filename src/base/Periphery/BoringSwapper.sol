@@ -13,7 +13,7 @@ import {ReentrancyGuard} from "@solmate/utils/ReentrancyGuard.sol";
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
 
-//TODO let's set up a basic test and go from there, that is today's plan/agenda
+//TODO let's handle the cowswap path today
 
 contract BoringSwapper is Auth {
     using FixedPointMathLib for uint256;
@@ -54,6 +54,7 @@ contract BoringSwapper is Auth {
     mapping(bytes32 routeId => uint256 maxSlippageBps) public maxSlippageBpsPerRoute;
     mapping(uint8 protocolId => bool approved) public approvedProtocols;
     mapping(ERC20 token => OracleConfig oracleConfig) public oracleConfigs; 
+    mapping(bytes32 domainSeparator => protocolId) public limitOrderProtocols;
     
     /// @notice stores the current version this swapper subscribes to for a specific protocol
     /// @dev defaults to 0, the first version
@@ -92,7 +93,8 @@ contract BoringSwapper is Auth {
         (address target, uint256 amount) = abi.decode(result, (address, uint256));
         
         //price the trade
-        //IMPORTANT: oracles will need to account for different decimals -> this should happen in IOracle.getPrice() and so is not handled here
+        //IMPORTANT: oracles will need to account for different decimals -> this should happen at the RateProvider level
+        //do we sanity check it here? probably.  //TODO
         uint256 priceBefore = IRateProvider(
             _getOracle(swapConfig.tokenRoute.tokenIn, swapConfig.quoteAsset)
         ).getRate();
@@ -116,10 +118,7 @@ contract BoringSwapper is Auth {
         uint256 minValueOut = tradePrice.mulDivDown((10_000 - swapConfig.slippageBps), 10_000);
         if (valueOut < minValueOut) revert("exceeds max slippage for route");
 
-        //TODO reset approvals
         swapConfig.tokenRoute.tokenIn.approve(target, 0); 
-
-        //send to vault
         swapConfig.tokenRoute.tokenOut.transfer(address(swapConfig.receiver), tokenBalanceDelta); 
     }  
     
@@ -146,20 +145,27 @@ contract BoringSwapper is Auth {
     }
     
     /// @notice Called by CoW Protocol settlement contract to validate an order
-    function isValidSignature(bytes32 _hash, bytes memory)
+    function isValidSignature(bytes32 _hash, bytes memory _signature)
         external
         view
         returns (bytes4)
     {
+            
+        //get the correct adapter based on the version
+        uint8 protocolId = adapterRegsitry.limitOrderProtocols(_hash); 
+        address adapter = adapterRegsitry.get(
+            protocolId,
+            versions[protocolId]
+        );  
+        //TODO handle errors/edge cases: what happens when the hash is not valid or spoofed? 
         
-        //TODO
-        //can do additional validation logic here, importantly, the token MUST be preapproved by the vault already. 
-        //we can send the data to the cowswap adapter here for verification, but the flow has to return here at some point
-
-        //if (approvedOrders[_hash]) {
-            return MAGIC_VALUE;
-        //}
-        //return 0xffffffff;
+        (bool success, bytes memory result) = adapter.staticcall(_signature);
+        if (!success) revert("must succeed");
+        
+        //do we need any kind of checks on amounts here? or oracles? after order is filled
+        
+        
+        return MAGIC_VALUE;
     }
 
     function _getRouteId(ERC20 tokenIn, ERC20 tokenOut) internal pure returns (bytes32) {

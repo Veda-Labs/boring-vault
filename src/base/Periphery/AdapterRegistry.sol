@@ -23,7 +23,7 @@ contract AdapterRegistry is Auth {
     } 
 
     mapping(uint8 protocolId => mapping(uint256 version => address adapater)) public availableAdapters;  //type this?
-
+    mapping(bytes32 hash => uint8 protocolId) public limitOrderProtocols;
 
     constructor() Auth(address(0), Authority(address(0))) {}
 
