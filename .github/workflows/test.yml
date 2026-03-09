@@ -59,6 +59,11 @@ jobs:
           restore-keys: |
             forge-rpc-
 
+      - name: Check formatting
+        run: |
+          forge fmt --check
+        id: fmt
+
       - name: Run Forge build
         run: |
           forge --version
