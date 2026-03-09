@@ -4,10 +4,13 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-
 contract rFLRDecoderAndSanitizer {
     //============================== rFLR ===============================
-    function claimRewards(uint256[] calldata, /*_projectIds*/ uint256 /*_month*/ )
+    function claimRewards(
+        uint256[] calldata,
+        /*_projectIds*/
+        uint256 /*_month*/
+    )
         external
         pure
         virtual
@@ -16,7 +19,11 @@ contract rFLRDecoderAndSanitizer {
         return addressesFound;
     }
 
-    function withdraw(uint128, /*_amount*/ bool /*_wrap*/ )
+    function withdraw(
+        uint128,
+        /*_amount*/
+        bool /*_wrap*/
+    )
         external
         pure
         virtual
@@ -25,7 +32,14 @@ contract rFLRDecoderAndSanitizer {
         return addressesFound;
     }
 
-    function withdrawAll(bool /*_wrap*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function withdrawAll(
+        bool /*_wrap*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 }

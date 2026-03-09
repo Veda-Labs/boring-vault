@@ -6,8 +6,7 @@ pragma solidity 0.8.21;
 
 import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {SGHODecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/SGHODecoderAndSanitizer.sol";
+import {SGHODecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SGHODecoderAndSanitizer.sol";
 
 interface IGSM {
     function UNDERLYING_ASSET() external view returns (address);

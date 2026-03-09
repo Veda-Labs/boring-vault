@@ -22,7 +22,6 @@ contract CreateLiquidBeraBtcMerkleRoot is Script, MerkleTreeHelper {
     address public managerAddress = 0x603064caAf2e76C414C5f7b6667D118322d311E6;
     address public accountantAddress = 0xF44BD12956a0a87c2C20113DdFe1537A442526B5;
     address public rawDataDecoderAndSanitizer = 0x41b7EeccC3FCc97cd17DF890b4A155d5325a9153;
-    
 
     function setUp() external {}
 
@@ -57,10 +56,10 @@ contract CreateLiquidBeraBtcMerkleRoot is Script, MerkleTreeHelper {
         _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
 
         // ========================== Odos ==========================
-        _addOdosSwapLeafs(leafs, assets, kind);  
+        _addOdosSwapLeafs(leafs, assets, kind);
 
         // ========================== Teller ==========================
-        
+
         {
             address eBTCTellerLZ = 0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268;
             ERC20[] memory tellerAssets = new ERC20[](3);
@@ -78,38 +77,51 @@ contract CreateLiquidBeraBtcMerkleRoot is Script, MerkleTreeHelper {
 
             bytes32 lbtcMarketHash = 0xabf4b2f17bc32faf4c3295b1347f36d21ec5629128d465b5569e600bf8d46c4f;
             _addRoycoWeirollLeafs(leafs, getERC20(sourceChain, "LBTC"), lbtcMarketHash, roycoFrontEndFeeRecipientTemp);
-
         }
 
         // ========================== Fee Claiming ==========================
-        { 
-        ERC20[] memory feeAssets = new ERC20[](4); 
-        feeAssets[0] = getERC20(sourceChain, "WBTC");
-        feeAssets[1] = getERC20(sourceChain, "LBTC");
-        feeAssets[2] = getERC20(sourceChain, "cbBTC");
-        feeAssets[3] = getERC20(sourceChain, "eBTC");
-        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, true);  
+        {
+            ERC20[] memory feeAssets = new ERC20[](4);
+            feeAssets[0] = getERC20(sourceChain, "WBTC");
+            feeAssets[1] = getERC20(sourceChain, "LBTC");
+            feeAssets[2] = getERC20(sourceChain, "cbBTC");
+            feeAssets[3] = getERC20(sourceChain, "eBTC");
+            _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, true);
         }
 
         // ========================== LayerZero ==========================
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WBTC"), getAddress(sourceChain, "WBTCOFTAdapter"), layerZeroBerachainEndpointId, getBytes32(sourceChain, "boringVault"));   
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "LBTC"), getAddress(sourceChain, "LBTCOFTAdapter"), layerZeroBerachainEndpointId, getBytes32(sourceChain, "boringVault"));   
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "WBTC"),
+            getAddress(sourceChain, "WBTCOFTAdapter"),
+            layerZeroBerachainEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "LBTC"),
+            getAddress(sourceChain, "LBTCOFTAdapter"),
+            layerZeroBerachainEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
 
         // ========================== Crosschain Teller ==========================
         {
-        address eBTCTellerLZ = 0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268;
+            address eBTCTellerLZ = 0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268;
 
-        address[] memory depositAssets = new address[](3); 
-        depositAssets[0] = getAddress(sourceChain, "LBTC"); 
-        depositAssets[1] = getAddress(sourceChain, "WBTC"); 
-        depositAssets[2] = getAddress(sourceChain, "cbBTC"); 
+            address[] memory depositAssets = new address[](3);
+            depositAssets[0] = getAddress(sourceChain, "LBTC");
+            depositAssets[1] = getAddress(sourceChain, "WBTC");
+            depositAssets[2] = getAddress(sourceChain, "cbBTC");
 
-        address[] memory feeAssets = new address[](1); 
-        feeAssets[0] = getAddress(sourceChain, "ETH"); //pay bridge fee in ETH
+            address[] memory feeAssets = new address[](1);
+            feeAssets[0] = getAddress(sourceChain, "ETH"); //pay bridge fee in ETH
 
-        _addCrossChainTellerLeafs(leafs, eBTCTellerLZ, depositAssets, feeAssets, abi.encode(layerZeroBerachainEndpointId));  
+            _addCrossChainTellerLeafs(
+                leafs, eBTCTellerLZ, depositAssets, feeAssets, abi.encode(layerZeroBerachainEndpointId)
+            );
         }
-    
+
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 

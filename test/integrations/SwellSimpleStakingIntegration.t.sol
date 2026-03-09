@@ -9,9 +9,7 @@ import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVer
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {
-    PointFarmingDecoderAndSanitizer
-} from "src/base/DecodersAndSanitizers/PointFarmingDecoderAndSanitizer.sol";
+import {PointFarmingDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/PointFarmingDecoderAndSanitizer.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {DroneLib} from "src/base/Drones/DroneLib.sol";
 import {BoringDrone} from "src/base/Drones/BoringDrone.sol";

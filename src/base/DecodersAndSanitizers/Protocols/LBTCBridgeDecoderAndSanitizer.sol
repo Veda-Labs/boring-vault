@@ -4,11 +4,14 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-
 contract LBTCBridgeDecoderAndSanitizer {
     //============================== LBTC Wrapper Bridge ===============================
 
-    function deposit(bytes32 toChain, bytes32 toAddress, uint64 /*amount*/ )
+    function deposit(
+        bytes32 toChain,
+        bytes32 toAddress,
+        uint64 /*amount*/
+    )
         external
         pure
         returns (bytes memory addressesFound)

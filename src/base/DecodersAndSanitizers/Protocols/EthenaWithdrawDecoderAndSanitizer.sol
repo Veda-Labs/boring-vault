@@ -4,15 +4,28 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-
 contract EthenaWithdrawDecoderAndSanitizer {
     //============================== Ethena Withdraw ===============================
 
-    function cooldownAssets(uint256 /*assets*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function cooldownAssets(
+        uint256 /*assets*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         // Nothing to do.
     }
 
-    function cooldownShares(uint256 /*shares*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function cooldownShares(
+        uint256 /*shares*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         // Nothing to do.
     }
 

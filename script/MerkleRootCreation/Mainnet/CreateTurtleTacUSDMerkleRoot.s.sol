@@ -20,9 +20,9 @@ contract CreateTurtleTacUSDMerkleRoot is Script, MerkleTreeHelper {
     //standard
     address public boringVault = 0x699e04F98dE2Fc395a7dcBf36B48EC837A976490;
     address public rawDataDecoderAndSanitizer = 0x06b568723851a745fF7F6bf71924560A95229872;
-    address public managerAddress = 0x2FA91E4eb6Ace724EfFbDD61bBC1B55EF8bD7aAc; 
+    address public managerAddress = 0x2FA91E4eb6Ace724EfFbDD61bBC1B55EF8bD7aAc;
     address public accountantAddress = 0x58cD5e97ffaeA62986C86ac44bB8EF7092c7ff5B;
-    
+
     address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
 
@@ -71,7 +71,7 @@ contract CreateTurtleTacUSDMerkleRoot is Script, MerkleTreeHelper {
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Sky Money ==========================
-        _addAllSkyMoneyLeafs(leafs);  
+        _addAllSkyMoneyLeafs(leafs);
 
         // ========================== sUSDs ==========================
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sUSDs")));
@@ -88,7 +88,13 @@ contract CreateTurtleTacUSDMerkleRoot is Script, MerkleTreeHelper {
         // ========================== LayerZero ==========================
         // tacUSD
         bytes32 moveAddressInBytes = 0xaa039f027468929ecf1c2beac924c8a6dee030ea4b05d3c514d40376f703686a; // same as EQCqA58CdGiSns8cK-rJJMim3uAw6ksF08UU1AN29wNoagZt
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDT"), getAddress(sourceChain, "USDTOFTAdapter2"), layerZeroTONEndpointId, moveAddressInBytes);
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "USDT"),
+            getAddress(sourceChain, "USDTOFTAdapter2"),
+            layerZeroTONEndpointId,
+            moveAddressInBytes
+        );
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
@@ -99,7 +105,5 @@ contract CreateTurtleTacUSDMerkleRoot is Script, MerkleTreeHelper {
         string memory filePath = "./leafs/Mainnet/TurtleTacUSDStrategistLeafs.json";
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
-
     }
-
 }

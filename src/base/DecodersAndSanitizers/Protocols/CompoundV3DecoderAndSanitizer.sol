@@ -4,11 +4,13 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-
 contract CompoundV3DecoderAndSanitizer {
     //============================== CompoundV3 ===============================
 
-    function supply(address asset, uint256 /*amount*/ )
+    function supply(
+        address asset,
+        uint256 /*amount*/
+    )
         external
         pure
         virtual
@@ -18,7 +20,10 @@ contract CompoundV3DecoderAndSanitizer {
         sensitiveArguments = abi.encodePacked(asset);
     }
 
-    function withdraw(address asset, uint256 /*amount*/ )
+    function withdraw(
+        address asset,
+        uint256 /*amount*/
+    )
         external
         pure
         virtual
@@ -28,7 +33,11 @@ contract CompoundV3DecoderAndSanitizer {
         sensitiveArguments = abi.encodePacked(asset);
     }
 
-    function claim(address comet, address src, bool /*shouldAccrue*/ )
+    function claim(
+        address comet,
+        address src,
+        bool /*shouldAccrue*/
+    )
         external
         pure
         virtual

@@ -2,10 +2,10 @@
 
 pragma solidity >=0.8.0;
 
-import { IMessageLibManager } from "./IMessageLibManager.sol";
-import { IMessagingComposer } from "./IMessagingComposer.sol";
-import { IMessagingChannel } from "./IMessagingChannel.sol";
-import { IMessagingContext } from "./IMessagingContext.sol";
+import {IMessageLibManager} from "./IMessageLibManager.sol";
+import {IMessagingComposer} from "./IMessagingComposer.sol";
+import {IMessagingChannel} from "./IMessagingChannel.sol";
+import {IMessagingContext} from "./IMessagingContext.sol";
 
 struct MessagingParams {
     uint32 dstEid;
@@ -57,10 +57,10 @@ interface ILayerZeroEndpointV2 is IMessageLibManager, IMessagingComposer, IMessa
 
     function quote(MessagingParams calldata _params, address _sender) external view returns (MessagingFee memory);
 
-    function send(
-        MessagingParams calldata _params,
-        address _refundAddress
-    ) external payable returns (MessagingReceipt memory);
+    function send(MessagingParams calldata _params, address _refundAddress)
+        external
+        payable
+        returns (MessagingReceipt memory);
 
     function verify(Origin calldata _origin, address _receiver, bytes32 _payloadHash) external;
 

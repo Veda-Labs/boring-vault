@@ -8,8 +8,8 @@ import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 
 contract BeraborrowDecoderAndSanitizer {
     // ========================================= ERRORS ==================================
-    error BeraborrowDecoderAndSanitizer__PredepositLengthGtZero(); 
-    error BeraborrowDecoderAndSanitizer__PayloadLengthGtZero(); 
+    error BeraborrowDecoderAndSanitizer__PredepositLengthGtZero();
+    error BeraborrowDecoderAndSanitizer__PayloadLengthGtZero();
 
     /// @dev we intentionally do not sanitize the hints here
     function openDenVault(DecoderCustomTypes.OpenDenVaultParams memory params)
@@ -38,12 +38,22 @@ contract BeraborrowDecoderAndSanitizer {
         uint256, /*minAssetsWithdrawn*/
         uint256, /*collIndex*/
         bool /*unwrap*/
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(denManager, collVault);
     }
 
     // ========================================= Managed Vault Functions ==================================
-    function deposit(uint256, /*assets*/ address receiver, DecoderCustomTypes.AddCollParams memory /*params*/ )
+    function deposit(
+        uint256,
+        /*assets*/
+        address receiver,
+        DecoderCustomTypes.AddCollParams memory /*params*/
+    )
         external
         pure
         virtual
@@ -53,7 +63,12 @@ contract BeraborrowDecoderAndSanitizer {
         addressesFound = abi.encodePacked(receiver);
     }
 
-    function redeemIntent(uint256, /*shares*/ address receiver, address owner)
+    function redeemIntent(
+        uint256,
+        /*shares*/
+        address receiver,
+        address owner
+    )
         external
         pure
         virtual
@@ -62,7 +77,13 @@ contract BeraborrowDecoderAndSanitizer {
         addressesFound = abi.encodePacked(receiver, owner);
     }
 
-    function cancelWithdrawalIntent(uint256, /*epoch*/ uint256, /*sharesToCancel*/ address receiver)
+    function cancelWithdrawalIntent(
+        uint256,
+        /*epoch*/
+        uint256,
+        /*sharesToCancel*/
+        address receiver
+    )
         external
         pure
         virtual
@@ -72,11 +93,12 @@ contract BeraborrowDecoderAndSanitizer {
     }
 
     function withdrawFromEpoch(
-        uint256 /*epoch*/,
+        uint256,
+        /*epoch*/
         address receiver,
         DecoderCustomTypes.ExternalRebalanceParams calldata unwrapParams
     ) external pure virtual returns (bytes memory addressesFound) {
-        if (unwrapParams.payload.length > 0) revert BeraborrowDecoderAndSanitizer__PayloadLengthGtZero(); 
-        addressesFound = abi.encodePacked(receiver, unwrapParams.swapper);  
+        if (unwrapParams.payload.length > 0) revert BeraborrowDecoderAndSanitizer__PayloadLengthGtZero();
+        addressesFound = abi.encodePacked(receiver, unwrapParams.swapper);
     }
 }

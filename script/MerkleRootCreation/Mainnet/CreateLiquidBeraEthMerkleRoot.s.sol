@@ -92,8 +92,19 @@ contract CreateLiquidBeraEthMerkleRootScript is Script, MerkleTreeHelper {
         }
 
         // ========================== LayerZero ==========================
-        _addLayerZeroLeafNative(leafs, getAddress(sourceChain, "stargateNative"), layerZeroBerachainEndpointId, getBytes32(sourceChain, "boringVault"));
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "EtherFiOFTAdapter"), layerZeroBerachainEndpointId, getBytes32(sourceChain, "boringVault"));
+        _addLayerZeroLeafNative(
+            leafs,
+            getAddress(sourceChain, "stargateNative"),
+            layerZeroBerachainEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "WEETH"),
+            getAddress(sourceChain, "EtherFiOFTAdapter"),
+            layerZeroBerachainEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
 
         // ========================== Fee Claiming ==========================
         /**

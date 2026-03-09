@@ -40,14 +40,15 @@ contract DeployAccountantWithYieldStreamingScript is Script, Test, ContractNames
         vm.startBroadcast(privateKey);
 
         creationCode = type(AccountantWithYieldStreaming).creationCode;
-        constructorArgs = abi.encode(tempOwner, boringVault, payoutAddress, 1e6, USDTmainnet, 1.01e4, 0.99e4, 1, 0.1e4, 0.1e4);
+        constructorArgs =
+            abi.encode(tempOwner, boringVault, payoutAddress, 1e6, USDTmainnet, 1.01e4, 0.99e4, 1, 0.1e4, 0.1e4);
         AccountantWithYieldStreaming accountant = AccountantWithYieldStreaming(
             deployer.deployContract(
                 "Balanced Yield USDC Accountant With Yield Streaming V0.0", creationCode, constructorArgs, 0
             )
         );
-        
-        //console.log("accountant address: ", accountant); 
+
+        //console.log("accountant address: ", accountant);
 
         //accountant.setRateProviderData(ERC20(USDCmainnet), true, address(0));
         //accountant.setAuthority(Authority(rolesAuthority));

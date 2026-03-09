@@ -35,9 +35,7 @@ contract DeployBufferLensScript is Script, ContractNames, MainnetAddresses {
         creationCode = type(AaveV3BufferLens).creationCode;
         constructorArgs = abi.encode();
         AaveV3BufferLens bufferLens = AaveV3BufferLens(
-            deployer.deployContract(
-                "Insipid Ferret Buffer Lens V0.0", creationCode, constructorArgs, 0
-            )
+            deployer.deployContract("Insipid Ferret Buffer Lens V0.0", creationCode, constructorArgs, 0)
         );
 
         vm.stopBroadcast();

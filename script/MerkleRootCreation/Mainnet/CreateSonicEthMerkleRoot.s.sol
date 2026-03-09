@@ -81,7 +81,6 @@ contract CreateSonicEthMerkleRoot is Script, MerkleTreeHelper {
         _addOdosOwnedSwapLeafs(leafs, assets, kind);
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-            
         // ========================== Aave V3 ==========================
         // Core
         ERC20[] memory supplyAssets = new ERC20[](3);
@@ -106,7 +105,7 @@ contract CreateSonicEthMerkleRoot is Script, MerkleTreeHelper {
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "steakhouseETH")));
 
         // ========================== Morpho Rewards ==========================
-        _addMorphoRewardMerkleClaimerLeafs(leafs, getAddress(sourceChain, "universalRewardsDistributor")); 
+        _addMorphoRewardMerkleClaimerLeafs(leafs, getAddress(sourceChain, "universalRewardsDistributor"));
 
         // ========================== Lido (stETH, wstETH) ==========================
         _addLidoLeafs(leafs);
@@ -123,21 +122,20 @@ contract CreateSonicEthMerkleRoot is Script, MerkleTreeHelper {
         _addSonicGatewayLeafsEth(leafs, bridgeAssets);
 
         // ========================== Gearbox ==========================
-        _addGearboxLeafs(leafs, ERC4626(getAddress(sourceChain, "dWETHV3")), getAddress(sourceChain, "sdWETHV3")); 
+        _addGearboxLeafs(leafs, ERC4626(getAddress(sourceChain, "dWETHV3")), getAddress(sourceChain, "sdWETHV3"));
         _addGearboxLeafs(leafs, ERC4626(getAddress(sourceChain, "dWSTETHV3")), address(0)); //no staking address for wstETH
 
         // ========================== Euler ==========================
         {
-        ERC4626[] memory depositVaults = new ERC4626[](1);      
-        depositVaults[0] = ERC4626(getAddress(sourceChain, "evkeWETH-2")); //Prime
-        
-        address[] memory subaccounts = new address[](1); 
-        subaccounts[0] = getAddress(sourceChain, "boringVault"); 
+            ERC4626[] memory depositVaults = new ERC4626[](1);
+            depositVaults[0] = ERC4626(getAddress(sourceChain, "evkeWETH-2")); //Prime
 
-        _addEulerDepositLeafs(leafs,  depositVaults, subaccounts); 
+            address[] memory subaccounts = new address[](1);
+            subaccounts[0] = getAddress(sourceChain, "boringVault");
 
+            _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
         }
-        
+
         // ========================== Verify & Generate ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 

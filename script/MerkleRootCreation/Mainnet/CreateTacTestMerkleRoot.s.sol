@@ -20,9 +20,8 @@ contract CreateTacTestMerkleRoot is Script, MerkleTreeHelper {
     //standard
     address public boringVault = 0x00007EDa736C6CdF973BDefF2191bbCfE6175db7;
     address public rawDataDecoderAndSanitizer = 0x17D6eDA406b8D2D0DC4a68a4656c3091E3467386;
-    address public managerAddress = 0x999999e868Fb298c6EDbf0060f7cE077f01ad782; 
+    address public managerAddress = 0x999999e868Fb298c6EDbf0060f7cE077f01ad782;
     address public accountantAddress = 0x5555559e499d2107aBb035a5feA1235b7f942E6D;
-    
 
     function setUp() external {}
 
@@ -41,7 +40,6 @@ contract CreateTacTestMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
-
 
         // ========================== 1inch ==========================
         // address[] memory assets = new address[](9);
@@ -68,10 +66,10 @@ contract CreateTacTestMerkleRoot is Script, MerkleTreeHelper {
         // _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
 
         // // ========================== Odos ==========================
-        // _addOdosSwapLeafs(leafs, assets, kind);  
+        // _addOdosSwapLeafs(leafs, assets, kind);
 
         // // ========================== Sky Money ==========================
-        // _addAllSkyMoneyLeafs(leafs);  
+        // _addAllSkyMoneyLeafs(leafs);
 
         // // ========================== sUSDs ==========================
         // _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sUSDs")));
@@ -88,14 +86,44 @@ contract CreateTacTestMerkleRoot is Script, MerkleTreeHelper {
         // ========================== LayerZero ==========================
         // tacUSD test
         bytes32 moveAddressInBytes = 0x6651bd707e7ba53a829cda46acaccddf32531807567fd32613cbfb92237cc56b; // same as EQBmUb1wfnulOoKc2kasrM3fMlMYB1Z_0yYTy_uSI3zFa3Td
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDT"), getAddress(sourceChain, "USDTOFTAdapter2"), layerZeroTONEndpointId, moveAddressInBytes);
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "USDT"),
+            getAddress(sourceChain, "USDTOFTAdapter2"),
+            layerZeroTONEndpointId,
+            moveAddressInBytes
+        );
         // tacETH test
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WSTETH"), getAddress(sourceChain, "WSTETHOFTAdapterTAC"), layerZeroTACEndpointId, getBytes32(sourceChain, "boringVault")); 
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WETH"), getAddress(sourceChain, "WETHOFTAdapterTAC"), layerZeroTACEndpointId, getBytes32(sourceChain, "boringVault")); 
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "WSTETH"),
+            getAddress(sourceChain, "WSTETHOFTAdapterTAC"),
+            layerZeroTACEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "WETH"),
+            getAddress(sourceChain, "WETHOFTAdapterTAC"),
+            layerZeroTACEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
         // tacBTC test
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "cbBTC"), getAddress(sourceChain, "CBBTCOFTAdapterTAC"), layerZeroTACEndpointId, getBytes32(sourceChain, "boringVault")); 
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "cbBTC"),
+            getAddress(sourceChain, "CBBTCOFTAdapterTAC"),
+            layerZeroTACEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
         // tacLBTCv test
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "LBTC"), getAddress(sourceChain, "LBTCOFTAdapterTAC"), layerZeroTACEndpointId, getBytes32(sourceChain, "boringVault")); 
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "LBTC"),
+            getAddress(sourceChain, "LBTCOFTAdapterTAC"),
+            layerZeroTACEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
@@ -106,7 +134,5 @@ contract CreateTacTestMerkleRoot is Script, MerkleTreeHelper {
         string memory filePath = "./leafs/Mainnet/TacTestStrategistLeafs.json";
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
-
     }
-
 }

@@ -10,6 +10,7 @@ import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import "forge-std/Script.sol";
+
 /**
  *  source .env && forge script script/MerkleRootCreation/Ink/CreateMultiChainLiquidEthMerkleRoot.s.sol --rpc-url $INK_RPC_URL --gas-limit 100000000000000000
  */
@@ -94,11 +95,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
 
             // Add Velodrome V3 support
             _addVelodromeV3Leafs(
-                leafs,
-                token0,
-                token1,
-                getAddress(sourceChain, "velodromeNonFungiblePositionManager"),
-                gauges
+                leafs, token0, token1, getAddress(sourceChain, "velodromeNonFungiblePositionManager"), gauges
             );
         }
 

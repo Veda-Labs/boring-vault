@@ -76,8 +76,9 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
 
         address bufferHelper = address(new AaveV3BufferHelper(v3Pool, address(boringVault)));
 
-        teller =
-            new TellerWithYieldStreaming(address(this), address(boringVault), address(accountant), getAddress(sourceChain, "WETH"));
+        teller = new TellerWithYieldStreaming(
+            address(this), address(boringVault), address(accountant), getAddress(sourceChain, "WETH")
+        );
 
         rolesAuthority = new RolesAuthority(address(this), Authority(address(0)));
 
@@ -105,7 +106,9 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
 
         rolesAuthority.setRoleCapability(MINTER_ROLE, address(boringVault), BoringVault.enter.selector, true);
         rolesAuthority.setRoleCapability(BURNER_ROLE, address(boringVault), BoringVault.exit.selector, true);
-        rolesAuthority.setRoleCapability(MINTER_ROLE, address(accountant), AccountantWithYieldStreaming.setFirstDepositTimestamp.selector, true);
+        rolesAuthority.setRoleCapability(
+            MINTER_ROLE, address(accountant), AccountantWithYieldStreaming.setFirstDepositTimestamp.selector, true
+        );
         rolesAuthority.setRoleCapability(
             ADMIN_ROLE, address(teller), TellerWithMultiAssetSupport.updateAssetData.selector, true
         );
@@ -140,16 +143,10 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
             true
         );
         rolesAuthority.setRoleCapability(
-            TELLER_MANAGER_ROLE,
-            address(accountant),
-            bytes4(keccak256("updateExchangeRate()")),
-            true
+            TELLER_MANAGER_ROLE, address(accountant), bytes4(keccak256("updateExchangeRate()")), true
         );
         rolesAuthority.setRoleCapability(
-            TELLER_MANAGER_ROLE,
-            address(accountant),
-            bytes4(keccak256("updateCumulative()")),
-            true
+            TELLER_MANAGER_ROLE, address(accountant), bytes4(keccak256("updateCumulative()")), true
         );
 
         rolesAuthority.setPublicCapability(address(teller), TellerWithMultiAssetSupport.deposit.selector, true);
@@ -253,7 +250,7 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         targets[1] = address(USDC);
 
         uint256[] memory values = new uint256[](2);
-        
+
         rolesAuthority.setUserRole(address(this), TELLER_MANAGER_ROLE, true);
 
         boringVault.manage(targets, data, values);
@@ -297,11 +294,13 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         uint256 shares = teller.bulkDeposit(USDT, amount, 0, address(this));
 
         assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), amount, 2, "Should have put entire deposit into aave");
-         
+
         // then do withdraws
         teller.bulkWithdraw(USDT, shares - 1, 0, address(this));
 
-        assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), 0, 10001, "Should have removed entire deposit from aave");
+        assertApproxEqAbs(
+            aUSDT.balanceOf(address(boringVault)), 0, 10001, "Should have removed entire deposit from aave"
+        );
 
         // check withdrawn balances
         assertApproxEqAbs(USDT.balanceOf(address(this)), amount, 10001, "Should have received expected USDT");
@@ -322,7 +321,9 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         // then do withdraws
         teller.withdraw(USDT, shares - 1, 0, address(this));
 
-        assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), 0, 10001, "Should have removed entire deposit from aave");
+        assertApproxEqAbs(
+            aUSDT.balanceOf(address(boringVault)), 0, 10001, "Should have removed entire deposit from aave"
+        );
 
         // check withdrawn balances
         assertApproxEqAbs(USDT.balanceOf(address(this)), amount, 10001, "Should have received expected USDT");
@@ -346,9 +347,13 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         // manage vault to deposit the dealt assets into aave (2% yield, 1% each asset)
         bytes[] memory data = new bytes[](4);
         data[0] = abi.encodeWithSelector(USDC.approve.selector, v3Pool, onePercentYield + 100);
-        data[1] = abi.encodeWithSignature("supply(address,uint256,address,uint16)", address(USDC), onePercentYield + 100, address(boringVault), 0);
+        data[1] = abi.encodeWithSignature(
+            "supply(address,uint256,address,uint16)", address(USDC), onePercentYield + 100, address(boringVault), 0
+        );
         data[2] = abi.encodeWithSelector(USDT.approve.selector, v3Pool, onePercentYield + 100);
-        data[3] = abi.encodeWithSignature("supply(address,uint256,address,uint16)", address(USDT), onePercentYield + 100, address(boringVault), 0);
+        data[3] = abi.encodeWithSignature(
+            "supply(address,uint256,address,uint16)", address(USDT), onePercentYield + 100, address(boringVault), 0
+        );
 
         address[] memory targets = new address[](4);
         targets[0] = address(USDC);
@@ -371,12 +376,19 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         assertApproxEqAbs(aUSDC.balanceOf(address(boringVault)), 0, 2e5, "Should have removed entire deposit from aave");
 
         // check that we got back the amount we deposited plus the yield
-        assertApproxEqRel(USDC.balanceOf(address(this)), amount + onePercentYield, 1e15, "Should have received expected USDC");
+        assertApproxEqRel(
+            USDC.balanceOf(address(this)), amount + onePercentYield, 1e15, "Should have received expected USDC"
+        );
 
         // test regular withdraw
         teller.withdraw(USDT, amount / 100, 0, address(this));
 
-        assertApproxEqRel(USDT.balanceOf(address(this)), 91 * amount / 100 + onePercentYield / 10, 1e15, "Should have received expected USDT");
+        assertApproxEqRel(
+            USDT.balanceOf(address(this)),
+            91 * amount / 100 + onePercentYield / 10,
+            1e15,
+            "Should have received expected USDT"
+        );
     }
 
     function testWithdrawFailureWhenBufferIsTooSmall(uint256 amount) external {
@@ -402,7 +414,7 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         vm.expectRevert(0x47bc4b2c); // aave withdrawal failure error
         teller.withdraw(USDT, amount, 0, address(this));
     }
-    
+
     function testShareLock(uint256 amount) external {
         amount = bound(amount, 0.01e6, 10_000e6);
         deal(address(USDT), address(this), amount);
@@ -422,7 +434,9 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         // skip to end of share lock period, regular withdraw should work
         vm.warp(block.timestamp + 10);
         teller.withdraw(USDT, amount / 5, 0, address(this));
-        assertApproxEqAbs(USDT.balanceOf(address(this)), amount / 5 + amount / 10, 2, "Should have received expected USDT");
+        assertApproxEqAbs(
+            USDT.balanceOf(address(this)), amount / 5 + amount / 10, 2, "Should have received expected USDT"
+        );
     }
 
     function testBufferHelperZeroAddress(uint256 amount) external {
@@ -432,7 +446,7 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
 
         teller.setWithdrawBufferHelper(USDT, IBufferHelper(address(0)));
         teller.setDepositBufferHelper(USDT, IBufferHelper(address(0)));
-        
+
         teller.deposit(USDT, amount, 0, referrer);
 
         assertEq(USDT.balanceOf(address(boringVault)), amount, "USDT should all be in vault");
@@ -459,17 +473,13 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                TellerWithBuffer.TellerWithBuffer__BufferHelperNotAllowed.selector,
-                USDC,
-                IBufferHelper(newBufferHelper)
+                TellerWithBuffer.TellerWithBuffer__BufferHelperNotAllowed.selector, USDC, IBufferHelper(newBufferHelper)
             )
         );
         teller.setWithdrawBufferHelper(USDC, IBufferHelper(newBufferHelper));
         vm.expectRevert(
             abi.encodeWithSelector(
-                TellerWithBuffer.TellerWithBuffer__BufferHelperNotAllowed.selector,
-                USDC,
-                IBufferHelper(newBufferHelper)
+                TellerWithBuffer.TellerWithBuffer__BufferHelperNotAllowed.selector, USDC, IBufferHelper(newBufferHelper)
             )
         );
         teller.setDepositBufferHelper(USDC, IBufferHelper(newBufferHelper));

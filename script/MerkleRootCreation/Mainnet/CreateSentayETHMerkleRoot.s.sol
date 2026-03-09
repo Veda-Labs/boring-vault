@@ -66,7 +66,7 @@ contract CreateSentayETHMerkleRoot is Script, MerkleTreeHelper {
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== SuperBridge ==========================
-        
+
         {
             ERC20[] memory inkLocalTokens = new ERC20[](0);
             ERC20[] memory inkRemoteTokens = new ERC20[](0);
@@ -84,8 +84,14 @@ contract CreateSentayETHMerkleRoot is Script, MerkleTreeHelper {
         }
 
         // ========================== LayerZero ==========================
-        
-        _addLayerZeroLeafs(leafs, ERC20(getAddress(sourceChain, "WEETH")), getAddress(sourceChain, "EtherFiOFTAdapter"), layerZeroInkEndpointId, getBytes32(sourceChain, "boringVault"));
+
+        _addLayerZeroLeafs(
+            leafs,
+            ERC20(getAddress(sourceChain, "WEETH")),
+            getAddress(sourceChain, "EtherFiOFTAdapter"),
+            layerZeroInkEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
 
         // ============================ ITB ============================
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", itbDecoderAndSanitizer);
@@ -94,7 +100,9 @@ contract CreateSentayETHMerkleRoot is Script, MerkleTreeHelper {
             ERC20[] memory tokensUsed = new ERC20[](2);
             tokensUsed[0] = getERC20(sourceChain, "WEETH");
             tokensUsed[1] = getERC20(sourceChain, "PYUSD");
-            _addLeafsForITBPositionManager(leafs, weethSupervisedLoanPositionManager, tokensUsed, "WEETH/PYUSD Supervised Loan Position Manager");
+            _addLeafsForITBPositionManager(
+                leafs, weethSupervisedLoanPositionManager, tokensUsed, "WEETH/PYUSD Supervised Loan Position Manager"
+            );
         }
         {
             address weethPositionManager = 0x765fD4ea8792c91C9a8483EA04a577EDED229c89;

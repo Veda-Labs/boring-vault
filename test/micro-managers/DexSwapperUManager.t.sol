@@ -10,9 +10,7 @@ import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVer
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {
-    EtherFiLiquidDecoderAndSanitizer
-} from "src/base/DecodersAndSanitizers/EtherFiLiquidDecoderAndSanitizer.sol";
+import {EtherFiLiquidDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EtherFiLiquidDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {DexSwapperUManager, UManager} from "src/micro-managers/DexSwapperUManager.sol";
@@ -120,13 +118,12 @@ contract DexSwapperUManagerTest is Test, MainnetAddresses {
             argumentAddresses: new address[](1)
         });
         leafs[0].argumentAddresses[0] = uniV3Router;
-        leafs[1] =
-            ManageLeaf({
-                target: uniV3Router,
-                canSendValue: false,
-                signature: "exactInput((bytes,address,uint256,uint256,uint256))",
-                argumentAddresses: new address[](3)
-            });
+        leafs[1] = ManageLeaf({
+            target: uniV3Router,
+            canSendValue: false,
+            signature: "exactInput((bytes,address,uint256,uint256,uint256))",
+            argumentAddresses: new address[](3)
+        });
         leafs[1].argumentAddresses[0] = address(WEETH);
         leafs[1].argumentAddresses[1] = address(WETH);
         leafs[1].argumentAddresses[2] = address(boringVault);
@@ -322,13 +319,12 @@ contract DexSwapperUManagerTest is Test, MainnetAddresses {
             argumentAddresses: new address[](1)
         });
         leafs[0].argumentAddresses[0] = uniV3Router;
-        leafs[1] =
-            ManageLeaf({
-                target: uniV3Router,
-                canSendValue: false,
-                signature: "exactInput((bytes,address,uint256,uint256,uint256))",
-                argumentAddresses: new address[](3)
-            });
+        leafs[1] = ManageLeaf({
+            target: uniV3Router,
+            canSendValue: false,
+            signature: "exactInput((bytes,address,uint256,uint256,uint256))",
+            argumentAddresses: new address[](3)
+        });
         leafs[1].argumentAddresses[0] = address(WEETH);
         leafs[1].argumentAddresses[1] = address(WETH);
         leafs[1].argumentAddresses[2] = address(boringVault);

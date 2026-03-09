@@ -97,9 +97,7 @@ contract CreateBoostedUSDCMerkleRoot is Script, MerkleTreeHelper {
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== Merkl Claim ==========================
-        _addMerklLeafs(
-            leafs, getAddress(sourceChain, "merklDistributor"), 0xe373248E02c5a342d453ecB8eBFC449b8BE70Bc1
-        );
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), 0xe373248E02c5a342d453ecB8eBFC449b8BE70Bc1);
 
         // ========================== Sky Money ==========================
         _addAllSkyMoneyLeafs(leafs);
@@ -112,7 +110,13 @@ contract CreateBoostedUSDCMerkleRoot is Script, MerkleTreeHelper {
         _addEthenaSUSDeWithdrawLeafs(leafs);
 
         // ========================== LayerZero ==========================
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDT"), getAddress(sourceChain, "usdt0OFTAdapter"), layerZeroInkEndpointId, getBytes32(sourceChain, "boringVault"));
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "USDT"),
+            getAddress(sourceChain, "usdt0OFTAdapter"),
+            layerZeroInkEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
 
         // ========================== CCTP ==========================
         _addCCTPBridgeLeafs(leafs, cctpInkDomainId);

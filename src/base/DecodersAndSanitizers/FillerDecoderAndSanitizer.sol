@@ -5,13 +5,13 @@
 pragma solidity 0.8.21;
 
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
-import {PendleRouterDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/PendleRouterDecoderAndSanitizer.sol";
+import {
+    PendleRouterDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/PendleRouterDecoderAndSanitizer.sol";
 import {SyrupDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SyrupDecoderAndSanitizer.sol";
 
-contract GoldenGooseFillerDecoderAndSanitizer is 
+contract GoldenGooseFillerDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
     PendleRouterDecoderAndSanitizer,
     SyrupDecoderAndSanitizer
-{
-
-}
+{}

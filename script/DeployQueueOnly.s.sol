@@ -20,7 +20,7 @@ import "forge-std/Test.sol";
  */
 contract DeployQueueOnly is Script, ContractNames, Test {
     uint256 public privateKey;
-    
+
     Deployer deployer = Deployer(0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d);
 
     address owner = 0x1cdF47387358A1733968df92f7cC14546D9E1047;
@@ -32,7 +32,6 @@ contract DeployQueueOnly is Script, ContractNames, Test {
         privateKey = vm.envUint("BORING_DEVELOPER");
         vm.createSelectFork("sepolia");
     }
-
 
     function run() external {
         bytes memory constructorArgs;

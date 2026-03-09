@@ -9,9 +9,7 @@ import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVer
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {
-    EtherFiLiquidDecoderAndSanitizer
-} from "src/base/DecodersAndSanitizers/EtherFiLiquidDecoderAndSanitizer.sol";
+import {EtherFiLiquidDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EtherFiLiquidDecoderAndSanitizer.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
@@ -274,15 +272,14 @@ contract ManagerWithMerkleVerificationTest is Test, MerkleTreeHelper {
         deal(address(boringVault), 1_000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](2);
-        leafs[0] =
-            ManageLeaf({
-                target: address(this),
-                canSendValue: false,
-                signature: "withdraw(uint256)",
-                argumentAddresses: new address[](0),
-                description: "",
-                decoderAndSanitizer: rawDataDecoderAndSanitizer
-            });
+        leafs[0] = ManageLeaf({
+            target: address(this),
+            canSendValue: false,
+            signature: "withdraw(uint256)",
+            argumentAddresses: new address[](0),
+            description: "",
+            decoderAndSanitizer: rawDataDecoderAndSanitizer
+        });
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
@@ -303,8 +300,7 @@ contract ManagerWithMerkleVerificationTest is Test, MerkleTreeHelper {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                ManagerWithMerkleVerification
-                    .ManagerWithMerkleVerification__TotalSupplyMustRemainConstantDuringPlatform
+                ManagerWithMerkleVerification.ManagerWithMerkleVerification__TotalSupplyMustRemainConstantDuringPlatform
                     .selector
             )
         );

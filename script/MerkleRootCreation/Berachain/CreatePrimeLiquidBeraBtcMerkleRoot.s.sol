@@ -18,7 +18,7 @@ import "forge-std/Script.sol";
 contract CreatePrimeLiquidBeraBtcMerkleRoot is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
-    address public boringVault = 0x46fcd35431f5B371224ACC2e2E91732867B1A77e; 
+    address public boringVault = 0x46fcd35431f5B371224ACC2e2E91732867B1A77e;
     address public managerAddress = 0x7280E05ccF01066C715aDc936f860BD65510f816;
     address public accountantAddress = 0x88ea516DCb9f79CAFA9D0d19909A4dbd7B6890c8;
     address public rawDataDecoderAndSanitizer = 0x05f1cB3a9309E82B744D28028DaB5A06e75166A9;
@@ -41,53 +41,50 @@ contract CreatePrimeLiquidBeraBtcMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, berachain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](256);
-        
 
         // ========================== Teller ==========================
-        ERC20[] memory tellerAssets = new ERC20[](2); 
-        tellerAssets[0] = getERC20(sourceChain, "WBTC"); 
-        tellerAssets[1] = getERC20(sourceChain, "LBTC"); 
+        ERC20[] memory tellerAssets = new ERC20[](2);
+        tellerAssets[0] = getERC20(sourceChain, "WBTC");
+        tellerAssets[1] = getERC20(sourceChain, "LBTC");
         _addTellerLeafs(leafs, getAddress(sourceChain, "eBTCTeller"), tellerAssets, false, true); //no native deposit, yes bulkwithdraw/deposit
-
 
         // ========================== Kodiak Swaps ==========================
 
-        address[] memory token0 = new address[](2);  
-        token0[0] = getAddress(sourceChain, "WBTC");    
-        token0[1] = getAddress(sourceChain, "WBTC");    
+        address[] memory token0 = new address[](2);
+        token0[0] = getAddress(sourceChain, "WBTC");
+        token0[1] = getAddress(sourceChain, "WBTC");
 
-        address[] memory token1 = new address[](2);  
-        token1[0] = getAddress(sourceChain, "LBTC");    
-        token1[1] = getAddress(sourceChain, "EBTC");    
+        address[] memory token1 = new address[](2);
+        token1[0] = getAddress(sourceChain, "LBTC");
+        token1[1] = getAddress(sourceChain, "EBTC");
 
-        _addUniswapV3Leafs(leafs, token0, token1, false); 
+        _addUniswapV3Leafs(leafs, token0, token1, false);
 
         // ========================== Kodiak Islands ==========================
 
-        address[] memory islands = new address[](3);  
-        islands[0] = getAddress(sourceChain, "kodiak_island_WBTC_EBTC_005%"); 
-        islands[1] = getAddress(sourceChain, "kodiak_island_EBTC_LBTC_005%"); 
-        islands[2] = getAddress(sourceChain, "kodiak_island_EBTC_EBTC_OT_005%"); 
-        
+        address[] memory islands = new address[](3);
+        islands[0] = getAddress(sourceChain, "kodiak_island_WBTC_EBTC_005%");
+        islands[1] = getAddress(sourceChain, "kodiak_island_EBTC_LBTC_005%");
+        islands[2] = getAddress(sourceChain, "kodiak_island_EBTC_EBTC_OT_005%");
+
         _addKodiakIslandLeafs(leafs, islands, false); //don't include native leaves
 
         // ========================== Dolomite Supply ==========================
 
-        _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "WBTC"), false);          
-        _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "EBTC"), false);          
-
+        _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "WBTC"), false);
+        _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "EBTC"), false);
 
         // ========================== dTokens ==========================
 
-        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "dWBTC")));   
-        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "dEBTC")));   
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "dWBTC")));
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "dEBTC")));
 
         // ========================== Goldilocks ==========================
 
-        address[] memory vaults = new address[](1); 
-        vaults[0] = getAddress(sourceChain, "goldivault_eBTC"); 
+        address[] memory vaults = new address[](1);
+        vaults[0] = getAddress(sourceChain, "goldivault_eBTC");
 
-        _addGoldiVaultLeafs(leafs, vaults); 
+        _addGoldiVaultLeafs(leafs, vaults);
 
         // ========================== Ooga Booga ==========================
         address[] memory assets = new address[](9);
@@ -125,19 +122,16 @@ contract CreatePrimeLiquidBeraBtcMerkleRoot is Script, MerkleTreeHelper {
             collateralAssets[2] = getAddress(sourceChain, "bbeBTC");
             collateralAssets[3] = getAddress(sourceChain, "bbeBTC-WBTC");
 
-
             address[] memory denManagers = new address[](4);
             denManagers[0] = getAddress(sourceChain, "WBTCDenManager");
             denManagers[1] = getAddress(sourceChain, "LBTCDenManager");
             denManagers[2] = getAddress(sourceChain, "eBTCDenManager");
             denManagers[3] = getAddress(sourceChain, "eBTC-WBTCDenManager");
 
-
             _addBeraborrowLeafs(leafs, collateralAssets, denManagers, false);
 
             _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sNECT")));
             _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "vaultedsNECT")));
-
         }
         // ========================== BeraBorrow Managed Vaults ==========================
         address[] memory managedVaults = new address[](4);
@@ -147,16 +141,14 @@ contract CreatePrimeLiquidBeraBtcMerkleRoot is Script, MerkleTreeHelper {
         managedVaults[3] = getAddress(sourceChain, "bbeBTC-WBTCManagedVault");
         _addBeraborrowManagedVaultLeafs(leafs, managedVaults);
 
-
         // ========================== Fee Claiming ==========================
         ERC20[] memory feeAssets = new ERC20[](2);
         feeAssets[0] = getERC20(sourceChain, "WBTC");
         feeAssets[1] = getERC20(sourceChain, "EBTC");
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, true);
-        
 
         // ========================== Verify ==========================
-        
+
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
         string memory filePath = "./leafs/Berachain/PrimeLiquidBeraBtc.json";

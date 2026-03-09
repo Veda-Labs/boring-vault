@@ -46,18 +46,10 @@ contract CreateLiquidKatanaETHMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Agglayer ==========================
         _addAgglayerTokenLeafs(
-            leafs,
-            getAddress(sourceChain, "agglayerBridgeKatana"),
-            getAddress(sourceChain, "vbETH"),
-            20,
-            0
+            leafs, getAddress(sourceChain, "agglayerBridgeKatana"), getAddress(sourceChain, "vbETH"), 20, 0
         );
         _addAgglayerTokenLeafs(
-            leafs,
-            getAddress(sourceChain, "agglayerBridgeKatana"),
-            getAddress(sourceChain, "WEETH"),
-            20,
-            0
+            leafs, getAddress(sourceChain, "agglayerBridgeKatana"), getAddress(sourceChain, "WEETH"), 20, 0
         );
 
         // ========================== Fee Claiming ==========================
@@ -68,20 +60,20 @@ contract CreateLiquidKatanaETHMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Sushi ==========================
         address[] memory token0 = new address[](1);
-        token0[0] = getAddress(sourceChain, "vbETH"); 
+        token0[0] = getAddress(sourceChain, "vbETH");
 
         address[] memory token1 = new address[](1);
         token1[0] = getAddress(sourceChain, "WEETH");
 
-        _addUniswapV3Leafs(leafs, token0, token1, false); 
+        _addUniswapV3Leafs(leafs, token0, token1, false);
 
         // ========================== Morpho Blue ==========================
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "WEETH_vbETH_915"));
 
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "WEETH_vbETH_915"));
-        
+
         // ========================== MetaMorhpo ==========================
-        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletWETH"))); 
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletWETH")));
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

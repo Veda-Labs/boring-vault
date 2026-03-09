@@ -6,15 +6,14 @@ pragma solidity 0.8.21;
 import {BoringVault} from "src/base/BoringVault.sol";
 import {AccountantWithYieldStreaming} from "src/base/Roles/AccountantWithYieldStreaming.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
-import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol"; 
-import {TellerWithYieldStreaming} from "src/base/Roles/TellerWithYieldStreaming.sol"; 
+import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import {TellerWithYieldStreaming} from "src/base/Roles/TellerWithYieldStreaming.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
 import {Test} from "@forge-std/Test.sol";
-
 
 contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
@@ -42,9 +41,8 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
 
     // Keep legacy variables for backward compatibility with existing tests
     BoringVault public boringVault;
-    AccountantWithYieldStreaming public accountant; 
+    AccountantWithYieldStreaming public accountant;
     TellerWithYieldStreaming public teller;
-
 
     uint8 public constant MINTER_ROLE = 1;
     uint8 public constant ADMIN_ROLE = 1;
@@ -55,9 +53,9 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
     uint8 public constant SOLVER_ROLE = 9;
     uint8 public constant QUEUE_ROLE = 10;
     uint8 public constant CAN_SOLVE_ROLE = 11;
-    
-    address public alice = address(69); 
-    address public bill = address(6969); 
+
+    address public alice = address(69);
+    address public bill = address(6969);
     address public referrer = vm.addr(1337);
 
     function setUp() external {
@@ -88,19 +86,26 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         teller = vaultWETH.teller;
     }
 
-    function _deployAndSetupVault(
-        ERC20 asset,
-        uint8 decimals,
-        string memory vaultName,
-        string memory vaultSymbol
-    ) internal returns (VaultComponents memory) {
+    function _deployAndSetupVault(ERC20 asset, uint8 decimals, string memory vaultName, string memory vaultSymbol)
+        internal
+        returns (VaultComponents memory)
+    {
         BoringVault vault = new BoringVault(address(this), vaultName, vaultSymbol, decimals);
-        
+
         // Calculate initial exchange rate based on decimals (1e18 for 18 decimals, scaled for others)
         uint96 initialExchangeRate = uint96(10 ** decimals);
-        
+
         AccountantWithYieldStreaming accountant_ = new AccountantWithYieldStreaming(
-            address(this), address(vault), payoutAddress, initialExchangeRate, address(asset), 1.001e4, 0.999e4, 1, 0.1e4, 0.1e4
+            address(this),
+            address(vault),
+            payoutAddress,
+            initialExchangeRate,
+            address(asset),
+            1.001e4,
+            0.999e4,
+            1,
+            0.1e4,
+            0.1e4
         );
         TellerWithYieldStreaming teller_ =
             new TellerWithYieldStreaming(address(this), address(vault), address(accountant_), address(asset));
@@ -112,7 +117,9 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         // Setup roles authority.
         rolesAuthority.setRoleCapability(MINTER_ROLE, address(vault), BoringVault.enter.selector, true);
         rolesAuthority.setRoleCapability(BURNER_ROLE, address(vault), BoringVault.exit.selector, true);
-        rolesAuthority.setRoleCapability(MINTER_ROLE, address(accountant_), AccountantWithYieldStreaming.setFirstDepositTimestamp.selector, true);
+        rolesAuthority.setRoleCapability(
+            MINTER_ROLE, address(accountant_), AccountantWithYieldStreaming.setFirstDepositTimestamp.selector, true
+        );
         rolesAuthority.setRoleCapability(
             ADMIN_ROLE, address(accountant_), AccountantWithRateProviders.pause.selector, true
         );
@@ -177,17 +184,14 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         rolesAuthority.setUserRole(address(this), STRATEGIST_ROLE, true);
         rolesAuthority.setUserRole(address(this), STRATEGIST_ROLE, true);
         rolesAuthority.setUserRole(address(teller_), STRATEGIST_ROLE, true);
-       
+
         teller_.updateAssetData(asset, true, true, 0);
 
         accountant_.updateMaximumDeviationYield(50000); //500% allowable (for testing)
 
-        return VaultComponents({
-            vault: vault,
-            accountant: accountant_,
-            teller: teller_
-        });
+        return VaultComponents({vault: vault, accountant: accountant_, teller: teller_});
     }
+
     // possible states of yield streaming:
     // 1. No yield has been streamed yet
     // 2. Yield has been streamed for less than the vesting period -- assume share price starts vesting period at 1 and after its above 1
@@ -267,7 +271,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
     function testPartialYieldStreamedUSDCDepositWithdraw(uint96 USDCAmount, uint96 secondDepositAmount) external {
         // Case 2: Yield has been streamed for less than the vesting period, asset: USDC
         USDCAmount = uint96(bound(USDCAmount, 1, 1e18));
-        secondDepositAmount = uint96(bound(secondDepositAmount, 2, 1e18)); 
+        secondDepositAmount = uint96(bound(secondDepositAmount, 2, 1e18));
         deal(address(USDC), address(this), USDCAmount);
         USDC.approve(address(vaultUSDC.vault), type(uint256).max);
         vaultUSDC.teller.deposit(USDC, USDCAmount, 0, referrer);
@@ -280,12 +284,12 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
 
         //vest some yield
         deal(address(USDC), address(vaultUSDC.vault), secondDepositAmount * 2);
-        vaultUSDC.accountant.vestYield(yieldAmount, 24 hours); 
+        vaultUSDC.accountant.vestYield(yieldAmount, 24 hours);
 
         // Skip less than the full vesting period (12 hours instead of 24)
         skip(12 hours);
 
-        //now the state of the contract should be 
+        //now the state of the contract should be
         //totalSupply > 1
         //exchange rate > 1 (but still vesting, not fully vested)
 
@@ -303,7 +307,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
     function testPartialYieldStreamedWBTCDepositWithdraw(uint96 WBTCAmount, uint96 secondDepositAmount) external {
         // Case 2: Yield has been streamed for less than the vesting period, asset: WBTC
         WBTCAmount = uint96(bound(WBTCAmount, 1, 1e18));
-        secondDepositAmount = uint96(bound(secondDepositAmount, 2, 1e18)); 
+        secondDepositAmount = uint96(bound(secondDepositAmount, 2, 1e18));
         deal(address(WBTC), address(this), WBTCAmount);
         WBTC.approve(address(vaultWBTC.vault), type(uint256).max);
         vaultWBTC.teller.deposit(WBTC, WBTCAmount, 0, referrer);
@@ -316,12 +320,12 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
 
         //vest some yield
         deal(address(WBTC), address(vaultWBTC.vault), secondDepositAmount * 2);
-        vaultWBTC.accountant.vestYield(yieldAmount, 24 hours); 
+        vaultWBTC.accountant.vestYield(yieldAmount, 24 hours);
 
         // Skip less than the full vesting period (12 hours instead of 24)
         skip(12 hours);
 
-        //now the state of the contract should be 
+        //now the state of the contract should be
         //totalSupply > 1
         //exchange rate > 1 (but still vesting, not fully vested)
 
@@ -339,7 +343,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
     function testPartialYieldStreamedWETHDepositWithdraw(uint96 WETHAmount, uint96 secondDepositAmount) external {
         // Case 2: Yield has been streamed for less than the vesting period, asset: WETH
         WETHAmount = uint96(bound(WETHAmount, 1, 2e27));
-        secondDepositAmount = uint96(bound(secondDepositAmount, 2, 2e27)); 
+        secondDepositAmount = uint96(bound(secondDepositAmount, 2, 2e27));
         deal(address(WETH), address(this), WETHAmount);
         WETH.approve(address(vaultWETH.vault), type(uint256).max);
         vaultWETH.teller.deposit(WETH, WETHAmount, 0, referrer);
@@ -352,12 +356,12 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
 
         //vest some yield
         deal(address(WETH), address(vaultWETH.vault), secondDepositAmount * 2);
-        vaultWETH.accountant.vestYield(yieldAmount, 24 hours); 
+        vaultWETH.accountant.vestYield(yieldAmount, 24 hours);
 
         // Skip less than the full vesting period (12 hours instead of 24)
         skip(12 hours);
 
-        //now the state of the contract should be 
+        //now the state of the contract should be
         //totalSupply > 1
         //exchange rate > 1 (but still vesting, not fully vested)
 
@@ -375,7 +379,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
     function testYieldStreamedUSDCDepositWithdraw(uint96 USDCAmount, uint96 secondDepositAmount) external {
         // Case 3: Yield has been streamed for the full vesting period and no new one has been started, asset: USDC
         USDCAmount = uint96(bound(USDCAmount, 1, 1e18));
-        secondDepositAmount = uint96(bound(secondDepositAmount, 2, 1e18)); 
+        secondDepositAmount = uint96(bound(secondDepositAmount, 2, 1e18));
         deal(address(USDC), address(this), USDCAmount);
         USDC.approve(address(vaultUSDC.vault), type(uint256).max);
         vaultUSDC.teller.deposit(USDC, USDCAmount, 0, referrer);
@@ -388,13 +392,13 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
 
         //vest some yield
         deal(address(USDC), address(vaultUSDC.vault), secondDepositAmount * 2);
-        vaultUSDC.accountant.vestYield(yieldAmount, 24 hours); 
+        vaultUSDC.accountant.vestYield(yieldAmount, 24 hours);
 
         skip(24 hours);
 
-        //now the state of the contract should be 
+        //now the state of the contract should be
         //totalSupply > 1
-        //exchange rate > 1 
+        //exchange rate > 1
 
         // Second Depositor deposits
         deal(address(USDC), address(this), secondDepositAmount);
@@ -409,8 +413,8 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
     // 3b
     function testYieldStreamedWBTCDepositWithdraw(uint96 WBTCAmount, uint96 secondDepositAmount) external {
         // Case 3: Yield has been streamed for the full vesting period and no new one has been started, asset: WBTC
-        WBTCAmount = uint96(bound(WBTCAmount, 1, 1e18)); 
-        secondDepositAmount = uint96(bound(secondDepositAmount, 2, 1e18)); 
+        WBTCAmount = uint96(bound(WBTCAmount, 1, 1e18));
+        secondDepositAmount = uint96(bound(secondDepositAmount, 2, 1e18));
         deal(address(WBTC), address(this), WBTCAmount);
         WBTC.approve(address(vaultWBTC.vault), type(uint256).max);
         vaultWBTC.teller.deposit(WBTC, WBTCAmount, 0, referrer);
@@ -423,13 +427,13 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
 
         //vest some yield
         deal(address(WBTC), address(vaultWBTC.vault), secondDepositAmount * 2);
-        vaultWBTC.accountant.vestYield(yieldAmount, 24 hours); 
+        vaultWBTC.accountant.vestYield(yieldAmount, 24 hours);
 
         skip(24 hours);
 
-        //now the state of the contract should be 
+        //now the state of the contract should be
         //totalSupply > 1
-        //exchange rate > 1 
+        //exchange rate > 1
 
         // Second Depositor deposits
         deal(address(WBTC), address(this), secondDepositAmount);
@@ -445,7 +449,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
     function testYieldStreamedWETHDepositWithdraw(uint96 WETHAmount, uint96 secondDepositAmount) external {
         // Case 3: Yield has been streamed for the full vesting period and no new one has been started, asset: WETH
         WETHAmount = uint96(bound(WETHAmount, 1, 2e27));
-        secondDepositAmount = uint96(bound(secondDepositAmount, 2, 2e27)); 
+        secondDepositAmount = uint96(bound(secondDepositAmount, 2, 2e27));
         deal(address(WETH), address(this), WETHAmount);
         WETH.approve(address(vaultWETH.vault), type(uint256).max);
         vaultWETH.teller.deposit(WETH, WETHAmount, 0, referrer);
@@ -458,13 +462,13 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
 
         //vest some yield
         deal(address(WETH), address(vaultWETH.vault), secondDepositAmount * 2);
-        vaultWETH.accountant.vestYield(yieldAmount, 24 hours); 
+        vaultWETH.accountant.vestYield(yieldAmount, 24 hours);
 
         skip(24 hours);
 
-        //now the state of the contract should be 
+        //now the state of the contract should be
         //totalSupply > 1
-        //exchange rate > 1 
+        //exchange rate > 1
 
         // Second Depositor deposits
         deal(address(WETH), address(this), secondDepositAmount);
@@ -577,7 +581,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
     function testNewYieldAfterGapUSDCDepositWithdraw(uint96 USDCAmount, uint96 secondDepositAmount) external {
         // Case 4: Yield has been streamed for the full vesting period and a new one has been started after some gap, asset: USDC
         USDCAmount = uint96(bound(USDCAmount, 1, 1e18));
-        secondDepositAmount = uint96(bound(secondDepositAmount, 2, 1e18)); 
+        secondDepositAmount = uint96(bound(secondDepositAmount, 2, 1e18));
         deal(address(USDC), address(this), USDCAmount);
         USDC.approve(address(vaultUSDC.vault), type(uint256).max);
         vaultUSDC.teller.deposit(USDC, USDCAmount, 0, referrer);
@@ -590,13 +594,13 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
 
         //vest some yield
         deal(address(USDC), address(vaultUSDC.vault), secondDepositAmount * 2);
-        vaultUSDC.accountant.vestYield(yieldAmount, 24 hours); 
+        vaultUSDC.accountant.vestYield(yieldAmount, 24 hours);
 
         skip(24 hours);
 
-        //now the state of the contract should be 
+        //now the state of the contract should be
         //totalSupply > 1
-        //exchange rate > 1 
+        //exchange rate > 1
 
         // Skip some gap time before starting a new yield vesting period
         skip(12 hours);
@@ -621,8 +625,8 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
     // 4b
     function testNewYieldAfterGapWBTCDepositWithdraw(uint96 WBTCAmount, uint96 secondDepositAmount) external {
         // Case 4: Yield has been streamed for the full vesting period and a new one has been started after some gap, asset: WBTC
-        WBTCAmount = uint96(bound(WBTCAmount, 1, 1e18)); 
-        secondDepositAmount = uint96(bound(secondDepositAmount, 2, 1e18)); 
+        WBTCAmount = uint96(bound(WBTCAmount, 1, 1e18));
+        secondDepositAmount = uint96(bound(secondDepositAmount, 2, 1e18));
         deal(address(WBTC), address(this), WBTCAmount);
         WBTC.approve(address(vaultWBTC.vault), type(uint256).max);
         vaultWBTC.teller.deposit(WBTC, WBTCAmount, 0, referrer);
@@ -635,13 +639,13 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
 
         //vest some yield
         deal(address(WBTC), address(vaultWBTC.vault), secondDepositAmount * 2);
-        vaultWBTC.accountant.vestYield(yieldAmount, 24 hours); 
+        vaultWBTC.accountant.vestYield(yieldAmount, 24 hours);
 
         skip(24 hours);
 
-        //now the state of the contract should be 
+        //now the state of the contract should be
         //totalSupply > 1
-        //exchange rate > 1 
+        //exchange rate > 1
 
         // Skip some gap time before starting a new yield vesting period
         skip(12 hours);
@@ -667,7 +671,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
     function testNewYieldAfterGapWETHDepositWithdraw(uint96 WETHAmount, uint96 secondDepositAmount) external {
         // Case 4: Yield has been streamed for the full vesting period and a new one has been started after some gap, asset: WETH
         WETHAmount = uint96(bound(WETHAmount, 1, 2e27));
-        secondDepositAmount = uint96(bound(secondDepositAmount, 2, 2e27)); 
+        secondDepositAmount = uint96(bound(secondDepositAmount, 2, 2e27));
         deal(address(WETH), address(this), WETHAmount);
         WETH.approve(address(vaultWETH.vault), type(uint256).max);
         vaultWETH.teller.deposit(WETH, WETHAmount, 0, referrer);
@@ -680,13 +684,13 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
 
         //vest some yield
         deal(address(WETH), address(vaultWETH.vault), secondDepositAmount * 2);
-        vaultWETH.accountant.vestYield(yieldAmount, 24 hours); 
+        vaultWETH.accountant.vestYield(yieldAmount, 24 hours);
 
         skip(24 hours);
 
-        //now the state of the contract should be 
+        //now the state of the contract should be
         //totalSupply > 1
-        //exchange rate > 1 
+        //exchange rate > 1
 
         // Skip some gap time before starting a new yield vesting period
         skip(12 hours);
@@ -709,7 +713,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
     }
 
     // ========================================= HELPER FUNCTIONS =========================================
-    
+
     function _startFork(string memory rpcKey, uint256 blockNumber) internal returns (uint256 forkId) {
         forkId = vm.createFork(vm.envString(rpcKey), blockNumber);
         vm.selectFork(forkId);

@@ -4,7 +4,6 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-
 contract ArbitrumNativeBridgeDecoderAndSanitizer {
     error ArbitrumNativeBridgeDecoderAndSanitizer__ExtraDataNotSupported();
     error ArbitrumNativeBridgeDecoderAndSanitizer__GasLimitTooSmall();
@@ -108,7 +107,13 @@ contract ArbitrumNativeBridgeDecoderAndSanitizer {
     // Used to withdraw ERC20 from Arbitrum
     // Target 0x5288c571Fd7aD117beA99bF60FE0846C4E84F933
     // Example TX https://arbiscan.io/tx/0x4d0ccd99024b3ee0d49820625371fc7117036459bff67ed3887ffc7648c7d020
-    function outboundTransfer(address _l1Token, address _to, uint256, /*_amount*/ bytes calldata _data)
+    function outboundTransfer(
+        address _l1Token,
+        address _to,
+        uint256,
+        /*_amount*/
+        bytes calldata _data
+    )
         external
         pure
         virtual
@@ -123,7 +128,14 @@ contract ArbitrumNativeBridgeDecoderAndSanitizer {
     // Called on the L2 when a bridge TX fails.
     // Target 0x000000000000000000000000000000000000006E
     // Example TX https://arbiscan.io/tx/0x4465fc37c9f970a2961c855f612cfb04536108dfe88873db44bcd75a08887ab4
-    function redeem(bytes32 /*ticketId*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function redeem(
+        bytes32 /*ticketId*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         // Nothing to sanitize or return
         return addressesFound;
     }

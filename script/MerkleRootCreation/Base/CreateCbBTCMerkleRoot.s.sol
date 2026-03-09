@@ -68,13 +68,11 @@ contract CreateCbBTCMerkleRootScript is Script, MerkleTreeHelper {
         assets[2] = getAddress(sourceChain, "tBTC");
         kind[2] = SwapKind.BuyAndSell;
 
-        
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
         _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
         _addOdosOwnedSwapLeafs(leafs, assets, kind);
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
-
 
         string memory filePath = "./leafs/Base/CbBTCStrategistLeafs.json";
 

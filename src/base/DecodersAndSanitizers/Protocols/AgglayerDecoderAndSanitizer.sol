@@ -4,7 +4,6 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-
 contract AgglayerDecoderAndSanitizer {
     //============================== ERRORS ===============================
     error AgglayerDecoderAndSanitizer__PermitDataNonZero();
@@ -50,7 +49,12 @@ contract AgglayerDecoderAndSanitizer {
         address destinationAddress,
         bool, /*forceUpdateGlobalExitRoot*/
         bytes calldata /*metadata*/
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(address(uint160(destinationNetwork)), destinationAddress);
     }
 
@@ -60,7 +64,12 @@ contract AgglayerDecoderAndSanitizer {
         uint256, /*amountWETH*/
         bool, /*forceUpdateGlobalExitRoot*/
         bytes calldata /*metadata*/
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(address(uint160(destinationNetwork)), destinationAddress);
     }
 
@@ -78,10 +87,7 @@ contract AgglayerDecoderAndSanitizer {
         bytes calldata /*metadata*/
     ) external pure virtual returns (bytes memory addressesFound) {
         addressesFound = abi.encodePacked(
-            address(uint160(originNetwork)),
-            originAddress,
-            address(uint160(destinationNetwork)),
-            destinationAddress
+            address(uint160(originNetwork)), originAddress, address(uint160(destinationNetwork)), destinationAddress
         );
     }
 }

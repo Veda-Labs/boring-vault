@@ -9,9 +9,7 @@ import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVer
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {
-    BridgingDecoderAndSanitizer
-} from "src/base/DecodersAndSanitizers/BridgingDecoderAndSanitizer.sol";
+import {BridgingDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BridgingDecoderAndSanitizer.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
@@ -180,8 +178,9 @@ contract StandardBridgeIntegrationBaseTest is Test, MerkleTreeHelper {
         targets[1] = getAddress("base", "standardBridge");
 
         bytes[] memory targetData = new bytes[](2);
-        targetData[0] =
-            abi.encodeWithSignature("approve(address,uint256)", getAddress("base", "standardBridge"), type(uint256).max);
+        targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress("base", "standardBridge"), type(uint256).max
+        );
 
         targetData[1] = abi.encodeWithSignature(
             "bridgeERC20To(address,address,address,uint256,uint32,bytes)",

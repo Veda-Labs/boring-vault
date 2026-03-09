@@ -53,26 +53,33 @@ contract CreateStakedSonicBTCMerkleRoot is Script, MerkleTreeHelper {
             eBTCTellerAssets[1] = getERC20(sourceChain, "WBTC");
             address eBTCTeller = 0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268;
             _addTellerLeafs(leafs, eBTCTeller, eBTCTellerAssets, false, false);
-            _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "eBTCOnChainQueueFast"), getAddress(sourceChain, "EBTC"), eBTCTellerAssets);   
+            _addWithdrawQueueLeafs(
+                leafs,
+                getAddress(sourceChain, "eBTCOnChainQueueFast"),
+                getAddress(sourceChain, "EBTC"),
+                eBTCTellerAssets
+            );
 
-            //scBTC 
-            ERC20[] memory sonicBTCTellerAssets = new ERC20[](2); 
-            sonicBTCTellerAssets[0] = getERC20(sourceChain, "LBTC"); 
+            //scBTC
+            ERC20[] memory sonicBTCTellerAssets = new ERC20[](2);
+            sonicBTCTellerAssets[0] = getERC20(sourceChain, "LBTC");
             sonicBTCTellerAssets[1] = getERC20(sourceChain, "WBTC");
             address sonicBTCTeller = 0xAce7DEFe3b94554f0704d8d00F69F273A0cFf079;
             _addTellerLeafs(leafs, sonicBTCTeller, sonicBTCTellerAssets, false, true);
         }
 
         // ========================== Balancer/Beets ==========================
-        _addBalancerLeafs(leafs, getBytes32(sourceChain, "scBTC_LBTC_PoolId"), getAddress(sourceChain, "scBTC_LBTC_gauge"));
+        _addBalancerLeafs(
+            leafs, getBytes32(sourceChain, "scBTC_LBTC_PoolId"), getAddress(sourceChain, "scBTC_LBTC_gauge")
+        );
 
         // ========================== Silo =========================
-        address[] memory incentivesControllers = new address[](2); //no incentives 
-        _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_LBTC_scBTC_id32_config"), incentivesControllers); 
-        _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_LBTC_WBTC_id31_config"), incentivesControllers); 
+        address[] memory incentivesControllers = new address[](2); //no incentives
+        _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_LBTC_scBTC_id32_config"), incentivesControllers);
+        _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_LBTC_WBTC_id31_config"), incentivesControllers);
 
         // ========================== Verify ==========================
-       
+
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);

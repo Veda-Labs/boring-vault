@@ -42,10 +42,14 @@ contract OdosOwnedDecoderAndSanitizer is Owned, BaseDecoderAndSanitizer {
         bytes calldata, /*pathDefinition*/
         address executor,
         uint32 /*referralCode*/
-    ) external view virtual returns (bytes memory addressesFound) {
+    )
+        external
+        view
+        virtual
+        returns (bytes memory addressesFound)
+    {
         if (executor != odosExecutor) revert OdosOwnedDecoderAndSanitizer__InvalidExecutor();
-        addressesFound =
-            abi.encodePacked(tokenInfo.inputToken, tokenInfo.outputToken, tokenInfo.outputReceiver);
+        addressesFound = abi.encodePacked(tokenInfo.inputToken, tokenInfo.outputToken, tokenInfo.outputReceiver);
     }
 
     function swapCompact() external view virtual returns (bytes memory addressesFound) {
@@ -176,8 +180,7 @@ contract OdosOwnedDecoderAndSanitizer is Owned, BaseDecoderAndSanitizer {
 
         if (executor != odosExecutor) revert OdosOwnedDecoderAndSanitizer__InvalidExecutor();
 
-        addressesFound =
-            abi.encodePacked(tokenInfo.inputToken, tokenInfo.outputToken, tokenInfo.outputReceiver);
+        addressesFound = abi.encodePacked(tokenInfo.inputToken, tokenInfo.outputToken, tokenInfo.outputReceiver);
     }
 }
 

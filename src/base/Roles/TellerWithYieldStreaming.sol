@@ -13,12 +13,9 @@ contract TellerWithYieldStreaming is TellerWithBuffer {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
 
-    constructor(
-        address _owner,
-        address _vault,
-        address _accountant,
-        address _weth
-    ) TellerWithBuffer(_owner, _vault, _accountant, _weth) {
+    constructor(address _owner, address _vault, address _accountant, address _weth)
+        TellerWithBuffer(_owner, _vault, _accountant, _weth)
+    {
         _getAccountant().lastVirtualSharePrice(); // Reverts if the accountant doesn't support lastVirtualSharePrice()
     }
 
@@ -52,12 +49,12 @@ contract TellerWithYieldStreaming is TellerWithBuffer {
         //update vested yield before deposit
         _getAccountant().updateExchangeRate();
         if (vault.totalSupply() == 0) {
-            _getAccountant().setFirstDepositTimestamp(); 
+            _getAccountant().setFirstDepositTimestamp();
         }
         _handleDenyList(from, to, msg.sender);
         uint112 cap = depositCap;
         if (depositAmount == 0) revert TellerWithMultiAssetSupport__ZeroAssets();
-        shares = depositAmount.mulDivDown(ONE_SHARE, accountant.getRateInQuoteSafe(depositAsset) + 1); 
+        shares = depositAmount.mulDivDown(ONE_SHARE, accountant.getRateInQuoteSafe(depositAsset) + 1);
         shares = asset.sharePremium > 0 ? shares.mulDivDown(1e4 - asset.sharePremium, 1e4) : shares;
         if (shares < minimumMint) revert TellerWithMultiAssetSupport__MinimumMintNotMet();
         if (cap != type(uint112).max) {
@@ -76,7 +73,8 @@ contract TellerWithYieldStreaming is TellerWithBuffer {
         override
         requiresAuth
         nonReentrant
-        returns (uint256 assetsOut) {
+        returns (uint256 assetsOut)
+    {
         _getAccountant().updateExchangeRate();
         assetsOut = _withdraw(withdrawAsset, shareAmount, minimumAssets, to);
         emit BulkWithdraw(address(withdrawAsset), shareAmount);

@@ -19,9 +19,9 @@ contract CreateSonicBTCMerkleRoot is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     address public boringVault = 0xBb30e76d9Bb2CC9631F7fC5Eb8e87B5Aff32bFbd;
-    address public managerAddress = 0x5dA93667DCc58b71726aFC595f116A6F166F9aeD; 
+    address public managerAddress = 0x5dA93667DCc58b71726aFC595f116A6F166F9aeD;
     address public accountantAddress = 0xC1a2C650D2DcC8EAb3D8942477De71be52318Acb;
-    address public rawDataDecoderAndSanitizer = 0xE9527EA95a383993b41EA7D3b0E50DDA7B13dE94; 
+    address public rawDataDecoderAndSanitizer = 0xE9527EA95a383993b41EA7D3b0E50DDA7B13dE94;
 
     function setUp() external {}
 
@@ -44,9 +44,13 @@ contract CreateSonicBTCMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== LayerZero ==========================
         _addLayerZeroLeafs(
-            leafs, getERC20(sourceChain, "WBTC"), getAddress(sourceChain, "WBTC"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault")
-        ); 
-        
+            leafs,
+            getERC20(sourceChain, "WBTC"),
+            getAddress(sourceChain, "WBTC"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+
         // ========================== CCIP ==========================
         bytes32 toChain = 0x0000000000000000000000000000000000000000000000000000000000000001; //mainnet
         _addLBTCBridgeLeafs(leafs, toChain);
@@ -60,7 +64,7 @@ contract CreateSonicBTCMerkleRoot is Script, MerkleTreeHelper {
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, true); //add yield claiming
 
         // ========================== Verify  ==========================
-        
+
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
         string memory filePath = "./leafs/Sonic/SonicBTCStrategistLeafs.json";

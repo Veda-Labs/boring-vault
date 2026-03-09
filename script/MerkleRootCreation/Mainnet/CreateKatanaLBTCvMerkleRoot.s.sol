@@ -41,7 +41,6 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](32);
 
-
         // ========================== CCIP ==========================
         ERC20[] memory ccipBridgeAssets = new ERC20[](1);
         ccipBridgeAssets[0] = getERC20(sourceChain, "LBTC");
@@ -67,27 +66,23 @@ contract CreateKatanaLBTCvMerkleRoot is Script, MerkleTreeHelper {
         assets[1] = getAddress(sourceChain, "LBTC");
         kind[1] = SwapKind.BuyAndSell;
         _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
-        
+
         // ========================== Odos ==========================
-        _addOdosSwapLeafs(leafs, assets, kind);  
+        _addOdosSwapLeafs(leafs, assets, kind);
 
         // ========================== vbVault ==========================
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "vbWBTC")));
 
         // ========================== Agglayer ==========================
         _addAgglayerTokenLeafs(
-            leafs,
-            getAddress(sourceChain, "agglayerBridgeKatana"),
-            getAddress(sourceChain, "vbWBTC"),
-            0,
-            20
+            leafs, getAddress(sourceChain, "agglayerBridgeKatana"), getAddress(sourceChain, "vbWBTC"), 0, 20
         );
 
         // ========================== LBTCv Teller ==========================
         ERC20[] memory lbtcvTellerAssets = new ERC20[](1);
         lbtcvTellerAssets[0] = getERC20(sourceChain, "LBTC");
         address lbtcvTeller = getAddress(sourceChain, "lbtcvTeller");
-        _addTellerLeafs(leafs, lbtcvTeller, lbtcvTellerAssets, false, true);  // no native, yes bulk actions
+        _addTellerLeafs(leafs, lbtcvTeller, lbtcvTellerAssets, false, true); // no native, yes bulk actions
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

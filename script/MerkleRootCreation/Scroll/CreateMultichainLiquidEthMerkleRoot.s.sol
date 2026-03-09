@@ -44,16 +44,22 @@ contract CreateLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
 
         // ========================== Native Leafs==========================
-        _addNativeLeafs(leafs); 
+        _addNativeLeafs(leafs);
 
         // ========================== LayerZero ==========================
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "WEETH"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));   
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "WEETH"),
+            getAddress(sourceChain, "WEETH"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
 
         // ========================== Scroll Native Bridge ==========================
-        ERC20[] memory tokens = new ERC20[](1); 
-        tokens[0] = getERC20(sourceChain, "WETH"); 
+        ERC20[] memory tokens = new ERC20[](1);
+        tokens[0] = getERC20(sourceChain, "WETH");
         address[] memory scrollGateways = new address[](0); // no gateways needed from Scroll
-        _addScrollNativeBridgeLeafs(leafs, "mainnet", tokens, scrollGateways);  
+        _addScrollNativeBridgeLeafs(leafs, "mainnet", tokens, scrollGateways);
 
         // ========================== Fee Claiming ==========================
         ERC20[] memory feeAssets = new ERC20[](2);
@@ -70,7 +76,6 @@ contract CreateLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
-
     }
 }
 

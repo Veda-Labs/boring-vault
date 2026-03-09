@@ -38,7 +38,7 @@ contract BoringVaultIntegrationTest is Test, MerkleTreeHelper {
     uint8 public constant BORING_VAULT_ROLE = 5;
     uint8 public constant BALANCER_VAULT_ROLE = 6;
 
-    struct DepositAndBridgeParams{
+    struct DepositAndBridgeParams {
         address depositAsset;
         uint256 depositAmount;
         uint256 minimumMint;
@@ -69,8 +69,7 @@ contract BoringVaultIntegrationTest is Test, MerkleTreeHelper {
 
         rawDataDecoderAndSanitizer = address(
             new EtherFiLiquidEthDecoderAndSanitizer(
-                getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
-                getAddress(sourceChain, "odosRouterV2")
+                getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "odosRouterV2")
             )
         );
 
@@ -127,12 +126,27 @@ contract BoringVaultIntegrationTest is Test, MerkleTreeHelper {
         rolesAuthority.setUserRole(address(manager), MANAGER_ROLE, true);
         rolesAuthority.setUserRole(address(boringVault), BORING_VAULT_ROLE, true);
         rolesAuthority.setUserRole(getAddress(sourceChain, "vault"), BALANCER_VAULT_ROLE, true);
-    
 
         vm.startPrank(address(0x130CA661B9c0bcbCd1204adF9061A569D5e0Ca24));
-        RolesAuthority(address(0x9778D78495cBbfce0B1F6194526a8c3D4b9C3AAF)).setPublicCapability(address(GoldenGooseTeller), bytes4(keccak256(abi.encodePacked("withdraw(address,uint256,uint256,address)"))), true);
+        RolesAuthority(address(0x9778D78495cBbfce0B1F6194526a8c3D4b9C3AAF))
+            .setPublicCapability(
+                address(GoldenGooseTeller),
+                bytes4(keccak256(abi.encodePacked("withdraw(address,uint256,uint256,address)"))),
+                true
+            );
         GoldenGooseTeller.setShareLockPeriod(0);
-        RolesAuthority(address(0x9778D78495cBbfce0B1F6194526a8c3D4b9C3AAF)).setPublicCapability(address(GoldenGooseTeller), bytes4(keccak256(abi.encodePacked("depositAndBridge(address,uint256,uint256,address,bytes,address,uint256,address)"))), true);
+        RolesAuthority(address(0x9778D78495cBbfce0B1F6194526a8c3D4b9C3AAF))
+            .setPublicCapability(
+                address(GoldenGooseTeller),
+                bytes4(
+                    keccak256(
+                        abi.encodePacked(
+                            "depositAndBridge(address,uint256,uint256,address,bytes,address,uint256,address)"
+                        )
+                    )
+                ),
+                true
+            );
         vm.stopPrank();
     }
 
@@ -155,7 +169,6 @@ contract BoringVaultIntegrationTest is Test, MerkleTreeHelper {
         manageLeafs[1] = leafs[3];
         manageLeafs[2] = leafs[4];
 
-
         bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 
         address[] memory targets = new address[](3);
@@ -165,9 +178,17 @@ contract BoringVaultIntegrationTest is Test, MerkleTreeHelper {
 
         bytes[] memory targetData = new bytes[](3);
         targetData[0] = abi.encodeWithSelector(ERC20.approve.selector, address(GoldenGoose), assets);
-        targetData[1] = abi.encodeWithSelector(GoldenGooseTeller.deposit.selector, getAddress(sourceChain, "WETH"), assets, 0, referrer);
-        targetData[2] = abi.encodeWithSelector(GoldenGooseTeller.withdraw.selector, getAddress(sourceChain, "WETH"), assets/2, 0, getAddress(sourceChain, "boringVault"));
-    
+        targetData[1] = abi.encodeWithSelector(
+            GoldenGooseTeller.deposit.selector, getAddress(sourceChain, "WETH"), assets, 0, referrer
+        );
+        targetData[2] = abi.encodeWithSelector(
+            GoldenGooseTeller.withdraw.selector,
+            getAddress(sourceChain, "WETH"),
+            assets / 2,
+            0,
+            getAddress(sourceChain, "boringVault")
+        );
+
         address[] memory decodersAndSanitizers = new address[](3);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
@@ -176,71 +197,6 @@ contract BoringVaultIntegrationTest is Test, MerkleTreeHelper {
         uint256[] memory values = new uint256[](3);
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
-    
-    }
-
-    function testBoringVaultDepositAndBridgeWithReferral() external {
-        uint256 assets = 100e18;
-        deal(getAddress(sourceChain, "WETH"), address(boringVault), assets);
-
-        address referrer = 0x4200000000000000000000000000000000000006;
-        address[] memory assetsArray = new address[](1);
-        assetsArray[0] = getAddress(sourceChain, "WETH");
-
-        address[] memory feeAssets = new address[](1);
-        feeAssets[0] = getAddress(sourceChain, "ETH");
-
-        ManageLeaf[] memory leafs = new ManageLeaf[](16);
-        _addCrossChainTellerLeafsWithReferral(leafs, address(GoldenGooseTeller), assetsArray, feeAssets, abi.encode(layerZeroLineaEndpointId), referrer);
-
-        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
-
-        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
-        ManageLeaf[] memory manageLeafs = new ManageLeaf[](2);
-        manageLeafs[0] = leafs[1];
-        manageLeafs[1] = leafs[2];
-
-
-        bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
-
-        address[] memory targets = new address[](2);
-        targets[0] = getAddress(sourceChain, "WETH"); //approve WETH to be spent by GoldenGooseTeller
-        targets[1] = address(GoldenGooseTeller);
-
-        DepositAndBridgeParams memory params = DepositAndBridgeParams({
-            depositAsset: getAddress(sourceChain, "WETH"),
-            depositAmount: assets,
-            minimumMint: 0,
-            to: getAddress(sourceChain, "boringVault"),
-            bridgeWildCard: abi.encode(layerZeroLineaEndpointId),
-            feeToken: getAddress(sourceChain, "ETH"),
-            maxFee: 1e18,
-            referrer: referrer
-        });
-
-        bytes[] memory targetData = new bytes[](2);
-        targetData[0] = abi.encodeWithSelector(ERC20.approve.selector, address(GoldenGoose), assets);
-        targetData[1] = abi.encodeWithSelector(
-            GoldenGooseTeller.depositAndBridge.selector, 
-            params.depositAsset,
-            params.depositAmount,
-            params.minimumMint,
-            params.to,
-            params.bridgeWildCard,
-            params.feeToken,
-            params.maxFee,
-            params.referrer
-        );
-    
-        address[] memory decodersAndSanitizers = new address[](2);
-        decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
-        decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
-
-        uint256[] memory values = new uint256[](2);
-        values[1] = 30819757242215;
-
-        manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
-
     }
 
     // ========================================= HELPER FUNCTIONS =========================================

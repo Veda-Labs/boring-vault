@@ -8,5 +8,6 @@ import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecode
 import {KarakDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/KarakDecoderAndSanitizer.sol";
 
 contract OnlyKarakDecoderAndSanitizer is KarakDecoderAndSanitizer, BaseDecoderAndSanitizer {
-//============================== HANDLE FUNCTION COLLISIONS ===============================
-}
+    //============================== HANDLE FUNCTION COLLISIONS ===============================
+
+    }

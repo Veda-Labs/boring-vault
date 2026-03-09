@@ -143,7 +143,7 @@ contract CreateEtherFiUsdMerkleRootScript is Script, MerkleTreeHelper {
         //    getAddress(sourceChain, "stargateUSDe"),
         //    layerZeroScrollEndpointId,
         //    getBytes32(sourceChain, "boringVault")
-        //);   
+        //);
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

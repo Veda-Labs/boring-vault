@@ -19,7 +19,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C;
-    address public rawDataDecoderAndSanitizer = 0x5Fb5455dDa970adc53Ab6949FD318ff8aecf461e; 
+    address public rawDataDecoderAndSanitizer = 0x5Fb5455dDa970adc53Ab6949FD318ff8aecf461e;
     address public managerAddress = 0x227975088C28DBBb4b421c6d96781a53578f19a8;
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
 
@@ -138,13 +138,13 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== Fluid Dex ==========================
         {
-            uint256 dexType = 2000; 
-            ERC20[] memory supplyTokens = new ERC20[](2);    
-            supplyTokens[0] = getERC20(sourceChain, "ETH"); 
-            supplyTokens[1] = getERC20(sourceChain, "WEETH"); 
+            uint256 dexType = 2000;
+            ERC20[] memory supplyTokens = new ERC20[](2);
+            supplyTokens[0] = getERC20(sourceChain, "ETH");
+            supplyTokens[1] = getERC20(sourceChain, "WEETH");
 
-            ERC20[] memory borrowTokens = new ERC20[](1);    
-            borrowTokens[0] = getERC20(sourceChain, "WSTETH"); 
+            ERC20[] memory borrowTokens = new ERC20[](1);
+            borrowTokens[0] = getERC20(sourceChain, "WSTETH");
             _addFluidDexLeafs(
                 leafs,
                 getAddress(sourceChain, "weETH_ETHDex_wstETH"),
@@ -152,7 +152,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
                 supplyTokens,
                 borrowTokens,
                 true //add native ETH leaves
-            ); 
+            );
         }
 
         // ========================== Fluid fToken ==========================
@@ -182,28 +182,28 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         );
 
         // ========================== Merkl ==========================
-        _addMerklLeafs(
-            leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address")
-        );
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"));
 
         // ========================== LayerZero ==========================
         _addLayerZeroLeafs(
-            leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "WEETH"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault")
+            leafs,
+            getERC20(sourceChain, "WEETH"),
+            getAddress(sourceChain, "WEETH"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
         );
         _addLayerZeroLeafs(
-            leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "WEETH"), layerZeroOptimismEndpointId, getBytes32(sourceChain, "boringVault")
+            leafs,
+            getERC20(sourceChain, "WEETH"),
+            getAddress(sourceChain, "WEETH"),
+            layerZeroOptimismEndpointId,
+            getBytes32(sourceChain, "boringVault")
         );
 
         // ========================== Lido Standard Bridge ==========================
         _addLidoStandardBridgeLeafs(
-            leafs,
-            mainnet,
-            address(0),
-            address(0),
-            getAddress(sourceChain, "l2ERC20TokenBridge"),
-            address(0)
+            leafs, mainnet, address(0), address(0), getAddress(sourceChain, "l2ERC20TokenBridge"), address(0)
         );
-
 
         // ========================== Aerodrome ==========================
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", aerodromeDecoderAndSanitizer);

@@ -12,7 +12,13 @@ contract SpectraDecoderAndSanitizer is BaseDecoderAndSanitizer, ERC4626DecoderAn
     //============================== Principal Token ===============================
 
     //slippage protected functions
-    function deposit(uint256, /*assets*/ address ptReceiver, address ytReceiver, uint256 /*minShares*/ )
+    function deposit(
+        uint256,
+        /*assets*/
+        address ptReceiver,
+        address ytReceiver,
+        uint256 /*minShares*/
+    )
         external
         pure
         virtual
@@ -21,7 +27,13 @@ contract SpectraDecoderAndSanitizer is BaseDecoderAndSanitizer, ERC4626DecoderAn
         addressesFound = abi.encodePacked(ptReceiver, ytReceiver);
     }
 
-    function redeem(uint256, /*shares*/ address receiver, address owner, uint256 /*minAssets*/ )
+    function redeem(
+        uint256,
+        /*shares*/
+        address receiver,
+        address owner,
+        uint256 /*minAssets*/
+    )
         external
         pure
         virtual
@@ -30,7 +42,13 @@ contract SpectraDecoderAndSanitizer is BaseDecoderAndSanitizer, ERC4626DecoderAn
         addressesFound = abi.encodePacked(receiver, owner);
     }
 
-    function withdraw(uint256, /*assets*/ address receiver, address owner, uint256 /*maxShares*/ )
+    function withdraw(
+        uint256,
+        /*assets*/
+        address receiver,
+        address owner,
+        uint256 /*maxShares*/
+    )
         external
         pure
         virtual
@@ -39,7 +57,11 @@ contract SpectraDecoderAndSanitizer is BaseDecoderAndSanitizer, ERC4626DecoderAn
         addressesFound = abi.encodePacked(receiver, owner);
     }
 
-    function depositIBT(uint256, /*ibts*/ address receiver)
+    function depositIBT(
+        uint256,
+        /*ibts*/
+        address receiver
+    )
         external
         pure
         virtual
@@ -48,7 +70,13 @@ contract SpectraDecoderAndSanitizer is BaseDecoderAndSanitizer, ERC4626DecoderAn
         addressesFound = abi.encodePacked(receiver);
     }
 
-    function depositIBT(uint256, /*ibts*/ address ptReceiver, address ytReceiver, uint256 /*minShares*/ )
+    function depositIBT(
+        uint256,
+        /*ibts*/
+        address ptReceiver,
+        address ytReceiver,
+        uint256 /*minShares*/
+    )
         external
         pure
         virtual
@@ -57,7 +85,12 @@ contract SpectraDecoderAndSanitizer is BaseDecoderAndSanitizer, ERC4626DecoderAn
         addressesFound = abi.encodePacked(ptReceiver, ytReceiver);
     }
 
-    function redeemForIBT(uint256, /*shares*/ address receiver, address owner)
+    function redeemForIBT(
+        uint256,
+        /*shares*/
+        address receiver,
+        address owner
+    )
         external
         pure
         virtual
@@ -66,7 +99,13 @@ contract SpectraDecoderAndSanitizer is BaseDecoderAndSanitizer, ERC4626DecoderAn
         addressesFound = abi.encodePacked(receiver, owner);
     }
 
-    function redeemForIBT(uint256, /*shares*/ address receiver, address owner, uint256 /*minIbts*/ )
+    function redeemForIBT(
+        uint256,
+        /*shares*/
+        address receiver,
+        address owner,
+        uint256 /*minIbts*/
+    )
         external
         pure
         virtual
@@ -75,7 +114,12 @@ contract SpectraDecoderAndSanitizer is BaseDecoderAndSanitizer, ERC4626DecoderAn
         addressesFound = abi.encodePacked(receiver, owner);
     }
 
-    function withdrawIBT(uint256, /*ibts*/ address receiver, address owner)
+    function withdrawIBT(
+        uint256,
+        /*ibts*/
+        address receiver,
+        address owner
+    )
         external
         pure
         virtual
@@ -84,7 +128,13 @@ contract SpectraDecoderAndSanitizer is BaseDecoderAndSanitizer, ERC4626DecoderAn
         addressesFound = abi.encodePacked(receiver, owner);
     }
 
-    function withdrawIBT(uint256, /*ibts*/ address receiver, address owner, uint256 /*maxShares*/ )
+    function withdrawIBT(
+        uint256,
+        /*ibts*/
+        address receiver,
+        address owner,
+        uint256 /*maxShares*/
+    )
         external
         pure
         virtual
@@ -97,7 +147,10 @@ contract SpectraDecoderAndSanitizer is BaseDecoderAndSanitizer, ERC4626DecoderAn
         addressesFound = abi.encodePacked(_user);
     }
 
-    function claimYield(address _receiver, uint256 /*_minAssets*/ )
+    function claimYield(
+        address _receiver,
+        uint256 /*_minAssets*/
+    )
         external
         pure
         virtual
@@ -108,13 +161,24 @@ contract SpectraDecoderAndSanitizer is BaseDecoderAndSanitizer, ERC4626DecoderAn
 
     //============================== Yield Token ===============================
 
-    function burn(uint256 /*amount*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function burn(
+        uint256 /*amount*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 
     //============================== swTokens ===============================
 
-    function wrap(uint256, /*vaultShares*/ address receiver)
+    function wrap(
+        uint256,
+        /*vaultShares*/
+        address receiver
+    )
         external
         pure
         virtual
@@ -123,7 +187,12 @@ contract SpectraDecoderAndSanitizer is BaseDecoderAndSanitizer, ERC4626DecoderAn
         addressesFound = abi.encodePacked(receiver);
     }
 
-    function unwrap(uint256, /*vaultShares*/ address receiver, address owner)
+    function unwrap(
+        uint256,
+        /*vaultShares*/
+        address receiver,
+        address owner
+    )
         external
         pure
         virtual
@@ -134,7 +203,15 @@ contract SpectraDecoderAndSanitizer is BaseDecoderAndSanitizer, ERC4626DecoderAn
 
     //============================== Pool Functions ===============================
 
-    function exchange(uint256, /*i*/ uint256, /*j*/ uint256, /*dx*/ uint256 /*dy*/ )
+    function exchange(
+        uint256,
+        /*i*/
+        uint256,
+        /*j*/
+        uint256,
+        /*dx*/
+        uint256 /*dy*/
+    )
         external
         pure
         virtual
@@ -143,7 +220,11 @@ contract SpectraDecoderAndSanitizer is BaseDecoderAndSanitizer, ERC4626DecoderAn
         return addressesFound;
     }
 
-    function add_liquidity(uint256[2] memory, /*amounts*/ uint256 /*minOut*/ )
+    function add_liquidity(
+        uint256[2] memory,
+        /*amounts*/
+        uint256 /*minOut*/
+    )
         external
         pure
         virtual
@@ -152,7 +233,11 @@ contract SpectraDecoderAndSanitizer is BaseDecoderAndSanitizer, ERC4626DecoderAn
         return addressesFound;
     }
 
-    function remove_liquidity(uint256, /*lpAmount*/ uint256[2] memory /*minAmountsOut*/ )
+    function remove_liquidity(
+        uint256,
+        /*lpAmount*/
+        uint256[2] memory /*minAmountsOut*/
+    )
         external
         pure
         virtual

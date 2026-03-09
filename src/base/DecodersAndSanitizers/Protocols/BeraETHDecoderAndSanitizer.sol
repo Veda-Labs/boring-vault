@@ -4,11 +4,15 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-
 contract BeraETHDecoderAndSanitizer {
     //============================== rberaETH ===============================
 
-    function depositAndWrap(address WETH, uint256, /*amount*/ uint256 /*minAmountOut*/ )
+    function depositAndWrap(
+        address WETH,
+        uint256,
+        /*amount*/
+        uint256 /*minAmountOut*/
+    )
         external
         pure
         virtual
@@ -24,7 +28,14 @@ contract BeraETHDecoderAndSanitizer {
 
     //============================== beraETH ===============================
 
-    function unwrap(uint256 /*amount*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function unwrap(
+        uint256 /*amount*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 }

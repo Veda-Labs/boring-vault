@@ -113,9 +113,7 @@ interface EtherFiLiquid1 {
     function maxRedeem(address owner) external view returns (uint256);
     function maxWithdraw(address owner) external view returns (uint256);
     function mint(uint256 shares, address receiver) external returns (uint256 assets);
-    function multiAssetDeposit(address depositAsset, uint256 assets, address receiver)
-        external
-        returns (uint256 shares);
+    function multiAssetDeposit(address depositAsset, uint256 assets, address receiver) external returns (uint256 shares);
     function multicall(bytes[] memory data) external;
     function name() external view returns (string memory);
     function nonces(address) external view returns (uint256);

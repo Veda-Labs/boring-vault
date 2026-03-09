@@ -65,12 +65,7 @@ contract CreateP1USDMerkleRoot is Script, MerkleTreeHelper {
         _addSnwapLeafs(leafs, tokens, kind);
 
         // ========================== Merkl ==========================
-        _addMerklLeafs(
-            leafs,
-            getAddress(sourceChain, "merklDistributor"),
-            getAddress(sourceChain, "dev1Address")
-        );
-
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"));
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

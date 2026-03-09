@@ -46,8 +46,9 @@ contract MorphoBlueDecoderAndSanitizer {
         address onBehalf,
         address receiver
     ) external pure returns (bytes memory addressesFound) {
-        addressesFound =
-            abi.encodePacked(params.loanToken, params.collateralToken, params.oracle, params.irm, onBehalf, receiver);
+        addressesFound = abi.encodePacked(
+            params.loanToken, params.collateralToken, params.oracle, params.irm, onBehalf, receiver
+        );
     }
 
     function repay(

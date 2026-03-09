@@ -17,7 +17,12 @@ contract LidoStandardBridgeDecoderAndSanitizer {
         uint256, /*_amount*/
         uint32, /*_minGasLimit*/
         bytes calldata /*_extraData*/
-    ) external pure virtual returns (bytes memory sensitiveArguments) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory sensitiveArguments)
+    {
         // Extract sensitive arguments.
         sensitiveArguments = abi.encodePacked(_localToken, _remoteToken, _to);
     }
@@ -29,7 +34,12 @@ contract LidoStandardBridgeDecoderAndSanitizer {
         uint256, /*_amount*/
         uint32, /*_minGasLimit*/
         bytes calldata /*_extraData*/
-    ) external pure virtual returns (bytes memory sensitiveArguments) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory sensitiveArguments)
+    {
         // Extract sensitive arguments.
         sensitiveArguments = abi.encodePacked(_localToken, _to);
     }

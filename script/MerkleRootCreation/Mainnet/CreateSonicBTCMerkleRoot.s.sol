@@ -21,7 +21,7 @@ contract CreateSonicBTCMerkleRoot is Script, MerkleTreeHelper {
     address public managerAddress = 0x5dA93667DCc58b71726aFC595f116A6F166F9aeD;
     address public accountantAddress = 0xC1a2C650D2DcC8EAb3D8942477De71be52318Acb;
     address public rawDataDecoderAndSanitizer = 0xf7d5D3ba755583C8b174ADE63E8687471Ad8b20a;
-    address public lbtcBridgeDecoder = 0xE9527EA95a383993b41EA7D3b0E50DDA7B13dE94; 
+    address public lbtcBridgeDecoder = 0xE9527EA95a383993b41EA7D3b0E50DDA7B13dE94;
 
     function setUp() external {}
 
@@ -106,7 +106,12 @@ contract CreateSonicBTCMerkleRoot is Script, MerkleTreeHelper {
             _eBTCWithdrawalAssets[0] = getERC20(sourceChain, "LBTC");
             _eBTCWithdrawalAssets[1] = getERC20(sourceChain, "WBTC");
             _eBTCWithdrawalAssets[2] = getERC20(sourceChain, "cbBTC");
-            _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "eBTCOnChainQueueFast"), getAddress(sourceChain, "eBTC"), _eBTCWithdrawalAssets);
+            _addWithdrawQueueLeafs(
+                leafs,
+                getAddress(sourceChain, "eBTCOnChainQueueFast"),
+                getAddress(sourceChain, "eBTC"),
+                _eBTCWithdrawalAssets
+            );
         }
 
         // ========================== Verify & Generate ==========================

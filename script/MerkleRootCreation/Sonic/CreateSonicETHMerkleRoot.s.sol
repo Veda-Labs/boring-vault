@@ -65,7 +65,7 @@ contract CreateSonicETHMerkleRoot is Script, MerkleTreeHelper {
         _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_ETH_wstkscETH_config"));
 
         // ========================== Verify ==========================
-        
+
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
         string memory filePath = "./leafs/Sonic/SonicETHStrategistLeafs.json";

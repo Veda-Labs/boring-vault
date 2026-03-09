@@ -23,7 +23,7 @@ contract CreateRoycoUSDMerkleRoot is Script, MerkleTreeHelper {
     address public managerAddress = 0xD4F870516a3B67b64238Bb803392Cd1A52D54Fb2;
     address public accountantAddress = 0x80f0B206B7E5dAa1b1ba4ea1478A33241ee6baC9;
     address public tellerAddress = 0x60EBb5d1454Bb99aa35F63F609E79179b342B0b8;
-    address public rawDataDecoderAndSanitizer = 0x716050EDC96fBB8b61d27dd830Ea9055558F7e44; 
+    address public rawDataDecoderAndSanitizer = 0x716050EDC96fBB8b61d27dd830Ea9055558F7e44;
 
     // RoycoPlumeUSDC vault for depositing
     address public roycoPlumeUSDCVault = 0x83A6F6034ee44De6648B1885e24D837D8D98698f;
@@ -60,7 +60,13 @@ contract CreateRoycoUSDMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Bridging USDC to Mainnet ==========================
         // Add LayerZero bridging functionality for USDC to Mainnet
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDC"), getAddress(sourceChain, "stargateUSDC"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "USDC"),
+            getAddress(sourceChain, "stargateUSDC"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
 
         // ========================== Depositing into RoycoPlumeUSDC Vault ==========================
         // Add Teller functionality to deposit/withdraw from RoycoPlumeUSDC vault
@@ -77,17 +83,9 @@ contract CreateRoycoUSDMerkleRoot is Script, MerkleTreeHelper {
             address[] memory rewardsTokens = new address[](1);
             rewardsTokens[0] = getAddress(sourceChain, "plumeToken");
 
-            _addBoringChefApproveRewardsLeafs(
-                leafs,
-                roycoPlumeUSDCVault,
-                rewardsTokens
-            );
+            _addBoringChefApproveRewardsLeafs(leafs, roycoPlumeUSDCVault, rewardsTokens);
 
-            _addBoringChefDistributeRewardsLeaf(
-                leafs,
-                roycoPlumeUSDCVault,
-                rewardsTokens
-            );
+            _addBoringChefDistributeRewardsLeaf(leafs, roycoPlumeUSDCVault, rewardsTokens);
         }
 
         // ========================== Verify ==========================

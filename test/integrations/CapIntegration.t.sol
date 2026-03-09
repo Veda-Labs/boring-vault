@@ -145,11 +145,10 @@ contract CapIntegrationTest is Test, MerkleTreeHelper {
         targets[7] = getAddress(sourceChain, "stcUSD");
 
         bytes[] memory targetData = new bytes[](8);
-        targetData[0] = abi.encodeWithSelector(
-            ERC20.approve.selector, getAddress(sourceChain, "cUSD"), type(uint256).max
-        );
+        targetData[0] =
+            abi.encodeWithSelector(ERC20.approve.selector, getAddress(sourceChain, "cUSD"), type(uint256).max);
         targetData[1] = abi.encodeWithSelector(
-            bytes4(keccak256("mint(address,uint256,uint256,address,uint256)")), 
+            bytes4(keccak256("mint(address,uint256,uint256,address,uint256)")),
             getAddress(sourceChain, "USDC"),
             500 * 1e6,
             400 * 1e18,
@@ -157,26 +156,19 @@ contract CapIntegrationTest is Test, MerkleTreeHelper {
             block.timestamp + 100
         );
         targetData[2] = abi.encodeWithSelector(
-            bytes4(keccak256("burn(address,uint256,uint256,address,uint256)")), 
+            bytes4(keccak256("burn(address,uint256,uint256,address,uint256)")),
             getAddress(sourceChain, "USDC"),
             10 * 1e18,
             9 * 1e6,
             address(boringVault),
             block.timestamp + 100
         );
-        targetData[3] = abi.encodeWithSelector(
-            ERC20.approve.selector, getAddress(sourceChain, "stcUSD"), type(uint256).max
-        );
-        targetData[4] = abi.encodeWithSelector(
-            bytes4(keccak256("deposit(uint256,address)")),
-            30 * 1e18,
-            address(boringVault)
-        );
-        targetData[5] = abi.encodeWithSelector(
-            bytes4(keccak256("mint(uint256,address)")),
-            30 * 1e18,
-            address(boringVault)
-        );
+        targetData[3] =
+            abi.encodeWithSelector(ERC20.approve.selector, getAddress(sourceChain, "stcUSD"), type(uint256).max);
+        targetData[4] =
+            abi.encodeWithSelector(bytes4(keccak256("deposit(uint256,address)")), 30 * 1e18, address(boringVault));
+        targetData[5] =
+            abi.encodeWithSelector(bytes4(keccak256("mint(uint256,address)")), 30 * 1e18, address(boringVault));
         targetData[6] = abi.encodeWithSelector(
             bytes4(keccak256("withdraw(uint256,address,address)")),
             10 * 1e18,
@@ -184,10 +176,7 @@ contract CapIntegrationTest is Test, MerkleTreeHelper {
             address(boringVault)
         );
         targetData[7] = abi.encodeWithSelector(
-            bytes4(keccak256("redeem(uint256,address,address)")),
-            10 * 1e18,
-            address(boringVault),
-            address(boringVault)
+            bytes4(keccak256("redeem(uint256,address,address)")), 10 * 1e18, address(boringVault), address(boringVault)
         );
 
         uint256[] memory values = new uint256[](8);

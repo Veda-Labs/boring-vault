@@ -4,11 +4,13 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-
 contract MorphoRewardsWrapperDecoderAndSanitizer {
     //============================== MORPHO REWARDS ===============================
 
-    function depositFor(address user, uint256 /*amount*/ )
+    function depositFor(
+        address user,
+        uint256 /*amount*/
+    )
         external
         pure
         virtual
@@ -17,7 +19,10 @@ contract MorphoRewardsWrapperDecoderAndSanitizer {
         addressesFound = abi.encodePacked(user);
     }
 
-    function withdrawTo(address user, uint256 /*amount*/ )
+    function withdrawTo(
+        address user,
+        uint256 /*amount*/
+    )
         external
         pure
         virtual

@@ -4,11 +4,14 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-
 contract SatlayerStakingDecoderAndSanitizer {
     //============================== Satlayer STAKING ===============================
 
-    function depositFor(address _token, address _for, uint256 /*_amount*/ )
+    function depositFor(
+        address _token,
+        address _for,
+        uint256 /*_amount*/
+    )
         external
         pure
         virtual
@@ -17,7 +20,10 @@ contract SatlayerStakingDecoderAndSanitizer {
         addressesFound = abi.encodePacked(_token, _for);
     }
 
-    function withdraw(address _token, uint256 /*_amount*/ )
+    function withdraw(
+        address _token,
+        uint256 /*_amount*/
+    )
         external
         pure
         virtual

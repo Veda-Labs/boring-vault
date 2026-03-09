@@ -146,10 +146,8 @@ contract SymbioticUManager is Auth {
         if (minimumDeposit == 0) {
             revert SymbioticUManager__MinimumDepositNotSet();
         }
-        configurations[address(defaultCollateral)] = Configuration({
-            minimumDeposit: minimumDeposit,
-            decoderAndSanitizer: decoderAndSanitizer
-        });
+        configurations[address(defaultCollateral)] =
+            Configuration({minimumDeposit: minimumDeposit, decoderAndSanitizer: decoderAndSanitizer});
 
         emit ConfigurationSet(address(defaultCollateral), minimumDeposit, decoderAndSanitizer);
     }

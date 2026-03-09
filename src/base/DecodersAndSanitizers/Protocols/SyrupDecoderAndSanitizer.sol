@@ -4,7 +4,6 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-
 contract SyrupDecoderAndSanitizer {
     //============================== SYRUP ===============================
 
@@ -12,12 +11,21 @@ contract SyrupDecoderAndSanitizer {
     function deposit(
         uint256, /*amount*/
         bytes32 /*depositData_*/ // "0:itb" for into the block or "0:okx" for okx, only used for event
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 
     // Call to Maple Pool (syrupUSDC and syrupUSDT), queues shares for withdrawal (must be processed)
-    function requestRedeem(uint256, /*shares_*/ address owner_)
+    function requestRedeem(
+        uint256,
+        /*shares_*/
+        address owner_
+    )
         external
         pure
         virtual
@@ -27,7 +35,11 @@ contract SyrupDecoderAndSanitizer {
     }
 
     // Call to Maple Pool (syrupUSDC and syrupUSDT), cancels redemption requests and returns shares
-    function removeShares(uint256, /*shares_*/ address owner_)
+    function removeShares(
+        uint256,
+        /*shares_*/
+        address owner_
+    )
         external
         pure
         virtual

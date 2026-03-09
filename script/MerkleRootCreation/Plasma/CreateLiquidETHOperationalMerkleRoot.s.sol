@@ -31,7 +31,6 @@ contract CreateLiquidETHOperationalMerkleRootScript is Script, MerkleTreeHelper 
     }
 
     function generateLiquidEthOperationalStrategistMerkleRoot() public {
-
         setSourceChainName(plasma);
         setAddress(false, plasma, "boringVault", boringVault);
         setAddress(false, plasma, "managerAddress", managerAddress);
@@ -67,7 +66,9 @@ contract CreateLiquidETHOperationalMerkleRootScript is Script, MerkleTreeHelper 
 
         // ========================== Merkl ==========================
         {
-            _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "etherfiOpsAddress"));
+            _addMerklLeafs(
+                leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "etherfiOpsAddress")
+            );
         }
 
         // ========================== Drone ==========================
@@ -117,7 +118,9 @@ contract CreateLiquidETHOperationalMerkleRootScript is Script, MerkleTreeHelper 
 
         // ========================== Merkl ==========================
         {
-            _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "etherfiOpsAddress"));
+            _addMerklLeafs(
+                leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "etherfiOpsAddress")
+            );
         }
 
         _createDroneLeafs(leafs, _drone, droneStartIndex, leafIndex + 1);

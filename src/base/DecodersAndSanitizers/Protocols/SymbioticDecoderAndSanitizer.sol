@@ -4,11 +4,13 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-
 contract SymbioticDecoderAndSanitizer {
     //============================== SYMBIOTIC ===============================
 
-    function deposit(address recipient, uint256 /*amount*/ )
+    function deposit(
+        address recipient,
+        uint256 /*amount*/
+    )
         external
         pure
         virtual
@@ -17,7 +19,10 @@ contract SymbioticDecoderAndSanitizer {
         addressesFound = abi.encodePacked(recipient);
     }
 
-    function withdraw(address recipient, uint256 /*amount*/ )
+    function withdraw(
+        address recipient,
+        uint256 /*amount*/
+    )
         external
         pure
         virtual
@@ -26,7 +31,10 @@ contract SymbioticDecoderAndSanitizer {
         addressesFound = abi.encodePacked(recipient);
     }
 
-    function issueDebt(address recipient, uint256 /*amount*/ )
+    function issueDebt(
+        address recipient,
+        uint256 /*amount*/
+    )
         external
         pure
         virtual

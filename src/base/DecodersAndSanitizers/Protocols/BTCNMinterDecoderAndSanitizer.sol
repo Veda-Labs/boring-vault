@@ -4,14 +4,18 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-
 contract BTCNMinterDecoderAndSanitizer {
     function swapExactCollateralForDebt(
         uint256, /*collateralIn*/
         uint256, /*debtOutMin*/
         address to,
         uint256 /*deadline*/
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return abi.encodePacked(to);
     }
 
@@ -20,7 +24,12 @@ contract BTCNMinterDecoderAndSanitizer {
         uint256, /*collateralOutMin*/
         address to,
         uint256 /*deadline*/
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return abi.encodePacked(to);
     }
 }

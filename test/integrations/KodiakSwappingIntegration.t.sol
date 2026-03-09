@@ -9,9 +9,7 @@ import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVer
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {
-    EtherFiLiquidDecoderAndSanitizer
-} from "src/base/DecodersAndSanitizers/EtherFiLiquidDecoderAndSanitizer.sol";
+import {EtherFiLiquidDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EtherFiLiquidDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
@@ -48,9 +46,8 @@ contract KodiakSwappingIntegration is Test, MerkleTreeHelper {
         manager =
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
-        rawDataDecoderAndSanitizer = address(
-            new EtherFiLiquidDecoderAndSanitizer(getAddress(sourceChain, "kodiakNonFungiblePositionManager"))
-        );
+        rawDataDecoderAndSanitizer =
+            address(new EtherFiLiquidDecoderAndSanitizer(getAddress(sourceChain, "kodiakNonFungiblePositionManager")));
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -136,7 +133,7 @@ contract KodiakSwappingIntegration is Test, MerkleTreeHelper {
         manageLeafs[6] = leafs[8]; //decreaseLiquidity
         manageLeafs[7] = leafs[9]; //collect
         manageLeafs[8] = leafs[10]; //burn
-        
+
         bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 
         address[] memory targets = new address[](9);
@@ -218,7 +215,7 @@ contract KodiakSwappingIntegration is Test, MerkleTreeHelper {
         decodersAndSanitizers[6] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[7] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[8] = rawDataDecoderAndSanitizer;
-        
+
         manager.manageVaultWithMerkleVerification(
             manageProofs, decodersAndSanitizers, targets, targetData, new uint256[](9)
         );

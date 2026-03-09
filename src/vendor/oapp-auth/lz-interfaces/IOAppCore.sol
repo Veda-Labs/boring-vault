@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-import { ILayerZeroEndpointV2 } from "./ILayerZeroEndpointV2.sol";
+import {ILayerZeroEndpointV2} from "./ILayerZeroEndpointV2.sol";
 
 /**
  * @title IOAppCore

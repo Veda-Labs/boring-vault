@@ -49,7 +49,13 @@ contract EulerEVKDecoderAndSanitizer is ERC4626DecoderAndSanitizer {
         return abi.encodePacked(account, vault);
     }
 
-    function call(address targetContract, address onBehalfOfAccount, uint256, /*value*/ bytes calldata data)
+    function call(
+        address targetContract,
+        address onBehalfOfAccount,
+        uint256,
+        /*value*/
+        bytes calldata data
+    )
         external
         pure
         returns (bytes memory addressesFound)
@@ -80,15 +86,37 @@ contract EulerEVKDecoderAndSanitizer is ERC4626DecoderAndSanitizer {
 
     //============================== EVK Vaults ===============================
 
-    function borrow(uint256, /*amount*/ address receiver) external pure virtual returns (bytes memory addressesFound) {
+    function borrow(
+        uint256,
+        /*amount*/
+        address receiver
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return abi.encodePacked(receiver);
     }
 
-    function repay(uint256, /*amount*/ address receiver) external pure virtual returns (bytes memory addressesFound) {
+    function repay(
+        uint256,
+        /*amount*/
+        address receiver
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return abi.encodePacked(receiver);
     }
 
-    function repayWithShares(uint256, /*amount*/ address receiver)
+    function repayWithShares(
+        uint256,
+        /*amount*/
+        address receiver
+    )
         external
         pure
         virtual

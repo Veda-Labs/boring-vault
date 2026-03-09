@@ -18,13 +18,13 @@ contract CreateTurtleTacBTCMerkleRoot is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     //standard
-    address public boringVault = 0x6Bf340dB729d82af1F6443A0Ea0d79647b1c3DDf; 
+    address public boringVault = 0x6Bf340dB729d82af1F6443A0Ea0d79647b1c3DDf;
     address public rawDataDecoderAndSanitizer = 0x678Ff354a12a6fC0b9D357647879F32df45f5177;
-    address public managerAddress = 0x85A8821a579736e7E5e98296D34C50B77122BB5e; 
+    address public managerAddress = 0x85A8821a579736e7E5e98296D34C50B77122BB5e;
     address public accountantAddress = 0xe4858a89d5602Ad30de2018C408d33d101F53d53;
-    
+
     //one offs
-    address public tellerDecoder = 0xc52220989809D748a958798ca8FEf7CaF88022b4; 
+    address public tellerDecoder = 0xc52220989809D748a958798ca8FEf7CaF88022b4;
     address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
 
@@ -65,11 +65,23 @@ contract CreateTurtleTacBTCMerkleRoot is Script, MerkleTreeHelper {
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Native Leafs ==========================
-        _addNativeLeafs(leafs); 
+        _addNativeLeafs(leafs);
 
         // ========================== LayerZero ==========================
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "cbBTC"), getAddress(sourceChain, "CBBTCOFTAdapterTAC"), layerZeroTACEndpointId, getBytes32(sourceChain, "boringVault")); 
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "LBTC"), getAddress(sourceChain, "LBTCOFTAdapterTAC"), layerZeroTACEndpointId, getBytes32(sourceChain, "boringVault"));
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "cbBTC"),
+            getAddress(sourceChain, "CBBTCOFTAdapterTAC"),
+            layerZeroTACEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "LBTC"),
+            getAddress(sourceChain, "LBTCOFTAdapterTAC"),
+            layerZeroTACEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
 
         // ========================== Teller ==========================
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", tellerDecoder);
@@ -94,7 +106,5 @@ contract CreateTurtleTacBTCMerkleRoot is Script, MerkleTreeHelper {
         string memory filePath = "./leafs/Mainnet/TurtleTacBTCStrategistLeafs.json";
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
-
     }
-
 }

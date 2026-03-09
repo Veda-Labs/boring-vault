@@ -9,9 +9,7 @@ import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVer
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {
-    StakingDecoderAndSanitizer
-} from "src/base/DecodersAndSanitizers/StakingDecoderAndSanitizer.sol";
+import {StakingDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/StakingDecoderAndSanitizer.sol";
 
 import {RolesAuthority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";

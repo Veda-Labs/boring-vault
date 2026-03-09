@@ -57,7 +57,7 @@ contract CreateStableDemoMerkleRoot is Script, MerkleTreeHelper {
         // ========================== Morpho ==========================
         _addMorphoBlueSupplyLeafs(leafs, 0xdc5333039bcf15f1237133f74d5806675d83d9cf19cfd4cfdd9be674842651bf);
         _addMorphoBlueCollateralLeafs(leafs, 0xdc5333039bcf15f1237133f74d5806675d83d9cf19cfd4cfdd9be674842651bf);
-        
+
         _addMorphoBlueSupplyLeafs(leafs, 0x85c7f4374f3a403b36d54cc284983b2b02bbd8581ee0f3c36494447b87d9fcab);
         _addMorphoBlueCollateralLeafs(leafs, 0x85c7f4374f3a403b36d54cc284983b2b02bbd8581ee0f3c36494447b87d9fcab);
 
@@ -71,11 +71,10 @@ contract CreateStableDemoMerkleRoot is Script, MerkleTreeHelper {
         _addMorphoRewardMerkleClaimerLeafs(leafs, getAddress(sourceChain, "universalRewardsDistributor"));
 
         // ========================== Meta Morpho ==========================
-        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "smokehouseUSDT"))); 
-        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "smokehouseUSDC"))); 
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "smokehouseUSDT")));
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "smokehouseUSDC")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletUSDCcore")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "steakhouseUSDC")));
-        
 
         // ========================== 1inch ==========================
         address[] memory assets = new address[](5);

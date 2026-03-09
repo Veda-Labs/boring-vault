@@ -4,7 +4,6 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-
 /// @notice provides withdraw flow for boring vaults to use Derive (Basis) Vaults
 contract DeriveWithdrawDecoderAndSanitizer {
     //============================== ERRORS ===============================
@@ -43,7 +42,12 @@ contract DeriveWithdrawDecoderAndSanitizer {
         uint256, /*burnAmount_*/
         uint256, /*msgGasLimit_*/
         address connector_
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(receiver_, connector_);
     }
 }

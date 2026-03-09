@@ -8,7 +8,7 @@ import {Deployer} from "src/helper/Deployer.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {ContractNames} from "resources/ContractNames.sol";
 import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
-import {BoringDrone} from "src/base/Drones/BoringDrone.sol"; 
+import {BoringDrone} from "src/base/Drones/BoringDrone.sol";
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
 import "forge-std/Test.sol";
@@ -20,16 +20,15 @@ import "forge-std/Test.sol";
  */
 contract DeployDrone is Script, ContractNames, Test {
     uint256 public privateKey;
-    
+
     //liquidETH
-    address boringVault = 0xef417FCE1883c6653E7dC6AF7c6F85CCDE84Aa09; 
-    Deployer deployer = Deployer(0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d); 
+    address boringVault = 0xef417FCE1883c6653E7dC6AF7c6F85CCDE84Aa09;
+    Deployer deployer = Deployer(0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d);
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
         vm.createSelectFork("mainnet");
     }
-
 
     function run() external {
         bytes memory constructorArgs;
@@ -39,7 +38,5 @@ contract DeployDrone is Script, ContractNames, Test {
         creationCode = type(BoringDrone).creationCode;
         constructorArgs = abi.encode(boringVault, 21000);
         deployer.deployContract("GoldenGoose Boring Drone 0", creationCode, constructorArgs, 0);
-
     }
-
 }

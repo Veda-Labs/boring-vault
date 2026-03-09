@@ -4,11 +4,15 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-
 contract wSwellUnwrappingDecoderAndSanitizer {
     //============================== ETHERFI ===============================
 
-    function withdrawToByLockTimestamp(address account, uint256, /*lockTimestamp*/ bool /*allowRemainderLoss*/ )
+    function withdrawToByLockTimestamp(
+        address account,
+        uint256,
+        /*lockTimestamp*/
+        bool /*allowRemainderLoss*/
+    )
         external
         pure
         virtual
@@ -21,7 +25,12 @@ contract wSwellUnwrappingDecoderAndSanitizer {
         address account,
         uint256[] memory, /*lockTimetamp*/
         bool /*allowRemainderLoss*/
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(account);
     }
 }

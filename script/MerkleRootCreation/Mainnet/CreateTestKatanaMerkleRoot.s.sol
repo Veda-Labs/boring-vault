@@ -65,10 +65,25 @@ contract CreateTestKatanaMerkleRoot is Script, MerkleTreeHelper {
         _addEtherFiLeafs(leafs);
 
         // ========================== AtomicQueue ==========================
-        _addAtomicQueueLeafs(leafs, 0xD45884B592E316eB816199615A95C182F75dea07, getERC20(sourceChain, "liquidMove"), getERC20(sourceChain, "WETH"));
-        _addAtomicQueueLeafs(leafs, 0xD45884B592E316eB816199615A95C182F75dea07, getERC20(sourceChain, "liquidMove"), getERC20(sourceChain, "WEETH"));
-        _addAtomicQueueLeafs(leafs, 0xD45884B592E316eB816199615A95C182F75dea07, getERC20(sourceChain, "liquidMove"), getERC20(sourceChain, "EETH"));
-        
+        _addAtomicQueueLeafs(
+            leafs,
+            0xD45884B592E316eB816199615A95C182F75dea07,
+            getERC20(sourceChain, "liquidMove"),
+            getERC20(sourceChain, "WETH")
+        );
+        _addAtomicQueueLeafs(
+            leafs,
+            0xD45884B592E316eB816199615A95C182F75dea07,
+            getERC20(sourceChain, "liquidMove"),
+            getERC20(sourceChain, "WEETH")
+        );
+        _addAtomicQueueLeafs(
+            leafs,
+            0xD45884B592E316eB816199615A95C182F75dea07,
+            getERC20(sourceChain, "liquidMove"),
+            getERC20(sourceChain, "EETH")
+        );
+
         // ========================== Teller ==========================
         ERC20[] memory liquidMoveAssets = new ERC20[](3);
         liquidMoveAssets[0] = getERC20(sourceChain, "WETH");
@@ -81,18 +96,10 @@ contract CreateTestKatanaMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Agglayer ==========================
         _addAgglayerTokenLeafs(
-            leafs,
-            getAddress(sourceChain, "agglayerBridgeKatana"),
-            getAddress(sourceChain, "vbETH"),
-            0,
-            20
+            leafs, getAddress(sourceChain, "agglayerBridgeKatana"), getAddress(sourceChain, "vbETH"), 0, 20
         );
         _addAgglayerTokenLeafs(
-            leafs,
-            getAddress(sourceChain, "agglayerBridgeKatana"),
-            getAddress(sourceChain, "WEETH"),
-            0,
-            20
+            leafs, getAddress(sourceChain, "agglayerBridgeKatana"), getAddress(sourceChain, "WEETH"), 0, 20
         );
 
         // ========================== Fee Claiming ==========================
@@ -100,7 +107,6 @@ contract CreateTestKatanaMerkleRoot is Script, MerkleTreeHelper {
         feeAssets[0] = getERC20(sourceChain, "WETH");
         feeAssets[1] = getERC20(sourceChain, "WEETH");
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
-
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

@@ -327,7 +327,6 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
         console.log("Vault excess: ", vaultExcess);
         assertGt(vaultExcess, 0, "Vault should have received excess wETH back from the bulkWithdraw");
     }
-    
 
     function testRedeemMintSolve(uint128 amountOfShares, uint16 discount) external {
         amountOfShares = uint128(bound(amountOfShares, 0.01e18, 1_000e18));
@@ -442,7 +441,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
         uint256 amountBulkDeposited = 1035149556182725029736; // from test trace
         uint256 vaultExcess = amountBulkWithdrawn - amountBulkDeposited;
         console.log("Vault excess: ", vaultExcess);
-        
+
         assertGt(vaultExcess, 0, "Vault should have received some assets back at the end of the solve");
         assertEq(
             ERC20(weETHs).balanceOf(testUser), requests[0].amountOfAssets, "User should have received their weETHs."

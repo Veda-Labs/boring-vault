@@ -21,7 +21,11 @@ contract BalancerV3DecoderAndSanitizer is
 
     //============================== Function Collisions ===============================
 
-    function deposit(uint256, /*amount*/ address receiver)
+    function deposit(
+        uint256,
+        /*amount*/
+        address receiver
+    )
         external
         pure
         virtual
@@ -39,7 +43,12 @@ contract BalancerV3DecoderAndSanitizer is
         uint256, /*exactBptAmountOut*/
         bool, /*wethIsEth*/
         bytes memory userData
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         if (userData.length > 0) revert BalancerV3DecoderAndSanitizer__UserDataLengthNonZero();
         addressesFound = abi.encodePacked(pool);
     }
@@ -50,7 +59,12 @@ contract BalancerV3DecoderAndSanitizer is
         uint256, /*minBptAmountOut*/
         bool, /*wethIsEth*/
         bytes memory userData
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         if (userData.length > 0) revert BalancerV3DecoderAndSanitizer__UserDataLengthNonZero();
         addressesFound = abi.encodePacked(pool);
     }
@@ -64,7 +78,12 @@ contract BalancerV3DecoderAndSanitizer is
         uint256, /*exactBptAmountOut*/
         bool, /*wethIsEth*/
         bytes memory userData
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         if (userData.length > 0) revert BalancerV3DecoderAndSanitizer__UserDataLengthNonZero();
         addressesFound = abi.encodePacked(pool);
     }
@@ -75,7 +94,12 @@ contract BalancerV3DecoderAndSanitizer is
         uint256, /*minBptAmountOut*/
         bool, /*wethIsEth*/
         bytes memory userData
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         if (userData.length > 0) revert BalancerV3DecoderAndSanitizer__UserDataLengthNonZero();
         addressesFound = abi.encodePacked(pool);
     }
@@ -87,7 +111,12 @@ contract BalancerV3DecoderAndSanitizer is
         uint256[] memory, /*minAmountsOut*/
         bool, /*wethIsEth*/
         bytes memory userData
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         if (userData.length > 0) revert BalancerV3DecoderAndSanitizer__UserDataLengthNonZero();
         addressesFound = abi.encodePacked(pool);
     }
@@ -99,7 +128,12 @@ contract BalancerV3DecoderAndSanitizer is
         uint256, /*minAmountOut*/
         bool, /*wethIsEth*/
         bytes memory userData
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         if (userData.length > 0) revert BalancerV3DecoderAndSanitizer__UserDataLengthNonZero();
         addressesFound = abi.encodePacked(pool);
     }
@@ -122,12 +156,22 @@ contract BalancerV3DecoderAndSanitizer is
         uint256[] memory, /*minAmountsOut*/
         bool, /*wethIsEth*/
         bytes memory userData
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         if (userData.length > 0) revert BalancerV3DecoderAndSanitizer__UserDataLengthNonZero();
         addressesFound = abi.encodePacked(pool);
     }
 
-    function removeLiquidityRecovery(address pool, uint256, /*exactBptAmountIn*/ uint256[] memory /*minAmountsOut*/ )
+    function removeLiquidityRecovery(
+        address pool,
+        uint256,
+        /*exactBptAmountIn*/
+        uint256[] memory /*minAmountsOut*/
+    )
         external
         pure
         virtual

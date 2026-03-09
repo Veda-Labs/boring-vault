@@ -49,9 +49,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](2048);
 
         // ========================== Rewards ==========================
-        _addMerklLeafs(
-            leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address")
-        );
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"));
         _addrEULWrappingLeafs(leafs);
 
         // ========================== Native Wrapping ==========================
@@ -178,7 +176,6 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             assets[15] = getAddress(sourceChain, "axlSAGA");
             kind[15] = SwapKind.Sell;
 
-
             setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
             _addOdosOwnedSwapLeafs(leafs, assets, kind);
             setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
@@ -243,7 +240,6 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             primeAssets[0] = getERC20(sourceChain, "WETH");
             primeAssets[1] = getERC20(sourceChain, "WSTETH");
             _addAaveV3PrimeLeafs(leafs, primeAssets, primeAssets);
-
         }
 
         // =========================== Mellow ==========================
@@ -378,15 +374,15 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Linea Bridge ==========================
         {
-            ERC20[] memory lineaTokens = new ERC20[](1); 
-            lineaTokens[0] = getERC20(sourceChain, "WSTETH"); 
+            ERC20[] memory lineaTokens = new ERC20[](1);
+            lineaTokens[0] = getERC20(sourceChain, "WSTETH");
 
-            _addLineaNativeBridgeLeafs(leafs, "linea", lineaTokens); 
+            _addLineaNativeBridgeLeafs(leafs, "linea", lineaTokens);
         }
 
         // ========================== King Claiming  ==========================
         {
-             setAddress(true, mainnet, "rawDataDecoderAndSanitizer", kingClaimingDecoderAndSanitizer);
+            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", kingClaimingDecoderAndSanitizer);
             _addKingRewardsClaimingLeafs(leafs, new address[](0), getAddress(sourceChain, "boringVault"));
         }
 
@@ -434,7 +430,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
     function _addLeafsForDrone(ManageLeaf[] memory leafs) internal {
         setAddress(true, mainnet, "boringVault", drone);
         uint256 droneStartIndex = leafIndex + 1;
-        
+
         // ========================== AAVE Drone Leaves ==========================
         // Core
         ERC20[] memory supplyAssets = new ERC20[](4);
@@ -505,26 +501,20 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Merkl ==========================
-        _addMerklLeafs(
-            leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address")
-        );
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"));
         // ========================== Fluid Dex  ==========================
         ERC20[] memory supplyAssets2 = new ERC20[](1);
         supplyAssets2[0] = getERC20(sourceChain, "wstUSR");
         ERC20[] memory borrowAssets2 = new ERC20[](1);
         borrowAssets2[0] = getERC20(sourceChain, "USDC");
-        _addFluidDexLeafs(
-            leafs, getAddress(sourceChain, "wstUSR-USDC"), 1000, supplyAssets2, borrowAssets2, false
-        );
+        _addFluidDexLeafs(leafs, getAddress(sourceChain, "wstUSR-USDC"), 1000, supplyAssets2, borrowAssets2, false);
         ERC20[] memory borrowAssets3 = new ERC20[](1);
         borrowAssets3[0] = getERC20(sourceChain, "USDT");
-        _addFluidDexLeafs(
-            leafs, getAddress(sourceChain, "wstUSR-USDT"), 1000, supplyAssets2, borrowAssets3, false
-        );
+        _addFluidDexLeafs(leafs, getAddress(sourceChain, "wstUSR-USDT"), 1000, supplyAssets2, borrowAssets3, false);
 
         // ========================== Fluid Lending  ==========================
-        _addFluidFTokenLeafs(leafs, getAddress(sourceChain, "fUSDC"));  
-        _addFluidFTokenLeafs(leafs, getAddress(sourceChain, "fUSDT"));  
+        _addFluidFTokenLeafs(leafs, getAddress(sourceChain, "fUSDC"));
+        _addFluidFTokenLeafs(leafs, getAddress(sourceChain, "fUSDT"));
 
         // ========================== Morpho ==========================
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "WSTETH_USDT_86"));
@@ -532,7 +522,6 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "WSTETH_USDT_86"));
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "WSTETH_USDC_86"));
-
 
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "steakhouseUSDC")));
 
@@ -544,12 +533,11 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_USDE_market_05_06_26"), true);
         }
 
-
         // ========================== Syrup ==========================
         {
-            address[] memory tokens = new address[](2); 
-            tokens[0] = getAddress(sourceChain, "USDC"); 
-            tokens[1] = getAddress(sourceChain, "USDT"); 
+            address[] memory tokens = new address[](2);
+            tokens[0] = getAddress(sourceChain, "USDC");
+            tokens[1] = getAddress(sourceChain, "USDT");
             _addAllSyrupLeafs(leafs, tokens);
         }
 
@@ -564,13 +552,12 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             depositVaults[1] = ERC4626(getAddress(sourceChain, "evkeRLUSD-7"));
             _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
 
-
-            ERC4626[] memory borrowVaults = new ERC4626[](2); 
-            borrowVaults[0] = ERC4626(getAddress(sourceChain, "evkeUSDC-70"));  
-            borrowVaults[1] = ERC4626(getAddress(sourceChain, "evkeUSDC-80"));  
+            ERC4626[] memory borrowVaults = new ERC4626[](2);
+            borrowVaults[0] = ERC4626(getAddress(sourceChain, "evkeUSDC-70"));
+            borrowVaults[1] = ERC4626(getAddress(sourceChain, "evkeUSDC-80"));
             _addEulerBorrowLeafs(leafs, borrowVaults, subaccounts);
         }
-        
+
         _createDroneLeafs(leafs, drone, droneStartIndex, leafIndex + 1);
         setAddress(true, mainnet, "boringVault", boringVault);
     }

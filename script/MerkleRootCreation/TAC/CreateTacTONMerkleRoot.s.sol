@@ -20,9 +20,8 @@ contract CreateTacTONMerkleRoot is Script, MerkleTreeHelper {
     //standard
     address public boringVault = 0x450C6BAA2c0Bc5328a461771bC32E01bA41F31ae;
     address public rawDataDecoderAndSanitizer = 0x0cfa172253047FBF561F0E408e315aE60ad8b833;
-    address public managerAddress = 0x983700470cd9a7b6159F156FC9358F1c135C13e9; 
+    address public managerAddress = 0x983700470cd9a7b6159F156FC9358F1c135C13e9;
     address public accountantAddress = 0xcb484088a820B8366854e4B5e60E575642e1BEd9;
-    
 
     function setUp() external {}
 
@@ -42,10 +41,11 @@ contract CreateTacTONMerkleRoot is Script, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](64);
 
-
         // ========================== Curve ==========================
-        _addCurveLeafs(leafs, getAddress(sourceChain, "ton_tsTON_Curve_Pool"), 2, getAddress(sourceChain, "ton_tsTON_Curve_Gauge")); 
-        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "ton_tsTON_Curve_Pool")); 
+        _addCurveLeafs(
+            leafs, getAddress(sourceChain, "ton_tsTON_Curve_Pool"), 2, getAddress(sourceChain, "ton_tsTON_Curve_Gauge")
+        );
+        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "ton_tsTON_Curve_Pool"));
 
         // ========================== Euler ==========================
         ERC4626[] memory depositVaults = new ERC4626[](2);
@@ -68,7 +68,5 @@ contract CreateTacTONMerkleRoot is Script, MerkleTreeHelper {
         string memory filePath = "./leafs/TAC/tacTONStrategistLeafs.json";
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
-
     }
-
 }

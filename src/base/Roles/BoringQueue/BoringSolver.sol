@@ -19,7 +19,6 @@ contract BoringSolver is IBoringSolver, Auth, Multicall {
     enum SolveType {
         BORING_REDEEM, // Fill multiple user requests with a single transaction.
         BORING_REDEEM_MINT // Fill multiple user requests to redeem shares and mint new shares.
-
     }
 
     //============================== ERRORS ===============================
@@ -68,8 +67,9 @@ contract BoringSolver is IBoringSolver, Auth, Multicall {
         address teller,
         bool coverDeficit
     ) external requiresAuth {
-        bytes memory solveData =
-            abi.encode(SolveType.BORING_REDEEM, msg.sender, teller, excessToSolverNonSelfSolve, coverDeficit);
+        bytes memory solveData = abi.encode(
+            SolveType.BORING_REDEEM, msg.sender, teller, excessToSolverNonSelfSolve, coverDeficit
+        );
 
         queue.solveOnChainWithdraws(requests, solveData, address(this));
     }

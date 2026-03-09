@@ -43,12 +43,11 @@ contract DeployTimelockScript is Script, ContractNames, MainnetAddresses {
         proposers[0] = proposer;
         address[] memory executors = new address[](1);
         executors[0] = executor;
-    
-    
-        constructorArgs = abi.encode(minDelay, proposers, executors, address(0));
-        timelock =
-            TimelockController(payable(deployer.deployContract("Plasma One USD Vault Timelock V0.0", creationCode, constructorArgs, 0)));
 
+        constructorArgs = abi.encode(minDelay, proposers, executors, address(0));
+        timelock = TimelockController(
+            payable(deployer.deployContract("Plasma One USD Vault Timelock V0.0", creationCode, constructorArgs, 0))
+        );
 
         vm.stopBroadcast();
     }

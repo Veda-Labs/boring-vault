@@ -9,9 +9,7 @@ import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVer
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {
-    BridgingDecoderAndSanitizer
-} from "src/base/DecodersAndSanitizers/BridgingDecoderAndSanitizer.sol";
+import {BridgingDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BridgingDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {AddressToBytes32Lib} from "src/helper/AddressToBytes32Lib.sol";
@@ -114,7 +112,11 @@ contract OFTBridgeIntegrationTest is Test, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](2);
         _addLayerZeroLeafs(
-            leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "EtherFiOFTAdapter"), layerZeroBaseEndpointId, getBytes32(sourceChain, "boringVault") 
+            leafs,
+            getERC20(sourceChain, "WEETH"),
+            getAddress(sourceChain, "EtherFiOFTAdapter"),
+            layerZeroBaseEndpointId,
+            getBytes32(sourceChain, "boringVault")
         );
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
@@ -167,7 +169,7 @@ contract OFTBridgeIntegrationTest is Test, MerkleTreeHelper {
         deal(getAddress(sourceChain, "PYUSD"), address(boringVault), 101e18);
         deal(getAddress(sourceChain, "boringVault"), 101e18);
 
-        uint32 firstHopEndpoint = 30110; // Arbitrum 
+        uint32 firstHopEndpoint = 30110; // Arbitrum
         uint32 finalDestEndpoint = 30292; // Ink
         bytes32 finalDestTo = makeAddr("boringVaultRecipient").toBytes32();
 
@@ -318,7 +320,11 @@ contract OFTBridgeIntegrationTest is Test, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](2);
         _addLayerZeroLeafs(
-            leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "weETHOFTAdapterMovement"), layerZeroMovementEndpointId, moveAddress
+            leafs,
+            getERC20(sourceChain, "WEETH"),
+            getAddress(sourceChain, "weETHOFTAdapterMovement"),
+            layerZeroMovementEndpointId,
+            moveAddress
         );
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);

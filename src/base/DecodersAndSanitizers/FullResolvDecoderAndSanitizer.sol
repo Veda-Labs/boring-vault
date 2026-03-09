@@ -4,6 +4,9 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {ResolvDecoderAndSanitizer, BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ResolvDecoderAndSanitizer.sol";
+import {
+    ResolvDecoderAndSanitizer,
+    BaseDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/ResolvDecoderAndSanitizer.sol";
 
 contract FullResolvDecoderAndSanitizer is ResolvDecoderAndSanitizer, BaseDecoderAndSanitizer {}

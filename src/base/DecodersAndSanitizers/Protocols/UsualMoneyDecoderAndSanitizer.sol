@@ -4,12 +4,18 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-
 contract UsualMoneyDecoderAndSanitizer {
     //============================== Usual Money ===============================
 
     //USD0 and USD0++ Functions
-    function mint(uint256 /*amountUsd0*/ ) external pure virtual returns (bytes memory sensitiveArgumentsFound) {
+    function mint(
+        uint256 /*amountUsd0*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory sensitiveArgumentsFound)
+    {
         return sensitiveArgumentsFound;
     }
 
@@ -17,7 +23,9 @@ contract UsualMoneyDecoderAndSanitizer {
         return sensitiveArgumentsFound;
     }
 
-    function unlockUsd0ppFloorPrice(uint256 /*usd0ppAmount*/ )
+    function unlockUsd0ppFloorPrice(
+        uint256 /*usd0ppAmount*/
+    )
         external
         pure
         virtual
@@ -27,7 +35,9 @@ contract UsualMoneyDecoderAndSanitizer {
     }
 
     // Swapper Engine Functions (0xB969B0d14F7682bAF37ba7c364b351B830a812B2) //
-    function depositUSDC(uint256 /*amountToDeposit*/ )
+    function depositUSDC(
+        uint256 /*amountToDeposit*/
+    )
         external
         pure
         virtual
@@ -41,7 +51,12 @@ contract UsualMoneyDecoderAndSanitizer {
         uint256, /*amountUsdcToTakeInNativeDecimals*/
         uint256[] memory, /*orderIdsToTake*/
         bool /*partialMatchingAllowed*/
-    ) external pure virtual returns (bytes memory sensitiveArgumentsFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory sensitiveArgumentsFound)
+    {
         return abi.encodePacked(recipient);
     }
 
@@ -50,11 +65,18 @@ contract UsualMoneyDecoderAndSanitizer {
         uint256, /*amountUsd0ToProvideInWad*/
         uint256[] memory, /*orderIdsToTake*/
         bool /*partialMatchingAllowed*/
-    ) external pure virtual returns (bytes memory sensitiveArgumentsFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory sensitiveArgumentsFound)
+    {
         return abi.encodePacked(recipient);
     }
 
-    function withdrawUSDC(uint256 /*orderToCancel*/ )
+    function withdrawUSDC(
+        uint256 /*orderToCancel*/
+    )
         external
         pure
         virtual

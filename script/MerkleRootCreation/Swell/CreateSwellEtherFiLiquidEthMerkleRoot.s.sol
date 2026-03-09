@@ -22,7 +22,7 @@ contract CreateSwellEtherFiLiquidEthMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C;
     address public managerAddress = 0xDEa7AF4a96A762c9d43A7eE02acecD20A3C6D8B6;
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
-    address public rawDataDecoderAndSanitizer = 0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA; 
+    address public rawDataDecoderAndSanitizer = 0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA;
 
     function setUp() external {}
 
@@ -47,7 +47,11 @@ contract CreateSwellEtherFiLiquidEthMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== LayerZero ==========================
         _addLayerZeroLeafs(
-            leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "WEETH"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault")
+            leafs,
+            getERC20(sourceChain, "WEETH"),
+            getAddress(sourceChain, "WEETH"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
         );
 
         // ========================== Standard Bridge ==========================
@@ -66,18 +70,18 @@ contract CreateSwellEtherFiLiquidEthMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Euler ==========================
         {
-        ERC4626[] memory depositVaults = new ERC4626[](2);
-        depositVaults[0] = ERC4626(getAddress(sourceChain, "eulerWETH"));
-        depositVaults[1] = ERC4626(getAddress(sourceChain, "eulerWEETH"));
+            ERC4626[] memory depositVaults = new ERC4626[](2);
+            depositVaults[0] = ERC4626(getAddress(sourceChain, "eulerWETH"));
+            depositVaults[1] = ERC4626(getAddress(sourceChain, "eulerWEETH"));
 
-        address[] memory subaccounts = new address[](1);
-        subaccounts[0] = address(boringVault);
+            address[] memory subaccounts = new address[](1);
+            subaccounts[0] = address(boringVault);
 
-        ERC4626[] memory borrowVaults = new ERC4626[](1); 
-        borrowVaults[0] = ERC4626(getAddress(sourceChain, "eulerWETH")); 
+            ERC4626[] memory borrowVaults = new ERC4626[](1);
+            borrowVaults[0] = ERC4626(getAddress(sourceChain, "eulerWETH"));
 
-        _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
-        _addEulerBorrowLeafs(leafs, borrowVaults, subaccounts);  
+            _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
+            _addEulerBorrowLeafs(leafs, borrowVaults, subaccounts);
         }
 
         // ========================== Merkl ==========================
@@ -99,15 +103,15 @@ contract CreateSwellEtherFiLiquidEthMerkleRoot is Script, MerkleTreeHelper {
         );
 
         // ========================== Ambient ==========================
-        _addAmbientLPLeafs(leafs, getAddress(sourceChain, "WEETH"), getAddress(sourceChain, "ETH")); 
+        _addAmbientLPLeafs(leafs, getAddress(sourceChain, "WEETH"), getAddress(sourceChain, "ETH"));
         _addAmbientSwapLeafs(leafs, getAddress(sourceChain, "WEETH"), getAddress(sourceChain, "ETH")); //can remove if they don't want/need swapping between the two
-    
+
         // Swaps
-        _addAmbientSwapLeafs(leafs, getAddress(sourceChain, "ETH"), getAddress(sourceChain, "SWELL")); 
-        _addAmbientSwapLeafs(leafs, getAddress(sourceChain, "SWELL"), getAddress(sourceChain, "ETH")); 
+        _addAmbientSwapLeafs(leafs, getAddress(sourceChain, "ETH"), getAddress(sourceChain, "SWELL"));
+        _addAmbientSwapLeafs(leafs, getAddress(sourceChain, "SWELL"), getAddress(sourceChain, "ETH"));
 
         // ========================== wSwell Unwrapping ==========================
-        _addWSwellUnwrappingLeafs(leafs); 
+        _addWSwellUnwrappingLeafs(leafs);
 
         // ========================== Verify & Generate ==========================
 

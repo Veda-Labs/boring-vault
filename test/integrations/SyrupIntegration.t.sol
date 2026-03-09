@@ -122,10 +122,10 @@ contract SyrupIntegrationTest is Test, MerkleTreeHelper {
         permManager.setLenderAllowlist(poolManagerUSDC, lenders_, booleans_);
         permManager.setLenderAllowlist(poolManagerUSDT, lenders_, booleans_);
         vm.stopPrank();
-        
-        address[] memory tokens = new address[](2); 
-        tokens[0] = getAddress(sourceChain, "USDC"); 
-        tokens[1] = getAddress(sourceChain, "USDT"); 
+
+        address[] memory tokens = new address[](2);
+        tokens[0] = getAddress(sourceChain, "USDC");
+        tokens[1] = getAddress(sourceChain, "USDT");
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addAllSyrupLeafs(leafs, tokens);
 
@@ -164,16 +164,18 @@ contract SyrupIntegrationTest is Test, MerkleTreeHelper {
         targets[9] = getAddress(sourceChain, "syrupUSDT"); //cancel redeem syrupUSDT
 
         bytes[] memory targetData = new bytes[](10);
-        targetData[0] =
-            abi.encodeWithSelector(ERC20.approve.selector, getAddress(sourceChain, "syrupRouterUSDC"), type(uint256).max);
-        targetData[1] =
-            abi.encodeWithSelector(ERC20.approve.selector, getAddress(sourceChain, "syrupRouterUSDT"), type(uint256).max);
+        targetData[0] = abi.encodeWithSelector(
+            ERC20.approve.selector, getAddress(sourceChain, "syrupRouterUSDC"), type(uint256).max
+        );
+        targetData[1] = abi.encodeWithSelector(
+            ERC20.approve.selector, getAddress(sourceChain, "syrupRouterUSDT"), type(uint256).max
+        );
         targetData[2] =
-            // forge-lint: disable-next-line(unsafe-typecast)
-            abi.encodeWithSignature("deposit(uint256,bytes32)", 100e6, bytes32("0:vtl"));
+        // forge-lint: disable-next-line(unsafe-typecast)
+        abi.encodeWithSignature("deposit(uint256,bytes32)", 100e6, bytes32("0:vtl"));
         targetData[3] =
-            // forge-lint: disable-next-line(unsafe-typecast)
-            abi.encodeWithSignature("deposit(uint256,bytes32)", 100e6, bytes32("0:vtl"));
+        // forge-lint: disable-next-line(unsafe-typecast)
+        abi.encodeWithSignature("deposit(uint256,bytes32)", 100e6, bytes32("0:vtl"));
         targetData[4] = abi.encodeWithSignature(
             "approve(address,uint256)", getAddress(sourceChain, "syrupUSDC"), type(uint256).max
         );
@@ -184,12 +186,10 @@ contract SyrupIntegrationTest is Test, MerkleTreeHelper {
             abi.encodeWithSignature("requestRedeem(uint256,address)", 90e6, getAddress(sourceChain, "boringVault"));
         targetData[7] =
             abi.encodeWithSignature("requestRedeem(uint256,address)", 90e6, getAddress(sourceChain, "boringVault"));
-        targetData[8] = abi.encodeWithSignature(
-            "removeShares(uint256,address)", 50e6, getAddress(sourceChain, "boringVault")
-        );
-        targetData[9] = abi.encodeWithSignature(
-            "removeShares(uint256,address)", 50e6, getAddress(sourceChain, "boringVault")
-        );
+        targetData[8] =
+            abi.encodeWithSignature("removeShares(uint256,address)", 50e6, getAddress(sourceChain, "boringVault"));
+        targetData[9] =
+            abi.encodeWithSignature("removeShares(uint256,address)", 50e6, getAddress(sourceChain, "boringVault"));
 
         uint256[] memory values = new uint256[](10);
 

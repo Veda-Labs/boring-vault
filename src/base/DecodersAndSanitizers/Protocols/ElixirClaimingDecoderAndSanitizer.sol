@@ -4,9 +4,14 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-
 contract ElixirClaimingDecoderAndSanitizer {
-    function claim(uint256, /*_amount*/ bytes32[] calldata, /*_merkleProof*/ bytes calldata /*_signature*/ )
+    function claim(
+        uint256,
+        /*_amount*/
+        bytes32[] calldata,
+        /*_merkleProof*/
+        bytes calldata /*_signature*/
+    )
         external
         pure
         virtual

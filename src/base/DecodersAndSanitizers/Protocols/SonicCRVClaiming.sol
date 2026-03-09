@@ -4,5 +4,4 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-
 contract SonicCRVClaimingDecoderAndSanitizer {}

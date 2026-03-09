@@ -4,8 +4,9 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {AtomicQueueDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/AtomicQueueDecoderAndSanitizer.sol";
+import {
+    AtomicQueueDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/AtomicQueueDecoderAndSanitizer.sol";
 
 contract OnlyAtomicQueueDecoderAndSanitizer is AtomicQueueDecoderAndSanitizer {
     constructor(uint32 min, uint32 max) AtomicQueueDecoderAndSanitizer(min, max) {}

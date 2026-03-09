@@ -22,9 +22,9 @@ contract CreateStakedSonicUSDMerkleRoot is Script, MerkleTreeHelper {
     address public managerAddress = 0x5F7f5205A3E7c63c3bd287EecBe7879687D4c698;
     address public accountantAddress = 0x13cCc810DfaA6B71957F2b87060aFE17e6EB8034;
     address public rawDataDecoderAndSanitizer = 0xE1aD269404Aee1998b569D6e9F21F3dca32b0743;
-    
+
     //one offs
-    address public siloVaultDecoder = 0x62eab851AC6aF5C0B3e017F70db71A40Dfa1B1f0; 
+    address public siloVaultDecoder = 0x62eab851AC6aF5C0B3e017F70db71A40Dfa1B1f0;
 
     function setUp() external {}
 
@@ -51,7 +51,7 @@ contract CreateStakedSonicUSDMerkleRoot is Script, MerkleTreeHelper {
         feeAssets[1] = getERC20(sourceChain, "scUSD");
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, true);
 
-          // ========================== UniswapV3 ==========================
+        // ========================== UniswapV3 ==========================
         address[] memory token0 = new address[](1);
         token0[0] = getAddress(sourceChain, "scUSD");
 
@@ -69,77 +69,81 @@ contract CreateStakedSonicUSDMerkleRoot is Script, MerkleTreeHelper {
         _addBalancerSwapLeafs(leafs, getBytes32(sourceChain, "stS_BEETS_PoolId")); //stS, BEETS (swap BEETS for stS, then USDC, swap function leaves only support 2 token pools atm)
 
         // ========================== BeetsV3 ==========================
-        _addBalancerV3Leafs(leafs, getAddress(sourceChain, "balancerV3_USDC_scUSD_boosted"), true, getAddress(sourceChain, "balancerV3_USDC_scUSD_boosted_gauge")); 
+        _addBalancerV3Leafs(
+            leafs,
+            getAddress(sourceChain, "balancerV3_USDC_scUSD_boosted"),
+            true,
+            getAddress(sourceChain, "balancerV3_USDC_scUSD_boosted_gauge")
+        );
 
         // ========================== Odos ==========================
-        
-        address[] memory tokens = new address[](11);   
-        SwapKind[] memory kind = new SwapKind[](11); 
-        tokens[0] = getAddress(sourceChain, "USDC"); 
-        kind[0] = SwapKind.BuyAndSell; 
-        tokens[1] = getAddress(sourceChain, "stS"); 
-        kind[1] = SwapKind.Sell; 
-        tokens[2] = getAddress(sourceChain, "wS"); 
-        kind[2] = SwapKind.Sell; 
-        tokens[3] = getAddress(sourceChain, "scUSD"); 
-        kind[3] = SwapKind.BuyAndSell; 
-        tokens[4] = getAddress(sourceChain, "BEETS"); 
-        kind[4] = SwapKind.Sell; 
-        tokens[5] = getAddress(sourceChain, "BEETSFRAGMENTSS1"); 
-        kind[5] = SwapKind.Sell; 
-        tokens[6] = getAddress(sourceChain, "CRV"); 
-        kind[6] = SwapKind.Sell; 
-        tokens[7] = getAddress(sourceChain, "WETH"); 
-        kind[7] = SwapKind.Sell; 
-        tokens[8] = getAddress(sourceChain, "SILO"); 
-        kind[8] = SwapKind.Sell; 
-        tokens[9] = getAddress(sourceChain, "UNI"); 
+
+        address[] memory tokens = new address[](11);
+        SwapKind[] memory kind = new SwapKind[](11);
+        tokens[0] = getAddress(sourceChain, "USDC");
+        kind[0] = SwapKind.BuyAndSell;
+        tokens[1] = getAddress(sourceChain, "stS");
+        kind[1] = SwapKind.Sell;
+        tokens[2] = getAddress(sourceChain, "wS");
+        kind[2] = SwapKind.Sell;
+        tokens[3] = getAddress(sourceChain, "scUSD");
+        kind[3] = SwapKind.BuyAndSell;
+        tokens[4] = getAddress(sourceChain, "BEETS");
+        kind[4] = SwapKind.Sell;
+        tokens[5] = getAddress(sourceChain, "BEETSFRAGMENTSS1");
+        kind[5] = SwapKind.Sell;
+        tokens[6] = getAddress(sourceChain, "CRV");
+        kind[6] = SwapKind.Sell;
+        tokens[7] = getAddress(sourceChain, "WETH");
+        kind[7] = SwapKind.Sell;
+        tokens[8] = getAddress(sourceChain, "SILO");
+        kind[8] = SwapKind.Sell;
+        tokens[9] = getAddress(sourceChain, "UNI");
         kind[9] = SwapKind.Sell;
         tokens[10] = getAddress(sourceChain, "EUL");
         kind[10] = SwapKind.Sell;
 
-        _addOdosSwapLeafs(leafs, tokens, kind); 
-        
+        _addOdosSwapLeafs(leafs, tokens, kind);
+
         // ========================== Teller ==========================
         ERC20[] memory tellerAssets = new ERC20[](1);
         tellerAssets[0] = getERC20(sourceChain, "USDC");
         _addTellerLeafs(leafs, getAddress(sourceChain, "scUSDTeller"), tellerAssets, false, true);
 
         // ========================== Silo ==========================
-        
+
         // ws/USDC id8
-        address[] memory incentivesControllers = new address[](2); 
-        incentivesControllers[0] = getAddress(sourceChain, "silo_wS_USDC_id8_USDC_IncentivesController"); 
-        incentivesControllers[1] = getAddress(sourceChain, "silo_wS_USDC_id8_wS_IncentivesController"); 
-        _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_wS_USDC_id8_config"), incentivesControllers); 
-        
+        address[] memory incentivesControllers = new address[](2);
+        incentivesControllers[0] = getAddress(sourceChain, "silo_wS_USDC_id8_USDC_IncentivesController");
+        incentivesControllers[1] = getAddress(sourceChain, "silo_wS_USDC_id8_wS_IncentivesController");
+        _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_wS_USDC_id8_config"), incentivesControllers);
+
         // ws/USDC id20
-        incentivesControllers[0] = getAddress(sourceChain, "silo_wS_USDC_id20_USDC_IncentivesController"); 
+        incentivesControllers[0] = getAddress(sourceChain, "silo_wS_USDC_id20_USDC_IncentivesController");
         incentivesControllers[1] = address(0);
         _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_wS_USDC_id20_config"), incentivesControllers);
 
-
         // USDC/wstkscUSD id23
-        incentivesControllers[0] = getAddress(sourceChain, "silo_USDC_wstkscUSD_id23_USDC_IncentivesController"); 
-        incentivesControllers[1] = address(0);  
+        incentivesControllers[0] = getAddress(sourceChain, "silo_USDC_wstkscUSD_id23_USDC_IncentivesController");
+        incentivesControllers[1] = address(0);
         _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_USDC_wstkscUSD_id23_config"), incentivesControllers);
 
-        // S/USDC id15 (no incentives) 
-        incentivesControllers[0] = address(0); 
-        incentivesControllers[1] = address(0);  
+        // S/USDC id15 (no incentives)
+        incentivesControllers[0] = address(0);
+        incentivesControllers[1] = address(0);
         _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_S_scUSD_id15_config"), incentivesControllers);
 
-        incentivesControllers[0] = getAddress(sourceChain, "silo_PT-aUSDC_scUSD_id46_scUSD_IncentivesController"); 
-        incentivesControllers[1] = address(0);  
+        incentivesControllers[0] = getAddress(sourceChain, "silo_PT-aUSDC_scUSD_id46_scUSD_IncentivesController");
+        incentivesControllers[1] = address(0);
         _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_PT-aUSDC_scUSD_id46_config"), incentivesControllers);
 
         // sfrxUSD/scUSD id48
-        incentivesControllers[0] = address(0); 
-        incentivesControllers[1] = address(0);  
+        incentivesControllers[0] = address(0);
+        incentivesControllers[1] = address(0);
         _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_sfrxUSD_scUSD_id48_config"), incentivesControllers);
 
         // ========================== Silo Vaults =========================
-        
+
         setAddress(true, sonicMainnet, "rawDataDecoderAndSanitizer", siloVaultDecoder);
         _addSiloVaultLeafs(leafs, getAddress(sourceChain, "silo_Mithras_vault"));
         _addSiloVaultLeafs(leafs, getAddress(sourceChain, "silo_RE7_vault"));
@@ -168,11 +172,11 @@ contract CreateStakedSonicUSDMerkleRoot is Script, MerkleTreeHelper {
 
         _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
         _addrEULWrappingLeafs(leafs); //unwrap rEUL for EUL
-        
+
         // ========================== Native =========================
         _addNativeLeafs(leafs, getAddress(sourceChain, "wS"));
 
-         // ========================== Merkl =========================
+        // ========================== Merkl =========================
         _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"));
 
         // ========================== Verify =========================

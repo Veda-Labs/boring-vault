@@ -9,11 +9,27 @@ import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecode
 contract SGHODecoderAndSanitizer is BaseDecoderAndSanitizer {
     //============================== sGHO STAKING ===============================
 
-    function stake(address to, uint256 /*amount*/) external pure virtual returns (bytes memory addressesFound) {
+    function stake(
+        address to,
+        uint256 /*amount*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(to);
     }
 
-    function redeem(address to, uint256 /*amount*/) external pure virtual returns (bytes memory addressesFound) {
+    function redeem(
+        address to,
+        uint256 /*amount*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(to);
     }
 
@@ -23,11 +39,24 @@ contract SGHODecoderAndSanitizer is BaseDecoderAndSanitizer {
 
     //============================== GHO GSM ===============================
 
-    function buyAsset(uint256 /*minAmount*/, address receiver) external pure virtual returns (bytes memory addressesFound) {
+    function buyAsset(
+        uint256,
+        /*minAmount*/
+        address receiver
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(receiver);
     }
 
-    function sellAsset(uint256 /*maxAmount*/, address receiver)
+    function sellAsset(
+        uint256,
+        /*maxAmount*/
+        address receiver
+    )
         external
         pure
         virtual

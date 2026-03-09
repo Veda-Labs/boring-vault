@@ -94,13 +94,13 @@ contract CreateMultiChainTestMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== Euler ==========================
         {
-            ERC4626[] memory depositVaults = new ERC4626[](1); 
-            depositVaults[0] = ERC4626(getAddress(sourceChain, "eulerPrimeWETH")); 
-            
-            address[] memory subaccounts = new address[](1); 
-            subaccounts[0] = address(boringVault); 
+            ERC4626[] memory depositVaults = new ERC4626[](1);
+            depositVaults[0] = ERC4626(getAddress(sourceChain, "eulerPrimeWETH"));
 
-            _addEulerDepositLeafs(leafs, depositVaults, subaccounts); 
+            address[] memory subaccounts = new address[](1);
+            subaccounts[0] = address(boringVault);
+
+            _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
         }
 
         string memory filePath = "./leafs/Mainnet/MultiChainTestMerkleRoot.json";

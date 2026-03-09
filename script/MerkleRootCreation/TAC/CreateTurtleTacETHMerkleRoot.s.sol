@@ -18,11 +18,10 @@ contract CreateTurtleTacETHMerkleRoot is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     //standard
-    address public boringVault = 0x294eecec65A0142e84AEdfD8eB2FBEA8c9a9fbad; 
-    address public rawDataDecoderAndSanitizer = 0x5CeEB02799A6fc75641c2793Dc8138508f71642d; 
-    address public managerAddress = 0x401C29bafA0A205a0dAb316Dc6136A18023eF08A; 
+    address public boringVault = 0x294eecec65A0142e84AEdfD8eB2FBEA8c9a9fbad;
+    address public rawDataDecoderAndSanitizer = 0x5CeEB02799A6fc75641c2793Dc8138508f71642d;
+    address public managerAddress = 0x401C29bafA0A205a0dAb316Dc6136A18023eF08A;
     address public accountantAddress = 0x1683870f3347F2837865C5D161079Dc3fDbf1087;
-    
 
     function setUp() external {}
 
@@ -43,8 +42,20 @@ contract CreateTurtleTacETHMerkleRoot is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](32);
 
         // ========================== LayerZero ==========================
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WETH"), getAddress(sourceChain, "WETH"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WSTETH"), getAddress(sourceChain, "WSTETH"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "WETH"),
+            getAddress(sourceChain, "WETH"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "WSTETH"),
+            getAddress(sourceChain, "WSTETH"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
 
         // ========================== MetaMorpho ==========================
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "re7WETH")));
@@ -59,12 +70,10 @@ contract CreateTurtleTacETHMerkleRoot is Script, MerkleTreeHelper {
         _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
 
         // ========================== Merkl ==========================
-        _addMerklLeafs(
-            leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address")
-        );
-        
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"));
+
         // ========================== rEUL ==========================
-        _addrEULWrappingLeafs(leafs);  
+        _addrEULWrappingLeafs(leafs);
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
@@ -74,7 +83,5 @@ contract CreateTurtleTacETHMerkleRoot is Script, MerkleTreeHelper {
         string memory filePath = "./leafs/TAC/TurtleTacETHStrategistLeafs.json";
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
-
     }
-
 }

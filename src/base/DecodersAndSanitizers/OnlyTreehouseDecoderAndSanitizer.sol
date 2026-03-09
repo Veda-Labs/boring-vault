@@ -13,5 +13,6 @@ contract OnlyTreehouseDecoderAndSanitizer is
     CurveDecoderAndSanitizer,
     BaseDecoderAndSanitizer
 {
-//============================== HANDLE FUNCTION COLLISIONS ===============================
-}
+    //============================== HANDLE FUNCTION COLLISIONS ===============================
+
+    }

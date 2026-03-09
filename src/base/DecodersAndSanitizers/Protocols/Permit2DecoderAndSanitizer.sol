@@ -11,7 +11,13 @@ contract Permit2DecoderAndSanitizer {
 
     error Permit2DecoderAndSanitizer__LengthGtOne();
 
-    function approve(address token, address spender, uint160, /*amount*/ uint48 /*expiraton*/ )
+    function approve(
+        address token,
+        address spender,
+        uint160,
+        /*amount*/
+        uint48 /*expiraton*/
+    )
         external
         pure
         virtual

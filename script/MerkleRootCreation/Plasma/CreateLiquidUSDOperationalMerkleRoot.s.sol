@@ -40,17 +40,19 @@ contract CreateLiquidUSDOperationalMerkleRoot is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](64);
 
         // // ========================== LayerZero ==========================
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDT0"), getAddress(sourceChain, "USDT0_OFT"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "USDT0"),
+            getAddress(sourceChain, "USDT0_OFT"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
 
         // ========================== Native ==========================
         _addNativeLeafs(leafs, getAddress(sourceChain, "wXPL"));
 
         // ========================== Merkl ==========================
-        _addMerklLeafs(
-            leafs,
-            getAddress(sourceChain, "merklDistributor"),
-            getAddress(sourceChain, "etherfiOpsAddress")
-        );
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "etherfiOpsAddress"));
 
         // ====================== UniswapV3/OKU ==========================
         {
@@ -81,5 +83,4 @@ contract CreateLiquidUSDOperationalMerkleRoot is Script, MerkleTreeHelper {
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
     }
-
 }

@@ -4,9 +4,15 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-
 contract SonicDepositDecoderAndSanitizer {
-    function depositBudget(uint256 /*amount*/ ) external pure virtual returns (bytes memory addressesFound) {
+    function depositBudget(
+        uint256 /*amount*/
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return addressesFound;
     }
 }

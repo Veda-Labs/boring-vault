@@ -155,16 +155,22 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__SharesAreUnLocked.selector)
         );
-        teller.refundDeposit(1, address(this), address(WETH), wETH_amount, shares0, firstDepositTimestamp, 1 days, referrer);
+        teller.refundDeposit(
+            1, address(this), address(WETH), wETH_amount, shares0, firstDepositTimestamp, 1 days, referrer
+        );
 
         // However the second deposit is still revertable.
-        teller.refundDeposit(2, address(this), address(EETH), eETH_amount, shares1, secondDepositTimestamp, 1 days, referrer);
+        teller.refundDeposit(
+            2, address(this), address(EETH), eETH_amount, shares1, secondDepositTimestamp, 1 days, referrer
+        );
 
         // Calling revert deposit again should revert.
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__BadDepositHash.selector)
         );
-        teller.refundDeposit(2, address(this), address(EETH), eETH_amount, shares1, secondDepositTimestamp, 1 days, referrer);
+        teller.refundDeposit(
+            2, address(this), address(EETH), eETH_amount, shares1, secondDepositTimestamp, 1 days, referrer
+        );
     }
 
     function testUserDepositPeggedAssets(uint256 amount) external {
@@ -715,7 +721,12 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     function testDepositRevertsWhenDenyFrom() external {
         teller.denyFrom(address(this));
         vm.expectRevert(
-            abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector, address(this), address(this), address(this))
+            abi.encodeWithSelector(
+                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector,
+                address(this),
+                address(this),
+                address(this)
+            )
         );
         teller.deposit(WETH, 1e18, 0, referrer);
     }
@@ -723,7 +734,12 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     function testDepositRevertsWhenDenyTo() external {
         teller.denyTo(address(this));
         vm.expectRevert(
-            abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector, address(this), address(this), address(this))
+            abi.encodeWithSelector(
+                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector,
+                address(this),
+                address(this),
+                address(this)
+            )
         );
         teller.deposit(WETH, 1e18, 0, referrer);
     }
@@ -731,7 +747,12 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     function testDepositRevertsWhenDenyOperator() external {
         teller.denyOperator(address(this));
         vm.expectRevert(
-            abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector, address(this), address(this), address(this))
+            abi.encodeWithSelector(
+                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector,
+                address(this),
+                address(this),
+                address(this)
+            )
         );
         teller.deposit(WETH, 1e18, 0, referrer);
     }
@@ -739,7 +760,12 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     function testDepositRevertsWhenDenyAll() external {
         teller.denyAll(address(this));
         vm.expectRevert(
-            abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector, address(this), address(this), address(this))
+            abi.encodeWithSelector(
+                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector,
+                address(this),
+                address(this),
+                address(this)
+            )
         );
         teller.deposit(WETH, 1e18, 0, referrer);
     }
@@ -873,7 +899,12 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
         vm.prank(user);
         vm.expectRevert(
-            abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector, user, address(this), user)
+            abi.encodeWithSelector(
+                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector,
+                user,
+                address(this),
+                user
+            )
         );
         // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(address(this), 1);
@@ -886,7 +917,12 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         teller.denyPermissionedOperator(user);
         vm.prank(user);
         vm.expectRevert(
-            abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector, user, address(this), user)
+            abi.encodeWithSelector(
+                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector,
+                user,
+                address(this),
+                user
+            )
         );
         // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(address(this), 1); // now fails
@@ -896,26 +932,25 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         // forge-lint: disable-next-line(erc20-unchecked-transfer)
         boringVault.transfer(address(this), 1); // now succeeds again
 
-        
-        teller.setDepositCap(100e18); 
-        wETH_amount = 101e18; 
+        teller.setDepositCap(100e18);
+        wETH_amount = 101e18;
         vm.expectRevert(
-            abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__DepositExceedsCap.selector) 
+            abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__DepositExceedsCap.selector)
         );
         teller.deposit(WETH, wETH_amount, 0, referrer);
 
         //now succeeds
-        teller.setDepositCap(1000e18); 
+        teller.setDepositCap(1000e18);
 
-        deal(address(WETH), user, 1000e18); 
-        wETH_amount = 998e18; 
-        vm.startPrank(user); 
-        WETH.approve(address(boringVault), type(uint256).max); 
+        deal(address(WETH), user, 1000e18);
+        wETH_amount = 998e18;
+        vm.startPrank(user);
+        WETH.approve(address(boringVault), type(uint256).max);
         teller.deposit(WETH, wETH_amount, 0, referrer);
-        
+
         //now we add more than deposit cap
         vm.expectRevert(
-            abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__DepositExceedsCap.selector) 
+            abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__DepositExceedsCap.selector)
         );
         teller.deposit(WETH, 2e18, 0, referrer);
     }
@@ -958,7 +993,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         address indexed referralAddress
     );
 
-    function testDepositEmitsReadableReferralEvent() external{
+    function testDepositEmitsReadableReferralEvent() external {
         uint256 amount = 1e18;
 
         uint256 wETH_amount = amount;
@@ -966,16 +1001,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
         WETH.safeApprove(address(boringVault), wETH_amount);
         vm.expectEmit();
-        emit Deposit(
-            1,
-            address(this),
-            address(WETH),
-            wETH_amount,
-            wETH_amount,
-            block.timestamp,
-            0,
-            referrer
-        );
+        emit Deposit(1, address(this), address(WETH), wETH_amount, wETH_amount, block.timestamp, 0, referrer);
         teller.deposit(WETH, wETH_amount, 0, referrer);
     }
 }

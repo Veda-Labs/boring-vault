@@ -9,8 +9,9 @@ import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVer
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {TermFinanceDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/TermFinanceDecoderAndSanitizer.sol";
+import {
+    TermFinanceDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/TermFinanceDecoderAndSanitizer.sol";
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
@@ -70,14 +71,14 @@ contract TermFinanceIntegrationTest is Test, MerkleTreeHelper {
         targetData[0] = abi.encodeWithSignature(
             "approve(address,uint256)", getAddress(sourceChain, "termRepoLocker"), type(uint256).max
         );
-        DecoderCustomTypes.TermAuctionOfferSubmission memory termAuctionOfferSubmission = DecoderCustomTypes
-            .TermAuctionOfferSubmission(
-            keccak256(abi.encodePacked(uint256(block.timestamp), address(boringVault))),
-            address(boringVault),
-            keccak256(abi.encode(uint256(10e17), uint256(1e18))),
-            2e18,
-            weth
-        );
+        DecoderCustomTypes.TermAuctionOfferSubmission memory termAuctionOfferSubmission =
+            DecoderCustomTypes.TermAuctionOfferSubmission(
+                keccak256(abi.encodePacked(uint256(block.timestamp), address(boringVault))),
+                address(boringVault),
+                keccak256(abi.encode(uint256(10e17), uint256(1e18))),
+                2e18,
+                weth
+            );
         DecoderCustomTypes.TermAuctionOfferSubmission[] memory offerSubmissions =
             new DecoderCustomTypes.TermAuctionOfferSubmission[](1);
         offerSubmissions[0] = termAuctionOfferSubmission;

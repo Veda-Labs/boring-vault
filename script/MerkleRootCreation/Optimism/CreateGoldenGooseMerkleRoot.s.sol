@@ -49,13 +49,13 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Native Wrapping ==========================
         _addNativeLeafs(leafs);
-        
+
         // ========================== Standard Bridge ==========================
         // Bridge ETH and wstETH between Mainnet and Optimism
         {
             ERC20[] memory localTokens = new ERC20[](0);
             ERC20[] memory remoteTokens = new ERC20[](0);
-            
+
             _addStandardBridgeLeafs(
                 leafs,
                 mainnet,
@@ -66,15 +66,10 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
                 localTokens,
                 remoteTokens
             );
-            
+
             // Add Lido-specific standard bridge support for wstETH
             _addLidoStandardBridgeLeafs(
-                leafs,
-                mainnet,
-                address(0),
-                address(0),
-                getAddress(sourceChain, "l2ERC20TokenBridge"),
-                address(0)
+                leafs, mainnet, address(0), address(0), getAddress(sourceChain, "l2ERC20TokenBridge"), address(0)
             );
         }
 
@@ -83,11 +78,11 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             // Supply assets
             ERC20[] memory supplyAssets = new ERC20[](1);
             supplyAssets[0] = getERC20(sourceChain, "WSTETH");
-            
+
             // Borrow assets
             ERC20[] memory borrowAssets = new ERC20[](1);
             borrowAssets[0] = getERC20(sourceChain, "WETH");
-            
+
             _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
         }
 
@@ -98,18 +93,14 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             address[] memory token1 = new address[](1);
             token0[0] = getAddress(sourceChain, "WSTETH");
             token1[0] = getAddress(sourceChain, "WETH");
-            
+
             // Add gauge for staking positions
             address[] memory gauges = new address[](1);
             gauges[0] = getAddress(sourceChain, "velodrome_Weth_Wsteth_v3_1_gauge");
-            
+
             // Add Velodrome V3 support
             _addVelodromeV3Leafs(
-                leafs,
-                token0,
-                token1,
-                getAddress(sourceChain, "velodromeNonFungiblePositionManager"),
-                gauges
+                leafs, token0, token1, getAddress(sourceChain, "velodromeNonFungiblePositionManager"), gauges
             );
         }
 

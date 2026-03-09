@@ -13,7 +13,12 @@ contract LineaBridgeDecoderAndSanitizer {
     /// @notice Set _fee to zero in order to claim funds manually.
     /// @notice When bridging from Linea to mainnet a fee is required, so I think it is best to just allow the strategist
     /// to pick a good fee value and do no sanitation of it.
-    function sendMessage(address _to, uint256, /*_fee*/ bytes calldata /*_calldata*/ )
+    function sendMessage(
+        address _to,
+        uint256,
+        /*_fee*/
+        bytes calldata /*_calldata*/
+    )
         external
         pure
         virtual
@@ -26,7 +31,12 @@ contract LineaBridgeDecoderAndSanitizer {
     // Bridge ERC20
     // Example TX https://etherscan.io/tx/0x9935e537c51807f4097444399f08b04798dfe2a0f96cbf0b186caa9e8ab9d111
     // Example TX https://lineascan.build/tx/0xa1ed773719a0d17373b5ce2db7c2e8c924eff99865dd0d3cdb4b58f3e9ea5310
-    function bridgeToken(address _token, uint256, /*_amount*/ address _recipient)
+    function bridgeToken(
+        address _token,
+        uint256,
+        /*_amount*/
+        address _recipient
+    )
         external
         pure
         virtual
@@ -46,7 +56,12 @@ contract LineaBridgeDecoderAndSanitizer {
         address _feeRecipient,
         bytes calldata, /*_calldata*/
         uint256 /*_nonce*/
-    ) external pure virtual returns (bytes memory sensitiveArguments) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory sensitiveArguments)
+    {
         sensitiveArguments = abi.encodePacked(_from, _to, _feeRecipient);
     }
 

@@ -3,11 +3,7 @@
 pragma solidity ^0.8.20;
 
 import {SafeTransferLib, ERC20} from "@solmate/utils/SafeTransferLib.sol";
-import {
-    MessagingParams,
-    MessagingFee,
-    MessagingReceipt
-} from "./lz-interfaces/ILayerZeroEndpointV2.sol";
+import {MessagingParams, MessagingFee, MessagingReceipt} from "./lz-interfaces/ILayerZeroEndpointV2.sol";
 import {OAppAuthCore} from "./OAppAuthCore.sol";
 
 /**
@@ -84,9 +80,9 @@ abstract contract OAppAuthSender is OAppAuthCore {
         uint256 messageValue = _payNative(_fee.nativeFee);
         if (_fee.lzTokenFee > 0) _payLzToken(_fee.lzTokenFee);
 
-        return endpoint
-            // solhint-disable-next-line check-send-result
-            .send{value: messageValue}(
+        return endpoint.
+        // solhint-disable-next-line check-send-result
+        send{value: messageValue}(
             MessagingParams(_dstEid, _getPeerOrRevert(_dstEid), _message, _options, _fee.lzTokenFee > 0), _refundAddress
         );
     }

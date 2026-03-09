@@ -61,10 +61,8 @@ interface IMessageLibManager {
 
     function setConfig(address _oapp, address _lib, SetConfigParam[] calldata _params) external;
 
-    function getConfig(
-        address _oapp,
-        address _lib,
-        uint32 _eid,
-        uint32 _configType
-    ) external view returns (bytes memory config);
+    function getConfig(address _oapp, address _lib, uint32 _eid, uint32 _configType)
+        external
+        view
+        returns (bytes memory config);
 }

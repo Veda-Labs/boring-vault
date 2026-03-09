@@ -88,8 +88,12 @@ contract CreateCbBTCMerkleRootScript is Script, MerkleTreeHelper {
         withdrawAssets[0] = getERC20(sourceChain, "WBTC");
         withdrawAssets[1] = getERC20(sourceChain, "cbBTC");
         withdrawAssets[2] = getERC20(sourceChain, "LBTC");
-        _addWithdrawQueueLeafs(leafs, 0x74EC75fb641ec17B04007733d9efBE2D1dA5CA2C, getAddress(sourceChain, "eBTC"), withdrawAssets);
-        _addWithdrawQueueLeafs(leafs, 0x686696A3e59eE16e8A8533d84B62cfA504827135, getAddress(sourceChain, "eBTC"), withdrawAssets);
+        _addWithdrawQueueLeafs(
+            leafs, 0x74EC75fb641ec17B04007733d9efBE2D1dA5CA2C, getAddress(sourceChain, "eBTC"), withdrawAssets
+        );
+        _addWithdrawQueueLeafs(
+            leafs, 0x686696A3e59eE16e8A8533d84B62cfA504827135, getAddress(sourceChain, "eBTC"), withdrawAssets
+        );
 
         string memory filePath = "./leafs/Mainnet/CbBTCStrategistLeafs.json";
 

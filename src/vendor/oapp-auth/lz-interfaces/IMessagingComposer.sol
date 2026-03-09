@@ -18,12 +18,10 @@ interface IMessagingComposer {
         bytes reason
     );
 
-    function composeQueue(
-        address _from,
-        address _to,
-        bytes32 _guid,
-        uint16 _index
-    ) external view returns (bytes32 messageHash);
+    function composeQueue(address _from, address _to, bytes32 _guid, uint16 _index)
+        external
+        view
+        returns (bytes32 messageHash);
 
     function sendCompose(address _to, bytes32 _guid, uint16 _index, bytes calldata _message) external;
 

@@ -22,7 +22,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0xef417FCE1883c6653E7dC6AF7c6F85CCDE84Aa09;
     address public managerAddress = 0x5F341B1cf8C5949d6bE144A725c22383a5D3880B;
     address public accountantAddress = 0xc873F2b7b3BA0a7faA2B56e210E3B965f2b618f5;
-    address public rawDataDecoderAndSanitizer = 0xeD416e21c979263d11DCFb9Dd313A988D5557144; 
+    address public rawDataDecoderAndSanitizer = 0xeD416e21c979263d11DCFb9Dd313A988D5557144;
     address public primeGoldenGooseTeller = 0x4ecC202775678F7bCfF8350894e2F2E3167Cc3Df;
 
     function setUp() external {}
@@ -41,18 +41,8 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, unichain, "boringVault", boringVault);
         setAddress(false, unichain, "managerAddress", managerAddress);
         setAddress(false, unichain, "accountantAddress", accountantAddress);
-        setAddress(
-            false,
-            unichain,
-            "rawDataDecoderAndSanitizer",
-            rawDataDecoderAndSanitizer
-        );
-        setAddress(
-            false,
-            unichain,
-            "primeGoldenGooseTeller",
-            primeGoldenGooseTeller
-        );
+        setAddress(false, unichain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        setAddress(false, unichain, "primeGoldenGooseTeller", primeGoldenGooseTeller);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](256);
 
@@ -75,12 +65,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         );
 
         _addLidoStandardBridgeLeafs(
-            leafs,
-            mainnet,
-            address(0),
-            address(0),
-            getAddress(sourceChain, "l2ERC20TokenBridge"),
-            address(0)
+            leafs, mainnet, address(0), address(0), getAddress(sourceChain, "l2ERC20TokenBridge"), address(0)
         );
 
         // ========================== Layer Zero ==========================
@@ -118,40 +103,20 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         }
 
         // ========================== Morpho ==========================
-        _addMorphoBlueSupplyLeafs(
-            leafs,
-            getBytes32(sourceChain, "morphowstETHmarket")
-        );
-        _addMorphoBlueCollateralLeafs(
-            leafs,
-            getBytes32(sourceChain, "morphowstETHmarket")
-        );
+        _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "morphowstETHmarket"));
+        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "morphowstETHmarket"));
 
-        _addERC4626Leafs(
-            leafs,
-            ERC4626(getAddress(sourceChain, "morphoSmokehouseWSTETH"))
-        );
-        _addERC4626Leafs(
-            leafs,
-            ERC4626(getAddress(sourceChain, "morphoSteakhouseETH"))
-        );
-        _addERC4626Leafs(
-            leafs,
-            ERC4626(getAddress(sourceChain, "morphoK3CapitalETHMaxi"))
-        );
-        _addERC4626Leafs(
-            leafs,
-            ERC4626(getAddress(sourceChain, "morphoGauntletWETH"))
-        );
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "morphoSmokehouseWSTETH")));
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "morphoSteakhouseETH")));
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "morphoK3CapitalETHMaxi")));
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "morphoGauntletWETH")));
 
         // ========================== Euler ==========================
         {
             // Euler deposit vaults
             ERC4626[] memory depositVaults = new ERC4626[](2);
             depositVaults[0] = ERC4626(getAddress(sourceChain, "eulerWETH"));
-            depositVaults[1] = ERC4626(
-                getAddress(sourceChain, "eulerwstETHmarket")
-            );
+            depositVaults[1] = ERC4626(getAddress(sourceChain, "eulerwstETHmarket"));
 
             address[] memory subaccounts = new address[](2);
             subaccounts[0] = address(boringVault);
@@ -162,9 +127,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             // Euler borrow functionality for wstETH/wETH strategy
             ERC4626[] memory borrowVaults = new ERC4626[](2);
             borrowVaults[0] = ERC4626(getAddress(sourceChain, "eulerWETH"));
-            borrowVaults[1] = ERC4626(
-                getAddress(sourceChain, "eulerwstETHmarket")
-            );
+            borrowVaults[1] = ERC4626(getAddress(sourceChain, "eulerwstETHmarket"));
 
             _addEulerBorrowLeafs(leafs, borrowVaults, subaccounts);
         }
@@ -173,16 +136,10 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
-        string
-            memory filePath = "./leafs/Unichain/GoldenGooseStrategistLeafs.json";
+        string memory filePath = "./leafs/Unichain/GoldenGooseStrategistLeafs.json";
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
-        _generateLeafs(
-            filePath,
-            leafs,
-            manageTree[manageTree.length - 1][0],
-            manageTree
-        );
+        _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
     }
 }

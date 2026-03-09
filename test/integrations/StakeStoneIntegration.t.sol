@@ -9,7 +9,9 @@ import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVer
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {StakeStoneDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/StakeStoneDecoderAndSanitizer.sol";
+import {
+    StakeStoneDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/StakeStoneDecoderAndSanitizer.sol";
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
@@ -139,7 +141,8 @@ contract StakeStoneIntegrationTest is Test, MerkleTreeHelper {
         bytes[] memory targetData = new bytes[](5);
         targetData[0] = abi.encodeWithSignature("deposit()");
         targetData[1] = abi.encodeWithSignature("instantWithdraw(uint256,uint256)", 0, 1e15);
-        targetData[2] = abi.encodeWithSelector(ERC20.approve.selector, getAddress(sourceChain, "stoneVault"), type(uint256).max);
+        targetData[2] =
+            abi.encodeWithSelector(ERC20.approve.selector, getAddress(sourceChain, "stoneVault"), type(uint256).max);
         targetData[3] = abi.encodeWithSignature("requestWithdraw(uint256)", 100e18);
         targetData[4] = abi.encodeWithSignature("cancelWithdraw(uint256)", 50e18);
 

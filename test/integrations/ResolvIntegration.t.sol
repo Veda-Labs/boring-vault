@@ -117,8 +117,10 @@ contract ResolvIntegrationTest is Test, MerkleTreeHelper {
         IStUSR(getAddress(sourceChain, "stUSR")).transferShares(address(boringVault), 100_000e18);
         deal(getAddress(sourceChain, "wstUSR"), address(boringVault), 100_000e18);
 
-        uint256 mintRequestsCounter = IUsrExternalRequestsManager(getAddress(sourceChain, "UsrExternalRequestsManager")).mintRequestsCounter();
-        uint256 burnRequestsCounter = IUsrExternalRequestsManager(getAddress(sourceChain, "UsrExternalRequestsManager")).burnRequestsCounter();
+        uint256 mintRequestsCounter =
+            IUsrExternalRequestsManager(getAddress(sourceChain, "UsrExternalRequestsManager")).mintRequestsCounter();
+        uint256 burnRequestsCounter =
+            IUsrExternalRequestsManager(getAddress(sourceChain, "UsrExternalRequestsManager")).burnRequestsCounter();
 
         ManageLeaf[] memory leafs = new ManageLeaf[](32);
         ERC20[] memory assets = new ERC20[](2);
@@ -200,12 +202,8 @@ contract ResolvIntegrationTest is Test, MerkleTreeHelper {
         targetData[6] = abi.encodeWithSignature(
             "requestBurn(uint256,address,uint256)", 100e18, getAddress(sourceChain, "USDT"), 99e6
         );
-        targetData[7] = abi.encodeWithSignature(
-            "cancelMint(uint256)", mintRequestsCounter
-        );
-        targetData[8] = abi.encodeWithSignature(
-            "cancelBurn(uint256)", burnRequestsCounter
-        );
+        targetData[7] = abi.encodeWithSignature("cancelMint(uint256)", mintRequestsCounter);
+        targetData[8] = abi.encodeWithSignature("cancelBurn(uint256)", burnRequestsCounter);
         targetData[9] =
             abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "stUSR"), type(uint256).max);
         targetData[10] =

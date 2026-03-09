@@ -9,8 +9,9 @@ import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVer
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {UniswapV3SwapRouter02DecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/UniswapV3SwapRouter02DecoderAndSanitizer.sol";
+import {
+    UniswapV3SwapRouter02DecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/UniswapV3SwapRouter02DecoderAndSanitizer.sol";
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
@@ -141,8 +142,7 @@ contract UniswapV3SwapRouter02IntegrationTest is Test, MerkleTreeHelper {
         targetData[0] = abi.encodeWithSignature(
             "approve(address,uint256)", getAddress(sourceChain, "uniV3Router"), type(uint256).max
         );
-        DecoderCustomTypes.ExactInputParamsRouter02 memory exactInputParams = DecoderCustomTypes
-            .ExactInputParamsRouter02(
+        DecoderCustomTypes.ExactInputParamsRouter02 memory exactInputParams = DecoderCustomTypes.ExactInputParamsRouter02(
             abi.encodePacked(getAddress(sourceChain, "WETH"), uint24(500), getAddress(sourceChain, "USDC")),
             address(boringVault),
             100e18,

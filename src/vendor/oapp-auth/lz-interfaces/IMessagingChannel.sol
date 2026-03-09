@@ -23,12 +23,10 @@ interface IMessagingChannel {
 
     function outboundNonce(address _sender, uint32 _dstEid, bytes32 _receiver) external view returns (uint64);
 
-    function inboundPayloadHash(
-        address _receiver,
-        uint32 _srcEid,
-        bytes32 _sender,
-        uint64 _nonce
-    ) external view returns (bytes32);
+    function inboundPayloadHash(address _receiver, uint32 _srcEid, bytes32 _sender, uint64 _nonce)
+        external
+        view
+        returns (bytes32);
 
     function lazyInboundNonce(address _receiver, uint32 _srcEid, bytes32 _sender) external view returns (uint64);
 }

@@ -39,7 +39,6 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
     }
 
     function generateLiquidEthOperationalStrategistMerkleRoot() public {
-
         setSourceChainName(mainnet);
         setAddress(false, mainnet, "boringVault", boringVault);
         setAddress(false, mainnet, "managerAddress", managerAddress);
@@ -48,7 +47,6 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
 
         ManageLeaf[] memory leafs = new ManageLeaf[](256);
         leafIndex = 0;
-
 
         // ========================== UniswapV3 ==========================
         {
@@ -111,7 +109,9 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
             tokens[7] = getERC20(sourceChain, "RLUSD");
             tokens[8] = getERC20(sourceChain, "PYUSD");
 
-            _addITBPositionManagerWithdrawals(leafs, itbReserveProtocolPositionManager, tokens, "itb reserve position manager");
+            _addITBPositionManagerWithdrawals(
+                leafs, itbReserveProtocolPositionManager, tokens, "itb reserve position manager"
+            );
             _addITBPositionManagerWithdrawals(leafs, itbPositionManager2, tokens, "itb position manager 2");
             _addITBPositionManagerWithdrawals(leafs, itbPositionManager3, tokens, "itb position manager 3");
             setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -120,7 +120,7 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
         // ========================== Drone ==========================
         {
             ERC20[] memory droneTransferTokens = new ERC20[](5);
-            droneTransferTokens[0] = getERC20(sourceChain, "USDC"); 
+            droneTransferTokens[0] = getERC20(sourceChain, "USDC");
             droneTransferTokens[1] = getERC20(sourceChain, "RLUSD");
             droneTransferTokens[2] = getERC20(sourceChain, "EIGEN");
             droneTransferTokens[3] = getERC20(sourceChain, "rEUL");
@@ -134,10 +134,7 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
             ERC20[] memory feeAssets = new ERC20[](2);
             feeAssets[0] = getERC20(sourceChain, "WEETH");
             feeAssets[1] = getERC20(sourceChain, "WETH");
-            _addLeafsForFeeClaiming(
-                leafs,
-                getAddress(sourceChain, "accountantAddress"),
-                feeAssets, false);
+            _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
         }
 
         // ========================= AAVE ===============================
@@ -148,7 +145,7 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
             _addAaveV3EOALeafs("Aave V3", getAddress(sourceChain, "v3Pool"), leafs, supplyAssets);
         }
 
-      // ========================== Plasma Bridging ==========================
+        // ========================== Plasma Bridging ==========================
         // USDT
         {
             _addLayerZeroLeafs(
@@ -171,13 +168,13 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
                 getBytes32(sourceChain, "boringVault")
             );
 
-                _addLayerZeroLeafs(
-                    leafs,
-                    getERC20(sourceChain, "WEETH"),
-                    getAddress(sourceChain, "EtherFiOFTAdapter"),
-                    layerZeroScrollEndpointId,
-                    getBytes32(sourceChain, "boringVault")
-                );
+            _addLayerZeroLeafs(
+                leafs,
+                getERC20(sourceChain, "WEETH"),
+                getAddress(sourceChain, "EtherFiOFTAdapter"),
+                layerZeroScrollEndpointId,
+                getBytes32(sourceChain, "boringVault")
+            );
         }
 
         // ========================== Cap =======================================
@@ -246,38 +243,37 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
         // ========================== Native ==========================
         _addNativeLeafs(leafs);
 
-
         _createDroneLeafs(leafs, _drone, droneStartIndex, leafIndex + 1);
         setAddress(true, mainnet, "boringVault", boringVault);
     }
 
-     function _addITBPositionManagerWithdrawals(
-         ManageLeaf[] memory leafs,
-         address itbPositionManager,
-         ERC20[] memory tokensUsed,
-         string memory itbContractName
-     ) internal {
-         for (uint256 i; i < tokensUsed.length; ++i) {
-             // Withdraw
-             leafIndex++;
-             leafs[leafIndex] = ManageLeaf(
-                 itbPositionManager,
-                 false,
-                 "withdraw(address,uint256)",
-                 new address[](0),
-                 string.concat("Withdraw ", tokensUsed[i].symbol(), " from the ", itbContractName, " contract"),
-                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-             );
-             // WithdrawAll
-             leafIndex++;
-             leafs[leafIndex] = ManageLeaf(
-                 itbPositionManager,
-                 false,
-                 "withdrawAll(address)",
-                 new address[](0),
-                 string.concat("Withdraw all ", tokensUsed[i].symbol(), " from the ", itbContractName, " contract"),
-                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-             );
-         }
-     }
+    function _addITBPositionManagerWithdrawals(
+        ManageLeaf[] memory leafs,
+        address itbPositionManager,
+        ERC20[] memory tokensUsed,
+        string memory itbContractName
+    ) internal {
+        for (uint256 i; i < tokensUsed.length; ++i) {
+            // Withdraw
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                itbPositionManager,
+                false,
+                "withdraw(address,uint256)",
+                new address[](0),
+                string.concat("Withdraw ", tokensUsed[i].symbol(), " from the ", itbContractName, " contract"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            // WithdrawAll
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                itbPositionManager,
+                false,
+                "withdrawAll(address)",
+                new address[](0),
+                string.concat("Withdraw all ", tokensUsed[i].symbol(), " from the ", itbContractName, " contract"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+        }
+    }
 }

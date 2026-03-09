@@ -10,8 +10,8 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {DolomiteDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/DolomiteDecoderAndSanitizer.sol";
-import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";  
-import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol"; 
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
@@ -121,9 +121,8 @@ contract DolomiteFinanceIntegrationTest is Test, MerkleTreeHelper {
         manager =
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
-        rawDataDecoderAndSanitizer = address(
-            new FullDolomiteDecoderAndSanitizer(getAddress(sourceChain, "dolomiteMargin"))
-        );
+        rawDataDecoderAndSanitizer =
+            address(new FullDolomiteDecoderAndSanitizer(getAddress(sourceChain, "dolomiteMargin")));
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -184,7 +183,7 @@ contract DolomiteFinanceIntegrationTest is Test, MerkleTreeHelper {
     }
 
     //function testDolomiteIntegrationDepositsAndWithdraws() external {
-    //    _setUpArbitrum(); 
+    //    _setUpArbitrum();
 
     //    deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000e18);
     //    deal(address(boringVault), 1_000e18);
@@ -286,7 +285,7 @@ contract DolomiteFinanceIntegrationTest is Test, MerkleTreeHelper {
     //}
 
     //function testDolomiteIntegrationBorrowing() external {
-    //    _setUpArbitrum(); 
+    //    _setUpArbitrum();
 
     //    deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000e18);
     //    deal(address(boringVault), 1_000e18);
@@ -360,13 +359,13 @@ contract DolomiteFinanceIntegrationTest is Test, MerkleTreeHelper {
     //}
 
     //function testDolomiteIntegrationDepositsAndWithdrawsBerachain() external {
-    //    _setUpBerachain(); 
+    //    _setUpBerachain();
 
     //    deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18);
     //    deal(address(boringVault), 1_000e18);
 
     //    ManageLeaf[] memory leafs = new ManageLeaf[](16);
-    //    _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "WETH"), true); 
+    //    _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "WETH"), true);
 
     //    bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -399,27 +398,27 @@ contract DolomiteFinanceIntegrationTest is Test, MerkleTreeHelper {
     //    targets[7] = getAddress(sourceChain, "dolomiteDepositWithdrawRouter");
     //    targets[8] = getAddress(sourceChain, "dolomiteDepositWithdrawRouter");
 
-    //    uint256 marketId = IDolomiteMargin(getAddress(sourceChain, "dolomiteMargin")).getMarketIdByTokenAddress(getAddress(sourceChain, "WETH"));   
+    //    uint256 marketId = IDolomiteMargin(getAddress(sourceChain, "dolomiteMargin")).getMarketIdByTokenAddress(getAddress(sourceChain, "WETH"));
 
     //    bytes[] memory targetData = new bytes[](9);
     //    targetData[0] =
     //        abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "dolomiteMargin"), type(uint256).max);
-    //    targetData[1] = 
-    //        abi.encodeWithSignature("depositWei(uint256,uint256,uint256)", 0, marketId, 100e6);  
-    //    targetData[2] = 
-    //        abi.encodeWithSignature("depositWeiIntoDefaultAccount(uint256,uint256)", marketId, 100e6);  
-    //    targetData[3] = 
-    //        abi.encodeWithSignature("withdrawWei(uint256,uint256,uint256,uint8)", 0, marketId, 100e6, 0);  
-    //    targetData[4] = 
-    //        abi.encodeWithSignature("withdrawWeiFromDefaultAccount(uint256,uint256,uint8)", marketId, 100e6, 0);  
-    //    targetData[5] = 
-    //        abi.encodeWithSignature("depositPar(uint256,uint256,uint256)", 0, marketId, 100);  
-    //    targetData[6] = 
-    //        abi.encodeWithSignature("depositParIntoDefaultAccount(uint256,uint256)", marketId, 100);  
-    //    targetData[7] = 
-    //        abi.encodeWithSignature("withdrawPar(uint256,uint256,uint256,uint8)", 0, marketId, 100, 0);  
-    //    targetData[8] = 
-    //        abi.encodeWithSignature("withdrawParFromDefaultAccount(uint256,uint256,uint8)", marketId, 100, 0);  
+    //    targetData[1] =
+    //        abi.encodeWithSignature("depositWei(uint256,uint256,uint256)", 0, marketId, 100e6);
+    //    targetData[2] =
+    //        abi.encodeWithSignature("depositWeiIntoDefaultAccount(uint256,uint256)", marketId, 100e6);
+    //    targetData[3] =
+    //        abi.encodeWithSignature("withdrawWei(uint256,uint256,uint256,uint8)", 0, marketId, 100e6, 0);
+    //    targetData[4] =
+    //        abi.encodeWithSignature("withdrawWeiFromDefaultAccount(uint256,uint256,uint8)", marketId, 100e6, 0);
+    //    targetData[5] =
+    //        abi.encodeWithSignature("depositPar(uint256,uint256,uint256)", 0, marketId, 100);
+    //    targetData[6] =
+    //        abi.encodeWithSignature("depositParIntoDefaultAccount(uint256,uint256)", marketId, 100);
+    //    targetData[7] =
+    //        abi.encodeWithSignature("withdrawPar(uint256,uint256,uint256,uint8)", 0, marketId, 100, 0);
+    //    targetData[8] =
+    //        abi.encodeWithSignature("withdrawParFromDefaultAccount(uint256,uint256,uint8)", marketId, 100, 0);
 
     //    address[] memory decodersAndSanitizers = new address[](9);
     //    decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
@@ -438,17 +437,17 @@ contract DolomiteFinanceIntegrationTest is Test, MerkleTreeHelper {
     //}
 
     function testDolomiteIntegrationBorrowWeETHLoop() external {
-        _setUpBerachain(); 
+        _setUpBerachain();
 
         deal(getAddress(sourceChain, "WEETH"), address(boringVault), 1000e18);
         //deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18);
         deal(address(boringVault), 1_000e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](64);
-        _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "WETH"), false); 
-        _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "WEETH"), false); 
-        _addDolomiteBorrowLeafs(leafs, getAddress(sourceChain, "WETH")); 
-        _addDolomiteBorrowLeafs(leafs, getAddress(sourceChain, "WEETH")); 
+        _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "WETH"), false);
+        _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "WEETH"), false);
+        _addDolomiteBorrowLeafs(leafs, getAddress(sourceChain, "WETH"));
+        _addDolomiteBorrowLeafs(leafs, getAddress(sourceChain, "WEETH"));
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -470,20 +469,31 @@ contract DolomiteFinanceIntegrationTest is Test, MerkleTreeHelper {
         targets[2] = getAddress(sourceChain, "dolomiteBorrowProxy");
         targets[3] = getAddress(sourceChain, "dolomiteDepositWithdrawRouter");
 
-        uint256 marketId = IDolomiteMargin(getAddress(sourceChain, "dolomiteMargin")).getMarketIdByTokenAddress(getAddress(sourceChain, "WEETH"));   
+        uint256 marketId = IDolomiteMargin(getAddress(sourceChain, "dolomiteMargin"))
+            .getMarketIdByTokenAddress(getAddress(sourceChain, "WEETH"));
 
-        uint256 marketIdBorrow = IDolomiteMargin(getAddress(sourceChain, "dolomiteMargin")).getMarketIdByTokenAddress(getAddress(sourceChain, "WETH"));   
+        uint256 marketIdBorrow = IDolomiteMargin(getAddress(sourceChain, "dolomiteMargin"))
+            .getMarketIdByTokenAddress(getAddress(sourceChain, "WETH"));
 
         bytes[] memory targetData = new bytes[](4);
-        targetData[0] =
-            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "dolomiteMargin"), type(uint256).max);
-        targetData[1] = 
-            abi.encodeWithSignature("depositWeiIntoDefaultAccount(uint256,uint256)", marketId, 100e18);  
+        targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "dolomiteMargin"), type(uint256).max
+        );
+        targetData[1] = abi.encodeWithSignature("depositWeiIntoDefaultAccount(uint256,uint256)", marketId, 100e18);
         targetData[2] = abi.encodeWithSignature(
-            "openBorrowPosition(uint256,uint256,uint256,uint256,uint8)", 0, 95646612764453240722844410166875739203076655042923654016204376702392130422212, marketId, 100e18, 1 //use WEETH as collateral
+            "openBorrowPosition(uint256,uint256,uint256,uint256,uint8)",
+            0,
+            95646612764453240722844410166875739203076655042923654016204376702392130422212,
+            marketId,
+            100e18,
+            1 //use WEETH as collateral
         );
         targetData[3] = abi.encodeWithSignature(
-            "withdrawWei(uint256,uint256,uint256,uint8)", 95646612764453240722844410166875739203076655042923654016204376702392130422212, marketIdBorrow, 1e18, 3
+            "withdrawWei(uint256,uint256,uint256,uint8)",
+            95646612764453240722844410166875739203076655042923654016204376702392130422212,
+            marketIdBorrow,
+            1e18,
+            3
         );
 
         address[] memory decodersAndSanitizers = new address[](4);
@@ -495,10 +505,10 @@ contract DolomiteFinanceIntegrationTest is Test, MerkleTreeHelper {
         uint256[] memory values = new uint256[](4);
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
-        
-        uint256 wethBalance = getERC20(sourceChain, "WETH").balanceOf(address(boringVault));  
-        assertEq(wethBalance, 1e18); 
-        
+
+        uint256 wethBalance = getERC20(sourceChain, "WETH").balanceOf(address(boringVault));
+        assertEq(wethBalance, 1e18);
+
         // do a loop
 
         manageLeafs = new ManageLeaf[](2);
@@ -512,10 +522,18 @@ contract DolomiteFinanceIntegrationTest is Test, MerkleTreeHelper {
         targets[1] = getAddress(sourceChain, "dolomiteDepositWithdrawRouter");
 
         targetData = new bytes[](2);
-        targetData[0] = 
-            abi.encodeWithSignature("depositWei(uint256,uint256,uint256)", 95646612764453240722844410166875739203076655042923654016204376702392130422212, marketId, 10e18);  //deposit into WETH (repay)
+        targetData[0] = abi.encodeWithSignature(
+            "depositWei(uint256,uint256,uint256)",
+            95646612764453240722844410166875739203076655042923654016204376702392130422212,
+            marketId,
+            10e18
+        ); //deposit into WETH (repay)
         targetData[1] = abi.encodeWithSignature(
-            "withdrawWei(uint256,uint256,uint256,uint8)", 95646612764453240722844410166875739203076655042923654016204376702392130422212, marketIdBorrow, 1e18, 3
+            "withdrawWei(uint256,uint256,uint256,uint8)",
+            95646612764453240722844410166875739203076655042923654016204376702392130422212,
+            marketIdBorrow,
+            1e18,
+            3
         );
 
         decodersAndSanitizers = new address[](2);
@@ -526,11 +544,11 @@ contract DolomiteFinanceIntegrationTest is Test, MerkleTreeHelper {
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
-        uint256 weethBalance = getERC20(sourceChain, "WEETH").balanceOf(address(boringVault));  
-        assertEq(weethBalance, 890e18); 
+        uint256 weethBalance = getERC20(sourceChain, "WEETH").balanceOf(address(boringVault));
+        assertEq(weethBalance, 890e18);
 
-        wethBalance = getERC20(sourceChain, "WETH").balanceOf(address(boringVault));  
-        assertEq(wethBalance, 2e18); 
+        wethBalance = getERC20(sourceChain, "WETH").balanceOf(address(boringVault));
+        assertEq(wethBalance, 2e18);
 
         //repay and withdraw
 
@@ -549,19 +567,31 @@ contract DolomiteFinanceIntegrationTest is Test, MerkleTreeHelper {
         targets[3] = getAddress(sourceChain, "dolomiteDepositWithdrawRouter");
 
         targetData = new bytes[](4);
-        targetData[0] =
-            abi.encodeWithSignature("approve(address,uint256)", getAddress(sourceChain, "dolomiteMargin"), type(uint256).max);
-        targetData[1] = 
-            abi.encodeWithSignature("depositWei(uint256,uint256,uint256)", 95646612764453240722844410166875739203076655042923654016204376702392130422212, marketIdBorrow, 2e18, 0);  //deposit into WETH (repay)
+        targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "dolomiteMargin"), type(uint256).max
+        );
+        targetData[1] = abi.encodeWithSignature(
+            "depositWei(uint256,uint256,uint256)",
+            95646612764453240722844410166875739203076655042923654016204376702392130422212,
+            marketIdBorrow,
+            2e18,
+            0
+        ); //deposit into WETH (repay)
 
         uint256[] memory collateralIds = new uint256[](1);
         collateralIds[0] = marketId;
 
         targetData[2] = abi.encodeWithSignature(
-            "closeBorrowPosition(uint256,uint256,uint256[])", 95646612764453240722844410166875739203076655042923654016204376702392130422212, 0, collateralIds //here funds are sent back to account 0
+            "closeBorrowPosition(uint256,uint256,uint256[])",
+            95646612764453240722844410166875739203076655042923654016204376702392130422212,
+            0,
+            collateralIds //here funds are sent back to account 0
         );
         targetData[3] = abi.encodeWithSignature(
-            "withdrawWeiFromDefaultAccount(uint256,uint256,uint8)", marketId, type(uint256).max, 1 //now we can withdraw from default our original deposit (WeETH)
+            "withdrawWeiFromDefaultAccount(uint256,uint256,uint8)",
+            marketId,
+            type(uint256).max,
+            1 //now we can withdraw from default our original deposit (WeETH)
         );
 
         decodersAndSanitizers = new address[](4);
@@ -573,21 +603,21 @@ contract DolomiteFinanceIntegrationTest is Test, MerkleTreeHelper {
         values = new uint256[](4);
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
-        
-        wethBalance = getERC20(sourceChain, "WETH").balanceOf(address(boringVault));  
-        assertEq(wethBalance, 0); 
 
-        weethBalance = getERC20(sourceChain, "WEETH").balanceOf(address(boringVault));  
-        assertEq(weethBalance, 1000e18); 
+        wethBalance = getERC20(sourceChain, "WETH").balanceOf(address(boringVault));
+        assertEq(wethBalance, 0);
+
+        weethBalance = getERC20(sourceChain, "WEETH").balanceOf(address(boringVault));
+        assertEq(weethBalance, 1000e18);
     }
 
     //function testDolomiteDTokens() external {
-    //    _setUpBerachain(); 
+    //    _setUpBerachain();
 
     //    deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18);
 
     //    ManageLeaf[] memory leafs = new ManageLeaf[](16);
-    //    _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "dWETH"))); 
+    //    _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "dWETH")));
 
     //    bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -608,7 +638,6 @@ contract DolomiteFinanceIntegrationTest is Test, MerkleTreeHelper {
     //    targets[2] = getAddress(sourceChain, "dWETH");
     //    targets[3] = getAddress(sourceChain, "dWETH");
     //    targets[4] = getAddress(sourceChain, "dWETH");
-
 
     //    bytes[] memory targetData = new bytes[](5);
     //    targetData[0] =
@@ -651,8 +680,12 @@ contract DolomiteFinanceIntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullDolomiteDecoderAndSanitizer is DolomiteDecoderAndSanitizer, ERC4626DecoderAndSanitizer, BaseDecoderAndSanitizer {
-    constructor(address _dolomiteMargin) DolomiteDecoderAndSanitizer(_dolomiteMargin){}
+contract FullDolomiteDecoderAndSanitizer is
+    DolomiteDecoderAndSanitizer,
+    ERC4626DecoderAndSanitizer,
+    BaseDecoderAndSanitizer
+{
+    constructor(address _dolomiteMargin) DolomiteDecoderAndSanitizer(_dolomiteMargin) {}
 }
 
 interface IDolomiteMargin {

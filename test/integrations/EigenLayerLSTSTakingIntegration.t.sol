@@ -181,7 +181,7 @@ contract EigenLayerLSTStakingIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function testEigenLayerLSTStakingIntegration() external {
-        _setUpOld(); 
+        _setUpOld();
         deal(getAddress(sourceChain, "METH"), address(boringVault), 1_000e18);
 
         // approve
@@ -410,8 +410,7 @@ contract EigenLayerLSTStakingIntegrationTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             bytes(
                 abi.encodeWithSelector(
-                    EigenLayerLSTStakingDecoderAndSanitizer
-                        .EigenLayerLSTStakingDecoderAndSanitizer__CanOnlyReceiveAsTokens
+                    EigenLayerLSTStakingDecoderAndSanitizer.EigenLayerLSTStakingDecoderAndSanitizer__CanOnlyReceiveAsTokens
                         .selector
                 )
             )
@@ -536,7 +535,7 @@ contract EigenLayerLSTStakingIntegrationTest is Test, MerkleTreeHelper {
         uint32 withdrawRequestBlock = uint32(block.number);
         //vm.roll(block.number + 100800); //this doesn't work
         vm.roll(block.number + 100801); //this does? lol ok
-        assertLt(withdrawRequestBlock + 100800, block.number);  
+        assertLt(withdrawRequestBlock + 100800, block.number);
 
         // Complete the withdrawal
         manageLeafs = new ManageLeaf[](1);

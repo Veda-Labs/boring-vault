@@ -22,7 +22,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0xef417FCE1883c6653E7dC6AF7c6F85CCDE84Aa09;
     address public managerAddress = 0x5F341B1cf8C5949d6bE144A725c22383a5D3880B;
     address public accountantAddress = 0xc873F2b7b3BA0a7faA2B56e210E3B965f2b618f5;
-    address public rawDataDecoderAndSanitizer = 0xef34830ac7d32873Cce15392EB4D23eaC71Cb581; 
+    address public rawDataDecoderAndSanitizer = 0xef34830ac7d32873Cce15392EB4D23eaC71Cb581;
 
     function setUp() external {}
 
@@ -47,12 +47,11 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Linea Bridge ==========================
         {
-        
-        ERC20[] memory localTokens = new ERC20[](1); 
-        localTokens[0] = getERC20(sourceChain, "WSTETH"); 
 
-        _addLineaNativeBridgeLeafs(leafs, "mainnet", localTokens); 
+            ERC20[] memory localTokens = new ERC20[](1);
+            localTokens[0] = getERC20(sourceChain, "WSTETH");
 
+            _addLineaNativeBridgeLeafs(leafs, "mainnet", localTokens);
         }
 
         // ========================== Euler ==========================
@@ -68,20 +67,20 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
             _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
 
-            ERC4626[] memory borrowVaults = new ERC4626[](2);  
+            ERC4626[] memory borrowVaults = new ERC4626[](2);
             borrowVaults[0] = ERC4626(getAddress(sourceChain, "evkewETH-1"));
             borrowVaults[1] = ERC4626(getAddress(sourceChain, "evkewETH-7"));
 
             _addEulerBorrowLeafs(leafs, borrowVaults, subaccounts);
         }
         address[] memory assets = new address[](3);
-            SwapKind[] memory kind = new SwapKind[](3);
-            assets[0] = getAddress(sourceChain, "WETH");
-            kind[0] = SwapKind.BuyAndSell;
-            assets[1] = getAddress(sourceChain, "WSTETH");
-            kind[1] = SwapKind.BuyAndSell;
-            assets[2] = getAddress(sourceChain, "LINEA");
-            kind[2] = SwapKind.Sell;
+        SwapKind[] memory kind = new SwapKind[](3);
+        assets[0] = getAddress(sourceChain, "WETH");
+        kind[0] = SwapKind.BuyAndSell;
+        assets[1] = getAddress(sourceChain, "WSTETH");
+        kind[1] = SwapKind.BuyAndSell;
+        assets[2] = getAddress(sourceChain, "LINEA");
+        kind[2] = SwapKind.Sell;
 
         // =========================== Odos ==========================
         {

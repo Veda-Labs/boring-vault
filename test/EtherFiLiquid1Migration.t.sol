@@ -380,9 +380,7 @@ contract EtherFiLiquid1MigrationTest is Test, MerkleTreeHelper {
         teller.removeAsset(ERC20(pendleEethYtDecember));
 
         rolesAuthority.setPublicCapability(address(teller), LegacyTeller.deposit.selector, true);
-        rolesAuthority.setPublicCapability(
-            address(teller), LegacyTeller.depositWithPermit.selector, true
-        );
+        rolesAuthority.setPublicCapability(address(teller), LegacyTeller.depositWithPermit.selector, true);
         vm.stopPrank();
 
         // Users can now deposit into the BoringVault.
@@ -632,8 +630,9 @@ contract EtherFiLiquid1MigrationTest is Test, MerkleTreeHelper {
             abi.encodeWithSignature("deposit(address,uint256,uint256)", pendleEethPtSeptember, type(uint256).max, 0);
         adaptorCalls[8] =
             abi.encodeWithSignature("deposit(address,uint256,uint256)", pendleEethYtSeptember, type(uint256).max, 0);
-        adaptorCalls[9] =
-            abi.encodeWithSignature("deposit(address,uint256,uint256)", pendleWeETHMarketDecember, type(uint256).max, 0);
+        adaptorCalls[9] = abi.encodeWithSignature(
+            "deposit(address,uint256,uint256)", pendleWeETHMarketDecember, type(uint256).max, 0
+        );
         adaptorCalls[10] =
             abi.encodeWithSignature("deposit(address,uint256,uint256)", pendleEethPtDecember, type(uint256).max, 0);
         adaptorCalls[11] =
@@ -930,6 +929,14 @@ interface PositionManager {
 
 interface LegacyTeller {
     function deposit(ERC20 asset, uint256 amount, uint256 minMint) external returns (uint256);
-    function depositWithPermit(ERC20 asset, uint256 amount, uint256 minMint, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external returns (uint256);
+    function depositWithPermit(
+        ERC20 asset,
+        uint256 amount,
+        uint256 minMint,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external returns (uint256);
     function removeAsset(ERC20 asset) external;
 }

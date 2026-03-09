@@ -8,7 +8,6 @@ import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecode
 import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
 
 contract YuzuDecoderAndSanitizer is ERC4626DecoderAndSanitizer, BaseDecoderAndSanitizer {
-
     //======================== yzUSD  ==============================
 
     // Covered by by parent ERC4626 decoder
@@ -18,7 +17,12 @@ contract YuzuDecoderAndSanitizer is ERC4626DecoderAndSanitizer, BaseDecoderAndSa
     }
     */
 
-    function createRedeemOrder(uint256 tokens, address receiver, address owner) external pure virtual returns (bytes memory addressesFound) {
+    function createRedeemOrder(uint256 tokens, address receiver, address owner)
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return abi.encodePacked(receiver, owner);
     }
 
@@ -30,7 +34,6 @@ contract YuzuDecoderAndSanitizer is ERC4626DecoderAndSanitizer, BaseDecoderAndSa
         return addressesFound;
     }
 
-
     //======================== syzUSD  =============================
 
     // Covered by by parent ERC4626 decoder
@@ -40,16 +43,25 @@ contract YuzuDecoderAndSanitizer is ERC4626DecoderAndSanitizer, BaseDecoderAndSa
     }
     */
 
-    function initiateRedeem(uint256 shares, address receiver, address owner) external pure virtual returns (bytes memory addressesFound) {
+    function initiateRedeem(uint256 shares, address receiver, address owner)
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return abi.encodePacked(receiver, owner);
     }
 
-    function initiateRedeemWithSlippage(uint256 shares, address receiver, address owner, uint256 minAssets) external pure virtual returns (bytes memory addressesFound) {
+    function initiateRedeemWithSlippage(uint256 shares, address receiver, address owner, uint256 minAssets)
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         return abi.encodePacked(receiver, owner);
     }
 
     function finalizeRedeem(uint256 orderId) external pure virtual returns (bytes memory addressesFound) {
         return addressesFound;
     }
-
 }

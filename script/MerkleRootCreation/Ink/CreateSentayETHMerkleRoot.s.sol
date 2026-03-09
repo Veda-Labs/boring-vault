@@ -39,7 +39,7 @@ contract CreateSentayETHMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Native ==========================
         _addNativeLeafs(leafs);
-        
+
         {
             ERC20[] memory localTokens = new ERC20[](0);
             ERC20[] memory remoteTokens = new ERC20[](0);
@@ -56,8 +56,14 @@ contract CreateSentayETHMerkleRoot is Script, MerkleTreeHelper {
         }
 
         // ========================== LayerZero ==========================
-        
-        _addLayerZeroLeafs(leafs, ERC20(getAddress(sourceChain, "WEETH")), getAddress(sourceChain, "WEETH"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
+
+        _addLayerZeroLeafs(
+            leafs,
+            ERC20(getAddress(sourceChain, "WEETH")),
+            getAddress(sourceChain, "WEETH"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
 
         // ========================== Verification ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

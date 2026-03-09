@@ -29,7 +29,6 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
     address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
 
-
     function setUp() external {}
 
     /**
@@ -64,23 +63,17 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             _addStandardBridgeLeafs(
                 leafs,
                 mainnet,
-                address(0), 
-                address(0), 
+                address(0),
+                address(0),
                 getAddress(sourceChain, "standardBridge"),
-                address(0), 
+                address(0),
                 localTokens,
                 remoteTokens
             );
 
             _addLidoStandardBridgeLeafs(
-                leafs,
-                mainnet,
-                address(0),
-                address(0),
-                getAddress(sourceChain, "l2ERC20TokenBridge"),
-                address(0)
+                leafs, mainnet, address(0), address(0), getAddress(sourceChain, "l2ERC20TokenBridge"), address(0)
             );
-
         }
 
         // ========================== Layer Zero / Stargate ==========================
@@ -99,13 +92,12 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         // ========================== Balancer V3 ==========================
         // wstETH/WETH LP on Base
         address balancerV3Pool = getAddress(sourceChain, "wstETH-fWETH-pool");
-            _addBalancerV3Leafs(
-                leafs,
-                balancerV3Pool,
-                true,
-                getAddress(sourceChain, "wstETH-fWETH-pool-guage") // buffer address if needed
-            );
-        
+        _addBalancerV3Leafs(
+            leafs,
+            balancerV3Pool,
+            true,
+            getAddress(sourceChain, "wstETH-fWETH-pool-guage") // buffer address if needed
+        );
 
         // ========================== Aave V3 ==========================
         {
@@ -137,11 +129,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
             // Aerodrome uses same interface as Velodrome V3
             _addVelodromeV3Leafs(
-                leafs,
-                token0,
-                token1,
-                getAddress(sourceChain, "aerodromeNonFungiblePositionManager"),
-                gauges
+                leafs, token0, token1, getAddress(sourceChain, "aerodromeNonFungiblePositionManager"), gauges
             );
         }
 
@@ -185,11 +173,6 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
-        _generateLeafs(
-            filePath,
-            leafs,
-            manageTree[manageTree.length - 1][0],
-            manageTree
-        );
+        _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
     }
 }

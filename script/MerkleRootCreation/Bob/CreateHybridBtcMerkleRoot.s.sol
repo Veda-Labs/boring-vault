@@ -17,10 +17,10 @@ import "forge-std/Script.sol";
 contract CreateHybridBtcMerkleRoot is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
-    address public boringVault = 0x9998e05030Aee3Af9AD3df35A34F5C51e1628779; 
+    address public boringVault = 0x9998e05030Aee3Af9AD3df35A34F5C51e1628779;
     address public managerAddress = 0x2A1512a030D6eb71A5864968d795e1b6D382735D;
     address public accountantAddress = 0x22b025037ff1F6206F41b7b28968726bDBB5E7D5;
-    address public rawDataDecoderAndSanitizer = 0x10d40063a629650ad842542F32104ebFAe44dBd1; 
+    address public rawDataDecoderAndSanitizer = 0x10d40063a629650ad842542F32104ebFAe44dBd1;
 
     function setUp() external {}
 
@@ -40,9 +40,8 @@ contract CreateHybridBtcMerkleRoot is Script, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](32);
 
-
         // ========================== Standard Bridge ==========================
-        
+
         ERC20[] memory localTokens = new ERC20[](2);
         localTokens[0] = getERC20(sourceChain, "WBTC");
         localTokens[1] = getERC20(sourceChain, "LBTC");
@@ -77,7 +76,6 @@ contract CreateHybridBtcMerkleRoot is Script, MerkleTreeHelper {
         token1[3] = getAddress(sourceChain, "solvBTC");
 
         _addUniswapV3Leafs(leafs, token0, token1, true, true);
-
 
         // ========================== Verify & Generate ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

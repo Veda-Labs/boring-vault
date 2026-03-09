@@ -53,7 +53,13 @@ contract CreateRoyUSDCSonicMerkleRoot is Script, MerkleTreeHelper {
         _addCCTPBridgeLeafs(leafs, uint32(0));
 
         // ========================== LayerZero ========================== //Using Stargate USDC Pool As OFT
-        _addLayerZeroLeafs(leafs, getERC20(sonicMainnet, "USDC"), getAddress(sonicMainnet, "stargateUSDC"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sonicMainnet, "USDC"),
+            getAddress(sonicMainnet, "stargateUSDC"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
 
         // ========================== Fee Claiming ==========================
         ERC20[] memory feeAssets = new ERC20[](1);
@@ -61,15 +67,15 @@ contract CreateRoyUSDCSonicMerkleRoot is Script, MerkleTreeHelper {
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, true); //add yield claiming
 
         // ========================== Odos ==========================
-         address[] memory tokens = new address[](1);
-         SwapKind[] memory kind = new SwapKind[](1);
-         tokens[0] = getAddress(sourceChain, "USDC");
-         kind[0] = SwapKind.BuyAndSell;
+        address[] memory tokens = new address[](1);
+        SwapKind[] memory kind = new SwapKind[](1);
+        tokens[0] = getAddress(sourceChain, "USDC");
+        kind[0] = SwapKind.BuyAndSell;
 
-         _addOdosSwapLeafs(leafs, tokens, kind);
+        _addOdosSwapLeafs(leafs, tokens, kind);
 
         // ========================== Teller ==========================
-    
+
         ERC20[] memory tellerTokens = new ERC20[](1);
         tellerTokens[0] = getERC20(sourceChain, "USDC");
 

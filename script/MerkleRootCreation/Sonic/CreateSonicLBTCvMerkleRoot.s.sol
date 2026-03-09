@@ -46,7 +46,6 @@ contract CreateSonicLBTCvMerkleRootScript is Script, MerkleTreeHelper {
         feeAssets[1] = getERC20(sourceChain, "EBTC");
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, true);
 
-
         // ========================== BoringVaults ==========================
         {
             ERC20[] memory eBTCTellerAssets = new ERC20[](2);
@@ -55,8 +54,8 @@ contract CreateSonicLBTCvMerkleRootScript is Script, MerkleTreeHelper {
             address eBTCTeller = 0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268;
             _addTellerLeafs(leafs, eBTCTeller, eBTCTellerAssets, false, true);
 
-            ERC20[] memory sonicBTCTellerAssets = new ERC20[](3); 
-            sonicBTCTellerAssets[0] = getERC20(sourceChain, "LBTC"); 
+            ERC20[] memory sonicBTCTellerAssets = new ERC20[](3);
+            sonicBTCTellerAssets[0] = getERC20(sourceChain, "LBTC");
             sonicBTCTellerAssets[1] = getERC20(sourceChain, "EBTC");
             sonicBTCTellerAssets[2] = getERC20(sourceChain, "WBTC");
 
@@ -65,46 +64,51 @@ contract CreateSonicLBTCvMerkleRootScript is Script, MerkleTreeHelper {
             sonicBTCTellerAssetsAddresses[1] = getAddress(sourceChain, "EBTC");
             sonicBTCTellerAssetsAddresses[2] = getAddress(sourceChain, "WBTC");
 
-            address[] memory _feeAssets = new address[](1); 
+            address[] memory _feeAssets = new address[](1);
             _feeAssets[0] = getAddress(sourceChain, "ETH");
 
             address sonicBTCTeller = 0xAce7DEFe3b94554f0704d8d00F69F273A0cFf079;
-            address scBTC = 0xBb30e76d9Bb2CC9631F7fC5Eb8e87B5Aff32bFbd; 
-            address scBTCWithdrawQueue = 0x488000E6a0CfC32DCB3f37115e759aF50F55b48B; 
+            address scBTC = 0xBb30e76d9Bb2CC9631F7fC5Eb8e87B5Aff32bFbd;
+            address scBTCWithdrawQueue = 0x488000E6a0CfC32DCB3f37115e759aF50F55b48B;
             _addTellerLeafs(leafs, sonicBTCTeller, sonicBTCTellerAssets, false, false);
-            _addWithdrawQueueLeafs(leafs, scBTCWithdrawQueue, scBTC, sonicBTCTellerAssets); 
-            _addCrossChainTellerLeafs(leafs, sonicBTCTeller, sonicBTCTellerAssetsAddresses, _feeAssets, abi.encode(layerZeroMainnetEndpointId));
+            _addWithdrawQueueLeafs(leafs, scBTCWithdrawQueue, scBTC, sonicBTCTellerAssets);
+            _addCrossChainTellerLeafs(
+                leafs, sonicBTCTeller, sonicBTCTellerAssetsAddresses, _feeAssets, abi.encode(layerZeroMainnetEndpointId)
+            );
 
-
-            ERC20[] memory stkscBTCTellerAssets = new ERC20[](1); 
-            stkscBTCTellerAssets[0] = getERC20(sourceChain, "scBTC"); 
+            ERC20[] memory stkscBTCTellerAssets = new ERC20[](1);
+            stkscBTCTellerAssets[0] = getERC20(sourceChain, "scBTC");
             address stkscBTCTeller = 0x825254012306bB410b550631895fe58DdCE1f4a9;
-            address stkscBTC = 0xD0851030C94433C261B405fEcbf1DEC5E15948d0; 
-            address stkscBTCWithdrawQueue = 0x6dF97Ed8B28d9528cd34335c0a151F10E48b6eF3; 
+            address stkscBTC = 0xD0851030C94433C261B405fEcbf1DEC5E15948d0;
+            address stkscBTCWithdrawQueue = 0x6dF97Ed8B28d9528cd34335c0a151F10E48b6eF3;
             _addTellerLeafs(leafs, stkscBTCTeller, stkscBTCTellerAssets, false, false);
-            _addWithdrawQueueLeafs(leafs, stkscBTCWithdrawQueue, stkscBTC, stkscBTCTellerAssets); 
+            _addWithdrawQueueLeafs(leafs, stkscBTCWithdrawQueue, stkscBTC, stkscBTCTellerAssets);
         }
-
 
         // ========================== LayerZero ==========================
         _addLayerZeroLeafs(
-            leafs, getERC20(sourceChain, "WBTC"), getAddress(sourceChain, "WBTC"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault")
+            leafs,
+            getERC20(sourceChain, "WBTC"),
+            getAddress(sourceChain, "WBTC"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
         );
 
         // ========================== CCIP ==========================
         bytes32 toChain = 0x0000000000000000000000000000000000000000000000000000000000000001; //mainnet
         _addLBTCBridgeLeafs(leafs, toChain);
-        
+
         // ========================== Balancer/Beets ==========================
-        _addBalancerLeafs(leafs, getBytes32(sourceChain, "scBTC_LBTC_PoolId"), getAddress(sourceChain, "scBTC_LBTC_gauge"));
+        _addBalancerLeafs(
+            leafs, getBytes32(sourceChain, "scBTC_LBTC_PoolId"), getAddress(sourceChain, "scBTC_LBTC_gauge")
+        );
 
         // ========================== Silo ==========================
-        address[] memory incentivesControllers = new address[](2); 
-        _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_LBTC_scBTC_id32_config"), incentivesControllers); 
-
+        address[] memory incentivesControllers = new address[](2);
+        _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_LBTC_scBTC_id32_config"), incentivesControllers);
 
         // ========================== Verify ==========================
-       
+
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);

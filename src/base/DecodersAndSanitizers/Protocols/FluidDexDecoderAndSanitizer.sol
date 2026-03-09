@@ -17,13 +17,18 @@ contract FluidDexDecoderAndSanitizer {
         int256, /*newCol*/
         int256, /*newDebt*/
         address to
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(to);
     }
 
     /// @notice T2 and T3
 
-    /*  
+    /*
      *  @notice Vault T2 and T3 ((smart collateral, normal debt) / (normal collateral, smart debt))
      *  @notice T2 params on LHS, T3 on RHS -> T2ParamName/T3ParamName
      *  @dev   These use the same function sig, so I'm just grouping them together
@@ -40,11 +45,16 @@ contract FluidDexDecoderAndSanitizer {
         int256, /*colSharesMinMax / newDebtToken1*/
         int256, /*newDebt / debtSharesMinMax*/
         address to
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(to);
     }
 
-    /* 
+    /*
     *  @param nftId The ID of the NFT representing the vault position, use 0 for a new position
     *  @param perfectColShares The change in collateral shares (positive for deposit, negative for withdrawal)
     *  @param colToken0MinMax_ min or max collateral amount of token0 to withdraw or deposit (positive for deposit, negative for withdrawal)
@@ -59,7 +69,12 @@ contract FluidDexDecoderAndSanitizer {
         int256, /*colToken1MinMax*/
         int256, /*newDebt*/
         address to
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(to);
     }
 
@@ -73,7 +88,7 @@ contract FluidDexDecoderAndSanitizer {
     * @param newDebtToken0 The change in debt amount for token0 (positive for borrowing, negative for repayment)
     * @param newDebtToken1 The change in debt amount for token1 (positive for borrowing, negative for repayment)
     * @param debtSharesMinMax Min or max debt shares to burn or mint (positive for borrowing, negative for repayment)
-    * @param to The address to receive funds (if address(0), defaults to msg.sender)    
+    * @param to The address to receive funds (if address(0), defaults to msg.sender)
     */
     function operate(
         uint256, /*nftId*/
@@ -84,7 +99,12 @@ contract FluidDexDecoderAndSanitizer {
         int256, /*newDebtToken1*/
         int256, /*debtSharesMinMax*/
         address to
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(to);
     }
 
@@ -107,7 +127,12 @@ contract FluidDexDecoderAndSanitizer {
         int256, /*debtToken0MinMax*/
         int256, /*debtToken1MinMax*/
         address to
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         addressesFound = abi.encodePacked(to);
     }
 }

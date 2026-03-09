@@ -2,7 +2,7 @@
 
 pragma solidity >=0.8.0;
 
-import { Origin } from "./ILayerZeroEndpointV2.sol";
+import {Origin} from "./ILayerZeroEndpointV2.sol";
 
 interface ILayerZeroReceiver {
     function allowInitializePath(Origin calldata _origin) external view returns (bool);

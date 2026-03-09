@@ -142,8 +142,8 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
         address user = vm.addr(1);
         deal(address(WETH), user, depositAmount);
         uint256 fee =
-            // forge-lint: disable-next-line(unsafe-typecast)
-            sourceTeller.previewFee(uint96(depositAmount), user, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20);
+        // forge-lint: disable-next-line(unsafe-typecast)
+        sourceTeller.previewFee(uint96(depositAmount), user, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20);
         deal(user, fee);
         vm.startPrank(user);
         WETH.approve(address(boringVault), depositAmount);
@@ -190,26 +190,27 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
 
         deal(address(WEETH), user, weETH_amount);
         uint256 fee =
-            // forge-lint: disable-next-line(unsafe-typecast)
-            sourceTeller.previewFee(uint96(weETH_amount), user, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20);
+        // forge-lint: disable-next-line(unsafe-typecast)
+        sourceTeller.previewFee(uint96(weETH_amount), user, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20);
         deal(user, fee);
 
         vm.startPrank(user);
-        CrossChainTellerWithGenericBridge.DepositAndBridgeWithPermitParams memory params = CrossChainTellerWithGenericBridge.DepositAndBridgeWithPermitParams({
-            depositAsset: WEETH,
-            depositAmount: weETH_amount,
-            minimumMint: 0,
-            deadline: block.timestamp,
-            v: v,
-            r: r,
-            s: s,
-            to: user,
-            bridgeWildCard: abi.encode(layerZeroArbitrumEndpointId),
-            feeToken: NATIVE_ERC20,
-            maxFee: fee,
-            referralAddress: referrer
-        });
-        sourceTeller.depositAndBridgeWithPermit{value: fee}(params);   
+        CrossChainTellerWithGenericBridge.DepositAndBridgeWithPermitParams memory params =
+            CrossChainTellerWithGenericBridge.DepositAndBridgeWithPermitParams({
+                depositAsset: WEETH,
+                depositAmount: weETH_amount,
+                minimumMint: 0,
+                deadline: block.timestamp,
+                v: v,
+                r: r,
+                s: s,
+                to: user,
+                bridgeWildCard: abi.encode(layerZeroArbitrumEndpointId),
+                feeToken: NATIVE_ERC20,
+                maxFee: fee,
+                referralAddress: referrer
+            });
+        sourceTeller.depositAndBridgeWithPermit{value: fee}(params);
         vm.stopPrank();
     }
 

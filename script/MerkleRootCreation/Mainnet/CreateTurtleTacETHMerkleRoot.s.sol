@@ -18,9 +18,9 @@ contract CreateTurtleTacETHMerkleRoot is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     //standard
-    address public boringVault = 0x294eecec65A0142e84AEdfD8eB2FBEA8c9a9fbad; 
+    address public boringVault = 0x294eecec65A0142e84AEdfD8eB2FBEA8c9a9fbad;
     address public rawDataDecoderAndSanitizer = 0x678Ff354a12a6fC0b9D357647879F32df45f5177;
-    address public managerAddress = 0x401C29bafA0A205a0dAb316Dc6136A18023eF08A; 
+    address public managerAddress = 0x401C29bafA0A205a0dAb316Dc6136A18023eF08A;
     address public accountantAddress = 0x1683870f3347F2837865C5D161079Dc3fDbf1087;
     address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
@@ -66,14 +66,26 @@ contract CreateTurtleTacETHMerkleRoot is Script, MerkleTreeHelper {
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Native Leafs ==========================
-        _addNativeLeafs(leafs); 
+        _addNativeLeafs(leafs);
 
         // ========================== Lido ==========================
-        _addLidoLeafs(leafs);  
+        _addLidoLeafs(leafs);
 
         // ========================== LayerZero ==========================
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WSTETH"), getAddress(sourceChain, "WSTETHOFTAdapterTAC"), layerZeroTACEndpointId, getBytes32(sourceChain, "boringVault"));
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WETH"), getAddress(sourceChain, "WETHOFTAdapterTAC"), layerZeroTACEndpointId, getBytes32(sourceChain, "boringVault"));
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "WSTETH"),
+            getAddress(sourceChain, "WSTETHOFTAdapterTAC"),
+            layerZeroTACEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "WETH"),
+            getAddress(sourceChain, "WETHOFTAdapterTAC"),
+            layerZeroTACEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
@@ -83,7 +95,5 @@ contract CreateTurtleTacETHMerkleRoot is Script, MerkleTreeHelper {
         string memory filePath = "./leafs/Mainnet/TurtleTacETHStrategistLeafs.json";
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
-
     }
-
 }

@@ -56,7 +56,10 @@ contract MockLayerZeroEndPoint {
         }
     }
 
-    function send(MessagingParams calldata _params, address /*_refundAddress*/ )
+    function send(
+        MessagingParams calldata _params,
+        address /*_refundAddress*/
+    )
         external
         payable
         returns (MessagingReceipt memory receipt)

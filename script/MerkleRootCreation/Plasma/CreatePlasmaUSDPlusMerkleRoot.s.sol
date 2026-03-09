@@ -84,18 +84,8 @@ contract CreatePlasmaUSDPlusMerkleRoot is Script, MerkleTreeHelper {
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_market_sUSDe_01_15_26"), true);
 
         // ========================== Balancer V3 ==========================
-        _addBalancerV3Leafs(
-            leafs,
-            getAddress(sourceChain, "balancerV3waPlaUSDe-waPlaUSDT0"),
-            true,
-            address(0)
-        );
-        _addBalancerV3Leafs(
-            leafs,
-            getAddress(sourceChain, "balancerV3sUSDe-waPlaUSDT0"),
-            true,
-            address(0)
-        );
+        _addBalancerV3Leafs(leafs, getAddress(sourceChain, "balancerV3waPlaUSDe-waPlaUSDT0"), true, address(0));
+        _addBalancerV3Leafs(leafs, getAddress(sourceChain, "balancerV3sUSDe-waPlaUSDT0"), true, address(0));
         _addBalancerV3SwapLeafs(leafs, getAddress(sourceChain, "balancerV3waPlaUSDe-waPlaUSDT0"), false);
         _addBalancerV3SwapLeafs(leafs, getAddress(sourceChain, "balancerV3sUSDe-waPlaUSDT0"), false);
         _addBalancerV3SwapLeafs(leafs, getAddress(sourceChain, "balancerV3WXPL-USDT0"), true);
@@ -112,17 +102,13 @@ contract CreatePlasmaUSDPlusMerkleRoot is Script, MerkleTreeHelper {
         _addUniswapV3Leafs(leafs, token0, token1, true, true);
 
         // ========================== Merkl ==========================
-        _addMerklLeafs(
-            leafs,
-            getAddress(sourceChain, "merklDistributor"),
-            getAddress(sourceChain, "dev1Address")
-        );
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"));
 
         // DRONE LEAFS
         // ========================== Drone Setup ===============================
         {
-            ERC20[] memory localTokens = new ERC20[](6);   
-            localTokens[0] = getERC20(sourceChain, "USDe"); 
+            ERC20[] memory localTokens = new ERC20[](6);
+            localTokens[0] = getERC20(sourceChain, "USDe");
             localTokens[1] = getERC20(sourceChain, "SUSDE");
             localTokens[2] = getERC20(sourceChain, "USDT0");
             localTokens[3] = getERC20(sourceChain, "wXPL");
@@ -180,11 +166,7 @@ contract CreatePlasmaUSDPlusMerkleRoot is Script, MerkleTreeHelper {
         _addUniswapV3Leafs(leafs, token0, token1, true, true);
 
         // ========================== Merkl ==========================
-        _addMerklLeafs(
-            leafs,
-            getAddress(sourceChain, "merklDistributor"),
-            getAddress(sourceChain, "dev1Address")
-        );
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"));
 
         _createDroneLeafs(leafs, drone, droneStartIndex, leafIndex + 1);
         setAddress(true, plasma, "boringVault", boringVault);

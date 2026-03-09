@@ -4,11 +4,15 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-
 contract SwellSimpleStakingDecoderAndSanitizer {
     //============================== SWELL SIMPLE STAKING ===============================
 
-    function deposit(address _token, uint256, /*_amount*/ address _receiver)
+    function deposit(
+        address _token,
+        uint256,
+        /*_amount*/
+        address _receiver
+    )
         external
         pure
         virtual
@@ -17,7 +21,12 @@ contract SwellSimpleStakingDecoderAndSanitizer {
         addressesFound = abi.encodePacked(_token, _receiver);
     }
 
-    function withdraw(address _token, uint256, /*_amount*/ address _receiver)
+    function withdraw(
+        address _token,
+        uint256,
+        /*_amount*/
+        address _receiver
+    )
         external
         pure
         virtual

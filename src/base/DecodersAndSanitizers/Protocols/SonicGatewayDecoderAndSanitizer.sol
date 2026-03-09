@@ -4,12 +4,16 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-
 contract SonicGatewayDecoderAndSanitizer {
     ////////////////// Sonic Gateway //////////////////
 
     //bridges mainnet -> sonic
-    function deposit(uint96, /*uid*/ address token, uint256 /*amount*/ )
+    function deposit(
+        uint96,
+        /*uid*/
+        address token,
+        uint256 /*amount*/
+    )
         external
         pure
         virtual
@@ -19,7 +23,12 @@ contract SonicGatewayDecoderAndSanitizer {
     }
 
     //bridges sonic -> mainnet
-    function withdraw(uint96, /*uid*/ address token, uint256 /*amount*/ )
+    function withdraw(
+        uint96,
+        /*uid*/
+        address token,
+        uint256 /*amount*/
+    )
         external
         pure
         virtual
@@ -28,7 +37,14 @@ contract SonicGatewayDecoderAndSanitizer {
         return abi.encodePacked(token);
     }
 
-    function claim(uint256, /*id*/ address token, uint256, /*amount*/ bytes calldata /*proof*/ )
+    function claim(
+        uint256,
+        /*id*/
+        address token,
+        uint256,
+        /*amount*/
+        bytes calldata /*proof*/
+    )
         external
         pure
         virtual
@@ -38,7 +54,14 @@ contract SonicGatewayDecoderAndSanitizer {
     }
 
     //if the bridge is "dead", we can cancel our deposit if needed
-    function cancelDepositWhileDead(uint256, /*id*/ address token, uint256, /*amount*/ bytes calldata /*proof*/ )
+    function cancelDepositWhileDead(
+        uint256,
+        /*id*/
+        address token,
+        uint256,
+        /*amount*/
+        bytes calldata /*proof*/
+    )
         external
         pure
         virtual

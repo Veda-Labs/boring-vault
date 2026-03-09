@@ -3,6 +3,7 @@
 // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
+
 contract DecoderCustomTypes {
     // ========================================= BALANCER =========================================
     struct JoinPoolRequest {
@@ -103,7 +104,7 @@ contract DecoderCustomTypes {
     }
 
     // ========================================= UNISWAP V4 =========================================
-    
+
     struct SwapParams {
         /// Whether to swap token0 for token1 or vice versa
         bool zeroForOne;
@@ -135,7 +136,7 @@ contract DecoderCustomTypes {
         bytes hookData;
     }
 
-     /// @notice Parameters for a single-hop exact-output swap
+    /// @notice Parameters for a single-hop exact-output swap
     struct ExactOutputSingleParams {
         PoolKey poolKey;
         bool zeroForOne;
@@ -143,7 +144,6 @@ contract DecoderCustomTypes {
         uint128 amountInMaximum;
         bytes hookData;
     }
-
 
     // ========================================= MORPHO BLUE =========================================
 
@@ -194,7 +194,7 @@ contract DecoderCustomTypes {
         uint256 guessOffchain; // pass 0 in to skip this variable
         uint256 maxIteration; // every iteration, the diff between guessMin and guessMax will be divided by 2
         uint256 eps; // the max eps between the returned result & the correct result, base 1e18. Normally this number will be set
-            // to 1e15 (1e18/1000 = 0.1%)
+        // to 1e15 (1e18/1000 = 0.1%)
     }
 
     struct SwapData {
@@ -408,7 +408,7 @@ contract DecoderCustomTypes {
     }
 
     // ========================================= Algebra V4 =========================================
-    
+
     struct AlgebraMintParams {
         address token0;
         address token1;
@@ -528,7 +528,7 @@ contract DecoderCustomTypes {
     }
 
     // ========================================= Odos ==================================
-    
+
     struct swapTokenInfo {
         address inputToken;
         uint256 inputAmount;
@@ -548,13 +548,13 @@ contract DecoderCustomTypes {
         address outputReceiver;
     }
     // ========================================= Level ==================================
-    
-    /// @dev for reference 
+
+    /// @dev for reference
     //enum OrderType {
     //    MINT,
     //    REDEEM
     //}
-    
+
     struct LevelOrder {
         uint8 order_type;
         address benefactor;
@@ -562,7 +562,7 @@ contract DecoderCustomTypes {
         address collateral_asset;
         uint256 collateral_amount;
         uint256 lvlusd_amount;
-    }    
+    }
 
     struct LevelOrderV2 {
         address beneficiary;
@@ -576,9 +576,9 @@ contract DecoderCustomTypes {
         uint256[] ratios;
     }
 
-
     // ========================================= Royco ==================================
-    struct APOffer { // RecipeMarketHub
+    struct APOffer {
+        // RecipeMarketHub
         uint256 offerID;
         bytes32 targetMarketHash;
         address ap;
@@ -588,7 +588,9 @@ contract DecoderCustomTypes {
         address[] incentivesRequested;
         uint256[] incentiveAmountsRequested;
     }
-    struct APOfferVault { // VaultMarketHub (renamed to avoid collision)
+
+    struct APOfferVault {
+        // VaultMarketHub (renamed to avoid collision)
         uint256 offerID;
         address targetVault;
         address ap;
@@ -606,14 +608,14 @@ contract DecoderCustomTypes {
     }
 
     // ========================================= Permit2 ==================================
-    
+
     struct TokenSpenderPair {
-        address token; 
+        address token;
         address spender;
     }
 
     // ========================================= OnChainQueue ==================================
-    
+
     struct OnChainWithdraw {
         uint96 nonce; // read from state, used to make it impossible for request Ids to be repeated.
         address user; // msg.sender
@@ -626,7 +628,7 @@ contract DecoderCustomTypes {
     }
 
     // ========================================= Beraborrow ==================================
-    
+
     struct OpenDenVaultParams {
         address denManager;
         address collVault;
@@ -657,7 +659,7 @@ contract DecoderCustomTypes {
         bytes _preDeposit;
     }
 
-     struct RedeemCollateralVaultParams {
+    struct RedeemCollateralVaultParams {
         address denManager;
         address collVault;
         uint256 _debtAmount;
@@ -687,7 +689,7 @@ contract DecoderCustomTypes {
     }
 
     // ========================================= Tac Crosschain Layer ==================================
-    
+
     struct TokenAmount {
         address evmAddress;
         uint256 amount;
@@ -711,7 +713,7 @@ contract DecoderCustomTypes {
     }
 
     // ========================================= Valantis ==================================
-    
+
     struct DirectSwapParams {
         bool[] isUniversalPool;
         address[] pools;
@@ -724,7 +726,7 @@ contract DecoderCustomTypes {
         uint256 amountOutMin;
         uint256 deadline;
         bytes32 code;
-    }    
+    }
 
     struct UniversalPoolSwapPayload {
         bool isZeroToOne;
@@ -736,18 +738,18 @@ contract DecoderCustomTypes {
         bytes swapFeeModuleContext;
     }
 
-  /**
-   * @notice Internal struct used for single swap payloads in Sovereign pools.
-   */
-  struct SovereignPoolSwapPayload {
-      bool isZeroToOne;
-      address recipient;
-      address swapTokenOut;
-      uint256 amountOutMin;
-      bytes externalContext;
-      bytes verificationContext;
-      bytes swapFeeModuleContext;
-  }
+    /**
+     * @notice Internal struct used for single swap payloads in Sovereign pools.
+     */
+    struct SovereignPoolSwapPayload {
+        bool isZeroToOne;
+        address recipient;
+        address swapTokenOut;
+        uint256 amountOutMin;
+        bytes externalContext;
+        bytes verificationContext;
+        bytes swapFeeModuleContext;
+    }
 
     struct SovereignPoolSwapContextData {
         bytes externalContext;
@@ -786,7 +788,7 @@ contract DecoderCustomTypes {
         MINT,
         REDEEM
     }
-    
+
     struct EthenaOrder {
         string order_id;
         EthenaOrderType order_type;
@@ -803,7 +805,7 @@ contract DecoderCustomTypes {
         address[] addresses;
         uint128[] ratios;
     }
-    
+
     enum SignatureType {
         EIP712,
         EIP1271
@@ -821,7 +823,7 @@ contract DecoderCustomTypes {
         uint256 value;
         bytes callData;
     }
-    
+
     struct RouteDescription {
         address inputToken; // Token used as input for the route
         address outputToken; // Token received as output from the route
@@ -841,5 +843,4 @@ contract DecoderCustomTypes {
         bool isPermit2; // Whether to use Permit2 for token transfers
         bytes32 uniquePID; // Unique identifier for the partner
     }
-
 }
