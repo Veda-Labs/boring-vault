@@ -6,8 +6,9 @@ pragma solidity 0.8.21;
 
 import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
 import {DeriveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/DeriveDecoderAndSanitizer.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 
-contract FullDeriveDecoderAndSanitizer is DeriveDecoderAndSanitizer {}
+contract FullDeriveDecoderAndSanitizer is BaseDecoderAndSanitizer, DeriveDecoderAndSanitizer {}
 
 contract DeriveIntegrationTest is BaseTestIntegration {
     function _setUpMainnet() internal {
@@ -239,13 +240,13 @@ contract DeriveIntegrationTest is BaseTestIntegration {
         tx_ = _getTxArrays(1);
 
         //manage leafs
-        tx_.manageLeafs[0] = leafs[2]; //redeem stDRV
+        tx_.manageLeafs[0] = leafs[3]; //finalizeRedeem stDRV
 
         //generate proofs
         manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
 
         //targets
-        tx_.targets[0] = getAddress(sourceChain, "stDRV"); //redeem
+        tx_.targets[0] = getAddress(sourceChain, "stDRV"); //finalizeRedeem
 
         uint256 redeemIndex;
 
