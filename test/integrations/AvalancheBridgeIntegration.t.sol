@@ -179,11 +179,9 @@ contract AvalancheBridgeIntegration is BaseTestIntegration {
         this.getProofsAndSubmit(tx_.manageLeafs, manageTree, tx_);
     }
 
-    function getProofsAndSubmit(
-        ManageLeaf[] memory manageLeafs,
-        bytes32[][] memory manageTree,
-        Tx memory tx_
-    ) external {
+    function getProofsAndSubmit(ManageLeaf[] memory manageLeafs, bytes32[][] memory manageTree, Tx memory tx_)
+        external
+    {
         bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
         _submitManagerCall(manageProofs, tx_);
     }

@@ -10,9 +10,27 @@ import {console} from "@forge-std/Test.sol";
 contract FullValantisDecoderAndSanitizer is BaseDecoderAndSanitizer, ValantisDecoderAndSanitizer {}
 
 contract ValantisIntegration is BaseTestIntegration {
+    // Valantis fee module on HyperEVM. Its getSwapFeeInBips call chain triggers
+    // arithmetic overflows in Foundry's revm (works on-chain). We mock it with
+    // the real on-chain return value to bypass the revm incompatibility.
+    address constant FEE_MODULE = 0x14EFe613b8a1fce7142286D0bC70723519bc4485;
+
+    struct SwapFeeModuleData {
+        uint256 feeInBips;
+        bytes internalContext;
+    }
+
     function _setUpHyperEVM() internal {
         super.setUp();
         _setupChain("hyperEVM", 9637765);
+
+        // Mock fee module: getSwapFeeInBips overflows in revm due to HyperEVM
+        // Aave/vault dependencies. On-chain value is 30 bips for both directions.
+        vm.mockCall(
+            FEE_MODULE,
+            abi.encodeWithSignature("getSwapFeeInBips(address,address,uint256,address,bytes)"),
+            abi.encode(SwapFeeModuleData({feeInBips: 30, internalContext: ""}))
+        );
 
         address valantisDecoder = address(new FullValantisDecoderAndSanitizer());
 
@@ -24,7 +42,6 @@ contract ValantisIntegration is BaseTestIntegration {
 
         //starting with just the base assets
         deal(getAddress(sourceChain, "KHYPE"), address(boringVault), 100e18);
-        //deal(getAddress(sourceChain, "WHYPE"), address(boringVault), 100e18);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
 

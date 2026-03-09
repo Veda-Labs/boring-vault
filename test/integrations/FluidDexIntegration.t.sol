@@ -285,8 +285,8 @@ contract FluidDexIntegrationTest is Test, MerkleTreeHelper {
         //setup boring vault tx data
 
         //this is what will be minted after we deposit
-        uint256 nftId = 2795;
-        uint256 nftPerfectId = 2796;
+        uint256 nftId = 8574;
+        uint256 nftPerfectId = 8575;
 
         //deal some dust to payback borrow
         //deal(getAddress(sourceChain, "USDC"), address(boringVault), 10e18); //I know USDC and USDT don't have 18decimals

@@ -363,8 +363,7 @@ contract SiloFinanceIntegrationTest is Test, MerkleTreeHelper {
             getAddress(sourceChain, "boringVault"),
             getAddress(sourceChain, "boringVault")
         );
-        targetData[5] =
-            abi.encodeWithSignature("repay(uint256,address)", 10e18, getAddress(sourceChain, "boringVault"));
+        targetData[5] = abi.encodeWithSignature("repay(uint256,address)", 10e18, getAddress(sourceChain, "boringVault"));
         targetData[6] =
             abi.encodeWithSignature("repayShares(uint256,address)", 10e18, getAddress(sourceChain, "boringVault"));
 
@@ -428,8 +427,7 @@ contract SiloFinanceIntegrationTest is Test, MerkleTreeHelper {
             getAddress(sourceChain, "boringVault"),
             getAddress(sourceChain, "boringVault")
         );
-        targetData[4] =
-            abi.encodeWithSignature("repay(uint256,address)", 5e18, getAddress(sourceChain, "boringVault"));
+        targetData[4] = abi.encodeWithSignature("repay(uint256,address)", 5e18, getAddress(sourceChain, "boringVault"));
         targetData[5] =
             abi.encodeWithSignature("repayShares(uint256,address)", 1e15, getAddress(sourceChain, "boringVault"));
 

@@ -37,7 +37,7 @@ contract SwellSimpleStakingIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 20825215;
+        uint256 blockNumber = 24600000;
 
         _startFork(rpcKey, blockNumber);
 
@@ -128,40 +128,58 @@ contract SwellSimpleStakingIntegrationTest is Test, MerkleTreeHelper {
 
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
-        ManageLeaf[] memory manageLeafs = new ManageLeaf[](4);
+        // Batch 1: approve + deposit
+        ManageLeaf[] memory manageLeafs = new ManageLeaf[](2);
         manageLeafs[0] = leafs[0];
         manageLeafs[1] = leafs[1];
-        manageLeafs[2] = leafs[2];
-        manageLeafs[3] = leafs[3];
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 
-        address[] memory targets = new address[](4);
+        address[] memory targets = new address[](2);
         targets[0] = getAddress(sourceChain, "WSTETH");
         targets[1] = getAddress(sourceChain, "TreehouseRouter");
-        targets[2] = getAddress(sourceChain, "tETH");
-        targets[3] = getAddress(sourceChain, "TreehouseRedemption");
 
-        bytes[] memory targetData = new bytes[](4);
+        bytes[] memory targetData = new bytes[](2);
         targetData[0] = abi.encodeWithSignature(
             "approve(address,uint256)", getAddress(sourceChain, "TreehouseRouter"), type(uint256).max
         );
         targetData[1] = abi.encodeWithSignature(
             "deposit(address,uint256)", getAddress(sourceChain, "WSTETH"), 1_000e18, address(boringVault)
         );
-        targetData[2] = abi.encodeWithSignature(
-            "approve(address,uint256)", getAddress(sourceChain, "TreehouseRedemption"), type(uint256).max
-        );
-        uint96 expectedShareBalance = 999994557806148621988;
-        targetData[3] = abi.encodeWithSignature("redeem(uint96)", expectedShareBalance);
 
-        address[] memory decodersAndSanitizers = new address[](4);
+        address[] memory decodersAndSanitizers = new address[](2);
         decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
         decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
-        decodersAndSanitizers[2] = rawDataDecoderAndSanitizer;
-        decodersAndSanitizers[3] = rawDataDecoderAndSanitizer;
 
-        uint256[] memory values = new uint256[](4);
+        uint256[] memory values = new uint256[](2);
+
+        manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
+
+        // Query actual tETH balance for redeem
+        uint96 shareBalance = uint96(getERC20(sourceChain, "tETH").balanceOf(address(boringVault)));
+
+        // Batch 2: approve tETH + redeem
+        manageLeafs = new ManageLeaf[](2);
+        manageLeafs[0] = leafs[2];
+        manageLeafs[1] = leafs[3];
+
+        manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
+
+        targets = new address[](2);
+        targets[0] = getAddress(sourceChain, "tETH");
+        targets[1] = getAddress(sourceChain, "TreehouseRedemption");
+
+        targetData = new bytes[](2);
+        targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "TreehouseRedemption"), type(uint256).max
+        );
+        targetData[1] = abi.encodeWithSignature("redeem(uint96)", shareBalance);
+
+        decodersAndSanitizers = new address[](2);
+        decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+
+        values = new uint256[](2);
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
