@@ -1,0 +1,29 @@
+// SPDX-License-Identifier: SEL-1.0
+// Copyright © 2025 Veda Tech Labs
+// Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
+// Licensed under Software Evaluation License, Version 1.0
+pragma solidity 0.8.21;
+
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {
+    PredicateProxyDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/PredicateProxyDecoderAndSanitizer.sol";
+import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
+import {
+    AtomicQueueDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/AtomicQueueDecoderAndSanitizer.sol";
+import {CCTPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCTPDecoderAndSanitizer.sol";
+
+contract LiquidUSDPlumeDecoderAndSanitizer is
+    BaseDecoderAndSanitizer,
+    PredicateProxyDecoderAndSanitizer,
+    TellerDecoderAndSanitizer,
+    AtomicQueueDecoderAndSanitizer,
+    CCTPDecoderAndSanitizer
+{
+    constructor()
+        PredicateProxyDecoderAndSanitizer()
+        TellerDecoderAndSanitizer()
+        AtomicQueueDecoderAndSanitizer(0.9e4, 1.1e4)
+    {}
+}

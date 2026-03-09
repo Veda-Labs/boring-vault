@@ -816,6 +816,15 @@ contract DecoderCustomTypes {
         bytes signature_bytes;
     }
 
+    // ========================================= Predicate Proxy ==================================
+
+    struct PredicateMessage {
+        string taskId;
+        uint256 expireByBlockNumber;
+        address[] signerAddresses;
+        bytes[] signatures;
+    }
+
     // ========================================= GlueX ==================================
 
     struct Interaction {

@@ -55,14 +55,14 @@ contract CreateRoycoUSDMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Fee Claiming ==========================
         ERC20[] memory feeAssets = new ERC20[](1);
-        feeAssets[0] = getERC20(sourceChain, "USDC");
+        feeAssets[0] = getERC20(sourceChain, "USDC.e");
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, true);
 
         // ========================== Bridging USDC to Mainnet ==========================
         // Add LayerZero bridging functionality for USDC to Mainnet
         _addLayerZeroLeafs(
             leafs,
-            getERC20(sourceChain, "USDC"),
+            getERC20(sourceChain, "USDC.e"),
             getAddress(sourceChain, "stargateUSDC"),
             layerZeroMainnetEndpointId,
             getBytes32(sourceChain, "boringVault")
@@ -71,7 +71,7 @@ contract CreateRoycoUSDMerkleRoot is Script, MerkleTreeHelper {
         // ========================== Depositing into RoycoPlumeUSDC Vault ==========================
         // Add Teller functionality to deposit/withdraw from RoycoPlumeUSDC vault
         ERC20[] memory roycoPlumeAssets = new ERC20[](1);
-        roycoPlumeAssets[0] = getERC20(sourceChain, "USDC");
+        roycoPlumeAssets[0] = getERC20(sourceChain, "USDC.e");
         _addTellerLeafs(leafs, roycoPlumeUSDCTeller, roycoPlumeAssets, false, true);
 
         // ========================== Royco Functions ==========================

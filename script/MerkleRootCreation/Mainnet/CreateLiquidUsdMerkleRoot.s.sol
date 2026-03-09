@@ -34,7 +34,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
     address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
     address public capDecoderAndSanitizer = 0xE0e86bf98dAA0D2b408Cb038E94bCB9B7864309C;
     address public dolomiteDecoderAndSanitizer = 0x2f7D1Bbc14Fc3a859EB82ffCB195f9FC3DfCde2f;
-
+    address public cctpDecoderAndSanitizer = 0xd2a9C2F3f8c148dc0E18Dfd0bAE482d9c2E1BA2e;
     //itb
     address public itbAaveV3Usdc = 0xa6c9A887F5Ae28A70E457178AABDd153859B572b;
     address public itbAaveV3Usdt = 0x9c62cB41eACe893E5cc72C0C933E14B299C520A8;
@@ -91,7 +91,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "accountantAddress", accountantAddress);
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](4096);
+        ManageLeaf[] memory leafs = new ManageLeaf[](8192);
 
         // ========================== Aave V3 ==========================
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", aaveV3DecoderAndSanitizer);
@@ -966,6 +966,10 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
             _addScrollNativeBridgeLeafs(leafs, "scroll", tokens, scrollGateways);
         }
 
+        // ========================== CCTP Bridge ==========================
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", cctpDecoderAndSanitizer);
+        _addCCTPBridgeLeafs(leafs, cctpPlumeDomainId);
+
         // ========================== Euler ==========================
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         {
@@ -1247,7 +1251,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         setAddress(true, mainnet, "boringVault", boringVault);
     }
 
-    function _addLeafsForITBPositionManager(
+    function _addLeafsForITBPositionManagerLocal(
         ManageLeaf[] memory leafs,
         address itbPositionManager,
         ERC20[] memory tokensUsed,
@@ -1306,7 +1310,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         ERC20[] memory tokensUsed,
         string memory itbContractName
     ) internal {
-        _addLeafsForITBPositionManager(leafs, itbPositionManager, tokensUsed, itbContractName);
+        _addLeafsForITBPositionManagerLocal(leafs, itbPositionManager, tokensUsed, itbContractName);
         for (uint256 i; i < tokensUsed.length; ++i) {
             // Deposit
             leafIndex++;
@@ -1344,7 +1348,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         ERC20[] memory tokensUsed = new ERC20[](2);
         tokensUsed[0] = underlying;
         tokensUsed[1] = diesal;
-        _addLeafsForITBPositionManager(leafs, itbPositionManager, tokensUsed, itbContractName);
+        _addLeafsForITBPositionManagerLocal(leafs, itbPositionManager, tokensUsed, itbContractName);
 
         // Approvals
         leafIndex++;
@@ -1423,7 +1427,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
     ) internal {
         ERC20[] memory tokensUsed = new ERC20[](1);
         tokensUsed[0] = underlying;
-        _addLeafsForITBPositionManager(leafs, itbPositionManager, tokensUsed, itbContractName);
+        _addLeafsForITBPositionManagerLocal(leafs, itbPositionManager, tokensUsed, itbContractName);
 
         // Deposit
         leafIndex++;
@@ -1487,7 +1491,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         ERC20[] memory tokensUsed,
         string memory itbContractName
     ) internal {
-        _addLeafsForITBPositionManager(leafs, itbPositionManager, tokensUsed, itbContractName);
+        _addLeafsForITBPositionManagerLocal(leafs, itbPositionManager, tokensUsed, itbContractName);
 
         // mint
         leafIndex++;

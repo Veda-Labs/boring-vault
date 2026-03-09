@@ -48,18 +48,18 @@ contract CreateRoycoUSDPlumeMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== Fee Claiming ==========================
         ERC20[] memory feeAssets = new ERC20[](1);
-        feeAssets[0] = getERC20(sourceChain, "USDC");
+        feeAssets[0] = getERC20(sourceChain, "USDC.e");
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, true);
 
         // ========================== Deposits into Other Vault Tellers ==========================
         // pUSD Vault Teller
         ERC20[] memory pUSDTellerAssets = new ERC20[](1);
-        pUSDTellerAssets[0] = getERC20(sourceChain, "USDC");
+        pUSDTellerAssets[0] = getERC20(sourceChain, "USDC.e");
         _addTellerLeafs(leafs, getAddress(sourceChain, "pUSDTeller"), pUSDTellerAssets, false, true);
 
         ERC20[] memory nucleusTellerAssets = new ERC20[](6);
         nucleusTellerAssets[0] = getERC20(sourceChain, "pUSD");
-        nucleusTellerAssets[1] = getERC20(sourceChain, "USDC");
+        nucleusTellerAssets[1] = getERC20(sourceChain, "USDC.e");
         nucleusTellerAssets[2] = getERC20(sourceChain, "nCREDIT");
         nucleusTellerAssets[3] = getERC20(sourceChain, "nBASIS");
         nucleusTellerAssets[4] = getERC20(sourceChain, "nALPHA");
@@ -158,7 +158,7 @@ contract CreateRoycoUSDPlumeMerkleRoot is Script, MerkleTreeHelper {
             leafs,
             0x228C44Bb4885C6633F4b6C83f14622f37D5112E5,
             getERC20(sourceChain, "nALPHA"),
-            getERC20(sourceChain, "USDC")
+            getERC20(sourceChain, "USDC.e")
         );
 
         // nCredit Offer
@@ -190,7 +190,7 @@ contract CreateRoycoUSDPlumeMerkleRoot is Script, MerkleTreeHelper {
             leafs,
             0x228C44Bb4885C6633F4b6C83f14622f37D5112E5,
             getERC20(sourceChain, "nCREDIT"),
-            getERC20(sourceChain, "USDC")
+            getERC20(sourceChain, "USDC.e")
         );
 
         // nBasis Offer
@@ -222,7 +222,7 @@ contract CreateRoycoUSDPlumeMerkleRoot is Script, MerkleTreeHelper {
             leafs,
             0x228C44Bb4885C6633F4b6C83f14622f37D5112E5,
             getERC20(sourceChain, "nBASIS"),
-            getERC20(sourceChain, "USDC")
+            getERC20(sourceChain, "USDC.e")
         );
 
         // pUSD Offer
@@ -254,7 +254,7 @@ contract CreateRoycoUSDPlumeMerkleRoot is Script, MerkleTreeHelper {
             leafs,
             0x228C44Bb4885C6633F4b6C83f14622f37D5112E5,
             getERC20(sourceChain, "pUSD"),
-            getERC20(sourceChain, "USDC")
+            getERC20(sourceChain, "USDC.e")
         );
 
         // opNAlpha Offer
@@ -286,7 +286,7 @@ contract CreateRoycoUSDPlumeMerkleRoot is Script, MerkleTreeHelper {
             leafs,
             0x228C44Bb4885C6633F4b6C83f14622f37D5112E5,
             getERC20(sourceChain, "opNALPHA"),
-            getERC20(sourceChain, "USDC")
+            getERC20(sourceChain, "USDC.e")
         );
 
         // nNSTO Offer
@@ -324,7 +324,7 @@ contract CreateRoycoUSDPlumeMerkleRoot is Script, MerkleTreeHelper {
             leafs,
             0x228C44Bb4885C6633F4b6C83f14622f37D5112E5,
             getERC20(sourceChain, "nINSTO"),
-            getERC20(sourceChain, "USDC")
+            getERC20(sourceChain, "USDC.e")
         );
 
         // ========================== Verify ==========================

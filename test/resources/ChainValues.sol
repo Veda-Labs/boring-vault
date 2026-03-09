@@ -79,6 +79,7 @@ contract ChainValues {
 
     uint32 public constant cctpMainnetDomainId = 0;
     uint32 public constant cctpInkDomainId = 21;
+    uint32 public constant cctpPlumeDomainId = 22;
 
     error ChainValues__ZeroAddress(string chainName, string valueName);
     error ChainValues__ZeroBytes32(string chainName, string valueName);
@@ -2990,7 +2991,7 @@ contract ChainValues {
         values[plume]["txBundlerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
 
         // ERC20s
-        values[plume]["USDC"] = 0x78adD880A697070c1e765Ac44D65323a0DcCE913.toBytes32();
+        values[plume]["USDC.e"] = 0x78adD880A697070c1e765Ac44D65323a0DcCE913.toBytes32();
         values[plume]["pUSD"] = 0xdddD73F5Df1F0DC31373357beAC77545dC5A6f3F.toBytes32();
         values[plume]["nINSTO"] = 0xbfC5770631641719cd1Cf809D8325B146aED19De.toBytes32();
         values[plume]["nCREDIT"] = 0xA5f78B2A0Ab85429d2DfbF8B60abc70F4CeC066c.toBytes32();
@@ -2998,9 +2999,12 @@ contract ChainValues {
         values[plume]["plumeToken"] = 0xEa237441c92CAe6FC17Caaf9a7acB3f953be4bd1.toBytes32();
         values[plume]["nBASIS"] = 0x11113Ff3a60C2450F4b22515cB760417259eE94B.toBytes32();
         values[plume]["nALPHA"] = 0x593cCcA4c4bf58b7526a4C164cEEf4003C6388db.toBytes32();
+        values[plume]["nOPAL"] = 0x119Dd7dAFf816f29D7eE47596ae5E4bdC4299165.toBytes32();
+        values[plume]["USDC"] = 0x222365EF19F7947e5484218551B56bb3965Aa7aF.toBytes32();
 
         // Tellers
         values[plume]["nALPHATeller"] = 0xc9F6a492Fb1D623690Dc065BBcEd6DfB4a324A35.toBytes32();
+        values[plume]["nOPALTeller"] = 0xA5F8e5843dd597a179453bF782844e8Bf808A90b.toBytes32();
         values[plume]["nBASISTeller"] = 0xAD60d43a33cA26e40eAcc5BBc60f1C7136FFB89b.toBytes32();
         values[plume]["nCREDITTeller"] = 0x27200293AAC3D04d2B305244f78d013B3c759F9D.toBytes32();
         values[plume]["nINSTOTeller"] = 0xF288a085622808B5c616Ff45d740459741a6551c.toBytes32();
@@ -3014,8 +3018,19 @@ contract ChainValues {
         values[plume]["recipeMarketHub"] = 0x027ef18525876138bEc202aA4411538CE4B2f4ca.toBytes32();
         values[plume]["vaultMarketHub"] = 0xf72388EF0018953C664DA3f37e6f98BF43c96db2.toBytes32();
 
+        // nBASIS Vault
+        values[plume]["nPredicateProxy"] = 0x6104fe10ca937a086ba7AdbD0910A4733d380cB6.toBytes32();
+        values[plume]["nBASISAccountant"] = 0xa67d20A49e6Fe68Cf97E556DB6b2f5DE1dF4dC2f.toBytes32();
+        values[plume]["nBASISVault"] = 0x11113Ff3a60C2450F4b22515cB760417259eE94B.toBytes32();
+
         //OFTs
         values[plume]["stargateUSDC"] = 0x9909fa99b7F7ee7F1c0CBf133f411D43083631E6.toBytes32();
+        //LZ
+        values[plume]["LayerZeroEndPoint"] = 0xC1b15d3B262bEeC0e3565C11C9e0F6134BdaCB36.toBytes32();
+        values[plume]["ZRO"] = address(1).toBytes32();
+        //CCTP
+        values[plume]["usdcTokenMessengerV2"] = 0x28b5a0e9C621a5BadaA536219b3a228C8168cf5d.toBytes32();
+        values[plume]["usdcMessageTransmitterV2"] = 0x81D40F21F12A8F0E3252Bccb954D722d4c464B64.toBytes32();
     }
 
     function _addAvalancheValues() private {
