@@ -92,8 +92,8 @@ contract CreateAeroUsdcMerkleRootScript is Script, MerkleTreeHelper {
         _addMorphoBlueCollateralLeafs(leafs, cbBtc_market_id);
         _addMorphoBlueSupplyLeafs(leafs, cbBtc_market_id);
 
-        _addWithdrawQueueLeafs(leafs, syusd_qithdraw_queue, syusd_vault, assets);
-        _addSelfSolveLeafs(leafs, assets, syusd_qithdraw_queue, boringVault, syusd_teller);
+        _addWithdrawQueueLeafs(leafs, syusd_withdraw_queue, syusd_vault, assets);
+        _addSelfSolveLeafs(leafs, assets, syusd_withdraw_queue, boringVault, syusd_teller);
 
         _addMagpieSwapLeafs(leafs, oneInchAssets, kind);
 
