@@ -4,7 +4,8 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-interface IAdapter {
-    function version() external view returns (uint256);
-    function swap(bytes calldata, address swapper) external view returns (bool success, uint256 sellAmount, uint256 buyAmount);
+interface ISwapper {
+    function getRouteId(address tokenIn, address tokenOut) external pure returns (bytes32);
+    function approvedRoutes(bytes32 routeId) external view returns (bool);
+
 }

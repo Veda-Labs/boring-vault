@@ -21,9 +21,8 @@ contract AdapterRegistry is Auth {
         uint8 COWSWAP;
         uint8 OOGA_BOOGA;
     } 
-
+    
     mapping(uint8 protocolId => mapping(uint256 version => address adapater)) public availableAdapters;  //type this?
-    mapping(bytes32 hash => uint8 protocolId) public limitOrderProtocols;
 
     constructor() Auth(address(0), Authority(address(0))) {}
 
@@ -36,7 +35,6 @@ contract AdapterRegistry is Auth {
         IAdapter newAdapter = IAdapter(adapter); 
         uint256 version = newAdapter.version(); 
         availableAdapters[protocolId][version] = adapter; 
-
         //TODO return an event
     }
 }

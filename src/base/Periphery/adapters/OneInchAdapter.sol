@@ -45,4 +45,8 @@ contract OneInchAdapter is IAdapter {
     function version() external view returns (uint256) {
         return 1;
     }
+
+    function swap(bytes calldata, address swapper) external view returns (bool success, uint256 sellAmount, uint256 buyAmount) {
+        return (false, 0, 0);
+    }
 }

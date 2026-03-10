@@ -12,6 +12,7 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {ReentrancyGuard} from "@solmate/utils/ReentrancyGuard.sol";
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
+import {IAdapter} from "src/interfaces/IAdapter.sol";
 
 //TODO let's handle the cowswap path today
 
@@ -54,7 +55,6 @@ contract BoringSwapper is Auth {
     mapping(bytes32 routeId => uint256 maxSlippageBps) public maxSlippageBpsPerRoute;
     mapping(uint8 protocolId => bool approved) public approvedProtocols;
     mapping(ERC20 token => OracleConfig oracleConfig) public oracleConfigs; 
-    mapping(bytes32 domainSeparator => protocolId) public limitOrderProtocols;
     
     /// @notice stores the current version this swapper subscribes to for a specific protocol
     /// @dev defaults to 0, the first version
@@ -69,7 +69,7 @@ contract BoringSwapper is Auth {
     //TODO do we need auth here? maybe not.  
     function swap(SwapConfig calldata swapConfig) external { 
         //compute the key
-        bytes32 key = _getRouteId(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut);
+        bytes32 key = getRouteId(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut);
 
         //check the whitelist of tokens
         if (approvedRoutes[key] == false) revert("not approved"); //TODO custom error
@@ -124,7 +124,7 @@ contract BoringSwapper is Auth {
     
     //do we even want this?
     function addApprovedRoute(ERC20 tokenIn, ERC20 tokenOut, uint256 maxSlippageBps) external {
-        bytes32 key = _getRouteId(tokenIn, tokenOut);
+        bytes32 key = getRouteId(tokenIn, tokenOut);
         approvedRoutes[key] = true;
         maxSlippageBpsPerRoute[key] = maxSlippageBps;
         //TODO add event
@@ -150,25 +150,35 @@ contract BoringSwapper is Auth {
         view
         returns (bytes4)
     {
-            
-        //get the correct adapter based on the version
-        uint8 protocolId = adapterRegsitry.limitOrderProtocols(_hash); 
+        (SwapConfig memory swapConfig) = abi.decode(_signature, (SwapConfig));
         address adapter = adapterRegsitry.get(
-            protocolId,
-            versions[protocolId]
-        );  
-        //TODO handle errors/edge cases: what happens when the hash is not valid or spoofed? 
+            swapConfig.protocolId,
+            versions[swapConfig.protocolId]
+        );
+        //TODO handle errors/edge cases: what happens when the hash is not valid or spoofed?
+
+        (bool success, uint256 sellAmount, uint256 buyAmount) = IAdapter(adapter).swap(swapConfig.swapData, address(this));
+        if (!success) revert("bad swap");
         
-        (bool success, bytes memory result) = adapter.staticcall(_signature);
-        if (!success) revert("must succeed");
+        //TODO better documentation here
         
-        //do we need any kind of checks on amounts here? or oracles? after order is filled
-        
-        
+        uint256 sellPrice = IRateProvider(
+            _getOracle(swapConfig.tokenRoute.tokenIn, swapConfig.quoteAsset)
+        ).getRate();
+        uint256 valueIn = sellPrice.mulDivDown(sellAmount, 10 ** swapConfig.tokenRoute.tokenIn.decimals());
+
+        uint256 buyPrice = IRateProvider(
+            _getOracle(swapConfig.tokenRoute.tokenOut, swapConfig.quoteAsset)
+        ).getRate();
+        uint256 valueOut = buyPrice.mulDivDown(buyAmount, 10 ** swapConfig.tokenRoute.tokenOut.decimals());
+
+        uint256 minValueOut = valueIn.mulDivDown((10_000 - swapConfig.slippageBps), 10_000);
+        if (valueOut < minValueOut) revert("limit order price exceeds max slippage");
+
         return MAGIC_VALUE;
     }
 
-    function _getRouteId(ERC20 tokenIn, ERC20 tokenOut) internal pure returns (bytes32) {
+    function getRouteId(ERC20 tokenIn, ERC20 tokenOut) public pure returns (bytes32) {
         return keccak256(abi.encode(address(tokenIn), address(tokenOut)));
     }
 
