@@ -13733,7 +13733,7 @@ function _addTellerLeafsWithReferral(
                 leafs[leafIndex] = ManageLeaf(
                     partnerSwapperAddress,
                     false,
-                    "swap(((address,address),uint8,uint8,bytes,uint256,address))",
+                    "swap(((address,address),uint8,address,bytes,uint256,address))",
                     new address[](3),
                     string.concat("", ERC20(tokens[i]).symbol()),
                     getAddress(sourceChain, "rawDataDecoderAndSanitizer")

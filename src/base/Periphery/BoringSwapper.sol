@@ -14,8 +14,6 @@ import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
 import {IPriceValidator} from "src/interfaces/IPriceValidator.sol";
 
-//TODO let's handle the cowswap path today
-
 contract BoringSwapper is Auth {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
@@ -101,7 +99,6 @@ contract BoringSwapper is Auth {
         swapConfig.tokenRoute.tokenOut.transfer(address(swapConfig.receiver), tokenBalanceDelta); 
     }  
     
-    //do we even want this?
     function addApprovedRoute(ERC20 tokenIn, ERC20 tokenOut, uint256 maxSlippageBps) external {
         bytes32 key = getRouteId(tokenIn, tokenOut);
         approvedRoutes[key] = true;
@@ -140,7 +137,7 @@ contract BoringSwapper is Auth {
         );
         //TODO handle errors/edge cases: what happens when the hash is not valid or spoofed?
         
-        (address inputToken, address outputToken, uint256 inputAmount, uint256 outputAmount) = IAdapter(adapter).swap(swapConfig);
+        (address inputToken, address outputToken, uint256 inputAmount, uint256 outputAmount) = IAdapter(adapter).swap(swapConfig, address(this));
         IPriceValidator(priceValidator).validate(ERC20(inputToken), ERC20(outputToken), inputAmount, outputAmount, swapConfig.quoteAsset, swapConfig.slippageBps); //will revert if does not pass
 
         return MAGIC_VALUE;

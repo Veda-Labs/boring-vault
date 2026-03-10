@@ -44,7 +44,7 @@ contract UniswapV3Adapter is IAdapter {
         return 1; 
     }
 
-    function swap(BoringSwapper.SwapConfig calldata swapConfig) external view returns (address, address, uint256, uint256) {
+    function swap(BoringSwapper.SwapConfig calldata swapConfig, address) external view returns (address, address, uint256, uint256) {
         return (address(0), address(0), 0, 0);
     }
 }

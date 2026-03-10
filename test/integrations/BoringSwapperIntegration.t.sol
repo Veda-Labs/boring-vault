@@ -103,7 +103,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
-        _generateTestLeafs(leafs, manageTree);
+        //_generateTestLeafs(leafs, manageTree);
 
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
@@ -181,153 +181,132 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         }
     }
 
-    function testCowswap() external {
-        //create tokens array
-        deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18); 
+    // CoW Protocol constants                                                                                                          
+    address constant COW_SETTLEMENT = 0x9008D19f58AAbD9eD0D60971565AA8510560ab41;
+                                                                                                                                       
+    bytes32 constant GPV2_ORDER_TYPE_HASH = keccak256(
+        "Order(address sellToken,address buyToken,address receiver,uint256 sellAmount,uint256 buyAmount,uint32 validTo,bytes32 appData,uint256 feeAmount,bytes32 kind,bool partiallyFillable,bytes32 sellTokenBalance,bytes32 buyTokenBalance)");
 
-        address[] memory tokens = new address[](2);  
-        tokens[0] = getAddress(sourceChain, "WETH");
-        tokens[1] = getAddress(sourceChain, "USDC");
-    
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
-        _addBoringSwapperLeafs(leafs, address(swapper), tokens); 
-        
-        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+    bytes32 constant KIND_SELL = keccak256("sell");
+    bytes32 constant BALANCE_ERC20 = keccak256("erc20");
 
-        _generateTestLeafs(leafs, manageTree);
-
-        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
-
-        Tx memory tx_ = _getTxArrays(2); 
-
-
+    function _cowDomainSeparator() internal view returns (bytes32) {
+        return keccak256(abi.encode(
+            keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
+            keccak256("Gnosis Protocol"),
+            keccak256("v2"),
+            block.chainid,
+            COW_SETTLEMENT
+        ));
     }
-  // CoW Protocol constants                                                                                                          
-  address constant COW_SETTLEMENT = 0x9008D19f58AAbD9eD0D60971565AA8510560ab41;
-                                                                                                                                     
-  bytes32 constant GPV2_ORDER_TYPE_HASH = keccak256(
-      "Order(address sellToken,address buyToken,address receiver,uint256 sellAmount,uint256 buyAmount,uint32 validTo,bytes32 appData,uint256 feeAmount,bytes32 kind,bool partiallyFillable,bytes32 sellTokenBalance,bytes32 buyTokenBalance)");
 
-  bytes32 constant KIND_SELL = keccak256("sell");
-  bytes32 constant BALANCE_ERC20 = keccak256("erc20");
+    function _buildCowOrderDigest(
+        address sellToken,
+        address buyToken,
+        address receiver,
+        uint256 sellAmount,
+        uint256 buyAmount,
+        uint32 validTo
+    ) internal view returns (bytes32 orderDigest, bytes memory encodedOrder) {
+        bytes32 structHash = keccak256(abi.encode(
+            GPV2_ORDER_TYPE_HASH,
+            sellToken,
+            buyToken,
+            receiver,
+            sellAmount,
+            buyAmount,
+            validTo,
+            bytes32(0),        // appData
+            uint256(0),        // feeAmount
+            KIND_SELL,
+            false,             // partiallyFillable
+            BALANCE_ERC20,     // sellTokenBalance
+            BALANCE_ERC20      // buyTokenBalance
+        ));
 
-  function _cowDomainSeparator() internal view returns (bytes32) {
-      return keccak256(abi.encode(
-          keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
-          keccak256("Gnosis Protocol"),
-          keccak256("v2"),
-          block.chainid,
-          COW_SETTLEMENT
-      ));
-  }
+        orderDigest = keccak256(abi.encodePacked("\x19\x01", _cowDomainSeparator(), structHash));
 
-  function _buildCowOrderDigest(
-      address sellToken,
-      address buyToken,
-      address receiver,
-      uint256 sellAmount,
-      uint256 buyAmount,
-      uint32 validTo
-  ) internal view returns (bytes32 orderDigest, bytes memory encodedOrder) {
-      bytes32 structHash = keccak256(abi.encode(
-          GPV2_ORDER_TYPE_HASH,
-          sellToken,
-          buyToken,
-          receiver,
-          sellAmount,
-          buyAmount,
-          validTo,
-          bytes32(0),        // appData
-          uint256(0),        // feeAmount
-          KIND_SELL,
-          false,             // partiallyFillable
-          BALANCE_ERC20,     // sellTokenBalance
-          BALANCE_ERC20      // buyTokenBalance
-      ));
-
-      orderDigest = keccak256(abi.encodePacked("\x19\x01", _cowDomainSeparator(), structHash));
-
-      encodedOrder = abi.encode(
-          sellToken,
-          buyToken,
-          receiver,
-          sellAmount,
-          buyAmount,
-          validTo,
-          bytes32(0),
-          uint256(0),
-          KIND_SELL,
-          false,
-          BALANCE_ERC20,
-          BALANCE_ERC20
-      );
-  }
-
-  function testCowswapValidSignature() external {
-        address weth = getAddress(sourceChain, "WETH");
-        address usdc = getAddress(sourceChain, "USDC");
-
-        (bytes32 orderDigest, bytes memory encodedOrder) = _buildCowOrderDigest(
-            weth,                              // sellToken
-            usdc,                              // buyToken
-            address(swapper),                  // receiver
-            1e18,                              // sellAmount (1 WETH)
-            2000e6,                            // buyAmount (2000 USDC)
-            uint32(block.timestamp + 3600)     // validTo
+        encodedOrder = abi.encode(
+            sellToken,
+            buyToken,
+            receiver,
+            sellAmount,
+            buyAmount,
+            validTo,
+            bytes32(0),
+            uint256(0),
+            KIND_SELL,
+            false,
+            BALANCE_ERC20,
+            BALANCE_ERC20
         );
+    }
 
-        // Pack a SwapConfig into the signature bytes
-        uint8 COWSWAP = 3;
-        bytes memory signature = abi.encode(
-            BoringSwapper.SwapConfig({
-                tokenRoute: BoringSwapper.TokenRoute(
-                    getERC20(sourceChain, "WETH"),
-                    getERC20(sourceChain, "USDC")
-                ),
-                protocolId: COWSWAP,
-                quoteAsset: getAddress(sourceChain, "USDC"),
-                swapData: encodedOrder,
-                slippageBps: 50,
-                receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
-            })
-        );
+    function testCowswapValidSignature() external {
+          address weth = getAddress(sourceChain, "WETH");
+          address usdc = getAddress(sourceChain, "USDC");
 
-        // Simulate CoW settlement contract calling isValidSignature
-        vm.prank(COW_SETTLEMENT);
-        bytes4 result = swapper.isValidSignature(orderDigest, signature);
-        assertEq(result, bytes4(0x1626ba7e), "should return ERC-1271 magic value");
-  }
+          (bytes32 orderDigest, bytes memory encodedOrder) = _buildCowOrderDigest(
+              weth,                              // sellToken
+              usdc,                              // buyToken
+              address(swapper),                  // receiver
+              1e18,                              // sellAmount (1 WETH)
+              2000e6,                            // buyAmount (2000 USDC)
+              uint32(block.timestamp + 3600)     // validTo
+          );
 
-  function testCowswapRejectsBadSlippage() external {
-        address weth = getAddress(sourceChain, "WETH");
-        address usdc = getAddress(sourceChain, "USDC");
+          // Pack a SwapConfig into the signature bytes
+          uint8 COWSWAP = 3;
+          bytes memory signature = abi.encode(
+              BoringSwapper.SwapConfig({
+                  tokenRoute: BoringSwapper.TokenRoute(
+                      getERC20(sourceChain, "WETH"),
+                      getERC20(sourceChain, "USDC")
+                  ),
+                  protocolId: COWSWAP,
+                  quoteAsset: getAddress(sourceChain, "USDC"),
+                  swapData: encodedOrder,
+                  slippageBps: 50,
+                  receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
+              })
+          );
 
-        // Order selling 1 WETH for only 1000 USDC (50% below market)
-        (bytes32 orderDigest, bytes memory encodedOrder) = _buildCowOrderDigest(
-            weth,
-            usdc,
-            address(swapper),
-            1e18,
-            1000e6,          // way below oracle price
-            uint32(block.timestamp + 3600)
-        );
+          // Simulate CoW settlement contract calling isValidSignature
+          vm.prank(COW_SETTLEMENT);
+          bytes4 result = swapper.isValidSignature(orderDigest, signature);
+          assertEq(result, bytes4(0x1626ba7e), "should return ERC-1271 magic value");
+    }
 
-        bytes memory signature = abi.encode(
-            BoringSwapper.SwapConfig({
-                tokenRoute: BoringSwapper.TokenRoute(
-                    getERC20(sourceChain, "WETH"),
-                    getERC20(sourceChain, "USDC")
-                ),
-                protocolId: uint8(3),
-                quoteAsset: getAddress(sourceChain, "USDC"),
-                swapData: encodedOrder,
-                slippageBps: 50,
-                receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
-            })
-        );
+    function testCowswapRejectsBadSlippage() external {
+          address weth = getAddress(sourceChain, "WETH");
+          address usdc = getAddress(sourceChain, "USDC");
 
-        vm.prank(COW_SETTLEMENT);
-        vm.expectRevert("exceeds max slippage for route");
-        swapper.isValidSignature(orderDigest, signature);
-  }
+          // Order selling 1 WETH for only 1000 USDC (50% below market)
+          (bytes32 orderDigest, bytes memory encodedOrder) = _buildCowOrderDigest(
+              weth,
+              usdc,
+              address(swapper),
+              1e18,
+              1000e6,          // way below oracle price
+              uint32(block.timestamp + 3600)
+          );
+
+          bytes memory signature = abi.encode(
+              BoringSwapper.SwapConfig({
+                  tokenRoute: BoringSwapper.TokenRoute(
+                      getERC20(sourceChain, "WETH"),
+                      getERC20(sourceChain, "USDC")
+                  ),
+                  protocolId: uint8(3),
+                  quoteAsset: getAddress(sourceChain, "USDC"),
+                  swapData: encodedOrder,
+                  slippageBps: 50,
+                  receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
+              })
+          );
+
+          vm.prank(COW_SETTLEMENT);
+          vm.expectRevert("exceeds max slippage for route");
+          swapper.isValidSignature(orderDigest, signature);
+    }
 }
