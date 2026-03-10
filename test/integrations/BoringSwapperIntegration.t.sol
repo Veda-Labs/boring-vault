@@ -16,6 +16,8 @@ import {CowswapAdapter} from "src/base/Periphery/adapters/CowswapAdapter.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {Authority} from "@solmate/auth/Auth.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
+import {PriceValidator} from "src/base/Periphery/adapters/price/PriceValidator.sol";
+import {IPriceValidator} from "src/interfaces/IPriceValidator.sol";
 import {Test, console} from "@forge-std/Test.sol";
 
 contract SwapperDecoder is BaseDecoderAndSanitizer {
@@ -41,9 +43,10 @@ contract MockRateProvider is IRateProvider {
 
 
 contract BoringSwapperIntegration is BaseTestIntegration {
-    
-    AdapterRegistry registry; 
-    BoringSwapper swapper; 
+
+    AdapterRegistry registry;
+    BoringSwapper swapper;
+    PriceValidator validator;
 
     MockRateProvider usdRate;
     MockRateProvider ethRate;
@@ -76,22 +79,15 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         //oracle setup
         usdRate = new MockRateProvider(1e18);
         ethRate = new MockRateProvider(2000e18);
-        
-        BoringSwapper.OracleConfig memory usdConfig = BoringSwapper.OracleConfig(
-            address(usdRate),
-            address(0),
-            address(0) 
-        ); 
 
-        BoringSwapper.OracleConfig memory ethConfig = BoringSwapper.OracleConfig(
-            address(ethRate),
-            address(0),
-            address(0) 
-        ); 
+        address usdQuoteAsset = getAddress(sourceChain, "USDC");
+        swapper.addApprovedOracle(getERC20(sourceChain, "USDC"), usdQuoteAsset, address(usdRate));
+        swapper.addApprovedOracle(getERC20(sourceChain, "WETH"), usdQuoteAsset, address(ethRate));
 
-        swapper.addApprovedOracleConfig(getERC20(sourceChain, "USDC"), usdConfig); 
-        swapper.addApprovedOracleConfig(getERC20(sourceChain, "WETH"), ethConfig); 
-        
+        //price validator setup
+        validator = new PriceValidator();
+        swapper.setPriceValidator(IPriceValidator(validator));
+
     }
 
     function testUniV3Swap() external {
@@ -146,7 +142,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
             BoringSwapper.SwapConfig({
                 tokenRoute: tokenRoute,
                 protocolId: UNISWAP_V3,
-                quoteAsset: BoringSwapper.QuoteAsset.USD,
+                quoteAsset: getAddress(sourceChain, "USDC"),
                 swapData: uniswapSwapData,
                 slippageBps: 10,
                 receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
@@ -289,7 +285,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
                     getERC20(sourceChain, "USDC")
                 ),
                 protocolId: COWSWAP,
-                quoteAsset: BoringSwapper.QuoteAsset.USD,
+                quoteAsset: getAddress(sourceChain, "USDC"),
                 swapData: encodedOrder,
                 slippageBps: 50,
                 receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
@@ -323,7 +319,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
                     getERC20(sourceChain, "USDC")
                 ),
                 protocolId: uint8(3),
-                quoteAsset: BoringSwapper.QuoteAsset.USD,
+                quoteAsset: getAddress(sourceChain, "USDC"),
                 swapData: encodedOrder,
                 slippageBps: 50,
                 receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
@@ -331,7 +327,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         );
 
         vm.prank(COW_SETTLEMENT);
-        vm.expectRevert("limit order price exceeds max slippage");
+        vm.expectRevert("exceeds max slippage for route");
         swapper.isValidSignature(orderDigest, signature);
   }
 }

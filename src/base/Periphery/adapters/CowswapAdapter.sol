@@ -4,6 +4,8 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
+import {BoringSwapper} from "src/base/Periphery/BoringSwapper.sol";
+import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
 import {ISwapper} from "src/interfaces/ISwapper.sol";
@@ -11,19 +13,16 @@ import {ISwapper} from "src/interfaces/ISwapper.sol";
 //IAdapter does what exactly? TBD. 
 contract CowswapAdapter is IAdapter {
     
-   function swap(bytes calldata data, address swapper) external view returns (bool success, uint256 sellAmount, uint256 buyAmount) {
+   function swap(BoringSwapper.SwapConfig calldata swapConfig) external view returns (address, address, uint256, uint256) {
         //decode cowswap data
 
-        DecoderCustomTypes.GPv2OrderData memory order = abi.decode(data, (DecoderCustomTypes.GPv2OrderData));
+        DecoderCustomTypes.GPv2OrderData memory order = abi.decode(swapConfig.swapData, (DecoderCustomTypes.GPv2OrderData));
 
-        //handle verification here?
-        //check the token router, etc.
+        if (ERC20(order.sellToken) != swapConfig.tokenRoute.tokenIn) revert("token mismatch");
+        if (ERC20(order.buyToken) != swapConfig.tokenRoute.tokenOut) revert("token mismatch");
+        if (order.receiver != address(swapConfig.receiver)) revert("swapper not receiver");
 
-        bytes32 route = ISwapper(swapper).getRouteId(order.sellToken, order.buyToken);
-        if (!ISwapper(swapper).approvedRoutes(route)) revert("bad route");
-        if (order.receiver != swapper) revert("swapper not receiver");
-
-        return (true, order.sellAmount, order.buyAmount);
+        return (order.sellToken, order.buyToken, order.sellAmount, order.buyAmount);
    } 
 
    function version() external view returns (uint256) {

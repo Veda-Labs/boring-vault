@@ -4,7 +4,10 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
+import {BoringSwapper} from "src/base/Periphery/BoringSwapper.sol";
+
+
 interface IAdapter {
     function version() external view returns (uint256);
-    function swap(bytes calldata, address swapper) external view returns (bool success, uint256 sellAmount, uint256 buyAmount);
+    function swap(BoringSwapper.SwapConfig calldata swapConfig) external view returns (address, address, uint256, uint256);
 }

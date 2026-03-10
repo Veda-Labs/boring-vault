@@ -4,6 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
+import {BoringSwapper} from "src/base/Periphery/BoringSwapper.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
 
@@ -43,7 +44,7 @@ contract UniswapV3Adapter is IAdapter {
         return 1; 
     }
 
-    function swap(bytes calldata, address swapper) external view returns (bool success, uint256 sellAmount, uint256 buyAmount) {
-        return (false, 0, 0);
+    function swap(BoringSwapper.SwapConfig calldata swapConfig) external view returns (address, address, uint256, uint256) {
+        return (address(0), address(0), 0, 0);
     }
 }
