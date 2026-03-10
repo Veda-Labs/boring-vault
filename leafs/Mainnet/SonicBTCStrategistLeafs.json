@@ -805,6 +805,20 @@
       "TargetAddress": "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"
     },
     {
+      "AddressArguments": [
+        "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+        "0xBb30e76d9Bb2CC9631F7fC5Eb8e87B5Aff32bFbd"
+      ],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0xf7d5D3ba755583C8b174ADE63E8687471Ad8b20a",
+      "Description": "Bulk withdraw WBTC from ether.fi BTC",
+      "FunctionSelector": "0x3e64ce99",
+      "FunctionSignature": "bulkWithdraw(address,uint256,uint256,address)",
+      "LeafDigest": "0x19d0395df2a997cd0558f7cfb26db79137b19cdbd6e76da3682e6956ffe4853c",
+      "PackedArgumentAddresses": "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599bb30e76d9bb2cc9631f7fc5eb8e87b5aff32bfbd",
+      "TargetAddress": "0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268"
+    },
+    {
       "AddressArguments": ["0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0xf7d5D3ba755583C8b174ADE63E8687471Ad8b20a",
@@ -827,6 +841,20 @@
       "TargetAddress": "0x8236a87084f8B84306f72007F36F2618A5634494"
     },
     {
+      "AddressArguments": [
+        "0x8236a87084f8B84306f72007F36F2618A5634494",
+        "0xBb30e76d9Bb2CC9631F7fC5Eb8e87B5Aff32bFbd"
+      ],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0xf7d5D3ba755583C8b174ADE63E8687471Ad8b20a",
+      "Description": "Bulk withdraw LBTC from ether.fi BTC",
+      "FunctionSelector": "0x3e64ce99",
+      "FunctionSignature": "bulkWithdraw(address,uint256,uint256,address)",
+      "LeafDigest": "0x45aaf043f98b1177ec97c024ebde1460cd3f76d5c397aadf117821e5b7afd915",
+      "PackedArgumentAddresses": "0x8236a87084f8b84306f72007f36f2618a5634494bb30e76d9bb2cc9631f7fc5eb8e87b5aff32bfbd",
+      "TargetAddress": "0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268"
+    },
+    {
       "AddressArguments": ["0x8236a87084f8B84306f72007F36F2618A5634494"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0xf7d5D3ba755583C8b174ADE63E8687471Ad8b20a",
@@ -847,6 +875,20 @@
       "LeafDigest": "0x370946dbb5936fb06e5753a54dbebf5df0dd80ab24f7387addd4d3f1a89ec763",
       "PackedArgumentAddresses": "0x657e8c867d8b37dcc18fa4caead9c45eb088c642",
       "TargetAddress": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf"
+    },
+    {
+      "AddressArguments": [
+        "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+        "0xBb30e76d9Bb2CC9631F7fC5Eb8e87B5Aff32bFbd"
+      ],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0xf7d5D3ba755583C8b174ADE63E8687471Ad8b20a",
+      "Description": "Bulk withdraw cbBTC from ether.fi BTC",
+      "FunctionSelector": "0x3e64ce99",
+      "FunctionSignature": "bulkWithdraw(address,uint256,uint256,address)",
+      "LeafDigest": "0x86886ec0506ad52079b6341489d081804eab622875d42038be8962830f19ad9a",
+      "PackedArgumentAddresses": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bfbb30e76d9bb2cc9631f7fc5eb8e87b5aff32bfbd",
+      "TargetAddress": "0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268"
     },
     {
       "AddressArguments": ["0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf"],
