@@ -24,15 +24,16 @@ contract CreateAeroUsdcMerkleRootScript is Script, MerkleTreeHelper {
 
     uint8 public MANAGER_INTERNAL_ROLE = 4;
 
-    address public accountantAddress = 0x83a9d9aE20C0C5b36FB211Ef32BF269B43097FEC;
-    address public boringVault = 0x02B2784DC5a994a06a880b57B38b526c318c7490;
+    address public accountantAddress = 0x69Bd4D1Fd3B0D832A8FfE9f51e49Ffb2923285a9;
+    address public boringVault = 0x4A0768ad836E787391f85bBaA110DF64D35C64d9;
 
     address public syusd_vault = 0x279CAD277447965AF3d24a78197aad1B02a2c589;
 
-    address public withdrawQueue = 0xF632c10b19f2a0451cD4A653fC9ca0c15eA1040b;
-    address public managerAddress = 0x1E9bEF0e9f33C438aF4C29ee393857d1E92f4485;
+    address public syusd_withdraw_queue = 0xF632c10b19f2a0451cD4A653fC9ca0c15eA1040b;
+    address public managerAddress = 0x6a5e31602E531307FA7a75900B7feB43F5E1d763;
     address public rawDataDecoderAndSanitizer;
-    RolesAuthority public rolesAuthority = RolesAuthority(0xdD2652b7995bEd0ccc585963fc00Cba3241B8133);
+
+    RolesAuthority public rolesAuthority = RolesAuthority(0x64d1aF305631c4D3c1BbC74C1f7600c2C33A6Fe6);
     address public syusd_teller = 0xaefc11908fF97c335D16bdf9F2Bf720817423825;
     bytes32 cbBtc_market_id = 0x9103c3b4e834476c9a62ea009ba2c884ee42e94e6e314a26f04d312434191836;
 
@@ -91,8 +92,8 @@ contract CreateAeroUsdcMerkleRootScript is Script, MerkleTreeHelper {
         _addMorphoBlueCollateralLeafs(leafs, cbBtc_market_id);
         _addMorphoBlueSupplyLeafs(leafs, cbBtc_market_id);
 
-        _addWithdrawQueueLeafs(leafs, withdrawQueue, syusd_vault, assets);
-        _addSelfSolveLeafs(leafs, assets, withdrawQueue, boringVault, syusd_teller);
+        _addWithdrawQueueLeafs(leafs, syusd_qithdraw_queue, syusd_vault, assets);
+        _addSelfSolveLeafs(leafs, assets, syusd_qithdraw_queue, boringVault, syusd_teller);
 
         _addMagpieSwapLeafs(leafs, oneInchAssets, kind);
 

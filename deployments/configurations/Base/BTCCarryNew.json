@@ -39,7 +39,7 @@
     "boringVaultConfiguration": {
         "boringVaultDeploymentName": "BTCCarryNew boringVaultV1.0",
         "boringVaultName": "BTC Carry Vault",
-        "boringVaultSymbol": "BTCCarryNew",
+        "boringVaultSymbol": "BTCCarry",
         "boringVaultDecimals": 8
     },
     "managerConfiguration": {
@@ -204,7 +204,7 @@
     "withdrawAssets": [
         {
             "addressOrName": {
-                "address": "0x0555E30da8f98308EdB960aa94C0Db47230d2B9c",
+                "address": "0x0000000000000000000000000000000000000000",
                 "name": "cbBTC"
             },
             "maxDiscount": 100,
