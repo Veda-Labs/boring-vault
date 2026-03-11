@@ -24,6 +24,7 @@ contract ArbitrumMerkleRootScript is Script, MerkleTreeHelper {
     address public accountant = 0xc80E787e1c2A3841928F69e6a35e3F12c7b38a00;
 
     address manager0 = 0xa86b3Bf249478488B4304B50726c7D4689aD6320;
+    address manager1 = 0x3Ad4a628b3B47A593e8d39c51d53b5C40C1b5f46;
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
@@ -46,6 +47,7 @@ contract ArbitrumMerkleRootScript is Script, MerkleTreeHelper {
 
         vm.startBroadcast(privateKey);
         manager.setManageRoot(manager0, manageTree[manageTree.length - 1][0]);
+        manager.setManageRoot(manager1, manageTree[manageTree.length - 1][0]);
         manager.setManageRoot(getAddress(sourceChain, "managerAddress"), manageTree[manageTree.length - 1][0]);
         vm.stopBroadcast();
     }
