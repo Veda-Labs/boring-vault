@@ -11,6 +11,8 @@ import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import "forge-std/Script.sol";
 
+// source .env && forge script script/MerkleRootCreation/Mainnet/CreateLiquidBtcOperationalMerkleRoot.s.sol --rpc-url $MAINNET_RPC_URL
+
 contract CreateMultichainLiquidBtcOperationalMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
@@ -20,6 +22,7 @@ contract CreateMultichainLiquidBtcOperationalMerkleRootScript is Script, MerkleT
     address public accountantAddress = 0xEa23aC6D7D11f6b181d6B98174D334478ADAe6b0;
     address public itbPositionManager = 0x7AAf9539B7359470Def1920ca41b5AAA05C13726;
     address public itbPositionManager2 = 0x11Fd9E49c41738b7500748f7B94B4DBb0E8c13d2; // Spark LBTC (PYUSD) + Aave Core Euler PYUSD Supervised Loan
+    address public capDecoderAndSanitizer = 0xE0e86bf98dAA0D2b408Cb038E94bCB9B7864309C;
     address public itbDecoderAndSanitizer = 0xEEb53299Cb894968109dfa420D69f0C97c835211;
 
     function setUp() external {}
@@ -58,6 +61,40 @@ contract CreateMultichainLiquidBtcOperationalMerkleRootScript is Script, MerkleT
             setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 
+        // ========================== Aave ===========================
+        {
+            ERC20[] memory assets = new ERC20[](5);
+            assets[0] = getERC20(sourceChain, "WBTC");
+            assets[1] = getERC20(sourceChain, "EBTC");
+            assets[2] = getERC20(sourceChain, "LBTC");
+            assets[3] = getERC20(sourceChain, "USDT");
+            assets[4] = getERC20(sourceChain, "USDC");
+            _addAaveV3EOALeafs("Aave V3", getAddress(sourceChain, "v3Pool"), leafs, assets);
+        }
+
+        // ========================== CAP ==========================
+        {
+            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", capDecoderAndSanitizer);
+            address[] memory capDepositAssets = new address[](2);
+            capDepositAssets[0] = getAddress(sourceChain, "USDT");
+            capDepositAssets[1] = getAddress(sourceChain, "USDC");
+            _addCapWithdrawLeafs(leafs, capDepositAssets);
+            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
+
+        // ========================== Fee Claiming ===========================
+        {
+            ERC20[] memory feeAssets = new ERC20[](3);
+            feeAssets[0] = getERC20(sourceChain, "WBTC");
+            feeAssets[1] = getERC20(sourceChain, "LBTC");
+            feeAssets[2] = getERC20(sourceChain, "cbBTC");
+            _addLeafsForFeeClaiming(
+                leafs,
+                getAddress(sourceChain, "accountantAddress"),
+                feeAssets,
+                false
+            );
+        }
         // ========================== Verify ==========================
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

@@ -21,3 +21,5 @@ broadcast/*
 CLAUDE.md
 .serena
 flatten.sol
+
+tools/*

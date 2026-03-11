@@ -42,7 +42,7 @@ contract CreateBalancedUSDCMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "accountantAddress", accountantAddress);
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](256);
+        ManageLeaf[] memory leafs = new ManageLeaf[](512);
 
         // ========================== Fee Claiming ==========================
         ERC20[] memory feeAssets = new ERC20[](2);
@@ -51,8 +51,8 @@ contract CreateBalancedUSDCMerkleRoot is Script, MerkleTreeHelper {
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
         // ========================== 1inch/Odos ==========================
-        address[] memory assets = new address[](7);
-        SwapKind[] memory kind = new SwapKind[](7);
+        address[] memory assets = new address[](11);
+        SwapKind[] memory kind = new SwapKind[](11);
         assets[0] = getAddress(sourceChain, "USDC");
         kind[0] = SwapKind.BuyAndSell;
         assets[1] = getAddress(sourceChain, "USDT");
@@ -67,6 +67,14 @@ contract CreateBalancedUSDCMerkleRoot is Script, MerkleTreeHelper {
         kind[5] = SwapKind.BuyAndSell;
         assets[6] = getAddress(sourceChain, "RLUSD");
         kind[6] = SwapKind.BuyAndSell;
+        assets[7] = getAddress(sourceChain, "USDG");
+        kind[7] = SwapKind.BuyAndSell;
+        assets[8] = getAddress(sourceChain, "GHO");
+        kind[8] = SwapKind.BuyAndSell;
+        assets[9] = getAddress(sourceChain, "stkGHO");
+        kind[9] = SwapKind.BuyAndSell;
+        assets[10] = getAddress(sourceChain, "PYUSD");
+        kind[10] = SwapKind.BuyAndSell;
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
         _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
@@ -77,12 +85,14 @@ contract CreateBalancedUSDCMerkleRoot is Script, MerkleTreeHelper {
         _addNativeLeafs(leafs);
 
         // ========================== Aave V3 ==========================
-        ERC20[] memory supplyAssets = new ERC20[](5);
+        ERC20[] memory supplyAssets = new ERC20[](7);
         supplyAssets[0] = getERC20(sourceChain, "USDC");
         supplyAssets[1] = getERC20(sourceChain, "USDT");
         supplyAssets[2] = getERC20(sourceChain, "SUSDE");
         supplyAssets[3] = getERC20(sourceChain, "USDE");
         supplyAssets[4] = getERC20(sourceChain, "RLUSD");
+        supplyAssets[5] = getERC20(sourceChain, "USDG");
+        supplyAssets[6] = getERC20(sourceChain, "PYUSD");
         ERC20[] memory borrowAssets = new ERC20[](0);
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
 

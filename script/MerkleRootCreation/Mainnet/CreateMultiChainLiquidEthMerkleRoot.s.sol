@@ -38,6 +38,8 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
     address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
     address public resolvDecoderAndSanitizer = 0x87f67Eb9Bb1a606923A17696E06AFAa72da65f86;
+    address public dolomiteDecoderAndSanitizer = 0x2f7D1Bbc14Fc3a859EB82ffCB195f9FC3DfCde2f;
+    address public skyMoneyDecoderAndSanitizer = 0x93740255Db97B8005e5F4E84e0E08F69A3267b30;
 
     address public drone = 0x0a42b2F3a0D54157Dbd7CC346335A4F1909fc02c;
 
@@ -123,6 +125,22 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             assets[0] = getERC20(sourceChain, "USDC");
             assets[1] = getERC20(sourceChain, "USDT");
             _addAllResolvLeafs(leafs, assets);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
+
+        // ========================== Dolomite ==========================
+        {
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", dolomiteDecoderAndSanitizer);
+
+            // supply
+            _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "USDC"), false);
+            _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "USDT"), false);
+            _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "USD1"), false);
+            _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "weETH"), false);
+
+            // borrow
+            _addDolomiteBorrowLeafs(leafs, getAddress(sourceChain, "USD1"));
+
             setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 
@@ -290,7 +308,27 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "weETH_wETH_Pool"));
             _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "weETH_wETH_NG_Pool"));
             _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "tETH_wstETH_curve_pool"));
+            _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "spark_PYUSD_USDS_Curve_Pool"));
         }
+
+        // ========================== SparkSwap ==========================
+        {
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", skyMoneyDecoderAndSanitizer);
+            _addSkyUSDSLitePSMUSDCLeafs(leafs);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
+
+
+        // ========================== USDD ==========================
+        {
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", skyMoneyDecoderAndSanitizer);
+            _addUSDDPSMLeafs(leafs);
+
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+            _addSUSDDLeafs(leafs);
+        }
+
+
         // ========================== Swell ==========================
         {
             _addSwellSimpleStakingLeafs(
@@ -884,22 +922,26 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
          * withdraw ETH tokens from ITB position manager
          * withdrawAll ETH tokens from ITB position manager
          */
-        address itbPositionManager = 0x7F37350F463525c2670b10234FB014BC406F851c;
-        ERC20[] memory itbTokensUsed = new ERC20[](4);
-        itbTokensUsed[0] = getERC20(sourceChain, "WETH");
-        itbTokensUsed[1] = getERC20(sourceChain, "WEETH");
-        itbTokensUsed[2] = getERC20(sourceChain, "EETH");
-        itbTokensUsed[3] = getERC20(sourceChain, "USDC");
-        _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "ITB Position Manager");
+        {
+            address itbPositionManager = 0x7F37350F463525c2670b10234FB014BC406F851c;
+            ERC20[] memory itbTokensUsed = new ERC20[](4);
+            itbTokensUsed[0] = getERC20(sourceChain, "WETH");
+            itbTokensUsed[1] = getERC20(sourceChain, "WEETH");
+            itbTokensUsed[2] = getERC20(sourceChain, "EETH");
+            itbTokensUsed[3] = getERC20(sourceChain, "USDC");
+            _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "ITB Position Manager");
 
-        address itbPositionManager2 = 0xA40aFb15275A94F64aF37C0cEaAaA45Cb568A361;
-        address itbPositionManager3 = 0x2A601FC6C0Cb854fDA82715E49Ab04C5340A0396;
-        ERC20[] memory itbTokensUsed2 = new ERC20[](1);
-        itbTokensUsed2[0] = getERC20(sourceChain, "WEETH");
-        // Aave weETH -> RLUSD -> RLUSD Aave Horizon 
-        _addLeafsForITBPositionManager(leafs, itbPositionManager2, itbTokensUsed2, "ITB Position Manager 2");
-        //Spark weETH → PYUSD → PYUSD Euler
-        _addLeafsForITBPositionManager(leafs, itbPositionManager3, itbTokensUsed2, "ITB Position Manager 3");
+            address itbPositionManager2 = 0xA40aFb15275A94F64aF37C0cEaAaA45Cb568A361;
+            address itbPositionManager3 = 0x2A601FC6C0Cb854fDA82715E49Ab04C5340A0396;
+            address itbPositionManager4 = 0xCF346a4F898e9FdacD3a130fFe00F1f2dA56C90a;
+            ERC20[] memory itbTokensUsed2 = new ERC20[](1);
+            itbTokensUsed2[0] = getERC20(sourceChain, "WEETH");
+            // Aave weETH -> RLUSD -> RLUSD Aave Horizon
+            _addLeafsForITBPositionManager(leafs, itbPositionManager2, itbTokensUsed2, "ITB Position Manager 2");
+            //Spark weETH → PYUSD → PYUSD Euler
+            _addLeafsForITBPositionManager(leafs, itbPositionManager3, itbTokensUsed2, "ITB Position Manager 3");
+            _addLeafsForITBPositionManager(leafs, itbPositionManager4, itbTokensUsed2, "ITB Position Manager 4");
+        }
 
         // ========================== Drone Setup ===============================
         {
