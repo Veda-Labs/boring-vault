@@ -146,7 +146,7 @@ contract ArcticArchitectureLens {
      * @return time The unlock time for the user's shares.
      */
     function userUnlockTime(address account, TellerWithMultiAssetSupport teller) external view returns (uint256 time) {
-        (,,,, time) = teller.beforeTransferData(account);
+        (,,, time) = teller.beforeTransferData(account);
     }
 
     /**
@@ -302,7 +302,7 @@ contract ArcticArchitectureLens {
         if (shareAmount == 0) res.noShares = true;
 
         // Check if user's shares are locked
-        (,,,, uint256 shareUnlockTime) = teller.beforeTransferData(account);
+        (,,, uint256 shareUnlockTime) = teller.beforeTransferData(account);
         if (shareUnlockTime > block.timestamp) res.sharesLocked = true;
 
         // Calculate expected assets out

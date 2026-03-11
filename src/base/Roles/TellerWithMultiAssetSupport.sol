@@ -11,9 +11,30 @@ import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProv
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {BeforeTransferHook} from "src/interfaces/BeforeTransferHook.sol";
+import {IBufferHelper} from "src/interfaces/IBufferHelper.sol";
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {ReentrancyGuard} from "@solmate/utils/ReentrancyGuard.sol";
 import {IPausable} from "src/interfaces/IPausable.sol";
+import {ECDSA} from "@openzeppelin-contracts-5.3.0/utils/cryptography/ECDSA.sol";
+import {MessageHashUtils} from "@openzeppelin-contracts-5.3.0/utils/cryptography/MessageHashUtils.sol";
+
+struct DepositParams {
+    ERC20 depositAsset;
+    uint256 depositAmount;
+    uint256 minimumMint;
+}
+
+struct ComplianceData {
+    uint256 deadline;
+    bytes signature;
+}
+
+struct PermitData {
+    uint256 deadline;
+    uint8 v;
+    bytes32 r;
+    bytes32 s;
+}
 
 contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuard, IPausable {
     using FixedPointMathLib for uint256;
@@ -34,17 +55,24 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     }
 
     /**
+     * @param depositBufferHelper IBufferHelper contract address for the deposit buffer helper.
+     * @param withdrawBufferHelper IBufferHelper contract address for the withdraw buffer helper.
+     */
+    struct BufferHelpers {
+        IBufferHelper depositBufferHelper;
+        IBufferHelper withdrawBufferHelper;
+    }
+
+    /**
      * @param denyFrom bool indicating whether or not the user is on the deny from list.
      * @param denyTo bool indicating whether or not the user is on the deny to list.
      * @param denyOperator bool indicating whether or not the user is on the deny operator list.
-     * @param permissionedOperator bool indicating whether or not the user is a permissioned operator, only applies when permissionedTransfers is true.
      * @param shareUnlockTime uint256 indicating the time at which the shares will be unlocked.
      */
     struct BeforeTransferData {
         bool denyFrom;
         bool denyTo;
         bool denyOperator;
-        bool permissionedOperator;
         uint256 shareUnlockTime;
     }
 
@@ -92,11 +120,6 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     bool public isPaused;
 
     /**
-     * @notice If true, only permissioned operators can transfer shares.
-     */
-    bool public permissionedTransfers;
-
-    /**
      * @notice The global deposit cap of the vault.
      * @dev If the cap is reached, no new deposits are accepted. No partial fills.
      */
@@ -111,6 +134,22 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @notice Maps address to BeforeTransferData struct to check if shares are locked and if the address is on any allow or deny list.
      */
     mapping(address => BeforeTransferData) public beforeTransferData;
+
+    /**
+     * @notice Maps ERC20 assets to their current buffer helpers.
+     */
+    mapping(ERC20 => BufferHelpers) public currentBufferHelpers;
+
+    /**
+     * @notice Maps ERC20 assets to allowed buffer helpers.
+     */
+    mapping(ERC20 => mapping(IBufferHelper => bool)) public allowedBufferHelpers;
+
+    /**
+     * @notice The address that must sign compliance approvals for deposits.
+     * @dev If set to address(0), compliance verification is skipped (backward-compatible default).
+     */
+    address public complianceSigner;
 
     //============================== ERRORS ===============================
 
@@ -128,8 +167,10 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     error TellerWithMultiAssetSupport__Paused();
     error TellerWithMultiAssetSupport__TransferDenied(address from, address to, address operator);
     error TellerWithMultiAssetSupport__SharePremiumTooLarge();
-    error TellerWithMultiAssetSupport__CannotDepositNative();
     error TellerWithMultiAssetSupport__DepositExceedsCap();
+    error TellerWithMultiAssetSupport__BufferHelperNotAllowed(ERC20 asset, IBufferHelper bufferHelper);
+    error TellerWithMultiAssetSupport__ComplianceCheckFailed();
+    error TellerWithMultiAssetSupport__ComplianceSignatureExpired();
 
     //============================== EVENTS ===============================
 
@@ -156,20 +197,12 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     event AllowFrom(address indexed user);
     event AllowTo(address indexed user);
     event AllowOperator(address indexed user);
-    event PermissionedTransfersSet(bool permissionedTransfers);
-    event AllowPermissionedOperator(address indexed operator);
-    event DenyPermissionedOperator(address indexed operator);
     event DepositCapSet(uint112 cap);
-
-    // =============================== MODIFIERS ===============================
-
-    /**
-     * @notice Reverts if the deposit asset is the native asset.
-     */
-    modifier revertOnNativeDeposit(address depositAsset) {
-        if (depositAsset == NATIVE) revert TellerWithMultiAssetSupport__CannotDepositNative();
-        _;
-    }
+    event DepositBufferHelperSet(ERC20 indexed asset, IBufferHelper indexed newDepositBufferHelper);
+    event WithdrawBufferHelperSet(ERC20 indexed asset, IBufferHelper indexed newWithdrawBufferHelper);
+    event BufferHelperAllowed(ERC20 indexed asset, IBufferHelper indexed bufferHelper);
+    event BufferHelperDisallowed(ERC20 indexed asset, IBufferHelper indexed bufferHelper);
+    event ComplianceSignerSet(address indexed signer);
 
     //============================== IMMUTABLES ===============================
 
@@ -200,7 +233,6 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         ONE_SHARE = 10 ** vault.decimals();
         accountant = AccountantWithRateProviders(_accountant);
         nativeWrapper = WETH(payable(_weth));
-        permissionedTransfers = false;
     }
 
     // ========================================= ADMIN FUNCTIONS =========================================
@@ -332,33 +364,6 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     }
 
     /**
-     * @notice Set the permissioned transfers flag.
-     * @dev Callable by OWNER_ROLE.
-     */
-    function setPermissionedTransfers(bool _permissionedTransfers) external requiresAuth {
-        permissionedTransfers = _permissionedTransfers;
-        emit PermissionedTransfersSet(_permissionedTransfers);
-    }
-
-    /**
-     * @notice Give permission to an operator to transfer shares when permissioned transfers flag is true.
-     * @dev Callable by OWNER_ROLE.
-     */
-    function allowPermissionedOperator(address operator) external requiresAuth {
-        beforeTransferData[operator].permissionedOperator = true;
-        emit AllowPermissionedOperator(operator);
-    }
-
-    /**
-     * @notice Revoke permission from an operator to transfer shares when permissioned transfers flag is true.
-     * @dev Callable by OWNER_ROLE, and DENIER_.
-     */
-    function denyPermissionedOperator(address operator) external requiresAuth {
-        beforeTransferData[operator].permissionedOperator = false;
-        emit DenyPermissionedOperator(operator);
-    }
-
-    /**
      * @notice Set the deposit cap of the vault.
      * @dev Callable by OWNER_ROLE
      */
@@ -367,20 +372,75 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         emit DepositCapSet(cap);
     }
 
+    /**
+     * @notice Updates the deposit buffer helper contract for a given asset.
+     * @param _asset The asset to update the buffer helper for.
+     * @param _depositBufferHelper The new deposit buffer helper contract address.
+     * @dev Only callable by authorized accounts. The helper must be allowlisted or zero address.
+     */
+    function setDepositBufferHelper(ERC20 _asset, IBufferHelper _depositBufferHelper) external requiresAuth {
+        if (allowedBufferHelpers[_asset][_depositBufferHelper] || _depositBufferHelper == IBufferHelper(address(0))) {
+            currentBufferHelpers[_asset].depositBufferHelper = _depositBufferHelper;
+            emit DepositBufferHelperSet(_asset, _depositBufferHelper);
+        } else {
+            revert TellerWithMultiAssetSupport__BufferHelperNotAllowed(_asset, _depositBufferHelper);
+        }
+    }
+
+    /**
+     * @notice Updates the withdrawal buffer helper contract for a given asset.
+     * @param _asset The asset to update the buffer helper for.
+     * @param _withdrawBufferHelper The new withdrawal buffer helper contract address.
+     * @dev Only callable by authorized accounts. The helper must be allowlisted or zero address.
+     */
+    function setWithdrawBufferHelper(ERC20 _asset, IBufferHelper _withdrawBufferHelper) external requiresAuth {
+        if (allowedBufferHelpers[_asset][_withdrawBufferHelper] || _withdrawBufferHelper == IBufferHelper(address(0))) {
+            currentBufferHelpers[_asset].withdrawBufferHelper = _withdrawBufferHelper;
+            emit WithdrawBufferHelperSet(_asset, _withdrawBufferHelper);
+        } else {
+            revert TellerWithMultiAssetSupport__BufferHelperNotAllowed(_asset, _withdrawBufferHelper);
+        }
+    }
+
+    /**
+     * @notice Allows a buffer helper to be used for a specific asset.
+     * @param _asset The asset to allow the buffer helper for.
+     * @param _bufferHelper The buffer helper contract address to allow.
+     */
+    function allowBufferHelper(ERC20 _asset, IBufferHelper _bufferHelper) external requiresAuth {
+        allowedBufferHelpers[_asset][_bufferHelper] = true;
+        emit BufferHelperAllowed(_asset, _bufferHelper);
+    }
+
+    /**
+     * @notice Disallows a buffer helper from being used for a specific asset.
+     * @param _asset The asset to disallow the buffer helper for.
+     * @param _bufferHelper The buffer helper contract address to disallow.
+     */
+    function disallowBufferHelper(ERC20 _asset, IBufferHelper _bufferHelper) external requiresAuth {
+        allowedBufferHelpers[_asset][_bufferHelper] = false;
+        emit BufferHelperDisallowed(_asset, _bufferHelper);
+    }
+
+    /**
+     * @notice Sets the compliance signer address for deposit verification.
+     * @dev Set to address(0) to disable compliance checks (default).
+     * @param _complianceSigner The address of the compliance signer.
+     */
+    function setComplianceSigner(address _complianceSigner) external requiresAuth {
+        complianceSigner = _complianceSigner;
+        emit ComplianceSignerSet(_complianceSigner);
+    }
+
     // ========================================= BeforeTransferHook FUNCTIONS =========================================
 
     /**
      * @notice Implement beforeTransfer hook to check if shares are locked, or if `from`, `to`, or `operator` are denied in beforeTransferData.
-     * @notice If permissionedTransfers is true, then only operators on the allow list can transfer shares.
      * @notice If share lock period is set to zero, then users will be able to mint and transfer in the same tx.
      *         if this behavior is not desired then a share lock period of >=1 should be used.
      */
     function beforeTransfer(address from, address to, address operator) public view virtual {
         _handleDenyList(from, to, operator);
-
-        if (permissionedTransfers && !beforeTransferData[operator].permissionedOperator) {
-            revert TellerWithMultiAssetSupport__TransferDenied(from, to, operator);
-        }
 
         if (beforeTransferData[from].shareUnlockTime > block.timestamp) {
             revert TellerWithMultiAssetSupport__SharesAreLocked();
@@ -442,7 +502,13 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         }
         bytes32 depositHash = keccak256(
             abi.encode(
-                receiver, depositAsset, depositAmount, shareAmount, depositTimestamp, shareLockUpPeriodAtTimeOfDeposit, referralAddress
+                receiver,
+                depositAsset,
+                depositAmount,
+                shareAmount,
+                depositTimestamp,
+                shareLockUpPeriodAtTimeOfDeposit,
+                referralAddress
             )
         );
         if (publicDepositHistory[nonce] != depositHash) revert TellerWithMultiAssetSupport__BadDepositHash();
@@ -464,7 +530,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @notice Allows users to deposit into the BoringVault, if this contract is not paused.
      * @dev Publicly callable.
      */
-    function deposit(ERC20 depositAsset, uint256 depositAmount, uint256 minimumMint, address referralAddress)
+    function deposit(DepositParams calldata params, address referralAddress, ComplianceData calldata compliance)
         external
         payable
         virtual
@@ -472,6 +538,9 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         nonReentrant
         returns (uint256 shares)
     {
+        ERC20 depositAsset = params.depositAsset;
+        uint256 depositAmount = params.depositAmount;
+        _verifyComplianceSignature(msg.sender, depositAsset, depositAmount, compliance);
         Asset memory asset = _beforeDeposit(depositAsset);
 
         address from;
@@ -490,7 +559,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
             from = msg.sender;
         }
 
-        shares = _erc20Deposit(depositAsset, depositAmount, minimumMint, from, msg.sender, asset);
+        shares = _erc20Deposit(depositAsset, depositAmount, params.minimumMint, from, msg.sender, asset);
         _afterPublicDeposit(msg.sender, depositAsset, depositAmount, shares, shareLockPeriod, referralAddress);
     }
 
@@ -499,28 +568,21 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @dev Publicly callable.
      */
     function depositWithPermit(
-        ERC20 depositAsset,
-        uint256 depositAmount,
-        uint256 minimumMint,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s,
-        address referralAddress
-    )
-        external
-        virtual
-        requiresAuth
-        nonReentrant
-        revertOnNativeDeposit(address(depositAsset))
-        returns (uint256 shares)
-    {
-        Asset memory asset = _beforeDeposit(depositAsset);
+        DepositParams calldata params,
+        PermitData calldata permit,
+        address referralAddress,
+        ComplianceData calldata compliance
+    ) external virtual requiresAuth nonReentrant returns (uint256 shares) {
+        _verifyComplianceSignature(msg.sender, params.depositAsset, params.depositAmount, compliance);
+        Asset memory asset = _beforeDeposit(params.depositAsset);
 
-        _handlePermit(depositAsset, depositAmount, deadline, v, r, s);
+        _handlePermit(params.depositAsset, params.depositAmount, permit);
 
-        shares = _erc20Deposit(depositAsset, depositAmount, minimumMint, msg.sender, msg.sender, asset);
-        _afterPublicDeposit(msg.sender, depositAsset, depositAmount, shares, shareLockPeriod, referralAddress);
+        shares =
+            _erc20Deposit(params.depositAsset, params.depositAmount, params.minimumMint, msg.sender, msg.sender, asset);
+        _afterPublicDeposit(
+            msg.sender, params.depositAsset, params.depositAmount, shares, shareLockPeriod, referralAddress
+        );
     }
 
     /**
@@ -601,7 +663,11 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     /**
      * @notice Implements a common ERC20 withdraw from BoringVault.
      */
-    function _withdraw(ERC20 withdrawAsset, uint256 shareAmount, uint256 minimumAssets, address to) internal virtual returns (uint256 assetsOut) {
+    function _withdraw(ERC20 withdrawAsset, uint256 shareAmount, uint256 minimumAssets, address to)
+        internal
+        virtual
+        returns (uint256 assetsOut)
+    {
         if (isPaused) revert TellerWithMultiAssetSupport__Paused();
         Asset memory asset = assetData[withdrawAsset];
         if (!asset.allowWithdraws) revert TellerWithMultiAssetSupport__AssetNotSupported();
@@ -611,6 +677,34 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         if (assetsOut < minimumAssets) revert TellerWithMultiAssetSupport__MinimumAssetsNotMet();
         _beforeWithdraw(withdrawAsset, assetsOut);
         vault.exit(to, withdrawAsset, assetsOut, msg.sender, shareAmount);
+    }
+
+    /**
+     * @notice Verify compliance signature for a deposit if complianceSigner is set.
+     */
+    function _verifyComplianceSignature(
+        address depositor,
+        ERC20 depositAsset,
+        uint256 depositAmount,
+        ComplianceData calldata compliance
+    ) internal view {
+        bytes32 messageHash = keccak256(
+            abi.encode(
+                address(this), block.chainid, depositor, address(depositAsset), depositAmount, compliance.deadline
+            )
+        );
+        _verifyCompliance(messageHash, compliance);
+    }
+
+    /**
+     * @notice Verify a compliance signature against the complianceSigner.
+     */
+    function _verifyCompliance(bytes32 messageHash, ComplianceData calldata compliance) internal view {
+        if (complianceSigner == address(0)) return;
+        if (block.timestamp > compliance.deadline) revert TellerWithMultiAssetSupport__ComplianceSignatureExpired();
+        bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
+        address recovered = ECDSA.recover(ethSignedHash, compliance.signature);
+        if (recovered != complianceSigner) revert TellerWithMultiAssetSupport__ComplianceCheckFailed();
     }
 
     /**
@@ -639,19 +733,30 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         if (currentShareLockPeriod > 0) {
             beforeTransferData[user].shareUnlockTime = block.timestamp + currentShareLockPeriod;
             publicDepositHistory[nonce] = keccak256(
-                abi.encode(user, depositAsset, depositAmount, shares, block.timestamp, currentShareLockPeriod, referralAddress)
+                abi.encode(
+                    user, depositAsset, depositAmount, shares, block.timestamp, currentShareLockPeriod, referralAddress
+                )
             );
         }
-        emit Deposit(nonce, user, address(depositAsset), depositAmount, shares, block.timestamp, currentShareLockPeriod, referralAddress);
+        emit Deposit(
+            nonce,
+            user,
+            address(depositAsset),
+            depositAmount,
+            shares,
+            block.timestamp,
+            currentShareLockPeriod,
+            referralAddress
+        );
     }
 
     /**
      * @notice Handle permit logic.
      */
-    function _handlePermit(ERC20 depositAsset, uint256 depositAmount, uint256 deadline, uint8 v, bytes32 r, bytes32 s)
-        internal
-    {
-        try depositAsset.permit(msg.sender, address(vault), depositAmount, deadline, v, r, s) {}
+    function _handlePermit(ERC20 depositAsset, uint256 depositAmount, PermitData calldata permit) internal {
+        try depositAsset.permit(
+            msg.sender, address(vault), depositAmount, permit.deadline, permit.v, permit.r, permit.s
+        ) {}
         catch {
             if (depositAsset.allowance(msg.sender, address(vault)) < depositAmount) {
                 revert TellerWithMultiAssetSupport__PermitFailedAndAllowanceTooLow();
@@ -660,20 +765,34 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     }
 
     /**
-     * @notice Hook that is called after a deposit operation.
-     * @dev Can be overridden by child contracts to implement custom post-deposit logic.
+     * @notice Executes buffer management after a deposit operation.
+     * @dev If a deposit buffer helper is configured for the asset, it retrieves management calls
+     * and executes them through the vault's manage function.
      * @param depositAsset The ERC20 token that was deposited.
      * @param assetAmount The amount of the asset that was deposited.
      */
-    function _afterDeposit(ERC20 depositAsset, uint256 assetAmount) internal virtual {}
+    function _afterDeposit(ERC20 depositAsset, uint256 assetAmount) internal virtual {
+        if (address(currentBufferHelpers[depositAsset].depositBufferHelper) != address(0)) {
+            (address[] memory targets, bytes[] memory data, uint256[] memory values) = currentBufferHelpers[depositAsset].depositBufferHelper
+                .getDepositManageCall(address(depositAsset), assetAmount);
+            vault.manage(targets, data, values);
+        }
+    }
 
     /**
-     * @notice Hook that is called before a withdrawal operation.
-     * @dev Can be overridden by child contracts to implement custom pre-withdrawal logic.
+     * @notice Executes buffer management before a withdrawal operation.
+     * @dev If a withdraw buffer helper is configured for the asset, it retrieves management calls
+     * and executes them through the vault's manage function.
      * @param withdrawAsset The ERC20 token that will be withdrawn.
      * @param assetAmount The amount of the asset that will be withdrawn.
      */
-    function _beforeWithdraw(ERC20 withdrawAsset, uint256 assetAmount) internal virtual {}
+    function _beforeWithdraw(ERC20 withdrawAsset, uint256 assetAmount) internal virtual {
+        if (address(currentBufferHelpers[withdrawAsset].withdrawBufferHelper) != address(0)) {
+            (address[] memory targets, bytes[] memory data, uint256[] memory values) = currentBufferHelpers[withdrawAsset].withdrawBufferHelper
+                .getWithdrawManageCall(address(withdrawAsset), assetAmount);
+            vault.manage(targets, data, values);
+        }
+    }
 
     // ========================================= VIEW FUNCTIONS =========================================
 
@@ -681,6 +800,6 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @notice Returns the version of the contract.
      */
     function version() public pure virtual returns (string memory) {
-        return "Base V0.1";
+        return "Base V0.2";
     }
 }

@@ -15,7 +15,12 @@ import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import {
+    TellerWithMultiAssetSupport,
+    DepositParams,
+    ComplianceData,
+    PermitData
+} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import {AddressToBytes32Lib} from "src/helper/AddressToBytes32Lib.sol";
 
@@ -132,7 +137,12 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
         uint256 fee = sourceTeller.previewFee(sharesToBridge, to, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20);
         uint256 expectedFee = 1e18;
         sourceTeller.bridge{value: fee}(
-            sharesToBridge, to, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20, expectedFee
+            sharesToBridge,
+            to,
+            abi.encode(layerZeroArbitrumEndpointId),
+            NATIVE_ERC20,
+            expectedFee,
+            ComplianceData(0, "")
         );
     }
 
@@ -147,7 +157,13 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
         vm.startPrank(user);
         WETH.approve(address(boringVault), depositAmount);
         sourceTeller.depositAndBridge{value: fee}(
-            WETH, depositAmount, 0, user, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20, fee, referrer
+            DepositParams(WETH, depositAmount, 0),
+            user,
+            abi.encode(layerZeroArbitrumEndpointId),
+            NATIVE_ERC20,
+            fee,
+            referrer,
+            ComplianceData(0, "")
         );
         vm.stopPrank();
     }
@@ -193,21 +209,18 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
         deal(user, fee);
 
         vm.startPrank(user);
-        CrossChainTellerWithGenericBridge.DepositAndBridgeWithPermitParams memory params = CrossChainTellerWithGenericBridge.DepositAndBridgeWithPermitParams({
-            depositAsset: WEETH,
-            depositAmount: weETH_amount,
-            minimumMint: 0,
-            deadline: block.timestamp,
-            v: v,
-            r: r,
-            s: s,
-            to: user,
-            bridgeWildCard: abi.encode(layerZeroArbitrumEndpointId),
-            feeToken: NATIVE_ERC20,
-            maxFee: fee,
-            referralAddress: referrer
-        });
-        sourceTeller.depositAndBridgeWithPermit{value: fee}(params);   
+        CrossChainTellerWithGenericBridge.DepositAndBridgeWithPermitParams memory params =
+            CrossChainTellerWithGenericBridge.DepositAndBridgeWithPermitParams({
+                depositParams: DepositParams(WEETH, weETH_amount, 0),
+                permit: PermitData(block.timestamp, v, r, s),
+                to: user,
+                bridgeWildCard: abi.encode(layerZeroArbitrumEndpointId),
+                feeToken: NATIVE_ERC20,
+                maxFee: fee,
+                referralAddress: referrer,
+                compliance: ComplianceData(0, "")
+            });
+        sourceTeller.depositAndBridgeWithPermit{value: fee}(params);
         vm.stopPrank();
     }
 
@@ -228,21 +241,13 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
             )
         );
         sourceTeller.depositAndBridge(
-            WETH, depositAmount, 0, user, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20, 0, referrer
-        );
-        vm.stopPrank();
-
-        // Trying to deposit with native asset should revert.
-        vm.startPrank(user);
-        vm.expectRevert(
-            bytes(
-                abi.encodeWithSelector(
-                    TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__CannotDepositNative.selector
-                )
-            )
-        );
-        sourceTeller.depositAndBridge(
-            NATIVE_ERC20, depositAmount, 0, user, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20, 0, referrer
+            DepositParams(WETH, depositAmount, 0),
+            user,
+            abi.encode(layerZeroArbitrumEndpointId),
+            NATIVE_ERC20,
+            0,
+            referrer,
+            ComplianceData(0, "")
         );
         vm.stopPrank();
     }

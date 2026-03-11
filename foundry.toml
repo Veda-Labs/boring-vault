@@ -19,6 +19,7 @@ remappings = [
     "@ccip=lib/ccip/",
     "@oapp-auth=lib/OAppAuth/src/",
 ]
+libs = ["lib", "dependencies"]
 
 [fuzz]
 runs = 8000
@@ -96,3 +97,6 @@ FOUNDRY_FMT_NUMBER_UNDERSCORE = "thousands"
 FOUNDRY_FMT_OVERRIDE_SPACING = true
 FOUNDRY_FMT_WRAP_COMMENTS = false
 FOUNDRY_FMT_IGNORE = []
+
+[dependencies]
+"@openzeppelin-contracts" = "5.3.0"

@@ -13,7 +13,7 @@ import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MockLayerZeroEndPoint} from "src/helper/MockLayerZeroEndPoint.sol";
-import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import {TellerWithMultiAssetSupport, ComplianceData} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import {AddressToBytes32Lib} from "src/helper/AddressToBytes32Lib.sol";
 
@@ -145,7 +145,9 @@ contract LayerZeroTellerTest is Test, MerkleTreeHelper {
         // Bridge 100 shares.
         address to = vm.addr(1);
         uint256 expectedFee = 1e18;
-        sourceTeller.bridge{value: 0.001e18}(sharesToBridge, to, abi.encode(DESTINATION_ID), NATIVE_ERC20, expectedFee);
+        sourceTeller.bridge{value: 0.001e18}(
+            sharesToBridge, to, abi.encode(DESTINATION_ID), NATIVE_ERC20, expectedFee, ComplianceData(0, "")
+        );
 
         MockLayerZeroEndPoint.Packet memory m = endPoint.getLastMessage();
 
@@ -236,7 +238,7 @@ contract LayerZeroTellerTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             bytes(abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__Paused.selector))
         );
-        sourceTeller.bridge(0, address(0), hex"", NATIVE_ERC20, 0);
+        sourceTeller.bridge(0, address(0), hex"", NATIVE_ERC20, 0, ComplianceData(0, ""));
 
         sourceTeller.unpause();
         sourceTeller.removeChain(DESTINATION_ID);
@@ -248,7 +250,9 @@ contract LayerZeroTellerTest is Test, MerkleTreeHelper {
                 abi.encodeWithSelector(LayerZeroTeller.LayerZeroTeller__MessagesNotAllowedTo.selector, DESTINATION_ID)
             )
         );
-        sourceTeller.bridge(1e18, address(this), abi.encode(DESTINATION_ID), NATIVE_ERC20, expectedFee);
+        sourceTeller.bridge(
+            1e18, address(this), abi.encode(DESTINATION_ID), NATIVE_ERC20, expectedFee, ComplianceData(0, "")
+        );
 
         // setup chains.
         sourceTeller.addChain(DESTINATION_ID, true, true, address(destinationTeller), 1_000_000);
@@ -265,11 +269,15 @@ contract LayerZeroTellerTest is Test, MerkleTreeHelper {
                 )
             )
         );
-        sourceTeller.bridge(1e18, address(this), abi.encode(DESTINATION_ID), NATIVE_ERC20, expectedFee);
+        sourceTeller.bridge(
+            1e18, address(this), abi.encode(DESTINATION_ID), NATIVE_ERC20, expectedFee, ComplianceData(0, "")
+        );
 
         endPoint.setFee(NATIVE_ERC20, 0.001e18);
 
-        sourceTeller.bridge{value: 0.001e18}(1e18, address(this), abi.encode(DESTINATION_ID), NATIVE_ERC20, 1e18);
+        sourceTeller.bridge{value: 0.001e18}(
+            1e18, address(this), abi.encode(DESTINATION_ID), NATIVE_ERC20, 1e18, ComplianceData(0, "")
+        );
 
         MockLayerZeroEndPoint.Packet memory m = endPoint.getLastMessage();
 
