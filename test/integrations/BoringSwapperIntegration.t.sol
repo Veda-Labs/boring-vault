@@ -44,6 +44,17 @@ contract MockRateProvider is IRateProvider {
 
 contract BoringSwapperIntegration is BaseTestIntegration {
 
+    // CoW Protocol constants BEGIN //
+    address constant COW_SETTLEMENT = 0x9008D19f58AAbD9eD0D60971565AA8510560ab41;
+                                                                                                                                       
+    bytes32 constant GPV2_ORDER_TYPE_HASH = keccak256(
+        "Order(address sellToken,address buyToken,address receiver,uint256 sellAmount,uint256 buyAmount,uint32 validTo,bytes32 appData,uint256 feeAmount,bytes32 kind,bool partiallyFillable,bytes32 sellTokenBalance,bytes32 buyTokenBalance)");
+
+    bytes32 constant KIND_SELL = keccak256("sell");
+    bytes32 constant BALANCE_ERC20 = keccak256("erc20");
+
+    // CoW Protocol constants END //
+
     AdapterRegistry registry;
     BoringSwapper swapper;
     PriceValidator validator;
@@ -65,7 +76,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         swapper = new BoringSwapper(registry); 
 
         address uniswapV3AdapterVersion0_1 = address(new UniswapV3Adapter(getAddress(sourceChain, "uniV3Router"))); 
-        address cowswapAdapterVersion0_1 = address(new CowswapAdapter()); 
+        address cowswapAdapterVersion0_1 = address(new CowswapAdapter(COW_SETTLEMENT)); 
 
         swapper.addApprovedRoute(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDC"), 50); 
         swapper.addApprovedProtocol(0); //UNI_V3
@@ -181,14 +192,78 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         }
     }
 
-    // CoW Protocol constants                                                                                                          
-    address constant COW_SETTLEMENT = 0x9008D19f58AAbD9eD0D60971565AA8510560ab41;
-                                                                                                                                       
-    bytes32 constant GPV2_ORDER_TYPE_HASH = keccak256(
-        "Order(address sellToken,address buyToken,address receiver,uint256 sellAmount,uint256 buyAmount,uint32 validTo,bytes32 appData,uint256 feeAmount,bytes32 kind,bool partiallyFillable,bytes32 sellTokenBalance,bytes32 buyTokenBalance)");
+    function testUniV3Swap__Reverts() external {
+        //create tokens array
+        deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18); 
 
-    bytes32 constant KIND_SELL = keccak256("sell");
-    bytes32 constant BALANCE_ERC20 = keccak256("erc20");
+        address[] memory tokens = new address[](2);  
+        tokens[0] = getAddress(sourceChain, "WETH");
+        tokens[1] = getAddress(sourceChain, "USDC");
+    
+        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        _addBoringSwapperLeafs(leafs, address(swapper), tokens); 
+        
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+
+        //_generateTestLeafs(leafs, manageTree);
+
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        Tx memory tx_ = _getTxArrays(2); 
+
+        tx_.manageLeafs[0] = leafs[0]; //approve token
+        tx_.manageLeafs[1] = leafs[3]; //swap WETH -> USDC
+        
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+
+        tx_.targets[0] = getAddress(sourceChain, "WETH"); //approve 
+        tx_.targets[1] = address(swapper);  
+
+        tx_.targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", address(swapper), type(uint256).max
+        );
+        
+        //swapData is malformed on purpose (USDT instead of USDC) -> attempt to bypass the swapper whitelisting
+        bytes memory uniswapSwapData = abi.encodeWithSignature(
+            "exactInput((bytes,address,uint256,uint256,uint256))",
+            DecoderCustomTypes.ExactInputParams({
+                path: abi.encodePacked(getAddress(sourceChain, "WETH"), uint24(500), getAddress(sourceChain, "USDT")),
+                recipient: address(swapper),
+                deadline: block.timestamp,
+                amountIn: 1e18,
+                amountOutMinimum: 0
+            })
+        );
+        
+        //swap config path is correct here! 
+        BoringSwapper.TokenRoute memory tokenRoute = BoringSwapper.TokenRoute(
+            getERC20(sourceChain, "WETH"),
+            getERC20(sourceChain, "USDC")
+        );
+        uint8 UNISWAP_V3 = 0; 
+        tx_.targetData[1] = abi.encodeWithSelector(
+            BoringSwapper.swap.selector,
+            BoringSwapper.SwapConfig({
+                tokenRoute: tokenRoute,
+                protocolId: UNISWAP_V3,
+                quoteAsset: getAddress(sourceChain, "USDC"),
+                swapData: uniswapSwapData,
+                slippageBps: 10,
+                receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
+            })
+        );
+
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+
+        address vault = getAddress(sourceChain, "boringVault");
+        uint256 wethBefore = getERC20(sourceChain, "WETH").balanceOf(vault);
+        uint256 usdcBefore = getERC20(sourceChain, "USDC").balanceOf(vault);
+
+        vm.expectRevert("path tokenOut mismatch"); 
+        _submitManagerCall(manageProofs, tx_);
+    }
+
 
     function _cowDomainSeparator() internal view returns (bytes32) {
         return keccak256(abi.encode(

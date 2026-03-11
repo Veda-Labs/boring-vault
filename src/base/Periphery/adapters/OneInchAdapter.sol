@@ -46,7 +46,7 @@ contract OneInchAdapter is IAdapter {
         return 1;
     }
 
-    function swap(BoringSwapper.SwapConfig calldata swapConfig, address) external view returns (address, address, uint256, uint256) {
-        return (address(0), address(0), 0, 0);
+    function verifyLimitOrder(BoringSwapper.SwapConfig calldata swapConfig, address) external view returns (address, address, address, uint256, uint256) {
+        return (address(0), address(0), address(0), 0, 0);
     }
 }

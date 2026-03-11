@@ -6,45 +6,49 @@ pragma solidity 0.8.21;
 
 import {BoringSwapper} from "src/base/Periphery/BoringSwapper.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
+import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
+import {BaseAdapter} from "src/base/Periphery/adapters/BaseAdapter.sol";
 
-//IAdapter does what exactly? TBD. 
-contract UniswapV3Adapter is IAdapter {
+contract UniswapV3Adapter is IAdapter, BaseAdapter {
 
-    address public immutable UNIV3_ROUTER; 
+    address public immutable UNIV3_ROUTER;
 
     constructor(address _router) {
-        UNIV3_ROUTER = _router; 
+        UNIV3_ROUTER = _router;
     }
 
-    function exactInput(DecoderCustomTypes.ExactInputParams calldata params)
+    function exactInput(DecoderCustomTypes.ExactInputParams memory params)
         external
         view
         virtual
         returns (address, uint256)
     {
-        // Nothing to sanitize
-        // Return addresses found
-        // Determine how many addresses are in params.path.
-        uint256 chunkSize = 23; // 3 bytes for uint24 fee, and 20 bytes for address token
-        uint256 pathLength = params.path.length;
-        if (pathLength % chunkSize != 20) revert("no"); //UniswapV3DecoderAndSanitizer__BadPathFormat();
-        uint256 pathAddressLength = 1 + (pathLength / chunkSize);
-        uint256 pathIndex;
+        if (params.recipient != msg.sender) revert("recipient must be swapper");
 
-        //get the size, check the first 20 bytes, check the last 20 bytes, those should be our two addresses
-        for (uint256 i; i < pathAddressLength; ++i) {
-            pathIndex += chunkSize;
+        // extract appended SwapConfig for additional validation
+        BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
+
+        // verify path tokens match the approved token route
+        // path is abi.encodePacked(tokenIn, fee, ..., tokenOut) — first 20 bytes = tokenIn, last 20 bytes = tokenOut
+        bytes memory path = params.path;
+        address pathTokenIn;
+        address pathTokenOut;
+        assembly {
+            pathTokenIn := shr(96, mload(add(path, 0x20)))
+            pathTokenOut := shr(96, mload(add(add(path, 0x20), sub(mload(path), 20))))
         }
+        if (ERC20(pathTokenIn) != swapConfig.tokenRoute.tokenIn) revert("path tokenIn mismatch");
+        if (ERC20(pathTokenOut) != swapConfig.tokenRoute.tokenOut) revert("path tokenOut mismatch");
 
-        return (UNIV3_ROUTER, params.amountIn); 
+        return (UNIV3_ROUTER, params.amountIn);
     }
 
     function version() external view returns (uint256) {
         return 1; 
     }
 
-    function swap(BoringSwapper.SwapConfig calldata swapConfig, address) external view returns (address, address, uint256, uint256) {
-        return (address(0), address(0), 0, 0);
+    function verifyLimitOrder(BoringSwapper.SwapConfig calldata swapConfig, address) external view returns (address, address, address, uint256, uint256) {
+        return (address(0), address(0), address(0), 0, 0);
     }
 }

@@ -11,12 +11,14 @@ import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {ReentrancyGuard} from "@solmate/utils/ReentrancyGuard.sol";
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
 import {IPriceValidator} from "src/interfaces/IPriceValidator.sol";
 
 contract BoringSwapper is Auth {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
+    using Address for address;
         
     //EIP 1271
     bytes4 internal constant MAGIC_VALUE = 0x1626ba7e;
@@ -44,6 +46,9 @@ contract BoringSwapper is Auth {
     /// @notice stores the current version this swapper subscribes to for a specific protocol
     mapping(uint8 protocolId => uint256 version) public versions;
 
+    mapping(bytes32 hash => bool approvedOrder) public approvedOrders;
+    uint256 public orders;
+
     AdapterRegistry public adapterRegsitry; 
     IPriceValidator public priceValidator;
 
@@ -53,14 +58,9 @@ contract BoringSwapper is Auth {
     
     //TODO do we need auth here? maybe not.  
     function swap(SwapConfig calldata swapConfig) external { 
-        //compute the key
-        bytes32 key = getRouteId(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut);
 
-        //check the whitelist of tokens
+        bytes32 key = getRouteId(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut);
         if (approvedRoutes[key] == false) revert("not approved"); //TODO custom error
-        
-        //get the protocol id from the registry
-        //we can probably get away with whitelisting protocols directly so we can update our list centrally (though should check to be sure)
         if (approvedProtocols[swapConfig.protocolId] == false) revert("not approved");
         
         //get the correct adapter based on the version
@@ -68,19 +68,21 @@ contract BoringSwapper is Auth {
             swapConfig.protocolId, 
             versions[swapConfig.protocolId]
         );  
-        (bool success, bytes memory result) = adapter.staticcall(swapConfig.swapData);
-        if (!success) revert("must succeed");
-        //if we succeeded, just execute the swap now. 
+
+        //append our data to the call -> 
+        bytes memory appended = abi.encodePacked(swapConfig.swapData, abi.encode(swapConfig), uint256(swapConfig.swapData.length));
+        (bytes memory result) = adapter.functionStaticCall(appended);
+
+        //if we succeeded, decode the params we get back from the adapter
         (address target, uint256 amount) = abi.decode(result, (address, uint256));
 
         //snapshot the balance
         uint256 tokenBalanceBefore = swapConfig.tokenRoute.tokenOut.balanceOf(address(this)); 
         
         //transfer assets from the vault to the swapper, approve target & execute
-        swapConfig.tokenRoute.tokenIn.transferFrom(address(swapConfig.receiver), address(this), amount); 
+        swapConfig.tokenRoute.tokenIn.safeTransferFrom(address(swapConfig.receiver), address(this), amount); 
         swapConfig.tokenRoute.tokenIn.approve(target, amount); 
-        (success, ) = target.call(swapConfig.swapData); 
-        if (!success) revert("bad");
+        target.call(swapConfig.swapData); 
         
         uint256 tokenBalanceDelta = swapConfig.tokenRoute.tokenOut.balanceOf(address(this)) - tokenBalanceBefore; 
         
@@ -98,7 +100,40 @@ contract BoringSwapper is Auth {
         swapConfig.tokenRoute.tokenIn.approve(target, 0); 
         swapConfig.tokenRoute.tokenOut.transfer(address(swapConfig.receiver), tokenBalanceDelta); 
     }  
-    
+
+    function submitOrder(SwapConfig memory swapConfig) external {
+        bytes32 key = getRouteId(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut);
+        if (approvedRoutes[key] == false) revert("not approved"); //TODO custom error
+        if (approvedProtocols[swapConfig.protocolId] == false) revert("not approved");
+
+        address adapter = adapterRegsitry.get(
+            swapConfig.protocolId,
+            versions[swapConfig.protocolId]
+        ); 
+        (address settlement, address inputToken, address outputToken, uint256 inputAmount, uint256 outputAmount) =
+            IAdapter(adapter).verifyLimitOrder(swapConfig, address(this));
+
+        //check for limit order fat fingers
+        IPriceValidator(priceValidator).validate(ERC20(inputToken), ERC20(outputToken), inputAmount, outputAmount, swapConfig.quoteAsset, swapConfig.slippageBps);
+        bytes32 orderHash = keccak256(abi.encode(swapConfig, orders)); 
+        approvedOrders[orderHash] = true; 
+
+        //preapprove the settlement contract & pull funds from the vault
+        swapConfig.tokenRoute.tokenIn.approve(settlement, inputAmount); 
+        swapConfig.tokenRoute.tokenIn.safeTransferFrom(address(swapConfig.receiver), address(this), inputAmount);
+
+        orders += 1;
+
+        //TODO emit event with data needed for signature building for strategist to reconstruct this for the _signature field
+    }
+
+    //TODO
+    //cancelOrder()
+    //some way to clear hashes after approval (we cannot clear the state because isValidSignature must be a view function)
+    //  leave state dangling, rely on protocol to handle (cow does this, not sure about others)
+    //  change the flow so that swaps actually go here and strategists must call (reclaim()) to issue the funds back to the vault (terrible ux)
+    //sweep() 
+
     function addApprovedRoute(ERC20 tokenIn, ERC20 tokenOut, uint256 maxSlippageBps) external {
         bytes32 key = getRouteId(tokenIn, tokenOut);
         approvedRoutes[key] = true;
@@ -130,15 +165,9 @@ contract BoringSwapper is Auth {
         view
         returns (bytes4)
     {
-        (SwapConfig memory swapConfig) = abi.decode(_signature, (SwapConfig));
-        address adapter = adapterRegsitry.get(
-            swapConfig.protocolId,
-            versions[swapConfig.protocolId]
-        );
-        //TODO handle errors/edge cases: what happens when the hash is not valid or spoofed?
-        
-        (address inputToken, address outputToken, uint256 inputAmount, uint256 outputAmount) = IAdapter(adapter).swap(swapConfig, address(this));
-        IPriceValidator(priceValidator).validate(ERC20(inputToken), ERC20(outputToken), inputAmount, outputAmount, swapConfig.quoteAsset, swapConfig.slippageBps); //will revert if does not pass
+        (SwapConfig memory swapConfig, uint256 orderId) = abi.decode(_signature, (SwapConfig, uint256)); 
+        bytes32 orderHash = keccak256(abi.encode(swapConfig, orderId));
+        if (!approvedOrders[orderHash]) revert("trade not approved");
 
         return MAGIC_VALUE;
     }

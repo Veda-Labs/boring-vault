@@ -9,5 +9,5 @@ import {BoringSwapper} from "src/base/Periphery/BoringSwapper.sol";
 
 interface IAdapter {
     function version() external view returns (uint256);
-    function swap(BoringSwapper.SwapConfig calldata swapConfig, address swapper) external view returns (address, address, uint256, uint256);
+    function verifyLimitOrder(BoringSwapper.SwapConfig calldata swapConfig, address swapper) external view returns (address, address, address, uint256, uint256);
 }
