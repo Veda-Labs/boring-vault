@@ -18,14 +18,13 @@ contract ArbitrumMerkleRootScript is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0xA923d8C976388518D65528324A587E4700f8F40f;
-    address public rawDataDecoderAndSanitizer = 0xA902f4dADE492e44c455F1D8A848D835d70b4854;
+    address public rawDataDecoderAndSanitizer = 0xb7728a4D5aD028DA06b0698400C18345A8eDf4a0;
     ManagerWithMerkleVerification internal manager =
         ManagerWithMerkleVerification(0x84Fa6EcB08c9E053C5F2E7156bc6562F62210709);
     address public accountant = 0xc80E787e1c2A3841928F69e6a35e3F12c7b38a00;
 
-    address manager0 = 0x0307AD25281C99F22A8F3Af9e272fE3968810239;
-    address manager1 = 0xa86b3Bf249478488B4304B50726c7D4689aD6320;
-    address manager2 = 0x3Ad4a628b3B47A593e8d39c51d53b5C40C1b5f46;
+    address manager0 = 0xa86b3Bf249478488B4304B50726c7D4689aD6320;
+    address manager1 = 0x3Ad4a628b3B47A593e8d39c51d53b5C40C1b5f46;
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
@@ -49,12 +48,15 @@ contract ArbitrumMerkleRootScript is Script, MerkleTreeHelper {
         vm.startBroadcast(privateKey);
         manager.setManageRoot(manager0, manageTree[manageTree.length - 1][0]);
         manager.setManageRoot(manager1, manageTree[manageTree.length - 1][0]);
-        manager.setManageRoot(manager2, manageTree[manageTree.length - 1][0]);
         manager.setManageRoot(getAddress(sourceChain, "managerAddress"), manageTree[manageTree.length - 1][0]);
         vm.stopBroadcast();
     }
 
     function _addLeafs(ManageLeaf[] memory leafs) internal {
+        ERC20[] memory feeAssets = new ERC20[](1);
+        feeAssets[0] = getERC20(sourceChain, "WBTC");
+        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
+
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDC"));
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDT0"));
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "DAI"));
@@ -103,13 +105,5 @@ contract ArbitrumMerkleRootScript is Script, MerkleTreeHelper {
         borrowAssets[3] = getERC20(sourceChain, "USDT0");
 
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
-
-        ERC20[] memory depositAssets = new ERC20[](1);
-        depositAssets[0] = getERC20(sourceChain, "WBTC");
-        _addTellerLeafs(leafs, 0xdE4FD4DD35F78389CDaCF111D7Ba31A31A61b2a7, depositAssets, false, false);
-
-        _addWithdrawQueueLeafs(
-            leafs, 0x2f2e71bdd62f87FCF8d19d234CA3bd903848D3a5, 0xC0D48269f8d6E427B0637F5e0695De11C8E75F6c, depositAssets
-        );
     }
 }
