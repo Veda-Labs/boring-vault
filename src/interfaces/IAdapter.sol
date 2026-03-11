@@ -8,6 +8,16 @@ import {BoringSwapper} from "src/base/Periphery/BoringSwapper.sol";
 
 
 interface IAdapter {
+
+    struct OrderInfo {
+        address settlement;
+        address inputToken;
+        address outputToken;
+        uint256 inputAmount;
+        uint256 outputAmount;
+        bytes32 protocolHash;
+    }
+
     function version() external view returns (uint256);
-    function verifyLimitOrder(BoringSwapper.SwapConfig calldata swapConfig, address swapper) external view returns (address, address, address, uint256, uint256);
+    function verifyLimitOrder(BoringSwapper.SwapConfig calldata swapConfig, address swapper) external view returns (OrderInfo memory);
 }

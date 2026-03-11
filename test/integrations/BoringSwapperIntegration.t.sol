@@ -326,8 +326,6 @@ contract BoringSwapperIntegration is BaseTestIntegration {
     }
 
     function testCowswapValidSignature() external {
-        uint256 orderId = swapper.orders();
-
         deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18); 
 
         address[] memory tokens = new address[](2);  
@@ -398,31 +396,20 @@ contract BoringSwapperIntegration is BaseTestIntegration {
 
         _submitManagerCall(manageProofs, tx_);
 
-        (bytes32 orderDigest, bytes memory encodedOrder) = _buildCowOrderDigest(
-            getAddress(sourceChain, "WETH"),                              // sellToken
+        // Build the same EIP-712 digest the adapter would compute
+        (bytes32 orderDigest, ) = _buildCowOrderDigest(
+            getAddress(sourceChain, "WETH"),
             getAddress(sourceChain, "USDC"),
-            address(swapper),                  // receiver
-            1e18,                              // sellAmount (1 WETH)
-            2000e6,                            // buyAmount (2000 USDC)
-            uint32(block.timestamp + 3600)     // validTo
+            getAddress(sourceChain, "boringVault"),  // receiver matches order
+            1e18,
+            2000e6,
+            uint32(block.timestamp + 3600)
         );
-
-        bytes memory signature = abi.encode(
-            BoringSwapper.SwapConfig({
-                tokenRoute: tokenRoute,
-                protocolId: COWSWAP,
-                quoteAsset: getAddress(sourceChain, "USDC"),
-                swapData: cowswapData,
-                slippageBps: 10,
-                receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
-            }), orderId
-        );
-
-       //call the limit order from the vault
 
        // Simulate CoW settlement contract calling isValidSignature
+       // _signature contains the orderId (nonce) so swapper can reconstruct the unique hash
        vm.prank(COW_SETTLEMENT);
-       bytes4 result = swapper.isValidSignature(orderDigest, signature);
+       bytes4 result = swapper.isValidSignature(orderDigest, abi.encode(uint256(0)));
        assertEq(result, bytes4(0x1626ba7e), "should return ERC-1271 magic value");
     }
 

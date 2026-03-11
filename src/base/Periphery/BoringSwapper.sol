@@ -15,17 +15,12 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
 import {IPriceValidator} from "src/interfaces/IPriceValidator.sol";
 
-// TODO: cancelOrder() — set approvedOrders[hash] = false, revoke settlement approval, return tokens to vault
 // TODO: sweep(ERC20 token) — generic reclaim for tokens on swapper after fills or expired orders
 // TODO: stale order hash cleanup strategy — hashes persist after fills since isValidSignature is view
 // TODO: emit events from submitOrder (with orderHash + orderId for strategist), addApprovedRoute, addApprovedProtocol, addApprovedOracle
 // TODO: add requiresAuth to admin functions (addApprovedRoute, addApprovedProtocol, addApprovedVersion, addApprovedOracle, setPriceValidator)
-// TODO: remove unused approvedTokens mapping or wire it up
 // TODO: replace string reverts with custom errors
-// TODO: check target.call return value in swap() (line 84)
-// TODO: in submitOrder, transfer tokens before approving settlement (ordering)
-// TODO: fix adapterRegsitry typo -> adapterRegistry
-// TODO: ProtocolId in adapterRegistry
+// TODO: ProtocolId in adapterRegistry -> some easy abstraction for getting the protocol id to name of protocol, or constants as we add more. 
 //
 // TODO think: do we have a 2 step process for claiming? 
 // TODO think: pressure test the design a bit more  
@@ -65,11 +60,11 @@ contract BoringSwapper is Auth {
     mapping(bytes32 hash => bool approvedOrder) public approvedOrders;
     uint256 public orders;
 
-    AdapterRegistry public adapterRegsitry; 
+    AdapterRegistry public adapterRegistry; 
     IPriceValidator public priceValidator;
 
     constructor(AdapterRegistry _adapterRegistry) Auth(address(0), Authority(address(0))) {
-        adapterRegsitry = _adapterRegistry; 
+        adapterRegistry = _adapterRegistry; 
     }
     
     function swap(SwapConfig calldata swapConfig) external { 
@@ -79,7 +74,7 @@ contract BoringSwapper is Auth {
         if (approvedProtocols[swapConfig.protocolId] == false) revert("not approved");
         
         //get the correct adapter based on the version
-        address adapter = adapterRegsitry.get(
+        address adapter = adapterRegistry.get(
             swapConfig.protocolId, 
             versions[swapConfig.protocolId]
         );  
@@ -97,7 +92,8 @@ contract BoringSwapper is Auth {
         //transfer assets from the vault to the swapper, approve target & execute
         swapConfig.tokenRoute.tokenIn.safeTransferFrom(address(swapConfig.receiver), address(this), amount); 
         swapConfig.tokenRoute.tokenIn.approve(target, amount); 
-        target.call(swapConfig.swapData); 
+        (bool success, ) = target.call(swapConfig.swapData);
+        if (!success) revert("swap failed");
         
         uint256 tokenBalanceDelta = swapConfig.tokenRoute.tokenOut.balanceOf(address(this)) - tokenBalanceBefore; 
         
@@ -112,8 +108,12 @@ contract BoringSwapper is Auth {
         );  
 
         //reset approvals and transfer
-        swapConfig.tokenRoute.tokenIn.approve(target, 0); 
-        swapConfig.tokenRoute.tokenOut.transfer(address(swapConfig.receiver), tokenBalanceDelta); 
+        swapConfig.tokenRoute.tokenIn.approve(target, 0);
+        swapConfig.tokenRoute.tokenOut.safeTransfer(address(swapConfig.receiver), tokenBalanceDelta);
+
+        //return any unspent tokenIn dust to the vault
+        uint256 dust = swapConfig.tokenRoute.tokenIn.balanceOf(address(this));
+        if (dust > 0) swapConfig.tokenRoute.tokenIn.safeTransfer(address(swapConfig.receiver), dust);
     }  
 
     function submitOrder(SwapConfig memory swapConfig) external {
@@ -121,42 +121,41 @@ contract BoringSwapper is Auth {
         if (approvedRoutes[key] == false) revert("not approved"); //TODO custom error
         if (approvedProtocols[swapConfig.protocolId] == false) revert("not approved");
 
-        address adapter = adapterRegsitry.get(
+        address adapter = adapterRegistry.get(
             swapConfig.protocolId,
             versions[swapConfig.protocolId]
         ); 
-        (address settlement, address inputToken, address outputToken, uint256 inputAmount, uint256 outputAmount) =
-            IAdapter(adapter).verifyLimitOrder(swapConfig, address(this));
+        IAdapter.OrderInfo memory info = IAdapter(adapter).verifyLimitOrder(swapConfig, address(this));
 
         //check for limit order fat fingers
-        IPriceValidator(priceValidator).validate(ERC20(inputToken), ERC20(outputToken), inputAmount, outputAmount, swapConfig.quoteAsset, swapConfig.slippageBps);
-        bytes32 orderHash = keccak256(abi.encode(swapConfig, orders)); 
-        approvedOrders[orderHash] = true; 
+        IPriceValidator(priceValidator).validate(ERC20(info.inputToken), ERC20(info.outputToken), info.inputAmount, info.outputAmount, swapConfig.quoteAsset, swapConfig.slippageBps);
+
+        bytes32 orderHash = keccak256(abi.encode(info.protocolHash, orders));
+        approvedOrders[orderHash] = true;
 
         //preapprove the settlement contract & pull funds from the vault
-        swapConfig.tokenRoute.tokenIn.approve(settlement, inputAmount); 
-        swapConfig.tokenRoute.tokenIn.safeTransferFrom(address(swapConfig.receiver), address(this), inputAmount);
+        swapConfig.tokenRoute.tokenIn.approve(info.settlement, info.inputAmount);
+        swapConfig.tokenRoute.tokenIn.safeTransferFrom(address(swapConfig.receiver), address(this), info.inputAmount);
 
         orders += 1;
 
-        //TODO emit event with data needed for signature building for strategist to reconstruct this for the _signature field
+        //TODO emit event with orderHash + orders for strategist
     }
 
-    //TODO: finish implementation — revoke settlement approval, emit event
+    //TODO: finish implementation — emit event
     function cancelOrder(SwapConfig memory swapConfig, uint256 orderId) external {
-        bytes32 orderHash = keccak256(abi.encode(swapConfig, orderId));
-        if (!approvedOrders[orderHash]) revert("order not found");
-        approvedOrders[orderHash] = false;
-
-        address adapter = adapterRegsitry.get(
+        address adapter = adapterRegistry.get(
             swapConfig.protocolId,
             versions[swapConfig.protocolId]
         );
-        (address settlement, , , uint256 inputAmount, ) =
-            IAdapter(adapter).verifyLimitOrder(swapConfig, address(this)); //also verifies receiver == vault
+        IAdapter.OrderInfo memory info = IAdapter(adapter).verifyLimitOrder(swapConfig, address(this));
 
-        swapConfig.tokenRoute.tokenIn.approve(settlement, 0);
-        swapConfig.tokenRoute.tokenIn.safeTransfer(address(swapConfig.receiver), inputAmount);
+        bytes32 orderHash = keccak256(abi.encode(info.protocolHash, orderId));
+        if (!approvedOrders[orderHash]) revert("order not found");
+        approvedOrders[orderHash] = false;
+
+        swapConfig.tokenRoute.tokenIn.approve(info.settlement, 0);
+        swapConfig.tokenRoute.tokenIn.safeTransfer(address(swapConfig.receiver), info.inputAmount);
     }
     
     //some way to clear hashes after approval (we cannot clear the state because isValidSignature must be a view function)
@@ -189,16 +188,17 @@ contract BoringSwapper is Auth {
         priceValidator = newValidator;
     }
     
-    /// @notice Called by CoW Protocol settlement contract to validate an order
+    /// @notice ERC-1271 — validates order hash was approved via submitOrder
+    /// @param _hash the protocol's EIP-712 order digest
+    /// @param _signature abi.encode(uint256 orderId) — the nonce from submitOrder
     function isValidSignature(bytes32 _hash, bytes memory _signature)
         external
         view
         returns (bytes4)
     {
-        (SwapConfig memory swapConfig, uint256 orderId) = abi.decode(_signature, (SwapConfig, uint256)); 
-        bytes32 orderHash = keccak256(abi.encode(swapConfig, orderId));
-        if (!approvedOrders[orderHash]) revert("trade not approved");
-
+        uint256 orderId = abi.decode(_signature, (uint256));
+        bytes32 orderHash = keccak256(abi.encode(_hash, orderId));
+        if (!approvedOrders[orderHash]) revert("order not approved");
         return MAGIC_VALUE;
     }
 
