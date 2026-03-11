@@ -14522,6 +14522,22 @@ function _addTellerLeafsWithReferral(
                 leafs[leafIndex].argumentAddresses[0] = tokens[j];
                 leafs[leafIndex].argumentAddresses[1] = tokens[i];
                 leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    partnerSwapperAddress,
+                    false,
+                    "submitOrder(((address,address),uint8,address,bytes,uint256,address))",
+                    new address[](3),
+                    string.concat("", ERC20(tokens[i]).symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = tokens[j];
+                leafs[leafIndex].argumentAddresses[1] = tokens[i];
+                leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+
             }
         }
     }

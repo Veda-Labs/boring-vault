@@ -10,34 +10,35 @@ import {ISwapper} from "src/interfaces/ISwapper.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 
-
 contract PriceValidator is IPriceValidator {
     using FixedPointMathLib for uint256;
 
-        //price the trade
-        //IMPORTANT: oracles will need to account for different decimals -> this should happen at the RateProvider level
+    //price the trade
+    //IMPORTANT: oracles will need to account for different decimals -> this should happen at the RateProvider level
     //we can add some validation for this here tho?
-    function validate(ERC20 tokenIn, ERC20 tokenOut, uint256 inputAmount, uint256 outputAmount, address quoteAsset, uint256 slippageBps) external view {
-        address swapper = msg.sender;  
-       
-        bytes32 key = ISwapper(swapper).getRouteId(tokenIn, tokenOut);  
+    function validate(
+        ERC20 tokenIn,
+        ERC20 tokenOut,
+        uint256 inputAmount,
+        uint256 outputAmount,
+        address quoteAsset,
+        uint256 slippageBps
+    ) external view {
+        address swapper = msg.sender;
 
-        uint256 priceBefore = IRateProvider(
-            ISwapper(swapper).getOracle(tokenIn, quoteAsset)
-        ).getRate();
+        bytes32 key = ISwapper(swapper).getRouteId(tokenIn, tokenOut);
+
+        uint256 priceBefore = IRateProvider(ISwapper(swapper).getOracle(tokenIn, quoteAsset)).getRate();
         uint256 tradePrice = priceBefore.mulDivDown(inputAmount, 10 ** tokenIn.decimals());
 
         //price out
-        uint256 priceAfter = IRateProvider(
-            ISwapper(swapper).getOracle(tokenOut, quoteAsset)
-        ).getRate();
+        uint256 priceAfter = IRateProvider(ISwapper(swapper).getOracle(tokenOut, quoteAsset)).getRate();
         uint256 valueOut = priceAfter.mulDivDown(outputAmount, 10 ** tokenOut.decimals());
-        
+
         uint256 maxSlippageBps = ISwapper(swapper).maxSlippageBpsPerRoute(key);
-        if (slippageBps > maxSlippageBps) revert("exceeds max slippage for this token route"); 
+        if (slippageBps > maxSlippageBps) revert("exceeds max slippage for this token route");
 
         uint256 minValueOut = tradePrice.mulDivDown((10_000 - slippageBps), 10_000);
         if (valueOut < minValueOut) revert("exceeds max slippage for route");
-
     }
 }

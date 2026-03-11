@@ -24,6 +24,7 @@ contract CowswapAdapter is IAdapter {
 
          DecoderCustomTypes.GPv2OrderData memory order = abi.decode(swapConfig.swapData, (DecoderCustomTypes.GPv2OrderData));
 
+         if (order.kind != keccak256("sell")) revert("only sell orders supported");
          if (ERC20(order.sellToken) != swapConfig.tokenRoute.tokenIn) revert("token mismatch");
          if (ERC20(order.buyToken) != swapConfig.tokenRoute.tokenOut) revert("token mismatch");
          if (order.receiver != (address(swapConfig.receiver))) revert("receiver mismatch");

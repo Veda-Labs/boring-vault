@@ -15,6 +15,23 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
 import {IPriceValidator} from "src/interfaces/IPriceValidator.sol";
 
+// TODO: cancelOrder() — set approvedOrders[hash] = false, revoke settlement approval, return tokens to vault
+// TODO: sweep(ERC20 token) — generic reclaim for tokens on swapper after fills or expired orders
+// TODO: stale order hash cleanup strategy — hashes persist after fills since isValidSignature is view
+// TODO: emit events from submitOrder (with orderHash + orderId for strategist), addApprovedRoute, addApprovedProtocol, addApprovedOracle
+// TODO: add requiresAuth to admin functions (addApprovedRoute, addApprovedProtocol, addApprovedVersion, addApprovedOracle, setPriceValidator)
+// TODO: remove unused approvedTokens mapping or wire it up
+// TODO: replace string reverts with custom errors
+// TODO: check target.call return value in swap() (line 84)
+// TODO: in submitOrder, transfer tokens before approving settlement (ordering)
+// TODO: fix adapterRegsitry typo -> adapterRegistry
+// TODO: ProtocolId in adapterRegistry
+//
+// TODO think: do we have a 2 step process for claiming? 
+// TODO think: pressure test the design a bit more  
+// TODO think: return values from adapters 
+// TODO test: limit orders in general, cowswap full flow test (api?) can use 1inch
+// TODO 
 contract BoringSwapper is Auth {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
@@ -37,7 +54,6 @@ contract BoringSwapper is Auth {
         BoringVault receiver; 
     }
     
-    mapping(ERC20 token => bool approved) public approvedTokens;
     mapping(bytes32 routeId => bool approved) public approvedRoutes; //is this needed? annoying to auth (bad ux)
     mapping(bytes32 routeId => uint256 maxSlippageBps) public maxSlippageBpsPerRoute;
     mapping(uint8 protocolId => bool approved) public approvedProtocols;
@@ -56,7 +72,6 @@ contract BoringSwapper is Auth {
         adapterRegsitry = _adapterRegistry; 
     }
     
-    //TODO do we need auth here? maybe not.  
     function swap(SwapConfig calldata swapConfig) external { 
 
         bytes32 key = getRouteId(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut);
@@ -69,7 +84,7 @@ contract BoringSwapper is Auth {
             versions[swapConfig.protocolId]
         );  
 
-        //append our data to the call -> 
+        //append our data to the call + the length
         bytes memory appended = abi.encodePacked(swapConfig.swapData, abi.encode(swapConfig), uint256(swapConfig.swapData.length));
         (bytes memory result) = adapter.functionStaticCall(appended);
 
@@ -127,8 +142,23 @@ contract BoringSwapper is Auth {
         //TODO emit event with data needed for signature building for strategist to reconstruct this for the _signature field
     }
 
-    //TODO
-    //cancelOrder()
+    //TODO: finish implementation — revoke settlement approval, emit event
+    function cancelOrder(SwapConfig memory swapConfig, uint256 orderId) external {
+        bytes32 orderHash = keccak256(abi.encode(swapConfig, orderId));
+        if (!approvedOrders[orderHash]) revert("order not found");
+        approvedOrders[orderHash] = false;
+
+        address adapter = adapterRegsitry.get(
+            swapConfig.protocolId,
+            versions[swapConfig.protocolId]
+        );
+        (address settlement, , , uint256 inputAmount, ) =
+            IAdapter(adapter).verifyLimitOrder(swapConfig, address(this)); //also verifies receiver == vault
+
+        swapConfig.tokenRoute.tokenIn.approve(settlement, 0);
+        swapConfig.tokenRoute.tokenIn.safeTransfer(address(swapConfig.receiver), inputAmount);
+    }
+    
     //some way to clear hashes after approval (we cannot clear the state because isValidSignature must be a view function)
     //  leave state dangling, rely on protocol to handle (cow does this, not sure about others)
     //  change the flow so that swaps actually go here and strategists must call (reclaim()) to issue the funds back to the vault (terrible ux)

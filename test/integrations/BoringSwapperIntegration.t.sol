@@ -25,6 +25,10 @@ contract SwapperDecoder is BaseDecoderAndSanitizer {
     function swap(DecoderCustomTypes.SwapConfig memory swapConfig) external pure returns (bytes memory addressesFound) {
         return abi.encodePacked(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut, address(swapConfig.receiver));
     }
+
+    function submitOrder(DecoderCustomTypes.SwapConfig memory swapConfig) external pure returns (bytes memory addressesFound) {
+        return abi.encodePacked(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut, address(swapConfig.receiver));
+    }
 }
     
 //TODO
@@ -46,6 +50,10 @@ contract BoringSwapperIntegration is BaseTestIntegration {
 
     // CoW Protocol constants BEGIN //
     address constant COW_SETTLEMENT = 0x9008D19f58AAbD9eD0D60971565AA8510560ab41;
+
+    // Pack a SwapConfig into the signature bytes
+    uint8 UNISWAP_V3 = 0;
+    uint8 COWSWAP = 3;
                                                                                                                                        
     bytes32 constant GPV2_ORDER_TYPE_HASH = keccak256(
         "Order(address sellToken,address buyToken,address receiver,uint256 sellAmount,uint256 buyAmount,uint32 validTo,bytes32 appData,uint256 feeAmount,bytes32 kind,bool partiallyFillable,bytes32 sellTokenBalance,bytes32 buyTokenBalance)");
@@ -79,13 +87,13 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         address cowswapAdapterVersion0_1 = address(new CowswapAdapter(COW_SETTLEMENT)); 
 
         swapper.addApprovedRoute(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDC"), 50); 
-        swapper.addApprovedProtocol(0); //UNI_V3
-        swapper.addApprovedProtocol(3); //COWSWAP
-        swapper.addApprovedVersion(0, 1); 
-        swapper.addApprovedVersion(3, 1); 
+        swapper.addApprovedProtocol(UNISWAP_V3); //UNI_V3
+        swapper.addApprovedProtocol(COWSWAP); //COWSWAP
+        swapper.addApprovedVersion(UNISWAP_V3, 1); 
+        swapper.addApprovedVersion(COWSWAP, 1); 
 
-        registry.put(0, uniswapV3AdapterVersion0_1);
-        registry.put(3, cowswapAdapterVersion0_1);
+        registry.put(UNISWAP_V3, uniswapV3AdapterVersion0_1);
+        registry.put(COWSWAP, cowswapAdapterVersion0_1);
 
         //oracle setup
         usdRate = new MockRateProvider(1e18);
@@ -121,7 +129,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         Tx memory tx_ = _getTxArrays(2); 
 
         tx_.manageLeafs[0] = leafs[0]; //approve token
-        tx_.manageLeafs[1] = leafs[3]; //swap WETH -> USDC
+        tx_.manageLeafs[1] = leafs[4]; //swap WETH -> USDC
         
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
 
@@ -212,7 +220,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         Tx memory tx_ = _getTxArrays(2); 
 
         tx_.manageLeafs[0] = leafs[0]; //approve token
-        tx_.manageLeafs[1] = leafs[3]; //swap WETH -> USDC
+        tx_.manageLeafs[1] = leafs[4]; //swap WETH -> USDC
         
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
 
@@ -318,70 +326,173 @@ contract BoringSwapperIntegration is BaseTestIntegration {
     }
 
     function testCowswapValidSignature() external {
-          address weth = getAddress(sourceChain, "WETH");
-          address usdc = getAddress(sourceChain, "USDC");
+        uint256 orderId = swapper.orders();
 
-          (bytes32 orderDigest, bytes memory encodedOrder) = _buildCowOrderDigest(
-              weth,                              // sellToken
-              usdc,                              // buyToken
-              address(swapper),                  // receiver
-              1e18,                              // sellAmount (1 WETH)
-              2000e6,                            // buyAmount (2000 USDC)
-              uint32(block.timestamp + 3600)     // validTo
-          );
+        deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18); 
 
-          // Pack a SwapConfig into the signature bytes
-          uint8 COWSWAP = 3;
-          bytes memory signature = abi.encode(
-              BoringSwapper.SwapConfig({
-                  tokenRoute: BoringSwapper.TokenRoute(
-                      getERC20(sourceChain, "WETH"),
-                      getERC20(sourceChain, "USDC")
-                  ),
-                  protocolId: COWSWAP,
-                  quoteAsset: getAddress(sourceChain, "USDC"),
-                  swapData: encodedOrder,
-                  slippageBps: 50,
-                  receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
-              })
-          );
+        address[] memory tokens = new address[](2);  
+        tokens[0] = getAddress(sourceChain, "WETH");
+        tokens[1] = getAddress(sourceChain, "USDC");
+    
+        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        _addBoringSwapperLeafs(leafs, address(swapper), tokens); 
+        
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
-          // Simulate CoW settlement contract calling isValidSignature
-          vm.prank(COW_SETTLEMENT);
-          bytes4 result = swapper.isValidSignature(orderDigest, signature);
-          assertEq(result, bytes4(0x1626ba7e), "should return ERC-1271 magic value");
+        _generateTestLeafs(leafs, manageTree);
+
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        Tx memory tx_ = _getTxArrays(2); 
+
+        tx_.manageLeafs[0] = leafs[0]; //approve token (to swapper)
+        tx_.manageLeafs[1] = leafs[5]; //submitOrder WETH -> USDC
+        
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+
+        tx_.targets[0] = getAddress(sourceChain, "WETH"); //approve 
+        tx_.targets[1] = address(swapper);  
+
+        tx_.targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", address(swapper), type(uint256).max
+        );
+
+        bytes memory cowswapData = abi.encode(DecoderCustomTypes.GPv2OrderData({                                                                                             
+          sellToken: getAddress(sourceChain, "WETH"),                                                                                
+          buyToken: getAddress(sourceChain, "USDC"),                                                                                 
+          receiver: getAddress(sourceChain, "boringVault"),  // vault receives buyToken                                            
+          sellAmount: 1e18,
+          buyAmount: 2000e6,
+          validTo: uint32(block.timestamp + 3600),
+          appData: bytes32(0),
+          feeAmount: 0,
+          kind: keccak256("sell"),
+          partiallyFillable: false,
+          sellTokenBalance: keccak256("erc20"),
+          buyTokenBalance: keccak256("erc20")
+      })); 
+            
+        BoringSwapper.TokenRoute memory tokenRoute = BoringSwapper.TokenRoute(
+            getERC20(sourceChain, "WETH"),
+            getERC20(sourceChain, "USDC")
+        );
+
+        tx_.targetData[1] = abi.encodeWithSelector(
+            BoringSwapper.submitOrder.selector,
+            BoringSwapper.SwapConfig({
+                tokenRoute: tokenRoute,
+                protocolId: COWSWAP,
+                quoteAsset: getAddress(sourceChain, "USDC"),
+                swapData: cowswapData,
+                slippageBps: 10,
+                receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
+            })
+        );
+
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+
+        address vault = getAddress(sourceChain, "boringVault");
+        uint256 wethBefore = getERC20(sourceChain, "WETH").balanceOf(vault);
+        uint256 usdcBefore = getERC20(sourceChain, "USDC").balanceOf(vault);
+
+        _submitManagerCall(manageProofs, tx_);
+
+        (bytes32 orderDigest, bytes memory encodedOrder) = _buildCowOrderDigest(
+            getAddress(sourceChain, "WETH"),                              // sellToken
+            getAddress(sourceChain, "USDC"),
+            address(swapper),                  // receiver
+            1e18,                              // sellAmount (1 WETH)
+            2000e6,                            // buyAmount (2000 USDC)
+            uint32(block.timestamp + 3600)     // validTo
+        );
+
+        bytes memory signature = abi.encode(
+            BoringSwapper.SwapConfig({
+                tokenRoute: tokenRoute,
+                protocolId: COWSWAP,
+                quoteAsset: getAddress(sourceChain, "USDC"),
+                swapData: cowswapData,
+                slippageBps: 10,
+                receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
+            }), orderId
+        );
+
+       //call the limit order from the vault
+
+       // Simulate CoW settlement contract calling isValidSignature
+       vm.prank(COW_SETTLEMENT);
+       bytes4 result = swapper.isValidSignature(orderDigest, signature);
+       assertEq(result, bytes4(0x1626ba7e), "should return ERC-1271 magic value");
     }
 
-    function testCowswapRejectsBadSlippage() external {
-          address weth = getAddress(sourceChain, "WETH");
-          address usdc = getAddress(sourceChain, "USDC");
+    function testCowswap__RevertBadSlippage() external {
+        deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18);
 
-          // Order selling 1 WETH for only 1000 USDC (50% below market)
-          (bytes32 orderDigest, bytes memory encodedOrder) = _buildCowOrderDigest(
-              weth,
-              usdc,
-              address(swapper),
-              1e18,
-              1000e6,          // way below oracle price
-              uint32(block.timestamp + 3600)
-          );
+        address[] memory tokens = new address[](2);
+        tokens[0] = getAddress(sourceChain, "WETH");
+        tokens[1] = getAddress(sourceChain, "USDC");
 
-          bytes memory signature = abi.encode(
-              BoringSwapper.SwapConfig({
-                  tokenRoute: BoringSwapper.TokenRoute(
-                      getERC20(sourceChain, "WETH"),
-                      getERC20(sourceChain, "USDC")
-                  ),
-                  protocolId: uint8(3),
-                  quoteAsset: getAddress(sourceChain, "USDC"),
-                  swapData: encodedOrder,
-                  slippageBps: 50,
-                  receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
-              })
-          );
+        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        _addBoringSwapperLeafs(leafs, address(swapper), tokens);
 
-          vm.prank(COW_SETTLEMENT);
-          vm.expectRevert("exceeds max slippage for route");
-          swapper.isValidSignature(orderDigest, signature);
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+
+        _generateTestLeafs(leafs, manageTree);
+
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        Tx memory tx_ = _getTxArrays(2);
+
+        tx_.manageLeafs[0] = leafs[0]; //approve token (to swapper)
+        tx_.manageLeafs[1] = leafs[5]; //submitOrder WETH -> USDC
+
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+
+        tx_.targets[0] = getAddress(sourceChain, "WETH"); //approve
+        tx_.targets[1] = address(swapper);
+
+        tx_.targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", address(swapper), type(uint256).max
+        );
+
+        // Fat finger: selling 1 WETH for only 1000 USDC (50% below oracle price of 2000)
+        bytes memory cowswapData = abi.encode(DecoderCustomTypes.GPv2OrderData({
+          sellToken: getAddress(sourceChain, "WETH"),
+          buyToken: getAddress(sourceChain, "USDC"),
+          receiver: getAddress(sourceChain, "boringVault"),
+          sellAmount: 1e18,
+          buyAmount: 1000e6,  // way below market
+          validTo: uint32(block.timestamp + 3600),
+          appData: bytes32(0),
+          feeAmount: 0,
+          kind: keccak256("sell"),
+          partiallyFillable: false,
+          sellTokenBalance: keccak256("erc20"),
+          buyTokenBalance: keccak256("erc20")
+      }));
+
+        BoringSwapper.TokenRoute memory tokenRoute = BoringSwapper.TokenRoute(
+            getERC20(sourceChain, "WETH"),
+            getERC20(sourceChain, "USDC")
+        );
+
+        tx_.targetData[1] = abi.encodeWithSelector(
+            BoringSwapper.submitOrder.selector,
+            BoringSwapper.SwapConfig({
+                tokenRoute: tokenRoute,
+                protocolId: COWSWAP,
+                quoteAsset: getAddress(sourceChain, "USDC"),
+                swapData: cowswapData,
+                slippageBps: 10,
+                receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
+            })
+        );
+
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+
+        vm.expectRevert("exceeds max slippage for route");
+        _submitManagerCall(manageProofs, tx_);
     }
 }
