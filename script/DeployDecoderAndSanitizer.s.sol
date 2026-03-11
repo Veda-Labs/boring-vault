@@ -137,6 +137,7 @@ contract DeployHlCoreVaultDecoderAndSanitizer is Script, ContractNames, MainnetA
         vm.stopBroadcast();
     }
 }
+
 contract DeployBTCCarryDecoderAndSanitizer is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
     uint256 public privateKey;
     Deployer public deployer = Deployer(0x5BD97A73333B6EC2e38B687bcED159566A14C5BA);
@@ -155,8 +156,9 @@ contract DeployBTCCarryDecoderAndSanitizer is Script, ContractNames, MainnetAddr
         // creationCode = type(HlCoreVaultDecoderAndSanitizer).creationCode;
         // deployer.deployContract("HlCoreVaultDecodersAndSanitizerV0.1", creationCode, constructorArgs, 0);
 
-        new BTCCarryDecoderAndSanitizer(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
-                getAddress(sourceChain, "magpieRouterV3"));
+        new BTCCarryDecoderAndSanitizer(
+            getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "magpieRouterV3")
+        );
 
         vm.stopBroadcast();
     }
@@ -272,7 +274,7 @@ contract DeploySyBtcArbitrumDecoderAndSanitizer is Script, ContractNames, Mainne
         vm.startBroadcast(vm.envUint("BORING_DEVELOPER"));
 
         deployer.deployContract(
-            "SyBtc Arbitrum DecodersAndSanitizers Batch 2",
+            "SyBtc Arbitrum DecodersAndSanitizers Batch 3",
             type(SyBtcArbitrumDecoderAndSanitizer).creationCode,
             abi.encode(
                 getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
