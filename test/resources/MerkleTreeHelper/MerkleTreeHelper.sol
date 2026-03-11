@@ -13147,7 +13147,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     function _addSelfSolveLeafs(
         ManageLeaf[] memory leafs,
         ERC20[] memory assets,
-        address withdrawQueue,
+        address queueSolver,
         address withdrawingUser,
         address teller
     ) internal {
@@ -13156,7 +13156,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 leafIndex++;
             }
             leafs[leafIndex] = ManageLeaf(
-                withdrawQueue,
+                queueSolver,
                 false,
                 "boringRedeemSelfSolve((uint96,address,address,uint128,uint128,uint40,uint24,uint24),address)",
                 new address[](3),

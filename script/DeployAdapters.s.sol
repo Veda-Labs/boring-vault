@@ -92,4 +92,25 @@ contract DeployUniv4Adapter is Script, MerkleTreeHelper {
         vm.stopBroadcast();
     }
 }
+contract DeployMorphoLoopAdapter is Script, MerkleTreeHelper {
+    uint256 public privateKey;
+
+    function setUp() external {
+        privateKey = vm.envUint("PK");
+
+        setSourceChainName("base");
+    }
+
+    function run() external {
+        vm.startBroadcast(privateKey);
+
+        MorphoLoopTvlAdapter adapter = new MorphoLoopTvlAdapter(
+            0x9103c3b4e834476c9a62ea009ba2c884ee42e94e6e314a26f04d312434191836
+        );
+
+        console.log("TVL of user", adapter.getUserTvl(address(0)));
+
+        vm.stopBroadcast();
+    }
+}
 

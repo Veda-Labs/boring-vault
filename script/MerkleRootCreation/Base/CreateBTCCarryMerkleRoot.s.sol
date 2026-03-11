@@ -35,6 +35,7 @@ contract CreateAeroUsdcMerkleRootScript is Script, MerkleTreeHelper {
 
     RolesAuthority public rolesAuthority = RolesAuthority(0x64d1aF305631c4D3c1BbC74C1f7600c2C33A6Fe6);
     address public syusd_teller = 0xaefc11908fF97c335D16bdf9F2Bf720817423825;
+    address public syusd_queue_solver = 0x1d82e9bCc8F325caBBca6E6A3B287fE586536805;
     bytes32 cbBtc_market_id = 0x9103c3b4e834476c9a62ea009ba2c884ee42e94e6e314a26f04d312434191836;
 
     address public user1 = 0xa86b3Bf249478488B4304B50726c7D4689aD6320;
@@ -93,7 +94,7 @@ contract CreateAeroUsdcMerkleRootScript is Script, MerkleTreeHelper {
         _addMorphoBlueSupplyLeafs(leafs, cbBtc_market_id);
 
         _addWithdrawQueueLeafs(leafs, syusd_withdraw_queue, syusd_vault, assets);
-        _addSelfSolveLeafs(leafs, assets, syusd_withdraw_queue, boringVault, syusd_teller);
+        _addSelfSolveLeafs(leafs, assets, syusd_queue_solver, boringVault, syusd_teller);
 
         _addMagpieSwapLeafs(leafs, oneInchAssets, kind);
 
