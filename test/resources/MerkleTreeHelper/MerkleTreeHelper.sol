@@ -14217,6 +14217,43 @@ function _addTellerLeafsWithReferral(
         }
     }
 
+    function _addEtherfiOneWaySwapperLeafs(ManageLeaf[] memory leafs, address tokenA, address tokenB) internal {
+
+        // add approval if not already added
+        if (!ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][tokenA][getAddress(sourceChain, "odosRouterV2")]) {
+            ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][tokenA][getAddress(sourceChain, "odosRouterV2")] = true;
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                tokenA,
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve Odos Router V2 to spend ", ERC20(tokenA).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "odosRouterV2");
+        }
+
+        // add swap from tokenA to tokenB
+        if (!ownerToOdosSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokenA][tokenB]) {
+            ownerToOdosSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokenA][tokenB] = true;
+
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "etherfiSwapper"),
+                false,
+                "swap((address,uint256,address,address,uint256,uint256,address),bytes,address,uint32)",
+                new address[](4),
+                string.concat("Swap ", ERC20(tokenA).symbol(), " for ", ERC20(tokenB).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = tokenA;
+            leafs[leafIndex].argumentAddresses[1] = tokenB;
+            leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "odosExecutor");
+        }
+    }
+
     // ========================================= GlueX =========================================
     function _addGlueXLeafs(ManageLeaf[] memory leafs, address[] memory tokens, SwapKind[] memory kind) internal {
         for (uint256 i = 0; i < tokens.length; i++) {
