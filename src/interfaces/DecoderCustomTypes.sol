@@ -865,12 +865,12 @@ contract DecoderCustomTypes {
     }
 
     struct SwapConfig{
-        TokenRoute tokenRoute; 
-        uint8 protocolId; 
+        TokenRoute tokenRoute;
+        uint8 protocolId;
         address quoteAsset;
-        bytes swapData; 
+        bytes swapData;
         uint256 slippageBps;
-        address receiver; 
+        address receiver;
     }
 
     struct GPv2OrderData {                                                                                                             

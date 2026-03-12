@@ -13,8 +13,8 @@
     "setupTestUser": true,
     "saveDeploymentDetails": true,
     "testUserAddressOrName": {
-      "address": "0x1a0ADd6EC90fc571272D341439246036901B4E41",
-      "name": "dev1Address"
+      "address": "",
+      "name": ""
     },
     "deployerContractAddressOrName": {
       "address": "0xbc90dbeB9e76Ff5577Bc502EBDebd0F6616ec434",

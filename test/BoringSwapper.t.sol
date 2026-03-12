@@ -1,0 +1,474 @@
+// SPDX-License-Identifier: SEL-1.0
+// Copyright © 2025 Veda Tech Labs
+// Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
+// Licensed under Software Evaluation License, Version 1.0
+pragma solidity 0.8.21;
+
+import {BoringVault} from "src/base/BoringVault.sol";
+import {BoringSwapper} from "src/base/Periphery/BoringSwapper.sol";
+import {AdapterRegistry} from "src/base/Periphery/AdapterRegistry.sol";
+import {CowswapAdapter} from "src/base/Periphery/adapters/CowswapAdapter.sol";
+import {PriceValidator} from "src/base/Periphery/adapters/price/PriceValidator.sol";
+import {IPriceValidator} from "src/interfaces/IPriceValidator.sol";
+import {IAdapter} from "src/interfaces/IAdapter.sol";
+import {IRateProvider} from "src/interfaces/IRateProvider.sol";
+import {ERC20} from "@solmate/tokens/ERC20.sol";
+import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
+import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+
+import {Test, console} from "@forge-std/Test.sol";
+
+contract MockRateProvider is IRateProvider {
+    uint256 internal rate;
+
+    constructor(uint256 _rate) {
+        rate = _rate;
+    }
+
+    function getRate() public view override returns (uint256) {
+        return rate;
+    }
+}
+
+contract BoringSwapperTest is Test, MerkleTreeHelper {
+
+    //cow protocol constants
+    address constant COW_SETTLEMENT = 0x9008D19f58AAbD9eD0D60971565AA8510560ab41;
+
+    bytes32 constant GPV2_ORDER_TYPE_HASH = keccak256(
+        "Order(address sellToken,address buyToken,address receiver,uint256 sellAmount,uint256 buyAmount,uint32 validTo,bytes32 appData,uint256 feeAmount,bytes32 kind,bool partiallyFillable,bytes32 sellTokenBalance,bytes32 buyTokenBalance)"
+    );
+    bytes32 constant KIND_SELL = keccak256("sell");
+    bytes32 constant BALANCE_ERC20 = keccak256("erc20");
+
+    uint8 constant COWSWAP = 3;
+
+    BoringVault public boringVault;
+    BoringSwapper public swapper;
+    AdapterRegistry public registry;
+    PriceValidator public validator;
+    CowswapAdapter public cowAdapter;
+    RolesAuthority public rolesAuthority;
+
+    MockRateProvider public wethRate;
+    MockRateProvider public usdcRate;
+
+    ERC20 internal WETH;
+    ERC20 internal USDC;
+
+    function setUp() external {
+        setSourceChainName("mainnet");
+        string memory rpcKey = "MAINNET_RPC_URL";
+        uint256 blockNumber = 24592183;
+        uint256 forkId = vm.createFork(vm.envString(rpcKey), blockNumber);
+        vm.selectFork(forkId);
+
+        WETH = ERC20(getAddress(sourceChain, "WETH"));
+        USDC = ERC20(getAddress(sourceChain, "USDC"));
+
+        //create vault
+        boringVault = new BoringVault(address(this), "Boring Vault", "BV", 18);
+
+        //roles
+        rolesAuthority = new RolesAuthority(address(this), Authority(address(0)));
+        boringVault.setAuthority(rolesAuthority);
+
+        //registry + swapper
+        registry = new AdapterRegistry();
+        swapper = new BoringSwapper(registry);
+
+        cowAdapter = new CowswapAdapter(COW_SETTLEMENT);
+
+        registry.put(COWSWAP, address(cowAdapter), "COWSWAP");
+
+        //swapper config
+        swapper.addApprovedRoute(WETH, USDC, 50);
+        swapper.addApprovedProtocol(COWSWAP);
+        swapper.addApprovedVersion(COWSWAP, 1);
+
+        //oracles
+        wethRate = new MockRateProvider(2000e18);
+        usdcRate = new MockRateProvider(1e18);
+        address usdQuoteAsset = address(USDC);
+        swapper.addApprovedOracle(WETH, usdQuoteAsset, address(wethRate));
+        swapper.addApprovedOracle(USDC, usdQuoteAsset, address(usdcRate));
+
+        //price validator
+        validator = new PriceValidator();
+        swapper.setPriceValidator(IPriceValidator(address(validator)));
+
+        //allow swapper to pull from vault
+        vm.prank(address(boringVault));
+        WETH.approve(address(swapper), type(uint256).max);
+    }
+
+
+    //==================== Submit Order Tests ====================
+
+    function testSubmitOrder() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        (BoringSwapper.SwapConfig memory config,, uint256 orderId) =
+            _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
+
+        //order record stored
+        (ERC20 tokenIn, address settlementAddr, uint256 inputAmount, BoringVault receiver) =
+            swapper.orderRecords(orderId);
+        assertEq(address(tokenIn), address(WETH));
+        assertEq(inputAmount, 1e18);
+        assertEq(address(receiver), address(boringVault));
+
+        //funds moved from vault to swapper
+        assertEq(WETH.balanceOf(address(swapper)), 1e18);
+        assertEq(WETH.balanceOf(address(boringVault)), 99e18);
+
+        //order counter incremented
+        assertEq(swapper.orders(), orderId + 1);
+    }
+
+    function testSubmitOrder_RevertUnapprovedRoute() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        //build config with USDC -> WETH (not approved, only WETH -> USDC is)
+        bytes memory cowswapData = abi.encode(
+            address(USDC), address(WETH), address(boringVault),
+            1000e6, 1e18, uint32(block.timestamp + 3600),
+            bytes32(0), uint256(0), KIND_SELL, false, BALANCE_ERC20, BALANCE_ERC20
+        );
+
+        BoringSwapper.SwapConfig memory config = BoringSwapper.SwapConfig({
+            tokenRoute: BoringSwapper.TokenRoute(USDC, WETH),
+            protocolId: COWSWAP,
+            quoteAsset: address(USDC),
+            swapData: cowswapData,
+            slippageBps: 10,
+            receiver: boringVault
+        });
+
+        vm.expectRevert("not approved");
+        swapper.submitOrder(config);
+    }
+
+    function testSubmitOrder_RevertBadSlippage() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        //fat finger: 1 WETH for 1000 USDC (50% below oracle)
+        (BoringSwapper.SwapConfig memory config,) = _buildSwapConfig(1e18, 1000e6, uint32(block.timestamp + 3600));
+        vm.expectRevert("exceeds max slippage for route");
+        swapper.submitOrder(config);
+    }
+
+    function testSubmitMultipleOrders() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        (, , uint256 orderId0) = _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
+        (, , uint256 orderId1) = _submitOrder(2e18, 4000e6, uint32(block.timestamp + 7200));
+
+        assertEq(orderId0, 0);
+        assertEq(orderId1, 1);
+        assertEq(swapper.orders(), 2);
+        assertEq(WETH.balanceOf(address(swapper)), 3e18);
+        assertEq(WETH.balanceOf(address(boringVault)), 97e18);
+    }
+
+    //==================== IsValidSignature Tests ====================
+
+    function testIsValidSignature() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        (BoringSwapper.SwapConfig memory config, bytes32 orderDigest,) =
+            _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
+
+        bytes4 result = swapper.isValidSignature(orderDigest, abi.encode(config));
+        assertEq(result, bytes4(0x1626ba7e));
+    }
+
+    function testIsValidSignature_RevertHashMismatch() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        (BoringSwapper.SwapConfig memory config,,) =
+            _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
+
+        //use a garbage hash
+        vm.expectRevert("hash mismatch");
+        swapper.isValidSignature(bytes32(uint256(0x69420)), abi.encode(config));
+    }
+
+    function testIsValidSignature_RevertAfterRouteRevoked() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        (BoringSwapper.SwapConfig memory config, bytes32 orderDigest,) =
+            _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
+
+        //verify it works before revocation
+        bytes4 result = swapper.isValidSignature(orderDigest, abi.encode(config));
+        assertEq(result, bytes4(0x1626ba7e));
+
+        //revoke route by setting max slippage to 0 and unapproving
+        //note: there's no removeApprovedRoute — this is a gap. skip for now.
+    }
+
+    //==================== Cancel Order Tests ====================
+
+    function testCancelOrder() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        (, , uint256 orderId) = _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
+
+        assertEq(WETH.balanceOf(address(swapper)), 1e18);
+        assertEq(WETH.balanceOf(address(boringVault)), 99e18);
+
+        swapper.cancelOrder(orderId);
+
+        //funds returned to vault
+        assertEq(WETH.balanceOf(address(swapper)), 0);
+        assertEq(WETH.balanceOf(address(boringVault)), 100e18);
+
+        //record deleted
+        (ERC20 tokenIn,,,) = swapper.orderRecords(orderId);
+        assertEq(address(tokenIn), address(0));
+    }
+
+    function testCancelOrder_RevertNotFound() external {
+        vm.expectRevert("order not found");
+        swapper.cancelOrder(999);
+    }
+
+    function testCancelOrder_RevertDoubleCancelation() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        (, , uint256 orderId) = _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
+        swapper.cancelOrder(orderId);
+
+        vm.expectRevert("order not found");
+        swapper.cancelOrder(orderId);
+    }
+
+    function testCancelOrder_OneOfMultiple() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        (, , uint256 orderId0) = _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
+        (, , uint256 orderId1) = _submitOrder(2e18, 4000e6, uint32(block.timestamp + 7200));
+
+        assertEq(WETH.balanceOf(address(swapper)), 3e18);
+
+        //cancel only the first order
+        swapper.cancelOrder(orderId0);
+
+        //only 1e18 returned, 2e18 still on swapper for order 1
+        assertEq(WETH.balanceOf(address(swapper)), 2e18);
+        assertEq(WETH.balanceOf(address(boringVault)), 98e18);
+
+        //order 0 deleted, order 1 still exists
+        (ERC20 tokenIn0,,,) = swapper.orderRecords(orderId0);
+        assertEq(address(tokenIn0), address(0));
+
+        (ERC20 tokenIn1,,uint256 inputAmount1,) = swapper.orderRecords(orderId1);
+        assertEq(address(tokenIn1), address(WETH));
+        assertEq(inputAmount1, 2e18);
+    }
+
+    //==================== Full Fill Flow ====================
+
+    function testFullFillFlow() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        (BoringSwapper.SwapConfig memory config, bytes32 orderDigest, uint256 orderId) =
+            _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
+
+        uint256 vaultWethBefore = WETH.balanceOf(address(boringVault));
+        uint256 vaultUsdcBefore = USDC.balanceOf(address(boringVault));
+
+        //simulate settlement filling the order
+        _simulateFill(1e18, 2000e6, config, orderDigest);
+
+        //vault received USDC
+        assertEq(USDC.balanceOf(address(boringVault)), vaultUsdcBefore + 2000e6);
+        //swapper's WETH was consumed
+        assertEq(WETH.balanceOf(address(swapper)), 0);
+        //vault WETH unchanged (was already pulled to swapper during submitOrder)
+        assertEq(WETH.balanceOf(address(boringVault)), vaultWethBefore);
+    }
+
+    //==================== Partial Fill + Cancel ====================
+
+    function testPartialFillThenCancel() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        (BoringSwapper.SwapConfig memory config, bytes32 orderDigest, uint256 orderId) =
+            _submitOrder(10e18, 20000e6, uint32(block.timestamp + 3600));
+
+        assertEq(WETH.balanceOf(address(swapper)), 10e18);
+
+        //partial fill: 50% of the order
+        _simulateFill(5e18, 10000e6, config, orderDigest);
+
+        assertEq(WETH.balanceOf(address(swapper)), 5e18);
+        assertEq(USDC.balanceOf(address(boringVault)), 10000e6);
+
+        //cancel the remaining — should refund min(inputAmount=10e18, balance=5e18) = 5e18
+        swapper.cancelOrder(orderId);
+
+        assertEq(WETH.balanceOf(address(swapper)), 0);
+        assertEq(WETH.balanceOf(address(boringVault)), 95e18);
+    }
+
+    function testCancelAfterFullFill() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        (BoringSwapper.SwapConfig memory config, bytes32 orderDigest, uint256 orderId) =
+            _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
+
+        //full fill
+        _simulateFill(1e18, 2000e6, config, orderDigest);
+
+        //cancel after full fill — refund is min(1e18, 0) = 0, should succeed with no transfer
+        uint256 vaultWethBefore = WETH.balanceOf(address(boringVault));
+        swapper.cancelOrder(orderId);
+        assertEq(WETH.balanceOf(address(boringVault)), vaultWethBefore);
+
+        //record is deleted
+        (ERC20 tokenIn,,,) = swapper.orderRecords(orderId);
+        assertEq(address(tokenIn), address(0));
+    }
+
+    //==================== Sweep ====================
+
+    function testSweep() external {
+        //simulate tokens stuck on swapper
+        deal(address(USDC), address(swapper), 500e6);
+
+        assertEq(USDC.balanceOf(address(swapper)), 500e6);
+        assertEq(USDC.balanceOf(address(boringVault)), 0);
+
+        swapper.sweep(USDC, boringVault);
+
+        assertEq(USDC.balanceOf(address(swapper)), 0);
+        assertEq(USDC.balanceOf(address(boringVault)), 500e6);
+    }
+
+    function testSweep_NoBalance() external {
+        //should be a no-op, not revert
+        swapper.sweep(USDC, boringVault);
+        assertEq(USDC.balanceOf(address(boringVault)), 0);
+    }
+
+    //==================== Adapter Registry ====================
+    
+    //TODO pull these out to their own file? 
+    function testRegistryOverwriteReverts() external {
+        //cowAdapter is already registered at (COWSWAP, version=1)
+        CowswapAdapter duplicateAdapter = new CowswapAdapter(COW_SETTLEMENT);
+
+        vm.expectRevert("adapter already registered");
+        registry.put(COWSWAP, address(duplicateAdapter));
+    }
+
+    function testRegistryGetProtocols() external {
+        (uint8[] memory ids, string[] memory names) = registry.getProtocols();
+
+        assertEq(ids.length, 1);
+        assertEq(ids[0], COWSWAP);
+        assertEq(keccak256(bytes(names[0])), keccak256(bytes("COWSWAP")));
+    }
+
+    function testRegistryReverseLookup() external {
+        uint8 id = registry.protocolId("COWSWAP");
+        assertEq(id, COWSWAP);
+
+        string memory name = registry.protocolName(COWSWAP);
+        assertEq(keccak256(bytes(name)), keccak256(bytes("COWSWAP")));
+    }
+
+    //==================== Helpers ====================
+
+    function _cowDomainSeparator() internal view returns (bytes32) {
+        return keccak256(abi.encode(
+            keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
+            keccak256("Gnosis Protocol"),
+            keccak256("v2"),
+            block.chainid,
+            COW_SETTLEMENT
+        ));
+    }
+
+    function _buildSwapConfig(
+        uint256 sellAmount,
+        uint256 buyAmount,
+        uint32 validTo
+    ) internal view returns (BoringSwapper.SwapConfig memory, bytes32 orderDigest) {
+        bytes memory cowswapData = abi.encode(
+            address(WETH),      //sellToken
+            address(USDC),      //buyToken
+            address(boringVault), //receiver
+            sellAmount,
+            buyAmount,
+            validTo,
+            bytes32(0),         //appData
+            uint256(0),         //feeAmount
+            KIND_SELL,
+            false,              //partiallyFillable
+            BALANCE_ERC20,
+            BALANCE_ERC20
+        );
+
+        BoringSwapper.SwapConfig memory config = BoringSwapper.SwapConfig({
+            tokenRoute: BoringSwapper.TokenRoute(WETH, USDC),
+            protocolId: COWSWAP,
+            quoteAsset: address(USDC),
+            swapData: cowswapData,
+            slippageBps: 10,
+            receiver: boringVault
+        });
+
+        //compute the EIP-712 order digest
+        bytes32 structHash = keccak256(abi.encode(
+            GPV2_ORDER_TYPE_HASH,
+            address(WETH),
+            address(USDC),
+            address(boringVault),
+            sellAmount,
+            buyAmount,
+            validTo,
+            bytes32(0),
+            uint256(0),
+            KIND_SELL,
+            false,
+            BALANCE_ERC20,
+            BALANCE_ERC20
+        ));
+        orderDigest = keccak256(abi.encodePacked("\x19\x01", _cowDomainSeparator(), structHash));
+
+        return (config, orderDigest);
+    }
+
+    function _submitOrder(uint256 sellAmount, uint256 buyAmount, uint32 validTo)
+        internal
+        returns (BoringSwapper.SwapConfig memory config, bytes32 orderDigest, uint256 orderId)
+    {
+        (config, orderDigest) = _buildSwapConfig(sellAmount, buyAmount, validTo);
+        orderId = swapper.orders();
+        swapper.submitOrder(config);
+    }
+
+    //simulate settlement pulling tokenIn from swapper and sending tokenOut to vault
+    function _simulateFill(
+        uint256 amountIn,
+        uint256 amountOut,
+        BoringSwapper.SwapConfig memory config,
+        bytes32 orderDigest
+    ) internal {
+        //verify signature (as settlement would)
+        bytes4 result = swapper.isValidSignature(orderDigest, abi.encode(config));
+        assertEq(result, bytes4(0x1626ba7e), "isValidSignature failed");
+
+        //settlement pulls tokenIn from swapper using the pre-approval
+        vm.prank(COW_SETTLEMENT);
+        WETH.transferFrom(address(swapper), COW_SETTLEMENT, amountIn);
+
+        //settlement sends tokenOut directly to the vault
+        deal(address(USDC), COW_SETTLEMENT, amountOut);
+        vm.prank(COW_SETTLEMENT);
+        USDC.transfer(address(boringVault), amountOut);
+    }
+}

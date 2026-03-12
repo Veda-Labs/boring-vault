@@ -10,31 +10,48 @@ import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
 
-//TODO add adapter type
 contract AdapterRegistry is Auth {
-   
-    //adapters -- take out so we can update easily?
-    struct Protocol {
-        uint8 UNISWAP_V3;
-        uint8 ONE_INCH;
-        uint8 ODOS;
-        uint8 COWSWAP;
-        uint8 OOGA_BOOGA;
-    } 
-    
-    mapping(uint8 protocolId => mapping(uint256 version => address adapater)) public availableAdapters;  //type this?
+
+    mapping(uint8 protocolId => mapping(uint256 version => address adapter)) public availableAdapters;
+    mapping(uint8 protocolId => string name) public protocolName;
+    mapping(string name => uint8 protocolId) public protocolId;
+    uint8[] public protocolIds;
 
     constructor() Auth(address(0), Authority(address(0))) {}
 
-    function get(uint8 protocolId, uint256 version) external view returns (address) { //type this?
-        return availableAdapters[protocolId][version]; 
+    function get(uint8 _protocolId, uint256 version) external view returns (address) {
+        return availableAdapters[_protocolId][version];
     }
-        
-    //maybe we can get the version from the contract? That way we ensure that it had the right function
-    function put(uint8 protocolId, address adapter) external {
-        IAdapter newAdapter = IAdapter(adapter); 
-        uint256 version = newAdapter.version(); 
-        availableAdapters[protocolId][version] = adapter; 
-        //TODO return an event
+
+    /// @notice Register an adapter. Sets the protocol name on first registration for a given protocolId.
+    function put(uint8 _protocolId, address adapter, string calldata name) external {
+        IAdapter newAdapter = IAdapter(adapter);
+        uint256 version = newAdapter.version();
+        if (availableAdapters[_protocolId][version] != address(0)) revert("adapter already registered");
+        availableAdapters[_protocolId][version] = adapter;
+
+        if (bytes(protocolName[_protocolId]).length == 0) {
+            if (bytes(name).length == 0) revert("name required");
+            protocolName[_protocolId] = name;
+            protocolId[name] = _protocolId;
+            protocolIds.push(_protocolId);
+        }
+    }
+
+    /// @notice Register an adapter for an already-named protocol (version bump)
+    function put(uint8 _protocolId, address adapter) external {
+        if (bytes(protocolName[_protocolId]).length == 0) revert("protocol not registered");
+        IAdapter newAdapter = IAdapter(adapter);
+        uint256 version = newAdapter.version();
+        if (availableAdapters[_protocolId][version] != address(0)) revert("adapter already registered");
+        availableAdapters[_protocolId][version] = adapter;
+    }
+
+    function getProtocols() external view returns (uint8[] memory ids, string[] memory names) {
+        ids = protocolIds;
+        names = new string[](ids.length);
+        for (uint256 i; i < ids.length; i++) {
+            names[i] = protocolName[ids[i]];
+        }
     }
 }

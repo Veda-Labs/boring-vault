@@ -92,8 +92,8 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         swapper.addApprovedVersion(UNISWAP_V3, 1); 
         swapper.addApprovedVersion(COWSWAP, 1); 
 
-        registry.put(UNISWAP_V3, uniswapV3AdapterVersion0_1);
-        registry.put(COWSWAP, cowswapAdapterVersion0_1);
+        registry.put(UNISWAP_V3, uniswapV3AdapterVersion0_1, "UNISWAP_V3");
+        registry.put(COWSWAP, cowswapAdapterVersion0_1, "COWSWAP");
 
         //oracle setup
         usdRate = new MockRateProvider(1e18);
@@ -268,7 +268,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         uint256 wethBefore = getERC20(sourceChain, "WETH").balanceOf(vault);
         uint256 usdcBefore = getERC20(sourceChain, "USDC").balanceOf(vault);
 
-        vm.expectRevert("path tokenOut mismatch"); 
+        vm.expectRevert("path tokenOut mismatch");
         _submitManagerCall(manageProofs, tx_);
     }
 
@@ -326,18 +326,18 @@ contract BoringSwapperIntegration is BaseTestIntegration {
     }
 
     function testCowswapValidSignature() external {
-        deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18); 
+        deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18);
 
-        address[] memory tokens = new address[](2);  
+        address[] memory tokens = new address[](2);
         tokens[0] = getAddress(sourceChain, "WETH");
         tokens[1] = getAddress(sourceChain, "USDC");
-    
+
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
-        _addBoringSwapperLeafs(leafs, address(swapper), tokens); 
-        
+        _addBoringSwapperLeafs(leafs, address(swapper), tokens);
+
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
-        _generateTestLeafs(leafs, manageTree);
+        //_generateTestLeafs(leafs, manageTree);
 
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
@@ -375,16 +375,18 @@ contract BoringSwapperIntegration is BaseTestIntegration {
             getERC20(sourceChain, "USDC")
         );
 
+        BoringSwapper.SwapConfig memory cowSwapConfig = BoringSwapper.SwapConfig({
+            tokenRoute: tokenRoute,
+            protocolId: COWSWAP,
+            quoteAsset: getAddress(sourceChain, "USDC"),
+            swapData: cowswapData,
+            slippageBps: 10,
+            receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
+        });
+
         tx_.targetData[1] = abi.encodeWithSelector(
             BoringSwapper.submitOrder.selector,
-            BoringSwapper.SwapConfig({
-                tokenRoute: tokenRoute,
-                protocolId: COWSWAP,
-                quoteAsset: getAddress(sourceChain, "USDC"),
-                swapData: cowswapData,
-                slippageBps: 10,
-                receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
-            })
+            cowSwapConfig
         );
 
         tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
@@ -407,9 +409,9 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         );
 
        // Simulate CoW settlement contract calling isValidSignature
-       // _signature contains the orderId (nonce) so swapper can reconstruct the unique hash
+       // _signature contains the full SwapConfig for re-validation at fill time
        vm.prank(COW_SETTLEMENT);
-       bytes4 result = swapper.isValidSignature(orderDigest, abi.encode(uint256(0)));
+       bytes4 result = swapper.isValidSignature(orderDigest, abi.encode(cowSwapConfig));
        assertEq(result, bytes4(0x1626ba7e), "should return ERC-1271 magic value");
     }
 
