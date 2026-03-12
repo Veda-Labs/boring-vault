@@ -2964,6 +2964,7 @@ contract ChainValues {
         values[ink]["ZRO"] = address(1).toBytes32();
         values[ink]["usdt0OFTAdapter"] = 0x1cB6De532588fCA4a21B7209DE7C456AF8434A65.toBytes32(); 
         values[ink]["PYUSDOFTAdapter"] = 0x3CD2b89C49D130C08f1d683225b2e5DeB63ff876.toBytes32();
+        values[ink]["PYUSD0"] = 0x142cdc44890978B506e745bB3Bd11607B7f7faEf.toBytes32();
 
         // Balancer
         values[ink]["balancerVault"] = address(1).toBytes32();
