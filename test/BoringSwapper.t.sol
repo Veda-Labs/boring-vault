@@ -154,7 +154,18 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         //fat finger: 1 WETH for 1000 USDC (50% below oracle)
         (BoringSwapper.SwapConfig memory config,) = _buildSwapConfig(1e18, 1000e6, uint32(block.timestamp + 3600));
-        vm.expectRevert("exceeds max slippage for route");
+        vm.expectRevert("exceeds max slippage");
+        swapper.submitOrder(config);
+    }
+
+    function testSubmitOrder_RevertUnapprovedProtocol() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        //use approved route but unapproved protocol
+        (BoringSwapper.SwapConfig memory config,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 3600));
+        config.protocolId = 99;
+
+        vm.expectRevert("not approved");
         swapper.submitOrder(config);
     }
 
@@ -206,6 +217,19 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         //revoke route by setting max slippage to 0 and unapproving
         //note: there's no removeApprovedRoute — this is a gap. skip for now.
+    }
+
+    function testIsValidSignature_RevertUnapprovedProtocol() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        (BoringSwapper.SwapConfig memory config, bytes32 orderDigest,) =
+            _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
+
+        //swap protocolId to something unapproved before calling isValidSignature
+        config.protocolId = 99;
+
+        vm.expectRevert("protocol not approved");
+        swapper.isValidSignature(orderDigest, abi.encode(config));
     }
 
     //==================== Cancel Order Tests ====================
@@ -378,6 +402,100 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         string memory name = registry.protocolName(COWSWAP);
         assertEq(keccak256(bytes(name)), keccak256(bytes("COWSWAP")));
+    }
+
+    function testRegistryPut_RevertNameRequired() external {
+        //new protocol with empty name should revert
+        CowswapAdapter newAdapter = new CowswapAdapter(COW_SETTLEMENT);
+        vm.expectRevert("name required");
+        registry.put(10, address(newAdapter), "");
+    }
+
+    function testRegistryPut_RevertProtocolNotRegistered() external {
+        //version bump overload on unregistered protocol should revert
+        CowswapAdapter newAdapter = new CowswapAdapter(COW_SETTLEMENT);
+        vm.expectRevert("protocol not registered");
+        registry.put(10, address(newAdapter));
+    }
+
+    function testRegistryGet_ReturnsZeroForUnregistered() external {
+        address result = registry.get(255, 999);
+        assertEq(result, address(0));
+    }
+
+    //==================== Admin Tests ====================
+
+    function testAddApprovedRoute() external {
+        //new route USDC -> WETH with 100 bps max slippage
+        swapper.addApprovedRoute(USDC, WETH, 100);
+
+        bytes32 key = swapper.getRouteId(USDC, WETH);
+        assertTrue(swapper.approvedRoutes(key));
+        assertEq(swapper.maxSlippageBpsPerRoute(key), 100);
+    }
+
+    function testAddApprovedProtocol() external {
+        uint8 newProtocol = 10;
+        assertFalse(swapper.approvedProtocols(newProtocol));
+
+        swapper.addApprovedProtocol(newProtocol);
+        assertTrue(swapper.approvedProtocols(newProtocol));
+    }
+
+    function testAddApprovedVersion() external {
+        uint8 newProtocol = 10;
+        assertEq(swapper.versions(newProtocol), 0);
+
+        swapper.addApprovedVersion(newProtocol, 5);
+        assertEq(swapper.versions(newProtocol), 5);
+    }
+
+    function testAddApprovedOracle() external {
+        address newOracle = address(0x69420);
+        address quoteAsset = address(USDC);
+
+        swapper.addApprovedOracle(WETH, quoteAsset, newOracle);
+        assertEq(swapper.getOracle(WETH, quoteAsset), newOracle);
+    }
+
+    function testSetPriceValidator() external {
+        PriceValidator newValidator = new PriceValidator();
+        swapper.setPriceValidator(IPriceValidator(address(newValidator)));
+        assertEq(address(swapper.priceValidator()), address(newValidator));
+    }
+
+    function testGetRouteId() external {
+        bytes32 ab = swapper.getRouteId(WETH, USDC);
+        bytes32 ba = swapper.getRouteId(USDC, WETH);
+
+        //route ids are directional — (A,B) != (B,A)
+        assertTrue(ab != ba);
+
+        //deterministic — same inputs always produce same output
+        assertEq(ab, swapper.getRouteId(WETH, USDC));
+    }
+
+    function testGetOracle() external {
+        address quoteAsset = address(USDC);
+        //oracles were set in setUp
+        assertEq(swapper.getOracle(WETH, quoteAsset), address(wethRate));
+        assertEq(swapper.getOracle(USDC, quoteAsset), address(usdcRate));
+
+        //unregistered oracle returns zero
+        assertEq(swapper.getOracle(WETH, address(0x420)), address(0));
+    }
+
+    //==================== Price Validator ====================
+
+    function testPriceValidator_RevertExceedsMaxSlippageBps() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        //route max slippage is 50 bps, use 51 bps
+        (BoringSwapper.SwapConfig memory config,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 3600));
+        config.slippageBps = 51;
+
+        vm.expectRevert("exceeds max slippage for this token route");
+        swapper.submitOrder(config);
     }
 
     //==================== Helpers ====================

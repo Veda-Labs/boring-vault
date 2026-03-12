@@ -39,6 +39,6 @@ contract PriceValidator is IPriceValidator {
         if (slippageBps > maxSlippageBps) revert("exceeds max slippage for this token route");
 
         uint256 minValueOut = tradePrice.mulDivDown((10_000 - slippageBps), 10_000);
-        if (valueOut < minValueOut) revert("exceeds max slippage for route");
+        if (valueOut < minValueOut) revert("exceeds max slippage");
     }
 }
