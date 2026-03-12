@@ -1882,6 +1882,7 @@ contract ChainValues {
         values[arbitrum]["dolomiteBorrowProxy"] = 0x38E49A617305101216eC6306e3a18065D14Bf3a7.toBytes32(); //V2
 
         // OFT
+        values[arbitrum]["MultiHopComposer"] = 0xcbB2eE2c5592959F6A3A4a60f3948Ff100c65468.toBytes32();
         values[arbitrum]["PYUSDOFTAdapter"] = 0x3CD2b89C49D130C08f1d683225b2e5DeB63ff876.toBytes32();
     }
 
