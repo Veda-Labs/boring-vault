@@ -14228,10 +14228,10 @@ function _addTellerLeafsWithReferral(
                 false,
                 "approve(address,uint256)",
                 new address[](1),
-                string.concat("Approve Odos Router V2 to spend ", ERC20(tokenA).symbol()),
+                string.concat("Approve Etherfi swapper to spend ", ERC20(tokenA).symbol()),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
-            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "odosRouterV2");
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "etherfiSwapper");
         }
 
         // add swap from tokenA to tokenB
