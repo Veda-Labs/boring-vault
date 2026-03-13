@@ -107,8 +107,14 @@ contract DeployMorphoLoopAdapter is Script, MerkleTreeHelper {
         MorphoLoopTvlAdapter adapter = new MorphoLoopTvlAdapter(
             0x9103c3b4e834476c9a62ea009ba2c884ee42e94e6e314a26f04d312434191836
         );
-
-        console.log("TVL of user", adapter.getUserTvl(address(0)));
+        (uint256 collat, uint256 debt, uint256 supplied) = adapter.getUserPositionValues(
+            0x4A0768ad836E787391f85bBaA110DF64D35C64d9
+        );
+        console.log("collateral", collat);
+        console.log("debt", debt);
+        console.log("supplied", supplied);
+        console.log("LTV", (debt) * 1e8 / collat ); // assuming supplied is in USDC terms
+        console.log("TVL in USDC terms", adapter.getUserTvl(0x4A0768ad836E787391f85bBaA110DF64D35C64d9));
 
         vm.stopBroadcast();
     }
