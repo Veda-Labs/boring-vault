@@ -119,8 +119,10 @@ contract CreateBalancedUSDCMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== SGHO ==========================
         _addSGHOLeafs(leafs);
-        _addGHOGSMLeafs(leafs, getAddress(sourceChain, "gsmUsdc"), getERC20(sourceChain, "USDC"));
-        _addGHOGSMLeafs(leafs, getAddress(sourceChain, "gsmUsdt"), getERC20(sourceChain, "USDT"));
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "waEthUSDC")));
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "waEthUSDT")));
+        _addGHOGSMLeafs(leafs, getAddress(sourceChain, "gsmUsdc"), getERC20(sourceChain, "waEthUSDC"));
+        _addGHOGSMLeafs(leafs, getAddress(sourceChain, "gsmUsdt"), getERC20(sourceChain, "waEthUSDT"));
 
         // ========================== Verify ==========================
 
