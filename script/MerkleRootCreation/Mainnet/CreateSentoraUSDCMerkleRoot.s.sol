@@ -51,8 +51,8 @@ contract CreateSentoraUSDCMerkleRoot is Script, MerkleTreeHelper {
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
         // ========================== 1inch/Odos ==========================
-        address[] memory assets = new address[](9);
-        SwapKind[] memory kind = new SwapKind[](9);
+        address[] memory assets = new address[](10);
+        SwapKind[] memory kind = new SwapKind[](10);
         assets[0] = getAddress(sourceChain, "USDC");
         kind[0] = SwapKind.BuyAndSell;
         assets[1] = getAddress(sourceChain, "USDT");
@@ -70,7 +70,9 @@ contract CreateSentoraUSDCMerkleRoot is Script, MerkleTreeHelper {
         assets[7] = getAddress(sourceChain, "USDG");
         kind[7] = SwapKind.BuyAndSell;
         assets[8] = getAddress(sourceChain, "MORPHO");
-        kind[8] = SwapKind.BuyAndSell;
+        kind[8] = SwapKind.Sell;
+        assets[9] = getAddress(sourceChain, "SUSDE");
+        kind[9] = SwapKind.BuyAndSell;
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
         _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
