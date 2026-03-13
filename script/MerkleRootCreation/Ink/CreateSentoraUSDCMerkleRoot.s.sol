@@ -60,14 +60,14 @@ contract CreateSentoraUSDCMerkleRoot is Script, MerkleTreeHelper {
         // bridge USDC to Mainnet via CCTP
         _addCCTPBridgeLeafs(leafs, cctpMainnetDomainId);
 
-         // bridge PYUSD to Ink via PYUSD0 Multi-Hop
+         // bridge PYUSD to Mainnet via PYUSD0 Multi-Hop
         _addLayerZeroMultiHopLeafs(
             leafs,
             getERC20(sourceChain, "PYUSD0"),
             getAddress(sourceChain, "PYUSDOFTAdapter"),
             layerZeroArbitrumEndpointId,
             getBytes32("arbitrum", "MultiHopComposer"),
-            layerZeroInkEndpointId,
+            layerZeroMainnetEndpointId,
             getBytes32(sourceChain, "boringVault")
         );
 
