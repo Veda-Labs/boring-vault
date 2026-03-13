@@ -167,6 +167,17 @@ contract DecoderCustomTypes {
         uint256 flags;
     }
 
+    struct OneInchLimitOrder {
+        uint256 salt;
+        address maker;
+        address receiver;
+        address makerAsset;
+        address takerAsset;
+        uint256 makingAmount;
+        uint256 takingAmount;
+        uint256 makerTraits;
+    }
+
     // ========================================= PENDLE =========================================
     struct TokenInput {
         // TOKEN DATA

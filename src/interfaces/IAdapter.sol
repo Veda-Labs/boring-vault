@@ -20,4 +20,5 @@ interface IAdapter {
 
     function version() external view returns (uint256);
     function verifyLimitOrder(BoringSwapper.SwapConfig calldata swapConfig, address swapper) external view returns (OrderInfo memory);
+    function cancelLimitOrder(BoringSwapper.SwapConfig calldata swapConfig, address swapper) external view returns (address target, bytes memory data);
 }

@@ -58,4 +58,8 @@ contract UniswapV3Adapter is IAdapter, BaseAdapter {
             protocolHash: bytes32(0)
         });
     }
+
+    function cancelLimitOrder(BoringSwapper.SwapConfig calldata, address) external pure returns (address, bytes memory) {
+        return (address(0), "");
+    }
 }

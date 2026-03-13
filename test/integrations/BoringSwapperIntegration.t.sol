@@ -13,6 +13,7 @@ import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
 import {UniswapV3Adapter} from "src/base/Periphery/adapters/UniswapV3Adapter.sol"; 
 import {CowswapAdapter} from "src/base/Periphery/adapters/CowswapAdapter.sol";
+import {OneInchAdapter} from "src/base/Periphery/adapters/OneInchAdapter.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {Authority} from "@solmate/auth/Auth.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
@@ -63,6 +64,15 @@ contract BoringSwapperIntegration is BaseTestIntegration {
 
     // CoW Protocol constants END //
 
+    // 1inch constants BEGIN //
+    address constant ONEINCH_ROUTER = 0x111111125421cA6dc452d289314280a0f8842A65;
+    uint8 ONEINCH = 4;
+
+    bytes32 constant ONEINCH_ORDER_TYPE_HASH = keccak256(
+        "Order(uint256 salt,address maker,address receiver,address makerAsset,address takerAsset,uint256 makingAmount,uint256 takingAmount,uint256 makerTraits)"
+    );
+    // 1inch constants END //
+
     AdapterRegistry registry;
     BoringSwapper swapper;
     PriceValidator validator;
@@ -81,27 +91,31 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         registry = new AdapterRegistry(); 
 
         //do additional setup here
-        swapper = new BoringSwapper(registry); 
+        swapper = new BoringSwapper(address(this), registry);
 
-        address uniswapV3AdapterVersion0_1 = address(new UniswapV3Adapter(getAddress(sourceChain, "uniV3Router"))); 
-        address cowswapAdapterVersion0_1 = address(new CowswapAdapter(COW_SETTLEMENT)); 
+        address uniswapV3AdapterVersion0_1 = address(new UniswapV3Adapter(getAddress(sourceChain, "uniV3Router")));
+        address cowswapAdapterVersion0_1 = address(new CowswapAdapter(COW_SETTLEMENT));
+        address oneInchAdapterVersion0_1 = address(new OneInchAdapter(ONEINCH_ROUTER));
 
-        swapper.addApprovedRoute(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDC"), 50); 
-        swapper.addApprovedProtocol(UNISWAP_V3); //UNI_V3
-        swapper.addApprovedProtocol(COWSWAP); //COWSWAP
-        swapper.addApprovedVersion(UNISWAP_V3, 1); 
-        swapper.addApprovedVersion(COWSWAP, 1); 
+        swapper.setApprovedRoute(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDC"), true, 50, 0, 0);
+        swapper.setApprovedProtocol(UNISWAP_V3, true); //UNI_V3
+        swapper.setApprovedProtocol(COWSWAP, true); //COWSWAP
+        swapper.setApprovedProtocol(ONEINCH, true); //1INCH
+        swapper.addApprovedVersion(UNISWAP_V3, 1);
+        swapper.addApprovedVersion(COWSWAP, 1);
+        swapper.addApprovedVersion(ONEINCH, 1);
 
         registry.put(UNISWAP_V3, uniswapV3AdapterVersion0_1, "UNISWAP_V3");
         registry.put(COWSWAP, cowswapAdapterVersion0_1, "COWSWAP");
+        registry.put(ONEINCH, oneInchAdapterVersion0_1, "ONEINCH");
 
         //oracle setup
         usdRate = new MockRateProvider(1e18);
         ethRate = new MockRateProvider(2000e18);
 
         address usdQuoteAsset = getAddress(sourceChain, "USDC");
-        swapper.addApprovedOracle(getERC20(sourceChain, "USDC"), usdQuoteAsset, address(usdRate));
-        swapper.addApprovedOracle(getERC20(sourceChain, "WETH"), usdQuoteAsset, address(ethRate));
+        swapper.setApprovedOracle(getERC20(sourceChain, "USDC"), usdQuoteAsset, address(usdRate));
+        swapper.setApprovedOracle(getERC20(sourceChain, "WETH"), usdQuoteAsset, address(ethRate));
 
         //price validator setup
         validator = new PriceValidator();
@@ -481,7 +495,204 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
         tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
 
-        vm.expectRevert("exceeds max slippage for route");
+        vm.expectRevert("exceeds max slippage");
         _submitManagerCall(manageProofs, tx_);
+    }
+
+    //==================== 1inch Limit Order Helpers ====================
+
+    function _oneInchDomainSeparator() internal view returns (bytes32) {
+        return keccak256(abi.encode(
+            keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
+            keccak256("1inch Limit Order Protocol"),
+            keccak256("4"),
+            block.chainid,
+            ONEINCH_ROUTER
+        ));
+    }
+
+    function _buildOneInchSwapConfig(
+        uint256 makingAmount,
+        uint256 takingAmount
+    ) internal view returns (BoringSwapper.SwapConfig memory, bytes32 orderDigest) {
+        DecoderCustomTypes.OneInchLimitOrder memory order = DecoderCustomTypes.OneInchLimitOrder({
+            salt: 1,
+            maker: address(swapper),
+            receiver: getAddress(sourceChain, "boringVault"),
+            makerAsset: getAddress(sourceChain, "WETH"),
+            takerAsset: getAddress(sourceChain, "USDC"),
+            makingAmount: makingAmount,
+            takingAmount: takingAmount,
+            makerTraits: 0
+        });
+
+        bytes memory swapData = abi.encode(order);
+
+        BoringSwapper.SwapConfig memory config = BoringSwapper.SwapConfig({
+            tokenRoute: BoringSwapper.TokenRoute(
+                getERC20(sourceChain, "WETH"),
+                getERC20(sourceChain, "USDC")
+            ),
+            protocolId: ONEINCH,
+            quoteAsset: getAddress(sourceChain, "USDC"),
+            swapData: swapData,
+            slippageBps: 10,
+            receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
+        });
+
+        bytes32 structHash = keccak256(abi.encodePacked(ONEINCH_ORDER_TYPE_HASH, swapData));
+        orderDigest = keccak256(abi.encodePacked("\x19\x01", _oneInchDomainSeparator(), structHash));
+
+        return (config, orderDigest);
+    }
+
+    function _submitOneInchOrder(uint256 makingAmount, uint256 takingAmount)
+        internal
+        returns (BoringSwapper.SwapConfig memory config, bytes32 orderDigest, uint256 orderId)
+    {
+        (config, orderDigest) = _buildOneInchSwapConfig(makingAmount, takingAmount);
+        orderId = swapper.orders();
+        swapper.submitOrder(config);
+    }
+
+    function _simulateOneInchFill(
+        uint256 amountIn,
+        uint256 amountOut,
+        BoringSwapper.SwapConfig memory config,
+        bytes32 orderDigest
+    ) internal {
+        bytes4 result = swapper.isValidSignature(orderDigest, abi.encode(config));
+        assertEq(result, bytes4(0x1626ba7e), "isValidSignature failed");
+
+        vm.prank(ONEINCH_ROUTER);
+        getERC20(sourceChain, "WETH").transferFrom(address(swapper), ONEINCH_ROUTER, amountIn);
+
+        deal(getAddress(sourceChain, "USDC"), ONEINCH_ROUTER, amountOut);
+        vm.prank(ONEINCH_ROUTER);
+        getERC20(sourceChain, "USDC").transfer(getAddress(sourceChain, "boringVault"), amountOut);
+    }
+
+    //==================== 1inch Limit Order Tests ====================
+
+    function testOneInchSubmitOrder() external {
+        deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18);
+
+        //approve swapper to pull WETH from vault
+        vm.prank(getAddress(sourceChain, "boringVault"));
+        getERC20(sourceChain, "WETH").approve(address(swapper), type(uint256).max);
+
+        (BoringSwapper.SwapConfig memory config,, uint256 orderId) =
+            _submitOneInchOrder(1e18, 2000e6);
+
+        (ERC20 tokenIn, address settlementAddr, uint256 inputAmount, BoringVault receiver) =
+            swapper.orderRecords(orderId);
+        assertEq(address(tokenIn), getAddress(sourceChain, "WETH"));
+        assertEq(inputAmount, 1e18);
+        assertEq(address(receiver), getAddress(sourceChain, "boringVault"));
+
+        assertEq(getERC20(sourceChain, "WETH").balanceOf(address(swapper)), 1e18);
+        assertEq(getERC20(sourceChain, "WETH").balanceOf(getAddress(sourceChain, "boringVault")), 99e18);
+        assertEq(swapper.orders(), orderId + 1);
+    }
+
+    function testOneInchSubmitOrder_RevertBadSlippage() external {
+        deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18);
+
+        vm.prank(getAddress(sourceChain, "boringVault"));
+        getERC20(sourceChain, "WETH").approve(address(swapper), type(uint256).max);
+
+        //fat finger: 1 WETH for 1000 USDC (50% below oracle)
+        (BoringSwapper.SwapConfig memory config,) = _buildOneInchSwapConfig(1e18, 1000e6);
+        vm.expectRevert("exceeds max slippage");
+        swapper.submitOrder(config);
+    }
+
+    function testOneInchIsValidSignature() external {
+        deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18);
+
+        vm.prank(getAddress(sourceChain, "boringVault"));
+        getERC20(sourceChain, "WETH").approve(address(swapper), type(uint256).max);
+
+        (BoringSwapper.SwapConfig memory config, bytes32 orderDigest,) =
+            _submitOneInchOrder(1e18, 2000e6);
+
+        bytes4 result = swapper.isValidSignature(orderDigest, abi.encode(config));
+        assertEq(result, bytes4(0x1626ba7e));
+    }
+
+    function testOneInchIsValidSignature_RevertHashMismatch() external {
+        deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18);
+
+        vm.prank(getAddress(sourceChain, "boringVault"));
+        getERC20(sourceChain, "WETH").approve(address(swapper), type(uint256).max);
+
+        (BoringSwapper.SwapConfig memory config,,) =
+            _submitOneInchOrder(1e18, 2000e6);
+
+        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__HashMismatch.selector));
+        swapper.isValidSignature(bytes32(uint256(0x69420)), abi.encode(config));
+    }
+
+    function testOneInchCancelOrder() external {
+        deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18);
+
+        vm.prank(getAddress(sourceChain, "boringVault"));
+        getERC20(sourceChain, "WETH").approve(address(swapper), type(uint256).max);
+
+        (BoringSwapper.SwapConfig memory config, , uint256 orderId) = _submitOneInchOrder(1e18, 2000e6);
+
+        assertEq(getERC20(sourceChain, "WETH").balanceOf(address(swapper)), 1e18);
+        assertEq(getERC20(sourceChain, "WETH").balanceOf(getAddress(sourceChain, "boringVault")), 99e18);
+
+        swapper.cancelOrder(orderId, config);
+
+        assertEq(getERC20(sourceChain, "WETH").balanceOf(address(swapper)), 0);
+        assertEq(getERC20(sourceChain, "WETH").balanceOf(getAddress(sourceChain, "boringVault")), 100e18);
+
+        (ERC20 tokenIn,,,) = swapper.orderRecords(orderId);
+        assertEq(address(tokenIn), address(0));
+    }
+
+    function testOneInchFullFillFlow() external {
+        deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18);
+
+        vm.prank(getAddress(sourceChain, "boringVault"));
+        getERC20(sourceChain, "WETH").approve(address(swapper), type(uint256).max);
+
+        (BoringSwapper.SwapConfig memory config, bytes32 orderDigest, uint256 orderId) =
+            _submitOneInchOrder(1e18, 2000e6);
+
+        address vault = getAddress(sourceChain, "boringVault");
+        uint256 vaultWethBefore = getERC20(sourceChain, "WETH").balanceOf(vault);
+        uint256 vaultUsdcBefore = getERC20(sourceChain, "USDC").balanceOf(vault);
+
+        _simulateOneInchFill(1e18, 2000e6, config, orderDigest);
+
+        assertEq(getERC20(sourceChain, "USDC").balanceOf(vault), vaultUsdcBefore + 2000e6);
+        assertEq(getERC20(sourceChain, "WETH").balanceOf(address(swapper)), 0);
+        assertEq(getERC20(sourceChain, "WETH").balanceOf(vault), vaultWethBefore);
+    }
+
+    function testOneInchPartialFillThenCancel() external {
+        deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18);
+
+        vm.prank(getAddress(sourceChain, "boringVault"));
+        getERC20(sourceChain, "WETH").approve(address(swapper), type(uint256).max);
+
+        (BoringSwapper.SwapConfig memory config, bytes32 orderDigest, uint256 orderId) =
+            _submitOneInchOrder(10e18, 20000e6);
+
+        assertEq(getERC20(sourceChain, "WETH").balanceOf(address(swapper)), 10e18);
+
+        _simulateOneInchFill(5e18, 10000e6, config, orderDigest);
+
+        address vault = getAddress(sourceChain, "boringVault");
+        assertEq(getERC20(sourceChain, "WETH").balanceOf(address(swapper)), 5e18);
+        assertEq(getERC20(sourceChain, "USDC").balanceOf(vault), 10000e6);
+
+        swapper.cancelOrder(orderId, config);
+
+        assertEq(getERC20(sourceChain, "WETH").balanceOf(address(swapper)), 0);
+        assertEq(getERC20(sourceChain, "WETH").balanceOf(vault), 95e18);
     }
 }

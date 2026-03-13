@@ -42,6 +42,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     bytes32 constant BALANCE_ERC20 = keccak256("erc20");
 
     uint8 constant COWSWAP = 3;
+    uint8 constant ADMIN_ROLE = 1;
 
     BoringVault public boringVault;
     BoringSwapper public swapper;
@@ -75,23 +76,38 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         //registry + swapper
         registry = new AdapterRegistry();
-        swapper = new BoringSwapper(registry);
+        swapper = new BoringSwapper(address(this), registry);
+
+        //auth setup
+        swapper.setAuthority(rolesAuthority);
+        rolesAuthority.setUserRole(address(this), ADMIN_ROLE, true);
+        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setGlobalPaused.selector, true);
+        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setProtocolPaused.selector, true);
+        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setApprovedRoute.selector, true);
+        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setMaxSlippageBps.selector, true);
+        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setApprovedProtocol.selector, true);
+        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.addApprovedVersion.selector, true);
+        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.removeApprovedVersion.selector, true);
+        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setApprovedOracle.selector, true);
+        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setPriceValidator.selector, true);
+        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setRateLimit.selector, true);
+        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.sweep.selector, true);
 
         cowAdapter = new CowswapAdapter(COW_SETTLEMENT);
 
         registry.put(COWSWAP, address(cowAdapter), "COWSWAP");
 
         //swapper config
-        swapper.addApprovedRoute(WETH, USDC, 50);
-        swapper.addApprovedProtocol(COWSWAP);
+        swapper.setApprovedRoute(WETH, USDC, true, 50, 0, 0);
+        swapper.setApprovedProtocol(COWSWAP, true);
         swapper.addApprovedVersion(COWSWAP, 1);
 
         //oracles
         wethRate = new MockRateProvider(2000e18);
         usdcRate = new MockRateProvider(1e18);
         address usdQuoteAsset = address(USDC);
-        swapper.addApprovedOracle(WETH, usdQuoteAsset, address(wethRate));
-        swapper.addApprovedOracle(USDC, usdQuoteAsset, address(usdcRate));
+        swapper.setApprovedOracle(WETH, usdQuoteAsset, address(wethRate));
+        swapper.setApprovedOracle(USDC, usdQuoteAsset, address(usdcRate));
 
         //price validator
         validator = new PriceValidator();
@@ -145,7 +161,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
             receiver: boringVault
         });
 
-        vm.expectRevert("not approved");
+        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__RouteNotApproved.selector));
         swapper.submitOrder(config);
     }
 
@@ -165,7 +181,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         (BoringSwapper.SwapConfig memory config,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 3600));
         config.protocolId = 99;
 
-        vm.expectRevert("not approved");
+        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__ProtocolNotApproved.selector));
         swapper.submitOrder(config);
     }
 
@@ -201,7 +217,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
             _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
 
         //use a garbage hash
-        vm.expectRevert("hash mismatch");
+        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__HashMismatch.selector));
         swapper.isValidSignature(bytes32(uint256(0x69420)), abi.encode(config));
     }
 
@@ -228,7 +244,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         //swap protocolId to something unapproved before calling isValidSignature
         config.protocolId = 99;
 
-        vm.expectRevert("protocol not approved");
+        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__ProtocolNotApproved.selector));
         swapper.isValidSignature(orderDigest, abi.encode(config));
     }
 
@@ -237,12 +253,12 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     function testCancelOrder() external {
         deal(address(WETH), address(boringVault), 100e18);
 
-        (, , uint256 orderId) = _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
+        (BoringSwapper.SwapConfig memory config, , uint256 orderId) = _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
 
         assertEq(WETH.balanceOf(address(swapper)), 1e18);
         assertEq(WETH.balanceOf(address(boringVault)), 99e18);
 
-        swapper.cancelOrder(orderId);
+        swapper.cancelOrder(orderId, config);
 
         //funds returned to vault
         assertEq(WETH.balanceOf(address(swapper)), 0);
@@ -254,30 +270,39 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     }
 
     function testCancelOrder_RevertNotFound() external {
-        vm.expectRevert("order not found");
-        swapper.cancelOrder(999);
+        // Build a dummy SwapConfig since there's no real order
+        BoringSwapper.SwapConfig memory dummyConfig = BoringSwapper.SwapConfig({
+            tokenRoute: BoringSwapper.TokenRoute(WETH, USDC),
+            protocolId: COWSWAP,
+            quoteAsset: address(USDC),
+            swapData: "",
+            slippageBps: 10,
+            receiver: boringVault
+        });
+        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__OrderNotFound.selector));
+        swapper.cancelOrder(999, dummyConfig);
     }
 
     function testCancelOrder_RevertDoubleCancelation() external {
         deal(address(WETH), address(boringVault), 100e18);
 
-        (, , uint256 orderId) = _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
-        swapper.cancelOrder(orderId);
+        (BoringSwapper.SwapConfig memory config, , uint256 orderId) = _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
+        swapper.cancelOrder(orderId, config);
 
-        vm.expectRevert("order not found");
-        swapper.cancelOrder(orderId);
+        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__OrderNotFound.selector));
+        swapper.cancelOrder(orderId, config);
     }
 
     function testCancelOrder_OneOfMultiple() external {
         deal(address(WETH), address(boringVault), 100e18);
 
-        (, , uint256 orderId0) = _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
+        (BoringSwapper.SwapConfig memory config0, , uint256 orderId0) = _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
         (, , uint256 orderId1) = _submitOrder(2e18, 4000e6, uint32(block.timestamp + 7200));
 
         assertEq(WETH.balanceOf(address(swapper)), 3e18);
 
         //cancel only the first order
-        swapper.cancelOrder(orderId0);
+        swapper.cancelOrder(orderId0, config0);
 
         //only 1e18 returned, 2e18 still on swapper for order 1
         assertEq(WETH.balanceOf(address(swapper)), 2e18);
@@ -331,7 +356,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         assertEq(USDC.balanceOf(address(boringVault)), 10000e6);
 
         //cancel the remaining — should refund min(inputAmount=10e18, balance=5e18) = 5e18
-        swapper.cancelOrder(orderId);
+        swapper.cancelOrder(orderId, config);
 
         assertEq(WETH.balanceOf(address(swapper)), 0);
         assertEq(WETH.balanceOf(address(boringVault)), 95e18);
@@ -348,7 +373,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         //cancel after full fill — refund is min(1e18, 0) = 0, should succeed with no transfer
         uint256 vaultWethBefore = WETH.balanceOf(address(boringVault));
-        swapper.cancelOrder(orderId);
+        swapper.cancelOrder(orderId, config);
         assertEq(WETH.balanceOf(address(boringVault)), vaultWethBefore);
 
         //record is deleted
@@ -423,11 +448,79 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         assertEq(result, address(0));
     }
 
+    //==================== Pause Tests ====================
+
+    function testGlobalPause_BlocksSubmitOrder() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        swapper.setGlobalPaused(true);
+
+        (BoringSwapper.SwapConfig memory config,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 3600));
+        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__Paused.selector));
+        swapper.submitOrder(config);
+
+        //unpause and it works again
+        swapper.setGlobalPaused(false);
+        swapper.submitOrder(config);
+        assertEq(swapper.orders(), 1);
+    }
+
+    function testGlobalPause_BlocksIsValidSignature() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        (BoringSwapper.SwapConfig memory config, bytes32 orderDigest,) =
+            _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
+
+        //pause should block fills
+        swapper.setGlobalPaused(true);
+        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__Paused.selector));
+        swapper.isValidSignature(orderDigest, abi.encode(config));
+    }
+
+    function testProtocolPause_BlocksSubmitOrder() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        swapper.setProtocolPaused(COWSWAP, true);
+
+        (BoringSwapper.SwapConfig memory config,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 3600));
+        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__ProtocolPaused.selector));
+        swapper.submitOrder(config);
+
+        //unpause and it works again
+        swapper.setProtocolPaused(COWSWAP, false);
+        swapper.submitOrder(config);
+        assertEq(swapper.orders(), 1);
+    }
+
+    function testProtocolPause_BlocksIsValidSignature() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        (BoringSwapper.SwapConfig memory config, bytes32 orderDigest,) =
+            _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
+
+        //pause cowswap should block fills
+        swapper.setProtocolPaused(COWSWAP, true);
+        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__ProtocolPaused.selector));
+        swapper.isValidSignature(orderDigest, abi.encode(config));
+    }
+
+    function testProtocolPause_DoesNotAffectOtherProtocols() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        //pause a different protocol
+        swapper.setProtocolPaused(0, true);
+
+        //cowswap should still work
+        (BoringSwapper.SwapConfig memory config,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 3600));
+        swapper.submitOrder(config);
+        assertEq(swapper.orders(), 1);
+    }
+
     //==================== Admin Tests ====================
 
     function testAddApprovedRoute() external {
         //new route USDC -> WETH with 100 bps max slippage
-        swapper.addApprovedRoute(USDC, WETH, 100);
+        swapper.setApprovedRoute(USDC, WETH, true, 100, 0, 0);
 
         bytes32 key = swapper.getRouteId(USDC, WETH);
         assertTrue(swapper.approvedRoutes(key));
@@ -438,7 +531,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         uint8 newProtocol = 10;
         assertFalse(swapper.approvedProtocols(newProtocol));
 
-        swapper.addApprovedProtocol(newProtocol);
+        swapper.setApprovedProtocol(newProtocol, true);
         assertTrue(swapper.approvedProtocols(newProtocol));
     }
 
@@ -454,7 +547,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         address newOracle = address(0x69420);
         address quoteAsset = address(USDC);
 
-        swapper.addApprovedOracle(WETH, quoteAsset, newOracle);
+        swapper.setApprovedOracle(WETH, quoteAsset, newOracle);
         assertEq(swapper.getOracle(WETH, quoteAsset), newOracle);
     }
 

@@ -15,8 +15,21 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
 
     address public immutable ROUTER;
 
+    bytes32 constant ONEINCH_ORDER_TYPE_HASH = keccak256(
+        "Order(uint256 salt,address maker,address receiver,address makerAsset,address takerAsset,uint256 makingAmount,uint256 takingAmount,uint256 makerTraits)"
+    );
+
+    bytes32 immutable DOMAIN_SEPARATOR;
+
     constructor(address _router) {
         ROUTER = _router;
+        DOMAIN_SEPARATOR = keccak256(abi.encode(
+            keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
+            keccak256("1inch Limit Order Protocol"),
+            keccak256("4"),
+            block.chainid,
+            _router
+        ));
     }
 
     //============================== V6 swap ===============================
@@ -74,14 +87,38 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         return 1;
     }
 
-    function verifyLimitOrder(BoringSwapper.SwapConfig calldata swapConfig, address) external view returns (OrderInfo memory) {
+    //============================== Limit Orders ===============================
+
+    function verifyLimitOrder(BoringSwapper.SwapConfig calldata swapConfig, address swapper) external view returns (OrderInfo memory) {
+        DecoderCustomTypes.OneInchLimitOrder memory order = abi.decode(swapConfig.swapData, (DecoderCustomTypes.OneInchLimitOrder));
+
+        if (ERC20(order.makerAsset) != swapConfig.tokenRoute.tokenIn) revert("makerAsset mismatch");
+        if (ERC20(order.takerAsset) != swapConfig.tokenRoute.tokenOut) revert("takerAsset mismatch");
+        if (order.maker != swapper) revert("maker must be swapper");
+        if (order.receiver != address(swapConfig.receiver)) revert("receiver mismatch");
+
+        bytes32 orderHash = _computeOrderHash(swapConfig.swapData);
+
         return OrderInfo({
-            settlement: address(0),
-            inputToken: address(0),
-            outputToken: address(0),
-            inputAmount: 0,
-            outputAmount: 0,
-            protocolHash: bytes32(0)
+            settlement: ROUTER,
+            inputToken: order.makerAsset,
+            outputToken: order.takerAsset,
+            inputAmount: order.makingAmount,
+            outputAmount: order.takingAmount,
+            protocolHash: orderHash
         });
+    }
+
+    function cancelLimitOrder(BoringSwapper.SwapConfig calldata swapConfig, address) external view returns (address, bytes memory) {
+        DecoderCustomTypes.OneInchLimitOrder memory order = abi.decode(swapConfig.swapData, (DecoderCustomTypes.OneInchLimitOrder));
+        bytes32 orderHash = _computeOrderHash(swapConfig.swapData);
+        return (ROUTER, abi.encodeWithSignature("cancelOrder(uint256,bytes32)", order.makerTraits, orderHash));
+    }
+
+    //============================== Internal ===============================
+
+    function _computeOrderHash(bytes memory swapData) internal view returns (bytes32) {
+        bytes32 structHash = keccak256(abi.encodePacked(ONEINCH_ORDER_TYPE_HASH, swapData));
+        return keccak256(abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR, structHash));
     }
 }
