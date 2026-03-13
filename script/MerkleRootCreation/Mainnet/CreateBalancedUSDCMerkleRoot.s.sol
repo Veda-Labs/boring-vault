@@ -19,7 +19,7 @@ contract CreateBalancedUSDCMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0xcaae49fb7f74cCFBE8A05E6104b01c097a78789f;
-    address public rawDataDecoderAndSanitizer = 0xBFf8D04E816C3a208A209EaE7a0df5155bB41D93;
+    address public rawDataDecoderAndSanitizer = 0x6792173F72619Bb0634c4Ac51109D36a93c71F5e;
     address public managerAddress = 0xA0e501F98A1B5d3d8e6Ffd161c76f92570E42931;
     address public accountantAddress = 0x727929AF06Fa4f6E96cbC3fF7F4b60A65E168e23;
 
@@ -116,6 +116,11 @@ contract CreateBalancedUSDCMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== CCTP ==========================
         _addCCTPBridgeLeafs(leafs, cctpInkDomainId);
+
+        // ========================== SGHO ==========================
+        _addSGHOLeafs(leafs);
+        _addGHOGSMLeafs(leafs, getAddress(sourceChain, "gsmUsdc"), getERC20(sourceChain, "USDC"));
+        _addGHOGSMLeafs(leafs, getAddress(sourceChain, "gsmUsdt"), getERC20(sourceChain, "USDT"));
 
         // ========================== Verify ==========================
 
