@@ -41,6 +41,14 @@ contract CreateWhopUSDMerkleRoot is Script, MerkleTreeHelper {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](32);
 
+                // ========================== Fee Claiming ==========================
+        /**
+         * Claim fees in USDT0
+         */
+        ERC20[] memory feeAssets = new ERC20[](1);
+        feeAssets[0] = getERC20(sourceChain, "USDT0");
+        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
+
         // ========================== Aave V3 ==========================
         ERC20[] memory supplyAssets = new ERC20[](1);
         supplyAssets[0] = getERC20(sourceChain, "USDT0");
