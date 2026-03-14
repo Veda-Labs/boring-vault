@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "forge-std/Script.sol";
 import {console} from "../lib/forge-std/src/console.sol";
+import {HedgedBtcEthMmStrategyAdapter} from "src/adapters/HedgedBtcEthMmStrategyAdapter.sol";
 import {UniV3PositionTvlAdapter} from "src/adapters/Univ3TvlAdapter.sol";
 import {UniV4PositionTvlAdapter} from "src/adapters/Univ4TvlAdapter.sol";
 import {MorphoLoopTvlAdapter} from "src/adapters/MorphoLoopTvlAdapter.sol";
@@ -92,6 +93,7 @@ contract DeployUniv4Adapter is Script, MerkleTreeHelper {
         vm.stopBroadcast();
     }
 }
+
 contract DeployMorphoLoopAdapter is Script, MerkleTreeHelper {
     uint256 public privateKey;
 
@@ -104,19 +106,34 @@ contract DeployMorphoLoopAdapter is Script, MerkleTreeHelper {
     function run() external {
         vm.startBroadcast(privateKey);
 
-        MorphoLoopTvlAdapter adapter = new MorphoLoopTvlAdapter(
-            0x9103c3b4e834476c9a62ea009ba2c884ee42e94e6e314a26f04d312434191836
-        );
-        (uint256 collat, uint256 debt, uint256 supplied) = adapter.getUserPositionValues(
-            0x4A0768ad836E787391f85bBaA110DF64D35C64d9
-        );
+        MorphoLoopTvlAdapter adapter =
+            new MorphoLoopTvlAdapter(0x9103c3b4e834476c9a62ea009ba2c884ee42e94e6e314a26f04d312434191836);
+        (uint256 collat, uint256 debt, uint256 supplied) =
+            adapter.getUserPositionValues(0x4A0768ad836E787391f85bBaA110DF64D35C64d9);
         console.log("collateral", collat);
         console.log("debt", debt);
         console.log("supplied", supplied);
-        console.log("LTV", (debt) * 1e8 / collat ); // assuming supplied is in USDC terms
+        console.log("LTV", (debt) * 1e8 / collat); // assuming supplied is in USDC terms
         console.log("TVL in USDC terms", adapter.getUserTvl(0x4A0768ad836E787391f85bBaA110DF64D35C64d9));
 
         vm.stopBroadcast();
     }
 }
 
+contract DeployHedgedMmStrategyAdapter is Script, MerkleTreeHelper {
+    function setUp() external {
+        setSourceChainName("arbitrum");
+    }
+
+    function run() external {
+        vm.startBroadcast(vm.envUint("PK"));
+
+        HedgedBtcEthMmStrategyAdapter adapter = new HedgedBtcEthMmStrategyAdapter(
+            0xc80E787e1c2A3841928F69e6a35e3F12c7b38a00,
+            0xA923d8C976388518D65528324A587E4700f8F40f,
+            0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f
+        );
+
+        vm.stopBroadcast();
+    }
+}
