@@ -5,61 +5,32 @@
 pragma solidity 0.8.21;
 
 import {
-    CrossChainTellerWithGenericBridge, ERC20
+    CrossChainTellerWithGenericBridge,
+    ERC20
 } from "src/base/Roles/CrossChain/CrossChainTellerWithGenericBridge.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {OAppAuth, Origin, MessagingFee, MessagingReceipt} from "@oapp-auth/OAppAuth.sol";
 import {AddressToBytes32Lib} from "src/helper/AddressToBytes32Lib.sol";
-import {OptionsBuilder} from "@oapp-auth/OptionsBuilder.sol";
-import {PairwiseRateLimiter} from "src/base/Roles/CrossChain/PairwiseRateLimiter.sol";
+import {PairwiseRateLimiterLib} from "src/base/Roles/CrossChain/PairwiseRateLimiterLib.sol";
 import {MessageLib} from "src/base/Roles/CrossChain/MessageLib.sol";
+import {LayerZeroTellerLib} from "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTellerLib.sol";
 
-contract LayerZeroTellerWithRateLimiting is CrossChainTellerWithGenericBridge, OAppAuth, PairwiseRateLimiter {
-    using SafeTransferLib for ERC20;
+contract LayerZeroTellerWithRateLimiting is CrossChainTellerWithGenericBridge, OAppAuth {
     using AddressToBytes32Lib for address;
     using AddressToBytes32Lib for bytes32;
-    using OptionsBuilder for bytes;
     using MessageLib for uint256;
 
-    // ========================================= STRUCTS =========================================
-
-    /**
-     * @notice Stores information about a chain.
-     * @dev Sender is stored in OAppAuthCore `peers` mapping.
-     * @param allowMessagesFrom Whether to allow messages from this chain.
-     * @param allowMessagesTo Whether to allow messages to this chain.
-     * @param messageGasLimit The gas limit for messages to this chain.
-     */
-    struct Chain {
-        bool allowMessagesFrom;
-        bool allowMessagesTo;
-        uint128 messageGasLimit;
-    }
     // ========================================= STATE =========================================
 
     /**
      * @notice Maps chain selector to chain information.
      */
-    mapping(uint32 => Chain) public idToChains;
+    mapping(uint32 => LayerZeroTellerLib.Chain) public idToChains;
 
-    //============================== ERRORS ===============================
-
-    error LayerZeroTeller__MessagesNotAllowedFrom(uint256 chainSelector);
-    error LayerZeroTeller__MessagesNotAllowedFromSender(uint256 chainSelector, address sender);
-    error LayerZeroTeller__MessagesNotAllowedTo(uint256 chainSelector);
-    error LayerZeroTeller__FeeExceedsMax(uint256 chainSelector, uint256 fee, uint256 maxFee);
-    error LayerZeroTeller__BadFeeToken();
-    error LayerZeroTeller__ZeroMessageGasLimit();
-
-    //============================== EVENTS ===============================
-
-    event ChainAdded(uint256 chainId, bool allowMessagesFrom, bool allowMessagesTo, address targetTeller);
-    event ChainRemoved(uint256 chainId);
-    event ChainAllowMessagesFrom(uint256 chainId, address targetTeller);
-    event ChainAllowMessagesTo(uint256 chainId, address targetTeller);
-    event ChainStopMessagesFrom(uint256 chainId);
-    event ChainStopMessagesTo(uint256 chainId);
-    event ChainSetGasLimit(uint256 chainId, uint128 messageGasLimit);
+    /**
+     * @dev Mapping from peer endpoint id to RateLimit Configurations.
+     */
+    mapping(uint32 dstEid => PairwiseRateLimiterLib.RateLimit limit) public outboundRateLimits;
+    mapping(uint32 srcEid => PairwiseRateLimiterLib.RateLimit limit) public inboundRateLimits;
 
     //============================== IMMUTABLES ===============================
 
@@ -81,14 +52,12 @@ contract LayerZeroTellerWithRateLimiting is CrossChainTellerWithGenericBridge, O
     }
 
     // ========================================= ADMIN FUNCTIONS =========================================
+
     /**
-     * @notice Add a chain to the teller.
-     * @dev Callable by OWNER_ROLE.
-     * @param chainId The LayerZero chain id to add.
-     * @param allowMessagesFrom Whether to allow messages from this chain.
-     * @param allowMessagesTo Whether to allow messages to this chain.
-     * @param targetTeller The address of the target teller on the other chain.
-     * @param messageGasLimit The gas limit for messages to this chain.
+     * @notice Add a chain to the teller, or update an existing one.
+     * @dev Callable by OWNER_ROLE. This performs a full overwrite of the chain configuration.
+     *      When updating an existing chain (e.g. re-enabling a stopped direction), the caller
+     *      must include all desired values — any fields not explicitly set will be overwritten.
      */
     function addChain(
         uint32 chainId,
@@ -97,13 +66,10 @@ contract LayerZeroTellerWithRateLimiting is CrossChainTellerWithGenericBridge, O
         address targetTeller,
         uint128 messageGasLimit
     ) external requiresAuth {
-        if (allowMessagesTo && messageGasLimit == 0) {
-            revert LayerZeroTeller__ZeroMessageGasLimit();
-        }
-        idToChains[chainId] = Chain(allowMessagesFrom, allowMessagesTo, messageGasLimit);
+        LayerZeroTellerLib.addChain(
+            idToChains, chainId, allowMessagesFrom, allowMessagesTo, targetTeller, messageGasLimit
+        );
         _setPeer(chainId, targetTeller.toBytes32());
-
-        emit ChainAdded(chainId, allowMessagesFrom, allowMessagesTo, targetTeller);
     }
 
     /**
@@ -111,93 +77,57 @@ contract LayerZeroTellerWithRateLimiting is CrossChainTellerWithGenericBridge, O
      * @dev Callable by MULTISIG_ROLE.
      */
     function removeChain(uint32 chainId) external requiresAuth {
-        delete idToChains[chainId];
+        LayerZeroTellerLib.removeChain(idToChains, chainId);
         _setPeer(chainId, bytes32(0));
-
-        emit ChainRemoved(chainId);
     }
 
     /**
-     * @notice Allow messages from a chain.
-     * @dev Callable by OWNER_ROLE.
+     * @notice Stop messages from and/or to a chain.
+     * @dev Callable by MULTISIG_ROLE.
      */
-    function allowMessagesFromChain(uint32 chainId, address targetTeller) external requiresAuth {
-        Chain storage chain = idToChains[chainId];
-        chain.allowMessagesFrom = true;
-        _setPeer(chainId, targetTeller.toBytes32());
-
-        emit ChainAllowMessagesFrom(chainId, targetTeller);
+    function stopMessages(uint32 chainId, bool stopFrom, bool stopTo) external requiresAuth {
+        if (stopFrom) LayerZeroTellerLib.stopMessagesFromChain(idToChains, chainId);
+        if (stopTo) LayerZeroTellerLib.stopMessagesToChain(idToChains, chainId);
     }
 
     /**
-     * @notice Allow messages to a chain.
-     * @dev Callable by OWNER_ROLE.
+     * @notice Set outbound and/or inbound rate limit configurations.
+     * @dev Callable by MULTISIG_ROLE. Pass empty array to skip a direction.
      */
-    function allowMessagesToChain(uint32 chainId, address targetTeller, uint128 messageGasLimit)
+    function setRateLimits(
+        PairwiseRateLimiterLib.RateLimitConfig[] calldata _outboundConfigs,
+        PairwiseRateLimiterLib.RateLimitConfig[] calldata _inboundConfigs
+    ) external requiresAuth {
+        if (_outboundConfigs.length > 0) {
+            PairwiseRateLimiterLib.setOutboundRateLimits(outboundRateLimits, _outboundConfigs);
+        }
+        if (_inboundConfigs.length > 0) {
+            PairwiseRateLimiterLib.setInboundRateLimits(inboundRateLimits, _inboundConfigs);
+        }
+    }
+
+    // ========================================= VIEW FUNCTIONS =========================================
+
+    /**
+     * @notice Get the current amount that can be sent to this peer endpoint id for the given rate limit window.
+     */
+    function getAmountCanBeSent(uint32 _dstEid)
         external
-        requiresAuth
+        view
+        returns (uint256 outboundAmountInFlight, uint256 amountCanBeSent)
     {
-        if (messageGasLimit == 0) {
-            revert LayerZeroTeller__ZeroMessageGasLimit();
-        }
-        Chain storage chain = idToChains[chainId];
-        chain.allowMessagesTo = true;
-        chain.messageGasLimit = messageGasLimit;
-        _setPeer(chainId, targetTeller.toBytes32());
-
-        emit ChainAllowMessagesTo(chainId, targetTeller);
+        return PairwiseRateLimiterLib.getAmountCanBeSentFromMapping(outboundRateLimits, _dstEid);
     }
 
     /**
-     * @notice Stop messages from a chain.
-     * @dev Callable by MULTISIG_ROLE.
+     * @notice Get the current amount that can be received from this peer endpoint for the given rate limit window.
      */
-    function stopMessagesFromChain(uint32 chainId) external requiresAuth {
-        Chain storage chain = idToChains[chainId];
-        chain.allowMessagesFrom = false;
-
-        emit ChainStopMessagesFrom(chainId);
-    }
-
-    /**
-     * @notice Stop messages to a chain.
-     * @dev Callable by MULTISIG_ROLE.
-     */
-    function stopMessagesToChain(uint32 chainId) external requiresAuth {
-        Chain storage chain = idToChains[chainId];
-        chain.allowMessagesTo = false;
-
-        emit ChainStopMessagesTo(chainId);
-    }
-
-    /**
-     * @notice Set outbound rate limit configurations.
-     * @dev Callable by MULTISIG_ROLE.
-     */
-    function setOutboundRateLimits(RateLimitConfig[] calldata _rateLimitConfigs) external requiresAuth {
-        _setOutboundRateLimits(_rateLimitConfigs);
-    }
-
-    /**
-     * @notice Set inbound rate limit configurations.
-     * @dev Callable by MULTISIG_ROLE.
-     */
-    function setInboundRateLimits(RateLimitConfig[] calldata _rateLimitConfigs) external requiresAuth {
-        _setInboundRateLimits(_rateLimitConfigs);
-    }
-
-    /**
-     * @notice Set the gas limit for messages to a chain.
-     * @dev Callable by OWNER_ROLE.
-     */
-    function setChainGasLimit(uint32 chainId, uint128 messageGasLimit) external requiresAuth {
-        if (messageGasLimit == 0) {
-            revert LayerZeroTeller__ZeroMessageGasLimit();
-        }
-        Chain storage chain = idToChains[chainId];
-        chain.messageGasLimit = messageGasLimit;
-
-        emit ChainSetGasLimit(chainId, messageGasLimit);
+    function getAmountCanBeReceived(uint32 _srcEid)
+        external
+        view
+        returns (uint256 inboundAmountInFlight, uint256 amountCanBeReceived)
+    {
+        return PairwiseRateLimiterLib.getAmountCanBeSentFromMapping(inboundRateLimits, _srcEid);
     }
 
     // ========================================= OAppAuthReceiver =========================================
@@ -213,11 +143,15 @@ contract LayerZeroTellerWithRateLimiting is CrossChainTellerWithGenericBridge, O
         bytes calldata _message,
         address, /*_executor*/
         bytes calldata /*_extraData*/
-    ) internal override {
-        Chain memory source = idToChains[_origin.srcEid];
-        if (!source.allowMessagesFrom) revert LayerZeroTeller__MessagesNotAllowedFrom(_origin.srcEid);
+    )
+        internal
+        override
+    {
+        LayerZeroTellerLib.validateSourceChain(idToChains, _origin.srcEid);
         uint256 message = abi.decode(_message, (uint256));
-        _checkAndUpdateInboundRateLimit(_origin.srcEid, message.uint256ToMessage().shareAmount);
+        PairwiseRateLimiterLib.checkAndUpdateInboundRateLimit(
+            inboundRateLimits, _origin.srcEid, message.uint256ToMessage().shareAmount
+        );
         _completeMessageReceive(_guid, message);
     }
 
@@ -225,14 +159,6 @@ contract LayerZeroTellerWithRateLimiting is CrossChainTellerWithGenericBridge, O
 
     /**
      * @notice Sends messages using Layer Zero end point.
-     * @dev This function does NOT revert if the `feeToken` is invalid,
-     *      rather the Layer Zero end point will revert.
-     * @dev This function will revert if maxFee is exceeded.
-     * @dev This function will revert if destination chain does not allow messages.
-     * @param message The message to send.
-     * @param bridgeWildCard An abi encoded uint32 containing the destination chain id.
-     * @param feeToken The token to pay the bridge fee in.
-     * @param maxFee The maximum fee to pay the bridge.
      */
     function _sendMessage(uint256 message, bytes calldata bridgeWildCard, ERC20 feeToken, uint256 maxFee)
         internal
@@ -240,25 +166,13 @@ contract LayerZeroTellerWithRateLimiting is CrossChainTellerWithGenericBridge, O
         returns (bytes32 messageId)
     {
         uint32 destinationId = abi.decode(bridgeWildCard, (uint32));
-        _checkAndUpdateOutboundRateLimit(destinationId, message.uint256ToMessage().shareAmount);
-        Chain memory chain = idToChains[destinationId];
-        if (!chain.allowMessagesTo) {
-            revert LayerZeroTeller__MessagesNotAllowedTo(destinationId);
-        }
-        bytes memory m = abi.encode(message);
-        bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(chain.messageGasLimit, 0);
+        PairwiseRateLimiterLib.checkAndUpdateOutboundRateLimit(
+            outboundRateLimits, destinationId, message.uint256ToMessage().shareAmount
+        );
+        (bytes memory m, bytes memory options) =
+            LayerZeroTellerLib.validateDestAndBuildMessage(idToChains, destinationId, message);
         MessagingFee memory fee = _quote(destinationId, m, options, address(feeToken) != NATIVE);
-        if (address(feeToken) == NATIVE) {
-            if (fee.nativeFee > maxFee) {
-                revert LayerZeroTeller__FeeExceedsMax(destinationId, fee.nativeFee, maxFee);
-            }
-        } else if (address(feeToken) == lzToken) {
-            if (fee.lzTokenFee > maxFee) {
-                revert LayerZeroTeller__FeeExceedsMax(destinationId, fee.lzTokenFee, maxFee);
-            }
-        } else {
-            revert LayerZeroTeller__BadFeeToken();
-        }
+        LayerZeroTellerLib.validateFeeAndCheck(address(feeToken), NATIVE, lzToken, destinationId, fee, maxFee);
         MessagingReceipt memory receipt = _lzSend(destinationId, m, options, fee, msg.sender);
 
         messageId = receipt.guid;
@@ -266,9 +180,6 @@ contract LayerZeroTellerWithRateLimiting is CrossChainTellerWithGenericBridge, O
 
     /**
      * @notice Preview fee required to bridge shares in a given feeToken.
-     * @param message The message to send.
-     * @param bridgeWildCard An abi encoded uint32 containing the destination chain id.
-     * @param feeToken The token to pay the bridge fee in.
      */
     function _previewFee(uint256 message, bytes calldata bridgeWildCard, ERC20 feeToken)
         internal
@@ -276,26 +187,17 @@ contract LayerZeroTellerWithRateLimiting is CrossChainTellerWithGenericBridge, O
         override
         returns (uint256 fee)
     {
-        // Make sure feeToken is either NATIVE or lzToken.
-        if (address(feeToken) != NATIVE && address(feeToken) != lzToken) {
-            revert LayerZeroTeller__BadFeeToken();
-        }
         uint32 destinationId = abi.decode(bridgeWildCard, (uint32));
-        Chain memory chain = idToChains[destinationId];
-        if (!chain.allowMessagesTo) {
-            revert LayerZeroTeller__MessagesNotAllowedTo(destinationId);
-        }
-        bytes memory m = abi.encode(message);
-        bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(chain.messageGasLimit, 0);
+        (bytes memory m, bytes memory options) =
+            LayerZeroTellerLib.validateDestAndBuildMessage(idToChains, destinationId, message);
         MessagingFee memory messageFee = _quote(destinationId, m, options, address(feeToken) != NATIVE);
-
-        fee = address(feeToken) == NATIVE ? messageFee.nativeFee : messageFee.lzTokenFee;
+        fee = LayerZeroTellerLib.validateAndSelectFee(address(feeToken), NATIVE, lzToken, messageFee);
     }
 
     /**
      * @notice Returns the version of the contract.
      */
     function version() public pure virtual override returns (string memory) {
-        return string(abi.encodePacked("LayerZero Rate Limiting V0.1, ", super.version()));
+        return "LayerZero Rate Limiting V0.1, Cross Chain V0.1, Base V0.2";
     }
 }

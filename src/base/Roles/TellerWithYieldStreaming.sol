@@ -4,7 +4,8 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {TellerWithMultiAssetSupport, ERC20} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import {TellerWithMultiAssetSupport, ERC20, RewardData} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import {TellerWithMultiAssetSupportLib} from "src/base/Roles/TellerWithMultiAssetSupportLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {AccountantWithYieldStreaming} from "src/base/Roles/AccountantWithYieldStreaming.sol";
@@ -20,18 +21,19 @@ contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
         _getAccountant().lastVirtualSharePrice(); // Reverts if the accountant doesn't support lastVirtualSharePrice()
     }
 
+    // ========================================= USER FUNCTIONS =========================================
+
     /**
      * @notice Allows off ramp role to withdraw from this contract.
      * @dev Publicly callable.
      */
     function withdraw(ERC20 withdrawAsset, uint256 shareAmount, uint256 minimumAssets, address to)
-        external
+        public
         override
         requiresAuth
         nonReentrant
         returns (uint256 assetsOut)
     {
-        //update vested yield before withdraw
         _getAccountant().updateExchangeRate();
         beforeTransfer(msg.sender, address(0), msg.sender);
         assetsOut = _withdraw(withdrawAsset, shareAmount, minimumAssets, to);
@@ -39,13 +41,31 @@ contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
         emit Withdraw(address(withdrawAsset), shareAmount);
     }
 
+    /**
+     * @notice Allows off ramp role to withdraw from this contract with rewards.
+     * @dev Publicly callable.
+     */
+    function withdrawWithRewards(
+        ERC20 withdrawAsset,
+        uint256 shareAmount,
+        uint256 minimumAssets,
+        address to,
+        RewardData[] calldata rewards
+    ) public override returns (uint256 assetsOut) {
+        _processRewards(rewards, msg.sender);
+        // Withdraw has auth and reentrancy protection
+        assetsOut = withdraw(withdrawAsset, shareAmount, minimumAssets, to);
+    }
+
+    // ========================================= INTERNAL FUNCTIONS =========================================
+
     function _erc20Deposit(
         ERC20 depositAsset,
         uint256 depositAmount,
         uint256 minimumMint,
         address from,
         address to,
-        Asset memory asset
+        TellerWithMultiAssetSupportLib.Asset memory asset
     ) internal override returns (uint256 shares) {
         //update vested yield before deposit
         _getAccountant().updateExchangeRate();
@@ -92,6 +112,6 @@ contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
      * @notice Returns the version of the contract.
      */
     function version() public pure virtual override returns (string memory) {
-        return string(abi.encodePacked("Yield Streaming V0.1, ", super.version()));
+        return "Yield Streaming V1.0";
     }
 }

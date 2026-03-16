@@ -302,7 +302,7 @@ contract ArcticArchitectureLens {
         if (shareAmount == 0) res.noShares = true;
 
         // Check if user's shares are locked
-        (,,, uint256 shareUnlockTime) = teller.beforeTransferData(account);
+        (,,, uint64 shareUnlockTime) = teller.beforeTransferData(account);
         if (shareUnlockTime > block.timestamp) res.sharesLocked = true;
 
         // Calculate expected assets out

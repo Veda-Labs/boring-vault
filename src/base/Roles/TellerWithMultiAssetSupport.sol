@@ -15,8 +15,8 @@ import {IBufferHelper} from "src/interfaces/IBufferHelper.sol";
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {ReentrancyGuard} from "@solmate/utils/ReentrancyGuard.sol";
 import {IPausable} from "src/interfaces/IPausable.sol";
-import {ECDSA} from "@openzeppelin-contracts-5.3.0/utils/cryptography/ECDSA.sol";
-import {MessageHashUtils} from "@openzeppelin-contracts-5.3.0/utils/cryptography/MessageHashUtils.sol";
+import {TellerWithMultiAssetSupportLib} from "src/base/Roles/TellerWithMultiAssetSupportLib.sol";
+import {IncentivePool} from "src/base/IncentivePool.sol";
 
 struct DepositParams {
     ERC20 depositAsset;
@@ -36,45 +36,22 @@ struct PermitData {
     bytes32 s;
 }
 
+struct PrincipalCheckpoint {
+    uint48 timestamp;
+    uint208 cumulativePrincipalInBaseAsset;
+}
+
+struct RewardData {
+    address pool;
+    uint256 cumulativeOwed;
+    uint256 deadline;
+    bytes signature;
+}
+
 contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuard, IPausable {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
     using SafeTransferLib for WETH;
-
-    // ========================================= STRUCTS =========================================
-    /**
-     * @param allowDeposits bool indicating whether or not deposits are allowed for this asset.
-     * @param allowWithdraws bool indicating whether or not withdraws are allowed for this asset.
-     * @param sharePremium uint16 indicating the premium to apply to the shares minted.
-     *        where 40 represents a 40bps reduction in shares minted using this asset.
-     */
-    struct Asset {
-        bool allowDeposits;
-        bool allowWithdraws;
-        uint16 sharePremium;
-    }
-
-    /**
-     * @param depositBufferHelper IBufferHelper contract address for the deposit buffer helper.
-     * @param withdrawBufferHelper IBufferHelper contract address for the withdraw buffer helper.
-     */
-    struct BufferHelpers {
-        IBufferHelper depositBufferHelper;
-        IBufferHelper withdrawBufferHelper;
-    }
-
-    /**
-     * @param denyFrom bool indicating whether or not the user is on the deny from list.
-     * @param denyTo bool indicating whether or not the user is on the deny to list.
-     * @param denyOperator bool indicating whether or not the user is on the deny operator list.
-     * @param shareUnlockTime uint256 indicating the time at which the shares will be unlocked.
-     */
-    struct BeforeTransferData {
-        bool denyFrom;
-        bool denyTo;
-        bool denyOperator;
-        uint256 shareUnlockTime;
-    }
 
     // ========================================= CONSTANTS =========================================
 
@@ -88,18 +65,12 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      */
     uint256 internal constant MAX_SHARE_LOCK_PERIOD = 3 days;
 
-    /**
-     * @notice The maximum possible share premium that can be set using `updateAssetData`.
-     * @dev 1,000 or 10%
-     */
-    uint16 internal constant MAX_SHARE_PREMIUM = 1_000;
-
     // ========================================= STATE =========================================
 
     /**
      * @notice Mapping ERC20s to their assetData.
      */
-    mapping(ERC20 => Asset) public assetData;
+    mapping(ERC20 => TellerWithMultiAssetSupportLib.Asset) public assetData;
 
     /**
      * @notice The deposit nonce used to map to a deposit hash.
@@ -133,12 +104,12 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     /**
      * @notice Maps address to BeforeTransferData struct to check if shares are locked and if the address is on any allow or deny list.
      */
-    mapping(address => BeforeTransferData) public beforeTransferData;
+    mapping(address => TellerWithMultiAssetSupportLib.BeforeTransferData) public beforeTransferData;
 
     /**
      * @notice Maps ERC20 assets to their current buffer helpers.
      */
-    mapping(ERC20 => BufferHelpers) public currentBufferHelpers;
+    mapping(ERC20 => TellerWithMultiAssetSupportLib.BufferHelpers) public currentBufferHelpers;
 
     /**
      * @notice Maps ERC20 assets to allowed buffer helpers.
@@ -150,6 +121,22 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @dev If set to address(0), compliance verification is skipped (backward-compatible default).
      */
     address public complianceSigner;
+
+    /**
+     * @notice The maximum allowed deadline for compliance signatures.
+     * @dev If set to 0, no cap is enforced on the compliance deadline.
+     */
+    uint96 public complianceDeadline;
+
+    /**
+     * @notice Maps compliance signature hashes to used status.
+     */
+    mapping(bytes32 signatureHash => bool used) public usedComplianceSignatures;
+
+    /**
+     * @notice Per-user cumulative principal history in base-asset value.
+     */
+    mapping(address user => PrincipalCheckpoint[]) internal _principalHistory;
 
     //============================== ERRORS ===============================
 
@@ -166,17 +153,12 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     error TellerWithMultiAssetSupport__DualDeposit();
     error TellerWithMultiAssetSupport__Paused();
     error TellerWithMultiAssetSupport__TransferDenied(address from, address to, address operator);
-    error TellerWithMultiAssetSupport__SharePremiumTooLarge();
     error TellerWithMultiAssetSupport__DepositExceedsCap();
-    error TellerWithMultiAssetSupport__BufferHelperNotAllowed(ERC20 asset, IBufferHelper bufferHelper);
     error TellerWithMultiAssetSupport__ComplianceCheckFailed();
-    error TellerWithMultiAssetSupport__ComplianceSignatureExpired();
-
     //============================== EVENTS ===============================
 
     event Paused();
     event Unpaused();
-    event AssetDataUpdated(address indexed asset, bool allowDeposits, bool allowWithdraws, uint16 sharePremium);
     event Deposit(
         uint256 nonce,
         address indexed receiver,
@@ -191,19 +173,9 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     event BulkWithdraw(address indexed asset, uint256 shareAmount);
     event Withdraw(address indexed asset, uint256 shareAmount);
     event DepositRefunded(uint256 indexed nonce, bytes32 depositHash, address indexed user);
-    event DenyFrom(address indexed user);
-    event DenyTo(address indexed user);
-    event DenyOperator(address indexed user);
-    event AllowFrom(address indexed user);
-    event AllowTo(address indexed user);
-    event AllowOperator(address indexed user);
     event DepositCapSet(uint112 cap);
-    event DepositBufferHelperSet(ERC20 indexed asset, IBufferHelper indexed newDepositBufferHelper);
-    event WithdrawBufferHelperSet(ERC20 indexed asset, IBufferHelper indexed newWithdrawBufferHelper);
-    event BufferHelperAllowed(ERC20 indexed asset, IBufferHelper indexed bufferHelper);
-    event BufferHelperDisallowed(ERC20 indexed asset, IBufferHelper indexed bufferHelper);
     event ComplianceSignerSet(address indexed signer);
-
+    event ComplianceDeadlineSet(uint96 deadline);
     //============================== IMMUTABLES ===============================
 
     /**
@@ -264,9 +236,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         external
         requiresAuth
     {
-        if (sharePremium > MAX_SHARE_PREMIUM) revert TellerWithMultiAssetSupport__SharePremiumTooLarge();
-        assetData[asset] = Asset(allowDeposits, allowWithdraws, sharePremium);
-        emit AssetDataUpdated(address(asset), allowDeposits, allowWithdraws, sharePremium);
+        TellerWithMultiAssetSupportLib.updateAssetData(assetData, asset, allowDeposits, allowWithdraws, sharePremium);
     }
 
     /**
@@ -288,12 +258,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @dev Callable by OWNER_ROLE, and DENIER_ROLE.
      */
     function denyAll(address user) external requiresAuth {
-        beforeTransferData[user].denyFrom = true;
-        beforeTransferData[user].denyTo = true;
-        beforeTransferData[user].denyOperator = true;
-        emit DenyFrom(user);
-        emit DenyTo(user);
-        emit DenyOperator(user);
+        TellerWithMultiAssetSupportLib.denyAll(beforeTransferData, user);
     }
 
     /**
@@ -301,12 +266,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @dev Callable by OWNER_ROLE, and DENIER_ROLE.
      */
     function allowAll(address user) external requiresAuth {
-        beforeTransferData[user].denyFrom = false;
-        beforeTransferData[user].denyTo = false;
-        beforeTransferData[user].denyOperator = false;
-        emit AllowFrom(user);
-        emit AllowTo(user);
-        emit AllowOperator(user);
+        TellerWithMultiAssetSupportLib.allowAll(beforeTransferData, user);
     }
 
     /**
@@ -314,8 +274,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @dev Callable by OWNER_ROLE, and DENIER_ROLE.
      */
     function denyFrom(address user) external requiresAuth {
-        beforeTransferData[user].denyFrom = true;
-        emit DenyFrom(user);
+        TellerWithMultiAssetSupportLib.denyFrom(beforeTransferData, user);
     }
 
     /**
@@ -323,8 +282,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @dev Callable by OWNER_ROLE, and DENIER_ROLE.
      */
     function allowFrom(address user) external requiresAuth {
-        beforeTransferData[user].denyFrom = false;
-        emit AllowFrom(user);
+        TellerWithMultiAssetSupportLib.allowFrom(beforeTransferData, user);
     }
 
     /**
@@ -332,8 +290,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @dev Callable by OWNER_ROLE, and DENIER_ROLE.
      */
     function denyTo(address user) external requiresAuth {
-        beforeTransferData[user].denyTo = true;
-        emit DenyTo(user);
+        TellerWithMultiAssetSupportLib.denyTo(beforeTransferData, user);
     }
 
     /**
@@ -341,8 +298,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @dev Callable by OWNER_ROLE, and DENIER_ROLE.
      */
     function allowTo(address user) external requiresAuth {
-        beforeTransferData[user].denyTo = false;
-        emit AllowTo(user);
+        TellerWithMultiAssetSupportLib.allowTo(beforeTransferData, user);
     }
 
     /**
@@ -350,8 +306,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @dev Callable by OWNER_ROLE, and DENIER_ROLE.
      */
     function denyOperator(address user) external requiresAuth {
-        beforeTransferData[user].denyOperator = true;
-        emit DenyOperator(user);
+        TellerWithMultiAssetSupportLib.denyOperator(beforeTransferData, user);
     }
 
     /**
@@ -359,8 +314,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @dev Callable by OWNER_ROLE, and DENIER_ROLE.
      */
     function allowOperator(address user) external requiresAuth {
-        beforeTransferData[user].denyOperator = false;
-        emit AllowOperator(user);
+        TellerWithMultiAssetSupportLib.allowOperator(beforeTransferData, user);
     }
 
     /**
@@ -379,12 +333,9 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @dev Only callable by authorized accounts. The helper must be allowlisted or zero address.
      */
     function setDepositBufferHelper(ERC20 _asset, IBufferHelper _depositBufferHelper) external requiresAuth {
-        if (allowedBufferHelpers[_asset][_depositBufferHelper] || _depositBufferHelper == IBufferHelper(address(0))) {
-            currentBufferHelpers[_asset].depositBufferHelper = _depositBufferHelper;
-            emit DepositBufferHelperSet(_asset, _depositBufferHelper);
-        } else {
-            revert TellerWithMultiAssetSupport__BufferHelperNotAllowed(_asset, _depositBufferHelper);
-        }
+        TellerWithMultiAssetSupportLib.setDepositBufferHelper(
+            currentBufferHelpers, allowedBufferHelpers, _asset, _depositBufferHelper
+        );
     }
 
     /**
@@ -394,12 +345,9 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @dev Only callable by authorized accounts. The helper must be allowlisted or zero address.
      */
     function setWithdrawBufferHelper(ERC20 _asset, IBufferHelper _withdrawBufferHelper) external requiresAuth {
-        if (allowedBufferHelpers[_asset][_withdrawBufferHelper] || _withdrawBufferHelper == IBufferHelper(address(0))) {
-            currentBufferHelpers[_asset].withdrawBufferHelper = _withdrawBufferHelper;
-            emit WithdrawBufferHelperSet(_asset, _withdrawBufferHelper);
-        } else {
-            revert TellerWithMultiAssetSupport__BufferHelperNotAllowed(_asset, _withdrawBufferHelper);
-        }
+        TellerWithMultiAssetSupportLib.setWithdrawBufferHelper(
+            currentBufferHelpers, allowedBufferHelpers, _asset, _withdrawBufferHelper
+        );
     }
 
     /**
@@ -408,8 +356,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @param _bufferHelper The buffer helper contract address to allow.
      */
     function allowBufferHelper(ERC20 _asset, IBufferHelper _bufferHelper) external requiresAuth {
-        allowedBufferHelpers[_asset][_bufferHelper] = true;
-        emit BufferHelperAllowed(_asset, _bufferHelper);
+        TellerWithMultiAssetSupportLib.allowBufferHelper(allowedBufferHelpers, _asset, _bufferHelper);
     }
 
     /**
@@ -418,8 +365,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @param _bufferHelper The buffer helper contract address to disallow.
      */
     function disallowBufferHelper(ERC20 _asset, IBufferHelper _bufferHelper) external requiresAuth {
-        allowedBufferHelpers[_asset][_bufferHelper] = false;
-        emit BufferHelperDisallowed(_asset, _bufferHelper);
+        TellerWithMultiAssetSupportLib.disallowBufferHelper(allowedBufferHelpers, _asset, _bufferHelper);
     }
 
     /**
@@ -430,6 +376,16 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     function setComplianceSigner(address _complianceSigner) external requiresAuth {
         complianceSigner = _complianceSigner;
         emit ComplianceSignerSet(_complianceSigner);
+    }
+
+    /**
+     * @notice Sets the maximum allowed deadline for compliance signatures.
+     * @dev Set to 0 to disable the deadline cap (default).
+     * @param _complianceDeadline The maximum allowed compliance signature deadline.
+     */
+    function setComplianceDeadline(uint96 _complianceDeadline) external requiresAuth {
+        complianceDeadline = _complianceDeadline;
+        emit ComplianceDeadlineSet(_complianceDeadline);
     }
 
     // ========================================= BeforeTransferHook FUNCTIONS =========================================
@@ -496,32 +452,21 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         uint256 shareLockUpPeriodAtTimeOfDeposit,
         address referralAddress
     ) external requiresAuth {
-        if ((block.timestamp - depositTimestamp) >= shareLockUpPeriodAtTimeOfDeposit) {
-            // Shares are already unlocked, so we can not revert deposit.
-            revert TellerWithMultiAssetSupport__SharesAreUnLocked();
-        }
-        bytes32 depositHash = keccak256(
-            abi.encode(
-                receiver,
-                depositAsset,
-                depositAmount,
-                shareAmount,
-                depositTimestamp,
-                shareLockUpPeriodAtTimeOfDeposit,
-                referralAddress
-            )
+        TellerWithMultiAssetSupportLib.refundDeposit(
+            publicDepositHistory,
+            vault,
+            nativeWrapper,
+            nonce,
+            receiver,
+            depositAsset,
+            depositAmount,
+            shareAmount,
+            depositTimestamp,
+            shareLockUpPeriodAtTimeOfDeposit,
+            referralAddress
         );
-        if (publicDepositHistory[nonce] != depositHash) revert TellerWithMultiAssetSupport__BadDepositHash();
-
-        // Delete hash to prevent refund gas.
-        delete publicDepositHistory[nonce];
-
-        // If deposit used native asset, send user back wrapped native asset.
-        depositAsset = depositAsset == NATIVE ? address(nativeWrapper) : depositAsset;
-        // Burn shares and refund assets to receiver.
-        vault.exit(receiver, ERC20(depositAsset), depositAmount, receiver, shareAmount);
-
-        emit DepositRefunded(nonce, depositHash, receiver);
+        ERC20 asset = depositAsset == NATIVE ? ERC20(address(nativeWrapper)) : ERC20(depositAsset);
+        _checkpointPrincipal(receiver, shareAmount, asset, false);
     }
 
     // ========================================= USER FUNCTIONS =========================================
@@ -540,8 +485,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     {
         ERC20 depositAsset = params.depositAsset;
         uint256 depositAmount = params.depositAmount;
-        _verifyComplianceSignature(msg.sender, depositAsset, depositAmount, compliance);
-        Asset memory asset = _beforeDeposit(depositAsset);
+        TellerWithMultiAssetSupportLib.Asset memory asset = _beforeDeposit(depositAsset);
 
         address from;
         if (address(depositAsset) == NATIVE) {
@@ -559,7 +503,9 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
             from = msg.sender;
         }
 
+        _verifyComplianceSignature(msg.sender, depositAsset, depositAmount, compliance);
         shares = _erc20Deposit(depositAsset, depositAmount, params.minimumMint, from, msg.sender, asset);
+        _checkpointPrincipal(msg.sender, shares, depositAsset, true);
         _afterPublicDeposit(msg.sender, depositAsset, depositAmount, shares, shareLockPeriod, referralAddress);
     }
 
@@ -574,12 +520,13 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         ComplianceData calldata compliance
     ) external virtual requiresAuth nonReentrant returns (uint256 shares) {
         _verifyComplianceSignature(msg.sender, params.depositAsset, params.depositAmount, compliance);
-        Asset memory asset = _beforeDeposit(params.depositAsset);
+        TellerWithMultiAssetSupportLib.Asset memory asset = _beforeDeposit(params.depositAsset);
 
         _handlePermit(params.depositAsset, params.depositAmount, permit);
 
         shares =
             _erc20Deposit(params.depositAsset, params.depositAmount, params.minimumMint, msg.sender, msg.sender, asset);
+        _checkpointPrincipal(msg.sender, shares, params.depositAsset, true);
         _afterPublicDeposit(
             msg.sender, params.depositAsset, params.depositAmount, shares, shareLockPeriod, referralAddress
         );
@@ -597,7 +544,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         nonReentrant
         returns (uint256 shares)
     {
-        Asset memory asset = _beforeDeposit(depositAsset);
+        TellerWithMultiAssetSupportLib.Asset memory asset = _beforeDeposit(depositAsset);
 
         shares = _erc20Deposit(depositAsset, depositAmount, minimumMint, msg.sender, to, asset);
         emit BulkDeposit(address(depositAsset), depositAmount);
@@ -634,6 +581,31 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         emit Withdraw(address(withdrawAsset), shareAmount);
     }
 
+    /**
+     * @notice Allows withdrawals from this contract with rewards.
+     * @dev Either public or disabled depending on configuration.
+     */
+    function withdrawWithRewards(
+        ERC20 withdrawAsset,
+        uint256 shareAmount,
+        uint256 minimumAssets,
+        address to,
+        RewardData[] calldata rewards
+    ) external virtual requiresAuth nonReentrant returns (uint256 assetsOut) {
+        beforeTransfer(msg.sender, address(0), msg.sender);
+        assetsOut = _withdraw(withdrawAsset, shareAmount, minimumAssets, to);
+        _processRewards(rewards, msg.sender);
+        emit Withdraw(address(withdrawAsset), shareAmount);
+    }
+
+    /**
+     * @notice Allows rewards to be claimed from this contract.
+     * @dev Either public or disabled depending on configuration.
+     */
+    function claimRewards(RewardData[] calldata rewards) external virtual requiresAuth nonReentrant {
+        _processRewards(rewards, msg.sender);
+    }
+
     // ========================================= INTERNAL HELPER FUNCTIONS =========================================
 
     /**
@@ -645,7 +617,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         uint256 minimumMint,
         address from,
         address to,
-        Asset memory asset
+        TellerWithMultiAssetSupportLib.Asset memory asset
     ) internal virtual returns (uint256 shares) {
         _handleDenyList(from, to, msg.sender);
         uint112 cap = depositCap;
@@ -669,7 +641,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         returns (uint256 assetsOut)
     {
         if (isPaused) revert TellerWithMultiAssetSupport__Paused();
-        Asset memory asset = assetData[withdrawAsset];
+        TellerWithMultiAssetSupportLib.Asset memory asset = assetData[withdrawAsset];
         if (!asset.allowWithdraws) revert TellerWithMultiAssetSupport__AssetNotSupported();
 
         if (shareAmount == 0) revert TellerWithMultiAssetSupport__ZeroShares();
@@ -677,6 +649,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         if (assetsOut < minimumAssets) revert TellerWithMultiAssetSupport__MinimumAssetsNotMet();
         _beforeWithdraw(withdrawAsset, assetsOut);
         vault.exit(to, withdrawAsset, assetsOut, msg.sender, shareAmount);
+        _checkpointPrincipal(msg.sender, shareAmount, withdrawAsset, false);
     }
 
     /**
@@ -687,30 +660,27 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         ERC20 depositAsset,
         uint256 depositAmount,
         ComplianceData calldata compliance
-    ) internal view {
-        bytes32 messageHash = keccak256(
-            abi.encode(
-                address(this), block.chainid, depositor, address(depositAsset), depositAmount, compliance.deadline
-            )
+    ) internal {
+        TellerWithMultiAssetSupportLib.verifyDepositCompliance(
+            usedComplianceSignatures,
+            complianceSigner,
+            complianceDeadline,
+            depositor,
+            address(depositAsset),
+            depositAmount,
+            compliance.deadline,
+            compliance.signature
         );
-        _verifyCompliance(messageHash, compliance);
-    }
-
-    /**
-     * @notice Verify a compliance signature against the complianceSigner.
-     */
-    function _verifyCompliance(bytes32 messageHash, ComplianceData calldata compliance) internal view {
-        if (complianceSigner == address(0)) return;
-        if (block.timestamp > compliance.deadline) revert TellerWithMultiAssetSupport__ComplianceSignatureExpired();
-        bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
-        address recovered = ECDSA.recover(ethSignedHash, compliance.signature);
-        if (recovered != complianceSigner) revert TellerWithMultiAssetSupport__ComplianceCheckFailed();
     }
 
     /**
      * @notice Handle pre-deposit checks.
      */
-    function _beforeDeposit(ERC20 depositAsset) internal view returns (Asset memory asset) {
+    function _beforeDeposit(ERC20 depositAsset)
+        internal
+        view
+        returns (TellerWithMultiAssetSupportLib.Asset memory asset)
+    {
         if (isPaused) revert TellerWithMultiAssetSupport__Paused();
         asset = assetData[depositAsset];
         if (!asset.allowDeposits) revert TellerWithMultiAssetSupport__AssetNotSupported();
@@ -731,7 +701,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         uint256 nonce = ++depositNonce;
         // Only set share unlock time and history if share lock period is greater than 0.
         if (currentShareLockPeriod > 0) {
-            beforeTransferData[user].shareUnlockTime = block.timestamp + currentShareLockPeriod;
+            beforeTransferData[user].shareUnlockTime = uint64(block.timestamp + currentShareLockPeriod);
             publicDepositHistory[nonce] = keccak256(
                 abi.encode(
                     user, depositAsset, depositAmount, shares, block.timestamp, currentShareLockPeriod, referralAddress
@@ -761,6 +731,30 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
             if (depositAsset.allowance(msg.sender, address(vault)) < depositAmount) {
                 revert TellerWithMultiAssetSupport__PermitFailedAndAllowanceTooLow();
             }
+        }
+    }
+
+    /**
+     * @notice Appends a principal checkpoint for a user on deposit or withdrawal.
+     */
+    function _checkpointPrincipal(address user, uint256 shares, ERC20 asset, bool isDeposit) private {
+        uint256 len = _principalHistory[user].length;
+        if (!isDeposit && len == 0) return;
+        uint256 baseValue = shares.mulDivDown(accountant.getRateInQuoteSafe(asset), ONE_SHARE);
+        uint208 prev = len > 0 ? _principalHistory[user][len - 1].cumulativePrincipalInBaseAsset : 0;
+        uint208 newPrincipal;
+        if (isDeposit) {
+            newPrincipal = prev + uint208(baseValue);
+        } else {
+            newPrincipal = prev >= uint208(baseValue) ? prev - uint208(baseValue) : 0;
+        }
+        _principalHistory[user].push(PrincipalCheckpoint(uint48(block.timestamp), newPrincipal));
+    }
+
+    function _processRewards(RewardData[] calldata rewards, address user) internal {
+        for (uint256 i; i < rewards.length; ++i) {
+            IncentivePool(rewards[i].pool)
+                .processRewards(user, rewards[i].cumulativeOwed, rewards[i].deadline, rewards[i].signature);
         }
     }
 
@@ -795,6 +789,13 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     }
 
     // ========================================= VIEW FUNCTIONS =========================================
+
+    /**
+     * @notice Returns the full principal checkpoint history for a user.
+     */
+    function getPrincipalHistory(address user) external view returns (PrincipalCheckpoint[] memory) {
+        return _principalHistory[user];
+    }
 
     /**
      * @notice Returns the version of the contract.

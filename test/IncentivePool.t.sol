@@ -210,17 +210,17 @@ contract IncentivePoolTest is Test {
         pool.processRewards(user, 100e18, deadline, sig);
     }
 
-    function test_processRewards_revertsReplayNothingToClaim() external {
+    function test_processRewards_replayNothingToClaimNoOp() external {
         uint256 deadline = block.timestamp + 1 hours;
         bytes memory sig = _sign(user, 100e18, deadline);
 
         vm.prank(teller);
         pool.processRewards(user, 100e18, deadline, sig);
 
-        // Same signature with same cumulative amount reverts because nothing new to claim
+        // Same signature with same cumulative amount is a no-op returning 0
         vm.prank(teller);
-        vm.expectRevert(IncentivePool.NothingToClaim.selector);
-        pool.processRewards(user, 100e18, deadline, sig);
+        uint256 delta = pool.processRewards(user, 100e18, deadline, sig);
+        assertEq(delta, 0);
     }
 
     function test_processRewards_capsAtMaxReward() external {
@@ -610,11 +610,11 @@ contract IncentivePoolTest is Test {
         uint256 delta4 = pool.processRewards(user, 200e18, deadline, sig);
         assertEq(delta4, 50e18);
 
-        // Fully drained: fifth claim reverts with NothingToClaim
+        // Fully drained: fifth claim is a no-op returning 0
         vm.warp(block.timestamp + 1 hours);
         vm.prank(teller);
-        vm.expectRevert(IncentivePool.NothingToClaim.selector);
-        pool.processRewards(user, 200e18, deadline, sig);
+        uint256 delta5 = pool.processRewards(user, 200e18, deadline, sig);
+        assertEq(delta5, 0);
 
         assertEq(pool.getTotalClaimedAmount(user), 200e18);
         assertEq(rewardToken.balanceOf(user), 200e18);
@@ -817,7 +817,6 @@ contract IncentivePoolTest is Test {
 
         IncentivePool.ClaimCheckpoint[] memory history = pool.getClaimHistory(user);
         assertEq(history.length, 1);
-        assertEq(history[0].amountClaimed, 75e18, "checkpoint records clamped amount");
         assertEq(history[0].cumulativeClaimed, 75e18, "checkpoint cumulative is clamped");
     }
 
@@ -1378,27 +1377,24 @@ contract IncentivePoolTest is Test {
         assertEq(history.length, 3);
 
         assertEq(history[0].timestamp, 1000);
-        assertEq(history[0].amountClaimed, 100e18);
         assertEq(history[0].cumulativeClaimed, 100e18);
 
         assertEq(history[1].timestamp, 2000);
-        assertEq(history[1].amountClaimed, 150e18);
         assertEq(history[1].cumulativeClaimed, 250e18);
 
         assertEq(history[2].timestamp, 3000);
-        assertEq(history[2].amountClaimed, 150e18);
         assertEq(history[2].cumulativeClaimed, 400e18);
     }
 
     // ========================= EDGE CASES =========================
 
-    function test_processRewards_zeroCumulativeReverts() external {
+    function test_processRewards_zeroCumulativeNoOp() external {
         uint256 deadline = block.timestamp + 1 hours;
         bytes memory sig = _sign(user, 0, deadline);
 
         vm.prank(teller);
-        vm.expectRevert(IncentivePool.NothingToClaim.selector);
-        pool.processRewards(user, 0, deadline, sig);
+        uint256 delta = pool.processRewards(user, 0, deadline, sig);
+        assertEq(delta, 0);
     }
 
     function test_processRewards_zeroSecondsBetweenClaimsAllowsSameBlockClaims() external {
@@ -1518,20 +1514,20 @@ contract IncentivePoolTest is Test {
         pool.processRewards(user, 100e18, deadline, badSig);
     }
 
-    function test_processRewards_cumulativeLessThanClaimedReverts() external {
+    function test_processRewards_cumulativeLessThanClaimedNoOp() external {
         // Claim 100
         uint256 d1 = block.timestamp + 1 hours;
         bytes memory s1 = _sign(user, 100e18, d1);
         vm.prank(teller);
         pool.processRewards(user, 100e18, d1, s1);
 
-        // Try claiming with lower cumulative
+        // Try claiming with lower cumulative — no-op returning 0
         vm.warp(block.timestamp + 1);
         uint256 d2 = block.timestamp + 1 hours;
         bytes memory s2 = _sign(user, 50e18, d2);
         vm.prank(teller);
-        vm.expectRevert(IncentivePool.NothingToClaim.selector);
-        pool.processRewards(user, 50e18, d2, s2);
+        uint256 delta = pool.processRewards(user, 50e18, d2, s2);
+        assertEq(delta, 0);
     }
 
     // ========================= FUZZ EDGE CASES =========================

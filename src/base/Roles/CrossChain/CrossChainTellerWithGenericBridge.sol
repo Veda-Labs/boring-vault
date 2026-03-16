@@ -11,6 +11,7 @@ import {
     ComplianceData,
     PermitData
 } from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import {TellerWithMultiAssetSupportLib} from "src/base/Roles/TellerWithMultiAssetSupportLib.sol";
 import {MessageLib} from "src/base/Roles/CrossChain/MessageLib.sol";
 
 abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSupport {
@@ -110,9 +111,15 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
         ComplianceData calldata compliance
     ) external payable requiresAuth nonReentrant {
         if (isPaused) revert TellerWithMultiAssetSupport__Paused();
-        _verifyCompliance(
-            keccak256(abi.encode(address(this), block.chainid, msg.sender, shareAmount, to, compliance.deadline)),
-            compliance
+        TellerWithMultiAssetSupportLib.verifyBridgeCompliance(
+            usedComplianceSignatures,
+            complianceSigner,
+            complianceDeadline,
+            msg.sender,
+            shareAmount,
+            to,
+            compliance.deadline,
+            compliance.signature
         );
         _bridge(shareAmount, to, bridgeWildCard, feeToken, maxFee);
     }
@@ -147,7 +154,7 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
     ) internal returns (uint256 sharesBridged) {
         _verifyComplianceSignature(msg.sender, depositParams.depositAsset, depositParams.depositAmount, compliance);
         {
-            Asset memory asset = _beforeDeposit(depositParams.depositAsset);
+            TellerWithMultiAssetSupportLib.Asset memory asset = _beforeDeposit(depositParams.depositAsset);
             sharesBridged = _erc20Deposit(
                 depositParams.depositAsset,
                 depositParams.depositAmount,
@@ -233,6 +240,6 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
      * @notice Returns the version of the contract.
      */
     function version() public pure virtual override returns (string memory) {
-        return string(abi.encodePacked("Cross Chain V0.1, ", super.version()));
+        return "Cross Chain V0.1, Base V0.2";
     }
 }

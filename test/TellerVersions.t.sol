@@ -91,7 +91,7 @@ contract TellerVersionsTest is Test, MerkleTreeHelper {
 
     function testTellerVersions() public view {
         assertEq(tellerWithRemediation.version(), "Remediation V0.1, Base V0.2");
-        assertEq(tellerWithYieldStreaming.version(), "Yield Streaming V0.1, Base V0.2");
+        assertEq(tellerWithYieldStreaming.version(), "Yield Streaming V1.0");
         assertEq(layerZeroTeller.version(), "LayerZero V0.1, Cross Chain V0.1, Base V0.2");
         assertEq(layerZeroTellerWithRateLimiting.version(), "LayerZero Rate Limiting V0.1, Cross Chain V0.1, Base V0.2");
     }

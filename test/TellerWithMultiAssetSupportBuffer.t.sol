@@ -11,6 +11,7 @@ import {
     DepositParams,
     ComplianceData
 } from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import {TellerWithMultiAssetSupportLib} from "src/base/Roles/TellerWithMultiAssetSupportLib.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
@@ -550,7 +551,7 @@ contract TellerMultiAssetBufferTest is Test, MerkleTreeHelper {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__BufferHelperNotAllowed.selector,
+                TellerWithMultiAssetSupportLib.TellerWithMultiAssetSupport__BufferHelperNotAllowed.selector,
                 USDC,
                 IBufferHelper(newBufferHelper)
             )
@@ -558,7 +559,7 @@ contract TellerMultiAssetBufferTest is Test, MerkleTreeHelper {
         teller.setWithdrawBufferHelper(USDC, IBufferHelper(newBufferHelper));
         vm.expectRevert(
             abi.encodeWithSelector(
-                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__BufferHelperNotAllowed.selector,
+                TellerWithMultiAssetSupportLib.TellerWithMultiAssetSupport__BufferHelperNotAllowed.selector,
                 USDC,
                 IBufferHelper(newBufferHelper)
             )

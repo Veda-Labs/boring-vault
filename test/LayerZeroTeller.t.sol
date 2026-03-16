@@ -6,6 +6,7 @@ pragma solidity 0.8.21;
 
 import {BoringVault} from "src/base/BoringVault.sol";
 import {LayerZeroTeller} from "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTeller.sol";
+import {LayerZeroTellerLib} from "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTellerLib.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
@@ -179,14 +180,14 @@ contract LayerZeroTellerTest is Test, MerkleTreeHelper {
         assertEq(allowMessagesTo, true, "Should allow messages to new chain.");
         assertEq(messageGasLimit, msgGas, "Should have set message gas limit.");
 
-        sourceTeller.stopMessagesFromChain(newSelector);
+        sourceTeller.stopMessages(newSelector, true, false);
 
         (allowMessagesFrom, allowMessagesTo, messageGasLimit) = sourceTeller.idToChains(newSelector);
         assertEq(allowMessagesFrom, false, "Should not allow messages from destination chain.");
         assertEq(allowMessagesTo, true, "Should still allow messages to destination chain.");
         assertEq(messageGasLimit, msgGas, "Should have not changed message gas limit.");
 
-        sourceTeller.stopMessagesToChain(newSelector);
+        sourceTeller.stopMessages(newSelector, false, true);
         (allowMessagesFrom, allowMessagesTo, messageGasLimit) = sourceTeller.idToChains(newSelector);
         assertEq(allowMessagesFrom, false, "Should not allow messages from destination chain.");
         assertEq(allowMessagesTo, false, "Should not allow messages to destination chain.");
@@ -194,14 +195,14 @@ contract LayerZeroTellerTest is Test, MerkleTreeHelper {
 
         address newTargetTeller = vm.addr(2);
         msgGas += 2;
-        sourceTeller.allowMessagesToChain(newSelector, newTargetTeller, msgGas);
+        sourceTeller.addChain(newSelector, false, true, newTargetTeller, msgGas);
         (allowMessagesFrom, allowMessagesTo, messageGasLimit) = sourceTeller.idToChains(newSelector);
         assertEq(allowMessagesFrom, false, "Should allow messages from new chain.");
         assertEq(allowMessagesTo, true, "Should not allow messages to new chain.");
         assertEq(messageGasLimit, msgGas, "Should have changed message gas limit.");
 
         address anotherNewTargetTeller = vm.addr(3);
-        sourceTeller.allowMessagesFromChain(newSelector, anotherNewTargetTeller);
+        sourceTeller.addChain(newSelector, true, true, anotherNewTargetTeller, msgGas);
         (allowMessagesFrom, allowMessagesTo, messageGasLimit) = sourceTeller.idToChains(newSelector);
         assertEq(allowMessagesFrom, true, "Should allow messages from new chain.");
         assertEq(allowMessagesTo, true, "Should allow messages to new chain.");
@@ -213,7 +214,7 @@ contract LayerZeroTellerTest is Test, MerkleTreeHelper {
         assertEq(allowMessagesTo, false, "Should not allow messages to new chain.");
         assertEq(messageGasLimit, 0, "Should have zeroed message gas limit.");
 
-        sourceTeller.setChainGasLimit(newSelector, msgGas + 1);
+        sourceTeller.addChain(newSelector, false, false, address(0), msgGas + 1);
         (allowMessagesFrom, allowMessagesTo, messageGasLimit) = sourceTeller.idToChains(newSelector);
         assertEq(allowMessagesFrom, false, "Should not allow messages from new chain.");
         assertEq(allowMessagesTo, false, "Should not allow messages to new chain.");
@@ -222,16 +223,8 @@ contract LayerZeroTellerTest is Test, MerkleTreeHelper {
 
     function testReverts() external {
         // Adding a chain with a zero message gas limit should revert.
-        vm.expectRevert(bytes(abi.encodeWithSelector(LayerZeroTeller.LayerZeroTeller__ZeroMessageGasLimit.selector)));
+        vm.expectRevert(bytes(abi.encodeWithSelector(LayerZeroTellerLib.LayerZeroTeller__ZeroMessageGasLimit.selector)));
         sourceTeller.addChain(DESTINATION_ID, true, true, address(destinationTeller), 0);
-
-        // Allowing messages to a chain with a zero message gas limit should revert.
-        vm.expectRevert(bytes(abi.encodeWithSelector(LayerZeroTeller.LayerZeroTeller__ZeroMessageGasLimit.selector)));
-        sourceTeller.allowMessagesToChain(DESTINATION_ID, address(destinationTeller), 0);
-
-        // Changing the gas limit to zero should revert.
-        vm.expectRevert(bytes(abi.encodeWithSelector(LayerZeroTeller.LayerZeroTeller__ZeroMessageGasLimit.selector)));
-        sourceTeller.setChainGasLimit(DESTINATION_ID, 0);
 
         // If teller is paused bridging is not allowed.
         sourceTeller.pause();
@@ -247,7 +240,9 @@ contract LayerZeroTellerTest is Test, MerkleTreeHelper {
         uint256 expectedFee = 1e18;
         vm.expectRevert(
             bytes(
-                abi.encodeWithSelector(LayerZeroTeller.LayerZeroTeller__MessagesNotAllowedTo.selector, DESTINATION_ID)
+                abi.encodeWithSelector(
+                    LayerZeroTellerLib.LayerZeroTeller__MessagesNotAllowedTo.selector, DESTINATION_ID
+                )
             )
         );
         sourceTeller.bridge(
@@ -265,7 +260,7 @@ contract LayerZeroTellerTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             bytes(
                 abi.encodeWithSelector(
-                    LayerZeroTeller.LayerZeroTeller__FeeExceedsMax.selector, DESTINATION_ID, newFee, expectedFee
+                    LayerZeroTellerLib.LayerZeroTeller__FeeExceedsMax.selector, DESTINATION_ID, newFee, expectedFee
                 )
             )
         );

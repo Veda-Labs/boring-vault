@@ -22,7 +22,6 @@ contract IncentivePool is Auth {
     error RateLimitExceeded();
     error TotalRewardCapExceeded();
     error RewardsDisabled();
-    error NothingToClaim();
     error Blacklisted();
 
     event SecondsBetweenClaimsSet(uint256 secondsBetweenClaims);
@@ -52,14 +51,12 @@ contract IncentivePool is Auth {
     /// @notice Whether a user is blacklisted from claiming rewards
     mapping(address => bool) public blacklisted;
 
-    /// @notice A struct to store the claim checkpoint (packed into 1 slot: 48 + 104 + 104 = 256)
+    /// @notice A struct to store the claim checkpoint (packed into 1 slot: 48 + 208 = 256)
     struct ClaimCheckpoint {
         /// @notice The timestamp of the claim
         uint48 timestamp;
-        /// @notice The amount of rewards claimed in this transaction
-        uint104 amountClaimed; // Max value: ~ 20282409603651 10^18
         /// @notice The cumulative total rewards claimed by this user up to and including this checkpoint
-        uint104 cumulativeClaimed; // Max value: ~ 20282409603651 10^18
+        uint208 cumulativeClaimed;
     }
 
     /// @notice A mapping of user addresses to their claim history
@@ -178,11 +175,11 @@ contract IncentivePool is Auth {
             totalClaimed, cumulativeRewards, maximumRewardAmountPerClaimMemory, totalRewardCapMemory
         );
 
+        if (amountToSend == 0) return 0;
+
         _claimHistory[rewardsRecipient].push(
             ClaimCheckpoint({
-                timestamp: block.timestamp.toUint48(),
-                amountClaimed: amountToSend.toUint104(),
-                cumulativeClaimed: (totalClaimed + amountToSend).toUint104()
+                timestamp: block.timestamp.toUint48(), cumulativeClaimed: (totalClaimed + amountToSend).toUint208()
             })
         );
 
@@ -199,8 +196,8 @@ contract IncentivePool is Auth {
         uint256 _maximumRewardAmountPerClaim,
         uint256 _totalRewardCap
     ) internal pure returns (uint256 amountToSend) {
-        // This prevents signature replay attacks, no need to invalidate the signature after use
-        if (cumulativeRewards <= totalClaimed) revert NothingToClaim();
+        // No-op if nothing to claim (allows withdrawWithRewards to succeed even without pending rewards)
+        if (cumulativeRewards <= totalClaimed) return 0;
         amountToSend = cumulativeRewards - totalClaimed;
         // Cap the amount to the maximum reward amount per claim
         if (amountToSend > _maximumRewardAmountPerClaim) {
@@ -236,7 +233,7 @@ contract IncentivePool is Auth {
         bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
         address recovered = ECDSA.recover(ethSignedHash, signature);
 
-        if (recovered != rewardSigner) revert InvalidSigner();
+        if (recovered != rewardSigner) revert InvalidSigner(); // TODO:
     }
 
     function _getLastCheckpointData(address user) internal view returns (uint256 lastTimestamp, uint256 totalClaimed) {
@@ -264,6 +261,32 @@ contract IncentivePool is Auth {
     function getClaimHistory(address user) external view returns (ClaimCheckpoint[] memory) {
         return _claimHistory[user];
     }
+
+    /**
+     * @notice Returns a paginated slice of a user's claim history
+     * @param user The address of the user
+     * @param startIndex The starting index (inclusive)
+     * @param endIndex The ending index (exclusive)
+     * @return checkpoints The claim checkpoints in the requested range
+     * @return totalLength The total number of checkpoints for this user
+     */
+    function getClaimHistoryPaginated(address user, uint256 startIndex, uint256 endIndex)
+        external
+        view
+        returns (ClaimCheckpoint[] memory checkpoints, uint256 totalLength)
+    {
+        totalLength = _claimHistory[user].length;
+        if (startIndex >= totalLength) return (checkpoints, totalLength);
+        if (endIndex > totalLength) endIndex = totalLength;
+
+        uint256 count = endIndex - startIndex;
+        checkpoints = new ClaimCheckpoint[](count);
+        for (uint256 i; i < count; ++i) {
+            checkpoints[i] = _claimHistory[user][startIndex + i];
+        }
+    }
+
+    // TODO: check array reset gas returns
 
     /**
      * @notice Returns the last claim timestamp and total claimed amount for a user

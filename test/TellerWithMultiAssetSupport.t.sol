@@ -12,6 +12,7 @@ import {
     ComplianceData,
     PermitData
 } from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import {TellerWithMultiAssetSupportLib} from "src/base/Roles/TellerWithMultiAssetSupportLib.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
@@ -23,6 +24,7 @@ import {AtomicSolverV3, AtomicQueue} from "src/archive/atomic-queue/AtomicSolver
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import {MessageHashUtils} from "@openzeppelin-contracts-5.3.0/utils/cryptography/MessageHashUtils.sol";
 
 contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
@@ -229,6 +231,21 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         teller.deposit{value: amount}(DepositParams(ERC20(NATIVE), 0, 0), referrer, ComplianceData(0, ""));
 
         assertEq(boringVault.balanceOf(address(this)), amount, "Should have received expected shares");
+    }
+
+    function testDepositWithPermitNativeReverts(uint256 amount) external {
+        amount = bound(amount, 0.0001e18, 10_000e18);
+
+        // depositWithPermit is not payable so native ETH cannot be forwarded.
+        // Calling it with the NATIVE sentinel address reverts because permit()
+        // targets a non-contract address.
+        vm.expectRevert();
+        teller.depositWithPermit(
+            DepositParams(NATIVE_ERC20, amount, 0),
+            PermitData(block.timestamp, 0, bytes32(0), bytes32(0)),
+            referrer,
+            ComplianceData(0, "")
+        );
     }
 
     function testUserPermitDeposit(uint256 amount) external {
@@ -828,7 +845,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         // updateAssetData revert
         vm.expectRevert(
             abi.encodeWithSelector(
-                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__SharePremiumTooLarge.selector
+                TellerWithMultiAssetSupportLib.TellerWithMultiAssetSupport__SharePremiumTooLarge.selector
             )
         );
         teller.updateAssetData(WETH, true, true, 1_001);
@@ -955,6 +972,9 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         address indexed referralAddress
     );
 
+    event ComplianceSignerSet(address indexed signer);
+    event ComplianceDeadlineSet(uint96 deadline);
+
     function testDepositEmitsReadableReferralEvent() external {
         uint256 amount = 1e18;
 
@@ -965,5 +985,150 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         vm.expectEmit();
         emit Deposit(1, address(this), address(WETH), wETH_amount, wETH_amount, block.timestamp, 0, referrer);
         teller.deposit(DepositParams(WETH, wETH_amount, 0), referrer, ComplianceData(0, ""));
+    }
+
+    // ======================================= COMPLIANCE TESTS =======================================
+
+    function testSetComplianceSigner() external {
+        uint256 signerKey = 0xBEEF;
+        address signer = vm.addr(signerKey);
+
+        vm.expectEmit();
+        emit ComplianceSignerSet(signer);
+        teller.setComplianceSigner(signer);
+
+        assertEq(teller.complianceSigner(), signer, "Compliance signer should be set");
+    }
+
+    function testSetComplianceDeadline() external {
+        uint96 deadline = 1_000_000;
+
+        vm.expectEmit();
+        emit ComplianceDeadlineSet(deadline);
+        teller.setComplianceDeadline(deadline);
+
+        assertEq(teller.complianceDeadline(), deadline, "Compliance deadline should be set");
+    }
+
+    function testDepositWithComplianceSignature() external {
+        uint256 signerKey = 0xBEEF;
+        address signer = vm.addr(signerKey);
+        teller.setComplianceSigner(signer);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), address(this), depositAmount);
+        WETH.safeApprove(address(boringVault), depositAmount);
+
+        uint256 deadline = block.timestamp + 1 hours;
+        bytes32 messageHash = keccak256(
+            abi.encode(address(teller), block.chainid, address(this), address(WETH), depositAmount, deadline)
+        );
+        bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerKey, ethSignedHash);
+        bytes memory signature = abi.encodePacked(r, s, v);
+
+        uint256 shares =
+            teller.deposit(DepositParams(WETH, depositAmount, 0), referrer, ComplianceData(deadline, signature));
+
+        assertEq(shares, depositAmount, "Should have received expected shares");
+        assertTrue(teller.usedComplianceSignatures(messageHash), "Compliance signature should be marked as used");
+    }
+
+    function testComplianceSignatureReplayReverts() external {
+        uint256 signerKey = 0xBEEF;
+        address signer = vm.addr(signerKey);
+        teller.setComplianceSigner(signer);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), address(this), 2 * depositAmount);
+        WETH.safeApprove(address(boringVault), 2 * depositAmount);
+
+        uint256 deadline = block.timestamp + 1 hours;
+        bytes32 messageHash = keccak256(
+            abi.encode(address(teller), block.chainid, address(this), address(WETH), depositAmount, deadline)
+        );
+        bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerKey, ethSignedHash);
+        bytes memory signature = abi.encodePacked(r, s, v);
+
+        // First deposit succeeds.
+        teller.deposit(DepositParams(WETH, depositAmount, 0), referrer, ComplianceData(deadline, signature));
+
+        // Second deposit with same signature reverts.
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
+            )
+        );
+        teller.deposit(DepositParams(WETH, depositAmount, 0), referrer, ComplianceData(deadline, signature));
+    }
+
+    function testComplianceSignatureExpiredReverts() external {
+        uint256 signerKey = 0xBEEF;
+        address signer = vm.addr(signerKey);
+        teller.setComplianceSigner(signer);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), address(this), depositAmount);
+        WETH.safeApprove(address(boringVault), depositAmount);
+
+        // Set deadline in the past.
+        uint256 deadline = block.timestamp - 1;
+        bytes32 messageHash = keccak256(
+            abi.encode(address(teller), block.chainid, address(this), address(WETH), depositAmount, deadline)
+        );
+        bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerKey, ethSignedHash);
+        bytes memory signature = abi.encodePacked(r, s, v);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
+            )
+        );
+        teller.deposit(DepositParams(WETH, depositAmount, 0), referrer, ComplianceData(deadline, signature));
+    }
+
+    function testComplianceDeadlineExceededReverts() external {
+        uint256 signerKey = 0xBEEF;
+        address signer = vm.addr(signerKey);
+        teller.setComplianceSigner(signer);
+
+        // Set a compliance deadline cap.
+        uint96 deadlineCap = uint96(block.timestamp + 1 hours);
+        teller.setComplianceDeadline(deadlineCap);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), address(this), depositAmount);
+        WETH.safeApprove(address(boringVault), depositAmount);
+
+        // Use a deadline that exceeds the cap.
+        uint256 deadline = uint256(deadlineCap) + 1;
+        bytes32 messageHash = keccak256(
+            abi.encode(address(teller), block.chainid, address(this), address(WETH), depositAmount, deadline)
+        );
+        bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerKey, ethSignedHash);
+        bytes memory signature = abi.encodePacked(r, s, v);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
+            )
+        );
+        teller.deposit(DepositParams(WETH, depositAmount, 0), referrer, ComplianceData(deadline, signature));
+    }
+
+    function testComplianceDisabledWhenSignerIsZero() external {
+        // complianceSigner is address(0) by default, so compliance is disabled.
+        assertEq(teller.complianceSigner(), address(0), "Compliance signer should be zero by default");
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), address(this), depositAmount);
+        WETH.safeApprove(address(boringVault), depositAmount);
+
+        // Deposit with empty compliance data succeeds when signer is zero.
+        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0), referrer, ComplianceData(0, ""));
+        assertEq(shares, depositAmount, "Should have received expected shares with compliance disabled");
     }
 }
