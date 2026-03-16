@@ -73,6 +73,8 @@ contract IncentivePool is Auth {
      * @notice Sets the reward signer
      * @param newSigner The address of the reward signer
      * @dev Callable by OWNER_ROLE.
+     *      When rotating keys, do not reuse a previously active signer address.
+     *      Reusing a retired key would re-enable any unexpired signatures issued under that key.
      */
     function setRewardSigner(address newSigner) external requiresAuth {
         if (newSigner == address(0)) revert InvalidSigner();

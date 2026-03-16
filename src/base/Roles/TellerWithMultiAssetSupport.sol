@@ -371,6 +371,8 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     /**
      * @notice Sets the compliance signer address for deposit verification.
      * @dev Set to address(0) to disable compliance checks (default).
+     *      When rotating keys, do not reuse a previously active signer address.
+     *      Reusing a retired key would re-enable any unexpired signatures issued under that key.
      * @param _complianceSigner The address of the compliance signer.
      */
     function setComplianceSigner(address _complianceSigner) external requiresAuth {
