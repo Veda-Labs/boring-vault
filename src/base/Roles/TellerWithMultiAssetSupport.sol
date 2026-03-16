@@ -465,8 +465,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
             shareLockUpPeriodAtTimeOfDeposit,
             referralAddress
         );
-        ERC20 asset = depositAsset == NATIVE ? ERC20(address(nativeWrapper)) : ERC20(depositAsset);
-        _checkpointPrincipal(receiver, shareAmount, asset, false);
+        _checkpointPrincipal(receiver, shareAmount, false);
     }
 
     // ========================================= USER FUNCTIONS =========================================
@@ -505,7 +504,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
 
         _verifyComplianceSignature(msg.sender, depositAsset, depositAmount, compliance);
         shares = _erc20Deposit(depositAsset, depositAmount, params.minimumMint, from, msg.sender, asset);
-        _checkpointPrincipal(msg.sender, shares, depositAsset, true);
+        _checkpointPrincipal(msg.sender, shares, true);
         _afterPublicDeposit(msg.sender, depositAsset, depositAmount, shares, shareLockPeriod, referralAddress);
     }
 
@@ -526,7 +525,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
 
         shares =
             _erc20Deposit(params.depositAsset, params.depositAmount, params.minimumMint, msg.sender, msg.sender, asset);
-        _checkpointPrincipal(msg.sender, shares, params.depositAsset, true);
+        _checkpointPrincipal(msg.sender, shares, true);
         _afterPublicDeposit(
             msg.sender, params.depositAsset, params.depositAmount, shares, shareLockPeriod, referralAddress
         );
@@ -649,7 +648,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         if (assetsOut < minimumAssets) revert TellerWithMultiAssetSupport__MinimumAssetsNotMet();
         _beforeWithdraw(withdrawAsset, assetsOut);
         vault.exit(to, withdrawAsset, assetsOut, msg.sender, shareAmount);
-        _checkpointPrincipal(msg.sender, shareAmount, withdrawAsset, false);
+        _checkpointPrincipal(msg.sender, shareAmount, false);
     }
 
     /**
@@ -736,16 +735,24 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
 
     /**
      * @notice Appends a principal checkpoint for a user on deposit or withdrawal.
+     * @dev Uses getRateSafe() (base-denominated rate) instead of getRateInQuoteSafe(asset) to ensure
+     *      principal is always tracked in base asset units regardless of which asset is deposited or withdrawn.
+     * @dev Rounding is intentionally asymmetric to be conservative against the user:
+     *      - Deposits round DOWN: records slightly less principal, meaning fewer incentive rewards earned.
+     *      - Withdrawals round UP: subtracts slightly more principal, preventing dust accumulation
+     *        that would otherwise create phantom principal over repeated deposit/withdraw cycles.
      */
-    function _checkpointPrincipal(address user, uint256 shares, ERC20 asset, bool isDeposit) private {
+    function _checkpointPrincipal(address user, uint256 shares, bool isDeposit) private {
         uint256 len = _principalHistory[user].length;
         if (!isDeposit && len == 0) return;
-        uint256 baseValue = shares.mulDivDown(accountant.getRateInQuoteSafe(asset), ONE_SHARE);
+        uint256 rate = accountant.getRateSafe();
         uint208 prev = len > 0 ? _principalHistory[user][len - 1].cumulativePrincipalInBaseAsset : 0;
         uint208 newPrincipal;
         if (isDeposit) {
+            uint256 baseValue = shares.mulDivDown(rate, ONE_SHARE);
             newPrincipal = prev + uint208(baseValue);
         } else {
+            uint256 baseValue = shares.mulDivUp(rate, ONE_SHARE);
             newPrincipal = prev >= uint208(baseValue) ? prev - uint208(baseValue) : 0;
         }
         _principalHistory[user].push(PrincipalCheckpoint(uint48(block.timestamp), newPrincipal));

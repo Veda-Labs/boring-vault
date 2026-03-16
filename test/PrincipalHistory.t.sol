@@ -99,7 +99,9 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         assertEq(history.length, 1, "history length after single deposit");
         assertEq(history[0].timestamp, uint48(block.timestamp), "checkpoint timestamp");
         // Rate is 1:1, so principal equals deposit amount
-        assertEq(history[0].cumulativePrincipalInBaseAsset, uint208(amount), "principal equals deposit amount at 1:1 rate");
+        assertEq(
+            history[0].cumulativePrincipalInBaseAsset, uint208(amount), "principal equals deposit amount at 1:1 rate"
+        );
     }
 
     function testPrincipalHistory_TwoDeposits() external {
@@ -116,7 +118,9 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         PrincipalCheckpoint[] memory history = teller.getPrincipalHistory(user);
         assertEq(history.length, 2, "history length after two deposits");
         assertEq(history[0].cumulativePrincipalInBaseAsset, uint208(amount1), "first checkpoint principal");
-        assertEq(history[1].cumulativePrincipalInBaseAsset, uint208(amount1 + amount2), "second checkpoint is cumulative");
+        assertEq(
+            history[1].cumulativePrincipalInBaseAsset, uint208(amount1 + amount2), "second checkpoint is cumulative"
+        );
     }
 
     function testPrincipalHistory_PartialWithdraw() external {
@@ -136,7 +140,11 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         assertEq(history.length, 2, "history length: 1 deposit + 1 withdraw");
         assertEq(history[0].cumulativePrincipalInBaseAsset, uint208(depositAmount), "deposit checkpoint");
         // At 1:1 rate, withdrawing half shares removes half the principal
-        assertEq(history[1].cumulativePrincipalInBaseAsset, uint208(depositAmount / 2), "principal decreased after partial withdraw");
+        assertEq(
+            history[1].cumulativePrincipalInBaseAsset,
+            uint208(depositAmount / 2),
+            "principal decreased after partial withdraw"
+        );
     }
 
     function testPrincipalHistory_FullWithdrawClampsToZero() external {
@@ -180,6 +188,139 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         PrincipalCheckpoint[] memory history = teller.getPrincipalHistory(address(this));
         assertEq(history.length, 0, "bulkWithdraw should not create checkpoint (no deposit history)");
     }
+
+    // ========================================= ROUNDING TESTS =========================================
+
+    function _setRate(uint96 newRate) internal {
+        rolesAuthority.setRoleCapability(
+            ADMIN_ROLE, address(accountant), AccountantWithRateProviders.updateExchangeRate.selector, true
+        );
+        rolesAuthority.setRoleCapability(
+            ADMIN_ROLE, address(accountant), AccountantWithRateProviders.unpause.selector, true
+        );
+        // Skip the minimum update delay
+        skip(1);
+        accountant.updateExchangeRate(newRate);
+        // Large rate changes trigger auto-pause; always unpause for test purposes
+        accountant.unpause();
+    }
+
+    function testPrincipalHistory_FullWithdrawNonCleanRate_NoDust() external {
+        // Rate of 3 causes rounding: shares * 3 / 1e18 won't always divide cleanly
+        _setRate(3);
+
+        uint256 amount = 1e18;
+        deal(address(WETH), user, amount);
+
+        vm.startPrank(user);
+        WETH.safeApprove(address(boringVault), amount);
+        uint256 shares = teller.deposit(DepositParams(WETH, amount, 0), address(0), ComplianceData(0, ""));
+
+        teller.withdraw(WETH, shares, 0, user);
+        vm.stopPrank();
+
+        PrincipalCheckpoint[] memory history = teller.getPrincipalHistory(user);
+        assertEq(history[1].cumulativePrincipalInBaseAsset, 0, "full withdraw must leave zero principal, not dust");
+    }
+
+    function testPrincipalHistory_WithdrawRoundsUpSubtractsMoreOrEqual() external {
+        // Use a rate that triggers rounding: 1e18 + 1 (just above 1:1)
+        _setRate(uint96(1e18 + 1));
+
+        uint256 amount = 1e18;
+        deal(address(WETH), user, amount);
+
+        vm.startPrank(user);
+        WETH.safeApprove(address(boringVault), amount);
+        uint256 shares = teller.deposit(DepositParams(WETH, amount, 0), address(0), ComplianceData(0, ""));
+        vm.stopPrank();
+
+        PrincipalCheckpoint[] memory afterDeposit = teller.getPrincipalHistory(user);
+        uint208 depositedPrincipal = afterDeposit[0].cumulativePrincipalInBaseAsset;
+
+        vm.prank(user);
+        teller.withdraw(WETH, shares, 0, user);
+
+        PrincipalCheckpoint[] memory afterWithdraw = teller.getPrincipalHistory(user);
+        // Withdraw rounds up, so it subtracts >= deposit amount, clamping to 0
+        assertEq(afterWithdraw[1].cumulativePrincipalInBaseAsset, 0, "withdraw roundUp >= deposit roundDown");
+        assertTrue(depositedPrincipal > 0, "deposit should have recorded nonzero principal");
+    }
+
+    function testPrincipalHistory_RepeatedCyclesNoPhantomAccumulation() external {
+        // Rate that maximizes rounding error per cycle
+        _setRate(uint96(333333333333333333));
+        uint256 cycles = 10;
+        uint256 amount = 1e18;
+
+        for (uint256 i; i < cycles; ++i) {
+            deal(address(WETH), user, amount);
+
+            vm.startPrank(user);
+            WETH.safeApprove(address(boringVault), amount);
+            uint256 shares = teller.deposit(DepositParams(WETH, amount, 0), address(0), ComplianceData(0, ""));
+            teller.withdraw(WETH, shares, 0, user);
+            vm.stopPrank();
+        }
+
+        PrincipalCheckpoint[] memory history = teller.getPrincipalHistory(user);
+        // After every full cycle, principal should be 0 — no phantom buildup
+        uint208 finalPrincipal = history[history.length - 1].cumulativePrincipalInBaseAsset;
+        assertEq(finalPrincipal, 0, "10 deposit+withdraw cycles must not accumulate phantom principal");
+    }
+
+    function testPrincipalHistory_RateChangeDoesNotInflatePrincipal() external {
+        uint256 amount = 10e18;
+        deal(address(WETH), user, amount);
+
+        vm.startPrank(user);
+        WETH.safeApprove(address(boringVault), amount);
+        uint256 shares = teller.deposit(DepositParams(WETH, amount, 0), address(0), ComplianceData(0, ""));
+        vm.stopPrank();
+
+        PrincipalCheckpoint[] memory afterDeposit = teller.getPrincipalHistory(user);
+        uint208 principalAtDeposit = afterDeposit[0].cumulativePrincipalInBaseAsset;
+
+        // Rate doubles — shares are now worth 2x. Fund vault so withdrawal succeeds.
+        deal(address(WETH), address(boringVault), amount * 2);
+        _setRate(uint96(2e18));
+
+        vm.prank(user);
+        teller.withdraw(WETH, shares, 0, user);
+
+        PrincipalCheckpoint[] memory afterWithdraw = teller.getPrincipalHistory(user);
+        // Withdrawal at 2x rate subtracts 2x the original deposit value,
+        // which exceeds the recorded principal, so it clamps to 0
+        assertEq(afterWithdraw[1].cumulativePrincipalInBaseAsset, 0, "rate increase clamps principal to zero");
+        assertEq(principalAtDeposit, uint208(amount), "deposit at 1:1 should record exact amount");
+    }
+
+    function testPrincipalHistory_PartialWithdrawNonCleanRate() external {
+        _setRate(uint96(1e18 + 7)); // slightly off 1:1
+
+        uint256 amount = 5e18;
+        deal(address(WETH), user, amount);
+
+        vm.startPrank(user);
+        WETH.safeApprove(address(boringVault), amount);
+        uint256 shares = teller.deposit(DepositParams(WETH, amount, 0), address(0), ComplianceData(0, ""));
+
+        // Withdraw 1/3 of shares — guaranteed rounding
+        uint256 withdrawShares = shares / 3;
+        teller.withdraw(WETH, withdrawShares, 0, user);
+        vm.stopPrank();
+
+        PrincipalCheckpoint[] memory history = teller.getPrincipalHistory(user);
+        uint208 depositPrincipal = history[0].cumulativePrincipalInBaseAsset;
+        uint208 afterPartialWithdraw = history[1].cumulativePrincipalInBaseAsset;
+
+        // After partial withdraw, remaining principal must be <= deposit principal
+        assertTrue(afterPartialWithdraw < depositPrincipal, "partial withdraw reduces principal");
+        // Conservative: withdrawal subtracted at least the floor value
+        assertTrue(afterPartialWithdraw <= depositPrincipal, "no inflation from partial withdraw");
+    }
+
+    // ========================================= HELPERS =========================================
 
     function _startFork(string memory rpcKey, uint256 blockNumber) internal returns (uint256 forkId) {
         forkId = vm.createFork(vm.envString(rpcKey), blockNumber);
