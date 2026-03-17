@@ -114,7 +114,7 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
         TellerWithMultiAssetSupportLib.verifyBridgeCompliance(
             usedComplianceSignatures,
             complianceSigner,
-            complianceDeadline,
+            complianceWindow,
             msg.sender,
             shareAmount,
             to,
@@ -164,6 +164,7 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
                 asset
             );
         }
+        _checkpointPrincipal(msg.sender, sharesBridged, true);
         _afterPublicDeposit(
             msg.sender,
             depositParams.depositAsset,

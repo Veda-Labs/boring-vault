@@ -973,7 +973,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     );
 
     event ComplianceSignerSet(address indexed signer);
-    event ComplianceDeadlineSet(uint96 deadline);
+    event ComplianceWindowSet(uint96 window);
 
     function testDepositEmitsReadableReferralEvent() external {
         uint256 amount = 1e18;
@@ -1000,14 +1000,14 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         assertEq(teller.complianceSigner(), signer, "Compliance signer should be set");
     }
 
-    function testSetComplianceDeadline() external {
-        uint96 deadline = 1_000_000;
+    function testSetComplianceWindow() external {
+        uint96 window = 1 hours;
 
         vm.expectEmit();
-        emit ComplianceDeadlineSet(deadline);
-        teller.setComplianceDeadline(deadline);
+        emit ComplianceWindowSet(window);
+        teller.setComplianceWindow(window);
 
-        assertEq(teller.complianceDeadline(), deadline, "Compliance deadline should be set");
+        assertEq(teller.complianceWindow(), window, "Compliance window should be set");
     }
 
     function testDepositWithComplianceSignature() external {
@@ -1089,21 +1089,21 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         teller.deposit(DepositParams(WETH, depositAmount, 0), referrer, ComplianceData(deadline, signature));
     }
 
-    function testComplianceDeadlineExceededReverts() external {
+    function testComplianceWindowExceededReverts() external {
         uint256 signerKey = 0xBEEF;
         address signer = vm.addr(signerKey);
         teller.setComplianceSigner(signer);
 
-        // Set a compliance deadline cap.
-        uint96 deadlineCap = uint96(block.timestamp + 1 hours);
-        teller.setComplianceDeadline(deadlineCap);
+        // Set a 1-hour compliance window (relative duration, not absolute timestamp).
+        uint96 window = 1 hours;
+        teller.setComplianceWindow(window);
 
         uint256 depositAmount = 1e18;
         deal(address(WETH), address(this), depositAmount);
         WETH.safeApprove(address(boringVault), depositAmount);
 
-        // Use a deadline that exceeds the cap.
-        uint256 deadline = uint256(deadlineCap) + 1;
+        // Use a deadline that exceeds block.timestamp + window.
+        uint256 deadline = block.timestamp + uint256(window) + 1;
         bytes32 messageHash = keccak256(
             abi.encode(address(teller), block.chainid, address(this), address(WETH), depositAmount, deadline)
         );
@@ -1116,6 +1116,64 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
                 TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
             )
         );
+        teller.deposit(DepositParams(WETH, depositAmount, 0), referrer, ComplianceData(deadline, signature));
+    }
+
+    function testComplianceWindowRelativeNotAbsolute() external {
+        // Prove that complianceWindow is treated as a relative duration, not an absolute timestamp.
+        // If someone mistakenly sets window = 604800 (7 days in seconds), it should allow
+        // deadlines up to block.timestamp + 604800, NOT treat 604800 as a Unix timestamp.
+        uint256 signerKey = 0xBEEF;
+        address signer = vm.addr(signerKey);
+        teller.setComplianceSigner(signer);
+
+        uint96 sevenDays = 7 days;
+        teller.setComplianceWindow(sevenDays);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), address(this), depositAmount);
+        WETH.safeApprove(address(boringVault), depositAmount);
+
+        // A deadline 6 days from now should succeed (within the 7-day window).
+        uint256 deadline = block.timestamp + 6 days;
+        bytes32 messageHash = keccak256(
+            abi.encode(address(teller), block.chainid, address(this), address(WETH), depositAmount, deadline)
+        );
+        bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerKey, ethSignedHash);
+        bytes memory signature = abi.encodePacked(r, s, v);
+
+        // Should NOT revert -- deadline is within the window.
+        teller.deposit(DepositParams(WETH, depositAmount, 0), referrer, ComplianceData(deadline, signature));
+    }
+
+    function testComplianceWindowSmallValueDoesNotBlockDeposits() external {
+        // Regression: if complianceWindow were treated as an absolute timestamp,
+        // setting it to a small value like 3600 (1 hour) would be interpreted as
+        // Unix timestamp 3600 (Jan 1, 1970 01:00 UTC), blocking ALL deposits
+        // because every modern deadline > 3600. With relative semantics, 3600
+        // means "deadline must be within 1 hour of now", which works correctly.
+        uint256 signerKey = 0xBEEF;
+        address signer = vm.addr(signerKey);
+        teller.setComplianceSigner(signer);
+
+        uint96 oneHour = 1 hours;
+        teller.setComplianceWindow(oneHour);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), address(this), depositAmount);
+        WETH.safeApprove(address(boringVault), depositAmount);
+
+        // Deadline 30 minutes from now -- well within the 1-hour window.
+        uint256 deadline = block.timestamp + 30 minutes;
+        bytes32 messageHash = keccak256(
+            abi.encode(address(teller), block.chainid, address(this), address(WETH), depositAmount, deadline)
+        );
+        bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerKey, ethSignedHash);
+        bytes memory signature = abi.encodePacked(r, s, v);
+
+        // Should succeed -- deadline is within the window.
         teller.deposit(DepositParams(WETH, depositAmount, 0), referrer, ComplianceData(deadline, signature));
     }
 

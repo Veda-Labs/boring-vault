@@ -17,6 +17,7 @@ import {ReentrancyGuard} from "@solmate/utils/ReentrancyGuard.sol";
 import {IPausable} from "src/interfaces/IPausable.sol";
 import {TellerWithMultiAssetSupportLib} from "src/base/Roles/TellerWithMultiAssetSupportLib.sol";
 import {IncentivePool} from "src/base/IncentivePool.sol";
+import {SafeCast} from "@openzeppelin-contracts-5.3.0/utils/math/SafeCast.sol";
 
 struct DepositParams {
     ERC20 depositAsset;
@@ -38,7 +39,8 @@ struct PermitData {
 
 struct PrincipalCheckpoint {
     uint48 timestamp;
-    uint208 cumulativePrincipalInBaseAsset;
+    uint104 cumulativeDeposits;
+    uint104 cumulativeWithdrawals;
 }
 
 struct RewardData {
@@ -123,10 +125,11 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     address public complianceSigner;
 
     /**
-     * @notice The maximum allowed deadline for compliance signatures.
-     * @dev If set to 0, no cap is enforced on the compliance deadline.
+     * @notice Maximum duration (in seconds) into the future that a compliance signature deadline may extend.
+     * @dev If set to 0, no cap is enforced. When non-zero, any compliance signature whose deadline exceeds
+     *      block.timestamp + complianceWindow will be rejected. Set this to a relative duration, e.g. 3600 for 1 hour.
      */
-    uint96 public complianceDeadline;
+    uint96 public complianceWindow;
 
     /**
      * @notice Maps compliance signature hashes to used status.
@@ -175,7 +178,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     event DepositRefunded(uint256 indexed nonce, bytes32 depositHash, address indexed user);
     event DepositCapSet(uint112 cap);
     event ComplianceSignerSet(address indexed signer);
-    event ComplianceDeadlineSet(uint96 deadline);
+    event ComplianceWindowSet(uint96 window);
     //============================== IMMUTABLES ===============================
 
     /**
@@ -381,13 +384,15 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     }
 
     /**
-     * @notice Sets the maximum allowed deadline for compliance signatures.
-     * @dev Set to 0 to disable the deadline cap (default).
-     * @param _complianceDeadline The maximum allowed compliance signature deadline.
+     * @notice Sets the maximum allowed window (in seconds) for compliance signature deadlines.
+     * @dev Set to 0 to disable the cap (default). When non-zero, compliance signatures must have
+     *      a deadline no later than block.timestamp + _complianceWindow.
+     *      Example: setComplianceWindow(3600) limits signatures to 1 hour into the future.
+     * @param _complianceWindow Duration in seconds. NOT an absolute timestamp.
      */
-    function setComplianceDeadline(uint96 _complianceDeadline) external requiresAuth {
-        complianceDeadline = _complianceDeadline;
-        emit ComplianceDeadlineSet(_complianceDeadline);
+    function setComplianceWindow(uint96 _complianceWindow) external requiresAuth {
+        complianceWindow = _complianceWindow;
+        emit ComplianceWindowSet(_complianceWindow);
     }
 
     // ========================================= BeforeTransferHook FUNCTIONS =========================================
@@ -397,11 +402,18 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @notice If share lock period is set to zero, then users will be able to mint and transfer in the same tx.
      *         if this behavior is not desired then a share lock period of >=1 should be used.
      */
-    function beforeTransfer(address from, address to, address operator) public view virtual {
+    function beforeTransfer(address from, address to, address operator) public virtual {
         _handleDenyList(from, to, operator);
 
         if (beforeTransferData[from].shareUnlockTime > block.timestamp) {
             revert TellerWithMultiAssetSupport__SharesAreLocked();
+        }
+
+        // Push timestamp-only checkpoints for actual share transfers (not withdrawals/bridges where to == address(0)).
+        // Off-chain reconciles principal movement from Transfer events and balanceOf.
+        if (to != address(0)) {
+            _checkpointTransfer(from);
+            _checkpointTransfer(to);
         }
     }
 
@@ -665,7 +677,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         TellerWithMultiAssetSupportLib.verifyDepositCompliance(
             usedComplianceSignatures,
             complianceSigner,
-            complianceDeadline,
+            complianceWindow,
             depositor,
             address(depositAsset),
             depositAmount,
@@ -741,23 +753,35 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      *      principal is always tracked in base asset units regardless of which asset is deposited or withdrawn.
      * @dev Rounding is intentionally asymmetric to be conservative against the user:
      *      - Deposits round DOWN: records slightly less principal, meaning fewer incentive rewards earned.
-     *      - Withdrawals round UP: subtracts slightly more principal, preventing dust accumulation
+     *      - Withdrawals round UP: records slightly more withdrawn, preventing dust accumulation
      *        that would otherwise create phantom principal over repeated deposit/withdraw cycles.
      */
-    function _checkpointPrincipal(address user, uint256 shares, bool isDeposit) private {
+    function _checkpointPrincipal(address user, uint256 shares, bool isDeposit) internal virtual {
         uint256 len = _principalHistory[user].length;
         if (!isDeposit && len == 0) return;
         uint256 rate = accountant.getRateSafe();
-        uint208 prev = len > 0 ? _principalHistory[user][len - 1].cumulativePrincipalInBaseAsset : 0;
-        uint208 newPrincipal;
+        uint104 prevDeposits = len > 0 ? _principalHistory[user][len - 1].cumulativeDeposits : 0;
+        uint104 prevWithdrawals = len > 0 ? _principalHistory[user][len - 1].cumulativeWithdrawals : 0;
         if (isDeposit) {
             uint256 baseValue = shares.mulDivDown(rate, ONE_SHARE);
-            newPrincipal = prev + uint208(baseValue);
+            prevDeposits += SafeCast.toUint104(baseValue);
         } else {
             uint256 baseValue = shares.mulDivUp(rate, ONE_SHARE);
-            newPrincipal = prev >= uint208(baseValue) ? prev - uint208(baseValue) : 0;
+            prevWithdrawals += SafeCast.toUint104(baseValue);
         }
-        _principalHistory[user].push(PrincipalCheckpoint(uint48(block.timestamp), newPrincipal));
+        _principalHistory[user].push(PrincipalCheckpoint(uint48(block.timestamp), prevDeposits, prevWithdrawals));
+    }
+
+    /**
+     * @notice Pushes a timestamp-only checkpoint for a user on share transfer.
+     * @dev Copies the last deposits/withdrawals values with a new timestamp so the off-chain
+     *      reward system can detect position changes and reconcile via Transfer events.
+     */
+    function _checkpointTransfer(address user) internal {
+        uint256 len = _principalHistory[user].length;
+        uint104 deposits = len > 0 ? _principalHistory[user][len - 1].cumulativeDeposits : 0;
+        uint104 withdrawals = len > 0 ? _principalHistory[user][len - 1].cumulativeWithdrawals : 0;
+        _principalHistory[user].push(PrincipalCheckpoint(uint48(block.timestamp), deposits, withdrawals));
     }
 
     function _processRewards(RewardData[] calldata rewards, address user) internal {

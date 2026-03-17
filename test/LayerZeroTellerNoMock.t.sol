@@ -19,7 +19,8 @@ import {
     TellerWithMultiAssetSupport,
     DepositParams,
     ComplianceData,
-    PermitData
+    PermitData,
+    PrincipalCheckpoint
 } from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import {AddressToBytes32Lib} from "src/helper/AddressToBytes32Lib.sol";
@@ -257,6 +258,86 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
             sourceTeller.previewFee(1e18, address(0), abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20);
 
         assertGt(previewedFee, 0, "Previewed fee should match set fee.");
+    }
+
+    function testDepositAndBridge_CreatesPrincipalCheckpoint() external {
+        uint256 depositAmount = 1e18;
+        address user = vm.addr(1);
+
+        deal(address(WETH), user, depositAmount);
+        uint256 fee =
+            sourceTeller.previewFee(uint96(depositAmount), user, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20);
+        deal(user, fee);
+
+        vm.startPrank(user);
+        WETH.approve(address(boringVault), depositAmount);
+        uint256 sharesBridged = sourceTeller.depositAndBridge{value: fee}(
+            DepositParams(WETH, depositAmount, 0),
+            user,
+            abi.encode(layerZeroArbitrumEndpointId),
+            NATIVE_ERC20,
+            fee,
+            referrer,
+            ComplianceData(0, "")
+        );
+        vm.stopPrank();
+
+        PrincipalCheckpoint[] memory history = sourceTeller.getPrincipalHistory(user);
+        assertEq(history.length, 1, "depositAndBridge must create a principal checkpoint");
+        assertEq(history[0].timestamp, uint48(block.timestamp), "checkpoint timestamp");
+        // Rate is 1:1, so principal equals shares bridged
+        assertEq(history[0].cumulativeDeposits, uint104(sharesBridged), "deposits equals bridged amount at 1:1 rate");
+    }
+
+    function testDepositAndBridgeWithPermit_CreatesPrincipalCheckpoint() external {
+        uint256 amount = 1e18;
+
+        uint256 userKey = 111;
+        address user = vm.addr(userKey);
+
+        uint256 weETH_amount = amount.mulDivDown(1e18, IRateProvider(WEETH_RATE_PROVIDER).getRate());
+        deal(address(WEETH), user, weETH_amount);
+
+        bytes32 digest = keccak256(
+            abi.encodePacked(
+                "\x19\x01",
+                WEETH.DOMAIN_SEPARATOR(),
+                keccak256(
+                    abi.encode(
+                        keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"),
+                        user,
+                        address(boringVault),
+                        weETH_amount,
+                        WEETH.nonces(user),
+                        block.timestamp
+                    )
+                )
+            )
+        );
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(userKey, digest);
+
+        uint256 fee =
+            sourceTeller.previewFee(uint96(weETH_amount), user, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20);
+        deal(user, fee);
+
+        vm.startPrank(user);
+        CrossChainTellerWithGenericBridge.DepositAndBridgeWithPermitParams memory params =
+            CrossChainTellerWithGenericBridge.DepositAndBridgeWithPermitParams({
+                depositParams: DepositParams(WEETH, weETH_amount, 0),
+                permit: PermitData(block.timestamp, v, r, s),
+                to: user,
+                bridgeWildCard: abi.encode(layerZeroArbitrumEndpointId),
+                feeToken: NATIVE_ERC20,
+                maxFee: fee,
+                referralAddress: referrer,
+                compliance: ComplianceData(0, "")
+            });
+        sourceTeller.depositAndBridgeWithPermit{value: fee}(params);
+        vm.stopPrank();
+
+        PrincipalCheckpoint[] memory history = sourceTeller.getPrincipalHistory(user);
+        assertEq(history.length, 1, "depositAndBridgeWithPermit must create a principal checkpoint");
+        assertGt(history[0].cumulativeDeposits, 0, "deposits must be non-zero");
     }
 
     // ========================================= HELPER FUNCTIONS =========================================

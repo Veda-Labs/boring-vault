@@ -282,12 +282,12 @@ library TellerWithMultiAssetSupportLib {
     function verifyAndMarkCompliance(
         mapping(bytes32 => bool) storage usedComplianceSignatures,
         address complianceSigner,
-        uint96 complianceDeadline,
+        uint96 complianceWindow,
         bytes32 messageHash,
         uint256 deadline,
         bytes calldata signature
     ) external {
-        _verifyAndMark(usedComplianceSignatures, complianceSigner, complianceDeadline, messageHash, deadline, signature);
+        _verifyAndMark(usedComplianceSignatures, complianceSigner, complianceWindow, messageHash, deadline, signature);
     }
 
     /**
@@ -297,7 +297,7 @@ library TellerWithMultiAssetSupportLib {
     function verifyDepositCompliance(
         mapping(bytes32 => bool) storage usedComplianceSignatures,
         address complianceSigner,
-        uint96 complianceDeadline,
+        uint96 complianceWindow,
         address depositor,
         address depositAsset,
         uint256 depositAmount,
@@ -307,7 +307,7 @@ library TellerWithMultiAssetSupportLib {
         if (complianceSigner == address(0)) return;
         bytes32 messageHash =
             keccak256(abi.encode(address(this), block.chainid, depositor, depositAsset, depositAmount, deadline));
-        _verifyAndMark(usedComplianceSignatures, complianceSigner, complianceDeadline, messageHash, deadline, signature);
+        _verifyAndMark(usedComplianceSignatures, complianceSigner, complianceWindow, messageHash, deadline, signature);
     }
 
     /**
@@ -317,7 +317,7 @@ library TellerWithMultiAssetSupportLib {
     function verifyBridgeCompliance(
         mapping(bytes32 => bool) storage usedComplianceSignatures,
         address complianceSigner,
-        uint96 complianceDeadline,
+        uint96 complianceWindow,
         address sender,
         uint96 shareAmount,
         address to,
@@ -326,13 +326,16 @@ library TellerWithMultiAssetSupportLib {
     ) external {
         if (complianceSigner == address(0)) return;
         bytes32 messageHash = keccak256(abi.encode(address(this), block.chainid, sender, shareAmount, to, deadline));
-        _verifyAndMark(usedComplianceSignatures, complianceSigner, complianceDeadline, messageHash, deadline, signature);
+        _verifyAndMark(usedComplianceSignatures, complianceSigner, complianceWindow, messageHash, deadline, signature);
     }
 
+    /**
+     * @param complianceWindow Duration in seconds. Deadline must be <= block.timestamp + complianceWindow.
+     */
     function _verifyAndMark(
         mapping(bytes32 => bool) storage usedComplianceSignatures,
         address complianceSigner,
-        uint96 complianceDeadline,
+        uint96 complianceWindow,
         bytes32 messageHash,
         uint256 deadline,
         bytes calldata signature
@@ -343,7 +346,7 @@ library TellerWithMultiAssetSupportLib {
         if (block.timestamp > deadline) {
             revert TellerWithMultiAssetSupport__ComplianceCheckFailed();
         }
-        if (complianceDeadline > 0 && deadline > complianceDeadline) {
+        if (complianceWindow > 0 && deadline > block.timestamp + complianceWindow) {
             revert TellerWithMultiAssetSupport__ComplianceCheckFailed();
         }
         bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);

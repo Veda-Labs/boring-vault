@@ -114,7 +114,7 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
      */
     function updateBlacklist(uint8 listId, bytes32[] memory addressHashes, bool isBlacklisted) external requiresAuth {
         _validateListId(listId);
-        if(listId == LIST_ID_SANCTIONS) revert ShareWarden__InvalidListId(listId);
+        if (listId == LIST_ID_SANCTIONS) revert ShareWarden__InvalidListId(listId);
         for (uint256 i = 0; i < addressHashes.length; i++) {
             listIdToBlacklisted[listId][addressHashes[i]] = isBlacklisted;
         }
@@ -129,7 +129,7 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
 
     // ========================================= BeforeTransferHook FUNCTIONS =========================================
 
-    function beforeTransfer(address from, address to, address operator) external view {
+    function beforeTransfer(address from, address to, address operator) external {
         if (isPaused) revert ShareWarden__Paused();
 
         _checkBlacklist(from, to, operator);
