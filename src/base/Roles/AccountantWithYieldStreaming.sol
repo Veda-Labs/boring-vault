@@ -11,7 +11,6 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
 
-
 contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
@@ -20,7 +19,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     /**
      * @notice Stores the state variables related to yield vesting and share price tracking
      * @dev lastSharePrice The most recent share price
-     * @dev vestingGainst The total amount of yield being streamed for this period
+     * @dev vestingGains The total amount of yield being streamed for this period
      * @dev lastVestingUpdate The last time a yield update was posted
      * @dev startVestingTime The start time for the yield streaming period
      * @dev endVestingTime The end time for the yield streaming period
@@ -199,7 +198,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         vestingState.startVestingTime = uint64(block.timestamp);
         vestingState.endVestingTime = uint64(block.timestamp + duration);
 
-        //always update timestamp 
+        //always update timestamp
         vestingState.lastVestingUpdate = uint128(block.timestamp); // update timestamp
 
         //update state timestamp
@@ -236,7 +235,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
             uint256 currentShares = vault.totalSupply();
             if (currentShares > 0) {
                 uint128 cachedSharePrice = vestingState.lastSharePrice;
-                
+
                 lastVirtualSharePrice = (totalAssets() - principalLoss).mulDivDown(RAY, currentShares);
 
                 vestingState.lastSharePrice = _calculateSharePriceFromVirtual();
@@ -251,7 +250,6 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
                 }
             }
         }
-        
 
         AccountantState storage state = accountantState;
         state.exchangeRate = uint96(vestingState.lastSharePrice);
@@ -272,7 +270,14 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     /**
      * @notice Override updateExchangeRate to revert if called accidentally
      */
-    function updateExchangeRate(uint96 /*newExchangeRate*/ ) external view override requiresAuth {
+    function updateExchangeRate(
+        uint96 /*newExchangeRate*/
+    )
+        external
+        view
+        override
+        requiresAuth
+    {
         revert AccountantWithYieldStreaming__UpdateExchangeRateNotSupported();
     }
 
@@ -360,17 +365,17 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         if (currentShares == 0) {
             return rate = vestingState.lastSharePrice; //startingExchangeRate
         }
-        //to avoid any weird edge cases, we separate the two conditions so we don't get currentShares == 0 and pendingGains > 0; 
-        uint256 pendingGains = getPendingVestingGains(); 
+        //to avoid any weird edge cases, we separate the two conditions so we don't get currentShares == 0 and pendingGains > 0;
+        uint256 pendingGains = getPendingVestingGains();
         if (pendingGains == 0) {
             return rate = vestingState.lastSharePrice;
-        } 
+        }
         rate = totalAssets().mulDivDown(ONE_SHARE, currentShares);
     }
 
     /**
      * @notice Returns the safe rate for one share
-     * @dev Rerverts if the the accountant is paused
+     * @dev Reverts if the accountant is paused
      */
     function getRateSafe() external view override returns (uint256 rate) {
         if (accountantState.isPaused) revert AccountantWithRateProviders__Paused();
@@ -450,12 +455,18 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     /**
      * @notice Override previewUpdateExchangeRate to revert if called accidentally
      */
-    function previewUpdateExchangeRate(uint96 /*newExchangeRate*/ )
+    function previewUpdateExchangeRate(
+        uint96 /*newExchangeRate*/
+    )
         external
         view
         override
         requiresAuth
-        returns (bool, /*updateWillPause*/ uint256, /*newFeesOwedInBase*/ uint256 /*totalFeesOwedInBase*/ )
+        returns (
+            bool, /*updateWillPause*/
+            uint256, /*newFeesOwedInBase*/
+            uint256 /*totalFeesOwedInBase*/
+        )
     {
         revert AccountantWithYieldStreaming__UpdateExchangeRateNotSupported();
     }
@@ -484,7 +495,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
             vestingState.lastSharePrice = _calculateSharePriceFromVirtual();
         }
 
-        //sync fee variables 
+        //sync fee variables
         _collectFees();
 
         state.totalSharesLastUpdate = uint128(currentShares);

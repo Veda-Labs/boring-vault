@@ -235,7 +235,7 @@ contract IncentivePool is Auth {
         bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
         address recovered = ECDSA.recover(ethSignedHash, signature);
 
-        if (recovered != rewardSigner) revert InvalidSigner(); // TODO:
+        if (recovered != rewardSigner) revert InvalidSigner();
     }
 
     function _getLastCheckpointData(address user) internal view returns (uint256 lastTimestamp, uint256 totalClaimed) {
@@ -287,8 +287,6 @@ contract IncentivePool is Auth {
             checkpoints[i] = _claimHistory[user][startIndex + i];
         }
     }
-
-    // TODO: check array reset gas returns
 
     /**
      * @notice Returns the last claim timestamp and total claimed amount for a user

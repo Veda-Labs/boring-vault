@@ -157,6 +157,7 @@ contract ArcticArchitectureLens {
     }
 
     /**
+     * @notice Returns the withdraw asset configuration for a given asset in the queue.
      */
     function getWithdrawAsset(address asset, BoringOnChainQueue queue)
         public
