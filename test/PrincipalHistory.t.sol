@@ -659,8 +659,11 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         assertGt(aliceReward, bobReward, "alice earns more than bob");
     }
 
-    /// @dev Computes time-weighted effective deposit for a user over [t1, t2].
-    /// Replays checkpoint history and applies min(principal, shareValue) per interval.
+    /// @dev Simplified time-weighted effective deposit helper for constant-balance scenarios.
+    /// Uses current balanceOf and a fixed rate -- only valid when the user's share balance
+    /// and the exchange rate do not change across the reward period. For scenarios with
+    /// transfers, withdrawals, or rate changes, hardcode expected weights instead (see
+    /// testPrincipalHistory_FullBackendWalkthrough).
     function _computeTimeWeightedDeposit(address who, uint256 rate, uint256 t1, uint256 t2)
         internal
         view
@@ -668,6 +671,9 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
     {
         PrincipalCheckpoint[] memory cps = teller.getPrincipalHistory(who);
         if (cps.length == 0) return 0;
+
+        uint256 shares = boringVault.balanceOf(who);
+        uint256 totalValue = shares.mulDivDown(rate, ONE_SHARE);
 
         for (uint256 i; i < cps.length; ++i) {
             uint256 intervalStart = cps[i].timestamp < t1 ? t1 : cps[i].timestamp;
@@ -678,8 +684,6 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
             uint256 principal = cps[i].cumulativeDeposits > cps[i].cumulativeWithdrawals
                 ? cps[i].cumulativeDeposits - cps[i].cumulativeWithdrawals
                 : 0;
-            uint256 shares = boringVault.balanceOf(who);
-            uint256 totalValue = shares.mulDivDown(rate, ONE_SHARE);
             uint256 effective = principal < totalValue ? principal : totalValue;
 
             weight += effective * (intervalEnd - intervalStart);
