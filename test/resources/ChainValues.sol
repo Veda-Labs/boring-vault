@@ -439,6 +439,8 @@ contract ChainValues {
         values[mainnet]["aRLUSD"] = 0xFa82580c16A31D0c1bC632A36F82e83EfEF3Eec0.toBytes32();
         values[mainnet]["gsmUsdc"] = 0xFeeb6FE430B7523fEF2a38327241eE7153779535.toBytes32();
         values[mainnet]["gsmUsdt"] = 0x535b2f7C20B9C83d70e519cf9991578eF9816B7B.toBytes32();
+        values[mainnet]["waEthUSDC"] = 0xD4fa2D31b7968E448877f69A96DE69f5de8cD23E.toBytes32();
+        values[mainnet]["waEthUSDT"] = 0x7Bc3485026Ac48b6cf9BaF0A377477Fff5703Af8.toBytes32();
 
         // Balancer V2 Addresses
         values[mainnet]["BB_A_USD"] = 0xfeBb0bbf162E64fb9D0dfe186E517d84C395f016.toBytes32();

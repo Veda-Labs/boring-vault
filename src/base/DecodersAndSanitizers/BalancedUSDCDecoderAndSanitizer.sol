@@ -17,6 +17,7 @@ import {SkyMoneyDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protoc
 import {CCTPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCTPDecoderAndSanitizer.sol";
 import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
 import {MerklDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MerklDecoderAndSanitizer.sol";
+import {SGHODecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SGHODecoderAndSanitizer.sol";
 
 contract BalancedUSDCDecoderAndSanitizer is 
     BaseDecoderAndSanitizer,
@@ -29,6 +30,7 @@ contract BalancedUSDCDecoderAndSanitizer is
     SkyMoneyDecoderAndSanitizer,
     CCTPDecoderAndSanitizer,
     TellerDecoderAndSanitizer,
-    MerklDecoderAndSanitizer
+    MerklDecoderAndSanitizer,
+    SGHODecoderAndSanitizer
 {
 }

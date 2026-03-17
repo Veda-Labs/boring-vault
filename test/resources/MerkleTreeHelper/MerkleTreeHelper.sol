@@ -9057,7 +9057,9 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         ManageLeaf[] memory leafs,
         address merklDistributor
     ) internal {
-        leafIndex++;
+        unchecked {
+            leafIndex++;
+        }
         leafs[leafIndex] = ManageLeaf(
             merklDistributor,
             false,
