@@ -11,6 +11,8 @@ import {OdosDecoderAndSanitizer} from
 import {OneInchDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OneInchDecoderAndSanitizer.sol";
 import {CCTPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCTPDecoderAndSanitizer.sol";
 import {SyrupDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SyrupDecoderAndSanitizer.sol";
+import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
+import {EthenaWithdrawDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/EthenaWithdrawDecoderAndSanitizer.sol";
 
 contract SentoraUSDCMainnetDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
@@ -18,7 +20,9 @@ contract SentoraUSDCMainnetDecoderAndSanitizer is
     OdosDecoderAndSanitizer,
     OneInchDecoderAndSanitizer,
     CCTPDecoderAndSanitizer,
-    SyrupDecoderAndSanitizer
+    SyrupDecoderAndSanitizer,
+    ERC4626DecoderAndSanitizer,
+    EthenaWithdrawDecoderAndSanitizer
 {
     constructor(address _odosRouter)
         OdosDecoderAndSanitizer(_odosRouter)
