@@ -18,10 +18,6 @@ contract IncentivePool is Auth {
     error InvalidToken();
     error InvalidSigner();
     error InvalidAddress();
-    error InvalidDeadline();
-    error RateLimitExceeded();
-    error TotalRewardCapExceeded();
-    error RewardsDisabled();
     error Blacklisted();
 
     event SecondsBetweenClaimsSet(uint256 secondsBetweenClaims);
@@ -164,14 +160,14 @@ contract IncentivePool is Auth {
         if (blacklisted[rewardsRecipient]) revert Blacklisted();
         uint256 totalRewardCapMemory = totalRewardCap;
         uint256 maximumRewardAmountPerClaimMemory = maximumRewardAmountPerClaim;
-        if (totalRewardCapMemory == 0 || maximumRewardAmountPerClaimMemory == 0) revert RewardsDisabled();
-        if (block.timestamp > deadline) revert InvalidDeadline();
-        if (deadline > block.timestamp + maxDeadline) revert InvalidDeadline();
+        if (totalRewardCapMemory == 0 || maximumRewardAmountPerClaimMemory == 0) return 0;
+        if (block.timestamp > deadline) return 0;
+        if (deadline > block.timestamp + maxDeadline) return 0;
 
         (uint256 lastClaimTimestamp, uint256 totalClaimed) = _getLastCheckpointData(rewardsRecipient);
-        if (block.timestamp < (lastClaimTimestamp + secondsBetweenClaims)) revert RateLimitExceeded();
+        if (block.timestamp < (lastClaimTimestamp + secondsBetweenClaims)) return 0;
 
-        _checkSignature(rewardsRecipient, cumulativeRewards, deadline, signature);
+        if (!_checkSignature(rewardsRecipient, cumulativeRewards, deadline, signature)) return 0;
 
         uint256 amountToSend = _calculateAmountToSend(
             totalClaimed, cumulativeRewards, maximumRewardAmountPerClaimMemory, totalRewardCapMemory
@@ -213,7 +209,7 @@ contract IncentivePool is Auth {
                 amountToSend = remainingCap;
             }
         } else {
-            revert TotalRewardCapExceeded();
+            return 0;
         }
     }
 
@@ -222,7 +218,7 @@ contract IncentivePool is Auth {
         uint256 cumulativeRewards,
         uint256 deadline,
         bytes calldata signature
-    ) internal view {
+    ) internal view returns (bool) {
         bytes32 messageHash = keccak256(
             abi.encode(
                 address(this), // prevents cross-pool replay
@@ -235,7 +231,7 @@ contract IncentivePool is Auth {
         bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
         address recovered = ECDSA.recover(ethSignedHash, signature);
 
-        if (recovered != rewardSigner) revert InvalidSigner();
+        return recovered == rewardSigner;
     }
 
     function _getLastCheckpointData(address user) internal view returns (uint256 lastTimestamp, uint256 totalClaimed) {

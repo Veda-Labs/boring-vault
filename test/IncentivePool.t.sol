@@ -186,8 +186,9 @@ contract IncentivePoolTest is Test {
         bytes memory sig = _sign(user, 100e18, deadline);
 
         vm.prank(teller);
-        vm.expectRevert(IncentivePool.InvalidDeadline.selector);
-        pool.processRewards(user, 100e18, deadline, sig);
+        // No-op: returns 0 instead of reverting when deadline has expired
+        uint256 result = pool.processRewards(user, 100e18, deadline, sig);
+        assertEq(result, 0, "should no-op");
     }
 
     function test_processRewards_revertsDeadlineTooFar() external {
@@ -195,8 +196,9 @@ contract IncentivePoolTest is Test {
         bytes memory sig = _sign(user, 100e18, deadline);
 
         vm.prank(teller);
-        vm.expectRevert(IncentivePool.InvalidDeadline.selector);
-        pool.processRewards(user, 100e18, deadline, sig);
+        // No-op: returns 0 instead of reverting when deadline is too far in the future
+        uint256 result = pool.processRewards(user, 100e18, deadline, sig);
+        assertEq(result, 0, "should no-op");
     }
 
     function test_processRewards_revertsInvalidSigner() external {
@@ -206,8 +208,9 @@ contract IncentivePoolTest is Test {
         bytes memory sig = _signWithKey(wrongKey, user, 100e18, deadline);
 
         vm.prank(teller);
-        vm.expectRevert(IncentivePool.InvalidSigner.selector);
-        pool.processRewards(user, 100e18, deadline, sig);
+        // No-op: returns 0 instead of reverting when signature is invalid
+        uint256 result = pool.processRewards(user, 100e18, deadline, sig);
+        assertEq(result, 0, "should no-op");
     }
 
     function test_processRewards_replayNothingToClaimNoOp() external {
@@ -239,12 +242,13 @@ contract IncentivePoolTest is Test {
         assertEq(rewardToken.balanceOf(user), 50e18);
         assertEq(pool.getTotalClaimedAmount(user), 50e18);
 
-        // Second claim within interval reverts even with a new signature
+        // Second claim within interval returns 0 even with a new signature
         uint256 deadline2 = block.timestamp + 1 hours;
         bytes memory sig2 = _sign(user, 150e18, deadline2);
         vm.prank(teller);
-        vm.expectRevert(IncentivePool.RateLimitExceeded.selector);
-        pool.processRewards(user, 150e18, deadline2, sig2);
+        // No-op: returns 0 instead of reverting when rate limit exceeded
+        uint256 result = pool.processRewards(user, 150e18, deadline2, sig2);
+        assertEq(result, 0, "should no-op");
     }
 
     function test_processRewards_happyPath() external {
@@ -309,10 +313,11 @@ contract IncentivePoolTest is Test {
         uint256 deadline = block.timestamp + 1 hours;
         bytes memory sig = _sign(user, 100e18, deadline);
 
-        // Replay on pool2 fails (different contract address in hash)
+        // Replay on pool2 returns 0 (different contract address in hash)
         vm.prank(teller);
-        vm.expectRevert(IncentivePool.InvalidSigner.selector);
-        pool2.processRewards(user, 100e18, deadline, sig);
+        // No-op: returns 0 instead of reverting when signature is invalid
+        uint256 result = pool2.processRewards(user, 100e18, deadline, sig);
+        assertEq(result, 0, "should no-op");
     }
 
     function test_processRewards_deadlineAtLowerBoundary() external {
@@ -379,8 +384,9 @@ contract IncentivePoolTest is Test {
         uint256 deadline2 = block.timestamp + 1 hours;
         bytes memory sig2 = _sign(user, 200e18, deadline2);
         vm.prank(teller);
-        vm.expectRevert(IncentivePool.RateLimitExceeded.selector);
-        pool.processRewards(user, 200e18, deadline2, sig2);
+        // No-op: returns 0 instead of reverting when rate limit exceeded
+        uint256 result = pool.processRewards(user, 200e18, deadline2, sig2);
+        assertEq(result, 0, "should no-op");
     }
 
     function test_processRewards_rateLimitPassesAfterCooldown() external {
@@ -425,13 +431,14 @@ contract IncentivePoolTest is Test {
         vm.warp(2 hours);
 
         // lastClaimTimestamp=0 for first claim, 0 + type(uint32).max = type(uint32).max
-        // block.timestamp < type(uint32).max is always true, so RateLimitExceeded
+        // block.timestamp < type(uint32).max is always true, so rate limit exceeded
         uint256 deadline = block.timestamp + 1 hours;
         bytes memory sig = _sign(user, 100e18, deadline);
 
         vm.prank(teller);
-        vm.expectRevert(IncentivePool.RateLimitExceeded.selector);
-        pool.processRewards(user, 100e18, deadline, sig);
+        // No-op: returns 0 instead of reverting when rate limit exceeded
+        uint256 result = pool.processRewards(user, 100e18, deadline, sig);
+        assertEq(result, 0, "should no-op");
     }
 
     // ========================= TOTAL REWARD CAP =========================
@@ -443,8 +450,9 @@ contract IncentivePoolTest is Test {
         bytes memory sig = _sign(user, 100e18, deadline);
 
         vm.prank(teller);
-        vm.expectRevert(IncentivePool.RewardsDisabled.selector);
-        pool.processRewards(user, 100e18, deadline, sig);
+        // No-op: returns 0 instead of reverting when rewards are disabled
+        uint256 result = pool.processRewards(user, 100e18, deadline, sig);
+        assertEq(result, 0, "should no-op");
     }
 
     function test_processRewards_revertsRewardsDisabledZeroMaxPerClaim() external {
@@ -454,8 +462,9 @@ contract IncentivePoolTest is Test {
         bytes memory sig = _sign(user, 100e18, deadline);
 
         vm.prank(teller);
-        vm.expectRevert(IncentivePool.RewardsDisabled.selector);
-        pool.processRewards(user, 100e18, deadline, sig);
+        // No-op: returns 0 instead of reverting when rewards are disabled
+        uint256 result = pool.processRewards(user, 100e18, deadline, sig);
+        assertEq(result, 0, "should no-op");
     }
 
     function test_processRewards_partialClaimNearCap() external {
@@ -709,13 +718,14 @@ contract IncentivePoolTest is Test {
         vm.prank(teller);
         pool.processRewards(user, 100e18, deadline1, sig1);
 
-        // Try to claim more -> totalClaimed == totalRewardCap, reverts
+        // Try to claim more -> totalClaimed == totalRewardCap, returns 0
         vm.warp(block.timestamp + 1);
         uint256 deadline2 = block.timestamp + 1 hours;
         bytes memory sig2 = _sign(user, 200e18, deadline2);
         vm.prank(teller);
-        vm.expectRevert(IncentivePool.TotalRewardCapExceeded.selector);
-        pool.processRewards(user, 200e18, deadline2, sig2);
+        // No-op: returns 0 instead of reverting when total reward cap exceeded
+        uint256 result = pool.processRewards(user, 200e18, deadline2, sig2);
+        assertEq(result, 0, "should no-op");
     }
 
     function test_processRewards_revertsCapLoweredBelowClaimed() external {
@@ -728,13 +738,14 @@ contract IncentivePoolTest is Test {
         // Admin lowers cap below already claimed
         pool.setTotalRewardCap(50e18);
 
-        // Next claim reverts because totalClaimed (100) >= totalRewardCap (50)
+        // Next claim returns 0 because totalClaimed (100) >= totalRewardCap (50)
         vm.warp(block.timestamp + 1);
         uint256 deadline2 = block.timestamp + 1 hours;
         bytes memory sig2 = _sign(user, 200e18, deadline2);
         vm.prank(teller);
-        vm.expectRevert(IncentivePool.TotalRewardCapExceeded.selector);
-        pool.processRewards(user, 200e18, deadline2, sig2);
+        // No-op: returns 0 instead of reverting when total reward cap exceeded
+        uint256 result = pool.processRewards(user, 200e18, deadline2, sig2);
+        assertEq(result, 0, "should no-op");
     }
 
     function test_processRewards_partialClaimBothCapsApply() external {
@@ -796,13 +807,14 @@ contract IncentivePoolTest is Test {
 
         assertEq(pool.getTotalClaimedAmount(user), 100e18, "drained exactly to cap");
 
-        // Claim 4: cap exhausted -> revert
+        // Claim 4: cap exhausted -> returns 0
         vm.warp(block.timestamp + 1);
         uint256 d4 = block.timestamp + 1 hours;
         bytes memory s4 = _sign(user, 500e18, d4);
         vm.prank(teller);
-        vm.expectRevert(IncentivePool.TotalRewardCapExceeded.selector);
-        pool.processRewards(user, 500e18, d4, s4);
+        // No-op: returns 0 instead of reverting when total reward cap exceeded
+        uint256 delta4 = pool.processRewards(user, 500e18, d4, s4);
+        assertEq(delta4, 0, "should no-op");
     }
 
     function test_processRewards_partialClaimCheckpointCorrect() external {
@@ -848,8 +860,9 @@ contract IncentivePoolTest is Test {
         uint256 d2 = block.timestamp + 1 hours;
         bytes memory s2 = _sign(user, 200e18, d2);
         vm.prank(teller);
-        vm.expectRevert(IncentivePool.TotalRewardCapExceeded.selector);
-        pool.processRewards(user, 200e18, d2, s2);
+        // No-op: returns 0 instead of reverting when total reward cap exceeded
+        uint256 result = pool.processRewards(user, 200e18, d2, s2);
+        assertEq(result, 0, "should no-op");
 
         // Admin raises cap
         pool.setTotalRewardCap(120e18);
@@ -905,8 +918,9 @@ contract IncentivePoolTest is Test {
         uint256 deadline2 = block.timestamp + 1 hours;
         bytes memory sig2 = _sign(user, 200e18, deadline2);
         vm.prank(teller);
-        vm.expectRevert(IncentivePool.RateLimitExceeded.selector);
-        pool.processRewards(user, 200e18, deadline2, sig2);
+        // No-op: returns 0 instead of reverting when rate limit exceeded
+        uint256 result = pool.processRewards(user, 200e18, deadline2, sig2);
+        assertEq(result, 0, "should no-op");
     }
 
     function testFuzz_processRewards_cappedClaimCheckpointCorrect(uint104 cumulative, uint96 maxPerClaim) external {
@@ -964,8 +978,9 @@ contract IncentivePoolTest is Test {
         bytes memory sig = _sign(user, 100e18, deadline);
 
         vm.prank(teller);
-        vm.expectRevert(IncentivePool.InvalidDeadline.selector);
-        pool.processRewards(user, 100e18, deadline, sig);
+        // No-op: returns 0 instead of reverting when deadline has expired
+        uint256 result = pool.processRewards(user, 100e18, deadline, sig);
+        assertEq(result, 0, "should no-op");
     }
 
     function testFuzz_processRewards_deadlineTooFarReverts(uint256 excess) external {
@@ -974,8 +989,9 @@ contract IncentivePoolTest is Test {
         bytes memory sig = _sign(user, 100e18, deadline);
 
         vm.prank(teller);
-        vm.expectRevert(IncentivePool.InvalidDeadline.selector);
-        pool.processRewards(user, 100e18, deadline, sig);
+        // No-op: returns 0 instead of reverting when deadline is too far in the future
+        uint256 result = pool.processRewards(user, 100e18, deadline, sig);
+        assertEq(result, 0, "should no-op");
     }
 
     function testFuzz_processRewards_cumulativeNeverDecreases(uint104 amount1, uint104 amount2) external {
@@ -1056,13 +1072,14 @@ contract IncentivePoolTest is Test {
 
         uint256 claimTs = block.timestamp;
 
-        // 1 second before cooldown: must fail
+        // 1 second before cooldown: must return 0
         vm.warp(claimTs + cooldown - 1);
         uint256 deadline2 = block.timestamp + 1 hours;
         bytes memory sig2 = _sign(user, 200e18, deadline2);
         vm.prank(teller);
-        vm.expectRevert(IncentivePool.RateLimitExceeded.selector);
-        pool.processRewards(user, 200e18, deadline2, sig2);
+        // No-op: returns 0 instead of reverting when rate limit exceeded
+        uint256 result = pool.processRewards(user, 200e18, deadline2, sig2);
+        assertEq(result, 0, "should no-op");
 
         // Exactly at cooldown: must succeed
         vm.warp(claimTs + cooldown);
@@ -1108,10 +1125,11 @@ contract IncentivePoolTest is Test {
         // Sign for amount1
         bytes memory sig1 = _sign(user, amount1, deadline);
 
-        // Use sig1 for amount2 should fail (wrong signer recovery)
+        // Use sig1 for amount2 should return 0 (wrong signer recovery)
         vm.prank(teller);
-        vm.expectRevert(IncentivePool.InvalidSigner.selector);
-        pool.processRewards(user, amount2, deadline, sig1);
+        // No-op: returns 0 instead of reverting when signature is invalid
+        uint256 result = pool.processRewards(user, amount2, deadline, sig1);
+        assertEq(result, 0, "should no-op");
     }
 
     function testFuzz_processRewards_claimHistoryGrowsMonotonically(uint8 numClaims) external {
@@ -1237,8 +1255,9 @@ contract IncentivePoolTest is Test {
         bytes memory s2 = _sign(user, uint256(firstClaim) + 100e18, d2);
 
         vm.prank(teller);
-        vm.expectRevert(IncentivePool.TotalRewardCapExceeded.selector);
-        pool.processRewards(user, uint256(firstClaim) + 100e18, d2, s2);
+        // No-op: returns 0 instead of reverting when total reward cap exceeded
+        uint256 result = pool.processRewards(user, uint256(firstClaim) + 100e18, d2, s2);
+        assertEq(result, 0, "should no-op");
     }
 
     // ========================= BLACKLIST =========================
@@ -1431,8 +1450,9 @@ contract IncentivePoolTest is Test {
         bytes memory sig = _sign(user, 100e18, deadline);
 
         vm.prank(teller);
-        vm.expectRevert(IncentivePool.InvalidDeadline.selector);
-        pool.processRewards(user, 100e18, deadline, sig);
+        // No-op: returns 0 instead of reverting when deadline is too far in the future
+        uint256 result = pool.processRewards(user, 100e18, deadline, sig);
+        assertEq(result, 0, "should no-op");
     }
 
     function test_processRewards_signerRotationInvalidatesOldSignatures() external {
@@ -1444,10 +1464,11 @@ contract IncentivePoolTest is Test {
         address newSigner = vm.addr(newSignerKey);
         pool.setRewardSigner(newSigner);
 
-        // Old signature fails
+        // Old signature returns 0
         vm.prank(teller);
-        vm.expectRevert(IncentivePool.InvalidSigner.selector);
-        pool.processRewards(user, 100e18, deadline, sig);
+        // No-op: returns 0 instead of reverting when signature is invalid
+        uint256 result = pool.processRewards(user, 100e18, deadline, sig);
+        assertEq(result, 0, "should no-op");
 
         // New signature works
         bytes memory newSig = _signWithKey(newSignerKey, user, 100e18, deadline);

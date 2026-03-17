@@ -187,6 +187,10 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
         // Since shares are directly burned, call `beforeTransfer` to enforce before transfer hooks.
         beforeTransfer(msg.sender, address(0), msg.sender);
 
+        // Record withdrawal checkpoint so the sender's principal decreases on the source chain.
+        // Without this, bridged users retain phantom principal that inflates off-chain reward calculations.
+        _checkpointPrincipal(msg.sender, shareAmount, false);
+
         // Burn shares from sender
         vault.exit(address(0), ERC20(address(0)), 0, msg.sender, shareAmount);
 

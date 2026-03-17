@@ -755,6 +755,10 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      *      - Deposits round DOWN: records slightly less principal, meaning fewer incentive rewards earned.
      *      - Withdrawals round UP: records slightly more withdrawn, preventing dust accumulation
      *        that would otherwise create phantom principal over repeated deposit/withdraw cycles.
+     * @dev Cumulative deposits and withdrawals are stored as uint104, which caps at ~2.03e31.
+     *      For an 18-decimal token this is ~20.3 trillion units. If a single user's cumulative
+     *      volume exceeds this limit, SafeCast.toUint104 will revert permanently for that user.
+     *      This is acceptable for virtually all real-world vaults.
      */
     function _checkpointPrincipal(address user, uint256 shares, bool isDeposit) internal virtual {
         uint256 len = _principalHistory[user].length;

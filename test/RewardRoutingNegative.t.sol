@@ -173,21 +173,23 @@ abstract contract RewardRoutingNegativeBase is Test {
 
     // ========================= CROSS-USER SIGNATURE THEFT =========================
 
-    function test_claimRewards_stolenSignature_revertsInvalidSigner() external {
+    function test_claimRewards_stolenSignature_noOp() external {
         uint256 deadline = block.timestamp + 1 hours;
         bytes memory sig = _sign(address(pool), user, 100 * rewardUnit, deadline);
 
         RewardData[] memory rewards = new RewardData[](1);
         rewards[0] = RewardData(address(pool), 100 * rewardUnit, deadline, sig);
 
+        // No-op: returns 0 instead of reverting when signature is invalid
         vm.prank(attacker);
-        vm.expectRevert(IncentivePool.InvalidSigner.selector);
         teller.claimRewards(rewards);
+
+        assertEq(rewardToken.balanceOf(attacker), 0);
     }
 
     // ========================= CROSS-POOL SIGNATURE REUSE =========================
 
-    function test_claimRewards_crossPoolSignatureReuse_revertsInvalidSigner() external {
+    function test_claimRewards_crossPoolSignatureReuse_noOp() external {
         IncentivePool pool2 = _createAndEnablePool(rewardToken);
 
         uint256 deadline = block.timestamp + 1 hours;
@@ -196,9 +198,11 @@ abstract contract RewardRoutingNegativeBase is Test {
         RewardData[] memory rewards = new RewardData[](1);
         rewards[0] = RewardData(address(pool2), 100 * rewardUnit, deadline, sig);
 
+        // No-op: returns 0 instead of reverting when signature is invalid
         vm.prank(user);
-        vm.expectRevert(IncentivePool.InvalidSigner.selector);
         teller.claimRewards(rewards);
+
+        assertEq(rewardToken.balanceOf(user), 0);
     }
 
     // ========================= DUPLICATE POOL IN SINGLE TX =========================
@@ -221,7 +225,7 @@ abstract contract RewardRoutingNegativeBase is Test {
 
     // ========================= RATE LIMITING THROUGH TELLER =========================
 
-    function test_claimRewards_rateLimited_revertsRateLimitExceeded() external {
+    function test_claimRewards_rateLimited_noOp() external {
         pool.setSecondsBetweenClaims(1 hours);
 
         uint256 deadline = block.timestamp + 1 hours;
@@ -233,13 +237,17 @@ abstract contract RewardRoutingNegativeBase is Test {
         vm.prank(user);
         teller.claimRewards(r1);
 
+        uint256 balanceAfterFirst = rewardToken.balanceOf(user);
+
         bytes memory sig2 = _sign(address(pool), user, 200 * rewardUnit, deadline);
         RewardData[] memory r2 = new RewardData[](1);
         r2[0] = RewardData(address(pool), 200 * rewardUnit, deadline, sig2);
 
+        // No-op: returns 0 instead of reverting when rate limit exceeded
         vm.prank(user);
-        vm.expectRevert(IncentivePool.RateLimitExceeded.selector);
         teller.claimRewards(r2);
+
+        assertEq(rewardToken.balanceOf(user), balanceAfterFirst);
     }
 
     function test_claimRewards_rateLimitBoundary_succeedsAfterCooldown() external {
@@ -296,31 +304,35 @@ abstract contract RewardRoutingNegativeBase is Test {
 
     // ========================= EXPIRED / FUTURE DEADLINES =========================
 
-    function test_claimRewards_expiredDeadline_revertsInvalidDeadline() external {
+    function test_claimRewards_expiredDeadline_noOp() external {
         uint256 expiredDeadline = block.timestamp - 1;
         bytes memory sig = _sign(address(pool), user, 100 * rewardUnit, expiredDeadline);
         RewardData[] memory rewards = new RewardData[](1);
         rewards[0] = RewardData(address(pool), 100 * rewardUnit, expiredDeadline, sig);
 
+        // No-op: returns 0 instead of reverting when deadline has expired
         vm.prank(user);
-        vm.expectRevert(IncentivePool.InvalidDeadline.selector);
         teller.claimRewards(rewards);
+
+        assertEq(rewardToken.balanceOf(user), 0);
     }
 
-    function test_claimRewards_deadlineTooFarInFuture_revertsInvalidDeadline() external {
+    function test_claimRewards_deadlineTooFarInFuture_noOp() external {
         uint256 farDeadline = block.timestamp + 2 days;
         bytes memory sig = _sign(address(pool), user, 100 * rewardUnit, farDeadline);
         RewardData[] memory rewards = new RewardData[](1);
         rewards[0] = RewardData(address(pool), 100 * rewardUnit, farDeadline, sig);
 
+        // No-op: returns 0 instead of reverting when deadline is too far in the future
         vm.prank(user);
-        vm.expectRevert(IncentivePool.InvalidDeadline.selector);
         teller.claimRewards(rewards);
+
+        assertEq(rewardToken.balanceOf(user), 0);
     }
 
     // ========================= REWARDS DISABLED =========================
 
-    function test_claimRewards_rewardsDisabledZeroCap_revertsRewardsDisabled() external {
+    function test_claimRewards_rewardsDisabledZeroCap_noOp() external {
         pool.setTotalRewardCap(0);
 
         uint256 deadline = block.timestamp + 1 hours;
@@ -328,12 +340,14 @@ abstract contract RewardRoutingNegativeBase is Test {
         RewardData[] memory rewards = new RewardData[](1);
         rewards[0] = RewardData(address(pool), 100 * rewardUnit, deadline, sig);
 
+        // No-op: returns 0 instead of reverting when rewards are disabled
         vm.prank(user);
-        vm.expectRevert(IncentivePool.RewardsDisabled.selector);
         teller.claimRewards(rewards);
+
+        assertEq(rewardToken.balanceOf(user), 0);
     }
 
-    function test_claimRewards_rewardsDisabledZeroMaxPerClaim_revertsRewardsDisabled() external {
+    function test_claimRewards_rewardsDisabledZeroMaxPerClaim_noOp() external {
         pool.setMaximumRewardAmountPerClaim(0);
 
         uint256 deadline = block.timestamp + 1 hours;
@@ -341,14 +355,16 @@ abstract contract RewardRoutingNegativeBase is Test {
         RewardData[] memory rewards = new RewardData[](1);
         rewards[0] = RewardData(address(pool), 100 * rewardUnit, deadline, sig);
 
+        // No-op: returns 0 instead of reverting when rewards are disabled
         vm.prank(user);
-        vm.expectRevert(IncentivePool.RewardsDisabled.selector);
         teller.claimRewards(rewards);
+
+        assertEq(rewardToken.balanceOf(user), 0);
     }
 
     // ========================= TOTAL REWARD CAP EXHAUSTED =========================
 
-    function test_claimRewards_totalCapExhausted_revertsTotalRewardCapExceeded() external {
+    function test_claimRewards_totalCapExhausted_noOp() external {
         pool.setTotalRewardCap(uint104(100 * rewardUnit));
 
         uint256 deadline = block.timestamp + 1 hours;
@@ -359,13 +375,17 @@ abstract contract RewardRoutingNegativeBase is Test {
         vm.prank(user);
         teller.claimRewards(r1);
 
+        uint256 balanceAfterFirst = rewardToken.balanceOf(user);
+
         bytes memory sig2 = _sign(address(pool), user, 200 * rewardUnit, deadline);
         RewardData[] memory r2 = new RewardData[](1);
         r2[0] = RewardData(address(pool), 200 * rewardUnit, deadline, sig2);
 
+        // No-op: returns 0 instead of reverting when total reward cap exceeded
         vm.prank(user);
-        vm.expectRevert(IncentivePool.TotalRewardCapExceeded.selector);
         teller.claimRewards(r2);
+
+        assertEq(rewardToken.balanceOf(user), balanceAfterFirst);
     }
 
     function test_claimRewards_partialCapRemaining_clampsToCap() external {
@@ -427,7 +447,7 @@ abstract contract RewardRoutingNegativeBase is Test {
 
     // ========================= ATOMICITY: withdrawWithRewards =========================
 
-    function test_withdrawWithRewards_rewardFailure_revertsEntireTx() external {
+    function test_withdrawWithRewards_rewardDisabled_withdrawSucceedsNoReward() external {
         uint256 shares = _depositForUser(user, 10_000e6);
         pool.setTotalRewardCap(0);
 
@@ -436,13 +456,15 @@ abstract contract RewardRoutingNegativeBase is Test {
         RewardData[] memory rewards = new RewardData[](1);
         rewards[0] = RewardData(address(pool), 100 * rewardUnit, deadline, sig);
 
-        uint256 sharesBefore = boringVault.balanceOf(user);
+        uint256 poolRewardBalBefore = rewardToken.balanceOf(address(pool));
 
+        // No-op: returns 0 instead of reverting when rewards are disabled
         vm.prank(user);
-        vm.expectRevert(IncentivePool.RewardsDisabled.selector);
         teller.withdrawWithRewards(ERC20(address(usdc)), shares, 0, user, rewards);
 
-        assertEq(boringVault.balanceOf(user), sharesBefore);
+        // Withdrawal succeeded but no rewards were paid from the pool
+        assertEq(boringVault.balanceOf(user), 0);
+        assertEq(rewardToken.balanceOf(address(pool)), poolRewardBalBefore);
     }
 
     function test_withdrawWithRewards_withdrawFailure_neverReachesRewards() external {
@@ -638,7 +660,7 @@ abstract contract RewardRoutingNegativeBase is Test {
 
     // ========================= SIGNER ROTATION =========================
 
-    function test_claimRewards_oldSignerAfterRotation_revertsInvalidSigner() external {
+    function test_claimRewards_oldSignerAfterRotation_noOp() external {
         uint256 deadline = block.timestamp + 1 hours;
         bytes memory oldSig = _sign(address(pool), user, 100 * rewardUnit, deadline);
 
@@ -649,14 +671,16 @@ abstract contract RewardRoutingNegativeBase is Test {
         RewardData[] memory rewards = new RewardData[](1);
         rewards[0] = RewardData(address(pool), 100 * rewardUnit, deadline, oldSig);
 
+        // No-op: returns 0 instead of reverting when signature is invalid
         vm.prank(user);
-        vm.expectRevert(IncentivePool.InvalidSigner.selector);
         teller.claimRewards(rewards);
+
+        assertEq(rewardToken.balanceOf(user), 0);
     }
 
     // ========================= CAP LOWERED BELOW ALREADY CLAIMED =========================
 
-    function test_claimRewards_capLoweredBelowClaimed_revertsTotalRewardCapExceeded() external {
+    function test_claimRewards_capLoweredBelowClaimed_noOp() external {
         uint256 deadline = block.timestamp + 1 hours;
         bytes memory sig1 = _sign(address(pool), user, 500 * rewardUnit, deadline);
         RewardData[] memory r1 = new RewardData[](1);
@@ -665,15 +689,19 @@ abstract contract RewardRoutingNegativeBase is Test {
         vm.prank(user);
         teller.claimRewards(r1);
 
+        uint256 balanceAfterFirst = rewardToken.balanceOf(user);
+
         pool.setTotalRewardCap(uint104(100 * rewardUnit));
 
         bytes memory sig2 = _sign(address(pool), user, 600 * rewardUnit, deadline);
         RewardData[] memory r2 = new RewardData[](1);
         r2[0] = RewardData(address(pool), 600 * rewardUnit, deadline, sig2);
 
+        // No-op: returns 0 instead of reverting when total reward cap exceeded
         vm.prank(user);
-        vm.expectRevert(IncentivePool.TotalRewardCapExceeded.selector);
         teller.claimRewards(r2);
+
+        assertEq(rewardToken.balanceOf(user), balanceAfterFirst);
     }
 
     // ========================= SAME-TOKEN: withdrawWithRewards balance accounting =========================
