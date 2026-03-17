@@ -98,24 +98,9 @@ contract ReentrancyExploiter is ITokenReceiver {
 // Test
 // ---------------------------------------------------------------------------
 
-// NOTE: These tests prove that the nonReentrant and requiresAuth modifiers are
-// missing on TellerWithYieldStreaming.withdrawWithRewards, but they do NOT
-// demonstrate concrete financial damage. The attacker only ever burns their own
-// shares for their own fair share of assets -- no value is extracted from other
-// depositors. The reentrancy test shows two withdrawals in one tx, but that is
-// economically identical to two separate withdraw() calls.
-//
-// Why no real exploit materialises under the current contract state:
-//   - IncentivePool updates _claimHistory BEFORE the token transfer, so
-//     re-entering cannot double-claim rewards.
-//   - updateExchangeRate() is called BEFORE shares are burned in _withdraw,
-//     so reducing supply via a re-entered withdrawal does not inflate the rate.
-//   - The exchange rate is time-based (yield vesting), not balance-based, so
-//     withdrawals within the same block see the same rate.
-//
-// The tests exist to document that the reentrancy guard invariant IS broken
-// (a defense-in-depth failure). Future changes to reward tokens, exchange-rate
-// logic, or pool contracts could turn this into a real exploit.
+// These tests verify that the nonReentrant and requiresAuth modifiers on
+// TellerWithYieldStreaming.withdrawWithRewards correctly prevent reentrancy
+// and unauthorized access.
 contract TellerYieldStreamingReentrancyTest is Test {
     using SafeTransferLib for ERC20;
 
@@ -218,7 +203,7 @@ contract TellerYieldStreamingReentrancyTest is Test {
     }
 
     function _setupPool(uint256 fundAmount) internal returns (IncentivePool) {
-        IncentivePool pool = new IncentivePool(address(this), ERC20(address(rewardToken)));
+        IncentivePool pool = new IncentivePool(address(this), ERC20(address(rewardToken)), 1 days);
         pool.setAuthority(rolesAuthority);
         rolesAuthority.setRoleCapability(POOL_ROLE, address(pool), IncentivePool.processRewards.selector, true);
         rolesAuthority.setUserRole(address(teller), POOL_ROLE, true);
@@ -234,33 +219,19 @@ contract TellerYieldStreamingReentrancyTest is Test {
 
     // -- tests --
 
-    /// @notice Proves the nonReentrant guard on withdraw() is bypassed because
-    ///         withdrawWithRewards never acquires the reentrancy lock.
-    ///
-    ///         Attack flow:
-    ///         1. Attacker calls withdrawWithRewards (no nonReentrant)
-    ///         2. _processRewards -> IncentivePool -> ERC-777 safeTransfer -> callback
-    ///         3. Callback re-enters teller.withdraw() — lock is still 1, so it passes
-    ///         4. Re-entered withdraw burns shares and sends assets
-    ///         5. Callback returns, original withdrawWithRewards calls withdraw() again
-    ///         6. Lock was reset to 1 after step 4, so it passes a second time
-    ///         Result: TWO full withdrawals from a single withdrawWithRewards call.
-    ///
-    ///         In the base TellerWithMultiAssetSupport, withdrawWithRewards has
-    ///         nonReentrant — the callback in step 3 would hit locked==2 and revert.
-    function testReentrancy_NonReentrantBypassed() public {
+    /// @notice Verifies that nonReentrant on withdrawWithRewards blocks reentrancy.
+    ///         The ERC-777 callback in _processRewards attempts to re-enter withdraw(),
+    ///         but the lock is already held so the inner call reverts.
+    function testReentrancy_Blocked() public {
         uint256 rewardAmount = 100e18;
         IncentivePool pool = _setupPool(rewardAmount);
 
         ReentrancyExploiter attacker = new ReentrancyExploiter(address(teller), address(baseAsset));
 
-        // Give attacker enough shares for two withdrawals
         uint256 depositAmount = 200e6;
         _deposit(address(attacker), depositAmount);
         uint256 totalShares = vault.balanceOf(address(attacker));
         uint256 halfShares = totalShares / 2;
-
-        uint256 vaultBefore = baseAsset.balanceOf(address(vault));
 
         // Build reward data
         uint256 deadline = block.timestamp + 1 hours;
@@ -268,40 +239,16 @@ contract TellerYieldStreamingReentrancyTest is Test {
         RewardData[] memory rewards = new RewardData[](1);
         rewards[0] = RewardData(address(pool), rewardAmount, deadline, sig);
 
-        // Single call triggers TWO withdraw() executions
+        // The re-entrant callback silently fails (try/catch in ERC777LikeToken.transfer),
+        // so the outer withdrawWithRewards still succeeds but the inner withdraw never executes.
         attacker.attack(halfShares, halfShares, rewards);
 
-        // -- assertions --
-        assertEq(attacker.reentrantWithdrawCount(), 1, "re-entrant withdraw executed in callback");
-
-        uint256 remainingShares = vault.balanceOf(address(attacker));
-        assertEq(remainingShares, totalShares - 2 * halfShares, "both batches of shares burned");
-
-        uint256 vaultAfter = baseAsset.balanceOf(address(vault));
-        uint256 attackerAssets = baseAsset.balanceOf(address(attacker));
-
-        assertGt(attackerAssets, 0, "attacker received assets");
-        assertEq(vaultBefore - vaultAfter, attackerAssets, "vault drained by both withdrawals");
-        assertEq(rewardToken.balanceOf(address(attacker)), rewardAmount, "rewards also claimed");
-
-        console.log("--- REENTRANCY GUARD BYPASS ---");
-        console.log("withdrawWithRewards called once -> withdraw() executed TWICE");
-        console.log("  Shares burned:      ", 2 * halfShares);
-        console.log("  Assets extracted:   ", attackerAssets);
-        console.log("  Rewards claimed:    ", rewardAmount / 1e18);
-        console.log("  nonReentrant:        BYPASSED");
+        assertEq(attacker.reentrantWithdrawCount(), 0, "re-entrant withdraw was blocked");
+        assertEq(vault.balanceOf(address(attacker)), totalShares - halfShares, "only outer withdrawal burned shares");
     }
 
-    /// @notice Shows that claimRewards (which has requiresAuth + nonReentrant)
-    ///         correctly blocks an unauthorized caller, while the same user CAN
-    ///         trigger _processRewards via withdrawWithRewards because the override
-    ///         dropped requiresAuth.
-    ///
-    ///         Impact is limited because the inner withdraw() call checks auth via
-    ///         msg.sig, which propagates the original withdrawWithRewards selector.
-    ///         If withdrawWithRewards is NOT a public capability, the tx still reverts.
-    ///         But if it IS public (as in this test), the auth modifier is redundant
-    ///         and the real damage vector is reentrancy (see test above).
+    /// @notice Verifies that claimRewards requires auth while withdrawWithRewards
+    ///         works when configured as a public capability.
     function testAuthBypass_ClaimRewardsBlockedButWithdrawWithRewardsOpen() public {
         uint256 rewardAmount = 50e18;
         IncentivePool pool = _setupPool(rewardAmount);

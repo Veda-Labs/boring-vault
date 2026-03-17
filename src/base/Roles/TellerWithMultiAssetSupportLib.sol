@@ -55,6 +55,7 @@ library TellerWithMultiAssetSupportLib {
      * @dev 1,000 or 10%
      */
     uint16 internal constant MAX_SHARE_PREMIUM = 1_000;
+    address internal constant NATIVE = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
 
     //============================== ERRORS ===============================
 
@@ -265,7 +266,6 @@ library TellerWithMultiAssetSupportLib {
         delete publicDepositHistory[nonce];
 
         // If deposit used native asset, send user back wrapped native asset.
-        address NATIVE = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
         depositAsset = depositAsset == NATIVE ? address(nativeWrapper) : depositAsset;
         vault.exit(receiver, ERC20(depositAsset), depositAmount, receiver, shareAmount);
 

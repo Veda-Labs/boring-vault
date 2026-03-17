@@ -78,7 +78,7 @@ abstract contract RewardRoutingPositiveBase is Test {
         );
         teller = new TellerWithYieldStreaming(address(this), address(boringVault), address(accountant), address(usdc));
 
-        pool = new IncentivePool(address(this), rewardToken);
+        pool = new IncentivePool(address(this), rewardToken, 1 days);
 
         rolesAuthority = new RolesAuthority(address(this), Authority(address(0)));
         boringVault.setAuthority(rolesAuthority);
@@ -576,7 +576,7 @@ abstract contract RewardRoutingPositiveBase is Test {
     }
 
     function _createPool(ERC20 token) internal returns (IncentivePool p) {
-        p = new IncentivePool(address(this), token);
+        p = new IncentivePool(address(this), token, 1 days);
         p.setAuthority(rolesAuthority);
         rolesAuthority.setRoleCapability(TELLER_ROLE, address(p), IncentivePool.processRewards.selector, true);
         p.setRewardSigner(signer);

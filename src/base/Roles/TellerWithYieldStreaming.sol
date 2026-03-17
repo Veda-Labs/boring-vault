@@ -51,10 +51,12 @@ contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
         uint256 minimumAssets,
         address to,
         RewardData[] calldata rewards
-    ) public override returns (uint256 assetsOut) {
-        // Withdraw has auth and reentrancy protection
-        assetsOut = withdraw(withdrawAsset, shareAmount, minimumAssets, to);
+    ) public override requiresAuth nonReentrant returns (uint256 assetsOut) {
+        _getAccountant().updateExchangeRate();
+        beforeTransfer(msg.sender, address(0), msg.sender);
+        assetsOut = _withdraw(withdrawAsset, shareAmount, minimumAssets, to);
         _processRewards(rewards, msg.sender);
+        emit Withdraw(address(withdrawAsset), shareAmount);
     }
 
     // ========================================= INTERNAL FUNCTIONS =========================================

@@ -48,7 +48,7 @@ contract IncentivePoolTest is Test {
 
         rewardToken = new MockERC20("Reward Token", "RWD", 18);
         rolesAuthority = new RolesAuthority(address(this), Authority(address(0)));
-        pool = new IncentivePool(address(this), ERC20(address(rewardToken)));
+        pool = new IncentivePool(address(this), ERC20(address(rewardToken)), 1 days);
 
         // Configure auth
         pool.setAuthority(rolesAuthority);
@@ -74,7 +74,16 @@ contract IncentivePoolTest is Test {
 
     function test_constructor_revertsZeroToken() external {
         vm.expectRevert(IncentivePool.InvalidToken.selector);
-        new IncentivePool(address(this), ERC20(address(0)));
+        new IncentivePool(address(this), ERC20(address(0)), 1 days);
+    }
+
+    function test_constructor_revertsZeroMaxDeadline() external {
+        vm.expectRevert(IncentivePool.InvalidMaxDeadline.selector);
+        new IncentivePool(address(this), ERC20(address(rewardToken)), 0);
+    }
+
+    function test_constructor_setsMaxDeadline() external view {
+        assertEq(pool.maxDeadline(), 1 days);
     }
 
     // ========================= SET REWARD SIGNER =========================
@@ -127,6 +136,11 @@ contract IncentivePoolTest is Test {
         pool.setMaxDeadline(2 days);
 
         assertEq(pool.maxDeadline(), 2 days);
+    }
+
+    function test_setMaxDeadline_allowsZero() external {
+        pool.setMaxDeadline(0);
+        assertEq(pool.maxDeadline(), 0);
     }
 
     function test_setMaxDeadline_revertsUnauthorized() external {
@@ -300,7 +314,7 @@ contract IncentivePoolTest is Test {
 
     function test_processRewards_crossPoolReplayPrevented() external {
         // Deploy second pool with same signer
-        IncentivePool pool2 = new IncentivePool(address(this), ERC20(address(rewardToken)));
+        IncentivePool pool2 = new IncentivePool(address(this), ERC20(address(rewardToken)), 1 days);
         pool2.setAuthority(rolesAuthority);
         rolesAuthority.setRoleCapability(TELLER_ROLE, address(pool2), IncentivePool.processRewards.selector, true);
         pool2.setRewardSigner(signer);
@@ -1431,28 +1445,15 @@ contract IncentivePoolTest is Test {
         assertEq(delta, 100e18);
     }
 
-    function test_processRewards_maxDeadlineZeroRequiresExactTimestamp() external {
+    function test_processRewards_maxDeadlineSetToZeroDisablesClaims() external {
         pool.setMaxDeadline(0);
 
-        // deadline == block.timestamp is valid (passes both checks)
-        uint256 deadline = block.timestamp;
+        uint256 deadline = block.timestamp + 1 hours;
         bytes memory sig = _sign(user, 100e18, deadline);
 
         vm.prank(teller);
-        uint256 delta = pool.processRewards(user, 100e18, deadline, sig);
-        assertEq(delta, 100e18);
-    }
-
-    function test_processRewards_maxDeadlineZeroRevertsFutureDeadline() external {
-        pool.setMaxDeadline(0);
-
-        uint256 deadline = block.timestamp + 1;
-        bytes memory sig = _sign(user, 100e18, deadline);
-
-        vm.prank(teller);
-        // No-op: returns 0 instead of reverting when deadline is too far in the future
-        uint256 result = pool.processRewards(user, 100e18, deadline, sig);
-        assertEq(result, 0, "should no-op");
+        uint256 claimed = pool.processRewards(user, 100e18, deadline, sig);
+        assertEq(claimed, 0, "claims should be disabled when maxDeadline is 0");
     }
 
     function test_processRewards_signerRotationInvalidatesOldSignatures() external {

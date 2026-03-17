@@ -18,6 +18,7 @@ contract IncentivePool is Auth {
     error InvalidToken();
     error InvalidSigner();
     error InvalidAddress();
+    error InvalidMaxDeadline();
     error Blacklisted();
 
     event SecondsBetweenClaimsSet(uint256 secondsBetweenClaims);
@@ -37,7 +38,11 @@ contract IncentivePool is Auth {
     /// @notice The maximum reward amount for the rewards to be processed per delta
     uint96 public maximumRewardAmountPerClaim; // Packed with rewardSigner (20 + 12 = 32 bytes)
 
-    /// @notice The maximum deadline for the rewards to be processed
+    /// @notice Maximum number of seconds into the future (relative to block.timestamp) that a
+    ///         reward signature's deadline may be set to. Acts as a staleness window: a signature
+    ///         is valid only while `block.timestamp <= deadline <= block.timestamp + maxDeadline`.
+    ///         Lower values force more frequent re-signing; higher values give users more time to
+    ///         submit but extend the replay window of each signature.
     uint32 public maxDeadline; // Packed: maxDeadline (4) + secondsBetweenClaims (4) + totalRewardCap (13) = 21 bytes
     /// @notice The rate limit between claims
     uint32 public secondsBetweenClaims;
@@ -58,9 +63,12 @@ contract IncentivePool is Auth {
     /// @notice A mapping of user addresses to their claim history
     mapping(address user => ClaimCheckpoint[]) internal _claimHistory;
 
-    constructor(address _owner, ERC20 rewardToken) Auth(_owner, Authority(address(0))) {
+    constructor(address _owner, ERC20 rewardToken, uint32 initialMaxDeadline) Auth(_owner, Authority(address(0))) {
         if (address(rewardToken) == address(0)) revert InvalidToken();
+        if (initialMaxDeadline == 0) revert InvalidMaxDeadline();
         REWARD_TOKEN = rewardToken;
+        maxDeadline = initialMaxDeadline;
+        emit MaxDeadlineSet(initialMaxDeadline);
     }
 
     //============================== RESTRICTED FUNCTIONS ===============================
@@ -100,8 +108,10 @@ contract IncentivePool is Auth {
     }
 
     /**
-     * @notice Sets the maximum deadline for the rewards to be processed
-     * @param newMaxDeadline The new maximum deadline for the rewards to be processed
+     * @notice Sets the signature staleness window — the maximum number of seconds into the future
+     *         (relative to block.timestamp) that a reward signature's deadline is allowed to be.
+     * @param newMaxDeadline The new staleness window in seconds. Setting to 0 will effectively
+     *        disable claims, as no signature deadline can satisfy the staleness check.
      * @dev Callable by OWNER_ROLE.
      */
     function setMaxDeadline(uint32 newMaxDeadline) external requiresAuth {

@@ -13,6 +13,7 @@ import {
 } from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {TellerWithMultiAssetSupportLib} from "src/base/Roles/TellerWithMultiAssetSupportLib.sol";
 import {MessageLib} from "src/base/Roles/CrossChain/MessageLib.sol";
+import {CrossChainTellerLib} from "src/base/Roles/CrossChain/CrossChainTellerLib.sol";
 
 abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSupport {
     using MessageLib for uint256;
@@ -191,14 +192,8 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
         // Without this, bridged users retain phantom principal that inflates off-chain reward calculations.
         _checkpointPrincipal(msg.sender, shareAmount, false);
 
-        // Burn shares from sender
-        vault.exit(address(0), ERC20(address(0)), 0, msg.sender, shareAmount);
-
-        // Send the message.
-        MessageLib.Message memory m = MessageLib.Message(shareAmount, to);
-        // `messageToUnit256` reverts on overflow, eventhough it is not possible to overflow.
-        // This was done for future proofing.
-        uint256 message = m.messageToUint256();
+        // Burn shares and encode the bridge message (delegated to library to reduce bytecode).
+        uint256 message = CrossChainTellerLib.burnAndEncode(vault, msg.sender, shareAmount, to);
 
         bytes32 messageId = _sendMessage(message, bridgeWildCard, feeToken, maxFee);
 
@@ -210,12 +205,7 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
      *         message has been confirmed as legit.`
      */
     function _completeMessageReceive(bytes32 messageId, uint256 message) internal {
-        MessageLib.Message memory m = message.uint256ToMessage();
-
-        // Mint shares to message.to
-        vault.enter(address(0), ERC20(address(0)), 0, m.to, m.shareAmount);
-
-        emit MessageReceived(messageId, m.shareAmount, m.to);
+        CrossChainTellerLib.completeMessageReceive(vault, messageId, message);
     }
 
     /**
