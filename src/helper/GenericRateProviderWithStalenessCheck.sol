@@ -75,6 +75,8 @@ contract GenericRateProviderWithStalenessCheck is GenericRateProvider {
         maxStaleness = _args.maxStaleness;     
         lastUpdateSelector = _args.lastUpdateSelector;
         lastUpdateOffset = _args.lastUpdateOffset;
+
+        getRate();
     }
 
     // ========================================= RATE FUNCTION =========================================

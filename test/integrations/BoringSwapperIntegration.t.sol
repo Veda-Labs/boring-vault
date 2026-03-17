@@ -7,8 +7,8 @@ pragma solidity 0.8.21;
 import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
 import {BoringSwapper} from "src/base/Periphery/BoringSwapper.sol";
 import {BoringVault} from "src/base/BoringVault.sol";
+import {BoringSwapperDecoder} from "src/base/DecodersAndSanitizers/Protocols/BoringSwapperDecoderAndSanitizer.sol";
 import {AdapterRegistry} from "src/base/Periphery/AdapterRegistry.sol"; 
-import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
 import {UniswapV3Adapter} from "src/base/Periphery/adapters/UniswapV3Adapter.sol"; 
@@ -21,17 +21,6 @@ import {PriceValidator} from "src/base/Periphery/adapters/price/PriceValidator.s
 import {IPriceValidator} from "src/interfaces/IPriceValidator.sol";
 import {Test, console} from "@forge-std/Test.sol";
 
-contract SwapperDecoder is BaseDecoderAndSanitizer {
-
-    function swap(DecoderCustomTypes.SwapConfig memory swapConfig) external pure returns (bytes memory addressesFound) {
-        return abi.encodePacked(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut, address(swapConfig.receiver));
-    }
-
-    function submitOrder(DecoderCustomTypes.SwapConfig memory swapConfig) external pure returns (bytes memory addressesFound) {
-        return abi.encodePacked(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut, address(swapConfig.receiver));
-    }
-}
-    
 //TODO
 contract MockRateProvider is IRateProvider {
   
@@ -55,6 +44,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
     // Pack a SwapConfig into the signature bytes
     uint8 UNISWAP_V3 = 0;
     uint8 COWSWAP = 3;
+    uint8 ONEINCH = 4;
                                                                                                                                        
     bytes32 constant GPV2_ORDER_TYPE_HASH = keccak256(
         "Order(address sellToken,address buyToken,address receiver,uint256 sellAmount,uint256 buyAmount,uint32 validTo,bytes32 appData,uint256 feeAmount,bytes32 kind,bool partiallyFillable,bytes32 sellTokenBalance,bytes32 buyTokenBalance)");
@@ -66,7 +56,6 @@ contract BoringSwapperIntegration is BaseTestIntegration {
 
     // 1inch constants BEGIN //
     address constant ONEINCH_ROUTER = 0x111111125421cA6dc452d289314280a0f8842A65;
-    uint8 ONEINCH = 4;
 
     bytes32 constant ONEINCH_ORDER_TYPE_HASH = keccak256(
         "Order(uint256 salt,address maker,address receiver,address makerAsset,address takerAsset,uint256 makingAmount,uint256 takingAmount,uint256 makerTraits)"
@@ -84,7 +73,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         super.setUp(); 
         _setupChain("mainnet", 24592183); 
             
-        address swapperDecoder = address(new SwapperDecoder()); 
+        address swapperDecoder = address(new BoringSwapperDecoder()); 
 
         _overrideDecoder(swapperDecoder); 
 

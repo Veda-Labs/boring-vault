@@ -69,7 +69,7 @@ contract GenericRateProvider is IRateProvider {
         signed = _signed; 
 
         // Make sure getRate succeeds.
-        getRate();
+        //getRate();
     }
 
     // ========================================= RATE FUNCTION =========================================
