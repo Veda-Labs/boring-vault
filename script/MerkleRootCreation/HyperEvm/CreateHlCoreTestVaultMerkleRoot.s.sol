@@ -28,8 +28,9 @@ contract CreateHlCoreTestVaultMerkleRootScript is Script, MerkleTreeHelper {
     address public teller = 0x5C0d2f6cF8a237669FB6d07511a1Ff4D9eB819E1;
 
     address public rawDataDecoderAndSanitizer = 0xD834860459a89e609243f00C6fcb4861B351583f;
-    address public user1 = 0xa86b3Bf249478488B4304B50726c7D4689aD6320;
-    address public user2 = 0x0307AD25281C99F22A8F3Af9e272fE3968810239;
+    address public manager01 = 0xa86b3Bf249478488B4304B50726c7D4689aD6320;
+    address public manager02 = 0x0307AD25281C99F22A8F3Af9e272fE3968810239;
+    address public manager03 = 0xe5C7cbAA926eAdf27d04A2e6CB4D2d192b8CBF65;
 
     function setUp() external {
         setSourceChainName(hyperevm);
@@ -52,9 +53,8 @@ contract CreateHlCoreTestVaultMerkleRootScript is Script, MerkleTreeHelper {
         feeAssets[0] = getERC20(sourceChain, "USDC");
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
-        // ========================== Define Allowed Assets for limit order ==========================
         // BTC=0, ETH=1 (see HyperliquidAssetIds.sol for full list)
-        uint32[] memory perpAssets = new uint32[](8);
+        uint32[] memory perpAssets = new uint32[](16);
         perpAssets[0] = 0; // BTC
         perpAssets[1] = 1; // ETH
         perpAssets[2] = 5; // SOL
@@ -63,40 +63,36 @@ contract CreateHlCoreTestVaultMerkleRootScript is Script, MerkleTreeHelper {
         perpAssets[5] = 10151; // SPOT ETH
         perpAssets[6] = 10156; // SPOT SOL
         perpAssets[7] = 10107; // SPOT HYPE
+        perpAssets[8] = 10235; // SPOT USDE
+        perpAssets[9] = 10000 + (4 * 10000) + 0; // hyna:BTCUSDE
+        perpAssets[10] = 10000 + (4 * 10000) + 1; // hyna:ETHUSDE
+        perpAssets[11] = 10000 + (4 * 10000) + 2; // hyna:HYPEUSDE
+        perpAssets[12] = 10000 + (4 * 10000) + 3; // hyna:SOLUSDE
+        perpAssets[13] = 10000 + (4 * 10000) + 5; // hyna:ZECUSDE
+        perpAssets[14] = 10000 + (4 * 10000) + 6; // hyna:XRPUSDE
+        perpAssets[15] = 10000 + (4 * 10000) + 8; // hyna:BNBUSDE
+        perpAssets[15] = 10000 + (4 * 10000) + 11; // hyna:PUMPUSDE
 
-        // ========================== Define Allowed Recipients ==========================
         address[] memory spotSendRecipients = new address[](1);
         spotSendRecipients[0] = boringVault; // Allow sending back to self
 
-        // ========================== Define Allowed Spot Tokens ==========================
         // USDC=0, UBTC=197, UETH=221 (for spot sends on HyperCore)
-        uint64[] memory spotTokens = new uint64[](3);
+        uint64[] memory spotTokens = new uint64[](2);
         spotTokens[0] = 0; // USDC
         spotTokens[1] = 150; // HYPE
-        spotTokens[2] = 107; // HYPE
 
-        // ========================== Define Allowed Vaults ==========================
         address[] memory vaults = new address[](0); // No vault transfers by default
 
-        // ========================== Define Allowed Validators ==========================
         address[] memory validators = new address[](0); // No staking by default
 
-        // ========================== CoreWriter Leafs ==========================
         _addAllCoreWriterLeafs(leafs, perpAssets, spotSendRecipients, spotTokens, vaults, validators);
-
-        // ========================== USDC Bridging (HyperEVM -> HyperCore) ==========================
-        // Bridge native USDC from HyperEVM to HyperCore via CoreDepositWallet
         _addCoreWriterUsdcDepositLeafs(leafs);
 
-        // ========================== Token Bridging (HyperCore -> HyperEVM) ==========================
-        // Allow bridging tokens back from HyperCore to the vault on HyperEVM
         address[] memory bridgeDestinations = new address[](1);
         bridgeDestinations[0] = boringVault;
         address[] memory bridgeSubAccounts = new address[](1);
         bridgeSubAccounts[0] = address(0); // Main account
         _addCoreWriterSendAssetLeafs(leafs, bridgeDestinations, bridgeSubAccounts);
-
-        // ========================== Add API Wallets ==============================
 
         address[] memory apiWallets = new address[](1);
         apiWallets[0] = 0x0307AD25281C99F22A8F3Af9e272fE3968810239;
@@ -125,12 +121,14 @@ contract CreateHlCoreTestVaultMerkleRootScript is Script, MerkleTreeHelper {
                 );
         }
 
-        RolesAuthority(rolesAuthority).setUserRole(user1, MANAGER_INTERNAL_ROLE, true);
-        RolesAuthority(rolesAuthority).setUserRole(user2, MANAGER_INTERNAL_ROLE, true);
+        RolesAuthority(rolesAuthority).setUserRole(manager01, MANAGER_INTERNAL_ROLE, true);
+        RolesAuthority(rolesAuthority).setUserRole(manager02, MANAGER_INTERNAL_ROLE, true);
+        RolesAuthority(rolesAuthority).setUserRole(manager02, MANAGER_INTERNAL_ROLE, true);
 
         manager.setManageRoot(managerAddress, manageTree[manageTree.length - 1][0]);
-        manager.setManageRoot(user1, manageTree[manageTree.length - 1][0]);
-        manager.setManageRoot(user2, manageTree[manageTree.length - 1][0]);
+        manager.setManageRoot(manager01, manageTree[manageTree.length - 1][0]);
+        manager.setManageRoot(manager02, manageTree[manageTree.length - 1][0]);
+        manager.setManageRoot(manager03, manageTree[manageTree.length - 1][0]);
         vm.stopBroadcast();
     }
 }

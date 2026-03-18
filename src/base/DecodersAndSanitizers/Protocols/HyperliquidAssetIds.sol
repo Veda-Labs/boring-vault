@@ -355,7 +355,7 @@ library HyperliquidAssetIds {
     uint32 internal constant SPOT_COPE = 10147;
     uint32 internal constant SPOT_HPYH = 10148;
     uint32 internal constant SPOT_YAP = 10149;
-    uint32 internal constant SPOT_HYPE = 10150;
+    uint32 internal constant SPOT_HYPE = 10107;
     uint32 internal constant SPOT_STEEL = 10151;
     uint32 internal constant SPOT_RETARD = 10152;
     uint32 internal constant SPOT_HOLD = 10153;
