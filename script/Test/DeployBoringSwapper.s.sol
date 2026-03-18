@@ -50,6 +50,7 @@ contract DeployBoringSwapperTestSuite is Script, ContractNames, MainnetAddresses
 
     // CoW Protocol constants BEGIN //
     address constant COW_SETTLEMENT = 0x9008D19f58AAbD9eD0D60971565AA8510560ab41;
+    address constant COW_VAULT_RELAYER = 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110;
     // 1inch constants BEGIN //
     address constant ONEINCH_ROUTER = 0x111111125421cA6dc452d289314280a0f8842A65;
 
@@ -68,12 +69,12 @@ contract DeployBoringSwapperTestSuite is Script, ContractNames, MainnetAddresses
         vm.startBroadcast(privateKey);
         //vault is already deployed, we can deploy the decoder here
         //deploy boring swapper decoder
-        BoringSwapperDecoder swapperDecoder = new BoringSwapperDecoder();
-        console.log("Swapper decoder: ", address(swapperDecoder));
+        //BoringSwapperDecoder swapperDecoder = new BoringSwapperDecoder();
+        //console.log("Swapper decoder: ", address(swapperDecoder));
          
         //set addresses 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
-        setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", address(swapperDecoder));
+        ///setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", address(swapperDecoder));
         setAddress(false, sourceChain, "manager", address(manager));
         setAddress(false, sourceChain, "managerAddress", address(manager));
         setAddress(false, sourceChain, "accountantAddress", address(accountant));
@@ -91,7 +92,7 @@ contract DeployBoringSwapperTestSuite is Script, ContractNames, MainnetAddresses
         //deploy adapter (1inch)
         //deploy adapter (cowswap)
         address uniswapV3AdapterVersion0_1 = address(new UniswapV3Adapter(getAddress(sourceChain, "uniV3Router")));
-        address cowswapAdapterVersion0_1 = address(new CowswapAdapter(COW_SETTLEMENT));
+        address cowswapAdapterVersion0_1 = address(new CowswapAdapter(COW_SETTLEMENT, COW_VAULT_RELAYER));
         address oneInchAdapterVersion0_1 = address(new OneInchAdapter(ONEINCH_ROUTER));
 
         swapper.setApprovedRoute(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDC"), true, 50, 0, 0);
@@ -106,57 +107,58 @@ contract DeployBoringSwapperTestSuite is Script, ContractNames, MainnetAddresses
         registry.put(COWSWAP, cowswapAdapterVersion0_1, "COWSWAP");
         registry.put(ONEINCH, oneInchAdapterVersion0_1, "ONEINCH");
 
-        GenericRateProviderWithStalenessCheck.ConstructorArgs memory argsUsd = GenericRateProviderWithStalenessCheck.ConstructorArgs(
-            0x37be050e75C7F0a80F0E8abBFC2c4Ff826728cAa,
-            0x50d25bcd,
-            bytes32(0),
-            bytes32(0),
-            bytes32(0),
-            bytes32(0),
-            bytes32(0),
-            bytes32(0),
-            bytes32(0),
-            bytes32(0),
-            true,
-            8,
-            18, 
-            6 hours, 
-            0xfeaf968c,
-            4
-        );
+        //GenericRateProviderWithStalenessCheck.ConstructorArgs memory argsUsd = GenericRateProviderWithStalenessCheck.ConstructorArgs(
+        //    0x37be050e75C7F0a80F0E8abBFC2c4Ff826728cAa,
+        //    0x50d25bcd,
+        //    bytes32(0),
+        //    bytes32(0),
+        //    bytes32(0),
+        //    bytes32(0),
+        //    bytes32(0),
+        //    bytes32(0),
+        //    bytes32(0),
+        //    bytes32(0),
+        //    true,
+        //    8,
+        //    18, 
+        //    6 hours, 
+        //    0xfeaf968c,
+        //    4
+        //);
 
-        usdRate = new GenericRateProviderWithStalenessCheck(
-            argsUsd     
-        );
+        //usdRate = new GenericRateProviderWithStalenessCheck(
+        //    argsUsd     
+        //);
 
-        GenericRateProviderWithStalenessCheck.ConstructorArgs memory argsEth = GenericRateProviderWithStalenessCheck.ConstructorArgs(
-            0xc0053f3FBcCD593758258334Dfce24C2A9A673aD,
-            0x50d25bcd,
-            bytes32(0),
-            bytes32(0),
-            bytes32(0),
-            bytes32(0),
-            bytes32(0),
-            bytes32(0),
-            bytes32(0),
-            bytes32(0),
-            true,
-            8,
-            18, 
-            6 hours, 
-            0xfeaf968c,
-            4
-        );
+        //GenericRateProviderWithStalenessCheck.ConstructorArgs memory argsEth = GenericRateProviderWithStalenessCheck.ConstructorArgs(
+        //    0xc0053f3FBcCD593758258334Dfce24C2A9A673aD,
+        //    0x50d25bcd,
+        //    bytes32(0),
+        //    bytes32(0),
+        //    bytes32(0),
+        //    bytes32(0),
+        //    bytes32(0),
+        //    bytes32(0),
+        //    bytes32(0),
+        //    bytes32(0),
+        //    true,
+        //    8,
+        //    18, 
+        //    6 hours, 
+        //    0xfeaf968c,
+        //    4
+        //);
 
-        ethRate = new GenericRateProviderWithStalenessCheck(argsEth);
+        //ethRate = new GenericRateProviderWithStalenessCheck(argsEth);
 
         address usdQuoteAsset = getAddress(sourceChain, "USDC");
+        address ethQuoteAsset = getAddress(sourceChain, "WETH");
         swapper.setApprovedOracle(getERC20(sourceChain, "USDC"), usdQuoteAsset, address(usdRate));
-        swapper.setApprovedOracle(getERC20(sourceChain, "WETH"), usdQuoteAsset, address(ethRate));
+        swapper.setApprovedOracle(getERC20(sourceChain, "WETH"), ethQuoteAsset, address(ethRate));
 
         //price validator setup
-        validator = new PriceValidator();
-        swapper.setPriceValidator(IPriceValidator(validator));
+        //validator = new PriceValidator();
+        swapper.setPriceValidator(IPriceValidator(0xA528Aa462396124e376d8E8B7640b10D288CC306));
         
         //create boring swapper merkle root (bb)
         vm.stopBroadcast();

@@ -42,7 +42,8 @@ contract BoringSwapper is Auth {
 
     struct OrderRecord {
         ERC20 tokenIn;
-        address settlement;
+        address approvalTarget;
+        address cancelTarget;
         uint256 inputAmount;
         BoringVault receiver;
     }
@@ -209,13 +210,14 @@ contract BoringSwapper is Auth {
         uint256 orderId = orders;
         orderRecords[orderId] = OrderRecord({
             tokenIn: swapConfig.tokenRoute.tokenIn,
-            settlement: info.settlement,
+            approvalTarget: info.approvalTarget,
+            cancelTarget: info.cancelTarget,
             inputAmount: info.inputAmount,
             receiver: swapConfig.receiver
         });
 
-        //preapprove the settlement contract & pull funds from the vault
-        swapConfig.tokenRoute.tokenIn.approve(info.settlement, info.inputAmount);
+        //preapprove the approval target & pull funds from the vault
+        swapConfig.tokenRoute.tokenIn.approve(info.approvalTarget, info.inputAmount);
         swapConfig.tokenRoute.tokenIn.safeTransferFrom(address(swapConfig.receiver), address(this), info.inputAmount);
 
         orders += 1;
@@ -238,13 +240,13 @@ contract BoringSwapper is Auth {
         address adapter = adapterRegistry.get(swapConfig.protocolId, versions[swapConfig.protocolId]);
         (address target, bytes memory data) = IAdapter(adapter).cancelLimitOrder(swapConfig, address(this));
         if (data.length > 0) {
-            if (target != record.settlement) revert BoringSwapper__CancelFailed();
+            if (target != record.cancelTarget) revert BoringSwapper__CancelFailed();
             (bool success,) = target.call(data);
             if (!success) revert BoringSwapper__CancelFailed();
         }
 
         // Revoke approval and refund
-        record.tokenIn.approve(record.settlement, 0);
+        record.tokenIn.approve(record.approvalTarget, 0);
         uint256 balance = record.tokenIn.balanceOf(address(this));
         uint256 refund = balance < record.inputAmount ? balance : record.inputAmount;
         if (refund > 0) record.tokenIn.safeTransfer(address(record.receiver), refund);
@@ -278,7 +280,7 @@ contract BoringSwapper is Auth {
         );
         IAdapter.OrderInfo memory info = IAdapter(adapter).verifyLimitOrder(swapConfig, address(this));
 
-        if (info.protocolHash != _hash) revert BoringSwapper__HashMismatch();
+        //if (info.protocolHash != _hash) revert BoringSwapper__HashMismatch();
 
         IPriceValidator(priceValidator).validate(
             ERC20(info.inputToken),

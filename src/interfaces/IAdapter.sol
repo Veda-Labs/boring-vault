@@ -10,7 +10,8 @@ import {BoringSwapper} from "src/base/Periphery/BoringSwapper.sol";
 interface IAdapter {
 
     struct OrderInfo {
-        address settlement;
+        address approvalTarget;
+        address cancelTarget;
         address inputToken;
         address outputToken;
         uint256 inputAmount;

@@ -100,7 +100,8 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         bytes32 orderHash = _computeOrderHash(swapConfig.swapData);
 
         return OrderInfo({
-            settlement: ROUTER,
+            approvalTarget: ROUTER,
+            cancelTarget: ROUTER,
             inputToken: order.makerAsset,
             outputToken: order.takerAsset,
             inputAmount: order.makingAmount,

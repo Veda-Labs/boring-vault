@@ -18,13 +18,15 @@ interface IDomainSeparator {
 contract CowswapAdapter is IAdapter {
 
     address immutable cowSettlement;
+    address immutable vaultRelayer;
 
     bytes32 constant GPV2_ORDER_TYPE_HASH = keccak256(
         "Order(address sellToken,address buyToken,address receiver,uint256 sellAmount,uint256 buyAmount,uint32 validTo,bytes32 appData,uint256 feeAmount,bytes32 kind,bool partiallyFillable,bytes32 sellTokenBalance,bytes32 buyTokenBalance)"
     );
 
-    constructor(address _cowSettlement) {
+    constructor(address _cowSettlement, address _vaultRelayer) {
         cowSettlement = _cowSettlement;
+        vaultRelayer = _vaultRelayer;
     }
 
     function verifyLimitOrder(BoringSwapper.SwapConfig calldata swapConfig, address) external view returns (OrderInfo memory) {
@@ -38,7 +40,8 @@ contract CowswapAdapter is IAdapter {
          bytes32 orderHash = _computeOrderHash(swapConfig.swapData);
 
          return OrderInfo({
-             settlement: cowSettlement,
+             approvalTarget: vaultRelayer,
+             cancelTarget: cowSettlement,
              inputToken: order.sellToken,
              outputToken: order.buyToken,
              inputAmount: order.sellAmount,

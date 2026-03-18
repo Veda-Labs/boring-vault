@@ -50,7 +50,8 @@ contract UniswapV3Adapter is IAdapter, BaseAdapter {
 
     function verifyLimitOrder(BoringSwapper.SwapConfig calldata swapConfig, address) external view returns (OrderInfo memory) {
         return OrderInfo({
-            settlement: address(0),
+            approvalTarget: address(0),
+            cancelTarget: address(0),
             inputToken: address(0),
             outputToken: address(0),
             inputAmount: 0,
