@@ -5,7 +5,7 @@
 pragma solidity 0.8.21;
 
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {DepositParams, ComplianceData} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import {DepositParams, ComplianceData, RewardData} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 
 contract TellerDecoderAndSanitizer {
     //============================== ERRORS ===============================
@@ -96,6 +96,32 @@ contract TellerDecoderAndSanitizer {
         returns (bytes memory addressesFound)
     {
         addressesFound = abi.encodePacked(withdrawAsset, to);
+    }
+
+    function withdrawWithRewards(
+        address withdrawAsset,
+        uint256,
+        /*shareAmount*/
+        uint256,
+        /*minimumAssets*/
+        address to,
+        RewardData[] calldata rewards
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
+        addressesFound = abi.encodePacked(withdrawAsset, to);
+        for (uint256 i; i < rewards.length; ++i) {
+            addressesFound = abi.encodePacked(addressesFound, rewards[i].pool);
+        }
+    }
+
+    function claimRewards(RewardData[] calldata rewards) external pure virtual returns (bytes memory addressesFound) {
+        for (uint256 i; i < rewards.length; ++i) {
+            addressesFound = abi.encodePacked(addressesFound, rewards[i].pool);
+        }
     }
 
     // BoringOnChainQueue.sol
