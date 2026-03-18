@@ -149,11 +149,11 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
         WETH.safeApprove(address(boringVault), wETH_amount);
         EETH.safeApprove(address(boringVault), eETH_amount);
-        uint256 shares0 = teller.deposit(DepositParams(WETH, wETH_amount, 0), referrer, ComplianceData(0, ""));
+        uint256 shares0 = teller.deposit(DepositParams(WETH, wETH_amount, 0, address(0)), referrer, ComplianceData(0, ""));
         uint256 firstDepositTimestamp = block.timestamp;
         // Skip 1 days to finalize first deposit.
         skip(1 days + 1);
-        uint256 shares1 = teller.deposit(DepositParams(EETH, eETH_amount, 0), referrer, ComplianceData(0, ""));
+        uint256 shares1 = teller.deposit(DepositParams(EETH, eETH_amount, 0, address(0)), referrer, ComplianceData(0, ""));
         uint256 secondDepositTimestamp = block.timestamp;
 
         // Even if setShareLockPeriod is set to 2 days, first deposit is still not revertable.
@@ -195,9 +195,9 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
         uint96 currentNonce = teller.depositNonce();
 
-        teller.deposit(DepositParams(WETH, wETH_amount, 0), referrer, ComplianceData(0, ""));
+        teller.deposit(DepositParams(WETH, wETH_amount, 0, address(0)), referrer, ComplianceData(0, ""));
         assertEq(teller.depositNonce(), currentNonce + 1, "Deposit nonce should have increased by 1");
-        teller.deposit(DepositParams(EETH, eETH_amount, 0), referrer, ComplianceData(0, ""));
+        teller.deposit(DepositParams(EETH, eETH_amount, 0, address(0)), referrer, ComplianceData(0, ""));
         assertEq(teller.depositNonce(), currentNonce + 2, "Deposit nonce should have increased by 2");
         assertEq(teller.depositNonce(), 2, "Deposit nonce should be 2");
 
@@ -214,7 +214,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
         WEETH.safeApprove(address(boringVault), weETH_amount);
 
-        teller.deposit(DepositParams(WEETH, weETH_amount, 0), referrer, ComplianceData(0, ""));
+        teller.deposit(DepositParams(WEETH, weETH_amount, 0, address(0)), referrer, ComplianceData(0, ""));
 
         uint256 expected_shares = amount;
 
@@ -228,7 +228,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
         deal(address(this), 2 * amount);
 
-        teller.deposit{value: amount}(DepositParams(ERC20(NATIVE), 0, 0), referrer, ComplianceData(0, ""));
+        teller.deposit{value: amount}(DepositParams(ERC20(NATIVE), 0, 0, address(0)), referrer, ComplianceData(0, ""));
 
         assertEq(boringVault.balanceOf(address(this)), amount, "Should have received expected shares");
     }
@@ -241,7 +241,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         // targets a non-contract address.
         vm.expectRevert();
         teller.depositWithPermit(
-            DepositParams(NATIVE_ERC20, amount, 0),
+            DepositParams(NATIVE_ERC20, amount, 0, address(0)),
             PermitData(block.timestamp, 0, bytes32(0), bytes32(0)),
             referrer,
             ComplianceData(0, "")
@@ -277,7 +277,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
         vm.startPrank(user);
         teller.depositWithPermit(
-            DepositParams(WEETH, weETH_amount, 0), PermitData(block.timestamp, v, r, s), referrer, ComplianceData(0, "")
+            DepositParams(WEETH, weETH_amount, 0, address(0)), PermitData(block.timestamp, v, r, s), referrer, ComplianceData(0, "")
         );
         vm.stopPrank();
 
@@ -307,7 +307,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
             )
         );
         teller.depositWithPermit(
-            DepositParams(WEETH, weETH_amount, 0), PermitData(block.timestamp, v, r, s), referrer, ComplianceData(0, "")
+            DepositParams(WEETH, weETH_amount, 0, address(0)), PermitData(block.timestamp, v, r, s), referrer, ComplianceData(0, "")
         );
         vm.stopPrank();
     }
@@ -348,7 +348,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         // Users TX is still successful.
         vm.startPrank(user);
         teller.depositWithPermit(
-            DepositParams(WEETH, weETH_amount, 0), PermitData(block.timestamp, v, r, s), referrer, ComplianceData(0, "")
+            DepositParams(WEETH, weETH_amount, 0, address(0)), PermitData(block.timestamp, v, r, s), referrer, ComplianceData(0, "")
         );
         vm.stopPrank();
 
@@ -419,7 +419,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         vm.startPrank(user);
         WETH.safeApprove(address(boringVault), wETH_amount);
 
-        uint256 shares = teller.deposit(DepositParams(WETH, wETH_amount, 0), referrer, ComplianceData(0, ""));
+        uint256 shares = teller.deposit(DepositParams(WETH, wETH_amount, 0, address(0)), referrer, ComplianceData(0, ""));
 
         // Share lock period is not set, so user can submit withdraw request immediately.
         AtomicQueue.AtomicRequest memory req = AtomicQueue.AtomicRequest({
@@ -588,7 +588,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         WETH.approve(address(boringVault), depositAmount);
 
         uint256 shareDelta = boringVault.balanceOf(address(this));
-        uint256 sharesOut = teller.deposit(DepositParams(WETH, depositAmount, 0), referrer, ComplianceData(0, ""));
+        uint256 sharesOut = teller.deposit(DepositParams(WETH, depositAmount, 0, address(0)), referrer, ComplianceData(0, ""));
         shareDelta = boringVault.balanceOf(address(this)) - shareDelta;
 
         // WETH is 1:1 with share price, so shares out should equal depositAmount - sharePremium
@@ -609,7 +609,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
         uint256 shareDelta = boringVault.balanceOf(address(this));
         uint256 sharesOut =
-            teller.deposit{value: depositAmount}(DepositParams(ERC20(NATIVE), 0, 0), referrer, ComplianceData(0, ""));
+            teller.deposit{value: depositAmount}(DepositParams(ERC20(NATIVE), 0, 0, address(0)), referrer, ComplianceData(0, ""));
         shareDelta = boringVault.balanceOf(address(this)) - shareDelta;
 
         // ETH is 1:1 with share price, so shares out should equal depositAmount - sharePremium
@@ -632,7 +632,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
                 )
             )
         );
-        teller.deposit(DepositParams(WETH, 0, 0), referrer, ComplianceData(0, ""));
+        teller.deposit(DepositParams(WETH, 0, 0, address(0)), referrer, ComplianceData(0, ""));
 
         // Allow deposits
         teller.updateAssetData(WETH, true, false, 0);
@@ -640,7 +640,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             bytes(abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ZeroAssets.selector))
         );
-        teller.deposit(DepositParams(WETH, 0, 0), referrer, ComplianceData(0, ""));
+        teller.deposit(DepositParams(WETH, 0, 0, address(0)), referrer, ComplianceData(0, ""));
 
         // Stop deposits.
         teller.updateAssetData(WETH, false, false, 0);
@@ -653,7 +653,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
             )
         );
         teller.depositWithPermit(
-            DepositParams(WETH, 0, 0), PermitData(0, 0, bytes32(0), bytes32(0)), referrer, ComplianceData(0, "")
+            DepositParams(WETH, 0, 0, address(0)), PermitData(0, 0, bytes32(0), bytes32(0)), referrer, ComplianceData(0, "")
         );
 
         // Allow deposits
@@ -663,7 +663,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
             bytes(abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ZeroAssets.selector))
         );
         teller.depositWithPermit(
-            DepositParams(WETH, 0, 0), PermitData(0, 0, bytes32(0), bytes32(0)), referrer, ComplianceData(0, "")
+            DepositParams(WETH, 0, 0, address(0)), PermitData(0, 0, bytes32(0), bytes32(0)), referrer, ComplianceData(0, "")
         );
 
         // Stop deposits.
@@ -733,9 +733,9 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         // can deposit multiple times in a row without share lock blocking
         deal(address(WETH), address(this), 1e18);
         WETH.safeApprove(address(boringVault), 1e18);
-        teller.deposit(DepositParams(WETH, 0.1e18, 0), referrer, ComplianceData(0, ""));
+        teller.deposit(DepositParams(WETH, 0.1e18, 0, address(0)), referrer, ComplianceData(0, ""));
         skip(100);
-        teller.deposit(DepositParams(WETH, 0.1e18, 0), referrer, ComplianceData(0, ""));
+        teller.deposit(DepositParams(WETH, 0.1e18, 0, address(0)), referrer, ComplianceData(0, ""));
     }
 
     function testDepositRevertsWhenDenyFrom() external {
@@ -748,7 +748,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
                 address(this)
             )
         );
-        teller.deposit(DepositParams(WETH, 1e18, 0), referrer, ComplianceData(0, ""));
+        teller.deposit(DepositParams(WETH, 1e18, 0, address(0)), referrer, ComplianceData(0, ""));
     }
 
     function testDepositRevertsWhenDenyTo() external {
@@ -761,7 +761,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
                 address(this)
             )
         );
-        teller.deposit(DepositParams(WETH, 1e18, 0), referrer, ComplianceData(0, ""));
+        teller.deposit(DepositParams(WETH, 1e18, 0, address(0)), referrer, ComplianceData(0, ""));
     }
 
     function testDepositRevertsWhenDenyOperator() external {
@@ -774,7 +774,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
                 address(this)
             )
         );
-        teller.deposit(DepositParams(WETH, 1e18, 0), referrer, ComplianceData(0, ""));
+        teller.deposit(DepositParams(WETH, 1e18, 0, address(0)), referrer, ComplianceData(0, ""));
     }
 
     function testDepositRevertsWhenDenyAll() external {
@@ -787,7 +787,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
                 address(this)
             )
         );
-        teller.deposit(DepositParams(WETH, 1e18, 0), referrer, ComplianceData(0, ""));
+        teller.deposit(DepositParams(WETH, 1e18, 0, address(0)), referrer, ComplianceData(0, ""));
     }
 
     function testReverts() external {
@@ -797,13 +797,13 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__Paused.selector)
         );
-        teller.deposit(DepositParams(WETH, 0, 0), referrer, ComplianceData(0, ""));
+        teller.deposit(DepositParams(WETH, 0, 0, address(0)), referrer, ComplianceData(0, ""));
 
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__Paused.selector)
         );
         teller.depositWithPermit(
-            DepositParams(WETH, 0, 0), PermitData(0, 0, bytes32(0), bytes32(0)), referrer, ComplianceData(0, "")
+            DepositParams(WETH, 0, 0, address(0)), PermitData(0, 0, bytes32(0), bytes32(0)), referrer, ComplianceData(0, "")
         );
 
         teller.unpause();
@@ -813,34 +813,34 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__AssetNotSupported.selector)
         );
-        teller.deposit(DepositParams(WETH, 0, 0), referrer, ComplianceData(0, ""));
+        teller.deposit(DepositParams(WETH, 0, 0, address(0)), referrer, ComplianceData(0, ""));
 
         teller.updateAssetData(WETH, true, true, 0);
 
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ZeroAssets.selector)
         );
-        teller.deposit(DepositParams(WETH, 0, 0), referrer, ComplianceData(0, ""));
+        teller.deposit(DepositParams(WETH, 0, 0, address(0)), referrer, ComplianceData(0, ""));
 
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__DualDeposit.selector)
         );
-        teller.deposit{value: 1}(DepositParams(WETH, 1, 0), referrer, ComplianceData(0, ""));
+        teller.deposit{value: 1}(DepositParams(WETH, 1, 0, address(0)), referrer, ComplianceData(0, ""));
 
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__MinimumMintNotMet.selector)
         );
-        teller.deposit(DepositParams(WETH, 1, type(uint256).max), referrer, ComplianceData(0, ""));
+        teller.deposit(DepositParams(WETH, 1, type(uint256).max, address(0)), referrer, ComplianceData(0, ""));
 
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ZeroAssets.selector)
         );
-        teller.deposit(DepositParams(NATIVE_ERC20, 0, 0), referrer, ComplianceData(0, ""));
+        teller.deposit(DepositParams(NATIVE_ERC20, 0, 0, address(0)), referrer, ComplianceData(0, ""));
 
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__MinimumMintNotMet.selector)
         );
-        teller.deposit{value: 1}(DepositParams(NATIVE_ERC20, 1, type(uint256).max), referrer, ComplianceData(0, ""));
+        teller.deposit{value: 1}(DepositParams(NATIVE_ERC20, 1, type(uint256).max, address(0)), referrer, ComplianceData(0, ""));
 
         // updateAssetData revert
         vm.expectRevert(
@@ -892,7 +892,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         deal(address(WETH), user, wETH_amount);
         WETH.safeApprove(address(boringVault), wETH_amount);
 
-        teller.deposit(DepositParams(WETH, wETH_amount, 0), referrer, ComplianceData(0, ""));
+        teller.deposit(DepositParams(WETH, wETH_amount, 0, address(0)), referrer, ComplianceData(0, ""));
 
         // Trying to transfer shares should revert.
         vm.expectRevert(
@@ -918,7 +918,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__DepositExceedsCap.selector)
         );
-        teller.deposit(DepositParams(WETH, wETH_amount, 0), referrer, ComplianceData(0, ""));
+        teller.deposit(DepositParams(WETH, wETH_amount, 0, address(0)), referrer, ComplianceData(0, ""));
 
         //now succeeds
         teller.setDepositCap(1000e18);
@@ -927,13 +927,13 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         wETH_amount = 998e18;
         vm.startPrank(user);
         WETH.approve(address(boringVault), type(uint256).max);
-        teller.deposit(DepositParams(WETH, wETH_amount, 0), referrer, ComplianceData(0, ""));
+        teller.deposit(DepositParams(WETH, wETH_amount, 0, address(0)), referrer, ComplianceData(0, ""));
 
         //now we add more than deposit cap
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__DepositExceedsCap.selector)
         );
-        teller.deposit(DepositParams(WETH, 2e18, 0), referrer, ComplianceData(0, ""));
+        teller.deposit(DepositParams(WETH, 2e18, 0, address(0)), referrer, ComplianceData(0, ""));
     }
 
     // ========================================= HELPER FUNCTIONS =========================================
@@ -946,7 +946,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     function depositAndTransfer(ERC20 asset, uint256 depositAmount, address to, bool expectRevert) public {
         deal(address(asset), address(this), depositAmount);
         asset.approve(address(boringVault), depositAmount);
-        uint256 shares = teller.deposit(DepositParams(asset, depositAmount, 0), referrer, ComplianceData(0, ""));
+        uint256 shares = teller.deposit(DepositParams(asset, depositAmount, 0, address(0)), referrer, ComplianceData(0, ""));
         if (expectRevert) {
             vm.expectRevert(
                 bytes(
@@ -984,7 +984,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         WETH.safeApprove(address(boringVault), wETH_amount);
         vm.expectEmit();
         emit Deposit(1, address(this), address(WETH), wETH_amount, wETH_amount, block.timestamp, 0, referrer);
-        teller.deposit(DepositParams(WETH, wETH_amount, 0), referrer, ComplianceData(0, ""));
+        teller.deposit(DepositParams(WETH, wETH_amount, 0, address(0)), referrer, ComplianceData(0, ""));
     }
 
     // ======================================= COMPLIANCE TESTS =======================================
@@ -1028,7 +1028,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         bytes memory signature = abi.encodePacked(r, s, v);
 
         uint256 shares =
-            teller.deposit(DepositParams(WETH, depositAmount, 0), referrer, ComplianceData(deadline, signature));
+            teller.deposit(DepositParams(WETH, depositAmount, 0, address(0)), referrer, ComplianceData(deadline, signature));
 
         assertEq(shares, depositAmount, "Should have received expected shares");
         assertTrue(teller.usedComplianceSignatures(messageHash), "Compliance signature should be marked as used");
@@ -1052,7 +1052,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         bytes memory signature = abi.encodePacked(r, s, v);
 
         // First deposit succeeds.
-        teller.deposit(DepositParams(WETH, depositAmount, 0), referrer, ComplianceData(deadline, signature));
+        teller.deposit(DepositParams(WETH, depositAmount, 0, address(0)), referrer, ComplianceData(deadline, signature));
 
         // Second deposit with same signature reverts.
         vm.expectRevert(
@@ -1060,7 +1060,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
                 TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
             )
         );
-        teller.deposit(DepositParams(WETH, depositAmount, 0), referrer, ComplianceData(deadline, signature));
+        teller.deposit(DepositParams(WETH, depositAmount, 0, address(0)), referrer, ComplianceData(deadline, signature));
     }
 
     function testComplianceSignatureExpiredReverts() external {
@@ -1086,7 +1086,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
                 TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
             )
         );
-        teller.deposit(DepositParams(WETH, depositAmount, 0), referrer, ComplianceData(deadline, signature));
+        teller.deposit(DepositParams(WETH, depositAmount, 0, address(0)), referrer, ComplianceData(deadline, signature));
     }
 
     function testComplianceWindowExceededReverts() external {
@@ -1116,7 +1116,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
                 TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
             )
         );
-        teller.deposit(DepositParams(WETH, depositAmount, 0), referrer, ComplianceData(deadline, signature));
+        teller.deposit(DepositParams(WETH, depositAmount, 0, address(0)), referrer, ComplianceData(deadline, signature));
     }
 
     function testComplianceWindowRelativeNotAbsolute() external {
@@ -1144,7 +1144,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         bytes memory signature = abi.encodePacked(r, s, v);
 
         // Should NOT revert -- deadline is within the window.
-        teller.deposit(DepositParams(WETH, depositAmount, 0), referrer, ComplianceData(deadline, signature));
+        teller.deposit(DepositParams(WETH, depositAmount, 0, address(0)), referrer, ComplianceData(deadline, signature));
     }
 
     function testComplianceWindowSmallValueDoesNotBlockDeposits() external {
@@ -1174,7 +1174,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         bytes memory signature = abi.encodePacked(r, s, v);
 
         // Should succeed -- deadline is within the window.
-        teller.deposit(DepositParams(WETH, depositAmount, 0), referrer, ComplianceData(deadline, signature));
+        teller.deposit(DepositParams(WETH, depositAmount, 0, address(0)), referrer, ComplianceData(deadline, signature));
     }
 
     function testComplianceDisabledWhenSignerIsZero() external {
@@ -1186,7 +1186,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         WETH.safeApprove(address(boringVault), depositAmount);
 
         // Deposit with empty compliance data succeeds when signer is zero.
-        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0), referrer, ComplianceData(0, ""));
+        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0, address(0)), referrer, ComplianceData(0, ""));
         assertEq(shares, depositAmount, "Should have received expected shares with compliance disabled");
     }
 }

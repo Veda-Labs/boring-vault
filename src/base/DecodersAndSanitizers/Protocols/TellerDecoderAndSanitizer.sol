@@ -79,7 +79,7 @@ contract TellerDecoderAndSanitizer {
         virtual
         returns (bytes memory addressesFound)
     {
-        addressesFound = abi.encodePacked(address(params.depositAsset), referrer);
+        addressesFound = abi.encodePacked(address(params.depositAsset), params.to, referrer);
     }
 
     function withdraw(

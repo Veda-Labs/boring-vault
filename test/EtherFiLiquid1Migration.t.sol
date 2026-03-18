@@ -308,7 +308,7 @@ contract EtherFiLiquid1MigrationTest is Test, MerkleTreeHelper {
         // TODO: Update fork test deposit calls to match new struct-based teller signatures
         // Also check that BoringVault deposits fail.
         // vm.expectRevert(bytes("UNAUTHORIZED"));
-        // teller.deposit(DepositParams(WETH, 1, 0), address(0), ComplianceData(0, ""));
+        // teller.deposit(DepositParams(WETH, 1, 0, address(0)), address(0), ComplianceData(0, ""));
 
         // Registry multisig
         // - Trusts the liquid migration adaptor and position
@@ -403,7 +403,7 @@ contract EtherFiLiquid1MigrationTest is Test, MerkleTreeHelper {
         // Users can now deposit into the BoringVault.
         // deal(address(WETH), user, 1e18);
         // WETH.safeApprove(address(boringVault), 1e18);
-        // uint256 sharesOut = teller.deposit(DepositParams(WETH, 1e18, 0), address(0), ComplianceData(0, ""));
+        // uint256 sharesOut = teller.deposit(DepositParams(WETH, 1e18, 0, address(0)), address(0), ComplianceData(0, ""));
         // uint256 sharesOut = ...;
         // assertApproxEqRel(
         //     sharesOut, etherFiLiquid1.previewDeposit(1e18), 0.0001e18, "Shares minted should match preview mint."

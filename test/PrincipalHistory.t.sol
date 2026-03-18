@@ -10,9 +10,9 @@ import {
     TellerWithMultiAssetSupport,
     DepositParams,
     ComplianceData,
-    PermitData,
-    PrincipalCheckpoint
+    PermitData
 } from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import {PrincipalCheckpoint} from "src/base/Roles/TellerWithMultiAssetSupportLib.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
@@ -93,7 +93,7 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
 
         vm.startPrank(user);
         WETH.safeApprove(address(boringVault), amount);
-        teller.deposit(DepositParams(WETH, amount, 0), address(0), ComplianceData(0, ""));
+        teller.deposit(DepositParams(WETH, amount, 0, address(0)), address(0), ComplianceData(0, ""));
         vm.stopPrank();
 
         PrincipalCheckpoint[] memory history = teller.getPrincipalHistory(user);
@@ -114,8 +114,8 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
 
         vm.startPrank(user);
         WETH.safeApprove(address(boringVault), amount1 + amount2);
-        teller.deposit(DepositParams(WETH, amount1, 0), address(0), ComplianceData(0, ""));
-        teller.deposit(DepositParams(WETH, amount2, 0), address(0), ComplianceData(0, ""));
+        teller.deposit(DepositParams(WETH, amount1, 0, address(0)), address(0), ComplianceData(0, ""));
+        teller.deposit(DepositParams(WETH, amount2, 0, address(0)), address(0), ComplianceData(0, ""));
         vm.stopPrank();
 
         PrincipalCheckpoint[] memory history = teller.getPrincipalHistory(user);
@@ -138,7 +138,8 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
 
         vm.startPrank(user);
         WETH.safeApprove(address(boringVault), depositAmount);
-        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0), address(0), ComplianceData(0, ""));
+        uint256 shares =
+            teller.deposit(DepositParams(WETH, depositAmount, 0, address(0)), address(0), ComplianceData(0, ""));
 
         // Withdraw half the shares
         uint256 halfShares = shares / 2;
@@ -166,7 +167,8 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
 
         vm.startPrank(user);
         WETH.safeApprove(address(boringVault), depositAmount);
-        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0), address(0), ComplianceData(0, ""));
+        uint256 shares =
+            teller.deposit(DepositParams(WETH, depositAmount, 0, address(0)), address(0), ComplianceData(0, ""));
 
         // Withdraw all shares
         teller.withdraw(WETH, shares, 0, user);
@@ -205,6 +207,40 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         assertEq(history.length, 0, "bulkWithdraw should not create checkpoint (no deposit history)");
     }
 
+    // ========================================= REFUND DEPOSIT CHECKPOINT TEST =========================================
+
+    function testPrincipalHistory_RefundDepositCheckpoint() external {
+        teller.setShareLockPeriod(2 days);
+
+        uint256 amount = 1e18;
+        deal(address(WETH), user, amount);
+        uint256 depositTimestamp = block.timestamp;
+
+        vm.startPrank(user);
+        WETH.safeApprove(address(boringVault), amount);
+        uint256 shares = teller.deposit(DepositParams(WETH, amount, 0, address(0)), address(0), ComplianceData(0, ""));
+        vm.stopPrank();
+
+        // Verify deposit checkpoint exists
+        PrincipalCheckpoint[] memory history = teller.getPrincipalHistory(user);
+        assertEq(history.length, 1, "one deposit checkpoint");
+        assertEq(history[0].cumulativeDeposits, uint104(amount), "deposit recorded");
+        assertEq(history[0].cumulativeWithdrawals, 0, "no withdrawals yet");
+
+        // Refund the deposit (still within 2-day lock period)
+        uint256 nonce = teller.depositNonce();
+        teller.refundDeposit(nonce, user, address(WETH), amount, shares, depositTimestamp, 2 days, address(0));
+
+        // Verify refund appended a withdrawal checkpoint
+        history = teller.getPrincipalHistory(user);
+        assertEq(history.length, 2, "deposit + refund checkpoints");
+        assertEq(history[1].cumulativeDeposits, uint104(amount), "deposits unchanged by refund");
+        assertTrue(
+            history[1].cumulativeWithdrawals >= history[1].cumulativeDeposits,
+            "full refund: withdrawals >= deposits (no phantom principal)"
+        );
+    }
+
     // ========================================= ROUNDING TESTS =========================================
 
     function _setRate(uint96 newRate) internal {
@@ -230,7 +266,7 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
 
         vm.startPrank(user);
         WETH.safeApprove(address(boringVault), amount);
-        uint256 shares = teller.deposit(DepositParams(WETH, amount, 0), address(0), ComplianceData(0, ""));
+        uint256 shares = teller.deposit(DepositParams(WETH, amount, 0, address(0)), address(0), ComplianceData(0, ""));
 
         teller.withdraw(WETH, shares, 0, user);
         vm.stopPrank();
@@ -252,7 +288,7 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
 
         vm.startPrank(user);
         WETH.safeApprove(address(boringVault), amount);
-        uint256 shares = teller.deposit(DepositParams(WETH, amount, 0), address(0), ComplianceData(0, ""));
+        uint256 shares = teller.deposit(DepositParams(WETH, amount, 0, address(0)), address(0), ComplianceData(0, ""));
         vm.stopPrank();
 
         PrincipalCheckpoint[] memory afterDeposit = teller.getPrincipalHistory(user);
@@ -281,7 +317,8 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
 
             vm.startPrank(user);
             WETH.safeApprove(address(boringVault), amount);
-            uint256 shares = teller.deposit(DepositParams(WETH, amount, 0), address(0), ComplianceData(0, ""));
+            uint256 shares =
+                teller.deposit(DepositParams(WETH, amount, 0, address(0)), address(0), ComplianceData(0, ""));
             teller.withdraw(WETH, shares, 0, user);
             vm.stopPrank();
         }
@@ -301,7 +338,7 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
 
         vm.startPrank(user);
         WETH.safeApprove(address(boringVault), amount);
-        uint256 shares = teller.deposit(DepositParams(WETH, amount, 0), address(0), ComplianceData(0, ""));
+        uint256 shares = teller.deposit(DepositParams(WETH, amount, 0, address(0)), address(0), ComplianceData(0, ""));
         vm.stopPrank();
 
         PrincipalCheckpoint[] memory afterDeposit = teller.getPrincipalHistory(user);
@@ -331,7 +368,7 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
 
         vm.startPrank(user);
         WETH.safeApprove(address(boringVault), amount);
-        uint256 shares = teller.deposit(DepositParams(WETH, amount, 0), address(0), ComplianceData(0, ""));
+        uint256 shares = teller.deposit(DepositParams(WETH, amount, 0, address(0)), address(0), ComplianceData(0, ""));
 
         // Withdraw 1/3 of shares — guaranteed rounding
         uint256 withdrawShares = shares / 3;
@@ -363,14 +400,16 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         deal(address(WETH), alice, aliceDeposit);
         vm.startPrank(alice);
         WETH.safeApprove(address(boringVault), aliceDeposit);
-        uint256 aliceShares = teller.deposit(DepositParams(WETH, aliceDeposit, 0), address(0), ComplianceData(0, ""));
+        uint256 aliceShares =
+            teller.deposit(DepositParams(WETH, aliceDeposit, 0, address(0)), address(0), ComplianceData(0, ""));
         vm.stopPrank();
 
         // Bob deposits 50
         deal(address(WETH), bob, bobDeposit);
         vm.startPrank(bob);
         WETH.safeApprove(address(boringVault), bobDeposit);
-        uint256 bobShares = teller.deposit(DepositParams(WETH, bobDeposit, 0), address(0), ComplianceData(0, ""));
+        uint256 bobShares =
+            teller.deposit(DepositParams(WETH, bobDeposit, 0, address(0)), address(0), ComplianceData(0, ""));
         vm.stopPrank();
 
         // Simulate rewards accrual: rate goes from 1.0 to 1.1
@@ -440,7 +479,8 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         deal(address(WETH), bob, 100e18);
         vm.startPrank(bob);
         WETH.safeApprove(address(boringVault), 100e18);
-        uint256 bobShares = teller.deposit(DepositParams(WETH, 100e18, 0), address(0), ComplianceData(0, ""));
+        uint256 bobShares =
+            teller.deposit(DepositParams(WETH, 100e18, 0, address(0)), address(0), ComplianceData(0, ""));
         vm.stopPrank();
 
         // Bob transfers to Alice (who never deposited)
@@ -470,14 +510,16 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         deal(address(WETH), alice, aliceDeposit);
         vm.startPrank(alice);
         WETH.safeApprove(address(boringVault), aliceDeposit);
-        uint256 aliceShares = teller.deposit(DepositParams(WETH, aliceDeposit, 0), address(0), ComplianceData(0, ""));
+        uint256 aliceShares =
+            teller.deposit(DepositParams(WETH, aliceDeposit, 0, address(0)), address(0), ComplianceData(0, ""));
         vm.stopPrank();
 
         // Bob deposits 50
         deal(address(WETH), bob, bobDeposit);
         vm.startPrank(bob);
         WETH.safeApprove(address(boringVault), bobDeposit);
-        uint256 bobShares = teller.deposit(DepositParams(WETH, bobDeposit, 0), address(0), ComplianceData(0, ""));
+        uint256 bobShares =
+            teller.deposit(DepositParams(WETH, bobDeposit, 0, address(0)), address(0), ComplianceData(0, ""));
         vm.stopPrank();
 
         // Simulate 10% yield: rate goes from 1.0 to 1.1
@@ -550,7 +592,7 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         deal(address(WETH), alice, depositAmount);
         vm.startPrank(alice);
         WETH.safeApprove(address(boringVault), depositAmount);
-        teller.deposit(DepositParams(WETH, depositAmount, 0), address(0), ComplianceData(0, ""));
+        teller.deposit(DepositParams(WETH, depositAmount, 0, address(0)), address(0), ComplianceData(0, ""));
         vm.stopPrank();
 
         // Bob deposits at t0 + 3 days
@@ -558,7 +600,7 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         deal(address(WETH), bob, depositAmount);
         vm.startPrank(bob);
         WETH.safeApprove(address(boringVault), depositAmount);
-        teller.deposit(DepositParams(WETH, depositAmount, 0), address(0), ComplianceData(0, ""));
+        teller.deposit(DepositParams(WETH, depositAmount, 0, address(0)), address(0), ComplianceData(0, ""));
         vm.stopPrank();
 
         // Simulate backend reward calculation at rewardPeriodEnd
@@ -593,7 +635,7 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         deal(address(WETH), alice, 100e18);
         vm.startPrank(alice);
         WETH.safeApprove(address(boringVault), 100e18);
-        teller.deposit(DepositParams(WETH, 100e18, 0), address(0), ComplianceData(0, ""));
+        teller.deposit(DepositParams(WETH, 100e18, 0, address(0)), address(0), ComplianceData(0, ""));
         vm.stopPrank();
 
         // Day 1: Bob deposits 50 WETH at rate 1.0
@@ -601,7 +643,7 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         deal(address(WETH), bob, 50e18);
         vm.startPrank(bob);
         WETH.safeApprove(address(boringVault), 50e18);
-        teller.deposit(DepositParams(WETH, 50e18, 0), address(0), ComplianceData(0, ""));
+        teller.deposit(DepositParams(WETH, 50e18, 0, address(0)), address(0), ComplianceData(0, ""));
         vm.stopPrank();
 
         // Day 3: Rate increases to 1.1 (yield accrual)
@@ -702,7 +744,7 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         vm.deal(user, amount);
 
         vm.prank(user);
-        teller.deposit{value: amount}(DepositParams(ERC20(NATIVE), 0, 0), address(0), ComplianceData(0, ""));
+        teller.deposit{value: amount}(DepositParams(ERC20(NATIVE), 0, 0, address(0)), address(0), ComplianceData(0, ""));
 
         PrincipalCheckpoint[] memory history = teller.getPrincipalHistory(user);
         assertEq(history.length, 1, "native deposit creates checkpoint");

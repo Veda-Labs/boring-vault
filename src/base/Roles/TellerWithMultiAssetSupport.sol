@@ -15,14 +15,14 @@ import {IBufferHelper} from "src/interfaces/IBufferHelper.sol";
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {ReentrancyGuard} from "@solmate/utils/ReentrancyGuard.sol";
 import {IPausable} from "src/interfaces/IPausable.sol";
-import {TellerWithMultiAssetSupportLib} from "src/base/Roles/TellerWithMultiAssetSupportLib.sol";
+import {TellerWithMultiAssetSupportLib, PrincipalCheckpoint} from "src/base/Roles/TellerWithMultiAssetSupportLib.sol";
 import {IncentivePool} from "src/base/IncentivePool.sol";
-import {SafeCast} from "@openzeppelin-contracts-5.3.0/utils/math/SafeCast.sol";
 
 struct DepositParams {
     ERC20 depositAsset;
     uint256 depositAmount;
     uint256 minimumMint;
+    address to;
 }
 
 struct ComplianceData {
@@ -35,12 +35,6 @@ struct PermitData {
     uint8 v;
     bytes32 r;
     bytes32 s;
-}
-
-struct PrincipalCheckpoint {
-    uint48 timestamp;
-    uint104 cumulativeDeposits;
-    uint104 cumulativeWithdrawals;
 }
 
 struct RewardData {
@@ -157,6 +151,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     error TellerWithMultiAssetSupport__Paused();
     error TellerWithMultiAssetSupport__TransferDenied(address from, address to, address operator);
     error TellerWithMultiAssetSupport__DepositExceedsCap();
+    error TellerWithMultiAssetSupport__ZeroRecipient();
     error TellerWithMultiAssetSupport__ComplianceCheckFailed();
     //============================== EVENTS ===============================
 
@@ -498,6 +493,8 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     {
         ERC20 depositAsset = params.depositAsset;
         uint256 depositAmount = params.depositAmount;
+        address to = params.to;
+        if (to == address(0)) revert TellerWithMultiAssetSupport__ZeroRecipient();
         TellerWithMultiAssetSupportLib.Asset memory asset = _beforeDeposit(depositAsset);
 
         address from;
@@ -516,10 +513,10 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
             from = msg.sender;
         }
 
-        _verifyComplianceSignature(msg.sender, depositAsset, depositAmount, compliance);
-        shares = _erc20Deposit(depositAsset, depositAmount, params.minimumMint, from, msg.sender, asset);
-        _checkpointPrincipal(msg.sender, shares, true);
-        _afterPublicDeposit(msg.sender, depositAsset, depositAmount, shares, shareLockPeriod, referralAddress);
+        _verifyComplianceSignature(to, depositAsset, depositAmount, compliance);
+        shares = _erc20Deposit(depositAsset, depositAmount, params.minimumMint, from, to, asset);
+        _checkpointPrincipal(to, shares, true);
+        _afterPublicDeposit(to, depositAsset, depositAmount, shares, shareLockPeriod, referralAddress);
     }
 
     /**
@@ -532,17 +529,16 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         address referralAddress,
         ComplianceData calldata compliance
     ) external virtual requiresAuth nonReentrant returns (uint256 shares) {
-        _verifyComplianceSignature(msg.sender, params.depositAsset, params.depositAmount, compliance);
+        address to = params.to;
+        if (to == address(0)) revert TellerWithMultiAssetSupport__ZeroRecipient();
+        _verifyComplianceSignature(to, params.depositAsset, params.depositAmount, compliance);
         TellerWithMultiAssetSupportLib.Asset memory asset = _beforeDeposit(params.depositAsset);
 
         _handlePermit(params.depositAsset, params.depositAmount, permit);
 
-        shares =
-            _erc20Deposit(params.depositAsset, params.depositAmount, params.minimumMint, msg.sender, msg.sender, asset);
-        _checkpointPrincipal(msg.sender, shares, true);
-        _afterPublicDeposit(
-            msg.sender, params.depositAsset, params.depositAmount, shares, shareLockPeriod, referralAddress
-        );
+        shares = _erc20Deposit(params.depositAsset, params.depositAmount, params.minimumMint, msg.sender, to, asset);
+        _checkpointPrincipal(to, shares, true);
+        _afterPublicDeposit(to, params.depositAsset, params.depositAmount, shares, shareLockPeriod, referralAddress);
     }
 
     /**
@@ -761,19 +757,9 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      *      This is acceptable for virtually all real-world vaults.
      */
     function _checkpointPrincipal(address user, uint256 shares, bool isDeposit) internal virtual {
-        uint256 len = _principalHistory[user].length;
-        if (!isDeposit && len == 0) return;
-        uint256 rate = accountant.getRateSafe();
-        uint104 prevDeposits = len > 0 ? _principalHistory[user][len - 1].cumulativeDeposits : 0;
-        uint104 prevWithdrawals = len > 0 ? _principalHistory[user][len - 1].cumulativeWithdrawals : 0;
-        if (isDeposit) {
-            uint256 baseValue = shares.mulDivDown(rate, ONE_SHARE);
-            prevDeposits += SafeCast.toUint104(baseValue);
-        } else {
-            uint256 baseValue = shares.mulDivUp(rate, ONE_SHARE);
-            prevWithdrawals += SafeCast.toUint104(baseValue);
-        }
-        _principalHistory[user].push(PrincipalCheckpoint(uint48(block.timestamp), prevDeposits, prevWithdrawals));
+        TellerWithMultiAssetSupportLib.checkpointPrincipal(
+            _principalHistory, accountant.getRateSafe(), ONE_SHARE, user, shares, isDeposit
+        );
     }
 
     /**
@@ -784,19 +770,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      *      as the entry before it), overwrites its timestamp instead of pushing to bound array growth.
      */
     function _checkpointTransfer(address user) internal {
-        PrincipalCheckpoint[] storage history = _principalHistory[user];
-        uint256 len = history.length;
-        uint104 d;
-        uint104 w;
-        if (len != 0) {
-            d = history[len - 1].cumulativeDeposits;
-            w = history[len - 1].cumulativeWithdrawals;
-            if (len > 1 && d == history[len - 2].cumulativeDeposits && w == history[len - 2].cumulativeWithdrawals) {
-                history[len - 1].timestamp = uint48(block.timestamp);
-                return;
-            }
-        }
-        history.push(PrincipalCheckpoint(uint48(block.timestamp), d, w));
+        TellerWithMultiAssetSupportLib.checkpointTransfer(_principalHistory, user);
     }
 
     function _processRewards(RewardData[] calldata rewards, address user) internal {

@@ -739,7 +739,7 @@ abstract contract RewardRoutingNegativeBase is Test {
         usdc.mint(depositor, amount);
         vm.startPrank(depositor);
         ERC20(address(usdc)).safeApprove(address(boringVault), amount);
-        shares = teller.deposit(DepositParams(ERC20(address(usdc)), amount, 0), address(0), ComplianceData(0, ""));
+        shares = teller.deposit(DepositParams(ERC20(address(usdc)), amount, 0, address(0)), address(0), ComplianceData(0, ""));
         vm.stopPrank();
     }
 

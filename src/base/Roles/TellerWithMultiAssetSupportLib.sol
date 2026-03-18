@@ -6,12 +6,22 @@ pragma solidity 0.8.21;
 
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {WETH} from "@solmate/tokens/WETH.sol";
+import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
+import {SafeCast} from "@openzeppelin-contracts-5.3.0/utils/math/SafeCast.sol";
 import {BoringVault} from "src/base/BoringVault.sol";
 import {IBufferHelper} from "src/interfaces/IBufferHelper.sol";
 import {ECDSA} from "@openzeppelin-contracts-5.3.0/utils/cryptography/ECDSA.sol";
 import {MessageHashUtils} from "@openzeppelin-contracts-5.3.0/utils/cryptography/MessageHashUtils.sol";
 
+struct PrincipalCheckpoint {
+    uint48 timestamp;
+    uint104 cumulativeDeposits;
+    uint104 cumulativeWithdrawals;
+}
+
 library TellerWithMultiAssetSupportLib {
+    using FixedPointMathLib for uint256;
+
     // ========================================= STRUCTS =========================================
 
     /**
@@ -353,5 +363,56 @@ library TellerWithMultiAssetSupportLib {
         address recovered = ECDSA.recover(ethSignedHash, signature);
         if (recovered != complianceSigner) revert TellerWithMultiAssetSupport__ComplianceCheckFailed();
         usedComplianceSignatures[messageHash] = true;
+    }
+
+    // ========================================= CHECKPOINT FUNCTIONS =========================================
+
+    /**
+     * @notice Appends a principal checkpoint for a user on deposit or withdrawal.
+     * @dev Rounding is intentionally asymmetric: deposits round DOWN, withdrawals round UP.
+     */
+    function checkpointPrincipal(
+        mapping(address => PrincipalCheckpoint[]) storage principalHistory,
+        uint256 rate,
+        uint256 oneShare,
+        address user,
+        uint256 shares,
+        bool isDeposit
+    ) external {
+        uint256 len = principalHistory[user].length;
+        if (!isDeposit && len == 0) return;
+        uint104 prevDeposits = len > 0 ? principalHistory[user][len - 1].cumulativeDeposits : 0;
+        uint104 prevWithdrawals = len > 0 ? principalHistory[user][len - 1].cumulativeWithdrawals : 0;
+        if (isDeposit) {
+            uint256 baseValue = shares.mulDivDown(rate, oneShare);
+            prevDeposits += SafeCast.toUint104(baseValue);
+        } else {
+            uint256 baseValue = shares.mulDivUp(rate, oneShare);
+            prevWithdrawals += SafeCast.toUint104(baseValue);
+        }
+        principalHistory[user].push(PrincipalCheckpoint(uint48(block.timestamp), prevDeposits, prevWithdrawals));
+    }
+
+    /**
+     * @notice Pushes a timestamp-only checkpoint for a user on share transfer.
+     * @dev If the most recent entry is itself a transfer checkpoint (same cumulative values
+     *      as the entry before it), overwrites its timestamp instead of pushing.
+     */
+    function checkpointTransfer(mapping(address => PrincipalCheckpoint[]) storage principalHistory, address user)
+        external
+    {
+        PrincipalCheckpoint[] storage history = principalHistory[user];
+        uint256 len = history.length;
+        uint104 d;
+        uint104 w;
+        if (len != 0) {
+            d = history[len - 1].cumulativeDeposits;
+            w = history[len - 1].cumulativeWithdrawals;
+            if (len > 1 && d == history[len - 2].cumulativeDeposits && w == history[len - 2].cumulativeWithdrawals) {
+                history[len - 1].timestamp = uint48(block.timestamp);
+                return;
+            }
+        }
+        history.push(PrincipalCheckpoint(uint48(block.timestamp), d, w));
     }
 }

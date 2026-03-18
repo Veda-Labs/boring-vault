@@ -8,9 +8,9 @@ import {BoringVault} from "src/base/BoringVault.sol";
 import {
     TellerWithMultiAssetSupport,
     DepositParams,
-    ComplianceData,
-    PrincipalCheckpoint
+    ComplianceData
 } from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import {PrincipalCheckpoint} from "src/base/Roles/TellerWithMultiAssetSupportLib.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
@@ -85,7 +85,9 @@ contract PrincipalHistoryFuzzTest is Test {
         weth.mint(user, amount);
         vm.startPrank(user);
         ERC20(address(weth)).safeApprove(address(vault), amount);
-        shares = teller.deposit(DepositParams(ERC20(address(weth)), amount, 0), address(0), ComplianceData(0, ""));
+        shares = teller.deposit(
+            DepositParams(ERC20(address(weth)), amount, 0, address(0)), address(0), ComplianceData(0, "")
+        );
         vm.stopPrank();
     }
 
@@ -333,7 +335,9 @@ contract PrincipalHistoryFuzzTest is Test {
         ERC20(address(weth)).safeApprove(address(vault), perDeposit);
 
         vm.expectRevert();
-        teller.deposit(DepositParams(ERC20(address(weth)), perDeposit, 0), address(0), ComplianceData(0, ""));
+        teller.deposit(
+            DepositParams(ERC20(address(weth)), perDeposit, 0, address(0)), address(0), ComplianceData(0, "")
+        );
         vm.stopPrank();
     }
 }
