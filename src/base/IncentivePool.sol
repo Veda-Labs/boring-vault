@@ -239,7 +239,8 @@ contract IncentivePool is Auth {
             )
         );
         bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
-        address recovered = ECDSA.recover(ethSignedHash, signature);
+        (address recovered, ECDSA.RecoverError err,) = ECDSA.tryRecover(ethSignedHash, signature);
+        if (err != ECDSA.RecoverError.NoError) return false;
 
         return recovered == rewardSigner;
     }

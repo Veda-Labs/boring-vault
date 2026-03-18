@@ -7,13 +7,10 @@ pragma solidity 0.8.21;
 import {TellerWithMultiAssetSupport, ERC20, RewardData} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {TellerWithMultiAssetSupportLib} from "src/base/Roles/TellerWithMultiAssetSupportLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {AccountantWithYieldStreaming} from "src/base/Roles/AccountantWithYieldStreaming.sol";
-import {ReentrancyGuard} from "@solmate/utils/ReentrancyGuard.sol";
 
 contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
     using FixedPointMathLib for uint256;
-    using SafeTransferLib for ERC20;
 
     constructor(address _owner, address _vault, address _accountant, address _weth)
         TellerWithMultiAssetSupport(_owner, _vault, _accountant, _weth)
