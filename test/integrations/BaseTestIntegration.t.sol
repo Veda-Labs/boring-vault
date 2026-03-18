@@ -53,6 +53,7 @@ contract BaseTestIntegration is Test, MerkleTreeHelper {
         nameToRPC["bsc"] = "BNB_RPC_URL";
         nameToRPC["swell"] = "SWELL_CHAIN_RPC_URL";
         nameToRPC["derive"] = "DERIVE_RPC_URL";
+        nameToRPC["hyperevm"] = "HYPEREVM_RPC_URL";
     }
 
     function _setupChain(string memory chain, uint256 blockNumber) internal {
@@ -67,9 +68,7 @@ contract BaseTestIntegration is Test, MerkleTreeHelper {
         manager =
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
-        rawDataDecoderAndSanitizer = address(
-            new EtherFiLiquidDecoderAndSanitizer(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"))
-        );
+        rawDataDecoderAndSanitizer = address(1);
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);

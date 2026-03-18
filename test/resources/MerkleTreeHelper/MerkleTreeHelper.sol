@@ -13677,7 +13677,6 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
         addLeafIndex = false;
     }
-    // TODO look at how deployment json is made, and refactor this to work that way, so files dont need to be formatted.
 
     function _generateLeafs(
         string memory filePath,

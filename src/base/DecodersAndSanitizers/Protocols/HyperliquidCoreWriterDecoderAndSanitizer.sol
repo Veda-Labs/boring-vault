@@ -3,36 +3,6 @@ pragma solidity 0.8.21;
 
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 
-/**
- * @title HyperliquidCoreWriterDecoderAndSanitizer
- * @notice Decoder and sanitizer for Hyperliquid CoreWriter interactions on HyperEVM.
- * @dev CoreWriter is deployed at 0x3333333333333333333333333333333333333333 on HyperEVM.
- *      It enables smart contracts to send transactions to HyperCore for perp trading,
- *      spot transfers, vault management, and staking.
- *
- *      Action encoding format:
- *      - Byte 0: Encoding version (currently 0x01)
- *      - Bytes 1-3: Action ID (big-endian uint24)
- *      - Remaining bytes: ABI-encoded action parameters
- *
- *      Action IDs (with types from official docs):
- *      - 1: Limit order (uint32 asset, bool isBuy, uint64 limitPx, uint64 sz, bool reduceOnly, uint8 encodedTif, uint128 cloid)
- *      - 2: Vault transfer (address vault, bool isDeposit, uint64 usd)
- *      - 3: Token delegate (address validator, uint64 wei, bool isUndelegate)
- *      - 4: Staking deposit (uint64 wei)
- *      - 5: Staking withdraw (uint64 wei)
- *      - 6: Spot send (address destination, uint64 token, uint64 wei)
- *      - 7: USD class transfer (uint64 ntl, bool toPerp)
- *      - 8: Finalize EVM contract (uint64 token, uint8 encodedVariant, uint64 createNonce)
- *      - 9: Add API wallet (address apiWallet, string name)
- *      - 10: Cancel order by oid (uint32 asset, uint64 oid)
- *      - 11: Cancel order by cloid (uint32 asset, uint128 cloid)
- *      - 12: Approve builder fee (uint64 maxFeeRate, address builder)
- *      - 13: Send asset (address destination, address subAccount, uint32 sourceDex, uint32 destDex, uint64 token, uint64 wei)
- *
- *      For ERC20 transfers to HyperCore, tokens are sent to system addresses starting with 0x20.
- *      For HYPE transfers to HyperCore, send native HYPE to 0x2222222222222222222222222222222222222222.
- */
 contract HyperliquidCoreWriterDecoderAndSanitizer is BaseDecoderAndSanitizer {
     //============================== ERRORS ===============================
 

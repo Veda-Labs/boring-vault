@@ -254,6 +254,12 @@ contract ChainValues {
 
         // Bunjee
         values[hyperevm]["BunjeeInbox"] = 0x7ad979C6b0C9924F79ea571280071595ba13D002.toBytes32();
+
+        // balancer
+        values[hyperevm]["vault"] = address(1).toBytes32();
+
+        // uniswap v3
+        values[hyperevm]["uniswapV3NonFungiblePositionManager"] = address(1).toBytes32();
     }
 
     function _addMainnetValues() private {
