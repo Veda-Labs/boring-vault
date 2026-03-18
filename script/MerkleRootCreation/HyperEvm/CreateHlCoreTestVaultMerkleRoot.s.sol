@@ -94,8 +94,9 @@ contract CreateHlCoreTestVaultMerkleRootScript is Script, MerkleTreeHelper {
         bridgeSubAccounts[0] = address(0); // Main account
         _addCoreWriterSendAssetLeafs(leafs, bridgeDestinations, bridgeSubAccounts);
 
-        address[] memory apiWallets = new address[](1);
+        address[] memory apiWallets = new address[](2);
         apiWallets[0] = 0x0307AD25281C99F22A8F3Af9e272fE3968810239;
+        apiWallets[1] = 0xe5C7cbAA926eAdf27d04A2e6CB4D2d192b8CBF65;
         _addCoreWriterAddApiWalletLeafs(leafs, apiWallets);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
