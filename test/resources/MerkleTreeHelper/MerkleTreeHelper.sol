@@ -8441,7 +8441,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
          address itbPositionManager,
          ERC20[] memory tokensUsed,
          string memory itbContractName
-     ) internal {
+     ) internal virtual {
          // acceptOwnership
          leafIndex++;
          leafs[leafIndex] = ManageLeaf(
@@ -14221,8 +14221,8 @@ function _addTellerLeafsWithReferral(
     function _addEtherfiOneWaySwapperLeafs(ManageLeaf[] memory leafs, address tokenA, address tokenB) internal {
 
         // add approval if not already added
-        if (!ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][tokenA][getAddress(sourceChain, "odosRouterV2")]) {
-            ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][tokenA][getAddress(sourceChain, "odosRouterV2")] = true;
+        if (!ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][tokenA][getAddress(sourceChain, "etherfiSwapper")]) {
+            ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][tokenA][getAddress(sourceChain, "etherfiSwapper")] = true;
             leafIndex++;
             leafs[leafIndex] = ManageLeaf(
                 tokenA,
