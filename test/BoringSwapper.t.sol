@@ -36,7 +36,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     address constant COW_SETTLEMENT = 0x9008D19f58AAbD9eD0D60971565AA8510560ab41;
 
     bytes32 constant GPV2_ORDER_TYPE_HASH = keccak256(
-        "Order(address sellToken,address buyToken,address receiver,uint256 sellAmount,uint256 buyAmount,uint32 validTo,bytes32 appData,uint256 feeAmount,bytes32 kind,bool partiallyFillable,bytes32 sellTokenBalance,bytes32 buyTokenBalance)"
+        "Order(address sellToken,address buyToken,address receiver,uint256 sellAmount,uint256 buyAmount,uint32 validTo,bytes32 appData,uint256 feeAmount,string kind,bool partiallyFillable,string sellTokenBalance,string buyTokenBalance)"
     );
     bytes32 constant KIND_SELL = keccak256("sell");
     bytes32 constant BALANCE_ERC20 = keccak256("erc20");

@@ -14,6 +14,7 @@ import {BaseAdapter} from "src/base/Periphery/adapters/BaseAdapter.sol";
 contract OneInchAdapter is IAdapter, BaseAdapter {
 
     address public immutable ROUTER;
+    address public immutable FEE_TAKER;
 
     bytes32 constant ONEINCH_ORDER_TYPE_HASH = keccak256(
         "Order(uint256 salt,address maker,address receiver,address makerAsset,address takerAsset,uint256 makingAmount,uint256 takingAmount,uint256 makerTraits)"
@@ -21,12 +22,13 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
 
     bytes32 immutable DOMAIN_SEPARATOR;
 
-    constructor(address _router) {
+    constructor(address _router, address _feeTaker) {
         ROUTER = _router;
+        FEE_TAKER = _feeTaker;
         DOMAIN_SEPARATOR = keccak256(abi.encode(
             keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
-            keccak256("1inch Limit Order Protocol"),
-            keccak256("4"),
+            keccak256("1inch Aggregation Router"),
+            keccak256("6"),
             block.chainid,
             _router
         ));
@@ -89,15 +91,28 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
 
     //============================== Limit Orders ===============================
 
+    /// @notice swapData encoding: abi.encode(OneInchLimitOrder order, bytes extension)
+    /// The extension contains the FeeTaker postInteraction data where the custom receiver (vault) is embedded.
     function verifyLimitOrder(BoringSwapper.SwapConfig calldata swapConfig, address swapper) external view returns (OrderInfo memory) {
-        DecoderCustomTypes.OneInchLimitOrder memory order = abi.decode(swapConfig.swapData, (DecoderCustomTypes.OneInchLimitOrder));
+        (DecoderCustomTypes.OneInchLimitOrder memory order, bytes memory extension) =
+            abi.decode(swapConfig.swapData, (DecoderCustomTypes.OneInchLimitOrder, bytes));
 
         if (ERC20(order.makerAsset) != swapConfig.tokenRoute.tokenIn) revert("makerAsset mismatch");
         if (ERC20(order.takerAsset) != swapConfig.tokenRoute.tokenOut) revert("takerAsset mismatch");
         if (order.maker != swapper) revert("maker must be swapper");
-        if (order.receiver != address(swapConfig.receiver)) revert("receiver mismatch");
 
-        bytes32 orderHash = _computeOrderHash(swapConfig.swapData);
+        // For orders with a fee extension, the order.receiver is the fee taker contract.
+        // The actual receiver (vault) is embedded in the extension's postInteraction data.
+        if (extension.length > 0) {
+            if (order.receiver != FEE_TAKER) revert("unknown fee taker");
+            address customReceiver = _extractCustomReceiver(extension);
+            if (customReceiver != address(swapConfig.receiver)) revert("extension receiver mismatch");
+        } else {
+            if (order.receiver != address(swapConfig.receiver)) revert("receiver mismatch");
+        }
+
+        bytes memory orderData = abi.encode(order);
+        bytes32 orderHash = _computeOrderHash(orderData);
 
         return OrderInfo({
             approvalTarget: ROUTER,
@@ -111,15 +126,58 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
     }
 
     function cancelLimitOrder(BoringSwapper.SwapConfig calldata swapConfig, address) external view returns (address, bytes memory) {
-        DecoderCustomTypes.OneInchLimitOrder memory order = abi.decode(swapConfig.swapData, (DecoderCustomTypes.OneInchLimitOrder));
-        bytes32 orderHash = _computeOrderHash(swapConfig.swapData);
+        (DecoderCustomTypes.OneInchLimitOrder memory order,) =
+            abi.decode(swapConfig.swapData, (DecoderCustomTypes.OneInchLimitOrder, bytes));
+        bytes memory orderData = abi.encode(order);
+        bytes32 orderHash = _computeOrderHash(orderData);
         return (ROUTER, abi.encodeWithSignature("cancelOrder(uint256,bytes32)", order.makerTraits, orderHash));
     }
 
     //============================== Internal ===============================
 
-    function _computeOrderHash(bytes memory swapData) internal view returns (bytes32) {
-        bytes32 structHash = keccak256(abi.encodePacked(ONEINCH_ORDER_TYPE_HASH, swapData));
+    function _computeOrderHash(bytes memory orderData) internal view returns (bytes32) {
+        bytes32 structHash = keccak256(abi.encodePacked(ONEINCH_ORDER_TYPE_HASH, orderData));
         return keccak256(abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR, structHash));
+    }
+
+    /// @notice Extracts the custom receiver address from a 1inch FeeTaker extension.
+    /// Extension layout:
+    ///   [32 bytes] header — 8 packed uint32 offsets
+    ///   [variable] data   — concatenated fields
+    /// PostInteraction layout (within data):
+    ///   [20 bytes] fee taker address
+    ///   [ 1 byte ] flags (bit 0 = CUSTOM_RECEIVER_FLAG)
+    ///   [20 bytes] integrator fee recipient
+    ///   [20 bytes] protocol fee recipient
+    ///   [20 bytes] custom receiver (only if flags & 1)
+    function _extractCustomReceiver(bytes memory extension) internal pure returns (address) {
+        require(extension.length >= 32, "extension too short");
+
+        // Header offset[1] (bytes 4-7) = postInteraction start in data
+        uint32 postInteractionStart;
+        assembly {
+            postInteractionStart := shr(224, mload(add(extension, 36))) // bytes 4-7 of header
+        }
+
+        // postInteraction is at: 32 (header) + postInteractionStart
+        uint256 piOffset = 32 + uint256(postInteractionStart);
+        require(extension.length >= piOffset + 62, "postInteraction too short");
+
+        // Read flags byte at postInteraction + 20 (after fee taker address)
+        uint8 flags;
+        assembly {
+            flags := byte(0, mload(add(add(extension, 32), add(piOffset, 20))))
+        }
+
+        require(flags & 1 == 1, "no custom receiver in extension");
+        require(extension.length >= piOffset + 81, "custom receiver out of bounds");
+
+        // Custom receiver is at postInteraction + 61 (after: 20 addr + 1 flags + 20 integrator + 20 protocol)
+        address customReceiver;
+        assembly {
+            customReceiver := shr(96, mload(add(add(extension, 32), add(piOffset, 61))))
+        }
+
+        return customReceiver;
     }
 }

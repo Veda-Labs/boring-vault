@@ -7,9 +7,7 @@ pragma solidity 0.8.21;
 import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
 import {ContractNames} from "resources/ContractNames.sol";
 import {Deployer} from "src/helper/Deployer.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
-import {BoringSwapper} from "src/base/Periphery/BoringSwapper.sol";
+import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol"; import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol"; import {BoringSwapper} from "src/base/Periphery/BoringSwapper.sol";
 import {BoringVault} from "src/base/BoringVault.sol";
 import {BoringSwapperDecoder} from "src/base/DecodersAndSanitizers/Protocols/BoringSwapperDecoderAndSanitizer.sol";
 import {AdapterRegistry} from "src/base/Periphery/AdapterRegistry.sol"; 
@@ -28,7 +26,7 @@ import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
 
 /**
- *  source .env && forge script script/Test/DeployBoringSwapper.s.sol:DeployBoringSwapperTestSuite --with-gas-price 30000000000 --broadcast --etherscan-api-key $ETHERSCAN_KEY --verify
+ *  source .env && forge script script/Test/DeployBoringSwapper.s.sol:DeployBoringSwapperTestSuite --broadcast --etherscan-api-key $ETHERSCAN_KEY --verify
  * @dev Optionally can change `--with-gas-price` to something more reasonable
  */
 contract DeployBoringSwapperTestSuite is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
@@ -84,7 +82,7 @@ contract DeployBoringSwapperTestSuite is Script, ContractNames, MainnetAddresses
         console.log("Adapter registry: ", address(registry));
 
         //deploy boring swapper
-        swapper = new BoringSwapper(0xBBc5569B0b32403037F37255f4ff50B8Bb825b2A, registry);
+        swapper = new BoringSwapper(0xBBc5569B0b32403037F37255f4ff50B8Bb825b2A, AdapterRegistry(registry));
         console.log("Boring Swapper: ", address(swapper));
 
 
@@ -95,7 +93,7 @@ contract DeployBoringSwapperTestSuite is Script, ContractNames, MainnetAddresses
         address cowswapAdapterVersion0_1 = address(new CowswapAdapter(COW_SETTLEMENT, COW_VAULT_RELAYER));
         address oneInchAdapterVersion0_1 = address(new OneInchAdapter(ONEINCH_ROUTER));
 
-        swapper.setApprovedRoute(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDC"), true, 50, 0, 0);
+        swapper.setApprovedRoute(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDC"), true, 500, 0, 0);
         swapper.setApprovedProtocol(UNISWAP_V3, true); //UNI_V3
         swapper.setApprovedProtocol(COWSWAP, true); //COWSWAP
         swapper.setApprovedProtocol(ONEINCH, true); //1INCH
@@ -152,9 +150,9 @@ contract DeployBoringSwapperTestSuite is Script, ContractNames, MainnetAddresses
         //ethRate = new GenericRateProviderWithStalenessCheck(argsEth);
 
         address usdQuoteAsset = getAddress(sourceChain, "USDC");
-        address ethQuoteAsset = getAddress(sourceChain, "WETH");
-        swapper.setApprovedOracle(getERC20(sourceChain, "USDC"), usdQuoteAsset, address(usdRate));
-        swapper.setApprovedOracle(getERC20(sourceChain, "WETH"), ethQuoteAsset, address(ethRate));
+        address ethQuoteAsset = getAddress(sourceChain, "USDC");
+        swapper.setApprovedOracle(getERC20(sourceChain, "USDC"), usdQuoteAsset, 0x8d99465A5F1631f9B7063C9437e6C09AC3504527);
+        swapper.setApprovedOracle(getERC20(sourceChain, "WETH"), ethQuoteAsset, 0x2F22FBE27D24CA359eb282A6a13c0017C13dEDa4);
 
         //price validator setup
         //validator = new PriceValidator();
