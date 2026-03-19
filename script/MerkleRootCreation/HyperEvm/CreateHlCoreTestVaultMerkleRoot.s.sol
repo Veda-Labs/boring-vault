@@ -63,15 +63,15 @@ contract CreateHlCoreTestVaultMerkleRootScript is Script, MerkleTreeHelper {
         perpAssets[5] = 10151; // SPOT ETH
         perpAssets[6] = 10156; // SPOT SOL
         perpAssets[7] = 10107; // SPOT HYPE
-        perpAssets[8] = 10235; // SPOT USDE
+        perpAssets[8] = 10150; // SPOT USDE/USDC
         perpAssets[9] = 10000 + (4 * 10000) + 0; // hyna:BTCUSDE
-        perpAssets[10] = 10000 + (4 * 10000) + 1; // hyna:ETHUSDE
-        perpAssets[11] = 10000 + (4 * 10000) + 2; // hyna:HYPEUSDE
-        perpAssets[12] = 10000 + (4 * 10000) + 3; // hyna:SOLUSDE
-        perpAssets[13] = 10000 + (4 * 10000) + 5; // hyna:ZECUSDE
-        perpAssets[14] = 10000 + (4 * 10000) + 6; // hyna:XRPUSDE
-        perpAssets[15] = 10000 + (4 * 10000) + 8; // hyna:BNBUSDE
-        perpAssets[15] = 10000 + (4 * 10000) + 11; // hyna:PUMPUSDE
+        perpAssets[10] = 100000 + (4 * 10000) + 1; // hyna:ETHUSDE
+        perpAssets[11] = 100000 + (4 * 10000) + 2; // hyna:HYPEUSDE
+        perpAssets[12] = 100000 + (4 * 10000) + 3; // hyna:SOLUSDE
+        perpAssets[13] = 100000 + (4 * 10000) + 5; // hyna:ZECUSDE
+        perpAssets[14] = 100000 + (4 * 10000) + 6; // hyna:XRPUSDE
+        perpAssets[15] = 100000 + (4 * 10000) + 8; // hyna:BNBUSDE
+        perpAssets[15] = 100000 + (4 * 10000) + 11; // hyna:PUMPUSDE
 
         address[] memory spotSendRecipients = new address[](1);
         spotSendRecipients[0] = boringVault; // Allow sending back to self
