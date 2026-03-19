@@ -165,7 +165,6 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
                 asset
             );
         }
-        _checkpointPrincipal(msg.sender, sharesBridged, true);
         _afterPublicDeposit(
             msg.sender,
             depositParams.depositAsset,

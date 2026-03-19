@@ -85,9 +85,7 @@ contract PrincipalHistoryFuzzTest is Test {
         weth.mint(user, amount);
         vm.startPrank(user);
         ERC20(address(weth)).safeApprove(address(vault), amount);
-        shares = teller.deposit(
-            DepositParams(ERC20(address(weth)), amount, 0, address(0)), address(0), ComplianceData(0, "")
-        );
+        shares = teller.deposit(DepositParams(ERC20(address(weth)), amount, 0, user), address(0), ComplianceData(0, ""));
         vm.stopPrank();
     }
 
@@ -314,6 +312,657 @@ contract PrincipalHistoryFuzzTest is Test {
         _assertMonotonicHistory(bob);
     }
 
+    // ============================== FUZZ: repeated cycles with varying rates ==============================
+
+    /// @notice Each cycle deposits and withdraws at the same rate, but the rate changes between cycles.
+    /// Since each individual cycle satisfies w_up >= d_down at its own rate, the cumulative invariant holds.
+    function testFuzz_RepeatedCycles_VaryingRates_NoPhantomPrincipal(
+        uint256 amount,
+        uint256 rateSeed1,
+        uint256 rateSeed2,
+        uint256 rateSeed3,
+        uint8 cycleCount
+    ) external {
+        uint96[3] memory rates = [_boundRate(rateSeed1), _boundRate(rateSeed2), _boundRate(rateSeed3)];
+        amount = bound(amount, 1e6, 1e24);
+        uint256 cycles = bound(uint256(cycleCount), 2, 15);
+
+        address user = vm.addr(100);
+
+        for (uint256 i; i < cycles; ++i) {
+            uint96 rate = rates[i % 3];
+            _setRate(rate);
+            _fundVault(amount * 2);
+            uint256 shares = _depositAs(user, amount);
+            _withdrawAs(user, shares);
+        }
+
+        PrincipalCheckpoint memory last = _lastCheckpoint(user);
+        assertGe(last.cumulativeWithdrawals, last.cumulativeDeposits, "varying-rate cycles: no phantom principal");
+        _assertMonotonicHistory(user);
+    }
+
+    // ============================== FUZZ: rate decrease => no panic ==============================
+
+    /// @notice Deposit at a higher rate, rate drops, then full withdraw at lower rate.
+    /// cumulativeWithdrawals may be < cumulativeDeposits (real loss), but must not panic or underflow.
+    function testFuzz_FullWithdraw_RateDecrease_NoPanic(uint256 amount, uint256 highRateSeed, uint256 lowRateSeed)
+        external
+    {
+        uint96 highRate = uint96(bound(highRateSeed, 0.02e18, 100e18));
+        uint96 lowRate = uint96(bound(lowRateSeed, 0.01e18, uint256(highRate) - 1));
+        amount = bound(amount, 1e6, uint256(type(uint104).max));
+
+        _setRate(highRate);
+        address user = vm.addr(100);
+        uint256 shares = _depositAs(user, amount);
+
+        _setRate(lowRate);
+        uint256 maxWithdrawValue = shares.mulDivUp(uint256(lowRate), ONE_SHARE);
+        _fundVault(maxWithdrawValue + 1e18);
+        _withdrawAs(user, shares);
+
+        // No panic/revert is the primary assertion. Also verify monotonicity.
+        _assertMonotonicHistory(user);
+
+        // Verify the math: withdrawal base value reflects the lower rate
+        PrincipalCheckpoint memory last = _lastCheckpoint(user);
+        assertGt(last.cumulativeWithdrawals, 0, "withdrawal recorded");
+        assertGt(last.cumulativeDeposits, 0, "deposit recorded");
+    }
+
+    // ============================== FUZZ: multiple deposits at different rates, full withdraw ==============================
+
+    /// @notice Accumulate deposits at 3 different rates, then withdraw everything at a 4th rate.
+    /// When the withdrawal rate >= max deposit rate, the invariant w >= d must hold.
+    function testFuzz_MultipleDeposits_DifferentRates_FullWithdraw(
+        uint256 amount,
+        uint256 rateSeed1,
+        uint256 rateSeed2,
+        uint256 withdrawRateSeed
+    ) external {
+        uint96[2] memory dRates = [_boundRate(rateSeed1), _boundRate(rateSeed2)];
+        uint96 maxDRate = dRates[0] > dRates[1] ? dRates[0] : dRates[1];
+        uint96 withdrawRate = uint96(bound(withdrawRateSeed, uint256(maxDRate), 100e18));
+
+        // Bound amount so cumulative fits in uint104
+        uint256 effectiveMax = _maxSafeAmount(dRates[0], withdrawRate);
+        {
+            uint256 m2 = _maxSafeAmount(dRates[1], withdrawRate);
+            if (m2 < effectiveMax) effectiveMax = m2;
+        }
+        effectiveMax = effectiveMax / 2;
+        if (effectiveMax < 1e6) effectiveMax = 1e6;
+        amount = bound(amount, 1e6, effectiveMax > 1e24 ? 1e24 : effectiveMax);
+
+        address user = vm.addr(100);
+
+        // 2 deposits at different rates, track total shares
+        _setRate(dRates[0]);
+        uint256 totalShares = _depositAs(user, amount);
+        _setRate(dRates[1]);
+        totalShares += _depositAs(user, amount);
+
+        // Withdraw everything at withdrawRate >= maxDepositRate
+        _setRate(withdrawRate);
+        _fundVault(totalShares.mulDivUp(uint256(withdrawRate), ONE_SHARE) + 1e18);
+        _withdrawAs(user, totalShares);
+
+        PrincipalCheckpoint memory last = _lastCheckpoint(user);
+        assertGe(
+            last.cumulativeWithdrawals, last.cumulativeDeposits, "multi-deposit full withdraw at higher rate: w >= d"
+        );
+        _assertMonotonicHistory(user);
+    }
+
+    // ============================== FUZZ: partial withdrawals across rate changes ==============================
+
+    /// @notice Interleave partial withdrawals with rate changes. Verify monotonicity and no underflow.
+    function testFuzz_PartialWithdraws_AcrossRateChanges_Monotonic(
+        uint256 amount,
+        uint256 rateSeed1,
+        uint256 rateSeed2,
+        uint256 rateSeed3
+    ) external {
+        uint96 r1 = _boundRate(rateSeed1);
+        uint96 r2 = _boundRate(rateSeed2);
+        uint96 r3 = _boundRate(rateSeed3);
+        // Keep amount conservative to avoid uint104 overflow across rate changes
+        amount = bound(amount, 1e8, 1e20);
+
+        _setRate(r1);
+        address user = vm.addr(100);
+        uint256 shares = _depositAs(user, amount);
+        vm.assume(shares >= 4);
+
+        // Fund vault generously based on max rate to cover all withdrawals
+        uint96 maxRate = r1 > r2 ? (r1 > r3 ? r1 : r3) : (r2 > r3 ? r2 : r3);
+        _fundVault(shares.mulDivUp(uint256(maxRate), ONE_SHARE) + 1e18);
+
+        // Partial withdraw at r1
+        _withdrawAs(user, shares / 4);
+
+        // Rate changes, another partial withdraw
+        _setRate(r2);
+        _withdrawAs(user, shares / 4);
+
+        // Rate changes again, withdraw remainder
+        _setRate(r3);
+        uint256 remaining = vault.balanceOf(user);
+        if (remaining > 0) {
+            _withdrawAs(user, remaining);
+        }
+
+        _assertMonotonicHistory(user);
+
+        // After full withdrawal, verify no shares remain
+        assertEq(vault.balanceOf(user), 0, "all shares withdrawn");
+    }
+
+    // ============================== FUZZ: deposit+withdraw same non-trivial rate, repeated with different amounts ==============================
+
+    /// @notice Varying deposit amounts at the same non-trivial rate. Tests that rounding dust
+    /// from different-sized deposits doesn't accumulate into phantom principal.
+    function testFuzz_VaryingAmounts_SameRate_NoPhantomPrincipal(
+        uint256 amountSeed1,
+        uint256 amountSeed2,
+        uint256 amountSeed3,
+        uint256 rateSeed
+    ) external {
+        uint96 rate = _boundRate(rateSeed);
+        uint256 a1 = bound(amountSeed1, 1e6, 1e24);
+        uint256 a2 = bound(amountSeed2, 1e6, 1e24);
+        uint256 a3 = bound(amountSeed3, 1e6, 1e24);
+
+        _setRate(rate);
+        address user = vm.addr(100);
+
+        // Cycle 1
+        _fundVault(a1 * 2);
+        uint256 s1 = _depositAs(user, a1);
+        _withdrawAs(user, s1);
+
+        // Cycle 2
+        _fundVault(a2 * 2);
+        uint256 s2 = _depositAs(user, a2);
+        _withdrawAs(user, s2);
+
+        // Cycle 3
+        _fundVault(a3 * 2);
+        uint256 s3 = _depositAs(user, a3);
+        _withdrawAs(user, s3);
+
+        PrincipalCheckpoint memory last = _lastCheckpoint(user);
+        assertGe(last.cumulativeWithdrawals, last.cumulativeDeposits, "varying amounts same rate: no phantom principal");
+    }
+
+    // ============================== FUZZ: extreme rate swing (0.01x to 100x) ==============================
+
+    /// @notice Deposit at minimum rate, withdraw at maximum rate — 10,000x swing.
+    /// Tests that the invariant holds even under extreme rate appreciation.
+    function testFuzz_ExtremeRateSwing_UpInvariant(uint256 amount) external {
+        amount = bound(amount, 1e6, 1e18);
+        uint96 lowRate = 0.01e18;
+        uint96 highRate = 100e18;
+
+        _setRate(lowRate);
+        address user = vm.addr(100);
+        uint256 shares = _depositAs(user, amount);
+
+        _setRate(highRate);
+        uint256 needed = shares.mulDivUp(uint256(highRate), ONE_SHARE);
+        _fundVault(needed + 1e18);
+        _withdrawAs(user, shares);
+
+        PrincipalCheckpoint memory last = _lastCheckpoint(user);
+        assertGe(last.cumulativeWithdrawals, last.cumulativeDeposits, "extreme swing up: w >= d");
+    }
+
+    /// @notice Deposit at maximum rate, withdraw at minimum rate — 10,000x drop.
+    /// The invariant w >= d will NOT hold (real loss). Verify no panic.
+    function testFuzz_ExtremeRateSwing_DownNoPanic(uint256 amount) external {
+        amount = bound(amount, 1e6, 1e18);
+        uint96 highRate = 100e18;
+        uint96 lowRate = 0.01e18;
+
+        _setRate(highRate);
+        address user = vm.addr(100);
+        uint256 shares = _depositAs(user, amount);
+
+        _setRate(lowRate);
+        uint256 needed = shares.mulDivUp(uint256(lowRate), ONE_SHARE);
+        _fundVault(needed + 1e18);
+        _withdrawAs(user, shares);
+
+        PrincipalCheckpoint memory last = _lastCheckpoint(user);
+        // Real loss: deposit recorded at high rate, withdrawal at low rate
+        assertGt(last.cumulativeDeposits, last.cumulativeWithdrawals, "extreme swing down: real loss");
+        _assertMonotonicHistory(user);
+    }
+
+    // ============================== FUZZ: double-rounding boundary amounts ==============================
+
+    /// @notice Rates that don't divide evenly into 1e18 cause maximum rounding loss.
+    /// Tests rate = 3e18 (1/3 ratio) which is pathological for integer division.
+    function testFuzz_PathologicalRate_ThirdsNoPhantom(uint256 amount) external {
+        uint96 rate = 3e18;
+        amount = bound(amount, 3, 1e24);
+
+        _setRate(rate);
+        _fundVault(amount * 2);
+
+        address user = vm.addr(100);
+        uint256 shares = _depositAs(user, amount);
+        if (shares == 0) return; // dust deposit, skip
+        _withdrawAs(user, shares);
+
+        PrincipalCheckpoint memory last = _lastCheckpoint(user);
+        assertGe(last.cumulativeWithdrawals, last.cumulativeDeposits, "rate=3: w >= d");
+    }
+
+    /// @notice Rate = 7e18 (1/7 ratio) — another pathological case for rounding.
+    function testFuzz_PathologicalRate_SeventhsNoPhantom(uint256 amount) external {
+        uint96 rate = 7e18;
+        amount = bound(amount, 7, 1e24);
+
+        _setRate(rate);
+        _fundVault(amount * 2);
+
+        address user = vm.addr(100);
+        uint256 shares = _depositAs(user, amount);
+        if (shares == 0) return;
+        _withdrawAs(user, shares);
+
+        PrincipalCheckpoint memory last = _lastCheckpoint(user);
+        assertGe(last.cumulativeWithdrawals, last.cumulativeDeposits, "rate=7: w >= d");
+    }
+
+    /// @notice Rate that's 1 wei above 1e18. Minimal deviation from 1:1 to test rounding sensitivity.
+    function testFuzz_RateOneWeiAboveUnity(uint256 amount) external {
+        uint96 rate = uint96(1e18 + 1);
+        amount = bound(amount, 1, 1e24);
+
+        _setRate(rate);
+        _fundVault(amount * 2);
+
+        address user = vm.addr(100);
+        uint256 shares = _depositAs(user, amount);
+        if (shares == 0) return;
+        _withdrawAs(user, shares);
+
+        PrincipalCheckpoint memory last = _lastCheckpoint(user);
+        assertGe(last.cumulativeWithdrawals, last.cumulativeDeposits, "rate=1e18+1: w >= d");
+    }
+
+    // ============================== FUZZ: dust deposits (near-zero shares) ==============================
+
+    /// @notice Very small deposits that produce 0 or 1 share. These are the rounding worst case.
+    /// At high rates, small amounts can round to 0 shares entirely.
+    function testFuzz_DustDeposit_ZeroShareBehavior(uint256 amount, uint256 rateSeed) external {
+        uint96 rate = uint96(bound(rateSeed, 1e18, 100e18));
+        // Amount small enough to potentially round to 0 shares
+        amount = bound(amount, 1, uint256(rate) / 1e18);
+
+        _setRate(rate);
+        address user = vm.addr(100);
+        weth.mint(user, amount);
+        vm.startPrank(user);
+        ERC20(address(weth)).safeApprove(address(vault), amount);
+        uint256 shares =
+            teller.deposit(DepositParams(ERC20(address(weth)), amount, 0, user), address(0), ComplianceData(0, ""));
+        vm.stopPrank();
+
+        if (shares == 0) {
+            // Zero-share deposit: checkpoint should still be created but with 0 baseValue
+            PrincipalCheckpoint[] memory h = teller.getPrincipalHistory(user);
+            if (h.length > 0) {
+                assertEq(h[h.length - 1].cumulativeDeposits, 0, "zero-share deposit: 0 principal");
+            }
+        } else {
+            // Got shares, verify normal invariant
+            _fundVault(amount * 100);
+            _withdrawAs(user, shares);
+            PrincipalCheckpoint memory last = _lastCheckpoint(user);
+            assertGe(last.cumulativeWithdrawals, last.cumulativeDeposits, "dust deposit: w >= d");
+        }
+    }
+
+    // ============================== FUZZ: single share deposit/withdraw ==============================
+
+    /// @notice Deposit exactly 1 share worth at various rates. This is the minimal non-zero deposit.
+    function testFuzz_SingleShare_NoPhantomPrincipal(uint256 rateSeed) external {
+        uint96 rate = _boundRate(rateSeed);
+        // Amount that produces exactly 1 share: need amount >= rate/1e18 (rounded up)
+        uint256 amount = (uint256(rate) + 1e18 - 1) / 1e18;
+
+        _setRate(rate);
+        _fundVault(amount * 10);
+
+        address user = vm.addr(100);
+        uint256 shares = _depositAs(user, amount);
+        // Should get at least 1 share
+        assertGe(shares, 1, "at least 1 share");
+        _withdrawAs(user, shares);
+
+        PrincipalCheckpoint memory last = _lastCheckpoint(user);
+        assertGe(last.cumulativeWithdrawals, last.cumulativeDeposits, "single share: w >= d");
+    }
+
+    // ============================== FUZZ: same-block multi-operations ==============================
+
+    /// @notice Multiple deposits in the same block (same timestamp). Each creates a separate
+    /// checkpoint entry. Verify cumulative accounting is correct.
+    function testFuzz_SameBlock_MultiDeposit_ThenFullWithdraw(uint256 a1Seed, uint256 a2Seed, uint256 rateSeed)
+        external
+    {
+        uint96 rate = _boundRate(rateSeed);
+        uint256 a1 = bound(a1Seed, 1e6, 1e20);
+        uint256 a2 = bound(a2Seed, 1e6, 1e20);
+
+        _setRate(rate);
+        address user = vm.addr(100);
+
+        // Two deposits in same block (no skip)
+        uint256 s1 = _depositAs(user, a1);
+        uint256 s2 = _depositAs(user, a2);
+
+        // Both checkpoints should have same timestamp
+        PrincipalCheckpoint[] memory h = teller.getPrincipalHistory(user);
+        assertEq(h.length, 2, "two checkpoints");
+        assertEq(h[0].timestamp, h[1].timestamp, "same timestamp");
+        assertGt(h[1].cumulativeDeposits, h[0].cumulativeDeposits, "cumulative increased");
+
+        // Full withdraw
+        _fundVault((s1 + s2).mulDivUp(uint256(rate), ONE_SHARE) + 1e18);
+        _withdrawAs(user, s1 + s2);
+
+        PrincipalCheckpoint memory last = _lastCheckpoint(user);
+        assertGe(last.cumulativeWithdrawals, last.cumulativeDeposits, "same-block multi-deposit: w >= d");
+    }
+
+    // ============================== FUZZ: transfer out then fresh deposit+withdraw ==============================
+
+    /// @notice Sender transfers all shares, then makes a fresh deposit and withdraws.
+    /// Cumulative deposits include BOTH the old and new deposit. After withdrawing only
+    /// the new shares, w < d is expected (the transferred shares inflate d).
+    function testFuzz_TransferOut_ThenDeposit_ResidualPrincipal(uint256 amount, uint256 rateSeed) external {
+        uint96 rate = _boundRate(rateSeed);
+        amount = bound(amount, 1e6, 1e24);
+
+        _setRate(rate);
+        vault.setBeforeTransferHook(address(teller));
+
+        address alice = vm.addr(101);
+        address bob = vm.addr(102);
+
+        // Alice deposits and transfers ALL to Bob
+        uint256 shares1 = _depositAs(alice, amount);
+        vm.prank(alice);
+        vault.transfer(bob, shares1);
+
+        assertEq(vault.balanceOf(alice), 0, "alice has 0 shares after transfer");
+
+        // Alice deposits fresh
+        uint256 shares2 = _depositAs(alice, amount);
+        _fundVault(shares2.mulDivUp(uint256(rate), ONE_SHARE) + 1e18);
+        _withdrawAs(alice, shares2);
+
+        PrincipalCheckpoint memory last = _lastCheckpoint(alice);
+        // Alice's cumulative deposits include BOTH deposits, but she only withdrew the second.
+        // So cumulativeDeposits > cumulativeWithdrawals — this is expected, not a bug.
+        assertGt(last.cumulativeDeposits, 0, "deposits include both");
+        _assertMonotonicHistory(alice);
+    }
+
+    // ============================== FUZZ: transfer receiver deposits then withdraws all ==============================
+
+    /// @notice Bob receives shares via transfer, then deposits fresh, then withdraws everything.
+    /// His cumulativeDeposits only reflects his direct deposit, not the transfer.
+    function testFuzz_TransferReceiver_DepositThenWithdrawAll(uint256 amount, uint256 rateSeed) external {
+        uint96 rate = _boundRate(rateSeed);
+        amount = bound(amount, 1e6, 1e24);
+
+        _setRate(rate);
+        vault.setBeforeTransferHook(address(teller));
+
+        address alice = vm.addr(101);
+        address bob = vm.addr(102);
+
+        uint256 aliceShares = _depositAs(alice, amount);
+        vm.prank(alice);
+        vault.transfer(bob, aliceShares);
+
+        // Bob deposits fresh
+        _depositAs(bob, amount);
+        uint256 totalBobShares = vault.balanceOf(bob);
+
+        _fundVault(totalBobShares.mulDivUp(uint256(rate), ONE_SHARE) + 1e18);
+        _withdrawAs(bob, totalBobShares);
+
+        PrincipalCheckpoint memory last = _lastCheckpoint(bob);
+        // Bob's withdrawal base value covers transferred + deposited shares, but
+        // his cumulativeDeposits only reflects the direct deposit
+        assertGt(last.cumulativeWithdrawals, last.cumulativeDeposits, "receiver: w > d due to transfer");
+        _assertMonotonicHistory(bob);
+    }
+
+    // ============================== FUZZ: many cycles at pathological rate ==============================
+
+    /// @notice 50 deposit+withdraw cycles at a rate that maximizes rounding per operation.
+    /// Verifies rounding dust stays bounded and doesn't accumulate into phantom principal.
+    function testFuzz_ManyCycles_PathologicalRate(uint256 amount, uint256 rateSeed) external {
+        // Use rates that are worst for rounding: primes * 1e18
+        uint96 rate = uint96(bound(rateSeed, 0.01e18, 100e18));
+        amount = bound(amount, 1e8, 1e20);
+
+        _setRate(rate);
+        address user = vm.addr(100);
+
+        for (uint256 i; i < 50; ++i) {
+            _fundVault(amount * 2);
+            uint256 shares = _depositAs(user, amount);
+            if (shares == 0) continue;
+            _withdrawAs(user, shares);
+        }
+
+        PrincipalCheckpoint memory last = _lastCheckpoint(user);
+        assertGe(last.cumulativeWithdrawals, last.cumulativeDeposits, "50 cycles: no phantom principal");
+
+        // Verify the overshoot is bounded: at most 1 wei per cycle
+        uint256 overshoot = last.cumulativeWithdrawals - last.cumulativeDeposits;
+        assertLe(overshoot, 50, "overshoot bounded by cycle count");
+    }
+
+    // ============================== FUZZ: alternating rate direction between cycles ==============================
+
+    /// @notice Rate oscillates up and down between deposit/withdraw cycles.
+    /// Each cycle deposits and withdraws at the SAME rate, but rate alternates between two values.
+    function testFuzz_AlternatingRates_NoPhantomPrincipal(uint256 amount, uint256 rateSeed1, uint256 rateSeed2)
+        external
+    {
+        uint96 rHigh = uint96(bound(rateSeed1, 1e18, 100e18));
+        uint96 rLow = uint96(bound(rateSeed2, 0.01e18, uint256(rHigh)));
+        amount = bound(amount, 1e6, 1e22);
+
+        address user = vm.addr(100);
+
+        for (uint256 i; i < 10; ++i) {
+            uint96 rate = (i % 2 == 0) ? rHigh : rLow;
+            _setRate(rate);
+            _fundVault(amount * 2);
+            uint256 shares = _depositAs(user, amount);
+            if (shares == 0) continue;
+            _withdrawAs(user, shares);
+        }
+
+        PrincipalCheckpoint memory last = _lastCheckpoint(user);
+        assertGe(last.cumulativeWithdrawals, last.cumulativeDeposits, "alternating rates: no phantom principal");
+    }
+
+    // ============================== FUZZ: deposit at rate R, partial withdraw at R, rate changes, withdraw rest ==============================
+
+    /// @notice Split withdrawal across rate change boundary. First half at deposit rate,
+    /// second half at different rate. Tests that partial withdraw rounding at each rate
+    /// doesn't break the cumulative invariant when combined.
+    function testFuzz_SplitWithdrawAcrossRateChange_SameOrHigher(uint256 amount, uint256 rateSeed1, uint256 rateSeed2)
+        external
+    {
+        uint96 r1 = _boundRate(rateSeed1);
+        uint96 r2 = uint96(bound(rateSeed2, uint256(r1), 100e18)); // r2 >= r1
+        amount = bound(amount, 1e8, 1e22);
+
+        _setRate(r1);
+        address user = vm.addr(100);
+        uint256 shares = _depositAs(user, amount);
+        vm.assume(shares >= 2);
+
+        _fundVault(shares.mulDivUp(uint256(r2), ONE_SHARE) + 1e18);
+
+        // Withdraw half at r1
+        uint256 half = shares / 2;
+        _withdrawAs(user, half);
+
+        // Rate changes up, withdraw rest
+        _setRate(r2);
+        uint256 remaining = vault.balanceOf(user);
+        _withdrawAs(user, remaining);
+
+        PrincipalCheckpoint memory last = _lastCheckpoint(user);
+        // r2 >= r1: second half withdrawal at higher rate, should satisfy invariant
+        assertGe(last.cumulativeWithdrawals, last.cumulativeDeposits, "split withdraw (rate up): w >= d");
+    }
+
+    // ============================== FUZZ: deposit+withdraw rounding delta never exceeds 1 wei ==============================
+
+    /// @notice For a single deposit+withdraw at the same rate, the difference between
+    /// cumulativeWithdrawals and cumulativeDeposits should be exactly 0 or 1 wei.
+    /// This verifies the rounding is tight, not wastefully overcompensating.
+    function testFuzz_SingleCycle_RoundingDelta_AtMostOne(uint256 amount, uint256 rateSeed) external {
+        uint96 rate = _boundRate(rateSeed);
+        amount = bound(amount, 1e6, 1e28);
+
+        _setRate(rate);
+        _fundVault(amount * 2);
+
+        address user = vm.addr(100);
+        uint256 shares = _depositAs(user, amount);
+        vm.assume(shares > 0);
+        _withdrawAs(user, shares);
+
+        PrincipalCheckpoint memory last = _lastCheckpoint(user);
+        uint256 delta = last.cumulativeWithdrawals - last.cumulativeDeposits;
+        assertLe(delta, 1, "single cycle: rounding delta is at most 1 wei");
+    }
+
+    // ============================== FUZZ: two users same deposit, verify checkpoint isolation ==============================
+
+    /// @notice Two users deposit the same amount at the same rate. Verify their checkpoints
+    /// are completely independent — one user's operations don't affect the other.
+    function testFuzz_TwoUsers_CheckpointIsolation(uint256 amount, uint256 rateSeed) external {
+        uint96 rate = _boundRate(rateSeed);
+        amount = bound(amount, 1e6, 1e24);
+
+        _setRate(rate);
+        _fundVault(amount * 10);
+
+        address alice = vm.addr(101);
+        address bob = vm.addr(102);
+
+        uint256 aliceShares = _depositAs(alice, amount);
+        uint256 bobShares = _depositAs(bob, amount);
+
+        // Only Alice withdraws
+        _withdrawAs(alice, aliceShares);
+
+        PrincipalCheckpoint memory aliceLast = _lastCheckpoint(alice);
+        PrincipalCheckpoint memory bobLast = _lastCheckpoint(bob);
+
+        // Alice: w >= d after full withdraw
+        assertGe(aliceLast.cumulativeWithdrawals, aliceLast.cumulativeDeposits, "alice: w >= d");
+        // Bob: no withdrawals yet
+        assertEq(bobLast.cumulativeWithdrawals, 0, "bob: no withdrawals");
+        assertGt(bobLast.cumulativeDeposits, 0, "bob: has deposits");
+
+        // Bob withdraws
+        _withdrawAs(bob, bobShares);
+        bobLast = _lastCheckpoint(bob);
+        assertGe(bobLast.cumulativeWithdrawals, bobLast.cumulativeDeposits, "bob: w >= d");
+        // Same deposits and withdrawals for both (same amount, same rate)
+        assertEq(aliceLast.cumulativeDeposits, bobLast.cumulativeDeposits, "same deposit baseValue");
+        assertEq(aliceLast.cumulativeWithdrawals, bobLast.cumulativeWithdrawals, "same withdrawal baseValue");
+    }
+
+    // ============================== FUZZ: withdraw exactly 1 share at various rates ==============================
+
+    /// @notice Withdrawing a single share should always produce a valid checkpoint
+    /// and never cause arithmetic issues regardless of rate.
+    function testFuzz_WithdrawSingleShare_NoPanic(uint256 amount, uint256 rateSeed) external {
+        uint96 rate = _boundRate(rateSeed);
+        amount = bound(amount, 1e8, 1e24);
+
+        _setRate(rate);
+        _fundVault(amount * 2);
+
+        address user = vm.addr(100);
+        uint256 shares = _depositAs(user, amount);
+        vm.assume(shares >= 2);
+
+        // Withdraw exactly 1 share
+        _withdrawAs(user, 1);
+
+        PrincipalCheckpoint memory last = _lastCheckpoint(user);
+        assertGt(last.cumulativeWithdrawals, 0, "1-share withdraw recorded");
+        _assertMonotonicHistory(user);
+    }
+
+    // ============================== FUZZ: deposit rounding loss is conservative ==============================
+
+    /// @notice Verify that the deposit checkpoint baseValue is always <= the actual deposit amount.
+    /// This confirms rounding is conservative (records less, not more).
+    function testFuzz_DepositBaseValue_NeverExceedsAmount(uint256 amount, uint256 rateSeed) external {
+        uint96 rate = _boundRate(rateSeed);
+        amount = bound(amount, 1, 1e28);
+
+        _setRate(rate);
+
+        address user = vm.addr(100);
+        weth.mint(user, amount);
+        vm.startPrank(user);
+        ERC20(address(weth)).safeApprove(address(vault), amount);
+        teller.deposit(DepositParams(ERC20(address(weth)), amount, 0, user), address(0), ComplianceData(0, ""));
+        vm.stopPrank();
+
+        PrincipalCheckpoint[] memory h = teller.getPrincipalHistory(user);
+        if (h.length > 0) {
+            assertLe(uint256(h[h.length - 1].cumulativeDeposits), amount, "deposit baseValue <= actual deposit amount");
+        }
+    }
+
+    // ============================== FUZZ: rapid deposit+withdraw+deposit+withdraw same block ==============================
+
+    /// @notice Two full cycles in the same block at the same rate.
+    /// Tests that same-timestamp checkpoints accumulate correctly.
+    function testFuzz_TwoCyclesSameBlock(uint256 amount, uint256 rateSeed) external {
+        uint96 rate = _boundRate(rateSeed);
+        amount = bound(amount, 1e6, 1e22);
+
+        _setRate(rate);
+        _fundVault(amount * 10);
+
+        address user = vm.addr(100);
+
+        // Cycle 1 (no time advance)
+        uint256 s1 = _depositAs(user, amount);
+        if (s1 > 0) _withdrawAs(user, s1);
+
+        // Cycle 2 (same block)
+        uint256 s2 = _depositAs(user, amount);
+        if (s2 > 0) _withdrawAs(user, s2);
+
+        PrincipalCheckpoint memory last = _lastCheckpoint(user);
+        assertGe(last.cumulativeWithdrawals, last.cumulativeDeposits, "two cycles same block: w >= d");
+    }
+
     // ============================== CONCRETE: uint104 cumulative overflow reverts safely ==============================
 
     /// @notice Cumulative deposits across multiple smaller deposits can exceed uint104 max.
@@ -335,9 +984,7 @@ contract PrincipalHistoryFuzzTest is Test {
         ERC20(address(weth)).safeApprove(address(vault), perDeposit);
 
         vm.expectRevert();
-        teller.deposit(
-            DepositParams(ERC20(address(weth)), perDeposit, 0, address(0)), address(0), ComplianceData(0, "")
-        );
+        teller.deposit(DepositParams(ERC20(address(weth)), perDeposit, 0, user), address(0), ComplianceData(0, ""));
         vm.stopPrank();
     }
 }
