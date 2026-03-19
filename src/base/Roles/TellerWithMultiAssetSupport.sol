@@ -476,8 +476,8 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     }
 
     /**
-     * @notice Allows users to deposit into the BoringVault for another address, if this contract is not paused.
-     * @dev Publicly callable.
+     * @notice Allows an authorized caller to deposit into the BoringVault for another address, if this contract is not paused.
+     * @dev Intended for router-like integrations; this selector should remain role-gated.
      */
     function deposit(
         ERC20 depositAsset,
@@ -705,6 +705,6 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @notice Returns the version of the contract.
      */
     function version() public pure virtual returns (string memory) {
-        return "Base V0.1";
+        return "Base V0.2";
     }
 }
