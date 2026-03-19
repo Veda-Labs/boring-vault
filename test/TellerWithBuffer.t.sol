@@ -135,7 +135,9 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
             true
         );
 
-        rolesAuthority.setPublicCapability(address(teller), TellerWithMultiAssetSupport.deposit.selector, true);
+        rolesAuthority.setPublicCapability(
+            address(teller), bytes4(keccak256("deposit(address,uint256,uint256,address)")), true
+        );
         rolesAuthority.setPublicCapability(
             address(teller), TellerWithMultiAssetSupport.depositWithPermit.selector, true
         );

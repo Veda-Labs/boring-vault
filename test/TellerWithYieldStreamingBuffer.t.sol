@@ -27,6 +27,9 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
     using stdStorage for StdStorage;
 
+    bytes4 internal constant DEPOSIT_SELECTOR = bytes4(keccak256("deposit(address,uint256,uint256,address)"));
+    bytes4 internal constant DEPOSIT_TO_SELECTOR = bytes4(keccak256("deposit(address,uint256,uint256,address,address)"));
+
     BoringVault public boringVault;
 
     uint8 public constant ADMIN_ROLE = 1;
@@ -35,6 +38,7 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
     uint8 public constant SOLVER_ROLE = 9;
     uint8 public constant QUEUE_ROLE = 10;
     uint8 public constant CAN_SOLVE_ROLE = 11;
+    uint8 public constant ROUTER_ROLE = 55;
     uint8 public constant TELLER_MANAGER_ROLE = 62;
 
     TellerWithYieldStreaming public teller;
@@ -154,8 +158,9 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
             bytes4(keccak256("updateCumulative()")),
             true
         );
+        rolesAuthority.setRoleCapability(ROUTER_ROLE, address(teller), DEPOSIT_TO_SELECTOR, true);
 
-        rolesAuthority.setPublicCapability(address(teller), TellerWithMultiAssetSupport.deposit.selector, true);
+        rolesAuthority.setPublicCapability(address(teller), DEPOSIT_SELECTOR, true);
         rolesAuthority.setPublicCapability(
             address(teller), TellerWithMultiAssetSupport.depositWithPermit.selector, true
         );
@@ -426,6 +431,47 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         vm.warp(block.timestamp + 10);
         teller.withdraw(USDT, amount / 5, 0, address(this));
         assertApproxEqAbs(USDT.balanceOf(address(this)), amount / 5 + amount / 10, 2, "Should have received expected USDT");
+    }
+
+    function testDepositToReceivesSharesAndLocksReceiver(uint256 amount) external {
+        amount = bound(amount, 0.01e6, 10_000e6);
+        rolesAuthority.setUserRole(address(this), ROUTER_ROLE, true);
+
+        address receiver = vm.addr(2);
+        address recipient = vm.addr(3);
+
+        boringVault.setBeforeTransferHook(address(teller));
+        teller.setShareLockPeriod(1 days);
+
+        deal(address(USDT), address(this), amount);
+        USDT.safeApprove(address(boringVault), amount);
+
+        uint256 shares = teller.deposit(USDT, amount, 0, receiver, referrer);
+
+        assertGt(shares, 0, "Deposit should mint shares");
+        assertEq(boringVault.balanceOf(receiver), shares, "Receiver should receive shares");
+        assertEq(boringVault.balanceOf(address(this)), 0, "Caller should not receive shares");
+
+        (,,,, uint256 receiverUnlockTime) = teller.beforeTransferData(receiver);
+        (,,,, uint256 callerUnlockTime) = teller.beforeTransferData(address(this));
+        assertEq(receiverUnlockTime, block.timestamp + 1 days, "Receiver shares should be locked");
+        assertEq(callerUnlockTime, 0, "Caller should not be locked");
+
+        assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), amount, 2, "Deposit should use the buffer path");
+
+        vm.startPrank(receiver);
+        vm.expectRevert(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__SharesAreLocked.selector);
+        teller.withdraw(USDT, shares / 10, 0, receiver);
+        vm.expectRevert(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__SharesAreLocked.selector);
+        boringVault.transfer(recipient, 1);
+        vm.stopPrank();
+
+        vm.warp(receiverUnlockTime + 1);
+
+        vm.prank(receiver);
+        boringVault.transfer(recipient, shares);
+        assertEq(boringVault.balanceOf(receiver), 0, "Receiver shares should unlock after the lock period");
+        assertEq(boringVault.balanceOf(recipient), shares, "Recipient should receive unlocked shares");
     }
 
     function testBufferHelperZeroAddress(uint256 amount) external {
