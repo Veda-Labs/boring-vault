@@ -17,6 +17,7 @@ struct PrincipalCheckpoint {
     uint48 timestamp;
     uint104 cumulativeDeposits;
     uint104 cumulativeWithdrawals;
+    uint256 sharePrice;
 }
 
 library TellerWithMultiAssetSupportLib {
@@ -390,7 +391,7 @@ library TellerWithMultiAssetSupportLib {
             uint256 baseValue = shares.mulDivUp(rate, oneShare);
             prevWithdrawals += SafeCast.toUint104(baseValue);
         }
-        principalHistory[user].push(PrincipalCheckpoint(uint48(block.timestamp), prevDeposits, prevWithdrawals));
+        principalHistory[user].push(PrincipalCheckpoint(uint48(block.timestamp), prevDeposits, prevWithdrawals, rate));
     }
 
     /**
@@ -398,9 +399,11 @@ library TellerWithMultiAssetSupportLib {
      * @dev If the most recent entry is itself a transfer checkpoint (same cumulative values
      *      as the entry before it), overwrites its timestamp instead of pushing.
      */
-    function checkpointTransfer(mapping(address => PrincipalCheckpoint[]) storage principalHistory, address user)
-        external
-    {
+    function checkpointTransfer(
+        mapping(address => PrincipalCheckpoint[]) storage principalHistory,
+        uint256 rate,
+        address user
+    ) external {
         PrincipalCheckpoint[] storage history = principalHistory[user];
         uint256 len = history.length;
         uint104 d;
@@ -410,9 +413,10 @@ library TellerWithMultiAssetSupportLib {
             w = history[len - 1].cumulativeWithdrawals;
             if (len > 1 && d == history[len - 2].cumulativeDeposits && w == history[len - 2].cumulativeWithdrawals) {
                 history[len - 1].timestamp = uint48(block.timestamp);
+                history[len - 1].sharePrice = rate;
                 return;
             }
         }
-        history.push(PrincipalCheckpoint(uint48(block.timestamp), d, w));
+        history.push(PrincipalCheckpoint(uint48(block.timestamp), d, w, rate));
     }
 }

@@ -770,7 +770,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      *      as the entry before it), overwrites its timestamp instead of pushing to bound array growth.
      */
     function _checkpointTransfer(address user) internal {
-        TellerWithMultiAssetSupportLib.checkpointTransfer(_principalHistory, user);
+        TellerWithMultiAssetSupportLib.checkpointTransfer(_principalHistory, accountant.getRateSafe(), user);
     }
 
     function _processRewards(RewardData[] calldata rewards, address user) internal {

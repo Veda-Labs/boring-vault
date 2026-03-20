@@ -963,6 +963,123 @@ contract PrincipalHistoryFuzzTest is Test {
         assertGe(last.cumulativeWithdrawals, last.cumulativeDeposits, "two cycles same block: w >= d");
     }
 
+    // ============================== SHARE PRICE TESTS ==============================
+
+    /// @notice Deposit checkpoint records the current exchange rate as sharePrice.
+    function testFuzz_SharePrice_RecordedOnDeposit(uint256 amount, uint256 rateSeed) external {
+        uint96 rate = _boundRate(rateSeed);
+        amount = bound(amount, 1e6, 1e28);
+        _setRate(rate);
+
+        address user = vm.addr(100);
+        _depositAs(user, amount);
+
+        PrincipalCheckpoint memory cp = _lastCheckpoint(user);
+        assertEq(cp.sharePrice, uint256(rate), "deposit checkpoint must record current rate");
+    }
+
+    /// @notice Withdrawal checkpoint records the rate at withdrawal time, not deposit time.
+    function testFuzz_SharePrice_RecordedOnWithdraw(uint256 amount, uint256 depositRateSeed, uint256 withdrawRateSeed)
+        external
+    {
+        uint96 depositRate = _boundRate(depositRateSeed);
+        uint96 withdrawRate = _boundRate(withdrawRateSeed);
+        amount = bound(amount, 1e6, 1e24);
+
+        _setRate(depositRate);
+        address user = vm.addr(100);
+        uint256 shares = _depositAs(user, amount);
+
+        _setRate(withdrawRate);
+        _fundVault(shares * 200);
+        _withdrawAs(user, shares);
+
+        PrincipalCheckpoint memory last = _lastCheckpoint(user);
+        assertEq(last.sharePrice, uint256(withdrawRate), "withdraw checkpoint must record withdrawal rate");
+    }
+
+    /// @notice Each checkpoint in a multi-operation sequence records the rate at its own time.
+    function testFuzz_SharePrice_TracksRateChanges(uint256 amount, uint256 rateSeed1, uint256 rateSeed2) external {
+        uint96 r1 = _boundRate(rateSeed1);
+        uint96 r2 = _boundRate(rateSeed2);
+        amount = bound(amount, 1e6, 1e22);
+
+        address user = vm.addr(100);
+
+        _setRate(r1);
+        _depositAs(user, amount);
+
+        _setRate(r2);
+        _depositAs(user, amount);
+
+        PrincipalCheckpoint[] memory h = teller.getPrincipalHistory(user);
+        assertEq(h.length, 2, "two checkpoints");
+        assertEq(h[0].sharePrice, uint256(r1), "first checkpoint has first rate");
+        assertEq(h[1].sharePrice, uint256(r2), "second checkpoint has second rate");
+    }
+
+    /// @notice Transfer checkpoint records current rate as sharePrice.
+    function testFuzz_SharePrice_RecordedOnTransfer(uint256 amount, uint256 depositRateSeed, uint256 transferRateSeed)
+        external
+    {
+        uint96 depositRate = _boundRate(depositRateSeed);
+        uint96 transferRate = _boundRate(transferRateSeed);
+        amount = bound(amount, 1e6, 1e24);
+
+        _setRate(depositRate);
+        vault.setBeforeTransferHook(address(teller));
+
+        address alice = vm.addr(101);
+        address bob = vm.addr(102);
+
+        uint256 shares = _depositAs(alice, amount);
+
+        _setRate(transferRate);
+        vm.prank(alice);
+        vault.transfer(bob, shares);
+
+        // Bob's checkpoint from receiving the transfer should have the transfer-time rate
+        PrincipalCheckpoint memory bobCp = _lastCheckpoint(bob);
+        assertEq(bobCp.sharePrice, uint256(transferRate), "transfer checkpoint records transfer-time rate");
+
+        // Alice's latest checkpoint (from the transfer) should also have the transfer-time rate
+        PrincipalCheckpoint memory aliceCp = _lastCheckpoint(alice);
+        assertEq(aliceCp.sharePrice, uint256(transferRate), "sender transfer checkpoint records transfer-time rate");
+    }
+
+    /// @notice Repeated transfer checkpoints that get coalesced still update sharePrice.
+    function testFuzz_SharePrice_UpdatedOnCoalescedTransfer(uint256 amount, uint256 rateSeed1, uint256 rateSeed2)
+        external
+    {
+        uint96 r1 = _boundRate(rateSeed1);
+        uint96 r2 = _boundRate(rateSeed2);
+        amount = bound(amount, 1e6, 1e22);
+
+        _setRate(r1);
+        vault.setBeforeTransferHook(address(teller));
+
+        address alice = vm.addr(101);
+        address bob = vm.addr(102);
+        address carol = vm.addr(103);
+
+        uint256 shares = _depositAs(alice, amount);
+        vm.assume(shares >= 3);
+
+        // First transfer: creates a transfer checkpoint for alice
+        vm.prank(alice);
+        vault.transfer(bob, shares / 3);
+
+        // Rate changes
+        _setRate(r2);
+
+        // Second transfer: should coalesce alice's transfer checkpoint but update sharePrice
+        vm.prank(alice);
+        vault.transfer(carol, shares / 3);
+
+        PrincipalCheckpoint memory aliceLast = _lastCheckpoint(alice);
+        assertEq(aliceLast.sharePrice, uint256(r2), "coalesced transfer checkpoint has latest rate");
+    }
+
     // ============================== CONCRETE: uint104 cumulative overflow reverts safely ==============================
 
     /// @notice Cumulative deposits across multiple smaller deposits can exceed uint104 max.
