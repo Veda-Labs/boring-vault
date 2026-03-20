@@ -823,6 +823,6 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @notice Returns the version of the contract.
      */
     function version() public pure virtual returns (string memory) {
-        return "Base V0.2";
+        return "Base V0.3";
     }
 }

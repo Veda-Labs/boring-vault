@@ -25,7 +25,7 @@ contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
      * @dev Publicly callable.
      */
     function withdraw(ERC20 withdrawAsset, uint256 shareAmount, uint256 minimumAssets, address to)
-        public
+        external
         override
         requiresAuth
         nonReentrant
@@ -48,7 +48,7 @@ contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
         uint256 minimumAssets,
         address to,
         RewardData[] calldata rewards
-    ) public override requiresAuth nonReentrant returns (uint256 assetsOut) {
+    ) external override requiresAuth nonReentrant returns (uint256 assetsOut) {
         _getAccountant().updateExchangeRate();
         beforeTransfer(msg.sender, address(0), msg.sender);
         assetsOut = _withdraw(withdrawAsset, shareAmount, minimumAssets, to);

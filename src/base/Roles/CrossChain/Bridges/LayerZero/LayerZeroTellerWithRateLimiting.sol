@@ -198,6 +198,6 @@ contract LayerZeroTellerWithRateLimiting is CrossChainTellerWithGenericBridge, O
      * @notice Returns the version of the contract.
      */
     function version() public pure virtual override returns (string memory) {
-        return "LayerZero Rate Limiting V0.1, Cross Chain V0.1, Base V0.2";
+        return "LayerZero Rate Limiting V0.1, Cross Chain V0.1, Base V0.3";
     }
 }

@@ -234,6 +234,6 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
      * @notice Returns the version of the contract.
      */
     function version() public pure virtual override returns (string memory) {
-        return "Cross Chain V0.1, Base V0.2";
+        return "Cross Chain V0.1, Base V0.3";
     }
 }

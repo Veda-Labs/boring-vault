@@ -946,7 +946,7 @@ contract LayerZeroTellerWithRateLimitingTest is Test, MerkleTreeHelper {
         string memory v = sourceTeller.version();
         assertEq(
             keccak256(bytes(v)),
-            keccak256(bytes("LayerZero Rate Limiting V0.1, Cross Chain V0.1, Base V0.2")),
+            keccak256(bytes("LayerZero Rate Limiting V0.1, Cross Chain V0.1, Base V0.3")),
             "Version string mismatch."
         );
     }
