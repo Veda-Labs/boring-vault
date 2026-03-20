@@ -475,23 +475,6 @@ abstract contract RewardRoutingPositiveBase is Test {
         assertEq(rewardToken.balanceOf(user), 300 * rewardUnit);
     }
 
-    // ========================= unblacklist positive path =========================
-
-    function test_claimRewards_unblacklistedUserCanClaim() external {
-        pool.setBlacklisted(user, true);
-        pool.setBlacklisted(user, false);
-
-        uint256 deadline = block.timestamp + 1 hours;
-        bytes memory sig = _sign(address(pool), user, 100 * rewardUnit, deadline);
-        RewardData[] memory rewards = new RewardData[](1);
-        rewards[0] = RewardData(address(pool), 100 * rewardUnit, deadline, sig);
-
-        vm.prank(user);
-        teller.claimRewards(rewards);
-
-        assertEq(rewardToken.balanceOf(user), 100 * rewardUnit);
-    }
-
     // ========================= signer rotation positive path =========================
 
     function test_claimRewards_newSignerWorksAfterRotation() external {
@@ -571,7 +554,9 @@ abstract contract RewardRoutingPositiveBase is Test {
         usdc.mint(depositor, amount);
         vm.startPrank(depositor);
         ERC20(address(usdc)).safeApprove(address(boringVault), amount);
-        shares = teller.deposit(DepositParams(ERC20(address(usdc)), amount, 0, address(0)), address(0), ComplianceData(0, ""));
+        shares = teller.deposit(
+            DepositParams(ERC20(address(usdc)), amount, 0, address(0)), address(0), ComplianceData(0, "")
+        );
         vm.stopPrank();
     }
 

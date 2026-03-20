@@ -19,8 +19,6 @@ contract IncentivePool is Auth {
     error InvalidSigner();
     error InvalidAddress();
     error InvalidMaxDeadline();
-    error Blacklisted();
-
     event SecondsBetweenClaimsSet(uint256 secondsBetweenClaims);
     event RewardSignerSet(address indexed rewardSigner);
     event RewardsProcessed(address indexed rewardsRecipient, uint256 amountClaimed);
@@ -28,7 +26,6 @@ contract IncentivePool is Auth {
     event MaxDeadlineSet(uint256 maxDeadline);
     event TotalRewardCapSet(uint256 totalRewardCap);
     event FundsRescued(address indexed token, address indexed to, uint256 amount);
-    event BlacklistUpdated(address indexed user, bool status);
 
     /// @notice The reward token
     ERC20 public immutable REWARD_TOKEN;
@@ -48,9 +45,6 @@ contract IncentivePool is Auth {
     uint32 public secondsBetweenClaims;
     /// @notice The maximum total rewards a single user can ever claim
     uint104 public totalRewardCap;
-
-    /// @notice Whether a user is blacklisted from claiming rewards
-    mapping(address => bool) public blacklisted;
 
     /// @notice A struct to store the claim checkpoint (packed into 1 slot: 48 + 208 = 256)
     struct ClaimCheckpoint {
@@ -94,17 +88,6 @@ contract IncentivePool is Auth {
     function setMaximumRewardAmountPerClaim(uint96 newMaximumRewardAmountPerClaim) external requiresAuth {
         maximumRewardAmountPerClaim = newMaximumRewardAmountPerClaim;
         emit MaximumRewardAmountPerClaimSet(newMaximumRewardAmountPerClaim);
-    }
-
-    /**
-     * @notice Sets the blacklist status for a user
-     * @param user The address of the user to blacklist or unblacklist
-     * @param status True to blacklist, false to unblacklist
-     * @dev Callable by OWNER_ROLE.
-     */
-    function setBlacklisted(address user, bool status) external requiresAuth {
-        blacklisted[user] = status;
-        emit BlacklistUpdated(user, status);
     }
 
     /**
@@ -167,7 +150,6 @@ contract IncentivePool is Auth {
         uint256 deadline,
         bytes calldata signature
     ) external requiresAuth returns (uint256) {
-        if (blacklisted[rewardsRecipient]) revert Blacklisted();
         uint256 totalRewardCapMemory = totalRewardCap;
         uint256 maximumRewardAmountPerClaimMemory = maximumRewardAmountPerClaim;
         if (totalRewardCapMemory == 0 || maximumRewardAmountPerClaimMemory == 0) return 0;

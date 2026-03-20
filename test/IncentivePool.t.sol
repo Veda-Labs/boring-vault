@@ -30,8 +30,6 @@ contract IncentivePoolTest is Test {
     event TotalRewardCapSet(uint256 totalRewardCap);
     event SecondsBetweenClaimsSet(uint256 secondsBetweenClaims);
     event FundsRescued(address indexed token, address indexed to, uint256 amount);
-    event BlacklistUpdated(address indexed user, bool status);
-
     IncentivePool public pool;
     RolesAuthority public rolesAuthority;
     MockERC20 public rewardToken;
@@ -1274,58 +1272,6 @@ contract IncentivePoolTest is Test {
         assertEq(result, 0, "should no-op");
     }
 
-    // ========================= BLACKLIST =========================
-
-    function test_setBlacklisted() external {
-        vm.expectEmit(true, false, false, true, address(pool));
-        emit BlacklistUpdated(user, true);
-
-        pool.setBlacklisted(user, true);
-
-        assertTrue(pool.blacklisted(user));
-    }
-
-    function test_setBlacklisted_revertsUnauthorized() external {
-        vm.prank(user);
-        vm.expectRevert("UNAUTHORIZED");
-        pool.setBlacklisted(user, true);
-    }
-
-    function test_processRewards_revertsBlacklisted() external {
-        pool.setBlacklisted(user, true);
-
-        uint256 deadline = block.timestamp + 1 hours;
-        bytes memory sig = _sign(user, 100e18, deadline);
-
-        vm.prank(teller);
-        vm.expectRevert(IncentivePool.Blacklisted.selector);
-        pool.processRewards(user, 100e18, deadline, sig);
-    }
-
-    function test_processRewards_unblacklistAllowsClaim() external {
-        pool.setBlacklisted(user, true);
-        pool.setBlacklisted(user, false);
-
-        uint256 deadline = block.timestamp + 1 hours;
-        bytes memory sig = _sign(user, 100e18, deadline);
-
-        vm.prank(teller);
-        uint256 delta = pool.processRewards(user, 100e18, deadline, sig);
-        assertEq(delta, 100e18);
-    }
-
-    function test_processRewards_blacklistOnlyAffectsTargetUser() external {
-        address user2 = vm.addr(4);
-        pool.setBlacklisted(user, true);
-
-        uint256 deadline = block.timestamp + 1 hours;
-        bytes memory sig = _sign(user2, 100e18, deadline);
-
-        vm.prank(teller);
-        uint256 delta = pool.processRewards(user2, 100e18, deadline, sig);
-        assertEq(delta, 100e18);
-    }
-
     // ========================= VIEW FUNCTIONS =========================
 
     function test_getLastClaimTimestamp_noHistory() external view {
@@ -1478,28 +1424,6 @@ contract IncentivePoolTest is Test {
         assertEq(delta, 100e18);
     }
 
-    function test_processRewards_blacklistAfterPartialClaims() external {
-        // User claims 100
-        uint256 d1 = block.timestamp + 1 hours;
-        bytes memory s1 = _sign(user, 100e18, d1);
-        vm.prank(teller);
-        pool.processRewards(user, 100e18, d1, s1);
-
-        // Blacklist user
-        pool.setBlacklisted(user, true);
-
-        // Further claims revert
-        vm.warp(block.timestamp + 1);
-        uint256 d2 = block.timestamp + 1 hours;
-        bytes memory s2 = _sign(user, 200e18, d2);
-        vm.prank(teller);
-        vm.expectRevert(IncentivePool.Blacklisted.selector);
-        pool.processRewards(user, 200e18, d2, s2);
-
-        // Claim history preserved
-        assertEq(pool.getTotalClaimedAmount(user), 100e18);
-    }
-
     function test_rescueFunds_differentToken() external {
         MockERC20 otherToken = new MockERC20("Other", "OTH", 18);
         otherToken.mint(address(pool), 500e18);
@@ -1522,18 +1446,6 @@ contract IncentivePoolTest is Test {
         vm.prank(teller);
         vm.expectRevert("TRANSFER_FAILED");
         pool.processRewards(user, 100e18, deadline, sig);
-    }
-
-    function test_processRewards_blacklistCheckedBeforeSignature() external {
-        pool.setBlacklisted(user, true);
-
-        // Use invalid signature - should still revert with Blacklisted, not InvalidSigner
-        uint256 deadline = block.timestamp + 1 hours;
-        bytes memory badSig = _signWithKey(0xBAD, user, 100e18, deadline);
-
-        vm.prank(teller);
-        vm.expectRevert(IncentivePool.Blacklisted.selector);
-        pool.processRewards(user, 100e18, deadline, badSig);
     }
 
     function test_processRewards_cumulativeLessThanClaimedNoOp() external {
@@ -1571,23 +1483,6 @@ contract IncentivePoolTest is Test {
         vm.prank(teller);
         uint256 delta = pool.processRewards(user, amount2, deadline, sig2);
         assertEq(delta, amount2 - amount1);
-    }
-
-    function testFuzz_processRewards_blacklistPreservesHistory(uint104 amount) external {
-        amount = uint104(bound(amount, 1e18, 500e18));
-        pool.setTotalRewardCap(type(uint104).max);
-
-        uint256 deadline = block.timestamp + 1 hours;
-        bytes memory sig = _sign(user, amount, deadline);
-        vm.prank(teller);
-        pool.processRewards(user, amount, deadline, sig);
-
-        pool.setBlacklisted(user, true);
-
-        // History and balance remain intact
-        assertEq(pool.getTotalClaimedAmount(user), amount);
-        assertEq(pool.getLastClaimTimestamp(user), block.timestamp);
-        assertEq(rewardToken.balanceOf(user), amount);
     }
 
     function testFuzz_getLastCheckpointData_matchesClaimHistory(uint8 numClaims) external {

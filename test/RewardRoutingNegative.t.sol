@@ -273,35 +273,6 @@ abstract contract RewardRoutingNegativeBase is Test {
         assertEq(rewardToken.balanceOf(user), 200 * rewardUnit);
     }
 
-    // ========================= BLACKLISTED USER =========================
-
-    function test_claimRewards_blacklistedUser_revertsBlacklisted() external {
-        pool.setBlacklisted(user, true);
-
-        uint256 deadline = block.timestamp + 1 hours;
-        bytes memory sig = _sign(address(pool), user, 100 * rewardUnit, deadline);
-        RewardData[] memory rewards = new RewardData[](1);
-        rewards[0] = RewardData(address(pool), 100 * rewardUnit, deadline, sig);
-
-        vm.prank(user);
-        vm.expectRevert(IncentivePool.Blacklisted.selector);
-        teller.claimRewards(rewards);
-    }
-
-    function test_withdrawWithRewards_blacklistedUser_revertsBlacklisted() external {
-        uint256 shares = _depositForUser(user, 10_000e6);
-        pool.setBlacklisted(user, true);
-
-        uint256 deadline = block.timestamp + 1 hours;
-        bytes memory sig = _sign(address(pool), user, 100 * rewardUnit, deadline);
-        RewardData[] memory rewards = new RewardData[](1);
-        rewards[0] = RewardData(address(pool), 100 * rewardUnit, deadline, sig);
-
-        vm.prank(user);
-        vm.expectRevert(IncentivePool.Blacklisted.selector);
-        teller.withdrawWithRewards(ERC20(address(usdc)), shares, 0, user, rewards);
-    }
-
     // ========================= EXPIRED / FUTURE DEADLINES =========================
 
     function test_claimRewards_expiredDeadline_noOp() external {
@@ -633,31 +604,6 @@ abstract contract RewardRoutingNegativeBase is Test {
         assertEq(rewardToken.balanceOf(user), 0);
     }
 
-    // ========================= BLACKLIST AFTER PARTIAL CLAIM =========================
-
-    function test_claimRewards_blacklistedAfterFirstClaim_blocksSecond() external {
-        uint256 deadline = block.timestamp + 1 hours;
-        bytes memory sig1 = _sign(address(pool), user, 100 * rewardUnit, deadline);
-        RewardData[] memory r1 = new RewardData[](1);
-        r1[0] = RewardData(address(pool), 100 * rewardUnit, deadline, sig1);
-
-        vm.prank(user);
-        teller.claimRewards(r1);
-        assertEq(rewardToken.balanceOf(user), 100 * rewardUnit);
-
-        pool.setBlacklisted(user, true);
-
-        bytes memory sig2 = _sign(address(pool), user, 200 * rewardUnit, deadline);
-        RewardData[] memory r2 = new RewardData[](1);
-        r2[0] = RewardData(address(pool), 200 * rewardUnit, deadline, sig2);
-
-        vm.prank(user);
-        vm.expectRevert(IncentivePool.Blacklisted.selector);
-        teller.claimRewards(r2);
-
-        assertEq(rewardToken.balanceOf(user), 100 * rewardUnit);
-    }
-
     // ========================= SIGNER ROTATION =========================
 
     function test_claimRewards_oldSignerAfterRotation_noOp() external {
@@ -739,7 +685,9 @@ abstract contract RewardRoutingNegativeBase is Test {
         usdc.mint(depositor, amount);
         vm.startPrank(depositor);
         ERC20(address(usdc)).safeApprove(address(boringVault), amount);
-        shares = teller.deposit(DepositParams(ERC20(address(usdc)), amount, 0, address(0)), address(0), ComplianceData(0, ""));
+        shares = teller.deposit(
+            DepositParams(ERC20(address(usdc)), amount, 0, address(0)), address(0), ComplianceData(0, "")
+        );
         vm.stopPrank();
     }
 
