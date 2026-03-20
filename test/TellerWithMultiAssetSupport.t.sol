@@ -271,6 +271,28 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         assertEq(WETH.balanceOf(user), userBalanceBeforeRefund + depositAmount, "Receiver should receive refunded asset");
     }
 
+    function testDepositToRefundReturnsAssetsToReceiver() external {
+        teller.setShareLockPeriod(1 days);
+        rolesAuthority.setUserRole(address(this), ROUTER_ROLE, true);
+
+        address user = vm.addr(4);
+        uint256 depositAmount = 1e18;
+
+        deal(address(WETH), address(this), depositAmount);
+        WETH.safeApprove(address(boringVault), depositAmount);
+
+        uint256 callerBalanceBeforeRefund = WETH.balanceOf(address(this));
+        uint256 receiverBalanceBeforeRefund = WETH.balanceOf(user);
+        uint256 shares = teller.deposit(WETH, depositAmount, 0, user, referrer);
+        uint256 depositTimestamp = block.timestamp;
+
+        teller.refundDeposit(1, user, address(WETH), depositAmount, shares, depositTimestamp, 1 days, referrer);
+
+        assertEq(boringVault.balanceOf(user), 0, "Receiver shares should be burned on refund");
+        assertEq(WETH.balanceOf(user), receiverBalanceBeforeRefund + depositAmount, "Receiver should receive refunded asset");
+        assertEq(WETH.balanceOf(address(this)), callerBalanceBeforeRefund - depositAmount, "Caller should not receive refund");
+    }
+
     function testUserPermitDeposit(uint256 amount) external {
         amount = bound(amount, 0.0001e18, 10_000e18);
 

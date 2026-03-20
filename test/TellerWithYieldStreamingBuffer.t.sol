@@ -474,6 +474,30 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         assertEq(boringVault.balanceOf(recipient), shares, "Recipient should receive unlocked shares");
     }
 
+    function testDepositToRefundReturnsAssetsToReceiver(uint256 amount) external {
+        amount = bound(amount, 0.01e6, 10_000e6);
+        rolesAuthority.setUserRole(address(this), ROUTER_ROLE, true);
+
+        address receiver = vm.addr(4);
+
+        teller.setShareLockPeriod(1 days);
+        teller.setDepositBufferHelper(USDT, IBufferHelper(address(0)));
+
+        deal(address(USDT), address(this), amount);
+        USDT.safeApprove(address(boringVault), amount);
+
+        uint256 callerBalanceBeforeRefund = USDT.balanceOf(address(this));
+        uint256 receiverBalanceBeforeRefund = USDT.balanceOf(receiver);
+        uint256 shares = teller.deposit(USDT, amount, 0, receiver, referrer);
+        uint256 depositTimestamp = block.timestamp;
+
+        teller.refundDeposit(1, receiver, address(USDT), amount, shares, depositTimestamp, 1 days, referrer);
+
+        assertEq(boringVault.balanceOf(receiver), 0, "Receiver shares should be burned on refund");
+        assertEq(USDT.balanceOf(receiver), receiverBalanceBeforeRefund + amount, "Receiver should receive refunded asset");
+        assertEq(USDT.balanceOf(address(this)), callerBalanceBeforeRefund - amount, "Caller should not receive refund");
+    }
+
     function testBufferHelperZeroAddress(uint256 amount) external {
         amount = bound(amount, 0.0001e6, 10_000e6);
         deal(address(USDT), address(this), amount);
