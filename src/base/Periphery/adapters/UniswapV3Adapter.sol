@@ -52,6 +52,7 @@ contract UniswapV3Adapter is IAdapter, BaseAdapter {
         return OrderInfo({
             approvalTarget: address(0),
             cancelTarget: address(0),
+            settlementCaller: address(0),
             inputToken: address(0),
             outputToken: address(0),
             inputAmount: 0,

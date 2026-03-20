@@ -65,6 +65,7 @@ contract BoringSwapper is Auth {
     error BoringSwapper__RateLimitExceeded();
     error BoringSwapper__OrderNotFound();
     error BoringSwapper__HashMismatch(bytes32, bytes32);
+    error BoringSwapper__UnauthorizedCaller();
     error BoringSwapper__CancelFailed();
 
     // ========================================= EVENTS =========================================
@@ -279,7 +280,8 @@ contract BoringSwapper is Auth {
             versions[swapConfig.protocolId]
         );
         IAdapter.OrderInfo memory info = IAdapter(adapter).verifyLimitOrder(swapConfig, address(this));
-        
+
+        if (msg.sender != info.settlementCaller) revert BoringSwapper__UnauthorizedCaller();
         if (info.protocolHash != _hash) revert BoringSwapper__HashMismatch(info.protocolHash, _hash);
 
         IPriceValidator(priceValidator).validate(

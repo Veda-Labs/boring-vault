@@ -42,6 +42,7 @@ contract CowswapAdapter is IAdapter {
          return OrderInfo({
              approvalTarget: vaultRelayer,
              cancelTarget: cowSettlement,
+             settlementCaller: cowSettlement,
              inputToken: order.sellToken,
              outputToken: order.buyToken,
              inputAmount: order.sellAmount,
