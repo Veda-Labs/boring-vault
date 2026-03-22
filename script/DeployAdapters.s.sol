@@ -8,6 +8,8 @@ import {UniV3PositionTvlAdapter} from "src/adapters/Univ3TvlAdapter.sol";
 import {UniV4PositionTvlAdapter} from "src/adapters/Univ4TvlAdapter.sol";
 import {MorphoLoopTvlAdapter} from "src/adapters/MorphoLoopTvlAdapter.sol";
 import {CapCusdBalanceAdapter} from "src/adapters/CapCusdBalanceAdapter.sol";
+
+import {CbBtcUsdcAaveV3BalanceAdapter} from "src/adapters/cbBtcUsdcAaveV3BalanceAdapter.sol";
 import {SiUsdBalanceAdapter} from "src/adapters/SiUsdBalanceAdapter.sol";
 import {CapStcusdBalanceAdapter} from "src/adapters/CapStcusdBalanceAdapter.sol";
 import {PtCusd29Jan2026BalanceAdapter} from "src/adapters/PtCusd29Jan2026BalanceAdapter.sol";
@@ -116,6 +118,29 @@ contract DeployMorphoLoopAdapter is Script, MerkleTreeHelper {
         console.log("supplied", supplied);
         console.log("LTV", (debt) * 1e8 / collat); // assuming supplied is in USDC terms
         console.log("TVL in USDC terms", adapter.getUserTvl(0x4A0768ad836E787391f85bBaA110DF64D35C64d9));
+
+        vm.stopBroadcast();
+    }
+}
+contract DeployAaveAdapter is Script, MerkleTreeHelper {
+    uint256 public privateKey;
+
+    function setUp() external {
+        privateKey = vm.envUint("PK");
+
+        setSourceChainName("base");
+    }
+
+    function run() external {
+        vm.startBroadcast(privateKey);
+
+        CbBtcUsdcAaveV3BalanceAdapter adapter =
+            new CbBtcUsdcAaveV3BalanceAdapter();
+        (uint256 collat, uint256 debt,,) =
+            adapter.getUserPosition(0x4A0768ad836E787391f85bBaA110DF64D35C64d9);
+        console.log("collateral", collat);
+        console.log("debt", debt);
+        console.log("TVL in CBTC terms", adapter.getUserTvl(0x4A0768ad836E787391f85bBaA110DF64D35C64d9));
 
         vm.stopBroadcast();
     }
