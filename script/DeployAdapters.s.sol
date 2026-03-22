@@ -8,6 +8,7 @@ import {UniV3PositionTvlAdapter} from "src/adapters/Univ3TvlAdapter.sol";
 import {UniV4PositionTvlAdapter} from "src/adapters/Univ4TvlAdapter.sol";
 import {MorphoLoopTvlAdapter} from "src/adapters/MorphoLoopTvlAdapter.sol";
 import {CapCusdBalanceAdapter} from "src/adapters/CapCusdBalanceAdapter.sol";
+import {SiUsdBalanceAdapter} from "src/adapters/SiUsdBalanceAdapter.sol";
 import {CapStcusdBalanceAdapter} from "src/adapters/CapStcusdBalanceAdapter.sol";
 import {PtCusd29Jan2026BalanceAdapter} from "src/adapters/PtCusd29Jan2026BalanceAdapter.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
@@ -133,6 +134,22 @@ contract DeployHedgedMmStrategyAdapter is Script, MerkleTreeHelper {
             0xA923d8C976388518D65528324A587E4700f8F40f,
             0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f
         );
+
+        vm.stopBroadcast();
+    }
+}
+
+contract DeploySiUsdBalanceAdapter is Script, MerkleTreeHelper {
+    uint256 public privateKey;
+
+    function setUp() external {
+        setSourceChainName("mainnet");
+    }
+
+    function run() external {
+        vm.startBroadcast(vm.envUint("PK"));
+
+        SiUsdBalanceAdapter adapter = new SiUsdBalanceAdapter(0xDBDC1Ef57537E34680B898E1FEBD3D68c7389bCB);
 
         vm.stopBroadcast();
     }
