@@ -121,7 +121,7 @@ contract TellerWithRemediation is TellerWithMultiAssetSupport {
     /**
      * @notice Implement beforeTransfer hook to check if shares are locked, or if `from`, `to`, or `operator` are on the deny list.
      */
-    function beforeTransfer(address from, address to, address operator) public override {
+    function beforeTransfer(address from, address to, address operator) public view override {
         if (remediationInfo[from].isFrozen) revert TellerWithRemediation__RemediationInProgress(from);
         if (remediationInfo[to].isFrozen) revert TellerWithRemediation__RemediationInProgress(to);
         if (remediationInfo[operator].isFrozen) revert TellerWithRemediation__RemediationInProgress(operator);

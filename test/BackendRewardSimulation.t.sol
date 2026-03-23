@@ -9,9 +9,9 @@ import {
     TellerWithMultiAssetSupport,
     DepositParams,
     ComplianceData,
-    RewardData
+    RewardData,
+    PrincipalCheckpoint
 } from "src/base/Roles/TellerWithMultiAssetSupport.sol";
-import {PrincipalCheckpoint} from "src/base/Roles/TellerWithMultiAssetSupportLib.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {IncentivePool} from "src/base/IncentivePool.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
@@ -187,28 +187,25 @@ contract BackendRewardSimulationTest is Test {
     function _transferShares(address from, address to, uint256 shares) internal {
         vm.prank(from);
         vault.transfer(to, shares);
-        _recordSnapshot(from);
-        _recordSnapshot(to);
     }
 
-    function _signReward(address recipient, uint256 cumulativeRewards, uint256 deadline)
+    function _signReward(address recipient, uint256 cumulativeOwed, uint256 deadline)
         internal
         view
         returns (bytes memory)
     {
-        bytes32 messageHash =
-            keccak256(abi.encode(address(pool), block.chainid, recipient, cumulativeRewards, deadline));
+        bytes32 messageHash = keccak256(abi.encode(address(pool), block.chainid, recipient, cumulativeOwed, deadline));
         bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(SIGNER_PK, ethSignedHash);
         return abi.encodePacked(r, s, v);
     }
 
-    function _claimReward(address user, uint256 cumulativeRewards) internal returns (uint256 delta) {
+    function _claimReward(address user, uint256 cumulativeOwed) internal returns (uint256 delta) {
         uint256 deadline = block.timestamp + 1 hours;
-        bytes memory sig = _signReward(user, cumulativeRewards, deadline);
+        bytes memory sig = _signReward(user, cumulativeOwed, deadline);
 
         RewardData[] memory rewards = new RewardData[](1);
-        rewards[0] = RewardData(address(pool), cumulativeRewards, deadline, sig);
+        rewards[0] = RewardData(address(pool), cumulativeOwed, deadline, sig);
 
         uint256 balBefore = rewardToken.balanceOf(user);
         vm.prank(user);
@@ -381,37 +378,6 @@ contract BackendRewardSimulationTest is Test {
 
         uint256 maxReward = uint256(amount).mulDivDown(REWARD_RATE * (duration + 1), 1e18);
         assertLt(rewardsAlice, maxReward, "transfer reduces alice's rewards");
-    }
-
-    // ============================== E2E: full transfer then no rewards ==============================
-
-    /// @notice Alice deposits, transfers ALL shares to Bob. Alice earns rewards only up to
-    /// the transfer. After that, she has 0 shares so effective deposit = 0.
-    function testFuzz_E2E_FullTransfer_SenderEarnsOnlyBeforeTransfer(uint256 amount, uint256 d1, uint256 d2) external {
-        amount = bound(amount, 1e8, 1e22);
-        d1 = bound(d1, 1 hours, 30 days);
-        d2 = bound(d2, 1 hours, 30 days);
-        vault.setBeforeTransferHook(address(teller));
-
-        address alice = vm.addr(101);
-        address bob = vm.addr(102);
-
-        uint256 shares = _depositAs(alice, amount);
-
-        skip(d1);
-        uint256 rewardsBeforeTransfer = _computeRewards(alice, block.timestamp);
-        assertGt(rewardsBeforeTransfer, 0, "alice earns before transfer");
-
-        _transferShares(alice, bob, shares);
-
-        // Alice now has 0 shares. Time passes — she should earn nothing more.
-        skip(d2);
-        uint256 rewardsAfterTransfer = _computeRewards(alice, block.timestamp);
-        assertEq(rewardsAfterTransfer, rewardsBeforeTransfer, "alice earns nothing after full transfer");
-
-        // Bob: 0 principal despite holding shares
-        uint256 rewardsBob = _computeRewards(bob, block.timestamp);
-        assertEq(rewardsBob, 0, "bob earns 0 (never deposited)");
     }
 
     // ============================== E2E: phantom principal from rate drop ==============================

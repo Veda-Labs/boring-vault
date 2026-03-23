@@ -1152,7 +1152,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         vm.startPrank(user);
         deal(address(WBTC), user, amount);
         WBTC.approve(address(boringVault), amount);
-        uint256 shares = teller.deposit(DepositParams(WBTC, WBTCAmount, 0, address(0)), referrer, ComplianceData(0, ""));
+        uint256 shares = teller.deposit(DepositParams(WBTC, WBTCAmount, 0, user), referrer, ComplianceData(0, ""));
         vm.stopPrank();
         return shares;
     }

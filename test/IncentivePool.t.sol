@@ -891,25 +891,25 @@ contract IncentivePoolTest is Test {
 
     // ========================= FUZZ TESTS =========================
 
-    function testFuzz_processRewards_deltaAlwaysCapped(uint104 cumulativeRewards, uint96 maxPerClaim) external {
-        vm.assume(cumulativeRewards > 0);
+    function testFuzz_processRewards_deltaAlwaysCapped(uint104 cumulativeOwed, uint96 maxPerClaim) external {
+        vm.assume(cumulativeOwed > 0);
         vm.assume(maxPerClaim > 0);
-        vm.assume(cumulativeRewards <= 1_000_000e18);
+        vm.assume(cumulativeOwed <= 1_000_000e18);
 
         pool.setMaximumRewardAmountPerClaim(maxPerClaim);
         pool.setTotalRewardCap(type(uint104).max);
-        rewardToken.mint(address(pool), uint256(cumulativeRewards));
+        rewardToken.mint(address(pool), uint256(cumulativeOwed));
 
         uint256 deadline = block.timestamp + 1 hours;
-        bytes memory sig = _sign(user, cumulativeRewards, deadline);
+        bytes memory sig = _sign(user, cumulativeOwed, deadline);
 
         vm.prank(teller);
-        uint256 delta = pool.processRewards(user, cumulativeRewards, deadline, sig);
+        uint256 delta = pool.processRewards(user, cumulativeOwed, deadline, sig);
 
         assertLe(delta, maxPerClaim, "delta must never exceed maxPerClaim");
-        assertLe(delta, cumulativeRewards, "delta must never exceed cumulativeRewards");
-        if (cumulativeRewards <= maxPerClaim) {
-            assertEq(delta, cumulativeRewards, "uncapped claim should equal cumulativeRewards");
+        assertLe(delta, cumulativeOwed, "delta must never exceed cumulativeOwed");
+        if (cumulativeOwed <= maxPerClaim) {
+            assertEq(delta, cumulativeOwed, "uncapped claim should equal cumulativeOwed");
         } else {
             assertEq(delta, maxPerClaim, "capped claim should equal maxPerClaim");
         }
@@ -955,18 +955,18 @@ contract IncentivePoolTest is Test {
         assertEq(rewardToken.balanceOf(user), delta);
     }
 
-    function testFuzz_processRewards_tokenBalanceInvariant(uint104 cumulativeRewards) external {
-        vm.assume(cumulativeRewards > 0);
-        vm.assume(cumulativeRewards <= 1_000_000e18);
+    function testFuzz_processRewards_tokenBalanceInvariant(uint104 cumulativeOwed) external {
+        vm.assume(cumulativeOwed > 0);
+        vm.assume(cumulativeOwed <= 1_000_000e18);
 
         pool.setTotalRewardCap(type(uint104).max);
-        rewardToken.mint(address(pool), uint256(cumulativeRewards));
+        rewardToken.mint(address(pool), uint256(cumulativeOwed));
 
         uint256 deadline = block.timestamp + 1 hours;
-        bytes memory sig = _sign(user, cumulativeRewards, deadline);
+        bytes memory sig = _sign(user, cumulativeOwed, deadline);
 
         vm.prank(teller);
-        pool.processRewards(user, cumulativeRewards, deadline, sig);
+        pool.processRewards(user, cumulativeOwed, deadline, sig);
 
         assertEq(rewardToken.balanceOf(user), pool.getTotalClaimedAmount(user), "balance must equal cumulative claimed");
     }

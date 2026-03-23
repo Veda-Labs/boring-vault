@@ -42,14 +42,14 @@ contract MaliciousPool {
     /// @dev Matches IncentivePool.processRewards selector exactly.
     function processRewards(
         address rewardsRecipient,
-        uint256 cumulativeRewards,
+        uint256 cumulativeOwed,
         uint256 deadline,
         bytes calldata signature
     ) external returns (uint256) {
         wasCalled = true;
         calledBy = msg.sender;
         receivedUser = rewardsRecipient;
-        receivedCumulativeOwed = cumulativeRewards;
+        receivedCumulativeOwed = cumulativeOwed;
         receivedDeadline = deadline;
         receivedSignature = signature;
         return 0;

@@ -4,8 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {TellerWithMultiAssetSupport, ERC20, RewardData} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
-import {TellerWithMultiAssetSupportLib} from "src/base/Roles/TellerWithMultiAssetSupportLib.sol";
+import {TellerWithMultiAssetSupport, ERC20, RewardData, Asset} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {AccountantWithYieldStreaming} from "src/base/Roles/AccountantWithYieldStreaming.sol";
 
@@ -64,7 +63,7 @@ contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
         uint256 minimumMint,
         address from,
         address to,
-        TellerWithMultiAssetSupportLib.Asset memory asset
+        Asset memory asset
     ) internal override returns (uint256 shares) {
         //update vested yield before deposit
         _getAccountant().updateExchangeRate();

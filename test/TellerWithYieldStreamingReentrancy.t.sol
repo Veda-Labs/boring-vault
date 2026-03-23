@@ -196,8 +196,9 @@ contract TellerYieldStreamingReentrancyTest is Test {
         baseAsset.mint(user, amount);
         vm.startPrank(user);
         ERC20(address(baseAsset)).safeApprove(address(vault), amount);
-        uint256 shares =
-            teller.deposit(DepositParams(ERC20(address(baseAsset)), amount, 0, address(0)), address(0), ComplianceData(0, ""));
+        uint256 shares = teller.deposit(
+            DepositParams(ERC20(address(baseAsset)), amount, 0, user), address(0), ComplianceData(0, "")
+        );
         vm.stopPrank();
         return shares;
     }

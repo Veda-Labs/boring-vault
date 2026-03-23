@@ -138,7 +138,7 @@ contract IncentivePool is Auth {
     /**
      * @notice Processes rewards for a recipient based on a signed cumulative rewards amount
      * @param rewardsRecipient The address of the rewards recipient
-     * @param cumulativeRewards The cumulative amount of rewards owed to the rewards recipient
+     * @param cumulativeOwed The cumulative amount of rewards owed to the rewards recipient
      * @param deadline The deadline for the rewards to be processed
      * @param signature The signature from the backend to verify the reward parameters
      * @return The amount of rewards processed between the last claim and the current claim
@@ -146,7 +146,7 @@ contract IncentivePool is Auth {
      */
     function processRewards(
         address rewardsRecipient,
-        uint256 cumulativeRewards,
+        uint256 cumulativeOwed,
         uint256 deadline,
         bytes calldata signature
     ) external requiresAuth returns (uint256) {
@@ -159,10 +159,10 @@ contract IncentivePool is Auth {
         (uint256 lastClaimTimestamp, uint256 totalClaimed) = _getLastCheckpointData(rewardsRecipient);
         if (block.timestamp < (lastClaimTimestamp + secondsBetweenClaims)) return 0;
 
-        if (!_checkSignature(rewardsRecipient, cumulativeRewards, deadline, signature)) return 0;
+        if (!_checkSignature(rewardsRecipient, cumulativeOwed, deadline, signature)) return 0;
 
         uint256 amountToSend = _calculateAmountToSend(
-            totalClaimed, cumulativeRewards, maximumRewardAmountPerClaimMemory, totalRewardCapMemory
+            totalClaimed, cumulativeOwed, maximumRewardAmountPerClaimMemory, totalRewardCapMemory
         );
 
         if (amountToSend == 0) return 0;
@@ -182,13 +182,13 @@ contract IncentivePool is Auth {
 
     function _calculateAmountToSend(
         uint256 totalClaimed,
-        uint256 cumulativeRewards,
+        uint256 cumulativeOwed,
         uint256 _maximumRewardAmountPerClaim,
         uint256 _totalRewardCap
     ) internal pure returns (uint256 amountToSend) {
         // No-op if nothing to claim (allows withdrawWithRewards to succeed even without pending rewards)
-        if (cumulativeRewards <= totalClaimed) return 0;
-        amountToSend = cumulativeRewards - totalClaimed;
+        if (cumulativeOwed <= totalClaimed) return 0;
+        amountToSend = cumulativeOwed - totalClaimed;
         // Cap the amount to the maximum reward amount per claim
         if (amountToSend > _maximumRewardAmountPerClaim) {
             amountToSend = _maximumRewardAmountPerClaim;
@@ -207,7 +207,7 @@ contract IncentivePool is Auth {
 
     function _checkSignature(
         address rewardsRecipient,
-        uint256 cumulativeRewards,
+        uint256 cumulativeOwed,
         uint256 deadline,
         bytes calldata signature
     ) internal view returns (bool) {
@@ -216,7 +216,7 @@ contract IncentivePool is Auth {
                 address(this), // prevents cross-pool replay
                 block.chainid, // prevents cross-chain replay
                 rewardsRecipient, // prevents impersonation
-                cumulativeRewards, // cumulative total amount of rewards
+                cumulativeOwed, // cumulative total amount of rewards
                 deadline // expiry
             )
         );

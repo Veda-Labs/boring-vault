@@ -9,9 +9,9 @@ import {
     ERC20,
     DepositParams,
     ComplianceData,
-    PermitData
+    PermitData,
+    Asset
 } from "src/base/Roles/TellerWithMultiAssetSupport.sol";
-import {TellerWithMultiAssetSupportLib} from "src/base/Roles/TellerWithMultiAssetSupportLib.sol";
 import {MessageLib} from "src/base/Roles/CrossChain/MessageLib.sol";
 import {CrossChainTellerLib} from "src/base/Roles/CrossChain/CrossChainTellerLib.sol";
 
@@ -112,16 +112,7 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
         ComplianceData calldata compliance
     ) external payable requiresAuth nonReentrant {
         if (isPaused) revert TellerWithMultiAssetSupport__Paused();
-        TellerWithMultiAssetSupportLib.verifyBridgeCompliance(
-            usedComplianceSignatures,
-            complianceSigner,
-            complianceWindow,
-            msg.sender,
-            shareAmount,
-            to,
-            compliance.deadline,
-            compliance.signature
-        );
+        _verifyBridgeCompliance(msg.sender, shareAmount, to, compliance.deadline, compliance.signature);
         _bridge(shareAmount, to, bridgeWildCard, feeToken, maxFee);
     }
 
@@ -155,7 +146,7 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
     ) internal returns (uint256 sharesBridged) {
         _verifyComplianceSignature(msg.sender, depositParams.depositAsset, depositParams.depositAmount, compliance);
         {
-            TellerWithMultiAssetSupportLib.Asset memory asset = _beforeDeposit(depositParams.depositAsset);
+            Asset memory asset = _beforeDeposit(depositParams.depositAsset);
             sharesBridged = _erc20Deposit(
                 depositParams.depositAsset,
                 depositParams.depositAmount,

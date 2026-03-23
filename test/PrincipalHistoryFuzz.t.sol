@@ -8,9 +8,9 @@ import {BoringVault} from "src/base/BoringVault.sol";
 import {
     TellerWithMultiAssetSupport,
     DepositParams,
-    ComplianceData
+    ComplianceData,
+    PrincipalCheckpoint
 } from "src/base/Roles/TellerWithMultiAssetSupport.sol";
-import {PrincipalCheckpoint} from "src/base/Roles/TellerWithMultiAssetSupportLib.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
@@ -213,56 +213,6 @@ contract PrincipalHistoryFuzzTest is Test {
 
         assertGt(after_.cumulativeWithdrawals, before_.cumulativeWithdrawals, "partial: withdrawals increased");
         assertEq(after_.cumulativeDeposits, before_.cumulativeDeposits, "partial: deposits unchanged");
-    }
-
-    // ============================== FUZZ: transfer receiver => zero deposits ==============================
-
-    /// @notice A user who receives shares via transfer must never get cumulativeDeposits inflated.
-    /// Their principal remains 0, so they earn no incentive rewards on transferred shares.
-    function testFuzz_Transfer_ReceiverZeroDeposits(uint256 amount, uint256 transferSeed) external {
-        amount = bound(amount, 1e6, 1e30);
-        vault.setBeforeTransferHook(address(teller));
-
-        address alice = vm.addr(101);
-        address bob = vm.addr(102);
-
-        uint256 shares = _depositAs(alice, amount);
-        uint256 transferAmount = bound(transferSeed, 1, shares);
-
-        vm.prank(alice);
-        vault.transfer(bob, transferAmount);
-
-        PrincipalCheckpoint memory bobLast = _lastCheckpoint(bob);
-        assertEq(bobLast.cumulativeDeposits, 0, "transfer receiver: zero deposits");
-        assertEq(bobLast.cumulativeWithdrawals, 0, "transfer receiver: zero withdrawals");
-        assertGt(vault.balanceOf(bob), 0, "bob holds shares");
-    }
-
-    // ============================== FUZZ: transfer + full withdraw => no underflow ==============================
-
-    /// @notice User receives shares via transfer (never deposited), then withdraws everything.
-    /// cumulativeWithdrawals > cumulativeDeposits (which is 0). Must not revert.
-    function testFuzz_TransferThenWithdraw_NoUnderflow(uint256 amount, uint256 rateSeed) external {
-        uint96 rate = _boundRate(rateSeed);
-        amount = bound(amount, 1e6, 1e30);
-        _setRate(rate);
-        vault.setBeforeTransferHook(address(teller));
-
-        address alice = vm.addr(101);
-        address bob = vm.addr(102);
-
-        uint256 shares = _depositAs(alice, amount);
-        vm.prank(alice);
-        vault.transfer(bob, shares);
-
-        // Bob withdraws everything — never deposited, so withdrawals > deposits
-        uint256 maxWithdrawValue = shares.mulDivUp(uint256(rate), ONE_SHARE);
-        _fundVault(maxWithdrawValue + 1e18);
-        _withdrawAs(bob, shares);
-
-        PrincipalCheckpoint memory bobLast = _lastCheckpoint(bob);
-        assertEq(bobLast.cumulativeDeposits, 0, "bob never deposited");
-        assertGt(bobLast.cumulativeWithdrawals, 0, "bob withdrew nonzero base value");
     }
 
     // ============================== FUZZ: mixed operations => monotonic checkpoints ==============================
@@ -1016,68 +966,6 @@ contract PrincipalHistoryFuzzTest is Test {
         assertEq(h.length, 2, "two checkpoints");
         assertEq(h[0].sharePrice, uint256(r1), "first checkpoint has first rate");
         assertEq(h[1].sharePrice, uint256(r2), "second checkpoint has second rate");
-    }
-
-    /// @notice Transfer checkpoint records current rate as sharePrice.
-    function testFuzz_SharePrice_RecordedOnTransfer(uint256 amount, uint256 depositRateSeed, uint256 transferRateSeed)
-        external
-    {
-        uint96 depositRate = _boundRate(depositRateSeed);
-        uint96 transferRate = _boundRate(transferRateSeed);
-        amount = bound(amount, 1e6, 1e24);
-
-        _setRate(depositRate);
-        vault.setBeforeTransferHook(address(teller));
-
-        address alice = vm.addr(101);
-        address bob = vm.addr(102);
-
-        uint256 shares = _depositAs(alice, amount);
-
-        _setRate(transferRate);
-        vm.prank(alice);
-        vault.transfer(bob, shares);
-
-        // Bob's checkpoint from receiving the transfer should have the transfer-time rate
-        PrincipalCheckpoint memory bobCp = _lastCheckpoint(bob);
-        assertEq(bobCp.sharePrice, uint256(transferRate), "transfer checkpoint records transfer-time rate");
-
-        // Alice's latest checkpoint (from the transfer) should also have the transfer-time rate
-        PrincipalCheckpoint memory aliceCp = _lastCheckpoint(alice);
-        assertEq(aliceCp.sharePrice, uint256(transferRate), "sender transfer checkpoint records transfer-time rate");
-    }
-
-    /// @notice Repeated transfer checkpoints that get coalesced still update sharePrice.
-    function testFuzz_SharePrice_UpdatedOnCoalescedTransfer(uint256 amount, uint256 rateSeed1, uint256 rateSeed2)
-        external
-    {
-        uint96 r1 = _boundRate(rateSeed1);
-        uint96 r2 = _boundRate(rateSeed2);
-        amount = bound(amount, 1e6, 1e22);
-
-        _setRate(r1);
-        vault.setBeforeTransferHook(address(teller));
-
-        address alice = vm.addr(101);
-        address bob = vm.addr(102);
-        address carol = vm.addr(103);
-
-        uint256 shares = _depositAs(alice, amount);
-        vm.assume(shares >= 3);
-
-        // First transfer: creates a transfer checkpoint for alice
-        vm.prank(alice);
-        vault.transfer(bob, shares / 3);
-
-        // Rate changes
-        _setRate(r2);
-
-        // Second transfer: should coalesce alice's transfer checkpoint but update sharePrice
-        vm.prank(alice);
-        vault.transfer(carol, shares / 3);
-
-        PrincipalCheckpoint memory aliceLast = _lastCheckpoint(alice);
-        assertEq(aliceLast.sharePrice, uint256(r2), "coalesced transfer checkpoint has latest rate");
     }
 
     // ============================== CONCRETE: uint104 cumulative overflow reverts safely ==============================

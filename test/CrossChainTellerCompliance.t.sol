@@ -9,9 +9,9 @@ import {BoringVault} from "src/base/BoringVault.sol";
 import {
     TellerWithMultiAssetSupport,
     DepositParams,
-    ComplianceData
+    ComplianceData,
+    PrincipalCheckpoint
 } from "src/base/Roles/TellerWithMultiAssetSupport.sol";
-import {PrincipalCheckpoint} from "src/base/Roles/TellerWithMultiAssetSupportLib.sol";
 import {CrossChainTellerWithGenericBridge} from "src/base/Roles/CrossChain/CrossChainTellerWithGenericBridge.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
@@ -149,7 +149,7 @@ contract CrossChainTellerComplianceTest is Test, MerkleTreeHelper {
         vm.startPrank(user);
         WETH.safeApprove(address(boringVault), amount);
         uint256 shares = teller.depositAndBridge(
-            DepositParams(WETH, amount, 0, address(0)),
+            DepositParams(WETH, amount, 0, user),
             user,
             "",
             ERC20(address(0)),
@@ -183,7 +183,7 @@ contract CrossChainTellerComplianceTest is Test, MerkleTreeHelper {
             )
         );
         teller.depositAndBridge(
-            DepositParams(WETH, amount, 0, address(0)),
+            DepositParams(WETH, amount, 0, user),
             user,
             "",
             ERC20(address(0)),
@@ -204,7 +204,7 @@ contract CrossChainTellerComplianceTest is Test, MerkleTreeHelper {
         vm.startPrank(user);
         WETH.safeApprove(address(boringVault), amount);
         teller.depositAndBridge(
-            DepositParams(WETH, amount, 0, address(0)),
+            DepositParams(WETH, amount, 0, user),
             user,
             "",
             ERC20(address(0)),
@@ -233,7 +233,7 @@ contract CrossChainTellerComplianceTest is Test, MerkleTreeHelper {
 
         vm.startPrank(depositor);
         WETH.safeApprove(address(boringVault), amount);
-        shares = teller.deposit(DepositParams(WETH, amount, 0, address(0)), address(0), ComplianceData(deadline, sig));
+        shares = teller.deposit(DepositParams(WETH, amount, 0, depositor), address(0), ComplianceData(deadline, sig));
         vm.stopPrank();
     }
 
