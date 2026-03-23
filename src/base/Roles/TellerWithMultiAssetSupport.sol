@@ -922,30 +922,6 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     }
 
     /**
-     * @notice Pushes a timestamp-only checkpoint for a user on share transfer.
-     * @dev Copies the last deposits/withdrawals values with a new timestamp so the off-chain
-     *      reward system can detect position changes and reconcile via Transfer events.
-     *      If the most recent entry is itself a transfer checkpoint (same cumulative values
-     *      as the entry before it), overwrites its timestamp instead of pushing to bound array growth.
-     */
-    function _checkpointTransfer(address user) internal {
-        uint256 rate = accountant.getRateSafe();
-        PrincipalCheckpoint[] storage history = _principalHistory[user];
-        uint256 len = history.length;
-        uint104 d;
-        uint104 w;
-        if (len != 0) {
-            d = history[len - 1].cumulativeDeposits;
-            w = history[len - 1].cumulativeWithdrawals;
-            if (len > 1 && d == history[len - 2].cumulativeDeposits && w == history[len - 2].cumulativeWithdrawals) {
-                history[len - 1].timestamp = uint48(block.timestamp);
-                history[len - 1].sharePrice = rate;
-                return;
-            }
-        }
-        history.push(PrincipalCheckpoint(uint48(block.timestamp), d, w, rate));
-    }
-
     function _processRewards(RewardData[] calldata rewards, address user) internal {
         for (uint256 i; i < rewards.length; ++i) {
             IncentivePool(rewards[i].pool)

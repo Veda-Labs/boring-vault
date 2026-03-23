@@ -129,7 +129,7 @@ contract ShareWarden is BeforeTransferHook, IPausable, Auth {
 
     // ========================================= BeforeTransferHook FUNCTIONS =========================================
 
-    function beforeTransfer(address from, address to, address operator) external {
+    function beforeTransfer(address from, address to, address operator) external view {
         if (isPaused) revert ShareWarden__Paused();
 
         _checkBlacklist(from, to, operator);

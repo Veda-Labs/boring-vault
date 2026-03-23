@@ -142,7 +142,7 @@ contract BoringGovernance is ERC20Votes, Auth, ERC721Holder, ERC1155Holder {
     /**
      * @notice Call `beforeTransferHook` passing in `from` `to`, and `msg.sender`.
      */
-    function _callBeforeTransfer(address from, address to) internal {
+    function _callBeforeTransfer(address from, address to) internal view {
         if (address(hook) != address(0)) hook.beforeTransfer(from, to, msg.sender);
     }
 
