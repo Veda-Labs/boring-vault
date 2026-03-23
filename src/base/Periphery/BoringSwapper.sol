@@ -13,6 +13,7 @@ import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
 import {IPriceValidator} from "src/interfaces/IPriceValidator.sol";
+import {OracleConfig} from "src/interfaces/ISwapper.sol";
 
 contract BoringSwapper is Auth {
     using FixedPointMathLib for uint256;
@@ -66,6 +67,7 @@ contract BoringSwapper is Auth {
     error BoringSwapper__OrderNotFound();
     error BoringSwapper__HashMismatch(bytes32, bytes32);
     error BoringSwapper__UnauthorizedCaller();
+    error BoringSwapper__OrderNotApproved();
     error BoringSwapper__CancelFailed();
 
     // ========================================= EVENTS =========================================
@@ -77,7 +79,8 @@ contract BoringSwapper is Auth {
     event MaxSlippageBpsUpdated(bytes32 indexed routeId, uint256 maxSlippageBps);
     event ProtocolApproved(uint8 indexed protocolId, bool approved);
     event VersionUpdated(uint8 indexed protocolId, uint256 version);
-    event OracleUpdated(ERC20 indexed token, address indexed quoteAsset, address oracle);
+    event OraclesUpdated(address indexed base, address indexed quote);
+    event PricePathUpdated(ERC20 indexed token, address indexed quoteAsset);
     event PriceValidatorUpdated(address newValidator);
     event RateLimitUpdated(bytes32 indexed routeId, uint256 capacity, uint256 refillRate);
     event Swept(ERC20 indexed token, address indexed vault, uint256 amount);
@@ -104,15 +107,21 @@ contract BoringSwapper is Auth {
     /// @notice stores the list of approved protocols for this vault
     mapping(uint8 protocolId => bool approved) public approvedProtocols;
 
-    /// @notice maps a token to its quote asset which should have an oracle
-    mapping(ERC20 token => mapping(address quoteAsset => address oracle)) public oracles;
+    /// @notice rate providers for a base/quote pair
+    mapping(address base => mapping(address quote => OracleConfig[])) public oracles;
+
+    /// @notice price path from token to final quote asset (list of intermediary assets ending with the quote asset)
+    mapping(ERC20 token => mapping(address quoteAsset => address[])) public pricePaths;
 
     /// @notice stores the current version this swapper subscribes to for a specific protocol
     mapping(uint8 protocolId => uint256 version) public versions;
 
     /// @notice used for order lookups and cancelling
     mapping(uint256 orderId => OrderRecord) public orderRecords;
-    
+
+    /// @notice tracks order hashes approved via submitOrder — only these can be filled
+    mapping(bytes32 orderHash => bool approved) public approvedHashes;
+
     /// @notice orderId, incremented by limit orders via submitOrder()
     uint256 public orders;
 
@@ -216,6 +225,7 @@ contract BoringSwapper is Auth {
             inputAmount: info.inputAmount,
             receiver: swapConfig.receiver
         });
+        approvedHashes[info.protocolHash] = true;
 
         //preapprove the approval target & pull funds from the vault
         swapConfig.tokenRoute.tokenIn.approve(info.approvalTarget, info.inputAmount);
@@ -237,8 +247,12 @@ contract BoringSwapper is Auth {
 
         delete orderRecords[orderId];
 
-        // On-chain cancellation via adapter
+        // Revoke the approved hash
         address adapter = adapterRegistry.get(swapConfig.protocolId, versions[swapConfig.protocolId]);
+        IAdapter.OrderInfo memory info = IAdapter(adapter).verifyLimitOrder(swapConfig, address(this));
+        approvedHashes[info.protocolHash] = false;
+
+        // On-chain cancellation via adapter
         (address target, bytes memory data) = IAdapter(adapter).cancelLimitOrder(swapConfig, address(this));
         if (data.length > 0) {
             if (target != record.cancelTarget) revert BoringSwapper__CancelFailed();
@@ -283,6 +297,7 @@ contract BoringSwapper is Auth {
 
         if (msg.sender != info.settlementCaller) revert BoringSwapper__UnauthorizedCaller();
         if (info.protocolHash != _hash) revert BoringSwapper__HashMismatch(info.protocolHash, _hash);
+        if (!approvedHashes[_hash]) revert BoringSwapper__OrderNotApproved();
 
         IPriceValidator(priceValidator).validate(
             ERC20(info.inputToken),
@@ -373,15 +388,27 @@ contract BoringSwapper is Auth {
         emit VersionUpdated(protocolId, 0);
     }
 
-    /// @notice Sets or removes the oracle for a token/quoteAsset pair.
-    /// @dev Pass address(0) as oracle to remove the oracle for this pair.
-    /// @param token The token to set the oracle for.
-    /// @param quoteAsset The quote asset the oracle prices against.
-    /// @param oracle The oracle address, or address(0) to remove.
-    function setApprovedOracle(ERC20 token, address quoteAsset, address oracle) external requiresAuth {
-        oracles[token][quoteAsset] = oracle;
+    /// @notice Sets the oracle configs for a base/quote pair.
+    /// @param base The base asset.
+    /// @param quote The quote asset.
+    /// @param configs The oracle configurations.
+    function setOracles(address base, address quote, OracleConfig[] calldata configs) external requiresAuth {
+        delete oracles[base][quote];
+        for (uint256 i = 0; i < configs.length; i++) {
+            oracles[base][quote].push(configs[i]);
+        }
 
-        emit OracleUpdated(token, quoteAsset, oracle);
+        emit OraclesUpdated(base, quote);
+    }
+
+    /// @notice Sets the price path for a token to a final quote asset.
+    /// @param token The token to price.
+    /// @param quoteAsset The final quote asset.
+    /// @param path The list of intermediary assets ending with the quote asset.
+    function setPricePath(ERC20 token, address quoteAsset, address[] calldata path) external requiresAuth {
+        pricePaths[token][quoteAsset] = path;
+
+        emit PricePathUpdated(token, quoteAsset);
     }
 
     /// @notice Sets the price validator contract used for slippage checks.
@@ -429,12 +456,14 @@ contract BoringSwapper is Auth {
         return keccak256(abi.encode(address(tokenIn), address(tokenOut)));
     }
 
-    /// @notice Returns the oracle address for a given token/quoteAsset pair.
-    /// @param token The token to look up.
-    /// @param quoteAsset The quote asset the oracle prices against.
-    /// @return The oracle address, or address(0) if not set.
-    function getOracle(ERC20 token, address quoteAsset) external view returns (address) {
-        return oracles[token][quoteAsset];
+    /// @notice Returns the oracle configs for a base/quote pair.
+    function getOracles(address base, address quote) external view returns (OracleConfig[] memory) {
+        return oracles[base][quote];
+    }
+
+    /// @notice Returns the price path for a token to a final quote asset.
+    function getPricePath(ERC20 token, address quoteAsset) external view returns (address[] memory) {
+        return pricePaths[token][quoteAsset];
     }
 
     // ========================================= INTERNAL FUNCTIONS =========================================

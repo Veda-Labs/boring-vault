@@ -12,6 +12,7 @@ import {PriceValidator} from "src/base/Periphery/adapters/price/PriceValidator.s
 import {IPriceValidator} from "src/interfaces/IPriceValidator.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
+import {OracleConfig} from "src/interfaces/ISwapper.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
@@ -34,6 +35,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
     //cow protocol constants
     address constant COW_SETTLEMENT = 0x9008D19f58AAbD9eD0D60971565AA8510560ab41;
+    address constant COW_VAULT_RELAYER = 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110;
 
     bytes32 constant GPV2_ORDER_TYPE_HASH = keccak256(
         "Order(address sellToken,address buyToken,address receiver,uint256 sellAmount,uint256 buyAmount,uint32 validTo,bytes32 appData,uint256 feeAmount,string kind,bool partiallyFillable,string sellTokenBalance,string buyTokenBalance)"
@@ -88,12 +90,13 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setApprovedProtocol.selector, true);
         rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.addApprovedVersion.selector, true);
         rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.removeApprovedVersion.selector, true);
-        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setApprovedOracle.selector, true);
+        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setOracles.selector, true);
+        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setPricePath.selector, true);
         rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setPriceValidator.selector, true);
         rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setRateLimit.selector, true);
         rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.sweep.selector, true);
 
-        cowAdapter = new CowswapAdapter(COW_SETTLEMENT);
+        cowAdapter = new CowswapAdapter(COW_SETTLEMENT, COW_VAULT_RELAYER);
 
         registry.put(COWSWAP, address(cowAdapter), "COWSWAP");
 
@@ -106,8 +109,23 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         wethRate = new MockRateProvider(2000e18);
         usdcRate = new MockRateProvider(1e18);
         address usdQuoteAsset = address(USDC);
-        swapper.setApprovedOracle(WETH, usdQuoteAsset, address(wethRate));
-        swapper.setApprovedOracle(USDC, usdQuoteAsset, address(usdcRate));
+
+        OracleConfig[] memory wethConfigs = new OracleConfig[](1);
+        wethConfigs[0] = OracleConfig(address(wethRate), false);
+        swapper.setOracles(address(WETH), usdQuoteAsset, wethConfigs);
+
+        OracleConfig[] memory usdcConfigs = new OracleConfig[](1);
+        usdcConfigs[0] = OracleConfig(address(usdcRate), false);
+        swapper.setOracles(address(USDC), usdQuoteAsset, usdcConfigs);
+
+        // price paths: direct single hop
+        address[] memory wethPath = new address[](1);
+        wethPath[0] = usdQuoteAsset;
+        swapper.setPricePath(WETH, usdQuoteAsset, wethPath);
+
+        address[] memory usdcPath = new address[](1);
+        usdcPath[0] = usdQuoteAsset;
+        swapper.setPricePath(USDC, usdQuoteAsset, usdcPath);
 
         //price validator
         validator = new PriceValidator();
@@ -128,7 +146,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
             _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
 
         //order record stored
-        (ERC20 tokenIn, address settlementAddr, uint256 inputAmount, BoringVault receiver) =
+        (ERC20 tokenIn, address approvalTarget, address cancelTarget, uint256 inputAmount, BoringVault receiver) =
             swapper.orderRecords(orderId);
         assertEq(address(tokenIn), address(WETH));
         assertEq(inputAmount, 1e18);
@@ -265,7 +283,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         assertEq(WETH.balanceOf(address(boringVault)), 100e18);
 
         //record deleted
-        (ERC20 tokenIn,,,) = swapper.orderRecords(orderId);
+        (ERC20 tokenIn,,,,) = swapper.orderRecords(orderId);
         assertEq(address(tokenIn), address(0));
     }
 
@@ -309,10 +327,10 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         assertEq(WETH.balanceOf(address(boringVault)), 98e18);
 
         //order 0 deleted, order 1 still exists
-        (ERC20 tokenIn0,,,) = swapper.orderRecords(orderId0);
+        (ERC20 tokenIn0,,,,) = swapper.orderRecords(orderId0);
         assertEq(address(tokenIn0), address(0));
 
-        (ERC20 tokenIn1,,uint256 inputAmount1,) = swapper.orderRecords(orderId1);
+        (ERC20 tokenIn1,,,uint256 inputAmount1,) = swapper.orderRecords(orderId1);
         assertEq(address(tokenIn1), address(WETH));
         assertEq(inputAmount1, 2e18);
     }
@@ -377,7 +395,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         assertEq(WETH.balanceOf(address(boringVault)), vaultWethBefore);
 
         //record is deleted
-        (ERC20 tokenIn,,,) = swapper.orderRecords(orderId);
+        (ERC20 tokenIn,,,,) = swapper.orderRecords(orderId);
         assertEq(address(tokenIn), address(0));
     }
 
@@ -407,7 +425,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     //TODO pull these out to their own file? 
     function testRegistryOverwriteReverts() external {
         //cowAdapter is already registered at (COWSWAP, version=1)
-        CowswapAdapter duplicateAdapter = new CowswapAdapter(COW_SETTLEMENT);
+        CowswapAdapter duplicateAdapter = new CowswapAdapter(COW_SETTLEMENT, COW_VAULT_RELAYER);
 
         vm.expectRevert("adapter already registered");
         registry.put(COWSWAP, address(duplicateAdapter));
@@ -431,14 +449,14 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
     function testRegistryPut_RevertNameRequired() external {
         //new protocol with empty name should revert
-        CowswapAdapter newAdapter = new CowswapAdapter(COW_SETTLEMENT);
+        CowswapAdapter newAdapter = new CowswapAdapter(COW_SETTLEMENT, COW_VAULT_RELAYER);
         vm.expectRevert("name required");
         registry.put(10, address(newAdapter), "");
     }
 
     function testRegistryPut_RevertProtocolNotRegistered() external {
         //version bump overload on unregistered protocol should revert
-        CowswapAdapter newAdapter = new CowswapAdapter(COW_SETTLEMENT);
+        CowswapAdapter newAdapter = new CowswapAdapter(COW_SETTLEMENT, COW_VAULT_RELAYER);
         vm.expectRevert("protocol not registered");
         registry.put(10, address(newAdapter));
     }
@@ -543,12 +561,17 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         assertEq(swapper.versions(newProtocol), 5);
     }
 
-    function testAddApprovedOracle() external {
+    function testSetOracles() external {
         address newOracle = address(0x69420);
         address quoteAsset = address(USDC);
 
-        swapper.setApprovedOracle(WETH, quoteAsset, newOracle);
-        assertEq(swapper.getOracle(WETH, quoteAsset), newOracle);
+        OracleConfig[] memory configs = new OracleConfig[](1);
+        configs[0] = OracleConfig(newOracle, false);
+        swapper.setOracles(address(WETH), quoteAsset, configs);
+        OracleConfig[] memory result = swapper.getOracles(address(WETH), quoteAsset);
+        assertEq(result.length, 1);
+        assertEq(result[0].rateProvider, newOracle);
+        assertEq(result[0].skipValidation, false);
     }
 
     function testSetPriceValidator() external {
@@ -568,14 +591,19 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         assertEq(ab, swapper.getRouteId(WETH, USDC));
     }
 
-    function testGetOracle() external {
+    function testGetOracles() external {
         address quoteAsset = address(USDC);
         //oracles were set in setUp
-        assertEq(swapper.getOracle(WETH, quoteAsset), address(wethRate));
-        assertEq(swapper.getOracle(USDC, quoteAsset), address(usdcRate));
+        OracleConfig[] memory wethResult = swapper.getOracles(address(WETH), quoteAsset);
+        assertEq(wethResult.length, 1);
+        assertEq(wethResult[0].rateProvider, address(wethRate));
+        OracleConfig[] memory usdcResult = swapper.getOracles(address(USDC), quoteAsset);
+        assertEq(usdcResult.length, 1);
+        assertEq(usdcResult[0].rateProvider, address(usdcRate));
 
-        //unregistered oracle returns zero
-        assertEq(swapper.getOracle(WETH, address(0x420)), address(0));
+        //unregistered oracle returns empty array
+        OracleConfig[] memory emptyResult = swapper.getOracles(address(WETH), address(0x420));
+        assertEq(emptyResult.length, 0);
     }
 
     //==================== Price Validator ====================

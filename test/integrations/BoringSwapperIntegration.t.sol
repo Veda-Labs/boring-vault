@@ -19,6 +19,7 @@ import {Authority} from "@solmate/auth/Auth.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
 import {PriceValidator} from "src/base/Periphery/adapters/price/PriceValidator.sol";
 import {IPriceValidator} from "src/interfaces/IPriceValidator.sol";
+import {OracleConfig} from "src/interfaces/ISwapper.sol";
 import {Test, console} from "@forge-std/Test.sol";
 
 //TODO
@@ -40,6 +41,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
 
     // CoW Protocol constants BEGIN //
     address constant COW_SETTLEMENT = 0x9008D19f58AAbD9eD0D60971565AA8510560ab41;
+    address constant COW_VAULT_RELAYER = 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110;
 
     // Pack a SwapConfig into the signature bytes
     uint8 UNISWAP_V3 = 0;
@@ -56,6 +58,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
 
     // 1inch constants BEGIN //
     address constant ONEINCH_ROUTER = 0x111111125421cA6dc452d289314280a0f8842A65;
+    address constant ONEINCH_FEE_TAKER = address(0);
 
     bytes32 constant ONEINCH_ORDER_TYPE_HASH = keccak256(
         "Order(uint256 salt,address maker,address receiver,address makerAsset,address takerAsset,uint256 makingAmount,uint256 takingAmount,uint256 makerTraits)"
@@ -83,8 +86,8 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         swapper = new BoringSwapper(address(this), registry);
 
         address uniswapV3AdapterVersion0_1 = address(new UniswapV3Adapter(getAddress(sourceChain, "uniV3Router")));
-        address cowswapAdapterVersion0_1 = address(new CowswapAdapter(COW_SETTLEMENT));
-        address oneInchAdapterVersion0_1 = address(new OneInchAdapter(ONEINCH_ROUTER));
+        address cowswapAdapterVersion0_1 = address(new CowswapAdapter(COW_SETTLEMENT, COW_VAULT_RELAYER));
+        address oneInchAdapterVersion0_1 = address(new OneInchAdapter(ONEINCH_ROUTER, ONEINCH_FEE_TAKER));
 
         swapper.setApprovedRoute(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDC"), true, 50, 0, 0);
         swapper.setApprovedProtocol(UNISWAP_V3, true); //UNI_V3
@@ -103,8 +106,23 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         ethRate = new MockRateProvider(2000e18);
 
         address usdQuoteAsset = getAddress(sourceChain, "USDC");
-        swapper.setApprovedOracle(getERC20(sourceChain, "USDC"), usdQuoteAsset, address(usdRate));
-        swapper.setApprovedOracle(getERC20(sourceChain, "WETH"), usdQuoteAsset, address(ethRate));
+
+        OracleConfig[] memory usdConfigs = new OracleConfig[](1);
+        usdConfigs[0] = OracleConfig(address(usdRate), false);
+        swapper.setOracles(getAddress(sourceChain, "USDC"), usdQuoteAsset, usdConfigs);
+
+        OracleConfig[] memory ethConfigs = new OracleConfig[](1);
+        ethConfigs[0] = OracleConfig(address(ethRate), false);
+        swapper.setOracles(getAddress(sourceChain, "WETH"), usdQuoteAsset, ethConfigs);
+
+        // price paths
+        address[] memory usdPath = new address[](1);
+        usdPath[0] = usdQuoteAsset;
+        swapper.setPricePath(getERC20(sourceChain, "USDC"), usdQuoteAsset, usdPath);
+
+        address[] memory ethPath = new address[](1);
+        ethPath[0] = usdQuoteAsset;
+        swapper.setPricePath(getERC20(sourceChain, "WETH"), usdQuoteAsset, ethPath);
 
         //price validator setup
         validator = new PriceValidator();
@@ -573,7 +591,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         (BoringSwapper.SwapConfig memory config,, uint256 orderId) =
             _submitOneInchOrder(1e18, 2000e6);
 
-        (ERC20 tokenIn, address settlementAddr, uint256 inputAmount, BoringVault receiver) =
+        (ERC20 tokenIn, address approvalTarget, address cancelTarget, uint256 inputAmount, BoringVault receiver) =
             swapper.orderRecords(orderId);
         assertEq(address(tokenIn), getAddress(sourceChain, "WETH"));
         assertEq(inputAmount, 1e18);
@@ -638,7 +656,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         assertEq(getERC20(sourceChain, "WETH").balanceOf(address(swapper)), 0);
         assertEq(getERC20(sourceChain, "WETH").balanceOf(getAddress(sourceChain, "boringVault")), 100e18);
 
-        (ERC20 tokenIn,,,) = swapper.orderRecords(orderId);
+        (ERC20 tokenIn,,,,) = swapper.orderRecords(orderId);
         assertEq(address(tokenIn), address(0));
     }
 

@@ -22,6 +22,7 @@ import {UniswapV3Adapter} from "src/base/Periphery/adapters/UniswapV3Adapter.sol
 import {CowswapAdapter} from "src/base/Periphery/adapters/CowswapAdapter.sol";
 import {OneInchAdapter} from "src/base/Periphery/adapters/OneInchAdapter.sol";
 
+import {OracleConfig} from "src/interfaces/ISwapper.sol";
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
 
@@ -91,7 +92,7 @@ contract DeployBoringSwapperTestSuite is Script, ContractNames, MainnetAddresses
         //deploy adapter (cowswap)
         address uniswapV3AdapterVersion0_1 = address(new UniswapV3Adapter(getAddress(sourceChain, "uniV3Router")));
         address cowswapAdapterVersion0_1 = address(new CowswapAdapter(COW_SETTLEMENT, COW_VAULT_RELAYER));
-        address oneInchAdapterVersion0_1 = address(new OneInchAdapter(ONEINCH_ROUTER));
+        address oneInchAdapterVersion0_1 = address(new OneInchAdapter(ONEINCH_ROUTER, address(0)));
 
         swapper.setApprovedRoute(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDC"), true, 500, 0, 0);
         swapper.setApprovedProtocol(UNISWAP_V3, true); //UNI_V3
@@ -151,8 +152,23 @@ contract DeployBoringSwapperTestSuite is Script, ContractNames, MainnetAddresses
 
         address usdQuoteAsset = getAddress(sourceChain, "USDC");
         address ethQuoteAsset = getAddress(sourceChain, "USDC");
-        swapper.setApprovedOracle(getERC20(sourceChain, "USDC"), usdQuoteAsset, 0x8d99465A5F1631f9B7063C9437e6C09AC3504527);
-        swapper.setApprovedOracle(getERC20(sourceChain, "WETH"), ethQuoteAsset, 0x2F22FBE27D24CA359eb282A6a13c0017C13dEDa4);
+
+        OracleConfig[] memory usdConfigs = new OracleConfig[](1);
+        usdConfigs[0] = OracleConfig(0x8d99465A5F1631f9B7063C9437e6C09AC3504527, false);
+        swapper.setOracles(getAddress(sourceChain, "USDC"), usdQuoteAsset, usdConfigs);
+
+        OracleConfig[] memory ethConfigs = new OracleConfig[](1);
+        ethConfigs[0] = OracleConfig(0x2F22FBE27D24CA359eb282A6a13c0017C13dEDa4, false);
+        swapper.setOracles(getAddress(sourceChain, "WETH"), ethQuoteAsset, ethConfigs);
+
+        // price paths
+        address[] memory usdPath = new address[](1);
+        usdPath[0] = usdQuoteAsset;
+        swapper.setPricePath(getERC20(sourceChain, "USDC"), usdQuoteAsset, usdPath);
+
+        address[] memory ethPath = new address[](1);
+        ethPath[0] = ethQuoteAsset;
+        swapper.setPricePath(getERC20(sourceChain, "WETH"), ethQuoteAsset, ethPath);
 
         //price validator setup
         //validator = new PriceValidator();
