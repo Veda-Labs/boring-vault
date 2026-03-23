@@ -5324,6 +5324,24 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
 
     // ========================================= MorphoBlue =========================================
 
+    function _addMorphoBlueFlashLoanLeafs(ManageLeaf[] memory leafs, address token) internal {
+        ERC20 loanToken = ERC20(token);
+
+        unchecked {
+            leafIndex++;
+        }
+
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "morphoBlueFlashLoanAdapterAddress"),
+            false,
+            "morphoFlashLoan(address,uint256,bytes)",
+            new address[](1),
+            string.concat("call MorphoFlashLoanAdapter to flash-borrow ", loanToken.symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = token;
+    }
+
     function _addMorphoBlueSupplyLeafs(ManageLeaf[] memory leafs, bytes32 marketId) internal {
         IMB.MarketParams memory marketParams = IMB(getAddress(sourceChain, "morphoBlue")).idToMarketParams(marketId);
         ERC20 loanToken = ERC20(marketParams.loanToken);
