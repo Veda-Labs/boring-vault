@@ -222,6 +222,82 @@ contract MorphoFlashLoanIntegrationTest is Test, MerkleTreeHelper {
         );
     }
 
+    function test__MorphoFlashLoanAdapter__EmergencyRescueTokens() external {
+        address usdc = getAddress(sourceChain, "USDC");
+        uint256 rescueAmount = 5_000e6;
+
+        deal(usdc, address(flashLoanAdapter), rescueAmount);
+
+        ManageLeaf[] memory leafs = new ManageLeaf[](4);
+        _addMorphoBlueFlashLoanLeafs(leafs, getAddress(sourceChain, "USDC"));
+
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        address[] memory targets = new address[](1);
+        targets[0] = address(flashLoanAdapter);
+
+        address[] memory assets = new address[](1);
+        assets[0] = usdc;
+        uint256[] memory amounts = new uint256[](1);
+        amounts[0] = rescueAmount;
+
+        bytes[] memory targetData = new bytes[](1);
+        targetData[0] = abi.encodeWithSignature("emergencyRescueTokens(address[],uint256[])", assets, amounts);
+
+        address[] memory decodersAndSanitizers = new address[](1);
+        decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+
+        ManageLeaf[] memory manageLeafs = new ManageLeaf[](1);
+        manageLeafs[0] = ManageLeaf(
+            address(flashLoanAdapter),
+            false,
+            "emergencyRescueTokens(address[],uint256[])",
+            new address[](1),
+            "Initiate morphoBlueFlashLoan USDC",
+            rawDataDecoderAndSanitizer
+        );
+        manageLeafs[0].argumentAddresses[0] = getAddress(sourceChain, "USDC");
+
+        bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
+
+        uint256 vaultUsdcBefore = ERC20(usdc).balanceOf(address(boringVault));
+        uint256 adapterUsdcBefore = ERC20(usdc).balanceOf(address(flashLoanAdapter));
+
+        manager.manageVaultWithMerkleVerification(
+            manageProofs, decodersAndSanitizers, targets, targetData, new uint256[](1)
+        );
+
+        uint256 vaultUsdcAfter = ERC20(usdc).balanceOf(address(boringVault));
+        uint256 adapterUsdcAfter = ERC20(usdc).balanceOf(address(flashLoanAdapter));
+
+        assertEq(adapterUsdcBefore, rescueAmount, "Adapter should start with rescue amount");
+        assertEq(adapterUsdcAfter, 0, "Adapter should transfer rescued USDC out");
+        assertEq(vaultUsdcAfter, vaultUsdcBefore + rescueAmount, "Vault should receive rescued USDC");
+    }
+
+    function test__MorphoFlashLoanAdapter__EmergencyRescueTokensRevertsOnlyVault() external {
+        address[] memory assets = new address[](1);
+        assets[0] = getAddress(sourceChain, "USDC");
+        uint256[] memory amounts = new uint256[](1);
+        amounts[0] = 1e6;
+
+        vm.expectRevert(MorphoFlashLoanAdapter.MorphoFlashLoanAdapter__OnlyVault.selector);
+        flashLoanAdapter.emergencyRescueTokens(assets, amounts);
+    }
+
+    function test__MorphoFlashLoanAdapter__EmergencyRescueTokensRevertsInvalidLengths() external {
+        address[] memory assets = new address[](1);
+        assets[0] = getAddress(sourceChain, "USDC");
+        uint256[] memory amounts = new uint256[](2);
+        amounts[0] = 1e6;
+        amounts[1] = 1e6;
+
+        vm.prank(address(boringVault));
+        vm.expectRevert(MorphoFlashLoanAdapter.MorphoFlashLoanAdapter__InvalidLengths.selector);
+        flashLoanAdapter.emergencyRescueTokens(assets, amounts);
+    }
+
     function _buildNestedFlashLoanPayload(address token, bytes32[][] memory manageTree)
         internal
         view

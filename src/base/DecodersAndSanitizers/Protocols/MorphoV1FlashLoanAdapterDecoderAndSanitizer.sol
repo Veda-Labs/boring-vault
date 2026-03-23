@@ -11,5 +11,16 @@ abstract contract MorphoV1FlashLoanAdapterDecoderAndSanitizer is BaseDecoderAndS
     {
         addressesFound = abi.encodePacked(token);
     }
+
+    function emergencyRescueTokens(address[] calldata assets, uint256[] calldata)
+        external
+        pure
+        returns (bytes memory addressesFound)
+    {
+        uint256 assetsLength = assets.length;
+        for (uint256 i = 0; i < assetsLength; i++) {
+            addressesFound = abi.encodePacked(addressesFound, assets[i]);
+        }
+    }
 }
 

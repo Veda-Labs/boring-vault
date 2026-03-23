@@ -17,6 +17,7 @@ contract MorphoFlashLoanAdapter is IMorphoFlashLoanCallback {
     error MorphoFlashLoanAdapter__FlashLoanAlreadyInProgress();
     error MorphoFlashLoanAdapter__FlashLoanNotExecuted();
     error MorphoFlashLoanAdapter__BadFlashLoanIntentHash();
+    error MorphoFlashLoanAdapter__InvalidLengths();
 
     IMorpho public immutable morpho;
     BoringVault public immutable vault;
@@ -77,5 +78,15 @@ contract MorphoFlashLoanAdapter is IMorphoFlashLoanCallback {
         vault.manage(tokenArr, transferBack, new uint256[](1));
 
         ERC20(token).safeApprove(address(morpho), assets);
+    }
+
+    function emergencyRescueTokens(address[] memory assets, uint256[] memory amounts) external {
+        if (msg.sender != address(vault)) revert MorphoFlashLoanAdapter__OnlyVault();
+        if (performingFlashLoan) revert MorphoFlashLoanAdapter__FlashLoanAlreadyInProgress();
+        if (assets.length != amounts.length) revert MorphoFlashLoanAdapter__InvalidLengths();
+
+        for (uint256 i = 0; i < assets.length; i++) {
+            ERC20(assets[i]).safeTransfer(address(vault), amounts[i]);
+        }
     }
 }
