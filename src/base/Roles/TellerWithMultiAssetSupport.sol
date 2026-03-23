@@ -922,6 +922,10 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     }
 
     /**
+     * @notice Processes rewards for a user.
+     * @param rewards The rewards to process.
+     * @param user The user to process rewards for.
+     */
     function _processRewards(RewardData[] calldata rewards, address user) internal {
         for (uint256 i; i < rewards.length; ++i) {
             IncentivePool(rewards[i].pool)

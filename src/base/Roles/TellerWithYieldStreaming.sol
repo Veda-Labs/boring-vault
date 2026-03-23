@@ -17,8 +17,6 @@ contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
         _getAccountant().lastVirtualSharePrice(); // Reverts if the accountant doesn't support lastVirtualSharePrice()
     }
 
-    // ========================================= USER FUNCTIONS =========================================
-
     /**
      * @notice Allows off ramp role to withdraw from this contract.
      * @dev Publicly callable.
@@ -110,6 +108,6 @@ contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
      * @notice Returns the version of the contract.
      */
     function version() public pure virtual override returns (string memory) {
-        return "Yield Streaming V1.0";
+        return string(abi.encodePacked("Yield Streaming V0.1, ", super.version()));
     }
 }
