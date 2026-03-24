@@ -934,6 +934,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             address itbPositionManager2 = 0xA40aFb15275A94F64aF37C0cEaAaA45Cb568A361;
             address itbPositionManager3 = 0x2A601FC6C0Cb854fDA82715E49Ab04C5340A0396;
             address itbPositionManager4 = 0xCF346a4F898e9FdacD3a130fFe00F1f2dA56C90a;
+            address itbPositionManager5 = 0x4b1A4a8f421454874B553CcE4c59c654a84c4927;
             ERC20[] memory itbTokensUsed2 = new ERC20[](1);
             itbTokensUsed2[0] = getERC20(sourceChain, "WEETH");
             // Aave weETH -> RLUSD -> RLUSD Aave Horizon
@@ -941,6 +942,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             //Spark weETH → PYUSD → PYUSD Euler
             _addLeafsForITBPositionManager(leafs, itbPositionManager3, itbTokensUsed2, "ITB Position Manager 3");
             _addLeafsForITBPositionManager(leafs, itbPositionManager4, itbTokensUsed2, "ITB Position Manager 4");
+            _addLeafsForITBPositionManager(leafs, itbPositionManager5, itbTokensUsed2, "ITB Position Manager 5");
         }
 
         // ========================== Drone Setup ===============================
@@ -969,7 +971,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         address itbPositionManager,
         ERC20[] memory tokensUsed,
         string memory itbContractName
-    ) internal {
+    ) internal override {
         // acceptOwnership
         leafIndex++;
         leafs[leafIndex] = ManageLeaf(
