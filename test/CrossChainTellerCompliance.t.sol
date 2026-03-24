@@ -12,6 +12,7 @@ import {
     ComplianceData,
     PrincipalCheckpoint
 } from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import {TellerWithMultiAssetSupportLib} from "src/base/Roles/TellerWithMultiAssetSupportLib.sol";
 import {CrossChainTellerWithGenericBridge} from "src/base/Roles/CrossChain/CrossChainTellerWithGenericBridge.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
@@ -201,7 +202,7 @@ contract CrossChainTellerComplianceTest is Test, MerkleTreeHelper {
         WETH.safeApprove(address(boringVault), amount);
         vm.expectRevert(
             abi.encodeWithSelector(
-                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
+                TellerWithMultiAssetSupportLib.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
             )
         );
         teller.depositAndBridge(
@@ -260,7 +261,7 @@ contract CrossChainTellerComplianceTest is Test, MerkleTreeHelper {
         WETH.safeApprove(address(boringVault), amount);
         vm.expectRevert(
             abi.encodeWithSelector(
-                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
+                TellerWithMultiAssetSupportLib.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
             )
         );
         teller.depositAndBridge(
@@ -289,7 +290,7 @@ contract CrossChainTellerComplianceTest is Test, MerkleTreeHelper {
         WETH.safeApprove(address(boringVault), amount);
         vm.expectRevert(
             abi.encodeWithSelector(
-                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
+                TellerWithMultiAssetSupportLib.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
             )
         );
         teller.depositAndBridge(
@@ -346,7 +347,7 @@ contract CrossChainTellerComplianceTest is Test, MerkleTreeHelper {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
+                TellerWithMultiAssetSupportLib.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
             )
         );
         vm.prank(user);
@@ -369,7 +370,7 @@ contract CrossChainTellerComplianceTest is Test, MerkleTreeHelper {
         // Replay same signature reverts
         vm.expectRevert(
             abi.encodeWithSelector(
-                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
+                TellerWithMultiAssetSupportLib.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
             )
         );
         vm.prank(user);

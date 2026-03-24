@@ -6,6 +6,7 @@ pragma solidity 0.8.21;
 
 import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
 import {BoringVault} from "src/base/BoringVault.sol";
+import {TellerWithMultiAssetSupportLib} from "src/base/Roles/TellerWithMultiAssetSupportLib.sol";
 import {
     TellerWithMultiAssetSupport,
     DepositParams,
@@ -1115,7 +1116,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         // Second deposit with same signature reverts.
         vm.expectRevert(
             abi.encodeWithSelector(
-                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
+                TellerWithMultiAssetSupportLib.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
             )
         );
         teller.deposit(
@@ -1145,7 +1146,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
+                TellerWithMultiAssetSupportLib.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
             )
         );
         teller.deposit(
@@ -1179,7 +1180,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
+                TellerWithMultiAssetSupportLib.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
             )
         );
         teller.deposit(
@@ -1300,7 +1301,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         WETH.safeApprove(address(boringVault), depositAmount);
         vm.expectRevert(
             abi.encodeWithSelector(
-                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
+                TellerWithMultiAssetSupportLib.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
             )
         );
         teller.deposit(

@@ -17,9 +17,6 @@ import {RolesAuthority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {ReentrancyGuard} from "@solmate/utils/ReentrancyGuard.sol";
 import {IPausable} from "src/interfaces/IPausable.sol";
 import {IncentivePool} from "src/base/IncentivePool.sol";
-import {SafeCast} from "@openzeppelin-contracts-5.3.0/utils/math/SafeCast.sol";
-import {ECDSA} from "@openzeppelin-contracts-5.3.0/utils/cryptography/ECDSA.sol";
-import {MessageHashUtils} from "@openzeppelin-contracts-5.3.0/utils/cryptography/MessageHashUtils.sol";
 import {TellerWithMultiAssetSupportLib} from "src/base/Roles/TellerWithMultiAssetSupportLib.sol";
 
 struct DepositParams {
@@ -194,7 +191,6 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     error TellerWithMultiAssetSupport__TransferDenied(address from, address to, address operator);
     error TellerWithMultiAssetSupport__DepositExceedsCap();
     error TellerWithMultiAssetSupport__ZeroRecipient();
-    error TellerWithMultiAssetSupport__ComplianceCheckFailed();
     error TellerWithMultiAssetSupport__SharePremiumTooLarge();
     error TellerWithMultiAssetSupport__BufferHelperNotAllowed(ERC20 asset, IBufferHelper bufferHelper);
     error TellerWithMultiAssetSupport__TransferNotAllowed();
