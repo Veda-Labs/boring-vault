@@ -6,7 +6,7 @@ pragma solidity 0.8.21;
 
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {IPriceValidator} from "src/interfaces/IPriceValidator.sol";
-import {ISwapper, OracleConfig} from "src/interfaces/ISwapper.sol";
+import {ISwapper} from "src/interfaces/ISwapper.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 
@@ -31,8 +31,8 @@ contract PriceValidator is IPriceValidator {
         uint256 maxSlippageBps = swapper.maxSlippageBpsPerRoute(key);
         if (slippageBps > maxSlippageBps) revert PriceValidator__ExceedsRouteMaxSlippage();
 
-        uint256 valueIn = _resolvePrice(swapper, address(tokenIn), quoteAsset, inputAmount, tokenIn.decimals());
-        uint256 valueOut = _resolvePrice(swapper, address(tokenOut), quoteAsset, outputAmount, tokenOut.decimals());
+        uint256 valueIn = _getPrice(swapper, tokenIn, quoteAsset, inputAmount);
+        uint256 valueOut = _getPrice(swapper, tokenOut, quoteAsset, outputAmount);
 
         // if either side skipped validation, no slippage check
         if (valueIn == 0 || valueOut == 0) return;
@@ -41,45 +41,26 @@ contract PriceValidator is IPriceValidator {
         if (valueOut < minValueOut) revert PriceValidator__ExceedsMaxSlippage();
     }
 
-    /// @notice Resolves the price of a token amount in the final quote asset by walking the price path.
-    ///         At each hop, ALL oracles must independently pass. Returns 0 if skipValidation is set.
-    function _resolvePrice(
+    function _getPrice(
         ISwapper swapper,
-        address token,
+        ERC20 token,
         address quoteAsset,
-        uint256 amount,
-        uint8 decimals
+        uint256 amount
     ) internal view returns (uint256) {
-        address[] memory path = swapper.getPricePath(ERC20(token), quoteAsset);
-        if (path.length == 0) revert PriceValidator__OracleNotConfigured();
+        (address rateProvider, address intermediary, bool skipValidation) = swapper.getBaseAssetOracle(token, quoteAsset);
 
-        // Walk the path: token -> path[0] -> path[1] -> ... -> quoteAsset
-        // At each hop, check all oracles and use the first oracle's rate for the price calculation
-        address currentBase = token;
-        uint256 price = amount;
+        if (skipValidation) return 0;
+        if (rateProvider == address(0)) revert PriceValidator__OracleNotConfigured();
 
-        for (uint256 i = 0; i < path.length; i++) {
-            OracleConfig[] memory configs = swapper.getOracles(currentBase, path[i]);
-            if (configs.length == 0) revert PriceValidator__OracleNotConfigured();
+        uint256 decimals = token.decimals();
+        uint256 value = amount.mulDivDown(IRateProvider(rateProvider).getRate(), 10 ** decimals);
 
-            // if any config has skipValidation, skip the entire token's price resolution
-            if (configs[0].skipValidation) return 0;
-
-            // use first oracle's rate for price calculation
-            uint256 baseRate = IRateProvider(configs[0].rateProvider).getRate();
-            price = price.mulDivDown(baseRate, 10 ** decimals);
-            // after first hop, rates are 18 decimal normalized
-            decimals = 18;
-
-            // check all remaining oracles also produce an acceptable rate
-            for (uint256 j = 1; j < configs.length; j++) {
-                if (configs[j].skipValidation) return 0;
-                IRateProvider(configs[j].rateProvider).getRate();
-            }
-
-            currentBase = path[i];
+        if (intermediary != address(0)) {
+            address baseRateProvider = swapper.oracles(intermediary, quoteAsset);
+            if (baseRateProvider == address(0)) revert PriceValidator__OracleNotConfigured();
+            value = value.mulDivDown(IRateProvider(baseRateProvider).getRate(), 1e18);
         }
 
-        return price;
+        return value;
     }
 }

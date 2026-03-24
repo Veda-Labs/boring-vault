@@ -6,15 +6,10 @@ pragma solidity 0.8.21;
 
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 
-struct OracleConfig {
-    address rateProvider;
-    bool skipValidation;
-}
-
 interface ISwapper {
     function getRouteId(ERC20 tokenIn, ERC20 tokenOut) external pure returns (bytes32);
-    function getOracles(address base, address quote) external view returns (OracleConfig[] memory);
-    function getPricePath(ERC20 token, address quoteAsset) external view returns (address[] memory);
+    function getBaseAssetOracle(ERC20 token, address quoteAsset) external view returns (address, address, bool);
+    function oracles(address intermediary, address quoteAsset) external view returns (address);
     function approvedRoutes(bytes32 routeId) external view returns (bool);
     function maxSlippageBpsPerRoute(bytes32 routeId) external view returns (uint256);
 }

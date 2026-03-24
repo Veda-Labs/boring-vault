@@ -19,7 +19,6 @@ import {Authority} from "@solmate/auth/Auth.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
 import {PriceValidator} from "src/base/Periphery/adapters/price/PriceValidator.sol";
 import {IPriceValidator} from "src/interfaces/IPriceValidator.sol";
-import {OracleConfig} from "src/interfaces/ISwapper.sol";
 import {Test, console} from "@forge-std/Test.sol";
 
 //TODO
@@ -104,25 +103,10 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         //oracle setup
         usdRate = new MockRateProvider(1e18);
         ethRate = new MockRateProvider(2000e18);
-
         address usdQuoteAsset = getAddress(sourceChain, "USDC");
 
-        OracleConfig[] memory usdConfigs = new OracleConfig[](1);
-        usdConfigs[0] = OracleConfig(address(usdRate), false);
-        swapper.setOracles(getAddress(sourceChain, "USDC"), usdQuoteAsset, usdConfigs);
-
-        OracleConfig[] memory ethConfigs = new OracleConfig[](1);
-        ethConfigs[0] = OracleConfig(address(ethRate), false);
-        swapper.setOracles(getAddress(sourceChain, "WETH"), usdQuoteAsset, ethConfigs);
-
-        // price paths
-        address[] memory usdPath = new address[](1);
-        usdPath[0] = usdQuoteAsset;
-        swapper.setPricePath(getERC20(sourceChain, "USDC"), usdQuoteAsset, usdPath);
-
-        address[] memory ethPath = new address[](1);
-        ethPath[0] = usdQuoteAsset;
-        swapper.setPricePath(getERC20(sourceChain, "WETH"), usdQuoteAsset, ethPath);
+        swapper.setTokenOracle(getERC20(sourceChain, "USDC"), usdQuoteAsset, BoringSwapper.RateProviderConfig(address(usdRate), address(0), false));
+        swapper.setTokenOracle(getERC20(sourceChain, "WETH"), usdQuoteAsset, BoringSwapper.RateProviderConfig(address(ethRate), address(0), false));
 
         //price validator setup
         validator = new PriceValidator();
@@ -502,7 +486,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
         tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
 
-        vm.expectRevert("exceeds max slippage");
+        vm.expectRevert(abi.encodeWithSelector(PriceValidator.PriceValidator__ExceedsMaxSlippage.selector));
         _submitManagerCall(manageProofs, tx_);
     }
 
@@ -610,7 +594,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
 
         //fat finger: 1 WETH for 1000 USDC (50% below oracle)
         (BoringSwapper.SwapConfig memory config,) = _buildOneInchSwapConfig(1e18, 1000e6);
-        vm.expectRevert("exceeds max slippage");
+        vm.expectRevert(abi.encodeWithSelector(PriceValidator.PriceValidator__ExceedsMaxSlippage.selector));
         swapper.submitOrder(config);
     }
 

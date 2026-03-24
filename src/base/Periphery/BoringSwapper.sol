@@ -13,7 +13,6 @@ import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
 import {IPriceValidator} from "src/interfaces/IPriceValidator.sol";
-import {OracleConfig} from "src/interfaces/ISwapper.sol";
 
 contract BoringSwapper is Auth {
     using FixedPointMathLib for uint256;
@@ -30,6 +29,12 @@ contract BoringSwapper is Auth {
     struct TokenRoute {
         ERC20 tokenIn;
         ERC20 tokenOut;
+    }
+
+    struct RateProviderConfig {
+        address rateProvider; //token -> rateProvider (ex: STETH/ETH) (if quoteAsset is USDC, and we only have ETH price)
+        address intermediary; //if 2 hops are needed, what is the correct base asset for this? (USDC, so we can price STETH/USD)
+        bool skipValidation;
     }
 
     struct SwapConfig {
@@ -79,8 +84,8 @@ contract BoringSwapper is Auth {
     event MaxSlippageBpsUpdated(bytes32 indexed routeId, uint256 maxSlippageBps);
     event ProtocolApproved(uint8 indexed protocolId, bool approved);
     event VersionUpdated(uint8 indexed protocolId, uint256 version);
-    event OraclesUpdated(address indexed base, address indexed quote);
-    event PricePathUpdated(ERC20 indexed token, address indexed quoteAsset);
+    event TokenBaseAssetOraclesUpdated(ERC20 indexed token);
+    event BaseAssetOracleUpdated(ERC20 indexed baseAsset);
     event PriceValidatorUpdated(address newValidator);
     event RateLimitUpdated(bytes32 indexed routeId, uint256 capacity, uint256 refillRate);
     event Swept(ERC20 indexed token, address indexed vault, uint256 amount);
@@ -107,11 +112,21 @@ contract BoringSwapper is Auth {
     /// @notice stores the list of approved protocols for this vault
     mapping(uint8 protocolId => bool approved) public approvedProtocols;
 
-    /// @notice rate providers for a base/quote pair
-    mapping(address base => mapping(address quote => OracleConfig[])) public oracles;
+    mapping(ERC20 token => mapping(address quoteAsset => RateProviderConfig rateProviderConfig)) public baseAssetOracles;
 
-    /// @notice price path from token to final quote asset (list of intermediary assets ending with the quote asset)
-    mapping(ERC20 token => mapping(address quoteAsset => address[])) public pricePaths;
+    mapping(ERC20 baseAsset => mapping(address quoteAsset => address rateProvider)) public oracles;
+
+    //what we want the UX to be like is that the user just submits what they want to price the trade in
+    //the contract will look up the price routing for them
+    //such that, we are able to grab the quoteAsset and check for an oracle. If no oracle exists, we check for a base oracle.
+    //  how do we do that? 
+    //  we could have a fallback in the OracleConfig that goes to a base asset
+    //the problem right now is that we are going from token -> quoteAsset but the quoteAsset may not exist for all pairs
+    //so what we need to do is go through a baseAsset instead 
+    //we can do token -> base -> oracleConfig
+    //
+    //token -> baseAssetConfig (token to base oracles (any))
+    //baseAsset -> oracleConfig 
 
     /// @notice stores the current version this swapper subscribes to for a specific protocol
     mapping(uint8 protocolId => uint256 version) public versions;
@@ -388,27 +403,12 @@ contract BoringSwapper is Auth {
         emit VersionUpdated(protocolId, 0);
     }
 
-    /// @notice Sets the oracle configs for a base/quote pair.
-    /// @param base The base asset.
-    /// @param quote The quote asset.
-    /// @param configs The oracle configurations.
-    function setOracles(address base, address quote, OracleConfig[] calldata configs) external requiresAuth {
-        delete oracles[base][quote];
-        for (uint256 i = 0; i < configs.length; i++) {
-            oracles[base][quote].push(configs[i]);
-        }
-
-        emit OraclesUpdated(base, quote);
+    function setTokenOracle(ERC20 token, address quoteAsset, RateProviderConfig memory config) external requiresAuth {
+        baseAssetOracles[token][quoteAsset] = config;
     }
 
-    /// @notice Sets the price path for a token to a final quote asset.
-    /// @param token The token to price.
-    /// @param quoteAsset The final quote asset.
-    /// @param path The list of intermediary assets ending with the quote asset.
-    function setPricePath(ERC20 token, address quoteAsset, address[] calldata path) external requiresAuth {
-        pricePaths[token][quoteAsset] = path;
-
-        emit PricePathUpdated(token, quoteAsset);
+    function setBaseAssetOracle(ERC20 intermediary, address quoteAsset, address rateProvider) external requiresAuth {
+        oracles[intermediary][quoteAsset] = rateProvider;
     }
 
     /// @notice Sets the price validator contract used for slippage checks.
@@ -455,15 +455,10 @@ contract BoringSwapper is Auth {
     function getRouteId(ERC20 tokenIn, ERC20 tokenOut) public pure returns (bytes32) {
         return keccak256(abi.encode(address(tokenIn), address(tokenOut)));
     }
-
-    /// @notice Returns the oracle configs for a base/quote pair.
-    function getOracles(address base, address quote) external view returns (OracleConfig[] memory) {
-        return oracles[base][quote];
-    }
-
-    /// @notice Returns the price path for a token to a final quote asset.
-    function getPricePath(ERC20 token, address quoteAsset) external view returns (address[] memory) {
-        return pricePaths[token][quoteAsset];
+    
+    function getBaseAssetOracle(ERC20 token, address quoteAsset) public view returns (address, address, bool) {
+        RateProviderConfig storage config = baseAssetOracles[token][quoteAsset];
+        return (config.rateProvider, config.intermediary, config.skipValidation);
     }
 
     // ========================================= INTERNAL FUNCTIONS =========================================
