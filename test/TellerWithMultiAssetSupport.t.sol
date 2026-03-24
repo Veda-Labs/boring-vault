@@ -265,10 +265,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     function testDepositWithPermitNativeReverts(uint256 amount) external {
         amount = bound(amount, 0.0001e18, 10_000e18);
 
-        // depositWithPermit is not payable so native ETH cannot be forwarded.
-        // Calling it with the NATIVE sentinel address reverts because permit()
-        // targets a non-contract address.
-        vm.expectRevert();
+        vm.expectRevert(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__AssetNotSupported.selector);
         teller.depositWithPermit(
             DepositParams(NATIVE_ERC20, amount, 0, address(this)),
             PermitData(block.timestamp, 0, bytes32(0), bytes32(0)),

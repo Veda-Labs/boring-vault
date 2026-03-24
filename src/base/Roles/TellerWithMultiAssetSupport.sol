@@ -503,6 +503,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
 
     /**
      * @notice Implement legacy beforeTransfer hook to check if shares are locked, or if `from`is on the deny list.
+     * @dev This function is not expected to have `_enforceTransferAllowlist`
      */
     function beforeTransfer(address from) public view virtual {
         if (beforeTransferData[from].denyFrom) {
@@ -647,6 +648,9 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         address referralAddress,
         ComplianceData calldata compliance
     ) external virtual requiresAuth nonReentrant returns (uint256 shares) {
+        if (address(params.depositAsset) == NATIVE) {
+            revert TellerWithMultiAssetSupport__AssetNotSupported();
+        }
         address to = params.to;
         if (to == address(0)) revert TellerWithMultiAssetSupport__ZeroRecipient();
         _verifyComplianceSignature(to, params.depositAsset, params.depositAmount, compliance);
