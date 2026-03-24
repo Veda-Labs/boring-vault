@@ -616,6 +616,11 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
     function testShareWardenDelegatesToTellerShareLockPeriod() external {
         uint256 depositAmount = 1e18;
 
+        // Set a non-zero share lock period
+        vm.prank(owner);
+        teller.setShareLockPeriod(300);
+        shareLockPeriod = teller.shareLockPeriod();
+
         // User deposits
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
