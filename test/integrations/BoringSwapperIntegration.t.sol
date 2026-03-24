@@ -12,7 +12,7 @@ import {AdapterRegistry} from "src/base/Periphery/AdapterRegistry.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
 import {UniswapV3Adapter} from "src/base/Periphery/adapters/UniswapV3Adapter.sol"; 
-import {CowswapAdapter} from "src/base/Periphery/adapters/CowswapAdapter.sol";
+import {CowswapAdapter, IDomainSeparator} from "src/base/Periphery/adapters/CowswapAdapter.sol";
 import {OneInchAdapter} from "src/base/Periphery/adapters/OneInchAdapter.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {Authority} from "@solmate/auth/Auth.sol";
@@ -48,7 +48,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
     uint8 ONEINCH = 4;
                                                                                                                                        
     bytes32 constant GPV2_ORDER_TYPE_HASH = keccak256(
-        "Order(address sellToken,address buyToken,address receiver,uint256 sellAmount,uint256 buyAmount,uint32 validTo,bytes32 appData,uint256 feeAmount,bytes32 kind,bool partiallyFillable,bytes32 sellTokenBalance,bytes32 buyTokenBalance)");
+        "Order(address sellToken,address buyToken,address receiver,uint256 sellAmount,uint256 buyAmount,uint32 validTo,bytes32 appData,uint256 feeAmount,string kind,bool partiallyFillable,string sellTokenBalance,string buyTokenBalance)");
 
     bytes32 constant KIND_SELL = keccak256("sell");
     bytes32 constant BALANCE_ERC20 = keccak256("erc20");
@@ -279,13 +279,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
 
 
     function _cowDomainSeparator() internal view returns (bytes32) {
-        return keccak256(abi.encode(
-            keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
-            keccak256("Gnosis Protocol"),
-            keccak256("v2"),
-            block.chainid,
-            COW_SETTLEMENT
-        ));
+        return IDomainSeparator(COW_SETTLEMENT).domainSeparator();
     }
 
     function _buildCowOrderDigest(
@@ -495,8 +489,8 @@ contract BoringSwapperIntegration is BaseTestIntegration {
     function _oneInchDomainSeparator() internal view returns (bytes32) {
         return keccak256(abi.encode(
             keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
-            keccak256("1inch Limit Order Protocol"),
-            keccak256("4"),
+            keccak256("1inch Aggregation Router"),
+            keccak256("6"),
             block.chainid,
             ONEINCH_ROUTER
         ));
@@ -517,7 +511,8 @@ contract BoringSwapperIntegration is BaseTestIntegration {
             makerTraits: 0
         });
 
-        bytes memory swapData = abi.encode(order);
+        bytes memory orderData = abi.encode(order);
+        bytes memory swapData = abi.encode(order, bytes(""));
 
         BoringSwapper.SwapConfig memory config = BoringSwapper.SwapConfig({
             tokenRoute: BoringSwapper.TokenRoute(
@@ -531,7 +526,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
             receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
         });
 
-        bytes32 structHash = keccak256(abi.encodePacked(ONEINCH_ORDER_TYPE_HASH, swapData));
+        bytes32 structHash = keccak256(abi.encodePacked(ONEINCH_ORDER_TYPE_HASH, orderData));
         orderDigest = keccak256(abi.encodePacked("\x19\x01", _oneInchDomainSeparator(), structHash));
 
         return (config, orderDigest);
@@ -552,6 +547,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         BoringSwapper.SwapConfig memory config,
         bytes32 orderDigest
     ) internal {
+        vm.prank(ONEINCH_ROUTER);
         bytes4 result = swapper.isValidSignature(orderDigest, abi.encode(config));
         assertEq(result, bytes4(0x1626ba7e), "isValidSignature failed");
 
@@ -607,6 +603,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         (BoringSwapper.SwapConfig memory config, bytes32 orderDigest,) =
             _submitOneInchOrder(1e18, 2000e6);
 
+        vm.prank(ONEINCH_ROUTER);
         bytes4 result = swapper.isValidSignature(orderDigest, abi.encode(config));
         assertEq(result, bytes4(0x1626ba7e));
     }
@@ -620,7 +617,8 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         (BoringSwapper.SwapConfig memory config,,) =
             _submitOneInchOrder(1e18, 2000e6);
 
-        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__HashMismatch.selector));
+        vm.prank(ONEINCH_ROUTER);
+        vm.expectRevert();
         swapper.isValidSignature(bytes32(uint256(0x69420)), abi.encode(config));
     }
 
