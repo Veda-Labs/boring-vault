@@ -162,7 +162,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     /**
      * @notice Maps compliance signature hashes to used status.
      */
-    mapping(bytes32 signatureHash => bool used) public usedComplianceSignatures;
+    mapping(bytes32 messageHash => bool used) public usedComplianceSignatures;
 
     /**
      * @notice Per-user cumulative principal history in base-asset value.
@@ -230,6 +230,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     event WithdrawBufferHelperSet(ERC20 indexed asset, IBufferHelper indexed newWithdrawBufferHelper);
     event BufferHelperAllowed(ERC20 indexed asset, IBufferHelper indexed bufferHelper);
     event BufferHelperDisallowed(ERC20 indexed asset, IBufferHelper indexed bufferHelper);
+    event TransferAllowedRoleSet(uint8 role);
 
     //============================== IMMUTABLES ===============================
 
@@ -408,6 +409,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      */
     function setTransferAllowedRole(uint8 _transferAllowedRole) external requiresAuth {
         transferAllowedRole = _transferAllowedRole;
+        emit TransferAllowedRoleSet(_transferAllowedRole);
     }
 
     /**
@@ -603,7 +605,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         vault.exit(receiver, ERC20(refundAsset), depositAmount, receiver, shareAmount);
 
         emit DepositRefunded(nonce, depositHash, receiver);
-        _checkpointPrincipalAtRate(receiver, shareAmount, false, depositSharePrice);
+        _checkpointPrincipalAtRate(receiver, shareAmount, false, depositSharePrice, accountant.getRateSafe());
     }
 
     // ========================================= USER FUNCTIONS =========================================
@@ -647,7 +649,8 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
 
         _verifyComplianceSignature(to, depositAsset, depositAmount, compliance);
         shares = _erc20Deposit(depositAsset, depositAmount, params.minimumMint, from, to, asset);
-        _checkpointPrincipalAtRate(to, shares, true, accountant.getRateSafe());
+        uint256 rate = accountant.getRateSafe();
+        _checkpointPrincipalAtRate(to, shares, true, rate, rate);
         _afterPublicDeposit(to, depositAsset, depositAmount, shares, shareLockPeriod, referralAddress);
     }
 
@@ -672,7 +675,8 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         _handlePermit(params.depositAsset, params.depositAmount, permit);
 
         shares = _erc20Deposit(params.depositAsset, params.depositAmount, params.minimumMint, msg.sender, to, asset);
-        _checkpointPrincipalAtRate(to, shares, true, accountant.getRateSafe());
+        uint256 rate = accountant.getRateSafe();
+        _checkpointPrincipalAtRate(to, shares, true, rate, rate);
         _afterPublicDeposit(to, params.depositAsset, params.depositAmount, shares, shareLockPeriod, referralAddress);
     }
 
@@ -793,7 +797,8 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         if (assetsOut < minimumAssets) revert TellerWithMultiAssetSupport__MinimumAssetsNotMet();
         _beforeWithdraw(withdrawAsset, assetsOut);
         vault.exit(to, withdrawAsset, assetsOut, msg.sender, shareAmount);
-        _checkpointPrincipalAtRate(msg.sender, shareAmount, false, accountant.getRateSafe());
+        uint256 rate = accountant.getRateSafe();
+        _checkpointPrincipalAtRate(msg.sender, shareAmount, false, rate, rate);
     }
 
     /**
@@ -936,12 +941,15 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @param shares The number of shares involved.
      * @param isDeposit True for deposits, false for withdrawals.
      * @param baseValueRate The rate to use for converting shares to base value.
+     * @param currentRate The current rate to record in the checkpoint.
      */
-    function _checkpointPrincipalAtRate(address user, uint256 shares, bool isDeposit, uint256 baseValueRate)
-        internal
-        virtual
-    {
-        uint256 currentRate = accountant.getRateSafe();
+    function _checkpointPrincipalAtRate(
+        address user,
+        uint256 shares,
+        bool isDeposit,
+        uint256 baseValueRate,
+        uint256 currentRate
+    ) internal virtual {
         uint256 len = _principalHistory[user].length;
         if (!isDeposit && len == 0) return;
         uint104 prevDeposits = len > 0 ? _principalHistory[user][len - 1].cumulativeDeposits : 0;

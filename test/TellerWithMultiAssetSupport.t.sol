@@ -22,13 +22,15 @@ import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthorit
 import {AtomicSolverV3, AtomicQueue} from "src/archive/atomic-queue/AtomicSolverV3.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import {Test, stdStorage, StdStorage, stdError, console, Vm} from "@forge-std/Test.sol";
 import {MessageHashUtils} from "@openzeppelin-contracts-5.3.0/utils/cryptography/MessageHashUtils.sol";
 
 contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
     using FixedPointMathLib for uint256;
     using stdStorage for StdStorage;
+
+    event TransferAllowedRoleSet(uint8 role);
 
     BoringVault public boringVault;
 
@@ -1641,5 +1643,23 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         vm.prank(alice);
         vm.expectRevert(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferNotAllowed.selector);
         boringVault.transfer(bob, 0.1e18);
+    }
+
+    function testSetTransferAllowedRole_EmitsEvent() external {
+        vm.expectEmit(false, false, false, true, address(teller));
+        emit TransferAllowedRoleSet(QUEUE_ROLE);
+        teller.setTransferAllowedRole(QUEUE_ROLE);
+
+        assertEq(teller.transferAllowedRole(), QUEUE_ROLE);
+    }
+
+    function testSetTransferAllowedRole_EmitsEventOnReset() external {
+        teller.setTransferAllowedRole(QUEUE_ROLE);
+
+        vm.expectEmit(false, false, false, true, address(teller));
+        emit TransferAllowedRoleSet(type(uint8).max);
+        teller.setTransferAllowedRole(type(uint8).max);
+
+        assertEq(teller.transferAllowedRole(), type(uint8).max);
     }
 }
