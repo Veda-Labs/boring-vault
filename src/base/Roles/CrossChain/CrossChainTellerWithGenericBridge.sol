@@ -16,7 +16,6 @@ import {MessageLib} from "src/base/Roles/CrossChain/MessageLib.sol";
 import {CrossChainTellerLib} from "src/base/Roles/CrossChain/CrossChainTellerLib.sol";
 
 abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSupport {
-    using MessageLib for uint256;
     using MessageLib for MessageLib.Message;
 
     //============================== STRUCTS ===============================

@@ -11,11 +11,9 @@ import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProv
 import {BoringOnChainQueue} from "src/base/Roles/BoringQueue/BoringOnChainQueue.sol";
 import {IBufferLens} from "src/interfaces/IBufferLens.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 contract ArcticArchitectureLens {
     using FixedPointMathLib for uint256;
-    using Address for address;
 
     /**
      * @dev Calculates the total assets held in the BoringVault for a given vault and accountant.

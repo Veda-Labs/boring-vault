@@ -42,6 +42,15 @@ library LayerZeroTellerLib {
 
     // ========================================= ADMIN FUNCTIONS =========================================
 
+    /**
+     * @notice Adds a new chain configuration for cross-chain messaging.
+     * @param idToChains Storage mapping of chain ID to Chain config.
+     * @param chainId The LayerZero endpoint ID of the chain to add.
+     * @param allowMessagesFrom Whether to accept inbound messages from this chain.
+     * @param allowMessagesTo Whether to allow outbound messages to this chain.
+     * @param targetTeller The address of the teller contract on the destination chain (emitted only).
+     * @param messageGasLimit The gas limit for outbound messages to this chain.
+     */
     function addChain(
         mapping(uint32 => Chain) storage idToChains,
         uint32 chainId,
@@ -57,16 +66,31 @@ library LayerZeroTellerLib {
         emit ChainAdded(chainId, allowMessagesFrom, allowMessagesTo, targetTeller);
     }
 
+    /**
+     * @notice Removes a chain configuration, disabling all messaging to and from it.
+     * @param idToChains Storage mapping of chain ID to Chain config.
+     * @param chainId The LayerZero endpoint ID of the chain to remove.
+     */
     function removeChain(mapping(uint32 => Chain) storage idToChains, uint32 chainId) external {
         delete idToChains[chainId];
         emit ChainRemoved(chainId);
     }
 
+    /**
+     * @notice Disables inbound messages from a chain without removing the full config.
+     * @param idToChains Storage mapping of chain ID to Chain config.
+     * @param chainId The LayerZero endpoint ID of the chain to stop receiving from.
+     */
     function stopMessagesFromChain(mapping(uint32 => Chain) storage idToChains, uint32 chainId) external {
         idToChains[chainId].allowMessagesFrom = false;
         emit ChainStopMessagesFrom(chainId);
     }
 
+    /**
+     * @notice Disables outbound messages to a chain without removing the full config.
+     * @param idToChains Storage mapping of chain ID to Chain config.
+     * @param chainId The LayerZero endpoint ID of the chain to stop sending to.
+     */
     function stopMessagesToChain(mapping(uint32 => Chain) storage idToChains, uint32 chainId) external {
         idToChains[chainId].allowMessagesTo = false;
         emit ChainStopMessagesTo(chainId);

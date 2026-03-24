@@ -16,7 +16,6 @@ import {LayerZeroTellerLib} from "src/base/Roles/CrossChain/Bridges/LayerZero/La
 
 contract LayerZeroTellerWithRateLimiting is CrossChainTellerWithGenericBridge, OAppAuth {
     using AddressToBytes32Lib for address;
-    using AddressToBytes32Lib for bytes32;
     using MessageLib for uint256;
 
     // ========================================= STATE =========================================
