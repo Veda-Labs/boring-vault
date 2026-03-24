@@ -13,7 +13,6 @@ import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProv
 import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {BoringOnChainQueue} from "src/base/Roles/BoringQueue/BoringOnChainQueue.sol";
 import {BoringSolver} from "src/base/Roles/BoringQueue/BoringSolver.sol";
-import {SyUsdDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyUsdDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {
@@ -24,6 +23,7 @@ import {
     ISilo
 } from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import {BalancerVault} from "src/interfaces/BalancerVault.sol";
+import {MorphoFlashLoanAdapter} from "src/base/Roles/MorphoFlashloan/MorphoFlashLoanAdapter.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -35,7 +35,8 @@ import "forge-std/StdJson.sol";
 contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
     uint256 public privateKey;
 
-    address public rawDataDecoderAndSanitizerEthereum = 0xB1DC2D51F28B5dD7edb1F025160863C3E03D102e;
+    // address public rawDataDecoderAndSanitizerEthereum = 0xB1DC2D51F28B5dD7edb1F025160863C3E03D102e; // deprecated
+    address public rawDataDecoderAndSanitizerEthereum = 0xFe697031DFBDfc496850F0Cb735a1A008Ab4D813;
     RolesAuthority internal rolesAuthority = RolesAuthority(0xf7F3ace7f6cA2Cb1E7ccbE3Bf2Da13D001D36fdF);
     BoringVault internal boringVault = BoringVault(payable(0x279CAD277447965AF3d24a78197aad1B02a2c589));
     LayerZeroTeller internal teller = LayerZeroTeller(0xaefc11908fF97c335D16bdf9F2Bf720817423825);
@@ -45,7 +46,8 @@ contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
         AccountantWithRateProviders(0x03D9a9cE13D16C7cFCE564f41bd7E85E5cde8Da6);
     BoringOnChainQueue internal queue = BoringOnChainQueue(0xF632c10b19f2a0451cD4A653fC9ca0c15eA1040b);
     BoringSolver internal solver = BoringSolver(0x1d82e9bCc8F325caBBca6E6A3B287fE586536805);
-    address agent = 0xF171cAf19B2a55B015a68D80C337a16216775509;
+    MorphoFlashLoanAdapter internal flashLoanAdapter =
+        MorphoFlashLoanAdapter(0xF45e37b86A1B0Ed0488349e8950Ee59819df4650);
 
     uint8 public constant MANAGER_ROLE = 1;
     uint8 public constant MINTER_ROLE = 2;
@@ -84,14 +86,16 @@ contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](1024);
         _addLeafs(leafs);
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
-        string memory filePath = "./leafs/Mainnet/SyUsdMainnetStrategistLeafs.json";
+        string memory filePath = "./leafs/Mainnet/SyUsdMainnetStrategist02Leafs.json";
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
 
         vm.startBroadcast(privateKey);
-        manager.setManageRoot(agent, manageTree[manageTree.length - 1][0]);
-        manager.setManageRoot(0xa86b3Bf249478488B4304B50726c7D4689aD6320, manageTree[manageTree.length - 1][0]);
-        manager.setManageRoot(getAddress(sourceChain, "managerAddress"), manageTree[manageTree.length - 1][0]);
-        manager.setManageRoot(0x0307AD25281C99F22A8F3Af9e272fE3968810239, manageTree[manageTree.length - 1][0]);
+        manager.setManageRoot(0x31Cf9D74d825E8BcF9608275B85dD9F1f4B3b429, manageTree[manageTree.length - 1][0]);
+        manager.setManageRoot(address(flashLoanAdapter), manageTree[manageTree.length - 1][0]);
+
+        rolesAuthority.setUserRole(address(flashLoanAdapter), MANAGER_ROLE, true);
+        rolesAuthority.setUserRole(address(flashLoanAdapter), STRATEGIST_ROLE, true);
+        rolesAuthority.setUserRole(0x31Cf9D74d825E8BcF9608275B85dD9F1f4B3b429, STRATEGIST_ROLE, true);
         vm.stopBroadcast();
     }
 
@@ -136,13 +140,7 @@ contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
 
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "syrupUSDC_USDC_915"));
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "syrupUSDC_USDC_915"));
-        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "PTstcUSD29Jan2026_USDC_915"));
-        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "PTcUSD29Jan2026_USDC_915"));
-        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "RLP_USDC_86"));
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "siUSD_USDC_915"));
-
-        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_cUSD_29Jan2026"), false);
-        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_stcUSD_29Jan2026"), false);
 
         // 1inch assets;
         address[] memory oneInchAssets = new address[](14);
@@ -175,8 +173,6 @@ contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
         kind[11] = SwapKind.BuyAndSell;
         kind[12] = SwapKind.BuyAndSell;
         kind[13] = SwapKind.BuyAndSell;
-        _addLeafsFor1InchGeneralSwapping(leafs, oneInchAssets, kind);
-        _addOdosSwapLeafs(leafs, oneInchAssets, kind);
         _addMagpieSwapLeafs(leafs, oneInchAssets, kind);
 
         ERC20[] memory supplyAssets = new ERC20[](1);
@@ -194,10 +190,11 @@ contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
             getBytes32(sourceChain, "boringVault")
         );
 
-        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "SUSDE")));
         address[] memory capDepositAssets = new address[](2);
         capDepositAssets[0] = getAddress(sourceChain, "USDC");
         capDepositAssets[1] = getAddress(sourceChain, "USDT");
         _addCapLeafs(leafs, capDepositAssets);
+
+        _addMorphoBlueFlashLoanLeafs(leafs, getAddress(sourceChain, "USDC"));
     }
 }

@@ -77,6 +77,7 @@ contract MorphoFlashLoanAdapter is IMorphoFlashLoanCallback {
         tokenArr[0] = token;
         vault.manage(tokenArr, transferBack, new uint256[](1));
 
+        ERC20(token).safeApprove(address(morpho), 0);
         ERC20(token).safeApprove(address(morpho), assets);
     }
 
