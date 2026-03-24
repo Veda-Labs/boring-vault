@@ -111,7 +111,8 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
     ) external payable requiresAuth nonReentrant {
         if (isPaused) revert TellerWithMultiAssetSupport__Paused();
         _verifyBridgeCompliance(msg.sender, shareAmount, to, compliance.deadline, compliance.signature);
-        _bridge(shareAmount, to, bridgeWildCard, feeToken, maxFee);
+        uint256 rate = accountant.getRateSafe();
+        _bridge(shareAmount, to, bridgeWildCard, feeToken, maxFee, rate);
     }
 
     /**
@@ -187,26 +188,31 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
             depositParams.depositAmount,
             sharesBridged,
             shareLockPeriod,
-            referralAddress
+            referralAddress,
+            rate
         );
 
         if (sharesBridged > type(uint96).max) revert CrossChainTellerWithGenericBridge__UnsafeCastToUint96();
-        _bridge(uint96(sharesBridged), to, bridgeWildCard, feeToken, maxFee);
+        _bridge(uint96(sharesBridged), to, bridgeWildCard, feeToken, maxFee, rate);
     }
 
     /**
      * @notice Implement the bridge logic.
      */
-    function _bridge(uint96 shareAmount, address to, bytes calldata bridgeWildCard, ERC20 feeToken, uint256 maxFee)
-        internal
-    {
+    function _bridge(
+        uint96 shareAmount,
+        address to,
+        bytes calldata bridgeWildCard,
+        ERC20 feeToken,
+        uint256 maxFee,
+        uint256 rate
+    ) internal {
         // Since shares are directly burned, call `beforeTransfer` to enforce before transfer hooks.
         beforeTransfer(msg.sender, address(0), msg.sender);
 
         // Record withdrawal checkpoint so the sender's principal decreases on the source chain.
         // Without this, bridged users retain phantom principal that inflates off-chain reward calculations.
-        uint256 bridgeRate = accountant.getRateSafe();
-        _checkpointPrincipalAtRate(msg.sender, shareAmount, false, bridgeRate, bridgeRate);
+        _checkpointPrincipalAtRate(msg.sender, shareAmount, false, rate, rate);
 
         // Burn shares and encode the bridge message (delegated to library to reduce bytecode).
         uint256 message = CrossChainTellerLib.burnAndEncode(vault, msg.sender, shareAmount, to);

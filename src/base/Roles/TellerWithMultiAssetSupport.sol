@@ -652,7 +652,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         shares = _erc20Deposit(depositAsset, depositAmount, params.minimumMint, from, to, asset);
         uint256 rate = accountant.getRateSafe();
         _checkpointPrincipalAtRate(to, shares, true, rate, rate);
-        _afterPublicDeposit(to, depositAsset, depositAmount, shares, shareLockPeriod, referralAddress);
+        _afterPublicDeposit(to, depositAsset, depositAmount, shares, shareLockPeriod, referralAddress, rate);
     }
 
     /**
@@ -678,7 +678,9 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         shares = _erc20Deposit(params.depositAsset, params.depositAmount, params.minimumMint, msg.sender, to, asset);
         uint256 rate = accountant.getRateSafe();
         _checkpointPrincipalAtRate(to, shares, true, rate, rate);
-        _afterPublicDeposit(to, params.depositAsset, params.depositAmount, shares, shareLockPeriod, referralAddress);
+        _afterPublicDeposit(
+            to, params.depositAsset, params.depositAmount, shares, shareLockPeriod, referralAddress, rate
+        );
     }
 
     /**
@@ -874,11 +876,11 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         uint256 depositAmount,
         uint256 shares,
         uint256 currentShareLockPeriod,
-        address referralAddress
+        address referralAddress,
+        uint256 sharePrice
     ) internal {
         // Increment then assign as its slightly more gas efficient.
         uint256 nonce = ++depositNonce;
-        uint256 sharePrice = accountant.getRateSafe();
         // Only set share unlock time and history if share lock period is greater than 0.
         if (currentShareLockPeriod > 0) {
             beforeTransferData[user].shareUnlockTime = uint64(block.timestamp + currentShareLockPeriod);
