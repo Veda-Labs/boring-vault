@@ -105,8 +105,8 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
     event ExchangeRateUpdated(uint256 newExchangeRate);
     event MaximumVestDurationUpdated(uint64 newMaximum);
     event MinimumVestDurationUpdated(uint64 newMinimum);
-    event MaximumDeviationYieldUpdated(uint64 newMaximum);
-    event MaximumDeviationLossUpdated(uint64 newMaximum);
+    event MaximumDeviationYieldUpdated(uint32 newMaximum);
+    event MaximumDeviationLossUpdated(uint32 newMaximum);
 
     constructor(
         address _owner,

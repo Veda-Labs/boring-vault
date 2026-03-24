@@ -132,6 +132,27 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
     // ========================================= INTERNAL BRIDGE FUNCTIONS =========================================
 
     /**
+     * @notice Verify compliance for a combined deposit-and-bridge operation.
+     * @dev Builds a message hash that covers both the deposit parameters and the bridge destination,
+     *      so the compliance signer explicitly approves the full action in a single signature.
+     */
+    function _verifyDepositAndBridgeCompliance(
+        address depositor,
+        ERC20 depositAsset,
+        uint256 depositAmount,
+        address to,
+        ComplianceData calldata compliance
+    ) internal {
+        if (complianceSigner == address(0)) return;
+        bytes32 messageHash = keccak256(
+            abi.encode(
+                address(this), block.chainid, depositor, address(depositAsset), depositAmount, to, compliance.deadline
+            )
+        );
+        _verifyAndMark(messageHash, compliance.deadline, compliance.signature);
+    }
+
+    /**
      * @notice Shared deposit-and-bridge logic used by both `depositAndBridge` and `depositAndBridgeWithPermit`.
      * @dev `depositParams.to` is intentionally ignored; shares are minted to `msg.sender` then immediately bridged
      *      to the separate `to` parameter (the cross-chain recipient).
@@ -145,7 +166,9 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
         address referralAddress,
         ComplianceData calldata compliance
     ) internal returns (uint256 sharesBridged) {
-        _verifyComplianceSignature(msg.sender, depositParams.depositAsset, depositParams.depositAmount, compliance);
+        _verifyDepositAndBridgeCompliance(
+            msg.sender, depositParams.depositAsset, depositParams.depositAmount, to, compliance
+        );
         {
             Asset memory asset = _beforeDeposit(depositParams.depositAsset);
             sharesBridged = _erc20Deposit(

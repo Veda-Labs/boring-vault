@@ -126,6 +126,21 @@ contract CrossChainTellerComplianceTest is Test, MerkleTreeHelper {
         signature = abi.encodePacked(r, s, v);
     }
 
+    function _signDepositAndBridgeCompliance(
+        address depositor,
+        address depositAsset,
+        uint256 depositAmount,
+        address to,
+        uint256 deadline
+    ) internal view returns (bytes memory signature) {
+        bytes32 messageHash = keccak256(
+            abi.encode(address(teller), block.chainid, depositor, depositAsset, depositAmount, to, deadline)
+        );
+        bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(SIGNER_KEY, ethSignedHash);
+        signature = abi.encodePacked(r, s, v);
+    }
+
     function _signBridgeCompliance(address sender, uint96 shareAmount, address to, uint256 deadline)
         internal
         view
@@ -144,13 +159,14 @@ contract CrossChainTellerComplianceTest is Test, MerkleTreeHelper {
         deal(address(WETH), user, amount);
 
         uint256 deadline = block.timestamp + 1 hours;
-        bytes memory sig = _signDepositCompliance(user, address(WETH), amount, deadline);
+        address bridgeTo = user;
+        bytes memory sig = _signDepositAndBridgeCompliance(user, address(WETH), amount, bridgeTo, deadline);
 
         vm.startPrank(user);
         WETH.safeApprove(address(boringVault), amount);
         uint256 shares = teller.depositAndBridge(
             DepositParams(WETH, amount, 0, user),
-            user,
+            bridgeTo,
             "",
             ERC20(address(0)),
             0,
@@ -168,12 +184,15 @@ contract CrossChainTellerComplianceTest is Test, MerkleTreeHelper {
         deal(address(WETH), user, amount);
 
         uint256 deadline = block.timestamp + 1 hours;
-        // Sign with wrong key
-        bytes32 messageHash =
-            keccak256(abi.encode(address(teller), block.chainid, user, address(WETH), amount, deadline));
-        bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(0xDEAD, ethSignedHash);
-        bytes memory badSig = abi.encodePacked(r, s, v);
+        bytes memory badSig;
+        {
+            // Sign the correct message but with the wrong key
+            bytes32 messageHash =
+                keccak256(abi.encode(address(teller), block.chainid, user, address(WETH), amount, user, deadline));
+            bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
+            (uint8 v, bytes32 r, bytes32 s) = vm.sign(0xDEAD, ethSignedHash);
+            badSig = abi.encodePacked(r, s, v);
+        }
 
         vm.startPrank(user);
         WETH.safeApprove(address(boringVault), amount);
@@ -199,13 +218,14 @@ contract CrossChainTellerComplianceTest is Test, MerkleTreeHelper {
         deal(address(WETH), user, amount);
 
         uint256 deadline = block.timestamp + 1 hours;
-        bytes memory sig = _signDepositCompliance(user, address(WETH), amount, deadline);
+        address bridgeTo = user;
+        bytes memory sig = _signDepositAndBridgeCompliance(user, address(WETH), amount, bridgeTo, deadline);
 
         vm.startPrank(user);
         WETH.safeApprove(address(boringVault), amount);
         teller.depositAndBridge(
             DepositParams(WETH, amount, 0, user),
-            user,
+            bridgeTo,
             "",
             ERC20(address(0)),
             0,
@@ -223,6 +243,62 @@ contract CrossChainTellerComplianceTest is Test, MerkleTreeHelper {
             history[1].cumulativeWithdrawals >= history[1].cumulativeDeposits,
             "bridge burn: withdrawals >= deposits (no phantom principal on source chain)"
         );
+    }
+
+    function testDepositAndBridgeComplianceRevertsWithDepositOnlySignature() external {
+        uint256 amount = 1e18;
+        deal(address(WETH), user, amount);
+
+        uint256 deadline = block.timestamp + 1 hours;
+        // Sign a deposit-only compliance signature (missing the bridge `to` field)
+        bytes memory depositOnlySig = _signDepositCompliance(user, address(WETH), amount, deadline);
+
+        vm.startPrank(user);
+        WETH.safeApprove(address(boringVault), amount);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
+            )
+        );
+        teller.depositAndBridge(
+            DepositParams(WETH, amount, 0, user),
+            user,
+            "",
+            ERC20(address(0)),
+            0,
+            address(0),
+            ComplianceData(deadline, depositOnlySig)
+        );
+        vm.stopPrank();
+    }
+
+    function testDepositAndBridgeComplianceRevertsWithWrongDestination() external {
+        uint256 amount = 1e18;
+        deal(address(WETH), user, amount);
+
+        uint256 deadline = block.timestamp + 1 hours;
+        address approvedTo = vm.addr(200);
+        address actualTo = vm.addr(300);
+        // Sign compliance for approvedTo, but bridge to actualTo
+        bytes memory sig = _signDepositAndBridgeCompliance(user, address(WETH), amount, approvedTo, deadline);
+
+        vm.startPrank(user);
+        WETH.safeApprove(address(boringVault), amount);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
+            )
+        );
+        teller.depositAndBridge(
+            DepositParams(WETH, amount, 0, user),
+            actualTo,
+            "",
+            ERC20(address(0)),
+            0,
+            address(0),
+            ComplianceData(deadline, sig)
+        );
+        vm.stopPrank();
     }
 
     /// @dev Helper: deposit with a signed compliance signature so bridge tests can get shares.
