@@ -110,7 +110,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     /**
      * @notice After deposits, shares are locked to the msg.sender's address
      *         for `shareLockPeriod`.
-     * @dev During this time all trasnfers from msg.sender will revert, and
+     * @dev During this time all transfers from msg.sender will revert, and
      *      deposits are refundable.
      */
     uint64 public shareLockPeriod;
@@ -515,7 +515,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     }
 
     /**
-     * @notice Implement legacy beforeTransfer hook to check if shares are locked, or if `from`is on the deny list.
+     * @notice Implement legacy beforeTransfer hook to check if shares are locked, or if `from` is on the deny list.
      * @dev This function is not expected to have `_enforceTransferAllowlist`
      */
     function beforeTransfer(address from) public view virtual {

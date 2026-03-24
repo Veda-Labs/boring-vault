@@ -38,7 +38,6 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
     //============================== EVENTS ===============================
 
     event MessageSent(bytes32 indexed messageId, uint256 shareAmount, address indexed to);
-    event MessageReceived(bytes32 indexed messageId, uint256 shareAmount, address indexed to);
 
     //============================== IMMUTABLES ===============================
 
@@ -134,6 +133,8 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
 
     /**
      * @notice Shared deposit-and-bridge logic used by both `depositAndBridge` and `depositAndBridgeWithPermit`.
+     * @dev `depositParams.to` is intentionally ignored; shares are minted to `msg.sender` then immediately bridged
+     *      to the separate `to` parameter (the cross-chain recipient).
      */
     function _depositAndBridge(
         DepositParams calldata depositParams,

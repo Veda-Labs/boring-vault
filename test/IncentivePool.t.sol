@@ -573,6 +573,135 @@ contract IncentivePoolTest is Test {
         assertEq(pool.getTotalClaimedAmount(user), 100e18);
     }
 
+    // ========================= GET CLAIM HISTORY PAGINATED =========================
+
+    function test_getClaimHistoryPaginated_emptyHistory() external view {
+        (IncentivePool.ClaimCheckpoint[] memory checkpoints, uint256 totalLength) =
+            pool.getClaimHistoryPaginated(user, 0, 10);
+        assertEq(totalLength, 0);
+        assertEq(checkpoints.length, 0);
+    }
+
+    function test_getClaimHistoryPaginated_startIndexBeyondLength() external {
+        // Create 1 checkpoint
+        uint256 deadline = block.timestamp + 1 hours;
+        bytes memory sig = _sign(user, 100e18, deadline);
+        vm.prank(teller);
+        pool.processRewards(user, 100e18, deadline, sig);
+
+        (IncentivePool.ClaimCheckpoint[] memory checkpoints, uint256 totalLength) =
+            pool.getClaimHistoryPaginated(user, 5, 10);
+        assertEq(totalLength, 1);
+        assertEq(checkpoints.length, 0);
+    }
+
+    function test_getClaimHistoryPaginated_endIndexClampedToLength() external {
+        // Create 2 checkpoints
+        pool.setSecondsBetweenClaims(0);
+        uint256 deadline1 = block.timestamp + 1 hours;
+        bytes memory sig1 = _sign(user, 100e18, deadline1);
+        vm.prank(teller);
+        pool.processRewards(user, 100e18, deadline1, sig1);
+
+        uint256 deadline2 = block.timestamp + 1 hours;
+        bytes memory sig2 = _sign(user, 200e18, deadline2);
+        vm.prank(teller);
+        pool.processRewards(user, 200e18, deadline2, sig2);
+
+        // Request range [0, 100) but only 2 exist -> clamped to [0, 2)
+        (IncentivePool.ClaimCheckpoint[] memory checkpoints, uint256 totalLength) =
+            pool.getClaimHistoryPaginated(user, 0, 100);
+        assertEq(totalLength, 2);
+        assertEq(checkpoints.length, 2);
+        assertEq(checkpoints[0].cumulativeClaimed, 100e18);
+        assertEq(checkpoints[1].cumulativeClaimed, 200e18);
+    }
+
+    function test_getClaimHistoryPaginated_singleElement() external {
+        pool.setSecondsBetweenClaims(0);
+        uint256 cumulative = 50e18;
+        for (uint256 i; i < 3; ++i) {
+            cumulative += 50e18;
+            uint256 deadline = block.timestamp + 1 hours;
+            bytes memory sig = _sign(user, cumulative, deadline);
+            vm.prank(teller);
+            pool.processRewards(user, cumulative, deadline, sig);
+        }
+
+        // Fetch only index 1
+        (IncentivePool.ClaimCheckpoint[] memory checkpoints, uint256 totalLength) =
+            pool.getClaimHistoryPaginated(user, 1, 2);
+        assertEq(totalLength, 3);
+        assertEq(checkpoints.length, 1);
+        assertEq(checkpoints[0].cumulativeClaimed, 150e18);
+    }
+
+    function test_getClaimHistoryPaginated_middleSlice() external {
+        pool.setSecondsBetweenClaims(0);
+        uint256 cumulative;
+        for (uint256 i; i < 5; ++i) {
+            cumulative += 100e18;
+            uint256 deadline = block.timestamp + 1 hours;
+            bytes memory sig = _sign(user, cumulative, deadline);
+            vm.prank(teller);
+            pool.processRewards(user, cumulative, deadline, sig);
+        }
+
+        // Fetch indices [1, 4)
+        (IncentivePool.ClaimCheckpoint[] memory checkpoints, uint256 totalLength) =
+            pool.getClaimHistoryPaginated(user, 1, 4);
+        assertEq(totalLength, 5);
+        assertEq(checkpoints.length, 3);
+        assertEq(checkpoints[0].cumulativeClaimed, 200e18);
+        assertEq(checkpoints[1].cumulativeClaimed, 300e18);
+        assertEq(checkpoints[2].cumulativeClaimed, 400e18);
+    }
+
+    function test_getClaimHistoryPaginated_fullRange() external {
+        pool.setSecondsBetweenClaims(0);
+        uint256 cumulative;
+        for (uint256 i; i < 3; ++i) {
+            cumulative += 100e18;
+            uint256 deadline = block.timestamp + 1 hours;
+            bytes memory sig = _sign(user, cumulative, deadline);
+            vm.prank(teller);
+            pool.processRewards(user, cumulative, deadline, sig);
+        }
+
+        (IncentivePool.ClaimCheckpoint[] memory checkpoints, uint256 totalLength) =
+            pool.getClaimHistoryPaginated(user, 0, 3);
+        assertEq(totalLength, 3);
+        assertEq(checkpoints.length, 3);
+        assertEq(checkpoints[0].cumulativeClaimed, 100e18);
+        assertEq(checkpoints[2].cumulativeClaimed, 300e18);
+    }
+
+    function test_getClaimHistoryPaginated_startEqualsEnd() external {
+        uint256 deadline = block.timestamp + 1 hours;
+        bytes memory sig = _sign(user, 100e18, deadline);
+        vm.prank(teller);
+        pool.processRewards(user, 100e18, deadline, sig);
+
+        // [1, 1) is an empty range
+        (IncentivePool.ClaimCheckpoint[] memory checkpoints, uint256 totalLength) =
+            pool.getClaimHistoryPaginated(user, 1, 1);
+        assertEq(totalLength, 1);
+        assertEq(checkpoints.length, 0);
+    }
+
+    function test_getClaimHistoryPaginated_startEqualsLengthReturnsEmpty() external {
+        uint256 deadline = block.timestamp + 1 hours;
+        bytes memory sig = _sign(user, 100e18, deadline);
+        vm.prank(teller);
+        pool.processRewards(user, 100e18, deadline, sig);
+
+        // startIndex == totalLength -> early return
+        (IncentivePool.ClaimCheckpoint[] memory checkpoints, uint256 totalLength) =
+            pool.getClaimHistoryPaginated(user, 1, 5);
+        assertEq(totalLength, 1);
+        assertEq(checkpoints.length, 0);
+    }
+
     // ========================= CLAIM CAPPING =========================
 
     function test_processRewards_capThenClaimRemainderNextInterval() external {
