@@ -1072,7 +1072,9 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
         uint256 deadline = block.timestamp + 1 hours;
         bytes32 messageHash = keccak256(
-            abi.encode(address(teller), block.chainid, address(this), address(WETH), depositAmount, deadline)
+            abi.encode(
+                address(teller), block.chainid, address(this), address(this), address(WETH), depositAmount, deadline
+            )
         );
         bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerKey, ethSignedHash);
@@ -1097,7 +1099,9 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
         uint256 deadline = block.timestamp + 1 hours;
         bytes32 messageHash = keccak256(
-            abi.encode(address(teller), block.chainid, address(this), address(WETH), depositAmount, deadline)
+            abi.encode(
+                address(teller), block.chainid, address(this), address(this), address(WETH), depositAmount, deadline
+            )
         );
         bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerKey, ethSignedHash);
@@ -1131,7 +1135,9 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         // Set deadline in the past.
         uint256 deadline = block.timestamp - 1;
         bytes32 messageHash = keccak256(
-            abi.encode(address(teller), block.chainid, address(this), address(WETH), depositAmount, deadline)
+            abi.encode(
+                address(teller), block.chainid, address(this), address(this), address(WETH), depositAmount, deadline
+            )
         );
         bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerKey, ethSignedHash);
@@ -1163,7 +1169,9 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         // Use a deadline that exceeds block.timestamp + window.
         uint256 deadline = block.timestamp + uint256(window) + 1;
         bytes32 messageHash = keccak256(
-            abi.encode(address(teller), block.chainid, address(this), address(WETH), depositAmount, deadline)
+            abi.encode(
+                address(teller), block.chainid, address(this), address(this), address(WETH), depositAmount, deadline
+            )
         );
         bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerKey, ethSignedHash);
@@ -1197,7 +1205,9 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         // A deadline 6 days from now should succeed (within the 7-day window).
         uint256 deadline = block.timestamp + 6 days;
         bytes32 messageHash = keccak256(
-            abi.encode(address(teller), block.chainid, address(this), address(WETH), depositAmount, deadline)
+            abi.encode(
+                address(teller), block.chainid, address(this), address(this), address(WETH), depositAmount, deadline
+            )
         );
         bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerKey, ethSignedHash);
@@ -1229,7 +1239,9 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         // Deadline 30 minutes from now -- well within the 1-hour window.
         uint256 deadline = block.timestamp + 30 minutes;
         bytes32 messageHash = keccak256(
-            abi.encode(address(teller), block.chainid, address(this), address(WETH), depositAmount, deadline)
+            abi.encode(
+                address(teller), block.chainid, address(this), address(this), address(WETH), depositAmount, deadline
+            )
         );
         bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerKey, ethSignedHash);
@@ -1253,6 +1265,100 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         uint256 shares =
             teller.deposit(DepositParams(WETH, depositAmount, 0, address(this)), referrer, ComplianceData(0, ""));
         assertEq(shares, depositAmount, "Should have received expected shares with compliance disabled");
+    }
+
+    function testComplianceSignatureBoundToMsgSender() external {
+        // A compliance signature issued for caller A cannot be consumed by caller B,
+        // even when depositing to the same recipient with the same parameters.
+        uint256 signerKey = 0xBEEF;
+        address signer = vm.addr(signerKey);
+        teller.setComplianceSigner(signer);
+
+        address alice = vm.addr(0xA11CE);
+        address bob = vm.addr(0xB0B);
+        address recipient = vm.addr(0xCAFE);
+
+        // Grant both alice and bob the deposit capability via public access.
+        // (deposit is already public from setUp)
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), alice, depositAmount);
+        deal(address(WETH), bob, depositAmount);
+
+        uint256 deadline = block.timestamp + 1 hours;
+
+        // Sign compliance for Alice depositing to recipient.
+        bytes32 aliceHash = keccak256(
+            abi.encode(address(teller), block.chainid, alice, recipient, address(WETH), depositAmount, deadline)
+        );
+        bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(aliceHash);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerKey, ethSignedHash);
+        bytes memory aliceSignature = abi.encodePacked(r, s, v);
+
+        // Bob tries to front-run using Alice's compliance signature -- must revert.
+        vm.startPrank(bob);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
+            )
+        );
+        teller.deposit(
+            DepositParams(WETH, depositAmount, 0, recipient), referrer, ComplianceData(deadline, aliceSignature)
+        );
+        vm.stopPrank();
+
+        // Alice's deposit with her own signature succeeds.
+        vm.startPrank(alice);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        uint256 shares = teller.deposit(
+            DepositParams(WETH, depositAmount, 0, recipient), referrer, ComplianceData(deadline, aliceSignature)
+        );
+        vm.stopPrank();
+
+        assertGt(shares, 0, "Alice's deposit should succeed with her compliance signature");
+    }
+
+    function _signComplianceDeposit(uint256 signerKey, address caller, address to, uint256 amount, uint256 deadline)
+        internal
+        view
+        returns (bytes memory)
+    {
+        bytes32 messageHash =
+            keccak256(abi.encode(address(teller), block.chainid, caller, to, address(WETH), amount, deadline));
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerKey, MessageHashUtils.toEthSignedMessageHash(messageHash));
+        return abi.encodePacked(r, s, v);
+    }
+
+    function testComplianceSignatureDifferentSendersGetDifferentHashes() external {
+        // Even with identical deposit parameters, different msg.senders produce different hashes
+        // so their signatures are non-interchangeable.
+        uint256 signerKey = 0xBEEF;
+        teller.setComplianceSigner(vm.addr(signerKey));
+
+        address alice = vm.addr(0xA11CE);
+        address bob = vm.addr(0xB0B);
+        address recipient = vm.addr(0xCAFE);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), alice, depositAmount);
+        deal(address(WETH), bob, depositAmount);
+
+        uint256 deadline = block.timestamp + 1 hours;
+
+        bytes memory aliceSig = _signComplianceDeposit(signerKey, alice, recipient, depositAmount, deadline);
+        bytes memory bobSig = _signComplianceDeposit(signerKey, bob, recipient, depositAmount, deadline);
+
+        // Both deposits succeed with their own signatures.
+        vm.startPrank(alice);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        teller.deposit(DepositParams(WETH, depositAmount, 0, recipient), referrer, ComplianceData(deadline, aliceSig));
+        vm.stopPrank();
+
+        vm.startPrank(bob);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        teller.deposit(DepositParams(WETH, depositAmount, 0, recipient), referrer, ComplianceData(deadline, bobSig));
+        vm.stopPrank();
     }
 
     // ========================================= TRANSFER ALLOWLIST TESTS =========================================

@@ -816,7 +816,13 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         if (complianceSigner == address(0)) return;
         bytes32 messageHash = keccak256(
             abi.encode(
-                address(this), block.chainid, depositor, address(depositAsset), depositAmount, compliance.deadline
+                address(this),
+                block.chainid,
+                msg.sender,
+                depositor,
+                address(depositAsset),
+                depositAmount,
+                compliance.deadline
             )
         );
         _verifyAndMark(messageHash, compliance.deadline, compliance.signature);
