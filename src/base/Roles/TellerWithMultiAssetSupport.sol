@@ -452,11 +452,24 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
 
     /**
      * @notice Disallows a buffer helper from being used for a specific asset.
+     * @dev Also clears the helper from active use if it is currently set as the
+     *      deposit or withdraw buffer helper for the asset.
      * @param _asset The asset to disallow the buffer helper for.
      * @param _bufferHelper The buffer helper contract address to disallow.
      */
     function disallowBufferHelper(ERC20 _asset, IBufferHelper _bufferHelper) external requiresAuth {
         allowedBufferHelpers[_asset][_bufferHelper] = false;
+
+        BufferHelpers storage helpers = currentBufferHelpers[_asset];
+        if (helpers.depositBufferHelper == _bufferHelper) {
+            helpers.depositBufferHelper = IBufferHelper(address(0));
+            emit DepositBufferHelperSet(_asset, IBufferHelper(address(0)));
+        }
+        if (helpers.withdrawBufferHelper == _bufferHelper) {
+            helpers.withdrawBufferHelper = IBufferHelper(address(0));
+            emit WithdrawBufferHelperSet(_asset, IBufferHelper(address(0)));
+        }
+
         emit BufferHelperDisallowed(_asset, _bufferHelper);
     }
 
@@ -825,7 +838,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @param deadline The deadline for the compliance signature.
      * @param signature The compliance signature.
      */
-    function _verifyAndMark(bytes32 messageHash, uint256 deadline, bytes calldata signature) private {
+    function _verifyAndMark(bytes32 messageHash, uint256 deadline, bytes calldata signature) internal {
         if (usedComplianceSignatures[messageHash]) {
             revert TellerWithMultiAssetSupport__ComplianceCheckFailed();
         }

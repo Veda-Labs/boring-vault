@@ -37,11 +37,8 @@ library LayerZeroTellerLib {
 
     event ChainAdded(uint256 chainId, bool allowMessagesFrom, bool allowMessagesTo, address targetTeller);
     event ChainRemoved(uint256 chainId);
-    event ChainAllowMessagesFrom(uint256 chainId, address targetTeller);
-    event ChainAllowMessagesTo(uint256 chainId, address targetTeller);
     event ChainStopMessagesFrom(uint256 chainId);
     event ChainStopMessagesTo(uint256 chainId);
-    event ChainSetGasLimit(uint256 chainId, uint128 messageGasLimit);
 
     // ========================================= ADMIN FUNCTIONS =========================================
 
@@ -65,28 +62,6 @@ library LayerZeroTellerLib {
         emit ChainRemoved(chainId);
     }
 
-    function allowMessagesFromChain(mapping(uint32 => Chain) storage idToChains, uint32 chainId, address targetTeller)
-        external
-    {
-        idToChains[chainId].allowMessagesFrom = true;
-        emit ChainAllowMessagesFrom(chainId, targetTeller);
-    }
-
-    function allowMessagesToChain(
-        mapping(uint32 => Chain) storage idToChains,
-        uint32 chainId,
-        address targetTeller,
-        uint128 messageGasLimit
-    ) external {
-        if (messageGasLimit == 0) {
-            revert LayerZeroTeller__ZeroMessageGasLimit();
-        }
-        Chain storage chain = idToChains[chainId];
-        chain.allowMessagesTo = true;
-        chain.messageGasLimit = messageGasLimit;
-        emit ChainAllowMessagesTo(chainId, targetTeller);
-    }
-
     function stopMessagesFromChain(mapping(uint32 => Chain) storage idToChains, uint32 chainId) external {
         idToChains[chainId].allowMessagesFrom = false;
         emit ChainStopMessagesFrom(chainId);
@@ -95,16 +70,6 @@ library LayerZeroTellerLib {
     function stopMessagesToChain(mapping(uint32 => Chain) storage idToChains, uint32 chainId) external {
         idToChains[chainId].allowMessagesTo = false;
         emit ChainStopMessagesTo(chainId);
-    }
-
-    function setChainGasLimit(mapping(uint32 => Chain) storage idToChains, uint32 chainId, uint128 messageGasLimit)
-        external
-    {
-        if (messageGasLimit == 0) {
-            revert LayerZeroTeller__ZeroMessageGasLimit();
-        }
-        idToChains[chainId].messageGasLimit = messageGasLimit;
-        emit ChainSetGasLimit(chainId, messageGasLimit);
     }
 
     // ========================================= BRIDGE HELPER FUNCTIONS =========================================

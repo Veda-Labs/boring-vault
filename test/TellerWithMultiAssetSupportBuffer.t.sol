@@ -30,6 +30,10 @@ contract TellerMultiAssetBufferTest is Test, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
     using stdStorage for StdStorage;
 
+    event DepositBufferHelperSet(ERC20 indexed asset, IBufferHelper indexed newDepositBufferHelper);
+    event WithdrawBufferHelperSet(ERC20 indexed asset, IBufferHelper indexed newWithdrawBufferHelper);
+    event BufferHelperDisallowed(ERC20 indexed asset, IBufferHelper indexed bufferHelper);
+
     BoringVault public boringVault;
 
     uint8 public constant ADMIN_ROLE = 1;
@@ -670,5 +674,98 @@ contract TellerMultiAssetBufferTest is Test, MerkleTreeHelper {
         assertApproxEqAbs(USDT.balanceOf(address(this)), amount, 2, "received USDT back");
     }
 
-    // we will need to remove current buffers when they are disallowed, disallowing will not remove ones set in current mapping
+    function testDisallowClearsActiveDepositHelper() external {
+        uint256 amount = 100e6;
+        deal(address(USDT), address(this), amount);
+        USDT.safeApprove(address(boringVault), amount);
+
+        // Confirm deposit buffer is active (routes to Aave)
+        teller.deposit(DepositParams(USDT, amount / 2, 0, address(this)), referrer, ComplianceData(0, ""));
+        assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), amount / 2, 2, "first half routed to Aave");
+
+        // Disallow the helper — should clear it from active use and emit events
+        (IBufferHelper activeHelper,) = teller.currentBufferHelpers(USDT);
+
+        vm.expectEmit(true, true, false, true);
+        emit DepositBufferHelperSet(USDT, IBufferHelper(address(0)));
+        vm.expectEmit(true, true, false, true);
+        emit WithdrawBufferHelperSet(USDT, IBufferHelper(address(0)));
+        vm.expectEmit(true, true, false, true);
+        emit BufferHelperDisallowed(USDT, activeHelper);
+        teller.disallowBufferHelper(USDT, activeHelper);
+
+        // Confirm active helper is now zero
+        (IBufferHelper afterHelper,) = teller.currentBufferHelpers(USDT);
+        assertEq(address(afterHelper), address(0), "deposit helper should be cleared");
+
+        // Second deposit should NOT route to Aave — raw tokens stay in vault
+        teller.deposit(DepositParams(USDT, amount / 2, 0, address(this)), referrer, ComplianceData(0, ""));
+        assertEq(USDT.balanceOf(address(boringVault)), amount / 2, "second half stayed as raw USDT");
+    }
+
+    function testDisallowClearsActiveWithdrawHelper() external {
+        uint256 amount = 100e6;
+        deal(address(USDT), address(this), amount);
+        USDT.safeApprove(address(boringVault), amount);
+
+        // Deposit routes to Aave via buffer
+        teller.deposit(DepositParams(USDT, amount, 0, address(this)), referrer, ComplianceData(0, ""));
+        assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), amount, 2, "deposit routed to Aave");
+
+        // Disallow the helper — should clear both deposit and withdraw (same helper for both)
+        (, IBufferHelper activeWithdrawHelper) = teller.currentBufferHelpers(USDT);
+
+        vm.expectEmit(true, true, false, true);
+        emit DepositBufferHelperSet(USDT, IBufferHelper(address(0)));
+        vm.expectEmit(true, true, false, true);
+        emit WithdrawBufferHelperSet(USDT, IBufferHelper(address(0)));
+        vm.expectEmit(true, true, false, true);
+        emit BufferHelperDisallowed(USDT, activeWithdrawHelper);
+        teller.disallowBufferHelper(USDT, activeWithdrawHelper);
+
+        // Withdraw should fail because tokens are in Aave but no helper to pull them out
+        vm.expectRevert();
+        teller.withdraw(USDT, amount - 2, 0, address(this));
+    }
+
+    function testDisallowOnlyAffectsMatchingHelper() external {
+        // Deploy two helpers, allow both, set them to different slots
+        address helperA = address(new AaveV3BufferHelper(v3Pool, address(boringVault)));
+        address helperB = address(new AaveV3BufferHelper(v3Pool, address(boringVault)));
+
+        teller.allowBufferHelper(USDT, IBufferHelper(helperA));
+        teller.allowBufferHelper(USDT, IBufferHelper(helperB));
+
+        teller.setDepositBufferHelper(USDT, IBufferHelper(helperA));
+        teller.setWithdrawBufferHelper(USDT, IBufferHelper(helperB));
+
+        // Disallow helperA — should only clear deposit, not withdraw
+        vm.expectEmit(true, true, false, true);
+        emit DepositBufferHelperSet(USDT, IBufferHelper(address(0)));
+        vm.expectEmit(true, true, false, true);
+        emit BufferHelperDisallowed(USDT, IBufferHelper(helperA));
+        teller.disallowBufferHelper(USDT, IBufferHelper(helperA));
+
+        (IBufferHelper depositAfter, IBufferHelper withdrawAfter) = teller.currentBufferHelpers(USDT);
+        assertEq(address(depositAfter), address(0), "deposit helper cleared");
+        assertEq(address(withdrawAfter), helperB, "withdraw helper untouched");
+    }
+
+    function testDisallowNonActiveHelperNoOp() external {
+        // Deploy a second helper, allow it, but never set it active
+        address unusedHelper = address(new AaveV3BufferHelper(v3Pool, address(boringVault)));
+        teller.allowBufferHelper(USDT, IBufferHelper(unusedHelper));
+
+        // Record active helpers before disallow
+        (IBufferHelper depositBefore, IBufferHelper withdrawBefore) = teller.currentBufferHelpers(USDT);
+
+        // Disallow the unused helper — only BufferHelperDisallowed, no Set events
+        vm.expectEmit(true, true, false, true);
+        emit BufferHelperDisallowed(USDT, IBufferHelper(unusedHelper));
+        teller.disallowBufferHelper(USDT, IBufferHelper(unusedHelper));
+
+        (IBufferHelper depositAfter, IBufferHelper withdrawAfter) = teller.currentBufferHelpers(USDT);
+        assertEq(address(depositAfter), address(depositBefore), "deposit helper unchanged");
+        assertEq(address(withdrawAfter), address(withdrawBefore), "withdraw helper unchanged");
+    }
 }
