@@ -20,6 +20,7 @@ import {IncentivePool} from "src/base/IncentivePool.sol";
 import {SafeCast} from "@openzeppelin-contracts-5.3.0/utils/math/SafeCast.sol";
 import {ECDSA} from "@openzeppelin-contracts-5.3.0/utils/cryptography/ECDSA.sol";
 import {MessageHashUtils} from "@openzeppelin-contracts-5.3.0/utils/cryptography/MessageHashUtils.sol";
+import {TellerWithMultiAssetSupportLib} from "src/base/Roles/TellerWithMultiAssetSupportLib.sol";
 
 struct DepositParams {
     ERC20 depositAsset;
@@ -850,19 +851,9 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @param signature The compliance signature.
      */
     function _verifyAndMark(bytes32 messageHash, uint256 deadline, bytes calldata signature) internal {
-        if (usedComplianceSignatures[messageHash]) {
-            revert TellerWithMultiAssetSupport__ComplianceCheckFailed();
-        }
-        if (block.timestamp > deadline) {
-            revert TellerWithMultiAssetSupport__ComplianceCheckFailed();
-        }
-        if (complianceWindow > 0 && deadline > block.timestamp + complianceWindow) {
-            revert TellerWithMultiAssetSupport__ComplianceCheckFailed();
-        }
-        bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
-        address recovered = ECDSA.recover(ethSignedHash, signature);
-        if (recovered != complianceSigner) revert TellerWithMultiAssetSupport__ComplianceCheckFailed();
-        usedComplianceSignatures[messageHash] = true;
+        TellerWithMultiAssetSupportLib.verifyAndMark(
+            usedComplianceSignatures, complianceSigner, complianceWindow, messageHash, deadline, signature
+        );
     }
 
     /**
@@ -956,19 +947,8 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         uint256 baseValueRate,
         uint256 currentRate
     ) internal virtual {
-        uint256 len = _principalHistory[user].length;
-        if (!isDeposit && len == 0) return;
-        uint104 prevDeposits = len > 0 ? _principalHistory[user][len - 1].cumulativeDeposits : 0;
-        uint104 prevWithdrawals = len > 0 ? _principalHistory[user][len - 1].cumulativeWithdrawals : 0;
-        if (isDeposit) {
-            uint256 baseValue = shares.mulDivDown(baseValueRate, ONE_SHARE);
-            prevDeposits += SafeCast.toUint104(baseValue);
-        } else {
-            uint256 baseValue = shares.mulDivUp(baseValueRate, ONE_SHARE);
-            prevWithdrawals += SafeCast.toUint104(baseValue);
-        }
-        _principalHistory[user].push(
-            PrincipalCheckpoint(uint48(block.timestamp), prevDeposits, prevWithdrawals, currentRate)
+        TellerWithMultiAssetSupportLib.checkpointPrincipalAtRate(
+            _principalHistory, ONE_SHARE, user, shares, isDeposit, baseValueRate, currentRate
         );
     }
 
@@ -992,11 +972,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @param assetAmount The amount of the asset that was deposited.
      */
     function _afterDeposit(ERC20 depositAsset, uint256 assetAmount) internal virtual {
-        if (address(currentBufferHelpers[depositAsset].depositBufferHelper) != address(0)) {
-            (address[] memory targets, bytes[] memory data, uint256[] memory values) = currentBufferHelpers[depositAsset].depositBufferHelper
-                .getDepositManageCall(address(depositAsset), assetAmount);
-            vault.manage(targets, data, values);
-        }
+        TellerWithMultiAssetSupportLib.afterDeposit(currentBufferHelpers, vault, depositAsset, assetAmount);
     }
 
     /**
@@ -1007,11 +983,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @param assetAmount The amount of the asset that will be withdrawn.
      */
     function _beforeWithdraw(ERC20 withdrawAsset, uint256 assetAmount) internal virtual {
-        if (address(currentBufferHelpers[withdrawAsset].withdrawBufferHelper) != address(0)) {
-            (address[] memory targets, bytes[] memory data, uint256[] memory values) = currentBufferHelpers[withdrawAsset].withdrawBufferHelper
-                .getWithdrawManageCall(address(withdrawAsset), assetAmount);
-            vault.manage(targets, data, values);
-        }
+        TellerWithMultiAssetSupportLib.beforeWithdraw(currentBufferHelpers, vault, withdrawAsset, assetAmount);
     }
 
     // ========================================= VIEW FUNCTIONS =========================================

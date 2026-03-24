@@ -114,13 +114,16 @@ contract CrossChainTellerComplianceTest is Test, MerkleTreeHelper {
         vm.selectFork(forkId);
     }
 
-    function _signDepositCompliance(address depositor, address depositAsset, uint256 depositAmount, uint256 deadline)
-        internal
-        view
-        returns (bytes memory signature)
-    {
-        bytes32 messageHash =
-            keccak256(abi.encode(address(teller), block.chainid, depositor, depositAsset, depositAmount, deadline));
+    function _signDepositCompliance(
+        address sender,
+        address depositor,
+        address depositAsset,
+        uint256 depositAmount,
+        uint256 deadline
+    ) internal view returns (bytes memory signature) {
+        bytes32 messageHash = keccak256(
+            abi.encode(address(teller), block.chainid, sender, depositor, depositAsset, depositAmount, deadline)
+        );
         bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(SIGNER_KEY, ethSignedHash);
         signature = abi.encodePacked(r, s, v);
@@ -251,7 +254,7 @@ contract CrossChainTellerComplianceTest is Test, MerkleTreeHelper {
 
         uint256 deadline = block.timestamp + 1 hours;
         // Sign a deposit-only compliance signature (missing the bridge `to` field)
-        bytes memory depositOnlySig = _signDepositCompliance(user, address(WETH), amount, deadline);
+        bytes memory depositOnlySig = _signDepositCompliance(user, user, address(WETH), amount, deadline);
 
         vm.startPrank(user);
         WETH.safeApprove(address(boringVault), amount);
@@ -305,7 +308,7 @@ contract CrossChainTellerComplianceTest is Test, MerkleTreeHelper {
     function _depositWithCompliance(address depositor, uint256 amount) internal returns (uint256 shares) {
         deal(address(WETH), depositor, amount);
         uint256 deadline = block.timestamp + 1 hours;
-        bytes memory sig = _signDepositCompliance(depositor, address(WETH), amount, deadline);
+        bytes memory sig = _signDepositCompliance(depositor, depositor, address(WETH), amount, deadline);
 
         vm.startPrank(depositor);
         WETH.safeApprove(address(boringVault), amount);
