@@ -151,11 +151,13 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         uint256 shares0 =
             teller.deposit(DepositParams(WETH, wETH_amount, 0, address(this)), referrer, ComplianceData(0, ""));
         uint256 firstDepositTimestamp = block.timestamp;
+        uint256 firstDepositSharePrice = accountant.getRateSafe();
         // Skip 1 days to finalize first deposit.
         skip(1 days + 1);
         uint256 shares1 =
             teller.deposit(DepositParams(EETH, eETH_amount, 0, address(this)), referrer, ComplianceData(0, ""));
         uint256 secondDepositTimestamp = block.timestamp;
+        uint256 secondDepositSharePrice = accountant.getRateSafe();
 
         // Even if setShareLockPeriod is set to 2 days, first deposit is still not revertable.
         teller.setShareLockPeriod(2 days);
@@ -165,12 +167,28 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__SharesAreUnLocked.selector)
         );
         teller.refundDeposit(
-            1, address(this), address(WETH), wETH_amount, shares0, firstDepositTimestamp, 1 days, referrer
+            1,
+            address(this),
+            address(WETH),
+            wETH_amount,
+            shares0,
+            firstDepositTimestamp,
+            1 days,
+            firstDepositSharePrice,
+            referrer
         );
 
         // However the second deposit is still revertable.
         teller.refundDeposit(
-            2, address(this), address(EETH), eETH_amount, shares1, secondDepositTimestamp, 1 days, referrer
+            2,
+            address(this),
+            address(EETH),
+            eETH_amount,
+            shares1,
+            secondDepositTimestamp,
+            1 days,
+            secondDepositSharePrice,
+            referrer
         );
 
         // Calling revert deposit again should revert.
@@ -178,7 +196,15 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__BadDepositHash.selector)
         );
         teller.refundDeposit(
-            2, address(this), address(EETH), eETH_amount, shares1, secondDepositTimestamp, 1 days, referrer
+            2,
+            address(this),
+            address(EETH),
+            eETH_amount,
+            shares1,
+            secondDepositTimestamp,
+            1 days,
+            secondDepositSharePrice,
+            referrer
         );
     }
 

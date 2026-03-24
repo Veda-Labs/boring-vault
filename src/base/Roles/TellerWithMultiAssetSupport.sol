@@ -562,6 +562,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         uint256 shareAmount,
         uint256 depositTimestamp,
         uint256 shareLockUpPeriodAtTimeOfDeposit,
+        uint256 depositSharePrice,
         address referralAddress
     ) external requiresAuth {
         if ((block.timestamp - depositTimestamp) >= shareLockUpPeriodAtTimeOfDeposit) {
@@ -575,6 +576,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
                 shareAmount,
                 depositTimestamp,
                 shareLockUpPeriodAtTimeOfDeposit,
+                depositSharePrice,
                 referralAddress
             )
         );
@@ -587,7 +589,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         vault.exit(receiver, ERC20(refundAsset), depositAmount, receiver, shareAmount);
 
         emit DepositRefunded(nonce, depositHash, receiver);
-        _checkpointPrincipal(receiver, shareAmount, false);
+        _checkpointPrincipalAtRate(receiver, shareAmount, false, depositSharePrice);
     }
 
     // ========================================= USER FUNCTIONS =========================================
@@ -631,7 +633,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
 
         _verifyComplianceSignature(to, depositAsset, depositAmount, compliance);
         shares = _erc20Deposit(depositAsset, depositAmount, params.minimumMint, from, to, asset);
-        _checkpointPrincipal(to, shares, true);
+        _checkpointPrincipalAtRate(to, shares, true, accountant.getRateSafe());
         _afterPublicDeposit(to, depositAsset, depositAmount, shares, shareLockPeriod, referralAddress);
     }
 
@@ -653,7 +655,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         _handlePermit(params.depositAsset, params.depositAmount, permit);
 
         shares = _erc20Deposit(params.depositAsset, params.depositAmount, params.minimumMint, msg.sender, to, asset);
-        _checkpointPrincipal(to, shares, true);
+        _checkpointPrincipalAtRate(to, shares, true, accountant.getRateSafe());
         _afterPublicDeposit(to, params.depositAsset, params.depositAmount, shares, shareLockPeriod, referralAddress);
     }
 
@@ -774,7 +776,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         if (assetsOut < minimumAssets) revert TellerWithMultiAssetSupport__MinimumAssetsNotMet();
         _beforeWithdraw(withdrawAsset, assetsOut);
         vault.exit(to, withdrawAsset, assetsOut, msg.sender, shareAmount);
-        _checkpointPrincipal(msg.sender, shareAmount, false);
+        _checkpointPrincipalAtRate(msg.sender, shareAmount, false, accountant.getRateSafe());
     }
 
     /**
@@ -857,12 +859,20 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     ) internal {
         // Increment then assign as its slightly more gas efficient.
         uint256 nonce = ++depositNonce;
+        uint256 sharePrice = accountant.getRateSafe();
         // Only set share unlock time and history if share lock period is greater than 0.
         if (currentShareLockPeriod > 0) {
             beforeTransferData[user].shareUnlockTime = uint64(block.timestamp + currentShareLockPeriod);
             publicDepositHistory[nonce] = keccak256(
                 abi.encode(
-                    user, depositAsset, depositAmount, shares, block.timestamp, currentShareLockPeriod, referralAddress
+                    user,
+                    depositAsset,
+                    depositAmount,
+                    shares,
+                    block.timestamp,
+                    currentShareLockPeriod,
+                    sharePrice,
+                    referralAddress
                 )
             );
         }
@@ -893,9 +903,10 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     }
 
     /**
-     * @notice Appends a principal checkpoint for a user on deposit or withdrawal.
-     * @dev Uses getRateSafe() (base-denominated rate) instead of getRateInQuoteSafe(asset) to ensure
-     *      principal is always tracked in base asset units regardless of which asset is deposited or withdrawn.
+     * @notice Appends a principal checkpoint using a caller-specified rate for the base value computation.
+     * @dev Used by refundDeposit to record the withdrawal at the deposit-time rate, ensuring the
+     *      refund exactly cancels the original deposit's principal impact.
+     *      The checkpoint's sharePrice field still records the current rate for point-in-time context.
      * @dev Rounding is intentionally asymmetric to be conservative against the user:
      *      - Deposits round DOWN: records slightly less principal, meaning fewer incentive rewards earned.
      *      - Withdrawals round UP: records slightly more withdrawn, preventing dust accumulation
@@ -904,21 +915,30 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      *      For an 18-decimal token this is ~20.3 trillion units. If a single user's cumulative
      *      volume exceeds this limit, SafeCast.toUint104 will revert permanently for that user.
      *      This is acceptable for virtually all real-world vaults.
+     * @param user The user whose principal history is being updated.
+     * @param shares The number of shares involved.
+     * @param isDeposit True for deposits, false for withdrawals.
+     * @param baseValueRate The rate to use for converting shares to base value.
      */
-    function _checkpointPrincipal(address user, uint256 shares, bool isDeposit) internal virtual {
-        uint256 rate = accountant.getRateSafe();
+    function _checkpointPrincipalAtRate(address user, uint256 shares, bool isDeposit, uint256 baseValueRate)
+        internal
+        virtual
+    {
+        uint256 currentRate = accountant.getRateSafe();
         uint256 len = _principalHistory[user].length;
         if (!isDeposit && len == 0) return;
         uint104 prevDeposits = len > 0 ? _principalHistory[user][len - 1].cumulativeDeposits : 0;
         uint104 prevWithdrawals = len > 0 ? _principalHistory[user][len - 1].cumulativeWithdrawals : 0;
         if (isDeposit) {
-            uint256 baseValue = shares.mulDivDown(rate, ONE_SHARE);
+            uint256 baseValue = shares.mulDivDown(baseValueRate, ONE_SHARE);
             prevDeposits += SafeCast.toUint104(baseValue);
         } else {
-            uint256 baseValue = shares.mulDivUp(rate, ONE_SHARE);
+            uint256 baseValue = shares.mulDivUp(baseValueRate, ONE_SHARE);
             prevWithdrawals += SafeCast.toUint104(baseValue);
         }
-        _principalHistory[user].push(PrincipalCheckpoint(uint48(block.timestamp), prevDeposits, prevWithdrawals, rate));
+        _principalHistory[user].push(
+            PrincipalCheckpoint(uint48(block.timestamp), prevDeposits, prevWithdrawals, currentRate)
+        );
     }
 
     /**

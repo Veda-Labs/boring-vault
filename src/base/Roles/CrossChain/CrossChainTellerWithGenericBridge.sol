@@ -156,6 +156,7 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
                 asset
             );
         }
+        _checkpointPrincipalAtRate(msg.sender, sharesBridged, true, accountant.getRateSafe());
         _afterPublicDeposit(
             msg.sender,
             depositParams.depositAsset,
@@ -180,7 +181,7 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
 
         // Record withdrawal checkpoint so the sender's principal decreases on the source chain.
         // Without this, bridged users retain phantom principal that inflates off-chain reward calculations.
-        _checkpointPrincipal(msg.sender, shareAmount, false);
+        _checkpointPrincipalAtRate(msg.sender, shareAmount, false, accountant.getRateSafe());
 
         // Burn shares and encode the bridge message (delegated to library to reduce bytecode).
         uint256 message = CrossChainTellerLib.burnAndEncode(vault, msg.sender, shareAmount, to);

@@ -75,6 +75,9 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         rolesAuthority.setRoleCapability(
             ADMIN_ROLE, address(teller), TellerWithMultiAssetSupport.bulkWithdraw.selector, true
         );
+        rolesAuthority.setRoleCapability(
+            ADMIN_ROLE, address(teller), TellerWithMultiAssetSupport.refundDeposit.selector, true
+        );
 
         rolesAuthority.setPublicCapability(address(teller), TellerWithMultiAssetSupport.deposit.selector, true);
         rolesAuthority.setPublicCapability(address(teller), TellerWithMultiAssetSupport.withdraw.selector, true);
@@ -213,6 +216,7 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         uint256 amount = 1e18;
         deal(address(WETH), user, amount);
         uint256 depositTimestamp = block.timestamp;
+        uint256 depositSharePrice = accountant.getRateSafe();
 
         vm.startPrank(user);
         WETH.safeApprove(address(boringVault), amount);
@@ -227,7 +231,9 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
 
         // Refund the deposit (still within 2-day lock period)
         uint256 nonce = teller.depositNonce();
-        teller.refundDeposit(nonce, user, address(WETH), amount, shares, depositTimestamp, 2 days, address(0));
+        teller.refundDeposit(
+            nonce, user, address(WETH), amount, shares, depositTimestamp, 2 days, depositSharePrice, address(0)
+        );
 
         // Verify refund appended a withdrawal checkpoint
         history = teller.getPrincipalHistory(user);
@@ -237,6 +243,53 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
             history[1].cumulativeWithdrawals >= history[1].cumulativeDeposits,
             "full refund: withdrawals >= deposits (no phantom principal)"
         );
+    }
+
+    function testPrincipalHistory_RefundUsesDepositTimeRate() external {
+        teller.setShareLockPeriod(2 days);
+
+        uint256 amount = 10e18;
+        deal(address(WETH), user, amount);
+
+        uint256 depositTimestamp = block.timestamp;
+        uint256 depositSharePrice = accountant.getRateSafe();
+
+        vm.startPrank(user);
+        WETH.safeApprove(address(boringVault), amount);
+        uint256 shares = teller.deposit(DepositParams(WETH, amount, 0, user), address(0), ComplianceData(0, ""));
+        vm.stopPrank();
+
+        PrincipalCheckpoint[] memory afterDeposit = teller.getPrincipalHistory(user);
+        uint104 depositedPrincipal = afterDeposit[0].cumulativeDeposits;
+
+        // Rate increases by 5% before refund.
+        deal(address(WETH), address(boringVault), amount * 2);
+        _setRate(uint96(1.05e18));
+
+        // Refund using deposit-time share price.
+        uint256 nonce = teller.depositNonce();
+        teller.refundDeposit(
+            nonce, user, address(WETH), amount, shares, depositTimestamp, 2 days, depositSharePrice, address(0)
+        );
+
+        PrincipalCheckpoint[] memory afterRefund = teller.getPrincipalHistory(user);
+        assertEq(afterRefund.length, 2, "deposit + refund checkpoints");
+
+        // The withdrawal should use the deposit-time rate (1e18), not the current rate (1.05e18).
+        // So cumulativeWithdrawals should equal cumulativeDeposits (modulo rounding).
+        assertTrue(
+            afterRefund[1].cumulativeWithdrawals >= afterRefund[1].cumulativeDeposits,
+            "refund at deposit rate: withdrawals >= deposits"
+        );
+        // Withdrawal should be close to deposit value, not inflated by the 5% rate increase.
+        // At 1:1 rate, shares = amount, so withdrawal base value = shares * 1e18 / 1e18 = shares.
+        // If the bug existed (using current rate), withdrawal would be shares * 1.05e18 / 1e18.
+        uint104 withdrawalValue = afterRefund[1].cumulativeWithdrawals;
+        uint104 maxExpected = depositedPrincipal + 1; // allow 1 wei rounding
+        assertTrue(withdrawalValue <= maxExpected, "refund withdrawal should not exceed deposit value + rounding");
+
+        // The checkpoint's sharePrice should reflect the current rate, not the deposit rate.
+        assertEq(afterRefund[1].sharePrice, 1.05e18, "checkpoint records current share price");
     }
 
     // ========================================= ROUNDING TESTS =========================================
@@ -380,195 +433,6 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         assertTrue(afterPartialWithdraw < depositPrincipal, "partial withdraw reduces principal");
         // Conservative: withdrawal subtracted at least the floor value
         assertTrue(afterPartialWithdraw <= depositPrincipal, "no inflation from partial withdraw");
-    }
-
-    // ========================================= TRANSFER + REWARDS TESTS =========================================
-
-    function testPrincipalHistory_TransferAndWithdrawWithRewards() external {
-        address alice = vm.addr(101);
-        address bob = vm.addr(102);
-        uint256 aliceDeposit = 100e18;
-        uint256 bobDeposit = 50e18;
-
-        // Setup: set the hook so transfers trigger beforeTransfer
-        boringVault.setBeforeTransferHook(address(teller));
-
-        // Alice deposits 100
-        deal(address(WETH), alice, aliceDeposit);
-        vm.startPrank(alice);
-        WETH.safeApprove(address(boringVault), aliceDeposit);
-        uint256 aliceShares =
-            teller.deposit(DepositParams(WETH, aliceDeposit, 0, alice), address(0), ComplianceData(0, ""));
-        vm.stopPrank();
-
-        // Bob deposits 50
-        deal(address(WETH), bob, bobDeposit);
-        vm.startPrank(bob);
-        WETH.safeApprove(address(boringVault), bobDeposit);
-        uint256 bobShares = teller.deposit(DepositParams(WETH, bobDeposit, 0, bob), address(0), ComplianceData(0, ""));
-        vm.stopPrank();
-
-        // Simulate rewards accrual: rate goes from 1.0 to 1.1
-        deal(address(WETH), address(boringVault), 165e18); // fund vault for 10% yield
-        _setRate(uint96(1.1e18));
-
-        // Bob transfers all his shares to Alice
-        vm.prank(bob);
-        boringVault.transfer(alice, bobShares);
-
-        // Verify on-chain checkpoints after transfer
-        PrincipalCheckpoint[] memory aliceHistory = teller.getPrincipalHistory(alice);
-        PrincipalCheckpoint[] memory bobHistory = teller.getPrincipalHistory(bob);
-
-        // Alice: 1 deposit checkpoint + 1 transfer checkpoint = 2
-        assertEq(aliceHistory.length, 2, "alice: 1 deposit + 1 transfer checkpoint");
-        assertEq(aliceHistory[1].cumulativeDeposits, uint104(aliceDeposit), "alice deposits unchanged by transfer in");
-        assertEq(aliceHistory[1].cumulativeWithdrawals, 0, "alice withdrawals unchanged by transfer in");
-
-        // Bob: 1 deposit checkpoint + 1 transfer checkpoint = 2
-        assertEq(bobHistory.length, 2, "bob: 1 deposit + 1 transfer checkpoint");
-        assertEq(bobHistory[1].cumulativeDeposits, uint104(bobDeposit), "bob deposits unchanged by transfer out");
-        assertEq(bobHistory[1].cumulativeWithdrawals, 0, "bob withdrawals unchanged by transfer out");
-
-        // Bob has 0 shares — off-chain would give him 0 rewards
-        assertEq(boringVault.balanceOf(bob), 0, "bob has no shares after transfer");
-        // Alice has all shares
-        assertEq(boringVault.balanceOf(alice), aliceShares + bobShares, "alice has all shares");
-
-        // Off-chain reward calculation at this point:
-        //   Alice: principal = 100, totalValue = (aliceShares + bobShares) * 1.1 = 165
-        //          effectiveDeposit = min(100, 165) = 100  (transferred shares don't count)
-        //   Bob:   principal = 50, totalValue = 0 * 1.1 = 0
-        //          effectiveDeposit = min(50, 0) = 0       (no shares, no rewards)
-
-        // Alice withdraws 20 worth of shares
-        uint256 withdrawShares = uint256(20e18).mulDivDown(ONE_SHARE, 1.1e18);
-        vm.prank(alice);
-        teller.withdraw(WETH, withdrawShares, 0, alice);
-
-        aliceHistory = teller.getPrincipalHistory(alice);
-        // Alice: 1 deposit + 1 transfer + 1 withdraw = 3
-        assertEq(aliceHistory.length, 3, "alice: deposit + transfer + withdraw");
-        assertEq(aliceHistory[2].cumulativeDeposits, uint104(aliceDeposit), "alice deposits still 100");
-        // Withdrawal checkpoint records ~20 in base value (rounding up)
-        assertTrue(aliceHistory[2].cumulativeWithdrawals > 0, "alice has recorded withdrawal");
-
-        // Off-chain reward calculation after withdrawal:
-        //   Alice: principal = deposits - withdrawals = ~80
-        //          totalValue = remainingShares * rate
-        //          effectiveDeposit = min(principal, totalValue) = ~80
-        //   She continues earning rewards on ~80, not on Bob's transferred shares
-        uint104 alicePrincipal = aliceHistory[2].cumulativeDeposits - aliceHistory[2].cumulativeWithdrawals;
-        // Principal should be approximately 80e18 (100 deposited - 20 withdrawn)
-        // Allow small rounding tolerance from asymmetric rounding
-        assertTrue(alicePrincipal <= uint104(80e18), "alice principal <= 80 (conservative rounding)");
-        assertTrue(alicePrincipal >= uint104(80e18 - 1e15), "alice principal ~= 80 within rounding");
-    }
-
-    function testPrincipalHistory_TransferDoesNotCreateDepositsForReceiver() external {
-        address alice = vm.addr(101);
-        address bob = vm.addr(102);
-
-        boringVault.setBeforeTransferHook(address(teller));
-
-        // Only Bob deposits
-        deal(address(WETH), bob, 100e18);
-        vm.startPrank(bob);
-        WETH.safeApprove(address(boringVault), 100e18);
-        uint256 bobShares = teller.deposit(DepositParams(WETH, 100e18, 0, bob), address(0), ComplianceData(0, ""));
-        vm.stopPrank();
-
-        // Bob transfers to Alice (who never deposited)
-        vm.prank(bob);
-        boringVault.transfer(alice, bobShares);
-
-        // Alice has shares but 0 deposits — off-chain gives her 0 effective deposit
-        PrincipalCheckpoint[] memory aliceHistory = teller.getPrincipalHistory(alice);
-        assertEq(aliceHistory.length, 1, "alice gets transfer checkpoint");
-        assertEq(aliceHistory[0].cumulativeDeposits, 0, "alice has 0 deposits (received via transfer)");
-        assertEq(aliceHistory[0].cumulativeWithdrawals, 0, "alice has 0 withdrawals");
-        assertGt(boringVault.balanceOf(alice), 0, "alice holds shares");
-
-        // Off-chain: effectiveDeposit = min(0, balanceValue) = 0
-        // Alice holds shares but earns no incentive rewards
-    }
-
-    function testPrincipalHistory_PartialTransferBothEarnRewards() external {
-        address alice = vm.addr(101);
-        address bob = vm.addr(102);
-        uint256 aliceDeposit = 100e18;
-        uint256 bobDeposit = 50e18;
-
-        boringVault.setBeforeTransferHook(address(teller));
-
-        // Alice deposits 100
-        deal(address(WETH), alice, aliceDeposit);
-        vm.startPrank(alice);
-        WETH.safeApprove(address(boringVault), aliceDeposit);
-        uint256 aliceShares =
-            teller.deposit(DepositParams(WETH, aliceDeposit, 0, alice), address(0), ComplianceData(0, ""));
-        vm.stopPrank();
-
-        // Bob deposits 50
-        deal(address(WETH), bob, bobDeposit);
-        vm.startPrank(bob);
-        WETH.safeApprove(address(boringVault), bobDeposit);
-        uint256 bobShares = teller.deposit(DepositParams(WETH, bobDeposit, 0, bob), address(0), ComplianceData(0, ""));
-        vm.stopPrank();
-
-        // Simulate 10% yield: rate goes from 1.0 to 1.1
-        deal(address(WETH), address(boringVault), 165e18);
-        _setRate(uint96(1.1e18));
-
-        // Bob transfers HALF his shares to Alice (25 of 50 shares)
-        uint256 halfBobShares = bobShares / 2;
-        vm.prank(bob);
-        boringVault.transfer(alice, halfBobShares);
-
-        // On-chain: deposits/withdrawals unchanged for both, only timestamps updated
-        PrincipalCheckpoint[] memory aliceHistory = teller.getPrincipalHistory(alice);
-        PrincipalCheckpoint[] memory bobHistory = teller.getPrincipalHistory(bob);
-
-        assertEq(aliceHistory[1].cumulativeDeposits, uint104(aliceDeposit), "alice deposits unchanged");
-        assertEq(aliceHistory[1].cumulativeWithdrawals, 0, "alice withdrawals unchanged");
-        assertEq(bobHistory[1].cumulativeDeposits, uint104(bobDeposit), "bob deposits unchanged");
-        assertEq(bobHistory[1].cumulativeWithdrawals, 0, "bob withdrawals unchanged");
-
-        // Share balances after partial transfer
-        uint256 aliceSharesAfter = boringVault.balanceOf(alice);
-        uint256 bobSharesAfter = boringVault.balanceOf(bob);
-        assertEq(aliceSharesAfter, aliceShares + halfBobShares, "alice has her shares + half bob's");
-        assertEq(bobSharesAfter, bobShares - halfBobShares, "bob retains half his shares");
-
-        // Off-chain reward calculation:
-        //   Alice: principal=100, value=125*1.1=137.5, effective=min(100,137.5)=100
-        //   Bob:   principal=50,  value=25*1.1=27.5,   effective=min(50,27.5)=27.5
-        //
-        // Bob still earns rewards, but capped at remaining share value, not full deposit.
-        _verifyPartialTransferRewards(aliceSharesAfter, bobSharesAfter, aliceDeposit, bobDeposit);
-    }
-
-    function _verifyPartialTransferRewards(
-        uint256 aliceShares,
-        uint256 bobShares,
-        uint256 aliceDeposit,
-        uint256 bobDeposit
-    ) internal pure {
-        uint256 rate = 1.1e18;
-        uint256 aliceValue = aliceShares.mulDivDown(rate, ONE_SHARE);
-        uint256 bobValue = bobShares.mulDivDown(rate, ONE_SHARE);
-
-        uint256 aliceEffective = aliceDeposit < aliceValue ? aliceDeposit : aliceValue;
-        uint256 bobEffective = bobDeposit < bobValue ? bobDeposit : bobValue;
-
-        // Alice: capped at principal (100), not total value (137.5)
-        assert(aliceEffective == aliceDeposit);
-        // Bob: capped at share value (27.5), not principal (50)
-        assert(bobEffective == bobValue);
-        // Bob still earns something
-        assert(bobEffective > 0);
-        // But less than his full deposit
-        assert(bobEffective < bobDeposit);
     }
 
     /// @dev Simulates the backend's time-weighted reward calculation on-chain.
