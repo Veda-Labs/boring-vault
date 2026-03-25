@@ -39,6 +39,11 @@ contract CreateBTCUSDCarryClusterMerkleRootScript is Script, MerkleTreeHelper {
     address public managerAddress = 0xE059cDcc94E7937FC7f7EeD9daAFaAd79B066099;
     address public rawDataDecoderAndSanitizer = 0xdaE2D832C004f2E38547A78A0a2C04dE1DAE37f7;
 
+    address public syUsdVault = 0x279CAD277447965AF3d24a78197aad1B02a2c589;
+    address public syUsdWithdrawQueue = 0xF632c10b19f2a0451cD4A653fC9ca0c15eA1040b;
+    address public syUsdTeller = 0xaefc11908fF97c335D16bdf9F2Bf720817423825;
+    address public syUsdQueueSolver = 0x1d82e9bCc8F325caBBca6E6A3B287fE586536805;
+
     function setUp() external {
         setSourceChainName(mainnet);
         vm.createSelectFork(sourceChain);
@@ -101,13 +106,18 @@ contract CreateBTCUSDCarryClusterMerkleRootScript is Script, MerkleTreeHelper {
         borrowAssets[4] = getERC20(sourceChain, "GHO");
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
 
+        ERC20[] memory assets = new ERC20[](1);
+        assets[0] = ERC20(getAddress(sourceChain, "USDC"));
+        _addTellerLeafs(leafs, address(syUsdTeller), assets, false, true);
+        _addWithdrawQueueLeafs(leafs, syUsdWithdrawQueue, syUsdVault, assets);
+        _addSelfSolveLeafs(leafs, assets, syUsdQueueSolver, boringVault, syUsdTeller);
+
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
         string memory filePath = "./leafs/Mainnet/BTCUSDCarryClusterStrategyLeafs.json";
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
 
         ManagerWithMerkleVerification manager = ManagerWithMerkleVerification(managerAddress);
         vm.startBroadcast(vm.envUint("PK"));
-        manager.setManageRoot(managerAddress, manageTree[manageTree.length - 1][0]);
         manager.setManageRoot(vm.addr(vm.envUint("BTCUSDCarryStrategist")), manageTree[manageTree.length - 1][0]);
         vm.stopBroadcast();
     }
