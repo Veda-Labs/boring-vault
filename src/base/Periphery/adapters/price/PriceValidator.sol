@@ -16,6 +16,7 @@ contract PriceValidator is IPriceValidator {
     error PriceValidator__OracleNotConfigured();
     error PriceValidator__ExceedsMaxSlippage();
     error PriceValidator__ExceedsRouteMaxSlippage();
+    error PriceValidator__OracleLengthMismatch();
 
     function validate(
         ERC20 tokenIn,
@@ -31,36 +32,53 @@ contract PriceValidator is IPriceValidator {
         uint256 maxSlippageBps = swapper.maxSlippageBpsPerRoute(key);
         if (slippageBps > maxSlippageBps) revert PriceValidator__ExceedsRouteMaxSlippage();
 
-        uint256 valueIn = _getPrice(swapper, tokenIn, quoteAsset, inputAmount);
-        uint256 valueOut = _getPrice(swapper, tokenOut, quoteAsset, outputAmount);
+        (bool skipIn, uint256[] memory valuesIn) = _getPrices(swapper, tokenIn, quoteAsset, inputAmount);
+        (bool skipOut, uint256[] memory valuesOut) = _getPrices(swapper, tokenOut, quoteAsset, outputAmount);
 
         // if either side skipped validation, no slippage check
-        if (valueIn == 0 || valueOut == 0) return;
+        if (skipIn || skipOut) return;
 
-        uint256 minValueOut = valueIn.mulDivDown((10_000 - slippageBps), 10_000);
-        if (valueOut < minValueOut) revert PriceValidator__ExceedsMaxSlippage();
+        for (uint256 i; i < valuesIn.length;) {
+            for (uint256 j; j < valuesOut.length;) {
+                uint256 minValueOut = valuesIn[i].mulDivDown((10_000 - slippageBps), 10_000);
+                if (valuesOut[j] < minValueOut) revert PriceValidator__ExceedsMaxSlippage();
+                unchecked { j++; }
+            }
+            unchecked { i++; }
+        }
     }
 
-    function _getPrice(
+    function _getPrices(
         ISwapper swapper,
         ERC20 token,
         address quoteAsset,
         uint256 amount
-    ) internal view returns (uint256) {
-        (address rateProvider, address intermediary, bool skipValidation) = swapper.getBaseAssetOracle(token, quoteAsset);
+    ) internal view returns (bool skipValidation, uint256[] memory values) {
+        (address[] memory rateProviders, address[] memory intermediaries, bool skip) = swapper.getBaseAssetOracle(token, quoteAsset);
+        if (skip) return (true, values);
 
-        if (skipValidation) return 0;
-        if (rateProvider == address(0)) revert PriceValidator__OracleNotConfigured();
+        uint256 rateProviderLength = rateProviders.length;
+        if (rateProviderLength != intermediaries.length) revert PriceValidator__OracleLengthMismatch();
 
+        values = new uint256[](rateProviderLength);
         uint256 decimals = token.decimals();
-        uint256 value = amount.mulDivDown(IRateProvider(rateProvider).getRate(), 10 ** decimals);
 
-        if (intermediary != address(0)) {
-            address baseRateProvider = swapper.oracles(intermediary, quoteAsset);
-            if (baseRateProvider == address(0)) revert PriceValidator__OracleNotConfigured();
-            value = value.mulDivDown(IRateProvider(baseRateProvider).getRate(), 1e18);
+        for (uint256 i; i < rateProviderLength;) {
+            if (rateProviders[i] == address(0)) revert PriceValidator__OracleNotConfigured();
+
+            values[i] = amount.mulDivDown(IRateProvider(rateProviders[i]).getRate(), 10 ** decimals);
+
+            if (intermediaries[i] != address(0)) {
+                address baseRateProvider = swapper.oracles(ERC20(intermediaries[i]), quoteAsset, 0);
+                if (baseRateProvider == address(0)) revert PriceValidator__OracleNotConfigured();
+                values[i] = values[i].mulDivDown(IRateProvider(baseRateProvider).getRate(), 1e18);
+            }
+
+            unchecked {
+                i++;
+            }
         }
 
-        return value;
+        return (false, values);
     }
 }

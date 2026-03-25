@@ -22,7 +22,7 @@ import {UniswapV3Adapter} from "src/base/Periphery/adapters/UniswapV3Adapter.sol
 import {CowswapAdapter} from "src/base/Periphery/adapters/CowswapAdapter.sol";
 import {OneInchAdapter} from "src/base/Periphery/adapters/OneInchAdapter.sol";
 
-import {OracleConfig} from "src/interfaces/ISwapper.sol";
+import {ERC20} from "@solmate/tokens/ERC20.sol";
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
 
@@ -92,7 +92,7 @@ contract DeployBoringSwapperTestSuite is Script, ContractNames, MainnetAddresses
         //deploy adapter (cowswap)
         address uniswapV3AdapterVersion0_1 = address(new UniswapV3Adapter(getAddress(sourceChain, "uniV3Router")));
         address cowswapAdapterVersion0_1 = address(new CowswapAdapter(COW_SETTLEMENT, COW_VAULT_RELAYER));
-        address oneInchAdapterVersion0_1 = address(new OneInchAdapter(ONEINCH_ROUTER, address(0)));
+        address oneInchAdapterVersion0_1 = address(new OneInchAdapter(ONEINCH_ROUTER, 0xc0DFdB9E7a392c3dBBE7c6FBe8FBC1789C9FE05e)); //FEE_TAKER
 
         swapper.setApprovedRoute(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDC"), true, 500, 0, 0);
         swapper.setApprovedProtocol(UNISWAP_V3, true); //UNI_V3
@@ -151,30 +151,47 @@ contract DeployBoringSwapperTestSuite is Script, ContractNames, MainnetAddresses
         //ethRate = new GenericRateProviderWithStalenessCheck(argsEth);
 
         address usdQuoteAsset = getAddress(sourceChain, "USDC");
-        address ethQuoteAsset = getAddress(sourceChain, "USDC");
 
-        OracleConfig[] memory usdConfigs = new OracleConfig[](1);
-        usdConfigs[0] = OracleConfig(0x8d99465A5F1631f9B7063C9437e6C09AC3504527, false);
-        swapper.setOracles(getAddress(sourceChain, "USDC"), usdQuoteAsset, usdConfigs);
+        // token oracle config: USDC → USD quote (direct, no intermediary)
+        swapper.setTokenOracle(
+            getERC20(sourceChain, "USDC"),
+            usdQuoteAsset,
+            _makeOracleConfig(0x8d99465A5F1631f9B7063C9437e6C09AC3504527, address(0), false)
+        );
 
-        OracleConfig[] memory ethConfigs = new OracleConfig[](1);
-        ethConfigs[0] = OracleConfig(0x2F22FBE27D24CA359eb282A6a13c0017C13dEDa4, false);
-        swapper.setOracles(getAddress(sourceChain, "WETH"), ethQuoteAsset, ethConfigs);
+        // token oracle config: WETH → USD quote (direct, no intermediary)
+        swapper.setTokenOracle(
+            getERC20(sourceChain, "WETH"),
+            usdQuoteAsset,
+            _makeOracleConfig(0x2F22FBE27D24CA359eb282A6a13c0017C13dEDa4, address(0), false)
+        );
 
-        // price paths
-        address[] memory usdPath = new address[](1);
-        usdPath[0] = usdQuoteAsset;
-        swapper.setPricePath(getERC20(sourceChain, "USDC"), usdQuoteAsset, usdPath);
+        // base asset oracles
+        address[] memory usdRateProviders = new address[](1);
+        usdRateProviders[0] = 0x8d99465A5F1631f9B7063C9437e6C09AC3504527;
+        swapper.setBaseAssetOracle(getERC20(sourceChain, "USDC"), usdQuoteAsset, usdRateProviders);
 
-        address[] memory ethPath = new address[](1);
-        ethPath[0] = ethQuoteAsset;
-        swapper.setPricePath(getERC20(sourceChain, "WETH"), ethQuoteAsset, ethPath);
+        address[] memory ethRateProviders = new address[](1);
+        ethRateProviders[0] = 0x2F22FBE27D24CA359eb282A6a13c0017C13dEDa4;
+        swapper.setBaseAssetOracle(getERC20(sourceChain, "WETH"), usdQuoteAsset, ethRateProviders);
 
         //price validator setup
-        //validator = new PriceValidator();
-        swapper.setPriceValidator(IPriceValidator(0xA528Aa462396124e376d8E8B7640b10D288CC306));
+        validator = new PriceValidator();
+        swapper.setPriceValidator(IPriceValidator(validator));
         
         //create boring swapper merkle root (bb)
         vm.stopBroadcast();
+    }
+
+    function _makeOracleConfig(address rateProvider, address intermediary, bool skipValidation)
+        internal
+        pure
+        returns (BoringSwapper.RateProviderConfig memory)
+    {
+        address[] memory rateProviders = new address[](1);
+        rateProviders[0] = rateProvider;
+        address[] memory intermediaries = new address[](1);
+        intermediaries[0] = intermediary;
+        return BoringSwapper.RateProviderConfig(rateProviders, intermediaries, skipValidation);
     }
 }

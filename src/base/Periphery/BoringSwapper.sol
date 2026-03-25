@@ -13,8 +13,9 @@ import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
 import {IPriceValidator} from "src/interfaces/IPriceValidator.sol";
+import {ISwapper} from "src/interfaces/ISwapper.sol";
 
-contract BoringSwapper is Auth {
+contract BoringSwapper is Auth, ISwapper {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
     using Address for address;
@@ -32,8 +33,8 @@ contract BoringSwapper is Auth {
     }
 
     struct RateProviderConfig {
-        address rateProvider; //token -> rateProvider (ex: STETH/ETH) (if quoteAsset is USDC, and we only have ETH price)
-        address intermediary; //if 2 hops are needed, what is the correct base asset for this? (USDC, so we can price STETH/USD)
+        address[] rateProvider;
+        address[] intermediary;
         bool skipValidation;
     }
 
@@ -80,7 +81,15 @@ contract BoringSwapper is Auth {
     event Swapped(bytes32 indexed routeId, uint256 amountIn, uint256 amountOut, address indexed receiver);
     event OrderSubmitted(uint256 indexed orderId, bytes32 indexed routeId, uint256 amountIn, address indexed receiver);
     event OrderCancelled(uint256 indexed orderId, uint256 refundAmount);
-    event RouteUpdated(bytes32 indexed routeId, ERC20 tokenIn, ERC20 tokenOut, bool approved, uint256 maxSlippageBps, uint256 rateLimitCapacity, uint256 rateLimitRefillRate);
+    event RouteUpdated(
+        bytes32 indexed routeId,
+        ERC20 tokenIn,
+        ERC20 tokenOut,
+        bool approved,
+        uint256 maxSlippageBps,
+        uint256 rateLimitCapacity,
+        uint256 rateLimitRefillRate
+    );
     event MaxSlippageBpsUpdated(bytes32 indexed routeId, uint256 maxSlippageBps);
     event ProtocolApproved(uint8 indexed protocolId, bool approved);
     event VersionUpdated(uint8 indexed protocolId, uint256 version);
@@ -112,21 +121,10 @@ contract BoringSwapper is Auth {
     /// @notice stores the list of approved protocols for this vault
     mapping(uint8 protocolId => bool approved) public approvedProtocols;
 
-    mapping(ERC20 token => mapping(address quoteAsset => RateProviderConfig rateProviderConfig)) public baseAssetOracles;
+    mapping(ERC20 token => mapping(address quoteAsset => RateProviderConfig rateProviderConfig)) internal
+        _baseAssetOracles;
 
-    mapping(ERC20 baseAsset => mapping(address quoteAsset => address rateProvider)) public oracles;
-
-    //what we want the UX to be like is that the user just submits what they want to price the trade in
-    //the contract will look up the price routing for them
-    //such that, we are able to grab the quoteAsset and check for an oracle. If no oracle exists, we check for a base oracle.
-    //  how do we do that? 
-    //  we could have a fallback in the OracleConfig that goes to a base asset
-    //the problem right now is that we are going from token -> quoteAsset but the quoteAsset may not exist for all pairs
-    //so what we need to do is go through a baseAsset instead 
-    //we can do token -> base -> oracleConfig
-    //
-    //token -> baseAssetConfig (token to base oracles (any))
-    //baseAsset -> oracleConfig 
+    mapping(ERC20 baseAsset => mapping(address quoteAsset => address[] rateProvider)) public oracles;
 
     /// @notice stores the current version this swapper subscribes to for a specific protocol
     mapping(uint8 protocolId => uint256 version) public versions;
@@ -152,10 +150,20 @@ contract BoringSwapper is Auth {
     // ========================================= SWAP FUNCTIONS =========================================
 
     /// @notice Executes an instant swap via an approved adapter protocol.
-    /// @dev Pulls tokenIn from the vault, executes the swap through the adapter's target,
-    ///      validates the output price, and returns tokenOut (and any dust) to the vault.
-    /// @param swapConfig The swap configuration containing route, protocol, slippage, and calldata.
     function swap(SwapConfig calldata swapConfig) external {
+        (bytes32 key, address target, uint256 amount) = _swapPreFlightCheck(swapConfig);
+
+        //enforce rate limit
+        if (!_consumeRateLimit(key, swapConfig.tokenRoute.tokenIn, amount)) {
+            revert BoringSwapper__RateLimitExceeded();
+        }
+
+        uint256 tokenBalanceDelta = _swapPostFlightCheck(swapConfig, target, amount);
+
+        emit Swapped(key, amount, tokenBalanceDelta, address(swapConfig.receiver));
+    }
+
+    function _swapPreFlightCheck(SwapConfig calldata swapConfig) internal view returns (bytes32, address, uint256) {
         _checkNotPaused(swapConfig.protocolId);
         bytes32 key = getRouteId(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut);
         if (!approvedRoutes[key]) revert BoringSwapper__RouteNotApproved();
@@ -164,40 +172,44 @@ contract BoringSwapper is Auth {
         address target;
         uint256 amount;
         {
-            address adapter = adapterRegistry.get(
-                swapConfig.protocolId,
-                versions[swapConfig.protocolId]
-            );
+            address adapter = adapterRegistry.get(swapConfig.protocolId, versions[swapConfig.protocolId]);
 
-            bytes memory appended = abi.encodePacked(swapConfig.swapData, abi.encode(swapConfig), uint256(swapConfig.swapData.length));
+            bytes memory appended =
+                abi.encodePacked(swapConfig.swapData, abi.encode(swapConfig), uint256(swapConfig.swapData.length));
             (bytes memory result) = adapter.functionStaticCall(appended);
 
             (target, amount) = abi.decode(result, (address, uint256));
         }
 
-        //enforce rate limit
-        if (!_consumeRateLimit(key, swapConfig.tokenRoute.tokenIn, amount)) revert BoringSwapper__RateLimitExceeded();
+        return (key, target, amount);
+    }
 
+    function _swapPostFlightCheck(
+        SwapConfig calldata swapConfig,
+        address target,
+        uint256 amount
+    ) internal returns (uint256) {
         //snapshot the balance
         uint256 tokenBalanceBefore = swapConfig.tokenRoute.tokenOut.balanceOf(address(this));
 
         //transfer assets from the vault to the swapper, approve target & execute
         swapConfig.tokenRoute.tokenIn.safeTransferFrom(address(swapConfig.receiver), address(this), amount);
         swapConfig.tokenRoute.tokenIn.approve(target, amount);
-        (bool success, ) = target.call(swapConfig.swapData);
+        (bool success,) = target.call(swapConfig.swapData);
         if (!success) revert BoringSwapper__SwapFailed();
 
         uint256 tokenBalanceDelta = swapConfig.tokenRoute.tokenOut.balanceOf(address(this)) - tokenBalanceBefore;
 
         //validate the price & slippage
-        IPriceValidator(priceValidator).validate(
-            swapConfig.tokenRoute.tokenIn,
-            swapConfig.tokenRoute.tokenOut,
-            amount,
-            tokenBalanceDelta,
-            swapConfig.quoteAsset,
-            swapConfig.slippageBps
-        );
+        IPriceValidator(priceValidator)
+            .validate(
+                swapConfig.tokenRoute.tokenIn,
+                swapConfig.tokenRoute.tokenOut,
+                amount,
+                tokenBalanceDelta,
+                swapConfig.quoteAsset,
+                swapConfig.slippageBps
+            );
 
         //reset approvals and transfer
         swapConfig.tokenRoute.tokenIn.approve(target, 0);
@@ -207,30 +219,44 @@ contract BoringSwapper is Auth {
         uint256 dust = swapConfig.tokenRoute.tokenIn.balanceOf(address(this));
         if (dust > 0) swapConfig.tokenRoute.tokenIn.safeTransfer(address(swapConfig.receiver), dust);
 
-        emit Swapped(key, amount, tokenBalanceDelta, address(swapConfig.receiver));
+        return tokenBalanceDelta;
     }
 
     /// @notice Submits a limit order via an approved adapter protocol (e.g. CoWSwap).
-    /// @dev Validates the order through the adapter, enforces rate limits and price checks,
-    ///      stores the order record, pre-approves the settlement contract, and pulls funds from the vault.
-    /// @param swapConfig The swap configuration containing route, protocol, slippage, and order data.
     function submitOrder(SwapConfig memory swapConfig) external {
+        (bytes32 key, IAdapter.OrderInfo memory info, uint256 orderId) =
+            _limitOrderPreFlightCheck(swapConfig);
+
+        //enforce rate limit
+        if (!_consumeRateLimit(key, swapConfig.tokenRoute.tokenIn, info.inputAmount)) {
+            revert BoringSwapper__RateLimitExceeded();
+        }
+
+        emit OrderSubmitted(orderId, key, info.inputAmount, address(swapConfig.receiver));
+    }
+
+    function _limitOrderPreFlightCheck(SwapConfig memory swapConfig)
+        internal
+        returns (bytes32, IAdapter.OrderInfo memory, uint256)
+    {
         _checkNotPaused(swapConfig.protocolId);
         bytes32 key = getRouteId(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut);
         if (!approvedRoutes[key]) revert BoringSwapper__RouteNotApproved();
         if (!approvedProtocols[swapConfig.protocolId]) revert BoringSwapper__ProtocolNotApproved();
 
-        address adapter = adapterRegistry.get(
-            swapConfig.protocolId,
-            versions[swapConfig.protocolId]
-        );
+        address adapter = adapterRegistry.get(swapConfig.protocolId, versions[swapConfig.protocolId]);
         IAdapter.OrderInfo memory info = IAdapter(adapter).verifyLimitOrder(swapConfig, address(this));
 
-        //enforce rate limit
-        if (!_consumeRateLimit(key, swapConfig.tokenRoute.tokenIn, info.inputAmount)) revert BoringSwapper__RateLimitExceeded();
-
         //check for limit order fat fingers
-        IPriceValidator(priceValidator).validate(ERC20(info.inputToken), ERC20(info.outputToken), info.inputAmount, info.outputAmount, swapConfig.quoteAsset, swapConfig.slippageBps);
+        IPriceValidator(priceValidator)
+            .validate(
+                ERC20(info.inputToken),
+                ERC20(info.outputToken),
+                info.inputAmount,
+                info.outputAmount,
+                swapConfig.quoteAsset,
+                swapConfig.slippageBps
+            );
 
         uint256 orderId = orders;
         orderRecords[orderId] = OrderRecord({
@@ -248,14 +274,10 @@ contract BoringSwapper is Auth {
 
         orders += 1;
 
-        emit OrderSubmitted(orderId, key, info.inputAmount, address(swapConfig.receiver));
+        return (key, info, orderId);
     }
 
     /// @notice Cancels a pending limit order, invalidates it on-chain, and refunds remaining tokens to the vault.
-    /// @dev Deletes the order record, calls the adapter's cancelLimitOrder to get on-chain cancel calldata,
-    ///      executes the cancel on the settlement contract, revokes approval, and refunds.
-    /// @param orderId The ID of the order to cancel.
-    /// @param swapConfig The swap configuration used when the order was submitted.
     function cancelOrder(uint256 orderId, SwapConfig calldata swapConfig) external {
         OrderRecord memory record = orderRecords[orderId];
         if (address(record.tokenIn) == address(0)) revert BoringSwapper__OrderNotFound();
@@ -281,22 +303,13 @@ contract BoringSwapper is Auth {
         uint256 refund = balance < record.inputAmount ? balance : record.inputAmount;
         if (refund > 0) record.tokenIn.safeTransfer(address(record.receiver), refund);
 
+        //TODO refund the rate limit if cancelled. Need logic to tell which one.
+
         emit OrderCancelled(orderId, refund);
     }
 
     /// @notice ERC-1271 signature validation — re-validates the order at fill time.
-    /// @dev Called by the settlement contract to verify the order is still valid. Checks that
-    ///      the route and protocol are approved, the adapter-computed hash matches, and the
-    ///      price is within slippage bounds. Also enforces pause state, which allows admin to
-    ///      block fills on pending orders during black swan events.
-    /// @param _hash The protocol's EIP-712 order digest.
-    /// @param _signature abi.encode(SwapConfig) — full config for re-validation.
-    /// @return The EIP-1271 magic value if the signature is valid.
-    function isValidSignature(bytes32 _hash, bytes memory _signature)
-        external
-        view
-        returns (bytes4)
-    {
+    function isValidSignature(bytes32 _hash, bytes memory _signature) external view returns (bytes4) {
         SwapConfig memory swapConfig = abi.decode(_signature, (SwapConfig));
 
         _checkNotPaused(swapConfig.protocolId);
@@ -304,24 +317,21 @@ contract BoringSwapper is Auth {
         if (!approvedRoutes[key]) revert BoringSwapper__RouteNotApproved();
         if (!approvedProtocols[swapConfig.protocolId]) revert BoringSwapper__ProtocolNotApproved();
 
-        address adapter = adapterRegistry.get(
-            swapConfig.protocolId,
-            versions[swapConfig.protocolId]
-        );
+        address adapter = adapterRegistry.get(swapConfig.protocolId, versions[swapConfig.protocolId]);
         IAdapter.OrderInfo memory info = IAdapter(adapter).verifyLimitOrder(swapConfig, address(this));
 
-        if (msg.sender != info.settlementCaller) revert BoringSwapper__UnauthorizedCaller();
         if (info.protocolHash != _hash) revert BoringSwapper__HashMismatch(info.protocolHash, _hash);
         if (!approvedHashes[_hash]) revert BoringSwapper__OrderNotApproved();
 
-        IPriceValidator(priceValidator).validate(
-            ERC20(info.inputToken),
-            ERC20(info.outputToken),
-            info.inputAmount,
-            info.outputAmount,
-            swapConfig.quoteAsset,
-            swapConfig.slippageBps
-        );
+        IPriceValidator(priceValidator)
+            .validate(
+                ERC20(info.inputToken),
+                ERC20(info.outputToken),
+                info.inputAmount,
+                info.outputAmount,
+                swapConfig.quoteAsset,
+                swapConfig.slippageBps
+            );
 
         return MAGIC_VALUE;
     }
@@ -329,7 +339,6 @@ contract BoringSwapper is Auth {
     // ========================================= ADMIN FUNCTIONS =========================================
 
     /// @notice Toggles the global pause state. When paused, all swaps and order submissions are blocked.
-    /// @param paused Whether to pause (true) or unpause (false).
     function setGlobalPaused(bool paused) external requiresAuth {
         globalPaused = paused;
 
@@ -337,8 +346,6 @@ contract BoringSwapper is Auth {
     }
 
     /// @notice Toggles the pause state for a specific protocol. When paused, swaps using this protocol are blocked.
-    /// @param protocolId The protocol identifier.
-    /// @param paused Whether to pause (true) or unpause (false).
     function setProtocolPaused(uint8 protocolId, bool paused) external requiresAuth {
         protocolPaused[protocolId] = paused;
 
@@ -346,15 +353,14 @@ contract BoringSwapper is Auth {
     }
 
     /// @notice Approves or revokes a token swap route and configures its slippage and rate limit.
-    /// @dev Setting toggle to false disables the route. Rate limit capacity/refillRate are in 18-decimal units.
-    ///      Setting rateLimitCapacity to 0 disables rate limiting for this route.
-    /// @param tokenIn The input token of the route.
-    /// @param tokenOut The output token of the route.
-    /// @param toggle Whether to approve (true) or revoke (false) the route.
-    /// @param maxSlippageBps The maximum allowed slippage in basis points.
-    /// @param rateLimitCapacity The max capacity of the rate limit bucket (18 decimals). 0 disables rate limiting.
-    /// @param rateLimitRefillRate The refill rate of the rate limit bucket in units per second (18 decimals).
-    function setApprovedRoute(ERC20 tokenIn, ERC20 tokenOut, bool toggle, uint256 maxSlippageBps, uint256 rateLimitCapacity, uint256 rateLimitRefillRate) external requiresAuth {
+    function setApprovedRoute(
+        ERC20 tokenIn,
+        ERC20 tokenOut,
+        bool toggle,
+        uint256 maxSlippageBps,
+        uint256 rateLimitCapacity,
+        uint256 rateLimitRefillRate
+    ) external requiresAuth {
         bytes32 key = getRouteId(tokenIn, tokenOut);
         approvedRoutes[key] = toggle;
         maxSlippageBpsPerRoute[key] = maxSlippageBps;
@@ -369,17 +375,12 @@ contract BoringSwapper is Auth {
     }
 
     /// @notice Updates the maximum slippage for a route without resetting its rate limit bucket.
-    /// @param routeId The route identifier (from getRouteId).
-    /// @param maxSlippageBps The new maximum allowed slippage in basis points.
     function setMaxSlippageBps(bytes32 routeId, uint256 maxSlippageBps) external requiresAuth {
         maxSlippageBpsPerRoute[routeId] = maxSlippageBps;
-
         emit MaxSlippageBpsUpdated(routeId, maxSlippageBps);
     }
 
     /// @notice Approves or revokes a swap protocol (e.g. UniswapV3, CoWSwap).
-    /// @param protocolId The protocol identifier.
-    /// @param toggle Whether to approve (true) or revoke (false) the protocol.
     function setApprovedProtocol(uint8 protocolId, bool toggle) external requiresAuth {
         approvedProtocols[protocolId] = toggle;
 
@@ -387,8 +388,6 @@ contract BoringSwapper is Auth {
     }
 
     /// @notice Sets the adapter version this swapper uses for a given protocol.
-    /// @param protocolId The protocol identifier.
-    /// @param version The adapter version to subscribe to.
     function addApprovedVersion(uint8 protocolId, uint256 version) external requiresAuth {
         versions[protocolId] = version;
 
@@ -396,7 +395,6 @@ contract BoringSwapper is Auth {
     }
 
     /// @notice Removes the adapter version subscription for a given protocol.
-    /// @param protocolId The protocol identifier.
     function removeApprovedVersion(uint8 protocolId) external requiresAuth {
         versions[protocolId] = 0;
 
@@ -404,15 +402,17 @@ contract BoringSwapper is Auth {
     }
 
     function setTokenOracle(ERC20 token, address quoteAsset, RateProviderConfig memory config) external requiresAuth {
-        baseAssetOracles[token][quoteAsset] = config;
+        _baseAssetOracles[token][quoteAsset] = config;
     }
 
-    function setBaseAssetOracle(ERC20 intermediary, address quoteAsset, address rateProvider) external requiresAuth {
-        oracles[intermediary][quoteAsset] = rateProvider;
+    function setBaseAssetOracle(ERC20 intermediary, address quoteAsset, address[] memory rateProviders)
+        external
+        requiresAuth
+    {
+        oracles[intermediary][quoteAsset] = rateProviders;
     }
 
     /// @notice Sets the price validator contract used for slippage checks.
-    /// @param newValidator The new price validator.
     function setPriceValidator(IPriceValidator newValidator) external requiresAuth {
         priceValidator = newValidator;
 
@@ -420,11 +420,6 @@ contract BoringSwapper is Auth {
     }
 
     /// @notice Updates the rate limit for a route without resetting the refill state.
-    /// @dev Refills the bucket before applying new parameters. If the new capacity is lower
-    ///      than the current remaining, remaining is capped to the new capacity.
-    /// @param routeId The route identifier (from getRouteId).
-    /// @param capacity The new max capacity (18 decimals). 0 disables rate limiting.
-    /// @param refillRate The new refill rate in units per second (18 decimals).
     function setRateLimit(bytes32 routeId, uint256 capacity, uint256 refillRate) external requiresAuth {
         RateLimit storage limit = rateLimitPerRoute[routeId];
         _refillBucket(limit);
@@ -436,8 +431,6 @@ contract BoringSwapper is Auth {
     }
 
     /// @notice Reclaims any token sitting on the swapper back to a vault.
-    /// @param token The token to sweep.
-    /// @param vault The vault to send the tokens to.
     function sweep(ERC20 token, BoringVault vault) external requiresAuth {
         uint256 balance = token.balanceOf(address(this));
         if (balance > 0) token.safeTransfer(address(vault), balance);
@@ -448,41 +441,37 @@ contract BoringSwapper is Auth {
     // ========================================= VIEW FUNCTIONS =========================================
 
     /// @notice Computes the deterministic route identifier for a directional token pair.
-    /// @dev Route IDs are directional: getRouteId(A, B) != getRouteId(B, A).
-    /// @param tokenIn The input token.
-    /// @param tokenOut The output token.
-    /// @return The keccak256 hash of the encoded token addresses.
     function getRouteId(ERC20 tokenIn, ERC20 tokenOut) public pure returns (bytes32) {
         return keccak256(abi.encode(address(tokenIn), address(tokenOut)));
     }
-    
-    function getBaseAssetOracle(ERC20 token, address quoteAsset) public view returns (address, address, bool) {
-        RateProviderConfig storage config = baseAssetOracles[token][quoteAsset];
+
+    function getBaseAssetOracle(ERC20 token, address quoteAsset)
+        public
+        view
+        returns (address[] memory, address[] memory, bool)
+    {
+        RateProviderConfig storage config = _baseAssetOracles[token][quoteAsset];
         return (config.rateProvider, config.intermediary, config.skipValidation);
     }
 
     // ========================================= INTERNAL FUNCTIONS =========================================
 
     /// @notice Reverts if the swapper is globally paused or the specific protocol is paused.
-    /// @param protocolId The protocol identifier to check.
     function _checkNotPaused(uint8 protocolId) internal view {
         if (globalPaused) revert BoringSwapper__Paused();
         if (protocolPaused[protocolId]) revert BoringSwapper__ProtocolPaused();
     }
 
     /// @notice Consumes from the rate limit bucket for a route, normalizing the amount to 18 decimals.
-    /// @dev Returns true immediately if the route's capacity is 0 (rate limiting disabled).
-    ///      Refills the bucket based on elapsed time before checking.
-    /// @param routeId The route identifier.
-    /// @param tokenIn The input token (used to read decimals for normalization).
-    /// @param amount The raw input amount in the token's native decimals.
-    /// @return True if the amount was successfully consumed, false if the bucket has insufficient remaining.
-    function _consumeRateLimit(bytes32 routeId, ERC20 tokenIn, uint256 amount) internal returns (bool) {
+    function _consumeRateLimit(bytes32 routeId, ERC20 tokenIn, uint256 amount)
+        internal
+        returns (bool)
+    {
         RateLimit storage limit = rateLimitPerRoute[routeId];
-        // if capacity is 0, rate limiting is disabled for this route
+        //if capacity is 0, rate limiting is disabled for this route
         if (limit.capacity == 0) return true;
         _refillBucket(limit);
-        // normalize amount to 18 decimals
+        //normalize amount to 18 decimals
         uint8 decimals = tokenIn.decimals();
         uint256 normalized = decimals < 18 ? amount * 10 ** (18 - decimals) : amount / 10 ** (decimals - 18);
         if (limit.remaining < normalized) return false;
@@ -491,8 +480,6 @@ contract BoringSwapper is Auth {
     }
 
     /// @notice Refills a rate limit bucket based on elapsed time since the last refill.
-    /// @dev Adds (elapsed seconds * refillRate) to remaining, capped at capacity.
-    /// @param limit The rate limit bucket to refill.
     function _refillBucket(RateLimit storage limit) internal {
         if (block.timestamp == limit.lastRefill) return;
         uint256 elapsed = block.timestamp - limit.lastRefill;

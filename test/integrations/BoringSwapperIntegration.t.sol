@@ -105,8 +105,8 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         ethRate = new MockRateProvider(2000e18);
         address usdQuoteAsset = getAddress(sourceChain, "USDC");
 
-        swapper.setTokenOracle(getERC20(sourceChain, "USDC"), usdQuoteAsset, BoringSwapper.RateProviderConfig(address(usdRate), address(0), false));
-        swapper.setTokenOracle(getERC20(sourceChain, "WETH"), usdQuoteAsset, BoringSwapper.RateProviderConfig(address(ethRate), address(0), false));
+        swapper.setTokenOracle(getERC20(sourceChain, "USDC"), usdQuoteAsset, _makeOracleConfig(address(usdRate), address(0), false));
+        swapper.setTokenOracle(getERC20(sourceChain, "WETH"), usdQuoteAsset, _makeOracleConfig(address(ethRate), address(0), false));
 
         //price validator setup
         validator = new PriceValidator();
@@ -683,5 +683,13 @@ contract BoringSwapperIntegration is BaseTestIntegration {
 
         assertEq(getERC20(sourceChain, "WETH").balanceOf(address(swapper)), 0);
         assertEq(getERC20(sourceChain, "WETH").balanceOf(vault), 95e18);
+    }
+
+    function _makeOracleConfig(address rateProvider, address intermediary, bool skipValidation) internal pure returns (BoringSwapper.RateProviderConfig memory) {
+        address[] memory rateProviders = new address[](1);
+        rateProviders[0] = rateProvider;
+        address[] memory intermediaries = new address[](1);
+        intermediaries[0] = intermediary;
+        return BoringSwapper.RateProviderConfig(rateProviders, intermediaries, skipValidation);
     }
 }

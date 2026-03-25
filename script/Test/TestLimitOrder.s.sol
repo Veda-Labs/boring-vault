@@ -41,7 +41,7 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
     address _boringVault = 0x0Fc760EEbEFbF5FE3B452A9a52325c4376FEADFA;
     address _manager = 0x1AE3346BC6d3267b860De524D5E38E19679A1DB0;
     address _accountant = 0xD1135B891143d3c5DfE158C6b4961937a27b8AE4;
-    address swapper = 0xbB11C5eBe2c672441Acc01B6a8756187A5cF9611;
+    address swapper = 0x43a604FfD354b08ff0631F9542B9803e882CB4FF;
     address _decoder = 0xBA7f9851a507A463d9D95dD5d119b03a81671efb;
 
     function setUp() public override {
@@ -157,21 +157,23 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
             "approve(address,uint256)", address(swapper), type(uint256).max
         );
 
-        // makerTraits: expiration in bits 80-119, NO_PARTIAL_FILLS at bit 255
-        uint256 expiration = block.timestamp + 3600;
-        uint256 makerTraits = (expiration << 80) | (uint256(1) << 255);
-        uint256 salt = uint256(keccak256(abi.encodePacked(block.timestamp, block.prevrandao)));
+        // Params from SDK generate step (includes fee extension)
+        uint256 salt = 77555234542998122317800678757108676946735340967750415210196209410355831553726;
+        uint256 makerTraits = 33471150795161712739625987854073848363835857087619537562360917799156848787456;
+        address feeTaker = 0xc0DFdB9E7a392c3dBBE7c6FBe8FBC1789C9FE05e;
+
+        bytes memory extension = hex"00000142000000ae000000ae000000ae000000ae000000570000000000000000c0dfdb9e7a392c3dbbe7c6fbe8fbc1789c9fe05e000000012c6406b09498030ae3416b66dc74db31d09524fa87b1f76ea9a11ae13b29f5c555d18bd45f0b94f54a968fc90ed87a54c23dc480b395770895ad27ad6b0d95c0dfdb9e7a392c3dbbe7c6fbe8fbc1789c9fe05e000000012c6406b09498030ae3416b66dc74db31d09524fa87b1f76ea9a11ae13b29f5c555d18bd45f0b94f54a968fc90ed87a54c23dc480b395770895ad27ad6b0d95c0dfdb9e7a392c3dbbe7c6fbe8fbc1789c9fe05e01000000000000000000000000000000000000000090cbe4bdd538d6e9b379bff5fe72c3d67a521de50fc760eebefbf5fe3b452a9a52325c4376feadfa000000012c6406b09498030ae3416b66dc74db31d09524fa87b1f76ea9a11ae13b29f5c555d18bd45f0b94f54a968fc90ed87a54c23dc480b395770895ad27ad6b0d95";
 
         bytes memory oneInchData = abi.encode(DecoderCustomTypes.OneInchLimitOrder({
             salt: salt,
             maker: address(swapper),
-            receiver: getAddress(sourceChain, "boringVault"),
+            receiver: feeTaker,
             makerAsset: getAddress(sourceChain, "WETH"),
             takerAsset: getAddress(sourceChain, "USDC"),
             makingAmount: 1e15,
             takingAmount: 2205e3,
             makerTraits: makerTraits
-        }));
+        }), extension);
 
         BoringSwapper.TokenRoute memory tokenRoute = BoringSwapper.TokenRoute(
             getERC20(sourceChain, "WETH"),
@@ -194,11 +196,6 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
 
         tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
         tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
-
-        console.log("=== 1inch order params (copy to JS script) ===");
-        console.log("expiration", expiration);
-        console.log("salt", salt);
-        console.log("makerTraits", makerTraits);
 
         _submitManagerCall(manageProofs, tx_);
 

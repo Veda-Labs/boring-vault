@@ -114,12 +114,12 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         steth_ethRate = new MockRateProvider(1.1e18); //in ETH
         address usdQuoteAsset = address(USDC);
 
-        swapper.setTokenOracle(WETH,  usdQuoteAsset, BoringSwapper.RateProviderConfig(address(wethRate), address(0),         false));
-        swapper.setTokenOracle(USDC,  usdQuoteAsset, BoringSwapper.RateProviderConfig(address(usdcRate), address(0),         false));
-        swapper.setTokenOracle(STETH, usdQuoteAsset, BoringSwapper.RateProviderConfig(address(steth_ethRate), address(WETH), false));
+        swapper.setTokenOracle(WETH,  usdQuoteAsset, _makeOracleConfig(address(wethRate), address(0), false));
+        swapper.setTokenOracle(USDC,  usdQuoteAsset, _makeOracleConfig(address(usdcRate), address(0), false));
+        swapper.setTokenOracle(STETH, usdQuoteAsset, _makeOracleConfig(address(steth_ethRate), address(WETH), false));
 
-        swapper.setBaseAssetOracle(WETH, usdQuoteAsset, address(wethRate));  
-        swapper.setBaseAssetOracle(USDC, usdQuoteAsset, address(usdcRate));  
+        swapper.setBaseAssetOracle(WETH, usdQuoteAsset, _toArray(address(wethRate)));
+        swapper.setBaseAssetOracle(USDC, usdQuoteAsset, _toArray(address(usdcRate)));  
 
         //price validator
         validator = new PriceValidator();
@@ -568,10 +568,10 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         address newOracle = address(0x69420);
         address quoteAsset = address(USDC);
 
-        swapper.setTokenOracle(WETH, quoteAsset, BoringSwapper.RateProviderConfig(newOracle, address(0), false));
-        (address rateProvider, address intermediary, bool skipValidation) = swapper.getBaseAssetOracle(WETH, quoteAsset);
-        assertEq(rateProvider, newOracle);
-        assertEq(intermediary, address(0));
+        swapper.setTokenOracle(WETH, quoteAsset, _makeOracleConfig(newOracle, address(0), false));
+        (address[] memory rateProviders, address[] memory intermediaries, bool skipValidation) = swapper.getBaseAssetOracle(WETH, quoteAsset);
+        assertEq(rateProviders[0], newOracle);
+        assertEq(intermediaries[0], address(0));
         assertEq(skipValidation, false);
     }
 
@@ -579,10 +579,10 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         address newOracle = address(0x69420); //steth/eth oracle
         address quoteAsset = address(USDC);
 
-        swapper.setTokenOracle(STETH, quoteAsset, BoringSwapper.RateProviderConfig(newOracle, address(WETH), false));
-        (address rateProvider, address intermediary, bool skipValidation) = swapper.getBaseAssetOracle(STETH, quoteAsset);
-        assertEq(rateProvider, newOracle);
-        assertEq(intermediary, address(WETH));
+        swapper.setTokenOracle(STETH, quoteAsset, _makeOracleConfig(newOracle, address(WETH), false));
+        (address[] memory rateProviders, address[] memory intermediaries, bool skipValidation) = swapper.getBaseAssetOracle(STETH, quoteAsset);
+        assertEq(rateProviders[0], newOracle);
+        assertEq(intermediaries[0], address(WETH));
         assertEq(skipValidation, false);
     }
 
@@ -590,8 +590,8 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         address newOracle = address(0x69420);
         address quoteAsset = address(USDC);
 
-        swapper.setBaseAssetOracle(WETH, quoteAsset, newOracle);
-        assertEq(swapper.oracles(WETH, quoteAsset), newOracle);
+        swapper.setBaseAssetOracle(WETH, quoteAsset, _toArray(newOracle));
+        assertEq(swapper.oracles(WETH, quoteAsset, 0), newOracle);
     }
 
     function testSetPriceValidator() external {
@@ -615,19 +615,19 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         address quoteAsset = address(USDC);
 
         //oracles were set in setUp via setTokenOracle
-        (address wethRateProvider, address wethIntermediary, bool wethSkip) = swapper.getBaseAssetOracle(WETH, quoteAsset);
-        assertEq(wethRateProvider, address(wethRate));
-        assertEq(wethIntermediary, address(0));
+        (address[] memory wethRateProviders, address[] memory wethIntermediaries, bool wethSkip) = swapper.getBaseAssetOracle(WETH, quoteAsset);
+        assertEq(wethRateProviders[0], address(wethRate));
+        assertEq(wethIntermediaries[0], address(0));
         assertEq(wethSkip, false);
 
-        (address usdcRateProvider, address usdcIntermediary, bool usdcSkip) = swapper.getBaseAssetOracle(USDC, quoteAsset);
-        assertEq(usdcRateProvider, address(usdcRate));
-        assertEq(usdcIntermediary, address(0));
+        (address[] memory usdcRateProviders, address[] memory usdcIntermediaries, bool usdcSkip) = swapper.getBaseAssetOracle(USDC, quoteAsset);
+        assertEq(usdcRateProviders[0], address(usdcRate));
+        assertEq(usdcIntermediaries[0], address(0));
         assertEq(usdcSkip, false);
 
-        //unregistered oracle returns zero address
-        (address emptyProvider,,) = swapper.getBaseAssetOracle(ERC20(address(0x420)), quoteAsset);
-        assertEq(emptyProvider, address(0));
+        //unregistered oracle returns empty arrays
+        (address[] memory emptyProviders,,) = swapper.getBaseAssetOracle(ERC20(address(0x420)), quoteAsset);
+        assertEq(emptyProviders.length, 0);
     }
 
     //==================== Price Validator ====================
@@ -666,8 +666,8 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(boringVault), 100e18);
         address usdQuoteAsset = address(USDC);
 
-        //overwrite any oracles 
-        swapper.setTokenOracle(WETH, usdQuoteAsset, BoringSwapper.RateProviderConfig(address(0), address(0), false)); //should not skip, should revert
+        //overwrite any oracles
+        swapper.setTokenOracle(WETH, usdQuoteAsset, _makeOracleConfig(address(0), address(0), false)); //should not skip, should revert
         (BoringSwapper.SwapConfig memory config,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 3600));
 
         vm.expectRevert(abi.encodeWithSelector(PriceValidator.PriceValidator__OracleNotConfigured.selector));
@@ -774,5 +774,19 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         deal(address(USDC), COW_SETTLEMENT, amountOut);
         vm.prank(COW_SETTLEMENT);
         USDC.transfer(address(boringVault), amountOut);
+    }
+
+    function _makeOracleConfig(address rateProvider, address intermediary, bool skipValidation) internal pure returns (BoringSwapper.RateProviderConfig memory) {
+        address[] memory rateProviders = new address[](1);
+        rateProviders[0] = rateProvider;
+        address[] memory intermediaries = new address[](1);
+        intermediaries[0] = intermediary;
+        return BoringSwapper.RateProviderConfig(rateProviders, intermediaries, skipValidation);
+    }
+
+    function _toArray(address addr) internal pure returns (address[] memory) {
+        address[] memory arr = new address[](1);
+        arr[0] = addr;
+        return arr;
     }
 }

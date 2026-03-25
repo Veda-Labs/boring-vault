@@ -14542,6 +14542,63 @@ function _addTellerLeafsWithReferral(
         }
     }
 
+    function _addBoringSwapperEOALeafs(
+        ManageLeaf[] memory leafs,
+        address partnerSwapperAddress,
+        address[] memory tokens
+        //SwapKind[] memory kind
+    ) internal {
+
+        for (uint256 i = 0; i < tokens.length; i++) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                tokens[i],
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve Swapper to spend", ERC20(tokens[i]).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = partnerSwapperAddress;
+            
+            for (uint256 j = 0; j < tokens.length; j++) {
+                if (tokens[i] == tokens[j]) continue; 
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    partnerSwapperAddress,
+                    false,
+                    "swap(((address,address),uint8,address,bytes,uint256,address))",
+                    new address[](3),
+                    string.concat("", ERC20(tokens[i]).symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = tokens[j];
+                leafs[leafIndex].argumentAddresses[1] = tokens[i];
+                leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    partnerSwapperAddress,
+                    false,
+                    "submitOrder(((address,address),uint8,address,bytes,uint256,address))",
+                    new address[](3),
+                    string.concat("", ERC20(tokens[i]).symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = tokens[j];
+                leafs[leafIndex].argumentAddresses[1] = tokens[i];
+                leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+
+            }
+        }
+    }
+
     // ========================================= Ambient =========================================
 
     /// @dev baseToken/quoteToken
