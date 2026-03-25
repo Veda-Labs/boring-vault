@@ -143,7 +143,7 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
         address to,
         ComplianceData calldata compliance
     ) internal {
-        if (complianceSigner == address(0)) return;
+        if (complianceSignerRole == type(uint8).max) return;
         bytes32 messageHash = keccak256(
             abi.encode(
                 address(this), block.chainid, depositor, address(depositAsset), depositAmount, to, compliance.deadline

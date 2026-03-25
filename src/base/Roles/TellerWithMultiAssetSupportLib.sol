@@ -11,6 +11,7 @@ import {IncentivePool} from "src/base/IncentivePool.sol";
 import {PrincipalCheckpoint, BufferHelpers, RewardData} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {SafeCast} from "@openzeppelin-contracts-5.3.0/utils/math/SafeCast.sol";
+import {RolesAuthority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {ECDSA} from "@openzeppelin-contracts-5.3.0/utils/cryptography/ECDSA.sol";
 import {MessageHashUtils} from "@openzeppelin-contracts-5.3.0/utils/cryptography/MessageHashUtils.sol";
 
@@ -24,9 +25,11 @@ library TellerWithMultiAssetSupportLib {
 
     /// @notice Verify and mark a compliance signature as used.
     /// @dev Uses DELEGATECALL context so storage pointers reference the calling contract's state.
+    ///      The recovered signer must hold `complianceSignerRole` in the given RolesAuthority.
     function verifyAndMark(
         mapping(bytes32 messageHash => bool used) storage usedComplianceSignatures,
-        address complianceSigner,
+        address authority,
+        uint8 complianceSignerRole,
         uint96 complianceWindow,
         bytes32 messageHash,
         uint256 deadline,
@@ -43,7 +46,9 @@ library TellerWithMultiAssetSupportLib {
         }
         bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
         address recovered = ECDSA.recover(ethSignedHash, signature);
-        if (recovered != complianceSigner) revert TellerWithMultiAssetSupport__ComplianceCheckFailed();
+        if (!RolesAuthority(authority).doesUserHaveRole(recovered, complianceSignerRole)) {
+            revert TellerWithMultiAssetSupport__ComplianceCheckFailed();
+        }
         usedComplianceSignatures[messageHash] = true;
     }
 

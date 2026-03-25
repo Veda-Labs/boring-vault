@@ -41,6 +41,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     uint8 public constant SOLVER_ROLE = 9;
     uint8 public constant QUEUE_ROLE = 10;
     uint8 public constant CAN_SOLVE_ROLE = 11;
+    uint8 public constant COMPLIANCE_SIGNER_ROLE = 224;
 
     TellerWithMultiAssetSupport public teller;
     AccountantWithRateProviders public accountant;
@@ -1024,7 +1025,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         address indexed referralAddress
     );
 
-    event ComplianceSignerSet(address indexed signer);
+    event ComplianceSignerRoleSet(uint8 role);
     event ComplianceWindowSet(uint96 window);
 
     function testDepositEmitsReadableReferralEvent() external {
@@ -1041,15 +1042,12 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
     // ======================================= COMPLIANCE TESTS =======================================
 
-    function testSetComplianceSigner() external {
-        uint256 signerKey = 0xBEEF;
-        address signer = vm.addr(signerKey);
-
+    function testSetComplianceSignerRole() external {
         vm.expectEmit();
-        emit ComplianceSignerSet(signer);
-        teller.setComplianceSigner(signer);
+        emit ComplianceSignerRoleSet(COMPLIANCE_SIGNER_ROLE);
+        teller.setComplianceSignerRole(COMPLIANCE_SIGNER_ROLE);
 
-        assertEq(teller.complianceSigner(), signer, "Compliance signer should be set");
+        assertEq(teller.complianceSignerRole(), COMPLIANCE_SIGNER_ROLE, "Compliance signer role should be set");
     }
 
     function testSetComplianceWindow() external {
@@ -1065,7 +1063,8 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     function testDepositWithComplianceSignature() external {
         uint256 signerKey = 0xBEEF;
         address signer = vm.addr(signerKey);
-        teller.setComplianceSigner(signer);
+        rolesAuthority.setUserRole(signer, COMPLIANCE_SIGNER_ROLE, true);
+        teller.setComplianceSignerRole(COMPLIANCE_SIGNER_ROLE);
 
         uint256 depositAmount = 1e18;
         deal(address(WETH), address(this), depositAmount);
@@ -1092,7 +1091,8 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     function testComplianceSignatureReplayReverts() external {
         uint256 signerKey = 0xBEEF;
         address signer = vm.addr(signerKey);
-        teller.setComplianceSigner(signer);
+        rolesAuthority.setUserRole(signer, COMPLIANCE_SIGNER_ROLE, true);
+        teller.setComplianceSignerRole(COMPLIANCE_SIGNER_ROLE);
 
         uint256 depositAmount = 1e18;
         deal(address(WETH), address(this), 2 * depositAmount);
@@ -1127,7 +1127,8 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     function testComplianceSignatureExpiredReverts() external {
         uint256 signerKey = 0xBEEF;
         address signer = vm.addr(signerKey);
-        teller.setComplianceSigner(signer);
+        rolesAuthority.setUserRole(signer, COMPLIANCE_SIGNER_ROLE, true);
+        teller.setComplianceSignerRole(COMPLIANCE_SIGNER_ROLE);
 
         uint256 depositAmount = 1e18;
         deal(address(WETH), address(this), depositAmount);
@@ -1157,7 +1158,8 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     function testComplianceWindowExceededReverts() external {
         uint256 signerKey = 0xBEEF;
         address signer = vm.addr(signerKey);
-        teller.setComplianceSigner(signer);
+        rolesAuthority.setUserRole(signer, COMPLIANCE_SIGNER_ROLE, true);
+        teller.setComplianceSignerRole(COMPLIANCE_SIGNER_ROLE);
 
         // Set a 1-hour compliance window (relative duration, not absolute timestamp).
         uint96 window = 1 hours;
@@ -1194,7 +1196,8 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         // deadlines up to block.timestamp + 604800, NOT treat 604800 as a Unix timestamp.
         uint256 signerKey = 0xBEEF;
         address signer = vm.addr(signerKey);
-        teller.setComplianceSigner(signer);
+        rolesAuthority.setUserRole(signer, COMPLIANCE_SIGNER_ROLE, true);
+        teller.setComplianceSignerRole(COMPLIANCE_SIGNER_ROLE);
 
         uint96 sevenDays = 7 days;
         teller.setComplianceWindow(sevenDays);
@@ -1228,7 +1231,8 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         // means "deadline must be within 1 hour of now", which works correctly.
         uint256 signerKey = 0xBEEF;
         address signer = vm.addr(signerKey);
-        teller.setComplianceSigner(signer);
+        rolesAuthority.setUserRole(signer, COMPLIANCE_SIGNER_ROLE, true);
+        teller.setComplianceSignerRole(COMPLIANCE_SIGNER_ROLE);
 
         uint96 oneHour = 1 hours;
         teller.setComplianceWindow(oneHour);
@@ -1254,15 +1258,15 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         );
     }
 
-    function testComplianceDisabledWhenSignerIsZero() external {
-        // complianceSigner is address(0) by default, so compliance is disabled.
-        assertEq(teller.complianceSigner(), address(0), "Compliance signer should be zero by default");
+    function testComplianceDisabledByDefault() external {
+        // complianceSignerRole is type(uint8).max (255) by default, so compliance is disabled.
+        assertEq(teller.complianceSignerRole(), type(uint8).max, "Compliance signer role should be max by default");
 
         uint256 depositAmount = 1e18;
         deal(address(WETH), address(this), depositAmount);
         WETH.safeApprove(address(boringVault), depositAmount);
 
-        // Deposit with empty compliance data succeeds when signer is zero.
+        // Deposit with empty compliance data succeeds when compliance is disabled.
         uint256 shares =
             teller.deposit(DepositParams(WETH, depositAmount, 0, address(this)), referrer, ComplianceData(0, ""));
         assertEq(shares, depositAmount, "Should have received expected shares with compliance disabled");
@@ -1273,7 +1277,8 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         // even when depositing to the same recipient with the same parameters.
         uint256 signerKey = 0xBEEF;
         address signer = vm.addr(signerKey);
-        teller.setComplianceSigner(signer);
+        rolesAuthority.setUserRole(signer, COMPLIANCE_SIGNER_ROLE, true);
+        teller.setComplianceSignerRole(COMPLIANCE_SIGNER_ROLE);
 
         address alice = vm.addr(0xA11CE);
         address bob = vm.addr(0xB0B);
@@ -1335,7 +1340,8 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         // Even with identical deposit parameters, different msg.senders produce different hashes
         // so their signatures are non-interchangeable.
         uint256 signerKey = 0xBEEF;
-        teller.setComplianceSigner(vm.addr(signerKey));
+        rolesAuthority.setUserRole(vm.addr(signerKey), COMPLIANCE_SIGNER_ROLE, true);
+        teller.setComplianceSignerRole(COMPLIANCE_SIGNER_ROLE);
 
         address alice = vm.addr(0xA11CE);
         address bob = vm.addr(0xB0B);
@@ -1360,6 +1366,83 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         WETH.safeApprove(address(boringVault), depositAmount);
         teller.deposit(DepositParams(WETH, depositAmount, 0, recipient), referrer, ComplianceData(deadline, bobSig));
         vm.stopPrank();
+    }
+
+    function testComplianceSignerWithoutRoleReverts() external {
+        uint256 signerKey = 0xBEEF;
+        // Enable compliance but do NOT grant the role to the signer.
+        teller.setComplianceSignerRole(COMPLIANCE_SIGNER_ROLE);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), address(this), depositAmount);
+        WETH.safeApprove(address(boringVault), depositAmount);
+
+        uint256 deadline = block.timestamp + 1 hours;
+        bytes memory sig = _signComplianceDeposit(signerKey, address(this), address(this), depositAmount, deadline);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TellerWithMultiAssetSupportLib.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
+            )
+        );
+        teller.deposit(DepositParams(WETH, depositAmount, 0, address(this)), referrer, ComplianceData(deadline, sig));
+    }
+
+    function testComplianceRoleRevocationBlocksSignatures() external {
+        uint256 signerKey = 0xBEEF;
+        address signer = vm.addr(signerKey);
+        rolesAuthority.setUserRole(signer, COMPLIANCE_SIGNER_ROLE, true);
+        teller.setComplianceSignerRole(COMPLIANCE_SIGNER_ROLE);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), address(this), 2 * depositAmount);
+        WETH.safeApprove(address(boringVault), 2 * depositAmount);
+
+        uint256 deadline = block.timestamp + 1 hours;
+        bytes memory sig = _signComplianceDeposit(signerKey, address(this), address(this), depositAmount, deadline);
+
+        // Deposit succeeds while signer holds the role.
+        teller.deposit(DepositParams(WETH, depositAmount, 0, address(this)), referrer, ComplianceData(deadline, sig));
+
+        // Revoke the role.
+        rolesAuthority.setUserRole(signer, COMPLIANCE_SIGNER_ROLE, false);
+
+        // New signature from the same key now fails.
+        uint256 deadline2 = block.timestamp + 2 hours;
+        bytes memory sig2 = _signComplianceDeposit(signerKey, address(this), address(this), depositAmount, deadline2);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TellerWithMultiAssetSupportLib.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
+            )
+        );
+        teller.deposit(DepositParams(WETH, depositAmount, 0, address(this)), referrer, ComplianceData(deadline2, sig2));
+    }
+
+    function testComplianceMultipleSigners() external {
+        uint256 signerKeyA = 0xBEEF;
+        uint256 signerKeyB = 0xCAFE;
+        address signerA = vm.addr(signerKeyA);
+        address signerB = vm.addr(signerKeyB);
+
+        rolesAuthority.setUserRole(signerA, COMPLIANCE_SIGNER_ROLE, true);
+        rolesAuthority.setUserRole(signerB, COMPLIANCE_SIGNER_ROLE, true);
+        teller.setComplianceSignerRole(COMPLIANCE_SIGNER_ROLE);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), address(this), 2 * depositAmount);
+        WETH.safeApprove(address(boringVault), 2 * depositAmount);
+
+        uint256 deadline = block.timestamp + 1 hours;
+
+        // Deposit signed by signer A.
+        bytes memory sigA = _signComplianceDeposit(signerKeyA, address(this), address(this), depositAmount, deadline);
+        teller.deposit(DepositParams(WETH, depositAmount, 0, address(this)), referrer, ComplianceData(deadline, sigA));
+
+        // Deposit signed by signer B (different deadline to avoid replay).
+        uint256 deadline2 = block.timestamp + 2 hours;
+        bytes memory sigB = _signComplianceDeposit(signerKeyB, address(this), address(this), depositAmount, deadline2);
+        teller.deposit(DepositParams(WETH, depositAmount, 0, address(this)), referrer, ComplianceData(deadline2, sigB));
     }
 
     // ========================================= TRANSFER ALLOWLIST TESTS =========================================

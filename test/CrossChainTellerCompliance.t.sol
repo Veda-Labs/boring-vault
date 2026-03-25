@@ -50,6 +50,7 @@ contract CrossChainTellerComplianceTest is Test, MerkleTreeHelper {
 
     uint8 public constant MINTER_ROLE = 7;
     uint8 public constant BURNER_ROLE = 8;
+    uint8 public constant COMPLIANCE_SIGNER_ROLE = 224;
 
     MockCrossChainTeller public teller;
     AccountantWithRateProviders public accountant;
@@ -105,7 +106,8 @@ contract CrossChainTellerComplianceTest is Test, MerkleTreeHelper {
 
         teller.updateAssetData(WETH, true, true, 0);
 
-        teller.setComplianceSigner(signer);
+        rolesAuthority.setUserRole(signer, COMPLIANCE_SIGNER_ROLE, true);
+        teller.setComplianceSignerRole(COMPLIANCE_SIGNER_ROLE);
     }
 
     // ========================================= HELPERS =========================================

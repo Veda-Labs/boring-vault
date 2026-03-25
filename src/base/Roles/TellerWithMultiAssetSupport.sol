@@ -150,10 +150,11 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     mapping(address => bool) public allowedIncentivePools;
 
     /**
-     * @notice The address that must sign compliance approvals for deposits.
-     * @dev If set to address(0), compliance verification is skipped (backward-compatible default).
+     * @notice Role ID that must be held by the compliance signer.
+     * @dev When set to type(uint8).max (255), compliance verification is skipped (default).
+     *      Any other value enables checks; the recovered signer must hold that role.
      */
-    address public complianceSigner;
+    uint8 public complianceSignerRole = type(uint8).max;
 
     /**
      * @notice Maximum duration (in seconds) into the future that a compliance signature deadline may extend.
@@ -218,7 +219,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     event Withdraw(address indexed asset, uint256 shareAmount);
     event DepositRefunded(uint256 indexed nonce, bytes32 depositHash, address indexed user);
     event DepositCapSet(uint112 cap);
-    event ComplianceSignerSet(address indexed signer);
+    event ComplianceSignerRoleSet(uint8 role);
     event ComplianceWindowSet(uint96 window);
     event AssetDataUpdated(address indexed asset, bool allowDeposits, bool allowWithdraws, uint16 sharePremium);
     event DenyFrom(address indexed user);
@@ -405,9 +406,10 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     }
 
     /**
-     * @notice Restrict share transfers so that either `from` or `to` must hold the given role.
-     * @dev Set to type(uint8).max to allow unrestricted transfers (default).
-     * @param _transferAllowedRole The role ID required for at least one side of a transfer.
+     * @notice Restrict share transfers so that either `from`, `to`, or `operator` must hold the given role.
+     * @dev Set to type(uint8).max (255) to disable transfer restrictions (default).
+     *      Any other value restricts transfers so that at least one participant must hold that role.
+     * @param _transferAllowedRole The role ID required for at least one side of a transfer, or 255 to disable.
      */
     function setTransferAllowedRole(uint8 _transferAllowedRole) external requiresAuth {
         transferAllowedRole = _transferAllowedRole;
@@ -488,15 +490,14 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     }
 
     /**
-     * @notice Sets the compliance signer address for deposit verification.
-     * @dev Set to address(0) to disable compliance checks (default).
-     *      When rotating keys, do not reuse a previously active signer address.
-     *      Reusing a retired key would re-enable any unexpired signatures issued under that key.
-     * @param _complianceSigner The address of the compliance signer.
+     * @notice Sets the compliance signer role for deposit verification.
+     * @dev Set to type(uint8).max (255) to disable compliance checks (default).
+     *      Any other value enables checks; the recovered signer must hold that role in the RolesAuthority.
+     * @param _complianceSignerRole The role ID required for compliance signers, or 255 to disable.
      */
-    function setComplianceSigner(address _complianceSigner) external requiresAuth {
-        complianceSigner = _complianceSigner;
-        emit ComplianceSignerSet(_complianceSigner);
+    function setComplianceSignerRole(uint8 _complianceSignerRole) external requiresAuth {
+        complianceSignerRole = _complianceSignerRole;
+        emit ComplianceSignerRoleSet(_complianceSignerRole);
     }
 
     /**
@@ -819,7 +820,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     }
 
     /**
-     * @notice Verify compliance signature for a deposit if complianceSigner is set.
+     * @notice Verify compliance signature for a deposit if complianceSignerRole is set.
      * @dev The depositAsset passed here must be the actual ERC20 token entering the vault.
      *      For native ETH deposits via deposit(), this means the nativeWrapper address,
      *      not the NATIVE sentinel, since conversion happens before this call.
@@ -830,7 +831,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         uint256 depositAmount,
         ComplianceData calldata compliance
     ) internal {
-        if (complianceSigner == address(0)) return;
+        if (complianceSignerRole == type(uint8).max) return;
         bytes32 messageHash = keccak256(
             abi.encode(
                 address(this),
@@ -847,7 +848,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
 
     /**
      * @notice Verify bridge compliance: builds the bridge message hash, then verifies and marks the signature.
-     * @dev Handles the complianceSigner == address(0) early return internally.
+     * @dev Skipped when complianceCheckEnabled is false.
      */
     function _verifyBridgeCompliance(
         address sender,
@@ -856,7 +857,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         uint256 deadline,
         bytes calldata signature
     ) internal {
-        if (complianceSigner == address(0)) return;
+        if (complianceSignerRole == type(uint8).max) return;
         bytes32 messageHash = keccak256(abi.encode(address(this), block.chainid, sender, shareAmount, to, deadline));
         _verifyAndMark(messageHash, deadline, signature);
     }
@@ -868,7 +869,13 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      */
     function _verifyAndMark(bytes32 messageHash, uint256 deadline, bytes calldata signature) internal {
         TellerWithMultiAssetSupportLib.verifyAndMark(
-            usedComplianceSignatures, complianceSigner, complianceWindow, messageHash, deadline, signature
+            usedComplianceSignatures,
+            address(authority),
+            complianceSignerRole,
+            complianceWindow,
+            messageHash,
+            deadline,
+            signature
         );
     }
 
