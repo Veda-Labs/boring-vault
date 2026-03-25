@@ -115,10 +115,11 @@ abstract contract RewardRoutingPositiveBase is Test {
         rolesAuthority.setRoleCapability(TELLER_ROLE, address(pool), IncentivePool.processRewards.selector, true);
         rolesAuthority.setUserRole(address(teller), TELLER_ROLE, true);
 
+        teller.setIncentivePoolAllowed(address(pool), true);
+
         pool.setRewardSigner(signer);
         pool.setMaximumRewardAmountPerClaim(uint96(1_000 * rewardUnit));
         pool.setMaxDeadline(1 days);
-        pool.setTotalRewardCap(uint104(1_000_000 * rewardUnit));
         MockERC20Positive(address(rewardToken)).mint(address(pool), 1_000_000 * rewardUnit);
 
         teller.updateAssetData(ERC20(address(usdc)), true, true, 0);
@@ -493,33 +494,6 @@ abstract contract RewardRoutingPositiveBase is Test {
         assertEq(rewardToken.balanceOf(user), 100 * rewardUnit);
     }
 
-    // ========================= cap raised =========================
-
-    function test_claimRewards_capRaisedAllowsMoreClaims() external {
-        pool.setTotalRewardCap(uint104(100 * rewardUnit));
-
-        uint256 deadline = block.timestamp + 1 hours;
-
-        // Claim up to cap
-        bytes memory sig1 = _sign(address(pool), user, 100 * rewardUnit, deadline);
-        RewardData[] memory r1 = new RewardData[](1);
-        r1[0] = RewardData(address(pool), 100 * rewardUnit, deadline, sig1);
-        vm.prank(user);
-        teller.claimRewards(r1);
-        assertEq(rewardToken.balanceOf(user), 100 * rewardUnit);
-
-        // Raise cap
-        pool.setTotalRewardCap(uint104(500 * rewardUnit));
-
-        // Now can claim more
-        bytes memory sig2 = _sign(address(pool), user, 300 * rewardUnit, deadline);
-        RewardData[] memory r2 = new RewardData[](1);
-        r2[0] = RewardData(address(pool), 300 * rewardUnit, deadline, sig2);
-        vm.prank(user);
-        teller.claimRewards(r2);
-        assertEq(rewardToken.balanceOf(user), 300 * rewardUnit);
-    }
-
     // ========================= deadline boundary =========================
 
     function test_claimRewards_deadlineAtExactBoundary() external {
@@ -567,12 +541,12 @@ abstract contract RewardRoutingPositiveBase is Test {
         p.setRewardSigner(signer);
         p.setMaximumRewardAmountPerClaim(uint96(1_000 * rewardUnit));
         p.setMaxDeadline(1 days);
-        p.setTotalRewardCap(uint104(1_000_000 * rewardUnit));
         MockERC20Positive(address(token)).mint(address(p), 1_000_000 * rewardUnit);
     }
 
     function _createAndEnablePool(ERC20 token) internal returns (IncentivePool p) {
         p = _createPool(token);
+        teller.setIncentivePoolAllowed(address(p), true);
     }
 
     function _sign(address poolAddr, address recipient, uint256 cumulativeOwed, uint256 deadline)

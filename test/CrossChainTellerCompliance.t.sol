@@ -239,7 +239,7 @@ contract CrossChainTellerComplianceTest is Test, MerkleTreeHelper {
         vm.stopPrank();
 
         // depositAndBridge creates: 1 deposit checkpoint + 1 bridge withdrawal checkpoint
-        PrincipalCheckpoint[] memory history = teller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory history,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         assertEq(history.length, 2, "deposit + bridge withdrawal checkpoints");
         assertEq(history[0].cumulativeDeposits, uint104(amount), "deposit checkpoint recorded");
         assertEq(history[0].cumulativeWithdrawals, 0, "no withdrawals after deposit phase");

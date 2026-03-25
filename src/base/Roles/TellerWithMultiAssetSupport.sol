@@ -145,6 +145,11 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     mapping(ERC20 => mapping(IBufferHelper => bool)) public allowedBufferHelpers;
 
     /**
+     * @notice Maps incentive pool addresses to their allowed status.
+     */
+    mapping(address => bool) public allowedIncentivePools;
+
+    /**
      * @notice The address that must sign compliance approvals for deposits.
      * @dev If set to address(0), compliance verification is skipped (backward-compatible default).
      */
@@ -194,7 +199,6 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     error TellerWithMultiAssetSupport__SharePremiumTooLarge();
     error TellerWithMultiAssetSupport__BufferHelperNotAllowed(ERC20 asset, IBufferHelper bufferHelper);
     error TellerWithMultiAssetSupport__TransferNotAllowed();
-
     //============================== EVENTS ===============================
 
     event Paused();
@@ -227,6 +231,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     event WithdrawBufferHelperSet(ERC20 indexed asset, IBufferHelper indexed newWithdrawBufferHelper);
     event BufferHelperAllowed(ERC20 indexed asset, IBufferHelper indexed bufferHelper);
     event BufferHelperDisallowed(ERC20 indexed asset, IBufferHelper indexed bufferHelper);
+    event IncentivePoolAllowedSet(address indexed pool, bool allowed);
     event TransferAllowedRoleSet(uint8 role);
 
     //============================== IMMUTABLES ===============================
@@ -470,6 +475,16 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         }
 
         emit BufferHelperDisallowed(_asset, _bufferHelper);
+    }
+
+    /**
+     * @notice Sets whether an incentive pool is allowed to be called during reward processing.
+     * @param _pool The incentive pool contract address.
+     * @param _allowed Whether the pool should be allowed.
+     */
+    function setIncentivePoolAllowed(address _pool, bool _allowed) external requiresAuth {
+        allowedIncentivePools[_pool] = _allowed;
+        emit IncentivePoolAllowedSet(_pool, _allowed);
     }
 
     /**
@@ -959,10 +974,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @param user The user to process rewards for.
      */
     function _processRewards(RewardData[] calldata rewards, address user) internal {
-        for (uint256 i; i < rewards.length; ++i) {
-            IncentivePool(rewards[i].pool)
-                .processRewards(user, rewards[i].cumulativeOwed, rewards[i].deadline, rewards[i].signature);
-        }
+        TellerWithMultiAssetSupportLib.processRewards(allowedIncentivePools, rewards, user);
     }
 
     /**
@@ -990,10 +1002,26 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     // ========================================= VIEW FUNCTIONS =========================================
 
     /**
-     * @notice Returns the full principal checkpoint history for a user.
+     * @notice Returns a paginated slice of a user's principal checkpoint history.
+     * @param user The address of the user.
+     * @param startIndex The starting index (inclusive).
+     * @param length The maximum number of checkpoints to return.
+     * @return checkpoints The principal checkpoints in the requested range.
+     * @return totalLength The total number of checkpoints for this user.
      */
-    function getPrincipalHistory(address user) external view returns (PrincipalCheckpoint[] memory) {
-        return _principalHistory[user];
+    function getPrincipalHistoryPaginated(address user, uint256 startIndex, uint256 length)
+        external
+        view
+        returns (PrincipalCheckpoint[] memory checkpoints, uint256 totalLength)
+    {
+        totalLength = _principalHistory[user].length;
+        if (startIndex >= totalLength) return (checkpoints, totalLength);
+        if (startIndex + length > totalLength) length = totalLength - startIndex;
+
+        checkpoints = new PrincipalCheckpoint[](length);
+        for (uint256 i; i < length; ++i) {
+            checkpoints[i] = _principalHistory[user][startIndex + i];
+        }
     }
 
     /**

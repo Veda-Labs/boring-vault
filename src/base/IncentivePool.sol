@@ -24,7 +24,6 @@ contract IncentivePool is Auth {
     event RewardsProcessed(address indexed rewardsRecipient, uint256 amountClaimed);
     event MaximumRewardAmountPerClaimSet(uint256 maxRewardAmount);
     event MaxDeadlineSet(uint256 maxDeadline);
-    event TotalRewardCapSet(uint256 totalRewardCap);
     event FundsRescued(address indexed token, address indexed to, uint256 amount);
 
     /// @notice The reward token
@@ -40,11 +39,9 @@ contract IncentivePool is Auth {
     ///         is valid only while `block.timestamp <= deadline <= block.timestamp + maxDeadline`.
     ///         Lower values force more frequent re-signing; higher values give users more time to
     ///         submit but extend the replay window of each signature.
-    uint32 public maxDeadline; // Packed: maxDeadline (4) + secondsBetweenClaims (4) + totalRewardCap (13) = 21 bytes
+    uint32 public maxDeadline; // Packed: maxDeadline (4) + secondsBetweenClaims (4) = 8 bytes
     /// @notice The rate limit between claims
     uint32 public secondsBetweenClaims;
-    /// @notice The maximum total rewards a single user can ever claim
-    uint104 public totalRewardCap;
 
     /// @notice A struct to store the claim checkpoint (packed into 1 slot: 48 + 208 = 256)
     struct ClaimCheckpoint {
@@ -113,16 +110,6 @@ contract IncentivePool is Auth {
     }
 
     /**
-     * @notice Sets the maximum total rewards a single user can ever claim
-     * @param newTotalRewardCap The new total reward cap per user
-     * @dev Callable by OWNER_ROLE. Set to 0 to disable withdrawal of rewards.
-     */
-    function setTotalRewardCap(uint104 newTotalRewardCap) external requiresAuth {
-        totalRewardCap = newTotalRewardCap;
-        emit TotalRewardCapSet(newTotalRewardCap);
-    }
-
-    /**
      * @notice Rescues funds from the contract
      * @param token The token to rescue
      * @param to The address to send the funds to
@@ -150,9 +137,8 @@ contract IncentivePool is Auth {
         uint256 deadline,
         bytes calldata signature
     ) external requiresAuth returns (uint256) {
-        uint256 totalRewardCapMemory = totalRewardCap;
         uint256 maximumRewardAmountPerClaimMemory = maximumRewardAmountPerClaim;
-        if (totalRewardCapMemory == 0 || maximumRewardAmountPerClaimMemory == 0) return 0;
+        if (maximumRewardAmountPerClaimMemory == 0) return 0;
         if (block.timestamp > deadline) return 0;
         if (deadline > block.timestamp + maxDeadline) return 0;
 
@@ -161,11 +147,10 @@ contract IncentivePool is Auth {
 
         if (!_checkSignature(rewardsRecipient, cumulativeOwed, deadline, signature)) return 0;
 
-        uint256 amountToSend = _calculateAmountToSend(
-            totalClaimed, cumulativeOwed, maximumRewardAmountPerClaimMemory, totalRewardCapMemory
-        );
+        uint256 amountToSend = _calculateAmountToSend(totalClaimed, cumulativeOwed, maximumRewardAmountPerClaimMemory);
 
         if (amountToSend == 0) return 0;
+        if (REWARD_TOKEN.balanceOf(address(this)) < amountToSend) return 0;
 
         _claimHistory[rewardsRecipient].push(
             ClaimCheckpoint({
@@ -180,28 +165,17 @@ contract IncentivePool is Auth {
         return amountToSend;
     }
 
-    function _calculateAmountToSend(
-        uint256 totalClaimed,
-        uint256 cumulativeOwed,
-        uint256 _maximumRewardAmountPerClaim,
-        uint256 _totalRewardCap
-    ) internal pure returns (uint256 amountToSend) {
+    function _calculateAmountToSend(uint256 totalClaimed, uint256 cumulativeOwed, uint256 _maximumRewardAmountPerClaim)
+        internal
+        pure
+        returns (uint256 amountToSend)
+    {
         // No-op if nothing to claim (allows withdrawWithRewards to succeed even without pending rewards)
         if (cumulativeOwed <= totalClaimed) return 0;
         amountToSend = cumulativeOwed - totalClaimed;
         // Cap the amount to the maximum reward amount per claim
         if (amountToSend > _maximumRewardAmountPerClaim) {
             amountToSend = _maximumRewardAmountPerClaim;
-        }
-
-        // Recalculate amountToSend based on the total reward cap defined by the owner of the smart contract
-        if (totalClaimed < _totalRewardCap) {
-            uint256 remainingCap = _totalRewardCap - totalClaimed;
-            if (amountToSend > remainingCap) {
-                amountToSend = remainingCap;
-            }
-        } else {
-            return 0;
         }
     }
 
@@ -254,25 +228,24 @@ contract IncentivePool is Auth {
     }
 
     /**
-     * @notice Returns a paginated slice of a user's claim history
-     * @param user The address of the user
-     * @param startIndex The starting index (inclusive)
-     * @param endIndex The ending index (exclusive)
-     * @return checkpoints The claim checkpoints in the requested range
-     * @return totalLength The total number of checkpoints for this user
+     * @notice Returns a paginated slice of a user's claim history.
+     * @param user The address of the user.
+     * @param startIndex The starting index (inclusive).
+     * @param length The maximum number of checkpoints to return.
+     * @return checkpoints The claim checkpoints in the requested range.
+     * @return totalLength The total number of checkpoints for this user.
      */
-    function getClaimHistoryPaginated(address user, uint256 startIndex, uint256 endIndex)
+    function getClaimHistoryPaginated(address user, uint256 startIndex, uint256 length)
         external
         view
         returns (ClaimCheckpoint[] memory checkpoints, uint256 totalLength)
     {
         totalLength = _claimHistory[user].length;
         if (startIndex >= totalLength) return (checkpoints, totalLength);
-        if (endIndex > totalLength) endIndex = totalLength;
+        if (startIndex + length > totalLength) length = totalLength - startIndex;
 
-        uint256 count = endIndex - startIndex;
-        checkpoints = new ClaimCheckpoint[](count);
-        for (uint256 i; i < count; ++i) {
+        checkpoints = new ClaimCheckpoint[](length);
+        for (uint256 i; i < length; ++i) {
             checkpoints[i] = _claimHistory[user][startIndex + i];
         }
     }

@@ -27,7 +27,6 @@ contract IncentivePoolTest is Test {
     event RewardsProcessed(address indexed rewardsRecipient, uint256 amountClaimed);
     event MaximumRewardAmountPerClaimSet(uint256 maxRewardAmount);
     event MaxDeadlineSet(uint256 maxDeadline);
-    event TotalRewardCapSet(uint256 totalRewardCap);
     event SecondsBetweenClaimsSet(uint256 secondsBetweenClaims);
     event FundsRescued(address indexed token, address indexed to, uint256 amount);
     IncentivePool public pool;
@@ -57,7 +56,6 @@ contract IncentivePoolTest is Test {
         pool.setRewardSigner(signer);
         pool.setMaximumRewardAmountPerClaim(1_000e18);
         pool.setMaxDeadline(1 days);
-        pool.setTotalRewardCap(1_000_000e18);
 
         // Fund pool with reward tokens
         rewardToken.mint(address(pool), 1_000_000e18);
@@ -162,23 +160,6 @@ contract IncentivePoolTest is Test {
         vm.prank(user);
         vm.expectRevert("UNAUTHORIZED");
         pool.setSecondsBetweenClaims(1 hours);
-    }
-
-    // ========================= SET TOTAL REWARD CAP =========================
-
-    function test_setTotalRewardCap() external {
-        vm.expectEmit(false, false, false, true, address(pool));
-        emit TotalRewardCapSet(500_000e18);
-
-        pool.setTotalRewardCap(500_000e18);
-
-        assertEq(pool.totalRewardCap(), 500_000e18);
-    }
-
-    function test_setTotalRewardCap_revertsUnauthorized() external {
-        vm.prank(user);
-        vm.expectRevert("UNAUTHORIZED");
-        pool.setTotalRewardCap(500_000e18);
     }
 
     // ========================= PROCESS REWARDS =========================
@@ -318,7 +299,6 @@ contract IncentivePoolTest is Test {
         pool2.setRewardSigner(signer);
         pool2.setMaximumRewardAmountPerClaim(1_000e18);
         pool2.setMaxDeadline(1 days);
-        pool2.setTotalRewardCap(1_000_000e18);
         rewardToken.mint(address(pool2), 1_000_000e18);
 
         // Signature bound to pool1's address
@@ -453,20 +433,6 @@ contract IncentivePoolTest is Test {
         assertEq(result, 0, "should no-op");
     }
 
-    // ========================= TOTAL REWARD CAP =========================
-
-    function test_processRewards_revertsRewardsDisabledZeroCap() external {
-        pool.setTotalRewardCap(0);
-
-        uint256 deadline = block.timestamp + 1 hours;
-        bytes memory sig = _sign(user, 100e18, deadline);
-
-        vm.prank(teller);
-        // No-op: returns 0 instead of reverting when rewards are disabled
-        uint256 result = pool.processRewards(user, 100e18, deadline, sig);
-        assertEq(result, 0, "should no-op");
-    }
-
     function test_processRewards_revertsRewardsDisabledZeroMaxPerClaim() external {
         pool.setMaximumRewardAmountPerClaim(0);
 
@@ -477,56 +443,6 @@ contract IncentivePoolTest is Test {
         // No-op: returns 0 instead of reverting when rewards are disabled
         uint256 result = pool.processRewards(user, 100e18, deadline, sig);
         assertEq(result, 0, "should no-op");
-    }
-
-    function test_processRewards_partialClaimNearCap() external {
-        pool.setTotalRewardCap(150e18);
-
-        // First claim: 100 cumulative, under cap
-        uint256 deadline1 = block.timestamp + 1 hours;
-        bytes memory sig1 = _sign(user, 100e18, deadline1);
-        vm.prank(teller);
-        pool.processRewards(user, 100e18, deadline1, sig1);
-
-        // Second claim: 200 cumulative, but cap is 150 -> delta clamped to 50
-        vm.warp(block.timestamp + 1);
-        uint256 deadline2 = block.timestamp + 1 hours;
-        bytes memory sig2 = _sign(user, 200e18, deadline2);
-        vm.prank(teller);
-        uint256 delta = pool.processRewards(user, 200e18, deadline2, sig2);
-
-        assertEq(delta, 50e18, "delta clamped to remaining cap");
-        assertEq(pool.getTotalClaimedAmount(user), 150e18, "cumulative equals cap");
-        assertEq(rewardToken.balanceOf(user), 150e18);
-    }
-
-    function test_processRewards_totalRewardCapAtBoundary() external {
-        pool.setTotalRewardCap(100e18);
-
-        // Exactly at cap
-        uint256 deadline = block.timestamp + 1 hours;
-        bytes memory sig = _sign(user, 100e18, deadline);
-        vm.prank(teller);
-        uint256 delta = pool.processRewards(user, 100e18, deadline, sig);
-        assertEq(delta, 100e18);
-    }
-
-    function test_processRewards_totalRewardCapPerUser() external {
-        address user2 = vm.addr(4);
-        pool.setTotalRewardCap(100e18);
-
-        uint256 deadline = block.timestamp + 1 hours;
-
-        // User1 claims 100 (at cap)
-        bytes memory sig1 = _sign(user, 100e18, deadline);
-        vm.prank(teller);
-        pool.processRewards(user, 100e18, deadline, sig1);
-
-        // User2 can also claim 100 (independent cap)
-        bytes memory sig2 = _sign(user2, 100e18, deadline);
-        vm.prank(teller);
-        uint256 delta = pool.processRewards(user2, 100e18, deadline, sig2);
-        assertEq(delta, 100e18);
     }
 
     // ========================= RESCUE FUNDS =========================
@@ -595,7 +511,7 @@ contract IncentivePoolTest is Test {
         assertEq(checkpoints.length, 0);
     }
 
-    function test_getClaimHistoryPaginated_endIndexClampedToLength() external {
+    function test_getClaimHistoryPaginated_lengthClampedToRemaining() external {
         // Create 2 checkpoints
         pool.setSecondsBetweenClaims(0);
         uint256 deadline1 = block.timestamp + 1 hours;
@@ -608,7 +524,7 @@ contract IncentivePoolTest is Test {
         vm.prank(teller);
         pool.processRewards(user, 200e18, deadline2, sig2);
 
-        // Request range [0, 100) but only 2 exist -> clamped to [0, 2)
+        // Request 100 starting at 0 but only 2 exist -> clamped to 2
         (IncentivePool.ClaimCheckpoint[] memory checkpoints, uint256 totalLength) =
             pool.getClaimHistoryPaginated(user, 0, 100);
         assertEq(totalLength, 2);
@@ -628,9 +544,9 @@ contract IncentivePoolTest is Test {
             pool.processRewards(user, cumulative, deadline, sig);
         }
 
-        // Fetch only index 1
+        // Fetch 1 element starting at index 1
         (IncentivePool.ClaimCheckpoint[] memory checkpoints, uint256 totalLength) =
-            pool.getClaimHistoryPaginated(user, 1, 2);
+            pool.getClaimHistoryPaginated(user, 1, 1);
         assertEq(totalLength, 3);
         assertEq(checkpoints.length, 1);
         assertEq(checkpoints[0].cumulativeClaimed, 150e18);
@@ -647,9 +563,9 @@ contract IncentivePoolTest is Test {
             pool.processRewards(user, cumulative, deadline, sig);
         }
 
-        // Fetch indices [1, 4)
+        // Fetch 3 elements starting at index 1
         (IncentivePool.ClaimCheckpoint[] memory checkpoints, uint256 totalLength) =
-            pool.getClaimHistoryPaginated(user, 1, 4);
+            pool.getClaimHistoryPaginated(user, 1, 3);
         assertEq(totalLength, 5);
         assertEq(checkpoints.length, 3);
         assertEq(checkpoints[0].cumulativeClaimed, 200e18);
@@ -676,15 +592,15 @@ contract IncentivePoolTest is Test {
         assertEq(checkpoints[2].cumulativeClaimed, 300e18);
     }
 
-    function test_getClaimHistoryPaginated_startEqualsEnd() external {
+    function test_getClaimHistoryPaginated_zeroLength() external {
         uint256 deadline = block.timestamp + 1 hours;
         bytes memory sig = _sign(user, 100e18, deadline);
         vm.prank(teller);
         pool.processRewards(user, 100e18, deadline, sig);
 
-        // [1, 1) is an empty range
+        // length=0 returns empty
         (IncentivePool.ClaimCheckpoint[] memory checkpoints, uint256 totalLength) =
-            pool.getClaimHistoryPaginated(user, 1, 1);
+            pool.getClaimHistoryPaginated(user, 0, 0);
         assertEq(totalLength, 1);
         assertEq(checkpoints.length, 0);
     }
@@ -783,132 +699,11 @@ contract IncentivePoolTest is Test {
         assertEq(delta, 100e18);
     }
 
-    function test_processRewards_capInteractsWithTotalRewardCap() external {
-        pool.setMaximumRewardAmountPerClaim(200e18);
-        pool.setTotalRewardCap(150e18);
+    // ========================= MAX PER CLAIM CAPPING =========================
 
-        // Cumulative = 300, capped to 200 per claim, then clamped to 150 by totalRewardCap
-        uint256 deadline = block.timestamp + 1 hours;
-        bytes memory sig = _sign(user, 300e18, deadline);
-
-        vm.prank(teller);
-        uint256 delta = pool.processRewards(user, 300e18, deadline, sig);
-
-        assertEq(delta, 150e18, "delta clamped to totalRewardCap");
-        assertEq(pool.getTotalClaimedAmount(user), 150e18);
-    }
-
-    function test_processRewards_capThenTotalCapReached() external {
-        pool.setMaximumRewardAmountPerClaim(80e18);
-        pool.setTotalRewardCap(100e18);
-
-        // First claim: cumulative=200, capped to 80
-        uint256 deadline1 = block.timestamp + 1 hours;
-        bytes memory sig1 = _sign(user, 200e18, deadline1);
-        vm.prank(teller);
-        uint256 delta1 = pool.processRewards(user, 200e18, deadline1, sig1);
-        assertEq(delta1, 80e18);
-
-        // Second claim: delta = 200-80 = 120, capped to 80 by maxPerClaim, then clamped to 20 by totalRewardCap
-        vm.warp(block.timestamp + 1);
-        uint256 deadline2 = block.timestamp + 1 hours;
-        bytes memory sig2 = _sign(user, 200e18, deadline2);
-        vm.prank(teller);
-        uint256 delta2 = pool.processRewards(user, 200e18, deadline2, sig2);
-
-        assertEq(delta2, 20e18, "delta clamped to remaining cap");
-        assertEq(pool.getTotalClaimedAmount(user), 100e18, "user reached exact cap");
-    }
-
-    // ========================= PARTIAL CLAIM (CAP CLAMPING) =========================
-
-    function test_processRewards_partialClaimFirstClaimExceedsCap() external {
-        pool.setTotalRewardCap(50e18);
-        pool.setMaximumRewardAmountPerClaim(1_000e18);
-
-        // First claim overshoots cap -> clamped to cap
-        uint256 deadline = block.timestamp + 1 hours;
-        bytes memory sig = _sign(user, 200e18, deadline);
-
-        vm.prank(teller);
-        uint256 delta = pool.processRewards(user, 200e18, deadline, sig);
-
-        assertEq(delta, 50e18, "first claim clamped to totalRewardCap");
-        assertEq(pool.getTotalClaimedAmount(user), 50e18);
-    }
-
-    function test_processRewards_partialClaimExactlyAtCap() external {
-        pool.setTotalRewardCap(100e18);
-
-        uint256 deadline = block.timestamp + 1 hours;
-        bytes memory sig = _sign(user, 100e18, deadline);
-
-        vm.prank(teller);
-        uint256 delta = pool.processRewards(user, 100e18, deadline, sig);
-
-        assertEq(delta, 100e18, "exact cap claim should succeed fully");
-        assertEq(pool.getTotalClaimedAmount(user), 100e18);
-    }
-
-    function test_processRewards_revertsAtCapExhausted() external {
-        pool.setTotalRewardCap(100e18);
-
-        // Claim exactly to cap
-        uint256 deadline1 = block.timestamp + 1 hours;
-        bytes memory sig1 = _sign(user, 100e18, deadline1);
-        vm.prank(teller);
-        pool.processRewards(user, 100e18, deadline1, sig1);
-
-        // Try to claim more -> totalClaimed == totalRewardCap, returns 0
-        vm.warp(block.timestamp + 1);
-        uint256 deadline2 = block.timestamp + 1 hours;
-        bytes memory sig2 = _sign(user, 200e18, deadline2);
-        vm.prank(teller);
-        // No-op: returns 0 instead of reverting when total reward cap exceeded
-        uint256 result = pool.processRewards(user, 200e18, deadline2, sig2);
-        assertEq(result, 0, "should no-op");
-    }
-
-    function test_processRewards_revertsCapLoweredBelowClaimed() external {
-        // Claim 100
-        uint256 deadline1 = block.timestamp + 1 hours;
-        bytes memory sig1 = _sign(user, 100e18, deadline1);
-        vm.prank(teller);
-        pool.processRewards(user, 100e18, deadline1, sig1);
-
-        // Admin lowers cap below already claimed
-        pool.setTotalRewardCap(50e18);
-
-        // Next claim returns 0 because totalClaimed (100) >= totalRewardCap (50)
-        vm.warp(block.timestamp + 1);
-        uint256 deadline2 = block.timestamp + 1 hours;
-        bytes memory sig2 = _sign(user, 200e18, deadline2);
-        vm.prank(teller);
-        // No-op: returns 0 instead of reverting when total reward cap exceeded
-        uint256 result = pool.processRewards(user, 200e18, deadline2, sig2);
-        assertEq(result, 0, "should no-op");
-    }
-
-    function test_processRewards_partialClaimBothCapsApply() external {
-        // maxPerClaim = 80, totalRewardCap = 60
-        // delta from cumulative would be 100, capped to 80 by maxPerClaim, then clamped to 60 by totalRewardCap
-        pool.setMaximumRewardAmountPerClaim(80e18);
-        pool.setTotalRewardCap(60e18);
-
-        uint256 deadline = block.timestamp + 1 hours;
-        bytes memory sig = _sign(user, 100e18, deadline);
-
-        vm.prank(teller);
-        uint256 delta = pool.processRewards(user, 100e18, deadline, sig);
-
-        assertEq(delta, 60e18, "totalRewardCap is the tighter constraint");
-    }
-
-    function test_processRewards_partialClaimMaxPerClaimTighter() external {
-        // maxPerClaim = 30, totalRewardCap = 500
-        // delta from cumulative = 100, capped to 30 by maxPerClaim (tighter), 30 < 500 remaining
+    function test_processRewards_maxPerClaimCaps() external {
+        // delta from cumulative = 100, capped to 30 by maxPerClaim
         pool.setMaximumRewardAmountPerClaim(30e18);
-        pool.setTotalRewardCap(500e18);
 
         uint256 deadline = block.timestamp + 1 hours;
         bytes memory sig = _sign(user, 100e18, deadline);
@@ -919,105 +714,6 @@ contract IncentivePoolTest is Test {
         assertEq(delta, 30e18, "maxPerClaim is the tighter constraint");
     }
 
-    function test_processRewards_partialClaimDrainsToCapOverMultipleClaims() external {
-        pool.setMaximumRewardAmountPerClaim(40e18);
-        pool.setTotalRewardCap(100e18);
-
-        // Claim 1: delta=40 (capped by maxPerClaim), cumulative=40
-        uint256 d1 = block.timestamp + 1 hours;
-        bytes memory s1 = _sign(user, 500e18, d1);
-        vm.prank(teller);
-        uint256 delta1 = pool.processRewards(user, 500e18, d1, s1);
-        assertEq(delta1, 40e18);
-
-        // Claim 2: delta=40 (capped by maxPerClaim), cumulative=80
-        vm.warp(block.timestamp + 1);
-        uint256 d2 = block.timestamp + 1 hours;
-        bytes memory s2 = _sign(user, 500e18, d2);
-        vm.prank(teller);
-        uint256 delta2 = pool.processRewards(user, 500e18, d2, s2);
-        assertEq(delta2, 40e18);
-
-        // Claim 3: delta would be 40, but only 20 remaining -> clamped to 20
-        vm.warp(block.timestamp + 1);
-        uint256 d3 = block.timestamp + 1 hours;
-        bytes memory s3 = _sign(user, 500e18, d3);
-        vm.prank(teller);
-        uint256 delta3 = pool.processRewards(user, 500e18, d3, s3);
-        assertEq(delta3, 20e18, "final claim clamped to remaining cap");
-
-        assertEq(pool.getTotalClaimedAmount(user), 100e18, "drained exactly to cap");
-
-        // Claim 4: cap exhausted -> returns 0
-        vm.warp(block.timestamp + 1);
-        uint256 d4 = block.timestamp + 1 hours;
-        bytes memory s4 = _sign(user, 500e18, d4);
-        vm.prank(teller);
-        // No-op: returns 0 instead of reverting when total reward cap exceeded
-        uint256 delta4 = pool.processRewards(user, 500e18, d4, s4);
-        assertEq(delta4, 0, "should no-op");
-    }
-
-    function test_processRewards_partialClaimCheckpointCorrect() external {
-        pool.setTotalRewardCap(75e18);
-
-        uint256 deadline = block.timestamp + 1 hours;
-        bytes memory sig = _sign(user, 200e18, deadline);
-
-        vm.prank(teller);
-        uint256 delta = pool.processRewards(user, 200e18, deadline, sig);
-        assertEq(delta, 75e18);
-
-        IncentivePool.ClaimCheckpoint[] memory history = pool.getClaimHistory(user);
-        assertEq(history.length, 1);
-        assertEq(history[0].cumulativeClaimed, 75e18, "checkpoint cumulative is clamped");
-    }
-
-    function test_processRewards_partialClaimEmitsClampedAmount() external {
-        pool.setTotalRewardCap(75e18);
-
-        uint256 deadline = block.timestamp + 1 hours;
-        bytes memory sig = _sign(user, 200e18, deadline);
-
-        vm.expectEmit(true, false, false, true, address(pool));
-        emit RewardsProcessed(user, 75e18);
-
-        vm.prank(teller);
-        pool.processRewards(user, 200e18, deadline, sig);
-    }
-
-    function test_processRewards_partialClaimCapRaisedUnblocksUser() external {
-        pool.setTotalRewardCap(50e18);
-
-        // Claim to cap
-        uint256 d1 = block.timestamp + 1 hours;
-        bytes memory s1 = _sign(user, 200e18, d1);
-        vm.prank(teller);
-        pool.processRewards(user, 200e18, d1, s1);
-        assertEq(pool.getTotalClaimedAmount(user), 50e18);
-
-        // Cap exhausted
-        vm.warp(block.timestamp + 1);
-        uint256 d2 = block.timestamp + 1 hours;
-        bytes memory s2 = _sign(user, 200e18, d2);
-        vm.prank(teller);
-        // No-op: returns 0 instead of reverting when total reward cap exceeded
-        uint256 result = pool.processRewards(user, 200e18, d2, s2);
-        assertEq(result, 0, "should no-op");
-
-        // Admin raises cap
-        pool.setTotalRewardCap(120e18);
-
-        // User can claim again, partial to new cap
-        vm.warp(block.timestamp + 1);
-        uint256 d3 = block.timestamp + 1 hours;
-        bytes memory s3 = _sign(user, 200e18, d3);
-        vm.prank(teller);
-        uint256 delta = pool.processRewards(user, 200e18, d3, s3);
-        assertEq(delta, 70e18, "claimed up to new cap");
-        assertEq(pool.getTotalClaimedAmount(user), 120e18);
-    }
-
     // ========================= FUZZ TESTS =========================
 
     function testFuzz_processRewards_deltaAlwaysCapped(uint104 cumulativeOwed, uint96 maxPerClaim) external {
@@ -1026,7 +722,7 @@ contract IncentivePoolTest is Test {
         vm.assume(cumulativeOwed <= 1_000_000e18);
 
         pool.setMaximumRewardAmountPerClaim(maxPerClaim);
-        pool.setTotalRewardCap(type(uint104).max);
+
         rewardToken.mint(address(pool), uint256(cumulativeOwed));
 
         uint256 deadline = block.timestamp + 1 hours;
@@ -1070,7 +766,7 @@ contract IncentivePoolTest is Test {
         vm.assume(cumulative <= 1_000_000e18);
 
         pool.setMaximumRewardAmountPerClaim(maxPerClaim);
-        pool.setTotalRewardCap(type(uint104).max);
+
         rewardToken.mint(address(pool), uint256(cumulative));
 
         uint256 deadline = block.timestamp + 1 hours;
@@ -1088,7 +784,6 @@ contract IncentivePoolTest is Test {
         vm.assume(cumulativeOwed > 0);
         vm.assume(cumulativeOwed <= 1_000_000e18);
 
-        pool.setTotalRewardCap(type(uint104).max);
         rewardToken.mint(address(pool), uint256(cumulativeOwed));
 
         uint256 deadline = block.timestamp + 1 hours;
@@ -1139,8 +834,6 @@ contract IncentivePoolTest is Test {
         amount1 = uint104(bound(amount1, 1, 500e18));
         amount2 = uint104(bound(amount2, uint256(amount1) + 1, 1_000e18));
 
-        pool.setTotalRewardCap(type(uint104).max);
-
         uint256 deadline1 = block.timestamp + 1 hours;
         bytes memory sig1 = _sign(user, amount1, deadline1);
         vm.prank(teller);
@@ -1158,29 +851,11 @@ contract IncentivePoolTest is Test {
         assertGe(cumAfterSecond, cumAfterFirst, "cumulative must never decrease");
     }
 
-    function testFuzz_processRewards_totalCapNeverExceeded(uint104 cap, uint104 cumulative) external {
-        cap = uint104(bound(cap, 1, 1_000_000e18));
-        cumulative = uint104(bound(cumulative, 1, uint256(cap)));
-
-        pool.setTotalRewardCap(cap);
-        pool.setMaximumRewardAmountPerClaim(type(uint96).max);
-        rewardToken.mint(address(pool), uint256(cumulative));
-
-        uint256 deadline = block.timestamp + 1 hours;
-        bytes memory sig = _sign(user, cumulative, deadline);
-
-        vm.prank(teller);
-        pool.processRewards(user, cumulative, deadline, sig);
-
-        assertLe(pool.getTotalClaimedAmount(user), cap, "total claimed must never exceed cap");
-    }
-
     function testFuzz_processRewards_multiClaimConvergence(uint8 numClaims) external {
         numClaims = uint8(bound(numClaims, 2, 10));
         uint256 target = 500e18;
         uint96 maxPerClaim = 100e18;
         pool.setMaximumRewardAmountPerClaim(maxPerClaim);
-        pool.setTotalRewardCap(type(uint104).max);
 
         uint256 totalClaimed;
         for (uint256 i; i < numClaims; i++) {
@@ -1236,7 +911,6 @@ contract IncentivePoolTest is Test {
         amount2 = uint104(bound(amount2, 1e18, 500e18));
 
         address user2 = vm.addr(4);
-        pool.setTotalRewardCap(type(uint104).max);
 
         uint256 deadline = block.timestamp + 1 hours;
 
@@ -1259,8 +933,6 @@ contract IncentivePoolTest is Test {
         amount1 = uint104(bound(amount1, 1e18, 500e18));
         amount2 = uint104(bound(amount2, uint256(amount1) + 1, 1_000e18));
 
-        pool.setTotalRewardCap(type(uint104).max);
-
         uint256 deadline = block.timestamp + 1 hours;
 
         // Sign for amount1
@@ -1276,7 +948,6 @@ contract IncentivePoolTest is Test {
     function testFuzz_processRewards_claimHistoryGrowsMonotonically(uint8 numClaims) external {
         numClaims = uint8(bound(numClaims, 1, 10));
         pool.setMaximumRewardAmountPerClaim(type(uint96).max);
-        pool.setTotalRewardCap(type(uint104).max);
 
         uint256 cumulative;
         for (uint256 i; i < numClaims; i++) {
@@ -1298,107 +969,6 @@ contract IncentivePoolTest is Test {
                 history[i].cumulativeClaimed, history[i - 1].cumulativeClaimed, "cumulative must be non-decreasing"
             );
         }
-    }
-
-    function testFuzz_processRewards_partialClaimNeverExceedsCap(uint96 cap, uint96 maxPerClaim, uint104 cumulative)
-        external
-    {
-        cap = uint96(bound(cap, 1, 1_000_000e18));
-        maxPerClaim = uint96(bound(maxPerClaim, 1, 1_000_000e18));
-        cumulative = uint104(bound(cumulative, 1, 1_000_000e18));
-
-        pool.setTotalRewardCap(cap);
-        pool.setMaximumRewardAmountPerClaim(maxPerClaim);
-        rewardToken.mint(address(pool), uint256(cumulative));
-
-        uint256 deadline = block.timestamp + 1 hours;
-        bytes memory sig = _sign(user, cumulative, deadline);
-
-        vm.prank(teller);
-        uint256 delta = pool.processRewards(user, cumulative, deadline, sig);
-
-        assertLe(delta, cap, "delta must never exceed totalRewardCap");
-        assertLe(delta, maxPerClaim, "delta must never exceed maxPerClaim");
-        assertLe(delta, cumulative, "delta must never exceed cumulative");
-        assertEq(pool.getTotalClaimedAmount(user), delta);
-    }
-
-    function testFuzz_processRewards_partialClaimMinOfThreeCaps(uint96 cap, uint96 maxPerClaim, uint104 cumulative)
-        external
-    {
-        cap = uint96(bound(cap, 1, 500_000e18));
-        maxPerClaim = uint96(bound(maxPerClaim, 1, 500_000e18));
-        cumulative = uint104(bound(cumulative, 1, 500_000e18));
-
-        pool.setTotalRewardCap(cap);
-        pool.setMaximumRewardAmountPerClaim(maxPerClaim);
-        rewardToken.mint(address(pool), uint256(cumulative));
-
-        uint256 deadline = block.timestamp + 1 hours;
-        bytes memory sig = _sign(user, cumulative, deadline);
-
-        vm.prank(teller);
-        uint256 delta = pool.processRewards(user, cumulative, deadline, sig);
-
-        // delta == min(cumulative, maxPerClaim, cap)
-        uint256 expected = cumulative;
-        if (maxPerClaim < expected) expected = maxPerClaim;
-        if (cap < expected) expected = cap;
-
-        assertEq(delta, expected, "delta must equal min(cumulative, maxPerClaim, cap)");
-    }
-
-    function testFuzz_processRewards_partialClaimMultiRoundDrainsToExactCap(uint96 cap, uint96 maxPerClaim) external {
-        cap = uint96(bound(cap, 1e18, 500e18));
-        maxPerClaim = uint96(bound(maxPerClaim, 1e18, 500e18));
-
-        pool.setTotalRewardCap(cap);
-        pool.setMaximumRewardAmountPerClaim(maxPerClaim);
-
-        uint256 largeCumulative = 10_000e18;
-        uint256 totalClaimed;
-        uint256 rounds = (uint256(cap) / uint256(maxPerClaim)) + 2;
-
-        for (uint256 i; i < rounds; i++) {
-            if (totalClaimed >= cap) break;
-
-            vm.warp(block.timestamp + 1);
-            uint256 deadline = block.timestamp + 1 hours;
-            bytes memory sig = _sign(user, largeCumulative, deadline);
-
-            vm.prank(teller);
-            uint256 delta = pool.processRewards(user, largeCumulative, deadline, sig);
-            totalClaimed += delta;
-        }
-
-        assertEq(totalClaimed, cap, "multi-round claims must drain exactly to cap");
-        assertEq(pool.getTotalClaimedAmount(user), cap);
-    }
-
-    function testFuzz_processRewards_capLoweredAfterClaimRevertsIfExhausted(uint104 firstClaim, uint104 newCap)
-        external
-    {
-        firstClaim = uint104(bound(firstClaim, 1e18, 500e18));
-        newCap = uint104(bound(newCap, 1, uint256(firstClaim)));
-
-        pool.setTotalRewardCap(type(uint104).max);
-
-        uint256 d1 = block.timestamp + 1 hours;
-        bytes memory s1 = _sign(user, firstClaim, d1);
-        vm.prank(teller);
-        pool.processRewards(user, firstClaim, d1, s1);
-
-        // Lower cap to at or below what was already claimed
-        pool.setTotalRewardCap(newCap);
-
-        vm.warp(block.timestamp + 1);
-        uint256 d2 = block.timestamp + 1 hours;
-        bytes memory s2 = _sign(user, uint256(firstClaim) + 100e18, d2);
-
-        vm.prank(teller);
-        // No-op: returns 0 instead of reverting when total reward cap exceeded
-        uint256 result = pool.processRewards(user, uint256(firstClaim) + 100e18, d2, s2);
-        assertEq(result, 0, "should no-op");
     }
 
     // ========================= VIEW FUNCTIONS =========================
@@ -1565,7 +1135,7 @@ contract IncentivePoolTest is Test {
         assertEq(rewardToken.balanceOf(address(pool)), 1_000_000e18);
     }
 
-    function test_processRewards_revertsInsufficientPoolBalance() external {
+    function test_processRewards_returnsZeroInsufficientPoolBalance() external {
         // Drain pool funds via rescue
         pool.rescueFunds(ERC20(address(rewardToken)), address(this), 1_000_000e18);
 
@@ -1573,8 +1143,8 @@ contract IncentivePoolTest is Test {
         bytes memory sig = _sign(user, 100e18, deadline);
 
         vm.prank(teller);
-        vm.expectRevert("TRANSFER_FAILED");
-        pool.processRewards(user, 100e18, deadline, sig);
+        uint256 delta = pool.processRewards(user, 100e18, deadline, sig);
+        assertEq(delta, 0);
     }
 
     function test_processRewards_cumulativeLessThanClaimedNoOp() external {
@@ -1593,6 +1163,144 @@ contract IncentivePoolTest is Test {
         assertEq(delta, 0);
     }
 
+    // ========================= INSUFFICIENT POOL BALANCE =========================
+
+    /// @notice Pool has some tokens but not enough for the full claim delta — returns 0.
+    function test_processRewards_returnsZeroPartialBalance() external {
+        // Drain pool to leave only 50 tokens
+        pool.rescueFunds(ERC20(address(rewardToken)), address(this), 1_000_000e18 - 50e18);
+        assertEq(rewardToken.balanceOf(address(pool)), 50e18);
+
+        // Backend signs a legit claim for 100 tokens
+        uint256 deadline = block.timestamp + 1 hours;
+        bytes memory sig = _sign(user, 100e18, deadline);
+
+        // Soft failure: pool only has 50 but needs 100 — returns 0, no checkpoint
+        vm.prank(teller);
+        uint256 delta = pool.processRewards(user, 100e18, deadline, sig);
+        assertEq(delta, 0);
+        assertEq(pool.getTotalClaimedAmount(user), 0);
+    }
+
+    /// @notice First claim drains the pool, second user's legit claim returns 0.
+    function test_processRewards_secondUserGetsZeroAfterPoolDrained() external {
+        address user2 = vm.addr(4);
+
+        // Drain pool to leave exactly 1000 (the max per claim)
+        pool.rescueFunds(ERC20(address(rewardToken)), address(this), 1_000_000e18 - 1_000e18);
+
+        uint256 deadline = block.timestamp + 1 hours;
+
+        // User 1 claims 1000 — succeeds, drains the pool
+        bytes memory sig1 = _sign(user, 1_000e18, deadline);
+        vm.prank(teller);
+        uint256 delta1 = pool.processRewards(user, 1_000e18, deadline, sig1);
+        assertEq(delta1, 1_000e18);
+        assertEq(rewardToken.balanceOf(address(pool)), 0);
+
+        // User 2 has a perfectly valid signed claim but pool is empty — returns 0
+        bytes memory sig2 = _sign(user2, 500e18, deadline);
+        vm.prank(teller);
+        uint256 delta2 = pool.processRewards(user2, 500e18, deadline, sig2);
+        assertEq(delta2, 0);
+        assertEq(pool.getTotalClaimedAmount(user2), 0);
+    }
+
+    /// @notice Sequential claims by the same user: first succeeds, second returns 0
+    ///         when cumulative delta exceeds remaining pool balance.
+    function test_processRewards_sequentialClaimsExhaustPool() external {
+        // Leave 150 tokens in the pool
+        pool.rescueFunds(ERC20(address(rewardToken)), address(this), 1_000_000e18 - 150e18);
+
+        // First claim: 100 tokens — succeeds
+        uint256 d1 = block.timestamp + 1 hours;
+        bytes memory s1 = _sign(user, 100e18, d1);
+        vm.prank(teller);
+        uint256 delta1 = pool.processRewards(user, 100e18, d1, s1);
+        assertEq(delta1, 100e18);
+        assertEq(rewardToken.balanceOf(address(pool)), 50e18);
+
+        // Second claim: cumulative 200 (delta = 100), but pool only has 50 — returns 0
+        vm.warp(block.timestamp + 1);
+        uint256 d2 = block.timestamp + 1 hours;
+        bytes memory s2 = _sign(user, 200e18, d2);
+        vm.prank(teller);
+        uint256 delta2 = pool.processRewards(user, 200e18, d2, s2);
+        assertEq(delta2, 0);
+        // Cumulative stays at 100 from first claim
+        assertEq(pool.getTotalClaimedAmount(user), 100e18);
+    }
+
+    /// @notice The max-per-claim cap doesn't help if pool balance is below the cap.
+    ///         Backend signs cumulative of 5000 (delta = 5000), cap limits to 1000,
+    ///         but pool only has 500 — returns 0.
+    function test_processRewards_capDoesNotPreventZeroOnLowBalance() external {
+        // Leave 500 tokens — less than the 1000 max-per-claim cap
+        pool.rescueFunds(ERC20(address(rewardToken)), address(this), 1_000_000e18 - 500e18);
+
+        uint256 deadline = block.timestamp + 1 hours;
+        bytes memory sig = _sign(user, 5_000e18, deadline);
+
+        // Delta = 5000, capped to 1000 by maximumRewardAmountPerClaim,
+        // but pool only has 500 — returns 0
+        vm.prank(teller);
+        uint256 delta = pool.processRewards(user, 5_000e18, deadline, sig);
+        assertEq(delta, 0);
+        assertEq(pool.getTotalClaimedAmount(user), 0);
+    }
+
+    /// @notice Insufficient balance returns 0 with no checkpoint written.
+    ///         User can claim successfully after pool is refunded.
+    function test_processRewards_noStateChangeOnInsufficientBalance() external {
+        // Leave 50 tokens
+        pool.rescueFunds(ERC20(address(rewardToken)), address(this), 1_000_000e18 - 50e18);
+
+        uint256 deadline = block.timestamp + 1 hours;
+        bytes memory sig = _sign(user, 100e18, deadline);
+
+        // Confirm no prior history
+        assertEq(pool.getTotalClaimedAmount(user), 0);
+        assertEq(pool.getLastClaimTimestamp(user), 0);
+
+        // Attempt claim — returns 0, no state change
+        vm.prank(teller);
+        uint256 delta = pool.processRewards(user, 100e18, deadline, sig);
+        assertEq(delta, 0);
+
+        // State is unchanged
+        assertEq(pool.getTotalClaimedAmount(user), 0);
+        assertEq(pool.getLastClaimTimestamp(user), 0);
+
+        // Refund pool, same signature works
+        rewardToken.mint(address(pool), 100e18);
+        vm.prank(teller);
+        delta = pool.processRewards(user, 100e18, deadline, sig);
+        assertEq(delta, 100e18);
+        assertEq(pool.getTotalClaimedAmount(user), 100e18);
+    }
+
+    /// @notice Fuzz: any claim where delta > pool balance returns 0 with no checkpoint.
+    function testFuzz_processRewards_returnsZeroWhenDeltaExceedsBalance(uint96 poolBalance, uint96 claimAmount)
+        external
+    {
+        poolBalance = uint96(bound(poolBalance, 0, 999e18));
+        claimAmount = uint96(bound(claimAmount, poolBalance + 1, 1_000e18));
+
+        // Reset pool balance
+        pool.rescueFunds(ERC20(address(rewardToken)), address(this), 1_000_000e18);
+        rewardToken.mint(address(pool), poolBalance);
+
+        uint256 deadline = block.timestamp + 1 hours;
+        bytes memory sig = _sign(user, claimAmount, deadline);
+
+        vm.prank(teller);
+        uint256 delta = pool.processRewards(user, claimAmount, deadline, sig);
+        assertEq(delta, 0);
+        assertEq(pool.getTotalClaimedAmount(user), 0);
+        // Pool balance untouched
+        assertEq(rewardToken.balanceOf(address(pool)), poolBalance);
+    }
+
     // ========================= FUZZ EDGE CASES =========================
 
     function testFuzz_processRewards_zeroSecondsBetweenClaimsNoRateLimit(uint104 amount1, uint104 amount2) external {
@@ -1600,7 +1308,6 @@ contract IncentivePoolTest is Test {
         amount2 = uint104(bound(amount2, uint256(amount1) + 1, 1_000e18));
 
         pool.setSecondsBetweenClaims(0);
-        pool.setTotalRewardCap(type(uint104).max);
 
         uint256 deadline = block.timestamp + 1 hours;
         bytes memory sig1 = _sign(user, amount1, deadline);
@@ -1617,7 +1324,6 @@ contract IncentivePoolTest is Test {
     function testFuzz_getLastCheckpointData_matchesClaimHistory(uint8 numClaims) external {
         numClaims = uint8(bound(numClaims, 1, 10));
         pool.setMaximumRewardAmountPerClaim(type(uint96).max);
-        pool.setTotalRewardCap(type(uint104).max);
 
         uint256 cumulative;
         for (uint256 i; i < numClaims; i++) {

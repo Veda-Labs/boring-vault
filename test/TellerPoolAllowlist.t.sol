@@ -7,6 +7,7 @@ pragma solidity 0.8.21;
 import {Test, console} from "@forge-std/Test.sol";
 import {BoringVault} from "src/base/BoringVault.sol";
 import {TellerWithMultiAssetSupport, RewardData} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import {TellerWithMultiAssetSupportLib} from "src/base/Roles/TellerWithMultiAssetSupportLib.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
@@ -56,10 +57,8 @@ contract MaliciousPool {
     }
 }
 
-/// @notice Demonstrates that TellerWithMultiAssetSupport._processRewards will
-///         call any user-supplied address as an IncentivePool, with no allowlist.
-///         The teller becomes an unrestricted proxy: msg.sender to the target is
-///         the teller itself, and all calldata is attacker-controlled.
+/// @notice Verifies that TellerWithMultiAssetSupport._processRewards rejects
+///         non-allowlisted pool addresses, preventing arbitrary external calls.
 contract TellerPoolAllowlistTest is Test {
     BoringVault public boringVault;
     TellerWithMultiAssetSupport public teller;
@@ -88,16 +87,13 @@ contract TellerPoolAllowlistTest is Test {
         accountant.setAuthority(rolesAuthority);
         teller.setAuthority(rolesAuthority);
 
-        // Make claimRewards publicly callable (same as deposit in the real setup).
         rolesAuthority.setPublicCapability(address(teller), TellerWithMultiAssetSupport.claimRewards.selector, true);
 
         maliciousPool = new MaliciousPool();
     }
 
-    /// @notice Proves the teller will call processRewards on an arbitrary,
-    ///         non-allowlisted address supplied by the caller.
-    function testArbitraryPoolCall() external {
-        // Attacker constructs RewardData pointing at the malicious pool.
+    /// @notice Non-allowlisted pool address is rejected by _processRewards.
+    function testArbitraryPoolCall_reverts() external {
         RewardData[] memory rewards = new RewardData[](1);
         rewards[0] = RewardData({
             pool: address(maliciousPool),
@@ -106,16 +102,15 @@ contract TellerPoolAllowlistTest is Test {
             signature: hex"deadbeef"
         });
 
-        // Call claimRewards as the attacker.
         vm.prank(attacker);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TellerWithMultiAssetSupportLib.TellerWithMultiAssetSupport__IncentivePoolNotAllowed.selector,
+                address(maliciousPool)
+            )
+        );
         teller.claimRewards(rewards);
 
-        // The malicious pool was called by the teller with attacker-controlled args.
-        assertTrue(maliciousPool.wasCalled(), "malicious pool should have been called");
-        assertEq(maliciousPool.calledBy(), address(teller), "msg.sender should be the teller");
-        assertEq(maliciousPool.receivedUser(), attacker, "user should be the attacker address");
-        assertEq(maliciousPool.receivedCumulativeOwed(), 999e18, "cumulativeOwed forwarded");
-        assertEq(maliciousPool.receivedDeadline(), block.timestamp + 1 days, "deadline forwarded");
-        assertEq(maliciousPool.receivedSignature(), hex"deadbeef", "signature forwarded");
+        assertFalse(maliciousPool.wasCalled(), "malicious pool must not be called");
     }
 }

@@ -209,10 +209,11 @@ contract TellerYieldStreamingReentrancyTest is Test {
         rolesAuthority.setRoleCapability(POOL_ROLE, address(pool), IncentivePool.processRewards.selector, true);
         rolesAuthority.setUserRole(address(teller), POOL_ROLE, true);
 
+        teller.setIncentivePoolAllowed(address(pool), true);
+
         pool.setRewardSigner(signer);
         pool.setMaximumRewardAmountPerClaim(uint96(fundAmount));
         pool.setMaxDeadline(1 days);
-        pool.setTotalRewardCap(uint104(fundAmount));
 
         rewardToken.mint(address(pool), fundAmount);
         return pool;

@@ -7,7 +7,8 @@ pragma solidity 0.8.21;
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {BoringVault} from "src/base/BoringVault.sol";
 import {IBufferHelper} from "src/interfaces/IBufferHelper.sol";
-import {PrincipalCheckpoint, BufferHelpers} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import {IncentivePool} from "src/base/IncentivePool.sol";
+import {PrincipalCheckpoint, BufferHelpers, RewardData} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {SafeCast} from "@openzeppelin-contracts-5.3.0/utils/math/SafeCast.sol";
 import {ECDSA} from "@openzeppelin-contracts-5.3.0/utils/cryptography/ECDSA.sol";
@@ -17,6 +18,7 @@ library TellerWithMultiAssetSupportLib {
     using FixedPointMathLib for uint256;
 
     error TellerWithMultiAssetSupport__ComplianceCheckFailed();
+    error TellerWithMultiAssetSupport__IncentivePoolNotAllowed(address pool);
 
     // ========================================= COMPLIANCE =========================================
 
@@ -89,6 +91,25 @@ library TellerWithMultiAssetSupportLib {
             vault.manage(targets, data, values);
         }
     }
+
+    // ========================================= REWARDS =========================================
+
+    /// @notice Validate and process incentive pool rewards for a user.
+    function processRewards(
+        mapping(address pool => bool allowed) storage allowedIncentivePools,
+        RewardData[] calldata rewards,
+        address user
+    ) external {
+        for (uint256 i; i < rewards.length; ++i) {
+            if (!allowedIncentivePools[rewards[i].pool]) {
+                revert TellerWithMultiAssetSupport__IncentivePoolNotAllowed(rewards[i].pool);
+            }
+            IncentivePool(rewards[i].pool)
+                .processRewards(user, rewards[i].cumulativeOwed, rewards[i].deadline, rewards[i].signature);
+        }
+    }
+
+    // ========================================= BUFFER HELPERS =========================================
 
     /// @notice Execute buffer management before a withdrawal.
     function beforeWithdraw(

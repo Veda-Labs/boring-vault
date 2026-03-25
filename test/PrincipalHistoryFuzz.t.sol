@@ -95,7 +95,7 @@ contract PrincipalHistoryFuzzTest is Test {
     }
 
     function _lastCheckpoint(address user) internal view returns (PrincipalCheckpoint memory) {
-        PrincipalCheckpoint[] memory h = teller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory h,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         return h[h.length - 1];
     }
 
@@ -108,7 +108,7 @@ contract PrincipalHistoryFuzzTest is Test {
     }
 
     function _assertMonotonicHistory(address user) internal {
-        PrincipalCheckpoint[] memory history = teller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory history,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         for (uint256 i = 1; i < history.length; ++i) {
             assertGe(
                 history[i].cumulativeDeposits,
@@ -564,7 +564,7 @@ contract PrincipalHistoryFuzzTest is Test {
 
         if (shares == 0) {
             // Zero-share deposit: checkpoint should still be created but with 0 baseValue
-            PrincipalCheckpoint[] memory h = teller.getPrincipalHistory(user);
+            (PrincipalCheckpoint[] memory h,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
             if (h.length > 0) {
                 assertEq(h[h.length - 1].cumulativeDeposits, 0, "zero-share deposit: 0 principal");
             }
@@ -617,7 +617,7 @@ contract PrincipalHistoryFuzzTest is Test {
         uint256 s2 = _depositAs(user, a2);
 
         // Both checkpoints should have same timestamp
-        PrincipalCheckpoint[] memory h = teller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory h,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         assertEq(h.length, 2, "two checkpoints");
         assertEq(h[0].timestamp, h[1].timestamp, "same timestamp");
         assertGt(h[1].cumulativeDeposits, h[0].cumulativeDeposits, "cumulative increased");
@@ -882,7 +882,7 @@ contract PrincipalHistoryFuzzTest is Test {
         teller.deposit(DepositParams(ERC20(address(weth)), amount, 0, user), address(0), ComplianceData(0, ""));
         vm.stopPrank();
 
-        PrincipalCheckpoint[] memory h = teller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory h,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         if (h.length > 0) {
             assertLe(uint256(h[h.length - 1].cumulativeDeposits), amount, "deposit baseValue <= actual deposit amount");
         }
@@ -962,7 +962,7 @@ contract PrincipalHistoryFuzzTest is Test {
         _setRate(r2);
         _depositAs(user, amount);
 
-        PrincipalCheckpoint[] memory h = teller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory h,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         assertEq(h.length, 2, "two checkpoints");
         assertEq(h[0].sharePrice, uint256(r1), "first checkpoint has first rate");
         assertEq(h[1].sharePrice, uint256(r2), "second checkpoint has second rate");

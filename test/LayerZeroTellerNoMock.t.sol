@@ -282,7 +282,7 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
         );
         vm.stopPrank();
 
-        PrincipalCheckpoint[] memory history = sourceTeller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory history,) = sourceTeller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         assertEq(history.length, 2, "depositAndBridge must create deposit + withdrawal checkpoints");
         assertEq(history[0].timestamp, uint48(block.timestamp), "checkpoint timestamp");
         // Rate is 1:1, so principal equals shares bridged
@@ -337,7 +337,7 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
         sourceTeller.depositAndBridgeWithPermit{value: fee}(params);
         vm.stopPrank();
 
-        PrincipalCheckpoint[] memory history = sourceTeller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory history,) = sourceTeller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         assertEq(history.length, 2, "depositAndBridgeWithPermit must create deposit + withdrawal checkpoints");
         assertGt(history[0].cumulativeDeposits, 0, "deposits must be non-zero");
         assertGt(history[1].cumulativeWithdrawals, 0, "bridge withdrawal checkpoint");
@@ -361,7 +361,8 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
         sourceTeller.deposit(DepositParams(WETH, depositAmount, 0, user), referrer, ComplianceData(0, ""));
 
         // Verify deposit creates a checkpoint with principal
-        PrincipalCheckpoint[] memory historyBefore = sourceTeller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory historyBefore,) =
+            sourceTeller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         assertEq(historyBefore.length, 1, "deposit creates one checkpoint");
         assertGt(historyBefore[0].cumulativeDeposits, 0, "deposits recorded");
         assertEq(historyBefore[0].cumulativeWithdrawals, 0, "no withdrawals yet");
@@ -377,7 +378,8 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
 
         // Bridge burns shares but MUST also create a withdrawal checkpoint
         // Without this, user retains phantom principal on source chain
-        PrincipalCheckpoint[] memory historyAfter = sourceTeller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory historyAfter,) =
+            sourceTeller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         assertEq(historyAfter.length, 2, "bridge must create a withdrawal checkpoint");
         assertGt(historyAfter[1].cumulativeWithdrawals, 0, "bridge must record principal decrease");
         // At 1:1 rate, net principal should be ~0 after bridging everything
@@ -413,7 +415,7 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
 
         // depositAndBridge MUST create both a deposit and withdrawal checkpoint
         // Without the withdrawal checkpoint, user has phantom principal on source chain
-        PrincipalCheckpoint[] memory history = sourceTeller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory history,) = sourceTeller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         assertEq(history.length, 2, "depositAndBridge must create deposit + withdrawal checkpoints");
         // First checkpoint: deposit
         assertGt(history[0].cumulativeDeposits, 0, "deposit records principal");

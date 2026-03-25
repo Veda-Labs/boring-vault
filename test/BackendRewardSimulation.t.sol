@@ -112,10 +112,11 @@ contract BackendRewardSimulationTest is Test {
         roles.setRoleCapability(12, address(pool), IncentivePool.processRewards.selector, true);
         roles.setUserRole(address(teller), 12, true);
 
+        teller.setIncentivePoolAllowed(address(pool), true);
+
         pool.setRewardSigner(signerAddr);
         pool.setMaximumRewardAmountPerClaim(type(uint96).max);
         pool.setMaxDeadline(1 days);
-        pool.setTotalRewardCap(type(uint104).max);
 
         rewardToken.mint(address(pool), type(uint128).max);
 
@@ -131,7 +132,7 @@ contract BackendRewardSimulationTest is Test {
     ///     effectiveDeposit = min(principal, totalValueBase)
     ///     reward          += effectiveDeposit * REWARD_RATE * duration / 1e18
     function _computeRewards(address user, uint256 endTime) internal view returns (uint256 totalReward) {
-        PrincipalCheckpoint[] memory h = teller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory h,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         StateSnapshot[] storage snaps = _snapshots[user];
         if (h.length == 0) return 0;
         require(snaps.length == h.length, "snapshot/checkpoint mismatch");
@@ -298,7 +299,7 @@ contract BackendRewardSimulationTest is Test {
 
         // Phase 2 effective deposit should be min(remaining principal, remaining shares * rate)
         // Both should be roughly amount/2
-        PrincipalCheckpoint[] memory h = teller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory h,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         PrincipalCheckpoint memory last = h[h.length - 1];
         uint256 principal = last.cumulativeDeposits > last.cumulativeWithdrawals
             ? uint256(last.cumulativeDeposits) - uint256(last.cumulativeWithdrawals)
@@ -330,7 +331,7 @@ contract BackendRewardSimulationTest is Test {
 
         skip(duration);
 
-        PrincipalCheckpoint[] memory h = teller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory h,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         uint256 principal = h[0].cumulativeDeposits; // ~= amount (no withdrawals)
         StateSnapshot storage snap = _snapshots[user][0];
         uint256 totalValue = snap.shareBalance.mulDivDown(snap.rate, ONE_SHARE);
@@ -402,7 +403,7 @@ contract BackendRewardSimulationTest is Test {
         _withdrawAs(user, shares);
 
         // Phantom principal: deposits > withdrawals because rate dropped
-        PrincipalCheckpoint[] memory h = teller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory h,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         PrincipalCheckpoint memory last = h[h.length - 1];
         assertGt(last.cumulativeDeposits, last.cumulativeWithdrawals, "phantom principal exists");
 
@@ -441,7 +442,7 @@ contract BackendRewardSimulationTest is Test {
         // inflated_principal includes phantom from first cycle
         // freshShares * rate ≈ freshAmount
         // min() should cap at freshAmount, NOT the inflated principal
-        PrincipalCheckpoint[] memory h = teller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory h,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         PrincipalCheckpoint memory last = h[h.length - 1];
         uint256 principal = last.cumulativeDeposits > last.cumulativeWithdrawals
             ? uint256(last.cumulativeDeposits) - uint256(last.cumulativeWithdrawals)
@@ -725,7 +726,7 @@ contract BackendRewardSimulationTest is Test {
 
         skip(duration);
 
-        PrincipalCheckpoint[] memory h = teller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory h,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         uint256 recorded = h[0].cumulativeDeposits;
         assertLe(amount - recorded, 2, "principal rounding loss bounded");
 

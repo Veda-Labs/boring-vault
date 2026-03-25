@@ -99,7 +99,7 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         teller.deposit(DepositParams(WETH, amount, 0, user), address(0), ComplianceData(0, ""));
         vm.stopPrank();
 
-        PrincipalCheckpoint[] memory history = teller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory history,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         assertEq(history.length, 1, "history length after single deposit");
         assertEq(history[0].timestamp, uint48(block.timestamp), "checkpoint timestamp");
         // Rate is 1:1, so principal equals deposit amount
@@ -121,7 +121,7 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         teller.deposit(DepositParams(WETH, amount2, 0, user), address(0), ComplianceData(0, ""));
         vm.stopPrank();
 
-        PrincipalCheckpoint[] memory history = teller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory history,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         assertEq(history.length, 2, "history length after two deposits");
         assertEq(
             history[0].cumulativeDeposits - history[0].cumulativeWithdrawals,
@@ -148,7 +148,7 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         teller.withdraw(WETH, halfShares, 0, user);
         vm.stopPrank();
 
-        PrincipalCheckpoint[] memory history = teller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory history,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         assertEq(history.length, 2, "history length: 1 deposit + 1 withdraw");
         assertEq(
             history[0].cumulativeDeposits - history[0].cumulativeWithdrawals,
@@ -175,7 +175,7 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         teller.withdraw(WETH, shares, 0, user);
         vm.stopPrank();
 
-        PrincipalCheckpoint[] memory history = teller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory history,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         assertEq(history.length, 2, "history length: 1 deposit + 1 withdraw");
         // Withdrawals >= deposits due to round-up, meaning zero or negative principal off-chain
         assertTrue(
@@ -190,7 +190,8 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
 
         teller.bulkDeposit(WETH, amount, 0, address(this));
 
-        PrincipalCheckpoint[] memory history = teller.getPrincipalHistory(address(this));
+        (PrincipalCheckpoint[] memory history,) =
+            teller.getPrincipalHistoryPaginated(address(this), 0, type(uint256).max);
         assertEq(history.length, 0, "bulkDeposit should not create checkpoint");
     }
 
@@ -204,7 +205,8 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         // Now bulkWithdraw
         teller.bulkWithdraw(WETH, shares, 0, address(this));
 
-        PrincipalCheckpoint[] memory history = teller.getPrincipalHistory(address(this));
+        (PrincipalCheckpoint[] memory history,) =
+            teller.getPrincipalHistoryPaginated(address(this), 0, type(uint256).max);
         assertEq(history.length, 0, "bulkWithdraw should not create checkpoint (no deposit history)");
     }
 
@@ -224,7 +226,7 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         vm.stopPrank();
 
         // Verify deposit checkpoint exists
-        PrincipalCheckpoint[] memory history = teller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory history,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         assertEq(history.length, 1, "one deposit checkpoint");
         assertEq(history[0].cumulativeDeposits, uint104(amount), "deposit recorded");
         assertEq(history[0].cumulativeWithdrawals, 0, "no withdrawals yet");
@@ -236,7 +238,7 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         );
 
         // Verify refund appended a withdrawal checkpoint
-        history = teller.getPrincipalHistory(user);
+        (history,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         assertEq(history.length, 2, "deposit + refund checkpoints");
         assertEq(history[1].cumulativeDeposits, uint104(amount), "deposits unchanged by refund");
         assertTrue(
@@ -259,7 +261,7 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         uint256 shares = teller.deposit(DepositParams(WETH, amount, 0, user), address(0), ComplianceData(0, ""));
         vm.stopPrank();
 
-        PrincipalCheckpoint[] memory afterDeposit = teller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory afterDeposit,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         uint104 depositedPrincipal = afterDeposit[0].cumulativeDeposits;
 
         // Rate increases by 5% before refund.
@@ -272,7 +274,7 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
             nonce, user, address(WETH), amount, shares, depositTimestamp, 2 days, depositSharePrice, address(0)
         );
 
-        PrincipalCheckpoint[] memory afterRefund = teller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory afterRefund,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         assertEq(afterRefund.length, 2, "deposit + refund checkpoints");
 
         // The withdrawal should use the deposit-time rate (1e18), not the current rate (1.05e18).
@@ -322,7 +324,7 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         teller.withdraw(WETH, shares, 0, user);
         vm.stopPrank();
 
-        PrincipalCheckpoint[] memory history = teller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory history,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         // Withdraw rounds up, so withdrawals >= deposits (no phantom positive principal)
         assertTrue(
             history[1].cumulativeWithdrawals >= history[1].cumulativeDeposits,
@@ -342,13 +344,13 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         uint256 shares = teller.deposit(DepositParams(WETH, amount, 0, user), address(0), ComplianceData(0, ""));
         vm.stopPrank();
 
-        PrincipalCheckpoint[] memory afterDeposit = teller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory afterDeposit,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         uint104 depositedPrincipal = afterDeposit[0].cumulativeDeposits;
 
         vm.prank(user);
         teller.withdraw(WETH, shares, 0, user);
 
-        PrincipalCheckpoint[] memory afterWithdraw = teller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory afterWithdraw,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         // Withdraw rounds up, so cumulative withdrawals >= cumulative deposits
         assertTrue(
             afterWithdraw[1].cumulativeWithdrawals >= afterWithdraw[1].cumulativeDeposits,
@@ -373,7 +375,7 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
             vm.stopPrank();
         }
 
-        PrincipalCheckpoint[] memory history = teller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory history,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         PrincipalCheckpoint memory last = history[history.length - 1];
         // After every full cycle, withdrawals >= deposits — no phantom positive principal
         assertTrue(
@@ -391,7 +393,7 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         uint256 shares = teller.deposit(DepositParams(WETH, amount, 0, user), address(0), ComplianceData(0, ""));
         vm.stopPrank();
 
-        PrincipalCheckpoint[] memory afterDeposit = teller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory afterDeposit,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         uint104 principalAtDeposit = afterDeposit[0].cumulativeDeposits;
 
         // Rate doubles — shares are now worth 2x. Fund vault so withdrawal succeeds.
@@ -401,7 +403,7 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         vm.prank(user);
         teller.withdraw(WETH, shares, 0, user);
 
-        PrincipalCheckpoint[] memory afterWithdraw = teller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory afterWithdraw,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         // Withdrawal at 2x rate records 2x the original deposit value in withdrawals
         assertTrue(
             afterWithdraw[1].cumulativeWithdrawals >= afterWithdraw[1].cumulativeDeposits,
@@ -425,7 +427,7 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         teller.withdraw(WETH, withdrawShares, 0, user);
         vm.stopPrank();
 
-        PrincipalCheckpoint[] memory history = teller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory history,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         uint104 depositPrincipal = history[0].cumulativeDeposits - history[0].cumulativeWithdrawals;
         uint104 afterPartialWithdraw = history[1].cumulativeDeposits - history[1].cumulativeWithdrawals;
 
@@ -569,7 +571,7 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         view
         returns (uint256 weight)
     {
-        PrincipalCheckpoint[] memory cps = teller.getPrincipalHistory(who);
+        (PrincipalCheckpoint[] memory cps,) = teller.getPrincipalHistoryPaginated(who, 0, type(uint256).max);
         if (cps.length == 0) return 0;
 
         uint256 shares = boringVault.balanceOf(who);
@@ -604,7 +606,7 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         vm.prank(user);
         teller.deposit{value: amount}(DepositParams(ERC20(NATIVE), 0, 0, user), address(0), ComplianceData(0, ""));
 
-        PrincipalCheckpoint[] memory history = teller.getPrincipalHistory(user);
+        (PrincipalCheckpoint[] memory history,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         assertEq(history.length, 1, "native deposit creates checkpoint");
         assertEq(
             history[0].cumulativeDeposits - history[0].cumulativeWithdrawals,

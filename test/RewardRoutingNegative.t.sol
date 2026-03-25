@@ -11,6 +11,7 @@ import {
     ComplianceData,
     RewardData
 } from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import {TellerWithMultiAssetSupportLib} from "src/base/Roles/TellerWithMultiAssetSupportLib.sol";
 import {TellerWithYieldStreaming} from "src/base/Roles/TellerWithYieldStreaming.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {AccountantWithYieldStreaming} from "src/base/Roles/AccountantWithYieldStreaming.sol";
@@ -117,10 +118,11 @@ abstract contract RewardRoutingNegativeBase is Test {
         rolesAuthority.setRoleCapability(TELLER_ROLE, address(pool), IncentivePool.processRewards.selector, true);
         rolesAuthority.setUserRole(address(teller), TELLER_ROLE, true);
 
+        teller.setIncentivePoolAllowed(address(pool), true);
+
         pool.setRewardSigner(signer);
         pool.setMaximumRewardAmountPerClaim(uint96(1_000 * rewardUnit));
         pool.setMaxDeadline(1 days);
-        pool.setTotalRewardCap(uint104(1_000_000 * rewardUnit));
         MockERC20(address(rewardToken)).mint(address(pool), 1_000_000 * rewardUnit);
 
         teller.updateAssetData(ERC20(address(usdc)), true, true, 0);
@@ -303,21 +305,6 @@ abstract contract RewardRoutingNegativeBase is Test {
 
     // ========================= REWARDS DISABLED =========================
 
-    function test_claimRewards_rewardsDisabledZeroCap_noOp() external {
-        pool.setTotalRewardCap(0);
-
-        uint256 deadline = block.timestamp + 1 hours;
-        bytes memory sig = _sign(address(pool), user, 100 * rewardUnit, deadline);
-        RewardData[] memory rewards = new RewardData[](1);
-        rewards[0] = RewardData(address(pool), 100 * rewardUnit, deadline, sig);
-
-        // No-op: returns 0 instead of reverting when rewards are disabled
-        vm.prank(user);
-        teller.claimRewards(rewards);
-
-        assertEq(rewardToken.balanceOf(user), 0);
-    }
-
     function test_claimRewards_rewardsDisabledZeroMaxPerClaim_noOp() external {
         pool.setMaximumRewardAmountPerClaim(0);
 
@@ -331,51 +318,6 @@ abstract contract RewardRoutingNegativeBase is Test {
         teller.claimRewards(rewards);
 
         assertEq(rewardToken.balanceOf(user), 0);
-    }
-
-    // ========================= TOTAL REWARD CAP EXHAUSTED =========================
-
-    function test_claimRewards_totalCapExhausted_noOp() external {
-        pool.setTotalRewardCap(uint104(100 * rewardUnit));
-
-        uint256 deadline = block.timestamp + 1 hours;
-        bytes memory sig1 = _sign(address(pool), user, 100 * rewardUnit, deadline);
-        RewardData[] memory r1 = new RewardData[](1);
-        r1[0] = RewardData(address(pool), 100 * rewardUnit, deadline, sig1);
-
-        vm.prank(user);
-        teller.claimRewards(r1);
-
-        uint256 balanceAfterFirst = rewardToken.balanceOf(user);
-
-        bytes memory sig2 = _sign(address(pool), user, 200 * rewardUnit, deadline);
-        RewardData[] memory r2 = new RewardData[](1);
-        r2[0] = RewardData(address(pool), 200 * rewardUnit, deadline, sig2);
-
-        // No-op: returns 0 instead of reverting when total reward cap exceeded
-        vm.prank(user);
-        teller.claimRewards(r2);
-
-        assertEq(rewardToken.balanceOf(user), balanceAfterFirst);
-    }
-
-    function test_claimRewards_partialCapRemaining_clampsToCap() external {
-        pool.setTotalRewardCap(uint104(150 * rewardUnit));
-
-        uint256 deadline = block.timestamp + 1 hours;
-        bytes memory sig1 = _sign(address(pool), user, 100 * rewardUnit, deadline);
-        RewardData[] memory r1 = new RewardData[](1);
-        r1[0] = RewardData(address(pool), 100 * rewardUnit, deadline, sig1);
-        vm.prank(user);
-        teller.claimRewards(r1);
-
-        bytes memory sig2 = _sign(address(pool), user, 200 * rewardUnit, deadline);
-        RewardData[] memory r2 = new RewardData[](1);
-        r2[0] = RewardData(address(pool), 200 * rewardUnit, deadline, sig2);
-        vm.prank(user);
-        teller.claimRewards(r2);
-
-        assertEq(rewardToken.balanceOf(user), 150 * rewardUnit);
     }
 
     // ========================= PER-CLAIM CAP =========================
@@ -400,10 +342,10 @@ abstract contract RewardRoutingNegativeBase is Test {
         IncentivePool poorPool = new IncentivePool(address(this), rewardToken, 1 days);
         poorPool.setAuthority(rolesAuthority);
         rolesAuthority.setRoleCapability(TELLER_ROLE, address(poorPool), IncentivePool.processRewards.selector, true);
+        teller.setIncentivePoolAllowed(address(poorPool), true);
         poorPool.setRewardSigner(signer);
         poorPool.setMaximumRewardAmountPerClaim(uint96(1_000 * rewardUnit));
         poorPool.setMaxDeadline(1 days);
-        poorPool.setTotalRewardCap(uint104(1_000_000 * rewardUnit));
         MockERC20(address(rewardToken)).mint(address(poorPool), 10 * rewardUnit);
 
         uint256 deadline = block.timestamp + 1 hours;
@@ -417,26 +359,6 @@ abstract contract RewardRoutingNegativeBase is Test {
     }
 
     // ========================= ATOMICITY: withdrawWithRewards =========================
-
-    function test_withdrawWithRewards_rewardDisabled_withdrawSucceedsNoReward() external {
-        uint256 shares = _depositForUser(user, 10_000e6);
-        pool.setTotalRewardCap(0);
-
-        uint256 deadline = block.timestamp + 1 hours;
-        bytes memory sig = _sign(address(pool), user, 100 * rewardUnit, deadline);
-        RewardData[] memory rewards = new RewardData[](1);
-        rewards[0] = RewardData(address(pool), 100 * rewardUnit, deadline, sig);
-
-        uint256 poolRewardBalBefore = rewardToken.balanceOf(address(pool));
-
-        // No-op: returns 0 instead of reverting when rewards are disabled
-        vm.prank(user);
-        teller.withdrawWithRewards(ERC20(address(usdc)), shares, 0, user, rewards);
-
-        // Withdrawal succeeded but no rewards were paid from the pool
-        assertEq(boringVault.balanceOf(user), 0);
-        assertEq(rewardToken.balanceOf(address(pool)), poolRewardBalBefore);
-    }
 
     function test_withdrawWithRewards_withdrawFailure_neverReachesRewards() external {
         uint256 shares = _depositForUser(user, 1_000e6);
@@ -558,7 +480,11 @@ abstract contract RewardRoutingNegativeBase is Test {
         rewards[0] = RewardData(eoa, 100 * rewardUnit, deadline, sig);
 
         vm.prank(user);
-        vm.expectRevert();
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TellerWithMultiAssetSupportLib.TellerWithMultiAssetSupport__IncentivePoolNotAllowed.selector, eoa
+            )
+        );
         teller.claimRewards(rewards);
     }
 
@@ -566,8 +492,7 @@ abstract contract RewardRoutingNegativeBase is Test {
 
     function test_claimRewards_secondPoolUnauthorized_revertsEntireTx() external {
         IncentivePool pool2 = _createPool(rewardToken);
-        // pool2 has TELLER_ROLE capability set in _createPool, but let's revoke it
-        rolesAuthority.setRoleCapability(TELLER_ROLE, address(pool2), IncentivePool.processRewards.selector, false);
+        // pool2 is not allowlisted on the teller, so the allowlist check reverts before reaching processRewards.
 
         uint256 deadline = block.timestamp + 1 hours;
         bytes memory sig1 = _sign(address(pool), user, 100 * rewardUnit, deadline);
@@ -578,7 +503,12 @@ abstract contract RewardRoutingNegativeBase is Test {
         rewards[1] = RewardData(address(pool2), 50 * rewardUnit, deadline, sig2);
 
         vm.prank(user);
-        vm.expectRevert("UNAUTHORIZED");
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TellerWithMultiAssetSupportLib.TellerWithMultiAssetSupport__IncentivePoolNotAllowed.selector,
+                address(pool2)
+            )
+        );
         teller.claimRewards(rewards);
 
         assertEq(rewardToken.balanceOf(user), 0);
@@ -622,32 +552,6 @@ abstract contract RewardRoutingNegativeBase is Test {
         teller.claimRewards(rewards);
 
         assertEq(rewardToken.balanceOf(user), 0);
-    }
-
-    // ========================= CAP LOWERED BELOW ALREADY CLAIMED =========================
-
-    function test_claimRewards_capLoweredBelowClaimed_noOp() external {
-        uint256 deadline = block.timestamp + 1 hours;
-        bytes memory sig1 = _sign(address(pool), user, 500 * rewardUnit, deadline);
-        RewardData[] memory r1 = new RewardData[](1);
-        r1[0] = RewardData(address(pool), 500 * rewardUnit, deadline, sig1);
-
-        vm.prank(user);
-        teller.claimRewards(r1);
-
-        uint256 balanceAfterFirst = rewardToken.balanceOf(user);
-
-        pool.setTotalRewardCap(uint104(100 * rewardUnit));
-
-        bytes memory sig2 = _sign(address(pool), user, 600 * rewardUnit, deadline);
-        RewardData[] memory r2 = new RewardData[](1);
-        r2[0] = RewardData(address(pool), 600 * rewardUnit, deadline, sig2);
-
-        // No-op: returns 0 instead of reverting when total reward cap exceeded
-        vm.prank(user);
-        teller.claimRewards(r2);
-
-        assertEq(rewardToken.balanceOf(user), balanceAfterFirst);
     }
 
     // ========================= SAME-TOKEN: withdrawWithRewards balance accounting =========================
@@ -698,12 +602,12 @@ abstract contract RewardRoutingNegativeBase is Test {
         p.setRewardSigner(signer);
         p.setMaximumRewardAmountPerClaim(uint96(1_000 * rewardUnit));
         p.setMaxDeadline(1 days);
-        p.setTotalRewardCap(uint104(1_000_000 * rewardUnit));
         MockERC20(address(token)).mint(address(p), 1_000_000 * rewardUnit);
     }
 
     function _createAndEnablePool(ERC20 token) internal returns (IncentivePool p) {
         p = _createPool(token);
+        teller.setIncentivePoolAllowed(address(p), true);
     }
 
     function _sign(address poolAddr, address recipient, uint256 cumulativeOwed, uint256 deadline)
