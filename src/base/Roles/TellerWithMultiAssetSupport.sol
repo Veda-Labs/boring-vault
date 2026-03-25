@@ -23,7 +23,7 @@ struct DepositParams {
     ERC20 depositAsset;
     uint256 depositAmount;
     uint256 minimumMint;
-    address to;
+    address recipient;
 }
 
 struct ComplianceData {
@@ -510,7 +510,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
             revert TellerWithMultiAssetSupport__SharesAreLocked();
         }
 
-        _enforceTransferAllowlist(from, to);
+        _enforceTransferAllowlist(from, to, operator);
     }
 
     /**
@@ -545,13 +545,16 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     /**
      * @notice Enforces transfer allowlist based on `transferAllowedRole`.
      * @dev If `transferAllowedRole` is type(uint8).max, no restriction is applied.
-     *      Otherwise, at least one of `from` or `to` must hold the specified role.
+     *      Otherwise, at least one of `from`, `to`, or `operator` must hold the specified role.
      */
-    function _enforceTransferAllowlist(address from, address to) internal view {
+    function _enforceTransferAllowlist(address from, address to, address operator) internal view {
         uint8 role = transferAllowedRole;
         if (role == type(uint8).max) return;
         RolesAuthority auth = RolesAuthority(address(authority));
-        if (!auth.doesUserHaveRole(from, role) && !auth.doesUserHaveRole(to, role)) {
+        if (
+            !auth.doesUserHaveRole(operator, role) && !auth.doesUserHaveRole(from, role)
+                && !auth.doesUserHaveRole(to, role)
+        ) {
             revert TellerWithMultiAssetSupport__TransferNotAllowed();
         }
     }
@@ -624,7 +627,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     {
         ERC20 depositAsset = params.depositAsset;
         uint256 depositAmount = params.depositAmount;
-        address to = params.to;
+        address to = params.recipient;
         if (to == address(0)) revert TellerWithMultiAssetSupport__ZeroRecipient();
         Asset memory asset = _beforeDeposit(depositAsset);
 
@@ -664,7 +667,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         if (address(params.depositAsset) == NATIVE) {
             revert TellerWithMultiAssetSupport__AssetNotSupported();
         }
-        address to = params.to;
+        address to = params.recipient;
         if (to == address(0)) revert TellerWithMultiAssetSupport__ZeroRecipient();
         _verifyComplianceSignature(to, params.depositAsset, params.depositAmount, compliance);
         Asset memory asset = _beforeDeposit(params.depositAsset);
@@ -807,7 +810,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      *      not the NATIVE sentinel, since conversion happens before this call.
      */
     function _verifyComplianceSignature(
-        address depositor,
+        address recipient,
         ERC20 depositAsset,
         uint256 depositAmount,
         ComplianceData calldata compliance
@@ -818,7 +821,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
                 address(this),
                 block.chainid,
                 msg.sender,
-                depositor,
+                recipient,
                 address(depositAsset),
                 depositAmount,
                 compliance.deadline
