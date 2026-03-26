@@ -14,7 +14,7 @@ import {
 } from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {IncentivePool} from "src/base/IncentivePool.sol";
-import {TellerHistoryHelper} from "src/helper/TellerHistoryHelper.sol";
+import {ArcticArchitectureLens} from "src/helper/ArcticArchitectureLens.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
@@ -38,7 +38,7 @@ contract MockRewardToken_Helper is ERC20 {
     }
 }
 
-contract TellerHistoryHelperTest is Test {
+contract ArcticArchitectureLensTest is Test {
     using SafeTransferLib for ERC20;
 
     MockWETH_Helper public weth;
@@ -49,7 +49,7 @@ contract TellerHistoryHelperTest is Test {
     TellerWithMultiAssetSupport public teller;
     IncentivePool public poolA;
     IncentivePool public poolB;
-    TellerHistoryHelper public helper;
+    ArcticArchitectureLens public helper;
     RolesAuthority public roles;
 
     uint256 internal constant SIGNER_PK = 0xBACE;
@@ -72,7 +72,7 @@ contract TellerHistoryHelperTest is Test {
         signerAddr = vm.addr(SIGNER_PK);
         poolA = new IncentivePool(address(this), ERC20(address(rewardToken)), 1 days);
         poolB = new IncentivePool(address(this), ERC20(address(rewardToken2)), 1 days);
-        helper = new TellerHistoryHelper();
+        helper = new ArcticArchitectureLens();
 
         roles = new RolesAuthority(address(this), Authority(address(0)));
         vault.setAuthority(roles);
@@ -150,7 +150,7 @@ contract TellerHistoryHelperTest is Test {
         pools[0] = address(poolA);
         pools[1] = address(poolB);
 
-        TellerHistoryHelper.UserHistory memory h = helper.getUserHistory(teller, user, pools);
+        ArcticArchitectureLens.UserHistory memory h = helper.getUserHistory(teller, user, pools);
 
         assertEq(h.principalCheckpoints.length, 0);
         assertEq(h.principalTotalLength, 0);
@@ -169,7 +169,7 @@ contract TellerHistoryHelperTest is Test {
         address[] memory pools = new address[](1);
         pools[0] = address(poolA);
 
-        TellerHistoryHelper.UserHistory memory h = helper.getUserHistory(teller, user, pools);
+        ArcticArchitectureLens.UserHistory memory h = helper.getUserHistory(teller, user, pools);
 
         assertEq(h.principalCheckpoints.length, 2);
         assertEq(h.principalTotalLength, 2);
@@ -191,7 +191,7 @@ contract TellerHistoryHelperTest is Test {
         pools[0] = address(poolA);
         pools[1] = address(poolB);
 
-        TellerHistoryHelper.UserHistory memory h = helper.getUserHistory(teller, user, pools);
+        ArcticArchitectureLens.UserHistory memory h = helper.getUserHistory(teller, user, pools);
 
         // 1 deposit checkpoint
         assertEq(h.principalCheckpoints.length, 1);
@@ -215,7 +215,7 @@ contract TellerHistoryHelperTest is Test {
         _deposit(user, 1e18);
 
         address[] memory pools = new address[](0);
-        TellerHistoryHelper.UserHistory memory h = helper.getUserHistory(teller, user, pools);
+        ArcticArchitectureLens.UserHistory memory h = helper.getUserHistory(teller, user, pools);
 
         assertEq(h.principalCheckpoints.length, 1);
         assertEq(h.claimHistories.length, 0);
@@ -238,7 +238,7 @@ contract TellerHistoryHelperTest is Test {
         uint256[] memory lengths = new uint256[](0);
 
         // Request 2 checkpoints starting at index 1
-        TellerHistoryHelper.UserHistory memory h = helper.getUserHistory(teller, user, 1, 2, pools, starts, lengths);
+        ArcticArchitectureLens.UserHistory memory h = helper.getUserHistory(teller, user, 1, 2, pools, starts, lengths);
 
         assertEq(h.principalTotalLength, 4);
         assertEq(h.principalCheckpoints.length, 2);
@@ -267,7 +267,7 @@ contract TellerHistoryHelperTest is Test {
         lengths[0] = 2;
 
         // Get all principal, 2 claims starting at index 1
-        TellerHistoryHelper.UserHistory memory h =
+        ArcticArchitectureLens.UserHistory memory h =
             helper.getUserHistory(teller, user, 0, type(uint256).max, pools, starts, lengths);
 
         assertEq(h.principalCheckpoints.length, 1);
@@ -285,7 +285,8 @@ contract TellerHistoryHelperTest is Test {
         uint256[] memory lengths = new uint256[](0);
 
         // Start beyond total length
-        TellerHistoryHelper.UserHistory memory h = helper.getUserHistory(teller, user, 100, 200, pools, starts, lengths);
+        ArcticArchitectureLens.UserHistory memory h =
+            helper.getUserHistory(teller, user, 100, 200, pools, starts, lengths);
 
         assertEq(h.principalTotalLength, 1);
         assertEq(h.principalCheckpoints.length, 0);
@@ -301,7 +302,8 @@ contract TellerHistoryHelperTest is Test {
         uint256[] memory lengths = new uint256[](0);
 
         // Length exceeds remaining — should clamp
-        TellerHistoryHelper.UserHistory memory h = helper.getUserHistory(teller, user, 0, 999, pools, starts, lengths);
+        ArcticArchitectureLens.UserHistory memory h =
+            helper.getUserHistory(teller, user, 0, 999, pools, starts, lengths);
 
         assertEq(h.principalTotalLength, 2);
         assertEq(h.principalCheckpoints.length, 2);
@@ -313,7 +315,7 @@ contract TellerHistoryHelperTest is Test {
         uint256[] memory starts = new uint256[](0);
         uint256[] memory lengths = new uint256[](1);
 
-        vm.expectRevert(TellerHistoryHelper.ArrayLengthMismatch.selector);
+        vm.expectRevert(ArcticArchitectureLens.ArrayLengthMismatch.selector);
         helper.getUserHistory(teller, user, 0, 0, pools, starts, lengths);
     }
 
@@ -338,7 +340,7 @@ contract TellerHistoryHelperTest is Test {
         lengths[0] = 1; // only first claim from pool A
         lengths[1] = 1; // only first claim from pool B
 
-        TellerHistoryHelper.UserHistory memory h =
+        ArcticArchitectureLens.UserHistory memory h =
             helper.getUserHistory(teller, user, 0, type(uint256).max, pools, starts, lengths);
 
         // Pool A: 1 of 2 claims
