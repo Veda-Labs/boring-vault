@@ -72,7 +72,6 @@ contract BoringSwapper is Auth, ISwapper {
     error BoringSwapper__RateLimitExceeded();
     error BoringSwapper__OrderNotFound();
     error BoringSwapper__HashMismatch(bytes32, bytes32);
-    error BoringSwapper__UnauthorizedCaller();
     error BoringSwapper__OrderNotApproved();
     error BoringSwapper__CancelFailed();
 

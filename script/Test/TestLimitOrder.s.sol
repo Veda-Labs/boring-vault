@@ -41,7 +41,7 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
     address _boringVault = 0x0Fc760EEbEFbF5FE3B452A9a52325c4376FEADFA;
     address _manager = 0x1AE3346BC6d3267b860De524D5E38E19679A1DB0;
     address _accountant = 0xD1135B891143d3c5DfE158C6b4961937a27b8AE4;
-    address swapper = 0x43a604FfD354b08ff0631F9542B9803e882CB4FF;
+    address swapper = 0x78D6c9A92412C160a953eA5EDd514e05b671b7D3;
     address _decoder = 0xBA7f9851a507A463d9D95dD5d119b03a81671efb;
 
     function setUp() public override {
@@ -158,8 +158,8 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
         );
 
         // Params from SDK generate step (includes fee extension)
-        uint256 salt = 77555234542998122317800678757108676946735340967750415210196209410355831553726;
-        uint256 makerTraits = 33471150795161712739625987854073848363835857087619537562360917799156848787456;
+        uint256 salt = 61125629042823985801637371719881911136103853679086487175379932325796025253566;
+        uint256 makerTraits = 33471150795161712739625987854305731708269265230087486611912341069912831164416;
         address feeTaker = 0xc0DFdB9E7a392c3dBBE7c6FBe8FBC1789C9FE05e;
 
         bytes memory extension = hex"00000142000000ae000000ae000000ae000000ae000000570000000000000000c0dfdb9e7a392c3dbbe7c6fbe8fbc1789c9fe05e000000012c6406b09498030ae3416b66dc74db31d09524fa87b1f76ea9a11ae13b29f5c555d18bd45f0b94f54a968fc90ed87a54c23dc480b395770895ad27ad6b0d95c0dfdb9e7a392c3dbbe7c6fbe8fbc1789c9fe05e000000012c6406b09498030ae3416b66dc74db31d09524fa87b1f76ea9a11ae13b29f5c555d18bd45f0b94f54a968fc90ed87a54c23dc480b395770895ad27ad6b0d95c0dfdb9e7a392c3dbbe7c6fbe8fbc1789c9fe05e01000000000000000000000000000000000000000090cbe4bdd538d6e9b379bff5fe72c3d67a521de50fc760eebefbf5fe3b452a9a52325c4376feadfa000000012c6406b09498030ae3416b66dc74db31d09524fa87b1f76ea9a11ae13b29f5c555d18bd45f0b94f54a968fc90ed87a54c23dc480b395770895ad27ad6b0d95";
@@ -171,7 +171,7 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
             makerAsset: getAddress(sourceChain, "WETH"),
             takerAsset: getAddress(sourceChain, "USDC"),
             makingAmount: 1e15,
-            takingAmount: 2205e3,
+            takingAmount: 2.1e6,
             makerTraits: makerTraits
         }), extension);
 
@@ -196,6 +196,23 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
 
         tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
         tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+
+        // Log order hash for comparison with JS
+        bytes32 ONEINCH_ORDER_TYPE_HASH = keccak256(
+            "Order(uint256 salt,address maker,address receiver,address makerAsset,address takerAsset,uint256 makingAmount,uint256 takingAmount,uint256 makerTraits)"
+        );
+        bytes memory orderData = abi.encode(salt, address(swapper), feeTaker, getAddress(sourceChain, "WETH"), getAddress(sourceChain, "USDC"), uint256(1e15), uint256(2.1e6), makerTraits);
+        bytes32 structHash = keccak256(abi.encodePacked(ONEINCH_ORDER_TYPE_HASH, orderData));
+        bytes32 domainSeparator = keccak256(abi.encode(
+            keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
+            keccak256("1inch Aggregation Router"),
+            keccak256("6"),
+            block.chainid,
+            0x111111125421cA6dc452d289314280a0f8842A65
+        ));
+        bytes32 orderHash = keccak256(abi.encodePacked("\x19\x01", domainSeparator, structHash));
+        console.log("Order hash (Solidity):");
+        console.logBytes32(orderHash);
 
         _submitManagerCall(manageProofs, tx_);
 
