@@ -112,16 +112,17 @@ contract DeployMorphoLoopAdapter is Script, MerkleTreeHelper {
         MorphoLoopTvlAdapter adapter =
             new MorphoLoopTvlAdapter(0x9103c3b4e834476c9a62ea009ba2c884ee42e94e6e314a26f04d312434191836);
         (uint256 collat, uint256 debt, uint256 supplied) =
-            adapter.getUserPositionValues(0x4A0768ad836E787391f85bBaA110DF64D35C64d9);
+            adapter.getUserPositionValues(0x272BCD869CbDFcb32c335dB2f1F6C54Eb1A50aCc);
         console.log("collateral", collat);
         console.log("debt", debt);
         console.log("supplied", supplied);
         console.log("LTV", (debt) * 1e8 / collat); // assuming supplied is in USDC terms
-        console.log("TVL in USDC terms", adapter.getUserTvl(0x4A0768ad836E787391f85bBaA110DF64D35C64d9));
+        console.log("TVL in USDC terms", adapter.getUserTvl(0x272BCD869CbDFcb32c335dB2f1F6C54Eb1A50aCc));
 
         vm.stopBroadcast();
     }
 }
+
 contract DeployAaveAdapter is Script, MerkleTreeHelper {
     uint256 public privateKey;
 
@@ -133,14 +134,21 @@ contract DeployAaveAdapter is Script, MerkleTreeHelper {
 
     function run() external {
         vm.startBroadcast(privateKey);
+        address AAVE_V3_POOL = 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2;
+        address CBBTC_USD_CHAINLINK_FEED = 0x2665701293fCbEB223D11A08D826563EDcCE423A;
+        address USDC_USD_CHAINLINK_FEED = 0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6;
+        address SYUSD_VAULT = 0x279CAD277447965AF3d24a78197aad1B02a2c589;
+        address SYUSD_ACCOUNTANT = 0x03D9a9cE13D16C7cFCE564f41bd7E85E5cde8Da6;
 
-        CbBtcUsdcAaveV3BalanceAdapter adapter =
-            new CbBtcUsdcAaveV3BalanceAdapter();
-        (uint256 collat, uint256 debt,,) =
-            adapter.getUserPosition(0x4A0768ad836E787391f85bBaA110DF64D35C64d9);
+        CbBtcUsdcAaveV3BalanceAdapter adapter = new CbBtcUsdcAaveV3BalanceAdapter(
+            AAVE_V3_POOL, CBBTC_USD_CHAINLINK_FEED, USDC_USD_CHAINLINK_FEED, SYUSD_VAULT, SYUSD_ACCOUNTANT
+        );
+        (uint256 collat, uint256 debt, uint256 credit) =
+            adapter.getUserPosition(0x272BCD869CbDFcb32c335dB2f1F6C54Eb1A50aCc);
         console.log("collateral", collat);
         console.log("debt", debt);
-        console.log("TVL in CBTC terms", adapter.getUserTvl(0x4A0768ad836E787391f85bBaA110DF64D35C64d9));
+        console.log("credit", credit);
+        console.log("TVL in CBTC terms", adapter.getUserTvl(0x272BCD869CbDFcb32c335dB2f1F6C54Eb1A50aCc));
 
         vm.stopBroadcast();
     }

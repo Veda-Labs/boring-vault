@@ -7,15 +7,20 @@ abstract contract KodiakIslandDecoderAndSanitizer is BaseDecoderAndSanitizer {
     function addLiquidity(
         address island, // Address of the Kodiak Island
         uint256,
-        /*amount0Max*/ // Maximum amount of token0 willing to deposit
+        /*amount0Max*/
+        // Maximum amount of token0 willing to deposit
         uint256,
-        /*amount1Max*/ // Maximum amount of token1 willing to deposit
+        /*amount1Max*/
+        // Maximum amount of token1 willing to deposit
         uint256,
-        /*amount0Min*/ // Minimum acceptable token0 deposit (slippage protection)
+        /*amount0Min*/
+        // Minimum acceptable token0 deposit (slippage protection)
         uint256,
-        /*amount1Min*/ // Minimum acceptable token1 deposit (slippage protection)
+        /*amount1Min*/
+        // Minimum acceptable token1 deposit (slippage protection)
         uint256,
-        /*amountSharesMin*/ // Minimum IslandTokens to receive
+        /*amountSharesMin*/
+        // Minimum IslandTokens to receive
         address receiver // Address to receive LP tokens
     )
         external
@@ -28,15 +33,20 @@ abstract contract KodiakIslandDecoderAndSanitizer is BaseDecoderAndSanitizer {
     function addLiquidityNative(
         address island, // Address of the Kodiak Island
         uint256,
-        /*amount0Max*/ // Maximum BERA amount
+        /*amount0Max*/
+        // Maximum BERA amount
         uint256,
-        /*amount1Max*/ // Maximum token amount
+        /*amount1Max*/
+        // Maximum token amount
         uint256,
-        /*amount0Min*/ // Minimum BERA deposit
+        /*amount0Min*/
+        // Minimum BERA deposit
         uint256,
-        /*amount1Min*/ // Minimum token deposit
+        /*amount1Min*/
+        // Minimum token deposit
         uint256,
-        /*amountSharesMin*/ // Minimum LP tokens to receive
+        /*amountSharesMin*/
+        // Minimum LP tokens to receive
         address receiver // Address to receive LP tokens
     )
         external

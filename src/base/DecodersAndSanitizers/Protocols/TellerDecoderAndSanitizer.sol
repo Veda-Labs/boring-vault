@@ -67,7 +67,7 @@ abstract contract TellerDecoderAndSanitizer is BaseDecoderAndSanitizer {
     }
 
     // BoringSolver.sol
-    function boringRedeemSelfSolve(DecoderCustomTypes.OnChainWithdraw memory request,address teller)
+    function boringRedeemSelfSolve(DecoderCustomTypes.OnChainWithdraw memory request, address teller)
         external
         pure
         virtual
@@ -148,6 +148,4 @@ abstract contract TellerDecoderAndSanitizer is BaseDecoderAndSanitizer {
 
         addressesFound = abi.encodePacked(depositAsset, to, bridgeWildCard0, feeToken);
     }
-
-
 }
