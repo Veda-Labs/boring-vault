@@ -21,7 +21,7 @@ contract CreateEtherFiBTCMerkleRootScript is Script, MerkleTreeHelper {
     address public boringVault = 0x657e8C867D8B37dCC18fA4Caead9C45EB088C642;
     address public managerAddress = 0x382d0106F308864D5462332D9D3bB54a60384B70;
     address public accountantAddress = 0x1b293DC39F94157fA0D1D36d7e0090C8B8B8c13F;
-    address public rawDataDecoderAndSanitizer = 0x7712588Aa2a904111A81885B4dCCf895A1DEb700;
+    address public rawDataDecoderAndSanitizer = 0xC48cA54b9F3f8Fc7E5347DE55879851178B485e8;
 
     address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
 
@@ -62,7 +62,7 @@ contract CreateEtherFiBTCMerkleRootScript is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "accountantAddress", accountantAddress);
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](64);
+        ManageLeaf[] memory leafs = new ManageLeaf[](128);
 
         // ========================== Symbiotic ==========================
         address[] memory defaultCollaterals = new address[](2);
@@ -112,14 +112,23 @@ contract CreateEtherFiBTCMerkleRootScript is Script, MerkleTreeHelper {
         address[] memory rewards = new address[](0);
         _addSymbioticVaultLeafs(leafs, vaults, vault_assets, rewards);
 
-        // ========================== LayerZero ==========================
-        //_addLayerZeroLeafs(
-        //    leafs,
-        //    getERC20(sourceChain, "WBTC"),
-        //    getAddress(sourceChain, "WBTCOFTAdapter"),
-        //    layerZeroScrollEndpointId,
-        //    getBytes32(sourceChain, "boringVault")
-        //);
+        // ========================== Standard Bridge to Optimism ==========================
+        {
+            ERC20[] memory localTokens = new ERC20[](1);
+            localTokens[0] = getERC20(sourceChain, "WBTC");
+            ERC20[] memory remoteTokens = new ERC20[](1);
+            remoteTokens[0] = getERC20(optimism, "WBTC");
+            _addStandardBridgeLeafs(
+                leafs,
+                optimism,
+                getAddress(optimism, "crossDomainMessenger"),
+                getAddress(sourceChain, "optimismResolvedDelegate"),
+                getAddress(sourceChain, "optimismStandardBridge"),
+                getAddress(sourceChain, "optimismPortal"),
+                localTokens,
+                remoteTokens
+            );
+        }
 
 
         // ========================== Verify ==========================

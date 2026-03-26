@@ -1913,6 +1913,7 @@ contract ChainValues {
         values[optimism]["CBETH"] = 0xadDb6A0412DE1BA0F936DCaeb8Aaa24578dcF3B2.toBytes32();
         values[optimism]["ZRO"] = 0x6985884C4392D348587B19cb9eAAf157F13271cd.toBytes32();
         values[optimism]["ETH"] = 0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000.toBytes32();
+        values[optimism]["WBTC"] = 0x68f180fcCe6836688e9084f035309E29Bf0A2095.toBytes32();
 
         values[optimism]["vault"] = 0xBA12222222228d8Ba445958a75a0704d566BF2C8.toBytes32();
         values[optimism]["balancerVault"] = 0xBA12222222228d8Ba445958a75a0704d566BF2C8.toBytes32();
