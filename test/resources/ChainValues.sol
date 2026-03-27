@@ -1239,7 +1239,7 @@ contract ChainValues {
         values[mainnet]["EtherFi_Cap_weETHSymbioticVault"] = 0x5c493fCB2017d0A644526CFca29eEF7ab22f5B8B.toBytes32();
 
         values[mainnet]["EtherFi_ETHFISymbioticVault"] = 0x2Bcfa0283C92b7845ECE12cEaDc521414BeF1067.toBytes32();
-        values[mainnet]["CapSymbiotic"] = 0x6daA2f7952D51d9Bd1551a3b4360027109a33B56.toBytes32();
+        values[mainnet]["CapSymbiotic"] = 0x087cbB1a89aA038A167E27588B5eC01484b40Fb7.toBytes32();
 
         // Karak
         values[mainnet]["vaultSupervisor"] = 0x54e44DbB92dBA848ACe27F44c0CB4268981eF1CC.toBytes32();
