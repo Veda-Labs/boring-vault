@@ -26,6 +26,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     mapping(address => mapping(address => mapping(address => bool))) public ownerToOneInchSellTokenToBuyTokenToInTree;
     mapping(address => mapping(address => mapping(address => bool))) public ownerToOneInchV6SellTokenToBuyTokenToInTree;
     mapping(address => mapping(address => mapping(address => bool))) public ownerToOdosSellTokenToBuyTokenToInTree;
+    mapping(address => mapping(address => mapping(address => bool))) public ownerToEtherfiSwapperSellTokenToBuyTokenToInTree;
     mapping(address => mapping(address => mapping(address => bool))) public ownerToOogaBoogaSellTokenToBuyTokenToInTree;
     mapping(address => mapping(address => mapping(address => bool))) public ownerToGlueXSellTokenToBuyTokenToInTree;
     mapping(address => mapping(address => mapping(address => bool))) public ownerToSushiSellTokenToBuyTokenToInTree;
@@ -8440,7 +8441,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
          address itbPositionManager,
          ERC20[] memory tokensUsed,
          string memory itbContractName
-     ) internal {
+     ) internal virtual {
          // acceptOwnership
          leafIndex++;
          leafs[leafIndex] = ManageLeaf(
@@ -14216,6 +14217,42 @@ function _addTellerLeafsWithReferral(
             leafs[leafIndex].argumentAddresses[1] = tokenB;
             leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
             leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "odosExecutor");
+        }
+    }
+
+    function _addEtherfiOneWaySwapperLeafs(ManageLeaf[] memory leafs, address tokenA, address tokenB) internal {
+
+        // add approval if not already added
+        if (!ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][tokenA][getAddress(sourceChain, "etherfiSwapper")]) {
+            ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][tokenA][getAddress(sourceChain, "etherfiSwapper")] = true;
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                tokenA,
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve Etherfi swapper to spend ", ERC20(tokenA).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "etherfiSwapper");
+        }
+
+        // add swap from tokenA to tokenB
+        if (!ownerToEtherfiSwapperSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokenA][tokenB]) {
+            ownerToEtherfiSwapperSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokenA][tokenB] = true;
+
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "etherfiSwapper"),
+                false,
+                "swap((address,uint256,address,address,uint256,uint256,address),bytes,address,uint32)",
+                new address[](3),
+                string.concat("Swap ", ERC20(tokenA).symbol(), " for ", ERC20(tokenB).symbol(), " using etherfi swapper"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = tokenA;
+            leafs[leafIndex].argumentAddresses[1] = tokenB;
+            leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
         }
     }
 

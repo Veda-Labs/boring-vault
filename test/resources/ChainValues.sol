@@ -1532,6 +1532,9 @@ contract ChainValues {
         values[mainnet]["odosRouterV2"] = 0xCf5540fFFCdC3d510B18bFcA6d2b9987b0772559.toBytes32();
         values[mainnet]["odosExecutor"] = 0x365084B05Fa7d5028346bD21D842eD0601bAB5b8.toBytes32();
 
+        // Etherfi swapper
+        values[mainnet]["etherfiSwapper"] = 0xcbbCc9d3DCA889AA2692a72ADD2107EF05BD716e.toBytes32();
+
         // GlueX
         values[mainnet]["glueXRouter"] = 0xe95F6EAeaE1E4d650576Af600b33D9F7e5f9f7fd.toBytes32();
         values[mainnet]["glueXExecutor"] = 0x2102Ab11A3c74B1D543891020969dc3D46C132AB.toBytes32();
