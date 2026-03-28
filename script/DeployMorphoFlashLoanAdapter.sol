@@ -25,10 +25,10 @@ contract DeployMorphoFlashLoanAdapter is Script, MerkleTreeHelper {
         creationCode = type(MorphoFlashLoanAdapter).creationCode;
         constructorArgs = abi.encode(
             getAddress(sourceChain, "morphoBlue"),
-            0x279CAD277447965AF3d24a78197aad1B02a2c589,
-            0x9B3e565ffC70c4b72516BC2dbec4b3c790940CE8
+            0x272BCD869CbDFcb32c335dB2f1F6C54Eb1A50aCc,
+            0xE059cDcc94E7937FC7f7EeD9daAFaAd79B066099
         );
-        deployer.deployContract("MorphoFlashLoanAdapterV1", creationCode, constructorArgs, 0);
+        deployer.deployContract("MorphoFlashLoanAdapter_BTCUSDCarryCluster", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }

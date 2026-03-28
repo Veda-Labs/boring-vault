@@ -7,6 +7,7 @@ import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
+import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {Script} from "forge-std/Script.sol";
 import {console} from "forge-std/Test.sol";
 
@@ -38,6 +39,8 @@ contract CreateBTCUSDCarryClusterMerkleRootScript is Script, MerkleTreeHelper {
     address public boringVault = 0x272BCD869CbDFcb32c335dB2f1F6C54Eb1A50aCc;
     address public managerAddress = 0xE059cDcc94E7937FC7f7EeD9daAFaAd79B066099;
     address public rawDataDecoderAndSanitizer = 0xdaE2D832C004f2E38547A78A0a2C04dE1DAE37f7;
+    address public flashLoanAdapter = 0xCf8298839F8b710B87ba9225b1a29390Fb818759;
+    address public rolesAuthority = 0x43A37629C8030b38fCeC2817AAbE62501E74bA88;
 
     address public syUsdVault = 0x279CAD277447965AF3d24a78197aad1B02a2c589;
     address public syUsdWithdrawQueue = 0xF632c10b19f2a0451cD4A653fC9ca0c15eA1040b;
@@ -112,14 +115,21 @@ contract CreateBTCUSDCarryClusterMerkleRootScript is Script, MerkleTreeHelper {
         _addWithdrawQueueLeafs(leafs, syUsdWithdrawQueue, syUsdVault, assets);
         _addSelfSolveLeafs(leafs, assets, syUsdQueueSolver, boringVault, syUsdTeller);
 
+        _addMorphoBlueFlashLoanLeafs(leafs, getAddress(sourceChain, "USDC"));
+
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
         string memory filePath = "./leafs/Mainnet/BTCUSDCarryClusterStrategyLeafs.json";
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
 
+        RolesAuthority authority = RolesAuthority(rolesAuthority);
         ManagerWithMerkleVerification manager = ManagerWithMerkleVerification(managerAddress);
         vm.startBroadcast(vm.envUint("PK"));
         manager.setManageRoot(0x0307AD25281C99F22A8F3Af9e272fE3968810239, manageTree[manageTree.length - 1][0]);
+        manager.setManageRoot(flashLoanAdapter, manageTree[manageTree.length - 1][0]);
         manager.setManageRoot(vm.addr(vm.envUint("BTCUSDCarryStrategist")), manageTree[manageTree.length - 1][0]);
+
+        authority.setUserRole(flashLoanAdapter, 1, true);
+        authority.setUserRole(flashLoanAdapter, 7, true);
         vm.stopBroadcast();
     }
 }
