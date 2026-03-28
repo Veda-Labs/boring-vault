@@ -42,6 +42,7 @@ contract BaseSetup is Test {
     uint8 public constant OWNER_ROLE = 7;
     uint8 public constant STRATEGIST_ROLE = 8;
     uint8 public constant DENIER_ROLE = 9;
+    bytes4 internal constant DEPOSIT_SELECTOR = bytes4(keccak256("deposit(address,uint256,uint256,address)"));
     
     uint256 public constant ONE_SHARE = 1e18;
     uint256 public constant INITIAL_EXCHANGE_RATE = 1e18;
@@ -334,7 +335,7 @@ contract BaseSetup is Test {
         rolesAuthorityRP.setRoleCapability(ADMIN_ROLE, address(tellerMAS), TellerWithMultiAssetSupport.refundDeposit.selector, true);
         rolesAuthorityRP.setRoleCapability(SOLVER_ROLE, address(tellerMAS), TellerWithMultiAssetSupport.bulkDeposit.selector, true);
         rolesAuthorityRP.setRoleCapability(SOLVER_ROLE, address(tellerMAS), TellerWithMultiAssetSupport.bulkWithdraw.selector, true);
-        rolesAuthorityRP.setPublicCapability(address(tellerMAS), TellerWithMultiAssetSupport.deposit.selector, true);
+        rolesAuthorityRP.setPublicCapability(address(tellerMAS), DEPOSIT_SELECTOR, true);
         rolesAuthorityRP.setPublicCapability(address(tellerMAS), TellerWithMultiAssetSupport.depositWithPermit.selector, true);
         rolesAuthorityRP.setPublicCapability(address(tellerMAS), TellerWithMultiAssetSupport.withdraw.selector, true);
         
@@ -392,7 +393,7 @@ contract BaseSetup is Test {
         rolesAuthorityYS.setRoleCapability(ADMIN_ROLE, address(tellerYS), TellerWithMultiAssetSupport.refundDeposit.selector, true);
         rolesAuthorityYS.setRoleCapability(SOLVER_ROLE, address(tellerYS), TellerWithMultiAssetSupport.bulkDeposit.selector, true);
         rolesAuthorityYS.setRoleCapability(SOLVER_ROLE, address(tellerYS), TellerWithMultiAssetSupport.bulkWithdraw.selector, true);
-        rolesAuthorityYS.setPublicCapability(address(tellerYS), TellerWithMultiAssetSupport.deposit.selector, true);
+        rolesAuthorityYS.setPublicCapability(address(tellerYS), DEPOSIT_SELECTOR, true);
         rolesAuthorityYS.setPublicCapability(address(tellerYS), TellerWithMultiAssetSupport.depositWithPermit.selector, true);
         rolesAuthorityYS.setPublicCapability(address(tellerYS), TellerWithMultiAssetSupport.withdraw.selector, true);
         
@@ -481,4 +482,3 @@ contract BaseSetup is Test {
     }
     
 }
-
