@@ -105,7 +105,7 @@
     },
     "pauserConfiguration": {
       "shouldDeploy": true,
-      "pauserDeploymentName": "eBTC Pauser V0.0"
+      "pauserDeploymentName": "ether.fi BTC Pauser V0.0`"
     },
     "timelockConfiguration": {
       "shouldDeploy": true,
