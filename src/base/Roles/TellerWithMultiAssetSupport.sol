@@ -629,6 +629,8 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     /**
      * @notice Allows users to deposit into the BoringVault, if this contract is not paused.
      * @dev Publicly callable.
+     * @dev The compliance hash binds `params.recipient` (not `msg.sender`) as the approved receiver of shares.
+     *      The signer must explicitly approve the intended recipient.
      * @dev For native ETH deposits, the compliance signature must be built using the
      *      nativeWrapper (WETH) address as the deposit asset, not the NATIVE sentinel,
      *      because the NATIVE-to-WETH conversion occurs before compliance verification.

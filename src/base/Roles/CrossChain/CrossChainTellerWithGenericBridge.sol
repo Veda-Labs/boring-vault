@@ -154,8 +154,10 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
 
     /**
      * @notice Shared deposit-and-bridge logic used by both `depositAndBridge` and `depositAndBridgeWithPermit`.
-     * @dev `depositParams.to` is intentionally ignored; shares are minted to `msg.sender` then immediately bridged
-     *      to the separate `to` parameter (the cross-chain recipient).
+     * @dev `depositParams.recipient` is intentionally ignored in this path. Shares are always minted to `msg.sender`
+     *      first, then immediately burned and bridged to the separate `to` parameter (the cross-chain recipient).
+     *      Callers must NOT rely on `depositParams.recipient` to control the destination-chain recipient; use the
+     *      top-level `to` argument instead.
      */
     function _depositAndBridge(
         DepositParams calldata depositParams,
