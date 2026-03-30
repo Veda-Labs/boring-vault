@@ -85,6 +85,58 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         return (ROUTER, amount);
     }
 
+    function unoswapTo(uint256 to, uint256 token, uint256 amount, uint256 /*minReturn*/, uint256 /*dex*/)
+        external
+        view
+        returns (address, uint256)
+    {
+        if (address(uint160(to)) != msg.sender) revert("to must be swapper");
+        BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
+        if (ERC20(address(uint160(token))) != swapConfig.tokenRoute.tokenIn) revert("token mismatch");
+
+        return (ROUTER, amount);
+    }
+
+    function unoswapTo2(uint256 to, uint256 token, uint256 amount, uint256 /*minReturn*/, uint256 /*dex*/, uint256 /*dex2*/)
+        external
+        view
+        returns (address, uint256)
+    {
+        if (address(uint160(to)) != msg.sender) revert("to must be swapper");
+        BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
+        if (ERC20(address(uint160(token))) != swapConfig.tokenRoute.tokenIn) revert("token mismatch");
+
+        return (ROUTER, amount);
+    }
+
+    function unoswapTo3(uint256 to, uint256 token, uint256 amount, uint256 /*minReturn*/, uint256 /*dex*/, uint256 /*dex2*/, uint256 /*dex3*/)
+        external
+        view
+        returns (address, uint256)
+    {
+        if (address(uint160(to)) != msg.sender) revert("to must be swapper");
+        BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
+        if (ERC20(address(uint160(token))) != swapConfig.tokenRoute.tokenIn) revert("token mismatch");
+
+        return (ROUTER, amount);
+    }
+
+    // 1inch V6: fillOrder routes swaps through the limit order protocol.
+    // Order fields use Address (uint256) type; strip upper flag bits with uint160 cast.
+    function fillOrder(
+        DecoderCustomTypes.OneInchV6Order calldata order,
+        bytes32 /*r*/,
+        bytes32 /*vs*/,
+        uint256 amount,
+        uint256 /*takerTraits*/
+    ) external view returns (address, uint256) {
+        BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
+        if (ERC20(address(uint160(order.takerAsset))) != swapConfig.tokenRoute.tokenIn) revert("takerAsset mismatch");
+        if (ERC20(address(uint160(order.makerAsset))) != swapConfig.tokenRoute.tokenOut) revert("makerAsset mismatch");
+
+        return (ROUTER, amount);
+    }
+
     function version() external view returns (uint256) {
         return 1;
     }

@@ -178,6 +178,18 @@ contract DecoderCustomTypes {
         uint256 makerTraits;
     }
 
+    // V6 fillOrder uses Address (uint256) for all address fields — upper bits carry flags
+    struct OneInchV6Order {
+        uint256 salt;
+        uint256 maker;
+        uint256 receiver;
+        uint256 makerAsset;
+        uint256 takerAsset;
+        uint256 makingAmount;
+        uint256 takingAmount;
+        uint256 makerTraits;
+    }
+
     // ========================================= PENDLE =========================================
     struct TokenInput {
         // TOKEN DATA

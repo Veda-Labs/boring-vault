@@ -41,7 +41,7 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
     address _boringVault = 0x0Fc760EEbEFbF5FE3B452A9a52325c4376FEADFA;
     address _manager = 0x1AE3346BC6d3267b860De524D5E38E19679A1DB0;
     address _accountant = 0xD1135B891143d3c5DfE158C6b4961937a27b8AE4;
-    address swapper = 0x78D6c9A92412C160a953eA5EDd514e05b671b7D3;
+    address swapper = 0x38856EF84FEE4eAF6651A75dE4a3Cf7ad95BA44c;
     address _decoder = 0xBA7f9851a507A463d9D95dD5d119b03a81671efb;
 
     function setUp() public override {
@@ -60,7 +60,8 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
     function run() external {
         vm.startBroadcast(privateKey);
         //_submitCowswapOrder();  
-        _submitOneInchOrder(); 
+        //_submitOneInchOrder(); 
+        _submitOneInchRegularSwap();
     }
 
     function _submitCowswapOrder() internal {
@@ -217,4 +218,58 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
         _submitManagerCall(manageProofs, tx_);
 
     }
+
+    function _submitOneInchRegularSwap() internal {
+        address[] memory tokens = new address[](2);
+        tokens[0] = getAddress(sourceChain, "WETH");
+        tokens[1] = getAddress(sourceChain, "USDC");
+
+        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        _addBoringSwapperLeafs(leafs, address(swapper), tokens);
+
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+
+        manager.setManageRoot(vm.addr(privateKey), manageTree[manageTree.length - 1][0]);
+
+        Tx memory tx_ = _getTxArrays(2);
+
+        tx_.manageLeafs[0] = leafs[0]; //approve token (to swapper)
+        tx_.manageLeafs[1] = leafs[4]; //swap() WETH -> USDC
+        
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+
+        tx_.targets[0] = getAddress(sourceChain, "WETH"); //approve 
+        tx_.targets[1] = address(swapper);  
+
+        tx_.targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", address(swapper), type(uint256).max
+        );
+       
+        bytes memory oneInchSwapData = hex"83800a8e000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200000000000000000000000000000000000000000000000000038d7ea4c6800000000000000000000000000000000000000000000000000000000000001f193008000000000000003b6d0340397ff1542f962076d0bfe58ea045ffa2d347aca0f583bc2f"; 
+            
+        BoringSwapper.TokenRoute memory tokenRoute = BoringSwapper.TokenRoute(
+            getERC20(sourceChain, "WETH"),
+            getERC20(sourceChain, "USDC")
+        );
+
+        BoringSwapper.SwapConfig memory regularSwapConfig = BoringSwapper.SwapConfig({
+            tokenRoute: tokenRoute,
+            protocolId: 4,
+            quoteAsset: getAddress(sourceChain, "USDC"),
+            swapData: oneInchSwapData,
+            slippageBps: 50,
+            receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
+        });
+
+        tx_.targetData[1] = abi.encodeWithSelector(
+            BoringSwapper.swap.selector,
+            regularSwapConfig
+        );
+
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+
+        _submitManagerCall(manageProofs, tx_);
+    }
+
 }
