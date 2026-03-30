@@ -112,6 +112,7 @@ import {SatlayerStakingDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/SatlayerStakingDecoderAndSanitizer.sol";
 import {ScrollBridgeDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/ScrollBridgeDecoderAndSanitizer.sol";
+import {SGHODecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SGHODecoderAndSanitizer.sol";
 import {SiloDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SiloDecoderAndSanitizer.sol";
 import {SiloVaultDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SiloVaultDecoderAndSanitizer.sol";
 import {SkyMoneyDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SkyMoneyDecoderAndSanitizer.sol";
@@ -150,6 +151,7 @@ import {WeETHDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols
 import {WithdrawQueueDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/WithdrawQueueDecoderAndSanitizer.sol";
 import {wSwellUnwrappingDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/wSwellUnwrappingDecoderAndSanitizer.sol";
+import {YuzuDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/YuzuDecoderAndSanitizer.sol";
 import {ZircuitSimpleStakingDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/ZircuitSimpleStakingDecoderAndSanitizer.sol";
 import {ITBBasePositionDecoderAndSanitizer} from
@@ -180,7 +182,7 @@ contract GigaDeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAd
     uint256 public privateKey;
     Deployer public deployer = Deployer(0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d);
 
-    uint256 constant DESIRED_NUMBER_OF_DEPLOYMENT_TXS = 10;
+    uint256 constant DESIRED_NUMBER_OF_DEPLOYMENT_TXS = 5;
 
     string[] addressKeys;
 
@@ -196,8 +198,8 @@ contract GigaDeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAd
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("arbitrum");
-        setSourceChainName("arbitrum");
+        vm.createSelectFork("berachain");
+        setSourceChainName("berachain");
     }
 
     function run() external {
@@ -572,7 +574,7 @@ contract GigaDeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAd
         // Deploy OFTDecoderAndSanitizer
         creationCode = type(OFTDecoderAndSanitizer).creationCode;
         constructorArgs = hex"";
-        _contract = deployContract("OFT Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        _contract = deployContract("OFT Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
         // console.log("OFTDecoderAndSanitizer", _contract);
 
         // Deploy OneInchDecoderAndSanitizer
@@ -876,6 +878,18 @@ contract GigaDeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAd
         constructorArgs = hex"";
         _contract = deployContract("Red Snwapper Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
         // console.log("RedSnwapperDecoderAndSanitizer", _contract);
+
+        // Deploy YuzuDecoderAndSanitizer
+        creationCode = type(YuzuDecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        _contract = deployContract("Yuzu Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
+        // console.log("YuzuDecoderAndSanitizer", _contract);
+
+        // Deploy SGHODecoderAndSanitizer
+        creationCode = type(SGHODecoderAndSanitizer).creationCode;
+        constructorArgs = hex"";
+        _contract = deployContract("SGHODecoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // console.log("SGHODecoderAndSanitizer", _contract);
 
         // Deploy ITBBasePositionDecoderAndSanitizer
         creationCode = type(ITBBasePositionDecoderAndSanitizer).creationCode;

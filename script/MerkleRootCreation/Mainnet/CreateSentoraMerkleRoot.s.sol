@@ -44,14 +44,18 @@ contract CreateSentoraMerkleRootScript is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](128);
 
         // ========================== Odos/1inch ==========================
-        address[] memory assets = new address[](3);
+        address[] memory assets = new address[](5);
         assets[0] = getAddress(sourceChain, "LBTC");
         assets[1] = getAddress(sourceChain, "WBTC");
         assets[2] = getAddress(sourceChain, "PYUSD");
-        SwapKind[] memory kind = new SwapKind[](3);
+        assets[3] = getAddress(sourceChain, "RLUSD");
+        assets[4] = getAddress(sourceChain, "MORPHO");
+        SwapKind[] memory kind = new SwapKind[](5);
         kind[0] = SwapKind.BuyAndSell;
         kind[1] = SwapKind.BuyAndSell;
         kind[2] = SwapKind.Sell;
+        kind[3] = SwapKind.Sell;
+        kind[4] = SwapKind.Sell;
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
         _addOdosOwnedSwapLeafs(leafs, assets, kind);
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
@@ -62,13 +66,13 @@ contract CreateSentoraMerkleRootScript is Script, MerkleTreeHelper {
         ERC20[] memory itbTokensUsed = new ERC20[](1);
         itbTokensUsed[0] = getERC20(sourceChain, "LBTC");
         address itbPositionManager = 0x701D7Fc25577602dc77280108a8cef0B72b8F8A7;
-        _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "LBTC > USDC > RLUSD Supervised Loan");
+        _addLeafsForITBPositionManagerLocal(leafs, itbPositionManager, itbTokensUsed, "LBTC > USDC > RLUSD Supervised Loan");
         itbPositionManager = 0x9B6a57Fda106eff13ffE4ea4Ef2783C547f75cd7;
-        _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "LBTC > RLUSD > RLUSD Supervised Loan");
+        _addLeafsForITBPositionManagerLocal(leafs, itbPositionManager, itbTokensUsed, "LBTC > RLUSD > RLUSD Supervised Loan");
         itbPositionManager = 0x284D3b0eF51F0A6432948A9cCbCb5cAF30d6EE96;
-        _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "LBTC > PYUSD > RLUSD Supervised Loan");
+        _addLeafsForITBPositionManagerLocal(leafs, itbPositionManager, itbTokensUsed, "LBTC > PYUSD > RLUSD Supervised Loan");
         itbPositionManager = 0xB4201A579A2cf1d321f04d98bdba2a25bEFD6b0A;
-        _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "LBTC > PYUSD Supervised Loan");
+        _addLeafsForITBPositionManagerLocal(leafs, itbPositionManager, itbTokensUsed, "LBTC > PYUSD Supervised Loan");
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
@@ -80,7 +84,7 @@ contract CreateSentoraMerkleRootScript is Script, MerkleTreeHelper {
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
      }
  
-     function _addLeafsForITBPositionManager(
+     function _addLeafsForITBPositionManagerLocal(
          ManageLeaf[] memory leafs,
          address itbPositionManager,
          ERC20[] memory tokensUsed,

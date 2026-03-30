@@ -212,6 +212,24 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         assertEq(startVestingTimeLast + 1 days, startVestingTimeNow);
     }
 
+    function testDepositToInheritsYieldStreamingFlow() external {
+        uint256 WETHAmount = 10e18;
+
+        (,,, uint64 startVestingTimeLast,) = accountant.vestingState();
+        skip(1 days);
+
+        deal(address(WETH), address(this), WETHAmount);
+        WETH.approve(address(boringVault), WETHAmount);
+        uint256 shares = teller.deposit(DepositParams(WETH, WETHAmount, 0, alice), referrer, ComplianceData(0, ""));
+
+        assertGt(shares, 0, "Deposit should mint shares");
+        assertEq(boringVault.balanceOf(alice), shares, "Receiver should own the minted shares");
+        assertEq(boringVault.balanceOf(address(this)), 0, "Caller should not receive shares");
+
+        (,,, uint64 startVestingTimeNow,) = accountant.vestingState();
+        assertEq(startVestingTimeNow, startVestingTimeLast + 1 days, "YS first-deposit bookkeeping should still run");
+    }
+
     function testWithdrawNoYieldStream() external {
         uint256 WETHAmount = 10e18;
         uint256 shares0 = _deposit(WETHAmount, USER);

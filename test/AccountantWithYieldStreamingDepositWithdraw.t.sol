@@ -173,7 +173,9 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         rolesAuthority.setRoleCapability(
             MINTER_ROLE, address(accountant_), bytes4(keccak256("updateCumulative()")), true
         );
-        rolesAuthority.setPublicCapability(address(teller_), TellerWithMultiAssetSupport.deposit.selector, true);
+        rolesAuthority.setPublicCapability(
+            address(teller_), bytes4(keccak256("deposit(address,uint256,uint256,address)")), true
+        );
         rolesAuthority.setPublicCapability(
             address(teller_), TellerWithMultiAssetSupport.depositWithPermit.selector, true
         );

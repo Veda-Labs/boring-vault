@@ -252,6 +252,16 @@ contract BackendRewardSimulationTest is Test {
 
         _claimReward(alice, rA);
         _claimReward(bob, rB);
+
+        // Rewards use mulDivDown (floor division), so a tiny deposit difference (e.g. 1 wei)
+        // can produce identical rewards. Use >= / <= instead of strict inequalities.
+        if (amount1 > amount2) {
+            assertGe(rA, rB, "alice earns at least as much as bob");
+        } else if (amount1 < amount2) {
+            assertLe(rA, rB, "alice earns no more than bob");
+        } else {
+            assertEq(rA, rB, "equal deposits earn equal rewards");
+        }
     }
 
     // ============================== E2E: full withdrawal zeroes future rewards ==============================

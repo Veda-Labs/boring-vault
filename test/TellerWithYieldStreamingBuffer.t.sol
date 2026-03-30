@@ -155,7 +155,6 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         rolesAuthority.setRoleCapability(
             TELLER_MANAGER_ROLE, address(accountant), bytes4(keccak256("updateCumulative()")), true
         );
-
         rolesAuthority.setPublicCapability(address(teller), TellerWithMultiAssetSupport.deposit.selector, true);
         rolesAuthority.setPublicCapability(
             address(teller), TellerWithMultiAssetSupport.depositWithPermit.selector, true
@@ -443,6 +442,72 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         teller.withdraw(USDT, amount / 5, 0, address(this));
         assertApproxEqAbs(
             USDT.balanceOf(address(this)), amount / 5 + amount / 10, 2, "Should have received expected USDT"
+        );
+    }
+
+    function testDepositToReceivesSharesAndLocksReceiver(uint256 amount) external {
+        amount = bound(amount, 0.01e6, 10_000e6);
+
+        address receiver = vm.addr(2);
+        address recipient = vm.addr(3);
+
+        boringVault.setBeforeTransferHook(address(teller));
+        teller.setShareLockPeriod(1 days);
+
+        deal(address(USDT), address(this), amount);
+        USDT.safeApprove(address(boringVault), amount);
+
+        uint256 shares = teller.deposit(DepositParams(USDT, amount, 0, receiver), referrer, ComplianceData(0, ""));
+
+        assertGt(shares, 0, "Deposit should mint shares");
+        assertEq(boringVault.balanceOf(receiver), shares, "Receiver should receive shares");
+        assertEq(boringVault.balanceOf(address(this)), 0, "Caller should not receive shares");
+
+        (bool _denyFrom, bool _denyTo, bool _denyOp, uint64 receiverUnlockTime) = teller.beforeTransferData(receiver);
+        (,,, uint64 callerUnlockTime) = teller.beforeTransferData(address(this));
+        assertEq(receiverUnlockTime, block.timestamp + 1 days, "Receiver shares should be locked");
+        assertEq(callerUnlockTime, 0, "Caller should not be locked");
+
+        assertApproxEqAbs(aUSDT.balanceOf(address(boringVault)), amount, 2, "Deposit should use the buffer path");
+
+        vm.startPrank(receiver);
+        vm.expectRevert(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__SharesAreLocked.selector);
+        teller.withdraw(USDT, shares / 10, 0, receiver);
+        vm.expectRevert(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__SharesAreLocked.selector);
+        boringVault.transfer(recipient, 1);
+        vm.stopPrank();
+
+        vm.warp(receiverUnlockTime + 1);
+
+        vm.prank(receiver);
+        boringVault.transfer(recipient, shares);
+        assertEq(boringVault.balanceOf(receiver), 0, "Receiver shares should unlock after the lock period");
+        assertEq(boringVault.balanceOf(recipient), shares, "Recipient should receive unlocked shares");
+    }
+
+    function testDepositToRefundReturnsAssetsToReceiver(uint256 amount) external {
+        amount = bound(amount, 0.01e6, 10_000e6);
+
+        address receiver = vm.addr(4);
+
+        teller.setShareLockPeriod(1 days);
+        teller.setDepositBufferHelper(USDT, IBufferHelper(address(0)));
+
+        deal(address(USDT), address(this), amount);
+        USDT.safeApprove(address(boringVault), amount);
+
+        uint256 receiverBalanceBeforeRefund = USDT.balanceOf(receiver);
+        uint256 shares = teller.deposit(DepositParams(USDT, amount, 0, receiver), referrer, ComplianceData(0, ""));
+        uint256 depositTimestamp = block.timestamp;
+        uint256 depositSharePrice = accountant.getRateSafe();
+
+        teller.refundDeposit(
+            1, receiver, address(USDT), amount, shares, depositTimestamp, 1 days, depositSharePrice, referrer
+        );
+
+        assertEq(boringVault.balanceOf(receiver), 0, "Receiver shares should be burned on refund");
+        assertEq(
+            USDT.balanceOf(receiver), receiverBalanceBeforeRefund + amount, "Receiver should receive refunded asset"
         );
     }
 

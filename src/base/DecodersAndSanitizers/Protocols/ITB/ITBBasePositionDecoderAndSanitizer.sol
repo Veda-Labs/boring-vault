@@ -13,6 +13,10 @@ contract ITBBasePositionDecoderAndSanitizer {
         addressesFound = abi.encodePacked(_to);
     }
 
+    function addExecutor(address _executor) external pure returns (bytes memory addressesFound) {
+        addressesFound = abi.encodePacked(_executor);
+    }
+
     function removeExecutor(address /*_executor*/ ) external pure returns (bytes memory addressesFound) {
         return addressesFound;
     }
