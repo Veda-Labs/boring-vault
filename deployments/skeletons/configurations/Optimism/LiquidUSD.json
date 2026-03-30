@@ -28,7 +28,7 @@
       "boringVaultDeploymentName": "EtherFi Liquid USD V0.0",
       "boringVaultName": "Ether.Fi Liquid USD",
       "boringVaultSymbol": "liquidUSD",
-      "boringVaultDecimals": 18
+      "boringVaultDecimals": 6
     },
     "managerConfiguration": {
       "managerDeploymentName": "liquidUSD ManagerWithMerkleVerification V0.1",
