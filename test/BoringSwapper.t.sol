@@ -32,6 +32,10 @@ contract MockRateProvider is IRateProvider {
 
 contract BoringSwapperTest is Test, MerkleTreeHelper {
 
+    // Mirror BoringSwapper events for vm.expectEmit (emit ContractName.Event crashes solc 0.8.21 NatSpec)
+    event OrderCancelled(uint256 indexed orderId, uint256 refundAmount);
+    event OrderSubmitted(uint256 indexed orderId, bytes32 indexed routeId, uint256 amountIn, address indexed receiver);
+
     //cow protocol constants
     address constant COW_SETTLEMENT = 0x9008D19f58AAbD9eD0D60971565AA8510560ab41;
     address constant COW_VAULT_RELAYER = 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110;
@@ -402,6 +406,112 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         assertEq(address(tokenIn), address(0));
     }
 
+    //==================== Rate Limit Tests ====================
+
+    function testRateLimit_ConsumedOnSubmit() external {
+        deal(address(WETH), address(boringVault), 100e18);
+        bytes32 routeKey = swapper.getRouteId(WETH, USDC);
+
+        // 10 normalized tokens capacity, no refill
+        swapper.setRateLimit(routeKey, 10e18, 0);
+
+        _submitOrder(3e18, 6000e6, uint32(block.timestamp + 3600));
+
+        // 3 WETH (18 dec): (3e18 * 1e18) / 1e18 = 3e18 normalized consumed
+        (, uint256 remaining,,) = swapper.rateLimitPerRoute(routeKey);
+        assertEq(remaining, 7e18);
+    }
+
+    function testRateLimit_ExceededReverts() external {
+        deal(address(WETH), address(boringVault), 100e18);
+        bytes32 routeKey = swapper.getRouteId(WETH, USDC);
+
+        swapper.setRateLimit(routeKey, 2e18, 0);
+
+        (BoringSwapper.SwapConfig memory config,) = _buildSwapConfig(3e18, 6000e6, uint32(block.timestamp + 3600));
+        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__RateLimitExceeded.selector));
+        swapper.submitOrder(config);
+    }
+
+    function testRateLimit_RestoredOnCancel() external {
+        deal(address(WETH), address(boringVault), 100e18);
+        bytes32 routeKey = swapper.getRouteId(WETH, USDC);
+
+        swapper.setRateLimit(routeKey, 5e18, 0);
+
+        (BoringSwapper.SwapConfig memory config,, uint256 orderId) = _submitOrder(3e18, 6000e6, uint32(block.timestamp + 3600));
+
+        (, uint256 remaining,,) = swapper.rateLimitPerRoute(routeKey);
+        assertEq(remaining, 2e18);
+
+        swapper.cancelOrder(orderId, config);
+
+        (, remaining,,) = swapper.rateLimitPerRoute(routeKey);
+        assertEq(remaining, 5e18); // fully restored, capped at capacity
+    }
+
+    function testRateLimit_PartialFill_OnlyUnfilledRestored() external {
+        deal(address(WETH), address(boringVault), 100e18);
+        bytes32 routeKey = swapper.getRouteId(WETH, USDC);
+
+        swapper.setApprovedRoute(WETH, USDC, true, 50, 10e18, 0);
+
+        (BoringSwapper.SwapConfig memory config, bytes32 digest, uint256 orderId) =
+            _submitOrder(6e18, 12000e6, uint32(block.timestamp + 3600));
+
+        (, uint256 remaining,,) = swapper.rateLimitPerRoute(routeKey);
+        assertEq(remaining, 4e18);
+
+        // fill 4 WETH — 2 WETH still on swapper unfilled
+        _simulateFill(4e18, 8000e6, config, digest);
+
+        swapper.cancelOrder(orderId, config);
+
+        // only the unfilled 2 WETH is restored: 4e18 + 2e18 = 6e18
+        (, remaining,,) = swapper.rateLimitPerRoute(routeKey);
+        assertEq(remaining, 6e18);
+    }
+
+    function testRateLimit_RefillsOverTime() external {
+        deal(address(WETH), address(boringVault), 100e18);
+        bytes32 routeKey = swapper.getRouteId(WETH, USDC);
+
+        // capacity 10 WETH, refill at 1 normalized token/sec
+        swapper.setRateLimit(routeKey, 10e18, 1e18);
+
+        _submitOrder(10e18, 20000e6, uint32(block.timestamp + 3600));
+
+        (, uint256 remaining,,) = swapper.rateLimitPerRoute(routeKey);
+        assertEq(remaining, 0);
+
+        // warp 5 seconds → 5e18 refilled, then consume 3e18
+        vm.warp(block.timestamp + 5);
+        (BoringSwapper.SwapConfig memory config,) = _buildSwapConfig(3e18, 6000e6, uint32(block.timestamp + 7200));
+        swapper.submitOrder(config);
+
+        (, remaining,,) = swapper.rateLimitPerRoute(routeKey);
+        assertEq(remaining, 2e18); // 5e18 refilled - 3e18 consumed
+    }
+
+    function testRateLimit_Normalization() external {
+        deal(address(WETH), address(boringVault), 100e18);
+        bytes32 routeKey = swapper.getRouteId(WETH, USDC);
+
+        // capacity of exactly 1 normalized token
+        swapper.setRateLimit(routeKey, 1e18, 0);
+
+        // 1 WETH (18 dec): (1e18 * 1e18) / 1e18 = 1e18 — exactly exhausts bucket
+        _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
+
+        (, uint256 remaining,,) = swapper.rateLimitPerRoute(routeKey);
+        assertEq(remaining, 0);
+
+        // bucket empty — any further submit reverts
+        (BoringSwapper.SwapConfig memory config,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 7200));
+        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__RateLimitExceeded.selector));
+        swapper.submitOrder(config);
+    }
+
     //==================== Sweep ====================
 
     function testSweep() external {
@@ -672,6 +782,112 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         vm.expectRevert(abi.encodeWithSelector(PriceValidator.PriceValidator__OracleNotConfigured.selector));
         swapper.submitOrder(config);
+    }
+
+    //==================== Replace Swap Tests ====================
+
+    function testReplaceSwap() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        (BoringSwapper.SwapConfig memory oldConfig,, uint256 orderId) =
+            _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
+
+        assertEq(WETH.balanceOf(address(swapper)), 1e18);
+        assertEq(WETH.balanceOf(address(boringVault)), 99e18);
+
+        (BoringSwapper.SwapConfig memory newConfig,) =
+            _buildSwapConfig(2e18, 4000e6, uint32(block.timestamp + 7200));
+
+        uint256 newOrderId = swapper.orders();
+        swapper.replaceSwap(orderId, oldConfig, newConfig);
+
+        // old order record deleted
+        (ERC20 tokenIn,,,,) = swapper.orderRecords(orderId);
+        assertEq(address(tokenIn), address(0));
+
+        // new order record exists with correct data
+        (ERC20 newTokenIn,,, uint256 newInputAmount,) = swapper.orderRecords(newOrderId);
+        assertEq(address(newTokenIn), address(WETH));
+        assertEq(newInputAmount, 2e18);
+
+        // old 1e18 returned, new 2e18 pulled
+        assertEq(WETH.balanceOf(address(swapper)), 2e18);
+        assertEq(WETH.balanceOf(address(boringVault)), 98e18);
+
+        // order counter incremented
+        assertEq(swapper.orders(), newOrderId + 1);
+    }
+
+    function testReplaceSwap_OldHashInvalidated() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        (BoringSwapper.SwapConfig memory oldConfig, bytes32 oldDigest, uint256 orderId) =
+            _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
+
+        (BoringSwapper.SwapConfig memory newConfig,) =
+            _buildSwapConfig(2e18, 4000e6, uint32(block.timestamp + 7200));
+
+        swapper.replaceSwap(orderId, oldConfig, newConfig);
+
+        // old hash removed from approvedHashes
+        assertFalse(swapper.approvedHashes(oldDigest));
+
+        // isValidSignature with old order should revert as unapproved
+        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__OrderNotApproved.selector));
+        vm.prank(COW_SETTLEMENT);
+        swapper.isValidSignature(oldDigest, abi.encode(oldConfig));
+    }
+
+    function testReplaceSwap_NewHashValid() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        (BoringSwapper.SwapConfig memory oldConfig,, uint256 orderId) =
+            _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
+
+        (BoringSwapper.SwapConfig memory newConfig, bytes32 newDigest) =
+            _buildSwapConfig(2e18, 4000e6, uint32(block.timestamp + 7200));
+
+        swapper.replaceSwap(orderId, oldConfig, newConfig);
+
+        // new hash is approved
+        assertTrue(swapper.approvedHashes(newDigest));
+
+        // settlement can validate the new order
+        vm.prank(COW_SETTLEMENT);
+        bytes4 result = swapper.isValidSignature(newDigest, abi.encode(newConfig));
+        assertEq(result, bytes4(0x1626ba7e));
+    }
+
+
+    function testReplaceSwap_RevertOrderNotFound() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        (BoringSwapper.SwapConfig memory cancelConfig,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 3600));
+        (BoringSwapper.SwapConfig memory newConfig,) = _buildSwapConfig(2e18, 4000e6, uint32(block.timestamp + 7200));
+
+        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__OrderNotFound.selector));
+        swapper.replaceSwap(999, cancelConfig, newConfig);
+    }
+
+    function testReplaceSwap_EmitsEvents() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        (BoringSwapper.SwapConfig memory oldConfig,, uint256 orderId) =
+            _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
+
+        (BoringSwapper.SwapConfig memory newConfig,) =
+            _buildSwapConfig(2e18, 4000e6, uint32(block.timestamp + 7200));
+
+        uint256 newOrderId = swapper.orders();
+        bytes32 routeId = swapper.getRouteId(WETH, USDC);
+
+        vm.expectEmit(true, false, false, true, address(swapper));
+        emit OrderCancelled(orderId, 1e18);
+
+        vm.expectEmit(true, true, true, true, address(swapper));
+        emit OrderSubmitted(newOrderId, routeId, 2e18, address(boringVault));
+
+        swapper.replaceSwap(orderId, oldConfig, newConfig);
     }
 
     //==================== Helpers ====================

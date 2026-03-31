@@ -278,6 +278,23 @@ contract BoringSwapper is Auth, ISwapper {
 
     /// @notice Cancels a pending limit order, invalidates it on-chain, and refunds remaining tokens to the vault.
     function cancelOrder(uint256 orderId, SwapConfig calldata swapConfig) external {
+        _cancelOrder(orderId, swapConfig);
+    }
+
+    function replaceSwap(uint256 orderId, SwapConfig calldata cancelConfig, SwapConfig memory newConfig) external {
+        _cancelOrder(orderId, cancelConfig);
+
+        (bytes32 key, IAdapter.OrderInfo memory info, uint256 newOrderId) =
+            _limitOrderPreFlightCheck(newConfig);
+
+        if (!_consumeRateLimit(key, newConfig.tokenRoute.tokenIn, info.inputAmount)) {
+            revert BoringSwapper__RateLimitExceeded();
+        }
+
+        emit OrderSubmitted(newOrderId, key, info.inputAmount, address(newConfig.receiver));
+    }
+
+    function _cancelOrder(uint256 orderId, SwapConfig calldata swapConfig) internal {
         OrderRecord memory record = orderRecords[orderId];
         if (address(record.tokenIn) == address(0)) revert BoringSwapper__OrderNotFound();
 
@@ -302,7 +319,15 @@ contract BoringSwapper is Auth, ISwapper {
         uint256 refund = balance < record.inputAmount ? balance : record.inputAmount;
         if (refund > 0) record.tokenIn.safeTransfer(address(record.receiver), refund);
 
-        //TODO refund the rate limit if cancelled. Need logic to tell which one.
+        // Restore rate limit for the unfilled amount (partial fills only restore the unspent portion)
+        bytes32 routeId = getRouteId(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut);
+        RateLimit storage limit = rateLimitPerRoute[routeId];
+        if (limit.capacity > 0) {
+            _refillBucket(limit);
+            uint256 normalized = (refund * 1e18) / (10 ** record.tokenIn.decimals());
+            uint256 restored = limit.remaining + normalized;
+            limit.remaining = restored > limit.capacity ? limit.capacity : restored;
+        }
 
         emit OrderCancelled(orderId, refund);
     }
@@ -419,12 +444,18 @@ contract BoringSwapper is Auth, ISwapper {
     }
 
     /// @notice Updates the rate limit for a route without resetting the refill state.
+    /// @dev If rate limiting was previously disabled (capacity == 0), remaining is initialized to the new capacity.
     function setRateLimit(bytes32 routeId, uint256 capacity, uint256 refillRate) external requiresAuth {
         RateLimit storage limit = rateLimitPerRoute[routeId];
-        _refillBucket(limit);
+        if (limit.capacity == 0) {
+            limit.remaining = capacity;
+            limit.lastRefill = block.timestamp;
+        } else {
+            _refillBucket(limit);
+            if (limit.remaining > capacity) limit.remaining = capacity;
+        }
         limit.capacity = capacity;
         limit.refillRate = refillRate;
-        if (limit.remaining > capacity) limit.remaining = capacity;
 
         emit RateLimitUpdated(routeId, capacity, refillRate);
     }
@@ -471,8 +502,7 @@ contract BoringSwapper is Auth, ISwapper {
         if (limit.capacity == 0) return true;
         _refillBucket(limit);
         //normalize amount to 18 decimals
-        uint8 decimals = tokenIn.decimals();
-        uint256 normalized = decimals < 18 ? amount * 10 ** (18 - decimals) : amount / 10 ** (decimals - 18);
+        uint256 normalized = (amount * 1e18) / (10 ** tokenIn.decimals());
         if (limit.remaining < normalized) return false;
         limit.remaining -= normalized;
         return true;
