@@ -55,7 +55,7 @@
           "allowedExchangeRateChangeUpper": 10050,
           "base": {
             "address": "0x0000000000000000000000000000000000000000",
-            "name": "WBTC"
+            "name": "USDe"
           },
           "minimumUpateDelayInSeconds": 21600,
           "performanceFee": 0,

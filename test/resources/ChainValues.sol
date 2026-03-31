@@ -1916,6 +1916,7 @@ contract ChainValues {
         values[optimism]["WBTC"] = 0x68f180fcCe6836688e9084f035309E29Bf0A2095.toBytes32();
         values[optimism]["ETHFI"] = 0xe0080d2F853ecDdbd81A643dC10DA075Df26fD3f.toBytes32();
         values[optimism]["USDC"] = 0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85.toBytes32();
+        values[optimism]["USDe"] = 0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34.toBytes32();
 
         values[optimism]["vault"] = 0xBA12222222228d8Ba445958a75a0704d566BF2C8.toBytes32();
         values[optimism]["balancerVault"] = 0xBA12222222228d8Ba445958a75a0704d566BF2C8.toBytes32();
