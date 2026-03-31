@@ -46,7 +46,7 @@
           "yieldStreaming": false
         },
         "payoutConfiguration": {
-          "payoutTo": "0xf6BD950c66869a32170Bf26A38c8b7C6d6eCa863",
+          "payoutTo": "0xA9962a5BfBea6918E958DeE0647E99fD7863b95A",
           "optionalPaymentSplitterName": "ether.fi BTC Payment Splitter V0.0",
           "splits": []
         },
@@ -108,7 +108,7 @@
       "pauserDeploymentName": "ether.fi BTC Pauser V0.0`"
     },
     "timelockConfiguration": {
-      "shouldDeploy": true,
+      "shouldDeploy": false,
       "timelockDeploymentName": "eBTC Timelock V0.0",
       "timelockParameters": {
         "executors": [],
