@@ -22,7 +22,7 @@
       "rolesAuthorityDeploymentName": "LiquidUSD RolesAuthority Version 0.0"
     },
     "lensConfiguration": {
-      "lensDeploymentName": "Arctic Architecture Lens V0.0"
+      "lensDeploymentName": "Arctic Architecture Lens V0.1"
     },
     "boringVaultConfiguration": {
       "boringVaultDeploymentName": "EtherFi Liquid USD V0.0",
@@ -59,7 +59,7 @@
           },
           "minimumUpateDelayInSeconds": 21600,
           "performanceFee": 0,
-          "platformFee": 200,
+          "platformFee": 100,
           "startingExchangeRate": 1151057
         }
       }
