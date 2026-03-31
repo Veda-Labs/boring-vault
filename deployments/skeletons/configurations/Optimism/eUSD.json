@@ -16,29 +16,29 @@
         "address": "0x0000000000000000000000000000000000000000",
         "name": "txBundlerAddress"
       },
-      "deploymentFileName": "skeletons/addresses/Optimism/eBTC.json"
+      "deploymentFileName": "skeletons/addresses/Optimism/eUSD.json"
     },
     "rolesAuthorityConfiguration": {
-      "rolesAuthorityDeploymentName": "ether.fi BTC RolesAuthority Version 0.0"
+      "rolesAuthorityDeploymentName": "EtherFi USD RolesAuthority Version 0.0"
     },
     "lensConfiguration": {
       "lensDeploymentName": "Arctic Architecture Lens V0.0"
     },
     "boringVaultConfiguration": {
-      "boringVaultDeploymentName": "ether.fi BTC V0.0",
-      "boringVaultName": "ether.fi BTC",
-      "boringVaultSymbol": "eBTC",
-      "boringVaultDecimals": 8
+      "boringVaultDeploymentName": "EtherFi USD V0.0",
+      "boringVaultName": "EtherFi USD",
+      "boringVaultSymbol": "eUSD",
+      "boringVaultDecimals": 18
     },
     "managerConfiguration": {
-      "managerDeploymentName": "ether.fi BTC Manager With Merkle Verification V0.0",
+      "managerDeploymentName": "EtherFi USD Manager With Merkle Verification V0.0",
       "balancerVaultAddressOrName": {
         "address": "0x0000000000000000000000000000000000000001",
         "name": "balancerV2Vault"
       }
     },
     "accountantConfiguration": {
-      "accountantDeploymentName": "ether.fi BTC Accountant With Rate Providers V0.0",
+      "accountantDeploymentName": "EtherFi USD Accountant With Rate Providers V0.0",
       "accountantParameters": {
         "kind": {
           "variableRate": true,
@@ -47,7 +47,7 @@
         },
         "payoutConfiguration": {
           "payoutTo": "0xA9962a5BfBea6918E958DeE0647E99fD7863b95A",
-          "optionalPaymentSplitterName": "ether.fi BTC Payment Splitter V0.0",
+          "optionalPaymentSplitterName": "EtherFi USD Payment Splitter V0.0",
           "splits": []
         },
         "accountantDeploymentParameters": {
@@ -60,12 +60,12 @@
           "minimumUpateDelayInSeconds": 21600,
           "performanceFee": 0,
           "platformFee": 0,
-          "startingExchangeRate": 100311302
+          "startingExchangeRate": 1064993598801431273
         }
       }
     },
     "tellerConfiguration": {
-      "tellerDeploymentName": "eBTC LayerZero Teller V0.0",
+      "tellerDeploymentName": "eUSD LayerZero Teller V0.0",
       "tellerParameters": {
         "kind": {
           "teller": false,
@@ -88,8 +88,8 @@
       }
     },
     "boringQueueConfiguration": {
-      "boringQueueDeploymentName": "ether.fi BTC Boring Queue V0.0",
-      "boringQueueSolverName": "ether.fi BTC Boring Solver V0.0",
+      "boringQueueDeploymentName": "EtherFi USD Boring Queue V0.0",
+      "boringQueueSolverName": "EtherFi USD Boring Solver V0.0",
       "excessToSolverNonSelfSolve": true,
       "queueParameters": {
         "kind": {
@@ -99,17 +99,17 @@
       }
     },
     "droneConfiguration": {
-      "droneDeploymentBaseName": "ether.fi BTC Drone V0.0",
+      "droneDeploymentBaseName": "EtherFi USD Drone V0.0",
       "droneCount": 0,
       "safeGasToForwardNative": 21000
     },
     "pauserConfiguration": {
       "shouldDeploy": true,
-      "pauserDeploymentName": "ether.fi BTC Pauser V0.0"
+      "pauserDeploymentName": "EtherFi USD Pauser V0.0"
     },
     "timelockConfiguration": {
       "shouldDeploy": false,
-      "timelockDeploymentName": "eBTC Timelock V0.0",
+      "timelockDeploymentName": "EtherFi USD Timelock V0.0",
       "timelockParameters": {
         "executors": [],
         "minDelay": 43200,
@@ -118,11 +118,11 @@
     },
     "aaveV3BufferHelperConfiguration": {
         "shouldDeploy": false,
-        "aaveV3BufferHelperDeploymentName": "eBTC AaveV3 Buffer Helper V0.0",
+        "aaveV3BufferHelperDeploymentName": "EtherFi USD AaveV3 Buffer Helper V0.0",
         "aaveV3PoolAddressOrName": {
           "address": "0x0000000000000000000000000000000000000000",
           "name": "v3Pool"
-        }
+        }   
       },
       "aaveV3BufferLensConfiguration": {
         "shouldDeploy": false,
