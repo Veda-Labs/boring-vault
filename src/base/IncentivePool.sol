@@ -21,6 +21,7 @@ contract IncentivePool is Auth {
     error InvalidMaxDeadline();
     event SecondsBetweenClaimsSet(uint256 secondsBetweenClaims);
     event RewardSignerSet(address indexed rewardSigner);
+    event RewardSignerPaused();
     event RewardsProcessed(address indexed rewardsRecipient, uint256 amountClaimed);
     event MaximumRewardAmountPerClaimSet(uint256 maxRewardAmount);
     event MaxDeadlineSet(uint256 maxDeadline);
@@ -75,6 +76,16 @@ contract IncentivePool is Auth {
         if (newSigner == address(0)) revert InvalidSigner();
         rewardSigner = newSigner;
         emit RewardSignerSet(newSigner);
+    }
+
+    /**
+     * @notice Emergency pause: clears the reward signer, preventing all future claims
+     *         until a new signer is set via `setRewardSigner`.
+     * @dev Callable by any address with auth (e.g. automated bot or EOA).
+     */
+    function pauseRewardSigner() external requiresAuth {
+        rewardSigner = address(0);
+        emit RewardSignerPaused();
     }
 
     /**

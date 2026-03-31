@@ -24,6 +24,7 @@ contract IncentivePoolTest is Test {
     using SafeTransferLib for ERC20;
 
     event RewardSignerSet(address indexed rewardSigner);
+    event RewardSignerPaused();
     event RewardsProcessed(address indexed rewardsRecipient, uint256 amountClaimed);
     event MaximumRewardAmountPerClaimSet(uint256 maxRewardAmount);
     event MaxDeadlineSet(uint256 maxDeadline);
@@ -1343,6 +1344,80 @@ contract IncentivePoolTest is Test {
         assertEq(totalClaimed, history[history.length - 1].cumulativeClaimed);
         assertEq(pool.getLastClaimTimestamp(user), lastTs);
         assertEq(pool.getTotalClaimedAmount(user), totalClaimed);
+    }
+
+    // ========================= PAUSE REWARD SIGNER =========================
+
+    function test_pauseRewardSigner() external {
+        vm.expectEmit(false, false, false, true, address(pool));
+        emit RewardSignerPaused();
+        pool.pauseRewardSigner();
+        assertEq(pool.rewardSigner(), address(0));
+    }
+
+    function test_pauseRewardSigner_revertsUnauthorized() external {
+        vm.prank(user);
+        vm.expectRevert("UNAUTHORIZED");
+        pool.pauseRewardSigner();
+    }
+
+    function test_pauseRewardSigner_blocksClaims() external {
+        pool.pauseRewardSigner();
+
+        uint256 deadline = block.timestamp + 1 hours;
+        bytes memory sig = _sign(user, 100e18, deadline);
+
+        vm.prank(teller);
+        uint256 delta = pool.processRewards(user, 100e18, deadline, sig);
+        assertEq(delta, 0, "claims must be blocked while signer is paused");
+        assertEq(pool.getTotalClaimedAmount(user), 0);
+    }
+
+    function test_pauseRewardSigner_resumeAfterNewSigner() external {
+        pool.pauseRewardSigner();
+        assertEq(pool.rewardSigner(), address(0));
+
+        // Re-set signer to resume
+        pool.setRewardSigner(signer);
+        assertEq(pool.rewardSigner(), signer);
+
+        uint256 deadline = block.timestamp + 1 hours;
+        bytes memory sig = _sign(user, 100e18, deadline);
+
+        vm.prank(teller);
+        uint256 delta = pool.processRewards(user, 100e18, deadline, sig);
+        assertEq(delta, 100e18, "claims must work after signer is restored");
+    }
+
+    /// @notice Demonstrates that restoring the same signer after a pause re-enables
+    ///         pre-existing signatures. In production the signer key MUST be rotated
+    ///         after a pause — never restore the old key — otherwise outstanding
+    ///         signatures become claimable again.
+    function test_pauseRewardSigner_oldSignatureWorksAfterRestoringsameSigner() external {
+        uint256 deadline = block.timestamp + 1 hours;
+        bytes memory sig = _sign(user, 100e18, deadline);
+
+        // Pause: claims blocked
+        pool.pauseRewardSigner();
+        vm.prank(teller);
+        uint256 delta = pool.processRewards(user, 100e18, deadline, sig);
+        assertEq(delta, 0, "must return 0 while paused");
+        assertEq(pool.getTotalClaimedAmount(user), 0);
+
+        // Restore the SAME signer (should NOT happen in production — rotate keys instead)
+        pool.setRewardSigner(signer);
+
+        // The pre-pause signature is now valid again
+        vm.prank(teller);
+        delta = pool.processRewards(user, 100e18, deadline, sig);
+        assertEq(delta, 100e18, "old signature must succeed after same signer restored");
+        assertEq(pool.getTotalClaimedAmount(user), 100e18);
+    }
+
+    function test_pauseRewardSigner_idempotent() external {
+        pool.pauseRewardSigner();
+        pool.pauseRewardSigner();
+        assertEq(pool.rewardSigner(), address(0));
     }
 
     // ========================= HELPERS =========================
