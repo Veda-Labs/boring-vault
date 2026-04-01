@@ -353,9 +353,13 @@ abstract contract RewardRoutingNegativeBase is Test {
         RewardData[] memory rewards = new RewardData[](1);
         rewards[0] = RewardData(address(poorPool), 100 * rewardUnit, deadline, sig);
 
+        uint256 balBefore = rewardToken.balanceOf(user);
+
         vm.prank(user);
-        vm.expectRevert("TRANSFER_FAILED");
         teller.claimRewards(rewards);
+
+        // Pool has insufficient balance, so processRewards returns 0 (soft no-op).
+        assertEq(rewardToken.balanceOf(user), balBefore);
     }
 
     // ========================= ATOMICITY: withdrawWithRewards =========================
