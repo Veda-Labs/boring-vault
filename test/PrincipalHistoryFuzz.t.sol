@@ -85,7 +85,7 @@ contract PrincipalHistoryFuzzTest is Test {
         weth.mint(user, amount);
         vm.startPrank(user);
         ERC20(address(weth)).safeApprove(address(vault), amount);
-        shares = teller.deposit(DepositParams(ERC20(address(weth)), amount, 0, user), address(0), ComplianceData(0, ""));
+        shares = teller.deposit(DepositParams(ERC20(address(weth)), amount, 0), user, address(0), ComplianceData(0, ""));
         vm.stopPrank();
     }
 
@@ -559,7 +559,7 @@ contract PrincipalHistoryFuzzTest is Test {
         vm.startPrank(user);
         ERC20(address(weth)).safeApprove(address(vault), amount);
         uint256 shares =
-            teller.deposit(DepositParams(ERC20(address(weth)), amount, 0, user), address(0), ComplianceData(0, ""));
+            teller.deposit(DepositParams(ERC20(address(weth)), amount, 0), user, address(0), ComplianceData(0, ""));
         vm.stopPrank();
 
         if (shares == 0) {
@@ -879,7 +879,7 @@ contract PrincipalHistoryFuzzTest is Test {
         weth.mint(user, amount);
         vm.startPrank(user);
         ERC20(address(weth)).safeApprove(address(vault), amount);
-        teller.deposit(DepositParams(ERC20(address(weth)), amount, 0, user), address(0), ComplianceData(0, ""));
+        teller.deposit(DepositParams(ERC20(address(weth)), amount, 0), user, address(0), ComplianceData(0, ""));
         vm.stopPrank();
 
         (PrincipalCheckpoint[] memory h,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
@@ -989,7 +989,7 @@ contract PrincipalHistoryFuzzTest is Test {
         ERC20(address(weth)).safeApprove(address(vault), perDeposit);
 
         vm.expectRevert();
-        teller.deposit(DepositParams(ERC20(address(weth)), perDeposit, 0, user), address(0), ComplianceData(0, ""));
+        teller.deposit(DepositParams(ERC20(address(weth)), perDeposit, 0), user, address(0), ComplianceData(0, ""));
         vm.stopPrank();
     }
 }

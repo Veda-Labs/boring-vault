@@ -117,7 +117,7 @@ contract ArcticArchitectureLensTest is Test {
         weth.mint(depositor, amount);
         vm.startPrank(depositor);
         ERC20(address(weth)).safeApprove(address(vault), amount);
-        teller.deposit(DepositParams(ERC20(address(weth)), amount, 0, depositor), address(0), ComplianceData(0, ""));
+        teller.deposit(DepositParams(ERC20(address(weth)), amount, 0), depositor, address(0), ComplianceData(0, ""));
         vm.stopPrank();
     }
 

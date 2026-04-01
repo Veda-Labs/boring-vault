@@ -220,7 +220,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
         deal(address(WETH), address(this), WETHAmount);
         WETH.approve(address(boringVault), WETHAmount);
-        uint256 shares = teller.deposit(DepositParams(WETH, WETHAmount, 0, alice), referrer, ComplianceData(0, ""));
+        uint256 shares = teller.deposit(DepositParams(WETH, WETHAmount, 0), alice, referrer, ComplianceData(0, ""));
 
         assertGt(shares, 0, "Deposit should mint shares");
         assertEq(boringVault.balanceOf(alice), shares, "Receiver should own the minted shares");
@@ -1265,7 +1265,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         vm.startPrank(user);
         deal(address(WETH), user, amount);
         WETH.approve(address(boringVault), amount);
-        uint256 shares = teller.deposit(DepositParams(WETH, WETHAmount, 0, user), referrer, ComplianceData(0, ""));
+        uint256 shares = teller.deposit(DepositParams(WETH, WETHAmount, 0), user, referrer, ComplianceData(0, ""));
         vm.stopPrank();
         return shares;
     }

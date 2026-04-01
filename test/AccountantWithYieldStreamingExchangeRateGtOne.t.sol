@@ -167,7 +167,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         WETH.approve(address(boringVault), 1_000e18);
         address referrer = vm.addr(1337);
         uint256 shares0 =
-            teller.deposit(DepositParams(WETH, WETHAmount, 0, address(this)), referrer, ComplianceData(0, ""));
+            teller.deposit(DepositParams(WETH, WETHAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         uint256 currentRate = accountant.getRate();
         uint256 expectedShares = uint256(WETHAmount).mulDivDown(1e18, currentRate);
@@ -180,7 +180,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
         //deposit 2
         uint256 shares1 =
-            teller.deposit(DepositParams(WETH, WETHAmount, 0, address(this)), referrer, ComplianceData(0, ""));
+            teller.deposit(DepositParams(WETH, WETHAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         currentRate = accountant.getRate();
         expectedShares = uint256(WETHAmount).mulDivDown(1e18, currentRate);

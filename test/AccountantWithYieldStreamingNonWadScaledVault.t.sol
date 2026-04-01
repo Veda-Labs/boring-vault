@@ -1155,7 +1155,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         vm.startPrank(user);
         deal(address(USDC), user, amount);
         USDC.approve(address(boringVault), amount);
-        uint256 shares = teller.deposit(DepositParams(USDC, USDCAmount, 0, user), referrer, ComplianceData(0, ""));
+        uint256 shares = teller.deposit(DepositParams(USDC, USDCAmount, 0), user, referrer, ComplianceData(0, ""));
         vm.stopPrank();
         return shares;
     }

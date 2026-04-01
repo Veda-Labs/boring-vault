@@ -73,13 +73,13 @@ contract TellerDecoderAndSanitizer {
         addressesFound = abi.encodePacked(depositAsset, referrer);
     }
 
-    function deposit(DepositParams calldata params, address referrer, ComplianceData calldata)
+    function deposit(DepositParams calldata params, address to, address referrer, ComplianceData calldata)
         external
         pure
         virtual
         returns (bytes memory addressesFound)
     {
-        addressesFound = abi.encodePacked(address(params.depositAsset), params.recipient, referrer);
+        addressesFound = abi.encodePacked(address(params.depositAsset), to, referrer);
     }
 
     function withdraw(

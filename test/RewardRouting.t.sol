@@ -529,7 +529,7 @@ abstract contract RewardRoutingPositiveBase is Test {
         vm.startPrank(depositor);
         ERC20(address(usdc)).safeApprove(address(boringVault), amount);
         shares = teller.deposit(
-            DepositParams(ERC20(address(usdc)), amount, 0, depositor), address(0), ComplianceData(0, "")
+            DepositParams(ERC20(address(usdc)), amount, 0), depositor, address(0), ComplianceData(0, "")
         );
         vm.stopPrank();
     }

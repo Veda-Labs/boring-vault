@@ -131,7 +131,7 @@ contract NativeDepositBridgeSafetyTest is Test, MerkleTreeHelper {
         vm.startPrank(user);
         vm.expectRevert();
         sourceTeller.depositAndBridge{value: depositAmount}(
-            DepositParams(NATIVE_ERC20, depositAmount, 0, user),
+            DepositParams(NATIVE_ERC20, depositAmount, 0),
             user,
             abi.encode(layerZeroArbitrumEndpointId),
             NATIVE_ERC20,
@@ -150,7 +150,7 @@ contract NativeDepositBridgeSafetyTest is Test, MerkleTreeHelper {
 
         CrossChainTellerWithGenericBridge.DepositAndBridgeWithPermitParams memory params =
             CrossChainTellerWithGenericBridge.DepositAndBridgeWithPermitParams({
-                depositParams: DepositParams(NATIVE_ERC20, depositAmount, 0, user),
+                depositParams: DepositParams(NATIVE_ERC20, depositAmount, 0),
                 permit: PermitData(block.timestamp, 0, bytes32(0), bytes32(0)),
                 to: user,
                 bridgeWildCard: abi.encode(layerZeroArbitrumEndpointId),
@@ -184,7 +184,7 @@ contract NativeDepositBridgeSafetyTest is Test, MerkleTreeHelper {
         vm.startPrank(user);
         WETH.approve(address(boringVault), depositAmount);
         sourceTeller.depositAndBridge{value: fee}(
-            DepositParams(WETH, depositAmount, 0, user),
+            DepositParams(WETH, depositAmount, 0),
             user,
             abi.encode(layerZeroArbitrumEndpointId),
             NATIVE_ERC20,
@@ -216,7 +216,7 @@ contract NativeDepositBridgeSafetyTest is Test, MerkleTreeHelper {
         WETH.approve(address(boringVault), depositAmount);
         vm.expectRevert();
         sourceTeller.depositAndBridge{value: excessFee}(
-            DepositParams(WETH, depositAmount, 0, user),
+            DepositParams(WETH, depositAmount, 0),
             user,
             abi.encode(layerZeroArbitrumEndpointId),
             NATIVE_ERC20,
@@ -241,7 +241,7 @@ contract NativeDepositBridgeSafetyTest is Test, MerkleTreeHelper {
         vm.expectRevert();
         // No msg.value sent but fee expects native payment.
         sourceTeller.depositAndBridge(
-            DepositParams(WETH, depositAmount, 0, user),
+            DepositParams(WETH, depositAmount, 0),
             user,
             abi.encode(layerZeroArbitrumEndpointId),
             NATIVE_ERC20,
@@ -315,7 +315,7 @@ contract NativeDepositBridgeSafetyTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__DualDeposit.selector)
         );
-        sourceTeller.deposit{value: 1}(DepositParams(WETH, depositAmount, 0, user), referrer, ComplianceData(0, ""));
+        sourceTeller.deposit{value: 1}(DepositParams(WETH, depositAmount, 0), user, referrer, ComplianceData(0, ""));
         vm.stopPrank();
     }
 
@@ -328,7 +328,7 @@ contract NativeDepositBridgeSafetyTest is Test, MerkleTreeHelper {
 
         vm.startPrank(user);
         sourceTeller.deposit{value: depositAmount}(
-            DepositParams(NATIVE_ERC20, 0, 0, user), referrer, ComplianceData(0, "")
+            DepositParams(NATIVE_ERC20, 0, 0), user, referrer, ComplianceData(0, "")
         );
         vm.stopPrank();
 
@@ -348,7 +348,7 @@ contract NativeDepositBridgeSafetyTest is Test, MerkleTreeHelper {
 
         vm.startPrank(user);
         try sourceTeller.depositAndBridge{value: depositAmount}(
-            DepositParams(NATIVE_ERC20, depositAmount, 0, user),
+            DepositParams(NATIVE_ERC20, depositAmount, 0),
             user,
             abi.encode(layerZeroArbitrumEndpointId),
             NATIVE_ERC20,

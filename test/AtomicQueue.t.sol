@@ -117,8 +117,8 @@ contract AtomicQueueTest is Test, MerkleTreeHelper {
         WEETH.approve(address(boringVault), type(uint256).max);
         WEETH.approve(address(atomicQueue), type(uint256).max);
         boringVault.approve(address(atomicQueue), type(uint256).max);
-        teller.deposit(DepositParams(WETH, 1_000e18, 0, user), referrer, ComplianceData(0, ""));
-        teller.deposit(DepositParams(WEETH, 1_000e18, 0, user), referrer, ComplianceData(0, ""));
+        teller.deposit(DepositParams(WETH, 1_000e18, 0), user, referrer, ComplianceData(0, ""));
+        teller.deposit(DepositParams(WEETH, 1_000e18, 0), user, referrer, ComplianceData(0, ""));
         vm.stopPrank();
     }
 

@@ -23,7 +23,6 @@ struct DepositParams {
     ERC20 depositAsset;
     uint256 depositAmount;
     uint256 minimumMint;
-    address recipient;
 }
 
 struct ComplianceData {
@@ -629,23 +628,20 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     /**
      * @notice Allows users to deposit into the BoringVault, if this contract is not paused.
      * @dev Publicly callable.
-     * @dev The compliance hash binds `params.recipient` (not `msg.sender`) as the approved receiver of shares.
+     * @dev The compliance hash binds `to` (not `msg.sender`) as the approved receiver of shares.
      *      The signer must explicitly approve the intended recipient.
      * @dev For native ETH deposits, the compliance signature must be built using the
      *      nativeWrapper (WETH) address as the deposit asset, not the NATIVE sentinel,
      *      because the NATIVE-to-WETH conversion occurs before compliance verification.
      */
-    function deposit(DepositParams calldata params, address referralAddress, ComplianceData calldata compliance)
-        external
-        payable
-        virtual
-        requiresAuth
-        nonReentrant
-        returns (uint256 shares)
-    {
+    function deposit(
+        DepositParams calldata params,
+        address to,
+        address referralAddress,
+        ComplianceData calldata compliance
+    ) external payable virtual requiresAuth nonReentrant returns (uint256 shares) {
         ERC20 depositAsset = params.depositAsset;
         uint256 depositAmount = params.depositAmount;
-        address to = params.recipient;
         if (to == address(0)) revert TellerWithMultiAssetSupport__ZeroRecipient();
         Asset memory asset = _beforeDeposit(depositAsset);
 
@@ -679,13 +675,13 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     function depositWithPermit(
         DepositParams calldata params,
         PermitData calldata permit,
+        address to,
         address referralAddress,
         ComplianceData calldata compliance
     ) external virtual requiresAuth nonReentrant returns (uint256 shares) {
         if (address(params.depositAsset) == NATIVE) {
             revert TellerWithMultiAssetSupport__AssetNotSupported();
         }
-        address to = params.recipient;
         if (to == address(0)) revert TellerWithMultiAssetSupport__ZeroRecipient();
         _verifyComplianceSignature(to, params.depositAsset, params.depositAmount, compliance);
         Asset memory asset = _beforeDeposit(params.depositAsset);

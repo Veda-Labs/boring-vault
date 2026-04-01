@@ -220,7 +220,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         secondUSDCAmount = uint96(bound(secondUSDCAmount, 2, 1e18)); // we get 0 shares if it is 1 which reverts
         deal(address(USDC), address(this), USDCAmount);
         USDC.approve(address(vaultUSDC.vault), type(uint256).max);
-        vaultUSDC.teller.deposit(DepositParams(USDC, USDCAmount, 0, address(this)), referrer, ComplianceData(0, ""));
+        vaultUSDC.teller.deposit(DepositParams(USDC, USDCAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         // No yield
 
@@ -228,7 +228,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         deal(address(USDC), address(this), secondUSDCAmount);
 
         uint256 secondDepositorShares = vaultUSDC.teller
-            .deposit(DepositParams(USDC, secondUSDCAmount, 0, address(this)), referrer, ComplianceData(0, ""));
+            .deposit(DepositParams(USDC, secondUSDCAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         uint256 assetsOut = vaultUSDC.teller.withdraw(USDC, secondDepositorShares, 0, address(this));
 
@@ -243,14 +243,14 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         secondWBTCAmount = uint96(bound(secondWBTCAmount, 2, 1e18)); // we get 0 shares if it is 1 which reverts
         deal(address(WBTC), address(this), WBTCAmount);
         WBTC.approve(address(vaultWBTC.vault), type(uint256).max);
-        vaultWBTC.teller.deposit(DepositParams(WBTC, WBTCAmount, 0, address(this)), referrer, ComplianceData(0, ""));
+        vaultWBTC.teller.deposit(DepositParams(WBTC, WBTCAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         // No yield
 
         // Second Depositor deposits
         deal(address(WBTC), address(this), secondWBTCAmount);
         uint256 secondDepositorShares = vaultWBTC.teller
-            .deposit(DepositParams(WBTC, secondWBTCAmount, 0, address(this)), referrer, ComplianceData(0, ""));
+            .deposit(DepositParams(WBTC, secondWBTCAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         uint256 assetsOut = vaultWBTC.teller.withdraw(WBTC, secondDepositorShares, 0, address(this));
 
@@ -265,14 +265,14 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         secondWETHAmount = uint96(bound(secondWETHAmount, 2, 2e27)); // we get 0 shares if it is 1 which reverts
         deal(address(WETH), address(this), WETHAmount);
         WETH.approve(address(vaultWETH.vault), type(uint256).max);
-        vaultWETH.teller.deposit(DepositParams(WETH, WETHAmount, 0, address(this)), referrer, ComplianceData(0, ""));
+        vaultWETH.teller.deposit(DepositParams(WETH, WETHAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         // No yield
 
         // Second Depositor deposits
         deal(address(WETH), address(this), secondWETHAmount);
         uint256 secondDepositorShares = vaultWETH.teller
-            .deposit(DepositParams(WETH, secondWETHAmount, 0, address(this)), referrer, ComplianceData(0, ""));
+            .deposit(DepositParams(WETH, secondWETHAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         uint256 assetsOut = vaultWETH.teller.withdraw(WETH, secondDepositorShares, 0, address(this));
 
@@ -287,7 +287,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         secondDepositAmount = uint96(bound(secondDepositAmount, 2, 1e18));
         deal(address(USDC), address(this), USDCAmount);
         USDC.approve(address(vaultUSDC.vault), type(uint256).max);
-        vaultUSDC.teller.deposit(DepositParams(USDC, USDCAmount, 0, address(this)), referrer, ComplianceData(0, ""));
+        vaultUSDC.teller.deposit(DepositParams(USDC, USDCAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         // Use a yield that's safely under the limit (e.g., 5%)
         uint256 yieldAmount = uint256(USDCAmount) * 500 / 10_000;
@@ -309,7 +309,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         // Second Depositor deposits
         deal(address(USDC), address(this), secondDepositAmount);
         uint256 secondDepositorShares = vaultUSDC.teller
-            .deposit(DepositParams(USDC, secondDepositAmount, 0, address(this)), referrer, ComplianceData(0, ""));
+            .deposit(DepositParams(USDC, secondDepositAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         uint256 assetsOut = vaultUSDC.teller.withdraw(USDC, secondDepositorShares, 0, address(this));
 
@@ -324,7 +324,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         secondDepositAmount = uint96(bound(secondDepositAmount, 2, 1e18));
         deal(address(WBTC), address(this), WBTCAmount);
         WBTC.approve(address(vaultWBTC.vault), type(uint256).max);
-        vaultWBTC.teller.deposit(DepositParams(WBTC, WBTCAmount, 0, address(this)), referrer, ComplianceData(0, ""));
+        vaultWBTC.teller.deposit(DepositParams(WBTC, WBTCAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         // Use a yield that's safely under the limit (e.g., 5%)
         uint256 yieldAmount = uint256(WBTCAmount) * 500 / 10_000;
@@ -346,7 +346,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         // Second Depositor deposits
         deal(address(WBTC), address(this), secondDepositAmount);
         uint256 secondDepositorShares = vaultWBTC.teller
-            .deposit(DepositParams(WBTC, secondDepositAmount, 0, address(this)), referrer, ComplianceData(0, ""));
+            .deposit(DepositParams(WBTC, secondDepositAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         uint256 assetsOut = vaultWBTC.teller.withdraw(WBTC, secondDepositorShares, 0, address(this));
 
@@ -361,7 +361,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         secondDepositAmount = uint96(bound(secondDepositAmount, 2, 2e27));
         deal(address(WETH), address(this), WETHAmount);
         WETH.approve(address(vaultWETH.vault), type(uint256).max);
-        vaultWETH.teller.deposit(DepositParams(WETH, WETHAmount, 0, address(this)), referrer, ComplianceData(0, ""));
+        vaultWETH.teller.deposit(DepositParams(WETH, WETHAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         // Use a yield that's safely under the limit (e.g., 5%)
         uint256 yieldAmount = uint256(WETHAmount) * 500 / 10_000;
@@ -383,7 +383,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         // Second Depositor deposits
         deal(address(WETH), address(this), secondDepositAmount);
         uint256 secondDepositorShares = vaultWETH.teller
-            .deposit(DepositParams(WETH, secondDepositAmount, 0, address(this)), referrer, ComplianceData(0, ""));
+            .deposit(DepositParams(WETH, secondDepositAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         uint256 assetsOut = vaultWETH.teller.withdraw(WETH, secondDepositorShares, 0, address(this));
 
@@ -398,7 +398,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         secondDepositAmount = uint96(bound(secondDepositAmount, 2, 1e18));
         deal(address(USDC), address(this), USDCAmount);
         USDC.approve(address(vaultUSDC.vault), type(uint256).max);
-        vaultUSDC.teller.deposit(DepositParams(USDC, USDCAmount, 0, address(this)), referrer, ComplianceData(0, ""));
+        vaultUSDC.teller.deposit(DepositParams(USDC, USDCAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         // Use a yield that's safely under the limit (e.g., 5%)
         uint256 yieldAmount = uint256(USDCAmount) * 500 / 10_000;
@@ -419,7 +419,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         // Second Depositor deposits
         deal(address(USDC), address(this), secondDepositAmount);
         uint256 secondDepositorShares = vaultUSDC.teller
-            .deposit(DepositParams(USDC, secondDepositAmount, 0, address(this)), referrer, ComplianceData(0, ""));
+            .deposit(DepositParams(USDC, secondDepositAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         uint256 assetsOut = vaultUSDC.teller.withdraw(USDC, secondDepositorShares, 0, address(this));
 
@@ -434,7 +434,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         secondDepositAmount = uint96(bound(secondDepositAmount, 2, 1e18));
         deal(address(WBTC), address(this), WBTCAmount);
         WBTC.approve(address(vaultWBTC.vault), type(uint256).max);
-        vaultWBTC.teller.deposit(DepositParams(WBTC, WBTCAmount, 0, address(this)), referrer, ComplianceData(0, ""));
+        vaultWBTC.teller.deposit(DepositParams(WBTC, WBTCAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         // Use a yield that's safely under the limit (e.g., 5%)
         uint256 yieldAmount = uint256(WBTCAmount) * 500 / 10_000;
@@ -455,7 +455,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         // Second Depositor deposits
         deal(address(WBTC), address(this), secondDepositAmount);
         uint256 secondDepositorShares = vaultWBTC.teller
-            .deposit(DepositParams(WBTC, secondDepositAmount, 0, address(this)), referrer, ComplianceData(0, ""));
+            .deposit(DepositParams(WBTC, secondDepositAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         uint256 assetsOut = vaultWBTC.teller.withdraw(WBTC, secondDepositorShares, 0, address(this));
 
@@ -470,7 +470,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         secondDepositAmount = uint96(bound(secondDepositAmount, 2, 2e27));
         deal(address(WETH), address(this), WETHAmount);
         WETH.approve(address(vaultWETH.vault), type(uint256).max);
-        vaultWETH.teller.deposit(DepositParams(WETH, WETHAmount, 0, address(this)), referrer, ComplianceData(0, ""));
+        vaultWETH.teller.deposit(DepositParams(WETH, WETHAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         // Use a yield that's safely under the limit (e.g., 5%)
         uint256 yieldAmount = uint256(WETHAmount) * 500 / 10_000;
@@ -491,7 +491,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         // Second Depositor deposits
         deal(address(WETH), address(this), secondDepositAmount);
         uint256 secondDepositorShares = vaultWETH.teller
-            .deposit(DepositParams(WETH, secondDepositAmount, 0, address(this)), referrer, ComplianceData(0, ""));
+            .deposit(DepositParams(WETH, secondDepositAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         uint256 assetsOut = vaultWETH.teller.withdraw(WETH, secondDepositorShares, 0, address(this));
 
@@ -515,7 +515,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         // --- Deposit WEETH ---
         deal(address(WEETH), address(this), WEETHAmount);
         WEETH.approve(address(vaultWETH.vault), type(uint256).max);
-        vaultWETH.teller.deposit(DepositParams(WEETH, WEETHAmount, 0, address(this)), referrer, ComplianceData(0, ""));
+        vaultWETH.teller.deposit(DepositParams(WEETH, WEETHAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         // Use a yield that's safely under the limit (e.g., 5%)
         uint256 yieldAmount = uint256(WEETHAmount) * 500 / 10_000;
@@ -530,7 +530,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         // Second Depositor deposits WEETH
         deal(address(WEETH), address(this), secondDepositAmount);
         uint256 secondDepositorShares = vaultWETH.teller
-            .deposit(DepositParams(WEETH, secondDepositAmount, 0, address(this)), referrer, ComplianceData(0, ""));
+            .deposit(DepositParams(WEETH, secondDepositAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         // Withdraw and request WETH as the output token
         uint256 assetsOut = vaultWETH.teller.withdraw(WETH, secondDepositorShares, 0, address(this));
@@ -540,7 +540,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
 
         // deposit assetsOut into the vault
         secondDepositorShares =
-            vaultWETH.teller.deposit(DepositParams(WETH, assetsOut, 0, address(this)), referrer, ComplianceData(0, ""));
+            vaultWETH.teller.deposit(DepositParams(WETH, assetsOut, 0), address(this), referrer, ComplianceData(0, ""));
 
         // withdraw WEETH from the vault
         uint256 WEETHOut = vaultWETH.teller.withdraw(WEETH, secondDepositorShares, 0, address(this));
@@ -565,7 +565,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         // --- Deposit WEETH ---
         deal(address(WEETH), address(this), WEETHAmount);
         WEETH.approve(address(vaultWETH.vault), type(uint256).max);
-        vaultWETH.teller.deposit(DepositParams(WEETH, WEETHAmount, 0, address(this)), referrer, ComplianceData(0, ""));
+        vaultWETH.teller.deposit(DepositParams(WEETH, WEETHAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         // Use a yield that's safely under the limit (e.g., 5%)
         uint256 yieldAmount = uint256(WEETHAmount) * 500 / 10_000;
@@ -581,7 +581,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         deal(address(WETH), address(this), secondDepositAmount);
         WETH.approve(address(vaultWETH.vault), secondDepositAmount);
         uint256 secondDepositorShares = vaultWETH.teller
-            .deposit(DepositParams(WETH, secondDepositAmount, 0, address(this)), referrer, ComplianceData(0, ""));
+            .deposit(DepositParams(WETH, secondDepositAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         // Withdraw and request WEETH as the output token
         uint256 assetsOut = vaultWETH.teller.withdraw(WEETH, secondDepositorShares, 0, address(this));
@@ -591,7 +591,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
 
         // deposit assetsOut into the vault
         secondDepositorShares = vaultWETH.teller
-            .deposit(DepositParams(WEETH, assetsOut, 0, address(this)), referrer, ComplianceData(0, ""));
+            .deposit(DepositParams(WEETH, assetsOut, 0), address(this), referrer, ComplianceData(0, ""));
 
         // withdraw WEETH from the vault
         uint256 WETHOut = vaultWETH.teller.withdraw(WETH, secondDepositorShares, 0, address(this));
@@ -607,7 +607,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         secondDepositAmount = uint96(bound(secondDepositAmount, 2, 1e18));
         deal(address(USDC), address(this), USDCAmount);
         USDC.approve(address(vaultUSDC.vault), type(uint256).max);
-        vaultUSDC.teller.deposit(DepositParams(USDC, USDCAmount, 0, address(this)), referrer, ComplianceData(0, ""));
+        vaultUSDC.teller.deposit(DepositParams(USDC, USDCAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         // Use a yield that's safely under the limit (e.g., 5%)
         uint256 yieldAmount = uint256(USDCAmount) * 500 / 10_000;
@@ -638,7 +638,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         // Second Depositor deposits
         deal(address(USDC), address(this), secondDepositAmount);
         uint256 secondDepositorShares = vaultUSDC.teller
-            .deposit(DepositParams(USDC, secondDepositAmount, 0, address(this)), referrer, ComplianceData(0, ""));
+            .deposit(DepositParams(USDC, secondDepositAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         uint256 assetsOut = vaultUSDC.teller.withdraw(USDC, secondDepositorShares, 0, address(this));
 
@@ -653,7 +653,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         secondDepositAmount = uint96(bound(secondDepositAmount, 2, 1e18));
         deal(address(WBTC), address(this), WBTCAmount);
         WBTC.approve(address(vaultWBTC.vault), type(uint256).max);
-        vaultWBTC.teller.deposit(DepositParams(WBTC, WBTCAmount, 0, address(this)), referrer, ComplianceData(0, ""));
+        vaultWBTC.teller.deposit(DepositParams(WBTC, WBTCAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         // Use a yield that's safely under the limit (e.g., 5%)
         uint256 yieldAmount = uint256(WBTCAmount) * 500 / 10_000;
@@ -684,7 +684,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         // Second Depositor deposits
         deal(address(WBTC), address(this), secondDepositAmount);
         uint256 secondDepositorShares = vaultWBTC.teller
-            .deposit(DepositParams(WBTC, secondDepositAmount, 0, address(this)), referrer, ComplianceData(0, ""));
+            .deposit(DepositParams(WBTC, secondDepositAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         uint256 assetsOut = vaultWBTC.teller.withdraw(WBTC, secondDepositorShares, 0, address(this));
 
@@ -699,7 +699,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         secondDepositAmount = uint96(bound(secondDepositAmount, 2, 2e27));
         deal(address(WETH), address(this), WETHAmount);
         WETH.approve(address(vaultWETH.vault), type(uint256).max);
-        vaultWETH.teller.deposit(DepositParams(WETH, WETHAmount, 0, address(this)), referrer, ComplianceData(0, ""));
+        vaultWETH.teller.deposit(DepositParams(WETH, WETHAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         // Use a yield that's safely under the limit (e.g., 5%)
         uint256 yieldAmount = uint256(WETHAmount) * 500 / 10_000;
@@ -730,7 +730,7 @@ contract AccountantWithYieldStreamingDepositWithdrawTest is Test, MerkleTreeHelp
         // Second Depositor deposits
         deal(address(WETH), address(this), secondDepositAmount);
         uint256 secondDepositorShares = vaultWETH.teller
-            .deposit(DepositParams(WETH, secondDepositAmount, 0, address(this)), referrer, ComplianceData(0, ""));
+            .deposit(DepositParams(WETH, secondDepositAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         uint256 assetsOut = vaultWETH.teller.withdraw(WETH, secondDepositorShares, 0, address(this));
 

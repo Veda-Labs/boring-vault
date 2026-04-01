@@ -302,7 +302,7 @@ contract TellerHandler is CommonBase, StdCheats, StdUtils {
         baseAsset.approve(address(vaultRP), amount);
 
         uint256 shares =
-            tellerMAS.deposit(DepositParams(baseAsset, amount, minShares, actor), address(0), ComplianceData(0, ""));
+            tellerMAS.deposit(DepositParams(baseAsset, amount, minShares), actor, address(0), ComplianceData(0, ""));
 
         if (shares > 0) {
             depositCalls++;
@@ -560,7 +560,7 @@ contract TellerHandler is CommonBase, StdCheats, StdUtils {
         baseAsset.approve(address(vaultRP), amount);
 
         uint256 shares =
-            tellerMAS.deposit(DepositParams(baseAsset, amount, 0, actor), address(0), ComplianceData(0, ""));
+            tellerMAS.deposit(DepositParams(baseAsset, amount, 0), actor, address(0), ComplianceData(0, ""));
         if (shares > 0) {
             depositCalls++;
             lastDepositAssets = amount;
@@ -728,7 +728,7 @@ contract TellerHandler is CommonBase, StdCheats, StdUtils {
         baseAsset.approve(address(vaultRP), amount);
 
         uint256 shares =
-            tellerMAS.deposit(DepositParams(baseAsset, amount, 0, actor), address(0), ComplianceData(0, ""));
+            tellerMAS.deposit(DepositParams(baseAsset, amount, 0), actor, address(0), ComplianceData(0, ""));
         if (shares > 0) {
             depositCalls++;
             lastDepositAssets = amount;
@@ -788,7 +788,7 @@ contract TellerHandler is CommonBase, StdCheats, StdUtils {
         altAsset.approve(address(vaultRP), amount);
 
         uint256 shares =
-            tellerMAS.deposit(DepositParams(altAsset, amount, minShares, actor), address(0), ComplianceData(0, ""));
+            tellerMAS.deposit(DepositParams(altAsset, amount, minShares), actor, address(0), ComplianceData(0, ""));
         if (shares > 0) {
             depositCalls++;
             lastDepositAssets = amount;
@@ -879,7 +879,7 @@ contract TellerHandler is CommonBase, StdCheats, StdUtils {
 
         bool succeeded = false;
         uint256 shares =
-            tellerYS.deposit(DepositParams(baseAsset, amount, minShares, actor), address(0), ComplianceData(0, ""));
+            tellerYS.deposit(DepositParams(baseAsset, amount, minShares), actor, address(0), ComplianceData(0, ""));
         if (shares > 0) {
             depositCalls++;
             lastDepositAssets = amount;
@@ -1069,7 +1069,7 @@ contract TellerHandler is CommonBase, StdCheats, StdUtils {
 
         vm.startPrank(deniedUser);
         baseAsset.approve(address(vaultRP), amount);
-        tellerMAS.deposit(DepositParams(baseAsset, amount, 0, deniedUser), address(0), ComplianceData(0, ""));
+        tellerMAS.deposit(DepositParams(baseAsset, amount, 0), deniedUser, address(0), ComplianceData(0, ""));
         vm.stopPrank();
 
         _afterCall();

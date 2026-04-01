@@ -158,7 +158,7 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
         vm.startPrank(user);
         WETH.approve(address(boringVault), depositAmount);
         sourceTeller.depositAndBridge{value: fee}(
-            DepositParams(WETH, depositAmount, 0, user),
+            DepositParams(WETH, depositAmount, 0),
             user,
             abi.encode(layerZeroArbitrumEndpointId),
             NATIVE_ERC20,
@@ -212,7 +212,7 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
         vm.startPrank(user);
         CrossChainTellerWithGenericBridge.DepositAndBridgeWithPermitParams memory params =
             CrossChainTellerWithGenericBridge.DepositAndBridgeWithPermitParams({
-                depositParams: DepositParams(WEETH, weETH_amount, 0, user),
+                depositParams: DepositParams(WEETH, weETH_amount, 0),
                 permit: PermitData(block.timestamp, v, r, s),
                 to: user,
                 bridgeWildCard: abi.encode(layerZeroArbitrumEndpointId),
@@ -242,7 +242,7 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
             )
         );
         sourceTeller.depositAndBridge(
-            DepositParams(WETH, depositAmount, 0, user),
+            DepositParams(WETH, depositAmount, 0),
             user,
             abi.encode(layerZeroArbitrumEndpointId),
             NATIVE_ERC20,
@@ -272,7 +272,7 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
         vm.startPrank(user);
         WETH.approve(address(boringVault), depositAmount);
         uint256 sharesBridged = sourceTeller.depositAndBridge{value: fee}(
-            DepositParams(WETH, depositAmount, 0, user),
+            DepositParams(WETH, depositAmount, 0),
             user,
             abi.encode(layerZeroArbitrumEndpointId),
             NATIVE_ERC20,
@@ -325,7 +325,7 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
         vm.startPrank(user);
         CrossChainTellerWithGenericBridge.DepositAndBridgeWithPermitParams memory params =
             CrossChainTellerWithGenericBridge.DepositAndBridgeWithPermitParams({
-                depositParams: DepositParams(WEETH, weETH_amount, 0, user),
+                depositParams: DepositParams(WEETH, weETH_amount, 0),
                 permit: PermitData(block.timestamp, v, r, s),
                 to: user,
                 bridgeWildCard: abi.encode(layerZeroArbitrumEndpointId),
@@ -358,7 +358,7 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
 
         vm.startPrank(user);
         WETH.approve(address(boringVault), depositAmount);
-        sourceTeller.deposit(DepositParams(WETH, depositAmount, 0, user), referrer, ComplianceData(0, ""));
+        sourceTeller.deposit(DepositParams(WETH, depositAmount, 0), user, referrer, ComplianceData(0, ""));
 
         // Verify deposit creates a checkpoint with principal
         (PrincipalCheckpoint[] memory historyBefore,) =
@@ -403,7 +403,7 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
         vm.startPrank(user);
         WETH.approve(address(boringVault), depositAmount);
         uint256 sharesBridged = sourceTeller.depositAndBridge{value: fee}(
-            DepositParams(WETH, depositAmount, 0, user),
+            DepositParams(WETH, depositAmount, 0),
             user,
             abi.encode(layerZeroArbitrumEndpointId),
             NATIVE_ERC20,

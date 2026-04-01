@@ -125,7 +125,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
         WETH.safeApprove(address(boringVault), depositAmount);
-        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0, user1), referrer, ComplianceData(0, ""));
+        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0), user1, referrer, ComplianceData(0, ""));
         vm.stopPrank();
 
         assertEq(boringVault.balanceOf(user1), shares, "User should receive shares");
@@ -145,14 +145,14 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
         WETH.safeApprove(address(boringVault), depositAmount);
-        uint256 shares1 = teller.deposit(DepositParams(WETH, depositAmount, 0, user1), referrer, ComplianceData(0, ""));
+        uint256 shares1 = teller.deposit(DepositParams(WETH, depositAmount, 0), user1, referrer, ComplianceData(0, ""));
         vm.stopPrank();
 
         // User2 deposits
         deal(address(WETH), user2, depositAmount);
         vm.startPrank(user2);
         WETH.safeApprove(address(boringVault), depositAmount);
-        uint256 shares2 = teller.deposit(DepositParams(WETH, depositAmount, 0, user2), referrer, ComplianceData(0, ""));
+        uint256 shares2 = teller.deposit(DepositParams(WETH, depositAmount, 0), user2, referrer, ComplianceData(0, ""));
         vm.stopPrank();
 
         assertEq(shares1, shares2, "Equal deposits should yield equal shares");
@@ -169,7 +169,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
         WETH.safeApprove(address(boringVault), depositAmount);
-        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0, user1), referrer, ComplianceData(0, ""));
+        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0), user1, referrer, ComplianceData(0, ""));
         vm.stopPrank();
 
         // Pause ShareWarden
@@ -201,7 +201,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
         WETH.safeApprove(address(boringVault), depositAmount);
-        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0, user1), referrer, ComplianceData(0, ""));
+        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0), user1, referrer, ComplianceData(0, ""));
         vm.stopPrank();
 
         assertEq(boringVault.balanceOf(user1), shares, "Deposits should work even when ShareWarden is paused");
@@ -216,7 +216,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
         WETH.safeApprove(address(boringVault), depositAmount);
-        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0, user1), referrer, ComplianceData(0, ""));
+        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0), user1, referrer, ComplianceData(0, ""));
         vm.stopPrank();
 
         // Setup SanctionsList oracle and enable SanctionsList list for vault
@@ -237,7 +237,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
         WETH.safeApprove(address(boringVault), depositAmount);
-        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0, user1), referrer, ComplianceData(0, ""));
+        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0), user1, referrer, ComplianceData(0, ""));
         vm.stopPrank();
 
         // Setup SanctionsList oracle and enable SanctionsList list for vault
@@ -258,7 +258,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
         WETH.safeApprove(address(boringVault), depositAmount);
-        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0, user1), referrer, ComplianceData(0, ""));
+        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0), user1, referrer, ComplianceData(0, ""));
         boringVault.approve(address(this), shares);
         vm.stopPrank();
 
@@ -281,7 +281,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
         WETH.safeApprove(address(boringVault), depositAmount);
-        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0, user1), referrer, ComplianceData(0, ""));
+        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0), user1, referrer, ComplianceData(0, ""));
         vm.stopPrank();
 
         // Setup SanctionsList oracle and enable SanctionsList list for vault and sanction user
@@ -314,7 +314,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
         WETH.safeApprove(address(boringVault), depositAmount);
-        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0, user1), referrer, ComplianceData(0, ""));
+        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0), user1, referrer, ComplianceData(0, ""));
         vm.stopPrank();
 
         // Setup custom blacklist (list ID CUSTOM_LIST_TWO)
@@ -337,7 +337,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
         WETH.safeApprove(address(boringVault), depositAmount);
-        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0, user1), referrer, ComplianceData(0, ""));
+        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0), user1, referrer, ComplianceData(0, ""));
         vm.stopPrank();
 
         // Setup custom blacklist (list ID CUSTOM_LIST_TWO)
@@ -375,7 +375,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
         WETH.safeApprove(address(boringVault), depositAmount);
-        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0, user1), referrer, ComplianceData(0, ""));
+        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0), user1, referrer, ComplianceData(0, ""));
         vm.stopPrank();
 
         // Setup SanctionsList oracle and enable both SanctionsList and custom list
@@ -417,7 +417,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
         WETH.safeApprove(address(boringVault), depositAmount);
-        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0, user1), referrer, ComplianceData(0, ""));
+        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0), user1, referrer, ComplianceData(0, ""));
         boringVault.approve(address(this), shares);
         vm.stopPrank();
 
@@ -442,7 +442,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
         WETH.safeApprove(address(boringVault), depositAmount);
-        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0, user1), referrer, ComplianceData(0, ""));
+        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0), user1, referrer, ComplianceData(0, ""));
         vm.stopPrank();
 
         // Setup custom blacklist and blacklist user1
@@ -475,20 +475,20 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
         WETH.safeApprove(address(boringVault), depositAmount);
-        uint256 shares1 = teller.deposit(DepositParams(WETH, depositAmount, 0, user1), referrer, ComplianceData(0, ""));
+        uint256 shares1 = teller.deposit(DepositParams(WETH, depositAmount, 0), user1, referrer, ComplianceData(0, ""));
         vm.stopPrank();
 
         deal(address(WETH), user2, depositAmount);
         vm.startPrank(user2);
         WETH.safeApprove(address(boringVault), depositAmount);
-        uint256 shares2 = teller.deposit(DepositParams(WETH, depositAmount, 0, user2), referrer, ComplianceData(0, ""));
+        uint256 shares2 = teller.deposit(DepositParams(WETH, depositAmount, 0), user2, referrer, ComplianceData(0, ""));
         vm.stopPrank();
 
         address user3 = vm.addr(103);
         deal(address(WETH), user3, depositAmount);
         vm.startPrank(user3);
         WETH.safeApprove(address(boringVault), depositAmount);
-        uint256 shares3 = teller.deposit(DepositParams(WETH, depositAmount, 0, user3), referrer, ComplianceData(0, ""));
+        uint256 shares3 = teller.deposit(DepositParams(WETH, depositAmount, 0), user3, referrer, ComplianceData(0, ""));
         vm.stopPrank();
 
         // Setup custom blacklist
@@ -540,7 +540,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
         WETH.safeApprove(address(boringVault), depositAmount);
-        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0, user1), referrer, ComplianceData(0, ""));
+        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0), user1, referrer, ComplianceData(0, ""));
         vm.stopPrank();
 
         // Setup multiple custom lists
@@ -585,7 +585,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
         WETH.safeApprove(address(boringVault), depositAmount);
-        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0, user1), referrer, ComplianceData(0, ""));
+        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0), user1, referrer, ComplianceData(0, ""));
         vm.stopPrank();
 
         // Add user to teller deny list
@@ -625,7 +625,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
         WETH.safeApprove(address(boringVault), depositAmount);
-        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0, user1), referrer, ComplianceData(0, ""));
+        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0), user1, referrer, ComplianceData(0, ""));
         vm.stopPrank();
 
         // Transfer should fail due to share lock
@@ -650,7 +650,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
         WETH.safeApprove(address(boringVault), depositAmount);
-        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0, user1), referrer, ComplianceData(0, ""));
+        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0), user1, referrer, ComplianceData(0, ""));
         vm.stopPrank();
 
         // Pause ShareWarden - should fail here first
@@ -699,7 +699,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
         WETH.safeApprove(address(boringVault), depositAmount);
-        teller.deposit(DepositParams(WETH, depositAmount, 0, user1), referrer, ComplianceData(0, ""));
+        teller.deposit(DepositParams(WETH, depositAmount, 0), user1, referrer, ComplianceData(0, ""));
         vm.stopPrank();
 
         // Setup SanctionsList oracle and enable SanctionsList list and sanction user1
@@ -721,7 +721,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         deal(address(WETH), user1, depositAmount);
         vm.startPrank(user1);
         WETH.safeApprove(address(boringVault), depositAmount);
-        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0, user1), referrer, ComplianceData(0, ""));
+        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0), user1, referrer, ComplianceData(0, ""));
         vm.stopPrank();
 
         // First transfer works
@@ -769,7 +769,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         deal(address(WETH), user1, amount);
         vm.startPrank(user1);
         WETH.safeApprove(address(boringVault), amount);
-        uint256 shares = teller.deposit(DepositParams(WETH, amount, 0, user1), referrer, ComplianceData(0, ""));
+        uint256 shares = teller.deposit(DepositParams(WETH, amount, 0), user1, referrer, ComplianceData(0, ""));
         vm.stopPrank();
 
         assertEq(boringVault.balanceOf(user1), shares, "User should receive shares");
@@ -792,7 +792,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         deal(address(WETH), user1, amount);
         vm.startPrank(user1);
         WETH.safeApprove(address(boringVault), amount);
-        uint256 shares = teller.deposit(DepositParams(WETH, amount, 0, user1), referrer, ComplianceData(0, ""));
+        uint256 shares = teller.deposit(DepositParams(WETH, amount, 0), user1, referrer, ComplianceData(0, ""));
         boringVault.approve(address(this), shares);
         vm.stopPrank();
 

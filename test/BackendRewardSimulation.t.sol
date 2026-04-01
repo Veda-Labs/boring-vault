@@ -174,7 +174,7 @@ contract BackendRewardSimulationTest is Test {
         weth.mint(user, amount);
         vm.startPrank(user);
         ERC20(address(weth)).safeApprove(address(vault), amount);
-        shares = teller.deposit(DepositParams(ERC20(address(weth)), amount, 0, user), address(0), ComplianceData(0, ""));
+        shares = teller.deposit(DepositParams(ERC20(address(weth)), amount, 0), user, address(0), ComplianceData(0, ""));
         vm.stopPrank();
         _recordSnapshot(user);
     }
