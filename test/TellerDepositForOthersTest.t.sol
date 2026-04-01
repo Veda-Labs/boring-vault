@@ -91,15 +91,21 @@ contract TellerDepositForOthersTest is Test, MerkleTreeHelper {
         vm.stopPrank();
     }
 
-    // -- Default (unrestricted) --
+    // -- Default (disabled) --
 
-    function testDepositForOthersUnrestricted() external {
-        assertEq(teller.depositForOthersRole(), type(uint8).max, "Default should be unrestricted");
+    function testDepositForOthersDisabledByDefault() external {
+        assertEq(teller.depositForOthersRole(), type(uint8).max, "Default should disable deposit-for-others");
 
-        uint256 shares = _depositAs(alice, attacker, 1e18);
-        assertGt(shares, 0);
-        assertEq(boringVault.balanceOf(attacker), shares, "Bob should receive shares");
-        assertEq(boringVault.balanceOf(alice), 0, "Alice should have no shares");
+        deal(address(WETH), alice, 1e18);
+        vm.startPrank(alice);
+        WETH.safeApprove(address(boringVault), 1e18);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__DepositForOthersNotAllowed.selector
+            )
+        );
+        teller.deposit(DepositParams(WETH, 1e18, 0), attacker, referrer, ComplianceData(0, ""));
+        vm.stopPrank();
     }
 
     // -- Role enabled: self-deposit always works --
@@ -188,14 +194,23 @@ contract TellerDepositForOthersTest is Test, MerkleTreeHelper {
         assertEq(boringVault.balanceOf(alice), shares);
     }
 
-    // -- Role can be toggled back to unrestricted --
+    // -- Role can be toggled back to disabled --
 
     function testRoleCanBeDisabled() external {
+        // Enable the role so router can deposit for others
         teller.setTransferRestrictions(type(uint8).max, DEPOSIT_FOR_OTHERS_ROLE);
+        rolesAuthority.setUserRole(router, DEPOSIT_FOR_OTHERS_ROLE, true);
 
-        // Confirm it blocks
-        deal(address(WETH), alice, 1e18);
-        vm.startPrank(alice);
+        // Confirm router can deposit for others
+        uint256 shares = _depositAs(router, attacker, 1e18);
+        assertGt(shares, 0);
+
+        // Disable deposit-for-others by setting back to type(uint8).max
+        teller.setTransferRestrictions(type(uint8).max, type(uint8).max);
+
+        // Now router can no longer deposit for others even with the role
+        deal(address(WETH), router, 1e18);
+        vm.startPrank(router);
         WETH.safeApprove(address(boringVault), 1e18);
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -204,13 +219,6 @@ contract TellerDepositForOthersTest is Test, MerkleTreeHelper {
         );
         teller.deposit(DepositParams(WETH, 1e18, 0), attacker, referrer, ComplianceData(0, ""));
         vm.stopPrank();
-
-        // Disable restriction
-        teller.setTransferRestrictions(type(uint8).max, type(uint8).max);
-
-        // Now succeeds
-        uint256 shares = _depositAs(alice, attacker, 1e18);
-        assertGt(shares, 0);
     }
 
     // -- bulkDeposit is unaffected --

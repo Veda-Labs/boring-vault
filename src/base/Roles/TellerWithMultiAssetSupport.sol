@@ -181,8 +181,9 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
 
     /**
      * @notice Role ID required for depositing shares to a different recipient.
-     * @dev When set to type(uint8).max (255), anyone can deposit to any recipient (default).
-     *      Any other value requires msg.sender to hold that role, or msg.sender == recipient.
+     * @dev When set to type(uint8).max (255), depositing for others is disabled entirely (default).
+     *      Any other value requires msg.sender to hold that role to deposit for a different recipient.
+     *      msg.sender == recipient is always allowed regardless of this setting.
      */
     uint8 public depositForOthersRole = type(uint8).max;
 
@@ -345,8 +346,8 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @notice Sets both transfer restriction roles in a single call.
      * @dev transferAllowedRole: set to type(uint8).max (255) to disable transfer restrictions (default).
      *      Any other value restricts transfers so that at least one of `from`, `to`, or `operator` must hold that role.
-     *      depositForOthersRole: set to type(uint8).max (255) to allow unrestricted deposit-to-others (default).
-     *      Any other value requires the depositor to hold that role, or deposit to themselves.
+     *      depositForOthersRole: set to type(uint8).max (255) to disable deposit-for-others entirely (default).
+     *      Any other value allows holders of that role to deposit for a different recipient.
      * @param _transferAllowedRole The role ID required for at least one side of a transfer, or 255 to disable.
      * @param _depositForOthersRole The role ID required to deposit for others, or 255 to disable.
      */
@@ -508,13 +509,14 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
 
     /**
      * @notice Enforces deposit-for-others restriction based on `depositForOthersRole`.
-     * @dev If `depositForOthersRole` is type(uint8).max, no restriction is applied.
-     *      Otherwise, msg.sender must hold the specified role unless depositing to themselves.
+     * @dev If msg.sender == recipient, always allowed.
+     *      If `depositForOthersRole` is type(uint8).max, depositing for others is disabled entirely.
+     *      Otherwise, msg.sender must hold the specified role to deposit for a different recipient.
      */
     function _enforceDepositForOthers(address recipient) internal view {
-        uint8 role = depositForOthersRole;
-        if (role == type(uint8).max) return;
         if (msg.sender == recipient) return;
+        uint8 role = depositForOthersRole;
+        if (role == type(uint8).max) revert TellerWithMultiAssetSupport__DepositForOthersNotAllowed();
         if (!RolesAuthority(address(authority)).doesUserHaveRole(msg.sender, role)) {
             revert TellerWithMultiAssetSupport__DepositForOthersNotAllowed();
         }
