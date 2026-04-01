@@ -7,6 +7,7 @@ pragma solidity 0.8.21;
 import {BoringVault} from "src/base/BoringVault.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {MessageLib} from "src/base/Roles/CrossChain/MessageLib.sol";
+import {TellerWithMultiAssetSupportLib} from "src/base/Roles/TellerWithMultiAssetSupportLib.sol";
 
 library CrossChainTellerLib {
     using MessageLib for uint256;
@@ -29,6 +30,36 @@ library CrossChainTellerLib {
         vault.exit(address(0), ERC20(address(0)), 0, sender, shareAmount);
         MessageLib.Message memory m = MessageLib.Message(shareAmount, to);
         message = m.messageToUint256();
+    }
+
+    /**
+     * @notice Verify compliance for a combined deposit-and-bridge operation.
+     * @dev Called via DELEGATECALL so address(this) and block.chainid resolve to the calling contract.
+     */
+    function verifyDepositAndBridgeCompliance(
+        mapping(bytes32 messageHash => bool used) storage usedComplianceSignatures,
+        address authority,
+        uint8 complianceSignerRole,
+        uint96 complianceWindow,
+        address depositor,
+        address depositAsset,
+        uint256 depositAmount,
+        address to,
+        uint256 deadline,
+        bytes calldata signature
+    ) external {
+        if (complianceSignerRole == type(uint8).max) return;
+        bytes32 messageHash =
+            keccak256(abi.encode(address(this), block.chainid, depositor, depositAsset, depositAmount, to, deadline));
+        TellerWithMultiAssetSupportLib.verifyAndMark(
+            usedComplianceSignatures,
+            authority,
+            complianceSignerRole,
+            complianceWindow,
+            messageHash,
+            deadline,
+            signature
+        );
     }
 
     /**

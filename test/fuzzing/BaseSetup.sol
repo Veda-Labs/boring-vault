@@ -348,28 +348,7 @@ contract BaseSetup is Test {
             ADMIN_ROLE, address(tellerMAS), TellerWithMultiAssetSupport.setDepositCap.selector, true
         );
         rolesAuthorityRP.setRoleCapability(
-            DENIER_ROLE, address(tellerMAS), TellerWithMultiAssetSupport.denyAll.selector, true
-        );
-        rolesAuthorityRP.setRoleCapability(
-            DENIER_ROLE, address(tellerMAS), TellerWithMultiAssetSupport.allowAll.selector, true
-        );
-        rolesAuthorityRP.setRoleCapability(
-            DENIER_ROLE, address(tellerMAS), TellerWithMultiAssetSupport.denyFrom.selector, true
-        );
-        rolesAuthorityRP.setRoleCapability(
-            DENIER_ROLE, address(tellerMAS), TellerWithMultiAssetSupport.allowFrom.selector, true
-        );
-        rolesAuthorityRP.setRoleCapability(
-            DENIER_ROLE, address(tellerMAS), TellerWithMultiAssetSupport.denyTo.selector, true
-        );
-        rolesAuthorityRP.setRoleCapability(
-            DENIER_ROLE, address(tellerMAS), TellerWithMultiAssetSupport.allowTo.selector, true
-        );
-        rolesAuthorityRP.setRoleCapability(
-            DENIER_ROLE, address(tellerMAS), TellerWithMultiAssetSupport.denyOperator.selector, true
-        );
-        rolesAuthorityRP.setRoleCapability(
-            DENIER_ROLE, address(tellerMAS), TellerWithMultiAssetSupport.allowOperator.selector, true
+            DENIER_ROLE, address(tellerMAS), TellerWithMultiAssetSupport.setDenyFlags.selector, true
         );
         rolesAuthorityRP.setRoleCapability(
             ADMIN_ROLE, address(tellerMAS), TellerWithMultiAssetSupport.refundDeposit.selector, true
@@ -476,28 +455,7 @@ contract BaseSetup is Test {
             ADMIN_ROLE, address(tellerYS), TellerWithMultiAssetSupport.setDepositCap.selector, true
         );
         rolesAuthorityYS.setRoleCapability(
-            DENIER_ROLE, address(tellerYS), TellerWithMultiAssetSupport.denyAll.selector, true
-        );
-        rolesAuthorityYS.setRoleCapability(
-            DENIER_ROLE, address(tellerYS), TellerWithMultiAssetSupport.allowAll.selector, true
-        );
-        rolesAuthorityYS.setRoleCapability(
-            DENIER_ROLE, address(tellerYS), TellerWithMultiAssetSupport.denyFrom.selector, true
-        );
-        rolesAuthorityYS.setRoleCapability(
-            DENIER_ROLE, address(tellerYS), TellerWithMultiAssetSupport.allowFrom.selector, true
-        );
-        rolesAuthorityYS.setRoleCapability(
-            DENIER_ROLE, address(tellerYS), TellerWithMultiAssetSupport.denyTo.selector, true
-        );
-        rolesAuthorityYS.setRoleCapability(
-            DENIER_ROLE, address(tellerYS), TellerWithMultiAssetSupport.allowTo.selector, true
-        );
-        rolesAuthorityYS.setRoleCapability(
-            DENIER_ROLE, address(tellerYS), TellerWithMultiAssetSupport.denyOperator.selector, true
-        );
-        rolesAuthorityYS.setRoleCapability(
-            DENIER_ROLE, address(tellerYS), TellerWithMultiAssetSupport.allowOperator.selector, true
+            DENIER_ROLE, address(tellerYS), TellerWithMultiAssetSupport.setDenyFlags.selector, true
         );
         rolesAuthorityYS.setRoleCapability(
             ADMIN_ROLE, address(tellerYS), TellerWithMultiAssetSupport.refundDeposit.selector, true

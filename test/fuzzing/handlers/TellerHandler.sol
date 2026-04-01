@@ -474,10 +474,10 @@ contract TellerHandler is CommonBase, StdCheats, StdUtils {
      */
     function denyUserMAS(uint256 actorSeed) external {
         address actor = _getRandomActor(actorSeed);
-        _beforeCall(TellerWithMultiAssetSupport.denyAll.selector, owner);
+        _beforeCall(TellerWithMultiAssetSupport.setDenyFlags.selector, owner);
 
         vm.prank(owner);
-        tellerMAS.denyAll(actor);
+        tellerMAS.setDenyFlags(actor, true, true, true);
 
         _afterCall();
     }
@@ -487,10 +487,10 @@ contract TellerHandler is CommonBase, StdCheats, StdUtils {
      */
     function allowUserMAS(uint256 actorSeed) external {
         address actor = _getRandomActor(actorSeed);
-        _beforeCall(TellerWithMultiAssetSupport.allowAll.selector, owner);
+        _beforeCall(TellerWithMultiAssetSupport.setDenyFlags.selector, owner);
 
         vm.prank(owner);
-        tellerMAS.allowAll(actor);
+        tellerMAS.setDenyFlags(actor, false, false, false);
 
         _afterCall();
     }
@@ -631,10 +631,10 @@ contract TellerHandler is CommonBase, StdCheats, StdUtils {
      */
     function denyFromMAS(uint256 actorSeed) external {
         address actor = _getRandomActor(actorSeed);
-        _beforeCall(TellerWithMultiAssetSupport.denyFrom.selector, owner);
+        _beforeCall(TellerWithMultiAssetSupport.setDenyFlags.selector, owner);
 
         vm.prank(owner);
-        tellerMAS.denyFrom(actor);
+        tellerMAS.setDenyFlags(actor, true, false, false);
 
         _afterCall();
     }
@@ -644,10 +644,10 @@ contract TellerHandler is CommonBase, StdCheats, StdUtils {
      */
     function denyToMAS(uint256 actorSeed) external {
         address actor = _getRandomActor(actorSeed);
-        _beforeCall(TellerWithMultiAssetSupport.denyTo.selector, owner);
+        _beforeCall(TellerWithMultiAssetSupport.setDenyFlags.selector, owner);
 
         vm.prank(owner);
-        tellerMAS.denyTo(actor);
+        tellerMAS.setDenyFlags(actor, false, true, false);
 
         _afterCall();
     }
@@ -657,10 +657,10 @@ contract TellerHandler is CommonBase, StdCheats, StdUtils {
      */
     function allowFromMAS(uint256 actorSeed) external {
         address actor = _getRandomActor(actorSeed);
-        _beforeCall(TellerWithMultiAssetSupport.allowFrom.selector, owner);
+        _beforeCall(TellerWithMultiAssetSupport.setDenyFlags.selector, owner);
 
         vm.prank(owner);
-        tellerMAS.allowFrom(actor);
+        tellerMAS.setDenyFlags(actor, false, false, false);
 
         _afterCall();
     }
@@ -670,10 +670,10 @@ contract TellerHandler is CommonBase, StdCheats, StdUtils {
      */
     function allowToMAS(uint256 actorSeed) external {
         address actor = _getRandomActor(actorSeed);
-        _beforeCall(TellerWithMultiAssetSupport.allowTo.selector, owner);
+        _beforeCall(TellerWithMultiAssetSupport.setDenyFlags.selector, owner);
 
         vm.prank(owner);
-        tellerMAS.allowTo(actor);
+        tellerMAS.setDenyFlags(actor, false, false, false);
 
         _afterCall();
     }
@@ -683,10 +683,10 @@ contract TellerHandler is CommonBase, StdCheats, StdUtils {
      */
     function denyOperatorMAS(uint256 actorSeed) external {
         address actor = _getRandomActor(actorSeed);
-        _beforeCall(TellerWithMultiAssetSupport.denyOperator.selector, owner);
+        _beforeCall(TellerWithMultiAssetSupport.setDenyFlags.selector, owner);
 
         vm.prank(owner);
-        tellerMAS.denyOperator(actor);
+        tellerMAS.setDenyFlags(actor, false, false, true);
 
         _afterCall();
     }
@@ -696,10 +696,10 @@ contract TellerHandler is CommonBase, StdCheats, StdUtils {
      */
     function allowOperatorMAS(uint256 actorSeed) external {
         address actor = _getRandomActor(actorSeed);
-        _beforeCall(TellerWithMultiAssetSupport.allowOperator.selector, owner);
+        _beforeCall(TellerWithMultiAssetSupport.setDenyFlags.selector, owner);
 
         vm.prank(owner);
-        tellerMAS.allowOperator(actor);
+        tellerMAS.setDenyFlags(actor, false, false, false);
 
         _afterCall();
     }

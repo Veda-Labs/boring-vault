@@ -107,7 +107,7 @@ contract CrossChainTellerComplianceTest is Test, MerkleTreeHelper {
         teller.updateAssetData(WETH, true, true, 0);
 
         rolesAuthority.setUserRole(signer, COMPLIANCE_SIGNER_ROLE, true);
-        teller.setComplianceSignerRole(COMPLIANCE_SIGNER_ROLE);
+        teller.setComplianceConfig(COMPLIANCE_SIGNER_ROLE, 0);
     }
 
     // ========================================= HELPERS =========================================

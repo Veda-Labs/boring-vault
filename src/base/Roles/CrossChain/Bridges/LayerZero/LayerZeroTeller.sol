@@ -142,6 +142,6 @@ contract LayerZeroTeller is CrossChainTellerWithGenericBridge, OAppAuth {
      * @notice Returns the version of the contract.
      */
     function version() public pure virtual override returns (string memory) {
-        return string(abi.encodePacked("LayerZero V0.1, ", super.version()));
+        return "LayerZero V0.1, Cross Chain V0.1, Base V0.3";
     }
 }

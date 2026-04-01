@@ -5,7 +5,8 @@
 pragma solidity 0.8.21;
 
 import {
-    CrossChainTellerWithGenericBridge, ERC20
+    CrossChainTellerWithGenericBridge,
+    ERC20
 } from "src/base/Roles/CrossChain/CrossChainTellerWithGenericBridge.sol";
 import {CCIPReceiver} from "@ccip/contracts/src/v0.8/ccip/applications/CCIPReceiver.sol";
 import {Client} from "@ccip/contracts/src/v0.8/ccip/libraries/Client.sol";
@@ -135,25 +136,19 @@ contract ChainlinkCCIPTeller is CrossChainTellerWithGenericBridge, CCIPReceiver 
     }
 
     /**
-     * @notice Stop messages from a chain.
+     * @notice Stop messages from and/or to a chain.
      * @dev Callable by MULTISIG_ROLE.
      */
-    function stopMessagesFromChain(uint64 chainSelector) external requiresAuth {
+    function stopMessages(uint64 chainSelector, bool stopFrom, bool stopTo) external requiresAuth {
         Chain storage chain = selectorToChains[chainSelector];
-        chain.allowMessagesFrom = false;
-
-        emit ChainStopMessagesFrom(chainSelector);
-    }
-
-    /**
-     * @notice Stop messages to a chain.
-     * @dev Callable by MULTISIG_ROLE.
-     */
-    function stopMessagesToChain(uint64 chainSelector) external requiresAuth {
-        Chain storage chain = selectorToChains[chainSelector];
-        chain.allowMessagesTo = false;
-
-        emit ChainStopMessagesTo(chainSelector);
+        if (stopFrom) {
+            chain.allowMessagesFrom = false;
+            emit ChainStopMessagesFrom(chainSelector);
+        }
+        if (stopTo) {
+            chain.allowMessagesTo = false;
+            emit ChainStopMessagesTo(chainSelector);
+        }
     }
 
     /**
@@ -169,6 +164,7 @@ contract ChainlinkCCIPTeller is CrossChainTellerWithGenericBridge, CCIPReceiver 
 
         emit ChainSetGasLimit(chainSelector, messageGasLimit);
     }
+
     // ========================================= CCIP RECEIVER =========================================
 
     /**
@@ -266,7 +262,9 @@ contract ChainlinkCCIPTeller is CrossChainTellerWithGenericBridge, CCIPReceiver 
             tokenAmounts: new Client.EVMTokenAmount[](0),
             extraArgs: Client._argsToBytes(
                 // Additional arguments, setting gas limit and non-strict sequencing mode
-                Client.EVMExtraArgsV1({gasLimit: gasLimit /*, strict: false*/ })
+                Client.EVMExtraArgsV1({
+                    gasLimit: gasLimit /*, strict: false*/
+                })
             ),
             feeToken: feeToken
         });

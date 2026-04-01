@@ -96,8 +96,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         rolesAuthority.setRoleCapability(
             OWNER_ROLE, address(teller), TellerWithMultiAssetSupport.updateAssetData.selector, true
         );
-        rolesAuthority.setRoleCapability(OWNER_ROLE, address(teller), teller.allowAll.selector, true);
-        rolesAuthority.setRoleCapability(OWNER_ROLE, address(teller), teller.denyAll.selector, true);
+        rolesAuthority.setRoleCapability(OWNER_ROLE, address(teller), teller.setDenyFlags.selector, true);
 
         teller.updateAssetData(WETH, true, true, 0);
         vm.stopPrank();
@@ -590,7 +589,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         // Add user to teller deny list
         vm.prank(owner);
-        teller.denyAll(user1);
+        teller.setDenyFlags(user1, true, true, true);
 
         // Transfer should fail due to teller deny list
         vm.prank(user1);
@@ -603,7 +602,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         // Remove from deny list
         vm.prank(owner);
-        teller.allowAll(user1);
+        teller.setDenyFlags(user1, false, false, false);
 
         // Transfer should work now
         skip(shareLockPeriod);
@@ -663,7 +662,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // Unpause ShareWarden, add to teller deny list
         shareWarden.unpause();
         vm.prank(owner);
-        teller.denyAll(user1);
+        teller.setDenyFlags(user1, true, true, true);
 
         // Should fail at teller level now
         vm.prank(user1);
@@ -742,7 +741,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
         // Clear SanctionsList, add teller deny
         _removeUserFromSanctionsList(user1);
         vm.prank(owner);
-        teller.denyAll(user1);
+        teller.setDenyFlags(user1, true, true, true);
 
         vm.prank(user1);
         vm.expectRevert(
@@ -754,7 +753,7 @@ contract ShareWardenTest is Test, MerkleTreeHelper {
 
         // Clear deny list, transfer works again
         vm.prank(owner);
-        teller.allowAll(user1);
+        teller.setDenyFlags(user1, false, false, false);
 
         skip(shareLockPeriod);
         vm.prank(user1);

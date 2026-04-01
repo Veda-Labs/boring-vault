@@ -180,7 +180,7 @@ contract ChainlinkCCIPTellerTest is Test, MerkleTreeHelper {
         assertEq(target, targetTeller, "Target should be set to targetTeller.");
         assertEq(gasLimit, messageGasLimit, "Gas limit should be set to messageGasLimit.");
 
-        sourceTeller.stopMessagesFromChain(newSelector);
+        sourceTeller.stopMessages(newSelector, true, false);
 
         (allowMessagesFrom, allowMessagesTo, target, gasLimit) = sourceTeller.selectorToChains(newSelector);
         assertEq(allowMessagesFrom, false, "Should not allow messages from destination chain.");
@@ -188,7 +188,7 @@ contract ChainlinkCCIPTellerTest is Test, MerkleTreeHelper {
         assertEq(target, targetTeller, "Target should be set to destinationTeller.");
         assertEq(gasLimit, messageGasLimit, "Gas limit should be set to messageGasLimit.");
 
-        sourceTeller.stopMessagesToChain(newSelector);
+        sourceTeller.stopMessages(newSelector, false, true);
         (allowMessagesFrom, allowMessagesTo, target, gasLimit) = sourceTeller.selectorToChains(newSelector);
         assertEq(allowMessagesFrom, false, "Should not allow messages from destination chain.");
         assertEq(allowMessagesTo, false, "Should not allow messages to destination chain.");

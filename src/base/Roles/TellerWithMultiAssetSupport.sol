@@ -179,6 +179,13 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      */
     uint8 public transferAllowedRole = type(uint8).max;
 
+    /**
+     * @notice Role ID required for depositing shares to a different recipient.
+     * @dev When set to type(uint8).max (255), anyone can deposit to any recipient (default).
+     *      Any other value requires msg.sender to hold that role, or msg.sender == recipient.
+     */
+    uint8 public depositForOthersRole = type(uint8).max;
+
     //============================== ERRORS ===============================
 
     error TellerWithMultiAssetSupport__ShareLockPeriodTooLong();
@@ -199,6 +206,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     error TellerWithMultiAssetSupport__SharePremiumTooLarge();
     error TellerWithMultiAssetSupport__BufferHelperNotAllowed(ERC20 asset, IBufferHelper bufferHelper);
     error TellerWithMultiAssetSupport__TransferNotAllowed();
+    error TellerWithMultiAssetSupport__DepositForOthersNotAllowed();
     //============================== EVENTS ===============================
 
     event Paused();
@@ -218,21 +226,15 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     event Withdraw(address indexed asset, uint256 shareAmount);
     event DepositRefunded(uint256 indexed nonce, bytes32 depositHash, address indexed user);
     event DepositCapSet(uint112 cap);
-    event ComplianceSignerRoleSet(uint8 role);
-    event ComplianceWindowSet(uint96 window);
+    event ComplianceConfigSet(uint8 role, uint96 window);
     event AssetDataUpdated(address indexed asset, bool allowDeposits, bool allowWithdraws, uint16 sharePremium);
-    event DenyFrom(address indexed user);
-    event DenyTo(address indexed user);
-    event DenyOperator(address indexed user);
-    event AllowFrom(address indexed user);
-    event AllowTo(address indexed user);
-    event AllowOperator(address indexed user);
+    event DenyFlagsSet(address indexed user, bool denyFrom, bool denyTo, bool denyOperator);
     event DepositBufferHelperSet(ERC20 indexed asset, IBufferHelper indexed newDepositBufferHelper);
     event WithdrawBufferHelperSet(ERC20 indexed asset, IBufferHelper indexed newWithdrawBufferHelper);
     event BufferHelperAllowed(ERC20 indexed asset, IBufferHelper indexed bufferHelper);
     event BufferHelperDisallowed(ERC20 indexed asset, IBufferHelper indexed bufferHelper);
     event IncentivePoolAllowedSet(address indexed pool, bool allowed);
-    event TransferAllowedRoleSet(uint8 role);
+    event TransferRestrictionsSet(uint8 transferAllowedRole, uint8 depositForOthersRole);
 
     //============================== IMMUTABLES ===============================
 
@@ -316,83 +318,18 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     }
 
     /**
-     * @notice Deny a user from transferring or receiving shares.
+     * @notice Set deny flags for a user's transfer capabilities.
      * @dev Callable by OWNER_ROLE, and DENIER_ROLE.
+     * @param user The address to update deny flags for.
+     * @param _denyFrom Whether the user is denied from sending shares.
+     * @param _denyTo Whether the user is denied from receiving shares.
+     * @param _denyOperator Whether the user is denied from operating on shares.
      */
-    function denyAll(address user) external requiresAuth {
-        beforeTransferData[user].denyFrom = true;
-        beforeTransferData[user].denyTo = true;
-        beforeTransferData[user].denyOperator = true;
-        emit DenyFrom(user);
-        emit DenyTo(user);
-        emit DenyOperator(user);
-    }
-
-    /**
-     * @notice Allow a user to transfer or receive shares.
-     * @dev Callable by OWNER_ROLE, and DENIER_ROLE.
-     */
-    function allowAll(address user) external requiresAuth {
-        beforeTransferData[user].denyFrom = false;
-        beforeTransferData[user].denyTo = false;
-        beforeTransferData[user].denyOperator = false;
-        emit AllowFrom(user);
-        emit AllowTo(user);
-        emit AllowOperator(user);
-    }
-
-    /**
-     * @notice Deny a user from transferring shares.
-     * @dev Callable by OWNER_ROLE, and DENIER_ROLE.
-     */
-    function denyFrom(address user) external requiresAuth {
-        beforeTransferData[user].denyFrom = true;
-        emit DenyFrom(user);
-    }
-
-    /**
-     * @notice Allow a user to transfer shares.
-     * @dev Callable by OWNER_ROLE, and DENIER_ROLE.
-     */
-    function allowFrom(address user) external requiresAuth {
-        beforeTransferData[user].denyFrom = false;
-        emit AllowFrom(user);
-    }
-
-    /**
-     * @notice Deny a user from receiving shares.
-     * @dev Callable by OWNER_ROLE, and DENIER_ROLE.
-     */
-    function denyTo(address user) external requiresAuth {
-        beforeTransferData[user].denyTo = true;
-        emit DenyTo(user);
-    }
-
-    /**
-     * @notice Allow a user to receive shares.
-     * @dev Callable by OWNER_ROLE, and DENIER_ROLE.
-     */
-    function allowTo(address user) external requiresAuth {
-        beforeTransferData[user].denyTo = false;
-        emit AllowTo(user);
-    }
-
-    /**
-     * @notice Deny an operator from transferring shares.
-     * @dev Callable by OWNER_ROLE, and DENIER_ROLE.
-     */
-    function denyOperator(address user) external requiresAuth {
-        beforeTransferData[user].denyOperator = true;
-        emit DenyOperator(user);
-    }
-
-    /**
-     * @notice Allow an operator to transfer shares.
-     * @dev Callable by OWNER_ROLE, and DENIER_ROLE.
-     */
-    function allowOperator(address user) external requiresAuth {
-        beforeTransferData[user].denyOperator = false;
-        emit AllowOperator(user);
+    function setDenyFlags(address user, bool _denyFrom, bool _denyTo, bool _denyOperator) external requiresAuth {
+        beforeTransferData[user].denyFrom = _denyFrom;
+        beforeTransferData[user].denyTo = _denyTo;
+        beforeTransferData[user].denyOperator = _denyOperator;
+        emit DenyFlagsSet(user, _denyFrom, _denyTo, _denyOperator);
     }
 
     /**
@@ -405,14 +342,18 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     }
 
     /**
-     * @notice Restrict share transfers so that either `from`, `to`, or `operator` must hold the given role.
-     * @dev Set to type(uint8).max (255) to disable transfer restrictions (default).
-     *      Any other value restricts transfers so that at least one participant must hold that role.
+     * @notice Sets both transfer restriction roles in a single call.
+     * @dev transferAllowedRole: set to type(uint8).max (255) to disable transfer restrictions (default).
+     *      Any other value restricts transfers so that at least one of `from`, `to`, or `operator` must hold that role.
+     *      depositForOthersRole: set to type(uint8).max (255) to allow unrestricted deposit-to-others (default).
+     *      Any other value requires the depositor to hold that role, or deposit to themselves.
      * @param _transferAllowedRole The role ID required for at least one side of a transfer, or 255 to disable.
+     * @param _depositForOthersRole The role ID required to deposit for others, or 255 to disable.
      */
-    function setTransferAllowedRole(uint8 _transferAllowedRole) external requiresAuth {
+    function setTransferRestrictions(uint8 _transferAllowedRole, uint8 _depositForOthersRole) external requiresAuth {
         transferAllowedRole = _transferAllowedRole;
-        emit TransferAllowedRoleSet(_transferAllowedRole);
+        depositForOthersRole = _depositForOthersRole;
+        emit TransferRestrictionsSet(_transferAllowedRole, _depositForOthersRole);
     }
 
     /**
@@ -489,26 +430,17 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     }
 
     /**
-     * @notice Sets the compliance signer role for deposit verification.
-     * @dev Set to type(uint8).max (255) to disable compliance checks (default).
-     *      Any other value enables checks; the recovered signer must hold that role in the RolesAuthority.
+     * @notice Sets compliance signer role and deadline window in a single call.
+     * @dev Set _complianceSignerRole to type(uint8).max (255) to disable compliance checks (default).
+     *      Set _complianceWindow to 0 to disable the deadline cap (default). When non-zero,
+     *      compliance signatures must have a deadline no later than block.timestamp + _complianceWindow.
      * @param _complianceSignerRole The role ID required for compliance signers, or 255 to disable.
-     */
-    function setComplianceSignerRole(uint8 _complianceSignerRole) external requiresAuth {
-        complianceSignerRole = _complianceSignerRole;
-        emit ComplianceSignerRoleSet(_complianceSignerRole);
-    }
-
-    /**
-     * @notice Sets the maximum allowed window (in seconds) for compliance signature deadlines.
-     * @dev Set to 0 to disable the cap (default). When non-zero, compliance signatures must have
-     *      a deadline no later than block.timestamp + _complianceWindow.
-     *      Example: setComplianceWindow(3600) limits signatures to 1 hour into the future.
      * @param _complianceWindow Duration in seconds. NOT an absolute timestamp.
      */
-    function setComplianceWindow(uint96 _complianceWindow) external requiresAuth {
+    function setComplianceConfig(uint8 _complianceSignerRole, uint96 _complianceWindow) external requiresAuth {
+        complianceSignerRole = _complianceSignerRole;
         complianceWindow = _complianceWindow;
-        emit ComplianceWindowSet(_complianceWindow);
+        emit ComplianceConfigSet(_complianceSignerRole, _complianceWindow);
     }
 
     // ========================================= BeforeTransferHook FUNCTIONS =========================================
@@ -571,6 +503,20 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
                 && !auth.doesUserHaveRole(to, role)
         ) {
             revert TellerWithMultiAssetSupport__TransferNotAllowed();
+        }
+    }
+
+    /**
+     * @notice Enforces deposit-for-others restriction based on `depositForOthersRole`.
+     * @dev If `depositForOthersRole` is type(uint8).max, no restriction is applied.
+     *      Otherwise, msg.sender must hold the specified role unless depositing to themselves.
+     */
+    function _enforceDepositForOthers(address recipient) internal view {
+        uint8 role = depositForOthersRole;
+        if (role == type(uint8).max) return;
+        if (msg.sender == recipient) return;
+        if (!RolesAuthority(address(authority)).doesUserHaveRole(msg.sender, role)) {
+            revert TellerWithMultiAssetSupport__DepositForOthersNotAllowed();
         }
     }
 
@@ -643,6 +589,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         ERC20 depositAsset = params.depositAsset;
         uint256 depositAmount = params.depositAmount;
         if (to == address(0)) revert TellerWithMultiAssetSupport__ZeroRecipient();
+        _enforceDepositForOthers(to);
         Asset memory asset = _beforeDeposit(depositAsset);
 
         address from;
@@ -683,6 +630,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
             revert TellerWithMultiAssetSupport__AssetNotSupported();
         }
         if (to == address(0)) revert TellerWithMultiAssetSupport__ZeroRecipient();
+        _enforceDepositForOthers(to);
         _verifyComplianceSignature(to, params.depositAsset, params.depositAmount, compliance);
         Asset memory asset = _beforeDeposit(params.depositAsset);
 

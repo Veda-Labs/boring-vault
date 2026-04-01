@@ -31,7 +31,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
     using stdStorage for StdStorage;
 
-    event TransferAllowedRoleSet(uint8 role);
+    event TransferRestrictionsSet(uint8 transferAllowedRole, uint8 depositForOthersRole);
 
     BoringVault public boringVault;
 
@@ -598,7 +598,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         boringVault.transfer(address(this), 0.1e18);
 
         // But if attacker is added to the deny list, transfers should fail.
-        teller.denyAll(attacker);
+        teller.setDenyFlags(attacker, true, true, true);
 
         vm.startPrank(attacker);
         vm.expectRevert(
@@ -623,7 +623,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         boringVault.transferFrom(attacker, address(this), 0.1e18);
 
         // If attacker is removed from the deny list, transfers should work again.
-        teller.allowAll(attacker);
+        teller.setDenyFlags(attacker, false, false, false);
 
         vm.prank(attacker);
         boringVault.transfer(address(this), 0.1e18);
@@ -632,7 +632,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         address operator = vm.addr(2);
         address normalUser = vm.addr(3);
 
-        teller.denyAll(operator);
+        teller.setDenyFlags(operator, true, true, true);
 
         vm.startPrank(operator);
         vm.expectRevert(
@@ -660,7 +660,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         boringVault.transferFrom(from, to, 1e18);
 
         // Transfers fail if from is denied.
-        teller.denyFrom(from);
+        teller.setDenyFlags(from, true, false, false);
         vm.expectRevert(
             abi.encodeWithSelector(
                 TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector,
@@ -671,10 +671,10 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         );
         boringVault.transferFrom(from, to, 1e18);
 
-        teller.allowFrom(from);
+        teller.setDenyFlags(from, false, false, false);
 
         // Transfers fail if to is denied.
-        teller.denyTo(to);
+        teller.setDenyFlags(to, false, true, false);
         vm.expectRevert(
             abi.encodeWithSelector(
                 TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector,
@@ -685,10 +685,10 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         );
         boringVault.transferFrom(from, to, 1e18);
 
-        teller.allowTo(to);
+        teller.setDenyFlags(to, false, false, false);
 
         // Transfers fail if operator is denied.
-        teller.denyOperator(address(this));
+        teller.setDenyFlags(address(this), false, false, true);
         vm.expectRevert(
             abi.encodeWithSelector(
                 TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector,
@@ -699,7 +699,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         );
         boringVault.transferFrom(from, to, 1e18);
 
-        teller.allowOperator(address(this));
+        teller.setDenyFlags(address(this), false, false, false);
 
         // Transfers currently work.
         boringVault.transferFrom(from, to, 1e18);
@@ -875,7 +875,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     }
 
     function testDepositRevertsWhenDenyFrom() external {
-        teller.denyFrom(address(this));
+        teller.setDenyFlags(address(this), true, false, false);
         vm.expectRevert(
             abi.encodeWithSelector(
                 TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector,
@@ -888,7 +888,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     }
 
     function testDepositRevertsWhenDenyTo() external {
-        teller.denyTo(address(this));
+        teller.setDenyFlags(address(this), false, true, false);
         vm.expectRevert(
             abi.encodeWithSelector(
                 TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector,
@@ -901,7 +901,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     }
 
     function testDepositRevertsWhenDenyOperator() external {
-        teller.denyOperator(address(this));
+        teller.setDenyFlags(address(this), false, false, true);
         vm.expectRevert(
             abi.encodeWithSelector(
                 TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector,
@@ -914,7 +914,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     }
 
     function testDepositRevertsWhenDenyAll() external {
-        teller.denyAll(address(this));
+        teller.setDenyFlags(address(this), true, true, true);
         vm.expectRevert(
             abi.encodeWithSelector(
                 TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector,
@@ -1115,8 +1115,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         address indexed referralAddress
     );
 
-    event ComplianceSignerRoleSet(uint8 role);
-    event ComplianceWindowSet(uint96 window);
+    event ComplianceConfigSet(uint8 role, uint96 window);
 
     function testDepositEmitsReadableReferralEvent() external {
         uint256 amount = 1e18;
@@ -1132,21 +1131,14 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
     // ======================================= COMPLIANCE TESTS =======================================
 
-    function testSetComplianceSignerRole() external {
-        vm.expectEmit();
-        emit ComplianceSignerRoleSet(COMPLIANCE_SIGNER_ROLE);
-        teller.setComplianceSignerRole(COMPLIANCE_SIGNER_ROLE);
-
-        assertEq(teller.complianceSignerRole(), COMPLIANCE_SIGNER_ROLE, "Compliance signer role should be set");
-    }
-
-    function testSetComplianceWindow() external {
+    function testSetComplianceConfig() external {
         uint96 window = 1 hours;
 
         vm.expectEmit();
-        emit ComplianceWindowSet(window);
-        teller.setComplianceWindow(window);
+        emit ComplianceConfigSet(COMPLIANCE_SIGNER_ROLE, window);
+        teller.setComplianceConfig(COMPLIANCE_SIGNER_ROLE, window);
 
+        assertEq(teller.complianceSignerRole(), COMPLIANCE_SIGNER_ROLE, "Compliance signer role should be set");
         assertEq(teller.complianceWindow(), window, "Compliance window should be set");
     }
 
@@ -1154,7 +1146,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         uint256 signerKey = 0xBEEF;
         address signer = vm.addr(signerKey);
         rolesAuthority.setUserRole(signer, COMPLIANCE_SIGNER_ROLE, true);
-        teller.setComplianceSignerRole(COMPLIANCE_SIGNER_ROLE);
+        teller.setComplianceConfig(COMPLIANCE_SIGNER_ROLE, 0);
 
         uint256 depositAmount = 1e18;
         deal(address(WETH), address(this), depositAmount);
@@ -1182,7 +1174,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         uint256 signerKey = 0xBEEF;
         address signer = vm.addr(signerKey);
         rolesAuthority.setUserRole(signer, COMPLIANCE_SIGNER_ROLE, true);
-        teller.setComplianceSignerRole(COMPLIANCE_SIGNER_ROLE);
+        teller.setComplianceConfig(COMPLIANCE_SIGNER_ROLE, 0);
 
         uint256 depositAmount = 1e18;
         deal(address(WETH), address(this), 2 * depositAmount);
@@ -1218,7 +1210,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         uint256 signerKey = 0xBEEF;
         address signer = vm.addr(signerKey);
         rolesAuthority.setUserRole(signer, COMPLIANCE_SIGNER_ROLE, true);
-        teller.setComplianceSignerRole(COMPLIANCE_SIGNER_ROLE);
+        teller.setComplianceConfig(COMPLIANCE_SIGNER_ROLE, 0);
 
         uint256 depositAmount = 1e18;
         deal(address(WETH), address(this), depositAmount);
@@ -1249,11 +1241,9 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         uint256 signerKey = 0xBEEF;
         address signer = vm.addr(signerKey);
         rolesAuthority.setUserRole(signer, COMPLIANCE_SIGNER_ROLE, true);
-        teller.setComplianceSignerRole(COMPLIANCE_SIGNER_ROLE);
-
         // Set a 1-hour compliance window (relative duration, not absolute timestamp).
         uint96 window = 1 hours;
-        teller.setComplianceWindow(window);
+        teller.setComplianceConfig(COMPLIANCE_SIGNER_ROLE, window);
 
         uint256 depositAmount = 1e18;
         deal(address(WETH), address(this), depositAmount);
@@ -1287,10 +1277,8 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         uint256 signerKey = 0xBEEF;
         address signer = vm.addr(signerKey);
         rolesAuthority.setUserRole(signer, COMPLIANCE_SIGNER_ROLE, true);
-        teller.setComplianceSignerRole(COMPLIANCE_SIGNER_ROLE);
-
         uint96 sevenDays = 7 days;
-        teller.setComplianceWindow(sevenDays);
+        teller.setComplianceConfig(COMPLIANCE_SIGNER_ROLE, sevenDays);
 
         uint256 depositAmount = 1e18;
         deal(address(WETH), address(this), depositAmount);
@@ -1322,10 +1310,8 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         uint256 signerKey = 0xBEEF;
         address signer = vm.addr(signerKey);
         rolesAuthority.setUserRole(signer, COMPLIANCE_SIGNER_ROLE, true);
-        teller.setComplianceSignerRole(COMPLIANCE_SIGNER_ROLE);
-
         uint96 oneHour = 1 hours;
-        teller.setComplianceWindow(oneHour);
+        teller.setComplianceConfig(COMPLIANCE_SIGNER_ROLE, oneHour);
 
         uint256 depositAmount = 1e18;
         deal(address(WETH), address(this), depositAmount);
@@ -1368,7 +1354,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         uint256 signerKey = 0xBEEF;
         address signer = vm.addr(signerKey);
         rolesAuthority.setUserRole(signer, COMPLIANCE_SIGNER_ROLE, true);
-        teller.setComplianceSignerRole(COMPLIANCE_SIGNER_ROLE);
+        teller.setComplianceConfig(COMPLIANCE_SIGNER_ROLE, 0);
 
         address alice = vm.addr(0xA11CE);
         address bob = vm.addr(0xB0B);
@@ -1431,7 +1417,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         // so their signatures are non-interchangeable.
         uint256 signerKey = 0xBEEF;
         rolesAuthority.setUserRole(vm.addr(signerKey), COMPLIANCE_SIGNER_ROLE, true);
-        teller.setComplianceSignerRole(COMPLIANCE_SIGNER_ROLE);
+        teller.setComplianceConfig(COMPLIANCE_SIGNER_ROLE, 0);
 
         address alice = vm.addr(0xA11CE);
         address bob = vm.addr(0xB0B);
@@ -1461,7 +1447,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     function testComplianceSignerWithoutRoleReverts() external {
         uint256 signerKey = 0xBEEF;
         // Enable compliance but do NOT grant the role to the signer.
-        teller.setComplianceSignerRole(COMPLIANCE_SIGNER_ROLE);
+        teller.setComplianceConfig(COMPLIANCE_SIGNER_ROLE, 0);
 
         uint256 depositAmount = 1e18;
         deal(address(WETH), address(this), depositAmount);
@@ -1482,7 +1468,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         uint256 signerKey = 0xBEEF;
         address signer = vm.addr(signerKey);
         rolesAuthority.setUserRole(signer, COMPLIANCE_SIGNER_ROLE, true);
-        teller.setComplianceSignerRole(COMPLIANCE_SIGNER_ROLE);
+        teller.setComplianceConfig(COMPLIANCE_SIGNER_ROLE, 0);
 
         uint256 depositAmount = 1e18;
         deal(address(WETH), address(this), 2 * depositAmount);
@@ -1517,7 +1503,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
         rolesAuthority.setUserRole(signerA, COMPLIANCE_SIGNER_ROLE, true);
         rolesAuthority.setUserRole(signerB, COMPLIANCE_SIGNER_ROLE, true);
-        teller.setComplianceSignerRole(COMPLIANCE_SIGNER_ROLE);
+        teller.setComplianceConfig(COMPLIANCE_SIGNER_ROLE, 0);
 
         uint256 depositAmount = 1e18;
         deal(address(WETH), address(this), 2 * depositAmount);
@@ -1558,7 +1544,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
     function testTransferAllowlist_BlocksUserToUser() external {
         boringVault.setBeforeTransferHook(address(teller));
-        teller.setTransferAllowedRole(QUEUE_ROLE);
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
 
         address alice = vm.addr(0xA11CE);
         address bob = vm.addr(0xB0B);
@@ -1578,7 +1564,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
     function testTransferAllowlist_AllowsTransferToQueueRole() external {
         boringVault.setBeforeTransferHook(address(teller));
-        teller.setTransferAllowedRole(QUEUE_ROLE);
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
 
         address alice = vm.addr(0xA11CE);
         address queueAddr = address(atomicQueue);
@@ -1598,7 +1584,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
     function testTransferAllowlist_AllowsTransferFromQueueRole() external {
         boringVault.setBeforeTransferHook(address(teller));
-        teller.setTransferAllowedRole(QUEUE_ROLE);
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
 
         address alice = vm.addr(0xA11CE);
         address queueAddr = address(atomicQueue);
@@ -1615,8 +1601,8 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
     function testTransferAllowlist_ReenablePublicTransfers() external {
         boringVault.setBeforeTransferHook(address(teller));
-        teller.setTransferAllowedRole(QUEUE_ROLE);
-        teller.setTransferAllowedRole(type(uint8).max);
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
+        teller.setTransferRestrictions(type(uint8).max, type(uint8).max);
 
         address alice = vm.addr(0xA11CE);
         address bob = vm.addr(0xB0B);
@@ -1636,7 +1622,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
     function testTransferAllowlist_TransferFromBlockedWithoutRole() external {
         boringVault.setBeforeTransferHook(address(teller));
-        teller.setTransferAllowedRole(QUEUE_ROLE);
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
 
         address alice = vm.addr(0xA11CE);
         address bob = vm.addr(0xB0B);
@@ -1659,7 +1645,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
     function testTransferAllowlist_TransferFromAllowedWhenRecipientHasRole() external {
         boringVault.setBeforeTransferHook(address(teller));
-        teller.setTransferAllowedRole(QUEUE_ROLE);
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
 
         address alice = vm.addr(0xA11CE);
         address queueAddr = address(atomicQueue);
@@ -1682,7 +1668,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
     function testTransferAllowlist_TransferFromAllowedWhenSenderHasRole() external {
         boringVault.setBeforeTransferHook(address(teller));
-        teller.setTransferAllowedRole(QUEUE_ROLE);
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
 
         address alice = vm.addr(0xA11CE);
         address queueAddr = address(atomicQueue);
@@ -1705,7 +1691,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
     function testTransferAllowlist_BothSidesHaveRole() external {
         boringVault.setBeforeTransferHook(address(teller));
-        teller.setTransferAllowedRole(QUEUE_ROLE);
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
 
         // Give a second address QUEUE_ROLE.
         address secondQueue = vm.addr(0xDEAD);
@@ -1725,7 +1711,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
     function testTransferAllowlist_RoleRevokedBlocksTransfer() external {
         boringVault.setBeforeTransferHook(address(teller));
-        teller.setTransferAllowedRole(QUEUE_ROLE);
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
 
         address alice = vm.addr(0xA11CE);
         address queueAddr = address(atomicQueue);
@@ -1749,7 +1735,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
     function testTransferAllowlist_DepositAndWithdrawStillWork() external {
         boringVault.setBeforeTransferHook(address(teller));
-        teller.setTransferAllowedRole(QUEUE_ROLE);
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
 
         address alice = vm.addr(0xA11CE);
         uint256 depositAmount = 1e18;
@@ -1766,7 +1752,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
     function testTransferAllowlist_ZeroAmountTransferBlockedWithoutRole() external {
         boringVault.setBeforeTransferHook(address(teller));
-        teller.setTransferAllowedRole(QUEUE_ROLE);
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
 
         address alice = vm.addr(0xA11CE);
         address bob = vm.addr(0xB0B);
@@ -1779,7 +1765,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
     function testTransferAllowlist_DenyListTakesPrecedenceOverAllowlist() external {
         boringVault.setBeforeTransferHook(address(teller));
-        teller.setTransferAllowedRole(QUEUE_ROLE);
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
 
         address queueAddr = address(atomicQueue);
         uint256 depositAmount = 1e18;
@@ -1788,7 +1774,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         teller.deposit(DepositParams(WETH, depositAmount, 0), queueAddr, address(0), ComplianceData(0, ""));
 
         // Deny the queue from sending.
-        teller.denyAll(queueAddr);
+        teller.setDenyFlags(queueAddr, true, true, true);
 
         // Even though queue has QUEUE_ROLE, deny list blocks the transfer.
         vm.prank(queueAddr);
@@ -1801,7 +1787,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
         // Use a fresh role ID that nobody holds yet.
         uint8 CUSTOM_ROLE = 42;
-        teller.setTransferAllowedRole(CUSTOM_ROLE);
+        teller.setTransferRestrictions(CUSTOM_ROLE, type(uint8).max);
 
         address alice = vm.addr(0xA11CE);
         address bob = vm.addr(0xB0B);
@@ -1846,13 +1832,13 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         vm.stopPrank();
 
         // Set to ROLE_A: alice -> bob works.
-        teller.setTransferAllowedRole(ROLE_A);
+        teller.setTransferRestrictions(ROLE_A, type(uint8).max);
         vm.prank(alice);
         boringVault.transfer(bob, 0.5e18);
         assertEq(boringVault.balanceOf(bob), 0.5e18);
 
         // Switch to ROLE_B: alice -> bob now blocked (bob only has ROLE_A).
-        teller.setTransferAllowedRole(ROLE_B);
+        teller.setTransferRestrictions(ROLE_B, type(uint8).max);
         vm.prank(alice);
         vm.expectRevert(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferNotAllowed.selector);
         boringVault.transfer(bob, 0.5e18);
@@ -1860,7 +1846,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
     function testTransferAllowlist_QueueRoundTrip() external {
         boringVault.setBeforeTransferHook(address(teller));
-        teller.setTransferAllowedRole(QUEUE_ROLE);
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
 
         address alice = vm.addr(0xA11CE);
         address queueAddr = address(atomicQueue);
@@ -1888,7 +1874,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
     function testTransferAllowlist_MultipleUsersToQueue() external {
         boringVault.setBeforeTransferHook(address(teller));
-        teller.setTransferAllowedRole(QUEUE_ROLE);
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
 
         address alice = vm.addr(0xA11CE);
         address bob = vm.addr(0xB0B);
@@ -1925,21 +1911,23 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         boringVault.transfer(bob, 0.1e18);
     }
 
-    function testSetTransferAllowedRole_EmitsEvent() external {
+    function testSetTransferRestrictions_EmitsEvent() external {
         vm.expectEmit(false, false, false, true, address(teller));
-        emit TransferAllowedRoleSet(QUEUE_ROLE);
-        teller.setTransferAllowedRole(QUEUE_ROLE);
+        emit TransferRestrictionsSet(QUEUE_ROLE, type(uint8).max);
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
 
         assertEq(teller.transferAllowedRole(), QUEUE_ROLE);
+        assertEq(teller.depositForOthersRole(), type(uint8).max);
     }
 
-    function testSetTransferAllowedRole_EmitsEventOnReset() external {
-        teller.setTransferAllowedRole(QUEUE_ROLE);
+    function testSetTransferRestrictions_EmitsEventOnReset() external {
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
 
         vm.expectEmit(false, false, false, true, address(teller));
-        emit TransferAllowedRoleSet(type(uint8).max);
-        teller.setTransferAllowedRole(type(uint8).max);
+        emit TransferRestrictionsSet(type(uint8).max, type(uint8).max);
+        teller.setTransferRestrictions(type(uint8).max, type(uint8).max);
 
         assertEq(teller.transferAllowedRole(), type(uint8).max);
+        assertEq(teller.depositForOthersRole(), type(uint8).max);
     }
 }

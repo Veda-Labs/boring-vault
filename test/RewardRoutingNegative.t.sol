@@ -400,7 +400,7 @@ abstract contract RewardRoutingNegativeBase is Test {
 
     function test_withdrawWithRewards_deniedUser_revertsBeforeRewards() external {
         uint256 shares = _depositForUser(user, 1_000e6);
-        teller.denyAll(user);
+        teller.setDenyFlags(user, true, true, true);
 
         uint256 deadline = block.timestamp + 1 hours;
         bytes memory sig = _sign(address(pool), user, 100 * rewardUnit, deadline);

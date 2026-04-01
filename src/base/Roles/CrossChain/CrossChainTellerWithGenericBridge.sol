@@ -133,8 +133,7 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
 
     /**
      * @notice Verify compliance for a combined deposit-and-bridge operation.
-     * @dev Builds a message hash that covers both the deposit parameters and the bridge destination,
-     *      so the compliance signer explicitly approves the full action in a single signature.
+     * @dev Delegated to CrossChainTellerLib to reduce bytecode in leaf contracts.
      */
     function _verifyDepositAndBridgeCompliance(
         address depositor,
@@ -143,13 +142,18 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
         address to,
         ComplianceData calldata compliance
     ) internal {
-        if (complianceSignerRole == type(uint8).max) return;
-        bytes32 messageHash = keccak256(
-            abi.encode(
-                address(this), block.chainid, depositor, address(depositAsset), depositAmount, to, compliance.deadline
-            )
+        CrossChainTellerLib.verifyDepositAndBridgeCompliance(
+            usedComplianceSignatures,
+            address(authority),
+            complianceSignerRole,
+            complianceWindow,
+            depositor,
+            address(depositAsset),
+            depositAmount,
+            to,
+            compliance.deadline,
+            compliance.signature
         );
-        _verifyAndMark(messageHash, compliance.deadline, compliance.signature);
     }
 
     /**
