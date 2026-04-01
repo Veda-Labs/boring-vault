@@ -32,4 +32,15 @@ abstract contract OVaultDecoderAndSanitizer is BaseDecoderAndSanitizer {
 
         addressesFound = abi.encodePacked(to, _refundAddress);
     }
+
+    function depositAndSend(
+        DecoderCustomTypes.SendParam calldata _sendParam,
+        address _refundAddress
+    ) external pure virtual returns (bytes memory addressesFound) {
+
+        // `to` in SendParam is bytes32-padded address of composer on Ethereum
+        address to = address(uint160(uint256(_sendParam.to)));
+
+        addressesFound = abi.encodePacked(to, _refundAddress);
+    }
 }

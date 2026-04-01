@@ -11994,8 +11994,40 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
 
     // ======================================= Katana OVault =========================================
 
-    /// @dev should be added on ethereum
-    function _addEthereumOVaultLeafs(ManageLeaf[] memory leafs) internal {}
+    /// @dev Adds two leafs to the array:
+    ///      [0] approve(USDC, OVaultComposer, amount)
+    ///      [1] depositAndSend(amount, sendParam, refundAddress)
+    function _addEthereumOVaultLeafsForDepositAndSend(
+        ManageLeaf[] memory leafs,
+        address token,
+        address composer
+    ) internal {
+        // Leaf 0 — approve
+        unchecked { leafIndex++; }
+        leafs[leafIndex] = ManageLeaf(
+            token,
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve ", ERC20(token).symbol(), " to OVaultComposer"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = composer;
+
+        // Leaf 1 — depositAndSend
+        unchecked { leafIndex++; }
+        leafs[leafIndex] = ManageLeaf(
+            composer,
+            true,  // payable — ETH is forwarded for the LZ fee
+            "depositAndSend(uint256,(uint32,bytes32,uint256,uint256,bytes,bytes,bytes),address)",
+            new address[](2),
+            string.concat("Bridge ", ERC20(token).symbol(), " via OVault to Katana"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        leafs[leafIndex].argumentAddresses[0] = composer;
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+    }
 
     /// @dev should be added on katana
     function _addKatanaOVaultLeafs(
