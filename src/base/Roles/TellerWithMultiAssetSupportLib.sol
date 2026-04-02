@@ -66,6 +66,10 @@ library TellerWithMultiAssetSupportLib {
         uint256 currentRate
     ) external {
         uint256 len = principalHistory[user].length;
+        // Correctness relies on shares being non-transferable: every share-holder must
+        // have at least one deposit checkpoint. If shares could be acquired via P2P
+        // transfer, this early return would silently drop the withdrawal record for
+        // the recipient, leaving their history incomplete.
         if (!isDeposit && len == 0) return;
         uint104 prevDeposits = len > 0 ? principalHistory[user][len - 1].cumulativeDeposits : 0;
         uint104 prevWithdrawals = len > 0 ? principalHistory[user][len - 1].cumulativeWithdrawals : 0;

@@ -431,6 +431,24 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     }
 
     /**
+     * @notice Records a withdrawal principal checkpoint on behalf of a user.
+     * @dev Called by a trusted BoringQueue contract when a queued withdrawal is solved.
+     *      The queue bypasses the normal withdraw() path so the checkpoint must be
+     *      injected externally. Uses the current accountant rate for both the base
+     *      value and the recorded share price.
+     * @dev Assumes vault shares are non-transferable outside this teller. If a user
+     *      acquires shares via a P2P transfer rather than through deposit(), they will
+     *      have no principal history and this call will be silently skipped, leaving
+     *      their withdrawal unrecorded.
+     * @param user The user whose principal is being checkpointed.
+     * @param shares The number of shares withdrawn.
+     */
+    function checkpointQueueWithdrawal(address user, uint256 shares) external requiresAuth {
+        uint256 rate = accountant.getRateSafe();
+        _checkpointPrincipalAtRate(user, shares, false, rate, rate);
+    }
+
+    /**
      * @notice Sets compliance signer role and deadline window in a single call.
      * @dev Set _complianceSignerRole to type(uint8).max (255) to disable compliance checks (default).
      *      Set _complianceWindow to 0 to disable the deadline cap (default). When non-zero,
