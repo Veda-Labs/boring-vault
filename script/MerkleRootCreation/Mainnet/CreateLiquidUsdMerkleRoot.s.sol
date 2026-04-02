@@ -971,12 +971,10 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         // ========================== Standard Bridge to Optimism ==========================
         {
             setAddress(true, mainnet, "rawDataDecoderAndSanitizer", standardBridgeDecoderAndSanitizer);
-            ERC20[] memory localTokens = new ERC20[](2);
-            localTokens[0] = getERC20(sourceChain, "USDC");
-            localTokens[1] = getERC20(sourceChain, "USDT");
-            ERC20[] memory remoteTokens = new ERC20[](2);
-            remoteTokens[0] = getERC20(optimism, "USDC");
-            remoteTokens[1] = getERC20(optimism, "USDT");
+            ERC20[] memory localTokens = new ERC20[](1);
+            localTokens[0] = getERC20(sourceChain, "USDT");
+            ERC20[] memory remoteTokens = new ERC20[](1);
+            remoteTokens[0] = getERC20(optimism, "USDT");
             _addStandardBridgeLeafs(
                 leafs,
                 optimism,
