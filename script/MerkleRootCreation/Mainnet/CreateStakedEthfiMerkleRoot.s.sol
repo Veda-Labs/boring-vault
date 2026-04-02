@@ -22,7 +22,7 @@ contract CreateStakedEthfiMerkleRootScript is Script, MerkleTreeHelper {
     address public boringVault = 0x86B5780b606940Eb59A062aA85a07959518c0161;
     address public managerAddress = 0x66aae0ee1f68c658401c7d8D6E417202A99545d7;
     address public accountantAddress = 0x05A1552c5e18F5A0BB9571b5F2D6a4765ebdA32b;
-    address public rawDataDecoderAndSanitizer = 0x52ED1F19592aE32580619Eb5BaA3f67530d99F5c;
+    address public rawDataDecoderAndSanitizer = 0x7ef36972929DCD9B33f5b0E4EAE8E3024e44254E;
 
     address public itbDecoderAndSanitizer = 0xcfa57ea1b1E138cf89050253CcF5d0836566C06D;
 
@@ -57,7 +57,6 @@ contract CreateStakedEthfiMerkleRootScript is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](128);
 
         // // ========================== Layerzero ==========================
-        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", layerZeroDecoderAndSanitizer);
         _addLayerZeroLeafs(
             leafs,
             getERC20(sourceChain, "ETHFI"),
@@ -65,7 +64,6 @@ contract CreateStakedEthfiMerkleRootScript is Script, MerkleTreeHelper {
             layerZeroOptimismEndpointId,
             getBytes32(sourceChain, "boringVault")
         );
-        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Symbiotic ==========================
         address[] memory defaultCollaterals = new address[](1);
