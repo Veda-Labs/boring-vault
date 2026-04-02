@@ -328,7 +328,6 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
         console.log("Vault excess: ", vaultExcess);
         assertGt(vaultExcess, 0, "Vault should have received excess wETH back from the bulkWithdraw");
     }
-    
 
     function testRedeemMintSolve(uint128 amountOfShares, uint16 discount) external {
         amountOfShares = uint128(bound(amountOfShares, 0.01e18, 1_000e18));
@@ -440,7 +439,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
         uint256 amountBulkDeposited = 1035149556182725029736; // from test trace
         uint256 vaultExcess = amountBulkWithdrawn - amountBulkDeposited;
         console.log("Vault excess: ", vaultExcess);
-        
+
         assertGt(vaultExcess, 0, "Vault should have received some assets back at the end of the solve");
         assertEq(
             ERC20(weETHs).balanceOf(testUser), requests[0].amountOfAssets, "User should have received their weETHs."
@@ -1023,7 +1022,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
         uint16 discount,
         uint24 secondsToDeadline
     ) internal returns (bytes32 requestId, BoringOnChainQueue.OnChainWithdraw memory request) {
-        uint96 nonceBefore = boringQueue.nonce();
+        uint88 nonceBefore = boringQueue.nonce();
         vm.startPrank(user);
         ERC20(liquidEth).safeApprove(address(boringQueue), amountOfShares);
         vm.recordLogs();
@@ -1036,7 +1035,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
             if (
                 entries[i].topics[0]
                     == keccak256(
-                        "OnChainWithdrawRequested(bytes32,address,address,uint96,uint128,uint128,uint40,uint24,uint24)"
+                        "OnChainWithdrawRequested(bytes32,address,address,uint88,uint128,uint128,uint40,uint24,uint24)"
                     )
             ) {
                 assertEq(requestId, entries[i].topics[1], "Request Id should match.");
@@ -1049,7 +1048,7 @@ contract BoringQueueTest is Test, MerkleTreeHelper {
                     request.creationTime,
                     request.secondsToMaturity,
                     request.secondsToDeadline
-                ) = abi.decode(entries[i].data, (uint96, uint128, uint128, uint40, uint24, uint24));
+                ) = abi.decode(entries[i].data, (uint88, uint128, uint128, uint40, uint24, uint24));
             }
         }
     }

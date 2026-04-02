@@ -545,7 +545,7 @@ contract BoringQueuePrincipalCheckpointTest is Test {
         returns (BoringOnChainQueue.OnChainWithdraw memory request)
     {
         bytes32 eventSig = keccak256(
-            "OnChainWithdrawRequested(bytes32,address,address,uint96,uint128,uint128,uint40,uint24,uint24)"
+            "OnChainWithdrawRequested(bytes32,address,address,uint88,uint128,uint128,uint40,uint24,uint24)"
         );
         for (uint256 i; i < entries.length; ++i) {
             if (entries[i].topics[0] == eventSig) {
@@ -558,7 +558,7 @@ contract BoringQueuePrincipalCheckpointTest is Test {
                     request.creationTime,
                     request.secondsToMaturity,
                     request.secondsToDeadline
-                ) = abi.decode(entries[i].data, (uint96, uint128, uint128, uint40, uint24, uint24));
+                ) = abi.decode(entries[i].data, (uint88, uint128, uint128, uint40, uint24, uint24));
                 break;
             }
         }

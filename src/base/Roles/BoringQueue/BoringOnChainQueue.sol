@@ -61,7 +61,7 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
      * @param secondsToDeadline The time in seconds the request is valid for.
      */
     struct OnChainWithdraw {
-        uint96 nonce; // read from state, used to make it impossible for request Ids to be repeated.
+        uint88 nonce; // read from state, used to make it impossible for request Ids to be repeated.
         address user; // msg.sender
         address assetOut; // input sanitized
         uint128 amountOfShares; // input transfered in
@@ -118,7 +118,7 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
      *      in the same block such that you can make 2 requests with the same request Id.
      *      And even if you did, the tx would revert with a keccak256 collision error.
      */
-    uint96 public nonce = 1;
+    uint88 public nonce = 1;
 
     /**
      * @notice Whether or not the contract is paused.
@@ -159,7 +159,7 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
         bytes32 indexed requestId,
         address indexed user,
         address indexed assetOut,
-        uint96 nonce,
+        uint88 nonce,
         uint128 amountOfShares,
         uint128 amountOfAssets,
         uint40 creationTime,
@@ -693,7 +693,7 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
         uint24 secondsToDeadline
     ) internal virtual returns (bytes32 requestId, OnChainWithdraw memory req) {
         // Create new request.
-        uint96 requestNonce;
+        uint88 requestNonce;
         // See nonce definition for unchecked safety.
         unchecked {
             // Set request nonce as current nonce, then increment nonce.
