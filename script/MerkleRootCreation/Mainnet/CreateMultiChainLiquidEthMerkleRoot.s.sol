@@ -34,7 +34,6 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
     address public capDecoderAndSanitizer = 0xE0e86bf98dAA0D2b408Cb038E94bCB9B7864309C;
 
     address public itbCorkDecoderAndSanitizer = 0x457Cce6Ec3fEb282952a7e50a1Bc727Ca235Eb0a;
-    address public optimismDecoderAndSanitizer = 0xC48cA54b9F3f8Fc7E5347DE55879851178B485e8;
 
     address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
@@ -937,8 +936,12 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             address itbPositionManager4 = 0xCF346a4F898e9FdacD3a130fFe00F1f2dA56C90a;
             ERC20[] memory itbTokensUsed2 = new ERC20[](1);
             itbTokensUsed2[0] = getERC20(sourceChain, "WEETH");
+
+            ERC20[] memory itbTokensUsed3 = new ERC20[](2);
+            itbTokensUsed3[0] = getERC20(sourceChain, "WEETH");
+            itbTokensUsed3[1] = getERC20(sourceChain, "PYUSD");
             // Aave weETH -> RLUSD -> RLUSD Aave Horizon
-            _addLeafsForITBPositionManager(leafs, itbPositionManager2, itbTokensUsed2, "ITB Position Manager 2");
+            _addLeafsForITBPositionManager(leafs, itbPositionManager2, itbTokensUsed3, "ITB Position Manager 2");
             //Spark weETH → PYUSD → PYUSD Euler
             _addLeafsForITBPositionManager(leafs, itbPositionManager3, itbTokensUsed2, "ITB Position Manager 3");
             _addLeafsForITBPositionManager(leafs, itbPositionManager4, itbTokensUsed2, "ITB Position Manager 4");
@@ -970,7 +973,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         address itbPositionManager,
         ERC20[] memory tokensUsed,
         string memory itbContractName
-    ) internal {
+    ) internal override {
         // acceptOwnership
         leafIndex++;
         leafs[leafIndex] = ManageLeaf(
