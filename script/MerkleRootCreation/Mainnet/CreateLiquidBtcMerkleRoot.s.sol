@@ -616,7 +616,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         address positionManager,
         ERC20[] memory tokensUsed,
         string memory itbContractName
-    ) internal {
+    ) internal override {
         // acceptOwnership
         leafIndex++;
         leafs[leafIndex] = ManageLeaf(
