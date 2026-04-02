@@ -31,7 +31,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
     using stdStorage for StdStorage;
 
-    event TransferRestrictionsSet(uint8 transferAllowedRole, uint8 depositForOthersRole);
+    event TransferRestrictionsSet(uint8 transferAllowedRole, uint8 allowlistedRouterRole);
 
     BoringVault public boringVault;
 
@@ -1917,7 +1917,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
 
         assertEq(teller.transferAllowedRole(), QUEUE_ROLE);
-        assertEq(teller.depositForOthersRole(), type(uint8).max);
+        assertEq(teller.allowlistedRouterRole(), type(uint8).max);
     }
 
     function testSetTransferRestrictions_EmitsEventOnReset() external {
@@ -1928,6 +1928,6 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         teller.setTransferRestrictions(type(uint8).max, type(uint8).max);
 
         assertEq(teller.transferAllowedRole(), type(uint8).max);
-        assertEq(teller.depositForOthersRole(), type(uint8).max);
+        assertEq(teller.allowlistedRouterRole(), type(uint8).max);
     }
 }

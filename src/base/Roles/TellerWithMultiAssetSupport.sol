@@ -179,12 +179,12 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     uint8 public transferAllowedRole = type(uint8).max;
 
     /**
-     * @notice Role ID required for depositing shares to a different recipient.
-     * @dev When set to type(uint8).max (255), depositing for others is disabled entirely (default).
-     *      Any other value requires msg.sender to hold that role to deposit for a different recipient.
+     * @notice Role ID required for routing deposits or withdrawals to a different recipient.
+     * @dev When set to type(uint8).max (255), routing for others is disabled entirely (default).
+     *      Any other value requires msg.sender to hold that role to specify a different recipient.
      *      msg.sender == recipient is always allowed regardless of this setting.
      */
-    uint8 public depositForOthersRole = type(uint8).max;
+    uint8 public allowlistedRouterRole = type(uint8).max;
 
     //============================== ERRORS ===============================
 
@@ -206,7 +206,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     error TellerWithMultiAssetSupport__SharePremiumTooLarge();
     error TellerWithMultiAssetSupport__BufferHelperNotAllowed(ERC20 asset, IBufferHelper bufferHelper);
     error TellerWithMultiAssetSupport__TransferNotAllowed();
-    error TellerWithMultiAssetSupport__DepositForOthersNotAllowed();
+    error TellerWithMultiAssetSupport__RouterNotAllowlisted();
 
     //============================== EVENTS ===============================
 
@@ -235,7 +235,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     event BufferHelperAllowed(ERC20 indexed asset, IBufferHelper indexed bufferHelper);
     event BufferHelperDisallowed(ERC20 indexed asset, IBufferHelper indexed bufferHelper);
     event IncentivePoolAllowedSet(address indexed pool, bool allowed);
-    event TransferRestrictionsSet(uint8 transferAllowedRole, uint8 depositForOthersRole);
+    event TransferRestrictionsSet(uint8 transferAllowedRole, uint8 allowlistedRouterRole);
 
     //============================== IMMUTABLES ===============================
 
@@ -346,15 +346,15 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @notice Sets both transfer restriction roles in a single call.
      * @dev transferAllowedRole: set to type(uint8).max (255) to disable transfer restrictions (default).
      *      Any other value restricts transfers so that at least one of `from`, `to`, or `operator` must hold that role.
-     *      depositForOthersRole: set to type(uint8).max (255) to disable deposit-for-others entirely (default).
-     *      Any other value allows holders of that role to deposit for a different recipient.
+     *      allowlistedRouterRole: set to type(uint8).max (255) to disable routing for others entirely (default).
+     *      Any other value allows holders of that role to deposit or withdraw to a different recipient.
      * @param _transferAllowedRole The role ID required for at least one side of a transfer, or 255 to disable.
-     * @param _depositForOthersRole The role ID required to deposit for others, or 255 to disable.
+     * @param _allowlistedRouterRole The role ID required to route for others, or 255 to disable.
      */
-    function setTransferRestrictions(uint8 _transferAllowedRole, uint8 _depositForOthersRole) external requiresAuth {
+    function setTransferRestrictions(uint8 _transferAllowedRole, uint8 _allowlistedRouterRole) external requiresAuth {
         transferAllowedRole = _transferAllowedRole;
-        depositForOthersRole = _depositForOthersRole;
-        emit TransferRestrictionsSet(_transferAllowedRole, _depositForOthersRole);
+        allowlistedRouterRole = _allowlistedRouterRole;
+        emit TransferRestrictionsSet(_transferAllowedRole, _allowlistedRouterRole);
     }
 
     /**
@@ -526,17 +526,17 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     }
 
     /**
-     * @notice Enforces deposit-for-others restriction based on `depositForOthersRole`.
+     * @notice Enforces allowlisted router restriction based on `allowlistedRouterRole`.
      * @dev If msg.sender == recipient, always allowed.
-     *      If `depositForOthersRole` is type(uint8).max, depositing for others is disabled entirely.
-     *      Otherwise, msg.sender must hold the specified role to deposit for a different recipient.
+     *      If `allowlistedRouterRole` is type(uint8).max, routing for others is disabled entirely.
+     *      Otherwise, msg.sender must hold the specified role to specify a different recipient.
      */
-    function _enforceDepositForOthers(address recipient) internal view {
+    function _checkRouterRole(address recipient) internal view {
         if (msg.sender == recipient) return;
-        uint8 role = depositForOthersRole;
-        if (role == type(uint8).max) revert TellerWithMultiAssetSupport__DepositForOthersNotAllowed();
+        uint8 role = allowlistedRouterRole;
+        if (role == type(uint8).max) revert TellerWithMultiAssetSupport__RouterNotAllowlisted();
         if (!RolesAuthority(address(authority)).doesUserHaveRole(msg.sender, role)) {
-            revert TellerWithMultiAssetSupport__DepositForOthersNotAllowed();
+            revert TellerWithMultiAssetSupport__RouterNotAllowlisted();
         }
     }
 
@@ -609,7 +609,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         ERC20 depositAsset = params.depositAsset;
         uint256 depositAmount = params.depositAmount;
         if (to == address(0)) revert TellerWithMultiAssetSupport__ZeroRecipient();
-        _enforceDepositForOthers(to);
+        _checkRouterRole(to);
         Asset memory asset = _beforeDeposit(depositAsset);
 
         address from;
@@ -650,7 +650,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
             revert TellerWithMultiAssetSupport__AssetNotSupported();
         }
         if (to == address(0)) revert TellerWithMultiAssetSupport__ZeroRecipient();
-        _enforceDepositForOthers(to);
+        _checkRouterRole(to);
         _verifyComplianceSignature(to, params.depositAsset, params.depositAmount, compliance);
         Asset memory asset = _beforeDeposit(params.depositAsset);
 
@@ -709,6 +709,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         returns (uint256 assetsOut)
     {
         beforeTransfer(msg.sender, address(0), msg.sender);
+        _checkRouterRole(to);
         assetsOut = _withdraw(withdrawAsset, shareAmount, minimumAssets, to);
         emit Withdraw(address(withdrawAsset), shareAmount);
     }
@@ -725,6 +726,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         RewardData[] calldata rewards
     ) external virtual requiresAuth nonReentrant returns (uint256 assetsOut) {
         beforeTransfer(msg.sender, address(0), msg.sender);
+        _checkRouterRole(to);
         assetsOut = _withdraw(withdrawAsset, shareAmount, minimumAssets, to);
         _processRewards(rewards, msg.sender);
         emit Withdraw(address(withdrawAsset), shareAmount);
