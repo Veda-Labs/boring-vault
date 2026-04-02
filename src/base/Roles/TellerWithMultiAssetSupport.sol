@@ -100,30 +100,6 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     mapping(ERC20 => Asset) public assetData;
 
     /**
-     * @notice The deposit nonce used to map to a deposit hash.
-     */
-    uint64 public depositNonce;
-
-    /**
-     * @notice After deposits, shares are locked to the msg.sender's address
-     *         for `shareLockPeriod`.
-     * @dev During this time all transfers from msg.sender will revert, and
-     *      deposits are refundable.
-     */
-    uint64 public shareLockPeriod;
-
-    /**
-     * @notice Used to pause calls to `deposit` and `depositWithPermit`.
-     */
-    bool public isPaused;
-
-    /**
-     * @notice The global deposit cap of the vault.
-     * @dev If the cap is reached, no new deposits are accepted. No partial fills.
-     */
-    uint112 public depositCap = type(uint112).max;
-
-    /**
      * @dev Maps deposit nonce to keccak256(address receiver, address depositAsset, uint256 depositAmount, uint256 shareAmount, uint256 timestamp, uint256 shareLockPeriod).
      */
     mapping(uint256 => bytes32) public publicDepositHistory;
@@ -149,6 +125,40 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     mapping(address => bool) public allowedIncentivePools;
 
     /**
+     * @notice Maps compliance signature hashes to used status.
+     */
+    mapping(bytes32 messageHash => bool used) public usedComplianceSignatures;
+
+    /**
+     * @notice Per-user cumulative principal history in base-asset value.
+     */
+    mapping(address user => PrincipalCheckpoint[]) internal _principalHistory;
+
+    /**
+     * @notice The deposit nonce used to map to a deposit hash.
+     */
+    uint64 public depositNonce;
+
+    /**
+     * @notice After deposits, shares are locked to the msg.sender's address
+     *         for `shareLockPeriod`.
+     * @dev During this time all transfers from msg.sender will revert, and
+     *      deposits are refundable.
+     */
+    uint64 public shareLockPeriod;
+
+    /**
+     * @notice Used to pause calls to `deposit` and `depositWithPermit`.
+     */
+    bool public isPaused;
+
+    /**
+     * @notice The global deposit cap of the vault.
+     * @dev If the cap is reached, no new deposits are accepted. No partial fills.
+     */
+    uint112 public depositCap = type(uint112).max;
+
+    /**
      * @notice Role ID that must be held by the compliance signer.
      * @dev When set to type(uint8).max (255), compliance verification is skipped (default).
      *      Any other value enables checks; the recovered signer must hold that role.
@@ -161,16 +171,6 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      *      block.timestamp + complianceWindow will be rejected. Set this to a relative duration, e.g. 3600 for 1 hour.
      */
     uint96 public complianceWindow;
-
-    /**
-     * @notice Maps compliance signature hashes to used status.
-     */
-    mapping(bytes32 messageHash => bool used) public usedComplianceSignatures;
-
-    /**
-     * @notice Per-user cumulative principal history in base-asset value.
-     */
-    mapping(address user => PrincipalCheckpoint[]) internal _principalHistory;
 
     /**
      * @notice Role ID that is allowed to be a counterparty in share transfers.
@@ -208,6 +208,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     error TellerWithMultiAssetSupport__BufferHelperNotAllowed(ERC20 asset, IBufferHelper bufferHelper);
     error TellerWithMultiAssetSupport__TransferNotAllowed();
     error TellerWithMultiAssetSupport__DepositForOthersNotAllowed();
+
     //============================== EVENTS ===============================
 
     event Paused();
