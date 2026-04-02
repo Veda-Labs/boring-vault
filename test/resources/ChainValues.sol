@@ -78,8 +78,8 @@ contract ChainValues {
     uint32 public constant layerZeroTONEndpointId = 30343;
     uint32 public constant layerZeroPlasmaEndpointId = 30383;
 
-    uint32 public constant cctpMainnetDomainId = 0; 
-    uint32 public constant cctpInkDomainId = 21; 
+    uint32 public constant cctpMainnetDomainId = 0;
+    uint32 public constant cctpInkDomainId = 21;
     uint32 public constant cctpPlumeDomainId = 22;
 
     error ChainValues__ZeroAddress(string chainName, string valueName);
@@ -1589,7 +1589,7 @@ contract ChainValues {
         // Agglayer Katana
         values[mainnet]["agglayerBridgeKatana"] = 0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe.toBytes32();
 
-        // MF-ONE 
+        // MF-ONE
         values[mainnet]["mfOneDepositVault"] = 0x41438435c20B1C2f1fcA702d387889F346A0C3DE.toBytes32();
         values[mainnet]["mfOneRedemptionVault"] = 0x44b0440e35c596e858cEA433D0d82F5a985fD19C.toBytes32();
 
@@ -1598,8 +1598,8 @@ contract ChainValues {
 
         // Chainalysis SanctionsList
         values[mainnet]["sanctionsList"] = 0x40C57923924B5c5c5455c48D93317139ADDaC8fb.toBytes32();
-    
-        //Mellow DVstETH 
+
+        //Mellow DVstETH
         values[mainnet]["dvStethWhitelistedEthWrapper"] = 0xfD4a4922d1AFe70000Ce0Ec6806454e78256504e.toBytes32();
     }
 
@@ -2010,7 +2010,7 @@ contract ChainValues {
 
     function _addLineaValues() private {
         values[linea]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
-        values[linea]["txBundlerAddress"] = 0x04fc9C685961934f552b5e01F15CBBa66B61D92c.toBytes32(); 
+        values[linea]["txBundlerAddress"] = 0x04fc9C685961934f552b5e01F15CBBa66B61D92c.toBytes32();
         values[linea]["dev0Address"] = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b.toBytes32();
         values[linea]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
         values[linea]["dev5Address"] = 0x1cdF47387358A1733968df92f7cC14546D9E1047.toBytes32();
@@ -2175,6 +2175,7 @@ contract ChainValues {
         values[corn]["LBTC"] = 0xecAc9C5F704e954931349Da37F60E39f515c11c1.toBytes32();
         values[corn]["EBTC"] = 0x657e8C867D8B37dCC18fA4Caead9C45EB088C642.toBytes32();
         values[corn]["USDT0"] = 0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb.toBytes32();
+        values[corn]["ETH"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32();
 
         values[corn]["balancerVault"] = address(1).toBytes32();
 
@@ -2976,7 +2977,7 @@ contract ChainValues {
         // LayerZero
         values[ink]["LayerZeroEndPoint"] = 0xca29f3A6f966Cb2fc0dE625F8f325c0C46dbE958.toBytes32();
         values[ink]["ZRO"] = address(1).toBytes32();
-        values[ink]["usdt0OFTAdapter"] = 0x1cB6De532588fCA4a21B7209DE7C456AF8434A65.toBytes32(); 
+        values[ink]["usdt0OFTAdapter"] = 0x1cB6De532588fCA4a21B7209DE7C456AF8434A65.toBytes32();
         values[ink]["PYUSDOFTAdapter"] = 0x3CD2b89C49D130C08f1d683225b2e5DeB63ff876.toBytes32();
         values[ink]["PYUSD0"] = 0x142cdc44890978B506e745bB3Bd11607B7f7faEf.toBytes32();
 
@@ -3153,7 +3154,7 @@ contract ChainValues {
         values[tac]["ZRO"] = address(1).toBytes32();
         values[tac]["WETH"] = 0x61D66bC21fED820938021B06e9b2291f3FB91945.toBytes32();
         values[tac]["WSTETH"] = 0xAf368c91793CB22739386DFCbBb2F1A9e4bCBeBf.toBytes32();
-        values[tac]["rEUL"] = 0xCf623E50430CCb55214985F9C986a5Fa50aD7686.toBytes32(); 
+        values[tac]["rEUL"] = 0xCf623E50430CCb55214985F9C986a5Fa50aD7686.toBytes32();
 
         // LayerZero
         values[tac]["LayerZeroEndPoint"] = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B.toBytes32();
@@ -3209,18 +3210,18 @@ contract ChainValues {
         values[plasma]["etherfiRewardClaimer"] = 0xBdA9e965CdA04eD5Bfc841E54573Dc083447E15a.toBytes32();
         values[plasma]["etherfiOpsAddress"] = 0xC8111D00351765c64D301CDFc1848bf5Ff2E23A2.toBytes32();
         values[plasma]["vault"] = 0xbA1333333333a1BA1108E8412f11850A5C319bA9.toBytes32();
-        
+
         // Factory Contracts
         values[plasma]["create2Factory"] = 0x4e59b44847b379578588920cA78FbF26c0B4956C.toBytes32();
         values[plasma]["erc1820Registry"] = 0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24.toBytes32();
         values[plasma]["eip2470SingletonFactory"] = 0xce0042B868300000d44A59004Da54A005ffdcf9f.toBytes32();
         values[plasma]["keylessCreate2Factory"] = 0x0000000000FFe8B47B3e2130213B802212439497.toBytes32();
-        
+
         // Multicall Contracts
         values[plasma]["multicall"] = 0xeefBa1e63905eF1D7ACbA5a8513c70307C1cE441.toBytes32();
         values[plasma]["multicall2"] = 0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696.toBytes32();
         values[plasma]["multicall3"] = 0xcA11bde05977b3631167028862bE2a173976CA11.toBytes32();
-        
+
         // Safe (Gnosis) Contracts
         values[plasma]["safeSingletonFactory"] = 0x914d7Fec6aaC8cd542e72Bca78B30650d45643d7.toBytes32();
         values[plasma]["safeL1"] = 0x41675C099F32341bf84BFc5382aF534df5C7461a.toBytes32();
@@ -3233,10 +3234,10 @@ contract ChainValues {
         values[plasma]["signMessageLib"] = 0xd53cd0aB83D845Ac265BE939c57F53AD838012c9.toBytes32();
         values[plasma]["simulateTxAccessor"] = 0x3d4BA2E0884aa488718476ca2FB8Efc291A46199.toBytes32();
         values[plasma]["tokenCallbackHandler"] = 0xeDCF620325E82e3B9836eaaeFdc4283E99Dd7562.toBytes32();
-        
+
         // Permit2
         values[plasma]["permit2"] = 0x000000000022D473030F116dDEE9F6B43aC78BA3.toBytes32();
-        
+
         // Token
         values[plasma]["ETH"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32(); // Plasma doesn't have native ETH, using common ETH placeholder to bypass fluidDex helper check
         values[mainnet]["NATIVE"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32();
@@ -3250,29 +3251,29 @@ contract ChainValues {
         values[plasma]["WETH_OFT_STARGATE"] = 0x0cEb237E109eE22374a567c6b09F373C73FA4cBb.toBytes32();
         values[plasma]["USDE"] = 0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34.toBytes32();
         values[plasma]["SUSDE"] = 0x211Cc4DD073734dA055fbF44a2b4667d5E5fE5d2.toBytes32();
-        values[plasma]["USDe"] = 0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34.toBytes32(); 
-        values[plasma]["sUSDe"] = 0x211Cc4DD073734dA055fbF44a2b4667d5E5fE5d2.toBytes32(); 
-        values[plasma]["ENA"] = 0x58538e6A46E07434d7E7375Bc268D3cb839C0133.toBytes32(); 
+        values[plasma]["USDe"] = 0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34.toBytes32();
+        values[plasma]["sUSDe"] = 0x211Cc4DD073734dA055fbF44a2b4667d5E5fE5d2.toBytes32();
+        values[plasma]["ENA"] = 0x58538e6A46E07434d7E7375Bc268D3cb839C0133.toBytes32();
         values[plasma]["wstUSR"] = 0x2a52B289bA68bBd02676640aA9F605700c9e5699.toBytes32(); // also OFT
         values[plasma]["yzUSD"] = 0x6695c0f8706C5ACe3Bdf8995073179cCA47926dc.toBytes32();
         values[plasma]["syzUSD"] = 0xC8A8DF9B210243c55D31c73090F06787aD0A1Bf6.toBytes32();
-        
+
         // Uniswap V3
         values[plasma]["uniswapV3NonFungiblePositionManager"] = 0x743E03cceB4af2efA3CC76838f6E8B50B63F184c.toBytes32();
         values[plasma]["uniV3Router"] = 0x807F4E281B7A3B324825C64ca53c69F0b418dE40.toBytes32();
         values[plasma]["universalRouter"] = 0x1b35fbA9357fD9bda7ed0429C8BbAbe1e8CC88fc.toBytes32();
-        
+
         // Hyperlane (keeping only essential contracts based on mainnet pattern)
         values[plasma]["hyperlaneMailbox"] = 0x3a464f746D23Ab22155710f44dB16dcA53e0775E.toBytes32();
         values[plasma]["hyperlaneInterchainGasPaymaster"] = 0x1A41a365A693b6A7aED1a46316097d290f569F22.toBytes32();
         values[plasma]["hyperlaneInterchainAccountRouter"] = 0x9fE454AA2B01fc7A2a777AE561bc58Ce560CD5a9.toBytes32();
-        
+
         // LI.FI
         values[plasma]["lifi"] = 0x026F252016A7C47CDEf1F05a3Fc9E20C92a49C37.toBytes32();
-        
+
         // Glacis
         values[plasma]["glacisAirlift"] = 0x290D54179960984599F16F77DCDA81320301b158.toBytes32();
-        
+
         // LayerZero
         values[plasma]["LayerZeroEndPoint"] = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B.toBytes32();
 
@@ -3287,7 +3288,7 @@ contract ChainValues {
 
         // Merkl
         values[plasma]["merklDistributor"] = 0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae.toBytes32();
-        
+
         // Curve
         values[plasma]["USDe_USDT0_Curve_Pool"] = 0x2D84D79C852f6842AbE0304b70bBaA1506AdD457.toBytes32();
         values[plasma]["sUSDe_USDT0_Curve_Pool"] = 0x1E8D78e9b3f0152D54d32904B7933f1cFE439Df1.toBytes32();
@@ -3321,5 +3322,5 @@ contract ChainValues {
 
     }
 
-    
+
 }
