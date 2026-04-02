@@ -9,6 +9,7 @@ import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
 import {BaseAdapter} from "src/base/Periphery/adapters/BaseAdapter.sol";
+import {IUniswapV3} from "src/interfaces/IUniswapV3.sol";
 
 
 contract OneInchAdapter is IAdapter, BaseAdapter {
@@ -52,40 +53,43 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
 
     //============================== V6 unoswap ===============================
 
-    function unoswap(uint256 token, uint256 amount, uint256 /*minReturn*/, uint256 /*dex*/)
+    function unoswap(uint256 token, uint256 amount, uint256 /*minReturn*/, uint256 dex)
         external
         view
         returns (address, uint256)
     {
         BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(address(uint160(token))) != swapConfig.tokenRoute.tokenIn) revert("token mismatch");
+        if (ERC20(_dexTokenOut(dex)) != swapConfig.tokenRoute.tokenOut) revert("tokenOut mismatch");
 
         return (ROUTER, amount);
     }
 
-    function unoswap2(uint256 token, uint256 amount, uint256 /*minReturn*/, uint256 /*dex*/, uint256 /*dex2*/)
+    function unoswap2(uint256 token, uint256 amount, uint256 /*minReturn*/, uint256 /*dex*/, uint256 dex2)
         external
         view
         returns (address, uint256)
     {
         BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(address(uint160(token))) != swapConfig.tokenRoute.tokenIn) revert("token mismatch");
+        if (ERC20(_dexTokenOut(dex2)) != swapConfig.tokenRoute.tokenOut) revert("tokenOut mismatch");
 
         return (ROUTER, amount);
     }
 
-    function unoswap3(uint256 token, uint256 amount, uint256 /*minReturn*/, uint256 /*dex*/, uint256 /*dex2*/, uint256 /*dex3*/)
+    function unoswap3(uint256 token, uint256 amount, uint256 /*minReturn*/, uint256 /*dex*/, uint256 /*dex2*/, uint256 dex3)
         external
         view
         returns (address, uint256)
     {
         BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(address(uint160(token))) != swapConfig.tokenRoute.tokenIn) revert("token mismatch");
+        if (ERC20(_dexTokenOut(dex3)) != swapConfig.tokenRoute.tokenOut) revert("tokenOut mismatch");
 
         return (ROUTER, amount);
     }
 
-    function unoswapTo(uint256 to, uint256 token, uint256 amount, uint256 /*minReturn*/, uint256 /*dex*/)
+    function unoswapTo(uint256 to, uint256 token, uint256 amount, uint256 /*minReturn*/, uint256 dex)
         external
         view
         returns (address, uint256)
@@ -93,11 +97,12 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         if (address(uint160(to)) != msg.sender) revert("to must be swapper");
         BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(address(uint160(token))) != swapConfig.tokenRoute.tokenIn) revert("token mismatch");
+        if (ERC20(_dexTokenOut(dex)) != swapConfig.tokenRoute.tokenOut) revert("tokenOut mismatch");
 
         return (ROUTER, amount);
     }
 
-    function unoswapTo2(uint256 to, uint256 token, uint256 amount, uint256 /*minReturn*/, uint256 /*dex*/, uint256 /*dex2*/)
+    function unoswapTo2(uint256 to, uint256 token, uint256 amount, uint256 /*minReturn*/, uint256 /*dex*/, uint256 dex2)
         external
         view
         returns (address, uint256)
@@ -105,11 +110,12 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         if (address(uint160(to)) != msg.sender) revert("to must be swapper");
         BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(address(uint160(token))) != swapConfig.tokenRoute.tokenIn) revert("token mismatch");
+        if (ERC20(_dexTokenOut(dex2)) != swapConfig.tokenRoute.tokenOut) revert("tokenOut mismatch");
 
         return (ROUTER, amount);
     }
 
-    function unoswapTo3(uint256 to, uint256 token, uint256 amount, uint256 /*minReturn*/, uint256 /*dex*/, uint256 /*dex2*/, uint256 /*dex3*/)
+    function unoswapTo3(uint256 to, uint256 token, uint256 amount, uint256 /*minReturn*/, uint256 /*dex*/, uint256 /*dex2*/, uint256 dex3)
         external
         view
         returns (address, uint256)
@@ -117,6 +123,7 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         if (address(uint160(to)) != msg.sender) revert("to must be swapper");
         BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(address(uint160(token))) != swapConfig.tokenRoute.tokenIn) revert("token mismatch");
+        if (ERC20(_dexTokenOut(dex3)) != swapConfig.tokenRoute.tokenOut) revert("tokenOut mismatch");
 
         return (ROUTER, amount);
     }
@@ -187,6 +194,15 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
     }
 
     //============================== Internal ===============================
+
+    // 1inch V6 encodes the swap direction in bit 247 of the dex uint256:
+    //   bit 247 = 1 (zeroForOne): token0 is input, token1 is output
+    //   bit 247 = 0:              token1 is input, token0 is output
+    function _dexTokenOut(uint256 dex) internal view returns (address) {
+        address pool = address(uint160(dex));
+        bool zeroForOne = (dex >> 247) & 0x01 == 1;
+        return zeroForOne ? IUniswapV3(pool).token1() : IUniswapV3(pool).token0();
+    }
 
     function _computeOrderHash(bytes memory orderData) internal view returns (bytes32) {
         bytes32 structHash = keccak256(abi.encodePacked(ONEINCH_ORDER_TYPE_HASH, orderData));
