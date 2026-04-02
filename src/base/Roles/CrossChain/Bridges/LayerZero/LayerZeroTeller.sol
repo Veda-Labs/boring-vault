@@ -15,6 +15,10 @@ import {LayerZeroTellerLib} from "src/base/Roles/CrossChain/Bridges/LayerZero/La
 contract LayerZeroTeller is CrossChainTellerWithGenericBridge, OAppAuth {
     using AddressToBytes32Lib for address;
 
+    //============================== ERRORS ===============================
+
+    error LayerZeroTeller__MessagesNotAllowedFrom(uint256 chainSelector);
+
     // ========================================= STATE =========================================
 
     /**
@@ -97,7 +101,9 @@ contract LayerZeroTeller is CrossChainTellerWithGenericBridge, OAppAuth {
         internal
         override
     {
-        LayerZeroTellerLib.validateSourceChain(idToChains, _origin.srcEid);
+        if (!idToChains[_origin.srcEid].allowMessagesFrom) {
+            revert LayerZeroTeller__MessagesNotAllowedFrom(_origin.srcEid);
+        }
         uint256 message = abi.decode(_message, (uint256));
         _completeMessageReceive(_guid, message);
     }

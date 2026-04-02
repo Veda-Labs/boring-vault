@@ -27,7 +27,6 @@ library LayerZeroTellerLib {
 
     //============================== ERRORS ===============================
 
-    error LayerZeroTeller__MessagesNotAllowedFrom(uint256 chainSelector);
     error LayerZeroTeller__MessagesNotAllowedTo(uint256 chainSelector);
     error LayerZeroTeller__FeeExceedsMax(uint256 chainSelector, uint256 fee, uint256 maxFee);
     error LayerZeroTeller__BadFeeToken();
@@ -97,15 +96,6 @@ library LayerZeroTellerLib {
     }
 
     // ========================================= BRIDGE HELPER FUNCTIONS =========================================
-
-    /**
-     * @notice Validates source chain allows messages and reverts if not.
-     */
-    function validateSourceChain(mapping(uint32 => Chain) storage idToChains, uint32 srcEid) external view {
-        if (!idToChains[srcEid].allowMessagesFrom) {
-            revert LayerZeroTeller__MessagesNotAllowedFrom(srcEid);
-        }
-    }
 
     /**
      * @notice Looks up destination chain, validates it allows messages, and builds the encoded message and LZ options.

@@ -18,6 +18,10 @@ contract LayerZeroTellerWithRateLimiting is CrossChainTellerWithGenericBridge, O
     using AddressToBytes32Lib for address;
     using MessageLib for uint256;
 
+    //============================== ERRORS ===============================
+
+    error LayerZeroTeller__MessagesNotAllowedFrom(uint256 chainSelector);
+
     // ========================================= STATE =========================================
 
     /**
@@ -146,7 +150,9 @@ contract LayerZeroTellerWithRateLimiting is CrossChainTellerWithGenericBridge, O
         internal
         override
     {
-        LayerZeroTellerLib.validateSourceChain(idToChains, _origin.srcEid);
+        if (!idToChains[_origin.srcEid].allowMessagesFrom) {
+            revert LayerZeroTeller__MessagesNotAllowedFrom(_origin.srcEid);
+        }
         uint256 message = abi.decode(_message, (uint256));
         PairwiseRateLimiterLib.checkAndUpdateInboundRateLimit(
             inboundRateLimits, _origin.srcEid, message.uint256ToMessage().shareAmount

@@ -684,7 +684,9 @@ contract LayerZeroTellerWithRateLimitingTest is Test, MerkleTreeHelper {
         vm.prank(address(endPoint));
         vm.expectRevert(
             bytes(
-                abi.encodeWithSelector(LayerZeroTellerLib.LayerZeroTeller__MessagesNotAllowedFrom.selector, SOURCE_ID)
+                abi.encodeWithSelector(
+                    LayerZeroTellerWithRateLimiting.LayerZeroTeller__MessagesNotAllowedFrom.selector, SOURCE_ID
+                )
             )
         );
         LayerZeroTellerWithRateLimiting(m.to).lzReceive(m._origin, m._guid, m._message, m._executor, m._extraData);
