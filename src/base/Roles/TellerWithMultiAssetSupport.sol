@@ -101,27 +101,27 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     /**
      * @dev Maps deposit nonce to keccak256(address receiver, address depositAsset, uint256 depositAmount, uint256 shareAmount, uint256 timestamp, uint256 shareLockPeriod).
      */
-    mapping(uint256 => bytes32) public publicDepositHistory;
+    mapping(uint256 nonce => bytes32 depositHash) public publicDepositHistory;
 
     /**
      * @notice Maps address to BeforeTransferData struct to check if shares are locked and if the address is on any allow or deny list.
      */
-    mapping(address => BeforeTransferData) public beforeTransferData;
+    mapping(address user => BeforeTransferData beforeTransferData) public beforeTransferData;
 
     /**
      * @notice Maps ERC20 assets to their current buffer helpers.
      */
-    mapping(ERC20 => BufferHelpers) public currentBufferHelpers;
+    mapping(ERC20 asset => BufferHelpers bufferHelpers) public currentBufferHelpers;
 
     /**
      * @notice Maps ERC20 assets to allowed buffer helpers.
      */
-    mapping(ERC20 => mapping(IBufferHelper => bool)) public allowedBufferHelpers;
+    mapping(ERC20 asset => mapping(IBufferHelper bufferHelper => bool allowed)) public allowedBufferHelpers;
 
     /**
      * @notice Maps incentive pool addresses to their allowed status.
      */
-    mapping(address => bool) public allowedIncentivePools;
+    mapping(address pool => bool allowed) public allowedIncentivePools;
 
     /**
      * @notice Maps compliance signature hashes to used status.
