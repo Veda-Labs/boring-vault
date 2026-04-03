@@ -14,6 +14,9 @@ import {CCIPDecoderAndSanitizer} from "./Protocols/CCIPDecoderAndSanitizer.sol";
 import {OdosDecoderAndSanitizer} from "./Protocols/OdosDecoderAndSanitizer.sol";
 import {TellerDecoderAndSanitizer} from "./Protocols/TellerDecoderAndSanitizer.sol";
 import {MagpieDecoderAndSanitizer} from "./MagpieDecoderAndSanitizer.sol";
+import {
+    MorphoV1FlashLoanAdapterDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/Protocols/MorphoV1FlashLoanAdapterDecoderAndSanitizer.sol";
 
 contract BTCCarryDecoderAndSanitizer is
     UniswapV3DecoderAndSanitizer,
@@ -26,7 +29,8 @@ contract BTCCarryDecoderAndSanitizer is
     PendleRouterDecoderAndSanitizer,
     CCIPDecoderAndSanitizer,
     MagpieDecoderAndSanitizer,
-    TellerDecoderAndSanitizer
+    TellerDecoderAndSanitizer,
+    MorphoV1FlashLoanAdapterDecoderAndSanitizer
 {
     constructor(address _uniswapV3NonFungiblePositionManager, address _flyTradeRouterV3)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
