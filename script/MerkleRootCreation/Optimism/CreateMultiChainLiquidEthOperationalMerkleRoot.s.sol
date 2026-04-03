@@ -12,9 +12,9 @@ import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper
 import "forge-std/Script.sol";
 
 /**
- *  source .env && forge script script/MerkleRootCreation/Optimism/CreateMultiChainLiquidEthMerkleRoot.s.sol:CreateMultiChainLiquidEthMerkleRootScript --rpc-url $OPTIMISM_RPC_URL
+ *  source .env && forge script script/MerkleRootCreation/Optimism/CreateMultiChainLiquidEthOperationalMerkleRoot.s.sol:CreateMultiChainLiquidEthOperationalMerkleRootScript --rpc-url $OPTIMISM_RPC_URL
  */
-contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
+contract CreateMultiChainLiquidEthOperationalMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     address public boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C;
@@ -29,10 +29,10 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
      * @notice Uncomment which script you want to run.
      */
     function run() external {
-        generateMultiChainLiquidEthStrategistMerkleRoot();
+        generateMultiChainLiquidEthOperationalStrategistMerkleRoot();
     }
 
-    function generateMultiChainLiquidEthStrategistMerkleRoot() public {
+    function generateMultiChainLiquidEthOperationalStrategistMerkleRoot() public {
         setSourceChainName(optimism);
         setAddress(false, optimism, "boringVault", boringVault);
         setAddress(false, optimism, "managerAddress", managerAddress);
@@ -40,6 +40,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         setAddress(false, optimism, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
+
 
         // ========================== Native ==========================
         /**
@@ -75,12 +76,12 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         // ========================== LayerZero ==========================
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WEETH_OFT"), getAddress(sourceChain, "WEETH_OFT"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));   
 
-
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
-        string memory filePath = "./leafs/Optimism/MultiChainLiquidEthStrategistLeafs.json";
+        string memory filePath = "./leafs/Optimism/MultiChainLiquidEthOperationalLeafs.json";
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
     }
+
 
 }
