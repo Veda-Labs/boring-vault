@@ -129,6 +129,9 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
             ADMIN_ROLE, address(teller), TellerWithMultiAssetSupport.refundDeposit.selector, true
         );
         rolesAuthority.setRoleCapability(
+            ADMIN_ROLE, address(teller), TellerWithMultiAssetSupport.setTransferRestrictions.selector, true
+        );
+        rolesAuthority.setRoleCapability(
             ADMIN_ROLE, address(teller), AccountantWithYieldStreaming.updateMinimumVestDuration.selector, true
         );
         rolesAuthority.setRoleCapability(
@@ -183,6 +186,8 @@ contract TellerWithYieldStreamingBufferTest is Test, MerkleTreeHelper {
         teller.setDepositBufferHelper(USDT, IBufferHelper(bufferHelper));
         teller.setDepositBufferHelper(USDC, IBufferHelper(bufferHelper));
         teller.setDepositBufferHelper(sUSDe, IBufferHelper(bufferHelper));
+
+        teller.setTransferRestrictions(type(uint8).max, ADMIN_ROLE);
     }
 
     function testUserDepositPeggedAssets(uint256 amount) external {

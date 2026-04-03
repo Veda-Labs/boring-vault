@@ -531,7 +531,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      *      If `allowlistedRouterRole` is type(uint8).max, routing for others is disabled entirely.
      *      Otherwise, msg.sender must hold the specified role to specify a different recipient.
      */
-    function _checkRouterRole(address recipient) internal view {
+    function _checkRecipient(address recipient) internal view {
         if (msg.sender == recipient) return;
         uint8 role = allowlistedRouterRole;
         if (role == type(uint8).max) revert TellerWithMultiAssetSupport__RouterNotAllowlisted();
@@ -609,7 +609,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         ERC20 depositAsset = params.depositAsset;
         uint256 depositAmount = params.depositAmount;
         if (to == address(0)) revert TellerWithMultiAssetSupport__ZeroRecipient();
-        _checkRouterRole(to);
+        _checkRecipient(to);
         Asset memory asset = _beforeDeposit(depositAsset);
 
         address from;
@@ -650,7 +650,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
             revert TellerWithMultiAssetSupport__AssetNotSupported();
         }
         if (to == address(0)) revert TellerWithMultiAssetSupport__ZeroRecipient();
-        _checkRouterRole(to);
+        _checkRecipient(to);
         _verifyComplianceSignature(to, params.depositAsset, params.depositAmount, compliance);
         Asset memory asset = _beforeDeposit(params.depositAsset);
 
@@ -709,7 +709,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         returns (uint256 assetsOut)
     {
         beforeTransfer(msg.sender, address(0), msg.sender);
-        _checkRouterRole(to);
+        _checkRecipient(to);
         assetsOut = _withdraw(withdrawAsset, shareAmount, minimumAssets, to);
         emit Withdraw(address(withdrawAsset), shareAmount);
     }
@@ -726,7 +726,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         RewardData[] calldata rewards
     ) external virtual requiresAuth nonReentrant returns (uint256 assetsOut) {
         beforeTransfer(msg.sender, address(0), msg.sender);
-        _checkRouterRole(to);
+        _checkRecipient(to);
         assetsOut = _withdraw(withdrawAsset, shareAmount, minimumAssets, to);
         _processRewards(rewards, msg.sender);
         emit Withdraw(address(withdrawAsset), shareAmount);
