@@ -215,6 +215,9 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     function testDepositToInheritsYieldStreamingFlow() external {
         uint256 WETHAmount = 10e18;
 
+        // Allow address(this) (which holds ADMIN_ROLE) to deposit on behalf of a different recipient.
+        teller.setTransferRestrictions(type(uint8).max, ADMIN_ROLE);
+
         (,,, uint64 startVestingTimeLast,) = accountant.vestingState();
         skip(1 days);
 

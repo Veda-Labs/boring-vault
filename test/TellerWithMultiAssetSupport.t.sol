@@ -41,6 +41,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     uint8 public constant SOLVER_ROLE = 9;
     uint8 public constant QUEUE_ROLE = 10;
     uint8 public constant CAN_SOLVE_ROLE = 11;
+    uint8 public constant ROUTER_ROLE = 12;
     uint8 public constant COMPLIANCE_SIGNER_ROLE = 224;
 
     TellerWithMultiAssetSupport public teller;
@@ -282,6 +283,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     function testDepositToLocksAndRefundsReceiver() external {
         boringVault.setBeforeTransferHook(address(teller));
         teller.setShareLockPeriod(1 days);
+        teller.setTransferRestrictions(type(uint8).max, ADMIN_ROLE);
 
         address user = vm.addr(2);
         address recipient = vm.addr(3);
@@ -340,6 +342,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
     function testDepositToRefundReturnsAssetsToReceiver() external {
         teller.setShareLockPeriod(1 days);
+        teller.setTransferRestrictions(type(uint8).max, ADMIN_ROLE);
 
         address user = vm.addr(4);
         uint256 depositAmount = 1e18;
@@ -1360,8 +1363,10 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         address bob = vm.addr(0xB0B);
         address recipient = vm.addr(0xCAFE);
 
-        // Grant both alice and bob the deposit capability via public access.
-        // (deposit is already public from setUp)
+        // Allow alice and bob to deposit on behalf of a different recipient.
+        teller.setTransferRestrictions(type(uint8).max, ROUTER_ROLE);
+        rolesAuthority.setUserRole(alice, ROUTER_ROLE, true);
+        rolesAuthority.setUserRole(bob, ROUTER_ROLE, true);
 
         uint256 depositAmount = 1e18;
         deal(address(WETH), alice, depositAmount);
@@ -1422,6 +1427,11 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         address alice = vm.addr(0xA11CE);
         address bob = vm.addr(0xB0B);
         address recipient = vm.addr(0xCAFE);
+
+        // Allow alice and bob to deposit on behalf of a different recipient.
+        teller.setTransferRestrictions(type(uint8).max, ROUTER_ROLE);
+        rolesAuthority.setUserRole(alice, ROUTER_ROLE, true);
+        rolesAuthority.setUserRole(bob, ROUTER_ROLE, true);
 
         uint256 depositAmount = 1e18;
         deal(address(WETH), alice, depositAmount);
@@ -1590,9 +1600,11 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         address queueAddr = address(atomicQueue);
 
         uint256 depositAmount = 1e18;
-        deal(address(WETH), address(this), depositAmount);
+        deal(address(WETH), queueAddr, depositAmount);
+        vm.startPrank(queueAddr);
         WETH.safeApprove(address(boringVault), depositAmount);
         teller.deposit(DepositParams(WETH, depositAmount, 0), queueAddr, address(0), ComplianceData(0, ""));
+        vm.stopPrank();
 
         vm.prank(queueAddr);
         boringVault.transfer(alice, 0.5e18);
@@ -1675,9 +1687,11 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         address charlie = vm.addr(0xC);
 
         uint256 depositAmount = 1e18;
-        deal(address(WETH), address(this), depositAmount);
+        deal(address(WETH), queueAddr, depositAmount);
+        vm.startPrank(queueAddr);
         WETH.safeApprove(address(boringVault), depositAmount);
         teller.deposit(DepositParams(WETH, depositAmount, 0), queueAddr, address(0), ComplianceData(0, ""));
+        vm.stopPrank();
 
         // queue approves charlie as operator
         vm.prank(queueAddr);
@@ -1699,9 +1713,11 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
         address queueAddr = address(atomicQueue);
         uint256 depositAmount = 1e18;
-        deal(address(WETH), address(this), depositAmount);
+        deal(address(WETH), queueAddr, depositAmount);
+        vm.startPrank(queueAddr);
         WETH.safeApprove(address(boringVault), depositAmount);
         teller.deposit(DepositParams(WETH, depositAmount, 0), queueAddr, address(0), ComplianceData(0, ""));
+        vm.stopPrank();
 
         // Transfer between two QUEUE_ROLE holders succeeds.
         vm.prank(queueAddr);
@@ -1769,9 +1785,11 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
         address queueAddr = address(atomicQueue);
         uint256 depositAmount = 1e18;
-        deal(address(WETH), address(this), depositAmount);
+        deal(address(WETH), queueAddr, depositAmount);
+        vm.startPrank(queueAddr);
         WETH.safeApprove(address(boringVault), depositAmount);
         teller.deposit(DepositParams(WETH, depositAmount, 0), queueAddr, address(0), ComplianceData(0, ""));
+        vm.stopPrank();
 
         // Deny the queue from sending.
         teller.setDenyFlags(queueAddr, true, true, true);
