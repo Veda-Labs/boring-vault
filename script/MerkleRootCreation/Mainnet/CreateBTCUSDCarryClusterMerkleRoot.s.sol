@@ -57,10 +57,11 @@ contract CreateBTCUSDCarryClusterMerkleRootScript is Script, MerkleTreeHelper {
     }
 
     function _generateMerkleRoot() public {
-        setAddress(false, mainnet, "boringVault", boringVault);
-        setAddress(false, mainnet, "managerAddress", managerAddress);
-        setAddress(false, mainnet, "accountantAddress", accountantAddress);
-        setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        setAddress(true, mainnet, "boringVault", boringVault);
+        setAddress(true, mainnet, "managerAddress", managerAddress);
+        setAddress(true, mainnet, "accountantAddress", accountantAddress);
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        setAddress(true, mainnet, "morphoBlueFlashLoanAdapterAddress", flashLoanAdapter);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](128);
 
