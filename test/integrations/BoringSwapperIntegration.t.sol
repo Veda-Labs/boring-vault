@@ -21,20 +21,6 @@ import {PriceValidator} from "src/base/Periphery/adapters/price/PriceValidator.s
 import {IPriceValidator} from "src/interfaces/IPriceValidator.sol";
 import {Test, console} from "@forge-std/Test.sol";
 
-//TODO
-contract MockRateProvider is IRateProvider {
-  
-    uint256 internal rate;
-
-    constructor(uint256 _rate) {
-        rate = _rate; 
-    }
-
-    function getRate() public view override returns (uint256) {
-        return rate; 
-    }
-}
-
 
 contract BoringSwapperIntegration is BaseTestIntegration {
 
@@ -46,7 +32,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
     uint8 UNISWAP_V3 = 0;
     uint8 COWSWAP = 3;
     uint8 ONEINCH = 4;
-                                                                                                                                       
+
     bytes32 constant GPV2_ORDER_TYPE_HASH = keccak256(
         "Order(address sellToken,address buyToken,address receiver,uint256 sellAmount,uint256 buyAmount,uint32 validTo,bytes32 appData,uint256 feeAmount,string kind,bool partiallyFillable,string sellTokenBalance,string buyTokenBalance)");
 
@@ -118,7 +104,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         //create tokens array
         deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18); 
 
-        address[] memory tokens = new address[](2);  
+        address[] memory tokens = new address[](2);
         tokens[0] = getAddress(sourceChain, "WETH");
         tokens[1] = getAddress(sourceChain, "USDC");
     
@@ -693,3 +679,18 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         return BoringSwapper.RateProviderConfig(rateProviders, intermediaries, skipValidation);
     }
 }
+
+//TODO
+contract MockRateProvider is IRateProvider {
+  
+    uint256 internal rate;
+
+    constructor(uint256 _rate) {
+        rate = _rate; 
+    }
+
+    function getRate() public view override returns (uint256) {
+        return rate; 
+    }
+}
+

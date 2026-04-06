@@ -10,6 +10,7 @@ import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
 import {BaseAdapter} from "src/base/Periphery/adapters/BaseAdapter.sol";
 import {IUniswapV3} from "src/interfaces/IUniswapV3.sol";
+import {ICurvePool} from "src/interfaces/ICurvePool.sol";
 
 
 contract OneInchAdapter is IAdapter, BaseAdapter {
@@ -22,6 +23,13 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
     );
 
     bytes32 immutable DOMAIN_SEPARATOR;
+    
+    //General Offsets
+    uint256 private constant PROTOCOL_OFFSET = 253;
+
+    //Curve Offsets
+    uint256 private constant CURVE_TO_COINS_ARG_OFFSET = 216;
+    uint256 private constant CURVE_TO_COINS_ARG_MASK = 0xff;
 
     constructor(address _router, address _feeTaker) {
         ROUTER = _router;
@@ -59,33 +67,40 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         returns (address, uint256)
     {
         BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
-        if (ERC20(address(uint160(token))) != swapConfig.tokenRoute.tokenIn) revert("token mismatch");
-        if (ERC20(_dexTokenOut(dex)) != swapConfig.tokenRoute.tokenOut) revert("tokenOut mismatch");
+        if (ERC20(address(uint160(token))) != swapConfig.tokenRoute.tokenIn) revert("token must be token in");
+        
+        address tokenOut = _unoswapCheck(dex, token); 
 
+        if (ERC20(tokenOut) != swapConfig.tokenRoute.tokenOut) revert("token out mismatch");
         return (ROUTER, amount);
     }
 
-    function unoswap2(uint256 token, uint256 amount, uint256 /*minReturn*/, uint256 /*dex*/, uint256 dex2)
+
+    function unoswap2(uint256 token, uint256 amount, uint256 /*minReturn*/, uint256 dex, uint256 dex2)
         external
         view
         returns (address, uint256)
     {
         BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(address(uint160(token))) != swapConfig.tokenRoute.tokenIn) revert("token mismatch");
-        if (ERC20(_dexTokenOut(dex2)) != swapConfig.tokenRoute.tokenOut) revert("tokenOut mismatch");
+        
+        address tokenOutDex2 = _unoswap2Check(dex, dex2, token); 
 
+        if (ERC20(tokenOutDex2) != swapConfig.tokenRoute.tokenOut) revert("token out mismatch");
         return (ROUTER, amount);
     }
 
-    function unoswap3(uint256 token, uint256 amount, uint256 /*minReturn*/, uint256 /*dex*/, uint256 /*dex2*/, uint256 dex3)
+    function unoswap3(uint256 token, uint256 amount, uint256 /*minReturn*/, uint256 dex, uint256 dex2, uint256 dex3)
         external
         view
         returns (address, uint256)
     {
         BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(address(uint160(token))) != swapConfig.tokenRoute.tokenIn) revert("token mismatch");
-        if (ERC20(_dexTokenOut(dex3)) != swapConfig.tokenRoute.tokenOut) revert("tokenOut mismatch");
+        
+        address tokenOutDex3 = _unoswap3Check(dex, dex2, dex3, token);
 
+        if (ERC20(tokenOutDex3) != swapConfig.tokenRoute.tokenOut) revert("token out mismatch");
         return (ROUTER, amount);
     }
 
@@ -97,12 +112,14 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         if (address(uint160(to)) != msg.sender) revert("to must be swapper");
         BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(address(uint160(token))) != swapConfig.tokenRoute.tokenIn) revert("token mismatch");
-        if (ERC20(_dexTokenOut(dex)) != swapConfig.tokenRoute.tokenOut) revert("tokenOut mismatch");
+
+        address tokenOut = _unoswapCheck(dex, token);
+        if (ERC20(tokenOut) != swapConfig.tokenRoute.tokenOut) revert("token out mismatch");
 
         return (ROUTER, amount);
     }
 
-    function unoswapTo2(uint256 to, uint256 token, uint256 amount, uint256 /*minReturn*/, uint256 /*dex*/, uint256 dex2)
+    function unoswapTo2(uint256 to, uint256 token, uint256 amount, uint256 /*minReturn*/, uint256 dex, uint256 dex2)
         external
         view
         returns (address, uint256)
@@ -110,12 +127,14 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         if (address(uint160(to)) != msg.sender) revert("to must be swapper");
         BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(address(uint160(token))) != swapConfig.tokenRoute.tokenIn) revert("token mismatch");
-        if (ERC20(_dexTokenOut(dex2)) != swapConfig.tokenRoute.tokenOut) revert("tokenOut mismatch");
 
+        address tokenOutDex2 = _unoswap2Check(dex, dex2, token); 
+
+        if (ERC20(tokenOutDex2) != swapConfig.tokenRoute.tokenOut) revert("token out mismatch");
         return (ROUTER, amount);
     }
 
-    function unoswapTo3(uint256 to, uint256 token, uint256 amount, uint256 /*minReturn*/, uint256 /*dex*/, uint256 /*dex2*/, uint256 dex3)
+    function unoswapTo3(uint256 to, uint256 token, uint256 amount, uint256 /*minReturn*/, uint256 dex, uint256 dex2, uint256 dex3)
         external
         view
         returns (address, uint256)
@@ -123,7 +142,10 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         if (address(uint160(to)) != msg.sender) revert("to must be swapper");
         BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(address(uint160(token))) != swapConfig.tokenRoute.tokenIn) revert("token mismatch");
-        if (ERC20(_dexTokenOut(dex3)) != swapConfig.tokenRoute.tokenOut) revert("tokenOut mismatch");
+
+        address tokenOutDex3 = _unoswap3Check(dex, dex2, dex3, token);
+
+        if (ERC20(tokenOutDex3) != swapConfig.tokenRoute.tokenOut) revert("token out mismatch");
 
         return (ROUTER, amount);
     }
@@ -209,6 +231,11 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         return keccak256(abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR, structHash));
     }
 
+    function _protocol(uint256 dex) internal pure returns(uint8) {
+        // there is no need to mask because protocol is stored in the highest 3 bits
+        return uint8(dex >> PROTOCOL_OFFSET);
+    }
+
     /// @notice Extracts the custom receiver address from a 1inch FeeTaker extension.
     /// Extension layout:
     ///   [32 bytes] header — 8 packed uint32 offsets
@@ -248,5 +275,39 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         }
 
         return customReceiver;
+    }
+
+    function _getTokenOut(uint256 dex, address tokenIn) internal view returns (address) {
+        uint8 protocol = _protocol(dex);
+        if (protocol == 0 || protocol == 1) return _getTokenOutUni(dex, tokenIn);
+        if (protocol == 2) return _getTokenOutCurve(dex);
+        revert("unsupported protocol");
+    }
+
+    function _unoswapCheck(uint256 dex, uint256 token) internal view returns (address) {
+        return _getTokenOut(dex, address(uint160(token)));
+    }
+
+    function _unoswap2Check(uint256 dex, uint256 dex2, uint256 token) internal view returns (address) {
+        address tokenOutDex = _getTokenOut(dex, address(uint160(token)));
+        return _getTokenOut(dex2, tokenOutDex);
+    }
+
+    function _unoswap3Check(uint256 dex, uint256 dex2, uint256 dex3, uint256 token) internal view returns (address) {
+        address tokenOutDex = _getTokenOut(dex, address(uint160(token)));
+        address tokenOutDex2 = _getTokenOut(dex2, tokenOutDex);
+        return _getTokenOut(dex3, tokenOutDex2);
+    }
+
+    function _getTokenOutUni(uint256 dex, address tokenIn) internal view returns (address) {
+        address pool = address(uint160(dex));
+        return IUniswapV3(pool).token0() == tokenIn ? IUniswapV3(pool).token1() : IUniswapV3(pool).token0();
+    }
+
+    function _getTokenOutCurve(uint256 dex) internal view returns (address) {
+        //extract the pool address 
+        address pool = address(uint160(dex));
+        uint256 toTokenIndex = (dex >> CURVE_TO_COINS_ARG_OFFSET) & CURVE_TO_COINS_ARG_MASK;
+        return ICurvePool(pool).coins(toTokenIndex);
     }
 }
