@@ -74,6 +74,73 @@ contract OneInchAdapterTest is BaseTestIntegration {
         swapper.setPriceValidator(IPriceValidator(validator));
     }
 
+    //==================== 1inch Swap Tests ====================
+    function testUnoswap() external {
+        //set up manager swap
+        //do the swap
+        //swap happens 
+        deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18); 
+
+        address[] memory tokens = new address[](2);
+        tokens[0] = getAddress(sourceChain, "WETH");
+        tokens[1] = getAddress(sourceChain, "USDC");
+    
+        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        _addBoringSwapperLeafs(leafs, address(swapper), tokens); 
+        
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+
+        //_generateTestLeafs(leafs, manageTree);
+
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        Tx memory tx_ = _getTxArrays(2); 
+
+        tx_.manageLeafs[0] = leafs[0]; //approve token
+        tx_.manageLeafs[1] = leafs[4]; //swap WETH -> USDC
+        
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+
+        tx_.targets[0] = getAddress(sourceChain, "WETH"); //approve 
+        tx_.targets[1] = address(swapper);  
+
+        tx_.targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", address(swapper), type(uint256).max
+        );
+
+        bytes memory unoswapData = abi.encodeWithSignature(
+        );
+            
+        BoringSwapper.TokenRoute memory tokenRoute = BoringSwapper.TokenRoute(
+            getERC20(sourceChain, "WETH"),
+            getERC20(sourceChain, "USDC")
+        );
+        uint8 UNISWAP_V3 = 0; 
+        tx_.targetData[1] = abi.encodeWithSelector(
+            BoringSwapper.swap.selector,
+            BoringSwapper.SwapConfig({
+                tokenRoute: tokenRoute,
+                protocolId: UNISWAP_V3,
+                quoteAsset: getAddress(sourceChain, "USDC"),
+                swapData: uniswapSwapData,
+                slippageBps: 10,
+                receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
+            })
+        );
+
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+
+        address vault = getAddress(sourceChain, "boringVault");
+        uint256 wethBefore = getERC20(sourceChain, "WETH").balanceOf(vault);
+        uint256 usdcBefore = getERC20(sourceChain, "USDC").balanceOf(vault);
+
+        _submitManagerCall(manageProofs, tx_);
+
+
+
+
+    }
 
     //==================== 1inch Limit Order Tests ====================
 
