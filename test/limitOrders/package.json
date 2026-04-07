@@ -1,0 +1,20 @@
+{
+  "name": "ls",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "submitCowOrder.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@1inch/limit-order-sdk": "^5.2.3",
+    "@cowprotocol/cow-sdk": "^8.0.4",
+    "axios": "^1.13.6",
+    "dotenv": "^17.3.1",
+    "ethers": "^6.16.0"
+  },
+  "keywords": [],
+  "description": ""
+}
