@@ -889,7 +889,7 @@ contract DecoderCustomTypes {
 
     struct SwapConfig{
         TokenRoute tokenRoute;
-        uint8 protocolId;
+        address adapter;
         address quoteAsset;
         bytes swapData;
         uint256 slippageBps;

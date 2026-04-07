@@ -14514,7 +14514,7 @@ function _addTellerLeafsWithReferral(
                 leafs[leafIndex] = ManageLeaf(
                     partnerSwapperAddress,
                     false,
-                    "swap(((address,address),uint8,address,bytes,uint256,address))",
+                    "swap(((address,address),address,address,bytes,uint256,address))",
                     new address[](3),
                     string.concat("", ERC20(tokens[i]).symbol()),
                     getAddress(sourceChain, "rawDataDecoderAndSanitizer")
@@ -14529,7 +14529,7 @@ function _addTellerLeafsWithReferral(
                 leafs[leafIndex] = ManageLeaf(
                     partnerSwapperAddress,
                     false,
-                    "submitOrder(((address,address),uint8,address,bytes,uint256,address))",
+                    "submitOrder(((address,address),address,address,bytes,uint256,address))",
                     new address[](3),
                     string.concat("", ERC20(tokens[i]).symbol()),
                     getAddress(sourceChain, "rawDataDecoderAndSanitizer")
@@ -14571,7 +14571,7 @@ function _addTellerLeafsWithReferral(
                 leafs[leafIndex] = ManageLeaf(
                     partnerSwapperAddress,
                     false,
-                    "swap(((address,address),uint8,address,bytes,uint256,address))",
+                    "swap(((address,address),address,address,bytes,uint256,address))",
                     new address[](3),
                     string.concat("", ERC20(tokens[i]).symbol()),
                     getAddress(sourceChain, "rawDataDecoderAndSanitizer")
@@ -14586,7 +14586,7 @@ function _addTellerLeafsWithReferral(
                 leafs[leafIndex] = ManageLeaf(
                     partnerSwapperAddress,
                     false,
-                    "submitOrder(((address,address),uint8,address,bytes,uint256,address))",
+                    "submitOrder(((address,address),address,address,bytes,uint256,address))",
                     new address[](3),
                     string.concat("", ERC20(tokens[i]).symbol()),
                     getAddress(sourceChain, "rawDataDecoderAndSanitizer")

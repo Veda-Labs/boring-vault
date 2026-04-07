@@ -4,54 +4,57 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BoringVault} from "src/base/BoringVault.sol"; 
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
-import {IAdapter} from "src/interfaces/IAdapter.sol";
 
 contract AdapterRegistry is Auth {
 
-    mapping(uint8 protocolId => mapping(uint256 version => address adapter)) public availableAdapters;
-    mapping(uint8 protocolId => string name) public protocolName;
-    mapping(string name => uint8 protocolId) public protocolId;
-    uint8[] public protocolIds;
+    //============================== Errors ===============================
 
-    constructor() Auth(address(0), Authority(address(0))) {}
+    error AdapterRegistry__AlreadyRegistered();
+    error AdapterRegistry__NotRegistered();
+    error AdapterRegistry__NameRequired();
 
-    function get(uint8 _protocolId, uint256 version) external view returns (address) {
-        return availableAdapters[_protocolId][version];
+    //============================== State ===============================
+
+    mapping(address adapter => bool registered) public registeredAdapters;
+    mapping(address adapter => string name) public adapterName;
+    address[] public adapters;
+
+    constructor() Auth(msg.sender, Authority(address(0))) {}
+
+    //============================== Functions ===============================
+
+    /// @notice Register a new adapter with a name.
+    function put(address adapter, string calldata name) external requiresAuth {
+        if (registeredAdapters[adapter]) revert AdapterRegistry__AlreadyRegistered();
+        if (bytes(name).length == 0) revert AdapterRegistry__NameRequired();
+        registeredAdapters[adapter] = true;
+        adapterName[adapter] = name;
+        adapters.push(adapter);
     }
 
-    /// @notice Register an adapter. Sets the protocol name on first registration for a given protocolId.
-    function put(uint8 _protocolId, address adapter, string calldata name) external {
-        IAdapter newAdapter = IAdapter(adapter);
-        uint256 version = newAdapter.version();
-        if (availableAdapters[_protocolId][version] != address(0)) revert("adapter already registered");
-        availableAdapters[_protocolId][version] = adapter;
+    /// @notice Deregister an adapter.
+    function remove(address adapter) external requiresAuth {
+        if (!registeredAdapters[adapter]) revert AdapterRegistry__NotRegistered();
+        registeredAdapters[adapter] = false;
 
-        if (bytes(protocolName[_protocolId]).length == 0) {
-            if (bytes(name).length == 0) revert("name required");
-            protocolName[_protocolId] = name;
-            protocolId[name] = _protocolId;
-            protocolIds.push(_protocolId);
+        uint256 len = adapters.length;
+        for (uint256 i; i < len; i++) {
+            if (adapters[i] == adapter) {
+                adapters[i] = adapters[len - 1];
+                adapters.pop();
+                break;
+            }
         }
     }
 
-    /// @notice Register an adapter for an already-named protocol (version bump)
-    function put(uint8 _protocolId, address adapter) external {
-        if (bytes(protocolName[_protocolId]).length == 0) revert("protocol not registered");
-        IAdapter newAdapter = IAdapter(adapter);
-        uint256 version = newAdapter.version();
-        if (availableAdapters[_protocolId][version] != address(0)) revert("adapter already registered");
-        availableAdapters[_protocolId][version] = adapter;
-    }
-
-    function getProtocols() external view returns (uint8[] memory ids, string[] memory names) {
-        ids = protocolIds;
-        names = new string[](ids.length);
-        for (uint256 i; i < ids.length; i++) {
-            names[i] = protocolName[ids[i]];
+    /// @notice Returns all registered adapters and their names.
+    function getAdapters() external view returns (address[] memory, string[] memory names) {
+        uint256 len = adapters.length;
+        names = new string[](len);
+        for (uint256 i; i < len; i++) {
+            names[i] = adapterName[adapters[i]];
         }
+        return (adapters, names);
     }
 }

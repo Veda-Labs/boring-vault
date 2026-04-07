@@ -28,10 +28,9 @@ contract BoringSwapperIntegration is BaseTestIntegration {
     address constant COW_SETTLEMENT = 0x9008D19f58AAbD9eD0D60971565AA8510560ab41;
     address constant COW_VAULT_RELAYER = 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110;
 
-    // Pack a SwapConfig into the signature bytes
-    uint8 UNISWAP_V3 = 0;
-    uint8 COWSWAP = 3;
-    uint8 ONEINCH = 4;
+    address uniswapV3Adapter;
+    address cowswapAdapter;
+    address oneInchAdapter;
 
     bytes32 constant GPV2_ORDER_TYPE_HASH = keccak256(
         "Order(address sellToken,address buyToken,address receiver,uint256 sellAmount,uint256 buyAmount,uint32 validTo,bytes32 appData,uint256 feeAmount,string kind,bool partiallyFillable,string sellTokenBalance,string buyTokenBalance)");
@@ -70,21 +69,18 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         //do additional setup here
         swapper = new BoringSwapper(address(this), registry);
 
-        address uniswapV3AdapterVersion0_1 = address(new UniswapV3Adapter(getAddress(sourceChain, "uniV3Router")));
-        address cowswapAdapterVersion0_1 = address(new CowswapAdapter(COW_SETTLEMENT, COW_VAULT_RELAYER));
-        address oneInchAdapterVersion0_1 = address(new OneInchAdapter(ONEINCH_ROUTER, ONEINCH_FEE_TAKER));
+        uniswapV3Adapter = address(new UniswapV3Adapter(getAddress(sourceChain, "uniV3Router")));
+        cowswapAdapter = address(new CowswapAdapter(COW_SETTLEMENT, COW_VAULT_RELAYER));
+        oneInchAdapter = address(new OneInchAdapter(ONEINCH_ROUTER, ONEINCH_FEE_TAKER));
 
         swapper.setApprovedRoute(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDC"), true, 50, 0, 0);
-        swapper.setApprovedProtocol(UNISWAP_V3, true); //UNI_V3
-        swapper.setApprovedProtocol(COWSWAP, true); //COWSWAP
-        swapper.setApprovedProtocol(ONEINCH, true); //1INCH
-        swapper.addApprovedVersion(UNISWAP_V3, 1);
-        swapper.addApprovedVersion(COWSWAP, 1);
-        swapper.addApprovedVersion(ONEINCH, 1);
+        swapper.setApprovedAdapter(uniswapV3Adapter, true);
+        swapper.setApprovedAdapter(cowswapAdapter, true);
+        swapper.setApprovedAdapter(oneInchAdapter, true);
 
-        registry.put(UNISWAP_V3, uniswapV3AdapterVersion0_1, "UNISWAP_V3");
-        registry.put(COWSWAP, cowswapAdapterVersion0_1, "COWSWAP");
-        registry.put(ONEINCH, oneInchAdapterVersion0_1, "ONEINCH");
+        registry.put(uniswapV3Adapter, "UNISWAP_V3");
+        registry.put(cowswapAdapter, "COWSWAP");
+        registry.put(oneInchAdapter, "ONEINCH");
 
         //oracle setup
         usdRate = new MockRateProvider(1e18);
@@ -146,12 +142,11 @@ contract BoringSwapperIntegration is BaseTestIntegration {
             getERC20(sourceChain, "WETH"),
             getERC20(sourceChain, "USDC")
         );
-        uint8 UNISWAP_V3 = 0; 
         tx_.targetData[1] = abi.encodeWithSelector(
             BoringSwapper.swap.selector,
             BoringSwapper.SwapConfig({
                 tokenRoute: tokenRoute,
-                protocolId: UNISWAP_V3,
+                adapter: uniswapV3Adapter,
                 quoteAsset: getAddress(sourceChain, "USDC"),
                 swapData: uniswapSwapData,
                 slippageBps: 10,
@@ -239,12 +234,11 @@ contract BoringSwapperIntegration is BaseTestIntegration {
             getERC20(sourceChain, "WETH"),
             getERC20(sourceChain, "USDC")
         );
-        uint8 UNISWAP_V3 = 0; 
         tx_.targetData[1] = abi.encodeWithSelector(
             BoringSwapper.swap.selector,
             BoringSwapper.SwapConfig({
                 tokenRoute: tokenRoute,
-                protocolId: UNISWAP_V3,
+                adapter: uniswapV3Adapter,
                 quoteAsset: getAddress(sourceChain, "USDC"),
                 swapData: uniswapSwapData,
                 slippageBps: 10,
@@ -362,7 +356,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
 
         BoringSwapper.SwapConfig memory cowSwapConfig = BoringSwapper.SwapConfig({
             tokenRoute: tokenRoute,
-            protocolId: COWSWAP,
+            adapter: cowswapAdapter,
             quoteAsset: getAddress(sourceChain, "USDC"),
             swapData: cowswapData,
             slippageBps: 10,
@@ -455,7 +449,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
             BoringSwapper.submitOrder.selector,
             BoringSwapper.SwapConfig({
                 tokenRoute: tokenRoute,
-                protocolId: COWSWAP,
+                adapter: cowswapAdapter,
                 quoteAsset: getAddress(sourceChain, "USDC"),
                 swapData: cowswapData,
                 slippageBps: 10,
@@ -505,7 +499,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
                 getERC20(sourceChain, "WETH"),
                 getERC20(sourceChain, "USDC")
             ),
-            protocolId: ONEINCH,
+            adapter: oneInchAdapter,
             quoteAsset: getAddress(sourceChain, "USDC"),
             swapData: swapData,
             slippageBps: 10,

@@ -46,7 +46,6 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     bytes32 constant KIND_SELL = keccak256("sell");
     bytes32 constant BALANCE_ERC20 = keccak256("erc20");
 
-    uint8 constant COWSWAP = 3;
     uint8 constant ADMIN_ROLE = 1;
 
     BoringVault public boringVault;
@@ -90,12 +89,10 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         swapper.setAuthority(rolesAuthority);
         rolesAuthority.setUserRole(address(this), ADMIN_ROLE, true);
         rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setGlobalPaused.selector, true);
-        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setProtocolPaused.selector, true);
+        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setAdapterPaused.selector, true);
         rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setApprovedRoute.selector, true);
         rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setMaxSlippageBps.selector, true);
-        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setApprovedProtocol.selector, true);
-        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.addApprovedVersion.selector, true);
-        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.removeApprovedVersion.selector, true);
+        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setApprovedAdapter.selector, true);
         rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setTokenOracle.selector, true);
         rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setBaseAssetOracle.selector, true);
         rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setPriceValidator.selector, true);
@@ -104,13 +101,12 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         cowAdapter = new CowswapAdapter(COW_SETTLEMENT, COW_VAULT_RELAYER);
 
-        registry.put(COWSWAP, address(cowAdapter), "COWSWAP");
+        registry.put(address(cowAdapter), "COWSWAP");
 
         //swapper config
         swapper.setApprovedRoute(WETH, USDC, true, 50, 0, 0);
         swapper.setApprovedRoute(STETH, USDC, true, 500, 0, 0);
-        swapper.setApprovedProtocol(COWSWAP, true);
-        swapper.addApprovedVersion(COWSWAP, 1);
+        swapper.setApprovedAdapter(address(cowAdapter), true);
 
         //oracles
         wethRate = new MockRateProvider(2000e18); //in USD
@@ -172,7 +168,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         BoringSwapper.SwapConfig memory config = BoringSwapper.SwapConfig({
             tokenRoute: BoringSwapper.TokenRoute(USDC, WETH),
-            protocolId: COWSWAP,
+            adapter: address(cowAdapter),
             quoteAsset: address(USDC),
             swapData: cowswapData,
             slippageBps: 10,
@@ -197,9 +193,9 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         //use approved route but unapproved protocol
         (BoringSwapper.SwapConfig memory config,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 3600));
-        config.protocolId = 99;
+        config.adapter = address(0xdead);
 
-        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__ProtocolNotApproved.selector));
+        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__AdapterNotApproved.selector));
         swapper.submitOrder(config);
     }
 
@@ -266,10 +262,10 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         (BoringSwapper.SwapConfig memory config, bytes32 orderDigest,) =
             _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
 
-        //swap protocolId to something unapproved before calling isValidSignature
-        config.protocolId = 99;
+        //swap adapter to something unapproved before calling isValidSignature
+        config.adapter = address(0xdead);
 
-        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__ProtocolNotApproved.selector));
+        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__AdapterNotApproved.selector));
         swapper.isValidSignature(orderDigest, abi.encode(config));
     }
 
@@ -298,7 +294,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         // Build a dummy SwapConfig since there's no real order
         BoringSwapper.SwapConfig memory dummyConfig = BoringSwapper.SwapConfig({
             tokenRoute: BoringSwapper.TokenRoute(WETH, USDC),
-            protocolId: COWSWAP,
+            adapter: address(cowAdapter),
             quoteAsset: address(USDC),
             swapData: "",
             slippageBps: 10,
@@ -537,46 +533,42 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     
     //TODO pull these out to their own file? 
     function testRegistryOverwriteReverts() external {
-        //cowAdapter is already registered at (COWSWAP, version=1)
         CowswapAdapter duplicateAdapter = new CowswapAdapter(COW_SETTLEMENT, COW_VAULT_RELAYER);
+        registry.put(address(duplicateAdapter), "COWSWAP_V2");
 
-        vm.expectRevert("adapter already registered");
-        registry.put(COWSWAP, address(duplicateAdapter));
+        vm.expectRevert(AdapterRegistry.AdapterRegistry__AlreadyRegistered.selector);
+        registry.put(address(duplicateAdapter), "COWSWAP_V2");
     }
 
-    function testRegistryGetProtocols() external {
-        (uint8[] memory ids, string[] memory names) = registry.getProtocols();
+    function testRegistryGetAdapters() external {
+        (address[] memory addrs, string[] memory names) = registry.getAdapters();
 
-        assertEq(ids.length, 1);
-        assertEq(ids[0], COWSWAP);
+        assertEq(addrs.length, 1);
+        assertEq(addrs[0], address(cowAdapter));
         assertEq(keccak256(bytes(names[0])), keccak256(bytes("COWSWAP")));
     }
 
-    function testRegistryReverseLookup() external {
-        uint8 id = registry.protocolId("COWSWAP");
-        assertEq(id, COWSWAP);
-
-        string memory name = registry.protocolName(COWSWAP);
+    function testRegistryNameLookup() external {
+        string memory name = registry.adapterName(address(cowAdapter));
         assertEq(keccak256(bytes(name)), keccak256(bytes("COWSWAP")));
     }
 
     function testRegistryPut_RevertNameRequired() external {
-        //new protocol with empty name should revert
         CowswapAdapter newAdapter = new CowswapAdapter(COW_SETTLEMENT, COW_VAULT_RELAYER);
-        vm.expectRevert("name required");
-        registry.put(10, address(newAdapter), "");
+        vm.expectRevert(AdapterRegistry.AdapterRegistry__NameRequired.selector);
+        registry.put(address(newAdapter), "");
     }
 
-    function testRegistryPut_RevertProtocolNotRegistered() external {
-        //version bump overload on unregistered protocol should revert
-        CowswapAdapter newAdapter = new CowswapAdapter(COW_SETTLEMENT, COW_VAULT_RELAYER);
-        vm.expectRevert("protocol not registered");
-        registry.put(10, address(newAdapter));
+    function testRegistryRemove() external {
+        registry.remove(address(cowAdapter));
+        assertFalse(registry.registeredAdapters(address(cowAdapter)));
+        (address[] memory addrs,) = registry.getAdapters();
+        assertEq(addrs.length, 0);
     }
 
-    function testRegistryGet_ReturnsZeroForUnregistered() external {
-        address result = registry.get(255, 999);
-        assertEq(result, address(0));
+    function testRegistryRemove_RevertNotRegistered() external {
+        vm.expectRevert(AdapterRegistry.AdapterRegistry__NotRegistered.selector);
+        registry.remove(address(0xdead));
     }
 
     //==================== Pause Tests ====================
@@ -611,14 +603,14 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     function testProtocolPause_BlocksSubmitOrder() external {
         deal(address(WETH), address(boringVault), 100e18);
 
-        swapper.setProtocolPaused(COWSWAP, true);
+        swapper.setAdapterPaused(address(cowAdapter), true);
 
         (BoringSwapper.SwapConfig memory config,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 3600));
-        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__ProtocolPaused.selector));
+        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__AdapterPaused.selector));
         swapper.submitOrder(config);
 
         //unpause and it works again
-        swapper.setProtocolPaused(COWSWAP, false);
+        swapper.setAdapterPaused(address(cowAdapter), false);
         swapper.submitOrder(config);
         assertEq(swapper.orders(), 1);
     }
@@ -630,16 +622,17 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
             _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
 
         //pause cowswap should block fills
-        swapper.setProtocolPaused(COWSWAP, true);
-        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__ProtocolPaused.selector));
+        swapper.setAdapterPaused(address(cowAdapter), true);
+        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__AdapterPaused.selector));
         swapper.isValidSignature(orderDigest, abi.encode(config));
     }
 
     function testProtocolPause_DoesNotAffectOtherProtocols() external {
         deal(address(WETH), address(boringVault), 100e18);
 
-        //pause a different protocol
-        swapper.setProtocolPaused(0, true);
+        //pause a different adapter (not cowswap)
+        CowswapAdapter otherAdapter = new CowswapAdapter(COW_SETTLEMENT, COW_VAULT_RELAYER);
+        swapper.setAdapterPaused(address(otherAdapter), true);
 
         //cowswap should still work
         (BoringSwapper.SwapConfig memory config,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 3600));
@@ -658,20 +651,13 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         assertEq(swapper.maxSlippageBpsPerRoute(key), 100);
     }
 
-    function testAddApprovedProtocol() external {
-        uint8 newProtocol = 10;
-        assertFalse(swapper.approvedProtocols(newProtocol));
+    function testAddApprovedAdapter() external {
+        CowswapAdapter newAdapter = new CowswapAdapter(COW_SETTLEMENT, COW_VAULT_RELAYER);
+        registry.put(address(newAdapter), "COWSWAP_V2");
 
-        swapper.setApprovedProtocol(newProtocol, true);
-        assertTrue(swapper.approvedProtocols(newProtocol));
-    }
-
-    function testAddApprovedVersion() external {
-        uint8 newProtocol = 10;
-        assertEq(swapper.versions(newProtocol), 0);
-
-        swapper.addApprovedVersion(newProtocol, 5);
-        assertEq(swapper.versions(newProtocol), 5);
+        assertFalse(swapper.approvedAdapters(address(newAdapter)));
+        swapper.setApprovedAdapter(address(newAdapter), true);
+        assertTrue(swapper.approvedAdapters(address(newAdapter)));
     }
 
     function testSetTokenOracle() external {
@@ -933,7 +919,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         BoringSwapper.SwapConfig memory config = BoringSwapper.SwapConfig({
             tokenRoute: BoringSwapper.TokenRoute(ERC20(tokenIn), USDC),
-            protocolId: COWSWAP,
+            adapter: address(cowAdapter),
             quoteAsset: address(USDC),
             swapData: cowswapData,
             slippageBps: 10,

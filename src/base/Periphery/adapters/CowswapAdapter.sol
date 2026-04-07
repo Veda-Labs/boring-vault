@@ -10,56 +10,80 @@ import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
 import {ISwapper} from "src/interfaces/ISwapper.sol";
 
-
 interface IDomainSeparator {
     function domainSeparator() external view returns (bytes32);
 }
 
 contract CowswapAdapter is IAdapter {
 
+    //============================== Errors ===============================
+
+    error CowswapAdapter__OnlySellOrdersSupported();
+    error CowswapAdapter__SellTokenMismatch();
+    error CowswapAdapter__BuyTokenMismatch();
+    error CowswapAdapter__ReceiverMismatch();
+
+    //============================== Immutables ===============================
+    
     address immutable cowSettlement;
     address immutable vaultRelayer;
+
+    //============================== Constants ===============================
 
     bytes32 constant GPV2_ORDER_TYPE_HASH = keccak256(
         "Order(address sellToken,address buyToken,address receiver,uint256 sellAmount,uint256 buyAmount,uint32 validTo,bytes32 appData,uint256 feeAmount,string kind,bool partiallyFillable,string sellTokenBalance,string buyTokenBalance)"
     );
 
+    //============================== Constructor ===============================
+    
     constructor(address _cowSettlement, address _vaultRelayer) {
         cowSettlement = _cowSettlement;
         vaultRelayer = _vaultRelayer;
     }
 
-    function verifyLimitOrder(BoringSwapper.SwapConfig calldata swapConfig, address) external view returns (OrderInfo memory) {
-         DecoderCustomTypes.GPv2OrderData memory order = abi.decode(swapConfig.swapData, (DecoderCustomTypes.GPv2OrderData));
+    //============================== Limit Orders ===============================
 
-         if (order.kind != keccak256("sell")) revert("only sell orders supported");
-         if (ERC20(order.sellToken) != swapConfig.tokenRoute.tokenIn) revert("token mismatch");
-         if (ERC20(order.buyToken) != swapConfig.tokenRoute.tokenOut) revert("token mismatch");
-         if (order.receiver != (address(swapConfig.receiver))) revert("receiver mismatch");
+    function verifyLimitOrder(BoringSwapper.SwapConfig calldata swapConfig, address)
+        external
+        view
+        returns (OrderInfo memory)
+    {
+        DecoderCustomTypes.GPv2OrderData memory order =
+            abi.decode(swapConfig.swapData, (DecoderCustomTypes.GPv2OrderData));
 
-         bytes32 orderHash = _computeOrderHash(swapConfig.swapData);
+        if (order.kind != keccak256("sell")) revert CowswapAdapter__OnlySellOrdersSupported();
+        if (ERC20(order.sellToken) != swapConfig.tokenRoute.tokenIn) revert CowswapAdapter__SellTokenMismatch();
+        if (ERC20(order.buyToken) != swapConfig.tokenRoute.tokenOut) revert CowswapAdapter__BuyTokenMismatch();
+        if (order.receiver != (address(swapConfig.receiver))) revert CowswapAdapter__ReceiverMismatch();
 
-         return OrderInfo({
-             approvalTarget: vaultRelayer,
-             cancelTarget: cowSettlement,
-             settlementCaller: cowSettlement,
-             inputToken: order.sellToken,
-             outputToken: order.buyToken,
-             inputAmount: order.sellAmount,
-             outputAmount: order.buyAmount,
-             protocolHash: orderHash
-         });
+        bytes32 orderHash = _computeOrderHash(swapConfig.swapData);
+
+        return OrderInfo({
+            approvalTarget: vaultRelayer,
+            cancelTarget: cowSettlement,
+            settlementCaller: cowSettlement,
+            inputToken: order.sellToken,
+            outputToken: order.buyToken,
+            inputAmount: order.sellAmount,
+            outputAmount: order.buyAmount,
+            protocolHash: orderHash
+        });
     }
 
-    function cancelLimitOrder(BoringSwapper.SwapConfig calldata swapConfig, address swapper) external view returns (address, bytes memory) {
-        DecoderCustomTypes.GPv2OrderData memory order = abi.decode(swapConfig.swapData, (DecoderCustomTypes.GPv2OrderData));
+    function cancelLimitOrder(BoringSwapper.SwapConfig calldata swapConfig, address swapper)
+        external
+        view
+        returns (address, bytes memory)
+    {
+        DecoderCustomTypes.GPv2OrderData memory order =
+            abi.decode(swapConfig.swapData, (DecoderCustomTypes.GPv2OrderData));
         bytes32 orderHash = _computeOrderHash(swapConfig.swapData);
         bytes memory orderUid = abi.encodePacked(orderHash, swapper, order.validTo);
         return (cowSettlement, abi.encodeWithSignature("invalidateOrder(bytes)", orderUid));
     }
 
     function version() external view returns (uint256) {
-         return 1;
+        return 1;
     }
 
     //============================== Internal ===============================

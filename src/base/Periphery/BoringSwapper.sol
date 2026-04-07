@@ -5,12 +5,12 @@
 pragma solidity 0.8.21;
 
 import {BoringVault} from "src/base/BoringVault.sol";
-import {AdapterRegistry} from "src/base/Periphery/AdapterRegistry.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+import {AdapterRegistry} from "src/base/Periphery/AdapterRegistry.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
 import {IPriceValidator} from "src/interfaces/IPriceValidator.sol";
 import {ISwapper} from "src/interfaces/ISwapper.sol";
@@ -40,7 +40,7 @@ contract BoringSwapper is Auth, ISwapper {
 
     struct SwapConfig {
         TokenRoute tokenRoute;
-        uint8 protocolId;
+        address adapter;
         address quoteAsset;
         bytes swapData;
         uint256 slippageBps;
@@ -65,9 +65,9 @@ contract BoringSwapper is Auth, ISwapper {
     // ========================================= ERRORS =========================================
 
     error BoringSwapper__Paused();
-    error BoringSwapper__ProtocolPaused();
+    error BoringSwapper__AdapterPaused();
     error BoringSwapper__RouteNotApproved();
-    error BoringSwapper__ProtocolNotApproved();
+    error BoringSwapper__AdapterNotApproved();
     error BoringSwapper__SwapFailed();
     error BoringSwapper__RateLimitExceeded();
     error BoringSwapper__OrderNotFound();
@@ -90,23 +90,22 @@ contract BoringSwapper is Auth, ISwapper {
         uint256 rateLimitRefillRate
     );
     event MaxSlippageBpsUpdated(bytes32 indexed routeId, uint256 maxSlippageBps);
-    event ProtocolApproved(uint8 indexed protocolId, bool approved);
-    event VersionUpdated(uint8 indexed protocolId, uint256 version);
+    event AdapterApproved(address indexed adapter, bool approved);
     event TokenBaseAssetOraclesUpdated(ERC20 indexed token);
     event BaseAssetOracleUpdated(ERC20 indexed baseAsset);
     event PriceValidatorUpdated(address newValidator);
     event RateLimitUpdated(bytes32 indexed routeId, uint256 capacity, uint256 refillRate);
     event Swept(ERC20 indexed token, address indexed vault, uint256 amount);
     event GlobalPauseToggled(bool paused);
-    event ProtocolPauseToggled(uint8 indexed protocolId, bool paused);
+    event AdapterPauseToggled(address indexed adapter, bool paused);
 
     // ========================================= STATE =========================================
 
     /// @notice global pause flag — disables all swapping when true
     bool public globalPaused;
 
-    /// @notice per-protocol pause flag — disables swapping for a specific protocol when true
-    mapping(uint8 protocolId => bool paused) public protocolPaused;
+    /// @notice per-adapter pause flag — disables swapping for a specific adapter when true
+    mapping(address adapter => bool paused) public adapterPaused;
 
     /// @notice approved routes (I think unneeded, guarded by merkle root)
     mapping(bytes32 routeId => bool approved) public approvedRoutes;
@@ -117,16 +116,13 @@ contract BoringSwapper is Auth, ISwapper {
     /// @notice standardized to 18 decimals
     mapping(bytes32 routeId => RateLimit) public rateLimitPerRoute;
 
-    /// @notice stores the list of approved protocols for this vault
-    mapping(uint8 protocolId => bool approved) public approvedProtocols;
+    /// @notice stores the list of approved adapters for this swapper
+    mapping(address adapter => bool approved) public approvedAdapters;
 
     mapping(ERC20 token => mapping(address quoteAsset => RateProviderConfig rateProviderConfig)) internal
         _baseAssetOracles;
 
     mapping(ERC20 baseAsset => mapping(address quoteAsset => address[] rateProvider)) public oracles;
-
-    /// @notice stores the current version this swapper subscribes to for a specific protocol
-    mapping(uint8 protocolId => uint256 version) public versions;
 
     /// @notice used for order lookups and cancelling
     mapping(uint256 orderId => OrderRecord) public orderRecords;
@@ -163,15 +159,16 @@ contract BoringSwapper is Auth, ISwapper {
     }
 
     function _swapPreFlightCheck(SwapConfig calldata swapConfig) internal view returns (bytes32, address, uint256) {
-        _checkNotPaused(swapConfig.protocolId);
+        _checkNotPaused(swapConfig.adapter);
         bytes32 key = getRouteId(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut);
         if (!approvedRoutes[key]) revert BoringSwapper__RouteNotApproved();
-        if (!approvedProtocols[swapConfig.protocolId]) revert BoringSwapper__ProtocolNotApproved();
+        if (!adapterRegistry.registeredAdapters(swapConfig.adapter)) revert BoringSwapper__AdapterNotApproved();
+        if (!approvedAdapters[swapConfig.adapter]) revert BoringSwapper__AdapterNotApproved();
 
         address target;
         uint256 amount;
         {
-            address adapter = adapterRegistry.get(swapConfig.protocolId, versions[swapConfig.protocolId]);
+            address adapter = swapConfig.adapter;
 
             bytes memory appended =
                 abi.encodePacked(swapConfig.swapData, abi.encode(swapConfig), uint256(swapConfig.swapData.length));
@@ -222,7 +219,7 @@ contract BoringSwapper is Auth, ISwapper {
     }
 
     /// @notice Submits a limit order via an approved adapter protocol (e.g. CoWSwap).
-    function submitOrder(SwapConfig memory swapConfig) external {
+    function submitOrder(SwapConfig calldata swapConfig) external {
         (bytes32 key, IAdapter.OrderInfo memory info, uint256 orderId) =
             _limitOrderPreFlightCheck(swapConfig);
 
@@ -238,12 +235,13 @@ contract BoringSwapper is Auth, ISwapper {
         internal
         returns (bytes32, IAdapter.OrderInfo memory, uint256)
     {
-        _checkNotPaused(swapConfig.protocolId);
+        _checkNotPaused(swapConfig.adapter);
         bytes32 key = getRouteId(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut);
         if (!approvedRoutes[key]) revert BoringSwapper__RouteNotApproved();
-        if (!approvedProtocols[swapConfig.protocolId]) revert BoringSwapper__ProtocolNotApproved();
+        if (!adapterRegistry.registeredAdapters(swapConfig.adapter)) revert BoringSwapper__AdapterNotApproved();
+        if (!approvedAdapters[swapConfig.adapter]) revert BoringSwapper__AdapterNotApproved();
 
-        address adapter = adapterRegistry.get(swapConfig.protocolId, versions[swapConfig.protocolId]);
+        address adapter = swapConfig.adapter;
         IAdapter.OrderInfo memory info = IAdapter(adapter).verifyLimitOrder(swapConfig, address(this));
 
         //check for limit order fat fingers
@@ -301,7 +299,7 @@ contract BoringSwapper is Auth, ISwapper {
         delete orderRecords[orderId];
 
         // Revoke the approved hash
-        address adapter = adapterRegistry.get(swapConfig.protocolId, versions[swapConfig.protocolId]);
+        address adapter = swapConfig.adapter;
         IAdapter.OrderInfo memory info = IAdapter(adapter).verifyLimitOrder(swapConfig, address(this));
         approvedHashes[info.protocolHash] = false;
 
@@ -336,12 +334,13 @@ contract BoringSwapper is Auth, ISwapper {
     function isValidSignature(bytes32 _hash, bytes memory _signature) external view returns (bytes4) {
         SwapConfig memory swapConfig = abi.decode(_signature, (SwapConfig));
 
-        _checkNotPaused(swapConfig.protocolId);
+        _checkNotPaused(swapConfig.adapter);
         bytes32 key = getRouteId(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut);
         if (!approvedRoutes[key]) revert BoringSwapper__RouteNotApproved();
-        if (!approvedProtocols[swapConfig.protocolId]) revert BoringSwapper__ProtocolNotApproved();
+        if (!adapterRegistry.registeredAdapters(swapConfig.adapter)) revert BoringSwapper__AdapterNotApproved();
+        if (!approvedAdapters[swapConfig.adapter]) revert BoringSwapper__AdapterNotApproved();
 
-        address adapter = adapterRegistry.get(swapConfig.protocolId, versions[swapConfig.protocolId]);
+        address adapter = swapConfig.adapter;
         IAdapter.OrderInfo memory info = IAdapter(adapter).verifyLimitOrder(swapConfig, address(this));
 
         if (info.protocolHash != _hash) revert BoringSwapper__HashMismatch(info.protocolHash, _hash);
@@ -369,11 +368,11 @@ contract BoringSwapper is Auth, ISwapper {
         emit GlobalPauseToggled(paused);
     }
 
-    /// @notice Toggles the pause state for a specific protocol. When paused, swaps using this protocol are blocked.
-    function setProtocolPaused(uint8 protocolId, bool paused) external requiresAuth {
-        protocolPaused[protocolId] = paused;
+    /// @notice Toggles the pause state for a specific adapter. When paused, swaps using this adapter are blocked.
+    function setAdapterPaused(address adapter, bool paused) external requiresAuth {
+        adapterPaused[adapter] = paused;
 
-        emit ProtocolPauseToggled(protocolId, paused);
+        emit AdapterPauseToggled(adapter, paused);
     }
 
     /// @notice Approves or revokes a token swap route and configures its slippage and rate limit.
@@ -404,25 +403,11 @@ contract BoringSwapper is Auth, ISwapper {
         emit MaxSlippageBpsUpdated(routeId, maxSlippageBps);
     }
 
-    /// @notice Approves or revokes a swap protocol (e.g. UniswapV3, CoWSwap).
-    function setApprovedProtocol(uint8 protocolId, bool toggle) external requiresAuth {
-        approvedProtocols[protocolId] = toggle;
+    /// @notice Approves or revokes a specific adapter.
+    function setApprovedAdapter(address adapter, bool toggle) external requiresAuth {
+        approvedAdapters[adapter] = toggle;
 
-        emit ProtocolApproved(protocolId, toggle);
-    }
-
-    /// @notice Sets the adapter version this swapper uses for a given protocol.
-    function addApprovedVersion(uint8 protocolId, uint256 version) external requiresAuth {
-        versions[protocolId] = version;
-
-        emit VersionUpdated(protocolId, version);
-    }
-
-    /// @notice Removes the adapter version subscription for a given protocol.
-    function removeApprovedVersion(uint8 protocolId) external requiresAuth {
-        versions[protocolId] = 0;
-
-        emit VersionUpdated(protocolId, 0);
+        emit AdapterApproved(adapter, toggle);
     }
 
     function setTokenOracle(ERC20 token, address quoteAsset, RateProviderConfig memory config) external requiresAuth {
@@ -486,10 +471,10 @@ contract BoringSwapper is Auth, ISwapper {
 
     // ========================================= INTERNAL FUNCTIONS =========================================
 
-    /// @notice Reverts if the swapper is globally paused or the specific protocol is paused.
-    function _checkNotPaused(uint8 protocolId) internal view {
+    /// @notice Reverts if the swapper is globally paused or the specific adapter is paused.
+    function _checkNotPaused(address adapter) internal view {
         if (globalPaused) revert BoringSwapper__Paused();
-        if (protocolPaused[protocolId]) revert BoringSwapper__ProtocolPaused();
+        if (adapterPaused[adapter]) revert BoringSwapper__AdapterPaused();
     }
 
     /// @notice Consumes from the rate limit bucket for a route, normalizing the amount to 18 decimals.
