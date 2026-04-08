@@ -5,7 +5,8 @@ import "dotenv/config";
 
 const WETH = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
 const USDC = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
-const SWAPPER = "0x38856EF84FEE4eAF6651A75dE4a3Cf7ad95BA44c";
+const SWAPPER = "0xA19a28547d07C35B2F9C71DFDF7cEBA89C41E6CC";
+const ONEINCH_ADAPTER = "0x48EE2f75E67dE1Cc686b02F81EB3dFe95341DFC1";
 const BORING_VAULT = "0x0Fc760EEbEFbF5FE3B452A9a52325c4376FEADFA";
 const ONEINCH_ROUTER = "0x111111125421cA6dc452d289314280a0f8842A65";
 
@@ -71,12 +72,12 @@ async function main() {
     const abiCoder = ethers.AbiCoder.defaultAbiCoder();
     const swapConfig = abiCoder.encode(
         [
-            "tuple(tuple(address tokenIn, address tokenOut) tokenRoute, uint8 protocolId, address quoteAsset, bytes swapData, uint256 slippageBps, address receiver)",
+            "tuple(tuple(address tokenIn, address tokenOut) tokenRoute, address adapter, address quoteAsset, bytes swapData, uint256 slippageBps, address receiver)",
         ],
         [
             {
                 tokenRoute: { tokenIn: WETH, tokenOut: USDC },
-                protocolId: 4, // ONEINCH
+                adapter: ONEINCH_ADAPTER,
                 quoteAsset: USDC,
                 swapData: swapCalldata,
                 slippageBps: 10,
@@ -86,7 +87,7 @@ async function main() {
     );
 
     // Encode the full calldata for BoringSwapper.swap(SwapConfig)
-    const swapSelector = "0xf749bf86"; // swap(SwapConfig)
+    const swapSelector = "0xf1c20222"; // swap(((address,address),address,address,bytes,uint256,address))
     const boringSwapperCalldata = swapSelector + swapConfig.slice(2);
 
     console.log("\n=== For Solidity / Manager ===");

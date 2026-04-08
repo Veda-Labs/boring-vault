@@ -14,8 +14,9 @@ import {AdapterRegistry} from "src/base/Periphery/AdapterRegistry.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
 import {IPriceValidator} from "src/interfaces/IPriceValidator.sol";
 import {ISwapper} from "src/interfaces/ISwapper.sol";
+import {IPausable} from "src/interfaces/IPausable.sol";
 
-contract BoringSwapper is Auth, ISwapper {
+contract BoringSwapper is Auth, ISwapper, IPausable {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
     using Address for address;
@@ -96,13 +97,14 @@ contract BoringSwapper is Auth, ISwapper {
     event PriceValidatorUpdated(address newValidator);
     event RateLimitUpdated(bytes32 indexed routeId, uint256 capacity, uint256 refillRate);
     event Swept(ERC20 indexed token, address indexed vault, uint256 amount);
-    event GlobalPauseToggled(bool paused);
+    event Paused();
+    event Unpaused();
     event AdapterPauseToggled(address indexed adapter, bool paused);
 
     // ========================================= STATE =========================================
 
     /// @notice global pause flag — disables all swapping when true
-    bool public globalPaused;
+    bool public isPaused;
 
     /// @notice per-adapter pause flag — disables swapping for a specific adapter when true
     mapping(address adapter => bool paused) public adapterPaused;
@@ -145,7 +147,7 @@ contract BoringSwapper is Auth, ISwapper {
     // ========================================= SWAP FUNCTIONS =========================================
 
     /// @notice Executes an instant swap via an approved adapter protocol.
-    function swap(SwapConfig calldata swapConfig) external {
+    function swap(SwapConfig calldata swapConfig) external requiresAuth {
         (bytes32 key, address target, uint256 amount) = _swapPreFlightCheck(swapConfig);
 
         //enforce rate limit
@@ -219,7 +221,7 @@ contract BoringSwapper is Auth, ISwapper {
     }
 
     /// @notice Submits a limit order via an approved adapter protocol (e.g. CoWSwap).
-    function submitOrder(SwapConfig calldata swapConfig) external {
+    function submitOrder(SwapConfig calldata swapConfig) external requiresAuth {
         (bytes32 key, IAdapter.OrderInfo memory info, uint256 orderId) =
             _limitOrderPreFlightCheck(swapConfig);
 
@@ -275,11 +277,11 @@ contract BoringSwapper is Auth, ISwapper {
     }
 
     /// @notice Cancels a pending limit order, invalidates it on-chain, and refunds remaining tokens to the vault.
-    function cancelOrder(uint256 orderId, SwapConfig calldata swapConfig) external {
+    function cancelOrder(uint256 orderId, SwapConfig calldata swapConfig) external requiresAuth {
         _cancelOrder(orderId, swapConfig);
     }
 
-    function replaceSwap(uint256 orderId, SwapConfig calldata cancelConfig, SwapConfig memory newConfig) external {
+    function replaceOrder(uint256 orderId, SwapConfig calldata cancelConfig, SwapConfig memory newConfig) external requiresAuth {
         _cancelOrder(orderId, cancelConfig);
 
         (bytes32 key, IAdapter.OrderInfo memory info, uint256 newOrderId) =
@@ -361,11 +363,16 @@ contract BoringSwapper is Auth, ISwapper {
 
     // ========================================= ADMIN FUNCTIONS =========================================
 
-    /// @notice Toggles the global pause state. When paused, all swaps and order submissions are blocked.
-    function setGlobalPaused(bool paused) external requiresAuth {
-        globalPaused = paused;
+    /// @notice Pauses all swaps and order submissions.
+    function pause() external requiresAuth {
+        isPaused = true;
+        emit Paused();
+    }
 
-        emit GlobalPauseToggled(paused);
+    /// @notice Unpauses all swaps and order submissions.
+    function unpause() external requiresAuth {
+        isPaused = false;
+        emit Unpaused();
     }
 
     /// @notice Toggles the pause state for a specific adapter. When paused, swaps using this adapter are blocked.
@@ -473,7 +480,7 @@ contract BoringSwapper is Auth, ISwapper {
 
     /// @notice Reverts if the swapper is globally paused or the specific adapter is paused.
     function _checkNotPaused(address adapter) internal view {
-        if (globalPaused) revert BoringSwapper__Paused();
+        if (isPaused) revert BoringSwapper__Paused();
         if (adapterPaused[adapter]) revert BoringSwapper__AdapterPaused();
     }
 

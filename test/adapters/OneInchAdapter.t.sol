@@ -58,6 +58,7 @@ contract OneInchAdapterTest is BaseTestIntegration {
 
         registry = new AdapterRegistry();
         swapper = new BoringSwapper(address(this), registry);
+        swapper.setAuthority(rolesAuthority);
 
         oneInchAdapter = address(new OneInchAdapter(ONEINCH_ROUTER, ONEINCH_FEE_TAKER));
 
@@ -81,6 +82,13 @@ contract OneInchAdapterTest is BaseTestIntegration {
         //price validator setup
         validator = new PriceValidator();
         swapper.setPriceValidator(IPriceValidator(validator));
+
+        //roles setup
+        rolesAuthority.setUserRole(address(boringVault), BORING_VAULT_ROLE, true);
+        rolesAuthority.setRoleCapability(BORING_VAULT_ROLE, address(swapper), BoringSwapper.swap.selector, true);
+        rolesAuthority.setRoleCapability(BORING_VAULT_ROLE, address(swapper), BoringSwapper.submitOrder.selector, true);
+        rolesAuthority.setRoleCapability(BORING_VAULT_ROLE, address(swapper), BoringSwapper.cancelOrder.selector, true);
+        rolesAuthority.setRoleCapability(BORING_VAULT_ROLE, address(swapper), BoringSwapper.replaceOrder.selector, true);
     }
 
     //==================== 1inch Swap Tests ====================
@@ -94,7 +102,7 @@ contract OneInchAdapterTest is BaseTestIntegration {
         tokens[0] = getAddress(sourceChain, "WETH");
         tokens[1] = getAddress(sourceChain, "USDC");
     
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addBoringSwapperLeafs(leafs, address(swapper), tokens); 
         
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
@@ -106,7 +114,7 @@ contract OneInchAdapterTest is BaseTestIntegration {
         Tx memory tx_ = _getTxArrays(2); 
 
         tx_.manageLeafs[0] = leafs[0]; //approve token
-        tx_.manageLeafs[1] = leafs[4]; //swap WETH -> USDC
+        tx_.manageLeafs[1] = leafs[5]; //swap WETH -> USDC
         
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
 
@@ -156,7 +164,7 @@ contract OneInchAdapterTest is BaseTestIntegration {
         tokens[0] = getAddress(sourceChain, "WETH");
         tokens[1] = getAddress(sourceChain, "USDT");
     
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addBoringSwapperLeafs(leafs, address(swapper), tokens); 
         
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
@@ -168,7 +176,7 @@ contract OneInchAdapterTest is BaseTestIntegration {
         Tx memory tx_ = _getTxArrays(2); 
 
         tx_.manageLeafs[0] = leafs[0]; //approve token
-        tx_.manageLeafs[1] = leafs[4]; //swap WETH -> USDT
+        tx_.manageLeafs[1] = leafs[5]; //swap WETH -> USDT
         
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
 
@@ -218,7 +226,7 @@ contract OneInchAdapterTest is BaseTestIntegration {
         tokens[0] = getAddress(sourceChain, "WETH");
         tokens[1] = getAddress(sourceChain, "USDC");
     
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addBoringSwapperLeafs(leafs, address(swapper), tokens); 
         
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
@@ -230,7 +238,7 @@ contract OneInchAdapterTest is BaseTestIntegration {
         Tx memory tx_ = _getTxArrays(2); 
 
         tx_.manageLeafs[0] = leafs[0]; //approve token
-        tx_.manageLeafs[1] = leafs[4]; //swap WETH -> USDC
+        tx_.manageLeafs[1] = leafs[5]; //swap WETH -> USDC
         
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
 
@@ -279,7 +287,7 @@ contract OneInchAdapterTest is BaseTestIntegration {
         tokens[0] = getAddress(sourceChain, "WETH");
         tokens[1] = getAddress(sourceChain, "USDC");
     
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addBoringSwapperLeafs(leafs, address(swapper), tokens); 
         
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
@@ -291,7 +299,7 @@ contract OneInchAdapterTest is BaseTestIntegration {
         Tx memory tx_ = _getTxArrays(2); 
 
         tx_.manageLeafs[0] = leafs[0]; //approve token
-        tx_.manageLeafs[1] = leafs[4]; //swap WETH -> USDC
+        tx_.manageLeafs[1] = leafs[5]; //swap WETH -> USDC
         
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
 
@@ -338,7 +346,7 @@ contract OneInchAdapterTest is BaseTestIntegration {
         tokens[0] = getAddress(sourceChain, "WETH");
         tokens[1] = getAddress(sourceChain, "USDT");
     
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addBoringSwapperLeafs(leafs, address(swapper), tokens); 
         
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
@@ -350,7 +358,7 @@ contract OneInchAdapterTest is BaseTestIntegration {
         Tx memory tx_ = _getTxArrays(2); 
 
         tx_.manageLeafs[0] = leafs[0]; //approve token
-        tx_.manageLeafs[1] = leafs[4]; //swap WETH -> USDT
+        tx_.manageLeafs[1] = leafs[5]; //swap WETH -> USDT
         
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
 
@@ -397,7 +405,7 @@ contract OneInchAdapterTest is BaseTestIntegration {
         tokens[0] = getAddress(sourceChain, "WETH");
         tokens[1] = getAddress(sourceChain, "USDT");
     
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addBoringSwapperLeafs(leafs, address(swapper), tokens); 
         
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
@@ -409,7 +417,7 @@ contract OneInchAdapterTest is BaseTestIntegration {
         Tx memory tx_ = _getTxArrays(2); 
 
         tx_.manageLeafs[0] = leafs[0]; //approve token
-        tx_.manageLeafs[1] = leafs[4]; //swap WETH -> USDC
+        tx_.manageLeafs[1] = leafs[5]; //swap WETH -> USDC
         
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
 
@@ -456,7 +464,7 @@ contract OneInchAdapterTest is BaseTestIntegration {
         tokens[0] = getAddress(sourceChain, "WETH");
         tokens[1] = getAddress(sourceChain, "USDE");
     
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addBoringSwapperLeafs(leafs, address(swapper), tokens); 
         
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
@@ -468,7 +476,7 @@ contract OneInchAdapterTest is BaseTestIntegration {
         Tx memory tx_ = _getTxArrays(2); 
 
         tx_.manageLeafs[0] = leafs[0]; //approve token
-        tx_.manageLeafs[1] = leafs[4]; //swap WETH -> USDE
+        tx_.manageLeafs[1] = leafs[5]; //swap WETH -> USDE
         
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
 
@@ -519,7 +527,7 @@ contract OneInchAdapterTest is BaseTestIntegration {
         tokens[0] = getAddress(sourceChain, "USDT");
         tokens[1] = getAddress(sourceChain, "USDC");
     
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addBoringSwapperLeafs(leafs, address(swapper), tokens); 
         
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
@@ -531,7 +539,7 @@ contract OneInchAdapterTest is BaseTestIntegration {
         Tx memory tx_ = _getTxArrays(2); 
 
         tx_.manageLeafs[0] = leafs[0]; //approve token
-        tx_.manageLeafs[1] = leafs[4]; //swap USDT -> USDC
+        tx_.manageLeafs[1] = leafs[5]; //swap USDT -> USDC
         
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
 

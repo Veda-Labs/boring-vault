@@ -19,9 +19,16 @@ contract CreateTestSwapperMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x0Fc760EEbEFbF5FE3B452A9a52325c4376FEADFA;
-    address public rawDataDecoderAndSanitizer = 0xBA7f9851a507A463d9D95dD5d119b03a81671efb;
+    address public rawDataDecoderAndSanitizer = 0xd9Bb301D37BEB60EbeD71093Cd9c63eFd20C72f4;
     address public managerAddress = 0x1AE3346BC6d3267b860De524D5E38E19679A1DB0;
     address public accountantAddress = 0xD1135B891143d3c5DfE158C6b4961937a27b8AE4;
+
+  // AdapterRegistry:  0x291cf51d077F71509C0B41C26f857149Bb26D21b
+  // BoringSwapper:    0xA19a28547d07C35B2F9C71DFDF7cEBA89C41E6CC
+  // UniswapV3Adapter: 0x0B368fc268d2BbF641b4DD29bFE01FBF19f609d1
+  // CowswapAdapter:   0x90BA671D3062fEd8B169933Ce61AC443191196a6
+  // OneInchAdapter:   0x48EE2f75E67dE1Cc686b02F81EB3dFe95341DFC1
+  // RolesAuthority:   0x13b92D87894E24B266A947255CD022749Fb52755
     
 
     function setUp() external {}
@@ -40,10 +47,10 @@ contract CreateTestSwapperMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "accountantAddress", accountantAddress);
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](16);
+        ManageLeaf[] memory leafs = new ManageLeaf[](32);
 
         // ========================== Swapper ==========================
-        address swapper = 0x93645b8FeDC5A03b9D8FD8Ee98c387EEDD10c25b;
+        address swapper = 0xA19a28547d07C35B2F9C71DFDF7cEBA89C41E6CC;
         address[] memory tokens = new address[](2);  
         tokens[0] = getAddress(sourceChain, "WETH");
         tokens[1] = getAddress(sourceChain, "USDC");

@@ -53,6 +53,8 @@ contract BoringSwapperIntegration is BaseTestIntegration {
     BoringSwapper swapper;
     PriceValidator validator;
 
+    uint8 constant SWAPPER_VAULT_ROLE = 10;
+
     MockRateProvider usdRate;
     MockRateProvider ethRate;
 
@@ -68,6 +70,15 @@ contract BoringSwapperIntegration is BaseTestIntegration {
 
         //do additional setup here
         swapper = new BoringSwapper(address(this), registry);
+
+        // auth: vault can call swap functions; address(this) (owner) can call directly in tests
+        swapper.setAuthority(rolesAuthority);
+        rolesAuthority.setUserRole(getAddress(sourceChain, "boringVault"), SWAPPER_VAULT_ROLE, true);
+        rolesAuthority.setUserRole(address(this), SWAPPER_VAULT_ROLE, true);
+        rolesAuthority.setRoleCapability(SWAPPER_VAULT_ROLE, address(swapper), BoringSwapper.swap.selector, true);
+        rolesAuthority.setRoleCapability(SWAPPER_VAULT_ROLE, address(swapper), BoringSwapper.submitOrder.selector, true);
+        rolesAuthority.setRoleCapability(SWAPPER_VAULT_ROLE, address(swapper), BoringSwapper.cancelOrder.selector, true);
+        rolesAuthority.setRoleCapability(SWAPPER_VAULT_ROLE, address(swapper), BoringSwapper.replaceOrder.selector, true);
 
         uniswapV3Adapter = address(new UniswapV3Adapter(getAddress(sourceChain, "uniV3Router")));
         cowswapAdapter = address(new CowswapAdapter(COW_SETTLEMENT, COW_VAULT_RELAYER));
@@ -104,7 +115,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         tokens[0] = getAddress(sourceChain, "WETH");
         tokens[1] = getAddress(sourceChain, "USDC");
     
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addBoringSwapperLeafs(leafs, address(swapper), tokens); 
         
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
@@ -116,12 +127,12 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         Tx memory tx_ = _getTxArrays(2); 
 
         tx_.manageLeafs[0] = leafs[0]; //approve token
-        tx_.manageLeafs[1] = leafs[4]; //swap WETH -> USDC
-        
+        tx_.manageLeafs[1] = leafs[5]; //swap WETH -> USDC
+
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
 
-        tx_.targets[0] = getAddress(sourceChain, "WETH"); //approve 
-        tx_.targets[1] = address(swapper);  
+        tx_.targets[0] = getAddress(sourceChain, "WETH"); //approve
+        tx_.targets[1] = address(swapper);
 
         tx_.targetData[0] = abi.encodeWithSignature(
             "approve(address,uint256)", address(swapper), type(uint256).max
@@ -194,7 +205,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         tokens[0] = getAddress(sourceChain, "WETH");
         tokens[1] = getAddress(sourceChain, "USDC");
     
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addBoringSwapperLeafs(leafs, address(swapper), tokens); 
         
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
@@ -206,17 +217,17 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         Tx memory tx_ = _getTxArrays(2); 
 
         tx_.manageLeafs[0] = leafs[0]; //approve token
-        tx_.manageLeafs[1] = leafs[4]; //swap WETH -> USDC
-        
+        tx_.manageLeafs[1] = leafs[5]; //swap WETH -> USDC
+
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
 
-        tx_.targets[0] = getAddress(sourceChain, "WETH"); //approve 
-        tx_.targets[1] = address(swapper);  
+        tx_.targets[0] = getAddress(sourceChain, "WETH"); //approve
+        tx_.targets[1] = address(swapper);
 
         tx_.targetData[0] = abi.encodeWithSignature(
             "approve(address,uint256)", address(swapper), type(uint256).max
         );
-        
+
         //swapData is malformed on purpose (USDT instead of USDC) -> attempt to bypass the swapper whitelisting
         bytes memory uniswapSwapData = abi.encodeWithSignature(
             "exactInput((bytes,address,uint256,uint256,uint256))",
@@ -311,7 +322,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         tokens[0] = getAddress(sourceChain, "WETH");
         tokens[1] = getAddress(sourceChain, "USDC");
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addBoringSwapperLeafs(leafs, address(swapper), tokens);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
@@ -323,20 +334,20 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         Tx memory tx_ = _getTxArrays(2); 
 
         tx_.manageLeafs[0] = leafs[0]; //approve token (to swapper)
-        tx_.manageLeafs[1] = leafs[5]; //submitOrder WETH -> USDC
-        
+        tx_.manageLeafs[1] = leafs[6]; //submitOrder WETH -> USDC
+
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
 
-        tx_.targets[0] = getAddress(sourceChain, "WETH"); //approve 
-        tx_.targets[1] = address(swapper);  
+        tx_.targets[0] = getAddress(sourceChain, "WETH"); //approve
+        tx_.targets[1] = address(swapper);
 
         tx_.targetData[0] = abi.encodeWithSignature(
             "approve(address,uint256)", address(swapper), type(uint256).max
         );
 
-        bytes memory cowswapData = abi.encode(DecoderCustomTypes.GPv2OrderData({                                                                                             
-          sellToken: getAddress(sourceChain, "WETH"),                                                                                
-          buyToken: getAddress(sourceChain, "USDC"),                                                                                 
+        bytes memory cowswapData = abi.encode(DecoderCustomTypes.GPv2OrderData({
+          sellToken: getAddress(sourceChain, "WETH"),
+          buyToken: getAddress(sourceChain, "USDC"),
           receiver: getAddress(sourceChain, "boringVault"),  // vault receives buyToken                                            
           sellAmount: 1e18,
           buyAmount: 2000e6,
@@ -401,7 +412,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         tokens[0] = getAddress(sourceChain, "WETH");
         tokens[1] = getAddress(sourceChain, "USDC");
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addBoringSwapperLeafs(leafs, address(swapper), tokens);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
@@ -413,7 +424,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         Tx memory tx_ = _getTxArrays(2);
 
         tx_.manageLeafs[0] = leafs[0]; //approve token (to swapper)
-        tx_.manageLeafs[1] = leafs[5]; //submitOrder WETH -> USDC
+        tx_.manageLeafs[1] = leafs[6]; //submitOrder WETH -> USDC
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
 

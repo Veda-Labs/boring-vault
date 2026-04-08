@@ -14538,6 +14538,51 @@ function _addTellerLeafsWithReferral(
                 leafs[leafIndex].argumentAddresses[1] = tokens[i];
                 leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
 
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    partnerSwapperAddress,
+                    false,
+                    "cancelOrder(uint256,((address,address),address,address,bytes,uint256,address))",
+                    new address[](3),
+                    string.concat("", ERC20(tokens[i]).symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = tokens[j];
+                leafs[leafIndex].argumentAddresses[1] = tokens[i];
+                leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+
+            }
+        }
+
+        // replaceOrder: one leaf per (cancelPair × newPair) combination
+        for (uint256 ci = 0; ci < tokens.length; ci++) {
+            for (uint256 cj = 0; cj < tokens.length; cj++) {
+                if (tokens[ci] == tokens[cj]) continue;
+                for (uint256 ni = 0; ni < tokens.length; ni++) {
+                    for (uint256 nj = 0; nj < tokens.length; nj++) {
+                        if (tokens[ni] == tokens[nj]) continue;
+                        unchecked { leafIndex++; }
+                        leafs[leafIndex] = ManageLeaf(
+                            partnerSwapperAddress,
+                            false,
+                            "replaceOrder(uint256,((address,address),address,address,bytes,uint256,address),((address,address),address,address,bytes,uint256,address))",
+                            new address[](6),
+                            string.concat(
+                                "Replace ", ERC20(tokens[ci]).symbol(), "->", ERC20(tokens[cj]).symbol(),
+                                " with ", ERC20(tokens[ni]).symbol(), "->", ERC20(tokens[nj]).symbol()
+                            ),
+                            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                        );
+                        leafs[leafIndex].argumentAddresses[0] = tokens[ci]; // cancelIn
+                        leafs[leafIndex].argumentAddresses[1] = tokens[cj]; // cancelOut
+                        leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+                        leafs[leafIndex].argumentAddresses[3] = tokens[ni]; // newIn
+                        leafs[leafIndex].argumentAddresses[4] = tokens[nj]; // newOut
+                        leafs[leafIndex].argumentAddresses[5] = getAddress(sourceChain, "boringVault");
+                    }
+                }
             }
         }
     }

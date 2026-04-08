@@ -16,7 +16,8 @@ import "dotenv/config";
 
 const WETH = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
 const USDC = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
-const SWAPPER = "0x78D6c9A92412C160a953eA5EDd514e05b671b7D3";
+const SWAPPER = "0xA19a28547d07C35B2F9C71DFDF7cEBA89C41E6CC";
+const ONEINCH_ADAPTER = "0x48EE2f75E67dE1Cc686b02F81EB3dFe95341DFC1";
 const BORING_VAULT = "0x0Fc760EEbEFbF5FE3B452A9a52325c4376FEADFA";
 
 const UINT_40_MAX = (1n << 40n) - 1n;
@@ -40,7 +41,7 @@ const sdk = new Sdk({
 
 async function generate() {
     const makingAmount = 1_000_000_000_000_000n; // 0.001 WETH
-    const takingAmount = 2_100_000n; // 2.1 USDC
+    const takingAmount = 2_200_000n; // 2.2 USDC
 
     const expiresIn = 36000n; // 10 hours
     const expiration = BigInt(Math.floor(Date.now() / 1000)) + expiresIn;
@@ -186,15 +187,15 @@ async function submit() {
 
     const signature = abiCoder.encode(
         [
-            "tuple(tuple(address tokenIn, address tokenOut) tokenRoute, uint8 protocolId, address quoteAsset, bytes swapData, uint256 slippageBps, address receiver)",
+            "tuple(tuple(address tokenIn, address tokenOut) tokenRoute, address adapter, address quoteAsset, bytes swapData, uint256 slippageBps, address receiver)",
         ],
         [
             {
                 tokenRoute: { tokenIn: WETH, tokenOut: USDC },
-                protocolId: 4,
+                adapter: ONEINCH_ADAPTER,
                 quoteAsset: USDC,
                 swapData,
-                slippageBps: 10,
+                slippageBps: 500,
                 receiver: BORING_VAULT,
             },
         ]
@@ -210,6 +211,24 @@ async function submit() {
     }
 }
 
+// ==================== STEP 4: CHECK ====================
+// Looks up the saved order hash on the 1inch orderbook API
+
+async function check() {
+    const saved = JSON.parse(readFileSync(ORDER_FILE, "utf-8"));
+    const url = `https://api.1inch.dev/orderbook/v4.0/${CHAIN_ID}/order/${saved.orderHash}`;
+    const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${API_KEY}` },
+    });
+    const data = await res.json();
+    if (!res.ok) {
+        console.error(`API error ${res.status}:`, JSON.stringify(data, null, 2));
+        return;
+    }
+    console.log("Order hash:", saved.orderHash);
+    console.log(JSON.stringify(data, null, 2));
+}
+
 // ==================== CLI ====================
 
 const mode = process.argv[2];
@@ -219,9 +238,12 @@ if (mode === "generate") {
     verify();
 } else if (mode === "submit") {
     submit().catch(console.error);
+} else if (mode === "check") {
+    check().catch(console.error);
 } else {
-    console.log("Usage: node submitOneInchOrder.js <generate|verify|submit>");
+    console.log("Usage: node submitOneInchOrder.js <generate|verify|submit|check>");
     console.log("  generate  — create order via SDK, save to order.json");
     console.log("  verify    — check hash matches between JS and Solidity");
     console.log("  submit    — submit saved order to 1inch API");
+    console.log("  check     — look up saved order on the 1inch orderbook");
 }

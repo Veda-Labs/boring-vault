@@ -133,6 +133,7 @@ import {FullFluidDexDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Fu
 import {P1USDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/P1USDDecoderAndSanitizer.sol";
 import {SentayETHMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentayETHMainnetDecoderAndSanitizer.sol";
 import {GoldenGooseFillerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/FillerDecoderAndSanitizer.sol"; 
+import {BoringSwapperDecoder} from "src/base/DecodersAndSanitizers/Protocols/BoringSwapperDecoderAndSanitizer.sol"; 
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -163,9 +164,9 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(SentayETHMainnetDecoderAndSanitizer).creationCode;
+        creationCode = type(BoringSwapperDecoder).creationCode;
         constructorArgs = abi.encode();
-        deployer.deployContract("SentayETH Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        deployer.deployContract("bigSwappa Decoder", creationCode, constructorArgs, 0);
         
         vm.stopBroadcast();
     }

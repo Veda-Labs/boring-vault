@@ -18,7 +18,18 @@ contract BoringSwapperDecoder is BaseDecoderAndSanitizer {
         return abi.encodePacked(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut, address(swapConfig.receiver));
     }
 
-    function replaceSwap(
+    function cancelOrder(
+        uint256,
+        DecoderCustomTypes.SwapConfig memory cancelConfig
+    ) external pure returns (bytes memory addressesFound) {
+        return abi.encodePacked(
+            cancelConfig.tokenRoute.tokenIn,
+            cancelConfig.tokenRoute.tokenOut,
+            address(cancelConfig.receiver)
+        );
+    }
+
+    function replaceOrder(
         uint256,
         DecoderCustomTypes.SwapConfig memory cancelConfig,
         DecoderCustomTypes.SwapConfig memory newConfig

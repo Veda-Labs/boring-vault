@@ -7,7 +7,8 @@ pragma solidity 0.8.21;
 import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
 import {ContractNames} from "resources/ContractNames.sol";
 import {Deployer} from "src/helper/Deployer.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol"; import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol"; import {BoringSwapper} from "src/base/Periphery/BoringSwapper.sol";
+import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
+import {BoringSwapper} from "src/base/Periphery/BoringSwapper.sol";
 import {BoringVault} from "src/base/BoringVault.sol";
 import {BoringSwapperDecoder} from "src/base/DecodersAndSanitizers/Protocols/BoringSwapperDecoderAndSanitizer.sol";
 import {AdapterRegistry} from "src/base/Periphery/AdapterRegistry.sol"; 
@@ -41,22 +42,23 @@ contract DeployBoringSwapperTestSuite is Script, ContractNames, MainnetAddresses
     GenericRateProviderWithStalenessCheck usdRate;
     GenericRateProviderWithStalenessCheck ethRate;
 
-    BoringSwapperDecoder boringSwapperDecoder; 
+    BoringSwapperDecoder boringSwapperDecoder;
 
-    uint8 UNISWAP_V3 = 1;
-    uint8 COWSWAP = 3;
-    uint8 ONEINCH = 4;
+    // The vault already has this role in the existing RolesAuthority.
+    // Capabilities for the four swapper functions are added to it below.
+    uint8 constant BORING_VAULT_ROLE = 12; // update to match the deployed vault's role ID
 
-    // CoW Protocol constants BEGIN //
-    address constant COW_SETTLEMENT = 0x9008D19f58AAbD9eD0D60971565AA8510560ab41;
+    // CoW Protocol constants
+    address constant COW_SETTLEMENT    = 0x9008D19f58AAbD9eD0D60971565AA8510560ab41;
     address constant COW_VAULT_RELAYER = 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110;
-    // 1inch constants BEGIN //
-    address constant ONEINCH_ROUTER = 0x111111125421cA6dc452d289314280a0f8842A65;
+    // 1inch constants
+    address constant ONEINCH_ROUTER    = 0x111111125421cA6dc452d289314280a0f8842A65;
+    address constant ONEINCH_FEE_TAKER = 0xc0DFdB9E7a392c3dBBE7c6FBe8FBC1789C9FE05e;
 
-    //VAULT ECOSYSTEM CONSTANTS
+    // Vault ecosystem constants
     address boringVault = 0x0Fc760EEbEFbF5FE3B452A9a52325c4376FEADFA;
-    address manager = 0x1AE3346BC6d3267b860De524D5E38E19679A1DB0;
-    address accountant = 0xD1135B891143d3c5DfE158C6b4961937a27b8AE4;
+    address manager     = 0x1AE3346BC6d3267b860De524D5E38E19679A1DB0;
+    address accountant  = 0xD1135B891143d3c5DfE158C6b4961937a27b8AE4;
 
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
@@ -66,45 +68,55 @@ contract DeployBoringSwapperTestSuite is Script, ContractNames, MainnetAddresses
 
     function run() external {
         vm.startBroadcast(privateKey);
-        //vault is already deployed, we can deploy the decoder here
-        //deploy boring swapper decoder
-        //BoringSwapperDecoder swapperDecoder = new BoringSwapperDecoder();
-        //console.log("Swapper decoder: ", address(swapperDecoder));
-         
-        //set addresses 
-        setAddress(false, sourceChain, "boringVault", address(boringVault));
-        ///setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", address(swapperDecoder));
-        setAddress(false, sourceChain, "manager", address(manager));
-        setAddress(false, sourceChain, "managerAddress", address(manager));
-        setAddress(false, sourceChain, "accountantAddress", address(accountant));
+        setAddress(false, sourceChain, "boringVault", boringVault);
+        setAddress(false, sourceChain, "manager", manager);
+        setAddress(false, sourceChain, "managerAddress", manager);
+        setAddress(false, sourceChain, "accountantAddress", accountant);
 
-        //deploy registry
-        registry = new AdapterRegistry(); 
-        console.log("Adapter registry: ", address(registry));
+        // Deploy registry
+        registry = new AdapterRegistry();
+        console.log("AdapterRegistry:", address(registry));
 
-        //deploy boring swapper
-        swapper = new BoringSwapper(0xBBc5569B0b32403037F37255f4ff50B8Bb825b2A, AdapterRegistry(registry));
-        console.log("Boring Swapper: ", address(swapper));
+        // Deploy swapper
+        swapper = new BoringSwapper(0xBBc5569B0b32403037F37255f4ff50B8Bb825b2A, registry);
+        console.log("BoringSwapper:  ", address(swapper));
 
+        // Deploy adapters and register in registry
+        address uniswapV3Adapter = address(new UniswapV3Adapter(getAddress(sourceChain, "uniV3Router")));
+        address cowswapAdapter   = address(new CowswapAdapter(COW_SETTLEMENT, COW_VAULT_RELAYER));
+        address oneInchAdapter   = address(new OneInchAdapter(ONEINCH_ROUTER, ONEINCH_FEE_TAKER));
 
-        //do additional setup here
-        //deploy adapter (1inch)
-        //deploy adapter (cowswap)
-        address uniswapV3AdapterVersion0_1 = address(new UniswapV3Adapter(getAddress(sourceChain, "uniV3Router")));
-        address cowswapAdapterVersion0_1 = address(new CowswapAdapter(COW_SETTLEMENT, COW_VAULT_RELAYER));
-        address oneInchAdapterVersion0_1 = address(new OneInchAdapter(ONEINCH_ROUTER, 0xc0DFdB9E7a392c3dBBE7c6FBe8FBC1789C9FE05e)); //FEE_TAKER
+        console.log("UniswapV3Adapter:", uniswapV3Adapter);
+        console.log("CowswapAdapter:  ", cowswapAdapter);
+        console.log("OneInchAdapter:  ", oneInchAdapter);
+
+        registry.put(uniswapV3Adapter, "UNISWAP_V3");
+        registry.put(cowswapAdapter,   "COWSWAP");
+        registry.put(oneInchAdapter,   "ONEINCH");
+
+        // Approve adapters and routes on the swapper
+        swapper.setApprovedAdapter(uniswapV3Adapter, true);
+        swapper.setApprovedAdapter(cowswapAdapter,   true);
+        swapper.setApprovedAdapter(oneInchAdapter,   true);
 
         swapper.setApprovedRoute(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDC"), true, 500, 0, 0);
-        swapper.setApprovedProtocol(UNISWAP_V3, true); //UNI_V3
-        swapper.setApprovedProtocol(COWSWAP, true); //COWSWAP
-        swapper.setApprovedProtocol(ONEINCH, true); //1INCH
-        swapper.addApprovedVersion(UNISWAP_V3, 1);
-        swapper.addApprovedVersion(COWSWAP, 1);
-        swapper.addApprovedVersion(ONEINCH, 1);
 
-        registry.put(UNISWAP_V3, uniswapV3AdapterVersion0_1, "UNISWAP_V3");
-        registry.put(COWSWAP, cowswapAdapterVersion0_1, "COWSWAP");
-        registry.put(ONEINCH, oneInchAdapterVersion0_1, "ONEINCH");
+        // Auth: wire swapper into the vault's existing RolesAuthority.
+        // Pull the authority from the vault so we don't need to hardcode a second address.
+        RolesAuthority rolesAuthority = RolesAuthority(address(BoringVault(payable(boringVault)).authority()));
+        console.log("RolesAuthority:  ", address(rolesAuthority));
+
+        // Point the swapper at the authority (deployer owns the swapper, so this works).
+        swapper.setAuthority(rolesAuthority);
+
+        // The four capability grants below must be executed by the RolesAuthority owner
+        // (not the deployer key). Call these through the multisig after deployment:
+        //
+        //   rolesAuthority.setRoleCapability(BORING_VAULT_ROLE, address(swapper), BoringSwapper.swap.selector,         true);
+        //   rolesAuthority.setRoleCapability(BORING_VAULT_ROLE, address(swapper), BoringSwapper.submitOrder.selector,  true);
+        //   rolesAuthority.setRoleCapability(BORING_VAULT_ROLE, address(swapper), BoringSwapper.cancelOrder.selector,  true);
+        //   rolesAuthority.setRoleCapability(BORING_VAULT_ROLE, address(swapper), BoringSwapper.replaceOrder.selector, true);
+        console.log("TODO (multisig): setRoleCapability for swap/submitOrder/cancelOrder/replaceOrder on swapper above");
 
         //GenericRateProviderWithStalenessCheck.ConstructorArgs memory argsUsd = GenericRateProviderWithStalenessCheck.ConstructorArgs(
         //    0x37be050e75C7F0a80F0E8abBFC2c4Ff826728cAa,
@@ -119,14 +131,14 @@ contract DeployBoringSwapperTestSuite is Script, ContractNames, MainnetAddresses
         //    bytes32(0),
         //    true,
         //    8,
-        //    18, 
-        //    6 hours, 
+        //    18,
+        //    6 hours,
         //    0xfeaf968c,
         //    4
         //);
 
         //usdRate = new GenericRateProviderWithStalenessCheck(
-        //    argsUsd     
+        //    argsUsd
         //);
 
         //GenericRateProviderWithStalenessCheck.ConstructorArgs memory argsEth = GenericRateProviderWithStalenessCheck.ConstructorArgs(
@@ -142,8 +154,8 @@ contract DeployBoringSwapperTestSuite is Script, ContractNames, MainnetAddresses
         //    bytes32(0),
         //    true,
         //    8,
-        //    18, 
-        //    6 hours, 
+        //    18,
+        //    6 hours,
         //    0xfeaf968c,
         //    4
         //);

@@ -25,6 +25,7 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
     error OneInchAdapter__TakerAssetMismatch();
     error OneInchAdapter__MakerAssetMismatch();
     error OneInchAdapter__ReceiverNotSwapper();
+    error OneInchAdapter__CustomTargetNotAllowed();
     error OneInchAdapter__MakerNotSwapper();
     error OneInchAdapter__UnknownFeeTaker();
     error OneInchAdapter__ExtensionReceiverMismatch();
@@ -43,6 +44,9 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
     );
 
     bytes32 immutable DOMAIN_SEPARATOR;
+
+    // If set in takerTraits, makerAsset is sent to a custom address instead of msg.sender
+    uint256 private constant _ARGS_HAS_TARGET = 1 << 251;
 
     //General Offsets
     uint256 private constant PROTOCOL_OFFSET = 253;
@@ -222,7 +226,7 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         bytes32,
         /*vs*/
         uint256 amount,
-        uint256 /*takerTraits*/
+        uint256 takerTraits
     )
         external
         view
@@ -231,7 +235,10 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(address(uint160(order.takerAsset))) != swapConfig.tokenRoute.tokenIn) revert OneInchAdapter__TakerAssetMismatch();
         if (ERC20(address(uint160(order.makerAsset))) != swapConfig.tokenRoute.tokenOut) revert OneInchAdapter__MakerAssetMismatch();
-        if (address(uint160(order.receiver)) != msg.sender) revert OneInchAdapter__ReceiverNotSwapper();
+        // _ARGS_HAS_TARGET (bit 251): if set, makerAsset is redirected to a custom address
+        // instead of msg.sender (the swapper). Reject to ensure output always lands at the
+        // swapper for slippage verification before forwarding to the vault.
+        if (takerTraits & _ARGS_HAS_TARGET != 0) revert OneInchAdapter__CustomTargetNotAllowed();
 
         return (router, amount);
     }

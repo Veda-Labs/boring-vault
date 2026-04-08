@@ -33,16 +33,17 @@ import "forge-std/StdJson.sol";
 contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
     uint256 public privateKey;
 
-    uint8 UNISWAP_V3 = 1;
-    uint8 COWSWAP = 3;
-    uint8 ONEINCH = 4;
-
     //VAULT ECOSYSTEM CONSTANTS
     address _boringVault = 0x0Fc760EEbEFbF5FE3B452A9a52325c4376FEADFA;
     address _manager = 0x1AE3346BC6d3267b860De524D5E38E19679A1DB0;
     address _accountant = 0xD1135B891143d3c5DfE158C6b4961937a27b8AE4;
-    address swapper = 0x38856EF84FEE4eAF6651A75dE4a3Cf7ad95BA44c;
-    address _decoder = 0xBA7f9851a507A463d9D95dD5d119b03a81671efb;
+    address swapper = 0xA19a28547d07C35B2F9C71DFDF7cEBA89C41E6CC;
+    address _decoder = 0xd9Bb301D37BEB60EbeD71093Cd9c63eFd20C72f4;
+
+    // Adapter addresses (from DeployBoringSwapper output)
+    address uniswapV3Adapter = 0x0B368fc268d2BbF641b4DD29bFE01FBF19f609d1;
+    address cowswapAdapter   = 0x90BA671D3062fEd8B169933Ce61AC443191196a6;
+    address oneInchAdapter   = 0x48EE2f75E67dE1Cc686b02F81EB3dFe95341DFC1;
 
     function setUp() public override {
         privateKey = vm.envUint("BORING_DEVELOPER");
@@ -59,9 +60,9 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
 
     function run() external {
         vm.startBroadcast(privateKey);
-        //_submitCowswapOrder();  
-        //_submitOneInchOrder(); 
-        _submitOneInchRegularSwap();
+        _submitCowswapOrder();
+        //_submitOneInchOrder();
+        //_submitOneInchRegularSwap();
     }
 
     function _submitCowswapOrder() internal {
@@ -69,7 +70,7 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
         tokens[0] = getAddress(sourceChain, "WETH");
         tokens[1] = getAddress(sourceChain, "USDC");
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addBoringSwapperLeafs(leafs, address(swapper), tokens);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
@@ -78,33 +79,33 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
 
         Tx memory tx_ = _getTxArrays(2);
 
-        tx_.manageLeafs[0] = leafs[0]; //approve token (to swapper)
-        tx_.manageLeafs[1] = leafs[5]; //submitOrder WETH -> USDC
-        
+        tx_.manageLeafs[0] = leafs[0]; //approve WETH
+        tx_.manageLeafs[1] = leafs[6]; //submitOrder WETH -> USDC
+
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
 
-        tx_.targets[0] = getAddress(sourceChain, "WETH"); //approve 
-        tx_.targets[1] = address(swapper);  
+        tx_.targets[0] = getAddress(sourceChain, "WETH");
+        tx_.targets[1] = address(swapper);
 
         tx_.targetData[0] = abi.encodeWithSignature(
             "approve(address,uint256)", address(swapper), type(uint256).max
         );
-        
-        bytes memory cowswapData = abi.encode(DecoderCustomTypes.GPv2OrderData({                                                                                             
-          sellToken: getAddress(sourceChain, "WETH"),                                                                                
-          buyToken: getAddress(sourceChain, "USDC"),                                                                                 
-          receiver: getAddress(sourceChain, "boringVault"),  // vault receives buyToken                                            
-          sellAmount: 1e15,
-          buyAmount: 2205e3,
-          validTo: uint32(block.timestamp + 3600),
+
+        bytes memory cowswapData = abi.encode(DecoderCustomTypes.GPv2OrderData({
+          sellToken: getAddress(sourceChain, "WETH"),
+          buyToken: getAddress(sourceChain, "USDC"),
+          receiver: getAddress(sourceChain, "boringVault"),
+          sellAmount: 1000000000000000,
+          buyAmount: 2200000,
+          validTo: uint32(1775677819),
           appData: bytes32(0),
           feeAmount: 0,
           kind: keccak256("sell"),
           partiallyFillable: false,
           sellTokenBalance: keccak256("erc20"),
           buyTokenBalance: keccak256("erc20")
-      })); 
-            
+        }));
+
         BoringSwapper.TokenRoute memory tokenRoute = BoringSwapper.TokenRoute(
             getERC20(sourceChain, "WETH"),
             getERC20(sourceChain, "USDC")
@@ -112,10 +113,10 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
 
         BoringSwapper.SwapConfig memory cowSwapConfig = BoringSwapper.SwapConfig({
             tokenRoute: tokenRoute,
-            protocolId: 3,
+            adapter: cowswapAdapter,
             quoteAsset: getAddress(sourceChain, "USDC"),
             swapData: cowswapData,
-            slippageBps: 10,
+            slippageBps: 500,
             receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
         });
 
@@ -127,8 +128,6 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
         tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
         tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
 
-        console.log("block timestamp + 3600", block.timestamp + 3600);
-
         _submitManagerCall(manageProofs, tx_);
     }
 
@@ -137,7 +136,7 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
         tokens[0] = getAddress(sourceChain, "WETH");
         tokens[1] = getAddress(sourceChain, "USDC");
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addBoringSwapperLeafs(leafs, address(swapper), tokens);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
@@ -146,12 +145,12 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
 
         Tx memory tx_ = _getTxArrays(2);
 
-        tx_.manageLeafs[0] = leafs[0]; //approve token (to swapper)
-        tx_.manageLeafs[1] = leafs[5]; //submitOrder WETH -> USDC
+        tx_.manageLeafs[0] = leafs[0]; //approve WETH
+        tx_.manageLeafs[1] = leafs[6]; //submitOrder WETH -> USDC
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
 
-        tx_.targets[0] = getAddress(sourceChain, "WETH"); //approve
+        tx_.targets[0] = getAddress(sourceChain, "WETH");
         tx_.targets[1] = address(swapper);
 
         tx_.targetData[0] = abi.encodeWithSignature(
@@ -159,8 +158,8 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
         );
 
         // Params from SDK generate step (includes fee extension)
-        uint256 salt = 61125629042823985801637371719881911136103853679086487175379932325796025253566;
-        uint256 makerTraits = 33471150795161712739625987854305731708269265230087486611912341069912831164416;
+        uint256 salt = 853972053136738638502496320891852715998876232850725707488828929160422407870;
+        uint256 makerTraits = 33471150795161712739625987854538030748435788278679472690775088094832354131968;
         address feeTaker = 0xc0DFdB9E7a392c3dBBE7c6FBe8FBC1789C9FE05e;
 
         bytes memory extension = hex"00000142000000ae000000ae000000ae000000ae000000570000000000000000c0dfdb9e7a392c3dbbe7c6fbe8fbc1789c9fe05e000000012c6406b09498030ae3416b66dc74db31d09524fa87b1f76ea9a11ae13b29f5c555d18bd45f0b94f54a968fc90ed87a54c23dc480b395770895ad27ad6b0d95c0dfdb9e7a392c3dbbe7c6fbe8fbc1789c9fe05e000000012c6406b09498030ae3416b66dc74db31d09524fa87b1f76ea9a11ae13b29f5c555d18bd45f0b94f54a968fc90ed87a54c23dc480b395770895ad27ad6b0d95c0dfdb9e7a392c3dbbe7c6fbe8fbc1789c9fe05e01000000000000000000000000000000000000000090cbe4bdd538d6e9b379bff5fe72c3d67a521de50fc760eebefbf5fe3b452a9a52325c4376feadfa000000012c6406b09498030ae3416b66dc74db31d09524fa87b1f76ea9a11ae13b29f5c555d18bd45f0b94f54a968fc90ed87a54c23dc480b395770895ad27ad6b0d95";
@@ -172,7 +171,7 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
             makerAsset: getAddress(sourceChain, "WETH"),
             takerAsset: getAddress(sourceChain, "USDC"),
             makingAmount: 1e15,
-            takingAmount: 2.1e6,
+            takingAmount: 2.2e6,
             makerTraits: makerTraits
         }), extension);
 
@@ -183,10 +182,10 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
 
         BoringSwapper.SwapConfig memory oneInchConfig = BoringSwapper.SwapConfig({
             tokenRoute: tokenRoute,
-            protocolId: ONEINCH,
+            adapter: oneInchAdapter,
             quoteAsset: getAddress(sourceChain, "USDC"),
             swapData: oneInchData,
-            slippageBps: 10,
+            slippageBps: 500,
             receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
         });
 
@@ -202,7 +201,7 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
         bytes32 ONEINCH_ORDER_TYPE_HASH = keccak256(
             "Order(uint256 salt,address maker,address receiver,address makerAsset,address takerAsset,uint256 makingAmount,uint256 takingAmount,uint256 makerTraits)"
         );
-        bytes memory orderData = abi.encode(salt, address(swapper), feeTaker, getAddress(sourceChain, "WETH"), getAddress(sourceChain, "USDC"), uint256(1e15), uint256(2.1e6), makerTraits);
+        bytes memory orderData = abi.encode(salt, address(swapper), feeTaker, getAddress(sourceChain, "WETH"), getAddress(sourceChain, "USDC"), uint256(1e15), uint256(2.2e6), makerTraits);
         bytes32 structHash = keccak256(abi.encodePacked(ONEINCH_ORDER_TYPE_HASH, orderData));
         bytes32 domainSeparator = keccak256(abi.encode(
             keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
@@ -224,7 +223,7 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
         tokens[0] = getAddress(sourceChain, "WETH");
         tokens[1] = getAddress(sourceChain, "USDC");
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addBoringSwapperLeafs(leafs, address(swapper), tokens);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
@@ -233,20 +232,21 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
 
         Tx memory tx_ = _getTxArrays(2);
 
-        tx_.manageLeafs[0] = leafs[0]; //approve token (to swapper)
-        tx_.manageLeafs[1] = leafs[4]; //swap() WETH -> USDC
-        
+        tx_.manageLeafs[0] = leafs[0]; //approve WETH
+        tx_.manageLeafs[1] = leafs[5]; //swap WETH -> USDC
+
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
 
-        tx_.targets[0] = getAddress(sourceChain, "WETH"); //approve 
-        tx_.targets[1] = address(swapper);  
+        tx_.targets[0] = getAddress(sourceChain, "WETH");
+        tx_.targets[1] = address(swapper);
 
         tx_.targetData[0] = abi.encodeWithSignature(
             "approve(address,uint256)", address(swapper), type(uint256).max
         );
-       
-        bytes memory oneInchSwapData = hex"83800a8e000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200000000000000000000000000000000000000000000000000038d7ea4c6800000000000000000000000000000000000000000000000000000000000001f193008000000000000003b6d0340397ff1542f962076d0bfe58ea045ffa2d347aca0f583bc2f"; 
-            
+
+        // TODO: replace with fresh swap calldata from the 1inch API
+        bytes memory oneInchSwapData = hex"83800a8e000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200000000000000000000000000000000000000000000000000038d7ea4c6800000000000000000000000000000000000000000000000000000000000002185e308000000000000003b6d0340397ff1542f962076d0bfe58ea045ffa2d347aca0f583bc2f";
+
         BoringSwapper.TokenRoute memory tokenRoute = BoringSwapper.TokenRoute(
             getERC20(sourceChain, "WETH"),
             getERC20(sourceChain, "USDC")
@@ -254,7 +254,7 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
 
         BoringSwapper.SwapConfig memory regularSwapConfig = BoringSwapper.SwapConfig({
             tokenRoute: tokenRoute,
-            protocolId: 4,
+            adapter: oneInchAdapter,
             quoteAsset: getAddress(sourceChain, "USDC"),
             swapData: oneInchSwapData,
             slippageBps: 50,

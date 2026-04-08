@@ -88,7 +88,8 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         //auth setup
         swapper.setAuthority(rolesAuthority);
         rolesAuthority.setUserRole(address(this), ADMIN_ROLE, true);
-        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setGlobalPaused.selector, true);
+        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.pause.selector, true);
+        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.unpause.selector, true);
         rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setAdapterPaused.selector, true);
         rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setApprovedRoute.selector, true);
         rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setMaxSlippageBps.selector, true);
@@ -98,6 +99,10 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setPriceValidator.selector, true);
         rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setRateLimit.selector, true);
         rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.sweep.selector, true);
+        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.swap.selector, true);
+        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.submitOrder.selector, true);
+        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.cancelOrder.selector, true);
+        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.replaceOrder.selector, true);
 
         cowAdapter = new CowswapAdapter(COW_SETTLEMENT, COW_VAULT_RELAYER);
 
@@ -576,14 +581,14 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     function testGlobalPause_BlocksSubmitOrder() external {
         deal(address(WETH), address(boringVault), 100e18);
 
-        swapper.setGlobalPaused(true);
+        swapper.pause();
 
         (BoringSwapper.SwapConfig memory config,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 3600));
         vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__Paused.selector));
         swapper.submitOrder(config);
 
         //unpause and it works again
-        swapper.setGlobalPaused(false);
+        swapper.unpause();
         swapper.submitOrder(config);
         assertEq(swapper.orders(), 1);
     }
@@ -595,7 +600,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
             _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
 
         //pause should block fills
-        swapper.setGlobalPaused(true);
+        swapper.pause();
         vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__Paused.selector));
         swapper.isValidSignature(orderDigest, abi.encode(config));
     }
@@ -785,7 +790,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
             _buildSwapConfig(2e18, 4000e6, uint32(block.timestamp + 7200));
 
         uint256 newOrderId = swapper.orders();
-        swapper.replaceSwap(orderId, oldConfig, newConfig);
+        swapper.replaceOrder(orderId, oldConfig, newConfig);
 
         // old order record deleted
         (ERC20 tokenIn,,,,) = swapper.orderRecords(orderId);
@@ -813,7 +818,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         (BoringSwapper.SwapConfig memory newConfig,) =
             _buildSwapConfig(2e18, 4000e6, uint32(block.timestamp + 7200));
 
-        swapper.replaceSwap(orderId, oldConfig, newConfig);
+        swapper.replaceOrder(orderId, oldConfig, newConfig);
 
         // old hash removed from approvedHashes
         assertFalse(swapper.approvedHashes(oldDigest));
@@ -833,7 +838,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         (BoringSwapper.SwapConfig memory newConfig, bytes32 newDigest) =
             _buildSwapConfig(2e18, 4000e6, uint32(block.timestamp + 7200));
 
-        swapper.replaceSwap(orderId, oldConfig, newConfig);
+        swapper.replaceOrder(orderId, oldConfig, newConfig);
 
         // new hash is approved
         assertTrue(swapper.approvedHashes(newDigest));
@@ -852,7 +857,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         (BoringSwapper.SwapConfig memory newConfig,) = _buildSwapConfig(2e18, 4000e6, uint32(block.timestamp + 7200));
 
         vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__OrderNotFound.selector));
-        swapper.replaceSwap(999, cancelConfig, newConfig);
+        swapper.replaceOrder(999, cancelConfig, newConfig);
     }
 
     function testReplaceSwap_EmitsEvents() external {
@@ -873,7 +878,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         vm.expectEmit(true, true, true, true, address(swapper));
         emit OrderSubmitted(newOrderId, routeId, 2e18, address(boringVault));
 
-        swapper.replaceSwap(orderId, oldConfig, newConfig);
+        swapper.replaceOrder(orderId, oldConfig, newConfig);
     }
 
     //==================== Helpers ====================

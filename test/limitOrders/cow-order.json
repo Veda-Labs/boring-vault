@@ -1,0 +1,15 @@
+{
+  "sellToken": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+  "buyToken": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+  "receiver": "0x0Fc760EEbEFbF5FE3B452A9a52325c4376FEADFA",
+  "sellAmount": "1000000000000000",
+  "buyAmount": "2200000",
+  "validTo": 1775677819,
+  "appData": "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "feeAmount": "0",
+  "kind": "sell",
+  "partiallyFillable": false,
+  "sellTokenBalance": "erc20",
+  "buyTokenBalance": "erc20",
+  "orderHash": "0x7c82c6559699786d45fb171b9fcc06e167da99aa3e5dcc5c446108b6bf5edd2e"
+}
