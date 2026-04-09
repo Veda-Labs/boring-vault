@@ -708,7 +708,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         nonReentrant
         returns (uint256 assetsOut)
     {
-        beforeTransfer(msg.sender, address(0), msg.sender);
+        beforeTransfer(msg.sender, to, msg.sender);
         _checkRecipient(to);
         assetsOut = _withdraw(withdrawAsset, shareAmount, minimumAssets, to);
         emit Withdraw(address(withdrawAsset), shareAmount);
@@ -725,7 +725,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         address to,
         RewardData[] calldata rewards
     ) external virtual requiresAuth nonReentrant returns (uint256 assetsOut) {
-        beforeTransfer(msg.sender, address(0), msg.sender);
+        beforeTransfer(msg.sender, to, msg.sender);
         _checkRecipient(to);
         assetsOut = _withdraw(withdrawAsset, shareAmount, minimumAssets, to);
         _processRewards(rewards, msg.sender);

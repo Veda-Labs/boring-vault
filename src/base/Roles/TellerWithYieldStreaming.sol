@@ -29,7 +29,8 @@ contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
         returns (uint256 assetsOut)
     {
         _getAccountant().updateExchangeRate();
-        beforeTransfer(msg.sender, address(0), msg.sender);
+        beforeTransfer(msg.sender, to, msg.sender);
+        _checkRecipient(to);
         assetsOut = _withdraw(withdrawAsset, shareAmount, minimumAssets, to);
 
         emit Withdraw(address(withdrawAsset), shareAmount);
@@ -47,7 +48,8 @@ contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
         RewardData[] calldata rewards
     ) external override requiresAuth nonReentrant returns (uint256 assetsOut) {
         _getAccountant().updateExchangeRate();
-        beforeTransfer(msg.sender, address(0), msg.sender);
+        beforeTransfer(msg.sender, to, msg.sender);
+        _checkRecipient(to);
         assetsOut = _withdraw(withdrawAsset, shareAmount, minimumAssets, to);
         _processRewards(rewards, msg.sender);
         emit Withdraw(address(withdrawAsset), shareAmount);
