@@ -43,6 +43,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
     // 1inch constants BEGIN //
     address constant ONEINCH_ROUTER = 0x111111125421cA6dc452d289314280a0f8842A65;
     address constant ONEINCH_FEE_TAKER = address(0);
+    address constant ONEINCH_EXECUTOR = 0x990636ecB3FF04d33D92e970d3d588bF5cD8d086;
 
     bytes32 constant ONEINCH_ORDER_TYPE_HASH = keccak256(
         "Order(uint256 salt,address maker,address receiver,address makerAsset,address takerAsset,uint256 makingAmount,uint256 takingAmount,uint256 makerTraits)"
@@ -82,7 +83,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
 
         uniswapV3Adapter = address(new UniswapV3Adapter(getAddress(sourceChain, "uniV3Router")));
         cowswapAdapter = address(new CowswapAdapter(COW_SETTLEMENT, COW_VAULT_RELAYER));
-        oneInchAdapter = address(new OneInchAdapter(ONEINCH_ROUTER, ONEINCH_FEE_TAKER));
+        oneInchAdapter = address(new OneInchAdapter(ONEINCH_ROUTER, ONEINCH_FEE_TAKER, ONEINCH_EXECUTOR));
 
         swapper.setApprovedRoute(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDC"), true, 50, 0, 0);
         swapper.setApprovedAdapter(uniswapV3Adapter, true);

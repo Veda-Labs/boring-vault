@@ -16,6 +16,7 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
 
     //============================== Errors ===============================
 
+    error OneInchAdapter__ExecutorMismatch();
     error OneInchAdapter__DstReceiverNotSwapper();
     error OneInchAdapter__SrcTokenMismatch();
     error OneInchAdapter__DstTokenMismatch();
@@ -38,6 +39,7 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
 
     address public immutable router;
     address public immutable feeTaker;
+    address public immutable trustedExecutor;
 
     bytes32 constant ONEINCH_ORDER_TYPE_HASH = keccak256(
         "Order(uint256 salt,address maker,address receiver,address makerAsset,address takerAsset,uint256 makingAmount,uint256 takingAmount,uint256 makerTraits)"
@@ -55,9 +57,10 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
     uint256 private constant CURVE_TO_COINS_ARG_OFFSET = 216;
     uint256 private constant CURVE_TO_COINS_ARG_MASK = 0xff;
 
-    constructor(address _router, address _feeTaker) {
+    constructor(address _router, address _feeTaker, address _executor) {
         router = _router;
         feeTaker = _feeTaker;
+        trustedExecutor = _executor;
         DOMAIN_SEPARATOR = keccak256(
             abi.encode(
                 keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
@@ -80,6 +83,7 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         view
         returns (address, uint256)
     {
+        if (executor != trustedExecutor) revert OneInchAdapter__ExecutorMismatch(); 
         if (desc.dstReceiver != payable(msg.sender)) revert OneInchAdapter__DstReceiverNotSwapper();
 
         BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
@@ -221,10 +225,8 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
 
     function fillOrder(
         DecoderCustomTypes.OneInchV6Order calldata order,
-        bytes32,
-        /*r*/
-        bytes32,
-        /*vs*/
+        bytes32 /*r*/,
+        bytes32 /*vs*/,
         uint256 amount,
         uint256 takerTraits
     )

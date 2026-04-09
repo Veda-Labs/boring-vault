@@ -837,6 +837,45 @@ contract DecoderCustomTypes {
         bytes signature_bytes;
     }
 
+    // ========================================= OpenOcean ==================================
+
+    struct OpenOceanCallDescription {
+        uint256 target;
+        uint256 gasLimit;
+        uint256 value;
+        bytes data;
+    }
+
+    // Used by swap() and swapGmxV2()
+    // NOTE: guaranteedAmount is only emitted in events — no on-chain enforcement, can be any value.
+    // NOTE: referrer is only emitted in events — no logic effect.
+    struct OpenOceanSwapDescription {
+        address srcToken;
+        address dstToken;
+        address srcReceiver;
+        address dstReceiver;
+        uint256 amount;
+        uint256 minReturnAmount;
+        uint256 guaranteedAmount;
+        uint256 flags;
+        address referrer;
+        bytes permit;
+    }
+
+    // Used by simpleSwap() — same layout as OpenOceanSwapDescription minus guaranteedAmount.
+    // NOTE: referrer is only emitted in events — no logic effect.
+    struct OpenOceanSimpleSwapDescription {
+        address srcToken;
+        address dstToken;
+        address srcReceiver;
+        address dstReceiver;
+        uint256 amount;
+        uint256 minReturnAmount;
+        uint256 flags;
+        address referrer;
+        bytes permit;
+    }
+
     // ========================================= Predicate Proxy ==================================
 
     struct PredicateMessage {
