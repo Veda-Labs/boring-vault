@@ -27,6 +27,7 @@ contract TellerHandler is CommonBase, StdCheats, StdUtils {
     // ============================================
     
     uint256 public constant NUM_ALT_ASSETS = 5;
+    bytes4 internal constant DEPOSIT_SELECTOR = bytes4(keccak256("deposit(address,uint256,uint256,address)"));
     
     // Decimals for each alternative asset (must match BaseSetup)
     // Index 0: 18 decimals (standard ERC20)
@@ -282,7 +283,7 @@ contract TellerHandler is CommonBase, StdCheats, StdUtils {
      */
     function depositMAS(uint256 actorSeed, uint256 amount, uint256 minShares) external {
         address actor = _getRandomActor(actorSeed);
-        _beforeCall(TellerWithMultiAssetSupport.deposit.selector, actor);
+        _beforeCall(DEPOSIT_SELECTOR, actor);
         
         amount = bound(amount, 1, 100_000e18);
         
@@ -541,7 +542,7 @@ contract TellerHandler is CommonBase, StdCheats, StdUtils {
      */
     function depositTinyMAS(uint256 actorSeed, uint256 amount) external {
         address actor = _getRandomActor(actorSeed);
-        _beforeCall(TellerWithMultiAssetSupport.deposit.selector, actor);
+        _beforeCall(DEPOSIT_SELECTOR, actor);
         
         amount = bound(amount, 1, 1e18);
         
@@ -735,7 +736,7 @@ contract TellerHandler is CommonBase, StdCheats, StdUtils {
      */
     function depositNearCapMAS(uint256 actorSeed, uint256 amount) external {
         address actor = _getRandomActor(actorSeed);
-        _beforeCall(TellerWithMultiAssetSupport.deposit.selector, actor);
+        _beforeCall(DEPOSIT_SELECTOR, actor);
         
         uint112 cap = tellerMAS.depositCap();
         uint256 currentSupply = vaultRP.totalSupply();
@@ -789,7 +790,7 @@ contract TellerHandler is CommonBase, StdCheats, StdUtils {
      */
     function depositAltMAS(uint256 assetIndex, uint256 actorSeed, uint256 amount, uint256 minShares) external {
         address actor = _getRandomActor(actorSeed);
-        _beforeCall(TellerWithMultiAssetSupport.deposit.selector, actor);
+        _beforeCall(DEPOSIT_SELECTOR, actor);
         
         assetIndex = bound(assetIndex, 0, NUM_ALT_ASSETS - 1);
         
@@ -875,7 +876,7 @@ contract TellerHandler is CommonBase, StdCheats, StdUtils {
      */
     function depositYS(uint256 actorSeed, uint256 amount, uint256 minShares) external {
         address actor = _getRandomActor(actorSeed);
-        _beforeCall(TellerWithMultiAssetSupport.deposit.selector, actor);
+        _beforeCall(DEPOSIT_SELECTOR, actor);
         
         amount = bound(amount, 1, 100_000e18);
         
@@ -890,7 +891,7 @@ contract TellerHandler is CommonBase, StdCheats, StdUtils {
         
         // Capture YS state in AccountantHandler - deposits realize yield via _updateExchangeRate()
         if (address(accountantHandler) != address(0)) {
-            accountantHandler.beginYSOperation(TellerWithMultiAssetSupport.deposit.selector);
+            accountantHandler.beginYSOperation(DEPOSIT_SELECTOR);
         }
         
         vm.startPrank(actor);
@@ -1081,7 +1082,7 @@ contract TellerHandler is CommonBase, StdCheats, StdUtils {
      * @notice Attempt deposit with denied user
      */
     function depositAsDeniedUser(uint256 amount) external {
-        _beforeCall(TellerWithMultiAssetSupport.deposit.selector, deniedUser);
+        _beforeCall(DEPOSIT_SELECTOR, deniedUser);
         
         amount = bound(amount, 1e6, 100_000e18);
         
@@ -1143,4 +1144,3 @@ contract TellerHandler is CommonBase, StdCheats, StdUtils {
     }
     
 }
-

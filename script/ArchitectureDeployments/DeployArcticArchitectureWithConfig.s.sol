@@ -1171,7 +1171,9 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
                 );
             }
             if (allowPublicDeposits) {
-                _setPublicCapabilityIfNotPresent(address(teller), TellerWithMultiAssetSupport.deposit.selector);
+                _setPublicCapabilityIfNotPresent(
+                    address(teller), bytes4(keccak256("deposit(address,uint256,uint256,address)"))
+                );
                 _setPublicCapabilityIfNotPresent(
                     address(teller), TellerWithMultiAssetSupport.depositWithPermit.selector
                 );

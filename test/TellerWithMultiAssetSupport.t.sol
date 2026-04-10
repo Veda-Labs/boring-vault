@@ -24,6 +24,9 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
     using stdStorage for StdStorage;
 
+    bytes4 internal constant DEPOSIT_SELECTOR = bytes4(keccak256("deposit(address,uint256,uint256,address)"));
+    bytes4 internal constant DEPOSIT_TO_SELECTOR = bytes4(keccak256("deposit(address,uint256,uint256,address,address)"));
+
     BoringVault public boringVault;
 
     uint8 public constant ADMIN_ROLE = 1;
@@ -32,6 +35,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     uint8 public constant SOLVER_ROLE = 9;
     uint8 public constant QUEUE_ROLE = 10;
     uint8 public constant CAN_SOLVE_ROLE = 11;
+    uint8 public constant ROUTER_ROLE = 55;
 
     TellerWithMultiAssetSupport public teller;
     AccountantWithRateProviders public accountant;
@@ -104,7 +108,8 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         rolesAuthority.setRoleCapability(
             CAN_SOLVE_ROLE, address(atomicSolverV3), AtomicSolverV3.redeemSolve.selector, true
         );
-        rolesAuthority.setPublicCapability(address(teller), TellerWithMultiAssetSupport.deposit.selector, true);
+        rolesAuthority.setRoleCapability(ROUTER_ROLE, address(teller), DEPOSIT_TO_SELECTOR, true);
+        rolesAuthority.setPublicCapability(address(teller), DEPOSIT_SELECTOR, true);
         rolesAuthority.setPublicCapability(
             address(teller), TellerWithMultiAssetSupport.depositWithPermit.selector, true
         );
@@ -218,6 +223,74 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         teller.deposit{value: amount}(ERC20(NATIVE), 0, 0, referrer);
 
         assertEq(boringVault.balanceOf(address(this)), amount, "Should have received expected shares");
+    }
+
+    function testDepositToLocksAndRefundsReceiver() external {
+        boringVault.setBeforeTransferHook(address(teller));
+        teller.setShareLockPeriod(1 days);
+        rolesAuthority.setUserRole(address(this), ROUTER_ROLE, true);
+
+        address user = vm.addr(2);
+        address recipient = vm.addr(3);
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), address(this), depositAmount);
+        WETH.safeApprove(address(boringVault), depositAmount);
+
+        uint256 shares = teller.deposit(WETH, depositAmount, 0, user, referrer);
+
+        assertEq(boringVault.balanceOf(user), shares, "Receiver should have received shares");
+        assertEq(boringVault.balanceOf(address(this)), 0, "Caller should not have received shares");
+
+        (,,,, uint256 receiverUnlockTime) = teller.beforeTransferData(user);
+        (,,,, uint256 callerUnlockTime) = teller.beforeTransferData(address(this));
+        assertEq(receiverUnlockTime, block.timestamp + 1 days, "Receiver shares should be locked");
+        assertEq(callerUnlockTime, 0, "Caller should not be locked");
+
+        vm.startPrank(user);
+        vm.expectRevert(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__SharesAreLocked.selector);
+        boringVault.transfer(recipient, 1);
+        vm.stopPrank();
+
+        vm.warp(receiverUnlockTime + 1);
+
+        vm.prank(user);
+        boringVault.transfer(recipient, shares);
+        assertEq(boringVault.balanceOf(user), 0, "Receiver shares should unlock after the lock period");
+        assertEq(boringVault.balanceOf(recipient), shares, "Recipient should receive unlocked shares");
+
+        deal(address(WETH), address(this), depositAmount);
+        WETH.safeApprove(address(boringVault), depositAmount);
+
+        uint256 userBalanceBeforeRefund = WETH.balanceOf(user);
+        uint256 refundedShares = teller.deposit(WETH, depositAmount, 0, user, referrer);
+        uint256 refundDepositTimestamp = block.timestamp;
+
+        teller.refundDeposit(2, user, address(WETH), depositAmount, refundedShares, refundDepositTimestamp, 1 days, referrer);
+
+        assertEq(boringVault.balanceOf(user), 0, "Receiver shares should be burned on refund");
+        assertEq(WETH.balanceOf(user), userBalanceBeforeRefund + depositAmount, "Receiver should receive refunded asset");
+    }
+
+    function testDepositToRefundReturnsAssetsToReceiver() external {
+        teller.setShareLockPeriod(1 days);
+        rolesAuthority.setUserRole(address(this), ROUTER_ROLE, true);
+
+        address user = vm.addr(4);
+        uint256 depositAmount = 1e18;
+
+        deal(address(WETH), address(this), depositAmount);
+        WETH.safeApprove(address(boringVault), depositAmount);
+
+        uint256 callerBalanceBeforeRefund = WETH.balanceOf(address(this));
+        uint256 receiverBalanceBeforeRefund = WETH.balanceOf(user);
+        uint256 shares = teller.deposit(WETH, depositAmount, 0, user, referrer);
+        uint256 depositTimestamp = block.timestamp;
+
+        teller.refundDeposit(1, user, address(WETH), depositAmount, shares, depositTimestamp, 1 days, referrer);
+
+        assertEq(boringVault.balanceOf(user), 0, "Receiver shares should be burned on refund");
+        assertEq(WETH.balanceOf(user), receiverBalanceBeforeRefund + depositAmount, "Receiver should receive refunded asset");
+        assertEq(WETH.balanceOf(address(this)), callerBalanceBeforeRefund - depositAmount, "Caller should not receive refund");
     }
 
     function testUserPermitDeposit(uint256 amount) external {

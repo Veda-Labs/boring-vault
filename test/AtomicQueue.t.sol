@@ -87,7 +87,9 @@ contract AtomicQueueTest is Test, MerkleTreeHelper {
             SOLVER_ROLE, address(teller), TellerWithMultiAssetSupport.bulkWithdraw.selector, true
         );
         rolesAuthority.setRoleCapability(QUEUE_ROLE, address(atomicSolverV3), AtomicSolverV3.finishSolve.selector, true);
-        rolesAuthority.setPublicCapability(address(teller), TellerWithMultiAssetSupport.deposit.selector, true);
+        rolesAuthority.setPublicCapability(
+            address(teller), bytes4(keccak256("deposit(address,uint256,uint256,address)")), true
+        );
         rolesAuthority.setPublicCapability(address(atomicQueue), AtomicQueue.updateAtomicRequest.selector, true);
         rolesAuthority.setPublicCapability(address(atomicQueue), AtomicQueue.safeUpdateAtomicRequest.selector, true);
         rolesAuthority.setPublicCapability(address(atomicQueue), AtomicQueue.solve.selector, true);

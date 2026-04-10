@@ -26,6 +26,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     mapping(address => mapping(address => mapping(address => bool))) public ownerToOneInchSellTokenToBuyTokenToInTree;
     mapping(address => mapping(address => mapping(address => bool))) public ownerToOneInchV6SellTokenToBuyTokenToInTree;
     mapping(address => mapping(address => mapping(address => bool))) public ownerToOdosSellTokenToBuyTokenToInTree;
+    mapping(address => mapping(address => mapping(address => bool))) public ownerToEtherfiSwapperSellTokenToBuyTokenToInTree;
     mapping(address => mapping(address => mapping(address => bool))) public ownerToOogaBoogaSellTokenToBuyTokenToInTree;
     mapping(address => mapping(address => mapping(address => bool))) public ownerToGlueXSellTokenToBuyTokenToInTree;
     mapping(address => mapping(address => mapping(address => bool))) public ownerToSushiSellTokenToBuyTokenToInTree;
@@ -14219,6 +14220,42 @@ function _addTellerLeafsWithReferral(
         }
     }
 
+    function _addEtherfiOneWaySwapperLeafs(ManageLeaf[] memory leafs, address tokenA, address tokenB) internal {
+
+        // add approval if not already added
+        if (!ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][tokenA][getAddress(sourceChain, "etherfiSwapper")]) {
+            ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][tokenA][getAddress(sourceChain, "etherfiSwapper")] = true;
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                tokenA,
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve Etherfi swapper to spend ", ERC20(tokenA).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "etherfiSwapper");
+        }
+
+        // add swap from tokenA to tokenB
+        if (!ownerToEtherfiSwapperSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokenA][tokenB]) {
+            ownerToEtherfiSwapperSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokenA][tokenB] = true;
+
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "etherfiSwapper"),
+                false,
+                "swap((address,uint256,address,address,uint256,uint256,address),bytes,address,uint32)",
+                new address[](3),
+                string.concat("Swap ", ERC20(tokenA).symbol(), " for ", ERC20(tokenB).symbol(), " using etherfi swapper"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = tokenA;
+            leafs[leafIndex].argumentAddresses[1] = tokenB;
+            leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+        }
+    }
+
     // ========================================= GlueX =========================================
     function _addGlueXLeafs(ManageLeaf[] memory leafs, address[] memory tokens, SwapKind[] memory kind) internal {
         for (uint256 i = 0; i < tokens.length; i++) {
@@ -14324,7 +14361,80 @@ function _addTellerLeafsWithReferral(
         }
     }
 
-    
+    function _addGlueXOneWaySwapLeafs(ManageLeaf[] memory leafs, address tokenA, address tokenB) internal {
+        // add approval for tokenA to GlueX router + Permit2 if not already added
+        if (
+            !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][tokenA][getAddress(
+                sourceChain, "glueXRouter"
+            )]
+        ) {
+            ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][tokenA][getAddress(
+                sourceChain, "glueXRouter"
+            )] = true;
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                tokenA,
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve GlueX Router to spend ", ERC20(tokenA).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "glueXRouter");
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                tokenA,
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve Permit2 to spend ", ERC20(tokenA).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "permit2");
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "permit2"),
+                false,
+                "approve(address,address,uint160,uint48)",
+                new address[](2),
+                string.concat("Use Permit2 to approve GlueX Router to spend ", ERC20(tokenA).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = tokenA;
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "glueXRouter");
+        }
+
+        // add swap from tokenA to tokenB
+        if (!ownerToGlueXSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokenA][tokenB]) {
+            ownerToGlueXSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokenA][tokenB] = true;
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "glueXRouter"),
+                false,
+                "swap(address,(address,address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,bool,bytes32),(address,uint256,bytes)[])",
+                new address[](5),
+                string.concat("Swap ", ERC20(tokenA).symbol(), " for ", ERC20(tokenB).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "glueXExecutor");
+            leafs[leafIndex].argumentAddresses[1] = tokenA;
+            leafs[leafIndex].argumentAddresses[2] = tokenB;
+            leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[4] = address(0);
+        }
+    }
 
     // ========================================= Ooga Booga =========================================
 
@@ -14481,6 +14591,53 @@ function _addTellerLeafsWithReferral(
                     = true;
                 }
             }
+        }
+    }
+
+    function _addSnwapOneWaySwapLeafs(ManageLeaf[] memory leafs, address tokenA, address tokenB) internal {
+        // add approval for tokenA to redSnwapperRouter if not already added
+        if (
+            !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][tokenA][getAddress(
+                sourceChain, "redSnwapperRouter"
+            )]
+        ) {
+            ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][tokenA][getAddress(
+                sourceChain, "redSnwapperRouter"
+            )] = true;
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                tokenA,
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve Red Snwapper Router to spend ", ERC20(tokenA).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "redSnwapperRouter");
+        }
+
+        // add swap from tokenA to tokenB
+        if (!ownerToSushiSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokenA][tokenB]) {
+            ownerToSushiSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokenA][tokenB] = true;
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "redSnwapperRouter"),
+                false,
+                "snwap(address,uint256,address,address,uint256,address,bytes)",
+                new address[](4),
+                string.concat("Swap ", ERC20(tokenA).symbol(), " for ", ERC20(tokenB).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = tokenA;
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[2] = tokenB;
+            leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "redSnwapperExecutor");
         }
     }
 

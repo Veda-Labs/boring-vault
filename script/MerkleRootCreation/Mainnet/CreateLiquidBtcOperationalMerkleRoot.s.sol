@@ -26,6 +26,9 @@ contract CreateMultichainLiquidBtcOperationalMerkleRootScript is Script, MerkleT
     address public itbDecoderAndSanitizer = 0xEEb53299Cb894968109dfa420D69f0C97c835211;
     address public etherfibtcDecoderAndSanitizer = 0xC48cA54b9F3f8Fc7E5347DE55879851178B485e8;
 
+    //one offs
+    address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
+
     function setUp() external {}
 
     function run() external {
@@ -110,6 +113,29 @@ contract CreateMultichainLiquidBtcOperationalMerkleRootScript is Script, MerkleT
             _addCapWithdrawLeafs(leafs, capDepositAssets);
             setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
+
+        // =================== Ether.fi  Swapper ====================
+        {
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
+            // USDT
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "USDT"), getAddress(sourceChain, "USDC"));
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "USDT"), getAddress(sourceChain, "PYUSD"));
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "USDT"), getAddress(sourceChain, "RLUSD"));
+            // USDC
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "USDC"), getAddress(sourceChain, "USDT"));
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "USDC"), getAddress(sourceChain, "PYUSD"));
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "USDC"), getAddress(sourceChain, "RLUSD"));
+            // PYUSD
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "PYUSD"), getAddress(sourceChain, "USDC"));
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "PYUSD"), getAddress(sourceChain, "USDT"));
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "PYUSD"), getAddress(sourceChain, "RLUSD"));
+            // RLUSD
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "RLUSD"), getAddress(sourceChain, "USDC"));
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "RLUSD"), getAddress(sourceChain, "USDT"));
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "RLUSD"), getAddress(sourceChain, "PYUSD"));
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
+
 
         // ========================== Fee Claiming ===========================
         {

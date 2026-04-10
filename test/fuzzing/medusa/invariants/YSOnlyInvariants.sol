@@ -209,7 +209,7 @@ abstract contract YSOnlyInvariants is BaseInvariants {
         bool isYieldRealizingOp = selector == AccountantWithYieldStreaming.vestYield.selector ||
                                   selector == AccountantWithYieldStreaming.postLoss.selector ||
                                   selector == YS_UPDATE_EXCHANGE_RATE_SELECTOR ||
-                                  selector == TellerWithMultiAssetSupport.deposit.selector ||
+                                  selector == DEPOSIT_SELECTOR ||
                                   selector == TellerWithMultiAssetSupport.bulkDeposit.selector ||
                                   selector == TellerWithMultiAssetSupport.withdraw.selector ||
                                   selector == TellerWithMultiAssetSupport.bulkWithdraw.selector;

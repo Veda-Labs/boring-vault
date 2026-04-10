@@ -40171,6 +40171,63 @@
             "TargetAddress": "0xCF346a4F898e9FdacD3a130fFe00F1f2dA56C90a"
         },
         {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x457Cce6Ec3fEb282952a7e50a1Bc727Ca235Eb0a",
+            "Description": "Accept ownership of the ITB Position Manager 5 contract",
+            "FunctionSelector": "0x79ba5097",
+            "FunctionSignature": "acceptOwnership()",
+            "LeafDigest": "0x56f802c297228b369d031fe28a9a459c844d332a7a7c5dcb7fbd7e59f2364420",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x4b1A4a8f421454874B553CcE4c59c654a84c4927"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x457Cce6Ec3fEb282952a7e50a1Bc727Ca235Eb0a",
+            "Description": "Remove executor from the ITB Position Manager 5 contract",
+            "FunctionSelector": "0x24788429",
+            "FunctionSignature": "removeExecutor(address)",
+            "LeafDigest": "0x2b26905005aecbd58f421f9f905f4ec02de4bd47d439580134b5b96fed454233",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x4b1A4a8f421454874B553CcE4c59c654a84c4927"
+        },
+        {
+            "AddressArguments": [
+                "0x4b1A4a8f421454874B553CcE4c59c654a84c4927"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x457Cce6Ec3fEb282952a7e50a1Bc727Ca235Eb0a",
+            "Description": "Transfer weETH to the ITB Position Manager 5 contract",
+            "FunctionSelector": "0xa9059cbb",
+            "FunctionSignature": "transfer(address,uint256)",
+            "LeafDigest": "0x95098549819f8c9f7e8d9cc5761db6175d7d5fd3e01d7faa47f7573895a58e60",
+            "PackedArgumentAddresses": "0x4b1a4a8f421454874b553cce4c59c654a84c4927",
+            "TargetAddress": "0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x457Cce6Ec3fEb282952a7e50a1Bc727Ca235Eb0a",
+            "Description": "Withdraw weETH from the ITB Position Manager 5 contract",
+            "FunctionSelector": "0xf3fef3a3",
+            "FunctionSignature": "withdraw(address,uint256)",
+            "LeafDigest": "0x17e333bf3afa59c32309f4026a942f2c3bec9c1479d5954efaf2799798a95d1d",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x4b1A4a8f421454874B553CcE4c59c654a84c4927"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x457Cce6Ec3fEb282952a7e50a1Bc727Ca235Eb0a",
+            "Description": "Withdraw all weETH from the ITB Position Manager 5 contract",
+            "FunctionSelector": "0xfa09e630",
+            "FunctionSignature": "withdrawAll(address)",
+            "LeafDigest": "0xe422ff71a858f6bdd3d8340ffc5fd9aa43b1a911220885cafc62bc222f02e0e5",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x4b1A4a8f421454874B553CcE4c59c654a84c4927"
+        },
+        {
             "AddressArguments": [
                 "0x0a42b2F3a0D54157Dbd7CC346335A4F1909fc02c"
             ],
@@ -60629,6 +60686,11 @@
             "0xaacbbc460d2db0303daf7832a7b12d83e526331d37b8e389d3269ee7fa9fe5ac",
             "0xaac472983bb2d3b92cefdb26abc9571e86eb27ed7fa7f42f9e3cfbf4b6bb9909",
             "0x7bef9c2f9994436cc7cf0f0efc2c55230b98c617da3366dcf4a47eb3cbce0db8",
+            "0x56f802c297228b369d031fe28a9a459c844d332a7a7c5dcb7fbd7e59f2364420",
+            "0x2b26905005aecbd58f421f9f905f4ec02de4bd47d439580134b5b96fed454233",
+            "0x95098549819f8c9f7e8d9cc5761db6175d7d5fd3e01d7faa47f7573895a58e60",
+            "0x17e333bf3afa59c32309f4026a942f2c3bec9c1479d5954efaf2799798a95d1d",
+            "0xe422ff71a858f6bdd3d8340ffc5fd9aa43b1a911220885cafc62bc222f02e0e5",
             "0x13d53e97cc52c3240e4871ba2a1bd94f990d98ce56924a5dddf61c3a3f817472",
             "0xa35bf4a01d2138aa671bb6eb47df4d8f826b657693b707792ec896d5111f92e0",
             "0x2ccd4c304a227f7fedc184346776d045521c5ce1b2c16584ffd64b0427e0a210",

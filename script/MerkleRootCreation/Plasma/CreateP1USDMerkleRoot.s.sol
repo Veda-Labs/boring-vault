@@ -55,14 +55,8 @@ contract CreateP1USDMerkleRoot is Script, MerkleTreeHelper {
         _addUniswapV3OneWaySwapLeafs(leafs, token0, token1, true);
 
         // ========================== GlueX / RedSnwapper ==========================
-        address[] memory tokens = new address[](2);
-        SwapKind[] memory kind = new SwapKind[](2);
-        tokens[0] = getAddress(sourceChain, "USDT0");
-        kind[0] = SwapKind.BuyAndSell;
-        tokens[1] = getAddress(sourceChain, "wXPL");
-        kind[1] = SwapKind.Sell;
-        _addGlueXLeafs(leafs, tokens, kind);
-        _addSnwapLeafs(leafs, tokens, kind);
+        _addGlueXOneWaySwapLeafs(leafs, getAddress(sourceChain, "wXPL"), getAddress(sourceChain, "USDT0"));
+        _addSnwapOneWaySwapLeafs(leafs, getAddress(sourceChain, "wXPL"), getAddress(sourceChain, "USDT0"));
 
         // ========================== Merkl ==========================
         _addMerklLeafs(

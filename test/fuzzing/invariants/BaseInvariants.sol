@@ -165,7 +165,7 @@ abstract contract BaseInvariants is StdInvariant, BaseSetup {
     function invariant_integrityOfDeposit() public view returns (bool) {
         bytes4 selector = _tellerHandler().lastSelector();
         
-        bool isDepositOp = selector == TellerWithMultiAssetSupport.deposit.selector ||
+        bool isDepositOp = selector == DEPOSIT_SELECTOR ||
                            selector == TellerWithMultiAssetSupport.bulkDeposit.selector;
         
         if (!isDepositOp) return true;
@@ -266,7 +266,7 @@ abstract contract BaseInvariants is StdInvariant, BaseSetup {
         
         if (pre.isPaused) {
             bool isPublicDepositWithdraw = 
-                selector == TellerWithMultiAssetSupport.deposit.selector ||
+                selector == DEPOSIT_SELECTOR ||
                 selector == TellerWithMultiAssetSupport.withdraw.selector;
             
             if (isPublicDepositWithdraw) {
@@ -314,7 +314,7 @@ abstract contract BaseInvariants is StdInvariant, BaseSetup {
 
         if (postUser.baseBalance < preUser.baseBalance) {
             bool isDepositMethod = 
-                selector == TellerWithMultiAssetSupport.deposit.selector ||
+                selector == DEPOSIT_SELECTOR ||
                 selector == TellerWithMultiAssetSupport.depositWithPermit.selector ||
                 selector == TellerWithMultiAssetSupport.bulkDeposit.selector;
             
@@ -496,7 +496,7 @@ abstract contract BaseInvariants is StdInvariant, BaseSetup {
         TellerHandler.TellerState memory post = _getTellerPostState();
         bytes4 selector = _tellerHandler().lastSelector();
         
-        bool isDepositOp = selector == TellerWithMultiAssetSupport.deposit.selector ||
+        bool isDepositOp = selector == DEPOSIT_SELECTOR ||
                            selector == TellerWithMultiAssetSupport.bulkDeposit.selector;
         
         if (!isDepositOp) return true;

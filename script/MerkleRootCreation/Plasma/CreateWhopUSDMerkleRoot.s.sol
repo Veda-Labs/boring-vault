@@ -55,14 +55,8 @@ contract CreateWhopUSDMerkleRoot is Script, MerkleTreeHelper {
         _addUniswapV3OneWaySwapLeafs(leafs, token0, token1, true);
 
         // ========================== GlueX / RedSnwapper ==========================
-        address[] memory tokens = new address[](2);
-        SwapKind[] memory kind = new SwapKind[](2);
-        tokens[0] = getAddress(sourceChain, "USDT0");
-        kind[0] = SwapKind.BuyAndSell;
-        tokens[1] = getAddress(sourceChain, "wXPL");
-        kind[1] = SwapKind.Sell;
-        _addGlueXLeafs(leafs, tokens, kind);
-        _addSnwapLeafs(leafs, tokens, kind);
+        _addGlueXOneWaySwapLeafs(leafs, getAddress(sourceChain, "wXPL"), getAddress(sourceChain, "USDT0"));
+        _addSnwapOneWaySwapLeafs(leafs, getAddress(sourceChain, "wXPL"), getAddress(sourceChain, "USDT0"));
 
         // ========================== Merkl ==========================
         _addMerklLeafs(
@@ -71,6 +65,13 @@ contract CreateWhopUSDMerkleRoot is Script, MerkleTreeHelper {
             getAddress(sourceChain, "dev1Address")
         );
 
+        // ========================== Fee Claiming ==========================
+        /**
+         * Claim fees in USDT0
+         */
+        ERC20[] memory feeAssets = new ERC20[](1);
+        feeAssets[0] = getERC20(sourceChain, "USDT0");
+        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
