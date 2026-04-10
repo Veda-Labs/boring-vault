@@ -15,6 +15,7 @@ import {IAdapter} from "src/interfaces/IAdapter.sol";
 import {IPriceValidator} from "src/interfaces/IPriceValidator.sol";
 import {ISwapper} from "src/interfaces/ISwapper.sol";
 import {IPausable} from "src/interfaces/IPausable.sol";
+import {IFeeRegistry} from "src/interfaces/IFeeRegistry.sol";
 
 contract BoringSwapper is Auth, ISwapper, IPausable {
     using FixedPointMathLib for uint256;
@@ -100,6 +101,7 @@ contract BoringSwapper is Auth, ISwapper, IPausable {
     event Paused();
     event Unpaused();
     event AdapterPauseToggled(address indexed adapter, bool paused);
+    event FeeRegistryUpdated(address indexed newRegistry);
 
     // ========================================= STATE =========================================
 
@@ -137,11 +139,13 @@ contract BoringSwapper is Auth, ISwapper, IPausable {
 
     AdapterRegistry public adapterRegistry;
     IPriceValidator public priceValidator;
+    IFeeRegistry public feeRegistry;
 
     // ========================================= CONSTRUCTOR =========================================
 
-    constructor(address _owner, AdapterRegistry _adapterRegistry) Auth(_owner, Authority(address(0))) {
+    constructor(address _owner, AdapterRegistry _adapterRegistry, IFeeRegistry _feeRegistry) Auth(_owner, Authority(address(0))) {
         adapterRegistry = _adapterRegistry;
+        feeRegistry = _feeRegistry;
     }
 
     // ========================================= SWAP FUNCTIONS =========================================
@@ -211,6 +215,18 @@ contract BoringSwapper is Auth, ISwapper, IPausable {
 
         //reset approvals and transfer
         swapConfig.tokenRoute.tokenIn.approve(target, 0);
+        
+        //charge fees if there is a fee to charge for the swap route
+        (uint16 feeBps, address feeRecipient) = feeRegistry.getFee(
+            address(swapConfig.tokenRoute.tokenIn),
+            address(swapConfig.tokenRoute.tokenOut)
+        );
+        if (feeBps > 0 && feeRecipient != address(0)) {
+            uint256 fee = tokenBalanceDelta.mulDivDown(feeBps, 10_000);
+            tokenBalanceDelta -= fee;
+            swapConfig.tokenRoute.tokenOut.safeTransfer(feeRecipient, fee);
+        }
+
         swapConfig.tokenRoute.tokenOut.safeTransfer(address(swapConfig.receiver), tokenBalanceDelta);
 
         //return any unspent tokenIn dust to the vault
@@ -269,7 +285,24 @@ contract BoringSwapper is Auth, ISwapper, IPausable {
 
         //preapprove the approval target & pull funds from the vault
         swapConfig.tokenRoute.tokenIn.approve(info.approvalTarget, info.inputAmount);
-        swapConfig.tokenRoute.tokenIn.safeTransferFrom(address(swapConfig.receiver), address(this), info.inputAmount);
+
+        // Charge a non-refundable upfront fee in tokenIn. Sent immediately — no claim needed.
+        // If the order is cancelled, the fee is NOT refunded (it was already forwarded).
+        uint256 limitFee;
+        address limitFeeRecipient;
+        if (address(feeRegistry) != address(0)) {
+            (uint16 feeBps, address fr) = feeRegistry.getFee(
+                address(swapConfig.tokenRoute.tokenIn),
+                address(swapConfig.tokenRoute.tokenOut)
+            );
+            if (feeBps > 0 && fr != address(0)) {
+                limitFee = info.inputAmount.mulDivDown(feeBps, 10_000);
+                limitFeeRecipient = fr;
+            }
+        }
+
+        swapConfig.tokenRoute.tokenIn.safeTransferFrom(address(swapConfig.receiver), address(this), info.inputAmount + limitFee);
+        if (limitFee > 0) swapConfig.tokenRoute.tokenIn.safeTransfer(limitFeeRecipient, limitFee);
 
         orders += 1;
 
@@ -433,6 +466,14 @@ contract BoringSwapper is Auth, ISwapper, IPausable {
         priceValidator = newValidator;
 
         emit PriceValidatorUpdated(address(newValidator));
+    }
+
+    /// @notice Updates the fee registry. Restricted to a Veda-controlled address — vault admins
+    ///         must NOT be granted this capability in RolesAuthority.
+    function setFeeRegistry(IFeeRegistry newRegistry) external requiresAuth {
+        feeRegistry = newRegistry;
+
+        emit FeeRegistryUpdated(address(newRegistry));
     }
 
     /// @notice Updates the rate limit for a route without resetting the refill state.

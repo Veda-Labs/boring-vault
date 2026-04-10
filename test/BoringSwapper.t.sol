@@ -12,6 +12,8 @@ import {PriceValidator} from "src/base/Periphery/adapters/price/PriceValidator.s
 import {IPriceValidator} from "src/interfaces/IPriceValidator.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
+import {FeeRegistry} from "src/base/Periphery/FeeRegistry.sol";
+import {IFeeRegistry} from "src/interfaces/IFeeRegistry.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
@@ -54,6 +56,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     PriceValidator public validator;
     CowswapAdapter public cowAdapter;
     RolesAuthority public rolesAuthority;
+    FeeRegistry public feeRegistry;
 
     MockRateProvider public wethRate;
     MockRateProvider public usdcRate;
@@ -83,7 +86,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         //registry + swapper
         registry = new AdapterRegistry();
-        swapper = new BoringSwapper(address(this), registry);
+        swapper = new BoringSwapper(address(this), registry, IFeeRegistry(address(0)));
 
         //auth setup
         swapper.setAuthority(rolesAuthority);
@@ -99,6 +102,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setPriceValidator.selector, true);
         rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setRateLimit.selector, true);
         rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.sweep.selector, true);
+        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setFeeRegistry.selector, true);
         rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.swap.selector, true);
         rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.submitOrder.selector, true);
         rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.cancelOrder.selector, true);
@@ -879,6 +883,128 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         emit OrderSubmitted(newOrderId, routeId, 2e18, address(boringVault));
 
         swapper.replaceOrder(orderId, oldConfig, newConfig);
+    }
+
+    //==================== FeeRegistry Unit Tests ====================
+
+    function testFeeRegistry_SameGroup() external {
+        feeRegistry = new FeeRegistry(address(this));
+        // group 1 = stables; same-group fee = 5 bps
+        feeRegistry.setTokenGroup(address(USDC), 1);
+        feeRegistry.setTokenGroup(address(WETH), 1);
+        feeRegistry.setGroupPairFee(1, 1, 5, address(0xFEE));
+
+        (uint16 feeBps, address recipient) = feeRegistry.getFee(address(USDC), address(WETH));
+        assertEq(feeBps, 5);
+        assertEq(recipient, address(0xFEE));
+    }
+
+    function testFeeRegistry_CrossGroup() external {
+        feeRegistry = new FeeRegistry(address(this));
+        feeRegistry.setTokenGroup(address(WETH), 2);  // ETH group
+        feeRegistry.setTokenGroup(address(USDC), 1);  // stable group
+        feeRegistry.setGroupPairFee(1, 2, 30, address(0xFEE));
+
+        (uint16 feeBps,) = feeRegistry.getFee(address(WETH), address(USDC));
+        assertEq(feeBps, 30);
+        // symmetric: (B,A) should return same fee as (A,B)
+        (uint16 feeBps2,) = feeRegistry.getFee(address(USDC), address(WETH));
+        assertEq(feeBps2, 30);
+    }
+
+    function testFeeRegistry_DefaultFallback() external {
+        feeRegistry = new FeeRegistry(address(this));
+        feeRegistry.setDefaultFee(20, address(0xFEE));
+
+        // no group configured — falls through to default
+        (uint16 feeBps, address recipient) = feeRegistry.getFee(address(WETH), address(USDC));
+        assertEq(feeBps, 20);
+        assertEq(recipient, address(0xFEE));
+    }
+
+    function testFeeRegistry_GroupPairOverridesDefault() external {
+        feeRegistry = new FeeRegistry(address(this));
+        feeRegistry.setDefaultFee(20, address(0xFEE));
+        feeRegistry.setTokenGroup(address(WETH), 2);
+        feeRegistry.setTokenGroup(address(USDC), 1);
+        feeRegistry.setGroupPairFee(1, 2, 5, address(0xFEE));
+
+        (uint16 feeBps,) = feeRegistry.getFee(address(WETH), address(USDC));
+        assertEq(feeBps, 5);
+    }
+
+    function testFeeRegistry_RevertFeeTooHigh() external {
+        feeRegistry = new FeeRegistry(address(this));
+        vm.expectRevert(FeeRegistry.FeeRegistry__FeeTooHigh.selector);
+        feeRegistry.setGroupPairFee(0, 1, 1001, address(0xFEE));
+    }
+
+    function testFeeRegistry_RevertInvalidRecipient() external {
+        feeRegistry = new FeeRegistry(address(this));
+        vm.expectRevert(FeeRegistry.FeeRegistry__InvalidRecipient.selector);
+        feeRegistry.setGroupPairFee(0, 1, 10, address(0));
+    }
+
+    //==================== BoringSwapper Fee Tests ====================
+
+    function testSetFeeRegistry() external {
+        feeRegistry = new FeeRegistry(address(this));
+        swapper.setFeeRegistry(IFeeRegistry(address(feeRegistry)));
+        assertEq(address(swapper.feeRegistry()), address(feeRegistry));
+    }
+
+    function testSetFeeRegistry_Unauthorized() external {
+        feeRegistry = new FeeRegistry(address(this));
+        vm.prank(address(0xBAD));
+        vm.expectRevert();
+        swapper.setFeeRegistry(IFeeRegistry(address(feeRegistry)));
+    }
+
+    function testSubmitOrder_FeeChargedUpfront() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        feeRegistry = new FeeRegistry(address(this));
+        // 10 bps fee on WETH → USDC
+        feeRegistry.setTokenGroup(address(WETH), 1);
+        feeRegistry.setTokenGroup(address(USDC), 2);
+        feeRegistry.setGroupPairFee(1, 2, 10, address(0xFEE));
+        swapper.setFeeRegistry(IFeeRegistry(address(feeRegistry)));
+
+        uint256 inputAmount = 1e18;
+        uint256 expectedFee = inputAmount * 10 / 10_000;
+
+        (,, uint256 orderId) = _submitOrder(inputAmount, 2000e6, uint32(block.timestamp + 3600));
+
+        // swapper holds only inputAmount (fee already forwarded)
+        assertEq(WETH.balanceOf(address(swapper)), inputAmount);
+        // vault was debited inputAmount + fee
+        assertEq(WETH.balanceOf(address(boringVault)), 100e18 - inputAmount - expectedFee);
+        // fee recipient received the fee
+        assertEq(WETH.balanceOf(address(0xFEE)), expectedFee);
+    }
+
+    function testSubmitOrder_NoFeeWhenRegistryNotSet() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        // feeRegistry is address(0) — no fee taken
+        (,, uint256 orderId) = _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
+
+        assertEq(WETH.balanceOf(address(swapper)), 1e18);
+        assertEq(WETH.balanceOf(address(boringVault)), 99e18);
+    }
+
+    function testSubmitOrder_ZeroFeeBps_NoFeeCharged() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        feeRegistry = new FeeRegistry(address(this));
+        // fee bps = 0 means no fee even with a registry set
+        feeRegistry.setDefaultFee(0, address(0));
+        swapper.setFeeRegistry(IFeeRegistry(address(feeRegistry)));
+
+        (,, uint256 orderId) = _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
+
+        assertEq(WETH.balanceOf(address(swapper)), 1e18);
+        assertEq(WETH.balanceOf(address(boringVault)), 99e18);
     }
 
     //==================== Helpers ====================

@@ -16,6 +16,7 @@ import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
 import {PriceValidator} from "src/base/Periphery/adapters/price/PriceValidator.sol";
 import {IPriceValidator} from "src/interfaces/IPriceValidator.sol";
+import {IFeeRegistry} from "src/interfaces/IFeeRegistry.sol";
 import {GenericRateProviderWithStalenessCheck} from "src/helper/GenericRateProviderWithStalenessCheck.sol";
 import {BoringSwapperDecoder} from "src/base/DecodersAndSanitizers/Protocols/BoringSwapperDecoderAndSanitizer.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
@@ -77,8 +78,8 @@ contract DeployBoringSwapperTestSuite is Script, ContractNames, MainnetAddresses
         registry = new AdapterRegistry();
         console.log("AdapterRegistry:", address(registry));
 
-        // Deploy swapper
-        swapper = new BoringSwapper(0xBBc5569B0b32403037F37255f4ff50B8Bb825b2A, registry);
+        // Deploy swapper (no fee registry at deploy time — set post-deployment via setFeeRegistry by Veda multisig)
+        swapper = new BoringSwapper(0xBBc5569B0b32403037F37255f4ff50B8Bb825b2A, registry, IFeeRegistry(address(0)));
         console.log("BoringSwapper:  ", address(swapper));
 
         // Deploy adapters and register in registry

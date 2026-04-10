@@ -19,6 +19,8 @@ import {Authority} from "@solmate/auth/Auth.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
 import {PriceValidator} from "src/base/Periphery/adapters/price/PriceValidator.sol";
 import {IPriceValidator} from "src/interfaces/IPriceValidator.sol";
+import {FeeRegistry} from "src/base/Periphery/FeeRegistry.sol";
+import {IFeeRegistry} from "src/interfaces/IFeeRegistry.sol";
 import {Test, console} from "@forge-std/Test.sol";
 
 
@@ -70,7 +72,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         registry = new AdapterRegistry(); 
 
         //do additional setup here
-        swapper = new BoringSwapper(address(this), registry);
+        swapper = new BoringSwapper(address(this), registry, IFeeRegistry(address(0)));
 
         // auth: vault can call swap functions; address(this) (owner) can call directly in tests
         swapper.setAuthority(rolesAuthority);
@@ -80,6 +82,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         rolesAuthority.setRoleCapability(SWAPPER_VAULT_ROLE, address(swapper), BoringSwapper.submitOrder.selector, true);
         rolesAuthority.setRoleCapability(SWAPPER_VAULT_ROLE, address(swapper), BoringSwapper.cancelOrder.selector, true);
         rolesAuthority.setRoleCapability(SWAPPER_VAULT_ROLE, address(swapper), BoringSwapper.replaceOrder.selector, true);
+        rolesAuthority.setRoleCapability(SWAPPER_VAULT_ROLE, address(swapper), BoringSwapper.setFeeRegistry.selector, true);
 
         uniswapV3Adapter = address(new UniswapV3Adapter(getAddress(sourceChain, "uniV3Router")));
         cowswapAdapter = address(new CowswapAdapter(COW_SETTLEMENT, COW_VAULT_RELAYER));
@@ -196,6 +199,86 @@ contract BoringSwapperIntegration is BaseTestIntegration {
             uint256 slippageBps = (expectedUsdc - actualUsdc) * 10_000 / expectedUsdc;
             console.log("Negative slippage (bps):", slippageBps);
         }
+    }
+
+    function testUniV3Swap_FeeDeducted() external {
+        deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18);
+
+        // Set up fee registry: WETH (group 2) → USDC (group 1) = 30 bps
+        address feeRecipient = address(0xFEE);
+        FeeRegistry feeReg = new FeeRegistry(address(this));
+        feeReg.setTokenGroup(getAddress(sourceChain, "WETH"), 2);
+        feeReg.setTokenGroup(getAddress(sourceChain, "USDC"), 1);
+        feeReg.setGroupPairFee(1, 2, 30, feeRecipient);
+        swapper.setFeeRegistry(IFeeRegistry(address(feeReg)));
+
+        address[] memory tokens = new address[](2);
+        tokens[0] = getAddress(sourceChain, "WETH");
+        tokens[1] = getAddress(sourceChain, "USDC");
+
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
+        _addBoringSwapperLeafs(leafs, address(swapper), tokens);
+
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        Tx memory tx_ = _getTxArrays(2);
+        tx_.manageLeafs[0] = leafs[0];
+        tx_.manageLeafs[1] = leafs[5];
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+
+        tx_.targets[0] = getAddress(sourceChain, "WETH");
+        tx_.targets[1] = address(swapper);
+        tx_.targetData[0] = abi.encodeWithSignature("approve(address,uint256)", address(swapper), type(uint256).max);
+
+        bytes memory uniswapSwapData = abi.encodeWithSignature(
+            "exactInput((bytes,address,uint256,uint256,uint256))",
+            DecoderCustomTypes.ExactInputParams({
+                path: abi.encodePacked(getAddress(sourceChain, "WETH"), uint24(500), getAddress(sourceChain, "USDC")),
+                recipient: address(swapper),
+                deadline: block.timestamp,
+                amountIn: 1e18,
+                amountOutMinimum: 0
+            })
+        );
+
+        BoringSwapper.TokenRoute memory tokenRoute = BoringSwapper.TokenRoute(
+            getERC20(sourceChain, "WETH"),
+            getERC20(sourceChain, "USDC")
+        );
+        tx_.targetData[1] = abi.encodeWithSelector(
+            BoringSwapper.swap.selector,
+            BoringSwapper.SwapConfig({
+                tokenRoute: tokenRoute,
+                adapter: uniswapV3Adapter,
+                quoteAsset: getAddress(sourceChain, "USDC"),
+                swapData: uniswapSwapData,
+                slippageBps: 10,
+                receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
+            })
+        );
+
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+
+        address vault = getAddress(sourceChain, "boringVault");
+        uint256 vaultUsdcBefore = getERC20(sourceChain, "USDC").balanceOf(vault);
+        uint256 feeRecipientUsdcBefore = getERC20(sourceChain, "USDC").balanceOf(feeRecipient);
+
+        _submitManagerCall(manageProofs, tx_);
+
+        uint256 vaultUsdcAfter = getERC20(sourceChain, "USDC").balanceOf(vault);
+        uint256 feeRecipientUsdcAfter = getERC20(sourceChain, "USDC").balanceOf(feeRecipient);
+
+        uint256 vaultReceived = vaultUsdcAfter - vaultUsdcBefore;
+        uint256 feeReceived = feeRecipientUsdcAfter - feeRecipientUsdcBefore;
+        uint256 totalOutput = vaultReceived + feeReceived;
+
+        // fee should be ~30 bps of total output
+        uint256 expectedFee = totalOutput * 30 / 10_000;
+        assertApproxEqAbs(feeReceived, expectedFee, 1); // allow 1 wei rounding
+        assertTrue(vaultReceived > 0);
+        assertTrue(feeReceived > 0);
     }
 
     function testUniV3Swap__Reverts() external {
