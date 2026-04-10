@@ -36,7 +36,12 @@ contract CbBtcUsdcAaveV3BalanceAdapter {
     }
 
     function usdcUsdPrice() public view returns (uint256) {
-        return AggregatorV3Interface(USDC_USD_CHAINLINK_FEED).getPrice();
+        (bool success, bytes memory data) =
+            USDC_USD_CHAINLINK_FEED.staticcall(abi.encodeWithSignature("latestAnswer()"));
+        if (!success) revert StaticCallFailed("usdcusd/latestAnswer");
+        uint256 price = uint256(abi.decode(data, (int256)));
+        require(price >= 0, "negative answer");
+        return price;
     }
 
     /// @notice Returns net TVL of a user denominated in cbBTC (8 decimals).

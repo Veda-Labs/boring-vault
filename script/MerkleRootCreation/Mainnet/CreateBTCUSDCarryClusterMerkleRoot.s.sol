@@ -38,7 +38,7 @@ contract CreateBTCUSDCarryClusterMerkleRootScript is Script, MerkleTreeHelper {
     address public accountantAddress = 0xA7F084687acB40C91A61bDc2BBF383df99eB8900;
     address public boringVault = 0x272BCD869CbDFcb32c335dB2f1F6C54Eb1A50aCc;
     address public managerAddress = 0xE059cDcc94E7937FC7f7EeD9daAFaAd79B066099;
-    address public rawDataDecoderAndSanitizer = 0xdaE2D832C004f2E38547A78A0a2C04dE1DAE37f7;
+    address public rawDataDecoderAndSanitizer = 0x5c6202f606c71fd971A3f17c9bf29A071EFC8aa7;
     address public flashLoanAdapter = 0xCf8298839F8b710B87ba9225b1a29390Fb818759;
     address public rolesAuthority = 0x43A37629C8030b38fCeC2817AAbE62501E74bA88;
 
@@ -57,10 +57,11 @@ contract CreateBTCUSDCarryClusterMerkleRootScript is Script, MerkleTreeHelper {
     }
 
     function _generateMerkleRoot() public {
-        setAddress(false, mainnet, "boringVault", boringVault);
-        setAddress(false, mainnet, "managerAddress", managerAddress);
-        setAddress(false, mainnet, "accountantAddress", accountantAddress);
-        setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        setAddress(true, mainnet, "boringVault", boringVault);
+        setAddress(true, mainnet, "managerAddress", managerAddress);
+        setAddress(true, mainnet, "accountantAddress", accountantAddress);
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        setAddress(true, mainnet, "morphoBlueFlashLoanAdapterAddress", flashLoanAdapter);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](128);
 
@@ -128,8 +129,8 @@ contract CreateBTCUSDCarryClusterMerkleRootScript is Script, MerkleTreeHelper {
         manager.setManageRoot(flashLoanAdapter, manageTree[manageTree.length - 1][0]);
         manager.setManageRoot(vm.addr(vm.envUint("BTCUSDCarryStrategist")), manageTree[manageTree.length - 1][0]);
 
-        authority.setUserRole(flashLoanAdapter, 1, true);
-        authority.setUserRole(flashLoanAdapter, 7, true);
+        // authority.setUserRole(flashLoanAdapter, 1, true);
+        // authority.setUserRole(flashLoanAdapter, 7, true);
         vm.stopBroadcast();
     }
 }
