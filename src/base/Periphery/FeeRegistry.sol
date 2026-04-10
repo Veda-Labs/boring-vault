@@ -7,9 +7,9 @@ pragma solidity 0.8.21;
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {IFeeRegistry} from "src/interfaces/IFeeRegistry.sol";
 
-/// @notice Veda-controlled fee registry. Assigns tokens to groups and configures per-group-pair fees.
-/// @dev Vault admins have no access to this contract. Fees are tiered: like-to-like groups pay less,
-///      cross-asset groups pay more. Token group 0 = unassigned/exotic.
+/// @notice Veda-controlled fee registry. Fees are configured per swapper instance, tiered by token group pair.
+/// @dev Vault admins have no access to this contract. Token group 0 = unassigned/exotic.
+///      getFee() uses msg.sender as the swapper key — callers must be registered BoringSwapper instances.
 contract FeeRegistry is Auth, IFeeRegistry {
 
     // ========================================= STRUCTS =========================================
@@ -19,11 +19,6 @@ contract FeeRegistry is Auth, IFeeRegistry {
         address feeRecipient;
     }
 
-    // ========================================= CONSTANTS =========================================
-
-    /// @notice Hard cap on any single fee tier — 10%.
-    uint16 public constant MAX_FEE_BPS = 1000;
-
     // ========================================= ERRORS =========================================
 
     error FeeRegistry__FeeTooHigh();
@@ -31,66 +26,89 @@ contract FeeRegistry is Auth, IFeeRegistry {
 
     // ========================================= EVENTS =========================================
 
-    event TokenGroupSet(address indexed token, uint8 groupId);
-    event GroupPairFeeSet(uint8 groupA, uint8 groupB, uint16 feeBps, address feeRecipient);
-    event DefaultFeeSet(uint16 feeBps, address feeRecipient);
+    event MaxFeeBpsUpdated(uint16 newMaxFeeBps);
+    event SwapperActiveUpdated(address indexed swapper, bool active);
+    event TokenGroupSet(address indexed swapper, address indexed token, uint8 groupId);
+    event GroupPairFeeSet(address indexed swapper, uint8 groupA, uint8 groupB, uint16 feeBps, address feeRecipient);
+    event DefaultFeeSet(address indexed swapper, uint16 feeBps, address feeRecipient);
 
     // ========================================= STATE =========================================
 
-    /// @notice Token → group ID. Group 0 = unassigned/exotic.
-    mapping(address token => uint8 groupId) public tokenGroup;
+    /// @notice Global cap on any fee tier. Settable by registry admin.
+    uint16 public maxFeeBps;
 
-    /// @notice Normalized group pair → fee config. Pair key is order-independent: min(gA,gB) || max(gA,gB).
-    mapping(bytes32 groupPairId => FeeConfig) public groupFees;
+    /// @notice Whether fee collection is active for a given swapper.
+    mapping(address swapper => bool active) public swapperActive;
 
-    /// @notice Fallback fee used when no explicit group pair fee is configured.
-    FeeConfig public defaultFee;
+    /// @notice swapper → token → group ID. Group 0 = unassigned/exotic.
+    mapping(address swapper => mapping(address token => uint8 groupId)) public tokenGroup;
+
+    /// @notice swapper → normalized group pair → fee config.
+    mapping(address swapper => mapping(bytes32 groupPairId => FeeConfig)) public groupFees;
+
+    /// @notice swapper → fallback fee used when no explicit group pair fee is configured.
+    mapping(address swapper => FeeConfig) public defaultFee;
 
     // ========================================= CONSTRUCTOR =========================================
 
-    constructor(address _owner) Auth(_owner, Authority(address(0))) {}
+    constructor(address _owner, uint16 _maxFeeBps) Auth(_owner, Authority(address(0))) {
+        maxFeeBps = _maxFeeBps;
+    }
 
     // ========================================= ADMIN FUNCTIONS =========================================
 
-    /// @notice Assigns a token to a fee group.
-    function setTokenGroup(address token, uint8 groupId) external requiresAuth {
-        tokenGroup[token] = groupId;
-        emit TokenGroupSet(token, groupId);
+    /// @notice Enables or disables fee collection for a specific swapper.
+    function setSwapperActive(address swapper, bool active) external requiresAuth {
+        swapperActive[swapper] = active;
+        emit SwapperActiveUpdated(swapper, active);
     }
 
-    /// @notice Sets the fee for a group pair. Order of groupA/groupB does not matter.
-    function setGroupPairFee(uint8 groupA, uint8 groupB, uint16 feeBps, address feeRecipient) external requiresAuth {
-        if (feeBps > MAX_FEE_BPS) revert FeeRegistry__FeeTooHigh();
-        if (feeBps > 0 && feeRecipient == address(0)) revert FeeRegistry__InvalidRecipient();
-        groupFees[_pairId(groupA, groupB)] = FeeConfig({feeBps: feeBps, feeRecipient: feeRecipient});
-        emit GroupPairFeeSet(groupA, groupB, feeBps, feeRecipient);
+    /// @notice Updates the global cap on fee tiers.
+    function setMaxFeeBps(uint16 newMaxFeeBps) external requiresAuth {
+        maxFeeBps = newMaxFeeBps;
+        emit MaxFeeBpsUpdated(newMaxFeeBps);
     }
 
-    /// @notice Sets the default fee used when no group pair config exists.
-    function setDefaultFee(uint16 feeBps, address feeRecipient) external requiresAuth {
-        if (feeBps > MAX_FEE_BPS) revert FeeRegistry__FeeTooHigh();
+    /// @notice Assigns a token to a fee group for a specific swapper.
+    function setTokenGroup(address swapper, address token, uint8 groupId) external requiresAuth {
+        tokenGroup[swapper][token] = groupId;
+        emit TokenGroupSet(swapper, token, groupId);
+    }
+
+    /// @notice Sets the fee for a group pair on a specific swapper. Order of groupA/groupB does not matter.
+    function setGroupPairFee(address swapper, uint8 groupA, uint8 groupB, uint16 feeBps, address feeRecipient) external requiresAuth {
+        if (feeBps > maxFeeBps) revert FeeRegistry__FeeTooHigh();
         if (feeBps > 0 && feeRecipient == address(0)) revert FeeRegistry__InvalidRecipient();
-        defaultFee = FeeConfig({feeBps: feeBps, feeRecipient: feeRecipient});
-        emit DefaultFeeSet(feeBps, feeRecipient);
+        groupFees[swapper][_pairId(groupA, groupB)] = FeeConfig({feeBps: feeBps, feeRecipient: feeRecipient});
+        emit GroupPairFeeSet(swapper, groupA, groupB, feeBps, feeRecipient);
+    }
+
+    /// @notice Sets the default fee for a specific swapper, used when no group pair config exists.
+    function setDefaultFee(address swapper, uint16 feeBps, address feeRecipient) external requiresAuth {
+        if (feeBps > maxFeeBps) revert FeeRegistry__FeeTooHigh();
+        if (feeBps > 0 && feeRecipient == address(0)) revert FeeRegistry__InvalidRecipient();
+        defaultFee[swapper] = FeeConfig({feeBps: feeBps, feeRecipient: feeRecipient});
+        emit DefaultFeeSet(swapper, feeBps, feeRecipient);
     }
 
     // ========================================= VIEW FUNCTIONS =========================================
 
-    /// @notice Returns the applicable fee for a swap pair.
-    /// @dev Looks up the group pair fee first; falls back to defaultFee if not configured.
-    ///      A configured fee is detected by a non-zero feeRecipient — a zero feeRecipient means unconfigured.
+    /// @notice Returns the applicable fee for a swap pair, scoped to the calling swapper (msg.sender).
+    /// @dev Looks up group pair fee first; falls back to defaultFee if not configured.
+    ///      A configured fee is detected by a non-zero feeRecipient.
     function getFee(address tokenIn, address tokenOut) external view returns (uint16 feeBps, address feeRecipient) {
-        uint8 gIn = tokenGroup[tokenIn];
-        uint8 gOut = tokenGroup[tokenOut];
-        FeeConfig memory cfg = groupFees[_pairId(gIn, gOut)];
-        if (cfg.feeRecipient != address(0)) return (cfg.feeBps, cfg.feeRecipient);
-        return (defaultFee.feeBps, defaultFee.feeRecipient);
+        uint8 groupIdIn = tokenGroup[msg.sender][tokenIn];
+        uint8 groupIdOut = tokenGroup[msg.sender][tokenOut];
+        FeeConfig memory groupPairFeeConfig = groupFees[msg.sender][_pairId(groupIdIn, groupIdOut)];
+        if (groupPairFeeConfig.feeRecipient != address(0)) return (groupPairFeeConfig.feeBps, groupPairFeeConfig.feeRecipient);
+        FeeConfig memory defaultFeeConfig = defaultFee[msg.sender];
+        return (defaultFeeConfig.feeBps, defaultFeeConfig.feeRecipient);
     }
 
     // ========================================= INTERNAL FUNCTIONS =========================================
 
     /// @notice Produces an order-normalized pair key so (A,B) == (B,A).
-    function _pairId(uint8 a, uint8 b) internal pure returns (bytes32) {
-        return a <= b ? keccak256(abi.encode(a, b)) : keccak256(abi.encode(b, a));
+    function _pairId(uint8 groupA, uint8 groupB) internal pure returns (bytes32) {
+        return groupA <= groupB ? keccak256(abi.encode(groupA, groupB)) : keccak256(abi.encode(groupB, groupA));
     }
 }

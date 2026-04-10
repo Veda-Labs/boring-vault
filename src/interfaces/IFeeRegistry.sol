@@ -5,5 +5,6 @@
 pragma solidity 0.8.21;
 
 interface IFeeRegistry {
+    function swapperActive(address swapper) external view returns (bool);
     function getFee(address tokenIn, address tokenOut) external view returns (uint16 feeBps, address feeRecipient);
 }

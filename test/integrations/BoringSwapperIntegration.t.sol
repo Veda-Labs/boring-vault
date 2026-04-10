@@ -72,7 +72,8 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         registry = new AdapterRegistry(); 
 
         //do additional setup here
-        swapper = new BoringSwapper(address(this), registry, IFeeRegistry(address(0)));
+        FeeRegistry feeRegistry = new FeeRegistry(address(this), 1000);
+        swapper = new BoringSwapper(address(this), registry, feeRegistry);
 
         // auth: vault can call swap functions; address(this) (owner) can call directly in tests
         swapper.setAuthority(rolesAuthority);
@@ -204,12 +205,13 @@ contract BoringSwapperIntegration is BaseTestIntegration {
     function testUniV3Swap_FeeDeducted() external {
         deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18);
 
-        // Set up fee registry: WETH (group 2) → USDC (group 1) = 30 bps
-        address feeRecipient = address(0xFEE);
-        FeeRegistry feeReg = new FeeRegistry(address(this));
-        feeReg.setTokenGroup(getAddress(sourceChain, "WETH"), 2);
-        feeReg.setTokenGroup(getAddress(sourceChain, "USDC"), 1);
-        feeReg.setGroupPairFee(1, 2, 30, feeRecipient);
+        // Set up fee registry: WETH (group 2) → USDC (group 1) = 30 bps, scoped to address(swapper)
+        address feeRecipient = address(0x69);
+        FeeRegistry feeReg = new FeeRegistry(address(this), 1000);
+        feeReg.setTokenGroup(address(swapper), getAddress(sourceChain, "WETH"), 2);
+        feeReg.setTokenGroup(address(swapper), getAddress(sourceChain, "USDC"), 1);
+        feeReg.setGroupPairFee(address(swapper), 1, 2, 30, feeRecipient);
+        feeReg.setSwapperActive(address(swapper), true);
         swapper.setFeeRegistry(IFeeRegistry(address(feeReg)));
 
         address[] memory tokens = new address[](2);
@@ -274,11 +276,10 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         uint256 feeReceived = feeRecipientUsdcAfter - feeRecipientUsdcBefore;
         uint256 totalOutput = vaultReceived + feeReceived;
 
-        // fee should be ~30 bps of total output
         uint256 expectedFee = totalOutput * 30 / 10_000;
-        assertApproxEqAbs(feeReceived, expectedFee, 1); // allow 1 wei rounding
-        assertTrue(vaultReceived > 0);
-        assertTrue(feeReceived > 0);
+        assertGt(totalOutput, 0);
+        assertEq(feeReceived, expectedFee);
+        assertEq(vaultReceived, totalOutput - expectedFee);
     }
 
     function testUniV3Swap__Reverts() external {

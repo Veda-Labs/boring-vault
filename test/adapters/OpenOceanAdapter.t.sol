@@ -15,6 +15,7 @@ import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
 import {PriceValidator} from "src/base/Periphery/adapters/price/PriceValidator.sol";
 import {IPriceValidator} from "src/interfaces/IPriceValidator.sol";
+import {FeeRegistry} from "src/base/Periphery/FeeRegistry.sol";
 import {IFeeRegistry} from "src/interfaces/IFeeRegistry.sol";
 
 import {Test, console} from "@forge-std/Test.sol";
@@ -55,7 +56,7 @@ contract OpenOceanAdapterTest is BaseTestIntegration {
         _overrideDecoder(swapperDecoder);
 
         registry = new AdapterRegistry();
-        swapper = new BoringSwapper(address(this), registry, IFeeRegistry(address(0)));
+        swapper = new BoringSwapper(address(this), registry, new FeeRegistry(address(this), 1000));
         swapper.setAuthority(rolesAuthority);
 
         openOceanAdapter = address(new OpenOceanAdapter(OPENOCEAN_ROUTER, OPENOCEAN_CALLER));

@@ -15,6 +15,7 @@ import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
 import {PriceValidator} from "src/base/Periphery/adapters/price/PriceValidator.sol";
 import {IPriceValidator} from "src/interfaces/IPriceValidator.sol";
+import {FeeRegistry} from "src/base/Periphery/FeeRegistry.sol";
 import {IFeeRegistry} from "src/interfaces/IFeeRegistry.sol";
 
 import {Test, console} from "@forge-std/Test.sol";
@@ -59,7 +60,7 @@ contract OneInchAdapterTest is BaseTestIntegration {
 
 
         registry = new AdapterRegistry();
-        swapper = new BoringSwapper(address(this), registry, IFeeRegistry(address(0)));
+        swapper = new BoringSwapper(address(this), registry, new FeeRegistry(address(this), 1000));
         swapper.setAuthority(rolesAuthority);
 
         oneInchAdapter = address(new OneInchAdapter(ONEINCH_ROUTER, ONEINCH_FEE_TAKER, ONEINCH_EXECUTOR));

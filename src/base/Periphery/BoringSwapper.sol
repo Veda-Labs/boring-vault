@@ -215,16 +215,18 @@ contract BoringSwapper is Auth, ISwapper, IPausable {
 
         //reset approvals and transfer
         swapConfig.tokenRoute.tokenIn.approve(target, 0);
-        
-        //charge fees if there is a fee to charge for the swap route
-        (uint16 feeBps, address feeRecipient) = feeRegistry.getFee(
-            address(swapConfig.tokenRoute.tokenIn),
-            address(swapConfig.tokenRoute.tokenOut)
-        );
-        if (feeBps > 0 && feeRecipient != address(0)) {
-            uint256 fee = tokenBalanceDelta.mulDivDown(feeBps, 10_000);
-            tokenBalanceDelta -= fee;
-            swapConfig.tokenRoute.tokenOut.safeTransfer(feeRecipient, fee);
+
+        //charge fees if fee collection is active for this swapper
+        if (feeRegistry.swapperActive(address(this))) {
+            (uint16 feeBps, address feeRecipient) = feeRegistry.getFee(
+                address(swapConfig.tokenRoute.tokenIn),
+                address(swapConfig.tokenRoute.tokenOut)
+            );
+            if (feeBps > 0 && feeRecipient != address(0)) {
+                uint256 fee = tokenBalanceDelta.mulDivDown(feeBps, 10_000);
+                tokenBalanceDelta -= fee;
+                swapConfig.tokenRoute.tokenOut.safeTransfer(feeRecipient, fee);
+            }
         }
 
         swapConfig.tokenRoute.tokenOut.safeTransfer(address(swapConfig.receiver), tokenBalanceDelta);
@@ -290,7 +292,7 @@ contract BoringSwapper is Auth, ISwapper, IPausable {
         // If the order is cancelled, the fee is NOT refunded (it was already forwarded).
         uint256 limitFee;
         address limitFeeRecipient;
-        if (address(feeRegistry) != address(0)) {
+        if (feeRegistry.swapperActive(address(this))) {
             (uint16 feeBps, address fr) = feeRegistry.getFee(
                 address(swapConfig.tokenRoute.tokenIn),
                 address(swapConfig.tokenRoute.tokenOut)

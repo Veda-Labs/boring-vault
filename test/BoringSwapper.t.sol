@@ -86,7 +86,8 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         //registry + swapper
         registry = new AdapterRegistry();
-        swapper = new BoringSwapper(address(this), registry, IFeeRegistry(address(0)));
+        feeRegistry = new FeeRegistry(address(this), 1000);
+        swapper = new BoringSwapper(address(this), registry, feeRegistry);
 
         //auth setup
         swapper.setAuthority(rolesAuthority);
@@ -888,22 +889,22 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     //==================== FeeRegistry Unit Tests ====================
 
     function testFeeRegistry_SameGroup() external {
-        feeRegistry = new FeeRegistry(address(this));
-        // group 1 = stables; same-group fee = 5 bps
-        feeRegistry.setTokenGroup(address(USDC), 1);
-        feeRegistry.setTokenGroup(address(WETH), 1);
-        feeRegistry.setGroupPairFee(1, 1, 5, address(0xFEE));
+        feeRegistry = new FeeRegistry(address(this), 1000);
+        // getFee uses msg.sender as swapper key — set groups for address(this)
+        feeRegistry.setTokenGroup(address(this), address(USDC), 1);
+        feeRegistry.setTokenGroup(address(this), address(WETH), 1);
+        feeRegistry.setGroupPairFee(address(this), 1, 1, 5, address(0x69));
 
         (uint16 feeBps, address recipient) = feeRegistry.getFee(address(USDC), address(WETH));
         assertEq(feeBps, 5);
-        assertEq(recipient, address(0xFEE));
+        assertEq(recipient, address(0x69));
     }
 
     function testFeeRegistry_CrossGroup() external {
-        feeRegistry = new FeeRegistry(address(this));
-        feeRegistry.setTokenGroup(address(WETH), 2);  // ETH group
-        feeRegistry.setTokenGroup(address(USDC), 1);  // stable group
-        feeRegistry.setGroupPairFee(1, 2, 30, address(0xFEE));
+        feeRegistry = new FeeRegistry(address(this), 1000);
+        feeRegistry.setTokenGroup(address(this), address(WETH), 2);
+        feeRegistry.setTokenGroup(address(this), address(USDC), 1);
+        feeRegistry.setGroupPairFee(address(this), 1, 2, 30, address(0x69));
 
         (uint16 feeBps,) = feeRegistry.getFee(address(WETH), address(USDC));
         assertEq(feeBps, 30);
@@ -913,49 +914,59 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     }
 
     function testFeeRegistry_DefaultFallback() external {
-        feeRegistry = new FeeRegistry(address(this));
-        feeRegistry.setDefaultFee(20, address(0xFEE));
+        feeRegistry = new FeeRegistry(address(this), 1000);
+        feeRegistry.setDefaultFee(address(this), 20, address(0x69));
 
-        // no group configured — falls through to default
         (uint16 feeBps, address recipient) = feeRegistry.getFee(address(WETH), address(USDC));
         assertEq(feeBps, 20);
-        assertEq(recipient, address(0xFEE));
+        assertEq(recipient, address(0x69));
     }
 
     function testFeeRegistry_GroupPairOverridesDefault() external {
-        feeRegistry = new FeeRegistry(address(this));
-        feeRegistry.setDefaultFee(20, address(0xFEE));
-        feeRegistry.setTokenGroup(address(WETH), 2);
-        feeRegistry.setTokenGroup(address(USDC), 1);
-        feeRegistry.setGroupPairFee(1, 2, 5, address(0xFEE));
+        feeRegistry = new FeeRegistry(address(this), 1000);
+        feeRegistry.setDefaultFee(address(this), 20, address(0x69));
+        feeRegistry.setTokenGroup(address(this), address(WETH), 2);
+        feeRegistry.setTokenGroup(address(this), address(USDC), 1);
+        feeRegistry.setGroupPairFee(address(this), 1, 2, 5, address(0x69));
 
         (uint16 feeBps,) = feeRegistry.getFee(address(WETH), address(USDC));
         assertEq(feeBps, 5);
     }
 
+    function testFeeRegistry_IsolatedPerSwapper() external {
+        feeRegistry = new FeeRegistry(address(this), 1000);
+        // configure for address(this) — address(0x420) should see zero fee
+        feeRegistry.setDefaultFee(address(this), 20, address(0x69));
+
+        vm.prank(address(0x420));
+        (uint16 feeBps, address recipient) = feeRegistry.getFee(address(WETH), address(USDC));
+        assertEq(feeBps, 0);
+        assertEq(recipient, address(0));
+    }
+
     function testFeeRegistry_RevertFeeTooHigh() external {
-        feeRegistry = new FeeRegistry(address(this));
+        feeRegistry = new FeeRegistry(address(this), 1000);
         vm.expectRevert(FeeRegistry.FeeRegistry__FeeTooHigh.selector);
-        feeRegistry.setGroupPairFee(0, 1, 1001, address(0xFEE));
+        feeRegistry.setGroupPairFee(address(this), 0, 1, 1001, address(0x69));
     }
 
     function testFeeRegistry_RevertInvalidRecipient() external {
-        feeRegistry = new FeeRegistry(address(this));
+        feeRegistry = new FeeRegistry(address(this), 1000);
         vm.expectRevert(FeeRegistry.FeeRegistry__InvalidRecipient.selector);
-        feeRegistry.setGroupPairFee(0, 1, 10, address(0));
+        feeRegistry.setGroupPairFee(address(this), 0, 1, 10, address(0));
     }
 
     //==================== BoringSwapper Fee Tests ====================
 
     function testSetFeeRegistry() external {
-        feeRegistry = new FeeRegistry(address(this));
+        feeRegistry = new FeeRegistry(address(this), 1000);
         swapper.setFeeRegistry(IFeeRegistry(address(feeRegistry)));
         assertEq(address(swapper.feeRegistry()), address(feeRegistry));
     }
 
     function testSetFeeRegistry_Unauthorized() external {
-        feeRegistry = new FeeRegistry(address(this));
-        vm.prank(address(0xBAD));
+        feeRegistry = new FeeRegistry(address(this), 1000);
+        vm.prank(address(0x42069));
         vm.expectRevert();
         swapper.setFeeRegistry(IFeeRegistry(address(feeRegistry)));
     }
@@ -963,11 +974,12 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     function testSubmitOrder_FeeChargedUpfront() external {
         deal(address(WETH), address(boringVault), 100e18);
 
-        feeRegistry = new FeeRegistry(address(this));
-        // 10 bps fee on WETH → USDC
-        feeRegistry.setTokenGroup(address(WETH), 1);
-        feeRegistry.setTokenGroup(address(USDC), 2);
-        feeRegistry.setGroupPairFee(1, 2, 10, address(0xFEE));
+        feeRegistry = new FeeRegistry(address(this), 1000);
+        // 10 bps fee on WETH → USDC, scoped to address(swapper)
+        feeRegistry.setTokenGroup(address(swapper), address(WETH), 1);
+        feeRegistry.setTokenGroup(address(swapper), address(USDC), 2);
+        feeRegistry.setGroupPairFee(address(swapper), 1, 2, 10, address(0x69));
+        feeRegistry.setSwapperActive(address(swapper), true);
         swapper.setFeeRegistry(IFeeRegistry(address(feeRegistry)));
 
         uint256 inputAmount = 1e18;
@@ -980,13 +992,13 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         // vault was debited inputAmount + fee
         assertEq(WETH.balanceOf(address(boringVault)), 100e18 - inputAmount - expectedFee);
         // fee recipient received the fee
-        assertEq(WETH.balanceOf(address(0xFEE)), expectedFee);
+        assertEq(WETH.balanceOf(address(0x69)), expectedFee);
     }
 
-    function testSubmitOrder_NoFeeWhenRegistryNotSet() external {
+    function testSubmitOrder_NoFeeWhenSwapperNotActive() external {
         deal(address(WETH), address(boringVault), 100e18);
 
-        // feeRegistry is address(0) — no fee taken
+        // swapper is not active in fee registry — no fee taken
         (,, uint256 orderId) = _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
 
         assertEq(WETH.balanceOf(address(swapper)), 1e18);
@@ -996,9 +1008,10 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     function testSubmitOrder_ZeroFeeBps_NoFeeCharged() external {
         deal(address(WETH), address(boringVault), 100e18);
 
-        feeRegistry = new FeeRegistry(address(this));
-        // fee bps = 0 means no fee even with a registry set
-        feeRegistry.setDefaultFee(0, address(0));
+        feeRegistry = new FeeRegistry(address(this), 1000);
+        // fee bps = 0 means no fee even with a registry set and swapper active
+        feeRegistry.setDefaultFee(address(swapper), 0, address(0));
+        feeRegistry.setSwapperActive(address(swapper), true);
         swapper.setFeeRegistry(IFeeRegistry(address(feeRegistry)));
 
         (,, uint256 orderId) = _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
