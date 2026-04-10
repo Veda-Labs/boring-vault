@@ -8,20 +8,21 @@ import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
+import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import "forge-std/Script.sol";
 
 /**
- *  source .env && forge script script/MerkleRootCreation/Optimism/CreateMultiChainLiquidEthMerkleRoot.s.sol:CreateMultiChainLiquidEthMerkleRootScript --rpc-url $OPTIMISM_RPC_URL
+ *  source .env && forge script script/MerkleRootCreation/Optimism/CreateLiquidUsdMerkleRoot.s.sol --rpc-url $OPTIMISM_RPC_URL
  */
-contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
+contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
-    address public boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C;
+    //standard
+    address public boringVault = 0x08c6F91e2B681FaF5e17227F2a44C307b3C1364C;
+    address public managerAddress = 0x7b57Ad1A0AA89583130aCfAD024241170D24C13C;
+    address public accountantAddress = 0xc315D6e14DDCDC7407784e2Caf815d131Bc1D3E7;
     address public rawDataDecoderAndSanitizer = 0x58D28BB88400b889C4a1b754d930a743323F5Ada;
-    address public managerAddress = 0x227975088C28DBBb4b421c6d96781a53578f19a8;
-    address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
-
 
     function setUp() external {}
 
@@ -29,38 +30,33 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
      * @notice Uncomment which script you want to run.
      */
     function run() external {
-        generateMultiChainLiquidEthStrategistMerkleRoot();
+        /// NOTE Only have 1 function run at a time, otherwise the merkle root created will be wrong.
+        generateAdminStrategistMerkleRoot();
     }
 
-    function generateMultiChainLiquidEthStrategistMerkleRoot() public {
+    function generateAdminStrategistMerkleRoot() public {
         setSourceChainName(optimism);
         setAddress(false, optimism, "boringVault", boringVault);
         setAddress(false, optimism, "managerAddress", managerAddress);
         setAddress(false, optimism, "accountantAddress", accountantAddress);
         setAddress(false, optimism, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](16);
+        ManageLeaf[] memory leafs = new ManageLeaf[](32);
 
-        // ========================== Native ==========================
-        /**
-         * wrap, unwrap
-         */
-        _addNativeLeafs(leafs);
-
-
-        // ========================== Fee Claiming ==========================
-        /**
-         * Claim fees in USDC, DAI, USDT and USDE
-         */
+        // Fee Claiming 
         ERC20[] memory feeAssets = new ERC20[](2);
-        feeAssets[0] = getERC20(sourceChain, "WETH");
-        feeAssets[1] = getERC20(sourceChain, "WEETH_OFT");
-        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
+        feeAssets[0] = getERC20(sourceChain, "USDC");
+        feeAssets[1] = getERC20(sourceChain, "USDT");
+        _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);   
 
 
         // ========================== Standard Bridge ==========================
-        ERC20[] memory localTokens = new ERC20[](0);
-        ERC20[] memory remoteTokens = new ERC20[](0);
+        ERC20[] memory localTokens = new ERC20[](1);
+        localTokens[0] = getERC20(sourceChain, "USDT");
+
+        ERC20[] memory remoteTokens = new ERC20[](1);
+        remoteTokens[0] = getERC20(mainnet, "USDT");
+
         _addStandardBridgeLeafs(
             leafs,
             mainnet,
@@ -72,15 +68,19 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             remoteTokens
         );
 
-        // ========================== LayerZero ==========================
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WEETH_OFT"), getAddress(sourceChain, "WEETH_OFT"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));   
+        // CCTP Bridge
+        _addCCTPBridgeLeafs(leafs, cctpMainnetDomainId);
 
+        // ========================== Verify ==========================
+
+        _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
+
+        string memory filePath = "./leafs/Optimism/LiquidUsdStrategistLeafs.json";
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
-        string memory filePath = "./leafs/Optimism/MultiChainLiquidEthStrategistLeafs.json";
-
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
-    }
 
+    }
 }
+
