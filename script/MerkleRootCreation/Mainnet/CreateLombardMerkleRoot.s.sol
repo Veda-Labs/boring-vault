@@ -217,6 +217,14 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
             _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "sLBTCWithdrawQueue"), getAddress(sourceChain, "sLBTC"), sLBTCTellerAssets);  
         }
 
+        {
+            ERC20[] memory capBTCAssets = new ERC20[](2);
+            capBTCAssets[0] = getERC20(sourceChain, "LBTC");
+            capBTCAssets[1] = getERC20(sourceChain, "BTCb");
+            _addTellerLeafs(leafs, getAddress(sourceChain, "capBTCTeller"), capBTCAssets, false, true); //no native leaves, yes bulk actions
+            _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "capBTCWithdrawQueue"), getAddress(sourceChain, "capBTC"), capBTCAssets);  
+        }
+
         // ========================== Pendle ==========================
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_eBTC_market_12_26_24"), true);
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_LBTC_corn_market_12_26_24"), true);
