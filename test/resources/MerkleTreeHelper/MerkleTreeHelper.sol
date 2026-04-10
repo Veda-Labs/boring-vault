@@ -8440,7 +8440,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
          address itbPositionManager,
          ERC20[] memory tokensUsed,
          string memory itbContractName
-     ) internal {
+     ) internal virtual {
          // acceptOwnership
          leafIndex++;
          leafs[leafIndex] = ManageLeaf(

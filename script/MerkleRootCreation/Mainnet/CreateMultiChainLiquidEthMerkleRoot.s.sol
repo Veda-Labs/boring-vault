@@ -936,8 +936,12 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             address itbPositionManager4 = 0xCF346a4F898e9FdacD3a130fFe00F1f2dA56C90a;
             ERC20[] memory itbTokensUsed2 = new ERC20[](1);
             itbTokensUsed2[0] = getERC20(sourceChain, "WEETH");
+
+            ERC20[] memory itbTokensUsed3 = new ERC20[](2);
+            itbTokensUsed3[0] = getERC20(sourceChain, "WEETH");
+            itbTokensUsed3[1] = getERC20(sourceChain, "PYUSD");
             // Aave weETH -> RLUSD -> RLUSD Aave Horizon
-            _addLeafsForITBPositionManager(leafs, itbPositionManager2, itbTokensUsed2, "ITB Position Manager 2");
+            _addLeafsForITBPositionManager(leafs, itbPositionManager2, itbTokensUsed3, "ITB Position Manager 2");
             //Spark weETH → PYUSD → PYUSD Euler
             _addLeafsForITBPositionManager(leafs, itbPositionManager3, itbTokensUsed2, "ITB Position Manager 3");
             _addLeafsForITBPositionManager(leafs, itbPositionManager4, itbTokensUsed2, "ITB Position Manager 4");
@@ -969,7 +973,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         address itbPositionManager,
         ERC20[] memory tokensUsed,
         string memory itbContractName
-    ) internal {
+    ) internal override {
         // acceptOwnership
         leafIndex++;
         leafs[leafIndex] = ManageLeaf(

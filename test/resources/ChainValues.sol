@@ -81,6 +81,7 @@ contract ChainValues {
     uint32 public constant cctpMainnetDomainId = 0; 
     uint32 public constant cctpInkDomainId = 21; 
     uint32 public constant cctpPlumeDomainId = 22;
+    uint32 public constant cctpOptimismDomainId = 2;
 
     error ChainValues__ZeroAddress(string chainName, string valueName);
     error ChainValues__ZeroBytes32(string chainName, string valueName);
@@ -1343,6 +1344,7 @@ contract ChainValues {
         // Layer Zero.
         values[mainnet]["LayerZeroEndPoint"] = 0x1a44076050125825900e736c501f859c50fE728c.toBytes32();
         values[mainnet]["EtherFiOFTAdapter"] = 0xcd2eb13D6831d4602D80E5db9230A57596CDCA63.toBytes32();
+        values[mainnet]["EthFiOFTAdapter"] = 0xe0080d2F853ecDdbd81A643dC10DA075Df26fD3f.toBytes32();
         values[mainnet]["weETHOFTAdapterMovement"] = 0x6FFcE32713417569237786cbeFBe355090642bF9.toBytes32();
         values[mainnet]["LBTCOFTAdapter"] = 0x6bc15D7930839Ec18A57F6f7dF72aE1B439D077f.toBytes32();
         values[mainnet]["WBTCOFTAdapter"] = 0x0555E30da8f98308EdB960aa94C0Db47230d2B9c.toBytes32();
@@ -1574,6 +1576,10 @@ contract ChainValues {
         // CCTP USDC Bridge
         values[mainnet]["usdcTokenMessengerV2"] = 0x28b5a0e9C621a5BadaA536219b3a228C8168cf5d.toBytes32();
         values[mainnet]["usdcMessageTransmitterV2"] = 0x81D40F21F12A8F0E3252Bccb954D722d4c464B64.toBytes32();
+
+        // CCTP USDC BRIDGE
+        values[optimism]["usdcTokenMessengerV2"] = 0x28b5a0e9C621a5BadaA536219b3a228C8168cf5d.toBytes32();
+        values[optimism]["usdcMessageTransmitterV2"] = 0x81D40F21F12A8F0E3252Bccb954D722d4c464B64.toBytes32();
 
         // Yearn
         values[mainnet]["yKatanaPredepositWETH"] = 0xcc6a16Be713f6a714f68b0E1f4914fD3db15fBeF.toBytes32();
@@ -1915,6 +1921,7 @@ contract ChainValues {
         values[optimism]["ETH"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32();
         values[optimism]["WBTC"] = 0x68f180fcCe6836688e9084f035309E29Bf0A2095.toBytes32();
         values[optimism]["ETHFI"] = 0xe0080d2F853ecDdbd81A643dC10DA075Df26fD3f.toBytes32();
+        values[optimism]["USDT"] = 0x94b008aA00579c1307B0EF2c499aD98a8ce58e58.toBytes32();
         values[optimism]["USDC"] = 0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85.toBytes32();
         values[optimism]["USDe"] = 0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34.toBytes32();
 
@@ -2066,6 +2073,8 @@ contract ChainValues {
         values[scroll]["ETH"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32();
         values[scroll]["DAI"] = 0xcA77eB3fEFe3725Dc33bccB54eDEFc3D9f764f97.toBytes32();
         values[scroll]["WETH"] = 0x5300000000000000000000000000000000000004.toBytes32();
+        values[scroll]["ETHFI"] = 0x056A5FA5da84ceb7f93d36e545C5905607D8bD81.toBytes32();
+        values[scroll]["ETHFIOFTAdapter"] = 0xe0080d2F853ecDdbd81A643dC10DA075Df26fD3f.toBytes32();
         values[scroll]["WEETH"] = 0x01f0a31698C4d065659b9bdC21B3610292a1c506.toBytes32(); //also OFT
         values[scroll]["WBTC"] = 0x3C1BCa5a656e69edCD0D4E36BEbb3FcDAcA60Cf1.toBytes32();
         values[scroll]["USDC"] = 0x06eFdBFf2a14a7c8E15944D1F4A48F9F95F663A4.toBytes32();

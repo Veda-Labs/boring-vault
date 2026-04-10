@@ -32,6 +32,8 @@ contract CreateLiquidUsdOperationalMerkleRootScript is Script, MerkleTreeHelper 
     address public symbioticDecoderAndSanitizer = 0xdaEfE2146908BAd73A1C45f75eB2B8E46935c781;
     address public pancakeSwapDataDecoderAndSanitizer = 0xfdC73Fc6B60e4959b71969165876213918A443Cd;
     address public aaveV3DecoderAndSanitizer = 0x159Af850c18a83B67aeEB9597409f6C4Aa07ACb3;
+    address public cctpDecoderAndSanitizer = 0xd2a9C2F3f8c148dc0E18Dfd0bAE482d9c2E1BA2e;
+    address public standardBridgeDecoderAndSanitizer = 0xC48cA54b9F3f8Fc7E5347DE55879851178B485e8;
 
     function setUp() external {}
 
@@ -95,6 +97,30 @@ contract CreateLiquidUsdOperationalMerkleRootScript is Script, MerkleTreeHelper 
             setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 
+        // ========================== Standard Bridge to Optimism ==========================
+        {
+            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", standardBridgeDecoderAndSanitizer);
+            ERC20[] memory localTokens = new ERC20[](2);
+            localTokens[0] = getERC20(sourceChain, "USDC");
+            localTokens[1] = getERC20(sourceChain, "USDT");
+            ERC20[] memory remoteTokens = new ERC20[](2);
+            remoteTokens[0] = getERC20(optimism, "USDC");
+            remoteTokens[1] = getERC20(optimism, "USDT");
+            _addStandardBridgeLeafs(
+                leafs,
+                optimism,
+                getAddress(optimism, "crossDomainMessenger"),
+                getAddress(sourceChain, "optimismResolvedDelegate"),
+                getAddress(sourceChain, "optimismStandardBridge"),
+                getAddress(sourceChain, "optimismPortal"),
+                localTokens,
+                remoteTokens
+            );
+        }
+
+        // ========================== CCTP Bridge ==========================
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", cctpDecoderAndSanitizer);
+        _addCCTPBridgeLeafs(leafs, cctpOptimismDomainId);
 
         // ========================== CAP ==========================
         {
