@@ -33,7 +33,7 @@ abstract contract OVaultDecoderAndSanitizer is BaseDecoderAndSanitizer {
         addressesFound = abi.encodePacked(to, _refundAddress);
     }
 
-    function depositAndSend(
+    function depositAndSend(uint256 _amount,
         DecoderCustomTypes.SendParam calldata _sendParam,
         address _refundAddress
     ) external pure virtual returns (bytes memory addressesFound) {

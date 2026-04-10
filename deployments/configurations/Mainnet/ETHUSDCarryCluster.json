@@ -1,0 +1,217 @@
+{
+    "deploymentParameters": {
+        "logLevel": 4,
+        "privateKeyEnvName": "PK",
+        "chainName": "mainnet",
+        "evmVersion": "cancun",
+        "desiredNumberOfDeploymentTxs": 20,
+        "txBundlerAddressOrName": {
+            "address": "0x5BD97A73333B6EC2e38B687bcED159566A14C5BA",
+            "name": "txBundlerAddress"
+        },
+        "setupRoles": true,
+        "setupTestUser": false,
+        "saveDeploymentDetails": true,
+        "testUserAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "dev1Address"
+        },
+        "deployerContractAddressOrName": {
+            "address": "0x5BD97A73333B6EC2e38B687bcED159566A14C5BA",
+            "name": "deployerAddress"
+        },
+        "nativeWrapperAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "WETH"
+        },
+        "deploymentOwnerAddressOrName": {
+            "address": "0x5BD97A73333B6EC2e38B687bcED159566A14C5BA",
+            "name": "deployerAddress"
+        },
+        "deploymentFileName": "addresses/Mainnet/ETHUSDCarryClusterDeployment.json"
+    },
+    "rolesAuthorityConfiguration": {
+        "rolesAuthorityDeploymentName": "ETHUSDCarryCluster rolesAuthorityV1.0"
+    },
+    "lensConfiguration": {
+        "lensDeploymentName": "ETHUSDCarryCluster lensV1.0"
+    },
+    "boringVaultConfiguration": {
+        "boringVaultDeploymentName": "ETHUSDCarryCluster boringVaultV1.0",
+        "boringVaultName": "ETHUSDCarryCluster",
+        "boringVaultSymbol": "ETHUSDCarryCluster",
+        "boringVaultDecimals": 18
+    },
+    "managerConfiguration": {
+        "managerDeploymentName": "ETHUSDCarryCluster managerV1.0",
+        "balancerVaultAddressOrName": {
+            "address": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+            "name": "balancerVault"
+        }
+    },
+    "accountantConfiguration": {
+        "accountantDeploymentName": "ETHUSDCarryCluster accountantV1.0",
+        "accountantParameters": {
+            "kind": {
+                "variableRate": true,
+                "fixedRate": false
+            },
+            "payoutConfiguration": {
+                "payoutTo": "0xce1BF18D049638B3ee9dF934aeE5e5fC42BBFDb3",
+                "optionalPaymentSplitterName": "Payment Splitter",
+                "splits": []
+            },
+            "accountantDeploymentParameters": {
+                "allowedExchangeRateChangeLower": 8000,
+                "allowedExchangeRateChangeUpper": 12000,
+                "baseAddressOrName": {
+                    "address": "0x0000000000000000000000000000000000000000",
+                    "name": "WETH"
+                },
+                "minimumUpateDelayInSeconds": 3600,
+                "performanceFee": 1500,
+                "platformFee": 0,
+                "startingExchangeRate": 1000000000000000000
+            }
+        }
+    },
+    "tellerConfiguration": {
+        "tellerDeploymentName": "ETHUSDCarryCluster TellerV1.0",
+        "tellerParameters": {
+            "allowPublicDeposits": false,
+            "shareLockPeriod": 3600,
+            "kind": {
+                "teller": false,
+                "tellerWithRemediation": false,
+                "tellerWithCcip": false,
+                "tellerWithLayerZero": true
+            },
+            "ccip": {
+                "routerAddressOrName": {
+                    "address": "0x0000000000000000000000000000000000000000",
+                    "name": "ccipRouter"
+                },
+                "ccipChains": [
+                    {
+                        "chainSelector": 1,
+                        "allowMessagesFrom": true,
+                        "allowMessagesTo": true,
+                        "targetTellerOrSelf": {
+                            "address": "0x0000000000000000000000000000000000000000",
+                            "self": true
+                        },
+                        "messageGasLimit": 100000
+                    }
+                ]
+            },
+            "layerZero": {
+                "endpointAddressOrName": {
+                    "address": "0x0000000000000000000000000000000000000000",
+                    "name": "LayerZeroEndPoint"
+                },
+                "lzTokenAddressOrName": {
+                    "address": "0x0000000000000000000000000000000000000000",
+                    "name": "ZRO"
+                },
+                "lzChains": [
+                    {
+                        "chainId": 30110,
+                        "allowMessagesFrom": true,
+                        "allowMessagesTo": true,
+                        "targetTellerOrSelf": {
+                            "address": "0x0000000000000000000000000000000000000000",
+                            "self": true
+                        },
+                        "messageGasLimit": 100000
+                    }
+                ]
+            }
+        }
+    },
+    "boringQueueConfiguration": {
+        "boringQueueDeploymentName": "ETHUSDCarryCluster BoringOnChainQueueV1.0",
+        "boringQueueSolverName": "ETHUSDCarryCluster BoringSolverV1.0",
+        "queueParameters": {
+            "allowPublicWithdrawals": false,
+            "allowPublicSelfWithdrawals": false,
+            "kind": {
+                "boringQueue": true,
+                "boringQueueWithTracking": false
+            }
+        }
+    },
+    "droneConfiguration": {
+        "droneDeploymentBaseName": "ETHUSDCarryCluster Boring Drone",
+        "droneCount": 1,
+        "safeGasToForwardNative": 21000
+    },
+    "pauserConfiguration": {
+        "shouldDeploy": true,
+        "pauserDeploymentName": "ETHUSDCarryCluster Pauser",
+        "makeGenericPauser": [
+            "0x0000000000000000000000000000000000000000"
+        ],
+        "makeGenericUnpauser": [
+            "0x0000000000000000000000000000000000000000"
+        ],
+        "makePauseAll": [
+            "0x0000000000000000000000000000000000000000"
+        ],
+        "makeUnpauseAll": [
+            "0x0000000000000000000000000000000000000000"
+        ],
+        "senderToPausable": [
+            {
+                "sender": "0x0000000000000000000000000000000000000000",
+                "pausable": "0x0000000000000000000000000000000000000000"
+            }
+        ]
+    },
+    "timelockConfiguration": {
+        "shouldDeploy": true,
+        "timelockDeploymentName": "ETHUSDCarryCluster Timelock",
+        "timelockParameters": {
+            "minDelay": 86400,
+            "proposers": [
+                "0x0000000000000000000000000000000000000000"
+            ],
+            "executors": [
+                "0x0000000000000000000000000000000000000000"
+            ]
+        }
+    },
+    "accountantAssets": [
+        {
+            "addressOrName": {
+                "address": "0x0000000000000000000000000000000000000000",
+                "name": "WETH"
+            },
+            "isPeggedToBase": true,
+            "rateProvider": "0x0000000000000000000000000000000000000000"
+        }
+    ],
+    "depositAssets": [
+        {
+            "addressOrName": {
+                "address": "0x0000000000000000000000000000000000000000",
+                "name": "WETH"
+            },
+            "allowDeposits": true,
+            "allowWithdraws": true,
+            "sharePremium": 0
+        }
+    ],
+    "withdrawAssets": [
+        {
+            "addressOrName": {
+                "address": "0x0000000000000000000000000000000000000000",
+                "name": "WETH"
+            },
+            "maxDiscount": 100,
+            "minDiscount": 0,
+            "minimumSecondsToDeadline": 3600,
+            "minimumShares": 0,
+            "secondsToMaturity": 600
+        }
+    ]
+}
