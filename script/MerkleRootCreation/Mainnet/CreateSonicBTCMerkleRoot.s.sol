@@ -23,6 +23,9 @@ contract CreateSonicBTCMerkleRoot is Script, MerkleTreeHelper {
     address public rawDataDecoderAndSanitizer = 0xf7d5D3ba755583C8b174ADE63E8687471Ad8b20a;
     address public lbtcBridgeDecoder = 0xE9527EA95a383993b41EA7D3b0E50DDA7B13dE94; 
 
+    address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
+    address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
+
     function setUp() external {}
 
     /**
@@ -62,7 +65,11 @@ contract CreateSonicBTCMerkleRoot is Script, MerkleTreeHelper {
         kind[1] = SwapKind.BuyAndSell;
         assets[2] = getAddress(sourceChain, "EBTC");
         kind[2] = SwapKind.BuyAndSell;
-        _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+        _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
+        _addOdosOwnedSwapLeafs(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Aave V3 ==========================
         // Core
