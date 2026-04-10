@@ -44,7 +44,6 @@ contract CreateMultichainLiquidBtcOperationalMerkleRootScript is Script, MerkleT
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](128);
-        leafIndex = 0;
 
         // ========================== Teller ==========================
         {
