@@ -350,6 +350,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      *      Any other value allows holders of that role to deposit or withdraw to a different recipient.
      * @param _transferAllowedRole The role ID required for at least one side of a transfer, or 255 to disable.
      * @param _allowlistedRouterRole The role ID required to route for others, or 255 to disable.
+     * @dev Callable by OWNER_ROLE.
      */
     function setTransferRestrictions(uint8 _transferAllowedRole, uint8 _allowlistedRouterRole) external requiresAuth {
         transferAllowedRole = _transferAllowedRole;
@@ -361,7 +362,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @notice Updates the deposit buffer helper contract for a given asset.
      * @param _asset The asset to update the buffer helper for.
      * @param _depositBufferHelper The new deposit buffer helper contract address.
-     * @dev Only callable by authorized accounts. The helper must be allowlisted or zero address.
+     * @dev Callable by OWNER_ROLE. The helper must be allowlisted or zero address.
      */
     function setDepositBufferHelper(ERC20 _asset, IBufferHelper _depositBufferHelper) external requiresAuth {
         if (allowedBufferHelpers[_asset][_depositBufferHelper] || _depositBufferHelper == IBufferHelper(address(0))) {
@@ -376,7 +377,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @notice Updates the withdrawal buffer helper contract for a given asset.
      * @param _asset The asset to update the buffer helper for.
      * @param _withdrawBufferHelper The new withdrawal buffer helper contract address.
-     * @dev Only callable by authorized accounts. The helper must be allowlisted or zero address.
+     * @dev Callable by OWNER_ROLE. The helper must be allowlisted or zero address.
      */
     function setWithdrawBufferHelper(ERC20 _asset, IBufferHelper _withdrawBufferHelper) external requiresAuth {
         if (allowedBufferHelpers[_asset][_withdrawBufferHelper] || _withdrawBufferHelper == IBufferHelper(address(0))) {
@@ -391,6 +392,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @notice Allows a buffer helper to be used for a specific asset.
      * @param _asset The asset to allow the buffer helper for.
      * @param _bufferHelper The buffer helper contract address to allow.
+     * @dev Callable by OWNER_ROLE.
      */
     function allowBufferHelper(ERC20 _asset, IBufferHelper _bufferHelper) external requiresAuth {
         allowedBufferHelpers[_asset][_bufferHelper] = true;
@@ -403,6 +405,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      *      deposit or withdraw buffer helper for the asset.
      * @param _asset The asset to disallow the buffer helper for.
      * @param _bufferHelper The buffer helper contract address to disallow.
+     * @dev Callable by OWNER_ROLE.
      */
     function disallowBufferHelper(ERC20 _asset, IBufferHelper _bufferHelper) external requiresAuth {
         allowedBufferHelpers[_asset][_bufferHelper] = false;
@@ -424,6 +427,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @notice Sets whether an incentive pool is allowed to be called during reward processing.
      * @param _pool The incentive pool contract address.
      * @param _allowed Whether the pool should be allowed.
+     * @dev Callable by OWNER_ROLE.
      */
     function setIncentivePoolAllowed(address _pool, bool _allowed) external requiresAuth {
         allowedIncentivePools[_pool] = _allowed;
@@ -442,6 +446,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      *      their withdrawal unrecorded.
      * @param user The user whose principal is being checkpointed.
      * @param shares The number of shares withdrawn.
+     * @dev Callable by QUEUE_ROLE.
      */
     function checkpointQueueWithdrawal(address user, uint256 shares) external requiresAuth {
         uint256 rate = accountant.getRateSafe();
@@ -455,6 +460,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      *      compliance signatures must have a deadline no later than block.timestamp + _complianceWindow.
      * @param _complianceSignerRole The role ID required for compliance signers, or 255 to disable.
      * @param _complianceWindow Duration in seconds. NOT an absolute timestamp.
+     * @dev Callable by OWNER_ROLE.
      */
     function setComplianceConfig(uint8 _complianceSignerRole, uint96 _complianceWindow) external requiresAuth {
         complianceSignerRole = _complianceSignerRole;
