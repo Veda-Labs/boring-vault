@@ -29,8 +29,8 @@ contract DeploySolver is Script, ContractNames, Test {
     Deployer.Tx[] internal txs;
 
     address owner = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5;
-    address auth = 0x9E77719CD5AF96CD405fB27761c49215101A1dcA;
-    address queue = 0xe805DBa580Fd26DD205ce554D12Fa53eA7b8d899;
+    address auth = 0x4000FCaDf9D4803b8C5304af3D4Ca80C71252C63;
+    address queue = 0x073882E7A050B09667eC7fBFfc77F3375809A873;
 
     uint256 internal logLevel;
 
@@ -115,7 +115,7 @@ contract DeploySolver is Script, ContractNames, Test {
 
     function setUp() external {
         privateKey = vm.envUint("PRIVATE_KEY_1");
-        vm.createSelectFork("base");
+        vm.createSelectFork("https://rpc-arch-mainnet-lucidly.tac.build");
     }
 
     function run() external {
@@ -125,21 +125,21 @@ contract DeploySolver is Script, ContractNames, Test {
         creationCode = type(BoringSolver).creationCode;
         constructorArgs = abi.encode(owner, auth, queue);
 
-        (address solverAddress,) = _getAddressAndIfDeployed("ElsaEarn USDC BoringSolverV0.2");
+        (address solverAddress,) = _getAddressAndIfDeployed("BoinkersUSD BoringSolverV0.2");
 
         _addTx(
             address(deployer),
             abi.encodeWithSelector(
-                deployer.deployContract.selector, "ElsaEarn USDC BoringSolverV0.2", creationCode, constructorArgs, 0
+                deployer.deployContract.selector, "BoinkersUSD BoringSolverV0.2", creationCode, constructorArgs, 0
             ),
             uint256(0)
         );
 
-        _addRoleCapabilityIfNotPresent(ONLY_QUEUE_ROLE, solverAddress, BoringSolver.boringSolve.selector);
-        _addRoleCapabilityIfNotPresent(OWNER_ROLE, solverAddress, Auth.setAuthority.selector);
-        _addRoleCapabilityIfNotPresent(OWNER_ROLE, solverAddress, Auth.transferOwnership.selector);
-        _addRoleCapabilityIfNotPresent(SOLVER_ORIGIN_ROLE, solverAddress, BoringSolver.boringRedeemSolve.selector);
-        _addRoleCapabilityIfNotPresent(SOLVER_ORIGIN_ROLE, solverAddress, BoringSolver.boringRedeemMintSolve.selector);
+        // _addRoleCapabilityIfNotPresent(ONLY_QUEUE_ROLE, solverAddress, BoringSolver.boringSolve.selector);
+        // _addRoleCapabilityIfNotPresent(OWNER_ROLE, solverAddress, Auth.setAuthority.selector);
+        // _addRoleCapabilityIfNotPresent(OWNER_ROLE, solverAddress, Auth.transferOwnership.selector);
+        // _addRoleCapabilityIfNotPresent(SOLVER_ORIGIN_ROLE, solverAddress, BoringSolver.boringRedeemSolve.selector);
+        // _addRoleCapabilityIfNotPresent(SOLVER_ORIGIN_ROLE, solverAddress, BoringSolver.boringRedeemMintSolve.selector);
 
         _bundleTxs(1);
     }
