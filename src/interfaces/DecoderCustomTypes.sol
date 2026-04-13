@@ -876,6 +876,27 @@ contract DecoderCustomTypes {
         bytes permit;
     }
 
+    // OpenOcean Limit Order Protocol v2 order struct.
+    // Dynamic bytes fields (makerAssetData, takerAssetData, getMakerAmount, getTakerAmount,
+    // predicate, permit, interaction) must all be empty when used with OpenOceanLimitOrderAdapter.
+    struct OpenOceanLimitOrder {
+        uint256 salt;
+        address makerAsset;
+        address takerAsset;
+        address maker;
+        address receiver;
+        address allowedSender;
+        uint256 makingAmount;
+        uint256 takingAmount;
+        bytes makerAssetData;
+        bytes takerAssetData;
+        bytes getMakerAmount;
+        bytes getTakerAmount;
+        bytes predicate;
+        bytes permit;
+        bytes interaction;
+    }
+
     // ========================================= Predicate Proxy ==================================
 
     struct PredicateMessage {

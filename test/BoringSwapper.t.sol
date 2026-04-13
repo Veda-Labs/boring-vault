@@ -34,9 +34,11 @@ contract MockRateProvider is IRateProvider {
 
 contract BoringSwapperTest is Test, MerkleTreeHelper {
 
-    // Mirror BoringSwapper events for vm.expectEmit (emit ContractName.Event crashes solc 0.8.21 NatSpec)
+    // Mirror events for vm.expectEmit (emit ContractName.Event crashes solc 0.8.21 NatSpec)
     event OrderCancelled(uint256 indexed orderId, uint256 refundAmount);
     event OrderSubmitted(uint256 indexed orderId, bytes32 indexed routeId, uint256 amountIn, address indexed receiver);
+    event SwapperActiveUpdated(address indexed swapper, bool active);
+    event MaxFeeBpsUpdated(uint16 newMaxFeeBps);
 
     //cow protocol constants
     address constant COW_SETTLEMENT = 0x9008D19f58AAbD9eD0D60971565AA8510560ab41;
@@ -954,6 +956,35 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         feeRegistry = new FeeRegistry(address(this), 1000);
         vm.expectRevert(FeeRegistry.FeeRegistry__InvalidRecipient.selector);
         feeRegistry.setGroupPairFee(address(this), 0, 1, 10, address(0));
+    }
+
+    function testFeeRegistry_SetSwapperActive() external {
+        feeRegistry = new FeeRegistry(address(this), 1000);
+        assertEq(feeRegistry.swapperActive(address(0x420)), false);
+
+        vm.expectEmit(true, false, false, true, address(feeRegistry));
+        emit SwapperActiveUpdated(address(0x420), true);
+        feeRegistry.setSwapperActive(address(0x420), true);
+        assertEq(feeRegistry.swapperActive(address(0x420)), true);
+
+        vm.expectEmit(true, false, false, true, address(feeRegistry));
+        emit SwapperActiveUpdated(address(0x420), false);
+        feeRegistry.setSwapperActive(address(0x420), false);
+        assertEq(feeRegistry.swapperActive(address(0x420)), false);
+    }
+
+    function testFeeRegistry_SetMaxFeeBps() external {
+        feeRegistry = new FeeRegistry(address(this), 1000);
+        assertEq(feeRegistry.maxFeeBps(), 1000);
+
+        vm.expectEmit(false, false, false, true, address(feeRegistry));
+        emit MaxFeeBpsUpdated(500);
+        feeRegistry.setMaxFeeBps(500);
+        assertEq(feeRegistry.maxFeeBps(), 500);
+
+        // fee above new cap is rejected
+        vm.expectRevert(FeeRegistry.FeeRegistry__FeeTooHigh.selector);
+        feeRegistry.setGroupPairFee(address(this), 0, 1, 501, address(0x69));
     }
 
     //==================== BoringSwapper Fee Tests ====================
