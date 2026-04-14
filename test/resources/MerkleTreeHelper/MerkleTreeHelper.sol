@@ -771,6 +771,22 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         }
     }
 
+
+    function _addCurveGaugeClaimingLeafs(ManageLeaf[] memory leafs, address gauge) internal {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                gauge,
+                false,
+                "claim_rewards(address)",
+                new address[](1),
+                string.concat("Claim rewards from Curve gauge"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+    }
+
     function _addCurveGaugeLeafs(ManageLeaf[] memory leafs, address gauge) internal {
         address lpToken = ICurveGauge(gauge).lp_token();
 

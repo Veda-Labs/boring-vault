@@ -132,6 +132,12 @@ contract CreateLiquidUsdOperationalMerkleRootScript is Script, MerkleTreeHelper 
             setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 
+        // ========================== Curve ============================
+        {
+            _addCurveGaugeClaimingLeafs(leafs, getAddress(sourceChain, "USDC_RLUSD_Curve_Gauge"));
+        }
+
+
         // ========================== Drones Setup ===============================
         _addLeafsForDrone(leafs);
         _addLeafsForDroneOne(leafs);

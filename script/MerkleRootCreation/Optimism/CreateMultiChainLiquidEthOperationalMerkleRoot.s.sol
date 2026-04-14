@@ -58,6 +58,9 @@ contract CreateMultiChainLiquidEthOperationalMerkleRootScript is Script, MerkleT
         feeAssets[1] = getERC20(sourceChain, "WEETH_OFT");
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
+        // ===================== EtherFi ==========================
+        _addWeETHLeafs(leafs, getAddress(sourceChain, "ETH"), getAddress(sourceChain, "boringVault"));
+
 
         // ========================== Standard Bridge ==========================
         ERC20[] memory localTokens = new ERC20[](0);
