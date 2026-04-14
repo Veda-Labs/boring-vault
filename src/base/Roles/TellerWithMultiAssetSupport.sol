@@ -224,7 +224,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     );
     event BulkDeposit(address indexed asset, uint256 depositAmount);
     event BulkWithdraw(address indexed asset, uint256 shareAmount);
-    event Withdraw(address indexed asset, uint256 shareAmount);
+    event Withdraw(address indexed asset, uint256 shareAmount, address indexed user, address indexed recipient);
     event DepositRefunded(uint256 indexed nonce, bytes32 depositHash, address indexed user);
     event DepositCapSet(uint112 cap);
     event ComplianceConfigSet(uint8 role, uint96 window);
@@ -717,7 +717,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         beforeTransfer(msg.sender, to, msg.sender);
         _checkRecipient(to);
         assetsOut = _withdraw(withdrawAsset, shareAmount, minimumAssets, to);
-        emit Withdraw(address(withdrawAsset), shareAmount);
+        emit Withdraw(address(withdrawAsset), shareAmount, msg.sender, to);
     }
 
     /**
@@ -735,7 +735,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         _checkRecipient(to);
         assetsOut = _withdraw(withdrawAsset, shareAmount, minimumAssets, to);
         _processRewards(rewards, msg.sender);
-        emit Withdraw(address(withdrawAsset), shareAmount);
+        emit Withdraw(address(withdrawAsset), shareAmount, msg.sender, to);
     }
 
     /**

@@ -26,6 +26,8 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
     using FixedPointMathLib for uint256;
 
+    event Withdraw(address indexed asset, uint256 shareAmount, address indexed user, address indexed recipient);
+
     BoringVault public boringVault;
 
     uint8 public constant ADMIN_ROLE = 1;
@@ -145,6 +147,8 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
 
         // Withdraw half the shares
         uint256 halfShares = shares / 2;
+        vm.expectEmit(true, true, true, true, address(teller));
+        emit Withdraw(address(WETH), halfShares, user, user);
         teller.withdraw(WETH, halfShares, 0, user);
         vm.stopPrank();
 

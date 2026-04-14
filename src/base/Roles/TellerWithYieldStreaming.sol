@@ -33,7 +33,7 @@ contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
         _checkRecipient(to);
         assetsOut = _withdraw(withdrawAsset, shareAmount, minimumAssets, to);
 
-        emit Withdraw(address(withdrawAsset), shareAmount);
+        emit Withdraw(address(withdrawAsset), shareAmount, msg.sender, to);
     }
 
     /**
@@ -52,7 +52,7 @@ contract TellerWithYieldStreaming is TellerWithMultiAssetSupport {
         _checkRecipient(to);
         assetsOut = _withdraw(withdrawAsset, shareAmount, minimumAssets, to);
         _processRewards(rewards, msg.sender);
-        emit Withdraw(address(withdrawAsset), shareAmount);
+        emit Withdraw(address(withdrawAsset), shareAmount, msg.sender, to);
     }
 
     // ========================================= INTERNAL FUNCTIONS =========================================
