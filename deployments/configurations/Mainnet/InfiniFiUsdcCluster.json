@@ -1,0 +1,217 @@
+{
+    "deploymentParameters": {
+        "logLevel": 4,
+        "privateKeyEnvName": "PRIVATE_KEY_1",
+        "chainName": "mainnet",
+        "evmVersion": "cancun",
+        "desiredNumberOfDeploymentTxs": 25,
+        "txBundlerAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "txBundlerAddress"
+        },
+        "setupRoles": true,
+        "setupTestUser": false,
+        "saveDeploymentDetails": true,
+        "testUserAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "dev1Address"
+        },
+        "deployerContractAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "deployerAddress"
+        },
+        "nativeWrapperAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "WETH"
+        },
+        "deploymentOwnerAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "deployerAddress"
+        },
+        "deploymentFileName": "addresses/Mainnet/InfiniFiUsdcCluster.json"
+    },
+    "rolesAuthorityConfiguration": {
+        "rolesAuthorityDeploymentName": "InfiniFiUsdcCluster rolesAuthorityV1.0"
+    },
+    "lensConfiguration": {
+        "lensDeploymentName": "InfiniFiUsdcCluster lensV1.0"
+    },
+    "boringVaultConfiguration": {
+        "boringVaultDeploymentName": "InfiniFiUsdcCluster boringVaultV1.0",
+        "boringVaultName": "InfiniFiUsdcCluster",
+        "boringVaultSymbol": "InfiniFiUsdcCluster",
+        "boringVaultDecimals": 6
+    },
+    "managerConfiguration": {
+        "managerDeploymentName": "InfiniFiUsdcCluster managerV1.0",
+        "balancerVaultAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "balancerVault"
+        }
+    },
+    "accountantConfiguration": {
+        "accountantDeploymentName": "InfiniFiUsdcCluster accountantV1.0",
+        "accountantParameters": {
+            "kind": {
+                "variableRate": true,
+                "fixedRate": false
+            },
+            "payoutConfiguration": {
+                "payoutTo": "0xce1BF18D049638B3ee9dF934aeE5e5fC42BBFDb3",
+                "optionalPaymentSplitterName": "InfiniFiUsdcCluster Payment Splitter",
+                "splits": []
+            },
+            "accountantDeploymentParameters": {
+                "allowedExchangeRateChangeLower": 9900,
+                "allowedExchangeRateChangeUpper": 13000,
+                "baseAddressOrName": {
+                    "address": "0x0000000000000000000000000000000000000000",
+                    "name": "USDC"
+                },
+                "minimumUpateDelayInSeconds": 3600,
+                "performanceFee": 1500,
+                "platformFee": 0,
+                "startingExchangeRate": 1000000
+            }
+        }
+    },
+    "tellerConfiguration": {
+        "tellerDeploymentName": "InfiniFiUsdcCluster TellerV1.0",
+        "tellerParameters": {
+            "allowPublicDeposits": false,
+            "shareLockPeriod": 60,
+            "kind": {
+                "teller": false,
+                "tellerWithRemediation": false,
+                "tellerWithCcip": false,
+                "tellerWithLayerZero": true
+            },
+            "ccip": {
+                "routerAddressOrName": {
+                    "address": "0x0000000000000000000000000000000000000000",
+                    "name": "ccipRouter"
+                },
+                "ccipChains": [
+                    {
+                        "chainSelector": 1,
+                        "allowMessagesFrom": true,
+                        "allowMessagesTo": true,
+                        "targetTellerOrSelf": {
+                            "address": "0x0000000000000000000000000000000000000000",
+                            "self": true
+                        },
+                        "messageGasLimit": 100000
+                    }
+                ]
+            },
+            "layerZero": {
+                "endpointAddressOrName": {
+                    "address": "0x0000000000000000000000000000000000000000",
+                    "name": "LayerZeroEndPoint"
+                },
+                "lzTokenAddressOrName": {
+                    "address": "0x0000000000000000000000000000000000000000",
+                    "name": "ZRO"
+                },
+                "lzChains": [
+                    {
+                        "chainId": 1,
+                        "allowMessagesFrom": true,
+                        "allowMessagesTo": true,
+                        "targetTellerOrSelf": {
+                            "address": "0x0000000000000000000000000000000000000000",
+                            "self": true
+                        },
+                        "messageGasLimit": 100000
+                    }
+                ]
+            }
+        }
+    },
+    "boringQueueConfiguration": {
+        "boringQueueDeploymentName": "InfiniFiUsdcCluster BoringOnChainQueueV1.0",
+        "boringQueueSolverName": "InfiniFiUsdcCluster BoringSolverV1.0",
+        "queueParameters": {
+            "allowPublicWithdrawals": false,
+            "allowPublicSelfWithdrawals": false,
+            "kind": {
+                "boringQueue": true,
+                "boringQueueWithTracking": false
+            }
+        }
+    },
+    "droneConfiguration": {
+        "droneDeploymentBaseName": "InfiniFiUsdcCluster boring drone",
+        "droneCount": 1,
+        "safeGasToForwardNative": 21000
+    },
+    "pauserConfiguration": {
+        "shouldDeploy": true,
+        "pauserDeploymentName": "InfiniFiUsdcCluster pauser",
+        "makeGenericPauser": [
+            "0x0000000000000000000000000000000000000000"
+        ],
+        "makeGenericUnpauser": [
+            "0x0000000000000000000000000000000000000000"
+        ],
+        "makePauseAll": [
+            "0x0000000000000000000000000000000000000000"
+        ],
+        "makeUnpauseAll": [
+            "0x0000000000000000000000000000000000000000"
+        ],
+        "senderToPausable": [
+            {
+                "sender": "0x0000000000000000000000000000000000000000",
+                "pausable": "0x0000000000000000000000000000000000000000"
+            }
+        ]
+    },
+    "timelockConfiguration": {
+        "shouldDeploy": true,
+        "timelockDeploymentName": "InfiniFiUsdcCluster timelock",
+        "timelockParameters": {
+            "minDelay": 86400,
+            "proposers": [
+                "0x0000000000000000000000000000000000000000"
+            ],
+            "executors": [
+                "0x0000000000000000000000000000000000000000"
+            ]
+        }
+    },
+    "accountantAssets": [
+        {
+            "addressOrName": {
+                "address": "0x0000000000000000000000000000000000000000",
+                "name": "USDC"
+            },
+            "isPeggedToBase": true,
+            "rateProvider": ""
+        }
+    ],
+    "depositAssets": [
+        {
+            "addressOrName": {
+                "address": "0x0000000000000000000000000000000000000000",
+                "name": "USDC"
+            },
+            "allowDeposits": true,
+            "allowWithdraws": true,
+            "sharePremium": 0
+        }
+    ],
+    "withdrawAssets": [
+        {
+            "addressOrName": {
+                "address": "0x0000000000000000000000000000000000000000",
+                "name": "USDC"
+            },
+            "maxDiscount": 100,
+            "minDiscount": 0,
+            "minimumSecondsToDeadline": 604800,
+            "minimumShares": 0,
+            "secondsToMaturity": 60
+        }
+    ]
+}
