@@ -501,7 +501,7 @@ contract OpenOceanAdapterTest is BaseTestIntegration {
 
         (BoringSwapper.SwapConfig memory config,, uint256 orderId) = _submitLimitOrder(1e18, 2000e6);
 
-        (ERC20 tokenIn,, address cancelTarget, uint256 inputAmount, BoringVault receiver) =
+        (ERC20 tokenIn,, address cancelTarget, BoringVault receiver, uint256 inputAmount,,) =
             swapper.orderRecords(orderId);
         assertEq(address(tokenIn), getAddress(sourceChain, "WETH"));
         assertEq(inputAmount, 1e18);

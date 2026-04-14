@@ -53,8 +53,10 @@ contract BoringSwapper is Auth, ISwapper, IPausable {
         ERC20 tokenIn;
         address approvalTarget;
         address cancelTarget;
-        uint256 inputAmount;
         BoringVault receiver;
+        uint256 inputAmount;
+        uint256 fee;
+        bytes32 protocolHash;
     }
 
     struct RateLimit {
@@ -76,6 +78,7 @@ contract BoringSwapper is Auth, ISwapper, IPausable {
     error BoringSwapper__HashMismatch(bytes32, bytes32);
     error BoringSwapper__OrderNotApproved();
     error BoringSwapper__CancelFailed();
+    error BoringSwapper__FeeRecipientNotSet();
 
     // ========================================= EVENTS =========================================
 
@@ -98,6 +101,8 @@ contract BoringSwapper is Auth, ISwapper, IPausable {
     event PriceValidatorUpdated(address newValidator);
     event RateLimitUpdated(bytes32 indexed routeId, uint256 capacity, uint256 refillRate);
     event Swept(ERC20 indexed token, address indexed vault, uint256 amount);
+    event FeeReleased(uint256 indexed orderId, ERC20 indexed token, uint256 feeAmount);
+    event FeesClaimed(ERC20 indexed token, uint256 feeAmount);
     event Paused();
     event Unpaused();
     event AdapterPauseToggled(address indexed adapter, bool paused);
@@ -127,6 +132,12 @@ contract BoringSwapper is Auth, ISwapper, IPausable {
         _baseAssetOracles;
 
     mapping(ERC20 baseAsset => mapping(address quoteAsset => address[] rateProvider)) public oracles;
+    
+    /// @notice fees locked against pending orders — decremented on cancel or release.
+    mapping(ERC20 feeAsset => uint256 feeAmount) public feesInToken;
+
+    /// @notice fees released from filled orders — the only amount claimable via claimFees.
+    mapping(ERC20 feeAsset => uint256 feeAmount) public claimableFees;
 
     /// @notice used for order lookups and cancelling
     mapping(uint256 orderId => OrderRecord) public orderRecords;
@@ -218,11 +229,14 @@ contract BoringSwapper is Auth, ISwapper, IPausable {
 
         //charge fees if fee collection is active for this swapper
         if (feeRegistry.swapperActive(address(this))) {
-            (uint16 feeBps, address feeRecipient) = feeRegistry.getFee(
+            uint16 feeBps = feeRegistry.getFee(
+                address(this),
                 address(swapConfig.tokenRoute.tokenIn),
                 address(swapConfig.tokenRoute.tokenOut)
             );
-            if (feeBps > 0 && feeRecipient != address(0)) {
+            if (feeBps > 0) {
+                address feeRecipient = feeRegistry.getFeeRecipient(address(this), swapConfig.tokenRoute.tokenOut);
+                if (feeRecipient == address(0)) revert BoringSwapper__FeeRecipientNotSet();
                 uint256 fee = tokenBalanceDelta.mulDivDown(feeBps, 10_000);
                 tokenBalanceDelta -= fee;
                 swapConfig.tokenRoute.tokenOut.safeTransfer(feeRecipient, fee);
@@ -231,8 +245,10 @@ contract BoringSwapper is Auth, ISwapper, IPausable {
 
         swapConfig.tokenRoute.tokenOut.safeTransfer(address(swapConfig.receiver), tokenBalanceDelta);
 
-        //return any unspent tokenIn dust to the vault
-        uint256 dust = swapConfig.tokenRoute.tokenIn.balanceOf(address(this));
+        //return any unspent tokenIn dust to the vault, excluding locked limit order funds
+        uint256 locked = feesInToken[swapConfig.tokenRoute.tokenIn] + claimableFees[swapConfig.tokenRoute.tokenIn];
+        uint256 balance = swapConfig.tokenRoute.tokenIn.balanceOf(address(this));
+        uint256 dust = balance > locked ? balance - locked : 0;
         if (dust > 0) swapConfig.tokenRoute.tokenIn.safeTransfer(address(swapConfig.receiver), dust);
 
         return tokenBalanceDelta;
@@ -264,6 +280,8 @@ contract BoringSwapper is Auth, ISwapper, IPausable {
         address adapter = swapConfig.adapter;
         IAdapter.OrderInfo memory info = IAdapter(adapter).verifyLimitOrder(swapConfig, address(this));
 
+        // Price Verification
+
         //check for limit order fat fingers
         IPriceValidator(priceValidator)
             .validate(
@@ -274,6 +292,30 @@ contract BoringSwapper is Auth, ISwapper, IPausable {
                 swapConfig.quoteAsset,
                 swapConfig.slippageBps
             );
+        
+   
+        // Fee Logic
+
+        //fees are earmarked for pickup at a later point, collected by a special role/contract that only picks up freed funds.  
+        uint256 limitFee;
+        if (feeRegistry.swapperActive(address(this))) {
+            uint16 feeBps = feeRegistry.getFee(
+                address(this),
+                address(swapConfig.tokenRoute.tokenIn),
+                address(swapConfig.tokenRoute.tokenOut)
+            );
+            if (feeBps > 0) {
+                limitFee = info.inputAmount.mulDivDown(feeBps, 10_000);
+                feesInToken[swapConfig.tokenRoute.tokenIn] += limitFee;
+            }
+        }
+        
+        // @dev !!! IMPORTANT !!! 
+        // vault must hold inputAmount + fee — strategist is responsible for leaving room for the fee! 
+        // use `getFee` on feeRegistry if you are swapping entire balances of a single token
+        swapConfig.tokenRoute.tokenIn.safeTransferFrom(address(swapConfig.receiver), address(this), info.inputAmount + limitFee);
+
+        // Order Hash Approval
 
         uint256 orderId = orders;
         orderRecords[orderId] = OrderRecord({
@@ -281,30 +323,14 @@ contract BoringSwapper is Auth, ISwapper, IPausable {
             approvalTarget: info.approvalTarget,
             cancelTarget: info.cancelTarget,
             inputAmount: info.inputAmount,
-            receiver: swapConfig.receiver
+            receiver: swapConfig.receiver,
+            fee: limitFee,
+            protocolHash: info.protocolHash
         });
         approvedHashes[info.protocolHash] = true;
 
         //preapprove the approval target & pull funds from the vault
         swapConfig.tokenRoute.tokenIn.approve(info.approvalTarget, info.inputAmount);
-
-        // Charge a non-refundable upfront fee in tokenIn. Sent immediately — no claim needed.
-        // If the order is cancelled, the fee is NOT refunded (it was already forwarded).
-        uint256 limitFee;
-        address limitFeeRecipient;
-        if (feeRegistry.swapperActive(address(this))) {
-            (uint16 feeBps, address fr) = feeRegistry.getFee(
-                address(swapConfig.tokenRoute.tokenIn),
-                address(swapConfig.tokenRoute.tokenOut)
-            );
-            if (feeBps > 0 && fr != address(0)) {
-                limitFee = info.inputAmount.mulDivDown(feeBps, 10_000);
-                limitFeeRecipient = fr;
-            }
-        }
-
-        swapConfig.tokenRoute.tokenIn.safeTransferFrom(address(swapConfig.receiver), address(this), info.inputAmount + limitFee);
-        if (limitFee > 0) swapConfig.tokenRoute.tokenIn.safeTransfer(limitFeeRecipient, limitFee);
 
         orders += 1;
 
@@ -351,15 +377,20 @@ contract BoringSwapper is Auth, ISwapper, IPausable {
         // Revoke approval and refund
         record.tokenIn.approve(record.approvalTarget, 0);
         uint256 balance = record.tokenIn.balanceOf(address(this));
-        uint256 refund = balance < record.inputAmount ? balance : record.inputAmount;
-        if (refund > 0) record.tokenIn.safeTransfer(address(record.receiver), refund);
+        uint256 refund = balance < record.inputAmount + record.fee ? balance : record.inputAmount + record.fee;
+        if (refund > 0) {
+            record.tokenIn.safeTransfer(address(record.receiver), refund);
+        }
+        feesInToken[record.tokenIn] -= record.fee;
+
 
         // Restore rate limit for the unfilled amount (partial fills only restore the unspent portion)
         bytes32 routeId = getRouteId(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut);
         RateLimit storage limit = rateLimitPerRoute[routeId];
         if (limit.capacity > 0) {
             _refillBucket(limit);
-            uint256 normalized = (refund * 1e18) / (10 ** record.tokenIn.decimals());
+            uint256 unfilledOrder = refund > record.fee ? refund - record.fee : 0;
+            uint256 normalized = (unfilledOrder * 1e18) / (10 ** record.tokenIn.decimals());
             uint256 restored = limit.remaining + normalized;
             limit.remaining = restored > limit.capacity ? limit.capacity : restored;
         }
@@ -496,11 +527,47 @@ contract BoringSwapper is Auth, ISwapper, IPausable {
     }
 
     /// @notice Reclaims any token sitting on the swapper back to a vault.
+    /// @dev claimable by swapper admin
     function sweep(ERC20 token, BoringVault vault) external requiresAuth {
+        uint256 locked = feesInToken[token] + claimableFees[token];
         uint256 balance = token.balanceOf(address(this));
-        if (balance > 0) token.safeTransfer(address(vault), balance);
+        uint256 sweepable = balance > locked ? balance - locked : 0;
+        if (sweepable > 0) token.safeTransfer(address(vault), sweepable);
 
-        emit Swept(token, address(vault), balance);
+        emit Swept(token, address(vault), sweepable);
+    }
+
+    /// @notice Marks a filled order's fee as claimable. Called by the off-chain bot after confirming the fill.
+    /// @dev Moves the fee from the locked `feesInToken` bucket into `claimableFees`. Deletes the order record.
+    function releaseFee(uint256 orderId) external requiresAuth {
+        OrderRecord memory record = orderRecords[orderId];
+        if (address(record.tokenIn) == address(0)) revert BoringSwapper__OrderNotFound();
+
+        delete orderRecords[orderId];
+        approvedHashes[record.protocolHash] = false;
+
+        //if order was submitted while no fee was active, nothing to move
+        if (record.fee == 0) return;
+
+        feesInToken[record.tokenIn] -= record.fee;
+        claimableFees[record.tokenIn] += record.fee;
+
+        emit FeeReleased(orderId, record.tokenIn, record.fee);
+    }
+
+    /// @notice Claims all releasable fees for a token, sending them to the configured fee recipient.
+    /// @dev Only drains `claimableFees` — locked pending-order fees are never touched.
+    function claimFees(ERC20 token) external requiresAuth {
+        uint256 feeAmount = claimableFees[token];
+        if (feeAmount == 0) return;
+
+        address feeRecipient = feeRegistry.getFeeRecipient(address(this), token);
+        if (feeRecipient == address(0)) revert BoringSwapper__FeeRecipientNotSet();
+
+        claimableFees[token] = 0;
+
+        token.safeTransfer(feeRecipient, feeAmount);
+        emit FeesClaimed(token, feeAmount);
     }
 
     // ========================================= VIEW FUNCTIONS =========================================

@@ -595,7 +595,7 @@ contract OneInchAdapterTest is BaseTestIntegration {
         (BoringSwapper.SwapConfig memory config,, uint256 orderId) =
             _submitOneInchOrder(1e18, 2000e6);
 
-        (ERC20 tokenIn,, , uint256 inputAmount, BoringVault receiver) =
+        (ERC20 tokenIn,,, BoringVault receiver, uint256 inputAmount,,) =
             swapper.orderRecords(orderId);
         assertEq(address(tokenIn), getAddress(sourceChain, "WETH"));
         assertEq(inputAmount, 1e18);
@@ -662,7 +662,7 @@ contract OneInchAdapterTest is BaseTestIntegration {
         assertEq(getERC20(sourceChain, "WETH").balanceOf(address(swapper)), 0);
         assertEq(getERC20(sourceChain, "WETH").balanceOf(getAddress(sourceChain, "boringVault")), 100e18);
 
-        (ERC20 tokenIn,,,,) = swapper.orderRecords(orderId);
+        (ERC20 tokenIn,,,,,,) = swapper.orderRecords(orderId);
         assertEq(address(tokenIn), address(0));
     }
 
