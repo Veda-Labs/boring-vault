@@ -17,23 +17,23 @@ contract CreateBTCUSDCarryClusterMerkleRootScript is Script, MerkleTreeHelper {
     uint256 public privateKeyOwner;
     uint256 public privateKeyMorphoAgent;
 
-//     {
-//   "Drones": {
-//     "drone-0": "0xF05BA079F8bAa6B80a60d98f0bB7bC0182EFc4c7"
-//   },
-//   "contractAddresses": {
-//     "AccountantWithRateProviders": "0x167e26B03d2e504485aa8F468A5778422BA06758",
-//     "BoringOnChainQueue": "0x5A4c0377b74da3BBF6730c7fD0fe4414ABA20e7f",
-//     "BoringVault": "0x5373690c930553648f0aaA2e53B51f0C59290B7d",
-//     "Lens": "0x3699d50C4E1c06F00F0166dad1AD2A2C4b52E6e4",
-//     "ManagerWithMerkleVerification": "0x82D80b2e4B30eC260D282d7988a72e3365f85673",
-//     "Pauser": "0x215173195823C24eE1A1dB872c9071584D5E7970",
-//     "QueueSolver": "0xe1CCa11D3f37504D077891Cd18A9D1D2077bE2e3",
-//     "RolesAuthority": "0xD5B18b7CD8264C265c748d5db6E958A6ba0477f7",
-//     "TellerWithLayerZero": "0xaEFf267F227d3E56CFe024c3D3B281faa66A2c64",
-//     "Timelock": "0x4a7902Cd8Ed95D627B9636C9c833C71f46F44a0E"
-//   }
-// }
+    //     {
+    //   "Drones": {
+    //     "drone-0": "0xF05BA079F8bAa6B80a60d98f0bB7bC0182EFc4c7"
+    //   },
+    //   "contractAddresses": {
+    //     "AccountantWithRateProviders": "0x167e26B03d2e504485aa8F468A5778422BA06758",
+    //     "BoringOnChainQueue": "0x5A4c0377b74da3BBF6730c7fD0fe4414ABA20e7f",
+    //     "BoringVault": "0x5373690c930553648f0aaA2e53B51f0C59290B7d",
+    //     "Lens": "0x3699d50C4E1c06F00F0166dad1AD2A2C4b52E6e4",
+    //     "ManagerWithMerkleVerification": "0x82D80b2e4B30eC260D282d7988a72e3365f85673",
+    //     "Pauser": "0x215173195823C24eE1A1dB872c9071584D5E7970",
+    //     "QueueSolver": "0xe1CCa11D3f37504D077891Cd18A9D1D2077bE2e3",
+    //     "RolesAuthority": "0xD5B18b7CD8264C265c748d5db6E958A6ba0477f7",
+    //     "TellerWithLayerZero": "0xaEFf267F227d3E56CFe024c3D3B281faa66A2c64",
+    //     "Timelock": "0x4a7902Cd8Ed95D627B9636C9c833C71f46F44a0E"
+    //   }
+    // }
     address public accountantAddress = 0x167e26B03d2e504485aa8F468A5778422BA06758;
     address public boringVault = 0x5373690c930553648f0aaA2e53B51f0C59290B7d;
     address public managerAddress = 0x82D80b2e4B30eC260D282d7988a72e3365f85673;
