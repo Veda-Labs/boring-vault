@@ -21,14 +21,11 @@ contract CreateStakedBTCNMerkleRoot is Script, MerkleTreeHelper {
     address boringVault = 0x5E272ca4bD94e57Ec5C51D26703621Ccac1A7089;
     address managerAddress = 0x5239158272D1f626aF9ef3353489D3Cb68439D66;
     address accountantAddress = 0x9A22F5dC4Ec86184D4771E620eb75D52E7b9E043;
-    address rawDataDecoderAndSanitizer =
-        0x0dc2E5CA576e6B3e03CD49E34591db38c4386B2E;
+    address rawDataDecoderAndSanitizer = 0x0dc2E5CA576e6B3e03CD49E34591db38c4386B2E;
 
     //one offs
-    address oneInchOwnedDecoderAndSanitizer =
-        0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
-    address odosOwnedDecoderAndSanitizer =
-        0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
+    address oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
+    address odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
 
     function run() external {
         /// NOTE Only have 1 function run at a time, otherwise the merkle root created will be wrong.
@@ -40,12 +37,7 @@ contract CreateStakedBTCNMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "boringVault", boringVault);
         setAddress(false, mainnet, "managerAddress", managerAddress);
         setAddress(false, mainnet, "accountantAddress", accountantAddress);
-        setAddress(
-            false,
-            mainnet,
-            "rawDataDecoderAndSanitizer",
-            rawDataDecoderAndSanitizer
-        );
+        setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](256);
 
@@ -73,34 +65,14 @@ contract CreateStakedBTCNMerkleRoot is Script, MerkleTreeHelper {
         kind[2] = SwapKind.BuyAndSell;
         assets[3] = getAddress(sourceChain, "EBTC");
         kind[3] = SwapKind.BuyAndSell;
-        setAddress(
-            true,
-            sourceChain,
-            "rawDataDecoderAndSanitizer",
-            oneInchOwnedDecoderAndSanitizer
-        );
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
         _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
-        setAddress(
-            true,
-            sourceChain,
-            "rawDataDecoderAndSanitizer",
-            rawDataDecoderAndSanitizer
-        );
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Odos ==========================
-        setAddress(
-            true,
-            sourceChain,
-            "rawDataDecoderAndSanitizer",
-            odosOwnedDecoderAndSanitizer
-        );
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
         _addOdosOwnedSwapLeafs(leafs, assets, kind);
-        setAddress(
-            true,
-            sourceChain,
-            "rawDataDecoderAndSanitizer",
-            rawDataDecoderAndSanitizer
-        );
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Corn BTCN ==========================
         _addBTCNLeafs(
@@ -133,14 +105,7 @@ contract CreateStakedBTCNMerkleRoot is Script, MerkleTreeHelper {
         );
 
         // ========================== Pendle ==========================
-        _addPendleMarketLeafs(
-            leafs,
-            getAddress(
-                sourceChain,
-                "pendle_LBTC_corn_concrete_market_05_21_25"
-            ),
-            true
-        );
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_LBTC_corn_concrete_market_05_21_25"), true);
 
         // ========================== Tellers ==========================
 
@@ -164,16 +129,10 @@ contract CreateStakedBTCNMerkleRoot is Script, MerkleTreeHelper {
         // ========================== Withdraw Queues ==========================
 
         _addWithdrawQueueLeafs(
-            leafs,
-            getAddress(sourceChain, "eBTCOnChainQueueFast"),
-            getAddress(sourceChain, "EBTC"),
-            vaultAssets
+            leafs, getAddress(sourceChain, "eBTCOnChainQueueFast"), getAddress(sourceChain, "EBTC"), vaultAssets
         );
         _addWithdrawQueueLeafs(
-            leafs,
-            getAddress(sourceChain, "eBTCOnChainQueue"),
-            getAddress(sourceChain, "EBTC"),
-            vaultAssets
+            leafs, getAddress(sourceChain, "eBTCOnChainQueue"), getAddress(sourceChain, "EBTC"), vaultAssets
         );
 
         // ========================== Verify ==========================
@@ -184,11 +143,6 @@ contract CreateStakedBTCNMerkleRoot is Script, MerkleTreeHelper {
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
-        _generateLeafs(
-            filePath,
-            leafs,
-            manageTree[manageTree.length - 1][0],
-            manageTree
-        );
+        _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
     }
 }
