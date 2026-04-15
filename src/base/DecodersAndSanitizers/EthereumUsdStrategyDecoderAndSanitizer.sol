@@ -18,9 +18,8 @@ import {OneInchDecoderAndSanitizer} from "./Protocols/OneInchDecoderAndSanitizer
 import {OFTDecoderAndSanitizer} from "./Protocols/OFTDecoderAndSanitizer.sol";
 import {MagpieDecoderAndSanitizer} from "./MagpieDecoderAndSanitizer.sol";
 import {CapDecoderAndSanitizer} from "./Protocols/CapDecoderAndSanitizer.sol";
-import {
-    MorphoV1FlashLoanAdapterDecoderAndSanitizer
-} from "src/base/DecodersAndSanitizers/Protocols/MorphoV1FlashLoanAdapterDecoderAndSanitizer.sol";
+import {MorphoV1FlashLoanAdapterDecoderAndSanitizer} from "./Protocols/MorphoV1FlashLoanAdapterDecoderAndSanitizer.sol";
+import {BridgingDecoderAndSanitizer} from "./BridgingDecoderAndSanitizer.sol";
 
 contract EthereumUsdStrategyDecoderAndSanitizer is
     UniswapV3DecoderAndSanitizer,
@@ -39,7 +38,8 @@ contract EthereumUsdStrategyDecoderAndSanitizer is
     OFTDecoderAndSanitizer,
     MagpieDecoderAndSanitizer,
     CapDecoderAndSanitizer,
-    MorphoV1FlashLoanAdapterDecoderAndSanitizer
+    MorphoV1FlashLoanAdapterDecoderAndSanitizer,
+    BridgingDecoderAndSanitizer
 {
     constructor(address _uniswapV3NonFungiblePositionManager, address _odosRouter, address _magpieRouter)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)

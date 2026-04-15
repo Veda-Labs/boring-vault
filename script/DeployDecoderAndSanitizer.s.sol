@@ -181,7 +181,7 @@ contract DeployEthUsdDecoderAndSanitizer is Script, ContractNames, MainnetAddres
             getAddress(sourceChain, "odosRouterV2"),
             getAddress(sourceChain, "magpieRouterV3")
         );
-        deployer.deployContract("EthUsdStrategyDecodersAndSanitizerV2", creationCode, constructorArgs, 0);
+        deployer.deployContract("EthUsdStrategyDecodersAndSanitizerV3", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }

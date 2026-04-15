@@ -9,6 +9,9 @@ import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {BridgingDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BridgingDecoderAndSanitizer.sol";
+// import {
+//     EthereumUsdStrategyDecoderAndSanitizer
+// } from "src/base/DecoderAndSanitizers/EthereumUsdStrategyDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {SafeCast} from "@openzeppelin/contracts/utils/math/SafeCast.sol";
@@ -100,7 +103,8 @@ contract KatanaOVaultIntegrationTest is Test, MerkleTreeHelper {
             getAddress(sourceChain, "vault") // Balancer vault for flash-loan role
         );
 
-        rawDataDecoderAndSanitizer = address(new BridgingDecoderAndSanitizer());
+        // rawDataDecoderAndSanitizer = address(new BridgingDecoderAndSanitizer());
+        rawDataDecoderAndSanitizer = address(0xA6f838C875EA8c0BB7B342556fc9Ec816166d566);
 
         // Register addresses in the MerkleTreeHelper address book
         setAddress(false, sourceChain, "boringVault", address(boringVault));
@@ -346,11 +350,6 @@ contract KatanaOVaultIntegrationTest is Test, MerkleTreeHelper {
         return addExecutorOption(_options, OPTION_TYPE_LZCOMPOSE, encodeLzComposeOption(_index, _gas, _value));
     }
 
-    // ────────────────────────────────────────────────────────────────────────
-    //  _quoteOFTSend
-    //  FIX: must be called with the Share OFT Adapter (not the USDC OFT adapter)
-    //       because we are bridging vault shares, not raw USDC.
-    // ────────────────────────────────────────────────────────────────────────
     function _quoteOFTSend(address oft, DecoderCustomTypes.SendParam memory sendParam)
         internal
         view

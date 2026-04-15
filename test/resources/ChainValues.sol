@@ -960,6 +960,13 @@ contract ChainValues {
         0xbc552f0b14dd6f8e60b760a534ac1d8613d3539153b4d9675d697e048f2edc7e;
         values[mainnet]["RLP_USDC_86"] = 0xe1b65304edd8ceaea9b629df4c3c926a37d1216e27900505c04f14b2ed279f33;
 
+        values[mainnet]["syrupUSDC_RLUSD_915"] = 0xc0ae375fd761ff19b3f04de5534c0f1ec110f80e1c2ede27c42c1c43c3040394;
+        values[mainnet]["syrupUSDC_PYUSD_915"] = 0xc9629945524f3fde56c7e8854a6c3d48e76b9d97236abbe73c750fcc7aeb8501;
+        values[mainnet]["sUSDS_USDT_965"] = 0x3274643db77a064abd3bc851de77556a4ad2e2f502f4f0c80845fa8f909ecf0b;
+        values[mainnet]["sUSDe_PYUSD_915"] = 0x90ef0c5a0dc7c4de4ad4585002d44e9d411d212d2f6258e94948beecf8b4c0d5;
+        values[mainnet]["fxSAVE_USDC_86"] = 0x43e925e52d7873fa8acac90dd5f246087d55b3a34c344b71884a6352491ff459;
+        values[mainnet]["srRoyUSDC_USDC_915"] = 0xacc49fbf58feb1ac971acce68f8adc177c43682d6a7087bbd4991a05cb7a2c67;
+
         // MetaMorpho
         values[mainnet]["usualBoostedUSDC"] = 0xd63070114470f685b75B74D60EEc7c1113d33a3D.toBytes32();
         values[mainnet]["gauntletUSDCcore"] = 0x8eB67A509616cd6A7c1B3c8C21D48FF57df3d458.toBytes32();
