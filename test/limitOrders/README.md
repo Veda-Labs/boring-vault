@@ -23,6 +23,7 @@ Scripts for submitting live orders through the BoringSwapper on mainnet.
 | UniswapV3Adapter | `0x0B368fc268d2BbF641b4DD29bFE01FBF19f609d1` |
 | CowswapAdapter | `0x90BA671D3062fEd8B169933Ce61AC443191196a6` |
 | OneInchAdapter | `0x48EE2f75E67dE1Cc686b02F81EB3dFe95341DFC1` |
+| OpenOceanAdapter | `0x2db93eb31209e3D9aE855bC68993AEBf4a05E45B` |
 
 ### External Protocols
 | Protocol | Address |

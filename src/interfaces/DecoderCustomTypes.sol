@@ -837,6 +837,20 @@ contract DecoderCustomTypes {
         bytes signature_bytes;
     }
 
+    // ========================================= LI.FI ==================================
+
+    // Matches LibSwap.SwapData in the LI.FI contracts repo.
+    // Used by GenericSwapFacet.swapTokensGeneric().
+    struct LifiSwapData {
+        address callTo;          // contract to call for the swap
+        address approveTo;       // contract to approve input token to
+        address sendingAssetId;  // token being sold (address(0) = native)
+        address receivingAssetId;// token being bought (address(0) = native)
+        uint256 fromAmount;      // amount of sendingAssetId to sell
+        bytes callData;          // calldata forwarded to callTo
+        bool requiresDeposit;    // whether the facet should pull tokens in
+    }
+
     // ========================================= OpenOcean ==================================
 
     struct OpenOceanCallDescription {

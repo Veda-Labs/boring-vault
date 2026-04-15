@@ -11,9 +11,10 @@ import {BoringSwapperDecoder} from "src/base/DecodersAndSanitizers/Protocols/Bor
 import {AdapterRegistry} from "src/base/Periphery/AdapterRegistry.sol"; 
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
-import {UniswapV3Adapter} from "src/base/Periphery/adapters/UniswapV3Adapter.sol"; 
+import {UniswapV3Adapter} from "src/base/Periphery/adapters/UniswapV3Adapter.sol";
 import {CowswapAdapter} from "src/base/Periphery/adapters/CowswapAdapter.sol";
 import {OneInchAdapter} from "src/base/Periphery/adapters/OneInchAdapter.sol";
+import {OpenOceanAdapter} from "src/base/Periphery/adapters/OpenOceanAdapter.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {Authority} from "@solmate/auth/Auth.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
@@ -41,9 +42,10 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
     address _decoder = 0xd9Bb301D37BEB60EbeD71093Cd9c63eFd20C72f4;
 
     // Adapter addresses (from DeployBoringSwapper output)
-    address uniswapV3Adapter = 0x0B368fc268d2BbF641b4DD29bFE01FBF19f609d1;
-    address cowswapAdapter   = 0x90BA671D3062fEd8B169933Ce61AC443191196a6;
-    address oneInchAdapter   = 0x48EE2f75E67dE1Cc686b02F81EB3dFe95341DFC1;
+    address uniswapV3Adapter  = 0x0B368fc268d2BbF641b4DD29bFE01FBF19f609d1;
+    address cowswapAdapter    = 0x90BA671D3062fEd8B169933Ce61AC443191196a6;
+    address oneInchAdapter    = 0x48EE2f75E67dE1Cc686b02F81EB3dFe95341DFC1;
+    address openOceanAdapter  = 0x2db93eb31209e3D9aE855bC68993AEBf4a05E45B;
 
     function setUp() public override {
         privateKey = vm.envUint("BORING_DEVELOPER");
@@ -60,9 +62,10 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
 
     function run() external {
         vm.startBroadcast(privateKey);
-        _submitCowswapOrder();
+        //_submitCowswapOrder();
         //_submitOneInchOrder();
         //_submitOneInchRegularSwap();
+        _submitOpenOceanOrder();
     }
 
     function _submitCowswapOrder() internal {
@@ -264,6 +267,78 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
         tx_.targetData[1] = abi.encodeWithSelector(
             BoringSwapper.swap.selector,
             regularSwapConfig
+        );
+
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+
+        _submitManagerCall(manageProofs, tx_);
+    }
+
+    function _submitOpenOceanOrder() internal {
+        require(openOceanAdapter != address(0), "set openOceanAdapter address first");
+
+        address[] memory tokens = new address[](2);
+        tokens[0] = getAddress(sourceChain, "WETH");
+        tokens[1] = getAddress(sourceChain, "USDC");
+
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
+        _addBoringSwapperLeafs(leafs, address(swapper), tokens);
+
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+        manager.setManageRoot(vm.addr(privateKey), manageTree[manageTree.length - 1][0]);
+
+        Tx memory tx_ = _getTxArrays(2);
+        tx_.manageLeafs[0] = leafs[0]; // approve WETH
+        tx_.manageLeafs[1] = leafs[6]; // submitOrder WETH -> USDC
+
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+
+        tx_.targets[0] = getAddress(sourceChain, "WETH");
+        tx_.targets[1] = address(swapper);
+
+        tx_.targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", address(swapper), type(uint256).max
+        );
+
+        // ── Order params — from `node swapOpenOcean.js generate` ──
+        uint256 salt         = 3975495242876871;
+        uint256 makingAmount = 1_000_000_000_000_000; // 0.001 WETH
+        uint256 takingAmount = 2_250_000;             // 2.25 USDC (~$2250/ETH, ~3.8% below oracle)
+
+        bytes memory swapData = abi.encode(DecoderCustomTypes.OpenOceanLimitOrder({
+            salt:          salt,
+            makerAsset:    getAddress(sourceChain, "WETH"),
+            takerAsset:    getAddress(sourceChain, "USDC"),
+            maker:         address(swapper),
+            receiver:      getAddress(sourceChain, "boringVault"),
+            allowedSender: address(0),
+            makingAmount:  makingAmount,
+            takingAmount:  takingAmount,
+            makerAssetData: "",
+            takerAssetData: "",
+            getMakerAmount: "",
+            getTakerAmount: "",
+            predicate:      "",
+            permit:         "",
+            interaction:    ""
+        }));
+
+        BoringSwapper.SwapConfig memory ooConfig = BoringSwapper.SwapConfig({
+            tokenRoute: BoringSwapper.TokenRoute(
+                getERC20(sourceChain, "WETH"),
+                getERC20(sourceChain, "USDC")
+            ),
+            adapter:    openOceanAdapter,
+            quoteAsset: getAddress(sourceChain, "USDC"),
+            swapData:   swapData,
+            slippageBps: 500,
+            receiver:   BoringVault(payable(getAddress(sourceChain, "boringVault")))
+        });
+
+        tx_.targetData[1] = abi.encodeWithSelector(
+            BoringSwapper.submitOrder.selector,
+            ooConfig
         );
 
         tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;

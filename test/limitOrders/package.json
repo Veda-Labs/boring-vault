@@ -11,6 +11,7 @@
   "dependencies": {
     "@1inch/limit-order-sdk": "^5.2.3",
     "@cowprotocol/cow-sdk": "^8.0.4",
+    "@openocean.finance/limitorder-sdk": "^1.0.12",
     "axios": "^1.13.6",
     "dotenv": "^17.3.1",
     "ethers": "^6.16.0"
