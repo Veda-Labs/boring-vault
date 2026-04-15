@@ -2868,6 +2868,10 @@ contract ChainValues {
         // HyperLend
         values[hyperEVM]["hyperLendPool"] = 0x00A89d7a5A02160f20150EbEA7a2b5E4879A1A8b.toBytes32();
         values[hyperEVM]["v3RewardsController"] = 0x2aF0d6754A58723c50b5e73E45D964bFDD99fE2F.toBytes32();
+        values[hyperEVM]["hyperLendRewardsDistributor"] = 0x889b9DBF1546e1DFD93BC4cacf47eEca7E5B8940.toBytes32();
+
+        // HypurrFi
+        values[hyperEVM]["hypurrFiLendPool"] = 0xceCcE0EB9DD2Ef7996e01e25DD70e461F918A14b.toBytes32();
 
         // MorphoBlue
         values[hyperEVM]["morphoBlue"] = 0x68e37dE8d93d3496ae143F2E900490f6280C57cD.toBytes32();
