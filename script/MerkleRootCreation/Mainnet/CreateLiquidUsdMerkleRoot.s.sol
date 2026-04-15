@@ -32,7 +32,9 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
     address public scrollBridgeDecoderAndSanitizer = 0xA66a6B289FB5559b7e4ebf598B8e0A97C776c200; 
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
     address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
-
+    address public capDecoderAndSanitizer = 0xE0e86bf98dAA0D2b408Cb038E94bCB9B7864309C;
+    address public dolomiteDecoderAndSanitizer = 0x2f7D1Bbc14Fc3a859EB82ffCB195f9FC3DfCde2f;
+    address public cctpDecoderAndSanitizer = 0xd2a9C2F3f8c148dc0E18Dfd0bAE482d9c2E1BA2e;
     //itb
     address public itbAaveV3Usdc = 0xa6c9A887F5Ae28A70E457178AABDd153859B572b;
     address public itbAaveV3Usdt = 0x9c62cB41eACe893E5cc72C0C933E14B299C520A8;
@@ -42,6 +44,8 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
     address public itbSyrupUsdt = 0x1bc7694b92AE221E7d3d775BaDe5C4e1C996d69B;
     address public itbReserveProtocolPositionManager = 0x78Dbb5495044779562A584F133C2eca0B8e349ba;
     address public itbDecoderAndSanitizer = 0xCe39e869C2010A3C049E1cA11F7dfB70ae2ddBF5;
+    address public skyMoneyDecoderAndSanitizer = 0x93740255Db97B8005e5F4E84e0E08F69A3267b30;
+
 
     function setUp() external {}
 
@@ -88,11 +92,11 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "accountantAddress", accountantAddress);
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](4096);
+        ManageLeaf[] memory leafs = new ManageLeaf[](8192);
 
         // ========================== Aave V3 ==========================
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", aaveV3DecoderAndSanitizer);
-        ERC20[] memory supplyAssets = new ERC20[](19);
+        ERC20[] memory supplyAssets = new ERC20[](20);
         supplyAssets[0] = getERC20(sourceChain, "USDC");
         supplyAssets[1] = getERC20(sourceChain, "USDT");
         supplyAssets[2] = getERC20(sourceChain, "DAI");
@@ -112,6 +116,8 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         supplyAssets[16] = getERC20(sourceChain, "pendle_sUSDe_09_25_25_pt");
         supplyAssets[17] = getERC20(sourceChain, "pendle_sUSDe_11_26_25_pt");
         supplyAssets[18] = getERC20(sourceChain, "PYUSD");
+        supplyAssets[19] = getERC20(sourceChain, "USDG");
+
         ERC20[] memory borrowAssets = new ERC20[](8);
         borrowAssets[0] = getERC20(sourceChain, "USDC");
         borrowAssets[1] = getERC20(sourceChain, "USDT");
@@ -134,6 +140,18 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         borrowAssets[1] = getERC20(sourceChain, "USDT");
         borrowAssets[2] = getERC20(sourceChain, "DAI");
         _addSparkLendLeafs(leafs, supplyAssets, borrowAssets);
+
+        // ============================ Cap ============================
+        {
+
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", capDecoderAndSanitizer);
+            address[] memory capDepositAssets = new address[](3);
+            capDepositAssets[0] = getAddress(sourceChain, "USDC");
+            capDepositAssets[1] = getAddress(sourceChain, "USDT");
+            capDepositAssets[2] = getAddress(sourceChain, "PYUSD");
+            _addCapLeafs(leafs, capDepositAssets);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
 
         // ========================== Aave V3 Lido ==========================
         supplyAssets = new ERC20[](3);
@@ -222,6 +240,8 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "smokehouseUSDC")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "usualBoostedUSDC")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletUSDCcore")));
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sentoraPYUSDMain")));
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sentoraRLUSDMain")));
 
         // ========================== Pendle ==========================
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendleUSDeMarket"), true);
@@ -348,8 +368,8 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
          * Swap PYUSD <-> FRAX
          * Swap PYUSD <-> crvUSD
          */
-        address[] memory assets = new address[](31);
-        SwapKind[] memory kind = new SwapKind[](31);
+        address[] memory assets = new address[](32);
+        SwapKind[] memory kind = new SwapKind[](32);
         assets[0] = getAddress(sourceChain, "USDC");
         kind[0] = SwapKind.BuyAndSell;
         assets[1] = getAddress(sourceChain, "USDT");
@@ -414,6 +434,8 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         kind[29] = SwapKind.Sell;
         assets[30] = getAddress(sourceChain, "rEUL");
         kind[30] = SwapKind.Sell;
+        assets[31] = getAddress(sourceChain, "USDG");
+        kind[31] = SwapKind.BuyAndSell;
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
         _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -451,6 +473,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "USDe_DAI_Curve_Pool"));
         _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "sDAI_sUSDe_Curve_Pool"));
         _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "USDC_RLUSD_Curve_Pool"));
+        _addLeafsForCurveSwapping(leafs, getAddress(sourceChain, "spark_PYUSD_USDS_Curve_Pool"));
 
         // ========================== Curve ==========================
         _addCurveLeafs(
@@ -466,12 +489,44 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
             getAddress(sourceChain, "pyUsd_Usdc_Curve_Gauge")
         );
 
+        // ========================== SparkSwap ==========================
+        {
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", skyMoneyDecoderAndSanitizer);
+            _addSkyUSDSLitePSMUSDCLeafs(leafs);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
+
+        // ========================== USDD ==========================
+        {
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", skyMoneyDecoderAndSanitizer);
+            _addUSDDPSMLeafs(leafs);
+
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+            _addSUSDDLeafs(leafs);
+        }
+
         // ========================== Resolv ==========================
         {
             ERC20[] memory assets = new ERC20[](2);
             assets[0] = getERC20(sourceChain, "USDC");
             assets[1] = getERC20(sourceChain, "USDT");
             _addAllResolvLeafs(leafs, assets);
+        }
+
+        // ========================== Dolomite ==========================
+        {
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", dolomiteDecoderAndSanitizer);
+
+            // supply
+            _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "USDC"), false);
+            _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "USDT"), false);
+            _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "USD1"), false);
+            _addDolomiteDepositLeafs(leafs, getAddress(sourceChain, "weETH"), false);
+
+            // borrow
+            _addDolomiteBorrowLeafs(leafs, getAddress(sourceChain, "USD1"));
+
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 
         // ========================== Ethena Withdraws ==========================
@@ -487,7 +542,12 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         _addELXClaimingLeafs(leafs);
 
         // ========================== Syrup ==========================
-        _addAllSyrupLeafs(leafs);
+        {
+            address[] memory tokens = new address[](2);
+            tokens[0] = getAddress(sourceChain, "USDC");
+            tokens[1] = getAddress(sourceChain, "USDT");
+            _addAllSyrupLeafs(leafs, tokens);
+        }
 
         // ========================== Balancer ==========================
         _addBalancerLeafs(
@@ -908,6 +968,10 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         _addScrollNativeBridgeLeafs(leafs, "scroll", tokens, scrollGateways); 
         }
 
+        // ========================== CCTP Bridge ==========================
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", cctpDecoderAndSanitizer);
+        _addCCTPBridgeLeafs(leafs, cctpPlumeDomainId);
+
         // ========================== Euler ==========================
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         {
@@ -931,6 +995,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         // ========================== Merkl ==========================
         {
         _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address")); 
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "etherfiOpsAddress")); 
         }
 
         // ========================== Reward Token Unwrapping ==========================
@@ -977,6 +1042,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         // ========================== Drones Setup ===============================
         _addLeafsForDrone(leafs); //create leaves for drone
         _addLeafsForDroneOne(leafs); //create leaves for drone1
+
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
@@ -1189,7 +1255,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         setAddress(true, mainnet, "boringVault", boringVault);
     }
 
-    function _addLeafsForITBPositionManager(
+    function _addLeafsForITBPositionManagerLocal(
         ManageLeaf[] memory leafs,
         address itbPositionManager,
         ERC20[] memory tokensUsed,
@@ -1248,7 +1314,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         ERC20[] memory tokensUsed,
         string memory itbContractName
     ) internal {
-        _addLeafsForITBPositionManager(leafs, itbPositionManager, tokensUsed, itbContractName);
+        _addLeafsForITBPositionManagerLocal(leafs, itbPositionManager, tokensUsed, itbContractName);
         for (uint256 i; i < tokensUsed.length; ++i) {
             // Deposit
             leafIndex++;
@@ -1286,7 +1352,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         ERC20[] memory tokensUsed = new ERC20[](2);
         tokensUsed[0] = underlying;
         tokensUsed[1] = diesal;
-        _addLeafsForITBPositionManager(leafs, itbPositionManager, tokensUsed, itbContractName);
+        _addLeafsForITBPositionManagerLocal(leafs, itbPositionManager, tokensUsed, itbContractName);
 
         // Approvals
         leafIndex++;
@@ -1365,7 +1431,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
     ) internal {
         ERC20[] memory tokensUsed = new ERC20[](1);
         tokensUsed[0] = underlying;
-        _addLeafsForITBPositionManager(leafs, itbPositionManager, tokensUsed, itbContractName);
+        _addLeafsForITBPositionManagerLocal(leafs, itbPositionManager, tokensUsed, itbContractName);
 
         // Deposit
         leafIndex++;
@@ -1429,7 +1495,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         ERC20[] memory tokensUsed,
         string memory itbContractName
     ) internal {
-        _addLeafsForITBPositionManager(leafs, itbPositionManager, tokensUsed, itbContractName);
+        _addLeafsForITBPositionManagerLocal(leafs, itbPositionManager, tokensUsed, itbContractName);
 
         // mint
         leafIndex++;

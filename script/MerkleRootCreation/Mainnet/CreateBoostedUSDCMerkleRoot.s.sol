@@ -19,7 +19,7 @@ contract CreateBoostedUSDCMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0xDbD87325D7b1189Dcc9255c4926076fF4a96A271;
-    address public rawDataDecoderAndSanitizer = 0x7f3A794f99Db3d745DC1A924Afb0fa8CFdFADCca;
+    address public rawDataDecoderAndSanitizer = 0xB44B0976dBE7b958Ef451ab102d47452aB3cB29B;
     address public managerAddress = 0xEd23b12e7700BeB638562A22ED65f74291901c25;
     address public accountantAddress = 0x62A88Bea6fe527b5DEfAA103A3f8b5010205aF92;
 
@@ -42,7 +42,7 @@ contract CreateBoostedUSDCMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "accountantAddress", accountantAddress);
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](256);
+        ManageLeaf[] memory leafs = new ManageLeaf[](512);
 
         // ========================== Fee Claiming ==========================
         ERC20[] memory feeAssets = new ERC20[](2);
@@ -51,8 +51,8 @@ contract CreateBoostedUSDCMerkleRoot is Script, MerkleTreeHelper {
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
         // ========================== 1inch/Odos ==========================
-        address[] memory assets = new address[](6);
-        SwapKind[] memory kind = new SwapKind[](6);
+        address[] memory assets = new address[](11);
+        SwapKind[] memory kind = new SwapKind[](11);
         assets[0] = getAddress(sourceChain, "USDC");
         kind[0] = SwapKind.BuyAndSell;
         assets[1] = getAddress(sourceChain, "USDT");
@@ -65,6 +65,16 @@ contract CreateBoostedUSDCMerkleRoot is Script, MerkleTreeHelper {
         kind[4] = SwapKind.BuyAndSell;
         assets[5] = getAddress(sourceChain, "USDE");
         kind[5] = SwapKind.BuyAndSell;
+        assets[6] = getAddress(sourceChain, "RLUSD");
+        kind[6] = SwapKind.BuyAndSell;
+        assets[7] = getAddress(sourceChain, "USDG");
+        kind[7] = SwapKind.BuyAndSell;
+        assets[8] = getAddress(sourceChain, "GHO");
+        kind[8] = SwapKind.BuyAndSell;
+        assets[9] = getAddress(sourceChain, "stkGHO");
+        kind[9] = SwapKind.BuyAndSell;
+        assets[10] = getAddress(sourceChain, "PYUSD");
+        kind[10] = SwapKind.BuyAndSell;
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
         _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
@@ -75,11 +85,21 @@ contract CreateBoostedUSDCMerkleRoot is Script, MerkleTreeHelper {
         _addNativeLeafs(leafs);
 
         // ========================== Aave V3 ==========================
-        ERC20[] memory supplyAssets = new ERC20[](2);
+        ERC20[] memory supplyAssets = new ERC20[](7);
         supplyAssets[0] = getERC20(sourceChain, "USDC");
         supplyAssets[1] = getERC20(sourceChain, "USDT");
+        supplyAssets[2] = getERC20(sourceChain, "SUSDE");
+        supplyAssets[3] = getERC20(sourceChain, "USDE");
+        supplyAssets[4] = getERC20(sourceChain, "RLUSD");
+        supplyAssets[5] = getERC20(sourceChain, "USDG");
+        supplyAssets[6] = getERC20(sourceChain, "PYUSD");
         ERC20[] memory borrowAssets = new ERC20[](0);
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
+
+        // ========================== Merkl Claim ==========================
+        _addMerklLeafs(
+            leafs, getAddress(sourceChain, "merklDistributor"), 0xe373248E02c5a342d453ecB8eBFC449b8BE70Bc1
+        );
 
         // ========================== Sky Money ==========================
         _addAllSkyMoneyLeafs(leafs);
@@ -96,7 +116,13 @@ contract CreateBoostedUSDCMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== CCTP ==========================
         _addCCTPBridgeLeafs(leafs, cctpInkDomainId);
-
+        
+        // ========================== SGHO ==========================
+        _addSGHOLeafs(leafs);
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "waEthUSDC")));
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "waEthUSDT")));
+        _addGHOGSMLeafs(leafs, getAddress(sourceChain, "gsmUsdc"), getERC20(sourceChain, "waEthUSDC"));
+        _addGHOGSMLeafs(leafs, getAddress(sourceChain, "gsmUsdt"), getERC20(sourceChain, "waEthUSDT"));
         // ========================== Verify ==========================
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

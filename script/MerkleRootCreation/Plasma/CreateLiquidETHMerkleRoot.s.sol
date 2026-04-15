@@ -24,6 +24,8 @@ contract CreateLiquidETHMerkleRoot is Script, MerkleTreeHelper {
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
     address public drone = 0x7c391d7856fcbC4Fd3a3C3CD8787c7eBF85934aF;
 
+    address public fluidT1DecoderAndSanitizer = 0xa4561A172D998561b22b574f291bF4E2d5C60aA3;
+
     function setUp() external {}
 
     /**
@@ -40,7 +42,7 @@ contract CreateLiquidETHMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, plasma, "accountantAddress", accountantAddress);
         setAddress(false, plasma, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](128);
+        ManageLeaf[] memory leafs = new ManageLeaf[](256);
 
         // ========================== Aave V3 ==========================
         ERC20[] memory supplyAssets = new ERC20[](5);
@@ -63,6 +65,7 @@ contract CreateLiquidETHMerkleRoot is Script, MerkleTreeHelper {
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "WEETH"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDE"), getAddress(sourceChain, "USDE"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WETH"), getAddress(sourceChain, "WETH_OFT_STARGATE"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
+        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "wstUSR"), getAddress(sourceChain, "wstUSR"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
 
         // ========================== UniswapV3 ==========================
         address[] memory token0 = new address[](4);
@@ -78,14 +81,27 @@ contract CreateLiquidETHMerkleRoot is Script, MerkleTreeHelper {
         _addUniswapV3Leafs(leafs, token0, token1, true, true);
 
         // ========================== Fluid ==========================
-        ERC20[] memory supplyTokens = new ERC20[](2);
-        supplyTokens[0] = getERC20(sourceChain, "WEETH");
-        supplyTokens[1] = getERC20(sourceChain, "WETH");
+        {
+            ERC20[] memory supplyTokens = new ERC20[](2);
+            supplyTokens[0] = getERC20(sourceChain, "WEETH");
+            supplyTokens[1] = getERC20(sourceChain, "WETH");
 
-        ERC20[] memory borrowTokens = new ERC20[](2);
-        borrowTokens[0] = getERC20(sourceChain, "WEETH");
-        borrowTokens[1] = getERC20(sourceChain, "WETH");
-        _addFluidDexLeafs(leafs, getAddress(sourceChain, "weETH_ETHDex_wETH"), 2000, supplyTokens, borrowTokens, false);
+            ERC20[] memory borrowTokens = new ERC20[](2);
+            borrowTokens[0] = getERC20(sourceChain, "WEETH");
+            borrowTokens[1] = getERC20(sourceChain, "WETH");
+            _addFluidDexLeafs(leafs, getAddress(sourceChain, "weETH_ETHDex_wETH"), 2000, supplyTokens, borrowTokens, false);
+        }
+        {
+            // primary decoder does not have support for T1 fluid vaults so point leaves at a separate deployment
+            setAddress(true, plasma, "rawDataDecoderAndSanitizer", fluidT1DecoderAndSanitizer);
+            ERC20[] memory supplyTokens = new ERC20[](1);
+            supplyTokens[0] = getERC20(sourceChain, "wstUSR");
+
+            ERC20[] memory borrowTokens = new ERC20[](1);
+            borrowTokens[0] = getERC20(sourceChain, "USDT0");
+            _addFluidDexLeafs(leafs, getAddress(sourceChain, "Vaultt1_Wstusr_Usdt0"), 1000, supplyTokens, borrowTokens, false);
+            setAddress(true, plasma, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
 
         // ========================== Native ==========================
         _addNativeLeafs(leafs, getAddress(sourceChain, "wXPL"));

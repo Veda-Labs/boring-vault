@@ -84,8 +84,8 @@ contract CreateSonicUSDMerkleRoot is Script, MerkleTreeHelper {
         _addSiloVaultLeafs(leafs, getAddress(sourceChain, "silo_USDC_vault"));
 
          // ========================== Odos ==========================
-         address[] memory tokens = new address[](5);
-         SwapKind[] memory kind = new SwapKind[](5);
+         address[] memory tokens = new address[](6);
+         SwapKind[] memory kind = new SwapKind[](6);
          tokens[0] = getAddress(sourceChain, "USDC");
          kind[0] = SwapKind.BuyAndSell; 
          tokens[1] = getAddress(sourceChain, "USDT");
@@ -95,7 +95,9 @@ contract CreateSonicUSDMerkleRoot is Script, MerkleTreeHelper {
          tokens[3] = getAddress(sourceChain, "awS");
          kind[3] = SwapKind.Sell; 
          tokens[4] = getAddress(sourceChain, "SILO");
-         kind[4] = SwapKind.Sell; 
+         kind[4] = SwapKind.Sell;
+         tokens[5] = getAddress(sourceChain, "frxUSD");
+         kind[5] = SwapKind.BuyAndSell;
 
          _addOdosSwapLeafs(leafs, tokens, kind);
 
@@ -103,7 +105,7 @@ contract CreateSonicUSDMerkleRoot is Script, MerkleTreeHelper {
         ERC20[] memory tokensToClaim = new ERC20[](2); 
         tokensToClaim[0] = getERC20(sourceChain, "wS"); 
         tokensToClaim[1] = getERC20(sourceChain, "awS"); 
-        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"), tokensToClaim);    
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"));    
 
         // ========================== LayerZero ==========================
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "frxUSD"), getAddress(sourceChain, "frxUSD"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault")); 

@@ -472,26 +472,21 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         nonReentrant
         returns (uint256 shares)
     {
-        Asset memory asset = _beforeDeposit(depositAsset);
+        shares = _publicDeposit(depositAsset, depositAmount, minimumMint, msg.sender, referralAddress);
+    }
 
-        address from;
-        if (address(depositAsset) == NATIVE) {
-            if (msg.value == 0) revert TellerWithMultiAssetSupport__ZeroAssets();
-            nativeWrapper.deposit{value: msg.value}();
-            // Set depositAmount to msg.value.
-            depositAmount = msg.value;
-            nativeWrapper.safeApprove(address(vault), depositAmount);
-            // Update depositAsset to nativeWrapper.
-            depositAsset = nativeWrapper;
-            // Set from to this address since user transferred value.
-            from = address(this);
-        } else {
-            if (msg.value > 0) revert TellerWithMultiAssetSupport__DualDeposit();
-            from = msg.sender;
-        }
-
-        shares = _erc20Deposit(depositAsset, depositAmount, minimumMint, from, msg.sender, asset);
-        _afterPublicDeposit(msg.sender, depositAsset, depositAmount, shares, shareLockPeriod, referralAddress);
+    /**
+     * @notice Allows an authorized caller to deposit into the BoringVault for another address, if this contract is not paused.
+     * @dev Intended for router-like integrations; this selector should remain role-gated.
+     */
+    function deposit(
+        ERC20 depositAsset,
+        uint256 depositAmount,
+        uint256 minimumMint,
+        address to,
+        address referralAddress
+    ) external payable virtual requiresAuth nonReentrant returns (uint256 shares) {
+        shares = _publicDeposit(depositAsset, depositAmount, minimumMint, to, referralAddress);
     }
 
     /**
@@ -614,6 +609,35 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     }
 
     /**
+     * @notice Implements a common public deposit flow, including native wrapping and deposit ownership bookkeeping.
+     */
+    function _publicDeposit(
+        ERC20 depositAsset,
+        uint256 depositAmount,
+        uint256 minimumMint,
+        address to,
+        address referralAddress
+    ) internal returns (uint256 shares) {
+        Asset memory asset = _beforeDeposit(depositAsset);
+
+        address from;
+        if (address(depositAsset) == NATIVE) {
+            if (msg.value == 0) revert TellerWithMultiAssetSupport__ZeroAssets();
+            nativeWrapper.deposit{value: msg.value}();
+            depositAmount = msg.value;
+            nativeWrapper.safeApprove(address(vault), depositAmount);
+            depositAsset = nativeWrapper;
+            from = address(this);
+        } else {
+            if (msg.value > 0) revert TellerWithMultiAssetSupport__DualDeposit();
+            from = msg.sender;
+        }
+
+        shares = _erc20Deposit(depositAsset, depositAmount, minimumMint, from, to, asset);
+        _afterPublicDeposit(to, depositAsset, depositAmount, shares, shareLockPeriod, referralAddress);
+    }
+
+    /**
      * @notice Handle pre-deposit checks.
      */
     function _beforeDeposit(ERC20 depositAsset) internal view returns (Asset memory asset) {
@@ -681,6 +705,6 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
      * @notice Returns the version of the contract.
      */
     function version() public pure virtual returns (string memory) {
-        return "Base V0.1";
+        return "Base V0.2";
     }
 }
