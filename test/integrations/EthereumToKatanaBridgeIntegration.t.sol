@@ -168,7 +168,6 @@ contract KatanaOVaultIntegrationTest is Test, MerkleTreeHelper {
         // ── Build Merkle leafs (index starts at -1; helpers pre-increment) ──
         // FIX: leafIndex must be reset to type(uint256).max so that the first
         //      unchecked{ leafIndex++ } wraps to 0, matching leafs[0].
-        leafIndex = type(uint256).max;
 
         ManageLeaf[] memory leafs = new ManageLeaf[](2);
         _addEthereumOVaultLeafsForDepositAndSend(leafs, USDC_MAINNET, OVAULT_COMPOSER);
@@ -182,12 +181,10 @@ contract KatanaOVaultIntegrationTest is Test, MerkleTreeHelper {
         // ── Execute approve + depositAndSend through the BoringVault ─────────
         _executeBridge(leafs, manageTree, sendParam, nativeFee, amountToDeposit);
 
-        // ── Verify receipt on Katana ─────────────────────────────────────────
-        // vm.selectFork(katanaFork);
+        uint256 balanceAfter = getERC20(sourceChain, "USDC").balanceOf(address(boringVault));
 
-        // // FIX: check that balance is > 0, not < 1000e6 (the old check always passed)
-        // uint256 balanceAfter = ERC20(VBUSDC_KATANA).balanceOf(address(boringVault));
-        // require(balanceAfter > 0, "bridge did not work: no vbUSDC received on Katana");
+        console.log("balance after bridge:", balanceAfter);
+        require(balanceAfter < 1000e6, "bridge did not work");
     }
 
     // ────────────────────────────────────────────────────────────────────────
@@ -214,7 +211,7 @@ contract KatanaOVaultIntegrationTest is Test, MerkleTreeHelper {
         // Build the OFT SendParam — this describes the share transfer on Katana
         sendParam = DecoderCustomTypes.SendParam({
             dstEid: LZ_EID_KATANA,
-            to: bytes32(uint256(uint160(recipient))),
+            to: bytes32(uint256(uint160(OVAULT_COMPOSER))),
             amountLD: expectedShares, // shares to bridge
             minAmountLD: minShares, // slippage floor
             extraOptions: addExecutorLzReceiveOption(

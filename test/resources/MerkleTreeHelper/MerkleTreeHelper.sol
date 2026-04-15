@@ -11994,13 +11994,9 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
 
     // ======================================= Katana OVault =========================================
 
-    /// @dev Adds two leafs to the array:
-    ///      [0] approve(USDC, OVaultComposer, amount)
-    ///      [1] depositAndSend(amount, sendParam, refundAddress)
     function _addEthereumOVaultLeafsForDepositAndSend(ManageLeaf[] memory leafs, address token, address composer)
         internal
     {
-        // Leaf 0 — approve
         unchecked {
             leafIndex++;
         }
@@ -12014,13 +12010,12 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         );
         leafs[leafIndex].argumentAddresses[0] = composer;
 
-        // Leaf 1 — depositAndSend
         unchecked {
             leafIndex++;
         }
         leafs[leafIndex] = ManageLeaf(
             composer,
-            true, // payable — ETH is forwarded for the LZ fee
+            true,
             "depositAndSend(uint256,(uint32,bytes32,uint256,uint256,bytes,bytes,bytes),address)",
             new address[](2),
             string.concat("Bridge ", ERC20(token).symbol(), " via OVault to Katana"),
