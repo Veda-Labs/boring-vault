@@ -43,7 +43,7 @@ contract ERC4626BufferHelper is IBufferHelper {
      *
      * - If current allowance >= amount: Only deposit into the ERC4626 vault (1 call)
      * - If current allowance == 0: Approve then deposit (2 calls)
-     * - If current allowance < amount: Reset approval to 0, approve new amount, then deposit (3 calls)
+     * - If 0 < current allowance < amount: Reset approval to 0, approve new amount, then deposit (3 calls)
      */
     function getDepositManageCall(address asset, uint256 amount)
         public
