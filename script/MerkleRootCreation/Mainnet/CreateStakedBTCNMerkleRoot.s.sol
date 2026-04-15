@@ -159,7 +159,7 @@ contract CreateStakedBTCNMerkleRoot is Script, MerkleTreeHelper {
         address[] memory feeAssets = new address[](1);
         feeAssets[0] = getAddress(sourceChain, "ETH");
 
-        _addCrossChainTellerLeafs(leafs, eBTCTeller, vaultAssetAddrs, feeAssets, abi.encode(layerZeroMainnetEndpointId));
+        _addCrossChainTellerLeafs(leafs, eBTCTeller, vaultAssetAddrs, feeAssets, abi.encode(layerZeroCornEndpointId));
 
         // ========================== Withdraw Queues ==========================
 
