@@ -18,7 +18,7 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x9BA2EDc44E0A4632EB4723E81d4142353e1bB160;
-    address public rawDataDecoderAndSanitizer = 0x06Fac6B4614c8eEf2F63c88d5956Db3144De72c2;
+    address public rawDataDecoderAndSanitizer = 0x1a7cfa3A9E0E0B046e809051953645b7aec35845;
     address public managerAddress = 0x7f8CcAA760E0F621c7245d47DC46d40A400d3639;
     address public accountantAddress = 0x74392Fa56405081d5C7D93882856c245387Cece2;
 
@@ -60,7 +60,7 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
         feeAssets[1] = getERC20(sourceChain, "WHYPE");
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
-        // ========================== AaveV3 ==========================
+        // ========================== HyperLend ==========================
         ERC20[] memory supplyAssets = new ERC20[](5);
         supplyAssets[0] = getERC20(sourceChain, "KHYPE");
         supplyAssets[1] = getERC20(sourceChain, "WHYPE");
@@ -74,6 +74,13 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
         borrowAssets[3] = getERC20(sourceChain, "pendle_kHYPE_pt_3_19_26");
         borrowAssets[4] = getERC20(sourceChain, "USDC");
         _addHyperLendLeafs(leafs, supplyAssets, borrowAssets);
+
+        // ========================== HypurrFi ==========================
+        supplyAssets = new ERC20[](1);
+        supplyAssets[0] = getERC20(sourceChain, "KHYPE");
+        borrowAssets = new ERC20[](1);
+        borrowAssets[0] = getERC20(sourceChain, "WHYPE");
+        _addHypurrFiLeafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== Morpho Blue ==========================
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "KHYPE_WHYPE_915")); 
