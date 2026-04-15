@@ -2883,7 +2883,6 @@ contract ChainValues {
 
         // Curve Pool
         values[hyperEVM]["KHYPE_WHYPE_Curve_Pool"] = 0x98F903B279DfF5a4f05c08C22c1D34afE8514dA0.toBytes32();
-        values[hyperEVM]["KHYPE_WHYPE_Curve_Gauge"] = 0x98F903B279DfF5a4f05c08C22c1D34afE8514dA0.toBytes32();
 
         // Pendle
         values[hyperEVM]["pendleRouter"] = 0x888888888889758F76e7103c6CbF23ABbF58F946.toBytes32();
