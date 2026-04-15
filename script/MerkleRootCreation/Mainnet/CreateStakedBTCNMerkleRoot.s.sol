@@ -119,7 +119,7 @@ contract CreateStakedBTCNMerkleRoot is Script, MerkleTreeHelper {
         vaultAssetAddrs[1] = getAddress(sourceChain, "cbBTC");
         vaultAssetAddrs[2] = getAddress(sourceChain, "LBTC");
 
-        address eBTCTeller = 0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268;
+        address eBTCTeller = getAddress(sourceChain, "eBTCTeller");
 
         address[] memory feeAssets = new address[](1);
         feeAssets[0] = getAddress(sourceChain, "ETH");
