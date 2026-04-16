@@ -102,7 +102,6 @@ async function simulate() {
             const selector = revertData.slice(0, 10);
             const knownErrors = {
                 "0x773bab9e": "BoringSwapper__HashMismatch",
-                "0x1be1cbbe": "BoringSwapper__RouteNotApproved",
                 "0xac02dec2": "BoringSwapper__AdapterNotApproved",
                 "0xfb597802": "BoringSwapper__RateLimitExceeded",
             };

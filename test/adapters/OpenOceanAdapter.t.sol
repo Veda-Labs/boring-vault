@@ -63,8 +63,8 @@ contract OpenOceanAdapterTest is BaseTestIntegration {
 
         //console.log(openOceanAdapter);
 
-        swapper.setApprovedRoute(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDC"), true, 500, 0, 0);
-        swapper.setApprovedRoute(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDT"), true, 500, 0, 0);
+        swapper.setRouteConfig(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDC"), 500, 0, 0);
+        swapper.setRouteConfig(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDT"), 500, 0, 0);
         swapper.setApprovedAdapter(openOceanAdapter, true);
 
         registry.put(openOceanAdapter, "OPENOCEAN");

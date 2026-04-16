@@ -58,6 +58,7 @@ contract PriceValidator is IPriceValidator {
         if (skip) return (true, values);
 
         uint256 rateProviderLength = rateProviders.length;
+        if (rateProviderLength == 0) revert PriceValidator__OracleNotConfigured();
         if (rateProviderLength != intermediaries.length) revert PriceValidator__OracleLengthMismatch();
 
         values = new uint256[](rateProviderLength);
@@ -69,6 +70,7 @@ contract PriceValidator is IPriceValidator {
             values[i] = amount.mulDivDown(IRateProvider(rateProviders[i]).getRate(), 10 ** decimals);
 
             if (intermediaries[i] != address(0)) {
+                if (swapper.baseOracleLength(ERC20(intermediaries[i]), quoteAsset) == 0) revert PriceValidator__OracleNotConfigured();
                 address baseRateProvider = swapper.oracles(ERC20(intermediaries[i]), quoteAsset, 0);
                 if (baseRateProvider == address(0)) revert PriceValidator__OracleNotConfigured();
                 values[i] = values[i].mulDivDown(IRateProvider(baseRateProvider).getRate(), 1e18);

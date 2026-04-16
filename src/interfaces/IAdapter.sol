@@ -12,7 +12,6 @@ interface IAdapter {
     struct OrderInfo {
         address approvalTarget;
         address cancelTarget;
-        address settlementCaller;
         address inputToken;
         address outputToken;
         uint256 inputAmount;

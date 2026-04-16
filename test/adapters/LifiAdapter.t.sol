@@ -57,7 +57,7 @@ contract LifiAdapterTest is BaseTestIntegration {
 
         lifiAdapter = address(new LifiAdapter(LIFI_ROUTER));
 
-        swapper.setApprovedRoute(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDC"), true, 500, 0, 0);
+        swapper.setRouteConfig(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDC"), 500, 0, 0);
         swapper.setApprovedAdapter(lifiAdapter, true);
 
         registry.put(lifiAdapter, "LIFI");

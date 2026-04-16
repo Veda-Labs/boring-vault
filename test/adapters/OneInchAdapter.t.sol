@@ -65,10 +65,10 @@ contract OneInchAdapterTest is BaseTestIntegration {
 
         oneInchAdapter = address(new OneInchAdapter(ONEINCH_ROUTER, ONEINCH_FEE_TAKER, ONEINCH_EXECUTOR));
 
-        swapper.setApprovedRoute(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDC"), true, 50, 0, 0);
-        swapper.setApprovedRoute(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDT"), true, 500, 0, 0);
-        swapper.setApprovedRoute(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDE"), true, 500, 0, 0);
-        swapper.setApprovedRoute(getERC20(sourceChain, "USDT"), getERC20(sourceChain, "USDC"), true, 500, 0, 0);
+        swapper.setRouteConfig(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDC"), 50, 0, 0);
+        swapper.setRouteConfig(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDT"), 500, 0, 0);
+        swapper.setRouteConfig(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDE"), 500, 0, 0);
+        swapper.setRouteConfig(getERC20(sourceChain, "USDT"), getERC20(sourceChain, "USDC"), 500, 0, 0);
         swapper.setApprovedAdapter(oneInchAdapter, true);
 
         registry.put(oneInchAdapter, "ONEINCH");

@@ -277,7 +277,6 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         return OrderInfo({
             approvalTarget: router,
             cancelTarget: router,
-            settlementCaller: router,
             inputToken: order.makerAsset,
             outputToken: order.takerAsset,
             inputAmount: order.makingAmount,

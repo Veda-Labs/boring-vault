@@ -229,7 +229,6 @@ contract OpenOceanAdapter is IAdapter, BaseAdapter {
         return OrderInfo({
             approvalTarget: limitOrderProtocol,
             cancelTarget: limitOrderProtocol,
-            settlementCaller: limitOrderProtocol,
             inputToken: order.makerAsset,
             outputToken: order.takerAsset,
             inputAmount: order.makingAmount,

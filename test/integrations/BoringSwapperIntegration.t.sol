@@ -89,7 +89,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         cowswapAdapter = address(new CowswapAdapter(COW_SETTLEMENT, COW_VAULT_RELAYER));
         oneInchAdapter = address(new OneInchAdapter(ONEINCH_ROUTER, ONEINCH_FEE_TAKER, ONEINCH_EXECUTOR));
 
-        swapper.setApprovedRoute(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDC"), true, 50, 0, 0);
+        swapper.setRouteConfig(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDC"), 50, 0, 0);
         swapper.setApprovedAdapter(uniswapV3Adapter, true);
         swapper.setApprovedAdapter(cowswapAdapter, true);
         swapper.setApprovedAdapter(oneInchAdapter, true);

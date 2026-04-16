@@ -97,7 +97,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.pause.selector, true);
         rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.unpause.selector, true);
         rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setAdapterPaused.selector, true);
-        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setApprovedRoute.selector, true);
+        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setRouteConfig.selector, true);
         rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setMaxSlippageBps.selector, true);
         rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setApprovedAdapter.selector, true);
         rolesAuthority.setRoleCapability(ADMIN_ROLE, address(swapper), BoringSwapper.setTokenOracle.selector, true);
@@ -118,8 +118,8 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         registry.put(address(cowAdapter), "COWSWAP");
 
         //swapper config
-        swapper.setApprovedRoute(WETH, USDC, true, 50, 0, 0);
-        swapper.setApprovedRoute(STETH, USDC, true, 500, 0, 0);
+        swapper.setRouteConfig(WETH, USDC, 50, 0, 0);
+        swapper.setRouteConfig(STETH, USDC, 500, 0, 0);
         swapper.setApprovedAdapter(address(cowAdapter), true);
 
         //oracles
@@ -189,7 +189,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
             receiver: boringVault
         });
 
-        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__RouteNotApproved.selector));
+        vm.expectRevert(abi.encodeWithSelector(PriceValidator.PriceValidator__ExceedsRouteMaxSlippage.selector));
         swapper.submitOrder(config);
     }
 
@@ -464,7 +464,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(boringVault), 100e18);
         bytes32 routeKey = swapper.getRouteId(WETH, USDC);
 
-        swapper.setApprovedRoute(WETH, USDC, true, 50, 10e18, 0);
+        swapper.setRouteConfig(WETH, USDC, 50, 10e18, 0);
 
         (BoringSwapper.SwapConfig memory config, bytes32 digest, uint256 orderId) =
             _submitOrder(6e18, 12000e6, uint32(block.timestamp + 3600));
@@ -656,12 +656,11 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
     //==================== Admin Tests ====================
 
-    function testAddApprovedRoute() external {
+    function testSetRouteConfig() external {
         //new route USDC -> WETH with 100 bps max slippage
-        swapper.setApprovedRoute(USDC, WETH, true, 100, 0, 0);
+        swapper.setRouteConfig(USDC, WETH, 100, 0, 0);
 
         bytes32 key = swapper.getRouteId(USDC, WETH);
-        assertTrue(swapper.approvedRoutes(key));
         assertEq(swapper.maxSlippageBpsPerRoute(key), 100);
     }
 
