@@ -23,6 +23,9 @@ import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.s
 contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
+    bytes4 internal constant DEPOSIT_SELECTOR = bytes4(keccak256("deposit(address,uint256,uint256,address)"));
+    bytes4 internal constant DEPOSIT_TO_SELECTOR = bytes4(keccak256("deposit(address,uint256,uint256,address,address)"));
+
     event Paused();
 
     BoringVault public boringVault;
@@ -45,6 +48,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     uint8 public constant SOLVER_ROLE = 9;
     uint8 public constant QUEUE_ROLE = 10;
     uint8 public constant CAN_SOLVE_ROLE = 11;
+    uint8 public constant ROUTER_ROLE = 55;
     
     address public alice = address(69); 
     address public bill = address(6969); 
@@ -126,7 +130,8 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         rolesAuthority.setRoleCapability(
             MINTER_ROLE, address(accountant), bytes4(keccak256("updateCumulative()")), true
         );
-        rolesAuthority.setPublicCapability(address(teller), TellerWithMultiAssetSupport.deposit.selector, true);
+        rolesAuthority.setRoleCapability(ROUTER_ROLE, address(teller), DEPOSIT_TO_SELECTOR, true);
+        rolesAuthority.setPublicCapability(address(teller), DEPOSIT_SELECTOR, true);
         rolesAuthority.setPublicCapability(
             address(teller), TellerWithMultiAssetSupport.depositWithPermit.selector, true
         );
@@ -206,6 +211,25 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
        
         (, , , uint64 startVestingTimeNow, ) = accountant.vestingState(); 
         assertEq(startVestingTimeLast + 1 days, startVestingTimeNow);  
+    }
+
+    function testDepositToInheritsYieldStreamingFlow() external {
+        uint256 WETHAmount = 10e18;
+        rolesAuthority.setUserRole(address(this), ROUTER_ROLE, true);
+
+        (, , , uint64 startVestingTimeLast, ) = accountant.vestingState();
+        skip(1 days);
+
+        deal(address(WETH), address(this), WETHAmount);
+        WETH.approve(address(boringVault), WETHAmount);
+        uint256 shares = teller.deposit(WETH, WETHAmount, 0, alice, referrer);
+
+        assertGt(shares, 0, "Deposit should mint shares");
+        assertEq(boringVault.balanceOf(alice), shares, "Receiver should own the minted shares");
+        assertEq(boringVault.balanceOf(address(this)), 0, "Caller should not receive shares");
+
+        (, , , uint64 startVestingTimeNow, ) = accountant.vestingState();
+        assertEq(startVestingTimeNow, startVestingTimeLast + 1 days, "YS first-deposit bookkeeping should still run");
     }
 
     function testWithdrawNoYieldStream() external {

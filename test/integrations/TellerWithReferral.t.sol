@@ -170,7 +170,13 @@ contract BoringVaultIntegrationTest is Test, MerkleTreeHelper {
 
         bytes[] memory targetData = new bytes[](3);
         targetData[0] = abi.encodeWithSelector(ERC20.approve.selector, address(GoldenGoose), assets);
-        targetData[1] = abi.encodeWithSelector(GoldenGooseTeller.deposit.selector, getAddress(sourceChain, "WETH"), assets, 0, referrer);
+        targetData[1] = abi.encodeWithSelector(
+            bytes4(keccak256("deposit(address,uint256,uint256,address)")),
+            getAddress(sourceChain, "WETH"),
+            assets,
+            0,
+            referrer
+        );
         targetData[2] = abi.encodeWithSelector(GoldenGooseTeller.withdraw.selector, getAddress(sourceChain, "WETH"), assets/2, 0, getAddress(sourceChain, "boringVault"));
     
         address[] memory decodersAndSanitizers = new address[](3);

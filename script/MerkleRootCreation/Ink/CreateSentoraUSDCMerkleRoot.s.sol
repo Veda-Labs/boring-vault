@@ -19,7 +19,7 @@ contract CreateSentoraUSDCMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x9761DDF8e79930b334f1Be1BD93aBE3695061CcA;
-    address public rawDataDecoderAndSanitizer = 0xa768283e81DDC618e2EB61651679D15C24e0D233;
+    address public rawDataDecoderAndSanitizer = 0xE4515E87f638D3F4444803A94304fd5968c191F1;
     address public itbDecoderAndSanitizer = 0x51cDDE815429fb7Bce964601774018eA0Cc119f7;
     address public managerAddress = 0x38Fe609799ED585e9154c92D1D801B461F538753;
     address public accountantAddress = 0x427a3c091F09fa6212d177060bb7456Abf538b22;
@@ -60,6 +60,17 @@ contract CreateSentoraUSDCMerkleRoot is Script, MerkleTreeHelper {
         // bridge USDC to Mainnet via CCTP
         _addCCTPBridgeLeafs(leafs, cctpMainnetDomainId);
 
+         // bridge PYUSD to Mainnet via PYUSD0 Multi-Hop
+        _addLayerZeroMultiHopLeafs(
+            leafs,
+            getERC20(sourceChain, "PYUSD0"),
+            getAddress(sourceChain, "PYUSDOFTAdapter"),
+            layerZeroArbitrumEndpointId,
+            getBytes32("arbitrum", "MultiHopComposer"),
+            layerZeroMainnetEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
@@ -71,7 +82,7 @@ contract CreateSentoraUSDCMerkleRoot is Script, MerkleTreeHelper {
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
     }
 
-    function _addLeafsForITBPositionManager(
+    function _addLeafsForITBPositionManagerLocal(
          ManageLeaf[] memory leafs,
          address itbPositionManager,
          ERC20[] memory tokensUsed,

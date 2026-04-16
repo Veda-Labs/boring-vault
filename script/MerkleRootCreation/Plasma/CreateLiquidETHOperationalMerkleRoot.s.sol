@@ -11,6 +11,10 @@ import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import "forge-std/Script.sol";
 
+/**
+ *  source .env && forge script script/MerkleRootCreation/Plasma/CreateLiquidETHOperationalMerkleRoot.s.sol --rpc-url $PLASMA_RPC_URL --gas-limit 1000000000000000000
+ */
+
 contract CreateLiquidETHOperationalMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
@@ -63,7 +67,7 @@ contract CreateLiquidETHOperationalMerkleRootScript is Script, MerkleTreeHelper 
 
         // ========================== Merkl ==========================
         {
-            _addMerklClaimLeaf(leafs, getAddress(sourceChain, "merklDistributor"));
+            _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "etherfiOpsAddress"));
         }
 
         // ========================== Drone ==========================
@@ -108,13 +112,12 @@ contract CreateLiquidETHOperationalMerkleRootScript is Script, MerkleTreeHelper 
             assets[2] = getERC20(sourceChain, "WEETH");
             assets[3] = getERC20(sourceChain, "WETH");
             assets[4] = getERC20(sourceChain, "USDT0");
-            ERC20[] memory borrowAssets = new ERC20[](0);
             _addAaveV3EOALeafs("Aave V3", getAddress(sourceChain, "v3Pool"), leafs, assets);
         }
 
         // ========================== Merkl ==========================
         {
-            _addMerklClaimLeaf(leafs, getAddress(sourceChain, "merklDistributor"));
+            _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "etherfiOpsAddress"));
         }
 
         _createDroneLeafs(leafs, _drone, droneStartIndex, leafIndex + 1);

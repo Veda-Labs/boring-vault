@@ -20,12 +20,13 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
     address public managerAddress = 0x5F341B1cf8C5949d6bE144A725c22383a5D3880B;
     address public accountantAddress = 0xc873F2b7b3BA0a7faA2B56e210E3B965f2b618f5;
     address public rawDataDecoderAndSanitizer = 0x2aa1F761eC74EC12Aa465332C29446311425712f;
+    address public additionalGoldenGooseDecoderAndSanitizer = 0x0fCdC30CF95D100aa0C2AE133D2b85F77941053f;
     address public kingClaimingDecoderAndSanitizer = 0xd4067b594C6D48990BE42a559C8CfDddad4e8D6F;
     address public drone = 0x4341135454A602D46b95ACfaDD88db967Bcc35CA;
 
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
     address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
-    address public resolvDecoderAndSanitizer = 0x79f99F8e9331083308438A0274c0ac5831761f9d;
+    address public resolvDecoderAndSanitizer = 0x87f67Eb9Bb1a606923A17696E06AFAa72da65f86;
     function setUp() external {}
 
     /**
@@ -45,7 +46,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "accountantAddress", accountantAddress);
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](1024);
+        ManageLeaf[] memory leafs = new ManageLeaf[](2048);
 
         // ========================== Rewards ==========================
         _addMerklLeafs(
@@ -142,8 +143,8 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         // =========================== Odos/1inch ==========================
         {
-            address[] memory assets = new address[](14);
-            SwapKind[] memory kind = new SwapKind[](14);
+            address[] memory assets = new address[](16);
+            SwapKind[] memory kind = new SwapKind[](16);
             assets[0] = getAddress(sourceChain, "WETH");
             kind[0] = SwapKind.BuyAndSell;
             assets[1] = getAddress(sourceChain, "WSTETH");
@@ -172,6 +173,11 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             kind[12] = SwapKind.BuyAndSell;
             assets[13] = getAddress(sourceChain, "wstUSR");
             kind[13] = SwapKind.BuyAndSell;
+            assets[14] = getAddress(sourceChain, "BAL");
+            kind[14] = SwapKind.Sell;
+            assets[15] = getAddress(sourceChain, "axlSAGA");
+            kind[15] = SwapKind.Sell;
+
 
             setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
             _addOdosOwnedSwapLeafs(leafs, assets, kind);
@@ -237,6 +243,7 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             primeAssets[0] = getERC20(sourceChain, "WETH");
             primeAssets[1] = getERC20(sourceChain, "WSTETH");
             _addAaveV3PrimeLeafs(leafs, primeAssets, primeAssets);
+
         }
 
         // =========================== Mellow ==========================
@@ -387,13 +394,21 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
 
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         {
-            ERC20[] memory droneTokens = new ERC20[](6);
+            ERC20[] memory droneTokens = new ERC20[](14);
             droneTokens[0] = getERC20(sourceChain, "WSTUSR");
             droneTokens[1] = getERC20(sourceChain, "USDC");
             droneTokens[2] = getERC20(sourceChain, "WSTETH");
             droneTokens[3] = getERC20(sourceChain, "USDT");
             droneTokens[4] = getERC20(sourceChain, "WETH");
             droneTokens[5] = getERC20(sourceChain, "USR");
+            droneTokens[6] = getERC20(sourceChain, "USDE");
+            droneTokens[7] = getERC20(sourceChain, "SUSDE");
+            droneTokens[8] = getERC20(sourceChain, "SRUSDE");
+            droneTokens[9] = getERC20(sourceChain, "syrupUSDC");
+            droneTokens[10] = getERC20(sourceChain, "syrupUSDT");
+            droneTokens[11] = getERC20(sourceChain, "RLUSD");
+            droneTokens[12] = getERC20(sourceChain, "PYUSD");
+            droneTokens[13] = getERC20(sourceChain, "SYRUP");
             _addLeafsForDroneTransfers(leafs, drone, droneTokens);
             _addLeafsForDrone(leafs);
         }
@@ -421,42 +436,79 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         uint256 droneStartIndex = leafIndex + 1;
         
         // ========================== AAVE Drone Leaves ==========================
-        ERC20[] memory supplyAssets = new ERC20[](1);
+        // Core
+        ERC20[] memory supplyAssets = new ERC20[](4);
         supplyAssets[0] = getERC20(sourceChain, "WSTETH");
-        ERC20[] memory borrowAssets = new ERC20[](2);
+        supplyAssets[1] = getERC20(sourceChain, "RLUSD");
+        supplyAssets[2] = getERC20(sourceChain, "PYUSD");
+        supplyAssets[3] = getERC20(sourceChain, "syrupUSDT");
+        ERC20[] memory borrowAssets = new ERC20[](4);
         borrowAssets[0] = getERC20(sourceChain, "USDC");
         borrowAssets[1] = getERC20(sourceChain, "USDT");
+        borrowAssets[2] = getERC20(sourceChain, "RLUSD");
+        borrowAssets[3] = getERC20(sourceChain, "PYUSD");
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
 
-        // ========================== resolv leaves ==========================
-        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", resolvDecoderAndSanitizer);
-        _addAllResolvLeafs(leafs);
-        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
-        // ========================== swap leaves ==========================
-        address[] memory swapAssets = new address[](6);
+        // Horizon
+        ERC20[] memory horizonSupplyAssets = new ERC20[](1);
+        horizonSupplyAssets[0] = getERC20(sourceChain, "RLUSD");
+        ERC20[] memory horizonBorrowAssets = new ERC20[](1);
+        horizonBorrowAssets[0] = getERC20(sourceChain, "RLUSD");
+        _addAaveV3HorizonLeafs(leafs, horizonSupplyAssets, horizonBorrowAssets);
+
+        // ========================== Resolv ==========================
+        {
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", resolvDecoderAndSanitizer);
+            ERC20[] memory assets = new ERC20[](2);
+            assets[0] = getERC20(sourceChain, "USDC");
+            assets[1] = getERC20(sourceChain, "USDT");
+            _addAllResolvLeafs(leafs, assets);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
+
+        // ========================== OneInch/Odos  ==========================
+        address[] memory swapAssets = new address[](14);
+        SwapKind[] memory kind = new SwapKind[](14);
         swapAssets[0] = getAddress(sourceChain, "USDC");
-        swapAssets[1] = getAddress(sourceChain, "USDT");
-        swapAssets[2] = getAddress(sourceChain, "WSTETH");
-        swapAssets[3] = getAddress(sourceChain, "WETH");
-        swapAssets[4] = getAddress(sourceChain, "USR");
-        swapAssets[5] = getAddress(sourceChain, "WSTUSR");
-        SwapKind[] memory kind = new SwapKind[](6);
         kind[0] = SwapKind.BuyAndSell;
+        swapAssets[1] = getAddress(sourceChain, "USDT");
         kind[1] = SwapKind.BuyAndSell;
+        swapAssets[2] = getAddress(sourceChain, "WSTETH");
         kind[2] = SwapKind.BuyAndSell; // We only want to buy wstETH and WETH
+        swapAssets[3] = getAddress(sourceChain, "WETH");
         kind[3] = SwapKind.BuyAndSell; // We only want to buy wstETH and WETH
+        swapAssets[4] = getAddress(sourceChain, "USR");
         kind[4] = SwapKind.BuyAndSell;
+        swapAssets[5] = getAddress(sourceChain, "WSTUSR");
         kind[5] = SwapKind.BuyAndSell;
+        swapAssets[6] = getAddress(sourceChain, "syrupUSDC");
+        kind[6] = SwapKind.BuyAndSell;
+        swapAssets[7] = getAddress(sourceChain, "syrupUSDT");
+        kind[7] = SwapKind.BuyAndSell;
+        swapAssets[8] = getAddress(sourceChain, "RLUSD");
+        kind[8] = SwapKind.BuyAndSell;
+        swapAssets[9] = getAddress(sourceChain, "PYUSD");
+        kind[9] = SwapKind.BuyAndSell;
+        swapAssets[10] = getAddress(sourceChain, "USDE");
+        kind[10] = SwapKind.BuyAndSell;
+        swapAssets[11] = getAddress(sourceChain, "SUSDE");
+        kind[11] = SwapKind.BuyAndSell;
+        swapAssets[12] = getAddress(sourceChain, "SRUSDE");
+        kind[12] = SwapKind.BuyAndSell;
+        swapAssets[13] = getAddress(sourceChain, "SYRUP");
+        kind[13] = SwapKind.Sell;
+
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
         _addLeafsFor1InchOwnedGeneralSwapping(leafs, swapAssets, kind);
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
         _addOdosOwnedSwapLeafs(leafs, swapAssets, kind);
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
-        // ========================== merkl claiming leaves ==========================
+
+        // ========================== Merkl ==========================
         _addMerklLeafs(
             leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address")
         );
-        // ========================== fluid leaves ==========================
+        // ========================== Fluid Dex  ==========================
         ERC20[] memory supplyAssets2 = new ERC20[](1);
         supplyAssets2[0] = getERC20(sourceChain, "wstUSR");
         ERC20[] memory borrowAssets2 = new ERC20[](1);
@@ -469,6 +521,55 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         _addFluidDexLeafs(
             leafs, getAddress(sourceChain, "wstUSR-USDT"), 1000, supplyAssets2, borrowAssets3, false
         );
+
+        // ========================== Fluid Lending  ==========================
+        _addFluidFTokenLeafs(leafs, getAddress(sourceChain, "fUSDC"));  
+        _addFluidFTokenLeafs(leafs, getAddress(sourceChain, "fUSDT"));  
+
+        // ========================== Morpho ==========================
+        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "WSTETH_USDT_86"));
+        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "WSTETH_USDC_86"));
+
+        _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "WSTETH_USDT_86"));
+        _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "WSTETH_USDC_86"));
+
+
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "steakhouseUSDC")));
+
+        // ========================== Pendle  ==========================
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", additionalGoldenGooseDecoderAndSanitizer);
+        {
+            _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_srUSDE_market_04_01_26"), true);
+            _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_sUSDE_market_05_06_26"), true);
+            _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_USDE_market_05_06_26"), true);
+        }
+
+
+        // ========================== Syrup ==========================
+        {
+            address[] memory tokens = new address[](2); 
+            tokens[0] = getAddress(sourceChain, "USDC"); 
+            tokens[1] = getAddress(sourceChain, "USDT"); 
+            _addAllSyrupLeafs(leafs, tokens);
+        }
+
+        // ========================== Euler ==========================
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        {
+            address[] memory subaccounts = new address[](1);
+            subaccounts[0] = address(drone);
+
+            ERC4626[] memory depositVaults = new ERC4626[](2);
+            depositVaults[0] = ERC4626(getAddress(sourceChain, "evkePYUSD-6"));
+            depositVaults[1] = ERC4626(getAddress(sourceChain, "evkeRLUSD-7"));
+            _addEulerDepositLeafs(leafs, depositVaults, subaccounts);
+
+
+            ERC4626[] memory borrowVaults = new ERC4626[](2); 
+            borrowVaults[0] = ERC4626(getAddress(sourceChain, "evkeUSDC-70"));  
+            borrowVaults[1] = ERC4626(getAddress(sourceChain, "evkeUSDC-80"));  
+            _addEulerBorrowLeafs(leafs, borrowVaults, subaccounts);
+        }
         
         _createDroneLeafs(leafs, drone, droneStartIndex, leafIndex + 1);
         setAddress(true, mainnet, "boringVault", boringVault);

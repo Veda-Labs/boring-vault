@@ -26,7 +26,6 @@ import {Deployer} from "src/helper/Deployer.sol";
 import {ArcticArchitectureLens} from "src/helper/ArcticArchitectureLens.sol";
 import {ContractNames} from "resources/ContractNames.sol";
 import {GenericRateProvider} from "src/helper/GenericRateProvider.sol";
-import {DelayedWithdraw} from "src/base/Roles/DelayedWithdraw.sol";
 import {BoringDrone} from "src/base/Drones/BoringDrone.sol";
 import {ChainValues} from "test/resources/ChainValues.sol";
 import {PaymentSplitter} from "src/helper/PaymentSplitter.sol";
@@ -130,7 +129,6 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
     address public rawDataDecoderAndSanitizer;
     TellerWithMultiAssetSupport public teller;
     AccountantWithRateProviders public accountant;
-    DelayedWithdraw public delayedWithdrawer;
     PaymentSplitter public paymentSplitter;
     BoringOnChainQueue public queue;
     BoringSolver public queueSolver;
@@ -1173,7 +1171,9 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
                 );
             }
             if (allowPublicDeposits) {
-                _setPublicCapabilityIfNotPresent(address(teller), TellerWithMultiAssetSupport.deposit.selector);
+                _setPublicCapabilityIfNotPresent(
+                    address(teller), bytes4(keccak256("deposit(address,uint256,uint256,address)"))
+                );
                 _setPublicCapabilityIfNotPresent(
                     address(teller), TellerWithMultiAssetSupport.depositWithPermit.selector
                 );
