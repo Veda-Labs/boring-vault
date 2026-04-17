@@ -6,6 +6,7 @@ pragma solidity 0.8.21;
 
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {AaveV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AaveV3DecoderAndSanitizer.sol";
+import {HyperLendDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/HyperLendDecoderAndSanitizer.sol";
 import {NativeWrapperDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol";
 import {MorphoBlueDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MorphoBlueDecoderAndSanitizer.sol"; 
 import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol"; 
@@ -22,6 +23,7 @@ contract KHypeHyperEVMDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
     NativeWrapperDecoderAndSanitizer,
     AaveV3DecoderAndSanitizer,
+    HyperLendDecoderAndSanitizer,
     MorphoBlueDecoderAndSanitizer,
     ERC4626DecoderAndSanitizer,
     CurveDecoderAndSanitizer,

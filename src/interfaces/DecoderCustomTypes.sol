@@ -370,6 +370,13 @@ contract DecoderCustomTypes {
         bytes data;
     }
 
+    // ========================================= HyperLend RewardsDistributor =========================================
+    struct Claim {
+        address token;
+        uint256 amount;
+        bytes32[] proof;
+    }
+
     // ========================================= Linea Bridge =========================================
 
     struct ClaimMessageWithProofParams {
