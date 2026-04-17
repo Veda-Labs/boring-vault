@@ -9,6 +9,7 @@ import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
+import {ReentrancyGuard} from "@solmate/utils/ReentrancyGuard.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {AdapterRegistry} from "src/base/Periphery/AdapterRegistry.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
@@ -17,7 +18,7 @@ import {ISwapper} from "src/interfaces/ISwapper.sol";
 import {IPausable} from "src/interfaces/IPausable.sol";
 import {IFeeRegistry} from "src/interfaces/IFeeRegistry.sol";
 
-contract BoringSwapper is Auth, ISwapper, IPausable {
+contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
     using Address for address;
@@ -159,7 +160,7 @@ contract BoringSwapper is Auth, ISwapper, IPausable {
     // ========================================= SWAP FUNCTIONS =========================================
 
     /// @notice Executes an instant swap via an approved adapter protocol.
-    function swap(SwapConfig calldata swapConfig) external requiresAuth {
+    function swap(SwapConfig calldata swapConfig) external requiresAuth nonReentrant {
         (bytes32 key, address target, uint256 amount) = _swapPreFlightCheck(swapConfig);
 
         //enforce rate limit
@@ -475,6 +476,7 @@ contract BoringSwapper is Auth, ISwapper, IPausable {
 
     function setTokenOracle(ERC20 token, address quoteAsset, RateProviderConfig memory config) external requiresAuth {
         _baseAssetOracles[token][quoteAsset] = config;
+        emit TokenBaseAssetOraclesUpdated(token);
     }
 
     function setBaseAssetOracle(ERC20 intermediary, address quoteAsset, address[] memory rateProviders)
@@ -482,6 +484,7 @@ contract BoringSwapper is Auth, ISwapper, IPausable {
         requiresAuth
     {
         oracles[intermediary][quoteAsset] = rateProviders;
+        emit BaseAssetOracleUpdated(intermediary);
     }
 
     /// @notice Sets the price validator contract used for slippage checks.
