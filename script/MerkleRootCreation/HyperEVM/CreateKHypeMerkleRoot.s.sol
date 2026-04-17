@@ -76,8 +76,9 @@ contract CreateKHypeMerkleRoot is Script, MerkleTreeHelper {
         _addHyperLendLeafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== HypurrFi ==========================
-        supplyAssets = new ERC20[](1);
+        supplyAssets = new ERC20[](2);
         supplyAssets[0] = getERC20(sourceChain, "KHYPE");
+        supplyAssets[1] = getERC20(sourceChain, "WHYPE");
         borrowAssets = new ERC20[](1);
         borrowAssets[0] = getERC20(sourceChain, "WHYPE");
         _addHypurrFiLeafs(leafs, supplyAssets, borrowAssets);
