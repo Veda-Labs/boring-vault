@@ -178,7 +178,34 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
                     layerZeroScrollEndpointId,
                     getBytes32(sourceChain, "boringVault")
                 );
+
+            _addLayerZeroLeafs(
+                leafs,
+                getERC20(sourceChain, "WEETH"),
+                getAddress(sourceChain, "EtherFiOFTAdapter"),
+                layerZeroOptimismEndpointId,
+                getBytes32(sourceChain, "boringVault")
+            );
         }
+
+    // ========================== Standard Bridge to Optimism ==========================
+    {
+
+            ERC20[] memory localTokens = new ERC20[](0);
+            ERC20[] memory remoteTokens = new ERC20[](0);
+            _addStandardBridgeLeafs(
+                leafs,
+                optimism,
+                getAddress(optimism, "crossDomainMessenger"),
+                getAddress(sourceChain, "optimismResolvedDelegate"),
+                getAddress(sourceChain, "optimismStandardBridge"),
+                getAddress(sourceChain, "optimismPortal"),
+                localTokens,
+                remoteTokens
+            );
+    }
+
+
 
         // ========================== Cap =======================================
         {

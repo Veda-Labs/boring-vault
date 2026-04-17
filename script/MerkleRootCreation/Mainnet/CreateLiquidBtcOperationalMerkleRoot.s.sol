@@ -24,6 +24,7 @@ contract CreateMultichainLiquidBtcOperationalMerkleRootScript is Script, MerkleT
     address public itbPositionManager2 = 0x11Fd9E49c41738b7500748f7B94B4DBb0E8c13d2; // Spark LBTC (PYUSD) + Aave Core Euler PYUSD Supervised Loan
     address public capDecoderAndSanitizer = 0xE0e86bf98dAA0D2b408Cb038E94bCB9B7864309C;
     address public itbDecoderAndSanitizer = 0xEEb53299Cb894968109dfa420D69f0C97c835211;
+    address public etherfibtcDecoderAndSanitizer = 0xC48cA54b9F3f8Fc7E5347DE55879851178B485e8;
 
     //one offs
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
@@ -42,8 +43,7 @@ contract CreateMultichainLiquidBtcOperationalMerkleRootScript is Script, MerkleT
         setAddress(false, mainnet, "accountantAddress", accountantAddress);
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](64);
-        leafIndex = 0;
+        ManageLeaf[] memory leafs = new ManageLeaf[](128);
 
         // ========================== Teller ==========================
         {
@@ -52,6 +52,34 @@ contract CreateMultichainLiquidBtcOperationalMerkleRootScript is Script, MerkleT
             eBTCTellerAssets[1] = getERC20(sourceChain, "LBTC");
             eBTCTellerAssets[2] = getERC20(sourceChain, "cbBTC");
             _addTellerLeafs(leafs, getAddress(sourceChain, "eBTCTeller"), eBTCTellerAssets, false, true);
+        }
+        {
+            address[] memory feeAssets = new address[](1);
+            feeAssets[0] = getAddress(sourceChain, "ETH"); 
+            address[] memory eBTCTellerAssetsAddresses = new address[](3);
+            eBTCTellerAssetsAddresses[0] = getAddress(sourceChain, "WBTC");
+            eBTCTellerAssetsAddresses[1] = getAddress(sourceChain, "LBTC");
+            eBTCTellerAssetsAddresses[2] = getAddress(sourceChain, "cbBTC");
+            _addCrossChainTellerLeafs(leafs, getAddress(sourceChain, "eBTCTeller"), eBTCTellerAssetsAddresses, feeAssets, abi.encode(layerZeroOptimismEndpointId));
+        }
+
+        // ========================== Standard Bridge to Optimism ==========================
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", etherfibtcDecoderAndSanitizer);
+        {
+            ERC20[] memory localTokens = new ERC20[](1);
+            localTokens[0] = getERC20(sourceChain, "WBTC");
+            ERC20[] memory remoteTokens = new ERC20[](1);
+            remoteTokens[0] = getERC20(optimism, "WBTC");
+            _addStandardBridgeLeafs(
+                leafs,
+                optimism,
+                getAddress(optimism, "crossDomainMessenger"),
+                getAddress(sourceChain, "optimismResolvedDelegate"),
+                getAddress(sourceChain, "optimismStandardBridge"),
+                getAddress(sourceChain, "optimismPortal"),
+                localTokens,
+                remoteTokens
+            );
         }
 
         // ========================== ITB =============================
