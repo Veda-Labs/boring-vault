@@ -900,6 +900,7 @@ contract ChainValues {
         values[mainnet]["sUSDe_PT09_25_25_USDtb_915"] = 0xbf2526a242545bbf0f3d42ffb879fa1eb562ed74704bce0a319b975818dd525a; //sUSDe
         values[mainnet]["WSTETH_USDT_86"] = 0xe7e9694b754c4d4f7e21faf7223f6fa71abaeb10296a4c43a54a7977149687d2;
         values[mainnet]["WSTETH_USDC_86"] = 0xb323495f7e4148be5643a4ea4a8221eef163e4bccfdedc2a6f4696baacbc86cc;
+        values[mainnet]["LBTC_WBTC_945"] = 0xf6a056627a51e511ec7f48332421432ea6971fc148d8f3c451e14ea108026549;
 
         // MetaMorpho
         values[mainnet]["usualBoostedUSDC"] = 0xd63070114470f685b75B74D60EEc7c1113d33a3D.toBytes32();
@@ -1613,6 +1614,9 @@ contract ChainValues {
     
         //Mellow DVstETH 
         values[mainnet]["dvStethWhitelistedEthWrapper"] = 0xfD4a4922d1AFe70000Ce0Ec6806454e78256504e.toBytes32();
+
+        // EtherFi
+        values[optimism]["etherFiL2SyncPool"] = 0xC9475e18E2C5C26EA6ADCD55fabE07920beA887e.toBytes32();
     }
 
     function _addBaseValues() private {
@@ -2666,6 +2670,7 @@ contract ChainValues {
 
         // etherFi
         values[berachain]["etherFiL2SyncPool"] = 0xC9475e18E2C5C26EA6ADCD55fabE07920beA887e.toBytes32();
+
 
         // Layer Zero
         values[berachain]["LayerZeroEndPoint"] = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B.toBytes32();

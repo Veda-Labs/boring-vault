@@ -48,10 +48,14 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         address[] memory depositAssets = new address[](1); 
         depositAssets[0] = getAddress(sourceChain, "WBTC"); 
 
+        ERC20[] memory tellerAssets = new ERC20[](1); 
+        tellerAssets[0] = getERC20(sourceChain, "WBTC"); 
+
         address[] memory feeAssets = new address[](1); 
         feeAssets[0] = getAddress(sourceChain, "ETH"); 
 
         _addCrossChainTellerLeafs(leafs, eBTCTeller, depositAssets, feeAssets, abi.encode(layerZeroMainnetEndpointId)); 
+        _addTellerLeafsWithReferral(leafs, eBTCTeller, tellerAssets, false, true, getAddress(sourceChain, "boringVault"));
         
 
         // Fee Claiming 

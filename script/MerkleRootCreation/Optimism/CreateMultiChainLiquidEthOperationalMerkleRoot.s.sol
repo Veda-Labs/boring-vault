@@ -18,7 +18,7 @@ contract CreateMultiChainLiquidEthOperationalMerkleRootScript is Script, MerkleT
     using FixedPointMathLib for uint256;
 
     address public boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C;
-    address public rawDataDecoderAndSanitizer = 0x58D28BB88400b889C4a1b754d930a743323F5Ada;
+    address public rawDataDecoderAndSanitizer = 0x712Dbd2265a194Fe66D7db3F3988A92338bBFAE1;
     address public managerAddress = 0x227975088C28DBBb4b421c6d96781a53578f19a8;
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
 
@@ -51,12 +51,15 @@ contract CreateMultiChainLiquidEthOperationalMerkleRootScript is Script, MerkleT
 
         // ========================== Fee Claiming ==========================
         /**
-         * Claim fees in USDC, DAI, USDT and USDE
+         * Claim fees in WETH, WEETH
          */
         ERC20[] memory feeAssets = new ERC20[](2);
         feeAssets[0] = getERC20(sourceChain, "WETH");
         feeAssets[1] = getERC20(sourceChain, "WEETH_OFT");
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
+
+        // ===================== EtherFi ==========================
+        _addWeETHLeafs(leafs, getAddress(sourceChain, "ETH"), getAddress(sourceChain, "boringVault"));
 
 
         // ========================== Standard Bridge ==========================
@@ -75,6 +78,8 @@ contract CreateMultiChainLiquidEthOperationalMerkleRootScript is Script, MerkleT
 
         // ========================== LayerZero ==========================
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WEETH_OFT"), getAddress(sourceChain, "WEETH_OFT"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));   
+
+        _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
