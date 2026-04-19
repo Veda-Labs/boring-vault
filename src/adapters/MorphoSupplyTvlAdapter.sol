@@ -7,7 +7,7 @@ import {MorphoBalancesLib} from "../../lib/morpho-blue/src/libraries/periphery/M
 import {SharesMathLib} from "../../lib/morpho-blue/src/libraries/SharesMathLib.sol";
 import {ChainlinkDataFeedLib, AggregatorV3Interface} from "./libraries/ChainlinkDataFeedLib.sol";
 
-contract MorphoLoopTvlAdapter {
+contract MorphoSupplyTvlAdapter {
     using MorphoBalancesLib for IMorpho;
     using SharesMathLib for uint256;
 

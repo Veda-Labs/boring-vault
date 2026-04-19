@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-pragma solidity >=0.5.0;
+pragma solidity >=0.8.0;
 
 import {ERC20} from "../../lib/solmate/src/tokens/ERC20.sol";
 import {IMorpho, MarketParams, Id, Market, Position} from "../../lib/morpho-blue/src/interfaces/IMorpho.sol";
@@ -7,7 +7,7 @@ import {MorphoBalancesLib} from "../../lib/morpho-blue/src/libraries/periphery/M
 import {SharesMathLib} from "../../lib/morpho-blue/src/libraries/SharesMathLib.sol";
 import {ChainlinkDataFeedLib, AggregatorV3Interface} from "./libraries/ChainlinkDataFeedLib.sol";
 
-contract MorphoLoopTvlAdapter {
+contract MorphoBlueTvlAdapter {
     using MorphoBalancesLib for IMorpho;
     using SharesMathLib for uint256;
 

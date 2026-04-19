@@ -1562,6 +1562,19 @@ contract ChainValues {
         // Katana values
         values[mainnet]["vbUSDC"] = 0x53E82ABbb12638F09d9e624578ccB666217a765e.toBytes32();
         values[mainnet]["OVaultComposerForvbUSDC"] = 0x8A35897fda9E024d2aC20a937193e099679eC477.toBytes32();
+
+        // LucidlyChainlinkOracleV1 deployments
+        values[mainnet]["sUSDE_USD_oracle"] = 0xC8bd9086a40bBD9acbd855B50931F3b46f048525.toBytes32();
+        values[mainnet]["sUSDS_USD_oracle"] = 0x84f4612e682091c30Fd2C108bb298C93BE961618.toBytes32();
+        values[mainnet]["syrupUSDC_USD_oracle"] = 0xDADb97F5A30b39eB10268a0d83c29276F200EDeA.toBytes32();
+        values[mainnet]["srRoyUSDC_USD_oracle"] = 0x98B53801CC55754430221D2571960C883E71713D.toBytes32();
+        values[mainnet]["fxSAVE_USD_oracle"] = 0x3B2046cBeD2115C147b2455FF3e9354c5a2D2fB8.toBytes32();
+
+        // chainlink feeds
+        values[mainnet]["USDC_USD_oracle"] = 0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6.toBytes32();
+        values[mainnet]["USDT_USD_oracle"] = 0x3E7d1eAB13ad0104d2750B8863b489D65364e32D.toBytes32();
+        values[mainnet]["PYUSD_USD_oracle"] = 0x8f1dF6D7F2db73eECE86a18b4381F4707b918FB1.toBytes32();
+        values[mainnet]["RLUSD_USD_oracle"] = 0x26C46B7aD0012cA71F2298ada567dC9Af14E7f2A.toBytes32();
     }
 
     function _addBaseValues() private {
@@ -2658,5 +2671,12 @@ contract ChainValues {
 
         // Katana USDC OVault
         values[katana]["vbUSDCShareOFT"] = 0x807275727Dd3E640c5F2b5DE7d1eC72B4Dd293C0.toBytes32();
+
+        // Morpho Blue
+        values[katana]["siUSD_USDC_86"] = 0xf7fc5cc82200ddf8f23188ddbd6727eda2c8bc41863e91fb767bbc6e4f71890e;
+
+        // oracles
+        values[katana]["siUSD_USD_oracle"] = 0xEf22843Fc4aa0c0cAeCc6e02dc0d0abb7Cd6ddA8.toBytes32();
+        values[katana]["USDC_USD_oracle"] = 0xbe5CE90e16B9d9d988D64b0E1f6ed46EbAfb9606.toBytes32();
     }
 }

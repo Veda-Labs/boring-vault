@@ -1,0 +1,11 @@
+{
+  "privateKeyEnvName": "DEPLOYER01",
+  "deploymentName": "LucidlyChainlinkOracleV1_syrupUSDC_USD",
+  "name": "syrupUSDC/USD",
+  "baseVault": "0x80ac24aA929eaF5013f6436cdA2a7ba190f5Cc0b",
+  "baseVaultConversionSample": 1000000,
+  "baseFeed1": "0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6",
+  "baseFeed2": "0x0000000000000000000000000000000000000000",
+  "baseTokenDecimals": 6,
+  "outputDecimals": 8
+}

@@ -1,0 +1,11 @@
+{
+  "privateKeyEnvName": "DEPLOYER01",
+  "deploymentName": "LucidlyChainlinkOracleV1_fxSAVE_USD",
+  "name": "fxSAVE/USD",
+  "baseVault": "0x0000000000000000000000000000000000000000",
+  "baseVaultConversionSample": 1,
+  "baseFeed1": "0x9dD65b6d956E31F4dc093372D975275986695827",
+  "baseFeed2": "0x0000000000000000000000000000000000000000",
+  "baseTokenDecimals": 0,
+  "outputDecimals": 8
+}

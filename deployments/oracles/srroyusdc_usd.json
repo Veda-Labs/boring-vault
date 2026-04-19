@@ -1,0 +1,11 @@
+{
+  "privateKeyEnvName": "DEPLOYER01",
+  "deploymentName": "LucidlyChainlinkOracleV1_srRoyUSDC_USD_V1",
+  "name": "srRoyUSDC/USD",
+  "baseVault": "0xcD9f5907F92818bC06c9Ad70217f089E190d2a32",
+  "baseVaultConversionSample": 1000000,
+  "baseFeed1": "0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6",
+  "baseFeed2": "0x0000000000000000000000000000000000000000",
+  "baseTokenDecimals": 6,
+  "outputDecimals": 8
+}

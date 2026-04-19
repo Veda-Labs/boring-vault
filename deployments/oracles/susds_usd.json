@@ -1,0 +1,11 @@
+{
+  "privateKeyEnvName": "DEPLOYER01",
+  "deploymentName": "LucidlyChainlinkOracleV1_sUSDS_USD_V1",
+  "name": "sUSDS/USD",
+  "baseVault": "0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD",
+  "baseVaultConversionSample": 1000000000000000000,
+  "baseFeed1": "0xfF30586cD0F29eD462364C7e81375FC0C71219b1",
+  "baseFeed2": "0x0000000000000000000000000000000000000000",
+  "baseTokenDecimals": 18,
+  "outputDecimals": 8
+}
