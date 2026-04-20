@@ -239,7 +239,8 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
         // Only deduct the portion of the fee still physically in the contract — guards against
         // underflow when a partial fill consumed some or all of the non-fee tokens.
         uint256 feeDeducted = record.fee < balance ? record.fee : balance;
-        feesInToken[record.tokenIn] -= feeDeducted;
+        uint256 feesHeld = feesInToken[record.tokenIn];
+        feesInToken[record.tokenIn] = feeDeducted < feesHeld ? feesHeld - feeDeducted : 0;
 
         // Restore rate limit for the unfilled amount (partial fills only restore the unspent portion)
         bytes32 routeId = getRouteId(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut);
