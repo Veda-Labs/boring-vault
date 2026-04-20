@@ -296,4 +296,66 @@ contract PriceValidatorTest is Test, MerkleTreeHelper {
         vm.prank(address(swapper));
         validator.validate(WETH, USDC, 1e18, 2000e6, address(USDC), 0);
     }
+
+    // ─────────────────────────────────────────────
+    // Two-hop with multiple intermediary oracles
+    // ─────────────────────────────────────────────
+
+    // Both intermediary oracles agree at 2000e18.
+    // values: [1.1 * 2000, 1.1 * 2000] = [2200e18, 2200e18]. 2200e6 USDC passes.
+    function testValidate_TwoHop_TwoIntermediary_HappyPath() external {
+        MockRateProvider wethRate2 = new MockRateProvider(2000e18);
+        address[] memory baseProviders = new address[](2);
+        baseProviders[0] = address(wethRate);
+        baseProviders[1] = address(wethRate2);
+        swapper.setBaseAssetOracle(WETH, address(USDC), baseProviders);
+
+        vm.prank(address(swapper));
+        validator.validate(STETH, USDC, 1e18, 2200e6, address(USDC), 0);
+    }
+
+    // One intermediary oracle is inflated (3000e18 vs 2000e18).
+    // values: [1.1*2000=2200e18, 1.1*3000=3300e18]
+    // Pair (3300e18 in, 2200e18 out): min = 3300e18*9950/10000 = 3283.5e18 > 2200e18 → revert.
+    // A compromised inflated oracle is caught even when the swap itself is fair.
+    function testValidate_TwoHop_TwoIntermediary_InflatedIntermediaryBlocks() external {
+        MockRateProvider wethRateInflated = new MockRateProvider(3000e18);
+        address[] memory baseProviders = new address[](2);
+        baseProviders[0] = address(wethRate);
+        baseProviders[1] = address(wethRateInflated);
+        swapper.setBaseAssetOracle(WETH, address(USDC), baseProviders);
+
+        vm.expectRevert(PriceValidator.PriceValidator__ExceedsMaxSlippage.selector);
+        vm.prank(address(swapper));
+        validator.validate(STETH, USDC, 1e18, 2200e6, address(USDC), 0);
+    }
+
+    // One intermediary oracle is deflated (100e18 vs 2000e18).
+    // values: [1.1*2000=2200e18, 1.1*100=110e18]
+    // Pair (2200e18 in, 110e18 out): min = 2200e18*9950/10000 = 2189e18 > 110e18 → revert.
+    // The healthy oracle provides the binding constraint — a deflated oracle cannot let a bad swap through.
+    function testValidate_TwoHop_TwoIntermediary_DeflatedIntermediaryCannotBypass() external {
+        MockRateProvider wethRateDeflated = new MockRateProvider(100e18);
+        address[] memory baseProviders = new address[](2);
+        baseProviders[0] = address(wethRate);
+        baseProviders[1] = address(wethRateDeflated);
+        swapper.setBaseAssetOracle(WETH, address(USDC), baseProviders);
+
+        vm.expectRevert(PriceValidator.PriceValidator__ExceedsMaxSlippage.selector);
+        vm.prank(address(swapper));
+        validator.validate(STETH, USDC, 1e18, 110e6, address(USDC), 0);
+    }
+
+    // Second intermediary oracle returns 0 → ZeroOracleRate revert.
+    function testValidate_TwoHop_TwoIntermediary_ZeroBaseRate() external {
+        MockRateProvider zeroRate = new MockRateProvider(0);
+        address[] memory baseProviders = new address[](2);
+        baseProviders[0] = address(wethRate);
+        baseProviders[1] = address(zeroRate);
+        swapper.setBaseAssetOracle(WETH, address(USDC), baseProviders);
+
+        vm.expectRevert(PriceValidator.PriceValidator__ZeroOracleRate.selector);
+        vm.prank(address(swapper));
+        validator.validate(STETH, USDC, 1e18, 2200e6, address(USDC), 0);
+    }
 }

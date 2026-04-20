@@ -16,6 +16,7 @@ contract OpenOceanAdapter is IAdapter, BaseAdapter {
     //============================== Errors ===============================
 
     error OpenOceanAdapter__InvalidCaller();
+    error OpenOceanAdapter__SrcReceiverMismatch();
     error OpenOceanAdapter__DstReceiverNotSwapper();
     error OpenOceanAdapter__SrcTokenMismatch();
     error OpenOceanAdapter__DstTokenMismatch();
@@ -95,6 +96,7 @@ contract OpenOceanAdapter is IAdapter, BaseAdapter {
     ) external view returns (address, uint256) {
         if (caller != openOceanCaller) revert OpenOceanAdapter__InvalidCaller();
 
+        if (desc.srcReceiver != openOceanCaller) revert OpenOceanAdapter__SrcReceiverMismatch();
         if (desc.dstReceiver != msg.sender) revert OpenOceanAdapter__DstReceiverNotSwapper();
 
         BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
@@ -111,6 +113,7 @@ contract OpenOceanAdapter is IAdapter, BaseAdapter {
     ) external view returns (address, uint256) {
         if (caller != openOceanCaller) revert OpenOceanAdapter__InvalidCaller();
 
+        if (desc.srcReceiver != openOceanCaller) revert OpenOceanAdapter__SrcReceiverMismatch();
         if (desc.dstReceiver != msg.sender) revert OpenOceanAdapter__DstReceiverNotSwapper();
 
         BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
@@ -127,6 +130,7 @@ contract OpenOceanAdapter is IAdapter, BaseAdapter {
     ) external view returns (address, uint256) {
         if (caller != openOceanCaller) revert OpenOceanAdapter__InvalidCaller();
 
+        if (desc.srcReceiver != openOceanCaller) revert OpenOceanAdapter__SrcReceiverMismatch();
         if (desc.dstReceiver != msg.sender) revert OpenOceanAdapter__DstReceiverNotSwapper();
 
         BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();

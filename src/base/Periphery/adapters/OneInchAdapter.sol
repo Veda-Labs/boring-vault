@@ -17,6 +17,7 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
     //============================== Errors ===============================
 
     error OneInchAdapter__ExecutorMismatch();
+    error OneInchAdapter__SrcReceiverMismatch();
     error OneInchAdapter__DstReceiverNotSwapper();
     error OneInchAdapter__SrcTokenMismatch();
     error OneInchAdapter__DstTokenMismatch();
@@ -83,7 +84,8 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         view
         returns (address, uint256)
     {
-        if (executor != trustedExecutor) revert OneInchAdapter__ExecutorMismatch(); 
+        if (executor != trustedExecutor) revert OneInchAdapter__ExecutorMismatch();
+        if (desc.srcReceiver != payable(trustedExecutor)) revert OneInchAdapter__SrcReceiverMismatch();
         if (desc.dstReceiver != payable(msg.sender)) revert OneInchAdapter__DstReceiverNotSwapper();
 
         BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();

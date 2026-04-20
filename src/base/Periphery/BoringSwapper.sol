@@ -173,82 +173,8 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
         emit Swapped(key, amount, tokenBalanceDelta, address(swapConfig.receiver));
     }
 
-    function _swapPreFlightCheck(SwapConfig calldata swapConfig) internal view returns (bytes32, address, uint256) {
-        _validateAdapter(swapConfig.adapter);
-
-        address target;
-        uint256 amount;
-        {
-            address adapter = swapConfig.adapter;
-
-            bytes memory appended =
-                abi.encodePacked(swapConfig.swapData, abi.encode(swapConfig), uint256(swapConfig.swapData.length));
-            (bytes memory result) = adapter.functionStaticCall(appended);
-
-            (target, amount) = abi.decode(result, (address, uint256));
-        }
-
-        bytes32 key = getRouteId(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut);
-        return (key, target, amount);
-    }
-
-    function _swapPostFlightCheck(SwapConfig calldata swapConfig, address target, uint256 amount)
-        internal
-        returns (uint256)
-    {
-        //snapshot the balance
-        uint256 tokenBalanceBefore = swapConfig.tokenRoute.tokenOut.balanceOf(address(this));
-
-        //transfer assets from the vault to the swapper, approve target & execute
-        swapConfig.tokenRoute.tokenIn.safeTransferFrom(address(swapConfig.receiver), address(this), amount);
-        swapConfig.tokenRoute.tokenIn.approve(target, amount);
-        (bool success,) = target.call(swapConfig.swapData);
-        swapConfig.tokenRoute.tokenIn.approve(target, 0);
-        if (!success) revert BoringSwapper__SwapFailed();
-
-        uint256 tokenBalanceDelta = swapConfig.tokenRoute.tokenOut.balanceOf(address(this)) - tokenBalanceBefore;
-
-        //validate the price & slippage
-        IPriceValidator(priceValidator)
-            .validate(
-                swapConfig.tokenRoute.tokenIn,
-                swapConfig.tokenRoute.tokenOut,
-                amount,
-                tokenBalanceDelta,
-                swapConfig.quoteAsset,
-                swapConfig.slippageBps
-            );
-
-        //charge fees if fee collection is active for this swapper
-        if (feeRegistry.swapperActive(address(this))) {
-            uint16 feeBps = feeRegistry.getFee(
-                address(this), address(swapConfig.tokenRoute.tokenIn), address(swapConfig.tokenRoute.tokenOut)
-            );
-            if (feeBps > 0) {
-                address feeRecipient = feeRegistry.getFeeRecipient(address(this), swapConfig.tokenRoute.tokenOut);
-                if (feeRecipient == address(0)) revert BoringSwapper__FeeRecipientNotSet();
-                uint256 fee = tokenBalanceDelta.mulDivDown(feeBps, 10_000);
-                tokenBalanceDelta -= fee;
-                swapConfig.tokenRoute.tokenOut.safeTransfer(feeRecipient, fee);
-            }
-        }
-
-        swapConfig.tokenRoute.tokenOut.safeTransfer(address(swapConfig.receiver), tokenBalanceDelta);
-
-        // Return any unspent tokenIn dust to the vault, excluding locked limit order funds.
-        // @dev `locked` only accounts for fee buckets, not pending order inputAmounts. If multiple
-        // concurrent instant swaps for the same tokenIn are in flight, one could sweep the other's
-        // unspent input as dust. Acceptable given Auth-gated callers and single-swap usage patterns.
-        uint256 locked = feesInToken[swapConfig.tokenRoute.tokenIn] + claimableFees[swapConfig.tokenRoute.tokenIn];
-        uint256 balance = swapConfig.tokenRoute.tokenIn.balanceOf(address(this));
-        uint256 dust = balance > locked ? balance - locked : 0;
-        if (dust > 0) swapConfig.tokenRoute.tokenIn.safeTransfer(address(swapConfig.receiver), dust);
-
-        return tokenBalanceDelta;
-    }
-
     /// @notice Submits a limit order via an approved adapter protocol (e.g. CoWSwap).
-    function submitOrder(SwapConfig calldata swapConfig) external requiresAuth {
+    function submitOrder(SwapConfig calldata swapConfig) external requiresAuth nonReentrant {
         (bytes32 key, IAdapter.OrderInfo memory info, uint256 orderId) = _limitOrderPreFlightCheck(swapConfig);
 
         //enforce rate limit
@@ -259,73 +185,6 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
         emit OrderSubmitted(orderId, key, info.inputAmount, address(swapConfig.receiver));
     }
 
-    function _limitOrderPreFlightCheck(SwapConfig memory swapConfig)
-        internal
-        returns (bytes32, IAdapter.OrderInfo memory, uint256)
-    {
-        _validateAdapter(swapConfig.adapter);
-
-        address adapter = swapConfig.adapter;
-        IAdapter.OrderInfo memory info = IAdapter(adapter).verifyLimitOrder(swapConfig, address(this));
-
-        // Price Verification
-
-        //check for limit order fat fingers
-        IPriceValidator(priceValidator)
-            .validate(
-                ERC20(info.inputToken),
-                ERC20(info.outputToken),
-                info.inputAmount,
-                info.outputAmount,
-                swapConfig.quoteAsset,
-                swapConfig.slippageBps
-            );
-
-        // Fee Logic
-
-        //fees are earmarked for pickup at a later point, collected by a special role/contract that only picks up freed funds.
-        uint256 limitFee;
-        if (feeRegistry.swapperActive(address(this))) {
-            uint16 feeBps = feeRegistry.getFee(
-                address(this), address(swapConfig.tokenRoute.tokenIn), address(swapConfig.tokenRoute.tokenOut)
-            );
-            if (feeBps > 0) {
-                limitFee = info.inputAmount.mulDivDown(feeBps, 10_000);
-                feesInToken[swapConfig.tokenRoute.tokenIn] += limitFee;
-            }
-        }
-
-        // @dev !!! IMPORTANT !!!
-        // vault must hold inputAmount + fee — strategist is responsible for leaving room for the fee!
-        // use `getFee` on feeRegistry if you are swapping entire balances of a single token
-        swapConfig.tokenRoute.tokenIn
-            .safeTransferFrom(address(swapConfig.receiver), address(this), info.inputAmount + limitFee);
-
-        // Order Hash Approval
-
-        uint256 orderId = orders;
-        orderRecords[orderId] = OrderRecord({
-            tokenIn: swapConfig.tokenRoute.tokenIn,
-            approvalTarget: info.approvalTarget,
-            cancelTarget: info.cancelTarget,
-            inputAmount: info.inputAmount,
-            receiver: swapConfig.receiver,
-            fee: limitFee,
-            protocolHash: info.protocolHash
-        });
-        approvedHashes[info.protocolHash] = true;
-
-        // Accumulate approval — multiple concurrent orders to the same approvalTarget must not
-        // overwrite each other's allowance, so we add to the existing amount.
-        uint256 newAllowance = swapConfig.tokenRoute.tokenIn.allowance(address(this), info.approvalTarget) + info.inputAmount;
-        swapConfig.tokenRoute.tokenIn.safeApprove(info.approvalTarget, 0);
-        swapConfig.tokenRoute.tokenIn.safeApprove(info.approvalTarget, newAllowance);
-
-        orders += 1;
-
-        bytes32 key = getRouteId(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut);
-        return (key, info, orderId);
-    }
 
     /// @notice Cancels a pending limit order, invalidates it on-chain, and refunds remaining tokens to the vault.
     function cancelOrder(uint256 orderId, SwapConfig calldata swapConfig) external requiresAuth {
@@ -590,6 +449,148 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
     }
 
     // ========================================= INTERNAL FUNCTIONS =========================================
+    
+    function _swapPreFlightCheck(SwapConfig calldata swapConfig) internal view returns (bytes32, address, uint256) {
+        _validateAdapter(swapConfig.adapter);
+
+        address target;
+        uint256 amount;
+        {
+            address adapter = swapConfig.adapter;
+
+            bytes memory appended =
+                abi.encodePacked(swapConfig.swapData, abi.encode(swapConfig), uint256(swapConfig.swapData.length));
+            (bytes memory result) = adapter.functionStaticCall(appended);
+
+            (target, amount) = abi.decode(result, (address, uint256));
+        }
+
+        bytes32 key = getRouteId(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut);
+        return (key, target, amount);
+    }
+
+    function _swapPostFlightCheck(SwapConfig calldata swapConfig, address target, uint256 amount)
+        internal
+        returns (uint256)
+    {
+        //snapshot the balance
+        uint256 tokenBalanceBefore = swapConfig.tokenRoute.tokenOut.balanceOf(address(this));
+
+        //transfer assets from the vault to the swapper, approve target & execute
+        swapConfig.tokenRoute.tokenIn.safeTransferFrom(address(swapConfig.receiver), address(this), amount);
+        swapConfig.tokenRoute.tokenIn.safeApprove(target, amount);
+        (bool success,) = target.call(swapConfig.swapData);
+        swapConfig.tokenRoute.tokenIn.safeApprove(target, 0);
+        if (!success) revert BoringSwapper__SwapFailed();
+
+        uint256 tokenBalanceDelta = swapConfig.tokenRoute.tokenOut.balanceOf(address(this)) - tokenBalanceBefore;
+
+        //validate the price & slippage
+        IPriceValidator(priceValidator)
+            .validate(
+                swapConfig.tokenRoute.tokenIn,
+                swapConfig.tokenRoute.tokenOut,
+                amount,
+                tokenBalanceDelta,
+                swapConfig.quoteAsset,
+                swapConfig.slippageBps
+            );
+
+        //charge fees if fee collection is active for this swapper
+        if (feeRegistry.swapperActive(address(this))) {
+            uint16 feeBps = feeRegistry.getFee(
+                address(this), address(swapConfig.tokenRoute.tokenIn), address(swapConfig.tokenRoute.tokenOut)
+            );
+            if (feeBps > 0) {
+                address feeRecipient = feeRegistry.getFeeRecipient(address(this), swapConfig.tokenRoute.tokenOut);
+                if (feeRecipient == address(0)) revert BoringSwapper__FeeRecipientNotSet();
+                uint256 fee = tokenBalanceDelta.mulDivDown(feeBps, 10_000);
+                tokenBalanceDelta -= fee;
+                swapConfig.tokenRoute.tokenOut.safeTransfer(feeRecipient, fee);
+            }
+        }
+
+        swapConfig.tokenRoute.tokenOut.safeTransfer(address(swapConfig.receiver), tokenBalanceDelta);
+
+        // Return any unspent tokenIn dust to the vault, excluding locked limit order funds.
+        // @dev `locked` only accounts for fee buckets, not pending order inputAmounts. If multiple
+        // concurrent instant swaps for the same tokenIn are in flight, one could sweep the other's
+        // unspent input as dust. Acceptable given Auth-gated callers and single-swap usage patterns.
+        uint256 locked = feesInToken[swapConfig.tokenRoute.tokenIn] + claimableFees[swapConfig.tokenRoute.tokenIn];
+        uint256 balance = swapConfig.tokenRoute.tokenIn.balanceOf(address(this));
+        uint256 dust = balance > locked ? balance - locked : 0;
+        if (dust > 0) swapConfig.tokenRoute.tokenIn.safeTransfer(address(swapConfig.receiver), dust);
+
+        return tokenBalanceDelta;
+    }
+
+    function _limitOrderPreFlightCheck(SwapConfig memory swapConfig)
+        internal
+        returns (bytes32, IAdapter.OrderInfo memory, uint256)
+    {
+        _validateAdapter(swapConfig.adapter);
+
+        address adapter = swapConfig.adapter;
+        IAdapter.OrderInfo memory info = IAdapter(adapter).verifyLimitOrder(swapConfig, address(this));
+
+        // Price Verification
+
+        //check for limit order fat fingers
+        IPriceValidator(priceValidator)
+            .validate(
+                ERC20(info.inputToken),
+                ERC20(info.outputToken),
+                info.inputAmount,
+                info.outputAmount,
+                swapConfig.quoteAsset,
+                swapConfig.slippageBps
+            );
+
+        // Fee Logic
+
+        //fees are earmarked for pickup at a later point, collected by a special role/contract that only picks up freed funds.
+        uint256 limitFee;
+        if (feeRegistry.swapperActive(address(this))) {
+            uint16 feeBps = feeRegistry.getFee(
+                address(this), address(swapConfig.tokenRoute.tokenIn), address(swapConfig.tokenRoute.tokenOut)
+            );
+            if (feeBps > 0) {
+                limitFee = info.inputAmount.mulDivDown(feeBps, 10_000);
+                feesInToken[swapConfig.tokenRoute.tokenIn] += limitFee;
+            }
+        }
+
+        // @dev !!! IMPORTANT !!!
+        // vault must hold inputAmount + fee — strategist is responsible for leaving room for the fee!
+        // use `getFee` on feeRegistry if you are swapping entire balances of a single token
+        swapConfig.tokenRoute.tokenIn
+            .safeTransferFrom(address(swapConfig.receiver), address(this), info.inputAmount + limitFee);
+
+        // Order Hash Approval
+
+        uint256 orderId = orders;
+        orderRecords[orderId] = OrderRecord({
+            tokenIn: swapConfig.tokenRoute.tokenIn,
+            approvalTarget: info.approvalTarget,
+            cancelTarget: info.cancelTarget,
+            inputAmount: info.inputAmount,
+            receiver: swapConfig.receiver,
+            fee: limitFee,
+            protocolHash: info.protocolHash
+        });
+        approvedHashes[info.protocolHash] = true;
+
+        // Accumulate approval — multiple concurrent orders to the same approvalTarget must not
+        // overwrite each other's allowance, so we add to the existing amount.
+        uint256 newAllowance = swapConfig.tokenRoute.tokenIn.allowance(address(this), info.approvalTarget) + info.inputAmount;
+        swapConfig.tokenRoute.tokenIn.safeApprove(info.approvalTarget, 0);
+        swapConfig.tokenRoute.tokenIn.safeApprove(info.approvalTarget, newAllowance);
+
+        orders += 1;
+
+        bytes32 key = getRouteId(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut);
+        return (key, info, orderId);
+    }
 
     function _validateAdapter(address adapter) internal view {
         if (isPaused) revert BoringSwapper__Paused();

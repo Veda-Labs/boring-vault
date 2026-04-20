@@ -22,6 +22,10 @@ contract CowswapAdapter is IAdapter {
     error CowswapAdapter__SellTokenMismatch();
     error CowswapAdapter__BuyTokenMismatch();
     error CowswapAdapter__ReceiverMismatch();
+    error CowswapAdapter__NonZeroFeeAmount();
+    error CowswapAdapter__PartialFillsNotAllowed();
+    error CowswapAdapter__InvalidSellTokenBalance();
+    error CowswapAdapter__InvalidBuyTokenBalance();
 
     //============================== Immutables ===============================
     
@@ -52,6 +56,10 @@ contract CowswapAdapter is IAdapter {
             abi.decode(swapConfig.swapData, (DecoderCustomTypes.GPv2OrderData));
 
         if (order.kind != keccak256("sell")) revert CowswapAdapter__OnlySellOrdersSupported();
+        if (order.feeAmount != 0) revert CowswapAdapter__NonZeroFeeAmount();
+        if (order.partiallyFillable) revert CowswapAdapter__PartialFillsNotAllowed();
+        if (order.sellTokenBalance != keccak256("erc20")) revert CowswapAdapter__InvalidSellTokenBalance();
+        if (order.buyTokenBalance != keccak256("erc20")) revert CowswapAdapter__InvalidBuyTokenBalance();
         if (ERC20(order.sellToken) != swapConfig.tokenRoute.tokenIn) revert CowswapAdapter__SellTokenMismatch();
         if (ERC20(order.buyToken) != swapConfig.tokenRoute.tokenOut) revert CowswapAdapter__BuyTokenMismatch();
         if (order.receiver != (address(swapConfig.receiver))) revert CowswapAdapter__ReceiverMismatch();
