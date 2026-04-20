@@ -295,7 +295,7 @@ contract PrincipalHistoryTest is Test, MerkleTreeHelper {
         assertTrue(withdrawalValue <= maxExpected, "refund withdrawal should not exceed deposit value + rounding");
 
         // The checkpoint's sharePrice should reflect the current rate, not the deposit rate.
-        assertEq(afterRefund[1].sharePrice, 1.05e18, "checkpoint records current share price");
+        assertEq(afterRefund[1].vaultSharePrice, 1.05e18, "checkpoint records current share price");
     }
 
     // ========================================= ROUNDING TESTS =========================================

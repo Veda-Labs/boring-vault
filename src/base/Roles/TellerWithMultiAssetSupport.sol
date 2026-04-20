@@ -47,7 +47,7 @@ struct PrincipalCheckpoint {
     uint48 timestamp;
     uint104 cumulativeDeposits;
     uint104 cumulativeWithdrawals;
-    uint256 sharePrice;
+    uint256 vaultSharePrice;
 }
 
 struct Asset {

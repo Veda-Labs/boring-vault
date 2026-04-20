@@ -925,7 +925,7 @@ contract PrincipalHistoryFuzzTest is Test {
         _depositAs(user, amount);
 
         PrincipalCheckpoint memory cp = _lastCheckpoint(user);
-        assertEq(cp.sharePrice, uint256(rate), "deposit checkpoint must record current rate");
+        assertEq(cp.vaultSharePrice, uint256(rate), "deposit checkpoint must record current rate");
     }
 
     /// @notice Withdrawal checkpoint records the rate at withdrawal time, not deposit time.
@@ -945,7 +945,7 @@ contract PrincipalHistoryFuzzTest is Test {
         _withdrawAs(user, shares);
 
         PrincipalCheckpoint memory last = _lastCheckpoint(user);
-        assertEq(last.sharePrice, uint256(withdrawRate), "withdraw checkpoint must record withdrawal rate");
+        assertEq(last.vaultSharePrice, uint256(withdrawRate), "withdraw checkpoint must record withdrawal rate");
     }
 
     /// @notice Each checkpoint in a multi-operation sequence records the rate at its own time.
@@ -964,8 +964,8 @@ contract PrincipalHistoryFuzzTest is Test {
 
         (PrincipalCheckpoint[] memory h,) = teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
         assertEq(h.length, 2, "two checkpoints");
-        assertEq(h[0].sharePrice, uint256(r1), "first checkpoint has first rate");
-        assertEq(h[1].sharePrice, uint256(r2), "second checkpoint has second rate");
+        assertEq(h[0].vaultSharePrice, uint256(r1), "first checkpoint has first rate");
+        assertEq(h[1].vaultSharePrice, uint256(r2), "second checkpoint has second rate");
     }
 
     // ============================== CONCRETE: uint104 cumulative overflow reverts safely ==============================
