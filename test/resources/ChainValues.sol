@@ -1579,6 +1579,7 @@ contract ChainValues {
 
     function _addBaseValues() private {
         values[base]["deployerAddress"] = 0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC.toBytes32();
+        values[base]["txBundlerAddress"] = 0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC.toBytes32();
         values[base]["dev0Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
         values[base]["dev1Address"] = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5.toBytes32();
         values[base]["feeAddress"] = 0xce1BF18D049638B3ee9dF934aeE5e5fC42BBFDb3.toBytes32();
@@ -1615,6 +1616,7 @@ contract ChainValues {
         values[base]["LBTC"] = 0xecAc9C5F704e954931349Da37F60E39f515c11c1.toBytes32();
         values[base]["WBTC"] = 0x0555E30da8f98308EdB960aa94C0Db47230d2B9c.toBytes32();
         values[base]["EURC"] = 0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42.toBytes32();
+        values[base]["ZRO"] = 0x6985884C4392D348587B19cb9eAAf157F13271cd.toBytes32();
 
         // Balancer vault
         values[base]["vault"] = 0xBA12222222228d8Ba445958a75a0704d566BF2C8.toBytes32();
@@ -1702,6 +1704,9 @@ contract ChainValues {
 
         // fly.trade
         values[base]["magpieRouterV3"] = 0x5E766616AaBFB588E23a8EA854e9dbd1042afFD3.toBytes32();
+
+        // layerzero
+        values[base]["LayerZeroEndPoint"] = 0x1a44076050125825900e736c501f859c50fE728c.toBytes32();
     }
 
     function _addArbitrumValues() private {

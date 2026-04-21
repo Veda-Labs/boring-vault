@@ -18,6 +18,7 @@ import {OneInchDecoderAndSanitizer} from "./Protocols/OneInchDecoderAndSanitizer
 import {OFTDecoderAndSanitizer} from "./Protocols/OFTDecoderAndSanitizer.sol";
 import {MagpieDecoderAndSanitizer} from "./MagpieDecoderAndSanitizer.sol";
 import {CapDecoderAndSanitizer} from "./Protocols/CapDecoderAndSanitizer.sol";
+import {SyrupDecoderAndSanitizer} from "./Protocols/SyrupDecoderAndSanitizer.sol";
 import {MorphoV1FlashLoanAdapterDecoderAndSanitizer} from "./Protocols/MorphoV1FlashLoanAdapterDecoderAndSanitizer.sol";
 import {BridgingDecoderAndSanitizer} from "./BridgingDecoderAndSanitizer.sol";
 

@@ -173,7 +173,7 @@ contract DeployEthUsdDecoderAndSanitizer is Script, ContractNames, MainnetAddres
         vm.createSelectFork("mainnet");
         setSourceChainName("mainnet");
 
-        vm.startBroadcast(vm.envUint("BORING_DEVELOPER"));
+        vm.startBroadcast(vm.envUint("DEPLOYER01"));
 
         creationCode = type(EthereumUsdStrategyDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(
@@ -181,7 +181,7 @@ contract DeployEthUsdDecoderAndSanitizer is Script, ContractNames, MainnetAddres
             getAddress(sourceChain, "odosRouterV2"),
             getAddress(sourceChain, "magpieRouterV3")
         );
-        deployer.deployContract("EthUsdStrategyDecodersAndSanitizerV3", creationCode, constructorArgs, 0);
+        deployer.deployContract("EthUsdStrategyDecodersAndSanitizerV0.1.4", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }

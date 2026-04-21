@@ -4,7 +4,7 @@
         "privateKeyEnvName": "DEPLOYER01",
         "chainName": "base",
         "evmVersion": "cancun",
-        "desiredNumberOfDeploymentTxs": 1,
+        "desiredNumberOfDeploymentTxs": 25,
         "txBundlerAddressOrName": {
             "address": "0x0000000000000000000000000000000000000000",
             "name": "txBundlerAddress"
@@ -66,7 +66,7 @@
                 "allowedExchangeRateChangeUpper": 12000,
                 "baseAddressOrName": {
                     "address": "0x0000000000000000000000000000000000000000",
-                    "name": "cbBTC"
+                    "name": "USDC"
                 },
                 "minimumUpateDelayInSeconds": 600,
                 "performanceFee": 3000,
@@ -76,9 +76,9 @@
         }
     },
     "tellerConfiguration": {
-        "tellerDeploymentName": "hedgedBTCmm TellerV1.0",
+        "tellerDeploymentName": "fxEurcUsdc TellerV1.0",
         "tellerParameters": {
-            "allowPublicDeposits": false,
+            "allowPublicDeposits": true,
             "shareLockPeriod": 60,
             "kind": {
                 "teller": false,
@@ -109,8 +109,8 @@
         }
     },
     "boringQueueConfiguration": {
-        "boringQueueDeploymentName": "hedgedBTCmm BoringOnChainQueueV1.0",
-        "boringQueueSolverName": "hedgedBTCmm BoringSolverV1.0",
+        "boringQueueDeploymentName": "fxEurcUsdc BoringOnChainQueueV1.0",
+        "boringQueueSolverName": "fxEurcUsdc BoringSolverV1.0",
         "queueParameters": {
             "allowPublicWithdrawals": true,
             "allowPublicSelfWithdrawals": false,
@@ -121,13 +121,13 @@
         }
     },
     "droneConfiguration": {
-        "droneDeploymentBaseName": "hedgedBTCmm Boring Drone",
+        "droneDeploymentBaseName": "fxEurcUsdc Boring Drone",
         "droneCount": 1,
         "safeGasToForwardNative": 21000
     },
     "pauserConfiguration": {
         "shouldDeploy": true,
-        "pauserDeploymentName": "hedgedBTCmm Pauser",
+        "pauserDeploymentName": "fxEurcUsdc Pauser",
         "makeGenericPauser": [
             "0x0000000000000000000000000000000000000000"
         ],
@@ -149,7 +149,7 @@
     },
     "timelockConfiguration": {
         "shouldDeploy": true,
-        "timelockDeploymentName": "hedgedBTCmm Timelock",
+        "timelockDeploymentName": "fxEurcUsdc Timelock",
         "timelockParameters": {
             "minDelay": 86400,
             "proposers": [
@@ -164,7 +164,7 @@
         {
             "addressOrName": {
                 "address": "0x0000000000000000000000000000000000000000",
-                "name": "cbBTC"
+                "name": "USDC"
             },
             "isPeggedToBase": true,
             "rateProvider": ""
@@ -174,7 +174,7 @@
         {
             "addressOrName": {
                 "address": "0x0000000000000000000000000000000000000000",
-                "name": "cbBTC"
+                "name": "USDC"
             },
             "allowDeposits": true,
             "allowWithdraws": true,
@@ -185,7 +185,7 @@
         {
             "addressOrName": {
                 "address": "0x0000000000000000000000000000000000000000",
-                "name": "cbBTC"
+                "name": "USDC"
             },
             "maxDiscount": 100,
             "minDiscount": 0,
