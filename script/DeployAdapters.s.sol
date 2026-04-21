@@ -8,6 +8,7 @@ import {HedgedBtcEthMmStrategyAdapter} from "src/adapters/HedgedBtcEthMmStrategy
 import {UniV3PositionTvlAdapter} from "src/adapters/Univ3TvlAdapter.sol";
 import {UniV4PositionTvlAdapter} from "src/adapters/Univ4TvlAdapter.sol";
 import {MorphoBlueTvlAdapter} from "src/adapters/MorphoBlueTvlAdapter.sol";
+import {Erc20TvlAdapter} from "src/adapters/Erc20TvlAdapter.sol";
 import {CapCusdBalanceAdapter} from "src/adapters/CapCusdBalanceAdapter.sol";
 import {CbBtcUsdcAaveV3BalanceAdapter} from "src/adapters/cbBtcUsdcAaveV3BalanceAdapter.sol";
 import {WethUsdcAaveV3BalanceAdapter} from "src/adapters/WethUsdcAaveV3BalanceAdapter.sol";
@@ -15,42 +16,6 @@ import {SiUsdBalanceAdapter} from "src/adapters/SiUsdBalanceAdapter.sol";
 import {CapStcusdBalanceAdapter} from "src/adapters/CapStcusdBalanceAdapter.sol";
 import {PtCusd29Jan2026BalanceAdapter} from "src/adapters/PtCusd29Jan2026BalanceAdapter.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
-
-// contract DeployPtCusdLoopAdapters is Script, MerkleTreeHelper {
-//     function setUp() external {
-//         vm.createSelectFork("mainnet");
-//         setSourceChainName("mainnet");
-//     }
-//
-//     function run() external {
-//         vm.startBroadcast(vm.envUint("PK"));
-//
-//         CapCusdBalanceAdapter cusd = new CapCusdBalanceAdapter(
-//             0x9A5a3c3Ed0361505cC1D4e824B3854De5724434A,
-//             0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6,
-//             0xcCcc62962d17b8914c62D74FfB843d73B2a3cccC
-//         );
-//
-//         CapStcusdBalanceAdapter stcusd = new CapStcusdBalanceAdapter(
-//             0x797Fa8167C35b19A30a5E7973561588BfEc0A086,
-//             0x9A5a3c3Ed0361505cC1D4e824B3854De5724434A,
-//             0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6,
-//             0x88887bE419578051FF9F4eb6C858A951921D8888
-//         );
-//
-//         PtCusd29Jan2026BalanceAdapter ptcusd = new PtCusd29Jan2026BalanceAdapter(
-//             0xC8B82fb30a8e57c9C708B70D6f25d7B15DBEab09,
-//             0x9A5a3c3Ed0361505cC1D4e824B3854De5724434A,
-//             0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6,
-//             0x545A490f9ab534AdF409A2E682bc4098f49952e3
-//         );
-//
-//         MorphoLoopTvlAdapter loop =
-//             new MorphoLoopTvlAdapter(0x802ec6e878dc9fe6905b8a0a18962dcca10440a87fa2242fbf4a0461c7b0c789);
-//
-//         vm.stopBroadcast();
-//     }
-// }
 
 contract DeployUniAdapter is Script, MerkleTreeHelper {
     uint256 public privateKey;
@@ -97,32 +62,6 @@ contract DeployUniv4Adapter is Script, MerkleTreeHelper {
         vm.stopBroadcast();
     }
 }
-
-// contract DeployMorphoLoopAdapter is Script, MerkleTreeHelper {
-//     uint256 public privateKey;
-//
-//     function setUp() external {
-//         privateKey = vm.envUint("PK");
-//
-//         setSourceChainName("base");
-//     }
-//
-//     function run() external {
-//         vm.startBroadcast(privateKey);
-//
-//         MorphoLoopTvlAdapter adapter =
-//             new MorphoLoopTvlAdapter(0x9103c3b4e834476c9a62ea009ba2c884ee42e94e6e314a26f04d312434191836);
-//         (uint256 collat, uint256 debt, uint256 supplied) =
-//             adapter.getUserPositionValues(0x272BCD869CbDFcb32c335dB2f1F6C54Eb1A50aCc);
-//         console.log("collateral", collat);
-//         console.log("debt", debt);
-//         console.log("supplied", supplied);
-//         console.log("LTV", (debt) * 1e8 / collat); // assuming supplied is in USDC terms
-//         console.log("TVL in USDC terms", adapter.getUserTvl(0x272BCD869CbDFcb32c335dB2f1F6C54Eb1A50aCc));
-//
-//         vm.stopBroadcast();
-//     }
-// }
 
 contract DeploycbBtcAaveAdapter is Script, MerkleTreeHelper {
     uint256 public privateKey;
@@ -245,6 +184,27 @@ contract DeployMorphoBlueTvlAdapter is Script, MerkleTreeHelper {
         );
 
         deployer.deployContract("srRoyUSDC_USDC_915 MorphoBlueTvlAdapter", creationCode, constructorArgs, 0);
+
+        vm.stopBroadcast();
+    }
+}
+
+contract DeployErc20TvlAdapter is Script, MerkleTreeHelper {
+    Deployer private deployer = Deployer(0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC);
+
+    function run() external {
+        setSourceChainName("mainnet");
+        vm.startBroadcast(vm.envUint("DEPLOYER01"));
+
+        bytes memory creationCode = type(Erc20TvlAdapter).creationCode;
+        bytes memory constructorArgs = abi.encode(
+            getAddress(sourceChain, "stcUSD"),
+            getAddress(sourceChain, "stcUSD_USD_oracle"),
+            getAddress(sourceChain, "USDC"),
+            getAddress(sourceChain, "USDC_USD_oracle")
+        );
+
+        deployer.deployContract("stcUSD/USD Erc20TvlAdapter", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
