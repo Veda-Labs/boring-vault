@@ -28,37 +28,37 @@
             "address": "0x0000000000000000000000000000000000000000",
             "name": "deployerAddress"
         },
-        "deploymentFileName": "BaseBTCCarryDeployment.json"
+        "deploymentFileName": "addresses/Base/fxEurcUsdcDeployment.json"
     },
     "rolesAuthorityConfiguration": {
-        "rolesAuthorityDeploymentName": "BTCCarry rolesAuthorityV1.0"
+        "rolesAuthorityDeploymentName": "fxEurcUsdc rolesAuthorityV1.0"
     },
     "lensConfiguration": {
-        "lensDeploymentName": "BTCCarry lensV1.0"
+        "lensDeploymentName": "fxEurcUsdc lensV1.0"
     },
     "boringVaultConfiguration": {
-        "boringVaultDeploymentName": "BTCCarry boringVaultV1.0",
-        "boringVaultName": "BTC Carry Vault",
-        "boringVaultSymbol": "BTCCarry",
-        "boringVaultDecimals": 8
+        "boringVaultDeploymentName": "fxEurcUsdc boringVaultV1.0",
+        "boringVaultName": "fxEurcUsdc",
+        "boringVaultSymbol": "fxEurcUsdc",
+        "boringVaultDecimals": 6
     },
     "managerConfiguration": {
-        "managerDeploymentName": "BTCCarry managerV1.0",
+        "managerDeploymentName": "fxEurcUsdc managerV1.0",
         "balancerVaultAddressOrName": {
-            "address": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+            "address": "0x0000000000000000000000000000000000000000",
             "name": "balancerVault"
         }
     },
     "accountantConfiguration": {
-        "accountantDeploymentName": "BTCCarry accountantV1.0",
+        "accountantDeploymentName": "fxEurcUsdc accountantV1.0",
         "accountantParameters": {
             "kind": {
                 "variableRate": true,
                 "fixedRate": false
             },
             "payoutConfiguration": {
-                "payoutTo": "0xa86b3Bf249478488B4304B50726c7D4689aD6320",
-                "optionalPaymentSplitterName": "Payment Splitter",
+                "payoutTo": "0xce1BF18D049638B3ee9dF934aeE5e5fC42BBFDb3",
+                "optionalPaymentSplitterName": "fxEurcUsdc Payment Splitter",
                 "splits": []
             },
             "accountantDeploymentParameters": {
@@ -66,17 +66,17 @@
                 "allowedExchangeRateChangeUpper": 12000,
                 "baseAddressOrName": {
                     "address": "0x0000000000000000000000000000000000000000",
-                    "name": "WBTC"
+                    "name": "cbBTC"
                 },
-                "minimumUpateDelayInSeconds": 3600,
-                "performanceFee": 100,
+                "minimumUpateDelayInSeconds": 600,
+                "performanceFee": 3000,
                 "platformFee": 0,
                 "startingExchangeRate": 100000000
             }
         }
     },
     "tellerConfiguration": {
-        "tellerDeploymentName": "BTCCarry TellerV1.0",
+        "tellerDeploymentName": "hedgedBTCmm TellerV1.0",
         "tellerParameters": {
             "allowPublicDeposits": false,
             "shareLockPeriod": 60,
@@ -92,47 +92,27 @@
                     "name": "ccipRouter"
                 },
                 "ccipChains": [
-                    {
-                        "chainSelector": 1,
-                        "allowMessagesFrom": true,
-                        "allowMessagesTo": true,
-                        "targetTellerOrSelf": {
-                            "address": "0x0000000000000000000000000000000000000000",
-                            "self": true
-                        },
-                        "messageGasLimit": 100000
-                    }
                 ]
             },
             "layerZero": {
                 "endpointAddressOrName": {
-                    "address": "0x1a44076050125825900e736c501f859c50fE728c",
+                    "address": "0x0000000000000000000000000000000000000000",
                     "name": "LayerZeroEndPoint"
                 },
                 "lzTokenAddressOrName": {
-                    "address": "0x6985884C4392D348587B19cb9eAAf157F13271cd",
+                    "address": "0x0000000000000000000000000000000000000000",
                     "name": "ZRO"
                 },
                 "lzChains": [
-                    {
-                        "chainId": 1,
-                        "allowMessagesFrom": true,
-                        "allowMessagesTo": true,
-                        "targetTellerOrSelf": {
-                            "address": "0x0000000000000000000000000000000000000000",
-                            "self": true
-                        },
-                        "messageGasLimit": 100000
-                    }
                 ]
             }
         }
     },
     "boringQueueConfiguration": {
-        "boringQueueDeploymentName": "BTCCarry BoringOnChainQueueV1.0",
-        "boringQueueSolverName": "BTCCarry BoringSolverV1.0",
+        "boringQueueDeploymentName": "hedgedBTCmm BoringOnChainQueueV1.0",
+        "boringQueueSolverName": "hedgedBTCmm BoringSolverV1.0",
         "queueParameters": {
-            "allowPublicWithdrawals": false,
+            "allowPublicWithdrawals": true,
             "allowPublicSelfWithdrawals": false,
             "kind": {
                 "boringQueue": true,
@@ -141,13 +121,13 @@
         }
     },
     "droneConfiguration": {
-        "droneDeploymentBaseName": "BTCCarry Boring Drone",
+        "droneDeploymentBaseName": "hedgedBTCmm Boring Drone",
         "droneCount": 1,
         "safeGasToForwardNative": 21000
     },
     "pauserConfiguration": {
         "shouldDeploy": true,
-        "pauserDeploymentName": "BTCCarry Pauser",
+        "pauserDeploymentName": "hedgedBTCmm Pauser",
         "makeGenericPauser": [
             "0x0000000000000000000000000000000000000000"
         ],
@@ -169,7 +149,7 @@
     },
     "timelockConfiguration": {
         "shouldDeploy": true,
-        "timelockDeploymentName": "BTCCarry Timelock",
+        "timelockDeploymentName": "hedgedBTCmm Timelock",
         "timelockParameters": {
             "minDelay": 86400,
             "proposers": [
@@ -184,7 +164,7 @@
         {
             "addressOrName": {
                 "address": "0x0000000000000000000000000000000000000000",
-                "name": "WBTC"
+                "name": "cbBTC"
             },
             "isPeggedToBase": true,
             "rateProvider": ""
@@ -194,7 +174,7 @@
         {
             "addressOrName": {
                 "address": "0x0000000000000000000000000000000000000000",
-                "name": "WBTC"
+                "name": "cbBTC"
             },
             "allowDeposits": true,
             "allowWithdraws": true,
@@ -204,12 +184,12 @@
     "withdrawAssets": [
         {
             "addressOrName": {
-                "address": "0x0555E30da8f98308EdB960aa94C0Db47230d2B9c",
-                "name": "WBTC"
+                "address": "0x0000000000000000000000000000000000000000",
+                "name": "cbBTC"
             },
             "maxDiscount": 100,
             "minDiscount": 0,
-            "minimumSecondsToDeadline": 0,
+            "minimumSecondsToDeadline": 604800,
             "minimumShares": 0,
             "secondsToMaturity": 60
         }
