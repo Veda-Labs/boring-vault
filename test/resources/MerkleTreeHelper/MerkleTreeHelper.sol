@@ -3254,6 +3254,24 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         _addAaveV3ForkLeafs("HyperLend", getAddress(sourceChain, "hyperLendPool"), leafs, supplyAssets, borrowAssets);
     }
 
+    function _addAaveV3WithdrawLeafs(ManageLeaf[] memory leafs, ERC20[] memory tokens, string memory protocolName) internal {
+        for (uint256 i; i < tokens.length; i++) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "v3Pool"),
+                false,
+                "withdraw(address,uint256,address)",
+                new address[](2),
+                string.concat("Withdraw ", tokens[i].symbol(), " from ", protocolName),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(tokens[i]);
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+        }
+    }
+
     function _addAaveV3ForkLeafs(
         string memory protocolName,
         address protocolAddress,

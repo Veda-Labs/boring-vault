@@ -1,0 +1,52 @@
+{
+  "version": "4.2.3",
+  "name": "lightweight-charts",
+  "author": "TradingView, Inc.",
+  "license": "Apache-2.0",
+  "description": "Performant financial charts built with HTML5 canvas",
+  "bugs": {
+    "url": "https://github.com/tradingview/lightweight-charts/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tradingview/lightweight-charts.git"
+  },
+  "module": "dist/lightweight-charts.production.mjs",
+  "main": "index.cjs",
+  "typings": "dist/typings.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "development": {
+        "types": "./dist/typings.d.ts",
+        "import": "./dist/lightweight-charts.development.mjs",
+        "require": "./dist/lightweight-charts.development.cjs"
+      },
+      "production": {
+        "types": "./dist/typings.d.ts",
+        "import": "./dist/lightweight-charts.production.mjs",
+        "require": "./dist/lightweight-charts.production.cjs"
+      },
+      "default": {
+        "types": "./dist/typings.d.ts",
+        "import": "./dist/lightweight-charts.production.mjs",
+        "require": "./index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist/**"
+  ],
+  "keywords": [
+    "financial-charting-library",
+    "charting-library",
+    "html5-charts",
+    "canvas",
+    "typescript",
+    "charting",
+    "charts"
+  ],
+  "dependencies": {
+    "fancy-canvas": "2.1.0"
+  }
+}
