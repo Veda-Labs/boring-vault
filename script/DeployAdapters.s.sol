@@ -6,6 +6,7 @@ import {console} from "../lib/forge-std/src/console.sol";
 import {Deployer} from "src/helper/Deployer.sol";
 import {HedgedBtcEthMmStrategyAdapter} from "src/adapters/HedgedBtcEthMmStrategyAdapter.sol";
 import {UniV3PositionTvlAdapter} from "src/adapters/Univ3TvlAdapter.sol";
+import {UniswapV3PositionTvlAdapter} from "src/adapters/UniswapV3PositionTvlAdapter.sol";
 import {UniV4PositionTvlAdapter} from "src/adapters/Univ4TvlAdapter.sol";
 import {MorphoBlueTvlAdapter} from "src/adapters/MorphoBlueTvlAdapter.sol";
 import {Erc20TvlAdapter} from "src/adapters/Erc20TvlAdapter.sol";
@@ -17,25 +18,25 @@ import {CapStcusdBalanceAdapter} from "src/adapters/CapStcusdBalanceAdapter.sol"
 import {PtCusd29Jan2026BalanceAdapter} from "src/adapters/PtCusd29Jan2026BalanceAdapter.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-contract DeployUniAdapter is Script, MerkleTreeHelper {
-    uint256 public privateKey;
-
-    function setUp() external {
-        privateKey = vm.envUint("PK");
-        setSourceChainName("arbitrum");
-    }
-
-    function run() external {
-        vm.startBroadcast(privateKey);
-
-        UniV3PositionTvlAdapter adapter =
-            new UniV3PositionTvlAdapter(0x2f5e87C9312fa29aed5c179E456625D79015299c, 5167902, 18);
-
-        console.log("TVL of user", adapter.getUserTvl(address(0)));
-
-        vm.stopBroadcast();
-    }
-}
+// contract DeployUniAdapter is Script, MerkleTreeHelper {
+//     uint256 public privateKey;
+//
+//     function setUp() external {
+//         privateKey = vm.envUint("PK");
+//         setSourceChainName("arbitrum");
+//     }
+//
+//     function run() external {
+//         vm.startBroadcast(privateKey);
+//
+//         UniV3PositionTvlAdapter adapter =
+//             new UniV3PositionTvlAdapter(0x2f5e87C9312fa29aed5c179E456625D79015299c, 5167902, 18);
+//
+//         console.log("TVL of user", adapter.getUserTvl(address(0)));
+//
+//         vm.stopBroadcast();
+//     }
+// }
 
 contract DeployUniv4Adapter is Script, MerkleTreeHelper {
     uint256 public privateKey;
@@ -205,6 +206,30 @@ contract DeployErc20TvlAdapter is Script, MerkleTreeHelper {
         );
 
         deployer.deployContract("stcUSD/USD Erc20TvlAdapter", creationCode, constructorArgs, 0);
+
+        vm.stopBroadcast();
+    }
+}
+
+contract DeployUniswapV3PositionTvlAdapterScript is Script, MerkleTreeHelper {
+    Deployer private deployer = Deployer(0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC);
+
+    function run() external {
+        setSourceChainName("mainnet");
+        vm.startBroadcast(vm.envUint("DEPLOYER01"));
+
+        bytes memory creationCode = type(UniswapV3PositionTvlAdapter).creationCode;
+        bytes memory constructorArgs = abi.encode(
+            getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
+            getAddress(sourceChain, "RLUSD_USDC_100"),
+            1259775, // random tokenId
+            getAddress(sourceChain, "RLUSD_USD_oracle"),
+            getAddress(sourceChain, "USDC_USD_oracle"),
+            getAddress(sourceChain, "USDC"),
+            getAddress(sourceChain, "USDC_USD_oracle")
+        );
+
+        deployer.deployContract("RLUSD_USDC_100 UniswapV3PositionTvlAdapter Example", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }

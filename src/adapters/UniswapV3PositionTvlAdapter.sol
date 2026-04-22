@@ -2,48 +2,14 @@
 pragma solidity ^0.8.19;
 
 import {ERC20} from "../../lib/solmate/src/tokens/ERC20.sol";
-import {TickMath} from "./libraries/TickMath.sol";
-import {LiquidityAmounts} from "./libraries/LiquidityAmounts.sol";
+import {PositionValue, INonfungiblePositionManager, IUniswapV3Pool} from "./libraries/PositionValue.sol";
 import {AggregatorV3Interface} from "./libraries/ChainlinkDataFeedLib.sol";
 
-interface INonfungiblePositionManager {
-    function positions(uint256 tokenId)
-        external
-        view
-        returns (
-            uint96 nonce,
-            address operator,
-            address token0,
-            address token1,
-            uint24 fee,
-            int24 tickLower,
-            int24 tickUpper,
-            uint128 liquidity,
-            uint256 feeGrowthInside0LastX128,
-            uint256 feeGrowthInside1LastX128,
-            uint128 tokensOwed0,
-            uint128 tokensOwed1
-        );
-
+interface INpmOwner {
     function ownerOf(uint256 tokenId) external view returns (address);
 }
 
-interface IUniswapV3Pool {
-    function slot0()
-        external
-        view
-        returns (
-            uint160 sqrtPriceX96,
-            int24 tick,
-            uint16 observationIndex,
-            uint16 observationCardinality,
-            uint16 observationCardinalityNext,
-            uint8 feeProtocol,
-            bool unlocked
-        );
-}
-
-contract UniV3PositionTvlAdapter {
+contract UniswapV3PositionTvlAdapter {
     INonfungiblePositionManager public immutable positionManager;
     IUniswapV3Pool public immutable pool;
     uint256 public immutable tokenId;
@@ -74,6 +40,9 @@ contract UniV3PositionTvlAdapter {
         tokenId = _tokenId;
 
         (,, address _token0, address _token1,,,,,,,,) = positionManager.positions(_tokenId);
+        (address p0, address p1) = (_pool0(_pool), _pool1(_pool));
+        require(p0 == _token0 && p1 == _token1, "pool/position mismatch");
+
         token0 = _token0;
         token1 = _token1;
         baseToken = _baseToken;
@@ -85,6 +54,18 @@ contract UniV3PositionTvlAdapter {
         token0Decimals = ERC20(_token0).decimals();
         token1Decimals = ERC20(_token1).decimals();
         baseDecimals = ERC20(_baseToken).decimals();
+    }
+
+    function _pool0(address p) private view returns (address) {
+        (bool ok, bytes memory d) = p.staticcall(abi.encodeWithSignature("token0()"));
+        require(ok, "pool.token0");
+        return abi.decode(d, (address));
+    }
+
+    function _pool1(address p) private view returns (address) {
+        (bool ok, bytes memory d) = p.staticcall(abi.encodeWithSignature("token1()"));
+        require(ok, "pool.token1");
+        return abi.decode(d, (address));
     }
 
     function _getPrice1e18(AggregatorV3Interface feed) internal view returns (uint256) {
@@ -110,21 +91,11 @@ contract UniV3PositionTvlAdapter {
         baseAmount = (assetAmount * assetUsd * 10 ** baseDecimals) / (10 ** assetDecimals) / baseUsd;
     }
 
-    /// @dev returns the NFT position value in baseToken units; 0 if user isn't the owner
+    /// @dev returns the NFT position value (principal + tokensOwed + uncollected fees) in baseToken units; 0 if user isn't the owner
     function getUserTvl(address user) external view returns (uint256 tvl) {
-        if (positionManager.ownerOf(tokenId) != user) return 0;
+        if (INpmOwner(address(positionManager)).ownerOf(tokenId) != user) return 0;
 
-        (,,,,, int24 tickLower, int24 tickUpper, uint128 liquidity,,, uint128 tokensOwed0, uint128 tokensOwed1) =
-            positionManager.positions(tokenId);
-
-        (uint160 sqrtPriceX96,,,,,,) = pool.slot0();
-
-        (uint256 amount0, uint256 amount1) = LiquidityAmounts.getAmountsForLiquidity(
-            sqrtPriceX96, TickMath.getSqrtRatioAtTick(tickLower), TickMath.getSqrtRatioAtTick(tickUpper), liquidity
-        );
-
-        amount0 += tokensOwed0;
-        amount1 += tokensOwed1;
+        (uint256 amount0, uint256 amount1) = PositionValue.total(positionManager, pool, tokenId);
 
         tvl =
             _assetToBase(amount0, token0Decimals, token0UsdFeed) + _assetToBase(amount1, token1Decimals, token1UsdFeed);

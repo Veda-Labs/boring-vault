@@ -835,6 +835,7 @@ contract ChainValues {
         values[mainnet]["WSTETH_WETH_100"] = 0x109830a1AAaD605BbF02a9dFA7B0B92EC2FB7dAa.toBytes32();
         values[mainnet]["WSTETH_WETH_500"] = 0xD340B57AAcDD10F96FC1CF10e15921936F41E29c.toBytes32();
         values[mainnet]["DAI_USDC_100"] = 0x5777d92f208679DB4b9778590Fa3CAB3aC9e2168.toBytes32();
+        values[mainnet]["RLUSD_USDC_100"] = 0xCc6D2f26D363836f85a42D249E145eC0320d3E55.toBytes32();
         values[mainnet]["uniswapV3NonFungiblePositionManager"] = 0xC36442b4a4522E871399CD717aBDD847Ab11FE88.toBytes32();
 
         // Redstone
