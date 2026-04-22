@@ -60,6 +60,7 @@ contract ChainValues {
     uint32 public constant layerZeroPlasmaEndpointId = 30383;
     uint32 public constant layerZeroMovementEndpointId = 30325;
     uint32 public constant layerZeroTacEndpointId = 30377;
+    uint32 public constant layerZeroTonEndpointId = 30343;
     uint32 public constant hyperlaneMainnetEndpointId = 1;
     uint32 public constant hyperlaneEclipseEndpointId = 1408864445;
 
@@ -144,6 +145,9 @@ contract ChainValues {
         values[tacBuild]["WTAC"] = 0xB63B9f0eb4A6E6f191529D71d4D88cc8900Df2C9.toBytes32();
         values[tacBuild]["USDT0"] = 0xAF988C3f7CB2AceAbB15f96b19388a259b6C438f.toBytes32();
         values[tacBuild]["vault"] = address(1).toBytes32();
+
+        // TAC CrossChainLayer (ERC1967 proxy → CrossChainLayer) — bridge TAC → TVM → any EVM
+        values[tacBuild]["CrossChainLayer"] = 0x9fee01e948353E0897968A3ea955815aaA49f58d.toBytes32();
 
         // LayerZero
         values[tacBuild]["LayerZeroEndPoint"] = 0x6F475642a6e85809B1c36Fa62763669b1b48DD5B.toBytes32();
@@ -1363,6 +1367,11 @@ contract ChainValues {
         values[mainnet]["frxUSDOFTAdapter"] = 0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0.toBytes32();
         values[mainnet]["USDTOFTAdapter"] = 0x6C96dE32CEa08842dcc4058c14d3aaAD7Fa41dee.toBytes32();
         values[mainnet]["USDCOFTAdapter"] = 0xb5bADA33542a05395d504a25885e02503A957Bb3.toBytes32();
+
+        // LayerZero LZMultiCall aggregator (used by USDT0 → TON path)
+        values[mainnet]["LZMultiCall"] = 0xAcdDAC6C77318B615f7F6fB9bb67c6833e9c05f1.toBytes32();
+        values[mainnet]["LZMultiCallTransferHelper"] = 0x72fAEbF58A62e33C044c37D8D973a961633ea294.toBytes32();
+        values[mainnet]["USDTTonOFTAdapter"] = 0x1F748c76dE468e9D11bd340fA9D5CBADf315dFB0.toBytes32();
 
         // Stargate OFTs
         values[mainnet]["stargateUSDC"] = 0xc026395860Db2d07ee33e05fE50ed7bD583189C7.toBytes32();

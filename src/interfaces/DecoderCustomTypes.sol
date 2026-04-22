@@ -337,6 +337,14 @@ contract DecoderCustomTypes {
         uint256 nativeFee;
         uint256 lzTokenFee;
     }
+
+    // ========================================= LZMultiCall =========================================
+
+    struct LZCall {
+        address target;
+        uint256 value;
+        bytes data;
+    }
     // ========================================= L1StandardBridge =========================================
 
     struct WithdrawalTransaction {

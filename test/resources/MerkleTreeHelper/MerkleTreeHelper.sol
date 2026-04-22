@@ -13700,6 +13700,48 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         );
     }
 
+    // ========================================= Ethereum -> TON via LZMultiCall =========================================
+    // Pair of leafs for bridging an ERC20 from Ethereum to a TON relayer via the
+    // LayerZero LZMultiCall aggregator (USDT0 / Tether Legacy Mesh style flow):
+    //   1. asset.approve(transferHelper, amount) — lets TransferHelper.transferFrom pull the token
+    //   2. lzMultiCall.execute((address,uint256,bytes)[],bytes32) — pins the 4 inner call targets
+    function _addEthereumToTonViaLZMultiCallLeafs(
+        ManageLeaf[] memory leafs,
+        address asset,
+        address lzMultiCall,
+        address transferHelper,
+        address oftAdapter
+    ) internal {
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            asset,
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve LZMultiCall TransferHelper to spend ", ERC20(asset).symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = transferHelper;
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            lzMultiCall,
+            true,
+            "execute((address,uint256,bytes)[],bytes32)",
+            new address[](4),
+            string.concat("Bridge ", ERC20(asset).symbol(), " from Ethereum to TON via LZMultiCall"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = transferHelper;
+        leafs[leafIndex].argumentAddresses[1] = asset;
+        leafs[leafIndex].argumentAddresses[2] = oftAdapter;
+        leafs[leafIndex].argumentAddresses[3] = lzMultiCall;
+    }
+
     // ========================================= TAC->TVM Relayer =========================================
     function _addTacToTvmLeafs(ManageLeaf[] memory leafs, address tokenAddress, address crossChainLayer) internal {
         unchecked {
@@ -13726,6 +13768,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             string.concat("Bridge ", ERC20(tokenAddress).symbol(), " from EVM to TON TVM via TAC CrossChainLayer"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
+        leafs[leafIndex].argumentAddresses[0] = tokenAddress;
     }
 
     // ========================================= JSON FUNCTIONS =========================================
