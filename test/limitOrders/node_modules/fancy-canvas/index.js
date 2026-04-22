@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.tryCreateCanvasRenderingTarget2D = exports.createCanvasRenderingTarget2D = exports.CanvasRenderingTarget2D = exports.bindCanvasElementBitmapSizeTo = exports.equalSizes = exports.size = void 0;
+var size_js_1 = require("./size.js");
+Object.defineProperty(exports, "size", { enumerable: true, get: function () { return size_js_1.size; } });
+Object.defineProperty(exports, "equalSizes", { enumerable: true, get: function () { return size_js_1.equalSizes; } });
+var canvas_element_bitmap_size_js_1 = require("./canvas-element-bitmap-size.js");
+Object.defineProperty(exports, "bindCanvasElementBitmapSizeTo", { enumerable: true, get: function () { return canvas_element_bitmap_size_js_1.bindTo; } });
+var canvas_rendering_target_js_1 = require("./canvas-rendering-target.js");
+Object.defineProperty(exports, "CanvasRenderingTarget2D", { enumerable: true, get: function () { return canvas_rendering_target_js_1.CanvasRenderingTarget2D; } });
+Object.defineProperty(exports, "createCanvasRenderingTarget2D", { enumerable: true, get: function () { return canvas_rendering_target_js_1.createCanvasRenderingTarget2D; } });
+Object.defineProperty(exports, "tryCreateCanvasRenderingTarget2D", { enumerable: true, get: function () { return canvas_rendering_target_js_1.tryCreateCanvasRenderingTarget2D; } });

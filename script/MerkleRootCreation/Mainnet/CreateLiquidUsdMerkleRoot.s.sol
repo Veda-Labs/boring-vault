@@ -1023,8 +1023,23 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", getAddress(sourceChain, "rewardTokenUnwrappingDecoder"));
         _addrEULWrappingLeafs(leafs); //unwrap rEUL for EUL
 
-        // ========================== Drone Transfers ==========================
+        // ========================== Boring Vaults ==========================
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        {
+            ERC20[] memory tellerAssets = new ERC20[](3);
+            tellerAssets[0] = getERC20(sourceChain, "USDC");
+            tellerAssets[1] = getERC20(sourceChain, "USDT");
+            tellerAssets[2] = getERC20(sourceChain, "USDE");
+            address ethenaRWATeller = 0xDEa662f24389eB7CaFA9b3B10021884FCe7314f0;
+            _addTellerLeafs(leafs, ethenaRWATeller, tellerAssets, false, true); //no native, yes bulk
+
+            address ethenaRWAQueue = 0x6863305D30D3D302E7a6208832C3F246346604E0;
+            address ethenaRWA = 0x6fDcB0654B4814c2eC1E7e9dbC4cEBf1a2038a84;
+            _addWithdrawQueueLeafs(leafs, ethenaRWAQueue, ethenaRWA, tellerAssets);
+        }
+
+        // ========================== Drone Transfers ==========================
+        //setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         {
         ERC20[] memory localTokens = new ERC20[](28);
         localTokens[0] = getERC20("mainnet", "USDT");

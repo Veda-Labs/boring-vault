@@ -1,0 +1,26 @@
+{
+  "name": "fancy-canvas",
+  "version": "2.1.0",
+  "author": "smakarov@tradingview.com",
+  "description": "Functionality on top of HTML canvas element, including support for HiDPI and pixel-perfect rendering",
+  "keywords": [
+    "html",
+    "canvas",
+    "graphics",
+    "hidpi",
+    "pixel-perfect"
+  ],
+  "license": "MIT",
+  "exports": {
+    "import": "./index.mjs",
+    "require": "./index.js"
+  },
+  "module": "./index.mjs",
+  "type": "commonjs",
+  "files": [
+    "**/*.mjs",
+    "**/*.d.mts",
+    "**/*.js",
+    "**/*.d.ts"
+  ]
+}
