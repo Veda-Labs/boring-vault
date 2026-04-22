@@ -16241,8 +16241,19 @@ function _addTellerLeafsWithReferral(
 
     function _generateMerkleTree(ManageLeaf[] memory manageLeafs) internal pure returns (bytes32[][] memory tree) {
         uint256 leafsLength = manageLeafs.length;
-        bytes32[][] memory leafs = new bytes32[][](1);
-        leafs[0] = new bytes32[](leafsLength);
+
+        // Pre-compute tree depth to allocate exactly once (avoids recursive O(n log² n) copying)
+        uint256 depth = 1;
+        {
+            uint256 n = leafsLength;
+            while (n > 1) {
+                n = (n + 1) / 2;
+                depth++;
+            }
+        }
+
+        tree = new bytes32[][](depth);
+        tree[0] = new bytes32[](leafsLength);
         for (uint256 i; i < leafsLength; ++i) {
             bytes4 selector = bytes4(keccak256(abi.encodePacked(manageLeafs[i].signature)));
             bytes memory rawDigest = abi.encodePacked(
@@ -16252,9 +16263,21 @@ function _addTellerLeafsWithReferral(
             for (uint256 j; j < argumentAddressesLength; ++j) {
                 rawDigest = abi.encodePacked(rawDigest, manageLeafs[i].argumentAddresses[j]);
             }
-            leafs[0][i] = keccak256(rawDigest);
+            tree[0][i] = keccak256(rawDigest);
         }
-        tree = _buildTrees(leafs);
+
+        for (uint256 level = 1; level < depth; level++) {
+            uint256 prevLen = tree[level - 1].length;
+            uint256 newLen = (prevLen + 1) / 2;
+            tree[level] = new bytes32[](newLen);
+            for (uint256 i; i < newLen; i++) {
+                uint256 right = i * 2 + 1;
+                tree[level][i] = _hashPair(
+                    tree[level - 1][i * 2],
+                    right < prevLen ? tree[level - 1][right] : tree[level - 1][i * 2]
+                );
+            }
+        }
     }
 
     function _hashPair(bytes32 a, bytes32 b) private pure returns (bytes32) {
