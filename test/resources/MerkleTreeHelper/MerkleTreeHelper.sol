@@ -13743,7 +13743,12 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     }
 
     // ========================================= TAC->TVM Relayer =========================================
-    function _addTacToTvmLeafs(ManageLeaf[] memory leafs, address tokenAddress, address crossChainLayer) internal {
+    function _addTacToTvmLeafs(
+        ManageLeaf[] memory leafs,
+        address tokenAddress,
+        address crossChainLayer,
+        string memory tvmTarget
+    ) internal {
         unchecked {
             leafIndex++;
         }
@@ -13764,11 +13769,12 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             crossChainLayer,
             true,
             "sendMessage(uint256,bytes)",
-            new address[](1),
+            new address[](2),
             string.concat("Bridge ", ERC20(tokenAddress).symbol(), " from EVM to TON TVM via TAC CrossChainLayer"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
-        leafs[leafIndex].argumentAddresses[0] = tokenAddress;
+        leafs[leafIndex].argumentAddresses[0] = address(uint160(uint256(keccak256(bytes(tvmTarget)))));
+        leafs[leafIndex].argumentAddresses[1] = tokenAddress;
     }
 
     // ========================================= JSON FUNCTIONS =========================================

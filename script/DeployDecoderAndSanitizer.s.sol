@@ -28,6 +28,7 @@ import {ContractNames} from "resources/ContractNames.sol";
 import {
     BaseStablecoinStrategyDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/BaseStablecoinStrategyDecoderAndSanitizer.sol";
+import {TacUSDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacUSDDecoderAndSanitizer.sol";
 import {
     MonadStablecoinStrategyDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/MonStablecoinStrategyDecoderAndSanitizer.sol";
@@ -87,6 +88,26 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         // constructorArgs = abi.encode(getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"));
         // deployer.deployContract("SyUsd Base DecodersAndSanitizers Batch 1", creationCode, constructorArgs, 0);
         // vm.stopBroadcast();
+    }
+}
+
+contract DeployTacUSDDecoderAndSanitizer is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
+    uint256 public privateKey;
+    Deployer public deployer = Deployer(0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC);
+
+    function run() external {
+        bytes memory creationCode;
+        bytes memory constructorArgs;
+
+        vm.createSelectFork("tacBuild");
+        setSourceChainName("tacBuild");
+
+        vm.startBroadcast(vm.envUint("DEPLOYER01"));
+
+        creationCode = type(TacUSDDecoderAndSanitizer).creationCode;
+        deployer.deployContract("TacUSDDecodersAndSanitizerV0.1", creationCode, constructorArgs, 0);
+
+        vm.stopBroadcast();
     }
 }
 

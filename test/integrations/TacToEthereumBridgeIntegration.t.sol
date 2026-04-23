@@ -58,7 +58,7 @@ contract TacToEthereumBridgeIntegrationTest is Test, MerkleTreeHelper {
 
     // TVM routing strings taken from the reference tx.
     string constant TVM_TARGET = "UQA9ziW3zZLDtgwfvR0rfKPmRQjdVKtRSNo8Ln0PBawi-0JA";
-    string constant TVM_EXECUTOR = "EQB9Yo7kY7hlsVB6aei8ZkSpiI2OPC_kkbh5KAoU rKW04ZxW";
+    string constant TVM_EXECUTOR = "EQB9Yo7kY7hlsVB6aei8ZkSpiI2OPC_kkbh5KAoUrKW04ZxW";
 
     function setUp() external {
         setSourceChainName("tacBuild");
@@ -131,7 +131,7 @@ contract TacToEthereumBridgeIntegrationTest is Test, MerkleTreeHelper {
 
         // ── Build Merkle leafs ───────────────────────────────────────────────
         ManageLeaf[] memory leafs = new ManageLeaf[](2);
-        _addTacToTvmLeafs(leafs, usdt0, crossChainLayer);
+        _addTacToTvmLeafs(leafs, usdt0, crossChainLayer, TVM_TARGET);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
