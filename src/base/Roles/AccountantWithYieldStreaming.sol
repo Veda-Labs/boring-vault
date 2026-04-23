@@ -7,6 +7,7 @@ pragma solidity 0.8.21;
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
+import {SafeCastLib} from "@solmate/utils/SafeCastLib.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
 
 contract AccountantWithYieldStreaming is AccountantWithRateProviders {
@@ -249,7 +250,7 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
         }
 
         AccountantState storage state = accountantState;
-        state.exchangeRate = uint96(vestingState.lastSharePrice);
+        state.exchangeRate = SafeCastLib.safeCastTo96(vestingState.lastSharePrice);
 
         //update state timestamp
         lastStrategistUpdateTimestamp = uint64(block.timestamp);
@@ -525,10 +526,10 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
 
         //calculate fees using function inherited from `AccountantWithRateProviders`
         _calculateFeesOwed(
-            state, uint96(vestingState.lastSharePrice), state.exchangeRate, currentTotalShares, currentTime
+            state, SafeCastLib.safeCastTo96(vestingState.lastSharePrice), state.exchangeRate, currentTotalShares, currentTime
         );
 
-        state.exchangeRate = uint96(vestingState.lastSharePrice);
+        state.exchangeRate = SafeCastLib.safeCastTo96(vestingState.lastSharePrice);
         state.lastUpdateTimestamp = currentTime;
     }
 
