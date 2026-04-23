@@ -858,4 +858,15 @@ contract DecoderCustomTypes {
         bytes32 uniquePID; // Unique identifier for the partner
     }
 
+    // ====================================== Etherfi =========================================
+
+    struct EtherFiWithdrawRequest {
+        address user;           // The user who created the request
+        uint96 amountOfEEth;    // Original eETH amount requested
+        uint96 shareOfEEth;     // eETH shares at time of request
+        uint96 amountWithFee;   // ETH amount the user receives after fee deduction (amountOfEEth - fee)
+        uint32 nonce;           // Unique nonce to prevent hash collisions
+        uint32 creationTime;    // Timestamp when request was created
+    }
+
 }

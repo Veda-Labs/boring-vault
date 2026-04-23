@@ -36,4 +36,20 @@ contract EtherFiDecoderAndSanitizer {
     function depositWithERC20(address _token, uint256 /*_amount*/, address _referral) external pure virtual returns (bytes memory addressesFound) {
         addressesFound = abi.encodePacked(_token, _referral); 
     }
+
+    //=================== Priority Withdrawal Queue ========================
+
+    function requestWithdraw(uint96 amount, uint96 amountAfterFee) external pure virtual returns (bytes memory addressesFound) {
+        // Nothing to sanitize or return
+        return addressesFound;
+    }
+
+    function requestWithdrawWithWeETH(uint96 amount, uint96 amountAfterFee) external pure virtual returns (bytes memory addressesFound) {
+        // Nothing to sanitize or return
+        return addressesFound;
+    }
+    function claimWithdraw(DecoderCustomTypes.EtherFiWithdrawRequest calldata request) external pure virtual returns (bytes memory addressesFound) {
+        addressesFound = abi.encodePacked(request.user);
+    }
+
 }
