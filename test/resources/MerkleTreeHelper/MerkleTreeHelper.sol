@@ -2714,6 +2714,44 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "STETH");
         leafs[leafIndex].argumentAddresses[1] = address(0); 
+
+        // request eETH withdrawal via priority withdrawal queue
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "etherFiPriorityWithdrawalQueue"),
+            false,
+            "requestWithdraw(uint96,uint96)",
+            new address[](0),
+            "Request eETH withdrawal via ether.fi priority withdrawal queue",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        // request weETH withdrawal via priority withdrawal queue
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "etherFiPriorityWithdrawalQueue"),
+            false,
+            "requestWithdrawWithWeETH(uint96,uint96)",
+            new address[](0),
+            "Request weETH withdrawal via ether.fi priority withdrawal queue",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        // claim priority withdrawal
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "etherFiPriorityWithdrawalQueue"),
+            false,
+            "claimWithdraw((address,uint96,uint96,uint96,uint32,uint32))",
+            new address[](1),
+            "Claim previously queued ETH from ether.fi priority withdrawal queue",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
     }
 
     // ========================================= LIDO =========================================

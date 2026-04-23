@@ -841,7 +841,7 @@ contract ChainValues {
         // Etherfi
         values[mainnet]["EETH_LIQUIDITY_POOL"] = 0x308861A430be4cce5502d0A12724771Fc6DaF216.toBytes32();
         values[mainnet]["withdrawalRequestNft"] = 0x7d5706f6ef3F89B3951E23e557CDFBC3239D4E2c.toBytes32();
-        values[mainnet]["priorityWithdrawalQueue"] = 0x35e7D6feF6f72aDd3c3e39dEc6d9CCc29e3345FA.toBytes32();
+        values[mainnet]["etherFiPriorityWithdrawalQueue"] = 0x35e7D6feF6f72aDd3c3e39dEc6d9CCc29e3345FA.toBytes32();
         values[mainnet]["etherFiVampirePool"] = 0x9FFDF407cDe9a93c47611799DA23924Af3EF764F.toBytes32();
 
         // Renzo
@@ -1683,6 +1683,7 @@ contract ChainValues {
         // Aave V3
         values[base]["v3Pool"] = 0xA238Dd80C259a72e81d7e4664a9801593F98d1c5.toBytes32();
         values[base]["v3RewardsController"] = 0xf9cc4F0D883F1a1eb2c253bdb46c254Ca51E1F44.toBytes32();
+        values[base]["aBasweETH"] = 0x7C307e128efA31F540F2E2d976C995E0B65F51F6.toBytes32();
 
         // Merkl
         values[base]["merklDistributor"] = 0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae.toBytes32();
@@ -1724,6 +1725,7 @@ contract ChainValues {
         // Instadapp Fluid
         values[base]["fWETH"] = 0x9272D6153133175175Bc276512B2336BE3931CE9.toBytes32();
         values[base]["fWSTETH"] = 0x896E39f0E9af61ECA9dD2938E14543506ef2c2b5.toBytes32();
+        values[base]["FluidATokenSwapV2"] = 0xBa419905B1c9c8Ee1B210F978f2eeF8469b38002.toBytes32();
 
         // Fluid Dex
         values[base]["weETH_ETHDex_wstETH"] = 0xE6b5D1CdC4935295c84772C4700932b4BFC93274.toBytes32();

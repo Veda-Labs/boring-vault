@@ -5,8 +5,9 @@
 pragma solidity 0.8.21;
 
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 
-contract EtherFiDecoderAndSanitizer {
+contract EtherFiDecoderAndSanitizer is BaseDecoderAndSanitizer {
     //============================== ETHERFI ===============================
 
     function deposit() external pure virtual returns (bytes memory addressesFound) {
