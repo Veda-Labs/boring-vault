@@ -3366,6 +3366,8 @@ contract ChainValues {
         values[monad]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
         values[monad]["WMON"] = 0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A.toBytes32();
         values[monad]["mUSD"] = 0xacA92E438df0B2401fF60dA7E4337B687a2435DA.toBytes32();
+        values[monad]["steakhouseMUSDVault"] = 0xBEEFF60EC664adb24ff7378A8C69ecD25C3cC867.toBytes32();
+        values[monad]["steakhouseUSDCVault"] = 0xBEEFFf30371ff8EbdEA03d5E2e3C6b7c0bA0303c.toBytes32();
     }
 
 }
