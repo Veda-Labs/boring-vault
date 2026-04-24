@@ -35,7 +35,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
 
     address public itbCorkDecoderAndSanitizer = 0x457Cce6Ec3fEb282952a7e50a1Bc727Ca235Eb0a;
 
-    address public etherFiPriorityWithdrawalDecoderAndSanitizer = 0xb0e86cc5199Bf2dC67aaf07256FdC32871F45cF7;
+    address public etherFiPriorityWithdrawalDecoderAndSanitizer = 0x94277Dad86Be189B26659080035D26D7CdAcA4b0;
     address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
     address public resolvDecoderAndSanitizer = 0x87f67Eb9Bb1a606923A17696E06AFAa72da65f86;
@@ -93,9 +93,10 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         _addLidoLeafs(leafs);
 
         // ========================== EtherFi ==========================
+        _addEtherFiLeafs(leafs);
         {
             setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", etherFiPriorityWithdrawalDecoderAndSanitizer);
-            _addEtherFiLeafs(leafs);
+            _addEtherFiPriorityWithdrawalLeafs(leafs);
             setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 

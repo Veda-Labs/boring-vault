@@ -2715,6 +2715,36 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "STETH");
         leafs[leafIndex].argumentAddresses[1] = address(0); 
 
+    }
+
+    function _addEtherFiPriorityWithdrawalLeafs(ManageLeaf[] memory leafs) internal {
+
+        // Approvals
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "EETH"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve ether.fi priorityWithdrawalQueue to spend eETH",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "etherFiPriorityWithdrawalQueue");
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "WEETH"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve ether.fi priorityWithdrawalQueue to spend weETH",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "etherFiPriorityWithdrawalQueue");
+
         // request eETH withdrawal via priority withdrawal queue
         unchecked {
             leafIndex++;
