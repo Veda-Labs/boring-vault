@@ -12282,7 +12282,7 @@ function _addTellerLeafsWithReferral(
     function _addWithdrawQueueLeafs(
         ManageLeaf[] memory leafs,
         address withdrawQueue,
-        address boringVault,
+        address sharesBoringVault,
         ERC20[] memory assets
     ) internal {
         for (uint256 i = 0; i < assets.length; i++) {
@@ -12290,11 +12290,11 @@ function _addTellerLeafsWithReferral(
                 leafIndex++;
             }
             leafs[leafIndex] = ManageLeaf(
-                boringVault,
+                sharesBoringVault,
                 false,
                 "approve(address,uint256)",
                 new address[](1),
-                string.concat("Approve BoringOnChainQueue to spend ", ERC20(boringVault).symbol()),
+                string.concat("Approve BoringOnChainQueue to spend ", ERC20(sharesBoringVault).symbol()),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = withdrawQueue;
@@ -12323,6 +12323,9 @@ function _addTellerLeafsWithReferral(
                 string.concat("Cancel Withdraw of ", assets[i].symbol(), ", from queue"),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
+            // The decoder extracts request.user and request.assetOut from the struct.
+            // request.user is the outer (managing) vault — the address that originally called
+            // requestOnChainWithdraw as msg.sender — not sharesBoringVault (the inner vault).
             leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
             leafs[leafIndex].argumentAddresses[1] = address(assets[i]);
 
@@ -12337,6 +12340,7 @@ function _addTellerLeafsWithReferral(
                 string.concat("Replace Withdraw of ", assets[i].symbol(), ", from queue"),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
+            // Same as above — request.user is the outer vault, not sharesBoringVault.
             leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
             leafs[leafIndex].argumentAddresses[1] = address(assets[i]);
         }
