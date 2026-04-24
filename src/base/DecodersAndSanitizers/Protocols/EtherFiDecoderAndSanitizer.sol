@@ -53,7 +53,12 @@ contract EtherFiDecoderAndSanitizer {
         // Nothing to sanitize or return
         return addressesFound;
     }
+
     function claimWithdraw(DecoderCustomTypes.EtherFiWithdrawRequest calldata request) external pure virtual returns (bytes memory addressesFound) {
+        addressesFound = abi.encodePacked(request.user);
+    }
+
+    function cancelWithdraw(DecoderCustomTypes.EtherFiWithdrawRequest calldata request) external pure virtual returns (bytes memory addressesFound) {
         addressesFound = abi.encodePacked(request.user);
     }
 

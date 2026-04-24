@@ -2752,6 +2752,19 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        // cancel a priority withdrawal
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "etherFiPriorityWithdrawalQueue"),
+            false,
+            "cancelWithdraw((address,uint96,uint96,uint96,uint32,uint32))",
+            new address[](1),
+            "cancel previously queued withdrawal from ether.fi priority withdrawal queue",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
     }
 
     // ========================================= LIDO =========================================
