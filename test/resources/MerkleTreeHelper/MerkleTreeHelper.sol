@@ -13710,7 +13710,8 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         address asset,
         address lzMultiCall,
         address transferHelper,
-        address oftAdapter
+        address oftAdapter,
+        bytes32 tonRecipient
     ) internal {
         unchecked {
             leafIndex++;
@@ -13732,14 +13733,15 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             lzMultiCall,
             true,
             "execute((address,uint256,bytes)[],bytes32)",
-            new address[](4),
+            new address[](5),
             string.concat("Bridge ", ERC20(asset).symbol(), " from Ethereum to TON via LZMultiCall"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = transferHelper;
         leafs[leafIndex].argumentAddresses[1] = asset;
         leafs[leafIndex].argumentAddresses[2] = oftAdapter;
-        leafs[leafIndex].argumentAddresses[3] = lzMultiCall;
+        leafs[leafIndex].argumentAddresses[3] = address(uint160(uint256(tonRecipient)));
+        leafs[leafIndex].argumentAddresses[4] = lzMultiCall;
     }
 
     // ========================================= TAC->TVM Relayer =========================================

@@ -7,6 +7,7 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {BridgingDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BridgingDecoderAndSanitizer.sol";
+import {SyUsdtEthereumDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SyUsdtEthereumDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {SafeCast} from "@openzeppelin/contracts/utils/math/SafeCast.sol";
@@ -55,21 +56,20 @@ contract EthereumToTonBridgeIntegrationTest is Test, MerkleTreeHelper {
 
     uint256 ethereumFork = vm.createFork(vm.envString("MAINNET_RPC_URL"));
 
-    // ─── Ethereum mainnet addresses ─────────────────────────────────────────
     address constant USDT_MAINNET = 0xdAC17F958D2ee523a2206206994597C13D831ec7;
     address constant LZ_MULTICALL = 0xAcdDAC6C77318B615f7F6fB9bb67c6833e9c05f1;
     address constant LZ_TRANSFER_HELPER = 0x72fAEbF58A62e33C044c37D8D973a961633ea294;
     address constant TON_OFT_ADAPTER = 0x1F748c76dE468e9D11bd340fA9D5CBADf315dFB0;
 
-    // ─── Bridge parameters ─────────────────────────────────────────────────
     uint32 constant LZ_EID_TON = 30343;
-    // Recipient on TON, as encoded in the reference tx SendParam.to (32 bytes).
-    bytes32 constant TON_RELAYER = 0x3dce25b7cd92c3b60c1fbd1d2b7ca3e64508dd54ab5148da3c2e7d0f05ac22fb;
+
+    // bytes32 constant TON_RELAYER = 0x3dce25b7cd92c3b60c1fbd1d2b7ca3e64508dd54ab5148da3c2e7d0f05ac22fb;
+    bytes32 constant TON_RELAYER = 0x28b190f3f209e085d279f90c4898c3fa9c6792d0ef0ab1ed941277c3d906a33a;
+
     // The quoteId pinned by LZMultiCall. The 2-arg execute overload does not
     // verify signatures, so this is informational for reproduction.
     bytes32 constant QUOTE_ID = 0x00000000000000000000000000000000019db5f5bd5472cb95798761f9eda6fa;
 
-    // ─── Selectors for the LZMultiCall inner calls ─────────────────────────
     bytes4 constant SEL_DELEGATE_TRANSFER_FROM = 0xeac6f3fe; // delegateTransferFrom(address,address,address,uint256)
     bytes4 constant SEL_SWEEP = 0xd20c88bd; // sweep(address[],address)
 
@@ -88,7 +88,8 @@ contract EthereumToTonBridgeIntegrationTest is Test, MerkleTreeHelper {
             getAddress(sourceChain, "vault") // Balancer vault (flash-loan role)
         );
 
-        rawDataDecoderAndSanitizer = address(new BridgingDecoderAndSanitizer());
+        rawDataDecoderAndSanitizer =
+            address(new SyUsdtEthereumDecoderAndSanitizer(getAddress(sourceChain, "magpieRouterV3")));
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -138,25 +139,22 @@ contract EthereumToTonBridgeIntegrationTest is Test, MerkleTreeHelper {
         rolesAuthority.setPublicCapability(address(boringVault), bytes4(0), true);
     }
 
-    // ────────────────────────────────────────────────────────────────────────
-    //  test__BridgeEthereumToTon
-    // ────────────────────────────────────────────────────────────────────────
     function test__BridgeEthereumToTon() external {
         uint256 initialUsdt = 1_000e6;
-        uint256 amountToBridge = 100e6; // 100 USDT (6 dp)
+        uint256 amountToBridge = 100e6;
 
         deal(USDT_MAINNET, address(boringVault), initialUsdt);
         vm.deal(address(boringVault), 0.5 ether);
 
-        // ── Build Merkle leafs ────────────────────────────────────────────
         ManageLeaf[] memory leafs = new ManageLeaf[](2);
-        _addEthereumToTonViaLZMultiCallLeafs(leafs, USDT_MAINNET, LZ_MULTICALL, LZ_TRANSFER_HELPER, TON_OFT_ADAPTER);
+        _addEthereumToTonViaLZMultiCallLeafs(
+            leafs, USDT_MAINNET, LZ_MULTICALL, LZ_TRANSFER_HELPER, TON_OFT_ADAPTER, TON_RELAYER
+        );
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
-        // ── Build SendParam + quote LZ fee ────────────────────────────────
-        uint256 slippageBps = 50; // 0.5%
+        uint256 slippageBps = 50;
         uint256 minAmount = (amountToBridge * (1e4 - slippageBps)) / 1e4;
 
         DecoderCustomTypes.SendParam memory sendParam = DecoderCustomTypes.SendParam({
@@ -164,7 +162,7 @@ contract EthereumToTonBridgeIntegrationTest is Test, MerkleTreeHelper {
             to: TON_RELAYER,
             amountLD: amountToBridge,
             minAmountLD: minAmount,
-            extraOptions: hex"0003", // type-3, no executor options — matches reference tx
+            extraOptions: hex"0003",
             composeMsg: hex"",
             oftCmd: hex""
         });
@@ -175,10 +173,8 @@ contract EthereumToTonBridgeIntegrationTest is Test, MerkleTreeHelper {
         DecoderCustomTypes.MessagingFee memory fee =
             DecoderCustomTypes.MessagingFee({nativeFee: nativeFee, lzTokenFee: 0});
 
-        // ── Assemble the 4 inner LZMultiCall calls ────────────────────────
         DecoderCustomTypes.LZCall[] memory calls = new DecoderCustomTypes.LZCall[](4);
 
-        // Call[0] — TransferHelper pulls USDT from the vault into LZMultiCall.
         calls[0] = DecoderCustomTypes.LZCall({
             target: LZ_TRANSFER_HELPER,
             value: 0,
@@ -187,14 +183,12 @@ contract EthereumToTonBridgeIntegrationTest is Test, MerkleTreeHelper {
             )
         });
 
-        // Call[1] — LZMultiCall approves the OFT adapter to spend USDT.
         calls[1] = DecoderCustomTypes.LZCall({
             target: USDT_MAINNET,
             value: 0,
             data: abi.encodeWithSignature("approve(address,uint256)", TON_OFT_ADAPTER, amountToBridge)
         });
 
-        // Call[2] — OFT send to TON. LZMultiCall is refund address.
         calls[2] = DecoderCustomTypes.LZCall({
             target: TON_OFT_ADAPTER,
             value: nativeFee,
@@ -206,17 +200,13 @@ contract EthereumToTonBridgeIntegrationTest is Test, MerkleTreeHelper {
             )
         });
 
-        // Call[3] — sweep any leftover USDT / ETH back to the vault.
         address[] memory sweepTokens = new address[](2);
         sweepTokens[0] = USDT_MAINNET;
         sweepTokens[1] = address(0); // native ETH
         calls[3] = DecoderCustomTypes.LZCall({
-            target: LZ_MULTICALL,
-            value: 0,
-            data: abi.encodeWithSelector(SEL_SWEEP, sweepTokens, address(boringVault))
+            target: LZ_MULTICALL, value: 0, data: abi.encodeWithSelector(SEL_SWEEP, sweepTokens, address(boringVault))
         });
 
-        // ── Execute the bridge through the BoringVault manager ─────────────
         _executeBridge(leafs, manageTree, calls, nativeFee, amountToBridge);
 
         uint256 balanceAfter = ERC20(USDT_MAINNET).balanceOf(address(boringVault));
@@ -243,8 +233,7 @@ contract EthereumToTonBridgeIntegrationTest is Test, MerkleTreeHelper {
 
         bytes[] memory targetData = new bytes[](2);
         targetData[0] = abi.encodeWithSignature("approve(address,uint256)", LZ_TRANSFER_HELPER, amountToBridge);
-        targetData[1] =
-            abi.encodeWithSignature("execute((address,uint256,bytes)[],bytes32)", calls, QUOTE_ID);
+        targetData[1] = abi.encodeWithSignature("execute((address,uint256,bytes)[],bytes32)", calls, QUOTE_ID);
 
         uint256[] memory values = new uint256[](2);
         values[0] = 0;
@@ -257,9 +246,6 @@ contract EthereumToTonBridgeIntegrationTest is Test, MerkleTreeHelper {
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
     }
 
-    // ────────────────────────────────────────────────────────────────────────
-    //  LayerZero quote helper
-    // ────────────────────────────────────────────────────────────────────────
     function _quoteOFTSend(address oft, DecoderCustomTypes.SendParam memory sendParam)
         internal
         view

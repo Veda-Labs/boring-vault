@@ -1372,6 +1372,7 @@ contract ChainValues {
         values[mainnet]["LZMultiCall"] = 0xAcdDAC6C77318B615f7F6fB9bb67c6833e9c05f1.toBytes32();
         values[mainnet]["LZMultiCallTransferHelper"] = 0x72fAEbF58A62e33C044c37D8D973a961633ea294.toBytes32();
         values[mainnet]["USDTTonOFTAdapter"] = 0x1F748c76dE468e9D11bd340fA9D5CBADf315dFB0.toBytes32();
+        values[mainnet]["syUSDTTonRelayer"] = 0x28b190f3f209e085d279f90c4898c3fa9c6792d0ef0ab1ed941277c3d906a33a;
 
         // Stargate OFTs
         values[mainnet]["stargateUSDC"] = 0xc026395860Db2d07ee33e05fE50ed7bD583189C7.toBytes32();
