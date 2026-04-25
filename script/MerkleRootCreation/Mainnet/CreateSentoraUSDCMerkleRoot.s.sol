@@ -226,6 +226,16 @@ contract CreateSentoraUSDCMerkleRoot is Script, MerkleTreeHelper {
             address[] memory morphoSyrupUSDCRLUSDAdditionalExecutors = new address[](0);
             _addLeafsForITBPositionManager(leafs, morphoSyrupUSDCRLUSDPositionManager, morphoSyrupUSDCRLUSDTokensUsed, "Morpho syrupUSDC/RLUSD ITB Position Manager", morphoSyrupUSDCRLUSDAdditionalExecutors);
         }
+        {
+            // Morpho syrupUSDC/RLUSD
+            address morphoSyrupUSDCRLUSDPositionManager = 0xf5bED057D62d804Ea216A6eb225B8DE8a717b3E2;
+            ERC20[] memory morphoSyrupUSDCRLUSDTokensUsed = new ERC20[](2);
+            morphoSyrupUSDCRLUSDTokensUsed[0] = getERC20(sourceChain, "syrupUSDC");
+            morphoSyrupUSDCRLUSDTokensUsed[1] = getERC20(sourceChain, "RLUSD");
+            address[] memory morphoSyrupUSDCRLUSDAdditionalExecutors = new address[](0);
+            _addLeafsForITBPositionManager(leafs, morphoSyrupUSDCRLUSDPositionManager, morphoSyrupUSDCRLUSDTokensUsed, "Morpho syrupUSDC/RLUSD ITB Position Manager", morphoSyrupUSDCRLUSDAdditionalExecutors);
+        }
+        
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
