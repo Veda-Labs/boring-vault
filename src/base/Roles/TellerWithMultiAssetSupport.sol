@@ -517,9 +517,9 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
     /**
      * @notice Enforces transfer allowlist based on `transferAllowedRole`.
      * @dev If `transferAllowedRole` is type(uint8).max, no restriction is applied.
-     *      Otherwise, at least one of `from`, `to`, or `operator` must hold the specified role.
      */
     function _enforceTransferAllowlist(address from, address to, address operator) internal view {
+        if (to == address(0)) return;
         uint8 role = transferAllowedRole;
         if (role == type(uint8).max) return;
         RolesAuthority auth = RolesAuthority(address(authority));
@@ -714,7 +714,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         nonReentrant
         returns (uint256 assetsOut)
     {
-        beforeTransfer(msg.sender, to, msg.sender);
+        beforeTransfer(msg.sender, address(0), msg.sender);
         _checkRecipient(to);
         assetsOut = _withdraw(withdrawAsset, shareAmount, minimumAssets, to);
         emit Withdraw(address(withdrawAsset), shareAmount, msg.sender, to);
@@ -731,7 +731,7 @@ contract TellerWithMultiAssetSupport is Auth, BeforeTransferHook, ReentrancyGuar
         address to,
         RewardData[] calldata rewards
     ) external virtual requiresAuth nonReentrant returns (uint256 assetsOut) {
-        beforeTransfer(msg.sender, to, msg.sender);
+        beforeTransfer(msg.sender, address(0), msg.sender);
         _checkRecipient(to);
         assetsOut = _withdraw(withdrawAsset, shareAmount, minimumAssets, to);
         _processRewards(rewards, msg.sender);

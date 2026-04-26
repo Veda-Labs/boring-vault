@@ -1766,6 +1766,34 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         vm.stopPrank();
     }
 
+    // Regression: when transferAllowedRole restricts p2p transfers, withdrawals via the teller
+    // must still succeed for users who do not hold transferAllowedRole.
+    function testTransferAllowlist_WithdrawStillWorksWhenP2PRestricted() external {
+        rolesAuthority.setPublicCapability(address(teller), TellerWithMultiAssetSupport.withdraw.selector, true);
+        boringVault.setBeforeTransferHook(address(teller));
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
+
+        address alice = vm.addr(0xA11CE);
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), alice, depositAmount);
+
+        vm.startPrank(alice);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0), alice, address(0), ComplianceData(0, ""));
+        vm.stopPrank();
+
+        // alice does not hold QUEUE_ROLE — p2p transfers are blocked.
+        vm.prank(alice);
+        vm.expectRevert(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferNotAllowed.selector);
+        boringVault.transfer(vm.addr(0xB0B), shares);
+
+        // But withdrawing via the teller should still succeed.
+        vm.prank(alice);
+        uint256 assetsOut = teller.withdraw(WETH, shares, 0, alice);
+        assertGt(assetsOut, 0, "withdraw should return assets");
+        assertEq(boringVault.balanceOf(alice), 0, "shares should be burned");
+    }
+
     function testTransferAllowlist_ZeroAmountTransferBlockedWithoutRole() external {
         boringVault.setBeforeTransferHook(address(teller));
         teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
