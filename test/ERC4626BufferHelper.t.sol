@@ -371,9 +371,7 @@ contract ERC4626BufferHelperTest is Test, MerkleTreeHelper {
  *      Covers all four code paths in ERC4626BufferHelper with hardcoded values:
  *
  *      getDepositManageCall:
- *        Path A – currentAllowance >= amount  → 1 call  (deposit only)
- *        Path B – currentAllowance == 0       → 2 calls (approve + deposit)
- *        Path C – 0 < currentAllowance < amt  → 3 calls (reset + approve + deposit)
+ *        Single path – always 3 calls: approve(0) + approve(amount) + deposit
  *
  *      getWithdrawManageCall:
  *        Single path                          → 1 call  (withdraw)
@@ -477,20 +475,20 @@ contract ERC4626BufferHelperMorphoUSDTTest is Test, MerkleTreeHelper {
     }
 
     // ============================================================
-    // PATH A – currentAllowance >= amount → 1 call (deposit only)
+    // Deposit path – sufficient pre-existing allowance
     // ============================================================
 
     /**
-     * @notice Verifies that getDepositManageCall returns a single deposit call and executes
-     *         correctly when the boringVault already has sufficient USDT allowance to morphoVault.
+     * @notice Verifies that getDepositManageCall always returns 3 calls (approve(0), approve(amount),
+     *         deposit) even when the boringVault already has sufficient USDT allowance to morphoVault.
      * @dev Pre-condition: allowance set to 2_000e6, which is >= deposit of 1_000e6.
-     *      Expected call array: [morphoVault.deposit(1_000e6, boringVault)]
+     *      Expected call array: [USDT.approve(morphoVault, 0), USDT.approve(morphoVault, 1_000e6), morphoVault.deposit(1_000e6, boringVault)]
      */
     function testDepositPath_SufficientAllowance() external {
         uint256 depositAmount = 1_000e6; // 1,000 USDT
         uint256 preApprovalAmount = 2_000e6; // 2,000 USDT – exceeds deposit amount
 
-        // Pre-set boringVault's USDT allowance to morphoVault > depositAmount to trigger Path A
+        // Pre-set boringVault's USDT allowance to morphoVault > depositAmount
         address[] memory mgmtTargets = new address[](1);
         mgmtTargets[0] = address(USDT);
         bytes[] memory mgmtData = new bytes[](1);
@@ -504,18 +502,32 @@ contract ERC4626BufferHelperMorphoUSDTTest is Test, MerkleTreeHelper {
             "Pre-condition: allowance must be >= depositAmount"
         );
 
-        // --- Verify return values: Path A produces 1 call ---
+        // --- Verify return values: always 3 calls (approve(0), approve(amount), deposit) ---
         (address[] memory targets, bytes[] memory data, uint256[] memory values) =
             bufferHelper.getDepositManageCall(address(USDT), depositAmount);
 
-        assertEq(targets.length, 1, "Path A: should return exactly 1 target");
-        assertEq(targets[0], address(morphoVault), "Path A: target must be the morpho vault");
+        assertEq(targets.length, 3, "should return exactly 3 targets");
+        assertEq(targets[0], address(USDT), "first target must be USDT (reset allowance)");
+        assertEq(targets[1], address(USDT), "second target must be USDT (re-approve)");
+        assertEq(targets[2], address(morphoVault), "third target must be the morpho vault");
         assertEq(
             data[0],
-            abi.encodeWithSignature("deposit(uint256,address)", depositAmount, address(boringVault)),
-            "Path A: call must be deposit(amount, vault)"
+            abi.encodeWithSignature("approve(address,uint256)", address(morphoVault), 0),
+            "first call must reset allowance to 0"
         );
-        assertEq(values[0], 0, "Path A: ETH value must be 0");
+        assertEq(
+            data[1],
+            abi.encodeWithSignature("approve(address,uint256)", address(morphoVault), depositAmount),
+            "second call must approve full deposit amount"
+        );
+        assertEq(
+            data[2],
+            abi.encodeWithSignature("deposit(uint256,address)", depositAmount, address(boringVault)),
+            "third call must be deposit(amount, vault)"
+        );
+        assertEq(values[0], 0, "first ETH value must be 0");
+        assertEq(values[1], 0, "second ETH value must be 0");
+        assertEq(values[2], 0, "third ETH value must be 0");
 
         // --- Execute via teller and verify resulting state ---
         deal(address(USDT), address(this), depositAmount);
@@ -532,14 +544,14 @@ contract ERC4626BufferHelperMorphoUSDTTest is Test, MerkleTreeHelper {
     }
 
     // ==========================================================
-    // PATH B – currentAllowance == 0 → 2 calls (approve + deposit)
+    // Deposit path – zero allowance
     // ==========================================================
 
     /**
-     * @notice Verifies that getDepositManageCall returns approve + deposit calls and executes
-     *         correctly when the boringVault has no existing USDT allowance to morphoVault.
+     * @notice Verifies that getDepositManageCall always returns 3 calls (approve(0), approve(amount),
+     *         deposit) when the boringVault has no existing USDT allowance to morphoVault.
      * @dev Pre-condition: fresh state, allowance == 0.
-     *      Expected call array: [USDT.approve(morphoVault, 1_000e6), morphoVault.deposit(1_000e6, boringVault)]
+     *      Expected call array: [USDT.approve(morphoVault, 0), USDT.approve(morphoVault, 1_000e6), morphoVault.deposit(1_000e6, boringVault)]
      */
     function testDepositPath_ZeroAllowance() external {
         uint256 depositAmount = 1_000e6; // 1,000 USDT
@@ -548,28 +560,35 @@ contract ERC4626BufferHelperMorphoUSDTTest is Test, MerkleTreeHelper {
         assertEq(
             USDT.allowance(address(boringVault), address(morphoVault)),
             0,
-            "Pre-condition: allowance must be 0 for Path B"
+            "Pre-condition: allowance must be 0"
         );
 
-        // --- Verify return values: Path B produces 2 calls ---
+        // --- Verify return values: always 3 calls (approve(0), approve(amount), deposit) ---
         (address[] memory targets, bytes[] memory data, uint256[] memory values) =
             bufferHelper.getDepositManageCall(address(USDT), depositAmount);
 
-        assertEq(targets.length, 2, "Path B: should return exactly 2 targets");
-        assertEq(targets[0], address(USDT), "Path B: first target must be USDT token");
-        assertEq(targets[1], address(morphoVault), "Path B: second target must be the morpho vault");
+        assertEq(targets.length, 3, "should return exactly 3 targets");
+        assertEq(targets[0], address(USDT), "first target must be USDT (reset allowance)");
+        assertEq(targets[1], address(USDT), "second target must be USDT (re-approve)");
+        assertEq(targets[2], address(morphoVault), "third target must be the morpho vault");
         assertEq(
             data[0],
-            abi.encodeWithSignature("approve(address,uint256)", address(morphoVault), depositAmount),
-            "Path B: first call must approve morpho vault for full amount"
+            abi.encodeWithSignature("approve(address,uint256)", address(morphoVault), 0),
+            "first call must reset allowance to 0"
         );
         assertEq(
             data[1],
-            abi.encodeWithSignature("deposit(uint256,address)", depositAmount, address(boringVault)),
-            "Path B: second call must be deposit(amount, vault)"
+            abi.encodeWithSignature("approve(address,uint256)", address(morphoVault), depositAmount),
+            "second call must approve full deposit amount"
         );
-        assertEq(values[0], 0, "Path B: first ETH value must be 0");
-        assertEq(values[1], 0, "Path B: second ETH value must be 0");
+        assertEq(
+            data[2],
+            abi.encodeWithSignature("deposit(uint256,address)", depositAmount, address(boringVault)),
+            "third call must be deposit(amount, vault)"
+        );
+        assertEq(values[0], 0, "first ETH value must be 0");
+        assertEq(values[1], 0, "second ETH value must be 0");
+        assertEq(values[2], 0, "third ETH value must be 0");
 
         // --- Execute via teller and verify resulting state ---
         deal(address(USDT), address(this), depositAmount);
@@ -586,7 +605,7 @@ contract ERC4626BufferHelperMorphoUSDTTest is Test, MerkleTreeHelper {
     }
 
     // =======================================================================
-    // PATH C – 0 < currentAllowance < amount → 3 calls (reset + approve + deposit)
+    // Deposit path – partial allowance
     // =======================================================================
 
     /**
@@ -605,7 +624,7 @@ contract ERC4626BufferHelperMorphoUSDTTest is Test, MerkleTreeHelper {
         uint256 depositAmount = 1_000e6; // 1,000 USDT
         uint256 partialAllowance = 500e6; // 500 USDT – positive but less than depositAmount
 
-        // Pre-set a non-zero allowance < depositAmount to trigger Path C
+        // Pre-set a non-zero allowance < depositAmount
         address[] memory mgmtTargets = new address[](1);
         mgmtTargets[0] = address(USDT);
         bytes[] memory mgmtData = new bytes[](1);
@@ -619,32 +638,32 @@ contract ERC4626BufferHelperMorphoUSDTTest is Test, MerkleTreeHelper {
             "Pre-condition: allowance must equal partialAllowance"
         );
 
-        // --- Verify return values: Path C produces 3 calls ---
+        // --- Verify return values: always 3 calls (approve(0), approve(amount), deposit) ---
         (address[] memory targets, bytes[] memory data, uint256[] memory values) =
             bufferHelper.getDepositManageCall(address(USDT), depositAmount);
 
-        assertEq(targets.length, 3, "Path C: should return exactly 3 targets");
-        assertEq(targets[0], address(USDT), "Path C: first target must be USDT (reset allowance)");
-        assertEq(targets[1], address(USDT), "Path C: second target must be USDT (re-approve)");
-        assertEq(targets[2], address(morphoVault), "Path C: third target must be the morpho vault");
+        assertEq(targets.length, 3, "should return exactly 3 targets");
+        assertEq(targets[0], address(USDT), "first target must be USDT (reset allowance)");
+        assertEq(targets[1], address(USDT), "second target must be USDT (re-approve)");
+        assertEq(targets[2], address(morphoVault), "third target must be the morpho vault");
         assertEq(
             data[0],
             abi.encodeWithSignature("approve(address,uint256)", address(morphoVault), 0),
-            "Path C: first call must reset allowance to 0"
+            "first call must reset allowance to 0"
         );
         assertEq(
             data[1],
             abi.encodeWithSignature("approve(address,uint256)", address(morphoVault), depositAmount),
-            "Path C: second call must approve full deposit amount"
+            "second call must approve full deposit amount"
         );
         assertEq(
             data[2],
             abi.encodeWithSignature("deposit(uint256,address)", depositAmount, address(boringVault)),
-            "Path C: third call must be deposit(amount, vault)"
+            "third call must be deposit(amount, vault)"
         );
-        assertEq(values[0], 0, "Path C: first ETH value must be 0");
-        assertEq(values[1], 0, "Path C: second ETH value must be 0");
-        assertEq(values[2], 0, "Path C: third ETH value must be 0");
+        assertEq(values[0], 0, "first ETH value must be 0");
+        assertEq(values[1], 0, "second ETH value must be 0");
+        assertEq(values[2], 0, "third ETH value must be 0");
 
         // --- Execute via teller and verify resulting state ---
         deal(address(USDT), address(this), depositAmount);
@@ -674,7 +693,7 @@ contract ERC4626BufferHelperMorphoUSDTTest is Test, MerkleTreeHelper {
     function testWithdrawPath() external {
         uint256 depositAmount = 1_000e6; // 1,000 USDT
 
-        // Deposit first (Path B) so there are Morpho shares to withdraw
+        // Deposit first so there are Morpho shares to withdraw
         deal(address(USDT), address(this), depositAmount);
         USDT.safeApprove(address(boringVault), depositAmount);
         teller.deposit(USDT, depositAmount, 0, referrer);

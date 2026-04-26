@@ -5,7 +5,6 @@
 pragma solidity 0.8.21;
 
 import {IBufferHelper} from "src/interfaces/IBufferHelper.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 
 /**
@@ -39,11 +38,7 @@ contract ERC4626BufferHelper is IBufferHelper {
      * @return targets Array of contract addresses to call
      * @return data Array of encoded function calls
      * @return values Array of ETH values to send with each call (all 0 for ERC20 operations)
-     * @dev This function manages token approvals to cover all cases:
-     *
-     * - If current allowance >= amount: Only deposit into the ERC4626 vault (1 call)
-     * - If current allowance == 0: Approve then deposit (2 calls)
-     * - If 0 < current allowance < amount: Reset approval to 0, approve new amount, then deposit (3 calls)
+     * @dev Always resets approval to 0, sets new approval, then deposits into the ERC4626 vault (3 calls).
      */
     function getDepositManageCall(address asset, uint256 amount)
         public
@@ -51,33 +46,15 @@ contract ERC4626BufferHelper is IBufferHelper {
         returns (address[] memory targets, bytes[] memory data, uint256[] memory values)
     {
         address erc4626VaultAddress = address(ERC_4626_VAULT);
-        uint256 currentAllowance = ERC20(asset).allowance(VAULT, erc4626VaultAddress);
-        if (currentAllowance >= amount) {
-            targets = new address[](1);
-            targets[0] = erc4626VaultAddress;
-            data = new bytes[](1);
-            data[0] = abi.encodeWithSignature("deposit(uint256,address)", amount, VAULT);
-            values = new uint256[](1);
-            values[0] = 0;
-        } else if (currentAllowance == 0) {
-            targets = new address[](2);
-            targets[0] = asset;
-            targets[1] = erc4626VaultAddress;
-            data = new bytes[](2);
-            data[0] = abi.encodeWithSignature("approve(address,uint256)", erc4626VaultAddress, amount);
-            data[1] = abi.encodeWithSignature("deposit(uint256,address)", amount, VAULT);
-            values = new uint256[](2);
-        } else {
-            targets = new address[](3);
-            targets[0] = asset;
-            targets[1] = asset;
-            targets[2] = erc4626VaultAddress;
-            data = new bytes[](3);
-            data[0] = abi.encodeWithSignature("approve(address,uint256)", erc4626VaultAddress, 0);
-            data[1] = abi.encodeWithSignature("approve(address,uint256)", erc4626VaultAddress, amount);
-            data[2] = abi.encodeWithSignature("deposit(uint256,address)", amount, VAULT);
-            values = new uint256[](3);
-        }
+        targets = new address[](3);
+        targets[0] = asset;
+        targets[1] = asset;
+        targets[2] = erc4626VaultAddress;
+        data = new bytes[](3);
+        data[0] = abi.encodeWithSignature("approve(address,uint256)", erc4626VaultAddress, 0);
+        data[1] = abi.encodeWithSignature("approve(address,uint256)", erc4626VaultAddress, amount);
+        data[2] = abi.encodeWithSignature("deposit(uint256,address)", amount, VAULT);
+        values = new uint256[](3);
     }
 
     /**
