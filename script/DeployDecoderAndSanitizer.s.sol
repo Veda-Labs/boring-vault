@@ -37,7 +37,7 @@ import {LiquidBeraEthDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/L
 import {SonicIncentivesHandlerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SonicIncentivesHandlerDecoderAndSanitizer.sol";
 import {AaveV3FullDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/AaveV3FullDecoderAndSanitizer.sol";
 import {EtherFiBtcDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EtherFiBtcDecoderAndSanitizer.sol";
-import {SymbioticLRTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SymbioticLRTDecoderAndSanitizer.sol";
+//import {SymbioticLRTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SymbioticLRTDecoderAndSanitizer.sol";
 import {SonicLBTCvSonicDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SonicLBTCvSonicDecoderAndSanitizer.sol";
 import {eBTCBerachainDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/eBTCBerachainDecoderAndSanitizer.sol";
 import {SonicBTCDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SonicBTCDecoderAndSanitizer.sol";
@@ -125,6 +125,7 @@ import {SentayUSDCInkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/S
 import {SentayUSDCMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentayUSDCMainnetDecoderAndSanitizer.sol";
 import {ITBBasePositionDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ITB/ITBBasePositionDecoderAndSanitizer.sol";
 import {BoostedUSDCInkDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BoostedUSDCInkDecoderAndSanitizer.sol";
+import {KHypeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/KHypeDecoderAndSanitizer.sol";
 import {WhopDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/WhopDecoderAndSanitizer.sol";
 import {TacDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacUSDTacDecoderAndSanitizer.sol";
 import {BoostedUSDCDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BoostedUSDCDecoderAndSanitizer.sol";
@@ -133,6 +134,8 @@ import {FullFluidDexDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Fu
 import {P1USDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/P1USDDecoderAndSanitizer.sol";
 import {SentayETHMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentayETHMainnetDecoderAndSanitizer.sol";
 import {GoldenGooseFillerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/FillerDecoderAndSanitizer.sol"; 
+import {LiquidVaultsOPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidVaultsOPDecoderAndSanitizer.sol"; 
+import {StakedEtherFiDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SymbioticLRTDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -163,9 +166,12 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(SentayETHMainnetDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode();
-        deployer.deployContract("SentayETH Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        creationCode = type(StakedEtherFiDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(
+            getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
+            getAddress(sourceChain, "odosRouterV2")
+        );
+        deployer.deployContract("Staked EtherFi Decoder And Sanitizer V0.1", creationCode, constructorArgs, 0);
         
         vm.stopBroadcast();
     }

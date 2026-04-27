@@ -1,0 +1,119 @@
+{
+  "deploymentParameters": {
+    "logLevel": 4,
+    "privateKeyEnvName": "BORING_DEVELOPER",
+    "chainName": "mainnet",
+    "evmVersion": "cancun",
+    "deployerContractAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "deployerAddress"
+    },
+    "nativeWrapperAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "WETH"
+    },
+    "deploymentOwnerAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "txBundlerAddress"
+    },
+    "deploymentFileName": "skeletons/addresses/Mainnet/kHYPE.json"
+  },
+  "rolesAuthorityConfiguration": {
+    "rolesAuthorityDeploymentName": "kHype Roles Authority V0.0"
+  },
+  "lensConfiguration": {
+    "lensDeploymentName": "Arctic Architecture Lens V0.0"
+  },
+  "boringVaultConfiguration": {
+    "boringVaultDeploymentName": "kHype Boring Vault V0.0",
+    "boringVaultName": "Kinetiq Earn Vault",
+    "boringVaultSymbol": "vkHYPE",
+    "boringVaultDecimals": 18
+  },
+  "managerConfiguration": {
+    "managerDeploymentName": "kHype Manager V0.0",
+    "balancerVaultAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000001",
+      "name": "balancerVault"
+    }
+  },
+  "accountantConfiguration": {
+    "accountantDeploymentName": "kHype Mainnet Accountant V0.0",
+    "accountantParameters": {
+      "kind": {
+        "variableRate": true,
+        "fixedRate": false,
+        "yieldStreaming": false
+      },
+      "payoutConfiguration": {
+        "payoutTo": "0x68eC1FdD4Bb202B2e07aE751CB5553644aA48cFA",
+        "optionalPaymentSplitterName": "kHype Payment Splitter V0.0",
+        "splits": []
+      },
+      "accountantDeploymentParameters": {
+        "allowedExchangeRateChangeLower": 9900,
+        "allowedExchangeRateChangeUpper": 10100,
+        "baseAddressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "WETH"
+        },
+        "minimumUpateDelayInSeconds": 21600,
+        "performanceFee": 0,
+        "platformFee": 0,
+        "startingExchangeRate": 1000000000000000000 
+      }
+    }
+  },
+  "tellerConfiguration": {
+    "tellerDeploymentName": "kHype Mainnet Teller V0.0",
+    "tellerParameters": {
+      "kind": {
+        "teller": true,
+        "tellerWithRemediation": false,
+        "tellerWithCcip": false,
+        "tellerWithLayerZero": false,
+        "tellerWithLayerZeroRateLimiting": false,
+        "tellerWithYieldStreaming": false
+      }
+    }
+  },
+  "boringQueueConfiguration": {
+    "boringQueueDeploymentName": "kHype Boring Queue V0.0",
+    "boringQueueSolverName": "kHype Boring Solver V0.0",
+    "excessToSolverNonSelfSolve": true,
+    "queueParameters": {
+      "kind": {
+        "boringQueue": true,
+        "boringQueueWithTracking": false
+      }
+    }
+  },
+  "droneConfiguration": {
+    "droneDeploymentBaseName": "kHype Drone V0.0",
+    "droneCount": 0,
+    "safeGasToForwardNative": 21000
+  },
+  "pauserConfiguration": {
+    "shouldDeploy": true,
+    "pauserDeploymentName": "kHypePauser V0.0"
+  },
+  "timelockConfiguration": {
+    "shouldDeploy": false,
+    "timelockDeploymentName": "kHype Timelock V0.0",
+    "timelockParameters": {
+      "executors": [
+      ],
+      "minDelay": 0,
+      "proposers": [
+      ]
+    }
+  },
+  "aaveV3BufferHelperConfiguration": {
+    "shouldDeploy": false,
+    "aaveV3BufferHelperDeploymentName": "AaveV3 Buffer Helper V0.0"
+  },
+  "aaveV3BufferLensConfiguration": {
+    "shouldDeploy": false,
+    "aaveV3BufferLensDeploymentName": "AaveV3 Buffer Lens V0.0"
+  }
+}

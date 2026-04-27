@@ -771,6 +771,22 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         }
     }
 
+
+    function _addCurveGaugeClaimingLeafs(ManageLeaf[] memory leafs, address gauge) internal {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                gauge,
+                false,
+                "claim_rewards(address)",
+                new address[](1),
+                string.concat("Claim rewards from Curve gauge"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+    }
+
     function _addCurveGaugeLeafs(ManageLeaf[] memory leafs, address gauge) internal {
         address lpToken = ICurveGauge(gauge).lp_token();
 
@@ -3232,10 +3248,45 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         _addAaveV3ForkLeafs("Zerolend", getAddress(sourceChain, "zeroLendPool"), leafs, supplyAssets, borrowAssets);
     }
 
+    function _addHypurrFiLeafs(ManageLeaf[] memory leafs, ERC20[] memory supplyAssets, ERC20[] memory borrowAssets)
+        internal
+    {
+        _addAaveV3ForkLeafs("HypurrFi", getAddress(sourceChain, "hypurrFiLendPool"), leafs, supplyAssets, borrowAssets);
+    }
+
     function _addHyperLendLeafs(ManageLeaf[] memory leafs, ERC20[] memory supplyAssets, ERC20[] memory borrowAssets)
         internal
     {
         _addAaveV3ForkLeafs("HyperLend", getAddress(sourceChain, "hyperLendPool"), leafs, supplyAssets, borrowAssets);
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "hyperLendRewardsDistributor"),
+            false,
+            "claim((address,uint256,bytes32[])[])",
+            new address[](0),
+            string.concat("Claim rewards from HyperLend Merkle Rewards Distributor"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+    }
+
+    function _addAaveV3WithdrawLeafs(ManageLeaf[] memory leafs, ERC20[] memory tokens, string memory protocolName) internal {
+        for (uint256 i; i < tokens.length; i++) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "v3Pool"),
+                false,
+                "withdraw(address,uint256,address)",
+                new address[](2),
+                string.concat("Withdraw ", tokens[i].symbol(), " from ", protocolName),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(tokens[i]);
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+        }
     }
 
     function _addAaveV3ForkLeafs(
@@ -12231,7 +12282,7 @@ function _addTellerLeafsWithReferral(
     function _addWithdrawQueueLeafs(
         ManageLeaf[] memory leafs,
         address withdrawQueue,
-        address boringVault,
+        address sharesBoringVault,
         ERC20[] memory assets
     ) internal {
         for (uint256 i = 0; i < assets.length; i++) {
@@ -12239,11 +12290,11 @@ function _addTellerLeafsWithReferral(
                 leafIndex++;
             }
             leafs[leafIndex] = ManageLeaf(
-                boringVault,
+                sharesBoringVault,
                 false,
                 "approve(address,uint256)",
                 new address[](1),
-                string.concat("Approve BoringOnChainQueue to spend ", ERC20(boringVault).symbol()),
+                string.concat("Approve BoringOnChainQueue to spend ", ERC20(sharesBoringVault).symbol()),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = withdrawQueue;
@@ -12272,6 +12323,9 @@ function _addTellerLeafsWithReferral(
                 string.concat("Cancel Withdraw of ", assets[i].symbol(), ", from queue"),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
+            // The decoder extracts request.user and request.assetOut from the struct.
+            // request.user is the outer (managing) vault — the address that originally called
+            // requestOnChainWithdraw as msg.sender — not sharesBoringVault (the inner vault).
             leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
             leafs[leafIndex].argumentAddresses[1] = address(assets[i]);
 
@@ -12286,6 +12340,7 @@ function _addTellerLeafsWithReferral(
                 string.concat("Replace Withdraw of ", assets[i].symbol(), ", from queue"),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
+            // Same as above — request.user is the outer vault, not sharesBoringVault.
             leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
             leafs[leafIndex].argumentAddresses[1] = address(assets[i]);
         }

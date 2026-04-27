@@ -23,5 +23,5 @@ CLAUDE.md
 flatten.sol
 
 tools/*
-
 dependencies/
+test/limitOrders/*

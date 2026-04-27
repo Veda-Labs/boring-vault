@@ -45,6 +45,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
     address public itbReserveProtocolPositionManager = 0x78Dbb5495044779562A584F133C2eca0B8e349ba;
     address public itbDecoderAndSanitizer = 0xCe39e869C2010A3C049E1cA11F7dfB70ae2ddBF5;
     address public skyMoneyDecoderAndSanitizer = 0x93740255Db97B8005e5F4E84e0E08F69A3267b30;
+    address public standardBridgeDecoderAndSanitizer = 0xC48cA54b9F3f8Fc7E5347DE55879851178B485e8;
 
 
     function setUp() external {}
@@ -968,9 +969,29 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         _addScrollNativeBridgeLeafs(leafs, "scroll", tokens, scrollGateways); 
         }
 
+        // ========================== Standard Bridge to Optimism ==========================
+        {
+            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", standardBridgeDecoderAndSanitizer);
+            ERC20[] memory localTokens = new ERC20[](1);
+            localTokens[0] = getERC20(sourceChain, "USDT");
+            ERC20[] memory remoteTokens = new ERC20[](1);
+            remoteTokens[0] = getERC20(optimism, "USDT");
+            _addStandardBridgeLeafs(
+                leafs,
+                optimism,
+                getAddress(optimism, "crossDomainMessenger"),
+                getAddress(sourceChain, "optimismResolvedDelegate"),
+                getAddress(sourceChain, "optimismStandardBridge"),
+                getAddress(sourceChain, "optimismPortal"),
+                localTokens,
+                remoteTokens
+            );
+        }
+
         // ========================== CCTP Bridge ==========================
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", cctpDecoderAndSanitizer);
         _addCCTPBridgeLeafs(leafs, cctpPlumeDomainId);
+        _addCCTPBridgeLeafs(leafs, cctpOptimismDomainId);
 
         // ========================== Euler ==========================
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
