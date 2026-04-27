@@ -17,6 +17,7 @@ import {DelayedWithdraw} from "src/archive/DelayedWithdraw.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
+import {BoringOnChainQueue} from "src/base/Roles/BoringQueue/BoringOnChainQueue.sol";
 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
@@ -230,9 +231,8 @@ contract BoringOnChainQueueIntegration is Test, MerkleTreeHelper {
             uint16(100),
             uint24(2592000)
         );
-        
-        //uint96 nonce = vm.getNonce(address(boringVault));         
 
+        // request.user = boringVault (the vault that called requestOnChainWithdraw via the manager)
         DecoderCustomTypes.OnChainWithdraw memory request = DecoderCustomTypes.OnChainWithdraw(
             1,
             address(boringVault),
@@ -242,7 +242,7 @@ contract BoringOnChainQueueIntegration is Test, MerkleTreeHelper {
             uint40(1736342615),
             uint24(43200),
             uint24(2592000)
-        ); 
+        );
 
         targetData[4] = abi.encodeWithSignature(
             "cancelOnChainWithdraw((uint96,address,address,uint128,uint128,uint40,uint24,uint24))",
@@ -260,8 +260,8 @@ contract BoringOnChainQueueIntegration is Test, MerkleTreeHelper {
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
-        uint256 eBTCSharesAmount = getERC20(sourceChain, "eBTC").balanceOf(address(boringVault)); 
-        assertEq(eBTCSharesAmount, 9970000000); 
+        uint256 eBTCSharesAmount = getERC20(sourceChain, "eBTC").balanceOf(address(boringVault));
+        assertEq(eBTCSharesAmount, 9970000000);
     }
 
     function testBoringOnChainQueueReplace() external {
@@ -287,7 +287,7 @@ contract BoringOnChainQueueIntegration is Test, MerkleTreeHelper {
         manageLeafs[1] = leafs[3]; //deposit
         manageLeafs[2] = leafs[4]; //approve queue
         manageLeafs[3] = leafs[5]; //withdraw w/ queue
-        manageLeafs[4] = leafs[7]; //cancel request
+        manageLeafs[4] = leafs[7]; //replace request
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 
@@ -313,9 +313,8 @@ contract BoringOnChainQueueIntegration is Test, MerkleTreeHelper {
             uint16(100),
             uint24(2592000)
         );
-        
-        //uint96 nonce = vm.getNonce(address(boringVault));         
 
+        // request.user = boringVault (the vault that called requestOnChainWithdraw via the manager)
         DecoderCustomTypes.OnChainWithdraw memory request = DecoderCustomTypes.OnChainWithdraw(
             1,
             address(boringVault),
@@ -325,7 +324,7 @@ contract BoringOnChainQueueIntegration is Test, MerkleTreeHelper {
             uint40(1736342615),
             uint24(43200),
             uint24(2592000)
-        ); 
+        );
 
         targetData[4] = abi.encodeWithSignature(
             "replaceOnChainWithdraw((uint96,address,address,uint128,uint128,uint40,uint24,uint24),uint16,uint24)",
@@ -345,8 +344,175 @@ contract BoringOnChainQueueIntegration is Test, MerkleTreeHelper {
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
-        uint256 eBTCSharesAmount = getERC20(sourceChain, "eBTC").balanceOf(address(boringVault)); 
-        assertEq(eBTCSharesAmount, 0); 
+        uint256 eBTCSharesAmount = getERC20(sourceChain, "eBTC").balanceOf(address(boringVault));
+        assertEq(eBTCSharesAmount, 0);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────────
+    // Cross-vault test: the strategist vault (boringVault / sourceChain "boringVault")
+    // is DIFFERENT from the share-token vault (eBTC) passed to _addWithdrawQueueLeafs.
+    //
+    // Key invariant being verified:
+    //   The decoder for cancelOnChainWithdraw / replaceOnChainWithdraw returns
+    //   abi.encodePacked(request.user, request.assetOut).
+    //   request.user == msg.sender at the time requestOnChainWithdraw was called.
+    //   When boringVault calls the queue through the manager, msg.sender == boringVault.
+    //   Therefore argumentAddresses[0] in the Merkle leaf must be boringVault
+    //   (= getAddress(sourceChain, "boringVault")), NOT the share-token (eBTC).
+    //
+    // The negative sub-test proves that a leaf built with the share-token address
+    // in argumentAddresses[0] is correctly rejected by the Merkle verifier, even
+    // though the proof itself is valid for that (corrupt) tree.
+    // ─────────────────────────────────────────────────────────────────────────────
+    function testCrossVaultCancelAndReplaceUseStrategistVaultNotShareToken() external {
+        // boringVault  = strategist vault  (freshly deployed, registered as sourceChain "boringVault")
+        // shareToken   = eBTC vault        (0x657e…, a different on-chain address)
+        // The two addresses must differ for this test to be meaningful.
+        address shareToken = getAddress(sourceChain, "eBTC");
+        assertFalse(
+            address(boringVault) == shareToken,
+            "test requires strategist vault != share token"
+        );
+
+        // ── Part 1: leaf structure assertions ─────────────────────────────────
+        // _addWithdrawQueueLeafs is called with the share-token (eBTC) as the
+        // boringVault parameter, exactly as every production script does.
+        ERC20[] memory assets = new ERC20[](1);
+        assets[0] = getERC20(sourceChain, "WBTC");
+
+        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        _addTellerLeafs(leafs, getAddress(sourceChain, "eBTCTeller"), assets, false, true);
+        _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "eBTCOnChainQueue"), shareToken, assets);
+
+        // Index layout (1 asset, 4 teller leafs then 4 withdraw-queue leafs):
+        //   leafs[4] = approve queue
+        //   leafs[5] = requestOnChainWithdraw
+        //   leafs[6] = cancelOnChainWithdraw
+        //   leafs[7] = replaceOnChainWithdraw
+
+        // argumentAddresses[0] for cancel/replace must be the STRATEGIST vault
+        // (= getAddress(sourceChain, "boringVault") = address(boringVault)),
+        // because that is what the decoder reads from request.user.
+        assertEq(
+            leafs[6].argumentAddresses[0],
+            address(boringVault),
+            "cancel leaf argumentAddresses[0] must be the strategist vault (request.user), not the share token"
+        );
+        assertEq(
+            leafs[7].argumentAddresses[0],
+            address(boringVault),
+            "replace leaf argumentAddresses[0] must be the strategist vault (request.user), not the share token"
+        );
+        // Confirm the two addresses are genuinely distinct.
+        assertNotEq(
+            leafs[6].argumentAddresses[0],
+            shareToken,
+            "cancel leaf must NOT use the share token address"
+        );
+        assertNotEq(
+            leafs[7].argumentAddresses[0],
+            shareToken,
+            "replace leaf must NOT use the share token address"
+        );
+
+        // ── Part 2: Merkle verification with correct leaf passes ──────────────
+        // We mock the queue calls so we only exercise Merkle verification, not
+        // queue state (the request doesn't actually exist on the fork).
+        address queue = getAddress(sourceChain, "eBTCOnChainQueue");
+
+        DecoderCustomTypes.OnChainWithdraw memory request = DecoderCustomTypes.OnChainWithdraw({
+            nonce: 1,
+            user: address(boringVault), // request.user = strategist vault (msg.sender during request creation)
+            assetOut: getAddress(sourceChain, "WBTC"),
+            amountOfShares: uint128(9970000000),
+            amountOfAssets: uint128(9870300000),
+            creationTime: uint40(block.timestamp),
+            secondsToMaturity: uint24(43200),
+            secondsToDeadline: uint24(2592000)
+        });
+
+        bytes memory cancelData = abi.encodeWithSignature(
+            "cancelOnChainWithdraw((uint96,address,address,uint128,uint128,uint40,uint24,uint24))",
+            request
+        );
+        bytes memory replaceData = abi.encodeWithSignature(
+            "replaceOnChainWithdraw((uint96,address,address,uint128,uint128,uint40,uint24,uint24),uint16,uint24)",
+            request,
+            uint16(100),
+            uint24(2592000)
+        );
+
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        // The Merkle proof is correct, so verification passes. The queue call then
+        // fails because the request doesn't exist on the fork — but that produces
+        // BoringOnChainQueue__RequestNotFound, NOT FailedToVerifyManageProof.
+        // Catching that specific queue error is sufficient proof that the Merkle
+        // verification succeeded.
+        {
+            ManageLeaf[] memory manageLeafs = new ManageLeaf[](1);
+            manageLeafs[0] = leafs[6]; // cancel
+            bytes32[][] memory proofs = _getProofsUsingTree(manageLeafs, manageTree);
+            address[] memory targets = new address[](1); targets[0] = queue;
+            bytes[] memory targetData = new bytes[](1); targetData[0] = cancelData;
+            address[] memory decoders = new address[](1); decoders[0] = rawDataDecoderAndSanitizer;
+            uint256[] memory values = new uint256[](1);
+            vm.expectRevert(BoringOnChainQueue.BoringOnChainQueue__RequestNotFound.selector);
+            manager.manageVaultWithMerkleVerification(proofs, decoders, targets, targetData, values);
+        }
+        {
+            ManageLeaf[] memory manageLeafs = new ManageLeaf[](1);
+            manageLeafs[0] = leafs[7]; // replace
+            bytes32[][] memory proofs = _getProofsUsingTree(manageLeafs, manageTree);
+            address[] memory targets = new address[](1); targets[0] = queue;
+            bytes[] memory targetData = new bytes[](1); targetData[0] = replaceData;
+            address[] memory decoders = new address[](1); decoders[0] = rawDataDecoderAndSanitizer;
+            uint256[] memory values = new uint256[](1);
+            vm.expectRevert(BoringOnChainQueue.BoringOnChainQueue__RequestNotFound.selector);
+            manager.manageVaultWithMerkleVerification(proofs, decoders, targets, targetData, values);
+        }
+
+        // ── Part 3: Merkle verification with buggy leaf (share-token in slot 0) fails ──
+        // Reproduce the bug: build a tree where argumentAddresses[0] = shareToken.
+        // This simulates what _addWithdrawQueueLeafs would produce if it used
+        // `boringVault_param` instead of `getAddress(sourceChain, "boringVault")`.
+        {
+            // Reset the shared leafIndex counter so the helper functions start from 0 again.
+            leafIndex = type(uint256).max;
+            ManageLeaf[] memory corruptLeafs = new ManageLeaf[](8);
+            _addTellerLeafs(corruptLeafs, getAddress(sourceChain, "eBTCTeller"), assets, false, true);
+            _addWithdrawQueueLeafs(corruptLeafs, queue, shareToken, assets);
+            // Overwrite with the wrong address (the share token instead of the strategist vault).
+            corruptLeafs[6].argumentAddresses[0] = shareToken;
+            corruptLeafs[7].argumentAddresses[0] = shareToken;
+
+            bytes32[][] memory corruptTree = _generateMerkleTree(corruptLeafs);
+            manager.setManageRoot(address(this), corruptTree[corruptTree.length - 1][0]);
+
+            ManageLeaf[] memory manageLeafs = new ManageLeaf[](1);
+            manageLeafs[0] = corruptLeafs[6];
+            bytes32[][] memory proofs = _getProofsUsingTree(manageLeafs, corruptTree);
+
+            address[] memory targets = new address[](1); targets[0] = queue;
+            bytes[] memory targetData = new bytes[](1);
+            // cancelData still has request.user = boringVault (strategist).
+            // The decoder will extract that address, but the corrupt leaf expects
+            // shareToken → the computed leaf hash won't match the root → revert.
+            targetData[0] = cancelData;
+            address[] memory decoders = new address[](1); decoders[0] = rawDataDecoderAndSanitizer;
+            uint256[] memory values = new uint256[](1);
+
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    ManagerWithMerkleVerification.ManagerWithMerkleVerification__FailedToVerifyManageProof.selector,
+                    queue,
+                    cancelData,
+                    0
+                )
+            );
+            manager.manageVaultWithMerkleVerification(proofs, decoders, targets, targetData, values);
+        }
     }
 
     // ========================================= HELPER FUNCTIONS =========================================
@@ -357,4 +523,5 @@ contract BoringOnChainQueueIntegration is Test, MerkleTreeHelper {
     }
 }
 
-contract FullBoringVaultDecoder is TellerDecoderAndSanitizer {}
+// Decoder must include BaseDecoderAndSanitizer for approve() support.
+contract FullBoringVaultDecoder is BaseDecoderAndSanitizer, TellerDecoderAndSanitizer {}

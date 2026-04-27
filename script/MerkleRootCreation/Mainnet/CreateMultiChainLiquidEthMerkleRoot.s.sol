@@ -923,13 +923,11 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
          * withdrawAll ETH tokens from ITB position manager
          */
         {
-            address itbPositionManager = 0x7F37350F463525c2670b10234FB014BC406F851c;
-            ERC20[] memory itbTokensUsed = new ERC20[](4);
-            itbTokensUsed[0] = getERC20(sourceChain, "WETH");
-            itbTokensUsed[1] = getERC20(sourceChain, "WEETH");
-            itbTokensUsed[2] = getERC20(sourceChain, "EETH");
-            itbTokensUsed[3] = getERC20(sourceChain, "USDC");
-            _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "ITB Position Manager");
+            address itbPositionManager = 0xBbfC4D389A15643aFEEe34164a0333c5725DBd79;
+            ERC20[] memory itbTokensUsed = new ERC20[](1);
+            itbTokensUsed[0] = getERC20(sourceChain, "WEETH");
+                        // Morpho weETH (RLUSD) + Morpho Sentora RLUSD Main v2
+            _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "ITB Position Manager Morpho weETH (RLUSD) and Morpho Sentora RLUSD Main v2");
 
             address itbPositionManager2 = 0xA40aFb15275A94F64aF37C0cEaAaA45Cb568A361;
             address itbPositionManager3 = 0x2A601FC6C0Cb854fDA82715E49Ab04C5340A0396;
@@ -937,8 +935,12 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             address itbPositionManager5 = 0x4b1A4a8f421454874B553CcE4c59c654a84c4927;
             ERC20[] memory itbTokensUsed2 = new ERC20[](1);
             itbTokensUsed2[0] = getERC20(sourceChain, "WEETH");
+
+            ERC20[] memory itbTokensUsed3 = new ERC20[](2);
+            itbTokensUsed3[0] = getERC20(sourceChain, "WEETH");
+            itbTokensUsed3[1] = getERC20(sourceChain, "PYUSD");
             // Aave weETH -> RLUSD -> RLUSD Aave Horizon
-            _addLeafsForITBPositionManager(leafs, itbPositionManager2, itbTokensUsed2, "ITB Position Manager 2");
+            _addLeafsForITBPositionManager(leafs, itbPositionManager2, itbTokensUsed3, "ITB Position Manager 2");
             //Spark weETH → PYUSD → PYUSD Euler
             _addLeafsForITBPositionManager(leafs, itbPositionManager3, itbTokensUsed2, "ITB Position Manager 3");
             _addLeafsForITBPositionManager(leafs, itbPositionManager4, itbTokensUsed2, "ITB Position Manager 4");

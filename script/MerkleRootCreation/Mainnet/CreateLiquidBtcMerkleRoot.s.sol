@@ -13,7 +13,7 @@ import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper
 import "forge-std/Script.sol";
 
 /**
- *  source .env && forge script script/MerkleRootCreation/Mainnet/CreateLiquidBtcMerkleRoot.s.sol:CreateLiquidBtcMerkleRoot --rpc-url $MAINNET_RPC_URL --gas-limit 1000000000000000000
+ *  source .env && forge script script/MerkleRootCreation/Mainnet/CreateLiquidBtcMerkleRoot.s.sol:CreateLiquidBtcMerkleRoot --rpc-url $MAINNET_RPC_URL --gas-limit 1000000000000000000 --memory-limit 10000000000000000000
  */
 contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
@@ -28,6 +28,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
     address public itbPositionManager3 = 0xfBCA329E2Ee0c44d8F115A4B8F7ceda9E109f436; // Aave eBTC->RLUSD-> Euler Sentora RLUSD
     address public itbDecoderAndSanitizer = 0xb75bfC8B0Cc8588C510DcAE75c67A9DC9cF508d5; 
     address public capDecoderAndSanitizer = 0xE0e86bf98dAA0D2b408Cb038E94bCB9B7864309C;
+    address public etherfibtcDecoderAndSanitizer = 0xC48cA54b9F3f8Fc7E5347DE55879851178B485e8;
 
     //one offs
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
@@ -319,6 +320,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "MCUSR_USDC_915"));
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "EBTC_PT06_26_25_LBTC_915"));
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "sdeUSD_USDC_915"));
+        _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "LBTC_WBTC_945"));
 
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "WBTC_USDC_86"));
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "WBTC_USDT_86"));
@@ -338,6 +340,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "MCUSR_USDC_915"));
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "EBTC_PT06_26_25_LBTC_915"));
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "sdeUSD_USDC_915"));
+        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "LBTC_WBTC_945"));
 
         // ========================== MorphoRewards ==========================
         _addMorphoRewardWrapperLeafs(leafs);
@@ -375,7 +378,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
             eBTCTellerAssets2[2] = getAddress(sourceChain, "cbBTC");
             address[] memory feeAssets1 = new address[](1);
             feeAssets1[0] = getAddress(sourceChain, "ETH"); 
-            _addCrossChainTellerLeafs(leafs, getAddress(sourceChain, "eBTCTeller"), eBTCTellerAssets2, feeAssets1, abi.encode(layerZeroBerachainEndpointId));
+            _addCrossChainTellerLeafs(leafs, getAddress(sourceChain, "eBTCTeller"), eBTCTellerAssets2, feeAssets1, abi.encode(layerZeroOptimismEndpointId));
 
         
             address newLiquidBeraBTCTeller = 0xe238e253b67f42ee3aF194BaF7Aba5E2eaddA1B8;  
@@ -547,6 +550,26 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         address[] memory scrollGateways = new address[](1);
         scrollGateways[0] = getAddress(scroll, "scrollWBTCGateway");
         _addScrollNativeBridgeLeafs(leafs, "scroll", tokens, scrollGateways);  
+
+        // ========================== Standard Bridge to Optimism ==========================
+
+        {
+            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", etherfibtcDecoderAndSanitizer);
+            ERC20[] memory localTokens = new ERC20[](1);
+            localTokens[0] = getERC20(sourceChain, "WBTC");
+            ERC20[] memory remoteTokens = new ERC20[](1);
+            remoteTokens[0] = getERC20(optimism, "WBTC");
+            _addStandardBridgeLeafs(
+                leafs,
+                optimism,
+                getAddress(optimism, "crossDomainMessenger"),
+                getAddress(sourceChain, "optimismResolvedDelegate"),
+                getAddress(sourceChain, "optimismStandardBridge"),
+                getAddress(sourceChain, "optimismPortal"),
+                localTokens,
+                remoteTokens
+            );
+        }
 
         // ========================== Elixir ==========================
         /**

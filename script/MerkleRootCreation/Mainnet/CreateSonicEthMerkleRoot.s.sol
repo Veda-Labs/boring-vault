@@ -20,7 +20,7 @@ contract CreateSonicEthMerkleRoot is Script, MerkleTreeHelper {
     address public boringVault = 0x3bcE5CB273F0F148010BbEa2470e7b5df84C7812;
     address public managerAddress = 0x6830046d872604E92f9F95F225fF63f2300bc1e9;
     address public accountantAddress = 0x3a592F9Ea2463379c4154d03461A73c484993668;
-    address public rawDataDecoderAndSanitizer = 0x74Bd1a5153Db3FE3a437dE0B7C74a088d447F9ab;
+    address public rawDataDecoderAndSanitizer = 0xA102FCae14C04e43D2660b1cD0a21a4D5C81218c;
 
     address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
@@ -65,8 +65,8 @@ contract CreateSonicEthMerkleRoot is Script, MerkleTreeHelper {
         _addUniswapV3Leafs(leafs, token0, token1, true);
 
         // ========================== 1inch/Odos ==========================
-        address[] memory assets = new address[](4);
-        SwapKind[] memory kind = new SwapKind[](4);
+        address[] memory assets = new address[](13);
+        SwapKind[] memory kind = new SwapKind[](13);
         assets[0] = getAddress(sourceChain, "WETH");
         kind[0] = SwapKind.BuyAndSell;
         assets[1] = getAddress(sourceChain, "WEETH");
@@ -75,6 +75,24 @@ contract CreateSonicEthMerkleRoot is Script, MerkleTreeHelper {
         kind[2] = SwapKind.BuyAndSell;
         assets[3] = getAddress(sourceChain, "MORPHO");
         kind[3] = SwapKind.Sell;
+        assets[4] = getAddress(sourceChain, "EIGEN");
+        kind[4] = SwapKind.Sell;
+        assets[5] = getAddress(sourceChain, "ETHFI");
+        kind[5] = SwapKind.Sell;
+        assets[6] = getAddress(sourceChain, "SWELL");
+        kind[6] = SwapKind.Sell;
+        assets[7] = getAddress(sourceChain, "KING");
+        kind[7] = SwapKind.Sell;
+        assets[8] = getAddress(sourceChain, "MNT");
+        kind[8] = SwapKind.Sell;
+        assets[9] = getAddress(sourceChain, "KERNEL");
+        kind[9] = SwapKind.Sell;
+        assets[10] = getAddress(sourceChain, "axlSAGA");
+        kind[10] = SwapKind.Sell;
+        assets[11] = getAddress(sourceChain, "GEAR");
+        kind[11] = SwapKind.Sell;
+        assets[12] = getAddress(sourceChain, "STETH");
+        kind[12] = SwapKind.Sell;
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
         _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
@@ -137,6 +155,18 @@ contract CreateSonicEthMerkleRoot is Script, MerkleTreeHelper {
         _addEulerDepositLeafs(leafs,  depositVaults, subaccounts); 
 
         }
+
+        // ========================== King Claiming ==========================
+        {
+            _addKingRewardsClaimingLeafs(leafs, new address[](0), getAddress(sourceChain, "boringVault"));
+        }
+
+        // ========================== Merkl Claiming ==========================
+  
+        {
+            _addMerklClaimLeaf(leafs, getAddress(sourceChain, "merklDistributor"));
+        }
+
         
         // ========================== Verify & Generate ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
