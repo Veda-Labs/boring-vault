@@ -25,3 +25,10 @@ flatten.sol
 tools/*
 
 test/limitOrders/*
+
+
+# certora
+.certora_internal/
+.properties-*/
+emv-*-certora-*/
+

@@ -1,0 +1,54 @@
+name: Certora_FV_C
+
+on:
+  - pull_request
+
+env:
+  FOUNDRY_PROFILE: ci
+  CONFIGS: |
+    certora/confs/scenarioC.conf --verify "TellerWithYieldStreaming:certora/specs/rentrancy_view.spec" --prover_args "-enableStorageSplitting false" --rule_sanity none
+    certora/confs/scenarioC.conf --verify "TellerWithYieldStreaming:certora/specs/teller_basic.spec" --exclude_rule dustFavorsTheHouse
+    certora/confs/scenarioC.conf --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_easyRules.spec" --exclude_rule conversionWeakIntegrity_assets --exclude_rule conversionWeakIntegrity_shares --exclude_rule conversionWeakMonotonicity_assets --exclude_rule conversionWeakMonotonicity_shares
+    certora/confs/accountantWithYieldStreaming.conf
+    certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --rule assetsMoreThanShares
+    certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --rule sharePriceMoreThanOneAsset
+    certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --rule sharePriceBoundedUpper
+    certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --rule sharePriceBoundedLower
+    certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --rule totalAssetsCovered
+    certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --rule vaultSolvency_1Asset
+    certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --rule virtualPriceIsCorrect
+    certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --rule accountantDecimalsCorrect --rule cumulativeSupplyBounded --rule exchangeRateLEqlastSharePrice --rule exchangeRateLEhighwaterMark_unlessPaused --rule exchangeRateEqlastSharePrice --rule integrityOfVestYield --rule lastVestingUpdateNeverDecreases
+    certora/confs/scenarioC.conf --verify "TellerWithYieldStreaming:certora/specs/teller_integrity.spec"
+    
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      statuses: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: yarn install
+        run: |
+          corepack enable
+          yarn install
+
+      - name: Certora munge
+        run: certora/scripts/setup.sh C
+
+      - name: run configs
+        uses: Certora/certora-run-action@v2
+        with:
+          configurations: ${{ env.CONFIGS }}
+          solc-versions: 0.8.21
+          solc-remove-version-prefix: "0."
+          job-name: "Verified Rules"
+          certora-key: ${{ secrets.CERTORAKEY }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
