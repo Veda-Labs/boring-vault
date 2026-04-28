@@ -321,6 +321,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "EBTC_PT06_26_25_LBTC_915"));
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "sdeUSD_USDC_915"));
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "LBTC_WBTC_945"));
+        _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "LBTC_PYUSD_86"));
 
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "WBTC_USDC_86"));
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "WBTC_USDT_86"));
@@ -341,6 +342,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "EBTC_PT06_26_25_LBTC_915"));
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "sdeUSD_USDC_915"));
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "LBTC_WBTC_945"));
+        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "LBTC_PYUSD_86"));
 
         // ========================== MorphoRewards ==========================
         _addMorphoRewardWrapperLeafs(leafs);
