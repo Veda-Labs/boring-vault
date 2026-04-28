@@ -247,6 +247,7 @@ contract DeploySkeletonScript is Script, ChainValues {
     error DeployError(string message);
 
     uint256 internal privateKey;
+    bool internal useHardwareWallet;
 
     string internal rawJson;
     string internal sourceChain;
@@ -309,7 +310,14 @@ contract DeploySkeletonScript is Script, ChainValues {
         } else {
             revert KeyNotFound(".deploymentParameters.logLevel");
         }
-        if (vm.keyExists(rawJson, ".deploymentParameters.privateKeyEnvName")) {
+        // Hardware wallet flow: when `useHardwareWallet` is true, we skip loading a private key.
+        // Run with: forge script ... --ledger --mnemonic-derivation-paths "$DERIVATION_PATH" --sender <deploymentOwner>
+        // Foundry's CLI handles signing via the Ledger; the script just broadcasts as `deploymentOwner`.
+        if (vm.keyExists(rawJson, ".deploymentParameters.useHardwareWallet")
+                && vm.parseJsonBool(rawJson, ".deploymentParameters.useHardwareWallet")) {
+            useHardwareWallet = true;
+            _log(string.concat("Hardware wallet mode enabled (DERIVATION_PATH=", vm.envString("DERIVATION_PATH"), ")"), 3);
+        } else if (vm.keyExists(rawJson, ".deploymentParameters.privateKeyEnvName")) {
             privateKey = vm.envUint(vm.parseJsonString(rawJson, ".deploymentParameters.privateKeyEnvName"));
             _log("Private key found in configuration file.", 3);
         } else {
@@ -940,7 +948,11 @@ contract DeploySkeletonScript is Script, ChainValues {
 
         address txBundler = getAddress(sourceChain, "txBundlerAddress");
 
-        vm.startBroadcast(privateKey);
+        if (useHardwareWallet) {
+            vm.startBroadcast(deploymentOwner);
+        } else {
+            vm.startBroadcast(privateKey);
+        }
         for (uint256 i; i < desiredNumberOfDeploymentTxs; i++) {
             console.log(string.concat("Sending bundle: ", vm.toString(i)));
             Deployer(txBundler).bundleTxs(txBundles[i]);
