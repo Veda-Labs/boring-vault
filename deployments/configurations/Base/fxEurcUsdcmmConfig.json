@@ -38,8 +38,8 @@
     },
     "boringVaultConfiguration": {
         "boringVaultDeploymentName": "fxEurcUsdc boringVaultV1.0",
-        "boringVaultName": "fxEurcUsdc",
-        "boringVaultSymbol": "fxEurcUsdc",
+        "boringVaultName": "fxEurcUsdcMm",
+        "boringVaultSymbol": "fxEurcUsdcMm",
         "boringVaultDecimals": 6
     },
     "managerConfiguration": {

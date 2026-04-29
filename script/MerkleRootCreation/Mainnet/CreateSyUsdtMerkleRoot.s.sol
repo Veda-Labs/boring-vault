@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
+import {Deployer} from "src/helper/Deployer.sol";
 import {BoringVault} from "src/base/BoringVault.sol";
 import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
@@ -22,7 +23,9 @@ import "forge-std/StdJson.sol";
 contract CreateSyUsdtLeafs is Script, MerkleTreeHelper {
     uint256 public privateKey;
 
-    address public rawDataDecoderAndSanitizerTacBuild = 0x0d24946Ba0a37D5e1d269Bb207286169fF5a3dbc;
+    Deployer public deployer = Deployer(0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC);
+
+    address public rawDataDecoderAndSanitizerEthereum = 0xfb3d1B638319cbD7E6459D17B8dDe74C4B5EA307;
     RolesAuthority internal rolesAuthority = RolesAuthority(0x1B77bB2d878d3CE1C55D5621CFFDF0C6ce62BB63);
     BoringVault internal boringVault = BoringVault(payable(0x2A9001e73811aEBad909aB14e453Fd0A91d7A31a));
     LayerZeroTeller internal teller = LayerZeroTeller(0x90F9101416b1eCF7297C918Aaf775E6EE6A77760);
@@ -68,20 +71,26 @@ contract CreateSyUsdtLeafs is Script, MerkleTreeHelper {
         setAddress(true, mainnet, "managerAddress", address(manager));
         setAddress(true, mainnet, "manager", address(manager));
         setAddress(true, mainnet, "accountantAddress", address(accountant));
-        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizerTacBuild);
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizerEthereum);
     }
 
     function run() public {
-        ManageLeaf[] memory leafs = new ManageLeaf[](64);
-        _addLeafs(leafs);
-        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
-        string memory filePath = "./leafs/TacBuild/SyUsdtTacBuildStrategistLeafs.json";
-        _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
+        // ManageLeaf[] memory leafs = new ManageLeaf[](64);
+        // _addLeafs(leafs);
+        // bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+        // string memory filePath = "./leafs/Mainnet/SyUsdtMainnetStrategistLeafs.json";
+        // _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
+
+        address newOwner = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5;
+
+        Deployer.Tx[] memory txns = new Deployer.Tx[](8);
+
+        // txns[0] = Deployer.Tx
 
         vm.startBroadcast(privateKey);
 
-        manager.setManageRoot(0x31Cf9D74d825E8BcF9608275B85dD9F1f4B3b429, manageTree[manageTree.length - 1][0]);
-        rolesAuthority.setUserRole(0x31Cf9D74d825E8BcF9608275B85dD9F1f4B3b429, STRATEGIST_ROLE, true);
+        // manager.setManageRoot(0x31Cf9D74d825E8BcF9608275B85dD9F1f4B3b429, manageTree[manageTree.length - 1][0]);
+        // rolesAuthority.setUserRole(0x31Cf9D74d825E8BcF9608275B85dD9F1f4B3b429, STRATEGIST_ROLE, true);
 
         vm.stopBroadcast();
     }

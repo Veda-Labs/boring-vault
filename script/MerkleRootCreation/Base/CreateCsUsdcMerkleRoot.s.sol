@@ -27,10 +27,10 @@ contract CreateCsUsdcMerkleRootScript is Script, MerkleTreeHelper {
     }
 
     function run() external {
-        _generateSyUsdMultiChainMerkleRoot();
+        _generateMerkleRoot();
     }
 
-    function _generateSyUsdMultiChainMerkleRoot() public {
+    function _generateMerkleRoot() public {
         setAddress(true, base, "boringVault", boringVault);
         setAddress(true, base, "managerAddress", managerAddress);
         setAddress(true, base, "accountantAddress", accountantAddress);
@@ -46,33 +46,35 @@ contract CreateCsUsdcMerkleRootScript is Script, MerkleTreeHelper {
         ERC20[] memory feeTokens = new ERC20[](1);
         feeTokens[0] = getERC20(sourceChain, "WETH");
         _addCcipBridgeLeafs(leafs, ccipMainnetChainSelector, bridgeAssets, feeTokens);
+
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDC"));
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "WETH"));
 
-        // 1inch assets;
-        address[] memory oneInchAssets = new address[](3);
+        // fly.trade
+        address[] memory oneInchAssets = new address[](4);
         oneInchAssets[0] = getAddress(sourceChain, "USDC");
         oneInchAssets[1] = getAddress(sourceChain, "USDS");
-        oneInchAssets[2] = getAddress(sourceChain, "sUSDS");
-        SwapKind[] memory kind = new SwapKind[](3);
+        oneInchAssets[2] = getAddress(sourceChain, "cbBTC");
+        oneInchAssets[3] = getAddress(sourceChain, "WETH");
+        SwapKind[] memory kind = new SwapKind[](4);
         kind[0] = SwapKind.BuyAndSell;
         kind[1] = SwapKind.BuyAndSell;
         kind[2] = SwapKind.BuyAndSell;
+        kind[3] = SwapKind.BuyAndSell;
+        _addMagpieSwapLeafs(leafs, oneInchAssets, kind);
 
-        _addLeafsFor1InchGeneralSwapping(leafs, oneInchAssets, kind);
-        _addOdosSwapLeafs(leafs, oneInchAssets, kind);
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "YearnOgUsdc")));
-        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "JUNIOR TRANCHE Tranche USD Coin")));
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletCbBTCcore")));
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
         string memory filePath = "./leafs/Base/CsUsdcStrategyLeafs.json";
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
 
         ManagerWithMerkleVerification manager = ManagerWithMerkleVerification(managerAddress);
-        vm.startBroadcast(vm.envUint("PRIVATE_KEY_1"));
+        vm.startBroadcast(vm.envUint("DEPLOYER01"));
         manager.setManageRoot(managerAddress, manageTree[manageTree.length - 1][0]);
         manager.setManageRoot(0xa86b3Bf249478488B4304B50726c7D4689aD6320, manageTree[manageTree.length - 1][0]);
-        manager.setManageRoot(0x829A13850b684A575C0580a83322890e19c5eFaa, manageTree[manageTree.length - 1][0]);
+        manager.setManageRoot(0xB959281323D3eAeF172223C0d27115cA8f51fb7a, manageTree[manageTree.length - 1][0]);
         vm.stopBroadcast();
     }
 }
