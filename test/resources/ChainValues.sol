@@ -45,6 +45,7 @@ contract ChainValues {
     string public constant tac = "tac";
     string public constant plasma = "plasma";
     string public constant inkSepolia = "inkSepolia";
+    string public constant sei = "sei";
 
     // Bridging constants.
     uint64 public constant ccipArbitrumChainSelector = 4949039107694359620;
@@ -77,6 +78,7 @@ contract ChainValues {
     uint32 public constant layerZeroTACEndpointId = 30377;
     uint32 public constant layerZeroTONEndpointId = 30343;
     uint32 public constant layerZeroPlasmaEndpointId = 30383;
+    uint32 public constant layerZeroSeiEndpointId = 30280;
 
     uint32 public constant cctpMainnetDomainId = 0; 
     uint32 public constant cctpInkDomainId = 21; 
@@ -147,6 +149,7 @@ contract ChainValues {
         _addKatanaValues();
         _addTACValues();
         _addPlasmaValues();
+        _addSeiValues();
         // Add testnet values
         _addHoleskyValues();
         _addSepoliaValues();
@@ -3356,6 +3359,27 @@ contract ChainValues {
         values[plasma]["redSnwapperRouter"] = 0xAC4c6e212A361c968F1725b4d055b47E63F80b75.toBytes32();
         values[plasma]["redSnwapperExecutor"] = 0xd2b37aDE14708bf18904047b1E31F8166d39612b.toBytes32();
 
+    }
+
+    function _addSeiValues() private {
+        values[sei]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        values[sei]["txBundlerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        values[sei]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
+        values[sei]["dev5Address"] = 0x1cdF47387358A1733968df92f7cC14546D9E1047.toBytes32();
+
+        // ERC20s
+        values[sei]["SEI"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32(); // NATIVE
+        values[sei]["WSEI"] = 0xE30feDd158A2e3b13e9badaeABaFc5516e95e8C7.toBytes32();
+        values[sei]["wSEI"] = 0xE30feDd158A2e3b13e9badaeABaFc5516e95e8C7.toBytes32();
+        values[sei]["USDC"] = 0xe15fC38F6D8c56aF07bbCBe3BAf5708A2Bf42392.toBytes32();
+        values[sei]["ZRO"] = address(1).toBytes32();
+
+        // Balancer
+        values[sei]["balancerVault"] = address(1).toBytes32();
+        values[sei]["vault"] = address(1).toBytes32();
+
+        // LayerZero
+        values[sei]["LayerZeroEndPoint"] = 0x1a44076050125825900e736c501f859c50fE728c.toBytes32();
     }
 
 
