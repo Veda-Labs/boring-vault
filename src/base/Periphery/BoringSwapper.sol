@@ -355,24 +355,25 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
 
     /// @notice Approves or revokes a specific adapter.
     function setApprovedAdapter(address adapter, bool toggle) external requiresAuth {
+        if (approvedAdapters[adapter] == toggle) return;
         approvedAdapters[adapter] = toggle;
 
         if (toggle) {
             approvedAdaptersList.push(adapter);
         } else {
             //swap & pop to keep array length in tact, but order doesn't matter for querying
-            uint256 index;
             uint256 approvedAdaptersListLength = approvedAdaptersList.length; 
             for (uint256 i; i < approvedAdaptersListLength;) {
-                if (approvedAdaptersList[i] == adapter) index = i; 
+                if (approvedAdaptersList[i] == adapter) {
+                    approvedAdaptersList[i] = approvedAdaptersList[approvedAdaptersListLength - 1]; 
+                    approvedAdaptersList.pop(); 
+                    break;
+                }
 
                 unchecked { 
                     i++;
                 }
             }
-
-            approvedAdaptersList[index] = approvedAdaptersList[approvedAdaptersListLength - 1]; 
-            approvedAdaptersList.pop(); 
         }
         
         emit AdapterApproved(adapter, toggle);
