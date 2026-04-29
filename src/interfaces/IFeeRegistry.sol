@@ -10,4 +10,5 @@ interface IFeeRegistry {
     function swapperActive(address swapper) external view returns (bool);
     function getFee(address swapper, address tokenIn, address tokenOut) external view returns (uint16 feeBps);
     function getFeeRecipient(address swapper, ERC20 feeToken) external view returns (address feeRecipient);
+    function getCancelFeeDelay(address swapper) external view returns (uint256);
 }

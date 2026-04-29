@@ -58,6 +58,7 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
         uint256 inputAmount;
         uint256 fee;
         bytes32 protocolHash;
+        uint256 cancelledAt;
     }
 
     struct RateLimit {
@@ -79,6 +80,9 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
     error BoringSwapper__OrderNotApproved();
     error BoringSwapper__CancelFailed();
     error BoringSwapper__FeeRecipientNotSet();
+    error BoringSwapper__AlreadyCancelled();
+    error BoringSwapper__NotCancelledOrder();
+    error BoringSwapper__CancelFeeNotClaimable();
 
     // ========================================= EVENTS =========================================
 
@@ -101,6 +105,7 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
     event RateLimitUpdated(bytes32 indexed routeId, uint256 capacity, uint256 refillRate);
     event Swept(ERC20 indexed token, address indexed vault, uint256 amount);
     event FeeReleased(uint256 indexed orderId, ERC20 indexed token, uint256 feeAmount);
+    event CancelFeeReleased(uint256 indexed orderId, ERC20 indexed token, uint256 feeAmount);
     event FeesClaimed(ERC20 indexed token, uint256 feeAmount);
     event Paused();
     event Unpaused();
@@ -123,11 +128,15 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
 
     /// @notice stores the list of approved adapters for this swapper
     mapping(address adapter => bool approved) public approvedAdapters;
+    address[] public approvedAdaptersList; 
 
     mapping(ERC20 token => mapping(address quoteAsset => RateProviderConfig rateProviderConfig)) internal
         _baseAssetOracles;
 
     mapping(ERC20 baseAsset => mapping(address quoteAsset => address[] rateProvider)) public oracles;
+
+    /// @notice principal locked against pending limit orders — decremented on cancel or release.
+    mapping(ERC20 token => uint256 amount) public pendingOrderPrincipal;
 
     /// @notice fees locked against pending orders — decremented on cancel or release.
     mapping(ERC20 feeAsset => uint256 feeAmount) public feesInToken;
@@ -144,17 +153,33 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
     /// @notice orderId, incremented by limit orders via submitOrder()
     uint256 public orders;
 
+    /// @notice central registry for allowed adapters 
     AdapterRegistry public adapterRegistry;
+    
+    /// @notice the price validator contract validating swap routes 
     IPriceValidator public priceValidator;
+    
+    /// @notice central fee registry for swap fees and routes
     IFeeRegistry public feeRegistry;
+
+    /// @notice the Boring Vault this swapper contact is associated with
+    BoringVault public boringVault;
 
     // ========================================= CONSTRUCTOR =========================================
 
-    constructor(address _owner, AdapterRegistry _adapterRegistry, IFeeRegistry _feeRegistry)
+    constructor(
+        address _owner, 
+        AdapterRegistry _adapterRegistry, 
+        IFeeRegistry _feeRegistry,
+        BoringVault _boringVault,
+        IPriceValidator _priceValidator
+    )
         Auth(_owner, Authority(address(0)))
     {
         adapterRegistry = _adapterRegistry;
         feeRegistry = _feeRegistry;
+        boringVault = _boringVault;
+        priceValidator = _priceValidator;
     }
 
     // ========================================= SWAP FUNCTIONS =========================================
@@ -207,10 +232,11 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
     }
 
     function _cancelOrder(uint256 orderId, SwapConfig calldata swapConfig) internal {
-        OrderRecord memory record = orderRecords[orderId];
+        OrderRecord storage record = orderRecords[orderId];
         if (address(record.tokenIn) == address(0)) revert BoringSwapper__OrderNotFound();
+        if (record.cancelledAt > 0) revert BoringSwapper__AlreadyCancelled();
 
-        delete orderRecords[orderId];
+        record.cancelledAt = block.timestamp;
 
         // Verify the supplied swapConfig matches the stored order, then revoke its hash
         address adapter = swapConfig.adapter;
@@ -231,24 +257,24 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
         uint256 reducedAllowance = currentAllowance > record.inputAmount ? currentAllowance - record.inputAmount : 0;
         record.tokenIn.safeApprove(record.approvalTarget, 0);
         if (reducedAllowance > 0) record.tokenIn.safeApprove(record.approvalTarget, reducedAllowance);
-        uint256 balance = record.tokenIn.balanceOf(address(this));
-        uint256 refund = balance < record.inputAmount + record.fee ? balance : record.inputAmount + record.fee;
-        if (refund > 0) {
-            record.tokenIn.safeTransfer(address(record.receiver), refund);
-        }
-        // Only deduct the portion of the fee still physically in the contract — guards against
-        // underflow when a partial fill consumed some or all of the non-fee tokens.
-        uint256 feeDeducted = record.fee < balance ? record.fee : balance;
-        uint256 feesHeld = feesInToken[record.tokenIn];
-        feesInToken[record.tokenIn] = feeDeducted < feesHeld ? feesHeld - feeDeducted : 0;
 
-        // Restore rate limit for the unfilled amount (partial fills only restore the unspent portion)
+        // Refund principal only — fee stays locked until releaseCancelFee() is called by admin.
+        // The fee portion is always present (protected by pendingOrderPrincipal in locked calculations),
+        // so subtract it from the balance before computing what principal is available to return.
+        uint256 balance = record.tokenIn.balanceOf(address(this));
+        uint256 availablePrincipal = balance > record.fee ? balance - record.fee : 0;
+        uint256 refund = availablePrincipal < record.inputAmount ? availablePrincipal : record.inputAmount;
+        if (refund > 0) record.tokenIn.safeTransfer(address(record.receiver), refund);
+
+        uint256 principalHeld = pendingOrderPrincipal[record.tokenIn];
+        pendingOrderPrincipal[record.tokenIn] = record.inputAmount < principalHeld ? principalHeld - record.inputAmount : 0;
+
+        // Restore rate limit for the unfilled principal amount
         bytes32 routeId = getRouteId(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut);
         RateLimit storage limit = rateLimitPerRoute[routeId];
         if (limit.capacity > 0) {
             _refillBucket(limit);
-            uint256 unfilledOrder = refund > record.fee ? refund - record.fee : 0;
-            uint256 normalized = (unfilledOrder * 1e18) / (10 ** record.tokenIn.decimals());
+            uint256 normalized = (refund * 1e18) / (10 ** record.tokenIn.decimals());
             uint256 restored = limit.remaining + normalized;
             limit.remaining = restored > limit.capacity ? limit.capacity : restored;
         }
@@ -331,6 +357,24 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
     function setApprovedAdapter(address adapter, bool toggle) external requiresAuth {
         approvedAdapters[adapter] = toggle;
 
+        if (toggle) {
+            approvedAdaptersList.push(adapter);
+        } else {
+            //swap & pop to keep array length in tact, but order doesn't matter for querying
+            uint256 index;
+            uint256 approvedAdaptersListLength = approvedAdaptersList.length; 
+            for (uint256 i; i < approvedAdaptersListLength;) {
+                if (approvedAdaptersList[i] == adapter) index = i; 
+
+                unchecked { 
+                    i++;
+                }
+            }
+
+            approvedAdaptersList[index] = approvedAdaptersList[approvedAdaptersListLength - 1]; 
+            approvedAdaptersList.pop(); 
+        }
+        
         emit AdapterApproved(adapter, toggle);
     }
 
@@ -387,13 +431,13 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
 
     /// @notice Reclaims any token sitting on the swapper back to a vault.
     /// @dev claimable by swapper admin
-    function sweep(ERC20 token, BoringVault vault) external requiresAuth {
-        uint256 locked = feesInToken[token] + claimableFees[token];
+    function sweep(ERC20 token) external requiresAuth {
+        uint256 locked = pendingOrderPrincipal[token] + feesInToken[token] + claimableFees[token];
         uint256 balance = token.balanceOf(address(this));
         uint256 sweepable = balance > locked ? balance - locked : 0;
-        if (sweepable > 0) token.safeTransfer(address(vault), sweepable);
+        if (sweepable > 0) token.safeTransfer(address(boringVault), sweepable);
 
-        emit Swept(token, address(vault), sweepable);
+        emit Swept(token, address(boringVault), sweepable);
     }
 
     /// @notice Marks a filled order's fee as claimable. Called by the off-chain bot after confirming the fill.
@@ -405,6 +449,9 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
         delete orderRecords[orderId];
         approvedHashes[record.protocolHash] = false;
 
+        uint256 principalHeld = pendingOrderPrincipal[record.tokenIn];
+        pendingOrderPrincipal[record.tokenIn] = record.inputAmount < principalHeld ? principalHeld - record.inputAmount : 0;
+
         //if order was submitted while no fee was active, nothing to move
         if (record.fee == 0) return;
 
@@ -412,6 +459,25 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
         claimableFees[record.tokenIn] += record.fee;
 
         emit FeeReleased(orderId, record.tokenIn, record.fee);
+    }
+
+    /// @notice Returns a cancelled order's fee to the vault after the fee delay has elapsed.
+    function releaseCancelFee(uint256 orderId) external {
+        OrderRecord memory record = orderRecords[orderId];
+        if (address(record.tokenIn) == address(0)) revert BoringSwapper__OrderNotFound();
+        if (record.cancelledAt == 0) revert BoringSwapper__NotCancelledOrder();
+
+        uint256 delay = feeRegistry.getCancelFeeDelay(address(this));
+        if (block.timestamp < record.cancelledAt + delay) revert BoringSwapper__CancelFeeNotClaimable();
+
+        delete orderRecords[orderId];
+
+        if (record.fee > 0) {
+            feesInToken[record.tokenIn] -= record.fee;
+            record.tokenIn.safeTransfer(address(record.receiver), record.fee);
+        }
+
+        emit CancelFeeReleased(orderId, record.tokenIn, record.fee);
     }
 
     /// @notice Claims all releasable fees for a token, sending them to the configured fee recipient.
@@ -514,10 +580,9 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
         swapConfig.tokenRoute.tokenOut.safeTransfer(address(swapConfig.receiver), tokenBalanceDelta);
 
         // Return any unspent tokenIn dust to the vault, excluding locked limit order funds.
-        // @dev `locked` only accounts for fee buckets, not pending order inputAmounts. If multiple
-        // concurrent instant swaps for the same tokenIn are in flight, one could sweep the other's
-        // unspent input as dust. Acceptable given Auth-gated callers and single-swap usage patterns.
-        uint256 locked = feesInToken[swapConfig.tokenRoute.tokenIn] + claimableFees[swapConfig.tokenRoute.tokenIn];
+        uint256 locked = pendingOrderPrincipal[swapConfig.tokenRoute.tokenIn]
+            + feesInToken[swapConfig.tokenRoute.tokenIn]
+            + claimableFees[swapConfig.tokenRoute.tokenIn];
         uint256 balance = swapConfig.tokenRoute.tokenIn.balanceOf(address(this));
         uint256 dust = balance > locked ? balance - locked : 0;
         if (dust > 0) swapConfig.tokenRoute.tokenIn.safeTransfer(address(swapConfig.receiver), dust);
@@ -564,6 +629,7 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
         // @dev !!! IMPORTANT !!!
         // vault must hold inputAmount + fee — strategist is responsible for leaving room for the fee!
         // use `getFee` on feeRegistry if you are swapping entire balances of a single token
+        pendingOrderPrincipal[swapConfig.tokenRoute.tokenIn] += info.inputAmount;
         swapConfig.tokenRoute.tokenIn
             .safeTransferFrom(address(swapConfig.receiver), address(this), info.inputAmount + limitFee);
 
@@ -577,7 +643,8 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
             inputAmount: info.inputAmount,
             receiver: swapConfig.receiver,
             fee: limitFee,
-            protocolHash: info.protocolHash
+            protocolHash: info.protocolHash,
+            cancelledAt: 0
         });
         approvedHashes[info.protocolHash] = true;
 

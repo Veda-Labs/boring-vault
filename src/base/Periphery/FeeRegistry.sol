@@ -27,6 +27,8 @@ contract FeeRegistry is Auth, IFeeRegistry {
     event FeeTokenRecipientSet(address indexed swapper, ERC20 token, address feeRecipient);
     event DefaultFeeSet(address indexed swapper, uint16 feeBps);
     event DefaultFeeRecipientSet(address indexed swapper, address feeRecipient);
+    event CancelFeeDelaySet(address indexed swapper, uint256 delay);
+    event DefaultCancelFeeDelaySet(uint256 delay);
 
     // ========================================= STATE =========================================
 
@@ -48,8 +50,14 @@ contract FeeRegistry is Auth, IFeeRegistry {
     /// @notice swapper -> default feeRecipient
     mapping(address swapper => address feeRecipient) public defaultRecipient; 
 
-    /// @notice swapper -> feeToken -> fee recipient. Allows configuration of fee recipient per feeToken. 
+    /// @notice swapper -> feeToken -> fee recipient. Allows configuration of fee recipient per feeToken.
     mapping(address swapper => mapping(ERC20 feeToken => address feeRecipient)) public feeTokenRecipient;
+
+    /// @notice Per-swapper delay before a cancelled order's fee can be released back to the vault.
+    mapping(address swapper => uint256 delay) public cancelFeeDelay;
+
+    /// @notice Fallback delay used when no per-swapper cancelFeeDelay is configured.
+    uint256 public defaultCancelFeeDelay;
 
     // ========================================= CONSTRUCTOR =========================================
 
@@ -105,6 +113,18 @@ contract FeeRegistry is Auth, IFeeRegistry {
         emit DefaultFeeRecipientSet(swapper, feeRecipient);
     }
 
+    /// @notice Sets the cancel fee release delay for a specific swapper. Set to 0 to fall back to the default.
+    function setCancelFeeDelay(address swapper, uint256 delay) external requiresAuth {
+        cancelFeeDelay[swapper] = delay;
+        emit CancelFeeDelaySet(swapper, delay);
+    }
+
+    /// @notice Sets the default cancel fee release delay used when no per-swapper delay is configured.
+    function setDefaultCancelFeeDelay(uint256 delay) external requiresAuth {
+        defaultCancelFeeDelay = delay;
+        emit DefaultCancelFeeDelaySet(delay);
+    }
+
     // ========================================= VIEW FUNCTIONS =========================================
 
     /// @notice Returns the applicable fee for a swap pair
@@ -130,6 +150,12 @@ contract FeeRegistry is Auth, IFeeRegistry {
 
         feeRecipient = defaultRecipient[swapper];
         return feeRecipient;        
+    }
+
+    /// @notice Returns the cancel fee delay for a swapper, falling back to the default if not set.
+    function getCancelFeeDelay(address swapper) external view returns (uint256) {
+        uint256 delay = cancelFeeDelay[swapper];
+        return delay > 0 ? delay : defaultCancelFeeDelay;
     }
 
     // ========================================= INTERNAL FUNCTIONS =========================================
