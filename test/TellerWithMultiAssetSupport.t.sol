@@ -6,7 +6,13 @@ pragma solidity 0.8.21;
 
 import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
 import {BoringVault} from "src/base/BoringVault.sol";
-import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import {TellerWithMultiAssetSupportLib} from "src/base/Roles/TellerWithMultiAssetSupportLib.sol";
+import {
+    TellerWithMultiAssetSupport,
+    DepositParams,
+    ComplianceData,
+    PermitData
+} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
@@ -17,15 +23,15 @@ import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthorit
 import {AtomicSolverV3, AtomicQueue} from "src/archive/atomic-queue/AtomicSolverV3.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
-import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
+import {Test, stdStorage, StdStorage, stdError, console, Vm} from "@forge-std/Test.sol";
+import {MessageHashUtils} from "@openzeppelin-contracts-5.3.0/utils/cryptography/MessageHashUtils.sol";
 
 contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     using SafeTransferLib for ERC20;
     using FixedPointMathLib for uint256;
     using stdStorage for StdStorage;
 
-    bytes4 internal constant DEPOSIT_SELECTOR = bytes4(keccak256("deposit(address,uint256,uint256,address)"));
-    bytes4 internal constant DEPOSIT_TO_SELECTOR = bytes4(keccak256("deposit(address,uint256,uint256,address,address)"));
+    event TransferRestrictionsSet(uint8 transferAllowedRole, uint8 allowlistedRouterRole);
 
     BoringVault public boringVault;
 
@@ -35,7 +41,8 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     uint8 public constant SOLVER_ROLE = 9;
     uint8 public constant QUEUE_ROLE = 10;
     uint8 public constant CAN_SOLVE_ROLE = 11;
-    uint8 public constant ROUTER_ROLE = 55;
+    uint8 public constant ROUTER_ROLE = 12;
+    uint8 public constant COMPLIANCE_SIGNER_ROLE = 224;
 
     TellerWithMultiAssetSupport public teller;
     AccountantWithRateProviders public accountant;
@@ -108,8 +115,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         rolesAuthority.setRoleCapability(
             CAN_SOLVE_ROLE, address(atomicSolverV3), AtomicSolverV3.redeemSolve.selector, true
         );
-        rolesAuthority.setRoleCapability(ROUTER_ROLE, address(teller), DEPOSIT_TO_SELECTOR, true);
-        rolesAuthority.setPublicCapability(address(teller), DEPOSIT_SELECTOR, true);
+        rolesAuthority.setPublicCapability(address(teller), TellerWithMultiAssetSupport.deposit.selector, true);
         rolesAuthority.setPublicCapability(
             address(teller), TellerWithMultiAssetSupport.depositWithPermit.selector, true
         );
@@ -147,12 +153,16 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
         WETH.safeApprove(address(boringVault), wETH_amount);
         EETH.safeApprove(address(boringVault), eETH_amount);
-        uint256 shares0 = teller.deposit(WETH, wETH_amount, 0, referrer);
+        uint256 shares0 =
+            teller.deposit(DepositParams(WETH, wETH_amount, 0), address(this), referrer, ComplianceData(0, ""));
         uint256 firstDepositTimestamp = block.timestamp;
+        uint256 firstDepositSharePrice = accountant.getRateSafe();
         // Skip 1 days to finalize first deposit.
         skip(1 days + 1);
-        uint256 shares1 = teller.deposit(EETH, eETH_amount, 0, referrer);
+        uint256 shares1 =
+            teller.deposit(DepositParams(EETH, eETH_amount, 0), address(this), referrer, ComplianceData(0, ""));
         uint256 secondDepositTimestamp = block.timestamp;
+        uint256 secondDepositSharePrice = accountant.getRateSafe();
 
         // Even if setShareLockPeriod is set to 2 days, first deposit is still not revertable.
         teller.setShareLockPeriod(2 days);
@@ -161,16 +171,46 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__SharesAreUnLocked.selector)
         );
-        teller.refundDeposit(1, address(this), address(WETH), wETH_amount, shares0, firstDepositTimestamp, 1 days, referrer);
+        teller.refundDeposit(
+            1,
+            address(this),
+            address(WETH),
+            wETH_amount,
+            shares0,
+            firstDepositTimestamp,
+            1 days,
+            firstDepositSharePrice,
+            referrer
+        );
 
         // However the second deposit is still revertable.
-        teller.refundDeposit(2, address(this), address(EETH), eETH_amount, shares1, secondDepositTimestamp, 1 days, referrer);
+        teller.refundDeposit(
+            2,
+            address(this),
+            address(EETH),
+            eETH_amount,
+            shares1,
+            secondDepositTimestamp,
+            1 days,
+            secondDepositSharePrice,
+            referrer
+        );
 
         // Calling revert deposit again should revert.
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__BadDepositHash.selector)
         );
-        teller.refundDeposit(2, address(this), address(EETH), eETH_amount, shares1, secondDepositTimestamp, 1 days, referrer);
+        teller.refundDeposit(
+            2,
+            address(this),
+            address(EETH),
+            eETH_amount,
+            shares1,
+            secondDepositTimestamp,
+            1 days,
+            secondDepositSharePrice,
+            referrer
+        );
     }
 
     function testUserDepositPeggedAssets(uint256 amount) external {
@@ -187,9 +227,9 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
         uint96 currentNonce = teller.depositNonce();
 
-        teller.deposit(WETH, wETH_amount, 0, referrer);
+        teller.deposit(DepositParams(WETH, wETH_amount, 0), address(this), referrer, ComplianceData(0, ""));
         assertEq(teller.depositNonce(), currentNonce + 1, "Deposit nonce should have increased by 1");
-        teller.deposit(EETH, eETH_amount, 0, referrer);
+        teller.deposit(DepositParams(EETH, eETH_amount, 0), address(this), referrer, ComplianceData(0, ""));
         assertEq(teller.depositNonce(), currentNonce + 2, "Deposit nonce should have increased by 2");
         assertEq(teller.depositNonce(), 2, "Deposit nonce should be 2");
 
@@ -206,7 +246,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
         WEETH.safeApprove(address(boringVault), weETH_amount);
 
-        teller.deposit(WEETH, weETH_amount, 0, referrer);
+        teller.deposit(DepositParams(WEETH, weETH_amount, 0), address(this), referrer, ComplianceData(0, ""));
 
         uint256 expected_shares = amount;
 
@@ -220,15 +260,30 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
         deal(address(this), 2 * amount);
 
-        teller.deposit{value: amount}(ERC20(NATIVE), 0, 0, referrer);
+        teller.deposit{value: amount}(
+            DepositParams(ERC20(NATIVE), 0, 0), address(this), referrer, ComplianceData(0, "")
+        );
 
         assertEq(boringVault.balanceOf(address(this)), amount, "Should have received expected shares");
+    }
+
+    function testDepositWithPermitNativeReverts(uint256 amount) external {
+        amount = bound(amount, 0.0001e18, 10_000e18);
+
+        vm.expectRevert(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__AssetNotSupported.selector);
+        teller.depositWithPermit(
+            DepositParams(NATIVE_ERC20, amount, 0),
+            PermitData(block.timestamp, 0, bytes32(0), bytes32(0)),
+            address(this),
+            referrer,
+            ComplianceData(0, "")
+        );
     }
 
     function testDepositToLocksAndRefundsReceiver() external {
         boringVault.setBeforeTransferHook(address(teller));
         teller.setShareLockPeriod(1 days);
-        rolesAuthority.setUserRole(address(this), ROUTER_ROLE, true);
+        teller.setTransferRestrictions(type(uint8).max, ADMIN_ROLE);
 
         address user = vm.addr(2);
         address recipient = vm.addr(3);
@@ -236,13 +291,13 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(this), depositAmount);
         WETH.safeApprove(address(boringVault), depositAmount);
 
-        uint256 shares = teller.deposit(WETH, depositAmount, 0, user, referrer);
+        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0), user, referrer, ComplianceData(0, ""));
 
         assertEq(boringVault.balanceOf(user), shares, "Receiver should have received shares");
         assertEq(boringVault.balanceOf(address(this)), 0, "Caller should not have received shares");
 
-        (,,,, uint256 receiverUnlockTime) = teller.beforeTransferData(user);
-        (,,,, uint256 callerUnlockTime) = teller.beforeTransferData(address(this));
+        (bool _denyFrom, bool _denyTo, bool _denyOp, uint64 receiverUnlockTime) = teller.beforeTransferData(user);
+        (,,, uint64 callerUnlockTime) = teller.beforeTransferData(address(this));
         assertEq(receiverUnlockTime, block.timestamp + 1 days, "Receiver shares should be locked");
         assertEq(callerUnlockTime, 0, "Caller should not be locked");
 
@@ -262,18 +317,32 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         WETH.safeApprove(address(boringVault), depositAmount);
 
         uint256 userBalanceBeforeRefund = WETH.balanceOf(user);
-        uint256 refundedShares = teller.deposit(WETH, depositAmount, 0, user, referrer);
+        uint256 refundedShares =
+            teller.deposit(DepositParams(WETH, depositAmount, 0), user, referrer, ComplianceData(0, ""));
         uint256 refundDepositTimestamp = block.timestamp;
+        uint256 refundSharePrice = accountant.getRateSafe();
 
-        teller.refundDeposit(2, user, address(WETH), depositAmount, refundedShares, refundDepositTimestamp, 1 days, referrer);
+        teller.refundDeposit(
+            2,
+            user,
+            address(WETH),
+            depositAmount,
+            refundedShares,
+            refundDepositTimestamp,
+            1 days,
+            refundSharePrice,
+            referrer
+        );
 
         assertEq(boringVault.balanceOf(user), 0, "Receiver shares should be burned on refund");
-        assertEq(WETH.balanceOf(user), userBalanceBeforeRefund + depositAmount, "Receiver should receive refunded asset");
+        assertEq(
+            WETH.balanceOf(user), userBalanceBeforeRefund + depositAmount, "Receiver should receive refunded asset"
+        );
     }
 
     function testDepositToRefundReturnsAssetsToReceiver() external {
         teller.setShareLockPeriod(1 days);
-        rolesAuthority.setUserRole(address(this), ROUTER_ROLE, true);
+        teller.setTransferRestrictions(type(uint8).max, ADMIN_ROLE);
 
         address user = vm.addr(4);
         uint256 depositAmount = 1e18;
@@ -281,16 +350,19 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(this), depositAmount);
         WETH.safeApprove(address(boringVault), depositAmount);
 
-        uint256 callerBalanceBeforeRefund = WETH.balanceOf(address(this));
         uint256 receiverBalanceBeforeRefund = WETH.balanceOf(user);
-        uint256 shares = teller.deposit(WETH, depositAmount, 0, user, referrer);
+        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0), user, referrer, ComplianceData(0, ""));
         uint256 depositTimestamp = block.timestamp;
+        uint256 depositSharePrice = accountant.getRateSafe();
 
-        teller.refundDeposit(1, user, address(WETH), depositAmount, shares, depositTimestamp, 1 days, referrer);
+        teller.refundDeposit(
+            1, user, address(WETH), depositAmount, shares, depositTimestamp, 1 days, depositSharePrice, referrer
+        );
 
         assertEq(boringVault.balanceOf(user), 0, "Receiver shares should be burned on refund");
-        assertEq(WETH.balanceOf(user), receiverBalanceBeforeRefund + depositAmount, "Receiver should receive refunded asset");
-        assertEq(WETH.balanceOf(address(this)), callerBalanceBeforeRefund - depositAmount, "Caller should not receive refund");
+        assertEq(
+            WETH.balanceOf(user), receiverBalanceBeforeRefund + depositAmount, "Receiver should receive refunded asset"
+        );
     }
 
     function testUserPermitDeposit(uint256 amount) external {
@@ -321,7 +393,13 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(userKey, digest);
 
         vm.startPrank(user);
-        teller.depositWithPermit(WEETH, weETH_amount, 0, block.timestamp, v, r, s, referrer);
+        teller.depositWithPermit(
+            DepositParams(WEETH, weETH_amount, 0),
+            PermitData(block.timestamp, v, r, s),
+            user,
+            referrer,
+            ComplianceData(0, "")
+        );
         vm.stopPrank();
 
         // and if user supplied wrong permit data, deposit will fail.
@@ -349,7 +427,13 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
                 TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__PermitFailedAndAllowanceTooLow.selector
             )
         );
-        teller.depositWithPermit(WEETH, weETH_amount, 0, block.timestamp, v, r, s, referrer);
+        teller.depositWithPermit(
+            DepositParams(WEETH, weETH_amount, 0),
+            PermitData(block.timestamp, v, r, s),
+            user,
+            referrer,
+            ComplianceData(0, "")
+        );
         vm.stopPrank();
     }
 
@@ -388,7 +472,13 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
         // Users TX is still successful.
         vm.startPrank(user);
-        teller.depositWithPermit(WEETH, weETH_amount, 0, block.timestamp, v, r, s, referrer);
+        teller.depositWithPermit(
+            DepositParams(WEETH, weETH_amount, 0),
+            PermitData(block.timestamp, v, r, s),
+            user,
+            referrer,
+            ComplianceData(0, "")
+        );
         vm.stopPrank();
 
         assertTrue(boringVault.balanceOf(user) > 0, "Should have received shares");
@@ -458,14 +548,11 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         vm.startPrank(user);
         WETH.safeApprove(address(boringVault), wETH_amount);
 
-        uint256 shares = teller.deposit(WETH, wETH_amount, 0, referrer);
+        uint256 shares = teller.deposit(DepositParams(WETH, wETH_amount, 0), user, referrer, ComplianceData(0, ""));
 
         // Share lock period is not set, so user can submit withdraw request immediately.
         AtomicQueue.AtomicRequest memory req = AtomicQueue.AtomicRequest({
-            deadline: uint64(block.timestamp + 1 days),
-            atomicPrice: 1e18,
-            offerAmount: uint96(shares),
-            inSolve: false
+            deadline: uint64(block.timestamp + 1 days), atomicPrice: 1e18, offerAmount: uint96(shares), inSolve: false
         });
         boringVault.approve(address(atomicQueue), shares);
         atomicQueue.updateAtomicRequest(boringVault, WETH, req);
@@ -514,7 +601,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         boringVault.transfer(address(this), 0.1e18);
 
         // But if attacker is added to the deny list, transfers should fail.
-        teller.denyAll(attacker);
+        teller.setDenyFlags(attacker, true, true, true);
 
         vm.startPrank(attacker);
         vm.expectRevert(
@@ -539,7 +626,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         boringVault.transferFrom(attacker, address(this), 0.1e18);
 
         // If attacker is removed from the deny list, transfers should work again.
-        teller.allowAll(attacker);
+        teller.setDenyFlags(attacker, false, false, false);
 
         vm.prank(attacker);
         boringVault.transfer(address(this), 0.1e18);
@@ -548,7 +635,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         address operator = vm.addr(2);
         address normalUser = vm.addr(3);
 
-        teller.denyAll(operator);
+        teller.setDenyFlags(operator, true, true, true);
 
         vm.startPrank(operator);
         vm.expectRevert(
@@ -576,7 +663,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         boringVault.transferFrom(from, to, 1e18);
 
         // Transfers fail if from is denied.
-        teller.denyFrom(from);
+        teller.setDenyFlags(from, true, false, false);
         vm.expectRevert(
             abi.encodeWithSelector(
                 TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector,
@@ -587,10 +674,10 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         );
         boringVault.transferFrom(from, to, 1e18);
 
-        teller.allowFrom(from);
+        teller.setDenyFlags(from, false, false, false);
 
         // Transfers fail if to is denied.
-        teller.denyTo(to);
+        teller.setDenyFlags(to, false, true, false);
         vm.expectRevert(
             abi.encodeWithSelector(
                 TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector,
@@ -601,10 +688,10 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         );
         boringVault.transferFrom(from, to, 1e18);
 
-        teller.allowTo(to);
+        teller.setDenyFlags(to, false, false, false);
 
         // Transfers fail if operator is denied.
-        teller.denyOperator(address(this));
+        teller.setDenyFlags(address(this), false, false, true);
         vm.expectRevert(
             abi.encodeWithSelector(
                 TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector,
@@ -615,7 +702,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         );
         boringVault.transferFrom(from, to, 1e18);
 
-        teller.allowOperator(address(this));
+        teller.setDenyFlags(address(this), false, false, false);
 
         // Transfers currently work.
         boringVault.transferFrom(from, to, 1e18);
@@ -630,7 +717,8 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         WETH.approve(address(boringVault), depositAmount);
 
         uint256 shareDelta = boringVault.balanceOf(address(this));
-        uint256 sharesOut = teller.deposit(WETH, depositAmount, 0, referrer);
+        uint256 sharesOut =
+            teller.deposit(DepositParams(WETH, depositAmount, 0), address(this), referrer, ComplianceData(0, ""));
         shareDelta = boringVault.balanceOf(address(this)) - shareDelta;
 
         // WETH is 1:1 with share price, so shares out should equal depositAmount - sharePremium
@@ -650,7 +738,9 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         deal(address(this), depositAmount);
 
         uint256 shareDelta = boringVault.balanceOf(address(this));
-        uint256 sharesOut = teller.deposit{value: depositAmount}(ERC20(NATIVE), 0, 0, referrer);
+        uint256 sharesOut = teller.deposit{value: depositAmount}(
+            DepositParams(ERC20(NATIVE), 0, 0), address(this), referrer, ComplianceData(0, "")
+        );
         shareDelta = boringVault.balanceOf(address(this)) - shareDelta;
 
         // ETH is 1:1 with share price, so shares out should equal depositAmount - sharePremium
@@ -673,7 +763,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
                 )
             )
         );
-        teller.deposit(WETH, 0, 0, referrer);
+        teller.deposit(DepositParams(WETH, 0, 0), address(this), referrer, ComplianceData(0, ""));
 
         // Allow deposits
         teller.updateAssetData(WETH, true, false, 0);
@@ -681,7 +771,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             bytes(abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ZeroAssets.selector))
         );
-        teller.deposit(WETH, 0, 0, referrer);
+        teller.deposit(DepositParams(WETH, 0, 0), address(this), referrer, ComplianceData(0, ""));
 
         // Stop deposits.
         teller.updateAssetData(WETH, false, false, 0);
@@ -693,7 +783,13 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
                 )
             )
         );
-        teller.depositWithPermit(WETH, 0, 0, 0, 0, bytes32(0), bytes32(0), referrer);
+        teller.depositWithPermit(
+            DepositParams(WETH, 0, 0),
+            PermitData(0, 0, bytes32(0), bytes32(0)),
+            address(this),
+            referrer,
+            ComplianceData(0, "")
+        );
 
         // Allow deposits
         teller.updateAssetData(WETH, true, false, 0);
@@ -701,7 +797,13 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             bytes(abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ZeroAssets.selector))
         );
-        teller.depositWithPermit(WETH, 0, 0, 0, 0, bytes32(0), bytes32(0), referrer);
+        teller.depositWithPermit(
+            DepositParams(WETH, 0, 0),
+            PermitData(0, 0, bytes32(0), bytes32(0)),
+            address(this),
+            referrer,
+            ComplianceData(0, "")
+        );
 
         // Stop deposits.
         teller.updateAssetData(WETH, false, false, 0);
@@ -713,7 +815,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
                 )
             )
         );
-        teller.bulkDeposit(WETH, 0, 0, address(0));
+        teller.bulkDeposit(WETH, 0, 0, address(this));
 
         // Allow deposits
         teller.updateAssetData(WETH, true, false, 0);
@@ -721,7 +823,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             bytes(abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ZeroAssets.selector))
         );
-        teller.bulkDeposit(WETH, 0, 0, address(0));
+        teller.bulkDeposit(WETH, 0, 0, address(this));
     }
 
     function testAllowWithdraws() external {
@@ -735,7 +837,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
                 )
             )
         );
-        teller.bulkWithdraw(WETH, 0, 0, address(0));
+        teller.bulkWithdraw(WETH, 0, 0, address(this));
 
         // Allow withdraws
         teller.updateAssetData(WETH, false, true, 0);
@@ -743,7 +845,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             bytes(abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ZeroShares.selector))
         );
-        teller.bulkWithdraw(WETH, 0, 0, address(0));
+        teller.bulkWithdraw(WETH, 0, 0, address(this));
     }
 
     function testShowDepositAndTransferLogic() external {
@@ -770,41 +872,61 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         // can deposit multiple times in a row without share lock blocking
         deal(address(WETH), address(this), 1e18);
         WETH.safeApprove(address(boringVault), 1e18);
-        teller.deposit(WETH, 0.1e18, 0, referrer);
+        teller.deposit(DepositParams(WETH, 0.1e18, 0), address(this), referrer, ComplianceData(0, ""));
         skip(100);
-        teller.deposit(WETH, 0.1e18, 0, referrer);
+        teller.deposit(DepositParams(WETH, 0.1e18, 0), address(this), referrer, ComplianceData(0, ""));
     }
 
     function testDepositRevertsWhenDenyFrom() external {
-        teller.denyFrom(address(this));
+        teller.setDenyFlags(address(this), true, false, false);
         vm.expectRevert(
-            abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector, address(this), address(this), address(this))
+            abi.encodeWithSelector(
+                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector,
+                address(this),
+                address(this),
+                address(this)
+            )
         );
-        teller.deposit(WETH, 1e18, 0, referrer);
+        teller.deposit(DepositParams(WETH, 1e18, 0), address(this), referrer, ComplianceData(0, ""));
     }
 
     function testDepositRevertsWhenDenyTo() external {
-        teller.denyTo(address(this));
+        teller.setDenyFlags(address(this), false, true, false);
         vm.expectRevert(
-            abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector, address(this), address(this), address(this))
+            abi.encodeWithSelector(
+                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector,
+                address(this),
+                address(this),
+                address(this)
+            )
         );
-        teller.deposit(WETH, 1e18, 0, referrer);
+        teller.deposit(DepositParams(WETH, 1e18, 0), address(this), referrer, ComplianceData(0, ""));
     }
 
     function testDepositRevertsWhenDenyOperator() external {
-        teller.denyOperator(address(this));
+        teller.setDenyFlags(address(this), false, false, true);
         vm.expectRevert(
-            abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector, address(this), address(this), address(this))
+            abi.encodeWithSelector(
+                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector,
+                address(this),
+                address(this),
+                address(this)
+            )
         );
-        teller.deposit(WETH, 1e18, 0, referrer);
+        teller.deposit(DepositParams(WETH, 1e18, 0), address(this), referrer, ComplianceData(0, ""));
     }
 
     function testDepositRevertsWhenDenyAll() external {
-        teller.denyAll(address(this));
+        teller.setDenyFlags(address(this), true, true, true);
         vm.expectRevert(
-            abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector, address(this), address(this), address(this))
+            abi.encodeWithSelector(
+                TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector,
+                address(this),
+                address(this),
+                address(this)
+            )
         );
-        teller.deposit(WETH, 1e18, 0, referrer);
+        teller.deposit(DepositParams(WETH, 1e18, 0), address(this), referrer, ComplianceData(0, ""));
     }
 
     function testReverts() external {
@@ -814,12 +936,18 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__Paused.selector)
         );
-        teller.deposit(WETH, 0, 0, referrer);
+        teller.deposit(DepositParams(WETH, 0, 0), address(this), referrer, ComplianceData(0, ""));
 
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__Paused.selector)
         );
-        teller.depositWithPermit(WETH, 0, 0, 0, 0, bytes32(0), bytes32(0), referrer);
+        teller.depositWithPermit(
+            DepositParams(WETH, 0, 0),
+            PermitData(0, 0, bytes32(0), bytes32(0)),
+            address(this),
+            referrer,
+            ComplianceData(0, "")
+        );
 
         teller.unpause();
 
@@ -828,34 +956,36 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__AssetNotSupported.selector)
         );
-        teller.deposit(WETH, 0, 0, referrer);
+        teller.deposit(DepositParams(WETH, 0, 0), address(this), referrer, ComplianceData(0, ""));
 
         teller.updateAssetData(WETH, true, true, 0);
 
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ZeroAssets.selector)
         );
-        teller.deposit(WETH, 0, 0, referrer);
+        teller.deposit(DepositParams(WETH, 0, 0), address(this), referrer, ComplianceData(0, ""));
 
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__DualDeposit.selector)
         );
-        teller.deposit{value: 1}(WETH, 1, 0, referrer);
+        teller.deposit{value: 1}(DepositParams(WETH, 1, 0), address(this), referrer, ComplianceData(0, ""));
 
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__MinimumMintNotMet.selector)
         );
-        teller.deposit(WETH, 1, type(uint256).max, referrer);
+        teller.deposit(DepositParams(WETH, 1, type(uint256).max), address(this), referrer, ComplianceData(0, ""));
 
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__ZeroAssets.selector)
         );
-        teller.deposit(NATIVE_ERC20, 0, 0, referrer);
+        teller.deposit(DepositParams(NATIVE_ERC20, 0, 0), address(this), referrer, ComplianceData(0, ""));
 
         vm.expectRevert(
             abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__MinimumMintNotMet.selector)
         );
-        teller.deposit{value: 1}(NATIVE_ERC20, 1, type(uint256).max, referrer);
+        teller.deposit{value: 1}(
+            DepositParams(NATIVE_ERC20, 1, type(uint256).max), address(this), referrer, ComplianceData(0, "")
+        );
 
         // updateAssetData revert
         vm.expectRevert(
@@ -907,7 +1037,7 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         deal(address(WETH), user, wETH_amount);
         WETH.safeApprove(address(boringVault), wETH_amount);
 
-        teller.deposit(WETH, wETH_amount, 0, referrer);
+        teller.deposit(DepositParams(WETH, wETH_amount, 0), user, referrer, ComplianceData(0, ""));
 
         // Trying to transfer shares should revert.
         vm.expectRevert(
@@ -928,52 +1058,27 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         vm.prank(user);
         boringVault.transfer(address(this), 1);
 
-        // Test permissioned transfer mode
-        teller.setPermissionedTransfers(true);
-
-        vm.prank(user);
+        teller.setDepositCap(100e18);
+        wETH_amount = 101e18;
         vm.expectRevert(
-            abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector, user, address(this), user)
+            abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__DepositExceedsCap.selector)
         );
-        boringVault.transfer(address(this), 1);
-
-        teller.allowPermissionedOperator(user);
-        vm.prank(user);
-        boringVault.transfer(address(this), 1); // now succeeds
-
-        teller.denyPermissionedOperator(user);
-        vm.prank(user);
-        vm.expectRevert(
-            abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferDenied.selector, user, address(this), user)
-        );
-        boringVault.transfer(address(this), 1); // now fails
-
-        teller.setPermissionedTransfers(false);
-        vm.prank(user);
-        boringVault.transfer(address(this), 1); // now succeeds again
-
-        
-        teller.setDepositCap(100e18); 
-        wETH_amount = 101e18; 
-        vm.expectRevert(
-            abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__DepositExceedsCap.selector) 
-        );
-        teller.deposit(WETH, wETH_amount, 0, referrer);
+        teller.deposit(DepositParams(WETH, wETH_amount, 0), address(this), referrer, ComplianceData(0, ""));
 
         //now succeeds
-        teller.setDepositCap(1000e18); 
+        teller.setDepositCap(1000e18);
 
-        deal(address(WETH), user, 1000e18); 
-        wETH_amount = 998e18; 
-        vm.startPrank(user); 
-        WETH.approve(address(boringVault), type(uint256).max); 
-        teller.deposit(WETH, wETH_amount, 0, referrer);
-        
+        deal(address(WETH), user, 1000e18);
+        wETH_amount = 998e18;
+        vm.startPrank(user);
+        WETH.approve(address(boringVault), type(uint256).max);
+        teller.deposit(DepositParams(WETH, wETH_amount, 0), user, referrer, ComplianceData(0, ""));
+
         //now we add more than deposit cap
         vm.expectRevert(
-            abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__DepositExceedsCap.selector) 
+            abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__DepositExceedsCap.selector)
         );
-        teller.deposit(WETH, 2e18, 0, referrer);
+        teller.deposit(DepositParams(WETH, 2e18, 0), user, referrer, ComplianceData(0, ""));
     }
 
     // ========================================= HELPER FUNCTIONS =========================================
@@ -986,7 +1091,8 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
     function depositAndTransfer(ERC20 asset, uint256 depositAmount, address to, bool expectRevert) public {
         deal(address(asset), address(this), depositAmount);
         asset.approve(address(boringVault), depositAmount);
-        uint256 shares = teller.deposit(asset, depositAmount, 0, referrer);
+        uint256 shares =
+            teller.deposit(DepositParams(asset, depositAmount, 0), address(this), referrer, ComplianceData(0, ""));
         if (expectRevert) {
             vm.expectRevert(
                 bytes(
@@ -1012,7 +1118,9 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
         address indexed referralAddress
     );
 
-    function testDepositEmitsReadableReferralEvent() external{
+    event ComplianceConfigSet(uint8 role, uint96 window);
+
+    function testDepositEmitsReadableReferralEvent() external {
         uint256 amount = 1e18;
 
         uint256 wETH_amount = amount;
@@ -1020,16 +1128,852 @@ contract TellerWithMultiAssetSupportTest is Test, MerkleTreeHelper {
 
         WETH.safeApprove(address(boringVault), wETH_amount);
         vm.expectEmit();
-        emit Deposit(
-            1,
-            address(this),
-            address(WETH),
-            wETH_amount,
-            wETH_amount,
-            block.timestamp,
-            0,
-            referrer
+        emit Deposit(1, address(this), address(WETH), wETH_amount, wETH_amount, block.timestamp, 0, referrer);
+        teller.deposit(DepositParams(WETH, wETH_amount, 0), address(this), referrer, ComplianceData(0, ""));
+    }
+
+    // ======================================= COMPLIANCE TESTS =======================================
+
+    function testSetComplianceConfig() external {
+        uint96 window = 1 hours;
+
+        vm.expectEmit();
+        emit ComplianceConfigSet(COMPLIANCE_SIGNER_ROLE, window);
+        teller.setComplianceConfig(COMPLIANCE_SIGNER_ROLE, window);
+
+        assertEq(teller.complianceSignerRole(), COMPLIANCE_SIGNER_ROLE, "Compliance signer role should be set");
+        assertEq(teller.complianceWindow(), window, "Compliance window should be set");
+    }
+
+    function testDepositWithComplianceSignature() external {
+        uint256 signerKey = 0xBEEF;
+        address signer = vm.addr(signerKey);
+        rolesAuthority.setUserRole(signer, COMPLIANCE_SIGNER_ROLE, true);
+        teller.setComplianceConfig(COMPLIANCE_SIGNER_ROLE, 0);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), address(this), depositAmount);
+        WETH.safeApprove(address(boringVault), depositAmount);
+
+        uint256 deadline = block.timestamp + 1 hours;
+        bytes32 messageHash = keccak256(
+            abi.encode(
+                address(teller), block.chainid, address(this), address(this), address(WETH), depositAmount, deadline
+            )
         );
-        teller.deposit(WETH, wETH_amount, 0, referrer);
+        bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerKey, ethSignedHash);
+        bytes memory signature = abi.encodePacked(r, s, v);
+
+        uint256 shares = teller.deposit(
+            DepositParams(WETH, depositAmount, 0), address(this), referrer, ComplianceData(deadline, signature)
+        );
+
+        assertEq(shares, depositAmount, "Should have received expected shares");
+        assertTrue(teller.usedComplianceSignatures(messageHash), "Compliance signature should be marked as used");
+    }
+
+    function testComplianceSignatureReplayReverts() external {
+        uint256 signerKey = 0xBEEF;
+        address signer = vm.addr(signerKey);
+        rolesAuthority.setUserRole(signer, COMPLIANCE_SIGNER_ROLE, true);
+        teller.setComplianceConfig(COMPLIANCE_SIGNER_ROLE, 0);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), address(this), 2 * depositAmount);
+        WETH.safeApprove(address(boringVault), 2 * depositAmount);
+
+        uint256 deadline = block.timestamp + 1 hours;
+        bytes32 messageHash = keccak256(
+            abi.encode(
+                address(teller), block.chainid, address(this), address(this), address(WETH), depositAmount, deadline
+            )
+        );
+        bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerKey, ethSignedHash);
+        bytes memory signature = abi.encodePacked(r, s, v);
+
+        // First deposit succeeds.
+        teller.deposit(
+            DepositParams(WETH, depositAmount, 0), address(this), referrer, ComplianceData(deadline, signature)
+        );
+
+        // Second deposit with same signature reverts.
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TellerWithMultiAssetSupportLib.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
+            )
+        );
+        teller.deposit(
+            DepositParams(WETH, depositAmount, 0), address(this), referrer, ComplianceData(deadline, signature)
+        );
+    }
+
+    function testComplianceSignatureExpiredReverts() external {
+        uint256 signerKey = 0xBEEF;
+        address signer = vm.addr(signerKey);
+        rolesAuthority.setUserRole(signer, COMPLIANCE_SIGNER_ROLE, true);
+        teller.setComplianceConfig(COMPLIANCE_SIGNER_ROLE, 0);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), address(this), depositAmount);
+        WETH.safeApprove(address(boringVault), depositAmount);
+
+        // Set deadline in the past.
+        uint256 deadline = block.timestamp - 1;
+        bytes32 messageHash = keccak256(
+            abi.encode(
+                address(teller), block.chainid, address(this), address(this), address(WETH), depositAmount, deadline
+            )
+        );
+        bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerKey, ethSignedHash);
+        bytes memory signature = abi.encodePacked(r, s, v);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TellerWithMultiAssetSupportLib.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
+            )
+        );
+        teller.deposit(
+            DepositParams(WETH, depositAmount, 0), address(this), referrer, ComplianceData(deadline, signature)
+        );
+    }
+
+    function testComplianceWindowExceededReverts() external {
+        uint256 signerKey = 0xBEEF;
+        address signer = vm.addr(signerKey);
+        rolesAuthority.setUserRole(signer, COMPLIANCE_SIGNER_ROLE, true);
+        // Set a 1-hour compliance window (relative duration, not absolute timestamp).
+        uint96 window = 1 hours;
+        teller.setComplianceConfig(COMPLIANCE_SIGNER_ROLE, window);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), address(this), depositAmount);
+        WETH.safeApprove(address(boringVault), depositAmount);
+
+        // Use a deadline that exceeds block.timestamp + window.
+        uint256 deadline = block.timestamp + uint256(window) + 1;
+        bytes32 messageHash = keccak256(
+            abi.encode(
+                address(teller), block.chainid, address(this), address(this), address(WETH), depositAmount, deadline
+            )
+        );
+        bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerKey, ethSignedHash);
+        bytes memory signature = abi.encodePacked(r, s, v);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TellerWithMultiAssetSupportLib.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
+            )
+        );
+        teller.deposit(
+            DepositParams(WETH, depositAmount, 0), address(this), referrer, ComplianceData(deadline, signature)
+        );
+    }
+
+    function testComplianceWindowRelativeNotAbsolute() external {
+        // Prove that complianceWindow is treated as a relative duration, not an absolute timestamp.
+        // If someone mistakenly sets window = 604800 (7 days in seconds), it should allow
+        // deadlines up to block.timestamp + 604800, NOT treat 604800 as a Unix timestamp.
+        uint256 signerKey = 0xBEEF;
+        address signer = vm.addr(signerKey);
+        rolesAuthority.setUserRole(signer, COMPLIANCE_SIGNER_ROLE, true);
+        uint96 sevenDays = 7 days;
+        teller.setComplianceConfig(COMPLIANCE_SIGNER_ROLE, sevenDays);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), address(this), depositAmount);
+        WETH.safeApprove(address(boringVault), depositAmount);
+
+        // A deadline 6 days from now should succeed (within the 7-day window).
+        uint256 deadline = block.timestamp + 6 days;
+        bytes32 messageHash = keccak256(
+            abi.encode(
+                address(teller), block.chainid, address(this), address(this), address(WETH), depositAmount, deadline
+            )
+        );
+        bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerKey, ethSignedHash);
+        bytes memory signature = abi.encodePacked(r, s, v);
+
+        // Should NOT revert -- deadline is within the window.
+        teller.deposit(
+            DepositParams(WETH, depositAmount, 0), address(this), referrer, ComplianceData(deadline, signature)
+        );
+    }
+
+    function testComplianceWindowSmallValueDoesNotBlockDeposits() external {
+        // Regression: if complianceWindow were treated as an absolute timestamp,
+        // setting it to a small value like 3600 (1 hour) would be interpreted as
+        // Unix timestamp 3600 (Jan 1, 1970 01:00 UTC), blocking ALL deposits
+        // because every modern deadline > 3600. With relative semantics, 3600
+        // means "deadline must be within 1 hour of now", which works correctly.
+        uint256 signerKey = 0xBEEF;
+        address signer = vm.addr(signerKey);
+        rolesAuthority.setUserRole(signer, COMPLIANCE_SIGNER_ROLE, true);
+        uint96 oneHour = 1 hours;
+        teller.setComplianceConfig(COMPLIANCE_SIGNER_ROLE, oneHour);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), address(this), depositAmount);
+        WETH.safeApprove(address(boringVault), depositAmount);
+
+        // Deadline 30 minutes from now -- well within the 1-hour window.
+        uint256 deadline = block.timestamp + 30 minutes;
+        bytes32 messageHash = keccak256(
+            abi.encode(
+                address(teller), block.chainid, address(this), address(this), address(WETH), depositAmount, deadline
+            )
+        );
+        bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerKey, ethSignedHash);
+        bytes memory signature = abi.encodePacked(r, s, v);
+
+        // Should succeed -- deadline is within the window.
+        teller.deposit(
+            DepositParams(WETH, depositAmount, 0), address(this), referrer, ComplianceData(deadline, signature)
+        );
+    }
+
+    function testComplianceDisabledByDefault() external {
+        // complianceSignerRole is type(uint8).max (255) by default, so compliance is disabled.
+        assertEq(teller.complianceSignerRole(), type(uint8).max, "Compliance signer role should be max by default");
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), address(this), depositAmount);
+        WETH.safeApprove(address(boringVault), depositAmount);
+
+        // Deposit with empty compliance data succeeds when compliance is disabled.
+        uint256 shares =
+            teller.deposit(DepositParams(WETH, depositAmount, 0), address(this), referrer, ComplianceData(0, ""));
+        assertEq(shares, depositAmount, "Should have received expected shares with compliance disabled");
+    }
+
+    function testComplianceSignatureBoundToMsgSender() external {
+        // A compliance signature issued for caller A cannot be consumed by caller B,
+        // even when depositing to the same recipient with the same parameters.
+        uint256 signerKey = 0xBEEF;
+        address signer = vm.addr(signerKey);
+        rolesAuthority.setUserRole(signer, COMPLIANCE_SIGNER_ROLE, true);
+        teller.setComplianceConfig(COMPLIANCE_SIGNER_ROLE, 0);
+
+        address alice = vm.addr(0xA11CE);
+        address bob = vm.addr(0xB0B);
+        address recipient = vm.addr(0xCAFE);
+
+        // Allow alice and bob to deposit on behalf of a different recipient.
+        teller.setTransferRestrictions(type(uint8).max, ROUTER_ROLE);
+        rolesAuthority.setUserRole(alice, ROUTER_ROLE, true);
+        rolesAuthority.setUserRole(bob, ROUTER_ROLE, true);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), alice, depositAmount);
+        deal(address(WETH), bob, depositAmount);
+
+        uint256 deadline = block.timestamp + 1 hours;
+
+        // Sign compliance for Alice depositing to recipient.
+        bytes32 aliceHash = keccak256(
+            abi.encode(address(teller), block.chainid, alice, recipient, address(WETH), depositAmount, deadline)
+        );
+        bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(aliceHash);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerKey, ethSignedHash);
+        bytes memory aliceSignature = abi.encodePacked(r, s, v);
+
+        // Bob tries to front-run using Alice's compliance signature -- must revert.
+        vm.startPrank(bob);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TellerWithMultiAssetSupportLib.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
+            )
+        );
+        teller.deposit(
+            DepositParams(WETH, depositAmount, 0), recipient, referrer, ComplianceData(deadline, aliceSignature)
+        );
+        vm.stopPrank();
+
+        // Alice's deposit with her own signature succeeds.
+        vm.startPrank(alice);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        uint256 shares = teller.deposit(
+            DepositParams(WETH, depositAmount, 0), recipient, referrer, ComplianceData(deadline, aliceSignature)
+        );
+        vm.stopPrank();
+
+        assertGt(shares, 0, "Alice's deposit should succeed with her compliance signature");
+    }
+
+    function _signComplianceDeposit(uint256 signerKey, address caller, address to, uint256 amount, uint256 deadline)
+        internal
+        view
+        returns (bytes memory)
+    {
+        bytes32 messageHash =
+            keccak256(abi.encode(address(teller), block.chainid, caller, to, address(WETH), amount, deadline));
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerKey, MessageHashUtils.toEthSignedMessageHash(messageHash));
+        return abi.encodePacked(r, s, v);
+    }
+
+    function testComplianceSignatureDifferentSendersGetDifferentHashes() external {
+        // Even with identical deposit parameters, different msg.senders produce different hashes
+        // so their signatures are non-interchangeable.
+        uint256 signerKey = 0xBEEF;
+        rolesAuthority.setUserRole(vm.addr(signerKey), COMPLIANCE_SIGNER_ROLE, true);
+        teller.setComplianceConfig(COMPLIANCE_SIGNER_ROLE, 0);
+
+        address alice = vm.addr(0xA11CE);
+        address bob = vm.addr(0xB0B);
+        address recipient = vm.addr(0xCAFE);
+
+        // Allow alice and bob to deposit on behalf of a different recipient.
+        teller.setTransferRestrictions(type(uint8).max, ROUTER_ROLE);
+        rolesAuthority.setUserRole(alice, ROUTER_ROLE, true);
+        rolesAuthority.setUserRole(bob, ROUTER_ROLE, true);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), alice, depositAmount);
+        deal(address(WETH), bob, depositAmount);
+
+        uint256 deadline = block.timestamp + 1 hours;
+
+        bytes memory aliceSig = _signComplianceDeposit(signerKey, alice, recipient, depositAmount, deadline);
+        bytes memory bobSig = _signComplianceDeposit(signerKey, bob, recipient, depositAmount, deadline);
+
+        // Both deposits succeed with their own signatures.
+        vm.startPrank(alice);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        teller.deposit(DepositParams(WETH, depositAmount, 0), recipient, referrer, ComplianceData(deadline, aliceSig));
+        vm.stopPrank();
+
+        vm.startPrank(bob);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        teller.deposit(DepositParams(WETH, depositAmount, 0), recipient, referrer, ComplianceData(deadline, bobSig));
+        vm.stopPrank();
+    }
+
+    function testComplianceSignerWithoutRoleReverts() external {
+        uint256 signerKey = 0xBEEF;
+        // Enable compliance but do NOT grant the role to the signer.
+        teller.setComplianceConfig(COMPLIANCE_SIGNER_ROLE, 0);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), address(this), depositAmount);
+        WETH.safeApprove(address(boringVault), depositAmount);
+
+        uint256 deadline = block.timestamp + 1 hours;
+        bytes memory sig = _signComplianceDeposit(signerKey, address(this), address(this), depositAmount, deadline);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TellerWithMultiAssetSupportLib.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
+            )
+        );
+        teller.deposit(DepositParams(WETH, depositAmount, 0), address(this), referrer, ComplianceData(deadline, sig));
+    }
+
+    function testComplianceRoleRevocationBlocksSignatures() external {
+        uint256 signerKey = 0xBEEF;
+        address signer = vm.addr(signerKey);
+        rolesAuthority.setUserRole(signer, COMPLIANCE_SIGNER_ROLE, true);
+        teller.setComplianceConfig(COMPLIANCE_SIGNER_ROLE, 0);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), address(this), 2 * depositAmount);
+        WETH.safeApprove(address(boringVault), 2 * depositAmount);
+
+        uint256 deadline = block.timestamp + 1 hours;
+        bytes memory sig = _signComplianceDeposit(signerKey, address(this), address(this), depositAmount, deadline);
+
+        // Deposit succeeds while signer holds the role.
+        teller.deposit(DepositParams(WETH, depositAmount, 0), address(this), referrer, ComplianceData(deadline, sig));
+
+        // Revoke the role.
+        rolesAuthority.setUserRole(signer, COMPLIANCE_SIGNER_ROLE, false);
+
+        // New signature from the same key now fails.
+        uint256 deadline2 = block.timestamp + 2 hours;
+        bytes memory sig2 = _signComplianceDeposit(signerKey, address(this), address(this), depositAmount, deadline2);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TellerWithMultiAssetSupportLib.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
+            )
+        );
+        teller.deposit(DepositParams(WETH, depositAmount, 0), address(this), referrer, ComplianceData(deadline2, sig2));
+    }
+
+    function testComplianceMultipleSigners() external {
+        uint256 signerKeyA = 0xBEEF;
+        uint256 signerKeyB = 0xCAFE;
+        address signerA = vm.addr(signerKeyA);
+        address signerB = vm.addr(signerKeyB);
+
+        rolesAuthority.setUserRole(signerA, COMPLIANCE_SIGNER_ROLE, true);
+        rolesAuthority.setUserRole(signerB, COMPLIANCE_SIGNER_ROLE, true);
+        teller.setComplianceConfig(COMPLIANCE_SIGNER_ROLE, 0);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), address(this), 2 * depositAmount);
+        WETH.safeApprove(address(boringVault), 2 * depositAmount);
+
+        uint256 deadline = block.timestamp + 1 hours;
+
+        // Deposit signed by signer A.
+        bytes memory sigA = _signComplianceDeposit(signerKeyA, address(this), address(this), depositAmount, deadline);
+        teller.deposit(DepositParams(WETH, depositAmount, 0), address(this), referrer, ComplianceData(deadline, sigA));
+
+        // Deposit signed by signer B (different deadline to avoid replay).
+        uint256 deadline2 = block.timestamp + 2 hours;
+        bytes memory sigB = _signComplianceDeposit(signerKeyB, address(this), address(this), depositAmount, deadline2);
+        teller.deposit(DepositParams(WETH, depositAmount, 0), address(this), referrer, ComplianceData(deadline2, sigB));
+    }
+
+    // ========================================= TRANSFER ALLOWLIST TESTS =========================================
+
+    function testTransferAllowlist_DefaultUnrestricted() external {
+        assertEq(teller.transferAllowedRole(), type(uint8).max);
+
+        address alice = vm.addr(0xA11CE);
+        address bob = vm.addr(0xB0B);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), alice, depositAmount);
+
+        vm.startPrank(alice);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        teller.deposit(DepositParams(WETH, depositAmount, 0), alice, address(0), ComplianceData(0, ""));
+        vm.stopPrank();
+
+        vm.prank(alice);
+        boringVault.transfer(bob, 0.5e18);
+        assertEq(boringVault.balanceOf(bob), 0.5e18);
+    }
+
+    function testTransferAllowlist_BlocksUserToUser() external {
+        boringVault.setBeforeTransferHook(address(teller));
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
+
+        address alice = vm.addr(0xA11CE);
+        address bob = vm.addr(0xB0B);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), alice, depositAmount);
+
+        vm.startPrank(alice);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        teller.deposit(DepositParams(WETH, depositAmount, 0), alice, address(0), ComplianceData(0, ""));
+        vm.stopPrank();
+
+        vm.prank(alice);
+        vm.expectRevert(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferNotAllowed.selector);
+        boringVault.transfer(bob, 0.5e18);
+    }
+
+    function testTransferAllowlist_AllowsTransferToQueueRole() external {
+        boringVault.setBeforeTransferHook(address(teller));
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
+
+        address alice = vm.addr(0xA11CE);
+        address queueAddr = address(atomicQueue);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), alice, depositAmount);
+
+        vm.startPrank(alice);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        teller.deposit(DepositParams(WETH, depositAmount, 0), alice, address(0), ComplianceData(0, ""));
+        vm.stopPrank();
+
+        vm.prank(alice);
+        boringVault.transfer(queueAddr, 0.5e18);
+        assertEq(boringVault.balanceOf(queueAddr), 0.5e18);
+    }
+
+    function testTransferAllowlist_AllowsTransferFromQueueRole() external {
+        boringVault.setBeforeTransferHook(address(teller));
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
+
+        address alice = vm.addr(0xA11CE);
+        address queueAddr = address(atomicQueue);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), queueAddr, depositAmount);
+        vm.startPrank(queueAddr);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        teller.deposit(DepositParams(WETH, depositAmount, 0), queueAddr, address(0), ComplianceData(0, ""));
+        vm.stopPrank();
+
+        vm.prank(queueAddr);
+        boringVault.transfer(alice, 0.5e18);
+        assertEq(boringVault.balanceOf(alice), 0.5e18);
+    }
+
+    function testTransferAllowlist_ReenablePublicTransfers() external {
+        boringVault.setBeforeTransferHook(address(teller));
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
+        teller.setTransferRestrictions(type(uint8).max, type(uint8).max);
+
+        address alice = vm.addr(0xA11CE);
+        address bob = vm.addr(0xB0B);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), alice, depositAmount);
+
+        vm.startPrank(alice);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        teller.deposit(DepositParams(WETH, depositAmount, 0), alice, address(0), ComplianceData(0, ""));
+        vm.stopPrank();
+
+        vm.prank(alice);
+        boringVault.transfer(bob, 0.5e18);
+        assertEq(boringVault.balanceOf(bob), 0.5e18);
+    }
+
+    function testTransferAllowlist_TransferFromBlockedWithoutRole() external {
+        boringVault.setBeforeTransferHook(address(teller));
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
+
+        address alice = vm.addr(0xA11CE);
+        address bob = vm.addr(0xB0B);
+        address charlie = vm.addr(0xC);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), alice, depositAmount);
+
+        vm.startPrank(alice);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        teller.deposit(DepositParams(WETH, depositAmount, 0), alice, address(0), ComplianceData(0, ""));
+        boringVault.approve(charlie, 1e18);
+        vm.stopPrank();
+
+        // Operator charlie calls transferFrom on behalf of alice -> bob. Neither has QUEUE_ROLE.
+        vm.prank(charlie);
+        vm.expectRevert(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferNotAllowed.selector);
+        boringVault.transferFrom(alice, bob, 0.5e18);
+    }
+
+    function testTransferAllowlist_TransferFromAllowedWhenRecipientHasRole() external {
+        boringVault.setBeforeTransferHook(address(teller));
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
+
+        address alice = vm.addr(0xA11CE);
+        address queueAddr = address(atomicQueue);
+        address charlie = vm.addr(0xC);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), alice, depositAmount);
+
+        vm.startPrank(alice);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        teller.deposit(DepositParams(WETH, depositAmount, 0), alice, address(0), ComplianceData(0, ""));
+        boringVault.approve(charlie, 1e18);
+        vm.stopPrank();
+
+        // Operator charlie transfers alice's shares to queue (queue has QUEUE_ROLE).
+        vm.prank(charlie);
+        boringVault.transferFrom(alice, queueAddr, 0.5e18);
+        assertEq(boringVault.balanceOf(queueAddr), 0.5e18);
+    }
+
+    function testTransferAllowlist_TransferFromAllowedWhenSenderHasRole() external {
+        boringVault.setBeforeTransferHook(address(teller));
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
+
+        address alice = vm.addr(0xA11CE);
+        address queueAddr = address(atomicQueue);
+        address charlie = vm.addr(0xC);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), queueAddr, depositAmount);
+        vm.startPrank(queueAddr);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        teller.deposit(DepositParams(WETH, depositAmount, 0), queueAddr, address(0), ComplianceData(0, ""));
+        vm.stopPrank();
+
+        // queue approves charlie as operator
+        vm.prank(queueAddr);
+        boringVault.approve(charlie, 1e18);
+
+        // Operator charlie transfers queue's shares to alice (queue has QUEUE_ROLE as sender).
+        vm.prank(charlie);
+        boringVault.transferFrom(queueAddr, alice, 0.5e18);
+        assertEq(boringVault.balanceOf(alice), 0.5e18);
+    }
+
+    function testTransferAllowlist_BothSidesHaveRole() external {
+        boringVault.setBeforeTransferHook(address(teller));
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
+
+        // Give a second address QUEUE_ROLE.
+        address secondQueue = vm.addr(0xDEAD);
+        rolesAuthority.setUserRole(secondQueue, QUEUE_ROLE, true);
+
+        address queueAddr = address(atomicQueue);
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), queueAddr, depositAmount);
+        vm.startPrank(queueAddr);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        teller.deposit(DepositParams(WETH, depositAmount, 0), queueAddr, address(0), ComplianceData(0, ""));
+        vm.stopPrank();
+
+        // Transfer between two QUEUE_ROLE holders succeeds.
+        vm.prank(queueAddr);
+        boringVault.transfer(secondQueue, 0.5e18);
+        assertEq(boringVault.balanceOf(secondQueue), 0.5e18);
+    }
+
+    function testTransferAllowlist_RoleRevokedBlocksTransfer() external {
+        boringVault.setBeforeTransferHook(address(teller));
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
+
+        address alice = vm.addr(0xA11CE);
+        address queueAddr = address(atomicQueue);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), alice, depositAmount);
+
+        vm.startPrank(alice);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        teller.deposit(DepositParams(WETH, depositAmount, 0), alice, address(0), ComplianceData(0, ""));
+        vm.stopPrank();
+
+        // Revoke QUEUE_ROLE from atomicQueue.
+        rolesAuthority.setUserRole(queueAddr, QUEUE_ROLE, false);
+
+        // Now transfer to queue should fail (neither side has the role).
+        vm.prank(alice);
+        vm.expectRevert(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferNotAllowed.selector);
+        boringVault.transfer(queueAddr, 0.5e18);
+    }
+
+    function testTransferAllowlist_DepositAndWithdrawStillWork() external {
+        boringVault.setBeforeTransferHook(address(teller));
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
+
+        address alice = vm.addr(0xA11CE);
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), alice, depositAmount);
+
+        // Deposit still works even with allowlist active.
+        vm.startPrank(alice);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0), alice, address(0), ComplianceData(0, ""));
+        assertGt(shares, 0, "deposit should mint shares");
+        assertEq(boringVault.balanceOf(alice), shares, "alice should hold shares");
+        vm.stopPrank();
+    }
+
+    // Regression: when transferAllowedRole restricts p2p transfers, withdrawals via the teller
+    // must still succeed for users who do not hold transferAllowedRole.
+    function testTransferAllowlist_WithdrawStillWorksWhenP2PRestricted() external {
+        rolesAuthority.setPublicCapability(address(teller), TellerWithMultiAssetSupport.withdraw.selector, true);
+        boringVault.setBeforeTransferHook(address(teller));
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
+
+        address alice = vm.addr(0xA11CE);
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), alice, depositAmount);
+
+        vm.startPrank(alice);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        uint256 shares = teller.deposit(DepositParams(WETH, depositAmount, 0), alice, address(0), ComplianceData(0, ""));
+        vm.stopPrank();
+
+        // alice does not hold QUEUE_ROLE — p2p transfers are blocked.
+        vm.prank(alice);
+        vm.expectRevert(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferNotAllowed.selector);
+        boringVault.transfer(vm.addr(0xB0B), shares);
+
+        // But withdrawing via the teller should still succeed.
+        vm.prank(alice);
+        uint256 assetsOut = teller.withdraw(WETH, shares, 0, alice);
+        assertGt(assetsOut, 0, "withdraw should return assets");
+        assertEq(boringVault.balanceOf(alice), 0, "shares should be burned");
+    }
+
+    function testTransferAllowlist_ZeroAmountTransferBlockedWithoutRole() external {
+        boringVault.setBeforeTransferHook(address(teller));
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
+
+        address alice = vm.addr(0xA11CE);
+        address bob = vm.addr(0xB0B);
+
+        // Zero-amount transfer still hits the allowlist check.
+        vm.prank(alice);
+        vm.expectRevert(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferNotAllowed.selector);
+        boringVault.transfer(bob, 0);
+    }
+
+    function testTransferAllowlist_DenyListTakesPrecedenceOverAllowlist() external {
+        boringVault.setBeforeTransferHook(address(teller));
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
+
+        address queueAddr = address(atomicQueue);
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), queueAddr, depositAmount);
+        vm.startPrank(queueAddr);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        teller.deposit(DepositParams(WETH, depositAmount, 0), queueAddr, address(0), ComplianceData(0, ""));
+        vm.stopPrank();
+
+        // Deny the queue from sending.
+        teller.setDenyFlags(queueAddr, true, true, true);
+
+        // Even though queue has QUEUE_ROLE, deny list blocks the transfer.
+        vm.prank(queueAddr);
+        vm.expectRevert();
+        boringVault.transfer(vm.addr(0xB0B), 0.5e18);
+    }
+
+    function testTransferAllowlist_DifferentRoleId() external {
+        boringVault.setBeforeTransferHook(address(teller));
+
+        // Use a fresh role ID that nobody holds yet.
+        uint8 CUSTOM_ROLE = 42;
+        teller.setTransferRestrictions(CUSTOM_ROLE, type(uint8).max);
+
+        address alice = vm.addr(0xA11CE);
+        address bob = vm.addr(0xB0B);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), alice, depositAmount);
+
+        vm.startPrank(alice);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        teller.deposit(DepositParams(WETH, depositAmount, 0), alice, address(0), ComplianceData(0, ""));
+        vm.stopPrank();
+
+        // Blocked: neither has CUSTOM_ROLE.
+        vm.prank(alice);
+        vm.expectRevert(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferNotAllowed.selector);
+        boringVault.transfer(bob, 0.5e18);
+
+        // Grant bob CUSTOM_ROLE.
+        rolesAuthority.setUserRole(bob, CUSTOM_ROLE, true);
+
+        // Now alice -> bob works (bob has the role).
+        vm.prank(alice);
+        boringVault.transfer(bob, 0.5e18);
+        assertEq(boringVault.balanceOf(bob), 0.5e18);
+    }
+
+    function testTransferAllowlist_SwitchBetweenRoleIds() external {
+        boringVault.setBeforeTransferHook(address(teller));
+
+        uint8 ROLE_A = 42;
+        uint8 ROLE_B = 43;
+        address alice = vm.addr(0xA11CE);
+        address bob = vm.addr(0xB0B);
+
+        rolesAuthority.setUserRole(bob, ROLE_A, true);
+
+        uint256 depositAmount = 2e18;
+        deal(address(WETH), alice, depositAmount);
+        vm.startPrank(alice);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        teller.deposit(DepositParams(WETH, depositAmount, 0), alice, address(0), ComplianceData(0, ""));
+        vm.stopPrank();
+
+        // Set to ROLE_A: alice -> bob works.
+        teller.setTransferRestrictions(ROLE_A, type(uint8).max);
+        vm.prank(alice);
+        boringVault.transfer(bob, 0.5e18);
+        assertEq(boringVault.balanceOf(bob), 0.5e18);
+
+        // Switch to ROLE_B: alice -> bob now blocked (bob only has ROLE_A).
+        teller.setTransferRestrictions(ROLE_B, type(uint8).max);
+        vm.prank(alice);
+        vm.expectRevert(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferNotAllowed.selector);
+        boringVault.transfer(bob, 0.5e18);
+    }
+
+    function testTransferAllowlist_QueueRoundTrip() external {
+        boringVault.setBeforeTransferHook(address(teller));
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
+
+        address alice = vm.addr(0xA11CE);
+        address queueAddr = address(atomicQueue);
+
+        uint256 depositAmount = 1e18;
+        deal(address(WETH), alice, depositAmount);
+
+        vm.startPrank(alice);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        teller.deposit(DepositParams(WETH, depositAmount, 0), alice, address(0), ComplianceData(0, ""));
+        vm.stopPrank();
+
+        // alice -> queue (allowed: queue has role)
+        vm.prank(alice);
+        boringVault.transfer(queueAddr, 1e18);
+        assertEq(boringVault.balanceOf(queueAddr), 1e18);
+        assertEq(boringVault.balanceOf(alice), 0);
+
+        // queue -> alice (allowed: queue has role)
+        vm.prank(queueAddr);
+        boringVault.transfer(alice, 1e18);
+        assertEq(boringVault.balanceOf(alice), 1e18);
+        assertEq(boringVault.balanceOf(queueAddr), 0);
+    }
+
+    function testTransferAllowlist_MultipleUsersToQueue() external {
+        boringVault.setBeforeTransferHook(address(teller));
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
+
+        address alice = vm.addr(0xA11CE);
+        address bob = vm.addr(0xB0B);
+        address queueAddr = address(atomicQueue);
+
+        uint256 depositAmount = 1e18;
+
+        // Alice deposits
+        deal(address(WETH), alice, depositAmount);
+        vm.startPrank(alice);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        teller.deposit(DepositParams(WETH, depositAmount, 0), alice, address(0), ComplianceData(0, ""));
+        vm.stopPrank();
+
+        // Bob deposits
+        deal(address(WETH), bob, depositAmount);
+        vm.startPrank(bob);
+        WETH.safeApprove(address(boringVault), depositAmount);
+        teller.deposit(DepositParams(WETH, depositAmount, 0), bob, address(0), ComplianceData(0, ""));
+        vm.stopPrank();
+
+        // Both can transfer to queue.
+        vm.prank(alice);
+        boringVault.transfer(queueAddr, 0.5e18);
+
+        vm.prank(bob);
+        boringVault.transfer(queueAddr, 0.5e18);
+
+        assertEq(boringVault.balanceOf(queueAddr), 1e18);
+
+        // But alice cannot transfer to bob.
+        vm.prank(alice);
+        vm.expectRevert(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__TransferNotAllowed.selector);
+        boringVault.transfer(bob, 0.1e18);
+    }
+
+    function testSetTransferRestrictions_EmitsEvent() external {
+        vm.expectEmit(false, false, false, true, address(teller));
+        emit TransferRestrictionsSet(QUEUE_ROLE, type(uint8).max);
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
+
+        assertEq(teller.transferAllowedRole(), QUEUE_ROLE);
+        assertEq(teller.allowlistedRouterRole(), type(uint8).max);
+    }
+
+    function testSetTransferRestrictions_EmitsEventOnReset() external {
+        teller.setTransferRestrictions(QUEUE_ROLE, type(uint8).max);
+
+        vm.expectEmit(false, false, false, true, address(teller));
+        emit TransferRestrictionsSet(type(uint8).max, type(uint8).max);
+        teller.setTransferRestrictions(type(uint8).max, type(uint8).max);
+
+        assertEq(teller.transferAllowedRole(), type(uint8).max);
+        assertEq(teller.allowlistedRouterRole(), type(uint8).max);
     }
 }

@@ -14,7 +14,7 @@ import {IRateProvider} from "src/interfaces/IRateProvider.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MockCCIPRouter} from "src/helper/MockCCIPRouter.sol";
 import {Client} from "@ccip/contracts/src/v0.8/ccip/libraries/Client.sol";
-import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import {TellerWithMultiAssetSupport, ComplianceData} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
@@ -140,7 +140,9 @@ contract ChainlinkCCIPTellerTest is Test, MerkleTreeHelper {
         address to = vm.addr(1);
         uint256 expectedFee = 1e18;
         LINK.safeApprove(address(sourceTeller), expectedFee);
-        sourceTeller.bridge(sharesToBridge, to, abi.encode(DESTINATION_SELECTOR), LINK, expectedFee);
+        sourceTeller.bridge(
+            sharesToBridge, to, abi.encode(DESTINATION_SELECTOR), LINK, expectedFee, ComplianceData(0, "")
+        );
 
         assertEq(
             boringVault.balanceOf(address(this)), startingShareBalance - sharesToBridge, "Should have burned shares."
@@ -178,7 +180,7 @@ contract ChainlinkCCIPTellerTest is Test, MerkleTreeHelper {
         assertEq(target, targetTeller, "Target should be set to targetTeller.");
         assertEq(gasLimit, messageGasLimit, "Gas limit should be set to messageGasLimit.");
 
-        sourceTeller.stopMessagesFromChain(newSelector);
+        sourceTeller.stopMessages(newSelector, true, false);
 
         (allowMessagesFrom, allowMessagesTo, target, gasLimit) = sourceTeller.selectorToChains(newSelector);
         assertEq(allowMessagesFrom, false, "Should not allow messages from destination chain.");
@@ -186,7 +188,7 @@ contract ChainlinkCCIPTellerTest is Test, MerkleTreeHelper {
         assertEq(target, targetTeller, "Target should be set to destinationTeller.");
         assertEq(gasLimit, messageGasLimit, "Gas limit should be set to messageGasLimit.");
 
-        sourceTeller.stopMessagesToChain(newSelector);
+        sourceTeller.stopMessages(newSelector, false, true);
         (allowMessagesFrom, allowMessagesTo, target, gasLimit) = sourceTeller.selectorToChains(newSelector);
         assertEq(allowMessagesFrom, false, "Should not allow messages from destination chain.");
         assertEq(allowMessagesTo, false, "Should not allow messages to destination chain.");
@@ -253,7 +255,7 @@ contract ChainlinkCCIPTellerTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             bytes(abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__Paused.selector))
         );
-        sourceTeller.bridge(0, address(0), hex"", LINK, 0);
+        sourceTeller.bridge(0, address(0), hex"", LINK, 0, ComplianceData(0, ""));
 
         sourceTeller.unpause();
 
@@ -266,7 +268,9 @@ contract ChainlinkCCIPTellerTest is Test, MerkleTreeHelper {
                 )
             )
         );
-        sourceTeller.bridge(1e18, address(this), abi.encode(DESTINATION_SELECTOR), LINK, expectedFee);
+        sourceTeller.bridge(
+            1e18, address(this), abi.encode(DESTINATION_SELECTOR), LINK, expectedFee, ComplianceData(0, "")
+        );
 
         // setup chains.
         sourceTeller.addChain(DESTINATION_SELECTOR, true, true, address(destinationTeller), 100_000);
@@ -286,17 +290,23 @@ contract ChainlinkCCIPTellerTest is Test, MerkleTreeHelper {
                 )
             )
         );
-        sourceTeller.bridge(1e18, address(this), abi.encode(DESTINATION_SELECTOR), LINK, expectedFee);
+        sourceTeller.bridge(
+            1e18, address(this), abi.encode(DESTINATION_SELECTOR), LINK, expectedFee, ComplianceData(0, "")
+        );
 
         router.setFee(LINK, expectedFee);
 
         // If user forgets approval call reverts too.
         vm.expectRevert(bytes("TRANSFER_FROM_FAILED"));
-        sourceTeller.bridge(1e18, address(this), abi.encode(DESTINATION_SELECTOR), LINK, expectedFee);
+        sourceTeller.bridge(
+            1e18, address(this), abi.encode(DESTINATION_SELECTOR), LINK, expectedFee, ComplianceData(0, "")
+        );
 
         // Call now succeeds.
         LINK.safeApprove(address(sourceTeller), expectedFee);
-        sourceTeller.bridge(1e18, address(this), abi.encode(DESTINATION_SELECTOR), LINK, expectedFee);
+        sourceTeller.bridge(
+            1e18, address(this), abi.encode(DESTINATION_SELECTOR), LINK, expectedFee, ComplianceData(0, "")
+        );
 
         Client.Any2EVMMessage memory m = router.getLastMessage();
 

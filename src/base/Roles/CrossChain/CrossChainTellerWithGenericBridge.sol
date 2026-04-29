@@ -4,27 +4,30 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {TellerWithMultiAssetSupport, ERC20} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import {
+    TellerWithMultiAssetSupport,
+    ERC20,
+    DepositParams,
+    ComplianceData,
+    PermitData,
+    Asset
+} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {MessageLib} from "src/base/Roles/CrossChain/MessageLib.sol";
+import {CrossChainTellerLib} from "src/base/Roles/CrossChain/CrossChainTellerLib.sol";
 
 abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSupport {
-    using MessageLib for uint256;
     using MessageLib for MessageLib.Message;
 
     //============================== STRUCTS ===============================
     struct DepositAndBridgeWithPermitParams {
-        ERC20 depositAsset;
-        uint256 depositAmount;
-        uint256 minimumMint;
-        uint256 deadline;
-        uint8 v;
-        bytes32 r;
-        bytes32 s;
+        DepositParams depositParams;
+        PermitData permit;
         address to;
         bytes bridgeWildCard;
         ERC20 feeToken;
         uint256 maxFee;
-        address referralAddress; 
+        address referralAddress;
+        ComplianceData compliance;
     }
 
     //============================== ERRORS ===============================
@@ -34,7 +37,6 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
     //============================== EVENTS ===============================
 
     event MessageSent(bytes32 indexed messageId, uint256 shareAmount, address indexed to);
-    event MessageReceived(bytes32 indexed messageId, uint256 shareAmount, address indexed to);
 
     //============================== IMMUTABLES ===============================
 
@@ -53,30 +55,15 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
      *      are also granted to the `bridge` function.
      */
     function depositAndBridge(
-        ERC20 depositAsset,
-        uint256 depositAmount,
-        uint256 minimumMint,
+        DepositParams calldata params,
         address to,
         bytes calldata bridgeWildCard,
         ERC20 feeToken,
         uint256 maxFee,
-        address referralAddress
-    )
-        external
-        payable
-        requiresAuth
-        nonReentrant
-        revertOnNativeDeposit(address(depositAsset))
-        returns (uint256 sharesBridged)
-    {
-        // Deposit
-        Asset memory asset = _beforeDeposit(depositAsset);
-        sharesBridged = _erc20Deposit(depositAsset, depositAmount, minimumMint, msg.sender, msg.sender, asset);
-        _afterPublicDeposit(msg.sender, depositAsset, depositAmount, sharesBridged, shareLockPeriod, referralAddress);
-
-        // Bridge shares
-        if (sharesBridged > type(uint96).max) revert CrossChainTellerWithGenericBridge__UnsafeCastToUint96();
-        _bridge(uint96(sharesBridged), to, bridgeWildCard, feeToken, maxFee);
+        address referralAddress,
+        ComplianceData calldata compliance
+    ) external payable requiresAuth nonReentrant returns (uint256 sharesBridged) {
+        sharesBridged = _depositAndBridge(params, to, bridgeWildCard, feeToken, maxFee, referralAddress, compliance);
     }
 
     /**
@@ -87,27 +74,23 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
      * @dev Since calls to `depositWithPermit` and `bridge` are public, msg.sig is not updated which means any role capabilities regarding this function
      *      are also granted to the `depositWithPermit` and `bridge` function.
      */
-    function depositAndBridgeWithPermit(
-        DepositAndBridgeWithPermitParams calldata params
-    )
+    function depositAndBridgeWithPermit(DepositAndBridgeWithPermitParams calldata params)
         external
         payable
         requiresAuth
         nonReentrant
-        revertOnNativeDeposit(address(params.depositAsset))
         returns (uint256 sharesBridged)
     {
-        // Permit deposit
-        {
-            Asset memory asset = _beforeDeposit(params.depositAsset);
-            _handlePermit(params.depositAsset, params.depositAmount, params.deadline, params.v, params.r, params.s);
-            sharesBridged = _erc20Deposit(params.depositAsset, params.depositAmount, params.minimumMint, msg.sender, msg.sender, asset);
-        }
-        _afterPublicDeposit(msg.sender, params.depositAsset, params.depositAmount, sharesBridged, shareLockPeriod, params.referralAddress);
-
-        // Bridge shares
-        if (sharesBridged > type(uint96).max) revert CrossChainTellerWithGenericBridge__UnsafeCastToUint96();
-        _bridge(uint96(sharesBridged), params.to, params.bridgeWildCard, params.feeToken, params.maxFee);
+        _handlePermit(params.depositParams.depositAsset, params.depositParams.depositAmount, params.permit);
+        sharesBridged = _depositAndBridge(
+            params.depositParams,
+            params.to,
+            params.bridgeWildCard,
+            params.feeToken,
+            params.maxFee,
+            params.referralAddress,
+            params.compliance
+        );
     }
 
     /**
@@ -118,14 +101,18 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
      * @param feeToken The token to pay the bridge fee in.
      * @param maxFee The maximum fee to pay the bridge.
      */
-    function bridge(uint96 shareAmount, address to, bytes calldata bridgeWildCard, ERC20 feeToken, uint256 maxFee)
-        external
-        payable
-        requiresAuth
-        nonReentrant
-    {
+    function bridge(
+        uint96 shareAmount,
+        address to,
+        bytes calldata bridgeWildCard,
+        ERC20 feeToken,
+        uint256 maxFee,
+        ComplianceData calldata compliance
+    ) external payable requiresAuth nonReentrant {
         if (isPaused) revert TellerWithMultiAssetSupport__Paused();
-        _bridge(shareAmount, to, bridgeWildCard, feeToken, maxFee);
+        _verifyBridgeCompliance(msg.sender, shareAmount, to, compliance.deadline, compliance.signature);
+        uint256 rate = accountant.getRateSafe();
+        _bridge(shareAmount, to, bridgeWildCard, feeToken, maxFee, rate);
     }
 
     /**
@@ -145,22 +132,93 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
     // ========================================= INTERNAL BRIDGE FUNCTIONS =========================================
 
     /**
+     * @notice Verify compliance for a combined deposit-and-bridge operation.
+     * @dev Delegated to CrossChainTellerLib to reduce bytecode in leaf contracts.
+     */
+    function _verifyDepositAndBridgeCompliance(
+        address depositor,
+        ERC20 depositAsset,
+        uint256 depositAmount,
+        address to,
+        ComplianceData calldata compliance
+    ) internal {
+        CrossChainTellerLib.verifyDepositAndBridgeCompliance(
+            usedComplianceSignatures,
+            address(authority),
+            complianceSignerRole,
+            complianceWindow,
+            depositor,
+            address(depositAsset),
+            depositAmount,
+            to,
+            compliance.deadline,
+            compliance.signature
+        );
+    }
+
+    /**
+     * @notice Shared deposit-and-bridge logic used by both `depositAndBridge` and `depositAndBridgeWithPermit`.
+     * @dev Shares are minted to `msg.sender` first, then immediately burned and bridged to `to`.
+     */
+    function _depositAndBridge(
+        DepositParams calldata depositParams,
+        address to,
+        bytes calldata bridgeWildCard,
+        ERC20 feeToken,
+        uint256 maxFee,
+        address referralAddress,
+        ComplianceData calldata compliance
+    ) internal returns (uint256 sharesBridged) {
+        _verifyDepositAndBridgeCompliance(
+            msg.sender, depositParams.depositAsset, depositParams.depositAmount, to, compliance
+        );
+        {
+            Asset memory asset = _beforeDeposit(depositParams.depositAsset);
+            sharesBridged = _erc20Deposit(
+                depositParams.depositAsset,
+                depositParams.depositAmount,
+                depositParams.minimumMint,
+                msg.sender,
+                msg.sender,
+                asset
+            );
+        }
+        uint256 rate = accountant.getRateSafe();
+        _checkpointPrincipalAtRate(msg.sender, sharesBridged, true, rate, rate);
+        _afterPublicDeposit(
+            msg.sender,
+            depositParams.depositAsset,
+            depositParams.depositAmount,
+            sharesBridged,
+            shareLockPeriod,
+            referralAddress,
+            rate
+        );
+
+        if (sharesBridged > type(uint96).max) revert CrossChainTellerWithGenericBridge__UnsafeCastToUint96();
+        _bridge(uint96(sharesBridged), to, bridgeWildCard, feeToken, maxFee, rate);
+    }
+
+    /**
      * @notice Implement the bridge logic.
      */
-    function _bridge(uint96 shareAmount, address to, bytes calldata bridgeWildCard, ERC20 feeToken, uint256 maxFee)
-        internal
-    {
+    function _bridge(
+        uint96 shareAmount,
+        address to,
+        bytes calldata bridgeWildCard,
+        ERC20 feeToken,
+        uint256 maxFee,
+        uint256 rate
+    ) internal {
         // Since shares are directly burned, call `beforeTransfer` to enforce before transfer hooks.
         beforeTransfer(msg.sender, address(0), msg.sender);
 
-        // Burn shares from sender
-        vault.exit(address(0), ERC20(address(0)), 0, msg.sender, shareAmount);
+        // Record withdrawal checkpoint so the sender's principal decreases on the source chain.
+        // Without this, bridged users retain phantom principal that inflates off-chain reward calculations.
+        _checkpointPrincipalAtRate(msg.sender, shareAmount, false, rate, rate);
 
-        // Send the message.
-        MessageLib.Message memory m = MessageLib.Message(shareAmount, to);
-        // `messageToUnit256` reverts on overflow, eventhough it is not possible to overflow.
-        // This was done for future proofing.
-        uint256 message = m.messageToUint256();
+        // Burn shares and encode the bridge message (delegated to library to reduce bytecode).
+        uint256 message = CrossChainTellerLib.burnAndEncode(vault, msg.sender, shareAmount, to);
 
         bytes32 messageId = _sendMessage(message, bridgeWildCard, feeToken, maxFee);
 
@@ -172,12 +230,7 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
      *         message has been confirmed as legit.`
      */
     function _completeMessageReceive(bytes32 messageId, uint256 message) internal {
-        MessageLib.Message memory m = message.uint256ToMessage();
-
-        // Mint shares to message.to
-        vault.enter(address(0), ERC20(address(0)), 0, m.to, m.shareAmount);
-
-        emit MessageReceived(messageId, m.shareAmount, m.to);
+        CrossChainTellerLib.completeMessageReceive(vault, messageId, message);
     }
 
     /**
@@ -208,5 +261,5 @@ abstract contract CrossChainTellerWithGenericBridge is TellerWithMultiAssetSuppo
      */
     function version() public pure virtual override returns (string memory) {
         return string(abi.encodePacked("Cross Chain V0.1, ", super.version()));
-    }    
+    }  
 }

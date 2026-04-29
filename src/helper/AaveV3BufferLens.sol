@@ -5,12 +5,16 @@
 pragma solidity 0.8.21;
 
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {TellerWithBuffer} from "src/base/Roles/TellerWithBuffer.sol";
+import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {AaveV3BufferHelper, IBufferHelper} from "src/base/Roles/AaveV3BufferHelper.sol";
 import {IPool} from "src/interfaces/IPool.sol";
 
 contract AaveV3BufferLens {
-    function getInstantlyWithdrawableAmount(TellerWithBuffer teller, ERC20 asset) external view returns (uint256 withdrawableAmount) {
+    function getInstantlyWithdrawableAmount(TellerWithMultiAssetSupport teller, ERC20 asset)
+        external
+        view
+        returns (uint256 withdrawableAmount)
+    {
         (, IBufferHelper withdrawBufferHelper) = teller.currentBufferHelpers(asset);
         address vault = address(teller.vault());
         if (address(withdrawBufferHelper) == address(0)) {

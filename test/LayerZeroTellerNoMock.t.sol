@@ -15,7 +15,13 @@ import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
-import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import {
+    TellerWithMultiAssetSupport,
+    DepositParams,
+    ComplianceData,
+    PermitData,
+    PrincipalCheckpoint
+} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import {AddressToBytes32Lib} from "src/helper/AddressToBytes32Lib.sol";
 
@@ -132,7 +138,12 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
         uint256 fee = sourceTeller.previewFee(sharesToBridge, to, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20);
         uint256 expectedFee = 1e18;
         sourceTeller.bridge{value: fee}(
-            sharesToBridge, to, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20, expectedFee
+            sharesToBridge,
+            to,
+            abi.encode(layerZeroArbitrumEndpointId),
+            NATIVE_ERC20,
+            expectedFee,
+            ComplianceData(0, "")
         );
     }
 
@@ -147,7 +158,13 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
         vm.startPrank(user);
         WETH.approve(address(boringVault), depositAmount);
         sourceTeller.depositAndBridge{value: fee}(
-            WETH, depositAmount, 0, user, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20, fee, referrer
+            DepositParams(WETH, depositAmount, 0),
+            user,
+            abi.encode(layerZeroArbitrumEndpointId),
+            NATIVE_ERC20,
+            fee,
+            referrer,
+            ComplianceData(0, "")
         );
         vm.stopPrank();
     }
@@ -193,21 +210,18 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
         deal(user, fee);
 
         vm.startPrank(user);
-        CrossChainTellerWithGenericBridge.DepositAndBridgeWithPermitParams memory params = CrossChainTellerWithGenericBridge.DepositAndBridgeWithPermitParams({
-            depositAsset: WEETH,
-            depositAmount: weETH_amount,
-            minimumMint: 0,
-            deadline: block.timestamp,
-            v: v,
-            r: r,
-            s: s,
-            to: user,
-            bridgeWildCard: abi.encode(layerZeroArbitrumEndpointId),
-            feeToken: NATIVE_ERC20,
-            maxFee: fee,
-            referralAddress: referrer
-        });
-        sourceTeller.depositAndBridgeWithPermit{value: fee}(params);   
+        CrossChainTellerWithGenericBridge.DepositAndBridgeWithPermitParams memory params =
+            CrossChainTellerWithGenericBridge.DepositAndBridgeWithPermitParams({
+                depositParams: DepositParams(WEETH, weETH_amount, 0),
+                permit: PermitData(block.timestamp, v, r, s),
+                to: user,
+                bridgeWildCard: abi.encode(layerZeroArbitrumEndpointId),
+                feeToken: NATIVE_ERC20,
+                maxFee: fee,
+                referralAddress: referrer,
+                compliance: ComplianceData(0, "")
+            });
+        sourceTeller.depositAndBridgeWithPermit{value: fee}(params);
         vm.stopPrank();
     }
 
@@ -228,21 +242,13 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
             )
         );
         sourceTeller.depositAndBridge(
-            WETH, depositAmount, 0, user, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20, 0, referrer
-        );
-        vm.stopPrank();
-
-        // Trying to deposit with native asset should revert.
-        vm.startPrank(user);
-        vm.expectRevert(
-            bytes(
-                abi.encodeWithSelector(
-                    TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__CannotDepositNative.selector
-                )
-            )
-        );
-        sourceTeller.depositAndBridge(
-            NATIVE_ERC20, depositAmount, 0, user, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20, 0, referrer
+            DepositParams(WETH, depositAmount, 0),
+            user,
+            abi.encode(layerZeroArbitrumEndpointId),
+            NATIVE_ERC20,
+            0,
+            referrer,
+            ComplianceData(0, "")
         );
         vm.stopPrank();
     }
@@ -252,6 +258,177 @@ contract LayerZeroTellerNoMockTest is Test, MerkleTreeHelper {
             sourceTeller.previewFee(1e18, address(0), abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20);
 
         assertGt(previewedFee, 0, "Previewed fee should match set fee.");
+    }
+
+    function testDepositAndBridge_CreatesPrincipalCheckpoint() external {
+        uint256 depositAmount = 1e18;
+        address user = vm.addr(1);
+
+        deal(address(WETH), user, depositAmount);
+        uint256 fee =
+            sourceTeller.previewFee(uint96(depositAmount), user, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20);
+        deal(user, fee);
+
+        vm.startPrank(user);
+        WETH.approve(address(boringVault), depositAmount);
+        uint256 sharesBridged = sourceTeller.depositAndBridge{value: fee}(
+            DepositParams(WETH, depositAmount, 0),
+            user,
+            abi.encode(layerZeroArbitrumEndpointId),
+            NATIVE_ERC20,
+            fee,
+            referrer,
+            ComplianceData(0, "")
+        );
+        vm.stopPrank();
+
+        (PrincipalCheckpoint[] memory history,) = sourceTeller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
+        assertEq(history.length, 2, "depositAndBridge must create deposit + withdrawal checkpoints");
+        assertEq(history[0].timestamp, uint48(block.timestamp), "checkpoint timestamp");
+        // Rate is 1:1, so principal equals shares bridged
+        assertEq(history[0].cumulativeDeposits, uint104(sharesBridged), "deposits equals bridged amount at 1:1 rate");
+        // Withdrawal checkpoint from bridge
+        assertGt(history[1].cumulativeWithdrawals, 0, "bridge withdrawal checkpoint");
+    }
+
+    function testDepositAndBridgeWithPermit_CreatesPrincipalCheckpoint() external {
+        uint256 amount = 1e18;
+
+        uint256 userKey = 111;
+        address user = vm.addr(userKey);
+
+        uint256 weETH_amount = amount.mulDivDown(1e18, IRateProvider(WEETH_RATE_PROVIDER).getRate());
+        deal(address(WEETH), user, weETH_amount);
+
+        bytes32 digest = keccak256(
+            abi.encodePacked(
+                "\x19\x01",
+                WEETH.DOMAIN_SEPARATOR(),
+                keccak256(
+                    abi.encode(
+                        keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"),
+                        user,
+                        address(boringVault),
+                        weETH_amount,
+                        WEETH.nonces(user),
+                        block.timestamp
+                    )
+                )
+            )
+        );
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(userKey, digest);
+
+        uint256 fee =
+            sourceTeller.previewFee(uint96(weETH_amount), user, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20);
+        deal(user, fee);
+
+        vm.startPrank(user);
+        CrossChainTellerWithGenericBridge.DepositAndBridgeWithPermitParams memory params =
+            CrossChainTellerWithGenericBridge.DepositAndBridgeWithPermitParams({
+                depositParams: DepositParams(WEETH, weETH_amount, 0),
+                permit: PermitData(block.timestamp, v, r, s),
+                to: user,
+                bridgeWildCard: abi.encode(layerZeroArbitrumEndpointId),
+                feeToken: NATIVE_ERC20,
+                maxFee: fee,
+                referralAddress: referrer,
+                compliance: ComplianceData(0, "")
+            });
+        sourceTeller.depositAndBridgeWithPermit{value: fee}(params);
+        vm.stopPrank();
+
+        (PrincipalCheckpoint[] memory history,) = sourceTeller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
+        assertEq(history.length, 2, "depositAndBridgeWithPermit must create deposit + withdrawal checkpoints");
+        assertGt(history[0].cumulativeDeposits, 0, "deposits must be non-zero");
+        assertGt(history[1].cumulativeWithdrawals, 0, "bridge withdrawal checkpoint");
+    }
+
+    function testBridge_CreatesWithdrawalCheckpoint() external {
+        uint256 depositAmount = 10e18;
+        address user = vm.addr(42);
+
+        // Make deposit and bridge publicly callable for this test
+        rolesAuthority.setPublicCapability(address(sourceTeller), TellerWithMultiAssetSupport.deposit.selector, true);
+        rolesAuthority.setPublicCapability(
+            address(sourceTeller), CrossChainTellerWithGenericBridge.bridge.selector, true
+        );
+
+        deal(address(WETH), user, depositAmount);
+        deal(user, 1 ether);
+
+        vm.startPrank(user);
+        WETH.approve(address(boringVault), depositAmount);
+        sourceTeller.deposit(DepositParams(WETH, depositAmount, 0), user, referrer, ComplianceData(0, ""));
+
+        // Verify deposit creates a checkpoint with principal
+        (PrincipalCheckpoint[] memory historyBefore,) =
+            sourceTeller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
+        assertEq(historyBefore.length, 1, "deposit creates one checkpoint");
+        assertGt(historyBefore[0].cumulativeDeposits, 0, "deposits recorded");
+        assertEq(historyBefore[0].cumulativeWithdrawals, 0, "no withdrawals yet");
+
+        // Bridge all shares
+        uint96 sharesToBridge = uint96(boringVault.balanceOf(user));
+        uint256 fee =
+            sourceTeller.previewFee(sharesToBridge, user, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20);
+        sourceTeller.bridge{value: fee}(
+            sharesToBridge, user, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20, fee, ComplianceData(0, "")
+        );
+        vm.stopPrank();
+
+        // Bridge burns shares but MUST also create a withdrawal checkpoint
+        // Without this, user retains phantom principal on source chain
+        (PrincipalCheckpoint[] memory historyAfter,) =
+            sourceTeller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
+        assertEq(historyAfter.length, 2, "bridge must create a withdrawal checkpoint");
+        assertGt(historyAfter[1].cumulativeWithdrawals, 0, "bridge must record principal decrease");
+        // At 1:1 rate, net principal should be ~0 after bridging everything
+        assertApproxEqAbs(
+            historyAfter[1].cumulativeWithdrawals,
+            historyAfter[1].cumulativeDeposits,
+            1,
+            "net principal ~0 after full bridge"
+        );
+    }
+
+    function testDepositAndBridge_CreatesWithdrawalCheckpoint() external {
+        uint256 depositAmount = 1e18;
+        address user = vm.addr(1);
+
+        deal(address(WETH), user, depositAmount);
+        uint256 fee =
+            sourceTeller.previewFee(uint96(depositAmount), user, abi.encode(layerZeroArbitrumEndpointId), NATIVE_ERC20);
+        deal(user, fee);
+
+        vm.startPrank(user);
+        WETH.approve(address(boringVault), depositAmount);
+        uint256 sharesBridged = sourceTeller.depositAndBridge{value: fee}(
+            DepositParams(WETH, depositAmount, 0),
+            user,
+            abi.encode(layerZeroArbitrumEndpointId),
+            NATIVE_ERC20,
+            fee,
+            referrer,
+            ComplianceData(0, "")
+        );
+        vm.stopPrank();
+
+        // depositAndBridge MUST create both a deposit and withdrawal checkpoint
+        // Without the withdrawal checkpoint, user has phantom principal on source chain
+        (PrincipalCheckpoint[] memory history,) = sourceTeller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
+        assertEq(history.length, 2, "depositAndBridge must create deposit + withdrawal checkpoints");
+        // First checkpoint: deposit
+        assertGt(history[0].cumulativeDeposits, 0, "deposit records principal");
+        assertEq(history[0].cumulativeWithdrawals, 0, "no withdrawal in deposit checkpoint");
+        // Second checkpoint: withdrawal from bridge
+        assertGt(history[1].cumulativeWithdrawals, 0, "bridge creates withdrawal checkpoint");
+        // Net principal ~0 since deposit and bridge happen at same rate in same tx
+        assertApproxEqAbs(
+            history[1].cumulativeWithdrawals,
+            history[1].cumulativeDeposits,
+            1,
+            "net principal ~0 after depositAndBridge"
+        );
     }
 
     // ========================================= HELPER FUNCTIONS =========================================

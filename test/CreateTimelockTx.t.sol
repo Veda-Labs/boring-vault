@@ -10,9 +10,9 @@ import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper
 import {TimelockController} from "@openzeppelin/contracts/governance/TimelockController.sol";
 import {
     LayerZeroTellerWithRateLimiting,
-    CrossChainTellerWithGenericBridge,
-    PairwiseRateLimiter
+    CrossChainTellerWithGenericBridge
 } from "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTellerWithRateLimiting.sol";
+import {PairwiseRateLimiterLib} from "src/base/Roles/CrossChain/PairwiseRateLimiterLib.sol";
 import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {BoringVault} from "src/base/BoringVault.sol";
 
@@ -67,7 +67,7 @@ contract CreateTimelockTxTest is Test, MerkleTreeHelper {
             RolesAuthority.setRoleCapability.selector,
             STOP_MESSAGES_FROM_CHAIN_ROLE,
             teller,
-            LayerZeroTellerWithRateLimiting.stopMessagesFromChain.selector,
+            LayerZeroTellerWithRateLimiting.stopMessages.selector,
             true
         );
         payloads[1] = abi.encodeWithSelector(

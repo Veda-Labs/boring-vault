@@ -1,0 +1,282 @@
+// SPDX-License-Identifier: SEL-1.0
+// Copyright © 2025 Veda Tech Labs
+// Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
+// Licensed under Software Evaluation License, Version 1.0
+pragma solidity 0.8.21;
+
+import {Auth, Authority} from "@solmate/auth/Auth.sol";
+import {ERC20} from "@solmate/tokens/ERC20.sol";
+import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
+import {ECDSA} from "@openzeppelin-contracts-5.3.0/utils/cryptography/ECDSA.sol";
+import {MessageHashUtils} from "@openzeppelin-contracts-5.3.0/utils/cryptography/MessageHashUtils.sol";
+import {SafeCast} from "@openzeppelin-contracts-5.3.0/utils/math/SafeCast.sol";
+
+contract IncentivePool is Auth {
+    using SafeTransferLib for ERC20;
+    using SafeCast for uint256;
+
+    error InvalidToken();
+    error InvalidSigner();
+    error InvalidAddress();
+    error InvalidMaxDeadline();
+    event SecondsBetweenClaimsSet(uint256 secondsBetweenClaims);
+    event RewardSignerSet(address indexed rewardSigner);
+    event RewardSignerPaused();
+    event RewardsProcessed(address indexed rewardsRecipient, uint256 amountClaimed);
+    event MaximumRewardAmountPerClaimSet(uint256 maxRewardAmount);
+    event MaxDeadlineSet(uint256 maxDeadline);
+    event FundsRescued(address indexed token, address indexed to, uint256 amount);
+
+    /// @notice The reward token
+    ERC20 public immutable REWARD_TOKEN;
+
+    /// @notice The address of the reward signer (centralized backend)
+    address public rewardSigner;
+    /// @notice The maximum reward amount for the rewards to be processed per delta
+    uint96 public maximumRewardAmountPerClaim; // Packed with rewardSigner (20 + 12 = 32 bytes)
+
+    /// @notice Maximum number of seconds into the future (relative to block.timestamp) that a
+    ///         reward signature's deadline may be set to. Acts as a staleness window: a signature
+    ///         is valid only while `block.timestamp <= deadline <= block.timestamp + maxDeadline`.
+    ///         Lower values force more frequent re-signing; higher values give users more time to
+    ///         submit but extend the replay window of each signature.
+    uint32 public maxDeadline; // Packed: maxDeadline (4) + secondsBetweenClaims (4) = 8 bytes
+    /// @notice The rate limit between claims
+    uint32 public secondsBetweenClaims;
+
+    /// @notice A struct to store the claim checkpoint (packed into 1 slot: 48 + 208 = 256)
+    struct ClaimCheckpoint {
+        /// @notice The timestamp of the claim
+        uint48 timestamp;
+        /// @notice The cumulative total rewards claimed by this user up to and including this checkpoint
+        uint208 cumulativeClaimed;
+    }
+
+    /// @notice A mapping of user addresses to their claim history
+    mapping(address user => ClaimCheckpoint[]) internal _claimHistory;
+
+    constructor(address _owner, ERC20 rewardToken, uint32 initialMaxDeadline) Auth(_owner, Authority(address(0))) {
+        if (address(rewardToken) == address(0)) revert InvalidToken();
+        if (initialMaxDeadline == 0) revert InvalidMaxDeadline();
+        REWARD_TOKEN = rewardToken;
+        maxDeadline = initialMaxDeadline;
+        emit MaxDeadlineSet(initialMaxDeadline);
+    }
+
+    //============================== RESTRICTED FUNCTIONS ===============================
+
+    /**
+     * @notice Sets the reward signer
+     * @param newSigner The address of the reward signer
+     * @dev Callable by OWNER_ROLE.
+     *      When rotating keys, do not reuse a previously active signer address.
+     *      Reusing a retired key would re-enable any unexpired signatures issued under that key.
+     */
+    function setRewardSigner(address newSigner) external requiresAuth {
+        if (newSigner == address(0)) revert InvalidSigner();
+        rewardSigner = newSigner;
+        emit RewardSignerSet(newSigner);
+    }
+
+    /**
+     * @notice Emergency pause: clears the reward signer, preventing all future claims
+     *         until a new signer is set via `setRewardSigner`.
+     * @dev Callable by any address with auth (e.g. automated bot or EOA).
+     */
+    function pauseRewardSigner() external requiresAuth {
+        rewardSigner = address(0);
+        emit RewardSignerPaused();
+    }
+
+    /**
+     * @notice Sets the maximum reward amount for the rewards to be processed
+     * @param newMaximumRewardAmountPerClaim The new maximum reward amount for the rewards to be processed
+     * @dev Callable by OWNER_ROLE.
+     */
+    function setMaximumRewardAmountPerClaim(uint96 newMaximumRewardAmountPerClaim) external requiresAuth {
+        maximumRewardAmountPerClaim = newMaximumRewardAmountPerClaim;
+        emit MaximumRewardAmountPerClaimSet(newMaximumRewardAmountPerClaim);
+    }
+
+    /**
+     * @notice Sets the signature staleness window — the maximum number of seconds into the future
+     *         (relative to block.timestamp) that a reward signature's deadline is allowed to be.
+     * @param newMaxDeadline The new staleness window in seconds. Setting to 0 will effectively
+     *        disable claims, as no signature deadline can satisfy the staleness check.
+     * @dev Callable by OWNER_ROLE.
+     */
+    function setMaxDeadline(uint32 newMaxDeadline) external requiresAuth {
+        maxDeadline = newMaxDeadline;
+        emit MaxDeadlineSet(newMaxDeadline);
+    }
+
+    /**
+     * @notice Sets the time limit between claims
+     * @param newSecondsBetweenClaims The time limit between claims in seconds
+     * @dev Callable by OWNER_ROLE. Set secondsBetweenClaims to max uint32 to disable withdrawal of rewards.
+     */
+    function setSecondsBetweenClaims(uint32 newSecondsBetweenClaims) external requiresAuth {
+        secondsBetweenClaims = newSecondsBetweenClaims;
+        emit SecondsBetweenClaimsSet(newSecondsBetweenClaims);
+    }
+
+    /**
+     * @notice Rescues funds from the contract
+     * @param token The token to rescue
+     * @param to The address to send the funds to
+     * @param amount The amount of funds to rescue
+     * @dev Callable by OWNER_ROLE.
+     */
+    function rescueFunds(ERC20 token, address to, uint256 amount) external requiresAuth {
+        if (to == address(0)) revert InvalidAddress();
+        token.safeTransfer(to, amount);
+        emit FundsRescued(address(token), to, amount);
+    }
+
+    /**
+     * @notice Processes rewards for a recipient based on a signed cumulative rewards amount
+     * @param rewardsRecipient The address of the rewards recipient
+     * @param cumulativeOwed The cumulative amount of rewards owed to the rewards recipient
+     * @param deadline The deadline for the rewards to be processed
+     * @param signature The signature from the backend to verify the reward parameters
+     * @return The amount of rewards processed between the last claim and the current claim
+     * @dev Callable by TELLER_ROLE.
+     */
+    function processRewards(
+        address rewardsRecipient,
+        uint256 cumulativeOwed,
+        uint256 deadline,
+        bytes calldata signature
+    ) external requiresAuth returns (uint256) {
+        uint256 maximumRewardAmountPerClaimMemory = maximumRewardAmountPerClaim;
+        if (maximumRewardAmountPerClaimMemory == 0) return 0;
+        if (block.timestamp > deadline) return 0;
+        if (deadline > block.timestamp + maxDeadline) return 0;
+
+        (uint256 lastClaimTimestamp, uint256 totalClaimed) = _getLastCheckpointData(rewardsRecipient);
+        if (block.timestamp < (lastClaimTimestamp + secondsBetweenClaims)) return 0;
+
+        if (!_checkSignature(rewardsRecipient, cumulativeOwed, deadline, signature)) return 0;
+
+        uint256 amountToSend = _calculateAmountToSend(totalClaimed, cumulativeOwed, maximumRewardAmountPerClaimMemory);
+
+        if (amountToSend == 0) return 0;
+        if (REWARD_TOKEN.balanceOf(address(this)) < amountToSend) return 0;
+
+        _claimHistory[rewardsRecipient].push(
+            ClaimCheckpoint({
+                timestamp: block.timestamp.toUint48(), cumulativeClaimed: (totalClaimed + amountToSend).toUint208()
+            })
+        );
+
+        REWARD_TOKEN.safeTransfer(rewardsRecipient, amountToSend);
+
+        emit RewardsProcessed(rewardsRecipient, amountToSend);
+
+        return amountToSend;
+    }
+
+    function _calculateAmountToSend(uint256 totalClaimed, uint256 cumulativeOwed, uint256 _maximumRewardAmountPerClaim)
+        internal
+        pure
+        returns (uint256 amountToSend)
+    {
+        // No-op if nothing to claim (allows withdrawWithRewards to succeed even without pending rewards)
+        if (cumulativeOwed <= totalClaimed) return 0;
+        amountToSend = cumulativeOwed - totalClaimed;
+        // Cap the amount to the maximum reward amount per claim
+        if (amountToSend > _maximumRewardAmountPerClaim) {
+            amountToSend = _maximumRewardAmountPerClaim;
+        }
+    }
+
+    function _checkSignature(
+        address rewardsRecipient,
+        uint256 cumulativeOwed,
+        uint256 deadline,
+        bytes calldata signature
+    ) internal view returns (bool) {
+        bytes32 messageHash = keccak256(
+            abi.encode(
+                address(this), // prevents cross-pool replay
+                block.chainid, // prevents cross-chain replay
+                rewardsRecipient, // prevents impersonation
+                cumulativeOwed, // cumulative total amount of rewards
+                deadline // expiry
+            )
+        );
+        bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
+        (address recovered, ECDSA.RecoverError err,) = ECDSA.tryRecover(ethSignedHash, signature);
+        if (err != ECDSA.RecoverError.NoError) return false;
+
+        return recovered == rewardSigner;
+    }
+
+    function _getLastCheckpointData(address user) internal view returns (uint256 lastTimestamp, uint256 totalClaimed) {
+        uint256 len = _claimHistory[user].length;
+        if (len == 0) return (0, 0);
+        ClaimCheckpoint storage checkpoint = _claimHistory[user][len - 1];
+        lastTimestamp = checkpoint.timestamp;
+        totalClaimed = checkpoint.cumulativeClaimed;
+    }
+
+    /**
+     * @param user The address of the user to get the last claim timestamp for
+     * @return The last claim timestamp
+     */
+    function getLastClaimTimestamp(address user) public view returns (uint256) {
+        (uint256 ts,) = _getLastCheckpointData(user);
+        return ts;
+    }
+
+    /**
+     * @param user The address of the user to get the claim history for
+     * @dev Used for off chain reporting and calculations of rewards earned
+     * @return The claim history
+     */
+    function getClaimHistory(address user) external view returns (ClaimCheckpoint[] memory) {
+        return _claimHistory[user];
+    }
+
+    /**
+     * @notice Returns a paginated slice of a user's claim history.
+     * @param user The address of the user.
+     * @param startIndex The starting index (inclusive).
+     * @param length The maximum number of checkpoints to return.
+     * @return checkpoints The claim checkpoints in the requested range.
+     * @return totalLength The total number of checkpoints for this user.
+     */
+    function getClaimHistoryPaginated(address user, uint256 startIndex, uint256 length)
+        external
+        view
+        returns (ClaimCheckpoint[] memory checkpoints, uint256 totalLength)
+    {
+        totalLength = _claimHistory[user].length;
+        if (startIndex >= totalLength) return (checkpoints, totalLength);
+        if (startIndex + length > totalLength) length = totalLength - startIndex;
+
+        checkpoints = new ClaimCheckpoint[](length);
+        for (uint256 i; i < length; ++i) {
+            checkpoints[i] = _claimHistory[user][startIndex + i];
+        }
+    }
+
+    /**
+     * @notice Returns the last claim timestamp and total claimed amount for a user
+     * @param user The address of the user
+     * @return lastTimestamp The timestamp of the user's last claim
+     * @return totalClaimed The cumulative total rewards claimed by the user
+     */
+    function getLastCheckpointData(address user) external view returns (uint256 lastTimestamp, uint256 totalClaimed) {
+        return _getLastCheckpointData(user);
+    }
+
+    /**
+     * @param user The address of the user to get the claimed amount for
+     * @return totalClaimed The total amount of rewards claimed from this pool by the user
+     */
+    function getTotalClaimedAmount(address user) public view returns (uint256) {
+        (, uint256 claimed) = _getLastCheckpointData(user);
+        return claimed;
+    }
+}

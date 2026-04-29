@@ -11,7 +11,7 @@ import {ERC20} from "@solmate/tokens/ERC20.sol";
  * @title AaveV3BufferHelper
  * @author Veda Tech Labs
  * @notice A buffer helper contract that integrates with Aave V3 lending pool for automated yield generation
- * @dev Implements the IBufferHelper interface to provide Aave V3 integration for the TellerWithBuffer contract.
+ * @dev Implements the IBufferHelper interface to provide Aave V3 integration for the TellerWithMultiAssetSupport contract.
  * This helper automatically manages token approvals and supply/withdraw operations to maximize yield on deposited assets.
  */
 contract AaveV3BufferHelper is IBufferHelper {

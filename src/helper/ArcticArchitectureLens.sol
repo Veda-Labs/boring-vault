@@ -5,17 +5,16 @@
 pragma solidity 0.8.21;
 
 import {BoringVault, ERC20} from "src/base/BoringVault.sol";
-import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import {TellerWithMultiAssetSupport, PrincipalCheckpoint} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import {IncentivePool} from "src/base/IncentivePool.sol";
 import {TellerWithYieldStreaming} from "src/base/Roles/TellerWithYieldStreaming.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {BoringOnChainQueue} from "src/base/Roles/BoringQueue/BoringOnChainQueue.sol";
 import {IBufferLens} from "src/interfaces/IBufferLens.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 contract ArcticArchitectureLens {
     using FixedPointMathLib for uint256;
-    using Address for address;
 
     /**
      * @dev Calculates the total assets held in the BoringVault for a given vault and accountant.
@@ -146,7 +145,7 @@ contract ArcticArchitectureLens {
      * @return time The unlock time for the user's shares.
      */
     function userUnlockTime(address account, TellerWithMultiAssetSupport teller) external view returns (uint256 time) {
-        (,,,, time) = teller.beforeTransferData(account);
+        (,,, time) = teller.beforeTransferData(account);
     }
 
     /**
@@ -157,6 +156,7 @@ contract ArcticArchitectureLens {
     }
 
     /**
+     * @notice Returns the withdraw asset configuration for a given asset in the queue.
      */
     function getWithdrawAsset(address asset, BoringOnChainQueue queue)
         public
@@ -302,7 +302,7 @@ contract ArcticArchitectureLens {
         if (shareAmount == 0) res.noShares = true;
 
         // Check if user's shares are locked
-        (,,,, uint256 shareUnlockTime) = teller.beforeTransferData(account);
+        (,,, uint64 shareUnlockTime) = teller.beforeTransferData(account);
         if (shareUnlockTime > block.timestamp) res.sharesLocked = true;
 
         // Calculate expected assets out
@@ -318,6 +318,76 @@ contract ArcticArchitectureLens {
         // Check if the withdrawable amount is less than the requested assets out
         if (res.withdrawableAssets < res.assetsOut) {
             res.notEnoughWithdrawableAssets = true;
+        }
+    }
+
+    // ============================== USER HISTORY ==============================
+
+    error ArrayLengthMismatch();
+
+    struct PoolClaimHistory {
+        address pool;
+        IncentivePool.ClaimCheckpoint[] checkpoints;
+        uint256 totalLength;
+    }
+
+    struct UserHistory {
+        PrincipalCheckpoint[] principalCheckpoints;
+        uint256 principalTotalLength;
+        PoolClaimHistory[] claimHistories;
+    }
+
+    /// @notice Returns the full principal and claim histories for a user.
+    /// @param teller The teller to read principal history from.
+    /// @param user The user whose history to fetch.
+    /// @param incentivePools The incentive pools to read claim history from.
+    function getUserHistory(TellerWithMultiAssetSupport teller, address user, address[] calldata incentivePools)
+        external
+        view
+        returns (UserHistory memory history)
+    {
+        (history.principalCheckpoints, history.principalTotalLength) =
+            teller.getPrincipalHistoryPaginated(user, 0, type(uint256).max);
+
+        history.claimHistories = new PoolClaimHistory[](incentivePools.length);
+        for (uint256 i; i < incentivePools.length; ++i) {
+            IncentivePool pool = IncentivePool(incentivePools[i]);
+            history.claimHistories[i].pool = incentivePools[i];
+            history.claimHistories[i].checkpoints = pool.getClaimHistory(user);
+            history.claimHistories[i].totalLength = history.claimHistories[i].checkpoints.length;
+        }
+    }
+
+    /// @notice Returns paginated principal and claim histories for a user.
+    /// @param teller The teller to read principal history from.
+    /// @param user The user whose history to fetch.
+    /// @param principalStartIndex Start index (inclusive) for principal history.
+    /// @param principalLength Maximum number of principal checkpoints to return.
+    /// @param incentivePools The incentive pools to read claim history from.
+    /// @param claimStartIndexes Per-pool start indexes (inclusive).
+    /// @param claimLengths Per-pool maximum number of claim checkpoints to return.
+    function getUserHistory(
+        TellerWithMultiAssetSupport teller,
+        address user,
+        uint256 principalStartIndex,
+        uint256 principalLength,
+        address[] calldata incentivePools,
+        uint256[] calldata claimStartIndexes,
+        uint256[] calldata claimLengths
+    ) external view returns (UserHistory memory history) {
+        if (incentivePools.length != claimStartIndexes.length || incentivePools.length != claimLengths.length) {
+            revert ArrayLengthMismatch();
+        }
+
+        (history.principalCheckpoints, history.principalTotalLength) =
+            teller.getPrincipalHistoryPaginated(user, principalStartIndex, principalLength);
+
+        history.claimHistories = new PoolClaimHistory[](incentivePools.length);
+        for (uint256 i; i < incentivePools.length; ++i) {
+            IncentivePool pool = IncentivePool(incentivePools[i]);
+            history.claimHistories[i].pool = incentivePools[i];
+            (history.claimHistories[i].checkpoints, history.claimHistories[i].totalLength) =
+                pool.getClaimHistoryPaginated(user, claimStartIndexes[i], claimLengths[i]);
         }
     }
 }

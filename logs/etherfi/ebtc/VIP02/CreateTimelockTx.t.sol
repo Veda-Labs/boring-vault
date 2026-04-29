@@ -10,8 +10,7 @@ import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper
 import {TimelockController} from "@openzeppelin/contracts/governance/TimelockController.sol";
 import {
     LayerZeroTellerWithRateLimiting,
-    CrossChainTellerWithGenericBridge,
-    PairwiseRateLimiter
+    CrossChainTellerWithGenericBridge
 } from "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTellerWithRateLimiting.sol";
 import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {BoringVault} from "src/base/BoringVault.sol";

@@ -5,17 +5,19 @@
 pragma solidity 0.8.21;
 
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {WETH} from "@solmate/tokens/WETH.sol";
 import {BoringVault} from "src/base/BoringVault.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {BeforeTransferHook} from "src/interfaces/BeforeTransferHook.sol";
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {ReentrancyGuard} from "@solmate/utils/ReentrancyGuard.sol";
 import {IPausable} from "src/interfaces/IPausable.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import {IBoringSolver} from "src/base/Roles/BoringQueue/IBoringSolver.sol";
+
+interface ITellerWithPrincipalTracking {
+    function checkpointQueueWithdrawal(address user, uint256 shares) external;
+}
 
 contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
     using EnumerableSet for EnumerableSet.Bytes32Set;
@@ -59,7 +61,7 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
      * @param secondsToDeadline The time in seconds the request is valid for.
      */
     struct OnChainWithdraw {
-        uint96 nonce; // read from state, used to make it impossible for request Ids to be repeated.
+        uint88 nonce; // read from state, used to make it impossible for request Ids to be repeated.
         address user; // msg.sender
         address assetOut; // input sanitized
         uint128 amountOfShares; // input transfered in
@@ -116,12 +118,18 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
      *      in the same block such that you can make 2 requests with the same request Id.
      *      And even if you did, the tx would revert with a keccak256 collision error.
      */
-    uint96 public nonce = 1;
+    uint88 public nonce = 1;
 
     /**
      * @notice Whether or not the contract is paused.
      */
     bool public isPaused;
+
+    /**
+     * @notice The teller to checkpoint principal on when a withdrawal is solved.
+     * @dev Set to zero address to disable principal checkpointing.
+     */
+    address public principalTeller;
 
     //============================== ERRORS ===============================
 
@@ -151,7 +159,7 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
         bytes32 indexed requestId,
         address indexed user,
         address indexed assetOut,
-        uint96 nonce,
+        uint88 nonce,
         uint128 amountOfShares,
         uint128 amountOfAssets,
         uint40 creationTime,
@@ -179,6 +187,8 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
     event Paused();
 
     event Unpaused();
+
+    event PrincipalTellerSet(address indexed teller);
 
     //============================== IMMUTABLES ===============================
 
@@ -259,6 +269,16 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
     function unpause() external requiresAuth {
         isPaused = false;
         emit Unpaused();
+    }
+
+    /**
+     * @notice Sets the teller to call for principal checkpointing on queue solve.
+     * @dev Set to zero address to disable principal checkpointing.
+     * @param _teller The teller contract address.
+     */
+    function setPrincipalTeller(address _teller) external requiresAuth {
+        principalTeller = _teller;
+        emit PrincipalTellerSet(_teller);
     }
 
     /**
@@ -472,6 +492,7 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
             totalShares += requests[i].amountOfShares;
             bytes32 requestId = _dequeueOnChainWithdraw(requests[i]);
             emit OnChainWithdrawSolved(requestId, requests[i].user, block.timestamp);
+            _onWithdrawSolved(requests[i].user, requests[i].amountOfShares);
         }
 
         // Transfer shares to solver.
@@ -479,9 +500,10 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
 
         // Run callback function if data is provided.
         if (solveData.length > 0) {
-            IBoringSolver(solver).boringSolve(
-                msg.sender, address(boringVault), address(solveAsset), totalShares, requiredAssets, solveData
-            );
+            IBoringSolver(solver)
+                .boringSolve(
+                    msg.sender, address(boringVault), address(solveAsset), totalShares, requiredAssets, solveData
+                );
         }
 
         for (uint256 i = 0; i < requestsLength; ++i) {
@@ -525,6 +547,18 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
     }
 
     //============================= INTERNAL FUNCTIONS ==============================
+
+    /**
+     * @notice Hook called when a withdraw request is solved.
+     * @dev Calls `checkpointQueueWithdrawal` on the principal teller if one is set.
+     * @param user The user whose request was solved.
+     * @param amountOfShares The number of shares that were withdrawn.
+     */
+    function _onWithdrawSolved(address user, uint128 amountOfShares) internal virtual {
+        if (principalTeller != address(0)) {
+            ITellerWithPrincipalTracking(principalTeller).checkpointQueueWithdrawal(user, amountOfShares);
+        }
+    }
 
     /**
      * @notice Before a new request is made, validate the input.
@@ -618,7 +652,9 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
     function _decrementWithdrawCapacity(address assetOut, uint256 amountOfShares) internal {
         WithdrawAsset storage withdrawAsset = withdrawAssets[assetOut];
         if (withdrawAsset.withdrawCapacity < type(uint256).max) {
-            if (withdrawAsset.withdrawCapacity < amountOfShares) revert BoringOnChainQueue__NotEnoughWithdrawCapacity();
+            if (withdrawAsset.withdrawCapacity < amountOfShares) {
+                revert BoringOnChainQueue__NotEnoughWithdrawCapacity();
+            }
             withdrawAsset.withdrawCapacity -= amountOfShares;
             emit WithdrawCapacityUpdated(assetOut, withdrawAsset.withdrawCapacity);
         }
@@ -657,7 +693,7 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
         uint24 secondsToDeadline
     ) internal virtual returns (bytes32 requestId, OnChainWithdraw memory req) {
         // Create new request.
-        uint96 requestNonce;
+        uint88 requestNonce;
         // See nonce definition for unchecked safety.
         unchecked {
             // Set request nonce as current nonce, then increment nonce.

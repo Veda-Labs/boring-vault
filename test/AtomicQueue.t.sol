@@ -14,7 +14,11 @@ import {ILiquidityPool} from "src/interfaces/IStaking.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {AtomicSolverV3, AtomicQueue} from "src/archive/atomic-queue/AtomicSolverV3.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
-import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import {
+    TellerWithMultiAssetSupport,
+    DepositParams,
+    ComplianceData
+} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {AtomicSolverV3, AtomicQueue} from "src/archive/atomic-queue/AtomicSolverV3.sol";
 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
@@ -87,9 +91,7 @@ contract AtomicQueueTest is Test, MerkleTreeHelper {
             SOLVER_ROLE, address(teller), TellerWithMultiAssetSupport.bulkWithdraw.selector, true
         );
         rolesAuthority.setRoleCapability(QUEUE_ROLE, address(atomicSolverV3), AtomicSolverV3.finishSolve.selector, true);
-        rolesAuthority.setPublicCapability(
-            address(teller), bytes4(keccak256("deposit(address,uint256,uint256,address)")), true
-        );
+        rolesAuthority.setPublicCapability(address(teller), TellerWithMultiAssetSupport.deposit.selector, true);
         rolesAuthority.setPublicCapability(address(atomicQueue), AtomicQueue.updateAtomicRequest.selector, true);
         rolesAuthority.setPublicCapability(address(atomicQueue), AtomicQueue.safeUpdateAtomicRequest.selector, true);
         rolesAuthority.setPublicCapability(address(atomicQueue), AtomicQueue.solve.selector, true);
@@ -113,8 +115,8 @@ contract AtomicQueueTest is Test, MerkleTreeHelper {
         WEETH.approve(address(boringVault), type(uint256).max);
         WEETH.approve(address(atomicQueue), type(uint256).max);
         boringVault.approve(address(atomicQueue), type(uint256).max);
-        teller.deposit(WETH, 1_000e18, 0, referrer);
-        teller.deposit(WEETH, 1_000e18, 0, referrer);
+        teller.deposit(DepositParams(WETH, 1_000e18, 0), user, referrer, ComplianceData(0, ""));
+        teller.deposit(DepositParams(WEETH, 1_000e18, 0), user, referrer, ComplianceData(0, ""));
         vm.stopPrank();
     }
 
@@ -128,10 +130,7 @@ contract AtomicQueueTest is Test, MerkleTreeHelper {
         atomicQueue.pause();
         vm.startPrank(user);
         AtomicQueue.AtomicRequest memory req = AtomicQueue.AtomicRequest({
-            deadline: uint64(block.timestamp + 1),
-            atomicPrice: uint88(1e18),
-            offerAmount: uint96(1e18),
-            inSolve: false
+            deadline: uint64(block.timestamp + 1), atomicPrice: uint88(1e18), offerAmount: uint96(1e18), inSolve: false
         });
         vm.expectRevert(bytes(abi.encodeWithSelector(AtomicQueue.AtomicQueue__Paused.selector)));
         atomicQueue.updateAtomicRequest(boringVault, WETH, req);
@@ -147,10 +146,7 @@ contract AtomicQueueTest is Test, MerkleTreeHelper {
     function testSafeUpadteAtomicRequest() external {
         // User makes a safe atomic request
         AtomicQueue.AtomicRequest memory req = AtomicQueue.AtomicRequest({
-            deadline: uint64(block.timestamp + 1),
-            atomicPrice: uint88(0),
-            offerAmount: uint96(1e18),
-            inSolve: false
+            deadline: uint64(block.timestamp + 1), atomicPrice: uint88(0), offerAmount: uint96(1e18), inSolve: false
         });
         vm.prank(user);
         atomicQueue.safeUpdateAtomicRequest(boringVault, WEETH, req, accountant, 0.0001e6);
@@ -189,10 +185,7 @@ contract AtomicQueueTest is Test, MerkleTreeHelper {
         atomicQueue.safeUpdateAtomicRequest(boringVault, WETH, unsafeRequest, accountant, 0.0001e6);
 
         unsafeRequest = AtomicQueue.AtomicRequest({
-            deadline: uint64(block.timestamp - 1),
-            atomicPrice: uint88(1e18),
-            offerAmount: uint96(1e18),
-            inSolve: false
+            deadline: uint64(block.timestamp - 1), atomicPrice: uint88(1e18), offerAmount: uint96(1e18), inSolve: false
         });
         vm.expectRevert(
             bytes(
@@ -204,10 +197,7 @@ contract AtomicQueueTest is Test, MerkleTreeHelper {
         atomicQueue.safeUpdateAtomicRequest(boringVault, WETH, unsafeRequest, accountant, 0.0001e6);
 
         unsafeRequest = AtomicQueue.AtomicRequest({
-            deadline: uint64(block.timestamp + 1),
-            atomicPrice: uint88(1e18),
-            offerAmount: uint96(1e18),
-            inSolve: false
+            deadline: uint64(block.timestamp + 1), atomicPrice: uint88(1e18), offerAmount: uint96(1e18), inSolve: false
         });
 
         boringVault.approve(address(atomicQueue), 0);
@@ -226,19 +216,13 @@ contract AtomicQueueTest is Test, MerkleTreeHelper {
         boringVault.approve(address(atomicQueue), type(uint256).max);
 
         unsafeRequest = AtomicQueue.AtomicRequest({
-            deadline: uint64(block.timestamp + 1),
-            atomicPrice: uint88(1e18),
-            offerAmount: uint96(0),
-            inSolve: false
+            deadline: uint64(block.timestamp + 1), atomicPrice: uint88(1e18), offerAmount: uint96(0), inSolve: false
         });
         vm.expectRevert(bytes(abi.encodeWithSelector(AtomicQueue.AtomicQueue__SafeRequestOfferAmountZero.selector)));
         atomicQueue.safeUpdateAtomicRequest(boringVault, WETH, unsafeRequest, accountant, 0.0001e6);
 
         unsafeRequest = AtomicQueue.AtomicRequest({
-            deadline: uint64(block.timestamp + 1),
-            atomicPrice: uint88(1e18),
-            offerAmount: uint96(1e18),
-            inSolve: false
+            deadline: uint64(block.timestamp + 1), atomicPrice: uint88(1e18), offerAmount: uint96(1e18), inSolve: false
         });
         vm.expectRevert(bytes(abi.encodeWithSelector(AtomicQueue.AtomicQueue__SafeRequestDiscountTooLarge.selector)));
         atomicQueue.safeUpdateAtomicRequest(boringVault, WETH, unsafeRequest, accountant, 0.010001e6);

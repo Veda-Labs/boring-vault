@@ -17,14 +17,14 @@ import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSu
  * @notice Invariant test suite for the RATE PROVIDER system (Medusa-compatible)
  * @dev Inherits from BaseInvariants and implements abstract getters for RP system
  *      Named differently from Foundry version to avoid compilation conflicts.
- * 
+ *
  * SYSTEM: AccountantWithRateProviders + TellerWithMultiAssetSupport + vaultRP
- * 
+ *
  * INVARIANTS TESTED (via BaseInvariants inheritance):
  * - Group 1: Accountant Common (1-7)
  * - Group 3: Teller & Vault Integrity (20-31)
  * - Group 4: Math & Solvency (33, 36-48)
- * 
+ *
  * TOTAL: All shared invariants, focused on RP system only
  * Each fuzz run operates exclusively on the RP vault and contracts.
  */
@@ -48,7 +48,7 @@ contract MedusaInvariantTestRP is BaseInvariants {
     function setUp() public override {
         // No-op for Foundry compatibility - actual setup in constructor
     }
-    
+
     function _medusaSetUp() internal {
         // Deploy base infrastructure (from BaseSetup)
         _setupActors();
@@ -58,7 +58,7 @@ contract MedusaInvariantTestRP is BaseInvariants {
         _setupRoles();
         _configureAssets();
         _fundActors();
-        
+
         // Prepare alternative assets arrays for handler constructors
         address[] memory altAssetAddresses = new address[](NUM_ALT_ASSETS);
         address[] memory altRateProviderAddresses = new address[](NUM_ALT_ASSETS);
@@ -66,7 +66,7 @@ contract MedusaInvariantTestRP is BaseInvariants {
             altAssetAddresses[i] = address(alternativeAssets[i]);
             altRateProviderAddresses[i] = address(altAssetRateProviders[i]);
         }
-        
+
         // Deploy handlers with N-asset support
         accountantHandler = new AccountantHandler(
             address(accountantRP),
@@ -80,7 +80,7 @@ contract MedusaInvariantTestRP is BaseInvariants {
             strategist,
             payoutAddress
         );
-        
+
         tellerHandler = new TellerHandler(
             address(tellerMAS),
             address(tellerYS),
@@ -93,24 +93,24 @@ contract MedusaInvariantTestRP is BaseInvariants {
             deniedUser,
             actors
         );
-        
+
         // Wire up handlers
         tellerHandler.setAccountantHandler(address(accountantHandler));
-        
+
         // Fund handlers with base asset (using mint instead of deal for Medusa compatibility)
         baseAsset.mint(address(accountantHandler), 10_000_000e18);
         baseAsset.mint(address(tellerHandler), 10_000_000e18);
-        
+
         // Fund handlers with ALL alternative assets (for handler compatibility)
         for (uint256 i = 0; i < NUM_ALT_ASSETS; i++) {
             alternativeAssets[i].mint(address(accountantHandler), 10_000_000e18);
             alternativeAssets[i].mint(address(tellerHandler), 10_000_000e18);
         }
-        
+
         // ============================================
         // TARGET ONLY RP SYSTEM FUNCTIONS
         // ============================================
-        
+
         // Accountant RP functions (N-asset support)
         bytes4[] memory accountantRPSelectors = new bytes4[](13);
         accountantRPSelectors[0] = AccountantHandler.updateExchangeRateRP.selector;
@@ -126,11 +126,11 @@ contract MedusaInvariantTestRP is BaseInvariants {
         accountantRPSelectors[10] = AccountantHandler.setRateProviderDataRP.selector;
         accountantRPSelectors[11] = AccountantHandler.updatePayoutAddressRP.selector;
         accountantRPSelectors[12] = AccountantHandler.warpTime.selector;
-        
+
         // Teller MAS functions (N-asset support)
         // Note: depositAltMAS and withdrawAltMAS are now parameterized by asset index
         // Note: warpTime is handled by AccountantHandler only
-        bytes4[] memory tellerMASSelectors = new bytes4[](30);
+        bytes4[] memory tellerMASSelectors = new bytes4[](27);
         tellerMASSelectors[0] = TellerHandler.depositMAS.selector;
         tellerMASSelectors[1] = TellerHandler.withdrawMAS.selector;
         tellerMASSelectors[2] = TellerHandler.bulkDepositMAS.selector;
@@ -150,23 +150,19 @@ contract MedusaInvariantTestRP is BaseInvariants {
         tellerMASSelectors[15] = TellerHandler.allowToMAS.selector;
         tellerMASSelectors[16] = TellerHandler.denyOperatorMAS.selector;
         tellerMASSelectors[17] = TellerHandler.allowOperatorMAS.selector;
-        // Permissioned transfer controls
-        tellerMASSelectors[18] = TellerHandler.setPermissionedTransfersMAS.selector;
-        tellerMASSelectors[19] = TellerHandler.allowPermissionedOperatorMAS.selector;
-        tellerMASSelectors[20] = TellerHandler.denyPermissionedOperatorMAS.selector;
         // Deposit cap boundary testing
-        tellerMASSelectors[21] = TellerHandler.depositNearCapMAS.selector;
-        tellerMASSelectors[22] = TellerHandler.setDepositCapNearSupplyMAS.selector;
+        tellerMASSelectors[18] = TellerHandler.depositNearCapMAS.selector;
+        tellerMASSelectors[19] = TellerHandler.setDepositCapNearSupplyMAS.selector;
         // Edge case testing
-        tellerMASSelectors[23] = TellerHandler.updateAssetDataMAS.selector;
-        tellerMASSelectors[24] = TellerHandler.depositTinyMAS.selector;
-        tellerMASSelectors[25] = TellerHandler.withdrawLockedMAS.selector;
-        tellerMASSelectors[26] = TellerHandler.withdrawZeroMinMAS.selector;
+        tellerMASSelectors[20] = TellerHandler.updateAssetDataMAS.selector;
+        tellerMASSelectors[21] = TellerHandler.depositTinyMAS.selector;
+        tellerMASSelectors[22] = TellerHandler.withdrawLockedMAS.selector;
+        tellerMASSelectors[23] = TellerHandler.withdrawZeroMinMAS.selector;
         // Refund and denied user testing (critical for invariant coverage)
-        tellerMASSelectors[27] = TellerHandler.refundDepositMAS.selector;
-        tellerMASSelectors[28] = TellerHandler.depositAsDeniedUser.selector;
-        tellerMASSelectors[29] = TellerHandler.transferFromDeniedUser.selector;
-        
+        tellerMASSelectors[24] = TellerHandler.refundDepositMAS.selector;
+        tellerMASSelectors[25] = TellerHandler.depositAsDeniedUser.selector;
+        tellerMASSelectors[26] = TellerHandler.transferFromDeniedUser.selector;
+
         // ============================================
         // TARGETING: ONLY HANDLERS
         // ============================================
@@ -174,11 +170,11 @@ contract MedusaInvariantTestRP is BaseInvariants {
         // from calling functions directly on MockRateProvider, BoringVault, etc.
         targetContract(address(accountantHandler));
         targetContract(address(tellerHandler));
-        
+
         // Target specific selectors on handlers
         targetSelector(FuzzSelector({addr: address(accountantHandler), selectors: accountantRPSelectors}));
         targetSelector(FuzzSelector({addr: address(tellerHandler), selectors: tellerMASSelectors}));
-        
+
         // Exclude senders that shouldn't be used by fuzzer
         excludeSender(owner);
         excludeSender(strategist);
@@ -188,7 +184,7 @@ contract MedusaInvariantTestRP is BaseInvariants {
         excludeSender(address(tellerMAS));
         excludeSender(address(accountantHandler));
         excludeSender(address(tellerHandler));
-        
+
         // Exclude mock contracts from being targeted directly
         excludeContract(address(baseAsset));
         excludeContract(address(vaultRP));
@@ -199,7 +195,7 @@ contract MedusaInvariantTestRP is BaseInvariants {
         excludeContract(address(tellerYS));
         excludeContract(address(rolesAuthorityRP));
         excludeContract(address(rolesAuthorityYS));
-        
+
         // Exclude ALL alternative assets and rate providers (N-asset support)
         for (uint256 i = 0; i < NUM_ALT_ASSETS; i++) {
             excludeContract(address(alternativeAssets[i]));
@@ -210,39 +206,39 @@ contract MedusaInvariantTestRP is BaseInvariants {
     // ============================================
     // ABSTRACT GETTER IMPLEMENTATIONS
     // ============================================
-    
+
     function _accountant() internal view override returns (AccountantWithRateProviders) {
         return accountantRP;
     }
-    
+
     function _teller() internal view override returns (TellerWithMultiAssetSupport) {
         return tellerMAS;
     }
-    
+
     function _vault() internal view override returns (BoringVault) {
         return vaultRP;
     }
-    
+
     function _accountantHandler() internal view override returns (AccountantHandler) {
         return accountantHandler;
     }
-    
+
     function _tellerHandler() internal view override returns (TellerHandler) {
         return tellerHandler;
     }
-    
+
     function _getPreState() internal view override returns (AccountantHandler.RPState memory) {
         return accountantHandler.getPreRP();
     }
-    
+
     function _getPostState() internal view override returns (AccountantHandler.RPState memory) {
         return accountantHandler.getPostRP();
     }
-    
+
     function _getTellerPreState() internal view override returns (TellerHandler.TellerState memory) {
         return tellerHandler.getPreMAS();
     }
-    
+
     function _getTellerPostState() internal view override returns (TellerHandler.TellerState memory) {
         return tellerHandler.getPostMAS();
     }

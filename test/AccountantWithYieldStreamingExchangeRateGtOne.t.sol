@@ -6,8 +6,12 @@ pragma solidity 0.8.21;
 import {BoringVault} from "src/base/BoringVault.sol";
 import {AccountantWithYieldStreaming} from "src/base/Roles/AccountantWithYieldStreaming.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
-import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol"; 
-import {TellerWithYieldStreaming} from "src/base/Roles/TellerWithYieldStreaming.sol"; 
+import {
+    TellerWithMultiAssetSupport,
+    DepositParams,
+    ComplianceData
+} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import {TellerWithYieldStreaming} from "src/base/Roles/TellerWithYieldStreaming.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
@@ -19,12 +23,11 @@ import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper
 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
-
 contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     BoringVault public boringVault;
-    AccountantWithYieldStreaming public accountant; 
+    AccountantWithYieldStreaming public accountant;
     TellerWithYieldStreaming public teller;
     RolesAuthority public rolesAuthority;
 
@@ -37,7 +40,6 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     //GenericRateProvider public mETHRateProvider;
     //GenericRateProvider public ptRateProvider;
 
-
     uint8 public constant MINTER_ROLE = 1;
     uint8 public constant ADMIN_ROLE = 1;
     uint8 public constant BORING_VAULT_ROLE = 4;
@@ -47,9 +49,9 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
     uint8 public constant SOLVER_ROLE = 9;
     uint8 public constant QUEUE_ROLE = 10;
     uint8 public constant CAN_SOLVE_ROLE = 11;
-    
-    address public alice = address(69); 
-    address public bill = address(6969); 
+
+    address public alice = address(69);
+    address public bill = address(6969);
 
     function setUp() external {
         setSourceChainName("mainnet");
@@ -67,8 +69,7 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         accountant = new AccountantWithYieldStreaming(
             address(this), address(boringVault), payoutAddress, 1.2e18, address(WETH), 1.001e4, 0.999e4, 1, 0.1e4, 0.1e4
         );
-        teller =
-            new TellerWithYieldStreaming(address(this), address(boringVault), address(accountant), address(WETH));
+        teller = new TellerWithYieldStreaming(address(this), address(boringVault), address(accountant), address(WETH));
 
         rolesAuthority = new RolesAuthority(address(this), Authority(address(0)));
         accountant.setAuthority(rolesAuthority);
@@ -78,7 +79,9 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
         // Setup roles authority.
         rolesAuthority.setRoleCapability(MINTER_ROLE, address(boringVault), BoringVault.enter.selector, true);
         rolesAuthority.setRoleCapability(BURNER_ROLE, address(boringVault), BoringVault.exit.selector, true);
-        rolesAuthority.setRoleCapability(MINTER_ROLE, address(accountant), AccountantWithYieldStreaming.setFirstDepositTimestamp.selector, true);
+        rolesAuthority.setRoleCapability(
+            MINTER_ROLE, address(accountant), AccountantWithYieldStreaming.setFirstDepositTimestamp.selector, true
+        );
         rolesAuthority.setRoleCapability(
             ADMIN_ROLE, address(accountant), AccountantWithRateProviders.pause.selector, true
         );
@@ -151,41 +154,41 @@ contract AccountantWithYieldStreamingTest is Test, MerkleTreeHelper {
 
         //accountant.setRateProviderData(EETH, true, address(0));
         //accountant.setRateProviderData(WEETH, false, address(WEETH_RATE_PROVIDER));
-       
+
         teller.updateAssetData(WETH, true, true, 0);
         teller.updateAssetData(EETH, true, true, 0);
         teller.updateAssetData(WEETH, true, true, 0);
-        
     }
 
     //test basics
     function testDepositsWithNoYield() external {
-
-        uint256 WETHAmount = 10e18; 
+        uint256 WETHAmount = 10e18;
         deal(address(WETH), address(this), 1_000e18);
         WETH.approve(address(boringVault), 1_000e18);
         address referrer = vm.addr(1337);
-        uint256 shares0 = teller.deposit(WETH, WETHAmount, 0, referrer);
+        uint256 shares0 =
+            teller.deposit(DepositParams(WETH, WETHAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         uint256 currentRate = accountant.getRate();
         uint256 expectedShares = uint256(WETHAmount).mulDivDown(1e18, currentRate);
 
-        assertApproxEqAbs(expectedShares, shares0, 10); 
-        
-        uint256 totalAssetsBefore = accountant.totalAssets();         
+        assertApproxEqAbs(expectedShares, shares0, 10);
+
+        uint256 totalAssetsBefore = accountant.totalAssets();
 
         //==== BEGIN DEPOSIT 2 ====
 
         //deposit 2
-        uint256 shares1 = teller.deposit(WETH, WETHAmount, 0, referrer);
+        uint256 shares1 =
+            teller.deposit(DepositParams(WETH, WETHAmount, 0), address(this), referrer, ComplianceData(0, ""));
 
         currentRate = accountant.getRate();
         expectedShares = uint256(WETHAmount).mulDivDown(1e18, currentRate);
 
-        assertApproxEqAbs(expectedShares, shares1, 10); 
-        
-        uint256 totalAssetsAfter = accountant.totalAssets();         
-        assertGt(totalAssetsAfter, totalAssetsBefore); 
+        assertApproxEqAbs(expectedShares, shares1, 10);
+
+        uint256 totalAssetsAfter = accountant.totalAssets();
+        assertGt(totalAssetsAfter, totalAssetsBefore);
     }
 
     // ========================================= HELPER FUNCTIONS =========================================

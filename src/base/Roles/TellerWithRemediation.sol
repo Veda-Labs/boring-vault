@@ -6,6 +6,9 @@ pragma solidity 0.8.21;
 
 import {TellerWithMultiAssetSupport, ERC20} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 
+/**
+ * @notice DEPRECATED
+ */
 contract TellerWithRemediation is TellerWithMultiAssetSupport {
     // ========================================= STRUCTS =========================================
 

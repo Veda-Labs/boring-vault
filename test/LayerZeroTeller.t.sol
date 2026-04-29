@@ -6,6 +6,7 @@ pragma solidity 0.8.21;
 
 import {BoringVault} from "src/base/BoringVault.sol";
 import {LayerZeroTeller} from "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTeller.sol";
+import {LayerZeroTellerLib} from "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTellerLib.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
@@ -13,7 +14,7 @@ import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MockLayerZeroEndPoint} from "src/helper/MockLayerZeroEndPoint.sol";
-import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import {TellerWithMultiAssetSupport, ComplianceData} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import {AddressToBytes32Lib} from "src/helper/AddressToBytes32Lib.sol";
 
@@ -145,7 +146,9 @@ contract LayerZeroTellerTest is Test, MerkleTreeHelper {
         // Bridge 100 shares.
         address to = vm.addr(1);
         uint256 expectedFee = 1e18;
-        sourceTeller.bridge{value: 0.001e18}(sharesToBridge, to, abi.encode(DESTINATION_ID), NATIVE_ERC20, expectedFee);
+        sourceTeller.bridge{value: 0.001e18}(
+            sharesToBridge, to, abi.encode(DESTINATION_ID), NATIVE_ERC20, expectedFee, ComplianceData(0, "")
+        );
 
         MockLayerZeroEndPoint.Packet memory m = endPoint.getLastMessage();
 
@@ -177,14 +180,14 @@ contract LayerZeroTellerTest is Test, MerkleTreeHelper {
         assertEq(allowMessagesTo, true, "Should allow messages to new chain.");
         assertEq(messageGasLimit, msgGas, "Should have set message gas limit.");
 
-        sourceTeller.stopMessagesFromChain(newSelector);
+        sourceTeller.stopMessages(newSelector, true, false);
 
         (allowMessagesFrom, allowMessagesTo, messageGasLimit) = sourceTeller.idToChains(newSelector);
         assertEq(allowMessagesFrom, false, "Should not allow messages from destination chain.");
         assertEq(allowMessagesTo, true, "Should still allow messages to destination chain.");
         assertEq(messageGasLimit, msgGas, "Should have not changed message gas limit.");
 
-        sourceTeller.stopMessagesToChain(newSelector);
+        sourceTeller.stopMessages(newSelector, false, true);
         (allowMessagesFrom, allowMessagesTo, messageGasLimit) = sourceTeller.idToChains(newSelector);
         assertEq(allowMessagesFrom, false, "Should not allow messages from destination chain.");
         assertEq(allowMessagesTo, false, "Should not allow messages to destination chain.");
@@ -192,14 +195,14 @@ contract LayerZeroTellerTest is Test, MerkleTreeHelper {
 
         address newTargetTeller = vm.addr(2);
         msgGas += 2;
-        sourceTeller.allowMessagesToChain(newSelector, newTargetTeller, msgGas);
+        sourceTeller.addChain(newSelector, false, true, newTargetTeller, msgGas);
         (allowMessagesFrom, allowMessagesTo, messageGasLimit) = sourceTeller.idToChains(newSelector);
         assertEq(allowMessagesFrom, false, "Should allow messages from new chain.");
         assertEq(allowMessagesTo, true, "Should not allow messages to new chain.");
         assertEq(messageGasLimit, msgGas, "Should have changed message gas limit.");
 
         address anotherNewTargetTeller = vm.addr(3);
-        sourceTeller.allowMessagesFromChain(newSelector, anotherNewTargetTeller);
+        sourceTeller.addChain(newSelector, true, true, anotherNewTargetTeller, msgGas);
         (allowMessagesFrom, allowMessagesTo, messageGasLimit) = sourceTeller.idToChains(newSelector);
         assertEq(allowMessagesFrom, true, "Should allow messages from new chain.");
         assertEq(allowMessagesTo, true, "Should allow messages to new chain.");
@@ -211,7 +214,7 @@ contract LayerZeroTellerTest is Test, MerkleTreeHelper {
         assertEq(allowMessagesTo, false, "Should not allow messages to new chain.");
         assertEq(messageGasLimit, 0, "Should have zeroed message gas limit.");
 
-        sourceTeller.setChainGasLimit(newSelector, msgGas + 1);
+        sourceTeller.addChain(newSelector, false, false, address(0), msgGas + 1);
         (allowMessagesFrom, allowMessagesTo, messageGasLimit) = sourceTeller.idToChains(newSelector);
         assertEq(allowMessagesFrom, false, "Should not allow messages from new chain.");
         assertEq(allowMessagesTo, false, "Should not allow messages to new chain.");
@@ -220,23 +223,15 @@ contract LayerZeroTellerTest is Test, MerkleTreeHelper {
 
     function testReverts() external {
         // Adding a chain with a zero message gas limit should revert.
-        vm.expectRevert(bytes(abi.encodeWithSelector(LayerZeroTeller.LayerZeroTeller__ZeroMessageGasLimit.selector)));
+        vm.expectRevert(bytes(abi.encodeWithSelector(LayerZeroTellerLib.LayerZeroTeller__ZeroMessageGasLimit.selector)));
         sourceTeller.addChain(DESTINATION_ID, true, true, address(destinationTeller), 0);
-
-        // Allowing messages to a chain with a zero message gas limit should revert.
-        vm.expectRevert(bytes(abi.encodeWithSelector(LayerZeroTeller.LayerZeroTeller__ZeroMessageGasLimit.selector)));
-        sourceTeller.allowMessagesToChain(DESTINATION_ID, address(destinationTeller), 0);
-
-        // Changing the gas limit to zero should revert.
-        vm.expectRevert(bytes(abi.encodeWithSelector(LayerZeroTeller.LayerZeroTeller__ZeroMessageGasLimit.selector)));
-        sourceTeller.setChainGasLimit(DESTINATION_ID, 0);
 
         // If teller is paused bridging is not allowed.
         sourceTeller.pause();
         vm.expectRevert(
             bytes(abi.encodeWithSelector(TellerWithMultiAssetSupport.TellerWithMultiAssetSupport__Paused.selector))
         );
-        sourceTeller.bridge(0, address(0), hex"", NATIVE_ERC20, 0);
+        sourceTeller.bridge(0, address(0), hex"", NATIVE_ERC20, 0, ComplianceData(0, ""));
 
         sourceTeller.unpause();
         sourceTeller.removeChain(DESTINATION_ID);
@@ -245,10 +240,14 @@ contract LayerZeroTellerTest is Test, MerkleTreeHelper {
         uint256 expectedFee = 1e18;
         vm.expectRevert(
             bytes(
-                abi.encodeWithSelector(LayerZeroTeller.LayerZeroTeller__MessagesNotAllowedTo.selector, DESTINATION_ID)
+                abi.encodeWithSelector(
+                    LayerZeroTellerLib.LayerZeroTeller__MessagesNotAllowedTo.selector, DESTINATION_ID
+                )
             )
         );
-        sourceTeller.bridge(1e18, address(this), abi.encode(DESTINATION_ID), NATIVE_ERC20, expectedFee);
+        sourceTeller.bridge(
+            1e18, address(this), abi.encode(DESTINATION_ID), NATIVE_ERC20, expectedFee, ComplianceData(0, "")
+        );
 
         // setup chains.
         sourceTeller.addChain(DESTINATION_ID, true, true, address(destinationTeller), 1_000_000);
@@ -261,15 +260,19 @@ contract LayerZeroTellerTest is Test, MerkleTreeHelper {
         vm.expectRevert(
             bytes(
                 abi.encodeWithSelector(
-                    LayerZeroTeller.LayerZeroTeller__FeeExceedsMax.selector, DESTINATION_ID, newFee, expectedFee
+                    LayerZeroTellerLib.LayerZeroTeller__FeeExceedsMax.selector, DESTINATION_ID, newFee, expectedFee
                 )
             )
         );
-        sourceTeller.bridge(1e18, address(this), abi.encode(DESTINATION_ID), NATIVE_ERC20, expectedFee);
+        sourceTeller.bridge(
+            1e18, address(this), abi.encode(DESTINATION_ID), NATIVE_ERC20, expectedFee, ComplianceData(0, "")
+        );
 
         endPoint.setFee(NATIVE_ERC20, 0.001e18);
 
-        sourceTeller.bridge{value: 0.001e18}(1e18, address(this), abi.encode(DESTINATION_ID), NATIVE_ERC20, 1e18);
+        sourceTeller.bridge{value: 0.001e18}(
+            1e18, address(this), abi.encode(DESTINATION_ID), NATIVE_ERC20, 1e18, ComplianceData(0, "")
+        );
 
         MockLayerZeroEndPoint.Packet memory m = endPoint.getLastMessage();
 
