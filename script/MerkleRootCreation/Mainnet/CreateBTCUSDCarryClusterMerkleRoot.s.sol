@@ -118,6 +118,13 @@ contract CreateBTCUSDCarryClusterMerkleRootScript is Script, MerkleTreeHelper {
 
         _addMorphoBlueFlashLoanLeafs(leafs, getAddress(sourceChain, "USDC"));
 
+        // morpho blue markets to supply
+        _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "cbBtc_USDC_86"));
+
+        // morpho blue markets to collateralise
+        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "cbBtc_USDC_86"));
+
+
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
         string memory filePath = "./leafs/Mainnet/BTCUSDCarryClusterStrategyLeafs.json";
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);

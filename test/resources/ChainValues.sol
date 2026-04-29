@@ -971,6 +971,7 @@ contract ChainValues {
         values[mainnet]["sUSDe_PYUSD_915"] = 0x90ef0c5a0dc7c4de4ad4585002d44e9d411d212d2f6258e94948beecf8b4c0d5;
         values[mainnet]["fxSAVE_USDC_86"] = 0x43e925e52d7873fa8acac90dd5f246087d55b3a34c344b71884a6352491ff459;
         values[mainnet]["srRoyUSDC_USDC_915"] = 0xacc49fbf58feb1ac971acce68f8adc177c43682d6a7087bbd4991a05cb7a2c67;
+        values[mainnet]["cbBtc_USDC_86"] = 0x64d65c9a2d91c36d56fbc42d69e979335320169b3df63bf92789e2c8883fcc64;
 
         // MetaMorpho
         values[mainnet]["usualBoostedUSDC"] = 0xd63070114470f685b75B74D60EEc7c1113d33a3D.toBytes32();

@@ -93,7 +93,7 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
 
 contract DeploySyUsdtEthereumDecoderAndSanitizer is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
     uint256 public privateKey;
-    Deployer public deployer = Deployer(0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC);
+    Deployer public deployer = Deployer(0x5BD97A73333B6EC2e38B687bcED159566A14C5BA);
 
     function run() external {
         bytes memory creationCode;
