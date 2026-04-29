@@ -23,3 +23,5 @@ CLAUDE.md
 flatten.sol
 
 tools/*
+
+test/limitOrders/*

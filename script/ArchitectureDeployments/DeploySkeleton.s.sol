@@ -940,7 +940,7 @@ contract DeploySkeletonScript is Script, ChainValues {
 
         address txBundler = getAddress(sourceChain, "txBundlerAddress");
 
-        vm.startBroadcast(privateKey);
+        vm.startBroadcast();
         for (uint256 i; i < desiredNumberOfDeploymentTxs; i++) {
             console.log(string.concat("Sending bundle: ", vm.toString(i)));
             Deployer(txBundler).bundleTxs(txBundles[i]);

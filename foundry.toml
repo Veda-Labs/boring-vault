@@ -58,6 +58,7 @@ plasma = "${PLASMA_RPC_URL}"
 inkSepolia= "${INK_SEPOLIA_RPC_URL}"
 mantle = "${MANTLE_RPC_URL}"
 sei = "${SEI_RPC_URL}"
+monad = "${MONAD_RPC_URL}"
 
 [etherscan]
 #bob = { key = "${BOBSCAN_KEY}", chain = 60808, url = "https://explorer.gobob.xyz/api?"}
