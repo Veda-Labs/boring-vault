@@ -69,17 +69,6 @@ contract CreateBTCUSDCarryClusterMerkleRootScript is Script, MerkleTreeHelper {
         feeAssets[0] = getERC20(sourceChain, "cbBTC");
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
-        ERC20[] memory bridgeAssets = new ERC20[](2);
-        bridgeAssets[0] = getERC20(sourceChain, "USDC");
-        bridgeAssets[1] = getERC20(sourceChain, "USDT");
-        ERC20[] memory feeTokens = new ERC20[](1);
-        feeTokens[0] = getERC20(sourceChain, "WETH");
-        _addCcipBridgeLeafs(leafs, ccipBaseChainSelector, bridgeAssets, feeTokens);
-
-        _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDC"));
-        _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDT"));
-        _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDS"));
-
         address[] memory swapAssets = new address[](7);
         swapAssets[0] = getAddress(sourceChain, "USDC");
         swapAssets[1] = getAddress(sourceChain, "USDS");
