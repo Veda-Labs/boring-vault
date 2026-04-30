@@ -27,3 +27,5 @@ tools/*
 # Node dependencies
 node_modules/
 test/limitOrders/
+test/limitOrders/*
+
