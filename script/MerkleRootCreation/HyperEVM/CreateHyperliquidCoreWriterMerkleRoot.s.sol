@@ -39,7 +39,7 @@ contract CreateHyperliquidCoreWriterMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, hyperEVM, "accountantAddress", accountantAddress);
         setAddress(false, hyperEVM, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](32);
+        ManageLeaf[] memory leafs = new ManageLeaf[](128);
 
         // ========================== Define Allowed Perp Assets ==========================
         // BTC=0, ETH=1 (see HyperliquidAssetIds.sol for full list)
@@ -89,6 +89,14 @@ contract CreateHyperliquidCoreWriterMerkleRoot is Script, MerkleTreeHelper {
         address[] memory bridgeSubAccounts = new address[](1);
         bridgeSubAccounts[0] = address(0); // Main account
         _addCoreWriterSendAssetLeafs(leafs, bridgeDestinations, bridgeSubAccounts);
+
+        // ========================== SpotSend to HyperEVM Bridge Addresses ==========================
+        // SpotSend (ACTION_ID=6) to system bridge address (0x2000...0000 + token_index)
+        // moves tokens from HyperCore to HyperEVM. Destination = vault_address is a no-op self-send.
+        uint64[] memory bridgeTokenIndices = new uint64[](2);
+        bridgeTokenIndices[0] = 0;   // USDC  → bridge address 0x2000000000000000000000000000000000000000
+        bridgeTokenIndices[1] = 150; // HYPE  → bridge address 0x2000000000000000000000000000000000000096
+        _addCoreWriterSpotSendToBridgeLeafs(leafs, bridgeTokenIndices);
 
         // ========================== Add API Wallets ==============================
 

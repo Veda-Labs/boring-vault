@@ -15484,6 +15484,38 @@ function _addTellerLeafsWithReferral(
     }
 
     /**
+     * @notice Add leafs for withdrawing spot tokens from HyperCore to HyperEVM via system bridge addresses.
+     * @dev Uses SpotSend (ACTION_ID=6) with destination = 0x2000...0000 + token_index (big-endian).
+     *      Each token index maps to a unique Hyperliquid system bridge address, not a cross-product.
+     * @param tokenIndices Array of spot token IDs to allow bridging to HyperEVM (e.g., 0=USDC, 150=HYPE)
+     */
+    function _addCoreWriterSpotSendToBridgeLeafs(ManageLeaf[] memory leafs, uint64[] memory tokenIndices) internal {
+        address actionSpotSend = address(uint160(6)); // ACTION_SPOT_SEND
+
+        for (uint256 i; i < tokenIndices.length; ++i) {
+            unchecked {
+                leafIndex++;
+            }
+            // Bridge address formula: 0x2000000000000000000000000000000000000000 + token_index
+            address bridgeAddress =
+                address(uint160(0x2000000000000000000000000000000000000000) + uint160(tokenIndices[i]));
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "coreWriter"),
+                false,
+                "sendRawAction(bytes)",
+                new address[](3),
+                string.concat(
+                    "Withdraw spot token ", vm.toString(tokenIndices[i]), " from HyperCore to HyperEVM via bridge"
+                ),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = actionSpotSend;
+            leafs[leafIndex].argumentAddresses[1] = bridgeAddress;
+            leafs[leafIndex].argumentAddresses[2] = address(uint160(tokenIndices[i]));
+        }
+    }
+
+    /**
      * @notice Add leafs for vault transfer on HyperCore.
      * @dev Action ID 2: (vault, isDeposit, usd)
      *      Uses sendRawAction(bytes) since CoreWriter only exposes that function.
