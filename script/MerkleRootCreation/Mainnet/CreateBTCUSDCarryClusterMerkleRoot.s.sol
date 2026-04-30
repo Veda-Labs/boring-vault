@@ -113,14 +113,13 @@ contract CreateBTCUSDCarryClusterMerkleRootScript is Script, MerkleTreeHelper {
         // morpho blue markets to collateralise
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "cbBtc_USDC_86"));
 
-
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
         string memory filePath = "./leafs/Mainnet/BTCUSDCarryClusterStrategyLeafs.json";
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
 
         RolesAuthority authority = RolesAuthority(rolesAuthority);
         ManagerWithMerkleVerification manager = ManagerWithMerkleVerification(managerAddress);
-        vm.startBroadcast(vm.envUint("PK"));
+        vm.startBroadcast(vm.envUint("DEPLOYER01"));
         manager.setManageRoot(0x0307AD25281C99F22A8F3Af9e272fE3968810239, manageTree[manageTree.length - 1][0]);
         manager.setManageRoot(flashLoanAdapter, manageTree[manageTree.length - 1][0]);
         manager.setManageRoot(vm.addr(vm.envUint("BTCUSDCarryStrategist")), manageTree[manageTree.length - 1][0]);
