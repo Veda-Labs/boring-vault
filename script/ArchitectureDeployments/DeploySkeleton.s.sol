@@ -949,7 +949,8 @@ contract DeploySkeletonScript is Script, ChainValues {
         address txBundler = getAddress(sourceChain, "txBundlerAddress");
 
         if (useHardwareWallet) {
-            vm.startBroadcast(deploymentOwner);
+            // Foundry derives the sender from the Ledger via --ledger --mnemonic-derivation-paths.
+            vm.startBroadcast();
         } else {
             vm.startBroadcast(privateKey);
         }
