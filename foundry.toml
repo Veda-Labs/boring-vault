@@ -10,6 +10,7 @@ fs_permissions = [{ access = "read-write", path = "./" }]
 deny_warnings = false
 use_literal_content = true
 cbor_metadata=true
+memory_limit = 4294967296
 remappings = [
     "@solmate/=lib/solmate/src/",
     "@forge-std/=lib/forge-std/src/",
@@ -56,6 +57,7 @@ tac = "${TAC_RPC_URL}"
 plasma = "${PLASMA_RPC_URL}"
 inkSepolia= "${INK_SEPOLIA_RPC_URL}"
 mantle = "${MANTLE_RPC_URL}"
+sei = "${SEI_RPC_URL}"
 monad = "${MONAD_RPC_URL}"
 
 [etherscan]
