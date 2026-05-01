@@ -17,6 +17,7 @@ docs/
 *.DS_Store
 broadcast/*
 #leafs/TemporaryLeafs.json
+dependencies/*
 
 CLAUDE.md
 .serena
@@ -25,3 +26,14 @@ flatten.sol
 tools/*
 dependencies/
 test/limitOrders/*
+
+# Node dependencies
+node_modules/
+test/limitOrders/*
+
+
+# certora
+.certora_internal/
+.properties-*/
+emv-*-certora-*/
+

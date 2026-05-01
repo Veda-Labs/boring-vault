@@ -1,0 +1,45 @@
+name: Certora_FV_D
+
+on:
+  - pull_request
+
+env:
+  FOUNDRY_PROFILE: ci
+  CONFIGS: |
+    certora/confs/scenarioD.conf --verify "LayerZeroTeller:certora/specs/rentrancy_view.spec" --prover_args "-enableStorageSplitting false"
+    certora/confs/scenarioD.conf --verify "LayerZeroTeller:certora/specs/teller_basic.spec"
+    certora/confs/scenarioD.conf --verify "LayerZeroTeller:certora/specs/teller_accounting_easyRules.spec"
+    certora/confs/scenarioD.conf --verify "LayerZeroTeller:certora/specs/teller_integrity.spec"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      statuses: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: yarn install
+        run: |
+          corepack enable
+          yarn install
+
+      - name: Certora munge
+        run: certora/scripts/setup.sh D
+
+      - name: run configs
+        uses: Certora/certora-run-action@v2
+        with:
+          configurations: ${{ env.CONFIGS }}
+          solc-versions: 0.8.21
+          solc-remove-version-prefix: "0."
+          job-name: "Verified Rules"
+          certora-key: ${{ secrets.CERTORAKEY }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
