@@ -46,6 +46,7 @@ contract ChainValues {
     string public constant plasma = "plasma";
     string public constant inkSepolia = "inkSepolia";
     string public constant monad = "monad";
+    string public constant sei = "sei";
 
     // Bridging constants.
     uint64 public constant ccipArbitrumChainSelector = 4949039107694359620;
@@ -78,6 +79,7 @@ contract ChainValues {
     uint32 public constant layerZeroTACEndpointId = 30377;
     uint32 public constant layerZeroTONEndpointId = 30343;
     uint32 public constant layerZeroPlasmaEndpointId = 30383;
+    uint32 public constant layerZeroSeiEndpointId = 30280;
 
     uint32 public constant cctpMainnetDomainId = 0; 
     uint32 public constant cctpInkDomainId = 21; 
