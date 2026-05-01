@@ -21,3 +21,7 @@ broadcast/*
 CLAUDE.md
 .serena
 flatten.sol
+
+# SDK
+sdk/node_modules/
+sdk/dist/

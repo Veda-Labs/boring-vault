@@ -1,0 +1,31 @@
+{
+  "name": "@boring-vault/sdk",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for BoringVault integration — pure viem, no framework",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "types": "./src/index.ts"
+    },
+    "./vault": "./src/vault.ts",
+    "./user": "./src/user.ts",
+    "./transactions": "./src/transactions.ts",
+    "./analytics": "./src/analytics.ts",
+    "./types": "./src/types.ts"
+  },
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "peerDependencies": {
+    "viem": "^2.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "viem": "^2.17.0",
+    "vitest": "^1.5.0"
+  }
+}
