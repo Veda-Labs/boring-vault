@@ -3379,6 +3379,7 @@ contract ChainValues {
     function _addSeiValues() private {
         values[sei]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
         values[sei]["PYUSD0"] = 0x142cdc44890978B506e745bB3Bd11607B7f7faEf.toBytes32();
+        values[sei]["PYUSDOFTAdapter"] = 0x3CD2b89C49D130C08f1d683225b2e5DeB63ff876.toBytes32();
         values[sei]["USDC"] = 0xe15fC38F6D8c56aF07bbCBe3BAf5708A2Bf42392.toBytes32();
         values[sei]["featherPYUSD0Vault"] = 0x50715ae180FF0EA799dc8AB635C2D876e528bfe8.toBytes32();
         values[sei]["merklDistributor"] = 0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae.toBytes32();

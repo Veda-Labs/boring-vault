@@ -41,11 +41,11 @@ contract CreateLiquidUsdSeiMerkleRootScript is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](64);
 
         // ========================== LayerZero (PYUSD0 -> Mainnet via Arbitrum) ==========================
-        // PYUSD0 is a native OFT — multihop Sei -> Arbitrum (MultiHopComposer) -> Mainnet
+        // PYUSD0 multihop Sei -> Arbitrum (MultiHopComposer) -> Mainnet
         _addLayerZeroMultiHopLeafs(
             leafs,
             getERC20(sourceChain, "PYUSD0"),
-            getAddress(sourceChain, "PYUSD0"),
+            getAddress(sourceChain, "PYUSDOFTAdapter"),
             layerZeroArbitrumEndpointId,
             getBytes32("arbitrum", "MultiHopComposer"),
             layerZeroMainnetEndpointId,
