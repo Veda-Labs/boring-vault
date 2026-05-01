@@ -80,12 +80,14 @@ contract GoldenGooseDecoderAndSanitizer is
         address _uniswapV4PositionManager,
         address _uniswapV3NonFungiblePositionManager,
         address _odosRouter,
-        address _dvStETHVault
+        address _dvStETHVault,
+        address _fluidFactory
     )
         UniswapV4DecoderAndSanitizer(_uniswapV4PositionManager)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
         OdosDecoderAndSanitizer(_odosRouter)
         DvStETHDecoderAndSanitizer(_dvStETHVault)
+        FluidDexDecoderAndSanitizer(_fluidFactory)
     {}
 
     //============================== HANDLE FUNCTION COLLISIONS ===============================

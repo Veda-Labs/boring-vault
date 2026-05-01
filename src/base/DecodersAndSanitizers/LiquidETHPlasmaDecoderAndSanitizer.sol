@@ -28,7 +28,8 @@ contract LiquidETHPlasmaDecoderAndSanitizer is
     FluidRewardsClaimingDecoderAndSanitizer,
     MerklDecoderAndSanitizer
 {
-    constructor(address _uniswapV3NonFungiblePositionManager)
+    constructor(address _uniswapV3NonFungiblePositionManager, address _fluidFactory)
         UniswapV3SwapRouter02DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
+        FluidDexDecoderAndSanitizer(_fluidFactory)
     {}
 }

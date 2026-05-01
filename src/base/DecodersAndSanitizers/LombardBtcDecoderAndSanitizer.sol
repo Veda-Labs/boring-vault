@@ -95,10 +95,11 @@ contract LombardBtcDecoderAndSanitizer is
     DeriveDecoderAndSanitizer,
     AgglayerDecoderAndSanitizer
 {
-    constructor(address _uniswapV3NonFungiblePositionManager, address _poolRegistry, address _odosRouter)
+    constructor(address _uniswapV3NonFungiblePositionManager, address _poolRegistry, address _odosRouter, address _fluidFactory)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
         ConvexFXDecoderAndSanitizer(_poolRegistry)
         OdosDecoderAndSanitizer(_odosRouter)
+        FluidDexDecoderAndSanitizer(_fluidFactory)
     {}
 
     //============================== HANDLE FUNCTION COLLISIONS ===============================

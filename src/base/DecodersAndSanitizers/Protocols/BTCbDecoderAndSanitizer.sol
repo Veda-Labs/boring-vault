@@ -13,8 +13,9 @@ contract BTCbDecoderAndSanitizer {
         return addressesFound; 
     }
 
-    function mint(bytes calldata /*payload*/, bytes calldata /*proof*/) external pure virtual returns (bytes memory addressesFound) {
-        return addressesFound; 
+    function mint(bytes calldata payload, bytes calldata /*proof*/) external pure virtual returns (bytes memory addressesFound) {
+        (, address to,,,) = abi.decode(payload, (uint256, address, uint64, bytes32, uint32));
+        addressesFound = abi.encodePacked(to);
     }
     
     //on LBTC
@@ -23,7 +24,8 @@ contract BTCbDecoderAndSanitizer {
     }
 
     //on BTC.b
-    function mintV1(bytes calldata /*payload*/, bytes calldata /*proof*/) external pure virtual returns (bytes memory addressesFound) {
-        return addressesFound; 
+    function mintV1(bytes calldata payload, bytes calldata /*proof*/) external pure virtual returns (bytes memory addressesFound) {
+        (, address receiver) = abi.decode(payload[4:], (uint256, address));
+        addressesFound = abi.encodePacked(receiver);
     }
 }

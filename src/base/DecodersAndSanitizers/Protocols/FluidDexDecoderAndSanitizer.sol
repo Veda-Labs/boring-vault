@@ -4,7 +4,24 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
+import {IFluidFactory} from "src/interfaces/RawDataDecoderAndSanitizerInterfaces.sol";
+
 contract FluidDexDecoderAndSanitizer {
+    //============================== ERRORS ===============================
+    //
+    error FluidDexDecoderAndSanitizer__BadTokenId();
+
+    //============================== IMMUTABLES ===============================
+
+    /**
+     * @notice The networks fluid vault factory.
+     */
+    IFluidFactory internal immutable fluidFactory;
+
+    constructor(address _fluidFactory) {
+        fluidFactory = IFluidFactory(_fluidFactory);
+    }
+
     /// @notice T1 (normal collateral, normal debt)
     /*
     * @param nftId The ID of the NFT representing the vault position
@@ -13,12 +30,14 @@ contract FluidDexDecoderAndSanitizer {
     * @param to The address to receive funds (if address(0), defaults to msg.sender)
     */
     function operate(
-        uint256, /*nftId*/
+        uint256 nftId,
         int256, /*newCol*/
         int256, /*newDebt*/
         address to
-    ) external pure virtual returns (bytes memory addressesFound) {
-        addressesFound = abi.encodePacked(to);
+    ) external view virtual returns (bytes memory addressesFound) {
+        if (nftId == 0) return abi.encodePacked(to);
+        address owner = fluidFactory.ownerOf(nftId);
+        addressesFound = abi.encodePacked(to, owner);
     }
 
     /// @notice T2 and T3
@@ -34,14 +53,16 @@ contract FluidDexDecoderAndSanitizer {
      *  @param to The address to receive withdrawn collateral or borrowed tokens (if address(0), defaults to msg.sender)
      */
     function operate(
-        uint256, /*nftId*/
+        uint256 nftId,
         int256, /*newColToken0 / newCol*/
         int256, /*newColToken1 / newDebtToken0*/
         int256, /*colSharesMinMax / newDebtToken1*/
         int256, /*newDebt / debtSharesMinMax*/
         address to
-    ) external pure virtual returns (bytes memory addressesFound) {
-        addressesFound = abi.encodePacked(to);
+    ) external view virtual returns (bytes memory addressesFound) {
+        if (nftId == 0) return abi.encodePacked(to);
+        address owner = fluidFactory.ownerOf(nftId);
+        addressesFound = abi.encodePacked(to, owner);
     }
 
     /* 
@@ -53,14 +74,16 @@ contract FluidDexDecoderAndSanitizer {
     *  @param to_ The address to receive withdrawn collateral or borrowed tokens (if address(0), defaults to msg.sender)
     */
     function operatePerfect(
-        uint256, /*nftId*/
+        uint256 nftId,
         int256, /*perfectColShares*/
         int256, /*colToken0MinMax*/
         int256, /*colToken1MinMax*/
         int256, /*newDebt*/
         address to
-    ) external pure virtual returns (bytes memory addressesFound) {
-        addressesFound = abi.encodePacked(to);
+    ) external view virtual returns (bytes memory addressesFound) {
+        if (nftId == 0) return abi.encodePacked(to);
+        address owner = fluidFactory.ownerOf(nftId);
+        addressesFound = abi.encodePacked(to, owner);
     }
 
     /// @notice T4 (smart collateral, smart debt)
@@ -76,7 +99,7 @@ contract FluidDexDecoderAndSanitizer {
     * @param to The address to receive funds (if address(0), defaults to msg.sender)    
     */
     function operate(
-        uint256, /*nftId*/
+        uint256 nftId,
         int256, /*newColToken0*/
         int256, /*newColToken1*/
         int256, /*colSharesMinMax*/
@@ -84,8 +107,10 @@ contract FluidDexDecoderAndSanitizer {
         int256, /*newDebtToken1*/
         int256, /*debtSharesMinMax*/
         address to
-    ) external pure virtual returns (bytes memory addressesFound) {
-        addressesFound = abi.encodePacked(to);
+    ) external view virtual returns (bytes memory addressesFound) {
+        if (nftId == 0) return abi.encodePacked(to);
+        address owner = fluidFactory.ownerOf(nftId);
+        addressesFound = abi.encodePacked(to, owner);
     }
 
     /*
@@ -99,7 +124,7 @@ contract FluidDexDecoderAndSanitizer {
     * @param to_ The address to receive funds (if address(0), defaults to msg.sender)
     */
     function operatePerfect(
-        uint256, /*nftId*/
+        uint256 nftId,
         int256, /*perfectColShares*/
         int256, /*colToken0MinMax*/
         int256, /*colToken1MinMax*/
@@ -107,7 +132,9 @@ contract FluidDexDecoderAndSanitizer {
         int256, /*debtToken0MinMax*/
         int256, /*debtToken1MinMax*/
         address to
-    ) external pure virtual returns (bytes memory addressesFound) {
-        addressesFound = abi.encodePacked(to);
+    ) external view virtual returns (bytes memory addressesFound) {
+        if (nftId == 0) return abi.encodePacked(to);
+        address owner = fluidFactory.ownerOf(nftId);
+        addressesFound = abi.encodePacked(to, owner);
     }
 }

@@ -23,7 +23,7 @@ import {EigenLayerLSTStakingDecoderAndSanitizer} from "src/base/DecodersAndSanit
 import {KarakDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/KarakDecoderAndSanitizer.sol"; 
 import {OFTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OFTDecoderAndSanitizer.sol";
 
-contract StakedEtherFiDecoderAndSanitizer is
+contract SymbioticLRTDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
     ERC4626DecoderAndSanitizer,
     EtherFiDecoderAndSanitizer,

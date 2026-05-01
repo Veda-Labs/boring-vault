@@ -19,7 +19,7 @@ import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecode
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
 contract FluidDexFullDecoderAndSanitizer is FluidDexDecoderAndSanitizer, BaseDecoderAndSanitizer {
-
+    constructor(address _fluidFactory) FluidDexDecoderAndSanitizer(_fluidFactory){}
 }
 
 contract FluidDexIntegrationTest is Test, MerkleTreeHelper {
@@ -52,7 +52,7 @@ contract FluidDexIntegrationTest is Test, MerkleTreeHelper {
         manager =
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
-        rawDataDecoderAndSanitizer = address(new FluidDexFullDecoderAndSanitizer());
+        rawDataDecoderAndSanitizer = address(new FluidDexFullDecoderAndSanitizer(getAddress(sourceChain, "fluidFactory")));
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -125,7 +125,7 @@ contract FluidDexIntegrationTest is Test, MerkleTreeHelper {
         manager =
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
-        rawDataDecoderAndSanitizer = address(new FluidDexFullDecoderAndSanitizer());
+        rawDataDecoderAndSanitizer = address(new FluidDexFullDecoderAndSanitizer(getAddress(sourceChain, "fluidFactory")));
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -196,15 +196,16 @@ contract FluidDexIntegrationTest is Test, MerkleTreeHelper {
         uint256 dexType = 1000;
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
         _addFluidDexLeafs(leafs, getAddress(sourceChain, "wstUSR-USDC"), dexType, supplyTokens, borrowTokens, false);
+        // leafs[2] = operate (new position, 1-addr); leafs[3] = operate (existing position, 2-addr)
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
         ManageLeaf[] memory manageLeafs = new ManageLeaf[](6);
         manageLeafs[0] = leafs[0]; //approval supply
         manageLeafs[1] = leafs[1]; //approval borrow
-        manageLeafs[2] = leafs[2]; 
-        manageLeafs[3] = leafs[2]; 
-        manageLeafs[4] = leafs[2]; 
-        manageLeafs[5] = leafs[2]; 
+        manageLeafs[2] = leafs[2]; //operate() deposit (nftId=0, 1-addr leaf)
+        manageLeafs[3] = leafs[3]; //operate() borrow (nftId=8574, 2-addr leaf)
+        manageLeafs[4] = leafs[3]; //operate() payback (nftId=8574, 2-addr leaf)
+        manageLeafs[5] = leafs[3]; //operate() withdraw (nftId=8574, 2-addr leaf)
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 
@@ -251,25 +252,27 @@ contract FluidDexIntegrationTest is Test, MerkleTreeHelper {
 
         uint256 dexType = 2000;
 
-        //3 approvals, 1 leaf for `operate()`, 1 leaf for `operatePerfect()`
+        // 3 approvals + 2 operate leaves (new/existing) + 2 operatePerfect leaves (new/existing) = 7
         ManageLeaf[] memory leafs = new ManageLeaf[](8);
-        _addFluidDexLeafs(leafs, getAddress(sourceChain, "wBTC-cbBTCDex-USDT"), dexType, supplyTokens, borrowTokens, false); 
+        _addFluidDexLeafs(leafs, getAddress(sourceChain, "wBTC-cbBTCDex-USDT"), dexType, supplyTokens, borrowTokens, false);
+        // leafs[3]=operate new(1-addr), leafs[4]=operate existing(2-addr)
+        // leafs[5]=operatePerfect new(1-addr), leafs[6]=operatePerfect existing(2-addr)
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
         ManageLeaf[] memory manageLeafs = new ManageLeaf[](11);
-        manageLeafs[0] = leafs[0]; //approval supply
-        manageLeafs[1] = leafs[1]; //approval borrow0
-        manageLeafs[2] = leafs[2]; //approval borrow1
-        manageLeafs[3] = leafs[3]; //operate() deposit params
-        manageLeafs[4] = leafs[3]; //operate() borrow params
-        manageLeafs[5] = leafs[3]; //operate() payback params
-        manageLeafs[6] = leafs[3]; //operate() withdraw params
-        manageLeafs[7] = leafs[4]; //operatePerfect() deposit params
-        manageLeafs[8] = leafs[4]; //operatePerfect() borrow params
-        manageLeafs[9] = leafs[4]; //operatePerfect() payback params
-        manageLeafs[10] = leafs[4]; //operatePerfect() withdraw params (use type(int256).min for max withdraw)
+        manageLeafs[0] = leafs[0]; //approval supply WBTC
+        manageLeafs[1] = leafs[1]; //approval supply cbBTC
+        manageLeafs[2] = leafs[2]; //approval borrow USDT
+        manageLeafs[3] = leafs[3]; //operate() deposit (nftId=0, 1-addr)
+        manageLeafs[4] = leafs[4]; //operate() borrow (nftId=2795, 2-addr)
+        manageLeafs[5] = leafs[4]; //operate() payback (nftId=2795, 2-addr)
+        manageLeafs[6] = leafs[4]; //operate() withdraw (nftId=2795, 2-addr)
+        manageLeafs[7] = leafs[5]; //operatePerfect() deposit (nftId=0, 1-addr)
+        manageLeafs[8] = leafs[6]; //operatePerfect() borrow (nftId=2796, 2-addr)
+        manageLeafs[9] = leafs[6]; //operatePerfect() payback (nftId=2796, 2-addr)
+        manageLeafs[10] = leafs[6]; //operatePerfect() withdraw (nftId=2796, 2-addr)
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 
@@ -278,8 +281,8 @@ contract FluidDexIntegrationTest is Test, MerkleTreeHelper {
         //setup boring vault tx data
 
         //this is what will be minted after we deposit
-        uint256 nftId = 2795;
-        uint256 nftPerfectId = 2796;
+        uint256 nftId = 8574;
+        uint256 nftPerfectId = 8575;
 
         //deal some dust to payback borrow
         //deal(getAddress(sourceChain, "USDC"), address(boringVault), 10e18); //I know USDC and USDT don't have 18decimals
@@ -429,11 +432,15 @@ contract FluidDexIntegrationTest is Test, MerkleTreeHelper {
 
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
+        // leafs[2]=operate new(1-addr), leafs[3]=operate existing(2-addr)
+        // leafs[4]=operatePerfect new(1-addr), leafs[5]=operatePerfect existing(2-addr)
+        // leafs[6]=operate native new(1-addr), leafs[7]=operate native existing(2-addr)
+        // leafs[8]=operatePerfect native new(1-addr), leafs[9]=operatePerfect native existing(2-addr)
         ManageLeaf[] memory manageLeafs = new ManageLeaf[](4);
-        manageLeafs[0] = leafs[0]; //approval supply
-        manageLeafs[1] = leafs[1]; //approval borrow
-        manageLeafs[2] = leafs[2]; //operate() deposit params
-        manageLeafs[3] = leafs[4]; //operate() deposit params Native
+        manageLeafs[0] = leafs[0]; //approval supply WEETH
+        manageLeafs[1] = leafs[1]; //approval borrow WSTETH
+        manageLeafs[2] = leafs[2]; //operate() deposit (nftId=0, non-native, 1-addr)
+        manageLeafs[3] = leafs[6]; //operate() deposit native (nftId=0, native, 1-addr)
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 

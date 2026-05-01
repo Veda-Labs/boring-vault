@@ -54,12 +54,14 @@ contract AlphaSTETHDecoderAndSanitizer is
         address _uniswapV3NonFungiblePositionManager,
         address _uniswapV4PositionManager,
         address _odosRouter,
-        address _dvStETHVault
+        address _dvStETHVault,
+        address _fluidFactory
     )
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
         UniswapV4DecoderAndSanitizer(_uniswapV4PositionManager)
         OdosDecoderAndSanitizer(_odosRouter)
         DvStETHDecoderAndSanitizer(_dvStETHVault)
+        FluidDexDecoderAndSanitizer(_fluidFactory)
     {}
 
     //============================== HANDLE FUNCTION COLLISIONS ===============================

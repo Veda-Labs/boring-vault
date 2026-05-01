@@ -6,6 +6,10 @@ pragma solidity 0.8.21;
 
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";  
 
+interface IFluidFactory {
+    function ownerOf(uint256 tokenId) external view returns (address);
+}
+
 // Swell
 interface INonFungiblePositionManager {
     struct Position {

@@ -57,10 +57,11 @@ contract LiquidBtcDecoderAndSanitizer is
     MorphoBlueDecoderAndSanitizer,
     ConvexFXDecoderAndSanitizer
 {
-    constructor(address _uniswapV3NonFungiblePositionManager, address _odosRouter, address _poolRegistry)
+    constructor(address _uniswapV3NonFungiblePositionManager, address _odosRouter, address _poolRegistry, address _fluidFactory)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
         OdosDecoderAndSanitizer(_odosRouter)
         ConvexFXDecoderAndSanitizer(_poolRegistry)
+        FluidDexDecoderAndSanitizer(_fluidFactory)
     {}
 
     //============================== HANDLE FUNCTION COLLISIONS ===============================

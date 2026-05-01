@@ -7990,131 +7990,169 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         }
 
         if (dexType == 1000) {
-            unchecked {
-                leafIndex++;
-            }
+            // nftId=0: new position, decoder returns only `to`
+            unchecked { leafIndex++; }
             leafs[leafIndex] = ManageLeaf(
-                address(dex),
-                false,
-                "operate(uint256,int256,int256,address)",
-                new address[](1),
-                string.concat("Operate on Fluid Dex Vault"),
+                address(dex), false, "operate(uint256,int256,int256,address)",
+                new address[](1), string.concat("Operate on Fluid Dex Vault (new position)"),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+            // nftId!=0: existing position, decoder returns `to` + `owner`
+            unchecked { leafIndex++; }
+            leafs[leafIndex] = ManageLeaf(
+                address(dex), false, "operate(uint256,int256,int256,address)",
+                new address[](2), string.concat("Operate on Fluid Dex Vault (existing position)"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
         }
 
         //t2 and t3 leaves
         if (dexType == 2000 || dexType == 3000) {
-            unchecked {
-                leafIndex++;
-            }
+            unchecked { leafIndex++; }
             leafs[leafIndex] = ManageLeaf(
-                address(dex),
-                false,
-                "operate(uint256,int256,int256,int256,int256,address)",
-                new address[](1),
-                string.concat("Operate on Fluid Dex Vault"),
+                address(dex), false, "operate(uint256,int256,int256,int256,int256,address)",
+                new address[](1), string.concat("Operate on Fluid Dex Vault (new position)"),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
 
-            unchecked {
-                leafIndex++;
-            }
+            unchecked { leafIndex++; }
             leafs[leafIndex] = ManageLeaf(
-                address(dex),
-                false,
-                "operatePerfect(uint256,int256,int256,int256,int256,address)",
-                new address[](1),
-                string.concat("Operate Perfect on Fluid Dex Vault"),
+                address(dex), false, "operate(uint256,int256,int256,int256,int256,address)",
+                new address[](2), string.concat("Operate on Fluid Dex Vault (existing position)"),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+
+            unchecked { leafIndex++; }
+            leafs[leafIndex] = ManageLeaf(
+                address(dex), false, "operatePerfect(uint256,int256,int256,int256,int256,address)",
+                new address[](1), string.concat("Operate Perfect on Fluid Dex Vault (new position)"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+            unchecked { leafIndex++; }
+            leafs[leafIndex] = ManageLeaf(
+                address(dex), false, "operatePerfect(uint256,int256,int256,int256,int256,address)",
+                new address[](2), string.concat("Operate Perfect on Fluid Dex Vault (existing position)"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
 
             if (addNative) {
-                unchecked {
-                    leafIndex++;
-                }
+                unchecked { leafIndex++; }
                 leafs[leafIndex] = ManageLeaf(
-                    address(dex),
-                    true,
-                    "operate(uint256,int256,int256,int256,int256,address)",
-                    new address[](1),
-                    string.concat("Operate on Fluid Dex Vault with native ETH"),
+                    address(dex), true, "operate(uint256,int256,int256,int256,int256,address)",
+                    new address[](1), string.concat("Operate on Fluid Dex Vault with native ETH (new position)"),
                     getAddress(sourceChain, "rawDataDecoderAndSanitizer")
                 );
                 leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
 
-                unchecked {
-                    leafIndex++;
-                }
+                unchecked { leafIndex++; }
                 leafs[leafIndex] = ManageLeaf(
-                    address(dex),
-                    true,
-                    "operatePerfect(uint256,int256,int256,int256,int256,address)",
-                    new address[](1),
-                    string.concat("Operate Perfect on Fluid Dex Vault with native ETH"),
+                    address(dex), true, "operate(uint256,int256,int256,int256,int256,address)",
+                    new address[](2), string.concat("Operate on Fluid Dex Vault with native ETH (existing position)"),
                     getAddress(sourceChain, "rawDataDecoderAndSanitizer")
                 );
                 leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+                leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+
+                unchecked { leafIndex++; }
+                leafs[leafIndex] = ManageLeaf(
+                    address(dex), true, "operatePerfect(uint256,int256,int256,int256,int256,address)",
+                    new address[](1), string.concat("Operate Perfect on Fluid Dex Vault with native ETH (new position)"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+                unchecked { leafIndex++; }
+                leafs[leafIndex] = ManageLeaf(
+                    address(dex), true, "operatePerfect(uint256,int256,int256,int256,int256,address)",
+                    new address[](2), string.concat("Operate Perfect on Fluid Dex Vault with native ETH (existing position)"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+                leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
             }
         }
 
         //t4 leaves
         if (dexType == 4000) {
-            unchecked {
-                leafIndex++;
-            }
+            unchecked { leafIndex++; }
             leafs[leafIndex] = ManageLeaf(
-                address(dex),
-                false,
-                "operate(uint256,int256,int256,int256,int256,int256,int256,address)",
-                new address[](1),
-                string.concat("Operate on Fluid Dex Vault"),
+                address(dex), false, "operate(uint256,int256,int256,int256,int256,int256,int256,address)",
+                new address[](1), string.concat("Operate on Fluid Dex Vault (new position)"),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
 
-            unchecked {
-                leafIndex++;
-            }
+            unchecked { leafIndex++; }
             leafs[leafIndex] = ManageLeaf(
-                address(dex),
-                false,
-                "operatePerfect(uint256,int256,int256,int256,int256,int256,int256,address)",
-                new address[](1),
-                string.concat("Operate Perfect on Fluid Dex Vault"),
+                address(dex), false, "operate(uint256,int256,int256,int256,int256,int256,int256,address)",
+                new address[](2), string.concat("Operate on Fluid Dex Vault (existing position)"),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+
+            unchecked { leafIndex++; }
+            leafs[leafIndex] = ManageLeaf(
+                address(dex), false, "operatePerfect(uint256,int256,int256,int256,int256,int256,int256,address)",
+                new address[](1), string.concat("Operate Perfect on Fluid Dex Vault (new position)"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+            unchecked { leafIndex++; }
+            leafs[leafIndex] = ManageLeaf(
+                address(dex), false, "operatePerfect(uint256,int256,int256,int256,int256,int256,int256,address)",
+                new address[](2), string.concat("Operate Perfect on Fluid Dex Vault (existing position)"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
 
             if (addNative) {
-                unchecked {
-                    leafIndex++;
-                }
+                unchecked { leafIndex++; }
                 leafs[leafIndex] = ManageLeaf(
-                    address(dex),
-                    true,
-                    "operate(uint256,int256,int256,int256,int256,int256,int256,address)",
-                    new address[](1),
-                    string.concat("Operate on Fluid Dex Vault with native ETH"),
+                    address(dex), true, "operate(uint256,int256,int256,int256,int256,int256,int256,address)",
+                    new address[](1), string.concat("Operate on Fluid Dex Vault with native ETH (new position)"),
                     getAddress(sourceChain, "rawDataDecoderAndSanitizer")
                 );
                 leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
 
-                unchecked {
-                    leafIndex++;
-                }
+                unchecked { leafIndex++; }
                 leafs[leafIndex] = ManageLeaf(
-                    address(dex),
-                    true,
-                    "operatePerfect(uint256,int256,int256,int256,int256,int256,int256,address)",
-                    new address[](1),
-                    string.concat("Operate Perfect on Fluid Dex Vault with native ETH"),
+                    address(dex), true, "operate(uint256,int256,int256,int256,int256,int256,int256,address)",
+                    new address[](2), string.concat("Operate on Fluid Dex Vault with native ETH (existing position)"),
                     getAddress(sourceChain, "rawDataDecoderAndSanitizer")
                 );
                 leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+                leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+
+                unchecked { leafIndex++; }
+                leafs[leafIndex] = ManageLeaf(
+                    address(dex), true, "operatePerfect(uint256,int256,int256,int256,int256,int256,int256,address)",
+                    new address[](1), string.concat("Operate Perfect on Fluid Dex Vault with native ETH (new position)"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+                unchecked { leafIndex++; }
+                leafs[leafIndex] = ManageLeaf(
+                    address(dex), true, "operatePerfect(uint256,int256,int256,int256,int256,int256,int256,address)",
+                    new address[](2), string.concat("Operate Perfect on Fluid Dex Vault with native ETH (existing position)"),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+                leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
             }
         }
     }
@@ -10835,10 +10873,11 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             getAddress(sourceChain, "LBTC"), //target
             false,
             "mint(bytes,bytes)",
-            new address[](0),
+            new address[](1),
             string.concat("Mint LBTC with payload"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
         unchecked {
             leafIndex++;
         }
@@ -10857,10 +10896,11 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             getAddress(sourceChain, "BTCK"), //target
             false,
             "mintV1(bytes,bytes)",
-            new address[](0),
+            new address[](1),
             string.concat("Mint BTCK with payload"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
     }
 
         // ========================================= BTC.b =========================================
@@ -10883,10 +10923,11 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             getAddress(sourceChain, "LBTC"), //target
             false,
             "mint(bytes,bytes)",
-            new address[](0),
+            new address[](1),
             string.concat("Mint LBTC with payload"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
         unchecked {
             leafIndex++;
         }
@@ -10905,10 +10946,11 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             getAddress(sourceChain, "BTCb"), //target
             false,
             "mintV1(bytes,bytes)",
-            new address[](0),
+            new address[](1),
             string.concat("Mint BTC.b with payload"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
     }
 
     // ============================================= BTCN Corn ==================================================
@@ -11897,7 +11939,7 @@ function _addTellerLeafsWithReferral(
                 string.concat("Approve CrossChain Teller to spend ", ERC20(depositAssets[i]).symbol()),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
-            leafs[leafIndex].argumentAddresses[0] = boringVault;
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
         }
 
         // Extract first 16 bytes and convert to address
@@ -12052,7 +12094,7 @@ function _addTellerLeafsWithReferral(
                 string.concat("Approve CrossChain Teller to spend ", ERC20(depositAssets[i]).symbol()),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
-            leafs[leafIndex].argumentAddresses[0] = boringVault;
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
         }
 
         // Extract first 16 bytes and convert to address
