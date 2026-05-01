@@ -35,6 +35,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
 
     address public itbCorkDecoderAndSanitizer = 0x457Cce6Ec3fEb282952a7e50a1Bc727Ca235Eb0a;
 
+    address public etherFiPriorityWithdrawalDecoderAndSanitizer = 0x94277Dad86Be189B26659080035D26D7CdAcA4b0;
     address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
     address public resolvDecoderAndSanitizer = 0x87f67Eb9Bb1a606923A17696E06AFAa72da65f86;
@@ -92,10 +93,12 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         _addLidoLeafs(leafs);
 
         // ========================== EtherFi ==========================
-        /**
-         * stake, unstake, wrap, unwrap
-         */
         _addEtherFiLeafs(leafs);
+        {
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", etherFiPriorityWithdrawalDecoderAndSanitizer);
+            _addEtherFiPriorityWithdrawalLeafs(leafs);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
 
         // ========================== Native ==========================
         /**
@@ -929,22 +932,33 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
                         // Morpho weETH (RLUSD) + Morpho Sentora RLUSD Main v2
             _addLeafsForITBPositionManager(leafs, itbPositionManager, itbTokensUsed, "ITB Position Manager Morpho weETH (RLUSD) and Morpho Sentora RLUSD Main v2");
 
-            address itbPositionManager2 = 0xA40aFb15275A94F64aF37C0cEaAaA45Cb568A361;
-            address itbPositionManager3 = 0x2A601FC6C0Cb854fDA82715E49Ab04C5340A0396;
-            address itbPositionManager4 = 0xCF346a4F898e9FdacD3a130fFe00F1f2dA56C90a;
-            address itbPositionManager5 = 0x4b1A4a8f421454874B553CcE4c59c654a84c4927;
-            ERC20[] memory itbTokensUsed2 = new ERC20[](1);
-            itbTokensUsed2[0] = getERC20(sourceChain, "WEETH");
+            {
+                address itbPositionManager2 = 0xA40aFb15275A94F64aF37C0cEaAaA45Cb568A361;
+                address itbPositionManager3 = 0x2A601FC6C0Cb854fDA82715E49Ab04C5340A0396;
+                address itbPositionManager4 = 0xCF346a4F898e9FdacD3a130fFe00F1f2dA56C90a;
+                address itbPositionManager5 = 0x4b1A4a8f421454874B553CcE4c59c654a84c4927;
+                ERC20[] memory itbTokensUsed2 = new ERC20[](1);
+                itbTokensUsed2[0] = getERC20(sourceChain, "WEETH");
 
-            ERC20[] memory itbTokensUsed3 = new ERC20[](2);
-            itbTokensUsed3[0] = getERC20(sourceChain, "WEETH");
-            itbTokensUsed3[1] = getERC20(sourceChain, "PYUSD");
-            // Aave weETH -> RLUSD -> RLUSD Aave Horizon
-            _addLeafsForITBPositionManager(leafs, itbPositionManager2, itbTokensUsed3, "ITB Position Manager 2");
-            //Spark weETH → PYUSD → PYUSD Euler
-            _addLeafsForITBPositionManager(leafs, itbPositionManager3, itbTokensUsed2, "ITB Position Manager 3");
-            _addLeafsForITBPositionManager(leafs, itbPositionManager4, itbTokensUsed2, "ITB Position Manager 4");
-            _addLeafsForITBPositionManager(leafs, itbPositionManager5, itbTokensUsed2, "ITB Position Manager 5");
+                ERC20[] memory itbTokensUsed3 = new ERC20[](2);
+                itbTokensUsed3[0] = getERC20(sourceChain, "WEETH");
+                itbTokensUsed3[1] = getERC20(sourceChain, "PYUSD");
+
+                // Aave weETH -> RLUSD -> RLUSD Aave Horizon
+                _addLeafsForITBPositionManager(leafs, itbPositionManager2, itbTokensUsed3, "ITB Position Manager 2");
+                //Spark weETH → PYUSD → PYUSD Euler
+                _addLeafsForITBPositionManager(leafs, itbPositionManager3, itbTokensUsed2, "ITB Position Manager 3");
+                _addLeafsForITBPositionManager(leafs, itbPositionManager4, itbTokensUsed2, "ITB Position Manager 4");
+                _addLeafsForITBPositionManager(leafs, itbPositionManager5, itbTokensUsed2, "ITB Position Manager 5");
+            }
+
+            {
+                address itbPositionManager6 = 0x3B5401CcFaFa1deEE6Bb4855539270C5B9fE6972;
+                ERC20[] memory itbTokensUsed6 = new ERC20[](2);
+                itbTokensUsed6[0] = getERC20(sourceChain, "WEETH");
+                itbTokensUsed6[1] = getERC20(sourceChain, "RLUSD");
+                _addLeafsForITBPositionManager(leafs, itbPositionManager6, itbTokensUsed6, "ITB Position Manager 6");
+            }
         }
 
         // ========================== Drone Setup ===============================
