@@ -107,12 +107,20 @@ export async function getWithdrawalRequests(
   queueAddress: Address,
   userAddress: Address,
   offerToken: Address,
-  wantTokens: Address[]
+  wantTokens: Address[],
+  /**
+   * For boring-onchain only: how many blocks back to scan for requests.
+   * Defaults to 200_000 (~27 days on mainnet at 12 s/block), which covers
+   * the longest typical maturity + completion window. Raise this if your
+   * vault's secondsToMaturity + completionWindow exceeds that.
+   * Stay ≤ 500_000 to remain within Alchemy/Infura free-tier log limits.
+   */
+  lookbackBlocks = 200_000n,
 ): Promise<WithdrawalRequest[]> {
   if (queueType === "atomic") {
     return getAtomicQueueRequests(publicClient, queueAddress, userAddress, offerToken, wantTokens);
   }
-  return getBoringOnChainRequests(publicClient, queueAddress, userAddress);
+  return getBoringOnChainRequests(publicClient, queueAddress, userAddress, lookbackBlocks);
 }
 
 async function getAtomicQueueRequests(
@@ -156,18 +164,22 @@ async function getAtomicQueueRequests(
   return requests;
 }
 
+// Must match the canonical ABI exactly — topic0 is derived from the full signature.
+// nonce (uint96) is the 4th non-indexed field; omitting it produces a different topic0
+// and getLogs silently returns nothing.
 const ON_CHAIN_WITHDRAW_REQUESTED_EVENT = {
   name: "OnChainWithdrawRequested",
   type: "event",
   inputs: [
-    { name: "requestId", type: "bytes32", indexed: true },
-    { name: "user", type: "address", indexed: true },
-    { name: "assetOut", type: "address", indexed: true },
-    { name: "amountOfShares", type: "uint128", indexed: false },
-    { name: "amountOfAssets", type: "uint128", indexed: false },
-    { name: "creationTime", type: "uint40", indexed: false },
-    { name: "secondsToMaturity", type: "uint24", indexed: false },
-    { name: "secondsToDeadline", type: "uint24", indexed: false },
+    { name: "requestId",         type: "bytes32", indexed: true  },
+    { name: "user",              type: "address", indexed: true  },
+    { name: "assetOut",          type: "address", indexed: true  },
+    { name: "nonce",             type: "uint96",  indexed: false },
+    { name: "amountOfShares",    type: "uint128", indexed: false },
+    { name: "amountOfAssets",    type: "uint128", indexed: false },
+    { name: "creationTime",      type: "uint40",  indexed: false },
+    { name: "secondsToMaturity", type: "uint24",  indexed: false },
+    { name: "secondsToDeadline", type: "uint24",  indexed: false },
   ],
 } as const;
 
@@ -184,10 +196,11 @@ const ON_CHAIN_WITHDRAW_CANCELLED_EVENT = {
 async function getBoringOnChainRequests(
   publicClient: PublicClient,
   queueAddress: Address,
-  userAddress: Address
+  userAddress: Address,
+  lookbackBlocks: bigint,
 ): Promise<WithdrawalRequest[]> {
   const currentBlock = await publicClient.getBlockNumber();
-  const fromBlock = currentBlock - 50_000n; // ~7 days on mainnet
+  const fromBlock = currentBlock > lookbackBlocks ? currentBlock - lookbackBlocks : 0n;
 
   const [requested, cancelled] = await Promise.all([
     publicClient.getLogs({

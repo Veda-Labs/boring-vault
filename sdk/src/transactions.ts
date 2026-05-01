@@ -135,9 +135,9 @@ export function buildWithdrawalRequestTx(
         params.offerToken,
         params.wantToken,
         {
-          deadline: BigInt(params.deadline) as unknown as number & bigint,
-          atomicPrice: params.atomicPrice as unknown as number & bigint,
-          offerAmount: params.offerAmount as unknown as number & bigint,
+          deadline: params.deadline,
+          atomicPrice: params.atomicPrice,
+          offerAmount: params.offerAmount,
           inSolve: false,
         },
       ],
@@ -151,12 +151,12 @@ export function buildWithdrawalRequestTx(
     functionName: "requestOnChainWithdraw",
     args: [
       params.assetOut,
-      params.amountOfShares as unknown as number & bigint,
+      params.amountOfShares,
       params.discount,
       params.secondsToDeadline,
     ],
   });
-  return { to: params.atomicQueue, data, value: 0n };
+  return { to: params.boringQueue, data, value: 0n };
 }
 
 /**
@@ -213,8 +213,8 @@ export async function validateDeposit(
     if (allowance < params.depositAmount) return { valid: false, reason: "insufficient_allowance" };
 
     return { valid: true };
-  } catch (err: unknown) {
-    return classifyError(err);
+  } catch {
+    return { valid: false, reason: "unknown" };
   }
 }
 
@@ -229,7 +229,8 @@ export async function validateDeposit(
  *   boringVault: vaultAddr,
  *   accountant: accountantAddr,
  * });
- * console.log(`Would receive ${formatUnits(sim.sharesOut, 18)} shares`);
+ * // sharesOut uses base asset decimals (8 for BTC-denominated vaults, 18 for ETH)
+ * console.log(`Would receive ${formatUnits(sim.sharesOut, decimals)} shares`);
  * ```
  */
 export async function simulateDeposit(
@@ -242,15 +243,24 @@ export async function simulateDeposit(
   }
 ): Promise<SimulateDepositResult> {
   try {
-    const rateInQuote = await publicClient.readContract({
-      address: params.accountant,
-      abi: accountantAbi,
-      functionName: "getRateInQuote",
-      args: [params.depositAsset],
-    });
+    // Fetch decimals alongside rateInQuote — BoringVault shares mirror the
+    // base asset decimals (e.g. 8 for BTC vaults), NOT always 18. Using a
+    // hardcoded 1e18 here is off by 10^10 for BTC-denominated vaults.
+    const [rateInQuote, decimals] = await Promise.all([
+      publicClient.readContract({
+        address: params.accountant,
+        abi: accountantAbi,
+        functionName: "getRateInQuote",
+        args: [params.depositAsset],
+      }),
+      publicClient.readContract({
+        address: params.accountant,
+        abi: accountantAbi,
+        functionName: "decimals",
+      }),
+    ]);
 
-    // sharesOut ≈ depositAmount * 1e18 / rateInQuote
-    const sharesOut = (params.depositAmount * BigInt(10 ** 18)) / rateInQuote;
+    const sharesOut = (params.depositAmount * BigInt(10 ** decimals)) / rateInQuote;
 
     return { sharesOut, wouldSucceed: true };
   } catch (err: unknown) {
@@ -259,14 +269,6 @@ export async function simulateDeposit(
   }
 }
 
-function classifyError(err: unknown): DepositValidationResult {
-  const message = err instanceof Error ? err.message.toLowerCase() : "";
-  if (message.includes("paused")) return { valid: false, reason: "teller_paused" };
-  if (message.includes("balance") || message.includes("insufficient"))
-    return { valid: false, reason: "insufficient_balance" };
-  if (message.includes("allowance")) return { valid: false, reason: "insufficient_allowance" };
-  return { valid: false, reason: "asset_not_supported" };
-}
 
 // ── DelayedWithdraw transaction builders ──────────────────────────────────
 
@@ -294,7 +296,7 @@ export function buildDelayedWithdrawRequestTx(
     functionName: "requestWithdraw",
     args: [
       params.asset,
-      params.shares as unknown as number & bigint,
+      params.shares,
       params.maxLoss,
       params.allowThirdPartyToComplete,
     ],

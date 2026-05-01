@@ -111,7 +111,7 @@ export interface AtomicWithdrawalRequestParams {
    */
   atomicPrice: bigint;
   /** Unix timestamp (seconds) after which request auto-expires */
-  deadline: number;
+  deadline: bigint;
 }
 
 /**
@@ -121,7 +121,7 @@ export interface AtomicWithdrawalRequestParams {
 export interface OnChainWithdrawalRequestParams {
   queueType: "boring-onchain";
   /** BoringOnChainQueue contract address */
-  atomicQueue: Address;
+  boringQueue: Address;
   /** Asset to receive (must be enabled in withdrawAssets mapping) */
   assetOut: Address;
   /** Shares to withdraw — uint128 max */

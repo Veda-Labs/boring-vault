@@ -130,16 +130,6 @@ export async function fetchTVL(
     maximumFractionDigits: 6,
   });
 
-  console.log(
-    "[fetchTVL] totalSupply:", totalSupply.toString(),
-    "| rate:", rate.toString(),
-    "| decimals:", decimals,
-    "| rawAssets:", rawAssets.toString(),
-    "| tvlFloat:", tvlFloat,
-    "| formatted:", formatted,
-    "| baseAsset:", baseAsset,
-  );
-
   return { raw: rawAssets, formatted, baseAsset };
 }
 
@@ -187,8 +177,6 @@ export async function getSharePrice(
   }
 
   const formatted = Number(formatUnits(rate, decimals)).toFixed(6);
-  console.log("[getSharePrice] rate:", rate.toString(), "| decimals:", decimals, "| formatted:", formatted, "| timestamp:", timestamp);
-
   return { rate, formatted, timestamp };
 }
 
@@ -363,31 +351,6 @@ async function resolvePositionBalance(
   return 0n;
 }
 
-// ── Known protocol token registry ─────────────────────────────────────────
-// Maps token address (lowercase) → human-readable protocol label.
-const KNOWN_PROTOCOL_TOKENS: Record<string, string> = {
-  // Aave v3 mainnet aTokens
-  "0x4d5f47fa6a74757f35c14fd3a6ef8e3c9bc514e8": "Aave v3 — aWETH",
-  "0x98c23e9d8f34fefb1b7bd6a91b7ff122f4e16f5c": "Aave v3 — aUSDC",
-  "0x23878914efe38d27c4d67ab83ed1b93a74d4086a": "Aave v3 — aUSDT",
-  "0x0b925ed163218f6662a35e0f0371ac234f9e9371": "Aave v3 — awstETH",
-  "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2": "WETH (idle)",
-  // Euler v2 mainnet eVaults
-  "0xd8b27cf359b7d15710a5be299af6e7bf904984c2": "Euler — eWETH",
-  "0x797dd80692c3b2deafa178b1f3e2f9923d60eb98": "Euler — eUSDC",
-  // Morpho Blue vaults (MetaMorpho wrappers)
-  "0x38989bba00bdf8181f4082995b3deae96163ac5d": "Morpho — steakUSDC",
-  "0xbbbbbbbb9cc5e90e3b3af64bdaf62c37eeffcb":  "Morpho Blue (proxy)",
-  // Spark
-  "0x59d9356364797d60e5c5c1a5e0cd14b862d29c4f": "Spark — sUSDC",
-  // Compound v3
-  "0xc3d688b66703497daa19211eedff47f25384cdc3": "Compound v3 — cUSDCv3",
-};
-
-function labelToken(address: Address): string {
-  return KNOWN_PROTOCOL_TOKENS[address.toLowerCase()] ?? `Unknown (${address.slice(0, 8)}…)`;
-}
-
 const TRANSFER_EVENT = parseAbiItem(
   "event Transfer(address indexed from, address indexed to, uint256 value)"
 );
@@ -446,7 +409,7 @@ export async function discoverStrategyAllocations(
   return active
     .sort((a, b) => (a.balance > b.balance ? -1 : 1))
     .map(({ token, balance }) => ({
-      protocol: labelToken(token),
+      protocol: token,
       percentage: Math.round((Number(balance) / Number(totalBalance)) * 1000) / 10,
       balance,
     }));

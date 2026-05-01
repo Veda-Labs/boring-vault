@@ -311,13 +311,13 @@ const tx = buildWithdrawalRequestTx({
   wantToken:    usdcAddr,
   offerAmount:  parseUnits("10", 18),
   atomicPrice:  parseUnits("9.9", 6) * 10n ** 12n, // scaled to 1e18
-  deadline:     Math.floor(Date.now() / 1000) + 86400,
+  deadline:     BigInt(Math.floor(Date.now() / 1000) + 86400),
 });
 
 // BoringOnChainQueue — set discount in BPS
 const tx = buildWithdrawalRequestTx({
   queueType:        "boring-onchain",
-  atomicQueue:      boringQueueAddr,
+  boringQueue:      boringQueueAddr,
   assetOut:         lbtcAddr,
   amountOfShares:   parseUnits("10", 8),
   discount:         100,        // 1% discount from share price

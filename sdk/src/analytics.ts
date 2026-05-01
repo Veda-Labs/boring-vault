@@ -117,7 +117,7 @@ export async function getTVLHistory(
     return [];
   }
 
-  interface LogEntry { blockNumber: bigint; shares: bigint; isDeposit: boolean; timestamp?: number }
+  interface LogEntry { blockNumber: bigint; shares: bigint; isDeposit: boolean }
   const allEvents: LogEntry[] = [];
 
   for (const log of enterLogs) {
@@ -142,18 +142,14 @@ export async function getTVLHistory(
 
   allEvents.sort((a, b) => (a.blockNumber < b.blockNumber ? -1 : 1));
 
-  // Fetch block timestamps in batches (up to 50 at a time to avoid rate limits)
   const uniqueBlocks = [...new Set(allEvents.map((e) => e.blockNumber))];
   const blockTimestamps = new Map<bigint, number>();
 
-  for (let i = 0; i < uniqueBlocks.length; i += 50) {
-    const batch = uniqueBlocks.slice(i, i + 50);
-    const blocks = await Promise.all(
-      batch.map((bn) => publicClient.getBlock({ blockNumber: bn }))
-    );
-    for (const block of blocks) {
-      blockTimestamps.set(block.number, Number(block.timestamp));
-    }
+  const blocks = await Promise.all(
+    uniqueBlocks.map((bn) => publicClient.getBlock({ blockNumber: bn }))
+  );
+  for (const block of blocks) {
+    blockTimestamps.set(block.number, Number(block.timestamp));
   }
 
   const points: TVLPoint[] = [];
@@ -198,7 +194,7 @@ export async function getTVLHistory(
  * console.log(`APY: ${(apy * 100).toFixed(2)}%`);
  * ```
  */
-export function estimateAPY(rateHistory: RatePoint[], windowDays: 30 | 7): number {
+export function estimateAPY(rateHistory: RatePoint[], windowDays: number): number {
   if (rateHistory.length < 2) return 0;
 
   const latest = rateHistory[rateHistory.length - 1];
