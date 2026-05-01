@@ -11,7 +11,7 @@ import { formatUnits, parseAbiItem } from "viem";
 import type { RatePoint, TVLPoint } from "./types.js";
 
 const RATE_UPDATED_EVENT = parseAbiItem(
-  "event ExchangeRateUpdated(uint96 oldExchangeRate, uint96 newExchangeRate, uint64 currentTime)"
+  "event ExchangeRateUpdated(uint96 oldRate, uint96 newRate, uint64 currentTime)"
 );
 
 const ENTER_EVENT = parseAbiItem(
@@ -67,9 +67,9 @@ export async function getExchangeRateHistory(
   const points: RatePoint[] = [];
 
   for (const log of logs) {
-    if (!log.args.newExchangeRate || !log.args.currentTime) continue;
+    if (!log.args.newRate || !log.args.currentTime) continue;
 
-    const rate = BigInt(log.args.newExchangeRate);
+    const rate = BigInt(log.args.newRate);
     const timestamp = Number(log.args.currentTime);
     const rateFormatted = Number(formatUnits(rate, decimals)).toFixed(6);
 

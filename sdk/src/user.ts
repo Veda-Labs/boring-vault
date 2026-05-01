@@ -77,12 +77,13 @@ export async function getUnlockTime(
   userAddress: Address,
   tellerAddress: Address
 ): Promise<Date | null> {
-  const unlockTimestamp = await publicClient.readContract({
+  const data = await publicClient.readContract({
     address: tellerAddress,
     abi: tellerAbi,
-    functionName: "shareUnlockTime",
+    functionName: "beforeTransferData",
     args: [userAddress],
   });
+  const unlockTimestamp = data[4]; // shareUnlockTime is index 4 in BeforeTransferData struct
 
   const nowSeconds = Math.floor(Date.now() / 1000);
   if (unlockTimestamp <= BigInt(nowSeconds)) return null;

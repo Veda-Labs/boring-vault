@@ -111,7 +111,7 @@ export const atomicQueueAbi = [
     ],
     outputs: [
       {
-        name: "",
+        name: "metaData",
         type: "tuple[]",
         components: [
           { name: "user", type: "address" },
@@ -123,6 +123,8 @@ export const atomicQueueAbi = [
           { name: "assetsForWant", type: "uint256" },
         ],
       },
+      { name: "totalAssetsForWant",  type: "uint256" },
+      { name: "totalAssetsToOffer",  type: "uint256" },
     ],
   },
   // ── Events ────────────────────────────────────────────────────────────
@@ -133,20 +135,22 @@ export const atomicQueueAbi = [
       { name: "user", type: "address", indexed: true },
       { name: "offerToken", type: "address", indexed: true },
       { name: "wantToken", type: "address", indexed: true },
-      { name: "amount", type: "uint256", indexed: false },
-      { name: "deadline", type: "uint64", indexed: false },
-      { name: "minPrice", type: "uint88", indexed: false },
+      { name: "amount",    type: "uint256", indexed: false },
+      { name: "deadline",  type: "uint256", indexed: false },
+      { name: "minPrice",  type: "uint256", indexed: false },
+      { name: "timestamp", type: "uint256", indexed: false },
     ],
   },
   {
     name: "AtomicRequestFulfilled",
     type: "event",
     inputs: [
-      { name: "user", type: "address", indexed: true },
-      { name: "offerToken", type: "address", indexed: true },
-      { name: "wantToken", type: "address", indexed: true },
-      { name: "offerAmountSpent", type: "uint256", indexed: false },
+      { name: "user",               type: "address", indexed: true },
+      { name: "offerToken",         type: "address", indexed: true },
+      { name: "wantToken",          type: "address", indexed: true },
+      { name: "offerAmountSpent",   type: "uint256", indexed: false },
       { name: "wantAmountReceived", type: "uint256", indexed: false },
+      { name: "timestamp",          type: "uint256", indexed: false },
     ],
   },
 ] as const;

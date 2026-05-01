@@ -47,6 +47,7 @@ export const boringOnChainQueueAbi = [
         name: "request",
         type: "tuple",
         components: [
+          { name: "nonce", type: "uint96" },
           { name: "user", type: "address" },
           { name: "assetOut", type: "address" },
           { name: "amountOfShares", type: "uint128" },
@@ -57,7 +58,7 @@ export const boringOnChainQueueAbi = [
         ],
       },
     ],
-    outputs: [],
+    outputs: [{ name: "requestId", type: "bytes32" }],
   },
   // ── Read ──────────────────────────────────────────────────────────────
   {
@@ -84,7 +85,7 @@ export const boringOnChainQueueAbi = [
       { name: "amountOfShares", type: "uint128" },
       { name: "discount", type: "uint16" },
     ],
-    outputs: [{ name: "assetsOut", type: "uint256" }],
+    outputs: [{ name: "amountOfAssets", type: "uint128" }],
   },
   {
     name: "isPaused",

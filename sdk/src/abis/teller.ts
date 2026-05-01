@@ -65,12 +65,17 @@ export const tellerAbi = [
     inputs: [],
     outputs: [{ name: "", type: "bool" }],
   },
+  // assetData(asset) → Asset { allowDeposits, allowWithdraws, sharePremium }
   {
-    name: "isSupported",
+    name: "assetData",
     type: "function",
     stateMutability: "view",
     inputs: [{ name: "asset", type: "address" }],
-    outputs: [{ name: "", type: "bool" }],
+    outputs: [
+      { name: "allowDeposits", type: "bool" },
+      { name: "allowWithdraws", type: "bool" },
+      { name: "sharePremium", type: "uint16" },
+    ],
   },
   {
     name: "shareLockPeriod",
@@ -79,19 +84,26 @@ export const tellerAbi = [
     inputs: [],
     outputs: [{ name: "", type: "uint64" }],
   },
+  // beforeTransferData(account) → BeforeTransferData { denyFrom, denyTo, denyOperator, permissionedOperator, shareUnlockTime }
   {
-    name: "shareUnlockTime",
+    name: "beforeTransferData",
     type: "function",
     stateMutability: "view",
     inputs: [{ name: "account", type: "address" }],
-    outputs: [{ name: "", type: "uint256" }],
+    outputs: [
+      { name: "denyFrom", type: "bool" },
+      { name: "denyTo", type: "bool" },
+      { name: "denyOperator", type: "bool" },
+      { name: "permissionedOperator", type: "bool" },
+      { name: "shareUnlockTime", type: "uint256" },
+    ],
   },
   // ── Events ────────────────────────────────────────────────────────────
   {
     name: "Deposit",
     type: "event",
     inputs: [
-      { name: "nonce", type: "uint256", indexed: true },
+      { name: "nonce", type: "uint256", indexed: false },
       { name: "receiver", type: "address", indexed: true },
       { name: "depositAsset", type: "address", indexed: true },
       { name: "depositAmount", type: "uint256", indexed: false },

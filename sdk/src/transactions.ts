@@ -181,7 +181,7 @@ export async function validateDeposit(
   }
 ): Promise<DepositValidationResult> {
   try {
-    const [isPaused, isSupported, balance, allowance] = await Promise.all([
+    const [isPaused, assetInfo, balance, allowance] = await Promise.all([
       publicClient.readContract({
         address: params.teller,
         abi: tellerAbi,
@@ -190,7 +190,7 @@ export async function validateDeposit(
       publicClient.readContract({
         address: params.teller,
         abi: tellerAbi,
-        functionName: "isSupported",
+        functionName: "assetData",
         args: [params.depositAsset],
       }),
       publicClient.readContract({
@@ -208,7 +208,7 @@ export async function validateDeposit(
     ]);
 
     if (isPaused) return { valid: false, reason: "teller_paused" };
-    if (!isSupported) return { valid: false, reason: "asset_not_supported" };
+    if (!assetInfo[0]) return { valid: false, reason: "asset_not_supported" };
     if (balance < params.depositAmount) return { valid: false, reason: "insufficient_balance" };
     if (allowance < params.depositAmount) return { valid: false, reason: "insufficient_allowance" };
 
