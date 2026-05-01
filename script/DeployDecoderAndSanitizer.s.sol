@@ -136,6 +136,7 @@ import {SentayETHMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizer
 import {GoldenGooseFillerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/FillerDecoderAndSanitizer.sol"; 
 import {LiquidVaultsOPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidVaultsOPDecoderAndSanitizer.sol"; 
 import {StakedEtherFiDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SymbioticLRTDecoderAndSanitizer.sol";
+import {LiquidUSDSeiDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidUSDSeiDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -157,8 +158,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("mainnet");
-        setSourceChainName("mainnet");
+        vm.createSelectFork("sei");
+        setSourceChainName("sei");
     }
 
     function run() external {
@@ -171,7 +172,7 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
             getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
             getAddress(sourceChain, "odosRouterV2")
         );
-        deployer.deployContract("Staked EtherFi Decoder And Sanitizer V0.1", creationCode, constructorArgs, 0);
+        deployer.deployContract("LiquidUSD Sei Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
         
         vm.stopBroadcast();
     }

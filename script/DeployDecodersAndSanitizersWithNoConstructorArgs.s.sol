@@ -149,6 +149,7 @@ import {SiloVaultDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Proto
 import {MorphoRewardsDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MorphoRewardsDecoderAndSanitizer.sol";
 import {VaultCraftDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/VaultCraftDecoderAndSanitizer.sol";
 import {TacDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacUSDTacDecoderAndSanitizer.sol";
+import {LiquidUSDSeiDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidUSDSeiDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -163,23 +164,23 @@ contract DeployDecodersAndSanitizersWithNoConstructorArgsScript is
     MainnetAddresses,
     MerkleTreeHelper
 {
-    uint256 public privateKey;
+    //uint256 public privateKey;
     Deployer public deployer = Deployer(0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d);
 
     function setUp() external {
-        privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("tac");
-        setSourceChainName("tac");
+        //privateKey = vm.envUint("BORING_DEVELOPER");
+        vm.createSelectFork("sei");
+        setSourceChainName("sei");
     }
 
     function run() external {
         bytes memory creationCode;
         bytes memory constructorArgs;
-        vm.startBroadcast(privateKey);
+        vm.startBroadcast();
 
-        creationCode = type(TacDecoderAndSanitizer).creationCode;
+        creationCode = type(LiquidUSDSeiDecoderAndSanitizer).creationCode;
         constructorArgs = hex"";
-        deployContract("Tac USDTac Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
+        deployContract("LiquidUSD Sei Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         // creationCode = type(AaveV3DecoderAndSanitizer).creationCode;
         // constructorArgs = hex"";

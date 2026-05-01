@@ -160,6 +160,7 @@ contract ChainValues {
         _addTACTestnetValues();
         _addInkSepoliaValues();
         _addMonadValues();
+        _addSeiValues();
     }
 
     function _addMainnetValues() private {
@@ -3373,6 +3374,18 @@ contract ChainValues {
         values[monad]["mUSD"] = 0xacA92E438df0B2401fF60dA7E4337B687a2435DA.toBytes32();
         values[monad]["steakhouseMUSDVault"] = 0xBEEFF60EC664adb24ff7378A8C69ecD25C3cC867.toBytes32();
         values[monad]["steakhouseUSDCVault"] = 0xBEEFFf30371ff8EbdEA03d5E2e3C6b7c0bA0303c.toBytes32();
+    }
+
+    function _addSeiValues() private {
+        values[sei]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
+        values[sei]["PYUSD0"] = 0x142cdc44890978B506e745bB3Bd11607B7f7faEf.toBytes32();
+        values[sei]["USDC"] = 0xe15fC38F6D8c56aF07bbCBe3BAf5708A2Bf42392.toBytes32();
+        values[sei]["featherPYUSD0Vault"] = 0x50715ae180FF0EA799dc8AB635C2D876e528bfe8.toBytes32();
+        values[sei]["merklDistributor"] = 0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae.toBytes32();
+
+        // CCTP V2
+        values[sei]["usdcTokenMessengerV2"] = 0x28b5a0e9C621a5BadaA536219b3a228C8168cf5d.toBytes32();
+        values[sei]["usdcMessageTransmitterV2"] = 0x81D40F21F12A8F0E3252Bccb954D722d4c464B64.toBytes32();
     }
 
 }
