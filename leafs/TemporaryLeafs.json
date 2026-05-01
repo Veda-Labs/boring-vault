@@ -1,0 +1,15 @@
+{ "metadata": 
+{"AccountantAddress":"0x0000000000000000000000000000000000000001","BoringVaultAddress":"0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f","DecoderAndSanitizerAddress":"0xc7183455a4C133Ae270771860664b6B7ec320bB1","DigestComposition":["Bytes20(DECODER_AND_SANITIZER_ADDRESS)","Bytes20(TARGET_ADDRESS)","Bytes1(CAN_SEND_VALUE)","Bytes4(TARGET_FUNCTION_SELECTOR)","Bytes{N*20}(ADDRESS_ARGUMENT_0,...,ADDRESS_ARGUMENT_N)"],"LeafCount":4,"ManageRoot":"0xa2988225b2b3fc36c45f44eaaf792856dd808dcd944b0c08bc12ec7686d753aa","ManagerAddress":"0x2e234DAe75C793f67A35089C9d99245E1C58470b","TreeCapacity":4}
+,
+"leafs": [
+{"AddressArguments":[],"CanSendValue":false,"DecoderAndSanitizerAddress":"0xc7183455a4C133Ae270771860664b6B7ec320bB1","Description":"Deposit BTCK for LBTC payload","FunctionSelector":"0xb6b55f25","FunctionSignature":"deposit(uint256)","LeafDigest":"0x89d19d45a4b13120a5dda4790bb9c6e66625630c840492a525982fc5d34fad49","LeafIndex":0,"PackedArgumentAddresses":"0x","TargetAddress":"0xecAc9C5F704e954931349Da37F60E39f515c11c1"}
+,
+{"AddressArguments":["0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f"],"CanSendValue":false,"DecoderAndSanitizerAddress":"0xc7183455a4C133Ae270771860664b6B7ec320bB1","Description":"Mint LBTC with payload","FunctionSelector":"0x6bc63893","FunctionSignature":"mint(bytes,bytes)","LeafDigest":"0x3771d696bf4f4a44e6cc240b37a81a7d540dc105f72147d0f6ee13637cb32a79","LeafIndex":1,"PackedArgumentAddresses":"0x5615deb798bb3e4dfa0139dfa1b3d433cc23b72f","TargetAddress":"0xecAc9C5F704e954931349Da37F60E39f515c11c1"}
+,
+{"AddressArguments":[],"CanSendValue":false,"DecoderAndSanitizerAddress":"0xc7183455a4C133Ae270771860664b6B7ec320bB1","Description":"Redeem LBTC for BTCK payload","FunctionSelector":"0xdb006a75","FunctionSignature":"redeem(uint256)","LeafDigest":"0xff2dcf46f3c53dc7fa12fa28cb27f267257648180668dea00b50ade65fd6e422","LeafIndex":2,"PackedArgumentAddresses":"0x","TargetAddress":"0xecAc9C5F704e954931349Da37F60E39f515c11c1"}
+,
+{"AddressArguments":["0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f"],"CanSendValue":false,"DecoderAndSanitizerAddress":"0xc7183455a4C133Ae270771860664b6B7ec320bB1","Description":"Mint BTCK with payload","FunctionSelector":"0x8307f738","FunctionSignature":"mintV1(bytes,bytes)","LeafDigest":"0xe4c982789fdde888effbe0511eb2a804dfd596fd0a637c8b58ba1d8c1349ba28","LeafIndex":3,"PackedArgumentAddresses":"0x5615deb798bb3e4dfa0139dfa1b3d433cc23b72f","TargetAddress":"0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072"}
+],
+"MerkleTree": 
+{"0":["0xa2988225b2b3fc36c45f44eaaf792856dd808dcd944b0c08bc12ec7686d753aa"],"1":["0x2a13df2cf3218d2e2a3b94e7820e99d9bd317deebeec435b1748b01baf50fdc2","0x3c4adf4b2c5320bc31d9cec3e90a51e2d748839e2d1b5a373ddd70ccad3f0d12"],"2":["0x89d19d45a4b13120a5dda4790bb9c6e66625630c840492a525982fc5d34fad49","0x3771d696bf4f4a44e6cc240b37a81a7d540dc105f72147d0f6ee13637cb32a79","0xff2dcf46f3c53dc7fa12fa28cb27f267257648180668dea00b50ade65fd6e422","0xe4c982789fdde888effbe0511eb2a804dfd596fd0a637c8b58ba1d8c1349ba28"]}
+}

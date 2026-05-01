@@ -1080,7 +1080,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         _addLeafsForDroneOne(leafs); //create leaves for drone1
 
 
-        //_verifyDecoderImplementsLeafsFunctionSelectors(leafs);
+        _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
