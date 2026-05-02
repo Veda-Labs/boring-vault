@@ -62,11 +62,6 @@ contract CreateLiquidUsdSeiMerkleRootScript is Script, MerkleTreeHelper {
             getAddress(sourceChain, "merklDistributor"),
             getAddress(sourceChain, "dev1Address")
         );
-        _addMerklLeafs(
-            leafs,
-            getAddress(sourceChain, "merklDistributor"),
-            0xe373248E02c5a342d453ecB8eBFC449b8BE70Bc1 // etherfi ops address
-        );
 
         // ========================== CCTP (USDC -> Mainnet) ==========================
         // Bridge USDC rewards back to ETH mainnet via CCTP V2
