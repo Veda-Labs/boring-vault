@@ -15,7 +15,10 @@ contract CreateRoycoJrUsdcMerkleRoot is Script, MerkleTreeHelper {
     // Decoder address must be set after the RoycoJrUsdc decoder is deployed against this vault.
     address public constant ROYCO_JR_USDC_DECODER_AND_SANITIZER = address(0);
 
-    // Junior tranche of the syrupUSDC market on Royco Dawn. Vault has the LP role on this tranche.
+    // RoycoEntryPoint singleton on mainnet. Strategist deposits asynchronously via this contract.
+    address public constant ROYCO_ENTRY_POINT = 0x63dA1229be88Fb4D20210147954a1a3e05f2581B;
+
+    // Junior tranche of the syrupUSDC market on Royco Dawn.
     address public constant ROYCO_JR_SYRUP_USDC = 0x5f340B400F892bBFDed2e5c316369Dcbf05C282A;
 
     function setUp() external {
@@ -26,14 +29,12 @@ contract CreateRoycoJrUsdcMerkleRoot is Script, MerkleTreeHelper {
         setAddress(true, mainnet, "managerAddress", ROYCO_JR_USDC_MANAGER);
         setAddress(true, mainnet, "accountantAddress", ROYCO_JR_USDC_ACCOUNTANT);
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", ROYCO_JR_USDC_DECODER_AND_SANITIZER);
-
-        setAddress(true, mainnet, "roycoJrSyrupUSDC", ROYCO_JR_SYRUP_USDC);
     }
 
     function run() external {
         require(ROYCO_JR_USDC_DECODER_AND_SANITIZER != address(0), "Decoder address not set");
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](32);
+        ManageLeaf[] memory leafs = new ManageLeaf[](64);
         _addLeafs(leafs);
 
         bytes32[][] memory tree = _generateMerkleTree(leafs);
@@ -50,7 +51,7 @@ contract CreateRoycoJrUsdcMerkleRoot is Script, MerkleTreeHelper {
         // (1) USDC ↔ syrupUSDC via Maple's syrupRouter + pool.
         _addAllSyrupLeafs(leafs);
 
-        // (2) Royco Dawn: direct deposit/redeem on the syrupUSDC junior tranche.
-        _addRoycoDawnDirectLeafs(leafs, ROYCO_JR_SYRUP_USDC, getAddress(sourceChain, "syrupUSDC"));
+        // (2) Royco Dawn: async deposit/redeem on the syrupUSDC junior tranche via RoycoEntryPoint.
+        _addRoycoDawnLeafs(leafs, ROYCO_JR_SYRUP_USDC, getAddress(sourceChain, "syrupUSDC"));
     }
 }
