@@ -142,6 +142,18 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         borrowAssets[2] = getERC20(sourceChain, "DAI");
         _addSparkLendLeafs(leafs, supplyAssets, borrowAssets);
 
+        // ==================== Pareto FalconX =========================
+        {
+            address vault = getAddress(sourceChain, "Pareto_FalconX_vault");
+            address tranche = getAddress(sourceChain, "Pareto_FalconX_AA_tranche");
+            address asset = getAddress(sourceChain, "USDC");
+
+            // TODO: uncomment this once we actually deploy pareto decoder
+            //setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", paretoDecoderAndSanitizer);
+            _addParetoLeafs(leafs, vault, tranche, asset);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
+
         // ============================ Cap ============================
         {
 

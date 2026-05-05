@@ -13932,6 +13932,98 @@ function _addTellerLeafsWithReferral(
         _addERC4626Leafs(leafs, ERC4626(swToken));
     }
 
+    // ==================================== Pareto ===========================================
+    function _addParetoLeafs(ManageLeaf[] memory leafs, address vault, address tranche, address depositAsset) internal {
+
+        // Approvals
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            depositAsset,
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve Pareto vault to mint with ", ERC20(depositAsset).symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = vault;
+
+        // deposits
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            vault,
+            false,
+            "depositAA(uint256)",
+            new address[](0),
+            string.concat("Deposit ", ERC20(depositAsset).symbol(), " to Pareto vault to mint AA tokens"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            vault,
+            false,
+            "depositBB(uint256)",
+            new address[](0),
+            string.concat("Deposit ", ERC20(depositAsset).symbol(), " to Pareto vault to mint BB tokens"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            vault,
+            false,
+            "depositDuringEpoch(uint256,address)",
+            new address[](1),
+            string.concat("Deposit ", ERC20(depositAsset).symbol(), " to Pareto vault"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = tranche;
+
+        // withdrawals
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            vault,
+            false,
+            "requestWithdraw(uint256,address)",
+            new address[](1),
+            string.concat("Request withdrawal from Pareto vault"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = tranche;
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            vault,
+            false,
+            "claimWithdrawRequest()",
+            new address[](0),
+            string.concat("Claim Pareto withdrawal request"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            vault,
+            false,
+            "claimInstantWithdrawRequest()",
+            new address[](0),
+            string.concat("Claim Pareto instant withdrawal request"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+    }
+
+
     // ========================================= Cap =========================================
     function _addCapLeafs(ManageLeaf[] memory leafs, address[] memory assets) internal {
 
