@@ -446,6 +446,7 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
     function releaseFee(uint256 orderId) external requiresAuth {
         OrderRecord memory record = orderRecords[orderId];
         if (address(record.tokenIn) == address(0)) revert BoringSwapper__OrderNotFound();
+        if (record.cancelledAt > 0) revert BoringSwapper__AlreadyCancelled();
 
         delete orderRecords[orderId];
         approvedHashes[record.protocolHash] = false;
