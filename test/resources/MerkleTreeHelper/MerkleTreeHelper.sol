@@ -13986,9 +13986,10 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     }
 
     // ========================================= Royco Dawn =========================================
-    // Direct deposit/redeem on a Royco Dawn tranche. The vault must hold an LP role on the tranche
-    // for the deposit/redeem calls to pass the tranche's `restricted` modifier.
-    function _addRoycoDawnDirectLeafs(ManageLeaf[] memory leafs, address tranche, address trancheAsset) internal {
+    // Whitelists deposits/redemptions on a single Royco Dawn tranche through the global RoycoEntryPoint.
+    // Async flow: requestDeposit → wait depositDelaySeconds → executeDeposit; same for redemption.
+    function _addRoycoDawnLeafs(ManageLeaf[] memory leafs, address tranche, address trancheAsset) internal {
+        address entryPoint = getAddress(sourceChain, "roycoEntryPoint");
         address boringVault = getAddress(sourceChain, "boringVault");
         address decoder = getAddress(sourceChain, "rawDataDecoderAndSanitizer");
         string memory trancheSymbol = ERC20(tranche).symbol();
@@ -14001,37 +14002,103 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             false,
             "approve(address,uint256)",
             new address[](1),
-            string.concat("Approve ", trancheSymbol, " tranche to spend ", ERC20(trancheAsset).symbol()),
+            string.concat("Approve RoycoEntryPoint to spend ", ERC20(trancheAsset).symbol()),
+            decoder
+        );
+        leafs[leafIndex].argumentAddresses[0] = entryPoint;
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            tranche,
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve RoycoEntryPoint to spend ", trancheSymbol, " for redemption requests"),
+            decoder
+        );
+        leafs[leafIndex].argumentAddresses[0] = entryPoint;
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            entryPoint,
+            false,
+            "requestDeposit(address,uint256,address,uint64)",
+            new address[](2),
+            string.concat("Request deposit into ", trancheSymbol),
             decoder
         );
         leafs[leafIndex].argumentAddresses[0] = tranche;
-
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            tranche,
-            false,
-            "deposit(uint256,address)",
-            new address[](1),
-            string.concat("Deposit into ", trancheSymbol, " (direct, mints shares to vault)"),
-            decoder
-        );
-        leafs[leafIndex].argumentAddresses[0] = boringVault;
-
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            tranche,
-            false,
-            "redeem(uint256,address,address)",
-            new address[](2),
-            string.concat("Redeem ", trancheSymbol, " shares back to vault"),
-            decoder
-        );
-        leafs[leafIndex].argumentAddresses[0] = boringVault;
         leafs[leafIndex].argumentAddresses[1] = boringVault;
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            entryPoint,
+            false,
+            "executeDeposit(address,uint256,uint256)",
+            new address[](1),
+            string.concat("Execute own deposit request into ", trancheSymbol),
+            decoder
+        );
+        leafs[leafIndex].argumentAddresses[0] = boringVault;
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            entryPoint,
+            false,
+            "cancelDepositRequest(uint256,address)",
+            new address[](1),
+            string.concat("Cancel deposit request for ", trancheSymbol),
+            decoder
+        );
+        leafs[leafIndex].argumentAddresses[0] = boringVault;
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            entryPoint,
+            false,
+            "requestRedemption(address,uint256,address,uint64)",
+            new address[](2),
+            string.concat("Request redemption from ", trancheSymbol),
+            decoder
+        );
+        leafs[leafIndex].argumentAddresses[0] = tranche;
+        leafs[leafIndex].argumentAddresses[1] = boringVault;
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            entryPoint,
+            false,
+            "executeRedemption(address,uint256,uint256)",
+            new address[](1),
+            string.concat("Execute own redemption request from ", trancheSymbol),
+            decoder
+        );
+        leafs[leafIndex].argumentAddresses[0] = boringVault;
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            entryPoint,
+            false,
+            "cancelRedemptionRequest(uint256,address)",
+            new address[](1),
+            string.concat("Cancel redemption request from ", trancheSymbol),
+            decoder
+        );
+        leafs[leafIndex].argumentAddresses[0] = boringVault;
     }
 }
 
