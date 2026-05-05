@@ -77,12 +77,16 @@ contract RoycoJrUsdcDeployedE2ETest is Test, MerkleTreeHelper {
         // Stage 1: approve + requestDeposit
         _executeStage1(leafs, tree, depositAmount);
 
+        // The request's nonce is whatever the EntryPoint assigned during requestDeposit.
+        // RoycoEntryPoint nonces are global and shared across all tranches — we read it back.
+        uint256 nonce = IRoycoEntryPoint(ROYCO_ENTRY_POINT).getLastRequestNonce();
+
         // Stage 2: warp past the deposit delay, then executeDeposit
         // RoycoEntryPoint stores the per-tranche depositDelaySeconds; we warp generously past it.
         vm.warp(block.timestamp + 1 hours);
 
         uint256 jtSharesBefore = ERC20(ROYCO_JR_SYRUP_USDC).balanceOf(BORING_VAULT);
-        _executeStage2(leafs, tree, depositAmount);
+        _executeStage2(leafs, tree, depositAmount, nonce);
 
         assertGt(
             ERC20(ROYCO_JR_SYRUP_USDC).balanceOf(BORING_VAULT),
@@ -165,7 +169,7 @@ contract RoycoJrUsdcDeployedE2ETest is Test, MerkleTreeHelper {
         );
     }
 
-    function _executeStage2(ManageLeaf[] memory leafs, bytes32[][] memory tree, uint256 amount) internal {
+    function _executeStage2(ManageLeaf[] memory leafs, bytes32[][] memory tree, uint256 amount, uint256 nonce) internal {
         ManageLeaf[] memory used = new ManageLeaf[](1);
         used[0] = leafs[3]; // executeDeposit
         bytes32[][] memory proofs = _getProofsUsingTree(used, tree);
@@ -174,8 +178,7 @@ contract RoycoJrUsdcDeployedE2ETest is Test, MerkleTreeHelper {
         targets[0] = ROYCO_ENTRY_POINT;
 
         bytes[] memory data = new bytes[](1);
-        // nonce is 1 because RoycoEntryPoint nonces start at 1 and this is the first request from the vault on this fork.
-        data[0] = abi.encodeWithSignature("executeDeposit(address,uint256,uint256)", BORING_VAULT, uint256(1), amount);
+        data[0] = abi.encodeWithSignature("executeDeposit(address,uint256,uint256)", BORING_VAULT, nonce, amount);
 
         address[] memory decoders = new address[](1);
         decoders[0] = rawDataDecoderAndSanitizer;
@@ -190,4 +193,8 @@ contract RoycoJrUsdcDeployedE2ETest is Test, MerkleTreeHelper {
         forkId = vm.createFork(vm.envString(rpcKey));
         vm.selectFork(forkId);
     }
+}
+
+interface IRoycoEntryPoint {
+    function getLastRequestNonce() external view returns (uint256);
 }
