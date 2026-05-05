@@ -16,17 +16,18 @@ contract RoycoJrUsdcDeployedE2ETest is Test, MerkleTreeHelper {
     address public constant ACCOUNTANT = 0x0142d7E0787498c523c5E21c5BeCe9afDD82C6a3;
     address public constant ROLES_AUTHORITY = 0xAAfcF903C9E898155fB891c4121F3Ee54E8d716D;
 
-    // Owner of the deployed RolesAuthority (0xAAfcF903...). Confirmed via cast owner().
+    // Owner of the deployed RolesAuthority. Confirmed via cast owner().
     address public constant ADMIN = 0x1b514df3413DA9931eB31f2Ab72e32c0A507Cad5;
 
-    // Royco Dawn — junior tranche of the syrupUSDC market.
+    // Royco Dawn — junior tranche of the syrupUSDC market and the EntryPoint singleton.
     address public constant ROYCO_JR_SYRUP_USDC = 0x5f340B400F892bBFDed2e5c316369Dcbf05C282A;
+    address public constant ROYCO_ENTRY_POINT = 0x63dA1229be88Fb4D20210147954a1a3e05f2581B;
 
     // Maple
     address public constant SYRUP_USDC = 0x80ac24aA929eaF5013f6436cdA2a7ba190f5Cc0b;
     address public constant USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
 
-    // Strategist role number on the deployed RolesAuthority. Confirmed via doesRoleHaveCapability().
+    // Strategist role on the deployed RolesAuthority. Confirmed via doesRoleHaveCapability().
     uint8 public constant STRATEGIST_ROLE = 7;
 
     address public strategist;
@@ -44,12 +45,14 @@ contract RoycoJrUsdcDeployedE2ETest is Test, MerkleTreeHelper {
         setAddress(false, sourceChain, "managerAddress", MANAGER);
         setAddress(false, sourceChain, "accountantAddress", ACCOUNTANT);
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
-        setAddress(false, sourceChain, "roycoJrSyrupUSDC", ROYCO_JR_SYRUP_USDC);
     }
 
-    function test_E2E_directDepositOnRoycoJrSyrupUSDC() external {
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
-        _addRoycoDawnDirectLeafs(leafs, ROYCO_JR_SYRUP_USDC, SYRUP_USDC);
+    // Async deposit lifecycle: requestDeposit -> wait depositDelay -> executeDeposit.
+    // Uses the deployed Manager + RolesAuthority. The RoycoEntryPoint owns the LP role on the JT,
+    // so the vault never needs the LP role itself — it goes through the EntryPoint.
+    function test_E2E_asyncDepositOnRoycoJrSyrupUSDC() external {
+        ManageLeaf[] memory leafs = new ManageLeaf[](32);
+        _addRoycoDawnLeafs(leafs, ROYCO_JR_SYRUP_USDC, SYRUP_USDC);
         bytes32[][] memory tree = _generateMerkleTree(leafs);
         bytes32 root = tree[tree.length - 1][0];
 
@@ -61,45 +64,36 @@ contract RoycoJrUsdcDeployedE2ETest is Test, MerkleTreeHelper {
         uint256 depositAmount = 1_000 * (10 ** ERC20(SYRUP_USDC).decimals());
         deal(SYRUP_USDC, BORING_VAULT, depositAmount);
 
-        // Leaves produced by _addRoycoDawnDirectLeafs:
-        //   leaf[0] = approve(syrupUSDC, JT)
-        //   leaf[1] = deposit(uint256, vault) on JT
-        //   leaf[2] = redeem(uint256, vault, vault) on JT
-        ManageLeaf[] memory used = new ManageLeaf[](2);
-        used[0] = leafs[0];
-        used[1] = leafs[1];
-        bytes32[][] memory proofs = _getProofsUsingTree(used, tree);
+        // Leaves produced by _addRoycoDawnLeafs (in order):
+        //   leaf[0] approve(syrupUSDC, EntryPoint)
+        //   leaf[1] approve(JT shares, EntryPoint)
+        //   leaf[2] requestDeposit(JT, _, vault, _)
+        //   leaf[3] executeDeposit(vault, _, _)
+        //   leaf[4] cancelDepositRequest(_, vault)
+        //   leaf[5] requestRedemption(JT, _, vault, _)
+        //   leaf[6] executeRedemption(vault, _, _)
+        //   leaf[7] cancelRedemptionRequest(_, vault)
 
-        address[] memory targets = new address[](2);
-        targets[0] = SYRUP_USDC;
-        targets[1] = ROYCO_JR_SYRUP_USDC;
+        // Stage 1: approve + requestDeposit
+        _executeStage1(leafs, tree, depositAmount);
 
-        bytes[] memory data = new bytes[](2);
-        data[0] = abi.encodeWithSignature("approve(address,uint256)", ROYCO_JR_SYRUP_USDC, type(uint256).max);
-        data[1] = abi.encodeWithSignature("deposit(uint256,address)", depositAmount, BORING_VAULT);
-
-        address[] memory decoders = new address[](2);
-        decoders[0] = rawDataDecoderAndSanitizer;
-        decoders[1] = rawDataDecoderAndSanitizer;
+        // Stage 2: warp past the deposit delay, then executeDeposit
+        // RoycoEntryPoint stores the per-tranche depositDelaySeconds; we warp generously past it.
+        vm.warp(block.timestamp + 1 hours);
 
         uint256 jtSharesBefore = ERC20(ROYCO_JR_SYRUP_USDC).balanceOf(BORING_VAULT);
+        _executeStage2(leafs, tree, depositAmount);
 
-        vm.prank(strategist);
-        ManagerWithMerkleVerification(MANAGER).manageVaultWithMerkleVerification(
-            proofs, decoders, targets, data, new uint256[](2)
-        );
-
-        // Vault should now hold JT shares.
         assertGt(
             ERC20(ROYCO_JR_SYRUP_USDC).balanceOf(BORING_VAULT),
             jtSharesBefore,
-            "JT shares not minted to vault"
+            "JT shares not minted to vault after executeDeposit"
         );
     }
 
     function test_E2E_unauthorizedAction_reverts() external {
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
-        _addRoycoDawnDirectLeafs(leafs, ROYCO_JR_SYRUP_USDC, SYRUP_USDC);
+        ManageLeaf[] memory leafs = new ManageLeaf[](32);
+        _addRoycoDawnLeafs(leafs, ROYCO_JR_SYRUP_USDC, SYRUP_USDC);
         bytes32[][] memory tree = _generateMerkleTree(leafs);
         bytes32 root = tree[tree.length - 1][0];
 
@@ -137,6 +131,58 @@ contract RoycoJrUsdcDeployedE2ETest is Test, MerkleTreeHelper {
         );
         ManagerWithMerkleVerification(MANAGER).manageVaultWithMerkleVerification(
             fakeProofs, decoders, targets, data, new uint256[](1)
+        );
+    }
+
+    function _executeStage1(ManageLeaf[] memory leafs, bytes32[][] memory tree, uint256 amount) internal {
+        ManageLeaf[] memory used = new ManageLeaf[](2);
+        used[0] = leafs[0]; // approve(syrupUSDC, EntryPoint)
+        used[1] = leafs[2]; // requestDeposit
+        bytes32[][] memory proofs = _getProofsUsingTree(used, tree);
+
+        address[] memory targets = new address[](2);
+        targets[0] = SYRUP_USDC;
+        targets[1] = ROYCO_ENTRY_POINT;
+
+        bytes[] memory data = new bytes[](2);
+        data[0] = abi.encodeWithSignature("approve(address,uint256)", ROYCO_ENTRY_POINT, type(uint256).max);
+        // executorBonusWAD = type(uint64).max means "only the request owner can execute".
+        data[1] = abi.encodeWithSignature(
+            "requestDeposit(address,uint256,address,uint64)",
+            ROYCO_JR_SYRUP_USDC,
+            amount,
+            BORING_VAULT,
+            type(uint64).max
+        );
+
+        address[] memory decoders = new address[](2);
+        decoders[0] = rawDataDecoderAndSanitizer;
+        decoders[1] = rawDataDecoderAndSanitizer;
+
+        vm.prank(strategist);
+        ManagerWithMerkleVerification(MANAGER).manageVaultWithMerkleVerification(
+            proofs, decoders, targets, data, new uint256[](2)
+        );
+    }
+
+    function _executeStage2(ManageLeaf[] memory leafs, bytes32[][] memory tree, uint256 amount) internal {
+        ManageLeaf[] memory used = new ManageLeaf[](1);
+        used[0] = leafs[3]; // executeDeposit
+        bytes32[][] memory proofs = _getProofsUsingTree(used, tree);
+
+        address[] memory targets = new address[](1);
+        targets[0] = ROYCO_ENTRY_POINT;
+
+        bytes[] memory data = new bytes[](1);
+        // nonce is 1 because RoycoEntryPoint nonces start at 1 and this is the first request from the vault on this fork.
+        data[0] = abi.encodeWithSignature("executeDeposit(address,uint256,uint256)", BORING_VAULT, uint256(1), amount);
+
+        address[] memory decoders = new address[](1);
+        decoders[0] = rawDataDecoderAndSanitizer;
+
+        vm.prank(strategist);
+        ManagerWithMerkleVerification(MANAGER).manageVaultWithMerkleVerification(
+            proofs, decoders, targets, data, new uint256[](1)
         );
     }
 
