@@ -9,6 +9,8 @@ import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 contract OFTDecoderAndSanitizer {
     error OFTDecoderAndSanitizer__NonZeroMessage();
     error OFTDecoderAndSanitizer__NonZeroOFTCommand();
+    error OFTDecoderAndSanitizer__NativeDropNotAllowed();
+    error OFTDecoderAndSanitizer__InvalidExtraOptionsType();
 
     //============================== OFT ===============================
 
@@ -19,6 +21,16 @@ contract OFTDecoderAndSanitizer {
     ) external pure virtual returns (bytes memory sensitiveArguments) {
         if (_sendParam.oftCmd.length > 0) {
             revert OFTDecoderAndSanitizer__NonZeroOFTCommand();
+        }
+        bytes calldata opts = _sendParam.extraOptions;
+        if (opts.length > 0) {
+            if (uint16(bytes2(opts[0:2])) != 0x0003) revert OFTDecoderAndSanitizer__InvalidExtraOptionsType();
+            uint256 cursor = 2;
+            while (cursor < opts.length) {
+                uint16 size = uint16(bytes2(opts[cursor + 1:cursor + 3]));
+                if (uint8(opts[cursor + 3]) == 2) revert OFTDecoderAndSanitizer__NativeDropNotAllowed();
+                cursor += 3 + size;
+            }
         }
 
         // MultiHop support.

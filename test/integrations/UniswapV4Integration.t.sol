@@ -11,6 +11,7 @@ import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {UniswapV4DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV4DecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {Actions, Commands, TickMath, LiquidityAmounts, Constants} from "src/interfaces/UniswapV4Actions.sol";
@@ -629,7 +630,145 @@ contract UniswapV4IntegrationTest is Test, MerkleTreeHelper {
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, new uint256[](7));
 
     }
+
+    function testStrategistCanIncreaseLiquidityOfTheirOwnTokens() external {
+        //before running the test, strategist mints their own position, then approves the vault
+        address attacker = address(0x420);
+        deal(getAddress(sourceChain, "USDC"), attacker, 1_000_000e8);
+        deal(getAddress(sourceChain, "USDT"), attacker, 1_000_000e6);
+
+        DecoderCustomTypes.PoolKey memory attackerKey = DecoderCustomTypes.PoolKey(
+            getAddress(sourceChain, "USDC"),
+            getAddress(sourceChain, "USDT"),
+            100,
+            1,
+            address(0)
+        );
+
+        bytes memory attackerActions = abi.encodePacked(uint8(Actions.MINT_POSITION), uint8(Actions.SETTLE_PAIR));
+        bytes[] memory attackerParams = new bytes[](2);
+        attackerParams[0] = abi.encode(
+            attackerKey,
+            TickMath.minUsableTick(attackerKey.tickSpacing),
+            TickMath.maxUsableTick(attackerKey.tickSpacing),
+            1e6,
+            type(uint128).max,
+            type(uint128).max,
+            attacker,
+            new bytes(0)
+        );
+        attackerParams[1] = abi.encode(attackerKey.currency0, attackerKey.currency1);
+
+        vm.startPrank(attacker);
+        ERC20(getAddress(sourceChain, "USDC")).safeApprove(getAddress(sourceChain, "permit2"), type(uint256).max);
+        ERC20(getAddress(sourceChain, "USDT")).safeApprove(getAddress(sourceChain, "permit2"), type(uint256).max);
+        IAllowanceTransfer(getAddress(sourceChain, "permit2")).approve(getAddress(sourceChain, "USDC"), getAddress(sourceChain, "uniV4PositionManager"), type(uint160).max, type(uint48).max);
+        IAllowanceTransfer(getAddress(sourceChain, "permit2")).approve(getAddress(sourceChain, "USDT"), getAddress(sourceChain, "uniV4PositionManager"), type(uint160).max, type(uint48).max);
+        IPositionManagerV4(getAddress(sourceChain, "uniV4PositionManager")).modifyLiquidities(
+            abi.encode(attackerActions, attackerParams),
+            block.timestamp
+        );
+        // attacker now owns tokenId 2345 (nextTokenId at this fork block), approve the vault
+        IPositionManagerV4(getAddress(sourceChain, "uniV4PositionManager")).approve(address(boringVault), 2345);
+        vm.stopPrank();
+
+        // confirm attacker — not vault — owns the position
+        assertEq(IPositionManagerV4(getAddress(sourceChain, "uniV4PositionManager")).ownerOf(2345), attacker, "attacker should own tokenId 2345");
+        assertNotEq(IPositionManagerV4(getAddress(sourceChain, "uniV4PositionManager")).ownerOf(2345), address(boringVault), "vault should NOT own tokenId 2345");
+
+        deal(getAddress(sourceChain, "USDT"), address(boringVault), 1_000_000e6);
+        deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000_000e8);
+
+        ManageLeaf[] memory leafs = new ManageLeaf[](32);
+        address[] memory token0 = new address[](1);
+        token0[0] = getAddress(sourceChain, "USDT");
+        address[] memory token1 = new address[](1);
+        token1[0] = getAddress(sourceChain, "USDC");
+        address[] memory hooks = new address[](1);  
+        hooks[0] = address(0); 
+
+        _addUniswapV4Leafs(leafs, token0, token1, hooks);
+
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        //_generateTestLeafs(leafs, manageTree); 
+
+        ManageLeaf[] memory manageLeafs = new ManageLeaf[](5);
+        manageLeafs[0] = leafs[2]; //approve usdc permit2 
+        manageLeafs[1] = leafs[7]; //approve usdt permit2
+        manageLeafs[2] = leafs[4]; //approve usdc permit2 for positionManager
+        manageLeafs[3] = leafs[9]; //approve usdt positionManager()
+        manageLeafs[4] = leafs[13]; //modifyLiquidities() increase via SETTLE
+
+
+        bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
+
+        address[] memory targets = new address[](5);
+        targets[0] = getAddress(sourceChain, "USDC"); //approve usdc permit2
+        targets[1] = getAddress(sourceChain, "USDT"); //approve usdt permit2
+        targets[2] = getAddress(sourceChain, "permit2"); //approve permit2 posm usdc
+        targets[3] = getAddress(sourceChain, "permit2"); //approve permit2 posm usdt 
+        targets[4] = getAddress(sourceChain, "uniV4PositionManager"); //modifyLiquidities increase
+    
         
+        bytes[] memory targetData = new bytes[](5);
+        targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "permit2"), type(uint256).max
+        );
+        targetData[1] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "permit2"), type(uint256).max
+        );
+        targetData[2] = abi.encodeWithSignature(
+            "approve(address,address,uint160,uint48)", getAddress(sourceChain, "USDC"), getAddress(sourceChain, "uniV4PositionManager"), type(uint160).max, type(uint48).max
+        );
+        targetData[3] = abi.encodeWithSignature(
+            "approve(address,address,uint160,uint48)", getAddress(sourceChain, "USDT"), getAddress(sourceChain, "uniV4PositionManager"), type(uint160).max, type(uint48).max
+        );
+
+        DecoderCustomTypes.PoolKey memory key = DecoderCustomTypes.PoolKey(
+            getAddress(sourceChain, "USDC"),
+            getAddress(sourceChain, "USDT"),
+            100,
+            1,
+            address(0) //no hook address?
+        );         
+
+        //increase liquidity
+        bytes memory liquidityActions = abi.encodePacked(uint8(Actions.INCREASE_LIQUIDITY), uint8(Actions.SETTLE_PAIR));
+        bytes[] memory params = new bytes[](2);
+        params[0] = abi.encode(
+            2345, 
+            100e6,
+            type(uint128).max,
+            type(uint128).max,
+            new bytes(0)
+        ); 
+        params[1] = abi.encode(key.currency0, key.currency1);
+        
+        targetData[4] = abi.encodeWithSignature(
+            "modifyLiquidities(bytes,uint256)", abi.encode(liquidityActions, params), block.timestamp
+        );
+
+        address[] memory decodersAndSanitizers = new address[](5);
+        decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[2] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[3] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[4] = rawDataDecoderAndSanitizer;
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                ManagerWithMerkleVerification.ManagerWithMerkleVerification__FailedToVerifyManageProof.selector,
+                getAddress(sourceChain, "uniV4PositionManager"),
+                targetData[4],
+                0
+            )
+        );
+        manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, new uint256[](5));
+    }
+
     function testUniswapV4LiquidityFunctions() external {
         deal(getAddress(sourceChain, "USDT"), address(boringVault), 1_000_000e6);
         deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000_000e8);
@@ -1708,10 +1847,20 @@ contract UniswapV4IntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullUniswapV4DecoderAndSanitizer is UniswapV4DecoderAndSanitizer {
+contract FullUniswapV4DecoderAndSanitizer is BaseDecoderAndSanitizer, UniswapV4DecoderAndSanitizer{
     constructor(address _posm) UniswapV4DecoderAndSanitizer(_posm){} 
 }
 
 interface IUniswapV2Factory {
     function getPair(address token0, address token1) external view returns (address);
+}
+
+interface IAllowanceTransfer {
+    function approve(address token, address spender, uint160 amount, uint48 expiration) external;
+}
+
+interface IPositionManagerV4 {
+    function modifyLiquidities(bytes calldata unlockData, uint256 deadline) external payable;
+    function approve(address to, uint256 tokenId) external;
+    function ownerOf(uint256 tokenId) external view returns (address);
 }

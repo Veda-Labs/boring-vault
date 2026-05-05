@@ -147,7 +147,7 @@ contract DeploySkeletonScript is Script, ChainValues {
     uint8 public constant STRATEGIST_MULTISIG_ROLE = 10;
     uint8 public constant STRATEGIST_ROLE = 7;
     uint8 public constant UPDATE_EXCHANGE_RATE_ROLE = 11;
-    uint256 constant DESIRED_NUMBER_OF_DEPLOYMENT_TXS = 10;
+    uint256 constant DESIRED_NUMBER_OF_DEPLOYMENT_TXS = 3;
 
     uint8 public constant GENERIC_PAUSER_ROLE = 14;
     uint8 public constant GENERIC_UNPAUSER_ROLE = 15;

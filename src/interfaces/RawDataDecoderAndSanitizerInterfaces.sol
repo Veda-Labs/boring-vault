@@ -134,7 +134,8 @@ interface IRecipeMarketHub {
 
 
 interface IUniswapV4PositionManager {
-    function getPoolAndPositionInfo(uint256 tokenId) external view returns (DecoderCustomTypes.PoolKey memory, uint256); 
+    function getPoolAndPositionInfo(uint256 tokenId) external view returns (DecoderCustomTypes.PoolKey memory, uint256);
+    function ownerOf(uint256 tokenId) external view returns (address);
 }
 
 interface IPoolRegistry {

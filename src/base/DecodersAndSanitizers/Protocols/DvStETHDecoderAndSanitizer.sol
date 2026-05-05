@@ -38,7 +38,8 @@ contract DvStETHDecoderAndSanitizer {
             if (amounts[i] == 0) continue;
             if (nonZero == true) revert DvStETHDecoderAndSanitizer__OnlyOneAmount();
             nonZero = true;
-
+            
+            // dvsteth is upgradeable and could potentially update the underlyingTokens() causing reverts
             address[] memory tokens = IDvStETHVault(dvStETHVault).underlyingTokens();
             addressesFound = abi.encodePacked(addressesFound, tokens[i]);
         }

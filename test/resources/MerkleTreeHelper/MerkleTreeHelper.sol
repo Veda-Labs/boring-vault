@@ -4508,7 +4508,6 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             }
 
             //INCREASE LIQUIDITY
-            //all variations of this function give back 2 addressess
             if (token0[i] != address(0)) {
                 unchecked {
                     leafIndex++;
@@ -4517,7 +4516,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                     getAddress(sourceChain, "uniV4PositionManager"),
                     false,
                     "modifyLiquidities(bytes,uint256)",
-                    new address[](5),
+                    new address[](6),
                     string.concat(
                         "Increase liquidity for UniswapV4 position for ",
                         ERC20(token0[i]).symbol(),
@@ -4530,8 +4529,9 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 leafs[leafIndex].argumentAddresses[0] = token0[i];
                 leafs[leafIndex].argumentAddresses[1] = token1[i];
                 leafs[leafIndex].argumentAddresses[2] = hooks[i];
-                leafs[leafIndex].argumentAddresses[3] = token0[i];
-                leafs[leafIndex].argumentAddresses[4] = token1[i];
+                leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "boringVault");
+                leafs[leafIndex].argumentAddresses[4] = token0[i];
+                leafs[leafIndex].argumentAddresses[5] = token1[i];
             } else {
                 unchecked {
                     leafIndex++;
@@ -4540,17 +4540,18 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                     getAddress(sourceChain, "uniV4PositionManager"),
                     true,
                     "modifyLiquidities(bytes,uint256)",
-                    new address[](7),
+                    new address[](8),
                     string.concat("Increase liquidity for UniswapV4 position for ETH and ", ERC20(token1[i]).symbol()),
                     getAddress(sourceChain, "rawDataDecoderAndSanitizer")
                 );
                 leafs[leafIndex].argumentAddresses[0] = token0[i];
                 leafs[leafIndex].argumentAddresses[1] = token1[i];
                 leafs[leafIndex].argumentAddresses[2] = hooks[i];
-                leafs[leafIndex].argumentAddresses[3] = token0[i];
-                leafs[leafIndex].argumentAddresses[4] = token1[i];
-                leafs[leafIndex].argumentAddresses[5] = token0[i];
-                leafs[leafIndex].argumentAddresses[6] = getAddress(sourceChain, "boringVault");
+                leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "boringVault");
+                leafs[leafIndex].argumentAddresses[4] = token0[i];
+                leafs[leafIndex].argumentAddresses[5] = token1[i];
+                leafs[leafIndex].argumentAddresses[6] = token0[i];
+                leafs[leafIndex].argumentAddresses[7] = getAddress(sourceChain, "boringVault");
             }
 
             //DECREASE LIQUIDITY

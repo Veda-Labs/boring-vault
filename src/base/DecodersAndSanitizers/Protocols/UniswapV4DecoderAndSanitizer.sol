@@ -164,6 +164,7 @@ contract UniswapV4DecoderAndSanitizer {
             ) = abi.decode(params[0], (uint256, uint256, uint128, uint128, bytes));
 
             (DecoderCustomTypes.PoolKey memory poolKey,) = posm.getPoolAndPositionInfo(tokenId);
+            address owner = posm.ownerOf(tokenId);
 
             uint8 subAction = uint8(bytes1(actions[1]));
 
@@ -178,7 +179,7 @@ contract UniswapV4DecoderAndSanitizer {
                 (address currency0Settle, address currency1Settle) = abi.decode(params[1], (address, address));
 
                 addressesFound = abi.encodePacked(
-                    poolKey.currency0, poolKey.currency1, poolKey.hooks, currency0Settle, currency1Settle
+                    poolKey.currency0, poolKey.currency1, poolKey.hooks, owner, currency0Settle, currency1Settle
                 );
 
                 //expected sweep index would be 2 here (if any) -> increase, settle, sweep
@@ -203,9 +204,8 @@ contract UniswapV4DecoderAndSanitizer {
                     revert UniswapV4DecoderAndSanitizer__UnsupportedSubAction();
                 }
 
-                // Return currency0, currency1
                 addressesFound = abi.encodePacked(
-                    poolKey.currency0, poolKey.currency1, poolKey.hooks, currency0Settle, currency1Settle
+                    poolKey.currency0, poolKey.currency1, poolKey.hooks, owner, currency0Settle, currency1Settle
                 );
                 addressesFound = _processSweepIfPresent(actions, params, 3, addressesFound);
                 return addressesFound;
@@ -224,9 +224,8 @@ contract UniswapV4DecoderAndSanitizer {
                     revert UniswapV4DecoderAndSanitizer__UnsupportedSubAction();
                 }
 
-                // Return currency0, currency1
                 addressesFound = abi.encodePacked(
-                    poolKey.currency0, poolKey.currency1, poolKey.hooks, currency0Settle, currency1Settle
+                    poolKey.currency0, poolKey.currency1, poolKey.hooks, owner, currency0Settle, currency1Settle
                 );
                 addressesFound = _processSweepIfPresent(actions, params, 3, addressesFound);
                 return addressesFound;
