@@ -15,11 +15,8 @@ contract CreateRoycoJrUsdcMerkleRoot is Script, MerkleTreeHelper {
     // Decoder address must be set after the RoycoJrUsdc decoder is deployed against this vault.
     address public constant ROYCO_JR_USDC_DECODER_AND_SANITIZER = address(0);
 
-    // RoycoEntryPoint singleton on mainnet — set before running this script.
-    address public constant ROYCO_ENTRY_POINT = address(0);
-
-    // Junior tranche of the syrupUSDC market on Royco Dawn.
-    address public constant ROYCO_JR_SYRUP_USDC = 0x5f340B400F892bbFded2e5C316369DcBF05c282A;
+    // Junior tranche of the syrupUSDC market on Royco Dawn. Vault has the LP role on this tranche.
+    address public constant ROYCO_JR_SYRUP_USDC = 0x5f340B400F892bBFDed2e5c316369Dcbf05C282A;
 
     function setUp() external {
         vm.createSelectFork("mainnet");
@@ -30,15 +27,13 @@ contract CreateRoycoJrUsdcMerkleRoot is Script, MerkleTreeHelper {
         setAddress(true, mainnet, "accountantAddress", ROYCO_JR_USDC_ACCOUNTANT);
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", ROYCO_JR_USDC_DECODER_AND_SANITIZER);
 
-        setAddress(true, mainnet, "roycoEntryPoint", ROYCO_ENTRY_POINT);
         setAddress(true, mainnet, "roycoJrSyrupUSDC", ROYCO_JR_SYRUP_USDC);
     }
 
     function run() external {
         require(ROYCO_JR_USDC_DECODER_AND_SANITIZER != address(0), "Decoder address not set");
-        require(ROYCO_ENTRY_POINT != address(0), "RoycoEntryPoint address not set");
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](64);
+        ManageLeaf[] memory leafs = new ManageLeaf[](32);
         _addLeafs(leafs);
 
         bytes32[][] memory tree = _generateMerkleTree(leafs);
@@ -52,10 +47,10 @@ contract CreateRoycoJrUsdcMerkleRoot is Script, MerkleTreeHelper {
         feeAssets[0] = getERC20(sourceChain, "USDC");
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
-        // (1) USDC ↔ syrupUSDC via Maple's syrupRouter + pool. Strategist mints/redeems syrupUSDC for the vault.
+        // (1) USDC ↔ syrupUSDC via Maple's syrupRouter + pool.
         _addAllSyrupLeafs(leafs);
 
-        // (2) Royco Dawn: deposits/redemptions on the syrupUSDC junior tranche via RoycoEntryPoint.
-        _addRoycoDawnLeafs(leafs, ROYCO_JR_SYRUP_USDC, getAddress(sourceChain, "syrupUSDC"));
+        // (2) Royco Dawn: direct deposit/redeem on the syrupUSDC junior tranche.
+        _addRoycoDawnDirectLeafs(leafs, ROYCO_JR_SYRUP_USDC, getAddress(sourceChain, "syrupUSDC"));
     }
 }
