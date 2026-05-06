@@ -1101,7 +1101,13 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         ERC20[] memory tokensUsed,
         string memory itbContractName
     ) internal {
+
+        // not sure why this particular variable is handled this way unlike the usual pattern using setAddress
+        address previousDecoder = itbDecoderAndSanitizer;
+        itbDecoderAndSanitizer = itbCorkDecoderAndSanitizer; // the current leaf functions assume a decoder that doesn't check withdrawal assets
         _addLeafsForITBPositionManager(leafs, itbPositionManager, tokensUsed, itbContractName);
+        itbDecoderAndSanitizer = previousDecoder; // need to set back as that decoder doesn't support the below functions
+
 
         // mint
         leafIndex++;
