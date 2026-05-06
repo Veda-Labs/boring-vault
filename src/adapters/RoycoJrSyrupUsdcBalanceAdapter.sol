@@ -11,6 +11,8 @@ contract RoycoJrSyrupUsdcBalanceAdapter {
     }
 
     /// @dev Junior tranche shares -> syrupUSDC -> USDC. All preview-based, no oracles.
+    /// JT.previewRedeem returns AssetClaims { stAssets, jtAssets, nav }: only jtAssets is the
+    /// claimable underlying asset (syrupUSDC) for a junior holder.
     function getUserTvl(address _user) external view returns (uint256 tvl) {
         bytes memory payload = abi.encodeWithSignature("balanceOf(address)", _user);
         (bool success, bytes memory returnData) = jr_tranche_address.staticcall(payload);
@@ -21,10 +23,10 @@ contract RoycoJrSyrupUsdcBalanceAdapter {
         payload = abi.encodeWithSignature("previewRedeem(uint256)", jtShares);
         (success, returnData) = jr_tranche_address.staticcall(payload);
         require(success, "JT previewRedeem staticcall failed");
-        (uint256 syrupAmount,) = abi.decode(returnData, (uint256, address));
-        if (syrupAmount == 0) return 0;
+        (, uint256 jtAssets,) = abi.decode(returnData, (uint256, uint256, uint256));
+        if (jtAssets == 0) return 0;
 
-        payload = abi.encodeWithSignature("previewRedeem(uint256)", syrupAmount);
+        payload = abi.encodeWithSignature("previewRedeem(uint256)", jtAssets);
         (success, returnData) = syrup_usdc_address.staticcall(payload);
         require(success, "syrupUSDC previewRedeem staticcall failed");
         tvl = abi.decode(returnData, (uint256));
