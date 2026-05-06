@@ -12,6 +12,7 @@ import {MorphoBlueTvlAdapter} from "src/adapters/MorphoBlueTvlAdapter.sol";
 import {Erc20TvlAdapter} from "src/adapters/Erc20TvlAdapter.sol";
 import {CapCusdBalanceAdapter} from "src/adapters/CapCusdBalanceAdapter.sol";
 import {CbBtcUsdcAaveV3BalanceAdapter} from "src/adapters/cbBtcUsdcAaveV3BalanceAdapter.sol";
+import {CbBtcUsdcMorphoBalanceAdapter} from "src/adapters/cbBtcUsdcMorphoBalanceAdapter.sol";
 import {WethUsdcAaveV3BalanceAdapter} from "src/adapters/WethUsdcAaveV3BalanceAdapter.sol";
 import {SiUsdBalanceAdapter} from "src/adapters/SiUsdBalanceAdapter.sol";
 import {CapStcusdBalanceAdapter} from "src/adapters/CapStcusdBalanceAdapter.sol";
@@ -93,6 +94,37 @@ contract DeploycbBtcAaveAdapter is Script, MerkleTreeHelper {
         console.log("debt", debt);
         console.log("credit", credit);
         console.log("TVL in CBTC terms", adapter.getUserTvl(0x272BCD869CbDFcb32c335dB2f1F6C54Eb1A50aCc));
+    }
+}
+contract DeploycbBtcMorphoAdapter is Script, MerkleTreeHelper {
+    uint256 public privateKey;
+
+    bytes32 MORPHO_MARKET_ID = 0x64d65c9a2d91c36d56fbc42d69e979335320169b3df63bf92789e2c8883fcc64;
+    address CBBTC_USD_CHAINLINK_FEED = 0xb41E773f507F7a7EA890b1afB7d2b660c30C8B0A;
+    address USDC_USD_CHAINLINK_FEED = 0x3f73F03aa83B2A48ed27E964eD0fDb590332095B;
+    address SYUSD_VAULT = 0x279CAD277447965AF3d24a78197aad1B02a2c589;
+    address SYUSD_ACCOUNTANT = 0x03D9a9cE13D16C7cFCE564f41bd7E85E5cde8Da6;
+
+    function setUp() external {
+        privateKey = vm.envUint("PK");
+        setSourceChainName("mainnet");
+    }
+
+    function run() external {
+        vm.startBroadcast(privateKey);
+
+        CbBtcUsdcMorphoBalanceAdapter adapter = new CbBtcUsdcMorphoBalanceAdapter(
+            MORPHO_MARKET_ID, CBBTC_USD_CHAINLINK_FEED, USDC_USD_CHAINLINK_FEED, SYUSD_VAULT, SYUSD_ACCOUNTANT
+        );
+
+        vm.stopBroadcast();
+
+        (uint256 collat, uint256 debt, uint256 credit) =
+            adapter.getUserPosition(0xc0d3c06701C267C06629a9a09089A4c7E7c7aD08);
+        console.log("collateral", collat);
+        console.log("debt", debt);
+        console.log("credit", credit);
+        console.log("TVL in CBTC terms", adapter.getUserTvl(0xc0d3c06701C267C06629a9a09089A4c7E7c7aD08));
     }
 }
 
