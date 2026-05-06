@@ -47,6 +47,8 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
     address public skyMoneyDecoderAndSanitizer = 0x93740255Db97B8005e5F4E84e0E08F69A3267b30;
     address public standardBridgeDecoderAndSanitizer = 0xC48cA54b9F3f8Fc7E5347DE55879851178B485e8;
 
+    // OTC
+    address public keyrockOTCAddress = 0x51BF178e26025aDEC46a8bB3ca1999c0FBde32CE;
 
     function setUp() external {}
 
@@ -1001,6 +1003,9 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
             );
         }
 
+        // ========================== Keyrock OTC ==========================
+        _addKeyrockOTCTransferLeaf(leafs, getERC20(sourceChain, "USDE"));
+
         // ========================== CCTP Bridge ==========================
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", cctpDecoderAndSanitizer);
         _addCCTPBridgeLeafs(leafs, cctpPlumeDomainId);
@@ -1686,5 +1691,18 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
             itbDecoderAndSanitizer
         );
         leafs[leafIndex].argumentAddresses[0] = boringVault;
+    }
+
+    function _addKeyrockOTCTransferLeaf(ManageLeaf[] memory leafs, ERC20 token) internal {
+        leafIndex++;
+        leafs[leafIndex] = ManageLeaf(
+            address(token),
+            false,
+            "transfer(address,uint256)",
+            new address[](1),
+            string.concat("Transfer ", token.symbol(), " to the keyrock OTC contract"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = keyrockOTCAddress;
     }
 }
