@@ -19,7 +19,20 @@
       "creationBlock": 23349288,
       "auditCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
       "auditUrl": "file:audit/certora-boring-vault-0.pdf",
-      "scopeMatch": true
+      "scopeMatch": true,
+      "verification": {
+        "verdict": "partial_match",
+        "verifiedCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
+        "verifiedAt": "2026-05-06T11:53:36.565846+00:00",
+        "runtime": {
+          "verdict": "partial_match",
+          "reason": "immutables_unverified",
+          "verifiedCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
+          "tool": "verify_eth_getcode.py",
+          "toolCommit": "937daf4fabd7f53c2144b405e2ccb3fbe76ef1d9",
+          "verifiedAt": "2026-05-06T11:53:36.565846+00:00"
+        }
+      }
     },
     "BoringOnChainQueue": {
       "deployedAt": "2025-09-12T20:11:23Z",
@@ -27,7 +40,20 @@
       "creationBlock": 23349288,
       "auditCommit": "edfcba3f29f691c638b06d04f60af79503632b58",
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-27",
-      "scopeMatch": true
+      "scopeMatch": true,
+      "verification": {
+        "verdict": "mismatch",
+        "verifiedCommit": null,
+        "verifiedAt": "2026-05-06T12:01:03.051242+00:00",
+        "runtime": {
+          "verdict": "mismatch",
+          "reason": "runtime_bytecode_mismatch",
+          "verifiedCommit": null,
+          "tool": "verify_eth_getcode.py",
+          "toolCommit": "937daf4fabd7f53c2144b405e2ccb3fbe76ef1d9",
+          "verifiedAt": "2026-05-06T12:01:03.051242+00:00"
+        }
+      }
     },
     "BoringVault": {
       "deployedAt": "2025-09-12T20:11:23Z",
@@ -35,7 +61,20 @@
       "creationBlock": 23349288,
       "auditCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
       "auditUrl": "file:audit/certora-boring-vault-0.pdf",
-      "scopeMatch": true
+      "scopeMatch": true,
+      "verification": {
+        "verdict": "partial_match",
+        "verifiedCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
+        "verifiedAt": "2026-05-06T12:03:47.672240+00:00",
+        "runtime": {
+          "verdict": "partial_match",
+          "reason": "immutables_unverified",
+          "verifiedCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
+          "tool": "verify_eth_getcode.py",
+          "toolCommit": "937daf4fabd7f53c2144b405e2ccb3fbe76ef1d9",
+          "verifiedAt": "2026-05-06T12:03:47.672240+00:00"
+        }
+      }
     },
     "Lens": {
       "deployedAt": "2025-09-12T20:11:23Z",
@@ -51,7 +90,20 @@
       "creationBlock": 23349288,
       "auditCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-19",
-      "scopeMatch": true
+      "scopeMatch": true,
+      "verification": {
+        "verdict": "partial_match",
+        "verifiedCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
+        "verifiedAt": "2026-05-06T12:29:37.813174+00:00",
+        "runtime": {
+          "verdict": "partial_match",
+          "reason": "immutables_unverified",
+          "verifiedCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
+          "tool": "verify_eth_getcode.py",
+          "toolCommit": "937daf4fabd7f53c2144b405e2ccb3fbe76ef1d9",
+          "verifiedAt": "2026-05-06T12:29:37.813174+00:00"
+        }
+      }
     },
     "Pauser": {
       "deployedAt": "2025-09-12T20:11:23Z",
