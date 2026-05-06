@@ -41,9 +41,14 @@ contract DeployBoringSwapperTestSuite is Script, MainnetAddresses {
     address constant OPENOCEAN_CALLER      = 0x7Baa298D36fE21Df2F6B54510Da76445661A91Ed;
     address constant OPENOCEAN_LIMIT_ORDER = 0xcC8d695603ce0b43D352891892FcC716c6a7C9f4;
 
-    address constant boringVault   = 0xE003287E34fF16A109477e84A0D271C5c3dc3c7f;
-    address constant txBundler     = 0x47Cec90FACc9364D7C21A8ab5e2aD9F1f75D740C;
+    address constant boringVault    = 0xE003287E34fF16A109477e84A0D271C5c3dc3c7f;
+    address constant txBundler      = 0x47Cec90FACc9364D7C21A8ab5e2aD9F1f75D740C;
     address constant rolesAuthority = 0x1Ae56c37aF9C27d036a1A8a4d9C0762e15D947B8;
+    address constant swapper        = address(0); // TODO: fill in deployed swapper address
+
+    uint256 constant MAX_SLIPPAGE_BPS    = 200;
+    uint256 constant RATE_LIMIT_CAPACITY = 0;
+    uint256 constant RATE_LIMIT_REFILL   = 0;
 
     function setUp() external {
         vm.createSelectFork("mainnet");
@@ -52,66 +57,22 @@ contract DeployBoringSwapperTestSuite is Script, MainnetAddresses {
     function run() external {
         vm.startBroadcast();
 
-        registry = new AdapterRegistry();
-        console.log("AdapterRegistry:", address(registry));
-
-        validator = new PriceValidator();
-        console.log("PriceValidator: ", address(validator));
-
-        // Owner is set to the tx bundler so all auth-gated swapper calls go through bundleTxs.
-        swapper = new BoringSwapper(
-            txBundler,
-            registry,
-            IFeeRegistry(address(0)),
-            BoringVault(payable(boringVault)),
-            IPriceValidator(address(validator))
-        );
-        console.log("BoringSwapper:  ", address(swapper));
-
-        address uniswapV3Adapter = address(new UniswapV3Adapter(uniV3Router));
-        address cowswapAdapter   = address(new CowswapAdapter(COW_SETTLEMENT, COW_VAULT_RELAYER));
-        address oneInchAdapter   = address(new OneInchAdapter(ONEINCH_ROUTER, ONEINCH_FEE_TAKER, ONEINCH_EXECUTOR));
-        address openOceanAdapter = address(new OpenOceanAdapter(OPENOCEAN_ROUTER, OPENOCEAN_CALLER, OPENOCEAN_LIMIT_ORDER));
-
-        console.log("UniswapV3Adapter:", uniswapV3Adapter);
-        console.log("CowswapAdapter:  ", cowswapAdapter);
-        console.log("OneInchAdapter:  ", oneInchAdapter);
-        console.log("OpenOceanAdapter:", openOceanAdapter);
-
-        // Register adapters in the registry — direct calls, registry is owned by the broadcaster.
-        registry.put(uniswapV3Adapter, "UNISWAP_V3");
-        registry.put(cowswapAdapter,   "COWSWAP");
-        registry.put(oneInchAdapter,   "ONEINCH");
-        registry.put(openOceanAdapter, "OPENOCEAN");
-
-        // Bundle all auth-gated swapper setup through the tx bundler (owner of the swapper).
-        // This also routes the roles auth calls through the bundler, which holds the necessary
-        // capabilities on the RolesAuthority.
-        Deployer.Tx[] memory txs = new Deployer.Tx[](5);
+        Deployer.Tx[] memory txs = new Deployer.Tx[](2);
 
         txs[0] = Deployer.Tx({
-            target: address(swapper),
-            data: abi.encodeWithSignature("setAuthority(address)", rolesAuthority),
+            target: swapper,
+            data: abi.encodeWithSelector(
+                BoringSwapper.setRouteConfig.selector,
+                WETH, USDC, MAX_SLIPPAGE_BPS, RATE_LIMIT_CAPACITY, RATE_LIMIT_REFILL
+            ),
             value: 0
         });
         txs[1] = Deployer.Tx({
-            target: address(swapper),
-            data: abi.encodeWithSelector(BoringSwapper.setApprovedAdapter.selector, uniswapV3Adapter, true),
-            value: 0
-        });
-        txs[2] = Deployer.Tx({
-            target: address(swapper),
-            data: abi.encodeWithSelector(BoringSwapper.setApprovedAdapter.selector, cowswapAdapter, true),
-            value: 0
-        });
-        txs[3] = Deployer.Tx({
-            target: address(swapper),
-            data: abi.encodeWithSelector(BoringSwapper.setApprovedAdapter.selector, oneInchAdapter, true),
-            value: 0
-        });
-        txs[4] = Deployer.Tx({
-            target: address(swapper),
-            data: abi.encodeWithSelector(BoringSwapper.setApprovedAdapter.selector, openOceanAdapter, true),
+            target: swapper,
+            data: abi.encodeWithSelector(
+                BoringSwapper.setRouteConfig.selector,
+                USDC, WETH, MAX_SLIPPAGE_BPS, RATE_LIMIT_CAPACITY, RATE_LIMIT_REFILL
+            ),
             value: 0
         });
 
@@ -119,4 +80,53 @@ contract DeployBoringSwapperTestSuite is Script, MainnetAddresses {
 
         vm.stopBroadcast();
     }
+
+    // ============================================================
+    // Full initial deployment — already executed, kept for reference
+    // ============================================================
+
+    // function deploy() external {
+    //     vm.startBroadcast();
+    //
+    //     registry = new AdapterRegistry();
+    //     console.log("AdapterRegistry:", address(registry));
+    //
+    //     validator = new PriceValidator();
+    //     console.log("PriceValidator: ", address(validator));
+    //
+    //     // Owner is set to the tx bundler so all auth-gated swapper calls go through bundleTxs.
+    //     BoringSwapper _swapper = new BoringSwapper(
+    //         txBundler,
+    //         registry,
+    //         IFeeRegistry(address(0)),
+    //         BoringVault(payable(boringVault)),
+    //         IPriceValidator(address(validator))
+    //     );
+    //     console.log("BoringSwapper:  ", address(_swapper));
+    //
+    //     address uniswapV3Adapter = address(new UniswapV3Adapter(uniV3Router));
+    //     address cowswapAdapter   = address(new CowswapAdapter(COW_SETTLEMENT, COW_VAULT_RELAYER));
+    //     address oneInchAdapter   = address(new OneInchAdapter(ONEINCH_ROUTER, ONEINCH_FEE_TAKER, ONEINCH_EXECUTOR));
+    //     address openOceanAdapter = address(new OpenOceanAdapter(OPENOCEAN_ROUTER, OPENOCEAN_CALLER, OPENOCEAN_LIMIT_ORDER));
+    //
+    //     console.log("UniswapV3Adapter:", uniswapV3Adapter);
+    //     console.log("CowswapAdapter:  ", cowswapAdapter);
+    //     console.log("OneInchAdapter:  ", oneInchAdapter);
+    //     console.log("OpenOceanAdapter:", openOceanAdapter);
+    //
+    //     registry.put(uniswapV3Adapter, "UNISWAP_V3");
+    //     registry.put(cowswapAdapter,   "COWSWAP");
+    //     registry.put(oneInchAdapter,   "ONEINCH");
+    //     registry.put(openOceanAdapter, "OPENOCEAN");
+    //
+    //     Deployer.Tx[] memory txs = new Deployer.Tx[](5);
+    //     txs[0] = Deployer.Tx({ target: address(_swapper), data: abi.encodeWithSignature("setAuthority(address)", rolesAuthority), value: 0 });
+    //     txs[1] = Deployer.Tx({ target: address(_swapper), data: abi.encodeWithSelector(BoringSwapper.setApprovedAdapter.selector, uniswapV3Adapter, true), value: 0 });
+    //     txs[2] = Deployer.Tx({ target: address(_swapper), data: abi.encodeWithSelector(BoringSwapper.setApprovedAdapter.selector, cowswapAdapter,   true), value: 0 });
+    //     txs[3] = Deployer.Tx({ target: address(_swapper), data: abi.encodeWithSelector(BoringSwapper.setApprovedAdapter.selector, oneInchAdapter,   true), value: 0 });
+    //     txs[4] = Deployer.Tx({ target: address(_swapper), data: abi.encodeWithSelector(BoringSwapper.setApprovedAdapter.selector, openOceanAdapter, true), value: 0 });
+    //     Deployer(txBundler).bundleTxs(txs);
+    //
+    //     vm.stopBroadcast();
+    // }
 }
