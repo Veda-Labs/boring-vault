@@ -18,6 +18,7 @@ contract UniswapV4DecoderAndSanitizer {
     error UniswapV4DecoderAndSanitizer__UnsupportedSubAction();
     error UniswapV4DecoderAndSanitizer__SubActionLength();
     error UniswapV4DecoderAndSanitizer__MustBeSweep();
+    error UniswapV4DecoderAndSanitizer__InvalidCommandsLength();
 
     //============================== Immutables ===============================
     IUniswapV4PositionManager posm;
@@ -36,14 +37,13 @@ contract UniswapV4DecoderAndSanitizer {
         pure
         returns (bytes memory addressesFound)
     {
-        // Verify exactly 1 byte
-        require(commands.length <= 2, "Invalid commands length");
+        if (commands.length > 2) revert UniswapV4DecoderAndSanitizer__InvalidCommandsLength();
         // Extract and verify command
         uint8 command = uint8(commands[0]);
         if (command == uint8(Commands.V4_SWAP)) {
             // Extract the path from PoolKey
             (bytes memory actions, bytes[] memory params) = abi.decode(inputs[0], (bytes, bytes[]));
-            if (actions.length > 3) revert UniswapV4DecoderAndSanitizer__SwapActionLength();
+            if (actions.length != 3) revert UniswapV4DecoderAndSanitizer__SwapActionLength();
 
             if (
                 uint8(actions[0]) == uint8(Actions.SWAP_EXACT_IN_SINGLE)
@@ -76,7 +76,7 @@ contract UniswapV4DecoderAndSanitizer {
                 //otherwise, we have a sweep
 
                 uint8 command1 = uint8(commands[1]);
-                if (command1 != uint8(Commands.SWEEP)) revert UniswapV4DecoderAndSanitizer__NotSwapSubAction();
+                if (command1 != uint8(Commands.SWEEP)) revert UniswapV4DecoderAndSanitizer__MustBeSweep();
 
                 (address currencyToSweep, address recipient,) = abi.decode(inputs[1], (address, address, uint256));
                 addressesFound = abi.encodePacked(addressesFound, currencyToSweep, recipient);
