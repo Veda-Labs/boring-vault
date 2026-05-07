@@ -21,7 +21,7 @@
       "auditUrl": "file:audit/certora-boring-vault-0.pdf",
       "scopeMatch": true,
       "verification": {
-        "verdict": "partial_match",
+        "verdict": "full_match",
         "verifiedCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
         "verifiedAt": "2026-05-06T14:54:43Z",
         "creation": {
@@ -132,7 +132,7 @@
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-19",
       "scopeMatch": true,
       "verification": {
-        "verdict": "partial_match",
+        "verdict": "full_match",
         "verifiedCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
         "verifiedAt": "2026-05-06T15:03:44Z",
         "creation": {

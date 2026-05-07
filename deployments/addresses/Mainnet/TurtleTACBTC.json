@@ -21,7 +21,7 @@
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-19",
       "scopeMatch": true,
       "verification": {
-        "verdict": "partial_match",
+        "verdict": "full_match",
         "verifiedCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
         "verifiedAt": "2026-05-07T06:22:25Z",
         "creation": {
@@ -58,7 +58,7 @@
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-27",
       "scopeMatch": true,
       "verification": {
-        "verdict": "partial_match",
+        "verdict": "full_match",
         "verifiedCommit": "edfcba3f29f691c638b06d04f60af79503632b58",
         "verifiedAt": "2026-05-07T06:25:19Z",
         "creation": {
@@ -132,7 +132,7 @@
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-19",
       "scopeMatch": true,
       "verification": {
-        "verdict": "partial_match",
+        "verdict": "full_match",
         "verifiedCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
         "verifiedAt": "2026-05-07T06:29:04Z",
         "creation": {
