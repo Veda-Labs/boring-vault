@@ -111,7 +111,20 @@
       "creationBlock": 21363247,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": false
+      "scopeMatch": false,
+      "verification": {
+        "verdict": "partial_match",
+        "verifiedCommit": "14a85fe6349b9a7072d9058e061d4aac8da3bf27",
+        "verifiedAt": "2026-05-07T05:57:55.872825+00:00",
+        "runtime": {
+          "verdict": "partial_match",
+          "reason": "cbor_metadata_differs",
+          "verifiedCommit": "14a85fe6349b9a7072d9058e061d4aac8da3bf27",
+          "tool": "verify_eth_getcode.py",
+          "toolCommit": "d7379a598deafbd45160a318e8cf684f9965484a",
+          "verifiedAt": "2026-05-07T05:57:55.872825+00:00"
+        }
+      }
     },
     "QueueSolver": {
       "deployedAt": "2024-12-09T06:47:47Z",
@@ -127,7 +140,20 @@
       "creationBlock": 21363247,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null
+      "scopeMatch": null,
+      "verification": {
+        "verdict": "partial_match",
+        "verifiedCommit": "14a85fe6349b9a7072d9058e061d4aac8da3bf27",
+        "verifiedAt": "2026-05-07T06:00:37.634175+00:00",
+        "runtime": {
+          "verdict": "partial_match",
+          "reason": "cbor_metadata_differs",
+          "verifiedCommit": "14a85fe6349b9a7072d9058e061d4aac8da3bf27",
+          "tool": "verify_eth_getcode.py",
+          "toolCommit": "d7379a598deafbd45160a318e8cf684f9965484a",
+          "verifiedAt": "2026-05-07T06:00:37.634175+00:00"
+        }
+      }
     },
     "TellerWithLayerZero": {
       "deployedAt": "2024-12-09T06:47:47Z",
@@ -143,7 +169,20 @@
       "creationBlock": 21363247,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null
+      "scopeMatch": null,
+      "verification": {
+        "verdict": "partial_match",
+        "verifiedCommit": "14a85fe6349b9a7072d9058e061d4aac8da3bf27",
+        "verifiedAt": "2026-05-07T06:06:11.757238+00:00",
+        "runtime": {
+          "verdict": "partial_match",
+          "reason": "cbor_metadata_differs",
+          "verifiedCommit": "14a85fe6349b9a7072d9058e061d4aac8da3bf27",
+          "tool": "verify_eth_getcode.py",
+          "toolCommit": "d7379a598deafbd45160a318e8cf684f9965484a",
+          "verifiedAt": "2026-05-07T06:06:11.757238+00:00"
+        }
+      }
     }
   }
 }

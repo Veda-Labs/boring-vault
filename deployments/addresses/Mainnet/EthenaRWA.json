@@ -23,11 +23,11 @@
       "verification": {
         "verdict": "partial_match",
         "verifiedCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
-        "verifiedAt": "2026-05-06T14:16:17Z",
+        "verifiedAt": "2026-05-07T05:45:12Z",
         "creation": {
           "tool": "verify_via_deployer.py",
-          "toolCommit": "6fc181fbd4aa5f427c848ca9fe6754454e32c09e",
-          "verifiedAt": "2026-05-06T14:16:17Z",
+          "toolCommit": "c2e22bcac2e7401a56bd741c873f04f55acda367",
+          "verifiedAt": "2026-05-07T05:45:12Z",
           "verdict": "partial_match",
           "reason": "",
           "verifiedCommit": "3c768bd068af856b5de3def86b1940676847eb9d"
@@ -42,8 +42,8 @@
         },
         "forkReplay": {
           "tool": "verify_via_deployer.py",
-          "toolCommit": "6fc181fbd4aa5f427c848ca9fe6754454e32c09e",
-          "verifiedAt": "2026-05-06T14:16:17Z",
+          "toolCommit": "c2e22bcac2e7401a56bd741c873f04f55acda367",
+          "verifiedAt": "2026-05-07T05:45:12Z",
           "verdict": "full_match",
           "reason": "",
           "verifiedCommit": "3c768bd068af856b5de3def86b1940676847eb9d"
@@ -60,11 +60,11 @@
       "verification": {
         "verdict": "mismatch",
         "verifiedCommit": null,
-        "verifiedAt": "2026-05-06T14:41:54.743117+00:00",
+        "verifiedAt": "2026-05-07T05:48:02Z",
         "creation": {
           "tool": "verify_via_deployer.py",
           "toolCommit": "c2e22bcac2e7401a56bd741c873f04f55acda367",
-          "verifiedAt": "2026-05-06T14:19:03Z",
+          "verifiedAt": "2026-05-07T05:48:02Z",
           "verdict": "mismatch",
           "reason": "",
           "verifiedCommit": null
@@ -89,11 +89,11 @@
       "verification": {
         "verdict": "full_match",
         "verifiedCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
-        "verifiedAt": "2026-05-06T14:21:45Z",
+        "verifiedAt": "2026-05-07T05:50:40Z",
         "creation": {
           "tool": "verify_via_deployer.py",
           "toolCommit": "c2e22bcac2e7401a56bd741c873f04f55acda367",
-          "verifiedAt": "2026-05-06T14:21:45Z",
+          "verifiedAt": "2026-05-07T05:50:40Z",
           "verdict": "full_match",
           "reason": "",
           "verifiedCommit": "3c768bd068af856b5de3def86b1940676847eb9d"
@@ -109,7 +109,7 @@
         "forkReplay": {
           "tool": "verify_via_deployer.py",
           "toolCommit": "c2e22bcac2e7401a56bd741c873f04f55acda367",
-          "verifiedAt": "2026-05-06T14:21:45Z",
+          "verifiedAt": "2026-05-07T05:50:40Z",
           "verdict": "full_match",
           "reason": "",
           "verifiedCommit": "3c768bd068af856b5de3def86b1940676847eb9d"
@@ -134,11 +134,11 @@
       "verification": {
         "verdict": "partial_match",
         "verifiedCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
-        "verifiedAt": "2026-05-06T14:24:33Z",
+        "verifiedAt": "2026-05-07T05:53:29Z",
         "creation": {
           "tool": "verify_via_deployer.py",
           "toolCommit": "c2e22bcac2e7401a56bd741c873f04f55acda367",
-          "verifiedAt": "2026-05-06T14:24:33Z",
+          "verifiedAt": "2026-05-07T05:53:29Z",
           "verdict": "partial_match",
           "reason": "",
           "verifiedCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436"
@@ -154,7 +154,7 @@
         "forkReplay": {
           "tool": "verify_via_deployer.py",
           "toolCommit": "c2e22bcac2e7401a56bd741c873f04f55acda367",
-          "verifiedAt": "2026-05-06T14:24:33Z",
+          "verifiedAt": "2026-05-07T05:53:29Z",
           "verdict": "full_match",
           "reason": "",
           "verifiedCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436"
@@ -167,7 +167,20 @@
       "creationBlock": 23384838,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": false
+      "scopeMatch": false,
+      "verification": {
+        "verdict": "partial_match",
+        "verifiedCommit": "14a85fe6349b9a7072d9058e061d4aac8da3bf27",
+        "verifiedAt": "2026-05-07T05:57:52.153613+00:00",
+        "runtime": {
+          "verdict": "partial_match",
+          "reason": "cbor_metadata_differs",
+          "verifiedCommit": "14a85fe6349b9a7072d9058e061d4aac8da3bf27",
+          "tool": "verify_eth_getcode.py",
+          "toolCommit": "d7379a598deafbd45160a318e8cf684f9965484a",
+          "verifiedAt": "2026-05-07T05:57:52.153613+00:00"
+        }
+      }
     },
     "QueueSolver": {
       "deployedAt": "2025-09-17T19:18:11Z",
@@ -179,11 +192,11 @@
       "verification": {
         "verdict": "mismatch",
         "verifiedCommit": null,
-        "verifiedAt": "2026-05-07T05:17:14.428767+00:00",
+        "verifiedAt": "2026-05-07T05:56:05Z",
         "creation": {
           "tool": "verify_via_deployer.py",
           "toolCommit": "c2e22bcac2e7401a56bd741c873f04f55acda367",
-          "verifiedAt": "2026-05-06T14:27:15Z",
+          "verifiedAt": "2026-05-07T05:56:05Z",
           "verdict": "mismatch",
           "reason": "",
           "verifiedCommit": null
@@ -204,7 +217,20 @@
       "creationBlock": 23384838,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null
+      "scopeMatch": null,
+      "verification": {
+        "verdict": "partial_match",
+        "verifiedCommit": "14a85fe6349b9a7072d9058e061d4aac8da3bf27",
+        "verifiedAt": "2026-05-07T06:00:33.850628+00:00",
+        "runtime": {
+          "verdict": "partial_match",
+          "reason": "cbor_metadata_differs",
+          "verifiedCommit": "14a85fe6349b9a7072d9058e061d4aac8da3bf27",
+          "tool": "verify_eth_getcode.py",
+          "toolCommit": "d7379a598deafbd45160a318e8cf684f9965484a",
+          "verifiedAt": "2026-05-07T06:00:33.850628+00:00"
+        }
+      }
     },
     "TellerWithMultiAssetSupport": {
       "deployedAt": "2025-09-17T19:18:11Z",
@@ -216,11 +242,11 @@
       "verification": {
         "verdict": "mismatch",
         "verifiedCommit": null,
-        "verifiedAt": "2026-05-06T15:44:45.863247+00:00",
+        "verifiedAt": "2026-05-07T05:58:40Z",
         "creation": {
           "tool": "verify_via_deployer.py",
           "toolCommit": "c2e22bcac2e7401a56bd741c873f04f55acda367",
-          "verifiedAt": "2026-05-06T14:29:56Z",
+          "verifiedAt": "2026-05-07T05:58:40Z",
           "verdict": "mismatch",
           "reason": "",
           "verifiedCommit": null
