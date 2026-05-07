@@ -143,7 +143,20 @@
       "creationBlock": 22833745,
       "auditCommit": "b9eafd46e656c532ea2c28a1bd66ce271ebedbc7",
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-44",
-      "scopeMatch": true
+      "scopeMatch": true,
+      "verification": {
+        "verdict": "mismatch",
+        "verifiedCommit": null,
+        "verifiedAt": "2026-05-07T05:17:14.792483+00:00",
+        "runtime": {
+          "verdict": "mismatch",
+          "reason": "runtime_bytecode_mismatch",
+          "verifiedCommit": null,
+          "tool": "verify_eth_getcode.py",
+          "toolCommit": "25afe43c4010f44ea31d28c31081d63242ad9100",
+          "verifiedAt": "2026-05-07T05:17:14.792483+00:00"
+        }
+      }
     },
     "RolesAuthority": {
       "deployedAt": "2025-07-02T19:52:35Z",
