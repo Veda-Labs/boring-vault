@@ -11,5 +11,169 @@
     "RolesAuthority": "0xdE428aE2fA7C648b21697B6B826787F0b4F80A36",
     "TellerWithLayerZero": "0x258f532CB41393c505554228e66eaf580B0171b2",
     "Timelock": "0x0000000000000000000000000000000000000000"
+  },
+  "contractMetadata": {
+    "AccountantWithRateProviders": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": null,
+      "verification": {
+        "verdict": "mismatch",
+        "verifiedCommit": null,
+        "verifiedAt": "2026-05-07T14:42:02.771433+00:00",
+        "runtime": {
+          "verdict": "mismatch",
+          "reason": "runtime_bytecode_mismatch",
+          "verifiedCommit": null,
+          "tool": "verify_eth_getcode.py",
+          "toolCommit": "db223aeaf626a22d9df7138e59e4a7c4a1b37ae3",
+          "verifiedAt": "2026-05-07T14:42:02.771433+00:00"
+        }
+      }
+    },
+    "BoringOnChainQueue": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": null,
+      "verification": {
+        "verdict": "mismatch",
+        "verifiedCommit": null,
+        "verifiedAt": "2026-05-07T14:44:48.383504+00:00",
+        "runtime": {
+          "verdict": "mismatch",
+          "reason": "runtime_bytecode_mismatch",
+          "verifiedCommit": null,
+          "tool": "verify_eth_getcode.py",
+          "toolCommit": "db223aeaf626a22d9df7138e59e4a7c4a1b37ae3",
+          "verifiedAt": "2026-05-07T14:44:48.383504+00:00"
+        }
+      }
+    },
+    "BoringVault": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": null,
+      "verification": {
+        "verdict": "mismatch",
+        "verifiedCommit": null,
+        "verifiedAt": "2026-05-07T14:47:30.675868+00:00",
+        "runtime": {
+          "verdict": "mismatch",
+          "reason": "runtime_bytecode_mismatch",
+          "verifiedCommit": null,
+          "tool": "verify_eth_getcode.py",
+          "toolCommit": "db223aeaf626a22d9df7138e59e4a7c4a1b37ae3",
+          "verifiedAt": "2026-05-07T14:47:30.675868+00:00"
+        }
+      }
+    },
+    "Lens": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": null,
+      "verification": {
+        "verdict": "mismatch",
+        "verifiedCommit": null,
+        "verifiedAt": "2026-05-07T14:50:14.945769+00:00",
+        "runtime": {
+          "verdict": "mismatch",
+          "reason": "runtime_bytecode_mismatch",
+          "verifiedCommit": null,
+          "tool": "verify_eth_getcode.py",
+          "toolCommit": "db223aeaf626a22d9df7138e59e4a7c4a1b37ae3",
+          "verifiedAt": "2026-05-07T14:50:14.945769+00:00"
+        }
+      }
+    },
+    "ManagerWithMerkleVerification": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": null,
+      "verification": {
+        "verdict": "mismatch",
+        "verifiedCommit": null,
+        "verifiedAt": "2026-05-07T14:53:00.664323+00:00",
+        "runtime": {
+          "verdict": "mismatch",
+          "reason": "runtime_bytecode_mismatch",
+          "verifiedCommit": null,
+          "tool": "verify_eth_getcode.py",
+          "toolCommit": "db223aeaf626a22d9df7138e59e4a7c4a1b37ae3",
+          "verifiedAt": "2026-05-07T14:53:00.664323+00:00"
+        }
+      }
+    },
+    "Pauser": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": null,
+      "verification": {
+        "verdict": "mismatch",
+        "verifiedCommit": null,
+        "verifiedAt": "2026-05-07T14:55:47.960635+00:00",
+        "runtime": {
+          "verdict": "mismatch",
+          "reason": "runtime_bytecode_mismatch",
+          "verifiedCommit": null,
+          "tool": "verify_eth_getcode.py",
+          "toolCommit": "db223aeaf626a22d9df7138e59e4a7c4a1b37ae3",
+          "verifiedAt": "2026-05-07T14:55:47.960635+00:00"
+        }
+      }
+    },
+    "QueueSolver": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": null,
+      "verification": {
+        "verdict": "mismatch",
+        "verifiedCommit": null,
+        "verifiedAt": "2026-05-07T14:58:35.318891+00:00",
+        "runtime": {
+          "verdict": "mismatch",
+          "reason": "runtime_bytecode_mismatch",
+          "verifiedCommit": null,
+          "tool": "verify_eth_getcode.py",
+          "toolCommit": "db223aeaf626a22d9df7138e59e4a7c4a1b37ae3",
+          "verifiedAt": "2026-05-07T14:58:35.318891+00:00"
+        }
+      }
+    },
+    "RolesAuthority": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": null,
+      "verification": {
+        "verdict": "mismatch",
+        "verifiedCommit": null,
+        "verifiedAt": "2026-05-07T15:01:30.945891+00:00",
+        "runtime": {
+          "verdict": "mismatch",
+          "reason": "runtime_bytecode_mismatch",
+          "verifiedCommit": null,
+          "tool": "verify_eth_getcode.py",
+          "toolCommit": "db223aeaf626a22d9df7138e59e4a7c4a1b37ae3",
+          "verifiedAt": "2026-05-07T15:01:30.945891+00:00"
+        }
+      }
+    },
+    "TellerWithLayerZero": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": null,
+      "verification": {
+        "verdict": "mismatch",
+        "verifiedCommit": null,
+        "verifiedAt": "2026-05-07T15:04:21.010643+00:00",
+        "runtime": {
+          "verdict": "mismatch",
+          "reason": "runtime_bytecode_mismatch",
+          "verifiedCommit": null,
+          "tool": "verify_eth_getcode.py",
+          "toolCommit": "db223aeaf626a22d9df7138e59e4a7c4a1b37ae3",
+          "verifiedAt": "2026-05-07T15:04:21.010643+00:00"
+        }
+      }
+    }
   }
 }
