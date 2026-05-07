@@ -60,7 +60,15 @@
       "verification": {
         "verdict": "partial_match",
         "verifiedCommit": "edfcba3f29f691c638b06d04f60af79503632b58",
-        "verifiedAt": "2026-05-06T12:01:02.852434+00:00",
+        "verifiedAt": "2026-05-07T13:24:37Z",
+        "creation": {
+          "tool": "verify_via_deployer.py",
+          "toolCommit": "7c26d9e4ac3aceada0a6c7c99c332ca9a4e49fb0",
+          "verifiedAt": "2026-05-07T13:24:37Z",
+          "verdict": "partial_match",
+          "reason": "",
+          "verifiedCommit": "edfcba3f29f691c638b06d04f60af79503632b58"
+        },
         "runtime": {
           "verdict": "partial_match",
           "reason": "immutables_unverified",
@@ -68,6 +76,14 @@
           "tool": "verify_eth_getcode.py",
           "toolCommit": "937daf4fabd7f53c2144b405e2ccb3fbe76ef1d9",
           "verifiedAt": "2026-05-06T12:01:02.852434+00:00"
+        },
+        "forkReplay": {
+          "tool": "verify_via_deployer.py",
+          "toolCommit": "7c26d9e4ac3aceada0a6c7c99c332ca9a4e49fb0",
+          "verifiedAt": "2026-05-07T13:24:37Z",
+          "verdict": "full_match",
+          "reason": "",
+          "verifiedCommit": "edfcba3f29f691c638b06d04f60af79503632b58"
         }
       }
     },
