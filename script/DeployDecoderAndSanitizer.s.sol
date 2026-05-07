@@ -30,6 +30,9 @@ import {
 } from "src/base/DecodersAndSanitizers/BaseStablecoinStrategyDecoderAndSanitizer.sol";
 import {TacUSDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacUSDDecoderAndSanitizer.sol";
 import {
+    InfiniFiUsdcClusterDecoderAndSanitizer
+} from "src/base/DecodersAndSanitizers/InfiniFiUsdcClusterDecoderAndSanitizer.sol";
+import {
     MonadStablecoinStrategyDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/MonStablecoinStrategyDecoderAndSanitizer.sol";
 import {HlCoreVaultDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/HlCoreVaultDecoderAndSanitizer.sol";
@@ -37,9 +40,7 @@ import {SyUsdtEthereumDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/
 import {
     HyperliquidCoreWriterDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/Protocols/HyperliquidCoreWriterDecoderAndSanitizer.sol";
-
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
-
 import {BoringDrone} from "src/base/Drones/BoringDrone.sol";
 
 import "forge-std/Script.sol";
@@ -107,6 +108,27 @@ contract DeploySyUsdtEthereumDecoderAndSanitizer is Script, ContractNames, Mainn
         creationCode = type(SyUsdtEthereumDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(getAddress(sourceChain, "magpieRouterV3"));
         deployer.deployContract("SyUsdtEthereumDecoderAndSanitizerV0.1", creationCode, constructorArgs, 0);
+
+        vm.stopBroadcast();
+    }
+}
+
+contract DeployInfiniFiUsdcClusterDecoderAndSanitizer is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
+    uint256 public privateKey;
+    Deployer public deployer = Deployer(0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC);
+
+    function run() external {
+        bytes memory creationCode;
+        bytes memory constructorArgs;
+
+        vm.createSelectFork("mainnet");
+        setSourceChainName("mainnet");
+
+        vm.startBroadcast(vm.envUint("DEPLOYER01"));
+
+        creationCode = type(InfiniFiUsdcClusterDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(getAddress(sourceChain, "magpieRouterV3"));
+        deployer.deployContract("InfiniFiUsdcClusterDecoderAndSanitizerV0.1", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }

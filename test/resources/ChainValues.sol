@@ -972,6 +972,9 @@ contract ChainValues {
         values[mainnet]["fxSAVE_USDC_86"] = 0x43e925e52d7873fa8acac90dd5f246087d55b3a34c344b71884a6352491ff459;
         values[mainnet]["srRoyUSDC_USDC_915"] = 0xacc49fbf58feb1ac971acce68f8adc177c43682d6a7087bbd4991a05cb7a2c67;
         values[mainnet]["cbBtc_USDC_86"] = 0x64d65c9a2d91c36d56fbc42d69e979335320169b3df63bf92789e2c8883fcc64;
+        values[mainnet]["cbBtc_USDT_86"] = 0x45671fb8d5dea1c4fbca0b8548ad742f6643300eeb8dbd34ad64a658b2b05bca;
+        values[mainnet]["cbBtc_RLUSD_86"] = 0xffd010618ed3cb39bb2c5de0e3e58d3d2ec9f52187a180f29723c31756a939bc;
+        values[mainnet]["cbBtc_PYUSD_86"] = 0xd8a8e6667f58aa9229e8979bd619742b1660ee856c200a93e407dbccb7222323;
 
         // MetaMorpho
         values[mainnet]["usualBoostedUSDC"] = 0xd63070114470f685b75B74D60EEc7c1113d33a3D.toBytes32();
@@ -1588,6 +1591,7 @@ contract ChainValues {
         values[mainnet]["USDT_USD_oracle"] = 0x3E7d1eAB13ad0104d2750B8863b489D65364e32D.toBytes32();
         values[mainnet]["PYUSD_USD_oracle"] = 0x8f1dF6D7F2db73eECE86a18b4381F4707b918FB1.toBytes32();
         values[mainnet]["RLUSD_USD_oracle"] = 0x26C46B7aD0012cA71F2298ada567dC9Af14E7f2A.toBytes32();
+        values[mainnet]["CBBTC_USD_oracle"] = 0x2665701293fCbEB223D11A08D826563EDcCE423A.toBytes32();
     }
 
     function _addBaseValues() private {
