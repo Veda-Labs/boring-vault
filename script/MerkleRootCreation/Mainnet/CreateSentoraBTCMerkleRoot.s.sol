@@ -40,7 +40,7 @@ contract CreateSentoraBTCMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "accountantAddress", accountantAddress);
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](32);
         
         // ========================== Fee Claiming ==========================
         ERC20[] memory feeAssets = new ERC20[](1);
@@ -68,6 +68,17 @@ contract CreateSentoraBTCMerkleRoot is Script, MerkleTreeHelper {
         // bridge USDC to Ink via CCTP
         _addCCTPBridgeLeafs(leafs, cctpInkDomainId);
 
+        // ========================== Position Manager ==========================
+        // Supplies kBTC on Morpho, borrows PYUSD, Supplies PYUSD
+        {
+            address pyusdMorphoPositionManager = 0xAd50F5a15F5a3Bc9DAa934915586D9b8889294AC;
+            ERC20[] memory pyusdMorphoTokensUsed = new ERC20[](3);
+            pyusdMorphoTokensUsed[0] = getERC20(sourceChain, "KBTC");
+            pyusdMorphoTokensUsed[1] = getERC20(sourceChain, "PYUSD");
+            pyusdMorphoTokensUsed[2] = getERC20(sourceChain, "MORPHO");
+            _addLeafsForITBPositionManagerLocal(leafs, pyusdMorphoPositionManager, pyusdMorphoTokensUsed, "Sentora PYUSD main V2 ITB Position Manager");
+        }
+        
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
@@ -82,8 +93,7 @@ contract CreateSentoraBTCMerkleRoot is Script, MerkleTreeHelper {
          ManageLeaf[] memory leafs,
          address itbPositionManager,
          ERC20[] memory tokensUsed,
-         string memory itbContractName,
-         address[] memory additionalExecutors
+         string memory itbContractName
      ) internal {
          // acceptOwnership
          leafIndex++;
@@ -139,20 +149,6 @@ contract CreateSentoraBTCMerkleRoot is Script, MerkleTreeHelper {
                  string.concat("Withdraw all ", tokensUsed[i].symbol(), " from the ", itbContractName, " contract"),
                  itbDecoderAndSanitizer
              );
-         }
-
-         for (uint256 i; i < additionalExecutors.length; ++i) {
-             // AddExecutor
-             leafIndex++;
-             leafs[leafIndex] = ManageLeaf(
-                 itbPositionManager,
-                 false,
-                 "addExecutor(address)",
-                 new address[](1),
-                 string.concat("Add executor to the ", itbContractName, " contract"),
-                 itbDecoderAndSanitizer
-             );
-             leafs[leafIndex].argumentAddresses[0] = additionalExecutors[i];
          }
      }
 }
