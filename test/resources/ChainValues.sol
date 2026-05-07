@@ -1591,6 +1591,7 @@ contract ChainValues {
         values[mainnet]["srRoyUSDC_USD_oracle"] = 0x98B53801CC55754430221D2571960C883E71713D.toBytes32();
         values[mainnet]["fxSAVE_USD_oracle"] = 0x3B2046cBeD2115C147b2455FF3e9354c5a2D2fB8.toBytes32();
         values[mainnet]["stcUSD_USD_oracle"] = 0xaCEd1A8d71F5e15e47A1547B9C9C9716e5325056.toBytes32();
+        values[mainnet]["syUSD_USD_oracle"] = 0x5aE0460096DBc858385a3b1D9D3f0840Fa40E3eB.toBytes32();
 
         // chainlink feeds
         values[mainnet]["USDC_USD_oracle"] = 0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6.toBytes32();

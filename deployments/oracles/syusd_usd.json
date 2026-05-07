@@ -1,0 +1,9 @@
+{
+  "privateKeyEnvName": "DEPLOYER01",
+  "deploymentName": "LucidlyChainlinkBoringVaultOracleV1_syUSD_USD",
+  "name": "syUSD/USD",
+  "accountant": "0x03D9a9cE13D16C7cFCE564f41bd7E85E5cde8Da6",
+  "baseFeed1": "0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6",
+  "baseFeed2": "0x0000000000000000000000000000000000000000",
+  "outputDecimals": 8
+}
