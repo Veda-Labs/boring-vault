@@ -89,7 +89,7 @@
       "verification": {
         "verdict": "mismatch",
         "verifiedCommit": null,
-        "verifiedAt": "2026-05-06T16:02:47Z",
+        "verifiedAt": "2026-05-07T16:46:17.059268+00:00",
         "creation": {
           "tool": "verify_via_deployer.py",
           "toolCommit": "c2e22bcac2e7401a56bd741c873f04f55acda367",
@@ -99,12 +99,12 @@
           "verifiedCommit": null
         },
         "runtime": {
-          "verdict": "mismatch",
-          "reason": "runtime_bytecode_mismatch",
-          "verifiedCommit": null,
+          "verdict": "partial_match",
+          "reason": "immutables_unverified",
+          "verifiedCommit": "2da280b409ff57fdedd7528b70bf0e5edf710501",
           "tool": "verify_eth_getcode.py",
-          "toolCommit": "937daf4fabd7f53c2144b405e2ccb3fbe76ef1d9",
-          "verifiedAt": "2026-05-06T12:04:36.340685+00:00"
+          "toolCommit": "dd2b1d9704aa32d7c5ad7f6645149d7914b8864a",
+          "verifiedAt": "2026-05-07T16:46:17.059268+00:00"
         }
       }
     },
