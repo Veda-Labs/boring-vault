@@ -215,8 +215,8 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), feeAssets, false);
 
             // ========================== 1inch ==========================
-            address[] memory assets = new address[](36);
-            SwapKind[] memory kind = new SwapKind[](36);
+            address[] memory assets = new address[](37);
+            SwapKind[] memory kind = new SwapKind[](37);
             assets[0] = getAddress(sourceChain, "WETH");
             kind[0] = SwapKind.BuyAndSell;
             assets[1] = getAddress(sourceChain, "WEETH");
@@ -289,6 +289,8 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             kind[34] = SwapKind.Sell;
             assets[35] = getAddress(sourceChain, "USDG");
             kind[35] = SwapKind.BuyAndSell;
+            assets[36] = getAddress(sourceChain, "MORPHO");
+            kind[36] = SwapKind.Sell;
 
             setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
             _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
