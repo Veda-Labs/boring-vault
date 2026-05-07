@@ -106,6 +106,14 @@
       "proposers": ["0x68eC1FdD4Bb202B2e07aE751CB5553644aA48cFA"]
     }
   },
+  "erc4626BufferHelperConfiguration": {                                                                                                                                                                    
+    "erc4626BufferHelperDeploymentName": "mUSD Test ERC4626 Buffer Helper V0.0",                                                                                                                                          
+    "shouldDeploy": true,                                                                                                                                                                                
+    "erc4626VaultAddressOrName": {
+      "address_": "0x0000000000000000000000000000000000000000",
+      "name": "steakhouseMUSDVault"
+    }                                                                                                                    
+  },
   "aaveV3BufferHelperConfiguration": {
       "shouldDeploy": false,
       "aaveV3BufferHelperDeploymentName": "mUSD Test AaveV3 Buffer Helper V0.0",
