@@ -130,7 +130,20 @@
       "creationBlock": 19672706,
       "auditCommit": "939c77e25473dff3ed18fa104f004f7afd13452e",
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-4",
-      "scopeMatch": true
+      "scopeMatch": true,
+      "verification": {
+        "verdict": "partial_match",
+        "verifiedCommit": "6064f06f72d8f972876009071b986f7d2e09feb1",
+        "verifiedAt": "2026-05-07T19:58:19.767596+00:00",
+        "runtime": {
+          "verdict": "partial_match",
+          "reason": "cbor_metadata_differs",
+          "verifiedCommit": "6064f06f72d8f972876009071b986f7d2e09feb1",
+          "tool": "verify_eth_getcode.py",
+          "toolCommit": "1318326c401c038b6b529d90da8d5f189048920f",
+          "verifiedAt": "2026-05-07T19:58:19.767596+00:00"
+        }
+      }
     },
     "ManagerWithMerkleVerification": {
       "deployedAt": "2025-01-16T09:09:59Z",

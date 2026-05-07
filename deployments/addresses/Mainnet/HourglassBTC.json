@@ -95,16 +95,16 @@
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-7",
       "scopeMatch": true,
       "verification": {
-        "verdict": "mismatch",
-        "verifiedCommit": null,
-        "verifiedAt": "2026-05-07T16:10:10.304240+00:00",
+        "verdict": "full_match",
+        "verifiedCommit": "f6f9d295a21dd35d3fdeb17942df63a02c1bbea1",
+        "verifiedAt": "2026-05-07T20:03:59Z",
         "creation": {
           "tool": "verify_via_deployer.py",
-          "toolCommit": "c2e22bcac2e7401a56bd741c873f04f55acda367",
-          "verifiedAt": "2026-05-06T15:22:31Z",
-          "verdict": "mismatch",
+          "toolCommit": "f16053d7c48e6a29f95406f7f39b48ade2655d26",
+          "verifiedAt": "2026-05-07T20:03:59Z",
+          "verdict": "partial_match",
           "reason": "",
-          "verifiedCommit": null
+          "verifiedCommit": "f6f9d295a21dd35d3fdeb17942df63a02c1bbea1"
         },
         "runtime": {
           "verdict": "partial_match",
@@ -113,6 +113,14 @@
           "tool": "verify_eth_getcode.py",
           "toolCommit": "dd2b1d9704aa32d7c5ad7f6645149d7914b8864a",
           "verifiedAt": "2026-05-07T16:10:10.304240+00:00"
+        },
+        "forkReplay": {
+          "tool": "verify_via_deployer.py",
+          "toolCommit": "f16053d7c48e6a29f95406f7f39b48ade2655d26",
+          "verifiedAt": "2026-05-07T20:03:59Z",
+          "verdict": "full_match",
+          "reason": "",
+          "verifiedCommit": "f6f9d295a21dd35d3fdeb17942df63a02c1bbea1"
         }
       }
     },
@@ -122,7 +130,20 @@
       "creationBlock": 19672706,
       "auditCommit": "939c77e25473dff3ed18fa104f004f7afd13452e",
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-4",
-      "scopeMatch": true
+      "scopeMatch": true,
+      "verification": {
+        "verdict": "partial_match",
+        "verifiedCommit": "6064f06f72d8f972876009071b986f7d2e09feb1",
+        "verifiedAt": "2026-05-07T19:58:19.399407+00:00",
+        "runtime": {
+          "verdict": "partial_match",
+          "reason": "cbor_metadata_differs",
+          "verifiedCommit": "6064f06f72d8f972876009071b986f7d2e09feb1",
+          "tool": "verify_eth_getcode.py",
+          "toolCommit": "1318326c401c038b6b529d90da8d5f189048920f",
+          "verifiedAt": "2026-05-07T19:58:19.399407+00:00"
+        }
+      }
     },
     "ManagerWithMerkleVerification": {
       "deployedAt": "2025-01-10T06:47:23Z",
