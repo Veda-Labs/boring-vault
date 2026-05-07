@@ -60,7 +60,7 @@
       "verification": {
         "verdict": "mismatch",
         "verifiedCommit": null,
-        "verifiedAt": "2026-05-06T15:46:42Z",
+        "verifiedAt": "2026-05-07T17:47:33.671111+00:00",
         "creation": {
           "tool": "verify_via_deployer.py",
           "toolCommit": "c2e22bcac2e7401a56bd741c873f04f55acda367",
@@ -70,12 +70,12 @@
           "verifiedCommit": null
         },
         "runtime": {
-          "verdict": "mismatch",
-          "reason": "runtime_bytecode_mismatch",
-          "verifiedCommit": null,
+          "verdict": "partial_match",
+          "reason": "immutables_unverified",
+          "verifiedCommit": "2da280b409ff57fdedd7528b70bf0e5edf710501",
           "tool": "verify_eth_getcode.py",
-          "toolCommit": "937daf4fabd7f53c2144b405e2ccb3fbe76ef1d9",
-          "verifiedAt": "2026-05-06T12:01:04.533023+00:00"
+          "toolCommit": "1318326c401c038b6b529d90da8d5f189048920f",
+          "verifiedAt": "2026-05-07T17:47:33.671111+00:00"
         }
       }
     },
@@ -87,16 +87,16 @@
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-7",
       "scopeMatch": true,
       "verification": {
-        "verdict": "mismatch",
-        "verifiedCommit": null,
-        "verifiedAt": "2026-05-07T16:46:17.114805+00:00",
+        "verdict": "full_match",
+        "verifiedCommit": "2da280b409ff57fdedd7528b70bf0e5edf710501",
+        "verifiedAt": "2026-05-07T17:52:44Z",
         "creation": {
           "tool": "verify_via_deployer.py",
-          "toolCommit": "c2e22bcac2e7401a56bd741c873f04f55acda367",
-          "verifiedAt": "2026-05-06T15:47:32Z",
-          "verdict": "mismatch",
+          "toolCommit": "f16053d7c48e6a29f95406f7f39b48ade2655d26",
+          "verifiedAt": "2026-05-07T17:52:44Z",
+          "verdict": "partial_match",
           "reason": "",
-          "verifiedCommit": null
+          "verifiedCommit": "2da280b409ff57fdedd7528b70bf0e5edf710501"
         },
         "runtime": {
           "verdict": "partial_match",
@@ -105,6 +105,14 @@
           "tool": "verify_eth_getcode.py",
           "toolCommit": "dd2b1d9704aa32d7c5ad7f6645149d7914b8864a",
           "verifiedAt": "2026-05-07T16:46:17.114805+00:00"
+        },
+        "forkReplay": {
+          "tool": "verify_via_deployer.py",
+          "toolCommit": "f16053d7c48e6a29f95406f7f39b48ade2655d26",
+          "verifiedAt": "2026-05-07T17:52:44Z",
+          "verdict": "full_match",
+          "reason": "",
+          "verifiedCommit": "2da280b409ff57fdedd7528b70bf0e5edf710501"
         }
       }
     },
