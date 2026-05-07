@@ -1481,6 +1481,12 @@ contract ChainValues {
         values[mainnet]["recipeMarketHub"] = 0x783251f103555068c1E9D755f69458f39eD937c0.toBytes32();
         values[mainnet]["supplyUSDCAaveWrappedVault"] = 0x2120ADcdCF8e0ed9D6dd3Df683F076402B79E3bd.toBytes32();
 
+        // Royco Dawn (V2)
+        // RoycoEntryPoint: singleton periphery for async deposits/redemptions on every Dawn tranche.
+        values[mainnet]["roycoEntryPoint"] = 0x63dA1229be88Fb4D20210147954a1a3e05f2581B.toBytes32();
+        // Junior tranche of the syrupUSDC market.
+        values[mainnet]["roycoJrSyrupUSDC"] = 0x5f340B400F892bBFDed2e5c316369Dcbf05C282A.toBytes32();
+
         // Usual
         values[mainnet]["usualSwapperEngine"] = 0xB969B0d14F7682bAF37ba7c364b351B830a812B2.toBytes32();
 
