@@ -63,16 +63,16 @@
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-7",
       "scopeMatch": true,
       "verification": {
-        "verdict": "mismatch",
-        "verifiedCommit": null,
-        "verifiedAt": "2026-05-06T12:04:41.233199+00:00",
+        "verdict": "partial_match",
+        "verifiedCommit": "9373ec027dd9ce1214199ce2f25e349de91b8866",
+        "verifiedAt": "2026-05-06T14:22:45.594578+00:00",
         "runtime": {
-          "verdict": "mismatch",
-          "reason": "runtime_bytecode_mismatch",
-          "verifiedCommit": null,
+          "verdict": "partial_match",
+          "reason": "immutables_unverified",
+          "verifiedCommit": "9373ec027dd9ce1214199ce2f25e349de91b8866",
           "tool": "verify_eth_getcode.py",
-          "toolCommit": "937daf4fabd7f53c2144b405e2ccb3fbe76ef1d9",
-          "verifiedAt": "2026-05-06T12:04:41.233199+00:00"
+          "toolCommit": "9e8f2e0f41c54d608a260be458ae047e372a7774",
+          "verifiedAt": "2026-05-06T14:22:45.594578+00:00"
         }
       }
     },

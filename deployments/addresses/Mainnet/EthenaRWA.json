@@ -60,7 +60,7 @@
       "verification": {
         "verdict": "mismatch",
         "verifiedCommit": null,
-        "verifiedAt": "2026-05-06T14:19:03Z",
+        "verifiedAt": "2026-05-06T14:41:54.743117+00:00",
         "creation": {
           "tool": "verify_via_deployer.py",
           "toolCommit": "c2e22bcac2e7401a56bd741c873f04f55acda367",
@@ -70,12 +70,12 @@
           "verifiedCommit": null
         },
         "runtime": {
-          "verdict": "mismatch",
-          "reason": "runtime_bytecode_mismatch",
-          "verifiedCommit": null,
+          "verdict": "partial_match",
+          "reason": "immutables_unverified",
+          "verifiedCommit": "463b7a874c4480c7663473dfdb844aeb7567cb13",
           "tool": "verify_eth_getcode.py",
-          "toolCommit": "937daf4fabd7f53c2144b405e2ccb3fbe76ef1d9",
-          "verifiedAt": "2026-05-06T12:01:03.254770+00:00"
+          "toolCommit": "9e8f2e0f41c54d608a260be458ae047e372a7774",
+          "verifiedAt": "2026-05-06T14:41:54.743117+00:00"
         }
       }
     },
@@ -208,7 +208,7 @@
       "verification": {
         "verdict": "mismatch",
         "verifiedCommit": null,
-        "verifiedAt": "2026-05-06T14:29:56Z",
+        "verifiedAt": "2026-05-06T15:44:45.863247+00:00",
         "creation": {
           "tool": "verify_via_deployer.py",
           "toolCommit": "c2e22bcac2e7401a56bd741c873f04f55acda367",
@@ -218,12 +218,12 @@
           "verifiedCommit": null
         },
         "runtime": {
-          "verdict": "mismatch",
-          "reason": "runtime_bytecode_mismatch",
-          "verifiedCommit": null,
+          "verdict": "partial_match",
+          "reason": "immutables_unverified",
+          "verifiedCommit": "463b7a874c4480c7663473dfdb844aeb7567cb13",
           "tool": "verify_eth_getcode.py",
-          "toolCommit": "937daf4fabd7f53c2144b405e2ccb3fbe76ef1d9",
-          "verifiedAt": "2026-05-06T12:56:35.200492+00:00"
+          "toolCommit": "9e8f2e0f41c54d608a260be458ae047e372a7774",
+          "verifiedAt": "2026-05-06T15:44:45.863247+00:00"
         }
       }
     }

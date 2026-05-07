@@ -42,16 +42,16 @@
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-27",
       "scopeMatch": true,
       "verification": {
-        "verdict": "mismatch",
-        "verifiedCommit": null,
-        "verifiedAt": "2026-05-06T12:01:07.448317+00:00",
+        "verdict": "partial_match",
+        "verifiedCommit": "c715797a904e37483580b12e59c94e20d8888a7b",
+        "verifiedAt": "2026-05-06T15:36:30.452989+00:00",
         "runtime": {
-          "verdict": "mismatch",
-          "reason": "runtime_bytecode_mismatch",
-          "verifiedCommit": null,
+          "verdict": "partial_match",
+          "reason": "immutables_unverified",
+          "verifiedCommit": "c715797a904e37483580b12e59c94e20d8888a7b",
           "tool": "verify_eth_getcode.py",
-          "toolCommit": "937daf4fabd7f53c2144b405e2ccb3fbe76ef1d9",
-          "verifiedAt": "2026-05-06T12:01:07.448317+00:00"
+          "toolCommit": "9e8f2e0f41c54d608a260be458ae047e372a7774",
+          "verifiedAt": "2026-05-06T15:36:30.452989+00:00"
         }
       }
     },
@@ -63,16 +63,16 @@
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-7",
       "scopeMatch": true,
       "verification": {
-        "verdict": "mismatch",
-        "verifiedCommit": null,
-        "verifiedAt": "2026-05-06T12:04:39.668104+00:00",
+        "verdict": "partial_match",
+        "verifiedCommit": "c715797a904e37483580b12e59c94e20d8888a7b",
+        "verifiedAt": "2026-05-06T13:47:36.192279+00:00",
         "runtime": {
-          "verdict": "mismatch",
-          "reason": "runtime_bytecode_mismatch",
-          "verifiedCommit": null,
+          "verdict": "partial_match",
+          "reason": "immutables_unverified",
+          "verifiedCommit": "c715797a904e37483580b12e59c94e20d8888a7b",
           "tool": "verify_eth_getcode.py",
-          "toolCommit": "937daf4fabd7f53c2144b405e2ccb3fbe76ef1d9",
-          "verifiedAt": "2026-05-06T12:04:39.668104+00:00"
+          "toolCommit": "9e8f2e0f41c54d608a260be458ae047e372a7774",
+          "verifiedAt": "2026-05-06T13:47:36.192279+00:00"
         }
       }
     },
