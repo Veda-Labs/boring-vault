@@ -96,6 +96,7 @@ contract DeploycbBtcAaveAdapter is Script, MerkleTreeHelper {
         console.log("TVL in CBTC terms", adapter.getUserTvl(0x272BCD869CbDFcb32c335dB2f1F6C54Eb1A50aCc));
     }
 }
+
 contract DeploycbBtcMorphoAdapter is Script, MerkleTreeHelper {
     uint256 public privateKey;
 
@@ -231,13 +232,13 @@ contract DeployErc20TvlAdapter is Script, MerkleTreeHelper {
 
         bytes memory creationCode = type(Erc20TvlAdapter).creationCode;
         bytes memory constructorArgs = abi.encode(
-            getAddress(sourceChain, "stcUSD"),
-            getAddress(sourceChain, "stcUSD_USD_oracle"),
+            getAddress(sourceChain, "syUSD"),
+            getAddress(sourceChain, "syUSD_USD_oracle"),
             getAddress(sourceChain, "USDC"),
             getAddress(sourceChain, "USDC_USD_oracle")
         );
 
-        deployer.deployContract("stcUSD/USD Erc20TvlAdapter", creationCode, constructorArgs, 0);
+        deployer.deployContract("syUSD/USDC Erc20TvlAdapter", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
