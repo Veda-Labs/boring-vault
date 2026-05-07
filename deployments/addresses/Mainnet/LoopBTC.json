@@ -93,16 +93,16 @@
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-7",
       "scopeMatch": true,
       "verification": {
-        "verdict": "mismatch",
-        "verifiedCommit": null,
-        "verifiedAt": "2026-05-07T15:56:01.653048+00:00",
+        "verdict": "full_match",
+        "verifiedCommit": "847d0cba0b778bd54f94754e93fa3224fac989ee",
+        "verifiedAt": "2026-05-07T19:20:54Z",
         "creation": {
           "tool": "verify_via_deployer.py",
-          "toolCommit": "c2e22bcac2e7401a56bd741c873f04f55acda367",
-          "verifiedAt": "2026-05-06T21:04:27Z",
-          "verdict": "mismatch",
+          "toolCommit": "f16053d7c48e6a29f95406f7f39b48ade2655d26",
+          "verifiedAt": "2026-05-07T19:20:54Z",
+          "verdict": "partial_match",
           "reason": "",
-          "verifiedCommit": null
+          "verifiedCommit": "847d0cba0b778bd54f94754e93fa3224fac989ee"
         },
         "runtime": {
           "verdict": "partial_match",
@@ -111,6 +111,14 @@
           "tool": "verify_eth_getcode.py",
           "toolCommit": "dd2b1d9704aa32d7c5ad7f6645149d7914b8864a",
           "verifiedAt": "2026-05-07T15:56:01.653048+00:00"
+        },
+        "forkReplay": {
+          "tool": "verify_via_deployer.py",
+          "toolCommit": "f16053d7c48e6a29f95406f7f39b48ade2655d26",
+          "verifiedAt": "2026-05-07T19:20:54Z",
+          "verdict": "full_match",
+          "reason": "",
+          "verifiedCommit": "847d0cba0b778bd54f94754e93fa3224fac989ee"
         }
       }
     },
@@ -169,7 +177,7 @@
       "verification": {
         "verdict": "mismatch",
         "verifiedCommit": null,
-        "verifiedAt": "2026-05-07T05:18:31.964174+00:00",
+        "verifiedAt": "2026-05-07T19:45:34.583324+00:00",
         "creation": {
           "tool": "verify_via_deployer.py",
           "toolCommit": "c2e22bcac2e7401a56bd741c873f04f55acda367",
@@ -179,12 +187,12 @@
           "verifiedCommit": null
         },
         "runtime": {
-          "verdict": "mismatch",
-          "reason": "runtime_bytecode_mismatch",
-          "verifiedCommit": null,
+          "verdict": "partial_match",
+          "reason": "immutables_unverified",
+          "verifiedCommit": "847d0cba0b778bd54f94754e93fa3224fac989ee",
           "tool": "verify_eth_getcode.py",
-          "toolCommit": "25afe43c4010f44ea31d28c31081d63242ad9100",
-          "verifiedAt": "2026-05-07T05:18:31.964174+00:00"
+          "toolCommit": "1318326c401c038b6b529d90da8d5f189048920f",
+          "verifiedAt": "2026-05-07T19:45:34.583324+00:00"
         }
       }
     },
