@@ -22,6 +22,8 @@ contract CreateSonicLBTCvMerkleRootScript is Script, MerkleTreeHelper {
     address public managerAddress = 0x9D828035dd3C95452D4124870C110E7866ea6bb7;
     address public accountantAddress = 0x0639e239E417Ab9D1f0f926Fd738a012153930A7;
 
+    address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
+
     function setUp() external {}
 
     /**
@@ -57,13 +59,17 @@ contract CreateSonicLBTCvMerkleRootScript is Script, MerkleTreeHelper {
         kind[1] = SwapKind.BuyAndSell;
         assets[2] = getAddress(sourceChain, "scBTC");
         kind[2] = SwapKind.BuyAndSell;
-        _addLeafsFor1InchGeneralSwapping(leafs, assets, kind);
+
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+        _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+
         // ========================== BoringVaults ==========================
         // Adding leaf to support bulk withdraw of EBTC for scBTC
         {
             ERC20[] memory eBTCTellerAssets = new ERC20[](1);
             eBTCTellerAssets[0] = getERC20(sourceChain, "LBTC");
-            address eBTCTeller = 0x458797A320e6313c980C2bC7D270466A6288A8bB;
+            address eBTCTeller = 0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268;
             _addTellerLeafs(leafs, eBTCTeller, eBTCTellerAssets, false, false);
 
             address[] memory sonicBTCTellerAssets = new address[](2); 
@@ -79,15 +85,20 @@ contract CreateSonicLBTCvMerkleRootScript is Script, MerkleTreeHelper {
             scBTCTellerAssets[0] = getERC20(sourceChain, "LBTC");
             scBTCTellerAssets[1] = getERC20(sourceChain, "EBTC");
             address scBTCTeller = 0xAce7DEFe3b94554f0704d8d00F69F273A0cFf079;
-            _addTellerLeafs(leafs, scBTCTeller, scBTCTellerAssets, true, true);
+            _addTellerLeafs(leafs, scBTCTeller, scBTCTellerAssets, false, true); // no native deposit, yes bulk operations
 
-            ERC20[] memory scBTCWithdrawQueueAssets = new ERC20[](1); 
-            scBTCWithdrawQueueAssets[0] = getERC20(sourceChain, "scBTC");
-            address eBTCOnChainQueueFast = 0x488000E6a0CfC32DCB3f37115e759aF50F55b48B;
-            ERC20[] memory _scBTCWithdrawQueueAssets = new ERC20[](2);
-            _scBTCWithdrawQueueAssets[0] = getERC20(sourceChain, "LBTC");
-            _scBTCWithdrawQueueAssets[1] = getERC20(sourceChain, "EBTC");
-            _addWithdrawQueueLeafs(leafs, eBTCOnChainQueueFast, getAddress(sourceChain, "scBTC"), _scBTCWithdrawQueueAssets);
+            // sonicBTC queue
+            address scBTCOnChainQueue = 0x488000E6a0CfC32DCB3f37115e759aF50F55b48B;
+            ERC20[] memory scBTCWithdrawQueueAssets = new ERC20[](2);
+            scBTCWithdrawQueueAssets[0] = getERC20(sourceChain, "LBTC");
+            scBTCWithdrawQueueAssets[1] = getERC20(sourceChain, "EBTC");
+            _addWithdrawQueueLeafs(leafs, scBTCOnChainQueue, getAddress(sourceChain, "scBTC"), scBTCWithdrawQueueAssets);
+
+            // eBTC slow queue
+            address eBTCOnChainQueueSlow = 0x74EC75fb641ec17B04007733d9efBE2D1dA5CA2C;
+            ERC20[] memory eBTCWithdrawQueueAssets = new ERC20[](1);
+            eBTCWithdrawQueueAssets[0] = getERC20(sourceChain, "LBTC");
+            _addWithdrawQueueLeafs(leafs, eBTCOnChainQueueSlow, getAddress(sourceChain, "EBTC"), eBTCWithdrawQueueAssets);
         }
 
         // ========================== CCIP ==========================
