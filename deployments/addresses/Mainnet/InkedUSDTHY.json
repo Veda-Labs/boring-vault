@@ -248,16 +248,16 @@
       "auditUrl": null,
       "scopeMatch": null,
       "verification": {
-        "verdict": "partial_match",
-        "verifiedCommit": "14a85fe6349b9a7072d9058e061d4aac8da3bf27",
-        "verifiedAt": "2026-05-07T06:00:35.510638+00:00",
+        "verdict": "full_match",
+        "verifiedCommit": "9373ec027dd9ce1214199ce2f25e349de91b8866",
+        "verifiedAt": "2026-05-08T07:38:13.412620+00:00",
         "runtime": {
-          "verdict": "partial_match",
-          "reason": "cbor_metadata_differs",
-          "verifiedCommit": "14a85fe6349b9a7072d9058e061d4aac8da3bf27",
+          "verdict": "full_match",
+          "reason": "matched",
+          "verifiedCommit": "9373ec027dd9ce1214199ce2f25e349de91b8866",
           "tool": "verify_eth_getcode.py",
-          "toolCommit": "d7379a598deafbd45160a318e8cf684f9965484a",
-          "verifiedAt": "2026-05-07T06:00:35.510638+00:00"
+          "toolCommit": "c2dc747cf477fe3db84c09af0e0c5be44fdabf61",
+          "verifiedAt": "2026-05-08T07:38:13.412620+00:00"
         }
       }
     },
@@ -277,16 +277,16 @@
       "auditUrl": null,
       "scopeMatch": null,
       "verification": {
-        "verdict": "partial_match",
-        "verifiedCommit": "14a85fe6349b9a7072d9058e061d4aac8da3bf27",
-        "verifiedAt": "2026-05-07T06:06:10.446629+00:00",
+        "verdict": "full_match",
+        "verifiedCommit": "9373ec027dd9ce1214199ce2f25e349de91b8866",
+        "verifiedAt": "2026-05-08T09:10:14.008161+00:00",
         "runtime": {
-          "verdict": "partial_match",
-          "reason": "cbor_metadata_differs",
-          "verifiedCommit": "14a85fe6349b9a7072d9058e061d4aac8da3bf27",
+          "verdict": "full_match",
+          "reason": "matched",
+          "verifiedCommit": "9373ec027dd9ce1214199ce2f25e349de91b8866",
           "tool": "verify_eth_getcode.py",
-          "toolCommit": "d7379a598deafbd45160a318e8cf684f9965484a",
-          "verifiedAt": "2026-05-07T06:06:10.446629+00:00"
+          "toolCommit": "c2dc747cf477fe3db84c09af0e0c5be44fdabf61",
+          "verifiedAt": "2026-05-08T09:10:14.008161+00:00"
         }
       }
     }

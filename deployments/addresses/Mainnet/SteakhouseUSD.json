@@ -249,15 +249,15 @@
       "scopeMatch": null,
       "verification": {
         "verdict": "partial_match",
-        "verifiedCommit": "14a85fe6349b9a7072d9058e061d4aac8da3bf27",
-        "verifiedAt": "2026-05-07T06:00:37.916750+00:00",
+        "verifiedCommit": "63b9a02facfdcce70b487fc26afdab56f068e0b2",
+        "verifiedAt": "2026-05-08T08:19:41.359121+00:00",
         "runtime": {
           "verdict": "partial_match",
           "reason": "cbor_metadata_differs",
-          "verifiedCommit": "14a85fe6349b9a7072d9058e061d4aac8da3bf27",
+          "verifiedCommit": "63b9a02facfdcce70b487fc26afdab56f068e0b2",
           "tool": "verify_eth_getcode.py",
-          "toolCommit": "d7379a598deafbd45160a318e8cf684f9965484a",
-          "verifiedAt": "2026-05-07T06:00:37.916750+00:00"
+          "toolCommit": "c2dc747cf477fe3db84c09af0e0c5be44fdabf61",
+          "verifiedAt": "2026-05-08T08:19:41.359121+00:00"
         }
       }
     },
@@ -278,15 +278,15 @@
       "scopeMatch": null,
       "verification": {
         "verdict": "partial_match",
-        "verifiedCommit": "14a85fe6349b9a7072d9058e061d4aac8da3bf27",
-        "verifiedAt": "2026-05-07T06:06:12.066446+00:00",
+        "verifiedCommit": "c715797a904e37483580b12e59c94e20d8888a7b",
+        "verifiedAt": "2026-05-08T09:12:44.532035+00:00",
         "runtime": {
           "verdict": "partial_match",
           "reason": "cbor_metadata_differs",
-          "verifiedCommit": "14a85fe6349b9a7072d9058e061d4aac8da3bf27",
+          "verifiedCommit": "c715797a904e37483580b12e59c94e20d8888a7b",
           "tool": "verify_eth_getcode.py",
-          "toolCommit": "d7379a598deafbd45160a318e8cf684f9965484a",
-          "verifiedAt": "2026-05-07T06:06:12.066446+00:00"
+          "toolCommit": "c2dc747cf477fe3db84c09af0e0c5be44fdabf61",
+          "verifiedAt": "2026-05-08T09:12:44.532035+00:00"
         }
       }
     }

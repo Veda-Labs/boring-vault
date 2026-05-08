@@ -262,15 +262,15 @@
       "scopeMatch": null,
       "verification": {
         "verdict": "partial_match",
-        "verifiedCommit": "14a85fe6349b9a7072d9058e061d4aac8da3bf27",
-        "verifiedAt": "2026-05-07T06:06:09.501001+00:00",
+        "verifiedCommit": "b7500c2f21134ef0178ce9c707a59ef829b5af18",
+        "verifiedAt": "2026-05-08T08:54:39.708636+00:00",
         "runtime": {
           "verdict": "partial_match",
           "reason": "cbor_metadata_differs",
-          "verifiedCommit": "14a85fe6349b9a7072d9058e061d4aac8da3bf27",
+          "verifiedCommit": "b7500c2f21134ef0178ce9c707a59ef829b5af18",
           "tool": "verify_eth_getcode.py",
-          "toolCommit": "d7379a598deafbd45160a318e8cf684f9965484a",
-          "verifiedAt": "2026-05-07T06:06:09.501001+00:00"
+          "toolCommit": "c2dc747cf477fe3db84c09af0e0c5be44fdabf61",
+          "verifiedAt": "2026-05-08T08:54:39.708636+00:00"
         }
       }
     }

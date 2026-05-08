@@ -190,16 +190,16 @@
       "auditUrl": null,
       "scopeMatch": false,
       "verification": {
-        "verdict": "partial_match",
-        "verifiedCommit": "88b61f44f4b65953b976c0e6c98a0806b4dd7c59",
-        "verifiedAt": "2026-05-08T05:21:20.660645+00:00",
+        "verdict": "full_match",
+        "verifiedCommit": "e70735426590d83c5673a117e9a8fade09d66d60",
+        "verifiedAt": "2026-05-08T08:49:17.676153+00:00",
         "runtime": {
-          "verdict": "partial_match",
-          "reason": "cbor_metadata_differs",
-          "verifiedCommit": "88b61f44f4b65953b976c0e6c98a0806b4dd7c59",
+          "verdict": "full_match",
+          "reason": "matched",
+          "verifiedCommit": "e70735426590d83c5673a117e9a8fade09d66d60",
           "tool": "verify_eth_getcode.py",
-          "toolCommit": "c2dc747cf477fe3db84c09af0e0c5be44fdabf61",
-          "verifiedAt": "2026-05-08T05:21:20.660645+00:00"
+          "toolCommit": "1318326c401c038b6b529d90da8d5f189048920f",
+          "verifiedAt": "2026-05-08T08:49:17.676153+00:00"
         }
       }
     },
@@ -249,15 +249,15 @@
       "scopeMatch": null,
       "verification": {
         "verdict": "partial_match",
-        "verifiedCommit": "14a85fe6349b9a7072d9058e061d4aac8da3bf27",
-        "verifiedAt": "2026-05-07T06:00:36.694034+00:00",
+        "verifiedCommit": "88b61f44f4b65953b976c0e6c98a0806b4dd7c59",
+        "verifiedAt": "2026-05-08T06:30:08.906540+00:00",
         "runtime": {
           "verdict": "partial_match",
           "reason": "cbor_metadata_differs",
-          "verifiedCommit": "14a85fe6349b9a7072d9058e061d4aac8da3bf27",
+          "verifiedCommit": "88b61f44f4b65953b976c0e6c98a0806b4dd7c59",
           "tool": "verify_eth_getcode.py",
-          "toolCommit": "d7379a598deafbd45160a318e8cf684f9965484a",
-          "verifiedAt": "2026-05-07T06:00:36.694034+00:00"
+          "toolCommit": "c2dc747cf477fe3db84c09af0e0c5be44fdabf61",
+          "verifiedAt": "2026-05-08T06:30:08.906540+00:00"
         }
       }
     },
@@ -278,15 +278,15 @@
       "scopeMatch": null,
       "verification": {
         "verdict": "partial_match",
-        "verifiedCommit": "14a85fe6349b9a7072d9058e061d4aac8da3bf27",
-        "verifiedAt": "2026-05-07T06:06:11.018074+00:00",
+        "verifiedCommit": "88b61f44f4b65953b976c0e6c98a0806b4dd7c59",
+        "verifiedAt": "2026-05-08T08:57:12.873111+00:00",
         "runtime": {
           "verdict": "partial_match",
           "reason": "cbor_metadata_differs",
-          "verifiedCommit": "14a85fe6349b9a7072d9058e061d4aac8da3bf27",
+          "verifiedCommit": "88b61f44f4b65953b976c0e6c98a0806b4dd7c59",
           "tool": "verify_eth_getcode.py",
-          "toolCommit": "d7379a598deafbd45160a318e8cf684f9965484a",
-          "verifiedAt": "2026-05-07T06:06:11.018074+00:00"
+          "toolCommit": "c2dc747cf477fe3db84c09af0e0c5be44fdabf61",
+          "verifiedAt": "2026-05-08T08:57:12.873111+00:00"
         }
       }
     }
