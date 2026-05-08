@@ -15,22 +15,22 @@
   },
   "contractMetadata": {
     "AccountantWithFixedRate": {
-      "auditCommit": null,
-      "auditUrl": null,
+      "auditCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-19",
       "verification": "partial_match",
       "verifiedCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
       "verificationGap": "cbor_metadata_differs"
     },
     "BoringOnChainQueue": {
-      "auditCommit": null,
-      "auditUrl": null,
+      "auditCommit": "edfcba3f29f691c638b06d04f60af79503632b58",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-27",
       "verification": "partial_match",
       "verifiedCommit": "edfcba3f29f691c638b06d04f60af79503632b58",
       "verificationGap": "cbor_metadata_differs"
     },
     "BoringVault": {
-      "auditCommit": null,
-      "auditUrl": null,
+      "auditCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
+      "auditUrl": "file:audit/sigma-prime-boring-vault-0.pdf",
       "verification": "partial_match",
       "verifiedCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
       "verificationGap": "cbor_metadata_differs"
@@ -43,8 +43,8 @@
       "verificationGap": "no_candidate_commit_matches_creation"
     },
     "ManagerWithMerkleVerification": {
-      "auditCommit": null,
-      "auditUrl": null,
+      "auditCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-19",
       "verification": "partial_match",
       "verifiedCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
       "verificationGap": "cbor_metadata_differs"
@@ -71,8 +71,8 @@
       "verificationGap": "cbor_metadata_differs"
     },
     "TellerWithMultiAssetSupport": {
-      "auditCommit": null,
-      "auditUrl": null,
+      "auditCommit": "f472abafb22f7a45e81df2814ae4bdf6f56dd74a",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-36",
       "verification": "partial_match",
       "verifiedCommit": "f472abafb22f7a45e81df2814ae4bdf6f56dd74a",
       "verificationGap": "cbor_metadata_differs"
