@@ -71,9 +71,8 @@
     "TellerWithLayerZero": {
       "auditCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-19",
-      "verification": "partial_match",
-      "verifiedCommit": "92e1a7af2d550c98bb89adfdd3687862abed7545",
-      "verificationGap": "immutables"
+      "verification": "full_match",
+      "verifiedCommit": "92e1a7af2d550c98bb89adfdd3687862abed7545"
     }
   }
 }
