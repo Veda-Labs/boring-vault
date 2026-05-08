@@ -191,6 +191,16 @@ contract ChainValues {
         values[mainnet]["eBTCOnChainQueueFast"] = 0x686696A3e59eE16e8A8533d84B62cfA504827135.toBytes32();
         values[mainnet]["eBTCTeller"] = 0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268.toBytes32();
         values[mainnet]["etherfiRewardClaimer"] = 0xBdA9e965CdA04eD5Bfc841E54573Dc083447E15a.toBytes32();
+        
+        // Etherfi
+        values[mainnet]["eBTC"] = 0x657e8C867D8B37dCC18fA4Caead9C45EB088C642.toBytes32();
+        values[mainnet]["eUSD"] = 0x939778D83b46B456224A33Fb59630B11DEC56663.toBytes32();
+        values[mainnet]["liquidBTC"] = 0x5f46d540b6eD704C3c8789105F30E075AA900726.toBytes32();
+        values[mainnet]["liquidETH"] = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C.toBytes32();
+        values[mainnet]["liquidUSD"] = 0x08c6F91e2B681FaF5e17227F2a44C307b3C1364C.toBytes32();
+        values[mainnet]["sETHFI"] = 0x86B5780b606940Eb59A062aA85a07959518c0161.toBytes32();
+        values[mainnet]["weETHk"] = 0x7223442cad8e9cA474fC40109ab981608F8c4273.toBytes32();
+        values[mainnet]["weETHs"] = 0x917ceE801a67f933F2e6b33fC0cD1ED2d5909D88.toBytes32();
 
         // Tellers
         values[mainnet]["eBTCTeller"] = 0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268.toBytes32();
