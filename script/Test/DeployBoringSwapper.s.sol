@@ -26,7 +26,7 @@ import "forge-std/Script.sol";
  */
 contract DeployBoringSwapperTestSuite is Script, MainnetAddresses {
     AdapterRegistry registry;
-    BoringSwapper swapper;
+    //BoringSwapper swapper;
     PriceValidator validator;
 
     // CoW Protocol constants
@@ -35,16 +35,17 @@ contract DeployBoringSwapperTestSuite is Script, MainnetAddresses {
     // 1inch constants
     address constant ONEINCH_ROUTER    = 0x111111125421cA6dc452d289314280a0f8842A65;
     address constant ONEINCH_FEE_TAKER = 0xc0DFdB9E7a392c3dBBE7c6FBe8FBC1789C9FE05e;
-    address constant ONEINCH_EXECUTOR  = 0x990636ecB3FF04d33D92e970d3d588bF5cD8d086;
+    address constant ONEINCH_EXECUTOR  = 0x4c3ccC98C01103bE72bcfd29e1D2454c98d1A6e3;
     // OpenOcean constants
     address constant OPENOCEAN_ROUTER      = 0x6352a56caadC4F1E25CD6c75970Fa768A3304e64;
     address constant OPENOCEAN_CALLER      = 0x7Baa298D36fE21Df2F6B54510Da76445661A91Ed;
     address constant OPENOCEAN_LIMIT_ORDER = 0xcC8d695603ce0b43D352891892FcC716c6a7C9f4;
 
-    address constant boringVault    = 0xE003287E34fF16A109477e84A0D271C5c3dc3c7f;
-    address constant txBundler      = 0x47Cec90FACc9364D7C21A8ab5e2aD9F1f75D740C;
-    address constant rolesAuthority = 0x1Ae56c37aF9C27d036a1A8a4d9C0762e15D947B8;
-    address constant swapper        = address(0); // TODO: fill in deployed swapper address
+    address constant boringVault     = 0xE003287E34fF16A109477e84A0D271C5c3dc3c7f;
+    address constant txBundler       = 0x47Cec90FACc9364D7C21A8ab5e2aD9F1f75D740C;
+    address constant rolesAuthority  = 0x1Ae56c37aF9C27d036a1A8a4d9C0762e15D947B8;
+    address constant swapper         = 0x25f08477f1d39A3c962d20c41b2166a7C1aA7970;
+    address constant adapterRegistry = 0x806D8c01D31e8a76D3d48132AF326dE68B3c5FDf;
 
     uint256 constant MAX_SLIPPAGE_BPS    = 200;
     uint256 constant RATE_LIMIT_CAPACITY = 0;
@@ -57,21 +58,13 @@ contract DeployBoringSwapperTestSuite is Script, MainnetAddresses {
     function run() external {
         vm.startBroadcast();
 
-        Deployer.Tx[] memory txs = new Deployer.Tx[](2);
+        Deployer.Tx[] memory txs = new Deployer.Tx[](1);
 
         txs[0] = Deployer.Tx({
             target: swapper,
             data: abi.encodeWithSelector(
-                BoringSwapper.setRouteConfig.selector,
-                WETH, USDC, MAX_SLIPPAGE_BPS, RATE_LIMIT_CAPACITY, RATE_LIMIT_REFILL
-            ),
-            value: 0
-        });
-        txs[1] = Deployer.Tx({
-            target: swapper,
-            data: abi.encodeWithSelector(
-                BoringSwapper.setRouteConfig.selector,
-                USDC, WETH, MAX_SLIPPAGE_BPS, RATE_LIMIT_CAPACITY, RATE_LIMIT_REFILL
+                BoringSwapper.setApprovedAdapter.selector,
+                0x8b4A8859Cf0F9bF5Bf0A06A5BE33aEd54f665774, true 
             ),
             value: 0
         });
@@ -80,6 +73,8 @@ contract DeployBoringSwapperTestSuite is Script, MainnetAddresses {
 
         vm.stopBroadcast();
     }
+
+
 
     // ============================================================
     // Full initial deployment — already executed, kept for reference
@@ -107,8 +102,6 @@ contract DeployBoringSwapperTestSuite is Script, MainnetAddresses {
     //     address uniswapV3Adapter = address(new UniswapV3Adapter(uniV3Router));
     //     address cowswapAdapter   = address(new CowswapAdapter(COW_SETTLEMENT, COW_VAULT_RELAYER));
     //     address oneInchAdapter   = address(new OneInchAdapter(ONEINCH_ROUTER, ONEINCH_FEE_TAKER, ONEINCH_EXECUTOR));
-    //     address openOceanAdapter = address(new OpenOceanAdapter(OPENOCEAN_ROUTER, OPENOCEAN_CALLER, OPENOCEAN_LIMIT_ORDER));
-    //
     //     console.log("UniswapV3Adapter:", uniswapV3Adapter);
     //     console.log("CowswapAdapter:  ", cowswapAdapter);
     //     console.log("OneInchAdapter:  ", oneInchAdapter);
@@ -127,6 +120,5 @@ contract DeployBoringSwapperTestSuite is Script, MainnetAddresses {
     //     txs[4] = Deployer.Tx({ target: address(_swapper), data: abi.encodeWithSelector(BoringSwapper.setApprovedAdapter.selector, openOceanAdapter, true), value: 0 });
     //     Deployer(txBundler).bundleTxs(txs);
     //
-    //     vm.stopBroadcast();
-    // }
+           
 }

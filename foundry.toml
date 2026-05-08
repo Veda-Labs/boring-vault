@@ -55,6 +55,7 @@ katana = "${KATANA_RPC_URL}"
 tac = "${TAC_RPC_URL}"
 plasma = "${PLASMA_RPC_URL}"
 inkSepolia= "${INK_SEPOLIA_RPC_URL}"
+xlayer="${XLAYER_RPC_URL}"
 
 [etherscan]
 #bob = { key = "${BOBSCAN_KEY}", chain = 60808, url = "https://explorer.gobob.xyz/api?"}
@@ -84,6 +85,7 @@ sonicMainnet = { key = "${ETHERSCAN_KEY}", chain = 146, url = "https://api.ether
 ink = { key = "${INKSCAN_KEY}", chain = 57073, url = "https://explorer.inkonchain.com/api" }
 #linea = { key = "${LINEASCAN_KEY}", chain = 59144, url = "https://api.etherscan.io/v2/api?chainid=59144" }
 plasma = { key = "${ETHERSCAN_KEY}", chain = 9745, url = "https://api.etherscan.io/v2/api?chainid=9745" }
+xlayer = { key = "${ETHERSCAN_KEY", chain = 196, url = "https://www.oklink.com/api/v5/explorer/contract/verify-source-code-plugin/XLAYER" }
 
 [fmt]
 FOUNDRY_FMT_LINE_LENGTH = 120
