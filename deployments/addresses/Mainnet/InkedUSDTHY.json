@@ -14,281 +14,67 @@
   },
   "contractMetadata": {
     "AccountantWithRateProviders": {
-      "deployedAt": "2025-07-02T19:52:35Z",
-      "creationTx": "0x4b202c48bdf5f4cd8c9241c575303f6293f5cff4aeb0e9cad7a0e7873551768e",
-      "creationBlock": 22833745,
       "auditCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-19",
-      "scopeMatch": true,
-      "verification": {
-        "verdict": "full_match",
-        "verifiedCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
-        "verifiedAt": "2026-05-07T13:31:37Z",
-        "creation": {
-          "tool": "verify_via_deployer.py",
-          "toolCommit": "7c26d9e4ac3aceada0a6c7c99c332ca9a4e49fb0",
-          "verifiedAt": "2026-05-07T13:31:37Z",
-          "verdict": "partial_match",
-          "reason": "",
-          "verifiedCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436"
-        },
-        "runtime": {
-          "verdict": "partial_match",
-          "reason": "immutables_unverified",
-          "verifiedCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
-          "tool": "verify_eth_getcode.py",
-          "toolCommit": "937daf4fabd7f53c2144b405e2ccb3fbe76ef1d9",
-          "verifiedAt": "2026-05-06T11:56:26.936450+00:00"
-        },
-        "forkReplay": {
-          "tool": "verify_via_deployer.py",
-          "toolCommit": "7c26d9e4ac3aceada0a6c7c99c332ca9a4e49fb0",
-          "verifiedAt": "2026-05-07T13:31:37Z",
-          "verdict": "full_match",
-          "reason": "",
-          "verifiedCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436"
-        }
-      }
+      "verification": "full_match",
+      "verifiedCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
+      "verificationGap": "cbor"
     },
     "BoringOnChainQueue": {
-      "deployedAt": "2025-07-02T19:52:35Z",
-      "creationTx": "0x4b202c48bdf5f4cd8c9241c575303f6293f5cff4aeb0e9cad7a0e7873551768e",
-      "creationBlock": 22833745,
       "auditCommit": "edfcba3f29f691c638b06d04f60af79503632b58",
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-27",
-      "scopeMatch": true,
-      "verification": {
-        "verdict": "full_match",
-        "verifiedCommit": "9373ec027dd9ce1214199ce2f25e349de91b8866",
-        "verifiedAt": "2026-05-08T05:13:59Z",
-        "creation": {
-          "tool": "verify_via_deployer.py",
-          "toolCommit": "f16053d7c48e6a29f95406f7f39b48ade2655d26",
-          "verifiedAt": "2026-05-08T05:13:59Z",
-          "verdict": "full_match",
-          "reason": "",
-          "verifiedCommit": "9373ec027dd9ce1214199ce2f25e349de91b8866"
-        },
-        "runtime": {
-          "verdict": "partial_match",
-          "reason": "immutables_unverified",
-          "verifiedCommit": "9373ec027dd9ce1214199ce2f25e349de91b8866",
-          "tool": "verify_eth_getcode.py",
-          "toolCommit": "1318326c401c038b6b529d90da8d5f189048920f",
-          "verifiedAt": "2026-05-07T18:01:25.942134+00:00"
-        },
-        "forkReplay": {
-          "tool": "verify_via_deployer.py",
-          "toolCommit": "f16053d7c48e6a29f95406f7f39b48ade2655d26",
-          "verifiedAt": "2026-05-08T05:13:59Z",
-          "verdict": "full_match",
-          "reason": "",
-          "verifiedCommit": "9373ec027dd9ce1214199ce2f25e349de91b8866"
-        }
-      }
+      "verification": "full_match",
+      "verifiedCommit": "9373ec027dd9ce1214199ce2f25e349de91b8866"
     },
     "BoringVault": {
-      "deployedAt": "2025-07-02T19:52:35Z",
-      "creationTx": "0x4b202c48bdf5f4cd8c9241c575303f6293f5cff4aeb0e9cad7a0e7873551768e",
-      "creationBlock": 22833745,
       "auditCommit": "9c6e1e4458fba53f2ff09efe21195dcf570ffc3e",
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-7",
-      "scopeMatch": true,
-      "verification": {
-        "verdict": "full_match",
-        "verifiedCommit": "c990c693a85a95f9ae6e2a03c5239dfab95269ba",
-        "verifiedAt": "2026-05-07T19:58:07Z",
-        "creation": {
-          "tool": "verify_via_deployer.py",
-          "toolCommit": "f16053d7c48e6a29f95406f7f39b48ade2655d26",
-          "verifiedAt": "2026-05-07T19:58:07Z",
-          "verdict": "full_match",
-          "reason": "",
-          "verifiedCommit": "c990c693a85a95f9ae6e2a03c5239dfab95269ba"
-        },
-        "runtime": {
-          "verdict": "partial_match",
-          "reason": "immutables_unverified",
-          "verifiedCommit": "c990c693a85a95f9ae6e2a03c5239dfab95269ba",
-          "tool": "verify_eth_getcode.py",
-          "toolCommit": "9e8f2e0f41c54d608a260be458ae047e372a7774",
-          "verifiedAt": "2026-05-06T14:20:06.275863+00:00"
-        },
-        "forkReplay": {
-          "tool": "verify_via_deployer.py",
-          "toolCommit": "f16053d7c48e6a29f95406f7f39b48ade2655d26",
-          "verifiedAt": "2026-05-07T19:58:07Z",
-          "verdict": "full_match",
-          "reason": "",
-          "verifiedCommit": "c990c693a85a95f9ae6e2a03c5239dfab95269ba"
-        }
-      }
+      "verification": "full_match",
+      "verifiedCommit": "c990c693a85a95f9ae6e2a03c5239dfab95269ba"
     },
     "Lens": {
-      "deployedAt": "2024-04-17T04:08:11Z",
-      "creationTx": "0xfe6e52cf43a2410bed6f9305fb70abb559104b267798e65353823df4aff95c35",
-      "creationBlock": 19672706,
       "auditCommit": "939c77e25473dff3ed18fa104f004f7afd13452e",
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-4",
-      "scopeMatch": true,
-      "verification": {
-        "verdict": "partial_match",
-        "verifiedCommit": "6064f06f72d8f972876009071b986f7d2e09feb1",
-        "verifiedAt": "2026-05-07T19:58:19.602555+00:00",
-        "runtime": {
-          "verdict": "partial_match",
-          "reason": "cbor_metadata_differs",
-          "verifiedCommit": "6064f06f72d8f972876009071b986f7d2e09feb1",
-          "tool": "verify_eth_getcode.py",
-          "toolCommit": "1318326c401c038b6b529d90da8d5f189048920f",
-          "verifiedAt": "2026-05-07T19:58:19.602555+00:00"
-        }
-      }
+      "verification": "full_match",
+      "verifiedCommit": "6064f06f72d8f972876009071b986f7d2e09feb1",
+      "verificationGap": "cbor"
     },
     "ManagerWithMerkleVerification": {
-      "deployedAt": "2025-07-02T19:52:35Z",
-      "creationTx": "0x4b202c48bdf5f4cd8c9241c575303f6293f5cff4aeb0e9cad7a0e7873551768e",
-      "creationBlock": 22833745,
       "auditCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-19",
-      "scopeMatch": true,
-      "verification": {
-        "verdict": "full_match",
-        "verifiedCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
-        "verifiedAt": "2026-05-06T16:46:29Z",
-        "creation": {
-          "tool": "verify_via_deployer.py",
-          "toolCommit": "c2e22bcac2e7401a56bd741c873f04f55acda367",
-          "verifiedAt": "2026-05-06T16:46:29Z",
-          "verdict": "partial_match",
-          "reason": "",
-          "verifiedCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436"
-        },
-        "runtime": {
-          "verdict": "partial_match",
-          "reason": "immutables_unverified",
-          "verifiedCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
-          "tool": "verify_eth_getcode.py",
-          "toolCommit": "937daf4fabd7f53c2144b405e2ccb3fbe76ef1d9",
-          "verifiedAt": "2026-05-06T12:29:40.181663+00:00"
-        },
-        "forkReplay": {
-          "tool": "verify_via_deployer.py",
-          "toolCommit": "c2e22bcac2e7401a56bd741c873f04f55acda367",
-          "verifiedAt": "2026-05-06T16:46:29Z",
-          "verdict": "full_match",
-          "reason": "",
-          "verifiedCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436"
-        }
-      }
+      "verification": "full_match",
+      "verifiedCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
+      "verificationGap": "cbor"
     },
     "Pauser": {
-      "deployedAt": "2025-07-02T19:52:35Z",
-      "creationTx": "0x4b202c48bdf5f4cd8c9241c575303f6293f5cff4aeb0e9cad7a0e7873551768e",
-      "creationBlock": 22833745,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": false,
-      "verification": {
-        "verdict": "full_match",
-        "verifiedCommit": "9373ec027dd9ce1214199ce2f25e349de91b8866",
-        "verifiedAt": "2026-05-08T05:39:29.715472+00:00",
-        "runtime": {
-          "verdict": "full_match",
-          "reason": "matched",
-          "verifiedCommit": "9373ec027dd9ce1214199ce2f25e349de91b8866",
-          "tool": "verify_eth_getcode.py",
-          "toolCommit": "c2dc747cf477fe3db84c09af0e0c5be44fdabf61",
-          "verifiedAt": "2026-05-08T05:39:29.715472+00:00"
-        }
-      }
+      "verification": "full_match",
+      "verifiedCommit": "9373ec027dd9ce1214199ce2f25e349de91b8866"
     },
     "QueueSolver": {
-      "deployedAt": "2025-07-02T19:52:35Z",
-      "creationTx": "0x4b202c48bdf5f4cd8c9241c575303f6293f5cff4aeb0e9cad7a0e7873551768e",
-      "creationBlock": 22833745,
       "auditCommit": "b9eafd46e656c532ea2c28a1bd66ce271ebedbc7",
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-44",
-      "scopeMatch": true,
-      "verification": {
-        "verdict": "full_match",
-        "verifiedCommit": "9373ec027dd9ce1214199ce2f25e349de91b8866",
-        "verifiedAt": "2026-05-08T05:16:59Z",
-        "creation": {
-          "tool": "verify_via_deployer.py",
-          "toolCommit": "f16053d7c48e6a29f95406f7f39b48ade2655d26",
-          "verifiedAt": "2026-05-08T05:16:59Z",
-          "verdict": "full_match",
-          "reason": "",
-          "verifiedCommit": "9373ec027dd9ce1214199ce2f25e349de91b8866"
-        },
-        "runtime": {
-          "verdict": "partial_match",
-          "reason": "immutables_unverified",
-          "verifiedCommit": "9373ec027dd9ce1214199ce2f25e349de91b8866",
-          "tool": "verify_eth_getcode.py",
-          "toolCommit": "1318326c401c038b6b529d90da8d5f189048920f",
-          "verifiedAt": "2026-05-07T19:32:10.995741+00:00"
-        },
-        "forkReplay": {
-          "tool": "verify_via_deployer.py",
-          "toolCommit": "f16053d7c48e6a29f95406f7f39b48ade2655d26",
-          "verifiedAt": "2026-05-08T05:16:59Z",
-          "verdict": "full_match",
-          "reason": "",
-          "verifiedCommit": "9373ec027dd9ce1214199ce2f25e349de91b8866"
-        }
-      }
+      "verification": "full_match",
+      "verifiedCommit": "9373ec027dd9ce1214199ce2f25e349de91b8866"
     },
     "RolesAuthority": {
-      "deployedAt": "2025-07-02T19:52:35Z",
-      "creationTx": "0x4b202c48bdf5f4cd8c9241c575303f6293f5cff4aeb0e9cad7a0e7873551768e",
-      "creationBlock": 22833745,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
-      "verification": {
-        "verdict": "full_match",
-        "verifiedCommit": "9373ec027dd9ce1214199ce2f25e349de91b8866",
-        "verifiedAt": "2026-05-08T07:38:13.412620+00:00",
-        "runtime": {
-          "verdict": "full_match",
-          "reason": "matched",
-          "verifiedCommit": "9373ec027dd9ce1214199ce2f25e349de91b8866",
-          "tool": "verify_eth_getcode.py",
-          "toolCommit": "c2dc747cf477fe3db84c09af0e0c5be44fdabf61",
-          "verifiedAt": "2026-05-08T07:38:13.412620+00:00"
-        }
-      }
+      "verification": "full_match",
+      "verifiedCommit": "9373ec027dd9ce1214199ce2f25e349de91b8866"
     },
     "TellerWithLayerZero": {
-      "deployedAt": "2025-07-02T19:52:35Z",
-      "creationTx": "0x4b202c48bdf5f4cd8c9241c575303f6293f5cff4aeb0e9cad7a0e7873551768e",
-      "creationBlock": 22833745,
       "auditCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-19",
-      "scopeMatch": true
+      "verification": null,
+      "verifiedCommit": null
     },
     "Timelock": {
-      "deployedAt": "2025-07-02T19:52:35Z",
-      "creationTx": "0x4b202c48bdf5f4cd8c9241c575303f6293f5cff4aeb0e9cad7a0e7873551768e",
-      "creationBlock": 22833745,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
-      "verification": {
-        "verdict": "full_match",
-        "verifiedCommit": "9373ec027dd9ce1214199ce2f25e349de91b8866",
-        "verifiedAt": "2026-05-08T09:10:14.008161+00:00",
-        "runtime": {
-          "verdict": "full_match",
-          "reason": "matched",
-          "verifiedCommit": "9373ec027dd9ce1214199ce2f25e349de91b8866",
-          "tool": "verify_eth_getcode.py",
-          "toolCommit": "c2dc747cf477fe3db84c09af0e0c5be44fdabf61",
-          "verifiedAt": "2026-05-08T09:10:14.008161+00:00"
-        }
-      }
+      "verification": "full_match",
+      "verifiedCommit": "9373ec027dd9ce1214199ce2f25e349de91b8866"
     }
   }
 }
