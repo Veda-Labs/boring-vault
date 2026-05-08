@@ -103,7 +103,7 @@ contract CreateSuperSymbioticLRTMerkleRootScript is Script, MerkleTreeHelper {
         _addMantleStakingLeafs(leafs);
 
         // ========================== UniswapV3 ==========================
-        address[] memory token0 = new address[](65);
+        address[] memory token0 = new address[](66);
         token0[0] = getAddress(sourceChain, "WETH");
         token0[1] = getAddress(sourceChain, "WETH");
         token0[2] = getAddress(sourceChain, "WETH");
@@ -169,8 +169,9 @@ contract CreateSuperSymbioticLRTMerkleRootScript is Script, MerkleTreeHelper {
         token0[62] = getAddress(sourceChain, "USDC");
         token0[63] = getAddress(sourceChain, "USDC");
         token0[64] = getAddress(sourceChain, "USDC");
+        token0[65] = getAddress(sourceChain, "USDC");
 
-        address[] memory token1 = new address[](65);
+        address[] memory token1 = new address[](66);
         token1[0] = getAddress(sourceChain, "WEETH");
         token1[1] = getAddress(sourceChain, "WSTETH");
         token1[2] = getAddress(sourceChain, "RETH");
@@ -236,6 +237,7 @@ contract CreateSuperSymbioticLRTMerkleRootScript is Script, MerkleTreeHelper {
         token1[62] = getAddress(sourceChain, "ETHX");
         token1[63] = getAddress(sourceChain, "UNIETH");
         token1[64] = getAddress(sourceChain, "SFRXETH");
+        token1[65] = getAddress(sourceChain, "WETH");
 
         _addUniswapV3Leafs(leafs, token0, token1, false);
 
