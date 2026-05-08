@@ -191,15 +191,15 @@
       "scopeMatch": false,
       "verification": {
         "verdict": "partial_match",
-        "verifiedCommit": "14a85fe6349b9a7072d9058e061d4aac8da3bf27",
-        "verifiedAt": "2026-05-07T05:57:53.526182+00:00",
+        "verifiedCommit": "2da280b409ff57fdedd7528b70bf0e5edf710501",
+        "verifiedAt": "2026-05-08T05:26:24.696931+00:00",
         "runtime": {
           "verdict": "partial_match",
           "reason": "cbor_metadata_differs",
-          "verifiedCommit": "14a85fe6349b9a7072d9058e061d4aac8da3bf27",
+          "verifiedCommit": "2da280b409ff57fdedd7528b70bf0e5edf710501",
           "tool": "verify_eth_getcode.py",
-          "toolCommit": "d7379a598deafbd45160a318e8cf684f9965484a",
-          "verifiedAt": "2026-05-07T05:57:53.526182+00:00"
+          "toolCommit": "c2dc747cf477fe3db84c09af0e0c5be44fdabf61",
+          "verifiedAt": "2026-05-08T05:26:24.696931+00:00"
         }
       }
     },
@@ -211,9 +211,17 @@
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-38",
       "scopeMatch": true,
       "verification": {
-        "verdict": "partial_match",
+        "verdict": "full_match",
         "verifiedCommit": "2da280b409ff57fdedd7528b70bf0e5edf710501",
-        "verifiedAt": "2026-05-07T19:53:45.598064+00:00",
+        "verifiedAt": "2026-05-08T05:04:59Z",
+        "creation": {
+          "tool": "verify_via_deployer.py",
+          "toolCommit": "f16053d7c48e6a29f95406f7f39b48ade2655d26",
+          "verifiedAt": "2026-05-08T05:04:59Z",
+          "verdict": "partial_match",
+          "reason": "",
+          "verifiedCommit": "2da280b409ff57fdedd7528b70bf0e5edf710501"
+        },
         "runtime": {
           "verdict": "partial_match",
           "reason": "immutables_unverified",
@@ -221,6 +229,14 @@
           "tool": "verify_eth_getcode.py",
           "toolCommit": "1318326c401c038b6b529d90da8d5f189048920f",
           "verifiedAt": "2026-05-07T19:53:45.598064+00:00"
+        },
+        "forkReplay": {
+          "tool": "verify_via_deployer.py",
+          "toolCommit": "f16053d7c48e6a29f95406f7f39b48ade2655d26",
+          "verifiedAt": "2026-05-08T05:04:59Z",
+          "verdict": "full_match",
+          "reason": "",
+          "verifiedCommit": "2da280b409ff57fdedd7528b70bf0e5edf710501"
         }
       }
     },
