@@ -12,9 +12,9 @@ contract LucidlyChainlinkBoringVaultOracleV1 is LucidlyChainlinkOracleBaseV1 {
     AccountantWithRateProviders public immutable ACCOUNTANT;
 
     /// @param accountant boringVault accountant. `decimals()` must equal the base asset's decimals
-    /// @param baseFeed1 1st chainlink feed. address zero if price = 1.
-    /// @param baseFeed2 2nd chainlink feed. address zero if price = 1.
-    /// @param outputDecimals desired output decimals (e.g., 8 to match chainlink convention).
+    /// @param baseFeed1 1st chainlink feed. address zero if price = 1
+    /// @param baseFeed2 2nd chainlink feed. address zero if price = 1
+    /// @param outputDecimals desired output decimals (e.g., 8 to match chainlink convention)
     constructor(
         AccountantWithRateProviders accountant,
         AggregatorV3Interface baseFeed1,

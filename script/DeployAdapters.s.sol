@@ -232,13 +232,13 @@ contract DeployErc20TvlAdapter is Script, MerkleTreeHelper {
 
         bytes memory creationCode = type(Erc20TvlAdapter).creationCode;
         bytes memory constructorArgs = abi.encode(
-            getAddress(sourceChain, "syUSD"),
-            getAddress(sourceChain, "syUSD_USD_oracle"),
+            getAddress(sourceChain, "royco-jr-syrupusdc"),
+            getAddress(sourceChain, "royco-jr-syrupUSDC_USD_oracle"),
             getAddress(sourceChain, "USDC"),
             getAddress(sourceChain, "USDC_USD_oracle")
         );
 
-        deployer.deployContract("syUSD/USDC Erc20TvlAdapter", creationCode, constructorArgs, 0);
+        deployer.deployContract("royco-jr-syrupUSDC/USDC Erc20TvlAdapter", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }

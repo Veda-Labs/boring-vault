@@ -1,0 +1,9 @@
+{
+  "privateKeyEnvName": "DEPLOYER01",
+  "deploymentName": "LucidlyChainlinkRoycoTrancheOracleV1_jrSyrupUSDC_USD",
+  "name": "jr-syrupUSDC/USD",
+  "tranche": "0x5f340B400F892bBFDed2e5c316369Dcbf05C282A",
+  "baseFeed1": "0x0000000000000000000000000000000000000000",
+  "baseFeed2": "0x0000000000000000000000000000000000000000",
+  "outputDecimals": 8
+}
