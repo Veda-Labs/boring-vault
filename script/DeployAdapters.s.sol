@@ -232,8 +232,8 @@ contract DeployErc20TvlAdapter is Script, MerkleTreeHelper {
 
         bytes memory creationCode = type(Erc20TvlAdapter).creationCode;
         bytes memory constructorArgs = abi.encode(
-            getAddress(sourceChain, "royco-jr-syrupusdc"),
-            getAddress(sourceChain, "royco-jr-syrupUSDC_USD_oracle"),
+            getAddress(sourceChain, "roycoJrUsdcCluster"),
+            getAddress(sourceChain, "roycoJrUsdcClusterUSDC_USD_oracle"),
             getAddress(sourceChain, "USDC"),
             getAddress(sourceChain, "USDC_USD_oracle")
         );

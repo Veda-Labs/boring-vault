@@ -48,6 +48,11 @@ contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
     MorphoFlashLoanAdapter internal flashLoanAdapter =
         MorphoFlashLoanAdapter(0x82baFd173334e9cd34eB746BA6b55ffcb4d06a4d);
 
+    address public roycoJrUsdcVault = 0x71861827Aa95cA48148bdA0b40BC740d1c421070;
+    address public roycoJrUsdcWithdrawQueue = 0x6823Cf7f97970748A34407Acf6056562415b7237;
+    address public roycoJrUsdcTeller = 0x8C87d801B6CA569a73D9428351415afAeC293E28;
+    address public roycoJrUsdcQueueSolver = 0x78acDecABb2Faa7d811b02937Db3806968c7dc2b;
+
     uint8 public constant MANAGER_ROLE = 1;
     uint8 public constant MINTER_ROLE = 2;
     uint8 public constant BURNER_ROLE = 3;
@@ -191,5 +196,12 @@ contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
         token1[0] = getAddress(sourceChain, "USDC");
         token1[1] = getAddress(sourceChain, "USDC");
         _addUniswapV3Leafs(leafs, token0, token1, false, false);
+
+        // royco junior usdc vault
+        ERC20[] memory assets = new ERC20[](1);
+        assets[0] = ERC20(getAddress(sourceChain, "USDC"));
+        _addTellerLeafs(leafs, address(roycoJrUsdcTeller), assets, false, true);
+        _addWithdrawQueueLeafs(leafs, roycoJrUsdcWithdrawQueue, roycoJrUsdcVault, assets);
+        _addSelfSolveLeafs(leafs, assets, roycoJrUsdcQueueSolver, address(boringVault), roycoJrUsdcTeller);
     }
 }
