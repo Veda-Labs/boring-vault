@@ -16,182 +16,72 @@
     "AccountantWithFixedRate": {
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
-      "verification": {
-        "verdict": "partial_match",
-        "verifiedCommit": "ed58e6b5866637bfdfc28bfa956bfa27d8cc39ab",
-        "verifiedAt": "2026-05-07T14:39:19.375519+00:00",
-        "runtime": {
-          "verdict": "partial_match",
-          "reason": "immutables_unverified",
-          "verifiedCommit": "ed58e6b5866637bfdfc28bfa956bfa27d8cc39ab",
-          "tool": "verify_eth_getcode.py",
-          "toolCommit": "db223aeaf626a22d9df7138e59e4a7c4a1b37ae3",
-          "verifiedAt": "2026-05-07T14:39:19.375519+00:00"
-        }
-      }
+      "verification": "partial_match",
+      "verifiedCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
+      "verificationGap": "cbor_metadata_differs"
     },
     "BoringOnChainQueue": {
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
-      "verification": {
-        "verdict": "mismatch",
-        "verifiedCommit": null,
-        "verifiedAt": "2026-05-07T14:44:49.201104+00:00",
-        "runtime": {
-          "verdict": "mismatch",
-          "reason": "runtime_bytecode_mismatch",
-          "verifiedCommit": null,
-          "tool": "verify_eth_getcode.py",
-          "toolCommit": "db223aeaf626a22d9df7138e59e4a7c4a1b37ae3",
-          "verifiedAt": "2026-05-07T14:44:49.201104+00:00"
-        }
-      }
+      "verification": "partial_match",
+      "verifiedCommit": "edfcba3f29f691c638b06d04f60af79503632b58",
+      "verificationGap": "cbor_metadata_differs"
     },
     "BoringVault": {
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
-      "verification": {
-        "verdict": "partial_match",
-        "verifiedCommit": "ed58e6b5866637bfdfc28bfa956bfa27d8cc39ab",
-        "verifiedAt": "2026-05-07T14:47:31.418972+00:00",
-        "runtime": {
-          "verdict": "partial_match",
-          "reason": "immutables_unverified",
-          "verifiedCommit": "ed58e6b5866637bfdfc28bfa956bfa27d8cc39ab",
-          "tool": "verify_eth_getcode.py",
-          "toolCommit": "db223aeaf626a22d9df7138e59e4a7c4a1b37ae3",
-          "verifiedAt": "2026-05-07T14:47:31.418972+00:00"
-        }
-      }
+      "verification": "partial_match",
+      "verifiedCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
+      "verificationGap": "cbor_metadata_differs"
     },
     "Lens": {
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
-      "verification": {
-        "verdict": "mismatch",
-        "verifiedCommit": null,
-        "verifiedAt": "2026-05-07T14:50:15.786248+00:00",
-        "runtime": {
-          "verdict": "mismatch",
-          "reason": "runtime_bytecode_mismatch",
-          "verifiedCommit": null,
-          "tool": "verify_eth_getcode.py",
-          "toolCommit": "db223aeaf626a22d9df7138e59e4a7c4a1b37ae3",
-          "verifiedAt": "2026-05-07T14:50:15.786248+00:00"
-        }
-      }
+      "verification": "mismatch",
+      "verifiedCommit": null,
+      "verificationGap": "no_candidate_commit_matches_creation"
     },
     "ManagerWithMerkleVerification": {
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
-      "verification": {
-        "verdict": "partial_match",
-        "verifiedCommit": "ed58e6b5866637bfdfc28bfa956bfa27d8cc39ab",
-        "verifiedAt": "2026-05-07T14:53:01.521178+00:00",
-        "runtime": {
-          "verdict": "partial_match",
-          "reason": "immutables_unverified",
-          "verifiedCommit": "ed58e6b5866637bfdfc28bfa956bfa27d8cc39ab",
-          "tool": "verify_eth_getcode.py",
-          "toolCommit": "db223aeaf626a22d9df7138e59e4a7c4a1b37ae3",
-          "verifiedAt": "2026-05-07T14:53:01.521178+00:00"
-        }
-      }
+      "verification": "partial_match",
+      "verifiedCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
+      "verificationGap": "cbor_metadata_differs"
     },
     "Pauser": {
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
-      "verification": {
-        "verdict": "partial_match",
-        "verifiedCommit": "ed58e6b5866637bfdfc28bfa956bfa27d8cc39ab",
-        "verifiedAt": "2026-05-07T14:55:48.602912+00:00",
-        "runtime": {
-          "verdict": "partial_match",
-          "reason": "cbor_metadata_differs",
-          "verifiedCommit": "ed58e6b5866637bfdfc28bfa956bfa27d8cc39ab",
-          "tool": "verify_eth_getcode.py",
-          "toolCommit": "db223aeaf626a22d9df7138e59e4a7c4a1b37ae3",
-          "verifiedAt": "2026-05-07T14:55:48.602912+00:00"
-        }
-      }
+      "verification": "partial_match",
+      "verifiedCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730",
+      "verificationGap": "cbor_metadata_differs"
     },
     "QueueSolver": {
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
-      "verification": {
-        "verdict": "mismatch",
-        "verifiedCommit": null,
-        "verifiedAt": "2026-05-07T14:58:36.159680+00:00",
-        "runtime": {
-          "verdict": "mismatch",
-          "reason": "runtime_bytecode_mismatch",
-          "verifiedCommit": null,
-          "tool": "verify_eth_getcode.py",
-          "toolCommit": "db223aeaf626a22d9df7138e59e4a7c4a1b37ae3",
-          "verifiedAt": "2026-05-07T14:58:36.159680+00:00"
-        }
-      }
+      "verification": "partial_match",
+      "verifiedCommit": "2e1aefc93c797f7b9dcf326e4ecafb089f9b3050",
+      "verificationGap": "cbor_metadata_differs"
     },
     "RolesAuthority": {
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
-      "verification": {
-        "verdict": "partial_match",
-        "verifiedCommit": "ed58e6b5866637bfdfc28bfa956bfa27d8cc39ab",
-        "verifiedAt": "2026-05-07T15:01:32.669580+00:00",
-        "runtime": {
-          "verdict": "partial_match",
-          "reason": "cbor_metadata_differs",
-          "verifiedCommit": "ed58e6b5866637bfdfc28bfa956bfa27d8cc39ab",
-          "tool": "verify_eth_getcode.py",
-          "toolCommit": "db223aeaf626a22d9df7138e59e4a7c4a1b37ae3",
-          "verifiedAt": "2026-05-07T15:01:32.669580+00:00"
-        }
-      }
+      "verification": "partial_match",
+      "verifiedCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730",
+      "verificationGap": "cbor_metadata_differs"
     },
     "TellerWithMultiAssetSupport": {
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
-      "verification": {
-        "verdict": "mismatch",
-        "verifiedCommit": null,
-        "verifiedAt": "2026-05-07T15:07:13.137731+00:00",
-        "runtime": {
-          "verdict": "mismatch",
-          "reason": "runtime_bytecode_mismatch",
-          "verifiedCommit": null,
-          "tool": "verify_eth_getcode.py",
-          "toolCommit": "db223aeaf626a22d9df7138e59e4a7c4a1b37ae3",
-          "verifiedAt": "2026-05-07T15:07:13.137731+00:00"
-        }
-      }
+      "verification": "partial_match",
+      "verifiedCommit": "f472abafb22f7a45e81df2814ae4bdf6f56dd74a",
+      "verificationGap": "cbor_metadata_differs"
     },
     "Timelock": {
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
-      "verification": {
-        "verdict": "partial_match",
-        "verifiedCommit": "ed58e6b5866637bfdfc28bfa956bfa27d8cc39ab",
-        "verifiedAt": "2026-05-07T15:10:01.972941+00:00",
-        "runtime": {
-          "verdict": "partial_match",
-          "reason": "cbor_metadata_differs",
-          "verifiedCommit": "ed58e6b5866637bfdfc28bfa956bfa27d8cc39ab",
-          "tool": "verify_eth_getcode.py",
-          "toolCommit": "db223aeaf626a22d9df7138e59e4a7c4a1b37ae3",
-          "verifiedAt": "2026-05-07T15:10:01.972941+00:00"
-        }
-      }
+      "verification": "partial_match",
+      "verifiedCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730",
+      "verificationGap": "cbor_metadata_differs"
     }
   }
 }
