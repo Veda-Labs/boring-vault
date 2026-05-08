@@ -67,8 +67,8 @@
     "TellerWithMultiAssetSupport": {
       "auditCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
       "auditUrl": "file:audit/certora-boring-vault-0.pdf",
-      "verification": "mismatch",
-      "verifiedCommit": null
+      "verification": "full_match",
+      "verifiedCommit": "913a8cb80df7fd2ad9fc2653bc556f2901620b08"
     }
   }
 }
