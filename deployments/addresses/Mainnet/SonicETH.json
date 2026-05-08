@@ -58,9 +58,9 @@
     "QueueSolver": {
       "auditCommit": "c94d843a6e5d11b91f73f8e27c6b856d52ba8003",
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-25",
-      "verification": "partial_match",
+      "verification": "full_match",
       "verifiedCommit": "42d79a49696f85358255813d69ab28e8a78f8441",
-      "verificationGap": "immutables"
+      "verificationGap": "cbor"
     },
     "RolesAuthority": {
       "auditCommit": null,
