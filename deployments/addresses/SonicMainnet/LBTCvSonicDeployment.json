@@ -16,23 +16,23 @@
     "AccountantWithRateProviders": {
       "auditCommit": null,
       "auditUrl": null,
-      "verification": "mismatch",
-      "verifiedCommit": null,
-      "verificationGap": "no_candidate_commit_matches_creation"
+      "verification": "partial_match",
+      "verifiedCommit": "10a0dae53f20c85e08b66b2ecb8d2f322010ea5a",
+      "verificationGap": "cbor_metadata_differs"
     },
     "BoringOnChainQueue": {
       "auditCommit": null,
       "auditUrl": null,
-      "verification": "mismatch",
-      "verifiedCommit": null,
-      "verificationGap": "no_candidate_commit_matches_creation"
+      "verification": "partial_match",
+      "verifiedCommit": "10a0dae53f20c85e08b66b2ecb8d2f322010ea5a",
+      "verificationGap": "cbor_metadata_differs"
     },
     "BoringVault": {
       "auditCommit": null,
       "auditUrl": null,
-      "verification": "mismatch",
-      "verifiedCommit": null,
-      "verificationGap": "no_candidate_commit_matches_creation"
+      "verification": "partial_match",
+      "verifiedCommit": "10a0dae53f20c85e08b66b2ecb8d2f322010ea5a",
+      "verificationGap": "cbor_metadata_differs"
     },
     "Lens": {
       "auditCommit": null,
@@ -44,30 +44,30 @@
     "ManagerWithMerkleVerification": {
       "auditCommit": null,
       "auditUrl": null,
-      "verification": "mismatch",
-      "verifiedCommit": null,
-      "verificationGap": "no_candidate_commit_matches_creation"
+      "verification": "partial_match",
+      "verifiedCommit": "10a0dae53f20c85e08b66b2ecb8d2f322010ea5a",
+      "verificationGap": "cbor_metadata_differs"
     },
     "Pauser": {
       "auditCommit": null,
       "auditUrl": null,
-      "verification": "mismatch",
-      "verifiedCommit": null,
-      "verificationGap": "no_candidate_commit_matches_creation"
+      "verification": "partial_match",
+      "verifiedCommit": "10a0dae53f20c85e08b66b2ecb8d2f322010ea5a",
+      "verificationGap": "cbor_metadata_differs"
     },
     "QueueSolver": {
       "auditCommit": null,
       "auditUrl": null,
-      "verification": "mismatch",
-      "verifiedCommit": null,
-      "verificationGap": "no_candidate_commit_matches_creation"
+      "verification": "partial_match",
+      "verifiedCommit": "10a0dae53f20c85e08b66b2ecb8d2f322010ea5a",
+      "verificationGap": "cbor_metadata_differs"
     },
     "RolesAuthority": {
       "auditCommit": null,
       "auditUrl": null,
-      "verification": "mismatch",
-      "verifiedCommit": null,
-      "verificationGap": "no_candidate_commit_matches_creation"
+      "verification": "partial_match",
+      "verifiedCommit": "10a0dae53f20c85e08b66b2ecb8d2f322010ea5a",
+      "verificationGap": "cbor_metadata_differs"
     },
     "TellerWithLayerZero": {
       "auditCommit": null,

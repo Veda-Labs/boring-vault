@@ -16,58 +16,58 @@
     "AccountantWithFixedRate": {
       "auditCommit": null,
       "auditUrl": null,
-      "verification": "mismatch",
-      "verifiedCommit": null,
-      "verificationGap": "no_candidate_commit_matches_creation"
+      "verification": "partial_match",
+      "verifiedCommit": "fb4d39c628927791cd093c0f5621bb9956c7083b",
+      "verificationGap": "cbor_metadata_differs"
     },
     "BoringOnChainQueue": {
       "auditCommit": null,
       "auditUrl": null,
-      "verification": "mismatch",
-      "verifiedCommit": null,
-      "verificationGap": "no_candidate_commit_matches_creation"
+      "verification": "partial_match",
+      "verifiedCommit": "fb4d39c628927791cd093c0f5621bb9956c7083b",
+      "verificationGap": "cbor_metadata_differs"
     },
     "BoringVault": {
       "auditCommit": null,
       "auditUrl": null,
-      "verification": "mismatch",
-      "verifiedCommit": null,
-      "verificationGap": "no_candidate_commit_matches_creation"
+      "verification": "partial_match",
+      "verifiedCommit": "fb4d39c628927791cd093c0f5621bb9956c7083b",
+      "verificationGap": "cbor_metadata_differs"
     },
     "Lens": {
       "auditCommit": null,
       "auditUrl": null,
-      "verification": "mismatch",
-      "verifiedCommit": null,
-      "verificationGap": "no_candidate_commit_matches_creation"
+      "verification": "partial_match",
+      "verifiedCommit": "fb4d39c628927791cd093c0f5621bb9956c7083b",
+      "verificationGap": "cbor_metadata_differs"
     },
     "ManagerWithMerkleVerification": {
       "auditCommit": null,
       "auditUrl": null,
-      "verification": "mismatch",
-      "verifiedCommit": null,
-      "verificationGap": "no_candidate_commit_matches_creation"
+      "verification": "partial_match",
+      "verifiedCommit": "b9f0c94b403e7b879898721a3ea7392fc48a9d49",
+      "verificationGap": "cbor_metadata_differs"
     },
     "Pauser": {
       "auditCommit": null,
       "auditUrl": null,
-      "verification": "mismatch",
-      "verifiedCommit": null,
-      "verificationGap": "no_candidate_commit_matches_creation"
+      "verification": "partial_match",
+      "verifiedCommit": "fb4d39c628927791cd093c0f5621bb9956c7083b",
+      "verificationGap": "cbor_metadata_differs"
     },
     "QueueSolver": {
       "auditCommit": null,
       "auditUrl": null,
-      "verification": "mismatch",
-      "verifiedCommit": null,
-      "verificationGap": "no_candidate_commit_matches_creation"
+      "verification": "partial_match",
+      "verifiedCommit": "fb4d39c628927791cd093c0f5621bb9956c7083b",
+      "verificationGap": "cbor_metadata_differs"
     },
     "RolesAuthority": {
       "auditCommit": null,
       "auditUrl": null,
-      "verification": "mismatch",
-      "verifiedCommit": null,
-      "verificationGap": "no_candidate_commit_matches_creation"
+      "verification": "partial_match",
+      "verifiedCommit": "fb4d39c628927791cd093c0f5621bb9956c7083b",
+      "verificationGap": "cbor_metadata_differs"
     },
     "TellerWithLayerZero": {
       "auditCommit": null,
@@ -79,9 +79,9 @@
     "Timelock": {
       "auditCommit": null,
       "auditUrl": null,
-      "verification": "mismatch",
-      "verifiedCommit": null,
-      "verificationGap": "no_candidate_commit_matches_creation"
+      "verification": "partial_match",
+      "verifiedCommit": "fb4d39c628927791cd093c0f5621bb9956c7083b",
+      "verificationGap": "cbor_metadata_differs"
     }
   }
 }
