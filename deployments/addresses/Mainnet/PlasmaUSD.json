@@ -190,16 +190,16 @@
       "auditUrl": null,
       "scopeMatch": false,
       "verification": {
-        "verdict": "partial_match",
-        "verifiedCommit": "7e92682b293c3f83fe1e5527139e958bc1be727e",
-        "verifiedAt": "2026-05-08T05:31:34.311507+00:00",
+        "verdict": "full_match",
+        "verifiedCommit": "92e1a7af2d550c98bb89adfdd3687862abed7545",
+        "verifiedAt": "2026-05-08T09:25:47.827778+00:00",
         "runtime": {
-          "verdict": "partial_match",
-          "reason": "cbor_metadata_differs",
-          "verifiedCommit": "7e92682b293c3f83fe1e5527139e958bc1be727e",
+          "verdict": "full_match",
+          "reason": "matched",
+          "verifiedCommit": "92e1a7af2d550c98bb89adfdd3687862abed7545",
           "tool": "verify_eth_getcode.py",
-          "toolCommit": "c2dc747cf477fe3db84c09af0e0c5be44fdabf61",
-          "verifiedAt": "2026-05-08T05:31:34.311507+00:00"
+          "toolCommit": "1318326c401c038b6b529d90da8d5f189048920f",
+          "verifiedAt": "2026-05-08T09:25:47.827778+00:00"
         }
       }
     },
