@@ -93,12 +93,21 @@ contract CreateSonicLBTCvMerkleRootScript is Script, MerkleTreeHelper {
             scBTCWithdrawQueueAssets[0] = getERC20(sourceChain, "LBTC");
             scBTCWithdrawQueueAssets[1] = getERC20(sourceChain, "EBTC");
             _addWithdrawQueueLeafs(leafs, scBTCOnChainQueue, getAddress(sourceChain, "scBTC"), scBTCWithdrawQueueAssets);
-
-            // eBTC slow queue
-            address eBTCOnChainQueueSlow = 0x74EC75fb641ec17B04007733d9efBE2D1dA5CA2C;
-            ERC20[] memory eBTCWithdrawQueueAssets = new ERC20[](1);
-            eBTCWithdrawQueueAssets[0] = getERC20(sourceChain, "LBTC");
-            _addWithdrawQueueLeafs(leafs, eBTCOnChainQueueSlow, getAddress(sourceChain, "EBTC"), eBTCWithdrawQueueAssets);
+            
+            {
+                // eBTC fast queue
+                address eBTCOnChainQueueFast = 0x74EC75fb641ec17B04007733d9efBE2D1dA5CA2C;
+                ERC20[] memory eBTCWithdrawQueueAssetsFast = new ERC20[](1);
+                eBTCWithdrawQueueAssetsFast[0] = getERC20(sourceChain, "LBTC");
+                _addWithdrawQueueLeafs(leafs, eBTCOnChainQueueFast, getAddress(sourceChain, "EBTC"), eBTCWithdrawQueueAssetsFast);
+            }
+            {
+                // eBTC slow queue
+                address eBTCOnChainQueueSlow = 0x686696A3e59eE16e8A8533d84B62cfA504827135;
+                ERC20[] memory eBTCWithdrawQueueAssetsSlow = new ERC20[](1);
+                eBTCWithdrawQueueAssetsSlow[0] = getERC20(sourceChain, "LBTC");
+                _addWithdrawQueueLeafs(leafs, eBTCOnChainQueueSlow, getAddress(sourceChain, "EBTC"), eBTCWithdrawQueueAssetsSlow);
+            }
         }
 
         // ========================== CCIP ==========================
