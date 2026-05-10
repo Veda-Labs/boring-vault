@@ -12141,7 +12141,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         for (uint256 i = 0; i < tokens.length; i++) {
             if (!ownerToTokenToSpenderToApprovalInTree[
                     getAddress(sourceChain, "boringVault")
-                ][tokens[i]][getAddress(sourceChain, "magpieRouterV3")]) {
+                ][tokens[i]][getAddress(sourceChain, "magpieDexAggregator")]) {
                 unchecked {
                     leafIndex++;
                 }
@@ -12150,10 +12150,29 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                     false,
                     "approve(address,uint256)",
                     new address[](1),
-                    string.concat("approve MagpieRouter to spend ", ERC20(tokens[i]).symbol()),
+                    string.concat("approve Magpie DexAggregator to spend ", ERC20(tokens[i]).symbol()),
                     getAddress(sourceChain, "rawDataDecoderAndSanitizer")
                 );
-                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "magpieRouterV3");
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "magpieDexAggregator");
+            }
+            if (!ownerToTokenToSpenderToApprovalInTree[
+                    getAddress(sourceChain, "boringVault")
+                ][tokens[i]][getAddress(sourceChain, "magpieDexAggregatorCore")]) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    tokens[i],
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("approve Magpie DexAggregatorCore to spend ", ERC20(tokens[i]).symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "magpieDexAggregatorCore");
+                ownerToTokenToSpenderToApprovalInTree[
+                    getAddress(sourceChain, "boringVault")
+                ][tokens[i]][getAddress(sourceChain, "magpieDexAggregatorCore")] = true;
             }
 
             for (uint256 j = 0; j < tokens.length; j++) {
@@ -12168,9 +12187,9 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                         leafIndex++;
                     }
                     leafs[leafIndex] = ManageLeaf(
-                        getAddress(sourceChain, "magpieRouterV3"),
+                        getAddress(sourceChain, "magpieDexAggregator"),
                         false,
-                        "swapWithMagpieSignature(bytes)",
+                        "swapWithBackendSignature(bytes)",
                         new address[](3),
                         string.concat("Swap ", ERC20(tokens[i]).symbol(), " for ", ERC20(tokens[j]).symbol()),
                         getAddress(sourceChain, "rawDataDecoderAndSanitizer")
@@ -12194,9 +12213,9 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                         leafIndex++;
                     }
                     leafs[leafIndex] = ManageLeaf(
-                        getAddress(sourceChain, "magpieRouterV3"),
+                        getAddress(sourceChain, "magpieDexAggregator"),
                         false,
-                        "swapWithMagpieSignature(bytes)",
+                        "swapWithBackendSignature(bytes)",
                         new address[](3),
                         string.concat("Swap ", ERC20(tokens[j]).symbol(), " for ", ERC20(tokens[i]).symbol()),
                         getAddress(sourceChain, "rawDataDecoderAndSanitizer")

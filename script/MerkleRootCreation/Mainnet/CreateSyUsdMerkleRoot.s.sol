@@ -35,7 +35,7 @@ import "forge-std/StdJson.sol";
 contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
     uint256 public privateKey;
 
-    address public rawDataDecoderAndSanitizerEthereum = 0xcACfF0b03e1f468D810840e0F4033895e8737AE1;
+    address public rawDataDecoderAndSanitizerEthereum = 0x02649C96083c61C5419e3b3516fEDC0f5E8115C2;
     RolesAuthority internal rolesAuthority = RolesAuthority(0xf7F3ace7f6cA2Cb1E7ccbE3Bf2Da13D001D36fdF);
     BoringVault internal boringVault = BoringVault(payable(0x279CAD277447965AF3d24a78197aad1B02a2c589));
     LayerZeroTeller internal teller = LayerZeroTeller(0xaefc11908fF97c335D16bdf9F2Bf720817423825);

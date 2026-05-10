@@ -13,12 +13,12 @@ import {PendleRouterDecoderAndSanitizer} from "./Protocols/PendleRouterDecoderAn
 import {CCIPDecoderAndSanitizer} from "./Protocols/CCIPDecoderAndSanitizer.sol";
 import {InfiniDecoderAndSanitizer} from "./Protocols/InfiniDecoderAndSanitizer.sol";
 import {SiloDecoderAndSanitizer} from "./Protocols/SiloDecoderAndSanitizer.sol";
-import {OdosDecoderAndSanitizer} from "./Protocols/OdosDecoderAndSanitizer.sol";
 import {OneInchDecoderAndSanitizer} from "./Protocols/OneInchDecoderAndSanitizer.sol";
 import {OFTDecoderAndSanitizer} from "./Protocols/OFTDecoderAndSanitizer.sol";
 import {MagpieDecoderAndSanitizer} from "./MagpieDecoderAndSanitizer.sol";
 import {CapDecoderAndSanitizer} from "./Protocols/CapDecoderAndSanitizer.sol";
 import {SyrupDecoderAndSanitizer} from "./Protocols/SyrupDecoderAndSanitizer.sol";
+import {TellerDecoderAndSanitizer} from "./Protocols/TellerDecoderAndSanitizer.sol";
 import {MorphoV1FlashLoanAdapterDecoderAndSanitizer} from "./Protocols/MorphoV1FlashLoanAdapterDecoderAndSanitizer.sol";
 import {BridgingDecoderAndSanitizer} from "./BridgingDecoderAndSanitizer.sol";
 
@@ -34,17 +34,16 @@ contract EthereumUsdStrategyDecoderAndSanitizer is
     CCIPDecoderAndSanitizer,
     InfiniDecoderAndSanitizer,
     SiloDecoderAndSanitizer,
-    OdosDecoderAndSanitizer,
     OneInchDecoderAndSanitizer,
     OFTDecoderAndSanitizer,
     MagpieDecoderAndSanitizer,
     CapDecoderAndSanitizer,
+    TellerDecoderAndSanitizer,
     MorphoV1FlashLoanAdapterDecoderAndSanitizer,
     BridgingDecoderAndSanitizer
 {
-    constructor(address _uniswapV3NonFungiblePositionManager, address _odosRouter, address _magpieRouter)
+    constructor(address _uniswapV3NonFungiblePositionManager, address _magpieRouter)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
-        OdosDecoderAndSanitizer(_odosRouter)
         MagpieDecoderAndSanitizer(_magpieRouter)
     {}
 

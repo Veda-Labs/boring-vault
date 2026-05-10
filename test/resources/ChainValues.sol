@@ -458,6 +458,8 @@ contract ChainValues {
 
         // Magpie Router v3
         values[mainnet]["magpieRouterV3"] = 0xA6E941eaB67569ca4522f70d343714fF51d571c4.toBytes32();
+        values[mainnet]["magpieDexAggregatorCore"] = 0x09AD820aaC5779683B481c4674208A4e1B024Afa.toBytes32();
+        values[mainnet]["magpieDexAggregator"] = 0x20F6ee51340aDEed01A59B0e65cB3703f3dc860c.toBytes32();
 
         // Rate providers
         values[mainnet]["WEETH_RATE_PROVIDER"] = 0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee.toBytes32();

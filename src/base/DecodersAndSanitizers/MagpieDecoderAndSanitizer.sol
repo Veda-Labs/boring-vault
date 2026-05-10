@@ -4,28 +4,14 @@ pragma solidity 0.8.21;
 import {BaseDecoderAndSanitizer} from "./BaseDecoderAndSanitizer.sol";
 
 abstract contract MagpieDecoderAndSanitizer is BaseDecoderAndSanitizer {
-    /// @dev reference to the OdosRouterV2 contract
+    /// @dev address of the fly DexAggregator
     address internal immutable magpieRouter;
-
-    struct SwapData {
-        address toAddress;
-        address fromAssetAddress;
-        address toAssetAddress;
-        uint256 deadline;
-        uint256 amountOutMin;
-        uint256 swapFee;
-        uint256 amountIn;
-        bool hasPermit;
-        bool hasAffiliate;
-        address affiliateAddress;
-        uint256 affiliateFee;
-    }
 
     constructor(address _magpieRouter) {
         magpieRouter = _magpieRouter;
     }
 
-    function swapWithMagpieSignature(
+    function swapWithBackendSignature(
         bytes calldata /*pathDefinition*/
     )
         external
@@ -36,8 +22,6 @@ abstract contract MagpieDecoderAndSanitizer is BaseDecoderAndSanitizer {
         address toAddress;
         address fromAssetAddress;
         address toAssetAddress;
-        address affiliateAddress;
-        bool hasAffiliate;
 
         assembly {
             toAddress := shr(96, calldataload(72)) // toAddress

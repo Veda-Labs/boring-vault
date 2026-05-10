@@ -242,10 +242,9 @@ contract DeployEthUsdDecoderAndSanitizer is Script, ContractNames, MainnetAddres
         creationCode = type(EthereumUsdStrategyDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(
             getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
-            getAddress(sourceChain, "odosRouterV2"),
-            getAddress(sourceChain, "magpieRouterV3")
+            getAddress(sourceChain, "magpieDexAggregator")
         );
-        deployer.deployContract("EthUsdStrategyDecodersAndSanitizerV0.1.4", creationCode, constructorArgs, 0);
+        deployer.deployContract("EthUsdStrategyDecodersAndSanitizerV0.2.0", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
