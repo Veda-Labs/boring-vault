@@ -28,6 +28,7 @@ import {ContractNames} from "resources/ContractNames.sol";
 import {
     BaseStablecoinStrategyDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/BaseStablecoinStrategyDecoderAndSanitizer.sol";
+import {RoycoJrUsdcDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/RoycoJrUsdcDecoderAndSanitizer.sol";
 import {TacUSDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TacUSDDecoderAndSanitizer.sol";
 import {
     InfiniFiUsdcClusterDecoderAndSanitizer
@@ -108,6 +109,26 @@ contract DeploySyUsdtEthereumDecoderAndSanitizer is Script, ContractNames, Mainn
         creationCode = type(SyUsdtEthereumDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(getAddress(sourceChain, "magpieRouterV3"));
         deployer.deployContract("SyUsdtEthereumDecoderAndSanitizerV0.1", creationCode, constructorArgs, 0);
+
+        vm.stopBroadcast();
+    }
+}
+
+contract DeployRoycoJrUsdcClusterDecoderAndSanitizer is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
+    uint256 public privateKey;
+    Deployer public deployer = Deployer(0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC);
+
+    function run() external {
+        bytes memory creationCode;
+        bytes memory constructorArgs;
+
+        vm.createSelectFork("mainnet");
+        setSourceChainName("mainnet");
+
+        vm.startBroadcast(vm.envUint("DEPLOYER01"));
+
+        creationCode = type(RoycoJrUsdcDecoderAndSanitizer).creationCode;
+        deployer.deployContract("RoycoJrUsdcClusterDecoderAndSanitizerV0.1", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }

@@ -238,7 +238,7 @@ contract DeployErc20TvlAdapter is Script, MerkleTreeHelper {
             getAddress(sourceChain, "USDC_USD_oracle")
         );
 
-        deployer.deployContract("royco-jr-syrupUSDC/USDC Erc20TvlAdapter", creationCode, constructorArgs, 0);
+        deployer.deployContract("roycoJrUSDC/USDC Erc20TvlAdapter", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
