@@ -73,32 +73,32 @@ contract CreateSentoraBTCMerkleRoot is Script, MerkleTreeHelper {
         // ========================== Position Manager ==========================
         // Supplies kBTC on Morpho, borrows PYUSD, Supplies PYUSD
         {
-            address pyusdMorphoPositionManager = 0xAd50F5a15F5a3Bc9DAa934915586D9b8889294AC;
-            ERC20[] memory pyusdMorphoTokensUsed = new ERC20[](3);
-            pyusdMorphoTokensUsed[0] = getERC20(sourceChain, "KBTC");
-            pyusdMorphoTokensUsed[1] = getERC20(sourceChain, "PYUSD");
-            pyusdMorphoTokensUsed[2] = getERC20(sourceChain, "MORPHO");
-            _addLeafsForITBPositionManagerLocal(leafs, pyusdMorphoPositionManager, pyusdMorphoTokensUsed, "Sentora PYUSD main V2 KBTC ITB Position Manager");
+            address pyusdMorphoKbtcPositionManager = 0xAd50F5a15F5a3Bc9DAa934915586D9b8889294AC;
+            ERC20[] memory pyusdMorphoKbtcTokensUsed = new ERC20[](3);
+            pyusdMorphoKbtcTokensUsed[0] = getERC20(sourceChain, "KBTC");
+            pyusdMorphoKbtcTokensUsed[1] = getERC20(sourceChain, "PYUSD");
+            pyusdMorphoKbtcTokensUsed[2] = getERC20(sourceChain, "MORPHO");
+            _addLeafsForITBPositionManagerLocal(leafs, pyusdMorphoKbtcPositionManager, pyusdMorphoKbtcTokensUsed, "Sentora PYUSD main V2 KBTC ITB Position Manager");
         }
 
         // Supplies wBTC on Morpho, borrows PYUSD, supplies PYUSD
         {
-            address pyusdMorphoPositionManager = 0x834957eb674eFB12f2F70fceA7A9De5AB114D4B1;
-            ERC20[] memory pyusdMorphoTokensUsed = new ERC20[](3);
-            pyusdMorphoTokensUsed[0] = getERC20(sourceChain, "WBTC");
-            pyusdMorphoTokensUsed[1] = getERC20(sourceChain, "PYUSD");
-            pyusdMorphoTokensUsed[2] = getERC20(sourceChain, "MORPHO");
-            _addLeafsForITBPositionManagerLocal(leafs, pyusdMorphoPositionManager, pyusdMorphoTokensUsed, "Sentora PYUSD main V2 WBTC ITB Position Manager");
+            address pyusdMorphoWbtcPositionManager = 0x834957eb674eFB12f2F70fceA7A9De5AB114D4B1;
+            ERC20[] memory pyusdMorphoWbtcTokensUsed = new ERC20[](3);
+            pyusdMorphoWbtcTokensUsed[0] = getERC20(sourceChain, "WBTC");
+            pyusdMorphoWbtcTokensUsed[1] = getERC20(sourceChain, "PYUSD");
+            pyusdMorphoWbtcTokensUsed[2] = getERC20(sourceChain, "MORPHO");
+            _addLeafsForITBPositionManagerLocal(leafs, pyusdMorphoWbtcPositionManager, pyusdMorphoWbtcTokensUsed, "Sentora PYUSD main V2 WBTC ITB Position Manager");
         }
 
         // Supplies wBTC on Morpho, borrows RLUSD, supplies RLUSD
         {
-            address pyusdMorphoPositionManager = 0x817c40CFE1BB06fADbc96b3Ce3DbDc517D2b5dCE;
-            ERC20[] memory pyusdMorphoTokensUsed = new ERC20[](3);
-            pyusdMorphoTokensUsed[0] = getERC20(sourceChain, "WBTC");
-            pyusdMorphoTokensUsed[1] = getERC20(sourceChain, "RLUSD");
-            pyusdMorphoTokensUsed[2] = getERC20(sourceChain, "MORPHO");
-            _addLeafsForITBPositionManagerLocal(leafs, pyusdMorphoPositionManager, pyusdMorphoTokensUsed, "Sentora RLUSD main V2 WBTC ITB Position Manager");
+            address rlusdWbtcMorphoPositionManager = 0x817c40CFE1BB06fADbc96b3Ce3DbDc517D2b5dCE;
+            ERC20[] memory rlusdWbtcMorphoTokensUsed = new ERC20[](3);
+            rlusdWbtcMorphoTokensUsed[0] = getERC20(sourceChain, "WBTC");
+            rlusdWbtcMorphoTokensUsed[1] = getERC20(sourceChain, "RLUSD");
+            rlusdWbtcMorphoTokensUsed[2] = getERC20(sourceChain, "MORPHO");
+            _addLeafsForITBPositionManagerLocal(leafs, rlusdWbtcMorphoPositionManager, rlusdWbtcMorphoTokensUsed, "Sentora RLUSD main V2 WBTC ITB Position Manager");
         }
 
         // ========================== 1inch ==========================
