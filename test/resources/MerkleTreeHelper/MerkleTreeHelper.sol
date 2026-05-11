@@ -10926,11 +10926,13 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             getAddress(sourceChain, "BTCK"), //target
             false,
             "mintV1(bytes,bytes)",
-            new address[](1),
+            new address[](3),
             string.concat("Mint BTCK with payload"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[0] = address(uint160(block.chainid));
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "BTCK");
     }
 
         // ========================================= BTC.b =========================================
@@ -10976,11 +10978,13 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             getAddress(sourceChain, "BTCb"), //target
             false,
             "mintV1(bytes,bytes)",
-            new address[](1),
+            new address[](3),
             string.concat("Mint BTC.b with payload"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[0] = address(uint160(block.chainid));
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "BTCb");
     }
 
     // ============================================= BTCN Corn ==================================================

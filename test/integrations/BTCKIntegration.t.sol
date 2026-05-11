@@ -36,7 +36,7 @@ contract BTCKIntegration is BaseTestIntegration {
 
         // The real on-chain proof was signed for this specific receiver — override
         // the leaf to match so Merkle verification passes with real proof data.
-        leafs[3].argumentAddresses[0] = 0x698fEBAaa34CE7F61858B03f0668fC461D7cc673;
+        leafs[3].argumentAddresses[1] = 0x698fEBAaa34CE7F61858B03f0668fC461D7cc673;
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -84,7 +84,7 @@ contract BTCKIntegration is BaseTestIntegration {
 
         // Override the mintV1 leaf (index 3) to allow address(0x69) as receiver
         // so Merkle verification passes — the revert must come from the BTCK contract.
-        leafs[3].argumentAddresses[0] = address(0x69);
+        leafs[3].argumentAddresses[1] = address(0x69);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);

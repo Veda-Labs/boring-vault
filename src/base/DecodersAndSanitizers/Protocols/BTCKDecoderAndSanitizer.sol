@@ -30,7 +30,8 @@ contract BTCKDecoderAndSanitizer {
 
     //on BTCK
     function mintV1(bytes calldata payload, bytes calldata /*proof*/) external pure virtual returns (bytes memory addressesFound) {
-        (, address receiver) = abi.decode(payload[4:], (uint256, address));
-        addressesFound = abi.encodePacked(receiver);
+        (uint256 toChain, address receiver,,,, address token) =
+            abi.decode(payload[4:], (uint256, address, uint256, bytes32, uint256, address));
+        addressesFound = abi.encodePacked(address(uint160(toChain)), receiver, token);
     }
 }
