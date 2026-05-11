@@ -72,8 +72,9 @@
     "TellerWithLayerZero": {
       "auditCommit": null,
       "auditUrl": null,
-      "verification": "mismatch",
-      "verifiedCommit": null
+      "verification": "full_match",
+      "verifiedCommit": "50c574751d1c8a5e090aa7ecc1018f93b5b50520",
+      "verificationGap": "cbor"
     },
     "Timelock": {
       "auditCommit": null,
