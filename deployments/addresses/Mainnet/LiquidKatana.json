@@ -72,8 +72,9 @@
     "TellerWithLayerZeroRateLimiting": {
       "auditCommit": null,
       "auditUrl": null,
-      "verification": null,
-      "verifiedCommit": null
+      "verification": "full_match",
+      "verifiedCommit": "c54949f556cbc9a5e752ef1d6e8c09d64f4975b7",
+      "verificationGap": "cbor"
     }
   }
 }
