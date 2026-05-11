@@ -13,5 +13,64 @@
     "RolesAuthority": "0x485Bde66Bb668a51f2372E34e45B1c6226798122",
     "TellerWithLayerZeroRateLimiting": "0x9AA79C84b79816ab920bBcE20f8f74557B514734",
     "Timelock": "0x0000000000000000000000000000000000000000"
+  },
+  "contractMetadata": {
+    "AccountantWithRateProviders": {
+      "auditCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730",
+      "auditUrl": "file:audit/certora-boring-vault-1.pdf",
+      "verification": "full_match",
+      "verifiedCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730"
+    },
+    "BoringOnChainQueue": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "full_match",
+      "verifiedCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730"
+    },
+    "BoringVault": {
+      "auditCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
+      "auditUrl": "file:audit/sigma-prime-boring-vault-0.pdf",
+      "verification": "full_match",
+      "verifiedCommit": "3c768bd068af856b5de3def86b1940676847eb9d"
+    },
+    "Lens": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "full_match",
+      "verifiedCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730",
+      "verificationGap": "cbor"
+    },
+    "ManagerWithMerkleVerification": {
+      "auditCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-19",
+      "verification": "full_match",
+      "verifiedCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
+      "verificationGap": "cbor"
+    },
+    "Pauser": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "full_match",
+      "verifiedCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730"
+    },
+    "QueueSolver": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "full_match",
+      "verifiedCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730",
+      "verificationGap": "cbor"
+    },
+    "RolesAuthority": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "full_match",
+      "verifiedCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730"
+    },
+    "TellerWithLayerZeroRateLimiting": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "mismatch",
+      "verifiedCommit": null
+    }
   }
 }

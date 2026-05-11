@@ -11,5 +11,73 @@
     "RolesAuthority": "0xecE2222D3ac4b21316b6E5F4208A452BB96A8Cb4",
     "TellerWithLayerZero": "0xeFEE4199F7eE3375c04D8B0851b109ED3Df82F74",
     "Timelock": "0x12DeD18937cecdDDa386532B5aA2d1561617Fa27"
+  },
+  "contractMetadata": {
+    "AccountantWithRateProviders": {
+      "auditCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730",
+      "auditUrl": "file:audit/certora-boring-vault-1.pdf",
+      "verification": "full_match",
+      "verifiedCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730",
+      "verificationGap": "cbor"
+    },
+    "BoringOnChainQueue": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "full_match",
+      "verifiedCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730",
+      "verificationGap": "cbor"
+    },
+    "BoringVault": {
+      "auditCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
+      "auditUrl": "file:audit/sigma-prime-boring-vault-0.pdf",
+      "verification": "full_match",
+      "verifiedCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
+      "verificationGap": "cbor"
+    },
+    "Lens": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "full_match",
+      "verifiedCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730",
+      "verificationGap": "cbor"
+    },
+    "ManagerWithMerkleVerification": {
+      "auditCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-19",
+      "verification": "full_match",
+      "verifiedCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
+      "verificationGap": "cbor"
+    },
+    "Pauser": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "full_match",
+      "verifiedCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730",
+      "verificationGap": "cbor"
+    },
+    "QueueSolver": {
+      "auditCommit": "b9eafd46e656c532ea2c28a1bd66ce271ebedbc7",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-44",
+      "verification": "full_match",
+      "verifiedCommit": "b9eafd46e656c532ea2c28a1bd66ce271ebedbc7"
+    },
+    "RolesAuthority": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "full_match",
+      "verifiedCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730"
+    },
+    "TellerWithLayerZero": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "mismatch",
+      "verifiedCommit": null
+    },
+    "Timelock": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "full_match",
+      "verifiedCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730"
+    }
   }
 }
