@@ -71,8 +71,9 @@
     "TellerWithLayerZeroRateLimiting": {
       "auditCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
       "auditUrl": "file:audit/certora-boring-vault-0.pdf",
-      "verification": "mismatch",
-      "verifiedCommit": null
+      "verification": "full_match",
+      "verifiedCommit": "c54949f556cbc9a5e752ef1d6e8c09d64f4975b7",
+      "verificationGap": "cbor"
     }
   }
 }
