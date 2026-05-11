@@ -72,8 +72,9 @@
     "LayerZeroTellerWithRateLimiting": {
       "auditCommit": null,
       "auditUrl": null,
-      "verification": null,
-      "verifiedCommit": null
+      "verification": "full_match",
+      "verifiedCommit": "c9b8b82b57a0b902182cc79784caab6a6a5fb062",
+      "verificationGap": "cbor"
     },
     "Timelock": {
       "auditCommit": null,
