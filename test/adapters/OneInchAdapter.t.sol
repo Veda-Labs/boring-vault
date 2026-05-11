@@ -60,7 +60,8 @@ contract OneInchAdapterTest is BaseTestIntegration {
 
 
         registry = new AdapterRegistry();
-        swapper = new BoringSwapper(address(this), registry, new FeeRegistry(address(this), 1000));
+        validator = new PriceValidator();
+        swapper = new BoringSwapper(address(this), registry, new FeeRegistry(address(this), 1000), boringVault, IPriceValidator(address(validator)));
         swapper.setAuthority(rolesAuthority);
 
         oneInchAdapter = address(new OneInchAdapter(ONEINCH_ROUTER, ONEINCH_FEE_TAKER, ONEINCH_EXECUTOR));
@@ -81,10 +82,6 @@ contract OneInchAdapterTest is BaseTestIntegration {
         swapper.setTokenOracle(getERC20(sourceChain, "USDC"), usdQuoteAsset, _makeOracleConfig(address(usdRate), address(0), false));
         swapper.setTokenOracle(getERC20(sourceChain, "USDT"), usdQuoteAsset, _makeOracleConfig(address(usdRate), address(0), false));
         swapper.setTokenOracle(getERC20(sourceChain, "WETH"), usdQuoteAsset, _makeOracleConfig(address(ethRate), address(0), false));
-
-        //price validator setup
-        validator = new PriceValidator();
-        swapper.setPriceValidator(IPriceValidator(validator));
 
         //roles setup
         rolesAuthority.setUserRole(address(boringVault), BORING_VAULT_ROLE, true);
@@ -595,7 +592,7 @@ contract OneInchAdapterTest is BaseTestIntegration {
         (BoringSwapper.SwapConfig memory config,, uint256 orderId) =
             _submitOneInchOrder(1e18, 2000e6);
 
-        (ERC20 tokenIn,,, BoringVault receiver, uint256 inputAmount,,) =
+        (ERC20 tokenIn,,, BoringVault receiver, uint256 inputAmount,,,) =
             swapper.orderRecords(orderId);
         assertEq(address(tokenIn), getAddress(sourceChain, "WETH"));
         assertEq(inputAmount, 1e18);
@@ -662,7 +659,7 @@ contract OneInchAdapterTest is BaseTestIntegration {
         assertEq(getERC20(sourceChain, "WETH").balanceOf(address(swapper)), 0);
         assertEq(getERC20(sourceChain, "WETH").balanceOf(getAddress(sourceChain, "boringVault")), 100e18);
 
-        (ERC20 tokenIn,,,,,,) = swapper.orderRecords(orderId);
+        (ERC20 tokenIn,,,,,,,) = swapper.orderRecords(orderId);
         assertEq(address(tokenIn), address(0));
     }
 

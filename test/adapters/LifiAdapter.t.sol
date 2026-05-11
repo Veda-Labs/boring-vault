@@ -52,7 +52,8 @@ contract LifiAdapterTest is BaseTestIntegration {
         _overrideDecoder(swapperDecoder);
 
         registry = new AdapterRegistry();
-        swapper = new BoringSwapper(address(this), registry, new FeeRegistry(address(this), 1000));
+        validator = new PriceValidator();
+        swapper = new BoringSwapper(address(this), registry, new FeeRegistry(address(this), 1000), boringVault, IPriceValidator(address(validator)));
         swapper.setAuthority(rolesAuthority);
 
         lifiAdapter = address(new LifiAdapter(LIFI_ROUTER));
@@ -68,9 +69,6 @@ contract LifiAdapterTest is BaseTestIntegration {
 
         swapper.setTokenOracle(getERC20(sourceChain, "USDC"), usdQuoteAsset, _makeOracleConfig(address(usdRate), address(0), false));
         swapper.setTokenOracle(getERC20(sourceChain, "WETH"), usdQuoteAsset, _makeOracleConfig(address(ethRate), address(0), false));
-
-        validator = new PriceValidator();
-        swapper.setPriceValidator(IPriceValidator(validator));
 
         rolesAuthority.setUserRole(address(boringVault), BORING_VAULT_ROLE, true);
         rolesAuthority.setRoleCapability(BORING_VAULT_ROLE, address(swapper), BoringSwapper.swap.selector, true);

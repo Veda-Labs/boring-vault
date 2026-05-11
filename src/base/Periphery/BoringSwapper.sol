@@ -443,16 +443,20 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
 
     /// @notice Marks a filled order's fee as claimable. Called by the off-chain bot after confirming the fill.
     /// @dev Moves the fee from the locked `feesInToken` bucket into `claimableFees`. Deletes the order record.
+    /// @dev fee collector is responsible for determining if the order was filled off-chain.
     function releaseFee(uint256 orderId) external requiresAuth {
         OrderRecord memory record = orderRecords[orderId];
         if (address(record.tokenIn) == address(0)) revert BoringSwapper__OrderNotFound();
-        if (record.cancelledAt > 0) revert BoringSwapper__AlreadyCancelled();
 
         delete orderRecords[orderId];
         approvedHashes[record.protocolHash] = false;
 
-        uint256 principalHeld = pendingOrderPrincipal[record.tokenIn];
-        pendingOrderPrincipal[record.tokenIn] = record.inputAmount < principalHeld ? principalHeld - record.inputAmount : 0;
+        // `_cancelOrder` already decremented `pendingOrderPrincipal` at cancel time — skip the second
+        // decrement when releasing the fee of a cancelled order (cancel-after-fill path).
+        if (record.cancelledAt == 0) {
+            uint256 principalHeld = pendingOrderPrincipal[record.tokenIn];
+            pendingOrderPrincipal[record.tokenIn] = record.inputAmount < principalHeld ? principalHeld - record.inputAmount : 0;
+        }
 
         //if order was submitted while no fee was active, nothing to move
         if (record.fee == 0) return;

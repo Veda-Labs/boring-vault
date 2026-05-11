@@ -5,6 +5,7 @@
 pragma solidity 0.8.21;
 
 import {BoringSwapper} from "src/base/Periphery/BoringSwapper.sol";
+import {BoringVault} from "src/base/BoringVault.sol";
 import {AdapterRegistry} from "src/base/Periphery/AdapterRegistry.sol";
 import {PriceValidator} from "src/base/Periphery/adapters/price/PriceValidator.sol";
 import {FeeRegistry} from "src/base/Periphery/FeeRegistry.sol";
@@ -49,7 +50,7 @@ contract PriceValidatorTest is Test, MerkleTreeHelper {
         rolesAuthority = new RolesAuthority(address(this), Authority(address(0)));
         AdapterRegistry registry = new AdapterRegistry();
         FeeRegistry feeRegistry = new FeeRegistry(address(this), 1000);
-        swapper = new BoringSwapper(address(this), registry, feeRegistry);
+        swapper = new BoringSwapper(address(this), registry, feeRegistry, BoringVault(payable(address(0))), IPriceValidator(address(0)));
         swapper.setAuthority(rolesAuthority);
 
         rolesAuthority.setUserRole(address(this), ADMIN_ROLE, true);

@@ -73,7 +73,8 @@ contract BoringSwapperIntegration is BaseTestIntegration {
 
         //do additional setup here
         FeeRegistry feeRegistry = new FeeRegistry(address(this), 1000);
-        swapper = new BoringSwapper(address(this), registry, feeRegistry);
+        validator = new PriceValidator();
+        swapper = new BoringSwapper(address(this), registry, feeRegistry, boringVault, IPriceValidator(address(validator)));
 
         // auth: vault can call swap functions; address(this) (owner) can call directly in tests
         swapper.setAuthority(rolesAuthority);
@@ -105,10 +106,6 @@ contract BoringSwapperIntegration is BaseTestIntegration {
 
         swapper.setTokenOracle(getERC20(sourceChain, "USDC"), usdQuoteAsset, _makeOracleConfig(address(usdRate), address(0), false));
         swapper.setTokenOracle(getERC20(sourceChain, "WETH"), usdQuoteAsset, _makeOracleConfig(address(ethRate), address(0), false));
-
-        //price validator setup
-        validator = new PriceValidator();
-        swapper.setPriceValidator(IPriceValidator(validator));
 
     }
 
@@ -648,7 +645,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         (BoringSwapper.SwapConfig memory config,, uint256 orderId) =
             _submitOneInchOrder(1e18, 2000e6);
 
-        (ERC20 tokenIn,,, BoringVault receiver, uint256 inputAmount,,) =
+        (ERC20 tokenIn,,, BoringVault receiver, uint256 inputAmount,,,) =
             swapper.orderRecords(orderId);
         assertEq(address(tokenIn), getAddress(sourceChain, "WETH"));
         assertEq(inputAmount, 1e18);
@@ -715,7 +712,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         assertEq(getERC20(sourceChain, "WETH").balanceOf(address(swapper)), 0);
         assertEq(getERC20(sourceChain, "WETH").balanceOf(getAddress(sourceChain, "boringVault")), 100e18);
 
-        (ERC20 tokenIn,,,,,,) = swapper.orderRecords(orderId);
+        (ERC20 tokenIn,,,,,,,) = swapper.orderRecords(orderId);
         assertEq(address(tokenIn), address(0));
     }
 
