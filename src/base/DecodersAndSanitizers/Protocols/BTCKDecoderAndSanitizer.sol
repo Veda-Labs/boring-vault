@@ -14,8 +14,13 @@ contract BTCKDecoderAndSanitizer {
     }
 
     function mint(bytes calldata payload, bytes calldata /*proof*/) external pure virtual returns (bytes memory addressesFound) {
-        (, address to,,,) = abi.decode(payload, (uint256, address, uint64, bytes32, uint32));
-        addressesFound = abi.encodePacked(to);
+        (,,,,, bytes memory msgBody) =
+            abi.decode(payload[4:], (bytes32, uint256, bytes32, address, address, bytes));
+        bytes32 recipientWord;
+        assembly {
+            recipientWord := mload(add(msgBody, 0x44))
+        }
+        addressesFound = abi.encodePacked(address(uint160(uint256(recipientWord))));
     }
     
     //on LBTC

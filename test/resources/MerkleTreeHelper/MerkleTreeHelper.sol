@@ -10757,6 +10757,35 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     }
 
     // ========================================= Lombard BTC  =========================================
+    
+    // @notice to avoid having an extra unneeded approval leaf for base vs bnb merkle trees
+    function _addLombardBTCLeafs(ManageLeaf[] memory leafs) internal {
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "LBTC"), //target
+            false,
+            "mint(address,uint256)",
+            new address[](1),
+            string.concat("Mint LBTC if permissioned"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "LBTC"), //target
+            false,
+            "mint(bytes,bytes)",
+            new address[](1),
+            string.concat("Mint LBTC"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+    }
 
     // @notice to avoid having an extra unneeded approval leaf for base vs bnb merkle trees
     function _addLombardBTCLeafs(ManageLeaf[] memory leafs, ERC20 BTCB_or_CBBtc, ERC20 LBTC) internal {
