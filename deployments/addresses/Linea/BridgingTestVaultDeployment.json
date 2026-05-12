@@ -58,14 +58,14 @@
       "auditUrl": null,
       "verification": "full_match",
       "verifiedCommit": "fbda4aaf442bc0b388d0185d166f48868bcc729b",
-      "verificationGap": "cbor"
+      "verificationGap": "cbor,evm:london"
     },
     "DelayedWithdraw": {
       "auditCommit": null,
       "auditUrl": null,
       "verification": "full_match",
       "verifiedCommit": "fbda4aaf442bc0b388d0185d166f48868bcc729b",
-      "verificationGap": "cbor"
+      "verificationGap": "cbor,evm:london"
     },
     "Lens": {
       "auditCommit": null,
