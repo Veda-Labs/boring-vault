@@ -14,64 +14,104 @@
   },
   "contractMetadata": {
     "AccountantWithRateProviders": {
+      "deployedAt": "2025-09-12T20:11:23Z",
+      "creationTx": "0x005b656109407ac011ae485ddfba80a6df788012e22747a99b67b8634b3df49c",
+      "creationBlock": 23349288,
       "auditCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
       "auditUrl": "file:audit/certora-boring-vault-0.pdf",
+      "scopeMatch": true,
       "verification": "full_match",
       "verifiedCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
       "verificationGap": "cbor"
     },
     "BoringOnChainQueue": {
+      "deployedAt": "2025-09-12T20:11:23Z",
+      "creationTx": "0x005b656109407ac011ae485ddfba80a6df788012e22747a99b67b8634b3df49c",
+      "creationBlock": 23349288,
       "auditCommit": "edfcba3f29f691c638b06d04f60af79503632b58",
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-27",
+      "scopeMatch": true,
       "verification": "full_match",
       "verifiedCommit": "463b7a874c4480c7663473dfdb844aeb7567cb13"
     },
     "BoringVault": {
+      "deployedAt": "2025-09-12T20:11:23Z",
+      "creationTx": "0x005b656109407ac011ae485ddfba80a6df788012e22747a99b67b8634b3df49c",
+      "creationBlock": 23349288,
       "auditCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
       "auditUrl": "file:audit/certora-boring-vault-0.pdf",
+      "scopeMatch": true,
       "verification": "full_match",
       "verifiedCommit": "3c768bd068af856b5de3def86b1940676847eb9d"
     },
     "Lens": {
+      "deployedAt": "2025-09-12T20:11:23Z",
+      "creationTx": "0x005b656109407ac011ae485ddfba80a6df788012e22747a99b67b8634b3df49c",
+      "creationBlock": 23349288,
       "auditCommit": "939c77e25473dff3ed18fa104f004f7afd13452e",
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-4",
+      "scopeMatch": true,
       "verification": "full_match",
       "verifiedCommit": "463b7a874c4480c7663473dfdb844aeb7567cb13"
     },
     "ManagerWithMerkleVerification": {
+      "deployedAt": "2025-09-12T20:11:23Z",
+      "creationTx": "0x005b656109407ac011ae485ddfba80a6df788012e22747a99b67b8634b3df49c",
+      "creationBlock": 23349288,
       "auditCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-19",
+      "scopeMatch": true,
       "verification": "full_match",
       "verifiedCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
       "verificationGap": "cbor"
     },
     "Pauser": {
+      "deployedAt": "2025-09-12T20:11:23Z",
+      "creationTx": "0x005b656109407ac011ae485ddfba80a6df788012e22747a99b67b8634b3df49c",
+      "creationBlock": 23349288,
       "auditCommit": null,
       "auditUrl": null,
+      "scopeMatch": false,
       "verification": "full_match",
       "verifiedCommit": "463b7a874c4480c7663473dfdb844aeb7567cb13"
     },
     "QueueSolver": {
+      "deployedAt": "2025-09-12T20:11:23Z",
+      "creationTx": "0x005b656109407ac011ae485ddfba80a6df788012e22747a99b67b8634b3df49c",
+      "creationBlock": 23349288,
       "auditCommit": "b9eafd46e656c532ea2c28a1bd66ce271ebedbc7",
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-44",
+      "scopeMatch": true,
       "verification": "full_match",
       "verifiedCommit": "463b7a874c4480c7663473dfdb844aeb7567cb13"
     },
     "RolesAuthority": {
+      "deployedAt": "2025-09-12T20:11:23Z",
+      "creationTx": "0x005b656109407ac011ae485ddfba80a6df788012e22747a99b67b8634b3df49c",
+      "creationBlock": 23349288,
       "auditCommit": null,
       "auditUrl": null,
+      "scopeMatch": null,
       "verification": "full_match",
       "verifiedCommit": "463b7a874c4480c7663473dfdb844aeb7567cb13"
     },
     "TellerWithLayerZero": {
+      "deployedAt": "2025-09-12T20:11:23Z",
+      "creationTx": "0x005b656109407ac011ae485ddfba80a6df788012e22747a99b67b8634b3df49c",
+      "creationBlock": 23349288,
       "auditCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
       "auditUrl": "file:audit/certora-boring-vault-0.pdf",
+      "scopeMatch": true,
       "verification": "full_match",
       "verifiedCommit": "463b7a874c4480c7663473dfdb844aeb7567cb13"
     },
     "Timelock": {
+      "deployedAt": "2025-09-12T20:11:23Z",
+      "creationTx": "0x005b656109407ac011ae485ddfba80a6df788012e22747a99b67b8634b3df49c",
+      "creationBlock": 23349288,
       "auditCommit": null,
       "auditUrl": null,
+      "scopeMatch": null,
       "verification": "full_match",
       "verifiedCommit": "463b7a874c4480c7663473dfdb844aeb7567cb13"
     }
