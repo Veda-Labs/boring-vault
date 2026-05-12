@@ -48,12 +48,11 @@
       "verificationGap": "cbor"
     },
     "IncentiveDistributor": {
-      "deployedAt": "2024-12-18T18:10:42Z",
-      "creationTx": "0xef4528e780eea7c4698a1aa5162423bb9988e9c56e0a6859152df2a3f338dfcd",
-      "creationBlock": 599979,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null
+      "verification": "full_match",
+      "verifiedCommit": "4ef9c70625716d5d204dbf7092e1d216a5754775",
+      "verificationGap": "cbor"
     },
     "Lens": {
       "deployedAt": "2024-12-18T17:56:17Z",
