@@ -4,7 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BoringSwapper} from "src/base/Periphery/BoringSwapper.sol";
+import {ISwapperTypes} from "src/interfaces/ISwapperTypes.sol";
 
 
 interface IAdapter {
@@ -20,6 +20,6 @@ interface IAdapter {
     }
 
     function version() external view returns (uint256);
-    function verifyLimitOrder(BoringSwapper.SwapConfig calldata swapConfig, address swapper) external view returns (OrderInfo memory);
-    function cancelLimitOrder(BoringSwapper.SwapConfig calldata swapConfig, address swapper) external view returns (address target, bytes memory data);
+    function verifyLimitOrder(ISwapperTypes.SwapConfig calldata swapConfig, address swapper) external view returns (OrderInfo memory);
+    function cancelLimitOrder(ISwapperTypes.SwapConfig calldata swapConfig, address swapper) external view returns (address target, bytes memory data);
 }

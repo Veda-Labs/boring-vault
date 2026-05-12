@@ -4,7 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BoringSwapper} from "src/base/Periphery/BoringSwapper.sol";
+import {ISwapperTypes} from "src/interfaces/ISwapperTypes.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
@@ -88,7 +88,7 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         if (desc.srcReceiver != payable(trustedExecutor)) revert OneInchAdapter__SrcReceiverMismatch();
         if (desc.dstReceiver != payable(msg.sender)) revert OneInchAdapter__DstReceiverNotSwapper();
 
-        BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
+        ISwapperTypes.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(desc.srcToken) != swapConfig.tokenRoute.tokenIn) revert OneInchAdapter__SrcTokenMismatch();
         if (ERC20(desc.dstToken) != swapConfig.tokenRoute.tokenOut) revert OneInchAdapter__DstTokenMismatch();
 
@@ -108,7 +108,7 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         view
         returns (address, uint256)
     {
-        BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
+        ISwapperTypes.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(address(uint160(token))) != swapConfig.tokenRoute.tokenIn) revert OneInchAdapter__TokenInMismatch();
 
         address tokenOut = _unoswapCheck(dex, token);
@@ -129,7 +129,7 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         view
         returns (address, uint256)
     {
-        BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
+        ISwapperTypes.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(address(uint160(token))) != swapConfig.tokenRoute.tokenIn) revert OneInchAdapter__TokenInMismatch();
 
         address tokenOutDex2 = _unoswap2Check(dex, dex2, token);
@@ -151,7 +151,7 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         view
         returns (address, uint256)
     {
-        BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
+        ISwapperTypes.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(address(uint160(token))) != swapConfig.tokenRoute.tokenIn) revert OneInchAdapter__TokenInMismatch();
 
         address tokenOutDex3 = _unoswap3Check(dex, dex2, dex3, token);
@@ -173,7 +173,7 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         returns (address, uint256)
     {
         if (address(uint160(to)) != msg.sender) revert OneInchAdapter__ToNotSwapper();
-        BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
+        ISwapperTypes.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(address(uint160(token))) != swapConfig.tokenRoute.tokenIn) revert OneInchAdapter__TokenInMismatch();
 
         address tokenOut = _unoswapCheck(dex, token);
@@ -196,7 +196,7 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         returns (address, uint256)
     {
         if (address(uint160(to)) != msg.sender) revert OneInchAdapter__ToNotSwapper();
-        BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
+        ISwapperTypes.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(address(uint160(token))) != swapConfig.tokenRoute.tokenIn) revert OneInchAdapter__TokenInMismatch();
 
         address tokenOutDex2 = _unoswap2Check(dex, dex2, token);
@@ -216,7 +216,7 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         uint256 dex3
     ) external view returns (address, uint256) {
         if (address(uint160(to)) != msg.sender) revert OneInchAdapter__ToNotSwapper();
-        BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
+        ISwapperTypes.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(address(uint160(token))) != swapConfig.tokenRoute.tokenIn) revert OneInchAdapter__TokenInMismatch();
 
         address tokenOutDex3 = _unoswap3Check(dex, dex2, dex3, token);
@@ -236,7 +236,7 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         view
         returns (address, uint256)
     {
-        BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
+        ISwapperTypes.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(address(uint160(order.takerAsset))) != swapConfig.tokenRoute.tokenIn) revert OneInchAdapter__TakerAssetMismatch();
         if (ERC20(address(uint160(order.makerAsset))) != swapConfig.tokenRoute.tokenOut) revert OneInchAdapter__MakerAssetMismatch();
         // _ARGS_HAS_TARGET (bit 251): if set, makerAsset is redirected to a custom address
@@ -251,7 +251,7 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
 
     /// @notice swapData encoding: abi.encode(OneInchLimitOrder order, bytes extension)
     /// The extension contains the FeeTaker postInteraction data where the custom receiver (vault) is embedded.
-    function verifyLimitOrder(BoringSwapper.SwapConfig calldata swapConfig, address swapper)
+    function verifyLimitOrder(ISwapperTypes.SwapConfig calldata swapConfig, address swapper)
         external
         view
         returns (OrderInfo memory)
@@ -287,7 +287,7 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         });
     }
 
-    function cancelLimitOrder(BoringSwapper.SwapConfig calldata swapConfig, address)
+    function cancelLimitOrder(ISwapperTypes.SwapConfig calldata swapConfig, address)
         external
         view
         returns (address, bytes memory)

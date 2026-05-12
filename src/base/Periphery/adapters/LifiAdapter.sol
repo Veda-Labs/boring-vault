@@ -4,7 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BoringSwapper} from "src/base/Periphery/BoringSwapper.sol";
+import {ISwapperTypes} from "src/interfaces/ISwapperTypes.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
@@ -46,7 +46,7 @@ contract LifiAdapter is IAdapter, BaseAdapter {
     ) external view returns (address, uint256) {
         if (_receiver != payable(msg.sender)) revert LifiAdapter__ReceiverNotSwapper();
 
-        BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
+        ISwapperTypes.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(_swapData[0].sendingAssetId) != swapConfig.tokenRoute.tokenIn)
             revert LifiAdapter__SrcTokenMismatch();
         if (ERC20(_swapData[_swapData.length - 1].receivingAssetId) != swapConfig.tokenRoute.tokenOut)
@@ -70,7 +70,7 @@ contract LifiAdapter is IAdapter, BaseAdapter {
     ) external view returns (address, uint256) {
         if (_receiver != payable(msg.sender)) revert LifiAdapter__ReceiverNotSwapper();
 
-        BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
+        ISwapperTypes.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(_swapData.sendingAssetId) != swapConfig.tokenRoute.tokenIn)
             revert LifiAdapter__SrcTokenMismatch();
         if (ERC20(_swapData.receivingAssetId) != swapConfig.tokenRoute.tokenOut)
@@ -90,7 +90,7 @@ contract LifiAdapter is IAdapter, BaseAdapter {
     ) external view returns (address, uint256) {
         if (_receiver != payable(msg.sender)) revert LifiAdapter__ReceiverNotSwapper();
 
-        BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
+        ISwapperTypes.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(_swapData[0].sendingAssetId) != swapConfig.tokenRoute.tokenIn)
             revert LifiAdapter__SrcTokenMismatch();
         if (ERC20(_swapData[_swapData.length - 1].receivingAssetId) != swapConfig.tokenRoute.tokenOut)
@@ -101,7 +101,7 @@ contract LifiAdapter is IAdapter, BaseAdapter {
 
     //============================== Limit Orders (not supported) ===============================
 
-    function verifyLimitOrder(BoringSwapper.SwapConfig calldata, address)
+    function verifyLimitOrder(ISwapperTypes.SwapConfig calldata, address)
         external
         pure
         returns (OrderInfo memory)
@@ -109,7 +109,7 @@ contract LifiAdapter is IAdapter, BaseAdapter {
         revert LifiAdapter__LimitOrdersNotSupported();
     }
 
-    function cancelLimitOrder(BoringSwapper.SwapConfig calldata, address)
+    function cancelLimitOrder(ISwapperTypes.SwapConfig calldata, address)
         external
         pure
         returns (address, bytes memory)

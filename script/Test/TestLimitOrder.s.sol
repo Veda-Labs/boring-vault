@@ -6,6 +6,7 @@ pragma solidity 0.8.21;
 
 import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
 import {BoringSwapper} from "src/base/Periphery/BoringSwapper.sol";
+import {ISwapperTypes} from "src/interfaces/ISwapperTypes.sol";
 import {BoringVault} from "src/base/BoringVault.sol";
 import {BoringSwapperDecoder} from "src/base/DecodersAndSanitizers/Protocols/BoringSwapperDecoderAndSanitizer.sol";
 import {AdapterRegistry} from "src/base/Periphery/AdapterRegistry.sol"; 
@@ -109,12 +110,12 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
           buyTokenBalance: keccak256("erc20")
         }));
 
-        BoringSwapper.TokenRoute memory tokenRoute = BoringSwapper.TokenRoute(
+        ISwapperTypes.TokenRoute memory tokenRoute = ISwapperTypes.TokenRoute(
             getERC20(sourceChain, "WETH"),
             getERC20(sourceChain, "USDC")
         );
 
-        BoringSwapper.SwapConfig memory cowSwapConfig = BoringSwapper.SwapConfig({
+        ISwapperTypes.SwapConfig memory cowSwapConfig = ISwapperTypes.SwapConfig({
             tokenRoute: tokenRoute,
             adapter: cowswapAdapter,
             quoteAsset: getAddress(sourceChain, "USDC"),
@@ -178,12 +179,12 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
             makerTraits: makerTraits
         }), extension);
 
-        BoringSwapper.TokenRoute memory tokenRoute = BoringSwapper.TokenRoute(
+        ISwapperTypes.TokenRoute memory tokenRoute = ISwapperTypes.TokenRoute(
             getERC20(sourceChain, "WETH"),
             getERC20(sourceChain, "USDC")
         );
 
-        BoringSwapper.SwapConfig memory oneInchConfig = BoringSwapper.SwapConfig({
+        ISwapperTypes.SwapConfig memory oneInchConfig = ISwapperTypes.SwapConfig({
             tokenRoute: tokenRoute,
             adapter: oneInchAdapter,
             quoteAsset: getAddress(sourceChain, "USDC"),
@@ -250,12 +251,12 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
         // TODO: replace with fresh swap calldata from the 1inch API
         bytes memory oneInchSwapData = hex"83800a8e000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200000000000000000000000000000000000000000000000000038d7ea4c6800000000000000000000000000000000000000000000000000000000000002185e308000000000000003b6d0340397ff1542f962076d0bfe58ea045ffa2d347aca0f583bc2f";
 
-        BoringSwapper.TokenRoute memory tokenRoute = BoringSwapper.TokenRoute(
+        ISwapperTypes.TokenRoute memory tokenRoute = ISwapperTypes.TokenRoute(
             getERC20(sourceChain, "WETH"),
             getERC20(sourceChain, "USDC")
         );
 
-        BoringSwapper.SwapConfig memory regularSwapConfig = BoringSwapper.SwapConfig({
+        ISwapperTypes.SwapConfig memory regularSwapConfig = ISwapperTypes.SwapConfig({
             tokenRoute: tokenRoute,
             adapter: oneInchAdapter,
             quoteAsset: getAddress(sourceChain, "USDC"),
@@ -324,8 +325,8 @@ contract TestLimitOrderScript is Script, MerkleTreeHelper, BaseTestIntegration {
             interaction:    ""
         }));
 
-        BoringSwapper.SwapConfig memory ooConfig = BoringSwapper.SwapConfig({
-            tokenRoute: BoringSwapper.TokenRoute(
+        ISwapperTypes.SwapConfig memory ooConfig = ISwapperTypes.SwapConfig({
+            tokenRoute: ISwapperTypes.TokenRoute(
                 getERC20(sourceChain, "WETH"),
                 getERC20(sourceChain, "USDC")
             ),

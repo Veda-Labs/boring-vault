@@ -17,6 +17,7 @@ import {IPriceValidator} from "src/interfaces/IPriceValidator.sol";
 import {ISwapper} from "src/interfaces/ISwapper.sol";
 import {IPausable} from "src/interfaces/IPausable.sol";
 import {IFeeRegistry} from "src/interfaces/IFeeRegistry.sol";
+import {ISwapperTypes} from "src/interfaces/ISwapperTypes.sol";
 
 contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
     using FixedPointMathLib for uint256;
@@ -30,24 +31,10 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
 
     // ========================================= STRUCTS =========================================
 
-    struct TokenRoute {
-        ERC20 tokenIn;
-        ERC20 tokenOut;
-    }
-
     struct RateProviderConfig {
         address[] rateProvider;
         address[] intermediary;
         bool skipValidation;
-    }
-
-    struct SwapConfig {
-        TokenRoute tokenRoute;
-        address adapter;
-        address quoteAsset;
-        bytes swapData;
-        uint256 slippageBps;
-        BoringVault receiver;
     }
 
     struct OrderRecord {
@@ -185,7 +172,7 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
     // ========================================= SWAP FUNCTIONS =========================================
 
     /// @notice Executes an instant swap via an approved adapter protocol.
-    function swap(SwapConfig calldata swapConfig) external requiresAuth nonReentrant {
+    function swap(ISwapperTypes.SwapConfig calldata swapConfig) external requiresAuth nonReentrant {
         (bytes32 key, address target, uint256 amount) = _swapPreFlightCheck(swapConfig);
 
         //enforce rate limit
@@ -199,7 +186,7 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
     }
 
     /// @notice Submits a limit order via an approved adapter protocol (e.g. CoWSwap).
-    function submitOrder(SwapConfig calldata swapConfig) external requiresAuth nonReentrant {
+    function submitOrder(ISwapperTypes.SwapConfig calldata swapConfig) external requiresAuth nonReentrant {
         (bytes32 key, IAdapter.OrderInfo memory info, uint256 orderId) = _limitOrderPreFlightCheck(swapConfig);
 
         //enforce rate limit
@@ -212,11 +199,11 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
 
 
     /// @notice Cancels a pending limit order, invalidates it on-chain, and refunds remaining tokens to the vault.
-    function cancelOrder(uint256 orderId, SwapConfig calldata swapConfig) external requiresAuth {
+    function cancelOrder(uint256 orderId, ISwapperTypes.SwapConfig calldata swapConfig) external requiresAuth {
         _cancelOrder(orderId, swapConfig);
     }
 
-    function replaceOrder(uint256 orderId, SwapConfig calldata cancelConfig, SwapConfig memory newConfig)
+    function replaceOrder(uint256 orderId, ISwapperTypes.SwapConfig calldata cancelConfig, ISwapperTypes.SwapConfig memory newConfig)
         external
         requiresAuth
     {
@@ -231,7 +218,7 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
         emit OrderSubmitted(newOrderId, key, info.inputAmount, address(newConfig.receiver));
     }
 
-    function _cancelOrder(uint256 orderId, SwapConfig calldata swapConfig) internal {
+    function _cancelOrder(uint256 orderId, ISwapperTypes.SwapConfig calldata swapConfig) internal {
         OrderRecord storage record = orderRecords[orderId];
         if (address(record.tokenIn) == address(0)) revert BoringSwapper__OrderNotFound();
         if (record.cancelledAt > 0) revert BoringSwapper__AlreadyCancelled();
@@ -284,7 +271,7 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
 
     /// @notice ERC-1271 signature validation — re-validates the order at fill time.
     function isValidSignature(bytes32 _hash, bytes memory _signature) external view returns (bytes4) {
-        SwapConfig memory swapConfig = abi.decode(_signature, (SwapConfig));
+        ISwapperTypes.SwapConfig memory swapConfig = abi.decode(_signature, (ISwapperTypes.SwapConfig));
         _validateAdapter(swapConfig.adapter);
 
         address adapter = swapConfig.adapter;
@@ -523,7 +510,7 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
 
     // ========================================= INTERNAL FUNCTIONS =========================================
     
-    function _swapPreFlightCheck(SwapConfig calldata swapConfig) internal view returns (bytes32, address, uint256) {
+    function _swapPreFlightCheck(ISwapperTypes.SwapConfig calldata swapConfig) internal view returns (bytes32, address, uint256) {
         _validateAdapter(swapConfig.adapter);
 
         address target;
@@ -542,7 +529,7 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
         return (key, target, amount);
     }
 
-    function _swapPostFlightCheck(SwapConfig calldata swapConfig, address target, uint256 amount)
+    function _swapPostFlightCheck(ISwapperTypes.SwapConfig calldata swapConfig, address target, uint256 amount)
         internal
         returns (uint256)
     {
@@ -596,7 +583,7 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
         return tokenBalanceDelta;
     }
 
-    function _limitOrderPreFlightCheck(SwapConfig memory swapConfig)
+    function _limitOrderPreFlightCheck(ISwapperTypes.SwapConfig memory swapConfig)
         internal
         returns (bytes32, IAdapter.OrderInfo memory, uint256)
     {

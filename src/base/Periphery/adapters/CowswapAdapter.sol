@@ -4,7 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BoringSwapper} from "src/base/Periphery/BoringSwapper.sol";
+import {ISwapperTypes} from "src/interfaces/ISwapperTypes.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
@@ -47,7 +47,7 @@ contract CowswapAdapter is IAdapter {
 
     //============================== Limit Orders ===============================
 
-    function verifyLimitOrder(BoringSwapper.SwapConfig calldata swapConfig, address)
+    function verifyLimitOrder(ISwapperTypes.SwapConfig calldata swapConfig, address)
         external
         view
         returns (OrderInfo memory)
@@ -77,7 +77,7 @@ contract CowswapAdapter is IAdapter {
         });
     }
 
-    function cancelLimitOrder(BoringSwapper.SwapConfig calldata swapConfig, address swapper)
+    function cancelLimitOrder(ISwapperTypes.SwapConfig calldata swapConfig, address swapper)
         external
         view
         returns (address, bytes memory)

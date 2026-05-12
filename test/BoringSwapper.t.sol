@@ -6,6 +6,7 @@ pragma solidity 0.8.21;
 
 import {BoringVault} from "src/base/BoringVault.sol";
 import {BoringSwapper} from "src/base/Periphery/BoringSwapper.sol";
+import {ISwapperTypes} from "src/interfaces/ISwapperTypes.sol";
 import {AdapterRegistry} from "src/base/Periphery/AdapterRegistry.sol";
 import {CowswapAdapter} from "src/base/Periphery/adapters/CowswapAdapter.sol";
 import {PriceValidator} from "src/base/Periphery/adapters/price/PriceValidator.sol";
@@ -149,7 +150,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     function testSubmitOrder() external {
         deal(address(WETH), address(boringVault), 100e18);
 
-        (BoringSwapper.SwapConfig memory config,, uint256 orderId) =
+        (ISwapperTypes.SwapConfig memory config,, uint256 orderId) =
             _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
 
         //order record stored
@@ -177,8 +178,8 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
             bytes32(0), uint256(0), KIND_SELL, false, BALANCE_ERC20, BALANCE_ERC20
         );
 
-        BoringSwapper.SwapConfig memory config = BoringSwapper.SwapConfig({
-            tokenRoute: BoringSwapper.TokenRoute(USDC, WETH),
+        ISwapperTypes.SwapConfig memory config = ISwapperTypes.SwapConfig({
+            tokenRoute: ISwapperTypes.TokenRoute(USDC, WETH),
             adapter: address(cowAdapter),
             quoteAsset: address(USDC),
             swapData: cowswapData,
@@ -194,7 +195,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(boringVault), 100e18);
 
         //fat finger: 1 WETH for 1000 USDC (50% below oracle)
-        (BoringSwapper.SwapConfig memory config,) = _buildSwapConfig(1e18, 1000e6, uint32(block.timestamp + 3600));
+        (ISwapperTypes.SwapConfig memory config,) = _buildSwapConfig(1e18, 1000e6, uint32(block.timestamp + 3600));
         vm.expectRevert(abi.encodeWithSelector(PriceValidator.PriceValidator__ExceedsMaxSlippage.selector));
         swapper.submitOrder(config);
     }
@@ -203,7 +204,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(boringVault), 100e18);
 
         //use approved route but unapproved protocol
-        (BoringSwapper.SwapConfig memory config,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 3600));
+        (ISwapperTypes.SwapConfig memory config,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 3600));
         config.adapter = address(0xdead);
 
         vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__AdapterNotApproved.selector));
@@ -228,7 +229,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     function testIsValidSignature() external {
         deal(address(WETH), address(boringVault), 100e18);
 
-        (BoringSwapper.SwapConfig memory config, bytes32 orderDigest,) =
+        (ISwapperTypes.SwapConfig memory config, bytes32 orderDigest,) =
             _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
         
         vm.prank(COW_SETTLEMENT);
@@ -239,7 +240,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     function testIsValidSignature_RevertHashMismatch() external {
         deal(address(WETH), address(boringVault), 100e18);
 
-        (BoringSwapper.SwapConfig memory config, bytes32 digest,) =
+        (ISwapperTypes.SwapConfig memory config, bytes32 digest,) =
             _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
 
         //use a garbage hash
@@ -255,7 +256,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     function testIsValidSignature_RevertAfterRouteRevoked() external {
         deal(address(WETH), address(boringVault), 100e18);
 
-        (BoringSwapper.SwapConfig memory config, bytes32 orderDigest,) =
+        (ISwapperTypes.SwapConfig memory config, bytes32 orderDigest,) =
             _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
 
         //verify it works before revocation
@@ -270,7 +271,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     function testIsValidSignature_RevertUnapprovedProtocol() external {
         deal(address(WETH), address(boringVault), 100e18);
 
-        (BoringSwapper.SwapConfig memory config, bytes32 orderDigest,) =
+        (ISwapperTypes.SwapConfig memory config, bytes32 orderDigest,) =
             _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
 
         //swap adapter to something unapproved before calling isValidSignature
@@ -285,7 +286,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     function testCancelOrder() external {
         deal(address(WETH), address(boringVault), 100e18);
 
-        (BoringSwapper.SwapConfig memory config, , uint256 orderId) = _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
+        (ISwapperTypes.SwapConfig memory config, , uint256 orderId) = _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
 
         assertEq(WETH.balanceOf(address(swapper)), 1e18);
         assertEq(WETH.balanceOf(address(boringVault)), 99e18);
@@ -304,8 +305,8 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
     function testCancelOrder_RevertNotFound() external {
         // Build a dummy SwapConfig since there's no real order
-        BoringSwapper.SwapConfig memory dummyConfig = BoringSwapper.SwapConfig({
-            tokenRoute: BoringSwapper.TokenRoute(WETH, USDC),
+        ISwapperTypes.SwapConfig memory dummyConfig = ISwapperTypes.SwapConfig({
+            tokenRoute: ISwapperTypes.TokenRoute(WETH, USDC),
             adapter: address(cowAdapter),
             quoteAsset: address(USDC),
             swapData: "",
@@ -319,7 +320,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     function testCancelOrder_RevertDoubleCancelation() external {
         deal(address(WETH), address(boringVault), 100e18);
 
-        (BoringSwapper.SwapConfig memory config, , uint256 orderId) = _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
+        (ISwapperTypes.SwapConfig memory config, , uint256 orderId) = _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
         swapper.cancelOrder(orderId, config);
 
         vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__AlreadyCancelled.selector));
@@ -329,7 +330,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     function testCancelOrder_OneOfMultiple() external {
         deal(address(WETH), address(boringVault), 100e18);
 
-        (BoringSwapper.SwapConfig memory config0, , uint256 orderId0) = _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
+        (ISwapperTypes.SwapConfig memory config0, , uint256 orderId0) = _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
         (, , uint256 orderId1) = _submitOrder(2e18, 4000e6, uint32(block.timestamp + 7200));
 
         assertEq(WETH.balanceOf(address(swapper)), 3e18);
@@ -357,7 +358,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     function testFullFillFlow() external {
         deal(address(WETH), address(boringVault), 100e18);
 
-        (BoringSwapper.SwapConfig memory config, bytes32 orderDigest, uint256 orderId) =
+        (ISwapperTypes.SwapConfig memory config, bytes32 orderDigest, uint256 orderId) =
             _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
 
         uint256 vaultWethBefore = WETH.balanceOf(address(boringVault));
@@ -379,7 +380,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     function testPartialFillThenCancel() external {
         deal(address(WETH), address(boringVault), 100e18);
 
-        (BoringSwapper.SwapConfig memory config, bytes32 orderDigest, uint256 orderId) =
+        (ISwapperTypes.SwapConfig memory config, bytes32 orderDigest, uint256 orderId) =
             _submitOrder(10e18, 20000e6, uint32(block.timestamp + 3600));
 
         assertEq(WETH.balanceOf(address(swapper)), 10e18);
@@ -400,7 +401,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     function testCancelAfterFullFill() external {
         deal(address(WETH), address(boringVault), 100e18);
 
-        (BoringSwapper.SwapConfig memory config, bytes32 orderDigest, uint256 orderId) =
+        (ISwapperTypes.SwapConfig memory config, bytes32 orderDigest, uint256 orderId) =
             _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
 
         //full fill
@@ -439,7 +440,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         swapper.setRateLimit(routeKey, 2e18, 0);
 
-        (BoringSwapper.SwapConfig memory config,) = _buildSwapConfig(3e18, 6000e6, uint32(block.timestamp + 3600));
+        (ISwapperTypes.SwapConfig memory config,) = _buildSwapConfig(3e18, 6000e6, uint32(block.timestamp + 3600));
         vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__RateLimitExceeded.selector));
         swapper.submitOrder(config);
     }
@@ -450,7 +451,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         swapper.setRateLimit(routeKey, 5e18, 0);
 
-        (BoringSwapper.SwapConfig memory config,, uint256 orderId) = _submitOrder(3e18, 6000e6, uint32(block.timestamp + 3600));
+        (ISwapperTypes.SwapConfig memory config,, uint256 orderId) = _submitOrder(3e18, 6000e6, uint32(block.timestamp + 3600));
 
         (, uint256 remaining,,) = swapper.rateLimitPerRoute(routeKey);
         assertEq(remaining, 2e18);
@@ -467,7 +468,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         swapper.setRouteConfig(WETH, USDC, 50, 10e18, 0);
 
-        (BoringSwapper.SwapConfig memory config, bytes32 digest, uint256 orderId) =
+        (ISwapperTypes.SwapConfig memory config, bytes32 digest, uint256 orderId) =
             _submitOrder(6e18, 12000e6, uint32(block.timestamp + 3600));
 
         (, uint256 remaining,,) = swapper.rateLimitPerRoute(routeKey);
@@ -497,7 +498,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         // warp 5 seconds → 5e18 refilled, then consume 3e18
         vm.warp(block.timestamp + 5);
-        (BoringSwapper.SwapConfig memory config,) = _buildSwapConfig(3e18, 6000e6, uint32(block.timestamp + 7200));
+        (ISwapperTypes.SwapConfig memory config,) = _buildSwapConfig(3e18, 6000e6, uint32(block.timestamp + 7200));
         swapper.submitOrder(config);
 
         (, remaining,,) = swapper.rateLimitPerRoute(routeKey);
@@ -518,7 +519,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         assertEq(remaining, 0);
 
         // bucket empty — any further submit reverts
-        (BoringSwapper.SwapConfig memory config,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 7200));
+        (ISwapperTypes.SwapConfig memory config,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 7200));
         vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__RateLimitExceeded.selector));
         swapper.submitOrder(config);
     }
@@ -593,7 +594,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         swapper.pause();
 
-        (BoringSwapper.SwapConfig memory config,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 3600));
+        (ISwapperTypes.SwapConfig memory config,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 3600));
         vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__Paused.selector));
         swapper.submitOrder(config);
 
@@ -606,7 +607,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     function testGlobalPause_BlocksIsValidSignature() external {
         deal(address(WETH), address(boringVault), 100e18);
 
-        (BoringSwapper.SwapConfig memory config, bytes32 orderDigest,) =
+        (ISwapperTypes.SwapConfig memory config, bytes32 orderDigest,) =
             _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
 
         //pause should block fills
@@ -620,7 +621,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         swapper.setAdapterPaused(address(cowAdapter), true);
 
-        (BoringSwapper.SwapConfig memory config,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 3600));
+        (ISwapperTypes.SwapConfig memory config,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 3600));
         vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__AdapterPaused.selector));
         swapper.submitOrder(config);
 
@@ -633,7 +634,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     function testProtocolPause_BlocksIsValidSignature() external {
         deal(address(WETH), address(boringVault), 100e18);
 
-        (BoringSwapper.SwapConfig memory config, bytes32 orderDigest,) =
+        (ISwapperTypes.SwapConfig memory config, bytes32 orderDigest,) =
             _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
 
         //pause cowswap should block fills
@@ -650,7 +651,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         swapper.setAdapterPaused(address(otherAdapter), true);
 
         //cowswap should still work
-        (BoringSwapper.SwapConfig memory config,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 3600));
+        (ISwapperTypes.SwapConfig memory config,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 3600));
         swapper.submitOrder(config);
         assertEq(swapper.orders(), 1);
     }
@@ -747,7 +748,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         address usdQuoteAsset = address(USDC);
         
         //submit a 2 hop trade
-        (BoringSwapper.SwapConfig memory config,) = _buildSwapConfig(1e18, 2200e6, uint32(block.timestamp + 3600), address(STETH));
+        (ISwapperTypes.SwapConfig memory config,) = _buildSwapConfig(1e18, 2200e6, uint32(block.timestamp + 3600), address(STETH));
         swapper.submitOrder(config);
     }
 
@@ -756,7 +757,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         address usdQuoteAsset = address(USDC);
         
         //submit a 2 hop trade
-        (BoringSwapper.SwapConfig memory config,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 3600), address(STETH));
+        (ISwapperTypes.SwapConfig memory config,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 3600), address(STETH));
         vm.expectRevert(abi.encodeWithSelector(PriceValidator.PriceValidator__ExceedsMaxSlippage.selector));
         swapper.submitOrder(config);
     }
@@ -765,7 +766,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(boringVault), 100e18);
 
         //route max slippage is 50 bps, use 51 bps
-        (BoringSwapper.SwapConfig memory config,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 3600));
+        (ISwapperTypes.SwapConfig memory config,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 3600));
         config.slippageBps = 51;
 
         vm.expectRevert(abi.encodeWithSelector(PriceValidator.PriceValidator__ExceedsRouteMaxSlippage.selector));
@@ -778,7 +779,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         //overwrite any oracles
         swapper.setTokenOracle(WETH, usdQuoteAsset, _makeOracleConfig(address(0), address(0), false)); //should not skip, should revert
-        (BoringSwapper.SwapConfig memory config,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 3600));
+        (ISwapperTypes.SwapConfig memory config,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 3600));
 
         vm.expectRevert(abi.encodeWithSelector(PriceValidator.PriceValidator__OracleNotConfigured.selector));
         swapper.submitOrder(config);
@@ -789,13 +790,13 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     function testReplaceSwap() external {
         deal(address(WETH), address(boringVault), 100e18);
 
-        (BoringSwapper.SwapConfig memory oldConfig,, uint256 orderId) =
+        (ISwapperTypes.SwapConfig memory oldConfig,, uint256 orderId) =
             _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
 
         assertEq(WETH.balanceOf(address(swapper)), 1e18);
         assertEq(WETH.balanceOf(address(boringVault)), 99e18);
 
-        (BoringSwapper.SwapConfig memory newConfig,) =
+        (ISwapperTypes.SwapConfig memory newConfig,) =
             _buildSwapConfig(2e18, 4000e6, uint32(block.timestamp + 7200));
 
         uint256 newOrderId = swapper.orders();
@@ -823,10 +824,10 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     function testReplaceSwap_OldHashInvalidated() external {
         deal(address(WETH), address(boringVault), 100e18);
 
-        (BoringSwapper.SwapConfig memory oldConfig, bytes32 oldDigest, uint256 orderId) =
+        (ISwapperTypes.SwapConfig memory oldConfig, bytes32 oldDigest, uint256 orderId) =
             _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
 
-        (BoringSwapper.SwapConfig memory newConfig,) =
+        (ISwapperTypes.SwapConfig memory newConfig,) =
             _buildSwapConfig(2e18, 4000e6, uint32(block.timestamp + 7200));
 
         swapper.replaceOrder(orderId, oldConfig, newConfig);
@@ -843,10 +844,10 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     function testReplaceSwap_NewHashValid() external {
         deal(address(WETH), address(boringVault), 100e18);
 
-        (BoringSwapper.SwapConfig memory oldConfig,, uint256 orderId) =
+        (ISwapperTypes.SwapConfig memory oldConfig,, uint256 orderId) =
             _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
 
-        (BoringSwapper.SwapConfig memory newConfig, bytes32 newDigest) =
+        (ISwapperTypes.SwapConfig memory newConfig, bytes32 newDigest) =
             _buildSwapConfig(2e18, 4000e6, uint32(block.timestamp + 7200));
 
         swapper.replaceOrder(orderId, oldConfig, newConfig);
@@ -864,8 +865,8 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     function testReplaceSwap_RevertOrderNotFound() external {
         deal(address(WETH), address(boringVault), 100e18);
 
-        (BoringSwapper.SwapConfig memory cancelConfig,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 3600));
-        (BoringSwapper.SwapConfig memory newConfig,) = _buildSwapConfig(2e18, 4000e6, uint32(block.timestamp + 7200));
+        (ISwapperTypes.SwapConfig memory cancelConfig,) = _buildSwapConfig(1e18, 2000e6, uint32(block.timestamp + 3600));
+        (ISwapperTypes.SwapConfig memory newConfig,) = _buildSwapConfig(2e18, 4000e6, uint32(block.timestamp + 7200));
 
         vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__OrderNotFound.selector));
         swapper.replaceOrder(999, cancelConfig, newConfig);
@@ -874,10 +875,10 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     function testReplaceSwap_EmitsEvents() external {
         deal(address(WETH), address(boringVault), 100e18);
 
-        (BoringSwapper.SwapConfig memory oldConfig,, uint256 orderId) =
+        (ISwapperTypes.SwapConfig memory oldConfig,, uint256 orderId) =
             _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
 
-        (BoringSwapper.SwapConfig memory newConfig,) =
+        (ISwapperTypes.SwapConfig memory newConfig,) =
             _buildSwapConfig(2e18, 4000e6, uint32(block.timestamp + 7200));
 
         uint256 newOrderId = swapper.orders();
@@ -1112,7 +1113,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         uint256 inputAmount = 1e18;
         uint256 expectedFee = inputAmount * 10 / 10_000;
 
-        (BoringSwapper.SwapConfig memory config, bytes32 digest, uint256 orderId) =
+        (ISwapperTypes.SwapConfig memory config, bytes32 digest, uint256 orderId) =
             _submitOrder(inputAmount, 2000e6, uint32(block.timestamp + 3600));
 
         _simulateFill(inputAmount, 2000e6, config, digest);
@@ -1129,7 +1130,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     function testReleaseFee_ClearsApprovedHash() external {
         deal(address(WETH), address(boringVault), 100e18);
 
-        (BoringSwapper.SwapConfig memory config, bytes32 digest, uint256 orderId) =
+        (ISwapperTypes.SwapConfig memory config, bytes32 digest, uint256 orderId) =
             _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
 
         assertTrue(swapper.approvedHashes(digest));
@@ -1150,7 +1151,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         deal(address(WETH), address(boringVault), 100e18);
 
         // swapper not active — no fee charged
-        (BoringSwapper.SwapConfig memory config, bytes32 digest, uint256 orderId) =
+        (ISwapperTypes.SwapConfig memory config, bytes32 digest, uint256 orderId) =
             _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
 
         _simulateFill(1e18, 2000e6, config, digest);
@@ -1176,7 +1177,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         uint256 inputAmount = 1e18;
         uint256 expectedFee = inputAmount * 10 / 10_000;
 
-        (BoringSwapper.SwapConfig memory config, bytes32 digest, uint256 orderId) =
+        (ISwapperTypes.SwapConfig memory config, bytes32 digest, uint256 orderId) =
             _submitOrder(inputAmount, 2000e6, uint32(block.timestamp + 3600));
 
         // Order actually fills off-chain
@@ -1217,7 +1218,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         uint256 inputAmount = 1e18;
         uint256 expectedFee = inputAmount * 10 / 10_000;
 
-        (BoringSwapper.SwapConfig memory config, bytes32 digest, uint256 orderId) =
+        (ISwapperTypes.SwapConfig memory config, bytes32 digest, uint256 orderId) =
             _submitOrder(inputAmount, 2000e6, uint32(block.timestamp + 3600));
 
         _simulateFill(inputAmount, 2000e6, config, digest);
@@ -1246,7 +1247,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         feeRegistry.setSwapperActive(address(swapper), true);
         // no setDefaultFeeRecipient — recipient is address(0)
 
-        (BoringSwapper.SwapConfig memory config, bytes32 digest, uint256 orderId) =
+        (ISwapperTypes.SwapConfig memory config, bytes32 digest, uint256 orderId) =
             _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
 
         _simulateFill(1e18, 2000e6, config, digest);
@@ -1267,7 +1268,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         uint256 inputAmount = 1e18;
         uint256 expectedFee = inputAmount * 10 / 10_000;
 
-        (BoringSwapper.SwapConfig memory config,, uint256 orderId) =
+        (ISwapperTypes.SwapConfig memory config,, uint256 orderId) =
             _submitOrder(inputAmount, 2000e6, uint32(block.timestamp + 3600));
 
         assertEq(WETH.balanceOf(address(boringVault)), 100e18 - inputAmount - expectedFee);
@@ -1292,7 +1293,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         uint256 inputAmount = 1e18;
         uint256 expectedFee = inputAmount * 10 / 10_000;
 
-        (BoringSwapper.SwapConfig memory config,, uint256 orderId) =
+        (ISwapperTypes.SwapConfig memory config,, uint256 orderId) =
             _submitOrder(inputAmount, 2000e6, uint32(block.timestamp + 3600));
 
         swapper.cancelOrder(orderId, config);
@@ -1316,7 +1317,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         uint256 inputAmount = 3e18;
         uint256 expectedFee = inputAmount * 10 / 10_000;
 
-        (BoringSwapper.SwapConfig memory config,, uint256 orderId) =
+        (ISwapperTypes.SwapConfig memory config,, uint256 orderId) =
             _submitOrder(inputAmount, 6000e6, uint32(block.timestamp + 3600));
 
         (, uint256 remaining,,) = swapper.rateLimitPerRoute(routeKey);
@@ -1345,7 +1346,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         uint256 sellAmount,
         uint256 buyAmount,
         uint32 validTo
-    ) internal view returns (BoringSwapper.SwapConfig memory, bytes32 orderDigest) {
+    ) internal view returns (ISwapperTypes.SwapConfig memory, bytes32 orderDigest) {
         return _buildSwapConfig(sellAmount, buyAmount, validTo, address(WETH));
     }
 
@@ -1354,7 +1355,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         uint256 buyAmount,
         uint32 validTo,
         address tokenIn
-    ) internal view returns (BoringSwapper.SwapConfig memory, bytes32 orderDigest) {
+    ) internal view returns (ISwapperTypes.SwapConfig memory, bytes32 orderDigest) {
         bytes memory cowswapData = abi.encode(
             tokenIn,      //sellToken
             address(USDC),      //buyToken
@@ -1370,8 +1371,8 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
             BALANCE_ERC20
         );
 
-        BoringSwapper.SwapConfig memory config = BoringSwapper.SwapConfig({
-            tokenRoute: BoringSwapper.TokenRoute(ERC20(tokenIn), USDC),
+        ISwapperTypes.SwapConfig memory config = ISwapperTypes.SwapConfig({
+            tokenRoute: ISwapperTypes.TokenRoute(ERC20(tokenIn), USDC),
             adapter: address(cowAdapter),
             quoteAsset: address(USDC),
             swapData: cowswapData,
@@ -1402,7 +1403,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
     function _submitOrder(uint256 sellAmount, uint256 buyAmount, uint32 validTo)
         internal
-        returns (BoringSwapper.SwapConfig memory config, bytes32 orderDigest, uint256 orderId)
+        returns (ISwapperTypes.SwapConfig memory config, bytes32 orderDigest, uint256 orderId)
     {
         (config, orderDigest) = _buildSwapConfig(sellAmount, buyAmount, validTo);
         orderId = swapper.orders();
@@ -1413,7 +1414,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     function _simulateFill(
         uint256 amountIn,
         uint256 amountOut,
-        BoringSwapper.SwapConfig memory config,
+        ISwapperTypes.SwapConfig memory config,
         bytes32 orderDigest
     ) internal {
         //verify signature (as settlement would)

@@ -4,7 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BoringSwapper} from "src/base/Periphery/BoringSwapper.sol";
+import {ISwapperTypes} from "src/interfaces/ISwapperTypes.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
@@ -99,7 +99,7 @@ contract OpenOceanAdapter is IAdapter, BaseAdapter {
         if (desc.srcReceiver != openOceanCaller) revert OpenOceanAdapter__SrcReceiverMismatch();
         if (desc.dstReceiver != msg.sender) revert OpenOceanAdapter__DstReceiverNotSwapper();
 
-        BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
+        ISwapperTypes.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(desc.srcToken) != swapConfig.tokenRoute.tokenIn) revert OpenOceanAdapter__SrcTokenMismatch();
         if (ERC20(desc.dstToken) != swapConfig.tokenRoute.tokenOut) revert OpenOceanAdapter__DstTokenMismatch();
 
@@ -116,7 +116,7 @@ contract OpenOceanAdapter is IAdapter, BaseAdapter {
         if (desc.srcReceiver != openOceanCaller) revert OpenOceanAdapter__SrcReceiverMismatch();
         if (desc.dstReceiver != msg.sender) revert OpenOceanAdapter__DstReceiverNotSwapper();
 
-        BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
+        ISwapperTypes.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(desc.srcToken) != swapConfig.tokenRoute.tokenIn) revert OpenOceanAdapter__SrcTokenMismatch();
         if (ERC20(desc.dstToken) != swapConfig.tokenRoute.tokenOut) revert OpenOceanAdapter__DstTokenMismatch();
 
@@ -133,7 +133,7 @@ contract OpenOceanAdapter is IAdapter, BaseAdapter {
         if (desc.srcReceiver != openOceanCaller) revert OpenOceanAdapter__SrcReceiverMismatch();
         if (desc.dstReceiver != msg.sender) revert OpenOceanAdapter__DstReceiverNotSwapper();
 
-        BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
+        ISwapperTypes.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(desc.srcToken) != swapConfig.tokenRoute.tokenIn) revert OpenOceanAdapter__SrcTokenMismatch();
         if (ERC20(desc.dstToken) != swapConfig.tokenRoute.tokenOut) revert OpenOceanAdapter__DstTokenMismatch();
 
@@ -148,7 +148,7 @@ contract OpenOceanAdapter is IAdapter, BaseAdapter {
         uint256, /*minReturn*/
         bytes32[] calldata pools
     ) external view returns (address, uint256) {
-        BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
+        ISwapperTypes.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(srcToken) != swapConfig.tokenRoute.tokenIn) revert OpenOceanAdapter__SrcTokenMismatch();
 
         address dstToken = _getUniV2DstToken(pools);
@@ -165,7 +165,7 @@ contract OpenOceanAdapter is IAdapter, BaseAdapter {
         address payable recipient
     ) external view returns (address, uint256) {
         if (recipient != payable(msg.sender)) revert OpenOceanAdapter__RecipientNotSwapper();
-        BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
+        ISwapperTypes.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(srcToken) != swapConfig.tokenRoute.tokenIn) revert OpenOceanAdapter__SrcTokenMismatch();
 
         address dstToken = _getUniV2DstToken(pools);
@@ -183,7 +183,7 @@ contract OpenOceanAdapter is IAdapter, BaseAdapter {
         uint256[] calldata pools
     ) external view returns (address, uint256) {
         if (recipient != payable(msg.sender)) revert OpenOceanAdapter__RecipientNotSwapper();
-        BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
+        ISwapperTypes.SwapConfig memory swapConfig = _getAppendedSwapConfig();
 
         address srcToken = _getUniV3SrcToken(pools);
         if (ERC20(srcToken) != swapConfig.tokenRoute.tokenIn) revert OpenOceanAdapter__SrcTokenMismatch();
@@ -207,7 +207,7 @@ contract OpenOceanAdapter is IAdapter, BaseAdapter {
     ///   - interaction must be empty (no post-fill callbacks into the swapper)
     ///   - permit must be empty (approvals managed by BoringSwapper)
     ///   - predicate must be empty (no conditional fills)
-    function verifyLimitOrder(BoringSwapper.SwapConfig calldata swapConfig, address swapper)
+    function verifyLimitOrder(ISwapperTypes.SwapConfig calldata swapConfig, address swapper)
         external
         view
         returns (OrderInfo memory)
@@ -241,7 +241,7 @@ contract OpenOceanAdapter is IAdapter, BaseAdapter {
         });
     }
 
-    function cancelLimitOrder(BoringSwapper.SwapConfig calldata swapConfig, address)
+    function cancelLimitOrder(ISwapperTypes.SwapConfig calldata swapConfig, address)
         external
         view
         returns (address, bytes memory)

@@ -4,7 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {BoringSwapper} from "src/base/Periphery/BoringSwapper.sol";
+import {ISwapperTypes} from "src/interfaces/ISwapperTypes.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
@@ -27,7 +27,7 @@ contract UniswapV3Adapter is IAdapter, BaseAdapter {
         if (params.recipient != msg.sender) revert("recipient must be swapper");
 
         // extract appended SwapConfig for additional validation
-        BoringSwapper.SwapConfig memory swapConfig = _getAppendedSwapConfig();
+        ISwapperTypes.SwapConfig memory swapConfig = _getAppendedSwapConfig();
 
         // verify path tokens match the approved token route
         // path is abi.encodePacked(tokenIn, fee, ..., tokenOut) — first 20 bytes = tokenIn, last 20 bytes = tokenOut
@@ -50,11 +50,11 @@ contract UniswapV3Adapter is IAdapter, BaseAdapter {
 
     error UniswapV3Adapter__LimitOrdersNotSupported();
 
-    function verifyLimitOrder(BoringSwapper.SwapConfig calldata, address) external pure returns (OrderInfo memory) {
+    function verifyLimitOrder(ISwapperTypes.SwapConfig calldata, address) external pure returns (OrderInfo memory) {
         revert UniswapV3Adapter__LimitOrdersNotSupported();
     }
 
-    function cancelLimitOrder(BoringSwapper.SwapConfig calldata, address) external pure returns (address, bytes memory) {
+    function cancelLimitOrder(ISwapperTypes.SwapConfig calldata, address) external pure returns (address, bytes memory) {
         revert UniswapV3Adapter__LimitOrdersNotSupported();
     }
 }

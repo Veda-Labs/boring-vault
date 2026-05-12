@@ -6,6 +6,7 @@ pragma solidity 0.8.21;
 
 import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
 import {BoringSwapper} from "src/base/Periphery/BoringSwapper.sol";
+import {ISwapperTypes} from "src/interfaces/ISwapperTypes.sol";
 import {BoringVault} from "src/base/BoringVault.sol";
 import {BoringSwapperDecoder} from "src/base/DecodersAndSanitizers/Protocols/BoringSwapperDecoderAndSanitizer.sol";
 import {AdapterRegistry} from "src/base/Periphery/AdapterRegistry.sol"; 
@@ -151,13 +152,13 @@ contract BoringSwapperIntegration is BaseTestIntegration {
             })
         );
             
-        BoringSwapper.TokenRoute memory tokenRoute = BoringSwapper.TokenRoute(
+        ISwapperTypes.TokenRoute memory tokenRoute = ISwapperTypes.TokenRoute(
             getERC20(sourceChain, "WETH"),
             getERC20(sourceChain, "USDC")
         );
         tx_.targetData[1] = abi.encodeWithSelector(
             BoringSwapper.swap.selector,
-            BoringSwapper.SwapConfig({
+            ISwapperTypes.SwapConfig({
                 tokenRoute: tokenRoute,
                 adapter: uniswapV3Adapter,
                 quoteAsset: getAddress(sourceChain, "USDC"),
@@ -242,13 +243,13 @@ contract BoringSwapperIntegration is BaseTestIntegration {
             })
         );
 
-        BoringSwapper.TokenRoute memory tokenRoute = BoringSwapper.TokenRoute(
+        ISwapperTypes.TokenRoute memory tokenRoute = ISwapperTypes.TokenRoute(
             getERC20(sourceChain, "WETH"),
             getERC20(sourceChain, "USDC")
         );
         tx_.targetData[1] = abi.encodeWithSelector(
             BoringSwapper.swap.selector,
-            BoringSwapper.SwapConfig({
+            ISwapperTypes.SwapConfig({
                 tokenRoute: tokenRoute,
                 adapter: uniswapV3Adapter,
                 quoteAsset: getAddress(sourceChain, "USDC"),
@@ -324,13 +325,13 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         );
         
         //swap config path is correct here! 
-        BoringSwapper.TokenRoute memory tokenRoute = BoringSwapper.TokenRoute(
+        ISwapperTypes.TokenRoute memory tokenRoute = ISwapperTypes.TokenRoute(
             getERC20(sourceChain, "WETH"),
             getERC20(sourceChain, "USDC")
         );
         tx_.targetData[1] = abi.encodeWithSelector(
             BoringSwapper.swap.selector,
-            BoringSwapper.SwapConfig({
+            ISwapperTypes.SwapConfig({
                 tokenRoute: tokenRoute,
                 adapter: uniswapV3Adapter,
                 quoteAsset: getAddress(sourceChain, "USDC"),
@@ -443,12 +444,12 @@ contract BoringSwapperIntegration is BaseTestIntegration {
           buyTokenBalance: keccak256("erc20")
       })); 
             
-        BoringSwapper.TokenRoute memory tokenRoute = BoringSwapper.TokenRoute(
+        ISwapperTypes.TokenRoute memory tokenRoute = ISwapperTypes.TokenRoute(
             getERC20(sourceChain, "WETH"),
             getERC20(sourceChain, "USDC")
         );
 
-        BoringSwapper.SwapConfig memory cowSwapConfig = BoringSwapper.SwapConfig({
+        ISwapperTypes.SwapConfig memory cowSwapConfig = ISwapperTypes.SwapConfig({
             tokenRoute: tokenRoute,
             adapter: cowswapAdapter,
             quoteAsset: getAddress(sourceChain, "USDC"),
@@ -534,14 +535,14 @@ contract BoringSwapperIntegration is BaseTestIntegration {
           buyTokenBalance: keccak256("erc20")
       }));
 
-        BoringSwapper.TokenRoute memory tokenRoute = BoringSwapper.TokenRoute(
+        ISwapperTypes.TokenRoute memory tokenRoute = ISwapperTypes.TokenRoute(
             getERC20(sourceChain, "WETH"),
             getERC20(sourceChain, "USDC")
         );
 
         tx_.targetData[1] = abi.encodeWithSelector(
             BoringSwapper.submitOrder.selector,
-            BoringSwapper.SwapConfig({
+            ISwapperTypes.SwapConfig({
                 tokenRoute: tokenRoute,
                 adapter: cowswapAdapter,
                 quoteAsset: getAddress(sourceChain, "USDC"),
@@ -573,7 +574,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
     function _buildOneInchSwapConfig(
         uint256 makingAmount,
         uint256 takingAmount
-    ) internal view returns (BoringSwapper.SwapConfig memory, bytes32 orderDigest) {
+    ) internal view returns (ISwapperTypes.SwapConfig memory, bytes32 orderDigest) {
         DecoderCustomTypes.OneInchLimitOrder memory order = DecoderCustomTypes.OneInchLimitOrder({
             salt: 1,
             maker: address(swapper),
@@ -588,8 +589,8 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         bytes memory orderData = abi.encode(order);
         bytes memory swapData = abi.encode(order, bytes(""));
 
-        BoringSwapper.SwapConfig memory config = BoringSwapper.SwapConfig({
-            tokenRoute: BoringSwapper.TokenRoute(
+        ISwapperTypes.SwapConfig memory config = ISwapperTypes.SwapConfig({
+            tokenRoute: ISwapperTypes.TokenRoute(
                 getERC20(sourceChain, "WETH"),
                 getERC20(sourceChain, "USDC")
             ),
@@ -608,7 +609,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
 
     function _submitOneInchOrder(uint256 makingAmount, uint256 takingAmount)
         internal
-        returns (BoringSwapper.SwapConfig memory config, bytes32 orderDigest, uint256 orderId)
+        returns (ISwapperTypes.SwapConfig memory config, bytes32 orderDigest, uint256 orderId)
     {
         (config, orderDigest) = _buildOneInchSwapConfig(makingAmount, takingAmount);
         orderId = swapper.orders();
@@ -618,7 +619,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
     function _simulateOneInchFill(
         uint256 amountIn,
         uint256 amountOut,
-        BoringSwapper.SwapConfig memory config,
+        ISwapperTypes.SwapConfig memory config,
         bytes32 orderDigest
     ) internal {
         vm.prank(ONEINCH_ROUTER);
@@ -642,7 +643,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         vm.prank(getAddress(sourceChain, "boringVault"));
         getERC20(sourceChain, "WETH").approve(address(swapper), type(uint256).max);
 
-        (BoringSwapper.SwapConfig memory config,, uint256 orderId) =
+        (ISwapperTypes.SwapConfig memory config,, uint256 orderId) =
             _submitOneInchOrder(1e18, 2000e6);
 
         (ERC20 tokenIn,,, BoringVault receiver, uint256 inputAmount,,,) =
@@ -663,7 +664,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         getERC20(sourceChain, "WETH").approve(address(swapper), type(uint256).max);
 
         //fat finger: 1 WETH for 1000 USDC (50% below oracle)
-        (BoringSwapper.SwapConfig memory config,) = _buildOneInchSwapConfig(1e18, 1000e6);
+        (ISwapperTypes.SwapConfig memory config,) = _buildOneInchSwapConfig(1e18, 1000e6);
         vm.expectRevert(abi.encodeWithSelector(PriceValidator.PriceValidator__ExceedsMaxSlippage.selector));
         swapper.submitOrder(config);
     }
@@ -674,7 +675,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         vm.prank(getAddress(sourceChain, "boringVault"));
         getERC20(sourceChain, "WETH").approve(address(swapper), type(uint256).max);
 
-        (BoringSwapper.SwapConfig memory config, bytes32 orderDigest,) =
+        (ISwapperTypes.SwapConfig memory config, bytes32 orderDigest,) =
             _submitOneInchOrder(1e18, 2000e6);
 
         vm.prank(ONEINCH_ROUTER);
@@ -688,7 +689,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         vm.prank(getAddress(sourceChain, "boringVault"));
         getERC20(sourceChain, "WETH").approve(address(swapper), type(uint256).max);
 
-        (BoringSwapper.SwapConfig memory config,,) =
+        (ISwapperTypes.SwapConfig memory config,,) =
             _submitOneInchOrder(1e18, 2000e6);
 
         vm.prank(ONEINCH_ROUTER);
@@ -702,7 +703,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         vm.prank(getAddress(sourceChain, "boringVault"));
         getERC20(sourceChain, "WETH").approve(address(swapper), type(uint256).max);
 
-        (BoringSwapper.SwapConfig memory config, , uint256 orderId) = _submitOneInchOrder(1e18, 2000e6);
+        (ISwapperTypes.SwapConfig memory config, , uint256 orderId) = _submitOneInchOrder(1e18, 2000e6);
 
         assertEq(getERC20(sourceChain, "WETH").balanceOf(address(swapper)), 1e18);
         assertEq(getERC20(sourceChain, "WETH").balanceOf(getAddress(sourceChain, "boringVault")), 99e18);
@@ -722,7 +723,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         vm.prank(getAddress(sourceChain, "boringVault"));
         getERC20(sourceChain, "WETH").approve(address(swapper), type(uint256).max);
 
-        (BoringSwapper.SwapConfig memory config, bytes32 orderDigest, uint256 orderId) =
+        (ISwapperTypes.SwapConfig memory config, bytes32 orderDigest, uint256 orderId) =
             _submitOneInchOrder(1e18, 2000e6);
 
         address vault = getAddress(sourceChain, "boringVault");
@@ -742,7 +743,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         vm.prank(getAddress(sourceChain, "boringVault"));
         getERC20(sourceChain, "WETH").approve(address(swapper), type(uint256).max);
 
-        (BoringSwapper.SwapConfig memory config, bytes32 orderDigest, uint256 orderId) =
+        (ISwapperTypes.SwapConfig memory config, bytes32 orderDigest, uint256 orderId) =
             _submitOneInchOrder(10e18, 20000e6);
 
         assertEq(getERC20(sourceChain, "WETH").balanceOf(address(swapper)), 10e18);
