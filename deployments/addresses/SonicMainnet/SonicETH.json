@@ -16,8 +16,9 @@
     "AccountantWithRateProviders": {
       "auditCommit": null,
       "auditUrl": null,
-      "verification": "mismatch",
-      "verifiedCommit": null
+      "verification": "full_match",
+      "verifiedCommit": "b9f0c94b403e7b879898721a3ea7392fc48a9d49",
+      "verificationGap": "cbor"
     },
     "BoringOnChainQueue": {
       "auditCommit": "edfcba3f29f691c638b06d04f60af79503632b58",
