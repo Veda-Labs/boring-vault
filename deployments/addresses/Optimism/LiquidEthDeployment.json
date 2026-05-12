@@ -62,8 +62,9 @@
     "AccountantWithRateProviders": {
       "auditCommit": null,
       "auditUrl": null,
-      "verification": "mismatch",
-      "verifiedCommit": null
+      "verification": "full_match",
+      "verifiedCommit": "529104270f693af771b1469e6f830c0010e34107",
+      "verificationGap": "cbor"
     },
     "BoringVault": {
       "auditCommit": null,
@@ -75,14 +76,16 @@
     "Lens": {
       "auditCommit": null,
       "auditUrl": null,
-      "verification": "mismatch",
-      "verifiedCommit": null
+      "verification": "full_match",
+      "verifiedCommit": "6064f06f72d8f972876009071b986f7d2e09feb1",
+      "verificationGap": "cbor"
     },
     "ManagerWithMerkleVerification": {
       "auditCommit": null,
       "auditUrl": null,
-      "verification": "mismatch",
-      "verifiedCommit": null
+      "verification": "full_match",
+      "verifiedCommit": "529104270f693af771b1469e6f830c0010e34107",
+      "verificationGap": "cbor"
     },
     "RolesAuthority": {
       "auditCommit": null,
@@ -94,8 +97,9 @@
     "TellerWithMultiAssetSupport": {
       "auditCommit": null,
       "auditUrl": null,
-      "verification": "mismatch",
-      "verifiedCommit": null
+      "verification": "full_match",
+      "verifiedCommit": "529104270f693af771b1469e6f830c0010e34107",
+      "verificationGap": "cbor"
     }
   }
 }
