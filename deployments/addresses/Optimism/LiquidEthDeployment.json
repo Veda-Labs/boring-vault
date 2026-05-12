@@ -100,6 +100,20 @@
       "verification": "full_match",
       "verifiedCommit": "529104270f693af771b1469e6f830c0010e34107",
       "verificationGap": "cbor"
+    },
+    "DecoderAndSanitizer": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "full_match",
+      "verifiedCommit": "529104270f693af771b1469e6f830c0010e34107",
+      "verificationGap": "cbor"
+    },
+    "DelayedWithdraw": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "full_match",
+      "verifiedCommit": "529104270f693af771b1469e6f830c0010e34107",
+      "verificationGap": "cbor"
     }
   }
 }
