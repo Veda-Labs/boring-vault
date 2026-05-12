@@ -45,6 +45,9 @@ contract ChainValues {
     string public constant tac = "tac";
     string public constant plasma = "plasma";
     string public constant inkSepolia = "inkSepolia";
+    string public constant sei = "sei";
+    string public constant monad = "monad";
+    string public constant xlayer = "xlayer";
 
     // Bridging constants.
     uint64 public constant ccipArbitrumChainSelector = 4949039107694359620;
