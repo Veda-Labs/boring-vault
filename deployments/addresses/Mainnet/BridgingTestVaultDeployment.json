@@ -55,7 +55,10 @@
     },
     "DecoderAndSanitizer": {
       "auditCommit": null,
-      "auditUrl": null
+      "auditUrl": null,
+      "verification": "full_match",
+      "verifiedCommit": "30848dc2638f6776eee66d0d5006600a08b7f677",
+      "verificationGap": "cbor"
     },
     "DelayedWithdraw": {
       "auditCommit": null,
