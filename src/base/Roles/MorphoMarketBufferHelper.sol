@@ -57,7 +57,7 @@ contract MorphoMarketBufferHelper is IBufferHelper {
      * @param lltv The liquidation loan-to-value ratio of the target Morpho Blue market
      */
     constructor(
-        address _orphoBlue,
+        address morphoBlue,
         address vault,
         address loanToken,
         address collateralToken,
