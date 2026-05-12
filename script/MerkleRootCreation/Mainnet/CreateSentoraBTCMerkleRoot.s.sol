@@ -42,7 +42,7 @@ contract CreateSentoraBTCMerkleRoot is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "accountantAddress", accountantAddress);
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](64);
+        ManageLeaf[] memory leafs = new ManageLeaf[](128);
         
         // ========================== Fee Claiming ==========================
         ERC20[] memory feeAssets = new ERC20[](1);
@@ -99,6 +99,16 @@ contract CreateSentoraBTCMerkleRoot is Script, MerkleTreeHelper {
             rlusdWbtcMorphoTokensUsed[1] = getERC20(sourceChain, "RLUSD");
             rlusdWbtcMorphoTokensUsed[2] = getERC20(sourceChain, "MORPHO");
             _addLeafsForITBPositionManagerLocal(leafs, rlusdWbtcMorphoPositionManager, rlusdWbtcMorphoTokensUsed, "Sentora RLUSD main V2 WBTC ITB Position Manager");
+        }
+
+        // Supplies kBTC on Morpho, borrows RLUSD, supplies RLUSD
+        {
+            address rlusdKbtcMorphoPositionManager = 0xCB3168E89C375FbD0649067B63d5379232763499;
+            ERC20[] memory rlusdKbtcMorphoTokensUsed = new ERC20[](3);
+            rlusdKbtcMorphoTokensUsed[0] = getERC20(sourceChain, "KBTC");
+            rlusdKbtcMorphoTokensUsed[1] = getERC20(sourceChain, "RLUSD");
+            rlusdKbtcMorphoTokensUsed[2] = getERC20(sourceChain, "MORPHO");
+            _addLeafsForITBPositionManagerLocal(leafs, rlusdKbtcMorphoPositionManager, rlusdKbtcMorphoTokensUsed, "Sentora RLUSD main V2 KBTC ITB Position Manager");
         }
 
         // ========================== 1inch ==========================
