@@ -42,6 +42,91 @@ interface IMorphoLite {
 }
 
 /**
+ * @notice A minimal twin of {MorphoMarketBufferHelper} that does NOT enforce zero-address
+ *         guards on its constructor. Used by the zero-address effect tests to demonstrate
+ *         what would silently happen if the real helper were missing those guards.
+ */
+contract UnsafeMorphoMarketBufferHelper {
+    address public immutable MORPHO_BLUE;
+    address public immutable VAULT;
+    address public immutable LOAN_TOKEN;
+    address public immutable COLLATERAL_TOKEN;
+    address public immutable ORACLE;
+    address public immutable IRM;
+    uint256 public immutable LLTV;
+
+    constructor(
+        address morphoBlue,
+        address vault,
+        address loanToken,
+        address collateralToken,
+        address oracle,
+        address irm,
+        uint256 lltv
+    ) {
+        MORPHO_BLUE = morphoBlue;
+        VAULT = vault;
+        LOAN_TOKEN = loanToken;
+        COLLATERAL_TOKEN = collateralToken;
+        ORACLE = oracle;
+        IRM = irm;
+        LLTV = lltv;
+    }
+
+    function marketParams() public view returns (DecoderCustomTypes.MarketParams memory) {
+        return DecoderCustomTypes.MarketParams({
+            loanToken: LOAN_TOKEN,
+            collateralToken: COLLATERAL_TOKEN,
+            oracle: ORACLE,
+            irm: IRM,
+            lltv: LLTV
+        });
+    }
+
+    function getDepositManageCall(address asset, uint256 amount)
+        public
+        view
+        returns (address[] memory targets, bytes[] memory data, uint256[] memory values)
+    {
+        targets = new address[](3);
+        targets[0] = asset;
+        targets[1] = asset;
+        targets[2] = MORPHO_BLUE;
+        data = new bytes[](3);
+        data[0] = abi.encodeWithSignature("approve(address,uint256)", MORPHO_BLUE, 0);
+        data[1] = abi.encodeWithSignature("approve(address,uint256)", MORPHO_BLUE, amount);
+        data[2] = abi.encodeWithSignature(
+            "supply((address,address,address,address,uint256),uint256,uint256,address,bytes)",
+            marketParams(),
+            amount,
+            uint256(0),
+            VAULT,
+            bytes("")
+        );
+        values = new uint256[](3);
+    }
+
+    function getWithdrawManageCall(address, /* asset */ uint256 amount)
+        public
+        view
+        returns (address[] memory targets, bytes[] memory data, uint256[] memory values)
+    {
+        targets = new address[](1);
+        targets[0] = MORPHO_BLUE;
+        data = new bytes[](1);
+        data[0] = abi.encodeWithSignature(
+            "withdraw((address,address,address,address,uint256),uint256,uint256,address,address)",
+            marketParams(),
+            amount,
+            uint256(0),
+            VAULT,
+            VAULT
+        );
+        values = new uint256[](1);
+    }
+}
+
+/**
  * @title MorphoMarketBufferHelperTest
  * @notice Integration tests for the MorphoMarketBufferHelper using the weETH/WETH 86% LLTV market on mainnet.
  *         The market loan token is WETH; the helper supplies / withdraws WETH on behalf of the BoringVault.
@@ -491,5 +576,144 @@ contract MorphoMarketBufferHelperTest is Test, MerkleTreeHelper {
         );
         assertEq(data[0], expectedWithdraw, "Withdraw: call must be Morpho withdraw with assets-form");
         assertEq(values[0], 0, "Withdraw: ETH value must be 0");
+    }
+
+    // ============================= ZERO-ADDRESS CONSTRUCTOR GUARDS =============================
+
+    /// @notice The production helper must reject a zero Morpho Blue singleton at construction.
+    function testConstructorRevertsOnZeroMorphoBlue() external {
+        vm.expectRevert(MorphoMarketBufferHelper.MorphoMarketBufferHelper__ZeroAddress.selector);
+        new MorphoMarketBufferHelper(
+            address(0), address(boringVault), address(WETH), WEETH, WEETH_ORACLE, WEETH_IRM, WEETH_LLTV
+        );
+    }
+
+    /// @notice The production helper must reject a zero boring vault at construction.
+    function testConstructorRevertsOnZeroVault() external {
+        vm.expectRevert(MorphoMarketBufferHelper.MorphoMarketBufferHelper__ZeroAddress.selector);
+        new MorphoMarketBufferHelper(
+            MORPHO_BLUE, address(0), address(WETH), WEETH, WEETH_ORACLE, WEETH_IRM, WEETH_LLTV
+        );
+    }
+
+    /// @notice The production helper must reject a zero loan token at construction.
+    function testConstructorRevertsOnZeroLoanToken() external {
+        vm.expectRevert(MorphoMarketBufferHelper.MorphoMarketBufferHelper__ZeroAddress.selector);
+        new MorphoMarketBufferHelper(
+            MORPHO_BLUE, address(boringVault), address(0), WEETH, WEETH_ORACLE, WEETH_IRM, WEETH_LLTV
+        );
+    }
+
+    /**
+     * @notice Demonstrates the catastrophic effect a zero Morpho Blue singleton would have had
+     *         without the constructor guard:
+     *           - the third target of `getDepositManageCall` (the supply call) is `address(0)`,
+     *             so the BoringVault.manage() loop would `call(address(0), supplyCalldata)`.
+     *             That call succeeds silently (no code at 0x0, no revert), the approved tokens
+     *             remain in the vault, no supply position is created, and the asset would be
+     *             stuck approved to address(0).
+     *           - the withdraw call would likewise be a no-op call into address(0) and no
+     *             tokens would ever come back.
+     */
+    function testZeroMorphoBlueWouldSilentlyMisrouteAllCalls() external {
+        UnsafeMorphoMarketBufferHelper unsafe = new UnsafeMorphoMarketBufferHelper(
+            address(0), address(boringVault), address(WETH), WEETH, WEETH_ORACLE, WEETH_IRM, WEETH_LLTV
+        );
+
+        // ---- Deposit side ----
+        (address[] memory dTargets, bytes[] memory dData,) = unsafe.getDepositManageCall(address(WETH), 1e18);
+        assertEq(dTargets[2], address(0), "supply target would be address(0)");
+        // The approval bytes literally approve address(0) as spender, which is harmless on its own
+        // but means the manager has just "approved" a non-contract to spend vault funds.
+        assertEq(
+            dData[0],
+            abi.encodeWithSignature("approve(address,uint256)", address(0), 0),
+            "reset approval would target address(0)"
+        );
+        assertEq(
+            dData[1],
+            abi.encodeWithSignature("approve(address,uint256)", address(0), 1e18),
+            "approval would be granted to address(0)"
+        );
+
+        // Show that executing the supply call against address(0) returns success with no effect
+        // (an EOA-style call with no code). This is exactly the silent-misroute the audit warns about.
+        (bool ok, bytes memory ret) = address(0).call(dData[2]);
+        assertTrue(ok, "call to address(0) silently succeeds");
+        assertEq(ret.length, 0, "call returns empty data, no revert");
+
+        // ---- Withdraw side ----
+        (address[] memory wTargets, bytes[] memory wData,) = unsafe.getWithdrawManageCall(address(WETH), 1e18);
+        assertEq(wTargets[0], address(0), "withdraw target would be address(0)");
+        (ok, ret) = address(0).call(wData[0]);
+        assertTrue(ok, "withdraw to address(0) silently succeeds");
+        assertEq(ret.length, 0, "withdraw returns empty data, no revert");
+    }
+
+    /**
+     * @notice Demonstrates the catastrophic effect a zero VAULT immutable would have had
+     *         without the constructor guard.
+     *
+     *         The encoded supply call sets `onBehalf = address(0)`, and Morpho Blue itself
+     *         rejects that with its own `ZERO_ADDRESS` check. Withdraw likewise reverts
+     *         (`receiver = address(0)`).
+     *
+     *         Because all parameters are immutable, this means:
+     *           - Every deposit through TellerWithBuffer would revert at the manage() step.
+     *           - Every withdraw would revert in the same way.
+     *           - The helper is permanently bricked and cannot be upgraded in place.
+     *           - Any approval already granted to Morpho Blue is dead weight; no supply
+     *             position can ever be opened.
+     *         This is the unrecoverable foot-gun the audit warns about: the constructor
+     *         guard is the only line of defense, because there is no setter to fix VAULT.
+     */
+    function testZeroVaultWouldBrickEveryDepositAndWithdraw() external {
+        UnsafeMorphoMarketBufferHelper unsafe = new UnsafeMorphoMarketBufferHelper(
+            MORPHO_BLUE, address(0), address(WETH), WEETH, WEETH_ORACLE, WEETH_IRM, WEETH_LLTV
+        );
+
+        (, bytes[] memory dData,) = unsafe.getDepositManageCall(address(WETH), 1e18);
+        DecoderCustomTypes.MarketParams memory mp = unsafe.marketParams();
+
+        // The supply call is encoded with onBehalf = address(0).
+        bytes memory expectedSupply = abi.encodeWithSignature(
+            "supply((address,address,address,address,uint256),uint256,uint256,address,bytes)",
+            mp,
+            uint256(1e18),
+            uint256(0),
+            address(0), // <-- onBehalf is the zero VAULT
+            bytes("")
+        );
+        assertEq(dData[2], expectedSupply, "supply call would be onBehalf = address(0)");
+
+        // Withdraw is encoded with onBehalf = receiver = address(0).
+        (, bytes[] memory wData,) = unsafe.getWithdrawManageCall(address(WETH), 1e18);
+        bytes memory expectedWithdraw = abi.encodeWithSignature(
+            "withdraw((address,address,address,address,uint256),uint256,uint256,address,address)",
+            mp,
+            uint256(1e18),
+            uint256(0),
+            address(0),
+            address(0)
+        );
+        assertEq(wData[0], expectedWithdraw, "withdraw onBehalf and receiver would be address(0)");
+
+        // Fund a sender and prove that Morpho Blue itself reverts both calls, permanently.
+        deal(address(WETH), address(this), 1e18);
+        WETH.safeApprove(MORPHO_BLUE, 1e18);
+
+        (bool supplyOk,) = MORPHO_BLUE.call(dData[2]);
+        assertFalse(supplyOk, "supply with onBehalf=0 must revert at Morpho Blue");
+
+        (bool withdrawOk,) = MORPHO_BLUE.call(wData[0]);
+        assertFalse(withdrawOk, "withdraw with receiver=0 must revert at Morpho Blue");
+
+        // Confirm no supply position exists for either address — nothing happened on-chain,
+        // but the helper is now dead weight: every future TellerWithBuffer call routed through
+        // it will revert in exactly the same way, and there is no setter to fix VAULT.
+        IMorphoLite.Position memory zeroPos = IMorphoLite(MORPHO_BLUE).position(MARKET_ID, address(0));
+        IMorphoLite.Position memory vaultPos = IMorphoLite(MORPHO_BLUE).position(MARKET_ID, address(boringVault));
+        assertEq(zeroPos.supplyShares, 0, "no shares were credited to address(0)");
+        assertEq(vaultPos.supplyShares, 0, "no shares were credited to the vault");
     }
 }

@@ -28,6 +28,9 @@ contract MorphoMarketBufferHelper is IBufferHelper {
     ///         match the market's configured loan token.
     error MorphoMarketBufferHelper__AssetMismatch(address asset, address expected);
 
+    /// @notice Thrown when a critical constructor argument is the zero address.
+    error MorphoMarketBufferHelper__ZeroAddress();
+
     /// @notice The Morpho Blue singleton contract
     address public immutable MORPHO_BLUE;
 
@@ -65,6 +68,16 @@ contract MorphoMarketBufferHelper is IBufferHelper {
         address irm,
         uint256 lltv
     ) {
+        // Since these parameters are immutable, a zero address here can never be corrected
+        // post-deployment. Guard the parameters whose zero value would be unambiguously
+        // catastrophic: the Morpho Blue singleton, the boring vault that owns the supply
+        // position, and the loan token that is supplied / withdrawn. The remaining market
+        // params (collateralToken / oracle / irm / lltv) are intentionally not zero-checked
+        // because some Morpho Blue market configurations legitimately use zero values.
+        if (morphoBlue == address(0) || vault == address(0) || loanToken == address(0)) {
+            revert MorphoMarketBufferHelper__ZeroAddress();
+        }
+
         MORPHO_BLUE = morphoBlue;
         VAULT = vault;
         LOAN_TOKEN = loanToken;

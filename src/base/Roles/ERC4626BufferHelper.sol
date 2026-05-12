@@ -15,6 +15,11 @@ import {ERC4626} from "@solmate/tokens/ERC4626.sol";
  * This helper automatically manages token approvals and deposit/withdraw operations to maximize yield on deposited assets.
  */
 contract ERC4626BufferHelper is IBufferHelper {
+    //============================== ERRORS ===============================
+
+    /// @notice Thrown when a critical constructor argument is the zero address.
+    error ERC4626BufferHelper__ZeroAddress();
+
     /// @notice The ERC4626 vault
     ERC4626 public immutable ERC_4626_VAULT;
 
@@ -27,6 +32,12 @@ contract ERC4626BufferHelper is IBufferHelper {
      * @param _vault The associated boring vault
      */
     constructor(address _erc4626Vault, address _vault) {
+        // Both parameters are immutable, so a zero address here can never be corrected
+        // post-deployment and would silently misroute every deposit / withdraw.
+        if (_erc4626Vault == address(0) || _vault == address(0)) {
+            revert ERC4626BufferHelper__ZeroAddress();
+        }
+
         ERC_4626_VAULT = ERC4626(_erc4626Vault);
         VAULT = _vault;
     }
