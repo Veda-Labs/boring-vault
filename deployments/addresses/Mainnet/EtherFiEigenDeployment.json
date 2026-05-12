@@ -53,7 +53,10 @@
     },
     "DecoderAndSanitizer": {
       "auditCommit": null,
-      "auditUrl": null
+      "auditUrl": null,
+      "verification": "full_match",
+      "verifiedCommit": "353e102866e7f1f014aad691bb63e4f994110429",
+      "verificationGap": "cbor,evm:shanghai,source:execute_method_not_in_repo"
     },
     "DelayedWithdraw": {
       "auditCommit": null,
