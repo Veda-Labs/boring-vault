@@ -190,6 +190,73 @@ contract MPortalIntegrationTest is Test, MerkleTreeHelper {
         assertLt(mUSD.balanceOf(address(boringVault)), balanceBefore, "mUSD should have left the vault");
     }
 
+    // Proves the bridge-fee invariant: if the strategist underpays the MPortal quote by even 1 wei,
+    // the whole batched manage call reverts and no tokens leave the vault. This guarantees the
+    // approve+sendToken pair cannot split — tokens can never get stuck "approved but not bridged".
+    function testMPortalBridgeRevertsOnUnderpaidFee() external {
+        ERC20 mUSD = getERC20(sourceChain, "mUSD");
+        address mportalProxy = getAddress(sourceChain, "mportalProxy");
+
+        deal(address(mUSD), address(boringVault), 1000e6);
+        deal(address(boringVault), 1 ether);
+
+        (bytes32[][] memory manageProofs, address[] memory targets, bytes[] memory targetData, uint256[] memory values) =
+            _buildUnderpaidCalldata(mUSD, mportalProxy);
+
+        address[] memory decodersAndSanitizers = new address[](2);
+        decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+
+        uint256 mUSDBefore = mUSD.balanceOf(address(boringVault));
+        uint256 nativeBefore = address(boringVault).balance;
+        uint256 allowanceBefore = mUSD.allowance(address(boringVault), mportalProxy);
+
+        vm.expectRevert();
+        manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
+
+        // Atomicity: the entire batch reverted, so neither the approve nor the transfer took effect.
+        assertEq(mUSD.balanceOf(address(boringVault)), mUSDBefore, "mUSD must not leave the vault on revert");
+        assertEq(address(boringVault).balance, nativeBefore, "native must not leave the vault on revert");
+        assertEq(mUSD.allowance(address(boringVault), mportalProxy), allowanceBefore, "approval must roll back on revert (no orphan allowance)");
+    }
+
+    // Extracted to keep testMPortalBridgeRevertsOnUnderpaidFee under solc 0.8.21's stack-depth limit.
+    function _buildUnderpaidCalldata(ERC20 mUSD, address mportalProxy)
+        internal
+        returns (bytes32[][] memory manageProofs, address[] memory targets, bytes[] memory targetData, uint256[] memory values)
+    {
+        bytes32 vaultAsBytes32 = bytes32(uint256(uint160(address(boringVault))));
+        bytes32 destinationToken = bytes32(uint256(uint160(address(mUSD))));
+
+        ManageLeaf[] memory leafs = new ManageLeaf[](2);
+        _addMPortalLeafs(leafs, mportalProxy, mUSD, MONAD_CHAIN_ID, destinationToken, vaultAsBytes32, vaultAsBytes32);
+
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+        manageProofs = _getProofsUsingTree(leafs, manageTree);
+
+        targets = new address[](2);
+        targets[0] = address(mUSD);
+        targets[1] = mportalProxy;
+
+        targetData = new bytes[](2);
+        targetData[0] = abi.encodeWithSignature("approve(address,uint256)", mportalProxy, type(uint256).max);
+        targetData[1] = abi.encodeWithSignature(
+            "sendToken(uint256,address,uint32,bytes32,bytes32,bytes32,bytes)",
+            10e6,
+            address(mUSD),
+            MONAD_CHAIN_ID,
+            destinationToken,
+            vaultAsBytes32,
+            vaultAsBytes32,
+            bytes("")
+        );
+
+        values = new uint256[](2);
+        values[0] = 0;
+        values[1] = MPortalProxy(mportalProxy).quote(MONAD_CHAIN_ID, 0) - 1; // underpay by exactly 1 wei
+    }
+
     // ========================================= HELPER FUNCTIONS =========================================
 
     function _startFork(string memory rpcKey, uint256 blockNumber) internal returns (uint256 forkId) {
