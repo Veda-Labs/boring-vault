@@ -3356,6 +3356,9 @@ contract ChainValues {
         values[monad]["mUSD"] = 0xacA92E438df0B2401fF60dA7E4337B687a2435DA.toBytes32();
         values[monad]["steakhouseMUSDVault"] = 0xBEEFF60EC664adb24ff7378A8C69ecD25C3cC867.toBytes32();
         values[monad]["steakhouseUSDCVault"] = 0xBEEFFf30371ff8EbdEA03d5E2e3C6b7c0bA0303c.toBytes32();
+
+        // MPortal — same deterministic proxy address as mainnet.
+        values[monad]["mportalProxy"] = 0xD925C84b55E4e44a53749fF5F2a5A13F63D128fd.toBytes32();
     }
 
     function _addSeiValues() private {
