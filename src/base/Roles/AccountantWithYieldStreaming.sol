@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: SEL-1.0
+// Last audited: boring-vault@568d9467202a7f6e478cb8967fcee3c2afb38730 — file:audit/certora-boring-vault-1.pdf
 // Copyright © 2025 Veda Tech Labs
 // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
 // Licensed under Software Evaluation License, Version 1.0

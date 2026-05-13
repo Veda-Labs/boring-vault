@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: SEL-1.0
+// Last audited: boring-vault@478f3a4a1457fd2dd296fc48d43ad5689998cc4a — https://macroaudits.com/library/audits/sevenSeas-41
 // Copyright © 2025 Veda Tech Labs
 // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
 // Licensed under Software Evaluation License, Version 1.0

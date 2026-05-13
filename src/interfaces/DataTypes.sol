@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
+// Last audited: boring-vault@939c77e25473dff3ed18fa104f004f7afd13452e — https://macroaudits.com/library/audits/sevenSeas-4
 pragma solidity ^0.8.0;
 
 library DataTypes {
