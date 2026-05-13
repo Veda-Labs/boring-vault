@@ -29,7 +29,7 @@ contract CreateHlCoreTestVaultMerkleRootScript is Script, MerkleTreeHelper {
 
     address public rawDataDecoderAndSanitizer = 0xD834860459a89e609243f00C6fcb4861B351583f;
     address public manager01 = 0xa86b3Bf249478488B4304B50726c7D4689aD6320;
-    address public manager02 = 0x0307AD25281C99F22A8F3Af9e272fE3968810239;
+    address public manager02 = 0x131d8D438C8Da6D4Cf3AE6877ab9F1181E12f636;
     address public manager03 = 0xe5C7cbAA926eAdf27d04A2e6CB4D2d192b8CBF65;
 
     function setUp() external {
