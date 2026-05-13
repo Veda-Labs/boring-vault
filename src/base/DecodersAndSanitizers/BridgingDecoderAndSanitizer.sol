@@ -14,7 +14,7 @@ import {LineaBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Pro
 import {ScrollBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ScrollBridgeDecoderAndSanitizer.sol";
 import {LidoStandardBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LidoStandardBridgeDecoderAndSanitizer.sol";
 import {HyperlaneDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/HyperlaneDecoderAndSanitizer.sol";
-import {MPortalDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MportalDecoderAndSanitizer.sol";
+import {MPortalDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MPortalDecoderAndSanitizer.sol";
 
 contract BridgingDecoderAndSanitizer is
     ArbitrumNativeBridgeDecoderAndSanitizer,
