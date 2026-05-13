@@ -87,6 +87,9 @@
     "Lens": {
       "auditCommit": "939c77e25473dff3ed18fa104f004f7afd13452e",
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-4",
+      "verification": "full_match",
+      "verifiedCommit": "69fa3837f651ed236b35400b69498b50e48e99e9",
+      "verificationGap": "cbor,evm:london",
       "deployedAt": "2024-07-17T00:21:35Z",
       "creationTx": "0xefdd66791154319a00982c007d00f4bec24ea13e023e14873e48c5fa6dba6318",
       "creationBlock": 17193174,
