@@ -16589,6 +16589,106 @@ function _addTellerLeafsWithReferral(
         leafs[leafIndex].argumentAddresses[1] = receiver;
         leafs[leafIndex].argumentAddresses[2] = teller;
     }
+
+    // ========================================= MPortal =========================================
+
+    // Adds approve + sendToken leaves for the default-bridge-adapter overload:
+    //   sendToken(uint256,address,uint32,bytes32,bytes32,bytes32,bytes)
+    // Each bytes32 (destinationToken, recipient, refundAddress) is split into two 20-byte halves
+    // to cover all 32 bytes in the leaf — supports non-EVM destinations (e.g. Solana).
+    function _addMPortalLeafs(
+        ManageLeaf[] memory leafs,
+        address mportalProxy,
+        ERC20 token,
+        uint32 destinationChainId,
+        bytes32 destinationToken,
+        bytes32 recipient,
+        bytes32 refundAddress
+    ) internal {
+        _addMPortalApproveLeaf(leafs, mportalProxy, token);
+
+        // sendToken via MPortal (canSendValue=true because ETH is sent for the bridge fee).
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            mportalProxy,
+            true,
+            "sendToken(uint256,address,uint32,bytes32,bytes32,bytes32,bytes)",
+            new address[](8),
+            string.concat("Bridge ", token.symbol(), " via MPortal"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        _populateMPortalSendTokenSlots(
+            leafs[leafIndex].argumentAddresses, address(token), destinationChainId, destinationToken, recipient, refundAddress
+        );
+    }
+
+    // Adds approve + sendToken leaves for the custom-bridge-adapter overload:
+    //   sendToken(uint256,address,uint32,bytes32,bytes32,bytes32,address,bytes)
+    // The bridgeAdapter is pinned in the leaf (slot 8), so the strategist is locked to the
+    // adapter this leaf was built for.
+    function _addMPortalLeafs(
+        ManageLeaf[] memory leafs,
+        address mportalProxy,
+        ERC20 token,
+        uint32 destinationChainId,
+        bytes32 destinationToken,
+        bytes32 recipient,
+        bytes32 refundAddress,
+        address bridgeAdapter
+    ) internal {
+        _addMPortalApproveLeaf(leafs, mportalProxy, token);
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            mportalProxy,
+            true,
+            "sendToken(uint256,address,uint32,bytes32,bytes32,bytes32,address,bytes)",
+            new address[](9),
+            string.concat("Bridge ", token.symbol(), " via MPortal (custom adapter)"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        _populateMPortalSendTokenSlots(
+            leafs[leafIndex].argumentAddresses, address(token), destinationChainId, destinationToken, recipient, refundAddress
+        );
+        leafs[leafIndex].argumentAddresses[8] = bridgeAdapter;
+    }
+
+    function _addMPortalApproveLeaf(ManageLeaf[] memory leafs, address mportalProxy, ERC20 token) private {
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            address(token),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve MPortal to spend ", token.symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = mportalProxy;
+    }
+
+    function _populateMPortalSendTokenSlots(
+        address[] memory slots,
+        address sourceToken,
+        uint32 destinationChainId,
+        bytes32 destinationToken,
+        bytes32 recipient,
+        bytes32 refundAddress
+    ) private pure {
+        slots[0] = sourceToken;
+        slots[1] = address(uint160(destinationChainId));
+        slots[2] = address(bytes20(bytes16(destinationToken)));
+        slots[3] = address(bytes20(bytes16(destinationToken << 128)));
+        slots[4] = address(bytes20(bytes16(recipient)));
+        slots[5] = address(bytes20(bytes16(recipient << 128)));
+        slots[6] = address(bytes20(bytes16(refundAddress)));
+        slots[7] = address(bytes20(bytes16(refundAddress << 128)));
+    }
 }
 
 interface IMB {
