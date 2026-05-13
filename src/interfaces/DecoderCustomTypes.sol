@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: SEL-1.0
-// Last audited: boring-vault@c54949f556cbc9a5e752ef1d6e8c09d64f4975b7 — https://macroaudits.com/library/audits/sevenSeas-47
 // Copyright © 2025 Veda Tech Labs
 // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
 // Licensed under Software Evaluation License, Version 1.0
+// Last audited: boring-vault@c54949f556cbc9a5e752ef1d6e8c09d64f4975b7 — https://macroaudits.com/library/audits/sevenSeas-47
 pragma solidity 0.8.21;
 contract DecoderCustomTypes {
     // ========================================= BALANCER =========================================

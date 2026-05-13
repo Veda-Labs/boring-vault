@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: SEL-1.0
-// Last audited: boring-vault@b7ad4066a946a5e64285c88617a5de36e5eef436 — https://macroaudits.com/library/audits/sevenSeas-19
 // Copyright © 2025 Veda Tech Labs
 // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
 // Licensed under Software Evaluation License, Version 1.0
+// Last audited: boring-vault@b7ad4066a946a5e64285c88617a5de36e5eef436 — https://macroaudits.com/library/audits/sevenSeas-19
 pragma solidity 0.8.21;
 
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
