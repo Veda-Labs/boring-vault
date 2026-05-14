@@ -26,7 +26,7 @@
     "PayoutAddress": "0xA9962a5BfBea6918E958DeE0647E99fD7863b95A",
     "StartingExchangeRate": 1000000000000000000
   },
-  "core": {
+  "contractAddresses": {
     "AccountantWithRateProviders": "0xBA4397B2B1780097eD1B483E3C0717E0Ed4fAAa5",
     "BoringVault": "0xf8203A33027607D2C82dFd67b46986096257dFA5",
     "DecoderAndSanitizer": "0xD9023495256B23D7b4FA32A5Fd724140F179F51b",
@@ -40,5 +40,95 @@
     "AllowPublicDeposits": true,
     "AllowPublicWithdraws": true,
     "ShareLockPeriod": 0
+  },
+  "contractMetadata": {
+    "AccountantWithRateProviders": {
+      "deployedAt": "2024-10-02T19:54:17Z",
+      "creationTx": "0x857ee4634fe482c31140bcafca7e412c0155aec5907bae2db49abae65ddab9cf",
+      "creationBlock": 10544073,
+      "auditCommit": "938478e59619c693150a2290ff677191b19a0948",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-8",
+      "scopeMatch": true,
+      "verification": "full_match",
+      "verifiedCommit": "ae8e0b6573cca14c70e1e8edbef2209d62639eea",
+      "verificationGap": "cbor,evm:london"
+    },
+    "BoringVault": {
+      "deployedAt": "2024-10-02T19:54:17Z",
+      "creationTx": "0x0bebff7983a33ffa83d1ddf0cae9182a32faccb218eb1f566a4cf2fa8364ddb0",
+      "creationBlock": 10544073,
+      "auditCommit": "9c6e1e4458fba53f2ff09efe21195dcf570ffc3e",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-7",
+      "scopeMatch": true,
+      "verification": "full_match",
+      "verifiedCommit": "ae8e0b6573cca14c70e1e8edbef2209d62639eea",
+      "verificationGap": "cbor,evm:london"
+    },
+    "DecoderAndSanitizer": {
+      "deployedAt": "2024-10-02T19:54:17Z",
+      "creationTx": "0xf1848876cef3659b7a7df5faf23dc65694298d143b370119143064b667bc2242",
+      "creationBlock": 10544073,
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": null,
+      "verification": "full_match",
+      "verifiedCommit": "ae8e0b6573cca14c70e1e8edbef2209d62639eea",
+      "verificationGap": "cbor,evm:london"
+    },
+    "DelayedWithdraw": {
+      "deployedAt": "2024-10-02T19:54:17Z",
+      "creationTx": "0xcd84c2ec1a44c38383267e4c9e4472b0e5670b5857995782b0a2a315d4cff0d9",
+      "creationBlock": 10544073,
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": null,
+      "verification": "full_match",
+      "verifiedCommit": "ae8e0b6573cca14c70e1e8edbef2209d62639eea",
+      "verificationGap": "cbor,evm:london"
+    },
+    "Lens": {
+      "deployedAt": "2024-10-02T19:54:17Z",
+      "creationTx": "0x5421b3d67430cae9cb4af775bd059308607024db587088a4273866f6e05caaf5",
+      "creationBlock": 10544073,
+      "auditCommit": "939c77e25473dff3ed18fa104f004f7afd13452e",
+      "auditUrl": "file:audit/spearbit-boring-vault-arctic-0.pdf",
+      "scopeMatch": true,
+      "verification": "full_match",
+      "verifiedCommit": "ae8e0b6573cca14c70e1e8edbef2209d62639eea",
+      "verificationGap": "cbor,evm:london"
+    },
+    "ManagerWithMerkleVerification": {
+      "deployedAt": "2024-10-02T19:54:17Z",
+      "creationTx": "0x3aa3641cd858f1f3b2d70e678d6368a60dbd90426fdf198d883c1428f1f9a0b0",
+      "creationBlock": 10544073,
+      "auditCommit": "939c77e25473dff3ed18fa104f004f7afd13452e",
+      "auditUrl": "file:audit/spearbit-boring-vault-arctic-0.pdf",
+      "scopeMatch": true,
+      "verification": "full_match",
+      "verifiedCommit": "ae8e0b6573cca14c70e1e8edbef2209d62639eea",
+      "verificationGap": "cbor,evm:london"
+    },
+    "RolesAuthority": {
+      "deployedAt": "2024-10-02T19:54:17Z",
+      "creationTx": "0x873646ee44f8ad5fc60eafc40bfcb9daa942efcde191a86a41e2c3eb93b153ce",
+      "creationBlock": 10544073,
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": null,
+      "verification": "full_match",
+      "verifiedCommit": "ae8e0b6573cca14c70e1e8edbef2209d62639eea",
+      "verificationGap": "cbor,evm:london"
+    },
+    "TellerWithMultiAssetSupport": {
+      "deployedAt": "2024-10-02T19:54:17Z",
+      "creationTx": "0x5c2b5eb6c516915a8dfbb40de1169f78e7f7a584b93938c9dd4c0a23f9d6e212",
+      "creationBlock": 10544073,
+      "auditCommit": "35433417a394c49538260f30b5d37ab3e8de99d1",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-10",
+      "scopeMatch": true,
+      "verification": "full_match",
+      "verifiedCommit": "ae8e0b6573cca14c70e1e8edbef2209d62639eea",
+      "verificationGap": "cbor,evm:london"
+    }
   }
 }
