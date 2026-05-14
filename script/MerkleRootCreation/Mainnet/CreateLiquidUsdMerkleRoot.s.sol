@@ -967,6 +967,19 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
             getBytes32(sourceChain, "boringVault")
         );
 
+        // Sei - bridge PYUSD via PYUSD0 Multi-Hop (Mainnet -> Arbitrum -> Sei)
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", 0xF52f751829447917505E7E8804027DcB2AaDCdE6);
+        _addLayerZeroMultiHopLeafs(
+            leafs,
+            getERC20(sourceChain, "PYUSD"),
+            getAddress(sourceChain, "PYUSDOFTAdapter"),
+            layerZeroArbitrumEndpointId,
+            getBytes32("arbitrum", "MultiHopComposer"),
+            layerZeroSeiEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+
         // ========================== Scroll Bridge ==========================
         {
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", scrollBridgeDecoderAndSanitizer);

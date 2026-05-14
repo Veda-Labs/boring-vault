@@ -25,6 +25,7 @@ import {AccountantWithFixedRate} from "src/base/Roles/AccountantWithFixedRate.so
 import {AccountantWithYieldStreaming} from "src/base/Roles/AccountantWithYieldStreaming.sol";
 import {AaveV3BufferHelper} from "src/base/Roles/AaveV3BufferHelper.sol";
 import {AaveV3BufferLens} from "src/helper/AaveV3BufferLens.sol";
+import {ERC4626BufferHelper} from "src/base/Roles/ERC4626BufferHelper.sol";
 import {Deployer} from "src/helper/Deployer.sol";
 import {ArcticArchitectureLens} from "src/helper/ArcticArchitectureLens.sol";
 import {ContractNames} from "resources/ContractNames.sol";
@@ -119,6 +120,9 @@ contract DeploySkeletonScript is Script, ChainValues {
         address sender;
     }
 
+    // You might want to adjust this depending on what all you're deploying and on what chain
+    uint256 constant DESIRED_NUMBER_OF_DEPLOYMENT_TXS = 10;
+
     // Contracts to deploy
     ArcticArchitectureLens public lens;
     ManagerWithMerkleVerification public manager;
@@ -127,6 +131,7 @@ contract DeploySkeletonScript is Script, ChainValues {
     address public rawDataDecoderAndSanitizer;
     AaveV3BufferHelper public aaveV3BufferHelper;
     AaveV3BufferLens public aaveV3BufferLens;
+    ERC4626BufferHelper public erc4626BufferHelper;
     TellerWithYieldStreaming public teller;
     AccountantWithYieldStreaming public accountant;
     PaymentSplitter public paymentSplitter;
@@ -147,7 +152,6 @@ contract DeploySkeletonScript is Script, ChainValues {
     uint8 public constant STRATEGIST_MULTISIG_ROLE = 10;
     uint8 public constant STRATEGIST_ROLE = 7;
     uint8 public constant UPDATE_EXCHANGE_RATE_ROLE = 11;
-    uint256 constant DESIRED_NUMBER_OF_DEPLOYMENT_TXS = 10;
 
     uint8 public constant GENERIC_PAUSER_ROLE = 14;
     uint8 public constant GENERIC_UNPAUSER_ROLE = 15;
@@ -260,6 +264,7 @@ contract DeploySkeletonScript is Script, ChainValues {
     string internal lensDeploymentName;
     string internal aaveV3BufferHelperDeploymentName;
     string internal aaveV3BufferLensDeploymentName;
+    string internal erc4626BufferHelperDeploymentName;
     string internal boringVaultDeploymentName;
     string internal managerDeploymentName;
     string internal accountantDeploymentName;
@@ -368,6 +373,9 @@ contract DeploySkeletonScript is Script, ChainValues {
         timelockDeploymentName = vm.parseJsonString(rawJson, ".timelockConfiguration.timelockDeploymentName");
         aaveV3BufferHelperDeploymentName = vm.parseJsonString(rawJson, ".aaveV3BufferHelperConfiguration.aaveV3BufferHelperDeploymentName");
         aaveV3BufferLensDeploymentName = vm.parseJsonString(rawJson, ".aaveV3BufferLensConfiguration.aaveV3BufferLensDeploymentName");
+        if (vm.keyExists(rawJson, ".erc4626BufferHelperConfiguration.erc4626BufferHelperDeploymentName")) {
+            erc4626BufferHelperDeploymentName = vm.parseJsonString(rawJson, ".erc4626BufferHelperConfiguration.erc4626BufferHelperDeploymentName");
+        }
 
         // Get Deployer address from configuration file.
         deployer = Deployer(_handleAddressOrName(".deploymentParameters.deployerContractAddressOrName"));
@@ -385,6 +393,7 @@ contract DeploySkeletonScript is Script, ChainValues {
         _deployDrones();
         _deployAaveV3BufferHelper();
         _deployAaveV3BufferLens();
+        _deployERC4626BufferHelper();
 
         _bundleTxs();
 
@@ -445,6 +454,27 @@ contract DeploySkeletonScript is Script, ChainValues {
             constructorArgs = hex"";
             _addDeployTx(aaveV3BufferLensDeploymentName, creationCode, constructorArgs, 0);
             _log("AaveV3BufferLens deployment TX added", 3);
+        }
+    }
+
+    function _deployERC4626BufferHelper() internal {
+        if (bytes(erc4626BufferHelperDeploymentName).length == 0) {
+            return;
+        }
+        bytes memory constructorArgs;
+        bytes memory creationCode;
+        (address deployedAddress) = _getAddressIfDeployed(erc4626BufferHelperDeploymentName);
+        erc4626BufferHelper = ERC4626BufferHelper(deployedAddress);
+        bool shouldDeploy = vm.parseJsonBool(rawJson, ".erc4626BufferHelperConfiguration.shouldDeploy");
+        if (deployedAddress == address(0) && shouldDeploy) {
+            // Get ERC4626 vault from configuration file.
+            address erc4626Vault = _handleAddressOrName(".erc4626BufferHelperConfiguration.erc4626VaultAddressOrName");
+            creationCode = type(ERC4626BufferHelper).creationCode;
+            constructorArgs = abi.encode(erc4626Vault, address(boringVault));
+            _addDeployTx(erc4626BufferHelperDeploymentName, creationCode, constructorArgs, 0);
+            _log("ERC4626BufferHelper deployment TX added", 3);
+            _log(string.concat("ERC4626 vault address: ", vm.toString(erc4626Vault)), 4);
+            _log(string.concat("Boring vault address: ", vm.toString(address(boringVault))), 4);
         }
     }
 
@@ -995,6 +1025,9 @@ contract DeploySkeletonScript is Script, ChainValues {
                 }
                 if(address(aaveV3BufferLens)!=address(0)) {
                     vm.serializeAddress(coreContracts, "AaveV3BufferLens", address(aaveV3BufferLens));
+                }
+                if(address(erc4626BufferHelper)!=address(0)) {
+                    vm.serializeAddress(coreContracts, "ERC4626BufferHelper", address(erc4626BufferHelper));
                 }
                 vm.serializeAddress(coreContracts, "BoringOnChainQueue", address(queue));
                 coreOutput = vm.serializeAddress(coreContracts, "QueueSolver", address(queueSolver));

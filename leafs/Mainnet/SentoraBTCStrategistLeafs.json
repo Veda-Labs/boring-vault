@@ -10,10 +10,10 @@
       "Bytes4(TARGET_FUNCTION_SELECTOR)",
       "Bytes{N*20}(ADDRESS_ARGUMENT_0,...,ADDRESS_ARGUMENT_N)"
     ],
-    "LeafCount": 8,
-    "ManageRoot": "0x4b26614ea00317d7eb5ad9d675f682414f5109c229cc943d939f9f16894b02d7",
+    "LeafCount": 19,
+    "ManageRoot": "0xa3593da75977d5cbdf65415d9b1fdee385ae8469aed1edf054ee5b91f66cebac",
     "ManagerAddress": "0x29AB989D159C44dCE28A722d36aE7E35b7dB9CFE",
-    "TreeCapacity": 8
+    "TreeCapacity": 32
   },
   "leafs": [
     {
@@ -118,21 +118,313 @@
       "LeafDigest": "0x2683381446d09454309c03f444a2d1f182cad95251b8ac5efeff15823ff55c20",
       "PackedArgumentAddresses": "0x",
       "TargetAddress": "0x81D40F21F12A8F0E3252Bccb954D722d4c464B64"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x2D7085602a85aFb417AE1dFcEc09C301FeC8Df36",
+      "Description": "Accept ownership of the Sentora PYUSD main V2 ITB Position Manager contract",
+      "FunctionSelector": "0x79ba5097",
+      "FunctionSignature": "acceptOwnership()",
+      "LeafDigest": "0xd6065b739659f9b88db619377d129c578a706ce2aa4645f32896314331a9fdb7",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0xAd50F5a15F5a3Bc9DAa934915586D9b8889294AC"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x2D7085602a85aFb417AE1dFcEc09C301FeC8Df36",
+      "Description": "Remove executor from the Sentora PYUSD main V2 ITB Position Manager contract",
+      "FunctionSelector": "0x24788429",
+      "FunctionSignature": "removeExecutor(address)",
+      "LeafDigest": "0xe785ee74391ee0851330a13a0eface0c0febaeabcf1f93343165b767c446fd4f",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0xAd50F5a15F5a3Bc9DAa934915586D9b8889294AC"
+    },
+    {
+      "AddressArguments": ["0xAd50F5a15F5a3Bc9DAa934915586D9b8889294AC"],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x2D7085602a85aFb417AE1dFcEc09C301FeC8Df36",
+      "Description": "Transfer kBTC to the Sentora PYUSD main V2 ITB Position Manager contract",
+      "FunctionSelector": "0xa9059cbb",
+      "FunctionSignature": "transfer(address,uint256)",
+      "LeafDigest": "0xbb686961db07db763bfee209dab7378eff333dbf9bb6c935779e70ded364d10a",
+      "PackedArgumentAddresses": "0xad50f5a15f5a3bc9daa934915586d9b8889294ac",
+      "TargetAddress": "0x73E0C0d45E048D25Fc26Fa3159b0aA04BfA4Db98"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x2D7085602a85aFb417AE1dFcEc09C301FeC8Df36",
+      "Description": "Withdraw kBTC from the Sentora PYUSD main V2 ITB Position Manager contract",
+      "FunctionSelector": "0xf3fef3a3",
+      "FunctionSignature": "withdraw(address,uint256)",
+      "LeafDigest": "0xa92a22691596ed6b47677fd05d3e674f1162d2329df866b680900b7e2db89512",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0xAd50F5a15F5a3Bc9DAa934915586D9b8889294AC"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x2D7085602a85aFb417AE1dFcEc09C301FeC8Df36",
+      "Description": "Withdraw all kBTC from the Sentora PYUSD main V2 ITB Position Manager contract",
+      "FunctionSelector": "0xfa09e630",
+      "FunctionSignature": "withdrawAll(address)",
+      "LeafDigest": "0xf84a68555f372bbd41bbf593fbfca73d01599c2aa2c95025665d5829a7cd2c97",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0xAd50F5a15F5a3Bc9DAa934915586D9b8889294AC"
+    },
+    {
+      "AddressArguments": ["0xAd50F5a15F5a3Bc9DAa934915586D9b8889294AC"],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x2D7085602a85aFb417AE1dFcEc09C301FeC8Df36",
+      "Description": "Transfer PYUSD to the Sentora PYUSD main V2 ITB Position Manager contract",
+      "FunctionSelector": "0xa9059cbb",
+      "FunctionSignature": "transfer(address,uint256)",
+      "LeafDigest": "0xaf7a8d5151c199ad84406366cba4cd53f6f4422a13bb4e6c7bcb3c092cf3e6bf",
+      "PackedArgumentAddresses": "0xad50f5a15f5a3bc9daa934915586d9b8889294ac",
+      "TargetAddress": "0x6c3ea9036406852006290770BEdFcAbA0e23A0e8"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x2D7085602a85aFb417AE1dFcEc09C301FeC8Df36",
+      "Description": "Withdraw PYUSD from the Sentora PYUSD main V2 ITB Position Manager contract",
+      "FunctionSelector": "0xf3fef3a3",
+      "FunctionSignature": "withdraw(address,uint256)",
+      "LeafDigest": "0xa92a22691596ed6b47677fd05d3e674f1162d2329df866b680900b7e2db89512",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0xAd50F5a15F5a3Bc9DAa934915586D9b8889294AC"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x2D7085602a85aFb417AE1dFcEc09C301FeC8Df36",
+      "Description": "Withdraw all PYUSD from the Sentora PYUSD main V2 ITB Position Manager contract",
+      "FunctionSelector": "0xfa09e630",
+      "FunctionSignature": "withdrawAll(address)",
+      "LeafDigest": "0xf84a68555f372bbd41bbf593fbfca73d01599c2aa2c95025665d5829a7cd2c97",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0xAd50F5a15F5a3Bc9DAa934915586D9b8889294AC"
+    },
+    {
+      "AddressArguments": ["0xAd50F5a15F5a3Bc9DAa934915586D9b8889294AC"],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x2D7085602a85aFb417AE1dFcEc09C301FeC8Df36",
+      "Description": "Transfer MORPHO to the Sentora PYUSD main V2 ITB Position Manager contract",
+      "FunctionSelector": "0xa9059cbb",
+      "FunctionSignature": "transfer(address,uint256)",
+      "LeafDigest": "0xd832eb225c8c2c692d461fee14946b9e2141c6e3bb0aaa259244645ec09bb270",
+      "PackedArgumentAddresses": "0xad50f5a15f5a3bc9daa934915586d9b8889294ac",
+      "TargetAddress": "0x58D97B57BB95320F9a05dC918Aef65434969c2B2"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x2D7085602a85aFb417AE1dFcEc09C301FeC8Df36",
+      "Description": "Withdraw MORPHO from the Sentora PYUSD main V2 ITB Position Manager contract",
+      "FunctionSelector": "0xf3fef3a3",
+      "FunctionSignature": "withdraw(address,uint256)",
+      "LeafDigest": "0xa92a22691596ed6b47677fd05d3e674f1162d2329df866b680900b7e2db89512",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0xAd50F5a15F5a3Bc9DAa934915586D9b8889294AC"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x2D7085602a85aFb417AE1dFcEc09C301FeC8Df36",
+      "Description": "Withdraw all MORPHO from the Sentora PYUSD main V2 ITB Position Manager contract",
+      "FunctionSelector": "0xfa09e630",
+      "FunctionSignature": "withdrawAll(address)",
+      "LeafDigest": "0xf84a68555f372bbd41bbf593fbfca73d01599c2aa2c95025665d5829a7cd2c97",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0xAd50F5a15F5a3Bc9DAa934915586D9b8889294AC"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
     }
   ],
   "MerkleTree": {
-    "0": ["0x4b26614ea00317d7eb5ad9d675f682414f5109c229cc943d939f9f16894b02d7"],
+    "0": ["0xa3593da75977d5cbdf65415d9b1fdee385ae8469aed1edf054ee5b91f66cebac"],
     "1": [
-      "0x3ee40fddff5d2ddea0e5cbc3602e06b141bf79f641a9c77050ec8b96ee1c9f0a",
-      "0x71676c88a9c1b66d5b029215e8de6fa9c47a39a00aa9898fa911393b1cd316ea"
+      "0x40a046e006e217dace18dbe9580c5645ebc632763b023bd545d224ff34d89e41",
+      "0xe8b3a45934649bdcd3b6a1781337696a62d88bcd2f7d90052a304578c7e1a0e4"
     ],
     "2": [
+      "0x4b26614ea00317d7eb5ad9d675f682414f5109c229cc943d939f9f16894b02d7",
+      "0x373e2a9640429922ba3499e139cf19600f730f946c394eebdb63645d346a2688",
+      "0x8dd08a267b5be4b0fe16e41241f3b8d7b8934900d27f4d87f62b8646cd9d6cbf",
+      "0x41fbd3a0cfdfcee05cf3eb16d95ed1c81f50c3c6268bb806b406ec06ee93e704"
+    ],
+    "3": [
+      "0x3ee40fddff5d2ddea0e5cbc3602e06b141bf79f641a9c77050ec8b96ee1c9f0a",
+      "0x71676c88a9c1b66d5b029215e8de6fa9c47a39a00aa9898fa911393b1cd316ea",
+      "0x54bb778a2ff45df910439d22160167bf026f821ab5cfbe286a5452f5062b7e36",
+      "0xce9d583f0d78aced799d12d50cc094aaf8c1e94867a04e0fcc327ff16ac7049c",
+      "0x3e4e86c1dd38dfb280968c22288d8a29d7cba4a4505b47d9614f6195f016332c",
+      "0x849eda7a295b642e5ddaf49a30eec4470cf507efa83b4104c0752d069c7638fe",
+      "0x849eda7a295b642e5ddaf49a30eec4470cf507efa83b4104c0752d069c7638fe",
+      "0x849eda7a295b642e5ddaf49a30eec4470cf507efa83b4104c0752d069c7638fe"
+    ],
+    "4": [
       "0x83e0b5e316d59f06c7f551ddbcfd88dfe7f94a35d5be58ebda837084607cdd95",
       "0x82b0ebcd2027c0d966e1ae42e7f9743ce5caf03cc871be86179afa26bddfad8d",
       "0x320235f5536040d2e68b05ea81e769874437b4f97cf1efb31314b107d465525f",
-      "0xec679e6b33108b3d11ae35bbfd9cca7977508964285880174dbb3fbb92a8bc03"
+      "0xec679e6b33108b3d11ae35bbfd9cca7977508964285880174dbb3fbb92a8bc03",
+      "0x0cb558bdbb6418df996a7aa7f993aa382b715f3140d80303e21dbc1f02a60928",
+      "0x50c666c332fad8250fbea991b63646f0434a72658d193c7bc7de7b2fd87c8944",
+      "0x2e763ce910a1bda62bfad7d5eee27afbb0dc91ab63fb9c4a5a64a65f39123298",
+      "0x9d3dc15f9fc83d871071bd49665f3d1a073149a8fac0283a3ec14061e0ac45a0",
+      "0xfaba54a3b34b1bce62f27d7891ba1327aeb7aec7c7424472bcc34aa7290611b8",
+      "0x586328d803fa0f13e65cd26f8e953b5d9a24f912037b90002cb6255e58530369",
+      "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
+      "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
+      "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
+      "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
+      "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
+      "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba"
     ],
-    "3": [
+    "5": [
       "0x8dcd4f515b59dbbd48e2ed4e9a089af25f360147bf6934d88674b476a11efd44",
       "0x5527a6c2658528f62b2f943567294fe091e70911a5f15550a6d1bfa0c78ee09a",
       "0x6c2dd1aacaa473e18f54c05e379dcfc4d30afd8c10d8b7e30f3fba29ce296eed",
@@ -140,7 +432,31 @@
       "0x4c364bfb8ddc7fdf2439c735452ad9aa12096b34e163b3b14c1ade4c21af5c00",
       "0xbb59a77781959fb76b983d992131548286c3952a55cb542940ec651735ce6206",
       "0xa88655e43c68e8ca12319f45ab68a87c266d500d31892d6871187f8809cee874",
-      "0x2683381446d09454309c03f444a2d1f182cad95251b8ac5efeff15823ff55c20"
+      "0x2683381446d09454309c03f444a2d1f182cad95251b8ac5efeff15823ff55c20",
+      "0xd6065b739659f9b88db619377d129c578a706ce2aa4645f32896314331a9fdb7",
+      "0xe785ee74391ee0851330a13a0eface0c0febaeabcf1f93343165b767c446fd4f",
+      "0xbb686961db07db763bfee209dab7378eff333dbf9bb6c935779e70ded364d10a",
+      "0xa92a22691596ed6b47677fd05d3e674f1162d2329df866b680900b7e2db89512",
+      "0xf84a68555f372bbd41bbf593fbfca73d01599c2aa2c95025665d5829a7cd2c97",
+      "0xaf7a8d5151c199ad84406366cba4cd53f6f4422a13bb4e6c7bcb3c092cf3e6bf",
+      "0xa92a22691596ed6b47677fd05d3e674f1162d2329df866b680900b7e2db89512",
+      "0xf84a68555f372bbd41bbf593fbfca73d01599c2aa2c95025665d5829a7cd2c97",
+      "0xd832eb225c8c2c692d461fee14946b9e2141c6e3bb0aaa259244645ec09bb270",
+      "0xa92a22691596ed6b47677fd05d3e674f1162d2329df866b680900b7e2db89512",
+      "0xf84a68555f372bbd41bbf593fbfca73d01599c2aa2c95025665d5829a7cd2c97",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400"
     ]
   }
 }
