@@ -34,6 +34,16 @@
     "PlatformFee": 150,
     "StartingExchangeRate": 100377152
   },
+  "contractAddresses": {
+    "AccountantWithRateProviders": "0x28634D0c5edC67CF2450E74deA49B90a4FF93dCE",
+    "BoringVault": "0x5401b8620E5FB570064CA9114fd1e135fd77D57c",
+    "DecoderAndSanitizer": "0x402d89D6c763E8e79b77Ac1424f28cbA80ac9caa",
+    "DelayedWithdraw": "0xDa75512350c03d0F914eF040237E9ABF45913E5a",
+    "Lens": "0x5232bc0F5999f8dA604c42E1748A13a170F94A1B",
+    "ManagerWithMerkleVerification": "0xcf38e37872748E3b66741A42560672A6cef75e9B",
+    "RolesAuthority": "0xF3E03eF7df97511a52f31ea7a22329619db2bdF4",
+    "TellerWithMultiAssetSupport": "0x2eA43384F1A98765257bc6Cb26c7131dEbdEB9B3"
+  },
   "core": {
     "AccountantWithRateProviders": "0x28634D0c5edC67CF2450E74deA49B90a4FF93dCE",
     "BoringVault": "0x5401b8620E5FB570064CA9114fd1e135fd77D57c",
@@ -48,5 +58,95 @@
     "AllowPublicDeposits": true,
     "AllowPublicWithdraws": true,
     "ShareLockPeriod": 86400
+  },
+  "contractMetadata": {
+    "AccountantWithRateProviders": {
+      "deployedAt": "2024-11-07T21:42:23Z",
+      "creationTx": "0xfe90ff8c7ed71b16db736910de6b8614d18cb9dca2111b85b44f5b754a48f733",
+      "creationBlock": 43811683,
+      "auditCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-19",
+      "scopeMatch": true,
+      "verification": "full_match",
+      "verifiedCommit": "10a0dae53f20c85e08b66b2ecb8d2f322010ea5a",
+      "verificationGap": "cbor"
+    },
+    "BoringVault": {
+      "deployedAt": "2024-11-07T21:42:23Z",
+      "creationTx": "0x7bf8d4315620e50b512f1db87f17e03119f04efd9d32b30af2c81ed3ecd53f36",
+      "creationBlock": 43811683,
+      "auditCommit": "9c6e1e4458fba53f2ff09efe21195dcf570ffc3e",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-7",
+      "scopeMatch": true,
+      "verification": "full_match",
+      "verifiedCommit": "10a0dae53f20c85e08b66b2ecb8d2f322010ea5a",
+      "verificationGap": "cbor"
+    },
+    "DecoderAndSanitizer": {
+      "deployedAt": "2024-11-07T21:42:23Z",
+      "creationTx": "0x2f3e370773ba32d3406f259b52baa01b2435671df5850f3694e6cea381d310e5",
+      "creationBlock": 43811683,
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": null,
+      "verification": "full_match",
+      "verifiedCommit": "cb1f8d1af77eed14b148a55a4f5b6fc476bfaf8b",
+      "verificationGap": "cbor,evm:london"
+    },
+    "DelayedWithdraw": {
+      "deployedAt": "2024-11-07T21:42:23Z",
+      "creationTx": "0xec2066222c8104ec215c8c513eb6faf69a32f9d5915caca80aff99d09f76b150",
+      "creationBlock": 43811683,
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": null,
+      "verification": "full_match",
+      "verifiedCommit": "cb1f8d1af77eed14b148a55a4f5b6fc476bfaf8b",
+      "verificationGap": "cbor,evm:london"
+    },
+    "Lens": {
+      "deployedAt": "2024-11-07T21:42:20Z",
+      "creationTx": "0x37da2236dc1ce11aab2a0fc973df90aa22007872f97cb5721130d56e0bbaa3d1",
+      "creationBlock": 43811682,
+      "auditCommit": "939c77e25473dff3ed18fa104f004f7afd13452e",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-4",
+      "scopeMatch": true,
+      "verification": "full_match",
+      "verifiedCommit": "10a0dae53f20c85e08b66b2ecb8d2f322010ea5a",
+      "verificationGap": "cbor"
+    },
+    "ManagerWithMerkleVerification": {
+      "deployedAt": "2024-11-07T21:42:23Z",
+      "creationTx": "0xfc35fe1e87f660d1131e786fab8bcead0db79e3a5d36807e9264c4981f0614bd",
+      "creationBlock": 43811683,
+      "auditCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-19",
+      "scopeMatch": true,
+      "verification": "full_match",
+      "verifiedCommit": "10a0dae53f20c85e08b66b2ecb8d2f322010ea5a",
+      "verificationGap": "cbor"
+    },
+    "RolesAuthority": {
+      "deployedAt": "2024-11-07T21:42:20Z",
+      "creationTx": "0xae5420e2e43cdd1a4de60dfe17e761f87b0ff451f541f904716b43d413517c34",
+      "creationBlock": 43811682,
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": null,
+      "verification": "full_match",
+      "verifiedCommit": "10a0dae53f20c85e08b66b2ecb8d2f322010ea5a",
+      "verificationGap": "cbor"
+    },
+    "TellerWithMultiAssetSupport": {
+      "deployedAt": "2024-11-07T21:42:23Z",
+      "creationTx": "0x5cb70bac599a32ce2c276dbf8f8a05ffb68d150aef2c7dd0a238a2c7c1a8bc12",
+      "creationBlock": 43811683,
+      "auditCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-19",
+      "scopeMatch": true,
+      "verification": "full_match",
+      "verifiedCommit": "10a0dae53f20c85e08b66b2ecb8d2f322010ea5a",
+      "verificationGap": "cbor"
+    }
   }
 }
