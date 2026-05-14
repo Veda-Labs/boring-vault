@@ -11,5 +11,117 @@
     "RolesAuthority": "0xaBA6bA1E95E0926a6A6b917FE4E2f19ceaE4FF2e",
     "TellerWithLayerZeroRateLimiting": "0x4DE413a26fC24c3FC27Cc983be70aA9c5C299387",
     "Timelock": "0x48b4158b0100B4e69D4a448db6BBe74DE94ee177"
+  },
+  "contractMetadata": {
+    "AccountantWithRateProviders": {
+      "deployedAt": "2025-04-16T01:01:58Z",
+      "creationTx": "0x8f7c199d9ffc5f1dd2aa9d8bf45f895a21a2ce170d8f1bbed56f2741f19c8a0c",
+      "creationBlock": 14016959,
+      "auditCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-19",
+      "scopeMatch": true,
+      "verification": "full_match",
+      "verifiedCommit": "dd7b8b54bd9c7ae1fcd4c8b938296db5bb32fb63",
+      "verificationGap": "cbor,evm:shanghai"
+    },
+    "BoringOnChainQueue": {
+      "deployedAt": "2025-04-16T01:01:58Z",
+      "creationTx": "0x8f7c199d9ffc5f1dd2aa9d8bf45f895a21a2ce170d8f1bbed56f2741f19c8a0c",
+      "creationBlock": 14016959,
+      "auditCommit": "edfcba3f29f691c638b06d04f60af79503632b58",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-27",
+      "scopeMatch": true,
+      "verification": "full_match",
+      "verifiedCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730",
+      "verificationGap": "cbor,evm:shanghai"
+    },
+    "BoringVault": {
+      "deployedAt": "2025-04-16T01:01:58Z",
+      "creationTx": "0x8f7c199d9ffc5f1dd2aa9d8bf45f895a21a2ce170d8f1bbed56f2741f19c8a0c",
+      "creationBlock": 14016959,
+      "auditCommit": "9c6e1e4458fba53f2ff09efe21195dcf570ffc3e",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-7",
+      "scopeMatch": true,
+      "verification": "full_match",
+      "verifiedCommit": "dd7b8b54bd9c7ae1fcd4c8b938296db5bb32fb63",
+      "verificationGap": "cbor,evm:shanghai"
+    },
+    "Lens": {
+      "deployedAt": "2025-04-16T00:41:29Z",
+      "creationTx": "0x08116eb4eaf960e4e6523d059e428391643583a8c400da5f562b4bf3150338be",
+      "creationBlock": 14015730,
+      "auditCommit": "939c77e25473dff3ed18fa104f004f7afd13452e",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-4",
+      "scopeMatch": true,
+      "verification": "full_match",
+      "verifiedCommit": "dd7b8b54bd9c7ae1fcd4c8b938296db5bb32fb63",
+      "verificationGap": "cbor,evm:shanghai"
+    },
+    "ManagerWithMerkleVerification": {
+      "deployedAt": "2025-04-16T01:01:58Z",
+      "creationTx": "0x8f7c199d9ffc5f1dd2aa9d8bf45f895a21a2ce170d8f1bbed56f2741f19c8a0c",
+      "creationBlock": 14016959,
+      "auditCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-19",
+      "scopeMatch": true,
+      "verification": "full_match",
+      "verifiedCommit": "dd7b8b54bd9c7ae1fcd4c8b938296db5bb32fb63",
+      "verificationGap": "cbor,evm:shanghai"
+    },
+    "Pauser": {
+      "deployedAt": "2025-04-16T01:02:03Z",
+      "creationTx": "0xe742a6079ff99040e87edef0b51a186ab49ddfd09070fb28b3e17502460e211d",
+      "creationBlock": 14016964,
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": false,
+      "verification": "full_match",
+      "verifiedCommit": "dd7b8b54bd9c7ae1fcd4c8b938296db5bb32fb63",
+      "verificationGap": "cbor,evm:shanghai"
+    },
+    "QueueSolver": {
+      "deployedAt": "2025-04-16T01:02:03Z",
+      "creationTx": "0xe742a6079ff99040e87edef0b51a186ab49ddfd09070fb28b3e17502460e211d",
+      "creationBlock": 14016964,
+      "auditCommit": "2e1aefc93c797f7b9dcf326e4ecafb089f9b3050",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-38",
+      "scopeMatch": true,
+      "verification": "full_match",
+      "verifiedCommit": "2e1aefc93c797f7b9dcf326e4ecafb089f9b3050",
+      "verificationGap": "cbor,evm:shanghai"
+    },
+    "RolesAuthority": {
+      "deployedAt": "2025-04-16T01:01:58Z",
+      "creationTx": "0x8f7c199d9ffc5f1dd2aa9d8bf45f895a21a2ce170d8f1bbed56f2741f19c8a0c",
+      "creationBlock": 14016959,
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": null,
+      "verification": "full_match",
+      "verifiedCommit": "dd7b8b54bd9c7ae1fcd4c8b938296db5bb32fb63",
+      "verificationGap": "cbor,evm:shanghai"
+    },
+    "TellerWithLayerZeroRateLimiting": {
+      "deployedAt": "2025-04-16T01:01:58Z",
+      "creationTx": "0x8f7c199d9ffc5f1dd2aa9d8bf45f895a21a2ce170d8f1bbed56f2741f19c8a0c",
+      "creationBlock": 14016959,
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": false,
+      "verification": "full_match",
+      "verifiedCommit": "15ea1839120d6da3eeb9a0009d45cd0017a9806d",
+      "verificationGap": "cbor"
+    },
+    "Timelock": {
+      "deployedAt": "2025-04-16T01:02:03Z",
+      "creationTx": "0xe742a6079ff99040e87edef0b51a186ab49ddfd09070fb28b3e17502460e211d",
+      "creationBlock": 14016964,
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": null,
+      "verification": "full_match",
+      "verifiedCommit": "dd7b8b54bd9c7ae1fcd4c8b938296db5bb32fb63",
+      "verificationGap": "cbor,evm:shanghai"
+    }
   }
 }
