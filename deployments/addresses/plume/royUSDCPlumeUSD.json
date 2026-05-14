@@ -11,5 +11,117 @@
     "RolesAuthority": "0x754213aFB8ecb6D15F169bfD378Fb685f5cB0d4A",
     "TellerWithLayerZero": "0x60EBb5d1454Bb99aa35F63F609E79179b342B0b8",
     "Timelock": "0x6504cdedbB50f3cB848b4A496bA1eDBB116331a1"
+  },
+  "contractMetadata": {
+    "AccountantWithRateProviders": {
+      "deployedAt": null,
+      "creationTx": null,
+      "creationBlock": null,
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": null,
+      "verification": "deprecated",
+      "verifiedCommit": null,
+      "verificationGap": null
+    },
+    "BoringOnChainQueue": {
+      "deployedAt": null,
+      "creationTx": null,
+      "creationBlock": null,
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": null,
+      "verification": "deprecated",
+      "verifiedCommit": null,
+      "verificationGap": null
+    },
+    "BoringVault": {
+      "deployedAt": null,
+      "creationTx": null,
+      "creationBlock": null,
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": null,
+      "verification": "deprecated",
+      "verifiedCommit": null,
+      "verificationGap": null
+    },
+    "Lens": {
+      "deployedAt": null,
+      "creationTx": null,
+      "creationBlock": null,
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": null,
+      "verification": "deprecated",
+      "verifiedCommit": null,
+      "verificationGap": null
+    },
+    "ManagerWithMerkleVerification": {
+      "deployedAt": null,
+      "creationTx": null,
+      "creationBlock": null,
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": null,
+      "verification": "deprecated",
+      "verifiedCommit": null,
+      "verificationGap": null
+    },
+    "Pauser": {
+      "deployedAt": null,
+      "creationTx": null,
+      "creationBlock": null,
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": null,
+      "verification": "deprecated",
+      "verifiedCommit": null,
+      "verificationGap": null
+    },
+    "QueueSolver": {
+      "deployedAt": null,
+      "creationTx": null,
+      "creationBlock": null,
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": null,
+      "verification": "deprecated",
+      "verifiedCommit": null,
+      "verificationGap": null
+    },
+    "RolesAuthority": {
+      "deployedAt": null,
+      "creationTx": null,
+      "creationBlock": null,
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": null,
+      "verification": "deprecated",
+      "verifiedCommit": null,
+      "verificationGap": null
+    },
+    "TellerWithLayerZero": {
+      "deployedAt": null,
+      "creationTx": null,
+      "creationBlock": null,
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": null,
+      "verification": "deprecated",
+      "verifiedCommit": null,
+      "verificationGap": null
+    },
+    "Timelock": {
+      "deployedAt": null,
+      "creationTx": null,
+      "creationBlock": null,
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": null,
+      "verification": "deprecated",
+      "verifiedCommit": null,
+      "verificationGap": null
+    }
   }
 }
