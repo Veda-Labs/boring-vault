@@ -35,6 +35,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
     address public capDecoderAndSanitizer = 0xE0e86bf98dAA0D2b408Cb038E94bCB9B7864309C;
     address public dolomiteDecoderAndSanitizer = 0x2f7D1Bbc14Fc3a859EB82ffCB195f9FC3DfCde2f;
     address public cctpDecoderAndSanitizer = 0xd2a9C2F3f8c148dc0E18Dfd0bAE482d9c2E1BA2e;
+    address public paretoDecoderAndSanitizer = 0x1efB2f990beD6F71B8F71EcFCC31ED7AC9D7E5aa;
     //itb
     address public itbAaveV3Usdc = 0xa6c9A887F5Ae28A70E457178AABDd153859B572b;
     address public itbAaveV3Usdt = 0x9c62cB41eACe893E5cc72C0C933E14B299C520A8;
@@ -148,8 +149,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
             address tranche = getAddress(sourceChain, "Pareto_FalconX_AA_tranche");
             address asset = getAddress(sourceChain, "USDC");
 
-            // TODO: uncomment this once we actually deploy pareto decoder
-            //setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", paretoDecoderAndSanitizer);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", paretoDecoderAndSanitizer);
             _addParetoLeafs(leafs, vault, tranche, asset);
             setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
