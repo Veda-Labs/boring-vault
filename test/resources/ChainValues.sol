@@ -940,6 +940,7 @@ contract ChainValues {
         values[mainnet]["PT-iUSD-4SEP2025_USDC_915"] =
         0x3a3b0aab54883f5b2561d8327fbe234142db4f50f87574cd07daf2ed3fbee01a;
         values[mainnet]["siUSD_USDC_915"] = 0xbbf7ce1b40d32d3e3048f5cf27eeaa6de8cb27b80194690aab191a63381d8c99;
+        values[mainnet]["wstETH_USDC_90"] = 0x7e585a933ffe8443c371b4f8cfeb4430f5f6a14c2f32a898c26662c67a1cb8b8;
         values[mainnet]["PTcUSD29Jan2026_USDC_915"] = 0x802ec6e878dc9fe6905b8a0a18962dcca10440a87fa2242fbf4a0461c7b0c789;
         values[mainnet]["PTstcUSD29Jan2026_USDC_915"] =
         0x03f715ef1ae508ab3e1faf4dffdbf2a077d1f0ad10c5aad42cf4438d5e3328af;

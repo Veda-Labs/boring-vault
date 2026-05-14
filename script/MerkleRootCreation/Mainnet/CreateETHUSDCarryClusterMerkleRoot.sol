@@ -37,7 +37,7 @@ contract CreateBTCUSDCarryClusterMerkleRootScript is Script, MerkleTreeHelper {
     address public accountantAddress = 0x167e26B03d2e504485aa8F468A5778422BA06758;
     address public boringVault = 0x5373690c930553648f0aaA2e53B51f0C59290B7d;
     address public managerAddress = 0x82D80b2e4B30eC260D282d7988a72e3365f85673;
-    address public rawDataDecoderAndSanitizer = 0x5c6202f606c71fd971A3f17c9bf29A071EFC8aa7;
+    address public rawDataDecoderAndSanitizer = 0x857c230Ea0Ea158FAa0E80f30B95615DF3304776;
     address public flashLoanAdapter = 0x759378c58f9611f28eaFbAf2133Cf5603FFBcD76;
     address public rolesAuthority = 0xD5B18b7CD8264C265c748d5db6E958A6ba0477f7;
 
@@ -116,13 +116,19 @@ contract CreateBTCUSDCarryClusterMerkleRootScript is Script, MerkleTreeHelper {
 
         _addMorphoBlueFlashLoanLeafs(leafs, getAddress(sourceChain, "USDC"));
 
+        // morpho blue markets to supply
+        _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "wstETH_USDC_90"));
+
+        // morpho blue markets to collateralise
+        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "wstETH_USDC_90"));
+
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
         string memory filePath = "./leafs/Mainnet/ETHUSDCarryClusterStrategyLeafs.json";
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
 
         RolesAuthority authority = RolesAuthority(rolesAuthority);
         ManagerWithMerkleVerification manager = ManagerWithMerkleVerification(managerAddress);
-        vm.startBroadcast(vm.envUint("PK"));
+        vm.startBroadcast(vm.envUint("DEPLOYER01"));
         manager.setManageRoot(0x0307AD25281C99F22A8F3Af9e272fE3968810239, manageTree[manageTree.length - 1][0]);
         manager.setManageRoot(flashLoanAdapter, manageTree[manageTree.length - 1][0]);
         manager.setManageRoot(vm.addr(vm.envUint("BTCUSDCarryStrategist")), manageTree[manageTree.length - 1][0]);
