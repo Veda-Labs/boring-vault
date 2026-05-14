@@ -39,7 +39,8 @@ contract RoycoJrUsdcDeployedE2ETest is Test, MerkleTreeHelper {
 
         strategist = makeAddr("roycoJrUsdcStrategist");
 
-        rawDataDecoderAndSanitizer = address(new RoycoJrUsdcDecoderAndSanitizer());
+        rawDataDecoderAndSanitizer =
+            address(new RoycoJrUsdcDecoderAndSanitizer(getAddress(sourceChain, "magpieDexAggregator")));
 
         setAddress(false, sourceChain, "boringVault", BORING_VAULT);
         setAddress(false, sourceChain, "managerAddress", MANAGER);
@@ -133,9 +134,8 @@ contract RoycoJrUsdcDeployedE2ETest is Test, MerkleTreeHelper {
                 0
             )
         );
-        ManagerWithMerkleVerification(MANAGER).manageVaultWithMerkleVerification(
-            fakeProofs, decoders, targets, data, new uint256[](1)
-        );
+        ManagerWithMerkleVerification(MANAGER)
+            .manageVaultWithMerkleVerification(fakeProofs, decoders, targets, data, new uint256[](1));
     }
 
     function _executeStage1(ManageLeaf[] memory leafs, bytes32[][] memory tree, uint256 amount) internal {
@@ -164,12 +164,13 @@ contract RoycoJrUsdcDeployedE2ETest is Test, MerkleTreeHelper {
         decoders[1] = rawDataDecoderAndSanitizer;
 
         vm.prank(strategist);
-        ManagerWithMerkleVerification(MANAGER).manageVaultWithMerkleVerification(
-            proofs, decoders, targets, data, new uint256[](2)
-        );
+        ManagerWithMerkleVerification(MANAGER)
+            .manageVaultWithMerkleVerification(proofs, decoders, targets, data, new uint256[](2));
     }
 
-    function _executeStage2(ManageLeaf[] memory leafs, bytes32[][] memory tree, uint256 amount, uint256 nonce) internal {
+    function _executeStage2(ManageLeaf[] memory leafs, bytes32[][] memory tree, uint256 amount, uint256 nonce)
+        internal
+    {
         ManageLeaf[] memory used = new ManageLeaf[](1);
         used[0] = leafs[3]; // executeDeposit
         bytes32[][] memory proofs = _getProofsUsingTree(used, tree);
@@ -184,9 +185,8 @@ contract RoycoJrUsdcDeployedE2ETest is Test, MerkleTreeHelper {
         decoders[0] = rawDataDecoderAndSanitizer;
 
         vm.prank(strategist);
-        ManagerWithMerkleVerification(MANAGER).manageVaultWithMerkleVerification(
-            proofs, decoders, targets, data, new uint256[](1)
-        );
+        ManagerWithMerkleVerification(MANAGER)
+            .manageVaultWithMerkleVerification(proofs, decoders, targets, data, new uint256[](1));
     }
 
     function _startFork(string memory rpcKey) internal returns (uint256 forkId) {

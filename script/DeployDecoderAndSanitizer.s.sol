@@ -127,8 +127,9 @@ contract DeployRoycoJrUsdcClusterDecoderAndSanitizer is Script, ContractNames, M
 
         vm.startBroadcast(vm.envUint("DEPLOYER01"));
 
+        constructorArgs = abi.encode(getAddress(sourceChain, "magpieDexAggregator"));
         creationCode = type(RoycoJrUsdcDecoderAndSanitizer).creationCode;
-        deployer.deployContract("RoycoJrUsdcClusterDecoderAndSanitizerV0.1", creationCode, constructorArgs, 0);
+        deployer.deployContract("RoycoJrUsdcClusterDecoderAndSanitizerV0.2", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
@@ -238,7 +239,8 @@ contract DeployBTCCarryDecoderAndSanitizer is Script, ContractNames, MainnetAddr
         vm.startBroadcast(vm.envUint("PK"));
 
         new BTCCarryDecoderAndSanitizer(
-            getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"), getAddress(sourceChain, "magpieDexAggregator")
+            getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
+            getAddress(sourceChain, "magpieDexAggregator")
         );
 
         vm.stopBroadcast();
