@@ -11,5 +11,106 @@
     "RolesAuthority": "0xDD9214A2EB4E1501001715891618253669B5c8ee",
     "TellerWithMultiAssetSupport": "0x97Deb8Fb02A2553976DCD3d25FaA1501Eef4585b",
     "Timelock": "0x0000000000000000000000000000000000000000"
+  },
+  "contractMetadata": {
+    "AccountantWithRateProviders": {
+      "deployedAt": "2025-09-11T04:31:45Z",
+      "creationTx": "0xee9f5d4ce92f909a94d5c5fabcb4c34a5749cf7cb3eea8a8a7d6f0f81254359c",
+      "creationBlock": 47412152,
+      "auditCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
+      "auditUrl": "file:audit/certora-boring-vault-0.pdf",
+      "scopeMatch": true,
+      "verification": "full_match",
+      "verifiedCommit": "c096057f0334c744ebc966e2076b62da2a531d0e",
+      "verificationGap": "cbor,evm:london"
+    },
+    "BoringOnChainQueue": {
+      "deployedAt": "2025-09-11T04:31:49Z",
+      "creationTx": "0xbc1cbb0d790c5268c40e77f8279e79f62d4346ae4b8fc9436557d971816c616d",
+      "creationBlock": 47412155,
+      "auditCommit": "edfcba3f29f691c638b06d04f60af79503632b58",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-27",
+      "scopeMatch": true,
+      "verification": "full_match",
+      "verifiedCommit": "c096057f0334c744ebc966e2076b62da2a531d0e",
+      "verificationGap": "cbor,evm:london"
+    },
+    "BoringVault": {
+      "deployedAt": "2025-09-11T04:31:38Z",
+      "creationTx": "0x6c85cf4e8328461ad002d3bc76ed7bff21024cd18364e0bfd87a9748e99a89b4",
+      "creationBlock": 47412148,
+      "auditCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
+      "auditUrl": "file:audit/certora-boring-vault-0.pdf",
+      "scopeMatch": true,
+      "verification": "full_match",
+      "verifiedCommit": "c096057f0334c744ebc966e2076b62da2a531d0e",
+      "verificationGap": "cbor,evm:london"
+    },
+    "Lens": {
+      "deployedAt": "2025-05-07T21:04:55Z",
+      "creationTx": "0x7403600c3aec5bc398074b83bb549c79018b53821a59ea368dca3d33ffc69bdb",
+      "creationBlock": 41220694,
+      "auditCommit": "939c77e25473dff3ed18fa104f004f7afd13452e",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-4",
+      "scopeMatch": true,
+      "verification": "full_match",
+      "verifiedCommit": "b95f7afaf9f3e6d873d7ed7bb0126f8318311cc6",
+      "verificationGap": "cbor,evm:london"
+    },
+    "ManagerWithMerkleVerification": {
+      "deployedAt": "2025-09-11T04:31:41Z",
+      "creationTx": "0x235142bf4211a69a783f05e61fbfe34675eba58dee9b305e7fd134837f6d7c34",
+      "creationBlock": 47412150,
+      "auditCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-19",
+      "scopeMatch": true,
+      "verification": "full_match",
+      "verifiedCommit": "c096057f0334c744ebc966e2076b62da2a531d0e",
+      "verificationGap": "cbor,evm:london"
+    },
+    "Pauser": {
+      "deployedAt": "2025-09-11T04:31:53Z",
+      "creationTx": "0x4a549170dbf143510dd7b46f229daf4943e6d4928d616c6f86da6063308b2d1e",
+      "creationBlock": 47412159,
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": false,
+      "verification": "full_match",
+      "verifiedCommit": "c096057f0334c744ebc966e2076b62da2a531d0e",
+      "verificationGap": "cbor,evm:london"
+    },
+    "QueueSolver": {
+      "deployedAt": "2025-09-11T04:31:52Z",
+      "creationTx": "0xab1ebcf40b825bbeb6259dfbf6564f461d9957f35f68e13acc0dd325612a97eb",
+      "creationBlock": 47412158,
+      "auditCommit": "b9eafd46e656c532ea2c28a1bd66ce271ebedbc7",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-44",
+      "scopeMatch": true,
+      "verification": "full_match",
+      "verifiedCommit": "c096057f0334c744ebc966e2076b62da2a531d0e",
+      "verificationGap": "cbor,evm:london"
+    },
+    "RolesAuthority": {
+      "deployedAt": "2025-09-11T04:31:37Z",
+      "creationTx": "0x4b7ac9bdc5ea9410057ccca5e6a1ae8ea3303e71415cef4ce902300b6843b2dc",
+      "creationBlock": 47412147,
+      "auditCommit": null,
+      "auditUrl": null,
+      "scopeMatch": null,
+      "verification": "full_match",
+      "verifiedCommit": "c096057f0334c744ebc966e2076b62da2a531d0e",
+      "verificationGap": "cbor,evm:london"
+    },
+    "TellerWithMultiAssetSupport": {
+      "deployedAt": "2025-09-11T04:31:47Z",
+      "creationTx": "0x5eb7570c2c15b1776dee7a06d15cecacb9503c26ee4c5ee4153c307b9a56543d",
+      "creationBlock": 47412154,
+      "auditCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
+      "auditUrl": "file:audit/certora-boring-vault-0.pdf",
+      "scopeMatch": true,
+      "verification": "full_match",
+      "verifiedCommit": "c096057f0334c744ebc966e2076b62da2a531d0e",
+      "verificationGap": "cbor,evm:london"
+    }
   }
 }
