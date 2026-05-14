@@ -26,7 +26,7 @@
     "PayoutAddress": "0xA9962a5BfBea6918E958DeE0647E99fD7863b95A",
     "StartingExchangeRate": 1000000000000000000
   },
-  "core": {
+  "contractAddresses": {
     "AccountantWithRateProviders": "0xBA4397B2B1780097eD1B483E3C0717E0Ed4fAAa5",
     "BoringVault": "0xf8203A33027607D2C82dFd67b46986096257dFA5",
     "DecoderAndSanitizer": "0x16D377CE4c95F7737Ef4B45F81301A988F62b61a",
