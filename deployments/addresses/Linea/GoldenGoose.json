@@ -51,7 +51,7 @@
       "creationTx": "0xe4f2ee309bf78e476c9ab1d1f8d6f09baed3b5b27071a308dccb7b2321419bd3",
       "creationBlock": 9286121,
       "auditCommit": "939c77e25473dff3ed18fa104f004f7afd13452e",
-      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-4",
+      "auditUrl": "file:audit/spearbit-boring-vault-arctic-0.pdf",
       "scopeMatch": true,
       "verification": "full_match",
       "verifiedCommit": "69fa3837f651ed236b35400b69498b50e48e99e9",
