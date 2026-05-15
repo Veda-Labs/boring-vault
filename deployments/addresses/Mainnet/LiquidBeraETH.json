@@ -14,111 +14,71 @@
   },
   "contractMetadata": {
     "AccountantWithRateProviders": {
-      "deployedAt": "2024-12-30T09:05:59Z",
-      "creationTx": "0xd3a5d9b8421ff7edd2b9dc8f4089816b5be83ee85c993d65336b87aad3859c48",
-      "creationBlock": 21514284,
       "auditCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-19",
-      "scopeMatch": true,
       "verification": "full_match",
       "verifiedCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
       "verificationGap": "cbor"
     },
     "BoringOnChainQueue": {
-      "deployedAt": "2024-12-30T09:05:59Z",
-      "creationTx": "0xd3a5d9b8421ff7edd2b9dc8f4089816b5be83ee85c993d65336b87aad3859c48",
-      "creationBlock": 21514284,
       "auditCommit": "ec74b24330a1d7b144dc397c1c20c76e3d6fc460",
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-18",
-      "scopeMatch": true,
       "verification": "full_match",
       "verifiedCommit": "ec74b24330a1d7b144dc397c1c20c76e3d6fc460",
       "verificationGap": "cbor"
     },
     "BoringVault": {
-      "deployedAt": "2024-12-30T09:05:59Z",
-      "creationTx": "0xd3a5d9b8421ff7edd2b9dc8f4089816b5be83ee85c993d65336b87aad3859c48",
-      "creationBlock": 21514284,
       "auditCommit": "9c6e1e4458fba53f2ff09efe21195dcf570ffc3e",
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-7",
-      "scopeMatch": true,
       "verification": "full_match",
       "verifiedCommit": "474893ded885115e19cbea264377ca9e4d76ff1c",
       "verificationGap": "cbor"
     },
     "Lens": {
-      "deployedAt": "2024-04-17T04:08:11Z",
-      "creationTx": "0xfe6e52cf43a2410bed6f9305fb70abb559104b267798e65353823df4aff95c35",
-      "creationBlock": 19672706,
       "auditCommit": "939c77e25473dff3ed18fa104f004f7afd13452e",
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-4",
-      "scopeMatch": true,
       "verification": "full_match",
       "verifiedCommit": "6064f06f72d8f972876009071b986f7d2e09feb1",
       "verificationGap": "cbor"
     },
     "ManagerWithMerkleVerification": {
-      "deployedAt": "2024-12-30T09:05:59Z",
-      "creationTx": "0xd3a5d9b8421ff7edd2b9dc8f4089816b5be83ee85c993d65336b87aad3859c48",
-      "creationBlock": 21514284,
       "auditCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-19",
-      "scopeMatch": true,
       "verification": "full_match",
       "verifiedCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
       "verificationGap": "cbor"
     },
     "Pauser": {
-      "deployedAt": "2024-12-30T09:05:59Z",
-      "creationTx": "0xd3a5d9b8421ff7edd2b9dc8f4089816b5be83ee85c993d65336b87aad3859c48",
-      "creationBlock": 21514284,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": false,
       "verification": "full_match",
       "verifiedCommit": "474893ded885115e19cbea264377ca9e4d76ff1c",
       "verificationGap": "cbor"
     },
     "QueueSolver": {
-      "deployedAt": "2024-12-30T09:05:59Z",
-      "creationTx": "0xd3a5d9b8421ff7edd2b9dc8f4089816b5be83ee85c993d65336b87aad3859c48",
-      "creationBlock": 21514284,
       "auditCommit": "c94d843a6e5d11b91f73f8e27c6b856d52ba8003",
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-25",
-      "scopeMatch": true,
       "verification": "full_match",
       "verifiedCommit": "474893ded885115e19cbea264377ca9e4d76ff1c",
       "verificationGap": "cbor"
     },
     "RolesAuthority": {
-      "deployedAt": "2024-12-30T09:05:59Z",
-      "creationTx": "0xd3a5d9b8421ff7edd2b9dc8f4089816b5be83ee85c993d65336b87aad3859c48",
-      "creationBlock": 21514284,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
       "verification": "full_match",
       "verifiedCommit": "474893ded885115e19cbea264377ca9e4d76ff1c",
       "verificationGap": "cbor"
     },
     "LayerZeroTellerWithRateLimiting": {
-      "deployedAt": "2025-04-23T21:21:11Z",
-      "creationTx": "0xb61861beb7fdee6e861f49cf82e0d870e6c2da27df529ff7c7fc341d7ad8cc64",
-      "creationBlock": 22334359,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": false,
       "verification": "full_match",
       "verifiedCommit": "c9b8b82b57a0b902182cc79784caab6a6a5fb062",
       "verificationGap": "cbor"
     },
     "Timelock": {
-      "deployedAt": "2024-12-30T09:05:59Z",
-      "creationTx": "0xd3a5d9b8421ff7edd2b9dc8f4089816b5be83ee85c993d65336b87aad3859c48",
-      "creationBlock": 21514284,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
       "verification": "full_match",
       "verifiedCommit": "474893ded885115e19cbea264377ca9e4d76ff1c",
       "verificationGap": "cbor"

@@ -61,45 +61,29 @@
       "verificationGap": "cbor"
     },
     "AccountantWithRateProviders": {
-      "deployedAt": "2024-09-13T14:31:11Z",
-      "creationTx": "0xdf2da7054508d8350cdccee6486c86a758d387459ce806ac0df5cebb403496f7",
-      "creationBlock": 20742304,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
       "verification": "full_match",
       "verifiedCommit": "886c96b00100a777f572b8ea05bf971bcd781738",
       "verificationGap": "cbor"
     },
     "Lens": {
-      "deployedAt": "2024-04-17T04:08:11Z",
-      "creationTx": "0xfe6e52cf43a2410bed6f9305fb70abb559104b267798e65353823df4aff95c35",
-      "creationBlock": 19672706,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
       "verification": "full_match",
       "verifiedCommit": "228b4b66174f66385646e90ca30c1f354423bdf3",
       "verificationGap": "cbor"
     },
     "ManagerWithMerkleVerification": {
-      "deployedAt": "2024-09-13T14:31:11Z",
-      "creationTx": "0x4f3766166c40204508a53762e0397cdb01334a2e7f3755a1c418d66255860744",
-      "creationBlock": 20742304,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
       "verification": "full_match",
       "verifiedCommit": "886c96b00100a777f572b8ea05bf971bcd781738",
       "verificationGap": "cbor"
     },
     "TellerWithMultiAssetSupport": {
-      "deployedAt": "2024-09-13T14:31:11Z",
-      "creationTx": "0xd43476cfaae2aeb98a85ba5ff7d65852b8d28152cd4fbcd4cfc0b1add82f5ffe",
-      "creationBlock": 20742304,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
       "verification": "full_match",
       "verifiedCommit": "886c96b00100a777f572b8ea05bf971bcd781738",
       "verificationGap": "cbor"
