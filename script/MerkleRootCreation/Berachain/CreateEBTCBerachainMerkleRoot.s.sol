@@ -44,7 +44,7 @@ contract CreateEBTCBerachainMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== LayerZero ==========================
         _addLayerZeroLeafs(
-            leafs, getERC20(sourceChain, "LBTC"), getAddress(sourceChain, "LBTC_OFT"), layerZeroMainnetEndpointId
+            leafs, getERC20(sourceChain, "LBTC"), getAddress(sourceChain, "LBTC_OFT"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault")
         );
 
         // ========================== Verify ==========================

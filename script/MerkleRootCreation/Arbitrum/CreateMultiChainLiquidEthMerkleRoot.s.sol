@@ -197,15 +197,10 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== Merkl ==========================
         {
-            ERC20[] memory tokensToClaim = new ERC20[](3);
-            tokensToClaim[0] = getERC20(sourceChain, "UNI");
-            tokensToClaim[1] = getERC20(sourceChain, "ARB");
-            tokensToClaim[2] = getERC20(sourceChain, "GRAIL");
             _addMerklLeafs(
                 leafs,
                 getAddress(sourceChain, "merklDistributor"),
-                getAddress(sourceChain, "dev1Address"),
-                tokensToClaim
+                getAddress(sourceChain, "dev1Address")
             );
         }
 
@@ -269,7 +264,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         address itbPositionManager,
         ERC20[] memory tokensUsed,
         string memory itbContractName
-    ) internal {
+    ) internal override {
         // acceptOwnership
         leafIndex++;
         leafs[leafIndex] = ManageLeaf(

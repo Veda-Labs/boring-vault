@@ -121,7 +121,7 @@ contract CreateSentayUSDCMerkleRoot is Script, MerkleTreeHelper {
          address itbPositionManager,
          ERC20[] memory tokensUsed,
          string memory itbContractName
-     ) internal {
+     ) internal override {
          // acceptOwnership
          leafIndex++;
          leafs[leafIndex] = ManageLeaf(

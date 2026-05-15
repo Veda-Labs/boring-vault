@@ -81,10 +81,8 @@ contract CreateSwellEtherFiLiquidEthMerkleRoot is Script, MerkleTreeHelper {
         }
 
         // ========================== Merkl ==========================
-        ERC20[] memory tokensToClaim = new ERC20[](1);
-        tokensToClaim[0] = getERC20(sourceChain, "WSWELL");
         _addMerklLeafs(
-            leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"), tokensToClaim
+            leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address")
         );
 
         // ========================== Velodrome ==========================

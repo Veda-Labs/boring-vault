@@ -50,7 +50,7 @@ contract DeployGenericRateProviderWithDecimalScaling is Script, ContractNames, T
             18
         ));
         address createdAddress = deployer.deployContract("mFONE Rate Provider V0.0", creationCode, constructorArgs, 0); 
-        require (GenericRateProvider(createdAddress).outputDecimals() == ERC20(targetToken).decimals()); 
+        require (GenericRateProviderWithDecimalScaling(createdAddress).outputDecimals() == ERC20(target).decimals());
         console.log("DEPLOYED ADDRESS: ", createdAddress); 
     }
 }

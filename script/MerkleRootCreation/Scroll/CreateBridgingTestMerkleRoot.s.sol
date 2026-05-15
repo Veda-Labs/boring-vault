@@ -46,19 +46,20 @@ contract CreateBridgingTestMerkleRootScript is Script, MerkleTreeHelper {
         // ========================== Scroll Bridge ==========================
         ERC20[] memory localTokens = new ERC20[](1);
         localTokens[0] = getERC20(sourceChain, "DAI");
-        _addScrollNativeBridgeLeafs(leafs, "mainnet", localTokens);
+        address[] memory scrollGateways = new address[](0); // no gateways needed from Scroll
+        _addScrollNativeBridgeLeafs(leafs, "mainnet", localTokens, scrollGateways);
 
         // ========================== LayerZero ==========================
         _addLayerZeroLeafs(
-            leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "WEETH"), layerZeroMainnetEndpointId
+            leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "WEETH"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault")
         );
         _addLayerZeroLeafs(
-            leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "WEETH"), layerZeroScrollEndpointId
+            leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "WEETH"), layerZeroScrollEndpointId, getBytes32(sourceChain, "boringVault")
         );
 
         // ========================== Drone Linea Bridge ==========================
         uint256 startIndex = leafIndex + 1;
-        _addScrollNativeBridgeLeafs(leafs, "mainnet", localTokens);
+        _addScrollNativeBridgeLeafs(leafs, "mainnet", localTokens, scrollGateways);
 
         _createDroneLeafs(leafs, drone, startIndex, leafIndex + 1);
 
