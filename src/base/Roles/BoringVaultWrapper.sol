@@ -26,7 +26,7 @@ import {TellerWithMultiAssetSupportLib} from "src/base/Roles/TellerWithMultiAsse
  *   totalAssets() = boringVault.balanceOf(address(this))
  *
  *   No off-chain share-price updater is needed. The wrapper's exchange rate
- *   against BV shares drifts only as fee dilution accumulates over time.
+ *   against BoringVault shares drifts only as fee dilution accumulates over time.
  *
  * @dev Inflation-attack protection:
  *   This contract inherits from OpenZeppelin's ERC4626 and overrides
@@ -34,14 +34,14 @@ import {TellerWithMultiAssetSupportLib} from "src/base/Roles/TellerWithMultiAsse
  *   formula `assets * (supply + 10^offset) / (totalAssets + 1)`, which makes
  *   the classic donation-style inflation attack always strictly unprofitable
  *   for the attacker — they can never recover more than they put in. The
- *   wrapper-share decimals become `BV_decimals + DECIMALS_OFFSET`.
+ *   wrapper-share decimals become `boringVault.decimals() + DECIMALS_OFFSET`.
  *
  * @dev Fee model:
- *   Fees are realised as wrapper share dilution — the feeRecipient receives
+ *   Fees are realized as wrapper share dilution — the feeRecipient receives
  *   freshly minted shares and no underlying assets are ever extracted.
  *
- *   1. Management fee  — annualised % of AUM, accrued continuously.
- *   2. Performance fee — % of appreciation in the BV exchange rate
+ *   1. Management fee  — annualized % of AUM, accrued continuously.
+ *   2. Performance fee — % of appreciation in the BoringVault exchange rate
  *                        (accountant.getRate()) above the high-water mark.
  *
  *   Both are settled before every user action so the exchange rate is always
@@ -49,7 +49,7 @@ import {TellerWithMultiAssetSupportLib} from "src/base/Roles/TellerWithMultiAsse
  *
  * @dev Direct asset deposit:
  *   depositAsset() accepts any Teller-supported ERC20 (e.g. USDC, WETH, etc.)
- *   using bulkDeposit so that BV shares land in this contract in a single tx
+ *   using bulkDeposit so that BoringVault shares land in this contract in a single transaction
  *   and wrapper shares are issued to the caller.
  *
  *   Requirements:
@@ -57,7 +57,7 @@ import {TellerWithMultiAssetSupportLib} from "src/base/Roles/TellerWithMultiAsse
  *   - This contract must hold the bulkDeposit role on the Teller.
  *
  *   Share-lock: bulkDeposit skips _afterPublicDeposit so no lock is ever set
- *   on this contract's BV shares, so any Teller shareLockPeriod is fully
+ *   on this contract's BoringVault shares, so any Teller shareLockPeriod is fully
  *   transparent to wrapper users.
  *
  * @dev Compliance:
@@ -73,25 +73,25 @@ import {TellerWithMultiAssetSupportLib} from "src/base/Roles/TellerWithMultiAsse
  *   Where applied:
  *     - depositAsset()        : denylist + allowlist + signature (wrapper-domain hash)
  *     - redeemAsset()         : denylist + allowlist
- *     - deposit/mint          : denylist + allowlist (BV hook also fires on the BV transfer in)
- *     - withdraw/redeem       : denylist + allowlist on owner/receiver (BV hook also fires on the BV transfer out)
+ *     - deposit/mint          : denylist + allowlist (BoringVault hook also fires on the BoringVault transfer in)
+ *     - withdraw/redeem       : denylist + allowlist on owner/receiver (BoringVault hook also fires on the BoringVault transfer out)
  *     - wrapper share transfer: denylist + allowlist on every transfer / transferFrom
  *
  *   Signatures are wrapper-scoped: the hash includes address(this), not the Teller's
- *   address, so a Teller-issued sig cannot be replayed against the wrapper and
+ *   address, so a Teller-issued signature cannot be replayed against the wrapper and
  *   vice versa. Replay protection is a wrapper-local mapping.
  *
- *   Note: the BV share lock period is intentionally NOT enforced on wrapper-share
- *   transfers (it is a BV-level deposit-refund window with no analog at the wrapper
+ *   Note: the BoringVault share lock period is intentionally NOT enforced on wrapper-share
+ *   transfers (it is a BoringVault-level deposit-refund window with no analog at the wrapper
  *   layer).
  *
  * @dev Fees-on-fees:
- *   The underlying BV Accountant may already accrue platform / performance
+ *   The underlying BoringVault Accountant may already accrue platform / performance
  *   fees via exchange-rate updates. This wrapper's fees are additive — end
  *   users effectively pay both layers.
  *
- *   White-labelling: deploy one instance per partner with independent
- *   name / symbol / feeRecipient / fee rates, all backed by the same BV.
+ *   White-labeling: deploy one instance per partner with independent
+ *   name / symbol / feeRecipient / fee rates, all backed by the same BoringVault.
  */
 contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     using SafeERC20 for IERC20;
@@ -108,7 +108,7 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     uint16 public constant MAX_PERFORMANCE_FEE = 5_000;
 
     /// @notice Virtual-share offset used for inflation-attack mitigation.
-    ///         Wrapper decimals() = BV.decimals() + DECIMALS_OFFSET.
+    ///         Wrapper decimals() = BoringVault decimals() + DECIMALS_OFFSET.
     uint8 public constant DECIMALS_OFFSET = 6;
 
     // =========================================================================
@@ -119,7 +119,7 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     BoringVault public immutable boringVault;
 
     /**
-     * @notice Accountant that exposes the live BV share price via getRate().
+     * @notice Accountant that exposes the live BoringVault share price via getRate().
      * @dev    Used exclusively for tracking the performance-fee high-water mark.
      *         The wrapper does NOT need the accountant to be updated to function;
      *         management fees work independently of it.
@@ -139,14 +139,14 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     /// @notice Annual management fee in basis points (e.g. 200 = 2 %).
     uint16 public managementFee;
 
-    /// @notice Performance fee on BV exchange-rate gains in bps (e.g. 1_000 = 10 %).
+    /// @notice Performance fee on BoringVault exchange-rate gains in bps (e.g. 1_000 = 10 %).
     uint16 public performanceFee;
 
     /// @notice Block timestamp of the last fee accrual.
     uint64 public lastFeeAccrual;
 
     /**
-     * @notice BV exchange rate recorded at the last fee accrual.
+     * @notice BoringVault exchange rate recorded at the last fee accrual.
      * @dev    Performance fees are only charged on appreciation above this value.
      *         Stored as the same unit returned by accountant.getRate().
      */
@@ -185,7 +185,7 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
         uint16 newPerformanceFee
     );
     event TellerSet(address oldTeller, address newTeller);
-    event HighWaterMarkUpdated(uint96 oldHWM, uint96 newHWM);
+    event HighWaterMarkUpdated(uint96 oldHighWaterMark, uint96 newHighWaterMark);
 
     // =========================================================================
     //                             CONSTRUCTOR
@@ -194,7 +194,7 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     /**
      * @param _owner       Initial admin of this wrapper instance.
      * @param _boringVault BoringVault to wrap; its shares become asset().
-     * @param _accountant  Provides BV share price for performance-fee HWM.
+     * @param _accountant  Provides the BoringVault share price for the performance-fee high-water mark.
      * @param _teller      Teller used by depositAsset() / redeemAsset(); must reference
      *                     the same BoringVault.
      * @param _name        ERC20 name  of the wrapper shares (partner-branded).
@@ -343,11 +343,11 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     // =========================================================================
 
     /**
-     * @notice Deposit a raw asset (e.g. USDC) and receive wrapper shares in one tx.
+     * @notice Deposit a raw asset (e.g. USDC) and receive wrapper shares in one transaction.
      * @dev    Same virtual-offset share math as the standard ERC4626 path:
      *         wrapperShares = bvReceived * (supplyBefore + 10^offset) / (bvBefore + 1)
      *         which is identical to convertToShares(bvReceived) evaluated against
-     *         the state snapshot taken before the BV mint.
+     *         the state snapshot taken before the BoringVault mint.
      */
     function depositAsset(
         SolmateERC20 rawAsset,
@@ -458,8 +458,8 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
                     }
                 }
             } catch {
-                // Accountant paused or otherwise unavailable: skip perf-fee accrual,
-                // leave HWM unchanged. Mgmt fee already computed above is unaffected.
+                // Accountant paused or otherwise unavailable: skip performance fee accrual,
+                // leave the high-water mark unchanged. The management fee already computed above is unaffected.
             }
         }
     }
