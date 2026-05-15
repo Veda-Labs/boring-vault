@@ -1,0 +1,49 @@
+{
+  "metadata": {
+    "AccountantAddress": "0x62A88Bea6fe527b5DEfAA103A3f8b5010205aF92",
+    "BoringVaultAddress": "0xDbD87325D7b1189Dcc9255c4926076fF4a96A271",
+    "DecoderAndSanitizerAddress": "0xB44B0976dBE7b958Ef451ab102d47452aB3cB29B",
+    "DigestComposition": [
+      "Bytes20(DECODER_AND_SANITIZER_ADDRESS)",
+      "Bytes20(TARGET_ADDRESS)",
+      "Bytes1(CAN_SEND_VALUE)",
+      "Bytes4(TARGET_FUNCTION_SELECTOR)",
+      "Bytes{N*20}(ADDRESS_ARGUMENT_0,...,ADDRESS_ARGUMENT_N)"
+    ],
+    "LeafCount": 1,
+    "ManageRoot": "0x511a9ea81dd631053b740525cd89dda0af925357f42f18caa7753cfe9cb5fe68",
+    "ManagerAddress": "0xEd23b12e7700BeB638562A22ED65f74291901c25",
+    "TreeCapacity": 2
+  },
+  "leafs": [
+    {
+      "AddressArguments": ["0xDbD87325D7b1189Dcc9255c4926076fF4a96A271"],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0xB44B0976dBE7b958Ef451ab102d47452aB3cB29B",
+      "Description": "Claim merkl rewards",
+      "FunctionSelector": "0x71ee95c0",
+      "FunctionSignature": "claim(address[],address[],uint256[],bytes32[][])",
+      "LeafDigest": "0x7b583ab35d03d48f49b9472aaa12ff3dae3b6c9c59d335c1b889ab6ed3faffad",
+      "PackedArgumentAddresses": "0xdbd87325d7b1189dcc9255c4926076ff4a96a271",
+      "TargetAddress": "0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    }
+  ],
+  "MerkleTree": {
+    "0": ["0x511a9ea81dd631053b740525cd89dda0af925357f42f18caa7753cfe9cb5fe68"],
+    "1": [
+      "0x7b583ab35d03d48f49b9472aaa12ff3dae3b6c9c59d335c1b889ab6ed3faffad",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400"
+    ]
+  }
+}

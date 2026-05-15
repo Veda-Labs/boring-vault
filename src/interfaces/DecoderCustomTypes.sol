@@ -370,6 +370,13 @@ contract DecoderCustomTypes {
         bytes data;
     }
 
+    // ========================================= HyperLend RewardsDistributor =========================================
+    struct Claim {
+        address token;
+        uint256 amount;
+        bytes32[] proof;
+    }
+
     // ========================================= Linea Bridge =========================================
 
     struct ClaimMessageWithProofParams {
@@ -814,6 +821,15 @@ contract DecoderCustomTypes {
         bytes signature_bytes;
     }
 
+    // ========================================= Predicate Proxy ==================================
+
+    struct PredicateMessage {
+        string taskId;
+        uint256 expireByBlockNumber;
+        address[] signerAddresses;
+        bytes[] signatures;
+    }
+
     // ========================================= GlueX ==================================
 
     struct Interaction {
@@ -840,6 +856,17 @@ contract DecoderCustomTypes {
         uint256 minOutputAmount; // Minimum acceptable output amount
         bool isPermit2; // Whether to use Permit2 for token transfers
         bytes32 uniquePID; // Unique identifier for the partner
+    }
+
+    // ====================================== Etherfi =========================================
+
+    struct EtherFiWithdrawRequest {
+        address user;           // The user who created the request
+        uint96 amountOfEEth;    // Original eETH amount requested
+        uint96 shareOfEEth;     // eETH shares at time of request
+        uint96 amountWithFee;   // ETH amount the user receives after fee deduction (amountOfEEth - fee)
+        uint32 nonce;           // Unique nonce to prevent hash collisions
+        uint32 creationTime;    // Timestamp when request was created
     }
 
 }

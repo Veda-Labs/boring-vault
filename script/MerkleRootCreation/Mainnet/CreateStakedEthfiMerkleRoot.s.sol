@@ -22,9 +22,11 @@ contract CreateStakedEthfiMerkleRootScript is Script, MerkleTreeHelper {
     address public boringVault = 0x86B5780b606940Eb59A062aA85a07959518c0161;
     address public managerAddress = 0x66aae0ee1f68c658401c7d8D6E417202A99545d7;
     address public accountantAddress = 0x05A1552c5e18F5A0BB9571b5F2D6a4765ebdA32b;
-    address public rawDataDecoderAndSanitizer = 0x52ED1F19592aE32580619Eb5BaA3f67530d99F5c;
+    address public rawDataDecoderAndSanitizer = 0x7ef36972929DCD9B33f5b0E4EAE8E3024e44254E;
 
     address public itbDecoderAndSanitizer = 0xcfa57ea1b1E138cf89050253CcF5d0836566C06D;
+
+    address public layerZeroDecoderAndSanitizer = 0xe825B233EEc65C3C55f06a1782ddF97a31e93C99;
 
     address public itbKETHFIPositionManager = 0xCF413A1989e33C8Ef59fbA79935d93205C9BE4c7;
 
@@ -53,6 +55,15 @@ contract CreateStakedEthfiMerkleRootScript is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         ManageLeaf[] memory leafs = new ManageLeaf[](128);
+
+        // // ========================== Layerzero ==========================
+        _addLayerZeroLeafs(
+            leafs,
+            getERC20(sourceChain, "ETHFI"),
+            getAddress(sourceChain, "EthFiOFTAdapter"),
+            layerZeroOptimismEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
 
         // ========================== Symbiotic ==========================
         address[] memory defaultCollaterals = new address[](1);
@@ -100,6 +111,8 @@ contract CreateStakedEthfiMerkleRootScript is Script, MerkleTreeHelper {
         setAddress(true, sourceChain, "boringVault", drone0);
         
         // ========================== Drone0 Leafs ==========================
+
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         
         _addLeafsForEigenLayerLST(
             leafs,

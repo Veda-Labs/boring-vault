@@ -11,6 +11,8 @@ import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import "forge-std/Script.sol";
 
+// source .env && forge script script/MerkleRootCreation/Mainnet/CreateLiquidBtcOperationalMerkleRoot.s.sol --rpc-url $MAINNET_RPC_URL
+
 contract CreateMultichainLiquidBtcOperationalMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
@@ -20,7 +22,12 @@ contract CreateMultichainLiquidBtcOperationalMerkleRootScript is Script, MerkleT
     address public accountantAddress = 0xEa23aC6D7D11f6b181d6B98174D334478ADAe6b0;
     address public itbPositionManager = 0x7AAf9539B7359470Def1920ca41b5AAA05C13726;
     address public itbPositionManager2 = 0x11Fd9E49c41738b7500748f7B94B4DBb0E8c13d2; // Spark LBTC (PYUSD) + Aave Core Euler PYUSD Supervised Loan
+    address public capDecoderAndSanitizer = 0xE0e86bf98dAA0D2b408Cb038E94bCB9B7864309C;
     address public itbDecoderAndSanitizer = 0xEEb53299Cb894968109dfa420D69f0C97c835211;
+    address public etherfibtcDecoderAndSanitizer = 0xC48cA54b9F3f8Fc7E5347DE55879851178B485e8;
+
+    //one offs
+    address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
 
     function setUp() external {}
 
@@ -36,8 +43,7 @@ contract CreateMultichainLiquidBtcOperationalMerkleRootScript is Script, MerkleT
         setAddress(false, mainnet, "accountantAddress", accountantAddress);
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](64);
-        leafIndex = 0;
+        ManageLeaf[] memory leafs = new ManageLeaf[](128);
 
         // ========================== Teller ==========================
         {
@@ -46,6 +52,34 @@ contract CreateMultichainLiquidBtcOperationalMerkleRootScript is Script, MerkleT
             eBTCTellerAssets[1] = getERC20(sourceChain, "LBTC");
             eBTCTellerAssets[2] = getERC20(sourceChain, "cbBTC");
             _addTellerLeafs(leafs, getAddress(sourceChain, "eBTCTeller"), eBTCTellerAssets, false, true);
+        }
+        {
+            address[] memory feeAssets = new address[](1);
+            feeAssets[0] = getAddress(sourceChain, "ETH"); 
+            address[] memory eBTCTellerAssetsAddresses = new address[](3);
+            eBTCTellerAssetsAddresses[0] = getAddress(sourceChain, "WBTC");
+            eBTCTellerAssetsAddresses[1] = getAddress(sourceChain, "LBTC");
+            eBTCTellerAssetsAddresses[2] = getAddress(sourceChain, "cbBTC");
+            _addCrossChainTellerLeafs(leafs, getAddress(sourceChain, "eBTCTeller"), eBTCTellerAssetsAddresses, feeAssets, abi.encode(layerZeroOptimismEndpointId));
+        }
+
+        // ========================== Standard Bridge to Optimism ==========================
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", etherfibtcDecoderAndSanitizer);
+        {
+            ERC20[] memory localTokens = new ERC20[](1);
+            localTokens[0] = getERC20(sourceChain, "WBTC");
+            ERC20[] memory remoteTokens = new ERC20[](1);
+            remoteTokens[0] = getERC20(optimism, "WBTC");
+            _addStandardBridgeLeafs(
+                leafs,
+                optimism,
+                getAddress(optimism, "crossDomainMessenger"),
+                getAddress(sourceChain, "optimismResolvedDelegate"),
+                getAddress(sourceChain, "optimismStandardBridge"),
+                getAddress(sourceChain, "optimismPortal"),
+                localTokens,
+                remoteTokens
+            );
         }
 
         // ========================== ITB =============================
@@ -58,6 +92,66 @@ contract CreateMultichainLiquidBtcOperationalMerkleRootScript is Script, MerkleT
             setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 
+        // ========================== Aave ===========================
+        {
+            ERC20[] memory assets = new ERC20[](5);
+            assets[0] = getERC20(sourceChain, "WBTC");
+            assets[1] = getERC20(sourceChain, "EBTC");
+            assets[2] = getERC20(sourceChain, "LBTC");
+            assets[3] = getERC20(sourceChain, "USDT");
+            assets[4] = getERC20(sourceChain, "USDC");
+            _addAaveV3EOALeafs("Aave V3", getAddress(sourceChain, "v3Pool"), leafs, assets);
+        }
+
+        // ========================== CAP ==========================
+        {
+            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", capDecoderAndSanitizer);
+            address[] memory capDepositAssets = new address[](2);
+            capDepositAssets[0] = getAddress(sourceChain, "USDT");
+            capDepositAssets[1] = getAddress(sourceChain, "USDC");
+            _addCapWithdrawLeafs(leafs, capDepositAssets);
+            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
+
+        // =================== Ether.fi  Swapper ====================
+        {
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
+            // USDT
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "USDT"), getAddress(sourceChain, "USDC"));
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "USDT"), getAddress(sourceChain, "PYUSD"));
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "USDT"), getAddress(sourceChain, "RLUSD"));
+            // USDC
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "USDC"), getAddress(sourceChain, "USDT"));
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "USDC"), getAddress(sourceChain, "PYUSD"));
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "USDC"), getAddress(sourceChain, "RLUSD"));
+            // PYUSD
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "PYUSD"), getAddress(sourceChain, "USDC"));
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "PYUSD"), getAddress(sourceChain, "USDT"));
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "PYUSD"), getAddress(sourceChain, "RLUSD"));
+            // RLUSD
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "RLUSD"), getAddress(sourceChain, "USDC"));
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "RLUSD"), getAddress(sourceChain, "USDT"));
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "RLUSD"), getAddress(sourceChain, "PYUSD"));
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
+
+
+        // ========================== MorphoBlue ==========================
+        _addMorphoBlueRepayLeafs(leafs, getBytes32(sourceChain, "LBTC_PYUSD_86"));
+
+        // ========================== Fee Claiming ===========================
+        {
+            ERC20[] memory feeAssets = new ERC20[](3);
+            feeAssets[0] = getERC20(sourceChain, "WBTC");
+            feeAssets[1] = getERC20(sourceChain, "LBTC");
+            feeAssets[2] = getERC20(sourceChain, "cbBTC");
+            _addLeafsForFeeClaiming(
+                leafs,
+                getAddress(sourceChain, "accountantAddress"),
+                feeAssets,
+                false
+            );
+        }
         // ========================== Verify ==========================
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

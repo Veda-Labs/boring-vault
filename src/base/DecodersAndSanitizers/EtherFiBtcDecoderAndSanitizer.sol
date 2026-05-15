@@ -15,6 +15,7 @@ import {KarakDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols
 import {SymbioticVaultDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/SymbioticVaultDecoderAndSanitizer.sol";
 import {OFTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OFTDecoderAndSanitizer.sol";
+import {StandardBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/StandardBridgeDecoderAndSanitizer.sol";
 
 contract EtherFiBtcDecoderAndSanitizer is
     UniswapV3DecoderAndSanitizer,
@@ -25,7 +26,8 @@ contract EtherFiBtcDecoderAndSanitizer is
     KarakDecoderAndSanitizer,
     SymbioticVaultDecoderAndSanitizer,
     OFTDecoderAndSanitizer,
-    BaseDecoderAndSanitizer
+    BaseDecoderAndSanitizer,
+    StandardBridgeDecoderAndSanitizer
 {
     constructor(address _uniswapV3NonFungiblePositionManager)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)

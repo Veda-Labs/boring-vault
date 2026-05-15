@@ -21,8 +21,9 @@ import {SymbioticVaultDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/SymbioticVaultDecoderAndSanitizer.sol";
 import {EigenLayerLSTStakingDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/EigenLayerLSTStakingDecoderAndSanitizer.sol"; 
 import {KarakDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/KarakDecoderAndSanitizer.sol"; 
+import {OFTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OFTDecoderAndSanitizer.sol";
 
-contract SymbioticLRTDecoderAndSanitizer is
+contract StakedEtherFiDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
     ERC4626DecoderAndSanitizer,
     EtherFiDecoderAndSanitizer,
@@ -37,7 +38,8 @@ contract SymbioticLRTDecoderAndSanitizer is
     UniswapV3DecoderAndSanitizer,
     SymbioticVaultDecoderAndSanitizer,
     EigenLayerLSTStakingDecoderAndSanitizer,
-    KarakDecoderAndSanitizer
+    KarakDecoderAndSanitizer,
+    OFTDecoderAndSanitizer
 {
     constructor(address _uniswapV3NonfungiblePositionManager, address _odosRouter)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonfungiblePositionManager)

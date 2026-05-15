@@ -11,18 +11,21 @@ import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import "forge-std/Script.sol";
 
+// source .env && forge script script/MerkleRootCreation/Mainnet/CreateMultiChainLiquidEthOperationalMerkleRoot.s.sol --rpc-url $MAINNET_RPC_URL --gas-limit 100000000000000000
+
 contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     address public boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C;
     address public rawDataDecoderAndSanitizer = 0x8fB043d30BAf4Eba2C8f7158aCBc07ec9A53Fe85;
+    address public capDecoderAndSanitizer = 0xE0e86bf98dAA0D2b408Cb038E94bCB9B7864309C;
     address public managerAddress = 0xf9f7969C357ce6dfd7973098Ea0D57173592bCCa;
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
     address public drone = 0x0a42b2F3a0D54157Dbd7CC346335A4F1909fc02c;
 
     address public itbReserveProtocolPositionManager = 0x778aC5d0EE062502fADaa2d300a51dE0869f7995;
-    address public itbAaveLidoPositionManager = 0xC4F5Ee078a1C4DA280330546C29840d45ab32753;
-    address public itbAaveLidoPositionManager2 = 0x572F323Aa330B467C356c5a30Bf9A20480F4fD52;
+    address public itbPositionManager2 = 0xA40aFb15275A94F64aF37C0cEaAaA45Cb568A361;
+    address public itbPositionManager3 = 0x2A601FC6C0Cb854fDA82715E49Ab04C5340A0396;
 
     // The cork decoder and sanitizer relaxes restrictions around which tokens can be withdrawn
     address public itbCorkDecoderAndSanitizer = 0x457Cce6Ec3fEb282952a7e50a1Bc727Ca235Eb0a;
@@ -69,10 +72,16 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
             address EIGEN = getAddress(sourceChain, "EIGEN");
             address rEUL = getAddress(sourceChain, "rEUL");
             address MNT = getAddress(sourceChain, "MNT");
+            address EUL = getAddress(sourceChain, "EUL");
+            address axlSAGA = getAddress(sourceChain, "axlSAGA");
+            address PENDLE = getAddress(sourceChain, "PENDLE");
 
             _addOdosOneWaySwapLeafs(leafs, EIGEN, WETH);
             _addOdosOneWaySwapLeafs(leafs, rEUL, WETH);
             _addOdosOneWaySwapLeafs(leafs, MNT, WETH);
+            _addOdosOneWaySwapLeafs(leafs, EUL, WETH);
+            _addOdosOneWaySwapLeafs(leafs, axlSAGA, WETH);
+            _addOdosOneWaySwapLeafs(leafs, PENDLE, WETH);
         }
 
         // ========================== Merkl ==========================
@@ -103,8 +112,8 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
             tokens[8] = getERC20(sourceChain, "PYUSD");
 
             _addITBPositionManagerWithdrawals(leafs, itbReserveProtocolPositionManager, tokens, "itb reserve position manager");
-            _addITBPositionManagerWithdrawals(leafs, itbAaveLidoPositionManager, tokens, "itb aave position manager 1");
-            _addITBPositionManagerWithdrawals(leafs, itbAaveLidoPositionManager2, tokens, "itb aave position manager 2");
+            _addITBPositionManagerWithdrawals(leafs, itbPositionManager2, tokens, "itb position manager 2");
+            _addITBPositionManagerWithdrawals(leafs, itbPositionManager3, tokens, "itb position manager 3");
             setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 
@@ -119,6 +128,94 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
 
             _addLeafsForDroneTransfers(leafs, drone, droneTransferTokens);
             _addLeafsForDrone(leafs, drone);
+        }
+        // ========================== Fee Claiming ==========================
+        {
+            ERC20[] memory feeAssets = new ERC20[](2);
+            feeAssets[0] = getERC20(sourceChain, "WEETH");
+            feeAssets[1] = getERC20(sourceChain, "WETH");
+            _addLeafsForFeeClaiming(
+                leafs,
+                getAddress(sourceChain, "accountantAddress"),
+                feeAssets, false);
+        }
+
+        // ========================= AAVE ===============================
+        {
+            ERC20[] memory supplyAssets = new ERC20[](2);
+            supplyAssets[0] = getERC20(sourceChain, "WEETH");
+            supplyAssets[1] = getERC20(sourceChain, "WETH");
+            _addAaveV3EOALeafs("Aave V3", getAddress(sourceChain, "v3Pool"), leafs, supplyAssets);
+        }
+
+      // ========================== Plasma Bridging ==========================
+        // USDT
+        {
+            _addLayerZeroLeafs(
+                leafs,
+                getERC20(sourceChain, "USDT"),
+                getAddress(sourceChain, "usdt0OFTAdapter"),
+                layerZeroPlasmaEndpointId,
+                getBytes32(sourceChain, "boringVault")
+            );
+        }
+
+        // ========================== LayerZero WEETH =========================
+
+        {
+            _addLayerZeroLeafs(
+                leafs,
+                getERC20(sourceChain, "WEETH"),
+                getAddress(sourceChain, "EtherFiOFTAdapter"),
+                layerZeroPlasmaEndpointId,
+                getBytes32(sourceChain, "boringVault")
+            );
+
+                _addLayerZeroLeafs(
+                    leafs,
+                    getERC20(sourceChain, "WEETH"),
+                    getAddress(sourceChain, "EtherFiOFTAdapter"),
+                    layerZeroScrollEndpointId,
+                    getBytes32(sourceChain, "boringVault")
+                );
+
+            _addLayerZeroLeafs(
+                leafs,
+                getERC20(sourceChain, "WEETH"),
+                getAddress(sourceChain, "EtherFiOFTAdapter"),
+                layerZeroOptimismEndpointId,
+                getBytes32(sourceChain, "boringVault")
+            );
+        }
+
+    // ========================== Standard Bridge to Optimism ==========================
+    {
+
+            ERC20[] memory localTokens = new ERC20[](0);
+            ERC20[] memory remoteTokens = new ERC20[](0);
+            _addStandardBridgeLeafs(
+                leafs,
+                optimism,
+                getAddress(optimism, "crossDomainMessenger"),
+                getAddress(sourceChain, "optimismResolvedDelegate"),
+                getAddress(sourceChain, "optimismStandardBridge"),
+                getAddress(sourceChain, "optimismPortal"),
+                localTokens,
+                remoteTokens
+            );
+    }
+
+
+
+        // ========================== Cap =======================================
+        {
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", capDecoderAndSanitizer);
+            address[] memory capDepositAssets = new address[](3);
+            capDepositAssets[0] = getAddress(sourceChain, "USDC");
+            capDepositAssets[1] = getAddress(sourceChain, "USDT");
+            capDepositAssets[2] = getAddress(sourceChain, "PYUSD");
+            _addCapWithdrawLeafs(leafs, capDepositAssets);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 
         // ==================== KING Claiming ========================
@@ -187,7 +284,6 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
          ERC20[] memory tokensUsed,
          string memory itbContractName
      ) internal {
-
          for (uint256 i; i < tokensUsed.length; ++i) {
              // Withdraw
              leafIndex++;

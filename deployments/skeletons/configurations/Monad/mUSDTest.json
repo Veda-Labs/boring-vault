@@ -1,0 +1,129 @@
+{
+  "deploymentParameters": {
+    "logLevel": 4,
+    "privateKeyEnvName": "BORING_DEVELOPER",
+    "chainName": "monad",
+    "evmVersion": "cancun",
+    "deployerContractAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "deployerAddress"
+    },
+    "nativeWrapperAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "WMON"
+    },
+    "deploymentOwnerAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "txBundlerAddress"
+    },
+    "deploymentFileName": "skeletons/addresses/Monad/mUSDTest.json"
+  },
+  "rolesAuthorityConfiguration": {
+    "rolesAuthorityDeploymentName": "mUSD Test RolesAuthority Version 0.0"
+  },
+  "lensConfiguration": {
+    "lensDeploymentName": "Arctic Architecture Lens V0.0"
+  },
+  "boringVaultConfiguration": {
+    "boringVaultDeploymentName": "mUSD Test Boring Vault V0.0",
+    "boringVaultName": "Test mUSD Vault",
+    "boringVaultSymbol": "testvmUSD",
+    "boringVaultDecimals": 6
+  },
+  "managerConfiguration": {
+    "managerDeploymentName": "mUSD Test ManagerWithMerkleVerification V0.0",
+    "balancerVaultAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000001",
+      "name": "balancerV2Vault"
+    }
+  },
+  "accountantConfiguration": {
+    "accountantDeploymentName": "mUSD Test Accountant With Yield Streaming V0.0",
+    "accountantParameters": {
+      "kind": {
+        "variableRate": false,
+        "fixedRate": false,
+        "yieldStreaming": true
+      },
+      "payoutConfiguration": {
+        "payoutTo": "0x0000000000000000000000000000000000000001",
+        "optionalPaymentSplitterName": "Plasma One USD Vault Payment Splitter V0.0",
+        "splits": []
+      },
+      "accountantDeploymentParameters": {
+        "allowedExchangeRateChangeLower": 9950,
+        "allowedExchangeRateChangeUpper": 10050,
+        "base": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "mUSD"
+        },
+        "minimumUpateDelayInSeconds": 21600,
+        "performanceFee": 0,
+        "platformFee": 0,
+        "startingExchangeRate": 1000000
+      }
+    }
+  },
+  "tellerConfiguration": {
+    "tellerDeploymentName": "Plasma One USD Vault Teller With Yield Streaming V0.0",
+    "tellerParameters": {
+      "kind": {
+        "teller": false,
+        "tellerWithRemediation": false,
+        "tellerWithCcip": false,
+        "tellerWithLayerZero": false,
+        "tellerWithLayerZeroRateLimiting": false,
+        "tellerWithYieldStreaming": true
+      }
+    }
+  },
+  "boringQueueConfiguration": {
+    "boringQueueDeploymentName": "mUSD Test Queue V0.0",
+    "boringQueueSolverName": "mUSD Test Queue Solver V0.0",
+    "excessToSolverNonSelfSolve": true,
+    "queueParameters": {
+      "kind": {
+        "boringQueue": true,
+        "boringQueueWithTracking": false
+      }
+    }
+  },
+  "droneConfiguration": {
+    "droneDeploymentBaseName": "mUSD Test Drone V0.0",
+    "droneCount": 0,
+    "safeGasToForwardNative": 21000
+  },
+  "pauserConfiguration": {
+    "shouldDeploy": true,
+    "pauserDeploymentName": "mUSD Test Pauser V0.0"
+  },
+  "timelockConfiguration": {
+    "shouldDeploy": false,
+    "timelockDeploymentName": "mUSD Test Timelock V0.0",
+    "timelockParameters": {
+      "executors": ["0x68eC1FdD4Bb202B2e07aE751CB5553644aA48cFA"],
+      "minDelay": 43200,
+      "proposers": ["0x68eC1FdD4Bb202B2e07aE751CB5553644aA48cFA"]
+    }
+  },
+  "erc4626BufferHelperConfiguration": {                                                                                                                                                                    
+    "erc4626BufferHelperDeploymentName": "mUSD Test ERC4626 Buffer Helper V0.0",                                                                                                                                          
+    "shouldDeploy": true,                                                                                                                                                                                
+    "erc4626VaultAddressOrName": {
+      "address_": "0x0000000000000000000000000000000000000000",
+      "name": "steakhouseMUSDVault"
+    }                                                                                                                    
+  },
+  "aaveV3BufferHelperConfiguration": {
+      "shouldDeploy": false,
+      "aaveV3BufferHelperDeploymentName": "mUSD Test AaveV3 Buffer Helper V0.0",
+      "aaveV3PoolAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "v3Pool"
+      }
+    },
+    "aaveV3BufferLensConfiguration": {
+      "shouldDeploy": false,
+      "aaveV3BufferLensDeploymentName": "AaveV3 Buffer Lens V0.0"
+    }
+}

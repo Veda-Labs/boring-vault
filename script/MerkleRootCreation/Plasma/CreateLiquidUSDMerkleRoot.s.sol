@@ -20,6 +20,8 @@ contract CreateLiquidUSDMerkleRoot is Script, MerkleTreeHelper {
     address public managerAddress = 0x7b57Ad1A0AA89583130aCfAD024241170D24C13C;
     address public accountantAddress = 0xc315D6e14DDCDC7407784e2Caf815d131Bc1D3E7;
 
+    address public yuzuDecoderAndSanitizer = 0x6A1Be80d1F3e762B9ff73b5FF122B68027F17abF;
+
     function setUp() external {}
 
     function run() external {
@@ -68,6 +70,13 @@ contract CreateLiquidUSDMerkleRoot is Script, MerkleTreeHelper {
             getAddress(sourceChain, "merklDistributor"),
             getAddress(sourceChain, "dev1Address")
         );
+
+        // ========================== Yuzu ============================
+        {
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", yuzuDecoderAndSanitizer);
+            _addYuzuLeafs(leafs);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

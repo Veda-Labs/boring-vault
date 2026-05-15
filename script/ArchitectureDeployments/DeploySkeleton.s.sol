@@ -25,11 +25,11 @@ import {AccountantWithFixedRate} from "src/base/Roles/AccountantWithFixedRate.so
 import {AccountantWithYieldStreaming} from "src/base/Roles/AccountantWithYieldStreaming.sol";
 import {AaveV3BufferHelper} from "src/base/Roles/AaveV3BufferHelper.sol";
 import {AaveV3BufferLens} from "src/helper/AaveV3BufferLens.sol";
+import {ERC4626BufferHelper} from "src/base/Roles/ERC4626BufferHelper.sol";
 import {Deployer} from "src/helper/Deployer.sol";
 import {ArcticArchitectureLens} from "src/helper/ArcticArchitectureLens.sol";
 import {ContractNames} from "resources/ContractNames.sol";
 import {GenericRateProvider} from "src/helper/GenericRateProvider.sol";
-import {DelayedWithdraw} from "src/base/Roles/DelayedWithdraw.sol";
 import {BoringDrone} from "src/base/Drones/BoringDrone.sol";
 import {ChainValues} from "test/resources/ChainValues.sol";
 import {PaymentSplitter} from "src/helper/PaymentSplitter.sol";
@@ -120,6 +120,9 @@ contract DeploySkeletonScript is Script, ChainValues {
         address sender;
     }
 
+    // You might want to adjust this depending on what all you're deploying and on what chain
+    uint256 constant DESIRED_NUMBER_OF_DEPLOYMENT_TXS = 10;
+
     // Contracts to deploy
     ArcticArchitectureLens public lens;
     ManagerWithMerkleVerification public manager;
@@ -128,9 +131,9 @@ contract DeploySkeletonScript is Script, ChainValues {
     address public rawDataDecoderAndSanitizer;
     AaveV3BufferHelper public aaveV3BufferHelper;
     AaveV3BufferLens public aaveV3BufferLens;
+    ERC4626BufferHelper public erc4626BufferHelper;
     TellerWithYieldStreaming public teller;
     AccountantWithYieldStreaming public accountant;
-    DelayedWithdraw public delayedWithdrawer;
     PaymentSplitter public paymentSplitter;
     BoringOnChainQueue public queue;
     BoringSolver public queueSolver;
@@ -149,6 +152,7 @@ contract DeploySkeletonScript is Script, ChainValues {
     uint8 public constant STRATEGIST_MULTISIG_ROLE = 10;
     uint8 public constant STRATEGIST_ROLE = 7;
     uint8 public constant UPDATE_EXCHANGE_RATE_ROLE = 11;
+
     uint8 public constant GENERIC_PAUSER_ROLE = 14;
     uint8 public constant GENERIC_UNPAUSER_ROLE = 15;
     uint8 public constant PAUSE_ALL_ROLE = 16;
@@ -215,6 +219,10 @@ contract DeploySkeletonScript is Script, ChainValues {
         txs.push(Deployer.Tx(target, data, value));
     }
 
+    function _addDeployTx(string memory name, bytes memory creationCode, bytes memory constructorArgs, uint256 value) internal {
+        _addTx(address(deployer), abi.encodeWithSelector(deployer.deployContract.selector, name, creationCode, constructorArgs, value), value);
+    }
+
     function _getAddressAndIfDeployed(string memory name) internal view returns (address, bool) {
         address deployedAt = deployer.getAddress(name);
         uint256 size;
@@ -256,6 +264,7 @@ contract DeploySkeletonScript is Script, ChainValues {
     string internal lensDeploymentName;
     string internal aaveV3BufferHelperDeploymentName;
     string internal aaveV3BufferLensDeploymentName;
+    string internal erc4626BufferHelperDeploymentName;
     string internal boringVaultDeploymentName;
     string internal managerDeploymentName;
     string internal accountantDeploymentName;
@@ -364,11 +373,12 @@ contract DeploySkeletonScript is Script, ChainValues {
         timelockDeploymentName = vm.parseJsonString(rawJson, ".timelockConfiguration.timelockDeploymentName");
         aaveV3BufferHelperDeploymentName = vm.parseJsonString(rawJson, ".aaveV3BufferHelperConfiguration.aaveV3BufferHelperDeploymentName");
         aaveV3BufferLensDeploymentName = vm.parseJsonString(rawJson, ".aaveV3BufferLensConfiguration.aaveV3BufferLensDeploymentName");
+        if (vm.keyExists(rawJson, ".erc4626BufferHelperConfiguration.erc4626BufferHelperDeploymentName")) {
+            erc4626BufferHelperDeploymentName = vm.parseJsonString(rawJson, ".erc4626BufferHelperConfiguration.erc4626BufferHelperDeploymentName");
+        }
 
         // Get Deployer address from configuration file.
         deployer = Deployer(_handleAddressOrName(".deploymentParameters.deployerContractAddressOrName"));
-
-        vm.startBroadcast(privateKey);
 
         _deployRolesAuthority();
         _deployLens();
@@ -383,7 +393,9 @@ contract DeploySkeletonScript is Script, ChainValues {
         _deployDrones();
         _deployAaveV3BufferHelper();
         _deployAaveV3BufferLens();
-        vm.stopBroadcast();
+        _deployERC4626BufferHelper();
+
+        _bundleTxs();
 
         _saveContractAddresses();
     }
@@ -396,7 +408,7 @@ contract DeploySkeletonScript is Script, ChainValues {
         if (!isDeployed) {
             creationCode = type(RolesAuthority).creationCode;
             constructorArgs = abi.encode(deploymentOwner, Authority(address(0)));
-            deployer.deployContract(rolesAuthorityDeploymentName, creationCode, constructorArgs, 0);
+            _addDeployTx(rolesAuthorityDeploymentName, creationCode, constructorArgs, 0);
             _log("Roles authority deployment TX added", 3);
         } else {
             rolesAuthorityExists = true;
@@ -411,7 +423,7 @@ contract DeploySkeletonScript is Script, ChainValues {
         if (!isDeployed) {
             creationCode = type(ArcticArchitectureLens).creationCode;
             constructorArgs = hex"";
-            deployer.deployContract(lensDeploymentName, creationCode, constructorArgs, 0);
+            _addDeployTx(lensDeploymentName, creationCode, constructorArgs, 0);
             _log("Lens deployment TX added", 3);
         }
     }
@@ -427,7 +439,7 @@ contract DeploySkeletonScript is Script, ChainValues {
             address aaveV3Pool = _handleAddressOrName(".aaveV3BufferHelperConfiguration.aaveV3PoolAddressOrName");
             creationCode = type(AaveV3BufferHelper).creationCode;
             constructorArgs = abi.encode(aaveV3Pool, address(boringVault));
-            deployer.deployContract(aaveV3BufferHelperDeploymentName, creationCode, constructorArgs, 0);
+            _addDeployTx(aaveV3BufferHelperDeploymentName, creationCode, constructorArgs, 0);
             _log("AaveV3BufferHelper deployment TX added", 3);
         }
     }
@@ -440,8 +452,29 @@ contract DeploySkeletonScript is Script, ChainValues {
         if (deployedAddress == address(0) && shouldDeploy) {
             creationCode = type(AaveV3BufferLens).creationCode;
             constructorArgs = hex"";
-            deployer.deployContract(aaveV3BufferLensDeploymentName, creationCode, constructorArgs, 0);
+            _addDeployTx(aaveV3BufferLensDeploymentName, creationCode, constructorArgs, 0);
             _log("AaveV3BufferLens deployment TX added", 3);
+        }
+    }
+
+    function _deployERC4626BufferHelper() internal {
+        if (bytes(erc4626BufferHelperDeploymentName).length == 0) {
+            return;
+        }
+        bytes memory constructorArgs;
+        bytes memory creationCode;
+        (address deployedAddress) = _getAddressIfDeployed(erc4626BufferHelperDeploymentName);
+        erc4626BufferHelper = ERC4626BufferHelper(deployedAddress);
+        bool shouldDeploy = vm.parseJsonBool(rawJson, ".erc4626BufferHelperConfiguration.shouldDeploy");
+        if (deployedAddress == address(0) && shouldDeploy) {
+            // Get ERC4626 vault from configuration file.
+            address erc4626Vault = _handleAddressOrName(".erc4626BufferHelperConfiguration.erc4626VaultAddressOrName");
+            creationCode = type(ERC4626BufferHelper).creationCode;
+            constructorArgs = abi.encode(erc4626Vault, address(boringVault));
+            _addDeployTx(erc4626BufferHelperDeploymentName, creationCode, constructorArgs, 0);
+            _log("ERC4626BufferHelper deployment TX added", 3);
+            _log(string.concat("ERC4626 vault address: ", vm.toString(erc4626Vault)), 4);
+            _log(string.concat("Boring vault address: ", vm.toString(address(boringVault))), 4);
         }
     }
 
@@ -457,7 +490,7 @@ contract DeploySkeletonScript is Script, ChainValues {
             string memory boringVaultSymbol = vm.parseJsonString(rawJson, ".boringVaultConfiguration.boringVaultSymbol");
             uint256 boringVaultDecimals = vm.parseJsonUint(rawJson, ".boringVaultConfiguration.boringVaultDecimals");
             constructorArgs = abi.encode(deploymentOwner, boringVaultName, boringVaultSymbol, boringVaultDecimals);
-            deployer.deployContract(boringVaultDeploymentName, creationCode, constructorArgs, 0);
+            _addDeployTx(boringVaultDeploymentName, creationCode, constructorArgs, 0);
             _log("Boring vault deployment TX added", 3);
             _log(string.concat("Boring vault name: ", boringVaultName), 4);
             _log(string.concat("Boring vault symbol: ", boringVaultSymbol), 4);
@@ -481,7 +514,7 @@ contract DeploySkeletonScript is Script, ChainValues {
                 : balancerVault.address_;
             creationCode = type(ManagerWithMerkleVerification).creationCode;
             constructorArgs = abi.encode(deploymentOwner, address(boringVault), balancerVaultAddress);
-            deployer.deployContract(managerDeploymentName, creationCode, constructorArgs, 0);
+            _addDeployTx(managerDeploymentName, creationCode, constructorArgs, 0);
             _log("Manager deployment TX added", 3);
             _log(string.concat("Boring vault address: ", vm.toString(address(boringVault))), 4);
             _log(string.concat("Balancer vault address: ", vm.toString(balancerVaultAddress)), 4);
@@ -532,7 +565,7 @@ contract DeploySkeletonScript is Script, ChainValues {
                     }
                     _log(string.concat("Total percent: ", vm.toString(totalPercent)), 4);
                     constructorArgs = abi.encode(deploymentOwner, totalPercent, splits);
-                    deployer.deployContract(paymentSplitterDeploymentName, creationCode, constructorArgs, 0);
+                    _addDeployTx(paymentSplitterDeploymentName, creationCode, constructorArgs, 0);
                 }
             }
             // Figure out what kind of accountant to deploy.
@@ -582,7 +615,7 @@ contract DeploySkeletonScript is Script, ChainValues {
             else {
                 _log("Accountant kind not set in configuration file", 1);
             }
-            deployer.deployContract(accountantDeploymentName, creationCode, constructorArgs, 0);
+            _addDeployTx(accountantDeploymentName, creationCode, constructorArgs, 0);
             _log(string.concat("Boring vault address: ", vm.toString(address(boringVault))), 4);
             _log(string.concat("Payout address: ", vm.toString(payoutAddress)), 4);
             _log(
@@ -765,7 +798,7 @@ contract DeploySkeletonScript is Script, ChainValues {
                 _log(string.concat("Native wrapper address: ", vm.toString(nativeWrapperAddress)), 4);
             }
 
-            deployer.deployContract(tellerDeploymentName, creationCode, constructorArgs, 0);
+            _addDeployTx(tellerDeploymentName, creationCode, constructorArgs, 0);
         } else {
             tellerExists = true;
         }
@@ -795,7 +828,7 @@ contract DeploySkeletonScript is Script, ChainValues {
             }
             _log(string.concat("Boring vault address: ", vm.toString(address(boringVault))), 4);
             _log(string.concat("Accountant address: ", vm.toString(address(accountant))), 4);
-            deployer.deployContract(queueDeploymentName, creationCode, constructorArgs, 0);
+            _addDeployTx(queueDeploymentName, creationCode, constructorArgs, 0);
         } else {
             queueExists = true;
         }
@@ -814,7 +847,7 @@ contract DeploySkeletonScript is Script, ChainValues {
             constructorArgs = abi.encode(deploymentOwner, address(0), address(queue), excessToSolverNonSelfSolve);
             _log("Boring solver deployment TX added", 3);
             _log(string.concat("Boring queue address: ", vm.toString(address(queue))), 4);
-            deployer.deployContract(queueSolverDeploymentName, creationCode, constructorArgs, 0);
+            _addDeployTx(queueSolverDeploymentName, creationCode, constructorArgs, 0);
         } else {
             queueSolverExists = true;
         }
@@ -839,7 +872,7 @@ contract DeploySkeletonScript is Script, ChainValues {
                 constructorArgs = abi.encode(deploymentOwner, address(0), pausables);
 
                 _log("Pauser deployment TX added", 3);
-                deployer.deployContract(pauserDeploymentName, creationCode, constructorArgs, 0);
+                _addDeployTx(pauserDeploymentName, creationCode, constructorArgs, 0);
             } else {
                 pauserExists = true;
             }
@@ -873,7 +906,7 @@ contract DeploySkeletonScript is Script, ChainValues {
                 for (uint256 i; i < timelockParameters.executors.length; ++i) {
                     _log(string.concat("Executor: ", vm.toString(timelockParameters.executors[i])), 4);
                 }
-                deployer.deployContract(timelockDeploymentName, creationCode, constructorArgs, 0);
+                _addDeployTx(timelockDeploymentName, creationCode, constructorArgs, 0);
             } else {
                 timelockExists = true;
             }
@@ -892,10 +925,57 @@ contract DeploySkeletonScript is Script, ChainValues {
             if (!isDeployed) {
                 creationCode = type(BoringDrone).creationCode;
                 constructorArgs = abi.encode(address(boringVault), safeGasToForwardNative);
-                deployer.deployContract(droneName, creationCode, constructorArgs, 0);
+                _addDeployTx(droneName, creationCode, constructorArgs, 0);
                 _log(string.concat("Boring drone deployment TX added: ", droneName), 3);
             }
         }
+    }
+
+    function _bundleTxs() internal {
+        Deployer.Tx[] memory txsToSend = getTxs();
+        uint256 txsLength = txsToSend.length;
+
+        if (txsLength == 0) {
+            console.log("No txs to bundle");
+            return;
+        }
+
+        uint256 desiredNumberOfDeploymentTxs = DESIRED_NUMBER_OF_DEPLOYMENT_TXS;
+        if (desiredNumberOfDeploymentTxs == 0) {
+            console.log("Desired number of deployment txs is 0");
+            return;
+        }
+        desiredNumberOfDeploymentTxs =
+            desiredNumberOfDeploymentTxs > txsLength ? txsLength : desiredNumberOfDeploymentTxs;
+        uint256 txsPerBundle = txsLength / desiredNumberOfDeploymentTxs;
+        uint256 lastIndexDeployed;
+        Deployer.Tx[][] memory txBundles = new Deployer.Tx[][](desiredNumberOfDeploymentTxs);
+
+        console.log(string.concat("Tx bundles to send: ", vm.toString(desiredNumberOfDeploymentTxs)));
+        console.log(string.concat("Total txs: ", vm.toString(txsLength)));
+
+        for (uint256 i; i < desiredNumberOfDeploymentTxs; i++) {
+            uint256 txsInBundle;
+            if (i == desiredNumberOfDeploymentTxs - 1) {
+                txsInBundle = txsLength - lastIndexDeployed;
+            } else {
+                txsInBundle = txsPerBundle;
+            }
+            txBundles[i] = new Deployer.Tx[](txsInBundle);
+            for (uint256 j; j < txBundles[i].length; j++) {
+                txBundles[i][j] = txsToSend[lastIndexDeployed + j];
+            }
+            lastIndexDeployed += txsInBundle;
+        }
+
+        address txBundler = getAddress(sourceChain, "txBundlerAddress");
+
+        vm.startBroadcast();
+        for (uint256 i; i < desiredNumberOfDeploymentTxs; i++) {
+            console.log(string.concat("Sending bundle: ", vm.toString(i)));
+            Deployer(txBundler).bundleTxs(txBundles[i]);
+        }
+        vm.stopBroadcast();
     }
 
     function _saveContractAddresses() internal {
@@ -945,6 +1025,9 @@ contract DeploySkeletonScript is Script, ChainValues {
                 }
                 if(address(aaveV3BufferLens)!=address(0)) {
                     vm.serializeAddress(coreContracts, "AaveV3BufferLens", address(aaveV3BufferLens));
+                }
+                if(address(erc4626BufferHelper)!=address(0)) {
+                    vm.serializeAddress(coreContracts, "ERC4626BufferHelper", address(erc4626BufferHelper));
                 }
                 vm.serializeAddress(coreContracts, "BoringOnChainQueue", address(queue));
                 coreOutput = vm.serializeAddress(coreContracts, "QueueSolver", address(queueSolver));
