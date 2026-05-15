@@ -59,45 +59,29 @@
       "verificationGap": "cbor"
     },
     "AccountantWithRateProviders": {
-      "deployedAt": "2024-09-27T04:44:35Z",
-      "creationTx": "0xea079dc2dc2d85b13523dfe8b5a94764bb8636266301d1558018c1d253248447",
-      "creationBlock": 20839649,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
       "verification": "full_match",
       "verifiedCommit": "fe0bf0afde965723bb540fdbb616dcc8564a31c7",
       "verificationGap": "cbor"
     },
     "Lens": {
-      "deployedAt": "2024-04-17T04:08:11Z",
-      "creationTx": "0xfe6e52cf43a2410bed6f9305fb70abb559104b267798e65353823df4aff95c35",
-      "creationBlock": 19672706,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
       "verification": "full_match",
       "verifiedCommit": "228b4b66174f66385646e90ca30c1f354423bdf3",
       "verificationGap": "cbor"
     },
     "ManagerWithMerkleVerification": {
-      "deployedAt": "2024-09-27T04:44:35Z",
-      "creationTx": "0x80794cfadabc2edad1baea6a7b8ef7b7a0a9e687a566de311e19502d675d3d1a",
-      "creationBlock": 20839649,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
       "verification": "full_match",
       "verifiedCommit": "fe0bf0afde965723bb540fdbb616dcc8564a31c7",
       "verificationGap": "cbor"
     },
     "TellerWithMultiAssetSupport": {
-      "deployedAt": "2024-09-27T04:44:35Z",
-      "creationTx": "0xbbce78683c5c92b58b71a5a830442bb69b8ecd077ad226a20c3f38d630168c2d",
-      "creationBlock": 20839649,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
       "verification": "full_match",
       "verifiedCommit": "fe0bf0afde965723bb540fdbb616dcc8564a31c7",
       "verificationGap": "cbor"
