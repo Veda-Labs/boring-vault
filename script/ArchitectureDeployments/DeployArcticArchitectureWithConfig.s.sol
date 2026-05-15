@@ -1531,9 +1531,87 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
         }
     }
 
+    // -------------------------------------------------------------------------
+    // Deploy-time metadata helpers
+    // -------------------------------------------------------------------------
+
+    function _deploymentCommit() internal view returns (string memory) {
+        bytes memory head = bytes(vm.readFile(".git/HEAD"));
+        uint256 len = head.length;
+        while (len > 0 && (head[len - 1] == 0x0a || head[len - 1] == 0x0d || head[len - 1] == 0x20)) len--;
+        if (len > 5 && head[0] == "r" && head[1] == "e" && head[2] == "f" && head[3] == ":" && head[4] == 0x20) {
+            bytes memory refPath = new bytes(len - 5);
+            for (uint256 i; i < refPath.length; i++) refPath[i] = head[5 + i];
+            bytes memory sha = bytes(vm.readFile(string.concat(".git/", string(refPath))));
+            uint256 shaLen = sha.length;
+            while (shaLen > 0 && (sha[shaLen - 1] == 0x0a || sha[shaLen - 1] == 0x0d || sha[shaLen - 1] == 0x20)) shaLen--;
+            bytes memory shaResult = new bytes(shaLen);
+            for (uint256 i; i < shaLen; i++) shaResult[i] = sha[i];
+            return string(shaResult);
+        }
+        bytes memory result = new bytes(len);
+        for (uint256 i; i < len; i++) result[i] = head[i];
+        return string(result);
+    }
+
+    function _parseAuditLine(string memory sourcePath)
+        internal
+        view
+        returns (string memory auditCommit, string memory auditUrl)
+    {
+        bytes memory b = bytes(vm.readFile(sourcePath));
+        uint256 newlines;
+        uint256 lineStart;
+        for (uint256 i; i < b.length; i++) {
+            if (b[i] == 0x0a) {
+                if (++newlines == 4) { lineStart = i + 1; break; }
+            }
+        }
+        if (newlines < 4) return ("", "");
+
+        uint256 atPos;
+        bool found;
+        for (uint256 i = lineStart; i < b.length && b[i] != 0x0a; i++) {
+            if (b[i] == 0x40) { atPos = i + 1; found = true; break; }
+        }
+        if (!found || atPos + 40 > b.length) return ("", "");
+
+        bytes memory commit = new bytes(40);
+        for (uint256 i; i < 40; i++) commit[i] = b[atPos + i];
+        auditCommit = string(commit);
+
+        uint256 urlStart = atPos + 40 + 5;
+        uint256 urlEnd = urlStart;
+        while (urlEnd < b.length && b[urlEnd] != 0x0a && b[urlEnd] != 0x0d) urlEnd++;
+        bytes memory url = new bytes(urlEnd - urlStart);
+        for (uint256 i; i < url.length; i++) url[i] = b[urlStart + i];
+        auditUrl = string(url);
+    }
+
+    function _addMeta(
+        string memory metaKey,
+        string memory contractName,
+        string memory sourcePath,
+        string memory deployCommit
+    ) internal returns (string memory) {
+        string memory entryKey = string.concat("meta_entry_", contractName);
+        if (bytes(sourcePath).length > 0) {
+            (string memory auditCommit, string memory auditUrl) = _parseAuditLine(sourcePath);
+            if (bytes(auditCommit).length > 0) {
+                vm.serializeString(entryKey, "auditCommit", auditCommit);
+                vm.serializeString(entryKey, "auditUrl", auditUrl);
+            }
+        }
+        string memory entryJson = vm.serializeString(entryKey, "deploymentCommit", deployCommit);
+        return vm.serializeString(metaKey, contractName, entryJson);
+    }
+
+    // -------------------------------------------------------------------------
+
     function _saveContractAddresses() internal {
         // Save deployment details.
         _log("Saving deployment details...", 3);
+        string memory deployCommit = _deploymentCommit();
         // Read deployment file name from configuration file.
         string memory deploymentFileName = vm.parseJsonString(rawJson, ".deploymentParameters.deploymentFileName");
         string memory filePath = string.concat("./deployments/", deploymentFileName);
@@ -1579,8 +1657,38 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
                 }
             }
 
+            string memory metadataOutput;
+            {
+                string memory meta = "contract metadata key";
+                _addMeta(meta, "RolesAuthority", "", deployCommit);
+                _addMeta(meta, "Lens", "src/helper/ArcticArchitectureLens.sol", deployCommit);
+                _addMeta(meta, "BoringVault", "src/base/BoringVault.sol", deployCommit);
+                _addMeta(meta, "ManagerWithMerkleVerification", "src/base/Roles/ManagerWithMerkleVerification.sol", deployCommit);
+                _addMeta(meta, "Pauser", "src/base/Roles/Pauser.sol", deployCommit);
+                _addMeta(meta, "Timelock", "", deployCommit);
+                if (accountantKind == AccountantKind.VariableRate) {
+                    _addMeta(meta, "AccountantWithRateProviders", "src/base/Roles/AccountantWithRateProviders.sol", deployCommit);
+                } else if (accountantKind == AccountantKind.FixedRate) {
+                    _addMeta(meta, "AccountantWithFixedRate", "src/base/Roles/AccountantWithFixedRate.sol", deployCommit);
+                }
+                if (tellerKind == TellerKind.Teller) {
+                    _addMeta(meta, "TellerWithMultiAssetSupport", "src/base/Roles/TellerWithMultiAssetSupport.sol", deployCommit);
+                } else if (tellerKind == TellerKind.TellerWithRemediation) {
+                    _addMeta(meta, "TellerWithRemediation", "src/base/Roles/TellerWithRemediation.sol", deployCommit);
+                } else if (tellerKind == TellerKind.TellerWithCcip) {
+                    _addMeta(meta, "TellerWithCcip", "src/base/Roles/CrossChain/Bridges/CCIP/ChainlinkCCIPTeller.sol", deployCommit);
+                } else if (tellerKind == TellerKind.TellerWithLayerZero) {
+                    _addMeta(meta, "TellerWithLayerZero", "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTeller.sol", deployCommit);
+                } else if (tellerKind == TellerKind.TellerWithLayerZeroRateLimiting) {
+                    _addMeta(meta, "TellerWithLayerZeroRateLimiting", "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTellerWithRateLimiting.sol", deployCommit);
+                }
+                _addMeta(meta, "BoringOnChainQueue", "src/base/Roles/BoringQueue/BoringOnChainQueue.sol", deployCommit);
+                metadataOutput = _addMeta(meta, "QueueSolver", "src/base/Roles/BoringQueue/BoringSolver.sol", deployCommit);
+            }
+
             vm.serializeString(finalJson, "contractAddresses", coreOutput);
-            finalJson = vm.serializeString(finalJson, "Drones", droneOutput);
+            vm.serializeString(finalJson, "Drones", droneOutput);
+            finalJson = vm.serializeString(finalJson, "contractMetadata", metadataOutput);
 
             vm.writeJson(finalJson, filePath);
         }
