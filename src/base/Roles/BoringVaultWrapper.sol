@@ -4,24 +4,37 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {ERC4626} from "@solmate/tokens/ERC4626.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {ReentrancyGuard} from "@solmate/utils/ReentrancyGuard.sol";
-import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
+import {ERC4626} from "@openzeppelin/contracts/token/ERC20/extensions/ERC4626.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
+import {SafeCast} from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
+import {RolesAuthority} from "@solmate/auth/authorities/RolesAuthority.sol";
+import {ERC20 as SolmateERC20} from "@solmate/tokens/ERC20.sol";
 import {BoringVault} from "src/base/BoringVault.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
-import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import {TellerWithMultiAssetSupport, ComplianceData} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import {TellerWithMultiAssetSupportLib} from "src/base/Roles/TellerWithMultiAssetSupportLib.sol";
 
 /**
  * @title  BoringVaultWrapper
  * @dev Asset model:
- *   asset()       = BoringVault shares (ERC20)
+ *   asset()       = BoringVault shares (IERC20)
  *   totalAssets() = boringVault.balanceOf(address(this))
  *
  *   No off-chain share-price updater is needed. The wrapper's exchange rate
  *   against BV shares drifts only as fee dilution accumulates over time.
+ *
+ * @dev Inflation-attack protection:
+ *   This contract inherits from OpenZeppelin's ERC4626 and overrides
+ *   _decimalsOffset() = DECIMALS_OFFSET. That makes the share conversion
+ *   formula `assets * (supply + 10^offset) / (totalAssets + 1)`, which makes
+ *   the classic donation-style inflation attack always strictly unprofitable
+ *   for the attacker — they can never recover more than they put in. The
+ *   wrapper-share decimals become `BV_decimals + DECIMALS_OFFSET`.
  *
  * @dev Fee model:
  *   Fees are realised as wrapper share dilution — the feeRecipient receives
@@ -40,26 +53,37 @@ import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSu
  *   and wrapper shares are issued to the caller.
  *
  *   Requirements:
- *   - setTeller() must be called with a valid Teller address.
  *   - The asset must be enabled for deposits on the Teller.
  *   - This contract must hold the bulkDeposit role on the Teller.
- *   - The BoringVault approval is set automatically (vault.enter() pulls
- *     tokens from this contract directly).
  *
  *   Share-lock: bulkDeposit skips _afterPublicDeposit so no lock is ever set
  *   on this contract's BV shares, so any Teller shareLockPeriod is fully
  *   transparent to wrapper users.
  *
  * @dev Compliance:
- *   Standard 4626 path: safeTransferFrom(user to this) triggers the BV's
- *   BeforeTransferHook, so BV-level compliance is automatically enforced.
+ *   The wrapper enforces the Teller's compliance policy on its own entrypoints
+ *   so that the real user identity (msg.sender / owner / receiver) — not the
+ *   wrapper address — is what gets checked. Policy state is read live from the
+ *   Teller (no duplication of config):
  *
- *   Direct-asset path: compliance is delegated to the Teller's own auth
- *   gating; the BV hook is not triggered because enter() mints directly.
+ *     - Denylist: teller.beforeTransferData(user)
+ *     - Transfer allowlist: teller.transferAllowedRole() resolved via teller.authority()
+ *     - Compliance signature signer: teller.complianceSignerRole() + teller.complianceWindow()
  *
- *   Wrapper-share transfers have no compliance hook by default. A
- *   BeforeTransferHook can be wired in (mirroring the BoringVault pattern)
- *   if needed, at the cost of strict ERC4626 composability.
+ *   Where applied:
+ *     - depositAsset()        : denylist + allowlist + signature (wrapper-domain hash)
+ *     - redeemAsset()         : denylist + allowlist
+ *     - deposit/mint          : denylist + allowlist (BV hook also fires on the BV transfer in)
+ *     - withdraw/redeem       : denylist + allowlist on owner/receiver (BV hook also fires on the BV transfer out)
+ *     - wrapper share transfer: denylist + allowlist on every transfer / transferFrom
+ *
+ *   Signatures are wrapper-scoped: the hash includes address(this), not the Teller's
+ *   address, so a Teller-issued sig cannot be replayed against the wrapper and
+ *   vice versa. Replay protection is a wrapper-local mapping.
+ *
+ *   Note: the BV share lock period is intentionally NOT enforced on wrapper-share
+ *   transfers (it is a BV-level deposit-refund window with no analog at the wrapper
+ *   layer).
  *
  * @dev Fees-on-fees:
  *   The underlying BV Accountant may already accrue platform / performance
@@ -70,8 +94,8 @@ import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSu
  *   name / symbol / feeRecipient / fee rates, all backed by the same BV.
  */
 contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
-    using FixedPointMathLib for uint256;
-    using SafeTransferLib for ERC20;
+    using SafeERC20 for IERC20;
+    using Math for uint256;
 
     // =========================================================================
     //                              CONSTANTS
@@ -82,6 +106,10 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
 
     /// @notice Hard cap on the performance fee: 50 % (5_000 bps).
     uint16 public constant MAX_PERFORMANCE_FEE = 5_000;
+
+    /// @notice Virtual-share offset used for inflation-attack mitigation.
+    ///         Wrapper decimals() = BV.decimals() + DECIMALS_OFFSET.
+    uint8 public constant DECIMALS_OFFSET = 6;
 
     // =========================================================================
     //                              IMMUTABLES
@@ -102,9 +130,7 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     //                               STATE
     // =========================================================================
 
-    /**
-     * @notice Optional Teller used by depositAsset().
-     */
+    /// @notice Teller used by depositAsset() / redeemAsset().
     TellerWithMultiAssetSupport public teller;
 
     /// @notice Address that receives all accrued fee shares.
@@ -126,16 +152,24 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
      */
     uint96 public performanceHighWaterMark;
 
+    /**
+     * @notice Replay protection for wrapper-domain compliance signatures.
+     * @dev    Wrapper-scoped: the message hash includes address(this), so a Teller
+     *         signature cannot be replayed here and vice versa.
+     */
+    mapping(bytes32 messageHash => bool used) public usedComplianceSignatures;
+
     // =========================================================================
     //                               ERRORS
     // =========================================================================
 
     error BoringVaultWrapper__ZeroAddress();
     error BoringVaultWrapper__FeeTooHigh();
-    error BoringVaultWrapper__TellerNotSet();
     error BoringVaultWrapper__ZeroBVSharesReceived();
     error BoringVaultWrapper__BadTeller();
     error BoringVaultWrapper__BadAccountant();
+    error BoringVaultWrapper__TransferDenied(address from, address to, address operator);
+    error BoringVaultWrapper__TransferNotAllowed();
 
     // =========================================================================
     //                               EVENTS
@@ -162,8 +196,7 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
      * @param _boringVault BoringVault to wrap; its shares become asset().
      * @param _accountant  Provides BV share price for performance-fee HWM.
      * @param _teller      Teller used by depositAsset() / redeemAsset(); must reference
-     *                     the same BoringVault. Fee configuration (recipient and rates)
-     *                     starts at zero and must be set via setFeeConfig().
+     *                     the same BoringVault.
      * @param _name        ERC20 name  of the wrapper shares (partner-branded).
      * @param _symbol      ERC20 symbol of the wrapper shares (partner-branded).
      */
@@ -174,7 +207,7 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
         address _teller,
         string memory _name,
         string memory _symbol
-    ) ERC4626(ERC20(_boringVault), _name, _symbol) Auth(_owner, Authority(address(0))) {
+    ) ERC4626(IERC20(_boringVault)) ERC20(_name, _symbol) Auth(_owner, Authority(address(0))) {
         if (address(TellerWithMultiAssetSupport(_teller).vault()) != address(_boringVault)) {
             revert BoringVaultWrapper__BadTeller();
         }
@@ -184,32 +217,16 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
 
         boringVault = BoringVault(payable(_boringVault));
         accountant = AccountantWithRateProviders(_accountant);
-        lastFeeAccrual = uint64(block.timestamp);
-
-        // feeRecipient, managementFee, and performanceFee start at zero.
-        // Call setFeeConfig() after deployment to enable fee accrual.
-
         teller = TellerWithMultiAssetSupport(_teller);
         emit TellerSet(address(0), _teller);
 
-        // Seed HWM from the live rate so no retroactive performance fees are charged
-        // on appreciation that occurred before this wrapper was deployed.
-        performanceHighWaterMark = uint96(AccountantWithRateProviders(_accountant).getRate());
+        performanceHighWaterMark = SafeCast.toUint96(AccountantWithRateProviders(_accountant).getRateSafe());
     }
 
     // =========================================================================
     //                              ADMIN
     // =========================================================================
 
-    /**
-     * @notice Update all three fee configuration parameters atomically.
-     * @dev    Accrues pending fees at the *current* rates before applying new values
-     *         so no earnings are mis-attributed. Pass the current value for any
-     *         parameter you do not wish to change.
-     * @param _feeRecipient   Address that receives accrued fee shares. Must be non-zero.
-     * @param _managementFee  Annual management fee in bps (≤ MAX_MANAGEMENT_FEE).
-     * @param _performanceFee Performance fee in bps (≤ MAX_PERFORMANCE_FEE).
-     */
     function setFeeConfig(address _feeRecipient, uint16 _managementFee, uint16 _performanceFee) external requiresAuth {
         if (_feeRecipient == address(0)) revert BoringVaultWrapper__ZeroAddress();
         if (_managementFee > MAX_MANAGEMENT_FEE) revert BoringVaultWrapper__FeeTooHigh();
@@ -221,19 +238,14 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
         performanceFee = _performanceFee;
     }
 
-    /**
-     * @notice Set the Teller. In rare ocasions the Teller can be changed on some BoringVault
-     * @dev    The wrapper vault must be granted the SOLVER_ROLE role on the Teller
-     */
     function setTeller(address newTeller) external requiresAuth {
-        if (address(TellerWithMultiAssetSupport(newTeller).vault()) != address(boringVault)) revert BoringVaultWrapper__BadTeller();
+        if (address(TellerWithMultiAssetSupport(newTeller).vault()) != address(boringVault)) {
+            revert BoringVaultWrapper__BadTeller();
+        }
         emit TellerSet(address(teller), newTeller);
         teller = TellerWithMultiAssetSupport(newTeller);
     }
 
-    /**
-     * @notice Manually trigger a fee accrual without performing a deposit/withdraw.
-     */
     function accrueFees() external {
         _accrueFees();
     }
@@ -242,102 +254,88 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     //                         ERC4626 — totalAssets
     // =========================================================================
 
-    /**
-     * @notice Total BoringVault shares held by this wrapper.
-     */
     function totalAssets() public view override returns (uint256) {
         return boringVault.balanceOf(address(this));
     }
 
     // =========================================================================
-    //                    ERC4626 — deposit / mint / withdraw / redeem
+    //                       ERC4626 — virtual offset
+    // =========================================================================
+
+    function _decimalsOffset() internal pure override returns (uint8) {
+        return DECIMALS_OFFSET;
+    }
+
+    // =========================================================================
+    //                    ERC4626 — public entrypoints
     // =========================================================================
     //
-    //  Each public entry-point calls _accrueFees() first so the exchange rate is
-    //  always current before any share arithmetic runs.  After accrual,
-    //  lastFeeAccrual == block.timestamp, so the preview functions (which call
-    //  _simulateAccruedState) will see zero pending fees and agree with the
-    //  actual execution path.
+    //  Each entrypoint:
+    //    1. Enforces the Teller's denylist + transfer allowlist on the real
+    //       user identity (operator/owner/receiver).
+    //    2. Settles pending fees so the conversion ratio is current.
+    //    3. Delegates to OZ's super, which uses _convertToShares/_convertToAssets
+    //       (overridden below) to apply pending-fee simulation + virtual offset.
     //
     // =========================================================================
 
-    function deposit(uint256 assets, address receiver)
-        public
-        override
-        nonReentrant
-        returns (uint256 shares)
-    {
+    function deposit(uint256 assets, address receiver) public override nonReentrant returns (uint256) {
+        _enforceTransferPolicy(_msgSender(), receiver, _msgSender());
         _accrueFees();
-        shares = super.deposit(assets, receiver);
+        return super.deposit(assets, receiver);
     }
 
-    function mint(uint256 shares, address receiver)
-        public
-        override
-        nonReentrant
-        returns (uint256 assets)
-    {
+    function mint(uint256 shares, address receiver) public override nonReentrant returns (uint256) {
+        _enforceTransferPolicy(_msgSender(), receiver, _msgSender());
         _accrueFees();
-        assets = super.mint(shares, receiver);
+        return super.mint(shares, receiver);
     }
 
-    function withdraw(uint256 assets, address receiver, address owner)
-        public
-        override
-        nonReentrant
-        returns (uint256 shares)
-    {
+    function withdraw(uint256 assets, address receiver, address owner) public override nonReentrant returns (uint256) {
+        _enforceTransferPolicy(owner, receiver, _msgSender());
         _accrueFees();
-        shares = super.withdraw(assets, receiver, owner);
+        return super.withdraw(assets, receiver, owner);
     }
 
-    function redeem(uint256 shares, address receiver, address owner)
-        public
-        override
-        nonReentrant
-        returns (uint256 assets)
-    {
+    function redeem(uint256 shares, address receiver, address owner) public override nonReentrant returns (uint256) {
+        _enforceTransferPolicy(owner, receiver, _msgSender());
         _accrueFees();
-        assets = super.redeem(shares, receiver, owner);
+        return super.redeem(shares, receiver, owner);
     }
 
     // =========================================================================
-    //                    ERC4626 — preview / convert overrides
+    //                ERC4626 — share/asset conversion overrides
     // =========================================================================
     //
-    //  All preview and convert functions simulate the pending fee accrual so that
-    //  off-chain quotes match on-chain execution even if _accrueFees() has not
-    //  been called recently.
-    //
-    //  Solmate's previewDeposit delegates to convertToShares, and previewRedeem
-    //  delegates to convertToAssets, so overriding those two is sufficient for
-    //  those directions.  previewMint and previewWithdraw use mulDivUp directly
-    //  against raw state, so they need their own overrides.
+    //  OZ's ERC4626 routes every preview/convert through these two internals.
+    //  We replace `totalSupply()` and `totalAssets()` with their simulated
+    //  post-fee-accrual values so off-chain quotes match on-chain execution
+    //  even when _accrueFees() has not run recently.
     //
     // =========================================================================
 
-    /// @dev Rounds down (in the vault's favour) per ERC4626 spec.
-    function convertToShares(uint256 assets) public view override returns (uint256) {
+    function _convertToShares(uint256 assets, Math.Rounding rounding) internal view override returns (uint256) {
         (uint256 supply, uint256 totalAss) = _simulateAccruedState();
-        return supply == 0 ? assets : assets.mulDivDown(supply, totalAss);
+        return assets.mulDiv(supply + 10 ** _decimalsOffset(), totalAss + 1, rounding);
     }
 
-    /// @dev Rounds down (in the vault's favour) per ERC4626 spec.
-    function convertToAssets(uint256 shares) public view override returns (uint256) {
+    function _convertToAssets(uint256 shares, Math.Rounding rounding) internal view override returns (uint256) {
         (uint256 supply, uint256 totalAss) = _simulateAccruedState();
-        return supply == 0 ? shares : shares.mulDivDown(totalAss, supply);
+        return shares.mulDiv(totalAss + 1, supply + 10 ** _decimalsOffset(), rounding);
     }
 
-    /// @dev Rounds up (in the vault's favour) per ERC4626 spec.
-    function previewMint(uint256 shares) public view override returns (uint256) {
-        (uint256 supply, uint256 totalAss) = _simulateAccruedState();
-        return supply == 0 ? shares : shares.mulDivUp(totalAss, supply);
+    // =========================================================================
+    //                  ERC20 — wrapper share transfer hooks
+    // =========================================================================
+
+    function transfer(address to, uint256 amount) public override(ERC20, IERC20) returns (bool) {
+        _enforceTransferPolicy(_msgSender(), to, _msgSender());
+        return super.transfer(to, amount);
     }
 
-    /// @dev Rounds up (in the vault's favour) per ERC4626 spec.
-    function previewWithdraw(uint256 assets) public view override returns (uint256) {
-        (uint256 supply, uint256 totalAss) = _simulateAccruedState();
-        return supply == 0 ? assets : assets.mulDivUp(supply, totalAss);
+    function transferFrom(address from, address to, uint256 amount) public override(ERC20, IERC20) returns (bool) {
+        _enforceTransferPolicy(from, to, _msgSender());
+        return super.transferFrom(from, to, amount);
     }
 
     // =========================================================================
@@ -346,217 +344,130 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
 
     /**
      * @notice Deposit a raw asset (e.g. USDC) and receive wrapper shares in one tx.
-     *
-     * @dev    Execution flow:
-     *           1. Accrue pending fees (snapshot the correct pre-deposit BV balance).
-     *           2. Pull rawAsset from caller into this contract.
-     *           3. Approve the BoringVault — not the Teller — because vault.enter()
-     *              pulls tokens from msg.sender (= this contract) directly.
-     *           4. Call teller.bulkDeposit(rawAsset, rawAmount, minBVShares, address(this))
-     *              so BV shares are minted here without setting a share lock.
-     *           5. Compute wrapper shares proportional to BV shares received and mint.
-     *
-     * @dev    Role requirement: this contract must hold the bulkDeposit role on the
-     *         configured Teller.
-     *
-     * @param rawAsset     ERC20 to deposit (must be supported by the Teller).
-     * @param rawAmount    Amount of rawAsset to deposit.
-     * @param minBVShares  Minimum BV shares to receive (slippage guard passed to Teller).
-     * @param receiver     Address that receives the minted wrapper shares.
-     * @return wrapperShares  Wrapper shares minted to receiver.
+     * @dev    Same virtual-offset share math as the standard ERC4626 path:
+     *         wrapperShares = bvReceived * (supplyBefore + 10^offset) / (bvBefore + 1)
+     *         which is identical to convertToShares(bvReceived) evaluated against
+     *         the state snapshot taken before the BV mint.
      */
     function depositAsset(
-        ERC20 rawAsset,
+        SolmateERC20 rawAsset,
         uint256 rawAmount,
         uint256 minBVShares,
-        address receiver
+        address receiver,
+        ComplianceData calldata compliance
     ) external nonReentrant returns (uint256 wrapperShares) {
         TellerWithMultiAssetSupport _teller = teller;
-        if (address(_teller) == address(0)) revert BoringVaultWrapper__TellerNotSet();
 
-        // Settle fees before snapshotting the pre-deposit BV balance so the
-        // per-share ratio used below reflects the true current state.
+        _enforceTransferPolicy(_msgSender(), receiver, _msgSender());
+        _verifyComplianceSignature(_msgSender(), receiver, address(rawAsset), rawAmount, compliance);
+
         _accrueFees();
 
         uint256 bvBefore = boringVault.balanceOf(address(this));
-        uint256 supplyBefore = totalSupply;
+        uint256 supplyBefore = totalSupply();
 
-        // Pull the raw asset from the caller.
-        rawAsset.safeTransferFrom(msg.sender, address(this), rawAmount);
+        IERC20 asset_ = IERC20(address(rawAsset));
+        asset_.safeTransferFrom(_msgSender(), address(this), rawAmount);
+        asset_.forceApprove(address(boringVault), rawAmount);
 
-        // vault.enter() pulls from msg.sender (= this contract), so the BoringVault
-        // needs the approval, not the Teller.  Reset before setting to handle
-        // non-standard tokens that revert on non-zero → non-zero approvals.
-        rawAsset.safeApprove(address(boringVault), 0);
-        rawAsset.safeApprove(address(boringVault), rawAmount);
-
-        // bulkDeposit mints BV shares to this contract without setting a share
-        // lock or requiring a compliance signature.
         _teller.bulkDeposit(rawAsset, rawAmount, minBVShares, address(this));
 
         uint256 bvReceived = boringVault.balanceOf(address(this)) - bvBefore;
         if (bvReceived == 0) revert BoringVaultWrapper__ZeroBVSharesReceived();
 
-        // Mint wrapper shares proportional to BV shares received.
-        // First deposit seeds at 1 : 1 (supply == 0 branch).
-        wrapperShares = supplyBefore == 0 ? bvReceived : bvReceived.mulDivDown(supplyBefore, bvBefore);
+        // Use the same OZ-style virtual-offset formula as _convertToShares,
+        // evaluated against the pre-deposit snapshot.
+        wrapperShares = bvReceived.mulDiv(supplyBefore + 10 ** _decimalsOffset(), bvBefore + 1, Math.Rounding.Floor);
+
+        if (wrapperShares == 0) revert BoringVaultWrapper__ZeroBVSharesReceived();
 
         _mint(receiver, wrapperShares);
 
-        emit Deposit(msg.sender, receiver, bvReceived, wrapperShares);
+        emit Deposit(_msgSender(), receiver, bvReceived, wrapperShares);
     }
 
     // =========================================================================
     //                       DIRECT ASSET REDEEM
     // =========================================================================
 
-    /**
-     * @notice Burn wrapper shares and receive any Teller-supported asset.
-     *
-     * @dev    Execution flow:
-     *           1. Accrue pending fees so the BV-share ratio is current.
-     *           2. Spend caller's allowance when msg.sender != owner.
-     *           3. Compute bvToRedeem = wrapperShares × totalBV / totalSupply.
-     *           4. Burn wrapper shares from owner (before the external Teller call
-     *              to prevent reentrancy double-spend).
-     *           5. Call teller.bulkWithdraw(asset, bvToRedeem, minAssetOut, receiver).
-     *              The Teller burns bvToRedeem BV shares from this contract and
-     *              transfers the asset directly to receiver.
-     *           6. Return the asset amount received.
-     *
-     * @dev    Role requirement: this contract must hold the bulkWithdraw role on
-     *         the configured Teller.
-     *
-     * @param asset          ERC20 to receive (must be supported for withdrawal by the Teller).
-     * @param wrapperShares  Wrapper shares to burn.
-     * @param minAssetOut    Minimum asset amount to receive (slippage guard, passed to Teller).
-     * @param receiver       Address that receives the asset.
-     * @param owner          Address whose wrapper shares are burned.
-     * @return assetOut      Amount of asset sent to receiver.
-     */
     function redeemAsset(
-        ERC20 asset,
+        SolmateERC20 asset,
         uint256 wrapperShares,
         uint256 minAssetOut,
         address receiver,
         address owner
     ) external nonReentrant returns (uint256 assetOut) {
         TellerWithMultiAssetSupport _teller = teller;
-        if (address(_teller) == address(0)) revert BoringVaultWrapper__TellerNotSet();
+
+        _enforceTransferPolicy(owner, receiver, _msgSender());
 
         _accrueFees();
 
-        // Spend allowance when the caller is acting on behalf of owner,
-        // mirroring the ERC4626 redeem() allowance pattern.
-        if (msg.sender != owner) {
-            uint256 allowed = allowance[owner][msg.sender];
-            if (allowed != type(uint256).max) {
-                allowance[owner][msg.sender] = allowed - wrapperShares; // underflow → revert
-            }
+        if (_msgSender() != owner) {
+            _spendAllowance(owner, _msgSender(), wrapperShares);
         }
 
-        // Snapshot state after fee accrual but before burning.
-        uint256 supply = totalSupply;
+        uint256 supply = totalSupply();
         uint256 totalBV = boringVault.balanceOf(address(this));
 
-        // Proportional BV shares owed to the owner (rounds down, vault-favourable).
-        uint256 bvToRedeem = wrapperShares.mulDivDown(totalBV, supply);
+        // Mirror _convertToAssets with the virtual-offset formula (Floor rounding,
+        // vault-favourable on redemption).
+        uint256 bvToRedeem = wrapperShares.mulDiv(totalBV + 1, supply + 10 ** _decimalsOffset(), Math.Rounding.Floor);
 
-        // Burn wrapper shares BEFORE the external Teller call to prevent any
-        // reentrancy from double-spending the same wrapper shares.
         _burn(owner, wrapperShares);
 
-        // bulkWithdraw burns bvToRedeem BV shares from this contract and sends
-        // the asset directly to receiver.
         assetOut = _teller.bulkWithdraw(asset, bvToRedeem, minAssetOut, receiver);
 
-        emit Withdraw(msg.sender, receiver, owner, bvToRedeem, wrapperShares);
+        emit Withdraw(_msgSender(), receiver, owner, bvToRedeem, wrapperShares);
     }
 
     // =========================================================================
     //                         INTERNAL — FEE ENGINE
     // =========================================================================
 
-    /**
-     * @notice Computes pending management and performance fee shares without touching state.
-     * @dev    Single source of truth for fee arithmetic, shared by the mutating
-     *         _accrueFees() and the view-only _simulateAccruedState().
-     *
-     * @dev    Management fee
-     *         ──────────────
-     *         Continuously dilutes existing holders at an annualised rate:
-     *
-     *           mgmtShares = supply × feeRate × elapsed / (1e4 × 365 days)
-     *
-     *         Performance fee
-     *         ───────────────
-     *         Charges a % of the appreciation in the BV exchange rate (accountant.getRate())
-     *         above the stored high-water mark, expressed as wrapper-share dilution:
-     *
-     *           gainBV     = totalBVShares × (currentRate − hwm) / currentRate
-     *           feeBV      = gainBV × perfFee / 1e4
-     *           perfShares = feeBV × supply / totalBVShares
-     *
-     *         The perfShares calculation slightly under-charges (the denominator ignores
-     *         the dilution from mgmtShares itself).  The error is O(fee²) and negligible
-     *         at realistic fee rates, but using `supply + mgmtShares` in the numerator
-     *         partially corrects for it.
-     *
-     * @return mgmtShares  Wrapper shares owed as management fee.
-     * @return perfShares  Wrapper shares owed as performance fee.
-     * @return newHWM      New high-water mark to commit (0 = no update needed).
-     */
-    function _pendingFeeShares()
-        internal
-        view
-        returns (uint256 mgmtShares, uint256 perfShares, uint96 newHWM)
-    {
-        uint256 supply = totalSupply;
+    function _pendingFeeShares() internal view returns (uint256 mgmtShares, uint256 perfShares, uint96 newHWM) {
+        uint256 supply = totalSupply();
         if (supply == 0) return (0, 0, 0);
 
-        // ── Management fee ────────────────────────────────────────────────────
         uint16 mgmtFee = managementFee;
         uint256 elapsed = block.timestamp - lastFeeAccrual;
 
         if (mgmtFee > 0 && elapsed > 0) {
-            mgmtShares = supply.mulDivDown(uint256(mgmtFee) * elapsed, uint256(1e4) * 365 days);
+            mgmtShares = supply.mulDiv(uint256(mgmtFee) * elapsed, uint256(1e4) * 365 days, Math.Rounding.Floor);
         }
 
-        // ── Performance fee ───────────────────────────────────────────────────
         uint16 perfFee = performanceFee;
         if (perfFee > 0) {
-            uint256 currentRate = accountant.getRate(); // BV share price in base
-            uint96 hwm = performanceHighWaterMark;
+            // Read the rate via getRateSafe so a paused / untrusted accountant
+            // disables performance-fee accrual instead of silently using a stale
+            // price. SafeCast guards against uint96 truncation. Wrapped in
+            // try/catch so management fee still accrues even when the accountant
+            // is paused (users must still be able to enter/exit).
+            try accountant.getRateSafe() returns (uint256 currentRate) {
+                uint96 hwm = performanceHighWaterMark;
 
-            if (currentRate > uint256(hwm)) {
-                newHWM = uint96(currentRate);
-                uint256 totalBV = totalAssets(); // boringVault.balanceOf(this)
+                if (currentRate > uint256(hwm)) {
+                    newHWM = SafeCast.toUint96(currentRate);
+                    uint256 totalBV = totalAssets();
 
-                // How many BV shares represent the price-appreciation gain at
-                // today's price:  totalBV × (currentRate − hwm) / currentRate
-                uint256 gainBV = totalBV.mulDivDown(currentRate - uint256(hwm), currentRate);
-                uint256 feeBV = gainBV.mulDivDown(perfFee, 1e4);
+                    uint256 gainBV = totalBV.mulDiv(currentRate - uint256(hwm), currentRate, Math.Rounding.Floor);
+                    uint256 feeBV = gainBV.mulDiv(perfFee, 1e4, Math.Rounding.Floor);
 
-                // Convert the BV-share fee into wrapper shares so we can mint
-                // instead of extracting underlying assets.
-                // Use (supply + mgmtShares) to partially account for the mgmt
-                // dilution that is about to happen in the same accrual.
-                if (feeBV > 0 && totalBV > 0) {
-                    perfShares = feeBV.mulDivDown(supply + mgmtShares, totalBV);
+                    if (feeBV > 0 && totalBV > 0) {
+                        perfShares = feeBV.mulDiv(supply + mgmtShares, totalBV, Math.Rounding.Floor);
+                    }
                 }
+            } catch {
+                // Accountant paused or otherwise unavailable: skip perf-fee accrual,
+                // leave HWM unchanged. Mgmt fee already computed above is unaffected.
             }
         }
     }
 
-    /**
-     * @notice Mint all pending management and performance fee shares to feeRecipient.
-     * @dev    Called at the top of every deposit / mint / withdraw / redeem so the
-     *         exchange rate is always settled before any share arithmetic.
-     */
     function _accrueFees() internal {
         uint64 now_ = uint64(block.timestamp);
 
-        if (totalSupply == 0) {
+        if (totalSupply() == 0) {
             lastFeeAccrual = now_;
             return;
         }
@@ -568,8 +479,6 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
             performanceHighWaterMark = newHWM;
         }
 
-        // Commit timestamp before minting to keep state consistent if a
-        // reentrant call somehow triggers here (guarded by nonReentrant above).
         lastFeeAccrual = now_;
 
         uint256 total = mgmtShares + perfShares;
@@ -579,22 +488,63 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
         }
     }
 
-    /**
-     * @notice View mirror of _accrueFees(): returns what supply and totalAssets
-     *         would be if fees were settled right now.
-     * @dev    Used by convertToShares / convertToAssets / previewMint / previewWithdraw
-     *         so off-chain quotes and on-chain execution always agree.
-     * @return supply    Post-accrual total supply (pre-accrual supply + fee shares).
-     * @return totalAss  Total assets — unchanged, because fees are dilution not extraction.
-     */
     function _simulateAccruedState() internal view returns (uint256 supply, uint256 totalAss) {
-        supply = totalSupply;
+        supply = totalSupply();
         totalAss = totalAssets();
 
         if (supply == 0) return (supply, totalAss);
 
         (uint256 mgmtShares, uint256 perfShares,) = _pendingFeeShares();
         supply += mgmtShares + perfShares;
-        // totalAss deliberately unchanged — fees are dilution, not extraction.
+    }
+
+    // =========================================================================
+    //                       INTERNAL — COMPLIANCE
+    // =========================================================================
+
+    function _enforceTransferPolicy(address from, address to, address operator) internal view {
+        TellerWithMultiAssetSupport _teller = teller;
+
+        (bool fromDenyFrom,,,) = _teller.beforeTransferData(from);
+        (, bool toDenyTo,,) = _teller.beforeTransferData(to);
+        (,, bool opDenyOperator,) = _teller.beforeTransferData(operator);
+        if (fromDenyFrom || toDenyTo || opDenyOperator) {
+            revert BoringVaultWrapper__TransferDenied(from, to, operator);
+        }
+
+        if (to == address(0)) return;
+
+        uint8 role = _teller.transferAllowedRole();
+        if (role == type(uint8).max) return;
+
+        RolesAuthority a = RolesAuthority(address(_teller.authority()));
+        if (!a.doesUserHaveRole(operator, role) && !a.doesUserHaveRole(from, role) && !a.doesUserHaveRole(to, role)) {
+            revert BoringVaultWrapper__TransferNotAllowed();
+        }
+    }
+
+    function _verifyComplianceSignature(
+        address user,
+        address receiver,
+        address asset,
+        uint256 amount,
+        ComplianceData calldata compliance
+    ) internal {
+        TellerWithMultiAssetSupport _teller = teller;
+        uint8 role = _teller.complianceSignerRole();
+        if (role == type(uint8).max) return;
+
+        bytes32 messageHash =
+            keccak256(abi.encode(address(this), block.chainid, user, receiver, asset, amount, compliance.deadline));
+
+        TellerWithMultiAssetSupportLib.verifyAndMark(
+            usedComplianceSignatures,
+            address(_teller.authority()),
+            role,
+            _teller.complianceWindow(),
+            messageHash,
+            compliance.deadline,
+            compliance.signature
+        );
     }
 }

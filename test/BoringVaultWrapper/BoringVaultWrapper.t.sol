@@ -9,7 +9,7 @@ import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthorit
 
 import {BoringVault} from "src/base/BoringVault.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
-import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
+import {TellerWithMultiAssetSupport, ComplianceData} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {BoringVaultWrapper} from "src/base/Roles/BoringVaultWrapper.sol";
 import {MockERC20} from "src/helper/MockERC20.sol";
 
@@ -18,11 +18,11 @@ contract BoringVaultWrapperTest is Test {
     using SafeTransferLib for ERC20;
 
     // ── Role IDs ───────────────────────────────────────────────────────────────
-    uint8 constant ADMIN_ROLE   = 1;
-    uint8 constant MINTER_ROLE  = 7;
-    uint8 constant BURNER_ROLE  = 8;
+    uint8 constant ADMIN_ROLE = 1;
+    uint8 constant MINTER_ROLE = 7;
+    uint8 constant BURNER_ROLE = 8;
     uint8 constant WRAPPER_ROLE = 55; // may call bulkDeposit + bulkWithdraw
-    uint8 constant SETTER_ROLE  = 2;  // for setShareLockPeriod (share-lock test only)
+    uint8 constant SETTER_ROLE = 2; // for setShareLockPeriod (share-lock test only)
 
     // ── Contracts ──────────────────────────────────────────────────────────────
     MockERC20 baseAsset; // 18-decimal stand-in for WETH / USDC
@@ -41,6 +41,11 @@ contract BoringVaultWrapperTest is Test {
     // ── Fee parameters ─────────────────────────────────────────────────────────
     uint16 constant MGMT_FEE = 200; // 2 % per year
     uint16 constant PERF_FEE = 1_000; // 10 % on gains
+
+    // ── Share scaling (mirrors BoringVaultWrapper.DECIMALS_OFFSET) ────────────
+    /// @dev Wrapper shares are scaled 10**DECIMALS_OFFSET larger than BV shares due
+    ///      to OZ ERC4626 virtual-offset (inflation-attack protection).
+    uint256 constant SHARE_SCALE = 1e6;
 
     // =========================================================================
     //                              SET UP
@@ -77,12 +82,7 @@ contract BoringVaultWrapperTest is Test {
 
         // ── Deploy BoringVaultWrapper ────────────────────────────────────────────
         wrapper = new BoringVaultWrapper(
-            address(this),
-            address(boringVault),
-            address(accountant),
-            address(teller),
-            "Partner Vault",
-            "PV"
+            address(this), address(boringVault), address(accountant), address(teller), "Partner Vault", "PV"
         );
 
         // ── Wire RolesAuthority ───────────────────────────────────────────────
@@ -109,8 +109,12 @@ contract BoringVaultWrapperTest is Test {
         );
 
         // Wrapper may call bulkDeposit (depositAsset) and bulkWithdraw (redeemAsset)
-        rolesAuthority.setRoleCapability(WRAPPER_ROLE, address(teller), TellerWithMultiAssetSupport.bulkDeposit.selector, true);
-        rolesAuthority.setRoleCapability(WRAPPER_ROLE, address(teller), TellerWithMultiAssetSupport.bulkWithdraw.selector, true);
+        rolesAuthority.setRoleCapability(
+            WRAPPER_ROLE, address(teller), TellerWithMultiAssetSupport.bulkDeposit.selector, true
+        );
+        rolesAuthority.setRoleCapability(
+            WRAPPER_ROLE, address(teller), TellerWithMultiAssetSupport.bulkWithdraw.selector, true
+        );
 
         // Assign roles
         rolesAuthority.setUserRole(address(this), ADMIN_ROLE, true);
@@ -161,10 +165,10 @@ contract BoringVaultWrapperTest is Test {
 
         uint256 wShares = _wrapBV(alice, bvAmount);
 
-        assertEq(wShares, bvAmount, "First deposit: wrapper shares == BV shares deposited");
-        assertEq(wrapper.balanceOf(alice), bvAmount, "Alice wrapper balance");
+        assertEq(wShares, bvAmount * SHARE_SCALE, "First deposit: wrapper shares == BV * SHARE_SCALE");
+        assertEq(wrapper.balanceOf(alice), bvAmount * SHARE_SCALE, "Alice wrapper balance");
         assertEq(wrapper.totalAssets(), bvAmount, "Wrapper holds all BV shares");
-        assertEq(wrapper.totalSupply(), bvAmount, "Total wrapper supply");
+        assertEq(wrapper.totalSupply(), bvAmount * SHARE_SCALE, "Total wrapper supply");
     }
 
     // =========================================================================
@@ -197,15 +201,15 @@ contract BoringVaultWrapperTest is Test {
         _wrapBV(alice, 100e18);
         _wrapBV(bob, 100e18);
 
-        // No time → no fees → perfect 50/50 split
-        assertEq(wrapper.balanceOf(alice), 100e18, "Alice wrapper shares");
-        assertEq(wrapper.balanceOf(bob), 100e18, "Bob wrapper shares");
+        // No time → no fees → perfect 50/50 split (each holds 100e18 BV worth = 100e18 * SHARE_SCALE wrapper shares)
+        assertEq(wrapper.balanceOf(alice), 100e18 * SHARE_SCALE, "Alice wrapper shares");
+        assertEq(wrapper.balanceOf(bob), 100e18 * SHARE_SCALE, "Bob wrapper shares");
         assertEq(wrapper.totalAssets(), 200e18, "Total BV shares held");
-        assertEq(wrapper.totalSupply(), 200e18, "Total wrapper supply");
+        assertEq(wrapper.totalSupply(), 200e18 * SHARE_SCALE, "Total wrapper supply");
 
-        // Each user is entitled to exactly half the underlying
-        assertEq(wrapper.convertToAssets(100e18), 100e18, "Alice BV entitlement");
-        assertEq(wrapper.convertToAssets(100e18), 100e18, "Bob BV entitlement");
+        // Each user is entitled to ~half the underlying. Use their actual share balance.
+        assertApproxEqAbs(wrapper.convertToAssets(wrapper.balanceOf(alice)), 100e18, 1, "Alice BV entitlement");
+        assertApproxEqAbs(wrapper.convertToAssets(wrapper.balanceOf(bob)), 100e18, 1, "Bob BV entitlement");
     }
 
     // =========================================================================
@@ -222,8 +226,7 @@ contract BoringVaultWrapperTest is Test {
         wrapper.accrueFees();
 
         // Expected fee shares: supply × rate × elapsed / (1e4 × 365 days) = 100e18 × 0.02 = 2e18
-        uint256 expectedFeeShares =
-            supplyBefore.mulDivDown(uint256(MGMT_FEE) * 365 days, uint256(1e4) * 365 days);
+        uint256 expectedFeeShares = supplyBefore.mulDivDown(uint256(MGMT_FEE) * 365 days, uint256(1e4) * 365 days);
 
         assertApproxEqAbs(wrapper.balanceOf(feeRecipient), expectedFeeShares, 1e9, "Fee recipient shares after 1 year");
 
@@ -247,8 +250,7 @@ contract BoringVaultWrapperTest is Test {
         skip(365 days / 2);
         wrapper.accrueFees();
 
-        uint256 expectedFeeShares =
-            supplyBefore.mulDivDown(uint256(MGMT_FEE) * (365 days / 2), uint256(1e4) * 365 days);
+        uint256 expectedFeeShares = supplyBefore.mulDivDown(uint256(MGMT_FEE) * (365 days / 2), uint256(1e4) * 365 days);
 
         assertApproxEqAbs(wrapper.balanceOf(feeRecipient), expectedFeeShares, 1e9, "Half-year management fee shares");
     }
@@ -268,15 +270,14 @@ contract BoringVaultWrapperTest is Test {
 
         // gainBV = 100e18 × (1.1e18 − 1e18) / 1.1e18 ≈ 9.09e18
         // feeInBV = gainBV × 10 % ≈ 0.909e18
-        // perfShares ≈ feeInBV × supply / totalBV ≈ 0.909e18 (supply ≈ totalBV ≈ 100e18)
+        // perfShares = feeInBV × supply / totalBV ≈ 0.909e18 × SHARE_SCALE (supply is wrapper-scaled)
         uint256 gainBV = uint256(100e18).mulDivDown(1.1e18 - 1e18, 1.1e18);
         uint256 feeInBV = gainBV.mulDivDown(PERF_FEE, 1e4);
-        // The 2-second management fee (≈ 1.28e11 shares) also inflates supply in the
-        // perfShares numerator via `supply + mgmtShares`.  Use a 1e12 tolerance to cover
-        // this dust without masking meaningful errors.
-        uint256 expectedPerfShares = feeInBV.mulDivDown(100e18, 100e18);
+        uint256 supply = 100e18 * SHARE_SCALE;
+        uint256 expectedPerfShares = feeInBV.mulDivDown(supply, 100e18);
 
-        assertApproxEqAbs(wrapper.balanceOf(feeRecipient), expectedPerfShares, 1e12, "Performance fee shares");
+        // Tolerance scaled with share decimals: 2 s of mgmt fee dust on a SHARE_SCALE-larger supply.
+        assertApproxEqAbs(wrapper.balanceOf(feeRecipient), expectedPerfShares, 1e18, "Performance fee shares");
         assertEq(wrapper.totalAssets(), 100e18, "BV assets unchanged after perf fee");
         assertEq(wrapper.performanceHighWaterMark(), 1.1e18, "HWM updated to new rate");
     }
@@ -300,9 +301,10 @@ contract BoringVaultWrapperTest is Test {
         accountant.updateExchangeRate(1.05e18); // 1.05 < 1.1 HWM
         wrapper.accrueFees();
 
-        // Only tiny management fee for 2 seconds should have accrued
+        // Only tiny management fee for 2 seconds should have accrued.
+        // Scale tolerance with SHARE_SCALE since supply is wrapper-scaled.
         uint256 newShares = wrapper.balanceOf(feeRecipient) - recipientSharesAfterFirst;
-        assertLt(newShares, 1e15, "No perf fee below HWM; only dust-level mgmt fee");
+        assertLt(newShares, 1e15 * SHARE_SCALE, "No perf fee below HWM; only dust-level mgmt fee");
     }
 
     // =========================================================================
@@ -319,8 +321,7 @@ contract BoringVaultWrapperTest is Test {
         wrapper.accrueFees();
 
         // Standalone mgmt fee for 182 days on 100e18 supply
-        uint256 mgmtOnly =
-            uint256(100e18).mulDivDown(uint256(MGMT_FEE) * 182 days, uint256(1e4) * 365 days);
+        uint256 mgmtOnly = uint256(100e18).mulDivDown(uint256(MGMT_FEE) * 182 days, uint256(1e4) * 365 days);
 
         uint256 totalFeeShares = wrapper.balanceOf(feeRecipient);
 
@@ -380,21 +381,23 @@ contract BoringVaultWrapperTest is Test {
         _giveBVShares(alice, 100e18);
         _wrapBV(alice, 100e18);
 
-        // Immediately: 1 BV share → 1 wrapper share
-        assertEq(wrapper.convertToShares(100e18), 100e18, "No fees yet: 1:1 ratio");
+        // Immediately: 1 BV share → SHARE_SCALE wrapper shares (virtual-offset scaling)
+        assertApproxEqAbs(
+            wrapper.convertToShares(100e18), 100e18 * SHARE_SCALE, SHARE_SCALE, "No fees yet: virtual-offset ratio"
+        );
 
-        // After 1 year of pending mgmt fees the supply (in the simulation) is ~102e18
-        // so a new depositor gets slightly MORE wrapper shares per BV share deposited
-        // (the rate adjusts to compensate for dilution)
+        // After 1 year of pending mgmt fees, the simulated supply is larger, so each
+        // new BV share converts to slightly MORE wrapper shares (rate adjusts for dilution).
         skip(365 days);
 
-        uint256 pendingFeeShares =
-            uint256(100e18).mulDivDown(uint256(MGMT_FEE) * 365 days, uint256(1e4) * 365 days);
-        uint256 expectedPostFeeSupply = 100e18 + pendingFeeShares;
-        uint256 expected = uint256(100e18).mulDivDown(expectedPostFeeSupply, 100e18);
+        uint256 supplyBefore = 100e18 * SHARE_SCALE;
+        uint256 pendingFeeShares = supplyBefore.mulDivDown(uint256(MGMT_FEE) * 365 days, uint256(1e4) * 365 days);
+        uint256 expectedPostFeeSupply = supplyBefore + pendingFeeShares;
+        // OZ formula: shares = assets * (supply + 10^offset) / (totalAssets + 1)
+        uint256 expected = uint256(100e18).mulDivDown(expectedPostFeeSupply + SHARE_SCALE, 100e18 + 1);
 
-        assertApproxEqAbs(wrapper.convertToShares(100e18), expected, 1e9, "convertToShares includes pending fees");
-        assertGt(wrapper.convertToShares(100e18), 100e18, "New depositor gets > 1:1 wrapper shares after pending fees");
+        assertApproxEqAbs(wrapper.convertToShares(100e18), expected, 1e15, "convertToShares includes pending fees");
+        assertGt(wrapper.convertToShares(100e18), 100e18 * SHARE_SCALE, "More wrapper shares per BV after pending fees");
     }
 
     // =========================================================================
@@ -409,11 +412,11 @@ contract BoringVaultWrapperTest is Test {
 
         vm.startPrank(alice);
         baseAsset.approve(address(wrapper), depositAmount);
-        uint256 wShares = wrapper.depositAsset(baseAsset, depositAmount, 0, alice);
+        uint256 wShares = wrapper.depositAsset(baseAsset, depositAmount, 0, alice, ComplianceData(0, ""));
         vm.stopPrank();
 
-        // Exchange rate = 1e18 → 100 baseAsset → 100 BV shares → 100 wrapper shares (first deposit, 1:1)
-        assertEq(wShares, depositAmount, "First depositAsset: 1:1 wrapper shares");
+        // Exchange rate = 1e18: 100 base → 100 BV → 100 * SHARE_SCALE wrapper shares (virtual-offset scaling).
+        assertEq(wShares, depositAmount * SHARE_SCALE, "First depositAsset: wrapper shares = BV * SHARE_SCALE");
         assertEq(wrapper.balanceOf(alice), wShares, "Alice wrapper balance");
         assertEq(boringVault.balanceOf(address(wrapper)), depositAmount, "Wrapper holds BV shares");
         assertEq(baseAsset.balanceOf(alice), 0, "Alice spent all base asset");
@@ -430,7 +433,7 @@ contract BoringVaultWrapperTest is Test {
 
         vm.startPrank(alice);
         baseAsset.approve(address(wrapper), amount);
-        uint256 wShares = wrapper.depositAsset(baseAsset, amount, 0, alice);
+        uint256 wShares = wrapper.depositAsset(baseAsset, amount, 0, alice, ComplianceData(0, ""));
         uint256 bvBack = wrapper.redeem(wShares, alice, alice);
         vm.stopPrank();
 
@@ -457,10 +460,11 @@ contract BoringVaultWrapperTest is Test {
 
         uint256 feeSharesAccrued = wrapper.balanceOf(feeRecipient) - feeSharesBefore;
 
-        uint256 expectedAt2Pct =
-            uint256(100e18).mulDivDown(uint256(MGMT_FEE) * 180 days, uint256(1e4) * 365 days);
+        // Expected mgmt fee shares scale with the wrapper-scaled supply.
+        uint256 supply = 100e18 * SHARE_SCALE;
+        uint256 expectedAt2Pct = supply.mulDivDown(uint256(MGMT_FEE) * 180 days, uint256(1e4) * 365 days);
 
-        assertApproxEqAbs(feeSharesAccrued, expectedAt2Pct, 1e9, "180 days settled at old 2% rate");
+        assertApproxEqAbs(feeSharesAccrued, expectedAt2Pct, 1e15, "180 days settled at old 2% rate");
         assertEq(wrapper.managementFee(), 100, "New fee correctly set");
         assertEq(wrapper.lastFeeAccrual(), uint64(block.timestamp), "Timestamp advanced");
     }
@@ -542,17 +546,19 @@ contract BoringVaultWrapperTest is Test {
     function testMintAndWithdraw() public {
         _giveBVShares(alice, 100e18);
 
-        // Use mint() to request exactly 100e18 wrapper shares
-        uint256 bvCost = wrapper.previewMint(100e18);
-        assertEq(bvCost, 100e18, "First mint: 1:1 BV cost (no fees, no dilution yet)");
+        // Use mint() to request 100e18 BV-equivalent wrapper shares = 100e18 * SHARE_SCALE wrapper shares.
+        uint256 sharesToMint = 100e18 * SHARE_SCALE;
+        uint256 bvCost = wrapper.previewMint(sharesToMint);
+        // Ceil rounding inside _convertToAssets adds at most 1 wei.
+        assertApproxEqAbs(bvCost, 100e18, 1, "First mint: BV cost matches mint quantity");
 
         vm.startPrank(alice);
         ERC20(address(boringVault)).approve(address(wrapper), bvCost);
-        uint256 bvSpent = wrapper.mint(100e18, alice);
+        uint256 bvSpent = wrapper.mint(sharesToMint, alice);
         vm.stopPrank();
 
         assertEq(bvSpent, bvCost, "BV spent matches previewMint");
-        assertEq(wrapper.balanceOf(alice), 100e18, "Alice has requested wrapper shares");
+        assertEq(wrapper.balanceOf(alice), sharesToMint, "Alice has requested wrapper shares");
 
         // Use withdraw() to pull exactly 50e18 BV shares back out
         uint256 wSharesToBurn = wrapper.previewWithdraw(50e18);
@@ -629,11 +635,11 @@ contract BoringVaultWrapperTest is Test {
 
         vm.startPrank(alice);
         baseAsset.approve(address(wrapper), amount);
-        uint256 wShares = wrapper.depositAsset(baseAsset, amount, 0, alice);
+        uint256 wShares = wrapper.depositAsset(baseAsset, amount, 0, alice, ComplianceData(0, ""));
         vm.stopPrank();
 
-        // Rate = 1e18 → 100 base → 100 BV shares; first deposit seeds 1:1.
-        assertEq(wShares, amount, "First depositAsset: wrapper shares == BV shares");
+        // Rate = 1e18: 100 base → 100 BV; first deposit seeds at SHARE_SCALE × BV.
+        assertEq(wShares, amount * SHARE_SCALE, "First depositAsset: wrapper shares = BV * SHARE_SCALE");
         assertEq(wrapper.balanceOf(alice), wShares);
         assertEq(boringVault.balanceOf(address(wrapper)), amount, "Wrapper holds BV shares");
         assertEq(baseAsset.balanceOf(alice), 0, "Alice spent all base asset");
@@ -654,11 +660,13 @@ contract BoringVaultWrapperTest is Test {
         deal(address(baseAsset), bob, 50e18);
         vm.startPrank(bob);
         baseAsset.approve(address(wrapper), 50e18);
-        uint256 wShares = wrapper.depositAsset(baseAsset, 50e18, 0, bob);
+        uint256 wShares = wrapper.depositAsset(baseAsset, 50e18, 0, bob, ComplianceData(0, ""));
         vm.stopPrank();
 
-        assertEq(wShares, 50e18, "Proportional wrapper shares at 1:1 rate");
-        assertEq(wrapper.balanceOf(bob), 50e18);
+        // Proportional: with existing supply = 100e18 * SHARE_SCALE and totalAssets = 100e18,
+        // depositing 50 BV mints ≈ 50e18 * SHARE_SCALE wrapper shares (virtual-offset rounding error is ~1 wei).
+        assertApproxEqAbs(wShares, 50e18 * SHARE_SCALE, 1, "Proportional wrapper shares at 1:1 rate");
+        assertEq(wrapper.balanceOf(bob), wShares);
         assertEq(wrapper.totalAssets(), 150e18);
     }
 
@@ -672,7 +680,7 @@ contract BoringVaultWrapperTest is Test {
 
         vm.startPrank(alice);
         baseAsset.approve(address(wrapper), amount);
-        uint256 wShares = wrapper.depositAsset(baseAsset, amount, 0, alice);
+        uint256 wShares = wrapper.depositAsset(baseAsset, amount, 0, alice, ComplianceData(0, ""));
 
         // Redeem all wrapper shares for base asset.
         uint256 baseOut = wrapper.redeemAsset(baseAsset, wShares, 0, alice, alice);
@@ -695,13 +703,11 @@ contract BoringVaultWrapperTest is Test {
 
         vm.startPrank(alice);
         baseAsset.approve(address(wrapper), amount);
-        uint256 wShares = wrapper.depositAsset(baseAsset, amount, 0, alice);
+        uint256 wShares = wrapper.depositAsset(baseAsset, amount, 0, alice, ComplianceData(0, ""));
 
         // 100 wrapper shares → 100 BV shares → 100 base at rate 1:1.
         // Demanding 101 base must revert inside the Teller.
-        vm.expectRevert(
-            abi.encodeWithSignature("TellerWithMultiAssetSupport__MinimumAssetsNotMet()")
-        );
+        vm.expectRevert(abi.encodeWithSignature("TellerWithMultiAssetSupport__MinimumAssetsNotMet()"));
         wrapper.redeemAsset(baseAsset, wShares, 101e18, alice, alice);
         vm.stopPrank();
     }
@@ -717,7 +723,7 @@ contract BoringVaultWrapperTest is Test {
         // Alice deposits via asset path.
         vm.startPrank(alice);
         baseAsset.approve(address(wrapper), amount);
-        uint256 wShares = wrapper.depositAsset(baseAsset, amount, 0, alice);
+        uint256 wShares = wrapper.depositAsset(baseAsset, amount, 0, alice, ComplianceData(0, ""));
         // Alice approves bob to redeem on her behalf.
         wrapper.approve(bob, wShares);
         vm.stopPrank();
@@ -747,7 +753,7 @@ contract BoringVaultWrapperTest is Test {
         deal(address(baseAsset), bob, 100e18);
         vm.startPrank(bob);
         baseAsset.approve(address(wrapper), 100e18);
-        uint256 bobShares = wrapper.depositAsset(baseAsset, 100e18, 0, bob);
+        uint256 bobShares = wrapper.depositAsset(baseAsset, 100e18, 0, bob, ComplianceData(0, ""));
         vm.stopPrank();
 
         // Fees were minted to feeRecipient during Bob's depositAsset call.
@@ -779,7 +785,7 @@ contract BoringVaultWrapperTest is Test {
 
         vm.startPrank(alice);
         baseAsset.approve(address(wrapper), amount);
-        uint256 aliceWShares = wrapper.depositAsset(baseAsset, amount, 0, alice);
+        uint256 aliceWShares = wrapper.depositAsset(baseAsset, amount, 0, alice, ComplianceData(0, ""));
         vm.stopPrank();
 
         _giveBVShares(bob, 50e18);
@@ -806,7 +812,7 @@ contract BoringVaultWrapperTest is Test {
 
         vm.startPrank(alice);
         baseAsset.approve(address(wrapper), amount);
-        uint256 wShares = wrapper.depositAsset(baseAsset, amount, 0, alice);
+        uint256 wShares = wrapper.depositAsset(baseAsset, amount, 0, alice, ComplianceData(0, ""));
         vm.stopPrank();
 
         skip(365 days); // 1 year of 2% management fees pending
@@ -840,38 +846,156 @@ contract BoringVaultWrapperTest is Test {
         );
 
         AccountantWithRateProviders decoyAccountant = new AccountantWithRateProviders(
-            address(this),
-            address(decoyVault),
-            payoutAddress,
-            1e18,
-            address(baseAsset),
-            1.1e4,
-            0.9e4,
-            1,
-            0,
-            0
+            address(this), address(decoyVault), payoutAddress, 1e18, address(baseAsset), 1.1e4, 0.9e4, 1, 0, 0
         );
 
         // decoyTeller.vault() == decoyVault != boringVault → BadTeller
         vm.expectRevert(BoringVaultWrapper.BoringVaultWrapper__BadTeller.selector);
         new BoringVaultWrapper(
-            address(this),
-            address(boringVault),
-            address(accountant),
-            address(decoyTeller),
-            "Partner Vault",
-            "PV"
+            address(this), address(boringVault), address(accountant), address(decoyTeller), "Partner Vault", "PV"
         );
 
         // decoyAccountant.vault() == decoyVault != boringVault → BadAccountant
         vm.expectRevert(BoringVaultWrapper.BoringVaultWrapper__BadAccountant.selector);
         new BoringVaultWrapper(
-            address(this),
-            address(boringVault),
-            address(decoyAccountant),
-            address(teller),
-            "Partner Vault",
-            "PV"
+            address(this), address(boringVault), address(decoyAccountant), address(teller), "Partner Vault", "PV"
         );
+    }
+
+    // =========================================================================
+    //                   29. DUAL-LAYER FEES — BV and wrapper both charge fees
+    // =========================================================================
+    //
+    //  The wrapper doc says fees are additive: users pay both the BV-level fees
+    //  (platform + performance tracked in accountant.feesOwedInBase) and the
+    //  wrapper-level fees (management + performance minted as share dilution).
+    //
+    //  The wrapper charges its performance fee on the GROSS BV rate appreciation
+    //  — it has no visibility into BV-level pending fees — so the two layers
+    //  compound on top of each other.
+    //
+    //  Setup:
+    //    BV accountant  : 1 %/yr platform fee  +  5 % performance fee
+    //    Wrapper        : 2 %/yr management fee + 10 % performance fee  (from setUp)
+    //
+    //  Timeline:
+    //    T0   Alice deposits 100 BV shares into the wrapper.
+    //    T0+1 Prime accountant.totalSharesLastUpdate (required: it is 0 from the
+    //         constructor because the BV had no shares when the accountant was
+    //         deployed; without this, shareSupplyToUse = min(0, 100e18) = 0 and
+    //         all BV-level fees would silently compute as zero).
+    //    T1   365 days later, BV earns 10 % gross yield.
+    //         updateExchangeRate(1.1e18) → BV fees land in feesOwedInBase.
+    //         wrapper.accrueFees()      → wrapper fees minted as share dilution.
+    //
+    // =========================================================================
+
+    function testDualLayerFees_BothVaultsCharged() public {
+        // ── Step 1: enable BV-level fees ────────────────────────────────────────
+        // setUp() created the accountant with 0/0 BV fees; activate them now.
+        accountant.updatePlatformFee(100); // 1 %/yr
+        accountant.updatePerformanceFee(500); // 5 % on rate gains
+        // Wrapper keeps its setUp() config: 2 %/yr management + 10 % performance.
+
+        // ── Step 2: Alice deposits 100 BV shares ─────────────────────────────────
+        _giveBVShares(alice, 100e18);
+        _wrapBV(alice, 100e18);
+        uint256 aliceWrapperShares = wrapper.balanceOf(alice);
+        // State: wrapperSupply = 100e24, totalBV = 100e18, BV rate = 1.0e18
+
+        // ── Step 3: prime accountant.totalSharesLastUpdate ──────────────────────
+        // The accountant was constructed before any BV shares existed, so
+        // totalSharesLastUpdate is 0. updateExchangeRate writes vault.totalSupply()
+        // into that field; without this, _calculatePlatformFee uses
+        // shareSupplyToUse = min(0, 100e18) = 0 and fees stay zero.
+        skip(1); // satisfy minimumUpdateDelayInSeconds = 1
+        accountant.updateExchangeRate(1e18); // no-op rate change; initialises field
+        // After this call: totalSharesLastUpdate = 100e18, feesOwedInBase = 0
+        // (platform fee elapsed = 1 s ≈ 0; performance fee: rate unchanged, no gain).
+
+        // ── Step 4: 1 year passes, BV earns 10 % gross yield ────────────────────
+        skip(365 days);
+
+        // Push the new BV rate.  The accountant calculates BV-level fees:
+        //   platform fee  ≈ 1 % × 365 d × min(100e18×1.0, 100e18×1.1)
+        //                 = 1 % × 100e18 = 1e18 base units
+        //   performance fee = 5 % × (1.1−1.0) × 100e18 = 5 % × 10e18 = 0.5e18
+        //   total feesOwedInBase ≈ 1.5e18  (pending; not yet extracted from vault)
+        accountant.updateExchangeRate(1.1e18);
+
+        // Destructure the 12-field AccountantState to read feesOwedInBase (field 3).
+        (
+            , // payoutAddress
+            , // highwaterMark
+            uint128 bvFeesOwed,
+            , // totalSharesLastUpdate
+            , // exchangeRate
+            , // allowedExchangeRateChangeUpper
+            , // allowedExchangeRateChangeLower
+            , // lastUpdateTimestamp
+            , // isPaused
+            , // minimumUpdateDelayInSeconds
+            , // platformFee
+              // performanceFee
+        ) = accountant.accountantState();
+
+        assertGt(bvFeesOwed, 0, "BV feesOwedInBase must be non-zero after rate update");
+        // ~1 % platform + ~0.5 % performance of 100e18 AUM ≈ 1.5e18 base units.
+        assertApproxEqRel(uint256(bvFeesOwed), 1.5e18, 0.02e18, "BV fees ~1.5% of AUM");
+
+        // ── Step 5: accrue wrapper fees ──────────────────────────────────────────
+        //   management fee  ≈ 2 % × 1 yr × 100e24 supply = 2e24 wrapper shares
+        //   performance fee : gainBV = 100e18 × 0.1/1.1 ≈ 9.09e18
+        //                     feeBV  = 9.09e18 × 10 %   ≈ 0.909e18
+        //                     perfShares ≈ 0.909e18 × 102e24 / 100e18 ≈ 0.927e24
+        //   total ≈ 2.927e24 wrapper shares
+        uint256 feeSharesBefore = wrapper.balanceOf(feeRecipient);
+        wrapper.accrueFees();
+        uint256 wrapperFeeShares = wrapper.balanceOf(feeRecipient) - feeSharesBefore;
+
+        assertGt(wrapperFeeShares, 0, "Wrapper fee shares must be minted");
+
+        // ── Step 6: wrapper performance fee fired on the GROSS BV rate ───────────
+        // The wrapper's HWM advances to 1.1e18, proving it charged perf fee on
+        // the full 1.0 → 1.1 move without any deduction for pending BV-level fees.
+        assertEq(
+            uint256(wrapper.performanceHighWaterMark()), 1.1e18, "Wrapper HWM advances to gross BV rate"
+        );
+
+        // ── Step 7: wrapper fees include both management and performance ──────────
+        uint256 supplyBeforeFees = 100e18 * SHARE_SCALE;
+        uint256 mgmtFeeSharesOnly =
+            supplyBeforeFees.mulDivDown(uint256(MGMT_FEE) * 365 days, uint256(1e4) * 365 days);
+        assertGt(wrapperFeeShares, mgmtFeeSharesOnly, "Wrapper charged both mgmt and perf fee");
+
+        // ── Step 8: Alice's BV entitlement is reduced by wrapper dilution ─────────
+        uint256 aliceBVEntitlement = wrapper.convertToAssets(aliceWrapperShares);
+        assertLt(aliceBVEntitlement, 100e18, "Alice's BV entitlement reduced by wrapper fee dilution");
+        // Rough check: Alice should recover at least 95 BV shares (fees < 5 %).
+        assertGt(aliceBVEntitlement, 95e18, "Alice's loss bounded by fee rates");
+
+        // ── Step 9: two distinct, simultaneously non-zero fee sinks ──────────────
+        // BV-level fees sit in accountant.feesOwedInBase and will flow to
+        // payoutAddress when boringVault.claimFees() is called.  Wrapper fees
+        // already live in feeRecipient's share balance.  Both are non-zero at
+        // the same time and flow to different addresses.
+        assertTrue(payoutAddress != feeRecipient, "BV payout and wrapper feeRecipient are separate");
+        assertGt(uint256(bvFeesOwed), 0, "BV fee sink is funded");
+        assertGt(wrapperFeeShares, 0, "Wrapper fee sink is funded");
+
+        // ── Step 10: combined economic burden exceeds either layer alone ──────────
+        // Convert wrapper fee shares → BV-asset units for an apples-to-apples sum.
+        uint256 wrapperFeeSharesInBV =
+            wrapperFeeShares.mulDivDown(wrapper.totalAssets(), wrapper.totalSupply());
+        // Convert BV feesOwedInBase (base units) → BV shares at the current rate.
+        uint256 bvFeesInBV = uint256(bvFeesOwed).mulDivDown(1e18, 1.1e18);
+        uint256 combinedFeesBV = wrapperFeeSharesInBV + bvFeesInBV;
+
+        assertLt(wrapperFeeSharesInBV, combinedFeesBV, "Wrapper layer alone < combined");
+        assertLt(bvFeesInBV, combinedFeesBV, "BV layer alone < combined");
+
+        // Sanity: combined fees ≈ 4.4 % of 100e18, so between 3 and 8 BV shares.
+        assertGt(combinedFeesBV, 3e18, "Combined fees are material");
+        assertLt(combinedFeesBV, 8e18, "Combined fees are within expected bounds");
     }
 }
