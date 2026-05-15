@@ -22,8 +22,7 @@ import {TellerWithMultiAssetSupportLib} from "src/base/Roles/TellerWithMultiAsse
 /**
  * @title  BoringVaultWrapper
  * @dev Asset model:
- *   asset()       = BoringVault shares (IERC20)
- *   totalAssets() = boringVault.balanceOf(address(this))
+ *   asset() = BoringVault shares (IERC20)
  *
  *   No off-chain share-price updater is needed. The wrapper's exchange rate
  *   against BoringVault shares drifts only as fee dilution accumulates over time.
@@ -130,10 +129,8 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     //                               STATE
     // =========================================================================
 
-    /// @notice Teller used by depositAsset() / redeemAsset().
     TellerWithMultiAssetSupport public teller;
 
-    /// @notice Address that receives all accrued fee shares.
     address public feeRecipient;
 
     /// @notice Annual management fee in basis points (e.g. 200 = 2 %).
@@ -197,8 +194,8 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
      * @param _accountant  Provides the BoringVault share price for the performance-fee high-water mark.
      * @param _teller      Teller used by depositAsset() / redeemAsset(); must reference
      *                     the same BoringVault.
-     * @param _name        ERC20 name  of the wrapper shares (partner-branded).
-     * @param _symbol      ERC20 symbol of the wrapper shares (partner-branded).
+     * @param _name        ERC20 name of the wrapper shares.
+     * @param _symbol      ERC20 symbol of the wrapper shares.
      */
     constructor(
         address _owner,
@@ -375,8 +372,6 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
         uint256 bvReceived = boringVault.balanceOf(address(this)) - bvBefore;
         if (bvReceived == 0) revert BoringVaultWrapper__ZeroBVSharesReceived();
 
-        // Use the same OZ-style virtual-offset formula as _convertToShares,
-        // evaluated against the pre-deposit snapshot.
         wrapperShares = bvReceived.mulDiv(supplyBefore + 10 ** _decimalsOffset(), bvBefore + 1, Math.Rounding.Floor);
 
         if (wrapperShares == 0) revert BoringVaultWrapper__ZeroBVSharesReceived();
@@ -410,8 +405,6 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
         uint256 supply = totalSupply();
         uint256 totalBV = boringVault.balanceOf(address(this));
 
-        // Mirror _convertToAssets with the virtual-offset formula (Floor rounding,
-        // vault-favourable on redemption).
         uint256 bvToRedeem = wrapperShares.mulDiv(totalBV + 1, supply + 10 ** _decimalsOffset(), Math.Rounding.Floor);
 
         _burn(owner, wrapperShares);
@@ -440,9 +433,8 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
         if (perfFee > 0) {
             // Read the rate via getRateSafe so a paused / untrusted accountant
             // disables performance-fee accrual instead of silently using a stale
-            // price. SafeCast guards against uint96 truncation. Wrapped in
-            // try/catch so management fee still accrues even when the accountant
-            // is paused (users must still be able to enter/exit).
+            // price. Wrapped in try/catch so management fee still accrues even
+            // when the accountant is paused (users must still be able to enter/exit).
             try accountant.getRateSafe() returns (uint256 currentRate) {
                 uint96 hwm = performanceHighWaterMark;
 
