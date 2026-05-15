@@ -65,10 +65,11 @@
       "verifiedCommit": "3144c8391cd1f7cc1311713b814ed66f085947b3"
     },
     "TellerWithMultiAssetSupport": {
-      "auditCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
-      "auditUrl": "file:audit/certora-boring-vault-0.pdf",
+      "auditCommit": "c3dde9653a59ffbb52fd0d3493c5ceaa5850dab2",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-45",
       "verification": "full_match",
-      "verifiedCommit": "913a8cb80df7fd2ad9fc2653bc556f2901620b08"
+      "verifiedCommit": "c3dde9653a59ffbb52fd0d3493c5ceaa5850dab2",
+      "verificationGap": "cbor,evm:cancun"
     }
   }
 }
