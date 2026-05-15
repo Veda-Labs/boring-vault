@@ -1,0 +1,23 @@
+{
+  "Drones": "",
+  "contractAddresses": {
+    "veda-canonical-create3": "0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d",
+    "veda-bundle-create3-linea": "0x04fc9C685961934f552b5e01F15CBBa66B61D92c"
+  },
+  "contractMetadata": {
+    "veda-canonical-create3": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "partial_match",
+      "deploymentCommit": "4538ccf7706290e38b739e939854897c0f81f6de",
+      "verificationGap": "cbor"
+    },
+    "veda-bundle-create3-linea": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "partial_match",
+      "deploymentCommit": "24c42f7ccb42ad535446605808cfd163d2c94ea2",
+      "verificationGap": "cbor"
+    }
+  }
+}
