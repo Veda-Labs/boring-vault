@@ -43,76 +43,60 @@
   },
   "contractMetadata": {
     "AccountantWithRateProviders": {
-      "deployedAt": "2024-09-10T18:00:06Z",
-      "creationTx": "0x91f65b09bcb26876f00b669c7549df9db12f8813ab1a536a60561d9f0a499a6b",
-      "creationBlock": 9287927,
       "auditCommit": "938478e59619c693150a2290ff677191b19a0948",
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-8",
-      "scopeMatch": true,
       "verification": "partial_match",
-      "verifiedCommit": "fbda4aaf442bc0b388d0185d166f48868bcc729b",
-      "verificationGap": "cbor,evm:london"
+      "verificationGap": "cbor,evm:london",
+      "deploymentCommit": "fbda4aaf442bc0b388d0185d166f48868bcc729b"
     },
     "BoringVault": {
       "auditCommit": null,
       "auditUrl": null,
       "verification": "full_match",
-      "verifiedCommit": "10a0dae53f20c85e08b66b2ecb8d2f322010ea5a",
-      "verificationGap": "cbor"
+      "verificationGap": "cbor",
+      "deploymentCommit": "10a0dae53f20c85e08b66b2ecb8d2f322010ea5a"
     },
     "DecoderAndSanitizer": {
       "auditCommit": null,
       "auditUrl": null,
       "verification": "full_match",
-      "verifiedCommit": "fbda4aaf442bc0b388d0185d166f48868bcc729b",
-      "verificationGap": "cbor,evm:london"
+      "verificationGap": "cbor,evm:london",
+      "deploymentCommit": "fbda4aaf442bc0b388d0185d166f48868bcc729b"
     },
     "DelayedWithdraw": {
       "auditCommit": null,
       "auditUrl": null,
       "verification": "full_match",
-      "verifiedCommit": "fbda4aaf442bc0b388d0185d166f48868bcc729b",
-      "verificationGap": "cbor,evm:london"
+      "verificationGap": "cbor,evm:london",
+      "deploymentCommit": "fbda4aaf442bc0b388d0185d166f48868bcc729b"
     },
     "Lens": {
-      "deployedAt": "2024-09-10T16:59:53Z",
-      "creationTx": "0xe4f2ee309bf78e476c9ab1d1f8d6f09baed3b5b27071a308dccb7b2321419bd3",
-      "creationBlock": 9286121,
       "auditCommit": "939c77e25473dff3ed18fa104f004f7afd13452e",
       "auditUrl": "file:audit/spearbit-boring-vault-arctic-0.pdf",
-      "scopeMatch": true,
       "verification": "partial_match",
-      "verifiedCommit": "fbda4aaf442bc0b388d0185d166f48868bcc729b",
-      "verificationGap": "cbor,evm:london"
+      "verificationGap": "cbor,evm:london",
+      "deploymentCommit": "fbda4aaf442bc0b388d0185d166f48868bcc729b"
     },
     "ManagerWithMerkleVerification": {
-      "deployedAt": "2024-09-10T18:00:06Z",
-      "creationTx": "0xc54bfb79bebc4a9523eb831e99b7fb3346d5c11b862cbc4dff5715e9efb489e7",
-      "creationBlock": 9287927,
       "auditCommit": "939c77e25473dff3ed18fa104f004f7afd13452e",
       "auditUrl": "file:audit/spearbit-boring-vault-arctic-0.pdf",
-      "scopeMatch": true,
       "verification": "partial_match",
-      "verifiedCommit": "fbda4aaf442bc0b388d0185d166f48868bcc729b",
-      "verificationGap": "cbor,evm:london"
+      "verificationGap": "cbor,evm:london",
+      "deploymentCommit": "fbda4aaf442bc0b388d0185d166f48868bcc729b"
     },
     "RolesAuthority": {
       "auditCommit": null,
       "auditUrl": null,
       "verification": "full_match",
-      "verifiedCommit": "10a0dae53f20c85e08b66b2ecb8d2f322010ea5a",
-      "verificationGap": "cbor"
+      "verificationGap": "cbor",
+      "deploymentCommit": "10a0dae53f20c85e08b66b2ecb8d2f322010ea5a"
     },
     "TellerWithMultiAssetSupport": {
-      "deployedAt": "2024-09-10T18:00:08Z",
-      "creationTx": "0xc407a1d4022f9d04da724cb49ab41f4625c6809cd8605ca8aae01b941f464fab",
-      "creationBlock": 9287928,
       "auditCommit": "35433417a394c49538260f30b5d37ab3e8de99d1",
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-10",
-      "scopeMatch": true,
       "verification": "partial_match",
-      "verifiedCommit": "fbda4aaf442bc0b388d0185d166f48868bcc729b",
-      "verificationGap": "cbor,evm:london"
+      "verificationGap": "cbor,evm:london",
+      "deploymentCommit": "fbda4aaf442bc0b388d0185d166f48868bcc729b"
     }
   }
 }

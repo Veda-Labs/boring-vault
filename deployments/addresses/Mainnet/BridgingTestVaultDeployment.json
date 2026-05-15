@@ -36,57 +36,57 @@
       "auditCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
       "auditUrl": "file:audit/sigma-prime-boring-vault-0.pdf",
       "verification": "full_match",
-      "verifiedCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
-      "verificationGap": "cbor"
+      "verificationGap": "cbor",
+      "deploymentCommit": "3c768bd068af856b5de3def86b1940676847eb9d"
     },
     "DecoderAndSanitizer": {
       "auditCommit": null,
       "auditUrl": null,
       "verification": "full_match",
-      "verifiedCommit": "30848dc2638f6776eee66d0d5006600a08b7f677",
-      "verificationGap": "cbor"
+      "verificationGap": "cbor",
+      "deploymentCommit": "30848dc2638f6776eee66d0d5006600a08b7f677"
     },
     "DelayedWithdraw": {
       "auditCommit": null,
       "auditUrl": null,
       "verification": "full_match",
-      "verifiedCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730",
-      "verificationGap": "cbor"
+      "verificationGap": "cbor",
+      "deploymentCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730"
     },
     "RolesAuthority": {
       "auditCommit": null,
       "auditUrl": null,
       "verification": "full_match",
-      "verifiedCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730",
-      "verificationGap": "cbor"
+      "verificationGap": "cbor",
+      "deploymentCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730"
     },
     "AccountantWithRateProviders": {
       "auditCommit": null,
       "auditUrl": null,
       "verification": "full_match",
-      "verifiedCommit": "886c96b00100a777f572b8ea05bf971bcd781738",
-      "verificationGap": "cbor"
+      "verificationGap": "cbor",
+      "deploymentCommit": "886c96b00100a777f572b8ea05bf971bcd781738"
     },
     "Lens": {
       "auditCommit": null,
       "auditUrl": null,
       "verification": "full_match",
-      "verifiedCommit": "228b4b66174f66385646e90ca30c1f354423bdf3",
-      "verificationGap": "cbor"
+      "verificationGap": "cbor",
+      "deploymentCommit": "228b4b66174f66385646e90ca30c1f354423bdf3"
     },
     "ManagerWithMerkleVerification": {
       "auditCommit": null,
       "auditUrl": null,
       "verification": "full_match",
-      "verifiedCommit": "886c96b00100a777f572b8ea05bf971bcd781738",
-      "verificationGap": "cbor"
+      "verificationGap": "cbor",
+      "deploymentCommit": "886c96b00100a777f572b8ea05bf971bcd781738"
     },
     "TellerWithMultiAssetSupport": {
       "auditCommit": null,
       "auditUrl": null,
       "verification": "full_match",
-      "verifiedCommit": "886c96b00100a777f572b8ea05bf971bcd781738",
-      "verificationGap": "cbor"
+      "verificationGap": "cbor",
+      "deploymentCommit": "886c96b00100a777f572b8ea05bf971bcd781738"
     }
   },
   "contractAddresses": {

@@ -14,114 +14,74 @@
   },
   "contractMetadata": {
     "AccountantWithRateProviders": {
-      "deployedAt": null,
-      "creationTx": null,
-      "creationBlock": null,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
       "verification": "deprecated",
-      "verifiedCommit": null,
-      "verificationGap": null
+      "verificationGap": null,
+      "deploymentCommit": null
     },
     "BoringOnChainQueue": {
-      "deployedAt": null,
-      "creationTx": null,
-      "creationBlock": null,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
       "verification": "deprecated",
-      "verifiedCommit": null,
-      "verificationGap": null
+      "verificationGap": null,
+      "deploymentCommit": null
     },
     "BoringVault": {
-      "deployedAt": null,
-      "creationTx": null,
-      "creationBlock": null,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
       "verification": "deprecated",
-      "verifiedCommit": null,
-      "verificationGap": null
+      "verificationGap": null,
+      "deploymentCommit": null
     },
     "Lens": {
-      "deployedAt": null,
-      "creationTx": null,
-      "creationBlock": null,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
       "verification": "deprecated",
-      "verifiedCommit": null,
-      "verificationGap": null
+      "verificationGap": null,
+      "deploymentCommit": null
     },
     "ManagerWithMerkleVerification": {
-      "deployedAt": null,
-      "creationTx": null,
-      "creationBlock": null,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
       "verification": "deprecated",
-      "verifiedCommit": null,
-      "verificationGap": null
+      "verificationGap": null,
+      "deploymentCommit": null
     },
     "Pauser": {
-      "deployedAt": null,
-      "creationTx": null,
-      "creationBlock": null,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
       "verification": "deprecated",
-      "verifiedCommit": null,
-      "verificationGap": null
+      "verificationGap": null,
+      "deploymentCommit": null
     },
     "QueueSolver": {
-      "deployedAt": null,
-      "creationTx": null,
-      "creationBlock": null,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
       "verification": "deprecated",
-      "verifiedCommit": null,
-      "verificationGap": null
+      "verificationGap": null,
+      "deploymentCommit": null
     },
     "RolesAuthority": {
-      "deployedAt": null,
-      "creationTx": null,
-      "creationBlock": null,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
       "verification": "deprecated",
-      "verifiedCommit": null,
-      "verificationGap": null
+      "verificationGap": null,
+      "deploymentCommit": null
     },
     "TellerWithMultiAssetSupport": {
-      "deployedAt": null,
-      "creationTx": null,
-      "creationBlock": null,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
       "verification": "deprecated",
-      "verifiedCommit": null,
-      "verificationGap": null
+      "verificationGap": null,
+      "deploymentCommit": null
     },
     "Timelock": {
-      "deployedAt": null,
-      "creationTx": null,
-      "creationBlock": null,
       "auditCommit": null,
       "auditUrl": null,
-      "scopeMatch": null,
       "verification": "deprecated",
-      "verifiedCommit": null,
-      "verificationGap": null
+      "verificationGap": null,
+      "deploymentCommit": null
     }
   }
 }
