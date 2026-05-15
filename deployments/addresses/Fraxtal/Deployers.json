@@ -1,0 +1,15 @@
+{
+  "Drones": "",
+  "contractAddresses": {
+    "veda-canonical-create3": "0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d"
+  },
+  "contractMetadata": {
+    "veda-canonical-create3": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "partial_match",
+      "deploymentCommit": "4538ccf7706290e38b739e939854897c0f81f6de",
+      "verificationGap": "cbor"
+    }
+  }
+}

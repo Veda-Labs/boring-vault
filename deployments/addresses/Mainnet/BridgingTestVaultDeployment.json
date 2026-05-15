@@ -26,7 +26,70 @@
     "PayoutAddress": "0xA9962a5BfBea6918E958DeE0647E99fD7863b95A",
     "StartingExchangeRate": 1000000000000000000
   },
-  "core": {
+  "depositConfiguration": {
+    "AllowPublicDeposits": true,
+    "AllowPublicWithdraws": true,
+    "ShareLockPeriod": 0
+  },
+  "contractMetadata": {
+    "BoringVault": {
+      "auditCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
+      "auditUrl": "file:audit/sigma-prime-boring-vault-0.pdf",
+      "verification": "full_match",
+      "verificationGap": "cbor",
+      "deploymentCommit": "3c768bd068af856b5de3def86b1940676847eb9d"
+    },
+    "DecoderAndSanitizer": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "full_match",
+      "verificationGap": "cbor",
+      "deploymentCommit": "30848dc2638f6776eee66d0d5006600a08b7f677"
+    },
+    "DelayedWithdraw": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "full_match",
+      "verificationGap": "cbor",
+      "deploymentCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730"
+    },
+    "RolesAuthority": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "full_match",
+      "verificationGap": "cbor",
+      "deploymentCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730"
+    },
+    "AccountantWithRateProviders": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "full_match",
+      "verificationGap": "cbor",
+      "deploymentCommit": "886c96b00100a777f572b8ea05bf971bcd781738"
+    },
+    "Lens": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "full_match",
+      "verificationGap": "cbor",
+      "deploymentCommit": "228b4b66174f66385646e90ca30c1f354423bdf3"
+    },
+    "ManagerWithMerkleVerification": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "full_match",
+      "verificationGap": "cbor",
+      "deploymentCommit": "886c96b00100a777f572b8ea05bf971bcd781738"
+    },
+    "TellerWithMultiAssetSupport": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "full_match",
+      "verificationGap": "cbor",
+      "deploymentCommit": "886c96b00100a777f572b8ea05bf971bcd781738"
+    }
+  },
+  "contractAddresses": {
     "AccountantWithRateProviders": "0xBA4397B2B1780097eD1B483E3C0717E0Ed4fAAa5",
     "BoringVault": "0xf8203A33027607D2C82dFd67b46986096257dFA5",
     "DecoderAndSanitizer": "0x16D377CE4c95F7737Ef4B45F81301A988F62b61a",
@@ -35,10 +98,5 @@
     "ManagerWithMerkleVerification": "0x3770E6021d7b2617Ba86E89EF210Cc00A7c9Af95",
     "RolesAuthority": "0x08a879438BBcF000d07000F564a46EdCF8f9127B",
     "TellerWithMultiAssetSupport": "0x821EFF4708Ff840a90F5822197418ebba469B232"
-  },
-  "depositConfiguration": {
-    "AllowPublicDeposits": true,
-    "AllowPublicWithdraws": true,
-    "ShareLockPeriod": 0
   }
 }
