@@ -1556,9 +1556,10 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
 
     function _parseAuditLine(string memory sourcePath)
         internal
-        view
         returns (string memory auditCommit, string memory auditUrl)
     {
+        // Stale or renamed path: degrade gracefully instead of aborting simulation.
+        if (!vm.exists(sourcePath)) return ("", "");
         bytes memory b = bytes(vm.readFile(sourcePath));
         uint256 newlines;
         uint256 lineStart;
@@ -1576,11 +1577,24 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
         }
         if (!found || atPos + 40 > b.length) return ("", "");
 
+        // Validate all 40 chars are hex — guards against an unrelated '@' on the line.
+        for (uint256 i; i < 40; i++) {
+            bytes1 c = b[atPos + i];
+            bool isHex = (c >= "0" && c <= "9") || (c >= "a" && c <= "f") || (c >= "A" && c <= "F");
+            if (!isHex) return ("", "");
+        }
+
+        // Verify separator: space + UTF-8 em-dash (0xe2 0x80 0x94) + space.
+        if (atPos + 45 > b.length) return ("", "");
+        if (b[atPos+40] != 0x20 || b[atPos+41] != 0xe2 || b[atPos+42] != 0x80 || b[atPos+43] != 0x94 || b[atPos+44] != 0x20) {
+            return ("", "");
+        }
+
         bytes memory commit = new bytes(40);
         for (uint256 i; i < 40; i++) commit[i] = b[atPos + i];
         auditCommit = string(commit);
 
-        uint256 urlStart = atPos + 40 + 5;
+        uint256 urlStart = atPos + 45;
         uint256 urlEnd = urlStart;
         while (urlEnd < b.length && b[urlEnd] != 0x0a && b[urlEnd] != 0x0d) urlEnd++;
         bytes memory url = new bytes(urlEnd - urlStart);

@@ -16,7 +16,6 @@ contract MetadataHarness is DeployArcticArchitectureWithConfigScript {
 
     function parseAuditLine(string memory sourcePath)
         external
-        view
         returns (string memory auditCommit, string memory auditUrl)
     {
         return _parseAuditLine(sourcePath);
@@ -88,6 +87,48 @@ contract DeployMetadataHelpersTest is Test {
         string memory fixture = "./test/fixtures/short_fixture.sol";
         vm.writeFile(fixture, "// only one line\n");
         (string memory commit, string memory url) = harness.parseAuditLine(fixture);
+        assertEq(commit, "");
+        assertEq(url, "");
+    }
+
+    // Non-hex chars after '@' (e.g. an email address) → ("", "").
+    function test_parseAuditLine_nonHexAfterAt_returnsEmpty() public {
+        string memory fixture = "./test/fixtures/email_fixture.sol";
+        vm.writeFile(
+            fixture,
+            "// SPDX-License-Identifier: MIT\n"
+            "// line 2\n"
+            "// line 3\n"
+            "// line 4\n"
+            "// Contact: name@example.com for audit questions\n"
+            "pragma solidity 0.8.21;\n"
+        );
+        (string memory commit, string memory url) = harness.parseAuditLine(fixture);
+        assertEq(commit, "", "non-hex after @ should return empty");
+        assertEq(url, "");
+    }
+
+    // Wrong separator (hyphen instead of em-dash) → ("", "").
+    function test_parseAuditLine_wrongSeparator_returnsEmpty() public {
+        string memory fixture = "./test/fixtures/wrong_sep_fixture.sol";
+        vm.writeFile(
+            fixture,
+            "// SPDX-License-Identifier: MIT\n"
+            "// line 2\n"
+            "// line 3\n"
+            "// line 4\n"
+            "// Last audited: boring-vault@3c768bd068af856b5de3def86b1940676847eb9d - https://example.com/audit\n"
+            "pragma solidity 0.8.21;\n"
+        );
+        (string memory commit, string memory url) = harness.parseAuditLine(fixture);
+        assertEq(commit, "", "wrong separator should return empty");
+        assertEq(url, "");
+    }
+
+    // Nonexistent path → ("", "") instead of aborting.
+    function test_parseAuditLine_missingFile_returnsEmpty() public {
+        (string memory commit, string memory url) =
+            harness.parseAuditLine("./test/fixtures/does_not_exist.sol");
         assertEq(commit, "");
         assertEq(url, "");
     }
