@@ -10,8 +10,8 @@
       "Bytes4(TARGET_FUNCTION_SELECTOR)",
       "Bytes{N*20}(ADDRESS_ARGUMENT_0,...,ADDRESS_ARGUMENT_N)"
     ],
-    "LeafCount": 438,
-    "ManageRoot": "0xedb9299a8307f18f2ee69777bf25c207bcaf4b5a2fe02f4971190dc75f369f60",
+    "LeafCount": 443,
+    "ManageRoot": "0x58ccabc72d0dabc7c59632bd567a6c9fc4973bd6c7383bf9e706c4582fb6a573",
     "ManagerAddress": "0x38Fe609799ED585e9154c92D1D801B461F538753",
     "TreeCapacity": 512
   },
@@ -6060,57 +6060,57 @@
     {
       "AddressArguments": [],
       "CanSendValue": false,
-      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-      "Description": "",
-      "FunctionSelector": "0xc5d24601",
-      "FunctionSignature": "",
-      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "DecoderAndSanitizerAddress": "0x2D7085602a85aFb417AE1dFcEc09C301FeC8Df36",
+      "Description": "Accept ownership of the Sentora PRIME main V2 PYUSD Position Manager contract",
+      "FunctionSelector": "0x79ba5097",
+      "FunctionSignature": "acceptOwnership()",
+      "LeafDigest": "0xe530649e52a7c7993bef107ffc9556721afcbccacac36f4113bafabcb4864bc2",
       "PackedArgumentAddresses": "0x",
-      "TargetAddress": "0x0000000000000000000000000000000000000000"
+      "TargetAddress": "0x078f748AF405DCe8C8b72E0a430D8f3061494cbc"
     },
     {
       "AddressArguments": [],
       "CanSendValue": false,
-      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-      "Description": "",
-      "FunctionSelector": "0xc5d24601",
-      "FunctionSignature": "",
-      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "DecoderAndSanitizerAddress": "0x2D7085602a85aFb417AE1dFcEc09C301FeC8Df36",
+      "Description": "Remove executor from the Sentora PRIME main V2 PYUSD Position Manager contract",
+      "FunctionSelector": "0x24788429",
+      "FunctionSignature": "removeExecutor(address)",
+      "LeafDigest": "0xde955f4cab8f6f6df36991f19068ebe0b8f0e29a05d393d5f91f2974d28635b9",
       "PackedArgumentAddresses": "0x",
-      "TargetAddress": "0x0000000000000000000000000000000000000000"
+      "TargetAddress": "0x078f748AF405DCe8C8b72E0a430D8f3061494cbc"
+    },
+    {
+      "AddressArguments": ["0x078f748AF405DCe8C8b72E0a430D8f3061494cbc"],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x2D7085602a85aFb417AE1dFcEc09C301FeC8Df36",
+      "Description": "Transfer PYUSD to the Sentora PRIME main V2 PYUSD Position Manager contract",
+      "FunctionSelector": "0xa9059cbb",
+      "FunctionSignature": "transfer(address,uint256)",
+      "LeafDigest": "0xb8b0584cca9c0858d2ec21bac50cfc45771f377bb4b7290ae5ca878e88210189",
+      "PackedArgumentAddresses": "0x078f748af405dce8c8b72e0a430d8f3061494cbc",
+      "TargetAddress": "0x6c3ea9036406852006290770BEdFcAbA0e23A0e8"
     },
     {
       "AddressArguments": [],
       "CanSendValue": false,
-      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-      "Description": "",
-      "FunctionSelector": "0xc5d24601",
-      "FunctionSignature": "",
-      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "DecoderAndSanitizerAddress": "0x2D7085602a85aFb417AE1dFcEc09C301FeC8Df36",
+      "Description": "Withdraw PYUSD from the Sentora PRIME main V2 PYUSD Position Manager contract",
+      "FunctionSelector": "0xf3fef3a3",
+      "FunctionSignature": "withdraw(address,uint256)",
+      "LeafDigest": "0x2304e3a0074bea2ea7e9b29a97b8c764586a4ae75e1544281ae8c0c9e0c3b112",
       "PackedArgumentAddresses": "0x",
-      "TargetAddress": "0x0000000000000000000000000000000000000000"
+      "TargetAddress": "0x078f748AF405DCe8C8b72E0a430D8f3061494cbc"
     },
     {
       "AddressArguments": [],
       "CanSendValue": false,
-      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-      "Description": "",
-      "FunctionSelector": "0xc5d24601",
-      "FunctionSignature": "",
-      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "DecoderAndSanitizerAddress": "0x2D7085602a85aFb417AE1dFcEc09C301FeC8Df36",
+      "Description": "Withdraw all PYUSD from the Sentora PRIME main V2 PYUSD Position Manager contract",
+      "FunctionSelector": "0xfa09e630",
+      "FunctionSignature": "withdrawAll(address)",
+      "LeafDigest": "0xbd3f97e06f7f5f1eb80510eb56a9fd1c92f93c4dab5fa185e8c4a1bb6ecab8f7",
       "PackedArgumentAddresses": "0x",
-      "TargetAddress": "0x0000000000000000000000000000000000000000"
-    },
-    {
-      "AddressArguments": [],
-      "CanSendValue": false,
-      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-      "Description": "",
-      "FunctionSelector": "0xc5d24601",
-      "FunctionSignature": "",
-      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-      "PackedArgumentAddresses": "0x",
-      "TargetAddress": "0x0000000000000000000000000000000000000000"
+      "TargetAddress": "0x078f748AF405DCe8C8b72E0a430D8f3061494cbc"
     },
     {
       "AddressArguments": [],
@@ -6873,16 +6873,16 @@
     }
   ],
   "MerkleTree": {
-    "0": ["0xedb9299a8307f18f2ee69777bf25c207bcaf4b5a2fe02f4971190dc75f369f60"],
+    "0": ["0x58ccabc72d0dabc7c59632bd567a6c9fc4973bd6c7383bf9e706c4582fb6a573"],
     "1": [
       "0x634ff237909a841284f4fe76d5cda8d13e9b6a76903695b4151c8c45327ce342",
-      "0x74f9b4b33d4e44b6bc7e6f9bd41dc2896f1ef458b1dc24868c7f6ab389eeece9"
+      "0xace2d1a5be7c3839cb66dabb729238537fdb2e9364ef9ce7bd4f10174192748c"
     ],
     "2": [
       "0xd5a64ac410a92c43e9caeb5f8c28c86fe514eeb04942bfd4a658b2ea5e34acf5",
       "0x893c8878155e2fa7aa3974db51d0c1ea2a0b628dfc48c13e77b78f127ac12e17",
       "0x14d35d6cb2cacbe94215fe6e8ee36e6310ee47751b68ab578b917d53a13544aa",
-      "0x3bfcc7c5751ac21c7a9d481ea6d95feca2592ac68a674638c9047cfb4419fd33"
+      "0x3909446beb0a7bad9c57e4181e920723ed222c985055879cfe9b74e27d19865e"
     ],
     "3": [
       "0xc7c42ca033cf1aca347c1cb24b03eee3127d782b668673b9589cd3e854c5a47d",
@@ -6891,7 +6891,7 @@
       "0x9867fd2fd184351aabfa982429a298eaf8f0f0f2f56b66a7953f19569fa2176d",
       "0x16c8b8af97875d8b9eb3809bbdaf44f7159ef4de18006ec5395fda6e0de94c09",
       "0x46596168d7d30861eabb7610b35f4888f22491fca8ba39152b77a93ff577b0cc",
-      "0xaf4c5eef490478ac013401f7869cbe3409717e2c7865068756177d3889e9bfc4",
+      "0x9899aa760ea8fee0fb90743e4a0bab7e2625338336dcb94d9757ca59ac5fab5f",
       "0xf70e6eeacf0ca2800bee387294f368bb304fe5f55d96f86ff896d1bcbe16ba34"
     ],
     "4": [
@@ -6908,7 +6908,7 @@
       "0xe9daab28c9cb7ae6614aa575d738a4f1314050588955282f8581b4afd1d998ef",
       "0x1264bfdc48be2bcb90917757cf24d60c137c682c88a3ccf8b2029e8043922566",
       "0x092dbce84f0d548ec3f934dc399bc76e20763046281241c7cc15134866555ea4",
-      "0x04df4ea01c4babd4710dc5f9b01bbebbced0fcf86a2f6b5e82900d3f2b9eabcc",
+      "0x6f086ce58649616ccc4de864ef7995b20b60db0d78818cee340545007b76f24b",
       "0xec36dbe395dc9c97e82d5ef9325fb13a264faf4bc614c184837bb3dfc0c6a31a",
       "0xec36dbe395dc9c97e82d5ef9325fb13a264faf4bc614c184837bb3dfc0c6a31a"
     ],
@@ -6940,7 +6940,7 @@
       "0xae30b4d62a492645a8fcdc2a8143d4e9aceb5d8f803ac2bd05df282f6703742d",
       "0xf121a4875ef8ab8d90f38f1ee02043aa75b76f8cb74e076fe1f4d15d81cc2a58",
       "0xe7b857c077ae555a50ecd0a83cdaf2b77d9621d6373d36b27402ed2cc5c8e9e3",
-      "0x83586851cb13494b3aea67c6906fb19b3ec4754ac417097601457212ea433db7",
+      "0x394cf8172148319d739a99cb9fc283328c5edde39c574d49332871e93f7dc401",
       "0xc8e2d8c65f68c2edf703a349b0189c66520f43472e76097f69a501107adf656c",
       "0xc8e2d8c65f68c2edf703a349b0189c66520f43472e76097f69a501107adf656c",
       "0xc8e2d8c65f68c2edf703a349b0189c66520f43472e76097f69a501107adf656c",
@@ -7001,8 +7001,8 @@
       "0xa4d8f1a7aba27e3d42afba1f51e143153795e0b5d7e6ab15899401b25247e39f",
       "0x6c2d0f94a33231033a0208710f1296f68cf5d5f2b4c9eaee62d906889faa3ae9",
       "0xb8779aacd142f9af9a8a580fcd40ba9aca0710a70443488d843fd1bb8d76ed4e",
-      "0xe809708d99a39fc16011da4bbf0ea226d21a0554694dd844ada7c1c4ca05c4a4",
-      "0x41fbd3a0cfdfcee05cf3eb16d95ed1c81f50c3c6268bb806b406ec06ee93e704",
+      "0x8ca9f657a902b8b77ad4348c0b047ca29b2eb9410f75037c0f6001cee96d1be8",
+      "0x2a71a557e8e1f39cf8476288034c3aebe85e7f3ad5cabbf829271a0ebb3be150",
       "0x41fbd3a0cfdfcee05cf3eb16d95ed1c81f50c3c6268bb806b406ec06ee93e704",
       "0x41fbd3a0cfdfcee05cf3eb16d95ed1c81f50c3c6268bb806b406ec06ee93e704",
       "0x41fbd3a0cfdfcee05cf3eb16d95ed1c81f50c3c6268bb806b406ec06ee93e704",
@@ -7122,8 +7122,8 @@
       "0x616ad46c91f6b59e4ed88185cf8e19d5e8155845178840bb742f45e6b640d8b1",
       "0x38a5e7e5efeb1647dd5ab91d3100405f6600524bafe40af1a5e0a5b45f1030a5",
       "0x616ad46c91f6b59e4ed88185cf8e19d5e8155845178840bb742f45e6b640d8b1",
-      "0xea7d49baa823542fa86b3eb95c90f23b2e63d1726dd99260a6fd48e911cc25ba",
-      "0x849eda7a295b642e5ddaf49a30eec4470cf507efa83b4104c0752d069c7638fe",
+      "0x70a35200879c3403a56400b4ea58c2a77bbd094ece93a36abc52a817e236a604",
+      "0x08ae8e2ca7feda7085ac985ebf6fcc988cc92016caaac2b21793355895cd092a",
       "0x849eda7a295b642e5ddaf49a30eec4470cf507efa83b4104c0752d069c7638fe",
       "0x849eda7a295b642e5ddaf49a30eec4470cf507efa83b4104c0752d069c7638fe",
       "0x849eda7a295b642e5ddaf49a30eec4470cf507efa83b4104c0752d069c7638fe",
@@ -7362,9 +7362,9 @@
       "0x21f111ab8186f8da4bd8a79068d97eafcf572a94142e90f5c06b5aab78541fdf",
       "0x834fe614eb0a6859479ecc5b32683d3f7c87f6a590e74d29e6257465732a67c5",
       "0x2760661eb8cbac1d3eee455fa36b851512528fe796b461564e3f04d96a9c1573",
-      "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
-      "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
-      "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
+      "0x6d0021caf9be081607dd174d43c253035587ea4766465074f61d6cb522bbc315",
+      "0x2d8035206fa3ff437e42e4025587068c848e0d0198002313c95932bf0df3ffd3",
+      "0x965eb611208ca3e6d107e2203a3846c1fdf1cb287622db9184d2b5dd5f09329a",
       "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
       "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
       "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
@@ -7839,11 +7839,11 @@
       "0x3691ef7b123fac808d381fbf79ec09509dec57dd9308f2321f3214d326962e7c",
       "0xebf5d5347e05ed5b8a16e1035a722647ac0a562204a9b6939bb92a9405e94f4f",
       "0x05ade710dc795bac762fcb64594231eddf656b8227562f1e38dc046d86b7525f",
-      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "0xe530649e52a7c7993bef107ffc9556721afcbccacac36f4113bafabcb4864bc2",
+      "0xde955f4cab8f6f6df36991f19068ebe0b8f0e29a05d393d5f91f2974d28635b9",
+      "0xb8b0584cca9c0858d2ec21bac50cfc45771f377bb4b7290ae5ca878e88210189",
+      "0x2304e3a0074bea2ea7e9b29a97b8c764586a4ae75e1544281ae8c0c9e0c3b112",
+      "0xbd3f97e06f7f5f1eb80510eb56a9fd1c92f93c4dab5fa185e8c4a1bb6ecab8f7",
       "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
       "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
       "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
