@@ -100,3 +100,14 @@ FOUNDRY_FMT_NUMBER_UNDERSCORE = "thousands"
 FOUNDRY_FMT_OVERRIDE_SPACING = true
 FOUNDRY_FMT_WRAP_COMMENTS = false
 FOUNDRY_FMT_IGNORE = []
+
+# CI profile: inherits from default, overrides fuzz/invariant to fit the
+# GitHub Actions 6h job cap. `FOUNDRY_PROFILE=ci` is set in .github/workflows/test.yml.
+[profile.ci.fuzz]
+runs = 256
+seed = "0x0000000000000000000000000000000000000000000000000000000000000002"
+
+[profile.ci.invariant]
+runs = 32
+depth = 100
+fail_on_revert = false
