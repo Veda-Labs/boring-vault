@@ -106,6 +106,12 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     /// @notice Hard cap on the performance fee: 50 % (5_000 bps).
     uint16 public constant MAX_PERFORMANCE_FEE = 5_000;
 
+    /// @notice Minimum drawdown required before resetHighWaterMark() is permitted.
+    ///         The current net rate must be at least this many basis points below
+    ///         the HWM: rate ≤ hwm × (1 − MIN_HWM_RESET_DRAWDOWN_BPS / 10 000).
+    ///         10 % (1 000 bps) prevents gaming small or transient dips.
+    uint16 public constant MIN_HWM_RESET_DRAWDOWN_BPS = 1_000;
+
     /// @notice Virtual-share offset used for inflation-attack mitigation.
     ///         Wrapper decimals() = BoringVault decimals() + DECIMALS_OFFSET.
     uint8 public constant DECIMALS_OFFSET = 6;
@@ -124,6 +130,12 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
      *         management fees work independently of it.
      */
     AccountantWithRateProviders public immutable accountant;
+
+    /// @notice 10**boringVault.decimals(), cached for the BV-fee netting math.
+    /// @dev    The accountant's exchange rate is expressed in base-asset units per
+    ///         `BV_ONE_SHARE` shares, so converting `feesOwedInBase` (in base) to a
+    ///         per-share quantity in rate units requires multiplying by this constant.
+    uint256 public immutable BV_ONE_SHARE;
 
     // =========================================================================
     //                               STATE
@@ -150,6 +162,15 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     uint96 public performanceHighWaterMark;
 
     /**
+     * @notice Fee shares accrued but not yet minted — held as a debt against the wrapper
+     *         until admin calls `withdrawFees(to)`. Populated when `feeRecipient` is unset
+     *         or when it currently has denyTo set on the Teller. Counted as supply by
+     *         `_simulateAccruedState` and `_pendingFeeShares` so user-facing share math
+     *         remains consistent with the eventual mint.
+     */
+    uint256 public pendingEscrowedFeeShares;
+
+    /**
      * @notice Replay protection for wrapper-domain compliance signatures.
      * @dev    Wrapper-scoped: the message hash includes address(this), so a Teller
      *         signature cannot be replayed here and vice versa.
@@ -167,6 +188,12 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     error BoringVaultWrapper__BadAccountant();
     error BoringVaultWrapper__TransferDenied(address from, address to, address operator);
     error BoringVaultWrapper__TransferNotAllowed();
+    /// @dev Reverted by resetHighWaterMark() when the current rate is at or above
+    ///      the HWM — normal accrual already handles that case.
+    error BoringVaultWrapper__HWMResetNotNeeded();
+    /// @dev Reverted by resetHighWaterMark() when the drawdown is too shallow
+    ///      (rate is within MIN_HWM_RESET_DRAWDOWN_BPS of the HWM).
+    error BoringVaultWrapper__DrawdownTooSmall();
 
     // =========================================================================
     //                               EVENTS
@@ -183,6 +210,41 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     );
     event TellerSet(address oldTeller, address newTeller);
     event HighWaterMarkUpdated(uint96 oldHighWaterMark, uint96 newHighWaterMark);
+
+    /// @notice Emitted by depositAsset() to record the raw-asset entry path.
+    /// @dev    Standard ERC4626 `Deposit` is also emitted, with `assets = bvReceived`
+    ///         (asset() is BV shares). This event captures the user-facing rawAsset/rawAmount
+    ///         that the ERC4626 event hides.
+    event AssetDeposit(
+        address indexed caller,
+        address indexed receiver,
+        address indexed rawAsset,
+        uint256 rawAmount,
+        uint256 bvReceived,
+        uint256 wrapperShares
+    );
+
+    /// @notice Emitted by redeemAsset() to record the raw-asset exit path.
+    /// @dev    Standard ERC4626 `Withdraw` is also emitted, with `assets = bvToRedeem`.
+    event AssetRedeem(
+        address indexed caller,
+        address indexed receiver,
+        address indexed rawAsset,
+        address owner,
+        uint256 wrapperShares,
+        uint256 bvRedeemed,
+        uint256 assetOut
+    );
+
+    /// @notice Emitted when fees are recorded as a dilution debt in
+    ///         `pendingEscrowedFeeShares` instead of being minted to feeRecipient —
+    ///         either because feeRecipient is unset (zero) or because it currently
+    ///         cannot receive shares (denyTo). Admin claims the debt via
+    ///         withdrawFees(to), which mints the accumulated shares to `to`.
+    event FeesEscrowed(uint256 managementFeeShares, uint256 performanceFeeShares);
+
+    /// @notice Emitted when admin mints accumulated escrowed fee shares to a recipient.
+    event FeesWithdrawn(address indexed to, uint256 shares);
 
     // =========================================================================
     //                             CONSTRUCTOR
@@ -215,9 +277,11 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
         boringVault = BoringVault(payable(_boringVault));
         accountant = AccountantWithRateProviders(_accountant);
         teller = TellerWithMultiAssetSupport(_teller);
+        BV_ONE_SHARE = 10 ** BoringVault(payable(_boringVault)).decimals();
         emit TellerSet(address(0), _teller);
 
-        performanceHighWaterMark = SafeCast.toUint96(AccountantWithRateProviders(_accountant).getRateSafe());
+        uint256 initialGross = AccountantWithRateProviders(_accountant).getRateSafe();
+        performanceHighWaterMark = SafeCast.toUint96(_applyBvFees(initialGross));
     }
 
     // =========================================================================
@@ -245,6 +309,40 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
 
     function accrueFees() external {
         _accrueFees();
+    }
+
+    /**
+     * @notice Reset the performance-fee high-water mark to the current net BoringVault
+     *         rate. Intended for drawdown recovery: if the BV rate has fallen below the
+     *         HWM, performance fees are permanently frozen until this is called.
+     * @dev    Settles any outstanding fees at the old HWM first so no gains are
+     *         silently skipped. When the current rate already equals the HWM (normal
+     *         post-accrual state) this is a no-op. Reverts if the accountant is paused
+     *         because the current rate cannot be determined.
+     */
+    function resetHighWaterMark() external requiresAuth {
+        uint96 hwm = performanceHighWaterMark;
+        uint96 newHWM_ = SafeCast.toUint96(_applyBvFees(accountant.getRateSafe()));
+
+        // Rate at or above the HWM: the normal _accrueFees() path already advances
+        // the HWM in this regime. Raising it further here would silently skip
+        // performance-fee collection on already-realised gains.
+        if (newHWM_ >= hwm) revert BoringVaultWrapper__HWMResetNotNeeded();
+
+        // Require a minimum drawdown before allowing a reset. Without this an admin
+        // could call during a minor, transient dip and then collect performance fees
+        // on the near-term recovery — gains users expected to receive fee-free.
+        // rate must be ≤ hwm × (1 − MIN_HWM_RESET_DRAWDOWN_BPS / 10 000).
+        if (uint256(newHWM_) > uint256(hwm) * (1e4 - MIN_HWM_RESET_DRAWDOWN_BPS) / 1e4) {
+            revert BoringVaultWrapper__DrawdownTooSmall();
+        }
+
+        // Settle any outstanding fees at the old HWM before lowering it.
+        // rate < HWM here, so _accrueFees() will not advance the HWM.
+        _accrueFees();
+
+        emit HighWaterMarkUpdated(hwm, newHWM_);
+        performanceHighWaterMark = newHWM_;
     }
 
     // =========================================================================
@@ -361,7 +459,7 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
         _accrueFees();
 
         uint256 bvBefore = boringVault.balanceOf(address(this));
-        uint256 supplyBefore = totalSupply();
+        uint256 supplyBefore = totalSupply() + pendingEscrowedFeeShares;
 
         IERC20 asset_ = IERC20(address(rawAsset));
         asset_.safeTransferFrom(_msgSender(), address(this), rawAmount);
@@ -379,6 +477,7 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
         _mint(receiver, wrapperShares);
 
         emit Deposit(_msgSender(), receiver, bvReceived, wrapperShares);
+        emit AssetDeposit(_msgSender(), receiver, address(rawAsset), rawAmount, bvReceived, wrapperShares);
     }
 
     // =========================================================================
@@ -402,7 +501,7 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
             _spendAllowance(owner, _msgSender(), wrapperShares);
         }
 
-        uint256 supply = totalSupply();
+        uint256 supply = totalSupply() + pendingEscrowedFeeShares;
         uint256 totalBV = boringVault.balanceOf(address(this));
 
         uint256 bvToRedeem = wrapperShares.mulDiv(totalBV + 1, supply + 10 ** _decimalsOffset(), Math.Rounding.Floor);
@@ -412,6 +511,7 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
         assetOut = _teller.bulkWithdraw(asset, bvToRedeem, minAssetOut, receiver);
 
         emit Withdraw(_msgSender(), receiver, owner, bvToRedeem, wrapperShares);
+        emit AssetRedeem(_msgSender(), receiver, address(asset), owner, wrapperShares, bvToRedeem, assetOut);
     }
 
     // =========================================================================
@@ -419,7 +519,11 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     // =========================================================================
 
     function _pendingFeeShares() internal view returns (uint256 mgmtShares, uint256 perfShares, uint96 newHWM) {
-        uint256 supply = totalSupply();
+        // Effective supply = real ERC20 supply + fees owed but not yet minted (escrowed).
+        // Escrowed shares share dilution with real holders, so they must be included in the
+        // base for mgmt/perf fee math; otherwise the rate-of-accrual would drift after the
+        // first escrowed accrual.
+        uint256 supply = totalSupply() + pendingEscrowedFeeShares;
         if (supply == 0) return (0, 0, 0);
 
         uint16 mgmtFee = managementFee;
@@ -429,37 +533,63 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
             mgmtShares = supply.mulDiv(uint256(mgmtFee) * elapsed, uint256(1e4) * 365 days, Math.Rounding.Floor);
         }
 
-        uint16 perfFee = performanceFee;
-        if (perfFee > 0) {
-            // Read the rate via getRateSafe so a paused / untrusted accountant
-            // disables performance-fee accrual instead of silently using a stale
-            // price. Wrapped in try/catch so management fee still accrues even
-            // when the accountant is paused (users must still be able to enter/exit).
-            try accountant.getRateSafe() returns (uint256 currentRate) {
-                uint96 hwm = performanceHighWaterMark;
+        // Always read the rate so the HWM advances even when performanceFee = 0.
+        // If we skipped this when perfFee == 0, a stale HWM would silently expose
+        // all appreciation that occurred during the zero-fee window to a retroactive
+        // performance fee the moment the fee is re-enabled.
+        try accountant.getRateSafe() returns (uint256 currentRate) {
+            // Use the *net* rate (after subtracting BV-level pending fees) so the
+            // wrapper does not charge perf fee on appreciation the BV layer will claw
+            // back via claimFees(). See _applyBvFees for the exact accounting.
+            uint256 currentNetRate = _applyBvFees(currentRate);
+            uint96 hwm = performanceHighWaterMark;
 
-                if (currentRate > uint256(hwm)) {
-                    newHWM = SafeCast.toUint96(currentRate);
+            if (currentNetRate > uint256(hwm)) {
+                newHWM = SafeCast.toUint96(currentNetRate);
+
+                uint16 perfFee = performanceFee;
+                if (perfFee > 0) {
                     uint256 totalBV = totalAssets();
 
-                    uint256 gainBV = totalBV.mulDiv(currentRate - uint256(hwm), currentRate, Math.Rounding.Floor);
+                    uint256 gainBV = totalBV.mulDiv(currentNetRate - uint256(hwm), currentNetRate, Math.Rounding.Floor);
                     uint256 feeBV = gainBV.mulDiv(perfFee, 1e4, Math.Rounding.Floor);
 
                     if (feeBV > 0 && totalBV > 0) {
                         perfShares = feeBV.mulDiv(supply + mgmtShares, totalBV, Math.Rounding.Floor);
                     }
                 }
-            } catch {
-                // Accountant paused or otherwise unavailable: skip performance fee accrual,
-                // leave the high-water mark unchanged. The management fee already computed above is unaffected.
             }
+        } catch {
+            // Accountant paused or otherwise unavailable: skip both performance-fee
+            // accrual and HWM tracking. Management fee already computed above is unaffected.
+        }
+    }
+
+    /// @notice Net BoringVault rate: gross `accountant.getRateSafe()` minus pending
+    ///         BV-level platform/performance fees expressed as base per BV share.
+    /// @dev    Reverts if the accountant is paused (mirrors getRateSafe semantics).
+    function netRate() external view returns (uint256) {
+        return _applyBvFees(accountant.getRateSafe());
+    }
+
+    /// @dev Subtracts pending BV-level fees from a gross rate.
+    ///      feesOwedInBase × BV_ONE_SHARE / bvSupply yields the per-share fee deduction
+    ///      in the same units as the gross rate. Floors at zero if fees exceed gross.
+    function _applyBvFees(uint256 grossRate) internal view returns (uint256) {
+        (,, uint128 feesOwed,,,,,,,,,) = accountant.accountantState();
+        if (feesOwed == 0) return grossRate;
+        uint256 bvSupply = boringVault.totalSupply();
+        if (bvSupply == 0) return grossRate;
+        uint256 feesPerShare = uint256(feesOwed).mulDiv(BV_ONE_SHARE, bvSupply);
+        unchecked {
+            return grossRate > feesPerShare ? grossRate - feesPerShare : 0;
         }
     }
 
     function _accrueFees() internal {
         uint64 now_ = uint64(block.timestamp);
 
-        if (totalSupply() == 0) {
+        if (totalSupply() + pendingEscrowedFeeShares == 0) {
             lastFeeAccrual = now_;
             return;
         }
@@ -474,14 +604,57 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
         lastFeeAccrual = now_;
 
         uint256 total = mgmtShares + perfShares;
-        if (total > 0 && feeRecipient != address(0)) {
-            _mint(feeRecipient, total);
+        if (total == 0) return;
+
+        address recipient = feeRecipient;
+
+        // When no recipient is configured, or when the configured recipient cannot
+        // currently receive shares (denyTo), accrue into pendingEscrowedFeeShares as a
+        // dilution debt — no actual mint. Admin sweeps via withdrawFees(to). The shares
+        // are still counted in _pendingFeeShares / _simulateAccruedState so user-facing
+        // conversions reflect the dilution exactly as if the shares had been minted.
+        if (recipient == address(0) || _isFeeRecipientBlocked(recipient)) {
+            pendingEscrowedFeeShares += total;
+            emit FeesEscrowed(mgmtShares, perfShares);
+        } else {
+            _mint(recipient, total);
             emit FeesAccrued(mgmtShares, perfShares);
         }
     }
 
+    /// @notice Mint accumulated escrowed fee shares to `to` and reset the counter.
+    /// @dev    Settles pending fees first, so the sweep includes the latest accrual.
+    ///         Refuses to send to a denylisted address (denyTo) so admin cannot route
+    ///         fees around the compliance policy.
+    function withdrawFees(address to) external requiresAuth {
+        if (to == address(0)) revert BoringVaultWrapper__ZeroAddress();
+
+        (, bool toDenyTo,,) = teller.beforeTransferData(to);
+        if (toDenyTo) revert BoringVaultWrapper__TransferDenied(address(this), to, _msgSender());
+
+        _accrueFees();
+
+        uint256 shares = pendingEscrowedFeeShares;
+        if (shares == 0) return;
+
+        // Clear the counter before minting; effective supply is unchanged across this
+        // operation (real supply +shares, escrowed −shares).
+        pendingEscrowedFeeShares = 0;
+        _mint(to, shares);
+        emit FeesWithdrawn(to, shares);
+    }
+
+    /// @dev True if `recipient` cannot currently receive wrapper shares
+    ///      (denyTo is set on the Teller).
+    function _isFeeRecipientBlocked(address recipient) internal view returns (bool) {
+        (, bool denyTo,,) = teller.beforeTransferData(recipient);
+        return denyTo;
+    }
+
     function _simulateAccruedState() internal view returns (uint256 supply, uint256 totalAss) {
-        supply = totalSupply();
+        // Effective supply for user-facing share math = real supply + accrued-not-minted
+        // (escrowed) fees + still-pending fee shares for the current block.
+        supply = totalSupply() + pendingEscrowedFeeShares;
         totalAss = totalAssets();
 
         if (supply == 0) return (supply, totalAss);

@@ -927,8 +927,7 @@ contract BoringVaultWrapperTest is Test {
         (
             , // payoutAddress
             , // highwaterMark
-            uint128 bvFeesOwed,
-            , // totalSharesLastUpdate
+            uint128 bvFeesOwed,, // totalSharesLastUpdate
             , // exchangeRate
             , // allowedExchangeRateChangeUpper
             , // allowedExchangeRateChangeLower
@@ -936,7 +935,7 @@ contract BoringVaultWrapperTest is Test {
             , // isPaused
             , // minimumUpdateDelayInSeconds
             , // platformFee
-              // performanceFee
+            // performanceFee
         ) = accountant.accountantState();
 
         assertGt(bvFeesOwed, 0, "BV feesOwedInBase must be non-zero after rate update");
@@ -945,27 +944,29 @@ contract BoringVaultWrapperTest is Test {
 
         // ── Step 5: accrue wrapper fees ──────────────────────────────────────────
         //   management fee  ≈ 2 % × 1 yr × 100e24 supply = 2e24 wrapper shares
-        //   performance fee : gainBV = 100e18 × 0.1/1.1 ≈ 9.09e18
-        //                     feeBV  = 9.09e18 × 10 %   ≈ 0.909e18
-        //                     perfShares ≈ 0.909e18 × 102e24 / 100e18 ≈ 0.927e24
-        //   total ≈ 2.927e24 wrapper shares
+        //   performance fee : netRate = grossRate − feesOwedInBase × ONE_SHARE / bvSupply
+        //                            = 1.1e18 − 1.5e18 × 1e18 / 100e18 = 1.085e18
+        //                     gainBV = 100e18 × (1.085−1.0) / 1.085 ≈ 7.83e18
+        //                     feeBV  = 7.83e18 × 10 %   ≈ 0.783e18
+        //                     perfShares ≈ 0.783e18 × 102e24 / 100e18 ≈ 0.799e24
+        //   total ≈ 2.799e24 wrapper shares
         uint256 feeSharesBefore = wrapper.balanceOf(feeRecipient);
         wrapper.accrueFees();
         uint256 wrapperFeeShares = wrapper.balanceOf(feeRecipient) - feeSharesBefore;
 
         assertGt(wrapperFeeShares, 0, "Wrapper fee shares must be minted");
 
-        // ── Step 6: wrapper performance fee fired on the GROSS BV rate ───────────
-        // The wrapper's HWM advances to 1.1e18, proving it charged perf fee on
-        // the full 1.0 → 1.1 move without any deduction for pending BV-level fees.
-        assertEq(
-            uint256(wrapper.performanceHighWaterMark()), 1.1e18, "Wrapper HWM advances to gross BV rate"
-        );
+        // ── Step 6: wrapper performance fee fires on the NET BV rate ─────────────
+        // After the H-1 fix, the wrapper subtracts pending BV-level fees
+        // (feesOwedInBase / bvSupply) from the gross accountant rate before HWM
+        // comparison. With feesOwed = 1.5e18 and bvSupply = 100e18, the net rate
+        // per share is 1.1 − 0.015 = 1.085e18. The wrapper no longer charges perf
+        // fee on the slice the BV is about to claw back via claimFees().
+        assertEq(uint256(wrapper.performanceHighWaterMark()), 1.085e18, "Wrapper HWM advances to net BV rate");
 
         // ── Step 7: wrapper fees include both management and performance ──────────
         uint256 supplyBeforeFees = 100e18 * SHARE_SCALE;
-        uint256 mgmtFeeSharesOnly =
-            supplyBeforeFees.mulDivDown(uint256(MGMT_FEE) * 365 days, uint256(1e4) * 365 days);
+        uint256 mgmtFeeSharesOnly = supplyBeforeFees.mulDivDown(uint256(MGMT_FEE) * 365 days, uint256(1e4) * 365 days);
         assertGt(wrapperFeeShares, mgmtFeeSharesOnly, "Wrapper charged both mgmt and perf fee");
 
         // ── Step 8: Alice's BV entitlement is reduced by wrapper dilution ─────────
@@ -985,8 +986,7 @@ contract BoringVaultWrapperTest is Test {
 
         // ── Step 10: combined economic burden exceeds either layer alone ──────────
         // Convert wrapper fee shares → BV-asset units for an apples-to-apples sum.
-        uint256 wrapperFeeSharesInBV =
-            wrapperFeeShares.mulDivDown(wrapper.totalAssets(), wrapper.totalSupply());
+        uint256 wrapperFeeSharesInBV = wrapperFeeShares.mulDivDown(wrapper.totalAssets(), wrapper.totalSupply());
         // Convert BV feesOwedInBase (base units) → BV shares at the current rate.
         uint256 bvFeesInBV = uint256(bvFeesOwed).mulDivDown(1e18, 1.1e18);
         uint256 combinedFeesBV = wrapperFeeSharesInBV + bvFeesInBV;
