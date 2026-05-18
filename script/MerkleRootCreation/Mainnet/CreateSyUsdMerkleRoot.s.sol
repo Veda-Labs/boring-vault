@@ -181,6 +181,7 @@ contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
         // morpho blue markets to supply
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "fxSAVE_USDC_86"));
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "srRoyUSDC_USDC_915"));
+        _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "sUSDat_AUSD_86"));
 
         // morpho blue markets to collateralise
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "syrupUSDC_RLUSD_915"));

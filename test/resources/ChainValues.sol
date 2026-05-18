@@ -975,6 +975,7 @@ contract ChainValues {
         values[mainnet]["sUSDe_PYUSD_915"] = 0x90ef0c5a0dc7c4de4ad4585002d44e9d411d212d2f6258e94948beecf8b4c0d5;
         values[mainnet]["fxSAVE_USDC_86"] = 0x43e925e52d7873fa8acac90dd5f246087d55b3a34c344b71884a6352491ff459;
         values[mainnet]["srRoyUSDC_USDC_915"] = 0xacc49fbf58feb1ac971acce68f8adc177c43682d6a7087bbd4991a05cb7a2c67;
+        values[mainnet]["sUSDat_AUSD_86"] = 0x582fdc4176da0ab5c65e086603ab9ecd9188e889e16efef6e35854cf14e15065;
         values[mainnet]["cbBtc_USDC_86"] = 0x64d65c9a2d91c36d56fbc42d69e979335320169b3df63bf92789e2c8883fcc64;
         values[mainnet]["cbBtc_USDT_86"] = 0x45671fb8d5dea1c4fbca0b8548ad742f6643300eeb8dbd34ad64a658b2b05bca;
         values[mainnet]["cbBtc_RLUSD_86"] = 0xffd010618ed3cb39bb2c5de0e3e58d3d2ec9f52187a180f29723c31756a939bc;
