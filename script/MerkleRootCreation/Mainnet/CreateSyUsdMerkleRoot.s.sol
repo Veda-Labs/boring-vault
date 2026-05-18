@@ -135,7 +135,7 @@ contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
         _addSyrupPoolLeafs(leafs);
 
         // fly.trade
-        address[] memory oneInchAssets = new address[](8);
+        address[] memory oneInchAssets = new address[](9);
         oneInchAssets[0] = getAddress(sourceChain, "USDC");
         oneInchAssets[1] = getAddress(sourceChain, "SUSDE");
         oneInchAssets[2] = getAddress(sourceChain, "USDS");
@@ -144,7 +144,8 @@ contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
         oneInchAssets[5] = getAddress(sourceChain, "sUSDS");
         oneInchAssets[6] = getAddress(sourceChain, "RLUSD");
         oneInchAssets[7] = getAddress(sourceChain, "PYUSD");
-        SwapKind[] memory kind = new SwapKind[](8);
+        oneInchAssets[8] = getAddress(sourceChain, "AUSD");
+        SwapKind[] memory kind = new SwapKind[](9);
         kind[0] = SwapKind.BuyAndSell;
         kind[1] = SwapKind.BuyAndSell;
         kind[2] = SwapKind.BuyAndSell;
@@ -153,6 +154,7 @@ contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
         kind[5] = SwapKind.BuyAndSell;
         kind[6] = SwapKind.BuyAndSell;
         kind[7] = SwapKind.BuyAndSell;
+        kind[8] = SwapKind.BuyAndSell;
         _addMagpieSwapLeafs(leafs, oneInchAssets, kind);
 
         // aave core
