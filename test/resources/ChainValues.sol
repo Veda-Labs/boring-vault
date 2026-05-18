@@ -388,6 +388,12 @@ contract ChainValues {
         values[mainnet]["axlSAGA"] = 0xF42fCFfc27A5B8d0afEC45659407B82f9F32fA98.toBytes32();
         values[mainnet]["mUSD"] = 0xacA92E438df0B2401fF60dA7E4337B687a2435DA.toBytes32();
         values[mainnet]["PRIME"] = 0x19ebb35279A16207Ec4ba82799CC64715065F7F6.toBytes32();
+
+        // Infinifi
+        values[mainnet]["infinifiGateway"] = 0x3f04b65Ddbd87f9CE0A2e7Eb24d80e7fb87625b5.toBytes32();
+        values[mainnet]["iUSD"] = 0x48f9e38f3070AD8945DFEae3FA70987722E3D89c.toBytes32();
+        values[mainnet]["siUSD"] = 0xDBDC1Ef57537E34680B898E1FEBD3D68c7389bCB.toBytes32();
+
         // Rate providers
         values[mainnet]["WEETH_RATE_PROVIDER"] = 0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee.toBytes32();
         values[mainnet]["ETHX_RATE_PROVIDER"] = 0xAAE054B9b822554dd1D9d1F48f892B4585D3bbf0.toBytes32();
