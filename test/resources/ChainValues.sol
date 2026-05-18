@@ -1595,6 +1595,9 @@ contract ChainValues {
         values[mainnet]["royco-jr-syrupusdc-strategy-tvl-adapter"] =
             0xcA0e962F4c848BF01B6CE73F496533b03E194B46.toBytes32();
 
+        // tvl adapters
+        values[mainnet]["morpho_sUSDat_AUSD_86_lending"] = 0x89824d1ce9359518dC298b2B6eF7EAA08ec14e78.toBytes32();
+
         // LucidlyChainlinkOracleV1 deployments
         values[mainnet]["sUSDE_USD_oracle"] = 0xC8bd9086a40bBD9acbd855B50931F3b46f048525.toBytes32();
         values[mainnet]["sUSDS_USD_oracle"] = 0x84f4612e682091c30Fd2C108bb298C93BE961618.toBytes32();
@@ -1603,12 +1606,14 @@ contract ChainValues {
         values[mainnet]["fxSAVE_USD_oracle"] = 0x3B2046cBeD2115C147b2455FF3e9354c5a2D2fB8.toBytes32();
         values[mainnet]["stcUSD_USD_oracle"] = 0xaCEd1A8d71F5e15e47A1547B9C9C9716e5325056.toBytes32();
         values[mainnet]["syUSD_USD_oracle"] = 0x5aE0460096DBc858385a3b1D9D3f0840Fa40E3eB.toBytes32();
+        values[mainnet]["sUSDat_USD_oracle"] = 0x6E64Ca5aae0A55B431e6116B3Aa996FA32f5DCFc.toBytes32(); // considers USDat and USDC at 1:1
         values[mainnet]["royco-jr-syrupUSDC_USD_oracle"] = 0xf0AE373FA07D9DCA03F2A084042Fd8132016cBE5.toBytes32();
         values[mainnet]["roycoJrUsdcClusterUSDC_USD_oracle"] = 0x8082e7Bbe282f8b4399686E4E0e10Ca64Cb916aD.toBytes32();
 
         // chainlink feeds
         values[mainnet]["USDC_USD_oracle"] = 0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6.toBytes32();
         values[mainnet]["USDT_USD_oracle"] = 0x3E7d1eAB13ad0104d2750B8863b489D65364e32D.toBytes32();
+        values[mainnet]["AUSD_USD_oracle"] = 0xB00341502DfEA6Ced8A5786b4059d29dA5E4D1FD.toBytes32();
         values[mainnet]["PYUSD_USD_oracle"] = 0x8f1dF6D7F2db73eECE86a18b4381F4707b918FB1.toBytes32();
         values[mainnet]["RLUSD_USD_oracle"] = 0x26C46B7aD0012cA71F2298ada567dC9Af14E7f2A.toBytes32();
         values[mainnet]["CBBTC_USD_oracle"] = 0x2665701293fCbEB223D11A08D826563EDcCE423A.toBytes32();

@@ -210,14 +210,14 @@ contract DeployMorphoBlueTvlAdapter is Script, MerkleTreeHelper {
 
         bytes memory creationCode = type(MorphoBlueTvlAdapter).creationCode;
         bytes memory constructorArgs = abi.encode(
-            getBytes32(sourceChain, "cbBtc_USDC_86"),
-            getAddress(sourceChain, "CBBTC_USD_oracle"),
-            getAddress(sourceChain, "USDC_USD_oracle"),
+            getBytes32(sourceChain, "sUSDat_AUSD_86"),
+            getAddress(sourceChain, "sUSDat_USD_oracle"),
+            getAddress(sourceChain, "AUSD_USD_oracle"),
             getAddress(sourceChain, "USDC_USD_oracle"),
             getAddress(sourceChain, "USDC")
         );
 
-        deployer.deployContract("cbBtc_USDC_86 MorphoBlueTvlAdapter", creationCode, constructorArgs, 0);
+        deployer.deployContract("sUSDat_AUSD_86 MorphoBlueTvlAdapter", creationCode, constructorArgs, 0);
 
         vm.stopBroadcast();
     }
