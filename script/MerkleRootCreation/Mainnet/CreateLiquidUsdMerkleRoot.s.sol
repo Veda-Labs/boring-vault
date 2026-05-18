@@ -166,6 +166,17 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
             setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 
+        // ========================= Infinifi ==========================
+        {
+
+            // TODO: enable once infinifi decoder is deployed
+            /*
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", infinifiDecoderAndSanitizer);
+            _addInfinifiLeafs(leafs);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+            */
+        }
+
         // ========================== Aave V3 Lido ==========================
         supplyAssets = new ERC20[](3);
         supplyAssets[0] = getERC20(sourceChain, "USDC");
