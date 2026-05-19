@@ -103,7 +103,7 @@ contract CreateSuperSymbioticLRTMerkleRootScript is Script, MerkleTreeHelper {
         _addMantleStakingLeafs(leafs);
 
         // ========================== UniswapV3 ==========================
-        address[] memory token0 = new address[](55);
+        address[] memory token0 = new address[](66);
         token0[0] = getAddress(sourceChain, "WETH");
         token0[1] = getAddress(sourceChain, "WETH");
         token0[2] = getAddress(sourceChain, "WETH");
@@ -159,8 +159,19 @@ contract CreateSuperSymbioticLRTMerkleRootScript is Script, MerkleTreeHelper {
         token0[52] = getAddress(sourceChain, "ETHX");
         token0[53] = getAddress(sourceChain, "ETHX");
         token0[54] = getAddress(sourceChain, "UNIETH");
+        token0[55] = getAddress(sourceChain, "USDC");
+        token0[56] = getAddress(sourceChain, "USDC");
+        token0[57] = getAddress(sourceChain, "USDC");
+        token0[58] = getAddress(sourceChain, "USDC");
+        token0[59] = getAddress(sourceChain, "USDC");
+        token0[60] = getAddress(sourceChain, "USDC");
+        token0[61] = getAddress(sourceChain, "USDC");
+        token0[62] = getAddress(sourceChain, "USDC");
+        token0[63] = getAddress(sourceChain, "USDC");
+        token0[64] = getAddress(sourceChain, "USDC");
+        token0[65] = getAddress(sourceChain, "USDC");
 
-        address[] memory token1 = new address[](55);
+        address[] memory token1 = new address[](66);
         token1[0] = getAddress(sourceChain, "WEETH");
         token1[1] = getAddress(sourceChain, "WSTETH");
         token1[2] = getAddress(sourceChain, "RETH");
@@ -216,12 +227,23 @@ contract CreateSuperSymbioticLRTMerkleRootScript is Script, MerkleTreeHelper {
         token1[52] = getAddress(sourceChain, "UNIETH");
         token1[53] = getAddress(sourceChain, "SFRXETH");
         token1[54] = getAddress(sourceChain, "SFRXETH");
+        token1[55] = getAddress(sourceChain, "WEETH");
+        token1[56] = getAddress(sourceChain, "WSTETH");
+        token1[57] = getAddress(sourceChain, "RETH");
+        token1[58] = getAddress(sourceChain, "cbETH");
+        token1[59] = getAddress(sourceChain, "WBETH");
+        token1[60] = getAddress(sourceChain, "METH");
+        token1[61] = getAddress(sourceChain, "SWETH");
+        token1[62] = getAddress(sourceChain, "ETHX");
+        token1[63] = getAddress(sourceChain, "UNIETH");
+        token1[64] = getAddress(sourceChain, "SFRXETH");
+        token1[65] = getAddress(sourceChain, "WETH");
 
         _addUniswapV3Leafs(leafs, token0, token1, false);
 
         // ========================== 1inch ==========================
-        address[] memory assets = new address[](13);
-        SwapKind[] memory kind = new SwapKind[](13);
+        address[] memory assets = new address[](14);
+        SwapKind[] memory kind = new SwapKind[](14);
         assets[0] = getAddress(sourceChain, "WETH");
         kind[0] = SwapKind.BuyAndSell;
         assets[1] = getAddress(sourceChain, "WEETH");
@@ -248,6 +270,8 @@ contract CreateSuperSymbioticLRTMerkleRootScript is Script, MerkleTreeHelper {
         kind[11] = SwapKind.Sell;
         assets[12] = getAddress(sourceChain, "FRXETH");
         kind[12] = SwapKind.BuyAndSell;
+        assets[13] = getAddress(sourceChain, "USDC");
+        kind[13] = SwapKind.Sell;
 
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
         _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
