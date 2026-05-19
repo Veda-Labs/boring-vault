@@ -11,5 +11,77 @@
     "RolesAuthority": "0x8dA85FC312fD0fa30d4bF0FB53Fd1228dB63a1c0",
     "TellerWithMultiAssetSupport": "0x4Fc294112fD0b7226ecA095FEE9909E30882Cb11",
     "Timelock": "0x438B11b5215F87cb4E45c6b6B4A29c08247397C1"
+  },
+  "contractMetadata": {
+    "AccountantWithRateProviders": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "deprecated",
+      "verificationGap": null,
+      "deploymentCommit": null
+    },
+    "BoringOnChainQueue": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "deprecated",
+      "verificationGap": null,
+      "deploymentCommit": null
+    },
+    "BoringVault": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "deprecated",
+      "verificationGap": null,
+      "deploymentCommit": null
+    },
+    "Lens": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "deprecated",
+      "verificationGap": null,
+      "deploymentCommit": null
+    },
+    "ManagerWithMerkleVerification": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "deprecated",
+      "verificationGap": null,
+      "deploymentCommit": null
+    },
+    "Pauser": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "deprecated",
+      "verificationGap": null,
+      "deploymentCommit": null
+    },
+    "QueueSolver": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "deprecated",
+      "verificationGap": null,
+      "deploymentCommit": null
+    },
+    "RolesAuthority": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "deprecated",
+      "verificationGap": null,
+      "deploymentCommit": null
+    },
+    "TellerWithMultiAssetSupport": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "deprecated",
+      "verificationGap": null,
+      "deploymentCommit": null
+    },
+    "Timelock": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "deprecated",
+      "verificationGap": null,
+      "deploymentCommit": null
+    }
   }
 }

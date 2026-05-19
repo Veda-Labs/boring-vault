@@ -40,5 +40,63 @@
     "AllowPublicDeposits": true,
     "AllowPublicWithdraws": true,
     "ShareLockPeriod": 0
+  },
+  "contractMetadata": {
+    "AccountantWithRateProviders": {
+      "auditCommit": "938478e59619c693150a2290ff677191b19a0948",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-8",
+      "verification": "partial_match",
+      "verificationGap": "cbor,evm:london",
+      "deploymentCommit": "fbda4aaf442bc0b388d0185d166f48868bcc729b"
+    },
+    "BoringVault": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "full_match",
+      "verificationGap": "cbor",
+      "deploymentCommit": "10a0dae53f20c85e08b66b2ecb8d2f322010ea5a"
+    },
+    "DecoderAndSanitizer": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "full_match",
+      "verificationGap": "cbor,evm:london",
+      "deploymentCommit": "fbda4aaf442bc0b388d0185d166f48868bcc729b"
+    },
+    "DelayedWithdraw": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "full_match",
+      "verificationGap": "cbor,evm:london",
+      "deploymentCommit": "fbda4aaf442bc0b388d0185d166f48868bcc729b"
+    },
+    "Lens": {
+      "auditCommit": "939c77e25473dff3ed18fa104f004f7afd13452e",
+      "auditUrl": "file:audit/spearbit-boring-vault-arctic-0.pdf",
+      "verification": "partial_match",
+      "verificationGap": "cbor,evm:london",
+      "deploymentCommit": "fbda4aaf442bc0b388d0185d166f48868bcc729b"
+    },
+    "ManagerWithMerkleVerification": {
+      "auditCommit": "939c77e25473dff3ed18fa104f004f7afd13452e",
+      "auditUrl": "file:audit/spearbit-boring-vault-arctic-0.pdf",
+      "verification": "partial_match",
+      "verificationGap": "cbor,evm:london",
+      "deploymentCommit": "fbda4aaf442bc0b388d0185d166f48868bcc729b"
+    },
+    "RolesAuthority": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "full_match",
+      "verificationGap": "cbor",
+      "deploymentCommit": "10a0dae53f20c85e08b66b2ecb8d2f322010ea5a"
+    },
+    "TellerWithMultiAssetSupport": {
+      "auditCommit": "35433417a394c49538260f30b5d37ab3e8de99d1",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-10",
+      "verification": "partial_match",
+      "verificationGap": "cbor,evm:london",
+      "deploymentCommit": "fbda4aaf442bc0b388d0185d166f48868bcc729b"
+    }
   }
 }

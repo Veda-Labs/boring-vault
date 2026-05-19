@@ -11,5 +11,77 @@
     "RolesAuthority": "0x345BB6a4249419e34a7C750B90178Fc7B2e4c50f",
     "TellerWithMultiAssetSupport": "0x29C0C36eD3788F1549b6a1fd78F40c51F0f73158",
     "Timelock": "0xf86604d4cbc10796522605298C4BD864fCF9d032"
+  },
+  "contractMetadata": {
+    "AccountantWithRateProviders": {
+      "auditCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730",
+      "auditUrl": "file:audit/certora-boring-vault-1.pdf",
+      "verification": "full_match",
+      "verificationGap": "cbor",
+      "deploymentCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730"
+    },
+    "BoringOnChainQueue": {
+      "auditCommit": "edfcba3f29f691c638b06d04f60af79503632b58",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-27",
+      "verification": "full_match",
+      "verificationGap": "cbor",
+      "deploymentCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730"
+    },
+    "BoringVault": {
+      "auditCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
+      "auditUrl": "file:audit/sigma-prime-boring-vault-0.pdf",
+      "verification": "full_match",
+      "verificationGap": "cbor",
+      "deploymentCommit": "3c768bd068af856b5de3def86b1940676847eb9d"
+    },
+    "Lens": {
+      "auditCommit": "939c77e25473dff3ed18fa104f004f7afd13452e",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-4",
+      "verification": "full_match",
+      "verificationGap": "cbor",
+      "deploymentCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730"
+    },
+    "ManagerWithMerkleVerification": {
+      "auditCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-19",
+      "verification": "full_match",
+      "verificationGap": "cbor",
+      "deploymentCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436"
+    },
+    "Pauser": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "full_match",
+      "verificationGap": "cbor",
+      "deploymentCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730"
+    },
+    "QueueSolver": {
+      "auditCommit": "b9eafd46e656c532ea2c28a1bd66ce271ebedbc7",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-44",
+      "verification": "full_match",
+      "verificationGap": "cbor",
+      "deploymentCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730"
+    },
+    "RolesAuthority": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "full_match",
+      "verificationGap": "cbor",
+      "deploymentCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730"
+    },
+    "TellerWithMultiAssetSupport": {
+      "auditCommit": "c3dde9653a59ffbb52fd0d3493c5ceaa5850dab2",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-45",
+      "verification": "full_match",
+      "verificationGap": "cbor",
+      "deploymentCommit": "c54949f556cbc9a5e752ef1d6e8c09d64f4975b7"
+    },
+    "Timelock": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verification": "full_match",
+      "verificationGap": "cbor",
+      "deploymentCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730"
+    }
   }
 }
