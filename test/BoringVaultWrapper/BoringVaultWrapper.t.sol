@@ -957,12 +957,13 @@ contract BoringVaultWrapperTest is Test {
         assertGt(wrapperFeeShares, 0, "Wrapper fee shares must be minted");
 
         // ── Step 6: wrapper performance fee fires on the NET BV rate ─────────────
-        // After the H-1 fix, the wrapper subtracts pending BV-level fees
-        // (feesOwedInBase / bvSupply) from the gross accountant rate before HWM
-        // comparison. With feesOwed = 1.5e18 and bvSupply = 100e18, the net rate
-        // per share is 1.1 − 0.015 = 1.085e18. The wrapper no longer charges perf
-        // fee on the slice the BV is about to claw back via claimFees().
-        assertEq(uint256(wrapper.performanceHighWaterMark()), 1.085e18, "Wrapper HWM advances to net BV rate");
+        // The wrapper tracks HWM on the gross `accountant.getRate()` only, with no
+        // dependency on `feesOwedInBase`. This makes the HWM ratchet invariant under
+        // every accountant operation other than `updateExchangeRate` - critically,
+        // a `claimFees()` between rate updates cannot perturb wrapper fee state.
+        // The economic trade-off vs the old "net rate" design is the documented
+        // fees-on-fees model: end users pay BV layer + wrapper layer additively.
+        assertEq(uint256(wrapper.performanceHighWaterMark()), 1.1e18, "Wrapper HWM = gross BV rate");
 
         // ── Step 7: wrapper fees include both management and performance ──────────
         uint256 supplyBeforeFees = 100e18 * SHARE_SCALE;
