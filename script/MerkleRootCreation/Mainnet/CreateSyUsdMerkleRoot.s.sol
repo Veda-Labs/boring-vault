@@ -190,6 +190,7 @@ contract CreateSyUsdEthereumLeafs is Script, MerkleTreeHelper {
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "syrupUSDC_PYUSD_915"));
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "sUSDS_USDT_965"));
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "sUSDe_PYUSD_915"));
+        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "siUSD_USDC_915"));
 
         // uniswap v3
         address[] memory token0 = new address[](2);
