@@ -237,6 +237,14 @@ contract CreateSentoraUSDCMerkleRoot is Script, MerkleTreeHelper {
             address[] memory morphoSyrupUSDCRLUSDAdditionalExecutors = new address[](0);
             _addLeafsForITBPositionManager(leafs, morphoSyrupUSDCRLUSDPositionManager, morphoSyrupUSDCRLUSDTokensUsed, "Morpho syrupUSDC/RLUSD ITB Position Manager", morphoSyrupUSDCRLUSDAdditionalExecutors);
         }
+        {
+            // Morpho PYUSD Prime vault
+            address morphoPrimePyusdPositionManager = 0x078f748AF405DCe8C8b72E0a430D8f3061494cbc;
+            ERC20[] memory morphoPrimePyusdTokensUsed = new ERC20[](1);
+            morphoPrimePyusdTokensUsed[0] = getERC20(sourceChain, "PYUSD");
+            address[] memory morphoPrimePyusdAdditionalExecutors = new address[](0);
+            _addLeafsForITBPositionManager(leafs, morphoPrimePyusdPositionManager, morphoPrimePyusdTokensUsed, "Sentora PRIME main V2 PYUSD Position Manager", morphoPrimePyusdAdditionalExecutors);
+        }
         
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
