@@ -10408,7 +10408,6 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
 
     function _addInfinifiLeafs(ManageLeaf[] memory leafs) internal {
 
-        // ===== Approvals (Gateway pulls funds via transferFrom) =====
         unchecked {
             leafIndex++;
         }
@@ -10417,7 +10416,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             false,
             "approve(address,uint256)",
             new address[](1),
-            string.concat("Approve InfiniFi Gateway to spend USDC"),
+            string.concat("Approve Infinifi Gateway to spend USDC"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "infinifiGateway");
@@ -10430,7 +10429,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             false,
             "approve(address,uint256)",
             new address[](1),
-            string.concat("Approve InfiniFi Gateway to spend iUSD"),
+            string.concat("Approve Infinifi Gateway to spend iUSD"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "infinifiGateway");
@@ -10443,7 +10442,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             false,
             "approve(address,uint256)",
             new address[](1),
-            string.concat("Approve InfiniFi Gateway to spend siUSD"),
+            string.concat("Approve Infinifi Gateway to spend siUSD"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "infinifiGateway");
@@ -10457,7 +10456,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             false,
             "mint(address,uint256)",
             new address[](1),
-            string.concat("Mint iUSD with USDC via InfiniFi Gateway"),
+            string.concat("Mint iUSD with USDC via Infinifi Gateway"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
@@ -10470,7 +10469,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             false,
             "mintAndStake(address,uint256)",
             new address[](1),
-            string.concat("Mint and stake USDC to siUSD via InfiniFi Gateway"),
+            string.concat("Mint and stake USDC to siUSD via Infinifi Gateway"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
@@ -10483,12 +10482,11 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             false,
             "stake(address,uint256)",
             new address[](1),
-            string.concat("Stake iUSD for siUSD via InfiniFi Gateway"),
+            string.concat("Stake iUSD for siUSD via Infinifi Gateway"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
 
-        // ===== Exit: back to USDC =====
         unchecked {
             leafIndex++;
         }
@@ -10497,7 +10495,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             false,
             "unstake(address,uint256)",
             new address[](1),
-            string.concat("Unstake siUSD for iUSD via InfiniFi Gateway"),
+            string.concat("Unstake siUSD for iUSD via Infinifi Gateway"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
@@ -10510,7 +10508,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             false,
             "redeem(address,uint256,uint256)",
             new address[](1),
-            string.concat("Redeem iUSD for USDC via InfiniFi Gateway"),
+            string.concat("Redeem iUSD for USDC via Infinifi Gateway"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
@@ -10523,7 +10521,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             false,
             "claimRedemption()",
             new address[](0),
-            string.concat("Claim queued InfiniFi redemption"),
+            string.concat("Claim queued Infinifi redemption"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
 
