@@ -270,7 +270,7 @@ contract ChainValues {
         values[mainnet]["boringDeployerContract"] = 0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC.toBytes32();
 
         // morpho flashloan adapter
-        values[mainnet]["morphoBlueFlashLoanAdapterAddress"] = 0xF45e37b86A1B0Ed0488349e8950Ee59819df4650.toBytes32();
+        values[mainnet]["morphoBlueFlashLoanAdapterAddress"] = 0x82baFd173334e9cd34eB746BA6b55ffcb4d06a4d.toBytes32();
 
         // Liquid Ecosystem
         values[mainnet]["deployerAddress"] = 0x771263e3Bc6aCDa5aE388A3F8A0c2dd7A17275FC.toBytes32();
