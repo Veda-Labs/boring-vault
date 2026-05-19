@@ -544,7 +544,15 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
 
         if (to == address(0)) return;
 
-        uint8 role = _teller.transferAllowedRole();
+        // Legacy tellers pre-date transferAllowedRole.  If the call reverts
+        // (no matching selector, no fallback), treat as unrestricted (same as
+        // type(uint8).max) and return without blocking the transfer.
+        uint8 role;
+        try _teller.transferAllowedRole() returns (uint8 r) {
+            role = r;
+        } catch {
+            return;
+        }
         if (role == type(uint8).max) return;
 
         RolesAuthority a = RolesAuthority(address(_teller.authority()));
@@ -561,7 +569,16 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
         ComplianceData calldata compliance
     ) internal {
         TellerWithMultiAssetSupport _teller = teller;
-        uint8 role = _teller.complianceSignerRole();
+
+        // Legacy tellers pre-date complianceSignerRole.  If the external call
+        // reverts (function selector absent, no fallback), treat the teller as
+        // having compliance disabled and skip the check entirely.
+        uint8 role;
+        try _teller.complianceSignerRole() returns (uint8 r) {
+            role = r;
+        } catch {
+            return;
+        }
         if (role == type(uint8).max) return;
 
         bytes32 messageHash =
