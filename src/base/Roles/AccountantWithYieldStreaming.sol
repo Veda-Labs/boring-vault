@@ -161,6 +161,12 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
      * @param duration The period over which to vest this yield
      * @notice callable by the STRATEGIST role
      * @dev `yieldAmount` should be denominated in the BASE ASSET
+     * @dev Yield is distributed pro-rata to the share supply at the moment
+     *      vestYield is called. Deposits before vestYield mint at a stale
+     *      rate then share in the streamed gains; withdrawals during vesting
+     *      capture only vested-so-far. Per-event extraction is bounded by
+     *      maxDeviationYield; strategists are expected to pair yield
+     *      realization with vestYield.
      */
     function vestYield(uint256 yieldAmount, uint256 duration) external requiresAuth {
         if (accountantState.isPaused) revert AccountantWithRateProviders__Paused();
