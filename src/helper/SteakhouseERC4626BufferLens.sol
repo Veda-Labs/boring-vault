@@ -14,12 +14,12 @@ import {IMorpho, Id, Market} from "src/interfaces/IMorpho.sol";
 
 interface ISteakhouseVault is IERC4626 {
     function liquidityAdapter() external view returns (address);
+    function liquidityData() external view returns (bytes memory);
 }
 
 interface ILiquidityAdapter {
-    function marketIdsLength() external view returns (uint256);
-    function marketIds(uint256) external view returns (Id);
     function morpho() external view returns (IMorpho);
+    function expectedSupplyAssets(bytes32) external view returns (uint256);
 }
 
 contract SteakhouseERC4626BufferLens is IBufferLens {
@@ -38,32 +38,46 @@ contract SteakhouseERC4626BufferLens is IBufferLens {
             ERC4626 erc4626Vault = ERC4626BufferHelper(address(withdrawBufferHelper)).ERC_4626_VAULT();
             require(erc4626Vault.asset() == asset, "ERC4626BufferLens: Vault asset mismatch");
 
-            // Withdrawable is at least idle capital
+            uint256 vaultAssets = erc4626Vault.previewRedeem(erc4626Vault.balanceOf(vault));
+
+            // Withdrawable is at least idle capital in the ERC4626 vault.
             withdrawableAmount = asset.balanceOf(address(erc4626Vault));
 
-            // Get liquidity adapter and Morpho markets
+            // Get the currently configured liquidity adapter market.
             ISteakhouseVault steakhouseVault = ISteakhouseVault(address(erc4626Vault));
-            ILiquidityAdapter liquidityAdapter = ILiquidityAdapter(steakhouseVault.liquidityAdapter());
-            IMorpho morpho = liquidityAdapter.morpho();
-            uint256 marketIdsLength = liquidityAdapter.marketIdsLength();
-            // Get total supplied/borrowed
-            uint256 overallSupplyAssets;
-            uint256 overallBorrowAssets;
-            for (uint256 i = 0; i < marketIdsLength; i++) {
-                Id marketId = liquidityAdapter.marketIds(i);
-                Market memory market = morpho.market(marketId);
-                overallSupplyAssets += market.totalSupplyAssets;
-                overallBorrowAssets += market.totalBorrowAssets;
+            address liquidityAdapterAddress = steakhouseVault.liquidityAdapter();
+            if (liquidityAdapterAddress != address(0)) {
+                withdrawableAmount += _getConfiguredMarketLiquidity(
+                    asset, liquidityAdapterAddress, steakhouseVault.liquidityData()
+                );
             }
-            // If more is borrowed than supplied, there is no liquidity in the markets. Else add supplied less borrowed
-            if (overallSupplyAssets > overallBorrowAssets) {
-                withdrawableAmount += overallSupplyAssets - overallBorrowAssets;
-            }
-            // Withdrawable cannot be more than vault's reported totalAssets
-            uint256 totalVaultAssets = steakhouseVault.totalAssets();
-            if (withdrawableAmount > totalVaultAssets) {
-                withdrawableAmount = totalVaultAssets;
+
+            // Withdrawable cannot exceed this Boring Vault's ERC4626 share claim.
+            if (withdrawableAmount > vaultAssets) {
+                withdrawableAmount = vaultAssets;
             }
         }
+    }
+
+    function _getConfiguredMarketLiquidity(ERC20 asset, address liquidityAdapterAddress, bytes memory liquidityData)
+        internal
+        view
+        returns (uint256)
+    {
+        if (liquidityData.length == 0) return 0;
+
+        ILiquidityAdapter liquidityAdapter = ILiquidityAdapter(liquidityAdapterAddress);
+        IMorpho morpho = liquidityAdapter.morpho();
+        bytes32 marketId = keccak256(liquidityData);
+        Market memory market = morpho.market(Id.wrap(marketId));
+
+        if (market.totalSupplyAssets <= market.totalBorrowAssets) return 0;
+
+        uint256 marketLiquidity = uint256(market.totalSupplyAssets) - market.totalBorrowAssets;
+        uint256 morphoTokenLiquidity = asset.balanceOf(address(morpho));
+        marketLiquidity = marketLiquidity > morphoTokenLiquidity ? morphoTokenLiquidity : marketLiquidity;
+
+        uint256 adapterSupplyAssets = liquidityAdapter.expectedSupplyAssets(marketId);
+        return marketLiquidity > adapterSupplyAssets ? adapterSupplyAssets : marketLiquidity;
     }
 }
