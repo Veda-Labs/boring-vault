@@ -12,6 +12,7 @@ import {CowswapAdapter} from "src/base/Periphery/adapters/CowswapAdapter.sol";
 import {PriceValidator} from "src/base/Periphery/adapters/price/PriceValidator.sol";
 import {IPriceValidator} from "src/interfaces/IPriceValidator.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
+import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
 import {FeeRegistry} from "src/base/Periphery/FeeRegistry.sol";
 import {IFeeRegistry} from "src/interfaces/IFeeRegistry.sol";
@@ -154,7 +155,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
             _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
 
         //order record stored
-        (ERC20 tokenIn,,, BoringVault receiver, uint256 inputAmount,,,) =
+        (ERC20 tokenIn,,,, BoringVault receiver, uint256 inputAmount,,,) =
             swapper.orderRecords(orderId);
         assertEq(address(tokenIn), address(WETH));
         assertEq(inputAmount, 1e18);
@@ -222,6 +223,31 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         assertEq(swapper.orders(), 2);
         assertEq(WETH.balanceOf(address(swapper)), 3e18);
         assertEq(WETH.balanceOf(address(boringVault)), 97e18);
+    }
+
+    // Byte-identical resubmissions are rejected. Backend retries must vary validTo / salt / appData
+    // so the EIP-712 hash differs; otherwise the second submission would reuse the same approvedHash
+    // slot — pointing two orderIds at one protocol-side order and breaking the cancel/release accounting.
+    function testSubmitOrder_RevertDuplicateOrder() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        uint32 validTo = uint32(block.timestamp + 3600);
+        _submitOrder(1e18, 2000e6, validTo);
+
+        (ISwapperTypes.SwapConfig memory dupConfig,) = _buildSwapConfig(1e18, 2000e6, validTo);
+        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__DuplicateOrder.selector));
+        swapper.submitOrder(dupConfig);
+    }
+
+    // Sanity check that varying validTo defeats the duplicate guard — confirms the rejection is
+    // hash-based, not e.g. tokenIn/inputAmount-based.
+    function testSubmitOrder_DistinctValidToSucceeds() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
+        _submitOrder(1e18, 2000e6, uint32(block.timestamp + 7200));
+
+        assertEq(swapper.orders(), 2);
     }
 
     //==================== IsValidSignature Tests ====================
@@ -298,7 +324,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         assertEq(WETH.balanceOf(address(boringVault)), 100e18);
 
         //record marked as cancelled (preserved for releaseCancelFee)
-        (ERC20 tokenIn,,,,,,, uint256 cancelledAt) = swapper.orderRecords(orderId);
+        (ERC20 tokenIn,,,,,,,, uint256 cancelledAt) = swapper.orderRecords(orderId);
         assertEq(address(tokenIn), address(WETH));
         assertGt(cancelledAt, 0);
     }
@@ -343,11 +369,11 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         assertEq(WETH.balanceOf(address(boringVault)), 98e18);
 
         //order 0 marked cancelled (record preserved), order 1 still pending
-        (ERC20 tokenIn0,,,,,,, uint256 cancelledAt0) = swapper.orderRecords(orderId0);
+        (ERC20 tokenIn0,,,,,,,, uint256 cancelledAt0) = swapper.orderRecords(orderId0);
         assertEq(address(tokenIn0), address(WETH));
         assertGt(cancelledAt0, 0);
 
-        (ERC20 tokenIn1,,,,uint256 inputAmount1,,, uint256 cancelledAt1) = swapper.orderRecords(orderId1);
+        (ERC20 tokenIn1,,,,, uint256 inputAmount1,,, uint256 cancelledAt1) = swapper.orderRecords(orderId1);
         assertEq(cancelledAt1, 0);
         assertEq(address(tokenIn1), address(WETH));
         assertEq(inputAmount1, 2e18);
@@ -377,45 +403,31 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
     //==================== Partial Fill + Cancel ====================
 
-    function testPartialFillThenCancel() external {
+    // Any non-zero `filledAmount` on CoW means the order is no longer cancellable. The CoW adapter
+    // rejects partial-fill orders at submit, so the only path to a non-zero `filledAmount` is a real
+    // settlement — and once that lands, the swapper's adapter-driven isFilled blocks cancel.
+    function testCancelAfterPartialFill_RevertOrderAlreadyFilled() external {
         deal(address(WETH), address(boringVault), 100e18);
 
         (ISwapperTypes.SwapConfig memory config, bytes32 orderDigest, uint256 orderId) =
             _submitOrder(10e18, 20000e6, uint32(block.timestamp + 3600));
 
-        assertEq(WETH.balanceOf(address(swapper)), 10e18);
-
-        //partial fill: 50% of the order
         _simulateFill(5e18, 10000e6, config, orderDigest);
 
-        assertEq(WETH.balanceOf(address(swapper)), 5e18);
-        assertEq(USDC.balanceOf(address(boringVault)), 10000e6);
-
-        //cancel the remaining — should refund min(inputAmount=10e18, balance=5e18) = 5e18
+        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__OrderAlreadyFilled.selector));
         swapper.cancelOrder(orderId, config);
-
-        assertEq(WETH.balanceOf(address(swapper)), 0);
-        assertEq(WETH.balanceOf(address(boringVault)), 95e18);
     }
 
-    function testCancelAfterFullFill() external {
+    function testCancelAfterFullFill_RevertOrderAlreadyFilled() external {
         deal(address(WETH), address(boringVault), 100e18);
 
         (ISwapperTypes.SwapConfig memory config, bytes32 orderDigest, uint256 orderId) =
             _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
 
-        //full fill
         _simulateFill(1e18, 2000e6, config, orderDigest);
 
-        //cancel after full fill — refund is min(1e18, 0) = 0, should succeed with no transfer
-        uint256 vaultWethBefore = WETH.balanceOf(address(boringVault));
+        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__OrderAlreadyFilled.selector));
         swapper.cancelOrder(orderId, config);
-        assertEq(WETH.balanceOf(address(boringVault)), vaultWethBefore);
-
-        //record marked cancelled (preserved so bot can still claim fee via releaseFee — H-2 defense)
-        (ERC20 tokenIn,,,,,,, uint256 cancelledAt) = swapper.orderRecords(orderId);
-        assertEq(address(tokenIn), address(WETH));
-        assertGt(cancelledAt, 0);
     }
 
     //==================== Rate Limit Tests ====================
@@ -460,28 +472,6 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         (, remaining,,) = swapper.rateLimitPerRoute(routeKey);
         assertEq(remaining, 5e18); // fully restored, capped at capacity
-    }
-
-    function testRateLimit_PartialFill_OnlyUnfilledRestored() external {
-        deal(address(WETH), address(boringVault), 100e18);
-        bytes32 routeKey = swapper.getRouteId(WETH, USDC);
-
-        swapper.setRouteConfig(WETH, USDC, 50, 10e18, 0);
-
-        (ISwapperTypes.SwapConfig memory config, bytes32 digest, uint256 orderId) =
-            _submitOrder(6e18, 12000e6, uint32(block.timestamp + 3600));
-
-        (, uint256 remaining,,) = swapper.rateLimitPerRoute(routeKey);
-        assertEq(remaining, 4e18);
-
-        // fill 4 WETH — 2 WETH still on swapper unfilled
-        _simulateFill(4e18, 8000e6, config, digest);
-
-        swapper.cancelOrder(orderId, config);
-
-        // only the unfilled 2 WETH is restored: 4e18 + 2e18 = 6e18
-        (, remaining,,) = swapper.rateLimitPerRoute(routeKey);
-        assertEq(remaining, 6e18);
     }
 
     function testRateLimit_RefillsOverTime() external {
@@ -803,12 +793,12 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         swapper.replaceOrder(orderId, oldConfig, newConfig);
 
         // old order record marked cancelled (preserved for releaseCancelFee)
-        (ERC20 tokenIn,,,,,,, uint256 cancelledAt) = swapper.orderRecords(orderId);
+        (ERC20 tokenIn,,,,,,,, uint256 cancelledAt) = swapper.orderRecords(orderId);
         assertEq(address(tokenIn), address(WETH));
         assertGt(cancelledAt, 0);
 
         // new order record exists with correct data
-        (ERC20 newTokenIn,,,,uint256 newInputAmount,,, uint256 newCancelledAt) = swapper.orderRecords(newOrderId);
+        (ERC20 newTokenIn,,,,, uint256 newInputAmount,,, uint256 newCancelledAt) = swapper.orderRecords(newOrderId);
         assertEq(newCancelledAt, 0);
         assertEq(address(newTokenIn), address(WETH));
         assertEq(newInputAmount, 2e18);
@@ -1158,7 +1148,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         swapper.releaseFee(orderId);
 
-        (ERC20 tokenIn,,,,,,,) = swapper.orderRecords(orderId);
+        (ERC20 tokenIn,,,,,,,,) = swapper.orderRecords(orderId);
         assertEq(address(tokenIn), address(0));
         assertFalse(swapper.approvedHashes(digest));
         assertEq(swapper.claimableFees(WETH), 0);
@@ -1166,7 +1156,10 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
     // H-2 grief defense: strategist cancels after a fill landed off-chain (front-running releaseFee).
     // The bot must still be able to claim the fee during the cancel-delay window via releaseFee.
-    function testReleaseFee_AfterCancelOfFilledOrder_ClaimsFee() external {
+    // Replaces the former H-2 grief defense (cancel-after-fill → releaseFee redirects to claimableFees).
+    // The new gate refuses cancel against any order the protocol considers filled, removing the grief
+    // vector entirely. The bot's normal releaseFee path is covered by testReleaseFee_MovesToClaimable.
+    function testCancelOrder_RevertOrderAlreadyFilled() external {
         deal(address(WETH), address(boringVault), 100e18);
 
         feeRegistry.setTokenGroup(address(swapper), address(WETH), 1);
@@ -1174,36 +1167,13 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         feeRegistry.setGroupPairFee(address(swapper), 1, 2, 10);
         feeRegistry.setSwapperActive(address(swapper), true);
 
-        uint256 inputAmount = 1e18;
-        uint256 expectedFee = inputAmount * 10 / 10_000;
-
         (ISwapperTypes.SwapConfig memory config, bytes32 digest, uint256 orderId) =
-            _submitOrder(inputAmount, 2000e6, uint32(block.timestamp + 3600));
+            _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
 
-        // Order actually fills off-chain
-        _simulateFill(inputAmount, 2000e6, config, digest);
-        assertEq(swapper.feesInToken(WETH), expectedFee);
+        _simulateFill(1e18, 2000e6, config, digest);
 
-        // Strategist front-runs the bot and cancels the (already-filled) order
-        uint256 pendingBefore = swapper.pendingOrderPrincipal(WETH);
+        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__OrderAlreadyFilled.selector));
         swapper.cancelOrder(orderId, config);
-
-        // _cancelOrder decremented pendingOrderPrincipal exactly once
-        assertEq(swapper.pendingOrderPrincipal(WETH), pendingBefore - inputAmount);
-
-        // Bot verifies off-chain that the order really filled, then calls releaseFee on the cancelled order
-        swapper.releaseFee(orderId);
-
-        // Fee was redirected to claimableFees (admin path), not refunded to vault
-        assertEq(swapper.feesInToken(WETH), 0);
-        assertEq(swapper.claimableFees(WETH), expectedFee);
-
-        // Record deleted — releaseCancelFee can no longer refund this order to the vault
-        (ERC20 tokenIn,,,,,,,) = swapper.orderRecords(orderId);
-        assertEq(address(tokenIn), address(0));
-
-        // pendingOrderPrincipal not double-decremented
-        assertEq(swapper.pendingOrderPrincipal(WETH), pendingBefore - inputAmount);
     }
 
     function testClaimFees_SendsToRecipient() external {
@@ -1430,6 +1400,17 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         deal(address(USDC), COW_SETTLEMENT, amountOut);
         vm.prank(COW_SETTLEMENT);
         USDC.transfer(address(boringVault), amountOut);
+
+        //mirror the protocol-side fill state: GPv2Settlement writes sellAmount into filledAmount[orderUid].
+        //Required for BoringSwapper._cancelOrder's isFilled check to fire correctly in tests.
+        DecoderCustomTypes.GPv2OrderData memory order =
+            abi.decode(config.swapData, (DecoderCustomTypes.GPv2OrderData));
+        bytes memory orderUid = abi.encodePacked(orderDigest, address(swapper), order.validTo);
+        vm.mockCall(
+            COW_SETTLEMENT,
+            abi.encodeWithSelector(bytes4(keccak256("filledAmount(bytes)")), orderUid),
+            abi.encode(amountIn)
+        );
     }
 
     function _makeOracleConfig(address rateProvider, address intermediary, bool skipValidation) internal pure returns (BoringSwapper.RateProviderConfig memory) {

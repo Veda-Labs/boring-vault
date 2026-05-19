@@ -15,6 +15,7 @@ import {UniswapV3Adapter} from "src/base/Periphery/adapters/UniswapV3Adapter.sol
 import {CowswapAdapter} from "src/base/Periphery/adapters/CowswapAdapter.sol";
 import {OneInchAdapter} from "src/base/Periphery/adapters/OneInchAdapter.sol";
 import {OpenOceanAdapter} from "src/base/Periphery/adapters/OpenOceanAdapter.sol";
+import {LifiAdapter} from "src/base/Periphery/adapters/LifiAdapter.sol";
 import {RolesAuthority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {Deployer} from "src/helper/Deployer.sol";
 
@@ -38,8 +39,10 @@ contract DeployBoringSwapperTestSuite is Script, MainnetAddresses {
     address constant ONEINCH_EXECUTOR  = 0x4c3ccC98C01103bE72bcfd29e1D2454c98d1A6e3;
     // OpenOcean constants
     address constant OPENOCEAN_ROUTER      = 0x6352a56caadC4F1E25CD6c75970Fa768A3304e64;
-    address constant OPENOCEAN_CALLER      = 0x7Baa298D36fE21Df2F6B54510Da76445661A91Ed;
+    address constant OPENOCEAN_CALLER      = 0xa8F8296f4053fd65e89b245d6c7F983a70234C8b;
     address constant OPENOCEAN_LIMIT_ORDER = 0xcC8d695603ce0b43D352891892FcC716c6a7C9f4;
+    // LI.FI constants
+    address constant LIFI_ROUTER           = 0x1231DEB6f5749EF6cE6943a275A1D3E7486F4EaE;
 
     address constant boringVault     = 0xE003287E34fF16A109477e84A0D271C5c3dc3c7f;
     address constant txBundler       = 0x47Cec90FACc9364D7C21A8ab5e2aD9F1f75D740C;
@@ -58,18 +61,28 @@ contract DeployBoringSwapperTestSuite is Script, MainnetAddresses {
     function run() external {
         vm.startBroadcast();
 
-        Deployer.Tx[] memory txs = new Deployer.Tx[](1);
+        address lifiAdapter      = address(new LifiAdapter(LIFI_ROUTER));
+        address openOceanAdapter = address(new OpenOceanAdapter(OPENOCEAN_ROUTER, OPENOCEAN_CALLER, OPENOCEAN_LIMIT_ORDER));
+        console.log("LifiAdapter:     ", lifiAdapter);
+        console.log("OpenOceanAdapter:", openOceanAdapter);
+
+        Deployer.Tx[] memory txs = new Deployer.Tx[](2);
 
         txs[0] = Deployer.Tx({
             target: swapper,
-            data: abi.encodeWithSelector(
-                BoringSwapper.setApprovedAdapter.selector,
-                0x8b4A8859Cf0F9bF5Bf0A06A5BE33aEd54f665774, true 
-            ),
+            data: abi.encodeWithSelector(BoringSwapper.setApprovedAdapter.selector, lifiAdapter, true),
+            value: 0
+        });
+        txs[1] = Deployer.Tx({
+            target: swapper,
+            data: abi.encodeWithSelector(BoringSwapper.setApprovedAdapter.selector, openOceanAdapter, true),
             value: 0
         });
 
         Deployer(txBundler).bundleTxs(txs);
+
+        AdapterRegistry(adapterRegistry).put(lifiAdapter, "LIFI");
+        AdapterRegistry(adapterRegistry).put(openOceanAdapter, "OPENOCEAN_V2");
 
         vm.stopBroadcast();
     }

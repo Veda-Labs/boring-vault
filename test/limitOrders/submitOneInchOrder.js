@@ -45,10 +45,22 @@ async function generate() {
 
     const expiresIn = 36000n; // 10 hours
     const expiration = BigInt(Math.floor(Date.now() / 1000)) + expiresIn;
+    // Single-shot order: NO_PARTIAL_FILLS_FLAG set, multiple fills disabled. Required by our
+    // OneInchAdapter.verifyLimitOrder, and guarantees the protocol uses BitInvalidator so that
+    // isValidSignature is called on the fill and isFilled() can read the right slot.
     const makerTraits = MakerTraits.default()
         .withExpiration(expiration)
         .withNonce(randBigInt(UINT_40_MAX))
-        .allowMultipleFills();
+        .disablePartialFills()
+        .disableMultipleFills();
+
+    if (!makerTraits.isBitInvalidatorMode()) {
+        throw new Error("makerTraits must enable BitInvalidator mode for our adapter");
+    }
+    const NO_PARTIAL_FILLS_FLAG = 1n << 255n;
+    if ((makerTraits.asBigInt() & NO_PARTIAL_FILLS_FLAG) === 0n) {
+        throw new Error("NO_PARTIAL_FILLS_FLAG (bit 255) is not set");
+    }
 
     console.log("Creating order via SDK...");
     const order = await sdk.createOrder(

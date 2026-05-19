@@ -13,6 +13,12 @@ import {ERC20} from "@solmate/tokens/ERC20.sol";
 ///      getFee() uses msg.sender as the swapper key — callers must be registered BoringSwapper instances.
 contract FeeRegistry is Auth, IFeeRegistry {
 
+    // ========================================= STRUCTS =========================================
+    struct FeeConfig {
+        uint16 feeBps;
+        bool configured;
+    }
+
     // ========================================= ERRORS =========================================
 
     error FeeRegistry__FeeTooHigh();
@@ -21,11 +27,14 @@ contract FeeRegistry is Auth, IFeeRegistry {
     // ========================================= EVENTS =========================================
 
     event MaxFeeBpsUpdated(uint16 newMaxFeeBps);
-    event SwapperActiveUpdated(address indexed swapper, bool active);
+    event AtomicFeeToggleUpdated(address indexed swapper, bool active);
+    event LimitFeeToggleUpdated(address indexed swapper, bool active);
     event TokenGroupSet(address indexed swapper, address indexed token, uint8 groupId);
-    event GroupPairFeeSet(address indexed swapper, uint8 groupA, uint8 groupB, uint16 feeBps);
+    event AtomicGroupPairFeeSet(address indexed swapper, uint8 groupA, uint8 groupB, uint16 feeBps);
+    event LimitGroupPairFeeSet(address indexed swapper, uint8 groupA, uint8 groupB, uint16 feeBps);
     event FeeTokenRecipientSet(address indexed swapper, ERC20 token, address feeRecipient);
-    event DefaultFeeSet(address indexed swapper, uint16 feeBps);
+    event DefaultAtomicFeeSet(address indexed swapper, uint16 feeBps);
+    event DefaultLimitFeeSet(address indexed swapper, uint16 feeBps);
     event DefaultFeeRecipientSet(address indexed swapper, address feeRecipient);
     event CancelFeeDelaySet(address indexed swapper, uint256 delay);
     event DefaultCancelFeeDelaySet(uint256 delay);
@@ -35,29 +44,35 @@ contract FeeRegistry is Auth, IFeeRegistry {
     /// @notice Global cap on any fee tier. Settable by registry admin.
     uint16 public maxFeeBps;
 
-    /// @notice Whether fee collection is active for a given swapper.
-    mapping(address swapper => bool active) public swapperActive;
+    /// @notice Whether fee collection is active for a given swapper for atomic swaps.
+    mapping(address swapper => bool active) public atomicFeeActive;
+    
+    /// @notice Whether fee collection is active for a given swapper for limit swaps.
+    mapping(address swapper => bool active) public limitFeeActive;
 
     /// @notice swapper -> token -> group ID. Group 0 = unassigned/exotic.
     mapping(address swapper => mapping(address token => uint8 groupId)) public tokenGroup;
 
     /// @notice swapper -> normalized group pair -> fee amount. Allows configuration of fees per token pair. 
-    mapping(address swapper => mapping(bytes32 groupPairId => uint16 feeBps)) public groupFees;
+    mapping(address swapper => mapping(bytes32 groupPairId => FeeConfig feeConfig)) public atomicGroupFees;
+
+    /// @notice swapper -> normalized group pair -> fee amount. Allows configuration of fees per token pair. 
+    mapping(address swapper => mapping(bytes32 groupPairId => FeeConfig feeConfig)) public limitGroupFees;
+
+    /// @notice swapper -> fallback atomic fee used when no explicit group pair fee is configured.
+    mapping(address swapper => uint16 feeBps) public defaultAtomicFee;
 
     /// @notice swapper -> fallback fee used when no explicit group pair fee is configured.
-    mapping(address swapper => uint16 feeBps) public defaultFee;
+    mapping(address swapper => uint16 feeBps) public defaultLimitFee;
     
     /// @notice swapper -> default feeRecipient
     mapping(address swapper => address feeRecipient) public defaultRecipient; 
 
-    /// @notice swapper -> feeToken -> fee recipient. Allows configuration of fee recipient per feeToken.
-    mapping(address swapper => mapping(ERC20 feeToken => address feeRecipient)) public feeTokenRecipient;
+    /// @notice swapper -> feeToken -> fee recipient. Allows configuration of fee recipient per atomic feeToken.
+    mapping(address swapper => mapping(ERC20 feeToken => address feeRecipient)) public feeTokenRecipientAtomic;
 
-    /// @notice Per-swapper delay before a cancelled order's fee can be released back to the vault.
-    mapping(address swapper => uint256 delay) public cancelFeeDelay;
-
-    /// @notice Fallback delay used when no per-swapper cancelFeeDelay is configured.
-    uint256 public defaultCancelFeeDelay;
+    /// @notice swapper -> feeToken -> fee recipient. Allows configuration of fee recipient per limit feeToken.
+    mapping(address swapper => mapping(ERC20 feeToken => address feeRecipient)) public feeTokenRecipientLimit;
 
     // ========================================= CONSTRUCTOR =========================================
 
@@ -67,10 +82,16 @@ contract FeeRegistry is Auth, IFeeRegistry {
 
     // ========================================= ADMIN FUNCTIONS =========================================
 
+    /// @notice Enables or disables fee collection for atomic swaps for a specific swapper.
+    function toggleSwapperAtomicFee(address swapper, bool active) external requiresAuth {
+        atomicFeeActive[swapper] = active;
+        emit AtomicFeeToggleUpdated(swapper, active);
+    }
+
     /// @notice Enables or disables fee collection for a specific swapper.
-    function setSwapperActive(address swapper, bool active) external requiresAuth {
-        swapperActive[swapper] = active;
-        emit SwapperActiveUpdated(swapper, active);
+    function toggleSwapperLimitFee(address swapper, bool active) external requiresAuth {
+        limitFeeActive[swapper] = active;
+        emit LimitFeeToggleUpdated(swapper, active);
     }
 
     /// @notice Updates the global cap on fee tiers.
@@ -86,24 +107,44 @@ contract FeeRegistry is Auth, IFeeRegistry {
     }
 
     /// @notice Sets the fee for a group pair on a specific swapper. Order of groupA/groupB does not matter.
-    function setGroupPairFee(address swapper, uint8 groupA, uint8 groupB, uint16 feeBps) external requiresAuth {
+    function setAtomicGroupPairFee(address swapper, uint8 groupA, uint8 groupB, uint16 feeBps) external requiresAuth {
         if (feeBps > maxFeeBps) revert FeeRegistry__FeeTooHigh();
-        groupFees[swapper][_pairId(groupA, groupB)] = feeBps;
-        emit GroupPairFeeSet(swapper, groupA, groupB, feeBps);
+        atomicGroupFees[swapper][_pairId(groupA, groupB)] = FeeConfig({feeBps: feeBps, configured: true});
+        emit AtomicGroupPairFeeSet(swapper, groupA, groupB, feeBps);
+    }
+
+    function setLimitGroupPairFee(address swapper, uint8 groupA, uint8 groupB, uint16 feeBps) external requiresAuth {
+        if (feeBps > maxFeeBps) revert FeeRegistry__FeeTooHigh();
+        limitGroupFees[swapper][_pairId(groupA, groupB)] = FeeConfig({feeBps: feeBps, configured: true});
+        emit LimitGroupPairFeeSet(swapper, groupA, groupB, feeBps);
     }
 
     /// @notice Sets the fee for a group pair on a specific swapper. Order of groupA/groupB does not matter.
-    function setFeeTokenRecipient(address swapper, ERC20 feeToken, address feeRecipient) external requiresAuth {
+    function setFeeTokenRecipientAtomic(address swapper, ERC20 feeToken, address feeRecipient) external requiresAuth {
         if (feeRecipient == address(0)) revert FeeRegistry__InvalidRecipient();
-        feeTokenRecipient[swapper][feeToken] = feeRecipient;
+        feeTokenRecipientAtomic[swapper][feeToken] = feeRecipient;
+        emit FeeTokenRecipientSet(swapper, feeToken, feeRecipient);
+    }
+
+    /// @notice Sets the fee for a group pair on a specific swapper. Order of groupA/groupB does not matter.
+    function setFeeTokenRecipientLimit(address swapper, ERC20 feeToken, address feeRecipient) external requiresAuth {
+        if (feeRecipient == address(0)) revert FeeRegistry__InvalidRecipient();
+        feeTokenRecipientLimit[swapper][feeToken] = feeRecipient;
         emit FeeTokenRecipientSet(swapper, feeToken, feeRecipient);
     }
 
     /// @notice Sets the default fee for a specific swapper, used when no group pair config exists.
-    function setDefaultFee(address swapper, uint16 feeBps) external requiresAuth {
+    function setDefaultAtomicFee(address swapper, uint16 feeBps) external requiresAuth {
         if (feeBps > maxFeeBps) revert FeeRegistry__FeeTooHigh();
-        defaultFee[swapper] =  feeBps;
-        emit DefaultFeeSet(swapper, feeBps);
+        defaultAtomicFee[swapper] = feeBps;
+        emit DefaultAtomicFeeSet(swapper, feeBps);
+    }
+
+    /// @notice Sets the default fee for a specific swapper, used when no group pair config exists.
+    function setDefaultLimitFee(address swapper, uint16 feeBps) external requiresAuth {
+        if (feeBps > maxFeeBps) revert FeeRegistry__FeeTooHigh();
+        defaultLimitFee[swapper] = feeBps;
+        emit DefaultLimitFeeSet(swapper, feeBps);
     }
 
     /// @notice Sets the default fee for a specific swapper, used when no group pair config exists.
@@ -113,49 +154,52 @@ contract FeeRegistry is Auth, IFeeRegistry {
         emit DefaultFeeRecipientSet(swapper, feeRecipient);
     }
 
-    /// @notice Sets the cancel fee release delay for a specific swapper. Set to 0 to fall back to the default.
-    function setCancelFeeDelay(address swapper, uint256 delay) external requiresAuth {
-        cancelFeeDelay[swapper] = delay;
-        emit CancelFeeDelaySet(swapper, delay);
-    }
-
-    /// @notice Sets the default cancel fee release delay used when no per-swapper delay is configured.
-    function setDefaultCancelFeeDelay(uint256 delay) external requiresAuth {
-        defaultCancelFeeDelay = delay;
-        emit DefaultCancelFeeDelaySet(delay);
-    }
-
     // ========================================= VIEW FUNCTIONS =========================================
 
     /// @notice Returns the applicable fee for a swap pair
     /// @dev Looks up group pair fee first; falls back to defaultFee if not configured.
-    function getFee(address swapper, address tokenIn, address tokenOut) external view returns (uint16) {
+    function getAtomicFee(address swapper, address tokenIn, address tokenOut) external view returns (uint16) {
         uint8 groupIdIn = tokenGroup[swapper][tokenIn];
         uint8 groupIdOut = tokenGroup[swapper][tokenOut];
-        uint16 feeBps = groupFees[swapper][_pairId(groupIdIn, groupIdOut)];
+        FeeConfig memory feeConfig = atomicGroupFees[swapper][_pairId(groupIdIn, groupIdOut)];
         
-        //return fee for pair 
-        if (feeBps > 0) return feeBps;
-        
+        if (feeConfig.configured) return feeConfig.feeBps;        
+
         //if nothing set, return the default (which can be 0)
-        feeBps = defaultFee[swapper];
-        return feeBps;
+        return defaultAtomicFee[swapper];
+    }
+
+    /// @notice Returns the applicable fee for a swap pair
+    /// @dev Looks up group pair fee first; falls back to defaultFee if not configured.
+    function getLimitFee(address swapper, address tokenIn, address tokenOut) external view returns (uint16) {
+        uint8 groupIdIn = tokenGroup[swapper][tokenIn];
+        uint8 groupIdOut = tokenGroup[swapper][tokenOut];
+        FeeConfig memory feeConfig = limitGroupFees[swapper][_pairId(groupIdIn, groupIdOut)];
+        
+        if (feeConfig.configured) return feeConfig.feeBps;        
+
+        //if nothing set, return the default (which can be 0)
+        return defaultLimitFee[swapper];
     }
 
     /// @notice Returns the applicable fee for a swap pair
     /// @dev Looks up group pair fee first; falls back to defaultRecipient[swapper] if not configured.
-    function getFeeRecipient(address swapper, ERC20 feeToken) external view returns (address) {
-        address feeRecipient = feeTokenRecipient[swapper][feeToken];
+    function getFeeRecipientAtomic(address swapper, ERC20 feeToken) external view returns (address) {
+        address feeRecipient = feeTokenRecipientAtomic[swapper][feeToken];
         if (feeRecipient != address(0)) return feeRecipient;
 
         feeRecipient = defaultRecipient[swapper];
         return feeRecipient;        
     }
 
-    /// @notice Returns the cancel fee delay for a swapper, falling back to the default if not set.
-    function getCancelFeeDelay(address swapper) external view returns (uint256) {
-        uint256 delay = cancelFeeDelay[swapper];
-        return delay > 0 ? delay : defaultCancelFeeDelay;
+    /// @notice Returns the applicable fee for a swap pair
+    /// @dev Looks up group pair fee first; falls back to defaultRecipient[swapper] if not configured.
+    function getFeeRecipientLimit(address swapper, ERC20 feeToken) external view returns (address) {
+        address feeRecipient = feeTokenRecipientLimit[swapper][feeToken];
+        if (feeRecipient != address(0)) return feeRecipient;
+
+        feeRecipient = defaultRecipient[swapper];
+        return feeRecipient;        
     }
 
     // ========================================= INTERNAL FUNCTIONS =========================================

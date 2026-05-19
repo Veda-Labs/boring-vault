@@ -11,6 +11,10 @@ import {IAdapter} from "src/interfaces/IAdapter.sol";
 import {BaseAdapter} from "src/base/Periphery/adapters/BaseAdapter.sol";
 import {IUniswapV3} from "src/interfaces/IUniswapV3.sol";
 
+interface IOpenOceanLimitOrderProtocol {
+    function remainingRaw(bytes32 orderHash) external view returns (uint256);
+}
+
 contract OpenOceanAdapter is IAdapter, BaseAdapter {
 
     //============================== Errors ===============================
@@ -33,6 +37,7 @@ contract OpenOceanAdapter is IAdapter, BaseAdapter {
     error OpenOceanAdapter__NonEmptyPredicate();
     error OpenOceanAdapter__NonEmptyPermit();
     error OpenOceanAdapter__NonEmptyInteraction();
+    error OpenOceanAdapter__NotPublicOrder();
 
     //============================== State ===============================
 
@@ -219,6 +224,7 @@ contract OpenOceanAdapter is IAdapter, BaseAdapter {
         if (ERC20(order.takerAsset) != swapConfig.tokenRoute.tokenOut) revert OpenOceanAdapter__TakerAssetMismatch();
         if (order.maker != swapper) revert OpenOceanAdapter__MakerNotSwapper();
         if (order.receiver != address(swapConfig.receiver)) revert OpenOceanAdapter__ReceiverMismatch();
+        if (order.allowedSender != address(0)) revert OpenOceanAdapter__NotPublicOrder();
 
         if (order.makerAssetData.length != 0) revert OpenOceanAdapter__NonEmptyMakerAssetData();
         if (order.takerAssetData.length != 0) revert OpenOceanAdapter__NonEmptyTakerAssetData();
@@ -249,6 +255,21 @@ contract OpenOceanAdapter is IAdapter, BaseAdapter {
         DecoderCustomTypes.OpenOceanLimitOrder memory order =
             abi.decode(swapConfig.swapData, (DecoderCustomTypes.OpenOceanLimitOrder));
         return (limitOrderProtocol, abi.encodeWithSelector(CANCEL_ORDER_SELECTOR, order));
+    }
+
+    /// @dev `remainingRaw == 1` is terminal: full fill OR cancel. The swapper only cancels from inside
+    ///      `_cancelOrder` and queries `isFilled` BEFORE that call, so `1` at this site means fill.
+    ///      `remainingRaw` never reverts on unknown orders (it just returns 0), so this is safe to call
+    ///      before submission lands on-chain.
+    function isFilled(ISwapperTypes.SwapConfig calldata swapConfig, address)
+        external
+        view
+        returns (bool)
+    {
+        DecoderCustomTypes.OpenOceanLimitOrder memory order =
+            abi.decode(swapConfig.swapData, (DecoderCustomTypes.OpenOceanLimitOrder));
+        bytes32 orderHash = _computeOrderHash(order);
+        return IOpenOceanLimitOrderProtocol(limitOrderProtocol).remainingRaw(orderHash) == 1;
     }
 
     function version() external pure returns (uint256) {

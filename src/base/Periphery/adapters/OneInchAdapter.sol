@@ -12,6 +12,9 @@ import {BaseAdapter} from "src/base/Periphery/adapters/BaseAdapter.sol";
 import {IUniswapV3} from "src/interfaces/IUniswapV3.sol";
 import {ICurvePool} from "src/interfaces/ICurvePool.sol";
 
+interface IOneInchOrderMixin {
+    function bitInvalidatorForOrder(address maker, uint256 slot) external view returns (uint256);
+}
 contract OneInchAdapter is IAdapter, BaseAdapter {
 
     //============================== Errors ===============================
@@ -37,6 +40,8 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
     error OneInchAdapter__NoCustomReceiver();
     error OneInchAdapter__CustomReceiverOutOfBounds();
     error OneInchAdapter__UnsupportedProtocol();
+    error OneInchAdapter__PartialFillsNotAllowed();
+    error OneInchAdapter__EpochManagerNotAllowed();
 
     address public immutable router;
     address public immutable feeTaker;
@@ -50,6 +55,18 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
 
     // If set in takerTraits, makerAsset is sent to a custom address instead of msg.sender
     uint256 private constant _ARGS_HAS_TARGET = 1 << 251;
+
+    // makerTraits flags. NO_PARTIAL_FILLS_FLAG forces single-shot orders, which routes invalidation
+    // through BitInvalidator and guarantees `isValidSignature` is called on the fill. Without it,
+    // 1inch only validates the signature on the *first* fill — local revocation can't stop
+    // subsequent fills. NEED_CHECK_EPOCH_MANAGER_FLAG is incompatible with BitInvalidator (the protocol
+    // reverts `EpochManagerAndBitInvalidatorsAreIncompatible` at fill time); reject early.
+    uint256 private constant _NO_PARTIAL_FILLS_FLAG = 1 << 255;
+    uint256 private constant _NEED_CHECK_EPOCH_MANAGER_FLAG = 1 << 250;
+
+    // nonceOrEpoch is packed at bits [120, 160) of makerTraits as a uint40.
+    uint256 private constant _NONCE_OR_EPOCH_OFFSET = 120;
+    uint256 private constant _NONCE_OR_EPOCH_MASK = type(uint40).max;
 
     //General Offsets
     uint256 private constant PROTOCOL_OFFSET = 253;
@@ -262,6 +279,8 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         if (ERC20(order.makerAsset) != swapConfig.tokenRoute.tokenIn) revert OneInchAdapter__MakerAssetMismatch();
         if (ERC20(order.takerAsset) != swapConfig.tokenRoute.tokenOut) revert OneInchAdapter__TakerAssetMismatch();
         if (order.maker != swapper) revert OneInchAdapter__MakerNotSwapper();
+        if (order.makerTraits & _NO_PARTIAL_FILLS_FLAG == 0) revert OneInchAdapter__PartialFillsNotAllowed();
+        if (order.makerTraits & _NEED_CHECK_EPOCH_MANAGER_FLAG != 0) revert OneInchAdapter__EpochManagerNotAllowed();
 
         //for orders with a fee extension, the order.receiver is the fee taker contract.
         //the actual receiver (vault) is embedded in the extension's postInteraction data.
@@ -297,6 +316,25 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         bytes memory orderData = abi.encode(order);
         bytes32 orderHash = _computeOrderHash(orderData);
         return (router, abi.encodeWithSignature("cancelOrder(uint256,bytes32)", order.makerTraits, orderHash));
+    }
+
+    /// @dev The same bit is set on cancel too, but the swapper only cancels from inside `_cancelOrder`
+    ///      and queries `isFilled` BEFORE that call — so a set bit at this site means the protocol
+    ///      filled the order. `verifyLimitOrder` enforces `NO_PARTIAL_FILLS_FLAG` so all orders route
+    ///      through BitInvalidator; a partially-fillable order would use RemainingInvalidator and this
+    ///      check would return false on a real fill (RemainingInvalidator records the remaining
+    ///      amount instead of flipping the bit we read).
+    function isFilled(ISwapperTypes.SwapConfig calldata swapConfig, address swapper)
+        external
+        view
+        returns (bool)
+    {
+        (DecoderCustomTypes.OneInchLimitOrder memory order,) =
+            abi.decode(swapConfig.swapData, (DecoderCustomTypes.OneInchLimitOrder, bytes));
+        uint256 nonceOrEpoch = (order.makerTraits >> _NONCE_OR_EPOCH_OFFSET) & _NONCE_OR_EPOCH_MASK;
+        uint256 slot = nonceOrEpoch >> 8;
+        uint256 bit = 1 << (nonceOrEpoch & 0xff);
+        return IOneInchOrderMixin(router).bitInvalidatorForOrder(swapper, slot) & bit != 0;
     }
 
     function version() external view returns (uint256) {

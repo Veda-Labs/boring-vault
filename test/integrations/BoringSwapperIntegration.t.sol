@@ -13,7 +13,7 @@ import {AdapterRegistry} from "src/base/Periphery/AdapterRegistry.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
 import {UniswapV3Adapter} from "src/base/Periphery/adapters/UniswapV3Adapter.sol"; 
-import {CowswapAdapter, IDomainSeparator} from "src/base/Periphery/adapters/CowswapAdapter.sol";
+import {CowswapAdapter, IGPv2Settlement} from "src/base/Periphery/adapters/CowswapAdapter.sol";
 import {OneInchAdapter} from "src/base/Periphery/adapters/OneInchAdapter.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {Authority} from "@solmate/auth/Auth.sol";
@@ -354,7 +354,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
 
 
     function _cowDomainSeparator() internal view returns (bytes32) {
-        return IDomainSeparator(COW_SETTLEMENT).domainSeparator();
+        return IGPv2Settlement(COW_SETTLEMENT).domainSeparator();
     }
 
     function _buildCowOrderDigest(
@@ -646,7 +646,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         (ISwapperTypes.SwapConfig memory config,, uint256 orderId) =
             _submitOneInchOrder(1e18, 2000e6);
 
-        (ERC20 tokenIn,,, BoringVault receiver, uint256 inputAmount,,,) =
+        (ERC20 tokenIn,,,, BoringVault receiver, uint256 inputAmount,,,) =
             swapper.orderRecords(orderId);
         assertEq(address(tokenIn), getAddress(sourceChain, "WETH"));
         assertEq(inputAmount, 1e18);
@@ -713,7 +713,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         assertEq(getERC20(sourceChain, "WETH").balanceOf(address(swapper)), 0);
         assertEq(getERC20(sourceChain, "WETH").balanceOf(getAddress(sourceChain, "boringVault")), 100e18);
 
-        (ERC20 tokenIn,,,,,,,) = swapper.orderRecords(orderId);
+        (ERC20 tokenIn,,,,,,,,) = swapper.orderRecords(orderId);
         assertEq(address(tokenIn), address(0));
     }
 

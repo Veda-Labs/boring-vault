@@ -873,7 +873,7 @@ contract DecoderCustomTypes {
         uint256 guaranteedAmount;
         uint256 flags;
         address referrer;
-        bytes permit;
+        bytes   permit;
     }
 
     // Used by simpleSwap() — same layout as OpenOceanSwapDescription minus guaranteedAmount.

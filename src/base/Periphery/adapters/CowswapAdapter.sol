@@ -10,8 +10,9 @@ import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
 import {ISwapper} from "src/interfaces/ISwapper.sol";
 
-interface IDomainSeparator {
+interface IGPv2Settlement {
     function domainSeparator() external view returns (bytes32);
+    function filledAmount(bytes calldata orderUid) external view returns (uint256);
 }
 
 contract CowswapAdapter is IAdapter {
@@ -89,6 +90,22 @@ contract CowswapAdapter is IAdapter {
         return (cowSettlement, abi.encodeWithSignature("invalidateOrder(bytes)", orderUid));
     }
 
+    /// @dev `filledAmount` is also set to `type(uint256).max` by `invalidateOrder`. The swapper only
+    ///      invalidates from inside `_cancelOrder` and queries `isFilled` BEFORE that call, so any
+    ///      non-zero reading at this site must be a genuine fill. Partial fills are rejected upstream
+    ///      in `verifyLimitOrder`.
+    function isFilled(ISwapperTypes.SwapConfig calldata swapConfig, address swapper)
+        external
+        view
+        returns (bool)
+    {
+        DecoderCustomTypes.GPv2OrderData memory order =
+            abi.decode(swapConfig.swapData, (DecoderCustomTypes.GPv2OrderData));
+        bytes32 orderHash = _computeOrderHash(swapConfig.swapData);
+        bytes memory orderUid = abi.encodePacked(orderHash, swapper, order.validTo);
+        return IGPv2Settlement(cowSettlement).filledAmount(orderUid) != 0;
+    }
+
     function version() external view returns (uint256) {
         return 1;
     }
@@ -96,7 +113,7 @@ contract CowswapAdapter is IAdapter {
     //============================== Internal ===============================
 
     function _computeOrderHash(bytes memory swapData) internal view returns (bytes32) {
-        bytes32 domainSeparator = IDomainSeparator(cowSettlement).domainSeparator();
+        bytes32 domainSeparator = IGPv2Settlement(cowSettlement).domainSeparator();
         bytes32 structHash = keccak256(abi.encodePacked(GPV2_ORDER_TYPE_HASH, swapData));
         return keccak256(abi.encodePacked("\x19\x01", domainSeparator, structHash));
     }

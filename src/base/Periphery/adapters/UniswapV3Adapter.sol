@@ -57,4 +57,8 @@ contract UniswapV3Adapter is IAdapter, BaseAdapter {
     function cancelLimitOrder(ISwapperTypes.SwapConfig calldata, address) external pure returns (address, bytes memory) {
         revert UniswapV3Adapter__LimitOrdersNotSupported();
     }
+
+    function isFilled(ISwapperTypes.SwapConfig calldata, address) external pure returns (bool) {
+        revert UniswapV3Adapter__LimitOrdersNotSupported();
+    }
 }

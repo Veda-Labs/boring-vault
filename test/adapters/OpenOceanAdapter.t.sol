@@ -33,6 +33,25 @@ contract MockRateProvider is IRateProvider {
     }
 }
 
+/// @dev Minimal stand-in for the OpenOcean LOP. `remainingRaw` returns 0 by default (untouched),
+///      and tests can flip an order to "filled" by calling `setRemaining(hash, 1)`. The fallback
+///      accepts the adapter's `cancelOrder(Order)` calldata as a no-op so the swapper's
+///      protocol-side cancel call succeeds.
+contract MockOpenOceanLOP {
+    mapping(bytes32 => uint256) public _remainingByHash;
+
+    function remainingRaw(bytes32 orderHash) external view returns (uint256) {
+        return _remainingByHash[orderHash];
+    }
+
+    function setRemaining(bytes32 orderHash, uint256 value) external {
+        _remainingByHash[orderHash] = value;
+    }
+
+    fallback() external payable {}
+    receive() external payable {}
+}
+
 contract OpenOceanAdapterTest is BaseTestIntegration {
 
     // OpenOcean Exchange V2 router on mainnet
@@ -62,6 +81,10 @@ contract OpenOceanAdapterTest is BaseTestIntegration {
         swapper.setAuthority(rolesAuthority);
 
         openOceanAdapter = address(new OpenOceanAdapter(OPENOCEAN_ROUTER, OPENOCEAN_CALLER, address(0x420)));
+
+        // The adapter caches `limitOrderProtocol = 0x420`; etch the mock LOP's code there so
+        // remainingRaw / cancelOrder respond correctly. Storage is empty by default (untouched orders).
+        vm.etch(address(0x420), type(MockOpenOceanLOP).runtimeCode);
 
         //console.log(openOceanAdapter);
 
@@ -517,7 +540,7 @@ contract OpenOceanAdapterTest is BaseTestIntegration {
 
         (ISwapperTypes.SwapConfig memory config,, uint256 orderId) = _submitLimitOrder(1e18, 2000e6);
 
-        (ERC20 tokenIn,, address cancelTarget, BoringVault receiver, uint256 inputAmount,,,) =
+        (ERC20 tokenIn,,, address cancelTarget, BoringVault receiver, uint256 inputAmount,,,) =
             swapper.orderRecords(orderId);
         assertEq(address(tokenIn), getAddress(sourceChain, "WETH"));
         assertEq(inputAmount, 1e18);
@@ -722,6 +745,21 @@ contract OpenOceanAdapterTest is BaseTestIntegration {
 
         assertEq(WETH.balanceOf(address(swapper)), 0);
         assertEq(USDC.balanceOf(getAddress(sourceChain, "boringVault")), 2000e6);
+    }
+
+    // remainingRaw == 1 is terminal (full fill OR cancel). Since the swapper has not yet invoked the
+    // protocol cancel at the call site, observing 1 here means fill — cancel must revert.
+    function testCancelLimitOrder_RevertOrderAlreadyFilled() external {
+        deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18);
+
+        (ISwapperTypes.SwapConfig memory config, bytes32 orderDigest, uint256 orderId) = _submitLimitOrder(1e18, 2000e6);
+
+        // The adapter's protocolHash IS the EIP-712 order hash used as the `_remaining` key.
+        MockOpenOceanLOP(payable(address(0x420))).setRemaining(orderDigest, 1);
+
+        vm.prank(getAddress(sourceChain, "boringVault"));
+        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__OrderAlreadyFilled.selector));
+        swapper.cancelOrder(orderId, config);
     }
 
     //==================== Helpers ====================
