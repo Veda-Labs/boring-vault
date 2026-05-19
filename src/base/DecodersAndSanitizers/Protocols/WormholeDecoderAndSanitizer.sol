@@ -2,17 +2,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-struct ExecutorArgs {
-    uint256 value;
-    address refundAddress;
-    bytes signedQuote;
-    bytes instructions;
-}
-
-struct FeeArgs {
-    uint16 dbps;
-    address payee;
-}
+import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 
 contract WormholeDecoderAndSanitizer {
 
@@ -24,8 +14,8 @@ contract WormholeDecoderAndSanitizer {
         bytes32 recipient,
         bytes32 refundAddress,
         bytes calldata, /*transceiverInstructions*/
-        ExecutorArgs calldata executorArgs,
-        FeeArgs calldata feeArgs
+        DecoderCustomTypes.WormholeExecutorArgs calldata executorArgs,
+        DecoderCustomTypes.WormholeFeeArgs calldata feeArgs
     ) external pure virtual returns (bytes memory sensitiveArguments) {
         address recipient0 = address(bytes20(bytes16(recipient)));
         address recipient1 = address(bytes20(bytes16(recipient << 128)));
@@ -53,8 +43,8 @@ contract WormholeDecoderAndSanitizer {
         bytes32 recipient,
         bytes32 refundAddress,
         bytes calldata, /*transceiverInstructions*/
-        ExecutorArgs calldata executorArgs,
-        FeeArgs calldata feeArgs
+        DecoderCustomTypes.WormholeExecutorArgs calldata executorArgs,
+        DecoderCustomTypes.WormholeFeeArgs calldata feeArgs
     ) external pure virtual returns (bytes memory sensitiveArguments) {
         address recipient0 = address(bytes20(bytes16(recipient)));
         address recipient1 = address(bytes20(bytes16(recipient << 128)));
