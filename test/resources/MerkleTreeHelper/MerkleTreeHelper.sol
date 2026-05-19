@@ -10408,7 +10408,6 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
 
     function _addInfinifiLeafs(ManageLeaf[] memory leafs) internal {
 
-        // ===== Approvals (Gateway pulls funds via transferFrom) =====
         unchecked {
             leafIndex++;
         }
@@ -10488,7 +10487,6 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
 
-        // ===== Exit: back to USDC =====
         unchecked {
             leafIndex++;
         }
