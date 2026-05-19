@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: SEL-1.0
 // Copyright © 2025 Veda Tech Labs
-// Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
+// Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY - NO COMMERCIAL USE)
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
@@ -263,7 +263,7 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     }
 
     // =========================================================================
-    //                         ERC4626 — totalAssets
+    //                         ERC4626 - totalAssets
     // =========================================================================
 
     function totalAssets() public view override returns (uint256) {
@@ -271,7 +271,7 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     }
 
     // =========================================================================
-    //                       ERC4626 — virtual offset
+    //                       ERC4626 - virtual offset
     // =========================================================================
 
     function _decimalsOffset() internal pure override returns (uint8) {
@@ -279,7 +279,7 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     }
 
     // =========================================================================
-    //                    ERC4626 — public entrypoints
+    //                    ERC4626 - public entrypoints
     // =========================================================================
     // Each entrypoint: (1) enforce compliance on the real user, (2) settle
     // pending fees, (3) delegate to OZ super(). Conversion uses the overridden
@@ -310,7 +310,7 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     }
 
     // =========================================================================
-    //                ERC4626 — share/asset conversion overrides
+    //                ERC4626 - share/asset conversion overrides
     // =========================================================================
     // Use simulated post-accrual state so off-chain previews match on-chain
     // execution even when _accrueFees() has not run recently.
@@ -326,7 +326,7 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     }
 
     // =========================================================================
-    //                  ERC20 — wrapper share transfer hooks
+    //                  ERC20 - wrapper share transfer hooks
     // =========================================================================
 
     function transfer(address to, uint256 amount) public override(ERC20, IERC20) returns (bool) {
@@ -416,7 +416,7 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     }
 
     // =========================================================================
-    //                         INTERNAL — FEE ENGINE
+    //                         INTERNAL - FEE ENGINE
     // =========================================================================
 
     function _pendingFeeShares() internal view returns (uint256 mgmtShares, uint256 perfShares, uint96 newHWM) {
@@ -529,7 +529,7 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     }
 
     // =========================================================================
-    //                       INTERNAL — COMPLIANCE
+    //                       INTERNAL - COMPLIANCE
     // =========================================================================
 
     function _enforceTransferPolicy(address from, address to, address operator) internal view {
