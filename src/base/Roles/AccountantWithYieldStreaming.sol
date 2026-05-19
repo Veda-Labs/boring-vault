@@ -162,6 +162,13 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
      * @param duration The period over which to vest this yield
      * @notice callable by the STRATEGIST role
      * @dev `yieldAmount` should be denominated in the BASE ASSET
+     * @dev Yield vests linearly over `duration`; each subsequent
+     *      _updateExchangeRate call moves newly-vested gains into the share
+     *      price against vault.totalSupply() at that moment. Deposits during
+     *      vesting share in remaining gains; withdrawals capture only
+     *      vested-so-far. maxDeviationYield caps the per-day rate, not the
+     *      per-event total. Strategists are expected to pair yield
+     *      realization with vestYield.
      */
     function vestYield(uint256 yieldAmount, uint256 duration) external requiresAuth {
         if (accountantState.isPaused) revert AccountantWithRateProviders__Paused();
