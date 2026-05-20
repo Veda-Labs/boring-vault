@@ -169,6 +169,11 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
      *      vested-so-far. maxDeviationYield caps the per-day rate, not the
      *      per-event total. Strategists are expected to pair yield
      *      realization with vestYield.
+     * @dev The dailyYieldBps cap is computed against _getTWAS(), an
+     *      approximate time-weighted average supply manipulable by large
+     *      deposits or withdrawals during the inter-vest window. TWAS was
+     *      introduced for fee calibration; strategist trust is the actual
+     *      anti-inflation primitive.
      */
     function vestYield(uint256 yieldAmount, uint256 duration) external requiresAuth {
         if (accountantState.isPaused) revert AccountantWithRateProviders__Paused();
