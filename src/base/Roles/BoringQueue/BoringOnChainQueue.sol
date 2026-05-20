@@ -388,6 +388,11 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
      * @param r The r value of the permit signature.
      * @param s The s value of the permit signature.
      * @return requestId The request Id.
+     * @dev Requests are stored as keccak256(abi.encode(OnChainWithdraw)) only.
+     *      The full struct is emitted in OnChainWithdrawRequested at request time
+     *      and must be retained off-chain (event indexer or tx receipt) to cancel
+     *      or solve. No on-chain requestId → struct mapping; recovery is
+     *      event-indexer responsibility by design.
      */
     function requestOnChainWithdrawWithPermit(
         address assetOut,
@@ -444,6 +449,11 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
      * @param secondsToDeadline The time in seconds the new withdraw request is valid for.
      * @return oldRequestId The request Id of the old withdraw request.
      * @return newRequestId The request Id of the new withdraw request.
+     * @dev Requests are stored as keccak256(abi.encode(OnChainWithdraw)) only.
+     *      The full struct is emitted in OnChainWithdrawRequested at request time
+     *      and must be retained off-chain (event indexer or tx receipt) to cancel
+     *      or solve. No on-chain requestId → struct mapping; recovery is
+     *      event-indexer responsibility by design.
      */
     function replaceOnChainWithdraw(OnChainWithdraw memory oldRequest, uint16 discount, uint24 secondsToDeadline)
         external
