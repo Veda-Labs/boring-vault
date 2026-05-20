@@ -143,7 +143,7 @@ contract CreateSentoraBTCMerkleRoot is Script, MerkleTreeHelper {
             address[] memory token1 = new address[](1);
             token1[0] = getAddress(sourceChain, "KBTC");
 
-            _addUniswapV3Leafs(leafs, token0, token1, true, true); // swap only, swapRouter02
+            _addUniswapV3Leafs(leafs, token0, token1, true); // swap only
         }
         
         // ========================== Verify ==========================
