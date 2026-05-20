@@ -99,7 +99,6 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
     event RateLimitUpdated(bytes32 indexed routeId, uint256 capacity, uint256 refillRate);
     event Swept(ERC20 indexed token, address indexed vault, uint256 amount);
     event FeeReleased(uint256 indexed orderId, ERC20 indexed token, uint256 feeAmount);
-    event CancelFeeReleased(uint256 indexed orderId, ERC20 indexed token, uint256 feeAmount);
     event FeesClaimed(ERC20 indexed token, uint256 feeAmount);
     event Paused();
     event Unpaused();
@@ -263,21 +262,11 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
         record.tokenIn.safeApprove(record.approvalTarget, 0);
         if (reducedAllowance > 0) record.tokenIn.safeApprove(record.approvalTarget, reducedAllowance);
 
-        //refund principal only — fee stays locked until releaseCancelFee() is called by admin.
-        //@dev we would also need a way of tracking the fee -> filled amount (unless we take the full fee?)
-        uint256 balance = record.tokenIn.balanceOf(address(this));
-        uint256 otherLocked = (pendingOrderPrincipal[record.tokenIn] - record.inputAmount) + feesInToken[record.tokenIn]
-            + claimableFees[record.tokenIn];
-        uint256 availablePrincipal = balance > otherLocked ? balance - otherLocked : 0;
-        uint256 refund = availablePrincipal < record.inputAmount ? availablePrincipal : record.inputAmount;
-        if (refund > 0) record.tokenIn.safeTransfer(address(record.receiver), refund);
-
-        uint256 principalHeld = pendingOrderPrincipal[record.tokenIn];
-        pendingOrderPrincipal[record.tokenIn] =
-            record.inputAmount < principalHeld ? principalHeld - record.inputAmount : 0;
+        //@dev this needs to be reworked when we add partials 
+        //refund principal only
+        uint256 refund = record.inputAmount;
 
         //restore rate limit for the unfilled principal amount
-        //@dev this would also need to be reworked to allow partials (bot seems to think this works for partials already)
         bytes32 routeId = getRouteId(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut);
         RateLimit storage limit = rateLimitPerRoute[routeId];
         if (limit.capacity > 0) {
@@ -286,7 +275,9 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
             uint256 restored = limit.remaining + normalized;
             limit.remaining = restored > limit.capacity ? limit.capacity : restored;
         }
-
+            
+        pendingOrderPrincipal[record.tokenIn] -= refund;
+        record.tokenIn.safeTransfer(address(record.receiver), refund);
         emit OrderCancelled(orderId, refund);
     }
 
@@ -455,7 +446,7 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
 
     /// @notice Marks a filled order's fee as claimable. Called by the off-chain bot after confirming the fill.
     /// @dev Moves the fee from the locked `feesInToken` bucket into `claimableFees`. Deletes the order record.
-    /// @dev fee collector is responsible for determining if the order was filled off-chain.
+    /// @dev fee collector is responsible for determining if the order was filled or canceled off-chain
     function releaseFee(uint256 orderId) external requiresAuth {
         OrderRecord memory record = orderRecords[orderId];
         if (address(record.tokenIn) == address(0)) revert BoringSwapper__OrderNotFound();
@@ -468,7 +459,6 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
         // `_cancelOrder` already decremented `pendingOrderPrincipal` at cancel time — skip the second
         // decrement when releasing the fee of a cancelled order (cancel-after-fill path).
         if (record.cancelledAt == 0) {
-            //@dev if we store how much was filled during the `cancelOrder()` call on the order record, we can reuse it here.
             uint256 principalHeld = pendingOrderPrincipal[record.tokenIn];
             pendingOrderPrincipal[record.tokenIn] =
                 record.inputAmount < principalHeld ? principalHeld - record.inputAmount : 0;
@@ -483,32 +473,13 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
         emit FeeReleased(orderId, record.tokenIn, record.fee);
     }
 
-    /// @notice Returns a cancelled order's fee to the vault after the fee delay has elapsed.
-    function releaseCancelFee(uint256 orderId) external {
-        OrderRecord memory record = orderRecords[orderId];
-        if (address(record.tokenIn) == address(0)) revert BoringSwapper__OrderNotFound();
-        if (record.cancelledAt == 0) revert BoringSwapper__NotCancelledOrder();
-
-        uint256 delay = feeRegistry.getCancelFeeDelay(address(this));
-        if (block.timestamp < record.cancelledAt + delay) revert BoringSwapper__CancelFeeNotClaimable();
-
-        delete orderRecords[orderId];
-
-        if (record.fee > 0) {
-            feesInToken[record.tokenIn] -= record.fee;
-            record.tokenIn.safeTransfer(address(record.receiver), record.fee);
-        }
-
-        emit CancelFeeReleased(orderId, record.tokenIn, record.fee);
-    }
-
     /// @notice Claims all releasable fees for a token, sending them to the configured fee recipient.
     /// @dev Only drains `claimableFees` — locked pending-order fees are never touched.
     function claimFees(ERC20 token) external requiresAuth {
         uint256 feeAmount = claimableFees[token];
         if (feeAmount == 0) return;
 
-        address feeRecipient = feeRegistry.getFeeRecipient(address(this), token);
+        address feeRecipient = feeRegistry.getFeeRecipientLimit(address(this), token);
         if (feeRecipient == address(0)) revert BoringSwapper__FeeRecipientNotSet();
 
         claimableFees[token] = 0;
@@ -520,8 +491,12 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
     // ========================================= VIEW FUNCTIONS =========================================
 
     /// @notice Computes the deterministic route identifier for a directional token pair.
-    function getRouteId(ERC20 tokenIn, ERC20 tokenOut) public pure returns (bytes32) {
-        return keccak256(abi.encode(address(tokenIn), address(tokenOut)));
+    function getRouteId(ERC20 tokenIn, ERC20 tokenOut) public pure returns (bytes32 routeId) {
+        assembly {
+            mstore(0x00, tokenIn)
+            mstore(0x20, tokenOut)
+            routeId := keccak256(0x00, 0x40)
+        }
     }
 
     function getBaseAssetOracle(ERC20 token, address quoteAsset)
@@ -537,7 +512,7 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
         return oracles[baseAsset][quoteAsset].length;
     }
 
-    function version() external view returns (string memory) {
+    function version() external pure returns (string memory) {
         return "v1";
     }
 
@@ -684,7 +659,9 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
             receiver: swapConfig.receiver,
             fee: limitFee,
             protocolHash: info.protocolHash,
-            cancelledAt: 0
+            cancelledAt: 0,
+            quoteAsset: swapConfig.quoteAsset,
+            slippageBps: swapConfig.slippageBps
         });
         approvedHashes[info.protocolHash] = true;
 
