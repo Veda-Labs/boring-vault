@@ -8,9 +8,6 @@ import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {IFeeRegistry} from "src/interfaces/IFeeRegistry.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 
-/// @notice Veda-controlled fee registry. Fees are configured per swapper instance, tiered by token group pair.
-/// @dev Vault admins have no access to this contract. Token group 0 = unassigned/exotic.
-///      getFee() uses msg.sender as the swapper key — callers must be registered BoringSwapper instances.
 contract FeeRegistry is Auth, IFeeRegistry {
 
     // ========================================= STRUCTS =========================================
@@ -36,8 +33,6 @@ contract FeeRegistry is Auth, IFeeRegistry {
     event DefaultAtomicFeeSet(address indexed swapper, uint16 feeBps);
     event DefaultLimitFeeSet(address indexed swapper, uint16 feeBps);
     event DefaultFeeRecipientSet(address indexed swapper, address feeRecipient);
-    event CancelFeeDelaySet(address indexed swapper, uint256 delay);
-    event DefaultCancelFeeDelaySet(uint256 delay);
 
     // ========================================= STATE =========================================
 
@@ -200,6 +195,10 @@ contract FeeRegistry is Auth, IFeeRegistry {
 
         feeRecipient = defaultRecipient[swapper];
         return feeRecipient;        
+    }
+
+    function version() external view returns (string memory) {
+        return "v1";
     }
 
     // ========================================= INTERNAL FUNCTIONS =========================================

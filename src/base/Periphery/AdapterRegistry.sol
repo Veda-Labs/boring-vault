@@ -57,4 +57,8 @@ contract AdapterRegistry is Auth {
         }
         return (adapters, names);
     }
+
+    function version() external view returns (string memory) {
+        return "v1";
+    }
 }

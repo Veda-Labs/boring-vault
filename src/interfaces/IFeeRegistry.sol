@@ -19,4 +19,6 @@ interface IFeeRegistry {
     //get fee recipient for swapper -> token pair
     function getFeeRecipientAtomic(address swapper, ERC20 feeToken) external view returns (address feeRecipient);
     function getFeeRecipientLimit(address swapper, ERC20 feeToken) external view returns (address feeRecipient);
+
+    function version() external view returns (string memory);
 }
