@@ -6,6 +6,7 @@ pragma solidity 0.8.21;
 
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
+import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {IERC4626} from "forge-std/interfaces/IERC4626.sol";
 import {TellerWithBuffer} from "src/base/Roles/TellerWithBuffer.sol";
 import {ERC4626BufferHelper, IBufferHelper} from "src/base/Roles/ERC4626BufferHelper.sol";
@@ -59,10 +60,7 @@ contract MorphoV2ERC4626BufferLens is IBufferLens {
                 );
             }
 
-            // Withdrawable cannot exceed this Boring Vault's ERC4626 share claim.
-            if (withdrawableAmount > vaultAssets) {
-                withdrawableAmount = vaultAssets;
-            }
+            withdrawableAmount = Math.min(withdrawableAmount, vaultAssets);
         }
     }
 
@@ -101,8 +99,6 @@ contract MorphoV2ERC4626BufferLens is IBufferLens {
         view
         returns (uint256)
     {
-        if (liquidityData.length == 0) return 0;
-
         if (liquidityData.length != 160) return 0;
 
         MarketParams memory marketParams = abi.decode(liquidityData, (MarketParams));
@@ -119,9 +115,9 @@ contract MorphoV2ERC4626BufferLens is IBufferLens {
 
         uint256 marketLiquidity = uint256(market.totalSupplyAssets) - market.totalBorrowAssets;
         uint256 morphoTokenLiquidity = asset.balanceOf(address(morpho));
-        marketLiquidity = marketLiquidity > morphoTokenLiquidity ? morphoTokenLiquidity : marketLiquidity;
+        marketLiquidity = Math.min(marketLiquidity, morphoTokenLiquidity);
 
         uint256 adapterSupplyAssets = liquidityAdapter.expectedSupplyAssets(marketId);
-        return marketLiquidity > adapterSupplyAssets ? adapterSupplyAssets : marketLiquidity;
+        return Math.min(marketLiquidity, adapterSupplyAssets);
     }
 }
