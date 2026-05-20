@@ -353,6 +353,11 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
      * @param discount The discount to apply to the withdraw in bps.
      * @param secondsToDeadline The time in seconds the request is valid for.
      * @return requestId The request Id.
+     * @dev Requests are stored as keccak256(abi.encode(OnChainWithdraw)) only.
+     *      The full struct is emitted in OnChainWithdrawRequested at request time
+     *      and must be retained off-chain (event indexer or tx receipt) to cancel
+     *      or solve. No on-chain requestId → struct mapping; recovery is
+     *      event-indexer responsibility by design.
      */
     function requestOnChainWithdraw(address assetOut, uint128 amountOfShares, uint16 discount, uint24 secondsToDeadline)
         external
@@ -417,6 +422,11 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
      * @notice Cancel an on-chain withdraw.
      * @param request The request to cancel.
      * @return requestId The request Id.
+     * @dev Requests are stored as keccak256(abi.encode(OnChainWithdraw)) only.
+     *      The full struct is emitted in OnChainWithdrawRequested at request time
+     *      and must be retained off-chain (event indexer or tx receipt) to cancel
+     *      or solve. No on-chain requestId → struct mapping; recovery is
+     *      event-indexer responsibility by design.
      */
     function cancelOnChainWithdraw(OnChainWithdraw memory request)
         external
@@ -452,6 +462,11 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
      * @param requests The requests to solve.
      * @param solveData The data to use to solve the requests.
      * @param solver The address of the solver.
+     * @dev Requests are stored as keccak256(abi.encode(OnChainWithdraw)) only.
+     *      The full struct is emitted in OnChainWithdrawRequested at request time
+     *      and must be retained off-chain (event indexer or tx receipt) to cancel
+     *      or solve. No on-chain requestId → struct mapping; recovery is
+     *      event-indexer responsibility by design.
      */
     function solveOnChainWithdraws(OnChainWithdraw[] calldata requests, bytes calldata solveData, address solver)
         external

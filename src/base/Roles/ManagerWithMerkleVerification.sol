@@ -189,6 +189,10 @@ contract ManagerWithMerkleVerification is Auth, IPausable {
      * @dev userData can optionally have salt encoded at the end of it, in order to change the intentHash,
      *      if a flash loan is exact userData is being repeated, and their is fear of 3rd parties
      *      front-running the rebalance.
+     * @dev Post-flashloan ops use manageRoot[address(manager)], a shared root
+     *      curated by the admin role, not the calling strategist's per-strategist
+     *      root. Per-strategist permission isolation does not extend through this
+     *      callback by design.
      */
     function receiveFlashLoan(
         address[] calldata tokens,
