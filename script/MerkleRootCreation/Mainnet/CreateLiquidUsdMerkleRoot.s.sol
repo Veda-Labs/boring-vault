@@ -146,11 +146,11 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         // ==================== Pareto FalconX =========================
         {
             address vault = getAddress(sourceChain, "Pareto_FalconX_vault");
-            address tranche = getAddress(sourceChain, "Pareto_FalconX_AA_tranche");
+            address aaTranche = getAddress(sourceChain, "Pareto_FalconX_AA_tranche");
             address asset = getAddress(sourceChain, "USDC");
 
             setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", paretoDecoderAndSanitizer);
-            _addParetoLeafs(leafs, vault, tranche, asset);
+            _addParetoLeafs(leafs, vault, aaTranche, asset);
             setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 

@@ -13933,7 +13933,11 @@ function _addTellerLeafsWithReferral(
     }
 
     // ==================================== Pareto ===========================================
-    function _addParetoLeafs(ManageLeaf[] memory leafs, address vault, address tranche, address depositAsset) internal {
+
+    // Note that only the AA tranche currently gets deposit/withdrawal leaves. This is due to none of the
+    // currently integrated pareto falconX vaults having a BB tranche enabled. If a future vault requires them
+    // this function will need to be updated to add those.
+    function _addParetoLeafs(ManageLeaf[] memory leafs, address vault, address aaTranche, address depositAsset) internal {
 
         // Approvals
         unchecked {
@@ -13967,23 +13971,12 @@ function _addTellerLeafsWithReferral(
         leafs[leafIndex] = ManageLeaf(
             vault,
             false,
-            "depositBB(uint256)",
-            new address[](0),
-            string.concat("Deposit ", ERC20(depositAsset).symbol(), " to Pareto vault to mint BB tokens"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            vault,
-            false,
             "depositDuringEpoch(uint256,address)",
             new address[](1),
             string.concat("Deposit ", ERC20(depositAsset).symbol(), " to Pareto vault"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
-        leafs[leafIndex].argumentAddresses[0] = tranche;
+        leafs[leafIndex].argumentAddresses[0] = aaTranche;
 
         // withdrawals
         unchecked {
@@ -13997,7 +13990,7 @@ function _addTellerLeafsWithReferral(
             string.concat("Request withdrawal from Pareto vault"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
-        leafs[leafIndex].argumentAddresses[0] = tranche;
+        leafs[leafIndex].argumentAddresses[0] = aaTranche;
         unchecked {
             leafIndex++;
         }
