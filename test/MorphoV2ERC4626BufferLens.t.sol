@@ -10,7 +10,7 @@ import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {TellerWithBuffer} from "src/base/Roles/TellerWithBuffer.sol";
 import {IBufferHelper} from "src/interfaces/IBufferHelper.sol";
 import {IMorpho, Id, Market, MarketParams} from "src/interfaces/IMorpho.sol";
-import {SteakhouseERC4626BufferLens} from "src/helper/SteakhouseERC4626BufferLens.sol";
+import {MorphoV2ERC4626BufferLens} from "src/helper/MorphoV2ERC4626BufferLens.sol";
 
 contract MockERC20Mintable is ERC20 {
     constructor() ERC20("Mock Asset", "MOCK", 18) {}
@@ -20,12 +20,12 @@ contract MockERC20Mintable is ERC20 {
     }
 }
 
-contract MockSteakhouseVault is ERC4626 {
+contract MockMorphoV2Vault is ERC4626 {
     uint256 internal totalAssets_;
     address public liquidityAdapter;
     bytes public liquidityData;
 
-    constructor(ERC20 asset_) ERC4626(asset_, "Mock Steakhouse Vault", "mstk") {}
+    constructor(ERC20 asset_) ERC4626(asset_, "Mock MorphoV2 Vault", "mstk") {}
 
     function setTotalAssets(uint256 assets) external {
         totalAssets_ = assets;
@@ -105,27 +105,27 @@ contract MockLiquidityAdapter {
     }
 }
 
-contract SteakhouseERC4626BufferLensTest is Test {
+contract MorphoV2ERC4626BufferLensTest is Test {
     address internal boringVault = address(0xB0B);
 
     MockERC20Mintable internal asset;
-    MockSteakhouseVault internal steakhouseVault;
+    MockMorphoV2Vault internal morphoV2Vault;
     MockERC4626BufferHelper internal bufferHelper;
     MockTellerWithBufferShape internal teller;
     MockMorpho internal morpho;
     MockLiquidityAdapter internal liquidityAdapter;
-    SteakhouseERC4626BufferLens internal lens;
+    MorphoV2ERC4626BufferLens internal lens;
 
     function setUp() external {
         asset = new MockERC20Mintable();
         morpho = new MockMorpho();
         liquidityAdapter = new MockLiquidityAdapter(IMorpho(address(morpho)));
-        steakhouseVault = new MockSteakhouseVault(asset);
-        steakhouseVault.setLiquidityAdapter(address(liquidityAdapter));
-        bufferHelper = new MockERC4626BufferHelper(ERC4626(address(steakhouseVault)));
+        morphoV2Vault = new MockMorphoV2Vault(asset);
+        morphoV2Vault.setLiquidityAdapter(address(liquidityAdapter));
+        bufferHelper = new MockERC4626BufferHelper(ERC4626(address(morphoV2Vault)));
         teller = new MockTellerWithBufferShape(boringVault);
         teller.setWithdrawBufferHelper(address(bufferHelper));
-        lens = new SteakhouseERC4626BufferLens();
+        lens = new MorphoV2ERC4626BufferLens();
     }
 
     function testNoHelperReturnsIdleAssetInBoringVault() external {
@@ -137,15 +137,15 @@ contract SteakhouseERC4626BufferLensTest is Test {
 
     function testCapsIdleAssetsByBoringVaultShareClaimWithoutAdapter() external {
         _setBoringVaultShareClaim(60e18);
-        steakhouseVault.setLiquidityAdapter(address(0));
-        asset.mint(address(steakhouseVault), 100e18);
+        morphoV2Vault.setLiquidityAdapter(address(0));
+        asset.mint(address(morphoV2Vault), 100e18);
 
         assertEq(_withdrawable(), 60e18);
     }
 
     function testUsesOnlyConfiguredLiquidityDataMarket() external {
         _setBoringVaultShareClaim(1_000e18);
-        asset.mint(address(steakhouseVault), 100e18);
+        asset.mint(address(morphoV2Vault), 100e18);
         asset.mint(address(morpho), 1_000e18);
 
         MarketParams memory selectedMarket =
@@ -165,7 +165,7 @@ contract SteakhouseERC4626BufferLensTest is Test {
 
     function testCapsConfiguredMarketByAccountingLiquidity() external {
         _setBoringVaultShareClaim(1_000e18);
-        asset.mint(address(steakhouseVault), 100e18);
+        asset.mint(address(morphoV2Vault), 100e18);
         asset.mint(address(morpho), 1_000e18);
 
         bytes32 marketId =
@@ -178,7 +178,7 @@ contract SteakhouseERC4626BufferLensTest is Test {
 
     function testCapsConfiguredMarketByMorphoTokenLiquidity() external {
         _setBoringVaultShareClaim(1_000e18);
-        asset.mint(address(steakhouseVault), 100e18);
+        asset.mint(address(morphoV2Vault), 100e18);
         asset.mint(address(morpho), 75e18);
 
         bytes32 marketId =
@@ -191,7 +191,7 @@ contract SteakhouseERC4626BufferLensTest is Test {
 
     function testCapsTotalWithdrawableByBoringVaultShareClaim() external {
         _setBoringVaultShareClaim(300e18);
-        asset.mint(address(steakhouseVault), 100e18);
+        asset.mint(address(morphoV2Vault), 100e18);
         asset.mint(address(morpho), 1_000e18);
 
         bytes32 marketId =
@@ -203,8 +203,8 @@ contract SteakhouseERC4626BufferLensTest is Test {
     }
 
     function _setBoringVaultShareClaim(uint256 assets) internal {
-        steakhouseVault.mintShares(boringVault, assets);
-        steakhouseVault.setTotalAssets(assets);
+        morphoV2Vault.mintShares(boringVault, assets);
+        morphoV2Vault.setTotalAssets(assets);
     }
 
     function _withdrawable() internal view returns (uint256) {
@@ -213,7 +213,7 @@ contract SteakhouseERC4626BufferLensTest is Test {
 
     function _setLiquidityData(MarketParams memory marketParams) internal returns (bytes32 marketId) {
         marketId = _marketId(marketParams);
-        steakhouseVault.setLiquidityData(abi.encode(marketParams));
+        morphoV2Vault.setLiquidityData(abi.encode(marketParams));
     }
 
     function _marketId(MarketParams memory marketParams) internal pure returns (bytes32) {

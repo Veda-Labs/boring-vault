@@ -12,7 +12,7 @@ import {ERC4626BufferHelper, IBufferHelper} from "src/base/Roles/ERC4626BufferHe
 import {IBufferLens} from "src/interfaces/IBufferLens.sol";
 import {IMorpho, Id, Market} from "src/interfaces/IMorpho.sol";
 
-interface ISteakhouseVault is IERC4626 {
+interface IMorphoV2Vault is IERC4626 {
     function liquidityAdapter() external view returns (address);
     function liquidityData() external view returns (bytes memory);
 }
@@ -22,7 +22,7 @@ interface ILiquidityAdapter {
     function expectedSupplyAssets(bytes32) external view returns (uint256);
 }
 
-contract SteakhouseERC4626BufferLens is IBufferLens {
+contract MorphoV2ERC4626BufferLens is IBufferLens {
     function getInstantlyWithdrawableAmount(TellerWithBuffer teller, ERC20 asset)
         external
         view
@@ -44,11 +44,11 @@ contract SteakhouseERC4626BufferLens is IBufferLens {
             withdrawableAmount = asset.balanceOf(address(erc4626Vault));
 
             // Get the currently configured liquidity adapter market.
-            ISteakhouseVault steakhouseVault = ISteakhouseVault(address(erc4626Vault));
-            address liquidityAdapterAddress = steakhouseVault.liquidityAdapter();
+            IMorphoV2Vault morphoV2Vault = IMorphoV2Vault(address(erc4626Vault));
+            address liquidityAdapterAddress = morphoV2Vault.liquidityAdapter();
             if (liquidityAdapterAddress != address(0)) {
                 withdrawableAmount += _getConfiguredMarketLiquidity(
-                    asset, liquidityAdapterAddress, steakhouseVault.liquidityData()
+                    asset, liquidityAdapterAddress, morphoV2Vault.liquidityData()
                 );
             }
 
