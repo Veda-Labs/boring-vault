@@ -8,16 +8,16 @@ import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecode
 import {OFTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OFTDecoderAndSanitizer.sol";
 import {OneInchDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OneInchDecoderAndSanitizer.sol";
 import {CCTPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCTPDecoderAndSanitizer.sol";
-import {UniswapV3SwapRouter02DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV3SwapRouter02DecoderAndSanitizer.sol";
+import {UniswapV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/UniswapV3DecoderAndSanitizer.sol";
 
 contract SentoraBTCMainnetDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
     OFTDecoderAndSanitizer,
     OneInchDecoderAndSanitizer,
-    CCTPDecoderAndSanitizer,    
-    UniswapV3SwapRouter02DecoderAndSanitizer
+    CCTPDecoderAndSanitizer, 
+    UniswapV3DecoderAndSanitizer
 {
     constructor(address _uniswapV3NonFungiblePositionManager)
-    UniswapV3SwapRouter02DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
+    UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
     {}
 }

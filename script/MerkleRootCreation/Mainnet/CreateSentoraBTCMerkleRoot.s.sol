@@ -19,7 +19,7 @@ contract CreateSentoraBTCMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x7Dee0120739b7ec048B469939EFB178ADbbB19B2;
-    address public rawDataDecoderAndSanitizer = 0x6AbBF63aCe627106190ca7845e5609e6AD6eB357;
+    address public rawDataDecoderAndSanitizer = 0x327E88d3fc8091D3bD92Cc455a52B4Ca145A5350;
     address public itbDecoderAndSanitizer = 0x2D7085602a85aFb417AE1dFcEc09C301FeC8Df36;
     address public managerAddress = 0x29AB989D159C44dCE28A722d36aE7E35b7dB9CFE;
     address public accountantAddress = 0x4Bb6C416a00561ad6657110b76552c42d55Ff1d6;
