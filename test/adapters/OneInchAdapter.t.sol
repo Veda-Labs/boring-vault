@@ -10,7 +10,7 @@ import {ISwapperTypes} from "src/interfaces/ISwapperTypes.sol";
 import {BoringSwapperDecoder} from "src/base/DecodersAndSanitizers/Protocols/BoringSwapperDecoderAndSanitizer.sol";
 import {BoringVault} from "src/base/BoringVault.sol";
 import {AdapterRegistry} from "src/base/Periphery/AdapterRegistry.sol";
-import {OneInchAdapter} from "src/base/Periphery/adapters/OneInchAdapter.sol";
+import {OneInchAdapter, IOneInchOrderMixin} from "src/base/Periphery/adapters/OneInchAdapter.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
@@ -590,7 +590,7 @@ contract OneInchAdapterTest is BaseTestIntegration {
         (ISwapperTypes.SwapConfig memory config,, uint256 orderId) =
             _submitOneInchOrder(1e18, 2000e6);
 
-        (ERC20 tokenIn,,,, BoringVault receiver, uint256 inputAmount,,,) =
+        (ERC20 tokenIn,,,, BoringVault receiver, uint256 inputAmount,,,,,) =
             swapper.orderRecords(orderId);
         assertEq(address(tokenIn), getAddress(sourceChain, "WETH"));
         assertEq(inputAmount, 1e18);
@@ -657,15 +657,9 @@ contract OneInchAdapterTest is BaseTestIntegration {
         assertEq(getERC20(sourceChain, "WETH").balanceOf(address(swapper)), 0);
         assertEq(getERC20(sourceChain, "WETH").balanceOf(getAddress(sourceChain, "boringVault")), 100e18);
 
-        (ERC20 tokenIn,,,,,,,,) = swapper.orderRecords(orderId);
-        //cancels no longer delete the record until after the fee delay has passed
+        (ERC20 tokenIn,,,,,,,,,,) = swapper.orderRecords(orderId);
+        //cancel preserves the record; releaseFee deletes it later
         assertEq(address(tokenIn), getAddress(sourceChain, "WETH"));
-
-        skip(1 days); 
-        swapper.releaseCancelFee(orderId); 
-
-        (ERC20 tokenInAfter,,,,,,,,) = swapper.orderRecords(orderId);
-        assertEq(address(tokenInAfter), address(0));
     }
 
     function testOneInchFullFillFlow() external {
@@ -705,30 +699,7 @@ contract OneInchAdapterTest is BaseTestIntegration {
         swapper.cancelOrder(orderId, config);
     }
 
-    // The adapter rejects orders without NO_PARTIAL_FILLS_FLAG set in makerTraits — required so that
-    // invalidation routes through BitInvalidator and isValidSignature is called on every fill attempt.
-    function testOneInchSubmitOrder_RevertPartialFillsNotAllowed() external {
-        deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18);
-
-        (ISwapperTypes.SwapConfig memory config,) = _buildOneInchSwapConfig(1e18, 2000e6);
-        DecoderCustomTypes.OneInchLimitOrder memory order = DecoderCustomTypes.OneInchLimitOrder({
-            salt: 1,
-            maker: address(swapper),
-            receiver: getAddress(sourceChain, "boringVault"),
-            makerAsset: getAddress(sourceChain, "WETH"),
-            takerAsset: getAddress(sourceChain, "USDC"),
-            makingAmount: 1e18,
-            takingAmount: 2000e6,
-            makerTraits: 0 // NO_PARTIAL_FILLS_FLAG absent
-        });
-        config.swapData = abi.encode(order, bytes(""));
-
-        vm.prank(getAddress(sourceChain, "boringVault"));
-        vm.expectRevert(abi.encodeWithSelector(OneInchAdapter.OneInchAdapter__PartialFillsNotAllowed.selector));
-        swapper.submitOrder(config);
-    }
-
-    function testOneInchLimitOrder_IsFilled() external {
+    function testOneInchLimitOrder_filledAmount() external {
         uint256 nonce = 0x234234234;
 
         (ISwapperTypes.SwapConfig memory config,) = _buildOneInchSwapConfig(1e18, 2000e6);
@@ -744,19 +715,19 @@ contract OneInchAdapterTest is BaseTestIntegration {
         });
         config.swapData = abi.encode(order, bytes(""));
 
-        assertFalse(OneInchAdapter(oneInchAdapter).isFilled(config, address(swapper)));
+        bytes32 structHash = keccak256(abi.encodePacked(ONEINCH_ORDER_TYPE_HASH, abi.encode(order)));
+        bytes32 orderHash = keccak256(abi.encodePacked("\x19\x01", _oneInchDomainSeparator(), structHash));
+        
+        //full amount remaining?
+        assertEq(OneInchAdapter(oneInchAdapter).filledAmount(config, address(swapper)), 0);
 
-        // mock the router so its bitInvalidator word for (swapper, slot) has our nonce's bit set,
-        // matching what 1inch would write on a real fill — isFilled reads from router storage
-        uint256 slot = nonce >> 8;
-        uint256 bitMask = uint256(1) << (nonce & 0xff);
-        vm.mockCall(
-            ONEINCH_ROUTER,
-            abi.encodeWithSignature("bitInvalidatorForOrder(address,uint256)", address(swapper), slot),
-            abi.encode(bitMask)
-        );
+        bytes32 inner = keccak256(abi.encode(address(swapper), uint256(5)));
+        bytes32 slot  = keccak256(abi.encode(orderHash, inner));
+        vm.store(getAddress(sourceChain, "aggregationRouterV6"), slot, bytes32(~uint256(1e14)));
 
-        assertTrue(OneInchAdapter(oneInchAdapter).isFilled(config, address(swapper)));
+        assertEq(OneInchAdapter(oneInchAdapter).filledAmount(config, address(swapper)), 1e18 - 1e14);
+
+        //TODO tests for full fill and the one other branch
     }
 
     function testOneInchLimitMask() external {

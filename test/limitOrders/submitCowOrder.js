@@ -44,8 +44,8 @@ const ORDER_TYPE = {
 // Picks a validTo, saves order params to cow-order.json, prints what to paste into Solidity
 
 function generate() {
-    const sellAmount = ethers.parseUnits("0.001", 18).toString();
-    const buyAmount = ethers.parseUnits("2.2", 6).toString();
+    const sellAmount = ethers.parseUnits("0.000001", 18).toString(); // 1e12 wei
+    const buyAmount = ethers.parseUnits("0.0022", 6).toString();
     const validTo = Math.floor(Date.now() / 1000) + 3600; // 1 hour from now
 
     const order = {

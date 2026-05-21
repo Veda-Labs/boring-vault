@@ -208,9 +208,9 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         FeeRegistry feeReg = new FeeRegistry(address(this), 1000);
         feeReg.setTokenGroup(address(swapper), getAddress(sourceChain, "WETH"), 2);
         feeReg.setTokenGroup(address(swapper), getAddress(sourceChain, "USDC"), 1);
-        feeReg.setGroupPairFee(address(swapper), 1, 2, 30);
+        feeReg.setLimitGroupPairFee(address(swapper), 1, 2, 30);
         feeReg.setDefaultFeeRecipient(address(swapper), feeRecipient);
-        feeReg.setSwapperActive(address(swapper), true);
+        feeReg.toggleSwapperLimitFee(address(swapper), true);
         swapper.setFeeRegistry(IFeeRegistry(address(feeReg)));
 
         address[] memory tokens = new address[](2);
@@ -646,7 +646,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         (ISwapperTypes.SwapConfig memory config,, uint256 orderId) =
             _submitOneInchOrder(1e18, 2000e6);
 
-        (ERC20 tokenIn,,,, BoringVault receiver, uint256 inputAmount,,,) =
+        (ERC20 tokenIn,,,, BoringVault receiver, uint256 inputAmount,,,,,) =
             swapper.orderRecords(orderId);
         assertEq(address(tokenIn), getAddress(sourceChain, "WETH"));
         assertEq(inputAmount, 1e18);
@@ -713,7 +713,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         assertEq(getERC20(sourceChain, "WETH").balanceOf(address(swapper)), 0);
         assertEq(getERC20(sourceChain, "WETH").balanceOf(getAddress(sourceChain, "boringVault")), 100e18);
 
-        (ERC20 tokenIn,,,,,,,,) = swapper.orderRecords(orderId);
+        (ERC20 tokenIn,,,,,,,,,,) = swapper.orderRecords(orderId);
         assertEq(address(tokenIn), address(0));
     }
 

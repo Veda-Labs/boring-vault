@@ -71,8 +71,6 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
     error BoringSwapper__CancelFailed();
     error BoringSwapper__FeeRecipientNotSet();
     error BoringSwapper__AlreadyCancelled();
-    error BoringSwapper__NotCancelledOrder();
-    error BoringSwapper__CancelFeeNotClaimable();
     error BoringSwapper__DuplicateOrder();
     error BoringSwapper__WrongAdapter();
     error BoringSwapper__OrderAlreadyFilled();
@@ -234,7 +232,7 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
         if (swapConfig.adapter != record.adapter) revert BoringSwapper__WrongAdapter();
 
         //reject any cancels after fill
-        if (IAdapter(record.adapter).isFilled(swapConfig, address(this))) revert BoringSwapper__OrderAlreadyFilled();
+        if (IAdapter(record.adapter).filledAmount(swapConfig, address(this)) >= record.inputAmount) revert BoringSwapper__OrderAlreadyFilled();
 
         record.cancelledAt = block.timestamp;
 
@@ -642,7 +640,7 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
 
         // @dev !!! IMPORTANT !!!
         // vault must hold inputAmount + fee — strategist is responsible for leaving room for the fee!
-        // use `getFee` on feeRegistry if you are swapping entire balances of a single token
+        // use `getLimitFee` on feeRegistry if you are swapping entire balances of a single token
         pendingOrderPrincipal[swapConfig.tokenRoute.tokenIn] += info.inputAmount;
         swapConfig.tokenRoute.tokenIn
             .safeTransferFrom(address(swapConfig.receiver), address(this), info.inputAmount + limitFee);

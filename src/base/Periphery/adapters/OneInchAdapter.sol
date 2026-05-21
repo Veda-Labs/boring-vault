@@ -13,7 +13,7 @@ import {IUniswapV3} from "src/interfaces/IUniswapV3.sol";
 import {ICurvePool} from "src/interfaces/ICurvePool.sol";
 
 interface IOneInchOrderMixin {
-    function bitInvalidatorForOrder(address maker, uint256 slot) external view returns (uint256);
+    function rawRemainingInvalidatorForOrder(address maker, bytes32 orderHash) external view returns (uint256);
 }
 contract OneInchAdapter is IAdapter, BaseAdapter {
 
@@ -40,7 +40,6 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
     error OneInchAdapter__NoCustomReceiver();
     error OneInchAdapter__CustomReceiverOutOfBounds();
     error OneInchAdapter__UnsupportedProtocol();
-    error OneInchAdapter__PartialFillsNotAllowed();
     error OneInchAdapter__EpochManagerNotAllowed();
 
     address public immutable router;
@@ -279,7 +278,6 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         if (ERC20(order.makerAsset) != swapConfig.tokenRoute.tokenIn) revert OneInchAdapter__MakerAssetMismatch();
         if (ERC20(order.takerAsset) != swapConfig.tokenRoute.tokenOut) revert OneInchAdapter__TakerAssetMismatch();
         if (order.maker != swapper) revert OneInchAdapter__MakerNotSwapper();
-        if (order.makerTraits & _NO_PARTIAL_FILLS_FLAG == 0) revert OneInchAdapter__PartialFillsNotAllowed();
         if (order.makerTraits & _NEED_CHECK_EPOCH_MANAGER_FLAG != 0) revert OneInchAdapter__EpochManagerNotAllowed();
 
         //for orders with a fee extension, the order.receiver is the fee taker contract.
@@ -324,17 +322,26 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
     ///      through BitInvalidator; a partially-fillable order would use RemainingInvalidator and this
     ///      check would return false on a real fill (RemainingInvalidator records the remaining
     ///      amount instead of flipping the bit we read).
-    function isFilled(ISwapperTypes.SwapConfig calldata swapConfig, address swapper)
+    function filledAmount(ISwapperTypes.SwapConfig calldata swapConfig, address swapper)
         external
         view
-        returns (bool)
+        returns (uint256)
     {
         (DecoderCustomTypes.OneInchLimitOrder memory order,) =
             abi.decode(swapConfig.swapData, (DecoderCustomTypes.OneInchLimitOrder, bytes));
-        uint256 nonceOrEpoch = (order.makerTraits >> _NONCE_OR_EPOCH_OFFSET) & _NONCE_OR_EPOCH_MASK;
-        uint256 slot = nonceOrEpoch >> 8;
-        uint256 bit = 1 << (nonceOrEpoch & 0xff);
-        return IOneInchOrderMixin(router).bitInvalidatorForOrder(swapper, slot) & bit != 0;
+        bytes memory orderData = abi.encode(order);
+        bytes32 orderHash = _computeOrderHash(orderData);
+        uint256 raw = IOneInchOrderMixin(router).rawRemainingInvalidatorForOrder(swapper, orderHash);
+        uint256 filled;
+        if (raw == 0) {
+            filled = 0;                              // untouched
+        } else if (raw == type(uint256).max) {       
+            filled = order.makingAmount;             // fully filled or cancelled
+        } else {
+            filled = order.makingAmount - ~raw;      // partial fill: ~raw is the remaining maker amount
+        }
+        
+        return filled;
     }
 
     function version() external view returns (uint256) {

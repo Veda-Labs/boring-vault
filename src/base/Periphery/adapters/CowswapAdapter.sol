@@ -58,7 +58,6 @@ contract CowswapAdapter is IAdapter {
 
         if (order.kind != keccak256("sell")) revert CowswapAdapter__OnlySellOrdersSupported();
         if (order.feeAmount != 0) revert CowswapAdapter__NonZeroFeeAmount();
-        if (order.partiallyFillable) revert CowswapAdapter__PartialFillsNotAllowed();
         if (order.sellTokenBalance != keccak256("erc20")) revert CowswapAdapter__InvalidSellTokenBalance();
         if (order.buyTokenBalance != keccak256("erc20")) revert CowswapAdapter__InvalidBuyTokenBalance();
         if (ERC20(order.sellToken) != swapConfig.tokenRoute.tokenIn) revert CowswapAdapter__SellTokenMismatch();
@@ -94,16 +93,16 @@ contract CowswapAdapter is IAdapter {
     ///      invalidates from inside `_cancelOrder` and queries `isFilled` BEFORE that call, so any
     ///      non-zero reading at this site must be a genuine fill. Partial fills are rejected upstream
     ///      in `verifyLimitOrder`.
-    function isFilled(ISwapperTypes.SwapConfig calldata swapConfig, address swapper)
+    function filledAmount(ISwapperTypes.SwapConfig calldata swapConfig, address swapper)
         external
         view
-        returns (bool)
+        returns (uint256)
     {
         DecoderCustomTypes.GPv2OrderData memory order =
             abi.decode(swapConfig.swapData, (DecoderCustomTypes.GPv2OrderData));
         bytes32 orderHash = _computeOrderHash(swapConfig.swapData);
         bytes memory orderUid = abi.encodePacked(orderHash, swapper, order.validTo);
-        return IGPv2Settlement(cowSettlement).filledAmount(orderUid) != 0;
+        return IGPv2Settlement(cowSettlement).filledAmount(orderUid);
     }
 
     function version() external view returns (uint256) {

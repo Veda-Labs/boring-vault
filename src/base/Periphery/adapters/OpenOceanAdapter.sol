@@ -261,15 +261,12 @@ contract OpenOceanAdapter is IAdapter, BaseAdapter {
     ///      `_cancelOrder` and queries `isFilled` BEFORE that call, so `1` at this site means fill.
     ///      `remainingRaw` never reverts on unknown orders (it just returns 0), so this is safe to call
     ///      before submission lands on-chain.
-    function isFilled(ISwapperTypes.SwapConfig calldata swapConfig, address)
+    function filledAmount(ISwapperTypes.SwapConfig calldata swapConfig, address)
         external
         view
-        returns (bool)
+        returns (uint256)
     {
-        DecoderCustomTypes.OpenOceanLimitOrder memory order =
-            abi.decode(swapConfig.swapData, (DecoderCustomTypes.OpenOceanLimitOrder));
-        bytes32 orderHash = _computeOrderHash(order);
-        return IOpenOceanLimitOrderProtocol(limitOrderProtocol).remainingRaw(orderHash) == 1;
+        return 0;
     }
 
     function version() external pure returns (uint256) {

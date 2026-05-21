@@ -38,11 +38,5 @@ interface IAdapter {
     ///        of defense: the cancel MUST succeed externally. Implement existence checks accordingly.
     function cancelLimitOrder(ISwapperTypes.SwapConfig calldata swapConfig, address swapper) external view returns (address target, bytes memory data);
 
-    /// @notice Returns true iff the protocol considers the order filled.
-    /// @dev Read-only inspection of protocol state (e.g. CoW `filledAmount`, 1inch `bitInvalidatorForOrder`,
-    ///      OpenOcean `remainingRaw`). The swapper calls this inside `_cancelOrder` BEFORE invoking
-    ///      `cancelLimitOrder`, so any "set" reading at the call site must be a genuine fill — the swapper
-    ///      has not yet invalidated the order itself. Adapters that do not support limit orders MUST
-    ///      revert (matching their `verifyLimitOrder` / `cancelLimitOrder` behavior).
-    function isFilled(ISwapperTypes.SwapConfig calldata swapConfig, address swapper) external view returns (bool);
+    function filledAmount(ISwapperTypes.SwapConfig calldata swapConfig, address swapper) external view returns (uint256);
 }

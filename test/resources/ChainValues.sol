@@ -1598,6 +1598,10 @@ contract ChainValues {
     
         //Mellow DVstETH 
         values[mainnet]["dvStethWhitelistedEthWrapper"] = 0xfD4a4922d1AFe70000Ce0Ec6806454e78256504e.toBytes32();
+
+        //Cowswap
+        values[mainnet]["cowswapSettlement"] = 0x9008D19f58AAbD9eD0D60971565AA8510560ab41.toBytes32();
+        values[mainnet]["cowswapVaultRelayer"] = 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110.toBytes32();
     }
 
     function _addBaseValues() private {

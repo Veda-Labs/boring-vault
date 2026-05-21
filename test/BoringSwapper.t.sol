@@ -39,7 +39,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     // Mirror events for vm.expectEmit (emit ContractName.Event crashes solc 0.8.21 NatSpec)
     event OrderCancelled(uint256 indexed orderId, uint256 refundAmount);
     event OrderSubmitted(uint256 indexed orderId, bytes32 indexed routeId, uint256 amountIn, address indexed receiver);
-    event SwapperActiveUpdated(address indexed swapper, bool active);
+    event LimitFeeToggleUpdated(address indexed swapper, bool active);
     event MaxFeeBpsUpdated(uint16 newMaxFeeBps);
 
     //cow protocol constants
@@ -155,7 +155,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
             _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
 
         //order record stored
-        (ERC20 tokenIn,,,, BoringVault receiver, uint256 inputAmount,,,) =
+        (ERC20 tokenIn,,,, BoringVault receiver, uint256 inputAmount,,,,,) =
             swapper.orderRecords(orderId);
         assertEq(address(tokenIn), address(WETH));
         assertEq(inputAmount, 1e18);
@@ -323,8 +323,8 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         assertEq(WETH.balanceOf(address(swapper)), 0);
         assertEq(WETH.balanceOf(address(boringVault)), 100e18);
 
-        //record marked as cancelled (preserved for releaseCancelFee)
-        (ERC20 tokenIn,,,,,,,, uint256 cancelledAt) = swapper.orderRecords(orderId);
+        //record marked as cancelled (preserved until releaseFee)
+        (ERC20 tokenIn,,,,,,,, uint256 cancelledAt,,) = swapper.orderRecords(orderId);
         assertEq(address(tokenIn), address(WETH));
         assertGt(cancelledAt, 0);
     }
@@ -369,11 +369,11 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         assertEq(WETH.balanceOf(address(boringVault)), 98e18);
 
         //order 0 marked cancelled (record preserved), order 1 still pending
-        (ERC20 tokenIn0,,,,,,,, uint256 cancelledAt0) = swapper.orderRecords(orderId0);
+        (ERC20 tokenIn0,,,,,,,, uint256 cancelledAt0,,) = swapper.orderRecords(orderId0);
         assertEq(address(tokenIn0), address(WETH));
         assertGt(cancelledAt0, 0);
 
-        (ERC20 tokenIn1,,,,, uint256 inputAmount1,,, uint256 cancelledAt1) = swapper.orderRecords(orderId1);
+        (ERC20 tokenIn1,,,,, uint256 inputAmount1,,, uint256 cancelledAt1,,) = swapper.orderRecords(orderId1);
         assertEq(cancelledAt1, 0);
         assertEq(address(tokenIn1), address(WETH));
         assertEq(inputAmount1, 2e18);
@@ -792,13 +792,13 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         uint256 newOrderId = swapper.orders();
         swapper.replaceOrder(orderId, oldConfig, newConfig);
 
-        // old order record marked cancelled (preserved for releaseCancelFee)
-        (ERC20 tokenIn,,,,,,,, uint256 cancelledAt) = swapper.orderRecords(orderId);
+        // old order record marked cancelled (preserved until releaseFee)
+        (ERC20 tokenIn,,,,,,,, uint256 cancelledAt,,) = swapper.orderRecords(orderId);
         assertEq(address(tokenIn), address(WETH));
         assertGt(cancelledAt, 0);
 
         // new order record exists with correct data
-        (ERC20 newTokenIn,,,,, uint256 newInputAmount,,, uint256 newCancelledAt) = swapper.orderRecords(newOrderId);
+        (ERC20 newTokenIn,,,,, uint256 newInputAmount,,, uint256 newCancelledAt,,) = swapper.orderRecords(newOrderId);
         assertEq(newCancelledAt, 0);
         assertEq(address(newTokenIn), address(WETH));
         assertEq(newInputAmount, 2e18);
@@ -889,11 +889,11 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         feeRegistry = new FeeRegistry(address(this), 1000);
         feeRegistry.setTokenGroup(address(this), address(USDC), 1);
         feeRegistry.setTokenGroup(address(this), address(WETH), 1);
-        feeRegistry.setGroupPairFee(address(this), 1, 1, 5);
+        feeRegistry.setLimitGroupPairFee(address(this), 1, 1, 5);
         feeRegistry.setDefaultFeeRecipient(address(this), address(0x69));
 
-        uint16 feeBps = feeRegistry.getFee(address(this), address(USDC), address(WETH));
-        address recipient = feeRegistry.getFeeRecipient(address(this), ERC20(address(WETH)));
+        uint16 feeBps = feeRegistry.getLimitFee(address(this), address(USDC), address(WETH));
+        address recipient = feeRegistry.getFeeRecipientLimit(address(this), ERC20(address(WETH)));
         assertEq(feeBps, 5);
         assertEq(recipient, address(0x69));
     }
@@ -902,44 +902,44 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         feeRegistry = new FeeRegistry(address(this), 1000);
         feeRegistry.setTokenGroup(address(this), address(WETH), 2);
         feeRegistry.setTokenGroup(address(this), address(USDC), 1);
-        feeRegistry.setGroupPairFee(address(this), 1, 2, 30);
+        feeRegistry.setLimitGroupPairFee(address(this), 1, 2, 30);
 
-        uint16 feeBps = feeRegistry.getFee(address(this), address(WETH), address(USDC));
+        uint16 feeBps = feeRegistry.getLimitFee(address(this), address(WETH), address(USDC));
         assertEq(feeBps, 30);
         // symmetric: (B,A) should return same fee as (A,B)
-        uint16 feeBps2 = feeRegistry.getFee(address(this), address(USDC), address(WETH));
+        uint16 feeBps2 = feeRegistry.getLimitFee(address(this), address(USDC), address(WETH));
         assertEq(feeBps2, 30);
     }
 
     function testFeeRegistry_DefaultFallback() external {
         feeRegistry = new FeeRegistry(address(this), 1000);
-        feeRegistry.setDefaultFee(address(this), 20);
+        feeRegistry.setDefaultLimitFee(address(this), 20);
         feeRegistry.setDefaultFeeRecipient(address(this), address(0x69));
 
-        uint16 feeBps = feeRegistry.getFee(address(this), address(WETH), address(USDC));
-        address recipient = feeRegistry.getFeeRecipient(address(this), ERC20(address(USDC)));
+        uint16 feeBps = feeRegistry.getLimitFee(address(this), address(WETH), address(USDC));
+        address recipient = feeRegistry.getFeeRecipientLimit(address(this), ERC20(address(USDC)));
         assertEq(feeBps, 20);
         assertEq(recipient, address(0x69));
     }
 
     function testFeeRegistry_GroupPairOverridesDefault() external {
         feeRegistry = new FeeRegistry(address(this), 1000);
-        feeRegistry.setDefaultFee(address(this), 20);
+        feeRegistry.setDefaultLimitFee(address(this), 20);
         feeRegistry.setTokenGroup(address(this), address(WETH), 2);
         feeRegistry.setTokenGroup(address(this), address(USDC), 1);
-        feeRegistry.setGroupPairFee(address(this), 1, 2, 5);
+        feeRegistry.setLimitGroupPairFee(address(this), 1, 2, 5);
 
-        uint16 feeBps = feeRegistry.getFee(address(this), address(WETH), address(USDC));
+        uint16 feeBps = feeRegistry.getLimitFee(address(this), address(WETH), address(USDC));
         assertEq(feeBps, 5);
     }
 
     function testFeeRegistry_IsolatedPerSwapper() external {
         feeRegistry = new FeeRegistry(address(this), 1000);
         // configure for address(this) — address(0x420) swapper should see zero fee
-        feeRegistry.setDefaultFee(address(this), 20);
+        feeRegistry.setDefaultLimitFee(address(this), 20);
 
-        uint16 feeBps = feeRegistry.getFee(address(0x420), address(WETH), address(USDC));
-        address recipient = feeRegistry.getFeeRecipient(address(0x420), ERC20(address(USDC)));
+        uint16 feeBps = feeRegistry.getLimitFee(address(0x420), address(WETH), address(USDC));
+        address recipient = feeRegistry.getFeeRecipientLimit(address(0x420), ERC20(address(USDC)));
         assertEq(feeBps, 0);
         assertEq(recipient, address(0));
     }
@@ -947,7 +947,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
     function testFeeRegistry_RevertFeeTooHigh() external {
         feeRegistry = new FeeRegistry(address(this), 1000);
         vm.expectRevert(FeeRegistry.FeeRegistry__FeeTooHigh.selector);
-        feeRegistry.setGroupPairFee(address(this), 0, 1, 1001);
+        feeRegistry.setLimitGroupPairFee(address(this), 0, 1, 1001);
     }
 
     function testFeeRegistry_RevertInvalidRecipient() external {
@@ -958,17 +958,17 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
     function testFeeRegistry_SetSwapperActive() external {
         feeRegistry = new FeeRegistry(address(this), 1000);
-        assertEq(feeRegistry.swapperActive(address(0x420)), false);
+        assertEq(feeRegistry.limitFeeActive(address(0x420)), false);
 
         vm.expectEmit(true, false, false, true, address(feeRegistry));
-        emit SwapperActiveUpdated(address(0x420), true);
-        feeRegistry.setSwapperActive(address(0x420), true);
-        assertEq(feeRegistry.swapperActive(address(0x420)), true);
+        emit LimitFeeToggleUpdated(address(0x420), true);
+        feeRegistry.toggleSwapperLimitFee(address(0x420), true);
+        assertEq(feeRegistry.limitFeeActive(address(0x420)), true);
 
         vm.expectEmit(true, false, false, true, address(feeRegistry));
-        emit SwapperActiveUpdated(address(0x420), false);
-        feeRegistry.setSwapperActive(address(0x420), false);
-        assertEq(feeRegistry.swapperActive(address(0x420)), false);
+        emit LimitFeeToggleUpdated(address(0x420), false);
+        feeRegistry.toggleSwapperLimitFee(address(0x420), false);
+        assertEq(feeRegistry.limitFeeActive(address(0x420)), false);
     }
 
     function testFeeRegistry_SetMaxFeeBps() external {
@@ -982,7 +982,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         // fee above new cap is rejected
         vm.expectRevert(FeeRegistry.FeeRegistry__FeeTooHigh.selector);
-        feeRegistry.setGroupPairFee(address(this), 0, 1, 501);
+        feeRegistry.setLimitGroupPairFee(address(this), 0, 1, 501);
     }
 
     //==================== BoringSwapper Fee Tests ====================
@@ -1007,8 +1007,8 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         // 10 bps fee on WETH → USDC, scoped to address(swapper)
         feeRegistry.setTokenGroup(address(swapper), address(WETH), 1);
         feeRegistry.setTokenGroup(address(swapper), address(USDC), 2);
-        feeRegistry.setGroupPairFee(address(swapper), 1, 2, 10);
-        feeRegistry.setSwapperActive(address(swapper), true);
+        feeRegistry.setLimitGroupPairFee(address(swapper), 1, 2, 10);
+        feeRegistry.toggleSwapperLimitFee(address(swapper), true);
         swapper.setFeeRegistry(IFeeRegistry(address(feeRegistry)));
 
         uint256 inputAmount = 1e18;
@@ -1040,8 +1040,8 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         feeRegistry = new FeeRegistry(address(this), 1000);
         // fee bps = 0 means no fee even with a registry set and swapper active
-        feeRegistry.setDefaultFee(address(swapper), 0);
-        feeRegistry.setSwapperActive(address(swapper), true);
+        feeRegistry.setDefaultLimitFee(address(swapper), 0);
+        feeRegistry.toggleSwapperLimitFee(address(swapper), true);
         swapper.setFeeRegistry(IFeeRegistry(address(feeRegistry)));
 
         (,, uint256 orderId) = _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
@@ -1057,8 +1057,8 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         feeRegistry.setTokenGroup(address(swapper), address(WETH), 1);
         feeRegistry.setTokenGroup(address(swapper), address(USDC), 2);
-        feeRegistry.setGroupPairFee(address(swapper), 1, 2, 10); // 10 bps
-        feeRegistry.setSwapperActive(address(swapper), true);
+        feeRegistry.setLimitGroupPairFee(address(swapper), 1, 2, 10); // 10 bps
+        feeRegistry.toggleSwapperLimitFee(address(swapper), true);
 
         uint256 inputAmount = 1e18;
         uint256 expectedFee = inputAmount * 10 / 10_000;
@@ -1076,8 +1076,8 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         feeRegistry.setTokenGroup(address(swapper), address(WETH), 1);
         feeRegistry.setTokenGroup(address(swapper), address(USDC), 2);
-        feeRegistry.setGroupPairFee(address(swapper), 1, 2, 10);
-        feeRegistry.setSwapperActive(address(swapper), true);
+        feeRegistry.setLimitGroupPairFee(address(swapper), 1, 2, 10);
+        feeRegistry.toggleSwapperLimitFee(address(swapper), true);
 
         uint256 inputAmount = 1e18;
         uint256 expectedFee = inputAmount * 10 / 10_000;
@@ -1097,8 +1097,8 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         feeRegistry.setTokenGroup(address(swapper), address(WETH), 1);
         feeRegistry.setTokenGroup(address(swapper), address(USDC), 2);
-        feeRegistry.setGroupPairFee(address(swapper), 1, 2, 10);
-        feeRegistry.setSwapperActive(address(swapper), true);
+        feeRegistry.setLimitGroupPairFee(address(swapper), 1, 2, 10);
+        feeRegistry.toggleSwapperLimitFee(address(swapper), true);
 
         uint256 inputAmount = 1e18;
         uint256 expectedFee = inputAmount * 10 / 10_000;
@@ -1148,7 +1148,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         swapper.releaseFee(orderId);
 
-        (ERC20 tokenIn,,,,,,,,) = swapper.orderRecords(orderId);
+        (ERC20 tokenIn,,,,,,,,,,) = swapper.orderRecords(orderId);
         assertEq(address(tokenIn), address(0));
         assertFalse(swapper.approvedHashes(digest));
         assertEq(swapper.claimableFees(WETH), 0);
@@ -1164,8 +1164,8 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         feeRegistry.setTokenGroup(address(swapper), address(WETH), 1);
         feeRegistry.setTokenGroup(address(swapper), address(USDC), 2);
-        feeRegistry.setGroupPairFee(address(swapper), 1, 2, 10);
-        feeRegistry.setSwapperActive(address(swapper), true);
+        feeRegistry.setLimitGroupPairFee(address(swapper), 1, 2, 10);
+        feeRegistry.toggleSwapperLimitFee(address(swapper), true);
 
         (ISwapperTypes.SwapConfig memory config, bytes32 digest, uint256 orderId) =
             _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
@@ -1181,8 +1181,8 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         feeRegistry.setTokenGroup(address(swapper), address(WETH), 1);
         feeRegistry.setTokenGroup(address(swapper), address(USDC), 2);
-        feeRegistry.setGroupPairFee(address(swapper), 1, 2, 10);
-        feeRegistry.setSwapperActive(address(swapper), true);
+        feeRegistry.setLimitGroupPairFee(address(swapper), 1, 2, 10);
+        feeRegistry.toggleSwapperLimitFee(address(swapper), true);
         feeRegistry.setDefaultFeeRecipient(address(swapper), address(0x69));
 
         uint256 inputAmount = 1e18;
@@ -1213,8 +1213,8 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         feeRegistry.setTokenGroup(address(swapper), address(WETH), 1);
         feeRegistry.setTokenGroup(address(swapper), address(USDC), 2);
-        feeRegistry.setGroupPairFee(address(swapper), 1, 2, 10);
-        feeRegistry.setSwapperActive(address(swapper), true);
+        feeRegistry.setLimitGroupPairFee(address(swapper), 1, 2, 10);
+        feeRegistry.toggleSwapperLimitFee(address(swapper), true);
         // no setDefaultFeeRecipient — recipient is address(0)
 
         (ISwapperTypes.SwapConfig memory config, bytes32 digest, uint256 orderId) =
@@ -1232,8 +1232,8 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         feeRegistry.setTokenGroup(address(swapper), address(WETH), 1);
         feeRegistry.setTokenGroup(address(swapper), address(USDC), 2);
-        feeRegistry.setGroupPairFee(address(swapper), 1, 2, 10);
-        feeRegistry.setSwapperActive(address(swapper), true);
+        feeRegistry.setLimitGroupPairFee(address(swapper), 1, 2, 10);
+        feeRegistry.toggleSwapperLimitFee(address(swapper), true);
 
         uint256 inputAmount = 1e18;
         uint256 expectedFee = inputAmount * 10 / 10_000;
@@ -1245,7 +1245,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         swapper.cancelOrder(orderId, config);
 
-        // vault gets only principal back; fee stays locked in feesInToken until releaseCancelFee
+        // vault gets only principal back; fee stays locked in feesInToken until releaseFee
         assertEq(WETH.balanceOf(address(boringVault)), 100e18 - expectedFee);
         assertEq(WETH.balanceOf(address(swapper)), expectedFee);
         assertEq(swapper.feesInToken(WETH), expectedFee);
@@ -1257,8 +1257,8 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         feeRegistry.setTokenGroup(address(swapper), address(WETH), 1);
         feeRegistry.setTokenGroup(address(swapper), address(USDC), 2);
-        feeRegistry.setGroupPairFee(address(swapper), 1, 2, 10);
-        feeRegistry.setSwapperActive(address(swapper), true);
+        feeRegistry.setLimitGroupPairFee(address(swapper), 1, 2, 10);
+        feeRegistry.toggleSwapperLimitFee(address(swapper), true);
 
         uint256 inputAmount = 1e18;
         uint256 expectedFee = inputAmount * 10 / 10_000;
@@ -1281,8 +1281,8 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         feeRegistry.setTokenGroup(address(swapper), address(WETH), 1);
         feeRegistry.setTokenGroup(address(swapper), address(USDC), 2);
-        feeRegistry.setGroupPairFee(address(swapper), 1, 2, 10); // 10 bps
-        feeRegistry.setSwapperActive(address(swapper), true);
+        feeRegistry.setLimitGroupPairFee(address(swapper), 1, 2, 10); // 10 bps
+        feeRegistry.toggleSwapperLimitFee(address(swapper), true);
 
         uint256 inputAmount = 3e18;
         uint256 expectedFee = inputAmount * 10 / 10_000;
