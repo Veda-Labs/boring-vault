@@ -469,9 +469,10 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
      *      and must be retained off-chain (event indexer or tx receipt) to cancel
      *      or solve. No on-chain requestId → struct mapping; recovery is
      *      event-indexer responsibility by design.
-     * @dev amountOfAssets is the rate-locked entitlement at request time.
-     *      Rate appreciation between request and solve accrues to the solver,
-     *      not the requester. To refresh the rate, cancel and re-request.
+     * @dev replaceOnChainWithdraw atomically cancels the old request and queues
+     *      a new one with amountOfAssets locked at the current rate. Rate
+     *      appreciation between the new request and solve accrues to the
+     *      solver, not the requester.
      * @dev Deny-listed users cannot complete or cancel active requests, so
      *      shares held by the queue for a deny-listed user remain locked
      *      until the admin removes the deny-list status.
