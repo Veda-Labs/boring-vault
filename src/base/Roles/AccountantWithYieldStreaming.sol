@@ -169,6 +169,9 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
      *      vested-so-far. maxDeviationYield caps the per-day rate, not the
      *      per-event total. Strategists are expected to pair yield
      *      realization with vestYield.
+     * @dev vestYield overwrites any active vest; strategists must include any
+     *      unvested remainder in yieldAmount. The `=` semantic (vs `+=`) is
+     *      deliberate, to allow mid-stream adjustments after PnL events.
      */
     function vestYield(uint256 yieldAmount, uint256 duration) external requiresAuth {
         if (accountantState.isPaused) revert AccountantWithRateProviders__Paused();
