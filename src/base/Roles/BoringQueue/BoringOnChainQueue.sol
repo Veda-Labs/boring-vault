@@ -358,6 +358,9 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
      *      and must be retained off-chain (event indexer or tx receipt) to cancel
      *      or solve. No on-chain requestId → struct mapping; recovery is
      *      event-indexer responsibility by design.
+     * @dev amountOfAssets is the rate-locked entitlement at request time.
+     *      Rate appreciation between request and solve accrues to the solver,
+     *      not the requester. To refresh the rate, cancel and re-request.
      */
     function requestOnChainWithdraw(address assetOut, uint128 amountOfShares, uint16 discount, uint24 secondsToDeadline)
         external
@@ -393,6 +396,9 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
      *      and must be retained off-chain (event indexer or tx receipt) to cancel
      *      or solve. No on-chain requestId → struct mapping; recovery is
      *      event-indexer responsibility by design.
+     * @dev amountOfAssets is the rate-locked entitlement at request time.
+     *      Rate appreciation between request and solve accrues to the solver,
+     *      not the requester. To refresh the rate, cancel and re-request.
      */
     function requestOnChainWithdrawWithPermit(
         address assetOut,
@@ -454,6 +460,9 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
      *      and must be retained off-chain (event indexer or tx receipt) to cancel
      *      or solve. No on-chain requestId → struct mapping; recovery is
      *      event-indexer responsibility by design.
+     * @dev amountOfAssets is the rate-locked entitlement at request time.
+     *      Rate appreciation between request and solve accrues to the solver,
+     *      not the requester. To refresh the rate, cancel and re-request.
      */
     function replaceOnChainWithdraw(OnChainWithdraw memory oldRequest, uint16 discount, uint24 secondsToDeadline)
         external
@@ -537,6 +546,9 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
 
     /**
      * @notice Preview assets out from a withdraw request.
+     * @dev amountOfAssets is the rate-locked entitlement at request time.
+     *      Rate appreciation between request and solve accrues to the solver,
+     *      not the requester. To refresh the rate, cancel and re-request.
      */
     function previewAssetsOut(address assetOut, uint128 amountOfShares, uint16 discount)
         public
