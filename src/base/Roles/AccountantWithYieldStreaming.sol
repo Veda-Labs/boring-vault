@@ -169,6 +169,9 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
      *      vested-so-far. maxDeviationYield caps the per-day rate, not the
      *      per-event total. Strategists are expected to pair yield
      *      realization with vestYield.
+     * @dev vestYield overwrites any active vest; strategists must include any
+     *      unvested remainder in yieldAmount. The `=` semantic (vs `+=`) is
+     *      deliberate, to allow mid-stream adjustments after PnL events.
      * @dev The dailyYieldBps cap is computed against _getTWAS(), an
      *      approximate time-weighted average supply manipulable by large
      *      deposits or withdrawals during the inter-vest window. TWAS was

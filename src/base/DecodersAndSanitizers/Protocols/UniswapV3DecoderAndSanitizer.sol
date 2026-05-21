@@ -27,6 +27,15 @@ contract UniswapV3DecoderAndSanitizer {
 
     //============================== UNISWAP V3 ===============================
 
+    /**
+     * @dev The path walk packs the 20-byte token addresses but not the 3-byte
+     *      fee tier between hops, and amountIn / amountOutMinimum are not
+     *      bound. By design, decoder leaves authorize swap shapes (which
+     *      tokens, which receiver) rather than specific values (which pool,
+     *      what slippage). A strategist with an authored leaf for a token
+     *      pair may route through any fee-tier pool of that pair, with any
+     *      slippage floor.
+     */
     function exactInput(DecoderCustomTypes.ExactInputParams calldata params)
         external
         pure
