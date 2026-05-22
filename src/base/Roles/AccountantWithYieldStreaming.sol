@@ -177,6 +177,9 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
      *      deposits or withdrawals during the inter-vest window. TWAS was
      *      introduced for fee calibration; strategist trust is the actual
      *      anti-inflation primitive.
+     * @dev yieldAmount is expected to be net of any performance fee. The
+     *      accountant does not re-charge fees against streaming yield;
+     *      fee accounting happens off-chain before vestYield is called.
      */
     function vestYield(uint256 yieldAmount, uint256 duration) external requiresAuth {
         if (accountantState.isPaused) revert AccountantWithRateProviders__Paused();

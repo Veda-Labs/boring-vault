@@ -358,6 +358,12 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
      *      and must be retained off-chain (event indexer or tx receipt) to cancel
      *      or solve. No on-chain requestId → struct mapping; recovery is
      *      event-indexer responsibility by design.
+     * @dev amountOfAssets is the rate-locked entitlement at request time.
+     *      Rate appreciation between request and solve accrues to the solver,
+     *      not the requester. To refresh the rate, cancel and re-request.
+     * @dev Deny-listed users cannot complete or cancel active requests, so
+     *      shares held by the queue for a deny-listed user remain locked
+     *      until the admin removes the deny-list status.
      */
     function requestOnChainWithdraw(address assetOut, uint128 amountOfShares, uint16 discount, uint24 secondsToDeadline)
         external
@@ -393,6 +399,12 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
      *      and must be retained off-chain (event indexer or tx receipt) to cancel
      *      or solve. No on-chain requestId → struct mapping; recovery is
      *      event-indexer responsibility by design.
+     * @dev amountOfAssets is the rate-locked entitlement at request time.
+     *      Rate appreciation between request and solve accrues to the solver,
+     *      not the requester. To refresh the rate, cancel and re-request.
+     * @dev Deny-listed users cannot complete or cancel active requests, so
+     *      shares held by the queue for a deny-listed user remain locked
+     *      until the admin removes the deny-list status.
      */
     function requestOnChainWithdrawWithPermit(
         address assetOut,
@@ -432,6 +444,9 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
      *      and must be retained off-chain (event indexer or tx receipt) to cancel
      *      or solve. No on-chain requestId → struct mapping; recovery is
      *      event-indexer responsibility by design.
+     * @dev Deny-listed users cannot complete or cancel active requests, so
+     *      shares held by the queue for a deny-listed user remain locked
+     *      until the admin removes the deny-list status.
      */
     function cancelOnChainWithdraw(OnChainWithdraw memory request)
         external
@@ -454,6 +469,13 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
      *      and must be retained off-chain (event indexer or tx receipt) to cancel
      *      or solve. No on-chain requestId → struct mapping; recovery is
      *      event-indexer responsibility by design.
+     * @dev replaceOnChainWithdraw atomically cancels the old request and queues
+     *      a new one with amountOfAssets locked at the current rate. Rate
+     *      appreciation between the new request and solve accrues to the
+     *      solver, not the requester.
+     * @dev Deny-listed users cannot complete or cancel active requests, so
+     *      shares held by the queue for a deny-listed user remain locked
+     *      until the admin removes the deny-list status.
      */
     function replaceOnChainWithdraw(OnChainWithdraw memory oldRequest, uint16 discount, uint24 secondsToDeadline)
         external
@@ -477,6 +499,9 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
      *      and must be retained off-chain (event indexer or tx receipt) to cancel
      *      or solve. No on-chain requestId → struct mapping; recovery is
      *      event-indexer responsibility by design.
+     * @dev Deny-listed users cannot complete or cancel active requests, so
+     *      shares held by the queue for a deny-listed user remain locked
+     *      until the admin removes the deny-list status.
      */
     function solveOnChainWithdraws(OnChainWithdraw[] calldata requests, bytes calldata solveData, address solver)
         external
@@ -537,6 +562,9 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
 
     /**
      * @notice Preview assets out from a withdraw request.
+     * @dev amountOfAssets is the rate-locked entitlement at request time.
+     *      Rate appreciation between request and solve accrues to the solver,
+     *      not the requester. To refresh the rate, cancel and re-request.
      */
     function previewAssetsOut(address assetOut, uint128 amountOfShares, uint16 discount)
         public
