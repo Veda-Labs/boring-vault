@@ -1,0 +1,98 @@
+Swapper / FeeRegistry TODOs
+===========================
+
+FeeRegistry
+-----------
+- [x] Fix the `> 0` fallback bug — 0 must be a valid explicitly-configured value, distinct from "unset".
+- [x] Add storage + setters + getter for limit fee amounts (separate from atomic).
+- [x] Remove cancel-fee delay machinery (storage, setters, getter, events).
+- [x] Drop orphan events `CancelFeeDelaySet` / `DefaultCancelFeeDelaySet`.
+- [x] Refresh stale `getFee()` reference in the contract header comment.
+
+IFeeRegistry
+------------
+- [x] Update interface to match new FeeRegistry surface.
+
+BoringSwapper
+-------------
+- [x] Stop refunding the fee on cancel; only principal is refunded.
+- [x] Delete `releaseCancelFee()` and related errors/events.
+- [x] Route atomic-path fee lookups to the new atomic fee getter.
+- [x] Route limit-path fee lookups to the new limit fee getter.
+- [x] Fix `claimFees` — calls removed `getFeeRecipient`; should be `getFeeRecipientLimit`.
+- [x] Update stale comments referencing `releaseCancelFee` / `getFee`.
+
+Tests
+-----
+- [ ] Cover route-fee = 0 with non-zero default.
+- [ ] Cover atomic vs limit fees configured independently.
+- [ ] Cover cancel keeps the fee (no refund).
+- [x] Remove tests for deleted cancel-fee-delay path.
+
+Script / leafs
+--------------
+- [ ] Update DeployBoringSwapper.s.sol for removed/renamed registry functions.
+- [ ] Update TemporaryLeafs.json selectors for removed functions.
+
+Partial fills (future)
+----------------------
+- [ ] IAdapter: swap `isFilled() -> bool` for `filledAmount() -> uint256` (or add alongside).
+- [ ] Update every adapter implementation (CoW, 1inch, Lifi, Uniswap, OpenOcean, etc).
+- [ ] OrderRecord: track filled state per order (or rely solely on adapter call at cancel time).
+- [ ] _cancelOrder: refund = inputAmount - filled; reduce allowance by (inputAmount - filled).
+- [ ] _cancelOrder: decrement pendingOrderPrincipal by (inputAmount - filled).
+- [ ] releaseFee: decrement pendingOrderPrincipal by filled (not inputAmount) for non-cancelled fills.
+- [ ] replaceOrder: query filled state of old order before submitting new one.
+- [ ] Tests: partial-fill cancel; partial-fill replaceOrder; partial-fill releaseFee accounting.
+
+CowswapAdapter test (filledAmount)
+----------------------------------
+- [ ] Create test/adapters/CowswapAdapter.t.sol.
+- [ ] Decide fork strategy (mainnet fork vs local deploy of GPv2Settlement).
+- [ ] Test setup: deploy/configure swapper + CowswapAdapter + boringVault, register adapter.
+- [ ] Helper: submit a CoW limit order through the swapper.
+- [ ] Decide fill-simulation mechanism (storage write vs solver impersonation through settle()) — must be "correct" in the sense of matching what a real fill writes.
+- [ ] Test: untouched order → filledAmount == 0.
+- [ ] Test: full fill → filledAmount == order.sellAmount.
+- [ ] Test: partial fill → filledAmount == executed sell amount.
+- [ ] Test: invalidated order → filledAmount == type(uint256).max (decide expected adapter behavior here).
+- [ ] Test: filledAmount must be read BEFORE cancelOrder runs (snapshot-before-invalidate ordering).
+
+On-chain filled-amount sources (research notes)
+-----------------------------------------------
+**Common pattern:** all three protocols overwrite the fill slot on cancel/invalidate, so
+the adapter MUST snapshot the filled amount *before* issuing the on-chain cancel.
+
+CoW (cleanest)
+  Contract:  GPv2Settlement @ 0x9008D19f58AAbD9eD0D60971565AA8510560ab41
+  Read:      filledAmount(bytes orderUid) -> uint256
+  Units:     sell-token units (sell orders) — our adapter only allows sell orders
+  Semantics: monotonic accumulator, capped at order.sellAmount
+  Gotcha:    invalidateOrder(uid) sets slot to type(uint256).max. Read BEFORE invalidate.
+  Unfilled:  order.sellAmount - filledAmount(uid)
+
+1inch v4 (most work — adapter today blocks partials)
+  Contract:  OrderMixin (in AggregationRouterV6 @ 0x111111125421cA6dc452d289314280a0f8842A65,
+             or standalone LOP v4 @ 0x119c71D3BbAC22029622cbaEc24854d3D32D2828)
+  Reads:     rawRemainingInvalidatorForOrder(maker, orderHash) -> uint256  (preferred — never reverts)
+             remainingInvalidatorForOrder(maker, orderHash)    -> uint256  (reverts on untouched)
+  Units:     remaining maker amount (maker-asset units)
+  Sentinels: raw == 0           -> untouched, unfilled = full makingAmount
+             raw == uint256.max -> fully filled OR cancelled (indistinguishable)
+             else               -> unfilled = remainingInvalidatorForOrder(...)
+  Blocker:   our adapter forces _NO_PARTIAL_FILLS_FLAG (OneInchAdapter.sol:282), which routes
+             through BitInvalidator and never touches _remainingInvalidator. Must drop that
+             flag and route isFilled / filledAmount through remainingInvalidatorForOrder.
+  Gotcha:    snapshot raw BEFORE cancelOrder (cancel writes uint256.max).
+
+OpenOcean (1inch LOP v2 fork — same shape as 1inch with offset-by-1 encoding)
+  Contract:  LimitOrderProtocol @ 0xcC8d695603ce0b43D352891892FcC716c6a7C9f4
+             (NOTE: 0x6672... in any existing config is wrong — empty bytecode. Check
+              the deploy script and any adapter constructor wiring.)
+  Reads:     remainingRaw(bytes32 orderHash) -> uint256  (preferred — never reverts)
+             remaining(bytes32 orderHash)    -> uint256  (reverts "LOP: Unknown order")
+  Encoding:  _remaining[hash] stores `unfilled + 1` (sentinel scheme):
+             raw == 0 -> untouched, unfilled = full makingAmount
+             raw == 1 -> fully filled OR cancelled (indistinguishable)
+             else     -> unfilled = raw - 1
+  Gotcha:    same as 1inch — snapshot raw BEFORE cancelOrder (cancel writes 1).

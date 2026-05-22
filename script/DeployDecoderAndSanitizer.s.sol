@@ -135,7 +135,7 @@ import {P1USDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/P1USDDeco
 import {SentayETHMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentayETHMainnetDecoderAndSanitizer.sol";
 import {GoldenGooseFillerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/FillerDecoderAndSanitizer.sol"; 
 import {LiquidVaultsOPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidVaultsOPDecoderAndSanitizer.sol"; 
-import {StakedEtherFiDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SymbioticLRTDecoderAndSanitizer.sol";
+import {SymbioticLRTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SymbioticLRTDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -157,21 +157,21 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("mainnet");
-        setSourceChainName("mainnet");
+        vm.createSelectFork("plasma");
+        setSourceChainName("plasma");
     }
 
     function run() external {
         bytes memory creationCode;
         bytes memory constructorArgs;
-        vm.startBroadcast(privateKey);
+        vm.startBroadcast();
 
-        creationCode = type(StakedEtherFiDecoderAndSanitizer).creationCode;
+        creationCode = type(LiquidETHPlasmaDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(
             getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
-            getAddress(sourceChain, "odosRouterV2")
+            getAddress(sourceChain, "fluidFactory")
         );
-        deployer.deployContract("Staked EtherFi Decoder And Sanitizer V0.1", creationCode, constructorArgs, 0);
+        deployer.deployContract("Liquid ETH Plasma Decoder and Sanitizer", creationCode, constructorArgs, 0);
         
         vm.stopBroadcast();
     }
