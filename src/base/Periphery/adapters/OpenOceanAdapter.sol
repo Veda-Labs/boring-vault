@@ -11,8 +11,16 @@ import {IAdapter} from "src/interfaces/IAdapter.sol";
 import {BaseAdapter} from "src/base/Periphery/adapters/BaseAdapter.sol";
 import {IUniswapV3} from "src/interfaces/IUniswapV3.sol";
 
-interface IOpenOceanLimitOrderProtocol {
-    function remainingRaw(bytes32 orderHash) external view returns (uint256);
+interface IUniswapV2Factory {
+    function getPair(address tokenA, address tokenB) external view returns (address);
+}
+
+interface IUniswapV3Factory {
+    function getPool(address tokenA, address tokenB, uint24 fee) external view returns (address);
+}
+
+interface IUniswapV3PoolFee {
+    function fee() external view returns (uint24);
 }
 
 contract OpenOceanAdapter is IAdapter, BaseAdapter {
@@ -26,41 +34,17 @@ contract OpenOceanAdapter is IAdapter, BaseAdapter {
     error OpenOceanAdapter__DstTokenMismatch();
     error OpenOceanAdapter__RecipientNotSwapper();
     error OpenOceanAdapter__WethFlagsNotAllowed();
-    error OpenOceanAdapter__MakerAssetMismatch();
-    error OpenOceanAdapter__TakerAssetMismatch();
-    error OpenOceanAdapter__MakerNotSwapper();
-    error OpenOceanAdapter__ReceiverMismatch();
-    error OpenOceanAdapter__NonEmptyMakerAssetData();
-    error OpenOceanAdapter__NonEmptyTakerAssetData();
-    error OpenOceanAdapter__NonEmptyGetMakerAmount();
-    error OpenOceanAdapter__NonEmptyGetTakerAmount();
-    error OpenOceanAdapter__NonEmptyPredicate();
-    error OpenOceanAdapter__NonEmptyPermit();
-    error OpenOceanAdapter__NonEmptyInteraction();
-    error OpenOceanAdapter__NotPublicOrder();
+    error OpenOceanAdapter__LimitOrdersNotSupported();
+    error OpenOceanAdapter__InvalidPool();
 
     //============================== State ===============================
 
     address public immutable router;
-    // Official OpenOcean caller contract — the only permitted IOpenOceanCaller value.
-    // Enforced in swap(), simpleSwap(), and swapGmxV2() to prevent arbitrary caller attacks.
     address public immutable openOceanCaller;
-    // OpenOcean Limit Order Protocol v2 — separate contract from the swap router.
-    address public immutable limitOrderProtocol;
-    bytes32 public immutable DOMAIN_SEPARATOR;
+    address public immutable univ2Factory;
+    address public immutable univ3Factory;
 
     //============================== Constants ===============================
-
-    bytes32 constant LIMIT_ORDER_TYPE_HASH = keccak256(
-        "Order(uint256 salt,address makerAsset,address takerAsset,address maker,address receiver,address allowedSender,uint256 makingAmount,uint256 takingAmount,bytes makerAssetData,bytes takerAssetData,bytes getMakerAmount,bytes getTakerAmount,bytes predicate,bytes permit,bytes interaction)"
-    );
-
-    // cancelOrder(Order) where Order is the 15-field tuple.
-    bytes4 constant CANCEL_ORDER_SELECTOR = bytes4(
-        keccak256(
-            "cancelOrder((uint256,address,address,address,address,address,uint256,uint256,bytes,bytes,bytes,bytes,bytes,bytes,bytes))"
-        )
-    );
 
     // UniV2 pool bit masks — applied to bytes32[] pools elements cast to uint256.
     // REVERSE_MASK: when set, output token is token0 (selling token1); otherwise output is token1.
@@ -77,19 +61,11 @@ contract OpenOceanAdapter is IAdapter, BaseAdapter {
 
     //============================== Constructor ===============================
 
-    constructor(address _router, address _openOceanCaller, address _limitOrderProtocol) {
+    constructor(address _router, address _openOceanCaller, address _univ2Factory, address _univ3Factory) {
         router = _router;
         openOceanCaller = _openOceanCaller;
-        limitOrderProtocol = _limitOrderProtocol;
-        DOMAIN_SEPARATOR = keccak256(
-            abi.encode(
-                keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
-                keccak256("openocean Limit Order Protocol"),
-                keccak256("2"),
-                block.chainid,
-                _limitOrderProtocol
-            )
-        );
+        univ2Factory = _univ2Factory;
+        univ3Factory = _univ3Factory;
     }
 
     //============================== Main swap functions ===============================
@@ -199,74 +175,18 @@ contract OpenOceanAdapter is IAdapter, BaseAdapter {
         return (router, amount);
     }
 
-    //============================== Limit Orders ===============================
+    //============================== Limit Orders (unsupported) ===============================
 
-    /// @notice swapData encoding: abi.encode(OpenOceanLimitOrder order)
-    ///
-    /// Security constraints:
-    ///   - maker must be the BoringSwapper
-    ///   - receiver must be swapConfig.receiver (the vault)
-    ///   - makerAsset/takerAsset must match the approved token route
-    ///   - getMakerAmount/getTakerAmount must be empty (fixed fill amounts only)
-    ///   - makerAssetData/takerAssetData must be empty (no custom transfer logic)
-    ///   - interaction must be empty (no post-fill callbacks into the swapper)
-    ///   - permit must be empty (approvals managed by BoringSwapper)
-    ///   - predicate must be empty (no conditional fills)
-    function verifyLimitOrder(ISwapperTypes.SwapConfig calldata swapConfig, address swapper)
-        external
-        view
-        returns (OrderInfo memory)
-    {
-        DecoderCustomTypes.OpenOceanLimitOrder memory order =
-            abi.decode(swapConfig.swapData, (DecoderCustomTypes.OpenOceanLimitOrder));
-
-        if (ERC20(order.makerAsset) != swapConfig.tokenRoute.tokenIn) revert OpenOceanAdapter__MakerAssetMismatch();
-        if (ERC20(order.takerAsset) != swapConfig.tokenRoute.tokenOut) revert OpenOceanAdapter__TakerAssetMismatch();
-        if (order.maker != swapper) revert OpenOceanAdapter__MakerNotSwapper();
-        if (order.receiver != address(swapConfig.receiver)) revert OpenOceanAdapter__ReceiverMismatch();
-        if (order.allowedSender != address(0)) revert OpenOceanAdapter__NotPublicOrder();
-
-        if (order.makerAssetData.length != 0) revert OpenOceanAdapter__NonEmptyMakerAssetData();
-        if (order.takerAssetData.length != 0) revert OpenOceanAdapter__NonEmptyTakerAssetData();
-        if (order.getMakerAmount.length != 0) revert OpenOceanAdapter__NonEmptyGetMakerAmount();
-        if (order.getTakerAmount.length != 0) revert OpenOceanAdapter__NonEmptyGetTakerAmount();
-        if (order.predicate.length != 0) revert OpenOceanAdapter__NonEmptyPredicate();
-        if (order.permit.length != 0) revert OpenOceanAdapter__NonEmptyPermit();
-        if (order.interaction.length != 0) revert OpenOceanAdapter__NonEmptyInteraction();
-
-        bytes32 orderHash = _computeOrderHash(order);
-
-        return OrderInfo({
-            approvalTarget: limitOrderProtocol,
-            cancelTarget: limitOrderProtocol,
-            inputToken: order.makerAsset,
-            outputToken: order.takerAsset,
-            inputAmount: order.makingAmount,
-            outputAmount: order.takingAmount,
-            protocolHash: orderHash
-        });
+    function verifyLimitOrder(ISwapperTypes.SwapConfig calldata, address) external pure returns (OrderInfo memory) {
+        revert OpenOceanAdapter__LimitOrdersNotSupported();
     }
 
-    function cancelLimitOrder(ISwapperTypes.SwapConfig calldata swapConfig, address)
-        external
-        view
-        returns (address, bytes memory)
-    {
-        DecoderCustomTypes.OpenOceanLimitOrder memory order =
-            abi.decode(swapConfig.swapData, (DecoderCustomTypes.OpenOceanLimitOrder));
-        return (limitOrderProtocol, abi.encodeWithSelector(CANCEL_ORDER_SELECTOR, order));
+    function cancelLimitOrder(ISwapperTypes.SwapConfig calldata, address) external pure returns (address, bytes memory) {
+        revert OpenOceanAdapter__LimitOrdersNotSupported();
     }
 
-    /// @dev `remainingRaw == 1` is terminal: full fill OR cancel. The swapper only cancels from inside
-    ///      `_cancelOrder` and queries `isFilled` BEFORE that call, so `1` at this site means fill.
-    ///      `remainingRaw` never reverts on unknown orders (it just returns 0), so this is safe to call
-    ///      before submission lands on-chain.
-    function filledAmount(ISwapperTypes.SwapConfig calldata swapConfig, address)
-        external
-        view
-        returns (uint256)
-    {
-        return 0;
+    function filledAmount(ISwapperTypes.SwapConfig calldata, address) external pure returns (uint256) {
+        revert OpenOceanAdapter__LimitOrdersNotSupported();
     }
 
     function version() external pure returns (uint256) {
@@ -275,52 +195,30 @@ contract OpenOceanAdapter is IAdapter, BaseAdapter {
 
     //============================== Internal helpers ===============================
 
-    function _computeOrderHash(DecoderCustomTypes.OpenOceanLimitOrder memory order) internal view returns (bytes32) {
-        // Split into two abi.encode calls to avoid stack-too-deep (15 fields total).
-        // All arguments are fixed-size (uint256/address/bytes32), so concatenating the two
-        // encoded chunks produces identical bytes to a single abi.encode with all 16 args.
-        bytes32 structHash = keccak256(
-            bytes.concat(
-                abi.encode(
-                    LIMIT_ORDER_TYPE_HASH,
-                    order.salt,
-                    order.makerAsset,
-                    order.takerAsset,
-                    order.maker,
-                    order.receiver,
-                    order.allowedSender,
-                    order.makingAmount,
-                    order.takingAmount
-                ),
-                abi.encode(
-                    keccak256(order.makerAssetData),
-                    keccak256(order.takerAssetData),
-                    keccak256(order.getMakerAmount),
-                    keccak256(order.getTakerAmount),
-                    keccak256(order.predicate),
-                    keccak256(order.permit),
-                    keccak256(order.interaction)
-                )
-            )
-        );
-        return keccak256(abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR, structHash));
-    }
-
     /// @dev Derives the output token from the last pool in a UniV2 pools chain.
     ///      Reverts if WETH_MASK is set — that path delivers ETH, not an ERC20.
+    ///      Validates every pool against the V2 factory so intermediate pools can't absorb tokens.
     function _getUniV2DstToken(bytes32[] calldata pools) internal view returns (address) {
-        uint256 rawPool = uint256(pools[pools.length - 1]);
-        if (rawPool & WETH_MASK != 0) revert OpenOceanAdapter__WethFlagsNotAllowed();
-        address poolAddr = address(uint160(rawPool));
-        bool reversed = rawPool & REVERSE_MASK != 0;
-        return reversed ? IUniswapV3(poolAddr).token0() : IUniswapV3(poolAddr).token1();
+        for (uint256 i; i < pools.length; ++i) {
+            uint256 rawPool = uint256(pools[i]);
+            if (rawPool & WETH_MASK != 0) revert OpenOceanAdapter__WethFlagsNotAllowed();
+            _validateV2Pool(address(uint160(rawPool)));
+        }
+        uint256 lastRaw = uint256(pools[pools.length - 1]);
+        address lastPool = address(uint160(lastRaw));
+        bool reversed = lastRaw & REVERSE_MASK != 0;
+        return reversed ? IUniswapV3(lastPool).token0() : IUniswapV3(lastPool).token1();
     }
 
     /// @dev Derives the input token from the first pool in a UniV3 pools chain.
     ///      Reverts if WETH_WRAP_MASK is set — that path expects ETH as input, not an ERC20.
+    ///      Validates every pool against the V3 factory.
     function _getUniV3SrcToken(uint256[] calldata pools) internal view returns (address) {
+        for (uint256 i; i < pools.length; ++i) {
+            if (pools[i] & WETH_WRAP_MASK != 0) revert OpenOceanAdapter__WethFlagsNotAllowed();
+            _validateV3Pool(address(uint160(pools[i])));
+        }
         uint256 firstPool = pools[0];
-        if (firstPool & WETH_WRAP_MASK != 0) revert OpenOceanAdapter__WethFlagsNotAllowed();
         address poolAddr = address(uint160(firstPool));
         bool zeroForOne = firstPool & ONE_FOR_ZERO_MASK == 0;
         return zeroForOne ? IUniswapV3(poolAddr).token0() : IUniswapV3(poolAddr).token1();
@@ -334,5 +232,18 @@ contract OpenOceanAdapter is IAdapter, BaseAdapter {
         address poolAddr = address(uint160(lastPool));
         bool zeroForOne = lastPool & ONE_FOR_ZERO_MASK == 0;
         return zeroForOne ? IUniswapV3(poolAddr).token1() : IUniswapV3(poolAddr).token0();
+    }
+
+    function _validateV2Pool(address pool) internal view {
+        address token0 = IUniswapV3(pool).token0();
+        address token1 = IUniswapV3(pool).token1();
+        if (IUniswapV2Factory(univ2Factory).getPair(token0, token1) != pool) revert OpenOceanAdapter__InvalidPool();
+    }
+
+    function _validateV3Pool(address pool) internal view {
+        address token0 = IUniswapV3(pool).token0();
+        address token1 = IUniswapV3(pool).token1();
+        uint24 fee = IUniswapV3PoolFee(pool).fee();
+        if (IUniswapV3Factory(univ3Factory).getPool(token0, token1, fee) != pool) revert OpenOceanAdapter__InvalidPool();
     }
 }

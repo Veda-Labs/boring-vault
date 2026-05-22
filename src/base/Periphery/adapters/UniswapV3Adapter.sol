@@ -30,8 +30,10 @@ contract UniswapV3Adapter is IAdapter, BaseAdapter {
         ISwapperTypes.SwapConfig memory swapConfig = _getAppendedSwapConfig();
 
         // verify path tokens match the approved token route
-        // path is abi.encodePacked(tokenIn, fee, ..., tokenOut) — first 20 bytes = tokenIn, last 20 bytes = tokenOut
+        // canonical V3 path: abi.encodePacked(token, fee, token, fee, ..., token) — 20-byte tokens, 3-byte fees
+        // length must be 20 + n*23 for n >= 1 hop, else Uniswap may interpret the path differently than this adapter reads it
         bytes memory path = params.path;
+        if (path.length < 43 || (path.length - 20) % 23 != 0) revert("invalid path length");
         address pathTokenIn;
         address pathTokenOut;
         assembly {

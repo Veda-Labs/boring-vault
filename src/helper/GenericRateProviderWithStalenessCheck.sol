@@ -113,16 +113,22 @@ contract GenericRateProviderWithStalenessCheck is GenericRateProvider {
         }
         if (lastUpdate + maxStaleness < block.timestamp) revert GenericRateProviderWithStalenessCheck__StalePrice();
 
+        uint256 rate;
         if (signed) {
             //if target func() returns an int, we get the result and then cast it to a uint256
-            int256 res = abi.decode(result, (int256)); 
-            if (res < 0) revert GenericRateProvider__PriceCannotBeLtZero(); 
-
-            return uint256(res); 
-        
+            int256 res = abi.decode(result, (int256));
+            if (res < 0) revert GenericRateProvider__PriceCannotBeLtZero();
+            rate = uint256(res);
         } else {
+            rate = abi.decode(result, (uint256));
+        }
 
-            return abi.decode(result, (uint256));
+        if (inputDecimals > outputDecimals) {
+            return rate / 10 ** (inputDecimals - outputDecimals);
+        } else if (inputDecimals < outputDecimals) {
+            return rate * 10 ** (outputDecimals - inputDecimals);
+        } else {
+            return rate;
         }
     }
 }

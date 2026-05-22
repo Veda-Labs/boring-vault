@@ -24,7 +24,6 @@ contract CowswapAdapter is IAdapter {
     error CowswapAdapter__BuyTokenMismatch();
     error CowswapAdapter__ReceiverMismatch();
     error CowswapAdapter__NonZeroFeeAmount();
-    error CowswapAdapter__PartialFillsNotAllowed();
     error CowswapAdapter__InvalidSellTokenBalance();
     error CowswapAdapter__InvalidBuyTokenBalance();
 

@@ -10,11 +10,27 @@ import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
 import {BaseAdapter} from "src/base/Periphery/adapters/BaseAdapter.sol";
 import {IUniswapV3} from "src/interfaces/IUniswapV3.sol";
-import {ICurvePool} from "src/interfaces/ICurvePool.sol";
 
 interface IOneInchOrderMixin {
     function rawRemainingInvalidatorForOrder(address maker, bytes32 orderHash) external view returns (uint256);
 }
+
+interface IUniswapV2Factory {
+    function getPair(address tokenA, address tokenB) external view returns (address);
+}
+
+interface IUniswapV3Factory {
+    function getPool(address tokenA, address tokenB, uint24 fee) external view returns (address);
+}
+
+interface IUniswapV3PoolFee {
+    function fee() external view returns (uint24);
+}
+
+interface ICurveMetaRegistry {
+    function get_coins(address pool) external view returns (address[8] memory);
+}
+
 contract OneInchAdapter is IAdapter, BaseAdapter {
 
     //============================== Errors ===============================
@@ -41,26 +57,27 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
     error OneInchAdapter__CustomReceiverOutOfBounds();
     error OneInchAdapter__UnsupportedProtocol();
     error OneInchAdapter__EpochManagerNotAllowed();
+    error OneInchAdapter__InvalidPool();
 
     address public immutable router;
     address public immutable feeTaker;
     address public immutable trustedExecutor;
 
+    // Pool validation registries. Pool addresses passed in `dex` parameters are validated
+    // against these to prevent strategists from substituting malicious pools that satisfy
+    // token0/token1 spoofing but absorb tokenIn without delivering tokenOut.
+    address public immutable univ2Factory;
+    address public immutable univ3Factory;
+    address public immutable curveMetaRegistry;
+
     bytes32 constant ONEINCH_ORDER_TYPE_HASH = keccak256(
         "Order(uint256 salt,address maker,address receiver,address makerAsset,address takerAsset,uint256 makingAmount,uint256 takingAmount,uint256 makerTraits)"
     );
 
-    bytes32 immutable DOMAIN_SEPARATOR;
+    bytes32 public immutable domainSeparator;
 
     // If set in takerTraits, makerAsset is sent to a custom address instead of msg.sender
     uint256 private constant _ARGS_HAS_TARGET = 1 << 251;
-
-    // makerTraits flags. NO_PARTIAL_FILLS_FLAG forces single-shot orders, which routes invalidation
-    // through BitInvalidator and guarantees `isValidSignature` is called on the fill. Without it,
-    // 1inch only validates the signature on the *first* fill — local revocation can't stop
-    // subsequent fills. NEED_CHECK_EPOCH_MANAGER_FLAG is incompatible with BitInvalidator (the protocol
-    // reverts `EpochManagerAndBitInvalidatorsAreIncompatible` at fill time); reject early.
-    uint256 private constant _NO_PARTIAL_FILLS_FLAG = 1 << 255;
     uint256 private constant _NEED_CHECK_EPOCH_MANAGER_FLAG = 1 << 250;
 
     // nonceOrEpoch is packed at bits [120, 160) of makerTraits as a uint40.
@@ -74,11 +91,21 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
     uint256 private constant CURVE_TO_COINS_ARG_OFFSET = 216;
     uint256 private constant CURVE_TO_COINS_ARG_MASK = 0xff;
 
-    constructor(address _router, address _feeTaker, address _executor) {
+    constructor(
+        address _router,
+        address _feeTaker,
+        address _executor,
+        address _univ2Factory,
+        address _univ3Factory,
+        address _curveMetaRegistry
+    ) {
         router = _router;
         feeTaker = _feeTaker;
         trustedExecutor = _executor;
-        DOMAIN_SEPARATOR = keccak256(
+        univ2Factory = _univ2Factory;
+        univ3Factory = _univ3Factory;
+        curveMetaRegistry = _curveMetaRegistry;
+        domainSeparator = keccak256(
             abi.encode(
                 keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
                 keccak256("1inch Aggregation Router"),
@@ -352,7 +379,7 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
 
     function _computeOrderHash(bytes memory orderData) internal view returns (bytes32) {
         bytes32 structHash = keccak256(abi.encodePacked(ONEINCH_ORDER_TYPE_HASH, orderData));
-        return keccak256(abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR, structHash));
+        return keccak256(abi.encodePacked("\x19\x01", domainSeparator, structHash));
     }
 
     function _protocol(uint256 dex) internal pure returns (uint8) {
@@ -403,7 +430,8 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
 
     function _getTokenOut(uint256 dex, address tokenIn) internal view returns (address) {
         uint8 protocol = _protocol(dex);
-        if (protocol == 0 || protocol == 1) return _getTokenOutUni(dex, tokenIn);
+        if (protocol == 0) return _getTokenOutUniV2(dex, tokenIn);
+        if (protocol == 1) return _getTokenOutUniV3(dex, tokenIn);
         if (protocol == 2) return _getTokenOutCurve(dex);
         revert OneInchAdapter__UnsupportedProtocol();
     }
@@ -423,15 +451,33 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         return _getTokenOut(dex3, tokenOutDex2);
     }
 
-    function _getTokenOutUni(uint256 dex, address tokenIn) internal view returns (address) {
+    /// @dev V2 pools have no fee parameter — factory.getPair(token0, token1) uniquely identifies the pool.
+    function _getTokenOutUniV2(uint256 dex, address tokenIn) internal view returns (address) {
         address pool = address(uint160(dex));
-        return IUniswapV3(pool).token0() == tokenIn ? IUniswapV3(pool).token1() : IUniswapV3(pool).token0();
+        address token0 = IUniswapV3(pool).token0();
+        address token1 = IUniswapV3(pool).token1();
+        if (IUniswapV2Factory(univ2Factory).getPair(token0, token1) != pool) revert OneInchAdapter__InvalidPool();
+        return token0 == tokenIn ? token1 : token0;
     }
 
+    /// @dev V3 pools are identified by (token0, token1, fee) — read fee from the pool and verify against the factory.
+    function _getTokenOutUniV3(uint256 dex, address tokenIn) internal view returns (address) {
+        address pool = address(uint160(dex));
+        address token0 = IUniswapV3(pool).token0();
+        address token1 = IUniswapV3(pool).token1();
+        uint24 fee = IUniswapV3PoolFee(pool).fee();
+        if (IUniswapV3Factory(univ3Factory).getPool(token0, token1, fee) != pool) revert OneInchAdapter__InvalidPool();
+        return token0 == tokenIn ? token1 : token0;
+    }
+
+    /// @dev Curve has no single factory — validate via MetaRegistry which aggregates StableSwap/CryptoSwap/etc.
+    ///      get_coins returns zeros for unregistered pools, so a non-zero coin at the requested index is a valid pool.
     function _getTokenOutCurve(uint256 dex) internal view returns (address) {
-        //extract the pool address
         address pool = address(uint160(dex));
         uint256 toTokenIndex = (dex >> CURVE_TO_COINS_ARG_OFFSET) & CURVE_TO_COINS_ARG_MASK;
-        return ICurvePool(pool).coins(toTokenIndex);
+        address[8] memory coins = ICurveMetaRegistry(curveMetaRegistry).get_coins(pool);
+        address tokenOut = coins[toTokenIndex];
+        if (tokenOut == address(0)) revert OneInchAdapter__InvalidPool();
+        return tokenOut;
     }
 }

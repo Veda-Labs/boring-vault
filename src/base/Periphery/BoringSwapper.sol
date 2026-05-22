@@ -231,8 +231,8 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
         if (record.cancelledAt > 0) revert BoringSwapper__AlreadyCancelled();
         if (swapConfig.adapter != record.adapter) revert BoringSwapper__WrongAdapter();
 
-        //reject any cancels after fill
-        if (IAdapter(record.adapter).filledAmount(swapConfig, address(this)) >= record.inputAmount) revert BoringSwapper__OrderAlreadyFilled();
+        uint256 filledAmount = IAdapter(record.adapter).filledAmount(swapConfig, address(this));
+        if (filledAmount >= record.inputAmount) revert BoringSwapper__OrderAlreadyFilled();
 
         record.cancelledAt = block.timestamp;
 
@@ -253,16 +253,14 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
             if (!success) revert BoringSwapper__CancelFailed();
         }
 
-        // @dev this would need to be changed for partials, we need to somehow see how much was filled.
-        //reduce accumulated approval by this order's input amount
+        //reduce accumulated approval by this order's input amount (minus what was filled)
         uint256 currentAllowance = record.tokenIn.allowance(address(this), record.approvalTarget);
-        uint256 reducedAllowance = currentAllowance > record.inputAmount ? currentAllowance - record.inputAmount : 0;
+        uint256 reducedAllowance = currentAllowance > record.inputAmount - filledAmount ? currentAllowance - (record.inputAmount - filledAmount) : 0;
         record.tokenIn.safeApprove(record.approvalTarget, 0);
         if (reducedAllowance > 0) record.tokenIn.safeApprove(record.approvalTarget, reducedAllowance);
 
-        //@dev this needs to be reworked when we add partials 
-        //refund principal only
-        uint256 refund = record.inputAmount;
+        //refund principal only (minus partial fill amounts)
+        uint256 refund = record.inputAmount - filledAmount;
 
         //restore rate limit for the unfilled principal amount
         bytes32 routeId = getRouteId(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut);
@@ -273,8 +271,10 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
             uint256 restored = limit.remaining + normalized;
             limit.remaining = restored > limit.capacity ? limit.capacity : restored;
         }
-            
-        pendingOrderPrincipal[record.tokenIn] -= refund;
+        
+        //for partials, it does not matter how much was fulled for this, we no longer need to bookkeep any amount as pending. 
+        //whether it was filled off-chain or cancelled, pending is the same
+        pendingOrderPrincipal[record.tokenIn] -= record.inputAmount;
         record.tokenIn.safeTransfer(address(record.receiver), refund);
         emit OrderCancelled(orderId, refund);
     }
