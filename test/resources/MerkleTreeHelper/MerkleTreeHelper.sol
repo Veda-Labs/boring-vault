@@ -14478,7 +14478,7 @@ function _addTellerLeafsWithReferral(
         }
     }
 
-    function _addEtherfi1InchOneWaySwapperLeafs(ManageLeaf[] memory leafs, address tokenA, address tokenB) internal {
+    function _addEtherfiSwapperOneWay1InchLeafs(ManageLeaf[] memory leafs, address tokenA, address tokenB) internal {
 
         // add approval if not already added
         if (!ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][tokenA][getAddress(sourceChain, "etherfiSwapper")]) {
@@ -14495,8 +14495,7 @@ function _addTellerLeafsWithReferral(
             leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "etherfiSwapper");
         }
 
-        // add 1inch-style swap from tokenA to tokenB.
-        // The etherfi swapper requires msg.sender == desc.dstReceiver, so dstReceiver is pinned to the boringVault.
+        // add swap from tokenA to tokenB.
         if (!ownerToEtherfi1InchSwapperSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokenA][tokenB]) {
             ownerToEtherfi1InchSwapperSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokenA][tokenB] = true;
 
