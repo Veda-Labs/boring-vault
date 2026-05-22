@@ -44,8 +44,8 @@
       "deploymentCommit": "504437c22c961ce127f1269eac6b879bb56ae10b"
     },
     "veda-bundle-create3-mainnet-2": {
-      "auditCommit": null,
-      "auditUrl": null,
+      "auditCommit": "0a7d659064c9070bd369d5c511ba94c6b01bbab2",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-1",
       "verification": "full_match",
       "deploymentCommit": "7dc398f1cf52acd7e9a7f4f21eb06fe9fbbf6bd3",
       "constructorArgs": {
