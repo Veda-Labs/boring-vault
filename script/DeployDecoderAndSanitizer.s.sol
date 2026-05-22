@@ -137,42 +137,46 @@ import {GoldenGooseFillerDecoderAndSanitizer} from "src/base/DecodersAndSanitize
 import {LiquidVaultsOPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidVaultsOPDecoderAndSanitizer.sol"; 
 import {StakedEtherFiDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SymbioticLRTDecoderAndSanitizer.sol";
 import {LiquidUSDSeiDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidUSDSeiDecoderAndSanitizer.sol";
+import {SentoraBTCMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentoraBTCMainnetDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
 
 /**
- *  source .env && forge script script/DeployDecoderAndSanitizer.s.sol:DeployDecoderAndSanitizerScript --broadcast --etherscan-api-key $ETHERSCAN_API_KEY --verify
+ *  Trezor:
+ *    source .env && forge script script/DeployDecoderAndSanitizer.s.sol:DeployDecoderAndSanitizerScript \
+ *      --rpc-url $MAINNET_RPC_URL --trezor --sender $TREZOR_ADDRESS --mnemonic-derivation-paths $DERIVATION_PATH \
+ *      --broadcast --etherscan-api-key $ETHERSCAN_API_KEY --verify
+ *
+ *  Private key (legacy):
+ *    source .env && forge script script/DeployDecoderAndSanitizer.s.sol:DeployDecoderAndSanitizerScript --broadcast --etherscan-api-key $ETHERSCAN_API_KEY --verify
  */
 /** *   --verify --verifier-url 'https://api.routescan.io/v2/network/mainnet/evm/21000000/etherscan'
  * @dev Optionally can change `--with-gas-price` to something more reasonable
  * @dev For Unichain verification, use appropriate block explorer when available
+ * @dev When using --trezor, also pass `--mnemonic-derivation-paths "m/44'/60'/0'/0/0"` if your Trezor is on a non-default account index
  */
 contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
-    uint256 public privateKey;
     Deployer public deployer = Deployer(deployerAddress);
     Deployer public bobDeployer = Deployer(0xF3d0672a91Fd56C9ef04C79ec67d60c34c6148a0);
 
     string[] addressKeys;
 
     function setUp() external {
-        privateKey = vm.envUint("BORING_DEVELOPER");
-
-        vm.createSelectFork("sei");
-        setSourceChainName("sei");
+        vm.createSelectFork("mainnet");
+        setSourceChainName("mainnet");
     }
 
     function run() external {
         bytes memory creationCode;
         bytes memory constructorArgs;
-        vm.startBroadcast(privateKey);
+        vm.startBroadcast();
 
-        creationCode = type(StakedEtherFiDecoderAndSanitizer).creationCode;
+        creationCode = type(SentoraBTCMainnetDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(
-            getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
-            getAddress(sourceChain, "odosRouterV2")
+            getAddress(sourceChain, "uniswapV3NonFungiblePositionManager")
         );
-        deployer.deployContract("LiquidUSD Sei Decoder And Sanitizer V0.0", creationCode, constructorArgs, 0);
+        deployer.deployContract("Sentora BTC Mainnet Decoder And Sanitizer V0.2", creationCode, constructorArgs, 0);
         
         vm.stopBroadcast();
     }
