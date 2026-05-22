@@ -527,6 +527,11 @@ contract ChainValues {
         values[mainnet]["cUSD"] = 0xcCcc62962d17b8914c62D74FfB843d73B2a3cccC.toBytes32();
         values[mainnet]["stcUSD"] = 0x88887bE419578051FF9F4eb6C858A951921D8888.toBytes32();
 
+        // Pareto
+        values[mainnet]["Pareto_FalconX_vault"] = 0x433D5B175148dA32Ffe1e1A37a939E1b7e79be4d.toBytes32();
+        values[mainnet]["Pareto_FalconX_AA_tranche"] = 0xC26A6Fa2C37b38E549a4a1807543801Db684f99C.toBytes32();
+        values[mainnet]["Pareto_FalconX_BB_tranche"] = 0xacbb25b7DD30B6B2F7131865Dc1023622de3b3D6.toBytes32();
+
         // Aura
         values[mainnet]["auraBooster"] = 0xA57b8d98dAE62B26Ec3bcC4a365338157060B234.toBytes32();
 
