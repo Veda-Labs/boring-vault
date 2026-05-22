@@ -5,8 +5,8 @@
   },
   "contractMetadata": {
     "veda-bundle-create3-bob-mainnet": {
-      "auditCommit": null,
-      "auditUrl": null,
+      "auditCommit": "0a7d659064c9070bd369d5c511ba94c6b01bbab2",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-1",
       "verification": "partial_match",
       "deploymentCommit": "24c42f7ccb42ad535446605808cfd163d2c94ea2",
       "verificationGap": "cbor"

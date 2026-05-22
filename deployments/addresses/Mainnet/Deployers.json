@@ -9,36 +9,36 @@
   },
   "contractMetadata": {
     "veda-canonical-create3": {
-      "auditCommit": null,
-      "auditUrl": null,
+      "auditCommit": "0a7d659064c9070bd369d5c511ba94c6b01bbab2",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-1",
       "verification": "partial_match",
       "deploymentCommit": "d68f47b5c3310f841f9a619a2f64e3e4bd19d42f",
       "verificationGap": "cbor"
     },
     "veda-bundle-create3-bob-mainnet": {
-      "auditCommit": null,
-      "auditUrl": null,
+      "auditCommit": "0a7d659064c9070bd369d5c511ba94c6b01bbab2",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-1",
       "verification": "partial_match",
       "deploymentCommit": "504437c22c961ce127f1269eac6b879bb56ae10b",
       "verificationGap": "cbor"
     },
     "veda-bundle-create3-mainnet": {
-      "auditCommit": null,
-      "auditUrl": null,
+      "auditCommit": "0a7d659064c9070bd369d5c511ba94c6b01bbab2",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-1",
       "verification": "partial_match",
       "deploymentCommit": "24c42f7ccb42ad535446605808cfd163d2c94ea2",
       "verificationGap": "cbor"
     },
     "veda-bundle-create3-mainnet-plasma": {
-      "auditCommit": null,
-      "auditUrl": null,
+      "auditCommit": "0a7d659064c9070bd369d5c511ba94c6b01bbab2",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-1",
       "verification": "partial_match",
       "deploymentCommit": "504437c22c961ce127f1269eac6b879bb56ae10b",
       "verificationGap": "cbor"
     },
     "veda-layerzero-create3-mainnet": {
-      "auditCommit": null,
-      "auditUrl": null,
+      "auditCommit": "0a7d659064c9070bd369d5c511ba94c6b01bbab2",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-1",
       "verification": "full_match",
       "deploymentCommit": "504437c22c961ce127f1269eac6b879bb56ae10b"
     }
