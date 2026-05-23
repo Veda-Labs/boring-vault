@@ -14504,15 +14504,13 @@ function _addTellerLeafsWithReferral(
                 getAddress(sourceChain, "etherfiSwapper"),
                 false,
                 "swap(address,(address,address,address,address,uint256,uint256,uint256),bytes,bytes)",
-                new address[](5),
+                new address[](3),
                 string.concat("Swap ", ERC20(tokenA).symbol(), " for ", ERC20(tokenB).symbol(), " using etherfi swapper (1inch)"),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
-            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "oneInchExecutor");
-            leafs[leafIndex].argumentAddresses[1] = tokenA;
-            leafs[leafIndex].argumentAddresses[2] = tokenB;
-            leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "oneInchExecutor");
-            leafs[leafIndex].argumentAddresses[4] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[0] = tokenA;
+            leafs[leafIndex].argumentAddresses[1] = tokenB;
+            leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
         }
     }
 
