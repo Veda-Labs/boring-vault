@@ -65,7 +65,14 @@ contract OneInchAdapterTest is BaseTestIntegration {
         swapper = new BoringSwapper(address(this), registry, new FeeRegistry(address(this), 1000), boringVault, IPriceValidator(address(validator)));
         swapper.setAuthority(rolesAuthority);
 
-        oneInchAdapter = address(new OneInchAdapter(ONEINCH_ROUTER, ONEINCH_FEE_TAKER, ONEINCH_EXECUTOR));
+        oneInchAdapter = address(new OneInchAdapter(
+            ONEINCH_ROUTER,
+            ONEINCH_FEE_TAKER,
+            ONEINCH_EXECUTOR,
+            getAddress(sourceChain, "uniV2Factory"),
+            getAddress(sourceChain, "uniV3Factory"),
+            getAddress(sourceChain, "curveMetaRegistry")
+        ));
 
         swapper.setRouteConfig(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDC"), 50, 0, 0);
         swapper.setRouteConfig(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDT"), 500, 0, 0);

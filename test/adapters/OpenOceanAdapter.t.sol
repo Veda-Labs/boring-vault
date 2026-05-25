@@ -61,7 +61,12 @@ contract OpenOceanAdapterTest is BaseTestIntegration {
         swapper = new BoringSwapper(address(this), registry, new FeeRegistry(address(this), 1000), boringVault, IPriceValidator(address(validator)));
         swapper.setAuthority(rolesAuthority);
 
-        openOceanAdapter = address(new OpenOceanAdapter(OPENOCEAN_ROUTER, OPENOCEAN_CALLER));
+        openOceanAdapter = address(new OpenOceanAdapter(
+            OPENOCEAN_ROUTER,
+            OPENOCEAN_CALLER,
+            getAddress(sourceChain, "uniV2Factory"),
+            getAddress(sourceChain, "uniV3Factory")
+        ));
 
         //console.log(openOceanAdapter);
 

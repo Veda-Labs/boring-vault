@@ -40,7 +40,8 @@ contract DeployBoringSwapperTestSuite is Script, MainnetAddresses {
     // OpenOcean constants
     address constant OPENOCEAN_ROUTER      = 0x6352a56caadC4F1E25CD6c75970Fa768A3304e64;
     address constant OPENOCEAN_CALLER      = 0xa8F8296f4053fd65e89b245d6c7F983a70234C8b;
-    address constant OPENOCEAN_LIMIT_ORDER = 0xcC8d695603ce0b43D352891892FcC716c6a7C9f4;
+    address constant UNIV2_FACTORY         = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
+    address constant UNIV3_FACTORY         = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
     // LI.FI constants
     address constant LIFI_ROUTER           = 0x1231DEB6f5749EF6cE6943a275A1D3E7486F4EaE;
 
@@ -62,7 +63,7 @@ contract DeployBoringSwapperTestSuite is Script, MainnetAddresses {
         vm.startBroadcast();
 
         address lifiAdapter      = address(new LifiAdapter(LIFI_ROUTER));
-        address openOceanAdapter = address(new OpenOceanAdapter(OPENOCEAN_ROUTER, OPENOCEAN_CALLER, OPENOCEAN_LIMIT_ORDER));
+        address openOceanAdapter = address(new OpenOceanAdapter(OPENOCEAN_ROUTER, OPENOCEAN_CALLER, UNIV2_FACTORY, UNIV3_FACTORY));
         console.log("LifiAdapter:     ", lifiAdapter);
         console.log("OpenOceanAdapter:", openOceanAdapter);
 

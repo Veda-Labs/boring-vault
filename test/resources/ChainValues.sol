@@ -235,6 +235,8 @@ contract ChainValues {
         values[mainnet]["uniV3Router"] = 0xE592427A0AEce92De3Edee1F18E0157C05861564.toBytes32();
         values[mainnet]["uniV2Router"] = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D.toBytes32();
         values[mainnet]["uniV2Factory"] = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f.toBytes32();
+        values[mainnet]["uniV3Factory"] = 0x1F98431c8aD98523631AE4a59f267346ea31F984.toBytes32();
+        values[mainnet]["curveMetaRegistry"] = 0xF98B45FA17DE75FB1aD0e7aFD971b0ca00e379fC.toBytes32();
         values[mainnet]["uniV4PoolManager"] = 0x000000000004444c5dc75cB358380D2e3dE08A90.toBytes32();
         values[mainnet]["uniV4PositionManager"] = 0xbD216513d74C8cf14cf4747E6AaA6420FF64ee9e.toBytes32();
         values[mainnet]["uniV4UniversalRouter"] = 0x66a9893cC07D91D95644AEDD05D03f95e1dBA8Af.toBytes32();
