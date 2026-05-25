@@ -74,6 +74,7 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
     error BoringSwapper__DuplicateOrder();
     error BoringSwapper__WrongAdapter();
     error BoringSwapper__OrderAlreadyFilled();
+    error BoringSwapper__InvalidSwapSelector();
 
     // ========================================= EVENTS =========================================
 
@@ -204,7 +205,7 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
     }
 
     /// @notice Cancels a pending limit order, invalidates it on-chain, and refunds remaining tokens to the vault.
-    function cancelOrder(uint256 orderId, ISwapperTypes.SwapConfig calldata swapConfig) external requiresAuth {
+    function cancelOrder(uint256 orderId, ISwapperTypes.SwapConfig calldata swapConfig) external requiresAuth nonReentrant {
         _cancelOrder(orderId, swapConfig);
     }
 
@@ -212,7 +213,7 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
         uint256 orderId,
         ISwapperTypes.SwapConfig calldata cancelConfig,
         ISwapperTypes.SwapConfig memory newConfig
-    ) external requiresAuth {
+    ) external requiresAuth nonReentrant {
         _cancelOrder(orderId, cancelConfig);
 
         (bytes32 key, IAdapter.OrderInfo memory info, uint256 newOrderId) = _limitOrderPreFlightCheck(newConfig);
@@ -522,6 +523,7 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
         returns (bytes32, address, uint256)
     {
         _validateAdapter(swapConfig.adapter);
+        _validateSwapSelector(swapConfig.swapData);
 
         address target;
         uint256 amount;
@@ -681,6 +683,18 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
         if (adapterPaused[adapter]) revert BoringSwapper__AdapterPaused();
         if (!adapterRegistry.registeredAdapters(adapter)) revert BoringSwapper__AdapterNotApproved();
         if (!approvedAdapters[adapter]) revert BoringSwapper__AdapterNotApproved();
+    }
+
+    /// @dev Rejects IAdapter view-method selectors on the atomic swap path. Those return shapes
+    ///      don't match (address, uint256), so dispatching them through `_swapPreFlightCheck` would
+    ///      misinterpret the result as (swapTarget, amount).
+    function _validateSwapSelector(bytes calldata swapData) internal pure {
+        bytes4 selector = bytes4(swapData);
+        if (
+            selector == IAdapter.verifyLimitOrder.selector
+                || selector == IAdapter.cancelLimitOrder.selector
+                || selector == IAdapter.filledAmount.selector
+        ) revert BoringSwapper__InvalidSwapSelector();
     }
 
     /// @notice Consumes from the rate limit bucket for a route, normalizing the amount to 18 decimals.

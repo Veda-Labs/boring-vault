@@ -58,6 +58,7 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
     error OneInchAdapter__UnsupportedProtocol();
     error OneInchAdapter__EpochManagerNotAllowed();
     error OneInchAdapter__InvalidPool();
+    error OneInchAdapter__WethUnwrapNotAllowed();
 
     address public immutable router;
     address public immutable feeTaker;
@@ -79,6 +80,10 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
     // If set in takerTraits, makerAsset is sent to a custom address instead of msg.sender
     uint256 private constant _ARGS_HAS_TARGET = 1 << 251;
     uint256 private constant _NEED_CHECK_EPOCH_MANAGER_FLAG = 1 << 250;
+    // takerTraits bit 254: router unwraps WETH to ETH before delivering maker asset. Blocked — swapper is ERC20-only.
+    uint256 private constant _TAKER_UNWRAP_WETH = 1 << 254;
+    // unoswap dex bit 252: router unwraps WETH to ETH before delivering output. Blocked — swapper is ERC20-only.
+    uint256 private constant _DEX_WETH_UNWRAP_FLAG = 1 << 252;
 
     // nonceOrEpoch is packed at bits [120, 160) of makerTraits as a uint40.
     uint256 private constant _NONCE_OR_EPOCH_OFFSET = 120;
@@ -286,6 +291,7 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         // instead of msg.sender (the swapper). Reject to ensure output always lands at the
         // swapper for slippage verification before forwarding to the vault.
         if (takerTraits & _ARGS_HAS_TARGET != 0) revert OneInchAdapter__CustomTargetNotAllowed();
+        if (takerTraits & _TAKER_UNWRAP_WETH != 0) revert OneInchAdapter__WethUnwrapNotAllowed();
 
         return (router, amount);
     }
@@ -429,6 +435,7 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
     }
 
     function _getTokenOut(uint256 dex, address tokenIn) internal view returns (address) {
+        if (dex & _DEX_WETH_UNWRAP_FLAG != 0) revert OneInchAdapter__WethUnwrapNotAllowed();
         uint8 protocol = _protocol(dex);
         if (protocol == 0) return _getTokenOutUniV2(dex, tokenIn);
         if (protocol == 1) return _getTokenOutUniV3(dex, tokenIn);

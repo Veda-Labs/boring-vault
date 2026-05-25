@@ -89,8 +89,9 @@ contract FeeRegistry is Auth, IFeeRegistry {
         emit LimitFeeToggleUpdated(swapper, active);
     }
 
-    /// @notice Updates the global cap on fee tiers.
+    /// @notice Updates the global cap on fee tiers. Bounded at 100% (10_000 bps).
     function setMaxFeeBps(uint16 newMaxFeeBps) external requiresAuth {
+        if (newMaxFeeBps > 10_000) revert FeeRegistry__FeeTooHigh();
         maxFeeBps = newMaxFeeBps;
         emit MaxFeeBpsUpdated(newMaxFeeBps);
     }
@@ -152,49 +153,45 @@ contract FeeRegistry is Auth, IFeeRegistry {
     // ========================================= VIEW FUNCTIONS =========================================
 
     /// @notice Returns the applicable fee for a swap pair
-    /// @dev Looks up group pair fee first; falls back to defaultFee if not configured.
+    /// @dev Looks up group pair fee first; falls back to defaultFee if not configured. Clamped to maxFeeBps.
     function getAtomicFee(address swapper, address tokenIn, address tokenOut) external view returns (uint16) {
         uint8 groupIdIn = tokenGroup[swapper][tokenIn];
         uint8 groupIdOut = tokenGroup[swapper][tokenOut];
         FeeConfig memory feeConfig = atomicGroupFees[swapper][_pairId(groupIdIn, groupIdOut)];
-        
-        if (feeConfig.configured) return feeConfig.feeBps;        
 
-        //if nothing set, return the default (which can be 0)
-        return defaultAtomicFee[swapper];
+        uint16 fee = feeConfig.configured ? feeConfig.feeBps : defaultAtomicFee[swapper];
+        return fee > maxFeeBps ? maxFeeBps : fee;
     }
 
     /// @notice Returns the applicable fee for a swap pair
-    /// @dev Looks up group pair fee first; falls back to defaultFee if not configured.
+    /// @dev Looks up group pair fee first; falls back to defaultFee if not configured. Clamped to maxFeeBps.
     function getLimitFee(address swapper, address tokenIn, address tokenOut) external view returns (uint16) {
         uint8 groupIdIn = tokenGroup[swapper][tokenIn];
         uint8 groupIdOut = tokenGroup[swapper][tokenOut];
         FeeConfig memory feeConfig = limitGroupFees[swapper][_pairId(groupIdIn, groupIdOut)];
-        
-        if (feeConfig.configured) return feeConfig.feeBps;        
 
-        //if nothing set, return the default (which can be 0)
-        return defaultLimitFee[swapper];
+        uint16 fee = feeConfig.configured ? feeConfig.feeBps : defaultLimitFee[swapper];
+        return fee > maxFeeBps ? maxFeeBps : fee;
     }
 
-    /// @notice Returns the applicable fee for a swap pair
-    /// @dev Looks up group pair fee first; falls back to defaultRecipient[swapper] if not configured.
+    /// @notice Returns the atomic-fee recipient for a (swapper, feeToken) pair.
+    /// @dev Falls back to defaultRecipient[swapper] if no per-token recipient is configured.
     function getFeeRecipientAtomic(address swapper, ERC20 feeToken) external view returns (address) {
         address feeRecipient = feeTokenRecipientAtomic[swapper][feeToken];
         if (feeRecipient != address(0)) return feeRecipient;
 
         feeRecipient = defaultRecipient[swapper];
-        return feeRecipient;        
+        return feeRecipient;
     }
 
-    /// @notice Returns the applicable fee for a swap pair
-    /// @dev Looks up group pair fee first; falls back to defaultRecipient[swapper] if not configured.
+    /// @notice Returns the limit-fee recipient for a (swapper, feeToken) pair.
+    /// @dev Falls back to defaultRecipient[swapper] if no per-token recipient is configured.
     function getFeeRecipientLimit(address swapper, ERC20 feeToken) external view returns (address) {
         address feeRecipient = feeTokenRecipientLimit[swapper][feeToken];
         if (feeRecipient != address(0)) return feeRecipient;
 
         feeRecipient = defaultRecipient[swapper];
-        return feeRecipient;        
+        return feeRecipient;
     }
 
     function version() external view returns (string memory) {

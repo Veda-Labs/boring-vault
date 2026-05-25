@@ -41,7 +41,7 @@ contract PriceValidator is IPriceValidator {
 
         for (uint256 i; i < valuesIn.length;) {
             for (uint256 j; j < valuesOut.length;) {
-                uint256 minValueOut = valuesIn[i].mulDivDown((10_000 - slippageBps), 10_000);
+                uint256 minValueOut = valuesIn[i].mulDivUp((10_000 - slippageBps), 10_000);
                 if (valuesOut[j] < minValueOut) revert PriceValidator__ExceedsMaxSlippage();
                 unchecked { j++; }
             }
