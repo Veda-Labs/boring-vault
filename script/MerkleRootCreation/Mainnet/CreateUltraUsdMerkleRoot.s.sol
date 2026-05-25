@@ -309,10 +309,15 @@ contract CreateUltraUsdMerkleRootScript is Script, MerkleTreeHelper {
         );
 
         // ========================== Resolv ==========================
-        _addAllResolvLeafs(leafs);
+        {
+            ERC20[] memory resolvAssets = new ERC20[](2);
+            resolvAssets[0] = getERC20(sourceChain, "USDC");
+            resolvAssets[1] = getERC20(sourceChain, "USDT");
+            _addAllResolvLeafs(leafs, resolvAssets);
+        }
 
         // ========================== Teller ==========================
-        //ERC20[] memory tellerAssets = new ERC20[](4); 
+        //ERC20[] memory tellerAssets = new ERC20[](4);
         vars.tellerAssets[0] = getERC20(sourceChain, "USDT");
         vars.tellerAssets[1] = getERC20(sourceChain, "USDC");
         vars.tellerAssets[2] = getERC20(sourceChain, "DAI");
@@ -327,7 +332,12 @@ contract CreateUltraUsdMerkleRootScript is Script, MerkleTreeHelper {
         _addAuraLeafs(leafs, getAddress(sourceChain, "aura_USDC_GHO_USDT_gauge"));
 
         // ========================== Syrup ==========================
-        _addAllSyrupLeafs(leafs);
+        {
+            address[] memory syrupTokens = new address[](2);
+            syrupTokens[0] = getAddress(sourceChain, "USDC");
+            syrupTokens[1] = getAddress(sourceChain, "USDT");
+            _addAllSyrupLeafs(leafs, syrupTokens);
+        }
 
         // ========================== Euler ==========================
         //ERC4626[] memory depositVaults = new ERC4626[](1);
@@ -341,12 +351,9 @@ contract CreateUltraUsdMerkleRootScript is Script, MerkleTreeHelper {
 
         _addEulerDepositLeafs(leafs, vars.depositVaults, vars.subaccounts);
         _addEulerBorrowLeafs(leafs, vars.borrowVaults, vars.subaccounts);
-        // Add reward claiming
-        ERC20[] memory tokensToClaim = new ERC20[](1); 
-        tokensToClaim[0] = getERC20(sourceChain, "rEUL");
 
         // ========================== Merkl Rewards for Euler ==========================
-        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"), tokensToClaim);
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"));
 
         // ========================== Fluid Dex ==========================
          {
@@ -549,7 +556,12 @@ contract CreateUltraUsdMerkleRootScript is Script, MerkleTreeHelper {
         );
 
         // ========================== Resolv ==========================
-        _addAllResolvLeafs(leafs);
+        {
+            ERC20[] memory resolvAssets = new ERC20[](2);
+            resolvAssets[0] = getERC20(sourceChain, "USDC");
+            resolvAssets[1] = getERC20(sourceChain, "USDT");
+            _addAllResolvLeafs(leafs, resolvAssets);
+        }
 
         // ========================== Teller ==========================
         _addTellerLeafs(leafs, getAddress(sourceChain, "TACTeller"), vars.tellerAssets, false, false); // No bulkWithdraw
@@ -562,7 +574,12 @@ contract CreateUltraUsdMerkleRootScript is Script, MerkleTreeHelper {
        _addAuraLeafs(leafs, getAddress(sourceChain, "aura_USDC_GHO_USDT_gauge"));
 
         // ========================== Syrup ==========================
-        _addAllSyrupLeafs(leafs);
+        {
+            address[] memory syrupTokens = new address[](2);
+            syrupTokens[0] = getAddress(sourceChain, "USDC");
+            syrupTokens[1] = getAddress(sourceChain, "USDT");
+            _addAllSyrupLeafs(leafs, syrupTokens);
+        }
 
         // ========================== Euler ==========================
         vars.subaccounts[0] = address(vars.drone);
@@ -570,7 +587,7 @@ contract CreateUltraUsdMerkleRootScript is Script, MerkleTreeHelper {
         _addEulerBorrowLeafs(leafs, vars.borrowVaults, vars.subaccounts);
 
         // ========================== Merkl Rewards for Euler ==========================
-        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"), tokensToClaim);
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"));
 
         // ========================== Fluid Dex ==========================
          {
