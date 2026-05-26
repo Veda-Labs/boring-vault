@@ -7,7 +7,6 @@ evm_version = 'cancun'
 optimizer = true
 optimizer_runs = 200
 fs_permissions = [{ access = "read-write", path = "./" }]
-deny_warnings = false
 use_literal_content = true
 cbor_metadata=true
 memory_limit = 4294967296
@@ -90,13 +89,12 @@ ink = { key = "${INKSCAN_KEY}", chain = 57073, url = "https://explorer.inkonchai
 plasma = { key = "${ETHERSCAN_KEY}", chain = 9745, url = "https://api.etherscan.io/v2/api?chainid=9745" }
 
 [fmt]
-FOUNDRY_FMT_LINE_LENGTH = 120
-FOUNDRY_FMT_TAB_WIDTH = 4
-FOUNDRY_FMT_BRACKET_SPACING = true
-FOUNDRY_FMT_INT_TYPES = "long"
-FOUNDRY_FMT_MULTILINE_FUNC_HEADER = "attributes_first"
-FOUNDRY_FMT_QUOTE_STYLE = "double"
-FOUNDRY_FMT_NUMBER_UNDERSCORE = "thousands"
-FOUNDRY_FMT_OVERRIDE_SPACING = true
-FOUNDRY_FMT_WRAP_COMMENTS = false
-FOUNDRY_FMT_IGNORE = []
+line_length = 160
+tab_width = 4
+bracket_spacing = false
+int_types = "long"
+multiline_func_header = "attributes_first"
+quote_style = "double"
+override_spacing = true
+wrap_comments = false
+ignore = ["test/resources/MerkleTreeHelper/MerkleTreeHelper.sol"]
