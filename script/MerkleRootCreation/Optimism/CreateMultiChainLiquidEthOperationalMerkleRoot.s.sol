@@ -18,7 +18,7 @@ contract CreateMultiChainLiquidEthOperationalMerkleRootScript is Script, MerkleT
     using FixedPointMathLib for uint256;
 
     address public boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C;
-    address public rawDataDecoderAndSanitizer = 0x712Dbd2265a194Fe66D7db3F3988A92338bBFAE1;
+    address public rawDataDecoderAndSanitizer = 0x4495D83B2e139062834a0fC1e9Ea55Ea3182f14c;
     address public managerAddress = 0x227975088C28DBBb4b421c6d96781a53578f19a8;
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
 

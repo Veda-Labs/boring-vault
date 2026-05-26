@@ -136,6 +136,7 @@ import {SentayETHMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizer
 import {GoldenGooseFillerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/FillerDecoderAndSanitizer.sol"; 
 import {LiquidVaultsOPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidVaultsOPDecoderAndSanitizer.sol"; 
 import {SymbioticLRTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SymbioticLRTDecoderAndSanitizer.sol";
+import {LiquidETHOptimismDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidETHOptimismDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -157,8 +158,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("plasma");
-        setSourceChainName("plasma");
+        vm.createSelectFork("optimism");
+        setSourceChainName("optimism");
     }
 
     function run() external {
@@ -166,12 +167,9 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast();
 
-        creationCode = type(LiquidETHPlasmaDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(
-            getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
-            getAddress(sourceChain, "fluidFactory")
-        );
-        deployer.deployContract("Liquid ETH Plasma Decoder and Sanitizer", creationCode, constructorArgs, 0);
+        creationCode = type(LiquidETHOptimismDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode();
+        deployer.deployContract("Liquid ETH Decoder and Sanitizer V0.67", creationCode, constructorArgs, 0);
         
         vm.stopBroadcast();
     }
