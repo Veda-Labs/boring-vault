@@ -72,7 +72,9 @@ contract CowswapAdapter is IAdapter {
             outputToken: order.buyToken,
             inputAmount: order.sellAmount,
             outputAmount: order.buyAmount,
-            protocolHash: orderHash
+            protocolHash: orderHash,
+            hook: address(0),
+            hookData: ""
         });
     }
 

@@ -46,21 +46,19 @@ contract UniswapV3Adapter is IAdapter, BaseAdapter {
         return (UNIV3_ROUTER, params.amountIn);
     }
 
-    function version() external view returns (uint256) {
-        return 1; 
+    function version() external pure returns (string memory) {
+        return "v1"; 
     }
 
-    error UniswapV3Adapter__LimitOrdersNotSupported();
-
     function verifyLimitOrder(ISwapperTypes.SwapConfig calldata, address) external pure returns (OrderInfo memory) {
-        revert UniswapV3Adapter__LimitOrdersNotSupported();
+        revert Adapter__LimitOrdersNotSupported();
     }
 
     function cancelLimitOrder(ISwapperTypes.SwapConfig calldata, address) external pure returns (address, bytes memory) {
-        revert UniswapV3Adapter__LimitOrdersNotSupported();
+        revert Adapter__LimitOrdersNotSupported();
     }
 
     function filledAmount(ISwapperTypes.SwapConfig calldata, address) external pure returns (uint256) {
-        revert UniswapV3Adapter__LimitOrdersNotSupported();
+        revert Adapter__LimitOrdersNotSupported();
     }
 }

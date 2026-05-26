@@ -1,0 +1,14 @@
+Atomic Limit Orders
+
+
+1) can we use preflightlimitorder here? Probably yes, but then we need a way to call the `openOrder` function on the m0 contract. 
+
+
+that sound be the extent of things, no? Maybe adapters can optionally return a way to do this, or we add some kind of hook in the adapter itself? 
+
+Ie, the adapter calls the function to open the order, and then we do the limit order checking afterwards, which would revert and return the funds if not approved. Wastes gas, but that might be easiest way to build it out. 
+
+
+let's try that. 
+
+the other option is that we keep adapters read only, and instead have some sort of HookAdapter that returns an arbitrary call taht the adapter defines and is executed by the swapper. The benefit here is that the call is executed by the swapper, which would save 1 transfer and avoid having the do things through the adapter itself rather than the swapper. 

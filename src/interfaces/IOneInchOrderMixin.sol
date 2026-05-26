@@ -4,11 +4,6 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-
-interface IUniswapV3 {
-
-    function token0() external view returns (address);
-    function token1() external view returns (address);
-    function fee() external view returns (uint24);
-
+interface IOneInchOrderMixin {
+    function rawRemainingInvalidatorForOrder(address maker, bytes32 orderHash) external view returns (uint256);
 }

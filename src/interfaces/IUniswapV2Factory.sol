@@ -4,11 +4,6 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-
-interface IUniswapV3 {
-
-    function token0() external view returns (address);
-    function token1() external view returns (address);
-    function fee() external view returns (uint24);
-
+interface IUniswapV2Factory {
+    function getPair(address tokenA, address tokenB) external view returns (address);
 }

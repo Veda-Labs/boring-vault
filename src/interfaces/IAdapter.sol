@@ -9,7 +9,11 @@ import {ISwapperTypes} from "src/interfaces/ISwapperTypes.sol";
 
 interface IAdapter {
 
+
+    //============================== Structs ===============================
+
     struct OrderInfo {
+        //required
         address approvalTarget;
         address cancelTarget;
         address inputToken;
@@ -17,26 +21,31 @@ interface IAdapter {
         uint256 inputAmount;
         uint256 outputAmount;
         bytes32 protocolHash;
+        //optional extension
+        address hook;
+        bytes hookData;
     }
 
-    function version() external view returns (uint256);
+    //============================== Errors ===============================
+    
+    error Adapter__TokenInMismatch(); 
+    error Adapter__TokenOutMismatch();
+    error Adapter__ReceiverMismatch();
+    error Adapter__LimitOrdersNotSupported();
+
+    //============================== Functions ===============================
+
+    function version() external pure returns (string memory);
     function verifyLimitOrder(ISwapperTypes.SwapConfig calldata swapConfig, address swapper) external view returns (OrderInfo memory);
 
     /// @notice Returns the protocol-side cancel target and calldata for an order.
-    /// @dev Contract:
-    ///      - When the protocol-side state needs no action (order was never registered, already filled,
-    ///        already invalidated), return `data.length == 0`. The swapper will skip the external call
-    ///        and rely on its local invalidation (`approvedHashes = false` + allowance reduction) alone.
-    ///      - When `data.length > 0`, the returned calldata MUST execute successfully against `target`
-    ///        for any state the protocol is in. The swapper reverts the entire `cancelOrder` tx on
-    ///        external-call failure — adapters must therefore inspect protocol state (e.g. fill/invalidator
-    ///        getters) and return empty calldata for states where the cancel call would revert.
-    ///      - For protocols whose cancel is idempotent (e.g. CoW `invalidateOrder`, 1inch v4 `cancelOrder`),
-    ///        always returning non-empty calldata is acceptable.
-    ///      - For "validate-once" protocols where local-only invalidation does NOT prevent fills (the
-    ///        protocol caches the signature check at registration time), the adapter is the only line
-    ///        of defense: the cancel MUST succeed externally. Implement existence checks accordingly.
-    function cancelLimitOrder(ISwapperTypes.SwapConfig calldata swapConfig, address swapper) external view returns (address target, bytes memory data);
+    /// @dev !!! IMPORTANT !!!!
+    /// @dev For new integrations, ensure that if the cancel call can REVERT, that this case is handled INSIDE of the adapter.
+    /// There may be cases where the order is submitted via the BoringSwapper, and then cannot be posted to the off-chain orderbook
+    /// in time, and is expired. In such cases, if the order does not exist on chain, it may revert. 
+    /// If the order does not exist on chain, return empty data so the cancel is skipped on the external protocol but still
+    /// executed on the Swapper.
+    function cancelLimitOrder(ISwapperTypes.SwapConfig calldata swapConfig, address swapper, bytes memory cancelArgs) external view returns (address target, bytes memory data);
 
     function filledAmount(ISwapperTypes.SwapConfig calldata swapConfig, address swapper) external view returns (uint256);
 }

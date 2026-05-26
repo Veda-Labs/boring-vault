@@ -75,6 +75,7 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
     error BoringSwapper__WrongAdapter();
     error BoringSwapper__OrderAlreadyFilled();
     error BoringSwapper__InvalidSwapSelector();
+    error BoringSwapper__HookFailed();
 
     // ========================================= EVENTS =========================================
 
@@ -103,6 +104,7 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
     event Unpaused();
     event AdapterPauseToggled(address indexed adapter, bool paused);
     event FeeRegistryUpdated(address indexed newRegistry);
+    event OrderRemoved(uint256 indexed orderId); 
 
     // ========================================= STATE =========================================
 
@@ -200,21 +202,27 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
             revert BoringSwapper__RateLimitExceeded();
         }
 
+        if (info.hook != address(0)) {
+            (bool success, ) = info.hook.call(info.hookData);
+            if (!success) revert BoringSwapper__HookFailed();
+        }
+
         emit OrderSubmitted(orderId, key, info.inputAmount, address(swapConfig.receiver));
         emit OrderSwapConfig(orderId, swapConfig);
     }
 
     /// @notice Cancels a pending limit order, invalidates it on-chain, and refunds remaining tokens to the vault.
-    function cancelOrder(uint256 orderId, ISwapperTypes.SwapConfig calldata swapConfig) external requiresAuth nonReentrant {
-        _cancelOrder(orderId, swapConfig);
+    function cancelOrder(uint256 orderId, ISwapperTypes.SwapConfig calldata swapConfig, bytes memory cancelArgs) external requiresAuth nonReentrant {
+        _cancelOrder(orderId, swapConfig, cancelArgs);
     }
 
     function replaceOrder(
         uint256 orderId,
         ISwapperTypes.SwapConfig calldata cancelConfig,
+        bytes memory cancelArgs,
         ISwapperTypes.SwapConfig memory newConfig
     ) external requiresAuth nonReentrant {
-        _cancelOrder(orderId, cancelConfig);
+        _cancelOrder(orderId, cancelConfig, cancelArgs);
 
         (bytes32 key, IAdapter.OrderInfo memory info, uint256 newOrderId) = _limitOrderPreFlightCheck(newConfig);
 
@@ -226,7 +234,7 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
         emit OrderSwapConfig(newOrderId, newConfig);
     }
 
-    function _cancelOrder(uint256 orderId, ISwapperTypes.SwapConfig calldata swapConfig) internal {
+    function _cancelOrder(uint256 orderId, ISwapperTypes.SwapConfig calldata swapConfig, bytes memory cancelArgs) internal {
         OrderRecord storage record = orderRecords[orderId];
         if (address(record.tokenIn) == address(0)) revert BoringSwapper__OrderNotFound();
         if (record.cancelledAt > 0) revert BoringSwapper__AlreadyCancelled();
@@ -247,7 +255,7 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
         delete hashToOrder[record.protocolHash];
 
         //on-chain cancellation via adapter. not needed for most adapters.
-        (address target, bytes memory data) = IAdapter(adapter).cancelLimitOrder(swapConfig, address(this));
+        (address target, bytes memory data) = IAdapter(adapter).cancelLimitOrder(swapConfig, address(this), cancelArgs);
         if (data.length > 0) {
             if (target != record.cancelTarget) revert BoringSwapper__CancelFailed();
             (bool success,) = target.call(data);
@@ -454,6 +462,7 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
         delete orderRecords[orderId];
         approvedHashes[record.protocolHash] = false;
         delete hashToOrder[record.protocolHash];
+        emit OrderRemoved(orderId);
 
         // `_cancelOrder` already decremented `pendingOrderPrincipal` at cancel time — skip the second
         // decrement when releasing the fee of a cancelled order (cancel-after-fill path).
@@ -685,15 +694,16 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
         if (!approvedAdapters[adapter]) revert BoringSwapper__AdapterNotApproved();
     }
 
-    /// @dev Rejects IAdapter view-method selectors on the atomic swap path. Those return shapes
-    ///      don't match (address, uint256), so dispatching them through `_swapPreFlightCheck` would
-    ///      misinterpret the result as (swapTarget, amount).
     function _validateSwapSelector(bytes calldata swapData) internal pure {
+        // casting to 'bytes4' is safe because these we only want to prevent a callback
+        // into the adapter. Other calls are allowed because they must match adapter function names.
+        // anything else is disallowed automatically.
+        // forge-lint: disable-next-line(unsafe-typecast)
         bytes4 selector = bytes4(swapData);
         if (
-            selector == IAdapter.verifyLimitOrder.selector
-                || selector == IAdapter.cancelLimitOrder.selector
-                || selector == IAdapter.filledAmount.selector
+            selector == IAdapter.verifyLimitOrder.selector ||
+            selector == IAdapter.cancelLimitOrder.selector ||
+            selector == IAdapter.filledAmount.selector
         ) revert BoringSwapper__InvalidSwapSelector();
     }
 

@@ -10,26 +10,10 @@ import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
 import {BaseAdapter} from "src/base/Periphery/adapters/BaseAdapter.sol";
 import {IUniswapV3} from "src/interfaces/IUniswapV3.sol";
-
-interface IOneInchOrderMixin {
-    function rawRemainingInvalidatorForOrder(address maker, bytes32 orderHash) external view returns (uint256);
-}
-
-interface IUniswapV2Factory {
-    function getPair(address tokenA, address tokenB) external view returns (address);
-}
-
-interface IUniswapV3Factory {
-    function getPool(address tokenA, address tokenB, uint24 fee) external view returns (address);
-}
-
-interface IUniswapV3PoolFee {
-    function fee() external view returns (uint24);
-}
-
-interface ICurveMetaRegistry {
-    function get_coins(address pool) external view returns (address[8] memory);
-}
+import {IUniswapV2Factory} from "src/interfaces/IUniswapV2Factory.sol";
+import {IUniswapV3Factory} from "src/interfaces/IUniswapV3Factory.sol";
+import {IOneInchOrderMixin} from "src/interfaces/IOneInchOrderMixin.sol";
+import {ICurveMetaRegistry} from "src/interfaces/ICurveMetaRegistry.sol";
 
 contract OneInchAdapter is IAdapter, BaseAdapter {
 
@@ -333,11 +317,13 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
             outputToken: order.takerAsset,
             inputAmount: order.makingAmount,
             outputAmount: order.takingAmount,
-            protocolHash: orderHash
+            protocolHash: orderHash,
+            hook: address(0),
+            hookData: ""
         });
     }
 
-    function cancelLimitOrder(ISwapperTypes.SwapConfig calldata swapConfig, address)
+    function cancelLimitOrder(ISwapperTypes.SwapConfig calldata swapConfig, address /*swapper*/)
         external
         view
         returns (address, bytes memory)
@@ -377,8 +363,8 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         return filled;
     }
 
-    function version() external view returns (uint256) {
-        return 1;
+    function version() external pure returns (string memory) {
+        return "v1";
     }
 
     //============================== Internal ===============================
@@ -472,7 +458,7 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
         address pool = address(uint160(dex));
         address token0 = IUniswapV3(pool).token0();
         address token1 = IUniswapV3(pool).token1();
-        uint24 fee = IUniswapV3PoolFee(pool).fee();
+        uint24 fee = IUniswapV3(pool).fee();
         if (IUniswapV3Factory(univ3Factory).getPool(token0, token1, fee) != pool) revert OneInchAdapter__InvalidPool();
         return token0 == tokenIn ? token1 : token0;
     }

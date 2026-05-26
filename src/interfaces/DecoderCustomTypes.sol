@@ -980,4 +980,32 @@ contract DecoderCustomTypes {
         bytes32 sellTokenBalance;
         bytes32 buyTokenBalance;
     }
+
+    struct OrderParams {
+        uint32 destChainId;
+        uint32 fillDeadline;
+        address tokenIn;
+        bytes32 tokenOut;
+        uint128 amountIn;
+        uint128 amountOut;
+        bytes32 recipient;
+        bytes32 solver;
+    }
+
+    struct OrderData {
+        uint16 version;
+        bytes32 sender;
+        uint64 nonce;
+        uint32 originChainId;
+        uint32 destChainId;
+        uint64 createdAt;
+        uint64 fillDeadline;
+        bytes32 tokenIn;
+        bytes32 tokenOut;
+        uint128 amountIn;
+        uint128 amountOut;
+        bytes32 recipient;
+        bytes32 solver;
+    }
+
 }
