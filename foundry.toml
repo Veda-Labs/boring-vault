@@ -100,3 +100,27 @@ FOUNDRY_FMT_NUMBER_UNDERSCORE = "thousands"
 FOUNDRY_FMT_OVERRIDE_SPACING = true
 FOUNDRY_FMT_WRAP_COMMENTS = false
 FOUNDRY_FMT_IGNORE = []
+
+# CI profile: inherits from default, overrides fuzz/invariant to fit the
+# GitHub Actions 6h job cap. `FOUNDRY_PROFILE=ci` is set in .github/workflows/test.yml.
+[profile.ci.fuzz]
+runs = 256
+seed = "0x0000000000000000000000000000000000000000000000000000000000000002"
+
+[profile.ci.invariant]
+runs = 32
+depth = 100
+fail_on_revert = false
+
+# Nightly profile: inherits from default, raises fuzz/invariant intensity for
+# the scheduled deep run. `FOUNDRY_PROFILE=nightly` is set in
+# .github/workflows/nightly-fuzz.yml. Tune values against the GitHub Actions
+# 6h job cap.
+[profile.nightly.fuzz]
+runs = 16000
+seed = "0x0000000000000000000000000000000000000000000000000000000000000002"
+
+[profile.nightly.invariant]
+runs = 256
+depth = 500
+fail_on_revert = false
