@@ -16,11 +16,7 @@
       "auditCommit": "0a7d659064c9070bd369d5c511ba94c6b01bbab2",
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-1",
       "verification": "full_match",
-      "deploymentCommit": "7dc398f1cf52acd7e9a7f4f21eb06fe9fbbf6bd3",
-      "constructorArgs": {
-        "_owner": "0xbE8aa5dC6d5a7a0822ad530631580a14a768250a",
-        "_auth": "0x0000000000000000000000000000000000000000"
-      }
+      "deploymentCommit": "7dc398f1cf52acd7e9a7f4f21eb06fe9fbbf6bd3"
     }
   }
 }
