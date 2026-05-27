@@ -162,6 +162,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "mevCapitalwWeth")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "Re7WETH")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sentoraPYUSDMain")));
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sentoraPRIMEMain")));
 
         // ========================== Pendle ==========================
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendleWeETHMarket"), true);

@@ -922,6 +922,7 @@ contract ChainValues {
         values[mainnet]["steakhouseUSDCRWA"] = 0x6D4e530B8431a52FFDA4516BA4Aadc0951897F8C.toBytes32();
         values[mainnet]["sentoraPYUSDMain"] = 0xb576765fB15505433aF24FEe2c0325895C559FB2.toBytes32();
         values[mainnet]["sentoraRLUSDMain"] = 0x6dC58a0FdfC8D694e571DC59B9A52EEEa780E6bf.toBytes32();
+        values[mainnet]["sentoraPRIMEMain"] = 0xC21b08C16458202593D4D9B26b9984Ee67b38BbD.toBytes32();
         values[mainnet]["gauntletWBTCcore"] = 0x443df5eEE3196e9b2Dd77CaBd3eA76C3dee8f9b2.toBytes32();
         values[mainnet]["Re7WBTC"] = 0xE0C98605f279e4D7946d25B75869c69802823763.toBytes32();
         values[mainnet]["MCwBTC"] = 0x1c530D6de70c05A81bF1670157b9d928e9699089.toBytes32();
