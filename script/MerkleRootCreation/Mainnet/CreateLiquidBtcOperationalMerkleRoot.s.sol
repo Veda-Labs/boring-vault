@@ -115,7 +115,7 @@ contract CreateMultichainLiquidBtcOperationalMerkleRootScript is Script, MerkleT
             setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 
-        // =================== Ether.fi  Swapper (Odos) ====================
+        // =================== Ether.fi Swapper (Odos) =====================
         {
             setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
 
@@ -135,6 +135,10 @@ contract CreateMultichainLiquidBtcOperationalMerkleRootScript is Script, MerkleT
             _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "RLUSD"), getAddress(sourceChain, "USDC"));
             _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "RLUSD"), getAddress(sourceChain, "USDT"));
             _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "RLUSD"), getAddress(sourceChain, "PYUSD"));
+            // WBTC
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "USDC"), getAddress(sourceChain, "WBTC"));
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "PYUSD"), getAddress(sourceChain, "WBTC"));
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "MORPHO"), getAddress(sourceChain, "WBTC"));
 
             setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
@@ -159,6 +163,10 @@ contract CreateMultichainLiquidBtcOperationalMerkleRootScript is Script, MerkleT
             _addEtherfiSwapperOneWay1InchLeafs(leafs, getAddress(sourceChain, "RLUSD"), getAddress(sourceChain, "USDC"));
             _addEtherfiSwapperOneWay1InchLeafs(leafs, getAddress(sourceChain, "RLUSD"), getAddress(sourceChain, "USDT"));
             _addEtherfiSwapperOneWay1InchLeafs(leafs, getAddress(sourceChain, "RLUSD"), getAddress(sourceChain, "PYUSD"));
+            // WBTC
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "USDC"), getAddress(sourceChain, "WBTC"));
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "PYUSD"), getAddress(sourceChain, "WBTC"));
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "MORPHO"), getAddress(sourceChain, "WBTC"));
 
             setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
