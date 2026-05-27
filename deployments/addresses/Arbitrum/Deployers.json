@@ -2,7 +2,8 @@
   "Drones": "",
   "contractAddresses": {
     "veda-canonical-create3": "0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d",
-    "veda-bundle-create3-arbitrum": "0x87D51666Da1b56332b216D456D1C2ba3Aed6089c"
+    "veda-bundle-create3-arbitrum": "0x87D51666Da1b56332b216D456D1C2ba3Aed6089c",
+    "veda-bundle-create3-v2": "0xe80F045fc6F551229f98FA21E0Db35784A590e05"
   },
   "contractMetadata": {
     "veda-canonical-create3": {
@@ -18,6 +19,16 @@
       "verification": "full_match",
       "deploymentCommit": "504437c22c961ce127f1269eac6b879bb56ae10b",
       "verificationGap": "cbor"
+    },
+    "veda-bundle-create3-v2": {
+      "auditCommit": "0a7d659064c9070bd369d5c511ba94c6b01bbab2",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-1",
+      "verification": "full_match",
+      "deploymentCommit": "7dc398f1cf52acd7e9a7f4f21eb06fe9fbbf6bd3",
+      "constructorArgs": {
+        "_owner": "0xbE8aa5dC6d5a7a0822ad530631580a14a768250a",
+        "_auth": "0x0000000000000000000000000000000000000000"
+      }
     }
   }
 }
