@@ -49,6 +49,7 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
         uint256 cancelledAt;
         address quoteAsset;
         uint256 slippageBps;
+        bytes context;
     }
 
     struct RateLimit {
@@ -212,14 +213,14 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
     }
 
     /// @notice Cancels a pending limit order, invalidates it on-chain, and refunds remaining tokens to the vault.
-    function cancelOrder(uint256 orderId, ISwapperTypes.SwapConfig calldata swapConfig, bytes memory cancelArgs) external requiresAuth nonReentrant {
-        _cancelOrder(orderId, swapConfig, cancelArgs);
+    function cancelOrder(uint256 orderId, ISwapperTypes.SwapConfig calldata swapConfig, bytes calldata cancelData) external requiresAuth nonReentrant {
+        _cancelOrder(orderId, swapConfig, cancelData);
     }
 
     function replaceOrder(
         uint256 orderId,
         ISwapperTypes.SwapConfig calldata cancelConfig,
-        bytes memory cancelArgs,
+        bytes calldata cancelArgs,
         ISwapperTypes.SwapConfig memory newConfig
     ) external requiresAuth nonReentrant {
         _cancelOrder(orderId, cancelConfig, cancelArgs);
@@ -234,13 +235,13 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
         emit OrderSwapConfig(newOrderId, newConfig);
     }
 
-    function _cancelOrder(uint256 orderId, ISwapperTypes.SwapConfig calldata swapConfig, bytes memory cancelArgs) internal {
+    function _cancelOrder(uint256 orderId, ISwapperTypes.SwapConfig calldata swapConfig, bytes calldata cancelData) internal {
         OrderRecord storage record = orderRecords[orderId];
         if (address(record.tokenIn) == address(0)) revert BoringSwapper__OrderNotFound();
         if (record.cancelledAt > 0) revert BoringSwapper__AlreadyCancelled();
         if (swapConfig.adapter != record.adapter) revert BoringSwapper__WrongAdapter();
 
-        uint256 filledAmount = IAdapter(record.adapter).filledAmount(swapConfig, address(this));
+        uint256 filledAmount = IAdapter(record.adapter).filledAmount(swapConfig, address(this), record.context);
         if (filledAmount >= record.inputAmount) revert BoringSwapper__OrderAlreadyFilled();
 
         record.cancelledAt = block.timestamp;
@@ -255,7 +256,7 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
         delete hashToOrder[record.protocolHash];
 
         //on-chain cancellation via adapter. not needed for most adapters.
-        (address target, bytes memory data) = IAdapter(adapter).cancelLimitOrder(swapConfig, address(this), cancelArgs);
+        (address target, bytes memory data) = IAdapter(adapter).cancelLimitOrder(swapConfig, address(this), cancelData, record.context);
         if (data.length > 0) {
             if (target != record.cancelTarget) revert BoringSwapper__CancelFailed();
             (bool success,) = target.call(data);
@@ -670,7 +671,8 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
             protocolHash: info.protocolHash,
             cancelledAt: 0,
             quoteAsset: swapConfig.quoteAsset,
-            slippageBps: swapConfig.slippageBps
+            slippageBps: swapConfig.slippageBps,
+            context: info.context
         });
         approvedHashes[info.protocolHash] = true;
 

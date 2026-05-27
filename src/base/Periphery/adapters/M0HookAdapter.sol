@@ -8,26 +8,23 @@ import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {ISwapperTypes} from "src/interfaces/ISwapperTypes.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
-import {AddressToBytes32} from "src/helper/AddressToBytes32.sol"; 
+import {AddressToBytes32Lib} from "src/helper/AddressToBytes32Lib.sol";
+import {IM0OrderBook} from "src/interfaces/IM0OrderBook.sol";
 
 contract M0Adapter is IAdapter {
-    using AddressToBytes32 for bytes32;
+    using AddressToBytes32Lib for bytes32;
+    using AddressToBytes32Lib for address;
     
     //============================== Errors ===============================
     
     error M0Adapter__CrossChainNotAllowed();
     error M0Adapter__PrivateOrdersNotAllowed();
     error M0Adapter__NotCancelFunction();
+    error M0Adapter__IncorrectNonceForOrder();
         
     //============================== Immutables ===============================
     
     address immutable orderBook;
-
-    //============================== Constants ===============================
-    
-    //m0 doesn't have this so we can make our own
-    //TODO also probably need a way for this not to be called via isValidSignature, though without approvals all you are getting back is a magic number, nothing really you can do with that?
-    bytes32 constant ORDER_HASH = keccak256("not implemented");
 
     //============================== Constructor ===============================
     
@@ -37,67 +34,78 @@ contract M0Adapter is IAdapter {
 
     //============================== Limit Orders ===============================
 
-    function verifyLimitOrder(ISwapperTypes.SwapConfig calldata swapConfig, address /*swapper*/)
+    function verifyLimitOrder(ISwapperTypes.SwapConfig calldata swapConfig, address swapper)
         external
         view
         returns (OrderInfo memory)
     {
         //DecoderCustomTypes.GPv2OrderData memory order =
         //   abi.decode(swapConfig.swapData, (DecoderCustomTypes.GPv2OrderData));
-        DecoderCustomTypes.OrderParams memory order =    
+        DecoderCustomTypes.OrderParams memory order =
              abi.decode(swapConfig.swapData, (DecoderCustomTypes.OrderParams));
-        
+
         if (ERC20(order.tokenIn) != swapConfig.tokenRoute.tokenIn) revert Adapter__TokenInMismatch();
         if (ERC20(order.tokenOut.toAddress()) != swapConfig.tokenRoute.tokenOut) revert Adapter__TokenOutMismatch();
         if (order.recipient.toAddress() != address(swapConfig.receiver)) revert Adapter__ReceiverMismatch();
         if (order.destChainId != block.chainid) revert M0Adapter__CrossChainNotAllowed();
-        if (order.solver != bytes32(0)) revert M0Adapter__PrivateOrdersNotAllowed();  
-          
+        if (order.solver != bytes32(0)) revert M0Adapter__PrivateOrdersNotAllowed();
+
+        bytes32 m0OrderId = IM0OrderBook(orderBook).getOrderId(
+            DecoderCustomTypes.OrderData({
+                version: IM0OrderBook(orderBook).VERSION(),
+                sender: swapper.toBytes32(),
+                nonce: IM0OrderBook(orderBook).getSenderNonce(swapper),
+                originChainId: uint32(block.chainid),
+                destChainId: order.destChainId,
+                createdAt: uint64(block.timestamp),
+                fillDeadline: order.fillDeadline,
+                tokenIn: order.tokenIn.toBytes32(),
+                tokenOut: order.tokenOut,
+                amountIn: order.amountIn,
+                amountOut: order.amountOut,
+                recipient: order.recipient,
+                solver: order.solver
+            })
+        );
 
         return OrderInfo({
             approvalTarget: orderBook,
             cancelTarget: orderBook,
             inputToken: order.tokenIn,
-            outputToken: tokenOut,
+            outputToken: order.tokenOut.toAddress(),
             inputAmount: order.amountIn,
             outputAmount: order.amountOut,
-            protocolHash: ORDER_HASH,
+            protocolHash: m0OrderId,
             hook: orderBook,
-            hookData: abi.encodeWithSignature("openOrder((uint32,uint32,address,bytes32,uint128,uint128,bytes32,bytes32))", swapConfig.swapData)
+            hookData: abi.encodeWithSignature("openOrder((uint32,uint32,address,bytes32,uint128,uint128,bytes32,bytes32))", order),
+            context: abi.encode(m0OrderId)
         });
     }
     
     // @dev In this adapter, you MUST pass the encoded function + params as the `cancelArgs`. 
-    function cancelLimitOrder(ISwapperTypes.SwapConfig calldata swapConfig, address swapper, bytes memory cancelArgs)
+    function cancelLimitOrder(ISwapperTypes.SwapConfig calldata /*swapConfig*/, address /*swapper*/, bytes calldata cancelArgs, bytes calldata context)
         external
         view
         returns (address, bytes memory)
     {
         bytes4 selector = bytes4(cancelArgs);
         if (selector != bytes4(abi.encodeWithSignature("cancelOrder(bytes32,(uint16,bytes32,uint64,uint32,uint32,uint64,uint64,bytes32,bytes32,uint128,uint128,bytes32,bytes32))"))) revert M0Adapter__NotCancelFunction();
-            
-
-        if (orderData.amountIn
-        //TODO implement the hash for the order, verify it matches here. We want to ensure that the order being cancelled is the one that was submitted so swapConfig.swapData and [4..]cancelArgs should match
-    
-        //validate the cancelArgs here, decode them to ensure we are decoding the proper types
-        (, DecoderCustomTypes.OrderData memory orderData) = abi.decode(cancelArgs, (bytes32, DecoderCustomTypes.OrderData));
-        if (ERC20(orderData.tokenIn.toAddress()) != swapConfig.tokenRoute.tokenIn) revert Adapter__TokenInMismatch();
-        if (ERC20(orderData.tokenOut.toAddress()) != swapConfig.tokenRoute.tokenOut) revert Adapter__TokenOutMismatch();
+        
+        (, DecoderCustomTypes.OrderData memory expectedData) = abi.decode(cancelArgs[4:], (bytes32, DecoderCustomTypes.OrderData));
+        (DecoderCustomTypes.OrderData memory orderData) = abi.decode(context, (DecoderCustomTypes.OrderData));
+        if (expectedData.nonce !=  orderData.nonce) revert M0Adapter__IncorrectNonceForOrder();
         
         return (orderBook, cancelArgs);
     }
 
-    /// @dev `filledAmount` is also set to `type(uint256).max` by `invalidateOrder`. The swapper only
-    ///      invalidates from inside `_cancelOrder` and queries `isFilled` BEFORE that call, so any
-    ///      non-zero reading at this site must be a genuine fill. Partial fills are rejected upstream
-    ///      in `verifyLimitOrder`.
-    function filledAmount(ISwapperTypes.SwapConfig calldata swapConfig, address swapper)
+    function filledAmount(ISwapperTypes.SwapConfig calldata /*swapConfig*/, address /*swapper*/, bytes calldata context)
         external
         view
         returns (uint256)
     {
-
+        (bytes32 orderId, ) = abi.decode(context, (bytes32, DecoderCustomTypes.OrderData));
+        IM0OrderBook.FilledAmounts memory filledAmounts = IM0OrderBook(orderBook).getFilledAmounts(orderId);
+        return filledAmounts.amountInReleased;
     }
 
     function version() external pure returns (string memory) {

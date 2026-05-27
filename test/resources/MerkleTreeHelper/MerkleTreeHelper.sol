@@ -14544,7 +14544,7 @@ function _addTellerLeafsWithReferral(
                 leafs[leafIndex] = ManageLeaf(
                     partnerSwapperAddress,
                     false,
-                    "cancelOrder(uint256,((address,address),address,address,bytes,uint256,address))",
+                    "cancelOrder(uint256,((address,address),address,address,bytes,uint256,address),bytes)",
                     new address[](3),
                     string.concat("", ERC20(tokens[i]).symbol()),
                     getAddress(sourceChain, "rawDataDecoderAndSanitizer")
@@ -14567,7 +14567,7 @@ function _addTellerLeafsWithReferral(
                         leafs[leafIndex] = ManageLeaf(
                             partnerSwapperAddress,
                             false,
-                            "replaceOrder(uint256,((address,address),address,address,bytes,uint256,address),((address,address),address,address,bytes,uint256,address))",
+                            "replaceOrder(uint256,((address,address),address,address,bytes,uint256,address),bytes,((address,address),address,address,bytes,uint256,address))",
                             new address[](6),
                             string.concat(
                                 "Replace ", ERC20(tokens[ci]).symbol(), "->", ERC20(tokens[cj]).symbol(),

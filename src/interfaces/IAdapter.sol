@@ -24,12 +24,15 @@ interface IAdapter {
         //optional extension
         address hook;
         bytes hookData;
+        bytes context; //for canceling and extra storage (if needed)
     }
 
     //============================== Errors ===============================
     
     error Adapter__TokenInMismatch(); 
     error Adapter__TokenOutMismatch();
+    error Adapter__AmountInMismatch();
+    error Adapter__AmountOutMismatch();
     error Adapter__ReceiverMismatch();
     error Adapter__LimitOrdersNotSupported();
 
@@ -45,7 +48,7 @@ interface IAdapter {
     /// in time, and is expired. In such cases, if the order does not exist on chain, it may revert. 
     /// If the order does not exist on chain, return empty data so the cancel is skipped on the external protocol but still
     /// executed on the Swapper.
-    function cancelLimitOrder(ISwapperTypes.SwapConfig calldata swapConfig, address swapper, bytes memory cancelArgs) external view returns (address target, bytes memory data);
+    function cancelLimitOrder(ISwapperTypes.SwapConfig calldata swapConfig, address swapper, bytes calldata cancelData, bytes calldata context) external view returns (address target, bytes memory data);
 
-    function filledAmount(ISwapperTypes.SwapConfig calldata swapConfig, address swapper) external view returns (uint256);
+    function filledAmount(ISwapperTypes.SwapConfig calldata swapConfig, address swapper, bytes calldata context) external view returns (uint256);
 }

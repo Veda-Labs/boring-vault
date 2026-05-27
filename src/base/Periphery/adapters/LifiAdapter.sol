@@ -109,7 +109,7 @@ contract LifiAdapter is IAdapter, BaseAdapter {
         revert LifiAdapter__LimitOrdersNotSupported();
     }
 
-    function cancelLimitOrder(ISwapperTypes.SwapConfig calldata, address)
+    function cancelLimitOrder(ISwapperTypes.SwapConfig calldata, address, bytes calldata /*cancelData*/, bytes calldata /*context*/)
         external
         pure
         returns (address, bytes memory)
@@ -117,7 +117,7 @@ contract LifiAdapter is IAdapter, BaseAdapter {
         revert LifiAdapter__LimitOrdersNotSupported();
     }
 
-    function filledAmount(ISwapperTypes.SwapConfig calldata, address) external pure returns (uint256) {
+    function filledAmount(ISwapperTypes.SwapConfig calldata, address, bytes calldata /*context*/) external pure returns (uint256) {
         revert LifiAdapter__LimitOrdersNotSupported();
     }
 

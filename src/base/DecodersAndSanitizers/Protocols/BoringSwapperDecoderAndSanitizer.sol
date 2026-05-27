@@ -19,8 +19,9 @@ contract BoringSwapperDecoder is BaseDecoderAndSanitizer {
     }
 
     function cancelOrder(
-        uint256,
-        DecoderCustomTypes.SwapConfig memory cancelConfig
+        uint256 /*orderId*/,
+        DecoderCustomTypes.SwapConfig memory cancelConfig,
+        bytes calldata /*cancelData*/
     ) external pure returns (bytes memory addressesFound) {
         return abi.encodePacked(
             cancelConfig.tokenRoute.tokenIn,
@@ -32,6 +33,7 @@ contract BoringSwapperDecoder is BaseDecoderAndSanitizer {
     function replaceOrder(
         uint256,
         DecoderCustomTypes.SwapConfig memory cancelConfig,
+        bytes calldata /*cancelData*/,
         DecoderCustomTypes.SwapConfig memory newConfig
     ) external pure returns (bytes memory addressesFound) {
         return abi.encodePacked(

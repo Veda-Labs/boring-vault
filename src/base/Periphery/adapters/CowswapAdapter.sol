@@ -74,11 +74,12 @@ contract CowswapAdapter is IAdapter {
             outputAmount: order.buyAmount,
             protocolHash: orderHash,
             hook: address(0),
-            hookData: ""
+            hookData: "",
+            context: ""
         });
     }
 
-    function cancelLimitOrder(ISwapperTypes.SwapConfig calldata swapConfig, address swapper)
+    function cancelLimitOrder(ISwapperTypes.SwapConfig calldata swapConfig, address swapper, bytes calldata /*cancelData*/, bytes calldata /*context*/)
         external
         view
         returns (address, bytes memory)
@@ -94,7 +95,7 @@ contract CowswapAdapter is IAdapter {
     ///      invalidates from inside `_cancelOrder` and queries `isFilled` BEFORE that call, so any
     ///      non-zero reading at this site must be a genuine fill. Partial fills are rejected upstream
     ///      in `verifyLimitOrder`.
-    function filledAmount(ISwapperTypes.SwapConfig calldata swapConfig, address swapper)
+    function filledAmount(ISwapperTypes.SwapConfig calldata swapConfig, address swapper, bytes calldata /*context*/)
         external
         view
         returns (uint256)

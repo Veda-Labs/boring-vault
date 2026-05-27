@@ -34,6 +34,7 @@ contract AdapterRegistry is Auth {
     }
 
     /// @notice Deregister an adapter.
+    /// @dev must NOT be done unless adapter is buggy/broken
     function remove(address adapter) external requiresAuth {
         if (!registeredAdapters[adapter]) revert AdapterRegistry__NotRegistered();
         registeredAdapters[adapter] = false;

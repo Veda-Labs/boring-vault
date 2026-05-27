@@ -319,11 +319,12 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
             outputAmount: order.takingAmount,
             protocolHash: orderHash,
             hook: address(0),
-            hookData: ""
+            hookData: "",
+            context: ""
         });
     }
 
-    function cancelLimitOrder(ISwapperTypes.SwapConfig calldata swapConfig, address /*swapper*/)
+    function cancelLimitOrder(ISwapperTypes.SwapConfig calldata swapConfig, address /*swapper*/, bytes calldata /*cancelData*/, bytes calldata /*context*/)
         external
         view
         returns (address, bytes memory)
@@ -341,7 +342,7 @@ contract OneInchAdapter is IAdapter, BaseAdapter {
     ///      through BitInvalidator; a partially-fillable order would use RemainingInvalidator and this
     ///      check would return false on a real fill (RemainingInvalidator records the remaining
     ///      amount instead of flipping the bit we read).
-    function filledAmount(ISwapperTypes.SwapConfig calldata swapConfig, address swapper)
+    function filledAmount(ISwapperTypes.SwapConfig calldata swapConfig, address swapper, bytes calldata /*context*/)
         external
         view
         returns (uint256)
