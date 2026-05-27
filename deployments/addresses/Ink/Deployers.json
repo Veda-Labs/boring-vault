@@ -5,9 +5,9 @@
   },
   "contractMetadata": {
     "veda-canonical-create3": {
-      "auditCommit": null,
-      "auditUrl": null,
-      "verification": "partial_match",
+      "auditCommit": "0a7d659064c9070bd369d5c511ba94c6b01bbab2",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-1",
+      "verification": "full_match",
       "deploymentCommit": "504437c22c961ce127f1269eac6b879bb56ae10b",
       "verificationGap": "cbor"
     }
