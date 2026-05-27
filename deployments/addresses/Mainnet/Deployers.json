@@ -5,7 +5,8 @@
     "veda-bundle-create3-bob-mainnet": "0xF3d0672a91Fd56C9ef04C79ec67d60c34c6148a0",
     "veda-bundle-create3-mainnet": "0x47Cec90FACc9364D7C21A8ab5e2aD9F1f75D740C",
     "veda-bundle-create3-mainnet-plasma": "0xbc90dbeB9e76Ff5577Bc502EBDebd0F6616ec434",
-    "veda-layerzero-create3-mainnet": "0x00bF0B30655a43Af93c1b371Be021Bd4567c51d5"
+    "veda-layerzero-create3-mainnet": "0x00bF0B30655a43Af93c1b371Be021Bd4567c51d5",
+    "veda-bundle-create3-mainnet-2": "0xe80F045fc6F551229f98FA21E0Db35784A590e05"
   },
   "contractMetadata": {
     "veda-canonical-create3": {
@@ -41,6 +42,16 @@
       "auditUrl": null,
       "verification": "full_match",
       "deploymentCommit": "504437c22c961ce127f1269eac6b879bb56ae10b"
+    },
+    "veda-bundle-create3-mainnet-2": {
+      "auditCommit": "0a7d659064c9070bd369d5c511ba94c6b01bbab2",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-1",
+      "verification": "full_match",
+      "deploymentCommit": "7dc398f1cf52acd7e9a7f4f21eb06fe9fbbf6bd3",
+      "constructorArgs": {
+        "_owner": "0xbE8aa5dC6d5a7a0822ad530631580a14a768250a",
+        "_auth": "0x0000000000000000000000000000000000000000"
+      }
     }
   }
 }
