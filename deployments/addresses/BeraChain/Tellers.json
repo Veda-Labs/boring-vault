@@ -1,0 +1,32 @@
+{
+  "contractAddresses": {
+    "LayerZeroTellerWithRateLimiting_3c730353": "0x8ea0b382d054dbebeb1d0ae47ee4ac433c730353",
+    "LayerZeroTeller_6dde8d9c": "0xcd20c63ddafac686d311b40f24dcad316dde8d9c",
+    "LayerZeroTeller_ff44750b": "0xb745b293468df7b06330472fbcee5412ff44750b",
+    "LayerZeroTellerWithRateLimiting_bd407268": "0x6ee3aaccf9f2321e49063c4f8da775ddbd407268"
+  },
+  "contractMetadata": {
+    "LayerZeroTellerWithRateLimiting_3c730353": {
+      "verification": "mismatch",
+      "discoveredVia": "active-teller-pin (2026-05-28)"
+    },
+    "LayerZeroTeller_6dde8d9c": {
+      "deploymentCommit": "c48ee764",
+      "verification": "full_match",
+      "verificationGap": "cbor",
+      "discoveredVia": "active-teller-pin (2026-05-28)"
+    },
+    "LayerZeroTeller_ff44750b": {
+      "deploymentCommit": "c48ee764",
+      "verification": "full_match",
+      "verificationGap": "cbor",
+      "discoveredVia": "active-teller-pin (2026-05-28)"
+    },
+    "LayerZeroTellerWithRateLimiting_bd407268": {
+      "deploymentCommit": "bf902717",
+      "verification": "full_match",
+      "verificationGap": "cbor",
+      "discoveredVia": "active-teller-pin (2026-05-28)"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "contractAddresses": {
+    "TellerWithLayerZero_7b514734": "0x9aa79c84b79816ab920bbce20f8f74557b514734"
+  },
+  "contractMetadata": {
+    "TellerWithLayerZero_7b514734": {
+      "deploymentCommit": "f2c26ad8",
+      "verification": "full_match",
+      "verificationGap": "cbor",
+      "discoveredVia": "active-teller-pin (2026-05-28)"
+    }
+  }
+}

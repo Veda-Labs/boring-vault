@@ -1,0 +1,13 @@
+{
+  "contractAddresses": {
+    "LayerZeroTeller_e98041e3": "0x834e313cb01e8badeaad269fceecb5a1e98041e3"
+  },
+  "contractMetadata": {
+    "LayerZeroTeller_e98041e3": {
+      "deploymentCommit": "5efd7fb6",
+      "verification": "full_match",
+      "verificationGap": "cbor",
+      "discoveredVia": "active-teller-pin (2026-05-28)"
+    }
+  }
+}
