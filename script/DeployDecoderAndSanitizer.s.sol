@@ -137,6 +137,7 @@ import {GoldenGooseFillerDecoderAndSanitizer} from "src/base/DecodersAndSanitize
 import {LiquidVaultsOPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidVaultsOPDecoderAndSanitizer.sol"; 
 import {SymbioticLRTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SymbioticLRTDecoderAndSanitizer.sol";
 import {LiquidETHOptimismDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidETHOptimismDecoderAndSanitizer.sol";
+import {EtherFiDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EtherFiDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -158,8 +159,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("optimism");
-        setSourceChainName("optimism");
+        vm.createSelectFork("unichain");
+        setSourceChainName("unichain");
     }
 
     function run() external {
@@ -167,9 +168,12 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast();
 
-        creationCode = type(LiquidETHOptimismDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode();
-        deployer.deployContract("Liquid ETH Decoder and Sanitizer V0.67", creationCode, constructorArgs, 0);
+        creationCode = type(EtherFiDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(
+            getAddress(sourceChain, "fluidFactory"),
+            getAddress(sourceChain, "uniV4PositionManager")
+        );
+        deployer.deployContract("EtherFi Decoder and Sanitizer V0.67", creationCode, constructorArgs, 0);
         
         vm.stopBroadcast();
     }

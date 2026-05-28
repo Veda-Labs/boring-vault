@@ -1715,6 +1715,7 @@ contract ChainValues {
         values[base]["moonwellCbBTC"] = 0x543257eF2161176D7C8cD90BA65C2d4CaEF5a796.toBytes32();
 
         values[base]["uniV3Router"] = 0x2626664c2603336E57B271c5C0b26F421741e481.toBytes32();
+        values[base]["uniV4PositionManager"] = 0x7C5f5A4bBd8fD63184577525326123B519429bDc.toBytes32();
 
         values[base]["aggregationRouterV5"] = 0x1111111254EEB25477B68fb85Ed929f73A960582.toBytes32();
         values[base]["oneInchExecutor"] = 0x990636ecB3FF04d33D92e970d3d588bF5cD8d086.toBytes32();
@@ -1724,6 +1725,7 @@ contract ChainValues {
         values[base]["cometRewards"] = 0x123964802e6ABabBE1Bc9547D72Ef1B69B00A6b1.toBytes32();
 
         // Instadapp Fluid
+        values[base]["fluidFactory"] = 0x324c5Dc1fC42c7a4D43d92df1eBA58a54d13Bf2d.toBytes32();
         values[base]["fWETH"] = 0x9272D6153133175175Bc276512B2336BE3931CE9.toBytes32();
         values[base]["fWSTETH"] = 0x896E39f0E9af61ECA9dD2938E14543506ef2c2b5.toBytes32();
 
@@ -2857,6 +2859,9 @@ contract ChainValues {
         values[unichain]["morphoGauntletWETH"] = 0x830898200F0E8Be8Dc1C9A836f4AB29ECEdf76eb.toBytes32();
 
         // Euler
+        
+        // Fluid
+        values[unichain]["fluidFactory"] = address(1).toBytes32();
     }
 
     function _addHyperEVMValues() internal {
@@ -3301,6 +3306,7 @@ contract ChainValues {
         values[plasma]["uniswapV3NonFungiblePositionManager"] = 0x743E03cceB4af2efA3CC76838f6E8B50B63F184c.toBytes32();
         values[plasma]["uniV3Router"] = 0x807F4E281B7A3B324825C64ca53c69F0b418dE40.toBytes32();
         values[plasma]["universalRouter"] = 0x1b35fbA9357fD9bda7ed0429C8BbAbe1e8CC88fc.toBytes32();
+        values[plasma]["uniV4PositionManager"] = address(1).toBytes32();
 
         // Hyperlane (keeping only essential contracts based on mainnet pattern)
         values[plasma]["hyperlaneMailbox"] = 0x3a464f746D23Ab22155710f44dB16dcA53e0775E.toBytes32();

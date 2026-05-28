@@ -19,6 +19,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
 
     address public boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C;
     address public rawDataDecoderAndSanitizer = 0xe825B233EEc65C3C55f06a1782ddF97a31e93C99;
+    address public etherFiDecoder = 0xFB6C4c23Dc59F380Ec62Cc6Ea40711d6D87aa88f;
     address public managerAddress = 0xf9f7969C357ce6dfd7973098Ea0D57173592bCCa;
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
     address public pancakeSwapDataDecoderAndSanitizer = 0xfdC73Fc6B60e4959b71969165876213918A443Cd;
