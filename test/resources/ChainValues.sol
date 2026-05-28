@@ -168,6 +168,7 @@ contract ChainValues {
         // Liquid Ecosystem
         values[mainnet]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
         values[mainnet]["deployerAddress2"] = 0xF3d0672a91Fd56C9ef04C79ec67d60c34c6148a0.toBytes32();
+        values[mainnet]["newDeployer"] = 0xe80F045fc6F551229f98FA21E0Db35784A590e05.toBytes32();
         values[mainnet]["dev0Address"] = 0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b.toBytes32();
         values[mainnet]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
         values[mainnet]["etherfiOpsAddress"] = 0xC8111D00351765c64D301CDFc1848bf5Ff2E23A2.toBytes32();
@@ -3355,13 +3356,13 @@ contract ChainValues {
     }
 
     function _addMonadValues() private {
-        values[monad]["deployerAddress"] = 0x144dc4DF655a57d871be8f18aA565b82D3E980f5.toBytes32();
-        values[monad]["txBundlerAddress"] = 0x144dc4DF655a57d871be8f18aA565b82D3E980f5.toBytes32();
+        values[monad]["newDeployer"] = 0xe80F045fc6F551229f98FA21E0Db35784A590e05.toBytes32();
+        values[monad]["txBundlerAddress"] = 0xe80F045fc6F551229f98FA21E0Db35784A590e05.toBytes32();
         values[monad]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
         values[monad]["WMON"] = 0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A.toBytes32();
         values[monad]["mUSD"] = 0xacA92E438df0B2401fF60dA7E4337B687a2435DA.toBytes32();
-        values[monad]["steakhouseMUSDVault"] = 0xBEEFF60EC664adb24ff7378A8C69ecD25C3cC867.toBytes32();
-        values[monad]["steakhouseUSDCVault"] = 0xBEEFFf30371ff8EbdEA03d5E2e3C6b7c0bA0303c.toBytes32();
+        values[monad]["steakhouseMUSDVault"] = 0xBEEF067C9D2591aCCAB7d1C336a41ca3bd45b8f5.toBytes32();
+        values[monad]["steakhouseUSDCVault"] = 0xBEEF0C61DA39F7EA2bFa7B0f9d6338A3a2DD2fF0.toBytes32();
 
         // MPortal — same deterministic proxy address as mainnet.
         values[monad]["mportalProxy"] = 0xD925C84b55E4e44a53749fF5F2a5A13F63D128fd.toBytes32();

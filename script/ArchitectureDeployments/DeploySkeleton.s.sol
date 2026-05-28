@@ -121,7 +121,7 @@ contract DeploySkeletonScript is Script, ChainValues {
     }
 
     // You might want to adjust this depending on what all you're deploying and on what chain
-    uint256 constant DESIRED_NUMBER_OF_DEPLOYMENT_TXS = 10;
+    uint256 constant DESIRED_NUMBER_OF_DEPLOYMENT_TXS = 3;
 
     // Contracts to deploy
     ArcticArchitectureLens public lens;
@@ -968,12 +968,30 @@ contract DeploySkeletonScript is Script, ChainValues {
             lastIndexDeployed += txsInBundle;
         }
 
-        address txBundler = getAddress(sourceChain, "txBundlerAddress");
-
         vm.startBroadcast();
-        for (uint256 i; i < desiredNumberOfDeploymentTxs; i++) {
-            console.log(string.concat("Sending bundle: ", vm.toString(i)));
-            Deployer(txBundler).bundleTxs(txBundles[i]);
+        if (desiredNumberOfDeploymentTxs == txsLength) {
+            console.log("Desired # of txs >= # of bundles, calling deployer directly rather than using bundler");
+            for (uint256 i; i < txsLength; i++) {
+                console.log(string.concat("Sending tx: ", vm.toString(i)));
+                // Every tx in `txs` is built by _addDeployTx targeting `deployer.deployContract`,
+                // so strip the 4-byte selector and re-issue as a typed call against the deployer.
+                // This lets Foundry's broadcast surface revert reasons instead of swallowing them.
+                bytes memory rawData = txsToSend[i].data;
+                bytes memory encodedArgs = new bytes(rawData.length - 4);
+                for (uint256 j; j < encodedArgs.length; j++) {
+                    encodedArgs[j] = rawData[j + 4];
+                }
+                (string memory name, bytes memory creationCode, bytes memory constructorArgs, uint256 deployValue) =
+                    abi.decode(encodedArgs, (string, bytes, bytes, uint256));
+                console.log(msg.sender);
+                deployer.deployContract(name, creationCode, constructorArgs, deployValue);
+            }
+        } else {
+            address txBundler = _handleAddressOrName(".deploymentParameters.txBundlerAddressOrName");
+            for (uint256 i; i < desiredNumberOfDeploymentTxs; i++) {
+                console.log(string.concat("Sending bundle: ", vm.toString(i)));
+                Deployer(txBundler).bundleTxs(txBundles[i]);
+            }
         }
         vm.stopBroadcast();
     }
