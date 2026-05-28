@@ -1604,6 +1604,10 @@ contract ChainValues {
         //Cowswap
         values[mainnet]["cowswapSettlement"] = 0x9008D19f58AAbD9eD0D60971565AA8510560ab41.toBytes32();
         values[mainnet]["cowswapVaultRelayer"] = 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110.toBytes32();
+
+        //M0 
+        values[mainnet]["m0OrderBook"] = 0xe39B012AB3b20E94a9beEa557eB0DE4171D4D3E4.toBytes32();
+
     }
 
     function _addBaseValues() private {

@@ -155,11 +155,10 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
             _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
 
         //order record stored
-        (ERC20 tokenIn,,,, BoringVault receiver, uint256 inputAmount,,,,,) =
-            swapper.orderRecords(orderId);
-        assertEq(address(tokenIn), address(WETH));
-        assertEq(inputAmount, 1e18);
-        assertEq(address(receiver), address(boringVault));
+        BoringSwapper.OrderRecord memory rec = swapper.getOrderRecord(orderId);
+        assertEq(address(rec.tokenIn), address(WETH));
+        assertEq(rec.inputAmount, 1e18);
+        assertEq(address(rec.receiver), address(boringVault));
 
         //funds moved from vault to swapper
         assertEq(WETH.balanceOf(address(swapper)), 1e18);
@@ -317,16 +316,16 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         assertEq(WETH.balanceOf(address(swapper)), 1e18);
         assertEq(WETH.balanceOf(address(boringVault)), 99e18);
 
-        swapper.cancelOrder(orderId, config);
+        swapper.cancelOrder(orderId, config, "");
 
         //funds returned to vault
         assertEq(WETH.balanceOf(address(swapper)), 0);
         assertEq(WETH.balanceOf(address(boringVault)), 100e18);
 
         //record marked as cancelled (preserved until releaseFee)
-        (ERC20 tokenIn,,,,,,,, uint256 cancelledAt,,) = swapper.orderRecords(orderId);
-        assertEq(address(tokenIn), address(WETH));
-        assertGt(cancelledAt, 0);
+        BoringSwapper.OrderRecord memory rec = swapper.getOrderRecord(orderId);
+        assertEq(address(rec.tokenIn), address(WETH));
+        assertGt(rec.cancelledAt, 0);
     }
 
     function testCancelOrder_RevertNotFound() external {
@@ -340,17 +339,17 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
             receiver: boringVault
         });
         vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__OrderNotFound.selector));
-        swapper.cancelOrder(999, dummyConfig);
+        swapper.cancelOrder(999, dummyConfig, "");
     }
 
     function testCancelOrder_RevertDoubleCancelation() external {
         deal(address(WETH), address(boringVault), 100e18);
 
         (ISwapperTypes.SwapConfig memory config, , uint256 orderId) = _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
-        swapper.cancelOrder(orderId, config);
+        swapper.cancelOrder(orderId, config, "");
 
         vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__AlreadyCancelled.selector));
-        swapper.cancelOrder(orderId, config);
+        swapper.cancelOrder(orderId, config, "");
     }
 
     function testCancelOrder_OneOfMultiple() external {
@@ -362,21 +361,21 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         assertEq(WETH.balanceOf(address(swapper)), 3e18);
 
         //cancel only the first order
-        swapper.cancelOrder(orderId0, config0);
+        swapper.cancelOrder(orderId0, config0, "");
 
         //only 1e18 returned, 2e18 still on swapper for order 1
         assertEq(WETH.balanceOf(address(swapper)), 2e18);
         assertEq(WETH.balanceOf(address(boringVault)), 98e18);
 
         //order 0 marked cancelled (record preserved), order 1 still pending
-        (ERC20 tokenIn0,,,,,,,, uint256 cancelledAt0,,) = swapper.orderRecords(orderId0);
-        assertEq(address(tokenIn0), address(WETH));
-        assertGt(cancelledAt0, 0);
+        BoringSwapper.OrderRecord memory rec0 = swapper.getOrderRecord(orderId0);
+        assertEq(address(rec0.tokenIn), address(WETH));
+        assertGt(rec0.cancelledAt, 0);
 
-        (ERC20 tokenIn1,,,,, uint256 inputAmount1,,, uint256 cancelledAt1,,) = swapper.orderRecords(orderId1);
-        assertEq(cancelledAt1, 0);
-        assertEq(address(tokenIn1), address(WETH));
-        assertEq(inputAmount1, 2e18);
+        BoringSwapper.OrderRecord memory rec1 = swapper.getOrderRecord(orderId1);
+        assertEq(rec1.cancelledAt, 0);
+        assertEq(address(rec1.tokenIn), address(WETH));
+        assertEq(rec1.inputAmount, 2e18);
     }
 
     //==================== Full Fill Flow ====================
@@ -415,7 +414,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         _simulateFill(5e18, 10000e6, config, orderDigest);
 
         vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__OrderAlreadyFilled.selector));
-        swapper.cancelOrder(orderId, config);
+        swapper.cancelOrder(orderId, config, "");
     }
 
     function testCancelAfterFullFill_RevertOrderAlreadyFilled() external {
@@ -427,7 +426,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         _simulateFill(1e18, 2000e6, config, orderDigest);
 
         vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__OrderAlreadyFilled.selector));
-        swapper.cancelOrder(orderId, config);
+        swapper.cancelOrder(orderId, config, "");
     }
 
     //==================== Rate Limit Tests ====================
@@ -468,7 +467,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         (, uint256 remaining,,) = swapper.rateLimitPerRoute(routeKey);
         assertEq(remaining, 2e18);
 
-        swapper.cancelOrder(orderId, config);
+        swapper.cancelOrder(orderId, config, "");
 
         (, remaining,,) = swapper.rateLimitPerRoute(routeKey);
         assertEq(remaining, 5e18); // fully restored, capped at capacity
@@ -790,18 +789,18 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
             _buildSwapConfig(2e18, 4000e6, uint32(block.timestamp + 7200));
 
         uint256 newOrderId = swapper.orders();
-        swapper.replaceOrder(orderId, oldConfig, newConfig);
+        swapper.replaceOrder(orderId, oldConfig, "", newConfig);
 
         // old order record marked cancelled (preserved until releaseFee)
-        (ERC20 tokenIn,,,,,,,, uint256 cancelledAt,,) = swapper.orderRecords(orderId);
-        assertEq(address(tokenIn), address(WETH));
-        assertGt(cancelledAt, 0);
+        BoringSwapper.OrderRecord memory oldRec = swapper.getOrderRecord(orderId);
+        assertEq(address(oldRec.tokenIn), address(WETH));
+        assertGt(oldRec.cancelledAt, 0);
 
         // new order record exists with correct data
-        (ERC20 newTokenIn,,,,, uint256 newInputAmount,,, uint256 newCancelledAt,,) = swapper.orderRecords(newOrderId);
-        assertEq(newCancelledAt, 0);
-        assertEq(address(newTokenIn), address(WETH));
-        assertEq(newInputAmount, 2e18);
+        BoringSwapper.OrderRecord memory newRec = swapper.getOrderRecord(newOrderId);
+        assertEq(newRec.cancelledAt, 0);
+        assertEq(address(newRec.tokenIn), address(WETH));
+        assertEq(newRec.inputAmount, 2e18);
 
         // old 1e18 returned, new 2e18 pulled
         assertEq(WETH.balanceOf(address(swapper)), 2e18);
@@ -820,7 +819,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         (ISwapperTypes.SwapConfig memory newConfig,) =
             _buildSwapConfig(2e18, 4000e6, uint32(block.timestamp + 7200));
 
-        swapper.replaceOrder(orderId, oldConfig, newConfig);
+        swapper.replaceOrder(orderId, oldConfig, "", newConfig);
 
         // old hash removed from approvedHashes
         assertFalse(swapper.approvedHashes(oldDigest));
@@ -840,7 +839,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         (ISwapperTypes.SwapConfig memory newConfig, bytes32 newDigest) =
             _buildSwapConfig(2e18, 4000e6, uint32(block.timestamp + 7200));
 
-        swapper.replaceOrder(orderId, oldConfig, newConfig);
+        swapper.replaceOrder(orderId, oldConfig, "", newConfig);
 
         // new hash is approved
         assertTrue(swapper.approvedHashes(newDigest));
@@ -859,7 +858,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         (ISwapperTypes.SwapConfig memory newConfig,) = _buildSwapConfig(2e18, 4000e6, uint32(block.timestamp + 7200));
 
         vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__OrderNotFound.selector));
-        swapper.replaceOrder(999, cancelConfig, newConfig);
+        swapper.replaceOrder(999, cancelConfig, "", newConfig);
     }
 
     function testReplaceSwap_EmitsEvents() external {
@@ -880,7 +879,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         vm.expectEmit(true, true, true, true, address(swapper));
         emit OrderSubmitted(newOrderId, routeId, 2e18, address(boringVault));
 
-        swapper.replaceOrder(orderId, oldConfig, newConfig);
+        swapper.replaceOrder(orderId, oldConfig, "", newConfig);
     }
 
     //==================== FeeRegistry Unit Tests ====================
@@ -1148,8 +1147,8 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         swapper.releaseFee(orderId);
 
-        (ERC20 tokenIn,,,,,,,,,,) = swapper.orderRecords(orderId);
-        assertEq(address(tokenIn), address(0));
+        BoringSwapper.OrderRecord memory rec = swapper.getOrderRecord(orderId);
+        assertEq(address(rec.tokenIn), address(0));
         assertFalse(swapper.approvedHashes(digest));
         assertEq(swapper.claimableFees(WETH), 0);
     }
@@ -1173,7 +1172,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         _simulateFill(1e18, 2000e6, config, digest);
 
         vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__OrderAlreadyFilled.selector));
-        swapper.cancelOrder(orderId, config);
+        swapper.cancelOrder(orderId, config, "");
     }
 
     function testClaimFees_SendsToRecipient() external {
@@ -1243,7 +1242,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
         assertEq(WETH.balanceOf(address(boringVault)), 100e18 - inputAmount - expectedFee);
 
-        swapper.cancelOrder(orderId, config);
+        swapper.cancelOrder(orderId, config, "");
 
         // vault gets only principal back; fee stays locked in feesInToken until releaseFee
         assertEq(WETH.balanceOf(address(boringVault)), 100e18 - expectedFee);
@@ -1266,7 +1265,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         (ISwapperTypes.SwapConfig memory config,, uint256 orderId) =
             _submitOrder(inputAmount, 2000e6, uint32(block.timestamp + 3600));
 
-        swapper.cancelOrder(orderId, config);
+        swapper.cancelOrder(orderId, config, "");
 
         // cancel leaves the fee locked in feesInToken and does NOT populate claimableFees
         assertEq(swapper.claimableFees(WETH), 0);
@@ -1293,7 +1292,7 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         (, uint256 remaining,,) = swapper.rateLimitPerRoute(routeKey);
         assertEq(remaining, 2e18); // 5e18 - 3e18 consumed
 
-        swapper.cancelOrder(orderId, config);
+        swapper.cancelOrder(orderId, config, "");
 
         // restored = remaining(2e18) + unfilledOrder(3e18) = 5e18 — fee excluded
         (, remaining,,) = swapper.rateLimitPerRoute(routeKey);

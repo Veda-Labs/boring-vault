@@ -54,15 +54,14 @@ contract PriceValidator is IPriceValidator {
         ERC20 token,
         address quoteAsset,
         uint256 amount
-    ) internal view returns (bool, uint256[] memory values) {
+    ) internal view returns (bool skip, uint256[] memory values) {
         address[] memory rateProviders;
         address[] memory intermediaries;
 
         // Scoped so `skip` is dropped before the fill phase.
         {
-            bool skip;
             (rateProviders, intermediaries, skip) = swapper.getBaseAssetOracle(token, quoteAsset);
-            if (skip) return (true, values);
+            if (skip) return (skip, values);
             if (rateProviders.length == 0) revert PriceValidator__OracleNotConfigured();
             if (rateProviders.length != intermediaries.length) revert PriceValidator__OracleLengthMismatch();
         }

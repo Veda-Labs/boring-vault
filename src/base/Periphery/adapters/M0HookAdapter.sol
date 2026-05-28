@@ -20,7 +20,7 @@ contract M0Adapter is IAdapter {
     error M0Adapter__CrossChainNotAllowed();
     error M0Adapter__PrivateOrdersNotAllowed();
     error M0Adapter__NotCancelFunction();
-    error M0Adapter__IncorrectNonceForOrder();
+    error M0Adapter__OrderIdMismatch();
         
     //============================== Immutables ===============================
     
@@ -75,7 +75,7 @@ contract M0Adapter is IAdapter {
             outputToken: order.tokenOut.toAddress(),
             inputAmount: order.amountIn,
             outputAmount: order.amountOut,
-            protocolHash: m0OrderId,
+            protocolHash: keccak256(swapConfig.swapData), //hash the swapData since m0 doesn't use a domain separator pattern
             hook: orderBook,
             hookData: abi.encodeWithSignature("openOrder((uint32,uint32,address,bytes32,uint128,uint128,bytes32,bytes32))", order),
             context: abi.encode(m0OrderId)
@@ -91,9 +91,9 @@ contract M0Adapter is IAdapter {
         bytes4 selector = bytes4(cancelArgs);
         if (selector != bytes4(abi.encodeWithSignature("cancelOrder(bytes32,(uint16,bytes32,uint64,uint32,uint32,uint64,uint64,bytes32,bytes32,uint128,uint128,bytes32,bytes32))"))) revert M0Adapter__NotCancelFunction();
         
-        (, DecoderCustomTypes.OrderData memory expectedData) = abi.decode(cancelArgs[4:], (bytes32, DecoderCustomTypes.OrderData));
-        (DecoderCustomTypes.OrderData memory orderData) = abi.decode(context, (DecoderCustomTypes.OrderData));
-        if (expectedData.nonce !=  orderData.nonce) revert M0Adapter__IncorrectNonceForOrder();
+        bytes32 expectedOrderId = abi.decode(context, (bytes32));
+        (bytes32 decodedId, ) = abi.decode(cancelArgs[4:], (bytes32, DecoderCustomTypes.OrderData));
+        if (decodedId != expectedOrderId) revert M0Adapter__OrderIdMismatch();
         
         return (orderBook, cancelArgs);
     }
@@ -103,7 +103,7 @@ contract M0Adapter is IAdapter {
         view
         returns (uint256)
     {
-        (bytes32 orderId, ) = abi.decode(context, (bytes32, DecoderCustomTypes.OrderData));
+        bytes32 orderId = abi.decode(context, (bytes32));
         IM0OrderBook.FilledAmounts memory filledAmounts = IM0OrderBook(orderBook).getFilledAmounts(orderId);
         return filledAmounts.amountInReleased;
     }

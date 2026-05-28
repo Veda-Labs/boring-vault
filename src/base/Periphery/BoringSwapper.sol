@@ -220,10 +220,10 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
     function replaceOrder(
         uint256 orderId,
         ISwapperTypes.SwapConfig calldata cancelConfig,
-        bytes calldata cancelArgs,
+        bytes calldata cancelData,
         ISwapperTypes.SwapConfig memory newConfig
     ) external requiresAuth nonReentrant {
-        _cancelOrder(orderId, cancelConfig, cancelArgs);
+        _cancelOrder(orderId, cancelConfig, cancelData);
 
         (bytes32 key, IAdapter.OrderInfo memory info, uint256 newOrderId) = _limitOrderPreFlightCheck(newConfig);
 
@@ -249,7 +249,7 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
         // Verify the supplied swapConfig matches the stored order, then revoke its hash
         address adapter = swapConfig.adapter;
         IAdapter.OrderInfo memory info = IAdapter(adapter).verifyLimitOrder(swapConfig, address(this));
-        if (info.protocolHash != record.protocolHash) revert BoringSwapper__CancelFailed();
+        if (info.protocolHash != record.protocolHash) revert BoringSwapper__HashMismatch(info.protocolHash, record.protocolHash);
 
         //cleanup state
         approvedHashes[record.protocolHash] = false;
@@ -519,6 +519,10 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
 
     function baseOracleLength(ERC20 baseAsset, address quoteAsset) external view returns (uint256) {
         return oracles[baseAsset][quoteAsset].length;
+    }
+
+    function getOrderRecord(uint256 orderId) external view returns (OrderRecord memory) {
+        return orderRecords[orderId];
     }
 
     function version() external pure returns (string memory) {

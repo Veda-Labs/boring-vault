@@ -653,11 +653,10 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         (ISwapperTypes.SwapConfig memory config,, uint256 orderId) =
             _submitOneInchOrder(1e18, 2000e6);
 
-        (ERC20 tokenIn,,,, BoringVault receiver, uint256 inputAmount,,,,,) =
-            swapper.orderRecords(orderId);
-        assertEq(address(tokenIn), getAddress(sourceChain, "WETH"));
-        assertEq(inputAmount, 1e18);
-        assertEq(address(receiver), getAddress(sourceChain, "boringVault"));
+        BoringSwapper.OrderRecord memory rec = swapper.getOrderRecord(orderId);
+        assertEq(address(rec.tokenIn), getAddress(sourceChain, "WETH"));
+        assertEq(rec.inputAmount, 1e18);
+        assertEq(address(rec.receiver), getAddress(sourceChain, "boringVault"));
 
         assertEq(getERC20(sourceChain, "WETH").balanceOf(address(swapper)), 1e18);
         assertEq(getERC20(sourceChain, "WETH").balanceOf(getAddress(sourceChain, "boringVault")), 99e18);
@@ -715,13 +714,13 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         assertEq(getERC20(sourceChain, "WETH").balanceOf(address(swapper)), 1e18);
         assertEq(getERC20(sourceChain, "WETH").balanceOf(getAddress(sourceChain, "boringVault")), 99e18);
 
-        swapper.cancelOrder(orderId, config);
+        swapper.cancelOrder(orderId, config, "");
 
         assertEq(getERC20(sourceChain, "WETH").balanceOf(address(swapper)), 0);
         assertEq(getERC20(sourceChain, "WETH").balanceOf(getAddress(sourceChain, "boringVault")), 100e18);
 
-        (ERC20 tokenIn,,,,,,,,,,) = swapper.orderRecords(orderId);
-        assertEq(address(tokenIn), address(0));
+        BoringSwapper.OrderRecord memory rec = swapper.getOrderRecord(orderId);
+        assertEq(address(rec.tokenIn), address(0));
     }
 
     function testOneInchFullFillFlow() external {
@@ -761,7 +760,7 @@ contract BoringSwapperIntegration is BaseTestIntegration {
         assertEq(getERC20(sourceChain, "WETH").balanceOf(address(swapper)), 5e18);
         assertEq(getERC20(sourceChain, "USDC").balanceOf(vault), 10000e6);
 
-        swapper.cancelOrder(orderId, config);
+        swapper.cancelOrder(orderId, config, "");
 
         assertEq(getERC20(sourceChain, "WETH").balanceOf(address(swapper)), 0);
         assertEq(getERC20(sourceChain, "WETH").balanceOf(vault), 95e18);

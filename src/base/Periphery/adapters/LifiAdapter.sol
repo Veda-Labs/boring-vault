@@ -121,7 +121,7 @@ contract LifiAdapter is IAdapter, BaseAdapter {
         revert LifiAdapter__LimitOrdersNotSupported();
     }
 
-    function version() external pure returns (uint256) {
-        return 1;
+    function version() external pure returns (string memory) {
+        return "v1";
     }
 }

@@ -597,11 +597,10 @@ contract OneInchAdapterTest is BaseTestIntegration {
         (ISwapperTypes.SwapConfig memory config,, uint256 orderId) =
             _submitOneInchOrder(1e18, 2000e6);
 
-        (ERC20 tokenIn,,,, BoringVault receiver, uint256 inputAmount,,,,,) =
-            swapper.orderRecords(orderId);
-        assertEq(address(tokenIn), getAddress(sourceChain, "WETH"));
-        assertEq(inputAmount, 1e18);
-        assertEq(address(receiver), getAddress(sourceChain, "boringVault"));
+        BoringSwapper.OrderRecord memory rec = swapper.getOrderRecord(orderId);
+        assertEq(address(rec.tokenIn), getAddress(sourceChain, "WETH"));
+        assertEq(rec.inputAmount, 1e18);
+        assertEq(address(rec.receiver), getAddress(sourceChain, "boringVault"));
 
         assertEq(getERC20(sourceChain, "WETH").balanceOf(address(swapper)), 1e18);
         assertEq(getERC20(sourceChain, "WETH").balanceOf(getAddress(sourceChain, "boringVault")), 99e18);
@@ -659,14 +658,14 @@ contract OneInchAdapterTest is BaseTestIntegration {
         assertEq(getERC20(sourceChain, "WETH").balanceOf(address(swapper)), 1e18);
         assertEq(getERC20(sourceChain, "WETH").balanceOf(getAddress(sourceChain, "boringVault")), 99e18);
 
-        swapper.cancelOrder(orderId, config);
+        swapper.cancelOrder(orderId, config, "");
         
         assertEq(getERC20(sourceChain, "WETH").balanceOf(address(swapper)), 0);
         assertEq(getERC20(sourceChain, "WETH").balanceOf(getAddress(sourceChain, "boringVault")), 100e18);
 
-        (ERC20 tokenIn,,,,,,,,,,) = swapper.orderRecords(orderId);
+        BoringSwapper.OrderRecord memory rec = swapper.getOrderRecord(orderId);
         //cancel preserves the record; releaseFee deletes it later
-        assertEq(address(tokenIn), getAddress(sourceChain, "WETH"));
+        assertEq(address(rec.tokenIn), getAddress(sourceChain, "WETH"));
     }
 
     function testOneInchFullFillFlow() external {
@@ -703,7 +702,7 @@ contract OneInchAdapterTest is BaseTestIntegration {
         _simulateOneInchFill(5e18, 10000e6, config, orderDigest);
 
         vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__OrderAlreadyFilled.selector));
-        swapper.cancelOrder(orderId, config);
+        swapper.cancelOrder(orderId, config, "");
     }
 
     function testOneInchLimitOrder_filledAmount() external {
@@ -726,13 +725,13 @@ contract OneInchAdapterTest is BaseTestIntegration {
         bytes32 orderHash = keccak256(abi.encodePacked("\x19\x01", _oneInchDomainSeparator(), structHash));
         
         //full amount remaining?
-        assertEq(OneInchAdapter(oneInchAdapter).filledAmount(config, address(swapper)), 0);
+        assertEq(OneInchAdapter(oneInchAdapter).filledAmount(config, address(swapper), ""), 0);
 
         bytes32 inner = keccak256(abi.encode(address(swapper), uint256(5)));
         bytes32 slot  = keccak256(abi.encode(orderHash, inner));
         vm.store(getAddress(sourceChain, "aggregationRouterV6"), slot, bytes32(~uint256(1e14)));
 
-        assertEq(OneInchAdapter(oneInchAdapter).filledAmount(config, address(swapper)), 1e18 - 1e14);
+        assertEq(OneInchAdapter(oneInchAdapter).filledAmount(config, address(swapper), ""), 1e18 - 1e14);
 
         //TODO tests for full fill and the one other branch
     }

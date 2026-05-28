@@ -123,13 +123,13 @@ contract CowswapAdapterTest is BaseTestIntegration {
         bytes memory orderUid = abi.encodePacked(orderHash, address(swapper), uint32(block.timestamp + 86400));
         
         //check initial state (should be 0)
-        uint256 filledAmount = IAdapter(cowswapAdapter).filledAmount(config, address(swapper));
+        uint256 filledAmount = IAdapter(cowswapAdapter).filledAmount(config, address(swapper), "");
         assertEq(filledAmount, 0);
 
         bytes32 slot = keccak256(abi.encodePacked(orderUid, uint256(2)));
         vm.store(getAddress(sourceChain, "cowswapSettlement"), slot, bytes32(uint256(5e11)));
 
-        filledAmount = IAdapter(cowswapAdapter).filledAmount(config, address(swapper));
+        filledAmount = IAdapter(cowswapAdapter).filledAmount(config, address(swapper), "");
         assertEq(filledAmount, 5e11);
     }
 

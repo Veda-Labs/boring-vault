@@ -107,8 +107,8 @@ contract CowswapAdapter is IAdapter {
         return IGPv2Settlement(cowSettlement).filledAmount(orderUid);
     }
 
-    function version() external view returns (uint256) {
-        return 1;
+    function version() external pure returns (string memory) {
+        return "v1";
     }
 
     //============================== Internal ===============================
