@@ -983,7 +983,6 @@ contract DeploySkeletonScript is Script, ChainValues {
                 }
                 (string memory name, bytes memory creationCode, bytes memory constructorArgs, uint256 deployValue) =
                     abi.decode(encodedArgs, (string, bytes, bytes, uint256));
-                console.log(msg.sender);
                 deployer.deployContract(name, creationCode, constructorArgs, deployValue);
             }
         } else {
