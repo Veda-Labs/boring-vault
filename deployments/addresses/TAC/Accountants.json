@@ -1,0 +1,12 @@
+{
+  "contractAddresses": {
+    "AccountantWithRateProviders_d43331e2": "0x20c13ab7cd4f0ffc49de1a9b6d415314d43331e2"
+  },
+  "contractMetadata": {
+    "AccountantWithRateProviders_d43331e2": {
+      "deploymentCommit": "5efd7fb6",
+      "verification": "full_match",
+      "verificationGap": "cbor"
+    }
+  }
+}

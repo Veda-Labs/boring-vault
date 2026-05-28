@@ -1,0 +1,14 @@
+{
+  "contractAddresses": {
+    "AccountantWithFixedRate_7b6890c8": "0x88ea516dcb9f79cafa9d0d19909a4dbd7b6890c8",
+    "AccountantWithFixedRate_ef6258d4": "0x55ee6e1adf848a2fc831b07564223396ef6258d4"
+  },
+  "contractMetadata": {
+    "AccountantWithFixedRate_7b6890c8": {
+      "verification": "mismatch"
+    },
+    "AccountantWithFixedRate_ef6258d4": {
+      "verification": "mismatch"
+    }
+  }
+}
