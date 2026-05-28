@@ -6,8 +6,7 @@
     "LayerZeroTeller_e98041e3": {
       "deploymentCommit": "5efd7fb6",
       "verification": "full_match",
-      "verificationGap": "cbor",
-      "discoveredVia": "active-teller-pin (2026-05-28)"
+      "verificationGap": "cbor"
     }
   }
 }

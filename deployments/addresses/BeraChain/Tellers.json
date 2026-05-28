@@ -7,26 +7,22 @@
   },
   "contractMetadata": {
     "LayerZeroTellerWithRateLimiting_3c730353": {
-      "verification": "mismatch",
-      "discoveredVia": "active-teller-pin (2026-05-28)"
+      "verification": "mismatch"
     },
     "LayerZeroTeller_6dde8d9c": {
       "deploymentCommit": "c48ee764",
       "verification": "full_match",
-      "verificationGap": "cbor",
-      "discoveredVia": "active-teller-pin (2026-05-28)"
+      "verificationGap": "cbor"
     },
     "LayerZeroTeller_ff44750b": {
       "deploymentCommit": "c48ee764",
       "verification": "full_match",
-      "verificationGap": "cbor",
-      "discoveredVia": "active-teller-pin (2026-05-28)"
+      "verificationGap": "cbor"
     },
     "LayerZeroTellerWithRateLimiting_bd407268": {
       "deploymentCommit": "bf902717",
       "verification": "full_match",
-      "verificationGap": "cbor",
-      "discoveredVia": "active-teller-pin (2026-05-28)"
+      "verificationGap": "cbor"
     }
   }
 }

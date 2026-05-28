@@ -9,25 +9,21 @@
     "LayerZeroTellerWithRateLimiting_3c730353": {
       "deploymentCommit": "bf902717",
       "verification": "full_match",
-      "verificationGap": "cbor",
-      "discoveredVia": "active-teller-pin (2026-05-28)"
+      "verificationGap": "cbor"
     },
     "LayerZeroTeller_202d82b2": {
       "deploymentCommit": "67cf8116",
       "verification": "full_match",
-      "verificationGap": "cbor",
-      "discoveredVia": "active-teller-pin (2026-05-28)"
+      "verificationGap": "cbor"
     },
     "LayerZeroTeller_564c2825": {
       "deploymentCommit": "67cf8116",
       "verification": "full_match",
-      "verificationGap": "cbor",
-      "discoveredVia": "active-teller-pin (2026-05-28)"
+      "verificationGap": "cbor"
     },
     "LayerZeroTeller_62b6293c": {
       "deploymentCommit": "92e1a7af",
-      "verification": "full_match",
-      "discoveredVia": "active-teller-pin (2026-05-28)"
+      "verification": "full_match"
     }
   }
 }

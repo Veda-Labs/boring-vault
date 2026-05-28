@@ -4,8 +4,7 @@
   },
   "contractMetadata": {
     "LayerZeroTellerWithRateLimiting_bd407268": {
-      "verification": "mismatch",
-      "discoveredVia": "active-teller-pin (2026-05-28)"
+      "verification": "mismatch"
     }
   }
 }
