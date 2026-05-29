@@ -2,7 +2,8 @@
 cache/
 out/
 broadcast/
-
+standard-json-out/
+dependencies/
 # Ignores development broadcast logs
 !/broadcast
 /broadcast/*/31337/
