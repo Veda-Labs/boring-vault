@@ -11,6 +11,7 @@ import {BoringSwapperDecoder} from "src/base/DecodersAndSanitizers/Protocols/Bor
 import {BoringVault} from "src/base/BoringVault.sol";
 import {AdapterRegistry} from "src/base/Periphery/AdapterRegistry.sol";
 import {OneInchAdapter, IOneInchOrderMixin} from "src/base/Periphery/adapters/OneInchAdapter.sol";
+import {IAdapter} from "src/interfaces/IAdapter.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
@@ -59,7 +60,6 @@ contract OneInchAdapterTest is BaseTestIntegration {
         address swapperDecoder = address(new BoringSwapperDecoder());
         _overrideDecoder(swapperDecoder);
 
-
         registry = new AdapterRegistry();
         validator = new PriceValidator();
         swapper = new BoringSwapper(address(this), registry, new FeeRegistry(address(this), 1000), boringVault, IPriceValidator(address(validator)));
@@ -100,6 +100,7 @@ contract OneInchAdapterTest is BaseTestIntegration {
     }
 
     //==================== 1inch Swap Tests ====================
+
     function testUnoswap() external {
         //set up manager swap
         //do the swap
@@ -133,7 +134,7 @@ contract OneInchAdapterTest is BaseTestIntegration {
             "approve(address,uint256)", address(swapper), type(uint256).max
         );
 
-        bytes memory unoswapData = hex"83800a8e000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200000000000000000000000000000000000000000000000000038d7ea4c6800000000000000000000000000000000000000000000000000000000000001f6d2c08000000000000003b6d0340b4e16d0168e52d35cacd2c6185b44281ec28c9dcf583bc2f";
+        bytes memory unoswapData = hex"83800a8e000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200000000000000000000000000000000000000000000000000038d7ea4c6800000000000000000000000000000000000000000000000000000000000001f6d2c08000000000000003b6d0340b4e16d0168e52d35cacd2c6185b44281ec28c9dc";
             
         ISwapperTypes.TokenRoute memory tokenRoute = ISwapperTypes.TokenRoute(
             getERC20(sourceChain, "WETH"),
@@ -160,69 +161,14 @@ contract OneInchAdapterTest is BaseTestIntegration {
 
         _submitManagerCall(manageProofs, tx_);
 
+        uint256 wethAfter = getERC20(sourceChain, "WETH").balanceOf(vault);
+        uint256 usdcAfter = getERC20(sourceChain, "USDC").balanceOf(vault);
+
+        assertLt(wethAfter, wethBefore);
+        assertGt(usdcAfter, usdcBefore);
+
     }
 
-    function testUnoswap_RevertsToken1Mismatch() external {
-        //set up manager swap
-        //do the swap
-        //swap happens 
-        deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18); 
-
-        address[] memory tokens = new address[](2);
-        tokens[0] = getAddress(sourceChain, "WETH");
-        tokens[1] = getAddress(sourceChain, "USDT");
-    
-        ManageLeaf[] memory leafs = new ManageLeaf[](16);
-        _addBoringSwapperLeafs(leafs, address(swapper), tokens); 
-        
-        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
-
-        //_generateTestLeafs(leafs, manageTree);
-
-        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
-
-        Tx memory tx_ = _getTxArrays(2); 
-
-        tx_.manageLeafs[0] = leafs[0]; //approve token
-        tx_.manageLeafs[1] = leafs[5]; //swap WETH -> USDT
-        
-        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
-
-        tx_.targets[0] = getAddress(sourceChain, "WETH"); //approve 
-        tx_.targets[1] = address(swapper);  
-
-        tx_.targetData[0] = abi.encodeWithSignature(
-            "approve(address,uint256)", address(swapper), type(uint256).max
-        );
-
-        bytes memory unoswapData = hex"83800a8e000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200000000000000000000000000000000000000000000000000038d7ea4c6800000000000000000000000000000000000000000000000000000000000001f6d2c08000000000000003b6d0340b4e16d0168e52d35cacd2c6185b44281ec28c9dcf583bc2f";
-            
-        ISwapperTypes.TokenRoute memory tokenRoute = ISwapperTypes.TokenRoute(
-            getERC20(sourceChain, "WETH"),
-            getERC20(sourceChain, "USDT")
-        );
-        tx_.targetData[1] = abi.encodeWithSelector(
-            BoringSwapper.swap.selector,
-            ISwapperTypes.SwapConfig({
-                tokenRoute: tokenRoute,
-                adapter: oneInchAdapter,
-                quoteAsset: getAddress(sourceChain, "USDC"),
-                swapData: unoswapData,
-                slippageBps: 10,
-                receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
-            })
-        );
-
-        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
-        tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
-
-        address vault = getAddress(sourceChain, "boringVault");
-        uint256 wethBefore = getERC20(sourceChain, "WETH").balanceOf(vault);
-        uint256 usdcBefore = getERC20(sourceChain, "USDC").balanceOf(vault);
-            
-        vm.expectRevert(abi.encodeWithSelector(OneInchAdapter.OneInchAdapter__TokenOutMismatch.selector));
-        _submitManagerCall(manageProofs, tx_);
-    }
 
     function testUnoswapTo() external {
         //set up manager swap
@@ -342,66 +288,14 @@ contract OneInchAdapterTest is BaseTestIntegration {
 
         _submitManagerCall(manageProofs, tx_);
 
+        uint256 wethAfter = getERC20(sourceChain, "WETH").balanceOf(vault);
+        uint256 usdcAfter = getERC20(sourceChain, "USDC").balanceOf(vault);
+
+        assertLt(wethAfter, wethBefore);
+        assertGt(usdcAfter, usdcBefore);
+
     }
 
-    function testUnoswap2_RevertsTokenOutMismatch() external {
-        deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18); 
-
-        address[] memory tokens = new address[](2);
-        tokens[0] = getAddress(sourceChain, "WETH");
-        tokens[1] = getAddress(sourceChain, "USDT");
-    
-        ManageLeaf[] memory leafs = new ManageLeaf[](16);
-        _addBoringSwapperLeafs(leafs, address(swapper), tokens); 
-        
-        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
-
-        //_generateTestLeafs(leafs, manageTree);
-
-        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
-
-        Tx memory tx_ = _getTxArrays(2); 
-
-        tx_.manageLeafs[0] = leafs[0]; //approve token
-        tx_.manageLeafs[1] = leafs[5]; //swap WETH -> USDT
-        
-        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
-
-        tx_.targets[0] = getAddress(sourceChain, "WETH"); //approve 
-        tx_.targets[1] = address(swapper);  
-
-        tx_.targetData[0] = abi.encodeWithSignature(
-            "approve(address,uint256)", address(swapper), type(uint256).max
-        );
-
-        bytes memory unoswap2Data = hex"8770ba91000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200000000000000000000000000000000000000000000000000038d7ea4c680000000000000000000000000000000000000000000000000000000000000000000200000000000000000000000c2e9f25be6257c210d7adf0d4cd6e3e881ba25f82080000000000000000000005777d92f208679db4b9778590fa3cab3ac9e2168";
-            
-        ISwapperTypes.TokenRoute memory tokenRoute = ISwapperTypes.TokenRoute(
-            getERC20(sourceChain, "WETH"),
-            getERC20(sourceChain, "USDT")
-        );
-        tx_.targetData[1] = abi.encodeWithSelector(
-            BoringSwapper.swap.selector,
-            ISwapperTypes.SwapConfig({
-                tokenRoute: tokenRoute,
-                adapter: oneInchAdapter,
-                quoteAsset: getAddress(sourceChain, "USDC"),
-                swapData: unoswap2Data,
-                slippageBps: 10,
-                receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
-            })
-        );
-
-        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
-        tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
-
-        address vault = getAddress(sourceChain, "boringVault");
-        uint256 wethBefore = getERC20(sourceChain, "WETH").balanceOf(vault);
-        uint256 usdcBefore = getERC20(sourceChain, "USDC").balanceOf(vault);
-            
-        vm.expectRevert(abi.encodeWithSelector(OneInchAdapter.OneInchAdapter__TokenOutMismatch.selector));
-        _submitManagerCall(manageProofs, tx_);
-    }
 
     function testUnoswap3() external {
         deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18); 
@@ -456,71 +350,17 @@ contract OneInchAdapterTest is BaseTestIntegration {
 
         address vault = getAddress(sourceChain, "boringVault");
         uint256 wethBefore = getERC20(sourceChain, "WETH").balanceOf(vault);
-        uint256 usdcBefore = getERC20(sourceChain, "USDC").balanceOf(vault);
+        uint256 usdtBefore = getERC20(sourceChain, "USDT").balanceOf(vault);
 
         _submitManagerCall(manageProofs, tx_);
 
+        uint256 wethAfter = getERC20(sourceChain, "WETH").balanceOf(vault);
+        uint256 usdtAfter = getERC20(sourceChain, "USDT").balanceOf(vault);
+
+        assertLt(wethAfter, wethBefore);
+        assertGt(usdtAfter, usdtBefore);
     }
 
-    function testUnoswap3_RevertsTokenOutMismatch() external {
-        deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18); 
-
-        address[] memory tokens = new address[](2);
-        tokens[0] = getAddress(sourceChain, "WETH");
-        tokens[1] = getAddress(sourceChain, "USDE");
-    
-        ManageLeaf[] memory leafs = new ManageLeaf[](16);
-        _addBoringSwapperLeafs(leafs, address(swapper), tokens); 
-        
-        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
-
-        //_generateTestLeafs(leafs, manageTree);
-
-        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
-
-        Tx memory tx_ = _getTxArrays(2); 
-
-        tx_.manageLeafs[0] = leafs[0]; //approve token
-        tx_.manageLeafs[1] = leafs[5]; //swap WETH -> USDE
-        
-        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
-
-        tx_.targets[0] = getAddress(sourceChain, "WETH"); //approve 
-        tx_.targets[1] = address(swapper);  
-
-        tx_.targetData[0] = abi.encodeWithSignature(
-            "approve(address,uint256)", address(swapper), type(uint256).max
-        );
-
-        bytes memory unoswap3Data = hex"19367472000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200000000000000000000000000000000000000000000000000038d7ea4c680000000000000000000000000000000000000000000000000000000000000000000200000000000000000000000c2e9f25be6257c210d7adf0d4cd6e3e881ba25f82080000000000000000000005777d92f208679db4b9778590fa3cab3ac9e21682080000000000000000000003416cf6c708da44db2624d63ea0aaef7113527c6";
-            
-        ISwapperTypes.TokenRoute memory tokenRoute = ISwapperTypes.TokenRoute(
-            getERC20(sourceChain, "WETH"),
-            getERC20(sourceChain, "USDE")
-        );
-        tx_.targetData[1] = abi.encodeWithSelector(
-            BoringSwapper.swap.selector,
-            ISwapperTypes.SwapConfig({
-                tokenRoute: tokenRoute,
-                adapter: oneInchAdapter,
-                quoteAsset: getAddress(sourceChain, "USDC"),
-                swapData: unoswap3Data,
-                slippageBps: 10,
-                receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
-            })
-        );
-
-        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
-        tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
-
-        address vault = getAddress(sourceChain, "boringVault");
-        uint256 wethBefore = getERC20(sourceChain, "WETH").balanceOf(vault);
-        uint256 usdcBefore = getERC20(sourceChain, "USDC").balanceOf(vault);
-        
-        vm.expectRevert(abi.encodeWithSelector(OneInchAdapter.OneInchAdapter__TokenOutMismatch.selector));
-        _submitManagerCall(manageProofs, tx_);
-
-    }
 
     function testUnoswapCurve() external {
         //set up manager swap
@@ -576,15 +416,442 @@ contract OneInchAdapterTest is BaseTestIntegration {
         tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
         tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
 
-        address vault = getAddress(sourceChain, "boringVault");
-        uint256 wethBefore = getERC20(sourceChain, "USDT").balanceOf(vault);
-        uint256 usdcBefore = getERC20(sourceChain, "USDC").balanceOf(vault);
+        //address vault = getAddress(sourceChain, "boringVault");
+        //uint256 wethBefore = getERC20(sourceChain, "USDT").balanceOf(vault);
+        //uint256 usdcBefore = getERC20(sourceChain, "USDC").balanceOf(vault);
         
         vm.expectRevert(); //we are reverting on a failed innerCall here which is acceptable --
         //the path through the adapter is pulling out the coins correctly, which is all we care about in this case tokenIn + tokenOut match correctly
         _submitManagerCall(manageProofs, tx_);
 
+
+        //uint256 wethAfter = getERC20(sourceChain, "WETH").balanceOf(vault);
+        //uint256 usdcAfter = getERC20(sourceChain, "USDC").balanceOf(vault);
+
+        //assertLt(wethAfter, wethBefore);
+        //assertGt(usdcAfter, usdcBefore);
+
     }
+
+    function testOneInchSwap_PreservesLimitOrderAllowance() external {
+        deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18);
+
+        vm.prank(getAddress(sourceChain, "boringVault"));
+        getERC20(sourceChain, "WETH").approve(address(swapper), type(uint256).max);
+
+        _submitOneInchOrder(1e18, 2000e6);
+
+        uint256 limitOrderAllowance =
+            getERC20(sourceChain, "WETH").allowance(address(swapper), ONEINCH_ROUTER);
+        assertEq(limitOrderAllowance, 1e18);
+
+        address[] memory tokens = new address[](2);
+        tokens[0] = getAddress(sourceChain, "WETH");
+        tokens[1] = getAddress(sourceChain, "USDC");
+
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
+        _addBoringSwapperLeafs(leafs, address(swapper), tokens);
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        Tx memory tx_ = _getTxArrays(2);
+        tx_.manageLeafs[0] = leafs[0];
+        tx_.manageLeafs[1] = leafs[5];
+
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+
+        tx_.targets[0] = getAddress(sourceChain, "WETH");
+        tx_.targets[1] = address(swapper);
+        tx_.targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", address(swapper), type(uint256).max
+        );
+
+        bytes memory unoswapData = hex"83800a8e000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200000000000000000000000000000000000000000000000000038d7ea4c6800000000000000000000000000000000000000000000000000000000000001f6d2c08000000000000003b6d0340b4e16d0168e52d35cacd2c6185b44281ec28c9dcf583bc2f";
+
+        ISwapperTypes.TokenRoute memory tokenRoute = ISwapperTypes.TokenRoute(
+            getERC20(sourceChain, "WETH"),
+            getERC20(sourceChain, "USDC")
+        );
+        tx_.targetData[1] = abi.encodeWithSelector(
+            BoringSwapper.swap.selector,
+            ISwapperTypes.SwapConfig({
+                tokenRoute: tokenRoute,
+                adapter: oneInchAdapter,
+                quoteAsset: getAddress(sourceChain, "USDC"),
+                swapData: unoswapData,
+                slippageBps: 10,
+                receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
+            })
+        );
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+
+        _submitManagerCall(manageProofs, tx_);
+
+        uint256 postSwapAllowance =
+            getERC20(sourceChain, "WETH").allowance(address(swapper), ONEINCH_ROUTER);
+        assertEq(postSwapAllowance, limitOrderAllowance);
+    }
+
+    //==================== 1inch Swap Test Reverts ====================
+
+    function testUnoswap_RevertsToken1Mismatch() external {
+        //set up manager swap
+        //do the swap
+        //swap happens 
+        deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18); 
+
+        address[] memory tokens = new address[](2);
+        tokens[0] = getAddress(sourceChain, "WETH");
+        tokens[1] = getAddress(sourceChain, "USDT");
+    
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
+        _addBoringSwapperLeafs(leafs, address(swapper), tokens); 
+        
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+
+        //_generateTestLeafs(leafs, manageTree);
+
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        Tx memory tx_ = _getTxArrays(2); 
+
+        tx_.manageLeafs[0] = leafs[0]; //approve token
+        tx_.manageLeafs[1] = leafs[5]; //swap WETH -> USDT
+        
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+
+        tx_.targets[0] = getAddress(sourceChain, "WETH"); //approve 
+        tx_.targets[1] = address(swapper);  
+
+        tx_.targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", address(swapper), type(uint256).max
+        );
+
+        bytes memory unoswapData = hex"83800a8e000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200000000000000000000000000000000000000000000000000038d7ea4c6800000000000000000000000000000000000000000000000000000000000001f6d2c08000000000000003b6d0340b4e16d0168e52d35cacd2c6185b44281ec28c9dc";
+            
+        ISwapperTypes.TokenRoute memory tokenRoute = ISwapperTypes.TokenRoute(
+            getERC20(sourceChain, "WETH"),
+            getERC20(sourceChain, "USDT")
+        );
+        tx_.targetData[1] = abi.encodeWithSelector(
+            BoringSwapper.swap.selector,
+            ISwapperTypes.SwapConfig({
+                tokenRoute: tokenRoute,
+                adapter: oneInchAdapter,
+                quoteAsset: getAddress(sourceChain, "USDC"),
+                swapData: unoswapData,
+                slippageBps: 10,
+                receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
+            })
+        );
+
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+            
+        vm.expectRevert(abi.encodeWithSelector(IAdapter.Adapter__TokenOutMismatch.selector));
+        _submitManagerCall(manageProofs, tx_);
+    }
+
+    function testUnoswap2_RevertsTokenOutMismatch() external {
+        deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18); 
+
+        address[] memory tokens = new address[](2);
+        tokens[0] = getAddress(sourceChain, "WETH");
+        tokens[1] = getAddress(sourceChain, "USDT");
+    
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
+        _addBoringSwapperLeafs(leafs, address(swapper), tokens); 
+        
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+
+        //_generateTestLeafs(leafs, manageTree);
+
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        Tx memory tx_ = _getTxArrays(2); 
+
+        tx_.manageLeafs[0] = leafs[0]; //approve token
+        tx_.manageLeafs[1] = leafs[5]; //swap WETH -> USDT
+        
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+
+        tx_.targets[0] = getAddress(sourceChain, "WETH"); //approve 
+        tx_.targets[1] = address(swapper);  
+
+        tx_.targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", address(swapper), type(uint256).max
+        );
+
+        bytes memory unoswap2Data = hex"8770ba91000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200000000000000000000000000000000000000000000000000038d7ea4c680000000000000000000000000000000000000000000000000000000000000000000200000000000000000000000c2e9f25be6257c210d7adf0d4cd6e3e881ba25f82080000000000000000000005777d92f208679db4b9778590fa3cab3ac9e2168";
+            
+        ISwapperTypes.TokenRoute memory tokenRoute = ISwapperTypes.TokenRoute(
+            getERC20(sourceChain, "WETH"),
+            getERC20(sourceChain, "USDT")
+        );
+        tx_.targetData[1] = abi.encodeWithSelector(
+            BoringSwapper.swap.selector,
+            ISwapperTypes.SwapConfig({
+                tokenRoute: tokenRoute,
+                adapter: oneInchAdapter,
+                quoteAsset: getAddress(sourceChain, "USDC"),
+                swapData: unoswap2Data,
+                slippageBps: 10,
+                receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
+            })
+        );
+
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+        vm.expectRevert(abi.encodeWithSelector(IAdapter.Adapter__TokenOutMismatch.selector));
+        _submitManagerCall(manageProofs, tx_);
+    }
+
+
+    function testUnoswap3_RevertsTokenOutMismatch() external {
+        deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18); 
+
+        address[] memory tokens = new address[](2);
+        tokens[0] = getAddress(sourceChain, "WETH");
+        tokens[1] = getAddress(sourceChain, "USDE");
+    
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
+        _addBoringSwapperLeafs(leafs, address(swapper), tokens); 
+        
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+
+        //_generateTestLeafs(leafs, manageTree);
+
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        Tx memory tx_ = _getTxArrays(2); 
+
+        tx_.manageLeafs[0] = leafs[0]; //approve token
+        tx_.manageLeafs[1] = leafs[5]; //swap WETH -> USDE
+        
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+
+        tx_.targets[0] = getAddress(sourceChain, "WETH"); //approve 
+        tx_.targets[1] = address(swapper);  
+
+        tx_.targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", address(swapper), type(uint256).max
+        );
+
+        bytes memory unoswap3Data = hex"19367472000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200000000000000000000000000000000000000000000000000038d7ea4c680000000000000000000000000000000000000000000000000000000000000000000200000000000000000000000c2e9f25be6257c210d7adf0d4cd6e3e881ba25f82080000000000000000000005777d92f208679db4b9778590fa3cab3ac9e21682080000000000000000000003416cf6c708da44db2624d63ea0aaef7113527c6";
+            
+        ISwapperTypes.TokenRoute memory tokenRoute = ISwapperTypes.TokenRoute(
+            getERC20(sourceChain, "WETH"),
+            getERC20(sourceChain, "USDE")
+        );
+        tx_.targetData[1] = abi.encodeWithSelector(
+            BoringSwapper.swap.selector,
+            ISwapperTypes.SwapConfig({
+                tokenRoute: tokenRoute,
+                adapter: oneInchAdapter,
+                quoteAsset: getAddress(sourceChain, "USDC"),
+                swapData: unoswap3Data,
+                slippageBps: 10,
+                receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
+            })
+        );
+
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+        
+        vm.expectRevert(abi.encodeWithSelector(IAdapter.Adapter__TokenOutMismatch.selector));
+        _submitManagerCall(manageProofs, tx_);
+    }
+
+    function testOneInchAdapter__RevertsUniswapV2PoolNotFromFactory() external {
+        deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18); 
+
+        address[] memory tokens = new address[](2);
+        tokens[0] = getAddress(sourceChain, "WETH");
+        tokens[1] = getAddress(sourceChain, "USDE");
+    
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
+        _addBoringSwapperLeafs(leafs, address(swapper), tokens); 
+        
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+
+        _generateTestLeafs(leafs, manageTree);
+
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        Tx memory tx_ = _getTxArrays(2); 
+
+        tx_.manageLeafs[0] = leafs[0]; //approve token
+        tx_.manageLeafs[1] = leafs[5]; //swap WETH -> USDE
+        
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+
+        tx_.targets[0] = getAddress(sourceChain, "WETH"); //approve 
+        tx_.targets[1] = address(swapper);  
+
+        tx_.targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", address(swapper), type(uint256).max
+        );
+        
+        address fakePool = address(new MockUniV2Pool(getAddress(sourceChain, "USDE"), getAddress(sourceChain, "WETH")));
+        bytes memory unoswapData = abi.encodePacked(
+            bytes4(0x83800a8e),
+            uint256(uint160(getAddress(sourceChain, "WETH"))),
+            uint256(1e15),
+            uint256(0x1f6d),
+            uint256(uint160(fakePool))
+        );
+            
+        ISwapperTypes.TokenRoute memory tokenRoute = ISwapperTypes.TokenRoute(
+            getERC20(sourceChain, "WETH"),
+            getERC20(sourceChain, "USDE")
+        );
+
+        tx_.targetData[1] = abi.encodeWithSelector(
+            BoringSwapper.swap.selector,
+            ISwapperTypes.SwapConfig({
+                tokenRoute: tokenRoute,
+                adapter: oneInchAdapter,
+                quoteAsset: getAddress(sourceChain, "USDC"),
+                swapData: unoswapData,
+                slippageBps: 10,
+                receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
+            })
+        );
+
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+        
+        vm.expectRevert(abi.encodeWithSelector(OneInchAdapter.OneInchAdapter__InvalidPool.selector));
+        _submitManagerCall(manageProofs, tx_);
+    }
+
+    function testOneInchAdapter__RevertsUniswapV3PoolNotFromFactory() external {
+        deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18); 
+
+        address[] memory tokens = new address[](2);
+        tokens[0] = getAddress(sourceChain, "WETH");
+        tokens[1] = getAddress(sourceChain, "USDE");
+    
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
+        _addBoringSwapperLeafs(leafs, address(swapper), tokens); 
+        
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+
+        _generateTestLeafs(leafs, manageTree);
+
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        Tx memory tx_ = _getTxArrays(2); 
+
+        tx_.manageLeafs[0] = leafs[0]; //approve token
+        tx_.manageLeafs[1] = leafs[5]; //swap WETH -> USDE
+        
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+
+        tx_.targets[0] = getAddress(sourceChain, "WETH"); //approve 
+        tx_.targets[1] = address(swapper);  
+
+        tx_.targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", address(swapper), type(uint256).max
+        );
+        
+        address fakePool = address(new MockUniV3Pool(getAddress(sourceChain, "USDE"), getAddress(sourceChain, "WETH")));
+        bytes memory unoswapData = abi.encodePacked(
+            bytes4(0x83800a8e),
+            uint256(uint160(getAddress(sourceChain, "WETH"))),
+            uint256(1e15),
+            uint256(0x1f6d),
+            uint256(uint160(fakePool)) | (uint256(0x2c) << 248)
+        );
+            
+        ISwapperTypes.TokenRoute memory tokenRoute = ISwapperTypes.TokenRoute(
+            getERC20(sourceChain, "WETH"),
+            getERC20(sourceChain, "USDE")
+        );
+
+        tx_.targetData[1] = abi.encodeWithSelector(
+            BoringSwapper.swap.selector,
+            ISwapperTypes.SwapConfig({
+                tokenRoute: tokenRoute,
+                adapter: oneInchAdapter,
+                quoteAsset: getAddress(sourceChain, "USDC"),
+                swapData: unoswapData,
+                slippageBps: 10,
+                receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
+            })
+        );
+
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+        
+        vm.expectRevert(abi.encodeWithSelector(OneInchAdapter.OneInchAdapter__InvalidPool.selector));
+        _submitManagerCall(manageProofs, tx_);
+    }
+
+    function testOneInchAdapter__RevertCurvePoolNotFromFactory() external {
+        deal(getAddress(sourceChain, "USDC"), getAddress(sourceChain, "boringVault"), 100e18); 
+
+        address[] memory tokens = new address[](2);
+        tokens[0] = getAddress(sourceChain, "USDC");
+        tokens[1] = getAddress(sourceChain, "USDE");
+    
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
+        _addBoringSwapperLeafs(leafs, address(swapper), tokens); 
+        
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+
+        _generateTestLeafs(leafs, manageTree);
+
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        Tx memory tx_ = _getTxArrays(2); 
+
+        tx_.manageLeafs[0] = leafs[0]; //approve token
+        tx_.manageLeafs[1] = leafs[5]; //swap WETH -> USDE
+        
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+
+        tx_.targets[0] = getAddress(sourceChain, "USDC"); //approve 
+        tx_.targets[1] = address(swapper);  
+
+        tx_.targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", address(swapper), type(uint256).max
+        );
+        
+        address fakePool = address(new MockCurvePool(getAddress(sourceChain, "USDE"), getAddress(sourceChain, "USDC")));
+        bytes memory unoswapData = abi.encodePacked(
+            bytes4(0x83800a8e),
+            uint256(uint160(getAddress(sourceChain, "USDC"))),
+            uint256(1e15),
+            uint256(0x1f6d),
+            (uint256(2) << 253) | uint256(uint160(fakePool))
+        );
+            
+        ISwapperTypes.TokenRoute memory tokenRoute = ISwapperTypes.TokenRoute(
+            getERC20(sourceChain, "USDC"),
+            getERC20(sourceChain, "USDE")
+        );
+
+        tx_.targetData[1] = abi.encodeWithSelector(
+            BoringSwapper.swap.selector,
+            ISwapperTypes.SwapConfig({
+                tokenRoute: tokenRoute,
+                adapter: oneInchAdapter,
+                quoteAsset: getAddress(sourceChain, "USDC"),
+                swapData: unoswapData,
+                slippageBps: 10,
+                receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
+            })
+        );
+
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+        
+        vm.expectRevert("no registry"); 
+        _submitManagerCall(manageProofs, tx_);
+    }
+
 
     //==================== 1inch Limit Order Tests ====================
 
@@ -594,7 +861,7 @@ contract OneInchAdapterTest is BaseTestIntegration {
         vm.prank(getAddress(sourceChain, "boringVault"));
         getERC20(sourceChain, "WETH").approve(address(swapper), type(uint256).max);
 
-        (ISwapperTypes.SwapConfig memory config,, uint256 orderId) =
+        (,, uint256 orderId) =
             _submitOneInchOrder(1e18, 2000e6);
 
         BoringSwapper.OrderRecord memory rec = swapper.getOrderRecord(orderId);
@@ -688,8 +955,6 @@ contract OneInchAdapterTest is BaseTestIntegration {
         assertEq(getERC20(sourceChain, "WETH").balanceOf(vault), vaultWethBefore);
     }
 
-    // 1inch's BitInvalidator flips on any fill. The adapter enforces NO_PARTIAL_FILLS_FLAG so
-    // partial fills aren't a real protocol scenario, but any non-zero post-fill state blocks cancel.
     function testOneInchCancelAfterFill_RevertOrderAlreadyFilled() external {
         deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18);
 
@@ -699,7 +964,7 @@ contract OneInchAdapterTest is BaseTestIntegration {
         (ISwapperTypes.SwapConfig memory config, bytes32 orderDigest, uint256 orderId) =
             _submitOneInchOrder(10e18, 20000e6);
 
-        _simulateOneInchFill(5e18, 10000e6, config, orderDigest);
+        _simulateOneInchFill(10e18, 20000e6, config, orderDigest);
 
         vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__OrderAlreadyFilled.selector));
         swapper.cancelOrder(orderId, config, "");
@@ -817,12 +1082,13 @@ contract OneInchAdapterTest is BaseTestIntegration {
         //Required for the swapper's isFilled gate to fire correctly in tests.
         (DecoderCustomTypes.OneInchLimitOrder memory order,) =
             abi.decode(config.swapData, (DecoderCustomTypes.OneInchLimitOrder, bytes));
-        uint256 nonceOrEpoch = (order.makerTraits >> 120) & type(uint40).max;
-        uint256 slot = nonceOrEpoch >> 8;
+        uint256 raw = amountIn >= order.makingAmount
+            ? type(uint256).max
+            : ~(order.makingAmount - amountIn);
         vm.mockCall(
             ONEINCH_ROUTER,
-            abi.encodeWithSignature("bitInvalidatorForOrder(address,uint256)", address(swapper), slot),
-            abi.encode(uint256(1) << (nonceOrEpoch & 0xff))
+            abi.encodeWithSignature("rawRemainingInvalidatorForOrder(address,bytes32)", address(swapper), orderDigest),
+            abi.encode(raw) 
         );
     }
 
@@ -832,5 +1098,56 @@ contract OneInchAdapterTest is BaseTestIntegration {
         address[] memory intermediaries = new address[](1);
         intermediaries[0] = intermediary;
         return BoringSwapper.RateProviderConfig(rateProviders, intermediaries, skipValidation);
+    }
+}
+
+contract MockUniV2Pool {
+
+    address public token0; 
+    address public token1;
+   
+    constructor(address _token0, address _token1) {
+        token0 = _token0; 
+        token1 = _token1;
+    }
+
+    function getPair() external view returns (address) {
+        return address(this);
+    }
+}
+
+contract MockUniV3Pool {
+
+    address public token0; 
+    address public token1;
+   
+    constructor(address _token0, address _token1) {
+        token0 = _token0; 
+        token1 = _token1;
+    }
+
+    function fee() external pure returns (uint24) {
+        return 1000;
+    }
+
+    function getPair() external view returns (address) {
+        return address(this);
+    }
+}
+
+contract MockCurvePool {
+
+    address public token0; 
+    address public token1;
+   
+    constructor(address _token0, address _token1) {
+        token0 = _token0; 
+        token1 = _token1;
+    }
+
+    function coins() external view returns (address[8] memory c) {
+        c[0] = token0; 
+        c[1] = token0; 
+        return c;
     }
 }

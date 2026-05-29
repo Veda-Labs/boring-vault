@@ -29,12 +29,7 @@ contract OpenOceanAdapter is IAdapter, BaseAdapter {
 
     error OpenOceanAdapter__InvalidCaller();
     error OpenOceanAdapter__SrcReceiverMismatch();
-    error OpenOceanAdapter__DstReceiverNotSwapper();
-    error OpenOceanAdapter__SrcTokenMismatch();
-    error OpenOceanAdapter__DstTokenMismatch();
-    error OpenOceanAdapter__RecipientNotSwapper();
     error OpenOceanAdapter__WethFlagsNotAllowed();
-    error OpenOceanAdapter__LimitOrdersNotSupported();
     error OpenOceanAdapter__InvalidPool();
 
     //============================== State ===============================
@@ -78,11 +73,11 @@ contract OpenOceanAdapter is IAdapter, BaseAdapter {
         if (caller != openOceanCaller) revert OpenOceanAdapter__InvalidCaller();
 
         if (desc.srcReceiver != openOceanCaller) revert OpenOceanAdapter__SrcReceiverMismatch();
-        if (desc.dstReceiver != msg.sender) revert OpenOceanAdapter__DstReceiverNotSwapper();
+        if (desc.dstReceiver != msg.sender) revert Adapter__ReceiverMismatch();
 
         ISwapperTypes.SwapConfig memory swapConfig = _getAppendedSwapConfig();
-        if (ERC20(desc.srcToken) != swapConfig.tokenRoute.tokenIn) revert OpenOceanAdapter__SrcTokenMismatch();
-        if (ERC20(desc.dstToken) != swapConfig.tokenRoute.tokenOut) revert OpenOceanAdapter__DstTokenMismatch();
+        if (ERC20(desc.srcToken) != swapConfig.tokenRoute.tokenIn) revert Adapter__TokenInMismatch();
+        if (ERC20(desc.dstToken) != swapConfig.tokenRoute.tokenOut) revert Adapter__TokenOutMismatch();
 
         return (router, desc.amount);
     }
@@ -95,11 +90,11 @@ contract OpenOceanAdapter is IAdapter, BaseAdapter {
         if (caller != openOceanCaller) revert OpenOceanAdapter__InvalidCaller();
 
         if (desc.srcReceiver != openOceanCaller) revert OpenOceanAdapter__SrcReceiverMismatch();
-        if (desc.dstReceiver != msg.sender) revert OpenOceanAdapter__DstReceiverNotSwapper();
+        if (desc.dstReceiver != msg.sender) revert Adapter__ReceiverMismatch();
 
         ISwapperTypes.SwapConfig memory swapConfig = _getAppendedSwapConfig();
-        if (ERC20(desc.srcToken) != swapConfig.tokenRoute.tokenIn) revert OpenOceanAdapter__SrcTokenMismatch();
-        if (ERC20(desc.dstToken) != swapConfig.tokenRoute.tokenOut) revert OpenOceanAdapter__DstTokenMismatch();
+        if (ERC20(desc.srcToken) != swapConfig.tokenRoute.tokenIn) revert Adapter__TokenInMismatch();
+        if (ERC20(desc.dstToken) != swapConfig.tokenRoute.tokenOut) revert Adapter__TokenOutMismatch();
 
         return (router, desc.amount);
     }
@@ -112,11 +107,11 @@ contract OpenOceanAdapter is IAdapter, BaseAdapter {
         if (caller != openOceanCaller) revert OpenOceanAdapter__InvalidCaller();
 
         if (desc.srcReceiver != openOceanCaller) revert OpenOceanAdapter__SrcReceiverMismatch();
-        if (desc.dstReceiver != msg.sender) revert OpenOceanAdapter__DstReceiverNotSwapper();
+        if (desc.dstReceiver != msg.sender) revert Adapter__ReceiverMismatch();
 
         ISwapperTypes.SwapConfig memory swapConfig = _getAppendedSwapConfig();
-        if (ERC20(desc.srcToken) != swapConfig.tokenRoute.tokenIn) revert OpenOceanAdapter__SrcTokenMismatch();
-        if (ERC20(desc.dstToken) != swapConfig.tokenRoute.tokenOut) revert OpenOceanAdapter__DstTokenMismatch();
+        if (ERC20(desc.srcToken) != swapConfig.tokenRoute.tokenIn) revert Adapter__TokenInMismatch();
+        if (ERC20(desc.dstToken) != swapConfig.tokenRoute.tokenOut) revert Adapter__TokenOutMismatch();
 
         return (router, desc.amount);
     }
@@ -130,10 +125,10 @@ contract OpenOceanAdapter is IAdapter, BaseAdapter {
         bytes32[] calldata pools
     ) external view returns (address, uint256) {
         ISwapperTypes.SwapConfig memory swapConfig = _getAppendedSwapConfig();
-        if (ERC20(srcToken) != swapConfig.tokenRoute.tokenIn) revert OpenOceanAdapter__SrcTokenMismatch();
+        if (ERC20(srcToken) != swapConfig.tokenRoute.tokenIn) revert Adapter__TokenInMismatch();
 
         address dstToken = _getUniV2DstToken(pools);
-        if (ERC20(dstToken) != swapConfig.tokenRoute.tokenOut) revert OpenOceanAdapter__DstTokenMismatch();
+        if (ERC20(dstToken) != swapConfig.tokenRoute.tokenOut) revert Adapter__TokenOutMismatch();
 
         return (router, amount);
     }
@@ -145,12 +140,12 @@ contract OpenOceanAdapter is IAdapter, BaseAdapter {
         bytes32[] calldata pools,
         address payable recipient
     ) external view returns (address, uint256) {
-        if (recipient != payable(msg.sender)) revert OpenOceanAdapter__RecipientNotSwapper();
+        if (recipient != payable(msg.sender)) revert Adapter__ReceiverMismatch();
         ISwapperTypes.SwapConfig memory swapConfig = _getAppendedSwapConfig();
-        if (ERC20(srcToken) != swapConfig.tokenRoute.tokenIn) revert OpenOceanAdapter__SrcTokenMismatch();
+        if (ERC20(srcToken) != swapConfig.tokenRoute.tokenIn) revert Adapter__TokenInMismatch();
 
         address dstToken = _getUniV2DstToken(pools);
-        if (ERC20(dstToken) != swapConfig.tokenRoute.tokenOut) revert OpenOceanAdapter__DstTokenMismatch();
+        if (ERC20(dstToken) != swapConfig.tokenRoute.tokenOut) revert Adapter__TokenOutMismatch();
 
         return (router, amount);
     }
@@ -163,14 +158,14 @@ contract OpenOceanAdapter is IAdapter, BaseAdapter {
         uint256, /*minReturn*/
         uint256[] calldata pools
     ) external view returns (address, uint256) {
-        if (recipient != payable(msg.sender)) revert OpenOceanAdapter__RecipientNotSwapper();
+        if (recipient != payable(msg.sender)) revert Adapter__ReceiverMismatch();
         ISwapperTypes.SwapConfig memory swapConfig = _getAppendedSwapConfig();
 
         address srcToken = _getUniV3SrcToken(pools);
-        if (ERC20(srcToken) != swapConfig.tokenRoute.tokenIn) revert OpenOceanAdapter__SrcTokenMismatch();
+        if (ERC20(srcToken) != swapConfig.tokenRoute.tokenIn) revert Adapter__TokenInMismatch();
 
         address dstToken = _getUniV3DstToken(pools);
-        if (ERC20(dstToken) != swapConfig.tokenRoute.tokenOut) revert OpenOceanAdapter__DstTokenMismatch();
+        if (ERC20(dstToken) != swapConfig.tokenRoute.tokenOut) revert Adapter__TokenOutMismatch();
 
         return (router, amount);
     }
@@ -178,15 +173,15 @@ contract OpenOceanAdapter is IAdapter, BaseAdapter {
     //============================== Limit Orders (unsupported) ===============================
 
     function verifyLimitOrder(ISwapperTypes.SwapConfig calldata, address) external pure returns (OrderInfo memory) {
-        revert OpenOceanAdapter__LimitOrdersNotSupported();
+        revert Adapter__LimitOrdersNotSupported();
     }
 
     function cancelLimitOrder(ISwapperTypes.SwapConfig calldata, address, bytes calldata /*cancelData*/, bytes calldata /*context*/) external pure returns (address, bytes memory) {
-        revert OpenOceanAdapter__LimitOrdersNotSupported();
+        revert Adapter__LimitOrdersNotSupported();
     }
 
     function filledAmount(ISwapperTypes.SwapConfig calldata, address, bytes calldata /*context*/) external pure returns (uint256) {
-        revert OpenOceanAdapter__LimitOrdersNotSupported();
+        revert Adapter__LimitOrdersNotSupported();
     }
 
     function version() external pure returns (string memory) {

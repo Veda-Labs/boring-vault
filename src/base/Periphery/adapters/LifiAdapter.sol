@@ -14,10 +14,6 @@ contract LifiAdapter is IAdapter, BaseAdapter {
 
     //============================== Errors ===============================
 
-    error LifiAdapter__ReceiverNotSwapper();
-    error LifiAdapter__SrcTokenMismatch();
-    error LifiAdapter__DstTokenMismatch();
-    error LifiAdapter__LimitOrdersNotSupported();
 
     //============================== State ===============================
 
@@ -44,13 +40,13 @@ contract LifiAdapter is IAdapter, BaseAdapter {
         uint256 /*_minAmount*/,
         DecoderCustomTypes.LifiSwapData[] calldata _swapData
     ) external view returns (address, uint256) {
-        if (_receiver != payable(msg.sender)) revert LifiAdapter__ReceiverNotSwapper();
+        if (_receiver != payable(msg.sender)) revert Adapter__ReceiverMismatch();
 
         ISwapperTypes.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(_swapData[0].sendingAssetId) != swapConfig.tokenRoute.tokenIn)
-            revert LifiAdapter__SrcTokenMismatch();
+            revert Adapter__TokenInMismatch();
         if (ERC20(_swapData[_swapData.length - 1].receivingAssetId) != swapConfig.tokenRoute.tokenOut)
-            revert LifiAdapter__DstTokenMismatch();
+            revert Adapter__TokenOutMismatch();
 
         return (router, _swapData[0].fromAmount);
     }
@@ -68,13 +64,13 @@ contract LifiAdapter is IAdapter, BaseAdapter {
         uint256 /*_minAmountOut*/,
         DecoderCustomTypes.LifiSwapData calldata _swapData
     ) external view returns (address, uint256) {
-        if (_receiver != payable(msg.sender)) revert LifiAdapter__ReceiverNotSwapper();
+        if (_receiver != payable(msg.sender)) revert Adapter__ReceiverMismatch();
 
         ISwapperTypes.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(_swapData.sendingAssetId) != swapConfig.tokenRoute.tokenIn)
-            revert LifiAdapter__SrcTokenMismatch();
+            revert Adapter__TokenInMismatch();
         if (ERC20(_swapData.receivingAssetId) != swapConfig.tokenRoute.tokenOut)
-            revert LifiAdapter__DstTokenMismatch();
+            revert Adapter__TokenOutMismatch();
 
         return (router, _swapData.fromAmount);
     }
@@ -88,13 +84,13 @@ contract LifiAdapter is IAdapter, BaseAdapter {
         uint256 /*_minAmountOut*/,
         DecoderCustomTypes.LifiSwapData[] calldata _swapData
     ) external view returns (address, uint256) {
-        if (_receiver != payable(msg.sender)) revert LifiAdapter__ReceiverNotSwapper();
+        if (_receiver != payable(msg.sender)) revert Adapter__ReceiverMismatch();
 
         ISwapperTypes.SwapConfig memory swapConfig = _getAppendedSwapConfig();
         if (ERC20(_swapData[0].sendingAssetId) != swapConfig.tokenRoute.tokenIn)
-            revert LifiAdapter__SrcTokenMismatch();
+            revert Adapter__TokenInMismatch();
         if (ERC20(_swapData[_swapData.length - 1].receivingAssetId) != swapConfig.tokenRoute.tokenOut)
-            revert LifiAdapter__DstTokenMismatch();
+            revert Adapter__TokenOutMismatch();
 
         return (router, _swapData[0].fromAmount);
     }
@@ -106,7 +102,7 @@ contract LifiAdapter is IAdapter, BaseAdapter {
         pure
         returns (OrderInfo memory)
     {
-        revert LifiAdapter__LimitOrdersNotSupported();
+        revert Adapter__LimitOrdersNotSupported();
     }
 
     function cancelLimitOrder(ISwapperTypes.SwapConfig calldata, address, bytes calldata /*cancelData*/, bytes calldata /*context*/)
@@ -114,11 +110,11 @@ contract LifiAdapter is IAdapter, BaseAdapter {
         pure
         returns (address, bytes memory)
     {
-        revert LifiAdapter__LimitOrdersNotSupported();
+        revert Adapter__LimitOrdersNotSupported();
     }
 
     function filledAmount(ISwapperTypes.SwapConfig calldata, address, bytes calldata /*context*/) external pure returns (uint256) {
-        revert LifiAdapter__LimitOrdersNotSupported();
+        revert Adapter__LimitOrdersNotSupported();
     }
 
     function version() external pure returns (string memory) {

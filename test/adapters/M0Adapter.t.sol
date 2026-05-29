@@ -327,6 +327,7 @@ contract M0AdapterTest is BaseTestIntegration {
         deal(getAddress(sourceChain, "USDC"), address(this), 1000000e6);
         getERC20(sourceChain, "USDC").approve(getAddress(sourceChain, "m0OrderBook"), type(uint256).max);
 
+        assertEq(getERC20(sourceChain, "USDC").balanceOf(address(boringVault)), 0);
         IM0OrderBook(getAddress(sourceChain, "m0OrderBook")).fillOrder(
             m0OrderId,
             orderData,
@@ -340,6 +341,9 @@ contract M0AdapterTest is BaseTestIntegration {
         uint256 expectedFillAmount = uint256(1e15).mulDivDown(100, 2_200_000);
         filledAmount = M0Adapter(m0Adapter).filledAmount(config, address(swapper), rec.context);  
         assertEq(filledAmount, expectedFillAmount); 
+        
+        //verify the vault receives the filled amounts here
+        assertEq(getERC20(sourceChain, "USDC").balanceOf(address(boringVault)), 100);
     }
 
     // ====================================== Revert Cases ====================================== 

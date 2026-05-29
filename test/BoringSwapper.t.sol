@@ -306,6 +306,20 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         swapper.isValidSignature(orderDigest, abi.encode(config));
     }
 
+    function testIsValidSignature_RecordWinsOverSignaturePayload() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        (ISwapperTypes.SwapConfig memory config, bytes32 orderDigest,) =
+            _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
+
+        ISwapperTypes.SwapConfig memory tampered = config;
+        tampered.quoteAsset = address(0x42069);
+        tampered.slippageBps = 9999;
+
+        bytes4 result = swapper.isValidSignature(orderDigest, abi.encode(tampered));
+        assertEq(result, bytes4(0x1626ba7e));
+    }
+
     //==================== Cancel Order Tests ====================
 
     function testCancelOrder() external {
@@ -376,6 +390,18 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         assertEq(rec1.cancelledAt, 0);
         assertEq(address(rec1.tokenIn), address(WETH));
         assertEq(rec1.inputAmount, 2e18);
+    }
+
+    function testCancelOrder_RevertWrongAdapter() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        (ISwapperTypes.SwapConfig memory config0, , uint256 orderId0) = _submitOrder(1e18, 2000e6, uint32(block.timestamp + 3600));
+        assertEq(WETH.balanceOf(address(swapper)), 1e18);
+        config0.adapter = address(69);
+        
+        //should revert
+        vm.expectRevert(BoringSwapper.BoringSwapper__WrongAdapter.selector);
+        swapper.cancelOrder(orderId0, config0, "");
     }
 
     //==================== Full Fill Flow ====================
@@ -943,6 +969,17 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         assertEq(recipient, address(0));
     }
 
+    function testFeeRegistry_ExplicitZeroDoesNotFallback() external {
+        feeRegistry = new FeeRegistry(address(this), 1000);
+        feeRegistry.setDefaultLimitFee(address(this), 20);
+        feeRegistry.setTokenGroup(address(this), address(WETH), 1);
+        feeRegistry.setTokenGroup(address(this), address(USDC), 2);
+        feeRegistry.setLimitGroupPairFee(address(this), 1, 2, 0);
+
+        uint16 feeBps = feeRegistry.getLimitFee(address(this), address(WETH), address(USDC));
+        assertEq(feeBps, 0);
+    }
+
     function testFeeRegistry_RevertFeeTooHigh() external {
         feeRegistry = new FeeRegistry(address(this), 1000);
         vm.expectRevert(FeeRegistry.FeeRegistry__FeeTooHigh.selector);
@@ -1068,6 +1105,24 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         assertEq(WETH.balanceOf(address(swapper)), inputAmount + expectedFee);
         assertEq(WETH.balanceOf(address(boringVault)), 100e18 - inputAmount - expectedFee);
         assertEq(swapper.claimableFees(WETH), 0);
+    }
+
+    function testFee_MulDivUp_RoundsUp() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        feeRegistry.setTokenGroup(address(swapper), address(WETH), 1);
+        feeRegistry.setTokenGroup(address(swapper), address(USDC), 2);
+        feeRegistry.setLimitGroupPairFee(address(swapper), 1, 2, 33);
+        feeRegistry.toggleSwapperLimitFee(address(swapper), true);
+
+        // 1e18+1 wei × 33 bps / 10_000 = 3.3e15 + 0.0033
+        // floor → 3_300_000_000_000_000; ceil → 3_300_000_000_000_001
+        uint256 inputAmount = 1e18 + 1;
+        uint256 expectedFee = 3_300_000_000_000_001;
+
+        _submitOrder(inputAmount, 2000e6, uint32(block.timestamp + 3600));
+
+        assertEq(swapper.feesInToken(WETH), expectedFee);
     }
 
     function testLimitOrderFee_SweepExcludesLockedFees() external {

@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: SEL-1.0
-// Copyright © 2025 Veda Tech Labs
 // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
@@ -11,6 +9,7 @@ import {BoringSwapperDecoder} from "src/base/DecodersAndSanitizers/Protocols/Bor
 import {BoringVault} from "src/base/BoringVault.sol";
 import {AdapterRegistry} from "src/base/Periphery/AdapterRegistry.sol";
 import {OpenOceanAdapter} from "src/base/Periphery/adapters/OpenOceanAdapter.sol";
+import {IAdapter} from "src/interfaces/IAdapter.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
@@ -312,7 +311,7 @@ contract OpenOceanAdapterTest is BaseTestIntegration {
         tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
         tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
 
-        vm.expectRevert(abi.encodeWithSelector(OpenOceanAdapter.OpenOceanAdapter__DstTokenMismatch.selector));
+        vm.expectRevert(abi.encodeWithSelector(IAdapter.Adapter__TokenOutMismatch.selector));
         _submitManagerCall(manageProofs, tx_);
     }
 
@@ -498,10 +497,142 @@ contract OpenOceanAdapterTest is BaseTestIntegration {
         tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
         tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
 
-        vm.expectRevert(abi.encodeWithSelector(OpenOceanAdapter.OpenOceanAdapter__DstTokenMismatch.selector));
+        vm.expectRevert(abi.encodeWithSelector(IAdapter.Adapter__TokenOutMismatch.selector));
         _submitManagerCall(manageProofs, tx_);
     }
 
+    function testOpenOcean__RevertsUniswapV2PoolNotFromFactory() external {
+        deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18);
+
+        address[] memory tokens = new address[](2);
+        tokens[0] = getAddress(sourceChain, "WETH");
+        tokens[1] = getAddress(sourceChain, "USDC");
+
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
+        _addBoringSwapperLeafs(leafs, address(swapper), tokens);
+
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        Tx memory tx_ = _getTxArrays(2);
+        tx_.manageLeafs[0] = leafs[0]; // approve WETH
+        tx_.manageLeafs[1] = leafs[5]; // swap WETH -> USDC
+
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+
+        tx_.targets[0] = getAddress(sourceChain, "WETH");
+        tx_.targets[1] = address(swapper);
+
+        tx_.targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", address(swapper), type(uint256).max
+        );
+
+        // Pool reports token0=USDC, token1=WETH; REVERSE_MASK so output token = token0 = USDC.
+        // factory.getPair(USDC, WETH) returns the canonical pool, which ≠ fakePool → InvalidPool.
+        address fakePool = address(new MockUniV2Pool(
+            getAddress(sourceChain, "USDC"),
+            getAddress(sourceChain, "WETH")
+        ));
+        bytes32[] memory pools = new bytes32[](1);
+        pools[0] = bytes32((uint256(1) << 255) | uint256(uint160(fakePool)));
+
+        bytes memory swapData = abi.encodeWithSignature(
+            "callUniswap(address,uint256,uint256,bytes32[])",
+            getAddress(sourceChain, "WETH"),
+            uint256(1e15),
+            uint256(0),
+            pools
+        );
+
+        ISwapperTypes.TokenRoute memory tokenRoute = ISwapperTypes.TokenRoute(
+            getERC20(sourceChain, "WETH"),
+            getERC20(sourceChain, "USDC")
+        );
+        tx_.targetData[1] = abi.encodeWithSelector(
+            BoringSwapper.swap.selector,
+            ISwapperTypes.SwapConfig({
+                tokenRoute: tokenRoute,
+                adapter: openOceanAdapter,
+                quoteAsset: getAddress(sourceChain, "USDC"),
+                swapData: swapData,
+                slippageBps: 10,
+                receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
+            })
+        );
+
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+
+        vm.expectRevert(OpenOceanAdapter.OpenOceanAdapter__InvalidPool.selector);
+        _submitManagerCall(manageProofs, tx_);
+    }
+
+    function testOpenOcean__RevertsUniswapV3PoolNotFromFactory() external {
+        deal(getAddress(sourceChain, "WETH"), getAddress(sourceChain, "boringVault"), 100e18);
+
+        address[] memory tokens = new address[](2);
+        tokens[0] = getAddress(sourceChain, "WETH");
+        tokens[1] = getAddress(sourceChain, "USDC");
+
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
+        _addBoringSwapperLeafs(leafs, address(swapper), tokens);
+
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        Tx memory tx_ = _getTxArrays(2);
+        tx_.manageLeafs[0] = leafs[0]; // approve WETH
+        tx_.manageLeafs[1] = leafs[5]; // swap WETH -> USDC
+
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+
+        tx_.targets[0] = getAddress(sourceChain, "WETH");
+        tx_.targets[1] = address(swapper);
+
+        tx_.targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", address(swapper), type(uint256).max
+        );
+
+        // Pool reports token0=WETH, token1=USDC, fee=1000; default direction (ONE_FOR_ZERO_MASK unset).
+        // factory.getPool(WETH, USDC, 1000) returns address(0) (no canonical pool at this fee tier)
+        // or a real pool at that tier — either way ≠ fakePool → InvalidPool.
+        address fakePool = address(new MockUniV3Pool(
+            getAddress(sourceChain, "WETH"),
+            getAddress(sourceChain, "USDC")
+        ));
+        uint256[] memory pools = new uint256[](1);
+        pools[0] = uint256(uint160(fakePool));
+
+        bytes memory swapData = abi.encodeWithSignature(
+            "uniswapV3SwapTo(address,uint256,uint256,uint256[])",
+            address(swapper),
+            uint256(1e15),
+            uint256(0),
+            pools
+        );
+
+        ISwapperTypes.TokenRoute memory tokenRoute = ISwapperTypes.TokenRoute(
+            getERC20(sourceChain, "WETH"),
+            getERC20(sourceChain, "USDC")
+        );
+        tx_.targetData[1] = abi.encodeWithSelector(
+            BoringSwapper.swap.selector,
+            ISwapperTypes.SwapConfig({
+                tokenRoute: tokenRoute,
+                adapter: openOceanAdapter,
+                quoteAsset: getAddress(sourceChain, "USDC"),
+                swapData: swapData,
+                slippageBps: 10,
+                receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
+            })
+        );
+
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
+
+        vm.expectRevert(OpenOceanAdapter.OpenOceanAdapter__InvalidPool.selector);
+        _submitManagerCall(manageProofs, tx_);
+    }
 
     //==================== Helpers ====================
 
@@ -514,4 +645,38 @@ contract OpenOceanAdapterTest is BaseTestIntegration {
         return BoringSwapper.RateProviderConfig(rateProviders, intermediaries, skipValidation);
     }
 
+}
+
+contract MockUniV2Pool {
+
+    address public token0; 
+    address public token1;
+   
+    constructor(address _token0, address _token1) {
+        token0 = _token0; 
+        token1 = _token1;
+    }
+
+    function getPair() external view returns (address) {
+        return address(this);
+    }
+}
+
+contract MockUniV3Pool {
+
+    address public token0; 
+    address public token1;
+   
+    constructor(address _token0, address _token1) {
+        token0 = _token0; 
+        token1 = _token1;
+    }
+
+    function fee() external pure returns (uint24) {
+        return 1000;
+    }
+
+    function getPair() external view returns (address) {
+        return address(this);
+    }
 }
