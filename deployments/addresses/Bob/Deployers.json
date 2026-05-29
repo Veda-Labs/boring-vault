@@ -9,7 +9,13 @@
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-1",
       "verification": "full_match",
       "deploymentCommit": "24c42f7ccb42ad535446605808cfd163d2c94ea2",
-      "verificationGap": "cbor"
+      "verificationGap": "cbor",
+      "auditGap": [
+        "state",
+        "selectors",
+        "auth",
+        "constructor"
+      ]
     }
   }
 }
