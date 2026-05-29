@@ -40,7 +40,7 @@ contract CreateVmUSDMerkleRootScript is Script, MerkleTreeHelper {
         setAddress(false, monad, "accountantAddress", accountantAddress);
         setAddress(false, monad, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](64);
+        ManageLeaf[] memory leafs = new ManageLeaf[](32);
 
         // ========================== Native Wrapping ==========================
         _addNativeLeafs(leafs, getAddress(sourceChain, "WMON"));
@@ -81,25 +81,6 @@ contract CreateVmUSDMerkleRootScript is Script, MerkleTreeHelper {
 
             bool swapRouter02 = true;
             _addUniswapV3OneWaySwapLeafs(leafs, token0, token1, swapRouter02);
-        }
-
-        // ========================== CCTP ==========================
-        // Bridge USDC to mainnet
-        _addCCTPBridgeLeafs(leafs, cctpMainnetDomainId);
-
-        // ========================== MPortal ==========================
-        {
-            ERC20 mUSD = getERC20(sourceChain, "mUSD");
-            address mportalProxy = getAddress(sourceChain, "mportalProxy");
-
-            // Recipient and refund go back to the vault (on mainnet at the same address).
-            bytes32 vaultAsBytes32 = bytes32(uint256(uint160(address(boringVault))));
-
-            // destinationToken is mUSD on mainnet — same EVM address, padded to bytes32.
-            bytes32 destinationToken = bytes32(uint256(uint160(address(mUSD))));
-
-            uint32 mainnetChainId = 1;
-            _addMPortalLeafs(leafs, mportalProxy, mUSD, mainnetChainId, destinationToken, vaultAsBytes32, vaultAsBytes32);
         }
 
         // ========================== Verify ==========================
