@@ -19,5 +19,12 @@
 pragma solidity ^0.8.0;
 
 interface IRateProvider {
+    /**
+     * @notice Returns the current price of one unit of this provider's asset, expressed in the base asset.
+     * @dev The return value uses this provider's asset decimals, not the base asset's decimals.
+     *      A USDC (6-decimal) rate provider returns `price * 1e6`; a DAI (18-decimal) provider returns
+     *      `price * 1e18`. `AccountantWithRateProviders.claimFees`, `AccountantWithFixedRate.claimYield`,
+     *      and `AccountantWithRateProviders.getRateInQuote` rely on this convention.
+     */
     function getRate() external view returns (uint256);
 }
