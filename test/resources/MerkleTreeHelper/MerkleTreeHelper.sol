@@ -6965,6 +6965,37 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex].argumentAddresses[1] = subaccount;
     }
 
+    function _addERC4626WithdrawalLeafs(ManageLeaf[] memory leafs, ERC4626 vault) internal {
+        ERC20 asset = vault.asset();
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            address(vault),
+            false,
+            "withdraw(uint256,address,address)",
+            new address[](2),
+            string.concat("Withdraw ", asset.symbol(), " from ", vault.symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            address(vault),
+            false,
+            "redeem(uint256,address,address)",
+            new address[](2),
+            string.concat("Redeem ", vault.symbol(), " for ", asset.symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+    }
+
     // ========================================= Vault Craft =========================================
 
     function _addVaultCraftLeafs(ManageLeaf[] memory leafs, ERC4626 vault, address gauge) internal {

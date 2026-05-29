@@ -175,6 +175,9 @@ contract CreateMultichainLiquidBtcOperationalMerkleRootScript is Script, MerkleT
         // ========================== MorphoBlue ==========================
         _addMorphoBlueRepayLeafs(leafs, getBytes32(sourceChain, "LBTC_PYUSD_86"));
 
+        // ========================== MetaMorpho ==========================
+        _addERC4626WithdrawalLeafs(leafs, ERC4626(getAddress(sourceChain, "sentoraPYUSDMain")));
+
         // ========================== Fee Claiming ===========================
         {
             ERC20[] memory feeAssets = new ERC20[](3);
