@@ -17,9 +17,7 @@
   },
   "leafs": [
     {
-      "AddressArguments": [
-        "0x5fbD1B5AA82d09359C05428647871fe9aDd3F411"
-      ],
+      "AddressArguments": ["0x5fbD1B5AA82d09359C05428647871fe9aDd3F411"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve Ooga Booga Router to spend kHYPE",
@@ -110,9 +108,7 @@
       "TargetAddress": "0x5fbD1B5AA82d09359C05428647871fe9aDd3F411"
     },
     {
-      "AddressArguments": [
-        "0x5fbD1B5AA82d09359C05428647871fe9aDd3F411"
-      ],
+      "AddressArguments": ["0x5fbD1B5AA82d09359C05428647871fe9aDd3F411"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve Ooga Booga Router to spend WHYPE",
@@ -171,9 +167,7 @@
       "TargetAddress": "0x5fbD1B5AA82d09359C05428647871fe9aDd3F411"
     },
     {
-      "AddressArguments": [
-        "0x5fbD1B5AA82d09359C05428647871fe9aDd3F411"
-      ],
+      "AddressArguments": ["0x5fbD1B5AA82d09359C05428647871fe9aDd3F411"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve Ooga Booga Router to spend PENDLE",
@@ -184,9 +178,7 @@
       "TargetAddress": "0xD6Eb81136884713E843936843E286FD2a85A205A"
     },
     {
-      "AddressArguments": [
-        "0x5fbD1B5AA82d09359C05428647871fe9aDd3F411"
-      ],
+      "AddressArguments": ["0x5fbD1B5AA82d09359C05428647871fe9aDd3F411"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve Ooga Booga Router to spend USD₮0",
@@ -197,9 +189,7 @@
       "TargetAddress": "0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb"
     },
     {
-      "AddressArguments": [
-        "0x5fbD1B5AA82d09359C05428647871fe9aDd3F411"
-      ],
+      "AddressArguments": ["0x5fbD1B5AA82d09359C05428647871fe9aDd3F411"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve Ooga Booga Router to spend USDC",
@@ -210,9 +200,7 @@
       "TargetAddress": "0xb88339CB7199b77E23DB6E890353E22632Ba630f"
     },
     {
-      "AddressArguments": [
-        "0x74392Fa56405081d5C7D93882856c245387Cece2"
-      ],
+      "AddressArguments": ["0x74392Fa56405081d5C7D93882856c245387Cece2"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve Accountant to spend kHYPE",
@@ -223,9 +211,7 @@
       "TargetAddress": "0xfD739d4e423301CE9385c1fb8850539D657C296D"
     },
     {
-      "AddressArguments": [
-        "0x74392Fa56405081d5C7D93882856c245387Cece2"
-      ],
+      "AddressArguments": ["0x74392Fa56405081d5C7D93882856c245387Cece2"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve Accountant to spend WHYPE",
@@ -236,9 +222,7 @@
       "TargetAddress": "0x5555555555555555555555555555555555555555"
     },
     {
-      "AddressArguments": [
-        "0xfD739d4e423301CE9385c1fb8850539D657C296D"
-      ],
+      "AddressArguments": ["0xfD739d4e423301CE9385c1fb8850539D657C296D"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Claim fees in kHYPE",
@@ -249,9 +233,7 @@
       "TargetAddress": "0x74392Fa56405081d5C7D93882856c245387Cece2"
     },
     {
-      "AddressArguments": [
-        "0x5555555555555555555555555555555555555555"
-      ],
+      "AddressArguments": ["0x5555555555555555555555555555555555555555"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Claim fees in WHYPE",
@@ -262,9 +244,7 @@
       "TargetAddress": "0x74392Fa56405081d5C7D93882856c245387Cece2"
     },
     {
-      "AddressArguments": [
-        "0x00A89d7a5A02160f20150EbEA7a2b5E4879A1A8b"
-      ],
+      "AddressArguments": ["0x00A89d7a5A02160f20150EbEA7a2b5E4879A1A8b"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve HyperLend Pool to spend kHYPE",
@@ -275,9 +255,7 @@
       "TargetAddress": "0xfD739d4e423301CE9385c1fb8850539D657C296D"
     },
     {
-      "AddressArguments": [
-        "0x00A89d7a5A02160f20150EbEA7a2b5E4879A1A8b"
-      ],
+      "AddressArguments": ["0x00A89d7a5A02160f20150EbEA7a2b5E4879A1A8b"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve HyperLend Pool to spend WHYPE",
@@ -288,9 +266,7 @@
       "TargetAddress": "0x5555555555555555555555555555555555555555"
     },
     {
-      "AddressArguments": [
-        "0x00A89d7a5A02160f20150EbEA7a2b5E4879A1A8b"
-      ],
+      "AddressArguments": ["0x00A89d7a5A02160f20150EbEA7a2b5E4879A1A8b"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve HyperLend Pool to spend PT-kHYPE-13NOV2025",
@@ -301,9 +277,7 @@
       "TargetAddress": "0x311dB0FDe558689550c68355783c95eFDfe25329"
     },
     {
-      "AddressArguments": [
-        "0x00A89d7a5A02160f20150EbEA7a2b5E4879A1A8b"
-      ],
+      "AddressArguments": ["0x00A89d7a5A02160f20150EbEA7a2b5E4879A1A8b"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve HyperLend Pool to spend PT-kHYPE-19MAR2026",
@@ -314,9 +288,7 @@
       "TargetAddress": "0xea84ca9849D9e76a78B91F221F84e9Ca065FC9f5"
     },
     {
-      "AddressArguments": [
-        "0x00A89d7a5A02160f20150EbEA7a2b5E4879A1A8b"
-      ],
+      "AddressArguments": ["0x00A89d7a5A02160f20150EbEA7a2b5E4879A1A8b"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve HyperLend Pool to spend USDC",
@@ -607,9 +579,7 @@
       "TargetAddress": "0x00A89d7a5A02160f20150EbEA7a2b5E4879A1A8b"
     },
     {
-      "AddressArguments": [
-        "0xfD739d4e423301CE9385c1fb8850539D657C296D"
-      ],
+      "AddressArguments": ["0xfD739d4e423301CE9385c1fb8850539D657C296D"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Toggle kHYPE as collateral in HyperLend",
@@ -620,9 +590,7 @@
       "TargetAddress": "0x00A89d7a5A02160f20150EbEA7a2b5E4879A1A8b"
     },
     {
-      "AddressArguments": [
-        "0x5555555555555555555555555555555555555555"
-      ],
+      "AddressArguments": ["0x5555555555555555555555555555555555555555"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Toggle WHYPE as collateral in HyperLend",
@@ -633,9 +601,7 @@
       "TargetAddress": "0x00A89d7a5A02160f20150EbEA7a2b5E4879A1A8b"
     },
     {
-      "AddressArguments": [
-        "0x311dB0FDe558689550c68355783c95eFDfe25329"
-      ],
+      "AddressArguments": ["0x311dB0FDe558689550c68355783c95eFDfe25329"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Toggle PT-kHYPE-13NOV2025 as collateral in HyperLend",
@@ -646,9 +612,7 @@
       "TargetAddress": "0x00A89d7a5A02160f20150EbEA7a2b5E4879A1A8b"
     },
     {
-      "AddressArguments": [
-        "0xea84ca9849D9e76a78B91F221F84e9Ca065FC9f5"
-      ],
+      "AddressArguments": ["0xea84ca9849D9e76a78B91F221F84e9Ca065FC9f5"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Toggle PT-kHYPE-19MAR2026 as collateral in HyperLend",
@@ -659,9 +623,7 @@
       "TargetAddress": "0x00A89d7a5A02160f20150EbEA7a2b5E4879A1A8b"
     },
     {
-      "AddressArguments": [
-        "0xb88339CB7199b77E23DB6E890353E22632Ba630f"
-      ],
+      "AddressArguments": ["0xb88339CB7199b77E23DB6E890353E22632Ba630f"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Toggle USDC as collateral in HyperLend",
@@ -683,9 +645,7 @@
       "TargetAddress": "0x00A89d7a5A02160f20150EbEA7a2b5E4879A1A8b"
     },
     {
-      "AddressArguments": [
-        "0x9BA2EDc44E0A4632EB4723E81d4142353e1bB160"
-      ],
+      "AddressArguments": ["0x9BA2EDc44E0A4632EB4723E81d4142353e1bB160"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Claim rewards",
@@ -707,9 +667,7 @@
       "TargetAddress": "0x889b9DBF1546e1DFD93BC4cacf47eEca7E5B8940"
     },
     {
-      "AddressArguments": [
-        "0xceCcE0EB9DD2Ef7996e01e25DD70e461F918A14b"
-      ],
+      "AddressArguments": ["0xceCcE0EB9DD2Ef7996e01e25DD70e461F918A14b"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve HypurrFi Pool to spend kHYPE",
@@ -720,9 +678,7 @@
       "TargetAddress": "0xfD739d4e423301CE9385c1fb8850539D657C296D"
     },
     {
-      "AddressArguments": [
-        "0xceCcE0EB9DD2Ef7996e01e25DD70e461F918A14b"
-      ],
+      "AddressArguments": ["0xceCcE0EB9DD2Ef7996e01e25DD70e461F918A14b"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve HypurrFi Pool to spend WHYPE",
@@ -817,9 +773,7 @@
       "TargetAddress": "0xceCcE0EB9DD2Ef7996e01e25DD70e461F918A14b"
     },
     {
-      "AddressArguments": [
-        "0xfD739d4e423301CE9385c1fb8850539D657C296D"
-      ],
+      "AddressArguments": ["0xfD739d4e423301CE9385c1fb8850539D657C296D"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Toggle kHYPE as collateral in HypurrFi",
@@ -830,9 +784,7 @@
       "TargetAddress": "0xceCcE0EB9DD2Ef7996e01e25DD70e461F918A14b"
     },
     {
-      "AddressArguments": [
-        "0x5555555555555555555555555555555555555555"
-      ],
+      "AddressArguments": ["0x5555555555555555555555555555555555555555"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Toggle WHYPE as collateral in HypurrFi",
@@ -854,9 +806,7 @@
       "TargetAddress": "0xceCcE0EB9DD2Ef7996e01e25DD70e461F918A14b"
     },
     {
-      "AddressArguments": [
-        "0x9BA2EDc44E0A4632EB4723E81d4142353e1bB160"
-      ],
+      "AddressArguments": ["0x9BA2EDc44E0A4632EB4723E81d4142353e1bB160"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Claim rewards",
@@ -867,9 +817,7 @@
       "TargetAddress": "0x2aF0d6754A58723c50b5e73E45D964bFDD99fE2F"
     },
     {
-      "AddressArguments": [
-        "0x68e37dE8d93d3496ae143F2E900490f6280C57cD"
-      ],
+      "AddressArguments": ["0x68e37dE8d93d3496ae143F2E900490f6280C57cD"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve MorhoBlue to spend WHYPE",
@@ -915,9 +863,7 @@
       "TargetAddress": "0x68e37dE8d93d3496ae143F2E900490f6280C57cD"
     },
     {
-      "AddressArguments": [
-        "0x68e37dE8d93d3496ae143F2E900490f6280C57cD"
-      ],
+      "AddressArguments": ["0x68e37dE8d93d3496ae143F2E900490f6280C57cD"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve MorhoBlue to spend kHYPE",
@@ -998,9 +944,7 @@
       "TargetAddress": "0x68e37dE8d93d3496ae143F2E900490f6280C57cD"
     },
     {
-      "AddressArguments": [
-        "0x68e37dE8d93d3496ae143F2E900490f6280C57cD"
-      ],
+      "AddressArguments": ["0x68e37dE8d93d3496ae143F2E900490f6280C57cD"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve MorhoBlue to spend USDC",
@@ -1116,9 +1060,7 @@
       "TargetAddress": "0x68e37dE8d93d3496ae143F2E900490f6280C57cD"
     },
     {
-      "AddressArguments": [
-        "0x2900ABd73631b2f60747e687095537B673c06A76"
-      ],
+      "AddressArguments": ["0x2900ABd73631b2f60747e687095537B673c06A76"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve feHYPE to spend WHYPE",
@@ -1129,9 +1071,7 @@
       "TargetAddress": "0x5555555555555555555555555555555555555555"
     },
     {
-      "AddressArguments": [
-        "0x9BA2EDc44E0A4632EB4723E81d4142353e1bB160"
-      ],
+      "AddressArguments": ["0x9BA2EDc44E0A4632EB4723E81d4142353e1bB160"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Deposit WHYPE for feHYPE",
@@ -1156,9 +1096,7 @@
       "TargetAddress": "0x2900ABd73631b2f60747e687095537B673c06A76"
     },
     {
-      "AddressArguments": [
-        "0x9BA2EDc44E0A4632EB4723E81d4142353e1bB160"
-      ],
+      "AddressArguments": ["0x9BA2EDc44E0A4632EB4723E81d4142353e1bB160"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Mint feHYPE using WHYPE",
@@ -1183,9 +1121,7 @@
       "TargetAddress": "0x2900ABd73631b2f60747e687095537B673c06A76"
     },
     {
-      "AddressArguments": [
-        "0x98F903B279DfF5a4f05c08C22c1D34afE8514dA0"
-      ],
+      "AddressArguments": ["0x98F903B279DfF5a4f05c08C22c1D34afE8514dA0"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve Curve pool to spend kHYPE",
@@ -1196,9 +1132,7 @@
       "TargetAddress": "0xfD739d4e423301CE9385c1fb8850539D657C296D"
     },
     {
-      "AddressArguments": [
-        "0x98F903B279DfF5a4f05c08C22c1D34afE8514dA0"
-      ],
+      "AddressArguments": ["0x98F903B279DfF5a4f05c08C22c1D34afE8514dA0"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve Curve pool to spend WHYPE",
@@ -1231,9 +1165,7 @@
       "TargetAddress": "0x98F903B279DfF5a4f05c08C22c1D34afE8514dA0"
     },
     {
-      "AddressArguments": [
-        "0x393D0B87Ed38fc779FD9611144aE649BA6082109"
-      ],
+      "AddressArguments": ["0x393D0B87Ed38fc779FD9611144aE649BA6082109"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve kHype to be spent by kHype Staking Manager",
@@ -1277,9 +1209,7 @@
       "TargetAddress": "0x393D0B87Ed38fc779FD9611144aE649BA6082109"
     },
     {
-      "AddressArguments": [
-        "0x888888888889758F76e7103c6CbF23ABbF58F946"
-      ],
+      "AddressArguments": ["0x888888888889758F76e7103c6CbF23ABbF58F946"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve Pendle router to spend kHYPE",
@@ -1290,9 +1220,7 @@
       "TargetAddress": "0xfD739d4e423301CE9385c1fb8850539D657C296D"
     },
     {
-      "AddressArguments": [
-        "0x888888888889758F76e7103c6CbF23ABbF58F946"
-      ],
+      "AddressArguments": ["0x888888888889758F76e7103c6CbF23ABbF58F946"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve Pendle router to spend LP-SY-kHYPE",
@@ -1303,9 +1231,7 @@
       "TargetAddress": "0x8867d2b7aDb8609c51810237EcC9A25A2F601B97"
     },
     {
-      "AddressArguments": [
-        "0x888888888889758F76e7103c6CbF23ABbF58F946"
-      ],
+      "AddressArguments": ["0x888888888889758F76e7103c6CbF23ABbF58F946"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve Pendle router to spend SY-kHYPE",
@@ -1316,9 +1242,7 @@
       "TargetAddress": "0x57FC55dFF8CeCa86EE94a6bF255af2f0ED90eB9e"
     },
     {
-      "AddressArguments": [
-        "0x888888888889758F76e7103c6CbF23ABbF58F946"
-      ],
+      "AddressArguments": ["0x888888888889758F76e7103c6CbF23ABbF58F946"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve Pendle router to spend PT-kHYPE-13NOV2025",
@@ -1329,9 +1253,7 @@
       "TargetAddress": "0x311dB0FDe558689550c68355783c95eFDfe25329"
     },
     {
-      "AddressArguments": [
-        "0x888888888889758F76e7103c6CbF23ABbF58F946"
-      ],
+      "AddressArguments": ["0x888888888889758F76e7103c6CbF23ABbF58F946"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve Pendle router to spend YT-kHYPE-13NOV2025",
@@ -1598,9 +1520,7 @@
       "TargetAddress": "0x888888888889758F76e7103c6CbF23ABbF58F946"
     },
     {
-      "AddressArguments": [
-        "0x000000000000c9B3E2C3Ec88B1B4c0cD853f4321"
-      ],
+      "AddressArguments": ["0x000000000000c9B3E2C3Ec88B1B4c0cD853f4321"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve Pendle Limit Order Router to spend YT-kHYPE-13NOV2025",
@@ -1611,9 +1531,7 @@
       "TargetAddress": "0x3f6583Ad479AB6020297ce12c9059D7480Ab6E5A"
     },
     {
-      "AddressArguments": [
-        "0x000000000000c9B3E2C3Ec88B1B4c0cD853f4321"
-      ],
+      "AddressArguments": ["0x000000000000c9B3E2C3Ec88B1B4c0cD853f4321"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve Pendle Limit Order Router to spend PT-kHYPE-13NOV2025",
@@ -1624,9 +1542,7 @@
       "TargetAddress": "0x311dB0FDe558689550c68355783c95eFDfe25329"
     },
     {
-      "AddressArguments": [
-        "0x000000000000c9B3E2C3Ec88B1B4c0cD853f4321"
-      ],
+      "AddressArguments": ["0x000000000000c9B3E2C3Ec88B1B4c0cD853f4321"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve Pendle Limit Order Router to spend SY-kHYPE",
@@ -1651,9 +1567,7 @@
       "TargetAddress": "0x000000000000c9B3E2C3Ec88B1B4c0cD853f4321"
     },
     {
-      "AddressArguments": [
-        "0x888888888889758F76e7103c6CbF23ABbF58F946"
-      ],
+      "AddressArguments": ["0x888888888889758F76e7103c6CbF23ABbF58F946"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve Pendle router to spend LP-SY-kHYPE",
@@ -1664,9 +1578,7 @@
       "TargetAddress": "0x31104779B2A07A273D6C662419377773083d0b2E"
     },
     {
-      "AddressArguments": [
-        "0x888888888889758F76e7103c6CbF23ABbF58F946"
-      ],
+      "AddressArguments": ["0x888888888889758F76e7103c6CbF23ABbF58F946"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve Pendle router to spend SY-kHYPE",
@@ -1677,9 +1589,7 @@
       "TargetAddress": "0x57FC55dFF8CeCa86EE94a6bF255af2f0ED90eB9e"
     },
     {
-      "AddressArguments": [
-        "0x888888888889758F76e7103c6CbF23ABbF58F946"
-      ],
+      "AddressArguments": ["0x888888888889758F76e7103c6CbF23ABbF58F946"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve Pendle router to spend PT-kHYPE-19MAR2026",
@@ -1690,9 +1600,7 @@
       "TargetAddress": "0xea84ca9849D9e76a78B91F221F84e9Ca065FC9f5"
     },
     {
-      "AddressArguments": [
-        "0x888888888889758F76e7103c6CbF23ABbF58F946"
-      ],
+      "AddressArguments": ["0x888888888889758F76e7103c6CbF23ABbF58F946"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve Pendle router to spend YT-kHYPE-19MAR2026",
@@ -1959,9 +1867,7 @@
       "TargetAddress": "0x888888888889758F76e7103c6CbF23ABbF58F946"
     },
     {
-      "AddressArguments": [
-        "0x000000000000c9B3E2C3Ec88B1B4c0cD853f4321"
-      ],
+      "AddressArguments": ["0x000000000000c9B3E2C3Ec88B1B4c0cD853f4321"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve Pendle Limit Order Router to spend YT-kHYPE-19MAR2026",
@@ -1972,9 +1878,7 @@
       "TargetAddress": "0x8e8df024CF6d3e916Be0821FF3177dB6981fcAd2"
     },
     {
-      "AddressArguments": [
-        "0x000000000000c9B3E2C3Ec88B1B4c0cD853f4321"
-      ],
+      "AddressArguments": ["0x000000000000c9B3E2C3Ec88B1B4c0cD853f4321"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve Pendle Limit Order Router to spend PT-kHYPE-19MAR2026",
@@ -1999,9 +1903,7 @@
       "TargetAddress": "0x000000000000c9B3E2C3Ec88B1B4c0cD853f4321"
     },
     {
-      "AddressArguments": [
-        "0x888888888889758F76e7103c6CbF23ABbF58F946"
-      ],
+      "AddressArguments": ["0x888888888889758F76e7103c6CbF23ABbF58F946"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve Pendle router to spend LP-SY-kHYPE",
@@ -2012,9 +1914,7 @@
       "TargetAddress": "0xb48B0c95B2ddc464484305b7363FAd5bd5b7A683"
     },
     {
-      "AddressArguments": [
-        "0x888888888889758F76e7103c6CbF23ABbF58F946"
-      ],
+      "AddressArguments": ["0x888888888889758F76e7103c6CbF23ABbF58F946"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve Pendle router to spend SY-kHYPE",
@@ -2025,9 +1925,7 @@
       "TargetAddress": "0x57FC55dFF8CeCa86EE94a6bF255af2f0ED90eB9e"
     },
     {
-      "AddressArguments": [
-        "0x888888888889758F76e7103c6CbF23ABbF58F946"
-      ],
+      "AddressArguments": ["0x888888888889758F76e7103c6CbF23ABbF58F946"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve Pendle router to spend PT-kHYPE-24SEP2026",
@@ -2038,9 +1936,7 @@
       "TargetAddress": "0x50fC4EDC6346F36993Bb30Fe60E932504Ed17391"
     },
     {
-      "AddressArguments": [
-        "0x888888888889758F76e7103c6CbF23ABbF58F946"
-      ],
+      "AddressArguments": ["0x888888888889758F76e7103c6CbF23ABbF58F946"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve Pendle router to spend YT-kHYPE-24SEP2026",
@@ -2307,9 +2203,7 @@
       "TargetAddress": "0x888888888889758F76e7103c6CbF23ABbF58F946"
     },
     {
-      "AddressArguments": [
-        "0x000000000000c9B3E2C3Ec88B1B4c0cD853f4321"
-      ],
+      "AddressArguments": ["0x000000000000c9B3E2C3Ec88B1B4c0cD853f4321"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve Pendle Limit Order Router to spend YT-kHYPE-24SEP2026",
@@ -2320,9 +2214,7 @@
       "TargetAddress": "0xe45162d03E0475daB556eF1CccefEea2Ec27Ade2"
     },
     {
-      "AddressArguments": [
-        "0x000000000000c9B3E2C3Ec88B1B4c0cD853f4321"
-      ],
+      "AddressArguments": ["0x000000000000c9B3E2C3Ec88B1B4c0cD853f4321"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve Pendle Limit Order Router to spend PT-kHYPE-24SEP2026",
@@ -2369,9 +2261,7 @@
       "TargetAddress": "0x5555555555555555555555555555555555555555"
     },
     {
-      "AddressArguments": [
-        "0x88B214eC94276B825E641820D5C97a9042F9Dd60"
-      ],
+      "AddressArguments": ["0x88B214eC94276B825E641820D5C97a9042F9Dd60"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve STEXAMM to spend kHYPE",
@@ -2382,9 +2272,7 @@
       "TargetAddress": "0xfD739d4e423301CE9385c1fb8850539D657C296D"
     },
     {
-      "AddressArguments": [
-        "0x88B214eC94276B825E641820D5C97a9042F9Dd60"
-      ],
+      "AddressArguments": ["0x88B214eC94276B825E641820D5C97a9042F9Dd60"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve STEXAMM to spend WHYPE",
@@ -2423,9 +2311,7 @@
       "TargetAddress": "0x88B214eC94276B825E641820D5C97a9042F9Dd60"
     },
     {
-      "AddressArguments": [
-        "0x1EbDFC75FfE3ba3de61E7138a3E8706aC841Af9B"
-      ],
+      "AddressArguments": ["0x1EbDFC75FfE3ba3de61E7138a3E8706aC841Af9B"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve UniswapV3 Router to spend WHYPE",
@@ -2436,9 +2322,7 @@
       "TargetAddress": "0x5555555555555555555555555555555555555555"
     },
     {
-      "AddressArguments": [
-        "0x1EbDFC75FfE3ba3de61E7138a3E8706aC841Af9B"
-      ],
+      "AddressArguments": ["0x1EbDFC75FfE3ba3de61E7138a3E8706aC841Af9B"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve UniswapV3 Router to spend kHYPE",
@@ -2449,9 +2333,7 @@
       "TargetAddress": "0xfD739d4e423301CE9385c1fb8850539D657C296D"
     },
     {
-      "AddressArguments": [
-        "0xeaD19AE861c29bBb2101E834922B2FEee69B9091"
-      ],
+      "AddressArguments": ["0xeaD19AE861c29bBb2101E834922B2FEee69B9091"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve UniswapV3 NonFungible Position Manager to spend WHYPE",
@@ -2462,9 +2344,7 @@
       "TargetAddress": "0x5555555555555555555555555555555555555555"
     },
     {
-      "AddressArguments": [
-        "0xeaD19AE861c29bBb2101E834922B2FEee69B9091"
-      ],
+      "AddressArguments": ["0xeaD19AE861c29bBb2101E834922B2FEee69B9091"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve UniswapV3 NonFungible Position Manager to spend kHYPE",
@@ -2536,9 +2416,7 @@
       "TargetAddress": "0x1EbDFC75FfE3ba3de61E7138a3E8706aC841Af9B"
     },
     {
-      "AddressArguments": [
-        "0x1EbDFC75FfE3ba3de61E7138a3E8706aC841Af9B"
-      ],
+      "AddressArguments": ["0x1EbDFC75FfE3ba3de61E7138a3E8706aC841Af9B"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve UniswapV3 Router to spend USDC",
@@ -2549,9 +2427,7 @@
       "TargetAddress": "0xb88339CB7199b77E23DB6E890353E22632Ba630f"
     },
     {
-      "AddressArguments": [
-        "0xeaD19AE861c29bBb2101E834922B2FEee69B9091"
-      ],
+      "AddressArguments": ["0xeaD19AE861c29bBb2101E834922B2FEee69B9091"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve UniswapV3 NonFungible Position Manager to spend USDC",
@@ -2623,9 +2499,7 @@
       "TargetAddress": "0x1EbDFC75FfE3ba3de61E7138a3E8706aC841Af9B"
     },
     {
-      "AddressArguments": [
-        "0x1EbDFC75FfE3ba3de61E7138a3E8706aC841Af9B"
-      ],
+      "AddressArguments": ["0x1EbDFC75FfE3ba3de61E7138a3E8706aC841Af9B"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve UniswapV3 Router to spend USD₮0",
@@ -2636,9 +2510,7 @@
       "TargetAddress": "0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb"
     },
     {
-      "AddressArguments": [
-        "0xeaD19AE861c29bBb2101E834922B2FEee69B9091"
-      ],
+      "AddressArguments": ["0xeaD19AE861c29bBb2101E834922B2FEee69B9091"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve UniswapV3 NonFungible Position Manager to spend USD₮0",
@@ -2710,9 +2582,7 @@
       "TargetAddress": "0x1EbDFC75FfE3ba3de61E7138a3E8706aC841Af9B"
     },
     {
-      "AddressArguments": [
-        "0x9BA2EDc44E0A4632EB4723E81d4142353e1bB160"
-      ],
+      "AddressArguments": ["0x9BA2EDc44E0A4632EB4723E81d4142353e1bB160"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Remove liquidity from UniswapV3 position",
@@ -2764,9 +2634,7 @@
       "TargetAddress": "0xD6Eb81136884713E843936843E286FD2a85A205A"
     },
     {
-      "AddressArguments": [
-        "0x904861a24F30EC96ea7CFC3bE9EA4B476d237e98"
-      ],
+      "AddressArguments": ["0x904861a24F30EC96ea7CFC3bE9EA4B476d237e98"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve LayerZero to spend USD₮0",
@@ -2793,9 +2661,7 @@
       "TargetAddress": "0x904861a24F30EC96ea7CFC3bE9EA4B476d237e98"
     },
     {
-      "AddressArguments": [
-        "0x28b5a0e9C621a5BadaA536219b3a228C8168cf5d"
-      ],
+      "AddressArguments": ["0x28b5a0e9C621a5BadaA536219b3a228C8168cf5d"],
       "CanSendValue": false,
       "DecoderAndSanitizerAddress": "0x1a7cfa3A9E0E0B046e809051953645b7aec35845",
       "Description": "Approve USDC to be spent by USDC TokenMessengerV2",
@@ -3461,9 +3327,7 @@
     }
   ],
   "MerkleTree": {
-    "0": [
-      "0xb5f78a99e0bbc74431c7dd1b7cb4b813410699d1c02bcd510d880359c052cb31"
-    ],
+    "0": ["0xb5f78a99e0bbc74431c7dd1b7cb4b813410699d1c02bcd510d880359c052cb31"],
     "1": [
       "0x293b50d05257d2f26ab5fd8834cf8cd5642ff173e5e24326055468d60d92c6fb",
       "0xbd697f488904f46622b497441a27311544b80797626331b4018e27970839ff55"
