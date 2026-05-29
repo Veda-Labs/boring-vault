@@ -81,6 +81,17 @@ contract CreateSentoraBTCMerkleRoot is Script, MerkleTreeHelper {
             _addLeafsForITBPositionManagerLocal(leafs, pyusdMorphoKbtcPositionManager, pyusdMorphoKbtcTokensUsed, "Sentora PYUSD main V2 KBTC ITB Position Manager");
         }
 
+        // Supplies kBTC on Morpho, borrows PYUSD, swaps PYUSD for PRIME, holds PRIME (supervised loan)
+        {
+            address primeSupervisedLoanPositionManager = 0x706ac2F9E24385ea5d0F1b3B82daf3c2F7833b65;
+            ERC20[] memory primeSupervisedLoanTokensUsed = new ERC20[](4);
+            primeSupervisedLoanTokensUsed[0] = getERC20(sourceChain, "KBTC");
+            primeSupervisedLoanTokensUsed[1] = getERC20(sourceChain, "PYUSD");
+            primeSupervisedLoanTokensUsed[2] = getERC20(sourceChain, "PRIME");
+            primeSupervisedLoanTokensUsed[3] = getERC20(sourceChain, "MORPHO");
+            _addLeafsForITBPositionManagerLocal(leafs, primeSupervisedLoanPositionManager, primeSupervisedLoanTokensUsed, "Sentora PYUSD main V2 KBTC PRIME Supervised Loan ITB Position Manager");
+        }
+
         // Supplies wBTC on Morpho, borrows PYUSD, supplies PYUSD
         {
             address pyusdMorphoWbtcPositionManager = 0x834957eb674eFB12f2F70fceA7A9De5AB114D4B1;
@@ -109,6 +120,17 @@ contract CreateSentoraBTCMerkleRoot is Script, MerkleTreeHelper {
             rlusdKbtcMorphoTokensUsed[1] = getERC20(sourceChain, "RLUSD");
             rlusdKbtcMorphoTokensUsed[2] = getERC20(sourceChain, "MORPHO");
             _addLeafsForITBPositionManagerLocal(leafs, rlusdKbtcMorphoPositionManager, rlusdKbtcMorphoTokensUsed, "Sentora RLUSD main V2 KBTC ITB Position Manager");
+        }
+
+        // Supplies kBTC on Morpho, borrows RLUSD, swaps RLUSD for PRIME, holds PRIME (supervised loan)
+        {
+            address rlusdPrimeSupervisedLoanPositionManager = 0x3E20Cd4b434Fce58D02D06391d3ca1F47214b4a4;
+            ERC20[] memory rlusdPrimeSupervisedLoanTokensUsed = new ERC20[](4);
+            rlusdPrimeSupervisedLoanTokensUsed[0] = getERC20(sourceChain, "KBTC");
+            rlusdPrimeSupervisedLoanTokensUsed[1] = getERC20(sourceChain, "RLUSD");
+            rlusdPrimeSupervisedLoanTokensUsed[2] = getERC20(sourceChain, "PRIME");
+            rlusdPrimeSupervisedLoanTokensUsed[3] = getERC20(sourceChain, "MORPHO");
+            _addLeafsForITBPositionManagerLocal(leafs, rlusdPrimeSupervisedLoanPositionManager, rlusdPrimeSupervisedLoanTokensUsed, "Sentora RLUSD main V2 KBTC PRIME Supervised Loan ITB Position Manager");
         }
 
         // ========================== 1inch ==========================
