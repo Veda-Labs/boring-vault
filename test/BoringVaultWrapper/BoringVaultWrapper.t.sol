@@ -408,7 +408,7 @@ contract BoringVaultWrapperTest is Test {
         uint256 depositAmount = 100e18;
         deal(address(baseAsset), alice, depositAmount);
 
-        // bulkDeposit is used internally so no share lock is ever set on the wrapper.
+        // No Teller shareLockPeriod is set in setUp(), so the wrapper applies no lock.
 
         vm.startPrank(alice);
         baseAsset.approve(address(wrapper), depositAmount);
@@ -767,13 +767,12 @@ contract BoringVaultWrapperTest is Test {
     //                   31. Share lock — transparent to wrapper users
     // =========================================================================
 
-    /// @dev bulkDeposit skips _afterPublicDeposit so no lock is ever set on the
-    ///      wrapper's BV-share balance, and bulkWithdraw skips beforeTransfer.
-    ///      A non-zero Teller shareLockPeriod is therefore fully transparent to
-    ///      wrapper vault users — both redeemAsset and standard ERC4626 redeem
-    ///      work immediately after deposit.
-    function testShareLock5Min_TransparentToWrapperUsers() public {
-        // Wire up BeforeTransferHook (production-like) and set 5-minute lock.
+    /// @dev The wrapper mirrors the Teller's shareLockPeriod at its own layer so it
+    ///      is NOT a lock bypass: bulkDeposit (depositAsset) and bulkBV deposits both
+    ///      set a wrapper-share lock on the receiver, and every exit is gated by it.
+    ///      Exits revert until the snapshotted lock window elapses, then succeed.
+    function testShareLock5Min_EnforcedAtWrapperLayer() public {
+        // The wrapper reads its lock period from the BV's live beforeTransfer hook.
         rolesAuthority.setRoleCapability(
             ADMIN_ROLE, address(boringVault), BoringVault.setBeforeTransferHook.selector, true
         );
@@ -791,15 +790,31 @@ contract BoringVaultWrapperTest is Test {
         _giveBVShares(bob, 50e18);
         uint256 bobWShares = _wrapBV(bob, 50e18);
 
-        // ── redeemAsset works immediately — bulkWithdraw skips beforeTransfer ─
+        // Lock recorded on both depositors.
+        assertEq(wrapper.shareUnlockTime(alice), uint64(block.timestamp + 5 minutes), "Alice locked via depositAsset");
+        assertEq(wrapper.shareUnlockTime(bob), uint64(block.timestamp + 5 minutes), "Bob locked via deposit");
+
+        // ── redeemAsset blocked during the lock window ───────────────────────
+        vm.prank(alice);
+        vm.expectRevert(abi.encodeWithSelector(BoringVaultWrapper.BoringVaultWrapper__SharesLocked.selector, alice));
+        wrapper.redeemAsset(baseAsset, aliceWShares, 0, alice, alice);
+
+        // ── ERC4626 redeem blocked during the lock window ────────────────────
+        vm.prank(bob);
+        vm.expectRevert(abi.encodeWithSelector(BoringVaultWrapper.BoringVaultWrapper__SharesLocked.selector, bob));
+        wrapper.redeem(bobWShares, bob, bob);
+
+        // ── After the lock elapses, both exits succeed ───────────────────────
+        skip(5 minutes + 1);
+
+        // Tolerance covers ~5 min of the 2% management fee accrued during the lock window.
         vm.prank(alice);
         uint256 baseOut = wrapper.redeemAsset(baseAsset, aliceWShares, 0, alice, alice);
-        assertApproxEqAbs(baseOut, amount, 1, "redeemAsset succeeds immediately despite share lock");
+        assertApproxEqAbs(baseOut, amount, 1e15, "redeemAsset succeeds after lock elapses");
 
-        // ── ERC4626 redeem also works — no lock set (bulkDeposit) ────────────
         vm.prank(bob);
         uint256 bobBVBack = wrapper.redeem(bobWShares, bob, bob);
-        assertApproxEqAbs(bobBVBack, 50e18, 1, "ERC4626 redeem succeeds immediately despite share lock");
+        assertApproxEqAbs(bobBVBack, 50e18, 1e15, "ERC4626 redeem succeeds after lock elapses");
     }
 
     // =========================================================================
