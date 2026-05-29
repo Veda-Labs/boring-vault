@@ -164,9 +164,9 @@ contract CreateMultichainLiquidBtcOperationalMerkleRootScript is Script, MerkleT
             _addEtherfiSwapperOneWay1InchLeafs(leafs, getAddress(sourceChain, "RLUSD"), getAddress(sourceChain, "USDT"));
             _addEtherfiSwapperOneWay1InchLeafs(leafs, getAddress(sourceChain, "RLUSD"), getAddress(sourceChain, "PYUSD"));
             // WBTC
-            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "USDC"), getAddress(sourceChain, "WBTC"));
-            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "PYUSD"), getAddress(sourceChain, "WBTC"));
-            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "MORPHO"), getAddress(sourceChain, "WBTC"));
+            _addEtherfiSwapperOneWay1InchLeafs(leafs, getAddress(sourceChain, "USDC"), getAddress(sourceChain, "WBTC"));
+            _addEtherfiSwapperOneWay1InchLeafs(leafs, getAddress(sourceChain, "PYUSD"), getAddress(sourceChain, "WBTC"));
+            _addEtherfiSwapperOneWay1InchLeafs(leafs, getAddress(sourceChain, "MORPHO"), getAddress(sourceChain, "WBTC"));
 
             setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
