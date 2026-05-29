@@ -155,8 +155,9 @@ contract CreateSentoraUSDCMerkleRoot is Script, MerkleTreeHelper {
         {
             // Euler PYUSD
             address eulerPYUSDPositionManager = 0xba4970b839678168340f823EF8f255832AB18C12;
-            ERC20[] memory eulerPYUSDTokensUsed = new ERC20[](1);
+            ERC20[] memory eulerPYUSDTokensUsed = new ERC20[](2);
             eulerPYUSDTokensUsed[0] = getERC20(sourceChain, "PYUSD");
+            eulerPYUSDTokensUsed[1] = getERC20(sourceChain, "USDC");
             address[] memory eulerPYUSDAdditionalExecutors = new address[](0);
             _addLeafsForITBPositionManager(leafs, eulerPYUSDPositionManager, eulerPYUSDTokensUsed, "Euler PYUSD ITB Position Manager", eulerPYUSDAdditionalExecutors);
         
@@ -164,8 +165,9 @@ contract CreateSentoraUSDCMerkleRoot is Script, MerkleTreeHelper {
         {
             // Euler USDC
             address eulerUSDCPositionManager = 0xB134641B80982bEd7cDbb307E56E55ABBC8b3197;
-            ERC20[] memory eulerUSDCTokensUsed = new ERC20[](1);
+            ERC20[] memory eulerUSDCTokensUsed = new ERC20[](2);
             eulerUSDCTokensUsed[0] = getERC20(sourceChain, "USDC");
+            eulerUSDCTokensUsed[1] = getERC20(sourceChain, "PYUSD");
             address[] memory eulerUSDCAdditionalExecutors = new address[](0);
             _addLeafsForITBPositionManager(leafs, eulerUSDCPositionManager, eulerUSDCTokensUsed, "Euler USDC ITB Position Manager", eulerUSDCAdditionalExecutors);
         }
