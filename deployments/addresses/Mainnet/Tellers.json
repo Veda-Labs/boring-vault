@@ -1,0 +1,29 @@
+{
+  "contractAddresses": {
+    "LayerZeroTellerWithRateLimiting_3c730353": "0x8ea0b382d054dbebeb1d0ae47ee4ac433c730353",
+    "LayerZeroTeller_202d82b2": "0x4c74cca483a278bcb90aea3f8f565e56202d82b2",
+    "LayerZeroTeller_564c2825": "0x634d53643b497bb614b4b6c8f3a58a5d564c2825",
+    "LayerZeroTeller_62b6293c": "0xbb4ef6f8a38a0abb9d31cf64a7ae2e9862b6293c"
+  },
+  "contractMetadata": {
+    "LayerZeroTellerWithRateLimiting_3c730353": {
+      "deploymentCommit": "bf902717",
+      "verification": "full_match",
+      "verificationGap": "cbor"
+    },
+    "LayerZeroTeller_202d82b2": {
+      "deploymentCommit": "67cf8116",
+      "verification": "full_match",
+      "verificationGap": "cbor"
+    },
+    "LayerZeroTeller_564c2825": {
+      "deploymentCommit": "67cf8116",
+      "verification": "full_match",
+      "verificationGap": "cbor"
+    },
+    "LayerZeroTeller_62b6293c": {
+      "deploymentCommit": "92e1a7af",
+      "verification": "full_match"
+    }
+  }
+}

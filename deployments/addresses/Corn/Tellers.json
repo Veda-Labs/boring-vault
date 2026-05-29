@@ -1,0 +1,12 @@
+{
+  "contractAddresses": {
+    "LayerZeroTellerWithRateLimiting_bd407268": "0x6ee3aaccf9f2321e49063c4f8da775ddbd407268"
+  },
+  "contractMetadata": {
+    "LayerZeroTellerWithRateLimiting_bd407268": {
+      "deploymentCommit": "bf902717",
+      "verification": "full_match",
+      "verificationGap": "cbor"
+    }
+  }
+}
