@@ -17,14 +17,14 @@ jobs:
     name: Foundry project
     runs-on: ubuntu-latest
     env:
-      MAINNET_RPC_URL: https://mainnet.infura.io/v3/${{ secrets.INFURA_API_KEY }}
-      ARBITRUM_RPC_URL: https://arbitrum-mainnet.infura.io/v3/${{ secrets.INFURA_API_KEY }}
+      MAINNET_RPC_URL: https://eth-mainnet.g.alchemy.com/v2/${{ secrets.ALCHEMY_API_KEY }}
+      ARBITRUM_RPC_URL: https://arb-mainnet.g.alchemy.com/v2/${{ secrets.ALCHEMY_API_KEY }}
       BASE_RPC_URL: https://base-mainnet.g.alchemy.com/v2/${{ secrets.ALCHEMY_API_KEY }}
-      AVALANCHE_RPC_URL: https://avalanche-mainnet.infura.io/v3/${{ secrets.INFURA_API_KEY }}
-      OPTIMISM_RPC_URL: https://optimism-mainnet.infura.io/v3/${{ secrets.INFURA_API_KEY }}
-      LINEA_RPC_URL: https://linea-mainnet.infura.io/v3/${{ secrets.INFURA_API_KEY }}
-      MANTLE_RPC_URL: https://mantle-mainnet.infura.io/v3/${{ secrets.INFURA_API_KEY }}
-      HOLESKY_RPC_URL: https://holesky.infura.io/v3/${{ secrets.INFURA_API_KEY_0 }}
+      AVALANCHE_RPC_URL: https://avax-mainnet.g.alchemy.com/v2/${{ secrets.ALCHEMY_API_KEY }}
+      OPTIMISM_RPC_URL: https://opt-mainnet.g.alchemy.com/v2/${{ secrets.ALCHEMY_API_KEY }}
+      LINEA_RPC_URL: https://linea-mainnet.g.alchemy.com/v2/${{ secrets.ALCHEMY_API_KEY }}
+      MANTLE_RPC_URL: https://mantle-mainnet.g.alchemy.com/v2/${{ secrets.ALCHEMY_API_KEY }}
+      HOLESKY_RPC_URL: https://eth-holesky.g.alchemy.com/v2/${{ secrets.ALCHEMY_API_KEY }}
       BERA_CHAIN_RPC_URL: ${{ secrets.BERA_CHAIN_RPC_URL }}
       BOB_RPC_URL: ${{ secrets.BOB_RPC_URL }}
       DERIVE_RPC_URL: ${{ secrets.DERIVE_RPC_URL }}
