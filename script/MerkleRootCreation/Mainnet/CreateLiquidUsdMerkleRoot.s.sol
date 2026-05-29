@@ -36,6 +36,8 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
     address public dolomiteDecoderAndSanitizer = 0x2f7D1Bbc14Fc3a859EB82ffCB195f9FC3DfCde2f;
     address public cctpDecoderAndSanitizer = 0xd2a9C2F3f8c148dc0E18Dfd0bAE482d9c2E1BA2e;
     address public paretoDecoderAndSanitizer = 0x1efB2f990beD6F71B8F71EcFCC31ED7AC9D7E5aa;
+    address public infinifiDecoderAndSanitizer = 0x56428a3e92292b81F38164ce1Fb1dED686f4724e;
+
     //itb
     address public itbAaveV3Usdc = 0xa6c9A887F5Ae28A70E457178AABDd153859B572b;
     address public itbAaveV3Usdt = 0x9c62cB41eACe893E5cc72C0C933E14B299C520A8;
@@ -163,6 +165,14 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
             capDepositAssets[1] = getAddress(sourceChain, "USDT");
             capDepositAssets[2] = getAddress(sourceChain, "PYUSD");
             _addCapLeafs(leafs, capDepositAssets);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
+
+        // ========================= Infinifi ==========================
+        {
+
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", infinifiDecoderAndSanitizer);
+            _addInfinifiLeafs(leafs);
             setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 

@@ -10406,6 +10406,127 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
 
     }
 
+    function _addInfinifiLeafs(ManageLeaf[] memory leafs) internal {
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "USDC"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve Infinifi Gateway to spend USDC"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "infinifiGateway");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "iUSD"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve Infinifi Gateway to spend iUSD"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "infinifiGateway");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "siUSD"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve Infinifi Gateway to spend siUSD"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "infinifiGateway");
+
+        // ===== Entry: USDC -> iUSD / siUSD =====
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "infinifiGateway"),
+            false,
+            "mint(address,uint256)",
+            new address[](1),
+            string.concat("Mint iUSD with USDC via Infinifi Gateway"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "infinifiGateway"),
+            false,
+            "mintAndStake(address,uint256)",
+            new address[](1),
+            string.concat("Mint and stake USDC to siUSD via Infinifi Gateway"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "infinifiGateway"),
+            false,
+            "stake(address,uint256)",
+            new address[](1),
+            string.concat("Stake iUSD for siUSD via Infinifi Gateway"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "infinifiGateway"),
+            false,
+            "unstake(address,uint256)",
+            new address[](1),
+            string.concat("Unstake siUSD for iUSD via Infinifi Gateway"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "infinifiGateway"),
+            false,
+            "redeem(address,uint256,uint256)",
+            new address[](1),
+            string.concat("Redeem iUSD for USDC via Infinifi Gateway"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "infinifiGateway"),
+            false,
+            "claimRedemption()",
+            new address[](0),
+            string.concat("Claim queued Infinifi redemption"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+    }
+
 
     function _addRoycoRecipeAPOfferLeafs(
         ManageLeaf[] memory leafs,
