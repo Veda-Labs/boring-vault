@@ -4,7 +4,11 @@
   },
   "contractMetadata": {
     "LayerZeroTellerWithRateLimiting_bd407268": {
-      "verification": "mismatch"
+      "verification": "source_verified",
+      "verifiedVia": "etherscan",
+      "contractName": "LayerZeroTellerWithRateLimiting",
+      "lzrlSourceCommit": "24c42f7c",
+      "note": "Etherscan-verified LayerZeroTellerWithRateLimiting (solc 0.8.21). Mixed-vintage working-tree deploy: constituent files trace to multiple main commits, so no single-commit bytecode build matches (prior 'mismatch'). LZRL.sol matches main @ 24c42f7c."
     }
   }
 }
