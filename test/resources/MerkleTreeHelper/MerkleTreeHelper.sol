@@ -15660,6 +15660,73 @@ function _addTellerLeafsWithReferral(
         );
     }
 
+    // ========================================= Wormhole NTT Executor MultiToken Bridge =========================================
+    function _addWormholeNTTExecutorMultiTokenBridgeLeafs(
+        ManageLeaf[] memory leafs,
+        address multiTokenExecutor,
+        address multiTokenNtt,
+        ERC20 tokenToBridge,
+        uint16 recipientChain
+    ) internal {
+        address vault = getAddress(sourceChain, "boringVault");
+        bytes32 vaultAsBytes32 = bytes32(uint256(uint160(vault)));
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            address(tokenToBridge),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve ", tokenToBridge.symbol(), " to be spent by Wormhole multiTokenExecutor"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = multiTokenExecutor;
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            multiTokenExecutor,
+            true,
+            "transfer(address,address,uint256,uint16,bytes32,bytes32,bytes,(uint256,address,bytes,bytes),(uint16,address))",
+            new address[](9),
+            string.concat("Wormhole NTT transfer ", tokenToBridge.symbol(), " to chain ", vm.toString(recipientChain)),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        address executorPayee = getAddress(sourceChain, "wormholeMultiTokenExecutorPayee");
+        leafs[leafIndex].argumentAddresses[0] = multiTokenNtt;
+        leafs[leafIndex].argumentAddresses[1] = address(tokenToBridge);
+        leafs[leafIndex].argumentAddresses[2] = address(uint160(recipientChain));
+        leafs[leafIndex].argumentAddresses[3] = address(bytes20(bytes16(vaultAsBytes32)));
+        leafs[leafIndex].argumentAddresses[4] = address(bytes20(bytes16(vaultAsBytes32 << 128)));
+        leafs[leafIndex].argumentAddresses[5] = address(bytes20(bytes16(vaultAsBytes32)));
+        leafs[leafIndex].argumentAddresses[6] = address(bytes20(bytes16(vaultAsBytes32 << 128)));
+        leafs[leafIndex].argumentAddresses[7] = vault;
+        leafs[leafIndex].argumentAddresses[8] = executorPayee;
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            multiTokenExecutor,
+            true,
+            "transferETH(address,uint256,uint16,bytes32,bytes32,bytes,(uint256,address,bytes,bytes),(uint16,address))",
+            new address[](8),
+            string.concat("Wormhole NTT transferETH to chain ", vm.toString(recipientChain)),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = multiTokenNtt;
+        leafs[leafIndex].argumentAddresses[1] = address(uint160(recipientChain));
+        leafs[leafIndex].argumentAddresses[2] = address(bytes20(bytes16(vaultAsBytes32)));
+        leafs[leafIndex].argumentAddresses[3] = address(bytes20(bytes16(vaultAsBytes32 << 128)));
+        leafs[leafIndex].argumentAddresses[4] = address(bytes20(bytes16(vaultAsBytes32)));
+        leafs[leafIndex].argumentAddresses[5] = address(bytes20(bytes16(vaultAsBytes32 << 128)));
+        leafs[leafIndex].argumentAddresses[6] = vault;
+        leafs[leafIndex].argumentAddresses[7] = executorPayee;
+    }
+
     // ========================================= Tac CrossChainLayer =========================================
     function _addTacCrossChainLeafs(ManageLeaf[] memory leafs, ERC20 tokenToBridge, string memory tvmAddress) internal {
         //approve CCL

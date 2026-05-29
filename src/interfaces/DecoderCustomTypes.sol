@@ -870,4 +870,17 @@ contract DecoderCustomTypes {
         uint32 creationTime;    // Timestamp when request was created
     }
 
+    // ========================================= Wormhole ==================================
+
+    struct WormholeExecutorArgs {
+            uint256 value;
+            address refundAddress;
+            bytes signedQuote;
+            bytes instructions;
+    }
+    struct WormholeFeeArgs {
+        uint16 dbps;
+        address payee;
+    }
+
 }
