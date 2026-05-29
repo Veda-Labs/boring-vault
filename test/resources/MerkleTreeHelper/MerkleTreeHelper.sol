@@ -27,6 +27,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     mapping(address => mapping(address => mapping(address => bool))) public ownerToOneInchV6SellTokenToBuyTokenToInTree;
     mapping(address => mapping(address => mapping(address => bool))) public ownerToOdosSellTokenToBuyTokenToInTree;
     mapping(address => mapping(address => mapping(address => bool))) public ownerToEtherfiSwapperSellTokenToBuyTokenToInTree;
+    mapping(address => mapping(address => mapping(address => bool))) public ownerToEtherfi1InchSwapperSellTokenToBuyTokenToInTree;
     mapping(address => mapping(address => mapping(address => bool))) public ownerToOogaBoogaSellTokenToBuyTokenToInTree;
     mapping(address => mapping(address => mapping(address => bool))) public ownerToGlueXSellTokenToBuyTokenToInTree;
     mapping(address => mapping(address => mapping(address => bool))) public ownerToSushiSellTokenToBuyTokenToInTree;
@@ -6962,6 +6963,37 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
         leafs[leafIndex].argumentAddresses[1] = subaccount;
+    }
+
+    function _addERC4626WithdrawalLeafs(ManageLeaf[] memory leafs, ERC4626 vault) internal {
+        ERC20 asset = vault.asset();
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            address(vault),
+            false,
+            "withdraw(uint256,address,address)",
+            new address[](2),
+            string.concat("Withdraw ", asset.symbol(), " from ", vault.symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            address(vault),
+            false,
+            "redeem(uint256,address,address)",
+            new address[](2),
+            string.concat("Redeem ", vault.symbol(), " for ", asset.symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
     }
 
     // ========================================= Vault Craft =========================================
@@ -14469,6 +14501,42 @@ function _addTellerLeafsWithReferral(
                 "swap((address,uint256,address,address,uint256,uint256,address),bytes,address,uint32)",
                 new address[](3),
                 string.concat("Swap ", ERC20(tokenA).symbol(), " for ", ERC20(tokenB).symbol(), " using etherfi swapper"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = tokenA;
+            leafs[leafIndex].argumentAddresses[1] = tokenB;
+            leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+        }
+    }
+
+    function _addEtherfiSwapperOneWay1InchLeafs(ManageLeaf[] memory leafs, address tokenA, address tokenB) internal {
+
+        // add approval if not already added
+        if (!ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][tokenA][getAddress(sourceChain, "etherfiSwapper")]) {
+            ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][tokenA][getAddress(sourceChain, "etherfiSwapper")] = true;
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                tokenA,
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve Etherfi swapper to spend ", ERC20(tokenA).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "etherfiSwapper");
+        }
+
+        // add swap from tokenA to tokenB.
+        if (!ownerToEtherfi1InchSwapperSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokenA][tokenB]) {
+            ownerToEtherfi1InchSwapperSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokenA][tokenB] = true;
+
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "etherfiSwapper"),
+                false,
+                "swap(address,(address,address,address,address,uint256,uint256,uint256),bytes,bytes)",
+                new address[](3),
+                string.concat("Swap ", ERC20(tokenA).symbol(), " for ", ERC20(tokenB).symbol(), " using etherfi swapper (1inch)"),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
             leafs[leafIndex].argumentAddresses[0] = tokenA;
