@@ -45,6 +45,7 @@ contract ChainValues {
     string public constant tac = "tac";
     string public constant plasma = "plasma";
     string public constant inkSepolia = "inkSepolia";
+    string public constant monad = "monad";
 
     // Bridging constants.
     uint64 public constant ccipArbitrumChainSelector = 4949039107694359620;
@@ -156,6 +157,7 @@ contract ChainValues {
         _addBartioValues();
         _addTACTestnetValues();
         _addInkSepoliaValues();
+        _addMonadValues();
     }
 
     function _addMainnetValues() private {
@@ -841,6 +843,7 @@ contract ChainValues {
         // Etherfi
         values[mainnet]["EETH_LIQUIDITY_POOL"] = 0x308861A430be4cce5502d0A12724771Fc6DaF216.toBytes32();
         values[mainnet]["withdrawalRequestNft"] = 0x7d5706f6ef3F89B3951E23e557CDFBC3239D4E2c.toBytes32();
+        values[mainnet]["etherFiPriorityWithdrawalQueue"] = 0x35e7D6feF6f72aDd3c3e39dEc6d9CCc29e3345FA.toBytes32();
         values[mainnet]["etherFiVampirePool"] = 0x9FFDF407cDe9a93c47611799DA23924Af3EF764F.toBytes32();
 
         // Renzo
@@ -1682,6 +1685,7 @@ contract ChainValues {
         // Aave V3
         values[base]["v3Pool"] = 0xA238Dd80C259a72e81d7e4664a9801593F98d1c5.toBytes32();
         values[base]["v3RewardsController"] = 0xf9cc4F0D883F1a1eb2c253bdb46c254Ca51E1F44.toBytes32();
+        values[base]["aBasweETH"] = 0x7C307e128efA31F540F2E2d976C995E0B65F51F6.toBytes32();
 
         // Merkl
         values[base]["merklDistributor"] = 0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae.toBytes32();
@@ -1723,6 +1727,7 @@ contract ChainValues {
         // Instadapp Fluid
         values[base]["fWETH"] = 0x9272D6153133175175Bc276512B2336BE3931CE9.toBytes32();
         values[base]["fWSTETH"] = 0x896E39f0E9af61ECA9dD2938E14543506ef2c2b5.toBytes32();
+        values[base]["FluidATokenSwapV2"] = 0xBa419905B1c9c8Ee1B210F978f2eeF8469b38002.toBytes32();
 
         // Fluid Dex
         values[base]["weETH_ETHDex_wstETH"] = 0xE6b5D1CdC4935295c84772C4700932b4BFC93274.toBytes32();
@@ -3358,5 +3363,14 @@ contract ChainValues {
 
     }
 
+    function _addMonadValues() private {
+        values[monad]["deployerAddress"] = 0x144dc4DF655a57d871be8f18aA565b82D3E980f5.toBytes32();
+        values[monad]["txBundlerAddress"] = 0x144dc4DF655a57d871be8f18aA565b82D3E980f5.toBytes32();
+        values[monad]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
+        values[monad]["WMON"] = 0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A.toBytes32();
+        values[monad]["mUSD"] = 0xacA92E438df0B2401fF60dA7E4337B687a2435DA.toBytes32();
+        values[monad]["steakhouseMUSDVault"] = 0xBEEFF60EC664adb24ff7378A8C69ecD25C3cC867.toBytes32();
+        values[monad]["steakhouseUSDCVault"] = 0xBEEFFf30371ff8EbdEA03d5E2e3C6b7c0bA0303c.toBytes32();
+    }
 
 }

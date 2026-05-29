@@ -159,6 +159,9 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         _addFluidFTokenLeafs(leafs, getAddress(sourceChain, "fWETH"));
         _addFluidFTokenLeafs(leafs, getAddress(sourceChain, "fWSTETH"));
 
+        // ==================== Fluid aToken Swaps ==========================
+        _addInstadappATokenSwapV2Approval(leafs);
+
         // ========================== Flashloans ==========================
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "WETH"));
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "WEETH"));
@@ -246,4 +249,25 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
     }
+
+
+   // temporary addition to allow us to swap aTokens for aWETH
+    function _addInstadappATokenSwapV2Approval(ManageLeaf[] memory leafs) internal {
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "aBasweETH"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve FluidATokenSwapV2 to swap weETH aTokens for WETH aTokens",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "FluidATokenSwapV2");
+
+    }
+
+
 }
