@@ -88,10 +88,7 @@ contract CowswapAdapter is IAdapter {
         return (cowSettlement, abi.encodeWithSignature("invalidateOrder(bytes)", orderUid));
     }
 
-    /// @dev `filledAmount` is also set to `type(uint256).max` by `invalidateOrder`. The swapper only
-    ///      invalidates from inside `_cancelOrder` and queries `isFilled` BEFORE that call, so any
-    ///      non-zero reading at this site must be a genuine fill. Partial fills are rejected upstream
-    ///      in `verifyLimitOrder`.
+    /// @dev Returns the sell amount filled so far (partial or full) from the GPv2 settlement.
     function filledAmount(ISwapperTypes.SwapConfig calldata swapConfig, address swapper, bytes calldata /*context*/)
         external
         view

@@ -428,19 +428,26 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
 
     //==================== Partial Fill + Cancel ====================
 
-    // Any non-zero `filledAmount` on CoW means the order is no longer cancellable. The CoW adapter
-    // rejects partial-fill orders at submit, so the only path to a non-zero `filledAmount` is a real
-    // settlement — and once that lands, the swapper's adapter-driven isFilled blocks cancel.
-    function testCancelAfterPartialFill_RevertOrderAlreadyFilled() external {
+    // A partially filled order is still cancellable: the swapper reverts only once `filledAmount`
+    // reaches `inputAmount`. Cancelling a partial refunds the unfilled remainder to the receiver.
+    function testCancelAfterPartialFill_RefundsUnfilledRemainder() external {
         deal(address(WETH), address(boringVault), 100e18);
 
         (ISwapperTypes.SwapConfig memory config, bytes32 orderDigest, uint256 orderId) =
             _submitOrder(10e18, 20000e6, uint32(block.timestamp + 3600));
 
+        // settlement fills 5e18 of the 10e18 sell order, leaving 5e18 on the swapper
         _simulateFill(5e18, 10000e6, config, orderDigest);
+        assertEq(WETH.balanceOf(address(swapper)), 5e18);
 
-        vm.expectRevert(abi.encodeWithSelector(BoringSwapper.BoringSwapper__OrderAlreadyFilled.selector));
         swapper.cancelOrder(orderId, config, "");
+
+        // unfilled 5e18 refunded to the vault; nothing left on the swapper
+        assertEq(WETH.balanceOf(address(swapper)), 0);
+        assertEq(WETH.balanceOf(address(boringVault)), 95e18);
+
+        BoringSwapper.OrderRecord memory rec = swapper.getOrderRecord(orderId);
+        assertGt(rec.cancelledAt, 0);
     }
 
     function testCancelAfterFullFill_RevertOrderAlreadyFilled() external {
@@ -906,6 +913,37 @@ contract BoringSwapperTest is Test, MerkleTreeHelper {
         emit OrderSubmitted(newOrderId, routeId, 2e18, address(boringVault));
 
         swapper.replaceOrder(orderId, oldConfig, "", newConfig);
+    }
+
+    function testReplaceSwap_AfterPartialFill() external {
+        deal(address(WETH), address(boringVault), 100e18);
+
+        (ISwapperTypes.SwapConfig memory oldConfig, bytes32 oldDigest, uint256 orderId) =
+            _submitOrder(10e18, 20000e6, uint32(block.timestamp + 3600));
+
+        // settlement fills 5e18 of the 10e18 sell order, leaving 5e18 on the swapper
+        _simulateFill(5e18, 10000e6, oldConfig, oldDigest);
+        assertEq(WETH.balanceOf(address(swapper)), 5e18);
+
+        (ISwapperTypes.SwapConfig memory newConfig,) =
+            _buildSwapConfig(2e18, 4000e6, uint32(block.timestamp + 7200));
+
+        uint256 newOrderId = swapper.orders();
+
+        // cancel refunds the unfilled 5e18, then the new order pulls 2e18
+        vm.expectEmit(true, false, false, true, address(swapper));
+        emit OrderCancelled(orderId, 5e18);
+
+        swapper.replaceOrder(orderId, oldConfig, "", newConfig);
+
+        // net swapper balance is the new order's 2e18
+        assertEq(WETH.balanceOf(address(swapper)), 2e18);
+        // vault: 90 after submit, +5 refund on cancel, -2 new pull = 93
+        assertEq(WETH.balanceOf(address(boringVault)), 93e18);
+
+        BoringSwapper.OrderRecord memory newRec = swapper.getOrderRecord(newOrderId);
+        assertEq(newRec.cancelledAt, 0);
+        assertEq(newRec.inputAmount, 2e18);
     }
 
     //==================== FeeRegistry Unit Tests ====================
