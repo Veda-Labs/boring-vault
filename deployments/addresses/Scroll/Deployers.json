@@ -11,20 +11,37 @@
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-1",
       "verification": "full_match",
       "deploymentCommit": "4538ccf7706290e38b739e939854897c0f81f6de",
-      "verificationGap": "cbor"
+      "verificationGap": "cbor",
+      "auditGap": [
+        "selectors",
+        "auth",
+        "constructor"
+      ]
     },
     "veda-bundle-create3-scroll": {
       "auditCommit": "0a7d659064c9070bd369d5c511ba94c6b01bbab2",
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-1",
       "verification": "full_match",
       "deploymentCommit": "504437c22c961ce127f1269eac6b879bb56ae10b",
-      "verificationGap": "cbor"
+      "verificationGap": "cbor",
+      "auditGap": [
+        "state",
+        "selectors",
+        "auth",
+        "constructor"
+      ]
     },
     "veda-bundle-create3-v2": {
       "auditCommit": "0a7d659064c9070bd369d5c511ba94c6b01bbab2",
       "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-1",
       "verification": "full_match",
-      "deploymentCommit": "7dc398f1cf52acd7e9a7f4f21eb06fe9fbbf6bd3"
+      "deploymentCommit": "7dc398f1cf52acd7e9a7f4f21eb06fe9fbbf6bd3",
+      "auditGap": [
+        "state",
+        "selectors",
+        "auth",
+        "constructor"
+      ]
     }
   }
 }
