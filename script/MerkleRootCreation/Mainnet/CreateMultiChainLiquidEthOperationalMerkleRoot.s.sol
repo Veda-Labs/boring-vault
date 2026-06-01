@@ -32,6 +32,9 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
 
     address public kingClaimingDecoderAndSanitizer = 0xd4067b594C6D48990BE42a559C8CfDddad4e8D6F;
 
+    address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
+    address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
+
     function setUp() external {}
 
     function run() external {
@@ -82,6 +85,32 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
             _addOdosOneWaySwapLeafs(leafs, EUL, WETH);
             _addOdosOneWaySwapLeafs(leafs, axlSAGA, WETH);
             _addOdosOneWaySwapLeafs(leafs, PENDLE, WETH);
+        }
+
+        // =================== Ether.fi Swapper (Odos) =====================
+        {
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
+
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "RLUSD"), getAddress(sourceChain, "WETH"));
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "PYUSD"), getAddress(sourceChain, "WETH"));
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "USDC"), getAddress(sourceChain, "WETH"));
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "USDT"), getAddress(sourceChain, "WETH"));
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "MORPHO"), getAddress(sourceChain, "WETH"));
+
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
+
+        // =================== Ether.fi Swapper (1inch) ====================
+        {
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+
+            _addEtherfiSwapperOneWay1InchLeafs(leafs, getAddress(sourceChain, "RLUSD"), getAddress(sourceChain, "WETH"));
+            _addEtherfiSwapperOneWay1InchLeafs(leafs, getAddress(sourceChain, "PYUSD"), getAddress(sourceChain, "WETH"));
+            _addEtherfiSwapperOneWay1InchLeafs(leafs, getAddress(sourceChain, "USDC"), getAddress(sourceChain, "WETH"));
+            _addEtherfiSwapperOneWay1InchLeafs(leafs, getAddress(sourceChain, "USDT"), getAddress(sourceChain, "WETH"));
+            _addEtherfiSwapperOneWay1InchLeafs(leafs, getAddress(sourceChain, "MORPHO"), getAddress(sourceChain, "WETH"));
+
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 
         // ========================== Merkl ==========================
