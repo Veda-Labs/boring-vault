@@ -1,0 +1,133 @@
+{
+  "deploymentParameters": {
+    "logLevel": 4,
+    "privateKeyEnvName": "BORING_DEVELOPER",
+    "chainName": "monad",
+    "evmVersion": "cancun",
+    "deployerContractAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "newDeployer"
+    },
+    "txBundlerAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "txBundlerAddress"
+    },
+    "nativeWrapperAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "WMON"
+    },
+    "deploymentOwnerAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "txBundlerAddress"
+    },
+    "deploymentFileName": "skeletons/addresses/Monad/vmUSD.json"
+  },
+  "rolesAuthorityConfiguration": {
+    "rolesAuthorityDeploymentName": "vmUSD RolesAuthority Version 0.0"
+  },
+  "lensConfiguration": {
+    "lensDeploymentName": "Arctic Architecture Lens V0.0"
+  },
+  "boringVaultConfiguration": {
+    "boringVaultDeploymentName": "vmUSD Boring Vault V0.0",
+    "boringVaultName": "mUSD Vault",
+    "boringVaultSymbol": "vmUSD",
+    "boringVaultDecimals": 6
+  },
+  "managerConfiguration": {
+    "managerDeploymentName": "vmUSD ManagerWithMerkleVerification V0.0",
+    "balancerVaultAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000001",
+      "name": "balancerV2Vault"
+    }
+  },
+  "accountantConfiguration": {
+    "accountantDeploymentName": "vmUSD Accountant With Yield Streaming V0.0",
+    "accountantParameters": {
+      "kind": {
+        "variableRate": false,
+        "fixedRate": false,
+        "yieldStreaming": true
+      },
+      "payoutConfiguration": {
+        "payoutTo": "0x4647E6DD7e8E440A8aeFd78860C6A0e56EcA2521",
+        "optionalPaymentSplitterName": "vmUSD Payment Splitter V0.0",
+        "splits": []
+      },
+      "accountantDeploymentParameters": {
+        "allowedExchangeRateChangeLower": 9980,
+        "allowedExchangeRateChangeUpper": 10020,
+        "base": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "mUSD"
+        },
+        "minimumUpateDelayInSeconds": 21600,
+        "performanceFee": 0,
+        "platformFee": 50,
+        "startingExchangeRate": 1000000
+      }
+    }
+  },
+  "tellerConfiguration": {
+    "tellerDeploymentName": "vmUSD Teller With Yield Streaming V0.0",
+    "tellerParameters": {
+      "kind": {
+        "teller": false,
+        "tellerWithRemediation": false,
+        "tellerWithCcip": false,
+        "tellerWithLayerZero": false,
+        "tellerWithLayerZeroRateLimiting": false,
+        "tellerWithYieldStreaming": true
+      }
+    }
+  },
+  "boringQueueConfiguration": {
+    "boringQueueDeploymentName": "vmUSD Queue V0.0",
+    "boringQueueSolverName": "vmUSD Queue Solver V0.0",
+    "excessToSolverNonSelfSolve": true,
+    "queueParameters": {
+      "kind": {
+        "boringQueue": true,
+        "boringQueueWithTracking": false
+      }
+    }
+  },
+  "droneConfiguration": {
+    "droneDeploymentBaseName": "vmUSD Drone V0.0",
+    "droneCount": 0,
+    "safeGasToForwardNative": 21000
+  },
+  "pauserConfiguration": {
+    "shouldDeploy": true,
+    "pauserDeploymentName": "vmUSD Pauser V0.0"
+  },
+  "timelockConfiguration": {
+    "shouldDeploy": false,
+    "timelockDeploymentName": "vmUSD Timelock V0.0",
+    "timelockParameters": {
+      "executors": ["0x68eC1FdD4Bb202B2e07aE751CB5553644aA48cFA"],
+      "minDelay": 43200,
+      "proposers": ["0x68eC1FdD4Bb202B2e07aE751CB5553644aA48cFA"]
+    }
+  },
+  "erc4626BufferHelperConfiguration": {
+    "shouldDeploy": true,
+    "erc4626BufferHelperDeploymentName": "vmUSD ERC4626 Buffer Helper V0.0",
+    "erc4626VaultAddressOrName": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "name": "steakhouseMUSDVault"
+    }
+  },
+  "aaveV3BufferHelperConfiguration": {
+      "shouldDeploy": false,
+      "aaveV3BufferHelperDeploymentName": "vmUSD AaveV3 Buffer Helper V0.0",
+      "aaveV3PoolAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "v3Pool"
+      }
+    },
+    "aaveV3BufferLensConfiguration": {
+      "shouldDeploy": false,
+      "aaveV3BufferLensDeploymentName": "AaveV3 Buffer Lens V0.0"
+    }
+}

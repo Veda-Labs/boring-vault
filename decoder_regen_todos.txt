@@ -1,0 +1,75 @@
+Decoder regen todos — EtherFi/Liquid strategist (non-operational) roots
+========================================================================
+
+Branch: feat/decoder-fixes
+
+Batch 1 — regenerate when these decoders change:
+  BTCb, BTCK, FluidDex, EigenLayerLST, OFT, Teller, UniswapV4
+
+37 strategist scripts scanned. 26 hit at least one Batch 1 decoder.
+
+Per-decoder rollup:
+  BTCb           : (none)
+  BTCK           : (none)
+  FluidDex       : 5  scripts
+  EigenLayerLST  : 2  scripts
+  OFT            : 20 scripts
+  Teller         : 11 scripts
+  UniswapV4      : 1  script
+
+Multi-decoder (touches >=2 of the 7) — highest priority:
+  [ ] Base/CreateMultiChainLiquidEthMerkleRoot.s.sol            FluidDex, OFT
+  [ ] Berachain/CreateLiquidBeraBtcMerkleRoot.s.sol             OFT, Teller
+  [ ] Berachain/CreateLiquidBeraEthMerkleRoot.s.sol             OFT, Teller
+  [ ] Berachain/CreateLiquidBtcMerkleRoot.s.sol                 OFT, Teller
+  [ ] Corn/CreateLiquidBTCMerkleRoot.s.sol                      OFT, Teller
+  [ ] Mainnet/CreateEtherFiUsdMerkleRoot.s.sol                  EigenLayerLST, OFT
+  [ ] Mainnet/CreateLiquidBeraBtcMerkleRoot.s.sol               OFT, Teller
+  [ ] Mainnet/CreateLiquidBeraEthMerkleRoot.s.sol               OFT, Teller
+  [ ] Mainnet/CreateLiquidBtcMerkleRoot.s.sol                   FluidDex, OFT, Teller
+  [ ] Mainnet/CreateMultiChainLiquidEthMerkleRoot.s.sol         FluidDex, OFT, Teller
+  [ ] Plasma/CreateLiquidETHMerkleRoot.s.sol                    FluidDex, OFT
+  [ ] Plasma/CreateLiquidUSDMerkleRoot.s.sol                    FluidDex, OFT
+  [ ] Unichain/CreateUnichainEtherFiLiquidEthMerkleRoot.s.sol   OFT, UniswapV4
+
+Single-decoder:
+  [ ] Berachain/CreatePrimeLiquidBeraBtcMerkleRoot.s.sol        Teller
+  [ ] Flare/CreateLiquidUsdMerkleRoot.s.sol                     OFT
+  [ ] Ink/CreateMultiChainLiquidEthMerkleRoot.s.sol             OFT
+  [ ] Mainnet/CreateEtherFiEigenMerkleRoot.s.sol                EigenLayerLST
+  [ ] Mainnet/CreateLiquidKatanaETHMerkleRoot.s.sol             Teller
+  [ ] Mainnet/CreateLiquidUsdMerkleRoot.s.sol                   OFT
+  [ ] Optimism/CreateLiquidBtcMerkleRoot.s.sol                  Teller
+  [ ] Optimism/CreateMultiChainLiquidEthMerkleRoot.s.sol        OFT
+  [ ] Scroll/CreateEtherFiUsdMerkleRoot.s.sol                   OFT
+  [ ] Scroll/CreateLiquidBtcMerkleRoot.s.sol                    Teller
+  [ ] Scroll/CreateLiquidUsdMerkleRoot.s.sol                    OFT
+  [ ] Scroll/CreateMultichainLiquidEthMerkleRoot.s.sol          OFT
+  [ ] Swell/CreateSwellEtherFiLiquidEthMerkleRoot.s.sol         OFT
+
+No Batch 1 work needed (zero target hits — 11 scripts):
+  Arbitrum/CreateMultiChainLiquidEthMerkleRoot.s.sol
+  Berachain/CreatePrimeLiquidBeraEthMerkleRoot.s.sol
+  Katana/CreateLiquidKatanaETHMerkleRoot.s.sol
+  Katana/CreateMultichainLiquidEthMerkleRoot.s.sol
+  Mainnet/CreateEtherFiBTCMerkleRoot.s.sol
+  Mainnet/CreateLiquidElixirMerkleRoot.s.sol
+  Mainnet/CreateLiquidMoveEthMerkleRoot.s.sol
+  Mainnet/CreateLiquidUsualMerkleRoot.s.sol
+  Optimism/CreateEtherFiBTCMerkleRoot.s.sol
+  Optimism/CreateLiquidUsdMerkleRoot.s.sol
+  plume/CreateLiquidUSDPlumeMerkleRoot.s.sol
+
+
+Batch 2 — second pass after CCTP decoder fix:
+  [ ] Mainnet/CreateLiquidUsdMerkleRoot.s.sol                   CCTP (Plume + Optimism domains; uses dedicated cctpDecoderAndSanitizer 0xd2a9C2F3...)
+  [ ] Optimism/CreateLiquidUsdMerkleRoot.s.sol                  CCTP (mainnet domain; uses raw decoder)
+  [ ] plume/CreateLiquidUSDPlumeMerkleRoot.s.sol                CCTP (mainnet domain; uses raw decoder)
+
+  Also (operational, from earlier liquid** scan):
+  [ ] Mainnet/CreateLiquidUsdOperationalMerkleRoot.s.sol        CCTP (Optimism domain; uses dedicated cctpDecoderAndSanitizer)
+
+
+Liquid** operational gaps (separate from decoder regens — bridge leaves missing vs. strategist counterpart):
+  [ ] Flare/CreateLiquidUsdOperationalMerkleRoot.s.sol          missing LayerZero USDC + USDT0 -> mainnet (strategist has them)
+  [ ] Plasma/CreateLiquidETHOperationalMerkleRoot.s.sol         missing LayerZero (6 assets) -> mainnet (strategist has them)

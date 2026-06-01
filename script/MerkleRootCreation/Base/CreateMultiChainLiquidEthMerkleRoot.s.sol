@@ -250,4 +250,25 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
     }
+
+
+   // temporary addition to allow us to swap aTokens for aWETH
+    function _addInstadappATokenSwapV2Approval(ManageLeaf[] memory leafs) internal {
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "aBasweETH"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve FluidATokenSwapV2 to swap weETH aTokens for WETH aTokens",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "FluidATokenSwapV2");
+
+    }
+
+
 }

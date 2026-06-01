@@ -137,14 +137,15 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "WSTETH"));
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDC"));
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "USDT"));
+        _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "aV3WETH"));
 
         // =========================== Lido ==========================
         _addLidoLeafs(leafs);
 
         // =========================== Odos/1inch ==========================
         {
-            address[] memory assets = new address[](16);
-            SwapKind[] memory kind = new SwapKind[](16);
+            address[] memory assets = new address[](17);
+            SwapKind[] memory kind = new SwapKind[](17);
             assets[0] = getAddress(sourceChain, "WETH");
             kind[0] = SwapKind.BuyAndSell;
             assets[1] = getAddress(sourceChain, "WSTETH");
@@ -177,6 +178,8 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             kind[14] = SwapKind.Sell;
             assets[15] = getAddress(sourceChain, "axlSAGA");
             kind[15] = SwapKind.Sell;
+            assets[16] = getAddress(sourceChain, "aV3WETH");
+            kind[16] = SwapKind.BuyAndSell;
 
 
             setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
@@ -218,6 +221,16 @@ contract CreateGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
             // WETH, wstETH
             address[] memory token0 = new address[](1);
             token0[0] = getAddress(sourceChain, "WSTETH");
+
+            address[] memory token1 = new address[](1);
+            token1[0] = getAddress(sourceChain, "WETH");
+
+            _addUniswapV3Leafs(leafs, token0, token1, false);
+        }
+        // ========================== Uniswap V3 (aV3WETH / WETH, full LP) ==========================
+        {
+            address[] memory token0 = new address[](1);
+            token0[0] = getAddress(sourceChain, "aV3WETH");
 
             address[] memory token1 = new address[](1);
             token1[0] = getAddress(sourceChain, "WETH");

@@ -2714,6 +2714,87 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "STETH");
         leafs[leafIndex].argumentAddresses[1] = address(0); 
+
+    }
+
+    function _addEtherFiPriorityWithdrawalLeafs(ManageLeaf[] memory leafs) internal {
+
+        // Approvals
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "EETH"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve ether.fi priorityWithdrawalQueue to spend eETH",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "etherFiPriorityWithdrawalQueue");
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "WEETH"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve ether.fi priorityWithdrawalQueue to spend weETH",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "etherFiPriorityWithdrawalQueue");
+
+        // request eETH withdrawal via priority withdrawal queue
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "etherFiPriorityWithdrawalQueue"),
+            false,
+            "requestWithdraw(uint96,uint96)",
+            new address[](0),
+            "Request eETH withdrawal via ether.fi priority withdrawal queue",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        // request weETH withdrawal via priority withdrawal queue
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "etherFiPriorityWithdrawalQueue"),
+            false,
+            "requestWithdrawWithWeETH(uint96,uint96)",
+            new address[](0),
+            "Request weETH withdrawal via ether.fi priority withdrawal queue",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        // claim priority withdrawal
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "etherFiPriorityWithdrawalQueue"),
+            false,
+            "claimWithdraw((address,uint96,uint96,uint96,uint32,uint32))",
+            new address[](1),
+            "Claim previously queued ETH from ether.fi priority withdrawal queue",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        // cancel a priority withdrawal
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "etherFiPriorityWithdrawalQueue"),
+            false,
+            "cancelWithdraw((address,uint96,uint96,uint96,uint32,uint32))",
+            new address[](1),
+            "cancel previously queued withdrawal from ether.fi priority withdrawal queue",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
     }
 
     // ========================================= LIDO =========================================
@@ -13927,6 +14008,91 @@ function _addTellerLeafsWithReferral(
         _addERC4626Leafs(leafs, ERC4626(swToken));
     }
 
+    // ==================================== Pareto ===========================================
+
+    // Note that only the AA tranche currently gets deposit/withdrawal leaves. This is due to none of the
+    // currently integrated pareto falconX vaults having a BB tranche enabled. If a future vault requires them
+    // this function will need to be updated to add those.
+    function _addParetoLeafs(ManageLeaf[] memory leafs, address vault, address aaTranche, address depositAsset) internal {
+
+        // Approvals
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            depositAsset,
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve Pareto vault to mint with ", ERC20(depositAsset).symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = vault;
+
+        // deposits
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            vault,
+            false,
+            "depositAA(uint256)",
+            new address[](0),
+            string.concat("Deposit ", ERC20(depositAsset).symbol(), " to Pareto vault to mint AA tokens"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            vault,
+            false,
+            "depositDuringEpoch(uint256,address)",
+            new address[](1),
+            string.concat("Deposit ", ERC20(depositAsset).symbol(), " to Pareto vault"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = aaTranche;
+
+        // withdrawals
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            vault,
+            false,
+            "requestWithdraw(uint256,address)",
+            new address[](1),
+            string.concat("Request withdrawal from Pareto vault"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = aaTranche;
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            vault,
+            false,
+            "claimWithdrawRequest()",
+            new address[](0),
+            string.concat("Claim Pareto withdrawal request"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            vault,
+            false,
+            "claimInstantWithdrawRequest()",
+            new address[](0),
+            string.concat("Claim Pareto instant withdrawal request"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+    }
+
+
     // ========================================= Cap =========================================
     function _addCapLeafs(ManageLeaf[] memory leafs, address[] memory assets) internal {
 
@@ -16583,6 +16749,106 @@ function _addTellerLeafsWithReferral(
         leafs[leafIndex].argumentAddresses[0] = address(depositToken);
         leafs[leafIndex].argumentAddresses[1] = receiver;
         leafs[leafIndex].argumentAddresses[2] = teller;
+    }
+
+    // ========================================= MPortal =========================================
+
+    // Adds approve + sendToken leaves for the default-bridge-adapter overload:
+    //   sendToken(uint256,address,uint32,bytes32,bytes32,bytes32,bytes)
+    // Each bytes32 (destinationToken, recipient, refundAddress) is split into two 20-byte halves
+    // to cover all 32 bytes in the leaf — supports non-EVM destinations (e.g. Solana).
+    function _addMPortalLeafs(
+        ManageLeaf[] memory leafs,
+        address mportalProxy,
+        ERC20 token,
+        uint32 destinationChainId,
+        bytes32 destinationToken,
+        bytes32 recipient,
+        bytes32 refundAddress
+    ) internal {
+        _addMPortalApproveLeaf(leafs, mportalProxy, token);
+
+        // sendToken via MPortal (canSendValue=true because ETH is sent for the bridge fee).
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            mportalProxy,
+            true,
+            "sendToken(uint256,address,uint32,bytes32,bytes32,bytes32,bytes)",
+            new address[](8),
+            string.concat("Bridge ", token.symbol(), " via MPortal"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        _populateMPortalSendTokenSlots(
+            leafs[leafIndex].argumentAddresses, address(token), destinationChainId, destinationToken, recipient, refundAddress
+        );
+    }
+
+    // Adds approve + sendToken leaves for the custom-bridge-adapter overload:
+    //   sendToken(uint256,address,uint32,bytes32,bytes32,bytes32,address,bytes)
+    // The bridgeAdapter is pinned in the leaf (slot 8), so the strategist is locked to the
+    // adapter this leaf was built for.
+    function _addMPortalLeafs(
+        ManageLeaf[] memory leafs,
+        address mportalProxy,
+        ERC20 token,
+        uint32 destinationChainId,
+        bytes32 destinationToken,
+        bytes32 recipient,
+        bytes32 refundAddress,
+        address bridgeAdapter
+    ) internal {
+        _addMPortalApproveLeaf(leafs, mportalProxy, token);
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            mportalProxy,
+            true,
+            "sendToken(uint256,address,uint32,bytes32,bytes32,bytes32,address,bytes)",
+            new address[](9),
+            string.concat("Bridge ", token.symbol(), " via MPortal (custom adapter)"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        _populateMPortalSendTokenSlots(
+            leafs[leafIndex].argumentAddresses, address(token), destinationChainId, destinationToken, recipient, refundAddress
+        );
+        leafs[leafIndex].argumentAddresses[8] = bridgeAdapter;
+    }
+
+    function _addMPortalApproveLeaf(ManageLeaf[] memory leafs, address mportalProxy, ERC20 token) private {
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            address(token),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve MPortal to spend ", token.symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = mportalProxy;
+    }
+
+    function _populateMPortalSendTokenSlots(
+        address[] memory slots,
+        address sourceToken,
+        uint32 destinationChainId,
+        bytes32 destinationToken,
+        bytes32 recipient,
+        bytes32 refundAddress
+    ) private pure {
+        slots[0] = sourceToken;
+        slots[1] = address(uint160(destinationChainId));
+        slots[2] = address(bytes20(bytes16(destinationToken)));
+        slots[3] = address(bytes20(bytes16(destinationToken << 128)));
+        slots[4] = address(bytes20(bytes16(recipient)));
+        slots[5] = address(bytes20(bytes16(recipient << 128)));
+        slots[6] = address(bytes20(bytes16(refundAddress)));
+        slots[7] = address(bytes20(bytes16(refundAddress << 128)));
     }
 }
 

@@ -12,7 +12,7 @@ import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper
 import "forge-std/Script.sol";
 
 /**
- *  source .env && forge script script/MerkleRootCreation/Mainnet/CreateLiquidUsdMerkleRoot.s.sol --rpc-url $MAINNET_RPC_URL --gas-limit 1000000000000000000
+ *  source .env && forge script script/MerkleRootCreation/Mainnet/CreateLiquidUsdMerkleRoot.s.sol --rpc-url $MAINNET_RPC_URL --gas-limit 18446744073709551615 --memory-limit 671100000
  */
 contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
@@ -35,6 +35,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
     address public capDecoderAndSanitizer = 0xE0e86bf98dAA0D2b408Cb038E94bCB9B7864309C;
     address public dolomiteDecoderAndSanitizer = 0x2f7D1Bbc14Fc3a859EB82ffCB195f9FC3DfCde2f;
     address public cctpDecoderAndSanitizer = 0xd2a9C2F3f8c148dc0E18Dfd0bAE482d9c2E1BA2e;
+    address public paretoDecoderAndSanitizer = 0x1efB2f990beD6F71B8F71EcFCC31ED7AC9D7E5aa;
     //itb
     address public itbAaveV3Usdc = 0xa6c9A887F5Ae28A70E457178AABDd153859B572b;
     address public itbAaveV3Usdt = 0x9c62cB41eACe893E5cc72C0C933E14B299C520A8;
@@ -142,6 +143,17 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         borrowAssets[2] = getERC20(sourceChain, "DAI");
         _addSparkLendLeafs(leafs, supplyAssets, borrowAssets);
 
+        // ==================== Pareto FalconX =========================
+        {
+            address vault = getAddress(sourceChain, "Pareto_FalconX_vault");
+            address aaTranche = getAddress(sourceChain, "Pareto_FalconX_AA_tranche");
+            address asset = getAddress(sourceChain, "USDC");
+
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", paretoDecoderAndSanitizer);
+            _addParetoLeafs(leafs, vault, aaTranche, asset);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
+
         // ============================ Cap ============================
         {
 
@@ -243,6 +255,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletUSDCcore")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sentoraPYUSDMain")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sentoraRLUSDMain")));
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sentoraPRIMEMain")));
 
         // ========================== Pendle ==========================
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendleUSDeMarket"), true);
@@ -955,6 +968,19 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
             getBytes32(sourceChain, "boringVault")
         );
 
+        // Sei - bridge PYUSD via PYUSD0 Multi-Hop (Mainnet -> Arbitrum -> Sei)
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", 0xF52f751829447917505E7E8804027DcB2AaDCdE6);
+        _addLayerZeroMultiHopLeafs(
+            leafs,
+            getERC20(sourceChain, "PYUSD"),
+            getAddress(sourceChain, "PYUSDOFTAdapter"),
+            layerZeroArbitrumEndpointId,
+            getBytes32("arbitrum", "MultiHopComposer"),
+            layerZeroSeiEndpointId,
+            getBytes32(sourceChain, "boringVault")
+        );
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+
         // ========================== Scroll Bridge ==========================
         {
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", scrollBridgeDecoderAndSanitizer);
@@ -1023,8 +1049,23 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", getAddress(sourceChain, "rewardTokenUnwrappingDecoder"));
         _addrEULWrappingLeafs(leafs); //unwrap rEUL for EUL
 
-        // ========================== Drone Transfers ==========================
+        // ========================== Boring Vaults ==========================
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        {
+            ERC20[] memory tellerAssets = new ERC20[](3);
+            tellerAssets[0] = getERC20(sourceChain, "USDC");
+            tellerAssets[1] = getERC20(sourceChain, "USDT");
+            tellerAssets[2] = getERC20(sourceChain, "USDE");
+            address ethenaRWATeller = 0xDEa662f24389eB7CaFA9b3B10021884FCe7314f0;
+            _addTellerLeafs(leafs, ethenaRWATeller, tellerAssets, false, true); //no native, yes bulk
+
+            address ethenaRWAQueue = 0x6863305D30D3D302E7a6208832C3F246346604E0;
+            address ethenaRWA = 0x6fDcB0654B4814c2eC1E7e9dbC4cEBf1a2038a84;
+            _addWithdrawQueueLeafs(leafs, ethenaRWAQueue, ethenaRWA, tellerAssets);
+        }
+
+        // ========================== Drone Transfers ==========================
+        //setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         {
         ERC20[] memory localTokens = new ERC20[](28);
         localTokens[0] = getERC20("mainnet", "USDT");

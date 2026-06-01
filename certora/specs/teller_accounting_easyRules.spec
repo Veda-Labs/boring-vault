@@ -1,0 +1,163 @@
+import "teller_basic.spec";
+
+persistent ghost bool callMade;
+persistent ghost bool delegatecallMade;
+
+hook CALL(uint g, address addr, uint value, uint argsOffset, uint argsLength, uint retOffset, uint retLength) uint rc {
+    if (addr != vault_contract
+        && addr != accountant_contract
+        && addr != ERC20Mock) 
+    {
+        // TODO whitelist the asset.. e.g whenever the asset is passed to deposit, e.g.) {
+        callMade = true;
+    }
+}
+
+hook DELEGATECALL(uint g, address addr, uint argsOffset, uint argsLength, uint retOffset, uint retLength) uint rc {
+    delegatecallMade = true;
+}
+
+/*
+This rule proves there are no instances in the code in which the user can act as the contract.
+By proving this rule we can safely assume in our spec that e.msg.sender != currentContract.
+*/
+rule noDynamicCalls(env e, method f)
+    filtered { f -> !ignoredMethod(f) 
+        && f.selector != 3395204577 // LayerZeroTellerWithRateLimiting.setDelegate(address) //allowed to call on endpoint
+    }
+{
+    require !callMade && !delegatecallMade;
+
+    calldataarg args;
+    f(e, args);
+
+    assert !callMade && !delegatecallMade;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////           #  asset-to-shares mathematical properties                  /////
+////////////////////////////////////////////////////////////////////////////////
+
+rule conversionOfZero {
+    address asset;
+    storage init = lastStorage;
+    uint256 amount;
+    uint256 convertZeroShares = convertToAssets(init, amount, asset);
+    uint256 convertZeroAssets = convertToShares(init, amount, asset);
+
+    assert amount == 0 => convertZeroShares == 0,
+        "converting zero shares must return zero assets";
+    assert amount == 0 => convertZeroAssets == 0,
+        "converting zero assets must return zero shares";
+}
+
+rule conversionWeakMonotonicity_assets {
+    safeAssumptions();
+    uint256 smallerAssets; uint256 largerAssets;
+    storage init = lastStorage; address asset;
+
+    uint256 smallerShares = convertToShares(init, smallerAssets, asset); 
+    uint256 largerShares = convertToShares(init, largerAssets, asset);
+
+    assert smallerAssets < largerAssets => smallerShares <= largerShares,
+        "converting more assets must yield equal or greater shares";
+}
+
+rule conversionWeakMonotonicity_shares {
+    safeAssumptions();
+    uint256 smallerShares; uint256 largerShares;
+    storage init = lastStorage; address asset;
+
+    uint256 smallerAssets = convertToAssets(init, smallerShares, asset); 
+    uint256 largerAssets = convertToAssets(init, largerShares, asset); 
+    
+    assert smallerShares < largerShares => smallerAssets <= largerAssets,
+        "converting more shares must yield equal or greater assets";
+}
+
+rule conversionWeakIntegrity_shares() {
+    safeAssumptions();
+    uint256 shares_pre; address asset;
+    uint assets = convertToAssets(lastStorage, shares_pre, asset);
+    uint shares_post = convertToShares(lastStorage, assets, asset);
+    assert shares_post <= shares_pre,
+        "converting shares to assets then back to shares must return shares less than or equal to the original amount";
+}
+
+rule conversionWeakIntegrity_assets() {
+    safeAssumptions();
+    uint256 assets_pre; address asset;
+    uint shares = convertToShares(lastStorage, assets_pre, asset);
+    uint assets_post = convertToAssets(lastStorage, shares, asset);
+
+    assert assets_post <= assets_pre,
+        "converting assets to shares then back to assets must return assets less than or equal to the original amount";
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////                       #   Risk Analysis                           /////////
+////////////////////////////////////////////////////////////////////////////////
+
+// Runs on teller only
+// There are other ways to set allowance directly on the vault
+invariant zeroAllowanceOnAssets(env e, address user, address asset)
+    asset.allowance(e, currentContract, user) == 0
+filtered { f -> f.contract == teller_contract } 
+{
+    preserved with (env e2) {
+        nonSceneAddress(e2.msg.sender);
+    }
+    preserved constructor() 
+    {
+        // we assume the allowance was not present before calling the constructor
+        // i.e. we're checking that it's not set by the constructor
+        require asset.allowance(e, currentContract, user) == 0;
+    }
+}
+
+rule onlyContributionMethodsReduceAssets(env e, method f) 
+    filtered { f -> f.contract == teller_contract }
+{
+    safeAssumptions();
+    address user; nonSceneAddress(user);
+    address asset; require asset != vault_contract;
+    uint256 userAssetsBefore = userAssets(e, asset, user);
+
+    calldataarg args;
+    f(e, args);
+
+    uint256 userAssetsAfter = userAssets(e, asset, user);
+
+    assert userAssetsBefore > userAssetsAfter =>
+        (f.selector == sig:deposit(address, uint256, uint256,address).selector 
+        || f.selector == sig:depositWithPermit(address,uint256,uint256,uint256,uint8,bytes32,bytes32,address).selector
+        || f.selector == sig:bulkDeposit(address,uint256,uint256,address).selector
+        || f.selector == 4172789357 // sig:depositAndBridge(..).selector
+        || f.selector == 1539645794 // sig:depositAndBridgeWithPermit(..).selector
+),
+        "a user's assets must not go down except on calls to contribution methods or calls directly to the asset.";
+}
+
+rule withdrawingProducesAssets(env e)
+{
+    uint256 shares; address asset;
+    address receiver; address owner = e.msg.sender;
+    uint256 minimumAssets;
+    require currentContract != e.msg.sender
+         && currentContract != receiver
+         && currentContract != owner
+         && minimumAssets > 0  //otherwise it's possible to loose dust shares and not receive any asset because of rounding
+         && receiver != vault_contract;
+
+    uint256 ownerSharesBefore = vault_contract.balanceOf(owner);
+    uint256 receiverAssetsBefore = userAssets(e, asset, receiver);
+
+    uint256 assetsReceived = withdraw(e, asset, shares, minimumAssets, receiver);
+
+    uint256 ownerSharesAfter = vault_contract.balanceOf(owner);
+    uint256 receiverAssetsAfter = userAssets(e, asset, receiver);
+
+    assert ownerSharesBefore > ownerSharesAfter <=> receiverAssetsBefore < receiverAssetsAfter,
+        "an owner's shares must decrease if and only if the receiver's assets increase";
+}
+
