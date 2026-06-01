@@ -24,6 +24,8 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
     address public accountantAddress = 0xc315D6e14DDCDC7407784e2Caf815d131Bc1D3E7; 
     address public drone = 0x3683fc2792F676BBAbc1B5555dE0DfAFee546e9a; 
 
+    address public etherFiDecoder = 0xFB6C4c23Dc59F380Ec62Cc6Ea40711d6D87aa88f;
+
 
     function setUp() external {}
 
@@ -58,8 +60,10 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         _addUniswapV3Leafs(leafs, token0, token1, false); //uses regular swapRouter, not 02
 
         // ========================== LayerZero ===============================
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", etherFiDecoder);
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDC"), getAddress(sourceChain, "USDC_OFT_stargate"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault")); 
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDT0"), getAddress(sourceChain, "USDT0_OFT"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault")); 
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Drone Transfer ===============================
         ERC20[] memory localTokens = new ERC20[](3);   
