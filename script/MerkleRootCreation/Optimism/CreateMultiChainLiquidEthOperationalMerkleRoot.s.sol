@@ -21,6 +21,7 @@ contract CreateMultiChainLiquidEthOperationalMerkleRootScript is Script, MerkleT
     address public rawDataDecoderAndSanitizer = 0x4495D83B2e139062834a0fC1e9Ea55Ea3182f14c;
     address public managerAddress = 0x227975088C28DBBb4b421c6d96781a53578f19a8;
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
+    address public etherFiDecoder = 0xFB6C4c23Dc59F380Ec62Cc6Ea40711d6D87aa88f;
 
 
     function setUp() external {}
@@ -77,7 +78,11 @@ contract CreateMultiChainLiquidEthOperationalMerkleRootScript is Script, MerkleT
         );
 
         // ========================== LayerZero ==========================
-        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WEETH_OFT"), getAddress(sourceChain, "WEETH_OFT"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));   
+        setAddress(true, optimism, "rawDataDecoderAndSanitizer", etherFiDecoder);
+        {
+            _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WEETH_OFT"), getAddress(sourceChain, "WEETH_OFT"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));   
+        }
+        setAddress(true, optimism, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
