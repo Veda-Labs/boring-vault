@@ -23,6 +23,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
     address public managerAddress = 0xDFC5b0d2eC65864Dc773F681E3D52c765dc083ac;
     address public accountantAddress = 0xEB440B36f61Bf62E0C54C622944545f159C3B790;
     address public rawDataDecoderAndSanitizer = 0xFDE49d6B3ae04acd8D89FD6f50B970DeB2B943D9;
+    address public etherFiDecoder = 0xFB6C4c23Dc59F380Ec62Cc6Ea40711d6D87aa88f;
 
     function setUp() external {}
 
@@ -44,8 +45,11 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](4);
 
         // ========================== LayerZero ==========================
+        setAddress(true, scroll, "rawDataDecoderAndSanitizer", etherFiDecoder);
+
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDE"), getAddress(sourceChain, "USDE"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
 
+        setAddress(true, scroll, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         // ========================== Verify ==========================
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
