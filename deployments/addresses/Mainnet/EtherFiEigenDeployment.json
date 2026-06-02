@@ -34,57 +34,73 @@
       "auditCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
       "auditUrl": "file:audit/sigma-prime-boring-vault-0.pdf",
       "verification": "full_match",
-      "verificationGap": "cbor",
-      "deploymentCommit": "3c768bd068af856b5de3def86b1940676847eb9d"
+      "verifiedCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
+      "verificationGap": "cbor"
     },
     "DecoderAndSanitizer": {
       "auditCommit": null,
       "auditUrl": null,
       "verification": "full_match",
-      "verificationGap": "cbor,evm:shanghai,source:execute_method_not_in_repo",
-      "deploymentCommit": "353e102866e7f1f014aad691bb63e4f994110429"
+      "verifiedCommit": "353e102866e7f1f014aad691bb63e4f994110429",
+      "verificationGap": "cbor,evm:shanghai,source:execute_method_not_in_repo"
     },
     "DelayedWithdraw": {
       "auditCommit": null,
       "auditUrl": null,
       "verification": "full_match",
-      "verificationGap": "cbor",
-      "deploymentCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730"
+      "verifiedCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730",
+      "verificationGap": "cbor"
     },
     "RolesAuthority": {
       "auditCommit": null,
       "auditUrl": null,
       "verification": "full_match",
-      "verificationGap": "cbor",
-      "deploymentCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730"
+      "verifiedCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730",
+      "verificationGap": "cbor"
     },
     "AccountantWithRateProviders": {
+      "deployedAt": "2024-09-27T04:44:35Z",
+      "creationTx": "0xea079dc2dc2d85b13523dfe8b5a94764bb8636266301d1558018c1d253248447",
+      "creationBlock": 20839649,
       "auditCommit": null,
       "auditUrl": null,
+      "scopeMatch": null,
       "verification": "full_match",
-      "verificationGap": "cbor",
-      "deploymentCommit": "fe0bf0afde965723bb540fdbb616dcc8564a31c7"
+      "verifiedCommit": "fe0bf0afde965723bb540fdbb616dcc8564a31c7",
+      "verificationGap": "cbor"
     },
     "Lens": {
+      "deployedAt": "2024-04-17T04:08:11Z",
+      "creationTx": "0xfe6e52cf43a2410bed6f9305fb70abb559104b267798e65353823df4aff95c35",
+      "creationBlock": 19672706,
       "auditCommit": null,
       "auditUrl": null,
+      "scopeMatch": null,
       "verification": "full_match",
-      "verificationGap": "cbor",
-      "deploymentCommit": "228b4b66174f66385646e90ca30c1f354423bdf3"
+      "verifiedCommit": "228b4b66174f66385646e90ca30c1f354423bdf3",
+      "verificationGap": "cbor"
     },
     "ManagerWithMerkleVerification": {
+      "deployedAt": "2024-09-27T04:44:35Z",
+      "creationTx": "0x80794cfadabc2edad1baea6a7b8ef7b7a0a9e687a566de311e19502d675d3d1a",
+      "creationBlock": 20839649,
       "auditCommit": null,
       "auditUrl": null,
+      "scopeMatch": null,
       "verification": "full_match",
-      "verificationGap": "cbor",
-      "deploymentCommit": "fe0bf0afde965723bb540fdbb616dcc8564a31c7"
+      "verifiedCommit": "fe0bf0afde965723bb540fdbb616dcc8564a31c7",
+      "verificationGap": "cbor"
     },
     "TellerWithMultiAssetSupport": {
+      "deployedAt": "2024-09-27T04:44:35Z",
+      "creationTx": "0xbbce78683c5c92b58b71a5a830442bb69b8ecd077ad226a20c3f38d630168c2d",
+      "creationBlock": 20839649,
       "auditCommit": null,
       "auditUrl": null,
+      "scopeMatch": null,
       "verification": "full_match",
-      "verificationGap": "cbor",
-      "deploymentCommit": "fe0bf0afde965723bb540fdbb616dcc8564a31c7"
+      "verifiedCommit": "fe0bf0afde965723bb540fdbb616dcc8564a31c7",
+      "verificationGap": "cbor"
     }
   },
   "contractAddresses": {
