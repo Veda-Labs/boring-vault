@@ -23,6 +23,7 @@ contract CreateSwellEtherFiLiquidEthMerkleRoot is Script, MerkleTreeHelper {
     address public managerAddress = 0xDEa7AF4a96A762c9d43A7eE02acecD20A3C6D8B6;
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
     address public rawDataDecoderAndSanitizer = 0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA; 
+    address public etherFiDecoder = 0xFB6C4c23Dc59F380Ec62Cc6Ea40711d6D87aa88f;
 
     function setUp() external {}
 
@@ -46,10 +47,11 @@ contract CreateSwellEtherFiLiquidEthMerkleRoot is Script, MerkleTreeHelper {
         _addNativeLeafs(leafs);
 
         // ========================== LayerZero ==========================
+        setAddress(true, swell, "rawDataDecoderAndSanitizer", etherFiDecoder);
         _addLayerZeroLeafs(
             leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "WEETH"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault")
         );
-
+        setAddress(true, swell, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         // ========================== Standard Bridge ==========================
         ERC20[] memory localTokens = new ERC20[](0);
         ERC20[] memory remoteTokens = new ERC20[](0);
@@ -81,10 +83,8 @@ contract CreateSwellEtherFiLiquidEthMerkleRoot is Script, MerkleTreeHelper {
         }
 
         // ========================== Merkl ==========================
-        ERC20[] memory tokensToClaim = new ERC20[](1);
-        tokensToClaim[0] = getERC20(sourceChain, "WSWELL");
         _addMerklLeafs(
-            leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"), tokensToClaim
+            leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address")
         );
 
         // ========================== Velodrome ==========================

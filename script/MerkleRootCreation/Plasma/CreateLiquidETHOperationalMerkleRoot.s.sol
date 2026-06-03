@@ -23,6 +23,7 @@ contract CreateLiquidETHOperationalMerkleRootScript is Script, MerkleTreeHelper 
     address public managerAddress = 0xf9f7969C357ce6dfd7973098Ea0D57173592bCCa;
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
     address public drone = 0x7c391d7856fcbC4Fd3a3C3CD8787c7eBF85934aF;
+    address public etherFiDecoder = 0xFB6C4c23Dc59F380Ec62Cc6Ea40711d6D87aa88f;
 
     function setUp() external {}
 

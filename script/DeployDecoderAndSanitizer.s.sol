@@ -165,10 +165,10 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     string[] addressKeys;
 
     function setUp() external {
-        privateKey = vm.envUint("BORING_DEVELOPER");
+        //uint256 privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("unichain");
-        setSourceChainName("unichain");
+        vm.createSelectFork("swell");
+        setSourceChainName("swell");
     }
 
     function run() external {
@@ -178,8 +178,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
 
         creationCode = type(EtherFiDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(
-            getAddress(sourceChain, "fluidFactory"),
-            getAddress(sourceChain, "uniV4PositionManager")
+            address(1),
+            address(1)
         );
         deployer.deployContract("EtherFi Decoder and Sanitizer V0.67", creationCode, constructorArgs, 0);
         

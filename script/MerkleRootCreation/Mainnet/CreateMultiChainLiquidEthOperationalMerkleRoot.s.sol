@@ -22,6 +22,7 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
     address public managerAddress = 0xf9f7969C357ce6dfd7973098Ea0D57173592bCCa;
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
     address public drone = 0x0a42b2F3a0D54157Dbd7CC346335A4F1909fc02c;
+    address public etherFiDecoder = 0xFB6C4c23Dc59F380Ec62Cc6Ea40711d6D87aa88f;
 
     address public itbReserveProtocolPositionManager = 0x778aC5d0EE062502fADaa2d300a51dE0869f7995;
     address public itbPositionManager2 = 0xA40aFb15275A94F64aF37C0cEaAaA45Cb568A361;
@@ -178,6 +179,7 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
         }
 
       // ========================== Plasma Bridging ==========================
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", etherFiDecoder);
         // USDT
         {
             _addLayerZeroLeafs(
@@ -217,6 +219,7 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
             );
         }
 
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
     // ========================== Standard Bridge to Optimism ==========================
     {
 
@@ -233,8 +236,6 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
                 remoteTokens
             );
     }
-
-
 
         // ========================== Cap =======================================
         {
