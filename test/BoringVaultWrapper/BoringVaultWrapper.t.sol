@@ -133,7 +133,7 @@ contract BoringVaultWrapperTest is Test {
         accountant.setRateProviderData(baseAsset, true, address(0));
 
         // Initialise fee configuration (recipient + rates).
-        wrapper.setFeeConfig(feeRecipient, MGMT_FEE, PERF_FEE);
+        wrapper.setFeeConfig(feeRecipient, feeRecipient, MGMT_FEE, PERF_FEE);
     }
 
     // =========================================================================
@@ -456,7 +456,7 @@ contract BoringVaultWrapperTest is Test {
         uint256 feeSharesBefore = wrapper.balanceOf(feeRecipient);
 
         // Changing the fee should accrue at the OLD 2 % rate first
-        wrapper.setFeeConfig(feeRecipient, 100, PERF_FEE); // change management fee to 1 %
+        wrapper.setFeeConfig(feeRecipient, feeRecipient, 100, PERF_FEE); // change management fee to 1 %
 
         uint256 feeSharesAccrued = wrapper.balanceOf(feeRecipient) - feeSharesBefore;
 
@@ -482,7 +482,7 @@ contract BoringVaultWrapperTest is Test {
 
         uint256 feeSharesBefore = wrapper.balanceOf(feeRecipient);
 
-        wrapper.setFeeConfig(feeRecipient, MGMT_FEE, 500); // change performance fee to 5 %
+        wrapper.setFeeConfig(feeRecipient, feeRecipient, MGMT_FEE, 500); // change performance fee to 5 %
 
         uint256 feeSharesAccrued = wrapper.balanceOf(feeRecipient) - feeSharesBefore;
 

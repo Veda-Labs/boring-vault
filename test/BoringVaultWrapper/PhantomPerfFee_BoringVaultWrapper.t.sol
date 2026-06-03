@@ -150,7 +150,7 @@ contract PhantomPerfFee_BoringVaultWrapper_Test is Test {
      * Under the new gross-rate design, step 4 is a no-op because `getRate()` did not move.
      */
     function test_PhantomPerfFee_PathNoLongerExists() public {
-        wrapper.setFeeConfig(feeRecipient, 0, WRAPPER_PERF_FEE);
+        wrapper.setFeeConfig(feeRecipient, feeRecipient, 0, WRAPPER_PERF_FEE);
 
         accountant.updatePlatformFee(BV_PLATFORM_FEE);
         accountant.updatePerformanceFee(0);
@@ -219,7 +219,7 @@ contract PhantomPerfFee_BoringVaultWrapper_Test is Test {
     ///      behaves identically whether `claimFees` and `updateExchangeRate` are
     ///      atomic or arbitrarily spaced. Both call orderings are exercised here.
     function test_OperatorOrderingIsIrrelevantForFeeCorrectness() public {
-        wrapper.setFeeConfig(feeRecipient, 0, WRAPPER_PERF_FEE);
+        wrapper.setFeeConfig(feeRecipient, feeRecipient, 0, WRAPPER_PERF_FEE);
         accountant.updatePlatformFee(BV_PLATFORM_FEE);
         accountant.updatePerformanceFee(0);
 

@@ -83,7 +83,7 @@ contract ShareLockAndQueueTest is Test {
 
         teller.updateAssetData(baseAsset, true, true, 0);
         accountant.setRateProviderData(baseAsset, true, address(0));
-        wrapper.setFeeConfig(feeRecipient, 0, 0);
+        wrapper.setFeeConfig(feeRecipient, feeRecipient, 0, 0);
 
         // The wrapper sources its lock period from the BV's live beforeTransfer hook,
         // so wire the teller as the hook and set the 1h period there.
@@ -230,6 +230,42 @@ contract ShareLockAndQueueTest is Test {
         skip(LOCK + 1);
         vm.prank(bob);
         assertTrue(wrapper.transferFrom(alice, bob, wShares), "transferFrom succeeds after lock");
+    }
+
+    // ── Exit caps reflect the lock ─────────────────────────────────────────────
+
+    /// @notice While locked, maxWithdraw / maxRedeem return 0 so integrators don't
+    ///         quote a value the contract will then reject. After the lock lifts they
+    ///         return the full entitlement again.
+    function testMaxExitCapsZeroDuringLock() public {
+        _giveBVShares(alice, 100e18);
+        uint256 wShares = _wrapBV(alice, 100e18);
+
+        assertEq(wrapper.maxRedeem(alice), 0, "maxRedeem 0 during lock");
+        assertEq(wrapper.maxWithdraw(alice), 0, "maxWithdraw 0 during lock");
+
+        skip(LOCK + 1);
+
+        assertEq(wrapper.maxRedeem(alice), wShares, "maxRedeem restored after lock");
+        assertEq(wrapper.maxWithdraw(alice), wrapper.convertToAssets(wShares), "maxWithdraw restored after lock");
+    }
+
+    /// @notice The lock-zeroed caps stay consistent with the paths they describe:
+    ///         redeem reverts while maxRedeem reports 0, and succeeds once it reports
+    ///         a non-zero value.
+    function testMaxRedeemConsistentWithRedeem() public {
+        _giveBVShares(alice, 100e18);
+        uint256 wShares = _wrapBV(alice, 100e18);
+
+        assertEq(wrapper.maxRedeem(alice), 0, "cap signals no redeemable shares");
+        vm.prank(alice);
+        vm.expectRevert(abi.encodeWithSelector(BoringVaultWrapper.BoringVaultWrapper__SharesLocked.selector, alice));
+        wrapper.redeem(wShares, alice, alice);
+
+        skip(LOCK + 1);
+        assertGt(wrapper.maxRedeem(alice), 0, "cap signals redeemable shares");
+        vm.prank(alice);
+        wrapper.redeem(wShares, alice, alice);
     }
 
     // ── Lock extends, never shortens ───────────────────────────────────────────

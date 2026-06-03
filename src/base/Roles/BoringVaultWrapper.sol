@@ -85,7 +85,9 @@ interface IBoringQueueVault {
  *      pay both layers.
  *
  * @dev White-labeling: deploy one instance per partner with independent
- *      name / symbol / feeRecipient / fee rates over the same BoringVault.
+ *      name / symbol / fee recipients / fee rates over the same BoringVault.
+ *      The management fee and performance fee are paid to independently
+ *      configured recipients (managementFeeRecipient / performanceFeeRecipient).
  */
 contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     using SafeERC20 for IERC20;
@@ -130,7 +132,11 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     ///         so wrapper users cannot jump the queue via bulkWithdraw.
     address public queue;
 
-    address public feeRecipient;
+    /// @notice Recipient of accrued management-fee shares.
+    address public managementFeeRecipient;
+
+    /// @notice Recipient of accrued performance-fee shares.
+    address public performanceFeeRecipient;
 
     /// @notice Annual management fee in basis points (e.g. 200 = 2%).
     uint16 public managementFee;
@@ -145,12 +151,22 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     ///         same unit as accountant.getRate().
     uint96 public performanceHighWaterMark;
 
-    /// @notice Fee shares accrued but not minted, held as a dilution debt until
-    ///         admin calls withdrawFees(to). Populated when feeRecipient is
-    ///         unset or currently has denyTo on the Teller. Counted as supply
-    ///         by the fee/preview math so user-facing conversions stay
-    ///         consistent with the eventual mint.
-    uint256 public pendingEscrowedFeeShares;
+    /// @notice Management-fee shares accrued but not minted, held as a dilution debt
+    ///         until admin calls withdrawManagementFees(to). Populated when the
+    ///         management recipient is unset or currently has denyTo on the Teller.
+    uint256 public pendingEscrowedManagementFeeShares;
+
+    /// @notice Performance-fee shares accrued but not minted, held as a dilution debt
+    ///         until admin calls withdrawPerformanceFees(to). Populated when the
+    ///         performance recipient is unset or currently has denyTo on the Teller.
+    ///
+    /// @dev    Management and performance escrow are tracked separately so each can be
+    ///         swept to its own recipient: a single commingled pool could only be
+    ///         withdrawn to one address, mis-routing one party's fees to the other.
+    ///         The combined total (counted as supply by the fee/preview math so
+    ///         user-facing conversions stay consistent with the eventual mint) is
+    ///         exposed via pendingEscrowedFeeShares().
+    uint256 public pendingEscrowedPerformanceFeeShares;
 
     /// @notice Replay protection for wrapper-domain compliance signatures.
     mapping(bytes32 messageHash => bool used) public usedComplianceSignatures;
@@ -193,8 +209,10 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
 
     event FeesAccrued(uint256 managementFeeShares, uint256 performanceFeeShares);
     event FeeConfigSet(
-        address indexed oldRecipient,
-        address indexed newRecipient,
+        address indexed oldManagementFeeRecipient,
+        address indexed newManagementFeeRecipient,
+        address oldPerformanceFeeRecipient,
+        address newPerformanceFeeRecipient,
         uint16 oldManagementFee,
         uint16 newManagementFee,
         uint16 oldPerformanceFee,
@@ -231,7 +249,9 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     event FeesEscrowed(uint256 managementFeeShares, uint256 performanceFeeShares);
 
     /// @notice Emitted when admin mints accumulated escrowed fees to `to`.
-    event FeesWithdrawn(address indexed to, uint256 shares);
+    ///         `isManagementFee` distinguishes the management escrow bucket from the
+    ///         performance escrow bucket.
+    event FeesWithdrawn(address indexed to, uint256 shares, bool isManagementFee);
 
     // =========================================================================
     //                             CONSTRUCTOR
@@ -265,13 +285,30 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     //                              ADMIN
     // =========================================================================
 
-    function setFeeConfig(address _feeRecipient, uint16 _managementFee, uint16 _performanceFee) external requiresAuth {
-        if (_feeRecipient == address(0)) revert BoringVaultWrapper__ZeroAddress();
+    function setFeeConfig(
+        address _managementFeeRecipient,
+        address _performanceFeeRecipient,
+        uint16 _managementFee,
+        uint16 _performanceFee
+    ) external requiresAuth {
+        if (_managementFeeRecipient == address(0) || _performanceFeeRecipient == address(0)) {
+            revert BoringVaultWrapper__ZeroAddress();
+        }
         if (_managementFee > MAX_MANAGEMENT_FEE) revert BoringVaultWrapper__FeeTooHigh();
         if (_performanceFee > MAX_PERFORMANCE_FEE) revert BoringVaultWrapper__FeeTooHigh();
         _accrueFees();
-        emit FeeConfigSet(feeRecipient, _feeRecipient, managementFee, _managementFee, performanceFee, _performanceFee);
-        feeRecipient = _feeRecipient;
+        emit FeeConfigSet(
+            managementFeeRecipient,
+            _managementFeeRecipient,
+            performanceFeeRecipient,
+            _performanceFeeRecipient,
+            managementFee,
+            _managementFee,
+            performanceFee,
+            _performanceFee
+        );
+        managementFeeRecipient = _managementFeeRecipient;
+        performanceFeeRecipient = _performanceFeeRecipient;
         managementFee = _managementFee;
         performanceFee = _performanceFee;
     }
@@ -382,6 +419,24 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     }
 
     // =========================================================================
+    //                       ERC4626 - exit caps
+    // =========================================================================
+    // The share lock is all-or-nothing per holder: while shareUnlockTime[owner]
+    // is in the future, every exit path reverts. Reflect that in the ERC4626
+    // caps so integrators that quote max*() before exiting don't get a value the
+    // contract will then reject.
+
+    function maxWithdraw(address owner) public view override returns (uint256) {
+        if (shareUnlockTime[owner] > block.timestamp) return 0;
+        return super.maxWithdraw(owner);
+    }
+
+    function maxRedeem(address owner) public view override returns (uint256) {
+        if (shareUnlockTime[owner] > block.timestamp) return 0;
+        return super.maxRedeem(owner);
+    }
+
+    // =========================================================================
     //                ERC4626 - share/asset conversion overrides
     // =========================================================================
     // Use simulated post-accrual state so off-chain previews match on-chain
@@ -436,7 +491,7 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
         _accrueFees();
 
         uint256 bvBefore = boringVault.balanceOf(address(this));
-        uint256 supplyBefore = totalSupply() + pendingEscrowedFeeShares;
+        uint256 supplyBefore = totalSupply() + pendingEscrowedFeeShares();
 
         IERC20 asset_ = IERC20(address(rawAsset));
         asset_.safeTransferFrom(_msgSender(), address(this), rawAmount);
@@ -482,7 +537,7 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
             _spendAllowance(owner, _msgSender(), wrapperShares);
         }
 
-        uint256 supply = totalSupply() + pendingEscrowedFeeShares;
+        uint256 supply = totalSupply() + pendingEscrowedFeeShares();
         uint256 totalBV = boringVault.balanceOf(address(this));
 
         uint256 bvToRedeem = wrapperShares.mulDiv(totalBV + 1, supply + 10 ** _decimalsOffset(), Math.Rounding.Floor);
@@ -502,7 +557,7 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     function _pendingFeeShares() internal view returns (uint256 mgmtShares, uint256 perfShares, uint96 newHWM) {
         // Effective supply includes escrowed fee shares so they share dilution
         // with real holders.
-        uint256 supply = totalSupply() + pendingEscrowedFeeShares;
+        uint256 supply = totalSupply() + pendingEscrowedFeeShares();
         if (supply == 0) return (0, 0, 0);
 
         uint16 mgmtFee = managementFee;
@@ -541,7 +596,7 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     function _accrueFees() internal {
         uint64 now_ = uint64(block.timestamp);
 
-        if (totalSupply() + pendingEscrowedFeeShares == 0) {
+        if (totalSupply() + pendingEscrowedFeeShares() == 0) {
             lastFeeAccrual = now_;
             return;
         }
@@ -555,27 +610,71 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
 
         lastFeeAccrual = now_;
 
-        uint256 total = mgmtShares + perfShares;
-        if (total == 0) return;
+        if (mgmtShares + perfShares == 0) return;
 
-        address recipient = feeRecipient;
+        // Management and performance portions are routed to their own recipients
+        // and checked independently. For either portion, if its recipient is unset
+        // or currently denyTo, that portion accrues into its own escrow bucket as a
+        // dilution debt (admin sweeps via withdrawManagementFees / withdrawPerformanceFees);
+        // otherwise it is minted directly. Escrowed shares are still counted in
+        // user-facing share math.
+        uint256 mintedMgmt;
+        uint256 mintedPerf;
+        uint256 escrowedMgmt;
+        uint256 escrowedPerf;
 
-        // No recipient set, or recipient currently denyTo: accrue into escrow as
-        // a dilution debt; admin sweeps via withdrawFees(to). Escrowed shares are
-        // still counted in user-facing share math.
-        if (recipient == address(0) || _isFeeRecipientBlocked(recipient)) {
-            pendingEscrowedFeeShares += total;
-            emit FeesEscrowed(mgmtShares, perfShares);
-        } else {
-            _mint(recipient, total);
-            emit FeesAccrued(mgmtShares, perfShares);
+        if (mgmtShares > 0) {
+            address recipient = managementFeeRecipient;
+            if (recipient == address(0) || _isFeeRecipientBlocked(recipient)) {
+                escrowedMgmt = mgmtShares;
+            } else {
+                _mint(recipient, mgmtShares);
+                mintedMgmt = mgmtShares;
+            }
+        }
+
+        if (perfShares > 0) {
+            address recipient = performanceFeeRecipient;
+            if (recipient == address(0) || _isFeeRecipientBlocked(recipient)) {
+                escrowedPerf = perfShares;
+            } else {
+                _mint(recipient, perfShares);
+                mintedPerf = perfShares;
+            }
+        }
+
+        if (escrowedMgmt > 0) pendingEscrowedManagementFeeShares += escrowedMgmt;
+        if (escrowedPerf > 0) pendingEscrowedPerformanceFeeShares += escrowedPerf;
+        if (escrowedMgmt + escrowedPerf > 0) {
+            emit FeesEscrowed(escrowedMgmt, escrowedPerf);
+        }
+        if (mintedMgmt + mintedPerf > 0) {
+            emit FeesAccrued(mintedMgmt, mintedPerf);
         }
     }
 
-    /// @notice Mint accumulated escrowed fee shares to `to` and reset the counter.
-    ///         Refuses denyTo destinations so admin cannot route fees around the
-    ///         compliance policy.
-    function withdrawFees(address to) external requiresAuth {
+    /// @notice Total escrowed fee shares across both buckets. Counted as supply by
+    ///         the fee/preview math so user-facing conversions stay consistent with
+    ///         the eventual mint.
+    function pendingEscrowedFeeShares() public view returns (uint256) {
+        return pendingEscrowedManagementFeeShares + pendingEscrowedPerformanceFeeShares;
+    }
+
+    /// @notice Mint accumulated escrowed management-fee shares to `to` and reset that
+    ///         bucket. Routed independently from the performance bucket so each party's
+    ///         escrowed fees reach the right destination. Refuses denyTo destinations so
+    ///         admin cannot route fees around the compliance policy.
+    function withdrawManagementFees(address to) external requiresAuth {
+        _withdrawEscrowedFees(to, true);
+    }
+
+    /// @notice Mint accumulated escrowed performance-fee shares to `to` and reset that
+    ///         bucket. See withdrawManagementFees for the routing rationale.
+    function withdrawPerformanceFees(address to) external requiresAuth {
+        _withdrawEscrowedFees(to, false);
+    }
+
+    function _withdrawEscrowedFees(address to, bool management) internal {
         if (to == address(0)) revert BoringVaultWrapper__ZeroAddress();
 
         (, bool toDenyTo,,) = teller.beforeTransferData(to);
@@ -583,13 +682,17 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
 
         _accrueFees();
 
-        uint256 shares = pendingEscrowedFeeShares;
+        uint256 shares = management ? pendingEscrowedManagementFeeShares : pendingEscrowedPerformanceFeeShares;
         if (shares == 0) return;
 
         // Effective supply is unchanged: real +shares, escrowed -shares.
-        pendingEscrowedFeeShares = 0;
+        if (management) {
+            pendingEscrowedManagementFeeShares = 0;
+        } else {
+            pendingEscrowedPerformanceFeeShares = 0;
+        }
         _mint(to, shares);
-        emit FeesWithdrawn(to, shares);
+        emit FeesWithdrawn(to, shares, management);
     }
 
     function _isFeeRecipientBlocked(address recipient) internal view returns (bool) {
@@ -599,7 +702,7 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
 
     function _simulateAccruedState() internal view returns (uint256 supply, uint256 totalAss) {
         // Effective supply = real + escrowed + still-pending for this block.
-        supply = totalSupply() + pendingEscrowedFeeShares;
+        supply = totalSupply() + pendingEscrowedFeeShares();
         totalAss = totalAssets();
 
         if (supply == 0) return (supply, totalAss);

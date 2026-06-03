@@ -249,7 +249,7 @@ contract RedTeam_BoringVaultWrapper_Test is Test {
     // Wrapper still functions (mgmt fee continues, deposits/redeems work) so users
     // are not locked in during a pause.
     function test_PerformanceFeeAccruesEvenWhenAccountantPaused() public {
-        wrapper.setFeeConfig(feeRecipient, 200, 1000);
+        wrapper.setFeeConfig(feeRecipient, feeRecipient, 200, 1000);
 
         deal(address(baseAsset), alice, 100e18);
         vm.startPrank(alice);

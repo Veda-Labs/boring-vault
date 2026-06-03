@@ -129,7 +129,7 @@ contract FeeHWM_BoringVaultWrapper_Test is Test {
      *                getRateSafe() call when perfFee == 0.
      */
     function test_bug1_HWMFrozenDuringZeroFeeWindow() public {
-        wrapper.setFeeConfig(feeRecipient, 0, PERF_FEE);
+        wrapper.setFeeConfig(feeRecipient, feeRecipient, 0, PERF_FEE);
         _deposit(alice, 100e18);
 
         // Rate 1.0 → 1.1: legitimate accrual, HWM advances to 1.1.
@@ -138,7 +138,7 @@ contract FeeHWM_BoringVaultWrapper_Test is Test {
         assertEq(wrapper.performanceHighWaterMark(), 1.1e18, "pre: HWM = 1.1");
 
         // Admin disables the performance fee.
-        wrapper.setFeeConfig(feeRecipient, 0, 0);
+        wrapper.setFeeConfig(feeRecipient, feeRecipient, 0, 0);
         assertEq(wrapper.performanceFee(), 0, "pre: perfFee = 0");
 
         // Rate 1.1 → 1.2 during the zero-fee window.
@@ -164,7 +164,7 @@ contract FeeHWM_BoringVaultWrapper_Test is Test {
      *                accumulated while performanceFee was 0.
      */
     function test_bug1_RetroactiveFeeOnReEnable() public {
-        wrapper.setFeeConfig(feeRecipient, 0, PERF_FEE);
+        wrapper.setFeeConfig(feeRecipient, feeRecipient, 0, PERF_FEE);
         _deposit(alice, 100e18);
 
         // Rate 1.0 → 1.1: legitimate accrual, some fee shares minted.
@@ -175,7 +175,7 @@ contract FeeHWM_BoringVaultWrapper_Test is Test {
 
         // Admin disables fee. _accrueFees() inside setFeeConfig runs with the
         // OLD perfFee = 10 % but rate == HWM so no extra shares are minted.
-        wrapper.setFeeConfig(feeRecipient, 0, 0);
+        wrapper.setFeeConfig(feeRecipient, feeRecipient, 0, 0);
         assertEq(wrapper.performanceHighWaterMark(), 1.1e18, "pre: HWM = 1.1");
 
         // Rate 1.1 → 1.2 during zero-fee window. No interactions.
@@ -186,7 +186,7 @@ contract FeeHWM_BoringVaultWrapper_Test is Test {
         //         performanceFee = 10 % with HWM still at 1.1.
         //   FIX:  _accrueFees() advances HWM to 1.2 unconditionally. After this call
         //         performanceFee = 10 % and HWM = 1.2.
-        wrapper.setFeeConfig(feeRecipient, 0, PERF_FEE);
+        wrapper.setFeeConfig(feeRecipient, feeRecipient, 0, PERF_FEE);
 
         // Rate hasn't moved since re-enable: the next accrueFees() must be a no-op.
         uint256 feesBefore = wrapper.balanceOf(feeRecipient);
@@ -214,7 +214,7 @@ contract FeeHWM_BoringVaultWrapper_Test is Test {
      *             →  1.089 rise above new HWM → fees resume
      */
     function test_bug2_ResetHighWaterMark() public {
-        wrapper.setFeeConfig(feeRecipient, 0, PERF_FEE);
+        wrapper.setFeeConfig(feeRecipient, feeRecipient, 0, PERF_FEE);
         _deposit(alice, 100e18);
 
         // ── Rise: fees charged, HWM = 1.1 ────────────────────────────────────
@@ -251,7 +251,7 @@ contract FeeHWM_BoringVaultWrapper_Test is Test {
      * @dev resetHighWaterMark() must be auth-gated.
      */
     function test_bug2_ResetRequiresAuth() public {
-        wrapper.setFeeConfig(feeRecipient, 0, PERF_FEE);
+        wrapper.setFeeConfig(feeRecipient, feeRecipient, 0, PERF_FEE);
         _deposit(alice, 100e18);
 
         vm.prank(unauthorized);
@@ -265,7 +265,7 @@ contract FeeHWM_BoringVaultWrapper_Test is Test {
      *      calling reset in this regime would silently skip fee collection.
      */
     function test_bug2_ResetReverts_WhenRateAtOrAboveHWM() public {
-        wrapper.setFeeConfig(feeRecipient, 0, PERF_FEE);
+        wrapper.setFeeConfig(feeRecipient, feeRecipient, 0, PERF_FEE);
         _deposit(alice, 100e18);
 
         _setRate(1.1e18);
@@ -284,7 +284,7 @@ contract FeeHWM_BoringVaultWrapper_Test is Test {
      *      collecting performance fees on the immediate recovery.
      */
     function test_bug2_ResetReverts_DrawdownTooSmall() public {
-        wrapper.setFeeConfig(feeRecipient, 0, PERF_FEE);
+        wrapper.setFeeConfig(feeRecipient, feeRecipient, 0, PERF_FEE);
         _deposit(alice, 100e18);
 
         _setRate(1.1e18);
