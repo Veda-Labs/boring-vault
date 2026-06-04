@@ -45,7 +45,7 @@
     "accountantDeploymentName": "liquidMonadETH Accountant V0.0",
     "accountantParameters": {
       "kind": {
-        "variableRate": false,
+        "variableRate": true,
         "fixedRate": false,
         "yieldStreaming": false
       },
