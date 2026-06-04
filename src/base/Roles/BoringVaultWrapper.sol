@@ -125,8 +125,6 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     //                               STATE
     // =========================================================================
 
-    TellerWithMultiAssetSupport public teller;
-
     /// @notice Optional withdrawal queue associated with the BoringVault. When set
     ///         (non-zero), the privileged synchronous redeemAsset() path is disabled
     ///         so wrapper users cannot jump the queue via bulkWithdraw.
@@ -183,7 +181,6 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     error BoringVaultWrapper__ZeroAddress();
     error BoringVaultWrapper__FeeTooHigh();
     error BoringVaultWrapper__ZeroBVSharesReceived();
-    error BoringVaultWrapper__BadTeller();
     error BoringVaultWrapper__BadAccountant();
     error BoringVaultWrapper__TransferDenied(address from, address to, address operator);
     error BoringVaultWrapper__TransferNotAllowed();
@@ -197,6 +194,11 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     error BoringVaultWrapper__BadQueue();
     /// @dev redeemAsset() while a withdrawal queue is configured. Use redeem/withdraw.
     error BoringVaultWrapper__RedeemAssetDisabledWithQueue();
+    /// @dev setQueue() called by an address that is not authorized by the underlying
+    ///      BoringVault's own authority. Queue governance belongs to the BV operator,
+    ///      not the partner wrapper admin, so that no partner can unilaterally bypass
+    ///      a BoringQueue by simply omitting the setQueue() call.
+    error BoringVaultWrapper__NotBVAuthorized();
     /// @dev deposit/mint/depositAsset with receiver != caller. The share lock is a
     ///      per-holder window keyed on the receiver; allowing a third party to mint
     ///      to an arbitrary receiver would let anyone refresh that receiver's lock
@@ -218,7 +220,6 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
         uint16 oldPerformanceFee,
         uint16 newPerformanceFee
     );
-    event TellerSet(address oldTeller, address newTeller);
     event QueueSet(address oldQueue, address newQueue);
     event ShareLockSet(address indexed receiver, uint64 unlockTime);
     event HighWaterMarkUpdated(uint96 oldHighWaterMark, uint96 newHighWaterMark);
@@ -257,25 +258,17 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     //                             CONSTRUCTOR
     // =========================================================================
 
-    constructor(
-        address _owner,
-        address _boringVault,
-        address _accountant,
-        address _teller,
-        string memory _name,
-        string memory _symbol
-    ) ERC4626(IERC20(_boringVault)) ERC20(_name, _symbol) Auth(_owner, Authority(address(0))) {
-        if (address(TellerWithMultiAssetSupport(_teller).vault()) != address(_boringVault)) {
-            revert BoringVaultWrapper__BadTeller();
-        }
+    constructor(address _owner, address _boringVault, address _accountant, string memory _name, string memory _symbol)
+        ERC4626(IERC20(_boringVault))
+        ERC20(_name, _symbol)
+        Auth(_owner, Authority(address(0)))
+    {
         if (address(AccountantWithRateProviders(_accountant).vault()) != address(_boringVault)) {
             revert BoringVaultWrapper__BadAccountant();
         }
 
         boringVault = BoringVault(payable(_boringVault));
         accountant = AccountantWithRateProviders(_accountant);
-        teller = TellerWithMultiAssetSupport(_teller);
-        emit TellerSet(address(0), _teller);
 
         // Seed HWM at the current gross rate.
         performanceHighWaterMark = SafeCast.toUint96(AccountantWithRateProviders(_accountant).getRateSafe());
@@ -313,19 +306,19 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
         performanceFee = _performanceFee;
     }
 
-    function setTeller(address newTeller) external requiresAuth {
-        if (address(TellerWithMultiAssetSupport(newTeller).vault()) != address(boringVault)) {
-            revert BoringVaultWrapper__BadTeller();
-        }
-        emit TellerSet(address(teller), newTeller);
-        teller = TellerWithMultiAssetSupport(newTeller);
-    }
-
     /// @notice Associate (or clear) a withdrawal queue. While a non-zero queue is
     ///         set, redeemAsset() reverts so wrapper users cannot bypass the queue
     ///         via the privileged synchronous bulkWithdraw path. Pass address(0) to
     ///         re-enable redeemAsset (only for vaults that have no queue).
-    function setQueue(address newQueue) external requiresAuth {
+    ///
+    /// @dev Authorization is delegated to the UNDERLYING BORINGVAULT'S owner. Queue
+    ///      discipline is a BV-level governance concern: a partner wrapper admin must
+    ///      not be able to bypass an active BoringQueue by simply never calling this
+    ///      function, or by calling setQueue(0) to clear it. Only the BV owner may
+    ///      configure the queue association — no capability registration or selector
+    ///      check against the BV's authority is required.
+    function setQueue(address newQueue) external {
+        _requiresBVAuth();
         if (newQueue != address(0) && IBoringQueueVault(newQueue).boringVault() != address(boringVault)) {
             revert BoringVaultWrapper__BadQueue();
         }
@@ -404,36 +397,36 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
         return assets;
     }
 
-    function withdraw(uint256 assets, address receiver, address owner) public override nonReentrant returns (uint256) {
-        _enforceTransferPolicy(owner, receiver, _msgSender());
-        _enforceShareLock(owner);
+    function withdraw(uint256 assets, address receiver, address shareOwner) public override nonReentrant returns (uint256) {
+        _enforceTransferPolicy(shareOwner, receiver, _msgSender());
+        _enforceShareLock(shareOwner);
         _accrueFees();
-        return super.withdraw(assets, receiver, owner);
+        return super.withdraw(assets, receiver, shareOwner);
     }
 
-    function redeem(uint256 shares, address receiver, address owner) public override nonReentrant returns (uint256) {
-        _enforceTransferPolicy(owner, receiver, _msgSender());
-        _enforceShareLock(owner);
+    function redeem(uint256 shares, address receiver, address shareOwner) public override nonReentrant returns (uint256) {
+        _enforceTransferPolicy(shareOwner, receiver, _msgSender());
+        _enforceShareLock(shareOwner);
         _accrueFees();
-        return super.redeem(shares, receiver, owner);
+        return super.redeem(shares, receiver, shareOwner);
     }
 
     // =========================================================================
     //                       ERC4626 - exit caps
     // =========================================================================
-    // The share lock is all-or-nothing per holder: while shareUnlockTime[owner]
+    // The share lock is all-or-nothing per holder: while shareUnlockTime[shareOwner]
     // is in the future, every exit path reverts. Reflect that in the ERC4626
     // caps so integrators that quote max*() before exiting don't get a value the
     // contract will then reject.
 
-    function maxWithdraw(address owner) public view override returns (uint256) {
-        if (shareUnlockTime[owner] > block.timestamp) return 0;
-        return super.maxWithdraw(owner);
+    function maxWithdraw(address shareOwner) public view override returns (uint256) {
+        if (shareUnlockTime[shareOwner] > block.timestamp) return 0;
+        return super.maxWithdraw(shareOwner);
     }
 
-    function maxRedeem(address owner) public view override returns (uint256) {
-        if (shareUnlockTime[owner] > block.timestamp) return 0;
-        return super.maxRedeem(owner);
+    function maxRedeem(address shareOwner) public view override returns (uint256) {
+        if (shareUnlockTime[shareOwner] > block.timestamp) return 0;
+        return super.maxRedeem(shareOwner);
     }
 
     // =========================================================================
@@ -483,7 +476,7 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     ) external nonReentrant returns (uint256 wrapperShares) {
         if (receiver != _msgSender()) revert BoringVaultWrapper__ReceiverMustBeCaller();
 
-        TellerWithMultiAssetSupport _teller = teller;
+        TellerWithMultiAssetSupport _teller = _getTeller();
 
         _enforceTransferPolicy(_msgSender(), receiver, _msgSender());
         _verifyComplianceSignature(_msgSender(), receiver, address(rawAsset), rawAmount, compliance);
@@ -522,19 +515,19 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
         uint256 wrapperShares,
         uint256 minAssetOut,
         address receiver,
-        address owner
+        address shareOwner
     ) external nonReentrant returns (uint256 assetOut) {
         if (queue != address(0)) revert BoringVaultWrapper__RedeemAssetDisabledWithQueue();
 
-        TellerWithMultiAssetSupport _teller = teller;
+        TellerWithMultiAssetSupport _teller = _getTeller();
 
-        _enforceTransferPolicy(owner, receiver, _msgSender());
-        _enforceShareLock(owner);
+        _enforceTransferPolicy(shareOwner, receiver, _msgSender());
+        _enforceShareLock(shareOwner);
 
         _accrueFees();
 
-        if (_msgSender() != owner) {
-            _spendAllowance(owner, _msgSender(), wrapperShares);
+        if (_msgSender() != shareOwner) {
+            _spendAllowance(shareOwner, _msgSender(), wrapperShares);
         }
 
         uint256 supply = totalSupply() + pendingEscrowedFeeShares();
@@ -542,12 +535,12 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
 
         uint256 bvToRedeem = wrapperShares.mulDiv(totalBV + 1, supply + 10 ** _decimalsOffset(), Math.Rounding.Floor);
 
-        _burn(owner, wrapperShares);
+        _burn(shareOwner, wrapperShares);
 
         assetOut = _teller.bulkWithdraw(asset, bvToRedeem, minAssetOut, receiver);
 
-        emit Withdraw(_msgSender(), receiver, owner, bvToRedeem, wrapperShares);
-        emit AssetRedeem(_msgSender(), receiver, address(asset), owner, wrapperShares, bvToRedeem, assetOut);
+        emit Withdraw(_msgSender(), receiver, shareOwner, bvToRedeem, wrapperShares);
+        emit AssetRedeem(_msgSender(), receiver, address(asset), shareOwner, wrapperShares, bvToRedeem, assetOut);
     }
 
     // =========================================================================
@@ -677,8 +670,11 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     function _withdrawEscrowedFees(address to, bool management) internal {
         if (to == address(0)) revert BoringVaultWrapper__ZeroAddress();
 
-        (, bool toDenyTo,,) = teller.beforeTransferData(to);
-        if (toDenyTo) revert BoringVaultWrapper__TransferDenied(address(this), to, _msgSender());
+        TellerWithMultiAssetSupport _teller = _getTeller();
+        if (address(_teller) != address(0)) {
+            (, bool toDenyTo,,) = _teller.beforeTransferData(to);
+            if (toDenyTo) revert BoringVaultWrapper__TransferDenied(address(this), to, _msgSender());
+        }
 
         _accrueFees();
 
@@ -696,7 +692,9 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     }
 
     function _isFeeRecipientBlocked(address recipient) internal view returns (bool) {
-        (, bool denyTo,,) = teller.beforeTransferData(recipient);
+        TellerWithMultiAssetSupport _teller = _getTeller();
+        if (address(_teller) == address(0)) return false;
+        (, bool denyTo,,) = _teller.beforeTransferData(recipient);
         return denyTo;
     }
 
@@ -716,7 +714,9 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     // =========================================================================
 
     function _enforceTransferPolicy(address from, address to, address operator) internal view {
-        TellerWithMultiAssetSupport _teller = teller;
+        TellerWithMultiAssetSupport _teller = _getTeller();
+        // No hook wired → no teller policy to enforce. Allow the transfer.
+        if (address(_teller) == address(0)) return;
 
         (bool fromDenyFrom,,,) = _teller.beforeTransferData(from);
         (, bool toDenyTo,,) = _teller.beforeTransferData(to);
@@ -762,13 +762,15 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
         }
     }
 
+    /// @notice Returns the teller by reading the BoringVault's live beforeTransfer hook.
+    ///         The hook is always the teller.
+    function _getTeller() private view returns (TellerWithMultiAssetSupport) {
+        return TellerWithMultiAssetSupport(address(boringVault.hook()));
+    }
+
     /// @notice The share-lock period actually enforced by the underlying BoringVault,
-    ///         read from its live beforeTransfer hook. Binding the wrapper's lock to
-    ///         the BV's authoritative enforcer means the two can never be configured
-    ///         to different periods, regardless of the wrapper's `teller` reference.
-    ///         Returns 0 when no hook is wired or the hook does not expose
-    ///         shareLockPeriod() (legacy / non-teller hooks) — i.e. exactly when the
-    ///         BV itself enforces no lock.
+    ///         read from its live beforeTransfer hook. Returns 0 when no hook is wired
+    ///         or the hook does not expose shareLockPeriod() (legacy / non-teller hooks).
     function _bvShareLockPeriod() internal view returns (uint64) {
         address bvHook = address(boringVault.hook());
         if (bvHook == address(0)) return 0;
@@ -777,6 +779,16 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
         } catch {
             return 0;
         }
+    }
+
+    /// @notice Revert if the caller is not the underlying BoringVault's owner.
+    ///
+    /// @dev Queue governance belongs to the BV operator. Only the BV owner may call
+    ///      functions guarded by this check — no authority canCall or selector
+    ///      registration is required.
+    function _requiresBVAuth() internal view {
+        if (msg.sender == boringVault.owner()) return;
+        revert BoringVaultWrapper__NotBVAuthorized();
     }
 
     /// @notice Revert if `holder`'s wrapper shares are still within their lock window.
@@ -791,7 +803,7 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
         uint256 amount,
         ComplianceData calldata compliance
     ) internal {
-        TellerWithMultiAssetSupport _teller = teller;
+        TellerWithMultiAssetSupport _teller = _getTeller();
 
         // Legacy tellers pre-date complianceSignerRole.  If the external call
         // reverts (function selector absent, no fallback), treat the teller as

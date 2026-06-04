@@ -1,17 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
-import {Test, console} from "@forge-std/Test.sol";
+import {console} from "@forge-std/Test.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 
-import {BoringVault} from "src/base/BoringVault.sol";
-import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {TellerWithMultiAssetSupport, ComplianceData} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {BoringVaultWrapper} from "src/base/Roles/BoringVaultWrapper.sol";
-import {MockERC20} from "src/helper/MockERC20.sol";
+import {BVWTestBase} from "./BVWTestBase.sol";
 
 /// @title Tests for the gross-rate HWM design and the escrow state-variable accounting.
 ///
@@ -23,88 +20,17 @@ import {MockERC20} from "src/helper/MockERC20.sol";
 ///
 /// Trade-off: the wrapper now charges perf fee on gross appreciation, so end users pay
 /// the wrapper layer plus the BV layer additively (the documented "fees-on-fees" model).
-contract FeeAccounting_BoringVaultWrapper_Test is Test {
+contract FeeAccounting_BoringVaultWrapper_Test is BVWTestBase {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
 
-    uint8 constant ADMIN_ROLE = 1;
-    uint8 constant MINTER_ROLE = 7;
-    uint8 constant BURNER_ROLE = 8;
-    uint8 constant WRAPPER_ROLE = 55;
-
-    MockERC20 baseAsset;
-    BoringVault boringVault;
-    AccountantWithRateProviders accountant;
-    TellerWithMultiAssetSupport teller;
-    BoringVaultWrapper wrapper;
-    RolesAuthority rolesAuthority;
-
-    address feeRecipient = makeAddr("feeRecipient");
-    address alice = makeAddr("alice");
-    address bob = makeAddr("bob");
-    address payoutAddress = makeAddr("payoutAddress");
     address sweepTarget = makeAddr("sweepTarget");
 
     uint16 constant MGMT_FEE = 200; // 2 %/yr
     uint16 constant PERF_FEE = 1_000; // 10 %
-    uint256 constant SHARE_SCALE = 1e6;
 
-    function setUp() public {
-        baseAsset = new MockERC20("Wrapped Ether", "WETH", 18);
-        boringVault = new BoringVault(address(this), "Test Boring Vault", "TBV", 18);
-
-        accountant = new AccountantWithRateProviders(
-            address(this), address(boringVault), payoutAddress, 1e18, address(baseAsset), 1.1e4, 0.9e4, 1, 0, 0
-        );
-
-        teller = new TellerWithMultiAssetSupport(
-            address(this), address(boringVault), address(accountant), address(baseAsset)
-        );
-
-        wrapper = new BoringVaultWrapper(
-            address(this), address(boringVault), address(accountant), address(teller), "Partner Vault", "PV"
-        );
-
-        rolesAuthority = new RolesAuthority(address(this), Authority(address(0)));
-
-        boringVault.setAuthority(rolesAuthority);
-        accountant.setAuthority(rolesAuthority);
-        teller.setAuthority(rolesAuthority);
-        wrapper.setAuthority(rolesAuthority);
-
-        rolesAuthority.setRoleCapability(MINTER_ROLE, address(boringVault), BoringVault.enter.selector, true);
-        rolesAuthority.setRoleCapability(BURNER_ROLE, address(boringVault), BoringVault.exit.selector, true);
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(teller), TellerWithMultiAssetSupport.updateAssetData.selector, true
-        );
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(teller), TellerWithMultiAssetSupport.setDenyFlags.selector, true
-        );
-        rolesAuthority.setRoleCapability(
-            WRAPPER_ROLE, address(teller), TellerWithMultiAssetSupport.bulkDeposit.selector, true
-        );
-        rolesAuthority.setRoleCapability(
-            WRAPPER_ROLE, address(teller), TellerWithMultiAssetSupport.bulkWithdraw.selector, true
-        );
-
-        rolesAuthority.setUserRole(address(this), ADMIN_ROLE, true);
-        rolesAuthority.setUserRole(address(teller), MINTER_ROLE, true);
-        rolesAuthority.setUserRole(address(teller), BURNER_ROLE, true);
-        rolesAuthority.setUserRole(address(wrapper), WRAPPER_ROLE, true);
-
-        teller.updateAssetData(baseAsset, true, true, 0);
-        accountant.setRateProviderData(baseAsset, true, address(0));
-    }
-
-    function _giveBVShares(address user, uint256 amount) internal {
-        deal(address(boringVault), user, amount, true);
-    }
-
-    function _wrapBV(address user, uint256 bvAmount) internal returns (uint256 wrapperShares) {
-        vm.startPrank(user);
-        ERC20(address(boringVault)).approve(address(wrapper), bvAmount);
-        wrapperShares = wrapper.deposit(bvAmount, user);
-        vm.stopPrank();
+    function setUp() public override {
+        super.setUp();
     }
 
     /// @dev Prime the accountant: feesOwedInBase is computed against
@@ -176,9 +102,8 @@ contract FeeAccounting_BoringVaultWrapper_Test is Test {
         (,, uint128 feesOwed,,,,,,,,,) = accountant.accountantState();
         assertGt(uint256(feesOwed), 0, "BV fees pending at deploy time");
 
-        BoringVaultWrapper freshWrapper = new BoringVaultWrapper(
-            address(this), address(boringVault), address(accountant), address(teller), "Fresh", "FR"
-        );
+        BoringVaultWrapper freshWrapper =
+            new BoringVaultWrapper(address(this), address(boringVault), address(accountant), "Fresh", "FR");
 
         assertEq(
             uint256(freshWrapper.performanceHighWaterMark()),

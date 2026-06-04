@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
-import {Test} from "@forge-std/Test.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 
 import {BoringVault} from "src/base/BoringVault.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
@@ -14,95 +12,23 @@ import {
 } from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {BoringVaultWrapper} from "src/base/Roles/BoringVaultWrapper.sol";
 import {BoringOnChainQueue} from "src/base/Roles/BoringQueue/BoringOnChainQueue.sol";
-import {MockERC20} from "src/helper/MockERC20.sol";
+import {BVWTestBase} from "./BVWTestBase.sol";
 
 /// @notice Wrapper-layer share lock + queue-disabled redeemAsset behavior.
-contract ShareLockAndQueueTest is Test {
-    uint8 constant ADMIN_ROLE = 1;
-    uint8 constant MINTER_ROLE = 7;
-    uint8 constant BURNER_ROLE = 8;
-    uint8 constant WRAPPER_ROLE = 55;
-    uint8 constant SETTER_ROLE = 2;
+contract ShareLockAndQueueTest is BVWTestBase {
     uint8 constant QUEUE_USER_ROLE = 9; // may call queue.requestOnChainWithdraw
     uint8 constant DEPOSITOR_ROLE = 10; // may call teller.deposit (public path)
 
-    MockERC20 baseAsset;
-    BoringVault boringVault;
-    AccountantWithRateProviders accountant;
-    TellerWithMultiAssetSupport teller;
-    BoringVaultWrapper wrapper;
-    RolesAuthority rolesAuthority;
-
-    address feeRecipient = makeAddr("feeRecipient");
-    address alice = makeAddr("alice");
-    address bob = makeAddr("bob");
     address carol = makeAddr("carol");
-    address payoutAddress = makeAddr("payoutAddress");
 
     uint64 constant LOCK = 1 hours;
 
-    function setUp() public {
-        baseAsset = new MockERC20("Wrapped Ether", "WETH", 18);
-        boringVault = new BoringVault(address(this), "Test Boring Vault", "TBV", 18);
-        accountant = new AccountantWithRateProviders(
-            address(this), address(boringVault), payoutAddress, 1e18, address(baseAsset), 1.1e4, 0.9e4, 1, 0, 0
-        );
-        teller = new TellerWithMultiAssetSupport(
-            address(this), address(boringVault), address(accountant), address(baseAsset)
-        );
-        wrapper = new BoringVaultWrapper(
-            address(this), address(boringVault), address(accountant), address(teller), "Partner Vault", "PV"
-        );
-
-        rolesAuthority = new RolesAuthority(address(this), Authority(address(0)));
-        boringVault.setAuthority(rolesAuthority);
-        accountant.setAuthority(rolesAuthority);
-        teller.setAuthority(rolesAuthority);
-        wrapper.setAuthority(rolesAuthority);
-
-        rolesAuthority.setRoleCapability(MINTER_ROLE, address(boringVault), BoringVault.enter.selector, true);
-        rolesAuthority.setRoleCapability(BURNER_ROLE, address(boringVault), BoringVault.exit.selector, true);
-        rolesAuthority.setRoleCapability(
-            WRAPPER_ROLE, address(teller), TellerWithMultiAssetSupport.bulkDeposit.selector, true
-        );
-        rolesAuthority.setRoleCapability(
-            WRAPPER_ROLE, address(teller), TellerWithMultiAssetSupport.bulkWithdraw.selector, true
-        );
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(teller), TellerWithMultiAssetSupport.updateAssetData.selector, true
-        );
-        rolesAuthority.setRoleCapability(
-            SETTER_ROLE, address(teller), TellerWithMultiAssetSupport.setShareLockPeriod.selector, true
-        );
-
-        rolesAuthority.setUserRole(address(this), ADMIN_ROLE, true);
-        rolesAuthority.setUserRole(address(this), SETTER_ROLE, true);
-        rolesAuthority.setUserRole(address(teller), MINTER_ROLE, true);
-        rolesAuthority.setUserRole(address(teller), BURNER_ROLE, true);
-        rolesAuthority.setUserRole(address(wrapper), WRAPPER_ROLE, true);
-
-        teller.updateAssetData(baseAsset, true, true, 0);
-        accountant.setRateProviderData(baseAsset, true, address(0));
+    function setUp() public override {
+        super.setUp();
         wrapper.setFeeConfig(feeRecipient, feeRecipient, 0, 0);
-
-        // The wrapper sources its lock period from the BV's live beforeTransfer hook,
-        // so wire the teller as the hook and set the 1h period there.
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(boringVault), BoringVault.setBeforeTransferHook.selector, true
-        );
-        boringVault.setBeforeTransferHook(address(teller));
+        // The wrapper sources its lock period from the BV's live beforeTransfer hook;
+        // base setUp already wires the teller as that hook.
         teller.setShareLockPeriod(LOCK);
-    }
-
-    function _giveBVShares(address user, uint256 amount) internal {
-        deal(address(boringVault), user, amount, true);
-    }
-
-    function _wrapBV(address user, uint256 bvAmount) internal returns (uint256 wShares) {
-        vm.startPrank(user);
-        ERC20(address(boringVault)).approve(address(wrapper), bvAmount);
-        wShares = wrapper.deposit(bvAmount, user);
-        vm.stopPrank();
     }
 
     // ── Lock is recorded on deposit / mint / depositAsset ──────────────────────
@@ -356,6 +282,47 @@ contract ShareLockAndQueueTest is Test {
         assertApproxEqAbs(baseOut, 100e18, 1, "redeemAsset works after queue cleared");
     }
 
+    // ── setQueue: BV-owner-only auth ──────────────────────────────────────────
+
+    /// @notice Only the underlying BoringVault's owner may call setQueue.
+    ///         A non-owner (even one granted roles in the shared RolesAuthority)
+    ///         must be rejected.
+    function testSetQueueRevertsForNonBVOwner() public {
+        BoringOnChainQueue q = new BoringOnChainQueue(
+            address(this), address(rolesAuthority), payable(address(boringVault)), address(accountant)
+        );
+        // alice has no BV-owner rights.
+        vm.prank(alice);
+        vm.expectRevert(BoringVaultWrapper.BoringVaultWrapper__NotBVAuthorized.selector);
+        wrapper.setQueue(address(q));
+    }
+
+    /// @notice A wrapper admin who is NOT the BV owner also cannot call setQueue,
+    ///         confirming that wrapper-level Auth is irrelevant for this guard.
+    function testSetQueueRevertsForWrapperAdminWhoIsNotBVOwner() public {
+        BoringOnChainQueue q = new BoringOnChainQueue(
+            address(this), address(rolesAuthority), payable(address(boringVault)), address(accountant)
+        );
+        // Grant alice the wrapper's ADMIN_ROLE so she can call requiresAuth functions
+        // on the wrapper, but do NOT make her the BV owner.
+        rolesAuthority.setUserRole(alice, MANAGER, true);
+
+        vm.prank(alice);
+        vm.expectRevert(BoringVaultWrapper.BoringVaultWrapper__NotBVAuthorized.selector);
+        wrapper.setQueue(address(q));
+    }
+
+    /// @notice The BV owner can always call setQueue without any additional
+    ///         capability registration in the RolesAuthority.
+    function testSetQueueSucceedsForBVOwner() public {
+        BoringOnChainQueue q = new BoringOnChainQueue(
+            address(this), address(rolesAuthority), payable(address(boringVault)), address(accountant)
+        );
+        // address(this) is the BV owner (set in setUp via `new BoringVault(address(this), ...)`)
+        wrapper.setQueue(address(q));
+        assertEq(wrapper.queue(), address(q), "BV owner can set queue");
+    }
+
     function testSetQueueRejectsMismatchedVault() public {
         BoringVault decoyVault = new BoringVault(address(this), "Decoy", "DV", 18);
         BoringOnChainQueue badQueue = new BoringOnChainQueue(
@@ -387,9 +354,6 @@ contract ShareLockAndQueueTest is Test {
             address(this), address(boringVault), address(accountant), address(baseAsset)
         );
         teller2.setAuthority(rolesAuthority);
-        rolesAuthority.setRoleCapability(
-            SETTER_ROLE, address(teller2), TellerWithMultiAssetSupport.setShareLockPeriod.selector, true
-        );
         teller2.setShareLockPeriod(2 hours);
         boringVault.setBeforeTransferHook(address(teller2));
 
@@ -429,13 +393,10 @@ contract ShareLockAndQueueTest is Test {
         );
 
         // Production-like: BV transfers consult the Teller hook (lock + deny + allowlist).
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(boringVault), BoringVault.setBeforeTransferHook.selector, true
-        );
-        boringVault.setBeforeTransferHook(address(teller));
+        // base setUp already set hook → teller; no re-wiring needed.
 
         // Admin configures the withdraw asset; users may request withdrawals.
-        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(q), BoringOnChainQueue.updateWithdrawAsset.selector, true);
+        // address(this) == q's owner, so auth is bypassed; no capability grant needed.
         rolesAuthority.setRoleCapability(
             QUEUE_USER_ROLE, address(q), BoringOnChainQueue.requestOnChainWithdraw.selector, true
         );

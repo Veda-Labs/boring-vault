@@ -1,102 +1,34 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
-import {Test, console} from "@forge-std/Test.sol";
+import {console} from "@forge-std/Test.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MessageHashUtils} from "@openzeppelin-contracts-5.3.0/utils/cryptography/MessageHashUtils.sol";
 
-import {BoringVault} from "src/base/BoringVault.sol";
-import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {TellerWithMultiAssetSupport, ComplianceData} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {TellerWithMultiAssetSupportLib} from "src/base/Roles/TellerWithMultiAssetSupportLib.sol";
 import {BoringVaultWrapper} from "src/base/Roles/BoringVaultWrapper.sol";
-import {MockERC20} from "src/helper/MockERC20.sol";
+import {BVWTestBase} from "./BVWTestBase.sol";
 
 /// @title Positive- and negative-path tests for BoringVaultWrapper's Option-2 compliance layer.
 /// @dev   Each test exercises one branch of _enforceTransferPolicy or _verifyComplianceSignature.
-contract Compliance_BoringVaultWrapper_Test is Test {
+contract Compliance_BoringVaultWrapper_Test is BVWTestBase {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
 
-    uint8 constant ADMIN_ROLE = 1;
-    uint8 constant MINTER_ROLE = 7;
-    uint8 constant BURNER_ROLE = 8;
-    uint8 constant WRAPPER_ROLE = 55;
+    // Test-specific compliance role IDs (not in the production role set).
     uint8 constant COMPLIANCE_ROLE = 60;
     uint8 constant TRANSFER_ALLOWED_ROLE = 70;
 
-    MockERC20 baseAsset;
-    BoringVault boringVault;
-    AccountantWithRateProviders accountant;
-    TellerWithMultiAssetSupport teller;
-    BoringVaultWrapper wrapper;
-    RolesAuthority rolesAuthority;
-
     uint256 constant SIGNER_KEY = uint256(keccak256("compliance-signer-key"));
     address signer;
-
-    address feeRecipient = makeAddr("feeRecipient");
-    address alice = makeAddr("alice");
-    address bob = makeAddr("bob");
     address mallory = makeAddr("mallory");
-    address payoutAddress = makeAddr("payoutAddress");
 
-    function setUp() public {
+    function setUp() public override {
+        super.setUp();
         signer = vm.addr(SIGNER_KEY);
-
-        baseAsset = new MockERC20("Wrapped Ether", "WETH", 18);
-        boringVault = new BoringVault(address(this), "Test Boring Vault", "TBV", 18);
-
-        accountant = new AccountantWithRateProviders(
-            address(this), address(boringVault), payoutAddress, 1e18, address(baseAsset), 1.1e4, 0.9e4, 1, 0, 0
-        );
-
-        teller = new TellerWithMultiAssetSupport(
-            address(this), address(boringVault), address(accountant), address(baseAsset)
-        );
-
-        wrapper = new BoringVaultWrapper(
-            address(this), address(boringVault), address(accountant), address(teller), "Partner Vault", "PV"
-        );
-
-        rolesAuthority = new RolesAuthority(address(this), Authority(address(0)));
-
-        boringVault.setAuthority(rolesAuthority);
-        accountant.setAuthority(rolesAuthority);
-        teller.setAuthority(rolesAuthority);
-        wrapper.setAuthority(rolesAuthority);
-
-        rolesAuthority.setRoleCapability(MINTER_ROLE, address(boringVault), BoringVault.enter.selector, true);
-        rolesAuthority.setRoleCapability(BURNER_ROLE, address(boringVault), BoringVault.exit.selector, true);
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(teller), TellerWithMultiAssetSupport.updateAssetData.selector, true
-        );
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(teller), TellerWithMultiAssetSupport.setComplianceConfig.selector, true
-        );
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(teller), TellerWithMultiAssetSupport.setDenyFlags.selector, true
-        );
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(teller), TellerWithMultiAssetSupport.setTransferRestrictions.selector, true
-        );
-        rolesAuthority.setRoleCapability(
-            WRAPPER_ROLE, address(teller), TellerWithMultiAssetSupport.bulkDeposit.selector, true
-        );
-        rolesAuthority.setRoleCapability(
-            WRAPPER_ROLE, address(teller), TellerWithMultiAssetSupport.bulkWithdraw.selector, true
-        );
-
-        rolesAuthority.setUserRole(address(this), ADMIN_ROLE, true);
-        rolesAuthority.setUserRole(address(teller), MINTER_ROLE, true);
-        rolesAuthority.setUserRole(address(teller), BURNER_ROLE, true);
-        rolesAuthority.setUserRole(address(wrapper), WRAPPER_ROLE, true);
-
-        teller.updateAssetData(baseAsset, true, true, 0);
-        accountant.setRateProviderData(baseAsset, true, address(0));
     }
 
     // =========================================================================
@@ -263,17 +195,16 @@ contract Compliance_BoringVaultWrapper_Test is Test {
     // =========================================================================
 
     function test_StandardDeposit_DenylistedReceiver_Reverts() public {
-        teller.setDenyFlags(mallory, false, true, false); // denyTo on receiver
+        // receiver == caller is required; test the case where the caller/receiver is denylisted.
+        teller.setDenyFlags(alice, false, true, false); // denyTo on alice
 
         deal(address(boringVault), alice, 100e18, true);
         vm.startPrank(alice);
         ERC20(address(boringVault)).approve(address(wrapper), 100e18);
         vm.expectRevert(
-            abi.encodeWithSelector(
-                BoringVaultWrapper.BoringVaultWrapper__TransferDenied.selector, alice, mallory, alice
-            )
+            abi.encodeWithSelector(BoringVaultWrapper.BoringVaultWrapper__TransferDenied.selector, alice, alice, alice)
         );
-        wrapper.deposit(100e18, mallory);
+        wrapper.deposit(100e18, alice);
         vm.stopPrank();
     }
 

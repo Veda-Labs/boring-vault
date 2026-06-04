@@ -1,16 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
-import {Test} from "@forge-std/Test.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 
-import {BoringVault} from "src/base/BoringVault.sol";
-import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
-import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {BoringVaultWrapper} from "src/base/Roles/BoringVaultWrapper.sol";
-import {MockERC20} from "src/helper/MockERC20.sol";
+import {BVWTestBase} from "./BVWTestBase.sol";
 
 /**
  * @title  Regression tests for two performance-fee HWM bugs.
@@ -30,27 +25,11 @@ import {MockERC20} from "src/helper/MockERC20.sol";
  * On unpatched code, Bug-1 tests fail on their assertions.
  * Bug-2 tests fail to compile because resetHighWaterMark() does not exist yet.
  */
-contract FeeHWM_BoringVaultWrapper_Test is Test {
+contract FeeHWM_BoringVaultWrapper_Test is BVWTestBase {
     using FixedPointMathLib for uint256;
 
-    // ── Roles ─────────────────────────────────────────────────────────────────
-    uint8 constant MINTER_ROLE  = 7;
-    uint8 constant BURNER_ROLE  = 8;
-    uint8 constant WRAPPER_ROLE = 55;
-
-    // ── Contracts ─────────────────────────────────────────────────────────────
-    MockERC20                       baseAsset;
-    BoringVault                     boringVault;
-    AccountantWithRateProviders     accountant;
-    TellerWithMultiAssetSupport     teller;
-    BoringVaultWrapper              wrapper;
-    RolesAuthority                  rolesAuthority;
-
-    // ── Addresses ─────────────────────────────────────────────────────────────
-    address feeRecipient = makeAddr("feeRecipient");
-    address alice        = makeAddr("alice");
+    // ── Suite-specific actors / constants ─────────────────────────────────────
     address unauthorized = makeAddr("unauthorized");
-    address payoutAddr   = makeAddr("payoutAddr");
 
     uint16 constant PERF_FEE = 1_000; // 10 %
 
@@ -58,42 +37,8 @@ contract FeeHWM_BoringVaultWrapper_Test is Test {
     //                              SET UP
     // =========================================================================
 
-    function setUp() public {
-        baseAsset   = new MockERC20("WETH", "WETH", 18);
-        boringVault = new BoringVault(address(this), "BV", "BV", 18);
-
-        // No BV-level platform or performance fee — keeps wrapper fee math clean
-        // and ensures _applyBvFees() is always a no-op (feesOwed == 0).
-        // allowedUpper = 110 %, allowedLower = 90 %, minDelay = 1 s.
-        accountant = new AccountantWithRateProviders(
-            address(this), address(boringVault), payoutAddr,
-            1e18, address(baseAsset), 1.1e4, 0.9e4, 1, 0, 0
-        );
-        teller = new TellerWithMultiAssetSupport(
-            address(this), address(boringVault), address(accountant), address(baseAsset)
-        );
-        wrapper = new BoringVaultWrapper(
-            address(this), address(boringVault), address(accountant),
-            address(teller), "Partner Vault", "PV"
-        );
-
-        rolesAuthority = new RolesAuthority(address(this), Authority(address(0)));
-        boringVault.setAuthority(rolesAuthority);
-        accountant.setAuthority(rolesAuthority);
-        teller.setAuthority(rolesAuthority);
-        wrapper.setAuthority(rolesAuthority);
-
-        rolesAuthority.setRoleCapability(MINTER_ROLE,  address(boringVault), BoringVault.enter.selector,    true);
-        rolesAuthority.setRoleCapability(BURNER_ROLE,  address(boringVault), BoringVault.exit.selector,     true);
-        rolesAuthority.setRoleCapability(WRAPPER_ROLE, address(teller), TellerWithMultiAssetSupport.bulkDeposit.selector,  true);
-        rolesAuthority.setRoleCapability(WRAPPER_ROLE, address(teller), TellerWithMultiAssetSupport.bulkWithdraw.selector, true);
-
-        rolesAuthority.setUserRole(address(teller),  MINTER_ROLE,  true);
-        rolesAuthority.setUserRole(address(teller),  BURNER_ROLE,  true);
-        rolesAuthority.setUserRole(address(wrapper), WRAPPER_ROLE, true);
-
-        teller.updateAssetData(baseAsset, true, true, 0);
-        accountant.setRateProviderData(baseAsset, true, address(0));
+    function setUp() public override {
+        super.setUp();
     }
 
     // =========================================================================
@@ -102,11 +47,8 @@ contract FeeHWM_BoringVaultWrapper_Test is Test {
 
     /// Mint BV shares directly to `user` and have them wrap via deposit().
     function _deposit(address user, uint256 bvAmount) internal {
-        deal(address(boringVault), user, bvAmount, true);
-        vm.startPrank(user);
-        ERC20(address(boringVault)).approve(address(wrapper), bvAmount);
-        wrapper.deposit(bvAmount, user);
-        vm.stopPrank();
+        _giveBVShares(user, bvAmount);
+        _wrapBV(user, bvAmount);
     }
 
     /// Advance time by 1 s (satisfying minDelay) then push a new exchange rate.
@@ -147,10 +89,7 @@ contract FeeHWM_BoringVaultWrapper_Test is Test {
 
         // FIX:  HWM == 1.2e18  (HWM tracked unconditionally)
         // BUG:  HWM == 1.1e18  (HWM frozen because perfFee == 0)
-        assertEq(
-            wrapper.performanceHighWaterMark(), 1.2e18,
-            "HWM must advance to 1.2 even while performanceFee = 0"
-        );
+        assertEq(wrapper.performanceHighWaterMark(), 1.2e18, "HWM must advance to 1.2 even while performanceFee = 0");
     }
 
     /**
@@ -191,7 +130,7 @@ contract FeeHWM_BoringVaultWrapper_Test is Test {
         // Rate hasn't moved since re-enable: the next accrueFees() must be a no-op.
         uint256 feesBefore = wrapper.balanceOf(feeRecipient);
         wrapper.accrueFees();
-        uint256 feesAfter  = wrapper.balanceOf(feeRecipient);
+        uint256 feesAfter = wrapper.balanceOf(feeRecipient);
 
         // FIX:  feesAfter == feesBefore  (HWM was already at 1.2, nothing to charge)
         // BUG:  feesAfter  > feesBefore  (retroactive fee on 1.1 → 1.2 window)

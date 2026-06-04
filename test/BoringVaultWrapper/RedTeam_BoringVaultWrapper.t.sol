@@ -1,117 +1,34 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
-import {Test, console} from "@forge-std/Test.sol";
+import {console} from "@forge-std/Test.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 
-import {BoringVault} from "src/base/BoringVault.sol";
-import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {TellerWithMultiAssetSupport, ComplianceData} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {BoringVaultWrapper} from "src/base/Roles/BoringVaultWrapper.sol";
-import {MockERC20} from "src/helper/MockERC20.sol";
+import {BVWTestBase} from "./BVWTestBase.sol";
 
-contract RedTeam_BoringVaultWrapper_Test is Test {
+contract RedTeam_BoringVaultWrapper_Test is BVWTestBase {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
 
-    uint8 constant ADMIN_ROLE = 1;
-    uint8 constant MINTER_ROLE = 7;
-    uint8 constant BURNER_ROLE = 8;
-    uint8 constant WRAPPER_ROLE = 55; // SOLVER_ROLE proxy granted to wrapper
-    uint8 constant SETTER_ROLE = 2;
+    // Test-specific role IDs (not in the production role set).
     uint8 constant DENIER_ROLE = 9;
     uint8 constant COMPLIANCE_ROLE = 10;
     uint8 constant TRANSFER_ALLOWED_ROLE = 11;
 
-    MockERC20 baseAsset;
-    BoringVault boringVault;
-    AccountantWithRateProviders accountant;
-    TellerWithMultiAssetSupport teller;
-    BoringVaultWrapper wrapper;
-    RolesAuthority rolesAuthority;
-
-    address feeRecipient = makeAddr("feeRecipient");
-    address alice = makeAddr("alice");
-    address bob = makeAddr("bob");
     address mallory = makeAddr("mallory");
-    address payoutAddress = makeAddr("payoutAddress");
 
-    function setUp() public {
-        baseAsset = new MockERC20("Wrapped Ether", "WETH", 18);
-        boringVault = new BoringVault(address(this), "Test Boring Vault", "TBV", 18);
-
-        accountant = new AccountantWithRateProviders(
-            address(this), address(boringVault), payoutAddress, 1e18, address(baseAsset), 1.1e4, 0.9e4, 1, 0, 0
-        );
-
-        teller = new TellerWithMultiAssetSupport(
-            address(this), address(boringVault), address(accountant), address(baseAsset)
-        );
-
-        wrapper = new BoringVaultWrapper(
-            address(this), address(boringVault), address(accountant), address(teller), "Partner Vault", "PV"
-        );
-
-        rolesAuthority = new RolesAuthority(address(this), Authority(address(0)));
-        boringVault.setAuthority(rolesAuthority);
-        accountant.setAuthority(rolesAuthority);
-        teller.setAuthority(rolesAuthority);
-        wrapper.setAuthority(rolesAuthority);
-
-        rolesAuthority.setRoleCapability(MINTER_ROLE, address(boringVault), BoringVault.enter.selector, true);
-        rolesAuthority.setRoleCapability(BURNER_ROLE, address(boringVault), BoringVault.exit.selector, true);
-
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(teller), TellerWithMultiAssetSupport.updateAssetData.selector, true
-        );
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(teller), TellerWithMultiAssetSupport.setDenyFlags.selector, true
-        );
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(teller), TellerWithMultiAssetSupport.setTransferRestrictions.selector, true
-        );
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(teller), TellerWithMultiAssetSupport.setComplianceConfig.selector, true
-        );
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(teller), TellerWithMultiAssetSupport.bulkDeposit.selector, true
-        );
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(teller), TellerWithMultiAssetSupport.bulkWithdraw.selector, true
-        );
-
-        rolesAuthority.setRoleCapability(
-            WRAPPER_ROLE, address(teller), TellerWithMultiAssetSupport.bulkDeposit.selector, true
-        );
-        rolesAuthority.setRoleCapability(
-            WRAPPER_ROLE, address(teller), TellerWithMultiAssetSupport.bulkWithdraw.selector, true
-        );
-
-        // Public teller.deposit() requires_auth — gate it like the real config (open to all)
+    function setUp() public override {
+        super.setUp();
+        // Open teller.deposit() to all callers (mirrors real production config).
         rolesAuthority.setPublicCapability(address(teller), TellerWithMultiAssetSupport.deposit.selector, true);
-
-        rolesAuthority.setUserRole(address(this), ADMIN_ROLE, true);
-        rolesAuthority.setUserRole(address(teller), MINTER_ROLE, true);
-        rolesAuthority.setUserRole(address(teller), BURNER_ROLE, true);
-        rolesAuthority.setUserRole(address(wrapper), WRAPPER_ROLE, true);
-
-        teller.updateAssetData(baseAsset, true, true, 0);
-        accountant.setRateProviderData(baseAsset, true, address(0));
     }
 
     function test_DenylistedUserBypassesComplianceViaWrapper() public {
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(teller), TellerWithMultiAssetSupport.setDenyFlags.selector, true
-        );
         teller.setDenyFlags(mallory, true, true, true);
-
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(boringVault), BoringVault.setBeforeTransferHook.selector, true
-        );
-        boringVault.setBeforeTransferHook(address(teller));
 
         // Deposit by sanctioned user now reverts with the wrapper's denylist error.
         deal(address(baseAsset), mallory, 100e18);
@@ -138,15 +55,7 @@ contract RedTeam_BoringVaultWrapper_Test is Test {
     }
 
     function test_WrapperSharesTransfersHaveNoHook() public {
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(teller), TellerWithMultiAssetSupport.setDenyFlags.selector, true
-        );
         teller.setDenyFlags(mallory, false, true, false); // denyTo only
-
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(boringVault), BoringVault.setBeforeTransferHook.selector, true
-        );
-        boringVault.setBeforeTransferHook(address(teller));
 
         // Alice acquires wrapper shares legitimately.
         deal(address(baseAsset), alice, 100e18);
@@ -187,11 +96,6 @@ contract RedTeam_BoringVaultWrapper_Test is Test {
         // Note: NOT granting TRANSFER_ALLOWED_ROLE to the wrapper here — the fix
         // enforces this on the real user, so the wrapper holding the role would
         // re-open the bypass. Real deployments must not grant it to the wrapper.
-
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(boringVault), BoringVault.setBeforeTransferHook.selector, true
-        );
-        boringVault.setBeforeTransferHook(address(teller));
 
         deal(address(baseAsset), mallory, 100e18);
         vm.startPrank(mallory);
@@ -286,9 +190,6 @@ contract RedTeam_BoringVaultWrapper_Test is Test {
 
     function test_DepositCapShared_AcrossPaths() public {
         // Set a tight deposit cap
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(teller), TellerWithMultiAssetSupport.setDepositCap.selector, true
-        );
         teller.setDepositCap(50e18); // 50 shares cap
 
         // First wrapper-routed deposit succeeds (40 shares)

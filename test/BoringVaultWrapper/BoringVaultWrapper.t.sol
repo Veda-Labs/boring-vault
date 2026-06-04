@@ -1,159 +1,37 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
-import {Test, console} from "@forge-std/Test.sol";
+import {console} from "@forge-std/Test.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 
 import {BoringVault} from "src/base/BoringVault.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {TellerWithMultiAssetSupport, ComplianceData} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {BoringVaultWrapper} from "src/base/Roles/BoringVaultWrapper.sol";
-import {MockERC20} from "src/helper/MockERC20.sol";
+import {BVWTestBase} from "./BVWTestBase.sol";
 
-contract BoringVaultWrapperTest is Test {
+contract BoringVaultWrapperTest is BVWTestBase {
     using FixedPointMathLib for uint256;
     using SafeTransferLib for ERC20;
-
-    // ── Role IDs ───────────────────────────────────────────────────────────────
-    uint8 constant ADMIN_ROLE = 1;
-    uint8 constant MINTER_ROLE = 7;
-    uint8 constant BURNER_ROLE = 8;
-    uint8 constant WRAPPER_ROLE = 55; // may call bulkDeposit + bulkWithdraw
-    uint8 constant SETTER_ROLE = 2; // for setShareLockPeriod (share-lock test only)
-
-    // ── Contracts ──────────────────────────────────────────────────────────────
-    MockERC20 baseAsset; // 18-decimal stand-in for WETH / USDC
-    BoringVault boringVault;
-    AccountantWithRateProviders accountant;
-    TellerWithMultiAssetSupport teller;
-    BoringVaultWrapper wrapper;
-    RolesAuthority rolesAuthority;
-
-    // ── Addresses ─────────────────────────────────────────────────────────────
-    address feeRecipient = makeAddr("feeRecipient");
-    address alice = makeAddr("alice");
-    address bob = makeAddr("bob");
-    address payoutAddress = makeAddr("payoutAddress");
 
     // ── Fee parameters ─────────────────────────────────────────────────────────
     uint16 constant MGMT_FEE = 200; // 2 % per year
     uint16 constant PERF_FEE = 1_000; // 10 % on gains
 
-    // ── Share scaling (mirrors BoringVaultWrapper.DECIMALS_OFFSET) ────────────
-    /// @dev Wrapper shares are scaled 10**DECIMALS_OFFSET larger than BV shares due
-    ///      to OZ ERC4626 virtual-offset (inflation-attack protection).
-    uint256 constant SHARE_SCALE = 1e6;
-
     // =========================================================================
     //                              SET UP
     // =========================================================================
 
-    function setUp() public {
-        // ── Deploy base asset ────────────────────────────────────────────────
-        baseAsset = new MockERC20("Wrapped Ether", "WETH", 18);
-
-        // ── Deploy BoringVault (18 dec) ───────────────────────────────────────
-        boringVault = new BoringVault(address(this), "Test Boring Vault", "TBV", 18);
-
-        // ── Deploy Accountant ────────────────────────────────────────────────
-        //    startingExchangeRate = 1e18 (1 BV share ≙ 1 baseAsset)
-        //    allowedUpper = 110 %, allowedLower = 90 %, minDelay = 1s
-        //    No platform or performance fee at the BV level.
-        accountant = new AccountantWithRateProviders(
-            address(this),
-            address(boringVault),
-            payoutAddress,
-            1e18, // startingExchangeRate
-            address(baseAsset),
-            1.1e4, // allowedExchangeRateChangeUpper
-            0.9e4, // allowedExchangeRateChangeLower
-            1, // minimumUpdateDelayInSeconds
-            0, // platformFee
-            0 // performanceFee
-        );
-
-        // ── Deploy Teller ────────────────────────────────────────────────────
-        teller = new TellerWithMultiAssetSupport(
-            address(this), address(boringVault), address(accountant), address(baseAsset)
-        );
-
-        // ── Deploy BoringVaultWrapper ────────────────────────────────────────────
-        wrapper = new BoringVaultWrapper(
-            address(this), address(boringVault), address(accountant), address(teller), "Partner Vault", "PV"
-        );
-
-        // ── Wire RolesAuthority ───────────────────────────────────────────────
-        rolesAuthority = new RolesAuthority(address(this), Authority(address(0)));
-
-        boringVault.setAuthority(rolesAuthority);
-        accountant.setAuthority(rolesAuthority);
-        teller.setAuthority(rolesAuthority);
-        wrapper.setAuthority(rolesAuthority);
-
-        // Teller may enter/exit the BoringVault
-        rolesAuthority.setRoleCapability(MINTER_ROLE, address(boringVault), BoringVault.enter.selector, true);
-        rolesAuthority.setRoleCapability(BURNER_ROLE, address(boringVault), BoringVault.exit.selector, true);
-
-        // Admin may configure the Teller
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(teller), TellerWithMultiAssetSupport.updateAssetData.selector, true
-        );
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(teller), TellerWithMultiAssetSupport.bulkDeposit.selector, true
-        );
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(teller), TellerWithMultiAssetSupport.bulkWithdraw.selector, true
-        );
-
-        // Wrapper may call bulkDeposit (depositAsset) and bulkWithdraw (redeemAsset)
-        rolesAuthority.setRoleCapability(
-            WRAPPER_ROLE, address(teller), TellerWithMultiAssetSupport.bulkDeposit.selector, true
-        );
-        rolesAuthority.setRoleCapability(
-            WRAPPER_ROLE, address(teller), TellerWithMultiAssetSupport.bulkWithdraw.selector, true
-        );
-
-        // Assign roles
-        rolesAuthority.setUserRole(address(this), ADMIN_ROLE, true);
-        rolesAuthority.setUserRole(address(teller), MINTER_ROLE, true);
-        rolesAuthority.setUserRole(address(teller), BURNER_ROLE, true);
-        rolesAuthority.setUserRole(address(wrapper), WRAPPER_ROLE, true);
-
-        // Admin may set share lock period
-        rolesAuthority.setRoleCapability(
-            SETTER_ROLE, address(teller), TellerWithMultiAssetSupport.setShareLockPeriod.selector, true
-        );
-        rolesAuthority.setUserRole(address(this), SETTER_ROLE, true);
-
-        // Configure Teller asset + Accountant rate provider
-        teller.updateAssetData(baseAsset, true, true, 0);
-        accountant.setRateProviderData(baseAsset, true, address(0));
-
-        // Initialise fee configuration (recipient + rates).
+    function setUp() public override {
+        super.setUp();
         wrapper.setFeeConfig(feeRecipient, feeRecipient, MGMT_FEE, PERF_FEE);
     }
 
     // =========================================================================
     //                            HELPERS
     // =========================================================================
-
-    /// @dev Use Foundry's deal to directly credit a user with BoringVault shares,
-    ///      bypassing the Teller.  Sufficient for all tests that only care about
-    ///      wrapper-level share arithmetic.
-    function _giveBVShares(address user, uint256 amount) internal {
-        deal(address(boringVault), user, amount, true);
-    }
-
-    /// @dev Approve + deposit BV shares into the wrapper in one call.
-    function _wrapBV(address user, uint256 bvAmount) internal returns (uint256 wrapperShares) {
-        vm.startPrank(user);
-        ERC20(address(boringVault)).approve(address(wrapper), bvAmount);
-        wrapperShares = wrapper.deposit(bvAmount, user);
-        vm.stopPrank();
-    }
 
     // =========================================================================
     //                   1. FIRST DEPOSIT — 1 : 1 seeding
@@ -772,11 +650,6 @@ contract BoringVaultWrapperTest is Test {
     ///      set a wrapper-share lock on the receiver, and every exit is gated by it.
     ///      Exits revert until the snapshotted lock window elapses, then succeed.
     function testShareLock5Min_EnforcedAtWrapperLayer() public {
-        // The wrapper reads its lock period from the BV's live beforeTransfer hook.
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(boringVault), BoringVault.setBeforeTransferHook.selector, true
-        );
-        boringVault.setBeforeTransferHook(address(teller));
         teller.setShareLockPeriod(5 minutes);
 
         uint256 amount = 100e18;
@@ -849,32 +722,16 @@ contract BoringVaultWrapperTest is Test {
     //                   28. Constructor reverts — mismatched vault addresses
     // =========================================================================
 
-    /// @dev Both BadTeller and BadAccountant are exercised in a single test to
-    ///      avoid duplicating the decoy-vault deployment boilerplate.
     function testConstructorRevertsOnMismatchedVaultAddresses() public {
-        // Deploy a decoy vault so we can build a teller and accountant that are
-        // deliberately wired to the wrong BoringVault.
         BoringVault decoyVault = new BoringVault(address(this), "Decoy Vault", "DV", 18);
-
-        TellerWithMultiAssetSupport decoyTeller = new TellerWithMultiAssetSupport(
-            address(this), address(decoyVault), address(accountant), address(baseAsset)
-        );
 
         AccountantWithRateProviders decoyAccountant = new AccountantWithRateProviders(
             address(this), address(decoyVault), payoutAddress, 1e18, address(baseAsset), 1.1e4, 0.9e4, 1, 0, 0
         );
 
-        // decoyTeller.vault() == decoyVault != boringVault → BadTeller
-        vm.expectRevert(BoringVaultWrapper.BoringVaultWrapper__BadTeller.selector);
-        new BoringVaultWrapper(
-            address(this), address(boringVault), address(accountant), address(decoyTeller), "Partner Vault", "PV"
-        );
-
         // decoyAccountant.vault() == decoyVault != boringVault → BadAccountant
         vm.expectRevert(BoringVaultWrapper.BoringVaultWrapper__BadAccountant.selector);
-        new BoringVaultWrapper(
-            address(this), address(boringVault), address(decoyAccountant), address(teller), "Partner Vault", "PV"
-        );
+        new BoringVaultWrapper(address(this), address(boringVault), address(decoyAccountant), "Partner Vault", "PV");
     }
 
     // =========================================================================

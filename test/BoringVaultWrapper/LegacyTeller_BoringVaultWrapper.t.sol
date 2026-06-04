@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
-import {Test, console} from "@forge-std/Test.sol";
+import {console} from "@forge-std/Test.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MessageHashUtils} from "@openzeppelin-contracts-5.3.0/utils/cryptography/MessageHashUtils.sol";
 
 import {BoringVault} from "src/base/BoringVault.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {TellerWithMultiAssetSupport, ComplianceData} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {TellerWithMultiAssetSupportLib} from "src/base/Roles/TellerWithMultiAssetSupportLib.sol";
+import {Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {BoringVaultWrapper} from "src/base/Roles/BoringVaultWrapper.sol";
-import {MockERC20} from "src/helper/MockERC20.sol";
+import {BVWTestBase} from "./BVWTestBase.sol";
 
 // ============================================================================
 //  Legacy Teller Mock
@@ -88,6 +88,12 @@ contract LegacyTellerMock {
         vault.exit(to, withdrawAsset, assetsOut, msg.sender, shareAmount);
     }
 
+    // ── BeforeTransferHook (required when set as the BV hook) ────────────
+
+    function beforeTransfer(address from, address to, address operator) external view {
+        require(!denyFromMap[from] && !denyToMap[to] && !denyOperatorMap[operator], "LegacyTellerMock: denied");
+    }
+
     // ── Test helpers ──────────────────────────────────────────────────────
 
     function setDenyFrom(address user, bool deny) external {
@@ -112,130 +118,62 @@ contract LegacyTellerMock {
 // ============================================================================
 //  Test contract
 // ============================================================================
-contract LegacyTeller_BoringVaultWrapper_Test is Test {
+contract LegacyTeller_BoringVaultWrapper_Test is BVWTestBase {
     using FixedPointMathLib for uint256;
 
-    // ── Role IDs ──────────────────────────────────────────────────────────
-    uint8 constant ADMIN_ROLE = 1;
-    uint8 constant MINTER_ROLE = 7;
-    uint8 constant BURNER_ROLE = 8;
-    uint8 constant MODERN_WRAPPER_ROLE = 55;
+    // Test-specific compliance role IDs (not in the production role set).
     uint8 constant COMPLIANCE_ROLE = 60;
     uint8 constant TRANSFER_ALLOWED_ROLE = 70;
 
-    // ── Contracts ─────────────────────────────────────────────────────────
-    MockERC20 baseAsset;
-    BoringVault boringVault;
-    AccountantWithRateProviders accountant;
+    // The legacy teller mock; `wrapper` (inherited) is re-deployed below to use it.
     LegacyTellerMock legacyTeller;
-    BoringVaultWrapper wrapper;          // backed by legacyTeller
-    RolesAuthority rolesAuthority;
-
-    // ── Modern-teller setup (regression tests) ────────────────────────────
-    TellerWithMultiAssetSupport modernTeller;
+    // A second wrapper backed by the modern teller; `teller` (inherited) is that modern teller.
     BoringVaultWrapper modernWrapper;
 
-    address payoutAddress = makeAddr("payoutAddress");
-    address alice = makeAddr("alice");
-    address bob = makeAddr("bob");
     uint256 constant SIGNER_KEY = uint256(keccak256("compliance-signer-key"));
     address signer;
-
-    uint256 constant SHARE_SCALE = 1e6; // BoringVaultWrapper.DECIMALS_OFFSET
 
     // =========================================================================
     //                               SET UP
     // =========================================================================
 
-    function setUp() public {
+    function setUp() public override {
+        // base setUp deploys: baseAsset, boringVault, accountant
+        //   teller (= TellerWithMultiAssetSupport, plays the "modernTeller" role here)
+        //   wrapper (initial instance — overridden below)
+        //   rolesAuthority
+        // Wires: MINTER/BURNER for teller on BV; BULKUSER for wrapper on teller.
+        // Also: updateAssetData, setRateProviderData, setBeforeTransferHook(teller).
+        super.setUp();
+
         signer = vm.addr(SIGNER_KEY);
 
-        baseAsset = new MockERC20("Wrapped Ether", "WETH", 18);
-        boringVault = new BoringVault(address(this), "Test Boring Vault", "TBV", 18);
-
-        accountant = new AccountantWithRateProviders(
-            address(this),
-            address(boringVault),
-            payoutAddress,
-            1e18, // startingExchangeRate — 1 BV share == 1 baseAsset
-            address(baseAsset),
-            1.1e4,
-            0.9e4,
-            1,
-            0,
-            0
-        );
-
-        rolesAuthority = new RolesAuthority(address(this), Authority(address(0)));
-
-        // ── Deploy legacy teller mock ─────────────────────────────────────
+        // ── Deploy the legacy teller mock ─────────────────────────────────
         legacyTeller = new LegacyTellerMock(address(boringVault), address(accountant), address(rolesAuthority));
+        // The legacy mock calls vault.enter / vault.exit directly.
+        rolesAuthority.setUserRole(address(legacyTeller), MINTER, true);
+        rolesAuthority.setUserRole(address(legacyTeller), BURNER, true);
 
-        // ── Deploy wrapper backed by the legacy teller ────────────────────
-        wrapper = new BoringVaultWrapper(
-            address(this),
-            address(boringVault),
-            address(accountant),
-            address(legacyTeller),
-            "Legacy Partner Vault",
-            "LPV"
-        );
-
-        // ── Deploy modern teller + its wrapper (regression tests) ─────────
-        modernTeller = new TellerWithMultiAssetSupport(
-            address(this), address(boringVault), address(accountant), address(baseAsset)
-        );
+        // ── Deploy modernWrapper backed by `teller` (= modern TellerWithMultiAssetSupport) ──
         modernWrapper = new BoringVaultWrapper(
-            address(this),
-            address(boringVault),
-            address(accountant),
-            address(modernTeller),
-            "Modern Partner Vault",
-            "MPV"
+            address(this), address(boringVault), address(accountant), "Modern Partner Vault", "MPV"
         );
-
-        // ── Wire authorities ──────────────────────────────────────────────
-        boringVault.setAuthority(rolesAuthority);
-        accountant.setAuthority(rolesAuthority);
-        modernTeller.setAuthority(rolesAuthority);
-        wrapper.setAuthority(rolesAuthority);
         modernWrapper.setAuthority(rolesAuthority);
+        rolesAuthority.setUserRole(address(modernWrapper), BULKUSER, true);
 
-        // ── BoringVault capabilities ──────────────────────────────────────
-        rolesAuthority.setRoleCapability(MINTER_ROLE, address(boringVault), BoringVault.enter.selector, true);
-        rolesAuthority.setRoleCapability(BURNER_ROLE, address(boringVault), BoringVault.exit.selector, true);
-
-        // Legacy mock needs these to call vault.enter / vault.exit.
-        rolesAuthority.setUserRole(address(legacyTeller), MINTER_ROLE, true);
-        rolesAuthority.setUserRole(address(legacyTeller), BURNER_ROLE, true);
-
-        // Modern teller likewise.
-        rolesAuthority.setUserRole(address(modernTeller), MINTER_ROLE, true);
-        rolesAuthority.setUserRole(address(modernTeller), BURNER_ROLE, true);
-
-        // ── Modern teller capabilities ────────────────────────────────────
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(modernTeller), TellerWithMultiAssetSupport.updateAssetData.selector, true
+        // ── Re-deploy `wrapper` (inherited) as the legacy-backed instance ──
+        // The base already created a `wrapper`; overwrite it with the legacy-labelled one.
+        // The old base `wrapper` is simply abandoned (no security impact in tests).
+        wrapper = new BoringVaultWrapper(
+            address(this), address(boringVault), address(accountant), "Legacy Partner Vault", "LPV"
         );
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(modernTeller), TellerWithMultiAssetSupport.setComplianceConfig.selector, true
-        );
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(modernTeller), TellerWithMultiAssetSupport.setTransferRestrictions.selector, true
-        );
-        rolesAuthority.setRoleCapability(
-            MODERN_WRAPPER_ROLE, address(modernTeller), TellerWithMultiAssetSupport.bulkDeposit.selector, true
-        );
-        rolesAuthority.setRoleCapability(
-            MODERN_WRAPPER_ROLE, address(modernTeller), TellerWithMultiAssetSupport.bulkWithdraw.selector, true
-        );
+        wrapper.setAuthority(rolesAuthority);
+        // No BULKUSER grant needed for `wrapper` — legacyTeller.bulkDeposit/bulkWithdraw
+        // are not gated by the RolesAuthority; they call vault.enter/exit directly,
+        // and legacyTeller already holds MINTER/BURNER.
 
-        rolesAuthority.setUserRole(address(this), ADMIN_ROLE, true);
-        rolesAuthority.setUserRole(address(modernWrapper), MODERN_WRAPPER_ROLE, true);
-
-        // ── Asset + rate-provider config ──────────────────────────────────
-        modernTeller.updateAssetData(baseAsset, true, true, 0);
-        accountant.setRateProviderData(baseAsset, true, address(0));
+        // ── Switch BV hook to legacyTeller; modern tests override this inline ──
+        boringVault.setBeforeTransferHook(address(legacyTeller));
     }
 
     // =========================================================================
@@ -362,15 +300,16 @@ contract LegacyTeller_BoringVaultWrapper_Test is Test {
     //  TEST 6 — Regression: modern teller still enforces compliance when enabled
     // =========================================================================
     function test_ModernTeller_ComplianceStillEnforced_WithLegacyFix() public {
+        boringVault.setBeforeTransferHook(address(teller));
         rolesAuthority.setUserRole(signer, COMPLIANCE_ROLE, true);
-        modernTeller.setComplianceConfig(COMPLIANCE_ROLE, 0);
+        teller.setComplianceConfig(COMPLIANCE_ROLE, 0);
 
         uint256 amount = 100e18;
         uint256 deadline = block.timestamp + 1 hours;
 
         // Wrong-domain signature (uses teller address, not wrapper).
         bytes32 wrongHash =
-            keccak256(abi.encode(address(modernTeller), block.chainid, alice, alice, address(baseAsset), amount, deadline));
+            keccak256(abi.encode(address(teller), block.chainid, alice, alice, address(baseAsset), amount, deadline));
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(SIGNER_KEY, MessageHashUtils.toEthSignedMessageHash(wrongHash));
 
         deal(address(baseAsset), alice, amount);
@@ -381,9 +320,7 @@ contract LegacyTeller_BoringVaultWrapper_Test is Test {
                 TellerWithMultiAssetSupportLib.TellerWithMultiAssetSupport__ComplianceCheckFailed.selector
             )
         );
-        modernWrapper.depositAsset(
-            baseAsset, amount, 0, alice, ComplianceData(deadline, abi.encodePacked(r, s, v))
-        );
+        modernWrapper.depositAsset(baseAsset, amount, 0, alice, ComplianceData(deadline, abi.encodePacked(r, s, v)));
         vm.stopPrank();
     }
 
@@ -391,8 +328,9 @@ contract LegacyTeller_BoringVaultWrapper_Test is Test {
     //  TEST 7 — Regression: modern teller transfer allowlist still enforced
     // =========================================================================
     function test_ModernTeller_TransferAllowlistStillEnforced_WithLegacyFix() public {
+        boringVault.setBeforeTransferHook(address(teller));
         // Enable transfer allowlist on the modern teller.
-        modernTeller.setTransferRestrictions(TRANSFER_ALLOWED_ROLE, type(uint8).max);
+        teller.setTransferRestrictions(TRANSFER_ALLOWED_ROLE, type(uint8).max);
 
         // Role management must happen as the test contract (rolesAuthority owner),
         // not inside a prank.
@@ -416,15 +354,15 @@ contract LegacyTeller_BoringVaultWrapper_Test is Test {
     //  TEST 8 — Regression: modern teller accepts a valid compliance signature
     // =========================================================================
     function test_ModernTeller_ValidSignature_StillSucceeds() public {
+        boringVault.setBeforeTransferHook(address(teller));
         rolesAuthority.setUserRole(signer, COMPLIANCE_ROLE, true);
-        modernTeller.setComplianceConfig(COMPLIANCE_ROLE, 0);
+        teller.setComplianceConfig(COMPLIANCE_ROLE, 0);
 
         uint256 amount = 100e18;
         uint256 deadline = block.timestamp + 1 hours;
 
         bytes32 hash = _wrapperHash(address(modernWrapper), alice, alice, address(baseAsset), amount, deadline);
-        (uint8 v, bytes32 r, bytes32 s) =
-            vm.sign(SIGNER_KEY, MessageHashUtils.toEthSignedMessageHash(hash));
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(SIGNER_KEY, MessageHashUtils.toEthSignedMessageHash(hash));
 
         deal(address(baseAsset), alice, amount);
         vm.startPrank(alice);
