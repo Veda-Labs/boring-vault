@@ -72,11 +72,11 @@
     "tellerDeploymentName": "liquidMonadETH Teller V0.0",
     "tellerParameters": {
       "kind": {
-        "teller": true,
+        "teller": false,
         "tellerWithRemediation": false,
         "tellerWithCcip": false,
         "tellerWithLayerZero": false,
-        "tellerWithLayerZeroRateLimiting": false,
+        "tellerWithLayerZeroRateLimiting": true,
         "tellerWithYieldStreaming": false
       }
     }
