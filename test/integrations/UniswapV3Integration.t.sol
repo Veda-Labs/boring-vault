@@ -121,6 +121,9 @@ contract UniswapV3IntegrationTest is Test, MerkleTreeHelper {
         address[] memory token1 = new address[](2);
         token1[0] = getAddress(sourceChain, "RETH");
         token1[1] = getAddress(sourceChain, "WEETH");
+        uint256[] memory fees = new uint256[](2);
+        fees[0] = 100;
+        fees[1] = 100;
         _addUniswapV3Leafs(leafs, token0, token1, false, false);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
