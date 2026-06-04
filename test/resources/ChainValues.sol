@@ -80,12 +80,14 @@ contract ChainValues {
     uint32 public constant layerZeroTONEndpointId = 30343;
     uint32 public constant layerZeroPlasmaEndpointId = 30383;
     uint32 public constant layerZeroSeiEndpointId = 30280;
+    uint32 public constant layerZeroMonadEndpointId = 30382;
 
     uint32 public constant cctpMainnetDomainId = 0;
     uint32 public constant cctpInkDomainId = 21;
     uint32 public constant cctpHyperEVMDomainId = 19;
     uint32 public constant cctpPlumeDomainId = 22;
     uint32 public constant cctpOptimismDomainId = 2;
+    uint32 public constant cctpMonadDomainId = 36;
 
     error ChainValues__ZeroAddress(string chainName, string valueName);
     error ChainValues__ZeroBytes32(string chainName, string valueName);
@@ -182,6 +184,9 @@ contract ChainValues {
         values[mainnet]["liquidEthStrategist"] = 0x41DFc53B13932a2690C9790527C1967d8579a6ae.toBytes32();
         values[mainnet]["liquidEthManager"] = 0x227975088C28DBBb4b421c6d96781a53578f19a8.toBytes32();
         values[mainnet]["liquidEthDelayedWithdraw"] = 0xA1177Bc62E42eF2f9225a6cBF1CfE5CbC360C33A.toBytes32();
+        values[mainnet]["liquidUsd"] = 0x08c6F91e2B681FaF5e17227F2a44C307b3C1364C.toBytes32();
+        values[mainnet]["liquidUsdManager"] = 0x7b57Ad1A0AA89583130aCfAD024241170D24C13C.toBytes32();
+        values[mainnet]["liquidUsdAccountant"] = 0xc315D6e14DDCDC7407784e2Caf815d131Bc1D3E7.toBytes32();
         values[mainnet]["superSymbiotic"] = 0x917ceE801a67f933F2e6b33fC0cD1ED2d5909D88.toBytes32();
         values[mainnet]["superSymbioticTeller"] = 0x99dE9e5a3eC2750a6983C8732E6e795A35e7B861.toBytes32();
         values[mainnet]["weETHs"] = 0x917ceE801a67f933F2e6b33fC0cD1ED2d5909D88.toBytes32();
@@ -384,6 +389,7 @@ contract ChainValues {
         values[mainnet]["USD1"] = 0x8d0D000Ee44948FC98c9B98A4FA4921476f08B0d.toBytes32();
         values[mainnet]["USDD"] = 0x4f8e5DE400DE08B164E7421B3EE387f461beCD1A.toBytes32();
         values[mainnet]["sUSDD"] = 0xC5d6A7B61d18AfA11435a889557b068BB9f29930.toBytes32();
+        values[mainnet]["AUSD"] = 0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a.toBytes32();
         values[mainnet]["BTCb"] = 0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072.toBytes32();
         values[mainnet]["KERNEL"] = 0x3f80B1c54Ae920Be41a77f8B902259D48cf24cCf.toBytes32();
         values[mainnet]["axlSAGA"] = 0xF42fCFfc27A5B8d0afEC45659407B82f9F32fA98.toBytes32();
@@ -3373,6 +3379,22 @@ contract ChainValues {
 
         // MPortal — same deterministic proxy address as mainnet.
         values[monad]["mportalProxy"] = 0xD925C84b55E4e44a53749fF5F2a5A13F63D128fd.toBytes32();
+
+        values[monad]["USDC"] = 0x754704Bc059F8C67012fEd69BC8A327a5aafb603.toBytes32();
+        values[monad]["WETH"] = 0xEE8c0E9f1BFFb4Eb878d8f15f368A02a35481242.toBytes32();
+        values[monad]["wstETH"] = 0x10Aeaf63194db8d453d4D85a06E5eFE1dd0b5417.toBytes32();
+        values[monad]["AUSD"] = 0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a.toBytes32();
+
+        values[monad]["steakhousePrimeETHVault"] = 0xbeef04b01e0275D4ac2e2986256BB14E3Ff6ef42.toBytes32();
+        values[monad]["morphoBlue_wstETH_WETH_marketId"] =
+            bytes32(0x8bdb7d2c5024d349772884afb3c5c409bc8de58ed63d79618bf48fb57b595060);
+
+        values[monad]["upshiftEarnAUSDVault"] = 0x36eDbF0C834591BFdfCaC0Ef9605528c75c406aA.toBytes32();
+
+        values[monad]["uniV4_MON_WETH_poolId"] =
+            bytes32(0x3783b51e33900eb366a9e8473c76cda441e7170d2e5d96927f30c16a7add93aa);
+
+        values[monad]["merklDistributor"] = 0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae.toBytes32();
     }
 
     function _addSeiValues() private {
