@@ -50,7 +50,7 @@
         "yieldStreaming": false
       },
       "payoutConfiguration": {
-        "payoutTo": "0x4647E6DD7e8E440A8aeFd78860C6A0e56EcA2521",
+        "payoutTo": "0xf6BD950c66869a32170Bf26A38c8b7C6d6eCa863",
         "optionalPaymentSplitterName": "liquidMonadETH Payment Splitter V0.0",
         "splits": []
       },
