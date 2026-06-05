@@ -69,7 +69,17 @@ contract UniswapV4DecoderAndSanitizer {
                 (address currencyToSpend,) = abi.decode(params[1], (address, uint128));
                 (address currencyToReceive,) = abi.decode(params[2], (address, uint128));
 
-                addressesFound = abi.encodePacked(currency0, currency1, hook, currencyToSpend, currencyToReceive);
+                // fee and tickSpacing are pinned (widened to addresses) so the leaf authorizes the exact
+                // pool: in V4 (currency0, currency1, fee, tickSpacing, hooks) all identify the pool.
+                addressesFound = abi.encodePacked(
+                    currency0,
+                    currency1,
+                    address(uint160(swapParams.poolKey.fee)),
+                    address(uint160(int160(swapParams.poolKey.tickSpacing))),
+                    hook,
+                    currencyToSpend,
+                    currencyToReceive
+                );
 
                 if (commands.length == 1) return addressesFound;
 
@@ -141,8 +151,18 @@ contract UniswapV4DecoderAndSanitizer {
 
             (address currency0Settle, address currency1Settle) = abi.decode(params[1], (address, address));
 
+            // Pin fee and tickSpacing so the leaf authorizes the exact pool. Minting into an
+            // attacker-created pool (same currencies + hooks, different fee/tickSpacing) at a faked
+            // price lets them trade the vault's liquidity out at off-market rates.
             addressesFound = abi.encodePacked(
-                poolKey.currency0, poolKey.currency1, poolKey.hooks, recipient, currency0Settle, currency1Settle
+                poolKey.currency0,
+                poolKey.currency1,
+                address(uint160(poolKey.fee)),
+                address(uint160(int160(poolKey.tickSpacing))),
+                poolKey.hooks,
+                recipient,
+                currency0Settle,
+                currency1Settle
             );
 
             //expected sweep index would be 2 here (if any) -> mint, settle, sweep

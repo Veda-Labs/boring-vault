@@ -63,7 +63,9 @@ contract MerkleTreeCheckerTest is Test, MerkleTreeHelper {
         address[] memory token1 = new address[](1);
         token1[0] = getAddress(sourceChain, "LBTC");
 
-        _addUniswapV3Leafs(leafs, token0, token1, false, false);
+        uint256[] memory fees = new uint256[](1);
+        fees[0] = 100;
+        _addUniswapV3Leafs(leafs, token0, token1, fees, false, false);
 
         // ========================== Fee Claiming ==========================
         /**
@@ -143,7 +145,9 @@ contract MerkleTreeCheckerTest is Test, MerkleTreeHelper {
         address[] memory token1 = new address[](1);
         token1[0] = getAddress(sourceChain, "LBTC");
 
-        _addUniswapV3Leafs(leafs, token0, token1, false, false);
+        uint256[] memory fees = new uint256[](1);
+        fees[0] = 100;
+        _addUniswapV3Leafs(leafs, token0, token1, fees, false, false);
 
         // ========================== Fee Claiming ==========================
         /**
