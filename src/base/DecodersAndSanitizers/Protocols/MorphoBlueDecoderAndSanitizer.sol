@@ -10,6 +10,7 @@ contract MorphoBlueDecoderAndSanitizer {
     //============================== ERRORS ===============================
 
     error MorphoBlueDecoderAndSanitizer__CallbackNotSupported();
+    error MorphoBlueDecoderAndSanitizer__OvercastUint160();
 
     //============================== MORPHO BLUE ===============================
 
@@ -22,6 +23,7 @@ contract MorphoBlueDecoderAndSanitizer {
     ) external pure returns (bytes memory addressesFound) {
         // Sanitize raw data
         if (data.length > 0) revert MorphoBlueDecoderAndSanitizer__CallbackNotSupported();
+        if (params.lltv > type(uint160).max) revert MorphoBlueDecoderAndSanitizer__OvercastUint160();
         // Return addresses found
         addressesFound = abi.encodePacked(
             params.loanToken,
@@ -40,7 +42,8 @@ contract MorphoBlueDecoderAndSanitizer {
         address onBehalf,
         address receiver
     ) external pure returns (bytes memory addressesFound) {
-        // Nothing to sanitize
+        if (params.lltv > type(uint160).max) revert MorphoBlueDecoderAndSanitizer__OvercastUint160();
+
         // Return addresses found
         addressesFound = abi.encodePacked(
             params.loanToken,
@@ -60,6 +63,8 @@ contract MorphoBlueDecoderAndSanitizer {
         address onBehalf,
         address receiver
     ) external pure returns (bytes memory addressesFound) {
+        if (params.lltv > type(uint160).max) revert MorphoBlueDecoderAndSanitizer__OvercastUint160();
+
         addressesFound = abi.encodePacked(
             params.loanToken,
             params.collateralToken,
@@ -80,6 +85,7 @@ contract MorphoBlueDecoderAndSanitizer {
     ) external pure returns (bytes memory addressesFound) {
         // Sanitize raw data
         if (data.length > 0) revert MorphoBlueDecoderAndSanitizer__CallbackNotSupported();
+        if (params.lltv > type(uint160).max) revert MorphoBlueDecoderAndSanitizer__OvercastUint160();
 
         // Return addresses found
         addressesFound = abi.encodePacked(
@@ -100,6 +106,7 @@ contract MorphoBlueDecoderAndSanitizer {
     ) external pure returns (bytes memory addressesFound) {
         // Sanitize raw data
         if (data.length > 0) revert MorphoBlueDecoderAndSanitizer__CallbackNotSupported();
+        if (params.lltv > type(uint160).max) revert MorphoBlueDecoderAndSanitizer__OvercastUint160();
 
         // Return addresses found
         addressesFound = abi.encodePacked(
@@ -118,8 +125,8 @@ contract MorphoBlueDecoderAndSanitizer {
         address onBehalf,
         address receiver
     ) external pure returns (bytes memory addressesFound) {
-        // Nothing to sanitize
-        // Return addresses found
+        if (params.lltv > type(uint160).max) revert MorphoBlueDecoderAndSanitizer__OvercastUint160();
+
         addressesFound = abi.encodePacked(
             params.loanToken,
             params.collateralToken,
