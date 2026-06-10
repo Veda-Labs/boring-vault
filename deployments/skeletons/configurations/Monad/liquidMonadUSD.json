@@ -78,6 +78,16 @@
         "tellerWithLayerZero": false,
         "tellerWithLayerZeroRateLimiting": true,
         "tellerWithYieldStreaming": false
+      },
+      "layerZero": {
+        "endpointAddressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "LayerZeroEndPoint"
+        },
+        "lzTokenAddressOrName": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "name": "ZRO"
+        }
       }
     }
   },
