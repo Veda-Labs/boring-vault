@@ -3400,6 +3400,7 @@ contract ChainValues {
         values[monad]["usdcTokenMessengerV2"] = 0x28b5a0e9C621a5BadaA536219b3a228C8168cf5d.toBytes32();
         values[monad]["usdcMessageTransmitterV2"] = 0x81D40F21F12A8F0E3252Bccb954D722d4c464B64.toBytes32();
 
+        values[monad]["morphoBlue"] = 0xD5D960E8C380B724a48AC59E2DfF1b2CB4a1eAee.toBytes32();
         values[monad]["steakhousePrimeETHVault"] = 0xbeef04b01e0275D4ac2e2986256BB14E3Ff6ef42.toBytes32();
         values[monad]["morphoBlue_wstETH_WETH_marketId"] =
             bytes32(0x8bdb7d2c5024d349772884afb3c5c409bc8de58ed63d79618bf48fb57b595060);
