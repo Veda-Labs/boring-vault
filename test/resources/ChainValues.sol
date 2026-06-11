@@ -80,7 +80,7 @@ contract ChainValues {
     uint32 public constant layerZeroTONEndpointId = 30343;
     uint32 public constant layerZeroPlasmaEndpointId = 30383;
     uint32 public constant layerZeroSeiEndpointId = 30280;
-    uint32 public constant layerZeroMonadEndpointId = 30382;
+    uint32 public constant layerZeroMonadEndpointId = 30390;
 
     uint32 public constant wormholeMainnetChainId = 2;
     uint32 public constant wormholeMonadChainId = 48;
@@ -90,7 +90,7 @@ contract ChainValues {
     uint32 public constant cctpHyperEVMDomainId = 19;
     uint32 public constant cctpPlumeDomainId = 22;
     uint32 public constant cctpOptimismDomainId = 2;
-    uint32 public constant cctpMonadDomainId = 36;
+    uint32 public constant cctpMonadDomainId = 15;
 
     error ChainValues__ZeroAddress(string chainName, string valueName);
     error ChainValues__ZeroBytes32(string chainName, string valueName);
@@ -393,8 +393,7 @@ contract ChainValues {
         values[mainnet]["USDD"] = 0x4f8e5DE400DE08B164E7421B3EE387f461beCD1A.toBytes32();
         values[mainnet]["sUSDD"] = 0xC5d6A7B61d18AfA11435a889557b068BB9f29930.toBytes32();
         values[mainnet]["AUSD"] = 0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a.toBytes32();
-        // AUSD is its own LayerZero OFT — the adapter address is the token itself.
-        values[mainnet]["ausdOFTAdapter"] = 0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a.toBytes32();
+        values[mainnet]["ausdOFTAdapter"] = 0x9CaB7Ede13dc56652E44D2404E969C212f22689b.toBytes32();
         values[mainnet]["BTCb"] = 0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072.toBytes32();
         values[mainnet]["KERNEL"] = 0x3f80B1c54Ae920Be41a77f8B902259D48cf24cCf.toBytes32();
         values[mainnet]["axlSAGA"] = 0xF42fCFfc27A5B8d0afEC45659407B82f9F32fA98.toBytes32();
@@ -3397,8 +3396,7 @@ contract ChainValues {
         values[monad]["wstETH"] = 0x10Aeaf63194db8d453d4D85a06E5eFE1dd0b5417.toBytes32();
         values[monad]["WSTETH"] = 0x10Aeaf63194db8d453d4D85a06E5eFE1dd0b5417.toBytes32();
         values[monad]["AUSD"] = 0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a.toBytes32();
-        // AUSD is its own LayerZero OFT — the adapter address is the token itself.
-        values[monad]["ausdOFTAdapter"] = 0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a.toBytes32();
+        values[monad]["ausdOFTAdapter"] = 0x9CaB7Ede13dc56652E44D2404E969C212f22689b.toBytes32();
         values[monad]["usdcTokenMessengerV2"] = 0x28b5a0e9C621a5BadaA536219b3a228C8168cf5d.toBytes32();
         values[monad]["usdcMessageTransmitterV2"] = 0x81D40F21F12A8F0E3252Bccb954D722d4c464B64.toBytes32();
 
