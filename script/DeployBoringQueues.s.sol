@@ -157,6 +157,9 @@ contract DeployBoringQueuesScript is Script, ContractNames, MerkleTreeHelper {
         // Public functions.
         rolesAuthority.setPublicCapability(address(queue), BoringOnChainQueue.requestOnChainWithdraw.selector, true);
         rolesAuthority.setPublicCapability(
+            address(queue), BoringOnChainQueue.requestOnChainWithdrawFromWrapper.selector, true
+        );
+        rolesAuthority.setPublicCapability(
             address(queue), BoringOnChainQueue.requestOnChainWithdrawWithPermit.selector, true
         );
         rolesAuthority.setPublicCapability(address(queue), BoringOnChainQueue.cancelOnChainWithdraw.selector, true);

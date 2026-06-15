@@ -1223,6 +1223,9 @@ contract DeployArcticArchitectureWithConfigScript is Script, ChainValues {
             if (allowPublicWithdrawals) {
                 _setPublicCapabilityIfNotPresent(address(queue), BoringOnChainQueue.requestOnChainWithdraw.selector);
                 _setPublicCapabilityIfNotPresent(
+                    address(queue), BoringOnChainQueue.requestOnChainWithdrawFromWrapper.selector
+                );
+                _setPublicCapabilityIfNotPresent(
                     address(queue), BoringOnChainQueue.requestOnChainWithdrawWithPermit.selector
                 );
                 _setPublicCapabilityIfNotPresent(address(queue), BoringOnChainQueue.cancelOnChainWithdraw.selector);

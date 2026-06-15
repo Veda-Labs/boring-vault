@@ -134,6 +134,15 @@ contract TellerDecoderAndSanitizer {
         addressesFound = abi.encodePacked(asset);
     }
 
+    function requestOnChainWithdrawFromWrapper(address wrapper, address asset, uint256, uint16, uint24)
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
+        addressesFound = abi.encodePacked(wrapper, asset);
+    }
+
     function cancelOnChainWithdraw(DecoderCustomTypes.OnChainWithdraw memory request)
         external
         pure
