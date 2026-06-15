@@ -47,6 +47,7 @@ contract ChainValues {
     string public constant inkSepolia = "inkSepolia";
     string public constant monad = "monad";
     string public constant sei = "sei";
+    string public constant xLayer = "xLayer";
 
     // Bridging constants.
     uint64 public constant ccipArbitrumChainSelector = 4949039107694359620;
@@ -161,6 +162,7 @@ contract ChainValues {
         _addInkSepoliaValues();
         _addMonadValues();
         _addSeiValues();
+        _addxLayerValues();
     }
 
     function _addMainnetValues() private {
@@ -3394,6 +3396,31 @@ contract ChainValues {
         // CCTP V2
         values[sei]["usdcTokenMessengerV2"] = 0x28b5a0e9C621a5BadaA536219b3a228C8168cf5d.toBytes32();
         values[sei]["usdcMessageTransmitterV2"] = 0x81D40F21F12A8F0E3252Bccb954D722d4c464B64.toBytes32();
+    }
+
+    function _addxLayerValues() private{
+        values[xLayer]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        values[xLayer]["txBundlerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+
+        // Tokens
+        values[xLayer]["WETH"] = 0x5A77f1443D16ee5761d310e38b62f77f726bC71c.toBytes32();
+        values[xLayer]["USDC"] = 0x74b7F16337b8972027F6196A17a631aC6dE26d22.toBytes32();
+        values[xLayer]["USDT0"] = 0x779Ded0c9e1022225f8E0630b35a9b54bE713736.toBytes32();
+        values[xLayer]["xETH"] = 0xE7B000003A45145decf8a28FC755aD5eC5EA025A.toBytes32();
+
+        // Balancer (not deployed on xLayer)
+        values[xLayer]["balancerV2Vault"] = address(1).toBytes32();
+
+        // LayerZero
+        values[xLayer]["LayerZeroEndPoint"] = 0x1a44076050125825900e736c501f859c50fE728c.toBytes32();
+        values[xLayer]["ZRO"] = address(1).toBytes32(); // no ZRO on xLayer
+        values[xLayer]["USDT0_OFT"] = 0x6C96dE32CEa08842dcc4058c14d3aaAD7Fa41dee.toBytes32();
+
+        // Agglayer Unified Bridge
+        values[xLayer]["agglayerBridgeXLayer"] = 0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe.toBytes32();
+
+        // Aave V3
+        values[xLayer]["v3Pool"] = 0xE3F3Caefdd7180F884c01E57f65Df979Af84f116.toBytes32();
     }
 
 }
