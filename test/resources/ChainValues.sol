@@ -944,6 +944,8 @@ contract ChainValues {
         values[mainnet]["steakhouseETH"] = 0xBEEf050ecd6a16c4e7bfFbB52Ebba7846C4b8cD4.toBytes32();
         values[mainnet]["Re7WETH"] = 0x78Fc2c2eD1A4cDb5402365934aE5648aDAd094d0.toBytes32();
         values[mainnet]["PendleWBTC"] = 0x2f1aBb81ed86Be95bcf8178bA62C8e72D6834775.toBytes32();
+        values[mainnet]["gauntletUSDTPrime"] = 0xf3557AD5E984211ac8A0874A670344f2C3376471.toBytes32();
+        values[mainnet]["steakhousePrimeUSDC"] = 0xbeef088055857739C12CD3765F20b7679Def0f51.toBytes32();
 
         // Morpho Rewards
         values[mainnet]["universalRewardsDistributor"] = 0x330eefa8a787552DC5cAd3C3cA644844B1E61Ddb.toBytes32();

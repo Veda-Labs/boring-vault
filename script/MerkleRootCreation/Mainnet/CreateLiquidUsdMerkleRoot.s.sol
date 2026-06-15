@@ -267,6 +267,8 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sentoraPYUSDMain")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sentoraRLUSDMain")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sentoraPRIMEMain")));
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletUSDTPrime")));
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "steakhousePrimeUSDC")));
 
         // ========================== Pendle ==========================
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendleUSDeMarket"), true);
