@@ -3419,7 +3419,25 @@ contract ChainValues {
 
         values[monad]["wormholeMultiTokenExecutor"] = 0xFEA937F7124E19124671f1685671d3f04a9Af4E4.toBytes32();
         values[monad]["wormholeMultiTokenNtt"] = 0x36878C6FCa7e0E8a88F90dc410CfBBcA5B695C95.toBytes32();
+        // The Wormhole executor's payee + quote-signer are off-chain service identities; the same
+        // addresses sign across chains the executor supports.
+        values[monad]["wormholeMultiTokenExecutorPayee"] = 0x7D73bE2ac3edDc8C5c0A1418b410b9710d4AF40D.toBytes32();
+        values[monad]["wormholeExecutorQuoter"] = 0xa54008017941EcE968623a0Dd8Ee907E2b133596.toBytes32();
+        values[monad]["wormholeExecutorPayee"] = 0x6a8BFC410A3Cc7306d52872F116AFb12F1cec6C6.toBytes32();
         values[monad]["weth"] = 0xEE8c0E9f1BFFb4Eb878d8f15f368A02a35481242.toBytes32();
+        // Native asset sentinel used by the UniswapV4 helper to rewrite to address(0).
+        values[monad]["ETH"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32();
+
+        // Uniswap V4
+        values[monad]["uniV4PoolManager"] = 0x188d586Ddcf52439676Ca21A244753fA19F9Ea8e.toBytes32();
+        values[monad]["uniV4PositionDescriptor"] = 0x5770D2914355a6D0a39A70AeEa9bcCe55Df4201B.toBytes32();
+        values[monad]["uniV4PositionManager"] = 0x5b7eC4a94fF9beDb700fb82aB09d5846972F4016.toBytes32();
+        values[monad]["uniswapV4PositionManager"] = 0x5b7eC4a94fF9beDb700fb82aB09d5846972F4016.toBytes32();
+        values[monad]["uniV4Quoter"] = 0xa222Dd357A9076d1091Ed6Aa2e16C9742dD26891.toBytes32();
+        values[monad]["uniV4StateView"] = 0x77395F3b2E73aE90843717371294fa97cC419D64.toBytes32();
+        values[monad]["uniV4UniversalRouter"] = 0x0D97Dc33264bfC1c226207428A79b26757fb9dc3.toBytes32();
+        values[monad]["uniV4UniversalRouter_2_1_1"] = 0xFdf682F51FE81Aa4898F0AE2163d8A55c127fbC7.toBytes32();
+        values[monad]["permit2"] = 0x000000000022D473030F116dDEE9F6B43aC78BA3.toBytes32();
     }
 
     function _addSeiValues() private {

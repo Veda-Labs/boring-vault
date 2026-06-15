@@ -28,10 +28,10 @@ import "forge-std/Script.sol";
 contract CreateLiquidMonadUSDMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
-    address public boringVault = address(0);
-    address public managerAddress = address(0);
-    address public accountantAddress = address(0);
-    address public rawDataDecoderAndSanitizer = address(0);
+    address public boringVault = 0x525D01dBb0004565C80bF60E269122759672dAD2;
+    address public managerAddress = 0x71F38f6e336791893916EDC50CE7292240D7b46d;
+    address public accountantAddress = 0xBa814af88A9279386896E3aCFA685BFA7f093d14;
+    address public rawDataDecoderAndSanitizer = 0xDd1169376E8fD99a7141043646cf903A7f4676A2;
 
     function setUp() external {}
 
@@ -49,7 +49,10 @@ contract CreateLiquidMonadUSDMerkleRootScript is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](32);
 
         // ========================== Upshift earnAUSD ==========================
-        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "upshiftEarnAUSDVault")));
+        // The Upshift earnAUSD proxy reverts on symbol()/name(), so the standard
+        // _addERC4626Leafs helper can't be used. Inline the same 5 leaves with literal
+        // descriptions instead.
+        _addUpshiftEarnAUSDLeafs(leafs);
 
         // ========================== Merkl rewards ==========================
         _addMerklClaimLeaf(leafs, getAddress(sourceChain, "merklDistributor"));
@@ -77,5 +80,82 @@ contract CreateLiquidMonadUSDMerkleRootScript is Script, MerkleTreeHelper {
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
+    }
+
+    // The Upshift earnAUSD proxy at 0x36eDbF0C…406aA does not expose ERC20 metadata view
+    // functions, so we cannot rely on `_addERC4626Leafs` (which reads vault.symbol()).
+    // This mirrors that helper's behavior with hardcoded asset / vault labels.
+    function _addUpshiftEarnAUSDLeafs(ManageLeaf[] memory leafs) internal {
+        address vault = getAddress(sourceChain, "upshiftEarnAUSDVault");
+        address asset = getAddress(sourceChain, "AUSD");
+        address bv = getAddress(sourceChain, "boringVault");
+        address decoder = getAddress(sourceChain, "rawDataDecoderAndSanitizer");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            asset,
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve earnAUSD to spend AUSD",
+            decoder
+        );
+        leafs[leafIndex].argumentAddresses[0] = vault;
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            vault,
+            false,
+            "deposit(uint256,address)",
+            new address[](1),
+            "Deposit AUSD into earnAUSD",
+            decoder
+        );
+        leafs[leafIndex].argumentAddresses[0] = bv;
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            vault,
+            false,
+            "withdraw(uint256,address,address)",
+            new address[](2),
+            "Withdraw AUSD from earnAUSD",
+            decoder
+        );
+        leafs[leafIndex].argumentAddresses[0] = bv;
+        leafs[leafIndex].argumentAddresses[1] = bv;
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            vault,
+            false,
+            "mint(uint256,address)",
+            new address[](1),
+            "Mint earnAUSD using AUSD",
+            decoder
+        );
+        leafs[leafIndex].argumentAddresses[0] = bv;
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            vault,
+            false,
+            "redeem(uint256,address,address)",
+            new address[](2),
+            "Redeem earnAUSD for AUSD",
+            decoder
+        );
+        leafs[leafIndex].argumentAddresses[0] = bv;
+        leafs[leafIndex].argumentAddresses[1] = bv;
     }
 }

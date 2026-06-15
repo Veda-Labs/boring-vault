@@ -30,10 +30,10 @@ import "forge-std/Script.sol";
 contract CreateLiquidMonadETHMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
-    address public boringVault = address(0);
-    address public managerAddress = address(0);
-    address public accountantAddress = address(0);
-    address public rawDataDecoderAndSanitizer = address(0);
+    address public boringVault = 0xA024063B630D554078bbF985718B22F3c6870EE0;
+    address public managerAddress = 0xA4F58CCE8c5C42a313e12d3c8FBb983D5B8A09Ef;
+    address public accountantAddress = 0x5ce04a3d8D5297A24bF752d0172064941D8d853b;
+    address public rawDataDecoderAndSanitizer = 0x838fAc7f33231558185DA06d2F1F8dc3fcd5d7C7;
 
     function setUp() external {}
 

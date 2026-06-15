@@ -23,10 +23,10 @@ import "forge-std/Script.sol";
 contract CreateLiquidMonadUSDMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
-    address public boringVault = address(0);
-    address public managerAddress = address(0);
-    address public accountantAddress = address(0);
-    address public rawDataDecoderAndSanitizer = address(0);
+    address public boringVault = 0x525D01dBb0004565C80bF60E269122759672dAD2;
+    address public managerAddress = 0x71F38f6e336791893916EDC50CE7292240D7b46d;
+    address public accountantAddress = 0xBa814af88A9279386896E3aCFA685BFA7f093d14;
+    address public rawDataDecoderAndSanitizer = 0xDd1169376E8fD99a7141043646cf903A7f4676A2;
 
     function setUp() external {}
 
