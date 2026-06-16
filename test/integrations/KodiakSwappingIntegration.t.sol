@@ -121,7 +121,9 @@ contract KodiakSwappingIntegration is Test, MerkleTreeHelper {
         address[] memory token1 = new address[](1);
         token1[0] = getAddress(sourceChain, "beraETH");
         //token1[1] = getAddress(sourceChain, "WEETH");
-        _addUniswapV3Leafs(leafs, token0, token1, false);
+        uint256[] memory fees = new uint256[](1);
+        fees[0] = 500;
+        _addUniswapV3Leafs(leafs, token0, token1, fees, false);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 

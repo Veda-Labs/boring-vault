@@ -116,10 +116,14 @@ contract UniswapV4IntegrationTest is Test, MerkleTreeHelper {
         token0[0] = getAddress(sourceChain, "USDT");
         address[] memory token1 = new address[](1);
         token1[0] = getAddress(sourceChain, "USDC");
-        address[] memory hooks = new address[](1);  
-        hooks[0] = address(0); 
+        address[] memory hooks = new address[](1);
+        hooks[0] = address(0);
+        uint256[] memory fees = new uint256[](1);
+        fees[0] = 100;
+        uint256[] memory tickSpacings = new uint256[](1);
+        tickSpacings[0] = 1;
 
-        _addUniswapV4Leafs(leafs, token0, token1, hooks);
+        _addUniswapV4Leafs(leafs, token0, token1, hooks, fees, tickSpacings);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -247,10 +251,14 @@ contract UniswapV4IntegrationTest is Test, MerkleTreeHelper {
         token0[0] = getAddress(sourceChain, "USDT");
         address[] memory token1 = new address[](1);
         token1[0] = getAddress(sourceChain, "USDC");
-        address[] memory hooks = new address[](1);  
-        hooks[0] = address(0); 
+        address[] memory hooks = new address[](1);
+        hooks[0] = address(0);
+        uint256[] memory fees = new uint256[](1);
+        fees[0] = 100;
+        uint256[] memory tickSpacings = new uint256[](1);
+        tickSpacings[0] = 1;
 
-        _addUniswapV4Leafs(leafs, token0, token1, hooks);
+        _addUniswapV4Leafs(leafs, token0, token1, hooks, fees, tickSpacings);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -378,10 +386,14 @@ contract UniswapV4IntegrationTest is Test, MerkleTreeHelper {
         token0[0] = getAddress(sourceChain, "USDT");
         address[] memory token1 = new address[](1);
         token1[0] = getAddress(sourceChain, "USDC");
-        address[] memory hooks = new address[](1);  
-        hooks[0] = address(0); 
+        address[] memory hooks = new address[](1);
+        hooks[0] = address(0);
+        uint256[] memory fees = new uint256[](1);
+        fees[0] = 100;
+        uint256[] memory tickSpacings = new uint256[](1);
+        tickSpacings[0] = 1;
 
-        _addUniswapV4Leafs(leafs, token0, token1, hooks);
+        _addUniswapV4Leafs(leafs, token0, token1, hooks, fees, tickSpacings);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -509,10 +521,14 @@ contract UniswapV4IntegrationTest is Test, MerkleTreeHelper {
         token0[0] = getAddress(sourceChain, "USDT");
         address[] memory token1 = new address[](1);
         token1[0] = getAddress(sourceChain, "USDC");
-        address[] memory hooks = new address[](1);  
-        hooks[0] = address(0); 
+        address[] memory hooks = new address[](1);
+        hooks[0] = address(0);
+        uint256[] memory fees = new uint256[](1);
+        fees[0] = 100;
+        uint256[] memory tickSpacings = new uint256[](1);
+        tickSpacings[0] = 1;
 
-        _addUniswapV4Leafs(leafs, token0, token1, hooks);
+        _addUniswapV4Leafs(leafs, token0, token1, hooks, fees, tickSpacings);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -684,10 +700,14 @@ contract UniswapV4IntegrationTest is Test, MerkleTreeHelper {
         token0[0] = getAddress(sourceChain, "USDT");
         address[] memory token1 = new address[](1);
         token1[0] = getAddress(sourceChain, "USDC");
-        address[] memory hooks = new address[](1);  
-        hooks[0] = address(0); 
+        address[] memory hooks = new address[](1);
+        hooks[0] = address(0);
+        uint256[] memory fees = new uint256[](1);
+        fees[0] = 100;
+        uint256[] memory tickSpacings = new uint256[](1);
+        tickSpacings[0] = 1;
 
-        _addUniswapV4Leafs(leafs, token0, token1, hooks);
+        _addUniswapV4Leafs(leafs, token0, token1, hooks, fees, tickSpacings);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -778,10 +798,14 @@ contract UniswapV4IntegrationTest is Test, MerkleTreeHelper {
         token0[0] = getAddress(sourceChain, "USDT");
         address[] memory token1 = new address[](1);
         token1[0] = getAddress(sourceChain, "USDC");
-        address[] memory hooks = new address[](1);  
-        hooks[0] = address(0); 
+        address[] memory hooks = new address[](1);
+        hooks[0] = address(0);
+        uint256[] memory fees = new uint256[](1);
+        fees[0] = 100;
+        uint256[] memory tickSpacings = new uint256[](1);
+        tickSpacings[0] = 1;
 
-        _addUniswapV4Leafs(leafs, token0, token1, hooks);
+        _addUniswapV4Leafs(leafs, token0, token1, hooks, fees, tickSpacings);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -961,10 +985,14 @@ contract UniswapV4IntegrationTest is Test, MerkleTreeHelper {
         token0[0] = getAddress(sourceChain, "USDT");
         address[] memory token1 = new address[](1);
         token1[0] = getAddress(sourceChain, "USDC");
-        address[] memory hooks = new address[](1);  
-        hooks[0] = address(0); 
+        address[] memory hooks = new address[](1);
+        hooks[0] = address(0);
+        uint256[] memory fees = new uint256[](1);
+        fees[0] = 100;
+        uint256[] memory tickSpacings = new uint256[](1);
+        tickSpacings[0] = 1;
 
-        _addUniswapV4Leafs(leafs, token0, token1, hooks);
+        _addUniswapV4Leafs(leafs, token0, token1, hooks, fees, tickSpacings);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -1147,10 +1175,14 @@ contract UniswapV4IntegrationTest is Test, MerkleTreeHelper {
         token0[0] = getAddress(sourceChain, "ETH"); //should be address(0), but this is handled in MerkleTreeHelper
         address[] memory token1 = new address[](1);
         token1[0] = getAddress(sourceChain, "USDC");
-        address[] memory hooks = new address[](1);  
-        hooks[0] = address(0); 
+        address[] memory hooks = new address[](1);
+        hooks[0] = address(0);
+        uint256[] memory fees = new uint256[](1);
+        fees[0] = 500;
+        uint256[] memory tickSpacings = new uint256[](1);
+        tickSpacings[0] = 10;
 
-        _addUniswapV4Leafs(leafs, token0, token1, hooks);
+        _addUniswapV4Leafs(leafs, token0, token1, hooks, fees, tickSpacings);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -1272,10 +1304,14 @@ contract UniswapV4IntegrationTest is Test, MerkleTreeHelper {
         token0[0] = getAddress(sourceChain, "ETH"); //should be address(0), but this is handled in MerkleTreeHelper
         address[] memory token1 = new address[](1);
         token1[0] = getAddress(sourceChain, "USDC");
-        address[] memory hooks = new address[](1);  
-        hooks[0] = address(0); 
+        address[] memory hooks = new address[](1);
+        hooks[0] = address(0);
+        uint256[] memory fees = new uint256[](1);
+        fees[0] = 500;
+        uint256[] memory tickSpacings = new uint256[](1);
+        tickSpacings[0] = 10;
 
-        _addUniswapV4Leafs(leafs, token0, token1, hooks);
+        _addUniswapV4Leafs(leafs, token0, token1, hooks, fees, tickSpacings);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -1396,10 +1432,14 @@ contract UniswapV4IntegrationTest is Test, MerkleTreeHelper {
         token0[0] = getAddress(sourceChain, "ETH"); //should be address(0), but this is handled in MerkleTreeHelper
         address[] memory token1 = new address[](1);
         token1[0] = getAddress(sourceChain, "USDC");
-        address[] memory hooks = new address[](1);  
-        hooks[0] = address(0); 
+        address[] memory hooks = new address[](1);
+        hooks[0] = address(0);
+        uint256[] memory fees = new uint256[](1);
+        fees[0] = 500;
+        uint256[] memory tickSpacings = new uint256[](1);
+        tickSpacings[0] = 10;
 
-        _addUniswapV4Leafs(leafs, token0, token1, hooks);
+        _addUniswapV4Leafs(leafs, token0, token1, hooks, fees, tickSpacings);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -1514,10 +1554,14 @@ contract UniswapV4IntegrationTest is Test, MerkleTreeHelper {
         token0[0] = getAddress(sourceChain, "ETH");
         address[] memory token1 = new address[](1);
         token1[0] = getAddress(sourceChain, "USDC");
-        address[] memory hooks = new address[](1); 
-        hooks[0] = address(0);  
+        address[] memory hooks = new address[](1);
+        hooks[0] = address(0);
+        uint256[] memory fees = new uint256[](1);
+        fees[0] = 500;
+        uint256[] memory tickSpacings = new uint256[](1);
+        tickSpacings[0] = 10;
 
-        _addUniswapV4Leafs(leafs, token0, token1, hooks);
+        _addUniswapV4Leafs(leafs, token0, token1, hooks, fees, tickSpacings);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -1696,10 +1740,14 @@ contract UniswapV4IntegrationTest is Test, MerkleTreeHelper {
         token0[0] = getAddress(sourceChain, "ETH");
         address[] memory token1 = new address[](1);
         token1[0] = getAddress(sourceChain, "USDC");
-        address[] memory hooks = new address[](1); 
-        hooks[0] = address(0);  
+        address[] memory hooks = new address[](1);
+        hooks[0] = address(0);
+        uint256[] memory fees = new uint256[](1);
+        fees[0] = 500;
+        uint256[] memory tickSpacings = new uint256[](1);
+        tickSpacings[0] = 10;
 
-        _addUniswapV4Leafs(leafs, token0, token1, hooks);
+        _addUniswapV4Leafs(leafs, token0, token1, hooks, fees, tickSpacings);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 

@@ -17,6 +17,7 @@ import {
 } from "src/base/DecodersAndSanitizers/EtherFiLiquidDecoderAndSanitizer.sol";
 import {UniswapV3SwapRouter02DecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/UniswapV3SwapRouter02DecoderAndSanitizer.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
@@ -124,7 +125,9 @@ contract UniswapV3SwapRouter02IntegrationTest is Test, MerkleTreeHelper {
         address[] memory token1 = new address[](1);
         token1[0] = getAddress(sourceChain, "USDC");
 
-        _addUniswapV3Leafs(leafs, token0, token1, false, true); //false == notswaponly, true == use swapRouter02
+        uint256[] memory fees = new uint256[](1);
+        fees[0] = 500;
+        _addUniswapV3Leafs(leafs, token0, token1, fees, false, true); //false == notswaponly, true == use swapRouter02
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -172,6 +175,6 @@ contract UniswapV3SwapRouter02IntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullUniswapV3DecoderAndSanitizer is UniswapV3SwapRouter02DecoderAndSanitizer {
+contract FullUniswapV3DecoderAndSanitizer is UniswapV3SwapRouter02DecoderAndSanitizer, BaseDecoderAndSanitizer {
     constructor(address _nfpm) UniswapV3SwapRouter02DecoderAndSanitizer(_nfpm) {}
 }

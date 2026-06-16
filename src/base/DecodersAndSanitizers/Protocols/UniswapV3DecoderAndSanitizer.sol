@@ -38,13 +38,22 @@ contract UniswapV3DecoderAndSanitizer {
         uint256 chunkSize = 23; // 3 bytes for uint24 fee, and 20 bytes for address token
         uint256 pathLength = params.path.length;
         if (pathLength % chunkSize != 20) revert UniswapV3DecoderAndSanitizer__BadPathFormat();
-        uint256 pathAddressLength = 1 + (pathLength / chunkSize);
+        uint256 hops = pathLength / chunkSize; // multihop ex: 66 / 23 = 2.86 (floored) = 2. 43 / 23 = 
         uint256 pathIndex;
-        for (uint256 i; i < pathAddressLength; ++i) {
-            addressesFound = abi.encodePacked(addressesFound, params.path[pathIndex:pathIndex + 20]);
+        for (uint256 i = 0; i < hops; ++i) {
+            addressesFound = abi.encodePacked(
+                addressesFound,
+                params.path[pathIndex : pathIndex + 20], //first 20 bytes (address)
+                address(uint160(uint24(bytes3(params.path[pathIndex + 20 : pathIndex + 23])))) //20bytes..23bytes = fee
+            );
             pathIndex += chunkSize;
         }
-        addressesFound = abi.encodePacked(addressesFound, params.recipient);
+
+        addressesFound = abi.encodePacked(
+            addressesFound, 
+            params.path[pathIndex : pathIndex + 20],
+            params.recipient
+        );
     }
 
     function mint(DecoderCustomTypes.MintParams calldata params)
@@ -55,7 +64,12 @@ contract UniswapV3DecoderAndSanitizer {
     {
         // Nothing to sanitize
         // Return addresses found
-        addressesFound = abi.encodePacked(params.token0, params.token1, params.recipient);
+        addressesFound = abi.encodePacked(
+            params.token0, 
+            address(uint160(params.fee)),
+            params.token1, 
+            params.recipient
+        );
     }
 
     function increaseLiquidity(DecoderCustomTypes.IncreaseLiquidityParams calldata params)

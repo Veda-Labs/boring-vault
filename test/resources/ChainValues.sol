@@ -2922,6 +2922,7 @@ contract ChainValues {
         values[hyperEVM]["kHypePendle"] = 0x8867d2b7aDb8609c51810237EcC9A25A2F601B97.toBytes32();
         values[hyperEVM]["pendle_kHYPE_pt_11_13_25"] = 0x311dB0FDe558689550c68355783c95eFDfe25329.toBytes32();
         values[hyperEVM]["pendle_kHYPE_market_3_19_26"] = 0x31104779B2A07A273D6C662419377773083d0b2E.toBytes32();
+        values[hyperEVM]["pendle_kHYPE_market_9_24_26"] = 0xb48B0c95B2ddc464484305b7363FAd5bd5b7A683.toBytes32();
         values[hyperEVM]["pendle_kHYPE_pt_3_19_26"] = 0xea84ca9849D9e76a78B91F221F84e9Ca065FC9f5.toBytes32();
 
         // Valantis
@@ -3375,13 +3376,30 @@ contract ChainValues {
         values[monad]["newDeployer"] = 0xe80F045fc6F551229f98FA21E0Db35784A590e05.toBytes32();
         values[monad]["txBundlerAddress"] = 0xe80F045fc6F551229f98FA21E0Db35784A590e05.toBytes32();
         values[monad]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
+        values[monad]["ETH"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32(); // Monad doesn't have native ETH, using common ETH placeholder to bypass UniV4 helper check
+        values[monad]["NATIVE"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32();
         values[monad]["WMON"] = 0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A.toBytes32();
         values[monad]["mUSD"] = 0xacA92E438df0B2401fF60dA7E4337B687a2435DA.toBytes32();
+        values[monad]["USDC"] = 0x754704Bc059F8C67012fEd69BC8A327a5aafb603.toBytes32();
         values[monad]["steakhouseMUSDVault"] = 0xBEEF067C9D2591aCCAB7d1C336a41ca3bd45b8f5.toBytes32();
         values[monad]["steakhouseUSDCVault"] = 0xBEEF0C61DA39F7EA2bFa7B0f9d6338A3a2DD2fF0.toBytes32();
 
         // MPortal — same deterministic proxy address as mainnet.
         values[monad]["mportalProxy"] = 0xD925C84b55E4e44a53749fF5F2a5A13F63D128fd.toBytes32();
+
+        // UniV3
+        values[monad]["uniswapV3NonFungiblePositionManager"] = 0x7197E214c0b767cFB76Fb734ab638E2c192F4E53.toBytes32();
+        values[monad]["uniV3Router"] = 0xfE31F71C1b106EAc32F1A19239c9a9A72ddfb900.toBytes32();
+        // UniV4
+        values[monad]["uniswapV4PositionManager"] = 0x5b7eC4a94fF9beDb700fb82aB09d5846972F4016.toBytes32();
+        values[monad]["uniV4UniversalRouter"] = 0x0D97Dc33264bfC1c226207428A79b26757fb9dc3.toBytes32();
+        values[monad]["uniV4PoolManager"] = 0x188d586Ddcf52439676Ca21A244753fA19F9Ea8e.toBytes32();
+        values[monad]["uniV4PositionManager"] = 0x5b7eC4a94fF9beDb700fb82aB09d5846972F4016.toBytes32();
+        values[monad]["permit2"] = 0x000000000022D473030F116dDEE9F6B43aC78BA3.toBytes32();
+
+        // CCTP V2
+        values[monad]["usdcTokenMessengerV2"] = 0x28b5a0e9C621a5BadaA536219b3a228C8168cf5d.toBytes32();
+        values[monad]["usdcMessageTransmitterV2"] = 0x81D40F21F12A8F0E3252Bccb954D722d4c464B64.toBytes32();
     }
 
     function _addSeiValues() private {
