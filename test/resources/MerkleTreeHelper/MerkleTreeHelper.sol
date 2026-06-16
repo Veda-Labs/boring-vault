@@ -3913,6 +3913,314 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     }
 
     // ========================================= Uniswap V3 =========================================
+    
+    function _addUniswapV3Leafs(
+        ManageLeaf[] memory leafs,
+        address[] memory token0,
+        address[] memory token1,
+        bool swap_only
+    ) internal {
+        _addUniswapV3LeafsOld(leafs, token0, token1, swap_only, false);
+    }
+
+    function _addUniswapV3Leafs(
+        ManageLeaf[] memory leafs,
+        address[] memory token0,
+        address[] memory token1,
+        bool swap_only,
+        bool swapRouter02
+    ) internal {
+        _addUniswapV3LeafsOld(leafs, token0, token1, swap_only, swapRouter02);
+    }
+
+    function _addUniswapV3LeafsOld(
+        ManageLeaf[] memory leafs,
+        address[] memory token0,
+        address[] memory token1,
+        bool swap_only,
+        bool swapRouter02
+    ) internal {
+        require(token0.length == token1.length, "Token arrays must be of equal length");
+        for (uint256 i; i < token0.length; ++i) {
+            (token0[i], token1[i]) = token0[i] < token1[i] ? (token0[i], token1[i]) : (token1[i], token0[i]);
+
+            if (
+                !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token0[i]][getAddress(
+                    sourceChain, "uniV3Router"
+                )]
+            ) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    token0[i],
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve UniswapV3 Router to spend ", ERC20(token0[i]).symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "uniV3Router");
+                ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token0[i]][getAddress(
+                    sourceChain, "uniV3Router"
+                )] = true;
+            }
+            if (
+                !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token1[i]][getAddress(
+                    sourceChain, "uniV3Router"
+                )]
+            ) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    token1[i],
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve UniswapV3 Router to spend ", ERC20(token1[i]).symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "uniV3Router");
+                ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token1[i]][getAddress(
+                    sourceChain, "uniV3Router"
+                )] = true;
+            }
+
+            //end swap only
+
+            if (!swap_only) {
+                // Approvals for position manager
+                if (
+                    !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token0[i]][getAddress(
+                        sourceChain, "uniswapV3NonFungiblePositionManager"
+                    )]
+                ) {
+                    unchecked {
+                        leafIndex++;
+                    }
+                    leafs[leafIndex] = ManageLeaf(
+                        token0[i],
+                        false,
+                        "approve(address,uint256)",
+                        new address[](1),
+                        string.concat(
+                            "Approve UniswapV3 NonFungible Position Manager to spend ", ERC20(token0[i]).symbol()
+                        ),
+                        getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                    );
+                    leafs[leafIndex].argumentAddresses[0] =
+                        getAddress(sourceChain, "uniswapV3NonFungiblePositionManager");
+                    ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token0[i]][getAddress(
+                        sourceChain, "uniswapV3NonFungiblePositionManager"
+                    )] = true;
+                }
+                if (
+                    !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token1[i]][getAddress(
+                        sourceChain, "uniswapV3NonFungiblePositionManager"
+                    )]
+                ) {
+                    unchecked {
+                        leafIndex++;
+                    }
+                    leafs[leafIndex] = ManageLeaf(
+                        token1[i],
+                        false,
+                        "approve(address,uint256)",
+                        new address[](1),
+                        string.concat(
+                            "Approve UniswapV3 NonFungible Position Manager to spend ", ERC20(token1[i]).symbol()
+                        ),
+                        getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                    );
+                    leafs[leafIndex].argumentAddresses[0] =
+                        getAddress(sourceChain, "uniswapV3NonFungiblePositionManager");
+                    ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token1[i]][getAddress(
+                        sourceChain, "uniswapV3NonFungiblePositionManager"
+                    )] = true;
+                }
+
+                // Minting
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
+                    false,
+                    "mint((address,address,uint24,int24,int24,uint256,uint256,uint256,uint256,address,uint256))",
+                    new address[](3),
+                    string.concat(
+                        "Mint UniswapV3 ", ERC20(token0[i]).symbol(), " ", ERC20(token1[i]).symbol(), " position"
+                    ),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = token0[i];
+                leafs[leafIndex].argumentAddresses[1] = token1[i];
+                leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+
+                // Increase liquidity
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
+                    false,
+                    "increaseLiquidity((uint256,uint256,uint256,uint256,uint256,uint256))",
+                    new address[](4),
+                    string.concat(
+                        "Add liquidity to UniswapV3 ",
+                        ERC20(token0[i]).symbol(),
+                        " ",
+                        ERC20(token1[i]).symbol(),
+                        " position"
+                    ),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = address(0);
+                leafs[leafIndex].argumentAddresses[1] = token0[i];
+                leafs[leafIndex].argumentAddresses[2] = token1[i];
+                leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "boringVault");
+            }
+
+            //BEGIN SWAP ONLY LEAVES
+            // Swapping to move tick in pool.
+            if (!swapRouter02) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    getAddress(sourceChain, "uniV3Router"),
+                    false,
+                    "exactInput((bytes,address,uint256,uint256,uint256))",
+                    new address[](3),
+                    string.concat(
+                        "Swap ",
+                        ERC20(token0[i]).symbol(),
+                        " for ",
+                        ERC20(token1[i]).symbol(),
+                        " using UniswapV3 router"
+                    ),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = token0[i];
+                leafs[leafIndex].argumentAddresses[1] = token1[i];
+                leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    getAddress(sourceChain, "uniV3Router"),
+                    false,
+                    "exactInput((bytes,address,uint256,uint256,uint256))",
+                    new address[](3),
+                    string.concat(
+                        "Swap ",
+                        ERC20(token1[i]).symbol(),
+                        " for ",
+                        ERC20(token0[i]).symbol(),
+                        " using UniswapV3 router"
+                    ),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = token1[i];
+                leafs[leafIndex].argumentAddresses[1] = token0[i];
+                leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+            }
+
+            if (swapRouter02) {
+                //SWAPROUTER02
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    getAddress(sourceChain, "uniV3Router"),
+                    false,
+                    "exactInput((bytes,address,uint256,uint256))",
+                    new address[](3),
+                    string.concat(
+                        "Swap ",
+                        ERC20(token0[i]).symbol(),
+                        " for ",
+                        ERC20(token1[i]).symbol(),
+                        " using UniswapV3 router"
+                    ),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = token0[i];
+                leafs[leafIndex].argumentAddresses[1] = token1[i];
+                leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    getAddress(sourceChain, "uniV3Router"),
+                    false,
+                    "exactInput((bytes,address,uint256,uint256))",
+                    new address[](3),
+                    string.concat(
+                        "Swap ",
+                        ERC20(token1[i]).symbol(),
+                        " for ",
+                        ERC20(token0[i]).symbol(),
+                        " using UniswapV3 router"
+                    ),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = token1[i];
+                leafs[leafIndex].argumentAddresses[1] = token0[i];
+                leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+            }
+        }
+
+        //END FOR LOOP
+        //END SWAP ONLY LEAVES
+
+        if (!swap_only) {
+            // Decrease liquidity
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
+                false,
+                "decreaseLiquidity((uint256,uint128,uint256,uint256,uint256))",
+                new address[](1),
+                "Remove liquidity from UniswapV3 position",
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
+                false,
+                "collect((uint256,address,uint128,uint128))",
+                new address[](2),
+                "Collect fees from UniswapV3 position",
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+
+            // burn
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
+                false,
+                "burn(uint256)",
+                new address[](0),
+                "Burn UniswapV3 position",
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+        }
+    }
+
     function _addUniswapV3Leafs(
         ManageLeaf[] memory leafs,
         address[] memory token0,
