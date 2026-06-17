@@ -158,7 +158,6 @@ contract LegacyTeller_BoringVaultWrapper_Test is BVWTestBase {
         modernWrapper = new BoringVaultWrapper(
             address(this), address(boringVault), address(accountant), "Modern Partner Vault", "MPV"
         );
-        modernWrapper.setAuthority(rolesAuthority);
         rolesAuthority.setUserRole(address(modernWrapper), BULKUSER, true);
 
         // ── Re-deploy `wrapper` (inherited) as the legacy-backed instance ──
@@ -167,7 +166,6 @@ contract LegacyTeller_BoringVaultWrapper_Test is BVWTestBase {
         wrapper = new BoringVaultWrapper(
             address(this), address(boringVault), address(accountant), "Legacy Partner Vault", "LPV"
         );
-        wrapper.setAuthority(rolesAuthority);
         // No BULKUSER grant needed for `wrapper` — legacyTeller.bulkDeposit/bulkWithdraw
         // are not gated by the RolesAuthority; they call vault.enter/exit directly,
         // and legacyTeller already holds MINTER/BURNER.

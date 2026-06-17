@@ -297,16 +297,13 @@ contract ShareLockAndQueueTest is BVWTestBase {
         wrapper.setQueue(address(q));
     }
 
-    /// @notice A wrapper admin who is NOT the BV owner also cannot call setQueue,
-    ///         confirming that wrapper-level Auth is irrelevant for this guard.
+    /// @notice A wrapper owner who is NOT the BV owner also cannot call setQueue,
+    ///         confirming that wrapper-level ownership is irrelevant for this guard.
     function testSetQueueRevertsForWrapperAdminWhoIsNotBVOwner() public {
         BoringOnChainQueue q = new BoringOnChainQueue(
             address(this), address(rolesAuthority), payable(address(boringVault)), address(accountant)
         );
-        // Grant alice the wrapper's ADMIN_ROLE so she can call requiresAuth functions
-        // on the wrapper, but do NOT make her the BV owner.
-        rolesAuthority.setUserRole(alice, MANAGER, true);
-
+        // alice is not the BV owner — setQueue must still revert.
         vm.prank(alice);
         vm.expectRevert(BoringVaultWrapper.BoringVaultWrapper__NotBVAuthorized.selector);
         wrapper.setQueue(address(q));

@@ -11,7 +11,7 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {SafeCast} from "@openzeppelin/contracts/utils/math/SafeCast.sol";
-import {Auth, Authority} from "@solmate/auth/Auth.sol";
+import {Ownable2Step, Ownable} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 import {RolesAuthority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {ERC20 as SolmateERC20} from "@solmate/tokens/ERC20.sol";
 import {BoringVault} from "src/base/BoringVault.sol";
@@ -89,7 +89,7 @@ interface IBoringQueueVault {
  *      The management fee and performance fee are paid to independently
  *      configured recipients (managementFeeRecipient / performanceFeeRecipient).
  */
-contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
+contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
     using SafeERC20 for IERC20;
     using Math for uint256;
 
@@ -261,7 +261,7 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     constructor(address _owner, address _boringVault, address _accountant, string memory _name, string memory _symbol)
         ERC4626(IERC20(_boringVault))
         ERC20(_name, _symbol)
-        Auth(_owner, Authority(address(0)))
+        Ownable(_owner)
     {
         if (address(AccountantWithRateProviders(_accountant).vault()) != address(_boringVault)) {
             revert BoringVaultWrapper__BadAccountant();
@@ -278,12 +278,19 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     //                              ADMIN
     // =========================================================================
 
+    /// @notice Set fee recipients and rates for both the management and performance fee.
+    ///         Settles any outstanding fees at the current configuration first so no
+    ///         appreciation is retroactively re-priced by a rate change.
+    /// @param _managementFeeRecipient  Recipient of minted management-fee shares. Must be non-zero.
+    /// @param _performanceFeeRecipient Recipient of minted performance-fee shares. Must be non-zero.
+    /// @param _managementFee  Annual management fee in basis points. Capped at MAX_MANAGEMENT_FEE (500 bps).
+    /// @param _performanceFee Performance fee in basis points. Capped at MAX_PERFORMANCE_FEE (5_000 bps).
     function setFeeConfig(
         address _managementFeeRecipient,
         address _performanceFeeRecipient,
         uint16 _managementFee,
         uint16 _performanceFee
-    ) external requiresAuth {
+    ) external onlyOwner {
         if (_managementFeeRecipient == address(0) || _performanceFeeRecipient == address(0)) {
             revert BoringVaultWrapper__ZeroAddress();
         }
@@ -306,6 +313,24 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
         performanceFee = _performanceFee;
     }
 
+    /// @notice Mint accumulated escrowed management-fee shares to `to` and reset that
+    ///         bucket. Routed independently from the performance bucket so each party's
+    ///         escrowed fees reach the right destination. Refuses denyTo destinations so
+    ///         admin cannot route fees around the compliance policy.
+    /// @param to Destination for the minted shares. Must not be denylisted by the Teller.
+    function withdrawManagementFees(address to) external onlyOwner {
+        _withdrawEscrowedFees(to, true);
+    }
+
+    /// @notice Mint accumulated escrowed performance-fee shares to `to` and reset that
+    ///         bucket. Routed independently from the management bucket so each party's
+    ///         escrowed fees reach the right destination. Refuses denyTo destinations so
+    ///         admin cannot route fees around the compliance policy.
+    /// @param to Destination for the minted shares. Must not be denylisted by the Teller.
+    function withdrawPerformanceFees(address to) external onlyOwner {
+        _withdrawEscrowedFees(to, false);
+    }
+
     /// @notice Associate (or clear) a withdrawal queue. While a non-zero queue is
     ///         set, redeemAsset() reverts so wrapper users cannot bypass the queue
     ///         via the privileged synchronous bulkWithdraw path. Pass address(0) to
@@ -317,6 +342,8 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     ///      function, or by calling setQueue(0) to clear it. Only the BV owner may
     ///      configure the queue association — no capability registration or selector
     ///      check against the BV's authority is required.
+    /// @param newQueue Address of the BoringOnChainQueue to associate, or address(0) to
+    ///                 clear the queue and re-enable redeemAsset().
     function setQueue(address newQueue) external {
         _requiresBVAuth();
         if (newQueue != address(0) && IBoringQueueVault(newQueue).boringVault() != address(boringVault)) {
@@ -326,17 +353,13 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
         queue = newQueue;
     }
 
-    function accrueFees() external {
-        _accrueFees();
-    }
-
     /**
      * @notice Reset the performance-fee HWM to the current BV rate. Intended
      *         for drawdown recovery: while the rate is below the HWM, perf
      *         fees are frozen until this is called. Settles outstanding fees
      *         at the old HWM first. Reverts if the accountant is paused.
      */
-    function resetHighWaterMark() external requiresAuth {
+    function resetHighWaterMark() external onlyOwner {
         uint96 hwm = performanceHighWaterMark;
         uint96 newHWM_ = SafeCast.toUint96(accountant.getRateSafe());
 
@@ -360,6 +383,7 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     //                         ERC4626 - totalAssets
     // =========================================================================
 
+    /// @notice Total BV shares held by this wrapper, used as the ERC4626 asset base.
     function totalAssets() public view override returns (uint256) {
         return boringVault.balanceOf(address(this));
     }
@@ -379,6 +403,11 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     // pending fees, (3) delegate to OZ super(). Conversion uses the overridden
     // _convertToShares / _convertToAssets below.
 
+    /// @notice Deposit BV shares and receive wrapper shares.
+    /// @dev `receiver` must equal `msg.sender` — the share lock is keyed on the receiver;
+    ///      allowing third-party minting to an arbitrary address would let anyone grief
+    ///      that address by perpetually refreshing its lock. Compliance is enforced and
+    ///      fees are settled before conversion. A share lock is applied on return.
     function deposit(uint256 assets, address receiver) public override nonReentrant returns (uint256) {
         if (receiver != _msgSender()) revert BoringVaultWrapper__ReceiverMustBeCaller();
         _enforceTransferPolicy(_msgSender(), receiver, _msgSender());
@@ -388,6 +417,9 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
         return shares;
     }
 
+    /// @notice Mint an exact number of wrapper shares by depositing the required BV shares.
+    /// @dev Same wrapper-specific restrictions as deposit(): receiver must equal msg.sender,
+    ///      compliance is enforced, fees are settled, and a share lock is applied on return.
     function mint(uint256 shares, address receiver) public override nonReentrant returns (uint256) {
         if (receiver != _msgSender()) revert BoringVaultWrapper__ReceiverMustBeCaller();
         _enforceTransferPolicy(_msgSender(), receiver, _msgSender());
@@ -397,14 +429,32 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
         return assets;
     }
 
-    function withdraw(uint256 assets, address receiver, address shareOwner) public override nonReentrant returns (uint256) {
+    /// @notice Withdraw BV shares by burning the corresponding wrapper shares.
+    /// @dev Compliance (denylist + allowlist) is enforced on `shareOwner`, `receiver`,
+    ///      and the caller. `shareOwner`'s share lock is checked before exit. Fees are
+    ///      settled before conversion so the caller redeems at the post-accrual rate.
+    function withdraw(uint256 assets, address receiver, address shareOwner)
+        public
+        override
+        nonReentrant
+        returns (uint256)
+    {
         _enforceTransferPolicy(shareOwner, receiver, _msgSender());
         _enforceShareLock(shareOwner);
         _accrueFees();
         return super.withdraw(assets, receiver, shareOwner);
     }
 
-    function redeem(uint256 shares, address receiver, address shareOwner) public override nonReentrant returns (uint256) {
+    /// @notice Burn wrapper shares and receive the proportional BV shares.
+    /// @dev Compliance (denylist + allowlist) is enforced on `shareOwner`, `receiver`,
+    ///      and the caller. `shareOwner`'s share lock is checked before exit. Fees are
+    ///      settled before conversion so the caller redeems at the post-accrual rate.
+    function redeem(uint256 shares, address receiver, address shareOwner)
+        public
+        override
+        nonReentrant
+        returns (uint256)
+    {
         _enforceTransferPolicy(shareOwner, receiver, _msgSender());
         _enforceShareLock(shareOwner);
         _accrueFees();
@@ -419,11 +469,15 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     // caps so integrators that quote max*() before exiting don't get a value the
     // contract will then reject.
 
+    /// @notice Returns 0 while `shareOwner`'s wrapper shares are within their share-lock
+    ///         window; otherwise delegates to the ERC4626 base implementation.
     function maxWithdraw(address shareOwner) public view override returns (uint256) {
         if (shareUnlockTime[shareOwner] > block.timestamp) return 0;
         return super.maxWithdraw(shareOwner);
     }
 
+    /// @notice Returns 0 while `shareOwner`'s wrapper shares are within their share-lock
+    ///         window; otherwise delegates to the ERC4626 base implementation.
     function maxRedeem(address shareOwner) public view override returns (uint256) {
         if (shareUnlockTime[shareOwner] > block.timestamp) return 0;
         return super.maxRedeem(shareOwner);
@@ -449,12 +503,17 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     //                  ERC20 - wrapper share transfer hooks
     // =========================================================================
 
+    /// @notice Transfer wrapper shares to `to`. Enforces denylist/allowlist compliance
+    ///         and the sender's share-lock window before delegating to ERC20.
     function transfer(address to, uint256 amount) public override(ERC20, IERC20) returns (bool) {
         _enforceTransferPolicy(_msgSender(), to, _msgSender());
         _enforceShareLock(_msgSender());
         return super.transfer(to, amount);
     }
 
+    /// @notice Transfer wrapper shares from `from` to `to` on behalf of the caller.
+    ///         Enforces denylist/allowlist compliance and `from`'s share-lock window
+    ///         before delegating to ERC20.
     function transferFrom(address from, address to, uint256 amount) public override(ERC20, IERC20) returns (bool) {
         _enforceTransferPolicy(from, to, _msgSender());
         _enforceShareLock(from);
@@ -465,8 +524,21 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     //                       DIRECT ASSET DEPOSIT
     // =========================================================================
 
-    /// @notice Deposit a raw asset and receive wrapper shares in one tx.
+    /// @notice Deposit a raw asset (WETH, USDC, …) and receive wrapper shares in one
+    ///         transaction. Routes through the Teller's bulkDeposit to obtain BV shares,
+    ///         then mints wrapper shares proportional to the BV shares received:
     ///         wrapperShares = bvReceived * (supplyBefore + 10^offset) / (bvBefore + 1).
+    /// @dev A compliance signature is required when the Teller's complianceSignerRole is
+    ///      active. Replay protection is wrapper-scoped and independent from the Teller's
+    ///      own signature tracking. Reverts if the Teller returns zero BV shares.
+    ///      `receiver` must equal `msg.sender` — same share-lock rationale as deposit().
+    /// @param rawAsset    ERC20 token accepted by the underlying Teller.
+    /// @param rawAmount   Amount of `rawAsset` to deposit.
+    /// @param minBVShares Minimum BV shares the Teller must return; slippage guard.
+    /// @param receiver    Recipient of the minted wrapper shares. Must equal msg.sender.
+    /// @param compliance  Deadline and signature for the compliance check. Pass an empty
+    ///                    struct when the Teller has compliance disabled.
+    /// @return wrapperShares Number of wrapper shares minted to `receiver`.
     function depositAsset(
         SolmateERC20 rawAsset,
         uint256 rawAmount,
@@ -510,6 +582,18 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     //                       DIRECT ASSET REDEEM
     // =========================================================================
 
+    /// @notice Burn wrapper shares and withdraw a raw asset in one transaction. Routes
+    ///         through the Teller's bulkWithdraw for synchronous exit. Disabled when a
+    ///         withdrawal queue is configured (reverts with RedeemAssetDisabledWithQueue)
+    ///         to prevent wrapper users from bypassing the queue.
+    /// @dev Compliance and share lock are enforced before the burn. The caller must be
+    ///      `shareOwner` or hold sufficient ERC20 allowance.
+    /// @param asset         ERC20 token to receive, must be supported by the Teller.
+    /// @param wrapperShares Number of wrapper shares to burn.
+    /// @param minAssetOut   Minimum raw-asset amount the Teller must return; slippage guard.
+    /// @param receiver      Recipient of the withdrawn assets.
+    /// @param shareOwner    Owner of the wrapper shares being redeemed.
+    /// @return assetOut     Amount of `asset` delivered to `receiver`.
     function redeemAsset(
         SolmateERC20 asset,
         uint256 wrapperShares,
@@ -586,6 +670,14 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
         }
     }
 
+    /// @notice Trigger a manual fee accrual. Settles pending management and performance
+    ///         fees, mints or escrows the resulting shares, and advances the high-water mark.
+    ///         Callable by anyone; no-ops when supply is zero or no time has elapsed since
+    ///         the last accrual.
+    function accrueFees() external {
+        _accrueFees();
+    }
+
     function _accrueFees() internal {
         uint64 now_ = uint64(block.timestamp);
 
@@ -651,20 +743,6 @@ contract BoringVaultWrapper is ERC4626, Auth, ReentrancyGuard {
     ///         the eventual mint.
     function pendingEscrowedFeeShares() public view returns (uint256) {
         return pendingEscrowedManagementFeeShares + pendingEscrowedPerformanceFeeShares;
-    }
-
-    /// @notice Mint accumulated escrowed management-fee shares to `to` and reset that
-    ///         bucket. Routed independently from the performance bucket so each party's
-    ///         escrowed fees reach the right destination. Refuses denyTo destinations so
-    ///         admin cannot route fees around the compliance policy.
-    function withdrawManagementFees(address to) external requiresAuth {
-        _withdrawEscrowedFees(to, true);
-    }
-
-    /// @notice Mint accumulated escrowed performance-fee shares to `to` and reset that
-    ///         bucket. See withdrawManagementFees for the routing rationale.
-    function withdrawPerformanceFees(address to) external requiresAuth {
-        _withdrawEscrowedFees(to, false);
     }
 
     function _withdrawEscrowedFees(address to, bool management) internal {

@@ -30,7 +30,7 @@ abstract contract BVWTestBase is Test {
     uint8 constant MANAGER_INTERNAL = 4;
     uint8 constant PAUSER = 5;
     uint8 constant STRATEGIST = 7;
-    uint8 constant OWNER_ROLE = 8; // "OWNER" avoided — clashes with solmate Auth.owner
+    uint8 constant OWNER_ROLE = 8; // "OWNER" — role ID 8 in the shared RolesAuthority
     uint8 constant MULTISIG = 9;
     uint8 constant STRATEGIST_MULTISIG = 10;
     uint8 constant UPDATE_EXCHANGE_RATE = 11;
@@ -89,7 +89,6 @@ abstract contract BVWTestBase is Test {
         boringVault.setAuthority(rolesAuthority);
         accountant.setAuthority(rolesAuthority);
         teller.setAuthority(rolesAuthority);
-        wrapper.setAuthority(rolesAuthority);
 
         // BV enter / exit gated by MINTER / BURNER.
         rolesAuthority.setRoleCapability(MINTER, address(boringVault), BoringVault.enter.selector, true);
