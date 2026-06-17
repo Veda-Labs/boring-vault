@@ -38,13 +38,23 @@ contract UniswapV3IntegrationTest is Test, MerkleTreeHelper {
     uint8 public constant BORING_VAULT_ROLE = 5;
     uint8 public constant BALANCER_VAULT_ROLE = 6;
 
+    address internal liveDecoder; 
+
     function setUp() external {
         setSourceChainName("mainnet");
+        
+        vm.createSelectFork(vm.envString("MAINNET_RPC_URL")); // latest block so we can grab the code
+        liveDecoder = 0xe825B233EEc65C3C55f06a1782ddF97a31e93C99;
+        bytes memory liveCode = liveDecoder.code;
+
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
         uint256 blockNumber = 19826676;
 
         _startFork(rpcKey, blockNumber);
+
+        //inject the live decoder bytecode onto the historical fork (the fork that is active during the test).
+        vm.etch(liveDecoder, liveCode);
 
         boringVault = new BoringVault(address(this), "Boring Vault", "BV", 18);
 
@@ -128,7 +138,7 @@ contract UniswapV3IntegrationTest is Test, MerkleTreeHelper {
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
-        _generateTestLeafs(leafs, manageTree);
+        //_generateTestLeafs(leafs, manageTree);
 
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
@@ -442,6 +452,129 @@ contract UniswapV3IntegrationTest is Test, MerkleTreeHelper {
         // Call now works.
         manager.manageVaultWithMerkleVerification(
             manageProofs, decodersAndSanitizers, targets, targetData, new uint256[](8)
+        );
+    }
+
+    function testUniswapV3IntegrationOverloadedOldFunction() external {
+        deal(getAddress(sourceChain, "WETH"), address(boringVault), 1_000e18);
+        deal(getAddress(sourceChain, "WEETH"), address(boringVault), 1_000e18);
+
+        ManageLeaf[] memory leafs = new ManageLeaf[](32);
+        address[] memory token0 = new address[](2);
+        token0[0] = getAddress(sourceChain, "WETH");
+        token0[1] = getAddress(sourceChain, "RETH");
+        address[] memory token1 = new address[](2);
+        token1[0] = getAddress(sourceChain, "RETH");
+        token1[1] = getAddress(sourceChain, "WEETH");
+        
+        //swap out the decoder for the live version
+        rawDataDecoderAndSanitizer = liveDecoder;
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", liveDecoder);
+        _addUniswapV3Leafs(leafs, token0, token1, false, false);
+
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+
+        _generateTestLeafs(leafs, manageTree);
+
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        ManageLeaf[] memory manageLeafs = new ManageLeaf[](9);
+        manageLeafs[0] = leafs[1]; //tokens are sorted, so this is actually leaf 1, token1 becomes token0 during sort
+        manageLeafs[1] = leafs[7]; //exactInput
+        manageLeafs[2] = leafs[2]; //approve nfpm to spend rETH
+        manageLeafs[3] = leafs[9];
+        manageLeafs[4] = leafs[10];
+        manageLeafs[5] = leafs[11];
+        manageLeafs[6] = leafs[14];
+        manageLeafs[7] = leafs[15];
+        manageLeafs[8] = leafs[16];
+        bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
+
+        address[] memory targets = new address[](9);
+        targets[0] = getAddress(sourceChain, "WETH");
+        targets[1] = getAddress(sourceChain, "uniV3Router");
+        targets[2] = getAddress(sourceChain, "RETH"); //token0
+        targets[3] = getAddress(sourceChain, "WEETH"); //token1?
+        targets[4] = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager");
+        targets[5] = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager");
+        targets[6] = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager");
+        targets[7] = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager");
+        targets[8] = getAddress(sourceChain, "uniswapV3NonFungiblePositionManager");
+
+        bytes[] memory targetData = new bytes[](9);
+        targetData[0] = abi.encodeWithSignature(
+            "approve(address,uint256)", getAddress(sourceChain, "uniV3Router"), type(uint256).max
+        );
+        DecoderCustomTypes.ExactInputParams memory exactInputParams = DecoderCustomTypes.ExactInputParams(
+            abi.encodePacked(getAddress(sourceChain, "WETH"), uint24(100), getAddress(sourceChain, "RETH")),
+            address(boringVault),
+            block.timestamp,
+            100e18,
+            0
+        );
+        targetData[1] = abi.encodeWithSignature("exactInput((bytes,address,uint256,uint256,uint256))", exactInputParams);
+        targetData[2] = abi.encodeWithSignature(
+            "approve(address,uint256)",
+            getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
+            type(uint256).max
+        );
+        targetData[3] = abi.encodeWithSignature(
+            "approve(address,uint256)",
+            getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
+            type(uint256).max
+        );
+
+        DecoderCustomTypes.MintParams memory mintParams = DecoderCustomTypes.MintParams(
+            getAddress(sourceChain, "RETH"),
+            getAddress(sourceChain, "WEETH"),
+            uint24(100),
+            int24(600), // lower tick
+            int24(700), // upper tick
+            45e18,
+            45e18,
+            0,
+            0,
+            address(boringVault),
+            block.timestamp
+        );
+
+
+        targetData[4] = abi.encodeWithSignature(
+            "mint((address,address,uint24,int24,int24,uint256,uint256,uint256,uint256,address,uint256))", mintParams
+        );
+        uint256 expectedTokenId = 719588;
+        DecoderCustomTypes.IncreaseLiquidityParams memory increaseLiquidityParams =
+            DecoderCustomTypes.IncreaseLiquidityParams(expectedTokenId, 45e18, 45e18, 0, 0, block.timestamp);
+        targetData[5] = abi.encodeWithSignature(
+            "increaseLiquidity((uint256,uint256,uint256,uint256,uint256,uint256))", increaseLiquidityParams
+        );
+        uint128 expectedLiquidity = 14916033704815587156930 + 14916033704815587156930;
+        DecoderCustomTypes.DecreaseLiquidityParams memory decreaseLiquidityParams =
+            DecoderCustomTypes.DecreaseLiquidityParams(expectedTokenId, expectedLiquidity, 0, 0, block.timestamp);
+        targetData[6] = abi.encodeWithSignature(
+            "decreaseLiquidity((uint256,uint128,uint256,uint256,uint256))", decreaseLiquidityParams
+        );
+
+        DecoderCustomTypes.CollectParams memory collectParams = DecoderCustomTypes.CollectParams(
+            expectedTokenId, address(boringVault), type(uint128).max, type(uint128).max
+        );
+        targetData[7] = abi.encodeWithSignature("collect((uint256,address,uint128,uint128))", collectParams);
+        targetData[8] = abi.encodeWithSignature("burn(uint256)", expectedTokenId);
+
+        //use the a current address (needed to etch since the test is from older blocks)
+        address[] memory decodersAndSanitizers = new address[](9);
+        decodersAndSanitizers[0] = liveDecoder;
+        decodersAndSanitizers[1] = liveDecoder;
+        decodersAndSanitizers[2] = liveDecoder;
+        decodersAndSanitizers[3] = liveDecoder;
+        decodersAndSanitizers[4] = liveDecoder;
+        decodersAndSanitizers[5] = liveDecoder;
+        decodersAndSanitizers[6] = liveDecoder;
+        decodersAndSanitizers[7] = liveDecoder;
+        decodersAndSanitizers[8] = liveDecoder;
+
+        manager.manageVaultWithMerkleVerification(
+            manageProofs, decodersAndSanitizers, targets, targetData, new uint256[](9)
         );
     }
 
