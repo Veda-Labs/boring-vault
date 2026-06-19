@@ -30,6 +30,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
     address public itbDecoderAndSanitizer = 0xb75bfC8B0Cc8588C510DcAE75c67A9DC9cF508d5; 
     address public capDecoderAndSanitizer = 0xE0e86bf98dAA0D2b408Cb038E94bCB9B7864309C;
     address public etherfibtcDecoderAndSanitizer = 0xC48cA54b9F3f8Fc7E5347DE55879851178B485e8;
+    address public merklClaimerDecoderAndSanitizer = 0xe825B233EEc65C3C55f06a1782ddF97a31e93C99;
 
     //one offs
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
@@ -237,6 +238,11 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
 
          _addBTCNLeafs(leafs, getERC20(sourceChain, "cbBTC"), getERC20(sourceChain, "BTCN"), getAddress(sourceChain, "cornSwapFacilitycbBTC"));
         _addBTCNLeafs(leafs, getERC20(sourceChain, "WBTC"), getERC20(sourceChain, "BTCN"), getAddress(sourceChain, "cornSwapFacilityWBTC"));
+
+        // ========================== Merkl ==========================
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", merklClaimerDecoderAndSanitizer);
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "etherfiOpsAddress"));
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ============================ Cap ============================
         {
