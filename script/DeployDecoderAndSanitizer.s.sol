@@ -135,7 +135,7 @@ import {P1USDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/P1USDDeco
 import {SentayETHMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentayETHMainnetDecoderAndSanitizer.sol";
 import {GoldenGooseFillerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/FillerDecoderAndSanitizer.sol"; 
 import {LiquidVaultsOPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidVaultsOPDecoderAndSanitizer.sol"; 
-import {StakedEtherFiDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SymbioticLRTDecoderAndSanitizer.sol";
+import {SymbioticLRTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SymbioticLRTDecoderAndSanitizer.sol";
 import {LiquidUSDSeiDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidUSDSeiDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
@@ -167,7 +167,7 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast(privateKey);
 
-        creationCode = type(StakedEtherFiDecoderAndSanitizer).creationCode;
+        creationCode = type(SymbioticLRTDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(
             getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
             getAddress(sourceChain, "odosRouterV2")
