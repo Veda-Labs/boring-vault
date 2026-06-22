@@ -1,16 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
-import {console} from "@forge-std/Test.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
 
-import {TellerWithMultiAssetSupport, ComplianceData} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {BoringVaultWrapper} from "src/base/Roles/BoringVaultWrapper.sol";
 import {BVWTestBase} from "./BVWTestBase.sol";
 
-/// @title Tests for the gross-rate HWM design and the escrow state-variable accounting.
+/// @title Tests for the gross-rate HWM design and direct fee minting.
 ///
 /// The wrapper tracks its performance-fee HWM on the *gross* `accountant.getRate()`,
 /// deliberately ignoring `feesOwedInBase`. The previous "H-1 net-rate" design subtracted
@@ -22,9 +18,6 @@ import {BVWTestBase} from "./BVWTestBase.sol";
 /// the wrapper layer plus the BV layer additively (the documented "fees-on-fees" model).
 contract FeeAccounting_BoringVaultWrapper_Test is BVWTestBase {
     using FixedPointMathLib for uint256;
-    using SafeTransferLib for ERC20;
-
-    address sweepTarget = makeAddr("sweepTarget");
 
     uint16 constant MGMT_FEE = 200; // 2 %/yr
     uint16 constant PERF_FEE = 1_000; // 10 %
@@ -102,8 +95,9 @@ contract FeeAccounting_BoringVaultWrapper_Test is BVWTestBase {
         (,, uint128 feesOwed,,,,,,,,,) = accountant.accountantState();
         assertGt(uint256(feesOwed), 0, "BV fees pending at deploy time");
 
-        BoringVaultWrapper freshWrapper =
-            new BoringVaultWrapper(address(this), address(boringVault), address(accountant), "Fresh", "FR");
+        BoringVaultWrapper freshWrapper = new BoringVaultWrapper(
+            address(this), address(boringVault), address(accountant), "Fresh", "FR", feeRecipient, feeRecipient, 0, 0
+        );
 
         assertEq(
             uint256(freshWrapper.performanceHighWaterMark()),
@@ -182,184 +176,54 @@ contract FeeAccounting_BoringVaultWrapper_Test is BVWTestBase {
     }
 
     // =========================================================================
-    //                   M-7 — pendingEscrowedFeeShares state variable
+    //                   Direct fee minting
     // =========================================================================
 
-    /// @dev When feeRecipient has denyTo set, fees accumulate in pendingEscrowedFeeShares
-    ///      with no mint and no value lost. The zero-recipient branch is defensive — admin
-    ///      cannot set recipient to address(0) (setFeeConfig reverts) — so only this path
-    ///      is reachable in practice.
-    function testEscrow_DenylistedRecipient_AccumulatesInStateVar() public {
-        wrapper.setFeeConfig(feeRecipient, feeRecipient, MGMT_FEE, PERF_FEE);
-
-        _giveBVShares(alice, 100e18);
-        _wrapBV(alice, 100e18);
-
-        // Denylist the recipient — accruals now route to escrow.
-        teller.setDenyFlags(feeRecipient, false, true, false);
-
-        skip(365 days);
-        uint256 escrowBefore = wrapper.pendingEscrowedFeeShares();
-        wrapper.accrueFees();
-        uint256 escrowAfter = wrapper.pendingEscrowedFeeShares();
-
-        assertGt(escrowAfter, escrowBefore, "Fees recorded as dilution debt");
-        assertEq(wrapper.balanceOf(feeRecipient), 0, "Denylisted recipient receives nothing");
-        assertEq(wrapper.balanceOf(address(wrapper)), 0, "No shares minted to wrapper itself");
-    }
-
-    /// @dev Escrowed fees are NOT real ERC20 supply but DO dilute users via the
-    ///      conversion path — preview must reflect them.
-    function testEscrow_PreviewDilutesByEscrowedShares() public {
-        wrapper.setFeeConfig(feeRecipient, feeRecipient, MGMT_FEE, PERF_FEE);
-        _giveBVShares(alice, 100e18);
-        _wrapBV(alice, 100e18);
-
-        teller.setDenyFlags(feeRecipient, false, true, false); // recipient now blocked
-
-        skip(365 days);
-        wrapper.accrueFees();
-
-        uint256 escrowed = wrapper.pendingEscrowedFeeShares();
-        assertGt(escrowed, 0, "Escrowed shares > 0");
-        assertEq(wrapper.totalSupply(), 100e18 * SHARE_SCALE, "Real totalSupply unchanged (no mint to escrow)");
-
-        // Alice's redeemable BV must reflect the dilution from escrowed fees.
-        uint256 aliceEntitlement = wrapper.convertToAssets(wrapper.balanceOf(alice));
-        assertLt(aliceEntitlement, 100e18, "Alice diluted by escrowed fee debt");
-
-        // New depositor must price assets using the inflated effective supply.
-        _giveBVShares(bob, 50e18);
-        uint256 bobPreview = wrapper.previewDeposit(50e18);
-
-        vm.startPrank(bob);
-        ERC20(address(boringVault)).approve(address(wrapper), 50e18);
-        uint256 bobActual = wrapper.deposit(50e18, bob);
-        vm.stopPrank();
-
-        assertEq(bobPreview, bobActual, "previewDeposit matches execution under escrow");
-    }
-
-    /// @dev withdrawManagement/PerformanceFees mint accumulated escrowed shares to `to`
-    ///      and reset their buckets. Effective supply is unchanged across the operation.
-    function testEscrow_WithdrawFeesMintsAndResets() public {
-        wrapper.setFeeConfig(feeRecipient, feeRecipient, MGMT_FEE, PERF_FEE);
-        _giveBVShares(alice, 100e18);
-        _wrapBV(alice, 100e18);
-
-        teller.setDenyFlags(feeRecipient, false, true, false);
-
-        skip(365 days);
-        wrapper.accrueFees();
-
-        uint256 escrowed = wrapper.pendingEscrowedFeeShares();
-        uint256 realSupplyBefore = wrapper.totalSupply();
-        uint256 aliceEntitlementBefore = wrapper.convertToAssets(wrapper.balanceOf(alice));
-
-        wrapper.withdrawManagementFees(sweepTarget);
-        wrapper.withdrawPerformanceFees(sweepTarget);
-
-        assertEq(wrapper.pendingEscrowedFeeShares(), 0, "Escrow counter reset");
-        assertEq(wrapper.balanceOf(sweepTarget), escrowed, "Sweep target receives escrowed shares");
-        assertEq(wrapper.totalSupply(), realSupplyBefore + escrowed, "Real totalSupply grew by escrowed amount");
-
-        // Alice's entitlement must be the same after the sweep — the withdrawal is a
-        // bookkeeping operation, not a new dilution.
-        uint256 aliceEntitlementAfter = wrapper.convertToAssets(wrapper.balanceOf(alice));
-        assertApproxEqAbs(aliceEntitlementAfter, aliceEntitlementBefore, 1, "Alice's entitlement unchanged by sweep");
-    }
-
-    /// @dev Both escrow-withdrawal functions refuse zero address and denylisted destinations.
-    function testEscrow_WithdrawFeesRejectsBadDestinations() public {
-        wrapper.setFeeConfig(feeRecipient, feeRecipient, MGMT_FEE, PERF_FEE);
-        _giveBVShares(alice, 100e18);
-        _wrapBV(alice, 100e18);
-        teller.setDenyFlags(feeRecipient, false, true, false);
-        skip(365 days);
-        wrapper.accrueFees();
-
-        vm.expectRevert(BoringVaultWrapper.BoringVaultWrapper__ZeroAddress.selector);
-        wrapper.withdrawManagementFees(address(0));
-        vm.expectRevert(BoringVaultWrapper.BoringVaultWrapper__ZeroAddress.selector);
-        wrapper.withdrawPerformanceFees(address(0));
-
-        teller.setDenyFlags(sweepTarget, false, true, false);
-        bytes memory denied = abi.encodeWithSelector(
-            BoringVaultWrapper.BoringVaultWrapper__TransferDenied.selector, address(wrapper), sweepTarget, address(this)
+    /// @dev Recipients are always non-zero, but fees can be disabled independently
+    ///      by setting fee rates to 0.
+    function testConstructor_AllowsZeroFeeRatesWithNonZeroRecipients() public {
+        BoringVaultWrapper disabledFeeWrapper = new BoringVaultWrapper(
+            address(this), address(boringVault), address(accountant), "No Fee", "NF", feeRecipient, feeRecipient, 0, 0
         );
-        vm.expectRevert(denied);
-        wrapper.withdrawManagementFees(sweepTarget);
-        vm.expectRevert(denied);
-        wrapper.withdrawPerformanceFees(sweepTarget);
+
+        assertEq(disabledFeeWrapper.managementFeeRecipient(), feeRecipient, "mgmt recipient set");
+        assertEq(disabledFeeWrapper.performanceFeeRecipient(), feeRecipient, "perf recipient set");
+        assertEq(disabledFeeWrapper.managementFee(), 0, "mgmt fee disabled");
+        assertEq(disabledFeeWrapper.performanceFee(), 0, "perf fee disabled");
     }
 
-    /// @dev When recipient flips from denylisted → allowed, future accruals mint directly
-    ///      to recipient. Previously-escrowed shares stay escrowed until admin sweeps them.
-    ///      Withdrawing the escrow target == feeRecipient is fine.
-    function testEscrow_RecipientUnblockedMidFlight() public {
+    /// @dev Recipients are constructor-required even when both fees are disabled.
+    function testConstructor_ZeroRecipientReverts() public {
+        vm.expectRevert(BoringVaultWrapper.BoringVaultWrapper__ZeroAddress.selector);
+        new BoringVaultWrapper(
+            address(this), address(boringVault), address(accountant), "No Fee", "NF", address(0), feeRecipient, 0, 0
+        );
+
+        vm.expectRevert(BoringVaultWrapper.BoringVaultWrapper__ZeroAddress.selector);
+        new BoringVaultWrapper(
+            address(this), address(boringVault), address(accountant), "No Fee", "NF", feeRecipient, address(0), 0, 0
+        );
+    }
+
+    /// @dev Direct fee minting refuses a denyTo recipient instead of escrowing or
+    ///      minting around the Teller policy.
+    function testFees_DenylistedRecipientRevertsAccrual() public {
         wrapper.setFeeConfig(feeRecipient, feeRecipient, MGMT_FEE, PERF_FEE);
         _giveBVShares(alice, 100e18);
         _wrapBV(alice, 100e18);
 
-        // Phase 1: denylist recipient → fees accumulate in escrow.
         teller.setDenyFlags(feeRecipient, false, true, false);
-        skip(182 days);
-        wrapper.accrueFees();
-        uint256 escrowedPhase1 = wrapper.pendingEscrowedFeeShares();
-        assertGt(escrowedPhase1, 0, "Phase 1 accrued into escrow");
-        assertEq(wrapper.balanceOf(feeRecipient), 0, "Recipient still empty during denylist");
-
-        // Phase 2: un-denylist → next accrual mints to recipient.
-        teller.setDenyFlags(feeRecipient, false, false, false);
-        skip(183 days);
-        wrapper.accrueFees();
-        uint256 recipientBalAfter = wrapper.balanceOf(feeRecipient);
-        assertGt(recipientBalAfter, 0, "Phase 2 minted directly to recipient");
-
-        // Phase 1 escrow is still untouched.
-        assertEq(wrapper.pendingEscrowedFeeShares(), escrowedPhase1, "Escrow preserved until admin sweep");
-
-        // Admin sweeps both buckets to the recipient — full value recovered.
-        wrapper.withdrawManagementFees(feeRecipient);
-        wrapper.withdrawPerformanceFees(feeRecipient);
-        assertEq(wrapper.pendingEscrowedFeeShares(), 0, "Escrow cleared after sweep");
-        assertEq(wrapper.balanceOf(feeRecipient), recipientBalAfter + escrowedPhase1, "Recipient holds both phases");
-    }
-
-    /// @dev Continuous accrual: mgmt fee in a second window must compound over the
-    ///      effective supply (real + escrowed), not just real supply.
-    function testEscrow_AccrualCompoundsOnEffectiveSupply() public {
-        wrapper.setFeeConfig(feeRecipient, feeRecipient, MGMT_FEE, 0); // mgmt only, easier to reason about
-        _giveBVShares(alice, 100e18);
-        _wrapBV(alice, 100e18);
-        uint256 realSupply = wrapper.totalSupply(); // 100e18 * SHARE_SCALE
-
-        teller.setDenyFlags(feeRecipient, false, true, false);
-
-        // Window 1: 1 year of 2% mgmt on real supply → ~2% of realSupply.
         skip(365 days);
-        wrapper.accrueFees();
-        uint256 escrow1 = wrapper.pendingEscrowedFeeShares();
-        uint256 expected1 = realSupply.mulDivDown(uint256(MGMT_FEE) * 365 days, uint256(1e4) * 365 days);
-        assertApproxEqAbs(escrow1, expected1, 1e9, "Window 1 mgmt fee on real supply");
 
-        // Window 2: another year. Effective supply is now realSupply + escrow1, so the
-        // new mgmt slice should be 2% of *that*, not 2% of realSupply.
-        skip(365 days);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                BoringVaultWrapper.BoringVaultWrapper__TransferDenied.selector,
+                address(wrapper),
+                feeRecipient,
+                address(this)
+            )
+        );
         wrapper.accrueFees();
-        uint256 escrow2 = wrapper.pendingEscrowedFeeShares();
-        uint256 newAccrual = escrow2 - escrow1;
-        uint256 expected2 = (realSupply + escrow1).mulDivDown(uint256(MGMT_FEE) * 365 days, uint256(1e4) * 365 days);
-        assertApproxEqAbs(newAccrual, expected2, 1e9, "Window 2 mgmt fee on effective supply (compounded)");
-        assertGt(newAccrual, expected1, "Compounded > non-compounded");
-    }
-
-    /// @dev Sweeping when nothing is owed is a harmless no-op.
-    function testEscrow_WithdrawFeesNoOpWhenEmpty() public {
-        wrapper.withdrawManagementFees(sweepTarget);
-        wrapper.withdrawPerformanceFees(sweepTarget);
-        assertEq(wrapper.balanceOf(sweepTarget), 0, "Nothing minted when escrow is empty");
-        assertEq(wrapper.pendingEscrowedFeeShares(), 0, "Counter unchanged");
     }
 
     // =========================================================================
@@ -399,12 +263,11 @@ contract FeeAccounting_BoringVaultWrapper_Test is BVWTestBase {
 
         assertEq(wrapper.balanceOf(mgmtRecipient), expectedMgmt, "Mgmt recipient holds exactly the mgmt slice");
         assertEq(wrapper.balanceOf(perfRecipient), expectedPerf, "Perf recipient holds exactly the perf slice");
-        assertEq(wrapper.pendingEscrowedFeeShares(), 0, "Nothing escrowed when both recipients are clean");
     }
 
-    /// @dev A blocked management recipient escrows only the mgmt portion; the
-    ///      performance portion still mints to its (clean) recipient.
-    function testSplit_BlockedMgmtRecipientEscrowsOnlyMgmt() public {
+    /// @dev A blocked management recipient reverts the whole accrual. This avoids
+    ///      minting around the Teller policy or partially collecting one fee stream.
+    function testSplit_BlockedMgmtRecipientRevertsAccrual() public {
         address mgmtRecipient = makeAddr("mgmtRecipient");
         address perfRecipient = makeAddr("perfRecipient");
 
@@ -416,25 +279,18 @@ contract FeeAccounting_BoringVaultWrapper_Test is BVWTestBase {
         // Deny the mgmt recipient only.
         teller.setDenyFlags(mgmtRecipient, false, true, false);
 
-        uint256 supplyBefore = wrapper.totalSupply();
-        uint64 lastAccrual = wrapper.lastFeeAccrual();
-
         skip(365 days);
         accountant.updateExchangeRate(1.1e18);
 
-        uint256 elapsed = block.timestamp - lastAccrual;
-        uint256 expectedMgmt = supplyBefore.mulDivDown(uint256(MGMT_FEE) * elapsed, uint256(1e4) * 365 days);
-
-        uint256 totalBV = wrapper.totalAssets();
-        uint256 gainBV = totalBV.mulDivDown(1.1e18 - 1e18, 1.1e18);
-        uint256 feeBV = gainBV.mulDivDown(PERF_FEE, 1e4);
-        uint256 expectedPerf = feeBV.mulDivDown(supplyBefore + expectedMgmt, totalBV);
-
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                BoringVaultWrapper.BoringVaultWrapper__TransferDenied.selector,
+                address(wrapper),
+                mgmtRecipient,
+                address(this)
+            )
+        );
         wrapper.accrueFees();
-
-        assertEq(wrapper.balanceOf(mgmtRecipient), 0, "Blocked mgmt recipient receives nothing");
-        assertEq(wrapper.pendingEscrowedFeeShares(), expectedMgmt, "Only the mgmt slice is escrowed");
-        assertEq(wrapper.balanceOf(perfRecipient), expectedPerf, "Clean perf recipient still minted directly");
     }
 
     /// @dev setFeeConfig reverts if either recipient is the zero address.
@@ -444,85 +300,5 @@ contract FeeAccounting_BoringVaultWrapper_Test is BVWTestBase {
 
         vm.expectRevert(BoringVaultWrapper.BoringVaultWrapper__ZeroAddress.selector);
         wrapper.setFeeConfig(feeRecipient, address(0), MGMT_FEE, PERF_FEE);
-    }
-
-    /// @dev The core reason management and performance escrow are tracked separately:
-    ///      with both recipients distinct and both blocked, each bucket must be
-    ///      withdrawable to its OWN party. A single commingled pool could only sweep to
-    ///      one address, mis-routing the other party's fees.
-    function testSplit_EscrowRoutesToCorrectPartyPerBucket() public {
-        address mgmtRecipient = makeAddr("mgmtRecipient");
-        address perfRecipient = makeAddr("perfRecipient");
-
-        wrapper.setFeeConfig(mgmtRecipient, perfRecipient, MGMT_FEE, PERF_FEE);
-        _giveBVShares(alice, 100e18);
-        _wrapBV(alice, 100e18);
-        _primeAccountant();
-
-        // Block BOTH recipients so both fee streams escrow into their own buckets.
-        teller.setDenyFlags(mgmtRecipient, false, true, false);
-        teller.setDenyFlags(perfRecipient, false, true, false);
-
-        uint256 supplyBefore = wrapper.totalSupply();
-        uint64 lastAccrual = wrapper.lastFeeAccrual();
-
-        skip(365 days);
-        accountant.updateExchangeRate(1.1e18);
-
-        uint256 elapsed = block.timestamp - lastAccrual;
-        uint256 expectedMgmt = supplyBefore.mulDivDown(uint256(MGMT_FEE) * elapsed, uint256(1e4) * 365 days);
-
-        uint256 totalBV = wrapper.totalAssets();
-        uint256 gainBV = totalBV.mulDivDown(1.1e18 - 1e18, 1.1e18);
-        uint256 feeBV = gainBV.mulDivDown(PERF_FEE, 1e4);
-        uint256 expectedPerf = feeBV.mulDivDown(supplyBefore + expectedMgmt, totalBV);
-
-        wrapper.accrueFees();
-
-        // Buckets are tracked independently.
-        assertEq(wrapper.pendingEscrowedManagementFeeShares(), expectedMgmt, "mgmt bucket holds mgmt slice");
-        assertEq(wrapper.pendingEscrowedPerformanceFeeShares(), expectedPerf, "perf bucket holds perf slice");
-
-        // Un-block both and sweep each bucket to its OWN party.
-        teller.setDenyFlags(mgmtRecipient, false, false, false);
-        teller.setDenyFlags(perfRecipient, false, false, false);
-
-        wrapper.withdrawManagementFees(mgmtRecipient);
-        wrapper.withdrawPerformanceFees(perfRecipient);
-
-        // Each party received exactly its own fee stream — no commingling.
-        assertEq(wrapper.balanceOf(mgmtRecipient), expectedMgmt, "mgmt party gets only the mgmt slice");
-        assertEq(wrapper.balanceOf(perfRecipient), expectedPerf, "perf party gets only the perf slice");
-        assertEq(wrapper.pendingEscrowedFeeShares(), 0, "both buckets cleared");
-    }
-
-    /// @dev Withdrawing one bucket leaves the other untouched.
-    function testSplit_WithdrawingOneBucketLeavesOther() public {
-        address mgmtRecipient = makeAddr("mgmtRecipient");
-        address perfRecipient = makeAddr("perfRecipient");
-
-        wrapper.setFeeConfig(mgmtRecipient, perfRecipient, MGMT_FEE, PERF_FEE);
-        _giveBVShares(alice, 100e18);
-        _wrapBV(alice, 100e18);
-        _primeAccountant();
-
-        teller.setDenyFlags(mgmtRecipient, false, true, false);
-        teller.setDenyFlags(perfRecipient, false, true, false);
-
-        skip(365 days);
-        accountant.updateExchangeRate(1.1e18);
-        wrapper.accrueFees();
-
-        uint256 mgmtBucket = wrapper.pendingEscrowedManagementFeeShares();
-        uint256 perfBucket = wrapper.pendingEscrowedPerformanceFeeShares();
-        assertGt(mgmtBucket, 0, "mgmt escrowed");
-        assertGt(perfBucket, 0, "perf escrowed");
-
-        teller.setDenyFlags(mgmtRecipient, false, false, false);
-        wrapper.withdrawManagementFees(mgmtRecipient);
-
-        assertEq(wrapper.balanceOf(mgmtRecipient), mgmtBucket, "mgmt swept");
-        assertEq(wrapper.pendingEscrowedManagementFeeShares(), 0, "mgmt bucket cleared");
-        assertEq(wrapper.pendingEscrowedPerformanceFeeShares(), perfBucket, "perf bucket preserved");
     }
 }

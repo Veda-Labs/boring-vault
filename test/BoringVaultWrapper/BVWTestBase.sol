@@ -82,8 +82,17 @@ abstract contract BVWTestBase is Test {
         teller = new TellerWithMultiAssetSupport(
             address(this), address(boringVault), address(accountant), address(baseAsset)
         );
-        wrapper =
-            new BoringVaultWrapper(address(this), address(boringVault), address(accountant), "Partner Vault", "PV");
+        wrapper = new BoringVaultWrapper(
+            address(this),
+            address(boringVault),
+            address(accountant),
+            "Partner Vault",
+            "PV",
+            feeRecipient,
+            feeRecipient,
+            0,
+            0
+        );
         rolesAuthority = new RolesAuthority(address(this), Authority(address(0)));
 
         boringVault.setAuthority(rolesAuthority);

@@ -87,7 +87,8 @@ interface IBoringQueueVault {
  * @dev White-labeling: deploy one instance per partner with independent
  *      name / symbol / fee recipients / fee rates over the same BoringVault.
  *      The management fee and performance fee are paid to independently
- *      configured recipients (managementFeeRecipient / performanceFeeRecipient).
+ *      configured non-zero recipients (managementFeeRecipient /
+ *      performanceFeeRecipient). Set fee rates to 0 to disable either fee.
  */
 contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
     using SafeERC20 for IERC20;
@@ -109,6 +110,9 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
 
     /// @notice Virtual-share offset for inflation-attack mitigation.
     uint8 public constant DECIMALS_OFFSET = 6;
+
+    /// @notice Virtual-shares constant.
+    uint256 private constant VIRTUAL_SHARES = 10 ** DECIMALS_OFFSET;
 
     // =========================================================================
     //                              IMMUTABLES
@@ -149,23 +153,6 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
     ///         same unit as accountant.getRate().
     uint96 public performanceHighWaterMark;
 
-    /// @notice Management-fee shares accrued but not minted, held as a dilution debt
-    ///         until admin calls withdrawManagementFees(to). Populated when the
-    ///         management recipient is unset or currently has denyTo on the Teller.
-    uint256 public pendingEscrowedManagementFeeShares;
-
-    /// @notice Performance-fee shares accrued but not minted, held as a dilution debt
-    ///         until admin calls withdrawPerformanceFees(to). Populated when the
-    ///         performance recipient is unset or currently has denyTo on the Teller.
-    ///
-    /// @dev    Management and performance escrow are tracked separately so each can be
-    ///         swept to its own recipient: a single commingled pool could only be
-    ///         withdrawn to one address, mis-routing one party's fees to the other.
-    ///         The combined total (counted as supply by the fee/preview math so
-    ///         user-facing conversions stay consistent with the eventual mint) is
-    ///         exposed via pendingEscrowedFeeShares().
-    uint256 public pendingEscrowedPerformanceFeeShares;
-
     /// @notice Replay protection for wrapper-domain compliance signatures.
     mapping(bytes32 messageHash => bool used) public usedComplianceSignatures;
 
@@ -194,8 +181,8 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
     error BoringVaultWrapper__BadQueue();
     /// @dev redeemAsset() while a withdrawal queue is configured. Use redeem/withdraw.
     error BoringVaultWrapper__RedeemAssetDisabledWithQueue();
-    /// @dev setQueue() called by an address that is not authorized by the underlying
-    ///      BoringVault's own authority. Queue governance belongs to the BV operator,
+    /// @dev setQueue() called by an address that is not the underlying BoringVault
+    ///      owner. Queue governance belongs to the BV operator,
     ///      not the partner wrapper admin, so that no partner can unilaterally bypass
     ///      a BoringQueue by simply omitting the setQueue() call.
     error BoringVaultWrapper__NotBVAuthorized();
@@ -246,29 +233,36 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
         uint256 assetOut
     );
 
-    /// @notice Emitted when fees are recorded as a dilution debt instead of minted.
-    event FeesEscrowed(uint256 managementFeeShares, uint256 performanceFeeShares);
-
-    /// @notice Emitted when admin mints accumulated escrowed fees to `to`.
-    ///         `isManagementFee` distinguishes the management escrow bucket from the
-    ///         performance escrow bucket.
-    event FeesWithdrawn(address indexed to, uint256 shares, bool isManagementFee);
-
     // =========================================================================
     //                             CONSTRUCTOR
     // =========================================================================
 
-    constructor(address _owner, address _boringVault, address _accountant, string memory _name, string memory _symbol)
-        ERC4626(IERC20(_boringVault))
-        ERC20(_name, _symbol)
-        Ownable(_owner)
-    {
+    constructor(
+        address _owner,
+        address _boringVault,
+        address _accountant,
+        string memory _name,
+        string memory _symbol,
+        address _managementFeeRecipient,
+        address _performanceFeeRecipient,
+        uint16 _managementFee,
+        uint16 _performanceFee
+    ) ERC4626(IERC20(_boringVault)) ERC20(_name, _symbol) Ownable(_owner) {
         if (address(AccountantWithRateProviders(_accountant).vault()) != address(_boringVault)) {
             revert BoringVaultWrapper__BadAccountant();
         }
+        if (_managementFeeRecipient == address(0) || _performanceFeeRecipient == address(0)) {
+            revert BoringVaultWrapper__ZeroAddress();
+        }
+        if (_managementFee > MAX_MANAGEMENT_FEE) revert BoringVaultWrapper__FeeTooHigh();
+        if (_performanceFee > MAX_PERFORMANCE_FEE) revert BoringVaultWrapper__FeeTooHigh();
 
         boringVault = BoringVault(payable(_boringVault));
         accountant = AccountantWithRateProviders(_accountant);
+        managementFeeRecipient = _managementFeeRecipient;
+        performanceFeeRecipient = _performanceFeeRecipient;
+        managementFee = _managementFee;
+        performanceFee = _performanceFee;
 
         // Seed HWM at the current gross rate.
         performanceHighWaterMark = SafeCast.toUint96(AccountantWithRateProviders(_accountant).getRateSafe());
@@ -311,24 +305,6 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
         performanceFeeRecipient = _performanceFeeRecipient;
         managementFee = _managementFee;
         performanceFee = _performanceFee;
-    }
-
-    /// @notice Mint accumulated escrowed management-fee shares to `to` and reset that
-    ///         bucket. Routed independently from the performance bucket so each party's
-    ///         escrowed fees reach the right destination. Refuses denyTo destinations so
-    ///         admin cannot route fees around the compliance policy.
-    /// @param to Destination for the minted shares. Must not be denylisted by the Teller.
-    function withdrawManagementFees(address to) external onlyOwner {
-        _withdrawEscrowedFees(to, true);
-    }
-
-    /// @notice Mint accumulated escrowed performance-fee shares to `to` and reset that
-    ///         bucket. Routed independently from the management bucket so each party's
-    ///         escrowed fees reach the right destination. Refuses denyTo destinations so
-    ///         admin cannot route fees around the compliance policy.
-    /// @param to Destination for the minted shares. Must not be denylisted by the Teller.
-    function withdrawPerformanceFees(address to) external onlyOwner {
-        _withdrawEscrowedFees(to, false);
     }
 
     /// @notice Associate (or clear) a withdrawal queue. While a non-zero queue is
@@ -491,12 +467,12 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
 
     function _convertToShares(uint256 assets, Math.Rounding rounding) internal view override returns (uint256) {
         (uint256 supply, uint256 totalAss) = _simulateAccruedState();
-        return assets.mulDiv(supply + 10 ** _decimalsOffset(), totalAss + 1, rounding);
+        return assets.mulDiv(supply + VIRTUAL_SHARES, totalAss + 1, rounding);
     }
 
     function _convertToAssets(uint256 shares, Math.Rounding rounding) internal view override returns (uint256) {
         (uint256 supply, uint256 totalAss) = _simulateAccruedState();
-        return shares.mulDiv(totalAss + 1, supply + 10 ** _decimalsOffset(), rounding);
+        return shares.mulDiv(totalAss + 1, supply + VIRTUAL_SHARES, rounding);
     }
 
     // =========================================================================
@@ -548,26 +524,26 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
     ) external nonReentrant returns (uint256 wrapperShares) {
         if (receiver != _msgSender()) revert BoringVaultWrapper__ReceiverMustBeCaller();
 
-        TellerWithMultiAssetSupport _teller = _getTeller();
+        TellerWithMultiAssetSupport teller = _getTeller();
 
-        _enforceTransferPolicy(_msgSender(), receiver, _msgSender());
-        _verifyComplianceSignature(_msgSender(), receiver, address(rawAsset), rawAmount, compliance);
+        _enforceTransferPolicy(teller, _msgSender(), receiver, _msgSender());
+        _verifyComplianceSignature(teller, _msgSender(), receiver, address(rawAsset), rawAmount, compliance);
 
         _accrueFees();
 
         uint256 bvBefore = boringVault.balanceOf(address(this));
-        uint256 supplyBefore = totalSupply() + pendingEscrowedFeeShares();
+        uint256 supplyBefore = totalSupply();
 
         IERC20 asset_ = IERC20(address(rawAsset));
         asset_.safeTransferFrom(_msgSender(), address(this), rawAmount);
         asset_.forceApprove(address(boringVault), rawAmount);
 
-        _teller.bulkDeposit(rawAsset, rawAmount, minBVShares, address(this));
+        teller.bulkDeposit(rawAsset, rawAmount, minBVShares, address(this));
 
         uint256 bvReceived = boringVault.balanceOf(address(this)) - bvBefore;
         if (bvReceived == 0) revert BoringVaultWrapper__ZeroBVSharesReceived();
 
-        wrapperShares = bvReceived.mulDiv(supplyBefore + 10 ** _decimalsOffset(), bvBefore + 1, Math.Rounding.Floor);
+        wrapperShares = bvReceived.mulDiv(supplyBefore + VIRTUAL_SHARES, bvBefore + 1, Math.Rounding.Floor);
 
         if (wrapperShares == 0) revert BoringVaultWrapper__ZeroBVSharesReceived();
 
@@ -603,9 +579,9 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
     ) external nonReentrant returns (uint256 assetOut) {
         if (queue != address(0)) revert BoringVaultWrapper__RedeemAssetDisabledWithQueue();
 
-        TellerWithMultiAssetSupport _teller = _getTeller();
+        TellerWithMultiAssetSupport teller = _getTeller();
 
-        _enforceTransferPolicy(shareOwner, receiver, _msgSender());
+        _enforceTransferPolicy(teller, shareOwner, receiver, _msgSender());
         _enforceShareLock(shareOwner);
 
         _accrueFees();
@@ -614,14 +590,14 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
             _spendAllowance(shareOwner, _msgSender(), wrapperShares);
         }
 
-        uint256 supply = totalSupply() + pendingEscrowedFeeShares();
+        uint256 supply = totalSupply();
         uint256 totalBV = boringVault.balanceOf(address(this));
 
-        uint256 bvToRedeem = wrapperShares.mulDiv(totalBV + 1, supply + 10 ** _decimalsOffset(), Math.Rounding.Floor);
+        uint256 bvToRedeem = wrapperShares.mulDiv(totalBV + 1, supply + VIRTUAL_SHARES, Math.Rounding.Floor);
 
         _burn(shareOwner, wrapperShares);
 
-        assetOut = _teller.bulkWithdraw(asset, bvToRedeem, minAssetOut, receiver);
+        assetOut = teller.bulkWithdraw(asset, bvToRedeem, minAssetOut, receiver);
 
         emit Withdraw(_msgSender(), receiver, shareOwner, bvToRedeem, wrapperShares);
         emit AssetRedeem(_msgSender(), receiver, address(asset), shareOwner, wrapperShares, bvToRedeem, assetOut);
@@ -632,9 +608,7 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
     // =========================================================================
 
     function _pendingFeeShares() internal view returns (uint256 mgmtShares, uint256 perfShares, uint96 newHWM) {
-        // Effective supply includes escrowed fee shares so they share dilution
-        // with real holders.
-        uint256 supply = totalSupply() + pendingEscrowedFeeShares();
+        uint256 supply = totalSupply();
         if (supply == 0) return (0, 0, 0);
 
         uint16 mgmtFee = managementFee;
@@ -671,9 +645,9 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
     }
 
     /// @notice Trigger a manual fee accrual. Settles pending management and performance
-    ///         fees, mints or escrows the resulting shares, and advances the high-water mark.
-    ///         Callable by anyone; no-ops when supply is zero or no time has elapsed since
-    ///         the last accrual.
+    ///         fees, mints the resulting shares, and advances the high-water mark.
+    ///         Callable by anyone; no-ops when supply is zero or no management,
+    ///         performance, or HWM update is pending.
     function accrueFees() external {
         _accrueFees();
     }
@@ -681,7 +655,7 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
     function _accrueFees() internal {
         uint64 now_ = uint64(block.timestamp);
 
-        if (totalSupply() + pendingEscrowedFeeShares() == 0) {
+        if (totalSupply() == 0) {
             lastFeeAccrual = now_;
             return;
         }
@@ -698,87 +672,31 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
         if (mgmtShares + perfShares == 0) return;
 
         // Management and performance portions are routed to their own recipients
-        // and checked independently. For either portion, if its recipient is unset
-        // or currently denyTo, that portion accrues into its own escrow bucket as a
-        // dilution debt (admin sweeps via withdrawManagementFees / withdrawPerformanceFees);
-        // otherwise it is minted directly. Escrowed shares are still counted in
-        // user-facing share math.
-        uint256 mintedMgmt;
-        uint256 mintedPerf;
-        uint256 escrowedMgmt;
-        uint256 escrowedPerf;
-
-        if (mgmtShares > 0) {
-            address recipient = managementFeeRecipient;
-            if (recipient == address(0) || _isFeeRecipientBlocked(recipient)) {
-                escrowedMgmt = mgmtShares;
-            } else {
-                _mint(recipient, mgmtShares);
-                mintedMgmt = mgmtShares;
-            }
-        }
-
-        if (perfShares > 0) {
-            address recipient = performanceFeeRecipient;
-            if (recipient == address(0) || _isFeeRecipientBlocked(recipient)) {
-                escrowedPerf = perfShares;
-            } else {
-                _mint(recipient, perfShares);
-                mintedPerf = perfShares;
-            }
-        }
-
-        if (escrowedMgmt > 0) pendingEscrowedManagementFeeShares += escrowedMgmt;
-        if (escrowedPerf > 0) pendingEscrowedPerformanceFeeShares += escrowedPerf;
-        if (escrowedMgmt + escrowedPerf > 0) {
-            emit FeesEscrowed(escrowedMgmt, escrowedPerf);
-        }
-        if (mintedMgmt + mintedPerf > 0) {
-            emit FeesAccrued(mintedMgmt, mintedPerf);
-        }
+        // and checked independently. Recipients are required to be non-zero, and a
+        // denyTo recipient blocks accrual rather than bypassing the Teller policy.
+        TellerWithMultiAssetSupport teller = _getTeller();
+        _mintFeeShares(teller, managementFeeRecipient, mgmtShares);
+        _mintFeeShares(teller, performanceFeeRecipient, perfShares);
+        emit FeesAccrued(mgmtShares, perfShares);
     }
 
-    /// @notice Total escrowed fee shares across both buckets. Counted as supply by
-    ///         the fee/preview math so user-facing conversions stay consistent with
-    ///         the eventual mint.
-    function pendingEscrowedFeeShares() public view returns (uint256) {
-        return pendingEscrowedManagementFeeShares + pendingEscrowedPerformanceFeeShares;
-    }
-
-    function _withdrawEscrowedFees(address to, bool management) internal {
-        if (to == address(0)) revert BoringVaultWrapper__ZeroAddress();
-
-        TellerWithMultiAssetSupport _teller = _getTeller();
-        if (address(_teller) != address(0)) {
-            (, bool toDenyTo,,) = _teller.beforeTransferData(to);
-            if (toDenyTo) revert BoringVaultWrapper__TransferDenied(address(this), to, _msgSender());
-        }
-
-        _accrueFees();
-
-        uint256 shares = management ? pendingEscrowedManagementFeeShares : pendingEscrowedPerformanceFeeShares;
-        if (shares == 0) return;
-
-        // Effective supply is unchanged: real +shares, escrowed -shares.
-        if (management) {
-            pendingEscrowedManagementFeeShares = 0;
-        } else {
-            pendingEscrowedPerformanceFeeShares = 0;
-        }
-        _mint(to, shares);
-        emit FeesWithdrawn(to, shares, management);
-    }
-
-    function _isFeeRecipientBlocked(address recipient) internal view returns (bool) {
-        TellerWithMultiAssetSupport _teller = _getTeller();
-        if (address(_teller) == address(0)) return false;
-        (, bool denyTo,,) = _teller.beforeTransferData(recipient);
+    function _isFeeRecipientBlocked(TellerWithMultiAssetSupport teller, address recipient) private view returns (bool) {
+        if (address(teller) == address(0)) return false;
+        (, bool denyTo,,) = teller.beforeTransferData(recipient);
         return denyTo;
     }
 
+    function _mintFeeShares(TellerWithMultiAssetSupport teller, address recipient, uint256 shares) private {
+        if (shares == 0) return;
+        if (_isFeeRecipientBlocked(teller, recipient)) {
+            revert BoringVaultWrapper__TransferDenied(address(this), recipient, _msgSender());
+        }
+        _mint(recipient, shares);
+    }
+
     function _simulateAccruedState() internal view returns (uint256 supply, uint256 totalAss) {
-        // Effective supply = real + escrowed + still-pending for this block.
-        supply = totalSupply() + pendingEscrowedFeeShares();
+        // Effective supply = real + still-pending for this block.
+        supply = totalSupply();
         totalAss = totalAssets();
 
         if (supply == 0) return (supply, totalAss);
@@ -792,13 +710,19 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
     // =========================================================================
 
     function _enforceTransferPolicy(address from, address to, address operator) internal view {
-        TellerWithMultiAssetSupport _teller = _getTeller();
-        // No hook wired → no teller policy to enforce. Allow the transfer.
-        if (address(_teller) == address(0)) return;
+        _enforceTransferPolicy(_getTeller(), from, to, operator);
+    }
 
-        (bool fromDenyFrom,,,) = _teller.beforeTransferData(from);
-        (, bool toDenyTo,,) = _teller.beforeTransferData(to);
-        (,, bool opDenyOperator,) = _teller.beforeTransferData(operator);
+    function _enforceTransferPolicy(TellerWithMultiAssetSupport teller, address from, address to, address operator)
+        private
+        view
+    {
+        // No hook wired → no teller policy to enforce. Allow the transfer.
+        if (address(teller) == address(0)) return;
+
+        (bool fromDenyFrom,,,) = teller.beforeTransferData(from);
+        (, bool toDenyTo,,) = teller.beforeTransferData(to);
+        (,, bool opDenyOperator,) = teller.beforeTransferData(operator);
         if (fromDenyFrom || toDenyTo || opDenyOperator) {
             revert BoringVaultWrapper__TransferDenied(from, to, operator);
         }
@@ -809,14 +733,14 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
         // (no matching selector, no fallback), treat as unrestricted (same as
         // type(uint8).max) and return without blocking the transfer.
         uint8 role;
-        try _teller.transferAllowedRole() returns (uint8 r) {
+        try teller.transferAllowedRole() returns (uint8 r) {
             role = r;
         } catch {
             return;
         }
         if (role == type(uint8).max) return;
 
-        RolesAuthority a = RolesAuthority(address(_teller.authority()));
+        RolesAuthority a = RolesAuthority(address(teller.authority()));
         if (!a.doesUserHaveRole(operator, role) && !a.doesUserHaveRole(from, role) && !a.doesUserHaveRole(to, role)) {
             revert BoringVaultWrapper__TransferNotAllowed();
         }
@@ -840,8 +764,8 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
         }
     }
 
-    /// @notice Returns the teller by reading the BoringVault's live beforeTransfer hook.
-    ///         The hook is always the teller.
+    /// @notice Returns the BoringVault's live beforeTransfer hook cast as a Teller
+    ///         interface. Callers tolerate zero / legacy hooks where needed.
     function _getTeller() private view returns (TellerWithMultiAssetSupport) {
         return TellerWithMultiAssetSupport(address(boringVault.hook()));
     }
@@ -850,9 +774,9 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
     ///         read from its live beforeTransfer hook. Returns 0 when no hook is wired
     ///         or the hook does not expose shareLockPeriod() (legacy / non-teller hooks).
     function _bvShareLockPeriod() internal view returns (uint64) {
-        address bvHook = address(boringVault.hook());
-        if (bvHook == address(0)) return 0;
-        try TellerWithMultiAssetSupport(bvHook).shareLockPeriod() returns (uint64 p) {
+        TellerWithMultiAssetSupport t = _getTeller();
+        if (address(t) == address(0)) return 0;
+        try t.shareLockPeriod() returns (uint64 p) {
             return p;
         } catch {
             return 0;
@@ -875,19 +799,18 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
     }
 
     function _verifyComplianceSignature(
+        TellerWithMultiAssetSupport teller,
         address user,
         address receiver,
         address asset,
         uint256 amount,
         ComplianceData calldata compliance
-    ) internal {
-        TellerWithMultiAssetSupport _teller = _getTeller();
-
+    ) private {
         // Legacy tellers pre-date complianceSignerRole.  If the external call
         // reverts (function selector absent, no fallback), treat the teller as
         // having compliance disabled and skip the check entirely.
         uint8 role;
-        try _teller.complianceSignerRole() returns (uint8 r) {
+        try teller.complianceSignerRole() returns (uint8 r) {
             role = r;
         } catch {
             return;
@@ -899,9 +822,9 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
 
         TellerWithMultiAssetSupportLib.verifyAndMark(
             usedComplianceSignatures,
-            address(_teller.authority()),
+            address(teller.authority()),
             role,
-            _teller.complianceWindow(),
+            teller.complianceWindow(),
             messageHash,
             compliance.deadline,
             compliance.signature

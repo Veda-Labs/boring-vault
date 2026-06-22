@@ -139,8 +139,17 @@ contract WrapperQueueWithdrawTest is BVWTestBase {
         AccountantWithRateProviders decoyAccountant = new AccountantWithRateProviders(
             address(this), address(decoyVault), payoutAddress, 1e18, address(baseAsset), 1.1e4, 0.9e4, 1, 0, 0
         );
-        BoringVaultWrapper decoyWrapper =
-            new BoringVaultWrapper(address(this), address(decoyVault), address(decoyAccountant), "Decoy", "DW");
+        BoringVaultWrapper decoyWrapper = new BoringVaultWrapper(
+            address(this),
+            address(decoyVault),
+            address(decoyAccountant),
+            "Decoy",
+            "DW",
+            feeRecipient,
+            feeRecipient,
+            0,
+            0
+        );
 
         vm.prank(alice);
         vm.expectRevert(BoringOnChainQueue.BoringOnChainQueue__BadWrapper.selector);
@@ -166,8 +175,7 @@ contract WrapperQueueWithdrawTest is BVWTestBase {
 
     /// @notice A wrapper cannot reenter another queue mutation while its redeem is in progress.
     function testRequestFromWrapper_RevertsOnWrapperReentrantRequest() public {
-        ReentrantRequestWrapper maliciousWrapper =
-            new ReentrantRequestWrapper(queue, boringVault, address(baseAsset));
+        ReentrantRequestWrapper maliciousWrapper = new ReentrantRequestWrapper(queue, boringVault, address(baseAsset));
         uint256 shares = 1e18;
 
         _giveBVShares(address(maliciousWrapper), shares);

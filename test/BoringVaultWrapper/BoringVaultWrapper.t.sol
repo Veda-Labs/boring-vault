@@ -731,7 +731,17 @@ contract BoringVaultWrapperTest is BVWTestBase {
 
         // decoyAccountant.vault() == decoyVault != boringVault → BadAccountant
         vm.expectRevert(BoringVaultWrapper.BoringVaultWrapper__BadAccountant.selector);
-        new BoringVaultWrapper(address(this), address(boringVault), address(decoyAccountant), "Partner Vault", "PV");
+        new BoringVaultWrapper(
+            address(this),
+            address(boringVault),
+            address(decoyAccountant),
+            "Partner Vault",
+            "PV",
+            feeRecipient,
+            feeRecipient,
+            0,
+            0
+        );
     }
 
     // =========================================================================
