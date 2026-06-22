@@ -55,6 +55,7 @@ contract ChainValues {
     uint64 public constant ccipBaseChainSelector = 15971525489660198786;
     uint64 public constant ccipBscChainSelector = 11344663589394136015;
     uint64 public constant ccipKatanaChainSelector = 2459028469735686113;
+    uint64 public constant ccipSolanaChainSelector = 124615329519749607;
     uint32 public constant layerZeroBaseEndpointId = 30184;
     uint32 public constant layerZeroMainnetEndpointId = 30101;
     uint32 public constant layerZeroOptimismEndpointId = 30111;
@@ -1155,6 +1156,11 @@ contract ChainValues {
 
         // SparkLend
         values[mainnet]["sparkLendPool"] = 0xC13e21B648A5Ee794902342038FF3aDAB66BE987.toBytes32();
+
+        // Aave V4 (hub and spoke). Users only interact with spokes; hubs hold the liquidity.
+        values[mainnet]["aaveV4CoreHub"] = 0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9.toBytes32();
+        values[mainnet]["aaveV4MainSpoke"] = 0x94e7A5dCbE816e498b89aB752661904E2F56c485.toBytes32();
+        values[mainnet]["aaveV4LidoSpoke"] = 0xe1900480ac69f0B296841Cd01cC37546d92F35Cd.toBytes32();
 
         // Uniswap V3 Pools
         values[mainnet]["wETH_weETH_05"] = 0x7A415B19932c0105c82FDB6b720bb01B0CC2CAe3.toBytes32();
@@ -3370,6 +3376,7 @@ contract ChainValues {
 
     function _addMonadValues() private {
         values[monad]["deployerAddress"] = 0x144dc4DF655a57d871be8f18aA565b82D3E980f5.toBytes32();
+        values[monad]["newDeployer"] = 0xe80F045fc6F551229f98FA21E0Db35784A590e05.toBytes32();
         values[monad]["txBundlerAddress"] = 0x144dc4DF655a57d871be8f18aA565b82D3E980f5.toBytes32();
         values[monad]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
         values[monad]["WMON"] = 0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A.toBytes32();

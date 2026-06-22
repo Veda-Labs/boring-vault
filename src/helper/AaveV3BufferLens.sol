@@ -8,8 +8,9 @@ import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {TellerWithBuffer} from "src/base/Roles/TellerWithBuffer.sol";
 import {AaveV3BufferHelper, IBufferHelper} from "src/base/Roles/AaveV3BufferHelper.sol";
 import {IPool} from "src/interfaces/IPool.sol";
+import {IBufferLens} from "src/interfaces/IBufferLens.sol";
 
-contract AaveV3BufferLens {
+contract AaveV3BufferLens is IBufferLens {
     function getInstantlyWithdrawableAmount(TellerWithBuffer teller, ERC20 asset) external view returns (uint256 withdrawableAmount) {
         (, IBufferHelper withdrawBufferHelper) = teller.currentBufferHelpers(asset);
         address vault = address(teller.vault());

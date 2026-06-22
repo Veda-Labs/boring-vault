@@ -36,3 +36,6 @@ test/limitOrders/*
 .properties-*/
 emv-*-certora-*/
 
+
+# stray leaf-dump scratch artifact written by some integration tests
+testTEST.json
