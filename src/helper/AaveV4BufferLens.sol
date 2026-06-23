@@ -13,6 +13,9 @@ import {IAaveV4Spoke} from "src/interfaces/IAaveV4Spoke.sol";
 import {IAaveV4Hub} from "src/interfaces/IAaveV4Hub.sol";
 
 contract AaveV4BufferLens is IBufferLens {
+    /// @notice Thrown when the configured reserve's underlying does not match the queried asset.
+    error AaveV4BufferLens__ReserveAssetMismatch(address asset, address expected);
+
     /// @dev Spoke reserve flag bits: paused 0x01, frozen 0x02, borrowable 0x04, receiveShares 0x08.
     /// Only paused blocks withdrawals (frozen reserves still allow them).
     uint8 internal constant RESERVE_PAUSED_FLAG = 0x01;
@@ -32,11 +35,13 @@ contract AaveV4BufferLens is IBufferLens {
             AaveV4BufferHelper aaveV4BufferHelper = AaveV4BufferHelper(address(withdrawBufferHelper));
             IAaveV4Spoke spoke = IAaveV4Spoke(aaveV4BufferHelper.aaveV4Spoke());
             // Revert (not return 0) when the asset is not a configured reserve for this helper:
-            // reserveIdFor reverts on an unconfigured asset, and the require catches an underlying
+            // reserveIdFor reverts on an unconfigured asset, and the check below catches an underlying
             // mismatch — a misconfiguration should fail loudly, not silently return a quote.
             uint256 reserveId = aaveV4BufferHelper.reserveIdFor(address(asset));
             IAaveV4Spoke.Reserve memory reserve = spoke.getReserve(reserveId);
-            require(reserve.underlying == address(asset), "AaveV4BufferLens: reserve asset mismatch");
+            if (reserve.underlying != address(asset)) {
+                revert AaveV4BufferLens__ReserveAssetMismatch(address(asset), reserve.underlying);
+            }
 
             // Withdrawals revert outright when the reserve is paused on the spoke or the spoke is
             // inactive/halted on the hub, regardless of liquidity.

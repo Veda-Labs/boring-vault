@@ -11,6 +11,9 @@ import {ERC4626BufferHelper, IBufferHelper} from "src/base/Roles/ERC4626BufferHe
 import {IBufferLens} from "src/interfaces/IBufferLens.sol";
 
 contract ERC4626BufferLens is IBufferLens {
+    /// @notice Thrown when the queried asset is not the ERC4626 vault's underlying asset.
+    error ERC4626BufferLens__AssetMismatch(address asset, address expected);
+
     function getInstantlyWithdrawableAmount(TellerWithBuffer teller, ERC20 asset)
         external
         view
@@ -24,7 +27,9 @@ contract ERC4626BufferLens is IBufferLens {
         } else {
             // If buffer helper is not address(0), withdraw buffer is ERC4626
             ERC4626 erc4626Vault = ERC4626BufferHelper(address(withdrawBufferHelper)).ERC_4626_VAULT();
-            require(erc4626Vault.asset() == asset, "ERC4626BufferLens: Vault asset mismatch");
+            if (address(erc4626Vault.asset()) != address(asset)) {
+                revert ERC4626BufferLens__AssetMismatch(address(asset), address(erc4626Vault.asset()));
+            }
             // This should work if the vault properly implements it
             withdrawableAmount = erc4626Vault.maxWithdraw(vault);
         }

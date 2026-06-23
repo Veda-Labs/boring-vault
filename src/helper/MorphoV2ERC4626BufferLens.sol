@@ -31,6 +31,9 @@ interface IMorphoVaultV1LiquidityAdapter {
 }
 
 contract MorphoV2ERC4626BufferLens is IBufferLens {
+    /// @notice Thrown when the queried asset is not the ERC4626 vault's underlying asset.
+    error MorphoV2ERC4626BufferLens__AssetMismatch(address asset, address expected);
+
     function getInstantlyWithdrawableAmount(TellerWithBuffer teller, ERC20 asset)
         external
         view
@@ -44,7 +47,9 @@ contract MorphoV2ERC4626BufferLens is IBufferLens {
         } else {
             // If buffer helper is not address(0), withdraw buffer is ERC4626
             ERC4626 erc4626Vault = ERC4626BufferHelper(address(withdrawBufferHelper)).ERC_4626_VAULT();
-            require(erc4626Vault.asset() == asset, "ERC4626BufferLens: Vault asset mismatch");
+            if (address(erc4626Vault.asset()) != address(asset)) {
+                revert MorphoV2ERC4626BufferLens__AssetMismatch(address(asset), address(erc4626Vault.asset()));
+            }
 
             uint256 vaultAssets = erc4626Vault.previewRedeem(erc4626Vault.balanceOf(vault));
 

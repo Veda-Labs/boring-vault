@@ -541,7 +541,11 @@ contract AaveV4BufferHelperTest is Test, MerkleTreeHelper {
             abi.encode(reserve)
         );
 
-        vm.expectRevert("AaveV4BufferLens: reserve asset mismatch");
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                AaveV4BufferLens.AaveV4BufferLens__ReserveAssetMismatch.selector, address(WETH), address(WSTETH)
+            )
+        );
         lens.getInstantlyWithdrawableAmount(teller, WETH);
         vm.clearMockedCalls();
     }

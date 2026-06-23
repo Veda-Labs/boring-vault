@@ -16,6 +16,7 @@ import {ILiquidityPool} from "src/interfaces/IStaking.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import {AaveV3BufferHelper} from "src/base/Roles/AaveV3BufferHelper.sol";
+import {AaveV3BufferLens} from "src/helper/AaveV3BufferLens.sol";
 import {GenericRateProviderWithDecimalScaling} from "src/helper/GenericRateProviderWithDecimalScaling.sol";
 import {IBufferHelper} from "src/interfaces/IBufferHelper.sol";
 
@@ -166,6 +167,30 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
         teller.setDepositBufferHelper(USDT, IBufferHelper(bufferHelper));
         teller.setDepositBufferHelper(USDC, IBufferHelper(bufferHelper));
         teller.setDepositBufferHelper(sUSDe, IBufferHelper(bufferHelper));
+    }
+
+    function testAaveV3BufferLensQuotesAndRevertsOnUnlistedReserve() external {
+        AaveV3BufferLens lens = new AaveV3BufferLens();
+
+        // Listed reserve with a supplied position: the lens quotes the (liquidity-capped) aToken balance.
+        uint256 amount = 1_000e6;
+        deal(address(USDT), address(this), amount);
+        USDT.safeApprove(address(boringVault), amount);
+        teller.deposit(USDT, amount, 0, referrer); // deposit buffer routes USDT into Aave V3
+        assertApproxEqAbs(
+            lens.getInstantlyWithdrawableAmount(teller, USDT), amount, 2, "lens should quote the supplied USDT position"
+        );
+
+        // Misconfig: point the (generic) Aave V3 withdraw buffer helper at a token that is not a listed
+        // Aave V3 reserve -- aUSDT (an aToken) is itself never a reserve. The lens must revert loudly
+        // rather than silently return 0, exercising the misconfig-checked-first ordering.
+        (, IBufferHelper aaveV3WithdrawHelper) = teller.currentBufferHelpers(USDT);
+        teller.allowBufferHelper(aUSDT, aaveV3WithdrawHelper);
+        teller.setWithdrawBufferHelper(aUSDT, aaveV3WithdrawHelper);
+        vm.expectRevert(
+            abi.encodeWithSelector(AaveV3BufferLens.AaveV3BufferLens__ReserveNotListed.selector, address(aUSDT))
+        );
+        lens.getInstantlyWithdrawableAmount(teller, aUSDT);
     }
 
     function testAaveV3BufferDepositShapeAndAllowance() external {
