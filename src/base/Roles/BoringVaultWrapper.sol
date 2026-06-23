@@ -191,6 +191,10 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
     ///      to an arbitrary receiver would let anyone refresh that receiver's lock
     ///      (grief). Requiring receiver == caller makes the lock self-imposed only.
     error BoringVaultWrapper__ReceiverMustBeCaller();
+    /// @dev setFeeConfig() or constructor called with a fee recipient that is
+    ///      currently flagged denyTo on the Teller. Setting a denylisted address
+    ///      would freeze the wrapper on the very next fee accrual.
+    error BoringVaultWrapper__FeeRecipientDenylisted(address recipient);
 
     // =========================================================================
     //                               EVENTS
@@ -251,14 +255,11 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
         if (address(AccountantWithRateProviders(_accountant).vault()) != address(_boringVault)) {
             revert BoringVaultWrapper__BadAccountant();
         }
-        if (_managementFeeRecipient == address(0) || _performanceFeeRecipient == address(0)) {
-            revert BoringVaultWrapper__ZeroAddress();
-        }
-        if (_managementFee > MAX_MANAGEMENT_FEE) revert BoringVaultWrapper__FeeTooHigh();
-        if (_performanceFee > MAX_PERFORMANCE_FEE) revert BoringVaultWrapper__FeeTooHigh();
-
         boringVault = BoringVault(payable(_boringVault));
         accountant = AccountantWithRateProviders(_accountant);
+
+        _validateFeeConfig(_managementFeeRecipient, _performanceFeeRecipient, _managementFee, _performanceFee);
+
         managementFeeRecipient = _managementFeeRecipient;
         performanceFeeRecipient = _performanceFeeRecipient;
         managementFee = _managementFee;
@@ -285,11 +286,8 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
         uint16 _managementFee,
         uint16 _performanceFee
     ) external onlyOwner {
-        if (_managementFeeRecipient == address(0) || _performanceFeeRecipient == address(0)) {
-            revert BoringVaultWrapper__ZeroAddress();
-        }
-        if (_managementFee > MAX_MANAGEMENT_FEE) revert BoringVaultWrapper__FeeTooHigh();
-        if (_performanceFee > MAX_PERFORMANCE_FEE) revert BoringVaultWrapper__FeeTooHigh();
+        _validateFeeConfig(_managementFeeRecipient, _performanceFeeRecipient, _managementFee, _performanceFee);
+
         _accrueFees();
         emit FeeConfigSet(
             managementFeeRecipient,
@@ -684,6 +682,28 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
         if (address(teller) == address(0)) return false;
         (, bool denyTo,,) = teller.beforeTransferData(recipient);
         return denyTo;
+    }
+
+    /// @notice Validate a proposed fee configuration: non-zero recipients, fee caps,
+    ///         and neither recipient currently denyTo on the live Teller.
+    ///         The denylist check is a no-op when no hook is wired (address(0) teller).
+    function _validateFeeConfig(address mgmtRecipient, address perfRecipient, uint16 mgmtFee, uint16 perfFee)
+        internal
+        view
+    {
+        if (mgmtRecipient == address(0) || perfRecipient == address(0)) {
+            revert BoringVaultWrapper__ZeroAddress();
+        }
+        if (mgmtFee > MAX_MANAGEMENT_FEE) revert BoringVaultWrapper__FeeTooHigh();
+        if (perfFee > MAX_PERFORMANCE_FEE) revert BoringVaultWrapper__FeeTooHigh();
+
+        TellerWithMultiAssetSupport teller_ = _getTeller();
+        if (_isFeeRecipientBlocked(teller_, mgmtRecipient)) {
+            revert BoringVaultWrapper__FeeRecipientDenylisted(mgmtRecipient);
+        }
+        if (_isFeeRecipientBlocked(teller_, perfRecipient)) {
+            revert BoringVaultWrapper__FeeRecipientDenylisted(perfRecipient);
+        }
     }
 
     function _mintFeeShares(TellerWithMultiAssetSupport teller, address recipient, uint256 shares) private {

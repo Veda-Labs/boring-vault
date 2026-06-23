@@ -3,6 +3,8 @@ pragma solidity 0.8.21;
 
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 
+import {BoringVault} from "src/base/BoringVault.sol";
+import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {BoringVaultWrapper} from "src/base/Roles/BoringVaultWrapper.sol";
 import {BVWTestBase} from "./BVWTestBase.sol";
 
@@ -300,5 +302,93 @@ contract FeeAccounting_BoringVaultWrapper_Test is BVWTestBase {
 
         vm.expectRevert(BoringVaultWrapper.BoringVaultWrapper__ZeroAddress.selector);
         wrapper.setFeeConfig(feeRecipient, address(0), MGMT_FEE, PERF_FEE);
+    }
+
+    // =========================================================================
+    //                   Denylist validation at config time
+    // =========================================================================
+
+    /// @dev setFeeConfig rejects a management recipient that is currently
+    ///      denyTo on the Teller — fail-fast instead of waiting for the first
+    ///      accrueFees() call to brick the wrapper.
+    function testSetFeeConfig_RevertsIfMgmtRecipientDenylisted() public {
+        address denied = makeAddr("deniedMgmt");
+        teller.setDenyFlags(denied, false, true, false);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(BoringVaultWrapper.BoringVaultWrapper__FeeRecipientDenylisted.selector, denied)
+        );
+        wrapper.setFeeConfig(denied, feeRecipient, MGMT_FEE, PERF_FEE);
+    }
+
+    /// @dev setFeeConfig rejects a performance recipient that is currently
+    ///      denyTo on the Teller.
+    function testSetFeeConfig_RevertsIfPerfRecipientDenylisted() public {
+        address denied = makeAddr("deniedPerf");
+        teller.setDenyFlags(denied, false, true, false);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(BoringVaultWrapper.BoringVaultWrapper__FeeRecipientDenylisted.selector, denied)
+        );
+        wrapper.setFeeConfig(feeRecipient, denied, MGMT_FEE, PERF_FEE);
+    }
+
+    /// @dev The constructor rejects a management recipient that is already
+    ///      denyTo on the wired Teller at deploy time.
+    ///      Note: setUp wires boringVault.hook = teller before this test runs,
+    ///      so _getTeller() resolves to the real teller and the check fires.
+    function testConstructor_RevertsIfMgmtRecipientDenylisted() public {
+        address denied = makeAddr("deniedMgmtCtor");
+        teller.setDenyFlags(denied, false, true, false);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(BoringVaultWrapper.BoringVaultWrapper__FeeRecipientDenylisted.selector, denied)
+        );
+        new BoringVaultWrapper(
+            address(this), address(boringVault), address(accountant), "Test", "TST", denied, feeRecipient, 0, 0
+        );
+    }
+
+    /// @dev The constructor rejects a performance recipient that is already
+    ///      denyTo on the wired Teller at deploy time.
+    function testConstructor_RevertsIfPerfRecipientDenylisted() public {
+        address denied = makeAddr("deniedPerfCtor");
+        teller.setDenyFlags(denied, false, true, false);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(BoringVaultWrapper.BoringVaultWrapper__FeeRecipientDenylisted.selector, denied)
+        );
+        new BoringVaultWrapper(
+            address(this), address(boringVault), address(accountant), "Test", "TST", feeRecipient, denied, 0, 0
+        );
+    }
+
+    /// @dev Confirm the check is a no-op when the BV hook is not yet set
+    ///      (address(0) teller). Deploying against a hookless vault with a
+    ///      would-be-blocked address must not revert — the check can only
+    ///      fire when there is a live Teller to query.
+    function testConstructor_NoCheckWhenHookUnset() public {
+        // A fresh vault with no hook wired.
+        BoringVault freshVault = new BoringVault(address(this), "Fresh Vault", "FV", 18);
+        AccountantWithRateProviders freshAccountant = new AccountantWithRateProviders(
+            address(this), address(freshVault), payoutAddress, 1e18, address(baseAsset), 1.1e4, 0.9e4, 1, 0, 0
+        );
+        // hook == address(0): _getTeller() returns address(0), check is skipped.
+        address wouldBeDenied = makeAddr("wouldBeDenied");
+        // This must NOT revert even though wouldBeDenied is on the real teller's denylist.
+        teller.setDenyFlags(wouldBeDenied, false, true, false);
+
+        BoringVaultWrapper freshWrapper = new BoringVaultWrapper(
+            address(this),
+            address(freshVault),
+            address(freshAccountant),
+            "Fresh",
+            "FR",
+            wouldBeDenied,
+            feeRecipient,
+            0,
+            0
+        );
+        assertEq(freshWrapper.managementFeeRecipient(), wouldBeDenied, "recipient set despite being on other teller");
     }
 }
