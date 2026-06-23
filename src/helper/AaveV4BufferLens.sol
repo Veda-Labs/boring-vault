@@ -31,6 +31,9 @@ contract AaveV4BufferLens is IBufferLens {
             // If buffer helper is not address(0), withdraw buffer is an Aave V4 spoke reserve
             AaveV4BufferHelper aaveV4BufferHelper = AaveV4BufferHelper(address(withdrawBufferHelper));
             IAaveV4Spoke spoke = IAaveV4Spoke(aaveV4BufferHelper.aaveV4Spoke());
+            // Revert (not return 0) when the asset is not a configured reserve for this helper:
+            // reserveIdFor reverts on an unconfigured asset, and the require catches an underlying
+            // mismatch — a misconfiguration should fail loudly, not silently return a quote.
             uint256 reserveId = aaveV4BufferHelper.reserveIdFor(address(asset));
             IAaveV4Spoke.Reserve memory reserve = spoke.getReserve(reserveId);
             require(reserve.underlying == address(asset), "AaveV4BufferLens: reserve asset mismatch");
@@ -48,6 +51,11 @@ contract AaveV4BufferLens is IBufferLens {
             uint256 suppliedAssets = spoke.getUserSuppliedAssets(reserveId, vault);
             if (suppliedAssets == 0) return 0;
 
+            // getAssetLiquidity is the authoritative single-withdrawal bound: per IAaveV4Hub, Hub.remove
+            // reverts above it regardless of the hub's ERC20 balance, so it already reflects any hub-side
+            // limit on a withdrawal. The remaining SpokeConfig fields (addCap, drawCap, riskPremiumThreshold)
+            // and the unused reserve flags (frozen/borrowable/receiveShares) gate supplies/borrows, not a
+            // single user withdrawal, so they are intentionally not consulted for this quote.
             uint256 availableLiquidity = IAaveV4Hub(reserve.hub).getAssetLiquidity(reserve.assetId);
             if (suppliedAssets > availableLiquidity) {
                 // Hub.remove reverts above the hub's available liquidity and the helper forwards
