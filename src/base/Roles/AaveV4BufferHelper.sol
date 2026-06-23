@@ -6,7 +6,6 @@ pragma solidity 0.8.21;
 
 import {IBufferHelper} from "src/interfaces/IBufferHelper.sol";
 import {IAaveV4Spoke} from "src/interfaces/IAaveV4Spoke.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
 
 /**
  * @title AaveV4BufferHelper
@@ -80,45 +79,28 @@ contract AaveV4BufferHelper is IBufferHelper {
      * @return targets Array of contract addresses to call
      * @return data Array of encoded function calls
      * @return values Array of ETH values to send with each call (all 0 for ERC20 operations)
-     * @dev This function manages token approvals to cover all cases:
-     *
-     * - If current allowance >= amount: Only supply to Aave V4 (1 call)
-     * - If current allowance == 0: Approve then supply (2 calls)
-     * - If current allowance < amount: Reset approval to 0, approve new amount, then supply (3 calls)
+     * @dev Always resets the spoke allowance to 0, sets the new allowance, then supplies (3 calls).
+     *      This single fixed path covers every starting allowance (zero, stale partial, or ample) and
+     *      is required for tokens such as USDT that return no value from approve and disallow changing
+     *      a non-zero allowance directly to another non-zero value. Mirrors MorphoMarketBufferHelper.
      */
     function getDepositManageCall(address asset, uint256 amount)
         public
         view
         returns (address[] memory targets, bytes[] memory data, uint256[] memory values)
     {
+        // reserveIdFor reverts for an asset this helper was not configured with, so a misconfigured
+        // teller registration cannot approve/supply the wrong token.
         uint256 reserveId = reserveIdFor(asset);
-        uint256 currentAllowance = ERC20(asset).allowance(vault, aaveV4Spoke);
-        if (currentAllowance >= amount) {
-            targets = new address[](1);
-            targets[0] = aaveV4Spoke;
-            data = new bytes[](1);
-            data[0] = abi.encodeWithSignature("supply(uint256,uint256,address)", reserveId, amount, vault);
-            values = new uint256[](1);
-            values[0] = 0;
-        } else if (currentAllowance == 0) {
-            targets = new address[](2);
-            targets[0] = asset;
-            targets[1] = aaveV4Spoke;
-            data = new bytes[](2);
-            data[0] = abi.encodeWithSignature("approve(address,uint256)", aaveV4Spoke, amount);
-            data[1] = abi.encodeWithSignature("supply(uint256,uint256,address)", reserveId, amount, vault);
-            values = new uint256[](2);
-        } else {
-            targets = new address[](3);
-            targets[0] = asset;
-            targets[1] = asset;
-            targets[2] = aaveV4Spoke;
-            data = new bytes[](3);
-            data[0] = abi.encodeWithSignature("approve(address,uint256)", aaveV4Spoke, 0);
-            data[1] = abi.encodeWithSignature("approve(address,uint256)", aaveV4Spoke, amount);
-            data[2] = abi.encodeWithSignature("supply(uint256,uint256,address)", reserveId, amount, vault);
-            values = new uint256[](3);
-        }
+        targets = new address[](3);
+        targets[0] = asset;
+        targets[1] = asset;
+        targets[2] = aaveV4Spoke;
+        data = new bytes[](3);
+        data[0] = abi.encodeWithSignature("approve(address,uint256)", aaveV4Spoke, 0);
+        data[1] = abi.encodeWithSignature("approve(address,uint256)", aaveV4Spoke, amount);
+        data[2] = abi.encodeWithSignature("supply(uint256,uint256,address)", reserveId, amount, vault);
+        values = new uint256[](3);
     }
 
     /**

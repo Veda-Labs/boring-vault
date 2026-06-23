@@ -75,11 +75,7 @@ contract UnsafeMorphoMarketBufferHelper {
 
     function marketParams() public view returns (DecoderCustomTypes.MarketParams memory) {
         return DecoderCustomTypes.MarketParams({
-            loanToken: LOAN_TOKEN,
-            collateralToken: COLLATERAL_TOKEN,
-            oracle: ORACLE,
-            irm: IRM,
-            lltv: LLTV
+            loanToken: LOAN_TOKEN, collateralToken: COLLATERAL_TOKEN, oracle: ORACLE, irm: IRM, lltv: LLTV
         });
     }
 
@@ -106,7 +102,11 @@ contract UnsafeMorphoMarketBufferHelper {
         values = new uint256[](3);
     }
 
-    function getWithdrawManageCall(address, /* asset */ uint256 amount)
+    function getWithdrawManageCall(
+        address,
+        /* asset */
+        uint256 amount
+    )
         public
         view
         returns (address[] memory targets, bytes[] memory data, uint256[] memory values)
@@ -256,6 +256,18 @@ contract MorphoMarketBufferHelperTest is Test, MerkleTreeHelper {
     }
 
     // ============================= DEPOSIT TESTS =============================
+
+    function testNoResidualApprovalAfterDeposit() external {
+        // Elevated invariant: after a deposit the boring vault holds no leftover approval to Morpho
+        // Blue (the supply consumes exactly the approved amount).
+        uint256 amount = 1e18;
+        deal(address(WETH), address(this), amount);
+        WETH.safeApprove(address(boringVault), amount);
+        teller.deposit(WETH, amount, 0, referrer);
+        IMorphoLite.Position memory p = IMorphoLite(MORPHO_BLUE).position(MARKET_ID, address(boringVault));
+        assertGt(p.supplyShares, 0, "deposit supplied to Morpho");
+        assertEq(WETH.allowance(address(boringVault), MORPHO_BLUE), 0, "no residual Morpho approval after deposit");
+    }
 
     function testUserDeposit() external {
         uint256 amount = 1e18;
@@ -591,9 +603,7 @@ contract MorphoMarketBufferHelperTest is Test, MerkleTreeHelper {
     /// @notice The production helper must reject a zero boring vault at construction.
     function testConstructorRevertsOnZeroVault() external {
         vm.expectRevert(MorphoMarketBufferHelper.MorphoMarketBufferHelper__ZeroAddress.selector);
-        new MorphoMarketBufferHelper(
-            MORPHO_BLUE, address(0), address(WETH), WEETH, WEETH_ORACLE, WEETH_IRM, WEETH_LLTV
-        );
+        new MorphoMarketBufferHelper(MORPHO_BLUE, address(0), address(WETH), WEETH, WEETH_ORACLE, WEETH_IRM, WEETH_LLTV);
     }
 
     /// @notice The production helper must reject a zero loan token at construction.

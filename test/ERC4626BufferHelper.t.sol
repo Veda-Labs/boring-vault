@@ -120,6 +120,17 @@ contract ERC4626BufferHelperTest is Test, MerkleTreeHelper {
 
     // ============================= DEPOSIT TESTS =============================
 
+    function testNoResidualApprovalAfterDeposit(uint256 amount) external {
+        // Elevated invariant: after a deposit the boring vault holds no leftover approval to the
+        // ERC4626 vault (the deposit consumes exactly the approved amount).
+        amount = bound(amount, 1e18, 100_000e18);
+        deal(address(DAI), address(this), amount);
+        DAI.safeApprove(address(boringVault), amount);
+        teller.deposit(DAI, amount, 0, referrer);
+        assertGt(ERC20(address(sDAI)).balanceOf(address(boringVault)), 0, "deposit routed into sDAI");
+        assertEq(DAI.allowance(address(boringVault), address(sDAI)), 0, "no residual sDAI approval after deposit");
+    }
+
     function testUserDeposit(uint256 amount) external {
         amount = bound(amount, 1e18, 100_000e18);
 
@@ -557,11 +568,7 @@ contract ERC4626BufferHelperMorphoUSDTTest is Test, MerkleTreeHelper {
         uint256 depositAmount = 1_000e6; // 1,000 USDT
 
         // Verify zero allowance pre-condition (fresh state after setUp)
-        assertEq(
-            USDT.allowance(address(boringVault), address(morphoVault)),
-            0,
-            "Pre-condition: allowance must be 0"
-        );
+        assertEq(USDT.allowance(address(boringVault), address(morphoVault)), 0, "Pre-condition: allowance must be 0");
 
         // --- Verify return values: always 3 calls (approve(0), approve(amount), deposit) ---
         (address[] memory targets, bytes[] memory data, uint256[] memory values) =

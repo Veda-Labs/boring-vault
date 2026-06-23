@@ -205,7 +205,8 @@ contract AaveV4BufferHelperTest is Test, MerkleTreeHelper {
     function testUserDepositWithSufficientOpenApproval(uint256 amount) external {
         amount = bound(amount, 0.0001e18, 500e18);
 
-        // Pre-existing open approval lets the helper skip the approve calls entirely.
+        // Ample pre-existing approval: the fixed reset-then-approve path still resets it to 0 and
+        // re-approves, so the deposit succeeds via the teller regardless of the prior allowance.
         vm.prank(address(boringVault));
         WETH.safeApprove(address(spoke), type(uint256).max);
 
@@ -225,7 +226,8 @@ contract AaveV4BufferHelperTest is Test, MerkleTreeHelper {
     function testUserDepositWithInsufficientOpenApproval(uint256 amount) external {
         amount = bound(amount, 0.0001e18, 500e18);
 
-        // A pre-existing approval below the deposit amount forces the reset-then-approve path.
+        // Stale partial pre-existing approval: the fixed path resets it to 0 before re-approving, so
+        // the deposit succeeds via the teller (and would be USDT-safe in this state).
         vm.prank(address(boringVault));
         WETH.safeApprove(address(spoke), 1);
 
@@ -261,90 +263,59 @@ contract AaveV4BufferHelperTest is Test, MerkleTreeHelper {
         );
     }
 
-    function testBufferHelperHandlesUsdtApproveRace() external {
-        // USDT (reserve 8) returns no value from approve() and reverts on a non-zero -> non-zero
-        // allowance change. Drive the helper's reset-then-approve (3-call) path end to end against
-        // the live spoke to prove USDT supply + withdraw work through the vault.
+    function testBufferHelperUsdtDepositIsSinglePathForAnyAllowance() external {
+        // The deposit call is a fixed approve(0) + approve(amount) + supply sequence regardless of the
+        // vault's current spoke allowance, so it is USDT-safe (no-return approve; never a non-zero ->
+        // non-zero change) whether the prior allowance is zero, a stale partial, or ample. Drive each
+        // case end to end against the live spoke, then withdraw the accumulated position back.
         ERC20 usdt = getERC20(sourceChain, "USDT");
         uint256[] memory reserveIds = new uint256[](1);
         reserveIds[0] = USDT_RESERVE_ID;
         AaveV4BufferHelper usdtHelper = new AaveV4BufferHelper(address(spoke), address(boringVault), reserveIds);
         assertEq(usdtHelper.reserveIdFor(address(usdt)), USDT_RESERVE_ID, "USDT should map to reserve id 8");
-
-        uint256 amount = 100_000e6;
-        deal(address(usdt), address(boringVault), amount);
-
-        // Seed a stale non-zero allowance so the deposit call must reset to zero first.
-        vm.prank(address(boringVault));
-        usdt.safeApprove(address(spoke), 1);
-
-        (address[] memory targets, bytes[] memory data, uint256[] memory values) =
-            usdtHelper.getDepositManageCall(address(usdt), amount);
-        assertEq(targets.length, 3, "stale USDT allowance must use approve(0)+approve+supply");
-
-        // Execute exactly as the teller would, via the vault.
         rolesAuthority.setUserRole(address(this), TELLER_MANAGER_ROLE, true);
-        boringVault.manage(targets, data, values);
 
-        assertApproxEqAbs(
-            spoke.getUserSuppliedAssets(USDT_RESERVE_ID, address(boringVault)), amount, 2, "USDT supplied via helper"
-        );
-        assertEq(
-            usdt.allowance(address(boringVault), address(spoke)), 0, "supply must consume the approval, leaving none"
-        );
+        uint256 amount = 25_000e6;
+        // supply consumes the approval, so the vault->spoke allowance is 0 at the start of every iteration.
+        uint256[3] memory startingAllowances = [uint256(0), uint256(1), type(uint256).max];
 
-        // Withdraw path routes through the spoke and pays the vault.
-        (targets, data, values) = usdtHelper.getWithdrawManageCall(address(usdt), amount - 2);
-        boringVault.manage(targets, data, values);
-        assertApproxEqAbs(usdt.balanceOf(address(boringVault)), amount - 2, 3, "USDT withdrawn back to the vault");
-    }
+        for (uint256 i; i < startingAllowances.length; ++i) {
+            if (startingAllowances[i] != 0) {
+                vm.prank(address(boringVault));
+                usdt.safeApprove(address(spoke), startingAllowances[i]);
+            }
+            deal(address(usdt), address(boringVault), amount);
 
-    function testBufferHelperUsdtTwoCallApprovePath() external {
-        // Fresh (zero) vault->spoke allowance: getDepositManageCall returns approve(amount)+supply
-        // (2 calls). USDT's approve returns no value; prove the 2-call path supplies against the spoke.
-        ERC20 usdt = getERC20(sourceChain, "USDT");
-        uint256[] memory reserveIds = new uint256[](1);
-        reserveIds[0] = USDT_RESERVE_ID;
-        AaveV4BufferHelper usdtHelper = new AaveV4BufferHelper(address(spoke), address(boringVault), reserveIds);
+            (address[] memory targets, bytes[] memory data, uint256[] memory values) =
+                usdtHelper.getDepositManageCall(address(usdt), amount);
 
-        uint256 amount = 50_000e6;
-        deal(address(usdt), address(boringVault), amount);
+            // Single fixed path: approve(spoke, 0) -> approve(spoke, amount) -> supply, in all cases.
+            assertEq(targets.length, 3, "deposit must always be approve(0)+approve+supply");
+            assertEq(targets[0], address(usdt), "call 0 resets the token approval");
+            assertEq(targets[1], address(usdt), "call 1 sets the token approval");
+            assertEq(targets[2], address(spoke), "call 2 supplies to the spoke");
 
-        (address[] memory targets, bytes[] memory data, uint256[] memory values) =
-            usdtHelper.getDepositManageCall(address(usdt), amount);
-        assertEq(targets.length, 2, "fresh allowance must use approve(amount)+supply");
+            uint256 suppliedBefore = spoke.getUserSuppliedAssets(USDT_RESERVE_ID, address(boringVault));
+            boringVault.manage(targets, data, values);
+            assertApproxEqAbs(
+                spoke.getUserSuppliedAssets(USDT_RESERVE_ID, address(boringVault)),
+                suppliedBefore + amount,
+                2,
+                "deposit supplies USDT regardless of prior allowance"
+            );
+            assertEq(
+                usdt.allowance(address(boringVault), address(spoke)),
+                0,
+                "supply consumes the approval, leaving none for the next deposit"
+            );
+        }
 
-        rolesAuthority.setUserRole(address(this), TELLER_MANAGER_ROLE, true);
-        boringVault.manage(targets, data, values);
-
-        assertApproxEqAbs(
-            spoke.getUserSuppliedAssets(USDT_RESERVE_ID, address(boringVault)), amount, 2, "USDT supplied (2-call path)"
-        );
-    }
-
-    function testBufferHelperUsdtSingleCallWithAmpleApproval() external {
-        // Ample pre-existing vault->spoke allowance: getDepositManageCall returns supply only (1 call).
-        ERC20 usdt = getERC20(sourceChain, "USDT");
-        uint256[] memory reserveIds = new uint256[](1);
-        reserveIds[0] = USDT_RESERVE_ID;
-        AaveV4BufferHelper usdtHelper = new AaveV4BufferHelper(address(spoke), address(boringVault), reserveIds);
-
-        uint256 amount = 50_000e6;
-        deal(address(usdt), address(boringVault), amount);
-
-        vm.prank(address(boringVault));
-        usdt.safeApprove(address(spoke), type(uint256).max);
-
-        (address[] memory targets, bytes[] memory data, uint256[] memory values) =
-            usdtHelper.getDepositManageCall(address(usdt), amount);
-        assertEq(targets.length, 1, "ample allowance must use supply only");
-
-        rolesAuthority.setUserRole(address(this), TELLER_MANAGER_ROLE, true);
-        boringVault.manage(targets, data, values);
-
-        assertApproxEqAbs(
-            spoke.getUserSuppliedAssets(USDT_RESERVE_ID, address(boringVault)), amount, 2, "USDT supplied (1-call path)"
-        );
+        // Withdraw the accumulated position back to the vault through the spoke.
+        uint256 supplied = spoke.getUserSuppliedAssets(USDT_RESERVE_ID, address(boringVault));
+        (address[] memory wTargets, bytes[] memory wData, uint256[] memory wValues) =
+            usdtHelper.getWithdrawManageCall(address(usdt), supplied - 2);
+        boringVault.manage(wTargets, wData, wValues);
+        assertApproxEqAbs(usdt.balanceOf(address(boringVault)), supplied - 2, 3, "USDT withdrawn back to the vault");
     }
 
     function testUsdtThroughFullTellerFlow() external {

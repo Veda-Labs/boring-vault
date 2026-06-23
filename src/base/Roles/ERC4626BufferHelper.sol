@@ -20,6 +20,11 @@ contract ERC4626BufferHelper is IBufferHelper {
     /// @notice Thrown when a critical constructor argument is the zero address.
     error ERC4626BufferHelper__ZeroAddress();
 
+    /// @notice Thrown when a deposit/withdraw is requested for an asset that is not the ERC4626
+    ///         vault's underlying asset, so a misconfigured teller registration fails loudly instead
+    ///         of approving/operating on the wrong token.
+    error ERC4626BufferHelper__AssetMismatch(address asset, address expected);
+
     /// @notice The ERC4626 vault
     ERC4626 public immutable ERC_4626_VAULT;
 
@@ -56,6 +61,8 @@ contract ERC4626BufferHelper is IBufferHelper {
         view
         returns (address[] memory targets, bytes[] memory data, uint256[] memory values)
     {
+        address underlying = address(ERC_4626_VAULT.asset());
+        if (asset != underlying) revert ERC4626BufferHelper__AssetMismatch(asset, underlying);
         address erc4626VaultAddress = address(ERC_4626_VAULT);
         targets = new address[](3);
         targets[0] = asset;
@@ -76,15 +83,13 @@ contract ERC4626BufferHelper is IBufferHelper {
      * @return values Array of ETH values to send with each call (all 0 for ERC20 operations)
      * @dev Withdraws the specified amount of the underlying asset from the ERC4626 vault back to the boring vault.
      */
-    function getWithdrawManageCall(
-        address,
-        /* asset */
-        uint256 amount
-    )
+    function getWithdrawManageCall(address asset, uint256 amount)
         public
         view
         returns (address[] memory targets, bytes[] memory data, uint256[] memory values)
     {
+        address underlying = address(ERC_4626_VAULT.asset());
+        if (asset != underlying) revert ERC4626BufferHelper__AssetMismatch(asset, underlying);
         targets = new address[](1);
         targets[0] = address(ERC_4626_VAULT);
         data = new bytes[](1);
