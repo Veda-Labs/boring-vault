@@ -471,6 +471,18 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             address liquidBeraETHTeller = 0xd445C65e4821dbD4ed0114eCDF6325c69faD7653;
             _addTellerLeafs(leafs, liquidBeraETHTeller, tellerAssets, true, true);
         }
+
+        // ========================== liquidMonadETH Subvault ==========================
+        {
+            ERC20[] memory tellerAssets = new ERC20[](1);
+            tellerAssets[0] = getERC20(sourceChain, "WETH");
+            address liquidMonadETHTeller = 0x0698Ba360468a8C3F62d6c57B01b874016c2B854;
+            _addTellerLeafs(leafs, liquidMonadETHTeller, tellerAssets, false, true);
+
+            address liquidMonadETHWithdrawQueue = 0x633d72C28C7a4C590c3ffC2620AeE1F6E07BA50a;
+            address liquidMonadETH = 0xA024063B630D554078bbF985718B22F3c6870EE0;
+            _addWithdrawQueueLeafs(leafs, liquidMonadETHWithdrawQueue, liquidMonadETH, tellerAssets);
+        }
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Yearn ==========================
