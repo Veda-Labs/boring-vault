@@ -30,6 +30,15 @@ interface IMorphoVaultV1LiquidityAdapter {
     function allocation() external view returns (uint256);
 }
 
+/// @notice Instantly-withdrawable quoter for a Morpho V2 (ERC4626) vault buffer. View-only quote for
+///         UIs/keepers; not used in any value-moving path.
+/// @dev Re-derives the withdrawable amount from the vault's idle balance plus the currently-configured
+///      liquidity-adapter sleeve, capped by the vault's owned assets, instead of trusting `maxWithdraw`.
+///      Because it bypasses `maxWithdraw`, it does NOT inherit the EIP-4626 guarantee that withdrawals
+///      report 0 when halted: it models market/adapter LIQUIDITY only, not a vault-level pause/timelock/
+///      guardian stop. During such a halt — where the underlying market still shows liquidity — this lens
+///      can over-report. Idle vault balance is excluded (the helper routes the full amount through
+///      `erc4626.withdraw`, which reverts above `maxWithdraw`).
 contract MorphoV2ERC4626BufferLens is IBufferLens {
     /// @notice Thrown when the queried asset is not the ERC4626 vault's underlying asset.
     error MorphoV2ERC4626BufferLens__AssetMismatch(address asset, address expected);

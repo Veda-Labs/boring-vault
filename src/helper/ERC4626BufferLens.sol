@@ -10,6 +10,15 @@ import {TellerWithBuffer} from "src/base/Roles/TellerWithBuffer.sol";
 import {ERC4626BufferHelper, IBufferHelper} from "src/base/Roles/ERC4626BufferHelper.sol";
 import {IBufferLens} from "src/interfaces/IBufferLens.sol";
 
+/// @notice Instantly-withdrawable quoter for a buffer backed by a generic ERC4626 vault.
+///         View-only quote for UIs/keepers; not used in any value-moving path.
+/// @dev Correctness is delegated to the wrapped vault's `maxWithdraw`: this lens is only as accurate as
+///      that implementation. Per EIP-4626, a compliant `maxWithdraw` already factors in both available
+///      liquidity AND any temporary withdrawal halt (returning 0 when withdrawals are disabled), so no
+///      separate pause/liquidity check is performed here. Only use this lens for vaults whose `maxWithdraw`
+///      is known to be liquidity- and pause-aware; vaults that over-report (e.g. ignore downstream
+///      illiquidity) will make this lens over-report. Idle vault balance is excluded because the helper
+///      routes the full amount through `erc4626.withdraw`, which reverts above `maxWithdraw`.
 contract ERC4626BufferLens is IBufferLens {
     /// @notice Thrown when the queried asset is not the ERC4626 vault's underlying asset.
     error ERC4626BufferLens__AssetMismatch(address asset, address expected);
@@ -30,7 +39,7 @@ contract ERC4626BufferLens is IBufferLens {
             if (address(erc4626Vault.asset()) != address(asset)) {
                 revert ERC4626BufferLens__AssetMismatch(address(asset), address(erc4626Vault.asset()));
             }
-            // This should work if the vault properly implements it
+            // Delegated to the vault's maxWithdraw (assumed liquidity- and pause-aware per EIP-4626).
             withdrawableAmount = erc4626Vault.maxWithdraw(vault);
         }
     }

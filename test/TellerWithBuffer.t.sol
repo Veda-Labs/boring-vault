@@ -19,6 +19,7 @@ import {AaveV3BufferHelper} from "src/base/Roles/AaveV3BufferHelper.sol";
 import {AaveV3BufferLens} from "src/helper/AaveV3BufferLens.sol";
 import {GenericRateProviderWithDecimalScaling} from "src/helper/GenericRateProviderWithDecimalScaling.sol";
 import {IBufferHelper} from "src/interfaces/IBufferHelper.sol";
+import {IPool} from "src/interfaces/IPool.sol";
 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
@@ -191,6 +192,64 @@ contract TellerBufferTest is Test, MerkleTreeHelper {
             abi.encodeWithSelector(AaveV3BufferLens.AaveV3BufferLens__ReserveNotListed.selector, address(aUSDT))
         );
         lens.getInstantlyWithdrawableAmount(teller, aUSDT);
+    }
+
+    function testAaveV3BufferLensReturnsIdleWhenNoWithdrawHelper() external {
+        AaveV3BufferLens lens = new AaveV3BufferLens();
+
+        // With no withdraw buffer helper configured, the lens reports the vault's idle balance.
+        teller.setWithdrawBufferHelper(USDT, IBufferHelper(address(0)));
+        deal(address(USDT), address(boringVault), 4_242e6);
+
+        assertEq(lens.getInstantlyWithdrawableAmount(teller, USDT), 4_242e6, "idle branch should report vault balance");
+    }
+
+    function testAaveV3BufferLensReturnsZeroWhenReservePausedOrInactive() external {
+        AaveV3BufferLens lens = new AaveV3BufferLens();
+
+        uint256 amount = 1_000e6;
+        deal(address(USDT), address(this), amount);
+        USDT.safeApprove(address(boringVault), amount);
+        teller.deposit(USDT, amount, 0, referrer); // deposit buffer routes USDT into Aave V3
+
+        // Paused reserve (active bit 56 set, paused bit 60 set): a withdrawal reverts regardless of
+        // liquidity, so the lens must quote zero.
+        uint256 pausedConfig = (uint256(1) << 56) | (uint256(1) << 60);
+        vm.mockCall(
+            v3Pool, abi.encodeWithSelector(IPool.getConfiguration.selector, address(USDT)), abi.encode(pausedConfig)
+        );
+        assertEq(lens.getInstantlyWithdrawableAmount(teller, USDT), 0, "paused reserve should quote zero");
+
+        // Inactive reserve (active bit 56 clear): same outcome.
+        vm.mockCall(
+            v3Pool, abi.encodeWithSelector(IPool.getConfiguration.selector, address(USDT)), abi.encode(uint256(0))
+        );
+        assertEq(lens.getInstantlyWithdrawableAmount(teller, USDT), 0, "inactive reserve should quote zero");
+        vm.clearMockedCalls();
+    }
+
+    function testAaveV3BufferLensCapsAtPoolLiquidity() external {
+        AaveV3BufferLens lens = new AaveV3BufferLens();
+
+        uint256 amount = 1_000e6;
+        deal(address(USDT), address(this), amount);
+        USDT.safeApprove(address(boringVault), amount);
+        teller.deposit(USDT, amount, 0, referrer);
+
+        // Ample real liquidity: the lens reports (approximately) the full aToken position.
+        assertApproxEqAbs(
+            lens.getInstantlyWithdrawableAmount(teller, USDT), amount, 2, "should quote the full position when liquid"
+        );
+
+        // Simulate the aToken contract holding less underlying than the position. aaveV3Pool.withdraw
+        // reverts above available liquidity, so the lens must cap the quote at that liquidity.
+        vm.mockCall(
+            address(USDT),
+            abi.encodeWithSelector(bytes4(keccak256("balanceOf(address)")), address(aUSDT)),
+            abi.encode(uint256(150e6))
+        );
+        assertEq(lens.getInstantlyWithdrawableAmount(teller, USDT), 150e6, "should cap at available pool liquidity");
+        vm.clearMockedCalls();
     }
 
     function testAaveV3BufferDepositShapeAndAllowance() external {

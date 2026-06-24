@@ -16,6 +16,7 @@ import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper
 import {MorphoMarketBufferHelper} from "src/base/Roles/MorphoMarketBufferHelper.sol";
 import {IBufferHelper} from "src/interfaces/IBufferHelper.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
+import {MorphoMarketBufferLens} from "src/helper/MorphoMarketBufferLens.sol";
 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
@@ -725,5 +726,52 @@ contract MorphoMarketBufferHelperTest is Test, MerkleTreeHelper {
         IMorphoLite.Position memory vaultPos = IMorphoLite(MORPHO_BLUE).position(MARKET_ID, address(boringVault));
         assertEq(zeroPos.supplyShares, 0, "no shares were credited to address(0)");
         assertEq(vaultPos.supplyShares, 0, "no shares were credited to the vault");
+    }
+
+    // ============================= LENS TESTS (real Morpho Blue) =============================
+
+    function testLensQuoteIsWithdrawableOnRealMorpho() external {
+        MorphoMarketBufferLens lens = new MorphoMarketBufferLens();
+
+        // With no supply position yet, the lens quotes zero.
+        assertEq(lens.getInstantlyWithdrawableAmount(teller, WETH), 0, "no position should quote zero");
+
+        // Supply a real position through the deposit buffer.
+        uint256 amount = 5e18;
+        deal(address(WETH), address(this), amount);
+        WETH.safeApprove(address(boringVault), amount);
+        teller.deposit(WETH, amount, 0, referrer);
+
+        // The fresh deposit adds `amount` of free WETH liquidity, so the position (~amount) binds, not
+        // market liquidity.
+        uint256 quote = lens.getInstantlyWithdrawableAmount(teller, WETH);
+        assertApproxEqAbs(quote, amount, 1e12, "quote should track the supplied position when liquidity is ample");
+
+        // The property the mock tests cannot prove: the quoted amount is genuinely withdrawable in a single
+        // teller call against real Morpho Blue (1:1 accountant rate => `quote` shares withdraw `quote` assets).
+        uint256 balBefore = WETH.balanceOf(address(this));
+        teller.withdraw(WETH, quote, 0, address(this));
+        assertApproxEqAbs(WETH.balanceOf(address(this)) - balBefore, quote, 2, "should receive the full quoted amount");
+    }
+
+    function testLensQuoteNeverExceedsRealConstraints() external {
+        MorphoMarketBufferLens lens = new MorphoMarketBufferLens();
+
+        uint256 amount = 5e18;
+        deal(address(WETH), address(this), amount);
+        WETH.safeApprove(address(boringVault), amount);
+        teller.deposit(WETH, amount, 0, referrer);
+
+        uint256 quote = lens.getInstantlyWithdrawableAmount(teller, WETH);
+
+        // Independent on-chain bounds (NOT the lens's own min()): the instantly-withdrawable amount can never
+        // exceed the supplied position (no interest accrues at the deposit block), the market's free
+        // liquidity, or the loan tokens the Morpho singleton physically holds.
+        assertGt(quote, 0, "should quote a non-zero position");
+        assertLe(quote, amount, "quote must not exceed the supplied position");
+
+        (uint128 totalSupplyAssets,, uint128 totalBorrowAssets,,,) = IMorphoLite(MORPHO_BLUE).market(MARKET_ID);
+        assertLe(quote, uint256(totalSupplyAssets) - totalBorrowAssets, "quote must not exceed market free liquidity");
+        assertLe(quote, WETH.balanceOf(MORPHO_BLUE), "quote must not exceed Morpho's token balance");
     }
 }
