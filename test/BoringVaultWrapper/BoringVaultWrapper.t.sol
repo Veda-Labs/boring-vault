@@ -58,8 +58,6 @@ contract BoringVaultWrapperTest is BVWTestBase {
 
     function testFirstDepositSeeds1to1() public {
         uint256 bvAmount = 100e18;
-        _giveBVShares(alice, bvAmount);
-
         uint256 wShares = _wrapBV(alice, bvAmount);
 
         assertEq(wShares, bvAmount * SHARE_SCALE, "First deposit: wrapper shares == BV * SHARE_SCALE");
@@ -74,8 +72,6 @@ contract BoringVaultWrapperTest is BVWTestBase {
 
     function testDepositAndRedeemNoFees() public {
         uint256 bvAmount = 50e18;
-        _giveBVShares(alice, bvAmount);
-
         uint256 wShares = _wrapBV(alice, bvAmount);
 
         vm.prank(alice);
@@ -92,9 +88,6 @@ contract BoringVaultWrapperTest is BVWTestBase {
     // =========================================================================
 
     function testTwoDepositorsProportionalShares() public {
-        _giveBVShares(alice, 100e18);
-        _giveBVShares(bob, 100e18);
-
         _wrapBV(alice, 100e18);
         _wrapBV(bob, 100e18);
 
@@ -114,7 +107,6 @@ contract BoringVaultWrapperTest is BVWTestBase {
     // =========================================================================
 
     function testManagementFeeFullYear() public {
-        _giveBVShares(alice, 100e18);
         _wrapBV(alice, 100e18);
 
         uint256 supplyBefore = wrapper.totalSupply(); // 100e18
@@ -139,7 +131,6 @@ contract BoringVaultWrapperTest is BVWTestBase {
     // =========================================================================
 
     function testManagementFeeHalfYear() public {
-        _giveBVShares(alice, 100e18);
         _wrapBV(alice, 100e18);
 
         uint256 supplyBefore = wrapper.totalSupply();
@@ -157,7 +148,6 @@ contract BoringVaultWrapperTest is BVWTestBase {
     // =========================================================================
 
     function testPerformanceFeeOnBVPriceIncrease() public {
-        _giveBVShares(alice, 100e18);
         _wrapBV(alice, 100e18);
 
         // Advance past minimum update delay, then push BV price up 10 %
@@ -184,7 +174,6 @@ contract BoringVaultWrapperTest is BVWTestBase {
     // =========================================================================
 
     function testNoPerformanceFeeWhenBelowHWM() public {
-        _giveBVShares(alice, 100e18);
         _wrapBV(alice, 100e18);
 
         // Raise rate to 1.1e18 → establish new HWM
@@ -209,7 +198,6 @@ contract BoringVaultWrapperTest is BVWTestBase {
     // =========================================================================
 
     function testCombinedManagementAndPerformanceFees() public {
-        _giveBVShares(alice, 100e18);
         _wrapBV(alice, 100e18);
 
         // 182 days pass and BV price rises 10 %
@@ -227,29 +215,45 @@ contract BoringVaultWrapperTest is BVWTestBase {
     }
 
     // =========================================================================
-    //                   9. PREVIEW ACCURACY — previewDeposit matches execution
+    //                   9. PREVIEW ACCURACY
     // =========================================================================
 
-    function testPreviewDepositMatchesExecution() public {
-        // Seed the vault with 100e18 BV shares via address(this)
-        _giveBVShares(address(this), 100e18);
+    /// @notice previewDeposit / previewMint must return 0 — deposit() and mint()
+    ///         are disabled. This guards against ERC4626 integrators calling
+    ///         previewDeposit and getting a believable quote for an entry path
+    ///         that always reverts.
+    function testPreviewDepositAndMintReturnZero() public {
         _wrapBV(address(this), 100e18);
-
-        // Advance time so there are meaningful pending management fees
         skip(180 days);
 
-        _giveBVShares(alice, 50e18);
+        assertEq(wrapper.previewDeposit(50e18), 0, "previewDeposit must be 0 (deposit disabled)");
+        assertEq(wrapper.previewMint(50e18 * SHARE_SCALE), 0, "previewMint must be 0 (mint disabled)");
+        // Sanity: the underlying conversion engine still works — just not via preview*.
+        assertGt(wrapper.convertToShares(50e18), 0, "convertToShares still functional");
+    }
 
-        // Compute expected shares via preview BEFORE executing the deposit
-        uint256 preview = wrapper.previewDeposit(50e18);
+    /// @notice depositAsset conversion uses the same fee-simulated state as
+    ///         convertToShares, so the preview-then-execute round-trip is consistent.
+    ///         Use convertToShares (not previewDeposit) to preview depositAsset.
+    function testConvertToSharesPreviewsDepositAsset() public {
+        // Seed the vault via the canonical depositAsset path.
+        _wrapBV(address(this), 100e18);
 
-        // Execute
+        // Advance time so pending management fees are non-trivial.
+        skip(180 days);
+
+        // At rate 1e18, depositAsset(50e18 base) delivers 50e18 BV shares.
+        // convertToShares(50e18) previews how many wrapper shares 50e18 BV shares
+        // will mint, accounting for simulated pending fee accrual.
+        uint256 preview = wrapper.convertToShares(50e18);
+
+        deal(address(baseAsset), alice, 50e18);
         vm.startPrank(alice);
-        ERC20(address(boringVault)).approve(address(wrapper), 50e18);
-        uint256 actual = wrapper.deposit(50e18, alice);
+        baseAsset.approve(address(wrapper), 50e18);
+        uint256 actual = wrapper.depositAsset(baseAsset, 50e18, 0, alice, ComplianceData(0, ""));
         vm.stopPrank();
 
-        assertEq(preview, actual, "previewDeposit must match actual shares minted");
+        assertEq(preview, actual, "convertToShares previews depositAsset execution correctly");
     }
 
     // =========================================================================
@@ -257,7 +261,6 @@ contract BoringVaultWrapperTest is BVWTestBase {
     // =========================================================================
 
     function testPreviewRedeemMatchesExecution() public {
-        _giveBVShares(alice, 100e18);
         uint256 wShares = _wrapBV(alice, 100e18);
 
         skip(180 days);
@@ -275,7 +278,6 @@ contract BoringVaultWrapperTest is BVWTestBase {
     // =========================================================================
 
     function testConvertToSharesReflectsPendingFees() public {
-        _giveBVShares(alice, 100e18);
         _wrapBV(alice, 100e18);
 
         // Immediately: 1 BV share → SHARE_SCALE wrapper shares (virtual-offset scaling)
@@ -309,7 +311,6 @@ contract BoringVaultWrapperTest is BVWTestBase {
         // a 1:1 initial rate — wrapper.getRate() == accountant.getRate() before any deposit.
         assertEq(wrapper.getRate(), accountant.getRate(), "Pre-deposit rate equals BV rate");
 
-        _giveBVShares(alice, 100e18);
         _wrapBV(alice, 100e18);
 
         assertEq(wrapper.getRate(), 1e18, "Wrapper rate starts at BV base rate");
@@ -336,7 +337,6 @@ contract BoringVaultWrapperTest is BVWTestBase {
         teller.updateAssetData(quote, true, true, 0);
         accountant.setRateProviderData(quote, false, address(quoteRateProvider));
 
-        _giveBVShares(alice, 100e18);
         _wrapBV(alice, 100e18);
 
         assertEq(
@@ -358,7 +358,6 @@ contract BoringVaultWrapperTest is BVWTestBase {
     // =========================================================================
 
     function testGetRateReflectsPendingWrapperFeeDilution() public {
-        _giveBVShares(alice, 100e18);
         _wrapBV(alice, 100e18);
 
         skip(365 days);
@@ -387,7 +386,6 @@ contract BoringVaultWrapperTest is BVWTestBase {
         // rateProvider, so address(0) is a safe placeholder here.
         accountant.setRateProviderData(quote, true, address(0));
 
-        _giveBVShares(alice, 100e18);
         _wrapBV(alice, 100e18);
 
         accountant.pause();
@@ -450,7 +448,6 @@ contract BoringVaultWrapperTest is BVWTestBase {
     // =========================================================================
 
     function testSetManagementFeeSettlesPendingFeesFirst() public {
-        _giveBVShares(alice, 100e18);
         _wrapBV(alice, 100e18);
 
         skip(180 days);
@@ -476,7 +473,6 @@ contract BoringVaultWrapperTest is BVWTestBase {
     // =========================================================================
 
     function testSetPerformanceFeeSettlesPendingFeesFirst() public {
-        _giveBVShares(alice, 100e18);
         _wrapBV(alice, 100e18);
 
         skip(2);
@@ -498,7 +494,6 @@ contract BoringVaultWrapperTest is BVWTestBase {
     // =========================================================================
 
     function testPublicAccrueFeesCallableByAnyone() public {
-        _giveBVShares(alice, 100e18);
         _wrapBV(alice, 100e18);
 
         skip(365 days);
@@ -515,7 +510,6 @@ contract BoringVaultWrapperTest is BVWTestBase {
     // =========================================================================
 
     function testFeeRecipientSharesAreRedeemable() public {
-        _giveBVShares(alice, 100e18);
         _wrapBV(alice, 100e18);
 
         skip(365 days);
@@ -545,24 +539,18 @@ contract BoringVaultWrapperTest is BVWTestBase {
     //                   22. mint() and withdraw() ERC4626 entry points
     // =========================================================================
 
-    function testMintAndWithdraw() public {
-        _giveBVShares(alice, 100e18);
+    /// @notice deposit() and mint() are disabled; withdraw() still works.
+    function testDirectEntrypointsDisabled_WithdrawStillWorks() public {
+        // Both disabled entry paths must revert immediately.
+        vm.expectRevert(BoringVaultWrapper.BoringVaultWrapper__DirectDepositDisabled.selector);
+        wrapper.deposit(100e18, alice);
 
-        // Use mint() to request 100e18 BV-equivalent wrapper shares = 100e18 * SHARE_SCALE wrapper shares.
-        uint256 sharesToMint = 100e18 * SHARE_SCALE;
-        uint256 bvCost = wrapper.previewMint(sharesToMint);
-        // Ceil rounding inside _convertToAssets adds at most 1 wei.
-        assertApproxEqAbs(bvCost, 100e18, 1, "First mint: BV cost matches mint quantity");
+        vm.expectRevert(BoringVaultWrapper.BoringVaultWrapper__DirectDepositDisabled.selector);
+        wrapper.mint(100e18 * SHARE_SCALE, alice);
 
-        vm.startPrank(alice);
-        ERC20(address(boringVault)).approve(address(wrapper), bvCost);
-        uint256 bvSpent = wrapper.mint(sharesToMint, alice);
-        vm.stopPrank();
+        // withdraw() is still the canonical BV-share exit path — test it via depositAsset.
+        uint256 wShares = _wrapBV(alice, 100e18);
 
-        assertEq(bvSpent, bvCost, "BV spent matches previewMint");
-        assertEq(wrapper.balanceOf(alice), sharesToMint, "Alice has requested wrapper shares");
-
-        // Use withdraw() to pull exactly 50e18 BV shares back out
         uint256 wSharesToBurn = wrapper.previewWithdraw(50e18);
 
         vm.prank(alice);
@@ -577,12 +565,10 @@ contract BoringVaultWrapperTest is BVWTestBase {
     // =========================================================================
 
     function testTotalAssetsIsLive() public {
-        _giveBVShares(alice, 100e18);
         _wrapBV(alice, 100e18);
 
         assertEq(wrapper.totalAssets(), 100e18, "totalAssets after alice deposit");
 
-        _giveBVShares(bob, 50e18);
         _wrapBV(bob, 50e18);
 
         assertEq(wrapper.totalAssets(), 150e18, "totalAssets after bob deposit");
@@ -606,16 +592,11 @@ contract BoringVaultWrapperTest is BVWTestBase {
         skip(365 days); // 1 year pending mgmt fees, not yet materialised
 
         // Bob deposits AFTER 1 year has elapsed but fees haven't been explicitly accrued.
-        // The deposit() call must settle fees first so Bob gets the diluted rate.
-        _giveBVShares(bob, 100e18);
+        // depositAsset must settle fees first so Bob gets the diluted rate.
+        uint256 bobShares = _wrapBV(bob, 100e18);
 
-        vm.startPrank(bob);
-        ERC20(address(boringVault)).approve(address(wrapper), 100e18);
-        uint256 bobShares = wrapper.deposit(100e18, bob);
-        vm.stopPrank();
-
-        // The fee recipient received shares automatically during Bob's deposit
-        assertGt(wrapper.balanceOf(feeRecipient), 0, "Fees settled automatically during deposit");
+        // The fee recipient received shares automatically during Bob's depositAsset
+        assertGt(wrapper.balanceOf(feeRecipient), 0, "Fees settled automatically during depositAsset");
 
         // After Bob's deposit the vault has 200 BV shares backing three parties
         // (alice + bob + feeRecipient).  Alice's per-share entitlement must be less
@@ -653,8 +634,7 @@ contract BoringVaultWrapperTest is BVWTestBase {
     // =========================================================================
 
     function testDepositAsset_ProportionalAfterSeed() public {
-        // Seed the vault via the BV-share path so there's an existing ratio.
-        _giveBVShares(alice, 100e18);
+        // Seed the vault via depositAsset so there's an existing ratio.
         _wrapBV(alice, 100e18);
         // supply = 100e18, totalBV = 100e18, rate = 1e18
 
@@ -745,8 +725,6 @@ contract BoringVaultWrapperTest is BVWTestBase {
     // =========================================================================
 
     function testDepositAsset_FeesSettledFirst() public {
-        // Seed with alice via BV-share path.
-        _giveBVShares(alice, 100e18);
         _wrapBV(alice, 100e18);
 
         skip(365 days); // 1 year pending mgmt fees, not yet materialised
@@ -784,7 +762,6 @@ contract BoringVaultWrapperTest is BVWTestBase {
         uint256 aliceWShares = wrapper.depositAsset(baseAsset, amount, 0, alice, ComplianceData(0, ""));
         vm.stopPrank();
 
-        _giveBVShares(bob, 50e18);
         uint256 bobWShares = _wrapBV(bob, 50e18);
 
         // Lock recorded on both depositors.
@@ -903,8 +880,7 @@ contract BoringVaultWrapperTest is BVWTestBase {
         accountant.updatePerformanceFee(500); // 5 % on rate gains
         // Wrapper keeps its setUp() config: 2 %/yr management + 10 % performance.
 
-        // ── Step 2: Alice deposits 100 BV shares ─────────────────────────────────
-        _giveBVShares(alice, 100e18);
+        // ── Step 2: Alice deposits 100 base assets (= 100 BV shares at rate 1e18) ──
         _wrapBV(alice, 100e18);
         uint256 aliceWrapperShares = wrapper.balanceOf(alice);
         // State: wrapperSupply = 100e24, totalBV = 100e18, BV rate = 1.0e18

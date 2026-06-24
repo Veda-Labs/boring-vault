@@ -37,6 +37,11 @@ contract FeeAccounting_BoringVaultWrapper_Test is BVWTestBase {
         accountant.updateExchangeRate(1e18);
     }
 
+    /// @dev Deposit `amount` of base assets via the canonical depositAsset path.
+    function _deposit(address user, uint256 amount) internal {
+        _wrapBV(user, amount);
+    }
+
     // =========================================================================
     //                   Gross-rate HWM
     // =========================================================================
@@ -49,7 +54,6 @@ contract FeeAccounting_BoringVaultWrapper_Test is BVWTestBase {
         accountant.updatePlatformFee(100); // 1 %/yr platform
         accountant.updatePerformanceFee(500); // 5 % perf
 
-        _giveBVShares(alice, 100e18);
         _wrapBV(alice, 100e18);
         _primeAccountant();
 
@@ -71,7 +75,6 @@ contract FeeAccounting_BoringVaultWrapper_Test is BVWTestBase {
     function test_HWMIdenticalWithOrWithoutBVFees() public {
         wrapper.setFeeConfig(feeRecipient, feeRecipient, MGMT_FEE, PERF_FEE);
 
-        _giveBVShares(alice, 100e18);
         _wrapBV(alice, 100e18);
         _primeAccountant();
 
@@ -112,7 +115,6 @@ contract FeeAccounting_BoringVaultWrapper_Test is BVWTestBase {
     function test_PerfFeeOnGrossRate_ExactValue() public {
         wrapper.setFeeConfig(feeRecipient, feeRecipient, 0, PERF_FEE); // isolate perf fee
 
-        _giveBVShares(alice, 100e18);
         _wrapBV(alice, 100e18);
         _primeAccountant();
 
@@ -137,7 +139,6 @@ contract FeeAccounting_BoringVaultWrapper_Test is BVWTestBase {
         accountant.updatePlatformFee(200);
         accountant.updatePerformanceFee(0);
 
-        _giveBVShares(alice, 100e18);
         _wrapBV(alice, 100e18);
         _primeAccountant();
 
@@ -211,7 +212,6 @@ contract FeeAccounting_BoringVaultWrapper_Test is BVWTestBase {
     ///      minting around the Teller policy.
     function testFees_DenylistedRecipientRevertsAccrual() public {
         wrapper.setFeeConfig(feeRecipient, feeRecipient, MGMT_FEE, PERF_FEE);
-        _giveBVShares(alice, 100e18);
         _wrapBV(alice, 100e18);
 
         teller.setDenyFlags(feeRecipient, false, true, false);
@@ -241,7 +241,6 @@ contract FeeAccounting_BoringVaultWrapper_Test is BVWTestBase {
         address perfRecipient = makeAddr("perfRecipient");
 
         wrapper.setFeeConfig(mgmtRecipient, perfRecipient, MGMT_FEE, PERF_FEE);
-        _giveBVShares(alice, 100e18);
         _wrapBV(alice, 100e18);
         _primeAccountant();
 
@@ -274,7 +273,6 @@ contract FeeAccounting_BoringVaultWrapper_Test is BVWTestBase {
         address perfRecipient = makeAddr("perfRecipient");
 
         wrapper.setFeeConfig(mgmtRecipient, perfRecipient, MGMT_FEE, PERF_FEE);
-        _giveBVShares(alice, 100e18);
         _wrapBV(alice, 100e18);
         _primeAccountant();
 

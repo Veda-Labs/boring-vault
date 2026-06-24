@@ -45,10 +45,9 @@ contract FeeHWM_BoringVaultWrapper_Test is BVWTestBase {
     //                              HELPERS
     // =========================================================================
 
-    /// Mint BV shares directly to `user` and have them wrap via deposit().
-    function _deposit(address user, uint256 bvAmount) internal {
-        _giveBVShares(user, bvAmount);
-        _wrapBV(user, bvAmount);
+    /// Deal base assets to `user` and deposit via the canonical depositAsset path.
+    function _deposit(address user, uint256 amount) internal {
+        _wrapBV(user, amount);
     }
 
     /// Advance time by 1 s (satisfying minDelay) then push a new exchange rate.

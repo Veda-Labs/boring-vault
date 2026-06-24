@@ -49,7 +49,6 @@ contract WrapperQueueWithdrawTest is BVWTestBase {
     ///         queue, and a valid withdrawal request is recorded.
     function testRequestFromWrapper_HappyPath() public {
         uint256 bvAmount = 100e18;
-        _giveBVShares(alice, bvAmount);
         uint256 wShares = _wrapBV(alice, bvAmount);
 
         skip(LOCK + 1);
@@ -89,11 +88,9 @@ contract WrapperQueueWithdrawTest is BVWTestBase {
         uint256 bvAmount = 100e18;
 
         // Alice: one-step path.
-        _giveBVShares(alice, bvAmount);
         uint256 aliceWShares = _wrapBV(alice, bvAmount);
 
         // Bob: two-step path.
-        _giveBVShares(bob, bvAmount);
         uint256 bobWShares = _wrapBV(bob, bvAmount);
 
         rolesAuthority.setUserRole(bob, QUEUE_USER_ROLE, true);
@@ -160,7 +157,6 @@ contract WrapperQueueWithdrawTest is BVWTestBase {
 
     /// @notice Calling while the wrapper share lock is still active reverts.
     function testRequestFromWrapper_RevertsWhenSharesLocked() public {
-        _giveBVShares(alice, 100e18);
         uint256 wShares = _wrapBV(alice, 100e18);
 
         vm.startPrank(alice);

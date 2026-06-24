@@ -111,9 +111,6 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
     /// @notice Virtual-share offset for inflation-attack mitigation.
     uint8 public constant DECIMALS_OFFSET = 6;
 
-    /// @notice Virtual-shares constant.
-    uint256 private constant VIRTUAL_SHARES = 10 ** DECIMALS_OFFSET;
-
     // =========================================================================
     //                              IMMUTABLES
     // =========================================================================
@@ -195,6 +192,9 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
     ///      currently flagged denyTo on the Teller. Setting a denylisted address
     ///      would freeze the wrapper on the very next fee accrual.
     error BoringVaultWrapper__FeeRecipientDenylisted(address recipient);
+    /// @dev deposit()/mint() are disabled — BV shares are this wrapper's asset() and wrapping
+    ///      them adds a fees-on-fees layer with no rational use case. Use depositAsset() instead.
+    error BoringVaultWrapper__DirectDepositDisabled();
 
     // =========================================================================
     //                               EVENTS
@@ -377,30 +377,16 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
     // pending fees, (3) delegate to OZ super(). Conversion uses the overridden
     // _convertToShares / _convertToAssets below.
 
-    /// @notice Deposit BV shares and receive wrapper shares.
-    /// @dev `receiver` must equal `msg.sender` — the share lock is keyed on the receiver;
-    ///      allowing third-party minting to an arbitrary address would let anyone grief
-    ///      that address by perpetually refreshing its lock. Compliance is enforced and
-    ///      fees are settled before conversion. A share lock is applied on return.
-    function deposit(uint256 assets, address receiver) public override nonReentrant returns (uint256) {
-        if (receiver != _msgSender()) revert BoringVaultWrapper__ReceiverMustBeCaller();
-        _enforceTransferPolicy(_msgSender(), receiver, _msgSender());
-        _accrueFees();
-        uint256 shares = super.deposit(assets, receiver);
-        _applyShareLock(receiver);
-        return shares;
+    /// @notice Disabled. BV shares are this wrapper's asset(); wrapping them adds a
+    ///         fees-on-fees layer with no rational use case. Use depositAsset() instead.
+    function deposit(uint256, address) public pure override returns (uint256) {
+        revert BoringVaultWrapper__DirectDepositDisabled();
     }
 
-    /// @notice Mint an exact number of wrapper shares by depositing the required BV shares.
-    /// @dev Same wrapper-specific restrictions as deposit(): receiver must equal msg.sender,
-    ///      compliance is enforced, fees are settled, and a share lock is applied on return.
-    function mint(uint256 shares, address receiver) public override nonReentrant returns (uint256) {
-        if (receiver != _msgSender()) revert BoringVaultWrapper__ReceiverMustBeCaller();
-        _enforceTransferPolicy(_msgSender(), receiver, _msgSender());
-        _accrueFees();
-        uint256 assets = super.mint(shares, receiver);
-        _applyShareLock(receiver);
-        return assets;
+    /// @notice Disabled. BV shares are this wrapper's asset(); wrapping them adds a
+    ///         fees-on-fees layer with no rational use case. Use depositAsset() instead.
+    function mint(uint256, address) public pure override returns (uint256) {
+        revert BoringVaultWrapper__DirectDepositDisabled();
     }
 
     /// @notice Withdraw BV shares by burning the corresponding wrapper shares.
@@ -442,6 +428,30 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
     // is in the future, every exit path reverts. Reflect that in the ERC4626
     // caps so integrators that quote max*() before exiting don't get a value the
     // contract will then reject.
+
+    /// @notice Always returns 0 — direct BV-share deposits are disabled.
+    function maxDeposit(address) public pure override returns (uint256) {
+        return 0;
+    }
+
+    /// @notice Always returns 0 — direct BV-share mints are disabled.
+    function maxMint(address) public pure override returns (uint256) {
+        return 0;
+    }
+
+    /// @notice Always returns 0 — direct BV-share deposits are disabled.
+    ///         Consistent with maxDeposit(); prevents ERC4626 integrators from quoting
+    ///         a non-zero preview for an entry path that always reverts.
+    function previewDeposit(uint256) public pure override returns (uint256) {
+        return 0;
+    }
+
+    /// @notice Always returns 0 — direct BV-share mints are disabled.
+    ///         Consistent with maxMint(); prevents ERC4626 integrators from quoting
+    ///         a non-zero preview for an entry path that always reverts.
+    function previewMint(uint256) public pure override returns (uint256) {
+        return 0;
+    }
 
     /// @notice Returns 0 while `shareOwner`'s wrapper shares are within their share-lock
     ///         window; otherwise delegates to the ERC4626 base implementation.
@@ -506,12 +516,12 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
 
     function _convertToShares(uint256 assets, Math.Rounding rounding) internal view override returns (uint256) {
         (uint256 supply, uint256 totalAss) = _simulateAccruedState();
-        return assets.mulDiv(supply + VIRTUAL_SHARES, totalAss + 1, rounding);
+        return assets.mulDiv(supply + 10 ** DECIMALS_OFFSET, totalAss + 1, rounding);
     }
 
     function _convertToAssets(uint256 shares, Math.Rounding rounding) internal view override returns (uint256) {
         (uint256 supply, uint256 totalAss) = _simulateAccruedState();
-        return shares.mulDiv(totalAss + 1, supply + VIRTUAL_SHARES, rounding);
+        return shares.mulDiv(totalAss + 1, supply + 10 ** DECIMALS_OFFSET, rounding);
     }
 
     // =========================================================================
@@ -565,7 +575,7 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
 
         TellerWithMultiAssetSupport teller = _getTeller();
 
-        _enforceTransferPolicy(teller, _msgSender(), receiver, _msgSender());
+        _enforceCallerPolicy(teller, _msgSender());
         _verifyComplianceSignature(teller, _msgSender(), receiver, address(rawAsset), rawAmount, compliance);
 
         _accrueFees();
@@ -582,7 +592,7 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
         uint256 bvReceived = boringVault.balanceOf(address(this)) - bvBefore;
         if (bvReceived == 0) revert BoringVaultWrapper__ZeroBVSharesReceived();
 
-        wrapperShares = bvReceived.mulDiv(supplyBefore + VIRTUAL_SHARES, bvBefore + 1, Math.Rounding.Floor);
+        wrapperShares = bvReceived.mulDiv(supplyBefore + 10 ** DECIMALS_OFFSET, bvBefore + 1, Math.Rounding.Floor);
 
         if (wrapperShares == 0) revert BoringVaultWrapper__ZeroBVSharesReceived();
 
@@ -632,7 +642,7 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
         uint256 supply = totalSupply();
         uint256 totalBV = boringVault.balanceOf(address(this));
 
-        uint256 bvToRedeem = wrapperShares.mulDiv(totalBV + 1, supply + VIRTUAL_SHARES, Math.Rounding.Floor);
+        uint256 bvToRedeem = wrapperShares.mulDiv(totalBV + 1, supply + 10 ** DECIMALS_OFFSET, Math.Rounding.Floor);
 
         _burn(shareOwner, wrapperShares);
 
@@ -781,10 +791,62 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
     //                       INTERNAL - COMPLIANCE
     // =========================================================================
 
+    /// @dev Convenience wrapper that resolves the teller from the live BV hook before
+    ///      delegating to the four-argument overload. See that overload for full semantics.
     function _enforceTransferPolicy(address from, address to, address operator) internal view {
         _enforceTransferPolicy(_getTeller(), from, to, operator);
     }
 
+    /// @dev Optimised single-party compliance check for depositAsset(), where
+    ///      receiver == msg.sender is enforced so from == to == operator == caller.
+    ///      Issues one beforeTransferData call instead of three, and one
+    ///      doesUserHaveRole lookup instead of three — fully equivalent behaviour.
+    function _enforceCallerPolicy(TellerWithMultiAssetSupport teller, address caller) private view {
+        if (address(teller) == address(0)) return;
+        (bool denyFrom, bool denyTo, bool denyOperator,) = teller.beforeTransferData(caller);
+        if (denyFrom || denyTo || denyOperator) {
+            revert BoringVaultWrapper__TransferDenied(caller, caller, caller);
+        }
+        uint8 role;
+        try teller.transferAllowedRole() returns (uint8 r) {
+            role = r;
+        } catch {
+            return;
+        }
+        if (role == type(uint8).max) return;
+        RolesAuthority a = RolesAuthority(address(teller.authority()));
+        if (!a.doesUserHaveRole(caller, role)) {
+            revert BoringVaultWrapper__TransferNotAllowed();
+        }
+    }
+
+    /// @dev Enforces the Teller's denylist and transferAllowedRole on a wrapper-share
+    ///      movement. Called on every transfer, transferFrom, withdraw, redeem, and
+    ///      redeemAsset.
+    ///
+    ///      DENYLIST: any of from/to/operator being flagged blocks the operation
+    ///      unconditionally.
+    ///
+    ///      TRANSFER ALLOWLIST (transferAllowedRole):
+    ///      The check uses OR semantics — the operation is allowed if AT LEAST ONE of
+    ///      operator, from, or to holds the role. This has two non-obvious consequences
+    ///      that vault operators must understand:
+    ///
+    ///      1. One-way door: a role-holder can send their own shares to an address that
+    ///         does NOT hold the role (from satisfies the OR). The recipient then cannot
+    ///         move those shares by themselves — every subsequent transfer/redeem/withdraw
+    ///         they initiate has only their own address in all three slots, and the OR
+    ///         collapses to a single doesUserHaveRole check they will fail. Their funds
+    ///         are locked until point (2) below applies.
+    ///
+    ///      2. Operator escape hatch: a role-holder who holds ERC20 approval from the
+    ///         stuck address can call transferFrom(stuck, dest, amount). The role-holder
+    ///         as operator satisfies the OR, so the transfer succeeds. This is the only
+    ///         recovery path for a stuck non-role holder — they must have granted approval
+    ///         to a role-holder BEFORE becoming stuck.
+    ///
+    ///      depositAsset enforces the same role check at mint time (_enforceCallerPolicy)
+    ///      to prevent addresses from self-depositing into the locked state directly.
     function _enforceTransferPolicy(TellerWithMultiAssetSupport teller, address from, address to, address operator)
         private
         view

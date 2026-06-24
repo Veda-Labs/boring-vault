@@ -195,25 +195,25 @@ contract Compliance_BoringVaultWrapper_Test is BVWTestBase {
     // =========================================================================
 
     function test_StandardDeposit_DenylistedReceiver_Reverts() public {
-        // receiver == caller is required; test the case where the caller/receiver is denylisted.
+        // Test that a denylisted caller/receiver is blocked on the depositAsset path.
         teller.setDenyFlags(alice, false, true, false); // denyTo on alice
 
-        deal(address(boringVault), alice, 100e18, true);
+        deal(address(baseAsset), alice, 100e18);
         vm.startPrank(alice);
-        ERC20(address(boringVault)).approve(address(wrapper), 100e18);
+        baseAsset.approve(address(wrapper), 100e18);
         vm.expectRevert(
             abi.encodeWithSelector(BoringVaultWrapper.BoringVaultWrapper__TransferDenied.selector, alice, alice, alice)
         );
-        wrapper.deposit(100e18, alice);
+        wrapper.depositAsset(baseAsset, 100e18, 0, alice, ComplianceData(0, ""));
         vm.stopPrank();
     }
 
     function test_StandardRedeem_DenylistedOwner_Reverts() public {
         // First a clean deposit so alice holds wrapper shares.
-        deal(address(boringVault), alice, 100e18, true);
+        deal(address(baseAsset), alice, 100e18);
         vm.startPrank(alice);
-        ERC20(address(boringVault)).approve(address(wrapper), 100e18);
-        wrapper.deposit(100e18, alice);
+        baseAsset.approve(address(wrapper), 100e18);
+        wrapper.depositAsset(baseAsset, 100e18, 0, alice, ComplianceData(0, ""));
         vm.stopPrank();
 
         // Now alice gets sanctioned.
@@ -232,10 +232,10 @@ contract Compliance_BoringVaultWrapper_Test is BVWTestBase {
 
     function test_TransferFrom_DenylistedFrom_Reverts() public {
         // Alice acquires shares, then becomes denylisted.
-        deal(address(boringVault), alice, 100e18, true);
+        deal(address(baseAsset), alice, 100e18);
         vm.startPrank(alice);
-        ERC20(address(boringVault)).approve(address(wrapper), 100e18);
-        wrapper.deposit(100e18, alice);
+        baseAsset.approve(address(wrapper), 100e18);
+        wrapper.depositAsset(baseAsset, 100e18, 0, alice, ComplianceData(0, ""));
         wrapper.approve(bob, 50e18);
         vm.stopPrank();
 
@@ -250,10 +250,10 @@ contract Compliance_BoringVaultWrapper_Test is BVWTestBase {
 
     function test_Transfer_AllowlistOff_AnyTransferSucceeds() public {
         // Default: transferAllowedRole = 255 → no restriction.
-        deal(address(boringVault), alice, 100e18, true);
+        deal(address(baseAsset), alice, 100e18);
         vm.startPrank(alice);
-        ERC20(address(boringVault)).approve(address(wrapper), 100e18);
-        wrapper.deposit(100e18, alice);
+        baseAsset.approve(address(wrapper), 100e18);
+        wrapper.depositAsset(baseAsset, 100e18, 0, alice, ComplianceData(0, ""));
         wrapper.transfer(bob, 30e18); // arbitrary recipient, no role needed
         vm.stopPrank();
         assertEq(wrapper.balanceOf(bob), 30e18);
@@ -263,10 +263,10 @@ contract Compliance_BoringVaultWrapper_Test is BVWTestBase {
         teller.setTransferRestrictions(TRANSFER_ALLOWED_ROLE, type(uint8).max);
         rolesAuthority.setUserRole(alice, TRANSFER_ALLOWED_ROLE, true);
 
-        deal(address(boringVault), alice, 100e18, true);
+        deal(address(baseAsset), alice, 100e18);
         vm.startPrank(alice);
-        ERC20(address(boringVault)).approve(address(wrapper), 100e18);
-        wrapper.deposit(100e18, alice);
+        baseAsset.approve(address(wrapper), 100e18);
+        wrapper.depositAsset(baseAsset, 100e18, 0, alice, ComplianceData(0, ""));
         wrapper.transfer(bob, 10e18); // alice (from) holds role
         vm.stopPrank();
 
@@ -275,13 +275,13 @@ contract Compliance_BoringVaultWrapper_Test is BVWTestBase {
 
     function test_Transfer_AllowlistOn_NobodyHasRole_Reverts() public {
         teller.setTransferRestrictions(TRANSFER_ALLOWED_ROLE, type(uint8).max);
-        // Grant role only for the deposit step (alice), then revoke before the transfer.
+        // Grant role for the depositAsset step (alice), then revoke before the transfer.
         rolesAuthority.setUserRole(alice, TRANSFER_ALLOWED_ROLE, true);
 
-        deal(address(boringVault), alice, 100e18, true);
+        deal(address(baseAsset), alice, 100e18);
         vm.startPrank(alice);
-        ERC20(address(boringVault)).approve(address(wrapper), 100e18);
-        wrapper.deposit(100e18, alice);
+        baseAsset.approve(address(wrapper), 100e18);
+        wrapper.depositAsset(baseAsset, 100e18, 0, alice, ComplianceData(0, ""));
         vm.stopPrank();
 
         rolesAuthority.setUserRole(alice, TRANSFER_ALLOWED_ROLE, false);

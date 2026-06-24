@@ -126,11 +126,11 @@ contract RedTeam_BoringVaultWrapper_Test is BVWTestBase {
         vm.prank(mallory);
         boringVault.transfer(address(wrapper), donation);
 
-        // Victim Alice deposits 500 BV shares.
-        deal(address(boringVault), alice, 500e18, true);
+        // Victim Alice deposits 500 base assets (= 500 BV shares at rate 1e18).
+        deal(address(baseAsset), alice, 500e18);
         vm.startPrank(alice);
-        boringVault.approve(address(wrapper), 500e18);
-        uint256 aliceWShares = wrapper.deposit(500e18, alice);
+        baseAsset.approve(address(wrapper), 500e18);
+        uint256 aliceWShares = wrapper.depositAsset(baseAsset, 500e18, 0, alice, ComplianceData(0, ""));
         vm.stopPrank();
 
         // Attacker redeems their wrapper shares.

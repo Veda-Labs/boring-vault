@@ -78,7 +78,6 @@ contract PhantomPerfFee_BoringVaultWrapper_Test is BVWTestBase {
         accountant.updatePlatformFee(BV_PLATFORM_FEE);
         accountant.updatePerformanceFee(0);
 
-        _giveBVShares(alice, 100e18);
         _wrapBV(alice, 100e18);
         _primeAccountant();
 
@@ -154,7 +153,6 @@ contract PhantomPerfFee_BoringVaultWrapper_Test is BVWTestBase {
         accountant.updatePlatformFee(BV_PLATFORM_FEE);
         accountant.updatePerformanceFee(0);
 
-        _giveBVShares(alice, 100e18);
         _wrapBV(alice, 100e18);
         _primeAccountant();
 

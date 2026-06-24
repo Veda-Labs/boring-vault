@@ -9,6 +9,7 @@ import {BoringVault} from "src/base/BoringVault.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {BoringVaultWrapper} from "src/base/Roles/BoringVaultWrapper.sol";
+import {TellerWithMultiAssetSupport, ComplianceData} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {MockERC20} from "src/helper/MockERC20.sol";
 
 /// @dev Shared base for all BoringVaultWrapper test suites.
@@ -131,18 +132,19 @@ abstract contract BVWTestBase is Test {
         deal(address(boringVault), user, amount, true);
     }
 
-    /// @dev Approve + deposit BV shares into the wrapper.
-    function _wrapBV(address user, uint256 bvAmount) internal returns (uint256 wrapperShares) {
+    /// @dev Deal base assets to `user` and deposit via depositAsset.
+    ///      Direct BV-share wrapping (deposit/mint) is disabled — depositAsset
+    ///      is the canonical entry path.
+    function _wrapBV(address user, uint256 amount) internal returns (uint256 wrapperShares) {
+        deal(address(baseAsset), user, amount);
         vm.startPrank(user);
-        ERC20(address(boringVault)).approve(address(wrapper), bvAmount);
-        wrapperShares = wrapper.deposit(bvAmount, user);
+        baseAsset.approve(address(wrapper), amount);
+        wrapperShares = wrapper.depositAsset(baseAsset, amount, 0, user, ComplianceData(0, ""));
         vm.stopPrank();
     }
 
-    /// @dev Deal BV shares to `user` and immediately wrap them.
-    ///      Shorthand for the common `_giveBVShares(u, n); _wrapBV(u, n)` pattern.
-    function _giveBVAndWrap(address user, uint256 bvAmount) internal {
-        _giveBVShares(user, bvAmount);
-        _wrapBV(user, bvAmount);
+    /// @dev Shorthand: deal base assets to `user` and wrap them.
+    function _giveBVAndWrap(address user, uint256 amount) internal {
+        _wrapBV(user, amount);
     }
 }

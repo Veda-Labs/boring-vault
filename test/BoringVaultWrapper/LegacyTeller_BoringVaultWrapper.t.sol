@@ -248,25 +248,26 @@ contract LegacyTeller_BoringVaultWrapper_Test is BVWTestBase {
     //  calls transferAllowedRole().  With the legacy teller that function is
     //  absent; the try/catch must allow both operations to complete.
     // =========================================================================
+    /// @dev depositAsset → _enforceTransferPolicy → transferAllowedRole() absent on
+    ///      legacyTeller → try/catch skips the check → deposit succeeds.
+    ///      redeem → same _enforceTransferPolicy path → succeeds.
     function test_LegacyTeller_StandardDepositAndRedeem_Succeed() public {
-        uint256 bvAmount = 80e18;
-        // Credit alice with BV shares directly (bypasses the teller entirely).
-        deal(address(boringVault), alice, bvAmount, true);
+        uint256 amount = 80e18;
+        deal(address(baseAsset), alice, amount);
 
-        // deposit() → _enforceTransferPolicy → transferAllowedRole() absent → try/catch → ok
         vm.startPrank(alice);
-        IERC20(address(boringVault)).approve(address(wrapper), bvAmount);
-        uint256 wShares = wrapper.deposit(bvAmount, alice);
+        baseAsset.approve(address(wrapper), amount);
+        uint256 wShares = wrapper.depositAsset(baseAsset, amount, 0, alice, ComplianceData(0, ""));
         vm.stopPrank();
 
-        assertEq(wShares, bvAmount * SHARE_SCALE, "deposit: shares at SHARE_SCALE ratio");
+        assertEq(wShares, amount * SHARE_SCALE, "depositAsset: shares at SHARE_SCALE ratio");
 
-        // redeem() → _enforceTransferPolicy → same path
+        // redeem() → _enforceTransferPolicy → transferAllowedRole() absent → try/catch → ok
         vm.startPrank(alice);
         uint256 bvBack = wrapper.redeem(wShares, alice, alice);
         vm.stopPrank();
 
-        assertEq(bvBack, bvAmount, "redeem: all BV shares returned");
+        assertEq(bvBack, amount, "redeem: all BV shares returned");
         assertEq(wrapper.balanceOf(alice), 0, "alice wrapper balance zero after redeem");
     }
 
@@ -276,10 +277,10 @@ contract LegacyTeller_BoringVaultWrapper_Test is BVWTestBase {
     //  transfer() calls _enforceTransferPolicy → transferAllowedRole() absent.
     // =========================================================================
     function test_LegacyTeller_WrapperShareTransfer_Succeeds() public {
-        deal(address(boringVault), alice, 100e18, true);
+        deal(address(baseAsset), alice, 100e18);
         vm.startPrank(alice);
-        IERC20(address(boringVault)).approve(address(wrapper), 100e18);
-        wrapper.deposit(100e18, alice);
+        baseAsset.approve(address(wrapper), 100e18);
+        wrapper.depositAsset(baseAsset, 100e18, 0, alice, ComplianceData(0, ""));
         // transfer() must not revert even though transferAllowedRole() is absent
         wrapper.transfer(bob, 30e18);
         vm.stopPrank();
@@ -294,10 +295,10 @@ contract LegacyTeller_BoringVaultWrapper_Test is BVWTestBase {
     //  must still be respected.
     // =========================================================================
     function test_LegacyTeller_DenylistStillEnforced() public {
-        deal(address(boringVault), alice, 100e18, true);
+        deal(address(baseAsset), alice, 100e18);
         vm.startPrank(alice);
-        IERC20(address(boringVault)).approve(address(wrapper), 100e18);
-        wrapper.deposit(100e18, alice);
+        baseAsset.approve(address(wrapper), 100e18);
+        wrapper.depositAsset(baseAsset, 100e18, 0, alice, ComplianceData(0, ""));
         vm.stopPrank();
 
         // Sanction bob: he must not receive shares.
@@ -348,12 +349,12 @@ contract LegacyTeller_BoringVaultWrapper_Test is BVWTestBase {
 
         // Role management must happen as the test contract (rolesAuthority owner),
         // not inside a prank.
-        deal(address(boringVault), alice, 100e18, true);
+        deal(address(baseAsset), alice, 100e18);
         rolesAuthority.setUserRole(alice, TRANSFER_ALLOWED_ROLE, true); // alice may deposit
 
         vm.startPrank(alice);
-        IERC20(address(boringVault)).approve(address(modernWrapper), 100e18);
-        modernWrapper.deposit(100e18, alice);
+        baseAsset.approve(address(modernWrapper), 100e18);
+        modernWrapper.depositAsset(baseAsset, 100e18, 0, alice, ComplianceData(0, ""));
         vm.stopPrank();
 
         // Revoke the role — now neither alice nor bob holds it.

@@ -34,18 +34,14 @@ contract ShareLockAndQueueTest is BVWTestBase {
     // ── Lock is recorded on deposit / mint / depositAsset ──────────────────────
 
     function testDepositSetsLock() public {
-        _giveBVShares(alice, 100e18);
         _wrapBV(alice, 100e18);
-        assertEq(wrapper.shareUnlockTime(alice), uint64(block.timestamp) + LOCK, "deposit sets lock");
+        assertEq(wrapper.shareUnlockTime(alice), uint64(block.timestamp) + LOCK, "depositAsset sets lock");
     }
 
-    function testMintSetsLock() public {
-        _giveBVShares(alice, 100e18);
-        vm.startPrank(alice);
-        ERC20(address(boringVault)).approve(address(wrapper), 100e18);
+    function testMintDisabled() public {
+        // mint() is disabled — wrapping BV shares adds a fees-on-fees layer with no use case.
+        vm.expectRevert(BoringVaultWrapper.BoringVaultWrapper__DirectDepositDisabled.selector);
         wrapper.mint(100e18 * 1e6, alice);
-        vm.stopPrank();
-        assertEq(wrapper.shareUnlockTime(alice), uint64(block.timestamp) + LOCK, "mint sets lock");
     }
 
     function testDepositAssetSetsLock() public {
@@ -62,24 +58,9 @@ contract ShareLockAndQueueTest is BVWTestBase {
     /// @notice Bob cannot deposit on Alice's behalf to refresh her lock. Allowing it
     ///         would let any third party perpetually re-lock a victim's whole balance
     ///         with dust.
-    function testDepositToOtherReceiverReverts() public {
-        _giveBVShares(bob, 100e18);
-        vm.startPrank(bob);
-        ERC20(address(boringVault)).approve(address(wrapper), 100e18);
-        vm.expectRevert(BoringVaultWrapper.BoringVaultWrapper__ReceiverMustBeCaller.selector);
-        wrapper.deposit(100e18, alice);
-        vm.stopPrank();
-    }
-
-    function testMintToOtherReceiverReverts() public {
-        _giveBVShares(bob, 100e18);
-        vm.startPrank(bob);
-        ERC20(address(boringVault)).approve(address(wrapper), 100e18);
-        vm.expectRevert(BoringVaultWrapper.BoringVaultWrapper__ReceiverMustBeCaller.selector);
-        wrapper.mint(1e6, alice);
-        vm.stopPrank();
-    }
-
+    /// @notice depositAsset always requires receiver == msg.sender.
+    ///         A caller supplying a different receiver is rejected immediately,
+    ///         regardless of who the receiver is or whether they hold shares.
     function testDepositAssetToOtherReceiverReverts() public {
         deal(address(baseAsset), bob, 100e18);
         vm.startPrank(bob);
@@ -89,22 +70,64 @@ contract ShareLockAndQueueTest is BVWTestBase {
         vm.stopPrank();
     }
 
+    function testMintToOtherReceiverReverts() public {
+        // mint() is disabled unconditionally — receiver check is never reached.
+        vm.expectRevert(BoringVaultWrapper.BoringVaultWrapper__DirectDepositDisabled.selector);
+        wrapper.mint(1e6, alice);
+    }
+
+    /// @notice Alice cannot DOS Bob's withdrawal by depositing to him to refresh his lock.
+    ///         The receiver == msg.sender invariant makes the lock strictly self-imposed:
+    ///         the only way Bob's lock advances is if Bob himself deposits.
+    ///
+    ///         Attack path:
+    ///           1. Bob deposits and gets a share lock.
+    ///           2. Bob's lock elapses — he is now free to withdraw.
+    ///           3. Alice attempts to extend Bob's lock by calling depositAsset(receiver=bob).
+    ///           4. Attempt reverts. Bob's unlock time is unchanged.
+    ///           5. Bob withdraws without any extra wait.
+    function testAliceCannotDOSBobWithdrawal() public {
+        // Bob deposits and gets locked.
+        uint256 bobWShares = _wrapBV(bob, 100e18);
+        uint64 bobUnlock = wrapper.shareUnlockTime(bob);
+        assertGt(bobUnlock, block.timestamp, "bob is locked");
+
+        // Bob's lock elapses.
+        skip(LOCK + 1);
+        assertLe(wrapper.shareUnlockTime(bob), block.timestamp, "bob is now unlocked");
+
+        // Alice attempts to deposit to bob — must revert, bob's unlock time must be unchanged.
+        deal(address(baseAsset), alice, 1e18);
+        vm.startPrank(alice);
+        baseAsset.approve(address(wrapper), 1e18);
+        vm.expectRevert(BoringVaultWrapper.BoringVaultWrapper__ReceiverMustBeCaller.selector);
+        wrapper.depositAsset(baseAsset, 1e18, 0, bob, ComplianceData(0, ""));
+        vm.stopPrank();
+
+        assertEq(wrapper.shareUnlockTime(bob), bobUnlock, "bob unlock time unchanged after attack");
+
+        // Bob can withdraw immediately — no extra wait imposed.
+        vm.prank(bob);
+        uint256 bvBack = wrapper.redeem(bobWShares, bob, bob);
+        assertApproxEqAbs(bvBack, 100e18, 1, "bob redeems full amount");
+        assertEq(wrapper.balanceOf(bob), 0, "bob has no remaining wrapper shares");
+    }
+
     /// @notice Grief is impossible end-to-end: Alice deposits, her lock elapses, and a
     ///         later third-party deposit attempt cannot push her unlock back out, so
     ///         she can still exit.
     function testThirdPartyCannotRefreshVictimLock() public {
-        _giveBVShares(alice, 100e18);
         uint256 wShares = _wrapBV(alice, 100e18);
         uint64 unlockAfterAlice = wrapper.shareUnlockTime(alice);
 
         skip(LOCK + 1); // Alice's lock elapses.
 
-        // Bob's attempt to re-lock Alice reverts; her unlock time is untouched.
-        _giveBVShares(bob, 1e18);
+        // Bob's attempt to re-lock Alice via depositAsset reverts; her unlock time is untouched.
+        deal(address(baseAsset), bob, 1e18);
         vm.startPrank(bob);
-        ERC20(address(boringVault)).approve(address(wrapper), 1e18);
+        baseAsset.approve(address(wrapper), 1e18);
         vm.expectRevert(BoringVaultWrapper.BoringVaultWrapper__ReceiverMustBeCaller.selector);
-        wrapper.deposit(1e18, alice);
+        wrapper.depositAsset(baseAsset, 1e18, 0, alice, ComplianceData(0, ""));
         vm.stopPrank();
 
         assertEq(wrapper.shareUnlockTime(alice), unlockAfterAlice, "victim lock not refreshed");
@@ -119,8 +142,8 @@ contract ShareLockAndQueueTest is BVWTestBase {
     ///         (msg.sender != receiver) is rejected too, so it cannot be used to mint
     ///         unlocked shares to the attacker.
     function testHelperContractDepositCannotBypassLock() public {
-        DepositHelper helper = new DepositHelper(wrapper, ERC20(address(boringVault)));
-        _giveBVShares(address(helper), 100e18);
+        DepositHelper helper = new DepositHelper(wrapper, ERC20(address(baseAsset)));
+        deal(address(baseAsset), address(helper), 100e18);
 
         vm.expectRevert(BoringVaultWrapper.BoringVaultWrapper__ReceiverMustBeCaller.selector);
         helper.depositTo(100e18, bob);
@@ -129,7 +152,6 @@ contract ShareLockAndQueueTest is BVWTestBase {
     // ── Transfers are gated by the lock ────────────────────────────────────────
 
     function testTransferBlockedDuringLock() public {
-        _giveBVShares(alice, 100e18);
         uint256 wShares = _wrapBV(alice, 100e18);
 
         vm.prank(alice);
@@ -143,7 +165,6 @@ contract ShareLockAndQueueTest is BVWTestBase {
     }
 
     function testTransferFromBlockedDuringLock() public {
-        _giveBVShares(alice, 100e18);
         uint256 wShares = _wrapBV(alice, 100e18);
 
         vm.prank(alice);
@@ -164,7 +185,6 @@ contract ShareLockAndQueueTest is BVWTestBase {
     ///         quote a value the contract will then reject. After the lock lifts they
     ///         return the full entitlement again.
     function testMaxExitCapsZeroDuringLock() public {
-        _giveBVShares(alice, 100e18);
         uint256 wShares = _wrapBV(alice, 100e18);
 
         assertEq(wrapper.maxRedeem(alice), 0, "maxRedeem 0 during lock");
@@ -180,7 +200,6 @@ contract ShareLockAndQueueTest is BVWTestBase {
     ///         redeem reverts while maxRedeem reports 0, and succeeds once it reports
     ///         a non-zero value.
     function testMaxRedeemConsistentWithRedeem() public {
-        _giveBVShares(alice, 100e18);
         uint256 wShares = _wrapBV(alice, 100e18);
 
         assertEq(wrapper.maxRedeem(alice), 0, "cap signals no redeemable shares");
@@ -197,7 +216,6 @@ contract ShareLockAndQueueTest is BVWTestBase {
     // ── Lock extends, never shortens ───────────────────────────────────────────
 
     function testLockExtendsNeverShortens() public {
-        _giveBVShares(alice, 200e18);
         _wrapBV(alice, 100e18);
         uint64 firstUnlock = wrapper.shareUnlockTime(alice);
 
@@ -209,7 +227,6 @@ contract ShareLockAndQueueTest is BVWTestBase {
         // Time passes a bit, then a fresh full-length deposit extends the lock.
         skip(30 minutes);
         teller.setShareLockPeriod(LOCK);
-        _giveBVShares(alice, 50e18);
         _wrapBV(alice, 50e18);
         assertEq(wrapper.shareUnlockTime(alice), uint64(block.timestamp) + LOCK, "later deposit extends lock");
         assertGt(wrapper.shareUnlockTime(alice), firstUnlock, "lock extended");
@@ -218,7 +235,6 @@ contract ShareLockAndQueueTest is BVWTestBase {
     // ── Period snapshotted at deposit, not read live at exit ───────────────────
 
     function testLockPeriodSnapshottedNotLive() public {
-        _giveBVShares(alice, 100e18);
         uint256 wShares = _wrapBV(alice, 100e18);
         uint64 unlockAtDeposit = wrapper.shareUnlockTime(alice);
 
@@ -333,7 +349,6 @@ contract ShareLockAndQueueTest is BVWTestBase {
 
     function testNoLockWhenPeriodZero() public {
         teller.setShareLockPeriod(0);
-        _giveBVShares(alice, 100e18);
         uint256 wShares = _wrapBV(alice, 100e18);
         assertEq(wrapper.shareUnlockTime(alice), 0, "no lock recorded");
 
@@ -351,10 +366,17 @@ contract ShareLockAndQueueTest is BVWTestBase {
             address(this), address(boringVault), address(accountant), address(baseAsset)
         );
         teller2.setAuthority(rolesAuthority);
+        // teller2 needs the same role wiring as teller: MINTER to call boringVault.enter,
+        // and BULKUSER capability so the wrapper (which holds BULKUSER) can call bulkDeposit.
+        rolesAuthority.setUserRole(address(teller2), MINTER, true);
+        rolesAuthority.setRoleCapability(
+            BULKUSER, address(teller2), TellerWithMultiAssetSupport.bulkDeposit.selector, true
+        );
+        // teller2 must accept baseAsset deposits (mirrors base setUp() for teller).
+        teller2.updateAssetData(baseAsset, true, true, 0);
         teller2.setShareLockPeriod(2 hours);
         boringVault.setBeforeTransferHook(address(teller2));
 
-        _giveBVShares(alice, 100e18);
         _wrapBV(alice, 100e18);
 
         // Lock follows the BV's live hook (teller2 = 2h), not the wrapper's teller (1h).
@@ -367,8 +389,11 @@ contract ShareLockAndQueueTest is BVWTestBase {
     function testNoLockWhenBVHookUnset() public {
         boringVault.setBeforeTransferHook(address(0));
 
-        _giveBVShares(alice, 100e18);
-        uint256 wShares = _wrapBV(alice, 100e18);
+        // No hook means no teller, so the wrapper can't route through bulkDeposit.
+        // Seed wrapper state directly via deal and test the redeem path only.
+        deal(address(boringVault), address(wrapper), 100e18, true);
+        deal(address(wrapper), alice, 100e18 * SHARE_SCALE, true);
+        uint256 wShares = 100e18 * SHARE_SCALE;
         assertEq(wrapper.shareUnlockTime(alice), 0, "no lock when BV has no hook");
 
         vm.prank(alice);
@@ -413,7 +438,6 @@ contract ShareLockAndQueueTest is BVWTestBase {
     function testWrapperUserCanQueueImmediatelyAfterRedeem() public {
         BoringOnChainQueue q = _deployAndWireQueue();
 
-        _giveBVShares(alice, 100e18);
         uint256 wShares = _wrapBV(alice, 100e18);
 
         // Wrapper lock must elapse before alice can redeem to BV shares.
@@ -543,19 +567,19 @@ contract ShareLockAndQueueTest is BVWTestBase {
     }
 }
 
-/// @notice Minimal contract that pulls BV shares and deposits into the wrapper with an
-///         arbitrary receiver -- the shape of a lock-bypass attempt (msg.sender != receiver).
+/// @notice Minimal contract that deposits into the wrapper on behalf of an arbitrary
+///         receiver — the shape of a lock-bypass attempt (msg.sender != receiver).
 contract DepositHelper {
     BoringVaultWrapper immutable wrapper;
-    ERC20 immutable bvShare;
+    ERC20 immutable baseAsset;
 
-    constructor(BoringVaultWrapper _wrapper, ERC20 _bvShare) {
+    constructor(BoringVaultWrapper _wrapper, ERC20 _baseAsset) {
         wrapper = _wrapper;
-        bvShare = _bvShare;
+        baseAsset = _baseAsset;
     }
 
     function depositTo(uint256 assets, address receiver) external returns (uint256) {
-        bvShare.approve(address(wrapper), assets);
-        return wrapper.deposit(assets, receiver);
+        baseAsset.approve(address(wrapper), assets);
+        return wrapper.depositAsset(ERC20(address(baseAsset)), assets, 0, receiver, ComplianceData(0, ""));
     }
 }
