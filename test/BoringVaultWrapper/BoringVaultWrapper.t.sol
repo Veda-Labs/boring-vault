@@ -5,12 +5,31 @@ import {console} from "@forge-std/Test.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import {BoringVault} from "src/base/BoringVault.sol";
 import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {TellerWithMultiAssetSupport, ComplianceData} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {BoringVaultWrapper} from "src/base/Roles/BoringVaultWrapper.sol";
+import {MockERC20} from "src/helper/MockERC20.sol";
+import {IRateProvider} from "src/interfaces/IRateProvider.sol";
 import {BVWTestBase} from "./BVWTestBase.sol";
+
+contract WrapperQuoteRateProvider is IRateProvider {
+    uint256 internal rate;
+
+    constructor(uint256 _rate) {
+        rate = _rate;
+    }
+
+    function setRate(uint256 _rate) external {
+        rate = _rate;
+    }
+
+    function getRate() external view returns (uint256) {
+        return rate;
+    }
+}
 
 contract BoringVaultWrapperTest is BVWTestBase {
     using FixedPointMathLib for uint256;
@@ -279,7 +298,112 @@ contract BoringVaultWrapperTest is BVWTestBase {
     }
 
     // =========================================================================
-    //                   12. depositAsset — USDC → Teller → BV → wrapper
+    //                   12. RATE VIEWS — base asset
+    // =========================================================================
+
+    function testGetRateReturnsWrapperRateInBoringVaultUnderlying() public {
+        // Zero fees so getRate() == accountant.getRate() exactly; pending fees dilute the result.
+        wrapper.setFeeConfig(feeRecipient, feeRecipient, 0, 0);
+
+        // Pre-deposit: virtual shares (10^offset) + virtual assets (1 wei) cancel to produce
+        // a 1:1 initial rate — wrapper.getRate() == accountant.getRate() before any deposit.
+        assertEq(wrapper.getRate(), accountant.getRate(), "Pre-deposit rate equals BV rate");
+
+        _giveBVShares(alice, 100e18);
+        _wrapBV(alice, 100e18);
+
+        assertEq(wrapper.getRate(), 1e18, "Wrapper rate starts at BV base rate");
+        assertEq(wrapper.getRateSafe(), 1e18, "Safe wrapper rate starts at BV base rate");
+
+        skip(2);
+        accountant.updateExchangeRate(1.1e18);
+
+        assertEq(wrapper.getRate(), 1.1e18, "Wrapper rate tracks BV base appreciation");
+        assertEq(wrapper.getRateSafe(), 1.1e18, "Safe wrapper rate tracks BV base appreciation");
+    }
+
+    // =========================================================================
+    //                   13. RATE VIEWS — secondary asset
+    // =========================================================================
+
+    function testGetRateInQuoteReturnsWrapperRateInSecondaryAsset() public {
+        // Zero fees so getRateInQuote() == accountant.getRateInQuote() exactly.
+        wrapper.setFeeConfig(feeRecipient, feeRecipient, 0, 0);
+
+        MockERC20 quote = new MockERC20("USD Coin", "USDC", 6);
+        WrapperQuoteRateProvider quoteRateProvider = new WrapperQuoteRateProvider(2e6);
+
+        teller.updateAssetData(quote, true, true, 0);
+        accountant.setRateProviderData(quote, false, address(quoteRateProvider));
+
+        _giveBVShares(alice, 100e18);
+        _wrapBV(alice, 100e18);
+
+        assertEq(
+            wrapper.getRateInQuote(IERC20(address(quote))),
+            0.5e6,
+            "1 wrapper share = 0.5 USDC (rate provider: 2 USDC/base)"
+        );
+        assertEq(wrapper.getRateInQuoteSafe(IERC20(address(quote))), 0.5e6, "Safe quote rate matches");
+
+        skip(2);
+        accountant.updateExchangeRate(1.1e18);
+
+        assertEq(wrapper.getRateInQuote(IERC20(address(quote))), 0.55e6, "1 wrapper share = 0.55 USDC at 1.1 BV rate");
+        assertEq(wrapper.getRateInQuoteSafe(IERC20(address(quote))), 0.55e6, "Safe quote rate tracks BV appreciation");
+    }
+
+    // =========================================================================
+    //                   14. RATE VIEWS — pending wrapper fees
+    // =========================================================================
+
+    function testGetRateReflectsPendingWrapperFeeDilution() public {
+        _giveBVShares(alice, 100e18);
+        _wrapBV(alice, 100e18);
+
+        skip(365 days);
+
+        uint256 supplyBefore = 100e18 * SHARE_SCALE;
+        uint256 pendingFeeShares = supplyBefore.mulDivDown(uint256(MGMT_FEE) * 365 days, uint256(1e4) * 365 days);
+        uint256 expectedSupply = supplyBefore + pendingFeeShares;
+        uint256 wrapperUnit = 10 ** wrapper.decimals(); // 10^24 = 10^(18 base + 6 DECIMALS_OFFSET)
+        uint256 expectedBVPerWrapperToken = wrapperUnit.mulDivDown(100e18 + 1, expectedSupply + SHARE_SCALE);
+
+        assertEq(
+            wrapper.getRate(),
+            expectedBVPerWrapperToken,
+            "Wrapper rate includes simulated pending management fee dilution"
+        );
+        assertLt(wrapper.getRate(), accountant.getRate(), "Pending wrapper fees reduce the wrapper rate");
+    }
+
+    // =========================================================================
+    //                   15. RATE VIEWS — safe reads observe accountant pause
+    // =========================================================================
+
+    function testSafeRateViewsRevertWhenAccountantPaused() public {
+        MockERC20 quote = new MockERC20("USD Coin", "USDC", 6);
+        // isPeggedToBase=true: accountant returns exchangeRate directly without calling
+        // rateProvider, so address(0) is a safe placeholder here.
+        accountant.setRateProviderData(quote, true, address(0));
+
+        _giveBVShares(alice, 100e18);
+        _wrapBV(alice, 100e18);
+
+        accountant.pause();
+
+        assertEq(wrapper.getRate(), 1e18, "Unsafe base rate still reads while paused");
+        assertEq(wrapper.getRateInQuote(IERC20(address(quote))), 1e6, "Unsafe quote rate still reads while paused");
+
+        vm.expectRevert(AccountantWithRateProviders.AccountantWithRateProviders__Paused.selector);
+        wrapper.getRateSafe();
+
+        vm.expectRevert(AccountantWithRateProviders.AccountantWithRateProviders__Paused.selector);
+        wrapper.getRateInQuoteSafe(IERC20(address(quote)));
+    }
+
+    // =========================================================================
+    //                   16. depositAsset — USDC → Teller → BV → wrapper
     // =========================================================================
 
     function testDepositAssetRoutesToTeller() public {
@@ -302,7 +426,7 @@ contract BoringVaultWrapperTest is BVWTestBase {
     }
 
     // =========================================================================
-    //                   13. depositAsset then redeem
+    //                   17. depositAsset then redeem
     // =========================================================================
 
     function testDepositAssetThenRedeem() public {
@@ -322,7 +446,7 @@ contract BoringVaultWrapperTest is BVWTestBase {
     }
 
     // =========================================================================
-    //                   14. setManagementFee — settles at old rate first
+    //                   18. setManagementFee — settles at old rate first
     // =========================================================================
 
     function testSetManagementFeeSettlesPendingFeesFirst() public {
@@ -348,7 +472,7 @@ contract BoringVaultWrapperTest is BVWTestBase {
     }
 
     // =========================================================================
-    //                   15. setPerformanceFee — settles pending perf fee first
+    //                   19. setPerformanceFee — settles pending perf fee first
     // =========================================================================
 
     function testSetPerformanceFeeSettlesPendingFeesFirst() public {
@@ -370,7 +494,7 @@ contract BoringVaultWrapperTest is BVWTestBase {
     }
 
     // =========================================================================
-    //                   16. accrueFees — callable by anyone
+    //                   20. accrueFees — callable by anyone
     // =========================================================================
 
     function testPublicAccrueFeesCallableByAnyone() public {
@@ -387,7 +511,7 @@ contract BoringVaultWrapperTest is BVWTestBase {
     }
 
     // =========================================================================
-    //                   17. Fee recipient can redeem their shares
+    //                   21. Fee recipient can redeem their shares
     // =========================================================================
 
     function testFeeRecipientSharesAreRedeemable() public {
@@ -418,7 +542,7 @@ contract BoringVaultWrapperTest is BVWTestBase {
     }
 
     // =========================================================================
-    //                   18. mint() and withdraw() ERC4626 entry points
+    //                   22. mint() and withdraw() ERC4626 entry points
     // =========================================================================
 
     function testMintAndWithdraw() public {
@@ -449,7 +573,7 @@ contract BoringVaultWrapperTest is BVWTestBase {
     }
 
     // =========================================================================
-    //                   19. totalAssets is always live
+    //                   23. totalAssets is always live
     // =========================================================================
 
     function testTotalAssetsIsLive() public {
@@ -472,7 +596,7 @@ contract BoringVaultWrapperTest is BVWTestBase {
     }
 
     // =========================================================================
-    //                   20. No stale-price arb: fee minted before every action
+    //                   24. No stale-price arb: fee minted before every action
     // =========================================================================
 
     function testFeeAlwaysSettledBeforeDeposit() public {
@@ -504,7 +628,7 @@ contract BoringVaultWrapperTest is BVWTestBase {
     }
 
     // =========================================================================
-    //                   21. depositAsset — first deposit 1:1 seeding
+    //                   25. depositAsset — first deposit 1:1 seeding
     // =========================================================================
 
     function testDepositAsset_FirstDeposit() public {
@@ -525,7 +649,7 @@ contract BoringVaultWrapperTest is BVWTestBase {
     }
 
     // =========================================================================
-    //                   22. depositAsset — proportional after existing supply
+    //                   26. depositAsset — proportional after existing supply
     // =========================================================================
 
     function testDepositAsset_ProportionalAfterSeed() public {
@@ -549,7 +673,7 @@ contract BoringVaultWrapperTest is BVWTestBase {
     }
 
     // =========================================================================
-    //                   23. depositAsset → redeemAsset round-trip
+    //                   27. depositAsset → redeemAsset round-trip
     // =========================================================================
 
     function testDepositAsset_ThenRedeemAsset_RoundTrip() public {
@@ -572,7 +696,7 @@ contract BoringVaultWrapperTest is BVWTestBase {
     }
 
     // =========================================================================
-    //                   24. redeemAsset — minAssetOut slippage guard (teller)
+    //                   28. redeemAsset — minAssetOut slippage guard (teller)
     // =========================================================================
 
     function testRedeemAsset_MinAssetOutReverts() public {
@@ -591,7 +715,7 @@ contract BoringVaultWrapperTest is BVWTestBase {
     }
 
     // =========================================================================
-    //                   25. redeemAsset — allowance (owner != msg.sender)
+    //                   29. redeemAsset — allowance (owner != msg.sender)
     // =========================================================================
 
     function testRedeemAsset_WithApproval() public {
@@ -617,7 +741,7 @@ contract BoringVaultWrapperTest is BVWTestBase {
     }
 
     // =========================================================================
-    //                   26. Fees settled before depositAsset
+    //                   30. Fees settled before depositAsset
     // =========================================================================
 
     function testDepositAsset_FeesSettledFirst() public {
@@ -642,7 +766,7 @@ contract BoringVaultWrapperTest is BVWTestBase {
     }
 
     // =========================================================================
-    //                   31. Share lock — transparent to wrapper users
+    //                   35. Share lock — transparent to wrapper users
     // =========================================================================
 
     /// @dev The wrapper mirrors the Teller's shareLockPeriod at its own layer so it
@@ -691,7 +815,7 @@ contract BoringVaultWrapperTest is BVWTestBase {
     }
 
     // =========================================================================
-    //                   27. Fees settled before redeemAsset
+    //                   31. Fees settled before redeemAsset
     // =========================================================================
 
     function testRedeemAsset_FeesSettledFirst() public {
@@ -719,7 +843,7 @@ contract BoringVaultWrapperTest is BVWTestBase {
     }
 
     // =========================================================================
-    //                   28. Constructor reverts — mismatched vault addresses
+    //                   32. Constructor reverts — mismatched vault addresses
     // =========================================================================
 
     function testConstructorRevertsOnMismatchedVaultAddresses() public {
@@ -745,7 +869,7 @@ contract BoringVaultWrapperTest is BVWTestBase {
     }
 
     // =========================================================================
-    //                   29. DUAL-LAYER FEES — BV and wrapper both charge fees
+    //                   33. DUAL-LAYER FEES — BV and wrapper both charge fees
     // =========================================================================
     //
     //  The wrapper doc says fees are additive: users pay both the BV-level fees

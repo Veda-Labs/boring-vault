@@ -458,6 +458,47 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
     }
 
     // =========================================================================
+    //                              RATE VIEWS
+    // =========================================================================
+
+    /// @notice Get one wrapper share's current rate in the BoringVault's base asset.
+    /// @dev Scales the BV share rate by this wrapper's current BV-share entitlement per
+    ///      full wrapper token, incorporating simulated pending wrapper fee dilution.
+    ///      Equivalent to the rate that would be observed immediately after _accrueFees() runs.
+    ///      WARNING: does not check whether the accountant is paused. Use getRateSafe()
+    ///      for any on-chain consumer that must not act on a potentially stale rate.
+    function getRate() public view returns (uint256 rate) {
+        rate = _rateFromBoringVaultRate(accountant.getRate());
+    }
+
+    /// @notice Get one wrapper share's current rate in the BoringVault's base asset.
+    /// @dev Incorporates simulated pending wrapper-fee dilution; equivalent to the rate
+    ///      that would be observed immediately after _accrueFees() runs.
+    ///      Reverts if the accountant is paused.
+    function getRateSafe() external view returns (uint256 rate) {
+        rate = _rateFromBoringVaultRate(accountant.getRateSafe());
+    }
+
+    /// @notice Get one wrapper share's current rate in a BoringVault quote asset.
+    /// @dev `quote` must be configured on the accountant, matching BV secondary assets.
+    ///      Incorporates simulated pending wrapper-fee dilution; equivalent to the rate
+    ///      that would be observed immediately after _accrueFees() runs.
+    ///      WARNING: does not check whether the accountant is paused. Use getRateInQuoteSafe()
+    ///      for any on-chain consumer that must not act on a potentially stale rate.
+    function getRateInQuote(IERC20 quote) public view returns (uint256 rateInQuote) {
+        rateInQuote = _rateFromBoringVaultRate(accountant.getRateInQuote(SolmateERC20(address(quote))));
+    }
+
+    /// @notice Get one wrapper share's current rate in a BoringVault quote asset.
+    /// @dev `quote` must be configured on the accountant.
+    ///      Incorporates simulated pending wrapper-fee dilution; equivalent to the rate
+    ///      that would be observed immediately after _accrueFees() runs.
+    ///      Reverts if the accountant is paused.
+    function getRateInQuoteSafe(IERC20 quote) external view returns (uint256 rateInQuote) {
+        rateInQuote = _rateFromBoringVaultRate(accountant.getRateInQuoteSafe(SolmateERC20(address(quote))));
+    }
+
+    // =========================================================================
     //                ERC4626 - share/asset conversion overrides
     // =========================================================================
     // Use simulated post-accrual state so off-chain previews match on-chain
@@ -723,6 +764,17 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
 
         (uint256 mgmtShares, uint256 perfShares,) = _pendingFeeShares();
         supply += mgmtShares + perfShares;
+    }
+
+    /// @dev Converts a BV-level rate into a wrapper-level rate.
+    ///      Uses convertToAssets which incorporates simulated pending wrapper fees
+    ///      (via _simulateAccruedState), so the result reflects the post-accrual rate.
+    ///      Units: [BV shares / wrapper share] * [base asset / BV share] / [BV share unit]
+    ///           = [base asset / wrapper share]
+    function _rateFromBoringVaultRate(uint256 bvRate) internal view returns (uint256) {
+        uint256 wrapperShareUnit = 10 ** decimals();
+        uint256 bvSharesPerWrapperShare = convertToAssets(wrapperShareUnit);
+        return bvSharesPerWrapperShare.mulDiv(bvRate, 10 ** boringVault.decimals(), Math.Rounding.Floor);
     }
 
     // =========================================================================
