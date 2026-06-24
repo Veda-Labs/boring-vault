@@ -970,6 +970,15 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
                 itbTokensUsed6[1] = getERC20(sourceChain, "RLUSD");
                 _addLeafsForITBPositionManager(leafs, itbPositionManager6, itbTokensUsed6, "ITB Position Manager 6");
             }
+            {
+                address itbPositionManager7 = 0xc1d4e31C05457f7a87F49E0EF556977E9e216250;
+                ERC20[] memory itbTokensUsed7 = new ERC20[](4);
+                itbTokensUsed7[0] = getERC20(sourceChain, "WEETH");
+                itbTokensUsed7[1] = getERC20(sourceChain, "RLUSD");
+                itbTokensUsed7[2] = getERC20(sourceChain, "PRIME");
+                itbTokensUsed7[3] = getERC20(sourceChain, "wYLDS");
+                _addLeafsForITBPositionManager(leafs, itbPositionManager7, itbTokensUsed7, "ITB Position Manager 7");
+            }
         }
 
         // ========================== Drone Setup ===============================

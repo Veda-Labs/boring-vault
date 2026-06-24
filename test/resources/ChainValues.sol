@@ -389,6 +389,7 @@ contract ChainValues {
         values[mainnet]["axlSAGA"] = 0xF42fCFfc27A5B8d0afEC45659407B82f9F32fA98.toBytes32();
         values[mainnet]["mUSD"] = 0xacA92E438df0B2401fF60dA7E4337B687a2435DA.toBytes32();
         values[mainnet]["PRIME"] = 0x19ebb35279A16207Ec4ba82799CC64715065F7F6.toBytes32();
+        values[mainnet]["wYLDS"] = 0x6aD038cA6C04e885630851278ca0a856Ad9a66Cc.toBytes32();
 
         // Infinifi
         values[mainnet]["infinifiGateway"] = 0x3f04b65Ddbd87f9CE0A2e7Eb24d80e7fb87625b5.toBytes32();
