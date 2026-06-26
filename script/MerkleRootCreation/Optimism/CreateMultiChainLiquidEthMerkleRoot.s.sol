@@ -19,9 +19,9 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
 
     address public boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C;
     address public rawDataDecoderAndSanitizer = 0x712Dbd2265a194Fe66D7db3F3988A92338bBFAE1;
+    address public midasVaultDecoderAndSanitizer = 0x7fc0F133Cb0a3B9C4186121C514E7830092111dC;
     address public managerAddress = 0x227975088C28DBBb4b421c6d96781a53578f19a8;
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
-    address public etherFiDecoder = 0xFB6C4c23Dc59F380Ec62Cc6Ea40711d6D87aa88f;
 
 
     function setUp() external {}
@@ -40,7 +40,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         setAddress(false, optimism, "accountantAddress", accountantAddress);
         setAddress(false, optimism, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](16);
+        ManageLeaf[] memory leafs = new ManageLeaf[](32);
 
         // ========================== Native ==========================
         /**
@@ -63,8 +63,12 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
 
 
         // ========================== Standard Bridge ==========================
-        ERC20[] memory localTokens = new ERC20[](0);
-        ERC20[] memory remoteTokens = new ERC20[](0);
+        ERC20[] memory localTokens = new ERC20[](1);
+        localTokens[0] = getERC20(sourceChain, "USDT");
+
+        ERC20[] memory remoteTokens = new ERC20[](1);
+        remoteTokens[0] = getERC20(mainnet, "USDT");
+
         _addStandardBridgeLeafs(
             leafs,
             mainnet,
@@ -76,11 +80,22 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             remoteTokens
         );
 
-        // ========================== LayerZero ==========================
-        setAddress(true, optimism, "rawDataDecoderAndSanitizer", etherFiDecoder);
+        // CCTP Bridge
+        _addCCTPBridgeLeafs(leafs, cctpMainnetDomainId);
 
+        // ========================== LayerZero ==========================
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WEETH_OFT"), getAddress(sourceChain, "WEETH_OFT"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));   
 
+        // ===================== Midas Vault ==========================
+        setAddress(true, optimism, "rawDataDecoderAndSanitizer", midasVaultDecoderAndSanitizer);
+        ERC20[] memory midasVaultTokens = new ERC20[](2);
+        midasVaultTokens[0] = getERC20(sourceChain, "USDC");
+        midasVaultTokens[1] = getERC20(sourceChain, "USDT");
+
+        ERC20[] memory midasVaultRedeemAssets = new ERC20[](1);
+        midasVaultRedeemAssets[0] = getERC20(sourceChain, "USDC");
+
+        _addMidasVaultLeafs(leafs, midasVaultTokens, midasVaultRedeemAssets, getAddress(sourceChain, "liquidRWA"), getAddress(sourceChain, "liquidRWA_DepositAdapter"), getAddress(sourceChain, "liquidRWA_RedemptionVault"));
         setAddress(true, optimism, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
