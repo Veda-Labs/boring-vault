@@ -12884,7 +12884,7 @@ function _addTellerLeafsWithReferral(
                 string.concat("Approve CrossChain Teller to spend ", ERC20(depositAssets[i]).symbol()),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
-            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[0] = boringVault;
         }
 
         // Extract first 16 bytes and convert to address
@@ -13039,7 +13039,7 @@ function _addTellerLeafsWithReferral(
                 string.concat("Approve CrossChain Teller to spend ", ERC20(depositAssets[i]).symbol()),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
-            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[0] = boringVault;
         }
 
         // Extract first 16 bytes and convert to address
