@@ -139,6 +139,9 @@ contract BoringVaultIntegrationTest is Test, MerkleTreeHelper {
         RolesAuthority(address(0x9778D78495cBbfce0B1F6194526a8c3D4b9C3AAF)).setPublicCapability(address(GoldenGooseTeller), bytes4(keccak256(abi.encodePacked("withdraw(address,uint256,uint256,address)"))), true);
         GoldenGooseTeller.setShareLockPeriod(0);
         RolesAuthority(address(0x9778D78495cBbfce0B1F6194526a8c3D4b9C3AAF)).setPublicCapability(address(GoldenGooseTeller), bytes4(keccak256(abi.encodePacked("depositAndBridge(address,uint256,uint256,address,bytes,address,uint256,address)"))), true);
+
+        RolesAuthority(address(0x9778D78495cBbfce0B1F6194526a8c3D4b9C3AAF)).setRoleCapability(8, address(GoldenGooseTeller), bytes4(keccak256(abi.encodePacked("allowMessagesToChain(uint32,address,uint128)"))), true);
+        GoldenGooseTeller.allowMessagesToChain(layerZeroLineaEndpointId, address(GoldenGooseTeller), 300_000);
         vm.stopPrank();
     }
 
@@ -249,7 +252,7 @@ contract BoringVaultIntegrationTest is Test, MerkleTreeHelper {
         decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
 
         uint256[] memory values = new uint256[](2);
-        values[1] = 30819757242215;
+        values[1] = 94163181143333;
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
