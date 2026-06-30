@@ -71,6 +71,8 @@ import {MantleStandardBridgeDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/MantleStandardBridgeDecoderAndSanitizer.sol";
 import {MerklDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MerklDecoderAndSanitizer.sol";
 import {MorphoBlueDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MorphoBlueDecoderAndSanitizer.sol";
+import {MorphoBlueDecoderAndSanitizerSingleton} from
+    "src/base/DecodersAndSanitizers/MorphoBlueDecoderAndSanitizerSingleton.sol";
 import {MorphoRewardsMerkleClaimerDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/MorphoRewardsMerkleClaimerDecoderAndSanitizer.sol";
 import {MorphoRewardsWrapperDecoderAndSanitizer} from
@@ -169,8 +171,8 @@ contract DeployDecodersAndSanitizersWithNoConstructorArgsScript is
 
     function setUp() external {
         //privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("sei");
-        setSourceChainName("sei");
+        vm.createSelectFork("mainnet");
+        setSourceChainName("mainnet");
     }
 
     function run() external {
@@ -178,9 +180,13 @@ contract DeployDecodersAndSanitizersWithNoConstructorArgsScript is
         bytes memory constructorArgs;
         vm.startBroadcast();
 
-        creationCode = type(LiquidUSDSeiDecoderAndSanitizer).creationCode;
+        creationCode = type(MorphoBlueDecoderAndSanitizerSingleton).creationCode;
         constructorArgs = hex"";
-        deployContract("LiquidUSD Sei Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        deployContract("Morpho Blue Decoder and Sanitizer Singleton V0.0", creationCode, constructorArgs, 0);
+
+        // creationCode = type(LiquidUSDSeiDecoderAndSanitizer).creationCode;
+        // constructorArgs = hex"";
+        // deployContract("LiquidUSD Sei Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         // creationCode = type(AaveV3DecoderAndSanitizer).creationCode;
         // constructorArgs = hex"";
