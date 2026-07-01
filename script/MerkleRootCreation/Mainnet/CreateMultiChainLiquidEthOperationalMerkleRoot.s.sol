@@ -343,7 +343,6 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
         _createDroneLeafs(leafs, drone, droneStartIndex, leafIndex + 1);
 
 
-        _createDroneLeafs(leafs, _drone, droneStartIndex, leafIndex + 1);
         setAddress(true, mainnet, "boringVault", boringVault);
     }
 
