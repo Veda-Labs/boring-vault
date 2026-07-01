@@ -28,6 +28,8 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
     address public itbPositionManager2 = 0xA40aFb15275A94F64aF37C0cEaAaA45Cb568A361;
     address public itbPositionManager3 = 0x2A601FC6C0Cb854fDA82715E49Ab04C5340A0396;
 
+    address public morphoDecoderAndSanitizer = 0x4734F21246958a1F6F9827BDDf416152f8efC1EA;
+
     // The cork decoder and sanitizer relaxes restrictions around which tokens can be withdrawn
     address public itbCorkDecoderAndSanitizer = 0x457Cce6Ec3fEb282952a7e50a1Bc727Ca235Eb0a;
 
@@ -67,7 +69,7 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
             token1[2] = getAddress(sourceChain, "WETH");
 
             bool swapRouter02 = false;
-            _addUniswapV3OneWaySwapLeafs(leafs, token0, token1, swapRouter02);
+            //_addUniswapV3OneWaySwapLeafs(leafs, token0, token1, swapRouter02);
         }
 
         // ========================== Odos ==========================
@@ -97,6 +99,12 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
             _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "USDC"), getAddress(sourceChain, "WETH"));
             _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "USDT"), getAddress(sourceChain, "WETH"));
             _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "MORPHO"), getAddress(sourceChain, "WETH"));
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "PYUSD"), getAddress(sourceChain, "USDC"));
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "USDC"), getAddress(sourceChain, "PYUSD"));
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "RLUSD"), getAddress(sourceChain, "USDC"));
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "USDC"), getAddress(sourceChain, "RLUSD"));
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "RLUSD"), getAddress(sourceChain, "PYUSD"));
+            _addEtherfiOneWaySwapperLeafs(leafs, getAddress(sourceChain, "PYUSD"), getAddress(sourceChain, "RLUSD"));
 
             setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
@@ -110,8 +118,29 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
             _addEtherfiSwapperOneWay1InchLeafs(leafs, getAddress(sourceChain, "USDC"), getAddress(sourceChain, "WETH"));
             _addEtherfiSwapperOneWay1InchLeafs(leafs, getAddress(sourceChain, "USDT"), getAddress(sourceChain, "WETH"));
             _addEtherfiSwapperOneWay1InchLeafs(leafs, getAddress(sourceChain, "MORPHO"), getAddress(sourceChain, "WETH"));
-
+            _addEtherfiSwapperOneWay1InchLeafs(leafs, getAddress(sourceChain, "PYUSD"), getAddress(sourceChain, "USDC"));
+            _addEtherfiSwapperOneWay1InchLeafs(leafs, getAddress(sourceChain, "USDC"), getAddress(sourceChain, "PYUSD"));
+            _addEtherfiSwapperOneWay1InchLeafs(leafs, getAddress(sourceChain, "RLUSD"), getAddress(sourceChain, "USDC"));
+            _addEtherfiSwapperOneWay1InchLeafs(leafs, getAddress(sourceChain, "USDC"), getAddress(sourceChain, "RLUSD"));
+            _addEtherfiSwapperOneWay1InchLeafs(leafs, getAddress(sourceChain, "RLUSD"), getAddress(sourceChain, "PYUSD"));
+            _addEtherfiSwapperOneWay1InchLeafs(leafs, getAddress(sourceChain, "PYUSD"), getAddress(sourceChain, "RLUSD"));
             setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
+
+        {
+            // ========================== MetaMorpho ==========================
+            _addERC4626WithdrawalLeafs(leafs, ERC4626(getAddress(sourceChain, "sentoraPYUSDMain")));
+            _addERC4626WithdrawalLeafs(leafs, ERC4626(getAddress(sourceChain, "sentoraPRIMEMain")));        
+        }
+
+        {
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", morphoDecoderAndSanitizer);
+
+            // ========================== MorphoBlue ==========================
+        _addMorphoBlueRepayLeafs(leafs, getBytes32(sourceChain, "WEETH_PYUSD_86"));
+        _addMorphoBlueRepayLeafs(leafs, getBytes32(sourceChain, "WEETH_RLUSD_86"));
+
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 
         // ========================== Merkl ==========================
@@ -149,12 +178,13 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
 
         // ========================== Drone ==========================
         {
-            ERC20[] memory droneTransferTokens = new ERC20[](5);
+            ERC20[] memory droneTransferTokens = new ERC20[](6);
             droneTransferTokens[0] = getERC20(sourceChain, "USDC"); 
             droneTransferTokens[1] = getERC20(sourceChain, "RLUSD");
             droneTransferTokens[2] = getERC20(sourceChain, "EIGEN");
             droneTransferTokens[3] = getERC20(sourceChain, "rEUL");
             droneTransferTokens[4] = getERC20(sourceChain, "MNT");
+            droneTransferTokens[5] = getERC20(sourceChain, "WEETH");
 
             _addLeafsForDroneTransfers(leafs, drone, droneTransferTokens);
             _addLeafsForDrone(leafs, drone);
@@ -276,7 +306,7 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
         token1[2] = getAddress(sourceChain, "WETH");
 
         bool swapRouter02 = false;
-        _addUniswapV3OneWaySwapLeafs(leafs, token0, token1, swapRouter02);
+        //_addUniswapV3OneWaySwapLeafs(leafs, token0, token1, swapRouter02);
 
         // ========================== Odos ==========================
         {
@@ -302,6 +332,15 @@ contract CreateMultichainLiquidEthOperationalMerkleRootScript is Script, MerkleT
 
         // ========================== Native ==========================
         _addNativeLeafs(leafs);
+
+        // ========================== Aave V3 ===============================
+        ERC20[] memory assets = new ERC20[](2);
+        assets[0] = getERC20(sourceChain, "WEETH");
+        assets[1] = getERC20(sourceChain, "USDC");
+
+        _addAaveV3EOALeafs("Aave V3", getAddress(sourceChain, "v3Pool"), leafs, assets);
+
+        _createDroneLeafs(leafs, drone, droneStartIndex, leafIndex + 1);
 
 
         _createDroneLeafs(leafs, _drone, droneStartIndex, leafIndex + 1);
