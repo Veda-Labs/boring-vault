@@ -82,8 +82,9 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         );
 
         // CCTP Bridge
-        setAddress(true, optimism, "rawDataDecoderAndSanitizer", etherFiDecoder);
         _addCCTPBridgeLeafs(leafs, cctpMainnetDomainId);
+
+        setAddress(true, optimism, "rawDataDecoderAndSanitizer", etherFiDecoder);
 
         // ========================== LayerZero ==========================
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WEETH_OFT"), getAddress(sourceChain, "WEETH_OFT"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));   

@@ -39,7 +39,9 @@
             "TargetAddress": "0x4200000000000000000000000000000000000006"
         },
         {
-            "AddressArguments": ["0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198"],
+            "AddressArguments": [
+                "0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198"
+            ],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x4495D83B2e139062834a0fC1e9Ea55Ea3182f14c",
             "Description": "Approve Accountant to spend WETH",
@@ -50,7 +52,9 @@
             "TargetAddress": "0x4200000000000000000000000000000000000006"
         },
         {
-            "AddressArguments": ["0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198"],
+            "AddressArguments": [
+                "0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198"
+            ],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x4495D83B2e139062834a0fC1e9Ea55Ea3182f14c",
             "Description": "Approve Accountant to spend weETH",
@@ -61,7 +65,9 @@
             "TargetAddress": "0x5A7fACB970D094B6C7FF1df0eA68D99E6e73CBFF"
         },
         {
-            "AddressArguments": ["0x4200000000000000000000000000000000000006"],
+            "AddressArguments": [
+                "0x4200000000000000000000000000000000000006"
+            ],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x4495D83B2e139062834a0fC1e9Ea55Ea3182f14c",
             "Description": "Claim fees in WETH",
@@ -72,7 +78,9 @@
             "TargetAddress": "0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198"
         },
         {
-            "AddressArguments": ["0x5A7fACB970D094B6C7FF1df0eA68D99E6e73CBFF"],
+            "AddressArguments": [
+                "0x5A7fACB970D094B6C7FF1df0eA68D99E6e73CBFF"
+            ],
             "CanSendValue": false,
             "DecoderAndSanitizerAddress": "0x4495D83B2e139062834a0fC1e9Ea55Ea3182f14c",
             "Description": "Claim fees in weETH",
@@ -97,7 +105,9 @@
             "TargetAddress": "0xC9475e18E2C5C26EA6ADCD55fabE07920beA887e"
         },
         {
-            "AddressArguments": ["0xf0bb20865277aBd641a307eCe5Ee04E79073416C"],
+            "AddressArguments": [
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
+            ],
             "CanSendValue": true,
             "DecoderAndSanitizerAddress": "0x4495D83B2e139062834a0fC1e9Ea55Ea3182f14c",
             "Description": "Bridge ETH from optimism to mainnet",
