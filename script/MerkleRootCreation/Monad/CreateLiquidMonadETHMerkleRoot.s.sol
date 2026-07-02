@@ -34,6 +34,7 @@ contract CreateLiquidMonadETHMerkleRootScript is Script, MerkleTreeHelper {
     address public managerAddress = 0xA4F58CCE8c5C42a313e12d3c8FBb983D5B8A09Ef;
     address public accountantAddress = 0x5ce04a3d8D5297A24bF752d0172064941D8d853b;
     address public rawDataDecoderAndSanitizer = 0x838fAc7f33231558185DA06d2F1F8dc3fcd5d7C7;
+    address public morphoBlueDecoderAndSanitizer = 0x328277D7499709225434793E6c23ef47Aa5b76b3;
 
     function setUp() external {}
 
@@ -54,10 +55,13 @@ contract CreateLiquidMonadETHMerkleRootScript is Script, MerkleTreeHelper {
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "steakhousePrimeETHVault")));
 
         // ========================== Morpho Blue wstETH/WETH market ==========================
+        // Morpho Blue leaves use a dedicated Morpho-only decoder & sanitizer.
+        setAddress(true, monad, "rawDataDecoderAndSanitizer", morphoBlueDecoderAndSanitizer);
         bytes32 wstethWethMarketId = getBytes32(sourceChain, "morphoBlue_wstETH_WETH_marketId");
         _addMorphoBlueSupplyLeafs(leafs, wstethWethMarketId);
         _addMorphoBlueCollateralLeafs(leafs, wstethWethMarketId);
         _addMorphoBlueRepayLeafs(leafs, wstethWethMarketId);
+        setAddress(true, monad, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Merkl rewards ==========================
         _addMerklClaimLeaf(leafs, getAddress(sourceChain, "merklDistributor"));
@@ -67,14 +71,19 @@ contract CreateLiquidMonadETHMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== Uniswap V4 — MON / WETH ==========================
         // Native MON on Uniswap V4 is address(0); the helper handles the sentinel conversion.
+        // Pool key (fee 500, tickSpacing 1) is pinned to match uniV4_MON_WETH_poolId.
         {
             address[] memory v4Token0 = new address[](1);
             address[] memory v4Token1 = new address[](1);
             address[] memory v4Hooks = new address[](1);
+            uint256[] memory v4Fees = new uint256[](1);
+            uint256[] memory v4TickSpacings = new uint256[](1);
             v4Token0[0] = address(0);
             v4Token1[0] = getAddress(sourceChain, "WETH");
             v4Hooks[0] = address(0);
-            _addUniswapV4Leafs(leafs, v4Token0, v4Token1, v4Hooks);
+            v4Fees[0] = 500;
+            v4TickSpacings[0] = 1;
+            _addUniswapV4Leafs(leafs, v4Token0, v4Token1, v4Hooks, v4Fees, v4TickSpacings);
         }
 
         // ========================== Wormhole NTT — WETH → Mainnet ==========================
