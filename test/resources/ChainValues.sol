@@ -47,6 +47,7 @@ contract ChainValues {
     string public constant inkSepolia = "inkSepolia";
     string public constant monad = "monad";
     string public constant sei = "sei";
+    string public constant tempo = "tempo";
 
     // Bridging constants.
     uint64 public constant ccipArbitrumChainSelector = 4949039107694359620;
@@ -161,6 +162,7 @@ contract ChainValues {
         _addInkSepoliaValues();
         _addMonadValues();
         _addSeiValues();
+        _addTempoValues();
     }
 
     function _addMainnetValues() private {
@@ -1439,6 +1441,10 @@ contract ChainValues {
         // Hyperlane
         values[mainnet]["hyperlaneUsdcRouter"] = 0xe1De9910fe71cC216490AC7FCF019e13a34481D7.toBytes32();
         values[mainnet]["hyperlaneTestRecipient"] = 0xfb53392bf4a0590a317ca716c28c29ace7c448bc132d7f8188ca234f595aa121;
+
+        // Backed CCIP Bridge (BackedCCIPReceiver, bridges Backed xStocks)
+        values[mainnet]["backedCCIPBridge"] = 0x9eC0e4A4c411493773E01e2ABF4D42395788846b.toBytes32();
+        values[mainnet]["MSTRx"] = 0xAE2f842EF90C0d5213259Ab82639D5BBF649b08E.toBytes32();
 
         // Euler
         values[mainnet]["ethereumVaultConnector"] = 0x0C9a3dd6b8F28529d72d7f9cE918D493519EE383.toBytes32();
@@ -3415,5 +3421,16 @@ contract ChainValues {
         // CCTP V2
         values[sei]["usdcTokenMessengerV2"] = 0x28b5a0e9C621a5BadaA536219b3a228C8168cf5d.toBytes32();
         values[sei]["usdcMessageTransmitterV2"] = 0x81D40F21F12A8F0E3252Bccb954D722d4c464B64.toBytes32();
+    }
+
+    function _addTempoValues() private {
+        values[tempo]["deployerAddress"] = 0x91e2458037709CafC7206D26Bd9c6DdE8b0A8A12.toBytes32();
+        values[tempo]["txBundlerAddress"] = 0x91e2458037709CafC7206D26Bd9c6DdE8b0A8A12.toBytes32();
+        values[tempo]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
+        values[tempo]["pathUSD"] = 0x20C0000000000000000000000000000000000000.toBytes32();
+        // senpathUSD ERC4626 (Morpho) vault — its asset() is pathUSD.
+        values[tempo]["senpathUSD"] = 0x9a044AE05E5e6290DcF56afd69548565e957a626.toBytes32();
+        // Merkl Distributor — canonical address (EIP-1967 proxy live on Tempo).
+        values[tempo]["merklDistributor"] = 0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae.toBytes32();
     }
 }

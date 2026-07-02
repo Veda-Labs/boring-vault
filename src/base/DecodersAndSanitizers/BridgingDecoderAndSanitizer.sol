@@ -15,6 +15,7 @@ import {ScrollBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Pr
 import {LidoStandardBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LidoStandardBridgeDecoderAndSanitizer.sol";
 import {HyperlaneDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/HyperlaneDecoderAndSanitizer.sol";
 import {MPortalDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MPortalDecoderAndSanitizer.sol";
+import {BackedCCIPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BackedCCIPDecoderAndSanitizer.sol";
 
 contract BridgingDecoderAndSanitizer is
     ArbitrumNativeBridgeDecoderAndSanitizer,
@@ -27,6 +28,7 @@ contract BridgingDecoderAndSanitizer is
     LidoStandardBridgeDecoderAndSanitizer,
     HyperlaneDecoderAndSanitizer,
     MPortalDecoderAndSanitizer,
+    BackedCCIPDecoderAndSanitizer,
     BaseDecoderAndSanitizer
 {
     //============================== HANDLE FUNCTION COLLISIONS ===============================

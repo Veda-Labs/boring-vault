@@ -58,6 +58,7 @@ inkSepolia= "${INK_SEPOLIA_RPC_URL}"
 mantle = "${MANTLE_RPC_URL}"
 sei = "${SEI_RPC_URL}"
 monad = "${MONAD_RPC_URL}"
+tempo = "https://rpc.tempo.xyz"  # mainnet 4217 — official RPC; gateway can't relay Tempo fee-token (0x76) txs
 
 [etherscan]
 #bob = { key = "${BOBSCAN_KEY}", chain = 60808, url = "https://explorer.gobob.xyz/api?"}
@@ -87,6 +88,7 @@ sonicMainnet = { key = "${ETHERSCAN_KEY}", chain = 146, url = "https://api.ether
 ink = { key = "${INKSCAN_KEY}", chain = 57073, url = "https://explorer.inkonchain.com/api" }
 #linea = { key = "${LINEASCAN_KEY}", chain = 59144, url = "https://api.etherscan.io/v2/api?chainid=59144" }
 plasma = { key = "${ETHERSCAN_KEY}", chain = 9745, url = "https://api.etherscan.io/v2/api?chainid=9745" }
+# tempo = { key = "${TENDERLY_ACCESS_KEY}", chain = 4217, url = "https://api.tenderly.co/api/v1/account/<ACCT>/project/<PROJ>/etherscan/verify/<NETWORK>" } # Tempo — Tenderly verification; fill in account/project/network when verifying
 
 [fmt]
 line_length = 160

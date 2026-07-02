@@ -8088,6 +8088,80 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex].argumentAddresses[2] = recipient1;
     }
 
+    // ========================================= Backed CCIP Bridge =========================================
+
+    /// @notice Adds leafs to bridge a Backed xStock through Backed's CCIP wrapper (BackedCCIPReceiver).
+    /// @dev For SVM (Solana) destinations, `accountIsWritableBitmap` and `solanaAccounts` must be the exact
+    ///      values the strategist will abi.encode into `chainSpecificArgs`; every account is pinned in the
+    ///      leaf because the accounts array controls which Solana accounts the CCIP message executes against.
+    ///      For EVM destinations pass a zero bitmap and an empty `solanaAccounts` array — the bridge ignores
+    ///      `chainSpecificArgs` there and the leaf pins it as empty bytes.
+    function _addBackedCCIPBridgeLeafs(
+        ManageLeaf[] memory leafs,
+        address backedCCIPBridge,
+        uint64 destinationChainSelector,
+        bytes32 tokenReceiver,
+        ERC20 asset,
+        uint64 accountIsWritableBitmap,
+        bytes32[] memory solanaAccounts
+    ) internal {
+        // The bridge's SVM path never validates the receiver, so a zero-receiver leaf would
+        // authorize bridging into a burn.
+        require(tokenReceiver != bytes32(0), "Token receiver cannot be zero");
+        require(solanaAccounts.length > 0 || accountIsWritableBitmap == 0, "Writable bitmap requires solana accounts");
+
+        // Approve the bridge to spend the asset.
+        if (
+            !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][address(asset)][backedCCIPBridge]
+        ) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                address(asset),
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve Backed CCIP Bridge to spend ", asset.symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = backedCCIPBridge;
+            ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][address(asset)][backedCCIPBridge]
+            = true;
+        }
+
+        // Add send leaf.
+        unchecked {
+            leafIndex++;
+        }
+        uint256 argumentCount = solanaAccounts.length > 0 ? 5 + 2 * solanaAccounts.length : 4;
+        leafs[leafIndex] = ManageLeaf(
+            backedCCIPBridge,
+            true,
+            "send(uint64,bytes32,address,uint256,bytes)",
+            new address[](argumentCount),
+            string.concat(
+                "Bridge ",
+                asset.symbol(),
+                " to chain ",
+                vm.toString(destinationChainSelector),
+                " via Backed CCIP Bridge"
+            ),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = address(uint160(destinationChainSelector));
+        leafs[leafIndex].argumentAddresses[1] = address(bytes20(bytes16(tokenReceiver)));
+        leafs[leafIndex].argumentAddresses[2] = address(bytes20(bytes16(tokenReceiver << 128)));
+        leafs[leafIndex].argumentAddresses[3] = address(asset);
+        if (solanaAccounts.length > 0) {
+            leafs[leafIndex].argumentAddresses[4] = address(uint160(accountIsWritableBitmap));
+            for (uint256 i; i < solanaAccounts.length; ++i) {
+                leafs[leafIndex].argumentAddresses[5 + 2 * i] = address(bytes20(bytes16(solanaAccounts[i])));
+                leafs[leafIndex].argumentAddresses[6 + 2 * i] = address(bytes20(bytes16(solanaAccounts[i] << 128)));
+            }
+        }
+    }
+
     // ========================================= Avalanche C-Chain Bridge / Core Bridge =========================================
     // @dev note that ERC20 is fine here as ETH is not supported and must be converted to WETH first
     function _addAvalancheBridgeLeafs(ManageLeaf[] memory leafs, ERC20[] memory assets) internal {
