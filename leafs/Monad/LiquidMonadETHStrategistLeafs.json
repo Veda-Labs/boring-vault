@@ -10,8 +10,8 @@
       "Bytes4(TARGET_FUNCTION_SELECTOR)",
       "Bytes{N*20}(ADDRESS_ARGUMENT_0,...,ADDRESS_ARGUMENT_N)"
     ],
-    "LeafCount": 32,
-    "ManageRoot": "0xe48844041d1090e3ba8ce914da9d6ab4c9c200da5d5d0e0ea56a748141a42801",
+    "LeafCount": 37,
+    "ManageRoot": "0x9f369ac15e141eb7143ddfad5829fbcb771a582e5b0ae7296addcb6d3d1a5cee",
     "ManagerAddress": "0xA4F58CCE8c5C42a313e12d3c8FBb983D5B8A09Ef",
     "TreeCapacity": 64
   },
@@ -516,59 +516,69 @@
       "TargetAddress": "0xFEA937F7124E19124671f1685671d3f04a9Af4E4"
     },
     {
-      "AddressArguments": [],
+      "AddressArguments": ["0x33566fE5976AAa420F3d5C64996641Fc3858CaDB"],
       "CanSendValue": false,
-      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-      "Description": "",
-      "FunctionSelector": "0xc5d24601",
-      "FunctionSignature": "",
-      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-      "PackedArgumentAddresses": "0x",
-      "TargetAddress": "0x0000000000000000000000000000000000000000"
+      "DecoderAndSanitizerAddress": "0x838fAc7f33231558185DA06d2F1F8dc3fcd5d7C7",
+      "Description": "Approve monad CCIP Router to spend LINK",
+      "FunctionSelector": "0x095ea7b3",
+      "FunctionSignature": "approve(address,uint256)",
+      "LeafDigest": "0x75a1949e167853df239be2d03bf08abce7ceb93c8589e1f4446b1c66653bbbee",
+      "PackedArgumentAddresses": "0x33566fe5976aaa420f3d5c64996641fc3858cadb",
+      "TargetAddress": "0x76f257B1DDA5cC71bee4eF637Fbdde4C801310A9"
     },
     {
-      "AddressArguments": [],
+      "AddressArguments": ["0x33566fE5976AAa420F3d5C64996641Fc3858CaDB"],
       "CanSendValue": false,
-      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-      "Description": "",
-      "FunctionSelector": "0xc5d24601",
-      "FunctionSignature": "",
-      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-      "PackedArgumentAddresses": "0x",
-      "TargetAddress": "0x0000000000000000000000000000000000000000"
+      "DecoderAndSanitizerAddress": "0x838fAc7f33231558185DA06d2F1F8dc3fcd5d7C7",
+      "Description": "Approve monad CCIP Router to spend wstETH",
+      "FunctionSelector": "0x095ea7b3",
+      "FunctionSignature": "approve(address,uint256)",
+      "LeafDigest": "0x29dc95cec1ec0cff0ab7de6a706b943eef720949c7d297b546d09056f354cd56",
+      "PackedArgumentAddresses": "0x33566fe5976aaa420f3d5c64996641fc3858cadb",
+      "TargetAddress": "0x10Aeaf63194db8d453d4D85a06E5eFE1dd0b5417"
     },
     {
-      "AddressArguments": [],
+      "AddressArguments": [
+        "0x00000000000000000000000045849994fc9c7B15",
+        "0xA024063B630D554078bbF985718B22F3c6870EE0",
+        "0x10Aeaf63194db8d453d4D85a06E5eFE1dd0b5417",
+        "0x76f257B1DDA5cC71bee4eF637Fbdde4C801310A9"
+      ],
       "CanSendValue": false,
-      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-      "Description": "",
-      "FunctionSelector": "0xc5d24601",
-      "FunctionSignature": "",
-      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-      "PackedArgumentAddresses": "0x",
-      "TargetAddress": "0x0000000000000000000000000000000000000000"
+      "DecoderAndSanitizerAddress": "0x838fAc7f33231558185DA06d2F1F8dc3fcd5d7C7",
+      "Description": "Bridge wstETH to chain 5009297550715157269 using CCIP",
+      "FunctionSelector": "0x96f4e9f9",
+      "FunctionSignature": "ccipSend(uint64,(bytes,bytes,(address,uint256)[],address,bytes))",
+      "LeafDigest": "0xce40fb2313c826972c07ce3b0832404dc018a311f44272ecc27c4dc1693ec33f",
+      "PackedArgumentAddresses": "0x00000000000000000000000045849994fc9c7b15a024063b630d554078bbf985718b22f3c6870ee010aeaf63194db8d453d4d85a06e5efe1dd0b541776f257b1dda5cc71bee4ef637fbdde4c801310a9",
+      "TargetAddress": "0x33566fE5976AAa420F3d5C64996641Fc3858CaDB"
     },
     {
-      "AddressArguments": [],
+      "AddressArguments": ["0x33566fE5976AAa420F3d5C64996641Fc3858CaDB"],
       "CanSendValue": false,
-      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-      "Description": "",
-      "FunctionSelector": "0xc5d24601",
-      "FunctionSignature": "",
-      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-      "PackedArgumentAddresses": "0x",
-      "TargetAddress": "0x0000000000000000000000000000000000000000"
+      "DecoderAndSanitizerAddress": "0x838fAc7f33231558185DA06d2F1F8dc3fcd5d7C7",
+      "Description": "Approve monad CCIP Router to spend WMON",
+      "FunctionSelector": "0x095ea7b3",
+      "FunctionSignature": "approve(address,uint256)",
+      "LeafDigest": "0x129448c3cfd87be84715f90bd484f70134cc90e453b0e24e491c5eb16d5e5ca3",
+      "PackedArgumentAddresses": "0x33566fe5976aaa420f3d5c64996641fc3858cadb",
+      "TargetAddress": "0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A"
     },
     {
-      "AddressArguments": [],
+      "AddressArguments": [
+        "0x00000000000000000000000045849994fc9c7B15",
+        "0xA024063B630D554078bbF985718B22F3c6870EE0",
+        "0x10Aeaf63194db8d453d4D85a06E5eFE1dd0b5417",
+        "0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A"
+      ],
       "CanSendValue": false,
-      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-      "Description": "",
-      "FunctionSelector": "0xc5d24601",
-      "FunctionSignature": "",
-      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-      "PackedArgumentAddresses": "0x",
-      "TargetAddress": "0x0000000000000000000000000000000000000000"
+      "DecoderAndSanitizerAddress": "0x838fAc7f33231558185DA06d2F1F8dc3fcd5d7C7",
+      "Description": "Bridge wstETH to chain 5009297550715157269 using CCIP",
+      "FunctionSelector": "0x96f4e9f9",
+      "FunctionSignature": "ccipSend(uint64,(bytes,bytes,(address,uint256)[],address,bytes))",
+      "LeafDigest": "0x5dbd8c6b983a6508ff0ce0bec53103f46a690c7c343c134f8edf63fdfd7047b0",
+      "PackedArgumentAddresses": "0x00000000000000000000000045849994fc9c7b15a024063b630d554078bbf985718b22f3c6870ee010aeaf63194db8d453d4d85a06e5efe1dd0b54173bd359c1119da7da1d913d1c4d2b7c461115433a",
+      "TargetAddress": "0x33566fE5976AAa420F3d5C64996641Fc3858CaDB"
     },
     {
       "AddressArguments": [],
@@ -869,15 +879,15 @@
     }
   ],
   "MerkleTree": {
-    "0": ["0xe48844041d1090e3ba8ce914da9d6ab4c9c200da5d5d0e0ea56a748141a42801"],
+    "0": ["0x9f369ac15e141eb7143ddfad5829fbcb771a582e5b0ae7296addcb6d3d1a5cee"],
     "1": [
       "0xecf16cc30ac727c5e6c86acd36040ee8c0a4872defa374261b56e0a1815a1ffa",
-      "0xec36dbe395dc9c97e82d5ef9325fb13a264faf4bc614c184837bb3dfc0c6a31a"
+      "0xdf5b1703918297d21399408e74d2e6912250644d6cf12bf985e6e30e31150049"
     ],
     "2": [
       "0xd1fd95a5014b4531a878b1988b3da079d533137a9b424723f4291cc42724866f",
       "0xd2223e7cd298173d3da66d7011a68fedce5d9e9feeca20d371e5449fe1c3679a",
-      "0xc8e2d8c65f68c2edf703a349b0189c66520f43472e76097f69a501107adf656c",
+      "0x2b48ba5537b8586b69513872b6055ab28e60e336f7040784f5d9f4e4af07a48b",
       "0xc8e2d8c65f68c2edf703a349b0189c66520f43472e76097f69a501107adf656c"
     ],
     "3": [
@@ -885,7 +895,7 @@
       "0xa66338bacf1d07c8e5f09d569586279e744be1517f619bff3b76733279ac60c1",
       "0xc29e9e5cf007f98fbc3f83567d3dbe060fcecbc5e194db0058f49c84c6b65075",
       "0x1a734ca2cdb0649752516141f7d9f7b725441ae8a7f91da89702e6248b57a432",
-      "0x41fbd3a0cfdfcee05cf3eb16d95ed1c81f50c3c6268bb806b406ec06ee93e704",
+      "0xa220f718d368fce59ae47ea163ef63c8260d2426dbc14cb57deb3411a4dac474",
       "0x41fbd3a0cfdfcee05cf3eb16d95ed1c81f50c3c6268bb806b406ec06ee93e704",
       "0x41fbd3a0cfdfcee05cf3eb16d95ed1c81f50c3c6268bb806b406ec06ee93e704",
       "0x41fbd3a0cfdfcee05cf3eb16d95ed1c81f50c3c6268bb806b406ec06ee93e704"
@@ -899,8 +909,8 @@
       "0xacbd68cb0ba87f4a1b64dba2f15cff72736a5b543f544e481c498bd56ade155c",
       "0x89798ac77ae2bb6512eafa63d2bf4be0c3ec55b3370a8ea3f97adf6922a08d1b",
       "0x921c745040c83ea5c41a01ebfd84336b8f2005fa38b137611909df295ed9814d",
-      "0x849eda7a295b642e5ddaf49a30eec4470cf507efa83b4104c0752d069c7638fe",
-      "0x849eda7a295b642e5ddaf49a30eec4470cf507efa83b4104c0752d069c7638fe",
+      "0xad58d7102d30a2e10c89ee1f8d304407693fe75aefac0f0a88f8c1fe08c6f24c",
+      "0x9787b998d4bf2550f882d919392f760389ebfc50e8a789c3d87a13403f5b1458",
       "0x849eda7a295b642e5ddaf49a30eec4470cf507efa83b4104c0752d069c7638fe",
       "0x849eda7a295b642e5ddaf49a30eec4470cf507efa83b4104c0752d069c7638fe",
       "0x849eda7a295b642e5ddaf49a30eec4470cf507efa83b4104c0752d069c7638fe",
@@ -925,9 +935,9 @@
       "0xd861b8cbee53ec6ba7e71d26a84cef3a05a7d8fd0962e31c9826ceccc48770c6",
       "0xb017526abcd23946d664fbf854234c64374c86a7b1b049dd4144ba33288415ff",
       "0x3f918b954f88af9d7bcc72e1a55bab43dd544e1ad25c2970cf43906df0a7763f",
-      "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
-      "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
-      "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
+      "0x5fb60e242febc251a7ba31b31e02ca33e5b6aea1077391cbe0dabad69c4b8fef",
+      "0x47bb4f76b4a9a8a2025c8c63672762372ef8065fefddf15eba7318b8dd8a1d41",
+      "0xb80cce8cb97f4273e4074edf56a4f6cafb2ccb1799f1fbb13d7ce13f80e772b4",
       "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
       "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
       "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
@@ -975,11 +985,11 @@
       "0xa7cac41638e6182965a74341237a439d5a5a2a5cf35f826ade58ada55b16328a",
       "0x0066268f0564e4206c102a6b9ab1c37b72d3ccef1cf61597ff9b0be54178803e",
       "0x906b044601dd546bdf7b04d914c893899e1fc51a0f75bb566d4cf6dd83ece3ea",
-      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "0x75a1949e167853df239be2d03bf08abce7ceb93c8589e1f4446b1c66653bbbee",
+      "0x29dc95cec1ec0cff0ab7de6a706b943eef720949c7d297b546d09056f354cd56",
+      "0xce40fb2313c826972c07ce3b0832404dc018a311f44272ecc27c4dc1693ec33f",
+      "0x129448c3cfd87be84715f90bd484f70134cc90e453b0e24e491c5eb16d5e5ca3",
+      "0x5dbd8c6b983a6508ff0ce0bec53103f46a690c7c343c134f8edf63fdfd7047b0",
       "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
       "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
       "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",

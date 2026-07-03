@@ -25,7 +25,7 @@ import "forge-std/Script.sol";
  *
  * Reverse-bridge leaves (Monad → Mainnet):
  *   - WETH via Wormhole NTT MultiToken Executor
- *   - wstETH via Chainlink CCIP (staged, pending Monad CCIP router)
+ *   - wstETH via Chainlink CCIP (fee tokens: LINK or WMON)
  */
 contract CreateLiquidMonadETHMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
@@ -96,13 +96,14 @@ contract CreateLiquidMonadETHMerkleRootScript is Script, MerkleTreeHelper {
         );
 
         // ========================== CCIP — wstETH → Mainnet ==========================
-        // Staged. Enable once `monad["ccipRouter"]` is registered.
-        // ERC20[] memory ccipBridgeAssets = new ERC20[](1);
-        // ccipBridgeAssets[0] = getERC20(sourceChain, "WSTETH");
-        // ERC20[] memory ccipFeeTokens = new ERC20[](2);
-        // ccipFeeTokens[0] = getERC20(sourceChain, "LINK");
-        // ccipFeeTokens[1] = getERC20(sourceChain, "WETH");
-        // _addCcipBridgeLeafs(leafs, ccipMainnetChainSelector, ccipBridgeAssets, ccipFeeTokens);
+        // The live Monad CCIP FeeQuoter accepts fees in LINK or the wrapped-native WMON
+        // (router.getWrappedNative()), both of which the vault can hold.
+        ERC20[] memory ccipBridgeAssets = new ERC20[](1);
+        ccipBridgeAssets[0] = getERC20(sourceChain, "WSTETH");
+        ERC20[] memory ccipFeeTokens = new ERC20[](2);
+        ccipFeeTokens[0] = getERC20(sourceChain, "LINK");
+        ccipFeeTokens[1] = getERC20(sourceChain, "WMON");
+        _addCcipBridgeLeafs(leafs, ccipMainnetChainSelector, ccipBridgeAssets, ccipFeeTokens);
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

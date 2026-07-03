@@ -3434,6 +3434,8 @@ contract ChainValues {
         values[monad]["WSTETH"] = 0x10Aeaf63194db8d453d4D85a06E5eFE1dd0b5417.toBytes32();
         values[monad]["AUSD"] = 0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a.toBytes32();
         values[monad]["ausdOFTAdapter"] = 0x9CaB7Ede13dc56652E44D2404E969C212f22689b.toBytes32();
+        values[monad]["LINK"] = 0x76f257B1DDA5cC71bee4eF637Fbdde4C801310A9.toBytes32();
+        values[monad]["ccipRouter"] = 0x33566fE5976AAa420F3d5C64996641Fc3858CaDB.toBytes32();
 
         // Morpho
         values[monad]["morphoBlue"] = 0xD5D960E8C380B724a48AC59E2DfF1b2CB4a1eAee.toBytes32();
