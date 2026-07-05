@@ -648,7 +648,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             ERC20[] memory remoteTokens = new ERC20[](3);
             remoteTokens[0] = getERC20(optimism, "RETH");
             remoteTokens[1] = getERC20(optimism, "CBETH");
-            remoteTokens[2] = getERC20(sourceChain, "USDT");
+            remoteTokens[2] = getERC20(optimism, "USDT");
             _addStandardBridgeLeafs(
                 leafs,
                 optimism,
@@ -660,8 +660,13 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
                 remoteTokens
             );
 
-            remoteTokens[0] = getERC20(base, "RETH");
-            remoteTokens[1] = getERC20(base, "CBETH");
+            
+            ERC20[] memory baseLocalTokens = new ERC20[](2);
+            baseLocalTokens[0] = getERC20(sourceChain, "RETH");
+            baseLocalTokens[1] = getERC20(sourceChain, "CBETH");
+            ERC20[] memory baseRemoteTokens = new ERC20[](2);
+            baseRemoteTokens[0] = getERC20(base, "RETH");
+            baseRemoteTokens[1] = getERC20(base, "CBETH");
 
             _addStandardBridgeLeafs(
                 leafs,
@@ -670,8 +675,8 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
                 getAddress(sourceChain, "baseResolvedDelegate"),
                 getAddress(sourceChain, "baseStandardBridge"),
                 getAddress(sourceChain, "basePortal"),
-                localTokens,
-                remoteTokens
+                baseLocalTokens,
+                baseRemoteTokens
             );
 
             ERC20[] memory swellLocalTokens = new ERC20[](0);
