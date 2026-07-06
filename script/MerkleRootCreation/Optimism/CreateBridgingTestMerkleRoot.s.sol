@@ -84,10 +84,10 @@ contract CreateBridgingTestMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== LayerZero ==========================
         _addLayerZeroLeafs(
-            leafs, getERC20(sourceChain, "WEETH_OFT"), getAddress(sourceChain, "WEETH_OFT"), layerZeroMainnetEndpointId
+            leafs, getERC20(sourceChain, "WEETH_OFT"), getAddress(sourceChain, "WEETH_OFT"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault")
         );
         _addLayerZeroLeafs(
-            leafs, getERC20(sourceChain, "WEETH_OFT"), getAddress(sourceChain, "WEETH_OFT"), layerZeroBaseEndpointId
+            leafs, getERC20(sourceChain, "WEETH_OFT"), getAddress(sourceChain, "WEETH_OFT"), layerZeroBaseEndpointId, getBytes32(sourceChain, "boringVault")
         );
 
         string memory filePath = "./leafs/Optimism/BridgingTestStrategistLeafs.json";

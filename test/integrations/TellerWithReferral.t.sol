@@ -138,7 +138,14 @@ contract BoringVaultIntegrationTest is Test, MerkleTreeHelper {
         RolesAuthority(address(0x9778D78495cBbfce0B1F6194526a8c3D4b9C3AAF)).setPublicCapability(address(GoldenGooseTeller), bytes4(keccak256(abi.encodePacked("withdraw(address,uint256,uint256,address)"))), true);
         GoldenGooseTeller.setShareLockPeriod(0);
         RolesAuthority(address(0x9778D78495cBbfce0B1F6194526a8c3D4b9C3AAF)).setPublicCapability(address(GoldenGooseTeller), bytes4(keccak256(abi.encodePacked("depositAndBridge(address,uint256,uint256,address,bytes,address,uint256,address)"))), true);
+        // The deployed GoldenGoose teller has no bridge destinations configured at this block, so any
+        // depositAndBridge reverts with LayerZeroTeller__MessagesNotAllowedTo. Configure Linea in-test
+        // (sets idToChains + the LayerZero peer) so the deposit-and-bridge-with-referral path can run.
+        // Mirrors the setup in test/LayerZeroTellerNoMock.t.sol.
+        RolesAuthority(address(0x9778D78495cBbfce0B1F6194526a8c3D4b9C3AAF)).setPublicCapability(address(GoldenGooseTeller), GoldenGooseTeller.addChain.selector, true);
         vm.stopPrank();
+
+        GoldenGooseTeller.addChain(layerZeroLineaEndpointId, true, true, address(GoldenGooseTeller), 200_000);
     }
 
     function testBoringVaultDepositAndWithdraw() external {
@@ -218,6 +225,13 @@ contract BoringVaultIntegrationTest is Test, MerkleTreeHelper {
         targets[0] = getAddress(sourceChain, "WETH"); //approve WETH to be spent by GoldenGooseTeller
         targets[1] = address(GoldenGooseTeller);
 
+        // Quote the LayerZero fee for this destination and fund the vault with the native ETH it needs to
+        // pay it (forwarded as msg.value on the depositAndBridge manage call below).
+        uint256 fee = GoldenGooseTeller.previewFee(
+            uint96(assets), getAddress(sourceChain, "boringVault"), abi.encode(layerZeroLineaEndpointId), ERC20(getAddress(sourceChain, "ETH"))
+        );
+        deal(getAddress(sourceChain, "boringVault"), fee);
+
         DepositAndBridgeParams memory params = DepositAndBridgeParams({
             depositAsset: getAddress(sourceChain, "WETH"),
             depositAmount: assets,
@@ -225,7 +239,7 @@ contract BoringVaultIntegrationTest is Test, MerkleTreeHelper {
             to: getAddress(sourceChain, "boringVault"),
             bridgeWildCard: abi.encode(layerZeroLineaEndpointId),
             feeToken: getAddress(sourceChain, "ETH"),
-            maxFee: 1e18,
+            maxFee: fee,
             referrer: referrer
         });
 
@@ -248,7 +262,7 @@ contract BoringVaultIntegrationTest is Test, MerkleTreeHelper {
         decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
 
         uint256[] memory values = new uint256[](2);
-        values[1] = 30819757242215;
+        values[1] = fee;
 
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 

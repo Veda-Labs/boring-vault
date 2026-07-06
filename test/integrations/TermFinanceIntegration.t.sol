@@ -13,6 +13,7 @@ import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {TermFinanceDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/TermFinanceDecoderAndSanitizer.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
@@ -214,7 +215,7 @@ contract TermFinanceIntegrationTest is Test, MerkleTreeHelper {
         manager =
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
-        rawDataDecoderAndSanitizer = address(new TermFinanceDecoderAndSanitizer());
+        rawDataDecoderAndSanitizer = address(new FullTermFinanceDecoderAndSanitizer());
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -276,3 +277,5 @@ contract TermFinanceIntegrationTest is Test, MerkleTreeHelper {
         vm.selectFork(forkId);
     }
 }
+
+contract FullTermFinanceDecoderAndSanitizer is TermFinanceDecoderAndSanitizer, BaseDecoderAndSanitizer {}

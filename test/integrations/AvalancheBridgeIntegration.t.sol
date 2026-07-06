@@ -146,51 +146,18 @@ contract AvalancheBridgeIntegration is BaseTestIntegration {
         deal(getAddress(sourceChain, "USDC"), address(boringVault), 1_000e6); 
        
         ManageLeaf[] memory leafs = new ManageLeaf[](4);
-        ERC20[] memory assets = new ERC20[](1); 
-        assets[0] = getERC20(sourceChain, "WETH"); 
+        ERC20[] memory assets = new ERC20[](1);
+        assets[0] = getERC20(sourceChain, "WETH");
 
-        vm.expectRevert(); 
-        _addAvalancheBridgeLeafs(leafs, assets);  
+        // Bridging non-USDC assets from Avalanche is unsupported, so the leaf
+        // builder reverts. Route it through an external call so vm.expectRevert
+        // observes the revert at a lower call depth (a bare internal revert at
+        // the cheatcode's own depth is rejected by newer Foundry).
+        vm.expectRevert();
+        this.addAvalancheBridgeLeafsExternal(leafs, assets);
+    }
 
-        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
-
-        _generateTestLeafs(leafs, manageTree);
-
-        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
-
-        Tx memory tx_ = _getTxArrays(3); 
-
-        tx_.manageLeafs[0] = leafs[0]; //approve USDC
-        tx_.manageLeafs[1] = leafs[1]; //call transferTokens
-        tx_.manageLeafs[2] = leafs[2]; //transfer WETH
-        
-        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
-
-        //targets
-        tx_.targets[0] = getAddress(sourceChain, "USDC"); //approve 
-        tx_.targets[1] = getAddress(sourceChain, "usdcTokenRouter"); //transferTokens
-        tx_.targets[2] = getAddress(sourceChain, "WETH"); //transfer
-
-        tx_.targetData[0] = abi.encodeWithSignature(
-            "approve(address,uint256)", getAddress(sourceChain, "usdcTokenRouter"), type(uint256).max
-        ); 
-        tx_.targetData[1] = abi.encodeWithSignature(
-            "transferTokens(uint256,uint32,address,address)", 
-            100e6,
-            0, //0 to send to ethereum
-            address(boringVault),
-            getAddress(sourceChain, "USDC")
-        );
-        tx_.targetData[2] = abi.encodeWithSignature(
-            "unwrap(uint256,uint256)", 
-            1e18,
-            0
-        );
-
-        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
-        tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer;
-        tx_.decodersAndSanitizers[2] = rawDataDecoderAndSanitizer;
-        
-        _submitManagerCall(manageProofs, tx_); 
+    function addAvalancheBridgeLeafsExternal(ManageLeaf[] memory leafs, ERC20[] memory assets) external {
+        _addAvalancheBridgeLeafs(leafs, assets);
     }
 }

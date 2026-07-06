@@ -102,9 +102,6 @@ contract CreateSonicUSDMerkleRoot is Script, MerkleTreeHelper {
          _addOdosSwapLeafs(leafs, tokens, kind);
 
         // ========================== Merkl ==========================
-        ERC20[] memory tokensToClaim = new ERC20[](2); 
-        tokensToClaim[0] = getERC20(sourceChain, "wS"); 
-        tokensToClaim[1] = getERC20(sourceChain, "awS"); 
         _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"));    
 
         // ========================== LayerZero ==========================

@@ -2,6 +2,7 @@
 // Copyright © 2025 Veda Tech Labs
 // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
 // Licensed under Software Evaluation License, Version 1.0
+// Last audited: boring-vault@edfcba3f29f691c638b06d04f60af79503632b58 — https://macroaudits.com/library/audits/sevenSeas-27
 pragma solidity 0.8.21;
 
 import {ERC20} from "@solmate/tokens/ERC20.sol";
@@ -352,6 +353,11 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
      * @param discount The discount to apply to the withdraw in bps.
      * @param secondsToDeadline The time in seconds the request is valid for.
      * @return requestId The request Id.
+     * @dev Requests are stored as keccak256(abi.encode(OnChainWithdraw)) only.
+     *      The full struct is emitted in OnChainWithdrawRequested at request time
+     *      and must be retained off-chain (event indexer or tx receipt) to cancel
+     *      or solve. No on-chain requestId → struct mapping; recovery is
+     *      event-indexer responsibility by design.
      */
     function requestOnChainWithdraw(address assetOut, uint128 amountOfShares, uint16 discount, uint24 secondsToDeadline)
         external
@@ -382,6 +388,11 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
      * @param r The r value of the permit signature.
      * @param s The s value of the permit signature.
      * @return requestId The request Id.
+     * @dev Requests are stored as keccak256(abi.encode(OnChainWithdraw)) only.
+     *      The full struct is emitted in OnChainWithdrawRequested at request time
+     *      and must be retained off-chain (event indexer or tx receipt) to cancel
+     *      or solve. No on-chain requestId → struct mapping; recovery is
+     *      event-indexer responsibility by design.
      */
     function requestOnChainWithdrawWithPermit(
         address assetOut,
@@ -416,6 +427,11 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
      * @notice Cancel an on-chain withdraw.
      * @param request The request to cancel.
      * @return requestId The request Id.
+     * @dev Requests are stored as keccak256(abi.encode(OnChainWithdraw)) only.
+     *      The full struct is emitted in OnChainWithdrawRequested at request time
+     *      and must be retained off-chain (event indexer or tx receipt) to cancel
+     *      or solve. No on-chain requestId → struct mapping; recovery is
+     *      event-indexer responsibility by design.
      */
     function cancelOnChainWithdraw(OnChainWithdraw memory request)
         external
@@ -433,6 +449,11 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
      * @param secondsToDeadline The time in seconds the new withdraw request is valid for.
      * @return oldRequestId The request Id of the old withdraw request.
      * @return newRequestId The request Id of the new withdraw request.
+     * @dev Requests are stored as keccak256(abi.encode(OnChainWithdraw)) only.
+     *      The full struct is emitted in OnChainWithdrawRequested at request time
+     *      and must be retained off-chain (event indexer or tx receipt) to cancel
+     *      or solve. No on-chain requestId → struct mapping; recovery is
+     *      event-indexer responsibility by design.
      */
     function replaceOnChainWithdraw(OnChainWithdraw memory oldRequest, uint16 discount, uint24 secondsToDeadline)
         external
@@ -451,6 +472,11 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
      * @param requests The requests to solve.
      * @param solveData The data to use to solve the requests.
      * @param solver The address of the solver.
+     * @dev Requests are stored as keccak256(abi.encode(OnChainWithdraw)) only.
+     *      The full struct is emitted in OnChainWithdrawRequested at request time
+     *      and must be retained off-chain (event indexer or tx receipt) to cancel
+     *      or solve. No on-chain requestId → struct mapping; recovery is
+     *      event-indexer responsibility by design.
      */
     function solveOnChainWithdraws(OnChainWithdraw[] calldata requests, bytes calldata solveData, address solver)
         external

@@ -2,6 +2,7 @@
 // Copyright © 2025 Veda Tech Labs
 // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
 // Licensed under Software Evaluation License, Version 1.0
+// Last audited: boring-vault@4c9c671bb965899728167102a0e3ac22f4aabf7a — https://macroaudits.com/library/audits/sevenSeas-39
 pragma solidity 0.8.21;
 
 import {INonFungiblePositionManager} from "src/interfaces/RawDataDecoderAndSanitizerInterfaces.sol";
@@ -26,6 +27,15 @@ contract UniswapV3DecoderAndSanitizer {
 
     //============================== UNISWAP V3 ===============================
 
+    /**
+     * @dev The path walk packs the 20-byte token addresses but not the 3-byte
+     *      fee tier between hops, and amountIn / amountOutMinimum are not
+     *      bound. By design, decoder leaves authorize swap shapes (which
+     *      tokens, which receiver) rather than specific values (which pool,
+     *      what slippage). A strategist with an authored leaf for a token
+     *      pair may route through any fee-tier pool of that pair, with any
+     *      slippage floor.
+     */
     function exactInput(DecoderCustomTypes.ExactInputParams calldata params)
         external
         pure

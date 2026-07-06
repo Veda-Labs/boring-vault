@@ -167,4 +167,4 @@ contract StakeStoneIntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullStakeStoneDecoderAndSanitizer is StakeStoneDecoderAndSanitizer {}
+contract FullStakeStoneDecoderAndSanitizer is StakeStoneDecoderAndSanitizer, BaseDecoderAndSanitizer {}

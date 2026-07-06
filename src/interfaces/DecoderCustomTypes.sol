@@ -2,6 +2,7 @@
 // Copyright © 2025 Veda Tech Labs
 // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
 // Licensed under Software Evaluation License, Version 1.0
+// Last audited: boring-vault@c54949f556cbc9a5e752ef1d6e8c09d64f4975b7 — https://macroaudits.com/library/audits/sevenSeas-47
 pragma solidity 0.8.21;
 contract DecoderCustomTypes {
     // ========================================= BALANCER =========================================
@@ -867,6 +868,36 @@ contract DecoderCustomTypes {
         uint96 amountWithFee;   // ETH amount the user receives after fee deduction (amountOfEEth - fee)
         uint32 nonce;           // Unique nonce to prevent hash collisions
         uint32 creationTime;    // Timestamp when request was created
+    }
+
+    // ========================================= Wormhole ==================================
+
+    struct WormholeExecutorArgs {
+            uint256 value;
+            address refundAddress;
+            bytes signedQuote;
+            bytes instructions;
+    }
+    struct WormholeFeeArgs {
+        uint16 dbps;
+        address payee;
+    }
+
+    // SignedQuote layout (Wormhole executor TS SDK, prefix "EQ01"):
+    //   [0..4)   bytes4  prefix
+    //   [4..24)  bytes20 quoter  (EVM-style, signs the quote)
+    //   [24..56) bytes32 payee   (UniversalAddress on the source chain, receives the executor payment)
+    //   [56..)   srcChain | dstChain | expiry | fees | prices | 65-byte signature  (no addresses)
+    struct WormholeSignedQuote {
+        bytes4 prefix;
+        address quoter;
+        bytes32 payee;
+    }
+
+    // RelayInstruction type 2 (GasDropOffInstruction): uint128 dropOff | bytes32 recipient
+    struct WormholeGasDropOffInstruction {
+        uint128 dropOff;
+        bytes32 recipient;
     }
 
 }

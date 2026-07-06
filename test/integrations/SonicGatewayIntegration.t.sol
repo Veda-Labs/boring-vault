@@ -497,7 +497,7 @@ contract SonicGatewayIntegration is Test, MerkleTreeHelper {
     }
 }
 
-contract FullSonicGatewayDecoderAndSanitizer is SonicGatewayDecoderAndSanitizer {}
+contract FullSonicGatewayDecoderAndSanitizer is SonicGatewayDecoderAndSanitizer, BaseDecoderAndSanitizer {}
 
 contract MockProofVerifier {
     function verifyProof(address target, bytes32 slot, bytes32 value, bytes32 stateRoot, bytes calldata proof)

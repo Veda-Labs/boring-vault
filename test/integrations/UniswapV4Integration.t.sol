@@ -5,6 +5,7 @@
 pragma solidity 0.8.21;
 
 import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {BoringVault} from "src/base/BoringVault.sol";
 import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
@@ -1708,7 +1709,7 @@ contract UniswapV4IntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullUniswapV4DecoderAndSanitizer is UniswapV4DecoderAndSanitizer {
+contract FullUniswapV4DecoderAndSanitizer is UniswapV4DecoderAndSanitizer, BaseDecoderAndSanitizer {
     constructor(address _posm) UniswapV4DecoderAndSanitizer(_posm){} 
 }
 

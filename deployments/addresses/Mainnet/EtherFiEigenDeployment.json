@@ -24,7 +24,70 @@
     "PayoutAddress": "0xA9962a5BfBea6918E958DeE0647E99fD7863b95A",
     "StartingExchangeRate": 1000000000000000000
   },
-  "core": {
+  "depositConfiguration": {
+    "AllowPublicDeposits": true,
+    "AllowPublicWithdraws": false,
+    "ShareLockPeriod": 86400
+  },
+  "contractMetadata": {
+    "BoringVault": {
+      "auditCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
+      "auditUrl": "file:audit/sigma-prime-boring-vault-0.pdf",
+      "verificationGap": ["cbor"],
+      "deploymentCommit": "3c768bd068af856b5de3def86b1940676847eb9d",
+      "auditGap": ["none"]
+    },
+    "DecoderAndSanitizer": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verificationGap": ["cbor", "evm:shanghai", "source:execute_method_not_in_repo"],
+      "deploymentCommit": "353e102866e7f1f014aad691bb63e4f994110429",
+      "auditGap": ["unaudited"]
+    },
+    "DelayedWithdraw": {
+      "auditCommit": "938478e59619c693150a2290ff677191b19a0948",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-8",
+      "verificationGap": ["cbor"],
+      "deploymentCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730",
+      "auditGap": ["state", "selectors", "auth"]
+    },
+    "RolesAuthority": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verificationGap": ["cbor"],
+      "deploymentCommit": "568d9467202a7f6e478cb8967fcee3c2afb38730",
+      "auditGap": ["external"]
+    },
+    "AccountantWithRateProviders": {
+      "auditCommit": "938478e59619c693150a2290ff677191b19a0948",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-8",
+      "verificationGap": ["cbor"],
+      "deploymentCommit": "fe0bf0afde965723bb540fdbb616dcc8564a31c7",
+      "auditGap": ["state", "selectors"]
+    },
+    "Lens": {
+      "auditCommit": "939c77e25473dff3ed18fa104f004f7afd13452e",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-4",
+      "verificationGap": ["cbor"],
+      "deploymentCommit": "228b4b66174f66385646e90ca30c1f354423bdf3",
+      "auditGap": ["view", "selectors"]
+    },
+    "ManagerWithMerkleVerification": {
+      "auditCommit": "939c77e25473dff3ed18fa104f004f7afd13452e",
+      "auditUrl": "file:audit/spearbit-boring-vault-arctic-0.pdf",
+      "verificationGap": ["cbor"],
+      "deploymentCommit": "fe0bf0afde965723bb540fdbb616dcc8564a31c7",
+      "auditGap": ["state", "selectors", "auth"]
+    },
+    "TellerWithMultiAssetSupport": {
+      "auditCommit": "35433417a394c49538260f30b5d37ab3e8de99d1",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-10",
+      "verificationGap": ["cbor"],
+      "deploymentCommit": "fe0bf0afde965723bb540fdbb616dcc8564a31c7",
+      "auditGap": ["state"]
+    }
+  },
+  "contractAddresses": {
     "AccountantWithRateProviders": "0x075e60550C6f77f430B284E76aF699bC31651f75",
     "BoringVault": "0xE77076518A813616315EaAba6cA8e595E845EeE9",
     "DecoderAndSanitizer": "0xb7Dd199ABE801cC4985B60B8B1365264Eb31ad26",
@@ -33,10 +96,5 @@
     "ManagerWithMerkleVerification": "0x354ade0382EEC1BF0a444339ABc82931457C2c0e",
     "RolesAuthority": "0x1f5D0e8e7eb6390D2eb6024cdC8B38A7faab596E",
     "TellerWithMultiAssetSupport": "0x63b2B0528376d1B34Ed8c9FF61Bd67ab2C8c2Bb0"
-  },
-  "depositConfiguration": {
-    "AllowPublicDeposits": true,
-    "AllowPublicWithdraws": false,
-    "ShareLockPeriod": 86400
   }
 }

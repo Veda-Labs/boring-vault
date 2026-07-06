@@ -2,6 +2,7 @@
 // Copyright © 2025 Veda Tech Labs
 // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
 // Licensed under Software Evaluation License, Version 1.0
+// Last audited: boring-vault@568d9467202a7f6e478cb8967fcee3c2afb38730 — file:audit/certora-boring-vault-1.pdf
 pragma solidity 0.8.21;
 
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
@@ -244,6 +245,16 @@ contract AccountantWithRateProviders is Auth, IRateProvider, IPausable {
      * @dev Rate providers must return rates in terms of `base` or
      * an asset pegged to base and they must use the same decimals
      * as `asset`.
+     * @dev If `asset` has fewer decimals than `base`, the conversion
+     * math in `claimFees`, `claimYield`, `getRateInQuote`, and
+     * `AccountantWithYieldStreaming.getRateInQuote` truncates the
+     * base-denominated amount by
+     * `10**(base.decimals - asset.decimals)` before applying the rate.
+     * For an 18-decimal `base` paired with a 6-decimal `asset`, base
+     * amounts smaller than `1e12` round to zero in the conversion and
+     * produce zero output. Realistic fee or yield accruals sit well
+     * above this floor; very small amounts or extremely frequent
+     * claims may not.
      * @dev Callable by OWNER_ROLE.
      */
     function setRateProviderData(ERC20 asset, bool isPeggedToBase, address rateProvider) external requiresAuth {

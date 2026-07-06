@@ -81,6 +81,9 @@ contract ChainValues {
     uint32 public constant layerZeroPlasmaEndpointId = 30383;
     uint32 public constant layerZeroSeiEndpointId = 30280;
 
+    uint32 public constant wormholeMainnetChainId = 2;
+    uint32 public constant wormholeMonadChainId = 48;
+
     uint32 public constant cctpMainnetDomainId = 0;
     uint32 public constant cctpInkDomainId = 21;
     uint32 public constant cctpHyperEVMDomainId = 19;
@@ -1382,6 +1385,13 @@ contract ChainValues {
         values[mainnet]["SUSDEOFTAdapter"] = 0x211Cc4DD073734dA055fbF44a2b4667d5E5fE5d2.toBytes32();
         values[mainnet]["wstUSROFTAdapter"] = 0xab17c1fE647c37ceb9b96d1c27DD189bf8451978.toBytes32();
         values[mainnet]["PYUSDOFTAdapter"] = 0xa2C323fE5A74aDffAd2bf3E007E36bb029606444.toBytes32();
+
+        // Wormhole
+        values[mainnet]["wormholeMultiTokenExecutor"] = 0x03dB430D830601DB368991eE55DAa9A708df7912.toBytes32();
+        values[mainnet]["wormholeMultiTokenNtt"] = 	0x556790e948b9920A8868bCAFcC87D25e82e8a075.toBytes32();
+        values[mainnet]["wormholeMultiTokenExecutorPayee"] = 0x7D73bE2ac3edDc8C5c0A1418b410b9710d4AF40D.toBytes32();
+        values[mainnet]["wormholeExecutorQuoter"] = 0xa54008017941EcE968623a0Dd8Ee907E2b133596.toBytes32();
+        values[mainnet]["wormholeExecutorPayee"] = 0x6a8BFC410A3Cc7306d52872F116AFb12F1cec6C6.toBytes32();
 
         // Stargate OFTs
         values[mainnet]["stargateUSDC"] = 0xc026395860Db2d07ee33e05fE50ed7bD583189C7.toBytes32();
@@ -3375,8 +3385,14 @@ contract ChainValues {
         values[monad]["WMON"] = 0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A.toBytes32();
         values[monad]["mUSD"] = 0xacA92E438df0B2401fF60dA7E4337B687a2435DA.toBytes32();
         values[monad]["USDC"] = 0x754704Bc059F8C67012fEd69BC8A327a5aafb603.toBytes32();
+        // steakhouse addresses kept from dev's newer "vmUSD deployment" (2cd5ad9a),
+        // which superseded the older testMUSD addresses main still carries.
         values[monad]["steakhouseMUSDVault"] = 0xBEEF067C9D2591aCCAB7d1C336a41ca3bd45b8f5.toBytes32();
         values[monad]["steakhouseUSDCVault"] = 0xBEEF0C61DA39F7EA2bFa7B0f9d6338A3a2DD2fF0.toBytes32();
+        // Wormhole multi-token + weth brought over from main (#699 monad-wormhole).
+        values[monad]["wormholeMultiTokenExecutor"] = 0xFEA937F7124E19124671f1685671d3f04a9Af4E4.toBytes32();
+        values[monad]["wormholeMultiTokenNtt"] = 0x36878C6FCa7e0E8a88F90dc410CfBBcA5B695C95.toBytes32();
+        values[monad]["weth"] = 0xEE8c0E9f1BFFb4Eb878d8f15f368A02a35481242.toBytes32();
 
         // MPortal — same deterministic proxy address as mainnet.
         values[monad]["mportalProxy"] = 0xD925C84b55E4e44a53749fF5F2a5A13F63D128fd.toBytes32();

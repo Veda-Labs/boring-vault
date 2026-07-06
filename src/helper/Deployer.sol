@@ -2,6 +2,7 @@
 // Copyright © 2025 Veda Tech Labs
 // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
 // Licensed under Software Evaluation License, Version 1.0
+// Last audited: cellar-contracts@0a7d659064c9070bd369d5c511ba94c6b01bbab2 — https://macroaudits.com/library/audits/sevenSeas-1
 pragma solidity 0.8.21;
 
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
