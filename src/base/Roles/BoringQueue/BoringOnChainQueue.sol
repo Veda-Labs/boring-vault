@@ -19,11 +19,6 @@ interface ITellerWithPrincipalTracking {
     function checkpointQueueWithdrawal(address user, uint256 shares) external;
 }
 
-interface IERC4626Minimal {
-    function asset() external view returns (address);
-    function redeem(uint256 shares, address receiver, address owner) external returns (uint256);
-}
-
 contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
     using EnumerableSet for EnumerableSet.Bytes32Set;
     using SafeTransferLib for BoringVault;
@@ -102,11 +97,6 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
         _;
     }
 
-    modifier notDuringWrapperRedeem() {
-        if (isRedeemingWrapperShares) revert BoringOnChainQueue__WrapperReentrancy();
-        _;
-    }
-
     // ========================================= GLOBAL STATE =========================================
 
     /**
@@ -136,11 +126,6 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
     bool public isPaused;
 
     /**
-     * @notice True while redeeming wrapper shares into this queue.
-     */
-    bool internal isRedeemingWrapperShares;
-
-    /**
      * @notice The teller to checkpoint principal on when a withdrawal is solved.
      * @dev Set to zero address to disable principal checkpointing.
      */
@@ -167,8 +152,6 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
     error BoringOnChainQueue__BadInput();
     error BoringOnChainQueue__RescueCannotTakeSharesFromActiveRequests();
     error BoringOnChainQueue__NotEnoughWithdrawCapacity();
-    error BoringOnChainQueue__BadWrapper();
-    error BoringOnChainQueue__WrapperReentrancy();
 
     //============================== EVENTS ===============================
 
@@ -247,7 +230,6 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
     function rescueTokens(ERC20 token, uint256 amount, address to, OnChainWithdraw[] calldata activeRequests)
         external
         requiresAuth
-        notDuringWrapperRedeem
     {
         if (address(token) == address(boringVault)) {
             bytes32[] memory requestIds = _withdrawRequests.values();
@@ -372,7 +354,6 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
     function cancelUserWithdraws(OnChainWithdraw[] calldata requests)
         external
         requiresAuth
-        notDuringWrapperRedeem
         returns (bytes32[] memory canceledRequestIds)
     {
         uint256 requestsLength = requests.length;
@@ -396,7 +377,6 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
         external
         virtual
         requiresAuth
-        notDuringWrapperRedeem
         returns (bytes32 requestId)
     {
         _decrementWithdrawCapacity(assetOut, amountOfShares);
@@ -432,7 +412,7 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) external virtual requiresAuth notDuringWrapperRedeem returns (bytes32 requestId) {
+    ) external virtual requiresAuth returns (bytes32 requestId) {
         _decrementWithdrawCapacity(assetOut, amountOfShares);
         WithdrawAsset memory withdrawAsset = withdrawAssets[assetOut];
 
@@ -453,44 +433,35 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
     }
 
     /**
-     * @notice Redeem wrapper shares for BV shares and immediately queue a withdrawal request.
-     * @dev The caller must have approved this contract to spend `wrapperShares` on their behalf.
-     *      Intended for ERC4626 wrappers whose underlying asset is this queue's BoringVault,
-     *      providing single-transaction exit UX for wrapper token holders.
-     * @param wrapper The ERC4626 wrapper whose asset() must equal address(boringVault).
+     * @notice Request an on-chain withdraw for `user`, escrowing BV shares from the caller.
+     * @dev Intended for trusted wrappers that burn their own receipt tokens, then queue
+     *      the resulting BV shares on behalf of the real end user. The caller must be
+     *      authorized and must have approved this contract to transfer `amountOfShares`.
+     * @param user The user who owns the resulting withdraw request.
      * @param assetOut The asset to withdraw.
-     * @param wrapperShares The amount of wrapper shares to redeem.
+     * @param amountOfShares The amount of BV shares to queue.
      * @param discount The discount to apply to the withdraw in bps.
      * @param secondsToDeadline The time in seconds the request is valid for.
      * @return requestId The request Id.
      */
-    function requestOnChainWithdrawFromWrapper(
-        IERC4626Minimal wrapper,
+    function requestOnChainWithdrawFor(
+        address user,
         address assetOut,
-        uint256 wrapperShares,
+        uint128 amountOfShares,
         uint16 discount,
         uint24 secondsToDeadline
-    ) external requiresAuth nonReentrant returns (bytes32 requestId) {
-        if (wrapper.asset() != address(boringVault)) revert BoringOnChainQueue__BadWrapper();
+    ) external requiresAuth returns (bytes32 requestId) {
+        if (user == address(0)) revert BoringOnChainQueue__BadUser();
 
-        uint256 beforeShares = boringVault.balanceOf(address(this));
-        isRedeemingWrapperShares = true;
-        uint256 returnedShares = wrapper.redeem(wrapperShares, address(this), msg.sender);
-        isRedeemingWrapperShares = false;
-        uint256 amountOfShares = boringVault.balanceOf(address(this)) - beforeShares;
-
-        if (amountOfShares != returnedShares) revert BoringOnChainQueue__BadWrapper();
-        if (amountOfShares > type(uint128).max) revert BoringOnChainQueue__Overflow();
-
-        uint128 amountOfShares128 = uint128(amountOfShares);
-
-        _decrementWithdrawCapacity(assetOut, amountOfShares128);
-
+        _decrementWithdrawCapacity(assetOut, amountOfShares);
         WithdrawAsset memory withdrawAsset = withdrawAssets[assetOut];
-        _beforeNewRequest(withdrawAsset, amountOfShares128, discount, secondsToDeadline);
+
+        _beforeNewRequest(withdrawAsset, amountOfShares, discount, secondsToDeadline);
+
+        boringVault.safeTransferFrom(msg.sender, address(this), amountOfShares);
 
         (requestId,) = _queueOnChainWithdraw(
-            msg.sender, assetOut, amountOfShares128, discount, withdrawAsset.secondsToMaturity, secondsToDeadline
+            user, assetOut, amountOfShares, discount, withdrawAsset.secondsToMaturity, secondsToDeadline
         );
     }
 
@@ -503,7 +474,6 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
         external
         virtual
         requiresAuth
-        notDuringWrapperRedeem
         returns (bytes32 requestId)
     {
         requestId = _cancelOnChainWithdrawWithUserCheck(request);
@@ -521,7 +491,6 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
         external
         virtual
         requiresAuth
-        notDuringWrapperRedeem
         returns (bytes32 oldRequestId, bytes32 newRequestId)
     {
         (oldRequestId, newRequestId) = _replaceOnChainWithdraw(oldRequest, discount, secondsToDeadline);
@@ -539,7 +508,6 @@ contract BoringOnChainQueue is Auth, ReentrancyGuard, IPausable {
     function solveOnChainWithdraws(OnChainWithdraw[] calldata requests, bytes calldata solveData, address solver)
         external
         requiresAuth
-        notDuringWrapperRedeem
     {
         if (isPaused) revert BoringOnChainQueue__Paused();
 

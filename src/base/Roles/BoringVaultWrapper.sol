@@ -23,6 +23,13 @@ import {TellerWithMultiAssetSupportLib} from "src/base/Roles/TellerWithMultiAsse
 ///      wrapper's BoringVault. Matches BoringOnChainQueue.boringVault().
 interface IBoringQueueVault {
     function boringVault() external view returns (address);
+    function requestOnChainWithdrawFor(
+        address user,
+        address assetOut,
+        uint128 amountOfShares,
+        uint16 discount,
+        uint24 secondsToDeadline
+    ) external returns (bytes32 requestId);
 }
 
 /**
@@ -40,6 +47,14 @@ interface IBoringQueueVault {
  *      - Management fee: annualized % of AUM, accrued continuously.
  *      - Performance fee: % of appreciation in accountant.getRate() above HWM.
  *      Both are settled before every user action.
+ *
+ *      If a fee recipient is denyTo on the live Teller at accrual time, that
+ *      recipient's shares for the current accrual window are forfeited (never
+ *      minted to anyone) rather than reverting the accrual. Accrual runs inside
+ *      every deposit/withdraw/redeem path (transfers do not accrue, since they
+ *      change no supply or totalAssets), so reverting on a blocked recipient
+ *      would let an unrelated Teller-side compliance action freeze deposits and
+ *      exits for all users. See _mintFeeShares / FeeSharesForfeited.
  *
  *      The HWM tracks accountant.getRate() and nothing else. The wrapper does
  *      not read feesOwedInBase or any other accountant fee state, so
@@ -80,6 +95,13 @@ interface IBoringQueueVault {
  *      live from the Teller and enforced on the real user identity (not the
  *      wrapper address). Compliance signatures are wrapper-scoped via
  *      address(this) in the message hash; replay protection is local.
+ *
+ *      Assumption: the wrapper's own address is never denylisted on the Teller.
+ *      depositAsset() and standard withdraw/redeem move BV shares through calls
+ *      where the wrapper itself is from/to/operator at the BV layer (bulkDeposit,
+ *      and the BV-token transfer() inside ERC4626 withdraw/redeem) -- denylisting
+ *      the wrapper there would block those paths for every user with no owner-side
+ *      recovery. Out of scope to defend against; assumed to hold operationally.
  *
  * @dev Fees-on-fees: BV-level and wrapper-level fees are additive. End users
  *      pay both layers.
@@ -178,6 +200,10 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
     error BoringVaultWrapper__BadQueue();
     /// @dev redeemAsset() while a withdrawal queue is configured. Use redeem/withdraw.
     error BoringVaultWrapper__RedeemAssetDisabledWithQueue();
+    /// @dev requestOnChainWithdrawFromQueue() called before a queue is configured.
+    error BoringVaultWrapper__QueueNotSet();
+    /// @dev Wrapper share redemption produced more BV shares than the queue can store.
+    error BoringVaultWrapper__Overflow();
     /// @dev setQueue() called by an address that is not the underlying BoringVault
     ///      owner. Queue governance belongs to the BV operator,
     ///      not the partner wrapper admin, so that no partner can unilaterally bypass
@@ -211,6 +237,12 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
         uint16 oldPerformanceFee,
         uint16 newPerformanceFee
     );
+    /// @notice Emitted when a management or performance fee recipient is denyTo on the
+    ///         live Teller at accrual time. `shares` were computed but never minted to
+    ///         anyone -- that recipient's slice of the current accrual window is
+    ///         forfeited, not deferred. lastFeeAccrual still advances, so the forfeited
+    ///         period is not retried later.
+    event FeeSharesForfeited(address indexed recipient, uint256 shares);
     event QueueSet(address oldQueue, address newQueue);
     event ShareLockSet(address indexed receiver, uint64 unlockTime);
     event HighWaterMarkUpdated(uint96 oldHighWaterMark, uint96 newHighWaterMark);
@@ -235,6 +267,19 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
         uint256 wrapperShares,
         uint256 bvRedeemed,
         uint256 assetOut
+    );
+
+    /// @notice Emitted by requestOnChainWithdrawFromQueue() with the queue-request exit
+    ///         context. The queue, not `user`, actually custodies `bvQueued` until the
+    ///         request is solved or canceled, so this is tracked separately from the
+    ///         generic ERC4626 Withdraw event (which is emitted with receiver = user).
+    event QueuedWithdrawRequested(
+        address indexed user,
+        address indexed queue,
+        address indexed assetOut,
+        uint256 wrapperShares,
+        uint256 bvQueued,
+        bytes32 requestId
     );
 
     // =========================================================================
@@ -318,6 +363,10 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
     ///      check against the BV's authority is required.
     /// @param newQueue Address of the BoringOnChainQueue to associate, or address(0) to
     ///                 clear the queue and re-enable redeemAsset().
+    /// @dev FOOTGUN: clearing the queue (newQueue == address(0)) while a real BoringQueue
+    ///      is still the vault's live exit mechanism immediately reopens redeemAsset(),
+    ///      letting wrapper users jump that queue and drain the liquid buffer ahead of
+    ///      queued holders. Only clear when the vault genuinely has no queue.
     function setQueue(address newQueue) external {
         _requiresBVAuth();
         if (newQueue != address(0) && IBoringQueueVault(newQueue).boringVault() != address(boringVault)) {
@@ -557,6 +606,8 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
     ///      active. Replay protection is wrapper-scoped and independent from the Teller's
     ///      own signature tracking. Reverts if the Teller returns zero BV shares.
     ///      `receiver` must equal `msg.sender` — same share-lock rationale as deposit().
+    ///      SETUP REQUIRED: `bulkDeposit` is `requiresAuth` (Solver role) on the Teller, so
+    ///      this wrapper must be granted that role before depositAsset() will succeed.
     /// @param rawAsset    ERC20 token accepted by the underlying Teller.
     /// @param rawAmount   Amount of `rawAsset` to deposit.
     /// @param minBVShares Minimum BV shares the Teller must return; slippage guard.
@@ -613,6 +664,8 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
     ///         to prevent wrapper users from bypassing the queue.
     /// @dev Compliance and share lock are enforced before the burn. The caller must be
     ///      `shareOwner` or hold sufficient ERC20 allowance.
+    ///      SETUP REQUIRED: `bulkWithdraw` is `requiresAuth` (Solver role) on the Teller, so
+    ///      this wrapper must be granted that role before redeemAsset() will succeed.
     /// @param asset         ERC20 token to receive, must be supported by the Teller.
     /// @param wrapperShares Number of wrapper shares to burn.
     /// @param minAssetOut   Minimum raw-asset amount the Teller must return; slippage guard.
@@ -650,6 +703,63 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
 
         emit Withdraw(_msgSender(), receiver, shareOwner, bvToRedeem, wrapperShares);
         emit AssetRedeem(_msgSender(), receiver, address(asset), shareOwner, wrapperShares, bvToRedeem, assetOut);
+    }
+
+    // =========================================================================
+    //                         QUEUED ASSET REDEEM
+    // =========================================================================
+
+    /// @notice Burn wrapper shares and queue the resulting BV shares for withdrawal.
+    /// @dev The configured queue must authorize this wrapper to call
+    ///      requestOnChainWithdrawFor(). The queued request is owned by msg.sender,
+    ///      so the user receives assets when solved and retains normal cancel/replace
+    ///      rights. Wrapper share lock and Teller transfer policy are enforced before
+    ///      burning.
+    /// @param assetOut The asset to withdraw from the queue.
+    /// @param wrapperShares Number of wrapper shares to burn.
+    /// @param discount The discount to apply to the withdraw in bps.
+    /// @param secondsToDeadline The time in seconds the request is valid for.
+    /// @return requestId The queue request Id.
+    /// @dev SETUP REQUIRED: the queue's `requestOnChainWithdrawFor` is `requiresAuth`, so
+    ///      this wrapper must be granted a role on the queue's RolesAuthority authorizing
+    ///      that call before this function will succeed -- setQueue() alone does not grant it.
+    function requestOnChainWithdrawFromQueue(
+        address assetOut,
+        uint256 wrapperShares,
+        uint16 discount,
+        uint24 secondsToDeadline
+    ) external nonReentrant returns (bytes32 requestId) {
+        address queue_ = queue;
+        if (queue_ == address(0)) revert BoringVaultWrapper__QueueNotSet();
+
+        address user = _msgSender();
+        // Single-party operation: `user` burns their own shares and is also the
+        // eventual beneficiary of the queued request (from == to == operator == user
+        // economically), so this uses the same optimised single-party compliance check
+        // as depositAsset() rather than treating the queue escrow address as `to`.
+        _enforceCallerPolicy(_getTeller(), user);
+        _enforceShareLock(user);
+
+        _accrueFees();
+
+        uint256 supply = totalSupply();
+        uint256 totalBV = boringVault.balanceOf(address(this));
+
+        uint256 bvToQueue = wrapperShares.mulDiv(totalBV + 1, supply + 10 ** DECIMALS_OFFSET, Math.Rounding.Floor);
+        if (bvToQueue > type(uint128).max) revert BoringVaultWrapper__Overflow();
+
+        _burn(user, wrapperShares);
+
+        IERC20(address(boringVault)).forceApprove(queue_, bvToQueue);
+        requestId = IBoringQueueVault(queue_)
+            .requestOnChainWithdrawFor(user, assetOut, uint128(bvToQueue), discount, secondsToDeadline);
+
+        // receiver = user (not queue_): `user` is the economic beneficiary of the
+        // eventual withdrawal, matching the ERC4626 Withdraw event's intended semantics.
+        // The queue is only a mechanical escrow; QueuedWithdrawRequested below carries
+        // that detail plus the request id for indexers.
+        emit Withdraw(user, user, user, bvToQueue, wrapperShares);
+        emit QueuedWithdrawRequested(user, queue_, assetOut, wrapperShares, bvToQueue, requestId);
     }
 
     // =========================================================================
@@ -706,6 +816,18 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
 
         if (totalSupply() == 0) {
             lastFeeAccrual = now_;
+            // No shares exist to dilute, but the HWM must keep tracking the rate so
+            // a later first depositor is not charged a performance fee on
+            // appreciation that predates their deposit (mirrors the constructor's
+            // HWM seeding and the zero-fee-window rationale in _pendingFeeShares).
+            // Skipped while the accountant is paused.
+            try accountant.getRateSafe() returns (uint256 currentRate) {
+                uint96 cur = SafeCast.toUint96(currentRate);
+                if (cur > performanceHighWaterMark) {
+                    emit HighWaterMarkUpdated(performanceHighWaterMark, cur);
+                    performanceHighWaterMark = cur;
+                }
+            } catch {}
             return;
         }
 
@@ -720,13 +842,14 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
 
         if (mgmtShares + perfShares == 0) return;
 
-        // Management and performance portions are routed to their own recipients
-        // and checked independently. Recipients are required to be non-zero, and a
-        // denyTo recipient blocks accrual rather than bypassing the Teller policy.
+        // Management and performance portions are routed to their own recipients and
+        // checked independently. A denyTo recipient forfeits that recipient's slice
+        // (see _mintFeeShares) rather than reverting -- accrual must never be able to
+        // freeze user withdraw/redeem/deposit/transfer, which all settle fees first.
         TellerWithMultiAssetSupport teller = _getTeller();
-        _mintFeeShares(teller, managementFeeRecipient, mgmtShares);
-        _mintFeeShares(teller, performanceFeeRecipient, perfShares);
-        emit FeesAccrued(mgmtShares, perfShares);
+        uint256 mgmtMinted = _mintFeeShares(teller, managementFeeRecipient, mgmtShares);
+        uint256 perfMinted = _mintFeeShares(teller, performanceFeeRecipient, perfShares);
+        emit FeesAccrued(mgmtMinted, perfMinted);
     }
 
     function _isFeeRecipientBlocked(TellerWithMultiAssetSupport teller, address recipient) private view returns (bool) {
@@ -757,12 +880,21 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
         }
     }
 
-    function _mintFeeShares(TellerWithMultiAssetSupport teller, address recipient, uint256 shares) private {
-        if (shares == 0) return;
+    /// @notice Mint `shares` fee shares to `recipient`, or forfeit them if `recipient`
+    ///         is currently denyTo on `teller`. Forfeiting (rather than reverting) keeps
+    ///         fee collection from ever being able to block user-facing wrapper actions.
+    /// @return minted The amount actually minted (0 if forfeited).
+    function _mintFeeShares(TellerWithMultiAssetSupport teller, address recipient, uint256 shares)
+        private
+        returns (uint256 minted)
+    {
+        if (shares == 0) return 0;
         if (_isFeeRecipientBlocked(teller, recipient)) {
-            revert BoringVaultWrapper__TransferDenied(address(this), recipient, _msgSender());
+            emit FeeSharesForfeited(recipient, shares);
+            return 0;
         }
         _mint(recipient, shares);
+        return shares;
     }
 
     function _simulateAccruedState() internal view returns (uint256 supply, uint256 totalAss) {
@@ -900,6 +1032,9 @@ contract BoringVaultWrapper is ERC4626, Ownable2Step, ReentrancyGuard {
 
     /// @notice Returns the BoringVault's live beforeTransfer hook cast as a Teller
     ///         interface. Callers tolerate zero / legacy hooks where needed.
+    /// @dev Assumes boringVault.hook() is always set and Teller-shaped (implements
+    ///      beforeTransferData, called unguarded throughout). Only the newer,
+    ///      optional Teller functions are try/catch-guarded for legacy tellers.
     function _getTeller() private view returns (TellerWithMultiAssetSupport) {
         return TellerWithMultiAssetSupport(address(boringVault.hook()));
     }

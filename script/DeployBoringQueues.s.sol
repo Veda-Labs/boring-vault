@@ -156,9 +156,10 @@ contract DeployBoringQueuesScript is Script, ContractNames, MerkleTreeHelper {
 
         // Public functions.
         rolesAuthority.setPublicCapability(address(queue), BoringOnChainQueue.requestOnChainWithdraw.selector, true);
-        rolesAuthority.setPublicCapability(
-            address(queue), BoringOnChainQueue.requestOnChainWithdrawFromWrapper.selector, true
-        );
+        // NOTE: requestOnChainWithdrawFor() takes an explicit `user` param decoupled from
+        // msg.sender and is intended for trusted callers (e.g. a BoringVaultWrapper) only.
+        // It must never be a public capability. No wrapper is wired up in this script, so
+        // no capability is granted here.
         rolesAuthority.setPublicCapability(
             address(queue), BoringOnChainQueue.requestOnChainWithdrawWithPermit.selector, true
         );

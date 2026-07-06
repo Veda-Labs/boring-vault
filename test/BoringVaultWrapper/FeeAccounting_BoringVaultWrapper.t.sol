@@ -21,6 +21,12 @@ import {BVWTestBase} from "./BVWTestBase.sol";
 contract FeeAccounting_BoringVaultWrapper_Test is BVWTestBase {
     using FixedPointMathLib for uint256;
 
+    // Re-declared locally (same signature as BoringVaultWrapper.FeeSharesForfeited) so
+    // vm.expectEmit can be paired with an unqualified `emit` here -- `emit
+    // BoringVaultWrapper.FeeSharesForfeited(...)` trips a solc 0.8.21 Natspec internal
+    // compiler error on cross-contract-qualified emits in test files.
+    event FeeSharesForfeited(address indexed recipient, uint256 shares);
+
     uint16 constant MGMT_FEE = 200; // 2 %/yr
     uint16 constant PERF_FEE = 1_000; // 10 %
 
@@ -208,24 +214,83 @@ contract FeeAccounting_BoringVaultWrapper_Test is BVWTestBase {
         );
     }
 
-    /// @dev Direct fee minting refuses a denyTo recipient instead of escrowing or
-    ///      minting around the Teller policy.
-    function testFees_DenylistedRecipientRevertsAccrual() public {
+    /// @dev Direct fee minting forfeits shares for a denyTo recipient instead of
+    ///      reverting the whole accrual. Fee collection must never be able to block
+    ///      user-facing wrapper actions, all of which settle fees first.
+    function testFees_DenylistedRecipientForfeitsAccrual() public {
+        wrapper.setFeeConfig(feeRecipient, feeRecipient, MGMT_FEE, PERF_FEE);
+        _wrapBV(alice, 100e18);
+
+        teller.setDenyFlags(feeRecipient, false, true, false);
+
+        uint256 supplyBefore = wrapper.totalSupply();
+        uint64 lastAccrualBefore = wrapper.lastFeeAccrual();
+        skip(365 days);
+
+        // No rate move, so only the mgmt fee is pending (perf fee needs rate > HWM).
+        uint256 expectedForfeited = supplyBefore.mulDivDown(uint256(MGMT_FEE) * 365 days, uint256(1e4) * 365 days);
+
+        vm.expectEmit(true, false, false, true, address(wrapper));
+        emit FeeSharesForfeited(feeRecipient, expectedForfeited);
+        wrapper.accrueFees();
+
+        assertEq(wrapper.balanceOf(feeRecipient), 0, "Blocked recipient receives nothing");
+        assertGt(wrapper.lastFeeAccrual(), lastAccrualBefore, "Accrual still advances lastFeeAccrual");
+    }
+
+    /// @dev A forfeited fee window is lost, not deferred: once the recipient is
+    ///      un-denylisted, a later accrueFees() does not retroactively mint the
+    ///      shares that were forfeited while it was blocked.
+    function testFees_ForfeitedSharesAreNotRetroactivelyMintedAfterUnblock() public {
+        wrapper.setFeeConfig(feeRecipient, feeRecipient, MGMT_FEE, PERF_FEE);
+        _wrapBV(alice, 100e18);
+
+        teller.setDenyFlags(feeRecipient, false, true, false);
+        skip(365 days);
+        wrapper.accrueFees(); // forfeits the mgmt fee accrued over the last year
+        assertEq(wrapper.balanceOf(feeRecipient), 0, "Forfeited while blocked");
+
+        teller.setDenyFlags(feeRecipient, false, false, false);
+        wrapper.accrueFees(); // elapsed since lastFeeAccrual is ~0, nothing new to mint
+        assertEq(wrapper.balanceOf(feeRecipient), 0, "No retroactive mint for the forfeited window");
+    }
+
+    /// @dev Users can still withdraw/redeem while a fee recipient is denylisted --
+    ///      the whole point of forfeiting instead of reverting is that fee-recipient
+    ///      compliance state can never freeze user funds.
+    function testFees_UsersCanStillExitWhileFeeRecipientDenylisted() public {
         wrapper.setFeeConfig(feeRecipient, feeRecipient, MGMT_FEE, PERF_FEE);
         _wrapBV(alice, 100e18);
 
         teller.setDenyFlags(feeRecipient, false, true, false);
         skip(365 days);
 
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                BoringVaultWrapper.BoringVaultWrapper__TransferDenied.selector,
-                address(wrapper),
-                feeRecipient,
-                address(this)
-            )
-        );
+        uint256 aliceShares = wrapper.balanceOf(alice);
+        vm.prank(alice);
+        uint256 bvOut = wrapper.redeem(aliceShares, alice, alice);
+
+        assertGt(bvOut, 0, "Alice redeems successfully despite denylisted fee recipient");
+        assertEq(wrapper.balanceOf(alice), 0, "Alice's wrapper shares burned");
+    }
+
+    /// @dev A wrapper owner can recover from a denylisted current fee recipient by
+    ///      switching to a fresh one via setFeeConfig. Before the fix, setFeeConfig's
+    ///      own _accrueFees() call reverted against the stale blocked recipient,
+    ///      leaving no path off of it.
+    function testFees_SetFeeConfigRecoversFromDenylistedRecipient() public {
+        wrapper.setFeeConfig(feeRecipient, feeRecipient, MGMT_FEE, PERF_FEE);
+        _wrapBV(alice, 100e18);
+
+        teller.setDenyFlags(feeRecipient, false, true, false);
+        skip(365 days);
+
+        address freshRecipient = makeAddr("freshRecipient");
+        wrapper.setFeeConfig(freshRecipient, freshRecipient, MGMT_FEE, PERF_FEE);
+        assertEq(wrapper.managementFeeRecipient(), freshRecipient, "Recipient switched");
+
+        skip(30 days);
         wrapper.accrueFees();
+        assertGt(wrapper.balanceOf(freshRecipient), 0, "Fresh recipient now accrues fees normally");
     }
 
     // =========================================================================
@@ -266,9 +331,10 @@ contract FeeAccounting_BoringVaultWrapper_Test is BVWTestBase {
         assertEq(wrapper.balanceOf(perfRecipient), expectedPerf, "Perf recipient holds exactly the perf slice");
     }
 
-    /// @dev A blocked management recipient reverts the whole accrual. This avoids
-    ///      minting around the Teller policy or partially collecting one fee stream.
-    function testSplit_BlockedMgmtRecipientRevertsAccrual() public {
+    /// @dev A blocked management recipient forfeits only its own slice; the
+    ///      independently-configured, non-blocked performance recipient still
+    ///      receives its slice in the same accrual call.
+    function testSplit_BlockedMgmtRecipientForfeitsOnlyItsSlice() public {
         address mgmtRecipient = makeAddr("mgmtRecipient");
         address perfRecipient = makeAddr("perfRecipient");
 
@@ -279,18 +345,24 @@ contract FeeAccounting_BoringVaultWrapper_Test is BVWTestBase {
         // Deny the mgmt recipient only.
         teller.setDenyFlags(mgmtRecipient, false, true, false);
 
+        uint256 supplyBefore = wrapper.totalSupply();
+        uint64 lastAccrual = wrapper.lastFeeAccrual();
+
         skip(365 days);
         accountant.updateExchangeRate(1.1e18);
 
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                BoringVaultWrapper.BoringVaultWrapper__TransferDenied.selector,
-                address(wrapper),
-                mgmtRecipient,
-                address(this)
-            )
-        );
+        uint256 elapsed = block.timestamp - lastAccrual;
+        uint256 expectedMgmt = supplyBefore.mulDivDown(uint256(MGMT_FEE) * elapsed, uint256(1e4) * 365 days);
+
+        uint256 totalBV = wrapper.totalAssets();
+        uint256 gainBV = totalBV.mulDivDown(1.1e18 - 1e18, 1.1e18);
+        uint256 feeBV = gainBV.mulDivDown(PERF_FEE, 1e4);
+        uint256 expectedPerf = feeBV.mulDivDown(supplyBefore + expectedMgmt, totalBV);
+
         wrapper.accrueFees();
+
+        assertEq(wrapper.balanceOf(mgmtRecipient), 0, "Blocked mgmt recipient receives nothing");
+        assertEq(wrapper.balanceOf(perfRecipient), expectedPerf, "Perf recipient unaffected by mgmt block");
     }
 
     /// @dev setFeeConfig reverts if either recipient is the zero address.

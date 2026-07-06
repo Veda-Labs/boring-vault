@@ -16,11 +16,11 @@ contract WithdrawQueueDecoderAndSanitizer {
         addressesFound = abi.encodePacked(asset);
     }
 
-    function requestOnChainWithdrawFromWrapper(address wrapper, address asset, uint256, uint16, uint24)
+    function requestOnChainWithdrawFor(address user, address asset, uint128, uint16, uint24)
         external
         pure
         returns (bytes memory addressesFound)
     {
-        addressesFound = abi.encodePacked(wrapper, asset);
+        addressesFound = abi.encodePacked(user, asset);
     }
 }
