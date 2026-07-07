@@ -267,6 +267,8 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sentoraPYUSDMain")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sentoraRLUSDMain")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sentoraPRIMEMain")));
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletUSDTPrime")));
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "steakhousePrimeUSDC")));
 
         // ========================== Pendle ==========================
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendleUSDeMarket"), true);
@@ -1077,18 +1079,19 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         }
 
         // ========================== liquidMonadUSD Subvault ==========================
-        {
-            ERC20[] memory tellerAssets = new ERC20[](1);
-            tellerAssets[0] = getERC20(sourceChain, "USDC");
-            address liquidMonadUSDTeller = 0xfF2082cff82B92551fdE9E784b276CA773d20E00;
-            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", etherFiDecoder);
-            _addTellerLeafs(leafs, liquidMonadUSDTeller, tellerAssets, false, true); //no native, yes bulk
-            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
-
-            address liquidMonadUSDQueue = 0xa3e940aCac191353d4e2aB4F2bc09a85a5f0506E;
-            address liquidMonadUSD = 0x525D01dBb0004565C80bF60E269122759672dAD2;
-            _addWithdrawQueueLeafs(leafs, liquidMonadUSDQueue, liquidMonadUSD, tellerAssets);
-        }
+        // TODO: subvault not ready yet — re-enable once deployed.
+        // {
+        //     ERC20[] memory tellerAssets = new ERC20[](1);
+        //     tellerAssets[0] = getERC20(sourceChain, "USDC");
+        //     address liquidMonadUSDTeller = 0xfF2082cff82B92551fdE9E784b276CA773d20E00;
+        //     setAddress(true, mainnet, "rawDataDecoderAndSanitizer", etherFiDecoder);
+        //     _addTellerLeafs(leafs, liquidMonadUSDTeller, tellerAssets, false, true); //no native, yes bulk
+        //     setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        //
+        //     address liquidMonadUSDQueue = 0xa3e940aCac191353d4e2aB4F2bc09a85a5f0506E;
+        //     address liquidMonadUSD = 0x525D01dBb0004565C80bF60E269122759672dAD2;
+        //     _addWithdrawQueueLeafs(leafs, liquidMonadUSDQueue, liquidMonadUSD, tellerAssets);
+        // }
 
         // ========================== Drone Transfers ==========================
         //setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);

@@ -12884,7 +12884,7 @@ function _addTellerLeafsWithReferral(
                 string.concat("Approve CrossChain Teller to spend ", ERC20(depositAssets[i]).symbol()),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
-            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[0] = boringVault;
         }
 
         // Extract first 16 bytes and convert to address
@@ -12968,7 +12968,7 @@ function _addTellerLeafsWithReferral(
                     teller,
                     false,
                     "bridge(uint96,address,bytes,address,uint256)",
-                    new address[](4),
+                    new address[](3),
                     string.concat(
                         "Bridge ",
                         ERC20(ITeller(teller).vault()).symbol(),
@@ -13039,7 +13039,7 @@ function _addTellerLeafsWithReferral(
                 string.concat("Approve CrossChain Teller to spend ", ERC20(depositAssets[i]).symbol()),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
-            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[0] = boringVault;
         }
 
         // Extract first 16 bytes and convert to address
@@ -13125,7 +13125,7 @@ function _addTellerLeafsWithReferral(
                     teller,
                     false,
                     "bridge(uint96,address,bytes,address,uint256)",
-                    new address[](4),
+                    new address[](3),
                     string.concat(
                         "Bridge ",
                         ERC20(ITeller(teller).vault()).symbol(),
@@ -16759,7 +16759,7 @@ function _addTellerLeafsWithReferral(
         leafs[leafIndex].argumentAddresses[0] = tvmTarget0; 
         leafs[leafIndex].argumentAddresses[1] = tvmTarget1; 
         leafs[leafIndex].argumentAddresses[2] = tvmTarget2; 
-        leafs[leafIndex].argumentAddresses[2] = address(tokenToBridge);  
+        leafs[leafIndex].argumentAddresses[3] = address(tokenToBridge);  
     } 
 
     // ========================================= BoringChef =========================================

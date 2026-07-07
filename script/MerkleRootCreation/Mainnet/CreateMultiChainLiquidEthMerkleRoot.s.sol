@@ -12,13 +12,15 @@ import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper
 import "forge-std/Script.sol";
 
 /**
- *  source .env && forge script script/MerkleRootCreation/Mainnet/CreateMultiChainLiquidEthMerkleRoot.s.sol --rpc-url $MAINNET_RPC_URL --gas-limit 100000000000000000
+ *  source .env && forge script script/MerkleRootCreation/Mainnet/CreateMultiChainLiquidEthMerkleRoot.s.sol --rpc-url $MAINNET_RPC_URL --gas-limit 10000000000000000000
  */
 contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     address public boringVault = 0xf0bb20865277aBd641a307eCe5Ee04E79073416C;
     address public rawDataDecoderAndSanitizer = 0xe825B233EEc65C3C55f06a1782ddF97a31e93C99;
+    // Standalone MorphoBlue singleton decoder (Base + MorphoBlue) that sanitizes the market `lltv`.
+    address public morphoDecoderAndSanitizer = 0x4734F21246958a1F6F9827BDDf416152f8efC1EA;
     address public etherFiDecoder = 0xFB6C4c23Dc59F380Ec62Cc6Ea40711d6D87aa88f;
     address public managerAddress = 0xf9f7969C357ce6dfd7973098Ea0D57173592bCCa;
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
@@ -152,10 +154,17 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         /**
          * weETH/wETH  86.00 LLTV market 0x698fe98247a40c5771537b5786b2f3f9d78eb487b4ce4d75533cd0e94d88a115
          */
-        _addMorphoBlueSupplyLeafs(leafs, 0x698fe98247a40c5771537b5786b2f3f9d78eb487b4ce4d75533cd0e94d88a115);
-        _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "WEETH_WETH_915"));
+        {
+            // Use the MorphoBlue singleton decoder, which sanitizes the market `lltv` to match the leaves.
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", morphoDecoderAndSanitizer);
 
-        _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "WEETH_WETH_915"));
+            _addMorphoBlueSupplyLeafs(leafs, 0x698fe98247a40c5771537b5786b2f3f9d78eb487b4ce4d75533cd0e94d88a115);
+            _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "WEETH_WETH_915"));
+
+            _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "WEETH_WETH_915"));
+
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        }
 
         // ========================== Meta Morpho ==========================
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletWETHPrime")));
@@ -474,14 +483,11 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== liquidMonadETH Subvault ==========================
         {
-            ERC20[] memory tellerAssets = new ERC20[](1);
+            ERC20[] memory tellerAssets = new ERC20[](2);
             tellerAssets[0] = getERC20(sourceChain, "WETH");
+            tellerAssets[1] = getERC20(sourceChain, "WSTETH");
             address liquidMonadETHTeller = 0x0698Ba360468a8C3F62d6c57B01b874016c2B854;
             _addTellerLeafs(leafs, liquidMonadETHTeller, tellerAssets, false, true);
-
-            address liquidMonadETHWithdrawQueue = 0x633d72C28C7a4C590c3ffC2620AeE1F6E07BA50a;
-            address liquidMonadETH = 0xA024063B630D554078bbF985718B22F3c6870EE0;
-            _addWithdrawQueueLeafs(leafs, liquidMonadETHWithdrawQueue, liquidMonadETH, tellerAssets);
         }
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
