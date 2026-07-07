@@ -44,6 +44,9 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
     address public resolvDecoderAndSanitizer = 0x87f67Eb9Bb1a606923A17696E06AFAa72da65f86;
     address public dolomiteDecoderAndSanitizer = 0x2f7D1Bbc14Fc3a859EB82ffCB195f9FC3DfCde2f;
     address public skyMoneyDecoderAndSanitizer = 0x93740255Db97B8005e5F4E84e0E08F69A3267b30;
+    address public valantisDecoderAndSanitizer = 0xD2Db15BB3dc136d98c32027F4Af86B81a11500CD;
+    address public paretoDecoderAndSanitizer = 0x1efB2f990beD6F71B8F71EcFCC31ED7AC9D7E5aa;
+    address public cctpDecoderAndSanitizer = 0xd2a9C2F3f8c148dc0E18Dfd0bAE482d9c2E1BA2e;
 
     address public drone = 0x0a42b2F3a0D54157Dbd7CC346335A4F1909fc02c;
 
@@ -160,8 +163,13 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
 
             _addMorphoBlueSupplyLeafs(leafs, 0x698fe98247a40c5771537b5786b2f3f9d78eb487b4ce4d75533cd0e94d88a115);
             _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "WEETH_WETH_915"));
+            _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "WEETH_PYUSD_86"));
+            _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "WEETH_RLUSD_86"));
 
             _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "WEETH_WETH_915"));
+            _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "WEETH_PYUSD_86"));
+            _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "WEETH_RLUSD_86"));
+
 
             setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
@@ -295,9 +303,9 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             assets[32] = getAddress(sourceChain, "SWELL"); // Address in ChainValues ++ checked
             kind[32] = SwapKind.Sell;
             assets[33] = getAddress(sourceChain, "RLUSD");
-            kind[33] = SwapKind.Sell;
+            kind[33] = SwapKind.BuyAndSell;
             assets[34] = getAddress(sourceChain, "PYUSD");
-            kind[34] = SwapKind.Sell;
+            kind[34] = SwapKind.BuyAndSell;
             assets[35] = getAddress(sourceChain, "USDG");
             kind[35] = SwapKind.BuyAndSell;
             assets[36] = getAddress(sourceChain, "MORPHO");
@@ -494,6 +502,12 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         // ========================== Yearn ==========================
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "yKatanaPredepositWETH")));
 
+        // ========================== rETH Redemption (Rocket Pool) ==========================
+        _addRocketPoolRethBurnLeaf(leafs);
+
+        // ========================== ETHx Redemption  ==========================
+        _addETHXWithdrawalLeafs(leafs);
+
         // ========================== Fluid Dex ==========================
         //
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", etherFiDecoder);
@@ -628,14 +642,22 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
             _addCcipBridgeLeafs(leafs, ccipArbitrumChainSelector, ccipBridgeAssets, ccipBridgeFeeAssets);
         }
 
+        // ========================== CCTP Bridge ==========================
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", cctpDecoderAndSanitizer);
+        _addCCTPBridgeLeafs(leafs, cctpOptimismDomainId);
+
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+
         // ========================== Standard Bridge ==========================
         {
-            ERC20[] memory localTokens = new ERC20[](2);
+            ERC20[] memory localTokens = new ERC20[](3);
             localTokens[0] = getERC20(sourceChain, "RETH");
             localTokens[1] = getERC20(sourceChain, "CBETH");
-            ERC20[] memory remoteTokens = new ERC20[](2);
+            localTokens[2] = getERC20(sourceChain, "USDT");
+            ERC20[] memory remoteTokens = new ERC20[](3);
             remoteTokens[0] = getERC20(optimism, "RETH");
             remoteTokens[1] = getERC20(optimism, "CBETH");
+            remoteTokens[2] = getERC20(optimism, "USDT");
             _addStandardBridgeLeafs(
                 leafs,
                 optimism,
@@ -647,8 +669,13 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
                 remoteTokens
             );
 
-            remoteTokens[0] = getERC20(base, "RETH");
-            remoteTokens[1] = getERC20(base, "CBETH");
+            
+            ERC20[] memory baseLocalTokens = new ERC20[](2);
+            baseLocalTokens[0] = getERC20(sourceChain, "RETH");
+            baseLocalTokens[1] = getERC20(sourceChain, "CBETH");
+            ERC20[] memory baseRemoteTokens = new ERC20[](2);
+            baseRemoteTokens[0] = getERC20(base, "RETH");
+            baseRemoteTokens[1] = getERC20(base, "CBETH");
 
             _addStandardBridgeLeafs(
                 leafs,
@@ -657,8 +684,8 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
                 getAddress(sourceChain, "baseResolvedDelegate"),
                 getAddress(sourceChain, "baseStandardBridge"),
                 getAddress(sourceChain, "basePortal"),
-                localTokens,
-                remoteTokens
+                baseLocalTokens,
+                baseRemoteTokens
             );
 
             ERC20[] memory swellLocalTokens = new ERC20[](0);
@@ -1018,6 +1045,59 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         string memory filePath = "./leafs/MainnetMultiChainLiquidEthStrategistLeafs.json";
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
+    }
+
+    // Note that there is no existing rETH decoder and sanitizer but the needed burn method
+    // happens to align with an existing method on the uniswap decoder that is already part
+    // of the vaults root decoder
+    function _addRocketPoolRethBurnLeaf(ManageLeaf[] memory leafs) internal {
+        leafIndex++;
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "RETH"),
+            false,
+            "burn(uint256)",
+            new address[](0),
+            "Burn rETH to redeem ETH from Rocket Pool",
+            rawDataDecoderAndSanitizer
+        );
+    }
+
+    // Note that there is no existing ETHx decoder and sanitizer, we are re-using methods
+    // that happen to align from other existing decoders
+    function _addETHXWithdrawalLeafs(ManageLeaf[] memory leafs) internal {
+        leafIndex++;
+        address userWithdrawManagerAddress = getAddress(sourceChain, "userWithdrawManagerAddress");
+        //approve ethx to be spent by userWithdrawManagerAddress
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "ETHX"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve ETHx to be spent by userWithdrawManagerAddress",
+            rawDataDecoderAndSanitizer // unrelated but signature matches
+        );
+        leafs[leafIndex].argumentAddresses[0] = userWithdrawManagerAddress;
+
+        leafIndex++;
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "userWithdrawManagerAddress"),
+            false,
+            "requestWithdraw(uint256,address)",
+            new address[](1),
+            "Request withdrawal from Stader ETHx",
+            paretoDecoderAndSanitizer // unrelated but signature matches
+        );
+        leafs[leafIndex].argumentAddresses[0] = boringVault;
+
+        leafIndex++;
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "userWithdrawManagerAddress"),
+            false,
+            "claim(uint256)",
+            new address[](0),
+            "Claim ETHx withdrawal",
+            valantisDecoderAndSanitizer // unrelated but signature matches
+        );
     }
 
     function _addLeafsForITBPositionManager(

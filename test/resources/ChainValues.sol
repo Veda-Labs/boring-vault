@@ -915,6 +915,8 @@ contract ChainValues {
         values[mainnet]["sUSDe_PT09_25_25_USDtb_915"] = 0xbf2526a242545bbf0f3d42ffb879fa1eb562ed74704bce0a319b975818dd525a; //sUSDe
         values[mainnet]["WSTETH_USDT_86"] = 0xe7e9694b754c4d4f7e21faf7223f6fa71abaeb10296a4c43a54a7977149687d2;
         values[mainnet]["WSTETH_USDC_86"] = 0xb323495f7e4148be5643a4ea4a8221eef163e4bccfdedc2a6f4696baacbc86cc;
+        values[mainnet]["WEETH_PYUSD_86"] = 0x85d59152eeeab7ca024804895b358868d8dd1e134171be400d7792d5604a212c;
+        values[mainnet]["WEETH_RLUSD_86"] = 0xea4bfb18df0ee6bffb7b3f0270899a8adb92ab6b684709634c8276128813cfd4;
         values[mainnet]["LBTC_WBTC_945"] = 0xf6a056627a51e511ec7f48332421432ea6971fc148d8f3c451e14ea108026549;
         values[mainnet]["LBTC_PYUSD_86"] = 0x6a7e36eb088bd501d73f7ab4c5b8671358559341a78ce521c9e499dc0bc642b9;
 
@@ -1638,6 +1640,10 @@ contract ChainValues {
 
         // EtherFi
         values[optimism]["etherFiL2SyncPool"] = 0xC9475e18E2C5C26EA6ADCD55fabE07920beA887e.toBytes32();
+
+
+        // EtherFi Debt Manager
+        values[optimism]["etherFiDebtManager"] = 0x0078C5a459132e279056B2371fE8A8eC973A9553.toBytes32();
     }
 
     function _addBaseValues() private {
@@ -1740,6 +1746,10 @@ contract ChainValues {
         // Compound V3
         values[base]["cWETHV3"] = 0x46e6b214b524310239732D51387075E0e70970bf.toBytes32();
         values[base]["cometRewards"] = 0x123964802e6ABabBE1Bc9547D72Ef1B69B00A6b1.toBytes32();
+
+        values[optimism]["liquidRWA"] = 0x17bC8Ffd82b8a36e737Ca1141C025089589B915e.toBytes32();
+        values[optimism]["liquidRWA_DepositAdapter"] = 0x97b30c9D53A010009136b830f8A12f8d5624Bc43.toBytes32();
+        values[optimism]["liquidRWA_RedemptionVault"] = 0x12Ae90dCe5C2a4Ee5141FBfc408ff1022D051F42.toBytes32();
 
         // Instadapp Fluid
         values[base]["fluidFactory"] = 0x324c5Dc1fC42c7a4D43d92df1eBA58a54d13Bf2d.toBytes32();
