@@ -1057,6 +1057,19 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
     // that happen to align from other existing decoders
     function _addETHXWithdrawalLeafs(ManageLeaf[] memory leafs) internal {
         leafIndex++;
+        address userWithdrawManagerAddress = getAddress(sourceChain, "userWithdrawManagerAddress");
+        //approve ethx to be spent by userWithdrawManagerAddress
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "ETHX"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve ETHx to be spent by userWithdrawManagerAddress",
+            rawDataDecoderAndSanitizer // unrelated but signature matches
+        );
+        leafs[leafIndex].argumentAddresses[0] = userWithdrawManagerAddress;
+
+        leafIndex++;
         leafs[leafIndex] = ManageLeaf(
             getAddress(sourceChain, "userWithdrawManagerAddress"),
             false,
