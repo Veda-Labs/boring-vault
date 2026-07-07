@@ -1638,6 +1638,10 @@ contract ChainValues {
 
         // EtherFi
         values[optimism]["etherFiL2SyncPool"] = 0xC9475e18E2C5C26EA6ADCD55fabE07920beA887e.toBytes32();
+
+
+        // EtherFi Debt Manager
+        values[optimism]["etherFiDebtManager"] = 0x0078C5a459132e279056B2371fE8A8eC973A9553.toBytes32();
     }
 
     function _addBaseValues() private {
@@ -1740,6 +1744,10 @@ contract ChainValues {
         // Compound V3
         values[base]["cWETHV3"] = 0x46e6b214b524310239732D51387075E0e70970bf.toBytes32();
         values[base]["cometRewards"] = 0x123964802e6ABabBE1Bc9547D72Ef1B69B00A6b1.toBytes32();
+
+        values[optimism]["liquidRWA"] = 0x17bC8Ffd82b8a36e737Ca1141C025089589B915e.toBytes32();
+        values[optimism]["liquidRWA_DepositAdapter"] = 0x97b30c9D53A010009136b830f8A12f8d5624Bc43.toBytes32();
+        values[optimism]["liquidRWA_RedemptionVault"] = 0x12Ae90dCe5C2a4Ee5141FBfc408ff1022D051F42.toBytes32();
 
         // Instadapp Fluid
         values[base]["fluidFactory"] = 0x324c5Dc1fC42c7a4D43d92df1eBA58a54d13Bf2d.toBytes32();
