@@ -28,7 +28,8 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
     address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
     //uniswap v4 + btc.bsupplemental decoder and sanitizer
-    address public lombardBtcSupplementalDecoderAndSanitizer = 0xE5FEC15cbb2aC971fC12a6Fa7A2368CF05F9892E;
+    address public lombardBtcSupplementalDecoderAndSanitizer = 0x2DEE43D0e06af3E41DE9704bF35B7ca921C42b71;
+    address public lombardBTCocDecoderAndSanitizer = 0x389eA7c61Ac81A337Bf7fbb707b401F6911a980A;
     function setUp() external {}
 
     /**
@@ -345,13 +346,30 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
         token0[2] = getAddress(sourceChain, "WBTC");
         token1[2] = getAddress(sourceChain, "BTCb");
         hooks[2] = address(0);
-        _addUniswapV4Leafs(leafs, token0, token1, hooks);
+
+        uint256[] memory fees = new uint256[](3);
+        uint256[] memory tickSpacings = new uint256[](3);
+        fees[0] = 100;
+        tickSpacings[0] = 1;
+        fees[1] = 100;
+        tickSpacings[1] = 1;
+        fees[2] = 100;
+        tickSpacings[2] = 1;
+
+        _addUniswapV4Leafs(leafs, token0, token1, hooks, fees, tickSpacings);
         
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== BTCb ==========================
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", lombardBtcSupplementalDecoderAndSanitizer);
         _addBTCbLeafs(leafs);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+
+        // ========================== Lombard BTCoc ==========================
+        // BTCoc whitelists LBTC and BTCb as deposit assets (getAssets()).
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", lombardBTCocDecoderAndSanitizer);
+        _addLombardBTCocLeafs(leafs, getAddress(sourceChain, "LBTC"), getAddress(sourceChain, "BTCoc"));
+        _addLombardBTCocLeafs(leafs, getAddress(sourceChain, "BTCb"), getAddress(sourceChain, "BTCoc"));
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Verify ==========================
