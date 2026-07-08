@@ -37,23 +37,11 @@ import {StandardBridgeDecoderAndSanitizer} from
 import {CompoundV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CompoundV3DecoderAndSanitizer.sol";
 import {MerklDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MerklDecoderAndSanitizer.sol";
 import {LidoDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LidoDecoderAndSanitizer.sol";
-import {MorphoRewardsDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/MorphoRewardsDecoderAndSanitizer.sol";
 import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
-import {LombardBTCMinterDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/LombardBtcMinterDecoderAndSanitizer.sol";
-import {BTCNMinterDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BTCNMinterDecoderAndSanitizer.sol";
-import {MorphoRewardsDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/MorphoRewardsDecoderAndSanitizer.sol";
 import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
-import {ResolvDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ResolvDecoderAndSanitizer.sol";
 import {ConvexFXDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ConvexFXDecoderAndSanitizer.sol";
 import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol";
-import {LBTCBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LBTCBridgeDecoderAndSanitizer.sol";
 import {FluidDexDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/FluidDexDecoderAndSanitizer.sol";
-import {SyrupDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SyrupDecoderAndSanitizer.sol";
-import {SpectraDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SpectraDecoderAndSanitizer.sol";
-import {SkyMoneyDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/SkyMoneyDecoderAndSanitizer.sol";
-import {DeriveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/DeriveDecoderAndSanitizer.sol";
-import {AgglayerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AgglayerDecoderAndSanitizer.sol";
 
 contract LombardBtcDecoderAndSanitizer is
     UniswapV3DecoderAndSanitizer,
@@ -80,20 +68,10 @@ contract LombardBtcDecoderAndSanitizer is
     CompoundV3DecoderAndSanitizer,
     MerklDecoderAndSanitizer,
     LidoDecoderAndSanitizer,
-    MorphoRewardsDecoderAndSanitizer,
     TellerDecoderAndSanitizer,
-    ResolvDecoderAndSanitizer,
     ConvexFXDecoderAndSanitizer,
     OdosDecoderAndSanitizer,
-    LBTCBridgeDecoderAndSanitizer,
-    FluidDexDecoderAndSanitizer,
-    SyrupDecoderAndSanitizer,
-    SpectraDecoderAndSanitizer,
-    SkyMoneyDecoderAndSanitizer,
-    LombardBTCMinterDecoderAndSanitizer,
-    BTCNMinterDecoderAndSanitizer,
-    DeriveDecoderAndSanitizer,
-    AgglayerDecoderAndSanitizer
+    FluidDexDecoderAndSanitizer
 {
     constructor(address _uniswapV3NonFungiblePositionManager, address _poolRegistry, address _odosRouter, address _fluidFactory)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
@@ -123,7 +101,7 @@ contract LombardBtcDecoderAndSanitizer is
     function deposit(uint256 /*amount*/ )
         external
         pure
-        override(GearboxDecoderAndSanitizer, ResolvDecoderAndSanitizer)
+        override(GearboxDecoderAndSanitizer)
         returns (bytes memory addressesFound)
     {
         return addressesFound;
@@ -154,7 +132,6 @@ contract LombardBtcDecoderAndSanitizer is
             CurveDecoderAndSanitizer,
             NativeWrapperDecoderAndSanitizer,
             GearboxDecoderAndSanitizer,
-            ResolvDecoderAndSanitizer,
             ConvexFXDecoderAndSanitizer
         )
         returns (bytes memory addressesFound)
@@ -183,7 +160,7 @@ contract LombardBtcDecoderAndSanitizer is
     function withdraw(uint256, /*assets_*/ address receiver_, address owner_, uint256 /*maxSharesBurn_*/ )
         external
         pure
-        override(FluidFTokenDecoderAndSanitizer, SpectraDecoderAndSanitizer)
+        override(FluidFTokenDecoderAndSanitizer)
         returns (bytes memory addressesFound)
     {
         addressesFound = abi.encodePacked(receiver_, owner_);
@@ -222,7 +199,7 @@ contract LombardBtcDecoderAndSanitizer is
     function redeem(uint256, address a, address b, uint256)
         external
         pure
-        override(FluidFTokenDecoderAndSanitizer, ResolvDecoderAndSanitizer, SpectraDecoderAndSanitizer)
+        override(FluidFTokenDecoderAndSanitizer)
         returns (bytes memory addressesFound)
     {
         addressesFound = abi.encodePacked(a, b);
@@ -231,7 +208,7 @@ contract LombardBtcDecoderAndSanitizer is
     function wrap(uint256)
         external
         pure
-        override(EtherFiDecoderAndSanitizer, LidoDecoderAndSanitizer, ResolvDecoderAndSanitizer)
+        override(EtherFiDecoderAndSanitizer, LidoDecoderAndSanitizer)
         returns (bytes memory addressesFound)
     {
         // Nothing to sanitize or return
@@ -241,7 +218,7 @@ contract LombardBtcDecoderAndSanitizer is
     function unwrap(uint256)
         external
         pure
-        override(EtherFiDecoderAndSanitizer, LidoDecoderAndSanitizer, ResolvDecoderAndSanitizer)
+        override(EtherFiDecoderAndSanitizer, LidoDecoderAndSanitizer)
         returns (bytes memory addressesFound)
     {
         // Nothing to sanitize or return
@@ -255,7 +232,7 @@ contract LombardBtcDecoderAndSanitizer is
     function burn(uint256 /*amount*/ )
         external
         pure
-        override(UniswapV3DecoderAndSanitizer, SpectraDecoderAndSanitizer)
+        override(UniswapV3DecoderAndSanitizer)
         returns (bytes memory addressesFound)
     {
         return addressesFound;

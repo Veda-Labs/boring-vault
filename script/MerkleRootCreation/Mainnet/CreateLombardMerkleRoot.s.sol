@@ -18,17 +18,16 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     address public boringVault = 0x5401b8620E5FB570064CA9114fd1e135fd77D57c;
-    address public rawDataDecoderAndSanitizer = 0x17D3652758C839baD55cC8775a3FdA03b151C7FC;
+    address public rawDataDecoderAndSanitizer = 0xf73046Ca31d95Ac7597D49bd965889e194DD4D01;
     address public managerAddress = 0xcf38e37872748E3b66741A42560672A6cef75e9B;
     address public accountantAddress = 0x28634D0c5edC67CF2450E74deA49B90a4FF93dCE;
-
 
     //one offs
     address public pancakeSwapDataDecoderAndSanitizer = 0xfc54F7ea0c401cE45C4E3EFa23f06a0E17cEB1f0;
     address public odosOwnedDecoderAndSanitizer = 0x52b9c245bA8f43F3F522aF5091A2aa07F62d5Cd6;
-    address public oneInchOwnedDecoderAndSanitizer = 0xac021702f4296c4fcdf370212714f5cbd761270a;
+    address public oneInchOwnedDecoderAndSanitizer = 0xac021702f4296C4fCDF370212714f5cbD761270A;
     //uniswap v4 + btc.bsupplemental decoder and sanitizer
-    address public lombardBtcSupplementalDecoderAndSanitizer = 0x2DEE43D0e06af3E41DE9704bF35B7ca921C42b71;
+    address public lombardBtcSupplementalDecoderAndSanitizer = 0x67e0799DCeD346bA9f0EB390607a315bE475EbAF;
     address public lombardBTCocDecoderAndSanitizer = 0x389eA7c61Ac81A337Bf7fbb707b401F6911a980A;
     function setUp() external {}
 
@@ -135,23 +134,18 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== Odos ==========================
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", odosOwnedDecoderAndSanitizer);
-        _addOdosOwnedSwapLeafs(leafs, assets, kind);  
+        _addOdosOwnedSwapLeafs(leafs, assets, kind);
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Native ==========================
-        _addNativeLeafs(leafs); 
+        _addNativeLeafs(leafs);
 
         // ========================== Flashloans ==========================
         _addBalancerFlashloanLeafs(leafs, getAddress(sourceChain, "WBTC"));
 
         // ========================== Curve ==========================
         _addCurveLeafs(leafs, getAddress(sourceChain, "lBTC_wBTC_Curve_Pool"), 2, address(0));
-        _addCurveLeafs(
-            leafs,
-            getAddress(sourceChain, "eBTC_LBTC_WBTC_Curve_Pool"),
-            3,
-            getAddress(sourceChain, "eBTC_LBTC_WBTC_Curve_Gauge")
-        );
+        _addCurveLeafs(leafs, getAddress(sourceChain, "eBTC_LBTC_WBTC_Curve_Pool"), 3, getAddress(sourceChain, "eBTC_LBTC_WBTC_Curve_Gauge"));
         _addCurveLeafs(leafs, getAddress(sourceChain, "BTCb_cbBTC_Curve_Pool"), 2, getAddress(sourceChain, "BTCb_cbBTC_Curve_Gauge"));
         _addCurveLeafs(leafs, getAddress(sourceChain, "BTCb_WBTC_Curve_Pool"), 2, getAddress(sourceChain, "BTCb_WBTC_Curve_Gauge"));
         _addCurveLeafs(leafs, getAddress(sourceChain, "BTCb_LBTC_Curve_Pool"), 2, getAddress(sourceChain, "BTCb_LBTC_Curve_Gauge"));
@@ -166,12 +160,12 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
             tellerAssets[0] = getERC20(sourceChain, "WBTC");
             tellerAssets[1] = getERC20(sourceChain, "LBTC");
             tellerAssets[2] = getERC20(sourceChain, "cbBTC");
-             address eBTCTeller = 0x458797A320e6313c980C2bC7D270466A6288A8bB;
+            address eBTCTeller = 0x458797A320e6313c980C2bC7D270466A6288A8bB;
             _addTellerLeafs(leafs, eBTCTeller, tellerAssets, false, true);
 
             address newEBTCTeller = 0x6Ee3aaCcf9f2321E49063C4F8da775DdBd407268;
             _addTellerLeafs(leafs, newEBTCTeller, tellerAssets, false, true);
-            _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "eBTCOnChainQueueFast"), getAddress(sourceChain, "EBTC"), tellerAssets);  
+            _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "eBTCOnChainQueueFast"), getAddress(sourceChain, "EBTC"), tellerAssets);
         }
 
         {
@@ -181,9 +175,9 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
             tellerAssets[2] = getERC20(sourceChain, "cbBTC");
             tellerAssets[3] = getERC20(sourceChain, "EBTC");
             tellerAssets[4] = getERC20(sourceChain, "BTCN");
-            
+
             _addTellerLeafs(leafs, getAddress(sourceChain, "sBTCNTeller"), tellerAssets, false, true);
-            _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "sBTCNWithdrawQueue"), getAddress(sourceChain, "sBTCN"), tellerAssets); 
+            _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "sBTCNWithdrawQueue"), getAddress(sourceChain, "sBTCN"), tellerAssets);
         }
 
         {
@@ -191,7 +185,7 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
             sonicBTCTellerAssets[0] = getERC20(sourceChain, "LBTC");
             sonicBTCTellerAssets[1] = getERC20(sourceChain, "EBTC");
             _addTellerLeafs(leafs, getAddress(sourceChain, "sonicLBTCTeller"), sonicBTCTellerAssets, false, true);
-            _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "sonicLBTCWithdrawQueue"), getAddress(sourceChain, "sonicLBTC"), sonicBTCTellerAssets); 
+            _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "sonicLBTCWithdrawQueue"), getAddress(sourceChain, "sonicLBTC"), sonicBTCTellerAssets);
         }
 
         {
@@ -199,7 +193,7 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
             tacLBTCvTellerAssets[0] = getERC20(sourceChain, "LBTC");
             tacLBTCvTellerAssets[1] = getERC20(sourceChain, "cbBTC");
             _addTellerLeafs(leafs, getAddress(sourceChain, "tacLBTCvTeller"), tacLBTCvTellerAssets, false, true); //no native leaves, yes bulk actions
-            _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "tacLBTCvWithdrawQueue"), getAddress(sourceChain, "tacLBTCv"), tacLBTCvTellerAssets);  
+            _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "tacLBTCvWithdrawQueue"), getAddress(sourceChain, "tacLBTCv"), tacLBTCvTellerAssets);
         }
 
         {
@@ -207,7 +201,7 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
             katanaLBTCvTellerAssets[0] = getERC20(sourceChain, "LBTC");
             katanaLBTCvTellerAssets[1] = getERC20(sourceChain, "EBTC");
             _addTellerLeafs(leafs, getAddress(sourceChain, "katanaLBTCTeller"), katanaLBTCvTellerAssets, false, true); //no native leaves, yes bulk actions
-            _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "katanaLBTCWithdrawQueue"), getAddress(sourceChain, "katanaLBTC"), katanaLBTCvTellerAssets);  
+            _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "katanaLBTCWithdrawQueue"), getAddress(sourceChain, "katanaLBTC"), katanaLBTCvTellerAssets);
         }
 
         {
@@ -215,7 +209,7 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
             sLBTCTellerAssets[0] = getERC20(sourceChain, "LBTC");
             sLBTCTellerAssets[1] = getERC20(sourceChain, "WBTC");
             _addTellerLeafs(leafs, getAddress(sourceChain, "sLBTCTeller"), sLBTCTellerAssets, false, true); //no native leaves, yes bulk actions
-            _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "sLBTCWithdrawQueue"), getAddress(sourceChain, "sLBTC"), sLBTCTellerAssets);  
+            _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "sLBTCWithdrawQueue"), getAddress(sourceChain, "sLBTC"), sLBTCTellerAssets);
         }
 
         {
@@ -223,7 +217,7 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
             capBTCAssets[0] = getERC20(sourceChain, "LBTC");
             capBTCAssets[1] = getERC20(sourceChain, "BTCb");
             _addTellerLeafs(leafs, getAddress(sourceChain, "capBTCTeller"), capBTCAssets, false, true); //no native leaves, yes bulk actions
-            _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "capBTCWithdrawQueue"), getAddress(sourceChain, "capBTC"), capBTCAssets);  
+            _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "capBTCWithdrawQueue"), getAddress(sourceChain, "capBTC"), capBTCAssets);
         }
 
         // ========================== Pendle ==========================
@@ -235,10 +229,10 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_LBTC_concrete_market_04_09_25"), true);
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_WBTC_concrete_market_04_09_25"), true);
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_liquidBeraBTC_04_09_25"), true);
-        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_LBTC_market_06_25_25"), true); 
-        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_LBTC_market_06_25_25"), true); 
-        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_eBTC_market_06_25_25"), true); 
-        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_LBTC_market_12_17_25"), true); 
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_LBTC_market_06_25_25"), true);
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_LBTC_market_06_25_25"), true);
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_eBTC_market_06_25_25"), true);
+        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_LBTC_market_12_17_25"), true);
 
         // ========================== MorphoBlue ==========================
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "LBTC_WBTC_945"));
@@ -253,50 +247,55 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletLBTCcore")));
 
         // ========================== Morpho Rewards ==========================
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", lombardBtcSupplementalDecoderAndSanitizer);
         _addMorphoRewardWrapperLeafs(leafs);
         _addMorphoRewardMerkleClaimerLeafs(leafs, 0x330eefa8a787552DC5cAd3C3cA644844B1E61Ddb);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Gearbox ==========================
         _addGearboxLeafs(leafs, ERC4626(getAddress(sourceChain, "dWBTCV3")), getAddress(sourceChain, "sdWBTCV3"));
 
         // ========================== LBTC CCIP Wrapper ==========================
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", lombardBtcSupplementalDecoderAndSanitizer);
         // To BnB
         _addLBTCBridgeLeafs(leafs, 0x0000000000000000000000000000000000000000000000000000000000000038); //56
         // To Base
         _addLBTCBridgeLeafs(leafs, 0x0000000000000000000000000000000000000000000000000000000000002105); //8453
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Fluid Dex ==========================
-        { 
+        {
 
-        ERC20[] memory supplyTokens = new ERC20[](2); 
-        supplyTokens[0] = getERC20(sourceChain, "LBTC"); 
-        supplyTokens[1] = getERC20(sourceChain, "cbBTC"); 
-        ERC20[] memory borrowTokens = new ERC20[](1); 
-        borrowTokens[0] = getERC20(sourceChain, "WBTC"); 
-        
-        _addFluidDexLeafs(
-            leafs,  
-            getAddress(sourceChain, "LBTC_cbBTCDex_WBTC"),
-            2000, 
-            supplyTokens,
-            borrowTokens,
-            false //no native leaves
-        ); 
+            ERC20[] memory supplyTokens = new ERC20[](2);
+            supplyTokens[0] = getERC20(sourceChain, "LBTC");
+            supplyTokens[1] = getERC20(sourceChain, "cbBTC");
+            ERC20[] memory borrowTokens = new ERC20[](1);
+            borrowTokens[0] = getERC20(sourceChain, "WBTC");
 
+            _addFluidDexLeafs(
+                leafs,
+                getAddress(sourceChain, "LBTC_cbBTCDex_WBTC"),
+                2000,
+                supplyTokens,
+                borrowTokens,
+                false //no native leaves
+            );
         }
 
         // ========================== Derive ==========================
-        // LBTC basis vault 
+        // LBTC basis vault
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", lombardBtcSupplementalDecoderAndSanitizer);
         _addDeriveVaultLeafs(
-            leafs, 
+            leafs,
             getAddress(sourceChain, "derive_LBTC_basis_deposit"), //depositVault
             getAddress(sourceChain, "derive_LBTC_basis_deposit_connector"), //depositConnector
             getAddress(sourceChain, "derive_LBTC_basis_withdraw"), //withdrawVault
             getAddress(sourceChain, "derive_LBTC_basis_withdraw_connector"), //withdrawConnector
             getAddress(sourceChain, "derive_LBTC_connectorPlugOnDeriveChain"), //connectorPlugOnDeriveChain  //NOTE: this is stored in mainnet values to reduce errors
-            getAddress(sourceChain, "derive_controller"), //controller on ETH mainnet 
+            getAddress(sourceChain, "derive_controller"), //controller on ETH mainnet
             getAddress(sourceChain, "boringVault") //bv address on derive
-        ); 
+        );
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== PancakeSwapV3 ==========================
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", pancakeSwapDataDecoderAndSanitizer);
@@ -311,26 +310,14 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
 
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         // ========================== Corn BTCN ==========================
-        _addBTCNLeafs(
-            leafs,
-            getERC20(sourceChain, "WBTC"),
-            getERC20(sourceChain, "BTCN"),
-            getAddress(sourceChain, "cornSwapFacilityWBTC")
-        );
-        _addBTCNLeafs(
-            leafs,
-            getERC20(sourceChain, "cbBTC"),
-            getERC20(sourceChain, "BTCN"),
-            getAddress(sourceChain, "cornSwapFacilitycbBTC")
-        );
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", lombardBtcSupplementalDecoderAndSanitizer);
+        _addBTCNLeafs(leafs, getERC20(sourceChain, "WBTC"), getERC20(sourceChain, "BTCN"), getAddress(sourceChain, "cornSwapFacilityWBTC"));
+        _addBTCNLeafs(leafs, getERC20(sourceChain, "cbBTC"), getERC20(sourceChain, "BTCN"), getAddress(sourceChain, "cornSwapFacilitycbBTC"));
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== LayerZero ==========================
-        _addLayerZeroLeafsOldDecoder(
-            leafs, getERC20(sourceChain, "BTCN"), getAddress(sourceChain, "BTCN"), layerZeroCornEndpointId
-        );
-        _addLayerZeroLeafsOldDecoder(
-            leafs, getERC20(sourceChain, "LBTC"), getAddress(sourceChain, "LBTCOFTAdapter"), layerZeroCornEndpointId
-        );
+        _addLayerZeroLeafsOldDecoder(leafs, getERC20(sourceChain, "BTCN"), getAddress(sourceChain, "BTCN"), layerZeroCornEndpointId);
+        _addLayerZeroLeafsOldDecoder(leafs, getERC20(sourceChain, "LBTC"), getAddress(sourceChain, "LBTCOFTAdapter"), layerZeroCornEndpointId);
 
         // ========================== Uniswap V4 ==========================
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", lombardBtcSupplementalDecoderAndSanitizer);
@@ -357,7 +344,7 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
         tickSpacings[2] = 1;
 
         _addUniswapV4Leafs(leafs, token0, token1, hooks, fees, tickSpacings);
-        
+
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== BTCb ==========================
