@@ -24,8 +24,8 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
 
     //one offs
     address public pancakeSwapDataDecoderAndSanitizer = 0xfc54F7ea0c401cE45C4E3EFa23f06a0E17cEB1f0;
-    address public odosOwnedDecoderAndSanitizer = 0x52b9c245bA8f43F3F522aF5091A2aa07F62d5Cd6;
-    address public oneInchOwnedDecoderAndSanitizer = 0xac021702f4296C4fCDF370212714f5cbD761270A;
+    address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
+    address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
     //uniswap v4 + btc.bsupplemental decoder and sanitizer
     address public lombardBtcSupplementalDecoderAndSanitizer = 0x67e0799DCeD346bA9f0EB390607a315bE475EbAF;
     address public lombardBTCocDecoderAndSanitizer = 0x389eA7c61Ac81A337Bf7fbb707b401F6911a980A;
@@ -222,10 +222,7 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== Pendle ==========================
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_eBTC_market_12_26_24"), true);
-        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_LBTC_corn_market_12_26_24"), true);
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_LBTC_market_03_26_25"), true);
-        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_eBTC_corn_market_3_26_25"), true);
-        _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_LBTC_corn_market_02_26_25"), true);
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_LBTC_concrete_market_04_09_25"), true);
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_WBTC_concrete_market_04_09_25"), true);
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendle_liquidBeraBTC_04_09_25"), true);
@@ -309,39 +306,20 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
         _addPancakeSwapV3Leafs(leafs, token0, token1);
 
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
-        // ========================== Corn BTCN ==========================
-        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", lombardBtcSupplementalDecoderAndSanitizer);
-        _addBTCNLeafs(leafs, getERC20(sourceChain, "WBTC"), getERC20(sourceChain, "BTCN"), getAddress(sourceChain, "cornSwapFacilityWBTC"));
-        _addBTCNLeafs(leafs, getERC20(sourceChain, "cbBTC"), getERC20(sourceChain, "BTCN"), getAddress(sourceChain, "cornSwapFacilitycbBTC"));
-        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
-
-        // ========================== LayerZero ==========================
-        _addLayerZeroLeafsOldDecoder(leafs, getERC20(sourceChain, "BTCN"), getAddress(sourceChain, "BTCN"), layerZeroCornEndpointId);
-        _addLayerZeroLeafsOldDecoder(leafs, getERC20(sourceChain, "LBTC"), getAddress(sourceChain, "LBTCOFTAdapter"), layerZeroCornEndpointId);
 
         // ========================== Uniswap V4 ==========================
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", lombardBtcSupplementalDecoderAndSanitizer);
-        token0 = new address[](3);
-        token1 = new address[](3);
-        address[] memory hooks = new address[](3);
-        token0[0] = getAddress(sourceChain, "LBTC");
-        token1[0] = getAddress(sourceChain, "BTCb");
+        token0 = new address[](1);
+        token1 = new address[](1);
+        address[] memory hooks = new address[](1);
         hooks[0] = address(0);
-        token0[1] = getAddress(sourceChain, "cbBTC");
-        token1[1] = getAddress(sourceChain, "BTCb");
-        hooks[1] = address(0);
-        token0[2] = getAddress(sourceChain, "WBTC");
-        token1[2] = getAddress(sourceChain, "BTCb");
-        hooks[2] = address(0);
+        token0[0] = getAddress(sourceChain, "WBTC");
+        token1[0] = getAddress(sourceChain, "BTCb");
 
-        uint256[] memory fees = new uint256[](3);
-        uint256[] memory tickSpacings = new uint256[](3);
+        uint256[] memory fees = new uint256[](1);
+        uint256[] memory tickSpacings = new uint256[](1);
         fees[0] = 100;
         tickSpacings[0] = 1;
-        fees[1] = 100;
-        tickSpacings[1] = 1;
-        fees[2] = 100;
-        tickSpacings[2] = 1;
 
         _addUniswapV4Leafs(leafs, token0, token1, hooks, fees, tickSpacings);
 
