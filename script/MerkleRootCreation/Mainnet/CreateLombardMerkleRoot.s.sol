@@ -18,7 +18,7 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
     using FixedPointMathLib for uint256;
 
     address public boringVault = 0x5401b8620E5FB570064CA9114fd1e135fd77D57c;
-    address public rawDataDecoderAndSanitizer = 0xf73046Ca31d95Ac7597D49bd965889e194DD4D01;
+    address public rawDataDecoderAndSanitizer = 0x3A175f8a69489A41316dB0e892120B253E06d1b5;
     address public managerAddress = 0xcf38e37872748E3b66741A42560672A6cef75e9B;
     address public accountantAddress = 0x28634D0c5edC67CF2450E74deA49B90a4FF93dCE;
 
