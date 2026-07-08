@@ -24,9 +24,9 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
 
 
     //one offs
-    address public pancakeSwapDataDecoderAndSanitizer = 0xac226f3e2677d79c0688A9f6f05B9B4eBBeDdebD;
-    address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
-    address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
+    address public pancakeSwapDataDecoderAndSanitizer = 0xfc54F7ea0c401cE45C4E3EFa23f06a0E17cEB1f0;
+    address public odosOwnedDecoderAndSanitizer = 0x52b9c245bA8f43F3F522aF5091A2aa07F62d5Cd6;
+    address public oneInchOwnedDecoderAndSanitizer = 0xac021702f4296c4fcdf370212714f5cbd761270a;
     //uniswap v4 + btc.bsupplemental decoder and sanitizer
     address public lombardBtcSupplementalDecoderAndSanitizer = 0x2DEE43D0e06af3E41DE9704bF35B7ca921C42b71;
     address public lombardBTCocDecoderAndSanitizer = 0x389eA7c61Ac81A337Bf7fbb707b401F6911a980A;
