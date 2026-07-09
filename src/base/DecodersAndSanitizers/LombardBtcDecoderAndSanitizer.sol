@@ -38,7 +38,6 @@ import {CompoundV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Prot
 import {MerklDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MerklDecoderAndSanitizer.sol";
 import {LidoDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LidoDecoderAndSanitizer.sol";
 import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
-import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
 import {ConvexFXDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ConvexFXDecoderAndSanitizer.sol";
 import {OdosDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OdosDecoderAndSanitizer.sol";
 import {FluidDexDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/FluidDexDecoderAndSanitizer.sol";
@@ -96,8 +95,7 @@ contract LombardBtcDecoderAndSanitizer is
     }
 
     /**
-     * @notice Gearbox, Resolv `deposit(uint256)`,
-     *         all cases are handled the same way.
+     * @notice Gearbox specifies a `deposit(uint256)`.
      */
     function deposit(uint256 /*amount*/ )
         external
@@ -122,7 +120,7 @@ contract LombardBtcDecoderAndSanitizer is
     }
 
     /**
-     * @notice BalancerV2, NativeWrapper, Curve, and Gearbox all specify a `withdraw(uint256)`,
+     * @notice BalancerV2, NativeWrapper, Curve, Gearbox, and ConvexFX all specify a `withdraw(uint256)`,
      *         all cases are handled the same way.
      */
     function withdraw(uint256)
@@ -155,8 +153,7 @@ contract LombardBtcDecoderAndSanitizer is
     }
 
     /**
-     * @notice Spectra, FluidFToken both specify a `withdraw(uint256,address,address,uint256)`,
-     *         all cases are handled the same way.
+     * @notice FluidFToken specifies a `withdraw(uint256,address,address,uint256)`.
      */
     function withdraw(uint256, /*assets_*/ address receiver_, address owner_, uint256 /*maxSharesBurn_*/ )
         external
@@ -181,7 +178,7 @@ contract LombardBtcDecoderAndSanitizer is
     }
 
     /**
-     * @notice BalancerV2, NativeWrapper, Curve, and Gearbox all specify a `withdraw(uint256)`,
+     * @notice AaveV3, and SwellSimpleStaking both specify a `withdraw(address,uint256,address)`,
      *         all cases are handled the same way.
      */
     function withdraw(address _token, uint256, /*_amount*/ address _receiver)
@@ -194,8 +191,7 @@ contract LombardBtcDecoderAndSanitizer is
     }
 
     /**
-     * @notice Resolv, and FluidFToken all specify a `redeem(uint256,address,address,uint256)`,
-     *         all cases are handled the same way.
+     * @notice FluidFToken specifies a `redeem(uint256,address,address,uint256)`.
      */
     function redeem(uint256, address a, address b, uint256)
         external
@@ -227,8 +223,7 @@ contract LombardBtcDecoderAndSanitizer is
     }
 
     /**
-     * @notice UniswapV3, and Spectra both specify a `burn(uint256)`,
-     *         all cases are handled the same way.
+     * @notice UniswapV3 specifies a `burn(uint256)`.
      */
     function burn(uint256 /*amount*/ )
         external
