@@ -309,17 +309,22 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== Uniswap V4 ==========================
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", lombardBtcSupplementalDecoderAndSanitizer);
-        token0 = new address[](1);
-        token1 = new address[](1);
-        address[] memory hooks = new address[](1);
+        token0 = new address[](2);
+        token1 = new address[](2);
+        address[] memory hooks = new address[](2);
         hooks[0] = address(0);
+        hooks[1] = address(0);
         token0[0] = getAddress(sourceChain, "WBTC");
         token1[0] = getAddress(sourceChain, "BTCb");
+        token0[1] = getAddress(sourceChain, "BTCb");
+        token1[1] = getAddress(sourceChain, "cbBTC");
 
-        uint256[] memory fees = new uint256[](1);
-        uint256[] memory tickSpacings = new uint256[](1);
+        uint256[] memory fees = new uint256[](2);
+        uint256[] memory tickSpacings = new uint256[](2);
         fees[0] = 100;
         tickSpacings[0] = 1;
+        fees[1] = 100;
+        tickSpacings[1] = 1;
 
         _addUniswapV4Leafs(leafs, token0, token1, hooks, fees, tickSpacings);
 
