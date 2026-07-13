@@ -69,23 +69,43 @@ contract CreateLombardMerkleRootScript is Script, MerkleTreeHelper {
         _addGearboxLeafs(leafs, ERC4626(getAddress(sourceChain, "dWBTCV3")), getAddress(sourceChain, "sdWBTCV3"));
 
         // ========================== UniswapV3 ==========================
-        address[] memory token0 = new address[](6);
+        address[] memory token0 = new address[](10);
         token0[0] = getAddress(sourceChain, "WBTC");
         token0[1] = getAddress(sourceChain, "WBTC");
         token0[2] = getAddress(sourceChain, "WBTC");
         token0[3] = getAddress(sourceChain, "WBTC");
-        token0[4] = getAddress(sourceChain, "eBTC");
-        token0[5] = getAddress(sourceChain, "cbBTC");
+        token0[4] = getAddress(sourceChain, "WBTC");
+        token0[5] = getAddress(sourceChain, "WBTC");
+        token0[6] = getAddress(sourceChain, "eBTC");
+        token0[7] = getAddress(sourceChain, "eBTC");
+        token0[8] = getAddress(sourceChain, "cbBTC");
+        token0[9] = getAddress(sourceChain, "cbBTC");
 
-        address[] memory token1 = new address[](6);
+        address[] memory token1 = new address[](10);
         token1[0] = getAddress(sourceChain, "LBTC");
-        token1[1] = getAddress(sourceChain, "cbBTC");
-        token1[2] = getAddress(sourceChain, "eBTC");
-        token1[3] = getAddress(sourceChain, "LBTC");
-        token1[4] = getAddress(sourceChain, "LBTC");
-        token1[5] = getAddress(sourceChain, "LBTC");
+        token1[1] = getAddress(sourceChain, "LBTC");
+        token1[2] = getAddress(sourceChain, "cbBTC");
+        token1[3] = getAddress(sourceChain, "cbBTC");
+        token1[4] = getAddress(sourceChain, "eBTC");
+        token1[5] = getAddress(sourceChain, "eBTC");
+        token1[6] = getAddress(sourceChain, "LBTC");
+        token1[7] = getAddress(sourceChain, "LBTC");
+        token1[8] = getAddress(sourceChain, "LBTC");
+        token1[9] = getAddress(sourceChain, "LBTC");
 
-        _addUniswapV3Leafs(leafs, token0, token1, false);
+        uint256[] memory poolFees = new uint256[](10);
+        poolFees[0] = 100;
+        poolFees[1] = 500;
+        poolFees[2] = 100;
+        poolFees[3] = 500;
+        poolFees[4] = 100;
+        poolFees[5] = 500;
+        poolFees[6] = 100;
+        poolFees[7] = 500;
+        poolFees[8] = 100;
+        poolFees[9] = 500;
+
+        _addUniswapV3Leafs(leafs, token0, token1, poolFees, false);
 
         // ========================== Fee Claiming ==========================
         /**
