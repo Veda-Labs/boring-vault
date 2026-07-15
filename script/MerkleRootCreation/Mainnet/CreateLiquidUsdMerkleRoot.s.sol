@@ -19,7 +19,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x08c6F91e2B681FaF5e17227F2a44C307b3C1364C;
-    address public rawDataDecoderAndSanitizer = 0x6C4F39e861bf3FE37c4988FcB652758B9cF43C67;
+    address public rawDataDecoderAndSanitizer = 0x73B9A5bde40Bd09da36b3ed4fa224C1191C75C65;
     address public etherFiDecoder = 0xFB6C4c23Dc59F380Ec62Cc6Ea40711d6D87aa88f;
     address public managerAddress = 0x7b57Ad1A0AA89583130aCfAD024241170D24C13C;
     address public accountantAddress = 0xc315D6e14DDCDC7407784e2Caf815d131Bc1D3E7;
@@ -313,43 +313,141 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         /**
          * Full position platform for USDC, USDT, DAI, USDe, sUSDe.
          */
-        address[] memory token0 = new address[](16);
-        token0[0] = getAddress(sourceChain, "USDC");
-        token0[1] = getAddress(sourceChain, "USDC");
-        token0[2] = getAddress(sourceChain, "USDC");
-        token0[3] = getAddress(sourceChain, "USDC");
-        token0[4] = getAddress(sourceChain, "USDT");
-        token0[5] = getAddress(sourceChain, "USDT");
-        token0[6] = getAddress(sourceChain, "USDT");
-        token0[7] = getAddress(sourceChain, "DAI");
-        token0[8] = getAddress(sourceChain, "DAI");
-        token0[9] = getAddress(sourceChain, "USDE");
-        token0[10] = getAddress(sourceChain, "USDS");
-        token0[11] = getAddress(sourceChain, "USDS");
-        token0[12] = getAddress(sourceChain, "USDS");
-        token0[13] = getAddress(sourceChain, "deUSD");
-        token0[14] = getAddress(sourceChain, "deUSD");
-        token0[15] = getAddress(sourceChain, "deUSD");
+        {
+            address[] memory token0 = new address[](42);
+            token0[0] = getAddress(sourceChain, "USDC");
+            token0[1] = getAddress(sourceChain, "USDC");
+            token0[2] = getAddress(sourceChain, "USDC");
+            token0[3] = getAddress(sourceChain, "USDC");
+            token0[4] = getAddress(sourceChain, "USDC");
+            token0[5] = getAddress(sourceChain, "USDC");
+            token0[6] = getAddress(sourceChain, "USDC");
+            token0[7] = getAddress(sourceChain, "USDC");
+            token0[8] = getAddress(sourceChain, "USDC");
+            token0[9] = getAddress(sourceChain, "USDC");
+            token0[10] = getAddress(sourceChain, "USDC");
+            token0[11] = getAddress(sourceChain, "USDC");
+            token0[12] = getAddress(sourceChain, "USDT");
+            token0[13] = getAddress(sourceChain, "USDT");
+            token0[14] = getAddress(sourceChain, "USDT");
+            token0[15] = getAddress(sourceChain, "USDT");
+            token0[16] = getAddress(sourceChain, "USDT");
+            token0[17] = getAddress(sourceChain, "USDT");
+            token0[18] = getAddress(sourceChain, "USDT");
+            token0[19] = getAddress(sourceChain, "USDT");
+            token0[20] = getAddress(sourceChain, "USDT");
+            token0[21] = getAddress(sourceChain, "USDT");
+            token0[22] = getAddress(sourceChain, "DAI");
+            token0[23] = getAddress(sourceChain, "USDE");
+            token0[24] = getAddress(sourceChain, "USDE");
+            token0[25] = getAddress(sourceChain, "USDE");
+            token0[26] = getAddress(sourceChain, "USDS");
+            token0[27] = getAddress(sourceChain, "USDS");
+            token0[28] = getAddress(sourceChain, "USDS");
+            token0[29] = getAddress(sourceChain, "USDS");
+            token0[30] = getAddress(sourceChain, "USDS");
+            token0[31] = getAddress(sourceChain, "PENDLE");
+            token0[32] = getAddress(sourceChain, "GEAR");
+            token0[33] = getAddress(sourceChain, "GEAR");
+            token0[34] = getAddress(sourceChain, "USDC");
+            token0[35] = getAddress(sourceChain, "FRAX");
+            token0[36] = getAddress(sourceChain, "FRAX");
+            token0[37] = getAddress(sourceChain, "FRAX");
+            token0[38] = getAddress(sourceChain, "DAI");
+            token0[39] = getAddress(sourceChain, "PYUSD");
+            token0[40] = getAddress(sourceChain, "PYUSD");
+            token0[41] = getAddress(sourceChain, "PRIME");
 
-        address[] memory token1 = new address[](16);
-        token1[0] = getAddress(sourceChain, "USDT");
-        token1[1] = getAddress(sourceChain, "DAI");
-        token1[2] = getAddress(sourceChain, "USDE");
-        token1[3] = getAddress(sourceChain, "SUSDE");
-        token1[4] = getAddress(sourceChain, "DAI");
-        token1[5] = getAddress(sourceChain, "USDE");
-        token1[6] = getAddress(sourceChain, "SUSDE");
-        token1[7] = getAddress(sourceChain, "USDE");
-        token1[8] = getAddress(sourceChain, "SUSDE");
-        token1[9] = getAddress(sourceChain, "SUSDE");
-        token1[10] = getAddress(sourceChain, "USDC");
-        token1[11] = getAddress(sourceChain, "USDT");
-        token1[12] = getAddress(sourceChain, "DAI");
-        token1[13] = getAddress(sourceChain, "sdeUSD");
-        token1[14] = getAddress(sourceChain, "USDC");
-        token1[15] = getAddress(sourceChain, "USDT");
+            address[] memory token1 = new address[](42);
+            token1[0] = getAddress(sourceChain, "USDT");
+            token1[1] = getAddress(sourceChain, "USDT");
+            token1[2] = getAddress(sourceChain, "USDT");
+            token1[3] = getAddress(sourceChain, "USDT");
+            token1[4] = getAddress(sourceChain, "DAI");
+            token1[5] = getAddress(sourceChain, "DAI");
+            token1[6] = getAddress(sourceChain, "DAI");
+            token1[7] = getAddress(sourceChain, "DAI");
+            token1[8] = getAddress(sourceChain, "USDE");
+            token1[9] = getAddress(sourceChain, "USDE");
+            token1[10] = getAddress(sourceChain, "SUSDE");
+            token1[11] = getAddress(sourceChain, "SUSDE");
+            token1[12] = getAddress(sourceChain, "DAI");
+            token1[13] = getAddress(sourceChain, "DAI");
+            token1[14] = getAddress(sourceChain, "DAI");
+            token1[15] = getAddress(sourceChain, "DAI");
+            token1[16] = getAddress(sourceChain, "USDE");
+            token1[17] = getAddress(sourceChain, "USDE");
+            token1[18] = getAddress(sourceChain, "USDE");
+            token1[19] = getAddress(sourceChain, "SUSDE");
+            token1[20] = getAddress(sourceChain, "SUSDE");
+            token1[21] = getAddress(sourceChain, "SUSDE");
+            token1[22] = getAddress(sourceChain, "USDE");
+            token1[23] = getAddress(sourceChain, "SUSDE");
+            token1[24] = getAddress(sourceChain, "SUSDE");
+            token1[25] = getAddress(sourceChain, "SUSDE");
+            token1[26] = getAddress(sourceChain, "USDC");
+            token1[27] = getAddress(sourceChain, "USDC");
+            token1[28] = getAddress(sourceChain, "USDC");
+            token1[29] = getAddress(sourceChain, "USDT");
+            token1[30] = getAddress(sourceChain, "DAI");
+            token1[31] = getAddress(sourceChain, "WETH");
+            token1[32] = getAddress(sourceChain, "WETH");
+            token1[33] = getAddress(sourceChain, "USDT");
+            token1[34] = getAddress(sourceChain, "WETH");
+            token1[35] = getAddress(sourceChain, "USDC");
+            token1[36] = getAddress(sourceChain, "USDC");
+            token1[37] = getAddress(sourceChain, "USDT");
+            token1[38] = getAddress(sourceChain, "FRAX");
+            token1[39] = getAddress(sourceChain, "USDC");
+            token1[40] = getAddress(sourceChain, "USDS");
+            token1[41] = getAddress(sourceChain, "USDC");
 
-        _addUniswapV3Leafs(leafs, token0, token1, false);
+            uint256[] memory fees = new uint256[](42);
+            fees[0] = 100;
+            fees[1] = 500;
+            fees[2] = 3000;
+            fees[3] = 10000;
+            fees[4] = 100;
+            fees[5] = 500;
+            fees[6] = 3000;
+            fees[7] = 10000;
+            fees[8] = 100;
+            fees[9] = 3000;
+            fees[10] = 100;
+            fees[11] = 500;
+            fees[12] = 100;
+            fees[13] = 500;
+            fees[14] = 3000;
+            fees[15] = 10000;
+            fees[16] = 100;
+            fees[17] = 500;
+            fees[18] = 3000;
+            fees[19] = 100;
+            fees[20] = 500;
+            fees[21] = 3000;
+            fees[22] = 100;
+            fees[23] = 100;
+            fees[24] = 500;
+            fees[25] = 3000;
+            fees[26] = 100;
+            fees[27] = 500;
+            fees[28] = 3000;
+            fees[29] = 100;
+            fees[30] = 3000;
+            fees[31] = 3000;
+            fees[32] = 10000;
+            fees[33] = 3000;
+            fees[34] = 500;
+            fees[35] = 100;
+            fees[36] = 500;
+            fees[37] = 500;
+            fees[38] = 500;
+            fees[39] = 100;
+            fees[40] = 100;
+            fees[41] = 100;
+
+            _addUniswapV3Leafs(leafs, token0, token1, fees, false);
+        }
 
         // ========================== Fee Claiming ==========================
         /**
@@ -879,31 +977,33 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         /**
          * Full position platform for USDC, USDT, DAI, USDe, sUSDe.
          */
-        token0 = new address[](10);
-        token0[0] = getAddress(sourceChain, "USDC");
-        token0[1] = getAddress(sourceChain, "USDC");
-        token0[2] = getAddress(sourceChain, "USDC");
-        token0[3] = getAddress(sourceChain, "USDC");
-        token0[4] = getAddress(sourceChain, "USDT");
-        token0[5] = getAddress(sourceChain, "USDT");
-        token0[6] = getAddress(sourceChain, "USDT");
-        token0[7] = getAddress(sourceChain, "DAI");
-        token0[8] = getAddress(sourceChain, "DAI");
-        token0[9] = getAddress(sourceChain, "USDE");
+        {
+            address[] memory token0 = new address[](10);
+            token0[0] = getAddress(sourceChain, "USDC");
+            token0[1] = getAddress(sourceChain, "USDC");
+            token0[2] = getAddress(sourceChain, "USDC");
+            token0[3] = getAddress(sourceChain, "USDC");
+            token0[4] = getAddress(sourceChain, "USDT");
+            token0[5] = getAddress(sourceChain, "USDT");
+            token0[6] = getAddress(sourceChain, "USDT");
+            token0[7] = getAddress(sourceChain, "DAI");
+            token0[8] = getAddress(sourceChain, "DAI");
+            token0[9] = getAddress(sourceChain, "USDE");
 
-        token1 = new address[](10);
-        token1[0] = getAddress(sourceChain, "USDT");
-        token1[1] = getAddress(sourceChain, "DAI");
-        token1[2] = getAddress(sourceChain, "USDE");
-        token1[3] = getAddress(sourceChain, "SUSDE");
-        token1[4] = getAddress(sourceChain, "DAI");
-        token1[5] = getAddress(sourceChain, "USDE");
-        token1[6] = getAddress(sourceChain, "SUSDE");
-        token1[7] = getAddress(sourceChain, "USDE");
-        token1[8] = getAddress(sourceChain, "SUSDE");
-        token1[9] = getAddress(sourceChain, "SUSDE");
+            address[] memory token1 = new address[](10);
+            token1[0] = getAddress(sourceChain, "USDT");
+            token1[1] = getAddress(sourceChain, "DAI");
+            token1[2] = getAddress(sourceChain, "USDE");
+            token1[3] = getAddress(sourceChain, "SUSDE");
+            token1[4] = getAddress(sourceChain, "DAI");
+            token1[5] = getAddress(sourceChain, "USDE");
+            token1[6] = getAddress(sourceChain, "SUSDE");
+            token1[7] = getAddress(sourceChain, "USDE");
+            token1[8] = getAddress(sourceChain, "SUSDE");
+            token1[9] = getAddress(sourceChain, "SUSDE");
 
-        _addPancakeSwapV3Leafs(leafs, token0, token1);
+            _addPancakeSwapV3Leafs(leafs, token0, token1);
+        }
 
         // ========================== Reclamation ==========================
         {
@@ -1076,6 +1176,14 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
             address ethenaRWAQueue = 0x6863305D30D3D302E7a6208832C3F246346604E0;
             address ethenaRWA = 0x6fDcB0654B4814c2eC1E7e9dbC4cEBf1a2038a84;
             _addWithdrawQueueLeafs(leafs, ethenaRWAQueue, ethenaRWA, tellerAssets);
+
+            ERC20[] memory  subvaultTellerAssets = new ERC20[](2);
+            subvaultTellerAssets[0] = getERC20(sourceChain, "USDC");
+            subvaultTellerAssets[1] = getERC20(sourceChain, "USDT");
+            address subvaultTeller = 0x599de169d845144BB72bA64335332f13306fC0d7;
+            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", etherFiDecoder);
+            _addTellerLeafs(leafs, subvaultTeller, subvaultTellerAssets, false, true); //no native, yes bulk
+            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 
         // ========================== Drone Transfers ==========================

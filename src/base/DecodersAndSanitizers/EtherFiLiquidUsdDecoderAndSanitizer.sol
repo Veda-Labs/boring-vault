@@ -78,16 +78,14 @@ contract EtherFiLiquidUsdDecoderAndSanitizer is
     BalancerV3DecoderAndSanitizer,
     ElixirClaimingDecoderAndSanitizer,
     TellerDecoderAndSanitizer,
-    FluidDexDecoderAndSanitizer,
     EulerEVKDecoderAndSanitizer,
     KingClaimingDecoderAndSanitizer,
     OFTDecoderAndSanitizer,
     MFOneDecoderAndSanitizer
 {
-    constructor(address _uniswapV3NonFungiblePositionManager, address _odosRouter, address _fluidFactory)
+    constructor(address _uniswapV3NonFungiblePositionManager, address _odosRouter)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
         OdosDecoderAndSanitizer(_odosRouter)
-        FluidDexDecoderAndSanitizer(_fluidFactory)
     {}
 
     //============================== HANDLE FUNCTION COLLISIONS ===============================
