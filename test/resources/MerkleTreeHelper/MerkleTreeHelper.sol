@@ -12395,6 +12395,62 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         }
     }
 
+    // ========================================= Lombard BTCoc =========================================
+    /**
+     * @notice Adds leafs for depositing `depositAsset` into the Lombard BTCoc (Bitcoin Onchain
+     *         Credit Strategy) vault and requesting a redemption of the shares received.
+     * @dev BTCoc exposes `deposit(address depositAsset, uint256 assets, address receiver)` and
+     *      `requestRedeem(uint256 shares, address owner)`, both decoded/sanitized by
+     *      LombardBTCocDecoderAndSanitizer.
+     */
+    function _addLombardBTCocLeafs(ManageLeaf[] memory leafs, address depositAsset, address btcOc) internal {
+        address boringVault_ = getAddress(sourceChain, "boringVault");
+        string memory depositAssetSymbol = ERC20(depositAsset).symbol();
+
+        // Approve BTCoc to spend depositAsset.
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            depositAsset,
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve BTCoc to spend ", depositAssetSymbol),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = btcOc;
+
+        // deposit(address depositAsset, uint256 assets, address receiver)
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            btcOc,
+            false,
+            "deposit(address,uint256,address)",
+            new address[](2),
+            string.concat("Deposit ", depositAssetSymbol, " into BTCoc"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = depositAsset;
+        leafs[leafIndex].argumentAddresses[1] = boringVault_;
+
+        // requestRedeem(uint256 shares, address owner)
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            btcOc,
+            false,
+            "requestRedeem(uint256,address)",
+            new address[](1),
+            "Request redeem of BTCoc shares",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = boringVault_;
+    }
+
     // ========================================= Golilocks =========================================
     function _addGoldiVaultLeafs(ManageLeaf[] memory leafs, address[] memory vaults) internal {
         for (uint256 i = 0; i < vaults.length; i++) {
