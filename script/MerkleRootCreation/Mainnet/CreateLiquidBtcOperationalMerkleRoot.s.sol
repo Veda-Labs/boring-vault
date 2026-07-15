@@ -25,6 +25,7 @@ contract CreateMultichainLiquidBtcOperationalMerkleRootScript is Script, MerkleT
     address public capDecoderAndSanitizer = 0xE0e86bf98dAA0D2b408Cb038E94bCB9B7864309C;
     address public itbDecoderAndSanitizer = 0xEEb53299Cb894968109dfa420D69f0C97c835211;
     address public etherfibtcDecoderAndSanitizer = 0xC48cA54b9F3f8Fc7E5347DE55879851178B485e8;
+    address public morphoDecoderAndSanitizer = 0x4734F21246958a1F6F9827BDDf416152f8efC1EA;
 
     //one offs
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
@@ -172,14 +173,18 @@ contract CreateMultichainLiquidBtcOperationalMerkleRootScript is Script, MerkleT
         }
 
 
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", morphoDecoderAndSanitizer);
+
         // ========================== MorphoBlue ==========================
         _addMorphoBlueRepayLeafs(leafs, getBytes32(sourceChain, "LBTC_PYUSD_86"));
+
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== MetaMorpho ==========================
         _addERC4626WithdrawalLeafs(leafs, ERC4626(getAddress(sourceChain, "sentoraPYUSDMain")));
+        _addERC4626WithdrawalLeafs(leafs, ERC4626(getAddress(sourceChain, "sentoraPRIMEMain")));
 
         // ========================== MorphoBlue ==========================
-        _addMorphoBlueRepayLeafs(leafs, getBytes32(sourceChain, "LBTC_PYUSD_86"));
 
         // ========================== Fee Claiming ===========================
         {

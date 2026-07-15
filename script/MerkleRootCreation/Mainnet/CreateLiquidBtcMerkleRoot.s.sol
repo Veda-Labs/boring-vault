@@ -30,7 +30,9 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
     address public itbDecoderAndSanitizer = 0xb75bfC8B0Cc8588C510DcAE75c67A9DC9cF508d5; 
     address public capDecoderAndSanitizer = 0xE0e86bf98dAA0D2b408Cb038E94bCB9B7864309C;
     address public etherfibtcDecoderAndSanitizer = 0xC48cA54b9F3f8Fc7E5347DE55879851178B485e8;
+    address public cctpDecoderAndSanitizer = 0xd2a9C2F3f8c148dc0E18Dfd0bAE482d9c2E1BA2e;
     address public merklClaimerDecoderAndSanitizer = 0xe825B233EEc65C3C55f06a1782ddF97a31e93C99;
+    address public morphoDecoderAndSanitizer = 0x4734F21246958a1F6F9827BDDf416152f8efC1EA;
 
     //one offs
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
@@ -311,6 +313,8 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sentoraPYUSDMain")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sentoraPRIMEMain")));
 
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", morphoDecoderAndSanitizer);
+
         // ========================== MorphoBlue ==========================
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "WBTC_USDC_86"));
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "WBTC_USDT_86"));
@@ -351,6 +355,8 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "sdeUSD_USDC_915"));
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "LBTC_WBTC_945"));
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "LBTC_PYUSD_86"));
+
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== MorphoRewards ==========================
         _addMorphoRewardWrapperLeafs(leafs);
@@ -572,14 +578,20 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         scrollGateways[0] = getAddress(scroll, "scrollWBTCGateway");
         _addScrollNativeBridgeLeafs(leafs, "scroll", tokens, scrollGateways);  
 
+        // ========================== CCTP Bridge ==========================
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", cctpDecoderAndSanitizer);
+        _addCCTPBridgeLeafs(leafs, cctpOptimismDomainId);
+
         // ========================== Standard Bridge to Optimism ==========================
 
         {
             setAddress(true, mainnet, "rawDataDecoderAndSanitizer", etherfibtcDecoderAndSanitizer);
-            ERC20[] memory localTokens = new ERC20[](1);
+            ERC20[] memory localTokens = new ERC20[](2);
             localTokens[0] = getERC20(sourceChain, "WBTC");
-            ERC20[] memory remoteTokens = new ERC20[](1);
+            localTokens[1] = getERC20(sourceChain, "USDT");
+            ERC20[] memory remoteTokens = new ERC20[](2);
             remoteTokens[0] = getERC20(optimism, "WBTC");
+            remoteTokens[1] = getERC20(optimism, "USDT");
             _addStandardBridgeLeafs(
                 leafs,
                 optimism,
