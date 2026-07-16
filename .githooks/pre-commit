@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Canonicalize any STAGED merkle-leaf JSON before committing, so leaves are never
+# committed in forge's unstable key order (mirrors the leaf-canonical CI check,
+# but auto-fixes instead of just failing). Only touches files already staged.
+#
+# Enable once per clone:  git config core.hooksPath .githooks
+#   (or run: scripts/install-git-hooks.sh)
+set -euo pipefail
+
+staged=$(git diff --cached --name-only --diff-filter=ACM \
+           | grep -E '^leafs/.*\.json$' | grep -v Temporary || true)
+[ -z "$staged" ] && exit 0
+
+# leaf paths never contain spaces; newline-list -> args is safe here
+printf '%s\n' "$staged" | xargs python3 scripts/normalize_leaves.py
+printf '%s\n' "$staged" | xargs git add --   # re-stage canonicalized versions

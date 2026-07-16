@@ -21,8 +21,14 @@ def canonical(path):
 
 def main():
     check = "--check" in sys.argv
-    files = [p for p in sorted(glob.glob("leafs/**/*.json", recursive=True))
-             if "Temporary" not in p]
+    # Explicit file args (used by the pre-commit hook: only the staged leaf files);
+    # otherwise operate on every committed leaf file (used by the CI check).
+    args = [a for a in sys.argv[1:] if not a.startswith("-")]
+    if args:
+        files = sorted(p for p in args if "Temporary" not in p)
+    else:
+        files = [p for p in sorted(glob.glob("leafs/**/*.json", recursive=True))
+                 if "Temporary" not in p]
     noncanon = []
     for p in files:
         cur = open(p, encoding="utf-8").read()
